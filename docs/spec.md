@@ -119,6 +119,12 @@ top inset = bottom inset = 16pt.
   a system requirement, independent of signing or Developer ID.** Turning
   awake off, quitting the app, and time expiry restore sleep
   (`disablesleep 0`).
+- While lid mode is active, closing the lid blanks the built-in panel:
+  `disablesleep` keeps the backlight powered, so LidDimmer polls the
+  clamshell state (1 s) and sets the built-in display's brightness to 0
+  on close, restoring the saved value on open (persisted in defaults so
+  a crash while dimmed is undone at next launch). External displays are
+  untouched; the Mac keeps running unlocked.
 - The module's localized display name has changed several times —
   check L10n for the current one; in new copy convey the meaning
   ("your Mac won't sleep") rather than the module name.
@@ -544,3 +550,8 @@ playback.
   help tab legend), replacing the old cryptic symbols-only caption.
 - Help → general no longer ends with the "hop — and it's done…" closing
   line: it duplicated the page (removed in all 18 languages).
+- App icon (Finder/Applications): dark or light chip with the REAL icon
+  previews, light is the default; "auto" removed. The row sits after the
+  updates section, away from the theme picker (it kept reading as part of
+  the theme). setIcon failure rolls the Finder custom-icon flag back —
+  a half-written icon rendered the app as a folder.

@@ -1526,15 +1526,6 @@ struct PanelView: View {
                 themeIcon("light", "sun.max", t(.themeLight))
             }
 
-            HStack {
-                Text(t(.appIconLabel))
-                    .font(Theme.mono(12))
-                    .foregroundStyle(Theme.textPrimary)
-                Spacer()
-                appIconChip("auto", t(.themeAuto))
-                appIconChip("dark", t(.themeDark))
-                appIconChip("light", t(.themeLight))
-            }
 
             HStack {
                 Text(t(.language))
@@ -1567,6 +1558,21 @@ struct PanelView: View {
             // updates right after the basics (Anton, 2026-07-14): version and
             // the update button matter more often than module reordering
             updatesSection
+
+            Rectangle()
+                .fill(Theme.divider)
+                .frame(height: 1)
+
+            // Finder icon lives away from the theme row on purpose: right
+            // under it the two pickers read as one confusing "theme" block
+            HStack {
+                Text(t(.appIconLabel))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                appIconChip(dark: false)
+                appIconChip(dark: true)
+            }
 
             Rectangle()
                 .fill(Theme.divider)
@@ -2489,11 +2495,23 @@ struct PanelView: View {
         LanguagePicker(selection: $languageRaw)
     }
 
-    private func appIconChip(_ raw: String, _ label: String) -> some View {
-        settingChip(label, active: appIconStyle == raw) {
-            appIconStyle = raw
+    private func appIconChip(dark: Bool) -> some View {
+        let active = (appIconStyle == "dark") == dark
+        return Button {
+            appIconStyle = dark ? "dark" : "light"
             AppIcon.apply()
+        } label: {
+            // the two REAL icons as the choices — clearer than words
+            Image(nsImage: AppIcon.preview(dark: dark))
+                .padding(3)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 9)
+                        .stroke(active ? Theme.textPrimary : Theme.divider, lineWidth: active ? 1.5 : 1)
+                )
+                .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .hoverDim()
     }
 
     private func alertModeButton(_ mode: AlertMode) -> some View {

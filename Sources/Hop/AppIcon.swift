@@ -1,18 +1,34 @@
 import AppKit
 
-/// App icon in Finder/Applications: auto / dark / light.
-/// Applied via NSWorkspace.setIcon; "auto" follows the system theme.
-/// In the menu bar the icon always stays a monochrome system template.
+/// App icon in Finder/Applications: dark or light, light by default
+/// (Anton, 2026-07-15 — the light one is more noticeable; "auto" removed,
+/// the toggle is a small delight, not a theme).
+/// Applied via NSWorkspace.setIcon; in the menu bar the icon always
+/// stays a monochrome system template.
 @MainActor
 enum AppIcon {
-    static let styleKey = "appIconStyle" // auto | dark | light
+    static let styleKey = "appIconStyle" // dark | light (legacy "auto" → light)
+
+    static var isDark: Bool {
+        UserDefaults.standard.string(forKey: styleKey) == "dark"
+    }
 
     static func apply() {
         let path = Bundle.main.bundlePath
         guard path.hasSuffix(".app") else { return } // dev run without a bundle
-        let style = UserDefaults.standard.string(forKey: styleKey) ?? "auto"
-        let dark = style == "auto" ? Theme.systemDark : style == "dark"
-        NSWorkspace.shared.setIcon(image(dark: dark), forFile: path, options: [])
+        let ok = NSWorkspace.shared.setIcon(image(dark: isDark), forFile: path, options: [])
+        if !ok {
+            // a half-written custom icon leaves the Finder flag without a
+            // resource and the app renders as a FOLDER; roll the flag back
+            NSWorkspace.shared.setIcon(nil, forFile: path, options: [])
+        }
+    }
+
+    /// Small previews for the settings chips — the real icons, not words.
+    static func preview(dark: Bool) -> NSImage {
+        let img = image(dark: dark)
+        img.size = NSSize(width: 30, height: 30)
+        return img
     }
 
     /// Drawn via drawingHandler: redrawn at the target resolution,
