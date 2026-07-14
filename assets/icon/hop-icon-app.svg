@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- The app icon is the dark icon (hop-icon-dark.svg); this copy exists
+  <!-- The app icon is the light icon (hop-icon-light.svg); this copy exists
        because the README files embed it by this name. -->
-  <rect x="50" y="50" width="412" height="412" rx="94" fill="#0b0b0b"/>
-  <g stroke="#ffffff" stroke-width="22.8" stroke-linecap="round">
+  <rect x="50" y="50" width="412" height="412" rx="94" fill="#f8f7f4"/>
+  <g stroke="#0d0d0d" stroke-width="22.8" stroke-linecap="round">
     <line x1="171.74" y1="221.1" x2="340.26" y2="290.9"/>
     <line x1="221.1" y1="171.74" x2="290.9" y2="340.26"/>
     <line x1="290.9" y1="171.74" x2="221.1" y2="340.26"/>

@@ -1,6 +1,6 @@
-// Generates the app icon: the dark variant of the canonical icon —
-// a flat near-black rounded plate with the four-line asterisk.
-// Must stay in sync with assets/icon/hop-icon-dark.svg and the in-app
+// Generates the app icon: the light variant of the canonical icon —
+// a flat cream rounded plate with the four-line asterisk.
+// Must stay in sync with assets/icon/hop-icon-light.svg and the in-app
 // rendering in Sources/Hop/AppIcon.swift.
 // Run: swift scripts/make-icon.swift out.png
 import AppKit
@@ -14,7 +14,7 @@ image.lockFocus()
 // Backplate — flat, inset like a standard macOS icon (2x the 512 design)
 let plate = NSRect(x: 100, y: 100, width: 824, height: 824)
 let platePath = NSBezierPath(roundedRect: plate, xRadius: 188, yRadius: 188)
-NSColor(white: 0.045, alpha: 1).setFill()
+NSColor(red: 0.973, green: 0.968, blue: 0.955, alpha: 1).setFill()
 platePath.fill()
 
 // Four-line asterisk — Hop's signature mark
@@ -33,7 +33,7 @@ for i in 0..<8 {
 }
 path.lineWidth = starBox.width * 0.095
 path.lineCapStyle = .round
-NSColor.white.setStroke()
+NSColor(white: 0.05, alpha: 1).setStroke()
 path.stroke()
 
 image.unlockFocus()
