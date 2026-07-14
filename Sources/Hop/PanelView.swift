@@ -1109,16 +1109,11 @@ struct PanelView: View {
         return "\(Int((mbps * 1000).rounded())) \(t(.unitKbps))"
     }
 
-    /// "↓ 834 · ↑ 112 Mbps" — the unit once when both values share it,
-    /// so the module label isn't squeezed into an ellipsis by the row
+    /// "↓ 834 Mbps · ↑ 112 Mbps" — every value carries its OWN unit
+    /// (a bare number is ambiguous, and the two can differ: Kbit/s vs
+    /// Mbit/s); thin spaces keep the row compact enough for the label
     private func speedPairText(down: Double, up: Double) -> String {
-        let downText = speedValueText(down)
-        let upText = speedValueText(up)
-        let unit = " " + t(.unitMbps)
-        if downText.hasSuffix(unit) && upText.hasSuffix(unit) {
-            return "↓ \(downText.dropLast(unit.count)) · ↑ \(upText)"
-        }
-        return "↓ \(downText) · ↑ \(upText)"
+        "↓ \(speedValueText(down)) · ↑ \(speedValueText(up))"
     }
 
     private var speedRefreshIcon: some View {

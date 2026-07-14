@@ -203,8 +203,9 @@ top inset = bottom inset = 16pt.
 ### Speed test
 
 - networkQuality (Apple servers), live numbers during the run.
-- Result in a row: "↓ 834 · ↑ 112 Mbps · 1,450 RPM" — the unit is written
-  ONCE when download and upload share it, separators use thin spaces and
+- Result in a row: "↓ 834 Mbps · ↑ 112 Mbps · 1,450 RPM" — every value
+  carries its OWN unit (a bare number is ambiguous, and download/upload
+  can differ: Kbit/s vs Mbit/s), separators use thin spaces and
   the icon↔label gap is 6pt: the module label must never be squeezed into
   an ellipsis in any language. The refresh icon is hidden in snapshots
   (product-page screenshots) so the row doesn't reach the panel edge. RPM
