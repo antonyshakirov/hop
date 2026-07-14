@@ -201,7 +201,7 @@ final class StatusItemController: NSObject {
         // so there is simply nothing to make the panel drift
         frozenTitleLength = button.attributedTitle.string.count
         presentPopover()
-        refreshButton() // digits → spaces immediately, without waiting for a tick
+        refreshButton() // freeze the width immediately, without waiting for a tick
     }
 
     private func presentPopover() {
@@ -338,11 +338,16 @@ final class StatusItemController: NSObject {
             title = " " + TimeFormatting.short(value)
         }
         if let frozen = frozenTitleLength {
-            // panel open: hide the digits in the menu bar (the time is visible in
-            // the panel itself), keep the width with spaces of the frozen length — the button
-            // and the panel attached to it don't move either on opening
-            // or when the digit count grows (relevant for the stopwatch)
-            title = String(repeating: " ", count: frozen)
+            // panel open: the time STAYS visible in the menu bar (Anton,
+            // 2026-07-15) — only the width is frozen: pad with spaces to the
+            // frozen length so the button and the attached panel don't move.
+            // If the digits outgrow the slot (stopwatch passing an hour),
+            // extend the freeze — the didMove observer re-anchors the panel.
+            if title.count > frozen {
+                frozenTitleLength = title.count
+            } else {
+                title += String(repeating: " ", count: frozen - title.count)
+            }
         }
         if title.isEmpty {
             button.title = ""

@@ -35,8 +35,11 @@ signing would break).
    positioningRect: when the button's WINDOW moves (didMove) — always;
    on panel resize — ONLY if origin.x actually moved (>0.5pt).
    Unconditional re-pinning on every resize makes the panel twitch.
-3. **The menu bar button width is frozen** while the panel is open
-   (the string is padded with spaces) — nothing for the panel to slide off.
+3. **The menu bar button width is frozen** while the panel is open —
+   the countdown/stopwatch STAYS visible (Anton, 2026-07-15), the string
+   is padded with spaces to the frozen length; if the digits outgrow the
+   slot (stopwatch passing an hour) the freeze extends and the didMove
+   observer re-anchors.
 4. **No repeatForever animations** — they trigger NSHostingController
    size recalculation. Icon changes are an opacity crossfade in a
    fixed-size ZStack.
@@ -532,9 +535,9 @@ playback.
 
 ### Panel/help details pinned 2026-07-14
 
-- Compact timer transport is 20% smaller than before: play/pause 27pt
-  (icon 10), reset 21pt (icon 9) — the buttons stopped towering over the
-  small digits.
+- Compact timer transport tracks the DIGIT SIZE setting, not the layout:
+  small digits → play/pause 27pt (icon 10) and reset 21pt (icon 9);
+  large digits → 34pt/26pt as before.
 - Settings → windows → "zone hotkeys": under the toggle sits a two-column
   legend "zone glyph + ⌃⌥ key" (shared `snapHotkeyItems` list with the
   help tab legend), replacing the old cryptic symbols-only caption.

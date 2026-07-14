@@ -623,9 +623,11 @@ struct PanelView: View {
                 model.engine.toggle()
             } label: {
                 Image(systemName: running ? "pause.fill" : "play.fill")
-                    .font(.system(size: 10, weight: .semibold))
+                    // the transport tracks the DIGIT SIZE setting, not the layout:
+                    // big digits deserve the big button, small ones the small
+                    .font(.system(size: digitsLarge ? 12 : 10, weight: .semibold))
                     .foregroundStyle(isStart ? Theme.playFg : Theme.textPrimary)
-                    .frame(width: 27, height: 27)
+                    .frame(width: digitsLarge ? 34 : 27, height: digitsLarge ? 34 : 27)
                     .background(isStart ? Theme.playBg : .clear, in: Circle())
                     .overlay {
                         if running {
@@ -649,9 +651,9 @@ struct PanelView: View {
                     model.engine.reset()
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(.system(size: digitsLarge ? 11 : 9, weight: .semibold))
                         .foregroundStyle(Theme.textSecondary)
-                        .frame(width: 21, height: 21)
+                        .frame(width: digitsLarge ? 26 : 21, height: digitsLarge ? 26 : 21)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
