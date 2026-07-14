@@ -60,6 +60,8 @@ final class StatusItemController: NSObject {
             Task { @MainActor in
                 self?.frozenTitleLength = nil
                 self?.panelOriginX = nil
+                self?.hiddenAnchorWindow?.orderOut(nil)
+                self?.hiddenAnchorWindow = nil
                 self?.refreshButton()
             }
         }
@@ -111,6 +113,9 @@ final class StatusItemController: NSObject {
     /// Re-anchor to the current geometry: NSPopover ignores an identical
     /// positioningRect, so nudge it half a pixel and set it back.
     private func realignPopover() {
+        // detached mode (icon hidden by a menu bar manager): the anchor is
+        // a stub window at the screen's top-right corner, nothing to re-pin
+        guard hiddenAnchorWindow == nil else { return }
         guard popover.isShown, let button = statusItem.button else { return }
         var nudge = Self.iconAnchor(button)
         nudge.size.width += 0.5
@@ -120,7 +125,45 @@ final class StatusItemController: NSObject {
 
     /// Icon zone within the status item button: the popover arrow always points at the star.
     private static func iconAnchor(_ button: NSStatusBarButton) -> NSRect {
-        NSRect(x: 0, y: 0, width: 28, height: button.bounds.height)
+        // the exact image frame from the cell — dead-center at any padding
+        // and title width; fixed 28pt drifted when the insets changed
+        if let cell = button.cell as? NSButtonCell {
+            let rect = cell.imageRect(forBounds: button.bounds)
+            if rect.width > 0 { return rect }
+        }
+        return NSRect(x: 0, y: 0, width: 28, height: button.bounds.height)
+    }
+
+    /// true when the status item is actually visible in the menu bar.
+    /// Menu bar managers (Ice, Bartender, Hidden Bar) hide items by
+    /// collapsing them to zero width or moving their window off-screen.
+    private static func buttonIsVisible(_ button: NSStatusBarButton) -> Bool {
+        guard let window = button.window, window.frame.width > 1 else { return false }
+        return NSScreen.screens.contains { $0.frame.intersects(window.frame) }
+    }
+
+    /// Invisible 2×2 stub at the top-right of the screen: when the icon is
+    /// hidden, the popover attaches here instead of macOS clamping it
+    /// into the top-LEFT corner (the anchor rect of an off-screen button
+    /// degenerates to zero).
+    private var hiddenAnchorWindow: NSWindow?
+
+    private func showPopoverDetached() {
+        guard let screen = NSScreen.screens.first else { return }
+        let frame = screen.visibleFrame
+        let rect = NSRect(x: frame.maxX - 44, y: frame.maxY - 2, width: 2, height: 2)
+        let anchor = NSWindow(contentRect: rect, styleMask: .borderless, backing: .buffered, defer: false)
+        anchor.isOpaque = false
+        anchor.backgroundColor = .clear
+        anchor.hasShadow = false
+        anchor.level = .statusBar
+        anchor.ignoresMouseEvents = true
+        anchor.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        anchor.orderFrontRegardless()
+        hiddenAnchorWindow = anchor
+        if let view = anchor.contentView {
+            popover.show(relativeTo: view.bounds, of: view, preferredEdge: .minY)
+        }
     }
 
     /// The popover theme follows the settings / system choice.
@@ -173,8 +216,14 @@ final class StatusItemController: NSObject {
             popover.contentSize = view.fittingSize
         }
         // anchor to the ICON zone, not the whole button: when the countdown
-        // appears the button grows, and a full-bounds popover drifted away from the star
-        popover.show(relativeTo: Self.iconAnchor(button), of: button, preferredEdge: .minY)
+        // appears the button grows, and a full-bounds popover drifted away from the star.
+        // icon hidden by a menu bar manager → the panel opens at the
+        // top-right corner instead of being squeezed into the top-left
+        if Self.buttonIsVisible(button) {
+            popover.show(relativeTo: Self.iconAnchor(button), of: button, preferredEdge: .minY)
+        } else {
+            showPopoverDetached()
+        }
         // return focus to the previous app: the panel stays visible
         // (transient doesn't close on programmatic activation), and the keyboard
         // is back with that app. Clicking inside the panel refocuses it — digit input still works

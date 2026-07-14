@@ -623,9 +623,9 @@ struct PanelView: View {
                 model.engine.toggle()
             } label: {
                 Image(systemName: running ? "pause.fill" : "play.fill")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(isStart ? Theme.playFg : Theme.textPrimary)
-                    .frame(width: 34, height: 34)
+                    .frame(width: 27, height: 27)
                     .background(isStart ? Theme.playBg : .clear, in: Circle())
                     .overlay {
                         if running {
@@ -649,9 +649,9 @@ struct PanelView: View {
                     model.engine.reset()
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.system(size: 9, weight: .semibold))
                         .foregroundStyle(Theme.textSecondary)
-                        .frame(width: 26, height: 26)
+                        .frame(width: 21, height: 21)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -1042,7 +1042,8 @@ struct PanelView: View {
 
     private var speedtestRow: some View {
         let speed = model.speedTest
-        return HStack(spacing: 8) {
+        // tight spacing: every language should fit the label without an ellipsis
+        return HStack(spacing: 6) {
             Image(systemName: "speedometer")
                 .font(.system(size: 12))
                 .foregroundStyle(Theme.textSecondary)
@@ -1050,16 +1051,13 @@ struct PanelView: View {
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.textSecondary)
                 .lineLimit(1)
-                // the label is short in every language — do not let the digits
-                // on the right (they are fixedSize) squeeze it down to "intern…"
-                .fixedSize()
             Spacer()
             Group {
                 if speed.isRunning {
                     // live digits from the pty + honest seconds
                     let down = speed.liveDown.map { speedValueText($0) } ?? "—"
                     let up = speed.liveUp.map { speedValueText($0) } ?? "—"
-                    Text("↓ \(down) · ↑ \(up) · \(speed.elapsed)s")
+                    Text("↓ \(down) · ↑ \(up) · \(speed.elapsed)s")
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.textSecondary)
                         .monospacedDigit()
@@ -1071,14 +1069,18 @@ struct PanelView: View {
                     // stale (30+ min or a different network) — barely visible.
                     // RPM right in the row: responsiveness under load,
                     // hiding it in a tooltip felt dishonest
-                    Text("↓ \(speedValueText(last.down)) · ↑ \(speedValueText(last.up)) · \(last.rpm) RPM")
+                    Text("\(speedPairText(down: last.down, up: last.up)) · \(last.rpm) RPM")
                         .font(Theme.mono(10))
                         // an old measurement stays readable but clearly "faded"
                         .foregroundStyle(speed.isStale ? Theme.textTertiary.opacity(0.45) : Theme.textSecondary)
                         .lineLimit(1)
                         .fixedSize()
                         .help("\(t(.speedResponsiveness)): \(last.rpm) RPM")
-                    speedRefreshIcon
+                    if !Snapshot.active {
+                        // hidden in product-page screenshots: the row reaches
+                        // the panel edge and reads as broken alignment
+                        speedRefreshIcon
+                    }
                 } else if speed.failed {
                     Text(t(.speedtestFail))
                         .font(Theme.mono(10))
@@ -1105,6 +1107,18 @@ struct PanelView: View {
         if mbps >= 10 { return "\(Int(mbps.rounded())) \(t(.unitMbps))" }
         if mbps >= 1 { return String(format: "%.1f %@", mbps, t(.unitMbps)) }
         return "\(Int((mbps * 1000).rounded())) \(t(.unitKbps))"
+    }
+
+    /// "↓ 834 · ↑ 112 Mbps" — the unit once when both values share it,
+    /// so the module label isn't squeezed into an ellipsis by the row
+    private func speedPairText(down: Double, up: Double) -> String {
+        let downText = speedValueText(down)
+        let upText = speedValueText(up)
+        let unit = " " + t(.unitMbps)
+        if downText.hasSuffix(unit) && upText.hasSuffix(unit) {
+            return "↓ \(downText.dropLast(unit.count)) · ↑ \(upText)"
+        }
+        return "↓ \(downText) · ↑ \(upText)"
     }
 
     private var speedRefreshIcon: some View {
@@ -1552,6 +1566,14 @@ struct PanelView: View {
                 .fill(Theme.divider)
                 .frame(height: 1)
 
+            // updates right after the basics (Anton, 2026-07-14): version and
+            // the update button matter more often than module reordering
+            updatesSection
+
+            Rectangle()
+                .fill(Theme.divider)
+                .frame(height: 1)
+
             VStack(spacing: 12) {
                 HStack {
                     Text(t(.modulesLabel))
@@ -1603,12 +1625,6 @@ struct PanelView: View {
                 .frame(height: 1)
 
             hotkeysSection
-
-            Rectangle()
-                .fill(Theme.divider)
-                .frame(height: 1)
-
-            updatesSection
         }
     }
 
@@ -1720,10 +1736,26 @@ struct PanelView: View {
                         Spacer()
                         Theme.MiniSwitch(isOn: $windowsHotkeysOn)
                     }
-                    // the scheme is fixed and symbol-only — needs no translation
-                    Text("⌃⌥  ← → ↑ ↓ · ↩ · C · U I J K")
-                        .font(Theme.mono(9))
-                        .foregroundStyle(Theme.textTertiary)
+                    // zone glyph + its combo, same pairs as the help legend
+                    LazyVGrid(
+                        columns: [
+                            GridItem(.flexible(), alignment: .leading),
+                            GridItem(.flexible(), alignment: .leading),
+                        ],
+                        alignment: .leading, spacing: 7
+                    ) {
+                        ForEach(Self.snapHotkeyItems, id: \.0) { position, key in
+                            HStack(spacing: 8) {
+                                snapGlyph(position)
+                                    .frame(width: 22, height: 14)
+                                Text("⌃⌥ \(key)")
+                                    .font(Theme.mono(10))
+                                    .foregroundStyle(Theme.textTertiary)
+                                Spacer(minLength: 0)
+                            }
+                        }
+                    }
+                    .padding(.top, 4)
                 }
                 .onChange(of: windowsHotkeysOn) {
                     HotkeyManager.shared.refreshSnapHotkeys()
@@ -2214,15 +2246,18 @@ struct PanelView: View {
         }
     }
 
+    /// Zone → key pairs, shared by the help legend and the settings section.
+    static let snapHotkeyItems: [(WindowSnapController.Position, String)] = [
+        (.leftHalf, "←"), (.rightHalf, "→"),
+        (.topHalf, "↑"), (.bottomHalf, "↓"),
+        (.maximize, "↩"), (.center, "C"),
+        (.topLeft, "U"), (.topRight, "I"),
+        (.bottomLeft, "J"), (.bottomRight, "K"),
+    ]
+
     /// Windows hotkey legend: zone glyph + combo (⌃⌥ …), in two columns.
     private var windowsHotkeyLegend: some View {
-        let items: [(WindowSnapController.Position, String)] = [
-            (.leftHalf, "←"), (.rightHalf, "→"),
-            (.topHalf, "↑"), (.bottomHalf, "↓"),
-            (.maximize, "↩"), (.center, "C"),
-            (.topLeft, "U"), (.topRight, "I"),
-            (.bottomLeft, "J"), (.bottomRight, "K"),
-        ]
+        let items = Self.snapHotkeyItems
         return VStack(alignment: .leading, spacing: 10) {
             Rectangle()
                 .fill(Theme.divider)

@@ -48,16 +48,18 @@ final class ClipboardController: ObservableObject {
         } ?? false
         guard !concealed else { return }
 
-        if let text = pasteboard.string(forType: .string),
-           !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            remember(text)
-            return
-        }
-
-        // a file was copied — store the path reference, not the contents
+        // a file was copied — store the FULL path, not the contents.
+        // Checked BEFORE plain text: Finder puts both a file-url and the
+        // bare file NAME as string, and the name alone is useless later
         if let urls = pasteboard.readObjects(forClasses: [NSURL.self]) as? [URL],
            let first = urls.first, first.isFileURL {
             remember(first.path)
+            return
+        }
+
+        if let text = pasteboard.string(forType: .string),
+           !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            remember(text)
         }
     }
 
@@ -94,10 +96,22 @@ final class ClipboardController: ObservableObject {
 
     /// Clicking a history row puts the text on the clipboard WITHOUT moving it in the list.
     /// Only content copied fresh outside the history goes to the top.
+    /// A row that is a path to an existing file goes back as the FILE:
+    /// pasting in Finder pastes the file itself, text fields get the path.
     func copy(_ item: Item) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.setString(item.text, forType: .string)
+        if item.text.hasPrefix("/") || item.text.hasPrefix("~"),
+           case let path = NSString(string: item.text).expandingTildeInPath,
+           FileManager.default.fileExists(atPath: path) {
+            let url = URL(fileURLWithPath: path)
+            pasteboard.writeObjects([url as NSURL])
+            // the path as text alongside: apps that only take strings
+            // still receive something meaningful
+            pasteboard.setString(item.text, forType: .string)
+        } else {
+            pasteboard.setString(item.text, forType: .string)
+        }
         changeCount = pasteboard.changeCount
     }
 

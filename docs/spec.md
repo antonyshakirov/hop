@@ -27,7 +27,11 @@ signing would break).
    grows taller than the screen, NSPopover relocates to the edge — that is
    the "panel on the right" bug.
 2. **The panel does not jump.** The popover anchor is the icon zone
-   (`iconAnchor`, 28pt from the button's left edge). Re-pinning
+   (`iconAnchor` — the exact image frame from the button cell, so the
+   arrow is dead-center on the star). If a menu bar manager (Ice,
+   Bartender, Hidden Bar) hides the icon (zero width / off-screen
+   window), the panel opens detached at the TOP-RIGHT corner of the
+   screen instead of being clamped into the top-left. Re-pinning
    positioningRect: when the button's WINDOW moves (didMove) — always;
    on panel resize — ONLY if origin.x actually moved (>0.5pt).
    Unconditional re-pinning on every resize makes the panel twitch.
@@ -57,6 +61,8 @@ top inset = bottom inset = 16pt.
   sets the duration; during a countdown it puts the active timer into the
   stash, and the ↩ button restores and resumes it. There is one stash slot
   and it gets overwritten; deliberately starting a new timer clears the stash.
+  In the UI the feature is labeled "restore the previous timer" — the
+  "pocket" metaphor was dropped as unclear (Anton, 2026-07-14).
 - Work-rest cycle presets: "work/rest×rounds" (e.g. 25/5×4);
   the section header is "work-rest cycles"; cards and digits are the same
   size as the time presets (font 11, NumericField 44×24).
@@ -145,9 +151,13 @@ top inset = bottom inset = 16pt.
 
 ### Clipboard
 
-- Copy history: text, links, paths. Clicking a row puts the entry back on
-  the clipboard (its position doesn't change); buttons: copy / paste into
-  the last app. Confidential content (password managers) is not stored,
+- Copy history: text, links, files. A copied file is stored as its FULL
+  path (the file-url is read BEFORE the plain-text type: Finder also puts
+  the bare file name as a string, which alone is useless). Clicking a row
+  puts the entry back on the clipboard (its position doesn't change); a row
+  that is a path to an existing file goes back as the FILE plus the path as
+  text — Finder pastes the file itself, text fields get the path. Buttons:
+  copy / paste into the last app. Confidential content (password managers) is not stored,
   and everything lives only on this Mac. The entry limit is in settings.
 - Search: the search field appears when expanded (case-insensitive
   substring filter, clear button; collapsing resets the query).
@@ -193,7 +203,11 @@ top inset = bottom inset = 16pt.
 ### Speed test
 
 - networkQuality (Apple servers), live numbers during the run.
-- Result in a row: "↓ speed · ↑ speed · N RPM" — RPM
+- Result in a row: "↓ 834 · ↑ 112 Mbps · 1,450 RPM" — the unit is written
+  ONCE when download and upload share it, separators use thin spaces and
+  the icon↔label gap is 6pt: the module label must never be squeezed into
+  an ellipsis in any language. The refresh icon is hidden in snapshots
+  (product-page screenshots) so the row doesn't reach the panel edge. RPM
   (responsiveness: round trips per minute under full load,
   <100 is bad for calls, 800+ excellent) is visible right away, not only
   in the tooltip.
@@ -514,3 +528,14 @@ we send a genuine MediaRemote "pause" (loaded dynamically, private API),
 falling back to the ⏯ media key on failure. On silence we do nothing —
 a toggle must never START music. The "got it" click does not resume
 playback.
+
+### Panel/help details pinned 2026-07-14
+
+- Compact timer transport is 20% smaller than before: play/pause 27pt
+  (icon 10), reset 21pt (icon 9) — the buttons stopped towering over the
+  small digits.
+- Settings → windows → "zone hotkeys": under the toggle sits a two-column
+  legend "zone glyph + ⌃⌥ key" (shared `snapHotkeyItems` list with the
+  help tab legend), replacing the old cryptic symbols-only caption.
+- Help → general no longer ends with the "hop — and it's done…" closing
+  line: it duplicated the page (removed in all 18 languages).
