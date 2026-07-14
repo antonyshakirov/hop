@@ -34,10 +34,13 @@ final class KeepAwakeController: ObservableObject {
     private var hasAssertion = false
     /// Lid mode — visible to the UI: laptop icon in the module row.
     @Published private(set) var lidApplied = false
+    /// Blanks the built-in panel while the lid is closed in lid mode.
+    private let lidDimmer = LidDimmer()
     private var ticker: Timer?
     private var terminateObserver: NSObjectProtocol?
 
     init() {
+        LidDimmer.restorePendingAtLaunch()
         // safety net: on app exit, release the assertion and restore lid sleep
         terminateObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.willTerminateNotification,
@@ -156,6 +159,7 @@ final class KeepAwakeController: ObservableObject {
             lidApplied = disabled
             Sounds.awakeCue(on: disabled) // lid clicks with the same cue as no-sleep
             UserDefaults.standard.set(disabled, forKey: "lidSleepAppliedPending")
+            updateLidDimmer()
             return
         }
 
@@ -186,8 +190,19 @@ final class KeepAwakeController: ObservableObject {
             lidApplied = disabled
             Sounds.awakeCue(on: disabled) // lid clicks with the same cue as no-sleep
             UserDefaults.standard.set(disabled, forKey: "lidSleepAppliedPending")
+            updateLidDimmer()
         }
         // password cancelled — leave the state as is; the caller rolls back the UI
+    }
+
+    /// The dimmer only runs while lid mode is active: the machine stays awake
+    /// with the lid closed, so the built-in backlight must be blanked by us.
+    private func updateLidDimmer() {
+        if lidApplied {
+            lidDimmer.start()
+        } else {
+            lidDimmer.stop()
+        }
     }
 
     /// Quiet launch without UI: true if the command succeeded (exit 0).
