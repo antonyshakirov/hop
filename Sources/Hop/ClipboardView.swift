@@ -13,7 +13,8 @@ struct ClipboardView: View {
     @State private var query = ""
     @FocusState private var searchFocused: Bool
 
-    // collapsed — exactly 5 rows; expanded — up to 20, BUT with a height ceiling:
+    // collapsed — the user-chosen number of rows (1...10, default 3);
+    // expanded — up to 20, BUT with a height ceiling:
     // the panel must fit under the menu bar, otherwise the NSPopover doesn't fit
     // and drifts to the screen edge ("panel on the right", buttons unreachable).
     // The ceiling is DYNAMIC — screen height minus headroom for the other
@@ -28,7 +29,12 @@ struct ClipboardView: View {
 
     /// How many ROWS are visible without scrolling (list window height);
     /// all entries remain reachable by scrolling even when collapsed.
-    private var visibleCount: Int { expanded ? min(filteredItems.count, 20) : min(filteredItems.count, 5) }
+    @AppStorage(ClipboardController.visibleRowsKey) private var visibleRows = ClipboardController.defaultVisibleRows
+    private var visibleCount: Int {
+        // collapsed shows the user-chosen number of rows (1...10, default 3);
+        // the rest is always reachable by scrolling inside the fixed height
+        expanded ? min(filteredItems.count, 20) : min(filteredItems.count, max(1, min(visibleRows, 10)))
+    }
     private var expandedCeiling: CGFloat {
         let screen = NSScreen.main?.visibleFrame.height ?? 800
         // 560 — conservative headroom for the header and the other visible modules
@@ -39,7 +45,7 @@ struct ClipboardView: View {
         let content = CGFloat(max(visibleCount, 1)) * 36 + 28 + searchRow
         return expanded ? min(expandedCeiling, content) : content
     }
-    private var canExpand: Bool { clipboard.items.count > 5 }
+    private var canExpand: Bool { clipboard.items.count > visibleCount }
 
     var body: some View {
         VStack(spacing: 8) {
@@ -147,7 +153,7 @@ struct ClipboardView: View {
         }
         .frame(height: height, alignment: .top)
         .onChange(of: clipboard.items.count) { _, count in
-            if count <= 5 { expanded = false }
+            if count <= visibleCount { expanded = false }
         }
         .onChange(of: expanded) { _, isExpanded in
             if !isExpanded {

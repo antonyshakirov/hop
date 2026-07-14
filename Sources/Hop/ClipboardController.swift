@@ -15,6 +15,9 @@ final class ClipboardController: ObservableObject {
 
     static let defaultMaxItems = 100
     static let maxItemsKey = "clipboardMaxItems"
+    /// how many rows the collapsed clipboard shows (1...10, default 3)
+    static let visibleRowsKey = "clipboardVisibleRows"
+    static let defaultVisibleRows = 3
     /// Protection against "accidentally copied a book": every entry is truncated,
     /// so even a full history weighs next to nothing.
     static let maxItemLength = 20_000

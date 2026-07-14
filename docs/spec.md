@@ -164,7 +164,8 @@ top inset = bottom inset = 16pt.
   and everything lives only on this Mac. The entry limit is in settings.
 - Search: the search field appears when expanded (case-insensitive
   substring filter, clear button; collapsing resets the query).
-- Collapsed — 5 rows, expanded — up to 20, but that is only the HEIGHT of
+- Collapsed — a user-chosen number of rows (settings, 1...10, default 3),
+  expanded — up to 20, but that is only the HEIGHT of
   the list window: the full history is reachable via internal scrolling in
   both views. The height ceiling is DYNAMIC:
   min(430, screen height − 560), then internal scrolling (invariant #1!).

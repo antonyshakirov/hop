@@ -24,6 +24,7 @@ struct PanelView: View {
     @AppStorage(Thresholds.battRedKey) private var battRed = Thresholds.battRedDefault
 
     @AppStorage(ClipboardController.maxItemsKey) private var clipboardMax = ClipboardController.defaultMaxItems
+    @AppStorage(ClipboardController.visibleRowsKey) private var clipboardVisibleRows = ClipboardController.defaultVisibleRows
     @AppStorage("timerCompact") private var timerCompact = true
     @AppStorage("displayStyle") private var displayStyle = "dots" // dots | text | units
     @AppStorage("digitsSize") private var digitsSize = "large" // large | small
@@ -1805,6 +1806,13 @@ struct PanelView: View {
                 Text(t(.clipboardLimitNote))
                     .font(Theme.mono(8))
                     .foregroundStyle(Theme.textTertiary)
+            }
+            HStack {
+                Text(t(.clipVisibleRows))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                NumericField(value: $clipboardVisibleRows, range: 1...10)
             }
         }
     }
