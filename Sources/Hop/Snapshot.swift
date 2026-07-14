@@ -86,14 +86,14 @@ enum Snapshot {
             } ?? "en"
             let longText: String
             switch demoLang {
-            case "ru": longText = "выкатить лендинг сегодня, прогнать все восемь языков и всё перепроверить дважды до релиза"
-            case "de": longText = "heute das landing ausliefern, alle acht sprachen durchgehen und vor dem release alles doppelt prüfen"
-            case "fr": longText = "livrer le landing aujourd'hui, repasser les huit langues et tout revérifier deux fois avant la sortie"
-            case "es": longText = "publicar el landing hoy, repasar los ocho idiomas y comprobarlo todo dos veces antes del lanzamiento"
-            case "pt": longText = "publicar o landing hoje, revisar os oito idiomas e conferir tudo duas vezes antes do lançamento"
-            case "zh": longText = "今天上线落地页，跑完全部八种语言，发布前一切都要再检查两遍"
-            case "ja": longText = "今日ランディングを公開して、8 言語をすべて確認し、リリース前に二度チェックする"
-            default: longText = "ship the landing today, rerun all eight languages, then measure everything twice before the release"
+            case "ru": longText = "встреча перенесена на 15:00 — пришли обновлённую презентацию и забронируй переговорку на шестерых"
+            case "de": longText = "meeting auf 15 uhr verschoben — schick das aktualisierte deck und buch einen raum für sechs"
+            case "fr": longText = "réunion décalée à 15 h — envoie la présentation à jour et réserve une salle pour six"
+            case "es": longText = "la reunión se movió a las 15:00 — manda la presentación actualizada y reserva una sala para seis"
+            case "pt": longText = "a reunião mudou para as 15h — manda a apresentação atualizada e reserva uma sala para seis"
+            case "zh": longText = "会议改到下午三点——发一下更新后的幻灯片，再订一间六人会议室"
+            case "ja": longText = "会議は15時に変更——更新版の資料を送って、6人用の会議室を予約して"
+            default: longText = "meeting moved to 3pm — send the updated deck and book a room for six"
             }
             let demoItems = [
                 DemoItem(id: UUID(), text: "https://antonshakirov.com/products/hop"),
