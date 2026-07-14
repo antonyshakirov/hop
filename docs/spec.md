@@ -207,6 +207,9 @@ top inset = bottom inset = 16pt.
   a curve over reference quality points (interpolation, no recompute on
   every slider move); video/audio — the system encoder's forecast. Per-file
   estimates use the sample's compression ratio.
+- All converter sizes use decimal units (1 MB = 1,000,000 bytes) — the same
+  scale as Finder, so the promised and the delivered numbers match; binary
+  MiB read ~5% smaller and made every result look heavier than estimated.
 - Results: Downloads / next to the original / custom folder; originals are
   never touched; "-min" names with uniquification.
 

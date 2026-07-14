@@ -498,10 +498,12 @@ final class FileConverter: ObservableObject {
     }
 
     nonisolated static func sizeText(_ bytes: Int64) -> String {
-        let mb = Double(bytes) / 1_048_576
-        if mb >= 1024 { return String(format: "%.1f GB", mb / 1024) }
+        // decimal units, exactly like Finder — the number users compare against;
+        // binary MiB read ~5% smaller and made every result look heavier than promised
+        let mb = Double(bytes) / 1_000_000
+        if mb >= 1000 { return String(format: "%.1f GB", mb / 1000) }
         if mb >= 1 { return String(format: "%.1f MB", mb) }
-        return String(format: "%.0f KB", Double(bytes) / 1024)
+        return String(format: "%.0f KB", Double(bytes) / 1000)
     }
 
     // MARK: - Mechanics (off the main thread)
@@ -722,7 +724,7 @@ final class FileConverter: ObservableObject {
 
     nonisolated private static func summary(converted: Int, savedBytes: Int64) -> String {
         guard converted > 0 else { return "—" }
-        let mb = Double(savedBytes) / 1_048_576
+        let mb = Double(savedBytes) / 1_000_000
         if mb >= 1 {
             return "✓ \(converted) · −\(String(format: "%.1f", mb)) MB"
         }
