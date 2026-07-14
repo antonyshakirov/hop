@@ -1,5 +1,7 @@
-// Generates the app icon: a dark rounded square,
-// a dial arc of glowing dots in a dot-matrix display style.
+// Generates the app icon: the dark variant of the canonical icon —
+// a flat near-black rounded plate with the four-line asterisk.
+// Must stay in sync with assets/icon/hop-icon-dark.svg and the in-app
+// rendering in Sources/Hop/AppIcon.swift.
 // Run: swift scripts/make-icon.swift out.png
 import AppKit
 
@@ -9,39 +11,30 @@ let size: CGFloat = 1024
 let image = NSImage(size: NSSize(width: size, height: size))
 image.lockFocus()
 
-// Backplate — a rounded square with a subtle vertical gradient
-let plate = NSRect(x: 96, y: 96, width: 832, height: 832)
-let platePath = NSBezierPath(roundedRect: plate, xRadius: 186, yRadius: 186)
-NSGradient(colors: [
-    NSColor(white: 0.11, alpha: 1),
-    NSColor(white: 0.03, alpha: 1),
-])!.draw(in: platePath, angle: -90)
+// Backplate — flat, inset like a standard macOS icon (2x the 512 design)
+let plate = NSRect(x: 100, y: 100, width: 824, height: 824)
+let platePath = NSBezierPath(roundedRect: plate, xRadius: 188, yRadius: 188)
+NSColor(white: 0.045, alpha: 1).setFill()
+platePath.fill()
 
-// Glowing asterisk — Hop's signature mark
+// Four-line asterisk — Hop's signature mark
 let center = NSPoint(x: 512, y: 512)
-let radius: CGFloat = 265
-
-func drawStar(lineWidth: CGFloat, color: NSColor) {
-    color.setStroke()
-    // one path for all rays — the translucent halo does not stack into stripes
-    let path = NSBezierPath()
-    for i in 0..<8 {
-        // 8 rays rotated a half-step = 4 full slanted lines (no strict vertical)
-        let angle = CGFloat(i) * .pi / 4 + .pi / 8
-        path.move(to: center)
-        path.line(to: NSPoint(
-            x: center.x + cos(angle) * radius,
-            y: center.y + sin(angle) * radius
-        ))
-    }
-    path.lineWidth = lineWidth
-    path.lineCapStyle = .round
-    path.stroke()
+let starBox = plate.insetBy(dx: 172, dy: 172)
+let radius = starBox.width * 0.38
+let path = NSBezierPath()
+for i in 0..<8 {
+    // 8 rays rotated a half-step = 4 full slanted lines (no strict vertical)
+    let angle = CGFloat(i) * .pi / 4 + .pi / 8
+    path.move(to: center)
+    path.line(to: NSPoint(
+        x: center.x + cos(angle) * radius,
+        y: center.y + sin(angle) * radius
+    ))
 }
-
-// halo + bright mark
-drawStar(lineWidth: 128, color: NSColor(white: 1, alpha: 0.13))
-drawStar(lineWidth: 68, color: .white)
+path.lineWidth = starBox.width * 0.095
+path.lineCapStyle = .round
+NSColor.white.setStroke()
+path.stroke()
 
 image.unlockFocus()
 

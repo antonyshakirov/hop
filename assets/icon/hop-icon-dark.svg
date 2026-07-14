@@ -1,9 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="116" fill="#0b0b0c"/>
-  <g stroke="#ffffff" stroke-width="49" stroke-linecap="round">
-    <line x1="76.2" y1="181.5" x2="435.8" y2="330.5"/>
-    <line x1="181.5" y1="76.2" x2="330.5" y2="435.8"/>
-    <line x1="330.5" y1="76.2" x2="181.5" y2="435.8"/>
-    <line x1="435.8" y1="181.5" x2="76.2" y2="330.5"/>
+  <!-- Canonical dark icon: the light icon with the colors swapped.
+       Same geometry as hop-icon-light.svg — no halo, no gradient. -->
+  <rect x="50" y="50" width="412" height="412" rx="94" fill="#0b0b0b"/>
+  <g stroke="#ffffff" stroke-width="22.8" stroke-linecap="round">
+    <line x1="171.74" y1="221.1" x2="340.26" y2="290.9"/>
+    <line x1="221.1" y1="171.74" x2="290.9" y2="340.26"/>
+    <line x1="290.9" y1="171.74" x2="221.1" y2="340.26"/>
+    <line x1="340.26" y1="221.1" x2="171.74" y2="290.9"/>
   </g>
 </svg>
