@@ -86,14 +86,14 @@ enum Snapshot {
             } ?? "en"
             let longText: String
             switch demoLang {
-            case "ru": longText = "встреча перенесена на 15:00 — пришли обновлённую презентацию и забронируй переговорку на шестерых"
-            case "de": longText = "meeting auf 15 uhr verschoben — schick das aktualisierte deck und buch einen raum für sechs"
-            case "fr": longText = "réunion décalée à 15 h — envoie la présentation à jour et réserve une salle pour six"
-            case "es": longText = "la reunión se movió a las 15:00 — manda la presentación actualizada y reserva una sala para seis"
-            case "pt": longText = "a reunião mudou para as 15h — manda a apresentação atualizada e reserva uma sala para seis"
-            case "zh": longText = "会议改到下午三点——发一下更新后的幻灯片，再订一间六人会议室"
-            case "ja": longText = "会議は15時に変更——更新版の資料を送って、6人用の会議室を予約して"
-            default: longText = "meeting moved to 3pm — send the updated deck and book a room for six"
+            case "ru": longText = "перепиши этот текст короче и проще, сохрани дружелюбный тон и добавь в конце призыв к действию"
+            case "de": longText = "schreib den text kürzer und einfacher, behalte den freundlichen ton und ende mit einem call-to-action"
+            case "fr": longText = "réécris ce texte plus court et plus simple, garde le ton amical et termine par un appel à l'action"
+            case "es": longText = "reescribe este texto más corto y simple, mantén el tono cercano y termina con una llamada a la acción"
+            case "pt": longText = "reescreve este texto mais curto e simples, mantém o tom amigável e termina com uma chamada para ação"
+            case "zh": longText = "把这段文字改得更短更简单，保持友好的语气，结尾加一句行动号召"
+            case "ja": longText = "この文章をもっと短くシンプルに書き直して、親しみやすいトーンのまま、最後に行動を促す一文を"
+            default: longText = "rewrite this text shorter and simpler, keep the friendly tone and end with a call to action"
             }
             let demoItems = [
                 DemoItem(id: UUID(), text: "https://antonshakirov.com/products/hop"),
