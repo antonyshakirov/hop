@@ -63,13 +63,10 @@ enum Theme {
                 isOn.toggle()
             } label: {
                 ZStack(alignment: isOn ? .trailing : .leading) {
-                    // both states are the same size (30×18); a dark capsule with
-                    // no border sinks into the background and looks smaller than
-                    // the green one — stroking the off state evens out perception
+                    // both states are the same size (30×18); off = a plain
+                    // capsule with no stroke, like the native macOS switch
                     Capsule()
                         .fill(isOn ? tint : Theme.switchOffBg)
-                        .overlay(Capsule().stroke(
-                            isOn ? .clear : Theme.controlStroke, lineWidth: 1))
                         .frame(width: 30, height: 18)
                     Circle()
                         .fill(.white)
