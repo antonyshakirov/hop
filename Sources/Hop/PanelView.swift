@@ -1591,7 +1591,7 @@ struct PanelView: View {
                         ForEach(moduleOrder, id: \.self) { key in
                             moduleRow(key)
                                 .listRowBackground(Color.clear)
-                                .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 2))
+                                .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 2))
                                 .listRowSeparator(.hidden)
                         }
                         .onMove { from, to in
@@ -1608,10 +1608,10 @@ struct PanelView: View {
                     .scrollDisabled(true)
                     .environment(\.defaultMinListRowHeight, 30)
                     .frame(height: CGFloat(moduleOrder.count) * 30)
-                    // row inset of 12 makes room for the drop-indicator dot (it
-                    // draws left of the content and was clipped by the list edge);
+                    // row inset of 18 makes room for the drop-indicator dot (it
+                    // draws left of the content and was still clipped at 12);
                     // shifting back aligns the handles with the section's left edge
-                    .padding(.leading, -12)
+                    .padding(.leading, -18)
                 }
             }
 
