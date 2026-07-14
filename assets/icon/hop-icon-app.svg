@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The app icon as rendered by scripts/make-icon.swift: dark rounded plate
+       with a vertical gradient, glowing asterisk (soft halo + bright strokes). -->
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c1c1c"/>
+      <stop offset="1" stop-color="#080808"/>
+    </linearGradient>
+  </defs>
+  <rect x="48" y="48" width="416" height="416" rx="93" fill="url(#plate)"/>
+  <g stroke="#ffffff" stroke-opacity="0.13" stroke-width="64" stroke-linecap="round">
+    <line x1="133.6" y1="205.3" x2="378.4" y2="306.7"/>
+    <line x1="205.3" y1="133.6" x2="306.7" y2="378.4"/>
+    <line x1="306.7" y1="133.6" x2="205.3" y2="378.4"/>
+    <line x1="378.4" y1="205.3" x2="133.6" y2="306.7"/>
+  </g>
+  <g stroke="#ffffff" stroke-width="34" stroke-linecap="round">
+    <line x1="133.6" y1="205.3" x2="378.4" y2="306.7"/>
+    <line x1="205.3" y1="133.6" x2="306.7" y2="378.4"/>
+    <line x1="306.7" y1="133.6" x2="205.3" y2="378.4"/>
+    <line x1="378.4" y1="205.3" x2="133.6" y2="306.7"/>
+  </g>
+</svg>

@@ -1,0 +1,130 @@
+<div align="center">
+
+<img src="../../assets/icon/hop-icon-app.svg" width="96" alt="Іконка Hop — чотирипроменева зірочка">
+
+# Hop
+
+**Крихітний компаньйон у рядку меню macOS: таймер, заборона сну,
+системний монітор, історія буфера обміну, конвертер файлів і менеджер
+вікон. Один клік — і все потрібне під рукою.**
+
+[![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
+![Platform](https://img.shields.io/badge/macOS-14%2B-black)
+[![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
+
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · **Українська** · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+
+<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Панель Hop — таймер у рядку меню з точково-матричним дисплеєм, пресетами та циклами роботи й відпочинку">
+
+</div>
+
+Hop живе в рядку меню вашого Mac і замінює півдюжини дрібних утиліт:
+таймер у стилі Pomodoro, заборону сну на кшталт caffeinate, системний
+монітор, менеджер буфера обміну, конвертер файлів із drag-and-drop і
+розкладання вікон — один легкий нативний застосунок замість шести.
+
+## Завантажити
+
+- **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — відкрийте і перетягніть `Hop.app` у «Програми» (рекомендовано)
+- `Hop-x.y.z.zip` — той самий застосунок звичайним архівом (його використовує вбудований оновлювач); див. [останній реліз](https://github.com/antonyshakirov/hop/releases/latest)
+- Швидке дзеркало: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
+
+Перший запуск: клацніть `Hop.app` правою кнопкою → **Відкрити** →
+підтвердьте (застосунок поки не нотаризовано). Потрібна macOS 14 або
+новіша.
+
+## Можливості
+
+### Таймер і цикли
+
+Зворотний відлік на точковій матриці, який задається одним жестом:
+потягніть цифри, наберіть час як на мікрохвильовці або виберіть пресет.
+Цикли роботи й відпочинку (25/5 Pomodoro, 52/17, 90/15 — або власні),
+секундомір, «кишеня», що зберігає запущений таймер, поки ви пробуєте
+інший, і сигнал завершення, який заодно може поставити медіа на паузу.
+
+### Заборона сну
+
+Не давайте Mac заснути 15 хвилин, 8 годин або назавжди — один клік, без
+пароля. За бажанням тримайте екран увімкненим або працюйте із закритою
+кришкою (зручно для завантажень, довгих збірок і зовнішніх дисплеїв).
+
+### Системний монітор
+
+Навантаження й температура CPU та GPU, пам'ять і swap, мережа, диск,
+стан батареї та енергоспоживання — живі значення з графіками-спарклайнами,
+кольорові пороги, які ви задаєте самі, °C/°F і рядок аптайму. Показання
+надходять просто з macOS і оновлюються лише поки вкладка відкрита.
+
+### Історія буфера обміну
+
+Останні 100 (до 300) скопійованих елементів — один клік, щоб скопіювати
+знову або вставити одразу в попередній застосунок. Паролі та інше
+приховане введення ніколи не зберігаються.
+
+### Конвертер файлів
+
+Киньте на панель пачку зображень, PDF, відео чи аудіо: на виході JPEG,
+PNG, HEIC, AVIF і WebP; стискання PDF; зменшення відео в HEVC із живою
+та чесною оцінкою розміру ще до конвертації. Усе обробляється локально.
+
+### Менеджер вікон
+
+Розкладайте вікна по половинах, чвертях, третинах і по центру кліком на
+гліф зони або хоткеєм ⌃⌥ — без окремого застосунку.
+
+### І решта
+
+Вбудований тест швидкості (networkQuality від Apple), темна і світла
+теми з текстурою кіноплівкового зерна, глобальні хоткеї, запуск під час
+входу в систему та безпечний режим, що виводить застосунок із циклу
+збоїв.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Системний монітор Hop — графіки CPU, GPU, пам'яті, мережі, диска та батареї">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Конвертер файлів Hop — пакетна конвертація зображень, PDF, відео та аудіо">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Налаштування Hop — теми, модулі, хоткеї, 18 мов">
+</div>
+
+## 18 мов
+
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — застосунок одразу підхоплює мову вашої
+системи.
+
+## Приватність
+
+Усе працює локально: без сервера, аналітики й акаунтів. Застосунок
+виходить у мережу лише щоб перевірити оновлення і коли ви запускаєте
+вбудований тест швидкості. Оновлення доставляються підписаними архівами
+і перед встановленням перевіряються підписом Ed25519.
+
+Сайт: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## Збирання з початкового коду
+
+Swift Package Manager, macOS 14+, без зовнішніх залежностей:
+
+```bash
+git clone https://github.com/antonyshakirov/hop.git
+cd hop
+swift build
+./scripts/build-app.sh
+```
+
+Процес розробки, релізний конвеєр і поведінкова специфікація — у
+[docs/development.md](../development.md) та [docs/spec.md](../spec.md).
+
+## Підтримати проєкт
+
+Якщо Hop заощаджує вам клік-другий, **[поставте репозиторію зірку](https://github.com/antonyshakirov/hop/stargazers)** —
+саме за зірками його знаходять інші. Баг-репорти та ідеї функцій —
+ласкаво просимо в [Issues](https://github.com/antonyshakirov/hop/issues).
+
+## Автор і ліцензія
+
+Зробив [Антон Шакіров](https://www.antonshakirov.com/en). Випущено під
+[ліцензією MIT](../../LICENSE): використовуйте і змінюйте вільно,
+зберігаючи повідомлення про авторство — видавати застосунок за власну
+роботу означає порушувати ліцензію.
