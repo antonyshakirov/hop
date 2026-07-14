@@ -920,7 +920,7 @@ struct PanelView: View {
                 .stroke(dropTargeted ? Theme.editing : .clear, lineWidth: 1)
         )
         .hoverHighlight(7)
-        .onDrop(of: [.fileURL], isTargeted: $dropTargeted) { providers in
+        .snapshotAwareDrop(of: [.fileURL], isTargeted: $dropTargeted) { providers in
             Task {
                 var urls: [URL] = []
                 for provider in providers {
@@ -1559,32 +1559,43 @@ struct PanelView: View {
                         .foregroundStyle(Theme.textTertiary)
                     Spacer()
                 }
-                // system List.onMove — macOS's native smooth drag-and-drop
-                List {
-                    ForEach(moduleOrder, id: \.self) { key in
-                        moduleRow(key)
-                            .listRowBackground(Color.clear)
-                            .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 2))
-                            .listRowSeparator(.hidden)
-                    }
-                    .onMove { from, to in
-                        var order = moduleOrder
-                        order.move(fromOffsets: from, toOffset: to)
-                        withAnimation(.easeInOut(duration: 0.18)) {
-                            moduleOrderRaw = order.joined(separator: ",")
+                // system List.onMove — macOS's native smooth drag-and-drop.
+                // In snapshots List (NSTableView) doesn't render — flat VStack.
+                if Snapshot.active {
+                    VStack(spacing: 0) {
+                        ForEach(moduleOrder, id: \.self) { key in
+                            moduleRow(key)
+                                .padding(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 2))
                         }
-                        Sounds.scrubTick()
                     }
+                    .padding(.leading, -12)
+                } else {
+                    List {
+                        ForEach(moduleOrder, id: \.self) { key in
+                            moduleRow(key)
+                                .listRowBackground(Color.clear)
+                                .listRowInsets(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 2))
+                                .listRowSeparator(.hidden)
+                        }
+                        .onMove { from, to in
+                            var order = moduleOrder
+                            order.move(fromOffsets: from, toOffset: to)
+                            withAnimation(.easeInOut(duration: 0.18)) {
+                                moduleOrderRaw = order.joined(separator: ",")
+                            }
+                            Sounds.scrubTick()
+                        }
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .scrollDisabled(true)
+                    .environment(\.defaultMinListRowHeight, 30)
+                    .frame(height: CGFloat(moduleOrder.count) * 30)
+                    // row inset of 12 makes room for the drop-indicator dot (it
+                    // draws left of the content and was clipped by the list edge);
+                    // shifting back aligns the handles with the section's left edge
+                    .padding(.leading, -12)
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
-                .scrollDisabled(true)
-                .environment(\.defaultMinListRowHeight, 30)
-                .frame(height: CGFloat(moduleOrder.count) * 30)
-                // row inset of 12 makes room for the drop-indicator dot (it
-                // draws left of the content and was clipped by the list edge);
-                // shifting back aligns the handles with the section's left edge
-                .padding(.leading, -12)
             }
 
             Rectangle()

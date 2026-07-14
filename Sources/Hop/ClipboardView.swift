@@ -123,6 +123,15 @@ struct ClipboardView: View {
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.textTertiary)
                     .frame(maxHeight: .infinity)
+            } else if Snapshot.active {
+                // snapshots: ImageRenderer can't render ScrollView —
+                // draw the visible rows as a flat stack
+                VStack(spacing: 4) {
+                    ForEach(filteredItems.prefix(visibleCount)) { item in
+                        itemRow(item)
+                    }
+                }
+                .frame(maxHeight: .infinity, alignment: .top)
             } else {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 4) {

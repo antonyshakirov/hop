@@ -73,7 +73,50 @@ enum Snapshot {
             Theme.systemDark = args[ti + 1] != "light"
         }
 
+        // --demo: staged state for product-page screenshots — clipboard rows
+        // and a fresh speed-test result, seeded through the regular
+        // UserDefaults keys BEFORE AppModel is created so the controllers
+        // pick them up on init.
+        if args.contains("--demo") {
+            struct DemoItem: Codable { let id: UUID; let text: String }
+            // a link + a file path + a long text (truncated by the row);
+            // the long text is localized to the screenshot language
+            let demoLang = args.firstIndex(of: "--lang").flatMap { i in
+                args.count > i + 1 ? args[i + 1] : nil
+            } ?? "en"
+            let longText: String
+            switch demoLang {
+            case "ru": longText = "выкатить лендинг сегодня, прогнать все восемь языков и всё перепроверить дважды до релиза"
+            case "de": longText = "heute das landing ausliefern, alle acht sprachen durchgehen und vor dem release alles doppelt prüfen"
+            case "fr": longText = "livrer le landing aujourd'hui, repasser les huit langues et tout revérifier deux fois avant la sortie"
+            case "es": longText = "publicar el landing hoy, repasar los ocho idiomas y comprobarlo todo dos veces antes del lanzamiento"
+            case "pt": longText = "publicar o landing hoje, revisar os oito idiomas e conferir tudo duas vezes antes do lançamento"
+            case "zh": longText = "今天上线落地页，跑完全部八种语言，发布前一切都要再检查两遍"
+            case "ja": longText = "今日ランディングを公開して、8 言語をすべて確認し、リリース前に二度チェックする"
+            default: longText = "ship the landing today, rerun all eight languages, then measure everything twice before the release"
+            }
+            let demoItems = [
+                DemoItem(id: UUID(), text: "https://antonshakirov.com/products/hop"),
+                DemoItem(id: UUID(), text: "~/Documents/design-tokens.css"),
+                DemoItem(id: UUID(), text: longText),
+            ]
+            if let data = try? JSONEncoder().encode(demoItems) {
+                UserDefaults.standard.set(data, forKey: "clipboardHistory")
+            }
+            UserDefaults.standard.set(834.0, forKey: "speedLastDown")
+            UserDefaults.standard.set(112.0, forKey: "speedLastUp")
+            UserDefaults.standard.set(1450, forKey: "speedLastRpm")
+            UserDefaults.standard.set(Date(), forKey: "speedLastAt")
+        }
+
         let model = AppModel()
+        // --convert-files a,b,c: converter queue for the window screenshot;
+        // the pause lets thumbnails and size estimates finish (they're async)
+        if let ci = args.firstIndex(of: "--convert-files"), args.count > ci + 1 {
+            let urls = args[ci + 1].split(separator: ",").map { URL(fileURLWithPath: String($0)) }
+            model.converter.addToBatch(urls)
+            RunLoop.main.run(until: Date().addingTimeInterval(3.0))
+        }
         if args.contains("--finished") {
             model.engine.start()
             model.engine.adjust(by: -(model.engine.duration + 1))
@@ -127,5 +170,23 @@ enum Snapshot {
         }
         try? png.write(to: url)
         exit(0)
+    }
+}
+
+// ImageRenderer can't render onDrop (it paints a yellow fill + 🚫),
+// so snapshots simply drop the modifier.
+import UniformTypeIdentifiers
+extension View {
+    @ViewBuilder
+    func snapshotAwareDrop(
+        of types: [UTType],
+        isTargeted: Binding<Bool>?,
+        perform action: @escaping ([NSItemProvider]) -> Bool
+    ) -> some View {
+        if Snapshot.active {
+            self
+        } else {
+            self.onDrop(of: types, isTargeted: isTargeted, perform: action)
+        }
     }
 }

@@ -19,40 +19,51 @@ struct ConvertWindowView: View {
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
+    private var scrollContent: some View {
+        VStack(spacing: 16) {
+            dropZone
+            if model.converter.batch.isEmpty {
+                capabilities
+            } else {
+                if model.converter.batch.all.contains(where: \.done) {
+                    HStack {
+                        Spacer()
+                        clearDoneButton
+                    }
+                }
+                VStack(spacing: 10) {
+                    groupCards
+                }
+                footer
+            }
+        }
+        .padding(20)
+        .background(
+            // direct measurement instead of a PreferenceKey: the preference
+            // consistently reported 0 through the ScrollView, so the window
+            // never resized to fit
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { model.converterContentHeight = geo.size.height }
+                    .onChange(of: geo.size.height) { _, height in
+                        model.converterContentHeight = height
+                    }
+            }
+        )
+    }
+
     var body: some View {
         // window height is managed by AppDelegate: content up to 70% of the
-        // screen, then scrolling; a manual user resize is respected
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 16) {
-                dropZone
-                if model.converter.batch.isEmpty {
-                    capabilities
-                } else {
-                    if model.converter.batch.all.contains(where: \.done) {
-                        HStack {
-                            Spacer()
-                            clearDoneButton
-                        }
-                    }
-                    VStack(spacing: 10) {
-                        groupCards
-                    }
-                    footer
+        // screen, then scrolling; a manual user resize is respected.
+        // In snapshots — no ScrollView: ImageRenderer doesn't draw it.
+        Group {
+            if Snapshot.active {
+                scrollContent
+            } else {
+                ScrollView(showsIndicators: false) {
+                    scrollContent
                 }
             }
-            .padding(20)
-            .background(
-                // direct measurement instead of a PreferenceKey: the preference
-                // consistently reported 0 through the ScrollView, so the window
-                // never resized to fit
-                GeometryReader { geo in
-                    Color.clear
-                        .onAppear { model.converterContentHeight = geo.size.height }
-                        .onChange(of: geo.size.height) { _, height in
-                            model.converterContentHeight = height
-                        }
-                }
-            )
         }
         .frame(width: 540)
         .frame(maxHeight: .infinity)
@@ -109,7 +120,7 @@ struct ConvertWindowView: View {
                     style: StrokeStyle(lineWidth: 1, dash: [5, 4])
                 )
         )
-        .onDrop(of: [.fileURL], isTargeted: $targeted) { providers in
+        .snapshotAwareDrop(of: [.fileURL], isTargeted: $targeted) { providers in
             Task {
                 var urls: [URL] = []
                 for provider in providers {
