@@ -184,11 +184,13 @@ struct SparklineCard: View {
     /// history accumulates in the background and is shown "as is", without stretching.
     let start: Date
     let end: Date
-
-    private static let chartHeight: CGFloat = 34
+    /// Tiny marker in the corner for paired charts (network ↓/↑) —
+    /// two identical areas would otherwise be indistinguishable.
+    var cornerSymbol: String?
+    var height: CGFloat = 34
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             ForEach(Array(series.enumerated()), id: \.element.id) { index, s in
                 if index == 0 {
                     AreaPath(points: s.points, maxValue: s.maxValue, start: start, end: end)
@@ -206,9 +208,16 @@ struct SparklineCard: View {
                         )
                     )
             }
+            if let symbol = cornerSymbol, let color = series.first?.color {
+                Image(systemName: symbol)
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundStyle(color)
+                    .padding(.leading, 2)
+                    .padding(.top, 1)
+            }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: Self.chartHeight)
+        .frame(height: height)
         .clipped()
     }
 }

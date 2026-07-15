@@ -44,7 +44,11 @@ struct StatsView: View {
     var body: some View {
         let s = stats.sample
         let chartEnd = Date()
-        let chartStart = chartEnd.addingTimeInterval(-Double(monitorWindowMin) * 60)
+        // the window is clamped to the history actually collected: right
+        // after launch the buffer is shorter than 5 minutes and the areas
+        // started mid-chart, reading as charts of different widths
+        let windowStart = chartEnd.addingTimeInterval(-Double(monitorWindowMin) * 60)
+        let chartStart = max(windowStart, stats.history.cpuLoad.first?.t ?? windowStart)
         VStack(spacing: detailed ? 12 : 10) {
             row(icon: "cpu", color: Theme.accentBlue, label: "cpu",
                 value: loadAndTemp(s.cpuLoad, s.cpuTemp))
@@ -72,16 +76,24 @@ struct StatsView: View {
             row(icon: "arrow.up.arrow.down", color: Theme.accentCyan, label: t(.statNetwork),
                 value: netValue(s))
             if detailed {
+                // download and upload as two IDENTICAL stacked areas with ↓/↑
+                // markers: one filled + one bare line read as unrelated charts
                 let downPoints = windowed(stats.history.netDown, from: chartStart)
                 let upPoints = windowed(stats.history.netUp, from: chartStart)
                 let peak = max(downPoints.map(\.v).max() ?? 0,
                                upPoints.map(\.v).max() ?? 0)
-                SparklineCard(series: [
-                    .init(label: "↓ \(t(.legendDown))", points: downPoints,
-                          color: Theme.accentCyan, maxValue: max(peak, 1)),
-                    .init(label: "↑ \(t(.legendUp))", points: upPoints,
-                          color: Theme.graphShade(Theme.accentCyan), maxValue: max(peak, 1)),
-                ], start: chartStart, end: chartEnd)
+                VStack(spacing: 4) {
+                    SparklineCard(series: [
+                        .init(label: "↓ \(t(.legendDown))", points: downPoints,
+                              color: Theme.accentCyan, maxValue: max(peak, 1)),
+                    ], start: chartStart, end: chartEnd,
+                       cornerSymbol: "arrow.down", height: 24)
+                    SparklineCard(series: [
+                        .init(label: "↑ \(t(.legendUp))", points: upPoints,
+                              color: Theme.graphShade(Theme.accentCyan), maxValue: max(peak, 1)),
+                    ], start: chartStart, end: chartEnd,
+                       cornerSymbol: "arrow.up", height: 24)
+                }
                 .padding(.bottom, 6)
             }
             row(icon: "internaldrive", color: Theme.accentYellow, label: t(.statDisk),

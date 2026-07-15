@@ -162,11 +162,14 @@ top inset = bottom inset = 16pt.
   metric row, a full-width filled area (gradient of the metric's color)
   with NO scale, legend or time labels — the row above already carries
   the current value, the shape shows the trend. The first series is the
-  filled primary; secondary series (cpu temperature, network upload) are
-  thinner plain lines in a shade of the same color. The chart window is
-  a setting: 5/10/30 min or 1 hour, default 5 (history buffer 61 min);
-  lines are laid out by the points' timestamps. In chart mode the rows
-  are larger (12pt).
+  filled primary; secondary series (cpu temperature) are thinner plain
+  lines in a shade of the same color. Network is TWO identical stacked
+  areas (download/upload, shared scale) with tiny ↓/↑ corner markers.
+  The window is clamped to the collected history — right after launch
+  the areas otherwise started mid-chart and read as different widths.
+  The chart window is a setting: 5/10/30 min or 1 hour, default 5
+  (history buffer 61 min); lines are laid out by the points' timestamps.
+  In chart mode the rows are larger (12pt).
 - A red "!" on the left of the menu bar icon during a red zone (same
   thresholds that color the values; a charging battery doesn't count).
   OFF by default, toggle in monitor settings.
