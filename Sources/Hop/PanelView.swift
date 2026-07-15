@@ -162,6 +162,10 @@ struct PanelView: View {
                 aboutScreen
                     .padding(24)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    // same as settings: a theme change must rebuild children
+                    // whose inputs didn't change — the help text kept the old
+                    // theme's colors until a tab switch recreated it
+                    .id(model.themeVersion)
                     // the window is sized to the active tab's content:
                     // measure and report outward (AppDelegate does the resize,
                     // NOT during the layout pass)
