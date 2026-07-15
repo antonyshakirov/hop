@@ -371,6 +371,10 @@ final class StatusItemController: NSObject {
         if showCountdown, state == .running || state == .paused {
             let value = engine.isStopwatch ? engine.elapsed : engine.remaining
             title = " " + TimeFormatting.short(value)
+        } else if showCountdown, frozenBarTimeVisible == true {
+            // digits were visible when the panel opened: a reset must not blank
+            // the bar mid-session — show the reset value until the panel closes
+            title = " " + TimeFormatting.short(engine.isStopwatch ? engine.elapsed : engine.duration)
         }
         // presence freeze: the bar was empty when the panel opened — a timer
         // started from the panel must not surface the label until close

@@ -39,9 +39,10 @@ signing would break).
    panel is open (Anton, 2026-07-15). Showing at open → the countdown
    stays visible and ticking, padded with spaces to the frozen length;
    if the digits outgrow the slot (stopwatch passing an hour) the freeze
-   extends and the didMove observer re-anchors. Hidden at open → a timer
-   started from the panel does NOT surface the label until the panel
-   closes; on close the bar reflects reality.
+   extends and the didMove observer re-anchors. A reset while open shows
+   the reset value (the configured duration), never a blank slot. Hidden
+   at open → a timer started from the panel does NOT surface the label
+   until the panel closes; on close the bar reflects reality.
 4. **No repeatForever animations** — they trigger NSHostingController
    size recalculation. Icon changes are an opacity crossfade in a
    fixed-size ZStack.
@@ -283,8 +284,9 @@ top inset = bottom inset = 16pt.
   ImageRenderer).
 - Info page: per-module tabs, "term — explanation" style
   (the term is bold up to the " — "). The general-tab footer links to
-  the GitHub repo next to the version ("open source · version X · GitHub")
-  and to antonshakirov.com.
+  the GitHub repo next to the version ("open source · version X · GitHub"),
+  to antonshakirov.com and to the product landing — in the app's language
+  when the landing has it (8 languages), otherwise English.
 - Languages in pickers use the standard order, like system lists:
   alphabetical by NATIVE names, Latin → Cyrillic → CJK (pickerOrder,
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"
