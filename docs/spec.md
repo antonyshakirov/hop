@@ -57,7 +57,11 @@ signing would break).
 ## Modules
 
 The main screen is a stack of modules in user-defined order (drag to
-reorder in the "general" settings tab). All modules can be hidden;
+reorder in the "general" settings tab). Reordering is a hand-rolled drag,
+not List.onMove: the system drop indicator (line + leading dot) can't be
+styled and its dot clipped at the panel insets. Rows part to open a gap
+at the target; the dragged row follows the pointer semi-transparent and
+settles with a short glide. All modules can be hidden;
 visibility toggles live ONLY in "general" (do not duplicate them in module
 settings). The divider between modules sits exactly in the middle:
 top inset = bottom inset = 16pt.

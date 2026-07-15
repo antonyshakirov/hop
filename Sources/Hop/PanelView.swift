@@ -46,6 +46,11 @@ struct PanelView: View {
     @State private var settingsSection = "general"
     @State private var editUnit: TimeInterval? // digit group being edited (3600/60/1)
     @State private var languageMenuTarget: MenuPickTarget?
+    // custom module reorder: the system List.onMove drop indicator
+    // (line + leading dot) can't be styled, so rows are dragged by hand
+    @State private var dragModuleKey: String?
+    @State private var dragModuleOffset: CGFloat = 0
+    @State private var dragModuleTarget: Int?
     @AppStorage("cycleTemplates") private var cycleTemplatesRaw = "25/5x4,52/17x3,90/15x2"
     @AppStorage("showPresetsRow") private var showPresetsRow = true
     @AppStorage("showCyclesRow") private var showCyclesRow = true
@@ -1514,7 +1519,70 @@ struct PanelView: View {
     }
 
 
-    /// Module row: burger handle (the system List drags by it), name, toggle.
+    private static let moduleRowHeight: CGFloat = 30
+
+    /// Module row wired for reordering: fixed height (drag math relies on
+    /// it), neighbors shift out of the way live, the dragged row tracks the
+    /// pointer without animation so it never lags behind the hand.
+    private func draggableModuleRow(_ key: String, index: Int) -> some View {
+        let isDragged = dragModuleKey == key
+        return moduleRow(key)
+            .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 2))
+            .frame(height: Self.moduleRowHeight)
+            .contentShape(Rectangle())
+            .opacity(isDragged ? 0.4 : 1)
+            .offset(y: isDragged ? dragModuleOffset : moduleRowShift(index))
+            .zIndex(isDragged ? 1 : 0)
+            .animation(isDragged ? nil : .easeInOut(duration: 0.15),
+                       value: moduleRowShift(index))
+            .gesture(moduleDragGesture(key))
+    }
+
+    /// How far a resting row steps aside to open a gap at the drop target.
+    private func moduleRowShift(_ index: Int) -> CGFloat {
+        guard let key = dragModuleKey,
+              let from = moduleOrder.firstIndex(of: key),
+              let target = dragModuleTarget, index != from else { return 0 }
+        if from < index, target >= index { return -Self.moduleRowHeight }
+        if from > index, target <= index { return Self.moduleRowHeight }
+        return 0
+    }
+
+    private func moduleDragGesture(_ key: String) -> some Gesture {
+        DragGesture(minimumDistance: 3)
+            .onChanged { value in
+                let order = moduleOrder
+                guard let from = order.firstIndex(of: key) else { return }
+                if dragModuleKey == nil {
+                    dragModuleKey = key
+                    dragModuleTarget = from
+                }
+                dragModuleOffset = value.translation.height
+                let steps = Int((value.translation.height / Self.moduleRowHeight).rounded())
+                let target = min(max(from + steps, 0), order.count - 1)
+                if target != dragModuleTarget {
+                    dragModuleTarget = target
+                    Sounds.scrubTick()
+                }
+            }
+            .onEnded { _ in
+                var order = moduleOrder
+                if let from = order.firstIndex(of: key),
+                   let target = dragModuleTarget, target != from {
+                    order.insert(order.remove(at: from), at: target)
+                }
+                // the visual offset nearly equals the committed displacement,
+                // so the settle is a short glide, not a jump
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    moduleOrderRaw = order.joined(separator: ",")
+                    dragModuleKey = nil
+                    dragModuleTarget = nil
+                    dragModuleOffset = 0
+                }
+            }
+    }
+
+    /// Module row: burger handle (drag anywhere on the row), name, toggle.
     private func moduleRow(_ key: String) -> some View {
         HStack(spacing: 10) {
             // drag handle: two lines, left-aligned
@@ -1603,42 +1671,15 @@ struct PanelView: View {
                         .foregroundStyle(Theme.textTertiary)
                     Spacer()
                 }
-                // system List.onMove — macOS's native smooth drag-and-drop.
-                // In snapshots List (NSTableView) doesn't render — flat VStack.
-                if Snapshot.active {
-                    VStack(spacing: 0) {
-                        ForEach(moduleOrder, id: \.self) { key in
-                            moduleRow(key)
-                                .padding(EdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 2))
-                        }
+                // hand-rolled drag reorder instead of List.onMove: the system
+                // drop indicator draws a dot that clips at our insets and can't
+                // be removed. Rows part to make a gap; the dragged row follows
+                // the pointer semi-transparent. Plain VStack also renders in
+                // snapshots, where List (NSTableView) doesn't.
+                VStack(spacing: 0) {
+                    ForEach(Array(moduleOrder.enumerated()), id: \.element) { index, key in
+                        draggableModuleRow(key, index: index)
                     }
-                    .padding(.leading, -12)
-                } else {
-                    List {
-                        ForEach(moduleOrder, id: \.self) { key in
-                            moduleRow(key)
-                                .listRowBackground(Color.clear)
-                                .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 2))
-                                .listRowSeparator(.hidden)
-                        }
-                        .onMove { from, to in
-                            var order = moduleOrder
-                            order.move(fromOffsets: from, toOffset: to)
-                            withAnimation(.easeInOut(duration: 0.18)) {
-                                moduleOrderRaw = order.joined(separator: ",")
-                            }
-                            Sounds.scrubTick()
-                        }
-                    }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
-                    .scrollDisabled(true)
-                    .environment(\.defaultMinListRowHeight, 30)
-                    .frame(height: CGFloat(moduleOrder.count) * 30)
-                    // row inset of 18 makes room for the drop-indicator dot (it
-                    // draws left of the content and was still clipped at 12);
-                    // shifting back aligns the handles with the section's left edge
-                    .padding(.leading, -18)
                 }
             }
 
