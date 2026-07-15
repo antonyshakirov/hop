@@ -60,7 +60,7 @@ struct ThresholdRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(Theme.mono(11))
+                .font(Theme.mono(12))
                 .foregroundStyle(Theme.textPrimary)
             Spacer()
             NumericField(value: $yellow, range: 1...maxValue, color: Theme.accentYellow)

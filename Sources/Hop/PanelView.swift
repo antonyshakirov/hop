@@ -2151,14 +2151,14 @@ struct PanelView: View {
             }
             HStack {
                 Text(t(.monitorDetailedLabel))
-                    .font(Theme.mono(11))
+                    .font(Theme.mono(12))
                     .foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Theme.MiniSwitch(isOn: $monitorDetailed)
             }
             HStack {
                 Text(t(.monitorWindowLabel))
-                    .font(Theme.mono(11))
+                    .font(Theme.mono(12))
                     .foregroundStyle(Theme.textPrimary)
                 Spacer()
                 // one hour is the ceiling: the buffer holds 61 minutes, memory cost is trivial
@@ -2177,7 +2177,7 @@ struct PanelView: View {
             }
             HStack {
                 Text(t(.redAlertLabel))
-                    .font(Theme.mono(11))
+                    .font(Theme.mono(12))
                     .foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Theme.MiniSwitch(isOn: $menuBarRedAlert)
@@ -2185,7 +2185,7 @@ struct PanelView: View {
 
             HStack {
                 Text(t(.tempUnitLabel))
-                    .font(Theme.mono(11))
+                    .font(Theme.mono(12))
                     .foregroundStyle(Theme.textPrimary)
                 Spacer()
                 unitChip("auto", label: t(.languageAuto))
@@ -2194,6 +2194,13 @@ struct PanelView: View {
             }
 
             // free input, digits only; red is always stricter than yellow
+            HStack {
+                Text(t(.thGeneralNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                Spacer()
+            }
+            .padding(.top, 2)
             ThresholdRow(label: t(.thTemp), yellow: $tempYellow, red: $tempRed, maxValue: 130)
             ThresholdRow(label: t(.thLoad), yellow: $loadYellow, red: $loadRed, maxValue: 100)
             ThresholdRow(label: t(.thMem), yellow: $memYellow, red: $memRed, maxValue: 300)
