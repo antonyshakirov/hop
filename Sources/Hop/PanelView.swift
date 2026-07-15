@@ -2392,8 +2392,9 @@ struct PanelView: View {
                         Image(systemName: "chevron.left.forwardslash.chevron.right")
                             .font(.system(size: 10))
                             .foregroundStyle(Theme.textTertiary)
-                        Text("open source · \(t(.versionLabel)) \(model.updater.currentVersion)")
+                        Text("open source · \(t(.versionLabel)) \(model.updater.currentVersion) ·")
                             .foregroundStyle(Theme.textSecondary)
+                        FooterLink(url: "https://github.com/antonyshakirov/hop", label: "GitHub")
                     }
                     HStack(spacing: 6) {
                         Text("\(t(.aboutFooter)) ·")

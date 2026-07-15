@@ -282,7 +282,9 @@ top inset = bottom inset = 16pt.
   Toggles are our own MiniSwitch (the system Toggle doesn't render in
   ImageRenderer).
 - Info page: per-module tabs, "term — explanation" style
-  (the term is bold up to the " — ").
+  (the term is bold up to the " — "). The general-tab footer links to
+  the GitHub repo next to the version ("open source · version X · GitHub")
+  and to antonshakirov.com.
 - Languages in pickers use the standard order, like system lists:
   alphabetical by NATIVE names, Latin → Cyrillic → CJK (pickerOrder,
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"

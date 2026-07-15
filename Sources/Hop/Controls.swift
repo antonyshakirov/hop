@@ -96,13 +96,14 @@ final class MenuPickTarget: NSObject {
 /// turns white with an underline on hover.
 struct FooterLink: View {
     let url: String
+    var label = "antonshakirov.com"
     @State private var hovering = false
 
     var body: some View {
         Button {
             if let link = URL(string: url) { NSWorkspace.shared.open(link) }
         } label: {
-            Text("antonshakirov.com")
+            Text(label)
                 .font(Theme.mono(11))
                 .foregroundStyle(hovering ? Theme.textPrimary : Theme.textSecondary)
                 .underline(hovering)
