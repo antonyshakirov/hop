@@ -163,8 +163,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 640, height: 620),
                 // miniaturizable like the converter: settings can be sent to
-                // the Dock instead of only closed
-                styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
+                // the Dock instead of only closed. WITHOUT fullSizeContentView,
+                // like the about window: content must not slide under the
+                // translucent title bar (rows showed through it while scrolling)
+                styleMask: [.titled, .closable, .miniaturizable],
                 backing: .buffered, defer: false
             )
             window.titlebarAppearsTransparent = true
