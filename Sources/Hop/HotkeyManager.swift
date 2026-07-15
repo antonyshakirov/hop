@@ -98,9 +98,11 @@ final class HotkeyManager: ObservableObject {
 
     // MARK: - Window zone hotkeys
 
-    /// Fixed ⌃⌥ scheme in the Rectangle spirit; enabled by a toggle
-    /// in the windows settings, OFF by default. IDs start at 101
-    /// to avoid overlapping with Action.
+    /// Fixed ⌃⌥ scheme in the Rectangle spirit; a toggle in the windows
+    /// settings, ON by default (Anton, 2026-07-15). IDs start at 101
+    /// to avoid overlapping with Action. Every zone has a key: thirds on
+    /// D/F/G, two-thirds on E/T (Rectangle's convention), the center
+    /// column on S, horizontal thirds on O/L.
     static let snapHotkeysKey = "windowsHotkeysOn"
 
     static let snapScheme: [(position: WindowSnapController.Position, keyCode: Int, id: UInt32)] = [
@@ -114,6 +116,14 @@ final class HotkeyManager: ObservableObject {
         (.topRight, kVK_ANSI_I, 108),
         (.bottomLeft, kVK_ANSI_J, 109),
         (.bottomRight, kVK_ANSI_K, 110),
+        (.leftThird, kVK_ANSI_D, 111),
+        (.centerThird, kVK_ANSI_F, 112),
+        (.rightThird, kVK_ANSI_G, 113),
+        (.leftTwoThirds, kVK_ANSI_E, 114),
+        (.rightTwoThirds, kVK_ANSI_T, 115),
+        (.centerHalf, kVK_ANSI_S, 116),
+        (.topThird, kVK_ANSI_O, 117),
+        (.bottomThird, kVK_ANSI_L, 118),
     ]
 
     private var snapRefs: [UInt32: EventHotKeyRef] = [:]
@@ -123,7 +133,9 @@ final class HotkeyManager: ObservableObject {
         installIfNeeded()
         for (_, ref) in snapRefs { UnregisterEventHotKey(ref) }
         snapRefs.removeAll()
-        guard UserDefaults.standard.bool(forKey: Self.snapHotkeysKey) else { return }
+        // missing key = ON: the zones work out of the box
+        let enabled = UserDefaults.standard.object(forKey: Self.snapHotkeysKey) as? Bool ?? true
+        guard enabled else { return }
         for entry in Self.snapScheme {
             handlers[entry.id] = { WindowSnapController.shared.apply(entry.position) }
             var ref: EventHotKeyRef?

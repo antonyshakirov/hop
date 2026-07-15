@@ -360,7 +360,8 @@ final class FileConverter: ObservableObject {
                 self.progress = nil
                 self.batchFraction = nil
                 self.lastResult = summary
-                if UserDefaults.standard.bool(forKey: Self.autoClearKey) {
+                // missing key = ON: finished files hide by default
+                if UserDefaults.standard.object(forKey: Self.autoClearKey) as? Bool ?? true {
                     self.batch.remove(finished, kind: kind) // auto-clear finished ones
                 } else {
                     self.batch.markDone(finished, kind: kind)

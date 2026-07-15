@@ -208,8 +208,10 @@ top inset = bottom inset = 16pt.
   (up to 500 files), duplicates are skipped.
 - Groups: images / PDF / video / audio / unsupported. Each file gets:
   a thumbnail (QuickLook), name, its own size "current → ~estimated";
-  the circle turns into a green checkmark when done (converted files stay
-  in the list). The group total shows only with >1 file.
+  the circle turns into a green checkmark when done. Finished files
+  auto-hide by default (the "auto-clear" setting, ON since 2026-07-15);
+  with it off they stay in the list with the checkmark. The group total
+  shows only with >1 file.
 - Images: input JPEG/PNG/HEIC/TIFF/GIF/RAW; output JPEG/PNG/HEIC + AVIF.
   **WebP is deliberately removed everywhere (Anton's decision 2026-07-13):
   macOS has no system WebP encoder in any version; WebP input still reads.**
@@ -223,6 +225,10 @@ top inset = bottom inset = 16pt.
 - Resolution chips at or above the source's short side are hidden — they
   would re-encode at the same frame size and read as a second "squeeze";
   a currently selected chip stays visible so the choice is never invisible.
+- Video settings are two labeled rows: "format: MP4/MOV" and
+  "compression: none / same size / to 1080p / to 720p / to 540p" —
+  every option except "none" compresses, the chips say HOW (keep the
+  frame size via HEVC, or downscale to a target).
 - Estimates are honest: images/PDF — a trial conversion of the first file +
   a curve over reference quality points (interpolation, no recompute on
   every slider move); video/audio — the system encoder's forecast. Per-file
@@ -267,9 +273,13 @@ top inset = bottom inset = 16pt.
 - Glyphs 26×16, fill inset 1pt (any more and the "half" turns into
   a strip). The "center" fill is smaller than the real zone, otherwise
   it is indistinguishable from "full screen".
-- Global zone hotkeys: a toggle in windows settings (OFF by default),
-  a fixed ⌃⌥ scheme: arrows — halves, ↩ — full screen, C — center,
-  U/I/J/K — quarters. Registered via the shared HotkeyManager (id 101+).
+- Global zone hotkeys: a toggle in windows settings (ON by default —
+  Anton, 2026-07-15), a fixed ⌃⌥ scheme covering ALL 18 zones:
+  arrows — halves, ↩ — full screen, C — center, U/I/J/K — quarters,
+  D/F/G — vertical thirds, E/T — two-thirds, S — center column,
+  O/L — top/bottom thirds. Registered via the shared HotkeyManager
+  (id 101+). The settings label reads "resize windows with hotkeys"
+  (not the old "zone hotkeys").
 - The Accessibility permission is requested on the first action.
   **TCC gotcha:** if the toggle in System Settings is on but actions
   don't work and the prompt keeps repeating — the TCC record went stale

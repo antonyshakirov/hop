@@ -345,26 +345,35 @@ struct ConvertWindowView: View {
         case .pdf:
             EmptyView() // PDF has a single setting — quality, shown in the shared row
         case .video:
-            HStack(spacing: 5) {
-                rowLabel(t(.convFormatLabel))
-                chip("MP4", videoFormat == "mp4") { videoFormat = "mp4" }
-                chip("MOV", videoFormat == "mov") { videoFormat = "mov" }
-                Spacer()
-                chip(t(.convQualityOriginal), videoQuality == "original") { videoQuality = "original" }
-                chip(t(.convSqueezeChip), videoQuality == "hevc") { videoQuality = "hevc" }
-                    .help(t(.convSqueezeHint))
-                // only resolutions BELOW the source: a chip at the source's own
-                // size re-encodes without downscaling and reads as a second
-                // "squeeze"; a currently selected chip stays visible
-                let sourceSide = model.converter.videoMaxShortSide
-                if sourceSide == 0 || sourceSide > 1080 || videoQuality == "1080" {
-                    chip("1080p", videoQuality == "1080") { videoQuality = "1080" }
+            // two rows: everything in one line overflowed on long languages
+            // once the compression group got its own label
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 5) {
+                    rowLabel(t(.convFormatLabel))
+                    chip("MP4", videoFormat == "mp4") { videoFormat = "mp4" }
+                    chip("MOV", videoFormat == "mov") { videoFormat = "mov" }
+                    Spacer()
                 }
-                if sourceSide == 0 || sourceSide > 720 || videoQuality == "720" {
-                    chip("720p", videoQuality == "720") { videoQuality = "720" }
-                }
-                if sourceSide == 0 || sourceSide > 540 || videoQuality == "540" {
-                    chip("540p", videoQuality == "540") { videoQuality = "540" }
+                // every option except "none" compresses; the chips say HOW:
+                // keep the frame size or downscale to a target
+                HStack(spacing: 5) {
+                    rowLabel(t(.convCompressLabel))
+                    chip(t(.convQualityOriginal), videoQuality == "original") { videoQuality = "original" }
+                    chip(t(.convSqueezeChip), videoQuality == "hevc") { videoQuality = "hevc" }
+                        .help(t(.convSqueezeHint))
+                    // only resolutions BELOW the source: a chip at the source's
+                    // own size duplicates "same size"; a selected chip stays visible
+                    let sourceSide = model.converter.videoMaxShortSide
+                    if sourceSide == 0 || sourceSide > 1080 || videoQuality == "1080" {
+                        chip(compressTo("1080p"), videoQuality == "1080") { videoQuality = "1080" }
+                    }
+                    if sourceSide == 0 || sourceSide > 720 || videoQuality == "720" {
+                        chip(compressTo("720p"), videoQuality == "720") { videoQuality = "720" }
+                    }
+                    if sourceSide == 0 || sourceSide > 540 || videoQuality == "540" {
+                        chip(compressTo("540p"), videoQuality == "540") { videoQuality = "540" }
+                    }
+                    Spacer()
                 }
             }
         case .audio:
@@ -455,6 +464,11 @@ struct ConvertWindowView: View {
         Text(text)
             .font(Theme.mono(10))
             .foregroundStyle(Theme.textTertiary)
+    }
+
+    /// "to 1080p"-style chip label — the target slots into the localized template.
+    private func compressTo(_ resolution: String) -> String {
+        t(.convCompressTo).replacingOccurrences(of: "{res}", with: resolution)
     }
 
     private func chip(_ label: String, _ active: Bool, action: @escaping () -> Void) -> some View {

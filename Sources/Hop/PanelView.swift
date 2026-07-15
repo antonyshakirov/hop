@@ -31,7 +31,7 @@ struct PanelView: View {
     @AppStorage("tempUnit") private var tempUnitRaw = "auto"
     @AppStorage("monitorDetailed") private var monitorDetailed = false
     @AppStorage("monitorWindowMin") private var monitorWindowMin = 5
-    @AppStorage(HotkeyManager.snapHotkeysKey) private var windowsHotkeysOn = false
+    @AppStorage(HotkeyManager.snapHotkeysKey) private var windowsHotkeysOn = true
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
     @AppStorage(AppIcon.styleKey) private var appIconStyle = "auto"
@@ -58,7 +58,7 @@ struct PanelView: View {
     @AppStorage(FileConverter.qualityKey) private var convQuality = 55
     @AppStorage(FileConverter.destKey) private var convDest = "downloads"
     @AppStorage(FileConverter.destPathKey) private var convDestPath = ""
-    @AppStorage(FileConverter.autoClearKey) private var convAutoClear = false
+    @AppStorage(FileConverter.autoClearKey) private var convAutoClear = true
     @AppStorage("showWindowsModule") private var showWindowsModule = true
     @AppStorage("showSpeedtestModule") private var showSpeedtestModule = true
     @AppStorage("moduleOrder") private var moduleOrderRaw = "timer,awake,clipboard,convert,windows"
@@ -2276,12 +2276,17 @@ struct PanelView: View {
     }
 
     /// Zone → key pairs, shared by the help legend and the settings section.
+    /// Every zone of the scheme is listed — a hidden hotkey is a lost hotkey.
     static let snapHotkeyItems: [(WindowSnapController.Position, String)] = [
         (.leftHalf, "←"), (.rightHalf, "→"),
         (.topHalf, "↑"), (.bottomHalf, "↓"),
         (.maximize, "↩"), (.center, "C"),
         (.topLeft, "U"), (.topRight, "I"),
         (.bottomLeft, "J"), (.bottomRight, "K"),
+        (.leftThird, "D"), (.centerThird, "F"),
+        (.rightThird, "G"), (.leftTwoThirds, "E"),
+        (.rightTwoThirds, "T"), (.centerHalf, "S"),
+        (.topThird, "O"), (.bottomThird, "L"),
     ]
 
     /// Windows hotkey legend: zone glyph + combo (⌃⌥ …), in two columns.

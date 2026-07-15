@@ -162,7 +162,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if settingsWindow == nil {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 640, height: 620),
-                styleMask: [.titled, .closable, .fullSizeContentView],
+                // miniaturizable like the converter: settings can be sent to
+                // the Dock instead of only closed
+                styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
                 backing: .buffered, defer: false
             )
             window.titlebarAppearsTransparent = true
