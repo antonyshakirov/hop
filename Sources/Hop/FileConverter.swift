@@ -206,6 +206,17 @@ final class FileConverter: ObservableObject {
 
     // MARK: - Batch
 
+    /// Short side of the largest pending video: resolution chips at or above
+    /// it would re-encode at the same frame size — a confusing duplicate of
+    /// "squeeze", so the UI hides them. 0 = unknown (still loading).
+    var videoMaxShortSide: Int {
+        batch.pending(.video).reduce(0) { side, url in
+            guard let label = videoResolutions[url.path] else { return side }
+            let value = label == "4K" ? 2160 : (Int(label.dropLast()) ?? 0)
+            return max(side, value)
+        }
+    }
+
     /// "1080p"-style label from the frame's short side.
     nonisolated private static func resolutionLabel(_ size: CGSize) -> String {
         let p = Int(min(abs(size.width), abs(size.height)).rounded())

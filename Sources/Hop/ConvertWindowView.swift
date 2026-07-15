@@ -353,9 +353,19 @@ struct ConvertWindowView: View {
                 chip(t(.convQualityOriginal), videoQuality == "original") { videoQuality = "original" }
                 chip(t(.convSqueezeChip), videoQuality == "hevc") { videoQuality = "hevc" }
                     .help(t(.convSqueezeHint))
-                chip("1080p", videoQuality == "1080") { videoQuality = "1080" }
-                chip("720p", videoQuality == "720") { videoQuality = "720" }
-                chip("540p", videoQuality == "540") { videoQuality = "540" }
+                // only resolutions BELOW the source: a chip at the source's own
+                // size re-encodes without downscaling and reads as a second
+                // "squeeze"; a currently selected chip stays visible
+                let sourceSide = model.converter.videoMaxShortSide
+                if sourceSide == 0 || sourceSide > 1080 || videoQuality == "1080" {
+                    chip("1080p", videoQuality == "1080") { videoQuality = "1080" }
+                }
+                if sourceSide == 0 || sourceSide > 720 || videoQuality == "720" {
+                    chip("720p", videoQuality == "720") { videoQuality = "720" }
+                }
+                if sourceSide == 0 || sourceSide > 540 || videoQuality == "540" {
+                    chip("540p", videoQuality == "540") { videoQuality = "540" }
+                }
             }
         case .audio:
             HStack(spacing: 5) {
