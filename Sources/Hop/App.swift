@@ -90,6 +90,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.requestQuit = { [weak self] in
             self?.requestQuit()
         }
+        model.raiseOpenWindows = { [weak self] in
+            guard let self else { return }
+            // miniaturized windows are not "visible": a deliberate minimize
+            // stays in the Dock and is not yanked back
+            for window in [converterWindow, settingsWindow, aboutWindow]
+            where window?.isVisible == true {
+                window?.orderFront(nil)
+            }
+        }
         AppIcon.apply() // Finder icon per the selected style
         model.refreshTheme = { [weak self] in
             self?.applyAppTheme()
@@ -169,6 +178,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.contentViewController = host
             window.contentMinSize = NSSize(width: 640, height: 300)
             window.contentMaxSize = NSSize(width: 640, height: 100_000)
+            // "latest version installed" must not survive the settings window:
+            // an update may ship while it's closed and the note would lie
+            NotificationCenter.default.addObserver(
+                forName: NSWindow.willCloseNotification, object: window, queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor in self?.model.updater.clearTransientStatus() }
+            }
             settingsWindow = window
         }
         guard let window = settingsWindow else { return }

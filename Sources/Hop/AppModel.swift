@@ -34,6 +34,9 @@ final class AppModel: ObservableObject {
     var openAboutWindow: (() -> Void)?
     /// Quit with confirmation if the timer is running or sleep prevention is active.
     var requestQuit: (() -> Void)?
+    /// Bring already-open auxiliary windows (converter/settings/about) back
+    /// to the front — they sink behind other apps' windows on deactivate.
+    var raiseOpenWindows: (() -> Void)?
     /// Instantly apply a theme change to all windows and the popup.
     var refreshTheme: (() -> Void)?
 

@@ -235,6 +235,9 @@ final class StatusItemController: NSObject {
         frozenTitleLength = button.attributedTitle.string.count
         frozenBarTimeVisible = !button.attributedTitle.string
             .trimmingCharacters(in: .whitespaces).isEmpty
+        // windows left open (converter mid-batch etc.) come back with the panel:
+        // they sink behind other apps and clicking the star is how users return
+        model.raiseOpenWindows?()
         presentPopover()
         refreshButton() // freeze the width immediately, without waiting for a tick
     }
