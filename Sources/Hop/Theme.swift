@@ -109,7 +109,9 @@ enum Theme {
         isDark ? Color(nsColor: .systemYellow) : Color(red: 0.85, green: 0.53, blue: 0.0) // light: amber, not brown
     }
     static var accentOrange: Color {
-        isDark ? Color(nsColor: .systemOrange) : Color(red: 0.80, green: 0.42, blue: 0.03)
+        // light: a notch darker than system orange — reads better on the
+        // light panel and matches the converter progress row
+        isDark ? Color(nsColor: .systemOrange) : Color(red: 0.72, green: 0.38, blue: 0.02)
     }
     static var accentRed: Color {
         // system red glares on a light background — darken it

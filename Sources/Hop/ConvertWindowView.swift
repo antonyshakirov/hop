@@ -289,9 +289,10 @@ struct ConvertWindowView: View {
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.accentOrange)
                         .monospacedDigit()
+                    // one orange for the whole row: bar, percent and label
                     Text("\(t(.convConverting)) \(progress)")
                         .font(Theme.mono(11, weight: .semibold))
-                        .foregroundStyle(Theme.editing)
+                        .foregroundStyle(Theme.accentOrange)
                 } else if hasPending {
                     Button {
                         model.converter.convert(kind)
