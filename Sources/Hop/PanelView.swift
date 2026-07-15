@@ -1772,7 +1772,7 @@ struct PanelView: View {
                             HStack(spacing: 8) {
                                 snapGlyph(position)
                                     .frame(width: 22, height: 14)
-                                Text("⌃⌥ \(key)")
+                                Text("⌃ ⌥ \(key)")
                                     .font(Theme.mono(10))
                                     .foregroundStyle(Theme.textTertiary)
                                 Spacer(minLength: 0)
@@ -2298,7 +2298,7 @@ struct PanelView: View {
         (.topThird, "O"), (.bottomThird, "L"),
     ]
 
-    /// Windows hotkey legend: zone glyph + combo (⌃⌥ …), in two columns.
+    /// Windows hotkey legend: zone glyph + combo (⌃ ⌥ …), in four columns.
     private var windowsHotkeyLegend: some View {
         let items = Self.snapHotkeyItems
         return VStack(alignment: .leading, spacing: 10) {
@@ -2319,7 +2319,7 @@ struct PanelView: View {
                     HStack(spacing: 10) {
                         snapGlyph(position)
                             .frame(width: 26, height: 17)
-                        Text("⌃⌥ \(key)")
+                        Text("⌃ ⌥ \(key)")
                             .font(Theme.mono(11))
                             .foregroundStyle(Theme.textSecondary)
                         Spacer(minLength: 0)
