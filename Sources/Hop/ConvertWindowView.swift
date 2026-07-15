@@ -270,10 +270,17 @@ struct ConvertWindowView: View {
                     Text("✓ \(doneCount)/\(files.count)")
                         .font(Theme.mono(10, weight: .semibold))
                         .foregroundStyle(Theme.accentGreen)
+                } else if hasPending, model.converter.activeKind != kind {
+                    // honesty note: the projected sizes are estimates
+                    Text(t(.convApproxNote))
+                        .font(Theme.mono(9.5))
+                        .foregroundStyle(Theme.textTertiary)
                 }
                 Spacer()
-                if model.converter.activeKind == kind,
-                   let fraction = model.converter.fileFraction {
+                if model.converter.activeKind == kind, let progress = model.converter.progress {
+                    // conversion status: a whole-batch bar (files done + the
+                    // current video's own fraction) and "converting… i/n"
+                    let fraction = model.converter.batchFraction ?? 0
                     ProgressView(value: fraction)
                         .progressViewStyle(.linear)
                         .frame(width: 90)
@@ -282,9 +289,7 @@ struct ConvertWindowView: View {
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.accentOrange)
                         .monospacedDigit()
-                }
-                if model.converter.activeKind == kind, let progress = model.converter.progress {
-                    Text(progress)
+                    Text("\(t(.convConverting)) \(progress)")
                         .font(Theme.mono(11, weight: .semibold))
                         .foregroundStyle(Theme.editing)
                 } else if hasPending {

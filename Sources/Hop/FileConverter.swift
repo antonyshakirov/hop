@@ -130,6 +130,8 @@ final class FileConverter: ObservableObject {
     @Published private(set) var busy = false
     @Published private(set) var activeKind: MediaKind?
     @Published private(set) var progress: String?
+    /// Whole-batch progress 0...1: whole files done + the current video's fraction.
+    @Published private(set) var batchFraction: Double?
     /// Fraction of the current file (0…1): for video/audio the encoder itself reports it.
     @Published private(set) var fileFraction: Double?
     /// Video file resolutions ("1080p") — read when files are added to the batch.
@@ -294,9 +296,11 @@ final class FileConverter: ObservableObject {
             var savedBytes: Int64 = 0
             var failedURLs: Set<URL> = []
             var done = Set<URL>()
+            let total = files.count
             for (index, url) in files.enumerated() {
                 await MainActor.run { [weak self] in
-                    self?.progress = "\(index + 1)/\(files.count)"
+                    self?.progress = "\(index + 1)/\(total)"
+                    self?.batchFraction = Double(index) / Double(total)
                 }
                 let outDir = destination ?? url.deletingLastPathComponent()
                 let originalSize = (try? FileManager.default
@@ -310,7 +314,10 @@ final class FileConverter: ObservableObject {
                     outURL = Self.compressPDF(url, to: outDir, scale: 1.0, quality: quality)
                 case .video:
                     let report: @Sendable (Double) -> Void = { [weak self] fraction in
-                        Task { @MainActor in self?.fileFraction = fraction }
+                        Task { @MainActor in
+                            self?.fileFraction = fraction
+                            self?.batchFraction = (Double(index) + fraction) / Double(total)
+                        }
                     }
                     outURL = await Self.convertVideo(
                         url, to: outDir, format: videoFormat,
@@ -340,6 +347,7 @@ final class FileConverter: ObservableObject {
                 self.busy = false
                 self.activeKind = nil
                 self.progress = nil
+                self.batchFraction = nil
                 self.lastResult = summary
                 if UserDefaults.standard.bool(forKey: Self.autoClearKey) {
                     self.batch.remove(finished, kind: kind) // auto-clear finished ones
