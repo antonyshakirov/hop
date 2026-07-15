@@ -3,6 +3,22 @@ import Combine
 import SwiftUI
 import HopCore
 
+/// Rounds the preferred size up to whole points: fractional SwiftUI text
+/// heights otherwise land the popover frame on a half pixel and the whole
+/// panel (most visibly the header icons) jiggles 1px between tabs.
+@MainActor
+private final class IntegralSizeHostingController: NSHostingController<AnyView> {
+    override var preferredContentSize: NSSize {
+        get { super.preferredContentSize }
+        set {
+            super.preferredContentSize = NSSize(
+                width: newValue.width.rounded(.up),
+                height: newValue.height.rounded(.up)
+            )
+        }
+    }
+}
+
 /// Native status item: left click shows the popover with the panel,
 /// right click shows the context menu (open / about / settings / quit).
 @MainActor
@@ -20,7 +36,12 @@ final class StatusItemController: NSObject {
 
         popover.behavior = .transient
         popover.animates = false
-        let host = NSHostingController(rootView: PanelView().environmentObject(model))
+        // top alignment: with the height rounded up, the sub-point leftover
+        // goes to the bottom edge instead of re-centering the content
+        let host = IntegralSizeHostingController(rootView: AnyView(
+            PanelView().environmentObject(model)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        ))
         // preferredContentSize: the popover tracks the SwiftUI content size
         // without animating the first recalculation (fixes the shifted first click on monitor)
         host.sizingOptions = .preferredContentSize
@@ -28,7 +49,7 @@ final class StatusItemController: NSObject {
         popover.animates = false
         host.view.layoutSubtreeIfNeeded()
         popover.contentViewController = host
-        popover.contentSize = host.view.fittingSize
+        popover.contentSize = Self.integral(host.view.fittingSize)
 
         if let button = statusItem.button {
             button.target = self
@@ -59,6 +80,7 @@ final class StatusItemController: NSObject {
         ) { [weak self] _ in
             Task { @MainActor in
                 self?.frozenTitleLength = nil
+                self?.frozenBarTimeVisible = nil
                 self?.panelOriginX = nil
                 self?.hiddenAnchorWindow?.orderOut(nil)
                 self?.hiddenAnchorWindow = nil
@@ -106,6 +128,17 @@ final class StatusItemController: NSObject {
     /// Menu bar title length, frozen while the panel is open
     /// (nil — panel closed, width is free to change).
     private var frozenTitleLength: Int?
+
+    /// Whether the bar showed the time when the panel opened (nil — closed).
+    /// The PRESENCE is frozen too: a countdown appearing mid-session would
+    /// resize the button and drag the attached panel with it.
+    private var frozenBarTimeVisible: Bool?
+
+    /// Whole-point size: a fractional SwiftUI height lands the popover
+    /// frame on a half pixel and the panel content jiggles 1px between tabs.
+    private static func integral(_ size: NSSize) -> NSSize {
+        NSSize(width: size.width.rounded(.up), height: size.height.rounded(.up))
+    }
 
     /// Reference X of the panel window: a change during resize = lost anchor.
     private var panelOriginX: CGFloat?
@@ -200,6 +233,8 @@ final class StatusItemController: NSObject {
         // padded with spaces to the same length — geometry stays constant,
         // so there is simply nothing to make the panel drift
         frozenTitleLength = button.attributedTitle.string.count
+        frozenBarTimeVisible = !button.attributedTitle.string
+            .trimmingCharacters(in: .whitespaces).isEmpty
         presentPopover()
         refreshButton() // freeze the width immediately, without waiting for a tick
     }
@@ -213,7 +248,7 @@ final class StatusItemController: NSObject {
         // after appearing, it re-centers itself — the panel jerks sideways
         if let view = popover.contentViewController?.view {
             view.layoutSubtreeIfNeeded()
-            popover.contentSize = view.fittingSize
+            popover.contentSize = Self.integral(view.fittingSize)
         }
         // anchor to the ICON zone, not the whole button: when the countdown
         // appears the button grows, and a full-bounds popover drifted away from the star.
@@ -336,6 +371,11 @@ final class StatusItemController: NSObject {
         if showCountdown, state == .running || state == .paused {
             let value = engine.isStopwatch ? engine.elapsed : engine.remaining
             title = " " + TimeFormatting.short(value)
+        }
+        // presence freeze: the bar was empty when the panel opened — a timer
+        // started from the panel must not surface the label until close
+        if frozenBarTimeVisible == false {
+            title = ""
         }
         if let frozen = frozenTitleLength {
             // panel open: the time STAYS visible in the menu bar (Anton,

@@ -153,7 +153,9 @@ final class FileConverter: ObservableObject {
         let points: [Int: Int64]
     }
     private var curves: [MediaKind: EstimateCurve] = [:]
-    nonisolated private static let curveQualities = [10, 35, 60, 85, 100]
+    // 55 is the default slider value: with it as a reference point the
+    // estimate at defaults is a real measurement, not an interpolation
+    nonisolated private static let curveQualities = [10, 35, 55, 80, 100]
 
     /// AVIF is the main modern web format; the codec ships with recent macOS.
     static var avifSupported: Bool {
@@ -607,10 +609,10 @@ final class FileConverter: ObservableObject {
         }
     }
 
-    /// Size forecast from the encoder itself — no made-up numbers.
-    /// estimatedOutputFileLength is deprecated and returns 0, so we compute
-    /// duration × the resolution's target bitrate — approximate ("~"),
-    /// but it honestly reacts to the 1080/720/540 and format choices.
+    /// Size forecast by a real sample encode: the first seconds go through the
+    /// actual export preset and the result extrapolates by duration. Bitrate
+    /// tables drifted 20%+ from the encoder on real footage — measuring the
+    /// encoder itself is the only honest number.
     nonisolated private static func estimatedVideoSize(
         _ url: URL, format: String, quality: String
     ) async -> Int64? {
@@ -621,21 +623,27 @@ final class FileConverter: ObservableObject {
             .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
         // "original" = container change only (mp4↔mov), size is almost the same
         guard quality != "original" else { return originalBytes }
-        // "shrink" (HEVC, source resolution): the typical gain
-        // over already-compressed H.264 is about 40%
-        if quality == "hevc" {
-            return originalBytes > 0 ? Int64(Double(originalBytes) * 0.6) : nil
-        }
-        let videoBitrate: Double // bits/s, calibrated against actual encoder output
-        switch quality {
-        case "1080": videoBitrate = 10_800_000 // HighestQuality 1080p is really ~10–11
-        case "720": videoBitrate = 6_000_000
-        default: videoBitrate = 3_200_000 // 540p
-        }
-        let audioBitrate = 128_000.0
-        let bytes = (videoBitrate + audioBitrate) * seconds / 8
+        guard let session = AVAssetExportSession(asset: asset, presetName: presetName(for: quality))
+        else { return nil }
+        let sampleSeconds = min(8.0, seconds)
+        session.timeRange = CMTimeRange(
+            start: .zero,
+            duration: CMTime(seconds: sampleSeconds, preferredTimescale: 600)
+        )
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("hop-estimate-\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+        let ext = format == "mov" ? "mov" : "mp4"
+        let type: AVFileType = format == "mov" ? .mov : .mp4
+        let outURL = tempDir.appendingPathComponent("sample.\(ext)")
+        guard let exported = await export(session, to: outURL, as: type),
+              let sampleBytes = try? FileManager.default
+                  .attributesOfItem(atPath: exported.path)[.size] as? Int64,
+              sampleBytes > 0
+        else { return nil }
+        let projected = Int64(Double(sampleBytes) * seconds / sampleSeconds)
         // if the source is already lighter than the target, compression must not inflate it
-        let projected = Int64(bytes)
         return (originalBytes > 0 && projected > originalBytes) ? originalBytes : projected
     }
 

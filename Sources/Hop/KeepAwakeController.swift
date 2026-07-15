@@ -100,6 +100,12 @@ final class KeepAwakeController: ObservableObject {
         until = nil
         ticker?.invalidate()
         ticker = nil
+        // lid mode lives only inside an awake session: when the session ends
+        // (manual off or time expiry, not an option switch), sleep comes back —
+        // otherwise a closed lid would block sleep forever after the timer.
+        if !silent && lidApplied {
+            applyLidSleepDisabled(false, playCue: false) // the off cue already played
+        }
     }
 
     /// Mandatory cleanup on exit: without it the Mac would be left
@@ -151,13 +157,15 @@ final class KeepAwakeController: ObservableObject {
 
     /// pmset disablesleep requires root — we ask for the admin password.
     /// Turning awake off must restore sleep, otherwise the Mac stops sleeping at all.
-    private func applyLidSleepDisabled(_ disabled: Bool) {
+    private func applyLidSleepDisabled(_ disabled: Bool, playCue: Bool = true) {
         let value = disabled ? "1" : "0"
 
         // path 1: no password — if the one-time sudoers setup is already in place
         if runQuiet("/usr/bin/sudo", ["-n", "/usr/bin/pmset", "disablesleep", value]) {
             lidApplied = disabled
-            Sounds.awakeCue(on: disabled) // lid clicks with the same cue as no-sleep
+            if playCue {
+                Sounds.awakeCue(on: disabled) // lid clicks with the same cue as no-sleep
+            }
             UserDefaults.standard.set(disabled, forKey: "lidSleepAppliedPending")
             updateLidDimmer()
             return

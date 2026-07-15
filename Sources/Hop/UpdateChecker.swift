@@ -42,7 +42,10 @@ final class UpdateChecker: ObservableObject {
     }
 
     var currentVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
+        // the fallback covers bundle-less runs (snapshots, swift run) and leaks
+        // into product screenshots — keep it the real version, not "dev";
+        // stays in sync with scripts/Info.plist
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
     }
 
     // MARK: - Auto checks

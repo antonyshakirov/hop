@@ -123,17 +123,26 @@ struct PanelView: View {
 
     var body: some View {
         if standaloneSettings {
-            ScrollView(showsIndicators: false) {
+            if Snapshot.active {
+                // ImageRenderer does not render ScrollView content — snapshots
+                // take the flat stack at its natural height
                 settingsScreen
                     .padding(20)
-                    // a theme change must rebuild ALL child views:
-                    // LanguagePicker and others get unchanged inputs, so SwiftUI
-                    // skips them — text stayed white in the light theme
-                    .id(model.themeVersion)
+                    .frame(width: 640)
+                    .background(Theme.panelBackground)
+            } else {
+                ScrollView(showsIndicators: false) {
+                    settingsScreen
+                        .padding(20)
+                        // a theme change must rebuild ALL child views:
+                        // LanguagePicker and others get unchanged inputs, so SwiftUI
+                        // skips them — text stayed white in the light theme
+                        .id(model.themeVersion)
+                }
+                .frame(width: 640)
+                .frame(maxHeight: .infinity)
+                .background(Theme.panelBackground)
             }
-            .frame(width: 640)
-            .frame(maxHeight: .infinity)
-            .background(Theme.panelBackground)
         } else if standaloneAbout {
             ScrollView(showsIndicators: false) {
                 aboutScreen

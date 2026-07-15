@@ -35,16 +35,22 @@ signing would break).
    positioningRect: when the button's WINDOW moves (didMove) — always;
    on panel resize — ONLY if origin.x actually moved (>0.5pt).
    Unconditional re-pinning on every resize makes the panel twitch.
-3. **The menu bar button width is frozen** while the panel is open —
-   the countdown/stopwatch STAYS visible (Anton, 2026-07-15), the string
-   is padded with spaces to the frozen length; if the digits outgrow the
-   slot (stopwatch passing an hour) the freeze extends and the didMove
-   observer re-anchors.
+3. **The menu bar button width AND label presence are frozen** while the
+   panel is open (Anton, 2026-07-15). Showing at open → the countdown
+   stays visible and ticking, padded with spaces to the frozen length;
+   if the digits outgrow the slot (stopwatch passing an hour) the freeze
+   extends and the didMove observer re-anchors. Hidden at open → a timer
+   started from the panel does NOT surface the label until the panel
+   closes; on close the bar reflects reality.
 4. **No repeatForever animations** — they trigger NSHostingController
    size recalculation. Icon changes are an opacity crossfade in a
    fixed-size ZStack.
 5. Content size is fixed BEFORE the popover is shown (layoutSubtreeIfNeeded
    + contentSize); windows are shown via presentCentered (layout BEFORE show).
+6. The popover size is rounded UP to whole points (IntegralSizeHostingController
+   + integral fittingSize, content top-aligned): fractional SwiftUI text
+   heights otherwise land the frame on a half pixel and the header icons
+   jiggle 1px between tabs.
 6. popover.animates = false; the popover theme follows the setting/system.
 
 ## Modules
@@ -118,7 +124,9 @@ top inset = bottom inset = 16pt.
   **the administrator password prompt comes from macOS itself — it is
   a system requirement, independent of signing or Developer ID.** Turning
   awake off, quitting the app, and time expiry restore sleep
-  (`disablesleep 0`).
+  (`disablesleep 0`); switching duration options keeps lid mode. Lid mode
+  never outlives the awake session — without it a closed lid would block
+  sleep forever.
 - While lid mode is active, closing the lid blanks the built-in panel:
   `disablesleep` keeps the backlight powered, so LidDimmer polls the
   clamshell state (1 s) and sets the built-in display's brightness to 0
@@ -520,10 +528,10 @@ release time (on "publish"); dev builds don't touch the number.
   size); the file's resolution ("1080p"/"4K", by the short side) is shown
   in the row; during export — a linear bar and percentages straight from
   the encoder (session.progress, polled every 300 ms).
-- Video size estimates are calibrated against the actual encoder:
-  1080p ≈ 10.8, 720p ≈ 6, 540p ≈ 3.2 Mbit/s; "compress" ≈ 60% of the
-  source; "original" — the source size. Estimates are marked "~" and
-  never exceed the source size.
+- Video size estimates come from a real sample encode: the first ~8 s of
+  the file go through the actual export preset and the result extrapolates
+  by duration ("original" — the source size, container change only).
+  Estimates are marked "~" and never exceed the source size.
 
 ## Timer: "okay, got it" after the ring
 
