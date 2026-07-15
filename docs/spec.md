@@ -411,6 +411,9 @@ top inset = bottom inset = 16pt.
   (a plain `open` before terminate only activates the still-running old
   instance — nothing would start the new one, and two live instances
   racing NSWorkspace.setIcon corrupted the Finder icon into a folder).
+- Auto-check cadence: 15 s after launch, every 6 hours, and 30 s after
+  wake from sleep (the quietest moment — the user is just coming back
+  and doesn't rely on the app yet). A running timer is never interrupted.
 - Public copy (mirror README, release notes, landing page) — ENGLISH
   ONLY: the project is international.
 - Release mirror: https://github.com/antonyshakirov/hop — a public repo

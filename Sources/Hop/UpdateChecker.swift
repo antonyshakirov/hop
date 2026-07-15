@@ -82,6 +82,17 @@ final class UpdateChecker: ObservableObject {
             }
         }
         RunLoop.main.add(timer, forMode: .common)
+        // wake from sleep is the quietest moment: the user is just coming
+        // back and doesn't rely on the app yet — a found release installs
+        // (and relaunches) before they notice. 30 s lets the network return
+        NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(30))
+                await self?.autoCheck(canInstall: canInstall)
+            }
+        }
     }
 
     /// The dev build stays offline: it updates via rebuilds, and a background
