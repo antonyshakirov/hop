@@ -75,6 +75,22 @@ final class StatusItemController: NSObject {
         }
         model.closePanel = { [weak self] in self?.popover.close() }
         model.panelFocusChanged = { [weak self] in self?.maybeReturnFocus() }
+        // belt and suspenders: click pings cover most paths, but ANY way Hop
+        // becomes the active app while the panel is open (tab switches,
+        // scrolls, AppKit quirks) must also hand the keyboard back — voice
+        // tools and dictation target whichever app is frontmost
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.popover.isShown else { return }
+                // let the click that activated us finish first: focus fields
+                // and editUnit update on the same runloop turn
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    self.maybeReturnFocus()
+                }
+            }
+        }
         // once the panel closes, put the countdown back into the menu bar
         NotificationCenter.default.addObserver(
             forName: NSPopover.willCloseNotification, object: popover, queue: .main
