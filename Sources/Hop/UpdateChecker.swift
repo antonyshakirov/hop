@@ -179,8 +179,16 @@ final class UpdateChecker: ObservableObject {
             try? FileManager.default.removeItem(atPath: target)
             try FileManager.default.copyItem(atPath: newApp.path, toPath: target)
 
-            // relaunch into the new version
-            try run("/usr/bin/open", [target])
+            // relaunch into the new version. A plain `open` here would only
+            // activate the still-running old instance and nothing would start
+            // the new one after terminate — so a detached shell waits for this
+            // process to die and opens the fresh bundle afterwards
+            let pid = ProcessInfo.processInfo.processIdentifier
+            let relauncher = Process()
+            relauncher.executableURL = URL(fileURLWithPath: "/bin/sh")
+            relauncher.arguments = ["-c",
+                "while /bin/kill -0 \(pid) 2>/dev/null; do /bin/sleep 0.2; done; /usr/bin/open \"\(target)\""]
+            try relauncher.run() // deliberately not waited on — it must outlive us
             NSApp.terminate(nil)
         } catch {
             status = .failed

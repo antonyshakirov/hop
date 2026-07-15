@@ -400,6 +400,11 @@ top inset = bottom inset = 16pt.
 - Distribution formats: DMG — for people, from the landing page (the
   "drag to Applications" window); ZIP+sig — for the auto-update channel.
   Both are built by release.sh.
+- After installing an update the app relaunches itself: a detached shell
+  helper waits for the old process to exit and opens the new bundle
+  (a plain `open` before terminate only activates the still-running old
+  instance — nothing would start the new one, and two live instances
+  racing NSWorkspace.setIcon corrupted the Finder icon into a folder).
 - Public copy (mirror README, release notes, landing page) — ENGLISH
   ONLY: the project is international.
 - Release mirror: https://github.com/antonyshakirov/hop — a public repo
