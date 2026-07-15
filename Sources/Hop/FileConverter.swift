@@ -15,7 +15,11 @@ final class FileConverter: ObservableObject {
     nonisolated static let destKey = "convDest"               // downloads | same | custom
     nonisolated static let destPathKey = "convDestPath"
     nonisolated static let videoFormatKey = "convVideoFormat" // mp4 | mov
-    nonisolated static let videoQualityKey = "convVideoQuality" // original | 1080 | 720 | 540
+    /// Legacy single "quality" (original | hevc | 1080 | 720 | 540) —
+    /// migrated into resolution + compress on init, read-only since.
+    nonisolated static let videoQualityKey = "convVideoQuality"
+    nonisolated static let videoResolutionKey = "convVideoResolution" // original | 2160 | 1080 | 720 | 540
+    nonisolated static let videoCompressKey = "convVideoCompress" // HEVC instead of H.264
     nonisolated static let autoClearKey = "convAutoClear"       // finished ones disappear on their own
 
     enum MediaKind: Sendable {
@@ -159,6 +163,10 @@ final class FileConverter: ObservableObject {
     // estimate at defaults is a real measurement, not an interpolation
     nonisolated private static let curveQualities = [10, 35, 55, 80, 100]
 
+    init() {
+        Self.migrateLegacyVideoQuality()
+    }
+
     /// AVIF is the main modern web format; the codec ships with recent macOS.
     static var avifSupported: Bool {
         let ids = CGImageDestinationCopyTypeIdentifiers() as? [String] ?? []
@@ -191,8 +199,23 @@ final class FileConverter: ObservableObject {
         UserDefaults.standard.string(forKey: videoFormatKey) ?? "mp4"
     }
 
-    nonisolated static var videoQuality: String {
-        UserDefaults.standard.string(forKey: videoQualityKey) ?? "720"
+    nonisolated static var videoResolution: String {
+        UserDefaults.standard.string(forKey: videoResolutionKey) ?? "original"
+    }
+
+    nonisolated static var videoCompress: Bool {
+        // default ON: "make the file lighter" is the module's whole point
+        UserDefaults.standard.object(forKey: videoCompressKey) as? Bool ?? true
+    }
+
+    /// One-time migration of the legacy single "quality" into the split pair.
+    nonisolated static func migrateLegacyVideoQuality() {
+        let defaults = UserDefaults.standard
+        guard defaults.string(forKey: videoResolutionKey) == nil,
+              let legacy = defaults.string(forKey: videoQualityKey)
+        else { return }
+        defaults.set(legacy == "hevc" ? "original" : legacy, forKey: videoResolutionKey)
+        defaults.set(legacy == "hevc", forKey: videoCompressKey)
     }
 
     nonisolated static func classify(_ url: URL) -> MediaKind {
@@ -299,7 +322,8 @@ final class FileConverter: ObservableObject {
         let scale = Self.scale
         let quality = Self.quality(for: kind)
         let videoFormat = Self.videoFormat
-        let videoQuality = Self.videoQuality
+        let videoResolution = Self.videoResolution
+        let videoCompress = Self.videoCompress
         let destination = Self.destinationDirectory
 
         Task.detached(priority: .userInitiated) { [weak self] in
@@ -332,7 +356,8 @@ final class FileConverter: ObservableObject {
                     }
                     outURL = await Self.convertVideo(
                         url, to: outDir, format: videoFormat,
-                        quality: videoQuality, onProgress: report)
+                        resolution: videoResolution, compress: videoCompress,
+                        onProgress: report)
                     await MainActor.run { [weak self] in self?.fileFraction = nil }
                 case .audio:
                     outURL = await Self.convertAudio(url, to: outDir)
@@ -393,12 +418,15 @@ final class FileConverter: ObservableObject {
             estimateTokens[kind] = token
             let sample = files[0]
             let videoFormat = Self.videoFormat
-            let videoQuality = Self.videoQuality
+            let videoResolution = Self.videoResolution
+            let videoCompress = Self.videoCompress
             estimates[kind] = Self.sizeText(total) // while computing — show the current size
             Task.detached(priority: .utility) { [weak self] in
                 let estimate: Int64?
                 if kind == .video {
-                    estimate = await Self.estimatedVideoSize(sample, format: videoFormat, quality: videoQuality)
+                    estimate = await Self.estimatedVideoSize(
+                        sample, format: videoFormat,
+                        resolution: videoResolution, compress: videoCompress)
                 } else {
                     estimate = await Self.estimatedAudioSize(sample)
                 }
@@ -618,13 +646,19 @@ final class FileConverter: ObservableObject {
 
     /// Video: recompression/conversion via the system encoder.
     /// "Original" quality re-encodes too — heavy sources slim down.
-    nonisolated private static func presetName(for quality: String) -> String {
-        switch quality {
-        case "1080": return AVAssetExportPreset1920x1080
-        case "720": return AVAssetExportPreset1280x720
-        case "540": return AVAssetExportPreset960x540
-        // "shrink": HEVC at the source resolution — 30–50% smaller
-        case "hevc": return AVAssetExportPresetHEVCHighestQuality
+    /// Resolution × compress → system preset. HEVC presets exist only for
+    /// the original size, 4K and 1080p; at 720/540 the compress toggle is
+    /// hidden in the UI, so those pairs never arrive here.
+    nonisolated private static func presetName(resolution: String, compress: Bool) -> String {
+        switch (resolution, compress) {
+        case ("2160", true): return AVAssetExportPresetHEVC3840x2160
+        case ("2160", false): return AVAssetExportPreset3840x2160
+        case ("1080", true): return AVAssetExportPresetHEVC1920x1080
+        case ("1080", false): return AVAssetExportPreset1920x1080
+        case ("720", _): return AVAssetExportPreset1280x720
+        case ("540", _): return AVAssetExportPreset960x540
+        // original size: HEVC re-encode (30–50% smaller) or H.264 highest
+        case (_, true): return AVAssetExportPresetHEVCHighestQuality
         default: return AVAssetExportPresetHighestQuality
         }
     }
@@ -634,16 +668,17 @@ final class FileConverter: ObservableObject {
     /// tables drifted 20%+ from the encoder on real footage — measuring the
     /// encoder itself is the only honest number.
     nonisolated private static func estimatedVideoSize(
-        _ url: URL, format: String, quality: String
+        _ url: URL, format: String, resolution: String, compress: Bool
     ) async -> Int64? {
         let asset = AVURLAsset(url: url)
         guard let seconds = try? await asset.load(.duration).seconds, seconds > 0
         else { return nil }
         let originalBytes = (try? FileManager.default
             .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
-        // "original" = container change only (mp4↔mov), size is almost the same
-        guard quality != "original" else { return originalBytes }
-        guard let session = AVAssetExportSession(asset: asset, presetName: presetName(for: quality))
+        // original size without compression = container change only, size is almost the same
+        guard resolution != "original" || compress else { return originalBytes }
+        guard let session = AVAssetExportSession(
+            asset: asset, presetName: presetName(resolution: resolution, compress: compress))
         else { return nil }
         let sampleSeconds = min(8.0, seconds)
         session.timeRange = CMTimeRange(
@@ -679,11 +714,11 @@ final class FileConverter: ObservableObject {
     }
 
     nonisolated private static func convertVideo(
-        _ url: URL, to dir: URL, format: String, quality: String,
+        _ url: URL, to dir: URL, format: String, resolution: String, compress: Bool,
         onProgress: (@Sendable (Double) -> Void)? = nil
     ) async -> URL? {
         let asset = AVURLAsset(url: url)
-        let preset = presetName(for: quality)
+        let preset = presetName(resolution: resolution, compress: compress)
         guard let session = AVAssetExportSession(asset: asset, presetName: preset) else { return nil }
         let ext = format == "mov" ? "mov" : "mp4"
         let type: AVFileType = format == "mov" ? .mov : .mp4

@@ -229,10 +229,14 @@ top inset = bottom inset = 16pt.
 - Resolution chips at or above the source's short side are hidden — they
   would re-encode at the same frame size and read as a second "squeeze";
   a currently selected chip stays visible so the choice is never invisible.
-- Video settings are two labeled rows: "format: MP4/MOV" and
-  "compression: none / same size / to 1080p / to 720p / to 540p" —
-  every option except "none" compresses, the chips say HOW (keep the
-  frame size via HEVC, or downscale to a target).
+- Video settings are three independent rows (Anton, 2026-07-15):
+  "format: MP4/MOV", "resolution: original / 4K / 1080p / 720p / 540p"
+  and a "compression" toggle (HEVC instead of H.264, ON by default).
+  Resolution labels go by the short side, scaling keeps the aspect ratio.
+  The compress toggle is HIDDEN at 720/540 — the system has no HEVC
+  presets below 1080p, and a silently ignored switch would lie. The
+  legacy single "quality" value migrates into the pair on first launch
+  ("hevc" → original + compress).
 - Estimates are honest: images/PDF — a trial conversion of the first file +
   a curve over reference quality points (interpolation, no recompute on
   every slider move); video/audio — the system encoder's forecast. Per-file

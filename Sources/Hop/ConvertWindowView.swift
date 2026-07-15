@@ -13,7 +13,8 @@ struct ConvertWindowView: View {
     @AppStorage(FileConverter.qualityKey) private var convQuality = 55
     @AppStorage(FileConverter.pdfQualityKey) private var convPdfQuality = 55
     @AppStorage(FileConverter.videoFormatKey) private var videoFormat = "mp4"
-    @AppStorage(FileConverter.videoQualityKey) private var videoQuality = "720"
+    @AppStorage(FileConverter.videoResolutionKey) private var videoResolution = "original"
+    @AppStorage(FileConverter.videoCompressKey) private var videoCompress = true
     @State private var targeted = false
 
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
@@ -321,7 +322,8 @@ struct ConvertWindowView: View {
         .onChange(of: convScale) { model.converter.scheduleEstimate(kind) }
         .onChange(of: convFormat) { model.converter.scheduleEstimate(kind) }
         .onChange(of: videoFormat) { model.converter.scheduleEstimate(kind) }
-        .onChange(of: videoQuality) { model.converter.scheduleEstimate(kind) }
+        .onChange(of: videoResolution) { model.converter.scheduleEstimate(kind) }
+        .onChange(of: videoCompress) { model.converter.scheduleEstimate(kind) }
     }
 
     @ViewBuilder private func settingsRow(_ kind: FileConverter.MediaKind) -> some View {
@@ -345,8 +347,9 @@ struct ConvertWindowView: View {
         case .pdf:
             EmptyView() // PDF has a single setting — quality, shown in the shared row
         case .video:
-            // two rows: everything in one line overflowed on long languages
-            // once the compression group got its own label
+            // three independent settings (Anton, 2026-07-15): container format,
+            // target resolution (only options below the source) and a separate
+            // compress toggle (HEVC instead of H.264)
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 5) {
                     rowLabel(t(.convFormatLabel))
@@ -354,26 +357,36 @@ struct ConvertWindowView: View {
                     chip("MOV", videoFormat == "mov") { videoFormat = "mov" }
                     Spacer()
                 }
-                // every option except "none" compresses; the chips say HOW:
-                // keep the frame size or downscale to a target
                 HStack(spacing: 5) {
-                    rowLabel(t(.convCompressLabel))
-                    chip(t(.convQualityOriginal), videoQuality == "original") { videoQuality = "original" }
-                    chip(t(.convSqueezeChip), videoQuality == "hevc") { videoQuality = "hevc" }
-                        .help(t(.convSqueezeHint))
-                    // only resolutions BELOW the source: a chip at the source's
-                    // own size duplicates "same size"; a selected chip stays visible
+                    rowLabel(t(.convResolutionLabel))
+                    chip(t(.convQualityOriginal), videoResolution == "original") { videoResolution = "original" }
+                    // only resolutions BELOW the source (labels go by the short
+                    // side, scaling keeps the aspect ratio); a selected chip
+                    // stays visible so the choice is never hidden
                     let sourceSide = model.converter.videoMaxShortSide
-                    if sourceSide == 0 || sourceSide > 1080 || videoQuality == "1080" {
-                        chip(compressTo("1080p"), videoQuality == "1080") { videoQuality = "1080" }
+                    if sourceSide > 2160 || videoResolution == "2160" {
+                        chip("4K", videoResolution == "2160") { videoResolution = "2160" }
                     }
-                    if sourceSide == 0 || sourceSide > 720 || videoQuality == "720" {
-                        chip(compressTo("720p"), videoQuality == "720") { videoQuality = "720" }
+                    if sourceSide == 0 || sourceSide > 1080 || videoResolution == "1080" {
+                        chip("1080p", videoResolution == "1080") { videoResolution = "1080" }
                     }
-                    if sourceSide == 0 || sourceSide > 540 || videoQuality == "540" {
-                        chip(compressTo("540p"), videoQuality == "540") { videoQuality = "540" }
+                    if sourceSide == 0 || sourceSide > 720 || videoResolution == "720" {
+                        chip("720p", videoResolution == "720") { videoResolution = "720" }
+                    }
+                    if sourceSide == 0 || sourceSide > 540 || videoResolution == "540" {
+                        chip("540p", videoResolution == "540") { videoResolution = "540" }
                     }
                     Spacer()
+                }
+                // HEVC presets exist only for original/4K/1080p — at 720/540
+                // the toggle is hidden rather than silently ignored
+                if ["original", "2160", "1080"].contains(videoResolution) {
+                    HStack(spacing: 8) {
+                        rowLabel(t(.convCompressLabel))
+                        Theme.MiniSwitch(isOn: $videoCompress)
+                        Spacer()
+                    }
+                    .help(t(.convSqueezeHint))
                 }
             }
         case .audio:
@@ -466,10 +479,6 @@ struct ConvertWindowView: View {
             .foregroundStyle(Theme.textTertiary)
     }
 
-    /// "to 1080p"-style chip label — the target slots into the localized template.
-    private func compressTo(_ resolution: String) -> String {
-        t(.convCompressTo).replacingOccurrences(of: "{res}", with: resolution)
-    }
 
     private func chip(_ label: String, _ active: Bool, action: @escaping () -> Void) -> some View {
         SettingChip(label, active: active, action: action)
