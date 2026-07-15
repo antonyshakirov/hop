@@ -252,9 +252,13 @@ final class SystemStatsController: ObservableObject {
         }
         if let t = d["Temperature"] as? Double { info.tempC = t / 100 }
         info.cycles = d["CycleCount"] as? Int
-        if let raw = d["AppleRawMaxCapacity"] as? Int,
-           let design = d["DesignCapacity"] as? Int, design > 0 {
-            info.healthPercent = Int((Double(raw) / Double(design) * 100).rounded())
+        // NominalChargeCapacity is the calibrated figure System Settings
+        // shows; AppleRawMaxCapacity is the instantaneous electrical estimate
+        // that drifts with temperature/charge (95→97 on a new machine) and
+        // read as a hop bug next to the system's 100%
+        if let design = d["DesignCapacity"] as? Int, design > 0,
+           let capacity = (d["NominalChargeCapacity"] as? Int) ?? (d["AppleRawMaxCapacity"] as? Int) {
+            info.healthPercent = min(100, Int((Double(capacity) / Double(design) * 100).rounded()))
         }
         if let amperage = d["Amperage"] as? Int, let voltage = d["Voltage"] as? Int {
             // mA * mV → W; Amperage arrives as signed 64-bit with wraparound for negatives

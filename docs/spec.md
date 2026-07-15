@@ -146,6 +146,10 @@ top inset = bottom inset = 16pt.
 - Rows: cpu (load+temperature), gpu, memory (like Activity Monitor),
   network ↓↑, disk, battery (charge/temperature), health (health/cycles),
   power (watts), uptime. Colored SF Symbols icons.
+- Battery health = NominalChargeCapacity / DesignCapacity, capped at 100 —
+  the same calibrated figure System Settings shows. The raw
+  AppleRawMaxCapacity (fallback only) drifts with temperature/charge and
+  showed 95–97% on brand-new machines next to the system's 100%.
 - Value highlighting: white/green — normal, yellow — borderline, red —
   problem. Thresholds are configurable (temperature, load, disk, battery;
   battery semantics are inverted — below the threshold is worse). °C/°F:
