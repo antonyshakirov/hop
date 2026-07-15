@@ -164,12 +164,14 @@ struct MiniSlider: View {
     }
 }
 
-/// Metric chart: a compact line with a scale on the right; below the chart —
-/// time at the edges (window start → "now") and a color legend.
-/// Both lines are shades of the metric's color.
+/// Metric chart in the iStat spirit (Anton, 2026-07-15): a full-width
+/// filled area right under the metric's row — no scale, no legend, no
+/// time labels. The row above already shows the current value; the shape
+/// only conveys the trend. The first series is the filled primary, any
+/// further series (temperature, upload) draw as thinner plain lines.
 struct SparklineCard: View {
     struct Series: Identifiable {
-        let label: String
+        let label: String // identity only — never rendered
         let points: [SystemStatsController.HistoryPoint]
         let color: Color
         let maxValue: Double
@@ -178,80 +180,56 @@ struct SparklineCard: View {
     }
 
     let series: [Series]
-    let topLabel: String
-    let spanText: String
-    let nowText: String
     /// Time window: points are placed by their timestamps, not at equal steps —
     /// history accumulates in the background and is shown "as is", without stretching.
     let start: Date
     let end: Date
 
-    /// Uniform geometry for all cards: the chart and the scale column are fixed,
-    /// otherwise the wide "4.0 MB/s" label on network made its chart different.
-    private static let chartWidth: CGFloat = 176
-    private static let chartHeight: CGFloat = 24
+    private static let chartHeight: CGFloat = 34
 
     var body: some View {
-        // scale to the LEFT of the chart, chart pinned to the right edge — on the same
-        // grid as the row values ("100" on the right differed in padding and
-        // bloated the row). The legend and time live under the chart at the same width.
-        HStack(alignment: .top, spacing: 8) {
-            Spacer(minLength: 6)
-            VStack(alignment: .trailing, spacing: 0) {
-                // scale labels are centered on their grid lines,
-                // otherwise "100" at the top line reads as a data label
-                Text(topLabel)
-                    .font(Theme.mono(8))
-                    .foregroundStyle(Theme.textTertiary)
-                    .lineLimit(1)
-                    .offset(y: -4.5)
-                Spacer()
-                Text("0")
-                    .font(Theme.mono(8))
-                    .foregroundStyle(Theme.textTertiary)
-                    .offset(y: 4.5)
-            }
-            .frame(height: Self.chartHeight)
-            VStack(alignment: .leading, spacing: 3) {
-                ZStack {
-                    VStack {
-                        Rectangle().fill(Theme.divider).frame(height: 1)
-                        Spacer()
-                        Rectangle().fill(Theme.divider).frame(height: 1)
-                    }
-                    ForEach(series) { s in
-                        LinePath(points: s.points, maxValue: s.maxValue, start: start, end: end)
-                            .stroke(s.color, style: StrokeStyle(
-                                lineWidth: 1.2,
-                                dash: s.dashed ? [3, 2.5] : []
-                            ))
-                    }
+        ZStack {
+            ForEach(Array(series.enumerated()), id: \.element.id) { index, s in
+                if index == 0 {
+                    AreaPath(points: s.points, maxValue: s.maxValue, start: start, end: end)
+                        .fill(LinearGradient(
+                            colors: [s.color.opacity(0.4), s.color.opacity(0.06)],
+                            startPoint: .top, endPoint: .bottom
+                        ))
                 }
-                .frame(width: Self.chartWidth, height: Self.chartHeight)
-                HStack {
-                    Text("−" + spanText)
-                        .font(Theme.mono(8))
-                        .foregroundStyle(Theme.textTertiary)
-                    Spacer()
-                    Text(nowText)
-                        .font(Theme.mono(8))
-                        .foregroundStyle(Theme.textTertiary)
-                }
-                .frame(width: Self.chartWidth)
-                HStack(spacing: 10) {
-                    ForEach(series) { s in
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(s.color)
-                                .frame(width: 5, height: 5)
-                            Text(s.label)
-                                .font(Theme.mono(9))
-                                .foregroundStyle(Theme.textTertiary)
-                        }
-                    }
-                }
+                LinePath(points: s.points, maxValue: s.maxValue, start: start, end: end)
+                    .stroke(
+                        s.color.opacity(index == 0 ? 1 : 0.55),
+                        style: StrokeStyle(
+                            lineWidth: index == 0 ? 1.5 : 1,
+                            dash: s.dashed ? [3, 2.5] : []
+                        )
+                    )
             }
         }
+        .frame(maxWidth: .infinity)
+        .frame(height: Self.chartHeight)
+        .clipped()
+    }
+}
+
+/// The line's silhouette closed down to the chart floor — the fill under the curve.
+struct AreaPath: Shape {
+    let points: [SystemStatsController.HistoryPoint]
+    let maxValue: Double
+    let start: Date
+    let end: Date
+
+    func path(in rect: CGRect) -> Path {
+        var path = LinePath(points: points, maxValue: maxValue, start: start, end: end)
+            .path(in: rect)
+        guard !path.isEmpty, let last = path.currentPoint else { return path }
+        path.addLine(to: CGPoint(x: last.x, y: rect.maxY))
+        if let firstX = path.boundingRect.minX as CGFloat? {
+            path.addLine(to: CGPoint(x: firstX, y: rect.maxY))
+        }
+        path.closeSubpath()
+        return path
     }
 }
 

@@ -1759,11 +1759,13 @@ struct PanelView: View {
                         Theme.MiniSwitch(isOn: $windowsHotkeysOn)
                     }
                     // zone glyph + its combo, same pairs as the help legend
+                    // four columns: 18 zones in two-column form wasted half
+                    // the width and stretched the section (Anton, 2026-07-15)
                     LazyVGrid(
-                        columns: [
-                            GridItem(.flexible(), alignment: .leading),
-                            GridItem(.flexible(), alignment: .leading),
-                        ],
+                        columns: Array(
+                            repeating: GridItem(.flexible(), alignment: .leading),
+                            count: 4
+                        ),
                         alignment: .leading, spacing: 7
                     ) {
                         ForEach(Self.snapHotkeyItems, id: \.0) { position, key in
@@ -2300,10 +2302,10 @@ struct PanelView: View {
                 .font(Theme.mono(10, weight: .semibold))
                 .foregroundStyle(Theme.textTertiary)
             LazyVGrid(
-                columns: [
-                    GridItem(.flexible(), alignment: .leading),
-                    GridItem(.flexible(), alignment: .leading),
-                ],
+                columns: Array(
+                    repeating: GridItem(.flexible(), alignment: .leading),
+                    count: 4
+                ),
                 alignment: .leading, spacing: 9
             ) {
                 ForEach(items, id: \.0) { position, key in

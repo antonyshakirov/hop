@@ -378,16 +378,13 @@ struct ConvertWindowView: View {
                     }
                     Spacer()
                 }
-                // HEVC presets exist only for original/4K/1080p — at 720/540
-                // the toggle is hidden rather than silently ignored
-                if ["original", "2160", "1080"].contains(videoResolution) {
-                    HStack(spacing: 8) {
-                        rowLabel(t(.convCompressLabel))
-                        Theme.MiniSwitch(isOn: $videoCompress)
-                        Spacer()
-                    }
-                    .help(t(.convSqueezeHint))
+                // resolution is our own composition, so HEVC works at ANY size
+                HStack(spacing: 8) {
+                    rowLabel(t(.convCompressLabel))
+                    Theme.MiniSwitch(isOn: $videoCompress)
+                    Spacer()
                 }
+                .help(t(.convSqueezeHint))
             }
         case .audio:
             HStack(spacing: 5) {

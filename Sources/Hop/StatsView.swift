@@ -55,8 +55,7 @@ struct StatsView: View {
                           color: Theme.accentBlue, maxValue: 1),
                     .init(label: t(.legendTemp), points: windowed(stats.history.cpuTemp, from: chartStart),
                           color: Theme.graphShade(Theme.accentBlue), maxValue: 100),
-                ], topLabel: "100", spanText: windowText, nowText: t(.legendNow),
-                   start: chartStart, end: chartEnd)
+                ], start: chartStart, end: chartEnd)
                 .padding(.bottom, 6)
             }
             row(icon: "memorychip", color: Theme.accentPurple, label: "gpu",
@@ -67,8 +66,7 @@ struct StatsView: View {
                 SparklineCard(series: [
                     .init(label: t(.legendMemShare), points: windowed(stats.history.memShare, from: chartStart),
                           color: Theme.accentGreen, maxValue: 1),
-                ], topLabel: "100", spanText: windowText, nowText: t(.legendNow),
-                   start: chartStart, end: chartEnd)
+                ], start: chartStart, end: chartEnd)
                 .padding(.bottom, 6)
             }
             row(icon: "arrow.up.arrow.down", color: Theme.accentCyan, label: t(.statNetwork),
@@ -83,8 +81,7 @@ struct StatsView: View {
                           color: Theme.accentCyan, maxValue: max(peak, 1)),
                     .init(label: "↑ \(t(.legendUp))", points: upPoints,
                           color: Theme.graphShade(Theme.accentCyan), maxValue: max(peak, 1)),
-                ], topLabel: speedText(peak), spanText: windowText, nowText: t(.legendNow),
-                   start: chartStart, end: chartEnd)
+                ], start: chartStart, end: chartEnd)
                 .padding(.bottom, 6)
             }
             row(icon: "internaldrive", color: Theme.accentYellow, label: t(.statDisk),
@@ -110,11 +107,6 @@ struct StatsView: View {
         .padding(.vertical, 4)
         .onAppear { stats.startPolling() }
         .onDisappear { stats.stopPolling() }
-    }
-
-    /// Chart window label ("5m"): the window is fixed by the setting.
-    private var windowText: String {
-        "\(monitorWindowMin)\(t(.unitMin))"
     }
 
     /// Slice of history within the window: points older than its start are not drawn.

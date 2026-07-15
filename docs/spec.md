@@ -158,15 +158,15 @@ top inset = bottom inset = 16pt.
 - CPU/GPU temperatures come from the private IOHIDEventSystemClient via
   dlsym: if Apple breaks the API we show "—" and don't crash. No disk
   SMART (it requires privileged access).
-- Charts ("detailed" mode): below the metric row, both lines are shades of
-  the metric's color; geometry is IDENTICAL across all cards: the scale
-  (100/0, network peak) sits to the LEFT of the chart, the 176×24 chart
-  is right-aligned to the rows' value grid. Scale labels are centered on
-  their gridlines. Below the chart: "−5m" (window) on the left, "now" on
-  the right, and a worded legend underneath (memory "used", network
-  "↓ download / ↑ upload"). The chart window is a setting: 5/10/30 min or
-  1 hour, default 5 (history buffer 61 min); lines are laid out by the
-  points' timestamps. In chart mode the rows are larger (12pt).
+- Charts ("detailed" mode, iStat style — Anton, 2026-07-15): below the
+  metric row, a full-width filled area (gradient of the metric's color)
+  with NO scale, legend or time labels — the row above already carries
+  the current value, the shape shows the trend. The first series is the
+  filled primary; secondary series (cpu temperature, network upload) are
+  thinner plain lines in a shade of the same color. The chart window is
+  a setting: 5/10/30 min or 1 hour, default 5 (history buffer 61 min);
+  lines are laid out by the points' timestamps. In chart mode the rows
+  are larger (12pt).
 - A red "!" on the left of the menu bar icon during a red zone (same
   thresholds that color the values; a charging battery doesn't count).
   OFF by default, toggle in monitor settings.
@@ -231,12 +231,14 @@ top inset = bottom inset = 16pt.
   a currently selected chip stays visible so the choice is never invisible.
 - Video settings are three independent rows (Anton, 2026-07-15):
   "format: MP4/MOV", "resolution: original / 4K / 1080p / 720p / 540p"
-  and a "compression" toggle (HEVC instead of H.264, ON by default).
-  Resolution labels go by the short side, scaling keeps the aspect ratio.
-  The compress toggle is HIDDEN at 720/540 — the system has no HEVC
-  presets below 1080p, and a silently ignored switch would lie. The
-  legacy single "quality" value migrates into the pair on first launch
-  ("hevc" → original + compress).
+  and a "compression" toggle (HEVC instead of H.264, ON by default,
+  available at every resolution). The legacy single "quality" value
+  migrates into the pair on first launch ("hevc" → original + compress).
+- Downscaling is hop's own videoComposition targeting the SHORT side,
+  aspect ratio and orientation preserved — a vertical 1244×1664 at
+  "1080p" becomes 1080×1444. The system resolution presets fit into a
+  LANDSCAPE box (807×1080 for that source) and were dropped. Never
+  upscales; dimensions are rounded to even for the encoders.
 - Estimates are honest: images/PDF — a trial conversion of the first file +
   a curve over reference quality points (interpolation, no recompute on
   every slider move); video/audio — the system encoder's forecast. Per-file
@@ -600,8 +602,8 @@ playback.
 - Compact timer transport tracks the DIGIT SIZE setting, not the layout:
   small digits → play/pause 27pt (icon 10) and reset 21pt (icon 9);
   large digits → 34pt/26pt as before.
-- Settings → windows → "zone hotkeys": under the toggle sits a two-column
-  legend "zone glyph + ⌃⌥ key" (shared `snapHotkeyItems` list with the
+- Settings → windows → "resize windows with hotkeys": under the toggle sits a
+  legend "zone glyph + ⌃⌥ key", four columns (shared `snapHotkeyItems` list with the
   help tab legend), replacing the old cryptic symbols-only caption.
 - Help → general no longer ends with the "hop — and it's done…" closing
   line: it duplicated the page (removed in all 18 languages).

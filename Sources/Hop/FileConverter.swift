@@ -646,21 +646,57 @@ final class FileConverter: ObservableObject {
 
     /// Video: recompression/conversion via the system encoder.
     /// "Original" quality re-encodes too — heavy sources slim down.
-    /// Resolution × compress → system preset. HEVC presets exist only for
-    /// the original size, 4K and 1080p; at 720/540 the compress toggle is
-    /// hidden in the UI, so those pairs never arrive here.
-    nonisolated private static func presetName(resolution: String, compress: Bool) -> String {
-        switch (resolution, compress) {
-        case ("2160", true): return AVAssetExportPresetHEVC3840x2160
-        case ("2160", false): return AVAssetExportPreset3840x2160
-        case ("1080", true): return AVAssetExportPresetHEVC1920x1080
-        case ("1080", false): return AVAssetExportPreset1920x1080
-        case ("720", _): return AVAssetExportPreset1280x720
-        case ("540", _): return AVAssetExportPreset960x540
-        // original size: HEVC re-encode (30–50% smaller) or H.264 highest
-        case (_, true): return AVAssetExportPresetHEVCHighestQuality
-        default: return AVAssetExportPresetHighestQuality
-        }
+    /// The codec choice is the preset; the resolution is our own
+    /// videoComposition. The resolution presets (1920x1080 etc.) fit the
+    /// video into a LANDSCAPE box — a vertical 1244×1664 came out 807×1080
+    /// instead of 1080×1444, so "1080p" (by the short side) was a lie.
+    nonisolated private static func presetName(compress: Bool) -> String {
+        compress ? AVAssetExportPresetHEVCHighestQuality : AVAssetExportPresetHighestQuality
+    }
+
+    /// Downscale to a target SHORT side, aspect ratio and orientation kept
+    /// (vertical stays vertical). nil = source is already at or below the
+    /// target, or the resolution is "original" — no composition needed.
+    nonisolated private static func scaleComposition(
+        asset: AVAsset, resolution: String
+    ) async -> AVMutableVideoComposition? {
+        guard let targetShortSide = Double(resolution) else { return nil }
+        guard let track = try? await asset.loadTracks(withMediaType: .video).first,
+              let naturalSize = try? await track.load(.naturalSize),
+              let transform = try? await track.load(.preferredTransform)
+        else { return nil }
+        let oriented = CGRect(origin: .zero, size: naturalSize).applying(transform)
+        let width = abs(oriented.width)
+        let height = abs(oriented.height)
+        guard width > 0, height > 0 else { return nil }
+        let scale = targetShortSide / min(width, height)
+        guard scale < 1 else { return nil } // never upscale
+        let composition = AVMutableVideoComposition()
+        // encoders want even dimensions
+        composition.renderSize = CGSize(
+            width: (width * scale / 2).rounded() * 2,
+            height: (height * scale / 2).rounded() * 2
+        )
+        let fps = (try? await track.load(.nominalFrameRate)) ?? 30
+        composition.frameDuration = CMTime(
+            value: 1, timescale: CMTimeScale(max(1, fps.rounded()))
+        )
+        let duration = (try? await asset.load(.duration)) ?? .positiveInfinity
+        let instruction = AVMutableVideoCompositionInstruction()
+        instruction.timeRange = CMTimeRange(start: .zero, duration: duration)
+        let layer = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
+        // orientation first (origin pulled back to zero — rotation transforms
+        // shift it negative), then the downscale
+        let normalized = transform.concatenating(
+            CGAffineTransform(translationX: -oriented.minX, y: -oriented.minY)
+        )
+        layer.setTransform(
+            normalized.concatenating(CGAffineTransform(scaleX: scale, y: scale)),
+            at: .zero
+        )
+        instruction.layerInstructions = [layer]
+        composition.instructions = [instruction]
+        return composition
     }
 
     /// Size forecast by a real sample encode: the first seconds go through the
@@ -678,8 +714,9 @@ final class FileConverter: ObservableObject {
         // original size without compression = container change only, size is almost the same
         guard resolution != "original" || compress else { return originalBytes }
         guard let session = AVAssetExportSession(
-            asset: asset, presetName: presetName(resolution: resolution, compress: compress))
+            asset: asset, presetName: presetName(compress: compress))
         else { return nil }
+        session.videoComposition = await scaleComposition(asset: asset, resolution: resolution)
         let sampleSeconds = min(8.0, seconds)
         session.timeRange = CMTimeRange(
             start: .zero,
@@ -718,8 +755,9 @@ final class FileConverter: ObservableObject {
         onProgress: (@Sendable (Double) -> Void)? = nil
     ) async -> URL? {
         let asset = AVURLAsset(url: url)
-        let preset = presetName(resolution: resolution, compress: compress)
-        guard let session = AVAssetExportSession(asset: asset, presetName: preset) else { return nil }
+        guard let session = AVAssetExportSession(asset: asset, presetName: presetName(compress: compress))
+        else { return nil }
+        session.videoComposition = await scaleComposition(asset: asset, resolution: resolution)
         let ext = format == "mov" ? "mov" : "mp4"
         let type: AVFileType = format == "mov" ? .mov : .mp4
         let outURL = uniqueURL(dir, name: url.deletingPathExtension().lastPathComponent, ext: ext)
