@@ -219,6 +219,14 @@ top inset = bottom inset = 16pt.
 - All converter sizes use decimal units (1 MB = 1,000,000 bytes) — the same
   scale as Finder, so the promised and the delivered numbers match; binary
   MiB read ~5% smaller and made every result look heavier than estimated.
+- Each group card carries an honesty note "output size is approximate"
+  (convApproxNote) while files are pending; during conversion the card
+  shows a whole-batch progress bar (files done + the current video's own
+  fraction), a percentage and "converting… i/n".
+- Clicking the menu bar star brings already-open auxiliary windows
+  (converter/settings/about) back to the front together with the panel —
+  they sink behind other apps on deactivate and looked "closed".
+  Miniaturized windows stay in the Dock.
 - Results: Downloads / next to the original / custom folder; originals are
   never touched; "-min" names with uniquification.
 
@@ -280,6 +288,9 @@ top inset = bottom inset = 16pt.
 - Settings tab order: general → timer → remaining modules → monitor.
   "Remaining modules" = awake/clipboard/converter/windows as sections with
   headers. The app version is shown next to the "check & update" button.
+  The "latest version installed" / "failed" note after a manual check is
+  transient: it clears when the settings window closes or after 30 minutes —
+  a stale note would deny an update that shipped since.
   Toggles are our own MiniSwitch (the system Toggle doesn't render in
   ImageRenderer).
 - Info page: per-module tabs, "term — explanation" style

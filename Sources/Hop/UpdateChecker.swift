@@ -32,8 +32,27 @@ final class UpdateChecker: ObservableObject {
     }
 
     @Published private(set) var status: Status = .idle
+    private var statusExpiry: Task<Void, Never>?
 
     static let autoUpdateKey = "autoUpdateEnabled"
+
+    /// "latest version installed" is only true at the moment of the check:
+    /// closing settings (or half an hour) clears it — an update may well
+    /// have shipped since, and a stale note would keep denying it.
+    func clearTransientStatus() {
+        statusExpiry?.cancel()
+        statusExpiry = nil
+        if status == .upToDate || status == .failed { status = .idle }
+    }
+
+    private func scheduleStatusExpiry() {
+        statusExpiry?.cancel()
+        statusExpiry = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(30 * 60))
+            guard !Task.isCancelled else { return }
+            await MainActor.run { self?.clearTransientStatus() }
+        }
+    }
 
     private var releaseKey: Curve25519.Signing.PublicKey? {
         guard let data = Data(base64Encoded: Self.updatePublicKeyBase64), !data.isEmpty
@@ -86,6 +105,7 @@ final class UpdateChecker: ObservableObject {
         status = .checking
         guard let info = await fetchNewerRelease() else {
             status = manual ? .upToDate : .idle
+            if status == .upToDate { scheduleStatusExpiry() }
             return
         }
         await install(info)
@@ -135,6 +155,7 @@ final class UpdateChecker: ObservableObject {
                   key.isValidSignature(signature, for: zipData)
             else {
                 status = .failed
+                scheduleStatusExpiry()
                 return
             }
 
@@ -163,6 +184,7 @@ final class UpdateChecker: ObservableObject {
             NSApp.terminate(nil)
         } catch {
             status = .failed
+            scheduleStatusExpiry()
         }
     }
 
