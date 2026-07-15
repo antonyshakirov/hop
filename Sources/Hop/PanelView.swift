@@ -16,8 +16,6 @@ struct PanelView: View {
     @AppStorage(Thresholds.tempRedKey) private var tempRed = Thresholds.tempRedDefault
     @AppStorage(Thresholds.loadYellowKey) private var loadYellow = Thresholds.loadYellowDefault
     @AppStorage(Thresholds.loadRedKey) private var loadRed = Thresholds.loadRedDefault
-    @AppStorage(Thresholds.memYellowKey) private var memYellow = Thresholds.memYellowDefault
-    @AppStorage(Thresholds.memRedKey) private var memRed = Thresholds.memRedDefault
     @AppStorage(Thresholds.diskYellowKey) private var diskYellow = Thresholds.diskYellowDefault
     @AppStorage(Thresholds.diskRedKey) private var diskRed = Thresholds.diskRedDefault
     @AppStorage(Thresholds.battYellowKey) private var battYellow = Thresholds.battYellowDefault
@@ -258,12 +256,23 @@ struct PanelView: View {
                 if lastDisplayTap < tappedAt {
                     editUnit = nil
                 }
+                // every resolved click may change who owns the keyboard:
+                // the controller hands focus back to the app underneath
+                // unless the panel is actually typing (digits/search)
+                model.panelFocusChanged?()
             }
         })
         .focusable()
         .focusEffectDisabled()
         .onKeyPress { press in
             handleKey(press)
+        }
+        .onChange(of: editUnit) { _, unit in
+            model.panelKeyboardCaptured = unit != nil
+            if unit == nil { model.panelFocusChanged?() }
+        }
+        .onDisappear {
+            model.panelKeyboardCaptured = false
         }
     }
 
@@ -2248,7 +2257,6 @@ struct PanelView: View {
             .padding(.top, 2)
             ThresholdRow(label: t(.thTemp), yellow: $tempYellow, red: $tempRed, maxValue: 130)
             ThresholdRow(label: t(.thLoad), yellow: $loadYellow, red: $loadRed, maxValue: 100)
-            ThresholdRow(label: t(.thMem), yellow: $memYellow, red: $memRed, maxValue: 300)
             ThresholdRow(label: t(.thDisk), yellow: $diskYellow, red: $diskRed, maxValue: 100)
             VStack(alignment: .leading, spacing: 3) {
                 // battery is inverted: lower = worse, hence red < yellow
@@ -2259,14 +2267,21 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textTertiary)
             }
 
+            // memory has no threshold row on purpose: its color follows
+            // macOS's own memory-pressure signal, and the caption says so
+            HStack {
+                Text(t(.memPressureNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                Spacer()
+            }
+
             HStack {
                 Spacer()
                 Button {
                     tempYellow = Thresholds.tempYellowDefault
                     tempRed = Thresholds.tempRedDefault
                     loadYellow = Thresholds.loadYellowDefault
-                    memYellow = Thresholds.memYellowDefault
-                    memRed = Thresholds.memRedDefault
                     loadRed = Thresholds.loadRedDefault
                     diskYellow = Thresholds.diskYellowDefault
                     diskRed = Thresholds.diskRedDefault

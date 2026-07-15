@@ -15,8 +15,6 @@ enum Thresholds {
     static let tempRedKey = "thTempRed"
     static let loadYellowKey = "thLoadYellow"
     static let loadRedKey = "thLoadRed"
-    static let memYellowKey = "thMemYellow"
-    static let memRedKey = "thMemRed"
     static let diskYellowKey = "thDiskYellow"
     static let diskRedKey = "thDiskRed"
     static let battYellowKey = "thBattYellow"
@@ -26,10 +24,8 @@ enum Thresholds {
     static let tempRedDefault = 90
     static let loadYellowDefault = 80
     static let loadRedDefault = 95
-    // memory: "used+swap" as a share of physical RAM. 100% = all RAM (normal
-    // for macOS), red at 150% = noticeable swapping. The threshold may exceed 100.
-    static let memYellowDefault = 110
-    static let memRedDefault = 150
+    // memory has no threshold: the row color follows macOS's own
+    // memory-pressure signal (see SystemStats.memoryPressureLevel)
     static let diskYellowDefault = 85
     static let diskRedDefault = 95
     static let battYellowDefault = 30
@@ -38,7 +34,6 @@ enum Thresholds {
     static let allKeys = [
         tempYellowKey, tempRedKey, loadYellowKey, loadRedKey,
         diskYellowKey, diskRedKey, battYellowKey, battRedKey,
-        memYellowKey, memRedKey,
     ]
 
     static func resetAll() {

@@ -17,8 +17,6 @@ struct StatsView: View {
     @AppStorage(Thresholds.tempRedKey) private var tempRed = Thresholds.tempRedDefault
     @AppStorage(Thresholds.loadYellowKey) private var loadYellow = Thresholds.loadYellowDefault
     @AppStorage(Thresholds.loadRedKey) private var loadRed = Thresholds.loadRedDefault
-    @AppStorage(Thresholds.memYellowKey) private var memYellow = Thresholds.memYellowDefault
-    @AppStorage(Thresholds.memRedKey) private var memRed = Thresholds.memRedDefault
     @AppStorage(Thresholds.diskYellowKey) private var diskYellow = Thresholds.diskYellowDefault
     @AppStorage(Thresholds.diskRedKey) private var diskRed = Thresholds.diskRedDefault
     @AppStorage(Thresholds.battYellowKey) private var battYellow = Thresholds.battYellowDefault
@@ -187,22 +185,20 @@ struct StatsView: View {
         return loadAndTemp(s.gpuLoad, s.gpuTemp)
     }
 
-    /// Memory colors by SWAP, not by "used": full RAM is normal on macOS.
-    /// (used+swap)/RAM can exceed 100% — red at memRed (e.g. 150).
+    /// Memory: the figure is RAM used, swap alongside — they no longer
+    /// include each other (the old sum read as if swap were on top of it).
+    /// The COLOR follows macOS's own memory-pressure signal: any formula
+    /// over used/swap second-guesses the system and lies.
     private func memValue(_ s: StatsSample) -> Text {
         let pressureColor: Color = {
-            guard let used = s.memUsed, let total = s.memTotal, total > 0 else {
-                return Theme.textSecondary
+            switch s.memPressure {
+            case 4: return Theme.accentRed // critical
+            case 2: return Theme.accentYellow // warning
+            case 1: return colorful ? Theme.accentGreen : Theme.textSecondary
+            default: return Theme.textSecondary // no signal — no verdict
             }
-            let ratio = (used + (s.swapUsed ?? 0)) / total * 100
-            if ratio >= Double(memRed) { return Theme.accentRed }
-            if ratio >= Double(memYellow) { return Theme.accentYellow }
-            return colorful ? Theme.accentGreen : Theme.textSecondary
         }()
-        // the main figure = used + swap: total memory footprint is visible,
-        // and with swap it exceeds RAM size (e.g. "30 / 24 GB")
-        let footprint = (s.memUsed ?? 0) + (s.swapUsed ?? 0)
-        var text = Text(StatsFormatting.gb(footprint)).foregroundColor(pressureColor)
+        var text = Text(StatsFormatting.gb(s.memUsed)).foregroundColor(pressureColor)
             + Text(" / \(StatsFormatting.gb(s.memTotal)) \(t(.unitGB))").foregroundColor(Theme.textSecondary)
         // if there is swap — clarify how much of it went to disk;
         // with its own unit: a bare "swap 2.0" left the scale ambiguous

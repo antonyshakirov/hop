@@ -74,6 +74,7 @@ final class StatusItemController: NSObject {
             }
         }
         model.closePanel = { [weak self] in self?.popover.close() }
+        model.panelFocusChanged = { [weak self] in self?.maybeReturnFocus() }
         // once the panel closes, put the countdown back into the menu bar
         NotificationCenter.default.addObserver(
             forName: NSPopover.willCloseNotification, object: popover, queue: .main
@@ -84,6 +85,8 @@ final class StatusItemController: NSObject {
                 self?.panelOriginX = nil
                 self?.hiddenAnchorWindow?.orderOut(nil)
                 self?.hiddenAnchorWindow = nil
+                self?.previousApp = nil
+                self?.model.panelKeyboardCaptured = false
                 self?.refreshButton()
             }
         }
@@ -142,6 +145,27 @@ final class StatusItemController: NSObject {
 
     /// Reference X of the panel window: a change during resize = lost anchor.
     private var panelOriginX: CGFloat?
+
+    /// The app that was frontmost when the panel opened: the panel is
+    /// keyboard-transparent, so focus keeps going back to that app.
+    private var previousApp: NSRunningApplication?
+
+    /// Give the keyboard back to the app under the panel — unless the panel
+    /// is actually typing (digit entry, the clipboard search field) or focus
+    /// has legitimately moved to another Hop window (settings, converter).
+    func maybeReturnFocus() {
+        guard popover.isShown else { return }
+        guard !model.panelKeyboardCaptured else { return }
+        let panelWindow = popover.contentViewController?.view.window
+        if let key = NSApp.keyWindow, key !== panelWindow { return }
+        // a focused text field (field editor) means real typing — keep it
+        if let responder = panelWindow?.firstResponder, responder is NSText { return }
+        guard let previousApp, !previousApp.isTerminated,
+              previousApp.processIdentifier != ProcessInfo.processInfo.processIdentifier
+        else { return }
+        NSApp.yieldActivation(to: previousApp)
+        previousApp.activate()
+    }
 
     /// Re-anchor to the current geometry: NSPopover ignores an identical
     /// positioningRect, so nudge it half a pixel and set it back.
@@ -246,7 +270,7 @@ final class StatusItemController: NSObject {
         guard !popover.isShown, let button = statusItem.button else { return }
         // the app that was frontmost before the icon click: we give focus back
         // to it so system dictation/paste go there, not into the panel
-        let previousApp = NSWorkspace.shared.frontmostApplication
+        previousApp = NSWorkspace.shared.frontmostApplication
         // pin the content size BEFORE showing: if NSPopover refines the size
         // after appearing, it re-centers itself — the panel jerks sideways
         if let view = popover.contentViewController?.view {
@@ -267,6 +291,7 @@ final class StatusItemController: NSObject {
         // is back with that app. Clicking inside the panel refocuses it — digit input still works
         if let previousApp,
            previousApp.processIdentifier != ProcessInfo.processInfo.processIdentifier {
+            NSApp.yieldActivation(to: previousApp)
             previousApp.activate()
         }
         // do NOT grab the keyboard on open: dictation and Cmd+V must keep

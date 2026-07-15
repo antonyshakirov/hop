@@ -12,6 +12,7 @@ struct StatsSample {
     var memUsed: Double?      // bytes
     var memTotal: Double?     // bytes
     var swapUsed: Double?     // bytes (swap file)
+    var memPressure: Int?     // macOS verdict: 1 normal, 2 warning, 4 critical
     var netDown: Double?      // bytes/s
     var netUp: Double?        // bytes/s
     var diskFree: Double?     // bytes
@@ -106,6 +107,7 @@ final class SystemStatsController: ObservableObject {
         s.gpuLoad = Self.gpuUsage()
         (s.memUsed, s.memTotal) = Self.memory()
         s.swapUsed = Self.swapUsed()
+        s.memPressure = Self.memoryPressureLevel()
         (s.netDown, s.netUp) = net.read()
         (s.diskFree, s.diskTotal) = Self.disk()
         s.battery = Self.battery()
@@ -180,6 +182,17 @@ final class SystemStatsController: ObservableObject {
             }
         }
         return nil
+    }
+
+    /// macOS's own memory verdict (kern.memorystatus_vm_pressure_level):
+    /// 1 normal, 2 warning, 4 critical. The row color follows this signal —
+    /// any formula over used/swap second-guesses the system and lies.
+    private static func memoryPressureLevel() -> Int? {
+        var level: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+        guard sysctlbyname("kern.memorystatus_vm_pressure_level", &level, &size, nil, 0) == 0
+        else { return nil }
+        return Int(level)
     }
 
     /// Used swap: a real signal of memory pressure,

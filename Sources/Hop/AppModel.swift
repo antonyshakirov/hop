@@ -26,6 +26,12 @@ final class AppModel: ObservableObject {
     @Published var openTab: PanelView.Tab?
     /// Close the popover (for "copy and paste").
     var closePanel: (() -> Void)?
+    /// The panel needs the keyboard right now (digit entry into the display).
+    /// Everything else is mouse-only: keystrokes belong to the app underneath.
+    var panelKeyboardCaptured = false
+    /// Ping after panel clicks / edit-state changes: the status item controller
+    /// decides whether to hand focus back to the app under the panel.
+    var panelFocusChanged: (() -> Void)?
     /// Open the standalone settings window.
     var openSettingsWindow: (() -> Void)?
     /// Open the standalone converter window.

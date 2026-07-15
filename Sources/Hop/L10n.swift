@@ -75,7 +75,8 @@ enum L10nKey: String, CaseIterable {
     case dragToSet, awakeOff, minUnit
     case menuBarCountdown, launchAtLogin, onFinish, language, languageAuto
     case soundBanner, soundOnly, silent
-    case thTemp, thLoad, thMem, thDisk, thBatt, thBattNote, colYellow, colRed, resetDefaults
+    case memPressureNote
+    case thTemp, thLoad, thDisk, thBatt, thBattNote, colYellow, colRed, resetDefaults
     case notifTitle, notifBody
     case aboutTitle, aboutTimer, aboutAwake, aboutSystem, aboutFooter, aboutProductPage
     case tabClipboard, clipboardEmpty, clipboardClear, clipboardCopied
@@ -148,6 +149,7 @@ enum L10n {
 
     private static let tables: [AppLanguage: [L10nKey: String]] = [
         .en: [
+            .memPressureNote: "memory: the color follows macOS's own memory-pressure signal",
             .aboutTabNews: "what's new", .newsAllReleases: "all releases",
             .docNews: "1.1.0 — 2026-07-15\n\n• clipboard history keeps images\n\n• video conversion: format, resolution and compression are set independently, with visible batch progress\n\n• monitor: redrawn charts and a clearer download/upload pair\n\n• plenty of small fixes: light theme, window raising, hotkey legend, module reordering\n\n1.0.0 — 2026-07-13\n\n• first release: timer, awake, monitor, clipboard, converter, windows and speed test — in 18 languages",
             .tabTimer: "main", .tabSystem: "monitor", .back: "back",
@@ -156,7 +158,7 @@ enum L10n {
             .menuBarCountdown: "timer countdown in menu bar", .launchAtLogin: "launch at login",
             .onFinish: "finish alert", .language: "language", .languageAuto: "system",
             .soundBanner: "sound + banner", .soundOnly: "sound only", .silent: "silent",
-            .thTemp: "temperature °C", .thLoad: "cpu %", .thMem: "memory+swap %", .thDisk: "disk used %",
+            .thTemp: "temperature °C", .thLoad: "cpu %", .thDisk: "disk used %",
             .thBatt: "battery %", .thBattNote: "below = worse",
             .thGeneralNote: "row highlight thresholds: yellow / red",
             .colYellow: "yellow", .colRed: "red", .resetDefaults: "reset defaults",
@@ -343,6 +345,7 @@ enum L10n {
             .docSpeedFull: "measures your connection with macOS's built-in networkQuality: traffic goes to Apple's CDN servers, no third-party services involved.\n\n• reading it — ↓ download and ↑ upload.\n\n• response — how many round trips the network completes per minute under full load: below 100 calls and streams will suffer, 800+ is great. shown in the result's tooltip.\n\n• why live numbers move — the test ramps up parallel streams and loads the link both ways, so live figures float; the final number is the settled capacity. it's usually below speedtest.net peaks — those measure an idealized link to your ISP's own server.\n\n• staleness — a result older than 30 minutes (or taken on another Wi-Fi) turns dim: time to re-measure.\n\n• download in practice — 10 Mbps is enough for browsing and music, 25 for HD video, 50+ for 4K and quick app downloads, 100+ for heavy files without waiting.\n\n• upload in practice — 5 Mbps carries a call with screen sharing, 10+ HD video calls and cloud backups, 25+ comfortable streaming and big uploads.\n\n• low RPM on a fast line — RPM is delay under load, not speed. «under load» means the line is busy with something else: a file downloading, a cloud backup, someone at home streaming. in those moments router queues (bufferbloat) hold packets. 0–100 — on a busy line, voices in calls drop out and sound distorted, pages take seconds to open; 100–400 — only short hiccups under load; 400–800 — load is barely noticeable; 800+ — calls stay smooth even next to torrents. if you rarely load the line, low RPM won't bother you; the cure is a router with smart queue management (SQM).",
         ],
         .ru: [
+            .memPressureNote: "память: цвет — по системному сигналу memory pressure macOS",
             .aboutTabNews: "что нового", .newsAllReleases: "все релизы",
             .docNews: "1.1.0 — 2026-07-15\n\n• буфер обмена запоминает и картинки\n\n• конвертация видео: формат, разрешение и сжатие выбираются независимо, прогресс пачки виден\n\n• монитор: перерисованные графики и понятная пара загрузка/отдача\n\n• много мелких правок: светлая тема, поднятие окон, легенда хоткеев, перестановка модулей\n\n1.0.0 — 2026-07-13\n\n• первый релиз: таймер, запрет сна, монитор, буфер, конвертер, окна и замер скорости — на 18 языках",
             .tabTimer: "главная", .tabSystem: "монитор", .back: "назад",
@@ -351,7 +354,7 @@ enum L10n {
             .menuBarCountdown: "отсчёт таймера в menu bar", .launchAtLogin: "запуск при входе",
             .onFinish: "уведомления по окончании", .language: "язык", .languageAuto: "система",
             .soundBanner: "звук + баннер", .soundOnly: "только звук", .silent: "тихо",
-            .thTemp: "температура °C", .thLoad: "cpu %", .thMem: "память+swap %", .thDisk: "диск занят %",
+            .thTemp: "температура °C", .thLoad: "cpu %", .thDisk: "диск занят %",
             .thBatt: "батарея %", .thBattNote: "ниже = хуже",
             .thGeneralNote: "пороги подсветки строк: жёлтый / красный",
             .colYellow: "жёлтый", .colRed: "красный", .resetDefaults: "сбросить настройки",
@@ -538,6 +541,7 @@ enum L10n {
             .docSpeedFull: "меряет канал встроенной в macOS утилитой networkQuality: трафик идёт на серверы Apple, сторонние сервисы не используются.\n\n• как читать — ↓ загрузка и ↑ отдача.\n\n• отклик — сколько круговых запросов сеть успевает в минуту под полной нагрузкой: меньше 100 — звонки и стримы будут прерываться, 800+ — отлично. виден в подсказке к результату.\n\n• почему живые числа плавают — тест разгоняет параллельные потоки и грузит канал в обе стороны, поэтому цифры по ходу меняются; итог — устоявшаяся ёмкость. он обычно ниже «пиков» speedtest.net: те меряют идеальный канал до сервера своего же провайдера.\n\n• устаревание — результат старше 30 минут (или снятый в другой Wi-Fi-сети) показывается блёклым: пора замерить заново.\n\n• загрузка на практике — 10 Мбит/с хватает на сёрфинг и музыку, 25 — на HD-видео, 50+ — на 4K и быстрые загрузки приложений, 100+ — тяжёлые файлы без ожидания.\n\n• отгрузка на практике — 5 Мбит/с тянет звонок с демонстрацией экрана, 10+ — HD-видеозвонки и облачные бэкапы, 25+ — стримы и большие выгрузки без задержек.\n\n• низкий RPM при быстрой линии — RPM про задержку под нагрузкой, а не про скорость. «занятая линия» — это когда каналом параллельно пользуется что-то ещё: качается файл, идёт облачный бэкап, кто-то дома смотрит стрим. в такие моменты очередь роутера (bufferbloat) держит пакеты. 0–100 — на занятой линии голос в звонках прерывается и искажается, страницы открываются секундами; 100–400 — под нагрузкой лишь короткие запинки; 400–800 — нагрузка почти не ощущается; 800+ — звонки гладкие даже рядом с торрентами. если линию тяжело не грузишь — низкий RPM не мешает; лечение — роутер с умной очередью (SQM).",
         ],
         .de: [
+            .memPressureNote: "speicher: die farbe folgt dem memory-pressure-signal von macOS",
             .aboutTabNews: "neuigkeiten", .newsAllReleases: "alle releases",
             .docNews: "1.1.0 — 2026-07-15\n\n• die ablage merkt sich auch bilder\n\n• videokonvertierung: format, auflösung und kompression unabhängig wählbar, mit sichtbarem fortschritt\n\n• monitor: neu gezeichnete diagramme und ein klareres download/upload-paar\n\n• viele kleine korrekturen: helles design, fenster anheben, hotkey-legende, modul-reihenfolge\n\n1.0.0 — 2026-07-13\n\n• erstes release: timer, wach, monitor, ablage, konverter, fenster und speedtest — in 18 sprachen",
             .tabTimer: "start", .tabSystem: "monitor", .back: "zurück",
@@ -546,7 +550,7 @@ enum L10n {
             .menuBarCountdown: "timer-countdown in menüleiste", .launchAtLogin: "start beim anmelden",
             .onFinish: "hinweis am ende", .language: "sprache", .languageAuto: "system",
             .soundBanner: "ton + banner", .soundOnly: "nur ton", .silent: "stumm",
-            .thTemp: "temperatur °C", .thLoad: "cpu %", .thMem: "speicher+swap %", .thDisk: "disk belegt %",
+            .thTemp: "temperatur °C", .thLoad: "cpu %", .thDisk: "disk belegt %",
             .thBatt: "batterie %", .thBattNote: "darunter = schlechter",
             .thGeneralNote: "schwellen der zeilen-hervorhebung: gelb / rot",
             .colYellow: "gelb", .colRed: "rot", .resetDefaults: "zurücksetzen",
@@ -733,6 +737,7 @@ enum L10n {
             .docSpeedFull: "misst die verbindung mit dem in macOS eingebauten networkQuality: der traffic geht an Apples CDN-server, keine drittdienste.\n\n• lesen — ↓ download und ↑ upload.\n\n• reaktion — wie viele runden das netz pro minute unter volllast schafft: unter 100 leiden calls und streams, 800+ ist super. im tooltip des ergebnisses.\n\n• warum live-zahlen schwanken — der test fährt parallele streams hoch und belastet beide richtungen; das ergebnis ist die stabile kapazität, meist unter speedtest-spitzen (die messen eine ideale strecke zum provider-server).\n\n• veraltung — ein ergebnis älter als 30 minuten (oder aus anderem WLAN) wird blass: zeit neu zu messen.\n\n• download in der praxis — 10 Mbps reichen für surfen und musik, 25 für HD-video, 50+ für 4K und schnelle app-downloads, 100+ für große dateien ohne warten.\n\n• upload in der praxis — 5 Mbps tragen einen call mit bildschirmfreigabe, 10+ HD-videocalls und cloud-backups, 25+ streams und große uploads.\n\n• niedrige RPM bei schneller leitung — RPM ist verzögerung unter last, nicht tempo. «unter last» heißt: die leitung ist gerade anderweitig beschäftigt — ein download läuft, ein cloud-backup, jemand streamt. in diesen momenten halten router-warteschlangen (bufferbloat) hält Pakete fest. 0–100 — bei belegter Leitung setzt die Stimme in Anrufen aus und klingt verzerrt, Seiten laden sekundenlang; 100–400 — nur kurze aussetzer unter last; 400–800 — last kaum spürbar; 800+ — calls bleiben glatt selbst neben torrents. wer die leitung selten belastet, merkt niedrige RPM kaum; abhilfe: router mit smart queue management (SQM).",
         ],
         .es: [
+            .memPressureNote: "memoria: el color sigue la señal de presión de memoria de macOS",
             .aboutTabNews: "novedades", .newsAllReleases: "todas las versiones",
             .docNews: "1.1.0 — 2026-07-15\n\n• el portapapeles también guarda imágenes\n\n• conversión de vídeo: formato, resolución y compresión se eligen por separado, con progreso visible\n\n• monitor: gráficos rediseñados y un par descarga/subida más claro\n\n• muchos ajustes pequeños: tema claro, elevación de ventanas, leyenda de atajos, orden de módulos\n\n1.0.0 — 2026-07-13\n\n• primera versión: temporizador, despierto, monitor, portapapeles, conversor, ventanas y test de velocidad — en 18 idiomas",
             .tabTimer: "principal", .tabSystem: "monitor", .back: "atrás",
@@ -741,7 +746,7 @@ enum L10n {
             .menuBarCountdown: "cuenta del temporizador en la barra", .launchAtLogin: "abrir al iniciar sesión",
             .onFinish: "aviso al terminar", .language: "idioma", .languageAuto: "sistema",
             .soundBanner: "sonido + aviso", .soundOnly: "solo sonido", .silent: "silencio",
-            .thTemp: "temperatura °C", .thLoad: "cpu %", .thMem: "memoria+swap %", .thDisk: "disco usado %",
+            .thTemp: "temperatura °C", .thLoad: "cpu %", .thDisk: "disco usado %",
             .thBatt: "batería %", .thBattNote: "menos = peor",
             .thGeneralNote: "umbrales de resaltado: amarillo / rojo",
             .colYellow: "amarillo", .colRed: "rojo", .resetDefaults: "restablecer",
@@ -928,6 +933,7 @@ enum L10n {
             .docSpeedFull: "mide la conexión con networkQuality, integrado en macOS: el tráfico va a servidores de Apple, sin servicios de terceros.\n\n• cómo leerlo — ↓ bajada y ↑ subida.\n\n• respuesta — cuántas idas y vueltas completa la red por minuto a plena carga: bajo 100 sufren llamadas y streams, 800+ es excelente. en el tooltip del resultado.\n\n• por qué bailan los números — el test acelera flujos paralelos y carga el canal en ambos sentidos; el final es la capacidad estable, normalmente menor que los picos de speedtest (miden un enlace ideal al servidor del propio ISP).\n\n• caducidad — un resultado de más de 30 minutos (o de otra red Wi-Fi) se ve apagado: toca medir de nuevo.\n\n• descarga en la práctica — 10 Mbps bastan para navegar y música, 25 para vídeo HD, 50+ para 4K y descargas rápidas, 100+ para archivos pesados sin esperar.\n\n• subida en la práctica — 5 Mbps sostienen una llamada con pantalla compartida, 10+ videollamadas HD y copias en la nube, 25+ streaming y subidas grandes.\n\n• RPM bajo con línea rápida — el RPM mide el retraso bajo carga, no la velocidad. «bajo carga» significa que la línea está ocupada con otra cosa: una descarga, una copia en la nube, alguien en casa viendo streaming. en esos momentos las colas del router (bufferbloat) retiene paquetes. 0–100 — con la línea ocupada la voz en las llamadas se corta y se distorsiona, las páginas tardan segundos; 100–400 — solo tropiezos breves bajo carga; 400–800 — la carga apenas se nota; 800+ — llamadas fluidas incluso junto a torrents. si rara vez cargas la línea, un RPM bajo no molesta; el remedio es un router con gestión de colas (SQM).",
         ],
         .pt: [
+            .memPressureNote: "memória: a cor segue o sinal de pressão de memória do macOS",
             .aboutTabNews: "novidades", .newsAllReleases: "todas as versões",
             .docNews: "1.1.0 — 2026-07-15\n\n• a área de transferência também guarda imagens\n\n• conversão de vídeo: formato, resolução e compressão escolhidos separadamente, com progresso visível\n\n• monitor: gráficos redesenhados e um par download/upload mais claro\n\n• muitos ajustes pequenos: tema claro, elevação de janelas, legenda de atalhos, ordem dos módulos\n\n1.0.0 — 2026-07-13\n\n• primeira versão: timer, desperto, monitor, área de transferência, conversor, janelas e teste de velocidade — em 18 idiomas",
             .tabTimer: "principal", .tabSystem: "monitor", .back: "voltar",
@@ -936,7 +942,7 @@ enum L10n {
             .menuBarCountdown: "contagem do temporizador na barra", .launchAtLogin: "abrir no login",
             .onFinish: "aviso ao terminar", .language: "idioma", .languageAuto: "sistema",
             .soundBanner: "som + banner", .soundOnly: "só som", .silent: "silêncio",
-            .thTemp: "temperatura °C", .thLoad: "cpu %", .thMem: "memória+swap %", .thDisk: "disco usado %",
+            .thTemp: "temperatura °C", .thLoad: "cpu %", .thDisk: "disco usado %",
             .thBatt: "bateria %", .thBattNote: "menor = pior",
             .thGeneralNote: "limiares de destaque: amarelo / vermelho",
             .colYellow: "amarelo", .colRed: "vermelho", .resetDefaults: "restaurar padrões",
@@ -1123,6 +1129,7 @@ enum L10n {
             .docSpeedFull: "mede a conexão com o networkQuality embutido no macOS: o tráfego vai para servidores da Apple, sem serviços de terceiros.\n\n• como ler — ↓ download e ↑ upload.\n\n• resposta — quantas idas e voltas a rede completa por minuto sob carga total: abaixo de 100 chamadas e streams sofrem, 800+ é ótimo. no tooltip do resultado.\n\n• por que os números flutuam — o teste acelera fluxos paralelos e carrega o canal nos dois sentidos; o final é a capacidade estável, geralmente menor que os picos do speedtest (que medem um enlace ideal ao servidor do próprio provedor).\n\n• validade — um resultado com mais de 30 minutos (ou de outra rede Wi-Fi) fica apagado: hora de medir de novo.\n\n• download na prática — 10 Mbps bastam para navegar e música, 25 para vídeo HD, 50+ para 4K e downloads rápidos, 100+ para arquivos pesados sem espera.\n\n• upload na prática — 5 Mbps seguram uma chamada com tela compartilhada, 10+ videochamadas HD e backups na nuvem, 25+ streaming e envios grandes.\n\n• RPM baixo em linha rápida — o RPM mede o atraso sob carga, não a velocidade. «sob carga» significa que a linha está ocupada com outra coisa: um download, um backup na nuvem, alguém em casa assistindo streaming. nesses momentos as filas do roteador (bufferbloat) segura pacotes. 0–100 — com a linha ocupada a voz nas chamadas falha e sai distorcida, páginas levam segundos; 100–400 — só engasgos curtos sob carga; 400–800 — a carga quase não se nota; 800+ — chamadas fluidas mesmo ao lado de torrents. se você raramente carrega a linha, RPM baixo não incomoda; o remédio é um roteador com fila inteligente (SQM).",
         ],
         .fr: [
+            .memPressureNote: "mémoire : la couleur suit le signal de pression mémoire de macOS",
             .aboutTabNews: "nouveautés", .newsAllReleases: "toutes les versions",
             .docNews: "1.1.0 — 2026-07-15\n\n• le presse-papiers garde aussi les images\n\n• conversion vidéo : format, résolution et compression se règlent séparément, avec progression visible\n\n• moniteur : graphiques redessinés et paire téléchargement/envoi plus claire\n\n• plein de petites retouches : thème clair, fenêtres au premier plan, légende des raccourcis, ordre des modules\n\n1.0.0 — 2026-07-13\n\n• première version : minuteur, éveil, moniteur, presse-papiers, convertisseur, fenêtres et test de débit — en 18 langues",
             .tabTimer: "principal", .tabSystem: "moniteur", .back: "retour",
@@ -1131,7 +1138,7 @@ enum L10n {
             .menuBarCountdown: "compte du minuteur dans la barre", .launchAtLogin: "lancer à l'ouverture",
             .onFinish: "alerte à la fin", .language: "langue", .languageAuto: "système",
             .soundBanner: "son + bannière", .soundOnly: "son seul", .silent: "silence",
-            .thTemp: "température °C", .thLoad: "cpu %", .thMem: "mémoire+swap %", .thDisk: "disque utilisé %",
+            .thTemp: "température °C", .thLoad: "cpu %", .thDisk: "disque utilisé %",
             .thBatt: "batterie %", .thBattNote: "moins = pire",
             .thGeneralNote: "seuils de surbrillance : jaune / rouge",
             .colYellow: "jaune", .colRed: "rouge", .resetDefaults: "réinitialiser",
@@ -1318,6 +1325,7 @@ enum L10n {
             .docSpeedFull: "mesure la connexion avec networkQuality intégré à macOS : le trafic va vers les serveurs d'Apple, aucun service tiers.\n\n• lecture — ↓ descente et ↑ montée.\n\n• réactivité — combien d'allers-retours le réseau boucle par minute à pleine charge : sous 100, appels et streams souffrent ; 800+, excellent. dans l'infobulle du résultat.\n\n• pourquoi les chiffres bougent — le test monte des flux parallèles et charge le lien dans les deux sens ; le final est la capacité stabilisée, souvent sous les pics de speedtest (qui mesurent un lien idéal vers le serveur du FAI).\n\n• péremption — un résultat de plus de 30 minutes (ou d'un autre Wi-Fi) devient pâle : à re-mesurer.\n\n• réception en pratique — 10 Mbps suffisent pour surfer et la musique, 25 pour la vidéo HD, 50+ pour la 4K et les téléchargements rapides, 100+ pour les gros fichiers sans attente.\n\n• envoi en pratique — 5 Mbps portent un appel avec partage d'écran, 10+ les visios HD et sauvegardes cloud, 25+ le streaming et les gros envois.\n\n• RPM bas sur ligne rapide — le RPM mesure le délai sous charge, pas la vitesse. « sous charge » veut dire que la ligne est occupée par autre chose : un téléchargement, une sauvegarde cloud, quelqu'un qui streame à la maison. à ces moments, les files du routeur (bufferbloat) retient les paquets. 0–100 — quand la ligne est occupée, la voix des appels se coupe et se déforme, les pages mettent des secondes; 100–400 — brefs accrocs sous charge ; 400–800 — charge à peine sensible ; 800+ — appels fluides même à côté de torrents. si vous chargez rarement la ligne, un RPM bas ne gêne pas ; le remède : un routeur avec gestion de file (SQM).",
         ],
         .it: [
+            .memPressureNote: "memoria: il colore segue il segnale di pressione della memoria di macOS",
             .aboutTabNews: "novità", .newsAllReleases: "tutte le versioni",
             .docNews: "1.1.0 — 2026-07-15\n\n• gli appunti conservano anche le immagini\n\n• conversione video: formato, risoluzione e compressione si scelgono separatamente, con avanzamento visibile\n\n• monitor: grafici ridisegnati e coppia download/upload più chiara\n\n• tanti piccoli ritocchi: tema chiaro, finestre in primo piano, legenda delle scorciatoie, ordine dei moduli\n\n1.0.0 — 2026-07-13\n\n• prima versione: timer, sveglio, monitor, appunti, convertitore, finestre e test di velocità — in 18 lingue",
             .tabTimer: "principale", .tabSystem: "monitor", .back: "indietro",
@@ -1326,7 +1334,7 @@ enum L10n {
             .menuBarCountdown: "conto del timer nella barra", .launchAtLogin: "avvia al login",
             .onFinish: "avviso alla fine", .language: "lingua", .languageAuto: "sistema",
             .soundBanner: "suono + banner", .soundOnly: "solo suono", .silent: "silenzio",
-            .thTemp: "temperatura °C", .thLoad: "cpu %", .thMem: "memoria+swap %", .thDisk: "disco usato %",
+            .thTemp: "temperatura °C", .thLoad: "cpu %", .thDisk: "disco usato %",
             .thBatt: "batteria %", .thBattNote: "sotto = peggio",
             .thGeneralNote: "soglie di evidenziazione: giallo / rosso",
             .colYellow: "giallo", .colRed: "rosso", .resetDefaults: "ripristina",
@@ -1513,6 +1521,7 @@ enum L10n {
             .docSpeedFull: "misura la connessione con networkQuality integrato in macOS: il traffico va ai server Apple, nessun servizio terzo.\n\n• come leggerlo — ↓ download e ↑ upload.\n\n• reattività — quanti giri completa la rete al minuto a pieno carico: sotto 100 chiamate e stream soffrono, 800+ è ottimo. nel tooltip del risultato.\n\n• perché i numeri ballano — il test lancia flussi paralleli e carica il canale in entrambe le direzioni; il finale è la capacità stabile, di solito sotto i picchi di speedtest (che misurano un collegamento ideale al server del provider).\n\n• scadenza — un risultato più vecchio di 30 minuti (o di un'altra rete Wi-Fi) diventa pallido: è ora di rimisurare.\n\n• download in pratica — 10 Mbps bastano per navigare e musica, 25 per video HD, 50+ per 4K e download rapidi, 100+ per file pesanti senza attese.\n\n• upload in pratica — 5 Mbps reggono una chiamata con schermo condiviso, 10+ videochiamate HD e backup cloud, 25+ streaming e upload grossi.\n\n• RPM basso su linea veloce — l'RPM misura il ritardo sotto carico, non la velocità. «sotto carico» significa che la linea è occupata da altro: un download, un backup cloud, qualcuno in casa che guarda in streaming. in quei momenti le code del router (bufferbloat) trattiene i pacchetti. 0–100 — con la linea occupata la voce nelle chiamate si interrompe e risulta distorta, le pagine impiegano secondi; 100–400 — solo brevi singhiozzi sotto carico; 400–800 — carico quasi impercettibile; 800+ — chiamate fluide anche accanto ai torrent. se carichi la linea di rado, un RPM basso non disturba; il rimedio è un router con gestione code (SQM).",
         ],
         .zh: [
+            .memPressureNote: "内存：颜色跟随 macOS 系统的内存压力信号",
             .aboutTabNews: "新功能", .newsAllReleases: "全部版本",
             .docNews: "1.1.0 — 2026-07-15\n\n• 剪贴板历史现在也保存图片\n\n• 视频转换：格式、分辨率和压缩可独立选择，批量进度可见\n\n• 监视器：重绘的图表，更清晰的下载/上传曲线\n\n• 大量细节修复：浅色主题、窗口置顶、快捷键图例、模块排序\n\n1.0.0 — 2026-07-13\n\n• 首个版本：计时器、防休眠、监视器、剪贴板、转换器、窗口和测速 — 支持 18 种语言",
             .tabTimer: "主页", .tabSystem: "监控", .back: "返回",
@@ -1521,7 +1530,7 @@ enum L10n {
             .menuBarCountdown: "菜单栏显示计时器倒计时", .launchAtLogin: "登录时启动",
             .onFinish: "结束提醒", .language: "语言", .languageAuto: "系统",
             .soundBanner: "声音+横幅", .soundOnly: "仅声音", .silent: "静音",
-            .thTemp: "温度 °C", .thLoad: "cpu %", .thMem: "内存+swap %", .thDisk: "磁盘占用 %",
+            .thTemp: "温度 °C", .thLoad: "cpu %", .thDisk: "磁盘占用 %",
             .thBatt: "电池 %", .thBattNote: "越低越差",
             .thGeneralNote: "行高亮阈值：黄色 / 红色",
             .colYellow: "黄色", .colRed: "红色", .resetDefaults: "恢复默认",
@@ -1708,6 +1717,7 @@ enum L10n {
             .docSpeedFull: "用 macOS 内置的 networkQuality 测量连接:流量走 Apple 服务器,不经第三方。\n\n• 怎么读 — ↓ 下载、↑ 上传.\n\n• 响应 — 满负载下网络每分钟能完成多少来回:低于 100 通话和串流会卡,800+ 极佳。见结果的悬停提示。\n\n• 数字为何波动 — 测试会拉起并行流并双向加压,过程数字浮动,最终值是稳定容量,通常低于 speedtest 峰值(那是到运营商自家服务器的理想链路)。\n\n• 过期 — 超过 30 分钟(或换了 Wi-Fi)的结果会变淡:该重新测了。\n\n• 下载参考 — 10 Mbps 够浏览和听歌，25 够 HD 视频，50+ 够 4K 和快速下载应用，100+ 大文件不用等。\n\n• 上传参考 — 5 Mbps 撑得起共享屏幕的通话，10+ 够 HD 视频通话和云备份，25+ 直播和大文件上传无压力。\n\n• 线路快但 RPM 低 — RPM 量的是负载下的延迟，不是速度。「线路忙」指此刻有别的东西在用网：正在下载文件、云备份在跑、家里有人看流媒体。这些时刻路由器队列（bufferbloat）会积压数据包。0–100 —— 线路繁忙时通话声音断断续续、失真，网页要等几秒；100–400 — 负载下只有短暂卡顿；400–800 — 几乎感觉不到负载；800+ — 即使旁边挂着种子，通话依然顺滑。如果你很少让线路满载，低 RPM 不碍事；解法是带智能队列（SQM）的路由器。",
         ],
         .ja: [
+            .memPressureNote: "メモリ：色は macOS のメモリプレッシャー信号に従います",
             .aboutTabNews: "新着情報", .newsAllReleases: "すべてのリリース",
             .docNews: "1.1.0 — 2026-07-15\n\n• クリップボード履歴が画像にも対応\n\n• 動画変換：フォーマット・解像度・圧縮を別々に選択、進捗も表示\n\n• モニター：グラフを描き直し、ダウンロード/アップロードが見やすく\n\n• 細かな修正多数：ライトテーマ、ウインドウの前面表示、ショートカット一覧、モジュールの並べ替え\n\n1.0.0 — 2026-07-13\n\n• 初回リリース：タイマー、スリープ防止、モニター、クリップボード、変換、ウインドウ、スピードテスト — 18言語対応",
             .tabTimer: "メイン", .tabSystem: "モニター", .back: "戻る",
@@ -1716,7 +1726,7 @@ enum L10n {
             .menuBarCountdown: "メニューバーにタイマー表示", .launchAtLogin: "ログイン時に起動",
             .onFinish: "終了時の通知", .language: "言語", .languageAuto: "システム",
             .soundBanner: "サウンド+バナー", .soundOnly: "サウンドのみ", .silent: "サイレント",
-            .thTemp: "温度 °C", .thLoad: "cpu %", .thMem: "メモリ+swap %", .thDisk: "ディスク使用 %",
+            .thTemp: "温度 °C", .thLoad: "cpu %", .thDisk: "ディスク使用 %",
             .thBatt: "バッテリー %", .thBattNote: "低いほど悪い",
             .thGeneralNote: "行ハイライトのしきい値：黄 / 赤",
             .colYellow: "黄", .colRed: "赤", .resetDefaults: "デフォルトに戻す",
@@ -1903,6 +1913,7 @@ enum L10n {
             .docSpeedFull: "macOS 内蔵の networkQuality で計測:トラフィックは Apple のサーバー宛て、サードパーティは不使用。\n\n• 読み方 — ↓ ダウンロードと ↑ アップロード。\n\n• 応答 — 全負荷で 1 分に何往復できるか:100 未満は通話や配信が苦しく、800+ なら優秀。結果のツールチップに表示。\n\n• 数字が揺れる理由 — テストは並列ストリームを増やし双方向に負荷をかけるため経過値は揺れ、最終値が安定容量。プロバイダ自社サーバーへの理想値を測る speedtest のピークよりは低めが普通。\n\n• 鮮度 — 30 分超(または別の Wi-Fi)の結果は薄く表示:再計測どき。\n\n• ダウンロードの目安 — 10 Mbps でブラウジングと音楽、25 で HD 動画、50+ で 4K と高速ダウンロード、100+ で大きなファイルも待たずに。\n\n• アップロードの目安 — 5 Mbps で画面共有つき通話、10+ で HD ビデオ通話とクラウドバックアップ、25+ で配信や大きなアップロードも快適。\n\n• 回線は速いのに RPM が低い — RPM は速度ではなく負荷時の遅延です。「負荷時」とは回線が別の用事で塞がっている瞬間のこと：ファイルのダウンロード、クラウドバックアップ、家族のストリーミング視聴。その瞬間、ルーターの行列（bufferbloat）がパケットを抱え込みます。0–100 — 回線が混んでいると通話の声が途切れて歪み、ページは数秒待ち；100–400 — 負荷時に短い引っかかりだけ；400–800 — 負荷はほぼ気にならない；800+ — トレント横でも通話は滑らか。回線をあまり酷使しないなら低 RPM は困りません。対策はスマートキュー（SQM）対応ルーター。",
         ],
         .ko: [
+            .memPressureNote: "메모리: 색상은 macOS의 메모리 압박 신호를 따릅니다",
             .aboutTabNews: "새 소식", .newsAllReleases: "모든 릴리스",
             .docNews: "1.1.0 — 2026-07-15\n\n• 클립보드 기록이 이미지도 저장\n\n• 비디오 변환: 포맷·해상도·압축을 따로 선택, 진행 상황 표시\n\n• 모니터: 그래프를 새로 그려 다운로드/업로드 구분이 명확\n\n• 자잘한 수정 다수: 라이트 테마, 창 올리기, 단축키 안내, 모듈 순서\n\n1.0.0 — 2026-07-13\n\n• 첫 릴리스: 타이머, 잠들지 않기, 모니터, 클립보드, 변환기, 창, 속도 측정 — 18개 언어",
             .tabTimer: "메인", .tabSystem: "모니터", .back: "뒤로",
@@ -1911,7 +1922,7 @@ enum L10n {
             .menuBarCountdown: "메뉴 막대에 타이머 표시", .launchAtLogin: "로그인 시 실행",
             .onFinish: "종료 알림", .language: "언어", .languageAuto: "시스템",
             .soundBanner: "소리+배너", .soundOnly: "소리만", .silent: "무음",
-            .thTemp: "온도 °C", .thLoad: "cpu %", .thMem: "메모리+swap %", .thDisk: "디스크 사용 %",
+            .thTemp: "온도 °C", .thLoad: "cpu %", .thDisk: "디스크 사용 %",
             .thBatt: "배터리 %", .thBattNote: "낮을수록 나쁨",
             .thGeneralNote: "행 강조 임계값: 노랑 / 빨강",
             .colYellow: "노랑", .colRed: "빨강", .resetDefaults: "기본값 복원",
@@ -2098,6 +2109,7 @@ enum L10n {
             .docSpeedFull: "macOS 내장 networkQuality로 측정: 트래픽은 Apple 서버로 가며 서드파티 없음.\n\n• 읽는 법 — ↓ 다운로드, ↑ 업로드.\n\n• 응답 — 전부하 상태에서 분당 왕복 횟수: 100 미만이면 통화·스트림이 힘들고 800+ 이면 훌륭. 결과 툴팁에 표시.\n\n• 숫자가 흔들리는 이유 — 테스트가 병렬 스트림을 늘리며 양방향으로 부하를 걸기 때문; 최종값이 안정 용량이며 speedtest 피크보다 보통 낮음(그건 ISP 자체 서버까지의 이상적 링크).\n\n• 신선도 — 30분 지난(또는 다른 Wi-Fi의) 결과는 흐리게: 다시 측정할 때.\n\n• 다운로드 기준 — 10 Mbps면 웹서핑과 음악, 25면 HD 영상, 50+면 4K와 빠른 앱 다운로드, 100+면 무거운 파일도 기다림 없이.\n\n• 업로드 기준 — 5 Mbps면 화면 공유 통화, 10+면 HD 화상통화와 클라우드 백업, 25+면 스트리밍과 큰 업로드도 여유.\n\n• 빠른 회선인데 RPM이 낮다면 — RPM은 속도가 아니라 부하 시 지연입니다. «부하 시»란 회선이 다른 일로 바쁜 순간을 뜻합니다: 파일 다운로드, 클라우드 백업, 집에서 누군가 스트리밍 시청. 그 순간 라우터 대기열(bufferbloat)가 패킷을 붙잡습니다. 0–100 — 회선이 바쁘면 통화 음성이 끊기고 왜곡되며 페이지가 몇 초씩 걸림; 100–400 — 부하 시 짧은 끊김만; 400–800 — 부하를 거의 못 느낌; 800+ — 토렌트 옆에서도 통화가 매끄러움. 회선을 세게 쓰는 일이 드물면 낮은 RPM은 문제 안 됩니다. 해결책: 스마트 큐(SQM) 라우터.",
         ],
         .tr: [
+            .memPressureNote: "bellek: renk, macOS'un bellek baskısı sinyalini izler",
             .aboutTabNews: "yenilikler", .newsAllReleases: "tüm sürümler",
             .docNews: "1.1.0 — 2026-07-15\n\n• pano geçmişi artık görselleri de saklıyor\n\n• video dönüştürme: biçim, çözünürlük ve sıkıştırma ayrı ayrı seçiliyor, ilerleme görünür\n\n• monitör: yeniden çizilen grafikler, daha net indirme/yükleme çifti\n\n• birçok küçük düzeltme: açık tema, pencere öne getirme, kısayol açıklamaları, modül sıralaması\n\n1.0.0 — 2026-07-13\n\n• ilk sürüm: zamanlayıcı, uyanık, monitör, pano, dönüştürücü, pencereler ve hız testi — 18 dilde",
             .tabTimer: "ana",
@@ -2117,7 +2129,7 @@ enum L10n {
             .soundOnly: "yalnız ses",
             .silent: "sessiz",
             .thTemp: "sıcaklık °C",
-            .thLoad: "cpu %", .thMem: "bellek+swap %",
+            .thLoad: "cpu %", 
             .thDisk: "disk doluluk %",
             .thBatt: "pil %",
             .thBattNote: "altı = daha kötü",
@@ -2310,6 +2322,7 @@ enum L10n {
             .docSpeedFull: "bağlantıyı macOS'a gömülü networkQuality ile ölçer: trafik Apple sunucularına gider, üçüncü taraf yok.\n\n• okuma — ↓ indirme ve ↑ yükleme.\n\n• tepki — tam yük altında ağın dakikada kaç tur tamamladığı: 100 altı aramalar ve yayınlar zorlanır, 800+ harika. sonucun ipucunda.\n\n• sayılar neden oynar — test paralel akışları artırıp kanalı iki yönde yükler; final, oturmuş kapasitedir ve speedtest zirvelerinden genelde düşüktür (onlar İSS'nin kendi sunucusuna ideal hattı ölçer).\n\n• bayatlama — 30 dakikadan eski (ya da başka Wi-Fi'daki) sonuç soluklaşır: yeniden ölçme vakti.\n\n• pratikte indirme — 10 Mbps gezinme ve müziğe yeter, 25 HD videoya, 50+ 4K ve hızlı indirmelere, 100+ ağır dosyalara beklemeden.\n\n• pratikte yükleme — 5 Mbps ekran paylaşımlı görüşmeyi taşır, 10+ HD görüntülü aramaları ve bulut yedeklerini, 25+ yayın ve büyük yüklemeleri.\n\n• hızlı hatta düşük RPM — RPM hız değil, yük altındaki gecikmedir. «yük altında» demek hattın o an başka bir işle meşgul olması: bir dosya iniyor, bulut yedeği çalışıyor, evde biri yayın izliyor. o anlarda yönlendirici kuyrukları (bufferbloat) paketleri bekletir. 0–100 — hat doluyken aramalarda ses kesilir ve bozulur, sayfalar saniyelerce açılır; 100–400 — yük altında yalnız kısa takılmalar; 400–800 — yük neredeyse hissedilmez; 800+ — torrent yanında bile aramalar akıcı. hattı nadiren yüklüyorsan düşük RPM rahatsız etmez; çare: akıllı kuyruklu (SQM) yönlendirici.",
         ],
         .uk: [
+            .memPressureNote: "пам'ять: колір — за системним сигналом memory pressure macOS",
             .aboutTabNews: "що нового", .newsAllReleases: "усі релізи",
             .docNews: "1.1.0 — 2026-07-15\n\n• буфер обміну запам'ятовує й картинки\n\n• конвертація відео: формат, роздільність і стиснення обираються незалежно, поступ видно\n\n• монітор: перемальовані графіки та зрозуміла пара завантаження/віддавання\n\n• багато дрібних виправлень: світла тема, підняття вікон, легенда гарячих клавіш, порядок модулів\n\n1.0.0 — 2026-07-13\n\n• перший реліз: таймер, заборона сну, монітор, буфер, конвертер, вікна та вимір швидкості — 18 мовами",
             .tabTimer: "головна",
@@ -2329,7 +2342,7 @@ enum L10n {
             .soundOnly: "лише звук",
             .silent: "тихо",
             .thTemp: "температура °C",
-            .thLoad: "cpu %", .thMem: "памʼять+swap %",
+            .thLoad: "cpu %", 
             .thDisk: "диск зайнято %",
             .thBatt: "батарея %",
             .thBattNote: "нижче = гірше",
@@ -2522,6 +2535,7 @@ enum L10n {
             .docSpeedFull: "міряє канал вбудованою в macOS утилітою networkQuality: трафік іде на сервери Apple, сторонніх сервісів немає.\n\n• як читати — ↓ завантаження і ↑ віддача.\n\n• відгук — скільки кругових запитів мережа встигає за хвилину під повним навантаженням: менше 100 — дзвінки і стріми страждатимуть, 800+ — чудово. видно в підказці результату.\n\n• чому живі числа плавають — тест розганяє паралельні потоки і вантажить канал в обидва боки; підсумок — устала ємність, зазвичай нижча за «піки» speedtest (ті міряють ідеальний канал до сервера свого ж провайдера).\n\n• застарівання — результат, старший за 30 хвилин (або знятий в іншій Wi-Fi-мережі), показується блідим: час заміряти знову.\n\n• завантаження на практиці — 10 Мбіт/с вистачає на сёрфінг і музику, 25 — на HD-відео, 50+ — на 4K і швидкі завантаження, 100+ — важкі файли без очікування.\n\n• віддача на практиці — 5 Мбіт/с тягне дзвінок з демонстрацією екрана, 10+ — HD-відеодзвінки й хмарні бекапи, 25+ — стріми та великі вивантаження.\n\n• низький RPM на швидкій лінії — RPM про затримку під навантаженням, а не про швидкість. «зайнята лінія» — це коли каналом паралельно користується щось іще: качається файл, іде хмарний бекап, хтось удома дивиться стрім. у ці моменти черга роутера (bufferbloat) тримає пакети. 0–100 — на зайнятій лінії голос у дзвінках уривається й спотворюється, сторінки відкриваються секундами; 100–400 — під навантаженням лише короткі затинання; 400–800 — навантаження майже не відчутне; 800+ — дзвінки гладенькі навіть поруч із торентами. якщо лінію важко не вантажиш — низький RPM не заважає; ліки — роутер з розумною чергою (SQM).",
         ],
         .pl: [
+            .memPressureNote: "pamięć: kolor podąża za sygnałem memory pressure systemu macOS",
             .aboutTabNews: "co nowego", .newsAllReleases: "wszystkie wydania",
             .docNews: "1.1.0 — 2026-07-15\n\n• historia schowka zapamiętuje też obrazy\n\n• konwersja wideo: format, rozdzielczość i kompresja wybierane osobno, z widocznym postępem\n\n• monitor: przerysowane wykresy i czytelniejsza para pobieranie/wysyłanie\n\n• wiele drobnych poprawek: jasny motyw, podnoszenie okien, legenda skrótów, kolejność modułów\n\n1.0.0 — 2026-07-13\n\n• pierwsze wydanie: minutnik, bez snu, monitor, schowek, konwerter, okna i test szybkości — w 18 językach",
             .tabTimer: "główna",
@@ -2541,7 +2555,7 @@ enum L10n {
             .soundOnly: "tylko dźwięk",
             .silent: "cicho",
             .thTemp: "temperatura °C",
-            .thLoad: "cpu %", .thMem: "pamięć+swap %",
+            .thLoad: "cpu %", 
             .thDisk: "zajętość dysku %",
             .thBatt: "bateria %",
             .thBattNote: "poniżej = gorzej",
@@ -2734,6 +2748,7 @@ enum L10n {
             .docSpeedFull: "mierzy łącze wbudowanym w macOS networkQuality: ruch idzie na serwery Apple, bez usług trzecich.\n\n• jak czytać — ↓ pobieranie i ↑ wysyłanie.\n\n• reakcja — ile obiegów sieć wykonuje na minutę pod pełnym obciążeniem: poniżej 100 cierpią rozmowy i streamy, 800+ świetnie. w podpowiedzi wyniku.\n\n• czemu liczby pływają — test rozpędza równoległe strumienie i obciąża łącze w obie strony; finał to ustalona przepustowość, zwykle niższa niż szczyty speedtest (tam mierzy się idealny link do serwera własnego dostawcy).\n\n• przeterminowanie — wynik starszy niż 30 minut (lub z innej sieci Wi-Fi) blednie: czas zmierzyć ponownie.\n\n• pobieranie w praktyce — 10 Mbps starcza na przeglądanie i muzykę, 25 na wideo HD, 50+ na 4K i szybkie pobieranie, 100+ na ciężkie pliki bez czekania.\n\n• wysyłanie w praktyce — 5 Mbps uniesie rozmowę z udostępnianiem ekranu, 10+ wideorozmowy HD i kopie w chmurze, 25+ streaming i duże wysyłki.\n\n• niski RPM na szybkim łączu — RPM mierzy opóźnienie pod obciążeniem, nie prędkość. «zajęte łącze» to moment, gdy korzysta z niego coś jeszcze: pobiera się plik, działa kopia w chmurze, ktoś w domu ogląda stream. w tych chwilach kolejki routera (bufferbloat) przetrzymuje pakiety. 0–100 — przy zajętym łączu głos w rozmowach przerywa i brzmi zniekształcony, strony otwierają się sekundami; 100–400 — pod obciążeniem tylko krótkie zacięcia; 400–800 — obciążenie ledwo wyczuwalne; 800+ — rozmowy płynne nawet obok torrentów. jeśli rzadko obciążasz łącze, niski RPM nie przeszkadza; lekarstwo: router z inteligentną kolejką (SQM).",
         ],
         .id: [
+            .memPressureNote: "memori: warna mengikuti sinyal tekanan memori macOS",
             .aboutTabNews: "yang baru", .newsAllReleases: "semua rilis",
             .docNews: "1.1.0 — 2026-07-15\n\n• riwayat papan klip kini menyimpan gambar juga\n\n• konversi video: format, resolusi, dan kompresi dipilih terpisah, dengan progres terlihat\n\n• monitor: grafik digambar ulang dan pasangan unduh/unggah lebih jelas\n\n• banyak perbaikan kecil: tema terang, memunculkan jendela, legenda pintasan, urutan modul\n\n1.0.0 — 2026-07-13\n\n• rilis pertama: timer, tetap terjaga, monitor, papan klip, konverter, jendela, dan tes kecepatan — dalam 18 bahasa",
             .tabTimer: "utama",
@@ -2753,7 +2768,7 @@ enum L10n {
             .soundOnly: "hanya suara",
             .silent: "senyap",
             .thTemp: "suhu °C",
-            .thLoad: "cpu %", .thMem: "memori+swap %",
+            .thLoad: "cpu %", 
             .thDisk: "disk terpakai %",
             .thBatt: "baterai %",
             .thBattNote: "di bawah = lebih buruk",
@@ -2946,6 +2961,7 @@ enum L10n {
             .docSpeedFull: "mengukur koneksi dengan networkQuality bawaan macOS: lalu lintas menuju server Apple, tanpa layanan pihak ketiga.\n\n• cara baca — ↓ unduh dan ↑ unggah.\n\n• respons — berapa bolak-balik yang diselesaikan jaringan per menit di beban penuh: di bawah 100 panggilan dan streaming tersendat, 800+ bagus sekali. ada di tooltip hasil.\n\n• kenapa angka bergoyang — tes menaikkan aliran paralel dan membebani dua arah; angka akhir adalah kapasitas stabil, biasanya di bawah puncak speedtest (yang mengukur jalur ideal ke server ISP sendiri).\n\n• kedaluwarsa — hasil lebih dari 30 menit (atau dari Wi-Fi lain) memudar: saatnya ukur ulang.\n\n• unduhan dalam praktik — 10 Mbps cukup untuk menjelajah dan musik, 25 untuk video HD, 50+ untuk 4K dan unduhan cepat, 100+ untuk berkas besar tanpa menunggu.\n\n• unggahan dalam praktik — 5 Mbps cukup untuk panggilan dengan berbagi layar, 10+ panggilan video HD dan cadangan awan, 25+ streaming dan unggahan besar.\n\n• RPM rendah di jalur cepat — RPM mengukur jeda saat beban, bukan kecepatan. «jalur sibuk» berarti saluran sedang dipakai hal lain: berkas sedang diunduh, cadangan awan berjalan, seseorang di rumah menonton streaming. pada saat itu antrean router (bufferbloat) menahan paket. 0–100 — saat jalur sibuk suara panggilan terputus-putus dan terdistorsi, halaman terbuka berdetik-detik; 100–400 — hanya tersendat singkat saat beban; 400–800 — beban nyaris tak terasa; 800+ — panggilan tetap mulus bahkan di samping torrent. kalau jarang membebani jalur, RPM rendah tak mengganggu; solusinya router dengan antrean pintar (SQM).",
         ],
         .th: [
+            .memPressureNote: "หน่วยความจำ: สีตามสัญญาณ memory pressure ของ macOS",
             .aboutTabNews: "มีอะไรใหม่", .newsAllReleases: "ทุกรุ่น",
             .docNews: "1.1.0 — 2026-07-15\n\n• ประวัติคลิปบอร์ดเก็บรูปภาพได้แล้ว\n\n• แปลงวิดีโอ: เลือกรูปแบบ ความละเอียด และการบีบอัดแยกกันได้ พร้อมแสดงความคืบหน้า\n\n• มอนิเตอร์: วาดกราฟใหม่ คู่ดาวน์โหลด/อัปโหลดชัดเจนขึ้น\n\n• แก้ไขเล็กน้อยอีกมาก: ธีมสว่าง การยกหน้าต่าง คำอธิบายคีย์ลัด การจัดลำดับโมดูล\n\n1.0.0 — 2026-07-13\n\n• รุ่นแรก: ตัวจับเวลา กันหลับ มอนิเตอร์ คลิปบอร์ด ตัวแปลงไฟล์ หน้าต่าง และทดสอบความเร็ว — 18 ภาษา",
             .tabTimer: "หน้าหลัก",
@@ -2965,7 +2981,7 @@ enum L10n {
             .soundOnly: "เสียงอย่างเดียว",
             .silent: "เงียบ",
             .thTemp: "อุณหภูมิ °C",
-            .thLoad: "cpu %", .thMem: "หน่วยความจำ+swap %",
+            .thLoad: "cpu %", 
             .thDisk: "ดิสก์ใช้ไป %",
             .thBatt: "แบตเตอรี่ %",
             .thBattNote: "ต่ำกว่า = แย่กว่า",
@@ -3158,6 +3174,7 @@ enum L10n {
             .tempUnitLabel: "หน่วยอุณหภูมิ",
         ],
         .vi: [
+            .memPressureNote: "bộ nhớ: màu theo tín hiệu memory pressure của macOS",
             .aboutTabNews: "có gì mới", .newsAllReleases: "tất cả bản phát hành",
             .docNews: "1.1.0 — 2026-07-15\n\n• lịch sử clipboard giờ lưu cả hình ảnh\n\n• chuyển đổi video: định dạng, độ phân giải và nén chọn riêng, tiến độ hiển thị rõ\n\n• màn hình theo dõi: biểu đồ vẽ lại, cặp tải xuống/tải lên dễ đọc hơn\n\n• nhiều sửa lỗi nhỏ: giao diện sáng, đưa cửa sổ lên trước, chú giải phím tắt, sắp xếp mô-đun\n\n1.0.0 — 2026-07-13\n\n• bản phát hành đầu tiên: hẹn giờ, chống ngủ, theo dõi hệ thống, clipboard, chuyển đổi, cửa sổ và đo tốc độ — 18 ngôn ngữ",
             .tabTimer: "chính",
@@ -3177,7 +3194,7 @@ enum L10n {
             .soundOnly: "chỉ âm thanh",
             .silent: "im lặng",
             .thTemp: "nhiệt độ °C",
-            .thLoad: "cpu %", .thMem: "bộ nhớ+swap %",
+            .thLoad: "cpu %", 
             .thDisk: "ổ đĩa đã dùng %",
             .thBatt: "pin %",
             .thBattNote: "thấp hơn = tệ hơn",
@@ -3370,6 +3387,7 @@ enum L10n {
             .tempUnitLabel: "đơn vị nhiệt độ",
         ],
         .hi: [
+            .memPressureNote: "मेमोरी: रंग macOS के memory pressure संकेत के अनुसार",
             .aboutTabNews: "नया क्या है", .newsAllReleases: "सभी रिलीज़",
             .docNews: "1.1.0 — 2026-07-15\n\n• क्लिपबोर्ड इतिहास अब चित्र भी रखता है\n\n• वीडियो कन्वर्ज़न: फ़ॉर्मैट, रिज़ॉल्यूशन और कम्प्रेशन अलग-अलग चुनें, प्रगति दिखती है\n\n• मॉनिटर: नए ग्राफ़ और साफ़ डाउनलोड/अपलोड जोड़ी\n\n• कई छोटे सुधार: लाइट थीम, विंडो आगे लाना, शॉर्टकट सूची, मॉड्यूल क्रम\n\n1.0.0 — 2026-07-13\n\n• पहला रिलीज़: टाइमर, जागते रहो, मॉनिटर, क्लिपबोर्ड, कन्वर्टर, विंडो और स्पीड टेस्ट — 18 भाषाओं में",
             .tabTimer: "मुख्य",
@@ -3389,7 +3407,7 @@ enum L10n {
             .soundOnly: "केवल ध्वनि",
             .silent: "मौन",
             .thTemp: "तापमान °C",
-            .thLoad: "cpu %", .thMem: "मेमोरी+swap %",
+            .thLoad: "cpu %", 
             .thDisk: "डिस्क उपयोग %",
             .thBatt: "बैटरी %",
             .thBattNote: "नीचे = बदतर",
@@ -3582,6 +3600,7 @@ enum L10n {
             .tempUnitLabel: "तापमान इकाई",
         ],
         .nl: [
+            .memPressureNote: "geheugen: de kleur volgt het memory-pressure-signaal van macOS",
             .aboutTabNews: "wat is nieuw", .newsAllReleases: "alle releases",
             .docNews: "1.1.0 — 2026-07-15\n\n• klembordgeschiedenis bewaart nu ook afbeeldingen\n\n• videoconversie: formaat, resolutie en compressie apart te kiezen, met zichtbare voortgang\n\n• monitor: hertekende grafieken en een duidelijker download/upload-paar\n\n• veel kleine verbeteringen: licht thema, vensters naar voren, sneltoetslegenda, modulevolgorde\n\n1.0.0 — 2026-07-13\n\n• eerste release: timer, wakker, monitor, klembord, converter, vensters en snelheidstest — in 18 talen",
             .tabTimer: "hoofd",
@@ -3601,7 +3620,7 @@ enum L10n {
             .soundOnly: "alleen geluid",
             .silent: "stil",
             .thTemp: "temperatuur °C",
-            .thLoad: "cpu %", .thMem: "geheugen+swap %",
+            .thLoad: "cpu %", 
             .thDisk: "schijf gebruikt %",
             .thBatt: "batterij %",
             .thBattNote: "lager = slechter",

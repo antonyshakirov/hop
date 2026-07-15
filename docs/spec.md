@@ -344,10 +344,16 @@ top inset = bottom inset = 16pt.
 - Menu bar: asterisk (brand glyph, 8 rays); on the right — play/pause
   badges (bottom) and a yellow awake dot (top); on finish — a blinking
   bell; the countdown is monospaced and can be disabled in settings.
-- **The panel does not steal keyboard focus when opening**
-  (makeKey is never called): dictation and Cmd+V go to the app underneath;
-  input inside the panel is enabled by clicking a field/display.
-  Anton's decision 2026-07-13.
+- **The panel is keyboard-transparent** (Anton, 2026-07-13; completed
+  2026-07-15): it never steals keyboard focus — on open AND after any
+  click inside it, focus goes back to the app underneath (dictation and
+  Cmd+V land there). The panel is mouse-only, with two exceptions that
+  do capture the keyboard: digit entry into the timer display (while a
+  digit group is selected) and the clipboard search field. When the
+  capture ends (Esc/Enter/click elsewhere), focus returns to the app
+  underneath again. Focus moving to another Hop window (settings,
+  converter) is legitimate and is not overridden. Global hotkeys work
+  regardless of focus.
 - Right-click on the icon — a system NSMenu in sentence case:
   DYNAMIC items on top based on active state ("Stop Timer"/
   "Stop Stopwatch" during a countdown, "Turn Off No Sleep" while awake is
@@ -479,11 +485,14 @@ button → the system `/usr/bin/networkQuality -c` (Apple CDN servers,
 custom servers and no third-party services.
 
 ## Memory (monitor)
-The memory row color is driven by SWAP, not by "used": macOS deliberately
-fills all RAM with cache, so full usage is normal. Metric = (used + swap) /
-physical RAM × 100, and it can exceed 100%. A separate "memory+swap %"
-threshold (default: yellow 110, red 150), maxValue 300 — you can set, say,
-red at 1.5× RAM. Swap is shown in the row when > 50 MB.
+Reworked 2026-07-15 (Anton): the old "(used+swap)/RAM %" threshold read
+as if swap were on top of the shown figure and lied about pressure. Now:
+- The row shows RAM used ("18.0 / 24.0 GB") with swap alongside when
+  > 50 MB ("swap 4.9 GB") — the figures no longer include each other.
+- The COLOR comes from macOS's own memory-pressure signal
+  (kern.memorystatus_vm_pressure_level): 1 normal (green when colorful),
+  2 warning → yellow, 4 critical → red. No user threshold: the system's
+  verdict is the honest one. A caption in monitor settings says so.
 
 ## Safe mode (crash loop)
 
