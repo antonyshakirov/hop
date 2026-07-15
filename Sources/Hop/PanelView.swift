@@ -121,6 +121,15 @@ struct PanelView: View {
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
+    /// Product landing in the app's language when it exists (8 languages),
+    /// English for everyone else.
+    private var productPageURL: String {
+        let landing: Set<String> = ["ru", "de", "es", "pt", "fr", "zh", "ja"]
+        return landing.contains(lang.rawValue)
+            ? "https://antonshakirov.com/products/hop/\(lang.rawValue)"
+            : "https://antonshakirov.com/products/hop"
+    }
+
     var body: some View {
         if standaloneSettings {
             if Snapshot.active {
@@ -2402,6 +2411,10 @@ struct PanelView: View {
                         FooterLink(url: lang == .ru
                             ? "https://antonshakirov.com"
                             : "https://antonshakirov.com/en")
+                        Text("·")
+                            .foregroundStyle(Theme.textSecondary)
+                        // landing exists in 8 languages; everyone else gets English
+                        FooterLink(url: productPageURL, label: t(.aboutProductPage))
                     }
                 }
             }
