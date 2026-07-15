@@ -93,10 +93,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.raiseOpenWindows = { [weak self] in
             guard let self else { return }
             // miniaturized windows are not "visible": a deliberate minimize
-            // stays in the Dock and is not yanked back
+            // stays in the Dock and is not yanked back.
+            // orderFrontRegardless: plain orderFront only reorders within the
+            // app's own layer while another app is active — the window came
+            // back UNDER the frontmost app instead of on top with the panel
             for window in [converterWindow, settingsWindow, aboutWindow]
             where window?.isVisible == true {
-                window?.orderFront(nil)
+                window?.orderFrontRegardless()
             }
         }
         AppIcon.apply() // Finder icon per the selected style
