@@ -138,6 +138,24 @@ enum Snapshot {
             model.stats.refresh() // primes the deltas
             usleep(600_000)
             model.stats.refresh()
+            // --charts: the detailed mode with live graphs. History is
+            // synthesized (sin-based, deterministic): a real run only has
+            // two points by render time and the charts would come out empty
+            UserDefaults.standard.set(args.contains("--charts"), forKey: "monitorDetailed")
+            if args.contains("--charts") {
+                var demo = SystemStatsController.History()
+                let now = Date()
+                for i in stride(from: 300, through: 0, by: -5) {
+                    let t = now.addingTimeInterval(-Double(i))
+                    let x = Double(300 - i) / 300 * .pi * 6
+                    demo.cpuLoad.append(.init(t: t, v: 0.32 + 0.16 * sin(x) + 0.09 * sin(x * 2.7)))
+                    demo.cpuTemp.append(.init(t: t, v: 49 + 6 * sin(x * 0.8 + 1)))
+                    demo.memShare.append(.init(t: t, v: 0.72 + 0.035 * sin(x * 0.5 + 0.6)))
+                    demo.netDown.append(.init(t: t, v: max(0, 950_000 + 780_000 * sin(x * 1.3) + 550_000 * sin(x * 3.1))))
+                    demo.netUp.append(.init(t: t, v: max(0, 230_000 + 170_000 * sin(x * 1.7 + 2))))
+                }
+                model.stats.injectDemoHistory(demo)
+            }
         }
         if args.contains("--settings") {
             tab = .settings

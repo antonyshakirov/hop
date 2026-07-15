@@ -66,6 +66,12 @@ final class SystemStatsController: ObservableObject {
     }
     @Published private(set) var history = History()
 
+    /// Snapshot-only: pre-filled chart history for product screenshots —
+    /// a live run has just two points by render time, which draws as empty.
+    func injectDemoHistory(_ demo: History) {
+        history = demo
+    }
+
     private let cpu = CPUUsageReader()
     private let net = NetThroughputReader()
     private let sensors = HIDTemperatureReader()
