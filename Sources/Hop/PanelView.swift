@@ -2407,6 +2407,7 @@ struct PanelView: View {
                 ("convert", t(.convertLabel)),
                 ("windows", t(.windowsLabel)),
                 ("speed", t(.speedtestLabel)),
+                ("news", t(.aboutTabNews)),
             ], selection: $aboutSection, wraps: true)
 
             Group {
@@ -2430,6 +2431,14 @@ struct PanelView: View {
                     windowsHotkeyLegend
                 case "speed":
                     DocView(text: t(.docSpeedFull))
+                case "news":
+                    // last ~5 releases, 2-4 bullets each (older ones drop off);
+                    // the full history lives on GitHub Releases
+                    VStack(alignment: .leading, spacing: 10) {
+                        DocView(text: t(.docNews))
+                        FooterLink(url: "https://github.com/antonyshakirov/hop/releases",
+                                   label: t(.newsAllReleases))
+                    }
                 default:
                     DocView(text: t(.docGeneral))
                 }
