@@ -151,7 +151,7 @@ enum L10n {
         .en: [
             .memPressureNote: "memory: the color follows macOS's own memory-pressure signal",
             .aboutTabNews: "what's new", .newsAllReleases: "all releases",
-            .docNews: "1.1.0 — 2026-07-15\n\n• clipboard history keeps images\n\n• video conversion: format, resolution and compression are set independently, with visible batch progress\n\n• monitor: redrawn charts and a clearer download/upload pair\n\n• plenty of small fixes: light theme, window raising, hotkey legend, module reordering\n\n1.0.0 — 2026-07-13\n\n• first release: timer, awake, monitor, clipboard, converter, windows and speed test — in 18 languages",
+            .docNews: "1.2.0 — 2026-07-15\n\n• the app relaunches itself after an update — and also updates right after your Mac wakes from sleep\n\n• memory: RAM and swap shown separately; the color follows macOS's own memory-pressure signal\n\n• the panel doesn't hold the keyboard anymore: typing goes to the app underneath, except timer digits and search\n\n1.1.0 — 2026-07-15\n\n• clipboard history keeps images\n\n• video conversion: format, resolution and compression are set independently, with visible batch progress\n\n• monitor: redrawn charts and a clearer download/upload pair\n\n• plenty of small fixes: light theme, window raising, hotkey legend, module reordering\n\n1.0.0 — 2026-07-13\n\n• first release: timer, awake, monitor, clipboard, converter, windows and speed test — in 18 languages",
             .tabTimer: "main", .tabSystem: "monitor", .back: "back",
             .settingsTitle: "settings", .systemSettingsTitle: "system settings",
             .dragToSet: "‹ drag to set ›", .awakeOff: "awake", .minUnit: "min",
@@ -347,7 +347,7 @@ enum L10n {
         .ru: [
             .memPressureNote: "память: цвет — по системному сигналу memory pressure macOS",
             .aboutTabNews: "что нового", .newsAllReleases: "все релизы",
-            .docNews: "1.1.0 — 2026-07-15\n\n• буфер обмена запоминает и картинки\n\n• конвертация видео: формат, разрешение и сжатие выбираются независимо, прогресс пачки виден\n\n• монитор: перерисованные графики и понятная пара загрузка/отдача\n\n• много мелких правок: светлая тема, поднятие окон, легенда хоткеев, перестановка модулей\n\n1.0.0 — 2026-07-13\n\n• первый релиз: таймер, запрет сна, монитор, буфер, конвертер, окна и замер скорости — на 18 языках",
+            .docNews: "1.2.0 — 2026-07-15\n\n• приложение само перезапускается после обновления — и обновляется сразу после пробуждения Mac из сна\n\n• память: RAM и swap показываются раздельно; цвет — по системному сигналу memory pressure\n\n• панель больше не держит клавиатуру: ввод идёт в приложение под ней, кроме цифр таймера и поиска\n\n1.1.0 — 2026-07-15\n\n• буфер обмена запоминает и картинки\n\n• конвертация видео: формат, разрешение и сжатие выбираются независимо, прогресс пачки виден\n\n• монитор: перерисованные графики и понятная пара загрузка/отдача\n\n• много мелких правок: светлая тема, поднятие окон, легенда хоткеев, перестановка модулей\n\n1.0.0 — 2026-07-13\n\n• первый релиз: таймер, запрет сна, монитор, буфер, конвертер, окна и замер скорости — на 18 языках",
             .tabTimer: "главная", .tabSystem: "монитор", .back: "назад",
             .settingsTitle: "настройки", .systemSettingsTitle: "настройки системы",
             .dragToSet: "‹ потяни, чтобы задать ›", .awakeOff: "запрет сна", .minUnit: "мин",
@@ -543,7 +543,7 @@ enum L10n {
         .de: [
             .memPressureNote: "speicher: die farbe folgt dem memory-pressure-signal von macOS",
             .aboutTabNews: "neuigkeiten", .newsAllReleases: "alle releases",
-            .docNews: "1.1.0 — 2026-07-15\n\n• die ablage merkt sich auch bilder\n\n• videokonvertierung: format, auflösung und kompression unabhängig wählbar, mit sichtbarem fortschritt\n\n• monitor: neu gezeichnete diagramme und ein klareres download/upload-paar\n\n• viele kleine korrekturen: helles design, fenster anheben, hotkey-legende, modul-reihenfolge\n\n1.0.0 — 2026-07-13\n\n• erstes release: timer, wach, monitor, ablage, konverter, fenster und speedtest — in 18 sprachen",
+            .docNews: "1.2.0 — 2026-07-15\n\n• die app startet nach einem update selbst neu — und aktualisiert sich direkt nach dem aufwachen des Mac\n\n• speicher: RAM und swap getrennt angezeigt; die farbe folgt dem memory-pressure-signal von macOS\n\n• das panel hält die tastatur nicht mehr fest: eingaben gehen an die app darunter, außer timer-ziffern und suche\n\n1.1.0 — 2026-07-15\n\n• die ablage merkt sich auch bilder\n\n• videokonvertierung: format, auflösung und kompression unabhängig wählbar, mit sichtbarem fortschritt\n\n• monitor: neu gezeichnete diagramme und ein klareres download/upload-paar\n\n• viele kleine korrekturen: helles design, fenster anheben, hotkey-legende, modul-reihenfolge\n\n1.0.0 — 2026-07-13\n\n• erstes release: timer, wach, monitor, ablage, konverter, fenster und speedtest — in 18 sprachen",
             .tabTimer: "start", .tabSystem: "monitor", .back: "zurück",
             .settingsTitle: "einstellungen", .systemSettingsTitle: "system-einstellungen",
             .dragToSet: "‹ ziehen zum einstellen ›", .awakeOff: "wach", .minUnit: "min",
@@ -739,7 +739,7 @@ enum L10n {
         .es: [
             .memPressureNote: "memoria: el color sigue la señal de presión de memoria de macOS",
             .aboutTabNews: "novedades", .newsAllReleases: "todas las versiones",
-            .docNews: "1.1.0 — 2026-07-15\n\n• el portapapeles también guarda imágenes\n\n• conversión de vídeo: formato, resolución y compresión se eligen por separado, con progreso visible\n\n• monitor: gráficos rediseñados y un par descarga/subida más claro\n\n• muchos ajustes pequeños: tema claro, elevación de ventanas, leyenda de atajos, orden de módulos\n\n1.0.0 — 2026-07-13\n\n• primera versión: temporizador, despierto, monitor, portapapeles, conversor, ventanas y test de velocidad — en 18 idiomas",
+            .docNews: "1.2.0 — 2026-07-15\n\n• la app se reinicia sola tras una actualización — y se actualiza justo después de que el Mac despierte\n\n• memoria: RAM y swap por separado; el color sigue la señal de presión de memoria de macOS\n\n• el panel ya no retiene el teclado: lo escrito va a la app de debajo, salvo los dígitos del temporizador y la búsqueda\n\n1.1.0 — 2026-07-15\n\n• el portapapeles también guarda imágenes\n\n• conversión de vídeo: formato, resolución y compresión se eligen por separado, con progreso visible\n\n• monitor: gráficos rediseñados y un par descarga/subida más claro\n\n• muchos ajustes pequeños: tema claro, elevación de ventanas, leyenda de atajos, orden de módulos\n\n1.0.0 — 2026-07-13\n\n• primera versión: temporizador, despierto, monitor, portapapeles, conversor, ventanas y test de velocidad — en 18 idiomas",
             .tabTimer: "principal", .tabSystem: "monitor", .back: "atrás",
             .settingsTitle: "ajustes", .systemSettingsTitle: "ajustes del sistema",
             .dragToSet: "‹ arrastra para ajustar ›", .awakeOff: "despierto", .minUnit: "min",
@@ -935,7 +935,7 @@ enum L10n {
         .pt: [
             .memPressureNote: "memória: a cor segue o sinal de pressão de memória do macOS",
             .aboutTabNews: "novidades", .newsAllReleases: "todas as versões",
-            .docNews: "1.1.0 — 2026-07-15\n\n• a área de transferência também guarda imagens\n\n• conversão de vídeo: formato, resolução e compressão escolhidos separadamente, com progresso visível\n\n• monitor: gráficos redesenhados e um par download/upload mais claro\n\n• muitos ajustes pequenos: tema claro, elevação de janelas, legenda de atalhos, ordem dos módulos\n\n1.0.0 — 2026-07-13\n\n• primeira versão: timer, desperto, monitor, área de transferência, conversor, janelas e teste de velocidade — em 18 idiomas",
+            .docNews: "1.2.0 — 2026-07-15\n\n• o app reinicia sozinho após uma atualização — e atualiza logo depois que o Mac acorda\n\n• memória: RAM e swap separados; a cor segue o sinal de pressão de memória do macOS\n\n• o painel não segura mais o teclado: a digitação vai para o app abaixo, exceto dígitos do timer e busca\n\n1.1.0 — 2026-07-15\n\n• a área de transferência também guarda imagens\n\n• conversão de vídeo: formato, resolução e compressão escolhidos separadamente, com progresso visível\n\n• monitor: gráficos redesenhados e um par download/upload mais claro\n\n• muitos ajustes pequenos: tema claro, elevação de janelas, legenda de atalhos, ordem dos módulos\n\n1.0.0 — 2026-07-13\n\n• primeira versão: timer, desperto, monitor, área de transferência, conversor, janelas e teste de velocidade — em 18 idiomas",
             .tabTimer: "principal", .tabSystem: "monitor", .back: "voltar",
             .settingsTitle: "ajustes", .systemSettingsTitle: "ajustes do sistema",
             .dragToSet: "‹ arraste para ajustar ›", .awakeOff: "acordado", .minUnit: "min",
@@ -1131,7 +1131,7 @@ enum L10n {
         .fr: [
             .memPressureNote: "mémoire : la couleur suit le signal de pression mémoire de macOS",
             .aboutTabNews: "nouveautés", .newsAllReleases: "toutes les versions",
-            .docNews: "1.1.0 — 2026-07-15\n\n• le presse-papiers garde aussi les images\n\n• conversion vidéo : format, résolution et compression se règlent séparément, avec progression visible\n\n• moniteur : graphiques redessinés et paire téléchargement/envoi plus claire\n\n• plein de petites retouches : thème clair, fenêtres au premier plan, légende des raccourcis, ordre des modules\n\n1.0.0 — 2026-07-13\n\n• première version : minuteur, éveil, moniteur, presse-papiers, convertisseur, fenêtres et test de débit — en 18 langues",
+            .docNews: "1.2.0 — 2026-07-15\n\n• l'app se relance seule après une mise à jour — et se met à jour dès le réveil du Mac\n\n• mémoire : RAM et swap séparés ; la couleur suit le signal de pression mémoire de macOS\n\n• le panneau ne retient plus le clavier : la saisie va à l'app en dessous, sauf chiffres du minuteur et recherche\n\n1.1.0 — 2026-07-15\n\n• le presse-papiers garde aussi les images\n\n• conversion vidéo : format, résolution et compression se règlent séparément, avec progression visible\n\n• moniteur : graphiques redessinés et paire téléchargement/envoi plus claire\n\n• plein de petites retouches : thème clair, fenêtres au premier plan, légende des raccourcis, ordre des modules\n\n1.0.0 — 2026-07-13\n\n• première version : minuteur, éveil, moniteur, presse-papiers, convertisseur, fenêtres et test de débit — en 18 langues",
             .tabTimer: "principal", .tabSystem: "moniteur", .back: "retour",
             .settingsTitle: "réglages", .systemSettingsTitle: "réglages système",
             .dragToSet: "‹ glisser pour régler ›", .awakeOff: "éveil", .minUnit: "min",
@@ -1327,7 +1327,7 @@ enum L10n {
         .it: [
             .memPressureNote: "memoria: il colore segue il segnale di pressione della memoria di macOS",
             .aboutTabNews: "novità", .newsAllReleases: "tutte le versioni",
-            .docNews: "1.1.0 — 2026-07-15\n\n• gli appunti conservano anche le immagini\n\n• conversione video: formato, risoluzione e compressione si scelgono separatamente, con avanzamento visibile\n\n• monitor: grafici ridisegnati e coppia download/upload più chiara\n\n• tanti piccoli ritocchi: tema chiaro, finestre in primo piano, legenda delle scorciatoie, ordine dei moduli\n\n1.0.0 — 2026-07-13\n\n• prima versione: timer, sveglio, monitor, appunti, convertitore, finestre e test di velocità — in 18 lingue",
+            .docNews: "1.2.0 — 2026-07-15\n\n• l'app si riavvia da sola dopo un aggiornamento — e si aggiorna appena il Mac si sveglia\n\n• memoria: RAM e swap separati; il colore segue il segnale di pressione della memoria di macOS\n\n• il pannello non trattiene più la tastiera: si digita nell'app sottostante, tranne cifre del timer e ricerca\n\n1.1.0 — 2026-07-15\n\n• gli appunti conservano anche le immagini\n\n• conversione video: formato, risoluzione e compressione si scelgono separatamente, con avanzamento visibile\n\n• monitor: grafici ridisegnati e coppia download/upload più chiara\n\n• tanti piccoli ritocchi: tema chiaro, finestre in primo piano, legenda delle scorciatoie, ordine dei moduli\n\n1.0.0 — 2026-07-13\n\n• prima versione: timer, sveglio, monitor, appunti, convertitore, finestre e test di velocità — in 18 lingue",
             .tabTimer: "principale", .tabSystem: "monitor", .back: "indietro",
             .settingsTitle: "impostazioni", .systemSettingsTitle: "impostazioni sistema",
             .dragToSet: "‹ trascina per impostare ›", .awakeOff: "sveglio", .minUnit: "min",
@@ -1523,7 +1523,7 @@ enum L10n {
         .zh: [
             .memPressureNote: "内存：颜色跟随 macOS 系统的内存压力信号",
             .aboutTabNews: "新功能", .newsAllReleases: "全部版本",
-            .docNews: "1.1.0 — 2026-07-15\n\n• 剪贴板历史现在也保存图片\n\n• 视频转换：格式、分辨率和压缩可独立选择，批量进度可见\n\n• 监视器：重绘的图表，更清晰的下载/上传曲线\n\n• 大量细节修复：浅色主题、窗口置顶、快捷键图例、模块排序\n\n1.0.0 — 2026-07-13\n\n• 首个版本：计时器、防休眠、监视器、剪贴板、转换器、窗口和测速 — 支持 18 种语言",
+            .docNews: "1.2.0 — 2026-07-15\n\n• 应用更新后会自行重启——并在 Mac 从睡眠唤醒后立即更新\n\n• 内存：RAM 和 swap 分开显示；颜色跟随 macOS 的内存压力信号\n\n• 面板不再占用键盘：输入进入其下方的应用，计时器数字和搜索除外\n\n1.1.0 — 2026-07-15\n\n• 剪贴板历史现在也保存图片\n\n• 视频转换：格式、分辨率和压缩可独立选择，批量进度可见\n\n• 监视器：重绘的图表，更清晰的下载/上传曲线\n\n• 大量细节修复：浅色主题、窗口置顶、快捷键图例、模块排序\n\n1.0.0 — 2026-07-13\n\n• 首个版本：计时器、防休眠、监视器、剪贴板、转换器、窗口和测速 — 支持 18 种语言",
             .tabTimer: "主页", .tabSystem: "监控", .back: "返回",
             .settingsTitle: "设置", .systemSettingsTitle: "系统设置",
             .dragToSet: "‹ 拖动设定 ›", .awakeOff: "防休眠", .minUnit: "分",
@@ -1719,7 +1719,7 @@ enum L10n {
         .ja: [
             .memPressureNote: "メモリ：色は macOS のメモリプレッシャー信号に従います",
             .aboutTabNews: "新着情報", .newsAllReleases: "すべてのリリース",
-            .docNews: "1.1.0 — 2026-07-15\n\n• クリップボード履歴が画像にも対応\n\n• 動画変換：フォーマット・解像度・圧縮を別々に選択、進捗も表示\n\n• モニター：グラフを描き直し、ダウンロード/アップロードが見やすく\n\n• 細かな修正多数：ライトテーマ、ウインドウの前面表示、ショートカット一覧、モジュールの並べ替え\n\n1.0.0 — 2026-07-13\n\n• 初回リリース：タイマー、スリープ防止、モニター、クリップボード、変換、ウインドウ、スピードテスト — 18言語対応",
+            .docNews: "1.2.0 — 2026-07-15\n\n• アップデート後にアプリが自動で再起動 — Mac のスリープ解除直後にも更新\n\n• メモリ：RAM と swap を別々に表示。色は macOS のメモリプレッシャー信号に従います\n\n• パネルがキーボードを奪わなくなりました：入力は下のアプリへ。タイマーの数字と検索を除く\n\n1.1.0 — 2026-07-15\n\n• クリップボード履歴が画像にも対応\n\n• 動画変換：フォーマット・解像度・圧縮を別々に選択、進捗も表示\n\n• モニター：グラフを描き直し、ダウンロード/アップロードが見やすく\n\n• 細かな修正多数：ライトテーマ、ウインドウの前面表示、ショートカット一覧、モジュールの並べ替え\n\n1.0.0 — 2026-07-13\n\n• 初回リリース：タイマー、スリープ防止、モニター、クリップボード、変換、ウインドウ、スピードテスト — 18言語対応",
             .tabTimer: "メイン", .tabSystem: "モニター", .back: "戻る",
             .settingsTitle: "設定", .systemSettingsTitle: "システム設定",
             .dragToSet: "‹ ドラッグで設定 ›", .awakeOff: "防スリープ", .minUnit: "分",
@@ -1915,7 +1915,7 @@ enum L10n {
         .ko: [
             .memPressureNote: "메모리: 색상은 macOS의 메모리 압박 신호를 따릅니다",
             .aboutTabNews: "새 소식", .newsAllReleases: "모든 릴리스",
-            .docNews: "1.1.0 — 2026-07-15\n\n• 클립보드 기록이 이미지도 저장\n\n• 비디오 변환: 포맷·해상도·압축을 따로 선택, 진행 상황 표시\n\n• 모니터: 그래프를 새로 그려 다운로드/업로드 구분이 명확\n\n• 자잘한 수정 다수: 라이트 테마, 창 올리기, 단축키 안내, 모듈 순서\n\n1.0.0 — 2026-07-13\n\n• 첫 릴리스: 타이머, 잠들지 않기, 모니터, 클립보드, 변환기, 창, 속도 측정 — 18개 언어",
+            .docNews: "1.2.0 — 2026-07-15\n\n• 업데이트 후 앱이 스스로 재시작 — Mac이 잠자기에서 깨어난 직후에도 업데이트\n\n• 메모리: RAM과 swap을 따로 표시; 색상은 macOS의 메모리 압박 신호를 따름\n\n• 패널이 더 이상 키보드를 붙잡지 않음: 입력은 아래 앱으로, 타이머 숫자와 검색은 예외\n\n1.1.0 — 2026-07-15\n\n• 클립보드 기록이 이미지도 저장\n\n• 비디오 변환: 포맷·해상도·압축을 따로 선택, 진행 상황 표시\n\n• 모니터: 그래프를 새로 그려 다운로드/업로드 구분이 명확\n\n• 자잘한 수정 다수: 라이트 테마, 창 올리기, 단축키 안내, 모듈 순서\n\n1.0.0 — 2026-07-13\n\n• 첫 릴리스: 타이머, 잠들지 않기, 모니터, 클립보드, 변환기, 창, 속도 측정 — 18개 언어",
             .tabTimer: "메인", .tabSystem: "모니터", .back: "뒤로",
             .settingsTitle: "설정", .systemSettingsTitle: "시스템 설정",
             .dragToSet: "‹ 드래그로 설정 ›", .awakeOff: "깨우기", .minUnit: "분",
@@ -2111,7 +2111,7 @@ enum L10n {
         .tr: [
             .memPressureNote: "bellek: renk, macOS'un bellek baskısı sinyalini izler",
             .aboutTabNews: "yenilikler", .newsAllReleases: "tüm sürümler",
-            .docNews: "1.1.0 — 2026-07-15\n\n• pano geçmişi artık görselleri de saklıyor\n\n• video dönüştürme: biçim, çözünürlük ve sıkıştırma ayrı ayrı seçiliyor, ilerleme görünür\n\n• monitör: yeniden çizilen grafikler, daha net indirme/yükleme çifti\n\n• birçok küçük düzeltme: açık tema, pencere öne getirme, kısayol açıklamaları, modül sıralaması\n\n1.0.0 — 2026-07-13\n\n• ilk sürüm: zamanlayıcı, uyanık, monitör, pano, dönüştürücü, pencereler ve hız testi — 18 dilde",
+            .docNews: "1.2.0 — 2026-07-15\n\n• uygulama güncellemeden sonra kendini yeniden başlatıyor — Mac uykudan uyanınca da güncelleniyor\n\n• bellek: RAM ve swap ayrı gösteriliyor; renk macOS'un bellek baskısı sinyalini izliyor\n\n• panel artık klavyeyi tutmuyor: yazılanlar alttaki uygulamaya gidiyor; zamanlayıcı rakamları ve arama hariç\n\n1.1.0 — 2026-07-15\n\n• pano geçmişi artık görselleri de saklıyor\n\n• video dönüştürme: biçim, çözünürlük ve sıkıştırma ayrı ayrı seçiliyor, ilerleme görünür\n\n• monitör: yeniden çizilen grafikler, daha net indirme/yükleme çifti\n\n• birçok küçük düzeltme: açık tema, pencere öne getirme, kısayol açıklamaları, modül sıralaması\n\n1.0.0 — 2026-07-13\n\n• ilk sürüm: zamanlayıcı, uyanık, monitör, pano, dönüştürücü, pencereler ve hız testi — 18 dilde",
             .tabTimer: "ana",
             .tabSystem: "monitör",
             .back: "geri",
@@ -2324,7 +2324,7 @@ enum L10n {
         .uk: [
             .memPressureNote: "пам'ять: колір — за системним сигналом memory pressure macOS",
             .aboutTabNews: "що нового", .newsAllReleases: "усі релізи",
-            .docNews: "1.1.0 — 2026-07-15\n\n• буфер обміну запам'ятовує й картинки\n\n• конвертація відео: формат, роздільність і стиснення обираються незалежно, поступ видно\n\n• монітор: перемальовані графіки та зрозуміла пара завантаження/віддавання\n\n• багато дрібних виправлень: світла тема, підняття вікон, легенда гарячих клавіш, порядок модулів\n\n1.0.0 — 2026-07-13\n\n• перший реліз: таймер, заборона сну, монітор, буфер, конвертер, вікна та вимір швидкості — 18 мовами",
+            .docNews: "1.2.0 — 2026-07-15\n\n• застосунок сам перезапускається після оновлення — і оновлюється одразу після пробудження Mac\n\n• пам'ять: RAM і swap показуються окремо; колір — за системним сигналом memory pressure\n\n• панель більше не тримає клавіатуру: введення йде в застосунок під нею, крім цифр таймера й пошуку\n\n1.1.0 — 2026-07-15\n\n• буфер обміну запам'ятовує й картинки\n\n• конвертація відео: формат, роздільність і стиснення обираються незалежно, поступ видно\n\n• монітор: перемальовані графіки та зрозуміла пара завантаження/віддавання\n\n• багато дрібних виправлень: світла тема, підняття вікон, легенда гарячих клавіш, порядок модулів\n\n1.0.0 — 2026-07-13\n\n• перший реліз: таймер, заборона сну, монітор, буфер, конвертер, вікна та вимір швидкості — 18 мовами",
             .tabTimer: "головна",
             .tabSystem: "монітор",
             .back: "назад",
@@ -2537,7 +2537,7 @@ enum L10n {
         .pl: [
             .memPressureNote: "pamięć: kolor podąża za sygnałem memory pressure systemu macOS",
             .aboutTabNews: "co nowego", .newsAllReleases: "wszystkie wydania",
-            .docNews: "1.1.0 — 2026-07-15\n\n• historia schowka zapamiętuje też obrazy\n\n• konwersja wideo: format, rozdzielczość i kompresja wybierane osobno, z widocznym postępem\n\n• monitor: przerysowane wykresy i czytelniejsza para pobieranie/wysyłanie\n\n• wiele drobnych poprawek: jasny motyw, podnoszenie okien, legenda skrótów, kolejność modułów\n\n1.0.0 — 2026-07-13\n\n• pierwsze wydanie: minutnik, bez snu, monitor, schowek, konwerter, okna i test szybkości — w 18 językach",
+            .docNews: "1.2.0 — 2026-07-15\n\n• aplikacja sama uruchamia się ponownie po aktualizacji — i aktualizuje się zaraz po wybudzeniu Maca\n\n• pamięć: RAM i swap osobno; kolor podąża za sygnałem memory pressure systemu macOS\n\n• panel nie przytrzymuje już klawiatury: pisanie trafia do aplikacji pod nim, poza cyframi minutnika i wyszukiwaniem\n\n1.1.0 — 2026-07-15\n\n• historia schowka zapamiętuje też obrazy\n\n• konwersja wideo: format, rozdzielczość i kompresja wybierane osobno, z widocznym postępem\n\n• monitor: przerysowane wykresy i czytelniejsza para pobieranie/wysyłanie\n\n• wiele drobnych poprawek: jasny motyw, podnoszenie okien, legenda skrótów, kolejność modułów\n\n1.0.0 — 2026-07-13\n\n• pierwsze wydanie: minutnik, bez snu, monitor, schowek, konwerter, okna i test szybkości — w 18 językach",
             .tabTimer: "główna",
             .tabSystem: "monitor",
             .back: "wstecz",
@@ -2750,7 +2750,7 @@ enum L10n {
         .id: [
             .memPressureNote: "memori: warna mengikuti sinyal tekanan memori macOS",
             .aboutTabNews: "yang baru", .newsAllReleases: "semua rilis",
-            .docNews: "1.1.0 — 2026-07-15\n\n• riwayat papan klip kini menyimpan gambar juga\n\n• konversi video: format, resolusi, dan kompresi dipilih terpisah, dengan progres terlihat\n\n• monitor: grafik digambar ulang dan pasangan unduh/unggah lebih jelas\n\n• banyak perbaikan kecil: tema terang, memunculkan jendela, legenda pintasan, urutan modul\n\n1.0.0 — 2026-07-13\n\n• rilis pertama: timer, tetap terjaga, monitor, papan klip, konverter, jendela, dan tes kecepatan — dalam 18 bahasa",
+            .docNews: "1.2.0 — 2026-07-15\n\n• aplikasi memulai ulang sendiri setelah pembaruan — dan memperbarui tepat setelah Mac bangun dari tidur\n\n• memori: RAM dan swap ditampilkan terpisah; warna mengikuti sinyal tekanan memori macOS\n\n• panel tidak lagi menahan keyboard: ketikan masuk ke aplikasi di bawahnya, kecuali angka timer dan pencarian\n\n1.1.0 — 2026-07-15\n\n• riwayat papan klip kini menyimpan gambar juga\n\n• konversi video: format, resolusi, dan kompresi dipilih terpisah, dengan progres terlihat\n\n• monitor: grafik digambar ulang dan pasangan unduh/unggah lebih jelas\n\n• banyak perbaikan kecil: tema terang, memunculkan jendela, legenda pintasan, urutan modul\n\n1.0.0 — 2026-07-13\n\n• rilis pertama: timer, tetap terjaga, monitor, papan klip, konverter, jendela, dan tes kecepatan — dalam 18 bahasa",
             .tabTimer: "utama",
             .tabSystem: "monitor",
             .back: "kembali",
@@ -2963,7 +2963,7 @@ enum L10n {
         .th: [
             .memPressureNote: "หน่วยความจำ: สีตามสัญญาณ memory pressure ของ macOS",
             .aboutTabNews: "มีอะไรใหม่", .newsAllReleases: "ทุกรุ่น",
-            .docNews: "1.1.0 — 2026-07-15\n\n• ประวัติคลิปบอร์ดเก็บรูปภาพได้แล้ว\n\n• แปลงวิดีโอ: เลือกรูปแบบ ความละเอียด และการบีบอัดแยกกันได้ พร้อมแสดงความคืบหน้า\n\n• มอนิเตอร์: วาดกราฟใหม่ คู่ดาวน์โหลด/อัปโหลดชัดเจนขึ้น\n\n• แก้ไขเล็กน้อยอีกมาก: ธีมสว่าง การยกหน้าต่าง คำอธิบายคีย์ลัด การจัดลำดับโมดูล\n\n1.0.0 — 2026-07-13\n\n• รุ่นแรก: ตัวจับเวลา กันหลับ มอนิเตอร์ คลิปบอร์ด ตัวแปลงไฟล์ หน้าต่าง และทดสอบความเร็ว — 18 ภาษา",
+            .docNews: "1.2.0 — 2026-07-15\n\n• แอปรีสตาร์ทเองหลังอัปเดต — และอัปเดตทันทีหลัง Mac ตื่นจากสลีป\n\n• หน่วยความจำ: แสดง RAM และ swap แยกกัน สีตามสัญญาณ memory pressure ของ macOS\n\n• แผงไม่ยึดคีย์บอร์ดอีกต่อไป: การพิมพ์ไปยังแอปด้านล่าง ยกเว้นตัวเลขตัวจับเวลาและการค้นหา\n\n1.1.0 — 2026-07-15\n\n• ประวัติคลิปบอร์ดเก็บรูปภาพได้แล้ว\n\n• แปลงวิดีโอ: เลือกรูปแบบ ความละเอียด และการบีบอัดแยกกันได้ พร้อมแสดงความคืบหน้า\n\n• มอนิเตอร์: วาดกราฟใหม่ คู่ดาวน์โหลด/อัปโหลดชัดเจนขึ้น\n\n• แก้ไขเล็กน้อยอีกมาก: ธีมสว่าง การยกหน้าต่าง คำอธิบายคีย์ลัด การจัดลำดับโมดูล\n\n1.0.0 — 2026-07-13\n\n• รุ่นแรก: ตัวจับเวลา กันหลับ มอนิเตอร์ คลิปบอร์ด ตัวแปลงไฟล์ หน้าต่าง และทดสอบความเร็ว — 18 ภาษา",
             .tabTimer: "หน้าหลัก",
             .tabSystem: "มอนิเตอร์",
             .back: "กลับ",
@@ -3176,7 +3176,7 @@ enum L10n {
         .vi: [
             .memPressureNote: "bộ nhớ: màu theo tín hiệu memory pressure của macOS",
             .aboutTabNews: "có gì mới", .newsAllReleases: "tất cả bản phát hành",
-            .docNews: "1.1.0 — 2026-07-15\n\n• lịch sử clipboard giờ lưu cả hình ảnh\n\n• chuyển đổi video: định dạng, độ phân giải và nén chọn riêng, tiến độ hiển thị rõ\n\n• màn hình theo dõi: biểu đồ vẽ lại, cặp tải xuống/tải lên dễ đọc hơn\n\n• nhiều sửa lỗi nhỏ: giao diện sáng, đưa cửa sổ lên trước, chú giải phím tắt, sắp xếp mô-đun\n\n1.0.0 — 2026-07-13\n\n• bản phát hành đầu tiên: hẹn giờ, chống ngủ, theo dõi hệ thống, clipboard, chuyển đổi, cửa sổ và đo tốc độ — 18 ngôn ngữ",
+            .docNews: "1.2.0 — 2026-07-15\n\n• ứng dụng tự khởi động lại sau khi cập nhật — và cập nhật ngay khi Mac thức dậy\n\n• bộ nhớ: RAM và swap hiển thị riêng; màu theo tín hiệu memory pressure của macOS\n\n• bảng điều khiển không giữ bàn phím nữa: gõ phím đi vào ứng dụng bên dưới, trừ số hẹn giờ và tìm kiếm\n\n1.1.0 — 2026-07-15\n\n• lịch sử clipboard giờ lưu cả hình ảnh\n\n• chuyển đổi video: định dạng, độ phân giải và nén chọn riêng, tiến độ hiển thị rõ\n\n• màn hình theo dõi: biểu đồ vẽ lại, cặp tải xuống/tải lên dễ đọc hơn\n\n• nhiều sửa lỗi nhỏ: giao diện sáng, đưa cửa sổ lên trước, chú giải phím tắt, sắp xếp mô-đun\n\n1.0.0 — 2026-07-13\n\n• bản phát hành đầu tiên: hẹn giờ, chống ngủ, theo dõi hệ thống, clipboard, chuyển đổi, cửa sổ và đo tốc độ — 18 ngôn ngữ",
             .tabTimer: "chính",
             .tabSystem: "giám sát",
             .back: "quay lại",
@@ -3389,7 +3389,7 @@ enum L10n {
         .hi: [
             .memPressureNote: "मेमोरी: रंग macOS के memory pressure संकेत के अनुसार",
             .aboutTabNews: "नया क्या है", .newsAllReleases: "सभी रिलीज़",
-            .docNews: "1.1.0 — 2026-07-15\n\n• क्लिपबोर्ड इतिहास अब चित्र भी रखता है\n\n• वीडियो कन्वर्ज़न: फ़ॉर्मैट, रिज़ॉल्यूशन और कम्प्रेशन अलग-अलग चुनें, प्रगति दिखती है\n\n• मॉनिटर: नए ग्राफ़ और साफ़ डाउनलोड/अपलोड जोड़ी\n\n• कई छोटे सुधार: लाइट थीम, विंडो आगे लाना, शॉर्टकट सूची, मॉड्यूल क्रम\n\n1.0.0 — 2026-07-13\n\n• पहला रिलीज़: टाइमर, जागते रहो, मॉनिटर, क्लिपबोर्ड, कन्वर्टर, विंडो और स्पीड टेस्ट — 18 भाषाओं में",
+            .docNews: "1.2.0 — 2026-07-15\n\n• अपडेट के बाद ऐप खुद रीस्टार्ट होता है — और Mac के जागते ही अपडेट हो जाता है\n\n• मेमोरी: RAM और swap अलग-अलग; रंग macOS के memory pressure संकेत के अनुसार\n\n• पैनल अब कीबोर्ड नहीं पकड़ता: टाइपिंग नीचे वाले ऐप में जाती है, टाइमर अंक और खोज को छोड़कर\n\n1.1.0 — 2026-07-15\n\n• क्लिपबोर्ड इतिहास अब चित्र भी रखता है\n\n• वीडियो कन्वर्ज़न: फ़ॉर्मैट, रिज़ॉल्यूशन और कम्प्रेशन अलग-अलग चुनें, प्रगति दिखती है\n\n• मॉनिटर: नए ग्राफ़ और साफ़ डाउनलोड/अपलोड जोड़ी\n\n• कई छोटे सुधार: लाइट थीम, विंडो आगे लाना, शॉर्टकट सूची, मॉड्यूल क्रम\n\n1.0.0 — 2026-07-13\n\n• पहला रिलीज़: टाइमर, जागते रहो, मॉनिटर, क्लिपबोर्ड, कन्वर्टर, विंडो और स्पीड टेस्ट — 18 भाषाओं में",
             .tabTimer: "मुख्य",
             .tabSystem: "मॉनिटर",
             .back: "वापस",
@@ -3602,7 +3602,7 @@ enum L10n {
         .nl: [
             .memPressureNote: "geheugen: de kleur volgt het memory-pressure-signaal van macOS",
             .aboutTabNews: "wat is nieuw", .newsAllReleases: "alle releases",
-            .docNews: "1.1.0 — 2026-07-15\n\n• klembordgeschiedenis bewaart nu ook afbeeldingen\n\n• videoconversie: formaat, resolutie en compressie apart te kiezen, met zichtbare voortgang\n\n• monitor: hertekende grafieken en een duidelijker download/upload-paar\n\n• veel kleine verbeteringen: licht thema, vensters naar voren, sneltoetslegenda, modulevolgorde\n\n1.0.0 — 2026-07-13\n\n• eerste release: timer, wakker, monitor, klembord, converter, vensters en snelheidstest — in 18 talen",
+            .docNews: "1.2.0 — 2026-07-15\n\n• de app herstart zichzelf na een update — en werkt zichzelf bij zodra de Mac ontwaakt\n\n• geheugen: RAM en swap apart getoond; de kleur volgt het memory-pressure-signaal van macOS\n\n• het paneel houdt het toetsenbord niet meer vast: typen gaat naar de app eronder, behalve timercijfers en zoeken\n\n1.1.0 — 2026-07-15\n\n• klembordgeschiedenis bewaart nu ook afbeeldingen\n\n• videoconversie: formaat, resolutie en compressie apart te kiezen, met zichtbare voortgang\n\n• monitor: hertekende grafieken en een duidelijker download/upload-paar\n\n• veel kleine verbeteringen: licht thema, vensters naar voren, sneltoetslegenda, modulevolgorde\n\n1.0.0 — 2026-07-13\n\n• eerste release: timer, wakker, monitor, klembord, converter, vensters en snelheidstest — in 18 talen",
             .tabTimer: "hoofd",
             .tabSystem: "monitor",
             .back: "terug",

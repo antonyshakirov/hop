@@ -1,5 +1,16 @@
 # Hop — version history
 
+## 1.2.0 — 2026-07-15
+
+- Updates: the app relaunches itself after installing a release, and a
+  found update also installs right after the Mac wakes from sleep. This
+  fixes the broken Finder icon two live instances used to cause.
+- Monitor: the memory row shows RAM and swap separately, and its color
+  follows macOS's own memory-pressure signal — the manual "memory+swap %"
+  threshold is gone.
+- Panel: keyboard transparency — typing goes to the app underneath the
+  open panel, except timer digit entry and the clipboard search field.
+
 ## 1.1.0 — 2026-07-15
 
 - Clipboard history keeps images, with a setting for visible rows.
