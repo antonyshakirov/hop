@@ -192,9 +192,11 @@ struct StatsView: View {
         let footprint = (s.memUsed ?? 0) + (s.swapUsed ?? 0)
         var text = Text(StatsFormatting.gb(footprint)).foregroundColor(pressureColor)
             + Text(" / \(StatsFormatting.gb(s.memTotal)) \(t(.unitGB))").foregroundColor(Theme.textSecondary)
-        // if there is swap — clarify how much of it went to disk
+        // if there is swap — clarify how much of it went to disk;
+        // with its own unit: a bare "swap 2.0" left the scale ambiguous
         if let swap = s.swapUsed, swap > 50_000_000 {
-            text = text + Text("  swap \(StatsFormatting.gb(swap))").foregroundColor(pressureColor)
+            text = text + Text("  swap \(StatsFormatting.gb(swap)) \(t(.unitGB))")
+                .foregroundColor(pressureColor)
         }
         return text
     }
