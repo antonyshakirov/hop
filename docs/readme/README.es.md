@@ -62,7 +62,7 @@ mientras la pestaña está abierta.
 
 ### Historial del portapapeles
 
-Las últimas 100 cosas que copiaste (hasta 300), con un clic para volver a
+Las últimas 100 cosas que copiaste (hasta 300) — texto e imágenes — con un clic para volver a
 copiarlas o pegarlas directamente en la app anterior. Las contraseñas y
 otras entradas ocultas nunca se guardan.
 

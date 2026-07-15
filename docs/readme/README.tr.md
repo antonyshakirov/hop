@@ -60,7 +60,7 @@ doğrudan macOS'ten gelir ve yalnızca sekme açıkken güncellenir.
 
 ### Pano geçmişi
 
-Kopyaladığınız son 100 (300'e kadar) öğe — tek tıkla yeniden kopyalayın
+Kopyaladığınız son 100 (300'e kadar) öğe — metin ve görseller — tek tıkla yeniden kopyalayın
 ya da doğrudan önceki uygulamaya yapıştırın. Parolalar ve diğer gizli
 girişler asla saklanmaz.
 

@@ -63,7 +63,7 @@ macOS et ne se rafraîchissent que lorsque l'onglet est ouvert.
 
 ### Historique du presse-papiers
 
-Les 100 derniers éléments copiés (jusqu'à 300), un clic pour les recopier ou
+Les 100 derniers éléments copiés (jusqu'à 300) — texte et images — un clic pour les recopier ou
 les coller directement dans l'app précédente. Les mots de passe et autres
 saisies masquées ne sont jamais enregistrés.
 

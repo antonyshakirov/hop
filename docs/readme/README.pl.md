@@ -64,7 +64,7 @@ jest otwarta.
 
 ### Historia schowka
 
-Ostatnie 100 (do 300) skopiowanych rzeczy — jedno kliknięcie, by
+Ostatnie 100 (do 300) skopiowanych rzeczy — tekst i obrazy — jedno kliknięcie, by
 skopiować ponownie albo wkleić prosto do poprzedniej aplikacji. Hasła i
 inne ukryte dane wejściowe nigdy nie są zapisywane.
 

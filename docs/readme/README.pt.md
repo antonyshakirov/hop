@@ -62,7 +62,7 @@ vêm direto do macOS e só são atualizadas enquanto a aba está aberta.
 
 ### Histórico da área de transferência
 
-As últimas 100 coisas que você copiou (até 300), com um clique para copiar
+As últimas 100 coisas que você copiou (até 300) — texto e imagens — com um clique para copiar
 de novo ou colar direto no app anterior. Senhas e outras entradas ocultas
 nunca são armazenadas.
 

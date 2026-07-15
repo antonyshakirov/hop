@@ -61,7 +61,7 @@ open is.
 
 ### Klembordgeschiedenis
 
-De laatste 100 (tot 300) dingen die je kopieerde, met één klik terug te
+De laatste 100 (tot 300) dingen die je kopieerde — tekst en afbeeldingen — met één klik terug te
 kopiëren of direct te plakken in de vorige app. Wachtwoorden en andere
 verborgen invoer worden nooit opgeslagen.
 

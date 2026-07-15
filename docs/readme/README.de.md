@@ -62,7 +62,7 @@ geöffnet ist.
 
 ### Zwischenablage-Verlauf
 
-Die letzten 100 (bis zu 300) kopierten Einträge, ein Klick zum erneuten
+Die letzten 100 (bis zu 300) kopierten Einträge — Text und Bilder — ein Klick zum erneuten
 Kopieren oder zum direkten Einfügen in die vorherige App. Passwörter und
 andere verdeckte Eingaben werden niemals gespeichert.
 

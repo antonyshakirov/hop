@@ -62,7 +62,7 @@ scheda è aperta.
 
 ### Cronologia degli appunti
 
-Le ultime 100 cose copiate (fino a 300), un clic per ricopiarle o incollarle
+Le ultime 100 cose copiate (fino a 300) — testo e immagini — un clic per ricopiarle o incollarle
 direttamente nell'app precedente. Le password e gli altri input nascosti non
 vengono mai salvati.
 

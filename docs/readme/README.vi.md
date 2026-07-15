@@ -60,7 +60,7 @@ chỉ cập nhật khi tab đang mở.
 
 ### Lịch sử clipboard
 
-100 mục bạn sao chép gần nhất (tối đa 300), một cú nhấp để sao chép lại
+100 mục bạn sao chép gần nhất (tối đa 300) — cả văn bản lẫn hình ảnh — một cú nhấp để sao chép lại
 hoặc dán thẳng vào ứng dụng trước đó. Mật khẩu và các nội dung nhập ẩn khác
 không bao giờ được lưu.
 

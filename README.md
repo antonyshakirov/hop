@@ -58,7 +58,7 @@ macOS and update only while the tab is open.
 
 ### Clipboard history
 
-The last 100 (up to 300) things you copied, one click to copy back or
+The last 100 (up to 300) things you copied — text and images — one click to copy back or
 paste straight into the previous app. Passwords and other concealed input
 are never stored.
 

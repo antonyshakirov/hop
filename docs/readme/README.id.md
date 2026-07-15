@@ -60,7 +60,7 @@ datang langsung dari macOS dan hanya diperbarui saat tabnya terbuka.
 
 ### Riwayat clipboard
 
-100 hal terakhir yang kamu salin (hingga 300), sekali klik untuk menyalin
+100 hal terakhir yang kamu salin (hingga 300) — teks dan gambar — sekali klik untuk menyalin
 kembali atau menempel langsung ke aplikasi sebelumnya. Kata sandi dan input
 tersembunyi lainnya tidak pernah disimpan.
 
