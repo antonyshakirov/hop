@@ -169,14 +169,22 @@ top inset = bottom inset = 16pt.
 
 ### Clipboard
 
-- Copy history: text, links, files. A copied file is stored as its FULL
-  path (the file-url is read BEFORE the plain-text type: Finder also puts
-  the bare file name as a string, which alone is useless). Clicking a row
-  puts the entry back on the clipboard (its position doesn't change); a row
-  that is a path to an existing file goes back as the FILE plus the path as
-  text — Finder pastes the file itself, text fields get the path. Buttons:
+- Copy history: text, links, files, images. A copied file is stored as its
+  FULL path (the file-url is read BEFORE the plain-text type: Finder also
+  puts the bare file name as a string, which alone is useless). Clicking a
+  row puts the entry back on the clipboard (its position doesn't change); a
+  row that is a path to an existing file goes back as the FILE plus the path
+  as text — Finder pastes the file itself, text fields get the path. Buttons:
   copy / paste into the last app. Confidential content (password managers) is not stored,
   and everything lives only on this Mac. The entry limit is in settings.
+- Images: raw clipboard image data (a screenshot copied straight to the
+  clipboard via ⌃⇧⌘4, "copy image" in a browser) is stored as a PNG in
+  Application Support (per bundle id); the row shows a small thumbnail and
+  the dimensions ("1280 × 800"), clicking puts the picture back. Own cap
+  of 20 image entries (plus the shared limit) — the files of everything
+  pruned are deleted; entries whose file vanished are dropped at launch and
+  orphan files are swept. Images over 25 MB are skipped. Image entries
+  never take part in text dedup.
 - Search: the search field appears when expanded (case-insensitive
   substring filter, clear button; collapsing resets the query).
 - Collapsed — a user-chosen number of rows (settings, 1...10, default 3),
@@ -212,6 +220,9 @@ top inset = bottom inset = 16pt.
 - PDF: page recompression (~150 dpi), text stops being selectable.
 - Video: MP4/MOV/M4V → MP4/MOV (original/1080/720/540). Audio: → M4A.
   MP3/MKV/WebM output is not supported by the system; we don't embed ffmpeg.
+- Resolution chips at or above the source's short side are hidden — they
+  would re-encode at the same frame size and read as a second "squeeze";
+  a currently selected chip stays visible so the choice is never invisible.
 - Estimates are honest: images/PDF — a trial conversion of the first file +
   a curve over reference quality points (interpolation, no recompute on
   every slider move); video/audio — the system encoder's forecast. Per-file

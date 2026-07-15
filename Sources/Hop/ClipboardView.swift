@@ -170,14 +170,24 @@ struct ClipboardView: View {
                 clipboard.copy(item)
                 markCopied(item)
             } label: {
-                Text(oneLine(item.text))
-                    .font(Theme.mono(10))
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    // text truncates a bit earlier — the icons need breathing room
-                    .padding(.trailing, 10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
+                HStack(spacing: 6) {
+                    // image entries lead with a small thumbnail; the text is dims
+                    if let file = item.imageFile, let thumb = ClipThumbCache.image(file) {
+                        Image(nsImage: thumb)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 26, height: 16)
+                            .clipShape(RoundedRectangle(cornerRadius: 3))
+                    }
+                    Text(oneLine(item.text))
+                        .font(Theme.mono(10))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                // text truncates a bit earlier — the icons need breathing room
+                .padding(.trailing, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
             .buttonStyle(ClipboardRowStyle(isCopied: isCopied))
 
@@ -245,5 +255,26 @@ private struct ClipboardRowStyle: ButtonStyle {
             .foregroundStyle(
                 configuration.isPressed || isCopied ? Theme.textPrimary : Theme.listText
             )
+    }
+}
+
+/// Downscaled thumbnails for image entries: the stored PNGs are full-size
+/// screenshots, decoding them per render would chew memory and CPU.
+@MainActor
+enum ClipThumbCache {
+    private static let cache = NSCache<NSString, NSImage>()
+
+    static func image(_ file: String) -> NSImage? {
+        if let cached = cache.object(forKey: file as NSString) { return cached }
+        let url = ClipboardController.imagesDir.appendingPathComponent(file)
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+              let cg = CGImageSourceCreateThumbnailAtIndex(source, 0, [
+                  kCGImageSourceCreateThumbnailFromImageAlways: true,
+                  kCGImageSourceThumbnailMaxPixelSize: 80,
+              ] as CFDictionary)
+        else { return nil }
+        let thumb = NSImage(cgImage: cg, size: .zero)
+        cache.setObject(thumb, forKey: file as NSString)
+        return thumb
     }
 }
