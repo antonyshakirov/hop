@@ -411,9 +411,21 @@ top inset = bottom inset = 16pt.
   (a plain `open` before terminate only activates the still-running old
   instance — nothing would start the new one, and two live instances
   racing NSWorkspace.setIcon corrupted the Finder icon into a folder).
-- Auto-check cadence: 15 s after launch, every 6 hours, and 30 s after
+- Auto-check cadence: 15 s after launch, every hour, and 30 s after
   wake from sleep (the quietest moment — the user is just coming back
-  and doesn't rely on the app yet). A running timer is never interrupted.
+  and doesn't rely on the app yet). Only the tiny latest.json is fetched
+  on each check; the zip downloads only when a newer version is found.
+- Install timing: a found release installs at the first moment the user
+  isn't actively using Hop, not at the next hourly check. If the check
+  finds a release but the moment is busy, it's remembered and a 60 s
+  retry (gate-only, no network) installs it the instant the user goes
+  idle. "Not in use" = no interaction for 20 minutes AND no running/paused
+  timer, sleep-prevention, open panel, or in-progress conversion.
+  Interactions that reset the 20-minute window: opening the panel,
+  timer/awake hotkeys, opening a window, running a conversion. A
+  critical release skips the 20-minute wait and the awake/panel/converter
+  checks — but still never interrupts a set timer. The rule lives in
+  HopCore's UpdateInstallPolicy (unit-tested).
 - Public copy (mirror README, release notes, landing page) — ENGLISH
   ONLY: the project is international.
 - Release mirror: https://github.com/antonyshakirov/hop — a public repo
@@ -434,8 +446,8 @@ top inset = bottom inset = 16pt.
   local development only.
 - Updater: watches the GitHub Release (the repo will be antonshakirov/hop),
   the Ed25519 signature is mandatory, disabled until the public key is
-  embedded; a silent check every 6 hours, installs only when the timer
-  and awake are inactive.
+  embedded; a silent hourly check, installs at the first moment the user
+  isn't actively using Hop (see the install-timing rule above).
 
 ## Planned (approved by Anton, not done yet)
 

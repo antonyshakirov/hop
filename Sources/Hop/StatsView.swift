@@ -100,11 +100,11 @@ struct StatsView: View {
                 row(icon: batteryIcon(b), color: batteryColor(b), label: t(.statBattery),
                     value: batteryValue(b))
                 if b.cycles != nil || b.healthPercent != nil {
-                    row(icon: "heart.fill", color: Theme.accentRed, label: t(.statHealth),
+                    row(icon: "heart.fill", color: Theme.iconHealth, label: t(.statHealth),
                         value: healthValue(b))
                 }
                 if b.isCharging || b.adapterWatts != nil {
-                    row(icon: "bolt.fill", color: Theme.accentOrange, label: t(.statPower),
+                    row(icon: "bolt.fill", color: Theme.iconPower, label: t(.statPower),
                         value: powerValue(b))
                 }
             }

@@ -5,8 +5,8 @@
 # Hop
 
 **Pendamping mungil di menu bar macOS: timer, anti-tidur, monitor sistem,
-riwayat clipboard, konverter file, dan pengelola jendela. Sekali klik —
-semua yang kamu butuhkan langsung ada.**
+riwayat clipboard, konverter file, pengelola jendela, dan klien torrent
+ringan. Sekali klik — semua yang kamu butuhkan langsung ada.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -22,8 +22,8 @@ semua yang kamu butuhkan langsung ada.**
 
 Hop tinggal di menu bar Mac kamu dan menggantikan setengah lusin utilitas
 kecil: timer ala Pomodoro, pencegah tidur ala caffeinate, monitor sistem,
-pengelola clipboard, konverter file drag-and-drop, dan penata jendela —
-satu aplikasi native yang ringan, bukan enam.
+pengelola clipboard, konverter file drag-and-drop, penata jendela, dan
+klien torrent ringan — satu aplikasi native yang ringan, bukan tujuh.
 
 ## Unduh
 
@@ -76,6 +76,17 @@ diproses secara lokal.
 Tata jendela ke setengah, seperempat, sepertiga, dan tengah layar dengan
 sekali klik pada glyph zona atau pintasan ⌃⌥ — tanpa aplikasi tambahan.
 
+### Torrent
+
+Klien BitTorrent ringan di panel yang sama: jatuhkan file .torrent atau
+tempel tautan magnet, pilih persis file mana yang mau diunduh — sebelum
+atau bahkan selama pengunduhan — jeda, lanjutkan, dan seeding, dengan
+opsi berhenti otomatis di rasio 1.0. Modul ini nonaktif secara bawaan;
+saat diaktifkan, mesin open source diunduh sebagai paket kecil terpisah
+(~26 MB, tanda tangannya diverifikasi) yang hanya berkomunikasi dengan
+Hop lewat port lokal. Hop juga bisa menjadi aplikasi bawaan untuk file
+.torrent dan tautan magnet.
+
 ### Dan selebihnya
 
 Tes kecepatan bawaan (networkQuality dari Apple), tema gelap dan terang
@@ -96,12 +107,22 @@ kamu.
 ## Privasi
 
 Semuanya berjalan secara lokal: tanpa server, tanpa analitik, tanpa akun.
-Aplikasi hanya menyentuh jaringan untuk memeriksa pembaruan dan saat kamu
-menjalankan tes kecepatan bawaan. Pembaruan dikirim sebagai arsip
+Aplikasi hanya menyentuh jaringan untuk memeriksa pembaruan, saat kamu
+menjalankan tes kecepatan bawaan, dan — jika kamu mengaktifkan modul
+torrent — untuk mengunduh mesinnya sekali serta memindahkan lalu lintas
+torrent itu sendiri. Pembaruan dan mesin torrent dikirim sebagai arsip
 bertanda tangan dan diverifikasi dengan tanda tangan Ed25519 sebelum
 dipasang.
 
 Situs web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## Gratis, dan alasannya
+
+Hop sepenuhnya gratis: tanpa masa coba, tanpa versi pro, tanpa pembelian dalam
+aplikasi. Tanpa iklan, tanpa pengumpulan data, tanpa akun — tidak ada yang bisa
+dimonetisasi dan tidak ada yang bisa dijual. Ini proyek pribadi: saya membuat
+Hop untuk diri sendiri, memakainya setiap hari, dan sekadar membagikannya.
+Kalau bermanfaat, teruskan ke orang lain.
 
 ## Membangun dari sumber
 

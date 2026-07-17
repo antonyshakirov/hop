@@ -1,0 +1,175 @@
+A bittorrent command line client and server.
+
+Usage: rqbit [OPTIONS] <COMMAND>
+
+Commands:
+  server       
+  download     
+  completions  
+  help         Print this message or the help of the given subcommand(s)
+
+Options:
+  -v <LOG_LEVEL>
+          The console loglevel
+          
+          [env: RQBIT_LOG_LEVEL_CONSOLE=]
+          [possible values: trace, debug, info, warn, error]
+
+      --log-file <LOG_FILE>
+          The log filename to also write to in addition to the console
+          
+          [env: RQBIT_LOG_FILE=]
+
+      --log-file-rust-log <LOG_FILE_RUST_LOG>
+          The value for RUST_LOG in the log file
+          
+          [env: RQBIT_LOG_FILE_RUST_LOG=]
+          [default: librqbit=debug,info]
+
+  -i, --tracker-refresh-interval <FORCE_TRACKER_INTERVAL>
+          The interval to poll trackers, e.g. 30s. Trackers send the refresh interval when we connect to them. Often this is pretty big, e.g. 30 minutes. This can force a certain value
+          
+          [env: RQBIT_TRACKER_REFRESH_INTERVAL=]
+
+      --http-api-listen-addr <HTTP_API_LISTEN_ADDR>
+          The listen address for HTTP API
+          
+          [env: RQBIT_HTTP_API_LISTEN_ADDR=]
+          [default: 127.0.0.1:3030]
+
+  -s, --single-thread-runtime
+          Set this flag if you want to use tokio's single threaded runtime. It MAY perform better, but the main purpose is easier debugging, as time profilers work better with this one
+          
+          [env: RQBIT_SINGLE_THREAD_RUNTIME=]
+
+      --disable-dht
+          [env: RQBIT_DHT_DISABLE=]
+
+      --disable-dht-persistence
+          Set this to disable DHT reading and storing it's state. For now this is a useful workaround if you want to launch multiple rqbit instances, otherwise DHT port will conflict
+          
+          [env: RQBIT_DHT_PERSISTENCE_DISABLE=]
+
+      --peer-connect-timeout <PEER_CONNECT_TIMEOUT>
+          The connect timeout, e.g. 1s, 1.5s, 100ms etc
+          
+          [env: RQBIT_PEER_CONNECT_TIMEOUT=]
+          [default: 2s]
+
+      --peer-read-write-timeout <PEER_READ_WRITE_TIMEOUT>
+          The connect timeout, e.g. 1s, 1.5s, 100ms etc
+          
+          [env: RQBIT_PEER_READ_WRITE_TIMEOUT=]
+          [default: 10s]
+
+  -t, --worker-threads <WORKER_THREADS>
+          How many threads to spawn for the executor
+          
+          [env: RQBIT_RUNTIME_WORKER_THREADS=]
+
+      --disable-tcp-listen
+          [env: RQBIT_TCP_LISTEN_DISABLE=]
+
+      --tcp-min-port <TCP_LISTEN_MIN_PORT>
+          The minimal port to listen for incoming connections
+          
+          [env: RQBIT_TCP_LISTEN_MIN_PORT=]
+          [default: 4240]
+
+      --tcp-max-port <TCP_LISTEN_MAX_PORT>
+          The maximal port to listen for incoming connections
+          
+          [env: RQBIT_TCP_LISTEN_MAX_PORT=]
+          [default: 4260]
+
+      --disable-upnp-port-forward
+          If set, will try to publish the chosen port through upnp on your router
+          
+          [env: RQBIT_UPNP_PORT_FORWARD_DISABLE=]
+
+      --enable-upnp-server
+          If set, will run a UPNP Media server and stream all the torrents through it. Should be set to your hostname/IP as seen by your LAN neighbors
+          
+          [env: RQBIT_UPNP_SERVER_ENABLE=]
+
+      --upnp-server-friendly-name <UPNP_SERVER_FRIENDLY_NAME>
+          UPNP server name that would be displayed on devices in your network
+          
+          [env: RQBIT_UPNP_SERVER_FRIENDLY_NAME=]
+
+      --max-blocking-threads <MAX_BLOCKING_THREADS>
+          How many maximum blocking tokio threads to spawn to process disk reads/writes. This will indicate how many parallel reads/writes can happen at a moment in time. The higher the number, the more the memory usage
+          
+          [env: RQBIT_RUNTIME_MAX_BLOCKING_THREADS=]
+          [default: 8]
+
+      --defer-writes-up-to <DEFER_WRITES_UP_TO>
+          [env: RQBIT_DEFER_WRITES_UP_TO=]
+
+      --experimental-mmap-storage
+          Use mmap (file-backed) for storage. Any advantages are questionable and unproven. If you use it, you know what you are doing
+
+      --socks-url <SOCKS_URL>
+          Provide a socks5 URL. The format is socks5://[username:password]@host:port
+          
+          Alternatively, set this as an environment variable RQBIT_SOCKS_PROXY_URL
+          
+          [env: RQBIT_SOCKS_PROXY_URL=]
+
+      --concurrent-init-limit <CONCURRENT_INIT_LIMIT>
+          How many torrents can be initializing (rehashing) at the same time
+          
+          [env: RQBIT_CONCURRENT_INIT_LIMIT=]
+          [default: 5]
+
+      --umask <UMASK>
+          Set the process umask to this value.
+          
+          Default is inherited from your environment (usually 022). This will affect the file mode of created files.
+          
+          Read more at https://man7.org/linux/man-pages/man2/umask.2.html
+          
+          [env: RQBIT_UMASK=]
+
+      --ratelimit-download <RATELIMIT_DOWNLOAD_BPS>
+          Limit download to bytes-per-second
+          
+          [env: RQBIT_RATELIMIT_DOWNLOAD=]
+
+      --ratelimit-upload <RATELIMIT_UPLOAD_BPS>
+          Limit upload to bytes-per-second
+          
+          [env: RQBIT_RATELIMIT_UPLOAD=]
+
+      --blocklist-url <BLOCKLIST_URL>
+          Downloads a p2p blocklist from this url and blocks peers from it
+          
+          [env: RQBIT_BLOCKLIST_URL=]
+
+      --trackers-filename <TRACKERS_FILENAME>
+          The filename with tracker URLs to always use for each torrent
+          
+          [env: RQBIT_TRACKERS_FILENAME=]
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
+--- server start ---
+Usage: rqbit server start [OPTIONS] <OUTPUT_FOLDER>
+
+Arguments:
+  <OUTPUT_FOLDER>  The output folder to write to. If not exists, it will be created
+
+Options:
+      --disable-persistence
+          Disable server persistence. It will not read or write its state to disk. [env: RQBIT_SESSION_PERSISTENCE_DISABLE=]
+      --persistence-location <PERSISTENCE_LOCATION>
+          The folder to store session data in. By default uses OS specific folder. If starts with postgres://, will use postgres as the backend instead of JSON file [env: RQBIT_SESSION_PERSISTENCE_LOCATION=]
+      --fastresume
+          [Experimental] if set, will try to resume quickly after restart and skip checksumming [env: RQBIT_FASTRESUME=]
+      --watch-folder <WATCH_FOLDER>
+          The folder to watch for added .torrent files. All files in this folder will be automatically added to the session [env: RQBIT_WATCH_FOLDER=]
+  -h, --help
+          Print help

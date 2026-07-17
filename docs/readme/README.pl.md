@@ -5,8 +5,9 @@
 # Hop
 
 **Malutki towarzysz na pasku menu macOS: timer, blokada uśpienia,
-monitor systemu, historia schowka, konwerter plików i menedżer okien.
-Jedno kliknięcie — i wszystko, czego potrzebujesz, jest pod ręką.**
+monitor systemu, historia schowka, konwerter plików, menedżer okien i
+lekki klient torrentów. Jedno kliknięcie — i wszystko, czego
+potrzebujesz, jest pod ręką.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -23,8 +24,8 @@ Jedno kliknięcie — i wszystko, czego potrzebujesz, jest pod ręką.**
 Hop mieszka na pasku menu Twojego Maca i zastępuje pół tuzina drobnych
 narzędzi: timer w stylu Pomodoro, blokadę uśpienia w duchu caffeinate,
 monitor systemu, menedżer schowka, konwerter plików „przeciągnij i
-upuść" oraz przyciąganie okien — jedna lekka, natywna aplikacja zamiast
-sześciu.
+upuść", przyciąganie okien oraz lekki klient torrentów — jedna lekka,
+natywna aplikacja zamiast siedmiu.
 
 ## Pobierz
 
@@ -80,6 +81,17 @@ konwersją. Wszystko jest przetwarzane lokalnie.
 Przyciągaj okna do połówek, ćwiartek, jednej trzeciej ekranu i na środek
 kliknięciem w glif strefy albo skrótem ⌃⌥ — bez dodatkowej aplikacji.
 
+### Torrenty
+
+Lekki klient BitTorrent w tym samym panelu: upuść plik .torrent albo
+wklej link magnet, wybierz dokładnie, które pliki pobrać — przed
+pobieraniem albo nawet w jego trakcie — wstrzymuj, wznawiaj i seeduj,
+z opcjonalnym zatrzymaniem przy ratio 1.0. Moduł jest domyślnie
+wyłączony; po włączeniu silnik open source jest pobierany osobno jako
+niewielki pakiet (~26 MB, z weryfikacją podpisu) i komunikuje się z
+Hopem wyłącznie przez lokalny port. Hop może też zostać domyślną
+aplikacją dla plików .torrent i linków magnet.
+
 ### I cała reszta
 
 Wbudowany test prędkości (networkQuality od Apple), ciemny i jasny motyw
@@ -102,11 +114,20 @@ Twojego systemu.
 
 Wszystko działa lokalnie: bez serwera, bez analityki, bez kont.
 Aplikacja łączy się z siecią tylko po to, by sprawdzić aktualizacje,
-oraz gdy uruchamiasz wbudowany test prędkości. Aktualizacje są
-dostarczane jako podpisane archiwa i przed instalacją weryfikowane
-podpisem Ed25519.
+gdy uruchamiasz wbudowany test prędkości, oraz — jeśli włączysz moduł
+torrentów — by raz pobrać silnik i przesyłać sam ruch torrentowy.
+Aktualizacje i silnik torrentowy są dostarczane jako podpisane archiwa
+i przed instalacją weryfikowane podpisem Ed25519.
 
 Strona: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## Za darmo — i dlaczego
+
+Hop jest całkowicie darmowy: bez okresu próbnego, bez wersji pro, bez zakupów w
+aplikacji. Bez reklam, bez zbierania danych, bez kont — nie ma czego
+monetyzować ani czego sprzedawać. To projekt osobisty: zrobiłem Hopa dla
+siebie, używam go codziennie i po prostu się nim dzielę. Jeśli się przyda,
+przekaż go dalej.
 
 ## Budowanie ze źródeł
 

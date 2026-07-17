@@ -16,6 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
     private var converterWindow: NSWindow?
     private var aboutWindow: NSWindow?
+    private var torrentAddWindow: NSWindow?
     private var quitWindow: NSWindow?
     private var converterUserResized = false
     /// Content height we set on the window ourselves. A resize to any other
@@ -41,6 +42,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
+        // Registered defaults. "display stays on" defaults ON: keep-awake should keep
+        // the MONITOR awake, not just the system — a caffeine tool that lets the screen
+        // sleep by default is a surprise ("I pressed keep-awake and the monitor still
+        // turned off"). Registered rather than written, so a user who explicitly turns
+        // it off still wins, and BOTH readers agree: the settings toggle (@AppStorage)
+        // and the controller (UserDefaults.bool(forKey:)) — which returned false for the
+        // never-set key, so the assertion was PreventUserIdleSystemSleep and the display
+        // slept regardless of what the toggle appeared to show.
+        UserDefaults.standard.register(defaults: [
+            KeepAwakeController.keepDisplayKey: true,
+        ])
+
         syncSystemTheme()
         DistributedNotificationCenter.default().addObserver(
             forName: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
@@ -59,23 +72,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.statusController?.togglePanel()
         }
         hotkeys.setHandler(.timer) { [weak self] in
+            self?.model.activity.note()
             self?.model.engine.toggle()
         }
         hotkeys.setHandler(.awake) { [weak self] in
             guard let awake = self?.model.keepAwake else { return }
-        hotkeys.refreshSnapHotkeys() // window snap zones, if the toggle is on
+            self?.model.activity.note()
             if awake.isActive {
                 awake.deactivate()
-            } else {
-                awake.activate(KeepAwakeController.options.last!)
+            } else if let longest = KeepAwakeController.options.last {
+                awake.activate(longest)
             }
         }
+        // Register the window-snap zone hotkeys ONCE at launch (they were only
+        // registered on the first keep-awake keypress — the misplaced call above —
+        // so all 18 tiling shortcuts were silently dead on a fresh launch). The
+        // call itself is gated on the windows-hotkeys toggle inside.
+        hotkeys.refreshSnapHotkeys()
 
         let model = self.model
         model.updater.startAutoChecks { critical in
-            let timerFree = model.engine.state == .idle || model.engine.state == .finished
-            // a critical release ignores "don't disturb keep-awake" but never kills the timer
-            return critical ? timerFree : (timerFree && !model.keepAwake.isActive)
+            // a set timer (running or paused) is never interrupted; otherwise a
+            // release installs only when the user isn't actively using Hop —
+            // see UpdateInstallPolicy for the full rule
+            let timerBusy = !(model.engine.state == .idle || model.engine.state == .finished)
+            return UpdateInstallPolicy.canInstall(
+                critical: critical,
+                timerBusy: timerBusy,
+                keepAwakeActive: model.keepAwake.isActive,
+                panelOpen: model.isPanelOpen?() ?? false,
+                converterBusy: model.converter.busy,
+                secondsSinceInteraction: model.activity.secondsSinceInteraction()
+            )
         }
 
         model.openSettingsWindow = { [weak self] in
@@ -87,6 +115,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openAboutWindow = { [weak self] in
             self?.showAboutWindow()
         }
+        model.openTorrentAddSheet = { [weak self] source in
+            self?.showTorrentAddWindow(source)
+        }
         model.requestQuit = { [weak self] in
             self?.requestQuit()
         }
@@ -97,7 +128,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // orderFrontRegardless: plain orderFront only reorders within the
             // app's own layer while another app is active — the window came
             // back UNDER the frontmost app instead of on top with the panel
-            for window in [converterWindow, settingsWindow, aboutWindow]
+            for window in [converterWindow, settingsWindow, aboutWindow, torrentAddWindow]
             where window?.isVisible == true {
                 window?.orderFrontRegardless()
             }
@@ -156,9 +187,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !UserDefaults.standard.bool(forKey: "onboardingDone") {
             showOnboarding()
         }
+
+        // Launch finished: the model is built, the crash-loop guard has passed and
+        // the add sheet is wired. Only now flush any .torrent/magnet URLs that
+        // arrived during a cold launch (see `application(_:open:)`). Not reached in
+        // safe mode — that path returns above, so buffered opens stay dropped.
+        flushPendingOpens()
+
+        // Repopulate the torrent list from the engine's persisted session, so a
+        // relaunch (or a dev reinstall) doesn't leave active torrents invisible in
+        // the panel while they keep running in the engine. No-op when nothing was
+        // saved or the engine isn't installed. This was never wired — torrents only
+        // "survived" a restart when `open` reused the running instance.
+        Task {
+            // First reap any engine orphaned by a previous instance: a reinstall's
+            // SIGKILL bypasses applicationWillTerminate, leaving rqbit holding the
+            // DHT/peer ports — which then blocks OUR engine from starting and the
+            // panel comes up empty. Explicit here as a backstop to the reap inside
+            // start(), so a lingering orphan can never wedge launch.
+            if let bin = model.torrent.installer.installedBinaryURL() {
+                await TorrentEngineProcess.reapOrphanedEngines(binary: bin)
+            }
+            await model.torrent.restore()
+        }
     }
 
     private func showSettingsWindow() {
+        model.activity.note() // opening a window counts as active use
         if settingsWindow == nil {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 640, height: 620),
@@ -274,6 +329,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func showAboutWindow() {
+        model.activity.note() // opening a window counts as active use
         if aboutWindow == nil {
             // WITHOUT fullSizeContentView: content does not slide under the translucent
             // title bar (icons "floated" through it while scrolling)
@@ -317,6 +373,51 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
     }
 
+    /// The torrent add sheet (file selection + destination). A window, like the
+    /// converter: the popover collapses on any outside click. Each call rebuilds
+    /// the content for the new source; the sheet fetches its own file list.
+    private func showTorrentAddWindow(_ source: TorrentController.AddSource) {
+        if torrentAddWindow == nil {
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 440, height: 480),
+                // no fullSizeContentView: rows must not slide under the
+                // translucent title bar (same reason as settings/about).
+                // miniaturizable like the converter/settings so the window is a
+                // real, minimizable window that survives the popover closing.
+                styleMask: [.titled, .closable, .miniaturizable],
+                backing: .buffered, defer: false
+            )
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.isMovableByWindowBackground = false
+            window.isReleasedWhenClosed = false
+            window.contentMinSize = NSSize(width: 440, height: 220)
+            window.contentMaxSize = NSSize(width: 440, height: 100_000)
+            torrentAddWindow = window
+        }
+        guard let window = torrentAddWindow else { return }
+        let host = NSHostingController(
+            rootView: TorrentAddSheet(source: source, torrent: model.torrent) { [weak self] in
+                self?.torrentAddWindow?.close()
+            }
+            .environmentObject(model)
+        )
+        // preferredContentSize: the window tracks the sheet's own fitting height
+        // (now that the view dropped its maxHeight:.infinity frame). It opens snug
+        // around the "fetching…"/error state and grows when the file list resolves,
+        // instead of a fixed height with a hole below. The list scrolls inside its
+        // own 300pt cap, so the window height stays bounded; contentMaxSize keeps
+        // it on-screen as a backstop.
+        host.sizingOptions = [.preferredContentSize]
+        window.contentViewController = host
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
+        window.contentMaxSize = NSSize(width: 440, height: screenH * 0.85)
+        window.center()
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
     func syncSystemTheme() {
         Theme.systemDark = UserDefaults.standard.string(forKey: "AppleInterfaceStyle") == "Dark"
         applyAppTheme()
@@ -328,6 +429,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         converterWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         aboutWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        torrentAddWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         quitWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         model.themeVersion &+= 1 // redraw everything, including views with unchanged inputs
         AppIcon.apply() // the "auto" icon follows the system theme
@@ -357,6 +459,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func showConverterWindow() {
+        model.activity.note() // opening a window counts as active use
         if converterWindow == nil {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 540, height: 540),
@@ -432,6 +535,97 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         LaunchGuard.markStable()
+        // Kill the torrent engine on a clean quit: rqbit is a child process that
+        // would otherwise be reparented to launchd and keep holding its fixed
+        // DHT/peer ports, so the NEXT launch could not start its own engine.
+        // Guard on statusController (set only on a normal launch) so we never
+        // force-create the lazy model in safe mode. A crash/SIGKILL still orphans
+        // the engine — TorrentEngineProcess reaps those on the next start.
+        if statusController != nil { model.torrent.stopEngine() }
+    }
+
+    // MARK: - Opening .torrent files and magnet: links (Launch Services)
+
+    /// URLs that Launch Services handed us before the app finished launching — the
+    /// common case, since a cold double-click of a `.torrent`/magnet delivers
+    /// `application(_:open:)` BEFORE `applicationDidFinishLaunching`. They wait here
+    /// and are flushed by `flushPendingOpens()` at the end of launch, so the
+    /// crash-loop guard and the model build always run first.
+    private var pendingOpenURLs: [URL] = []
+    /// Flipped true at the very end of `applicationDidFinishLaunching` (never in
+    /// safe mode). Until then the open handler must not touch the model or show UI.
+    private var appDidFinishLaunching = false
+
+    /// A double-clicked `.torrent` file or a clicked `magnet:` link, delivered here
+    /// by Launch Services. On a COLD launch this runs BEFORE
+    /// `applicationDidFinishLaunching`: the model does not exist yet and the
+    /// crash-loop guard has not run, so such URLs are buffered and flushed once
+    /// launch finishes. A warm open (app already up, not in safe mode) is processed
+    /// immediately. The handler itself never touches the model, shows an alert, or
+    /// builds anything — that would defeat the safe-mode invariant.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            if appDidFinishLaunching && safeStatusItem == nil {
+                processOpen(url)
+            } else {
+                pendingOpenURLs.append(url)
+            }
+        }
+    }
+
+    /// Process the URLs that arrived during a cold launch. Called at the very end of
+    /// `applicationDidFinishLaunching`, so the model is built, the crash-loop guard
+    /// has passed and `openTorrentAddSheet` is wired. Never called in safe mode.
+    private func flushPendingOpens() {
+        appDidFinishLaunching = true
+        let urls = pendingOpenURLs
+        pendingOpenURLs = []
+        for url in urls { processOpen(url) }
+    }
+
+    /// Turn an incoming `.torrent` file or `magnet:` URL into an `AddSource` and
+    /// hand it to the add sheet — but only once the engine is installed. With no
+    /// engine (the common case until it is hosted) the sheet would sit on
+    /// "fetching…" forever, so instead we make the torrent module visible and
+    /// point the user at the enable-torrents step. Never hangs, never crashes.
+    /// Only ever called past launch and outside safe mode, so touching the model
+    /// and showing UI here is safe.
+    private func processOpen(_ url: URL) {
+        let source: TorrentController.AddSource
+        if url.isFileURL {
+            guard url.pathExtension.lowercased() == "torrent" else { return }
+            guard let data = try? Data(contentsOf: url) else {
+                // moved / deleted / no permission: tell the user instead of a
+                // silent return. Safe to alert here — we are always past launch.
+                let lang = L10n.current
+                let alert = NSAlert()
+                alert.messageText = L10n.t(.torrentReadFailed, lang).capitalizedFirst
+                alert.alertStyle = .warning
+                alert.runModal()
+                return
+            }
+            source = .file(data)
+        } else if url.scheme?.lowercased() == "magnet" {
+            source = .link(url.absoluteString)
+        } else {
+            return
+        }
+
+        // make the torrent module visible so its CTA sits where the user expects
+        UserDefaults.standard.set(true, forKey: "showTorrentModule")
+        NSApp.activate(ignoringOtherApps: true)
+
+        guard model.torrent.installer.installedBinaryURL() != nil else {
+            let lang = L10n.current
+            let alert = NSAlert()
+            alert.messageText = L10n.t(.torrentLabel, lang).capitalizedFirst
+            alert.informativeText = L10n.t(.torrentEnable, lang).capitalizedFirst
+            alert.alertStyle = .informational
+            alert.runModal()
+            return
+        }
+
+        model.openTorrentAddSheet?(source)
     }
 
     /// Safe mode: only an AppKit menu and the updater, no model,
@@ -521,12 +715,79 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
+/// Headless self-test for the torrent hub, mirroring `Snapshot.runIfRequested()`:
+/// `Hop --torrent-selftest <binaryPath> <source>` spins up a real engine against
+/// a local rqbit binary, adds a torrent, polls progress, and exits — the menu bar
+/// app is never launched.
+@MainActor
+enum TorrentSelfTest {
+    static func runIfRequested() {
+        let args = CommandLine.arguments
+        guard let i = args.firstIndex(of: "--torrent-selftest"), args.count > i + 2 else { return }
+        let binaryPath = args[i + 1]
+        let rawSource = args[i + 2]
+
+        // A magnet or http(s) URL is a link; anything else that names an existing
+        // file is a `.torrent` read as raw bytes — this exercises the byte path.
+        let source: TorrentController.AddSource
+        let lower = rawSource.lowercased()
+        if lower.hasPrefix("magnet:") || lower.hasPrefix("http") {
+            source = .link(rawSource)
+        } else if let data = try? Data(contentsOf: URL(fileURLWithPath: rawSource)) {
+            source = .file(data)
+        } else {
+            print("SELFTEST FAIL: source is neither a magnet/http link nor a readable file: \(rawSource)")
+            exit(1)
+        }
+
+        // Run the async flow on the main actor and exit when it completes. The
+        // run loop below keeps the process alive so continuations can progress —
+        // same "pump the main run loop" approach the snapshot path already uses
+        // (RunLoop.main.run(until:)), no MainActor-blocking semaphore.
+        Task { @MainActor in
+            let controller = TorrentController()
+            do {
+                let pending = try await controller.fetchFiles(
+                    source: source, binaryOverride: URL(fileURLWithPath: binaryPath))
+                print("files=\(pending.files.count) name=\(pending.name)")
+                try await controller.confirmAdd(pending, selectedIndices: Set(pending.files.map { $0.index }))
+                for _ in 0..<10 {
+                    await controller.pollOnce()
+                    if let s = controller.torrents.first?.stats {
+                        let pct = String(format: "%.2f", s.fraction * 100)
+                        print("progress=\(pct)% down=\(s.downloadBps)B/s up=\(s.uploadBps)B/s "
+                            + "peers=\(s.peersLive)/\(s.peersSeen) finished=\(s.finished ? "yes" : "no")")
+                    }
+                    try await Task.sleep(nanoseconds: 1_500_000_000)
+                }
+                controller.stopEngine()
+                print("SELFTEST OK")
+                exit(0)
+            } catch {
+                controller.stopEngine()
+                print("SELFTEST FAIL: \(error)")
+                exit(1)
+            }
+        }
+        RunLoop.main.run()
+    }
+}
+
 @main
 struct HopApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     init() {
+        // Dev-only entry points, gated out of release:
+        //  • --torrent-selftest runs an ARBITRARY binary path (skipping the engine
+        //    signature check) — a launch-arbitrary-binary gadget if shipped.
+        //  • --snapshot / --menubar-icons write PNGs to arbitrary caller-supplied
+        //    paths, and --demo overwrites the user's real clipboard history.
+        // None of these are reachable in the shipped, notarized Hop.
+        #if DEBUG
+        TorrentSelfTest.runIfRequested()
         Snapshot.runIfRequested()
+        #endif
     }
 
     var body: some Scene {

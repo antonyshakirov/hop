@@ -5,8 +5,8 @@
 # Hop
 
 **Một trợ thủ nhỏ gọn trên thanh menu của macOS: hẹn giờ, chống ngủ, giám
-sát hệ thống, lịch sử clipboard, chuyển đổi tệp và quản lý cửa sổ. Một cú
-nhấp — mọi thứ bạn cần đều ở ngay đó.**
+sát hệ thống, lịch sử clipboard, chuyển đổi tệp, quản lý cửa sổ và trình
+torrent gọn nhẹ. Một cú nhấp — mọi thứ bạn cần đều ở ngay đó.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -22,8 +22,9 @@ nhấp — mọi thứ bạn cần đều ở ngay đó.**
 
 Hop nằm trên thanh menu của máy Mac và thay thế cả nửa tá tiện ích nhỏ:
 đồng hồ hẹn giờ kiểu Pomodoro, trình chặn ngủ kiểu caffeinate, trình giám
-sát hệ thống, trình quản lý clipboard, trình chuyển đổi tệp kéo-thả và công
-cụ sắp xếp cửa sổ — một ứng dụng native nhẹ nhàng thay cho sáu ứng dụng.
+sát hệ thống, trình quản lý clipboard, trình chuyển đổi tệp kéo-thả, công
+cụ sắp xếp cửa sổ và trình torrent gọn nhẹ — một ứng dụng native nhẹ nhàng
+thay cho bảy ứng dụng.
 
 ## Tải về
 
@@ -77,6 +78,17 @@ Sắp cửa sổ vào nửa màn hình, một phần tư, một phần ba và ch
 một cú nhấp vào biểu tượng vùng hoặc phím tắt ⌃⌥ — không cần thêm ứng dụng
 nào khác.
 
+### Torrent
+
+Một trình BitTorrent gọn nhẹ ngay trong cùng bảng điều khiển: thả tệp
+.torrent hoặc dán liên kết magnet, chọn chính xác những tệp muốn tải —
+trước hoặc thậm chí ngay trong lúc tải — tạm dừng, tiếp tục và seed, kèm
+tùy chọn tự dừng khi đạt ratio 1.0. Mô-đun này mặc định tắt; khi bật, ứng
+dụng sẽ tải engine mã nguồn mở dưới dạng gói nhỏ riêng (~26 MB, có xác
+minh chữ ký) và engine chỉ giao tiếp với Hop qua một cổng cục bộ. Hop
+cũng có thể trở thành ứng dụng mặc định cho tệp .torrent và liên kết
+magnet.
+
 ### Và những thứ còn lại
 
 Kiểm tra tốc độ mạng tích hợp (networkQuality của Apple), giao diện tối và
@@ -97,11 +109,21 @@ bạn ngay từ đầu.
 ## Quyền riêng tư
 
 Mọi thứ chạy cục bộ: không máy chủ, không thu thập dữ liệu, không tài
-khoản. Ứng dụng chỉ dùng mạng để kiểm tra bản cập nhật và khi bạn chạy bài
-kiểm tra tốc độ tích hợp. Các bản cập nhật được phân phối dưới dạng tệp nén
-có chữ ký và được xác minh bằng chữ ký Ed25519 trước khi cài đặt.
+khoản. Ứng dụng chỉ dùng mạng để kiểm tra bản cập nhật, khi bạn chạy bài
+kiểm tra tốc độ tích hợp, và — nếu bạn bật mô-đun torrent — để tải engine
+một lần duy nhất và truyền chính lưu lượng torrent. Các bản cập nhật và
+engine torrent được phân phối dưới dạng tệp nén có chữ ký và được xác minh
+bằng chữ ký Ed25519 trước khi cài đặt.
 
 Trang web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## Miễn phí, và vì sao
+
+Hop hoàn toàn miễn phí: không dùng thử, không bản pro, không mua trong ứng
+dụng. Không quảng cáo, không thu thập dữ liệu, không tài khoản — chẳng có gì để
+kiếm tiền và chẳng có gì để bán. Đây là dự án cá nhân: tôi làm Hop cho chính
+mình, dùng nó mỗi ngày và chỉ đơn giản là chia sẻ. Nếu thấy hữu ích, hãy giới
+thiệu cho người khác.
 
 ## Biên dịch từ mã nguồn
 

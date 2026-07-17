@@ -1,4 +1,5 @@
 import Carbon.HIToolbox
+import CoreServices
 import ServiceManagement
 import SwiftUI
 import HopCore
@@ -33,7 +34,9 @@ struct PanelView: View {
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
     @AppStorage(AppIcon.styleKey) private var appIconStyle = "auto"
-    @AppStorage(KeepAwakeController.keepDisplayKey) private var awakeKeepDisplay = false
+    // Default ON — registered as a UserDefaults default in applicationDidFinishLaunching,
+    // which wins over this literal; kept in sync here so the two don't read as contradictory.
+    @AppStorage(KeepAwakeController.keepDisplayKey) private var awakeKeepDisplay = true
 
     @State private var tab: Tab
     @State private var overlayReturnTab: Tab = .timer
@@ -64,7 +67,22 @@ struct PanelView: View {
     @AppStorage(FileConverter.autoClearKey) private var convAutoClear = true
     @AppStorage("showWindowsModule") private var showWindowsModule = true
     @AppStorage("showSpeedtestModule") private var showSpeedtestModule = true
-    @AppStorage("moduleOrder") private var moduleOrderRaw = "timer,awake,clipboard,convert,windows"
+    // Default OFF: a brand-new feature stays hidden until the user opts in via the
+    // "what's new" banner (updated users) or onboarding (fresh installs enable it).
+    @AppStorage("showTorrentModule") private var showTorrentModule = false
+    @AppStorage(TorrentController.downloadDirKey) private var torrentDownloadDir = ""
+    @AppStorage(TorrentController.stopAtRatio1Key) private var torrentStopAtRatio1 = false
+    @AppStorage(TorrentController.rateDownKey) private var torrentRateDown = 0
+    @AppStorage(TorrentController.rateUpKey) private var torrentRateUp = 0
+    @AppStorage(TorrentController.showWhenEmptyKey) private var torrentShowWhenEmpty = true
+    /// "What's new" banner: dismissed once the user saves their choice.
+    @AppStorage("featureSeen.torrent") private var torrentFeatureSeen = false
+    @State private var bannerShowHere = true       // banner toggle: show module in panel
+    @State private var bannerMakeDefault = false   // banner toggle: make Hop default handler
+    // speedtest was never in this default string either — it appends
+    // via allModules; torrent stays last (opt-in), same mechanism, listed here
+    // for an explicit new-user order.
+    @AppStorage("moduleOrder") private var moduleOrderRaw = "timer,awake,clipboard,convert,windows,speedtest,torrent"
     @AppStorage("windowsLayout") private var windowsLayout = "grid" // grid | row
 
     @AppStorage("monitorColorful") private var monitorColorful = false
@@ -189,14 +207,23 @@ struct PanelView: View {
 
     private var panelBody: some View {
         Group {
-            if panelContentHeight > maxPanelHeight {
+            if panelContentHeight == 0 {
+                // Pre-measurement (first ever open): render at natural height so the
+                // popover opens correctly; the async height update flips us to the
+                // ScrollView below at the SAME height — seamless, and only once.
+                panelStack
+            } else {
+                // One stable ScrollView from then on — never flip between a bare
+                // stack and a scrolled one. That flip tore down and rebuilt the WHOLE
+                // panel when a torrent unfolded past the screen cap (the popover
+                // collapsed and reappeared lower — Anton). Height tracks the measured
+                // content up to the cap; scrolling stays inert until the content
+                // exceeds it. This is the single scroll for the whole panel.
                 ScrollView(showsIndicators: false) {
                     panelStack
                 }
-                .frame(width: 368, height: maxPanelHeight)
-                .background(Theme.panelBackground)
-            } else {
-                panelStack
+                .frame(width: 368, height: min(panelContentHeight, maxPanelHeight))
+                .scrollDisabled(panelContentHeight <= maxPanelHeight)
             }
         }
         .onReceive(model.$openTab) { target in
@@ -207,8 +234,103 @@ struct PanelView: View {
         }
     }
 
+    // MARK: - "What's new" announcement banner (top of the panel, above the tabs)
+
+    private struct FeatureAnnouncement {
+        let id: String          // seen flag lives at featureSeen.<id>
+        let moduleKey: String   // UserDefaults toggle flipped on "enable"
+        let title: L10nKey
+        let body: L10nKey
+    }
+    // New features are appended here as the app gains them; each shows a one-time
+    // top-of-panel banner to users who updated into it.
+    private static let featureAnnouncements: [FeatureAnnouncement] = [
+        .init(id: "torrent", moduleKey: "showTorrentModule",
+              title: .featureTorrentTitle, body: .featureTorrentBody)
+    ]
+
+    /// The first announcement the user hasn't acted on (enabled or hidden). In a
+    /// snapshot it's forced on by `--feature-banner` so the design can be reviewed.
+    private var pendingAnnouncement: FeatureAnnouncement? {
+        if Snapshot.active {
+            return CommandLine.arguments.contains("--feature-banner")
+                ? Self.featureAnnouncements.first : nil
+        }
+        return torrentFeatureSeen ? nil : Self.featureAnnouncements.first
+    }
+
+    @ViewBuilder private var featureBanner: some View {
+        if let ann = pendingAnnouncement {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 6) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Theme.accentGreen)
+                    Text(t(.featureNewBadge))
+                        .font(Theme.mono(9, weight: .bold))
+                        .foregroundStyle(Theme.accentGreen)
+                    Text("·").foregroundStyle(Theme.textTertiary)
+                    Text(t(ann.title))
+                        .font(Theme.mono(11, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer(minLength: 0)
+                }
+                Text(t(ann.body))
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                // Two settings toggles surfaced inline — the user confirms them and
+                // saves. Any choice IS the action, so there is no separate "hide":
+                // to not show the module, turn "show here" off and save.
+                HStack {
+                    Text(t(.featureShowHere))
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.textSecondary)
+                    Spacer(minLength: 0)
+                    Theme.MiniSwitch(isOn: $bannerShowHere)
+                }
+                HStack {
+                    Text(t(.torrentMakeDefault))
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.textSecondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Spacer(minLength: 0)
+                    Theme.MiniSwitch(isOn: $bannerMakeDefault)
+                }
+                HStack(spacing: 0) {
+                    Spacer(minLength: 0)
+                    Button { saveAnnouncement(ann) } label: {
+                        Text(t(.featureSave))
+                            .font(Theme.mono(10, weight: .bold))
+                            .foregroundStyle(Theme.playFg)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 6)
+                            .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverDim()
+                }
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10)
+                .stroke(Theme.accentGreen.opacity(0.35), lineWidth: 1))
+        }
+    }
+
+    private func saveAnnouncement(_ ann: FeatureAnnouncement) {
+        UserDefaults.standard.set(bannerShowHere, forKey: ann.moduleKey)
+        if bannerMakeDefault { makeHopDefaultForTorrent() }
+        UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
+        torrentFeatureSeen = true   // re-render: the banner drops away
+    }
+
     private var panelStack: some View {
         VStack(spacing: 16) {
+            featureBanner
             header
             switch tab {
             case .timer:
@@ -976,7 +1098,7 @@ struct PanelView: View {
 
     // MARK: - Main screen modules
 
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest"]
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent"]
 
     private var moduleOrder: [String] {
         var order = moduleOrderRaw.split(separator: ",").map(String.init)
@@ -999,6 +1121,16 @@ struct PanelView: View {
         case "convert": return showConvertModule
         case "windows": return showWindowsModule
         case "speedtest": return showSpeedtestModule
+        case "torrent":
+            guard showTorrentModule else { return false }
+            // When installed with zero torrents, the empty add-card is optional:
+            // hide the whole module (and its divider) unless the user keeps it on.
+            if model.torrent.torrents.isEmpty,
+               case .installed = model.torrent.installer.state,
+               !torrentShowWhenEmpty {
+                return false
+            }
+            return true
         default: return false
         }
     }
@@ -1010,6 +1142,7 @@ struct PanelView: View {
         case "clipboard": return $showClipboardModule
         case "convert": return $showConvertModule
         case "speedtest": return $showSpeedtestModule
+        case "torrent": return $showTorrentModule
         default: return $showWindowsModule
         }
     }
@@ -1022,6 +1155,7 @@ struct PanelView: View {
         case "convert": return t(.convertLabel)
         case "windows": return t(.windowsLabel)
         case "speedtest": return t(.speedtestLabel)
+        case "torrent": return t(.torrentLabel)
         default: return key
         }
     }
@@ -1037,6 +1171,9 @@ struct PanelView: View {
         case "convert": convertZone
         case "windows": windowSnapRow
         case "speedtest": speedtestRow
+        case "torrent":
+            TorrentView(torrent: model.torrent, lang: lang)
+                .id(model.themeVersion)
         default: EmptyView()
         }
     }
@@ -1344,8 +1481,8 @@ struct PanelView: View {
                 Button {
                     if awake.isActive {
                         awake.deactivate()
-                    } else {
-                        awake.activate(KeepAwakeController.options.last!) // ∞
+                    } else if let longest = KeepAwakeController.options.last {
+                        awake.activate(longest) // ∞
                     }
                 } label: {
                     HStack(spacing: 6) {
@@ -1839,6 +1976,127 @@ struct PanelView: View {
                     HotkeyManager.shared.refreshSnapHotkeys()
                 }
             }
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            VStack(spacing: 14) {
+                settingsSectionHeader(t(.torrentLabel))
+                torrentSettings
+            }
+        }
+    }
+
+    private var torrentSettings: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Text(t(.torrentFolderLabel))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                settingChip(t(.convDestDownloads), active: torrentDownloadDir.isEmpty) {
+                    torrentDownloadDir = ""
+                }
+                Button {
+                    chooseTorrentFolder()
+                } label: {
+                    Text(torrentDownloadDir.isEmpty
+                        ? "…"
+                        : URL(fileURLWithPath: torrentDownloadDir).lastPathComponent)
+                        .font(Theme.mono(10))
+                        .foregroundStyle(torrentDownloadDir.isEmpty ? Theme.textTertiary : Theme.textPrimary)
+                        .lineLimit(1)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            torrentDownloadDir.isEmpty ? .clear : Theme.chipBg,
+                            in: RoundedRectangle(cornerRadius: 5)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(torrentDownloadDir.isEmpty ? Theme.divider : Theme.controlStroke, lineWidth: 1)
+                        )
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(5)
+            }
+
+            HStack {
+                Text(t(.torrentStopRatio))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: $torrentStopAtRatio1)
+            }
+
+            // blank / 0 = unlimited; NumericField caps at three digits (KB/s)
+            HStack {
+                Text(t(.torrentRateLabel))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Image(systemName: "arrow.down")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Theme.textTertiary)
+                NumericField(value: $torrentRateDown, range: 0...999)
+                Image(systemName: "arrow.up")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Theme.textTertiary)
+                NumericField(value: $torrentRateUp, range: 0...999)
+            }
+
+            HStack {
+                Text(t(.torrentShowWhenEmpty))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: $torrentShowWhenEmpty)
+            }
+
+            // An offer, never automatic on install: register Hop as the system
+            // handler for .torrent files so a double-click opens the add flow.
+            Button {
+                makeHopDefaultForTorrent()
+            } label: {
+                HStack {
+                    Text(t(.torrentMakeDefault))
+                        .font(Theme.mono(11, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    Spacer(minLength: 8)
+                    Image(systemName: "checkmark.seal")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Theme.textSecondary)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 9)
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
+                .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
+            }
+            .buttonStyle(.plain)
+            .hoverHighlight(7)
+        }
+    }
+
+    /// Register this bundle as the default handler for `.torrent` documents AND
+    /// `magnet:` links. The dev build carries its own bundle id, so it claims the
+    /// defaults for itself — the production Hop is left alone. Once Hop owns the
+    /// type, Finder shows Hop's document icon (Info.plist CFBundleTypeIconFile)
+    /// instead of the previous client's.
+    private func makeHopDefaultForTorrent() {
+        let bundleID = Bundle.main.bundleIdentifier ?? "com.antonshakirov.minimo"
+        LSSetDefaultRoleHandlerForContentType(
+            "org.bittorrent.torrent" as CFString, .all, bundleID as CFString)
+        LSSetDefaultHandlerForURLScheme("magnet" as CFString, bundleID as CFString)
+    }
+
+    private func chooseTorrentFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        if panel.runModal() == .OK, let url = panel.url {
+            torrentDownloadDir = url.path
         }
     }
 

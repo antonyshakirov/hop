@@ -5,8 +5,9 @@
 # Hop
 
 **Un petit compagnon pour la barre de menus de macOS : minuteur, anti-veille,
-moniteur système, historique du presse-papiers, convertisseur de fichiers et
-gestionnaire de fenêtres. Un clic — et tout ce qu'il vous faut est là.**
+moniteur système, historique du presse-papiers, convertisseur de fichiers,
+gestionnaire de fenêtres et client torrent léger. Un clic — et tout ce qu'il
+vous faut est là.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -23,8 +24,9 @@ gestionnaire de fenêtres. Un clic — et tout ce qu'il vous faut est là.**
 Hop vit dans la barre de menus de votre Mac et remplace une demi-douzaine de
 petits utilitaires : un minuteur façon Pomodoro, un bloqueur de veille façon
 caffeinate, un moniteur système, un gestionnaire de presse-papiers, un
-convertisseur de fichiers par glisser-déposer et un outil d'ancrage de
-fenêtres — une seule app native et légère au lieu de six.
+convertisseur de fichiers par glisser-déposer, un outil d'ancrage de
+fenêtres et un client torrent léger — une seule app native et légère au lieu
+de sept.
 
 ## Téléchargement
 
@@ -79,6 +81,17 @@ Tout est traité en local.
 Ancrez les fenêtres en moitiés, quarts, tiers et au centre d'un clic sur un
 glyphe de zone ou avec un raccourci ⌃⌥ — sans app supplémentaire.
 
+### Torrents
+
+Un client BitTorrent léger dans le même panneau : déposez un fichier
+.torrent ou collez un lien magnet, choisissez précisément les fichiers à
+télécharger — avant ou même pendant le téléchargement —, mettez en pause,
+reprenez et laissez en seed, avec un arrêt optionnel au ratio 1.0. Le module
+est désactivé par défaut ; l'activer récupère le moteur open source sous
+forme d'un petit téléchargement séparé (~26 Mo, signature vérifiée) qui ne
+communique avec Hop que par un port local. Hop peut aussi devenir l'app par
+défaut pour les fichiers .torrent et les liens magnet.
+
 ### Et le reste
 
 Test de débit intégré (networkQuality d'Apple), thèmes sombre et clair avec
@@ -99,12 +112,21 @@ l'installation.
 ## Confidentialité
 
 Tout tourne en local : pas de serveur, pas d'analytics, pas de compte. L'app
-ne touche au réseau que pour vérifier les mises à jour et quand vous lancez
-le test de débit intégré. Les mises à jour sont livrées sous forme
-d'archives signées et vérifiées avec une signature Ed25519 avant
-l'installation.
+ne touche au réseau que pour vérifier les mises à jour, quand vous lancez le
+test de débit intégré et — si vous activez le module torrent — pour
+récupérer le moteur une seule fois et acheminer le trafic torrent lui-même.
+Les mises à jour et le moteur torrent sont livrés sous forme d'archives
+signées et vérifiés avec une signature Ed25519 avant l'installation.
 
 Site web : [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## Gratuit, et pourquoi
+
+Hop est entièrement gratuit : pas d'essai, pas de version pro, pas d'achats
+intégrés. Pas de publicité, pas de collecte de données, pas de comptes — il
+n'y a rien à monétiser ni rien à vendre. C'est un projet personnel : j'ai créé
+Hop pour moi, je l'utilise chaque jour et je le partage, tout simplement. S'il
+vous est utile, faites-le passer.
 
 ## Compiler depuis les sources
 

@@ -5,8 +5,8 @@
 # Hop
 
 **A tiny menu bar companion for macOS: timer, keep-awake, system monitor,
-clipboard history, file converter and window manager. One click — and
-everything you need is right there.**
+clipboard history, file converter, window manager and a lite torrent
+client. One click — and everything you need is right there.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -22,8 +22,8 @@ everything you need is right there.**
 
 Hop lives in your Mac's menu bar and replaces half a dozen small utilities:
 a Pomodoro-style timer, a caffeinate-style sleep blocker, a system monitor,
-a clipboard manager, a drag-and-drop file converter and a window snapper —
-one lightweight native app instead of six.
+a clipboard manager, a drag-and-drop file converter, a window snapper and a
+lite torrent client — one lightweight native app instead of seven.
 
 ## Download
 
@@ -73,6 +73,16 @@ honest size estimate before you convert. Everything is processed locally.
 Snap windows to halves, quarters, thirds and center with a click on a zone
 glyph or a ⌃⌥ hotkey — no extra app needed.
 
+### Torrents
+
+A lite BitTorrent client in the same panel: drop a .torrent file or paste a
+magnet link, pick exactly which files to download — before or even during
+the download — pause, resume and seed, with an optional stop at ratio 1.0.
+The module is off by default; enabling it fetches the open-source engine as
+a small separate download (~26 MB, signature-verified) that talks only to
+Hop over a local port. Hop can also become the default app for .torrent
+files and magnet links.
+
 ### And the rest
 
 Built-in speed test (Apple's networkQuality), dark and light themes with a
@@ -93,11 +103,20 @@ the box.
 ## Privacy
 
 Everything runs locally: no server, no analytics, no accounts. The app only
-touches the network to check for updates and when you run the built-in speed
-test. Updates are delivered as signed archives and verified with an Ed25519
-signature before installing.
+touches the network to check for updates, when you run the built-in speed
+test, and — if you enable the torrent module — to fetch the engine once and
+move the torrent traffic itself. Updates and the torrent engine are
+delivered as signed archives and verified with an Ed25519 signature before
+installing.
 
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## Free, and why
+
+Hop is completely free — no trial, no pro tier, no in-app purchases. No ads,
+no data collection, no accounts: there is nothing to monetize and nothing to
+sell. It is a personal project — I built Hop for myself, use it every day, and
+share it. If it is useful, pass it on.
 
 ## Building from source
 

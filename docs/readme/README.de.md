@@ -5,8 +5,8 @@
 # Hop
 
 **Ein winziger Menüleisten-Begleiter für macOS: Timer, Wachhalten, Systemmonitor,
-Zwischenablage-Verlauf, Dateikonverter und Fenstermanager. Ein Klick — und
-alles, was du brauchst, ist sofort zur Hand.**
+Zwischenablage-Verlauf, Dateikonverter, Fenstermanager und ein leichter
+Torrent-Client. Ein Klick — und alles, was du brauchst, ist sofort zur Hand.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -23,8 +23,8 @@ alles, was du brauchst, ist sofort zur Hand.**
 Hop lebt in der Menüleiste deines Mac und ersetzt ein halbes Dutzend kleiner
 Utilities: einen Timer im Pomodoro-Stil, einen Schlafblocker à la caffeinate,
 einen Systemmonitor, einen Zwischenablage-Manager, einen
-Drag-and-drop-Dateikonverter und einen Fenster-Snapper — eine leichtgewichtige
-native App statt sechs.
+Drag-and-drop-Dateikonverter, einen Fenster-Snapper und einen leichten
+Torrent-Client — eine leichtgewichtige native App statt sieben.
 
 ## Download
 
@@ -78,6 +78,17 @@ lokal verarbeitet.
 Fenster mit einem Klick auf ein Zonensymbol oder per ⌃⌥-Hotkey auf Hälften,
 Viertel, Drittel und die Mitte einrasten — ganz ohne zusätzliche App.
 
+### Torrents
+
+Ein leichter BitTorrent-Client im selben Panel: Zieh eine .torrent-Datei
+hinein oder füge einen magnet-Link ein, wähle genau die Dateien aus, die du
+laden willst — vor oder sogar während des Downloads —, pausiere, setze fort
+und seede, auf Wunsch mit automatischem Stopp bei Ratio 1.0. Das Modul ist
+standardmäßig deaktiviert; beim Aktivieren wird die Open-Source-Engine als
+kleiner separater Download (~26 MB, signaturgeprüft) geholt, die nur über
+einen lokalen Port mit Hop spricht. Hop kann außerdem zur Standard-App für
+.torrent-Dateien und magnet-Links werden.
+
 ### Und der Rest
 
 Eingebauter Speedtest (Apples networkQuality), dunkles und helles Design mit
@@ -97,11 +108,21 @@ Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, P
 ## Datenschutz
 
 Alles läuft lokal: kein Server, keine Analytics, keine Konten. Die App greift
-nur auf das Netzwerk zu, um nach Updates zu suchen und wenn du den eingebauten
-Speedtest startest. Updates werden als signierte Archive ausgeliefert und vor
-der Installation mit einer Ed25519-Signatur verifiziert.
+nur auf das Netzwerk zu, um nach Updates zu suchen, wenn du den eingebauten
+Speedtest startest und — falls du das Torrent-Modul aktivierst — um die
+Engine einmalig zu laden und den Torrent-Verkehr selbst zu übertragen.
+Updates und die Torrent-Engine werden als signierte Archive ausgeliefert und
+vor der Installation mit einer Ed25519-Signatur verifiziert.
 
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## Kostenlos — und warum
+
+Hop ist völlig kostenlos: keine Testphase, keine Pro-Version, keine
+In-App-Käufe. Keine Werbung, keine Datenerfassung, keine Konten — es gibt
+nichts zu monetarisieren und nichts zu verkaufen. Es ist ein persönliches
+Projekt: Ich habe Hop für mich selbst gebaut, nutze es täglich und teile es
+einfach. Wenn es nützlich ist, gib es weiter.
 
 ## Aus dem Quellcode bauen
 

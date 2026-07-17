@@ -1,10 +1,13 @@
 import AppKit
 import CryptoKit
 import Foundation
+import HopCore
 
 /// Updates via antonshakirov.com (latest.json + zip + signature):
-/// silent auto-update and manual check. A release with critical=true
-/// installs at the first opportunity.
+/// silent auto-update and manual check. The site is polled hourly; a found
+/// release installs at the first idle moment (see UpdateInstallPolicy) rather
+/// than waiting for the next poll — so it lands within a minute of the user
+/// stepping away. A release with critical=true skips the idle wait.
 @MainActor
 final class UpdateChecker: ObservableObject {
     /// Manifest of the latest release (scripts/release.sh uploads it to the site).
@@ -35,6 +38,23 @@ final class UpdateChecker: ObservableObject {
     private var statusExpiry: Task<Void, Never>?
 
     static let autoUpdateKey = "autoUpdateEnabled"
+
+    /// How often the site is polled for a new release. Only the tiny latest.json
+    /// is fetched; the zip downloads solely when a newer version is found.
+    static let checkInterval: TimeInterval = 3600
+    /// How often a release that was found but couldn't install yet re-tests the
+    /// gate. No network — just the idle check — so a deferred update installs
+    /// within a minute of the user going idle instead of at the next hourly poll.
+    static let installRetryInterval: TimeInterval = 60
+
+    /// A newer release found but not installable at that moment (timer running,
+    /// panel open, recently used…). Kept so installPendingIfPossible can install
+    /// it the instant the gate opens, without re-fetching.
+    private var pendingRelease: ReleaseInfo?
+
+    private var autoUpdateEnabled: Bool {
+        UserDefaults.standard.object(forKey: Self.autoUpdateKey) as? Bool ?? true
+    }
 
     /// "latest version installed" is only true at the moment of the check:
     /// closing settings (or half an hour) clears it — an update may well
@@ -76,13 +96,21 @@ final class UpdateChecker: ObservableObject {
             try? await Task.sleep(for: .seconds(15))
             await self?.autoCheck(canInstall: canInstall)
         }
-        let timer = Timer(timeInterval: 6 * 3600, repeats: true) { _ in
+        let check = Timer(timeInterval: Self.checkInterval, repeats: true) { _ in
             Task { @MainActor [weak self] in
                 await self?.autoCheck(canInstall: canInstall)
             }
         }
-        RunLoop.main.add(timer, forMode: .common)
-        // wake from sleep is the quietest moment: the user is just coming
+        RunLoop.main.add(check, forMode: .common)
+        // A release found while the user was busy installs the moment they go
+        // idle, not a whole poll cycle later: this timer only re-tests the gate.
+        let install = Timer(timeInterval: Self.installRetryInterval, repeats: true) { _ in
+            Task { @MainActor [weak self] in
+                await self?.installPendingIfPossible(canInstall: canInstall)
+            }
+        }
+        RunLoop.main.add(install, forMode: .common)
+        // wake from sleep is a quiet moment too: the user is just coming
         // back and doesn't rely on the app yet — a found release installs
         // (and relaunches) before they notice. 30 s lets the network return
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -102,11 +130,38 @@ final class UpdateChecker: ObservableObject {
     }
 
     private func autoCheck(canInstall: @MainActor (Bool) -> Bool) async {
-        guard !Self.isDevBuild else { return }
-        guard UserDefaults.standard.object(forKey: Self.autoUpdateKey) as? Bool ?? true
-        else { return }
-        guard let info = await fetchNewerRelease() else { return }
+        guard !Self.isDevBuild, autoUpdateEnabled else { return }
+        guard let info = await fetchNewerRelease() else {
+            // nothing newer (or the release was pulled / already installed):
+            // drop any stale pending so we don't keep trying to install it
+            pendingRelease = nil
+            return
+        }
+        await installOrDefer(info, canInstall: canInstall)
+    }
+
+    /// Install a found release now if the moment allows, otherwise remember it so
+    /// the per-minute retry can install it the instant the user goes idle.
+    private func installOrDefer(_ info: ReleaseInfo, canInstall: @MainActor (Bool) -> Bool) async {
+        guard status != .downloading, status != .installing else { return }
+        if canInstall(info.critical) {
+            pendingRelease = nil
+            await install(info)
+        } else {
+            pendingRelease = info
+        }
+    }
+
+    /// Called every installRetryInterval: installs a previously found release the
+    /// moment the gate opens (user went idle, stopped the timer, closed the panel).
+    private func installPendingIfPossible(canInstall: @MainActor (Bool) -> Bool) async {
+        guard let info = pendingRelease else { return }
+        guard !Self.isDevBuild, autoUpdateEnabled else { pendingRelease = nil; return }
+        guard status != .downloading, status != .installing else { return }
         guard canInstall(info.critical) else { return }
+        // Clear before installing: a failed attempt then waits for the next
+        // hourly check to rediscover, instead of hammering the download.
+        pendingRelease = nil
         await install(info)
     }
 

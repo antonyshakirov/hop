@@ -1,5 +1,32 @@
 # Hop — version history
 
+## 1.3.0 — 2026-07-18
+
+- Torrents: a lite BitTorrent client built into the panel. Drop a .torrent
+  file or paste a magnet link; pick individual files before and during the
+  download; pause, resume and seed with an optional stop-at-ratio-1.0
+  policy. The download engine is not bundled — it downloads on demand
+  (~26 MB, signature-verified) the first time you enable the module, and
+  talks only to the app over a local loopback port. Hop can optionally
+  become the default app for .torrent files and magnet links. If a
+  download's files are deleted from disk mid-download, Hop pauses the
+  torrent and offers to re-download.
+- Awake: keep-awake now keeps the display on by default (previously only
+  the system stayed awake and the screen could still sleep); the lid
+  button's one-time admin prompt actually appears now (it silently failed
+  for everyone since 1.0.0), and lid mode verifies the real power state,
+  re-requesting rights when the setup goes stale.
+- Windows: the tiling hotkeys register at launch — they used to stay dead
+  until the keep-awake hotkey was pressed once.
+- Monitor: battery discharge wattage is computed correctly (some Macs
+  showed absurd readings); power and battery-health icons no longer clash
+  in the light theme.
+- Updates: a found release now installs at the first idle moment, and the
+  check runs hourly instead of every six hours.
+- Internal: developer-only launch flags are compiled out of release
+  builds; engine downloads require https and validate every member path
+  inside a torrent.
+
 ## 1.2.0 — 2026-07-15
 
 - Updates: the app relaunches itself after installing a release, and a

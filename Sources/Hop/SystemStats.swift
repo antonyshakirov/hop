@@ -1,5 +1,6 @@
 import Darwin
 import Foundation
+import HopCore
 import IOKit
 
 /// Snapshot of system metrics. Any field can be nil — the sensor is unavailable,
@@ -280,9 +281,11 @@ final class SystemStatsController: ObservableObject {
             info.healthPercent = min(100, Int((Double(capacity) / Double(design) * 100).rounded()))
         }
         if let amperage = d["Amperage"] as? Int, let voltage = d["Voltage"] as? Int {
-            // mA * mV → W; Amperage arrives as signed 64-bit with wraparound for negatives
-            let amps = amperage > Int(Int32.max) ? amperage - (1 << 64) : amperage
-            info.batteryWatts = Double(amps) * Double(voltage) / 1_000_000
+            // Sign/overflow correction lives in PowerMath (unit-tested): some
+            // batteries report a discharge current as a 32-bit value widened into
+            // 64 bits without sign extension, which the old 1<<64 no-op left as an
+            // absurd positive wattage.
+            info.batteryWatts = PowerMath.batteryWatts(amperage: amperage, voltage: voltage)
         }
         if let adapter = d["AdapterDetails"] as? [String: Any] {
             info.adapterWatts = adapter["Watts"] as? Int

@@ -5,8 +5,9 @@
 # Hop
 
 **Een piepklein menubalk-hulpje voor macOS: timer, slaapblokkering,
-systeemmonitor, klembordgeschiedenis, bestandsconverter en vensterbeheer.
-Eén klik — en alles wat je nodig hebt staat meteen klaar.**
+systeemmonitor, klembordgeschiedenis, bestandsconverter, vensterbeheer en
+een lichte torrentclient. Eén klik — en alles wat je nodig hebt staat meteen
+klaar.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -23,8 +24,8 @@ Eén klik — en alles wat je nodig hebt staat meteen klaar.**
 Hop woont in de menubalk van je Mac en vervangt een half dozijn kleine
 hulpprogramma's: een timer in Pomodoro-stijl, een slaapblokkering à la
 caffeinate, een systeemmonitor, een klembordbeheerder, een
-drag-and-drop-bestandsconverter en een venster-snapper — één lichtgewicht
-native app in plaats van zes.
+drag-and-drop-bestandsconverter, een venster-snapper en een lichte
+torrentclient — één lichtgewicht native app in plaats van zeven.
 
 ## Downloaden
 
@@ -77,6 +78,17 @@ wordt lokaal verwerkt.
 Klik vensters vast op helften, kwarten, derden en het midden via een
 zonesymbool of een ⌃⌥-sneltoets — geen extra app nodig.
 
+### Torrents
+
+Een lichte BitTorrent-client in hetzelfde paneel: sleep een .torrent-bestand
+erin of plak een magnet-link, kies precies welke bestanden je downloadt —
+vooraf of zelfs tijdens de download —, pauzeer, hervat en seed, met een
+optionele stop bij ratio 1.0. De module staat standaard uit; bij het
+inschakelen wordt de opensource-engine opgehaald als een kleine aparte
+download (~26 MB, met geverifieerde handtekening) die alleen via een lokale
+poort met Hop praat. Hop kan ook de standaardapp worden voor
+.torrent-bestanden en magnet-links.
+
 ### En de rest
 
 Ingebouwde snelheidstest (Apples networkQuality), donkere en lichte thema's
@@ -96,11 +108,21 @@ Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, P
 ## Privacy
 
 Alles draait lokaal: geen server, geen analytics, geen accounts. De app
-gebruikt het netwerk alleen om op updates te controleren en wanneer je de
-ingebouwde snelheidstest draait. Updates worden geleverd als ondertekende
-archieven en vóór installatie geverifieerd met een Ed25519-handtekening.
+gebruikt het netwerk alleen om op updates te controleren, wanneer je de
+ingebouwde snelheidstest draait en — als je de torrentmodule inschakelt — om
+de engine eenmalig op te halen en het torrentverkeer zelf te verplaatsen.
+Updates en de torrent-engine worden geleverd als ondertekende archieven en
+vóór installatie geverifieerd met een Ed25519-handtekening.
 
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## Gratis, en waarom
+
+Hop is volledig gratis: geen proefperiode, geen pro-versie, geen
+in-app-aankopen. Geen advertenties, geen dataverzameling, geen accounts — er
+valt niets te verdienen en niets te verkopen. Het is een persoonlijk project:
+ik heb Hop voor mezelf gemaakt, gebruik het elke dag en deel het gewoon. Is het
+nuttig, geef het dan door.
 
 ## Bouwen vanaf de broncode
 

@@ -14,6 +14,16 @@ final class AppModel: ObservableObject {
     let updater = UpdateChecker()
     let converter = FileConverter()
     let speedTest = SpeedTestController()
+    let torrent = TorrentController()
+
+    /// Last time the user actively touched Hop. The updater installs a found
+    /// release only after a long enough quiet gap (see UpdateInstallPolicy),
+    /// so we stamp it on panel opens, hotkeys, window opens and conversions.
+    let activity = ActivityTracker()
+
+    /// Whether the panel popover is showing right now (wired by StatusItemController).
+    /// The updater treats an open panel as active use and won't relaunch under it.
+    var isPanelOpen: (() -> Bool)?
 
     /// Incremented on every theme change: .id(themeVersion) recreates views
     /// that SwiftUI would otherwise not redraw (their inputs did not change).
@@ -38,6 +48,12 @@ final class AppModel: ObservableObject {
     var openConverterWindow: (() -> Void)?
     /// Open the standalone "about" window.
     var openAboutWindow: (() -> Void)?
+    /// Open the torrent add sheet (file selection + destination) for a source.
+    /// The sheet fetches the file list itself and shows a "fetching…" state, so
+    /// the window appears instantly on a magnet paste. Presented as a window,
+    /// like the converter — the popover collapses on any outside click and
+    /// cannot host a multi-step choice.
+    var openTorrentAddSheet: ((TorrentController.AddSource) -> Void)?
     /// Quit with confirmation if the timer is running or sleep prevention is active.
     var requestQuit: (() -> Void)?
     /// Bring already-open auxiliary windows (converter/settings/about) back
@@ -64,6 +80,15 @@ final class AppModel: ObservableObject {
         })
         forwarders.append(speedTest.objectWillChange.sink { [weak self] in
             self?.objectWillChange.send()
+        })
+        forwarders.append(torrent.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        })
+        // a conversion starting or finishing counts as active use ("copy-paste"):
+        // dropFirst skips the value the subscription replays at init, so launch
+        // itself doesn't look like an interaction
+        forwarders.append(converter.$busy.dropFirst().sink { [weak self] _ in
+            self?.activity.note()
         })
         engine.onFinish = { [weak self] in
             MediaPauser.pauseIfEnabled() // silence first, then our alert

@@ -5,8 +5,8 @@
 # Hop
 
 **macOS 菜单栏里的小巧全能助手：计时器、防休眠、系统监控、
-剪贴板历史、文件转换器和窗口管理器。轻轻一点——
-你需要的一切都在眼前。**
+剪贴板历史、文件转换器、窗口管理器和轻量 BT 客户端。
+轻轻一点——你需要的一切都在眼前。**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -20,10 +20,10 @@
 
 </div>
 
-Hop 常驻在 Mac 的菜单栏中，一个应用顶替六个小工具：
+Hop 常驻在 Mac 的菜单栏中，一个应用顶替半打小工具：
 番茄钟式计时器、caffeinate 式防休眠、系统监控、
-剪贴板管理器、拖放式文件转换器和窗口吸附——
-一个轻量的原生应用，替代六个零散工具。
+剪贴板管理器、拖放式文件转换器、窗口吸附和轻量 BT 客户端——
+一个轻量的原生应用，替代七个零散工具。
 
 ## 下载
 
@@ -71,6 +71,15 @@ HEIC、AVIF 和 WebP；压缩 PDF；HEVC 视频瘦身，转换前就能看到
 点击区域图标或按 ⌃⌥ 快捷键，即可把窗口吸附到二分之一、四分之一、
 三分之一或居中——无需额外安装任何应用。
 
+### 种子下载
+
+同一面板里的轻量 BT 客户端：拖入 .torrent 文件或粘贴 magnet 链接，
+精确挑选要下载的文件——下载开始前甚至进行中都可以——支持暂停、
+恢复和做种，还可选择在分享率达到 1.0 时自动停止。该模块默认关闭；
+启用后会单独下载开源引擎（约 26 MB，经签名校验），它只通过本地
+端口与 Hop 通信。Hop 还可以成为 .torrent 文件和 magnet 链接的
+默认应用。
+
 ### 其他
 
 内置测速（Apple 的 networkQuality）、带胶片颗粒质感的深浅两套主题、
@@ -89,10 +98,15 @@ Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, P
 ## 隐私
 
 一切都在本地运行：没有服务器、没有分析统计、没有账号。
-应用仅在检查更新和你运行内置测速时才会访问网络。
-更新以签名压缩包形式分发，安装前会用 Ed25519 签名进行校验。
+应用仅在检查更新、运行内置测速，以及启用 BT 模块后一次性下载引擎
+和传输 BT 流量本身时才会访问网络。更新和 BT 引擎均以签名压缩包
+形式分发，安装前会用 Ed25519 签名进行校验。
 
 官网：[antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## 为什么免费
+
+Hop 完全免费：没有试用期，没有专业版，没有内购。没有广告，不收集数据，没有账户——没有什么可变现的，也没有什么可出售的。这是一个个人项目：我为自己做了 Hop，每天都在用，只是分享出来而已。如果它对你有用，就分享给别人吧。
 
 ## 从源码构建
 

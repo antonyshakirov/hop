@@ -5,8 +5,9 @@
 # Hop
 
 **macOS menü çubuğu için minik bir yol arkadaşı: zamanlayıcı, uyku
-engelleme, sistem monitörü, pano geçmişi, dosya dönüştürücü ve pencere
-yöneticisi. Tek tık — ihtiyacınız olan her şey elinizin altında.**
+engelleme, sistem monitörü, pano geçmişi, dosya dönüştürücü, pencere
+yöneticisi ve hafif bir torrent istemcisi. Tek tık — ihtiyacınız olan
+her şey elinizin altında.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -23,8 +24,8 @@ yöneticisi. Tek tık — ihtiyacınız olan her şey elinizin altında.**
 Hop, Mac'inizin menü çubuğunda yaşar ve yarım düzine küçük aracın yerini
 alır: Pomodoro tarzı bir zamanlayıcı, caffeinate benzeri bir uyku
 engelleyici, sistem monitörü, pano yöneticisi, sürükle-bırak dosya
-dönüştürücü ve pencere yerleştirici — altı uygulama yerine tek bir
-hafif, yerel uygulama.
+dönüştürücü, pencere yerleştirici ve hafif bir torrent istemcisi —
+yedi uygulama yerine tek bir hafif, yerel uygulama.
 
 ## İndir
 
@@ -77,6 +78,18 @@ Pencereleri yarımlara, çeyreklere, üçte birlere ve ortaya yerleştirin —
 bölge simgesine tek tık ya da ⌃⌥ kısayolu yeter; ek bir uygulamaya gerek
 yok.
 
+### Torrentler
+
+Aynı panelde hafif bir BitTorrent istemcisi: bir .torrent dosyası
+bırakın ya da bir magnet bağlantısı yapıştırın, tam olarak hangi
+dosyaların indirileceğini seçin — indirmeden önce, hatta indirme
+sırasında bile — duraklatın, sürdürün ve seed yapın; isterseniz 1.0
+oranına ulaşınca otomatik dursun. Modül varsayılan olarak kapalıdır;
+etkinleştirdiğinizde açık kaynaklı motor, Hop ile yalnızca yerel bir
+port üzerinden konuşan küçük ve ayrı bir indirme (~26 MB, imzası
+doğrulanmış) olarak alınır. Hop ayrıca .torrent dosyaları ve magnet
+bağlantıları için varsayılan uygulama olabilir.
+
 ### Ve gerisi
 
 Yerleşik hız testi (Apple'ın networkQuality aracı), film greni dokulu
@@ -97,11 +110,20 @@ dilinize uyar.
 ## Gizlilik
 
 Her şey yerel çalışır: sunucu yok, analitik yok, hesap yok. Uygulama
-ağa yalnızca güncellemeleri denetlemek için ve yerleşik hız testini
-çalıştırdığınızda çıkar. Güncellemeler imzalı arşivler olarak gelir ve
+ağa yalnızca güncellemeleri denetlemek için, yerleşik hız testini
+çalıştırdığınızda ve — torrent modülünü etkinleştirirseniz — motoru
+bir kez indirmek ve torrent trafiğinin kendisini taşımak için çıkar.
+Güncellemeler ve torrent motoru imzalı arşivler olarak gelir ve
 kurulmadan önce Ed25519 imzasıyla doğrulanır.
 
 Web sitesi: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## Ücretsiz, peki neden
+
+Hop tamamen ücretsiz: deneme yok, pro sürüm yok, uygulama içi satın alma yok.
+Reklam yok, veri toplama yok, hesap yok — para kazanılacak da satılacak da bir
+şey yok. Bu kişisel bir proje: Hop'u kendim için yaptım, her gün kullanıyorum
+ve sadece paylaşıyorum. İşine yararsa, sen de başkasına ilet.
 
 ## Kaynaktan derleme
 

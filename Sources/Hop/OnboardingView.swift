@@ -22,6 +22,9 @@ struct OnboardingView: View {
     @AppStorage("showClipboardModule") private var showClipboardModule = true
     @AppStorage("showConvertModule") private var showConvertModule = true
     @AppStorage("showWindowsModule") private var showWindowsModule = true
+    // Torrents default OFF globally (opt-in via the "what's new" banner for users
+    // who updated in); a fresh install gets to choose here, recommended on.
+    @State private var enableTorrent = true
 
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -113,6 +116,13 @@ struct OnboardingView: View {
                         .foregroundStyle(Theme.textPrimary)
                     Spacer()
                     Theme.MiniSwitch(isOn: $showWindowsModule)
+                }
+                HStack {
+                    Text(t(.showTorrentLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $enableTorrent)
                 }
             }
             .padding(.vertical, 6)
@@ -225,6 +235,11 @@ struct OnboardingView: View {
 
     private func finishOnboarding() {
         UserDefaults.standard.set(true, forKey: "onboardingDone")
+        // Fresh install: apply the module choices made above and mark the newest
+        // features' "what's new" announcements as seen — the top-of-panel banner is
+        // only for users who UPDATED from a build that lacked the feature.
+        UserDefaults.standard.set(enableTorrent, forKey: "showTorrentModule")
+        UserDefaults.standard.set(true, forKey: "featureSeen.torrent")
         if launchAtLogin {
             try? SMAppServiceHelper.enableLaunchAtLogin()
         }

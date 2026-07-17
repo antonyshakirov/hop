@@ -119,6 +119,19 @@ enum Theme {
     }
     static let accentPurple = Color(nsColor: .systemPurple)
 
+    // Monitor row-icon colors with their own light-theme tuning: the shared
+    // accent tokens are calibrated for VALUES (thresholds, converter
+    // progress), and on icons they read brown (power) or washed out (health).
+    /// The power bolt: a bright amber-orange, clearly apart from the
+    /// goldenrod disk icon (two "different oranges" read as a mistake).
+    static var iconPower: Color {
+        isDark ? Color(nsColor: .systemOrange) : Color(red: 0.93, green: 0.52, blue: 0.08)
+    }
+    /// The health heart: a saturated true red, not the muted value-red.
+    static var iconHealth: Color {
+        isDark ? Color(nsColor: .systemRed) : Color(red: 0.86, green: 0.17, blue: 0.12)
+    }
+
     /// Second shade for graphs: the same color at a different lightness with
     /// full opacity — both lines carry equal visual weight.
     static func graphShade(_ base: Color) -> Color {

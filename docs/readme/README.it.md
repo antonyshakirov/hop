@@ -5,8 +5,9 @@
 # Hop
 
 **Un piccolo compagno per la barra dei menu di macOS: timer, anti-stop,
-monitor di sistema, cronologia degli appunti, convertitore di file e gestore
-delle finestre. Un clic — e tutto ciò che ti serve è lì.**
+monitor di sistema, cronologia degli appunti, convertitore di file, gestore
+delle finestre e un client torrent leggero. Un clic — e tutto ciò che ti
+serve è lì.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -23,8 +24,8 @@ delle finestre. Un clic — e tutto ciò che ti serve è lì.**
 Hop vive nella barra dei menu del tuo Mac e sostituisce una mezza dozzina di
 piccole utility: un timer in stile Pomodoro, un blocca-riposo in stile
 caffeinate, un monitor di sistema, un gestore degli appunti, un convertitore
-di file drag-and-drop e uno strumento per agganciare le finestre — una sola
-app nativa e leggera invece di sei.
+di file drag-and-drop, uno strumento per agganciare le finestre e un client
+torrent leggero — una sola app nativa e leggera invece di sette.
 
 ## Download
 
@@ -78,6 +79,17 @@ Tutto viene elaborato in locale.
 Aggancia le finestre a metà, quarti, terzi e al centro con un clic su un
 glifo di zona o con una scorciatoia ⌃⌥ — senza app aggiuntive.
 
+### Torrent
+
+Un client BitTorrent leggero nello stesso pannello: trascina un file
+.torrent o incolla un link magnet, scegli esattamente quali file scaricare —
+prima o anche durante il download —, metti in pausa, riprendi e fai seeding,
+con uno stop facoltativo al ratio 1.0. Il modulo è disattivato per
+impostazione predefinita; attivandolo, il motore open source viene scaricato
+come piccolo download separato (~26 MB, con firma verificata) che comunica
+con Hop solo tramite una porta locale. Hop può anche diventare l'app
+predefinita per i file .torrent e i link magnet.
+
 ### E il resto
 
 Test di velocità integrato (networkQuality di Apple), temi scuro e chiaro
@@ -98,11 +110,21 @@ avvio.
 ## Privacy
 
 Tutto gira in locale: nessun server, nessuna analitica, nessun account.
-L'app tocca la rete solo per controllare gli aggiornamenti e quando avvii il
-test di velocità integrato. Gli aggiornamenti arrivano come archivi firmati
-e vengono verificati con una firma Ed25519 prima dell'installazione.
+L'app tocca la rete solo per controllare gli aggiornamenti, quando avvii il
+test di velocità integrato e — se attivi il modulo torrent — per scaricare
+il motore una sola volta e trasportare il traffico torrent stesso. Gli
+aggiornamenti e il motore torrent arrivano come archivi firmati e vengono
+verificati con una firma Ed25519 prima dell'installazione.
 
 Sito web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+
+## Gratis, ed ecco perché
+
+Hop è completamente gratis: nessuna prova, nessuna versione pro, nessun
+acquisto in-app. Niente pubblicità, niente raccolta dati, niente account: non
+c'è nulla da monetizzare e nulla da vendere. È un progetto personale: ho creato
+Hop per me, lo uso ogni giorno e semplicemente lo condivido. Se ti è utile,
+passalo ad altri.
 
 ## Compilare dai sorgenti
 

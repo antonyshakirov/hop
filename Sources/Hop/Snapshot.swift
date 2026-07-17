@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import HopCore
 
 /// Dev mode: `Hop --snapshot out.png` renders the panel to a PNG and exits.
 /// Lets us look at the design without clicking the menu bar.
@@ -109,7 +110,37 @@ enum Snapshot {
             UserDefaults.standard.set(Date(), forKey: "speedLastAt")
         }
 
+        // --torrents: isolate the torrent module (hide the others) so its state
+        // renders on its own. Variants: --torrents-collapsed folds the list to the
+        // header, --torrents-empty renders the empty add-card (no rows injected),
+        // --torrents-firstrun forces the one-time default-handler banner back on,
+        // --torrents-states adds the files-removed row (design review; the plain
+        // --torrents render stays clean for the landing screenshots).
+        let wantsTorrents = args.contains("--torrents")
+            || args.contains("--torrents-collapsed")
+            || args.contains("--torrents-empty")
+            || args.contains("--torrents-firstrun")
+            || args.contains("--torrents-states")
+        if wantsTorrents {
+            for key in ["showTimerModule", "showAwakeModule", "showClipboardModule",
+                        "showConvertModule", "showWindowsModule", "showSpeedtestModule"] {
+                UserDefaults.standard.set(false, forKey: key)
+            }
+            UserDefaults.standard.set(true, forKey: "showTorrentModule")
+            UserDefaults.standard.set("torrent", forKey: "moduleOrder")
+            // Reset the persisted keys explicitly — snapshot runs share the dev
+            // bundle's UserDefaults, so a prior variant must not leak in.
+            UserDefaults.standard.set(args.contains("--torrents-collapsed"), forKey: "torrentCollapsed")
+            UserDefaults.standard.set(true, forKey: TorrentController.showWhenEmptyKey)
+            // Default to "already prompted" (banner hidden) so the plain empty/list
+            // renders stay clean; --torrents-firstrun flips it back to unprompted.
+            UserDefaults.standard.set(!args.contains("--torrents-firstrun"), forKey: "torrentDefaultHandlerPrompted")
+        }
+
         let model = AppModel()
+        if wantsTorrents, !args.contains("--torrents-empty") {
+            model.torrent.loadDemo(demoTorrents(includeMissing: args.contains("--torrents-states")))
+        }
         // --convert-files a,b,c: converter queue for the window screenshot;
         // the pause lets thumbnails and size estimates finish (they're async)
         if let ci = args.firstIndex(of: "--convert-files"), args.count > ci + 1 {
@@ -172,6 +203,19 @@ enum Snapshot {
             content = AnyView(PanelView(initialTab: .about, standaloneAbout: true).environmentObject(model))
         } else if args.contains("--window-converter") {
             content = AnyView(ConvertWindowView().environmentObject(model))
+        } else if args.contains("--torrent-addsheet") {
+            // Standalone render of the add sheet: the source here is a stand-in —
+            // TorrentAddSheet swaps in demoAddSheetPending() under Snapshot.active
+            // instead of calling fetchFiles, so no engine/network is touched.
+            content = AnyView(TorrentAddSheet(source: .link("magnet:?xt=urn:btih:demo"), torrent: model.torrent) {})
+        } else if args.contains("--onboarding") {
+            // First-launch form (module choices incl. torrents) for design review.
+            content = AnyView(
+                OnboardingView(updater: model.updater, finish: {})
+                    .padding(20)
+                    .frame(width: 380)
+                    .background(Theme.panelBackground)
+            )
         } else {
             content = AnyView(PanelView(initialTab: tab).environmentObject(model))
         }
@@ -188,6 +232,86 @@ enum Snapshot {
         }
         try? png.write(to: url)
         exit(0)
+    }
+
+    /// Staged torrents for the `--torrents` list snapshot, covering the mixed
+    /// states a review pass needs to see side by side:
+    /// (a) downloading, with a LONG name to show the row's middle-truncation;
+    /// (b) paused (engine-reported `.paused`) — resume glyph, 0/0 speeds, no eta;
+    /// (c) done — green ✓, the reveal-in-Finder action, and the ↑ seed line;
+    /// (d) files-removed (only with `includeMissing`, i.e. --torrents-states) —
+    ///     payload deleted from disk under the download: the folder-badge glyph,
+    ///     the red "files removed" line, and the resume glyph.
+    private static func demoTorrents(includeMissing: Bool) -> [TorrentController.TorrentItem] {
+        let isoFile = TorrentFile(
+            index: 0, name: "ubuntu-24.04.1-desktop-amd64-verylongdescriptivereleasename.iso",
+            lengthBytes: 4_825_000_000, selected: true)
+        let downloading = TorrentController.TorrentItem(
+            id: "1", infoHash: "aa11",
+            name: "Ubuntu 24.04.1 LTS Desktop amd64 (very long descriptive release name).iso",
+            files: [isoFile], outputFolder: "/tmp",
+            stats: TorrentStats(
+                state: .live, progressBytes: 3_136_250_000, totalBytes: 4_825_000_000,
+                uploadedBytes: 40_000_000, downloadBps: 4_200_000, uploadBps: 128_000,
+                peersLive: 22, peersSeen: 88, etaSeconds: 130, finished: false,
+                fileProgressBytes: [3_136_250_000]))
+
+        let movie = TorrentFile(index: 0, name: "Big.Buck.Bunny.2008.1080p.mkv", lengthBytes: 1_400_000_000, selected: true)
+        let poster = TorrentFile(index: 1, name: "poster.jpg", lengthBytes: 320_000, selected: true)
+        let paused = TorrentController.TorrentItem(
+            id: "2", infoHash: "bb22", name: "Big.Buck.Bunny.2008.1080p",
+            files: [movie, poster], outputFolder: "/tmp",
+            stats: TorrentStats(
+                state: .paused, progressBytes: 630_144_000, totalBytes: 1_400_320_000,
+                uploadedBytes: 12_000_000, downloadBps: 0, uploadBps: 0,
+                peersLive: 0, peersSeen: 74, etaSeconds: nil, finished: false,
+                fileProgressBytes: [630_000_000, 144_000]))
+
+        let iso = TorrentFile(index: 0, name: "ubuntu-24.04.iso", lengthBytes: 5_100_000_000, selected: true)
+        let done = TorrentController.TorrentItem(
+            id: "3", infoHash: "cc33", name: "ubuntu-24.04-desktop-amd64",
+            files: [iso], outputFolder: "/tmp",
+            stats: TorrentStats(
+                state: .live, progressBytes: 5_100_000_000, totalBytes: 5_100_000_000,
+                uploadedBytes: 5_100_000_000, downloadBps: 0, uploadBps: 256_000,
+                peersLive: 5, peersSeen: 210, etaSeconds: nil, finished: true,
+                fileProgressBytes: [5_100_000_000]))
+
+        var missing = TorrentController.TorrentItem(
+            id: "4", infoHash: "dd44", name: "The.Expanse.S01.1080p",
+            files: [TorrentFile(index: 0, name: "ep1.mkv", lengthBytes: 2_000_000_000, selected: true),
+                    TorrentFile(index: 1, name: "ep2.mkv", lengthBytes: 2_100_000_000, selected: true)],
+            outputFolder: "/tmp",
+            stats: TorrentStats(
+                state: .live, progressBytes: 1_500_000_000, totalBytes: 4_100_000_000,
+                uploadedBytes: 8_000_000, downloadBps: 0, uploadBps: 0,
+                peersLive: 0, peersSeen: 40, etaSeconds: nil, finished: false,
+                fileProgressBytes: [1_500_000_000, 0]))
+        missing.filesMissing = true
+        missing.optimisticPaused = true   // the probe pauses it the instant it fires
+
+        return includeMissing ? [downloading, paused, done, missing] : [downloading, paused, done]
+    }
+
+    /// Demo file list for the `--torrent-addsheet` snapshot: a multi-file
+    /// release (long episode names + a couple of short extras), sizes mixed,
+    /// two files deselected — so the checklist, the select-all/none chips,
+    /// and the free-space math all render without an engine round trip.
+    static func demoAddSheetPending() -> (pending: TorrentController.PendingAdd, selected: Set<Int>) {
+        let files = [
+            TorrentFile(index: 0, name: "Coastal.Wilds.S01E01.Tidal.Giants.2160p.WEB-DL.DDP5.1.x265.mkv", lengthBytes: 3_650_000_000, selected: true),
+            TorrentFile(index: 1, name: "Coastal.Wilds.S01E02.Reef.Builders.2160p.WEB-DL.DDP5.1.x265.mkv", lengthBytes: 3_540_000_000, selected: true),
+            TorrentFile(index: 2, name: "Coastal.Wilds.S01E03.Storm.Season.2160p.WEB-DL.DDP5.1.x265.mkv", lengthBytes: 3_710_000_000, selected: true),
+            TorrentFile(index: 3, name: "poster.jpg", lengthBytes: 410_000, selected: false),
+            TorrentFile(index: 4, name: "sample.mkv", lengthBytes: 38_000_000, selected: false),
+            TorrentFile(index: 5, name: "subs.srt", lengthBytes: 14_000, selected: true),
+        ]
+        let pending = TorrentController.PendingAdd(
+            source: .link("magnet:?xt=urn:btih:demo"),
+            name: "Coastal.Wilds.S01.2160p.WEB-DL.DDP5.1.x265",
+            files: files)
+        let selected = Set(files.filter { $0.selected }.map { $0.index })
+        return (pending, selected)
     }
 }
 

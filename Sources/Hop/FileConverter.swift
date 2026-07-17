@@ -1,5 +1,6 @@
 import AppKit
 import AVFoundation
+import HopCore
 import PDFKit
 import UniformTypeIdentifiers
 
@@ -148,16 +149,9 @@ final class FileConverter: ObservableObject {
     @Published private(set) var fileEstimates: [String: String] = [:]
     private var estimateTokens: [MediaKind: UUID] = [:]
 
-    /// Sample measurements at reference quality points: the slider interpolates
-    /// instantly, without a trial conversion on every move.
-    struct EstimateCurve {
-        let samplePath: String
-        let format: String
-        let scale: Double
-        let totalBytes: Int64
-        let sampleBytes: Int64
-        let points: [Int: Int64]
-    }
+    /// Sample measurements at reference quality points: the slider
+    /// interpolates instantly, without a trial conversion on every move.
+    /// The struct and its math live in HopCore (unit-tested).
     private var curves: [MediaKind: EstimateCurve] = [:]
     // 55 is the default slider value: with it as a reference point the
     // estimate at defaults is a real measurement, not an interpolation
@@ -456,7 +450,7 @@ final class FileConverter: ObservableObject {
            curve.samplePath == sample.path, curve.format == format,
            curve.scale == scale, curve.totalBytes == total {
             estimates[kind] = Self.interpolated(curve: curve, quality: qualityPercent)
-            applyFileEstimates(kind, ratio: Self.sampleRatio(curve: curve, quality: qualityPercent))
+            applyFileEstimates(kind, ratio: curve.ratio(atQuality: qualityPercent))
             return
         }
 
@@ -500,7 +494,7 @@ final class FileConverter: ObservableObject {
                 self.curves[kind] = curve
                 let q = Int((Self.quality(for: kind) * 100).rounded())
                 self.estimates[kind] = Self.interpolated(curve: curve, quality: q)
-                self.applyFileEstimates(kind, ratio: Self.sampleRatio(curve: curve, quality: q))
+                self.applyFileEstimates(kind, ratio: curve.ratio(atQuality: q))
             }
         }
     }
@@ -516,44 +510,16 @@ final class FileConverter: ObservableObject {
         }
     }
 
-    /// Linear interpolation between reference measurements: the sample's output size.
-    nonisolated private static func interpolatedSampleBytes(curve: EstimateCurve, quality: Int) -> Double {
-        let keys = curve.points.keys.sorted()
-        guard let first = keys.first, let last = keys.last else { return 0 }
-        if quality <= first { return Double(curve.points[first] ?? 0) }
-        if quality >= last { return Double(curve.points[last] ?? 0) }
-        var lower = first
-        var upper = last
-        for k in keys {
-            if k <= quality { lower = k }
-            if k >= quality { upper = k; break }
-        }
-        let a = Double(curve.points[lower] ?? 0)
-        let b = Double(curve.points[upper] ?? 0)
-        let f = upper == lower ? 0 : Double(quality - lower) / Double(upper - lower)
-        return a + (b - a) * f
-    }
-
-    /// Sample compression ratio at the given quality (output/input).
-    nonisolated private static func sampleRatio(curve: EstimateCurve, quality: Int) -> Double {
-        guard curve.sampleBytes > 0 else { return 0 }
-        return interpolatedSampleBytes(curve: curve, quality: quality) / Double(curve.sampleBytes)
-    }
-
+    /// "current → ~projected" via the curve's math (HopCore).
     nonisolated private static func interpolated(curve: EstimateCurve, quality: Int) -> String {
-        let sampleOut = interpolatedSampleBytes(curve: curve, quality: quality)
-        guard sampleOut > 0, curve.sampleBytes > 0 else { return sizeText(curve.totalBytes) }
-        let projected = Int64(Double(curve.totalBytes) * sampleOut / Double(curve.sampleBytes))
+        guard let projected = curve.projectedTotal(atQuality: quality) else {
+            return sizeText(curve.totalBytes)
+        }
         return "\(sizeText(curve.totalBytes)) → ~\(sizeText(projected))"
     }
 
     nonisolated static func sizeText(_ bytes: Int64) -> String {
-        // decimal units, exactly like Finder — the number users compare against;
-        // binary MiB read ~5% smaller and made every result look heavier than promised
-        let mb = Double(bytes) / 1_000_000
-        if mb >= 1000 { return String(format: "%.1f GB", mb / 1000) }
-        if mb >= 1 { return String(format: "%.1f MB", mb) }
-        return String(format: "%.0f KB", Double(bytes) / 1000)
+        SizeFormatting.sizeText(bytes)
     }
 
     // MARK: - Mechanics (off the main thread)

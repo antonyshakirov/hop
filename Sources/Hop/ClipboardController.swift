@@ -1,18 +1,15 @@
 import AppKit
 import Foundation
+import HopCore
 
 /// Clipboard history: once a second we compare the NSPasteboard changeCount
 /// (macOS has no clipboard events — every clipboard manager does it this way).
 /// Concealed content (password managers mark it with ConcealedType) is not saved.
+/// The history RULES (dedup, caps) live in HopCore.ClipboardRules with tests;
+/// this controller owns the pasteboard, image files and persistence.
 @MainActor
 final class ClipboardController: ObservableObject {
-    struct Item: Identifiable, Equatable, Codable {
-        let id: UUID
-        let text: String
-        /// PNG file name in the images dir — set for image entries (screenshots
-        /// copied straight to the clipboard); `text` then holds "1280 × 800".
-        var imageFile: String?
-    }
+    typealias Item = ClipboardItem
 
     @Published private(set) var items: [Item] = []
 
@@ -25,9 +22,6 @@ final class ClipboardController: ObservableObject {
     /// how many rows the collapsed clipboard shows (1...10, default 3)
     static let visibleRowsKey = "clipboardVisibleRows"
     static let defaultVisibleRows = 3
-    /// Protection against "accidentally copied a book": every entry is truncated,
-    /// so even a full history weighs next to nothing.
-    static let maxItemLength = 20_000
 
     private var maxItems: Int {
         let stored = UserDefaults.standard.integer(forKey: Self.maxItemsKey)
@@ -130,17 +124,9 @@ final class ClipboardController: ObservableObject {
 
     /// Enforce both caps and delete the files of everything that falls off.
     private func pruneOverflow() {
-        var removed: [Item] = []
-        if items.count > maxItems {
-            removed.append(contentsOf: items.suffix(items.count - maxItems))
-            items = Array(items.prefix(maxItems))
-        }
-        let images = items.filter { $0.imageFile != nil }
-        if images.count > Self.maxImageItems {
-            let excess = Set(images.suffix(images.count - Self.maxImageItems).map(\.id))
-            removed.append(contentsOf: items.filter { excess.contains($0.id) })
-            items.removeAll { excess.contains($0.id) }
-        }
+        let (kept, removed) = ClipboardRules.pruned(
+            items, maxItems: maxItems, maxImageItems: Self.maxImageItems)
+        items = kept
         deleteFiles(of: removed)
     }
 
@@ -153,33 +139,8 @@ final class ClipboardController: ObservableObject {
     }
 
     private func remember(_ raw: String) {
-        // normalization: trailing spaces/newlines used to create "duplicates"
-        let text = String(raw.prefix(Self.maxItemLength))
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        // case-insensitive comparison: dictation changes capitalization retroactively.
-        // image entries never take part in text dedup — their "1280 × 800"
-        // label may collide with genuinely copied text
-        let key = text.lowercased()
-        let firstIsText = items.first?.imageFile == nil
-        guard !text.isEmpty, !(firstIsText && items.first?.text.lowercased() == key) else {
-            if let first = items.first, firstIsText, first.text != text {
-                items[0] = Item(id: first.id, text: text) // update capitalization
-                save()
-            }
-            return
-        }
-
-        // dictation writes growing text: substitute the new version for the old one
-        if let first = items.first, first.imageFile == nil {
-            let firstKey = first.text.lowercased()
-            if key.hasPrefix(firstKey) || firstKey.hasPrefix(key) {
-                items[0] = Item(id: first.id, text: text)
-                save()
-                return
-            }
-        }
-        items.removeAll { $0.imageFile == nil && $0.text.lowercased() == key }
-        items.insert(Item(id: UUID(), text: text), at: 0)
+        guard let updated = ClipboardRules.remembering(raw, in: items) else { return }
+        items = updated
         pruneOverflow()
         save()
     }

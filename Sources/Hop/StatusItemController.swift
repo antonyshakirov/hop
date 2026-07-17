@@ -74,6 +74,8 @@ final class StatusItemController: NSObject {
             }
         }
         model.closePanel = { [weak self] in self?.popover.close() }
+        // the updater treats an open panel as active use and won't relaunch under it
+        model.isPanelOpen = { [weak self] in self?.popover.isShown ?? false }
         model.panelFocusChanged = { [weak self] in self?.maybeReturnFocus() }
         // belt and suspenders: click pings cover most paths, but ANY way Hop
         // becomes the active app while the panel is open (tab switches,
@@ -96,6 +98,8 @@ final class StatusItemController: NSObject {
             forName: NSPopover.willCloseNotification, object: popover, queue: .main
         ) { [weak self] _ in
             Task { @MainActor in
+                // closing the panel starts the idle countdown for the updater
+                self?.model.activity.note()
                 self?.frozenTitleLength = nil
                 self?.frozenBarTimeVisible = nil
                 self?.panelOriginX = nil
@@ -273,8 +277,14 @@ final class StatusItemController: NSObject {
         // padded with spaces to the same length — geometry stays constant,
         // so there is simply nothing to make the panel drift
         frozenTitleLength = button.attributedTitle.string.count
-        frozenBarTimeVisible = !button.attributedTitle.string
-            .trimmingCharacters(in: .whitespaces).isEmpty
+        // Whether the TIMER time was showing — decided from the timer state, NOT
+        // from "is the title non-empty": the torrent glance arrow (↓/↑) also fills
+        // the title, and treating that as "time visible" wrongly surfaced the
+        // countdown while the timer was off, which shifted the panel on open.
+        let showCountdown = UserDefaults.standard
+            .object(forKey: SettingsKey.showMenuBarCountdown) as? Bool ?? true
+        frozenBarTimeVisible = showCountdown
+            && (model.engine.state == .running || model.engine.state == .paused)
         // windows left open (converter mid-batch etc.) come back with the panel:
         // they sink behind other apps and clicking the star is how users return
         model.raiseOpenWindows?()
@@ -284,6 +294,8 @@ final class StatusItemController: NSObject {
 
     private func presentPopover() {
         guard !popover.isShown, let button = statusItem.button else { return }
+        model.activity.note() // opening the panel is active use
+
         // the app that was frontmost before the icon click: we give focus back
         // to it so system dictation/paste go there, not into the panel
         previousApp = NSWorkspace.shared.frontmostApplication
@@ -424,6 +436,15 @@ final class StatusItemController: NSObject {
         // started from the panel must not surface the label until close
         if frozenBarTimeVisible == false {
             title = ""
+        }
+        // Menu-bar torrent glance: ↓ while downloading, ↑ while seeding, so the
+        // user can see at a glance that something is actually transferring. Sits
+        // left of the countdown and stays visible regardless of the timer; the
+        // width-freeze below keeps it from shifting the panel while it's open.
+        switch model.torrent.menuBarActivity {
+        case .downloading: title = "↓" + title
+        case .seeding:     title = "↑" + title
+        case .none:        break
         }
         if let frozen = frozenTitleLength {
             // panel open: the time STAYS visible in the menu bar (Anton,
