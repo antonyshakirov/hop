@@ -256,11 +256,11 @@ enum Snapshot {
                 peersLive: 22, peersSeen: 88, etaSeconds: 130, finished: false,
                 fileProgressBytes: [3_136_250_000]))
 
-        let movie = TorrentFile(index: 0, name: "Big.Buck.Bunny.2008.1080p.mkv", lengthBytes: 1_400_000_000, selected: true)
-        let poster = TorrentFile(index: 1, name: "poster.jpg", lengthBytes: 320_000, selected: true)
+        let iso2 = TorrentFile(index: 0, name: "debian-13.6.0-live-amd64.iso", lengthBytes: 1_400_000_000, selected: true)
+        let sums = TorrentFile(index: 1, name: "SHA256SUMS", lengthBytes: 320_000, selected: true)
         let paused = TorrentController.TorrentItem(
-            id: "2", infoHash: "bb22", name: "Big.Buck.Bunny.2008.1080p",
-            files: [movie, poster], outputFolder: "/tmp",
+            id: "2", infoHash: "bb22", name: "debian-13.6.0-live-amd64",
+            files: [iso2, sums], outputFolder: "/tmp",
             stats: TorrentStats(
                 state: .paused, progressBytes: 630_144_000, totalBytes: 1_400_320_000,
                 uploadedBytes: 12_000_000, downloadBps: 0, uploadBps: 0,
@@ -278,9 +278,9 @@ enum Snapshot {
                 fileProgressBytes: [5_100_000_000]))
 
         var missing = TorrentController.TorrentItem(
-            id: "4", infoHash: "dd44", name: "The.Expanse.S01.1080p",
-            files: [TorrentFile(index: 0, name: "ep1.mkv", lengthBytes: 2_000_000_000, selected: true),
-                    TorrentFile(index: 1, name: "ep2.mkv", lengthBytes: 2_100_000_000, selected: true)],
+            id: "4", infoHash: "dd44", name: "fedora-workstation-42-live",
+            files: [TorrentFile(index: 0, name: "Fedora-Workstation-Live-x86_64-42.iso", lengthBytes: 2_000_000_000, selected: true),
+                    TorrentFile(index: 1, name: "Fedora-Workstation-42-CHECKSUM", lengthBytes: 2_100, selected: true)],
             outputFolder: "/tmp",
             stats: TorrentStats(
                 state: .live, progressBytes: 1_500_000_000, totalBytes: 4_100_000_000,
@@ -294,21 +294,23 @@ enum Snapshot {
     }
 
     /// Demo file list for the `--torrent-addsheet` snapshot: a multi-file
-    /// release (long episode names + a couple of short extras), sizes mixed,
-    /// two files deselected — so the checklist, the select-all/none chips,
-    /// and the free-space math all render without an engine round trip.
+    /// pack (long ISO names + small extras), sizes mixed, two files
+    /// deselected — so the checklist, the select-all/none chips, and the
+    /// free-space math all render without an engine round trip. Content is
+    /// deliberately open-source: torrents ARE the official channel for
+    /// Linux images, and nothing here can read as a pirated release.
     static func demoAddSheetPending() -> (pending: TorrentController.PendingAdd, selected: Set<Int>) {
         let files = [
-            TorrentFile(index: 0, name: "Coastal.Wilds.S01E01.Tidal.Giants.2160p.WEB-DL.DDP5.1.x265.mkv", lengthBytes: 3_650_000_000, selected: true),
-            TorrentFile(index: 1, name: "Coastal.Wilds.S01E02.Reef.Builders.2160p.WEB-DL.DDP5.1.x265.mkv", lengthBytes: 3_540_000_000, selected: true),
-            TorrentFile(index: 2, name: "Coastal.Wilds.S01E03.Storm.Season.2160p.WEB-DL.DDP5.1.x265.mkv", lengthBytes: 3_710_000_000, selected: true),
-            TorrentFile(index: 3, name: "poster.jpg", lengthBytes: 410_000, selected: false),
-            TorrentFile(index: 4, name: "sample.mkv", lengthBytes: 38_000_000, selected: false),
-            TorrentFile(index: 5, name: "subs.srt", lengthBytes: 14_000, selected: true),
+            TorrentFile(index: 0, name: "ubuntu-24.04.1-desktop-amd64.iso", lengthBytes: 6_100_000_000, selected: true),
+            TorrentFile(index: 1, name: "kubuntu-24.04.1-desktop-amd64.iso", lengthBytes: 4_400_000_000, selected: true),
+            TorrentFile(index: 2, name: "xubuntu-24.04.1-desktop-amd64.iso", lengthBytes: 4_100_000_000, selected: true),
+            TorrentFile(index: 3, name: "ubuntu-24.04.1-live-server-amd64.iso", lengthBytes: 2_700_000_000, selected: false),
+            TorrentFile(index: 4, name: "SHA256SUMS", lengthBytes: 1_300, selected: false),
+            TorrentFile(index: 5, name: "README.txt", lengthBytes: 4_200, selected: true),
         ]
         let pending = TorrentController.PendingAdd(
             source: .link("magnet:?xt=urn:btih:demo"),
-            name: "Coastal.Wilds.S01.2160p.WEB-DL.DDP5.1.x265",
+            name: "ubuntu-24.04.1-family-amd64",
             files: files)
         let selected = Set(files.filter { $0.selected }.map { $0.index })
         return (pending, selected)
