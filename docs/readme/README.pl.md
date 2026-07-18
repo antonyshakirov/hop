@@ -92,6 +92,10 @@ niewielki pakiet (~26 MB, z weryfikacją podpisu) i komunikuje się z
 Hopem wyłącznie przez lokalny port. Hop może też zostać domyślną
 aplikacją dla plików .torrent i linków magnet.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrenty Hop — lekki klient BitTorrent w panelu na pasku menu">
+</div>
+
 ### I cała reszta
 
 Wbudowany test prędkości (networkQuality od Apple), ciemny i jasny motyw

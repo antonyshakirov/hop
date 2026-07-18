@@ -89,6 +89,10 @@ download (~26 MB, met geverifieerde handtekening) die alleen via een lokale
 poort met Hop praat. Hop kan ook de standaardapp worden voor
 .torrent-bestanden en magnet-links.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop-torrents — lichte BitTorrent-client in het menubalkpaneel">
+</div>
+
 ### En de rest
 
 Ingebouwde snelheidstest (Apples networkQuality), donkere en lichte thema's

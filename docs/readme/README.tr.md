@@ -90,6 +90,10 @@ port üzerinden konuşan küçük ve ayrı bir indirme (~26 MB, imzası
 doğrulanmış) olarak alınır. Hop ayrıca .torrent dosyaları ve magnet
 bağlantıları için varsayılan uygulama olabilir.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop torrentleri — menü çubuğu panelinde hafif BitTorrent istemcisi">
+</div>
+
 ### Ve gerisi
 
 Yerleşik hız testi (Apple'ın networkQuality aracı), film greni dokulu

@@ -91,6 +91,10 @@ paquete aparte (~26 MB, con firma verificada) que solo se comunica con Hop a
 través de un puerto local. Hop también puede convertirse en la app por
 defecto para archivos .torrent y enlaces magnet.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/torrents.png" width="420" alt="Torrents de Hop — cliente BitTorrent ligero en el panel de la barra de menús">
+</div>
+
 ### Y todo lo demás
 
 Test de velocidad integrado (networkQuality de Apple), temas oscuro y claro

@@ -89,6 +89,10 @@ kleiner separater Download (~26 MB, signaturgeprüft) geholt, die nur über
 einen lokalen Port mit Hop spricht. Hop kann außerdem zur Standard-App für
 .torrent-Dateien und magnet-Links werden.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/torrents.png" width="420" alt="Hop-Torrents — leichter BitTorrent-Client im Menüleisten-Panel">
+</div>
+
 ### Und der Rest
 
 Eingebauter Speedtest (Apples networkQuality), dunkles und helles Design mit

@@ -88,6 +88,10 @@ motor de código aberto é baixado como um pequeno pacote separado (~26 MB,
 com assinatura verificada) que só conversa com o Hop por uma porta local. O
 Hop também pode virar o app padrão para arquivos .torrent e links magnet.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/torrents.png" width="420" alt="Torrents do Hop — cliente BitTorrent leve no painel da barra de menus">
+</div>
+
 ### E o resto
 
 Teste de velocidade integrado (networkQuality da Apple), temas escuro e

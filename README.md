@@ -83,6 +83,10 @@ a small separate download (~26 MB, signature-verified) that talks only to
 Hop over a local port. Hop can also become the default app for .torrent
 files and magnet links.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop torrents — lite BitTorrent client in the menu bar panel">
+</div>
+
 ### And the rest
 
 Built-in speed test (Apple's networkQuality), dark and light themes with a

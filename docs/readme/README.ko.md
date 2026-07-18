@@ -87,6 +87,10 @@ magnet 링크를 붙여넣고, 내려받을 파일을 정확히 골라 보세요
 검증)로 받아 오고, 이 엔진은 로컬 포트로만 Hop과 통신합니다. Hop을
 .torrent 파일과 magnet 링크의 기본 앱으로 지정할 수도 있습니다.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop 토렌트 — 메뉴 막대 패널의 가벼운 BitTorrent 클라이언트">
+</div>
+
 ### 그 밖에
 
 내장 속도 측정(Apple의 networkQuality), 필름 그레인 질감의 다크·라이트

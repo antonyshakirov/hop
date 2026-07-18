@@ -88,6 +88,10 @@ JPEG, PNG, HEIC, AVIF и WebP; сжатие PDF; уменьшение видео
 Hop только через локальный порт. Hop также может стать приложением по
 умолчанию для файлов .torrent и magnet-ссылок.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ru/torrents.png" width="420" alt="Торренты Hop — лёгкий BitTorrent-клиент в панели в строке меню">
+</div>
+
 ### И остальное
 
 Встроенный тест скорости (networkQuality от Apple), тёмная и светлая

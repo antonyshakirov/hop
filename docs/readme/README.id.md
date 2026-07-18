@@ -87,6 +87,10 @@ saat diaktifkan, mesin open source diunduh sebagai paket kecil terpisah
 Hop lewat port lokal. Hop juga bisa menjadi aplikasi bawaan untuk file
 .torrent dan tautan magnet.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrent Hop — klien BitTorrent ringan di panel menu bar">
+</div>
+
 ### Dan selebihnya
 
 Tes kecepatan bawaan (networkQuality dari Apple), tema gelap dan terang

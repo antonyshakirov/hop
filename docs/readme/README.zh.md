@@ -80,6 +80,10 @@ HEIC、AVIF 和 WebP；压缩 PDF；HEVC 视频瘦身，转换前就能看到
 端口与 Hop 通信。Hop 还可以成为 .torrent 文件和 magnet 链接的
 默认应用。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/torrents.png" width="420" alt="Hop 种子下载 — 菜单栏面板中的轻量 BT 客户端">
+</div>
+
 ### 其他
 
 内置测速（Apple 的 networkQuality）、带胶片颗粒质感的深浅两套主题、
