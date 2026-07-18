@@ -438,4 +438,39 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertTrue(engine.data.corrections.isEmpty)
         XCTAssertEqual(changeCount, 0)
     }
+
+    func testSetTodayReachesTargetEvenWhenRawTodaySumIsNegative() {
+        // today() display-clamps at 0, but the delta must be computed against
+        // the raw (unclamped) sum, or a heavily over-corrected task can never
+        // be brought back up to a positive target in one edit.
+        let projectID = UUID()
+        let taskID = UUID()
+        clock = date(2026, 7, 17, 12, 0)
+        engine = TrackerEngine(data: TrackerData(
+            projects: [TrackerProject(id: projectID, name: "Hop")],
+            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            intervals: [],
+            corrections: [TrackerCorrection(taskID: taskID, day: date(2026, 7, 17, 0, 0), seconds: -10 * 3600)]
+        ), now: { self.clock }, calendar: calendar)
+        XCTAssertEqual(engine.today(taskID: taskID), 0) // raw sum is -10h, clamped for display
+
+        let result = engine.setToday(taskID: taskID, to: 600)
+
+        XCTAssertTrue(result)
+        XCTAssertEqual(engine.today(taskID: taskID), 600)
+    }
+
+    func testSetTodayOnIdleTaskSucceedsWhileADifferentTaskIsActive() {
+        let projectID = engine.addProject(name: "Hop")
+        let taskA = engine.addTask(projectID: projectID, name: "A")
+        let taskB = engine.addTask(projectID: projectID, name: "B")
+        engine.start(taskID: taskA)
+
+        let result = engine.setToday(taskID: taskB, to: 10 * 60)
+
+        XCTAssertTrue(result)
+        XCTAssertEqual(engine.data.corrections.count, 1)
+        XCTAssertEqual(engine.data.corrections.first?.taskID, taskB)
+        XCTAssertEqual(engine.today(taskID: taskB), 10 * 60)
+    }
 }

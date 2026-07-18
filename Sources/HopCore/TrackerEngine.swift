@@ -105,7 +105,10 @@ public final class TrackerEngine: ObservableObject {
     public func setToday(taskID: UUID, to seconds: TimeInterval) -> Bool {
         guard activeTaskID != taskID else { return false }
         let target = max(0, seconds)
-        let delta = target - today(taskID: taskID)
+        // Diff against the raw (unclamped) sum, not the display-clamped today():
+        // if the raw sum is already negative, diffing against 0 would under-shoot
+        // and the edit could never reach a positive target in one correction.
+        let delta = target - rawToday(taskID: taskID)
         let startOfToday = calendar.startOfDay(for: now())
         data.corrections.append(TrackerCorrection(taskID: taskID, day: startOfToday, seconds: delta))
         onChange?()
@@ -129,6 +132,13 @@ public final class TrackerEngine: ObservableObject {
     /// Intervals clipped to `[startOfToday, now]` at query time — never
     /// physically split — plus corrections logged for today. Never negative.
     public func today(taskID: UUID) -> TimeInterval {
+        max(0, rawToday(taskID: taskID))
+    }
+
+    /// Same sum as `today(taskID:)`, without the display clamp — lets callers
+    /// that need to compute a diff (e.g. `setToday`) work against the true
+    /// underlying value even when it has gone negative.
+    private func rawToday(taskID: UUID) -> TimeInterval {
         let nowDate = now()
         let startOfToday = calendar.startOfDay(for: nowDate)
         let intervalsSum = data.intervals
@@ -137,7 +147,7 @@ public final class TrackerEngine: ObservableObject {
         let correctionsSum = data.corrections
             .filter { $0.taskID == taskID && calendar.isDate($0.day, inSameDayAs: startOfToday) }
             .reduce(0) { $0 + $1.seconds }
-        return max(0, intervalsSum + correctionsSum)
+        return intervalsSum + correctionsSum
     }
 
     /// Sums `total(taskID:)` (already clamped at 0) across the project's tasks.
