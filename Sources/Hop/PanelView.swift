@@ -477,13 +477,13 @@ struct PanelView: View {
                     // modules, with equal space above and below
                     ForEach(Array(modules.enumerated()), id: \.element) { index, key in
                         if index == 0 {
-                            moduleContent(key)
+                            moduleBlock(key, in: id)
                         } else {
                             VStack(spacing: 16) {
                                 Rectangle()
                                     .fill(Theme.divider)
                                     .frame(height: 1)
-                                moduleContent(key)
+                                moduleBlock(key, in: id)
                             }
                         }
                     }
@@ -1508,6 +1508,7 @@ struct PanelView: View {
                     if on { model.torrent.prefetchEngineIfNeeded() }
                 }
             )
+        case "system": return $showSystemModule
         default: return $showWindowsModule
         }
     }
@@ -1544,6 +1545,30 @@ struct PanelView: View {
             StatsView(stats: model.stats, lang: lang)
                 .id(model.themeVersion)
         default: EmptyView()
+        }
+    }
+
+    /// A panel module wrapped with its right-click "move to …" menu, one item
+    /// per OTHER tab. The wrap lives on the module container, so a module's own
+    /// inner context menus/gestures win locally. With a single tab there is
+    /// nowhere to move to, so the menu is omitted rather than shown empty.
+    @ViewBuilder private func moduleBlock(_ key: String, in tabID: UUID) -> some View {
+        let others = tabsModel.tabs.enumerated().filter { $0.element.id != tabID }
+        if others.isEmpty {
+            moduleContent(key)
+        } else {
+            moduleContent(key)
+                .contextMenu {
+                    Menu(t(.moduleMoveTo).capitalizedFirst) {
+                        ForEach(others, id: \.element.id) { index, tab in
+                            Button {
+                                mutateTabs { $0.move(module: key, toTab: tab.id) }
+                            } label: {
+                                Label("#\(index + 1)", systemImage: tab.icon)
+                            }
+                        }
+                    }
+                }
         }
     }
 
@@ -2040,6 +2065,68 @@ struct PanelView: View {
 
     private static let moduleRowHeight: CGFloat = 30
 
+    /// One row of the settings module list: either a tab header (icon + "#N",
+    /// not draggable) or a module row. All rows share `moduleRowHeight`, so a
+    /// pixel offset maps to a whole number of rows and the drag math stays
+    /// uniform whether it steps over a header or a module.
+    private enum ModuleListRow: Identifiable {
+        case header(tab: PanelTab, number: Int)
+        case module(key: String)
+
+        var id: String {
+            switch self {
+            case .header(let tab, _): return "h-\(tab.id.uuidString)"
+            case .module(let key): return "m-\(key)"
+            }
+        }
+
+        func isModule(_ key: String) -> Bool {
+            if case .module(let k) = self { return k == key }
+            return false
+        }
+    }
+
+    /// The module list grouped by tab: each tab contributes a header followed
+    /// by its module rows. "tracker" is skipped — it ships next task and a
+    /// toggle for an invisible module would only confuse.
+    private var moduleListRows: [ModuleListRow] {
+        var rows: [ModuleListRow] = []
+        for (index, tab) in tabsModel.tabs.enumerated() {
+            rows.append(.header(tab: tab, number: index + 1))
+            for key in tab.moduleKeys where key != "tracker" {
+                rows.append(.module(key: key))
+            }
+        }
+        return rows
+    }
+
+    @ViewBuilder private func moduleListRowView(_ row: ModuleListRow, index: Int) -> some View {
+        switch row {
+        case .header(let tab, let number):
+            moduleHeaderRow(tab: tab, number: number, index: index)
+        case .module(let key):
+            draggableModuleRow(key, index: index)
+        }
+    }
+
+    /// Tab header: the tab's icon and its 1-based position, tertiary. It slides
+    /// with the reorder gap like any row, but carries no drag gesture or toggle.
+    private func moduleHeaderRow(tab: PanelTab, number: Int, index: Int) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: tab.icon)
+                .font(.system(size: 11))
+                .frame(width: 14, alignment: .leading)
+            Text("#\(number)")
+                .font(Theme.mono(11))
+            Spacer()
+        }
+        .foregroundStyle(Theme.textTertiary)
+        .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 2))
+        .frame(height: Self.moduleRowHeight)
+        .offset(y: moduleRowShift(index))
+        .animation(.easeInOut(duration: 0.15), value: moduleRowShift(index))
+    }
+
     /// Module row wired for reordering: fixed height (drag math relies on
     /// it), neighbors shift out of the way live, the dragged row tracks the
     /// pointer without animation so it never lags behind the hand.
@@ -2057,10 +2144,16 @@ struct PanelView: View {
             .gesture(moduleDragGesture(key))
     }
 
+    /// Display index of the module currently being dragged, or nil.
+    private func draggedModuleIndex() -> Int? {
+        guard let key = dragModuleKey else { return nil }
+        return moduleListRows.firstIndex { $0.isModule(key) }
+    }
+
     /// How far a resting row steps aside to open a gap at the drop target.
+    /// `index` is the display index across the flat header+module list.
     private func moduleRowShift(_ index: Int) -> CGFloat {
-        guard let key = dragModuleKey,
-              let from = moduleOrder.firstIndex(of: key),
+        guard let from = draggedModuleIndex(),
               let target = dragModuleTarget, index != from else { return 0 }
         if from < index, target >= index { return -Self.moduleRowHeight }
         if from > index, target <= index { return Self.moduleRowHeight }
@@ -2070,35 +2163,60 @@ struct PanelView: View {
     private func moduleDragGesture(_ key: String) -> some Gesture {
         DragGesture(minimumDistance: 3)
             .onChanged { value in
-                let order = moduleOrder
-                guard let from = order.firstIndex(of: key) else { return }
+                let rows = moduleListRows
+                guard let from = rows.firstIndex(where: { $0.isModule(key) }) else { return }
                 if dragModuleKey == nil {
                     dragModuleKey = key
                     dragModuleTarget = from
                 }
                 dragModuleOffset = value.translation.height
                 let steps = Int((value.translation.height / Self.moduleRowHeight).rounded())
-                let target = min(max(from + steps, 0), order.count - 1)
+                // index 0 is always tab 1's header — never a valid drop slot, so
+                // clamp the low end to 1 ("position 0 of tab 1"), not 0.
+                let target = min(max(from + steps, 1), rows.count - 1)
                 if target != dragModuleTarget {
                     dragModuleTarget = target
                     Sounds.scrubTick()
                 }
             }
             .onEnded { _ in
-                var order = moduleOrder
-                if let from = order.firstIndex(of: key),
-                   let target = dragModuleTarget, target != from {
-                    order.insert(order.remove(at: from), at: target)
-                }
+                let rows = moduleListRows
                 // the visual offset nearly equals the committed displacement,
                 // so the settle is a short glide, not a jump
                 withAnimation(.easeInOut(duration: 0.15)) {
-                    moduleOrderRaw = order.joined(separator: ",")
+                    if let from = rows.firstIndex(where: { $0.isModule(key) }),
+                       let target = dragModuleTarget, target != from {
+                        applyModuleDrop(key: key, from: from, to: target, rows: rows)
+                    }
                     dragModuleKey = nil
                     dragModuleTarget = nil
                     dragModuleOffset = 0
                 }
             }
+    }
+
+    /// Translates a display-list drop (module `key` from display index `from` to
+    /// `to`) into a `(tab, position)` move on the tabs model. The module's new
+    /// tab is the nearest header above its landing slot; its position is the
+    /// count of module rows between that header and the slot. `move` re-homes it,
+    /// `reorder` places it — a same-tab drop collapses to a plain reorder.
+    private func applyModuleDrop(key: String, from: Int, to: Int, rows: [ModuleListRow]) {
+        var arranged = rows
+        arranged.insert(arranged.remove(at: from), at: to)
+        guard let landed = arranged.firstIndex(where: { $0.isModule(key) }) else { return }
+        var destTab: UUID?
+        var position = 0
+        var i = landed - 1
+        while i >= 0 {
+            if case .header(let tab, _) = arranged[i] { destTab = tab.id; break }
+            position += 1
+            i -= 1
+        }
+        guard let destTab else { return }
+        mutateTabs {
+            $0.move(module: key, toTab: destTab)
+            $0.reorder(module: key, inTab: destTab, to: position)
+        }
     }
 
     /// Module row: burger handle (drag anywhere on the row), name, toggle.
@@ -2196,8 +2314,8 @@ struct PanelView: View {
                 // the pointer semi-transparent. Plain VStack also renders in
                 // snapshots, where List (NSTableView) doesn't.
                 VStack(spacing: 0) {
-                    ForEach(Array(moduleOrder.enumerated()), id: \.element) { index, key in
-                        draggableModuleRow(key, index: index)
+                    ForEach(Array(moduleListRows.enumerated()), id: \.element.id) { index, row in
+                        moduleListRowView(row, index: index)
                     }
                 }
             }

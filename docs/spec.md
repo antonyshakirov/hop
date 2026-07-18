@@ -56,15 +56,24 @@ signing would break).
 
 ## Modules
 
-The main screen is a stack of modules in user-defined order (drag to
-reorder in the "general" settings tab). Reordering is a hand-rolled drag,
-not List.onMove: the system drop indicator (line + leading dot) can't be
-styled and its dot clipped at the panel insets. Rows part to open a gap
-at the target; the dragged row follows the pointer semi-transparent and
-settles with a short glide. All modules can be hidden;
-visibility toggles live ONLY in "general" (do not duplicate them in module
-settings). The divider between modules sits exactly in the middle:
-top inset = bottom inset = 16pt.
+The main screen shows the modules of the selected space (tab) as a stack,
+in the order the user set. Every module lives in exactly one space. The
+"general" settings tab lists all modules grouped by space: a header row
+(the space's icon and "#N", not draggable) followed by that space's module
+rows. A hand-rolled drag reorders within a space or, dragged across a
+header boundary, moves a module into another space; the first display row
+is a header, so a module can't be dropped above it — the top clamps to the
+first slot of space 1. Every row (headers included) shares one fixed height
+so a pixel offset maps to a whole number of rows. A module can also be
+re-homed from the panel: right-click it and pick a target under "move to"
+(one item per other space; omitted entirely when there is only one space).
+Reordering is a hand-rolled drag, not List.onMove: the system drop
+indicator (line + leading dot) can't be styled and its dot clipped at the
+panel insets. Rows part to open a gap at the target; the dragged row
+follows the pointer semi-transparent and settles with a short glide. All
+modules can be hidden; visibility toggles live ONLY in "general" (do not
+duplicate them in module settings). The divider between modules sits
+exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Timer
 
