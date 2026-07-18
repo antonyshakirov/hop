@@ -6,6 +6,8 @@ enum SettingsKey {
     static let appLanguage = "appLanguage" // "auto" or an AppLanguage code
     /// Red "!" on the left of the icon when the monitor hits the red zone; off by default.
     static let menuBarRedAlert = "menuBarRedAlert"
+    /// JSON-encoded PanelTabsModel: the user's spaces (icon tabs) and their module keys.
+    static let panelTabs = "panelTabs"
 }
 
 /// Highlight thresholds for the system tab: at which value yellow and red kick in.

@@ -90,6 +90,7 @@ struct PanelView: View {
     // via allModules; torrent stays last (opt-in), same mechanism, listed here
     // for an explicit new-user order.
     @AppStorage("moduleOrder") private var moduleOrderRaw = "timer,awake,clipboard,convert,windows,speedtest,torrent"
+    @AppStorage(SettingsKey.panelTabs) private var panelTabsRaw = ""
     @AppStorage("windowsLayout") private var windowsLayout = "grid" // grid | row
 
     @AppStorage("monitorColorful") private var monitorColorful = false
@@ -1198,6 +1199,22 @@ struct PanelView: View {
             order.append(key)
         }
         return order
+    }
+
+    /// Current spaces model: stored JSON if valid, otherwise migrated from the
+    /// legacy flat module order. New module keys are appended on the fly so an
+    /// app update never loses a module.
+    private var tabsModel: PanelTabsModel {
+        var model = PanelTabsModel.decode(panelTabsRaw)
+            ?? PanelTabsModel.migrate(moduleOrder: moduleOrder)
+        model.ensure(modules: Self.allModules + ["system", "tracker"])
+        return model
+    }
+
+    private func mutateTabs(_ body: (inout PanelTabsModel) -> Void) {
+        var model = tabsModel
+        body(&model)
+        panelTabsRaw = model.encoded()
     }
 
     private var visibleModules: [String] {
