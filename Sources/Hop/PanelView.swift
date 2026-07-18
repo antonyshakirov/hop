@@ -266,6 +266,7 @@ struct PanelView: View {
         .onReceive(model.$openTab) { target in
             guard let target else { return }
             overlayReturnScreen = nil
+            iconPickerTabID = nil
             let resolved = Self.resolve(target)
             screen = resolved
             if case .space(let id) = resolved { activeSpaceRaw = id.uuidString }
@@ -531,6 +532,11 @@ struct PanelView: View {
         }
         .onDisappear {
             model.panelKeyboardCaptured = false
+            // A normal left-click / hotkey reopen does not fire the openTab
+            // handler (openTab stays nil), and @State survives the popover
+            // hide/show — so clear the picker here too, or the panel comes
+            // back stuck on the icon grid instead of the space.
+            iconPickerTabID = nil
         }
     }
 
