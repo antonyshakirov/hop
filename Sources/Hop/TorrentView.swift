@@ -280,6 +280,12 @@ struct TorrentView: View {
         let finished = stats?.finished ?? false
         let paused = item.optimisticPaused ?? (item.pausedByPolicy || stats?.state == .paused)
         let errored = stats?.state == .error
+        // The download glyph lights up only while bytes are ACTUALLY flowing
+        // (Anton, 2026-07-18): white when live and receiving, gray when paused,
+        // stalled (no peers) or not started yet — the color answers "is it
+        // downloading right now?" at a glance.
+        let downloadingNow = !paused && !finished && !errored && !item.filesMissing
+            && stats?.state == .live && (stats?.downloadBps ?? 0) > 0
         return VStack(spacing: 4) {
             // Line 1: status glyph, name, tight action cluster.
             HStack(spacing: 6) {
@@ -292,7 +298,8 @@ struct TorrentView: View {
                                     : (finished ? "checkmark.circle.fill" : "arrow.down.circle")))
                         .font(.system(size: 12))
                         .foregroundStyle(item.filesMissing || errored ? Theme.accentRed
-                                       : (finished ? Theme.accentGreen : Theme.textSecondary))
+                                       : (finished ? Theme.accentGreen
+                                       : (downloadingNow ? Theme.textPrimary : Theme.textSecondary)))
                     Text(shortName(item.name))
                         .font(Theme.mono(11))
                         .foregroundStyle(Theme.listText)
