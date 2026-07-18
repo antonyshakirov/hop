@@ -96,4 +96,58 @@ public final class TrackerEngine: ObservableObject {
         guard let index = data.intervals.firstIndex(where: { $0.end == nil }) else { return }
         data.intervals[index].end = now()
     }
+
+    // MARK: - Aggregates
+
+    /// Every closed interval in full, the open interval up to `now`, plus
+    /// every correction ever recorded for the task. Never negative.
+    public func total(taskID: UUID) -> TimeInterval {
+        let intervalsSum = data.intervals
+            .filter { $0.taskID == taskID }
+            .reduce(0) { $0 + duration(of: $1) }
+        let correctionsSum = data.corrections
+            .filter { $0.taskID == taskID }
+            .reduce(0) { $0 + $1.seconds }
+        return max(0, intervalsSum + correctionsSum)
+    }
+
+    /// Intervals clipped to `[startOfToday, now]` at query time — never
+    /// physically split — plus corrections logged for today. Never negative.
+    public func today(taskID: UUID) -> TimeInterval {
+        let nowDate = now()
+        let startOfToday = calendar.startOfDay(for: nowDate)
+        let intervalsSum = data.intervals
+            .filter { $0.taskID == taskID }
+            .reduce(0) { $0 + clippedDuration(of: $1, from: startOfToday, to: nowDate) }
+        let correctionsSum = data.corrections
+            .filter { $0.taskID == taskID && calendar.isDate($0.day, inSameDayAs: startOfToday) }
+            .reduce(0) { $0 + $1.seconds }
+        return max(0, intervalsSum + correctionsSum)
+    }
+
+    /// Sums `total(taskID:)` (already clamped at 0) across the project's tasks.
+    public func total(projectID: UUID) -> TimeInterval {
+        data.tasks
+            .filter { $0.projectID == projectID }
+            .reduce(0) { $0 + total(taskID: $1.id) }
+    }
+
+    /// Sums `today(taskID:)` (already clamped at 0) across the project's tasks.
+    public func today(projectID: UUID) -> TimeInterval {
+        data.tasks
+            .filter { $0.projectID == projectID }
+            .reduce(0) { $0 + today(taskID: $1.id) }
+    }
+
+    private func duration(of interval: TrackerInterval) -> TimeInterval {
+        let end = interval.end ?? now()
+        return max(0, end.timeIntervalSince(interval.start))
+    }
+
+    private func clippedDuration(of interval: TrackerInterval, from rangeStart: Date, to rangeEnd: Date) -> TimeInterval {
+        let end = interval.end ?? now()
+        let clippedStart = max(interval.start, rangeStart)
+        let clippedEnd = min(end, rangeEnd)
+        return max(0, clippedEnd.timeIntervalSince(clippedStart))
+    }
 }
