@@ -43,7 +43,10 @@ struct PanelView: View {
     @State private var scrubBaseDuration: TimeInterval?
     @State private var scrubUnit: TimeInterval?
     @State private var launchAtLogin = false
-    @State private var aboutSection = "general"
+    // "--news" opens the what's-new section directly in a `--window-about`
+    // snapshot, so the release-notes design can be reviewed as a picture.
+    @State private var aboutSection =
+        Snapshot.active && CommandLine.arguments.contains("--news") ? "news" : "general"
     @State private var settingsSection = "general"
     @State private var editUnit: TimeInterval? // digit group being edited (3600/60/1)
     @State private var languageMenuTarget: MenuPickTarget?
@@ -77,8 +80,12 @@ struct PanelView: View {
     @AppStorage(TorrentController.showWhenEmptyKey) private var torrentShowWhenEmpty = true
     /// "What's new" banner: dismissed once the user saves their choice.
     @AppStorage("featureSeen.torrent") private var torrentFeatureSeen = false
-    @State private var bannerShowHere = true       // banner toggle: show module in panel
-    @State private var bannerMakeDefault = false   // banner toggle: make Hop default handler
+    // Two-step "what's new" card: step 1 = opt-in (enable/hide), step 2 = the
+    // follow-up toggles while the engine fetches in the background.
+    // "--feature-banner-step2" renders step 2 directly for design review.
+    @State private var bannerEnabled =
+        Snapshot.active && CommandLine.arguments.contains("--feature-banner-step2")
+    @State private var bannerMakeDefault = false   // step-2 toggle: make Hop default handler
     // speedtest was never in this default string either — it appends
     // via allModules; torrent stays last (opt-in), same mechanism, listed here
     // for an explicit new-user order.
@@ -253,21 +260,31 @@ struct PanelView: View {
     /// snapshot it's forced on by `--feature-banner` so the design can be reviewed.
     private var pendingAnnouncement: FeatureAnnouncement? {
         if Snapshot.active {
-            return CommandLine.arguments.contains("--feature-banner")
-                ? Self.featureAnnouncements.first : nil
+            let wantsBanner = CommandLine.arguments.contains("--feature-banner")
+                || CommandLine.arguments.contains("--feature-banner-step2")
+            return wantsBanner ? Self.featureAnnouncements.first : nil
         }
         return torrentFeatureSeen ? nil : Self.featureAnnouncements.first
     }
 
+    /// Two-step announcement (Anton, 2026-07-18). Updaters got the module OFF and
+    /// need a real opt-in, not just a visibility toggle:
+    ///  step 1 — "new · torrents" + description + the honest cost ("enabling
+    ///           downloads the engine, ~26 MB") with [enable] / [hide];
+    ///  step 2 — enable starts the background engine fetch and the SAME card
+    ///           swaps to the follow-up settings: show-when-empty and
+    ///           default-handler toggles + save.
     @ViewBuilder private var featureBanner: some View {
         if let ann = pendingAnnouncement {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 0) {
+                // "new · <feature>" in ONE type size — the badge used to be two
+                // points smaller and read as detached from the feature name.
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles")
-                        .font(.system(size: 10))
+                        .font(.system(size: 11))
                         .foregroundStyle(Theme.accentGreen)
                     Text(t(.featureNewBadge))
-                        .font(Theme.mono(9, weight: .bold))
+                        .font(Theme.mono(11, weight: .semibold))
                         .foregroundStyle(Theme.accentGreen)
                     Text("·").foregroundStyle(Theme.textTertiary)
                     Text(t(ann.title))
@@ -275,42 +292,10 @@ struct PanelView: View {
                         .foregroundStyle(Theme.textPrimary)
                     Spacer(minLength: 0)
                 }
-                Text(t(ann.body))
-                    .font(Theme.mono(10))
-                    .foregroundStyle(Theme.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                // Two settings toggles surfaced inline — the user confirms them and
-                // saves. Any choice IS the action, so there is no separate "hide":
-                // to not show the module, turn "show here" off and save.
-                HStack {
-                    Text(t(.featureShowHere))
-                        .font(Theme.mono(10))
-                        .foregroundStyle(Theme.textSecondary)
-                    Spacer(minLength: 0)
-                    Theme.MiniSwitch(isOn: $bannerShowHere)
-                }
-                HStack {
-                    Text(t(.torrentMakeDefault))
-                        .font(Theme.mono(10))
-                        .foregroundStyle(Theme.textSecondary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    Spacer(minLength: 0)
-                    Theme.MiniSwitch(isOn: $bannerMakeDefault)
-                }
-                HStack(spacing: 0) {
-                    Spacer(minLength: 0)
-                    Button { saveAnnouncement(ann) } label: {
-                        Text(t(.featureSave))
-                            .font(Theme.mono(10, weight: .bold))
-                            .foregroundStyle(Theme.playFg)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 6)
-                            .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .hoverDim()
+                if bannerEnabled {
+                    bannerFollowUp(ann)
+                } else {
+                    bannerOptIn(ann)
                 }
             }
             .padding(12)
@@ -321,8 +306,114 @@ struct PanelView: View {
         }
     }
 
+    /// Step 1: the pitch, the price, and the decision.
+    @ViewBuilder private func bannerOptIn(_ ann: FeatureAnnouncement) -> some View {
+        Text(t(ann.body))
+            .font(Theme.mono(10))
+            .foregroundStyle(Theme.textSecondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 5)
+        // Honest cost of saying yes — BEFORE the choice, not after.
+        Text(t(.torrentEngineNote))
+            .font(Theme.mono(9))
+            .foregroundStyle(Theme.textTertiary)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 3)
+        HStack(spacing: 14) {
+            Spacer(minLength: 0)
+            Button {
+                UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
+                torrentFeatureSeen = true   // module stays off, banner drops away
+            } label: {
+                HoverLabel(text: t(.featureHide), size: 10, color: Theme.textTertiary)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            Button {
+                UserDefaults.standard.set(true, forKey: ann.moduleKey)
+                // Opting in = fetch the engine NOW (background), so the first
+                // real download doesn't stall behind a surprise 26 MB install.
+                model.torrent.prefetchEngineIfNeeded()
+                bannerEnabled = true        // same card swaps to follow-up settings
+            } label: {
+                Text(t(.featureEnable))
+                    .font(Theme.mono(10, weight: .bold))
+                    .foregroundStyle(Theme.playFg)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+                    .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
+        }
+        .padding(.top, 12)
+    }
+
+    /// Step 2: the engine is fetching in the background; the card becomes the
+    /// module's two follow-up choices.
+    @ViewBuilder private func bannerFollowUp(_ ann: FeatureAnnouncement) -> some View {
+        // Live engine progress while it downloads; silent once installed.
+        if let progress = bannerEngineProgress {
+            Text(progress)
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+                .padding(.top, 5)
+        }
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(t(.torrentShowWhenEmpty))
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                Theme.MiniSwitch(isOn: $torrentShowWhenEmpty)
+            }
+            HStack {
+                Text(t(.torrentMakeDefault))
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                Theme.MiniSwitch(isOn: $bannerMakeDefault)
+            }
+        }
+        .padding(.top, 14)
+        HStack(spacing: 0) {
+            Spacer(minLength: 0)
+            Button { saveAnnouncement(ann) } label: {
+                Text(t(.featureSave))
+                    .font(Theme.mono(10, weight: .bold))
+                    .foregroundStyle(Theme.playFg)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+                    .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
+        }
+        .padding(.top, 12)
+    }
+
+    /// One dim line of engine-install progress for the banner's step 2, nil once
+    /// the engine is in place. The snapshot variant fakes mid-download so the
+    /// state can be design-reviewed.
+    private var bannerEngineProgress: String? {
+        if Snapshot.active, CommandLine.arguments.contains("--feature-banner-step2") {
+            return "\(t(.torrentGetting)) · 26 MB · 45%"
+        }
+        switch model.torrent.installer.state {
+        case .downloading(let p):
+            return "\(t(.torrentGetting)) · \(Int(p * 100))%"
+        case .verifying:
+            return t(.torrentVerifying)
+        default:
+            return nil
+        }
+    }
+
     private func saveAnnouncement(_ ann: FeatureAnnouncement) {
-        UserDefaults.standard.set(bannerShowHere, forKey: ann.moduleKey)
         if bannerMakeDefault { makeHopDefaultForTorrent() }
         UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
         torrentFeatureSeen = true   // re-render: the banner drops away
@@ -1142,7 +1233,16 @@ struct PanelView: View {
         case "clipboard": return $showClipboardModule
         case "convert": return $showConvertModule
         case "speedtest": return $showSpeedtestModule
-        case "torrent": return $showTorrentModule
+        case "torrent":
+            // Turning the module ON in settings also opts into torrents:
+            // fetch the engine right away (same as the banner/onboarding path).
+            return Binding(
+                get: { showTorrentModule },
+                set: { on in
+                    showTorrentModule = on
+                    if on { model.torrent.prefetchEngineIfNeeded() }
+                }
+            )
         default: return $showWindowsModule
         }
     }

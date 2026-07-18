@@ -117,12 +117,20 @@ struct OnboardingView: View {
                     Spacer()
                     Theme.MiniSwitch(isOn: $showWindowsModule)
                 }
-                HStack {
-                    Text(t(.showTorrentLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $enableTorrent)
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack {
+                        Text(t(.showTorrentLabel))
+                            .font(Theme.mono(12))
+                            .foregroundStyle(Theme.textPrimary)
+                        Spacer()
+                        Theme.MiniSwitch(isOn: $enableTorrent)
+                    }
+                    // The one module with a real extra cost: a one-time separate
+                    // engine download — say so before the choice, not after.
+                    Text(t(.torrentEngineNote))
+                        .font(Theme.mono(9))
+                        .foregroundStyle(Theme.textTertiary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             .padding(.vertical, 6)

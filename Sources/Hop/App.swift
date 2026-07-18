@@ -526,6 +526,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.onboardingWindow?.close()
             self?.onboardingWindow = nil
             self?.applyAppTheme() // theme picked in onboarding applies everywhere immediately
+            // Torrents enabled in onboarding = fetch the engine right away, in the
+            // background — the module is ready before its first real download.
+            if UserDefaults.standard.bool(forKey: "showTorrentModule") {
+                self?.model.torrent.prefetchEngineIfNeeded()
+            }
         })
         window.center()
         onboardingWindow = window

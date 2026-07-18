@@ -116,6 +116,20 @@ final class TorrentController: ObservableObject {
         try await task.value
     }
 
+    /// Download the engine the moment the user opts INTO torrents — from the
+    /// what's-new banner, onboarding or the settings toggle — instead of at
+    /// first use. By the time something urgent needs downloading, the engine
+    /// is already in place; the in-module enable card stays as the fallback
+    /// (and the retry path if this background fetch fails).
+    func prefetchEngineIfNeeded() {
+        guard installer.installedBinaryURL() == nil else { return }
+        switch installer.state {
+        case .downloading, .verifying: return   // already on its way
+        default: break
+        }
+        Task { await installer.install() }
+    }
+
     private func startEngine(binaryOverride: URL?) async throws {
         let binary: URL
         if let binaryOverride { binary = binaryOverride }

@@ -386,10 +386,19 @@ struct DocView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ForEach(Array(text.components(separatedBy: "\n\n").enumerated()), id: \.offset) { _, paragraph in
-                paragraphView(paragraph.trimmingCharacters(in: .whitespacesAndNewlines))
+            ForEach(Array(text.components(separatedBy: "\n\n").enumerated()), id: \.offset) { index, paragraph in
+                let trimmed = paragraph.trimmingCharacters(in: .whitespacesAndNewlines)
+                // A release heading ("1.2.0 — date") opens a new block: give it
+                // extra air above so versions read as sections, not as one more
+                // bullet in the previous release's list.
+                paragraphView(trimmed)
+                    .padding(.top, index > 0 && isVersionHeading(trimmed) ? 10 : 0)
             }
         }
+    }
+
+    private func isVersionHeading(_ paragraph: String) -> Bool {
+        paragraph.range(of: #"^\d+\.\d+(\.\d+)? — "#, options: .regularExpression) != nil
     }
 
     @ViewBuilder
