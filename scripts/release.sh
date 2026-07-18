@@ -60,5 +60,6 @@ fi
 echo ""
 echo "release $VERSION is ready:"
 echo "  $SITE_DIR/public/downloads/hop/{latest.json, Hop-$VERSION.zip, .sig}"
-echo "next: commit in the site repo + ./deploy.sh; git tag v$VERSION in hop;"
+echo "next: commit in the site repo + FORCE_BUILD=1 ./deploy.sh (the NEW zip name needs a rebuild,"
+echo "        or Next serves 404 for it); git tag v$VERSION in hop;"
 echo "        gh release create v$VERSION \"$ZIP\" \"$ZIP.sig\" dist/Hop.dmg -R antonyshakirov/hop"
