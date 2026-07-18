@@ -18,6 +18,12 @@ final class TrackerController: ObservableObject {
     private let storeDir: URL
     private var ticker: Timer?
 
+    /// The engine is a nested ObservableObject. Forward its changes so views
+    /// observing this controller react to plain edits (add/rename/delete,
+    /// setToday) too, not just tracking start/stop — otherwise they'd never
+    /// redraw while no task is active.
+    private var forwarders: [AnyCancellable] = []
+
     init() {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let id = Bundle.main.bundleIdentifier ?? "com.antonshakirov.minimo"
@@ -26,6 +32,10 @@ final class TrackerController: ObservableObject {
         let data = TrackerStore.load(from: storeDir)
         engine = TrackerEngine(data: data)
         heartbeat = Date()
+
+        forwarders.append(engine.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        })
 
         engine.onChange = { [weak self] in
             guard let self else { return }
