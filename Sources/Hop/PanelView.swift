@@ -72,6 +72,12 @@ struct PanelView: View {
     @State private var dragModuleKey: String?
     @State private var dragModuleOffset: CGFloat = 0
     @State private var dragModuleTarget: Int?
+    // header tab reorder (horizontal), mirroring the module row drag
+    @State private var dragTabID: UUID?
+    @State private var dragTabOffset: CGFloat = 0
+    @State private var dragTabTarget: Int?
+    // non-nil while the icon picker overlay is up for that tab
+    @State private var iconPickerTabID: UUID?
     @AppStorage("cycleTemplates") private var cycleTemplatesRaw = "25/5x4,52/17x3,90/15x2"
     @AppStorage("showPresetsRow") private var showPresetsRow = true
     @AppStorage("showCyclesRow") private var showCyclesRow = true
@@ -447,6 +453,11 @@ struct PanelView: View {
 
     private var panelStack: some View {
         VStack(spacing: 16) {
+            if let pickerTab = iconPickerTabID {
+                // the picker takes over the panel: just the back header + grid
+                header
+                iconPickerGrid(for: pickerTab)
+            } else {
             featureBanner
             header
             switch screen {
@@ -480,6 +491,7 @@ struct PanelView: View {
                 settingsScreen
             case .about:
                 aboutScreen
+            }
             }
         }
         .padding(.horizontal, 14)
@@ -694,26 +706,12 @@ struct PanelView: View {
 
     private var header: some View {
         HStack(spacing: 8) {
-            if isOverlayScreen {
-                Button {
+            if iconPickerTabID != nil {
+                overlayHeaderContent(title: t(.tabChangeIcon)) { iconPickerTabID = nil }
+            } else if isOverlayScreen {
+                overlayHeaderContent(title: screen == .about ? t(.aboutTitle) : t(.settingsTitle)) {
                     screen = overlayReturnScreen ?? Self.resolve(.restore)
-                } label: {
-                    HStack(spacing: 5) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 11, weight: .semibold))
-                        Text(t(.back))
-                            .font(Theme.mono(12, weight: .semibold))
-                    }
-                    .foregroundStyle(Theme.textPrimary)
-                    .padding(.vertical, 6)
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .hoverDim()
-                Spacer()
-                Text(screen == .about ? t(.aboutTitle) : t(.settingsTitle))
-                    .font(Theme.mono(10))
-                    .foregroundStyle(Theme.textTertiary)
             } else {
                 tabSwitcher
                 Spacer()
@@ -725,6 +723,29 @@ struct PanelView: View {
             }
         }
         .frame(height: 34) // same header height on all screens
+    }
+
+    /// Shared back-chevron header used by the settings/about overlays and the
+    /// icon picker: a "back" button on the left, a dim screen title on the right.
+    @ViewBuilder
+    private func overlayHeaderContent(title: String, back: @escaping () -> Void) -> some View {
+        Button(action: back) {
+            HStack(spacing: 5) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 11, weight: .semibold))
+                Text(t(.back))
+                    .font(Theme.mono(12, weight: .semibold))
+            }
+            .foregroundStyle(Theme.textPrimary)
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
+        Spacer()
+        Text(title)
+            .font(Theme.mono(10))
+            .foregroundStyle(Theme.textTertiary)
     }
 
     private func headerIcon(_ symbol: String, action: @escaping () -> Void) -> some View {
@@ -739,40 +760,168 @@ struct PanelView: View {
         .hoverHighlight()
     }
 
-    // an icon row of the user's spaces; the active space is chip-highlighted.
-    // The stroke container groups the icons the same way it grouped the text tabs.
+    // Tab button geometry. Width is doubled from 32 for a comfortable hit target;
+    // 5 slots (56) + inner gaps + the gear still fit the 340pt header content.
+    private static let tabButtonWidth: CGFloat = 56
+    private static let tabSpacing: CGFloat = 2
+    private static let tabSlotWidth: CGFloat = tabButtonWidth + tabSpacing
+
+    // an icon row of the user's spaces; the active space is chip-highlighted, a
+    // trailing "+" adds one. The stroke container groups the icons the same way
+    // it grouped the text tabs.
     private var tabSwitcher: some View {
-        HStack(spacing: 2) {
-            ForEach(tabsModel.tabs) { tab in
-                spaceTabButton(tab)
+        HStack(spacing: Self.tabSpacing) {
+            ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
+                spaceTabButton(tab, index: index)
+            }
+            if tabsModel.tabs.count < PanelTabsModel.maxTabs {
+                addTabButton
             }
         }
         .padding(2)
         .overlay(RoundedRectangle(cornerRadius: 7).stroke(Theme.divider, lineWidth: 1))
     }
 
-    private func spaceTabButton(_ tab: PanelTab) -> some View {
+    private func spaceTabButton(_ tab: PanelTab, index: Int) -> some View {
         let active = screen == .space(tab.id)
-        return Button {
-            switchToSpace(tab.id) // no animation: tabs stay put
+        let dragged = dragTabID == tab.id
+        // A plain view (not a Button) so a horizontal drag can reorder while a
+        // click still switches: tap and DragGesture(minimumDistance: 3) coexist,
+        // same as the module rows. zIndex lifts the dragged icon over its
+        // neighbors; resting neighbors slide aside to open the drop slot.
+        return Image(systemName: tab.icon)
+            .font(.system(size: 15))
+            .foregroundStyle(active ? Theme.textPrimary : Theme.textTertiary)
+            .frame(width: Self.tabButtonWidth, height: 28)
+            .background(
+                active ? Theme.chipBg : .clear,
+                in: RoundedRectangle(cornerRadius: 6)
+            )
+            .contentShape(Rectangle())
+            .hoverHighlight(6)
+            .offset(x: dragged ? dragTabOffset : tabShift(index))
+            .zIndex(dragged ? 1 : 0)
+            .animation(dragged ? nil : .easeInOut(duration: 0.15), value: tabShift(index))
+            .onTapGesture { switchToSpace(tab.id) }
+            .gesture(tabDragGesture(tab.id))
+            .contextMenu {
+                Button(t(.tabChangeIcon).capitalizedFirst) { iconPickerTabID = tab.id }
+                Button(t(.tabDelete).capitalizedFirst) { deleteTab(tab.id) }
+                    .disabled(tabsModel.tabs.count == 1)
+            }
+    }
+
+    private var addTabButton: some View {
+        Button {
+            var newID: UUID?
+            mutateTabs { newID = $0.addTab(icon: firstUnusedIcon) }
+            if let newID { switchToSpace(newID) }
         } label: {
-            Image(systemName: tab.icon)
+            Image(systemName: "plus")
                 .font(.system(size: 15))
-                .foregroundStyle(active ? Theme.textPrimary : Theme.textTertiary)
-                .frame(width: 32, height: 28)
-                .background(
-                    active ? Theme.chipBg : .clear,
-                    in: RoundedRectangle(cornerRadius: 6)
-                )
+                .foregroundStyle(Theme.textTertiary)
+                .frame(width: Self.tabButtonWidth, height: 28)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .hoverHighlight(5)
+        .hoverHighlight(6)
+        .help(t(.tabNew).capitalizedFirst)
+    }
+
+    /// First catalog icon no tab already uses (fallback: the first entry), so a
+    /// new tab does not duplicate an existing icon at birth.
+    private var firstUnusedIcon: String {
+        let used = Set(tabsModel.tabs.map(\.icon))
+        return IconCatalog.symbols.first { !used.contains($0) } ?? IconCatalog.symbols[0]
+    }
+
+    /// How far a resting tab steps aside to open a gap at the drop target.
+    private func tabShift(_ index: Int) -> CGFloat {
+        guard let id = dragTabID,
+              let from = tabsModel.tabs.firstIndex(where: { $0.id == id }),
+              let target = dragTabTarget, index != from else { return 0 }
+        if from < index, target >= index { return -Self.tabSlotWidth }
+        if from > index, target <= index { return Self.tabSlotWidth }
+        return 0
+    }
+
+    private func tabDragGesture(_ id: UUID) -> some Gesture {
+        DragGesture(minimumDistance: 3)
+            .onChanged { value in
+                let tabs = tabsModel.tabs
+                guard let from = tabs.firstIndex(where: { $0.id == id }) else { return }
+                if dragTabID == nil {
+                    dragTabID = id
+                    dragTabTarget = from
+                }
+                dragTabOffset = value.translation.width
+                let steps = Int((value.translation.width / Self.tabSlotWidth).rounded())
+                let target = min(max(from + steps, 0), tabs.count - 1)
+                if target != dragTabTarget {
+                    dragTabTarget = target
+                    Sounds.scrubTick()
+                }
+            }
+            .onEnded { _ in
+                let from = tabsModel.tabs.firstIndex(where: { $0.id == id })
+                // commit and settle together: the visual offset is close to the
+                // committed displacement, so the icon glides rather than jumps
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    if let from, let target = dragTabTarget, target != from {
+                        mutateTabs { $0.moveTab(from: from, to: target) }
+                    }
+                    dragTabID = nil
+                    dragTabTarget = nil
+                    dragTabOffset = 0
+                }
+            }
+    }
+
+    /// Delete a tab; if it was the active space, fall back to the first tab.
+    /// HopCore folds the deleted tab's modules into the first tab, so nothing
+    /// is lost — no confirmation needed.
+    private func deleteTab(_ id: UUID) {
+        let wasActive = screen == .space(id)
+        mutateTabs { $0.deleteTab(id) }
+        if wasActive, let first = tabsModel.tabs.first {
+            switchToSpace(first.id)
+        }
     }
 
     private func switchToSpace(_ id: UUID) {
         screen = .space(id)
         activeSpaceRaw = id.uuidString
+    }
+
+    /// Icon picker rendered as an in-panel overlay (with the back-chevron
+    /// header), NOT a nested popover: a popover inside the transient panel
+    /// popover risks dismissing the panel and fighting its anchoring.
+    private func iconPickerGrid(for tabID: UUID) -> some View {
+        let current = tabsModel.tabs.first { $0.id == tabID }?.icon
+        return LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 6),
+            spacing: 8
+        ) {
+            ForEach(IconCatalog.symbols, id: \.self) { symbol in
+                Button {
+                    mutateTabs { $0.setIcon(symbol, tabID: tabID) }
+                    iconPickerTabID = nil
+                } label: {
+                    Image(systemName: symbol)
+                        .font(.system(size: 14))
+                        .foregroundStyle(symbol == current ? Theme.textPrimary : Theme.textSecondary)
+                        .frame(width: 28, height: 28)
+                        .background(
+                            symbol == current ? Theme.chipBg : .clear,
+                            in: RoundedRectangle(cornerRadius: 6)
+                        )
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(6)
+            }
+        }
+        .padding(.vertical, 6)
     }
 
     // MARK: - Presets
