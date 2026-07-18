@@ -349,6 +349,16 @@ exactly in the middle: top inset = bottom inset = 16pt.
   task B while A runs stops A first — the engine closes the open interval
   itself (`start(taskID:)`), the UI never juggles two. Deleting the active
   task stops tracking (its open interval is dropped with it).
+- **Menu-bar indication:** while a task is tracking, the status-bar icon
+  carries a small purple dot in the bottom-right slot — the same slot the
+  timer badge uses, so the badge wins it in the rare digits-off-while-running
+  config; with the countdown digits shown (the default) the dot stays visible
+  during a countdown. An opt-in `show task time in menu bar` setting
+  (`trackerTimeInBar`, OFF) additionally shows the active task's ticking
+  `today` value as the bar title, but only when nothing else claimed it — the
+  timer countdown always wins the title. Both toggle immediately on
+  start/stop and tick 1/s off `tracker.heartbeat` (already routed to the
+  status item via AppModel's forward).
 - **Project row** (mono 12, rowBg card): a disclosure chevron (`chevron.right`,
   rotated 90° when expanded, 0.15s easeInOut), the name, and a right-aligned
   `today — total` glance (mono 10, tertiary). Clicking the row toggles
@@ -413,8 +423,9 @@ exactly in the middle: top inset = bottom inset = 16pt.
   variant was tried and reverted. "Same as system" sits on top; there is
   search.
 - Menu bar: asterisk (brand glyph, 8 rays); on the right — play/pause
-  badges (bottom) and a yellow awake dot (top); on finish — a blinking
-  bell; the countdown is monospaced and can be disabled in settings.
+  badges or a purple tracking dot (bottom, mutually exclusive) and a yellow
+  awake dot (top); on finish — a blinking bell; the countdown is monospaced
+  and can be disabled in settings.
 - **The panel is keyboard-transparent** (Anton, 2026-07-13; completed
   2026-07-15): it never steals keyboard focus — on open AND after any
   click inside it, focus goes back to the app underneath (dictation and

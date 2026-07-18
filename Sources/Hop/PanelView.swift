@@ -25,6 +25,7 @@ struct PanelView: View {
 
     @EnvironmentObject private var model: AppModel
     @AppStorage(SettingsKey.showMenuBarCountdown) private var showCountdown = true
+    @AppStorage(SettingsKey.trackerTimeInBar) private var trackerTimeInBar = false
     @AppStorage(SettingsKey.alertMode) private var alertModeRaw = AlertMode.soundAndBanner.rawValue
     @AppStorage(MediaPauser.settingKey) private var pauseMedia = false
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
@@ -2421,6 +2422,14 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Theme.MiniSwitch(isOn: $showCountdown)
+            }
+
+            HStack {
+                Text(t(.trackerBarTime))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: $trackerTimeInBar)
             }
 
             HStack {

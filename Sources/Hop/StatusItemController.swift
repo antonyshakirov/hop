@@ -57,7 +57,11 @@ final class StatusItemController: NSObject {
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
 
-        // redraw the label on every state change (ticker, awake, settings)
+        // redraw the label on every state change (timer/tracker heartbeat,
+        // awake, settings). AppModel already forwards tracker.objectWillChange
+        // — both its $heartbeat and the engine's changes — into this stream, so
+        // the purple tracking dot toggles on start/stop and the bar time ticks
+        // 1/s without a separate subscription here.
         cancellable = model.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.refreshButton() }
@@ -397,6 +401,12 @@ final class StatusItemController: NSObject {
         // the digits themselves say the timer is running
         let countdownVisible = showCountdown && (state == .running || state == .paused)
         let effectiveBadge = countdownVisible ? nil : badge
+        // purple dot while a task is tracking. The timer badge wins the
+        // shared bottom-right slot in the rare digits-off-while-running config;
+        // with the countdown digits shown (the default) the dot stays visible
+        // during a countdown, per the design spec.
+        let tracking = model.tracker.isTracking
+        let trackingDot: NSColor? = tracking && effectiveBadge == nil ? .systemPurple : nil
         // red "!" — only if enabled in the monitor settings.
         // debugRedBadgeAlways — temporary mode for polishing the appearance:
         // defaults write com.antonshakirov.minimo debugRedBadgeAlways -bool true
@@ -408,12 +418,13 @@ final class StatusItemController: NSObject {
             ? .systemYellow
             : (model.keepAwake.lidApplied ? .systemOrange : nil)
 
-        if effectiveBadge != nil || awakeDotColor != nil || alertMark {
+        if effectiveBadge != nil || awakeDotColor != nil || alertMark || trackingDot != nil {
             button.image = MenuBarIcon.compose(
                 base: finished ? .symbol(bell) : .dial,
                 badge: effectiveBadge,
                 awakeDot: awakeDotColor,
-                alertMark: alertMark
+                alertMark: alertMark,
+                trackingDot: trackingDot
             )
         } else if finished {
             button.image = MenuBarIcon.compose(base: .symbol(bell), badge: nil, awakeDot: nil)
@@ -436,6 +447,14 @@ final class StatusItemController: NSObject {
         // started from the panel must not surface the label until close
         if frozenBarTimeVisible == false {
             title = ""
+        }
+        // Tracker time: the active task's ticking "today" value, shown only when
+        // nothing else claimed the title (the countdown always wins) and the
+        // opt-in setting is on. Ticks off tracker.heartbeat via the refresh path.
+        if title.isEmpty, tracking,
+           UserDefaults.standard.bool(forKey: SettingsKey.trackerTimeInBar),
+           let activeID = model.tracker.engine.activeTaskID {
+            title = " " + TimeFormatting.short(model.tracker.engine.today(taskID: activeID))
         }
         // Menu-bar torrent glance: ↓ while downloading, ↑ while seeding, so the
         // user can see at a glance that something is actually transferring. Sits

@@ -84,7 +84,7 @@ enum MenuBarIcon {
 
     /// awakeDot: yellow — no-sleep is active; orange — ONLY the lid is
     /// enabled (can be closed, but without no-sleep the Mac will doze off); nil — no dot.
-    static func compose(base: Base, badge: StateBadge?, awakeDot: NSColor?, alertMark: Bool = false) -> NSImage {
+    static func compose(base: Base, badge: StateBadge?, awakeDot: NSColor?, alertMark: Bool = false, trackingDot: NSColor? = nil) -> NSImage {
         let size = canvasSize
         let image = NSImage(size: size)
         image.lockFocus()
@@ -108,6 +108,14 @@ enum MenuBarIcon {
 
         if let badge {
             drawBadge(badge, in: NSRect(x: size.width - 8, y: 0.5, width: 7, height: 7))
+        }
+        if let trackingDot {
+            // a task is tracking: same bottom-right slot as the timer badge —
+            // the caller guarantees only one of the two is ever set.
+            trackingDot.setFill()
+            NSBezierPath(ovalIn: NSRect(
+                x: size.width - 6.5, y: 0.5, width: 6, height: 6
+            )).fill()
         }
         if let awakeDot {
             awakeDot.setFill()
