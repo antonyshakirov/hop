@@ -224,8 +224,13 @@ final class SystemStatsController: ObservableObject {
         guard kr == KERN_SUCCESS else { return (nil, nil) }
 
         let page = Double(vm_kernel_page_size)
-        // like Activity Monitor: app memory (active) + wired + compressed
-        let used = Double(stats.active_count &+ stats.wire_count &+ stats.compressor_page_count) * page
+        // Activity Monitor's "Memory Used" = App Memory + wired + compressed, where
+        // App Memory is ANONYMOUS pages minus purgeable — not the active queue.
+        // active_count under-reports by whatever app memory sits on the inactive
+        // queue (gigabytes after a few days of uptime) and wrongly includes the
+        // active file cache, so the old formula drifted ~2 GB below the system's.
+        let appPages = stats.internal_page_count &- stats.purgeable_count
+        let used = Double(appPages &+ stats.wire_count &+ stats.compressor_page_count) * page
 
         var total: UInt64 = 0
         var size = MemoryLayout<UInt64>.size
@@ -461,9 +466,20 @@ enum StatsFormatting {
         return "\(Int(v.rounded()))°"
     }
 
+    /// Binary gigabytes — for RAM and swap ONLY: Activity Monitor reports memory
+    /// in binary units (24 GB of RAM chips is exactly 24 here, not 25.8).
     static func gb(_ bytes: Double?) -> String {
         guard let bytes else { return "—" }
         let gb = bytes / 1_073_741_824
+        return gb >= 100 ? "\(Int(gb.rounded()))" : String(format: "%.1f", gb)
+    }
+
+    /// Decimal gigabytes — for STORAGE: Finder, About This Mac and disk vendors
+    /// all use 1 GB = 10^9. The binary formatter made a 1 TB drive read "926 GB"
+    /// next to Finder's "995 GB" — a phantom 69 GB discrepancy.
+    static func diskGb(_ bytes: Double?) -> String {
+        guard let bytes else { return "—" }
+        let gb = bytes / 1_000_000_000
         return gb >= 100 ? "\(Int(gb.rounded()))" : String(format: "%.1f", gb)
     }
 

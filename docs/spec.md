@@ -150,6 +150,14 @@ top inset = bottom inset = 16pt.
 - Rows: cpu (load+temperature), gpu, memory (like Activity Monitor),
   network ↓↑, disk, battery (charge/temperature), health (health/cycles),
   power (watts), uptime. Colored SF Symbols icons.
+- Units follow the system's own conventions (audited against Activity
+  Monitor/Finder 2026-07-18): memory and swap in BINARY GB (Activity
+  Monitor reports RAM that way — 24 GB of chips reads 24, not 25.8);
+  disk in DECIMAL GB (Finder/About This Mac — a 1 TB drive reads ~995,
+  the old binary formatter showed a phantom "926"); network speeds in
+  DECIMAL units (1 MB/s = 10^6 — same as the torrent rows and converter).
+  CPU load = (user+system+nice)/total ticks, the same figure as top's
+  user+sys; GPU = IOAccelerator "Device Utilization %".
 - Battery health = NominalChargeCapacity / DesignCapacity, capped at 100 —
   the same calibrated figure System Settings shows. The raw
   AppleRawMaxCapacity (fallback only) drifts with temperature/charge and
@@ -504,6 +512,11 @@ Reworked 2026-07-15 (Anton): the old "(used+swap)/RAM %" threshold read
 as if swap were on top of the shown figure and lied about pressure. Now:
 - The row shows RAM used ("18.0 / 24.0 GB") with swap alongside when
   > 50 MB ("swap 4.9 GB") — the figures no longer include each other.
+- "Used" matches Activity Monitor's Memory Used: anonymous pages minus
+  purgeable (App Memory) + wired + compressed. Not the active queue —
+  active_count loses app memory parked on the inactive queue (gigabytes
+  after days of uptime) and wrongly counts the active file cache
+  (fixed 2026-07-18, was ~2 GB under the system's figure).
 - The COLOR comes from macOS's own memory-pressure signal
   (kern.memorystatus_vm_pressure_level): 1 normal (green when colorful),
   2 warning → yellow, 4 critical → red. No user threshold: the system's
@@ -593,6 +606,11 @@ release time (on "publish"); dev builds don't touch the number.
 - The test build is "Hop Dev.app" (`--install --dev`), living in parallel;
   its icon carries a gold "D" badge in the bottom-right corner so the
   production and test builds can't be confused.
+- Install staging (`temporaryDirectory/hop-update-<UUID>`) cannot be
+  removed by the process that created it — it terminates right after
+  copying the new bundle. Each launch sweeps ALL leftover hop-update-*
+  folders instead (they were accumulating ~7 MB per update until macOS's
+  periodic temp purge).
 
 
 ## Converter: window height and audio

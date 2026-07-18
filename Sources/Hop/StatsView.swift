@@ -226,8 +226,8 @@ struct StatsView: View {
         let diskColor: Color = usedShare * 100 >= Double(diskRed)
             ? Theme.accentRed
             : usedShare * 100 >= Double(diskYellow) ? Theme.accentYellow : Theme.textSecondary
-        // used/total — the convention in system monitors
-        var result = Text("\(StatsFormatting.gb(total - free))/\(StatsFormatting.gb(total)) \(t(.unitGB))")
+        // used/total — the convention in system monitors; decimal GB like Finder
+        var result = Text("\(StatsFormatting.diskGb(total - free))/\(StatsFormatting.diskGb(total)) \(t(.unitGB))")
             .foregroundColor(Theme.textSecondary)
             + dot
             + Text("\(usedPercent)%").foregroundColor(diskColor)
@@ -311,10 +311,13 @@ struct StatsView: View {
 
     // MARK: - Localized units
 
+    // Decimal units (1 MB = 10^6), matching Finder, the torrent rows and the
+    // converter — the old binary divisors under-reported rates by up to 5%
+    // and disagreed with every other speed shown in the app.
     private func speedText(_ v: Double?) -> String {
         guard let v else { return "—" }
-        if v >= 1_048_576 { return String(format: "%.1f %@", v / 1_048_576, t(.unitMBs)) }
-        if v >= 1024 { return String(format: "%.0f %@", v / 1024, t(.unitKBs)) }
+        if v >= 1_000_000 { return String(format: "%.1f %@", v / 1_000_000, t(.unitMBs)) }
+        if v >= 1000 { return String(format: "%.0f %@", v / 1000, t(.unitKBs)) }
         return "\(Int(v)) \(t(.unitBs))"
     }
 
