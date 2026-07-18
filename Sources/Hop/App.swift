@@ -231,7 +231,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isMovableByWindowBackground = false
             window.isReleasedWhenClosed = false
             let host = NSHostingController(
-                rootView: PanelView(initialTab: .settings, standaloneSettings: true)
+                rootView: PanelView(initial: .settings, standaloneSettings: true)
                     .environmentObject(model)
             )
             // same reliable path as about/converter: explicit size +
@@ -345,7 +345,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isMovableByWindowBackground = false
             window.isReleasedWhenClosed = false
             let host = NSHostingController(
-                rootView: PanelView(initialTab: .about, standaloneAbout: true)
+                rootView: PanelView(initial: .about, standaloneAbout: true)
                     .environmentObject(model)
             )
             // sizingOptions=[] and explicit size: .preferredContentSize made the

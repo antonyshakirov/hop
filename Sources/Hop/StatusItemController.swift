@@ -263,12 +263,12 @@ final class StatusItemController: NSObject {
         togglePopover()
     }
 
-    private func togglePopover(opening tab: PanelView.Tab? = nil) {
-        if let tab {
-            model.openTab = tab
+    private func togglePopover(opening screen: PanelView.InitialScreen? = nil) {
+        if let screen {
+            model.openTab = screen
         }
         if popover.isShown {
-            if tab == nil { popover.close() }
+            if screen == nil { popover.close() }
             return
         }
         guard let button = statusItem.button else { return }
@@ -367,7 +367,7 @@ final class StatusItemController: NSObject {
         return item
     }
 
-    @objc private func menuOpenPanel() { togglePopover(opening: .timer) }
+    @objc private func menuOpenPanel() { togglePopover(opening: .spaceContaining("timer")) }
     @objc private func menuOpenAbout() { model.openAboutWindow?() }
     @objc private func menuOpenSettings() { model.openSettingsWindow?() }
     @objc private func menuQuit() { model.requestQuit?() }

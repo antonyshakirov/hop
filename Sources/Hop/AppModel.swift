@@ -34,7 +34,7 @@ final class AppModel: ObservableObject {
     @Published var converterContentHeight: CGFloat = 0
 
     /// Request to open a specific screen (from the right-click menu).
-    @Published var openTab: PanelView.Tab?
+    @Published var openTab: PanelView.InitialScreen?
     /// Close the popover (for "copy and paste").
     var closePanel: (() -> Void)?
     /// The panel needs the keyboard right now (digit entry into the display).

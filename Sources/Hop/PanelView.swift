@@ -5,7 +5,23 @@ import SwiftUI
 import HopCore
 
 struct PanelView: View {
-    enum Tab { case timer, system, settings, about }
+    /// A panel screen: one of the user's spaces, or an overlay (settings/about).
+    enum Screen: Equatable {
+        case space(UUID)
+        case settings
+        case about
+    }
+
+    /// What to show when the panel is (re)built. Resolved against the stored
+    /// tabs into a concrete `Screen`: `.restore` is the normal open (last
+    /// active space); the rest drive snapshots and status-item targets.
+    enum InitialScreen {
+        case restore
+        case firstSpace
+        case spaceContaining(String)
+        case settings
+        case about
+    }
 
     @EnvironmentObject private var model: AppModel
     @AppStorage(SettingsKey.showMenuBarCountdown) private var showCountdown = true
@@ -38,8 +54,9 @@ struct PanelView: View {
     // which wins over this literal; kept in sync here so the two don't read as contradictory.
     @AppStorage(KeepAwakeController.keepDisplayKey) private var awakeKeepDisplay = true
 
-    @State private var tab: Tab
-    @State private var overlayReturnTab: Tab = .timer
+    @State private var screen: Screen
+    // nil → the overlay back button falls through to the restored space
+    @State private var overlayReturnScreen: Screen? = nil
     @State private var scrubBaseDuration: TimeInterval?
     @State private var scrubUnit: TimeInterval?
     @State private var launchAtLogin = false
@@ -70,6 +87,8 @@ struct PanelView: View {
     @AppStorage(FileConverter.autoClearKey) private var convAutoClear = true
     @AppStorage("showWindowsModule") private var showWindowsModule = true
     @AppStorage("showSpeedtestModule") private var showSpeedtestModule = true
+    // The system monitor is a module inside its own tab now, toggled like the rest.
+    @AppStorage("showSystemModule") private var showSystemModule = true
     // Default OFF: a brand-new feature stays hidden until the user opts in via the
     // "what's new" banner (updated users) or onboarding (fresh installs enable it).
     @AppStorage("showTorrentModule") private var showTorrentModule = false
@@ -89,8 +108,10 @@ struct PanelView: View {
     // speedtest was never in this default string either — it appends
     // via allModules; torrent stays last (opt-in), same mechanism, listed here
     // for an explicit new-user order.
-    @AppStorage("moduleOrder") private var moduleOrderRaw = "timer,awake,clipboard,convert,windows,speedtest,torrent"
+    @AppStorage("moduleOrder") private var moduleOrderRaw = PanelView.defaultModuleOrder
     @AppStorage(SettingsKey.panelTabs) private var panelTabsRaw = ""
+    // Last space the user viewed; restored on the next open (mirrors initialTab).
+    @AppStorage("activeSpaceID") private var activeSpaceRaw = ""
     @AppStorage("windowsLayout") private var windowsLayout = "grid" // grid | row
 
     @AppStorage("monitorColorful") private var monitorColorful = false
@@ -131,8 +152,10 @@ struct PanelView: View {
     var standaloneSettings = false
     var standaloneAbout = false
 
-    init(initialTab: Tab = .timer, standaloneSettings: Bool = false, standaloneAbout: Bool = false) {
-        _tab = State(initialValue: initialTab)
+    init(initial: InitialScreen = .restore, standaloneSettings: Bool = false, standaloneAbout: Bool = false) {
+        // The panel content view is built once at launch, so this resolves the
+        // restored space from UserDefaults directly — as `initialTab` did.
+        _screen = State(initialValue: Self.resolve(initial))
         self.standaloneSettings = standaloneSettings
         self.standaloneAbout = standaloneAbout
     }
@@ -236,8 +259,10 @@ struct PanelView: View {
         }
         .onReceive(model.$openTab) { target in
             guard let target else { return }
-            overlayReturnTab = .timer
-            tab = target
+            overlayReturnScreen = nil
+            let resolved = Self.resolve(target)
+            screen = resolved
+            if case .space(let id) = resolved { activeSpaceRaw = id.uuidString }
             model.openTab = nil
         }
     }
@@ -424,26 +449,33 @@ struct PanelView: View {
         VStack(spacing: 16) {
             featureBanner
             header
-            switch tab {
-            case .timer:
-                // main screen — a stack of modules in the user's order.
-                // Inner spacing equals the outer one (16): the divider sits exactly
-                // midway between modules, with equal space above and below
-                ForEach(Array(visibleModules.enumerated()), id: \.element) { index, key in
-                    if index == 0 {
-                        moduleContent(key)
-                    } else {
-                        VStack(spacing: 16) {
-                            Rectangle()
-                                .fill(Theme.divider)
-                                .frame(height: 1)
+            switch screen {
+            case .space(let id):
+                let modules = visibleModules(in: id)
+                if modules.isEmpty {
+                    Text(t(.tabEmptyHint))
+                        .font(Theme.mono(11))
+                        .foregroundStyle(Theme.textTertiary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 28)
+                } else {
+                    // a stack of the space's modules in order. Inner spacing equals
+                    // the outer one (16): the divider sits exactly midway between
+                    // modules, with equal space above and below
+                    ForEach(Array(modules.enumerated()), id: \.element) { index, key in
+                        if index == 0 {
                             moduleContent(key)
+                        } else {
+                            VStack(spacing: 16) {
+                                Rectangle()
+                                    .fill(Theme.divider)
+                                    .frame(height: 1)
+                                moduleContent(key)
+                            }
                         }
                     }
                 }
-            case .system:
-                StatsView(stats: model.stats, lang: lang)
-                    .id(model.themeVersion)
             case .settings:
                 settingsScreen
             case .about:
@@ -493,7 +525,9 @@ struct PanelView: View {
     /// Keyboard time entry into the selected digit group: digits slide in from the
     /// right (0 → 2 gives :02). The group is picked by clicking/hovering the display.
     private func handleKey(_ press: KeyPress) -> KeyPress.Result {
-        guard tab == .timer, !model.engine.isStopwatch,
+        guard case .space(let id) = screen,
+              visibleModules(in: id).contains("timer"),
+              !model.engine.isStopwatch,
               model.engine.state == .idle || model.engine.state == .finished
         else { return .ignored }
 
@@ -655,14 +689,14 @@ struct PanelView: View {
     // MARK: - Header
 
     private var isOverlayScreen: Bool {
-        tab == .settings || tab == .about
+        screen == .settings || screen == .about
     }
 
     private var header: some View {
         HStack(spacing: 8) {
             if isOverlayScreen {
                 Button {
-                    tab = overlayReturnTab
+                    screen = overlayReturnScreen ?? Self.resolve(.restore)
                 } label: {
                     HStack(spacing: 5) {
                         Image(systemName: "chevron.left")
@@ -677,21 +711,16 @@ struct PanelView: View {
                 .buttonStyle(.plain)
                 .hoverDim()
                 Spacer()
-                Text(tab == .about ? t(.aboutTitle) : t(.settingsTitle))
+                Text(screen == .about ? t(.aboutTitle) : t(.settingsTitle))
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.textTertiary)
             } else {
                 tabSwitcher
                 Spacer()
-                headerIcon("info.circle") {
-                    overlayReturnTab = tab
-                    model.openAboutWindow?()
-                }
+                // info/power moved to the status-item right-click menu; about is
+                // also reachable from settings, so the header keeps only the gear.
                 headerIcon("gearshape") {
                     model.openSettingsWindow?()
-                }
-                headerIcon("power") {
-                    model.requestQuit?()
                 }
             }
         }
@@ -710,27 +739,27 @@ struct PanelView: View {
         .hoverHighlight()
     }
 
-    // both tabs shown as text at once; width does not depend on the active one
+    // an icon row of the user's spaces; the active space is chip-highlighted.
+    // The stroke container groups the icons the same way it grouped the text tabs.
     private var tabSwitcher: some View {
         HStack(spacing: 2) {
-            tabButton(.timer, label: t(.tabTimer))
-            tabButton(.system, label: t(.tabSystem))
+            ForEach(tabsModel.tabs) { tab in
+                spaceTabButton(tab)
+            }
         }
         .padding(2)
         .overlay(RoundedRectangle(cornerRadius: 7).stroke(Theme.divider, lineWidth: 1))
     }
 
-    private func tabButton(_ target: Tab, label: String) -> some View {
-        let active = tab == target
+    private func spaceTabButton(_ tab: PanelTab) -> some View {
+        let active = screen == .space(tab.id)
         return Button {
-            tab = target // no animation: tabs stay put
+            switchToSpace(tab.id) // no animation: tabs stay put
         } label: {
-            Text(label)
-                .font(Theme.mono(11, weight: .semibold))
+            Image(systemName: tab.icon)
+                .font(.system(size: 12))
                 .foregroundStyle(active ? Theme.textPrimary : Theme.textTertiary)
-                .lineLimit(1)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+                .frame(width: 24, height: 24)
                 .background(
                     active ? Theme.chipBg : .clear,
                     in: RoundedRectangle(cornerRadius: 5)
@@ -739,6 +768,11 @@ struct PanelView: View {
         }
         .buttonStyle(.plain)
         .hoverHighlight(5)
+    }
+
+    private func switchToSpace(_ id: UUID) {
+        screen = .space(id)
+        activeSpaceRaw = id.uuidString
     }
 
     // MARK: - Presets
@@ -1190,12 +1224,21 @@ struct PanelView: View {
 
     // MARK: - Main screen modules
 
+    // "system"/"tracker" are deliberately NOT here: they live only in the tabs
+    // model (the fixed monitor tab from `migrate`, and a later module). Adding
+    // "system" would make `moduleOrder` append it AND `migrate` place it in its
+    // own tab — a duplicate key the tabs model rejects.
     private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent"]
+    static let defaultModuleOrder = "timer,awake,clipboard,convert,windows,speedtest,torrent"
 
     private var moduleOrder: [String] {
-        var order = moduleOrderRaw.split(separator: ",").map(String.init)
-            .filter { Self.allModules.contains($0) }
-        for key in Self.allModules where !order.contains(key) {
+        Self.normalizedOrder(moduleOrderRaw)
+    }
+
+    private static func normalizedOrder(_ raw: String) -> [String] {
+        var order = raw.split(separator: ",").map(String.init)
+            .filter { allModules.contains($0) }
+        for key in allModules where !order.contains(key) {
             order.append(key)
         }
         return order
@@ -1205,10 +1248,56 @@ struct PanelView: View {
     /// legacy flat module order. New module keys are appended on the fly so an
     /// app update never loses a module.
     private var tabsModel: PanelTabsModel {
-        var model = PanelTabsModel.decode(panelTabsRaw)
-            ?? PanelTabsModel.migrate(moduleOrder: moduleOrder)
-        model.ensure(modules: Self.allModules + ["system", "tracker"])
+        Self.loadTabs(panelTabsRaw: panelTabsRaw, moduleOrder: moduleOrder)
+    }
+
+    /// Decodes the stored tabs, or migrates from the legacy order on first
+    /// launch. The migrated model is persisted immediately: `migrate` mints
+    /// fresh UUIDs on every call, so without persisting, the tab id captured in
+    /// `screen` (resolved once, in `init`) would never match a later read of the
+    /// model and the space would render empty. Shared by the instance property
+    /// and the `init`-time resolver so both see the same, stable ids.
+    private static func loadTabs(panelTabsRaw: String, moduleOrder: [String]) -> PanelTabsModel {
+        if let decoded = PanelTabsModel.decode(panelTabsRaw) {
+            var model = decoded
+            model.ensure(modules: allModules + ["system", "tracker"])
+            return model
+        }
+        var model = PanelTabsModel.migrate(moduleOrder: moduleOrder)
+        model.ensure(modules: allModules + ["system", "tracker"])
+        UserDefaults.standard.set(model.encoded(), forKey: SettingsKey.panelTabs)
         return model
+    }
+
+    /// The tabs model read straight from UserDefaults — usable from `init`,
+    /// before the @AppStorage wrappers are readable. The panel content view is
+    /// built once at launch, so this matches how `initialTab` resolved before.
+    private static func storedTabsModel() -> PanelTabsModel {
+        let defaults = UserDefaults.standard
+        let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
+        let orderRaw = defaults.string(forKey: "moduleOrder") ?? defaultModuleOrder
+        return loadTabs(panelTabsRaw: raw, moduleOrder: normalizedOrder(orderRaw))
+    }
+
+    /// Resolves a requested initial screen against the stored tabs. The stored
+    /// model always has at least one tab, so `tabs[0]` is a safe fallback.
+    private static func resolve(_ initial: InitialScreen) -> Screen {
+        switch initial {
+        case .settings: return .settings
+        case .about: return .about
+        case .firstSpace:
+            return .space(storedTabsModel().tabs[0].id)
+        case .spaceContaining(let module):
+            let model = storedTabsModel()
+            return .space(model.tabID(containing: module) ?? model.tabs[0].id)
+        case .restore:
+            let model = storedTabsModel()
+            let saved = UserDefaults.standard.string(forKey: "activeSpaceID") ?? ""
+            if let id = UUID(uuidString: saved), model.tabs.contains(where: { $0.id == id }) {
+                return .space(id)
+            }
+            return .space(model.tabs[0].id)
+        }
     }
 
     private func mutateTabs(_ body: (inout PanelTabsModel) -> Void) {
@@ -1217,8 +1306,9 @@ struct PanelView: View {
         panelTabsRaw = model.encoded()
     }
 
-    private var visibleModules: [String] {
-        moduleOrder.filter { moduleVisible($0) }
+    private func visibleModules(in id: UUID) -> [String] {
+        (tabsModel.tabs.first { $0.id == id }?.moduleKeys ?? [])
+            .filter { moduleVisible($0) }
     }
 
     private func moduleVisible(_ key: String) -> Bool {
@@ -1239,6 +1329,9 @@ struct PanelView: View {
                 return false
             }
             return true
+        case "system": return showSystemModule
+        // the tracker module ships later on this branch; hidden until then.
+        case "tracker": return false
         default: return false
         }
     }
@@ -1273,6 +1366,7 @@ struct PanelView: View {
         case "windows": return t(.windowsLabel)
         case "speedtest": return t(.speedtestLabel)
         case "torrent": return t(.torrentLabel)
+        case "system": return t(.tabSystem)
         default: return key
         }
     }
@@ -1290,6 +1384,9 @@ struct PanelView: View {
         case "speedtest": speedtestRow
         case "torrent":
             TorrentView(torrent: model.torrent, lang: lang)
+                .id(model.themeVersion)
+        case "system":
+            StatsView(stats: model.stats, lang: lang)
                 .id(model.themeVersion)
         default: EmptyView()
         }

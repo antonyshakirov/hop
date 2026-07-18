@@ -163,9 +163,9 @@ enum Snapshot {
             model.keepAwake.activate(KeepAwakeController.options[1]) // 30 minutes
         }
 
-        var tab = PanelView.Tab.timer
+        var initial = PanelView.InitialScreen.spaceContaining("timer")
         if args.contains("--stats") {
-            tab = .system
+            initial = .spaceContaining("system")
             model.stats.refresh() // primes the deltas
             usleep(600_000)
             model.stats.refresh()
@@ -189,18 +189,18 @@ enum Snapshot {
             }
         }
         if args.contains("--settings") {
-            tab = .settings
+            initial = .settings
         }
         if args.contains("--about") {
-            tab = .about
+            initial = .about
         }
 
         // standalone windows: settings/about/converter
         let content: AnyView
         if args.contains("--window-settings") {
-            content = AnyView(PanelView(initialTab: .settings, standaloneSettings: true).environmentObject(model))
+            content = AnyView(PanelView(initial: .settings, standaloneSettings: true).environmentObject(model))
         } else if args.contains("--window-about") {
-            content = AnyView(PanelView(initialTab: .about, standaloneAbout: true).environmentObject(model))
+            content = AnyView(PanelView(initial: .about, standaloneAbout: true).environmentObject(model))
         } else if args.contains("--window-converter") {
             content = AnyView(ConvertWindowView().environmentObject(model))
         } else if args.contains("--torrent-addsheet") {
@@ -217,7 +217,7 @@ enum Snapshot {
                     .background(Theme.panelBackground)
             )
         } else {
-            content = AnyView(PanelView(initialTab: tab).environmentObject(model))
+            content = AnyView(PanelView(initial: initial).environmentObject(model))
         }
         let renderer = ImageRenderer(content: content)
         renderer.scale = 2
