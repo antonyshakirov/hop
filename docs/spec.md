@@ -597,7 +597,14 @@ release time (on "publish"); dev builds don't touch the number.
   next to it.
 - Release: `scripts/release.sh X.Y.Z [--critical]` → files go into the
   website repo `public/downloads/hop/` (the `/hop/*` path is taken by the
-  landing redirect) → commit + site deploy → `git tag vX.Y.Z`.
+  landing redirect) → commit + site deploy → `scripts/verify-release.sh
+  X.Y.Z` → `git tag vX.Y.Z` + GitHub release.
+- Nothing is announced before the files serve: verify-release.sh downloads
+  the LIVE latest.json, the exact zip it points to, checks the 64-byte
+  signature file and the bundle version inside the zip, and the landing
+  DMG — the tag and the GitHub release are created only after it passes.
+  (1.3.1 lesson: Next's public manifest 404s NEW file names until a site
+  rebuild; the deploy self-probes changed public paths and rebuilds now.)
 - Installation only with a valid Ed25519 signature (the key is embedded
   in the app; the private half is `~/.minimo-release-key`, outside the repo).
 - The production `/Applications/Hop.app` is updated ONLY through this
