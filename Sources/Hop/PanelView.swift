@@ -454,11 +454,6 @@ struct PanelView: View {
 
     private var panelStack: some View {
         VStack(spacing: 16) {
-            if let pickerTab = iconPickerTabID {
-                // the picker takes over the panel: just the back header + grid
-                header
-                iconPickerGrid(for: pickerTab)
-            } else {
             featureBanner
             header
             switch screen {
@@ -492,7 +487,6 @@ struct PanelView: View {
                 settingsScreen
             case .about:
                 aboutScreen
-            }
             }
         }
         .padding(.horizontal, 14)
@@ -712,27 +706,32 @@ struct PanelView: View {
 
     private var header: some View {
         HStack(spacing: 8) {
-            if iconPickerTabID != nil {
-                overlayHeaderContent(title: t(.tabChangeIcon)) { iconPickerTabID = nil }
-            } else if isOverlayScreen {
+            if isOverlayScreen {
                 overlayHeaderContent(title: screen == .about ? t(.aboutTitle) : t(.settingsTitle)) {
                     screen = overlayReturnScreen ?? Self.resolve(.restore)
                 }
             } else {
+                // pure switcher: creating/reordering/renaming/deleting tabs all
+                // live in settings now, so a stray header click can't spawn a
+                // space. The service trio returns to the right.
                 tabSwitcher
                 Spacer()
-                // info/power moved to the status-item right-click menu; about is
-                // also reachable from settings, so the header keeps only the gear.
+                headerIcon("info.circle") {
+                    model.openAboutWindow?()
+                }
                 headerIcon("gearshape") {
                     model.openSettingsWindow?()
+                }
+                headerIcon("power") {
+                    model.requestQuit?()
                 }
             }
         }
         .frame(height: 34) // same header height on all screens
     }
 
-    /// Shared back-chevron header used by the settings/about overlays and the
-    /// icon picker: a "back" button on the left, a dim screen title on the right.
+    /// Shared back-chevron header used by the settings/about overlays: a "back"
+    /// button on the left, a dim screen title on the right.
     @ViewBuilder
     private func overlayHeaderContent(title: String, back: @escaping () -> Void) -> some View {
         Button(action: back) {
@@ -767,34 +766,26 @@ struct PanelView: View {
     }
 
     // Tab button geometry. Width is doubled from 32 for a comfortable hit target;
-    // 5 slots (56) + inner gaps + the gear still fit the 340pt header content.
+    // at maxTabs (4): 4×56 + inner gaps + the 3-icon service trio still fit the
+    // 340pt header content (see report arithmetic).
     private static let tabButtonWidth: CGFloat = 56
     private static let tabSpacing: CGFloat = 2
-    private static let tabSlotWidth: CGFloat = tabButtonWidth + tabSpacing
 
-    // an icon row of the user's spaces; the active space is chip-highlighted, a
-    // trailing "+" adds one. The stroke container groups the icons the same way
-    // it grouped the text tabs.
+    // an icon row of the user's spaces, chip-highlighting the active one. Pure
+    // switcher: add/reorder/rename/delete all moved to settings, so there is no
+    // "+", drag, or context menu here. The stroke container groups the icons.
     private var tabSwitcher: some View {
         HStack(spacing: Self.tabSpacing) {
-            ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
-                spaceTabButton(tab, index: index)
-            }
-            if tabsModel.tabs.count < PanelTabsModel.maxTabs {
-                addTabButton
+            ForEach(tabsModel.tabs) { tab in
+                spaceTabButton(tab)
             }
         }
         .padding(2)
         .overlay(RoundedRectangle(cornerRadius: 7).stroke(Theme.divider, lineWidth: 1))
     }
 
-    private func spaceTabButton(_ tab: PanelTab, index: Int) -> some View {
+    private func spaceTabButton(_ tab: PanelTab) -> some View {
         let active = screen == .space(tab.id)
-        let dragged = dragTabID == tab.id
-        // A plain view (not a Button) so a horizontal drag can reorder while a
-        // click still switches: tap and DragGesture(minimumDistance: 3) coexist,
-        // same as the module rows. zIndex lifts the dragged icon over its
-        // neighbors; resting neighbors slide aside to open the drop slot.
         return Image(systemName: tab.icon)
             .font(.system(size: 15))
             .foregroundStyle(active ? Theme.textPrimary : Theme.textTertiary)
@@ -805,33 +796,7 @@ struct PanelView: View {
             )
             .contentShape(Rectangle())
             .hoverHighlight(6)
-            .offset(x: dragged ? dragTabOffset : tabShift(index))
-            .zIndex(dragged ? 1 : 0)
-            .animation(dragged ? nil : .easeInOut(duration: 0.15), value: tabShift(index))
             .onTapGesture { switchToSpace(tab.id) }
-            .gesture(tabDragGesture(tab.id))
-            .contextMenu {
-                Button(t(.tabChangeIcon).capitalizedFirst) { iconPickerTabID = tab.id }
-                Button(t(.tabDelete).capitalizedFirst) { deleteTab(tab.id) }
-                    .disabled(tabsModel.tabs.count == 1)
-            }
-    }
-
-    private var addTabButton: some View {
-        Button {
-            var newID: UUID?
-            mutateTabs { newID = $0.addTab(icon: firstUnusedIcon) }
-            if let newID { switchToSpace(newID) }
-        } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 15))
-                .foregroundStyle(Theme.textTertiary)
-                .frame(width: Self.tabButtonWidth, height: 28)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .hoverHighlight(6)
-        .help(t(.tabNew).capitalizedFirst)
     }
 
     /// First catalog icon no tab already uses (fallback: the first entry), so a
@@ -841,17 +806,18 @@ struct PanelView: View {
         return IconCatalog.symbols.first { !used.contains($0) } ?? IconCatalog.symbols[0]
     }
 
-    /// How far a resting tab steps aside to open a gap at the drop target.
-    private func tabShift(_ index: Int) -> CGFloat {
+    /// How far a resting settings tab-row steps aside to open a gap at the drop
+    /// target. Vertical, fixed `moduleRowHeight` — same math as the module rows.
+    private func tabRowShift(_ index: Int) -> CGFloat {
         guard let id = dragTabID,
               let from = tabsModel.tabs.firstIndex(where: { $0.id == id }),
               let target = dragTabTarget, index != from else { return 0 }
-        if from < index, target >= index { return -Self.tabSlotWidth }
-        if from > index, target <= index { return Self.tabSlotWidth }
+        if from < index, target >= index { return -Self.moduleRowHeight }
+        if from > index, target <= index { return Self.moduleRowHeight }
         return 0
     }
 
-    private func tabDragGesture(_ id: UUID) -> some Gesture {
+    private func tabRowDragGesture(_ id: UUID) -> some Gesture {
         DragGesture(minimumDistance: 3)
             .onChanged { value in
                 let tabs = tabsModel.tabs
@@ -860,8 +826,8 @@ struct PanelView: View {
                     dragTabID = id
                     dragTabTarget = from
                 }
-                dragTabOffset = value.translation.width
-                let steps = Int((value.translation.width / Self.tabSlotWidth).rounded())
+                dragTabOffset = value.translation.height
+                let steps = Int((value.translation.height / Self.moduleRowHeight).rounded())
                 let target = min(max(from + steps, 0), tabs.count - 1)
                 if target != dragTabTarget {
                     dragTabTarget = target
@@ -871,7 +837,7 @@ struct PanelView: View {
             .onEnded { _ in
                 let from = tabsModel.tabs.firstIndex(where: { $0.id == id })
                 // commit and settle together: the visual offset is close to the
-                // committed displacement, so the icon glides rather than jumps
+                // committed displacement, so the row glides rather than jumps
                 withAnimation(.easeInOut(duration: 0.15)) {
                     if let from, let target = dragTabTarget, target != from {
                         mutateTabs { $0.moveTab(from: from, to: target) }
@@ -883,15 +849,20 @@ struct PanelView: View {
             }
     }
 
-    /// Delete a tab; if it was the active space, fall back to the first tab.
-    /// HopCore folds the deleted tab's modules into the first tab, so nothing
-    /// is lost — no confirmation needed.
+    /// Delete a tab from settings. HopCore folds the deleted tab's modules into
+    /// the first tab, so nothing is lost — no confirmation needed. Settings is a
+    /// separate window, so this can't touch the live panel screen; instead clear
+    /// the saved active space if it pointed at the deleted tab, so the panel
+    /// reopens on a valid space (screen resolution falls back to tabs[0]).
     private func deleteTab(_ id: UUID) {
-        let wasActive = screen == .space(id)
         mutateTabs { $0.deleteTab(id) }
-        if wasActive, let first = tabsModel.tabs.first {
+        if activeSpaceRaw == id.uuidString { activeSpaceRaw = "" }
+        // in-panel path (if ever shown there): fall back off the deleted space
+        if screen == .space(id), let first = tabsModel.tabs.first {
             switchToSpace(first.id)
         }
+        // a stale inline picker for the gone tab would dangle open
+        if iconPickerTabID == id { iconPickerTabID = nil }
     }
 
     private func switchToSpace(_ id: UUID) {
@@ -899,9 +870,93 @@ struct PanelView: View {
         activeSpaceRaw = id.uuidString
     }
 
-    /// Icon picker rendered as an in-panel overlay (with the back-chevron
-    /// header), NOT a nested popover: a popover inside the transient panel
-    /// popover risks dismissing the panel and fighting its anchoring.
+    /// One settings row for a tab: drag handle, the icon (tapping it toggles the
+    /// inline picker for this tab), its "#N" position, and a delete xmark
+    /// (hidden for the last remaining tab). The row drag-reorders vertically.
+    @ViewBuilder private func tabSettingsRow(_ tab: PanelTab, index: Int) -> some View {
+        let dragged = dragTabID == tab.id
+        VStack(spacing: 0) {
+            HStack(spacing: 10) {
+                // drag handle: two lines, left-aligned (same as module rows)
+                VStack(alignment: .leading, spacing: 3) {
+                    Capsule().frame(width: 11, height: 1.5)
+                    Capsule().frame(width: 11, height: 1.5)
+                }
+                .foregroundStyle(Theme.textTertiary)
+                .frame(width: 14, height: 18, alignment: .leading)
+                Button {
+                    iconPickerTabID = (iconPickerTabID == tab.id) ? nil : tab.id
+                } label: {
+                    Image(systemName: tab.icon)
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.textPrimary)
+                        .frame(width: 20, height: 20)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(5)
+                .help(t(.tabChangeIcon).capitalizedFirst)
+                Text("#\(index + 1)")
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textTertiary)
+                Spacer()
+                if tabsModel.tabs.count > 1 {
+                    Button { deleteTab(tab.id) } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textTertiary)
+                            .frame(width: 20, height: 20)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverHighlight(5)
+                    .help(t(.tabDelete).capitalizedFirst)
+                }
+            }
+            .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 2))
+            .frame(height: Self.moduleRowHeight)
+            .contentShape(Rectangle())
+            .opacity(dragged ? 0.4 : 1)
+            .offset(y: dragged ? dragTabOffset : tabRowShift(index))
+            .zIndex(dragged ? 1 : 0)
+            .animation(dragged ? nil : .easeInOut(duration: 0.15), value: tabRowShift(index))
+            .gesture(tabRowDragGesture(tab.id))
+
+            if iconPickerTabID == tab.id {
+                iconPickerGrid(for: tab.id)
+            }
+        }
+    }
+
+    /// "add tab" row below the tab list — the deliberate second step (open
+    /// settings, then click) that keeps spaces from being created by accident.
+    private var addTabRow: some View {
+        Button {
+            // deliberately does NOT switch the panel to the new space: creation
+            // is a settings action, not navigation.
+            mutateTabs { $0.addTab(icon: firstUnusedIcon) }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "plus")
+                    .font(.system(size: 12))
+                    .frame(width: 14, alignment: .leading)
+                Text(t(.tabNew))
+                    .font(Theme.mono(12))
+                Spacer()
+            }
+            .foregroundStyle(Theme.textTertiary)
+            .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 2))
+            .frame(height: Self.moduleRowHeight)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverHighlight(5)
+    }
+
+    /// Icon picker grid, shown inline under a tab's settings row. Inline rather
+    /// than a nested popover (which risks dismissing the panel) or a panel-level
+    /// overlay (settings is a standalone window that renders `settingsScreen`
+    /// directly, so an overlay keyed off the panel stack never appears there).
     private func iconPickerGrid(for tabID: UUID) -> some View {
         let current = tabsModel.tabs.first { $0.id == tabID }?.icon
         return LazyVGrid(
@@ -2295,6 +2350,26 @@ struct PanelView: View {
                 Spacer()
                 appIconChip(dark: false)
                 appIconChip(dark: true)
+            }
+
+            Rectangle()
+                .fill(Theme.divider)
+                .frame(height: 1)
+
+            // tabs (spaces) management — the only place to add/reorder/rename/
+            // delete spaces, so a stray header click can no longer spawn one.
+            VStack(spacing: 12) {
+                settingsSectionHeader(t(.tabsSettingsTitle))
+                // separate stack from the module list below: the two hand-rolled
+                // drags keep separate state so they never fight.
+                VStack(spacing: 0) {
+                    ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
+                        tabSettingsRow(tab, index: index)
+                    }
+                    if tabsModel.tabs.count < PanelTabsModel.maxTabs {
+                        addTabRow
+                    }
+                }
             }
 
             Rectangle()

@@ -23,7 +23,7 @@ public struct PanelTab: Codable, Equatable, Identifiable {
 public struct PanelTabsModel: Codable, Equatable {
     public var tabs: [PanelTab]
 
-    public static let maxTabs = 5
+    public static let maxTabs = 4
 
     /// Adds an empty tab with `icon`. Returns its id, or nil (no change) if
     /// `maxTabs` is already reached.

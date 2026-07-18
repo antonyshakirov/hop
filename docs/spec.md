@@ -57,7 +57,16 @@ signing would break).
 ## Modules
 
 The main screen shows the modules of the selected space (tab) as a stack,
-in the order the user set. Every module lives in exactly one space. The
+in the order the user set. Every module lives in exactly one space. Spaces
+themselves are managed in a "tabs" section at the top of the "general"
+settings tab, above the module list: one row per space (drag handle, icon,
+"#N", delete xmark hidden for the last remaining space), a hand-rolled
+vertical drag to reorder (`moveTab`), and an "add tab" row while under the
+cap. Tapping a row's icon expands an inline icon-picker grid under it —
+inline, not a panel overlay, because settings is a standalone window that
+renders `settingsScreen` directly (a panel-stack overlay would never show
+there). Deleting from settings clears the saved active space if it pointed
+at the deleted tab, so the panel reopens on a valid space. Below that, the
 "general" settings tab lists all modules grouped by space: a header row
 (the space's icon and "#N", not draggable) followed by that space's module
 rows. A hand-rolled drag reorders within a space or, dragged across a
@@ -338,8 +347,14 @@ exactly in the middle: top inset = bottom inset = 16pt.
 
 ## Panel and navigation
 
-- Header: tab segments (main / monitor), gear (settings),
-  ⏻ (quit, with a confirmation dialog). Panel width 368.
+- Header: a spaces switcher on the left — one icon tab per space, click to
+  switch, the active one chip-highlighted — and the service trio on the
+  right: ⓘ (about), gear (settings), ⏻ (quit, with a confirmation dialog).
+  The switcher is pure navigation: adding, reordering, renaming (icon) and
+  deleting spaces all live in the settings "tabs" section, so a stray header
+  click can't create a space. Up to 4 spaces (`PanelTabsModel.maxTabs`) — the
+  cap keeps 4×56pt tabs plus the trio inside the 340pt header content
+  (≈338pt at the cap). Panel width 368.
 - Settings tab order: general → timer → remaining modules → monitor.
   "Remaining modules" = awake/clipboard/converter/windows as sections with
   headers. The app version is shown next to the "check & update" button.

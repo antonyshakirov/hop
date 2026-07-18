@@ -248,8 +248,23 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertNil(PanelTabsModel.decode(""))
     }
 
+    // A model exactly at the cap (maxTabs) must decode; one tab over must not.
+    func testDecodeAcceptsMaxTabs() {
+        let json = """
+        {"tabs":[
+            {"id":"11111111-1111-1111-1111-111111111111","icon":"a","moduleKeys":["m1"]},
+            {"id":"22222222-2222-2222-2222-222222222222","icon":"b","moduleKeys":["m2"]},
+            {"id":"33333333-3333-3333-3333-333333333333","icon":"c","moduleKeys":["m3"]},
+            {"id":"44444444-4444-4444-4444-444444444444","icon":"d","moduleKeys":["m4"]}
+        ]}
+        """
+
+        XCTAssertNotNil(PanelTabsModel.decode(json))
+    }
+
     // Storage is UserDefaults, which a user can hand-edit, so well-formed
     // JSON that breaks the model's own invariants must not decode either.
+    // Five tabs is now over the cap (maxTabs = 4) and must be rejected.
     func testDecodeRejectsTooManyTabs() {
         let json = """
         {"tabs":[
@@ -257,8 +272,7 @@ final class PanelTabsTests: XCTestCase {
             {"id":"22222222-2222-2222-2222-222222222222","icon":"b","moduleKeys":["m2"]},
             {"id":"33333333-3333-3333-3333-333333333333","icon":"c","moduleKeys":["m3"]},
             {"id":"44444444-4444-4444-4444-444444444444","icon":"d","moduleKeys":["m4"]},
-            {"id":"55555555-5555-5555-5555-555555555555","icon":"e","moduleKeys":["m5"]},
-            {"id":"66666666-6666-6666-6666-666666666666","icon":"f","moduleKeys":["m6"]}
+            {"id":"55555555-5555-5555-5555-555555555555","icon":"e","moduleKeys":["m5"]}
         ]}
         """
 
