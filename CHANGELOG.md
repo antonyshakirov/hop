@@ -1,5 +1,22 @@
 # Hop — version history
 
+## 1.3.1 — 2026-07-18
+
+- Torrents: enabling the module now downloads the engine right away — the
+  what's-new card walks through it in two steps: an explicit enable with
+  the honest ~26 MB cost, then live download progress with the follow-up
+  choices (show the module when empty, make Hop the default for .torrent
+  and magnet). Enabling from onboarding or settings prefetches the engine
+  the same way. The download icon in a torrent row lights up only while
+  bytes are actually flowing.
+- Monitor: memory now matches Activity Monitor's Memory Used exactly
+  (the old formula under-reported by gigabytes after days of uptime);
+  disk shows decimal gigabytes like Finder; network speeds use decimal
+  units like everywhere else in the app.
+- Updates: leftover staging folders from past updates are swept at launch.
+- What's new: releases are visually separated, and every screenshot uses
+  unambiguously open content.
+
 ## 1.3.0 — 2026-07-18
 
 - Torrents: a lite BitTorrent client built into the panel. Drop a .torrent
