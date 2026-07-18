@@ -56,6 +56,23 @@ final class UpdateChecker: ObservableObject {
         UserDefaults.standard.object(forKey: Self.autoUpdateKey) as? Bool ?? true
     }
 
+    init() {
+        Self.cleanupStagingLeftovers()
+    }
+
+    /// Installs stage the new bundle into temporaryDirectory/hop-update-<UUID>,
+    /// and the dying process cannot delete its own staging after the copy — so
+    /// every update left a ~7 MB folder behind (macOS only purges them days
+    /// later). The next launch sweeps all of them instead.
+    private static func cleanupStagingLeftovers() {
+        let fm = FileManager.default
+        let tmp = fm.temporaryDirectory
+        guard let entries = try? fm.contentsOfDirectory(atPath: tmp.path) else { return }
+        for name in entries where name.hasPrefix("hop-update-") {
+            try? fm.removeItem(at: tmp.appendingPathComponent(name))
+        }
+    }
+
     /// "latest version installed" is only true at the moment of the check:
     /// closing settings (or half an hour) clears it — an update may well
     /// have shipped since, and a stale note would keep denying it.
