@@ -109,10 +109,21 @@ public struct PanelTabsModel: Codable, Equatable {
 
     /// Inverse of `encoded()`. Returns nil for anything that isn't a valid
     /// encoding of this type, so callers can fall back to `migrate` on
-    /// first launch or corrupted storage.
+    /// first launch or corrupted storage. This also rejects well-formed
+    /// JSON that violates the model's own invariants (tab count, unique
+    /// module keys) — storage is UserDefaults, which a user can hand-edit.
     public static func decode(_ raw: String) -> PanelTabsModel? {
-        guard let data = raw.data(using: .utf8) else { return nil }
-        return try? JSONDecoder().decode(PanelTabsModel.self, from: data)
+        guard let data = raw.data(using: .utf8),
+              let model = try? JSONDecoder().decode(PanelTabsModel.self, from: data),
+              model.isValid else { return nil }
+        return model
+    }
+
+    /// Whether `tabs` currently satisfies both documented invariants.
+    private var isValid: Bool {
+        guard (1...Self.maxTabs).contains(tabs.count) else { return false }
+        let allKeys = tabs.flatMap(\.moduleKeys)
+        return Set(allKeys).count == allKeys.count
     }
 
     /// First-launch migration from the old flat module order: everything

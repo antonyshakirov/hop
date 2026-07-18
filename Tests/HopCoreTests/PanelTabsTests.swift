@@ -164,6 +164,17 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(model, before)
     }
 
+    func testMoveModuleAlreadyInDestinationTabLeavesSingleOccurrence() {
+        let first = PanelTab(icon: "house", moduleKeys: ["awake"])
+        let second = PanelTab(icon: "gauge", moduleKeys: ["timer", "system"])
+        var model = PanelTabsModel(tabs: [first, second])
+
+        model.move(module: "timer", toTab: second.id)
+
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["awake"])
+        XCTAssertEqual(model.tabs[1].moduleKeys, ["system", "timer"])
+    }
+
     // MARK: - reorder
 
     func testReorderMovesModuleWithinTab() {
@@ -235,5 +246,33 @@ final class PanelTabsTests: XCTestCase {
     func testDecodeGarbageReturnsNil() {
         XCTAssertNil(PanelTabsModel.decode("not json at all"))
         XCTAssertNil(PanelTabsModel.decode(""))
+    }
+
+    // Storage is UserDefaults, which a user can hand-edit, so well-formed
+    // JSON that breaks the model's own invariants must not decode either.
+    func testDecodeRejectsTooManyTabs() {
+        let json = """
+        {"tabs":[
+            {"id":"11111111-1111-1111-1111-111111111111","icon":"a","moduleKeys":["m1"]},
+            {"id":"22222222-2222-2222-2222-222222222222","icon":"b","moduleKeys":["m2"]},
+            {"id":"33333333-3333-3333-3333-333333333333","icon":"c","moduleKeys":["m3"]},
+            {"id":"44444444-4444-4444-4444-444444444444","icon":"d","moduleKeys":["m4"]},
+            {"id":"55555555-5555-5555-5555-555555555555","icon":"e","moduleKeys":["m5"]},
+            {"id":"66666666-6666-6666-6666-666666666666","icon":"f","moduleKeys":["m6"]}
+        ]}
+        """
+
+        XCTAssertNil(PanelTabsModel.decode(json))
+    }
+
+    func testDecodeRejectsDuplicateModuleKeyAcrossTabs() {
+        let json = """
+        {"tabs":[
+            {"id":"11111111-1111-1111-1111-111111111111","icon":"house","moduleKeys":["timer"]},
+            {"id":"22222222-2222-2222-2222-222222222222","icon":"gauge","moduleKeys":["timer"]}
+        ]}
+        """
+
+        XCTAssertNil(PanelTabsModel.decode(json))
     }
 }
