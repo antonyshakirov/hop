@@ -362,4 +362,80 @@ final class TrackerEngineTests: XCTestCase {
 
         XCTAssertEqual(engine.total(projectID: projectID), 1 * 3600)
     }
+
+    // MARK: - Manual edit: setToday
+
+    func testSetTodayIncreasingValueAddsPositiveCorrectionAndGrowsTodayAndTotal() {
+        let projectID = UUID()
+        let taskID = UUID()
+        clock = date(2026, 7, 17, 12, 0)
+        engine = TrackerEngine(data: TrackerData(
+            projects: [TrackerProject(id: projectID, name: "Hop")],
+            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            intervals: [],
+            corrections: [TrackerCorrection(taskID: taskID, day: date(2026, 7, 17, 0, 0), seconds: 10 * 60)]
+        ), now: { self.clock }, calendar: calendar)
+        engine.onChange = { [weak self] in self?.changeCount += 1 }
+
+        changeCount = 0
+        let result = engine.setToday(taskID: taskID, to: 25 * 60)
+
+        XCTAssertTrue(result)
+        XCTAssertEqual(changeCount, 1)
+        XCTAssertEqual(engine.data.corrections.count, 2)
+        XCTAssertEqual(engine.data.corrections.last?.seconds, 15 * 60)
+        XCTAssertEqual(engine.data.corrections.last?.day, date(2026, 7, 17, 0, 0))
+        XCTAssertEqual(engine.today(taskID: taskID), 25 * 60)
+        XCTAssertEqual(engine.total(taskID: taskID), 25 * 60)
+    }
+
+    func testSetTodayBelowZeroClampsToZeroViaNegatedCurrentCorrection() {
+        let projectID = UUID()
+        let taskID = UUID()
+        clock = date(2026, 7, 17, 12, 0)
+        engine = TrackerEngine(data: TrackerData(
+            projects: [TrackerProject(id: projectID, name: "Hop")],
+            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            intervals: [],
+            corrections: [TrackerCorrection(taskID: taskID, day: date(2026, 7, 17, 0, 0), seconds: 10 * 60)]
+        ), now: { self.clock }, calendar: calendar)
+
+        let result = engine.setToday(taskID: taskID, to: -5 * 60)
+
+        XCTAssertTrue(result)
+        XCTAssertEqual(engine.data.corrections.last?.seconds, -10 * 60)
+        XCTAssertEqual(engine.today(taskID: taskID), 0)
+    }
+
+    func testSetTodayCalledTwiceSameDayAppendsTwoCorrectionsBothApply() {
+        let projectID = UUID()
+        let taskID = UUID()
+        clock = date(2026, 7, 17, 12, 0)
+        engine = TrackerEngine(data: TrackerData(
+            projects: [TrackerProject(id: projectID, name: "Hop")],
+            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            intervals: [],
+            corrections: []
+        ), now: { self.clock }, calendar: calendar)
+
+        engine.setToday(taskID: taskID, to: 10 * 60)
+        engine.setToday(taskID: taskID, to: 20 * 60)
+
+        XCTAssertEqual(engine.data.corrections.count, 2)
+        XCTAssertEqual(engine.data.corrections.map(\.seconds), [10 * 60, 10 * 60])
+        XCTAssertEqual(engine.today(taskID: taskID), 20 * 60)
+    }
+
+    func testSetTodayOnActiveTaskReturnsFalseAndMutatesNothing() {
+        let projectID = engine.addProject(name: "Hop")
+        let taskID = engine.addTask(projectID: projectID, name: "A")
+        engine.start(taskID: taskID)
+
+        changeCount = 0
+        let result = engine.setToday(taskID: taskID, to: 25 * 60)
+
+        XCTAssertFalse(result)
+        XCTAssertTrue(engine.data.corrections.isEmpty)
+        XCTAssertEqual(changeCount, 0)
+    }
 }

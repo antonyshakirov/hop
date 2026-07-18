@@ -97,6 +97,21 @@ public final class TrackerEngine: ObservableObject {
         data.intervals[index].end = now()
     }
 
+    // MARK: - Manual edits
+
+    /// Sets the task's *today* value; the delta lands as a correction dated today.
+    /// Ignored (returns false) while the task is active.
+    @discardableResult
+    public func setToday(taskID: UUID, to seconds: TimeInterval) -> Bool {
+        guard activeTaskID != taskID else { return false }
+        let target = max(0, seconds)
+        let delta = target - today(taskID: taskID)
+        let startOfToday = calendar.startOfDay(for: now())
+        data.corrections.append(TrackerCorrection(taskID: taskID, day: startOfToday, seconds: delta))
+        onChange?()
+        return true
+    }
+
     // MARK: - Aggregates
 
     /// Every closed interval in full, the open interval up to `now`, plus
