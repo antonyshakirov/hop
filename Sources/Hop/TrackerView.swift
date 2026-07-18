@@ -77,6 +77,14 @@ struct TrackerView: View {
             addProjectRow
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .onDisappear {
+            // @State survives the popover hide/show, so a left-open field or
+            // confirm row would reappear (unfocused) on the next open — clear
+            // it here, the same way PanelView drops its inline icon picker.
+            endEdit()
+            clearConfirms()
+            resetScrub()
+        }
     }
 
     // MARK: - Project row
@@ -269,14 +277,20 @@ struct TrackerView: View {
                 scrubPending = max(0, (scrubBase ?? 0) + Double(steps) * 60)
             }
             .onEnded { _ in
-                if let taskID = scrubbingTask, let pending = scrubPending {
+                // a drag that returns to origin (steps == 0) is a no-op — don't
+                // append a 0-second correction to tracker.json for nothing.
+                if let taskID = scrubbingTask, let pending = scrubPending, scrubSteps != 0 {
                     engine.setToday(taskID: taskID, to: pending)
                 }
-                scrubbingTask = nil
-                scrubBase = nil
-                scrubPending = nil
-                scrubSteps = 0
+                resetScrub()
             }
+    }
+
+    private func resetScrub() {
+        scrubbingTask = nil
+        scrubBase = nil
+        scrubPending = nil
+        scrubSteps = 0
     }
 
     // MARK: - Add affordances
