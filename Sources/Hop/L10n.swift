@@ -132,6 +132,7 @@ enum L10nKey: String, CaseIterable {
     case featureNewBadge, featureEnable, featureHide, featureTorrentTitle, featureTorrentBody
     case torrentEngineNote
     case featureShowHere, featureSave
+    case trackerLabel, trackerNewProject, trackerNewTask, trackerDeleteProject, trackerDeleteTask, trackerDelete, trackerEmpty, trackerEditHint
 }
 
 enum L10n {
@@ -375,6 +376,10 @@ enum L10n {
             .featureNewBadge: "new", .featureEnable: "enable", .featureHide: "hide",
             .featureTorrentTitle: "torrents", .featureTorrentBody: "download .torrent files and magnet links right in Hop", .torrentEngineNote: "saying yes downloads the engine right away (~26 MB)",
             .featureShowHere: "show in the panel", .featureSave: "save",
+            .trackerLabel: "tracker", .trackerNewProject: "new project", .trackerNewTask: "new task",
+            .trackerDeleteProject: "delete project and its tasks?", .trackerDeleteTask: "delete task?",
+            .trackerDelete: "delete", .trackerEmpty: "no projects yet",
+            .trackerEditHint: "drag or click to adjust today's time",
         ],
         .ru: [
             .memPressureNote: "память: цвет — по системному сигналу memory pressure macOS",
@@ -590,6 +595,10 @@ enum L10n {
             .featureNewBadge: "новое", .featureEnable: "включить", .featureHide: "скрыть",
             .featureTorrentTitle: "торренты", .featureTorrentBody: "качайте .torrent и magnet-ссылки прямо в Hop", .torrentEngineNote: "при включении сразу докачается движок (~26 МБ)",
             .featureShowHere: "показывать в панели", .featureSave: "сохранить",
+            .trackerLabel: "трекер времени", .trackerNewProject: "новый проект", .trackerNewTask: "новая задача",
+            .trackerDeleteProject: "удалить проект и его задачи?", .trackerDeleteTask: "удалить задачу?",
+            .trackerDelete: "удалить", .trackerEmpty: "пока нет проектов",
+            .trackerEditHint: "потяните или нажмите, чтобы изменить время за сегодня",
         ],
         .de: [
             .memPressureNote: "speicher: die farbe folgt dem memory-pressure-signal von macOS",
@@ -805,6 +814,10 @@ enum L10n {
             .featureNewBadge: "neu", .featureEnable: "aktivieren", .featureHide: "ausblenden",
             .featureTorrentTitle: "torrents", .featureTorrentBody: ".torrent-dateien und magnet-links direkt in Hop laden", .torrentEngineNote: "beim einschalten lädt die engine sofort (~26 MB)",
             .featureShowHere: "in der Leiste anzeigen", .featureSave: "speichern",
+            .trackerLabel: "zeiterfassung", .trackerNewProject: "neues projekt", .trackerNewTask: "neue aufgabe",
+            .trackerDeleteProject: "projekt und aufgaben löschen?", .trackerDeleteTask: "aufgabe löschen?",
+            .trackerDelete: "löschen", .trackerEmpty: "noch keine projekte",
+            .trackerEditHint: "ziehen oder klicken, um die heutige zeit anzupassen",
         ],
         .es: [
             .memPressureNote: "memoria: el color sigue la señal de presión de memoria de macOS",
@@ -1020,6 +1033,10 @@ enum L10n {
             .featureNewBadge: "nuevo", .featureEnable: "activar", .featureHide: "ocultar",
             .featureTorrentTitle: "torrents", .featureTorrentBody: "descarga .torrent y enlaces magnet directamente en Hop", .torrentEngineNote: "al activarlo, el motor se descarga enseguida (~26 MB)",
             .featureShowHere: "mostrar en el panel", .featureSave: "guardar",
+            .trackerLabel: "seguimiento", .trackerNewProject: "nuevo proyecto", .trackerNewTask: "nueva tarea",
+            .trackerDeleteProject: "¿eliminar proyecto y sus tareas?", .trackerDeleteTask: "¿eliminar tarea?",
+            .trackerDelete: "eliminar", .trackerEmpty: "aún no hay proyectos",
+            .trackerEditHint: "arrastra o haz clic para ajustar el tiempo de hoy",
         ],
         .pt: [
             .memPressureNote: "memória: a cor segue o sinal de pressão de memória do macOS",
@@ -1235,6 +1252,10 @@ enum L10n {
             .featureNewBadge: "novo", .featureEnable: "ativar", .featureHide: "ocultar",
             .featureTorrentTitle: "torrents", .featureTorrentBody: "baixe arquivos .torrent e links magnet direto no Hop", .torrentEngineNote: "ao ativar, o motor baixa na hora (~26 MB)",
             .featureShowHere: "mostrar no painel", .featureSave: "salvar",
+            .trackerLabel: "controle de tempo", .trackerNewProject: "novo projeto", .trackerNewTask: "nova tarefa",
+            .trackerDeleteProject: "excluir projeto e suas tarefas?", .trackerDeleteTask: "excluir tarefa?",
+            .trackerDelete: "excluir", .trackerEmpty: "ainda sem projetos",
+            .trackerEditHint: "arraste ou clique para ajustar o tempo de hoje",
         ],
         .fr: [
             .memPressureNote: "mémoire : la couleur suit le signal de pression mémoire de macOS",
@@ -1450,6 +1471,10 @@ enum L10n {
             .featureNewBadge: "nouveau", .featureEnable: "activer", .featureHide: "masquer",
             .featureTorrentTitle: "torrents", .featureTorrentBody: "télécharge les .torrent et liens magnet directement dans Hop", .torrentEngineNote: "à l'activation, le moteur se télécharge aussitôt (~26 Mo)",
             .featureShowHere: "afficher dans le panneau", .featureSave: "enregistrer",
+            .trackerLabel: "suivi du temps", .trackerNewProject: "nouveau projet", .trackerNewTask: "nouvelle tâche",
+            .trackerDeleteProject: "supprimer le projet et ses tâches ?", .trackerDeleteTask: "supprimer la tâche ?",
+            .trackerDelete: "supprimer", .trackerEmpty: "aucun projet pour l'instant",
+            .trackerEditHint: "glissez ou cliquez pour ajuster le temps d'aujourd'hui",
         ],
         .it: [
             .memPressureNote: "memoria: il colore segue il segnale di pressione della memoria di macOS",
@@ -1665,6 +1690,10 @@ enum L10n {
             .featureNewBadge: "nuovo", .featureEnable: "attiva", .featureHide: "nascondi",
             .featureTorrentTitle: "torrents", .featureTorrentBody: "scarica file .torrent e link magnet direttamente in Hop", .torrentEngineNote: "all'attivazione il motore si scarica subito (~26 MB)",
             .featureShowHere: "mostra nel pannello", .featureSave: "salva",
+            .trackerLabel: "monitoraggio tempo", .trackerNewProject: "nuovo progetto", .trackerNewTask: "nuova attività",
+            .trackerDeleteProject: "eliminare il progetto e le sue attività?", .trackerDeleteTask: "eliminare l'attività?",
+            .trackerDelete: "elimina", .trackerEmpty: "ancora nessun progetto",
+            .trackerEditHint: "trascina o clicca per regolare il tempo di oggi",
         ],
         .zh: [
             .memPressureNote: "内存：颜色跟随 macOS 系统的内存压力信号",
@@ -1880,6 +1909,10 @@ enum L10n {
             .featureNewBadge: "新", .featureEnable: "启用", .featureHide: "隐藏",
             .featureTorrentTitle: "种子", .featureTorrentBody: "在 Hop 里直接下载 .torrent 文件和 magnet 链接", .torrentEngineNote: "开启后会立即下载引擎（约 26 MB）",
             .featureShowHere: "在面板中显示", .featureSave: "保存",
+            .trackerLabel: "时间跟踪", .trackerNewProject: "新建项目", .trackerNewTask: "新建任务",
+            .trackerDeleteProject: "删除项目及其任务？", .trackerDeleteTask: "删除任务？",
+            .trackerDelete: "删除", .trackerEmpty: "还没有项目",
+            .trackerEditHint: "拖动或点击以调整今天的时间",
         ],
         .ja: [
             .memPressureNote: "メモリ：色は macOS のメモリプレッシャー信号に従います",
@@ -2095,6 +2128,10 @@ enum L10n {
             .featureNewBadge: "新着", .featureEnable: "有効化", .featureHide: "隠す",
             .featureTorrentTitle: "トレント", .featureTorrentBody: ".torrent ファイルと magnet リンクを Hop で直接ダウンロード", .torrentEngineNote: "有効にするとエンジン（約 26 MB）をすぐダウンロード",
             .featureShowHere: "パネルに表示", .featureSave: "保存",
+            .trackerLabel: "タイムトラッカー", .trackerNewProject: "新規プロジェクト", .trackerNewTask: "新規タスク",
+            .trackerDeleteProject: "プロジェクトとタスクを削除しますか？", .trackerDeleteTask: "タスクを削除しますか？",
+            .trackerDelete: "削除", .trackerEmpty: "プロジェクトがまだありません",
+            .trackerEditHint: "ドラッグまたはクリックで今日の時間を調整",
         ],
         .ko: [
             .memPressureNote: "메모리: 색상은 macOS의 메모리 압박 신호를 따릅니다",
@@ -2310,6 +2347,10 @@ enum L10n {
             .featureNewBadge: "신규", .featureEnable: "사용", .featureHide: "숨기기",
             .featureTorrentTitle: "토렌트", .featureTorrentBody: ".torrent 파일과 magnet 링크를 Hop에서 바로 다운로드", .torrentEngineNote: "켜면 엔진(~26 MB)을 바로 다운로드",
             .featureShowHere: "패널에 표시", .featureSave: "저장",
+            .trackerLabel: "시간 추적", .trackerNewProject: "새 프로젝트", .trackerNewTask: "새 작업",
+            .trackerDeleteProject: "프로젝트와 작업을 삭제할까요?", .trackerDeleteTask: "작업을 삭제할까요?",
+            .trackerDelete: "삭제", .trackerEmpty: "아직 프로젝트가 없습니다",
+            .trackerEditHint: "드래그하거나 클릭하여 오늘 시간 조정",
         ],
         .tr: [
             .memPressureNote: "bellek: renk, macOS'un bellek baskısı sinyalini izler",
@@ -2542,6 +2583,10 @@ enum L10n {
             .featureNewBadge: "yeni", .featureEnable: "aç", .featureHide: "gizle",
             .featureTorrentTitle: "torrentler", .featureTorrentBody: ".torrent dosyalarını ve magnet bağlantılarını doğrudan Hop'ta indir", .torrentEngineNote: "açınca motor hemen indirilir (~26 MB)",
             .featureShowHere: "panelde göster", .featureSave: "kaydet",
+            .trackerLabel: "zaman takibi", .trackerNewProject: "yeni proje", .trackerNewTask: "yeni görev",
+            .trackerDeleteProject: "proje ve görevleri silinsin mi?", .trackerDeleteTask: "görev silinsin mi?",
+            .trackerDelete: "sil", .trackerEmpty: "henüz proje yok",
+            .trackerEditHint: "bugünün süresini ayarlamak için sürükleyin veya tıklayın",
         ],
         .uk: [
             .memPressureNote: "пам'ять: колір — за системним сигналом memory pressure macOS",
@@ -2774,6 +2819,10 @@ enum L10n {
             .featureNewBadge: "нове", .featureEnable: "увімкнути", .featureHide: "сховати",
             .featureTorrentTitle: "торенти", .featureTorrentBody: "качай .torrent і magnet-посилання прямо в Hop", .torrentEngineNote: "після увімкнення одразу довантажиться рушій (~26 МБ)",
             .featureShowHere: "показувати в панелі", .featureSave: "зберегти",
+            .trackerLabel: "трекер часу", .trackerNewProject: "новий проєкт", .trackerNewTask: "нове завдання",
+            .trackerDeleteProject: "видалити проєкт і його завдання?", .trackerDeleteTask: "видалити завдання?",
+            .trackerDelete: "видалити", .trackerEmpty: "поки немає проєктів",
+            .trackerEditHint: "потягніть або натисніть, щоб змінити час за сьогодні",
         ],
         .pl: [
             .memPressureNote: "pamięć: kolor podąża za sygnałem memory pressure systemu macOS",
@@ -3006,6 +3055,10 @@ enum L10n {
             .featureNewBadge: "nowe", .featureEnable: "włącz", .featureHide: "ukryj",
             .featureTorrentTitle: "torrenty", .featureTorrentBody: "pobieraj pliki .torrent i linki magnet prosto w Hop", .torrentEngineNote: "po włączeniu od razu pobierze się silnik (~26 MB)",
             .featureShowHere: "pokaż w panelu", .featureSave: "zapisz",
+            .trackerLabel: "śledzenie czasu", .trackerNewProject: "nowy projekt", .trackerNewTask: "nowe zadanie",
+            .trackerDeleteProject: "usunąć projekt i jego zadania?", .trackerDeleteTask: "usunąć zadanie?",
+            .trackerDelete: "usuń", .trackerEmpty: "brak projektów",
+            .trackerEditHint: "przeciągnij lub kliknij, aby dostosować dzisiejszy czas",
         ],
         .id: [
             .memPressureNote: "memori: warna mengikuti sinyal tekanan memori macOS",
@@ -3238,6 +3291,10 @@ enum L10n {
             .featureNewBadge: "baru", .featureEnable: "aktifkan", .featureHide: "sembunyikan",
             .featureTorrentTitle: "torrent", .featureTorrentBody: "unduh file .torrent dan tautan magnet langsung di Hop", .torrentEngineNote: "saat diaktifkan, mesin langsung diunduh (~26 MB)",
             .featureShowHere: "tampilkan di panel", .featureSave: "simpan",
+            .trackerLabel: "pelacak waktu", .trackerNewProject: "proyek baru", .trackerNewTask: "tugas baru",
+            .trackerDeleteProject: "hapus proyek dan tugasnya?", .trackerDeleteTask: "hapus tugas?",
+            .trackerDelete: "hapus", .trackerEmpty: "belum ada proyek",
+            .trackerEditHint: "seret atau klik untuk menyesuaikan waktu hari ini",
         ],
         .th: [
             .memPressureNote: "หน่วยความจำ: สีตามสัญญาณ memory pressure ของ macOS",
@@ -3470,6 +3527,10 @@ enum L10n {
             .featureNewBadge: "ใหม่", .featureEnable: "เปิดใช้", .featureHide: "ซ่อน",
             .featureTorrentTitle: "ทอร์เรนต์", .featureTorrentBody: "ดาวน์โหลดไฟล์ .torrent และลิงก์ magnet ได้ใน Hop เลย", .torrentEngineNote: "เมื่อเปิดใช้ เอนจินจะดาวน์โหลดทันที (~26 MB)",
             .featureShowHere: "แสดงในแผง", .featureSave: "บันทึก",
+            .trackerLabel: "ติดตามเวลา", .trackerNewProject: "โปรเจกต์ใหม่", .trackerNewTask: "งานใหม่",
+            .trackerDeleteProject: "ลบโปรเจกต์และงานทั้งหมด?", .trackerDeleteTask: "ลบงานนี้?",
+            .trackerDelete: "ลบ", .trackerEmpty: "ยังไม่มีโปรเจกต์",
+            .trackerEditHint: "ลากหรือคลิกเพื่อปรับเวลาของวันนี้",
         ],
         .vi: [
             .memPressureNote: "bộ nhớ: màu theo tín hiệu memory pressure của macOS",
@@ -3702,6 +3763,10 @@ enum L10n {
             .featureNewBadge: "mới", .featureEnable: "bật", .featureHide: "ẩn",
             .featureTorrentTitle: "torrent", .featureTorrentBody: "tải .torrent và liên kết magnet ngay trong Hop", .torrentEngineNote: "khi bật, engine sẽ được tải ngay (~26 MB)",
             .featureShowHere: "hiện trên bảng", .featureSave: "lưu",
+            .trackerLabel: "theo dõi thời gian", .trackerNewProject: "dự án mới", .trackerNewTask: "công việc mới",
+            .trackerDeleteProject: "xóa dự án và các công việc?", .trackerDeleteTask: "xóa công việc?",
+            .trackerDelete: "xóa", .trackerEmpty: "chưa có dự án",
+            .trackerEditHint: "kéo hoặc nhấp để chỉnh thời gian hôm nay",
         ],
         .hi: [
             .memPressureNote: "मेमोरी: रंग macOS के memory pressure संकेत के अनुसार",
@@ -3934,6 +3999,10 @@ enum L10n {
             .featureNewBadge: "नया", .featureEnable: "चालू करें", .featureHide: "छिपाएँ",
             .featureTorrentTitle: "टोरेंट", .featureTorrentBody: ".torrent फ़ाइलें और magnet लिंक सीधे Hop में डाउनलोड करें", .torrentEngineNote: "चालू करने पर इंजन तुरंत डाउनलोड होता है (~26 MB)",
             .featureShowHere: "पैनल में दिखाएँ", .featureSave: "सहेजें",
+            .trackerLabel: "टाइम ट्रैकर", .trackerNewProject: "नया प्रोजेक्ट", .trackerNewTask: "नया कार्य",
+            .trackerDeleteProject: "प्रोजेक्ट और उसके कार्य हटाएं?", .trackerDeleteTask: "कार्य हटाएं?",
+            .trackerDelete: "हटाएं", .trackerEmpty: "अभी कोई प्रोजेक्ट नहीं",
+            .trackerEditHint: "आज का समय समायोजित करने के लिए खींचें या क्लिक करें",
         ],
         .nl: [
             .memPressureNote: "geheugen: de kleur volgt het memory-pressure-signaal van macOS",
@@ -4166,6 +4235,10 @@ enum L10n {
             .featureNewBadge: "nieuw", .featureEnable: "inschakelen", .featureHide: "verbergen",
             .featureTorrentTitle: "torrents", .featureTorrentBody: "download .torrent-bestanden en magnet-links direct in Hop", .torrentEngineNote: "bij inschakelen wordt de engine meteen gedownload (~26 MB)",
             .featureShowHere: "in het paneel tonen", .featureSave: "opslaan",
+            .trackerLabel: "tijdregistratie", .trackerNewProject: "nieuw project", .trackerNewTask: "nieuwe taak",
+            .trackerDeleteProject: "project en taken verwijderen?", .trackerDeleteTask: "taak verwijderen?",
+            .trackerDelete: "verwijderen", .trackerEmpty: "nog geen projecten",
+            .trackerEditHint: "sleep of klik om de tijd van vandaag aan te passen",
         ],
     ]
 }

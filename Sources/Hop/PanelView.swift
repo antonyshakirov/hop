@@ -95,6 +95,9 @@ struct PanelView: View {
     @AppStorage("showSpeedtestModule") private var showSpeedtestModule = true
     // The system monitor is a module inside its own tab now, toggled like the rest.
     @AppStorage("showSystemModule") private var showSystemModule = true
+    // The tracker ships visible by default (not opt-in like torrents): a plain
+    // UI module with no engine to download.
+    @AppStorage("showTrackerModule") private var showTrackerModule = true
     // Default OFF: a brand-new feature stays hidden until the user opts in via the
     // "what's new" banner (updated users) or onboarding (fresh installs enable it).
     @AppStorage("showTorrentModule") private var showTorrentModule = false
@@ -825,6 +828,9 @@ struct PanelView: View {
                 if dragTabID == nil {
                     dragTabID = id
                     dragTabTarget = from
+                    // an open picker adds height to one row and breaks the
+                    // uniform-row-height drag math visually — fold it first
+                    iconPickerTabID = nil
                 }
                 dragTabOffset = value.translation.height
                 let steps = Int((value.translation.height / Self.moduleRowHeight).rounded())
@@ -1540,8 +1546,7 @@ struct PanelView: View {
             }
             return true
         case "system": return showSystemModule
-        // the tracker module ships later on this branch; hidden until then.
-        case "tracker": return false
+        case "tracker": return showTrackerModule
         default: return false
         }
     }
@@ -1564,6 +1569,7 @@ struct PanelView: View {
                 }
             )
         case "system": return $showSystemModule
+        case "tracker": return $showTrackerModule
         default: return $showWindowsModule
         }
     }
@@ -1578,6 +1584,7 @@ struct PanelView: View {
         case "speedtest": return t(.speedtestLabel)
         case "torrent": return t(.torrentLabel)
         case "system": return t(.tabSystem)
+        case "tracker": return t(.trackerLabel)
         default: return key
         }
     }
@@ -1598,6 +1605,9 @@ struct PanelView: View {
                 .id(model.themeVersion)
         case "system":
             StatsView(stats: model.stats, lang: lang)
+                .id(model.themeVersion)
+        case "tracker":
+            TrackerView(tracker: model.tracker, lang: lang)
                 .id(model.themeVersion)
         default: EmptyView()
         }
@@ -2142,13 +2152,13 @@ struct PanelView: View {
     }
 
     /// The module list grouped by tab: each tab contributes a header followed
-    /// by its module rows. "tracker" is skipped — it ships next task and a
-    /// toggle for an invisible module would only confuse.
+    /// by its module rows. Every module key is listed, so the settings rows
+    /// match the spaces' moduleKeys one-to-one.
     private var moduleListRows: [ModuleListRow] {
         var rows: [ModuleListRow] = []
         for (index, tab) in tabsModel.tabs.enumerated() {
             rows.append(.header(tab: tab, number: index + 1))
-            for key in tab.moduleKeys where key != "tracker" {
+            for key in tab.moduleKeys {
                 rows.append(.module(key: key))
             }
         }

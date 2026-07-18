@@ -336,6 +336,45 @@ exactly in the middle: top inset = bottom inset = 16pt.
   frame is re-read and corrected with retries (up to 3) — "click several
   times" must never be needed.
 
+### Tracker
+
+- Time tracker over projects and tasks. All logic lives in HopCore
+  (`TrackerEngine`, persisted to `tracker.json` via `TrackerController`);
+  the view is glue. Labels tick off `tracker.heartbeat` (1/s while a task is
+  tracking). Shown by default (`showTrackerModule`, ON) — unlike torrents it
+  has no engine to download, so it isn't opt-in; toggled in "general" like
+  every other module and its settings row is a normal module row (no longer
+  excluded from the list).
+- **Single active task:** at most one task is ever tracking. Tapping play on
+  task B while A runs stops A first — the engine closes the open interval
+  itself (`start(taskID:)`), the UI never juggles two. Deleting the active
+  task stops tracking (its open interval is dropped with it).
+- **Project row** (mono 12, rowBg card): a disclosure chevron (`chevron.right`,
+  rotated 90° when expanded, 0.15s easeInOut), the name, and a right-aligned
+  `today — total` glance (mono 10, tertiary). Clicking the row toggles
+  expansion; hover reveals a trailing xmark. Delete uses the house inline
+  confirm (`delete project and its tasks?` + delete/cancel on one line);
+  confirm removes the project with its tasks, intervals and corrections.
+- **Task row** (indented 14pt under an expanded project): a play/stop button
+  (`play.fill` idle, `stop.fill` when this task is active; the active task's
+  button and its "today" label use `Theme.textPrimary` emphasis, matching the
+  timer's running state), the name, then `today` (mono 11) + `total` (mono 10,
+  tertiary), and the same hover xmark + inline confirm (`delete task?`).
+- **Adding / renaming:** a `+ new project` footer row and, inside an expanded
+  project, a `+ new task` row; both swap into an inline TextField (lowercase
+  placeholder = the label), committed on Return (empty = cancel), Escape
+  cancels. Double-clicking a name opens the same inline field to rename.
+- **Editing today's time** (only while the task is NOT active — the engine
+  refuses otherwise and the UI hides the affordance): scrub the today label
+  (horizontal drag, 8pt = ±1 min, a scrub tick per step) with a live local
+  preview, committed as ONE correction on gesture end (the engine appends
+  corrections, so per-step commits would pile up); or click the label to type
+  into an inline field that reads `H:MM` or bare minutes (`90` = 90 min,
+  `1:30` = 1h30m). `.help` carries the hint. Times via `TimeFormatting.short`.
+- **Empty state:** no projects → a `no projects yet` line plus the add row.
+- **Snapshot rule:** every focused-field state is gated off `Snapshot.active`,
+  so `--snapshot` renders never show an editing TextField (yellow artifact).
+
 ## Shared components
 
 - **SettingChip (Controls.swift) is the ONLY chip toggle** in the entire
