@@ -48,10 +48,13 @@ enum MenuBarIcon {
     /// Glyph centered: equal margins on the left and right.
     private static let dialRect = NSRect(x: 3.5, y: 1.5, width: 15, height: 14)
 
-    /// Dev build: TWO identical stars live in the bar (production and dev) —
-    /// indistinguishable without a mark. "D" in the bottom-left corner, monochrome.
+    /// Non-production build: TWO identical stars can live in the bar (production
+    /// plus a dev or raw-debug instance) — indistinguishable without a mark. "D"
+    /// in the bottom-left corner, monochrome. Anything that is NOT exactly the
+    /// production bundle id gets the mark: the ".dev" app, and the raw debug
+    /// binary too (no Info.plist, so bundleIdentifier is nil).
     static var isDevBuild: Bool {
-        Bundle.main.bundleIdentifier?.hasSuffix(".dev") == true
+        Bundle.main.bundleIdentifier != "com.antonshakirov.minimo"
     }
 
     private static func drawDevMark(color: NSColor) {

@@ -757,12 +757,12 @@ struct PanelView: View {
             switchToSpace(tab.id) // no animation: tabs stay put
         } label: {
             Image(systemName: tab.icon)
-                .font(.system(size: 12))
+                .font(.system(size: 15))
                 .foregroundStyle(active ? Theme.textPrimary : Theme.textTertiary)
-                .frame(width: 24, height: 24)
+                .frame(width: 32, height: 28)
                 .background(
                     active ? Theme.chipBg : .clear,
-                    in: RoundedRectangle(cornerRadius: 5)
+                    in: RoundedRectangle(cornerRadius: 6)
                 )
                 .contentShape(Rectangle())
         }
