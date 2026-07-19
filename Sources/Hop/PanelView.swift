@@ -461,7 +461,10 @@ struct PanelView: View {
             featureBanner
             header
             switch screen {
-            case .space(let id):
+            case .space(let rawID):
+                // resolve a possibly-dead id (its space may have been deleted
+                // from the settings window since this panel was built)
+                let id = effectiveSpaceID(rawID)
                 let modules = visibleModules(in: id)
                 if modules.isEmpty {
                     Text(t(.tabEmptyHint))
@@ -541,7 +544,7 @@ struct PanelView: View {
     /// Keyboard time entry into the selected digit group: digits slide in from the
     /// right (0 → 2 gives :02). The group is picked by clicking/hovering the display.
     private func handleKey(_ press: KeyPress) -> KeyPress.Result {
-        guard case .space(let id) = screen,
+        guard let id = currentSpaceID,
               visibleModules(in: id).contains("timer"),
               !model.engine.isStopwatch,
               model.engine.state == .idle || model.engine.state == .finished
@@ -789,7 +792,9 @@ struct PanelView: View {
     }
 
     private func spaceTabButton(_ tab: PanelTab) -> some View {
-        let active = screen == .space(tab.id)
+        // compare against the LIVE current space (same derivation the content
+        // uses), so the highlight never lands on a deleted id or on nothing
+        let active = currentSpaceID == tab.id
         return Image(systemName: tab.icon)
             .font(.system(size: 15))
             .foregroundStyle(active ? Theme.textPrimary : Theme.textTertiary)
@@ -1526,6 +1531,23 @@ struct PanelView: View {
     private func visibleModules(in id: UUID) -> [String] {
         (tabsModel.tabs.first { $0.id == id }?.moduleKeys ?? [])
             .filter { moduleVisible($0) }
+    }
+
+    /// The space id to actually render and highlight for a stored `screen` id.
+    /// The panel is built once at launch and `screen` only resolves in `init`,
+    /// so a space deleted meanwhile (from the standalone settings window, a
+    /// separate PanelView instance) leaves a dead id in this instance's state.
+    /// Derive the live id at every read site — do NOT mutate `@State` in body —
+    /// so the rendered content and the tab highlight always agree. `tabs` is
+    /// never empty (the model guarantees 1...maxTabs), so `tabs[0]` is safe.
+    private func effectiveSpaceID(_ id: UUID) -> UUID {
+        tabsModel.tabs.contains { $0.id == id } ? id : tabsModel.tabs[0].id
+    }
+
+    /// The live space currently shown, or nil when the panel isn't on a space.
+    private var currentSpaceID: UUID? {
+        if case .space(let id) = screen { return effectiveSpaceID(id) }
+        return nil
     }
 
     private func moduleVisible(_ key: String) -> Bool {
