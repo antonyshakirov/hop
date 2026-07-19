@@ -392,105 +392,96 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Tracker
 
-- Time tracker over projects and tasks. All logic lives in HopCore
-  (`TrackerEngine`, persisted to `tracker.json` via `TrackerController`);
-  the view is glue. Labels tick off `tracker.heartbeat` (1/s while a task is
-  tracking). Active by default — unlike torrents it has no engine to
-  download, so it isn't opt-in; hidden or shown like every other module by
-  membership in the "modules & tabs" table (drag it to/from the inactive
-  column). The module title (`trackerLabel`) is "time tracker" — it names the
-  feature both in settings and in the empty state.
-- **Mixed root list:** the root is an ORDERED list of interleaved projects and
-  project-less tasks. `TrackerData.rootOrder` holds the ids of every root item
-  — every project plus every task whose `projectID` is nil — with no
-  duplicates; the engine normalizes it on load (keep listed ids in order, drop
-  stale ones, append any missing: projects in array order, then root tasks).
-  A task's `projectID` is optional now: nil marks a ROOT task that tracks,
-  aggregates, edits and deletes exactly like a nested one but belongs to NO
-  project (so it never counts toward any project total). `addTask(projectID:)`
-  takes an optional — nil appends a root task to `rootOrder`.
-- **Reordering (engine):** `move(taskID:toProjectID:at:)` nests a task at a
-  clamped position inside a project (lifting it out of the root or another
-  project), `move(taskID:toRootAt:)` detaches a task to a clamped index in the
-  mixed root list, and `moveRootItem(from:to:)` reorders that list (clamped;
-  `from` out of range is a no-op). Each fires `onChange` once; add/delete keep
-  `rootOrder` in sync.
-- **Migration:** an old `tracker.json` (every task nested, no `rootOrder`)
-  loads losslessly — the decode tolerates the missing field and every array
-  field defaults to empty, and the engine derives `rootOrder` as the projects
-  in their existing order. Open intervals, corrections and expanded flags are
-  untouched.
+- Time tracker over a FLAT LIST OF TASKS — projects are gone (removed in 8.14;
+  an old file that still has them is flattened away on load, see Migration). All
+  logic lives in HopCore (`TrackerEngine`, persisted to `tracker.json` via
+  `TrackerController`); the view is glue. Labels tick off `tracker.heartbeat`
+  (1/s while a task is tracking). Active by default — unlike torrents it has no
+  engine to download, so it isn't opt-in; hidden or shown like every other
+  module by membership in the "modules & tabs" table (drag it to/from the
+  inactive column). The module title (`trackerLabel`) is "time tracker" — it
+  names the feature both in settings and in the empty state.
+- **Flat task list:** `TrackerData.rootOrder` is the single source of the list's
+  order — it holds the id of every task, no duplicates; the engine normalizes it
+  on load (keep listed ids in order, drop stale ones, append any missing in the
+  tasks' array order). A task's `projectID` is a legacy optional kept only for
+  backward decode; every live task is a root task (`nil`). `addTask(name:)`
+  appends a task to the list and to `rootOrder`; each mutation fires `onChange`
+  once, and delete/reorder keep `rootOrder` in sync.
+- **Migration (one-shot, on init):** an old `tracker.json` with projects and
+  nested tasks is FLATTENED by the engine — every task becomes a root task
+  (`projectID` set to nil), a project's tasks expand IN PLACE where the project
+  sat in `rootOrder` (internal order preserved), root tasks stay put, and the
+  `projects` array empties. A file with no `rootOrder` derives the order from the
+  projects' array order (each expanded to its tasks) then any root tasks.
+  Intervals, corrections and the open (active) interval are untouched — an active
+  task inside a project stays active after the flatten. The `projects` and
+  `projectID` Codable fields remain so the old file still decodes; the engine
+  never writes a non-empty `projects` array again, and the flatten is idempotent
+  once flat.
 - **Single active task:** at most one task is ever tracking. Tapping play on
-  task B while A runs stops A first — the engine closes the open interval
-  itself (`start(taskID:)`), the UI never juggles two. Deleting the active
-  task stops tracking (its open interval is dropped with it).
-- **Menu-bar indication:** while a task is tracking, the status-bar icon
-  carries a small purple dot in the bottom-right slot — the same slot the
-  timer badge uses, so the badge wins it in the rare digits-off-while-running
-  config; with the countdown digits shown (the default) the dot stays visible
-  during a countdown. An opt-in `show task time in menu bar` setting
-  (`trackerTimeInBar`, OFF) additionally shows the active task's ticking
-  `today` value as the bar title, but only when nothing else claimed it — the
-  timer countdown always wins the title. Both toggle immediately on
-  start/stop and tick 1/s off `tracker.heartbeat` (already routed to the
-  status item via AppModel's forward).
-- **Flat rows** (no card fills — TorrentView-style, so the width the padded
-  cards ate is reclaimed): regular weight everywhere; the ACTIVE task is
-  emphasized by COLOR only (its "today" label `Theme.textPrimary`). Delete
-  xmarks are hover-only across the whole module.
-- **Rendering:** the view walks `rootOrder`, drawing per id either a project's
-  accordion block (header, then — while expanded — its task rows and the
-  `+ new task` row) or a project-less root task row.
-- **Project row** (mono 12): a disclosure chevron (`chevron.right`, rotated
-  90° when expanded, 0.15s easeInOut), the name, and — only while COLLAPSED —
-  a right-aligned `today — total` summary (mono 10, tertiary). Expanded project
-  rows show just chevron + name (+ hover delete): the tasks below already carry
-  their own numbers, so repeating the rolled-up pair was ticking noise.
-  Clicking the row toggles expansion; hover reveals a trailing xmark. Delete
-  uses the house inline confirm (`delete project and its tasks?` + delete/
-  cancel on one line); confirm removes the project with its tasks, intervals
-  and corrections.
-- **Task row** (indented under an expanded project): a play/PAUSE button in the
-  main timer's transport family (`TransportCircle`: `play.fill` in a filled
-  circle when idle = "start"; `pause.fill` in a bordered circle when this task
-  is active), the name, then `today` (mono 11) and the `total` prefixed with
-  `Σ ` (mono 10, tertiary — e.g. `Σ 1:23`, so the pair reads as two different
-  things at a glance), and the same hover xmark + inline confirm (`delete
-  task?`). The active task's "today" label uses `Theme.textPrimary`. A
-  project-less ROOT task uses the same row at root indentation (aligned with
-  project headers, not the nested 16pt inset).
-- **Adding / renaming:** a `+ new project` footer row, a root-level `+ new task`
-  beside it (reuses `trackerNewTask`, creates `addTask(projectID: nil)`), and —
-  inside an expanded project — a per-project `+ new task` row; all swap into an
-  inline TextField (lowercase placeholder = the label), committed on Return
-  (empty = cancel), Escape cancels. Double-clicking a name opens the same
-  inline field to rename. Every inline field (new/rename/today-edit) shows
-  explicit ✓ (commit) / ✕ (cancel) buttons right of it (`FieldCommitButtons`,
-  house hover style) — the mouse equivalent of Return/Escape.
-- **Drag to reorder:** a burger handle (`line.3.horizontal`) appears on hover at
-  each project and task row's left edge (kept as a fixed gutter via opacity, so
-  an in-flight drag's gesture survives the pointer leaving the row); dragging it
-  avoids fighting the row's tap/scrub/play. On macOS a click-drag never fights
-  the panel's wheel/trackpad scroll. Drop resolution uses a frame-preference
-  resolver (the 8.2 settings-table pattern — robust across the mixed row
-  heights of expanded accordions): every row reports its frame in the
-  `trackerList` coordinate space, and the pointer's y resolves to a target. A
-  TASK can drop at any position in the mixed root list, between an EXPANDED
-  project's task rows, or ONTO a COLLAPSED project row (appends into it); a
-  PROJECT drops only among root positions (it never nests). The dragged row
-  dims and follows the pointer; a 2pt accent line marks the insertion point.
-  One engine move commits per completed drag (`move(taskID:toRootAt:)`,
-  `move(taskID:toProjectID:at:)`, or `moveRootItem(from:to:)`).
-- **Editing today's time** (only while the task is NOT active — the engine
-  refuses otherwise and the UI hides the affordance): scrub the today label
+  task B while A runs stops A first — the engine closes the open interval itself
+  (`start(taskID:)`), the UI never juggles two. Deleting the active task stops
+  tracking (its open interval is dropped with it). `activeIntervalStart` exposes
+  the open interval's start so the view can flag a long run (see 8-hour warning).
+- **Menu-bar indication:** while a task is tracking, the status-bar icon carries
+  a small purple dot in the bottom-right slot — the same slot the timer badge
+  uses, so the badge wins it in the rare digits-off-while-running config. An
+  opt-in `show task time in menu bar` setting (`trackerTimeInBar`, OFF)
+  additionally shows the active task's ticking `today` value as the bar title,
+  but only when nothing else claimed it — the timer countdown always wins.
+  `today(taskID:)` stays in the engine for this figure and for corrections math;
+  the panel itself shows the total, not today. Both toggle immediately on
+  start/stop and tick 1/s off `tracker.heartbeat`.
+- **Flat rows** (no card fills — TorrentView-style): regular weight everywhere;
+  the ACTIVE task is emphasized by COLOR only (its total label
+  `Theme.textPrimary`). Delete xmarks are hover-only. A hover drag handle
+  (`line.3.horizontal`) sits in a fixed left gutter (2pt row inset + 14pt handle
+  + 6pt spacing), so the play button lines up with the to-do checkbox on the same
+  left column when the two modules stack on a space.
+- **Task row:** a play/PAUSE button in the main timer's transport family
+  (`TransportCircle`: `play.fill` filled when idle = "start"; `pause.fill`
+  bordered when this task is active), the name, then ONE time — the all-time
+  TOTAL (mono 11, `TimeFormatting.short`, ticking while active) — and the hover
+  xmark + inline confirm (`delete task?`). The today/Σ pair from earlier versions
+  is gone: the row shows the total only. The active task's total label uses
+  `Theme.textPrimary`.
+- **Editing the total** (only while the task is NOT active — the engine refuses
+  otherwise and the UI hides the affordance): the manual edit targets the TOTAL.
+  `setTotal(taskID:to:)` appends a correction = target − rawTotal (the UNCLAMPED
+  total — mirroring `setToday`'s raw-baseline lesson, so an over-corrected task
+  can still reach a positive target in one edit), dated the start of today,
+  clamped ≥ 0, refused while active, `onChange` once. Scrub the total label
   (horizontal drag, 8pt = ±1 min, a scrub tick per step) with a live local
-  preview, committed as ONE correction on gesture end (the engine appends
-  corrections, so per-step commits would pile up); or click the label to type
-  into an inline field that reads `H:MM` or bare minutes (`90` = 90 min,
-  `1:30` = 1h30m). `.help` carries the hint. Times via `TimeFormatting.short`.
-- **Empty state:** an empty root (no projects and no root tasks) → a `time
-  tracker` title line (mono 12, primary) over the `no projects yet` hint
-  (tertiary), plus the add rows.
+  preview committed as ONE correction on gesture end (a no-op drag back to origin
+  writes nothing); or click the label to type into an inline field that reads
+  `H:MM:SS`, `H:MM` or bare minutes — 1 number = minutes, 2 = `H:MM`, 3 =
+  `H:MM:SS`, parsed leniently. `.help` carries the hint. `setToday(taskID:to:)`
+  remains for the menu-bar path and is unaffected.
+- **8-hour warning:** when the ACTIVE task's current open interval has been
+  running for over 8 hours (`activeIntervalStart` vs now, recomputed off
+  `tracker.heartbeat` — no timer of its own, no repeatForever), a warning row
+  appears directly under that task: `t(.trackerLongRun)` (en: `still tracking —
+  over 8 hours. forgot to stop?`, `Theme.accentYellow`) with a small stop button
+  that calls `stopActive()`. The row appears and disappears off the heartbeat. No
+  system notification in this pass (a possible follow-up).
+- **Drag to reorder:** the burger handle (kept as a fixed gutter via opacity, so
+  an in-flight drag's gesture survives the pointer leaving the row) reorders the
+  flat list; dragging it avoids fighting the row's tap/scrub/play, and on macOS a
+  click-drag never fights the panel's wheel/trackpad scroll. Drop resolution uses
+  a frame-preference resolver (the 8.2 settings-table pattern): every row reports
+  its frame in the `trackerList` coordinate space, and the pointer's y counts how
+  many other rows sit above it. The dragged row dims and follows the pointer; a
+  2pt accent line marks the insertion point. One `moveRootItem(from:to:)` commits
+  per completed drag.
+- **Adding / renaming:** a single `+ new task` footer row swaps into an inline
+  TextField (lowercase placeholder = the label), committed on Return (empty =
+  cancel), Escape cancels. Double-clicking a name opens the same inline field to
+  rename. Every inline field (new/rename/total-edit) shows explicit ✓ (commit) /
+  ✕ (cancel) buttons right of it (`FieldCommitButtons`, house hover style) — the
+  mouse equivalent of Return/Escape.
+- **Empty state:** an empty list → a `time tracker` title line (mono 12, primary)
+  over the `no tasks yet` hint (tertiary), plus the add row.
 - **Snapshot rule:** every focused-field state is gated off `Snapshot.active`,
   so `--snapshot` renders never show an editing TextField (yellow artifact).
 
@@ -501,14 +492,27 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   missing `items` key); `TodosController` mirrors `TrackerController` minus the
   ticker (a checklist has nothing that ticks). Model API: `add(text:)` trims and
   APPENDS at the bottom (empty = no-op), `toggle(id)` flips `done` IN PLACE
-  (completed items keep their position), `delete(id)`.
-- **Row:** a circle checkbox (`circle` / `checkmark.circle.fill`), the text
-  (mono 12; done = `Theme.textTertiary` + strikethrough), and a hover-only
-  xmark. Deletion has NO confirmation — a to-do is cheap to lose and to retype
-  — and works for done and active alike.
-- **Adding:** a `+ new to-do` footer row opens an inline field with the same
-  ✓/✕ buttons and `Snapshot.active` gating as the tracker; Return/✓ append,
-  Escape/✕ cancel, empty = cancel.
+  (completed items keep their position), `delete(id)`, and `move(from:to:)`
+  reorders (clamped; `from` out of range is a no-op) — the order persists through
+  the store. `TodosController.move` saves like every other mutation.
+- **Row:** a hover drag handle + a circle checkbox (`circle` /
+  `checkmark.circle.fill`), the text (mono 12; done = `Theme.textTertiary` +
+  strikethrough), and a hover-only xmark. Deletion has NO confirmation — a to-do
+  is cheap to lose and to retype — and works for done and active alike. Rows
+  share the tracker's leading gutter (2pt row inset + 14pt handle + 6pt spacing)
+  and row rhythm (VStack spacing 6, `.padding(.vertical, 5)`), and the checkbox
+  is 22pt like the tracker's play button, so the checkbox and the play button sit
+  on the same left column when the two modules stack on a space.
+- **Drag to reorder:** the same hover burger handle (`line.3.horizontal`) and
+  frame-preference resolver as the tracker (rows report their frame in the
+  `todosList` coordinate space; the pointer's y counts the other rows above it),
+  kept as a fixed left gutter via opacity so an in-flight drag survives the
+  pointer leaving the row. The dragged row dims and follows the pointer; a 2pt
+  accent line marks the insertion point; one `move(from:to:)` commits per
+  completed drag.
+- **Adding:** a `+ new task` footer row (placeholder `todosNew`, "new task")
+  opens an inline field with the same ✓/✕ buttons and `Snapshot.active` gating as
+  the tracker; Return/✓ append, Escape/✕ cancel, empty = cancel.
 - Registration is by membership like every module (key `"todos"`, title
   `todosLabel`); it captures the keyboard while its field is focused (same
   `onEditingChanged` path as the tracker) so digits don't leak to the timer.
@@ -610,7 +614,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Cmd+V land there). The panel is mouse-only, with four exceptions that
   do capture the keyboard: digit entry into the timer display (while a
   digit group is selected), the clipboard search field, a focused
-  tracker inline field (a project/task name or a today-time edit), and a
+  tracker inline field (a task name or a total-time edit), and a
   focused to-do field. The
   timer itself starts/stops ONLY via its on-screen play button — Return and
   Space do NOT toggle it (Anton, 2026-07-19). `handleKey` handles only digit
@@ -619,9 +623,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   The tracker and to-do cases also guard the panel's global key handler: while
   such a field is open, Return commits the name/text — it must NOT reach
   `handleKey` and be swallowed by the digit editor. The capture is one flag fed
-  by the timer digit editor, the tracker field and the to-do field
-  (`panelKeyboardCaptured =
-  editUnit != nil || trackerEditing || todosEditing`). When the capture ends
+  by the timer digit editor, the clipboard search field, the tracker field and
+  the to-do field (`panelKeyboardCaptured =
+  editUnit != nil || trackerEditing || todosEditing || clipboardSearching`).
+  When the capture ends
   (Esc/Enter/click elsewhere), focus returns to the app underneath again. Focus moving to another Hop window (settings,
   converter) is legitimate and is not overridden. Global hotkeys work
   regardless of focus.
