@@ -73,7 +73,7 @@ struct TrackerView: View {
                         .font(Theme.mono(11))
                         .foregroundStyle(Theme.textTertiary)
                 }
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 2)
                 .padding(.vertical, 4)
             }
             ForEach(projects) { project in
@@ -115,26 +115,36 @@ struct TrackerView: View {
                                   confirmingDeleteProject = nil
                               },
                               cancel: { confirmingDeleteProject = nil })
+            } else if isEditing(.renameProject(project.id)) {
+                nameField(.renameProject(project.id), placeholder: project.name)
             } else {
                 HStack(spacing: 6) {
                     chevron(project)
-                    projectName(project)
+                    Text(project.name)
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .onTapGesture(count: 2) { beginRenameProject(project) }
                     Spacer(minLength: 6)
-                    Text("\(shortTime(engine.today(projectID: project.id))) — \(shortTime(engine.total(projectID: project.id)))")
-                        .font(Theme.mono(10))
-                        .foregroundStyle(Theme.textTertiary)
-                        .monospacedDigit()
-                        .fixedSize()
-                    deleteX(project.id) { confirmingDeleteProject = project.id }
+                    // Summary times only while COLLAPSED — an expanded project
+                    // already shows every task's own numbers, so repeating the
+                    // rolled-up pair here was just four figures ticking as noise.
+                    if !project.isExpanded {
+                        Text("\(shortTime(engine.today(projectID: project.id))) — \(shortTime(engine.total(projectID: project.id)))")
+                            .font(Theme.mono(10))
+                            .foregroundStyle(Theme.textTertiary)
+                            .monospacedDigit()
+                            .fixedSize()
+                    }
+                    HoverDeleteX(visible: hovered == project.id) { confirmingDeleteProject = project.id }
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { engine.setExpanded(projectID: project.id, !project.isExpanded) }
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .frame(minHeight: 20)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
+        .padding(.vertical, 6)
+        .padding(.horizontal, 2)
         .onHover { inside in
             if inside { hovered = project.id } else if hovered == project.id { hovered = nil }
         }
@@ -145,7 +155,7 @@ struct TrackerView: View {
             engine.setExpanded(projectID: project.id, !project.isExpanded)
         } label: {
             Image(systemName: "chevron.right")
-                .font(.system(size: 10, weight: .semibold))
+                .font(.system(size: 10))
                 .foregroundStyle(Theme.textTertiary)
                 .rotationEffect(.degrees(project.isExpanded ? 90 : 0))
                 .frame(width: 16, height: 22)
@@ -153,19 +163,6 @@ struct TrackerView: View {
         }
         .buttonStyle(.plain)
         .animation(.easeInOut(duration: 0.15), value: project.isExpanded)
-    }
-
-    @ViewBuilder private func projectName(_ project: TrackerProject) -> some View {
-        if isEditing(.renameProject(project.id)) {
-            nameField(.renameProject(project.id), placeholder: project.name)
-        } else {
-            Text(project.name)
-                .font(Theme.mono(12))
-                .foregroundStyle(Theme.textPrimary)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .onTapGesture(count: 2) { beginRenameProject(project) }
-        }
     }
 
     // MARK: - Task row
@@ -180,25 +177,37 @@ struct TrackerView: View {
                                   confirmingDeleteTask = nil
                               },
                               cancel: { confirmingDeleteTask = nil })
+            } else if isEditing(.renameTask(task.id)) {
+                nameField(.renameTask(task.id), placeholder: task.name)
+            } else if isEditing(.editToday(task.id)) {
+                // typing today's time: the field + its ✓/✕ own the row's tail,
+                // so the total and delete step aside for a clean edit line.
+                HStack(spacing: 6) {
+                    playStop(task, active: active)
+                    taskName(task)
+                    Spacer(minLength: 6)
+                    todayField(task)
+                }
             } else {
                 HStack(spacing: 6) {
                     playStop(task, active: active)
                     taskName(task)
                     Spacer(minLength: 6)
                     todayView(task, active: active)
-                    Text(shortTime(engine.total(taskID: task.id)))
+                    // total prefixed with Σ so the pair reads as two different
+                    // things at a glance: today's time, then the running sum.
+                    Text("Σ \(shortTime(engine.total(taskID: task.id)))")
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.textTertiary)
                         .monospacedDigit()
                         .fixedSize()
-                    deleteX(task.id) { confirmingDeleteTask = task.id }
+                    HoverDeleteX(visible: hovered == task.id) { confirmingDeleteTask = task.id }
                 }
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
-        .padding(.leading, 14)   // nest under the expanded project
+        .padding(.vertical, 5)
+        .padding(.leading, 16)   // nest under the expanded project
+        .padding(.trailing, 2)
         .onHover { inside in
             if inside { hovered = task.id } else if hovered == task.id { hovered = nil }
         }
@@ -209,70 +218,68 @@ struct TrackerView: View {
             // the engine stops the previously active task itself (single-active)
             active ? engine.stopActive() : engine.start(taskID: task.id)
         } label: {
-            Image(systemName: active ? "stop.fill" : "play.fill")
-                .font(.system(size: 11))
-                .foregroundStyle(active ? Theme.textPrimary : Theme.textSecondary)
-                .frame(width: 20, height: 20)
-                .contentShape(Rectangle())
+            // same play/pause family as the main timer button: filled circle
+            // offers "start" (play), bordered circle offers "pause". Scaled to
+            // the task row.
+            TransportCircle(systemName: active ? "pause.fill" : "play.fill",
+                            filled: !active, diameter: 22, iconSize: 9)
         }
         .buttonStyle(.plain)
         .hoverDim()
     }
 
-    @ViewBuilder private func taskName(_ task: TrackerTask) -> some View {
-        if isEditing(.renameTask(task.id)) {
-            nameField(.renameTask(task.id), placeholder: task.name)
-        } else {
-            Text(task.name)
-                .font(Theme.mono(12))
-                .foregroundStyle(Theme.listText)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .onTapGesture(count: 2) { beginRenameTask(task) }
-        }
+    // Rename is a row-level branch (see taskRow), so the name here is display-only.
+    private func taskName(_ task: TrackerTask) -> some View {
+        Text(task.name)
+            .font(Theme.mono(12))
+            .foregroundStyle(Theme.listText)
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .onTapGesture(count: 2) { beginRenameTask(task) }
     }
 
     // MARK: - Today value (emphasis while active; scrub/type while idle)
 
+    // The editing branch lives in `taskRow` (it reshapes the whole row); this is
+    // only the read/scrub/tap-to-edit label.
     @ViewBuilder private func todayView(_ task: TrackerTask, active: Bool) -> some View {
-        if isEditing(.editToday(task.id)) {
-            todayField(task)
+        let value = (scrubbingTask == task.id ? (scrubPending ?? engine.today(taskID: task.id))
+                                              : engine.today(taskID: task.id))
+        let label = Text(shortTime(value))
+            .font(Theme.mono(11))
+            .foregroundStyle(active ? Theme.textPrimary : Theme.textSecondary)
+            .monospacedDigit()
+            .fixedSize()
+        if active {
+            // active task: the engine refuses edits, so no affordance is offered
+            label
         } else {
-            let value = (scrubbingTask == task.id ? (scrubPending ?? engine.today(taskID: task.id))
-                                                  : engine.today(taskID: task.id))
-            let label = Text(shortTime(value))
-                .font(Theme.mono(11))
-                .foregroundStyle(active ? Theme.textPrimary : Theme.textSecondary)
-                .monospacedDigit()
-                .fixedSize()
-            if active {
-                // active task: the engine refuses edits, so no affordance is offered
-                label
-            } else {
-                label
-                    .contentShape(Rectangle())
-                    .help(t(.trackerEditHint))
-                    .simultaneousGesture(TapGesture().onEnded { beginEditToday(task) })
-                    .simultaneousGesture(todayScrub(task.id))
-            }
+            label
+                .contentShape(Rectangle())
+                .help(t(.trackerEditHint))
+                .simultaneousGesture(TapGesture().onEnded { beginEditToday(task) })
+                .simultaneousGesture(todayScrub(task.id))
         }
     }
 
     private func todayField(_ task: TrackerTask) -> some View {
-        TextField("", text: $todayDraft)
-            .textFieldStyle(.plain)
-            .font(Theme.mono(11))
-            .foregroundStyle(Theme.textPrimary)
-            .monospacedDigit()
-            .multilineTextAlignment(.trailing)
-            .frame(width: 54)
-            .focused($focused, equals: .editToday(task.id))
-            .onAppear { focused = .editToday(task.id) }
-            .onSubmit { commitToday(task.id) }
-            .onExitCommand { endEdit() }
-            .padding(.horizontal, 5)
-            .padding(.vertical, 2)
-            .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
+        HStack(spacing: 4) {
+            TextField("", text: $todayDraft)
+                .textFieldStyle(.plain)
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.textPrimary)
+                .monospacedDigit()
+                .multilineTextAlignment(.trailing)
+                .frame(width: 54)
+                .focused($focused, equals: .editToday(task.id))
+                .onAppear { focused = .editToday(task.id) }
+                .onSubmit { commitToday(task.id) }
+                .onExitCommand { endEdit() }
+            FieldCommitButtons(onCommit: { commitToday(task.id) }, onCancel: { endEdit() })
+        }
+        .padding(.horizontal, 5)
+        .padding(.vertical, 2)
+        .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
     }
 
     /// Each 8pt of horizontal travel = ±1 minute, a tick per step; the running
@@ -315,8 +322,8 @@ struct TrackerView: View {
     @ViewBuilder private var addProjectRow: some View {
         if isEditing(.newProject) {
             nameField(.newProject, placeholder: t(.trackerNewProject))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
+                .padding(.horizontal, 2)
+                .padding(.vertical, 5)
         } else {
             Button { beginNewProject() } label: {
                 addRowLabel(t(.trackerNewProject), iconSize: 10)
@@ -330,8 +337,7 @@ struct TrackerView: View {
         Group {
             if isEditing(.newTask(projectID)) {
                 nameField(.newTask(projectID), placeholder: t(.trackerNewTask))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
+                    .padding(.vertical, 4)
             } else {
                 Button { beginNewTask(projectID) } label: {
                     addRowLabel(t(.trackerNewTask), iconSize: 9)
@@ -340,7 +346,7 @@ struct TrackerView: View {
                 .hoverHighlight(6)
             }
         }
-        .padding(.leading, 14)
+        .padding(.leading, 16)
     }
 
     private func addRowLabel(_ text: String, iconSize: CGFloat) -> some View {
@@ -350,7 +356,7 @@ struct TrackerView: View {
             Spacer(minLength: 0)
         }
         .foregroundStyle(Theme.textTertiary)
-        .padding(.horizontal, 10)
+        .padding(.horizontal, 2)
         .padding(.vertical, 5)
         .contentShape(Rectangle())
     }
@@ -382,34 +388,21 @@ struct TrackerView: View {
         }
     }
 
-    /// Trailing delete affordance, revealed on row hover. Kept out of hit-testing
-    /// while hidden so the invisible glyph can't be clicked.
-    private func deleteX(_ id: UUID, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: "xmark")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(Theme.textTertiary)
-                .frame(width: 22, height: 22)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .hoverHighlight(4)
-        .opacity(hovered == id ? 1 : 0)
-        .allowsHitTesting(hovered == id)
-    }
-
     private func nameField(_ field: Field, placeholder: String) -> some View {
-        TextField(placeholder, text: $nameDraft)
-            .textFieldStyle(.plain)
-            .font(Theme.mono(12))
-            .foregroundStyle(Theme.textPrimary)
-            .focused($focused, equals: field)
-            .onAppear { focused = field }
-            .onSubmit { commitName() }
-            .onExitCommand { endEdit() }
-            .padding(.horizontal, 6)
-            .padding(.vertical, 3)
-            .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+        HStack(spacing: 4) {
+            TextField(placeholder, text: $nameDraft)
+                .textFieldStyle(.plain)
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textPrimary)
+                .focused($focused, equals: field)
+                .onAppear { focused = field }
+                .onSubmit { commitName() }
+                .onExitCommand { endEdit() }
+            FieldCommitButtons(onCommit: { commitName() }, onCancel: { endEdit() })
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
     }
 
     // MARK: - Edit lifecycle

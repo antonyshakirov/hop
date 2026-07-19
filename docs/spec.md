@@ -382,21 +382,33 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   timer countdown always wins the title. Both toggle immediately on
   start/stop and tick 1/s off `tracker.heartbeat` (already routed to the
   status item via AppModel's forward).
-- **Project row** (mono 12, rowBg card): a disclosure chevron (`chevron.right`,
-  rotated 90° when expanded, 0.15s easeInOut), the name, and a right-aligned
-  `today — total` glance (mono 10, tertiary). Clicking the row toggles
-  expansion; hover reveals a trailing xmark. Delete uses the house inline
-  confirm (`delete project and its tasks?` + delete/cancel on one line);
-  confirm removes the project with its tasks, intervals and corrections.
-- **Task row** (indented 14pt under an expanded project): a play/stop button
-  (`play.fill` idle, `stop.fill` when this task is active; the active task's
-  button and its "today" label use `Theme.textPrimary` emphasis, matching the
-  timer's running state), the name, then `today` (mono 11) + `total` (mono 10,
-  tertiary), and the same hover xmark + inline confirm (`delete task?`).
+- **Flat rows** (no card fills — TorrentView-style, so the width the padded
+  cards ate is reclaimed): regular weight everywhere; the ACTIVE task is
+  emphasized by COLOR only (its "today" label `Theme.textPrimary`). Delete
+  xmarks are hover-only across the whole module.
+- **Project row** (mono 12): a disclosure chevron (`chevron.right`, rotated
+  90° when expanded, 0.15s easeInOut), the name, and — only while COLLAPSED —
+  a right-aligned `today — total` summary (mono 10, tertiary). Expanded project
+  rows show just chevron + name (+ hover delete): the tasks below already carry
+  their own numbers, so repeating the rolled-up pair was ticking noise.
+  Clicking the row toggles expansion; hover reveals a trailing xmark. Delete
+  uses the house inline confirm (`delete project and its tasks?` + delete/
+  cancel on one line); confirm removes the project with its tasks, intervals
+  and corrections.
+- **Task row** (indented under an expanded project): a play/PAUSE button in the
+  main timer's transport family (`TransportCircle`: `play.fill` in a filled
+  circle when idle = "start"; `pause.fill` in a bordered circle when this task
+  is active), the name, then `today` (mono 11) and the `total` prefixed with
+  `Σ ` (mono 10, tertiary — e.g. `Σ 1:23`, so the pair reads as two different
+  things at a glance), and the same hover xmark + inline confirm (`delete
+  task?`). The active task's "today" label uses `Theme.textPrimary`.
 - **Adding / renaming:** a `+ new project` footer row and, inside an expanded
   project, a `+ new task` row; both swap into an inline TextField (lowercase
   placeholder = the label), committed on Return (empty = cancel), Escape
-  cancels. Double-clicking a name opens the same inline field to rename.
+  cancels. Double-clicking a name opens the same inline field to rename. Every
+  inline field (new/rename/today-edit) shows explicit ✓ (commit) / ✕ (cancel)
+  buttons right of it (`FieldCommitButtons`, house hover style) — the mouse
+  equivalent of Return/Escape.
 - **Editing today's time** (only while the task is NOT active — the engine
   refuses otherwise and the UI hides the affordance): scrub the today label
   (horizontal drag, 8pt = ±1 min, a scrub tick per step) with a live local
