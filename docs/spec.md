@@ -480,8 +480,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Registration is by membership like every module (key `"todos"`, title
   `todosLabel`); it captures the keyboard while its field is focused (same
   `onEditingChanged` path as the tracker) so digits don't leak to the timer.
-  Fresh installs pair it with the tracker on the "clock" space; existing users
-  get it seeded directly after the tracker exactly once (`todosSeeded`).
+  Fresh installs pair it with the tracker on the "clock" space; existing
+  users get it paired with the tracker on the same space by the canonical
+  layout repair described under "Default spaces" below.
 
 ## Shared components
 
@@ -508,18 +509,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   LOOK like a monitor; was "gauge"), and "clock" for the time-management pair
   `["tracker", "todos"]`. Modules whose legacy default is hidden start in the
   inactive bucket on a fresh migrate (currently the torrent module, opt-in
-  before its onboarding/banner "enable" — which still activates it). Models
-  saved before the tracker had its own space lift the tracker out of the first
-  space into a new "clock" space exactly once (`trackerTabSeeded`; skipped if
-  the user already moved it or the spaces are at the cap); models saved before
-  the to-do module get "todos" placed directly after "tracker" exactly once
-  (`todosSeeded`, in whichever container holds the tracker — the same space
-  below it, or the inactive bucket if the tracker is hidden). Models saved
-  before the system monitor had its own space lift "system" out of the first
-  space into the second space (or a fresh "display" space if only one
-  exists) exactly once (`systemTabSeeded`; skipped if the user already moved
-  it elsewhere, or a fresh space can't be minted because the model is at the
-  cap). Existing users' icons/layout are otherwise untouched.
+  before its onboarding/banner "enable" — which still activates it). A
+  decoded legacy model gets its whole active layout rebuilt into that same
+  three-space shape exactly once (`canonicalLayoutSeeded`): space 1 gets
+  every other active module, in the order first encountered scanning the
+  existing spaces, keeping space 1's current icon; space 2 gets "system"
+  alone (icon "display") only if system is active; space 3 gets "tracker"
+  then "todos" (icon "clock") only for whichever of the two are active. The
+  inactive bucket itself is untouched — canonicalization only rearranges
+  what is ON a space, and any space beyond these three dissolves, its active
+  modules folded into space 1. This replaced three earlier one-shot seeds
+  that each nudged a single module in place (`trackerTabSeeded`,
+  `todosSeeded`, `systemTabSeeded`) because patching modules in one at a
+  time could still leave them stacked on the wrong space depending on what
+  else already occupied it. Existing users' icons/layout are otherwise
+  untouched.
 - Module-visibility migration: the old `show*Module` toggles are read once
   and every OFF module is moved into the inactive bucket, after which
   visibility is pure membership and the toggles are never read again. The

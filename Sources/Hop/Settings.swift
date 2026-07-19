@@ -23,11 +23,11 @@ enum SettingsKey {
     /// and every OFF module is moved into the inactive bucket, after which
     /// visibility is pure membership and the toggles are never read again.
     static let moduleVisibilityMigrated = "moduleVisibilityMigrated"
-    /// One-shot flag: models saved before the system monitor had its own tab
-    /// get "system" lifted out of the first tab into its own tab exactly once.
-    /// Set on the fresh migrate path too, so the seed never runs for new
-    /// installs.
-    static let systemTabSeeded = "systemTabSeeded"
+    /// One-shot flag: decoded legacy models (and any state left mid-shuffled
+    /// by the older per-module seeds this superseded) get their whole active
+    /// layout rebuilt into the canonical three-tab shape exactly once. Set on
+    /// the fresh migrate path too, so the seed never runs for new installs.
+    static let canonicalLayoutSeeded = "canonicalLayoutSeeded"
 }
 
 /// Highlight thresholds for the system tab: at which value yellow and red kick in.

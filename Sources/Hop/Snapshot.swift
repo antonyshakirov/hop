@@ -81,7 +81,7 @@ enum Snapshot {
         // (below, e.g. --torrents), instead of decoding a prior render's layout.
         for key in [SettingsKey.panelTabs, SettingsKey.moduleVisibilityMigrated,
                     SettingsKey.trackerTabSeeded, SettingsKey.todosSeeded,
-                    SettingsKey.systemTabSeeded, "moduleOrder",
+                    SettingsKey.canonicalLayoutSeeded, "moduleOrder",
                     "showTimerModule", "showAwakeModule", "showClipboardModule",
                     "showConvertModule", "showWindowsModule", "showSpeedtestModule",
                     "showSystemModule", "showTrackerModule", "showTorrentModule"] {

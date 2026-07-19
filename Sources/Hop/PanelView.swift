@@ -1678,19 +1678,11 @@ struct PanelView: View {
             var model = decoded
             model.ensure(modules: allModules + ["system", "tracker", "todos"])
             // Migrate legacy visibility BEFORE seeding: a legacy
-            // `showTrackerModule=false` state must deactivate the tracker first,
-            // so `seedTrackerTab` skips minting an empty clock tab and
-            // `seedTodos` follows the tracker into the inactive bucket instead
-            // of stranding a lone clock tab holding only todos. `seedSystemTab`
-            // runs BEFORE `seedTrackerTab`: if the monitor and the tracker are
-            // both still on the first tab, system must claim its own "display"
-            // tab first, or `seedTrackerTab`'s freshly minted "clock" tab would
-            // look like the second tab to `seedSystemTab` and steal system into
-            // it instead of giving it a tab of its own.
+            // `showTrackerModule=false` state must deactivate the tracker
+            // first, so `seedCanonicalLayout` reads the true active set
+            // instead of rebuilding a tab around a module the user turned off.
             migrateModuleVisibility(&model)
-            seedSystemTab(&model)
-            seedTrackerTab(&model)
-            seedTodos(&model)
+            seedCanonicalLayout(&model)
             return model
         }
         var model = PanelTabsModel.migrate(moduleOrder: moduleOrder)
@@ -1703,12 +1695,14 @@ struct PanelView: View {
         deactivateOffModules(&model)
         UserDefaults.standard.set(model.encoded(), forKey: SettingsKey.panelTabs)
         // A fresh migrate already gives the system monitor and the tracker
-        // each their own tab (with todos paired beside the tracker) and has
-        // just applied the toggles — claim all one-shot flags so none rerun.
+        // each their own tab (with todos paired beside the tracker) — the
+        // same shape `seedCanonicalLayout` converges decoded states onto —
+        // and has just applied the toggles, so claim every one-shot flag
+        // here too, so none of them rerun for a new install.
         UserDefaults.standard.set(true, forKey: SettingsKey.trackerTabSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.todosSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.moduleVisibilityMigrated)
-        UserDefaults.standard.set(true, forKey: SettingsKey.systemTabSeeded)
+        UserDefaults.standard.set(true, forKey: SettingsKey.canonicalLayoutSeeded)
         return model
     }
 
@@ -1783,77 +1777,71 @@ struct PanelView: View {
         return PanelTabsModel.decode(raw)?.inactive.contains(key) ?? false
     }
 
-    /// One-shot reshape for models saved BEFORE the system monitor had its
-    /// own tab (a decoded legacy state can carry "system" wherever `ensure`
-    /// or a hand-rolled arrangement left it). When "system" sits in the
-    /// FIRST tab, give it a tab of its own: reuse the second tab if one
-    /// already exists (moving system to the front of it, so it reads first
-    /// on that space), or mint a fresh "display" tab otherwise — mirroring
-    /// what `migrate` does for new installs. If the user already moved
-    /// "system" elsewhere (another tab or the inactive bucket), or a fresh
-    /// tab can't be minted because the model is already at the cap, touch
-    /// nothing. Either way the flag is claimed exactly once, so this runs a
-    /// single time across the whole app lifetime. Must run BEFORE
-    /// `seedTrackerTab` — see the ordering note at the call site.
-    private static func seedSystemTab(_ model: inout PanelTabsModel) {
+    /// One-shot canonical layout repair for decoded legacy models — including
+    /// any state left mid-shuffled by the OLD per-module seeds this replaces
+    /// (`seedSystemTab`, `seedTrackerTab`, `seedTodos`; each nudged ONE module
+    /// without ever looking at the whole board, which is exactly how a real
+    /// state went wrong: a second tab that already held the tracker got
+    /// "system" stacked onto it instead of a "display" tab of its own).
+    /// Rather than resume patching individual modules into place, this
+    /// rebuilds the ENTIRE active layout in one shot, converging on the same
+    /// shape a fresh install gets:
+    ///   - tab 1: every other active module, in the order first encountered
+    ///     scanning the existing tabs front to back, keeping tab 1's current
+    ///     icon
+    ///   - tab 2: "system" alone (icon "display") — only if system is active
+    ///   - tab 3: "tracker" then "todos" (icon "clock") — only whichever of
+    ///     the two are active
+    /// `inactive` is left completely untouched: the user's hidden choices
+    /// stay hidden exactly where they left them — this only rearranges what
+    /// is ON a tab. Any tab beyond these three (a user's own extra space)
+    /// dissolves; its active modules were already folded into tab 1 above, so
+    /// nothing is lost, just re-homed. This SUPERSEDES `trackerTabSeeded`/
+    /// `todosSeeded`: `canonicalLayoutSeeded` is a brand-new flag, false for
+    /// every decoded state (even ones where those two already fired), so it
+    /// runs exactly once for everybody and claims all three flags together —
+    /// there is no leftover call path that could still nudge a single module
+    /// after the board has already been canonicalized.
+    private static func seedCanonicalLayout(_ model: inout PanelTabsModel) {
         let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: SettingsKey.systemTabSeeded) else { return }
-        defer { defaults.set(true, forKey: SettingsKey.systemTabSeeded) }
-        guard model.tabs.first?.moduleKeys.contains("system") == true else { return }
-        if model.tabs.count > 1 {
-            let target = model.tabs[1].id
-            model.move(module: "system", toTab: target)
-            model.reorder(module: "system", inTab: target, to: 0)
-        } else if let newID = model.addTab(icon: "display") {
-            model.move(module: "system", toTab: newID)
-        } else {
-            return
+        guard !defaults.bool(forKey: SettingsKey.canonicalLayoutSeeded) else { return }
+        defer {
+            defaults.set(true, forKey: SettingsKey.canonicalLayoutSeeded)
+            defaults.set(true, forKey: SettingsKey.trackerTabSeeded)
+            defaults.set(true, forKey: SettingsKey.todosSeeded)
         }
-        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
-    }
 
-    /// One-shot reshape for models saved BEFORE the tracker got its own tab.
-    /// `ensure` (above) appends a missing "tracker" to the first tab, and
-    /// Anton's dev state already has it sitting there silently — so when the
-    /// tracker lives in the FIRST tab and there's room, lift it into a fresh
-    /// "clock" tab, mirroring what `migrate` now does for new installs. If the
-    /// user has already moved the tracker elsewhere, or the tabs are at the
-    /// cap, touch nothing. Either way the flag is claimed exactly once, so
-    /// this runs a single time across the whole app lifetime.
-    private static func seedTrackerTab(_ model: inout PanelTabsModel) {
-        let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: SettingsKey.trackerTabSeeded) else { return }
-        defer { defaults.set(true, forKey: SettingsKey.trackerTabSeeded) }
-        guard model.tabs.first?.moduleKeys.contains("tracker") == true,
-              let newID = model.addTab(icon: "clock") else { return }
-        model.move(module: "tracker", toTab: newID)
-        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
-    }
-
-    /// One-shot for models saved BEFORE the to-do module existed. `ensure`
-    /// (above) has just appended "todos" to the first tab; lift it to sit
-    /// directly AFTER "tracker" in whichever container holds the tracker — the
-    /// same tab (below it), or the inactive bucket if the user hid the tracker.
-    /// Runs after `seedTrackerTab`, so the tracker is already in its clock tab.
-    /// The flag is claimed exactly once, so this never reruns.
-    private static func seedTodos(_ model: inout PanelTabsModel) {
-        let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: SettingsKey.todosSeeded) else { return }
-        defer { defaults.set(true, forKey: SettingsKey.todosSeeded) }
-        if let tab = model.tabs.first(where: { $0.moduleKeys.contains("tracker") }) {
-            // move() lifts todos out of wherever `ensure` put it and appends it
-            // to the tracker's tab; reorder drops it right below the tracker.
-            model.move(module: "todos", toTab: tab.id)
-            if let trackerPos = model.tabs.first(where: { $0.id == tab.id })?
-                .moduleKeys.firstIndex(of: "tracker") {
-                model.reorder(module: "todos", inTab: tab.id, to: trackerPos + 1)
-            }
-        } else if model.inactive.contains("tracker") {
-            if !model.inactive.contains("todos") { model.deactivate(module: "todos") }
-            if let trackerPos = model.inactive.firstIndex(of: "tracker") {
-                model.reorder(inInactive: "todos", to: trackerPos + 1)
+        let managed: Set<String> = ["system", "tracker", "todos"]
+        var seen = Set<String>()
+        var primaryModules: [String] = []
+        for tab in model.tabs {
+            for key in tab.moduleKeys where !managed.contains(key) && !seen.contains(key) {
+                seen.insert(key)
+                primaryModules.append(key)
             }
         }
+
+        var canonical = [PanelTab(icon: model.tabs[0].icon, moduleKeys: primaryModules)]
+        if !model.inactive.contains("system") {
+            canonical.append(PanelTab(icon: "display", moduleKeys: ["system"]))
+        }
+        let clockModules = ["tracker", "todos"].filter { !model.inactive.contains($0) }
+        if !clockModules.isEmpty {
+            canonical.append(PanelTab(icon: "clock", moduleKeys: clockModules))
+        }
+        model.tabs = canonical
+
+        // The rebuild mints fresh tab ids, so a persisted `activeSpaceID`
+        // pointing into the old board can now be dangling. `effectiveSpaceID`
+        // already falls back gracefully at render time either way, but reset
+        // the stored value too when it no longer resolves, instead of leaving
+        // it stale.
+        let activeSpaceKey = "activeSpaceID"
+        if let raw = defaults.string(forKey: activeSpaceKey), let id = UUID(uuidString: raw),
+           !model.tabs.contains(where: { $0.id == id }) {
+            defaults.set("", forKey: activeSpaceKey)
+        }
+
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 
