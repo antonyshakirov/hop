@@ -51,7 +51,12 @@ signing would break).
 6. The popover size is rounded UP to whole points (IntegralSizeHostingController
    + integral fittingSize, content top-aligned): fractional SwiftUI text
    heights otherwise land the frame on a half pixel and the header icons
-   jiggle 1px between tabs.
+   jiggle 1px between tabs. The panel's own height frame
+   (`min(panelContentHeight, maxPanelHeight)`) is top-aligned too: switching to
+   a taller/shorter space changes the content height instantly while
+   `panelContentHeight` trails by one runloop, and a centered frame would split
+   that gap and bob the header up/down for a frame — top-aligned, only the
+   bottom edge moves.
 6. popover.animates = false; the popover theme follows the setting/system.
 
 ## Modules

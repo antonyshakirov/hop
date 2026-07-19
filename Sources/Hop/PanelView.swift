@@ -268,7 +268,16 @@ struct PanelView: View {
                 ScrollView(showsIndicators: false) {
                     panelStack
                 }
-                .frame(width: 368, height: min(panelContentHeight, maxPanelHeight))
+                // alignment: .top pins the header while the height catches up.
+                // Switching spaces changes the content height instantly, but
+                // panelContentHeight (this frame's height) trails by one runloop
+                // — so for one frame the content and the frame disagree. A
+                // default (center) frame splits that gap top and bottom, pushing
+                // the header down (into a shorter stale frame) or clipping it off
+                // the top (in a taller one) until the height lands: the header
+                // visibly bobs. Top-aligned, the whole gap goes to the bottom
+                // edge, so only the bottom moves and the header stays put.
+                .frame(width: 368, height: min(panelContentHeight, maxPanelHeight), alignment: .top)
                 .scrollDisabled(panelContentHeight <= maxPanelHeight)
             }
         }
