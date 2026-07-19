@@ -406,6 +406,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   cards ate is reclaimed): regular weight everywhere; the ACTIVE task is
   emphasized by COLOR only (its "today" label `Theme.textPrimary`). Delete
   xmarks are hover-only across the whole module.
+- **Rendering:** the view walks `rootOrder`, drawing per id either a project's
+  accordion block (header, then — while expanded — its task rows and the
+  `+ new task` row) or a project-less root task row.
 - **Project row** (mono 12): a disclosure chevron (`chevron.right`, rotated
   90° when expanded, 0.15s easeInOut), the name, and — only while COLLAPSED —
   a right-aligned `today — total` summary (mono 10, tertiary). Expanded project
@@ -421,14 +424,31 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   is active), the name, then `today` (mono 11) and the `total` prefixed with
   `Σ ` (mono 10, tertiary — e.g. `Σ 1:23`, so the pair reads as two different
   things at a glance), and the same hover xmark + inline confirm (`delete
-  task?`). The active task's "today" label uses `Theme.textPrimary`.
-- **Adding / renaming:** a `+ new project` footer row and, inside an expanded
-  project, a `+ new task` row; both swap into an inline TextField (lowercase
-  placeholder = the label), committed on Return (empty = cancel), Escape
-  cancels. Double-clicking a name opens the same inline field to rename. Every
-  inline field (new/rename/today-edit) shows explicit ✓ (commit) / ✕ (cancel)
-  buttons right of it (`FieldCommitButtons`, house hover style) — the mouse
-  equivalent of Return/Escape.
+  task?`). The active task's "today" label uses `Theme.textPrimary`. A
+  project-less ROOT task uses the same row at root indentation (aligned with
+  project headers, not the nested 16pt inset).
+- **Adding / renaming:** a `+ new project` footer row, a root-level `+ new task`
+  beside it (reuses `trackerNewTask`, creates `addTask(projectID: nil)`), and —
+  inside an expanded project — a per-project `+ new task` row; all swap into an
+  inline TextField (lowercase placeholder = the label), committed on Return
+  (empty = cancel), Escape cancels. Double-clicking a name opens the same
+  inline field to rename. Every inline field (new/rename/today-edit) shows
+  explicit ✓ (commit) / ✕ (cancel) buttons right of it (`FieldCommitButtons`,
+  house hover style) — the mouse equivalent of Return/Escape.
+- **Drag to reorder:** a burger handle (`line.3.horizontal`) appears on hover at
+  each project and task row's left edge (kept as a fixed gutter via opacity, so
+  an in-flight drag's gesture survives the pointer leaving the row); dragging it
+  avoids fighting the row's tap/scrub/play. On macOS a click-drag never fights
+  the panel's wheel/trackpad scroll. Drop resolution uses a frame-preference
+  resolver (the 8.2 settings-table pattern — robust across the mixed row
+  heights of expanded accordions): every row reports its frame in the
+  `trackerList` coordinate space, and the pointer's y resolves to a target. A
+  TASK can drop at any position in the mixed root list, between an EXPANDED
+  project's task rows, or ONTO a COLLAPSED project row (appends into it); a
+  PROJECT drops only among root positions (it never nests). The dragged row
+  dims and follows the pointer; a 2pt accent line marks the insertion point.
+  One engine move commits per completed drag (`move(taskID:toRootAt:)`,
+  `move(taskID:toProjectID:at:)`, or `moveRootItem(from:to:)`).
 - **Editing today's time** (only while the task is NOT active — the engine
   refuses otherwise and the UI hides the affordance): scrub the today label
   (horizontal drag, 8pt = ±1 min, a scrub tick per step) with a live local
@@ -436,8 +456,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   corrections, so per-step commits would pile up); or click the label to type
   into an inline field that reads `H:MM` or bare minutes (`90` = 90 min,
   `1:30` = 1h30m). `.help` carries the hint. Times via `TimeFormatting.short`.
-- **Empty state:** no projects → a `time tracker` title line (mono 12,
-  primary) over the `no projects yet` hint (tertiary), plus the add row.
+- **Empty state:** an empty root (no projects and no root tasks) → a `time
+  tracker` title line (mono 12, primary) over the `no projects yet` hint
+  (tertiary), plus the add rows.
 - **Snapshot rule:** every focused-field state is gated off `Snapshot.active`,
   so `--snapshot` renders never show an editing TextField (yellow artifact).
 

@@ -21,10 +21,42 @@ struct TrackerView: View {
     private enum Field: Hashable {
         case newProject
         case newTask(UUID)          // projectID
+        case newRootTask            // a project-less root task
         case renameProject(UUID)
         case renameTask(UUID)
         case editToday(UUID)        // taskID
     }
+
+    /// What a drag handle is currently moving.
+    private enum DragRef: Hashable {
+        case project(UUID)
+        case task(UUID)
+    }
+
+    /// A measured row, keyed so its frame in the list coordinate space can be
+    /// looked up when resolving a drop (mixed row heights make fixed shift math
+    /// unreliable, so drops resolve against these frames — the 8.2 settings-table
+    /// pattern).
+    private enum RowRef: Hashable {
+        case project(UUID)
+        case task(UUID)
+        case addTask(UUID)          // the "+ new task" row inside an expanded project
+    }
+
+    /// The resolved destination of an in-flight drag.
+    private enum DropTarget: Equatable {
+        case root(Int)                  // insert at this index in the mixed root list
+        case intoProject(UUID, Int)     // insert into this project's task list at index
+    }
+
+    private struct RowFrameKey: PreferenceKey {
+        static let defaultValue: [RowRef: CGRect] = [:]
+        static func reduce(value: inout [RowRef: CGRect], nextValue: () -> [RowRef: CGRect]) {
+            value.merge(nextValue(), uniquingKeysWith: { $1 })
+        }
+    }
+
+    private static let listSpace = "trackerList"
 
     @State private var activeField: Field?
     @State private var nameDraft = ""
@@ -45,6 +77,22 @@ struct TrackerView: View {
     @State private var scrubPending: TimeInterval?
     @State private var scrubSteps = 0
 
+    // Drag-to-reorder: a handle at each row's left edge lifts a project or task;
+    // the drop resolves against measured row frames (mixed heights). One engine
+    // move commits per completed drag.
+    @State private var dragRef: DragRef?
+    @State private var dragTranslation: CGSize = .zero
+    @State private var dropTarget: DropTarget?
+    @State private var rowFrames: [RowRef: CGRect] = [:]
+
+    private var draggingID: UUID? {
+        switch dragRef {
+        case .project(let id): return id
+        case .task(let id): return id
+        case nil: return nil
+        }
+    }
+
     private var engine: TrackerEngine { tracker.engine }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
     private func shortTime(_ v: TimeInterval) -> String { TimeFormatting.short(v) }
@@ -60,9 +108,12 @@ struct TrackerView: View {
     var body: some View {
         // read the heartbeat so every label recomputes while a task is tracking
         let _ = tracker.heartbeat
-        let projects = engine.data.projects
+        let rootIDs = engine.data.rootOrder
+        let projectByID = Dictionary(engine.data.projects.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        let rootTaskByID = Dictionary(engine.data.tasks.filter { $0.projectID == nil }.map { ($0.id, $0) },
+                                      uniquingKeysWith: { a, _ in a })
         return VStack(alignment: .leading, spacing: 6) {
-            if projects.isEmpty {
+            if rootIDs.isEmpty {
                 // Name the feature above the hint: this space is otherwise a
                 // bare "no projects yet" with nothing saying what it is.
                 VStack(alignment: .leading, spacing: 2) {
@@ -76,18 +127,28 @@ struct TrackerView: View {
                 .padding(.horizontal, 2)
                 .padding(.vertical, 4)
             }
-            ForEach(projects) { project in
-                projectRow(project)
-                if project.isExpanded {
-                    ForEach(tasks(of: project.id)) { task in
-                        taskRow(task)
+            // The mixed root list: a project id renders its accordion block; a
+            // project-less task id renders a task row at root indentation.
+            ForEach(rootIDs, id: \.self) { id in
+                if let project = projectByID[id] {
+                    projectRow(project)
+                    if project.isExpanded {
+                        ForEach(tasks(of: project.id)) { task in
+                            taskRow(task, nested: true)
+                        }
+                        addTaskRow(project.id)
                     }
-                    addTaskRow(project.id)
+                } else if let task = rootTaskByID[id] {
+                    taskRow(task, nested: false)
                 }
             }
+            addRootTaskRow
             addProjectRow
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .coordinateSpace(name: Self.listSpace)
+        .onPreferenceChange(RowFrameKey.self) { rowFrames = $0 }
+        .overlay(alignment: .topLeading) { dropIndicatorOverlay }
         // `activeField` is the single source of truth for "a field is open"
         // (begin* sets it, endEdit clears it, including via commit/Escape and
         // onDisappear below) — so one place reports editing to the panel.
@@ -101,6 +162,7 @@ struct TrackerView: View {
             endEdit()
             clearConfirms()
             resetScrub()
+            resetDrag()
         }
     }
 
@@ -119,6 +181,7 @@ struct TrackerView: View {
                 nameField(.renameProject(project.id), placeholder: project.name)
             } else {
                 HStack(spacing: 6) {
+                    dragHandle(.project(project.id), id: project.id)
                     chevron(project)
                     Text(project.name)
                         .font(Theme.mono(12))
@@ -145,6 +208,10 @@ struct TrackerView: View {
         }
         .padding(.vertical, 6)
         .padding(.horizontal, 2)
+        .background(rowFrameReader(.project(project.id)))
+        .opacity(draggingID == project.id ? 0.4 : 1)
+        .offset(draggingID == project.id ? dragTranslation : .zero)
+        .zIndex(draggingID == project.id ? 2 : 0)
         .onHover { inside in
             if inside { hovered = project.id } else if hovered == project.id { hovered = nil }
         }
@@ -167,7 +234,7 @@ struct TrackerView: View {
 
     // MARK: - Task row
 
-    @ViewBuilder private func taskRow(_ task: TrackerTask) -> some View {
+    @ViewBuilder private func taskRow(_ task: TrackerTask, nested: Bool) -> some View {
         let active = engine.activeTaskID == task.id
         Group {
             if confirmingDeleteTask == task.id {
@@ -183,6 +250,7 @@ struct TrackerView: View {
                 // typing today's time: the field + its ✓/✕ own the row's tail,
                 // so the total and delete step aside for a clean edit line.
                 HStack(spacing: 6) {
+                    dragHandle(.task(task.id), id: task.id)
                     playStop(task, active: active)
                     taskName(task)
                     Spacer(minLength: 6)
@@ -190,6 +258,7 @@ struct TrackerView: View {
                 }
             } else {
                 HStack(spacing: 6) {
+                    dragHandle(.task(task.id), id: task.id)
                     playStop(task, active: active)
                     taskName(task)
                     Spacer(minLength: 6)
@@ -206,8 +275,12 @@ struct TrackerView: View {
             }
         }
         .padding(.vertical, 5)
-        .padding(.leading, 16)   // nest under the expanded project
+        .padding(.leading, nested ? 16 : 2)   // nested tasks indent under the project; root tasks align with it
         .padding(.trailing, 2)
+        .background(rowFrameReader(.task(task.id)))
+        .opacity(draggingID == task.id ? 0.4 : 1)
+        .offset(draggingID == task.id ? dragTranslation : .zero)
+        .zIndex(draggingID == task.id ? 2 : 0)
         .onHover { inside in
             if inside { hovered = task.id } else if hovered == task.id { hovered = nil }
         }
@@ -317,6 +390,171 @@ struct TrackerView: View {
         scrubSteps = 0
     }
 
+    // MARK: - Drag to reorder
+
+    /// A burger handle at the row's left edge. Kept in the layout as a fixed
+    /// gutter (opacity, not conditional removal) so an in-flight drag's gesture
+    /// view survives the pointer leaving the row; only interactive when shown.
+    private func dragHandle(_ ref: DragRef, id: UUID) -> some View {
+        let shown = hovered == id || draggingID == id
+        return Image(systemName: "line.3.horizontal")
+            .font(.system(size: 9, weight: .semibold))
+            .foregroundStyle(Theme.textTertiary)
+            .frame(width: 14, height: 18)
+            .contentShape(Rectangle())
+            .opacity(shown ? 1 : 0)
+            .allowsHitTesting(shown)
+            .gesture(dragGesture(ref))
+    }
+
+    private func dragGesture(_ ref: DragRef) -> some Gesture {
+        DragGesture(minimumDistance: 4, coordinateSpace: .named(Self.listSpace))
+            .onChanged { value in
+                if dragRef == nil {
+                    dragRef = ref
+                    // a drag must not fight an open field or a pending confirm
+                    endEdit()
+                    clearConfirms()
+                }
+                dragTranslation = value.translation
+                dropTarget = resolveDrop(ref, at: value.location.y)
+            }
+            .onEnded { value in
+                commitDrop(ref, resolveDrop(ref, at: value.location.y))
+                resetDrag()
+            }
+    }
+
+    /// Resolves a pointer y (in list space) to a drop target. A task can land in
+    /// the mixed root list, between an expanded project's tasks, or onto a
+    /// collapsed project (append); a project only ever lands among root items.
+    private func resolveDrop(_ ref: DragRef, at y: CGFloat) -> DropTarget? {
+        if case .task(let tid) = ref {
+            // onto a collapsed project row = append into that project
+            for project in engine.data.projects where !project.isExpanded {
+                if let f = rowFrames[.project(project.id)], y >= f.minY, y <= f.maxY {
+                    let count = engine.data.tasks.filter { $0.projectID == project.id && $0.id != tid }.count
+                    return .intoProject(project.id, count)
+                }
+            }
+            // inside an expanded project (header bottom .. add-task row bottom)
+            for project in engine.data.projects where project.isExpanded {
+                guard let header = rowFrames[.project(project.id)] else { continue }
+                let bottom = interiorBottom(of: project.id) ?? header.maxY
+                if y > header.maxY, y <= bottom {
+                    let siblings = tasks(of: project.id).filter { $0.id != tid }
+                    let idx = siblings.filter { (rowFrames[.task($0.id)]?.midY ?? .greatestFiniteMagnitude) < y }.count
+                    return .intoProject(project.id, idx)
+                }
+            }
+        }
+        // a position in the mixed root list: count the OTHER root blocks above y
+        let others = engine.data.rootOrder.filter { $0 != draggingID }
+        let idx = others.filter { blockMidY(of: $0) < y }.count
+        return .root(idx)
+    }
+
+    private func commitDrop(_ ref: DragRef, _ target: DropTarget?) {
+        guard let target else { return }
+        switch (ref, target) {
+        case (.task(let tid), .root(let idx)):
+            engine.move(taskID: tid, toRootAt: idx)
+        case (.task(let tid), .intoProject(let pid, let idx)):
+            engine.move(taskID: tid, toProjectID: pid, at: idx)
+        case (.project(let pid), .root(let idx)):
+            if let from = engine.data.rootOrder.firstIndex(of: pid) {
+                engine.moveRootItem(from: from, to: idx)
+            }
+        case (.project, .intoProject):
+            break   // projects never nest
+        }
+    }
+
+    private func resetDrag() {
+        dragRef = nil
+        dragTranslation = .zero
+        dropTarget = nil
+    }
+
+    // Geometry helpers over the measured row frames.
+
+    /// The bottom edge of an expanded project's interior: its add-task row, or
+    /// the last task, or nil when nothing is measured yet.
+    private func interiorBottom(of projectID: UUID) -> CGFloat? {
+        rowFrames[.addTask(projectID)]?.maxY
+            ?? tasks(of: projectID).compactMap { rowFrames[.task($0.id)]?.maxY }.max()
+    }
+
+    /// The vertical middle of a root item's whole block (an expanded project
+    /// spans header..interior; a collapsed project or a task is just its row).
+    private func blockMidY(of id: UUID) -> CGFloat {
+        if let project = engine.data.projects.first(where: { $0.id == id }) {
+            guard let header = rowFrames[.project(id)] else { return .greatestFiniteMagnitude }
+            if project.isExpanded, let bottom = interiorBottom(of: id) {
+                return (header.minY + bottom) / 2
+            }
+            return header.midY
+        }
+        return rowFrames[.task(id)]?.midY ?? .greatestFiniteMagnitude
+    }
+
+    private func blockTop(of id: UUID?) -> CGFloat? {
+        guard let id else { return nil }
+        if engine.data.projects.contains(where: { $0.id == id }) { return rowFrames[.project(id)]?.minY }
+        return rowFrames[.task(id)]?.minY
+    }
+
+    private func blockBottom(of id: UUID?) -> CGFloat? {
+        guard let id else { return nil }
+        if let project = engine.data.projects.first(where: { $0.id == id }) {
+            if project.isExpanded { return interiorBottom(of: id) ?? rowFrames[.project(id)]?.maxY }
+            return rowFrames[.project(id)]?.maxY
+        }
+        return rowFrames[.task(id)]?.maxY
+    }
+
+    /// The y at which to draw the drop indicator line for the resolved target.
+    private func indicatorY(for target: DropTarget) -> CGFloat? {
+        switch target {
+        case .root(let idx):
+            let ids = engine.data.rootOrder.filter { $0 != draggingID }
+            if ids.isEmpty { return nil }
+            if idx <= 0 { return blockTop(of: ids.first) }
+            if idx >= ids.count { return blockBottom(of: ids.last) }
+            if let a = blockBottom(of: ids[idx - 1]), let b = blockTop(of: ids[idx]) { return (a + b) / 2 }
+            return blockBottom(of: ids[idx - 1]) ?? blockTop(of: ids[idx])
+        case .intoProject(let pid, let idx):
+            let sib = tasks(of: pid).filter { $0.id != draggingID }
+            if sib.isEmpty { return rowFrames[.addTask(pid)]?.minY ?? rowFrames[.project(pid)]?.maxY }
+            if idx <= 0 { return rowFrames[.task(sib.first!.id)]?.minY }
+            if idx >= sib.count { return rowFrames[.addTask(pid)]?.minY ?? rowFrames[.task(sib.last!.id)]?.maxY }
+            if let a = rowFrames[.task(sib[idx - 1].id)]?.maxY, let b = rowFrames[.task(sib[idx].id)]?.minY {
+                return (a + b) / 2
+            }
+            return rowFrames[.task(sib[idx].id)]?.minY
+        }
+    }
+
+    @ViewBuilder private var dropIndicatorOverlay: some View {
+        if let target = dropTarget, let y = indicatorY(for: target) {
+            let intoProject: Bool = { if case .intoProject = target { return true } else { return false } }()
+            Rectangle()
+                .fill(Theme.editing)
+                .frame(height: 2)
+                .frame(maxWidth: .infinity)
+                .padding(.leading, intoProject ? 16 : 0)
+                .offset(y: y - 1)
+                .allowsHitTesting(false)
+        }
+    }
+
+    private func rowFrameReader(_ ref: RowRef) -> some View {
+        GeometryReader { geo in
+            Color.clear.preference(key: RowFrameKey.self,
+                                   value: [ref: geo.frame(in: .named(Self.listSpace))])
+        }
+    }
+
     // MARK: - Add affordances
 
     @ViewBuilder private var addProjectRow: some View {
@@ -347,6 +585,24 @@ struct TrackerView: View {
             }
         }
         .padding(.leading, 16)
+        // measured so an expanded project's interior (drop zone) is bounded at
+        // the bottom even when it has no task rows.
+        .background(rowFrameReader(.addTask(projectID)))
+    }
+
+    /// A project-less "+ new task" at the root, beside "+ new project".
+    @ViewBuilder private var addRootTaskRow: some View {
+        if isEditing(.newRootTask) {
+            nameField(.newRootTask, placeholder: t(.trackerNewTask))
+                .padding(.horizontal, 2)
+                .padding(.vertical, 5)
+        } else {
+            Button { beginNewRootTask() } label: {
+                addRowLabel(t(.trackerNewTask), iconSize: 10)
+            }
+            .buttonStyle(.plain)
+            .hoverHighlight(6)
+        }
     }
 
     private func addRowLabel(_ text: String, iconSize: CGFloat) -> some View {
@@ -421,6 +677,13 @@ struct TrackerView: View {
         activeField = .newTask(projectID)
     }
 
+    private func beginNewRootTask() {
+        guard !Snapshot.active else { return }
+        clearConfirms()
+        nameDraft = ""
+        activeField = .newRootTask
+    }
+
     private func beginRenameProject(_ project: TrackerProject) {
         guard !Snapshot.active else { return }
         clearConfirms()
@@ -453,6 +716,7 @@ struct TrackerView: View {
         switch activeField {
         case .newProject: engine.addProject(name: name)
         case .newTask(let projectID): engine.addTask(projectID: projectID, name: name)
+        case .newRootTask: engine.addTask(projectID: nil, name: name)
         case .renameProject(let id): engine.renameProject(id, to: name)
         case .renameTask(let id): engine.renameTask(id, to: name)
         default: break
