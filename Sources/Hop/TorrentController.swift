@@ -94,7 +94,7 @@ final class TorrentController: ObservableObject {
 
     private var supportDir: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let id = Bundle.main.bundleIdentifier ?? "com.antonshakirov.minimo"
+        let id = Bundle.storageIdentifier
         return base.appendingPathComponent(id, isDirectory: true)
     }
     private var persistenceDir: URL { supportDir.appendingPathComponent("torrent-session", isDirectory: true) }

@@ -98,7 +98,7 @@ final class ClipboardController: ObservableObject {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         return base
-            .appendingPathComponent(Bundle.main.bundleIdentifier ?? "com.antonshakirov.minimo")
+            .appendingPathComponent(Bundle.storageIdentifier)
             .appendingPathComponent("clipboard-images")
     }
 

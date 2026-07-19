@@ -99,7 +99,7 @@ struct TorrentView: View {
     /// shared, so this file's only new import is CoreServices — no cross-file
     /// coupling). Once Hop owns the type, Finder shows Hop's icon on .torrent files.
     private func makeHopDefaultForTorrent() {
-        let bundleID = Bundle.main.bundleIdentifier ?? "com.antonshakirov.minimo"
+        let bundleID = Bundle.storageIdentifier
         LSSetDefaultRoleHandlerForContentType(
             "org.bittorrent.torrent" as CFString, .all, bundleID as CFString)
         LSSetDefaultHandlerForURLScheme("magnet" as CFString, bundleID as CFString)

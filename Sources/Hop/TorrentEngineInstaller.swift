@@ -36,7 +36,7 @@ final class TorrentEngineInstaller: ObservableObject {
 
     private var installDir: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let id = Bundle.main.bundleIdentifier ?? "com.antonshakirov.minimo"
+        let id = Bundle.storageIdentifier
         return base.appendingPathComponent(id, isDirectory: true)
             .appendingPathComponent("torrent-engine", isDirectory: true)
     }

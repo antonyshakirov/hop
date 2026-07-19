@@ -26,7 +26,7 @@ final class TrackerController: ObservableObject {
 
     init() {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let id = Bundle.main.bundleIdentifier ?? "com.antonshakirov.minimo"
+        let id = Bundle.storageIdentifier
         storeDir = base.appendingPathComponent(id, isDirectory: true)
 
         let data = TrackerStore.load(from: storeDir)

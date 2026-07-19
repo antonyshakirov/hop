@@ -2924,7 +2924,7 @@ struct PanelView: View {
     /// type, Finder shows Hop's document icon (Info.plist CFBundleTypeIconFile)
     /// instead of the previous client's.
     private func makeHopDefaultForTorrent() {
-        let bundleID = Bundle.main.bundleIdentifier ?? "com.antonshakirov.minimo"
+        let bundleID = Bundle.storageIdentifier
         LSSetDefaultRoleHandlerForContentType(
             "org.bittorrent.torrent" as CFString, .all, bundleID as CFString)
         LSSetDefaultHandlerForURLScheme("magnet" as CFString, bundleID as CFString)

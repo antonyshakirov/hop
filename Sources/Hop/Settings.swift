@@ -1,5 +1,22 @@
 import Foundation
 
+/// The app's identifier for Application Support directories and Launch
+/// Services registration: the real bundle id when one exists (production
+/// or dev build), otherwise a dedicated sandbox id for bundle-less runs
+/// (raw `swift build` binary, `--snapshot` / `--torrent-selftest` probes).
+///
+/// MUST NEVER fall back to the production id ("com.antonshakirov.minimo"):
+/// a bundle-less process reading or writing under that folder would touch
+/// the real user's production data — this already happened once (a probe
+/// run pruned a production clipboard image). Bundle-less runs get their
+/// own "…minimo.cli" folder instead, so they can never see or mutate real
+/// user data.
+extension Bundle {
+    static var storageIdentifier: String {
+        main.bundleIdentifier ?? "com.antonshakirov.minimo.cli"
+    }
+}
+
 enum SettingsKey {
     static let showMenuBarCountdown = "showMenuBarCountdown"
     /// Show the active tracker task's ticking "today" time in the menu bar; off by default.
