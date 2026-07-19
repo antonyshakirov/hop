@@ -573,14 +573,12 @@ struct PanelView: View {
         case .delete:
             mutateSelectedUnit { $0 / 10 }
             return .handled
-        case .return, .space:
-            editUnit = nil
-            model.engine.toggle()
-            return .handled
         case .escape:
             editUnit = nil
             return .handled
         default:
+            // Return/Space no longer toggle the timer (Anton, 2026-07-19):
+            // the timer starts/stops ONLY via its on-screen play button.
             return .ignored
         }
     }

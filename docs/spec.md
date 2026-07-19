@@ -475,9 +475,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   do capture the keyboard: digit entry into the timer display (while a
   digit group is selected), the clipboard search field, and a focused
   tracker inline field (a project/task name or a today-time edit). The
-  tracker case also guards the panel's global key handler: while such a
+  timer itself starts/stops ONLY via its on-screen play button — Return and
+  Space do NOT toggle it (Anton, 2026-07-19). `handleKey` handles only digit
+  entry, Delete (backspace a digit) and Escape (deselect the digit group).
+  The tracker case also guards the panel's global key handler: while such a
   field is open, Return commits the name — it must NOT reach `handleKey`
-  and start the timer. The capture is one flag fed by both the timer digit
+  and be swallowed by the digit editor. The capture is one flag fed by both the timer digit
   editor and the tracker field (`panelKeyboardCaptured =
   editUnit != nil || trackerEditing`). When the capture ends
   (Esc/Enter/click elsewhere), focus returns to the app underneath again. Focus moving to another Hop window (settings,
