@@ -580,6 +580,17 @@ struct PanelView: View {
         case .escape:
             editUnit = nil
             return .handled
+        case .return:
+            // Return ends digit entry (like Esc) — it must NOT start the timer,
+            // which starts/stops ONLY via its play button (Anton, 2026-07-19).
+            // Without this, Return would fall through to `.ignored` while
+            // `editUnit` keeps the keyboard captured, so the capture would never
+            // release. Matches "capture ends on Esc/Enter" in the spec.
+            if editUnit != nil {
+                editUnit = nil
+                return .handled
+            }
+            return .ignored
         default:
             // Return/Space no longer toggle the timer (Anton, 2026-07-19):
             // the timer starts/stops ONLY via its on-screen play button.
@@ -1666,9 +1677,14 @@ struct PanelView: View {
         if let decoded = PanelTabsModel.decode(panelTabsRaw) {
             var model = decoded
             model.ensure(modules: allModules + ["system", "tracker", "todos"])
+            // Migrate legacy visibility BEFORE seeding: a legacy
+            // `showTrackerModule=false` state must deactivate the tracker first,
+            // so `seedTrackerTab` skips minting an empty clock tab and
+            // `seedTodos` follows the tracker into the inactive bucket instead
+            // of stranding a lone clock tab holding only todos.
+            migrateModuleVisibility(&model)
             seedTrackerTab(&model)
             seedTodos(&model)
-            migrateModuleVisibility(&model)
             return model
         }
         var model = PanelTabsModel.migrate(moduleOrder: moduleOrder)
@@ -2588,6 +2604,17 @@ struct PanelView: View {
             } else if let id = iconPickerTabID {
                 iconPickerGrid(for: id)
             }
+        }
+        .onDisappear {
+            // @State survives the settings window's hide/show, so a window
+            // closed mid-drag would reopen with a ghost chip frozen at the drag
+            // point. Clear the chip and header drag state here — mirrors
+            // TrackerView's resetDrag() and the gesture `onEnded` handlers.
+            dragChip = nil
+            dragChipTranslation = .zero
+            dropColumn = nil
+            dragHeaderTab = nil
+            dragHeaderTranslation = 0
         }
     }
 

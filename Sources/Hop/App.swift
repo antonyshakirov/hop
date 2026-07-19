@@ -627,8 +627,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // make the torrent module visible so its CTA sits where the user
-        // expects: lift it out of the inactive bucket onto the first space
+        // expects: lift it out of the inactive bucket onto the first space.
+        // `placeModule` is the in-panel choke point that pairs activation with
+        // `prefetchEngineIfNeeded`; this out-of-panel path is not routed through
+        // it, so it must honour the same rule — NO activation path may skip the
+        // prefetch — and fetch the engine here too, only when we actually just
+        // lifted it out of inactive (matching `placeModule`'s `wasInactive`).
+        let torrentWasInactive = PanelView.storedModuleIsInactive("torrent")
         PanelView.activateStoredModule("torrent")
+        if torrentWasInactive { model.torrent.prefetchEngineIfNeeded() }
         NSApp.activate(ignoringOtherApps: true)
 
         guard model.torrent.installer.installedBinaryURL() != nil else {

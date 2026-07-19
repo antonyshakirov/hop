@@ -498,8 +498,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   switch, the active one chip-highlighted — and the service trio on the
   right: ⓘ (about), gear (settings), ⏻ (quit, with a confirmation dialog).
   The switcher is pure navigation: adding, reordering, renaming (icon) and
-  deleting spaces all live in the settings "tabs" section, so a stray header
-  click can't create a space. Up to 4 spaces (`PanelTabsModel.maxTabs`) — the
+  deleting spaces all live in the settings "modules & tabs" table (the
+  combined space/module table), so a stray header click can't create a
+  space. Up to 4 spaces (`PanelTabsModel.maxTabs`) — the
   cap keeps 4×56pt tabs plus the trio inside the 340pt header content
   (≈338pt at the cap). Panel width 368.
 - Default spaces: a fresh install migrates into THREE spaces — "house" with
@@ -552,18 +553,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **The panel is keyboard-transparent** (Anton, 2026-07-13; completed
   2026-07-15): it never steals keyboard focus — on open AND after any
   click inside it, focus goes back to the app underneath (dictation and
-  Cmd+V land there). The panel is mouse-only, with three exceptions that
+  Cmd+V land there). The panel is mouse-only, with four exceptions that
   do capture the keyboard: digit entry into the timer display (while a
-  digit group is selected), the clipboard search field, and a focused
-  tracker inline field (a project/task name or a today-time edit). The
+  digit group is selected), the clipboard search field, a focused
+  tracker inline field (a project/task name or a today-time edit), and a
+  focused to-do field. The
   timer itself starts/stops ONLY via its on-screen play button — Return and
   Space do NOT toggle it (Anton, 2026-07-19). `handleKey` handles only digit
-  entry, Delete (backspace a digit) and Escape (deselect the digit group).
-  The tracker case also guards the panel's global key handler: while such a
-  field is open, Return commits the name — it must NOT reach `handleKey`
-  and be swallowed by the digit editor. The capture is one flag fed by both the timer digit
-  editor and the tracker field (`panelKeyboardCaptured =
-  editUnit != nil || trackerEditing`). When the capture ends
+  entry, Delete (backspace a digit), Escape (deselect the digit group) and
+  Return (end digit entry, same as Esc, without starting the timer).
+  The tracker and to-do cases also guard the panel's global key handler: while
+  such a field is open, Return commits the name/text — it must NOT reach
+  `handleKey` and be swallowed by the digit editor. The capture is one flag fed
+  by the timer digit editor, the tracker field and the to-do field
+  (`panelKeyboardCaptured =
+  editUnit != nil || trackerEditing || todosEditing`). When the capture ends
   (Esc/Enter/click elsewhere), focus returns to the app underneath again. Focus moving to another Hop window (settings,
   converter) is legitimate and is not overridden. Global hotkeys work
   regardless of focus.

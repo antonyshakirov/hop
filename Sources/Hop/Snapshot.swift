@@ -80,7 +80,7 @@ enum Snapshot {
         // toggles so `loadTabs` migrates fresh from the keys THIS run sets
         // (below, e.g. --torrents), instead of decoding a prior render's layout.
         for key in [SettingsKey.panelTabs, SettingsKey.moduleVisibilityMigrated,
-                    SettingsKey.trackerTabSeeded, "moduleOrder",
+                    SettingsKey.trackerTabSeeded, SettingsKey.todosSeeded, "moduleOrder",
                     "showTimerModule", "showAwakeModule", "showClipboardModule",
                     "showConvertModule", "showWindowsModule", "showSpeedtestModule",
                     "showSystemModule", "showTrackerModule", "showTorrentModule"] {
