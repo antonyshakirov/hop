@@ -133,7 +133,7 @@ enum L10nKey: String, CaseIterable {
     case torrentEngineNote
     case featureShowHere, featureSave
     case trackerLabel, trackerNewProject, trackerNewTask, trackerDeleteProject, trackerDeleteTask, trackerDelete, trackerEmpty, trackerEditHint, trackerBarTime
-    case settingsTabGeneral, settingsTabLayout
+    case settingsTabLayout
     case modulesInactive, tabDeleteConfirm
     case todosLabel, todosNew, todosEmpty
 }
@@ -385,7 +385,7 @@ enum L10n {
             .trackerEditHint: "drag or click to adjust today's time",
             .todosLabel: "to-dos", .todosNew: "new to-do", .todosEmpty: "nothing to do yet",
             .trackerBarTime: "show task time in menu bar",
-            .settingsTabGeneral: "general", .settingsTabLayout: "modules & tabs",
+            .settingsTabLayout: "modules & tabs",
             .modulesInactive: "inactive", .tabDeleteConfirm: "delete this tab? its modules become inactive",
         ],
         .ru: [
@@ -608,7 +608,7 @@ enum L10n {
             .trackerEditHint: "потяните или нажмите, чтобы изменить время за сегодня",
             .todosLabel: "задачи", .todosNew: "новое дело", .todosEmpty: "дел пока нет",
             .trackerBarTime: "время задачи в menu bar",
-            .settingsTabGeneral: "общее", .settingsTabLayout: "модули и вкладки",
+            .settingsTabLayout: "модули и вкладки",
             .modulesInactive: "неактивные", .tabDeleteConfirm: "удалить вкладку? её модули станут неактивными",
         ],
         .de: [
@@ -831,7 +831,7 @@ enum L10n {
             .trackerEditHint: "ziehen oder klicken, um die heutige zeit anzupassen",
             .todosLabel: "to-dos", .todosNew: "neues to-do", .todosEmpty: "nichts zu tun",
             .trackerBarTime: "aufgabenzeit in menüleiste",
-            .settingsTabGeneral: "allgemein", .settingsTabLayout: "module & tabs",
+            .settingsTabLayout: "module & tabs",
             .modulesInactive: "inaktiv", .tabDeleteConfirm: "diesen tab löschen? seine module werden inaktiv",
         ],
         .es: [
@@ -1054,7 +1054,7 @@ enum L10n {
             .trackerEditHint: "arrastra o haz clic para ajustar el tiempo de hoy",
             .todosLabel: "pendientes", .todosNew: "nuevo pendiente", .todosEmpty: "nada pendiente",
             .trackerBarTime: "tiempo de tarea en la barra",
-            .settingsTabGeneral: "general", .settingsTabLayout: "módulos y pestañas",
+            .settingsTabLayout: "módulos y pestañas",
             .modulesInactive: "inactivos", .tabDeleteConfirm: "¿eliminar esta pestaña? sus módulos quedarán inactivos",
         ],
         .pt: [
@@ -1277,7 +1277,7 @@ enum L10n {
             .trackerEditHint: "arraste ou clique para ajustar o tempo de hoje",
             .todosLabel: "afazeres", .todosNew: "novo afazer", .todosEmpty: "nada a fazer",
             .trackerBarTime: "tempo da tarefa na barra",
-            .settingsTabGeneral: "geral", .settingsTabLayout: "módulos e abas",
+            .settingsTabLayout: "módulos e abas",
             .modulesInactive: "inativos", .tabDeleteConfirm: "excluir esta aba? seus módulos ficarão inativos",
         ],
         .fr: [
@@ -1500,7 +1500,7 @@ enum L10n {
             .trackerEditHint: "glissez ou cliquez pour ajuster le temps d'aujourd'hui",
             .todosLabel: "à faire", .todosNew: "nouvelle chose à faire", .todosEmpty: "rien à faire pour l'instant",
             .trackerBarTime: "temps de la tâche dans la barre",
-            .settingsTabGeneral: "général", .settingsTabLayout: "modules et onglets",
+            .settingsTabLayout: "modules et onglets",
             .modulesInactive: "inactifs", .tabDeleteConfirm: "supprimer cet onglet ? ses modules deviendront inactifs",
         ],
         .it: [
@@ -1723,7 +1723,7 @@ enum L10n {
             .trackerEditHint: "trascina o clicca per regolare il tempo di oggi",
             .todosLabel: "da fare", .todosNew: "nuovo da fare", .todosEmpty: "niente da fare",
             .trackerBarTime: "tempo dell'attività nella barra",
-            .settingsTabGeneral: "generale", .settingsTabLayout: "moduli e schede",
+            .settingsTabLayout: "moduli e schede",
             .modulesInactive: "inattivi", .tabDeleteConfirm: "eliminare questa scheda? i suoi moduli diventeranno inattivi",
         ],
         .zh: [
@@ -1946,7 +1946,7 @@ enum L10n {
             .trackerEditHint: "拖动或点击以调整今天的时间",
             .todosLabel: "待办", .todosNew: "新建待办", .todosEmpty: "暂无待办",
             .trackerBarTime: "菜单栏显示任务时间",
-            .settingsTabGeneral: "概览", .settingsTabLayout: "模块与标签",
+            .settingsTabLayout: "模块与标签",
             .modulesInactive: "未启用", .tabDeleteConfirm: "删除此标签？其模块将变为未启用",
         ],
         .ja: [
@@ -2169,7 +2169,7 @@ enum L10n {
             .trackerEditHint: "ドラッグまたはクリックで今日の時間を調整",
             .todosLabel: "やること", .todosNew: "新しいやること", .todosEmpty: "やることはまだありません",
             .trackerBarTime: "メニューバーにタスク時間表示",
-            .settingsTabGeneral: "全般", .settingsTabLayout: "モジュールとタブ",
+            .settingsTabLayout: "モジュールとタブ",
             .modulesInactive: "非表示", .tabDeleteConfirm: "このタブを削除しますか？モジュールは非表示になります",
         ],
         .ko: [
@@ -2392,7 +2392,7 @@ enum L10n {
             .trackerEditHint: "드래그하거나 클릭하여 오늘 시간 조정",
             .todosLabel: "할 일", .todosNew: "새 할 일", .todosEmpty: "아직 할 일이 없습니다",
             .trackerBarTime: "메뉴 막대에 작업 시간 표시",
-            .settingsTabGeneral: "일반", .settingsTabLayout: "모듈 및 탭",
+            .settingsTabLayout: "모듈 및 탭",
             .modulesInactive: "비활성", .tabDeleteConfirm: "이 탭을 삭제할까요? 모듈이 비활성 상태가 됩니다",
         ],
         .tr: [
@@ -2632,7 +2632,7 @@ enum L10n {
             .trackerEditHint: "bugünün süresini ayarlamak için sürükleyin veya tıklayın",
             .todosLabel: "yapılacaklar", .todosNew: "yeni yapılacak", .todosEmpty: "yapılacak bir şey yok",
             .trackerBarTime: "menü çubuğunda görev süresi",
-            .settingsTabGeneral: "genel", .settingsTabLayout: "modüller ve sekmeler",
+            .settingsTabLayout: "modüller ve sekmeler",
             .modulesInactive: "pasif", .tabDeleteConfirm: "bu sekme silinsin mi? modülleri pasif olacak",
         ],
         .uk: [
@@ -2872,7 +2872,7 @@ enum L10n {
             .trackerEditHint: "потягніть або натисніть, щоб змінити час за сьогодні",
             .todosLabel: "справи", .todosNew: "нова справа", .todosEmpty: "справ поки немає",
             .trackerBarTime: "час завдання в рядку меню",
-            .settingsTabGeneral: "загальне", .settingsTabLayout: "модулі та вкладки",
+            .settingsTabLayout: "модулі та вкладки",
             .modulesInactive: "неактивні", .tabDeleteConfirm: "видалити вкладку? її модулі стануть неактивними",
         ],
         .pl: [
@@ -3112,7 +3112,7 @@ enum L10n {
             .trackerEditHint: "przeciągnij lub kliknij, aby dostosować dzisiejszy czas",
             .todosLabel: "do zrobienia", .todosNew: "nowy element", .todosEmpty: "nic do zrobienia",
             .trackerBarTime: "czas zadania na pasku menu",
-            .settingsTabGeneral: "ogólne", .settingsTabLayout: "moduły i karty",
+            .settingsTabLayout: "moduły i karty",
             .modulesInactive: "nieaktywne", .tabDeleteConfirm: "usunąć tę kartę? jej moduły staną się nieaktywne",
         ],
         .id: [
@@ -3352,7 +3352,7 @@ enum L10n {
             .trackerEditHint: "seret atau klik untuk menyesuaikan waktu hari ini",
             .todosLabel: "to-do", .todosNew: "to-do baru", .todosEmpty: "belum ada yang dikerjakan",
             .trackerBarTime: "waktu tugas di bilah menu",
-            .settingsTabGeneral: "umum", .settingsTabLayout: "modul & tab",
+            .settingsTabLayout: "modul & tab",
             .modulesInactive: "nonaktif", .tabDeleteConfirm: "hapus tab ini? modulnya menjadi nonaktif",
         ],
         .th: [
@@ -3592,7 +3592,7 @@ enum L10n {
             .trackerEditHint: "ลากหรือคลิกเพื่อปรับเวลาของวันนี้",
             .todosLabel: "สิ่งที่ต้องทำ", .todosNew: "สิ่งที่ต้องทำใหม่", .todosEmpty: "ยังไม่มีสิ่งที่ต้องทำ",
             .trackerBarTime: "เวลางานบนแถบเมนู",
-            .settingsTabGeneral: "ทั่วไป", .settingsTabLayout: "โมดูลและแท็บ",
+            .settingsTabLayout: "โมดูลและแท็บ",
             .modulesInactive: "ปิดใช้งาน", .tabDeleteConfirm: "ลบแท็บนี้ไหม? โมดูลจะถูกปิดใช้งาน",
         ],
         .vi: [
@@ -3832,7 +3832,7 @@ enum L10n {
             .trackerEditHint: "kéo hoặc nhấp để chỉnh thời gian hôm nay",
             .todosLabel: "việc cần làm", .todosNew: "việc mới", .todosEmpty: "chưa có việc cần làm",
             .trackerBarTime: "thời gian công việc trên thanh menu",
-            .settingsTabGeneral: "chung", .settingsTabLayout: "mô-đun & tab",
+            .settingsTabLayout: "mô-đun & tab",
             .modulesInactive: "không dùng", .tabDeleteConfirm: "xóa tab này? các mô-đun sẽ không được dùng",
         ],
         .hi: [
@@ -4072,7 +4072,7 @@ enum L10n {
             .trackerEditHint: "आज का समय समायोजित करने के लिए खींचें या क्लिक करें",
             .todosLabel: "कार्यसूची", .todosNew: "नया काम", .todosEmpty: "अभी कुछ नहीं करना",
             .trackerBarTime: "मेनू बार में कार्य समय",
-            .settingsTabGeneral: "सामान्य", .settingsTabLayout: "मॉड्यूल और टैब",
+            .settingsTabLayout: "मॉड्यूल और टैब",
             .modulesInactive: "निष्क्रिय", .tabDeleteConfirm: "यह टैब हटाएं? इसके मॉड्यूल निष्क्रिय हो जाएंगे",
         ],
         .nl: [
@@ -4312,7 +4312,7 @@ enum L10n {
             .trackerEditHint: "sleep of klik om de tijd van vandaag aan te passen",
             .todosLabel: "to-do's", .todosNew: "nieuwe to-do", .todosEmpty: "niks te doen",
             .trackerBarTime: "taaktijd in de menubalk",
-            .settingsTabGeneral: "algemeen", .settingsTabLayout: "modules & tabbladen",
+            .settingsTabLayout: "modules & tabbladen",
             .modulesInactive: "inactief", .tabDeleteConfirm: "dit tabblad verwijderen? de modules worden inactief",
         ],
     ]

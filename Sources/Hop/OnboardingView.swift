@@ -16,12 +16,19 @@ struct OnboardingView: View {
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
     @State private var launchAtLogin = true
     @State private var menuTarget: MenuPickTarget?
-    @AppStorage("showTimerModule") private var showTimerModule = true
+    // The module choices are transient @State, not @AppStorage: visibility is
+    // membership now, so onboarding drives the panel-tabs model directly (see
+    // finishOnboarding) instead of the dead show*Module keys. displayStyle is a
+    // real persisted setting and stays @AppStorage.
+    @State private var showTimerModule = true
     @AppStorage("displayStyle") private var displayStyle = "dots"
-    @AppStorage("showAwakeModule") private var showAwakeModule = true
-    @AppStorage("showClipboardModule") private var showClipboardModule = true
-    @AppStorage("showConvertModule") private var showConvertModule = true
-    @AppStorage("showWindowsModule") private var showWindowsModule = true
+    @State private var showAwakeModule = true
+    @State private var showClipboardModule = true
+    @State private var showConvertModule = true
+    @State private var showWindowsModule = true
+    @State private var showSystemModule = true
+    @State private var showTrackerModule = true
+    @State private var showTodosModule = true
     // Torrents default OFF globally (opt-in via the "what's new" banner for users
     // who updated in); a fresh install gets to choose here, recommended on.
     @State private var enableTorrent = true
@@ -116,6 +123,27 @@ struct OnboardingView: View {
                         .foregroundStyle(Theme.textPrimary)
                     Spacer()
                     Theme.MiniSwitch(isOn: $showWindowsModule)
+                }
+                HStack {
+                    Text(t(.tabSystem))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $showSystemModule)
+                }
+                HStack {
+                    Text(t(.trackerLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $showTrackerModule)
+                }
+                HStack {
+                    Text(t(.todosLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $showTodosModule)
                 }
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
@@ -244,18 +272,29 @@ struct OnboardingView: View {
     private func finishOnboarding() {
         UserDefaults.standard.set(true, forKey: "onboardingDone")
         // Fresh install: apply the module choices to the spaces directly.
-        // Visibility is membership now — a chosen module stays on its space, an
-        // unchosen one goes to the inactive bucket (the loadTabs migration ran
-        // with defaults before onboarding, so reconcile explicitly here).
+        // Visibility is membership now — a chosen module stays on its canonical
+        // space, an unchosen one goes to the inactive bucket (the loadTabs
+        // migration ran with defaults before onboarding, so reconcile
+        // explicitly here). The fresh migrate already put every module on its
+        // canonical space (general on space 1, system on space 2, tracker+todos
+        // on space 3), so an "on" choice is a no-op and only "off" moves a
+        // module out — except torrent, which starts inactive and activates onto
+        // space 1.
         let choices: [(module: String, on: Bool)] = [
             ("timer", showTimerModule), ("awake", showAwakeModule),
             ("clipboard", showClipboardModule), ("convert", showConvertModule),
             ("windows", showWindowsModule), ("torrent", enableTorrent),
+            ("system", showSystemModule), ("tracker", showTrackerModule),
+            ("todos", showTodosModule),
         ]
         for choice in choices {
             if choice.on { PanelView.activateStoredModule(choice.module) }
             else { PanelView.deactivateStoredModule(choice.module) }
         }
+        // Deactivating the monitor / tracker / to-dos can empty their canonical
+        // spaces (space 2, space 3); drop any that ended up empty so the app
+        // never opens onto a blank tab.
+        PanelView.dropEmptyOnboardingSpaces()
         // Mark the newest features' "what's new" announcements as seen — the
         // top-of-panel banner is only for users who UPDATED into the feature.
         UserDefaults.standard.set(true, forKey: "featureSeen.torrent")

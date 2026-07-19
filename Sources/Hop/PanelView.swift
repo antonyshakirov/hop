@@ -66,9 +66,6 @@ struct PanelView: View {
     @State private var aboutSection =
         Snapshot.active && CommandLine.arguments.contains("--news") ? "news" : "general"
     @State private var settingsSection = "general"
-    // Sub-tab within the "general" settings section: the everyday options vs.
-    // the spaces/module layout. Transient — no persistence needed.
-    @State private var generalTab = "general"
     @State private var editUnit: TimeInterval? // digit group being edited (3600/60/1)
     // A tracker inline field (project/task name or "today" time) is focused.
     // Feeds `panelKeyboardCaptured` alongside `editUnit` so `handleKey` lets
@@ -1786,6 +1783,25 @@ struct PanelView: View {
         return PanelTabsModel.decode(raw)?.inactive.contains(key) ?? false
     }
 
+    /// Called once, right after onboarding reconciles the fresh install's module
+    /// choices into the membership model. The launch-time fresh migrate always
+    /// lays down the canonical three spaces (general | system | tracker+todos),
+    /// so turning the monitor, tracker AND to-dos off in onboarding leaves their
+    /// spaces empty — and the app must not open onto a blank tab. Drop every
+    /// empty space EXCEPT the first: space 1 always stays (it still holds the
+    /// speed test, which has no onboarding toggle, so it is never truly empty),
+    /// even if thin. This mirrors what `seedCanonicalLayout` does for decoded
+    /// legacy models — it only ever creates a system/tracker space when that
+    /// space has an active module — closing the same gap on the fresh-migrate
+    /// path, whose fixed `PanelTabsModel.migrate` shape cannot prune itself.
+    static func dropEmptyOnboardingSpaces() {
+        let defaults = UserDefaults.standard
+        let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
+        guard var model = PanelTabsModel.decode(raw), model.tabs.count > 1 else { return }
+        model.tabs = [model.tabs[0]] + model.tabs.dropFirst().filter { !$0.moduleKeys.isEmpty }
+        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
+    }
+
     /// One-shot canonical layout repair for decoded legacy models — including
     /// any state left mid-shuffled by the OLD per-module seeds this replaces
     /// (`seedSystemTab`, `seedTrackerTab`, `seedTodos`; each nudged ONE module
@@ -2489,12 +2505,18 @@ struct PanelView: View {
 
     private var settingsScreen: some View {
         VStack(spacing: 16) {
+            // "modules & tabs" is its own top-level section, not nested under
+            // "general" — a tab-in-tab was rejected. Five chips at their natural
+            // width fit one line in the 720pt window; `wraps` lets the longest
+            // languages (fr/tr) flow onto a second line instead of truncating,
+            // the same overflow handling the about switcher already uses.
             SectionChips(items: [
                 ("general", t(.aboutTabGeneral)),
                 ("timer", t(.aboutTabTimer)),
                 ("modules", t(.otherModulesLabel)),
                 ("monitor", t(.tabSystem)),
-            ], selection: $settingsSection)
+                ("layout", t(.settingsTabLayout)),
+            ], selection: $settingsSection, wraps: true)
 
             switch settingsSection {
             case "timer":
@@ -2503,38 +2525,18 @@ struct PanelView: View {
                 thresholdsSection
             case "modules":
                 modulesSettings
-            default:
-                generalSettings
-            }
-        }
-        .padding(.vertical, 4)
-    }
-
-
-    /// The "general" settings section splits into two sub-tabs: everyday
-    /// options ("general") and the spaces/module arrangement ("modules & tabs").
-    /// The tabs list and the grouped module list are the heaviest part of the
-    /// screen, so they get their own sub-tab instead of a long scroll under the
-    /// basics. Same text-switcher visual language as the top-level chips.
-    private var generalSettings: some View {
-        VStack(spacing: 16) {
-            SectionChips(items: [
-                ("general", t(.settingsTabGeneral)),
-                ("layout", t(.settingsTabLayout)),
-            ], selection: $generalTab)
-
-            switch generalTab {
             case "layout":
                 layoutSettings
             default:
                 generalBasics
             }
         }
+        .padding(.vertical, 4)
     }
 
     /// Everyday options: theme, language, launch, sounds, updates, app icon,
     /// hotkeys. Everything on the "general" section EXCEPT the spaces/module
-    /// arrangement, which lives on the "modules & tabs" sub-tab.
+    /// arrangement, which is its own top-level "modules & tabs" section.
     private var generalBasics: some View {
         VStack(spacing: 14) {
             HStack {

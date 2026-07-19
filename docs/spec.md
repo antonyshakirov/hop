@@ -70,10 +70,14 @@ every key lives in exactly one place — a space OR inactive
 across the union and decodes older JSON that lacks the field as an empty
 bucket).
 
-The "general" settings section is split into two text-switched sub-tabs:
+The settings window's top-level text-switcher has five sibling sections:
 "general" for the everyday options (theme, language, launch, sounds,
-updates, app icon, hotkeys) and "modules & tabs" for the panel layout. The
-"modules & tabs" tab is ONE combined table: a column per space, in order,
+updates, app icon, hotkeys), "timer", "other modules", "monitor", and
+"modules & tabs" for the panel layout — no tab-in-tab, each is its own
+top-level section. The switcher chips take their natural width and wrap onto
+a second line if a language runs long (`SectionChips(wraps:)`), so the fifth
+chip never truncates in the 720pt window. The "modules & tabs" section is
+ONE combined table: a column per space, in order,
 then a permanent "inactive" column, then a slim "+" stub column while under
 the space cap. Module chips (name, lowercase) stack vertically in each
 column; a hand-rolled drag moves a chip between columns and within a column
@@ -535,15 +539,25 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   fresh-migrate path applies this deterministically on every recompute (so a
   module never flickers visible while `panelTabsRaw` catches up) and claims
   the `moduleVisibilityMigrated` flag; a decoded legacy model runs it once,
-  behind the flag, so a later re-activation is not undone. Onboarding applies
-  the fresh install's module choices straight to the spaces
-  (`activateStoredModule`/`deactivateStoredModule`), and opening a `.torrent`
-  file or magnet link reactivates the torrent module the same way.
-- Settings tab order: general → timer → remaining modules → monitor.
-  "Remaining modules" = awake/clipboard/converter/windows as sections with
-  headers. The "general" tab splits further into two text-switched sub-tabs,
-  "general" and "modules & tabs" (the combined space/module table);
-  the selected sub-tab is transient state, not persisted. The app version is shown next to the "check & update" button.
+  behind the flag, so a later re-activation is not undone. Onboarding offers a
+  per-module toggle for every module — timer, awake, clipboard, converter,
+  window manager, the system monitor, the time tracker, to-dos and torrents
+  (transient `@State`, not the dead `show*Module` keys) — and applies the
+  choices straight to the spaces model (`activateStoredModule`/
+  `deactivateStoredModule`): an enabled module stays on the canonical space the
+  launch-time fresh migrate already placed it on, a disabled one goes to the
+  inactive bucket. Because the fresh migrate always lays down all three
+  canonical spaces, turning the monitor / tracker / to-dos off can empty space
+  2 or 3, so `dropEmptyOnboardingSpaces` runs once right after and removes any
+  space left empty (except space 1, which always stays — the speed test has no
+  onboarding toggle, so it is never truly empty); the fresh install therefore
+  never opens onto a blank tab. Opening a `.torrent` file or magnet link
+  reactivates the torrent module the same way.
+- Settings tab order: general → timer → remaining modules → monitor →
+  modules & tabs. "Remaining modules" = awake/clipboard/converter/windows as
+  sections with headers. "modules & tabs" is the combined space/module table,
+  its own top-level section (a nested general/"modules & tabs" sub-tab was
+  tried and rejected). The app version is shown next to the "check & update" button.
   The "latest version installed" / "failed" note after a manual check is
   transient: it clears when the settings window closes or after 30 minutes —
   a stale note would deny an update that shipped since.
