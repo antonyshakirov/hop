@@ -941,14 +941,17 @@ struct PanelView: View {
         .zIndex(headerDragging ? 2 : 0)
     }
 
-    /// Tab column header. Tapping the icon (or its rotating chevron) toggles the
-    /// full-width icon picker below the table; the hover-only xmark opens an
-    /// inline delete confirmation. A horizontal drag on the header reorders the
-    /// tab columns (`moveTab`).
+    /// Tab column header. Tapping the icon (or its rotating chevron) toggles an
+    /// icon-picker popover anchored under the control; the hover-only xmark opens
+    /// the delete confirmation (an overlay over the table). A horizontal drag on
+    /// the header reorders the tab columns (`moveTab`).
     private func tabColumnHeader(_ tab: PanelTab, number: Int) -> some View {
         let expanded = iconPickerTabID == tab.id
         return HStack(spacing: 4) {
             Button {
+                // A drag owns the pointer: never pop the picker open mid-drag
+                // (a starting header drag already clears any open one).
+                guard dragChip == nil, dragHeaderTab == nil else { return }
                 iconPickerTabID = expanded ? nil : tab.id
             } label: {
                 HStack(spacing: 3) {
@@ -960,12 +963,26 @@ struct PanelView: View {
                         .foregroundStyle(Theme.textTertiary)
                         .rotationEffect(.degrees(expanded ? 90 : 0))
                 }
+                // breathing room around icon+chevron so the hover highlight
+                // isn't cramped and the hit target stays comfortable
+                .padding(.horizontal, 6)
+                .padding(.vertical, 5)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .hoverHighlight(5)
+            .hoverHighlight(6)
             .help(t(.tabChangeIcon).capitalizedFirst)
             .animation(.easeInOut(duration: 0.15), value: expanded)
+            // The settings window is a real NSWindow (not the transient
+            // status-bar panel), so a popover is safe: it floats under the
+            // icon, dismisses on outside click / Escape / selection, and never
+            // reflows the table the way the old inline grid did.
+            .popover(isPresented: Binding(
+                get: { iconPickerTabID == tab.id },
+                set: { if !$0 { iconPickerTabID = nil } }
+            ), attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+                iconPickerPopover(for: tab.id)
+            }
             Text("#\(number)")
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.textTertiary)
@@ -985,7 +1002,7 @@ struct PanelView: View {
                 .allowsHitTesting(hoveredTabRow == tab.id)
             }
         }
-        .frame(height: 22)
+        .frame(height: 26)
         .contentShape(Rectangle())
         .onHover { inside in
             if inside { hoveredTabRow = tab.id } else if hoveredTabRow == tab.id { hoveredTabRow = nil }
@@ -1004,7 +1021,9 @@ struct PanelView: View {
                     .lineLimit(1)
                 Spacer(minLength: 0)
             }
-            .frame(height: 22)
+            // matches the tab header height so every column's chips line up;
+            // this label carries no hover affordance (no icon, no delete)
+            .frame(height: 26)
             columnChips(keys: tabsModel.inactive, columnID: "inactive", inactive: true)
         }
         .frame(maxWidth: .infinity, alignment: .top)
@@ -1058,7 +1077,7 @@ struct PanelView: View {
                 Image(systemName: "plus")
                     .font(.system(size: 13))
                     .foregroundStyle(Theme.textTertiary)
-                    .frame(height: 22)
+                    .frame(height: 26)
                 Spacer(minLength: 0)
             }
             .frame(width: 30)
@@ -1167,60 +1186,87 @@ struct PanelView: View {
             }
     }
 
-    /// Inline delete confirmation shown full-width below the table (a narrow
-    /// column can't hold the sentence): the house-style question + delete/cancel.
-    private func deleteTabConfirmBar(_ id: UUID) -> some View {
-        HStack(spacing: 12) {
-            Text(t(.tabDeleteConfirm))
-                .font(Theme.mono(11))
-                .foregroundStyle(Theme.textSecondary)
-                .lineLimit(2)
-                .minimumScaleFactor(0.8)
-            Spacer(minLength: 8)
-            Button { deleteTab(id) } label: {
-                HoverLabel(text: t(.trackerDelete), size: 10, color: Theme.accentRed)
-                    .contentShape(Rectangle())
+    /// Delete confirmation for a tab column, drawn as an overlay ON the table: a
+    /// dimmed scrim + a centered card (the house-style question + delete/cancel).
+    /// An overlay rather than a bar below the table keeps the columns from
+    /// reflowing; a scrim tap or Escape cancels.
+    private func deleteTabConfirmOverlay(_ id: UUID) -> some View {
+        ZStack {
+            Theme.background.opacity(0.88)
+                .contentShape(Rectangle())
+                .onTapGesture { confirmDeleteTab = nil } // backdrop-click cancels
+            VStack(spacing: 12) {
+                Text(t(.tabDeleteConfirm))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 18) {
+                    Button { deleteTab(id) } label: {
+                        HoverLabel(text: t(.trackerDelete), size: 11, color: Theme.accentRed)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    Button { confirmDeleteTab = nil } label: {
+                        HoverLabel(text: t(.quitCancel), size: 11, color: Theme.textTertiary)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .keyboardShortcut(.cancelAction) // Escape cancels
+                }
             }
-            .buttonStyle(.plain)
-            Button { confirmDeleteTab = nil } label: {
-                HoverLabel(text: t(.quitCancel), size: 10, color: Theme.textTertiary)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
+            .padding(18)
+            .frame(maxWidth: 260)
+            .background(Theme.panelBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.controlStroke, lineWidth: 1))
+            .shadow(color: .black.opacity(0.3), radius: 14, y: 4)
         }
-        .padding(10)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 8))
     }
 
-    /// Icon picker grid, shown inline under the module table when a column's icon
-    /// is tapped. Full width (a single column is too narrow for the 6-wide grid).
-    /// Inline rather than a nested popover (which risks dismissing the panel).
-    private func iconPickerGrid(for tabID: UUID) -> some View {
+    /// Icon-picker content for the header popover: a scrollable grid of the
+    /// catalog, each thematic group set off by extra vertical spacing (no
+    /// labels — that would cost a translation per group across 18 languages).
+    /// The tab's current icon is highlighted; a pick applies it and closes.
+    private func iconPickerPopover(for tabID: UUID) -> some View {
         let current = tabsModel.tabs.first { $0.id == tabID }?.icon
-        return LazyVGrid(
-            columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 6),
-            spacing: 8
-        ) {
-            ForEach(IconCatalog.symbols, id: \.self) { symbol in
-                Button {
-                    mutateTabs { $0.setIcon(symbol, tabID: tabID) }
-                    iconPickerTabID = nil
-                } label: {
-                    Image(systemName: symbol)
-                        .font(.system(size: 14))
-                        .foregroundStyle(symbol == current ? Theme.textPrimary : Theme.textSecondary)
-                        .frame(width: 28, height: 28)
-                        .background(
-                            symbol == current ? Theme.chipBg : .clear,
-                            in: RoundedRectangle(cornerRadius: 6)
-                        )
-                        .contentShape(Rectangle())
+        let columns = Array(repeating: GridItem(.fixed(30), spacing: 6), count: 7)
+        return ScrollView(showsIndicators: true) {
+            VStack(alignment: .leading, spacing: 18) {
+                ForEach(Array(IconCatalog.groups.enumerated()), id: \.offset) { _, group in
+                    LazyVGrid(columns: columns, spacing: 6) {
+                        ForEach(group, id: \.self) { symbol in
+                            iconPickerCell(symbol, current: current, tabID: tabID)
+                        }
+                    }
                 }
-                .buttonStyle(.plain)
-                .hoverHighlight(6)
             }
+            .padding(12)
         }
-        .padding(.vertical, 6)
+        // 7 columns × 30 + gaps + padding; the capped height keeps it a small
+        // floating grid that scrolls rather than a full-height symbol browser.
+        .frame(width: 7 * 30 + 6 * 6 + 24, height: 320)
+        .background(Theme.panelBackground)
+    }
+
+    private func iconPickerCell(_ symbol: String, current: String?, tabID: UUID) -> some View {
+        Button {
+            mutateTabs { $0.setIcon(symbol, tabID: tabID) }
+            iconPickerTabID = nil
+        } label: {
+            Image(systemName: symbol)
+                .font(.system(size: 14))
+                .foregroundStyle(symbol == current ? Theme.textPrimary : Theme.textSecondary)
+                .frame(width: 30, height: 30)
+                .background(
+                    symbol == current ? Theme.chipBg : .clear,
+                    in: RoundedRectangle(cornerRadius: 6)
+                )
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverHighlight(6)
     }
 
     // MARK: - Presets
@@ -2635,9 +2681,9 @@ struct PanelView: View {
     /// The panel layout as one table: a column per space plus a permanent
     /// "inactive" column. Module chips are dragged between and within columns
     /// (that IS the visibility control — no on/off toggles); a column header is
-    /// dragged to reorder spaces; the "+" stub adds one. The icon picker and the
-    /// delete confirmation open full-width beneath the table (a column is too
-    /// narrow for either).
+    /// dragged to reorder spaces; the "+" stub adds one. The icon picker opens in
+    /// a popover under each header; the delete confirmation floats over the table
+    /// as a scrim + card (neither reflows the columns).
     private var layoutSettings: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -2658,13 +2704,13 @@ struct PanelView: View {
             .coordinateSpace(name: Self.tableCoordinateSpace)
             .onPreferenceChange(ColumnFrameKey.self) { columnFrames = $0 }
             .onPreferenceChange(ChipFrameKey.self) { chipFrames = $0 }
-
-            // The confirmation and the picker are mutually exclusive and both
-            // open below the table, where there is room for them.
-            if let id = confirmDeleteTab {
-                deleteTabConfirmBar(id)
-            } else if let id = iconPickerTabID {
-                iconPickerGrid(for: id)
+            // Delete confirmation floats over the table (dimmed scrim + card)
+            // so the columns never reflow; the icon picker is a popover on each
+            // header. Both open on top of the table, not beneath it.
+            .overlay {
+                if let id = confirmDeleteTab {
+                    deleteTabConfirmOverlay(id)
+                }
             }
         }
         .onDisappear {
@@ -2677,6 +2723,10 @@ struct PanelView: View {
             dropColumn = nil
             dragHeaderTab = nil
             dragHeaderTranslation = 0
+            // a still-open picker popover or delete confirmation would otherwise
+            // reappear when the layout section is shown again
+            iconPickerTabID = nil
+            confirmDeleteTab = nil
         }
     }
 

@@ -83,12 +83,23 @@ the space cap. Module chips (name, lowercase) stack vertically in each
 column; a hand-rolled drag moves a chip between columns and within a column
 to reorder — that drag IS the visibility control (`move`/`deactivate`/
 `reorder`). Inactive chips render dimmed. Each space column header carries
-the space icon (tap it or its rotating disclosure chevron to open the
-full-width icon picker below the table), "#N", and a hover-only delete xmark
-that opens an inline confirmation (`delete this tab? its modules become
-inactive` + delete/cancel); confirming sends the space's modules to the
-inactive bucket (they are hidden, not merged into another space). The
-inactive column header is just an "inactive" label — no icon, no delete, and
+the space icon (a padded icon+chevron control with breathing room around the
+hover highlight — tap it or its rotating disclosure chevron to open the icon
+picker), "#N", and a hover-only delete xmark that opens a delete confirmation
+(`delete this tab? its modules become inactive` + delete/cancel); confirming
+sends the space's modules to the inactive bucket (they are hidden, not merged
+into another space). The icon picker is an anchored popover under the header
+control (the settings window is a real NSWindow, so a popover is safe here,
+unlike the status-bar panel): a scrollable grid, ~7 columns, capped ~320pt
+tall, of the curated SF Symbols catalog (`IconCatalog`, 200+ symbols grouped
+by theme — home, time, work, media, and so on — with each group set off by
+extra vertical spacing rather than a label to avoid a per-group translation;
+every name resolves on macOS 14). It dismisses on outside click, Escape, or a
+pick, and never reflows the table; a drag in progress cannot open it. The
+delete confirmation is an overlay ON the table — a dimmed scrim plus a
+centered card — so the columns never reflow beneath it; the scrim tap or
+Escape cancels. The inactive column header is just an "inactive" label — no
+icon, no delete (no hover affordance at all), and
 it cannot be moved. Dragging a column header horizontally reorders spaces
 (`moveTab`, committed on release against the measured column frames). The
 standalone settings window is 720pt wide so up to five columns (4 spaces +
