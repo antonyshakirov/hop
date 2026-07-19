@@ -7,6 +7,11 @@ struct ClipboardView: View {
     @ObservedObject var clipboard: ClipboardController
     let lang: AppLanguage
     var closePanel: () -> Void = {}
+    /// Fired when the search field gains (true) / loses (false) focus, so the
+    /// panel holds the keyboard while typing a query — otherwise the panel's
+    /// global ⌘V would feed the converter and digits could drive the timer,
+    /// same reason the tracker/to-do fields surface their editing state.
+    var onSearchFocusChanged: ((Bool) -> Void)? = nil
 
     @State private var copiedId: UUID?
     @State private var expanded = false
@@ -161,6 +166,16 @@ struct ClipboardView: View {
                 searchFocused = false
             }
         }
+        // Surface the field focus the same way the tracker/to-do fields do, so
+        // the panel keeps the keyboard and its ⌘V doesn't hijack search paste.
+        // Snapshots never carry live focus.
+        .onChange(of: searchFocused) { _, focused in
+            onSearchFocusChanged?(focused && !Snapshot.active)
+        }
+        // @State survives the popover hide/show and this view is torn down on a
+        // space switch — report "not focused" so a stale focus can't linger in
+        // the panel's editing gate after the clipboard leaves the space.
+        .onDisappear { onSearchFocusChanged?(false) }
     }
 
     private func itemRow(_ item: ClipboardController.Item) -> some View {

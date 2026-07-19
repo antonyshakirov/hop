@@ -74,6 +74,9 @@ struct PanelView: View {
     // A to-do inline field is focused — same keyboard-capture concern as the
     // tracker's fields (digits must not leak to the timer sharing this space).
     @State private var todosEditing = false
+    // The clipboard search field is focused — same keyboard-capture concern:
+    // its ⌘V must paste into the search, not the converter sharing this space.
+    @State private var clipboardSearching = false
     @State private var languageMenuTarget: MenuPickTarget?
     // Settings module table (a column per tab + a permanent inactive column):
     // one hand-rolled drag moves a module chip between/within columns; a header
@@ -541,6 +544,7 @@ struct PanelView: View {
         .onChange(of: editUnit) { _, _ in syncKeyboardCapture() }
         .onChange(of: trackerEditing) { _, _ in syncKeyboardCapture() }
         .onChange(of: todosEditing) { _, _ in syncKeyboardCapture() }
+        .onChange(of: clipboardSearching) { _, _ in syncKeyboardCapture() }
         .onDisappear {
             model.panelKeyboardCaptured = false
             // A normal left-click / hotkey reopen does not fire the openTab
@@ -556,7 +560,7 @@ struct PanelView: View {
     /// the controller keeps focus in the panel; once all drop, hand the
     /// keyboard back to the app underneath.
     private func syncKeyboardCapture() {
-        let captured = editUnit != nil || trackerEditing || todosEditing
+        let captured = editUnit != nil || trackerEditing || todosEditing || clipboardSearching
         model.panelKeyboardCaptured = captured
         if !captured { model.panelFocusChanged?() }
     }
@@ -564,20 +568,22 @@ struct PanelView: View {
     /// Keyboard time entry into the selected digit group: digits slide in from the
     /// right (0 → 2 gives :02). The group is picked by clicking/hovering the display.
     private func handleKey(_ press: KeyPress) -> KeyPress.Result {
-        // A focused tracker or to-do field owns the keyboard: Return commits
-        // the field's own text, it must NOT drive the timer. Bailing here lets
-        // the key fall through to the TextField's own onSubmit.
-        guard !trackerEditing, !todosEditing else { return .ignored }
+        // A focused tracker/to-do field or the clipboard search field owns the
+        // keyboard: Return commits the field's own text (and ⌘V pastes into it),
+        // it must NOT drive the timer or the converter. Bailing here lets the key
+        // fall through to the TextField's own paste / onSubmit.
+        guard !trackerEditing, !todosEditing, !clipboardSearching else { return .ignored }
 
         // Cmd+V / Cmd+Shift+V feed the clipboard into the converter, exactly
         // like a drop onto its row. Gated to the converter being on the ACTIVE
-        // space with no timer-digit entry open (tracker/todos field editing
-        // already returned above) — so this never steals paste from a field or
-        // the clipboard module. When the converter isn't here the keys pass
-        // through unchanged. An empty/text-only clipboard is a silent no-op, but
-        // the key is still swallowed: the converter is the paste target here, so
-        // there is nothing else for Cmd+V to do inside the panel.
-        if press.modifiers.contains(.command), press.key.character == "v" {
+        // space with no timer-digit entry open (tracker/todos/search field
+        // editing already returned above) — so this never steals paste from a
+        // field or the clipboard module. When the converter isn't here the keys
+        // pass through unchanged. An empty/text-only clipboard is a silent no-op,
+        // but the key is still swallowed: the converter is the paste target here,
+        // so there is nothing else for Cmd+V to do inside the panel. The "v"
+        // match is case-insensitive so ⌘⇧V (which can arrive as "V") still hits.
+        if press.modifiers.contains(.command), press.key.character.lowercased() == "v" {
             guard let id = currentSpaceID,
                   visibleModules(in: id).contains("convert"),
                   editUnit == nil
@@ -2006,7 +2012,8 @@ struct PanelView: View {
         case "timer": timerModule
         case "awake": keepAwakeSection
         case "clipboard":
-            ClipboardView(clipboard: model.clipboard, lang: lang, closePanel: { model.closePanel?() })
+            ClipboardView(clipboard: model.clipboard, lang: lang, closePanel: { model.closePanel?() },
+                          onSearchFocusChanged: { clipboardSearching = $0 })
                 .id(model.themeVersion)
         case "convert": convertZone
         case "windows": windowSnapRow
