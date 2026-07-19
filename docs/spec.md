@@ -475,7 +475,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   first move past the threshold, a vertically dominant drag (`|dy| > |dx|`) lifts
   the row, while a horizontally dominant one stands down (latched for the rest of
   the gesture) and falls through to the scrub; the scrub mirrors the test (it
-  engages only when `|dx| > |dy|`), so the two never fire together. Inner controls
+  engages only when `|dx| > |dy|`). The two gestures sample at different
+  `minimumDistance`s (reorder 3, scrub 4), so the axis test alone is not enough —
+  a drag that lifts the row vertically then curves horizontal could otherwise
+  scrub on top of the reorder; the scrub's engage branch therefore also refuses
+  once a reorder already owns the drag (`guard dragTask == nil`), which is what
+  guarantees the two never fire together. Inner controls
   keep their taps — a tap never crosses `minimumDistance`, so the play/stop
   button, the hover xmark and the ✓/✕ field buttons win by SwiftUI's inner-gesture
   precedence. On macOS a click-drag never fights the panel's wheel/trackpad

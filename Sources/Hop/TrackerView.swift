@@ -289,6 +289,12 @@ struct TrackerView: View {
                 guard engine.activeTaskID != taskID else { return }
                 if scrubRejected { return }
                 if scrubbingTask != taskID {
+                    // a reorder already claimed this drag — never scrub on top of
+                    // it. The reorder samples at a smaller minimumDistance (3 vs
+                    // 4), so a drag that starts vertical can lift the row before
+                    // this branch's first sample even looks at the axis; the axis
+                    // test alone would then let a curving drag scrub too.
+                    guard dragTask == nil else { scrubRejected = true; return }
                     // engage only when the drag is horizontally dominant; a
                     // vertical-dominant drag is a row reorder, so stand down.
                     guard abs(value.translation.width) > abs(value.translation.height) else {
