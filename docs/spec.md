@@ -57,40 +57,41 @@ signing would break).
 ## Modules
 
 The main screen shows the modules of the selected space (tab) as a stack,
-in the order the user set. Every module lives in exactly one space. The
-"general" settings section is itself split into two text-switched sub-tabs:
+in the order the user set. **Module visibility is membership**: a module is
+shown iff it sits on a space and hidden iff it sits in a permanent,
+non-deletable "inactive" bucket. There are NO per-module on/off toggles;
+every key lives in exactly one place — a space OR inactive
+(`PanelTabsModel.inactive`, an ordered list; HopCore enforces uniqueness
+across the union and decodes older JSON that lacks the field as an empty
+bucket).
+
+The "general" settings section is split into two text-switched sub-tabs:
 "general" for the everyday options (theme, language, launch, sounds,
-updates, app icon, hotkeys) and "modules & tabs" for the panel layout.
-Spaces are managed in a "tabs" section at the top of that "modules & tabs"
-sub-tab, above the module list: one row per space (drag handle, icon +
-disclosure chevron, "#N", a delete xmark revealed on row hover and hidden
-for the last remaining space), a hand-rolled vertical drag to reorder
-(`moveTab`), and an "add tab" row while under the cap. Tapping a row's icon
-(or its chevron) toggles an inline icon-picker grid under it — the chevron
-rotates down while it is open, so collapse is that same tap, never an xmark
-that could be mistaken for the row's delete. It is inline, not a panel
-overlay, because settings is a standalone window that renders
-`settingsScreen` directly (a panel-stack overlay would never show there).
-Deleting from settings clears the saved active space if it pointed at the
-deleted tab, so the panel reopens on a valid space. Below that, the same
-sub-tab lists all modules grouped by space: a header row (the space's icon
-and "#N", not draggable, with a hairline above every header but the first so
-the groups read apart) followed by that space's module rows. A hand-rolled
-drag reorders within a space or, dragged across a header boundary, moves a
-module into another space; the first display row is a header, so a module
-can't be dropped above it — the top clamps to the first slot of space 1.
-Every row (headers included) shares one fixed height so a pixel offset maps
-to a whole number of rows (the group hairline is a zero-height overlay,
-so it never disturbs that math). A module can also be
-re-homed from the panel: right-click it and pick a target under "move to"
-(one item per other space; omitted entirely when there is only one space).
-Reordering is a hand-rolled drag, not List.onMove: the system drop
-indicator (line + leading dot) can't be styled and its dot clipped at the
-panel insets. Rows part to open a gap at the target; the dragged row
-follows the pointer semi-transparent and settles with a short glide. All
-modules can be hidden; visibility toggles live ONLY in the grouped module
-list ("modules & tabs") — do not duplicate them in module settings. The divider between modules sits
-exactly in the middle: top inset = bottom inset = 16pt.
+updates, app icon, hotkeys) and "modules & tabs" for the panel layout. The
+"modules & tabs" tab is ONE combined table: a column per space, in order,
+then a permanent "inactive" column, then a slim "+" stub column while under
+the space cap. Module chips (name, lowercase) stack vertically in each
+column; a hand-rolled drag moves a chip between columns and within a column
+to reorder — that drag IS the visibility control (`move`/`deactivate`/
+`reorder`). Inactive chips render dimmed. Each space column header carries
+the space icon (tap it or its rotating disclosure chevron to open the
+full-width icon picker below the table), "#N", and a hover-only delete xmark
+that opens an inline confirmation (`delete this tab? its modules become
+inactive` + delete/cancel); confirming sends the space's modules to the
+inactive bucket (they are hidden, not merged into another space). The
+inactive column header is just an "inactive" label — no icon, no delete, and
+it cannot be moved. Dragging a column header horizontally reorders spaces
+(`moveTab`, committed on release against the measured column frames). The
+standalone settings window is 720pt wide so up to five columns (4 spaces +
+inactive) read comfortably; chips truncate with `lineLimit(1)`. The in-panel
+`.settings` screen is unreachable (never set outside `init`, which always
+pairs it with the standalone window), so the table is designed for that
+window only. A module can also be re-homed from the panel: right-click it and
+pick a target under "move to" — one item per other space plus a final
+"inactive" destination that hides it (the menu is never empty). A hidden
+module is simply not rendered, so there is no inverse "activate" context menu
+— reactivation is a drag out of inactive in settings. The divider between
+modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Timer
 
@@ -353,12 +354,11 @@ exactly in the middle: top inset = bottom inset = 16pt.
 - Time tracker over projects and tasks. All logic lives in HopCore
   (`TrackerEngine`, persisted to `tracker.json` via `TrackerController`);
   the view is glue. Labels tick off `tracker.heartbeat` (1/s while a task is
-  tracking). Shown by default (`showTrackerModule`, ON) — unlike torrents it
-  has no engine to download, so it isn't opt-in; toggled like every other
-  module (in the "modules & tabs" grouped list) and its settings row is a
-  normal module row (no longer excluded from the list). The module title
-  (`trackerLabel`) is "time tracker" — it names the feature both in settings
-  and in the empty state.
+  tracking). Active by default — unlike torrents it has no engine to
+  download, so it isn't opt-in; hidden or shown like every other module by
+  membership in the "modules & tabs" table (drag it to/from the inactive
+  column). The module title (`trackerLabel`) is "time tracker" — it names the
+  feature both in settings and in the empty state.
 - **Single active task:** at most one task is ever tracking. Tapping play on
   task B while A runs stops A first — the engine closes the open interval
   itself (`start(taskID:)`), the UI never juggles two. Deleting the active
@@ -425,10 +425,20 @@ exactly in the middle: top inset = bottom inset = 16pt.
   tracker out of the first space into a new "clock" space exactly once
   (guarded by the `trackerTabSeeded` flag; skipped if the user already moved
   it elsewhere or the spaces are at the cap).
+- Module-visibility migration: the old `show*Module` toggles are read once
+  and every OFF module is moved into the inactive bucket, after which
+  visibility is pure membership and the toggles are never read again. The
+  fresh-migrate path applies this deterministically on every recompute (so a
+  module never flickers visible while `panelTabsRaw` catches up) and claims
+  the `moduleVisibilityMigrated` flag; a decoded legacy model runs it once,
+  behind the flag, so a later re-activation is not undone. Onboarding applies
+  the fresh install's module choices straight to the spaces
+  (`activateStoredModule`/`deactivateStoredModule`), and opening a `.torrent`
+  file or magnet link reactivates the torrent module the same way.
 - Settings tab order: general → timer → remaining modules → monitor.
   "Remaining modules" = awake/clipboard/converter/windows as sections with
   headers. The "general" tab splits further into two text-switched sub-tabs,
-  "general" and "modules & tabs" (the spaces list + grouped module list);
+  "general" and "modules & tabs" (the combined space/module table);
   the selected sub-tab is transient state, not persisted. The app version is shown next to the "check & update" button.
   The "latest version installed" / "failed" note after a manual check is
   transient: it clears when the settings window closes or after 30 minutes —

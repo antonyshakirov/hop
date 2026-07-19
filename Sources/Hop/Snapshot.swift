@@ -74,6 +74,19 @@ enum Snapshot {
             Theme.systemDark = args[ti + 1] != "light"
         }
 
+        // Clean module layout per render: snapshots share the dev bundle's
+        // UserDefaults, and visibility is membership now (the inactive bucket).
+        // Clear the persisted spaces + the one-shot migration flags + the legacy
+        // toggles so `loadTabs` migrates fresh from the keys THIS run sets
+        // (below, e.g. --torrents), instead of decoding a prior render's layout.
+        for key in [SettingsKey.panelTabs, SettingsKey.moduleVisibilityMigrated,
+                    SettingsKey.trackerTabSeeded, "moduleOrder",
+                    "showTimerModule", "showAwakeModule", "showClipboardModule",
+                    "showConvertModule", "showWindowsModule", "showSpeedtestModule",
+                    "showSystemModule", "showTrackerModule", "showTorrentModule"] {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+
         // --demo: staged state for product-page screenshots — clipboard rows
         // and a fresh speed-test result, seeded through the regular
         // UserDefaults keys BEFORE AppModel is created so the controllers

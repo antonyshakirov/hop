@@ -14,6 +14,10 @@ enum SettingsKey {
     /// tracker lifted into a fresh "clock" tab exactly once. Set on the fresh
     /// migrate path too, so the seed never runs for new installs.
     static let trackerTabSeeded = "trackerTabSeeded"
+    /// One-shot flag: the legacy per-module `show*Module` toggles are read once
+    /// and every OFF module is moved into the inactive bucket, after which
+    /// visibility is pure membership and the toggles are never read again.
+    static let moduleVisibilityMigrated = "moduleVisibilityMigrated"
 }
 
 /// Highlight thresholds for the system tab: at which value yellow and red kick in.

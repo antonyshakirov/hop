@@ -16,14 +16,35 @@ public struct PanelTab: Codable, Equatable, Identifiable {
 
 /// The user's arrangement of panel tabs. Every mutating method below
 /// preserves two invariants: `tabs.count` stays within `1...maxTabs`, and
-/// each module key lives in at most one tab. Methods that would otherwise
-/// break an invariant (deleting the last tab, referencing an unknown tab or
-/// module) are no-ops rather than errors, since callers are UI actions that
-/// can simply be stale.
+/// each module key lives in at most one place — a tab OR the inactive bucket.
+/// Methods that would otherwise break an invariant (deleting the last tab,
+/// referencing an unknown tab or module) are no-ops rather than errors, since
+/// callers are UI actions that can simply be stale.
+///
+/// Module visibility is MEMBERSHIP: a module is shown iff it sits on a tab, and
+/// hidden iff it sits in `inactive`. There is no separate on/off flag.
 public struct PanelTabsModel: Codable, Equatable {
     public var tabs: [PanelTab]
+    /// Hidden modules, ordered. A permanent, non-deletable bucket in the UI.
+    public var inactive: [String]
 
     public static let maxTabs = 4
+
+    public init(tabs: [PanelTab], inactive: [String] = []) {
+        self.tabs = tabs
+        self.inactive = inactive
+    }
+
+    private enum CodingKeys: String, CodingKey { case tabs, inactive }
+
+    /// `inactive` is decoded leniently so models saved before the field
+    /// existed keep loading (missing → empty bucket) instead of failing to
+    /// decode and wiping the user's spaces back to a fresh migrate.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        tabs = try container.decode([PanelTab].self, forKey: .tabs)
+        inactive = try container.decodeIfPresent([String].self, forKey: .inactive) ?? []
+    }
 
     /// Adds an empty tab with `icon`. Returns its id, or nil (no change) if
     /// `maxTabs` is already reached.
@@ -35,13 +56,13 @@ public struct PanelTabsModel: Codable, Equatable {
         return tab.id
     }
 
-    /// Removes the tab, folding its modules into the first tab that remains
-    /// (which may be the tab that was already first, if a later tab was
-    /// deleted). No-op if `id` is unknown or this is the last tab.
+    /// Removes the tab, sending its modules to the inactive bucket (they are
+    /// hidden, not silently merged into another space). No-op if `id` is
+    /// unknown or this is the last tab.
     public mutating func deleteTab(_ id: UUID) {
         guard tabs.count > 1, let index = tabs.firstIndex(where: { $0.id == id }) else { return }
         let removed = tabs.remove(at: index)
-        tabs[0].moduleKeys.append(contentsOf: removed.moduleKeys)
+        inactive.append(contentsOf: removed.moduleKeys)
     }
 
     /// Moves the tab at `from` to `to`. No-op if either index is out of
@@ -59,13 +80,27 @@ public struct PanelTabsModel: Codable, Equatable {
     }
 
     /// Moves `module` to the end of `toTab`'s module list, removing it from
-    /// wherever it currently lives. No-op if the module or the target tab
-    /// isn't known.
+    /// wherever it currently lives — another tab OR the inactive bucket (so
+    /// this is also how a hidden module is reactivated). No-op if the module or
+    /// the target tab isn't known.
     public mutating func move(module: String, toTab: UUID) {
-        guard let toIndex = tabs.firstIndex(where: { $0.id == toTab }),
-              let fromIndex = tabs.firstIndex(where: { $0.moduleKeys.contains(module) }) else { return }
-        tabs[fromIndex].moduleKeys.removeAll { $0 == module }
+        guard let toIndex = tabs.firstIndex(where: { $0.id == toTab }) else { return }
+        if let fromIndex = tabs.firstIndex(where: { $0.moduleKeys.contains(module) }) {
+            tabs[fromIndex].moduleKeys.removeAll { $0 == module }
+        } else if inactive.contains(module) {
+            inactive.removeAll { $0 == module }
+        } else {
+            return   // unknown module — no-op
+        }
         tabs[toIndex].moduleKeys.append(module)
+    }
+
+    /// Hides `module`: removes it from its tab and appends it to the inactive
+    /// bucket. No-op if the module is unknown or already inactive.
+    public mutating func deactivate(module: String) {
+        guard let fromIndex = tabs.firstIndex(where: { $0.moduleKeys.contains(module) }) else { return }
+        tabs[fromIndex].moduleKeys.removeAll { $0 == module }
+        inactive.append(module)
     }
 
     /// Repositions `module` within `inTab`'s own module list. `to` is
@@ -80,11 +115,22 @@ public struct PanelTabsModel: Codable, Equatable {
         tabs[tabIndex].moduleKeys.insert(module, at: clamped)
     }
 
-    /// Appends any of `modules` not already present in some tab to the
-    /// first tab. Used at app-update time to place newly introduced
-    /// modules somewhere without disturbing existing tabs.
+    /// Repositions `module` within the inactive bucket — the symmetric sibling
+    /// of `reorder(module:inTab:to:)`, treating `inactive` as a pseudo-column.
+    /// `to` is clamped; no-op if the module isn't in the bucket.
+    public mutating func reorder(inInactive module: String, to: Int) {
+        guard let moduleIndex = inactive.firstIndex(of: module) else { return }
+        inactive.remove(at: moduleIndex)
+        let clamped = min(max(to, 0), inactive.count)
+        inactive.insert(module, at: clamped)
+    }
+
+    /// Appends any of `modules` not already present in a tab OR the inactive
+    /// bucket to the first tab. Used at app-update time to place newly
+    /// introduced modules somewhere (new modules ship visible) without
+    /// disturbing existing tabs or reactivating a hidden module.
     public mutating func ensure(modules: [String]) {
-        var known = Set(tabs.flatMap(\.moduleKeys))
+        var known = Set(tabs.flatMap(\.moduleKeys)).union(inactive)
         let missing = modules.filter { key in
             guard !known.contains(key) else { return false }
             known.insert(key)
@@ -119,10 +165,11 @@ public struct PanelTabsModel: Codable, Equatable {
         return model
     }
 
-    /// Whether `tabs` currently satisfies both documented invariants.
+    /// Whether the model currently satisfies both documented invariants: a
+    /// valid tab count, and every module key unique across tabs AND inactive.
     private var isValid: Bool {
         guard (1...Self.maxTabs).contains(tabs.count) else { return false }
-        let allKeys = tabs.flatMap(\.moduleKeys)
+        let allKeys = tabs.flatMap(\.moduleKeys) + inactive
         return Set(allKeys).count == allKeys.count
     }
 

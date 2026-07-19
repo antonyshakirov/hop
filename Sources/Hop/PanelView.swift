@@ -75,43 +75,35 @@ struct PanelView: View {
     // Return/Space/digits reach the field instead of driving the timer.
     @State private var trackerEditing = false
     @State private var languageMenuTarget: MenuPickTarget?
-    // custom module reorder: the system List.onMove drop indicator
-    // (line + leading dot) can't be styled, so rows are dragged by hand
-    @State private var dragModuleKey: String?
-    @State private var dragModuleOffset: CGFloat = 0
-    @State private var dragModuleTarget: Int?
-    // header tab reorder (horizontal), mirroring the module row drag
-    @State private var dragTabID: UUID?
-    @State private var dragTabOffset: CGFloat = 0
-    @State private var dragTabTarget: Int?
-    // non-nil while the icon picker overlay is up for that tab
+    // Settings module table (a column per tab + a permanent inactive column):
+    // one hand-rolled drag moves a module chip between/within columns; a header
+    // drag reorders whole tab columns. Column and chip frames are measured in
+    // the "modTable" coordinate space so a drop resolves to a column + index.
+    @State private var dragChip: String?                 // module key being dragged
+    @State private var dragChipTranslation: CGSize = .zero
+    @State private var dropColumn: String?               // highlighted target: "inactive" or a tab uuid
+    @State private var columnFrames: [String: CGRect] = [:]
+    @State private var chipFrames: [String: CGRect] = [:]
+    @State private var dragHeaderTab: UUID?              // tab column being header-dragged
+    @State private var dragHeaderTranslation: CGFloat = 0
+    @State private var confirmDeleteTab: UUID?          // inline delete confirmation target
+    // non-nil while the icon picker grid is open for that tab column
     @State private var iconPickerTabID: UUID?
-    // which settings tab row is hovered — its delete xmark shows only then
+    // which tab column header is hovered — its delete xmark shows only then
     // (same reveal-on-hover pattern as the tracker/torrent row deletes)
     @State private var hoveredTabRow: UUID?
     @AppStorage("cycleTemplates") private var cycleTemplatesRaw = "25/5x4,52/17x3,90/15x2"
     @AppStorage("showPresetsRow") private var showPresetsRow = true
     @AppStorage("showCyclesRow") private var showCyclesRow = true
-    @AppStorage("showTimerModule") private var showTimerModule = true
-    @AppStorage("showAwakeModule") private var showAwakeModule = true
-    @AppStorage("showClipboardModule") private var showClipboardModule = true
-    @AppStorage("showConvertModule") private var showConvertModule = true
+    // Per-module visibility is membership now (the inactive bucket in the tabs
+    // model), not `show*Module` toggles — those legacy keys are read once by
+    // `migrateModuleVisibility` and never again.
     @AppStorage(FileConverter.formatKey) private var convFormat = "jpeg"
     @AppStorage(FileConverter.scaleKey) private var convScale = 1.0
     @AppStorage(FileConverter.qualityKey) private var convQuality = 55
     @AppStorage(FileConverter.destKey) private var convDest = "downloads"
     @AppStorage(FileConverter.destPathKey) private var convDestPath = ""
     @AppStorage(FileConverter.autoClearKey) private var convAutoClear = true
-    @AppStorage("showWindowsModule") private var showWindowsModule = true
-    @AppStorage("showSpeedtestModule") private var showSpeedtestModule = true
-    // The system monitor is a module inside its own tab now, toggled like the rest.
-    @AppStorage("showSystemModule") private var showSystemModule = true
-    // The tracker ships visible by default (not opt-in like torrents): a plain
-    // UI module with no engine to download.
-    @AppStorage("showTrackerModule") private var showTrackerModule = true
-    // Default OFF: a brand-new feature stays hidden until the user opts in via the
-    // "what's new" banner (updated users) or onboarding (fresh installs enable it).
-    @AppStorage("showTorrentModule") private var showTorrentModule = false
     @AppStorage(TorrentController.downloadDirKey) private var torrentDownloadDir = ""
     @AppStorage(TorrentController.stopAtRatio1Key) private var torrentStopAtRatio1 = false
     @AppStorage(TorrentController.rateDownKey) private var torrentRateDown = 0
@@ -209,7 +201,7 @@ struct PanelView: View {
                 // take the flat stack at its natural height
                 settingsScreen
                     .padding(20)
-                    .frame(width: 640)
+                    .frame(width: 720)
                     .background(Theme.panelBackground)
             } else {
                 ScrollView(showsIndicators: false) {
@@ -220,7 +212,7 @@ struct PanelView: View {
                         // skips them — text stayed white in the light theme
                         .id(model.themeVersion)
                 }
-                .frame(width: 640)
+                .frame(width: 720)
                 .frame(maxHeight: .infinity)
                 .background(Theme.panelBackground)
             }
@@ -292,14 +284,14 @@ struct PanelView: View {
 
     private struct FeatureAnnouncement {
         let id: String          // seen flag lives at featureSeen.<id>
-        let moduleKey: String   // UserDefaults toggle flipped on "enable"
+        let moduleKey: String   // module key activated (lifted out of inactive) on "enable"
         let title: L10nKey
         let body: L10nKey
     }
     // New features are appended here as the app gains them; each shows a one-time
     // top-of-panel banner to users who updated into it.
     private static let featureAnnouncements: [FeatureAnnouncement] = [
-        .init(id: "torrent", moduleKey: "showTorrentModule",
+        .init(id: "torrent", moduleKey: "torrent",
               title: .featureTorrentTitle, body: .featureTorrentBody)
     ]
 
@@ -377,10 +369,10 @@ struct PanelView: View {
             }
             .buttonStyle(.plain)
             Button {
-                UserDefaults.standard.set(true, forKey: ann.moduleKey)
-                // Opting in = fetch the engine NOW (background), so the first
-                // real download doesn't stall behind a surprise 26 MB install.
-                model.torrent.prefetchEngineIfNeeded()
+                // Opting in = activate the module (lift it out of inactive onto
+                // the current space) and, via placeModule, fetch the engine NOW
+                // so the first real download doesn't stall behind a 26 MB install.
+                placeModule(ann.moduleKey, onTab: currentSpaceID ?? tabsModel.tabs[0].id)
                 bannerEnabled = true        // same card swaps to follow-up settings
             } label: {
                 Text(t(.featureEnable))
@@ -842,57 +834,11 @@ struct PanelView: View {
         return IconCatalog.symbols.first { !used.contains($0) } ?? IconCatalog.symbols[0]
     }
 
-    /// How far a resting settings tab-row steps aside to open a gap at the drop
-    /// target. Vertical, fixed `moduleRowHeight` — same math as the module rows.
-    private func tabRowShift(_ index: Int) -> CGFloat {
-        guard let id = dragTabID,
-              let from = tabsModel.tabs.firstIndex(where: { $0.id == id }),
-              let target = dragTabTarget, index != from else { return 0 }
-        if from < index, target >= index { return -Self.moduleRowHeight }
-        if from > index, target <= index { return Self.moduleRowHeight }
-        return 0
-    }
-
-    private func tabRowDragGesture(_ id: UUID) -> some Gesture {
-        DragGesture(minimumDistance: 3)
-            .onChanged { value in
-                let tabs = tabsModel.tabs
-                guard let from = tabs.firstIndex(where: { $0.id == id }) else { return }
-                if dragTabID == nil {
-                    dragTabID = id
-                    dragTabTarget = from
-                    // an open picker adds height to one row and breaks the
-                    // uniform-row-height drag math visually — fold it first
-                    iconPickerTabID = nil
-                }
-                dragTabOffset = value.translation.height
-                let steps = Int((value.translation.height / Self.moduleRowHeight).rounded())
-                let target = min(max(from + steps, 0), tabs.count - 1)
-                if target != dragTabTarget {
-                    dragTabTarget = target
-                    Sounds.scrubTick()
-                }
-            }
-            .onEnded { _ in
-                let from = tabsModel.tabs.firstIndex(where: { $0.id == id })
-                // commit and settle together: the visual offset is close to the
-                // committed displacement, so the row glides rather than jumps
-                withAnimation(.easeInOut(duration: 0.15)) {
-                    if let from, let target = dragTabTarget, target != from {
-                        mutateTabs { $0.moveTab(from: from, to: target) }
-                    }
-                    dragTabID = nil
-                    dragTabTarget = nil
-                    dragTabOffset = 0
-                }
-            }
-    }
-
-    /// Delete a tab from settings. HopCore folds the deleted tab's modules into
-    /// the first tab, so nothing is lost — no confirmation needed. Settings is a
-    /// separate window, so this can't touch the live panel screen; instead clear
-    /// the saved active space if it pointed at the deleted tab, so the panel
-    /// reopens on a valid space (screen resolution falls back to tabs[0]).
+    /// Delete a tab from settings. HopCore sends the deleted tab's modules to
+    /// the inactive bucket (hidden, not silently merged), which is why the UI
+    /// asks for confirmation first. Settings is a separate window, so this can't
+    /// touch the live panel screen; instead clear the saved active space if it
+    /// pointed at the deleted tab, so the panel reopens on a valid space.
     private func deleteTab(_ id: UUID) {
         mutateTabs { $0.deleteTab(id) }
         if activeSpaceRaw == id.uuidString { activeSpaceRaw = "" }
@@ -900,8 +846,9 @@ struct PanelView: View {
         if screen == .space(id), let first = tabsModel.tabs.first {
             switchToSpace(first.id)
         }
-        // a stale inline picker for the gone tab would dangle open
+        // a stale picker / confirmation for the gone tab would dangle open
         if iconPickerTabID == id { iconPickerTabID = nil }
+        if confirmDeleteTab == id { confirmDeleteTab = nil }
     }
 
     private func switchToSpace(_ id: UUID) {
@@ -909,112 +856,300 @@ struct PanelView: View {
         activeSpaceRaw = id.uuidString
     }
 
-    /// One settings row for a tab: drag handle, the icon + a disclosure chevron
-    /// (tapping either toggles the inline picker; the chevron rotates while it's
-    /// open), its "#N" position, and a delete xmark that shows only on row hover
-    /// (hidden for the last remaining tab). The row drag-reorders vertically.
-    @ViewBuilder private func tabSettingsRow(_ tab: PanelTab, index: Int) -> some View {
-        let dragged = dragTabID == tab.id
-        let expanded = iconPickerTabID == tab.id
-        VStack(spacing: 0) {
-            HStack(spacing: 10) {
-                // drag handle: two lines, left-aligned (same as module rows)
-                VStack(alignment: .leading, spacing: 3) {
-                    Capsule().frame(width: 11, height: 1.5)
-                    Capsule().frame(width: 11, height: 1.5)
-                }
-                .foregroundStyle(Theme.textTertiary)
-                .frame(width: 14, height: 18, alignment: .leading)
-                // Tapping the icon toggles the picker; the chevron is the
-                // affordance for that and rotates down while it's open — so the
-                // collapse control can never be mistaken for the delete xmark.
-                Button {
-                    iconPickerTabID = expanded ? nil : tab.id
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: tab.icon)
-                            .font(.system(size: 13))
-                            .foregroundStyle(Theme.textPrimary)
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 9, weight: .semibold))
-                            .foregroundStyle(Theme.textTertiary)
-                            .rotationEffect(.degrees(expanded ? 90 : 0))
-                    }
-                    .frame(height: 20)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .hoverHighlight(5)
-                .help(t(.tabChangeIcon).capitalizedFirst)
-                .animation(.easeInOut(duration: 0.15), value: expanded)
-                Text("#\(index + 1)")
-                    .font(Theme.mono(12))
-                    .foregroundStyle(Theme.textTertiary)
-                Spacer()
-                if tabsModel.tabs.count > 1 {
-                    Button { deleteTab(tab.id) } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 11))
-                            .foregroundStyle(Theme.textTertiary)
-                            .frame(width: 20, height: 20)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .hoverHighlight(5)
-                    .help(t(.tabDelete).capitalizedFirst)
-                    // reveal on row hover only, so a resting row shows no xmark
-                    .opacity(hoveredTabRow == tab.id ? 1 : 0)
-                    .allowsHitTesting(hoveredTabRow == tab.id)
-                }
-            }
-            .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 2))
-            .frame(height: Self.moduleRowHeight)
-            .contentShape(Rectangle())
-            .onHover { inside in
-                if inside { hoveredTabRow = tab.id }
-                else if hoveredTabRow == tab.id { hoveredTabRow = nil }
-            }
-            .opacity(dragged ? 0.4 : 1)
-            .offset(y: dragged ? dragTabOffset : tabRowShift(index))
-            .zIndex(dragged ? 1 : 0)
-            .animation(dragged ? nil : .easeInOut(duration: 0.15), value: tabRowShift(index))
-            .gesture(tabRowDragGesture(tab.id))
+    // MARK: - Settings module table (columns = tabs + inactive)
 
-            if iconPickerTabID == tab.id {
-                iconPickerGrid(for: tab.id)
-            }
+    private static let tableCoordinateSpace = "modTable"
+
+    /// Frames of the drop columns (tab uuid string / "inactive") and of the
+    /// module chips, measured in the table's coordinate space so a drag can be
+    /// resolved to a target column and an insert index.
+    private struct ColumnFrameKey: PreferenceKey {
+        static let defaultValue: [String: CGRect] = [:]
+        static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
+            value.merge(nextValue(), uniquingKeysWith: { $1 })
+        }
+    }
+    private struct ChipFrameKey: PreferenceKey {
+        static let defaultValue: [String: CGRect] = [:]
+        static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
+            value.merge(nextValue(), uniquingKeysWith: { $1 })
         }
     }
 
-    /// "add tab" row below the tab list — the deliberate second step (open
-    /// settings, then click) that keeps spaces from being created by accident.
-    private var addTabRow: some View {
+    /// One tab column: header (icon picker + "#N" + hover delete) over its
+    /// module chips. The whole column offsets while its header is being dragged
+    /// to reorder tabs; it highlights when it is the chip drop target.
+    private func tabColumn(_ tab: PanelTab, number: Int) -> some View {
+        let headerDragging = dragHeaderTab == tab.id
+        return VStack(spacing: 8) {
+            tabColumnHeader(tab, number: number)
+            columnChips(keys: tab.moduleKeys, columnID: tab.id.uuidString, inactive: false)
+        }
+        .frame(maxWidth: .infinity, alignment: .top)
+        .padding(6)
+        .background(dropColumn == tab.id.uuidString ? Theme.chipBg : Color.clear,
+                    in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.divider, lineWidth: 1))
+        .background(columnFrameReader(tab.id.uuidString))
+        .opacity(headerDragging ? 0.5 : 1)
+        .offset(x: headerDragging ? dragHeaderTranslation : 0)
+        .zIndex(headerDragging ? 2 : 0)
+    }
+
+    /// Tab column header. Tapping the icon (or its rotating chevron) toggles the
+    /// full-width icon picker below the table; the hover-only xmark opens an
+    /// inline delete confirmation. A horizontal drag on the header reorders the
+    /// tab columns (`moveTab`).
+    private func tabColumnHeader(_ tab: PanelTab, number: Int) -> some View {
+        let expanded = iconPickerTabID == tab.id
+        return HStack(spacing: 4) {
+            Button {
+                iconPickerTabID = expanded ? nil : tab.id
+            } label: {
+                HStack(spacing: 3) {
+                    Image(systemName: tab.icon)
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.textPrimary)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 8, weight: .semibold))
+                        .foregroundStyle(Theme.textTertiary)
+                        .rotationEffect(.degrees(expanded ? 90 : 0))
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverHighlight(5)
+            .help(t(.tabChangeIcon).capitalizedFirst)
+            .animation(.easeInOut(duration: 0.15), value: expanded)
+            Text("#\(number)")
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.textTertiary)
+            Spacer(minLength: 0)
+            if tabsModel.tabs.count > 1 {
+                Button { confirmDeleteTab = tab.id } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Theme.textTertiary)
+                        .frame(width: 18, height: 18)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(4)
+                .help(t(.tabDelete).capitalizedFirst)
+                .opacity(hoveredTabRow == tab.id ? 1 : 0)
+                .allowsHitTesting(hoveredTabRow == tab.id)
+            }
+        }
+        .frame(height: 22)
+        .contentShape(Rectangle())
+        .onHover { inside in
+            if inside { hoveredTabRow = tab.id } else if hoveredTabRow == tab.id { hoveredTabRow = nil }
+        }
+        .gesture(headerDragGesture(tab.id))
+    }
+
+    /// The permanent inactive column: a plain label header (no icon, no delete)
+    /// over dimmed chips of every hidden module.
+    private var inactiveColumn: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 4) {
+                Text(t(.modulesInactive))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textTertiary)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+            }
+            .frame(height: 22)
+            columnChips(keys: tabsModel.inactive, columnID: "inactive", inactive: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .top)
+        .padding(6)
+        .background(dropColumn == "inactive" ? Theme.chipBg : Color.clear,
+                    in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8)
+            .stroke(Theme.divider, style: StrokeStyle(lineWidth: 1, dash: [3, 3])))
+        .background(columnFrameReader("inactive"))
+    }
+
+    /// The stacked module chips of one column. An empty column keeps a small
+    /// clear area so it is still a reachable drop target.
+    private func columnChips(keys: [String], columnID: String, inactive: Bool) -> some View {
+        VStack(spacing: 6) {
+            ForEach(keys, id: \.self) { key in
+                moduleChip(key, inactive: inactive)
+            }
+            if keys.isEmpty {
+                Color.clear.frame(height: 26)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 40, alignment: .top)
+    }
+
+    /// A draggable module chip. Dragging it reports a live drop-column highlight
+    /// and, on release, moves the module into that column at the pointer's row.
+    private func moduleChip(_ key: String, inactive: Bool) -> some View {
+        let dragging = dragChip == key
+        return Text(moduleTitle(key))
+            .font(Theme.mono(11))
+            .foregroundStyle(inactive ? Theme.textTertiary : Theme.textPrimary)
+            .lineLimit(1)
+            .truncationMode(.tail)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
+            .background(chipFrameReader(key))
+            .opacity(dragging ? 0.35 : 1)
+            .offset(dragging ? dragChipTranslation : .zero)
+            .zIndex(dragging ? 3 : 0)
+            .gesture(chipDragGesture(key))
+    }
+
+    private var addColumnStub: some View {
         Button {
-            // deliberately does NOT switch the panel to the new space: creation
-            // is a settings action, not navigation.
             mutateTabs { $0.addTab(icon: firstUnusedIcon) }
         } label: {
-            HStack(spacing: 10) {
+            VStack(spacing: 0) {
                 Image(systemName: "plus")
-                    .font(.system(size: 12))
-                    .frame(width: 14, alignment: .leading)
-                Text(t(.tabNew))
-                    .font(Theme.mono(12))
-                Spacer()
+                    .font(.system(size: 13))
+                    .foregroundStyle(Theme.textTertiary)
+                    .frame(height: 22)
+                Spacer(minLength: 0)
             }
-            .foregroundStyle(Theme.textTertiary)
-            .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 2))
-            .frame(height: Self.moduleRowHeight)
+            .frame(width: 30)
+            .frame(maxHeight: .infinity, alignment: .top)
+            .padding(6)
+            .overlay(RoundedRectangle(cornerRadius: 8)
+                .stroke(Theme.divider, style: StrokeStyle(lineWidth: 1, dash: [3, 3])))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .hoverHighlight(5)
+        .hoverHighlight(8)
+        .help(t(.tabNew).capitalizedFirst)
     }
 
-    /// Icon picker grid, shown inline under a tab's settings row. Inline rather
-    /// than a nested popover (which risks dismissing the panel) or a panel-level
-    /// overlay (settings is a standalone window that renders `settingsScreen`
-    /// directly, so an overlay keyed off the panel stack never appears there).
+    // MARK: - Table geometry + drag
+
+    private func columnFrameReader(_ id: String) -> some View {
+        GeometryReader { geo in
+            Color.clear.preference(
+                key: ColumnFrameKey.self,
+                value: [id: geo.frame(in: .named(Self.tableCoordinateSpace))]
+            )
+        }
+    }
+
+    private func chipFrameReader(_ key: String) -> some View {
+        GeometryReader { geo in
+            Color.clear.preference(
+                key: ChipFrameKey.self,
+                value: [key: geo.frame(in: .named(Self.tableCoordinateSpace))]
+            )
+        }
+    }
+
+    /// The drop column whose frame spans `point.x`, or the nearest one if the
+    /// pointer sits in a gap or past the edge. The "+" stub is not a drop target.
+    private func columnID(at point: CGPoint) -> String? {
+        if let hit = columnFrames.first(where: { $0.value.minX <= point.x && point.x <= $0.value.maxX })?.key {
+            return hit
+        }
+        return columnFrames.min(by: { abs($0.value.midX - point.x) < abs($1.value.midX - point.x) })?.key
+    }
+
+    private func chipDragGesture(_ key: String) -> some Gesture {
+        DragGesture(minimumDistance: 6, coordinateSpace: .named(Self.tableCoordinateSpace))
+            .onChanged { value in
+                if dragChip == nil { dragChip = key }
+                dragChipTranslation = value.translation
+                dropColumn = columnID(at: value.location)
+            }
+            .onEnded { value in
+                applyChipDrop(key: key, to: columnID(at: value.location), at: value.location)
+                dragChip = nil
+                dragChipTranslation = .zero
+                dropColumn = nil
+            }
+    }
+
+    /// Resolve a chip release to a column + insert index and write it through the
+    /// tabs model. Same helper handles cross-column moves and same-column
+    /// reorders: `placeModule`/`deactivateModule` both remove-then-insert.
+    private func applyChipDrop(key: String, to columnID: String?, at point: CGPoint) {
+        guard let columnID else { return }
+        let targetKeys: [String]
+        if columnID == "inactive" {
+            targetKeys = tabsModel.inactive.filter { $0 != key }
+        } else if let uuid = UUID(uuidString: columnID) {
+            targetKeys = (tabsModel.tabs.first { $0.id == uuid }?.moduleKeys ?? []).filter { $0 != key }
+        } else {
+            return
+        }
+        // insert index = how many of the column's OTHER chips sit above the drop
+        let index = targetKeys.filter {
+            (chipFrames[$0]?.midY ?? .greatestFiniteMagnitude) < point.y
+        }.count
+        if columnID == "inactive" {
+            deactivateModule(key, at: index)
+        } else if let uuid = UUID(uuidString: columnID) {
+            placeModule(key, onTab: uuid, at: index)
+        }
+    }
+
+    /// Horizontal header drag reorders tab columns. Commits on release from the
+    /// pointer's column against the measured column frames (same slot-detection
+    /// family as the chip drop); no live column shuffle keeps it robust.
+    private func headerDragGesture(_ id: UUID) -> some Gesture {
+        DragGesture(minimumDistance: 8, coordinateSpace: .named(Self.tableCoordinateSpace))
+            .onChanged { value in
+                if dragHeaderTab == nil {
+                    dragHeaderTab = id
+                    iconPickerTabID = nil   // an open picker would fight the offset
+                }
+                dragHeaderTranslation = value.translation.width
+            }
+            .onEnded { value in
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    if let from = tabsModel.tabs.firstIndex(where: { $0.id == id }),
+                       let targetID = columnID(at: value.location),
+                       let to = tabsModel.tabs.firstIndex(where: { $0.id.uuidString == targetID }),
+                       to != from {
+                        mutateTabs { $0.moveTab(from: from, to: to) }
+                    }
+                    dragHeaderTab = nil
+                    dragHeaderTranslation = 0
+                }
+            }
+    }
+
+    /// Inline delete confirmation shown full-width below the table (a narrow
+    /// column can't hold the sentence): the house-style question + delete/cancel.
+    private func deleteTabConfirmBar(_ id: UUID) -> some View {
+        HStack(spacing: 12) {
+            Text(t(.tabDeleteConfirm))
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.textSecondary)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+            Spacer(minLength: 8)
+            Button { deleteTab(id) } label: {
+                HoverLabel(text: t(.trackerDelete), size: 10, color: Theme.accentRed)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            Button { confirmDeleteTab = nil } label: {
+                HoverLabel(text: t(.quitCancel), size: 10, color: Theme.textTertiary)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(10)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    /// Icon picker grid, shown inline under the module table when a column's icon
+    /// is tapped. Full width (a single column is too narrow for the 6-wide grid).
+    /// Inline rather than a nested popover (which risks dismissing the panel).
     private func iconPickerGrid(for tabID: UUID) -> some View {
         let current = tabsModel.tabs.first { $0.id == tabID }?.icon
         return LazyVGrid(
@@ -1530,15 +1665,94 @@ struct PanelView: View {
             var model = decoded
             model.ensure(modules: allModules + ["system", "tracker"])
             seedTrackerTab(&model)
+            migrateModuleVisibility(&model)
             return model
         }
         var model = PanelTabsModel.migrate(moduleOrder: moduleOrder)
         model.ensure(modules: allModules + ["system", "tracker"])
+        // Apply the legacy toggles on EVERY fresh-migrate call (it is
+        // deterministic — same toggles, same result), NOT behind the one-shot
+        // flag: `tabsModel` recomputes many times per render, and if a later
+        // recompute still sees an empty `panelTabsRaw` it must produce the same
+        // hidden set, or torrent (default off) would flicker back visible.
+        deactivateOffModules(&model)
         UserDefaults.standard.set(model.encoded(), forKey: SettingsKey.panelTabs)
-        // A fresh migrate already gives the tracker its own tab — nothing to
-        // seed, but claim the one-shot flag so it never runs later either.
+        // A fresh migrate already gives the tracker its own tab and has just
+        // applied the toggles — claim both one-shot flags so neither reruns.
         UserDefaults.standard.set(true, forKey: SettingsKey.trackerTabSeeded)
+        UserDefaults.standard.set(true, forKey: SettingsKey.moduleVisibilityMigrated)
         return model
+    }
+
+    /// Every module's legacy visibility toggle: UserDefaults key + its default.
+    private static let legacyVisibilityToggles: [(module: String, key: String, defaultOn: Bool)] = [
+        ("timer", "showTimerModule", true),
+        ("awake", "showAwakeModule", true),
+        ("clipboard", "showClipboardModule", true),
+        ("convert", "showConvertModule", true),
+        ("windows", "showWindowsModule", true),
+        ("speedtest", "showSpeedtestModule", true),
+        ("system", "showSystemModule", true),
+        ("tracker", "showTrackerModule", true),
+        ("torrent", "showTorrentModule", false),
+    ]
+
+    /// Hide every module whose legacy toggle is OFF. `UserDefaults.bool` reads a
+    /// missing key as false, so an unset toggle falls back to the module's real
+    /// default (otherwise everything a user never touched — most modules, default
+    /// ON — would migrate to hidden). Deterministic and idempotent.
+    private static func deactivateOffModules(_ model: inout PanelTabsModel) {
+        let defaults = UserDefaults.standard
+        for toggle in legacyVisibilityToggles {
+            let on = defaults.object(forKey: toggle.key) == nil
+                ? toggle.defaultOn
+                : defaults.bool(forKey: toggle.key)
+            if !on, !model.inactive.contains(toggle.module) {
+                model.deactivate(module: toggle.module)
+            }
+        }
+    }
+
+    /// One-shot for models saved BEFORE the inactive bucket existed (real
+    /// updating users): fold the old toggles in once, then never again so the
+    /// user's later re-activations stick. The fresh-migrate path sets the flag
+    /// itself, so this only ever fires on a decoded legacy model.
+    private static func migrateModuleVisibility(_ model: inout PanelTabsModel) {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: SettingsKey.moduleVisibilityMigrated) else { return }
+        deactivateOffModules(&model)
+        defaults.set(true, forKey: SettingsKey.moduleVisibilityMigrated)
+        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
+    }
+
+    /// Reactivate a module from OUTSIDE a live panel (AppDelegate file-open,
+    /// onboarding): lift it out of the inactive bucket onto the first tab,
+    /// persisting straight to UserDefaults. No-op if it isn't inactive.
+    static func activateStoredModule(_ key: String) {
+        let defaults = UserDefaults.standard
+        let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
+        guard var model = PanelTabsModel.decode(raw),
+              model.inactive.contains(key),
+              let first = model.tabs.first else { return }
+        model.move(module: key, toTab: first.id)
+        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
+    }
+
+    /// Hide a module from OUTSIDE a live panel (onboarding): send it to the
+    /// inactive bucket. No-op if it is unknown or already inactive.
+    static func deactivateStoredModule(_ key: String) {
+        let defaults = UserDefaults.standard
+        let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
+        guard var model = PanelTabsModel.decode(raw), !model.inactive.contains(key) else { return }
+        model.deactivate(module: key)
+        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
+    }
+
+    /// Whether `key` currently sits in the inactive bucket (used by AppDelegate
+    /// to decide the torrent engine prefetch after onboarding).
+    static func storedModuleIsInactive(_ key: String) -> Bool {
+        let raw = UserDefaults.standard.string(forKey: SettingsKey.panelTabs) ?? ""
+        return PanelTabsModel.decode(raw)?.inactive.contains(key) ?? false
     }
 
     /// One-shot reshape for models saved BEFORE the tracker got its own tab.
@@ -1618,50 +1832,38 @@ struct PanelView: View {
         return nil
     }
 
+    /// Visibility is membership: a module shows iff it is NOT in the inactive
+    /// bucket. Torrent keeps one extra rule on top — an installed engine with
+    /// zero torrents may hide its empty add-card unless the user opts to keep it.
     private func moduleVisible(_ key: String) -> Bool {
-        switch key {
-        case "timer": return showTimerModule
-        case "awake": return showAwakeModule
-        case "clipboard": return showClipboardModule
-        case "convert": return showConvertModule
-        case "windows": return showWindowsModule
-        case "speedtest": return showSpeedtestModule
-        case "torrent":
-            guard showTorrentModule else { return false }
-            // When installed with zero torrents, the empty add-card is optional:
-            // hide the whole module (and its divider) unless the user keeps it on.
-            if model.torrent.torrents.isEmpty,
-               case .installed = model.torrent.installer.state,
-               !torrentShowWhenEmpty {
-                return false
-            }
-            return true
-        case "system": return showSystemModule
-        case "tracker": return showTrackerModule
-        default: return false
+        guard !tabsModel.inactive.contains(key) else { return false }
+        if key == "torrent",
+           model.torrent.torrents.isEmpty,
+           case .installed = model.torrent.installer.state,
+           !torrentShowWhenEmpty {
+            return false
         }
+        return true
     }
 
-    private func moduleBinding(_ key: String) -> Binding<Bool> {
-        switch key {
-        case "timer": return $showTimerModule
-        case "awake": return $showAwakeModule
-        case "clipboard": return $showClipboardModule
-        case "convert": return $showConvertModule
-        case "speedtest": return $showSpeedtestModule
-        case "torrent":
-            // Turning the module ON in settings also opts into torrents:
-            // fetch the engine right away (same as the banner/onboarding path).
-            return Binding(
-                get: { showTorrentModule },
-                set: { on in
-                    showTorrentModule = on
-                    if on { model.torrent.prefetchEngineIfNeeded() }
-                }
-            )
-        case "system": return $showSystemModule
-        case "tracker": return $showTrackerModule
-        default: return $showWindowsModule
+    /// The single choke point for placing a module ON a tab (settings-table
+    /// drag, right-click "move to", banner enable). Lifting torrent out of the
+    /// inactive bucket is the one activation with a side effect — fetch its
+    /// engine here so no caller can forget.
+    private func placeModule(_ key: String, onTab tabID: UUID, at position: Int? = nil) {
+        let wasInactive = tabsModel.inactive.contains(key)
+        mutateTabs {
+            $0.move(module: key, toTab: tabID)
+            if let position { $0.reorder(module: key, inTab: tabID, to: position) }
+        }
+        if key == "torrent", wasInactive { model.torrent.prefetchEngineIfNeeded() }
+    }
+
+    /// Hide a module: send it to the permanent inactive bucket.
+    private func deactivateModule(_ key: String, at position: Int? = nil) {
+        mutateTabs {
+            $0.deactivate(module: key)
+            if let position { $0.reorder(inInactive: key, to: position) }
         }
     }
 
@@ -1705,28 +1907,31 @@ struct PanelView: View {
         }
     }
 
-    /// A panel module wrapped with its right-click "move to …" menu, one item
-    /// per OTHER tab. The wrap lives on the module container, so a module's own
-    /// inner context menus/gestures win locally. With a single tab there is
-    /// nowhere to move to, so the menu is omitted rather than shown empty.
+    /// A panel module wrapped with its right-click "move to …" menu: one item
+    /// per OTHER tab plus a final "inactive" destination that hides it. The wrap
+    /// lives on the module container, so a module's own inner context menus and
+    /// gestures win locally. There is always at least the "inactive" target, so
+    /// the menu is never empty. (A hidden module is simply no longer rendered,
+    /// so there is no inverse "activate" context menu — that happens in settings.)
     @ViewBuilder private func moduleBlock(_ key: String, in tabID: UUID) -> some View {
         let others = tabsModel.tabs.enumerated().filter { $0.element.id != tabID }
-        if others.isEmpty {
-            moduleContent(key)
-        } else {
-            moduleContent(key)
-                .contextMenu {
-                    Menu(t(.moduleMoveTo).capitalizedFirst) {
-                        ForEach(others, id: \.element.id) { index, tab in
-                            Button {
-                                mutateTabs { $0.move(module: key, toTab: tab.id) }
-                            } label: {
-                                Label("#\(index + 1)", systemImage: tab.icon)
-                            }
+        moduleContent(key)
+            .contextMenu {
+                Menu(t(.moduleMoveTo).capitalizedFirst) {
+                    ForEach(others, id: \.element.id) { index, tab in
+                        Button {
+                            placeModule(key, onTab: tab.id)
+                        } label: {
+                            Label("#\(index + 1)", systemImage: tab.icon)
                         }
                     }
+                    Button {
+                        deactivateModule(key)
+                    } label: {
+                        Label(t(.modulesInactive).capitalizedFirst, systemImage: "eye.slash")
+                    }
                 }
-        }
+            }
     }
 
     private var timerModule: some View {
@@ -2220,191 +2425,6 @@ struct PanelView: View {
     }
 
 
-    private static let moduleRowHeight: CGFloat = 30
-
-    /// One row of the settings module list: either a tab header (icon + "#N",
-    /// not draggable) or a module row. All rows share `moduleRowHeight`, so a
-    /// pixel offset maps to a whole number of rows and the drag math stays
-    /// uniform whether it steps over a header or a module.
-    private enum ModuleListRow: Identifiable {
-        case header(tab: PanelTab, number: Int)
-        case module(key: String)
-
-        var id: String {
-            switch self {
-            case .header(let tab, _): return "h-\(tab.id.uuidString)"
-            case .module(let key): return "m-\(key)"
-            }
-        }
-
-        func isModule(_ key: String) -> Bool {
-            if case .module(let k) = self { return k == key }
-            return false
-        }
-    }
-
-    /// The module list grouped by tab: each tab contributes a header followed
-    /// by its module rows. Every module key is listed, so the settings rows
-    /// match the spaces' moduleKeys one-to-one.
-    private var moduleListRows: [ModuleListRow] {
-        var rows: [ModuleListRow] = []
-        for (index, tab) in tabsModel.tabs.enumerated() {
-            rows.append(.header(tab: tab, number: index + 1))
-            for key in tab.moduleKeys {
-                rows.append(.module(key: key))
-            }
-        }
-        return rows
-    }
-
-    @ViewBuilder private func moduleListRowView(_ row: ModuleListRow, index: Int) -> some View {
-        switch row {
-        case .header(let tab, let number):
-            moduleHeaderRow(tab: tab, number: number, index: index)
-        case .module(let key):
-            draggableModuleRow(key, index: index)
-        }
-    }
-
-    /// Tab header: the tab's icon and its 1-based position, tertiary. It slides
-    /// with the reorder gap like any row, but carries no drag gesture or toggle.
-    private func moduleHeaderRow(tab: PanelTab, number: Int, index: Int) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: tab.icon)
-                .font(.system(size: 11))
-                .frame(width: 14, alignment: .leading)
-            Text("#\(number)")
-                .font(Theme.mono(11))
-            Spacer()
-        }
-        .foregroundStyle(Theme.textTertiary)
-        .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 2))
-        .frame(height: Self.moduleRowHeight)
-        // Group boundary: a hairline above every header but the first, so the
-        // spaces read apart at a glance. Drawn as a top overlay (not a taller
-        // row or a spacer) so every row keeps the uniform `moduleRowHeight` the
-        // drag math depends on — a pixel offset still maps to a whole number of
-        // rows. It sits in the 12pt of whitespace the adjacent rows' paddings
-        // already leave, so it lands centered with air on both sides.
-        .overlay(alignment: .top) {
-            if index > 0 {
-                Rectangle().fill(Theme.divider).frame(height: 1)
-            }
-        }
-        .offset(y: moduleRowShift(index))
-        .animation(.easeInOut(duration: 0.15), value: moduleRowShift(index))
-    }
-
-    /// Module row wired for reordering: fixed height (drag math relies on
-    /// it), neighbors shift out of the way live, the dragged row tracks the
-    /// pointer without animation so it never lags behind the hand.
-    private func draggableModuleRow(_ key: String, index: Int) -> some View {
-        let isDragged = dragModuleKey == key
-        return moduleRow(key)
-            .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 2))
-            .frame(height: Self.moduleRowHeight)
-            .contentShape(Rectangle())
-            .opacity(isDragged ? 0.4 : 1)
-            .offset(y: isDragged ? dragModuleOffset : moduleRowShift(index))
-            .zIndex(isDragged ? 1 : 0)
-            .animation(isDragged ? nil : .easeInOut(duration: 0.15),
-                       value: moduleRowShift(index))
-            .gesture(moduleDragGesture(key))
-    }
-
-    /// Display index of the module currently being dragged, or nil.
-    private func draggedModuleIndex() -> Int? {
-        guard let key = dragModuleKey else { return nil }
-        return moduleListRows.firstIndex { $0.isModule(key) }
-    }
-
-    /// How far a resting row steps aside to open a gap at the drop target.
-    /// `index` is the display index across the flat header+module list.
-    private func moduleRowShift(_ index: Int) -> CGFloat {
-        guard let from = draggedModuleIndex(),
-              let target = dragModuleTarget, index != from else { return 0 }
-        if from < index, target >= index { return -Self.moduleRowHeight }
-        if from > index, target <= index { return Self.moduleRowHeight }
-        return 0
-    }
-
-    private func moduleDragGesture(_ key: String) -> some Gesture {
-        DragGesture(minimumDistance: 3)
-            .onChanged { value in
-                let rows = moduleListRows
-                guard let from = rows.firstIndex(where: { $0.isModule(key) }) else { return }
-                if dragModuleKey == nil {
-                    dragModuleKey = key
-                    dragModuleTarget = from
-                }
-                dragModuleOffset = value.translation.height
-                let steps = Int((value.translation.height / Self.moduleRowHeight).rounded())
-                // index 0 is always tab 1's header — never a valid drop slot, so
-                // clamp the low end to 1 ("position 0 of tab 1"), not 0.
-                let target = min(max(from + steps, 1), rows.count - 1)
-                if target != dragModuleTarget {
-                    dragModuleTarget = target
-                    Sounds.scrubTick()
-                }
-            }
-            .onEnded { _ in
-                let rows = moduleListRows
-                // the visual offset nearly equals the committed displacement,
-                // so the settle is a short glide, not a jump
-                withAnimation(.easeInOut(duration: 0.15)) {
-                    if let from = rows.firstIndex(where: { $0.isModule(key) }),
-                       let target = dragModuleTarget, target != from {
-                        applyModuleDrop(key: key, from: from, to: target, rows: rows)
-                    }
-                    dragModuleKey = nil
-                    dragModuleTarget = nil
-                    dragModuleOffset = 0
-                }
-            }
-    }
-
-    /// Translates a display-list drop (module `key` from display index `from` to
-    /// `to`) into a `(tab, position)` move on the tabs model. The module's new
-    /// tab is the nearest header above its landing slot; its position is the
-    /// count of module rows between that header and the slot. `move` re-homes it,
-    /// `reorder` places it — a same-tab drop collapses to a plain reorder.
-    private func applyModuleDrop(key: String, from: Int, to: Int, rows: [ModuleListRow]) {
-        var arranged = rows
-        arranged.insert(arranged.remove(at: from), at: to)
-        guard let landed = arranged.firstIndex(where: { $0.isModule(key) }) else { return }
-        var destTab: UUID?
-        var position = 0
-        var i = landed - 1
-        while i >= 0 {
-            if case .header(let tab, _) = arranged[i] { destTab = tab.id; break }
-            position += 1
-            i -= 1
-        }
-        guard let destTab else { return }
-        mutateTabs {
-            $0.move(module: key, toTab: destTab)
-            $0.reorder(module: key, inTab: destTab, to: position)
-        }
-    }
-
-    /// Module row: burger handle (drag anywhere on the row), name, toggle.
-    private func moduleRow(_ key: String) -> some View {
-        HStack(spacing: 10) {
-            // drag handle: two lines, left-aligned
-            VStack(alignment: .leading, spacing: 3) {
-                Capsule().frame(width: 11, height: 1.5)
-                Capsule().frame(width: 11, height: 1.5)
-            }
-            .foregroundStyle(Theme.textTertiary)
-            .frame(width: 14, height: 18, alignment: .leading)
-            Text(moduleTitle(key))
-                .font(Theme.mono(12))
-                .foregroundStyle(Theme.textPrimary)
-            Spacer()
-            Theme.MiniSwitch(isOn: moduleBinding(key))
-        }
-    }
-
     /// The "general" settings section splits into two sub-tabs: everyday
     /// options ("general") and the spaces/module arrangement ("modules & tabs").
     /// The tabs list and the grouped module list are the heaviest part of the
@@ -2497,47 +2517,39 @@ struct PanelView: View {
         }
     }
 
-    /// Spaces (tabs) management and the grouped module list — the layout of the
-    /// panel. Both are hand-rolled vertical drags that keep separate state.
+    /// The panel layout as one table: a column per space plus a permanent
+    /// "inactive" column. Module chips are dragged between and within columns
+    /// (that IS the visibility control — no on/off toggles); a column header is
+    /// dragged to reorder spaces; the "+" stub adds one. The icon picker and the
+    /// delete confirmation open full-width beneath the table (a column is too
+    /// narrow for either).
     private var layoutSettings: some View {
-        VStack(spacing: 14) {
-            // tabs (spaces) management — the only place to add/reorder/rename/
-            // delete spaces, so a stray header click can no longer spawn one.
-            VStack(spacing: 12) {
-                settingsSectionHeader(t(.tabsSettingsTitle))
-                // separate stack from the module list below: the two hand-rolled
-                // drags keep separate state so they never fight.
-                VStack(spacing: 0) {
-                    ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
-                        tabSettingsRow(tab, index: index)
-                    }
-                    if tabsModel.tabs.count < PanelTabsModel.maxTabs {
-                        addTabRow
-                    }
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(t(.modulesLabel))
+                    .font(Theme.mono(10, weight: .semibold))
+                    .foregroundStyle(Theme.textTertiary)
+                Spacer()
+            }
+            HStack(alignment: .top, spacing: 10) {
+                ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
+                    tabColumn(tab, number: index + 1)
+                }
+                inactiveColumn
+                if tabsModel.tabs.count < PanelTabsModel.maxTabs {
+                    addColumnStub
                 }
             }
+            .coordinateSpace(name: Self.tableCoordinateSpace)
+            .onPreferenceChange(ColumnFrameKey.self) { columnFrames = $0 }
+            .onPreferenceChange(ChipFrameKey.self) { chipFrames = $0 }
 
-            Rectangle()
-                .fill(Theme.divider)
-                .frame(height: 1)
-
-            VStack(spacing: 12) {
-                HStack {
-                    Text(t(.modulesLabel))
-                        .font(Theme.mono(10, weight: .semibold))
-                        .foregroundStyle(Theme.textTertiary)
-                    Spacer()
-                }
-                // hand-rolled drag reorder instead of List.onMove: the system
-                // drop indicator draws a dot that clips at our insets and can't
-                // be removed. Rows part to make a gap; the dragged row follows
-                // the pointer semi-transparent. Plain VStack also renders in
-                // snapshots, where List (NSTableView) doesn't.
-                VStack(spacing: 0) {
-                    ForEach(Array(moduleListRows.enumerated()), id: \.element.id) { index, row in
-                        moduleListRowView(row, index: index)
-                    }
-                }
+            // The confirmation and the picker are mutually exclusive and both
+            // open below the table, where there is room for them.
+            if let id = confirmDeleteTab {
+                deleteTabConfirmBar(id)
+            } else if let id = iconPickerTabID {
+                iconPickerGrid(for: id)
             }
         }
     }

@@ -216,7 +216,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.activity.note() // opening a window counts as active use
         if settingsWindow == nil {
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 640, height: 620),
+                // 720 wide so the "modules & tabs" table reads 5 columns
+                // (up to 4 spaces + the inactive column) without cramping
+                contentRect: NSRect(x: 0, y: 0, width: 720, height: 620),
                 // miniaturizable like the converter: settings can be sent to
                 // the Dock instead of only closed. WITHOUT fullSizeContentView,
                 // like the about window: content must not slide under the
@@ -238,8 +240,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // sizingOptions=[] so the hosting controller doesn't break AutoLayout with constraints
             host.sizingOptions = []
             window.contentViewController = host
-            window.contentMinSize = NSSize(width: 640, height: 300)
-            window.contentMaxSize = NSSize(width: 640, height: 100_000)
+            window.contentMinSize = NSSize(width: 720, height: 300)
+            window.contentMaxSize = NSSize(width: 720, height: 100_000)
             // "latest version installed" must not survive the settings window:
             // an update may ship while it's closed and the note would lie
             NotificationCenter.default.addObserver(
@@ -253,7 +255,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         if !window.isVisible {
             let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
-            window.setContentSize(NSSize(width: 640, height: min(620, screenH * 0.85)))
+            window.setContentSize(NSSize(width: 720, height: min(620, screenH * 0.85)))
             window.center()
         }
         NSApp.activate(ignoringOtherApps: true)
@@ -526,9 +528,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.onboardingWindow?.close()
             self?.onboardingWindow = nil
             self?.applyAppTheme() // theme picked in onboarding applies everywhere immediately
-            // Torrents enabled in onboarding = fetch the engine right away, in the
-            // background — the module is ready before its first real download.
-            if UserDefaults.standard.bool(forKey: "showTorrentModule") {
+            // Torrents kept active in onboarding = fetch the engine right away,
+            // in the background — the module is ready before its first download.
+            if !PanelView.storedModuleIsInactive("torrent") {
                 self?.model.torrent.prefetchEngineIfNeeded()
             }
         })
@@ -616,8 +618,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        // make the torrent module visible so its CTA sits where the user expects
-        UserDefaults.standard.set(true, forKey: "showTorrentModule")
+        // make the torrent module visible so its CTA sits where the user
+        // expects: lift it out of the inactive bucket onto the first space
+        PanelView.activateStoredModule("torrent")
         NSApp.activate(ignoringOtherApps: true)
 
         guard model.torrent.installer.installedBinaryURL() != nil else {

@@ -243,10 +243,21 @@ struct OnboardingView: View {
 
     private func finishOnboarding() {
         UserDefaults.standard.set(true, forKey: "onboardingDone")
-        // Fresh install: apply the module choices made above and mark the newest
-        // features' "what's new" announcements as seen — the top-of-panel banner is
-        // only for users who UPDATED from a build that lacked the feature.
-        UserDefaults.standard.set(enableTorrent, forKey: "showTorrentModule")
+        // Fresh install: apply the module choices to the spaces directly.
+        // Visibility is membership now — a chosen module stays on its space, an
+        // unchosen one goes to the inactive bucket (the loadTabs migration ran
+        // with defaults before onboarding, so reconcile explicitly here).
+        let choices: [(module: String, on: Bool)] = [
+            ("timer", showTimerModule), ("awake", showAwakeModule),
+            ("clipboard", showClipboardModule), ("convert", showConvertModule),
+            ("windows", showWindowsModule), ("torrent", enableTorrent),
+        ]
+        for choice in choices {
+            if choice.on { PanelView.activateStoredModule(choice.module) }
+            else { PanelView.deactivateStoredModule(choice.module) }
+        }
+        // Mark the newest features' "what's new" announcements as seen — the
+        // top-of-panel banner is only for users who UPDATED into the feature.
         UserDefaults.standard.set(true, forKey: "featureSeen.torrent")
         if launchAtLogin {
             try? SMAppServiceHelper.enableLaunchAtLogin()
