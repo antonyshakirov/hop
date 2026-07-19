@@ -292,6 +292,61 @@ final class FileConverter: ObservableObject {
         }
     }
 
+    /// Ingest whatever the pasteboard holds, mirroring a drop onto the convert
+    /// zone: file URLs (a Finder copy) go straight to `addToBatch`; a raw image
+    /// with no backing file — a screenshot copied to the clipboard — is written
+    /// to a temp file first so the SAME file-based batch path handles it. There
+    /// is no second pipeline: both routes end at `addToBatch`. Returns true when
+    /// something convertible was found; text-only or an empty pasteboard is a
+    /// silent no-op (returns false) so the caller can skip opening the window.
+    @discardableResult
+    func addFromPasteboard(_ pasteboard: NSPasteboard = .general) -> Bool {
+        // File URLs first — identical to a Finder drop. Directories expand
+        // inside `addToBatch`; unsupported files land in its "unsupported"
+        // bucket exactly as a dropped file of the same type would.
+        if let urls = pasteboard.readObjects(
+            forClasses: [NSURL.self],
+            options: [.urlReadingFileURLsOnly: true]
+        ) as? [URL], !urls.isEmpty {
+            addToBatch(urls)
+            return true
+        }
+        // A raw image (screenshot on the clipboard, no file): materialize it.
+        if let url = Self.materializePasteboardImage(pasteboard) {
+            addToBatch([url])
+            return true
+        }
+        return false
+    }
+
+    /// Writes a pasteboard image to a temp file so `addToBatch` treats it like
+    /// any other file. Keeps the original bytes when the clipboard already has
+    /// PNG or TIFF (screenshots do), re-encoding only as a last resort. Nil when
+    /// the pasteboard carries no image.
+    nonisolated private static func materializePasteboardImage(_ pasteboard: NSPasteboard) -> URL? {
+        let data: Data
+        let ext: String
+        if let png = pasteboard.data(forType: .png) {
+            data = png; ext = "png"
+        } else if let tiff = pasteboard.data(forType: .tiff) {
+            data = tiff; ext = "tiff"
+        } else if let image = NSImage(pasteboard: pasteboard), let tiff = image.tiffRepresentation {
+            data = tiff; ext = "tiff"
+        } else {
+            return nil
+        }
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("hop-paste", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        // A readable, unique name — the batch row shows the last path component.
+        let url = dir.appendingPathComponent("pasted-image-\(UUID().uuidString.prefix(8)).\(ext)")
+        do {
+            try data.write(to: url)
+            return url
+        } catch {
+            return nil
+        }
+    }
+
     /// "Clear finished" button: drops the checked-off ones, the rest stays put.
     func clearDone() {
         batch.clearDone()

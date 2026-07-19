@@ -69,15 +69,10 @@ struct ConvertWindowView: View {
         .frame(width: 540)
         .frame(maxHeight: .infinity)
         .background(Theme.panelBackground)
-        // ⌘V pastes files copied in Finder
-        .onPasteCommand(of: [.fileURL]) { providers in
-            Task {
-                var urls: [URL] = []
-                for provider in providers {
-                    if let url = await loadFileURL(provider) { urls.append(url) }
-                }
-                model.converter.addToBatch(urls)
-            }
+        // ⌘V pastes files copied in Finder OR a screenshot on the clipboard —
+        // the same pasteboard ingestion the panel's convert row uses.
+        .onPasteCommand(of: [.fileURL, .image]) { _ in
+            model.converter.addFromPasteboard()
         }
     }
 

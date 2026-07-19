@@ -568,6 +568,26 @@ struct PanelView: View {
         // the field's own text, it must NOT drive the timer. Bailing here lets
         // the key fall through to the TextField's own onSubmit.
         guard !trackerEditing, !todosEditing else { return .ignored }
+
+        // Cmd+V / Cmd+Shift+V feed the clipboard into the converter, exactly
+        // like a drop onto its row. Gated to the converter being on the ACTIVE
+        // space with no timer-digit entry open (tracker/todos field editing
+        // already returned above) — so this never steals paste from a field or
+        // the clipboard module. When the converter isn't here the keys pass
+        // through unchanged. An empty/text-only clipboard is a silent no-op, but
+        // the key is still swallowed: the converter is the paste target here, so
+        // there is nothing else for Cmd+V to do inside the panel.
+        if press.modifiers.contains(.command), press.key.character == "v" {
+            guard let id = currentSpaceID,
+                  visibleModules(in: id).contains("convert"),
+                  editUnit == nil
+            else { return .ignored }
+            if model.converter.addFromPasteboard() {
+                model.openConverterWindow?()
+            }
+            return .handled
+        }
+
         guard let id = currentSpaceID,
               visibleModules(in: id).contains("timer"),
               !model.engine.isStopwatch,

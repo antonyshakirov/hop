@@ -265,6 +265,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   converter row in the panel reopens the window (↗). Dropping onto the
   panel row also adds files and opens the window. Folders are expanded
   (up to 500 files), duplicates are skipped.
+- Paste feeds the clipboard into the converter exactly like a drop: file
+  URLs (a Finder copy) are added straight; a raw image with no backing file
+  (a screenshot copied to the clipboard) is written to a temp file first and
+  then added — both routes end at the same batch path. In the panel, ⌘V /
+  ⌘⇧V ingest ONLY when the converter is on the active space and no field is
+  being edited (a focused tracker/to-do field or timer-digit entry keeps the
+  keys); otherwise the keys pass through, and the clipboard module's own paste
+  is untouched. In the standalone window ⌘V works unconditionally. An empty or
+  text-only clipboard is a silent no-op; an unsupported file lands in the
+  "unsupported" group, same as a dropped file of that type.
 - Groups: images / PDF / video / audio / unsupported. Each file gets:
   a thumbnail (QuickLook), name, its own size "current → ~estimated";
   the circle turns into a green checkmark when done. Finished files
