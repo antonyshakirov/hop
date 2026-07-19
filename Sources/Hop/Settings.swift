@@ -10,6 +10,10 @@ enum SettingsKey {
     static let menuBarRedAlert = "menuBarRedAlert"
     /// JSON-encoded PanelTabsModel: the user's spaces (icon tabs) and their module keys.
     static let panelTabs = "panelTabs"
+    /// One-shot flag: models saved before the tracker had its own tab get the
+    /// tracker lifted into a fresh "clock" tab exactly once. Set on the fresh
+    /// migrate path too, so the seed never runs for new installs.
+    static let trackerTabSeeded = "trackerTabSeeded"
 }
 
 /// Highlight thresholds for the system tab: at which value yellow and red kick in.

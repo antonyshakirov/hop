@@ -133,6 +133,7 @@ enum L10nKey: String, CaseIterable {
     case torrentEngineNote
     case featureShowHere, featureSave
     case trackerLabel, trackerNewProject, trackerNewTask, trackerDeleteProject, trackerDeleteTask, trackerDelete, trackerEmpty, trackerEditHint, trackerBarTime
+    case settingsTabGeneral, settingsTabLayout
 }
 
 enum L10n {
@@ -376,11 +377,12 @@ enum L10n {
             .featureNewBadge: "new", .featureEnable: "enable", .featureHide: "hide",
             .featureTorrentTitle: "torrents", .featureTorrentBody: "download .torrent files and magnet links right in Hop", .torrentEngineNote: "saying yes downloads the engine right away (~26 MB)",
             .featureShowHere: "show in the panel", .featureSave: "save",
-            .trackerLabel: "tracker", .trackerNewProject: "new project", .trackerNewTask: "new task",
+            .trackerLabel: "time tracker", .trackerNewProject: "new project", .trackerNewTask: "new task",
             .trackerDeleteProject: "delete project and its tasks?", .trackerDeleteTask: "delete task?",
             .trackerDelete: "delete", .trackerEmpty: "no projects yet",
             .trackerEditHint: "drag or click to adjust today's time",
             .trackerBarTime: "show task time in menu bar",
+            .settingsTabGeneral: "general", .settingsTabLayout: "modules & tabs",
         ],
         .ru: [
             .memPressureNote: "память: цвет — по системному сигналу memory pressure macOS",
@@ -601,6 +603,7 @@ enum L10n {
             .trackerDelete: "удалить", .trackerEmpty: "пока нет проектов",
             .trackerEditHint: "потяните или нажмите, чтобы изменить время за сегодня",
             .trackerBarTime: "время задачи в menu bar",
+            .settingsTabGeneral: "общее", .settingsTabLayout: "модули и вкладки",
         ],
         .de: [
             .memPressureNote: "speicher: die farbe folgt dem memory-pressure-signal von macOS",
@@ -821,6 +824,7 @@ enum L10n {
             .trackerDelete: "löschen", .trackerEmpty: "noch keine projekte",
             .trackerEditHint: "ziehen oder klicken, um die heutige zeit anzupassen",
             .trackerBarTime: "aufgabenzeit in menüleiste",
+            .settingsTabGeneral: "allgemein", .settingsTabLayout: "module & tabs",
         ],
         .es: [
             .memPressureNote: "memoria: el color sigue la señal de presión de memoria de macOS",
@@ -1036,11 +1040,12 @@ enum L10n {
             .featureNewBadge: "nuevo", .featureEnable: "activar", .featureHide: "ocultar",
             .featureTorrentTitle: "torrents", .featureTorrentBody: "descarga .torrent y enlaces magnet directamente en Hop", .torrentEngineNote: "al activarlo, el motor se descarga enseguida (~26 MB)",
             .featureShowHere: "mostrar en el panel", .featureSave: "guardar",
-            .trackerLabel: "seguimiento", .trackerNewProject: "nuevo proyecto", .trackerNewTask: "nueva tarea",
+            .trackerLabel: "seguimiento de tiempo", .trackerNewProject: "nuevo proyecto", .trackerNewTask: "nueva tarea",
             .trackerDeleteProject: "¿eliminar proyecto y sus tareas?", .trackerDeleteTask: "¿eliminar tarea?",
             .trackerDelete: "eliminar", .trackerEmpty: "aún no hay proyectos",
             .trackerEditHint: "arrastra o haz clic para ajustar el tiempo de hoy",
             .trackerBarTime: "tiempo de tarea en la barra",
+            .settingsTabGeneral: "general", .settingsTabLayout: "módulos y pestañas",
         ],
         .pt: [
             .memPressureNote: "memória: a cor segue o sinal de pressão de memória do macOS",
@@ -1261,6 +1266,7 @@ enum L10n {
             .trackerDelete: "excluir", .trackerEmpty: "ainda sem projetos",
             .trackerEditHint: "arraste ou clique para ajustar o tempo de hoje",
             .trackerBarTime: "tempo da tarefa na barra",
+            .settingsTabGeneral: "geral", .settingsTabLayout: "módulos e abas",
         ],
         .fr: [
             .memPressureNote: "mémoire : la couleur suit le signal de pression mémoire de macOS",
@@ -1481,6 +1487,7 @@ enum L10n {
             .trackerDelete: "supprimer", .trackerEmpty: "aucun projet pour l'instant",
             .trackerEditHint: "glissez ou cliquez pour ajuster le temps d'aujourd'hui",
             .trackerBarTime: "temps de la tâche dans la barre",
+            .settingsTabGeneral: "général", .settingsTabLayout: "modules et onglets",
         ],
         .it: [
             .memPressureNote: "memoria: il colore segue il segnale di pressione della memoria di macOS",
@@ -1701,6 +1708,7 @@ enum L10n {
             .trackerDelete: "elimina", .trackerEmpty: "ancora nessun progetto",
             .trackerEditHint: "trascina o clicca per regolare il tempo di oggi",
             .trackerBarTime: "tempo dell'attività nella barra",
+            .settingsTabGeneral: "generale", .settingsTabLayout: "moduli e schede",
         ],
         .zh: [
             .memPressureNote: "内存：颜色跟随 macOS 系统的内存压力信号",
@@ -1921,6 +1929,7 @@ enum L10n {
             .trackerDelete: "删除", .trackerEmpty: "还没有项目",
             .trackerEditHint: "拖动或点击以调整今天的时间",
             .trackerBarTime: "菜单栏显示任务时间",
+            .settingsTabGeneral: "概览", .settingsTabLayout: "模块与标签",
         ],
         .ja: [
             .memPressureNote: "メモリ：色は macOS のメモリプレッシャー信号に従います",
@@ -2141,6 +2150,7 @@ enum L10n {
             .trackerDelete: "削除", .trackerEmpty: "プロジェクトがまだありません",
             .trackerEditHint: "ドラッグまたはクリックで今日の時間を調整",
             .trackerBarTime: "メニューバーにタスク時間表示",
+            .settingsTabGeneral: "全般", .settingsTabLayout: "モジュールとタブ",
         ],
         .ko: [
             .memPressureNote: "메모리: 색상은 macOS의 메모리 압박 신호를 따릅니다",
@@ -2361,6 +2371,7 @@ enum L10n {
             .trackerDelete: "삭제", .trackerEmpty: "아직 프로젝트가 없습니다",
             .trackerEditHint: "드래그하거나 클릭하여 오늘 시간 조정",
             .trackerBarTime: "메뉴 막대에 작업 시간 표시",
+            .settingsTabGeneral: "일반", .settingsTabLayout: "모듈 및 탭",
         ],
         .tr: [
             .memPressureNote: "bellek: renk, macOS'un bellek baskısı sinyalini izler",
@@ -2598,6 +2609,7 @@ enum L10n {
             .trackerDelete: "sil", .trackerEmpty: "henüz proje yok",
             .trackerEditHint: "bugünün süresini ayarlamak için sürükleyin veya tıklayın",
             .trackerBarTime: "menü çubuğunda görev süresi",
+            .settingsTabGeneral: "genel", .settingsTabLayout: "modüller ve sekmeler",
         ],
         .uk: [
             .memPressureNote: "пам'ять: колір — за системним сигналом memory pressure macOS",
@@ -2835,6 +2847,7 @@ enum L10n {
             .trackerDelete: "видалити", .trackerEmpty: "поки немає проєктів",
             .trackerEditHint: "потягніть або натисніть, щоб змінити час за сьогодні",
             .trackerBarTime: "час завдання в рядку меню",
+            .settingsTabGeneral: "загальне", .settingsTabLayout: "модулі та вкладки",
         ],
         .pl: [
             .memPressureNote: "pamięć: kolor podąża za sygnałem memory pressure systemu macOS",
@@ -3072,6 +3085,7 @@ enum L10n {
             .trackerDelete: "usuń", .trackerEmpty: "brak projektów",
             .trackerEditHint: "przeciągnij lub kliknij, aby dostosować dzisiejszy czas",
             .trackerBarTime: "czas zadania na pasku menu",
+            .settingsTabGeneral: "ogólne", .settingsTabLayout: "moduły i karty",
         ],
         .id: [
             .memPressureNote: "memori: warna mengikuti sinyal tekanan memori macOS",
@@ -3309,6 +3323,7 @@ enum L10n {
             .trackerDelete: "hapus", .trackerEmpty: "belum ada proyek",
             .trackerEditHint: "seret atau klik untuk menyesuaikan waktu hari ini",
             .trackerBarTime: "waktu tugas di bilah menu",
+            .settingsTabGeneral: "umum", .settingsTabLayout: "modul & tab",
         ],
         .th: [
             .memPressureNote: "หน่วยความจำ: สีตามสัญญาณ memory pressure ของ macOS",
@@ -3546,6 +3561,7 @@ enum L10n {
             .trackerDelete: "ลบ", .trackerEmpty: "ยังไม่มีโปรเจกต์",
             .trackerEditHint: "ลากหรือคลิกเพื่อปรับเวลาของวันนี้",
             .trackerBarTime: "เวลางานบนแถบเมนู",
+            .settingsTabGeneral: "ทั่วไป", .settingsTabLayout: "โมดูลและแท็บ",
         ],
         .vi: [
             .memPressureNote: "bộ nhớ: màu theo tín hiệu memory pressure của macOS",
@@ -3783,6 +3799,7 @@ enum L10n {
             .trackerDelete: "xóa", .trackerEmpty: "chưa có dự án",
             .trackerEditHint: "kéo hoặc nhấp để chỉnh thời gian hôm nay",
             .trackerBarTime: "thời gian công việc trên thanh menu",
+            .settingsTabGeneral: "chung", .settingsTabLayout: "mô-đun & tab",
         ],
         .hi: [
             .memPressureNote: "मेमोरी: रंग macOS के memory pressure संकेत के अनुसार",
@@ -4020,6 +4037,7 @@ enum L10n {
             .trackerDelete: "हटाएं", .trackerEmpty: "अभी कोई प्रोजेक्ट नहीं",
             .trackerEditHint: "आज का समय समायोजित करने के लिए खींचें या क्लिक करें",
             .trackerBarTime: "मेनू बार में कार्य समय",
+            .settingsTabGeneral: "सामान्य", .settingsTabLayout: "मॉड्यूल और टैब",
         ],
         .nl: [
             .memPressureNote: "geheugen: de kleur volgt het memory-pressure-signaal van macOS",
@@ -4257,6 +4275,7 @@ enum L10n {
             .trackerDelete: "verwijderen", .trackerEmpty: "nog geen projecten",
             .trackerEditHint: "sleep of klik om de tijd van vandaag aan te passen",
             .trackerBarTime: "taaktijd in de menubalk",
+            .settingsTabGeneral: "algemeen", .settingsTabLayout: "modules & tabbladen",
         ],
     ]
 }

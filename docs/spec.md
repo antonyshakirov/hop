@@ -57,31 +57,39 @@ signing would break).
 ## Modules
 
 The main screen shows the modules of the selected space (tab) as a stack,
-in the order the user set. Every module lives in exactly one space. Spaces
-themselves are managed in a "tabs" section at the top of the "general"
-settings tab, above the module list: one row per space (drag handle, icon,
-"#N", delete xmark hidden for the last remaining space), a hand-rolled
-vertical drag to reorder (`moveTab`), and an "add tab" row while under the
-cap. Tapping a row's icon expands an inline icon-picker grid under it —
-inline, not a panel overlay, because settings is a standalone window that
-renders `settingsScreen` directly (a panel-stack overlay would never show
-there). Deleting from settings clears the saved active space if it pointed
-at the deleted tab, so the panel reopens on a valid space. Below that, the
-"general" settings tab lists all modules grouped by space: a header row
-(the space's icon and "#N", not draggable) followed by that space's module
-rows. A hand-rolled drag reorders within a space or, dragged across a
-header boundary, moves a module into another space; the first display row
-is a header, so a module can't be dropped above it — the top clamps to the
-first slot of space 1. Every row (headers included) shares one fixed height
-so a pixel offset maps to a whole number of rows. A module can also be
+in the order the user set. Every module lives in exactly one space. The
+"general" settings section is itself split into two text-switched sub-tabs:
+"general" for the everyday options (theme, language, launch, sounds,
+updates, app icon, hotkeys) and "modules & tabs" for the panel layout.
+Spaces are managed in a "tabs" section at the top of that "modules & tabs"
+sub-tab, above the module list: one row per space (drag handle, icon +
+disclosure chevron, "#N", a delete xmark revealed on row hover and hidden
+for the last remaining space), a hand-rolled vertical drag to reorder
+(`moveTab`), and an "add tab" row while under the cap. Tapping a row's icon
+(or its chevron) toggles an inline icon-picker grid under it — the chevron
+rotates down while it is open, so collapse is that same tap, never an xmark
+that could be mistaken for the row's delete. It is inline, not a panel
+overlay, because settings is a standalone window that renders
+`settingsScreen` directly (a panel-stack overlay would never show there).
+Deleting from settings clears the saved active space if it pointed at the
+deleted tab, so the panel reopens on a valid space. Below that, the same
+sub-tab lists all modules grouped by space: a header row (the space's icon
+and "#N", not draggable, with a hairline above every header but the first so
+the groups read apart) followed by that space's module rows. A hand-rolled
+drag reorders within a space or, dragged across a header boundary, moves a
+module into another space; the first display row is a header, so a module
+can't be dropped above it — the top clamps to the first slot of space 1.
+Every row (headers included) shares one fixed height so a pixel offset maps
+to a whole number of rows (the group hairline is a zero-height overlay,
+so it never disturbs that math). A module can also be
 re-homed from the panel: right-click it and pick a target under "move to"
 (one item per other space; omitted entirely when there is only one space).
 Reordering is a hand-rolled drag, not List.onMove: the system drop
 indicator (line + leading dot) can't be styled and its dot clipped at the
 panel insets. Rows part to open a gap at the target; the dragged row
 follows the pointer semi-transparent and settles with a short glide. All
-modules can be hidden; visibility toggles live ONLY in "general" (do not
-duplicate them in module settings). The divider between modules sits
+modules can be hidden; visibility toggles live ONLY in the grouped module
+list ("modules & tabs") — do not duplicate them in module settings. The divider between modules sits
 exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Timer
@@ -122,10 +130,14 @@ exactly in the middle: top inset = bottom inset = 16pt.
 - Display formats (dots/text/units): previews in settings show digits of
   equal height; the "digit size" setting (large/small) applies to
   ALL formats and both layouts, small ≈ half the large size
-  (full view: dots 7.0/3.6, text 40/21, units 34/18; compact
-  row: dots 4.8/2.6, text 26/14, units 23/12.5). Digit-group gestures
-  compute the cell from the actual size. The format setting is labeled
-  "timer format".
+  (full view: dots 8.6/5.6, text 62/33, units 52/29; compact
+  row: dots 5.3/2.9, text 29/15.5, units 25.5/13.7). The compact sizes are
+  capped so the worst-case row — [start · reset · spacer · display ·
+  stopwatch] with `00:00:00` at "large" — fits the 340pt content width with
+  a few pt of margin (39 dot columns × 5.3 ≈ 207 + ≈122pt of chrome ≈ 329);
+  the full display sits alone in its row at the panel-width ceiling. Digit-
+  group gestures compute the cell from the actual size. The format setting
+  is labeled "timer format".
 - Dot glow is proportional to dot size; on small cells (dot < 3px,
   mini previews) the glow and the background grid of "off" dots are not
   drawn — otherwise everything smears into noise.
@@ -342,9 +354,11 @@ exactly in the middle: top inset = bottom inset = 16pt.
   (`TrackerEngine`, persisted to `tracker.json` via `TrackerController`);
   the view is glue. Labels tick off `tracker.heartbeat` (1/s while a task is
   tracking). Shown by default (`showTrackerModule`, ON) — unlike torrents it
-  has no engine to download, so it isn't opt-in; toggled in "general" like
-  every other module and its settings row is a normal module row (no longer
-  excluded from the list).
+  has no engine to download, so it isn't opt-in; toggled like every other
+  module (in the "modules & tabs" grouped list) and its settings row is a
+  normal module row (no longer excluded from the list). The module title
+  (`trackerLabel`) is "time tracker" — it names the feature both in settings
+  and in the empty state.
 - **Single active task:** at most one task is ever tracking. Tapping play on
   task B while A runs stops A first — the engine closes the open interval
   itself (`start(taskID:)`), the UI never juggles two. Deleting the active
@@ -381,7 +395,8 @@ exactly in the middle: top inset = bottom inset = 16pt.
   corrections, so per-step commits would pile up); or click the label to type
   into an inline field that reads `H:MM` or bare minutes (`90` = 90 min,
   `1:30` = 1h30m). `.help` carries the hint. Times via `TimeFormatting.short`.
-- **Empty state:** no projects → a `no projects yet` line plus the add row.
+- **Empty state:** no projects → a `time tracker` title line (mono 12,
+  primary) over the `no projects yet` hint (tertiary), plus the add row.
 - **Snapshot rule:** every focused-field state is gated off `Snapshot.active`,
   so `--snapshot` renders never show an editing TextField (yellow artifact).
 
@@ -404,9 +419,17 @@ exactly in the middle: top inset = bottom inset = 16pt.
   click can't create a space. Up to 4 spaces (`PanelTabsModel.maxTabs`) — the
   cap keeps 4×56pt tabs plus the trio inside the 340pt header content
   (≈338pt at the cap). Panel width 368.
+- Default spaces: a fresh install migrates into THREE spaces — "house" with
+  the general modules, "gauge" for the system monitor, and "clock" for the
+  time tracker. Models saved before the tracker had its own space lift the
+  tracker out of the first space into a new "clock" space exactly once
+  (guarded by the `trackerTabSeeded` flag; skipped if the user already moved
+  it elsewhere or the spaces are at the cap).
 - Settings tab order: general → timer → remaining modules → monitor.
   "Remaining modules" = awake/clipboard/converter/windows as sections with
-  headers. The app version is shown next to the "check & update" button.
+  headers. The "general" tab splits further into two text-switched sub-tabs,
+  "general" and "modules & tabs" (the spaces list + grouped module list);
+  the selected sub-tab is transient state, not persisted. The app version is shown next to the "check & update" button.
   The "latest version installed" / "failed" note after a manual check is
   transient: it clears when the settings window closes or after 30 minutes —
   a stale note would deny an update that shipped since.
@@ -429,11 +452,16 @@ exactly in the middle: top inset = bottom inset = 16pt.
 - **The panel is keyboard-transparent** (Anton, 2026-07-13; completed
   2026-07-15): it never steals keyboard focus — on open AND after any
   click inside it, focus goes back to the app underneath (dictation and
-  Cmd+V land there). The panel is mouse-only, with two exceptions that
+  Cmd+V land there). The panel is mouse-only, with three exceptions that
   do capture the keyboard: digit entry into the timer display (while a
-  digit group is selected) and the clipboard search field. When the
-  capture ends (Esc/Enter/click elsewhere), focus returns to the app
-  underneath again. Focus moving to another Hop window (settings,
+  digit group is selected), the clipboard search field, and a focused
+  tracker inline field (a project/task name or a today-time edit). The
+  tracker case also guards the panel's global key handler: while such a
+  field is open, Return commits the name — it must NOT reach `handleKey`
+  and start the timer. The capture is one flag fed by both the timer digit
+  editor and the tracker field (`panelKeyboardCaptured =
+  editUnit != nil || trackerEditing`). When the capture ends
+  (Esc/Enter/click elsewhere), focus returns to the app underneath again. Focus moving to another Hop window (settings,
   converter) is legitimate and is not overridden. Global hotkeys work
   regardless of focus.
 - Right-click on the icon — a system NSMenu in sentence case:

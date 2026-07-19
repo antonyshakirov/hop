@@ -66,7 +66,14 @@ struct PanelView: View {
     @State private var aboutSection =
         Snapshot.active && CommandLine.arguments.contains("--news") ? "news" : "general"
     @State private var settingsSection = "general"
+    // Sub-tab within the "general" settings section: the everyday options vs.
+    // the spaces/module layout. Transient — no persistence needed.
+    @State private var generalTab = "general"
     @State private var editUnit: TimeInterval? // digit group being edited (3600/60/1)
+    // A tracker inline field (project/task name or "today" time) is focused.
+    // Feeds `panelKeyboardCaptured` alongside `editUnit` so `handleKey` lets
+    // Return/Space/digits reach the field instead of driving the timer.
+    @State private var trackerEditing = false
     @State private var languageMenuTarget: MenuPickTarget?
     // custom module reorder: the system List.onMove drop indicator
     // (line + leading dot) can't be styled, so rows are dragged by hand
@@ -79,6 +86,9 @@ struct PanelView: View {
     @State private var dragTabTarget: Int?
     // non-nil while the icon picker overlay is up for that tab
     @State private var iconPickerTabID: UUID?
+    // which settings tab row is hovered — its delete xmark shows only then
+    // (same reveal-on-hover pattern as the tracker/torrent row deletes)
+    @State private var hoveredTabRow: UUID?
     @AppStorage("cycleTemplates") private var cycleTemplatesRaw = "25/5x4,52/17x3,90/15x2"
     @AppStorage("showPresetsRow") private var showPresetsRow = true
     @AppStorage("showCyclesRow") private var showCyclesRow = true
@@ -527,10 +537,8 @@ struct PanelView: View {
         .onKeyPress { press in
             handleKey(press)
         }
-        .onChange(of: editUnit) { _, unit in
-            model.panelKeyboardCaptured = unit != nil
-            if unit == nil { model.panelFocusChanged?() }
-        }
+        .onChange(of: editUnit) { _, _ in syncKeyboardCapture() }
+        .onChange(of: trackerEditing) { _, _ in syncKeyboardCapture() }
         .onDisappear {
             model.panelKeyboardCaptured = false
             // A normal left-click / hotkey reopen does not fire the openTab
@@ -541,9 +549,23 @@ struct PanelView: View {
         }
     }
 
+    /// Both keyboard-capture sources in one place: the timer digit editor
+    /// (`editUnit`) and any focused tracker field (`trackerEditing`). While
+    /// either is live the controller keeps focus in the panel; once both drop,
+    /// hand the keyboard back to the app underneath.
+    private func syncKeyboardCapture() {
+        let captured = editUnit != nil || trackerEditing
+        model.panelKeyboardCaptured = captured
+        if !captured { model.panelFocusChanged?() }
+    }
+
     /// Keyboard time entry into the selected digit group: digits slide in from the
     /// right (0 → 2 gives :02). The group is picked by clicking/hovering the display.
     private func handleKey(_ press: KeyPress) -> KeyPress.Result {
+        // A focused tracker field owns the keyboard: Return commits the name
+        // (creating the project/task), it must NOT toggle the timer. Bailing
+        // here lets the key fall through to the TextField's own onSubmit.
+        guard !trackerEditing else { return .ignored }
         guard let id = currentSpaceID,
               visibleModules(in: id).contains("timer"),
               !model.engine.isStopwatch,
@@ -598,11 +620,16 @@ struct PanelView: View {
     private var dotCellFull: CGFloat { digitsLarge ? 8.6 : 5.6 }
     private var textSizeFull: CGFloat { digitsLarge ? 62 : 33 }
     private var unitsSizeFull: CGFloat { digitsLarge ? 52 : 29 }
-    // compact gets +25% too: its sizes were the ones "not visible" —
-    // the setting works in both timer views
-    private var dotCellCompact: CGFloat { digitsLarge ? 6.0 : 3.3 }
-    private var textSizeCompact: CGFloat { digitsLarge ? 33 : 17.5 }
-    private var unitsSizeCompact: CGFloat { digitsLarge ? 29 : 15.5 }
+    // compact row must fit the widest control set + HH:MM:SS at "large":
+    // [start 34 · reset 26 · spacer 6 · display · stopwatch 24] + 4×8 gaps
+    // = 122pt of chrome inside the 340pt content width, leaving ~218pt for the
+    // display. Dots "00:00:00" = 39 columns, so 39 × 5.3 ≈ 207 → ~329 total,
+    // ~11pt of margin. 6.0 overflowed (39 × 6.0 = 234 → 356, off the edge).
+    // text/units carry `minimumScaleFactor` so they never hard-overflow; they
+    // shrink in step only to stay visually balanced with the smaller dots.
+    private var dotCellCompact: CGFloat { digitsLarge ? 5.3 : 2.9 }
+    private var textSizeCompact: CGFloat { digitsLarge ? 29 : 15.5 }
+    private var unitsSizeCompact: CGFloat { digitsLarge ? 25.5 : 13.7 }
 
     /// Display in the chosen format. Dots are the signature look;
     /// digit-group highlight and clicks live only in the dots style.
@@ -882,11 +909,13 @@ struct PanelView: View {
         activeSpaceRaw = id.uuidString
     }
 
-    /// One settings row for a tab: drag handle, the icon (tapping it toggles the
-    /// inline picker for this tab), its "#N" position, and a delete xmark
+    /// One settings row for a tab: drag handle, the icon + a disclosure chevron
+    /// (tapping either toggles the inline picker; the chevron rotates while it's
+    /// open), its "#N" position, and a delete xmark that shows only on row hover
     /// (hidden for the last remaining tab). The row drag-reorders vertically.
     @ViewBuilder private func tabSettingsRow(_ tab: PanelTab, index: Int) -> some View {
         let dragged = dragTabID == tab.id
+        let expanded = iconPickerTabID == tab.id
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 // drag handle: two lines, left-aligned (same as module rows)
@@ -896,18 +925,28 @@ struct PanelView: View {
                 }
                 .foregroundStyle(Theme.textTertiary)
                 .frame(width: 14, height: 18, alignment: .leading)
+                // Tapping the icon toggles the picker; the chevron is the
+                // affordance for that and rotates down while it's open — so the
+                // collapse control can never be mistaken for the delete xmark.
                 Button {
-                    iconPickerTabID = (iconPickerTabID == tab.id) ? nil : tab.id
+                    iconPickerTabID = expanded ? nil : tab.id
                 } label: {
-                    Image(systemName: tab.icon)
-                        .font(.system(size: 13))
-                        .foregroundStyle(Theme.textPrimary)
-                        .frame(width: 20, height: 20)
-                        .contentShape(Rectangle())
+                    HStack(spacing: 4) {
+                        Image(systemName: tab.icon)
+                            .font(.system(size: 13))
+                            .foregroundStyle(Theme.textPrimary)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(Theme.textTertiary)
+                            .rotationEffect(.degrees(expanded ? 90 : 0))
+                    }
+                    .frame(height: 20)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .hoverHighlight(5)
                 .help(t(.tabChangeIcon).capitalizedFirst)
+                .animation(.easeInOut(duration: 0.15), value: expanded)
                 Text("#\(index + 1)")
                     .font(Theme.mono(12))
                     .foregroundStyle(Theme.textTertiary)
@@ -923,11 +962,18 @@ struct PanelView: View {
                     .buttonStyle(.plain)
                     .hoverHighlight(5)
                     .help(t(.tabDelete).capitalizedFirst)
+                    // reveal on row hover only, so a resting row shows no xmark
+                    .opacity(hoveredTabRow == tab.id ? 1 : 0)
+                    .allowsHitTesting(hoveredTabRow == tab.id)
                 }
             }
             .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 2))
             .frame(height: Self.moduleRowHeight)
             .contentShape(Rectangle())
+            .onHover { inside in
+                if inside { hoveredTabRow = tab.id }
+                else if hoveredTabRow == tab.id { hoveredTabRow = nil }
+            }
             .opacity(dragged ? 0.4 : 1)
             .offset(y: dragged ? dragTabOffset : tabRowShift(index))
             .zIndex(dragged ? 1 : 0)
@@ -1483,12 +1529,34 @@ struct PanelView: View {
         if let decoded = PanelTabsModel.decode(panelTabsRaw) {
             var model = decoded
             model.ensure(modules: allModules + ["system", "tracker"])
+            seedTrackerTab(&model)
             return model
         }
         var model = PanelTabsModel.migrate(moduleOrder: moduleOrder)
         model.ensure(modules: allModules + ["system", "tracker"])
         UserDefaults.standard.set(model.encoded(), forKey: SettingsKey.panelTabs)
+        // A fresh migrate already gives the tracker its own tab — nothing to
+        // seed, but claim the one-shot flag so it never runs later either.
+        UserDefaults.standard.set(true, forKey: SettingsKey.trackerTabSeeded)
         return model
+    }
+
+    /// One-shot reshape for models saved BEFORE the tracker got its own tab.
+    /// `ensure` (above) appends a missing "tracker" to the first tab, and
+    /// Anton's dev state already has it sitting there silently — so when the
+    /// tracker lives in the FIRST tab and there's room, lift it into a fresh
+    /// "clock" tab, mirroring what `migrate` now does for new installs. If the
+    /// user has already moved the tracker elsewhere, or the tabs are at the
+    /// cap, touch nothing. Either way the flag is claimed exactly once, so
+    /// this runs a single time across the whole app lifetime.
+    private static func seedTrackerTab(_ model: inout PanelTabsModel) {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: SettingsKey.trackerTabSeeded) else { return }
+        defer { defaults.set(true, forKey: SettingsKey.trackerTabSeeded) }
+        guard model.tabs.first?.moduleKeys.contains("tracker") == true,
+              let newID = model.addTab(icon: "clock") else { return }
+        model.move(module: "tracker", toTab: newID)
+        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 
     /// The tabs model read straight from UserDefaults — usable from `init`,
@@ -1630,7 +1698,8 @@ struct PanelView: View {
             StatsView(stats: model.stats, lang: lang)
                 .id(model.themeVersion)
         case "tracker":
-            TrackerView(tracker: model.tracker, lang: lang)
+            TrackerView(tracker: model.tracker, lang: lang,
+                        onEditingChanged: { trackerEditing = $0 })
                 .id(model.themeVersion)
         default: EmptyView()
         }
@@ -2211,6 +2280,17 @@ struct PanelView: View {
         .foregroundStyle(Theme.textTertiary)
         .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 2))
         .frame(height: Self.moduleRowHeight)
+        // Group boundary: a hairline above every header but the first, so the
+        // spaces read apart at a glance. Drawn as a top overlay (not a taller
+        // row or a spacer) so every row keeps the uniform `moduleRowHeight` the
+        // drag math depends on — a pixel offset still maps to a whole number of
+        // rows. It sits in the 12pt of whitespace the adjacent rows' paddings
+        // already leave, so it lands centered with air on both sides.
+        .overlay(alignment: .top) {
+            if index > 0 {
+                Rectangle().fill(Theme.divider).frame(height: 1)
+            }
+        }
         .offset(y: moduleRowShift(index))
         .animation(.easeInOut(duration: 0.15), value: moduleRowShift(index))
     }
@@ -2325,7 +2405,31 @@ struct PanelView: View {
         }
     }
 
+    /// The "general" settings section splits into two sub-tabs: everyday
+    /// options ("general") and the spaces/module arrangement ("modules & tabs").
+    /// The tabs list and the grouped module list are the heaviest part of the
+    /// screen, so they get their own sub-tab instead of a long scroll under the
+    /// basics. Same text-switcher visual language as the top-level chips.
     private var generalSettings: some View {
+        VStack(spacing: 16) {
+            SectionChips(items: [
+                ("general", t(.settingsTabGeneral)),
+                ("layout", t(.settingsTabLayout)),
+            ], selection: $generalTab)
+
+            switch generalTab {
+            case "layout":
+                layoutSettings
+            default:
+                generalBasics
+            }
+        }
+    }
+
+    /// Everyday options: theme, language, launch, sounds, updates, app icon,
+    /// hotkeys. Everything on the "general" section EXCEPT the spaces/module
+    /// arrangement, which lives on the "modules & tabs" sub-tab.
+    private var generalBasics: some View {
         VStack(spacing: 14) {
             HStack {
                 Text(t(.themeLabel))
@@ -2389,6 +2493,14 @@ struct PanelView: View {
                 .fill(Theme.divider)
                 .frame(height: 1)
 
+            hotkeysSection
+        }
+    }
+
+    /// Spaces (tabs) management and the grouped module list — the layout of the
+    /// panel. Both are hand-rolled vertical drags that keep separate state.
+    private var layoutSettings: some View {
+        VStack(spacing: 14) {
             // tabs (spaces) management — the only place to add/reorder/rename/
             // delete spaces, so a stray header click can no longer spawn one.
             VStack(spacing: 12) {
@@ -2427,12 +2539,6 @@ struct PanelView: View {
                     }
                 }
             }
-
-            Rectangle()
-                .fill(Theme.divider)
-                .frame(height: 1)
-
-            hotkeysSection
         }
     }
 

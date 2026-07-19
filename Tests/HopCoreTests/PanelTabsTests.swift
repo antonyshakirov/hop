@@ -5,14 +5,16 @@ final class PanelTabsTests: XCTestCase {
 
     // MARK: - migrate
 
-    func testMigrateBuildsTwoTabLayout() {
+    func testMigrateBuildsThreeTabLayout() {
         let model = PanelTabsModel.migrate(moduleOrder: ["timer", "awake", "clipboard"])
 
-        XCTAssertEqual(model.tabs.count, 2)
+        XCTAssertEqual(model.tabs.count, 3)
         XCTAssertEqual(model.tabs[0].icon, "house")
         XCTAssertEqual(model.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
         XCTAssertEqual(model.tabs[1].icon, "gauge")
         XCTAssertEqual(model.tabs[1].moduleKeys, ["system"])
+        XCTAssertEqual(model.tabs[2].icon, "clock")
+        XCTAssertEqual(model.tabs[2].moduleKeys, ["tracker"])
     }
 
     // MARK: - addTab

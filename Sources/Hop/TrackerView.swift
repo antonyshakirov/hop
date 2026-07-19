@@ -10,6 +10,10 @@ import HopCore
 struct TrackerView: View {
     @ObservedObject var tracker: TrackerController
     let lang: AppLanguage
+    /// Fired whenever an inline field opens (true) or closes (false), so the
+    /// panel can hold the keyboard while typing a name — otherwise Return in a
+    /// project field reaches the panel's global key handler and starts the timer.
+    var onEditingChanged: ((Bool) -> Void)? = nil
 
     /// The single field currently accepting text: a new-name entry, a rename,
     /// or a today-time edit. Only one is ever open, so one draft per kind
@@ -59,11 +63,18 @@ struct TrackerView: View {
         let projects = engine.data.projects
         return VStack(alignment: .leading, spacing: 6) {
             if projects.isEmpty {
-                Text(t(.trackerEmpty))
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textTertiary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
+                // Name the feature above the hint: this space is otherwise a
+                // bare "no projects yet" with nothing saying what it is.
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(t(.trackerLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text(t(.trackerEmpty))
+                        .font(Theme.mono(11))
+                        .foregroundStyle(Theme.textTertiary)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
             }
             ForEach(projects) { project in
                 projectRow(project)
@@ -77,6 +88,12 @@ struct TrackerView: View {
             addProjectRow
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        // `activeField` is the single source of truth for "a field is open"
+        // (begin* sets it, endEdit clears it, including via commit/Escape and
+        // onDisappear below) — so one place reports editing to the panel.
+        .onChange(of: activeField) { _, field in
+            onEditingChanged?(field != nil && !Snapshot.active)
+        }
         .onDisappear {
             // @State survives the popover hide/show, so a left-open field or
             // confirm row would reappear (unfocused) on the next open — clear
