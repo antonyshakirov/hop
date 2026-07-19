@@ -40,6 +40,13 @@ final class TodosController: ObservableObject {
         save()
     }
 
+    /// Reorders the list (drag). Clamped in the model; `from` out of range is a
+    /// model no-op — we still save, mirroring toggle/delete.
+    func move(from: Int, to: Int) {
+        list.move(from: from, to: to)
+        save()
+    }
+
     private func save() {
         try? FileManager.default.createDirectory(at: storeDir, withIntermediateDirectories: true)
         try? TodosStore.save(list, to: storeDir)
