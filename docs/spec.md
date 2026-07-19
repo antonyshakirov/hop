@@ -514,8 +514,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the user already moved it or the spaces are at the cap); models saved before
   the to-do module get "todos" placed directly after "tracker" exactly once
   (`todosSeeded`, in whichever container holds the tracker — the same space
-  below it, or the inactive bucket if the tracker is hidden). Existing users'
-  icons/layout are otherwise untouched.
+  below it, or the inactive bucket if the tracker is hidden). Models saved
+  before the system monitor had its own space lift "system" out of the first
+  space into the second space (or a fresh "display" space if only one
+  exists) exactly once (`systemTabSeeded`; skipped if the user already moved
+  it elsewhere, or a fresh space can't be minted because the model is at the
+  cap). Existing users' icons/layout are otherwise untouched.
 - Module-visibility migration: the old `show*Module` toggles are read once
   and every OFF module is moved into the inactive bucket, after which
   visibility is pure membership and the toggles are never read again. The

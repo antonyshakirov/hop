@@ -1681,8 +1681,14 @@ struct PanelView: View {
             // `showTrackerModule=false` state must deactivate the tracker first,
             // so `seedTrackerTab` skips minting an empty clock tab and
             // `seedTodos` follows the tracker into the inactive bucket instead
-            // of stranding a lone clock tab holding only todos.
+            // of stranding a lone clock tab holding only todos. `seedSystemTab`
+            // runs BEFORE `seedTrackerTab`: if the monitor and the tracker are
+            // both still on the first tab, system must claim its own "display"
+            // tab first, or `seedTrackerTab`'s freshly minted "clock" tab would
+            // look like the second tab to `seedSystemTab` and steal system into
+            // it instead of giving it a tab of its own.
             migrateModuleVisibility(&model)
+            seedSystemTab(&model)
             seedTrackerTab(&model)
             seedTodos(&model)
             return model
@@ -1696,12 +1702,13 @@ struct PanelView: View {
         // hidden set, or torrent (default off) would flicker back visible.
         deactivateOffModules(&model)
         UserDefaults.standard.set(model.encoded(), forKey: SettingsKey.panelTabs)
-        // A fresh migrate already gives the tracker its own tab (with todos
-        // paired beside it) and has just applied the toggles — claim all
-        // one-shot flags so none rerun.
+        // A fresh migrate already gives the system monitor and the tracker
+        // each their own tab (with todos paired beside the tracker) and has
+        // just applied the toggles — claim all one-shot flags so none rerun.
         UserDefaults.standard.set(true, forKey: SettingsKey.trackerTabSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.todosSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.moduleVisibilityMigrated)
+        UserDefaults.standard.set(true, forKey: SettingsKey.systemTabSeeded)
         return model
     }
 
@@ -1774,6 +1781,35 @@ struct PanelView: View {
     static func storedModuleIsInactive(_ key: String) -> Bool {
         let raw = UserDefaults.standard.string(forKey: SettingsKey.panelTabs) ?? ""
         return PanelTabsModel.decode(raw)?.inactive.contains(key) ?? false
+    }
+
+    /// One-shot reshape for models saved BEFORE the system monitor had its
+    /// own tab (a decoded legacy state can carry "system" wherever `ensure`
+    /// or a hand-rolled arrangement left it). When "system" sits in the
+    /// FIRST tab, give it a tab of its own: reuse the second tab if one
+    /// already exists (moving system to the front of it, so it reads first
+    /// on that space), or mint a fresh "display" tab otherwise — mirroring
+    /// what `migrate` does for new installs. If the user already moved
+    /// "system" elsewhere (another tab or the inactive bucket), or a fresh
+    /// tab can't be minted because the model is already at the cap, touch
+    /// nothing. Either way the flag is claimed exactly once, so this runs a
+    /// single time across the whole app lifetime. Must run BEFORE
+    /// `seedTrackerTab` — see the ordering note at the call site.
+    private static func seedSystemTab(_ model: inout PanelTabsModel) {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: SettingsKey.systemTabSeeded) else { return }
+        defer { defaults.set(true, forKey: SettingsKey.systemTabSeeded) }
+        guard model.tabs.first?.moduleKeys.contains("system") == true else { return }
+        if model.tabs.count > 1 {
+            let target = model.tabs[1].id
+            model.move(module: "system", toTab: target)
+            model.reorder(module: "system", inTab: target, to: 0)
+        } else if let newID = model.addTab(icon: "display") {
+            model.move(module: "system", toTab: newID)
+        } else {
+            return
+        }
+        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 
     /// One-shot reshape for models saved BEFORE the tracker got its own tab.
