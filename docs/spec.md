@@ -72,9 +72,10 @@ bucket).
 
 The settings window's top-level text-switcher has five sibling sections:
 "general" for the everyday options (theme, language, launch, sounds,
-updates, app icon, hotkeys), "timer", "other modules", "monitor", and
-"modules & tabs" for the panel layout — no tab-in-tab, each is its own
-top-level section. The switcher chips take their natural width and wrap onto
+updates, app icon, hotkeys — including the window-snap layout picker and
+its "resize windows with hotkeys" toggle/grid), "timer", "other modules",
+"monitor", and "modules & tabs" for the panel layout — no tab-in-tab, each
+is its own top-level section. The switcher chips take their natural width and wrap onto
 a second line if a language runs long (`SectionChips(wraps:)`), so the fifth
 chip never truncates in the 720pt window. The "modules & tabs" section is
 ONE combined table: a column per space, in order,
@@ -368,8 +369,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Glyphs 26×16, fill inset 1pt (any more and the "half" turns into
   a strip). The "center" fill is smaller than the real zone, otherwise
   it is indistinguishable from "full screen".
-- Global zone hotkeys: a toggle in windows settings (ON by default —
-  Anton, 2026-07-15), a fixed ⌃⌥ scheme covering ALL 18 zones:
+- Global zone hotkeys: a toggle in the "general" settings tab, next to the
+  other hotkey rows (ON by default — Anton, 2026-07-15), a fixed ⌃⌥ scheme
+  covering ALL 18 zones:
   arrows — halves, ↩ — full screen, C — center, U/I/J/K — quarters,
   D/F/G — vertical thirds, E/T — two-thirds, S — center column,
   O/L — top/bottom thirds. Registered via the shared HotkeyManager
@@ -575,8 +577,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   never opens onto a blank tab. Opening a `.torrent` file or magnet link
   reactivates the torrent module the same way.
 - Settings tab order: general → timer → remaining modules → monitor →
-  modules & tabs. "Remaining modules" = awake/clipboard/converter/windows as
-  sections with headers. "modules & tabs" is the combined space/module table,
+  modules & tabs. "Remaining modules" = awake/clipboard/converter as sections
+  with headers (torrent sits at the end of the same tab). The window-snap
+  block (layout picker, "resize windows with hotkeys" toggle, its ⌃⌥-key
+  grid) lives in "general" instead, next to the other hotkey rows
+  (Anton, 2026-07-19) — it reads as a hotkey setting, not a module setting.
+  "modules & tabs" is the combined space/module table,
   its own top-level section (a nested general/"modules & tabs" sub-tab was
   tried and rejected). The app version is shown next to the "check & update" button.
   The "latest version installed" / "failed" note after a manual check is
@@ -920,7 +926,7 @@ playback.
 - Compact timer transport tracks the DIGIT SIZE setting, not the layout:
   small digits → play/pause 27pt (icon 10) and reset 21pt (icon 9);
   large digits → 34pt/26pt as before.
-- Settings → windows → "resize windows with hotkeys": under the toggle sits a
+- Settings → general → "resize windows with hotkeys": under the toggle sits a
   legend "zone glyph + ⌃⌥ key", four columns (shared `snapHotkeyItems` list with the
   help tab legend), replacing the old cryptic symbols-only caption.
 - Help → general no longer ends with the "hop — and it's done…" closing

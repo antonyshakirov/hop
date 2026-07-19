@@ -2608,8 +2608,10 @@ struct PanelView: View {
     }
 
     /// Everyday options: theme, language, launch, sounds, updates, app icon,
-    /// hotkeys. Everything on the "general" section EXCEPT the spaces/module
-    /// arrangement, which is its own top-level "modules & tabs" section.
+    /// hotkeys (including the window-snap hotkeys, moved in next to the rest
+    /// of the hotkey rows — Anton, 2026-07-19). Everything on the "general"
+    /// section EXCEPT the spaces/module arrangement, which is its own
+    /// top-level "modules & tabs" section.
     private var generalBasics: some View {
         VStack(spacing: 14) {
             HStack {
@@ -2675,6 +2677,56 @@ struct PanelView: View {
                 .frame(height: 1)
 
             hotkeysSection
+
+            Rectangle()
+                .fill(Theme.divider)
+                .frame(height: 1)
+
+            VStack(spacing: 14) {
+                settingsSectionHeader(t(.windowsLabel))
+                HStack {
+                    Text(t(.windowsLayoutLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    settingChip(t(.windowsGrid), active: windowsLayout == "grid") { windowsLayout = "grid" }
+                    settingChip(t(.windowsRow), active: windowsLayout == "row") { windowsLayout = "row" }
+                }
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack {
+                        Text(t(.windowsHotkeysLabel))
+                            .font(Theme.mono(12))
+                            .foregroundStyle(Theme.textPrimary)
+                        Spacer()
+                        Theme.MiniSwitch(isOn: $windowsHotkeysOn)
+                    }
+                    // zone glyph + its combo, same pairs as the help legend
+                    // four columns: 18 zones in two-column form wasted half
+                    // the width and stretched the section (Anton, 2026-07-15)
+                    LazyVGrid(
+                        columns: Array(
+                            repeating: GridItem(.flexible(), alignment: .leading),
+                            count: 4
+                        ),
+                        alignment: .leading, spacing: 7
+                    ) {
+                        ForEach(Self.snapHotkeyItems, id: \.0) { position, key in
+                            HStack(spacing: 8) {
+                                snapGlyph(position)
+                                    .frame(width: 22, height: 14)
+                                Text("⌃ ⌥ \(key)")
+                                    .font(Theme.mono(10))
+                                    .foregroundStyle(Theme.textTertiary)
+                                Spacer(minLength: 0)
+                            }
+                        }
+                    }
+                    .padding(.top, 4)
+                }
+                .onChange(of: windowsHotkeysOn) {
+                    HotkeyManager.shared.refreshSnapHotkeys()
+                }
+            }
         }
     }
 
@@ -2809,8 +2861,9 @@ struct PanelView: View {
         }
     }
 
-    /// Keep-awake, clipboard, converter and windows have few settings —
-    /// they live as sections on a single tab.
+    /// Keep-awake, clipboard and converter have few settings — they live as
+    /// sections on a single tab, alongside torrent. Windows moved out to
+    /// "general" (Anton, 2026-07-19): it sits next to the other hotkeys.
     private var modulesSettings: some View {
         VStack(spacing: 14) {
             VStack(spacing: 14) {
@@ -2826,52 +2879,6 @@ struct PanelView: View {
             VStack(spacing: 14) {
                 settingsSectionHeader(t(.convertLabel))
                 converterSettings
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.windowsLabel))
-                HStack {
-                    Text(t(.windowsLayoutLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    settingChip(t(.windowsGrid), active: windowsLayout == "grid") { windowsLayout = "grid" }
-                    settingChip(t(.windowsRow), active: windowsLayout == "row") { windowsLayout = "row" }
-                }
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack {
-                        Text(t(.windowsHotkeysLabel))
-                            .font(Theme.mono(12))
-                            .foregroundStyle(Theme.textPrimary)
-                        Spacer()
-                        Theme.MiniSwitch(isOn: $windowsHotkeysOn)
-                    }
-                    // zone glyph + its combo, same pairs as the help legend
-                    // four columns: 18 zones in two-column form wasted half
-                    // the width and stretched the section (Anton, 2026-07-15)
-                    LazyVGrid(
-                        columns: Array(
-                            repeating: GridItem(.flexible(), alignment: .leading),
-                            count: 4
-                        ),
-                        alignment: .leading, spacing: 7
-                    ) {
-                        ForEach(Self.snapHotkeyItems, id: \.0) { position, key in
-                            HStack(spacing: 8) {
-                                snapGlyph(position)
-                                    .frame(width: 22, height: 14)
-                                Text("⌃ ⌥ \(key)")
-                                    .font(Theme.mono(10))
-                                    .foregroundStyle(Theme.textTertiary)
-                                Spacer(minLength: 0)
-                            }
-                        }
-                    }
-                    .padding(.top, 4)
-                }
-                .onChange(of: windowsHotkeysOn) {
-                    HotkeyManager.shared.refreshSnapHotkeys()
-                }
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
