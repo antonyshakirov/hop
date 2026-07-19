@@ -2,7 +2,7 @@
 /// the picker one small grid instead of a symbol browser.
 enum IconCatalog {
     static let symbols: [String] = [
-        "house", "gauge", "clock", "timer", "hourglass", "calendar",
+        "house", "gauge", "display", "clock", "timer", "hourglass", "calendar",
         "folder", "tray", "archivebox", "doc", "list.bullet", "checklist",
         "briefcase", "hammer", "wrench.adjustable", "paintbrush", "book",
         "graduationcap", "gamecontroller", "music.note", "film", "camera",

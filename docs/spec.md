@@ -409,6 +409,27 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Snapshot rule:** every focused-field state is gated off `Snapshot.active`,
   so `--snapshot` renders never show an editing TextField (yellow artifact).
 
+### To-dos
+
+- A flat checklist. Logic lives in HopCore (`TodoList` + `TodosStore`,
+  `todos.json`, atomic write, corrupt → `.bak` + empty, tolerant decode of a
+  missing `items` key); `TodosController` mirrors `TrackerController` minus the
+  ticker (a checklist has nothing that ticks). Model API: `add(text:)` trims and
+  APPENDS at the bottom (empty = no-op), `toggle(id)` flips `done` IN PLACE
+  (completed items keep their position), `delete(id)`.
+- **Row:** a circle checkbox (`circle` / `checkmark.circle.fill`), the text
+  (mono 12; done = `Theme.textTertiary` + strikethrough), and a hover-only
+  xmark. Deletion has NO confirmation — a to-do is cheap to lose and to retype
+  — and works for done and active alike.
+- **Adding:** a `+ new to-do` footer row opens an inline field with the same
+  ✓/✕ buttons and `Snapshot.active` gating as the tracker; Return/✓ append,
+  Escape/✕ cancel, empty = cancel.
+- Registration is by membership like every module (key `"todos"`, title
+  `todosLabel`); it captures the keyboard while its field is focused (same
+  `onEditingChanged` path as the tracker) so digits don't leak to the timer.
+  Fresh installs pair it with the tracker on the "clock" space; existing users
+  get it seeded directly after the tracker exactly once (`todosSeeded`).
+
 ## Shared components
 
 - **SettingChip (Controls.swift) is the ONLY chip toggle** in the entire
@@ -429,11 +450,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   cap keeps 4×56pt tabs plus the trio inside the 340pt header content
   (≈338pt at the cap). Panel width 368.
 - Default spaces: a fresh install migrates into THREE spaces — "house" with
-  the general modules, "gauge" for the system monitor, and "clock" for the
-  time tracker. Models saved before the tracker had its own space lift the
-  tracker out of the first space into a new "clock" space exactly once
-  (guarded by the `trackerTabSeeded` flag; skipped if the user already moved
-  it elsewhere or the spaces are at the cap).
+  the general modules, "display" for the system monitor (the monitor tab should
+  LOOK like a monitor; was "gauge"), and "clock" for the time-management pair
+  `["tracker", "todos"]`. Modules whose legacy default is hidden start in the
+  inactive bucket on a fresh migrate (currently the torrent module, opt-in
+  before its onboarding/banner "enable" — which still activates it). Models
+  saved before the tracker had its own space lift the tracker out of the first
+  space into a new "clock" space exactly once (`trackerTabSeeded`; skipped if
+  the user already moved it or the spaces are at the cap); models saved before
+  the to-do module get "todos" placed directly after "tracker" exactly once
+  (`todosSeeded`, in whichever container holds the tracker — the same space
+  below it, or the inactive bucket if the tracker is hidden). Existing users'
+  icons/layout are otherwise untouched.
 - Module-visibility migration: the old `show*Module` toggles are read once
   and every OFF module is moved into the inactive bucket, after which
   visibility is pure membership and the toggles are never read again. The

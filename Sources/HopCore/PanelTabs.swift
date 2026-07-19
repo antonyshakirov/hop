@@ -175,13 +175,14 @@ public struct PanelTabsModel: Codable, Equatable {
 
     /// First-launch migration from the old flat module order: everything
     /// goes into a "house" tab, with the system monitor split into its own
-    /// "gauge" tab and the time tracker into its own "clock" tab. A fresh
-    /// migrate already contains "system" and "tracker", so `ensure` appends
-    /// nothing for them.
+    /// "display" tab (it should LOOK like a monitor) and the time-management
+    /// pair — tracker + to-dos — into a "clock" tab. A fresh migrate already
+    /// contains "system", "tracker" and "todos", so `ensure` appends nothing
+    /// for them.
     public static func migrate(moduleOrder: [String]) -> PanelTabsModel {
         let primary = PanelTab(icon: "house", moduleKeys: moduleOrder)
-        let system = PanelTab(icon: "gauge", moduleKeys: ["system"])
-        let tracker = PanelTab(icon: "clock", moduleKeys: ["tracker"])
+        let system = PanelTab(icon: "display", moduleKeys: ["system"])
+        let tracker = PanelTab(icon: "clock", moduleKeys: ["tracker", "todos"])
         return PanelTabsModel(tabs: [primary, system, tracker])
     }
 }

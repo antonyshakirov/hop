@@ -631,3 +631,91 @@ struct Sparkline: View {
         .frame(height: 16)
     }
 }
+
+// MARK: - Inline-field and row affordances (shared by tracker + to-dos)
+
+/// A glyph-only button that brightens tertiary → primary on hover, the
+/// icon counterpart of `HoverLabel`. Used for the commit/cancel controls on
+/// inline edit fields.
+struct HoverIconButton: View {
+    let symbol: String
+    let action: () -> Void
+    var size: CGFloat = 10
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: size, weight: .semibold))
+                .foregroundStyle(hovering ? Theme.textPrimary : Theme.textTertiary)
+                .frame(width: 20, height: 20)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .animation(.easeOut(duration: 0.12), value: hovering)
+        .onHover { inside in
+            hovering = inside
+            if inside { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }
+        }
+    }
+}
+
+/// The commit/cancel pair shown right of an inline edit field: `checkmark`
+/// commits, `xmark` cancels. Return/Escape keep working independently; this is
+/// the mouse-only equivalent so a field can be finished without the keyboard.
+struct FieldCommitButtons: View {
+    let onCommit: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        HStack(spacing: 2) {
+            HoverIconButton(symbol: "checkmark", action: onCommit)
+            HoverIconButton(symbol: "xmark", action: onCancel)
+        }
+    }
+}
+
+/// Trailing delete affordance revealed on row hover. Kept out of hit-testing
+/// while hidden so the invisible glyph can't be clicked. Callers pass their own
+/// per-row hover state as `visible`.
+struct HoverDeleteX: View {
+    let visible: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "xmark")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Theme.textTertiary)
+                .frame(width: 22, height: 22)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverHighlight(4)
+        .opacity(visible ? 1 : 0)
+        .allowsHitTesting(visible)
+    }
+}
+
+/// The panel's play/pause transport look, shared so secondary transports (a
+/// tracker task row) belong to the same family as the main timer button: a
+/// circle that is FILLED when it offers "start" (play) and BORDERED when it
+/// offers "pause". Sized by the caller to fit its row.
+struct TransportCircle: View {
+    let systemName: String   // "play.fill" (start) / "pause.fill" (running)
+    let filled: Bool         // true = start affordance (filled), false = bordered
+    var diameter: CGFloat = 22
+    var iconSize: CGFloat = 9
+
+    var body: some View {
+        Image(systemName: systemName)
+            .font(.system(size: iconSize, weight: .semibold))
+            .foregroundStyle(filled ? Theme.playFg : Theme.textPrimary)
+            .frame(width: diameter, height: diameter)
+            .background(filled ? Theme.playBg : .clear, in: Circle())
+            .overlay {
+                if !filled { Circle().stroke(Theme.controlStroke, lineWidth: 1.5) }
+            }
+            .contentShape(Circle())
+    }
+}

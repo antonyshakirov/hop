@@ -74,6 +74,9 @@ struct PanelView: View {
     // Feeds `panelKeyboardCaptured` alongside `editUnit` so `handleKey` lets
     // Return/Space/digits reach the field instead of driving the timer.
     @State private var trackerEditing = false
+    // A to-do inline field is focused — same keyboard-capture concern as the
+    // tracker's fields (digits must not leak to the timer sharing this space).
+    @State private var todosEditing = false
     @State private var languageMenuTarget: MenuPickTarget?
     // Settings module table (a column per tab + a permanent inactive column):
     // one hand-rolled drag moves a module chip between/within columns; a header
@@ -531,6 +534,7 @@ struct PanelView: View {
         }
         .onChange(of: editUnit) { _, _ in syncKeyboardCapture() }
         .onChange(of: trackerEditing) { _, _ in syncKeyboardCapture() }
+        .onChange(of: todosEditing) { _, _ in syncKeyboardCapture() }
         .onDisappear {
             model.panelKeyboardCaptured = false
             // A normal left-click / hotkey reopen does not fire the openTab
@@ -541,12 +545,12 @@ struct PanelView: View {
         }
     }
 
-    /// Both keyboard-capture sources in one place: the timer digit editor
-    /// (`editUnit`) and any focused tracker field (`trackerEditing`). While
-    /// either is live the controller keeps focus in the panel; once both drop,
-    /// hand the keyboard back to the app underneath.
+    /// Every keyboard-capture source in one place: the timer digit editor
+    /// (`editUnit`) and any focused tracker or to-do field. While one is live
+    /// the controller keeps focus in the panel; once all drop, hand the
+    /// keyboard back to the app underneath.
     private func syncKeyboardCapture() {
-        let captured = editUnit != nil || trackerEditing
+        let captured = editUnit != nil || trackerEditing || todosEditing
         model.panelKeyboardCaptured = captured
         if !captured { model.panelFocusChanged?() }
     }
@@ -554,10 +558,10 @@ struct PanelView: View {
     /// Keyboard time entry into the selected digit group: digits slide in from the
     /// right (0 → 2 gives :02). The group is picked by clicking/hovering the display.
     private func handleKey(_ press: KeyPress) -> KeyPress.Result {
-        // A focused tracker field owns the keyboard: Return commits the name
-        // (creating the project/task), it must NOT toggle the timer. Bailing
-        // here lets the key fall through to the TextField's own onSubmit.
-        guard !trackerEditing else { return .ignored }
+        // A focused tracker or to-do field owns the keyboard: Return commits
+        // the field's own text, it must NOT drive the timer. Bailing here lets
+        // the key fall through to the TextField's own onSubmit.
+        guard !trackerEditing, !todosEditing else { return .ignored }
         guard let id = currentSpaceID,
               visibleModules(in: id).contains("timer"),
               !model.engine.isStopwatch,
@@ -1625,10 +1629,10 @@ struct PanelView: View {
 
     // MARK: - Main screen modules
 
-    // "system"/"tracker" are deliberately NOT here: they live only in the tabs
-    // model (the fixed monitor tab from `migrate`, and a later module). Adding
-    // "system" would make `moduleOrder` append it AND `migrate` place it in its
-    // own tab — a duplicate key the tabs model rejects.
+    // "system"/"tracker"/"todos" are deliberately NOT here: they live only in
+    // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
+    // Adding one here would make `moduleOrder` append it AND `migrate` place it
+    // in its own tab — a duplicate key the tabs model rejects.
     private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent"]
     static let defaultModuleOrder = "timer,awake,clipboard,convert,windows,speedtest,torrent"
 
@@ -1661,13 +1665,14 @@ struct PanelView: View {
     private static func loadTabs(panelTabsRaw: String, moduleOrder: [String]) -> PanelTabsModel {
         if let decoded = PanelTabsModel.decode(panelTabsRaw) {
             var model = decoded
-            model.ensure(modules: allModules + ["system", "tracker"])
+            model.ensure(modules: allModules + ["system", "tracker", "todos"])
             seedTrackerTab(&model)
+            seedTodos(&model)
             migrateModuleVisibility(&model)
             return model
         }
         var model = PanelTabsModel.migrate(moduleOrder: moduleOrder)
-        model.ensure(modules: allModules + ["system", "tracker"])
+        model.ensure(modules: allModules + ["system", "tracker", "todos"])
         // Apply the legacy toggles on EVERY fresh-migrate call (it is
         // deterministic — same toggles, same result), NOT behind the one-shot
         // flag: `tabsModel` recomputes many times per render, and if a later
@@ -1675,9 +1680,11 @@ struct PanelView: View {
         // hidden set, or torrent (default off) would flicker back visible.
         deactivateOffModules(&model)
         UserDefaults.standard.set(model.encoded(), forKey: SettingsKey.panelTabs)
-        // A fresh migrate already gives the tracker its own tab and has just
-        // applied the toggles — claim both one-shot flags so neither reruns.
+        // A fresh migrate already gives the tracker its own tab (with todos
+        // paired beside it) and has just applied the toggles — claim all
+        // one-shot flags so none rerun.
         UserDefaults.standard.set(true, forKey: SettingsKey.trackerTabSeeded)
+        UserDefaults.standard.set(true, forKey: SettingsKey.todosSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.moduleVisibilityMigrated)
         return model
     }
@@ -1768,6 +1775,33 @@ struct PanelView: View {
         guard model.tabs.first?.moduleKeys.contains("tracker") == true,
               let newID = model.addTab(icon: "clock") else { return }
         model.move(module: "tracker", toTab: newID)
+        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
+    }
+
+    /// One-shot for models saved BEFORE the to-do module existed. `ensure`
+    /// (above) has just appended "todos" to the first tab; lift it to sit
+    /// directly AFTER "tracker" in whichever container holds the tracker — the
+    /// same tab (below it), or the inactive bucket if the user hid the tracker.
+    /// Runs after `seedTrackerTab`, so the tracker is already in its clock tab.
+    /// The flag is claimed exactly once, so this never reruns.
+    private static func seedTodos(_ model: inout PanelTabsModel) {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: SettingsKey.todosSeeded) else { return }
+        defer { defaults.set(true, forKey: SettingsKey.todosSeeded) }
+        if let tab = model.tabs.first(where: { $0.moduleKeys.contains("tracker") }) {
+            // move() lifts todos out of wherever `ensure` put it and appends it
+            // to the tracker's tab; reorder drops it right below the tracker.
+            model.move(module: "todos", toTab: tab.id)
+            if let trackerPos = model.tabs.first(where: { $0.id == tab.id })?
+                .moduleKeys.firstIndex(of: "tracker") {
+                model.reorder(module: "todos", inTab: tab.id, to: trackerPos + 1)
+            }
+        } else if model.inactive.contains("tracker") {
+            if !model.inactive.contains("todos") { model.deactivate(module: "todos") }
+            if let trackerPos = model.inactive.firstIndex(of: "tracker") {
+                model.reorder(inInactive: "todos", to: trackerPos + 1)
+            }
+        }
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 
@@ -1876,6 +1910,7 @@ struct PanelView: View {
         case "torrent": return t(.torrentLabel)
         case "system": return t(.tabSystem)
         case "tracker": return t(.trackerLabel)
+        case "todos": return t(.todosLabel)
         default: return key
         }
     }
@@ -1900,6 +1935,10 @@ struct PanelView: View {
         case "tracker":
             TrackerView(tracker: model.tracker, lang: lang,
                         onEditingChanged: { trackerEditing = $0 })
+                .id(model.themeVersion)
+        case "todos":
+            TodosView(todos: model.todos, lang: lang,
+                      onEditingChanged: { todosEditing = $0 })
                 .id(model.themeVersion)
         default: EmptyView()
         }

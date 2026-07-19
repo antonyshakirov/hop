@@ -16,6 +16,7 @@ final class AppModel: ObservableObject {
     let speedTest = SpeedTestController()
     let torrent = TorrentController()
     let tracker = TrackerController()
+    let todos = TodosController()
 
     /// Last time the user actively touched Hop. The updater installs a found
     /// release only after a long enough quiet gap (see UpdateInstallPolicy),
@@ -86,6 +87,9 @@ final class AppModel: ObservableObject {
             self?.objectWillChange.send()
         })
         forwarders.append(tracker.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        })
+        forwarders.append(todos.objectWillChange.sink { [weak self] in
             self?.objectWillChange.send()
         })
         // a conversion starting or finishing counts as active use ("copy-paste"):
