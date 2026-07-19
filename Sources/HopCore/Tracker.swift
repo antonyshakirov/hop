@@ -1,6 +1,9 @@
 import Foundation
 
-/// A top-level bucket of work in the tracker, e.g. "Hop" or "Client X".
+/// LEGACY. The tracker no longer has projects — the model still decodes this
+/// type so an old `tracker.json` written with projects loads, but the engine
+/// flattens every project away on init (its tasks become root tasks) and never
+/// writes a non-empty `projects` array again. Kept only for backward decode.
 public struct TrackerProject: Codable, Equatable, Identifiable {
     public let id: UUID
     public var name: String
@@ -13,10 +16,10 @@ public struct TrackerProject: Codable, Equatable, Identifiable {
     }
 }
 
-/// A trackable unit of work. `projectID == nil` marks a project-less root task
-/// that lives directly in the tracker's root list; otherwise the task is nested
-/// under that project. `var` because a task can be dragged between projects and
-/// in and out of the root.
+/// A trackable unit of work. The tracker is a flat list now, so every live task
+/// is a ROOT task with `projectID == nil`. The optional stays for backward
+/// decode: an old file nests tasks under a project id, and the engine detaches
+/// them (sets `projectID = nil`) when it flattens on load.
 public struct TrackerTask: Codable, Equatable, Identifiable {
     public let id: UUID
     public var projectID: UUID?
@@ -58,13 +61,13 @@ public struct TrackerCorrection: Codable, Equatable {
     }
 }
 
-/// The full persisted state of the tracker: projects, their tasks, and the
-/// recorded intervals and corrections against those tasks.
+/// The full persisted state of the tracker: a flat list of tasks and the
+/// recorded intervals and corrections against them. `projects` is legacy: it is
+/// still decoded so old files load, but the engine flattens it to empty on init.
 ///
-/// `rootOrder` is the ordered list of ROOT item ids — every project id and
-/// every project-less task id, interleaved in the order they render. It holds
-/// exactly {all project ids} ∪ {ids of tasks with `projectID == nil`}, with no
-/// duplicates; `TrackerEngine.init` normalizes/repairs it on load.
+/// `rootOrder` is the ordered list of task ids — the single source of the flat
+/// list's order. It holds exactly the ids of every task, with no duplicates;
+/// `TrackerEngine.init` flattens legacy projects, then normalizes/repairs it.
 public struct TrackerData: Codable, Equatable {
     public var projects: [TrackerProject]
     public var tasks: [TrackerTask]

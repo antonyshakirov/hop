@@ -26,46 +26,39 @@ final class TrackerEngineTests: XCTestCase {
         calendar.date(from: DateComponents(year: year, month: month, day: day, hour: hour, minute: minute))!
     }
 
-    // MARK: - Structure
+    // MARK: - Structure (flat: every task is a root task)
 
-    func testAddProjectAppendsProjectAndReturnsItsID() {
-        let id = engine.addProject(name: "Hop")
-        XCTAssertEqual(engine.data.projects.map(\.id), [id])
-        XCTAssertEqual(engine.data.projects.first?.name, "Hop")
+    func testAddTaskAppendsRootTaskAndReturnsItsID() {
+        let id = engine.addTask(name: "Ship 1.4")
+        XCTAssertEqual(engine.data.tasks.map(\.id), [id])
+        XCTAssertNil(engine.data.tasks.first?.projectID)
+        XCTAssertEqual(engine.data.tasks.first?.name, "Ship 1.4")
+        XCTAssertEqual(engine.data.rootOrder, [id])
     }
 
-    func testAddTaskAppendsTaskUnderProject() {
-        let projectID = engine.addProject(name: "Hop")
-        let taskID = engine.addTask(projectID: projectID, name: "Ship 1.4")
-        XCTAssertEqual(engine.data.tasks.map(\.id), [taskID])
-        XCTAssertEqual(engine.data.tasks.first?.projectID, projectID)
-    }
-
-    func testRenameProjectUpdatesName() {
-        let id = engine.addProject(name: "Old")
-        engine.renameProject(id, to: "New")
-        XCTAssertEqual(engine.data.projects.first?.name, "New")
+    func testAddTaskAppendsToRootOrderInInsertionOrder() {
+        let a = engine.addTask(name: "A")
+        let b = engine.addTask(name: "B")
+        XCTAssertEqual(engine.data.rootOrder, [a, b])
     }
 
     func testRenameTaskUpdatesName() {
-        let projectID = engine.addProject(name: "Hop")
-        let taskID = engine.addTask(projectID: projectID, name: "Old")
+        let taskID = engine.addTask(name: "Old")
         engine.renameTask(taskID, to: "New")
         XCTAssertEqual(engine.data.tasks.first?.name, "New")
     }
 
-    func testSetExpandedTogglesProjectFlag() {
-        let id = engine.addProject(name: "Hop")
-        XCTAssertEqual(engine.data.projects.first?.isExpanded, true)
-        engine.setExpanded(projectID: id, false)
-        XCTAssertEqual(engine.data.projects.first?.isExpanded, false)
+    func testDeleteTaskRemovesItFromRootOrder() {
+        let a = engine.addTask(name: "A")
+        let b = engine.addTask(name: "B")
+        engine.deleteTask(a)
+        XCTAssertEqual(engine.data.rootOrder, [b])
     }
 
     // MARK: - Tracking: start
 
     func testStartOpensIntervalWithNilEndAndReportsActiveTask() {
-        let projectID = engine.addProject(name: "Hop")
-        let taskID = engine.addTask(projectID: projectID, name: "Ship 1.4")
+        let taskID = engine.addTask(name: "Ship 1.4")
 
         engine.start(taskID: taskID)
 
@@ -76,9 +69,8 @@ final class TrackerEngineTests: XCTestCase {
     }
 
     func testStartingAnotherTaskClosesFirstIntervalAndOpensNew() {
-        let projectID = engine.addProject(name: "Hop")
-        let taskA = engine.addTask(projectID: projectID, name: "A")
-        let taskB = engine.addTask(projectID: projectID, name: "B")
+        let taskA = engine.addTask(name: "A")
+        let taskB = engine.addTask(name: "B")
 
         engine.start(taskID: taskA)
         advance(60)
@@ -95,8 +87,7 @@ final class TrackerEngineTests: XCTestCase {
     }
 
     func testStartingAlreadyActiveTaskIsNoOp() {
-        let projectID = engine.addProject(name: "Hop")
-        let taskID = engine.addTask(projectID: projectID, name: "A")
+        let taskID = engine.addTask(name: "A")
         engine.start(taskID: taskID)
 
         changeCount = 0
@@ -109,8 +100,7 @@ final class TrackerEngineTests: XCTestCase {
     // MARK: - Tracking: stopActive
 
     func testStopActiveClosesIntervalAndClearsActiveTask() {
-        let projectID = engine.addProject(name: "Hop")
-        let taskID = engine.addTask(projectID: projectID, name: "A")
+        let taskID = engine.addTask(name: "A")
         engine.start(taskID: taskID)
         advance(30)
 
@@ -130,16 +120,25 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(changeCount, 0)
     }
 
-    // MARK: - Deletion cascades
+    /// The open interval start is exposed so the view can flag a run over 8h.
+    func testActiveIntervalStartReturnsOpenStartWhenActiveElseNil() {
+        let taskID = engine.addTask(name: "A")
+        XCTAssertNil(engine.activeIntervalStart)
+
+        engine.start(taskID: taskID)
+        XCTAssertEqual(engine.activeIntervalStart, clock)
+
+        engine.stopActive()
+        XCTAssertNil(engine.activeIntervalStart)
+    }
+
+    // MARK: - Deletion cascade
 
     func testDeletingActiveTaskStopsItAndDropsItsHistory() {
-        // corrections aren't created by TrackerEngine yet (a later task), so
-        // seed one directly to prove the cascade covers them too
-        let projectID = UUID()
         let taskID = UUID()
         engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
             intervals: [TrackerInterval(taskID: taskID, start: clock)],
             corrections: [TrackerCorrection(taskID: taskID, day: clock, seconds: -60)]
         ), now: { self.clock })
@@ -152,53 +151,15 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertTrue(engine.data.corrections.isEmpty)
     }
 
-    func testDeletingProjectCascadesToItsTasksHistory() {
-        let projectID = UUID()
-        let taskA = UUID()
-        let taskB = UUID()
-        engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [
-                TrackerTask(id: taskA, projectID: projectID, name: "A"),
-                TrackerTask(id: taskB, projectID: projectID, name: "B"),
-            ],
-            intervals: [
-                TrackerInterval(taskID: taskA, start: clock, end: clock.addingTimeInterval(30)),
-                TrackerInterval(taskID: taskB, start: clock.addingTimeInterval(30)),
-            ],
-            corrections: [TrackerCorrection(taskID: taskA, day: clock, seconds: -60)]
-        ), now: { self.clock })
-
-        engine.deleteProject(projectID)
-
-        XCTAssertTrue(engine.data.projects.isEmpty)
-        XCTAssertTrue(engine.data.tasks.isEmpty)
-        XCTAssertTrue(engine.data.intervals.isEmpty)
-        XCTAssertTrue(engine.data.corrections.isEmpty)
-        XCTAssertNil(engine.activeTaskID)
-    }
-
     // MARK: - onChange contract
 
     func testEveryMutatingCallFiresOnChangeExactlyOnce() {
         changeCount = 0
-        let projectID = engine.addProject(name: "Hop")
-        XCTAssertEqual(changeCount, 1)
-
-        changeCount = 0
-        let taskID = engine.addTask(projectID: projectID, name: "Ship")
-        XCTAssertEqual(changeCount, 1)
-
-        changeCount = 0
-        engine.renameProject(projectID, to: "Hop Renamed")
+        let taskID = engine.addTask(name: "Ship")
         XCTAssertEqual(changeCount, 1)
 
         changeCount = 0
         engine.renameTask(taskID, to: "Ship Renamed")
-        XCTAssertEqual(changeCount, 1)
-
-        changeCount = 0
-        engine.setExpanded(projectID: projectID, false)
         XCTAssertEqual(changeCount, 1)
 
         changeCount = 0
@@ -210,22 +171,33 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(changeCount, 1)
 
         changeCount = 0
-        engine.deleteTask(taskID)
+        engine.setToday(taskID: taskID, to: 5 * 60)
         XCTAssertEqual(changeCount, 1)
 
         changeCount = 0
-        engine.deleteProject(projectID)
+        engine.setTotal(taskID: taskID, to: 10 * 60)
+        XCTAssertEqual(changeCount, 1)
+
+        changeCount = 0
+        engine.deleteTask(taskID)
+        XCTAssertEqual(changeCount, 1)
+    }
+
+    func testMoveRootItemFiresOnChangeExactlyOnce() {
+        _ = engine.addTask(name: "A")
+        _ = engine.addTask(name: "B")
+        changeCount = 0
+        engine.moveRootItem(from: 0, to: 1)
         XCTAssertEqual(changeCount, 1)
     }
 
     // MARK: - Aggregates: total / today
 
     func testTotalSumsClosedIntervals() {
-        let projectID = UUID()
         let taskID = UUID()
         engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
             intervals: [
                 TrackerInterval(taskID: taskID, start: date(2026, 7, 17, 10, 0), end: date(2026, 7, 17, 10, 30)),
                 TrackerInterval(taskID: taskID, start: date(2026, 7, 17, 11, 0), end: date(2026, 7, 17, 12, 0)),
@@ -237,12 +209,11 @@ final class TrackerEngineTests: XCTestCase {
     }
 
     func testOpenIntervalCountsUpAsClockAdvances() {
-        let projectID = UUID()
         let taskID = UUID()
         clock = date(2026, 7, 17, 9, 0)
         engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
             intervals: [TrackerInterval(taskID: taskID, start: date(2026, 7, 17, 9, 0))],
             corrections: []
         ), now: { self.clock }, calendar: calendar)
@@ -254,13 +225,12 @@ final class TrackerEngineTests: XCTestCase {
     }
 
     func testIntervalCrossingMidnightSplitsBetweenTodayAndTotalAtQueryTime() {
-        let projectID = UUID()
         let taskID = UUID()
         // 22:00 yesterday -> 01:00 today: 1h should land in today, 3h in total.
         clock = date(2026, 7, 17, 1, 0)
         engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
             intervals: [TrackerInterval(taskID: taskID, start: date(2026, 7, 16, 22, 0), end: date(2026, 7, 17, 1, 0))],
             corrections: []
         ), now: { self.clock }, calendar: calendar)
@@ -270,12 +240,11 @@ final class TrackerEngineTests: XCTestCase {
     }
 
     func testTaskStartedYesterdayStillRunningShowsOnlyPostMidnightPartInToday() {
-        let projectID = UUID()
         let taskID = UUID()
         clock = date(2026, 7, 17, 2, 30)
         engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
             intervals: [TrackerInterval(taskID: taskID, start: date(2026, 7, 16, 20, 0))], // still open
             corrections: []
         ), now: { self.clock }, calendar: calendar)
@@ -284,35 +253,12 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(engine.total(taskID: taskID), 6.5 * 3600)
     }
 
-    func testProjectTotalsSumChildTasks() {
-        let projectID = UUID()
-        let taskA = UUID()
-        let taskB = UUID()
-        clock = date(2026, 7, 17, 12, 0)
-        engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [
-                TrackerTask(id: taskA, projectID: projectID, name: "A"),
-                TrackerTask(id: taskB, projectID: projectID, name: "B"),
-            ],
-            intervals: [
-                TrackerInterval(taskID: taskA, start: date(2026, 7, 17, 9, 0), end: date(2026, 7, 17, 10, 0)),
-                TrackerInterval(taskID: taskB, start: date(2026, 7, 17, 10, 0), end: date(2026, 7, 17, 11, 30)),
-            ],
-            corrections: []
-        ), now: { self.clock }, calendar: calendar)
-
-        XCTAssertEqual(engine.total(projectID: projectID), 2.5 * 3600)
-        XCTAssertEqual(engine.today(projectID: projectID), 2.5 * 3600)
-    }
-
     func testCorrectionsScopeTotalIncludesAllDaysTodayIncludesOnlyToday() {
-        let projectID = UUID()
         let taskID = UUID()
         clock = date(2026, 7, 17, 12, 0)
         engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
             intervals: [],
             corrections: [
                 TrackerCorrection(taskID: taskID, day: date(2026, 7, 16, 0, 0), seconds: 20 * 60), // yesterday
@@ -325,12 +271,11 @@ final class TrackerEngineTests: XCTestCase {
     }
 
     func testTotalAndTodayNeverGoNegativeDespiteLargeNegativeCorrection() {
-        let projectID = UUID()
         let taskID = UUID()
         clock = date(2026, 7, 17, 12, 0)
         engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
             intervals: [TrackerInterval(taskID: taskID, start: date(2026, 7, 17, 9, 0), end: date(2026, 7, 17, 10, 0))],
             corrections: [TrackerCorrection(taskID: taskID, day: date(2026, 7, 17, 0, 0), seconds: -10 * 3600)]
         ), now: { self.clock }, calendar: calendar)
@@ -339,39 +284,14 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(engine.today(taskID: taskID), 0)
     }
 
-    func testProjectTotalSumsAlreadyClampedTaskValuesRatherThanClampingTheRawSum() {
-        let projectID = UUID()
-        let taskA = UUID()
-        let taskB = UUID()
-        clock = date(2026, 7, 17, 12, 0)
-        engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [
-                TrackerTask(id: taskA, projectID: projectID, name: "A"),
-                TrackerTask(id: taskB, projectID: projectID, name: "B"),
-            ],
-            intervals: [
-                TrackerInterval(taskID: taskB, start: date(2026, 7, 17, 9, 0), end: date(2026, 7, 17, 10, 0)),
-            ],
-            corrections: [
-                // if the raw sum were clamped only at the project level, -10h + 1h
-                // would clamp to 0; clamping per task first keeps task B's 1h intact.
-                TrackerCorrection(taskID: taskA, day: date(2026, 7, 17, 0, 0), seconds: -10 * 3600),
-            ]
-        ), now: { self.clock }, calendar: calendar)
-
-        XCTAssertEqual(engine.total(projectID: projectID), 1 * 3600)
-    }
-
-    // MARK: - Manual edit: setToday
+    // MARK: - Manual edit: setToday (kept for the menu-bar path)
 
     func testSetTodayIncreasingValueAddsPositiveCorrectionAndGrowsTodayAndTotal() {
-        let projectID = UUID()
         let taskID = UUID()
         clock = date(2026, 7, 17, 12, 0)
         engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
             intervals: [],
             corrections: [TrackerCorrection(taskID: taskID, day: date(2026, 7, 17, 0, 0), seconds: 10 * 60)]
         ), now: { self.clock }, calendar: calendar)
@@ -389,66 +309,12 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(engine.total(taskID: taskID), 25 * 60)
     }
 
-    func testSetTodayBelowZeroClampsToZeroViaNegatedCurrentCorrection() {
-        let projectID = UUID()
-        let taskID = UUID()
-        clock = date(2026, 7, 17, 12, 0)
-        engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
-            intervals: [],
-            corrections: [TrackerCorrection(taskID: taskID, day: date(2026, 7, 17, 0, 0), seconds: 10 * 60)]
-        ), now: { self.clock }, calendar: calendar)
-
-        let result = engine.setToday(taskID: taskID, to: -5 * 60)
-
-        XCTAssertTrue(result)
-        XCTAssertEqual(engine.data.corrections.last?.seconds, -10 * 60)
-        XCTAssertEqual(engine.today(taskID: taskID), 0)
-    }
-
-    func testSetTodayCalledTwiceSameDayAppendsTwoCorrectionsBothApply() {
-        let projectID = UUID()
-        let taskID = UUID()
-        clock = date(2026, 7, 17, 12, 0)
-        engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
-            intervals: [],
-            corrections: []
-        ), now: { self.clock }, calendar: calendar)
-
-        engine.setToday(taskID: taskID, to: 10 * 60)
-        engine.setToday(taskID: taskID, to: 20 * 60)
-
-        XCTAssertEqual(engine.data.corrections.count, 2)
-        XCTAssertEqual(engine.data.corrections.map(\.seconds), [10 * 60, 10 * 60])
-        XCTAssertEqual(engine.today(taskID: taskID), 20 * 60)
-    }
-
-    func testSetTodayOnActiveTaskReturnsFalseAndMutatesNothing() {
-        let projectID = engine.addProject(name: "Hop")
-        let taskID = engine.addTask(projectID: projectID, name: "A")
-        engine.start(taskID: taskID)
-
-        changeCount = 0
-        let result = engine.setToday(taskID: taskID, to: 25 * 60)
-
-        XCTAssertFalse(result)
-        XCTAssertTrue(engine.data.corrections.isEmpty)
-        XCTAssertEqual(changeCount, 0)
-    }
-
     func testSetTodayReachesTargetEvenWhenRawTodaySumIsNegative() {
-        // today() display-clamps at 0, but the delta must be computed against
-        // the raw (unclamped) sum, or a heavily over-corrected task can never
-        // be brought back up to a positive target in one edit.
-        let projectID = UUID()
         let taskID = UUID()
         clock = date(2026, 7, 17, 12, 0)
         engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: projectID, name: "Hop")],
-            tasks: [TrackerTask(id: taskID, projectID: projectID, name: "A")],
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
             intervals: [],
             corrections: [TrackerCorrection(taskID: taskID, day: date(2026, 7, 17, 0, 0), seconds: -10 * 3600)]
         ), now: { self.clock }, calendar: calendar)
@@ -460,232 +326,196 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(engine.today(taskID: taskID), 600)
     }
 
-    func testSetTodayOnIdleTaskSucceedsWhileADifferentTaskIsActive() {
-        let projectID = engine.addProject(name: "Hop")
-        let taskA = engine.addTask(projectID: projectID, name: "A")
-        let taskB = engine.addTask(projectID: projectID, name: "B")
+    func testSetTodayOnActiveTaskReturnsFalseAndMutatesNothing() {
+        let taskID = engine.addTask(name: "A")
+        engine.start(taskID: taskID)
+
+        changeCount = 0
+        let result = engine.setToday(taskID: taskID, to: 25 * 60)
+
+        XCTAssertFalse(result)
+        XCTAssertTrue(engine.data.corrections.isEmpty)
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    // MARK: - Manual edit: setTotal (edit the all-time total)
+
+    func testSetTotalIncreasingValueAddsCorrectionDatedTodayAndGrowsTotal() {
+        let taskID = UUID()
+        clock = date(2026, 7, 17, 12, 0)
+        engine = TrackerEngine(data: TrackerData(
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
+            // 1h logged on a PAST day: total counts it, today does not.
+            intervals: [TrackerInterval(taskID: taskID, start: date(2026, 7, 10, 9, 0), end: date(2026, 7, 10, 10, 0))],
+            corrections: []
+        ), now: { self.clock }, calendar: calendar)
+        engine.onChange = { [weak self] in self?.changeCount += 1 }
+
+        changeCount = 0
+        let result = engine.setTotal(taskID: taskID, to: 2 * 3600)
+
+        XCTAssertTrue(result)
+        XCTAssertEqual(changeCount, 1)
+        // delta = target(2h) - rawTotal(1h) = 1h, dated the start of TODAY
+        XCTAssertEqual(engine.data.corrections.count, 1)
+        XCTAssertEqual(engine.data.corrections.last?.seconds, 1 * 3600)
+        XCTAssertEqual(engine.data.corrections.last?.day, date(2026, 7, 17, 0, 0))
+        XCTAssertEqual(engine.total(taskID: taskID), 2 * 3600)
+    }
+
+    func testSetTotalBelowZeroClampsTotalToZero() {
+        let taskID = UUID()
+        clock = date(2026, 7, 17, 12, 0)
+        engine = TrackerEngine(data: TrackerData(
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
+            intervals: [TrackerInterval(taskID: taskID, start: date(2026, 7, 17, 9, 0), end: date(2026, 7, 17, 10, 0))],
+            corrections: []
+        ), now: { self.clock }, calendar: calendar)
+
+        let result = engine.setTotal(taskID: taskID, to: -5 * 60)
+
+        XCTAssertTrue(result)
+        // target clamps to 0; delta = 0 - rawTotal(1h) = -1h
+        XCTAssertEqual(engine.data.corrections.last?.seconds, -1 * 3600)
+        XCTAssertEqual(engine.total(taskID: taskID), 0)
+    }
+
+    func testSetTotalReachesTargetEvenWhenRawTotalSumIsNegative() {
+        // total() display-clamps at 0, but the delta must diff against the RAW
+        // (unclamped) total — the same lesson setToday learned against rawToday.
+        let taskID = UUID()
+        clock = date(2026, 7, 17, 12, 0)
+        engine = TrackerEngine(data: TrackerData(
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
+            intervals: [],
+            corrections: [TrackerCorrection(taskID: taskID, day: date(2026, 7, 16, 0, 0), seconds: -10 * 3600)]
+        ), now: { self.clock }, calendar: calendar)
+        XCTAssertEqual(engine.total(taskID: taskID), 0) // raw total is -10h, clamped for display
+
+        let result = engine.setTotal(taskID: taskID, to: 600)
+
+        XCTAssertTrue(result)
+        // delta = 600 - (-36000) = 36600, so the raw total reaches exactly 600
+        XCTAssertEqual(engine.data.corrections.last?.seconds, 36600)
+        XCTAssertEqual(engine.total(taskID: taskID), 600)
+    }
+
+    func testSetTotalOnActiveTaskReturnsFalseAndMutatesNothing() {
+        let taskID = engine.addTask(name: "A")
+        engine.start(taskID: taskID)
+
+        changeCount = 0
+        let result = engine.setTotal(taskID: taskID, to: 25 * 60)
+
+        XCTAssertFalse(result)
+        XCTAssertTrue(engine.data.corrections.isEmpty)
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    func testSetTotalOnIdleTaskSucceedsWhileADifferentTaskIsActive() {
+        let taskA = engine.addTask(name: "A")
+        let taskB = engine.addTask(name: "B")
         engine.start(taskID: taskA)
 
-        let result = engine.setToday(taskID: taskB, to: 10 * 60)
+        let result = engine.setTotal(taskID: taskB, to: 10 * 60)
 
         XCTAssertTrue(result)
         XCTAssertEqual(engine.data.corrections.count, 1)
         XCTAssertEqual(engine.data.corrections.first?.taskID, taskB)
-        XCTAssertEqual(engine.today(taskID: taskB), 10 * 60)
+        XCTAssertEqual(engine.total(taskID: taskB), 10 * 60)
     }
 
-    // MARK: - rootOrder normalization
+    // MARK: - Flatten migration (projects die on load)
 
-    func testNormalizeMissingRootOrderDerivesProjectsThenRootTasks() {
+    /// The required fixture: 2 projects + root tasks + an ACTIVE task inside a
+    /// project. Every task becomes a root task; the flat order follows the old
+    /// rootOrder, expanding each project's tasks in place (internal order kept);
+    /// projects empty; intervals/corrections/open interval all survive.
+    func testFlattenExpandsProjectsInPlacePreservingAllHistory() {
         let p1 = UUID(); let p2 = UUID()
-        let nested = UUID(); let root = UUID()
+        let t1a = UUID(); let t1b = UUID()   // inside p1
+        let t2a = UUID()                     // inside p2, ACTIVE
+        let r1 = UUID(); let r2 = UUID()     // root tasks
+        clock = date(2026, 7, 17, 12, 0)
+        engine = TrackerEngine(data: TrackerData(
+            projects: [
+                TrackerProject(id: p1, name: "Hop", isExpanded: true),
+                TrackerProject(id: p2, name: "Client", isExpanded: false),
+            ],
+            tasks: [
+                TrackerTask(id: t1a, projectID: p1, name: "t1a"),
+                TrackerTask(id: t1b, projectID: p1, name: "t1b"),
+                TrackerTask(id: t2a, projectID: p2, name: "t2a"),
+                TrackerTask(id: r1, projectID: nil, name: "r1"),
+                TrackerTask(id: r2, projectID: nil, name: "r2"),
+            ],
+            intervals: [
+                TrackerInterval(taskID: t1a, start: date(2026, 7, 17, 9, 0), end: date(2026, 7, 17, 10, 0)),
+                TrackerInterval(taskID: t2a, start: date(2026, 7, 17, 11, 0)), // open / ACTIVE
+            ],
+            corrections: [
+                TrackerCorrection(taskID: t1b, day: date(2026, 7, 17, 0, 0), seconds: 30 * 60),
+                TrackerCorrection(taskID: r1, day: date(2026, 7, 17, 0, 0), seconds: 5 * 60),
+            ],
+            // project, root task, project, root task
+            rootOrder: [p1, r1, p2, r2]
+        ), now: { self.clock }, calendar: calendar)
+
+        // projects gone, every task detached
+        XCTAssertTrue(engine.data.projects.isEmpty)
+        XCTAssertTrue(engine.data.tasks.allSatisfy { $0.projectID == nil })
+        // flat order: p1's tasks in place, then r1, then p2's task, then r2
+        XCTAssertEqual(engine.data.rootOrder, [t1a, t1b, r1, t2a, r2])
+        // the active task inside p2 is still active
+        XCTAssertEqual(engine.activeTaskID, t2a)
+        XCTAssertEqual(engine.activeIntervalStart, date(2026, 7, 17, 11, 0))
+        // all history survives
+        XCTAssertEqual(engine.total(taskID: t1a), 1 * 3600)
+        XCTAssertEqual(engine.total(taskID: t1b), 30 * 60)
+        XCTAssertEqual(engine.total(taskID: t2a), 1 * 3600)   // open interval 11:00 -> 12:00
+        XCTAssertEqual(engine.total(taskID: r1), 5 * 60)
+        XCTAssertEqual(engine.data.intervals.count, 2)
+        XCTAssertEqual(engine.data.corrections.count, 2)
+    }
+
+    /// A pre-8.5 file has no rootOrder: flatten derives it as the projects in
+    /// their array order (each expanded to its tasks), then any root tasks.
+    func testFlattenWithNoRootOrderDerivesProjectsThenRootTasks() {
+        let p1 = UUID(); let p2 = UUID()
+        let t1 = UUID(); let t2 = UUID(); let root = UUID()
         engine = TrackerEngine(data: TrackerData(
             projects: [TrackerProject(id: p1, name: "A"), TrackerProject(id: p2, name: "B")],
             tasks: [
-                TrackerTask(id: nested, projectID: p1, name: "nested"),
+                TrackerTask(id: t1, projectID: p1, name: "t1"),
+                TrackerTask(id: t2, projectID: p2, name: "t2"),
                 TrackerTask(id: root, projectID: nil, name: "root"),
             ],
             intervals: [], corrections: [], rootOrder: []
         ), now: { self.clock }, calendar: calendar)
 
-        XCTAssertEqual(engine.data.rootOrder, [p1, p2, root])
+        XCTAssertEqual(engine.data.rootOrder, [t1, t2, root])
+        XCTAssertTrue(engine.data.projects.isEmpty)
     }
 
-    func testNormalizeDropsStaleIDsDedupesAndAppendsMissing() {
-        let p1 = UUID(); let p2 = UUID(); let stale = UUID(); let root = UUID()
+    func testFlattenIsANoOpWhenAlreadyFlat() {
+        let a = UUID(); let b = UUID()
         engine = TrackerEngine(data: TrackerData(
-            projects: [TrackerProject(id: p1, name: "A"), TrackerProject(id: p2, name: "B")],
-            tasks: [TrackerTask(id: root, projectID: nil, name: "root")],
-            intervals: [], corrections: [],
-            rootOrder: [stale, p2, p2]  // stale id + duplicate + missing p1/root
+            projects: [],
+            tasks: [TrackerTask(id: a, name: "A"), TrackerTask(id: b, name: "B")],
+            intervals: [], corrections: [], rootOrder: [b, a]
         ), now: { self.clock }, calendar: calendar)
 
-        XCTAssertEqual(engine.data.rootOrder, [p2, p1, root])
+        XCTAssertTrue(engine.data.projects.isEmpty)
+        XCTAssertEqual(engine.data.rootOrder, [b, a])   // existing flat order untouched
+        XCTAssertTrue(engine.data.tasks.allSatisfy { $0.projectID == nil })
     }
 
-    // MARK: - Structure: rootOrder maintenance
-
-    func testAddProjectAppendsToRootOrder() {
-        let a = engine.addProject(name: "A")
-        let b = engine.addProject(name: "B")
-        XCTAssertEqual(engine.data.rootOrder, [a, b])
-    }
-
-    func testAddRootTaskAppendsToRootOrderWhileNestedTaskDoesNot() {
-        let p = engine.addProject(name: "P")
-        let nested = engine.addTask(projectID: p, name: "n")
-        let root = engine.addTask(projectID: nil, name: "r")
-        XCTAssertEqual(engine.data.rootOrder, [p, root])
-        XCTAssertFalse(engine.data.rootOrder.contains(nested))
-    }
-
-    func testDeleteProjectRemovesItFromRootOrder() {
-        let p = engine.addProject(name: "P")
-        let root = engine.addTask(projectID: nil, name: "r")
-        engine.deleteProject(p)
-        XCTAssertEqual(engine.data.rootOrder, [root])
-    }
-
-    func testDeleteRootTaskRemovesItFromRootOrder() {
-        let p = engine.addProject(name: "P")
-        let root = engine.addTask(projectID: nil, name: "r")
-        engine.deleteTask(root)
-        XCTAssertEqual(engine.data.rootOrder, [p])
-    }
-
-    // MARK: - Reordering: move(taskID:toProjectID:at:)
-
-    func testMoveTaskToProjectLiftsOutOfRoot() {
-        let p = engine.addProject(name: "P")
-        let root = engine.addTask(projectID: nil, name: "r")
-
-        engine.move(taskID: root, toProjectID: p, at: 0)
-
-        XCTAssertEqual(engine.data.tasks.first(where: { $0.id == root })?.projectID, p)
-        XCTAssertEqual(engine.data.rootOrder, [p])
-    }
-
-    func testMoveTaskWithinProjectRespectsClampedPosition() {
-        let p = engine.addProject(name: "P")
-        let a = engine.addTask(projectID: p, name: "A")
-        let b = engine.addTask(projectID: p, name: "B")
-        let c = engine.addTask(projectID: p, name: "C")
-
-        engine.move(taskID: c, toProjectID: p, at: 0)
-        XCTAssertEqual(engine.data.tasks.filter { $0.projectID == p }.map(\.id), [c, a, b])
-
-        engine.move(taskID: c, toProjectID: p, at: 99)   // past the end clamps to last
-        XCTAssertEqual(engine.data.tasks.filter { $0.projectID == p }.map(\.id), [a, b, c])
-    }
-
-    func testMoveTaskBetweenProjects() {
-        let p1 = engine.addProject(name: "P1")
-        let p2 = engine.addProject(name: "P2")
-        let a = engine.addTask(projectID: p1, name: "A")
-        let b = engine.addTask(projectID: p2, name: "B")
-
-        engine.move(taskID: a, toProjectID: p2, at: 0)
-
-        XCTAssertEqual(engine.data.tasks.filter { $0.projectID == p2 }.map(\.id), [a, b])
-        XCTAssertTrue(engine.data.tasks.filter { $0.projectID == p1 }.isEmpty)
-    }
-
-    func testMoveTaskToUnknownProjectIsNoOp() {
-        let root = engine.addTask(projectID: nil, name: "r")
-        changeCount = 0
-        engine.move(taskID: root, toProjectID: UUID(), at: 0)
-        XCTAssertNil(engine.data.tasks.first?.projectID)
-        XCTAssertEqual(changeCount, 0)
-    }
-
-    // MARK: - Reordering: move(taskID:toRootAt:)
-
-    func testMoveTaskToRootAtClampedIndex() {
-        let p = engine.addProject(name: "P")
-        let root1 = engine.addTask(projectID: nil, name: "r1")   // rootOrder [p, root1]
-        let nested = engine.addTask(projectID: p, name: "n")
-
-        engine.move(taskID: nested, toRootAt: 1)
-
-        XCTAssertNil(engine.data.tasks.first(where: { $0.id == nested })?.projectID)
-        XCTAssertEqual(engine.data.rootOrder, [p, nested, root1])
-
-        engine.move(taskID: root1, toRootAt: 0)   // reorder existing root task to front
-        XCTAssertEqual(engine.data.rootOrder, [root1, p, nested])
-    }
-
-    // MARK: - Reordering: moveRootItem(from:to:)
-
-    func testMoveRootItemReordersWithClamping() {
-        let a = engine.addProject(name: "A")
-        let b = engine.addProject(name: "B")
-        let c = engine.addProject(name: "C")
-
-        engine.moveRootItem(from: 0, to: 99)   // clamps to the end
-        XCTAssertEqual(engine.data.rootOrder, [b, c, a])
-    }
-
-    func testMoveRootItemFromOutOfRangeIsNoOp() {
-        let a = engine.addProject(name: "A")
-        let b = engine.addProject(name: "B")
-        changeCount = 0
-        engine.moveRootItem(from: 99, to: 0)
-        XCTAssertEqual(engine.data.rootOrder, [a, b])
-        XCTAssertEqual(changeCount, 0)
-    }
-
-    // MARK: - Root tasks behave like any task
-
-    func testRootTaskTracksAndAggregatesLikeAnyTask() {
-        let root = engine.addTask(projectID: nil, name: "r")
-        engine.start(taskID: root)
-        XCTAssertEqual(engine.activeTaskID, root)
-        advance(60)
-        engine.stopActive()
-        XCTAssertEqual(engine.total(taskID: root), 60)
-        XCTAssertEqual(engine.today(taskID: root), 60)
-    }
-
-    func testSetTodayWorksOnRootTask() {
-        let root = engine.addTask(projectID: nil, name: "r")
-        let ok = engine.setToday(taskID: root, to: 25 * 60)
-        XCTAssertTrue(ok)
-        XCTAssertEqual(engine.today(taskID: root), 25 * 60)
-    }
-
-    func testSingleActiveInvariantHoldsWithARootTask() {
-        let p = engine.addProject(name: "P")
-        let nested = engine.addTask(projectID: p, name: "n")
-        let root = engine.addTask(projectID: nil, name: "r")
-
-        engine.start(taskID: nested)
-        advance(30)
-        engine.start(taskID: root)
-
-        XCTAssertEqual(engine.activeTaskID, root)
-        XCTAssertEqual(engine.data.intervals.filter { $0.end == nil }.count, 1)
-        XCTAssertNotNil(engine.data.intervals.first(where: { $0.taskID == nested })?.end)
-    }
-
-    func testRootTaskIsExcludedFromEveryProjectTotal() {
-        let p = engine.addProject(name: "P")
-        let root = engine.addTask(projectID: nil, name: "r")
-        engine.start(taskID: root); advance(60); engine.stopActive()
-        XCTAssertEqual(engine.total(projectID: p), 0)
-        XCTAssertEqual(engine.today(projectID: p), 0)
-    }
-
-    // MARK: - onChange contract for the new methods
-
-    func testNewMutatingCallsFireOnChangeExactlyOnce() {
-        let p = engine.addProject(name: "P")
-        let root = engine.addTask(projectID: nil, name: "r")
-        let nested = engine.addTask(projectID: p, name: "n")
-
-        changeCount = 0
-        engine.move(taskID: nested, toRootAt: 0)
-        XCTAssertEqual(changeCount, 1)
-
-        changeCount = 0
-        engine.move(taskID: nested, toProjectID: p, at: 0)
-        XCTAssertEqual(changeCount, 1)
-
-        changeCount = 0
-        engine.moveRootItem(from: 0, to: 1)
-        XCTAssertEqual(changeCount, 1)
-
-        changeCount = 0
-        _ = engine.addTask(projectID: nil, name: "r2")
-        XCTAssertEqual(changeCount, 1)
-
-        _ = root   // silence unused warning; identity checked above via rootOrder
-    }
-
-    // MARK: - Migration reality check (Anton's live tracker.json shape)
-
-    func testOldFileShapeLoadsLosslesslyAndDerivesRootOrder() throws {
-        // Exactly the pre-8.5 shape: projects with nested tasks, an open
-        // interval, corrections, expanded flags — and NO rootOrder field.
+    /// Anton's live pre-flatten tracker.json shape (nested tasks, open interval,
+    /// corrections, expanded flags, NO rootOrder) loads and flattens losslessly.
+    func testOldFileShapeLoadsAndFlattensLosslessly() throws {
         let p1 = UUID(); let p2 = UUID()
         let t1 = UUID(); let t2 = UUID()
         clock = date(2026, 7, 17, 12, 0)
@@ -708,17 +538,72 @@ final class TrackerEngineTests: XCTestCase {
         let decoded = try JSONDecoder().decode(TrackerData.self, from: Data(json.utf8))
         engine = TrackerEngine(data: decoded, now: { self.clock }, calendar: calendar)
 
-        // rootOrder derived to the projects in their existing order; no task lifted
-        XCTAssertEqual(engine.data.rootOrder, [p1, p2])
-        XCTAssertEqual(engine.data.tasks.first(where: { $0.id == t1 })?.projectID, p1)
-        XCTAssertEqual(engine.data.tasks.first(where: { $0.id == t2 })?.projectID, p2)
+        // projects flattened away; the two nested tasks become root tasks in
+        // project (then task) order
+        XCTAssertTrue(engine.data.projects.isEmpty)
+        XCTAssertEqual(engine.data.rootOrder, [t1, t2])
+        XCTAssertTrue(engine.data.tasks.allSatisfy { $0.projectID == nil })
         // open interval survives and still counts up
         XCTAssertEqual(engine.activeTaskID, t1)
         XCTAssertEqual(engine.today(taskID: t1), 3 * 3600)
         // corrections survive
         XCTAssertEqual(engine.today(taskID: t2), 30 * 60)
-        // expanded flags survive
-        XCTAssertEqual(engine.data.projects.first(where: { $0.id == p1 })?.isExpanded, true)
-        XCTAssertEqual(engine.data.projects.first(where: { $0.id == p2 })?.isExpanded, false)
+    }
+
+    // MARK: - rootOrder normalization (flat)
+
+    func testNormalizeMissingRootOrderDerivesTaskOrder() {
+        let a = UUID(); let b = UUID()
+        engine = TrackerEngine(data: TrackerData(
+            projects: [],
+            tasks: [TrackerTask(id: a, name: "A"), TrackerTask(id: b, name: "B")],
+            intervals: [], corrections: [], rootOrder: []
+        ), now: { self.clock }, calendar: calendar)
+
+        XCTAssertEqual(engine.data.rootOrder, [a, b])
+    }
+
+    func testNormalizeDropsStaleIDsDedupesAndAppendsMissing() {
+        let a = UUID(); let b = UUID(); let stale = UUID()
+        engine = TrackerEngine(data: TrackerData(
+            projects: [],
+            tasks: [TrackerTask(id: a, name: "A"), TrackerTask(id: b, name: "B")],
+            intervals: [], corrections: [],
+            rootOrder: [stale, b, b]   // stale id + duplicate + missing a
+        ), now: { self.clock }, calendar: calendar)
+
+        XCTAssertEqual(engine.data.rootOrder, [b, a])
+    }
+
+    // MARK: - Reordering: moveRootItem(from:to:) (the flat-list drag)
+
+    func testMoveRootItemReordersWithClamping() {
+        let a = engine.addTask(name: "A")
+        let b = engine.addTask(name: "B")
+        let c = engine.addTask(name: "C")
+
+        engine.moveRootItem(from: 0, to: 99)   // clamps to the end
+        XCTAssertEqual(engine.data.rootOrder, [b, c, a])
+    }
+
+    func testMoveRootItemFromOutOfRangeIsNoOp() {
+        let a = engine.addTask(name: "A")
+        let b = engine.addTask(name: "B")
+        changeCount = 0
+        engine.moveRootItem(from: 99, to: 0)
+        XCTAssertEqual(engine.data.rootOrder, [a, b])
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    // MARK: - A task tracks and aggregates end to end
+
+    func testTaskTracksAndAggregates() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        XCTAssertEqual(engine.activeTaskID, task)
+        advance(60)
+        engine.stopActive()
+        XCTAssertEqual(engine.total(taskID: task), 60)
+        XCTAssertEqual(engine.today(taskID: task), 60)
     }
 }

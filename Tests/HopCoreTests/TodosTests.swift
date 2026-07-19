@@ -76,6 +76,52 @@ final class TodosTests: XCTestCase {
         XCTAssertEqual(list.items.count, 1)
     }
 
+    // MARK: - Reordering: move(from:to:)
+
+    func testMoveReordersItems() {
+        var list = TodoList.empty
+        list.add(text: "a")
+        list.add(text: "b")
+        list.add(text: "c")
+
+        list.move(from: 0, to: 2)   // a to the end
+        XCTAssertEqual(list.items.map(\.text), ["b", "c", "a"])
+    }
+
+    func testMoveClampsDestinationPastTheEnd() {
+        var list = TodoList.empty
+        list.add(text: "a")
+        list.add(text: "b")
+        list.add(text: "c")
+
+        list.move(from: 2, to: 99)   // clamps to last
+        XCTAssertEqual(list.items.map(\.text), ["a", "b", "c"])
+
+        list.move(from: 0, to: 99)
+        XCTAssertEqual(list.items.map(\.text), ["b", "c", "a"])
+    }
+
+    func testMoveFromOutOfRangeIsNoOp() {
+        var list = TodoList.empty
+        list.add(text: "a")
+        list.add(text: "b")
+
+        list.move(from: 5, to: 0)
+        XCTAssertEqual(list.items.map(\.text), ["a", "b"])
+    }
+
+    func testReorderedListPersistsThroughTheStore() throws {
+        var list = TodoList.empty
+        list.add(text: "a")
+        list.add(text: "b")
+        list.add(text: "c")
+        list.move(from: 0, to: 2)   // [b, c, a]
+
+        try TodosStore.save(list, to: dir)
+
+        XCTAssertEqual(TodosStore.load(from: dir).items.map(\.text), ["b", "c", "a"])
+    }
+
     // MARK: - TodosStore
 
     private var dir: URL!

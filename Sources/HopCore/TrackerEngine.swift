@@ -1,7 +1,9 @@
 import Foundation
 
-/// Owns the tracker's projects/tasks/history and enforces the single-active-task
-/// invariant: at most one interval is ever open (`end == nil`) at a time.
+/// Owns the tracker's flat task list and history and enforces the
+/// single-active-task invariant: at most one interval is ever open
+/// (`end == nil`) at a time. Projects are gone from the model's surface — an
+/// old file that still has them is flattened away on init.
 public final class TrackerEngine: ObservableObject {
     @Published public private(set) var data: TrackerData
     /// Fired after every mutation — the persistence hook.
@@ -16,25 +18,65 @@ public final class TrackerEngine: ObservableObject {
         self.data = data
         self.now = now
         self.calendar = calendar
+        flattenProjects()
         normalizeRootOrder()
     }
 
-    /// Repairs `rootOrder` so it holds exactly {all project ids} ∪ {ids of
-    /// project-less tasks}, no duplicates: keep the ids already listed (in
-    /// order), drop stale ones, then append any missing ids — projects in their
-    /// array order first, then any root tasks. A file without the field (all
-    /// tasks nested, no rootOrder) thus derives to "projects in existing order".
-    /// Runs once on load; not a user mutation, so it never fires `onChange`.
+    /// One-shot migration: dissolves every legacy project into the flat task
+    /// list. Each task keeps its identity and all history; a project's tasks
+    /// expand IN PLACE where the project sat in `rootOrder` (their internal
+    /// order preserved), root tasks stay put, and the `projects` array empties.
+    /// A file with no `rootOrder` derives the order from the projects' array
+    /// order (each expanded to its tasks) followed by any root tasks. Idempotent
+    /// once flat — a no-op when there is nothing left to flatten. Runs once on
+    /// load; not a user mutation, so it never fires `onChange`.
+    private func flattenProjects() {
+        guard !data.projects.isEmpty || data.tasks.contains(where: { $0.projectID != nil }) else { return }
+
+        let projectIDs = Set(data.projects.map(\.id))
+        func tasks(of projectID: UUID) -> [UUID] {
+            data.tasks.filter { $0.projectID == projectID }.map(\.id)
+        }
+
+        var flat: [UUID] = []
+        var seen = Set<UUID>()
+        // 1. Follow the existing rootOrder, expanding a project's tasks in place.
+        for id in data.rootOrder {
+            if projectIDs.contains(id) {
+                for tid in tasks(of: id) where seen.insert(tid).inserted { flat.append(tid) }
+            } else if seen.insert(id).inserted {
+                flat.append(id)   // a root task id (filtered to real tasks below)
+            }
+        }
+        // 2. Append any project not covered by rootOrder (array order), its tasks.
+        for project in data.projects {
+            for tid in tasks(of: project.id) where seen.insert(tid).inserted { flat.append(tid) }
+        }
+        // 3. Append any leftover root task not yet placed.
+        for task in data.tasks where task.projectID == nil && seen.insert(task.id).inserted {
+            flat.append(task.id)
+        }
+
+        // Keep only ids that are real tasks (drop any stray non-task rootOrder id).
+        let taskIDs = Set(data.tasks.map(\.id))
+        data.rootOrder = flat.filter { taskIDs.contains($0) }
+
+        // Detach every task from its (now dissolved) project and drop the projects.
+        for i in data.tasks.indices { data.tasks[i].projectID = nil }
+        data.projects.removeAll()
+    }
+
+    /// Repairs `rootOrder` so it holds exactly every task id, no duplicates:
+    /// keep the ids already listed (in order), drop stale ones, then append any
+    /// missing ids in the tasks' array order. Runs once on load after
+    /// `flattenProjects`; not a user mutation, so it never fires `onChange`.
     private func normalizeRootOrder() {
-        let projectIDs = data.projects.map(\.id)
-        let rootTaskIDs = data.tasks.filter { $0.projectID == nil }.map(\.id)
-        let valid = Set(projectIDs).union(rootTaskIDs)
+        let taskIDs = data.tasks.map(\.id)
+        let valid = Set(taskIDs)
 
         var seen = Set<UUID>()
         var repaired = data.rootOrder.filter { valid.contains($0) && seen.insert($0).inserted }
-
-        for id in projectIDs where seen.insert(id).inserted { repaired.append(id) }
-        for id in rootTaskIDs where seen.insert(id).inserted { repaired.append(id) }
+        for id in taskIDs where seen.insert(id).inserted { repaired.append(id) }
 
         data.rootOrder = repaired
     }
@@ -44,48 +86,27 @@ public final class TrackerEngine: ObservableObject {
         data.intervals.first(where: { $0.end == nil })?.taskID
     }
 
+    /// The start of the currently open interval, if a task is active — lets the
+    /// view flag a run that has been going for over 8 hours.
+    public var activeIntervalStart: Date? {
+        data.intervals.first(where: { $0.end == nil })?.start
+    }
+
     // MARK: - Structure
 
+    /// Appends a task to the flat list (and to `rootOrder`), returning its id.
     @discardableResult
-    public func addProject(name: String) -> UUID {
-        let project = TrackerProject(name: name)
-        data.projects.append(project)
-        data.rootOrder.append(project.id)
-        onChange?()
-        return project.id
-    }
-
-    /// `projectID == nil` appends a project-less root task to `rootOrder`;
-    /// a concrete id nests the task under that project (source-compatible with
-    /// the old non-optional signature).
-    @discardableResult
-    public func addTask(projectID: UUID?, name: String) -> UUID {
-        let task = TrackerTask(projectID: projectID, name: name)
+    public func addTask(name: String) -> UUID {
+        let task = TrackerTask(name: name)
         data.tasks.append(task)
-        if projectID == nil { data.rootOrder.append(task.id) }
+        data.rootOrder.append(task.id)
         onChange?()
         return task.id
-    }
-
-    public func renameProject(_ id: UUID, to name: String) {
-        guard let index = data.projects.firstIndex(where: { $0.id == id }) else { return }
-        data.projects[index].name = name
-        onChange?()
     }
 
     public func renameTask(_ id: UUID, to name: String) {
         guard let index = data.tasks.firstIndex(where: { $0.id == id }) else { return }
         data.tasks[index].name = name
-        onChange?()
-    }
-
-    public func deleteProject(_ id: UUID) {
-        let taskIDs = Set(data.tasks.filter { $0.projectID == id }.map(\.id))
-        data.projects.removeAll { $0.id == id }
-        data.tasks.removeAll { taskIDs.contains($0.id) }
-        data.intervals.removeAll { taskIDs.contains($0.taskID) }
-        data.corrections.removeAll { taskIDs.contains($0.taskID) }
-        data.rootOrder.removeAll { $0 == id }
         onChange?()
     }
 
@@ -95,56 +116,19 @@ public final class TrackerEngine: ObservableObject {
         data.tasks.removeAll { $0.id == id }
         data.intervals.removeAll { $0.taskID == id }
         data.corrections.removeAll { $0.taskID == id }
-        data.rootOrder.removeAll { $0 == id }   // no-op for a nested task
+        data.rootOrder.removeAll { $0 == id }
         onChange?()
     }
 
     // MARK: - Reordering (drag)
 
-    /// Moves a task into `projectID` at a clamped position within that project's
-    /// task list, lifting it out of the root or another project. No-op if either
-    /// the task or the target project is unknown.
-    public func move(taskID: UUID, toProjectID projectID: UUID, at position: Int) {
-        guard data.projects.contains(where: { $0.id == projectID }),
-              let taskIndex = data.tasks.firstIndex(where: { $0.id == taskID }) else { return }
-        var task = data.tasks.remove(at: taskIndex)
-        task.projectID = projectID
-        data.rootOrder.removeAll { $0 == taskID }   // no longer a root item
-
-        // Ordering within a project is the relative order in `data.tasks`, so
-        // translate the project-local position into an index in the flat array.
-        let siblingIndices = data.tasks.indices.filter { data.tasks[$0].projectID == projectID }
-        let clamped = max(0, min(position, siblingIndices.count))
-        let insertAt = clamped < siblingIndices.count ? siblingIndices[clamped]
-                     : (siblingIndices.last.map { $0 + 1 } ?? data.tasks.count)
-        data.tasks.insert(task, at: insertAt)
-        onChange?()
-    }
-
-    /// Moves a task to the root at a clamped index in `rootOrder`, detaching it
-    /// from any project. No-op if the task is unknown.
-    public func move(taskID: UUID, toRootAt index: Int) {
-        guard let taskIndex = data.tasks.firstIndex(where: { $0.id == taskID }) else { return }
-        data.tasks[taskIndex].projectID = nil
-        data.rootOrder.removeAll { $0 == taskID }
-        let clamped = max(0, min(index, data.rootOrder.count))
-        data.rootOrder.insert(taskID, at: clamped)
-        onChange?()
-    }
-
-    /// Reorders the mixed root list. `from` out of range is a no-op; `to` is
+    /// Reorders the flat task list. `from` out of range is a no-op; `to` is
     /// clamped into the list after the item is lifted out.
     public func moveRootItem(from: Int, to: Int) {
         guard data.rootOrder.indices.contains(from) else { return }
         let id = data.rootOrder.remove(at: from)
         let clamped = max(0, min(to, data.rootOrder.count))
         data.rootOrder.insert(id, at: clamped)
-        onChange?()
-    }
-
-    public func setExpanded(projectID: UUID, _ expanded: Bool) {
-        guard let index = data.projects.firstIndex(where: { $0.id == projectID }) else { return }
-        data.projects[index].isExpanded = expanded
         onChange?()
     }
 
@@ -171,7 +155,8 @@ public final class TrackerEngine: ObservableObject {
     // MARK: - Manual edits
 
     /// Sets the task's *today* value; the delta lands as a correction dated today.
-    /// Ignored (returns false) while the task is active.
+    /// Ignored (returns false) while the task is active. Kept for the menu-bar
+    /// "today" figure — the panel edits the total (see `setTotal`).
     @discardableResult
     public func setToday(taskID: UUID, to seconds: TimeInterval) -> Bool {
         guard activeTaskID != taskID else { return false }
@@ -186,22 +171,46 @@ public final class TrackerEngine: ObservableObject {
         return true
     }
 
+    /// Sets the task's all-time *total*; the delta lands as a correction dated
+    /// today. Ignored (returns false) while the task is active. Mirrors
+    /// `setToday`'s raw-baseline lesson: the delta diffs against the RAW
+    /// (unclamped) total, so a heavily over-corrected task can still be brought
+    /// back to a positive target in one edit. The target is clamped ≥ 0.
+    @discardableResult
+    public func setTotal(taskID: UUID, to seconds: TimeInterval) -> Bool {
+        guard activeTaskID != taskID else { return false }
+        let target = max(0, seconds)
+        let delta = target - rawTotal(taskID: taskID)
+        let startOfToday = calendar.startOfDay(for: now())
+        data.corrections.append(TrackerCorrection(taskID: taskID, day: startOfToday, seconds: delta))
+        onChange?()
+        return true
+    }
+
     // MARK: - Aggregates
 
     /// Every closed interval in full, the open interval up to `now`, plus
     /// every correction ever recorded for the task. Never negative.
     public func total(taskID: UUID) -> TimeInterval {
+        max(0, rawTotal(taskID: taskID))
+    }
+
+    /// Same sum as `total(taskID:)`, without the display clamp — lets callers
+    /// that need a diff (e.g. `setTotal`) work against the true underlying value
+    /// even when it has gone negative.
+    private func rawTotal(taskID: UUID) -> TimeInterval {
         let intervalsSum = data.intervals
             .filter { $0.taskID == taskID }
             .reduce(0) { $0 + duration(of: $1) }
         let correctionsSum = data.corrections
             .filter { $0.taskID == taskID }
             .reduce(0) { $0 + $1.seconds }
-        return max(0, intervalsSum + correctionsSum)
+        return intervalsSum + correctionsSum
     }
 
     /// Intervals clipped to `[startOfToday, now]` at query time — never
     /// physically split — plus corrections logged for today. Never negative.
+    /// Kept for the menu-bar figure; the panel shows the total.
     public func today(taskID: UUID) -> TimeInterval {
         max(0, rawToday(taskID: taskID))
     }
@@ -219,20 +228,6 @@ public final class TrackerEngine: ObservableObject {
             .filter { $0.taskID == taskID && calendar.isDate($0.day, inSameDayAs: startOfToday) }
             .reduce(0) { $0 + $1.seconds }
         return intervalsSum + correctionsSum
-    }
-
-    /// Sums `total(taskID:)` (already clamped at 0) across the project's tasks.
-    public func total(projectID: UUID) -> TimeInterval {
-        data.tasks
-            .filter { $0.projectID == projectID }
-            .reduce(0) { $0 + total(taskID: $1.id) }
-    }
-
-    /// Sums `today(taskID:)` (already clamped at 0) across the project's tasks.
-    public func today(projectID: UUID) -> TimeInterval {
-        data.tasks
-            .filter { $0.projectID == projectID }
-            .reduce(0) { $0 + today(taskID: $1.id) }
     }
 
     private func duration(of interval: TrackerInterval) -> TimeInterval {

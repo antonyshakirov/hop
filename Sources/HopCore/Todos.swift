@@ -58,4 +58,14 @@ public struct TodoList: Codable, Equatable {
     public mutating func delete(_ id: UUID) {
         items.removeAll { $0.id == id }
     }
+
+    /// Moves the item at `from` to `to`. `from` out of range is a no-op; `to`
+    /// is clamped into range after the item is lifted out. Backs the drag
+    /// reorder in TodosView.
+    public mutating func move(from: Int, to: Int) {
+        guard items.indices.contains(from) else { return }
+        let item = items.remove(at: from)
+        let clamped = max(0, min(to, items.count))
+        items.insert(item, at: clamped)
+    }
 }
