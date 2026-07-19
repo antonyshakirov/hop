@@ -1,12 +1,14 @@
 import SwiftUI
 import HopCore
 
-/// To-do module: a flat checklist. Rows are a hover drag-handle + circle
-/// checkbox + text; a footer row opens an inline field to add a new item at the
-/// bottom. Deletion is a hover xmark with NO confirmation — a to-do is cheap to
-/// lose and cheap to retype. Rows share the tracker's leading gutter (2pt inset
-/// + 14pt handle + 6pt spacing) and row rhythm, so the two modules line up when
-/// stacked on the same space. Theme tokens only.
+/// To-do module: a flat checklist. Rows are a circle checkbox + text, flush left
+/// (the checkbox is the leading element, lined up with the tracker's play button
+/// on the same left column); a footer row opens an inline field to add a new item
+/// at the bottom. Deletion is a hover xmark with NO confirmation — a to-do is
+/// cheap to lose and cheap to retype. A `to-dos` subheader names the module above
+/// the list. Rows are TIGHTER than the tracker (spacing 3, vertical padding 2) so
+/// the checklist reads compact; reorder is a whole-row vertical drag. Theme
+/// tokens only.
 struct TodosView: View {
     @ObservedObject var todos: TodosController
     let lang: AppLanguage
@@ -27,34 +29,33 @@ struct TodosView: View {
     @State private var adding = false
     @State private var draft = ""
     @FocusState private var fieldFocused: Bool
-    // Which row's trailing xmark / drag handle is revealed.
+    // Which row's trailing xmark is revealed (hover-only).
     @State private var hovered: UUID?
 
-    // Drag-to-reorder: a handle at each row's left edge lifts an item; the drop
+    // Drag-to-reorder: a vertical drag anywhere on a row lifts an item; the drop
     // resolves against measured row frames. One move per completed drag.
     @State private var dragItem: UUID?
     @State private var dragTranslation: CGSize = .zero
     @State private var dropIndex: Int?
     @State private var rowFrames: [UUID: CGRect] = [:]
+    // Latched when a drag's first move is horizontal-dominant, so an off-axis
+    // swipe doesn't lift a row (reorder is vertical).
+    @State private var dragRejected = false
 
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
     var body: some View {
         let items = todos.list.items
-        return VStack(alignment: .leading, spacing: 6) {
+        return VStack(alignment: .leading, spacing: 3) {
+            subheader
             if items.isEmpty {
-                // Name the feature above the hint: an otherwise bare "nothing to
-                // do yet" says nothing about what this space is.
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(t(.todosLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Text(t(.todosEmpty))
-                        .font(Theme.mono(11))
-                        .foregroundStyle(Theme.textTertiary)
-                }
-                .padding(.horizontal, 2)
-                .padding(.vertical, 4)
+                // The subheader already names the module, so the empty state is
+                // just the hint — no duplicate title line.
+                Text(t(.todosEmpty))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textTertiary)
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 4)
             }
             ForEach(items) { row($0) }
             addRow
@@ -72,9 +73,18 @@ struct TodosView: View {
         }
     }
 
+    /// A compact module sublabel above the list — same treatment as the settings
+    /// section headers (mono 10 semibold, tertiary, lowercase), so the to-do and
+    /// tracker lists are distinguishable at a glance when stacked on one space.
+    private var subheader: some View {
+        Text(t(.todosLabel))
+            .font(Theme.mono(10, weight: .semibold))
+            .foregroundStyle(Theme.textTertiary)
+            .padding(.horizontal, 2)
+    }
+
     private func row(_ item: TodoItem) -> some View {
         HStack(spacing: 6) {
-            dragHandle(item.id)
             Button { todos.toggle(item.id) } label: {
                 Image(systemName: item.done ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 13))
@@ -94,8 +104,11 @@ struct TodosView: View {
             HoverDeleteX(visible: hovered == item.id) { todos.delete(item.id) }
         }
         .padding(.horizontal, 2)
-        .padding(.vertical, 5)
+        .padding(.vertical, 2)
         .background(rowFrameReader(item.id))
+        // whole-row drag surface: grabbing anywhere reorders (see dragGesture)
+        .contentShape(Rectangle())
+        .gesture(dragGesture(item.id))
         .opacity(dragItem == item.id ? 0.4 : 1)
         .offset(dragItem == item.id ? dragTranslation : .zero)
         .zIndex(dragItem == item.id ? 2 : 0)
@@ -139,24 +152,22 @@ struct TodosView: View {
 
     // MARK: - Drag to reorder
 
-    /// A burger handle at the row's left edge — same pattern and gutter as the
-    /// tracker, so the checkbox lines up with the tracker's play button.
-    private func dragHandle(_ id: UUID) -> some View {
-        let shown = hovered == id || dragItem == id
-        return Image(systemName: "line.3.horizontal")
-            .font(.system(size: 9, weight: .semibold))
-            .foregroundStyle(Theme.textTertiary)
-            .frame(width: 14, height: 18)
-            .contentShape(Rectangle())
-            .opacity(shown ? 1 : 0)
-            .allowsHitTesting(shown)
-            .gesture(dragGesture(id))
-    }
-
+    /// The whole row is the drag surface — no reserved handle gutter. The reorder
+    /// engages only on a VERTICALLY dominant drag, so an off-axis swipe leaves the
+    /// row put. Living on the row container, it leaves the checkbox and the hover
+    /// xmark their taps — a tap never crosses `minimumDistance`, so those child
+    /// gestures win.
     private func dragGesture(_ id: UUID) -> some Gesture {
-        DragGesture(minimumDistance: 4, coordinateSpace: .named(Self.listSpace))
+        DragGesture(minimumDistance: 3, coordinateSpace: .named(Self.listSpace))
             .onChanged { value in
+                if dragRejected { return }
                 if dragItem == nil {
+                    // decide the axis on the first move: only a vertical-dominant
+                    // drag reorders; anything else is left alone.
+                    guard abs(value.translation.height) > abs(value.translation.width) else {
+                        dragRejected = true
+                        return
+                    }
                     dragItem = id
                     endAdd()   // a drag must not fight an open add field
                 }
@@ -164,7 +175,7 @@ struct TodosView: View {
                 dropIndex = resolveDrop(at: value.location.y)
             }
             .onEnded { value in
-                commitDrop(id, resolveDrop(at: value.location.y))
+                if dragItem == id { commitDrop(id, resolveDrop(at: value.location.y)) }
                 resetDrag()
             }
     }
@@ -185,6 +196,7 @@ struct TodosView: View {
         dragItem = nil
         dragTranslation = .zero
         dropIndex = nil
+        dragRejected = false
     }
 
     private func indicatorY(for toIndex: Int) -> CGFloat? {

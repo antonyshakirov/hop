@@ -400,7 +400,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   engine to download, so it isn't opt-in; hidden or shown like every other
   module by membership in the "modules & tabs" table (drag it to/from the
   inactive column). The module title (`trackerLabel`) is "time tracker" — it
-  names the feature both in settings and in the empty state.
+  names the feature in settings and in the always-on subheader above the list.
 - **Flat task list:** `TrackerData.rootOrder` is the single source of the list's
   order — it holds the id of every task, no duplicates; the engine normalizes it
   on load (keep listed ids in order, drop stale ones, append any missing in the
@@ -435,10 +435,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   start/stop and tick 1/s off `tracker.heartbeat`.
 - **Flat rows** (no card fills — TorrentView-style): regular weight everywhere;
   the ACTIVE task is emphasized by COLOR only (its total label
-  `Theme.textPrimary`). Delete xmarks are hover-only. A hover drag handle
-  (`line.3.horizontal`) sits in a fixed left gutter (2pt row inset + 14pt handle
-  + 6pt spacing), so the play button lines up with the to-do checkbox on the same
-  left column when the two modules stack on a space.
+  `Theme.textPrimary`). Delete xmarks are hover-only. Rows sit FLUSH LEFT — there
+  is no reserved drag-handle gutter; the play/stop button is the leading element
+  at the 2pt row inset, so it lines up with the to-do checkbox on the same left
+  column when the two modules stack on a space.
+- **Subheader:** a compact `time tracker` sublabel sits above the list at all
+  times (mono 10 semibold, `Theme.textTertiary`, lowercase — the settings
+  section-header treatment), so the tracker and to-do lists are distinguishable
+  at a glance when the two modules stack on one space.
 - **Task row:** a play/PAUSE button in the main timer's transport family
   (`TransportCircle`: `play.fill` filled when idle = "start"; `pause.fill`
   bordered when this task is active), the name, then ONE time — the all-time
@@ -465,23 +469,30 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   over 8 hours. forgot to stop?`, `Theme.accentYellow`) with a small stop button
   that calls `stopActive()`. The row appears and disappears off the heartbeat. No
   system notification in this pass (a possible follow-up).
-- **Drag to reorder:** the burger handle (kept as a fixed gutter via opacity, so
-  an in-flight drag's gesture survives the pointer leaving the row) reorders the
-  flat list; dragging it avoids fighting the row's tap/scrub/play, and on macOS a
-  click-drag never fights the panel's wheel/trackpad scroll. Drop resolution uses
-  a frame-preference resolver (the 8.2 settings-table pattern): every row reports
-  its frame in the `trackerList` coordinate space, and the pointer's y counts how
-  many other rows sit above it. The dragged row dims and follows the pointer; a
-  2pt accent line marks the insertion point. One `moveRootItem(from:to:)` commits
-  per completed drag.
+- **Drag to reorder:** grabbing ANYWHERE on a row reorders the flat list — the
+  reorder gesture lives on the row container (`minimumDistance` 3), not a handle.
+  It DISAMBIGUATES BY AXIS against the total label's horizontal scrub: on the
+  first move past the threshold, a vertically dominant drag (`|dy| > |dx|`) lifts
+  the row, while a horizontally dominant one stands down (latched for the rest of
+  the gesture) and falls through to the scrub; the scrub mirrors the test (it
+  engages only when `|dx| > |dy|`), so the two never fire together. Inner controls
+  keep their taps — a tap never crosses `minimumDistance`, so the play/stop
+  button, the hover xmark and the ✓/✕ field buttons win by SwiftUI's inner-gesture
+  precedence. On macOS a click-drag never fights the panel's wheel/trackpad
+  scroll. Drop resolution uses a frame-preference resolver (the 8.2 settings-table
+  pattern): every row reports its frame in the `trackerList` coordinate space, and
+  the pointer's y counts how many other rows sit above it. The dragged row dims
+  and follows the pointer; a 2pt accent line marks the insertion point. One
+  `moveRootItem(from:to:)` commits per completed drag.
 - **Adding / renaming:** a single `+ new task` footer row swaps into an inline
   TextField (lowercase placeholder = the label), committed on Return (empty =
   cancel), Escape cancels. Double-clicking a name opens the same inline field to
   rename. Every inline field (new/rename/total-edit) shows explicit ✓ (commit) /
   ✕ (cancel) buttons right of it (`FieldCommitButtons`, house hover style) — the
   mouse equivalent of Return/Escape.
-- **Empty state:** an empty list → a `time tracker` title line (mono 12, primary)
-  over the `no tasks yet` hint (tertiary), plus the add row.
+- **Empty state:** with the always-on subheader naming the module, an empty list
+  shows just the `no tasks yet` hint (tertiary) over the add row — no duplicate
+  title line.
 - **Snapshot rule:** every focused-field state is gated off `Snapshot.active`,
   so `--snapshot` renders never show an editing TextField (yellow artifact).
 
@@ -495,19 +506,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (completed items keep their position), `delete(id)`, and `move(from:to:)`
   reorders (clamped; `from` out of range is a no-op) — the order persists through
   the store. `TodosController.move` saves like every other mutation.
-- **Row:** a hover drag handle + a circle checkbox (`circle` /
-  `checkmark.circle.fill`), the text (mono 12; done = `Theme.textTertiary` +
-  strikethrough), and a hover-only xmark. Deletion has NO confirmation — a to-do
-  is cheap to lose and to retype — and works for done and active alike. Rows
-  share the tracker's leading gutter (2pt row inset + 14pt handle + 6pt spacing)
-  and row rhythm (VStack spacing 6, `.padding(.vertical, 5)`), and the checkbox
-  is 22pt like the tracker's play button, so the checkbox and the play button sit
-  on the same left column when the two modules stack on a space.
-- **Drag to reorder:** the same hover burger handle (`line.3.horizontal`) and
-  frame-preference resolver as the tracker (rows report their frame in the
-  `todosList` coordinate space; the pointer's y counts the other rows above it),
-  kept as a fixed left gutter via opacity so an in-flight drag survives the
-  pointer leaving the row. The dragged row dims and follows the pointer; a 2pt
+- **Row:** a circle checkbox (`circle` / `checkmark.circle.fill`), the text
+  (mono 12; done = `Theme.textTertiary` + strikethrough), and a hover-only xmark.
+  Deletion has NO confirmation — a to-do is cheap to lose and to retype — and
+  works for done and active alike. Rows sit FLUSH LEFT (no handle gutter): the
+  checkbox is the leading element at the 2pt row inset and is 22pt like the
+  tracker's play button, so the two line up on the same left column when the
+  modules stack on a space. The checklist rhythm is TIGHTER than the tracker's
+  (VStack spacing 3, `.padding(.vertical, 2)`) so the list reads compact.
+- **Subheader:** a compact `to-dos` sublabel (`todosLabel`) sits above the list
+  at all times, same treatment as the tracker's; the empty state then shows just
+  the `nothing to do yet` hint, no duplicate title line.
+- **Drag to reorder:** grabbing ANYWHERE on a row reorders — the same whole-row,
+  container-level gesture as the tracker (`minimumDistance` 3, engaging only on a
+  vertically dominant drag) and the same frame-preference resolver (rows report
+  their frame in the `todosList` coordinate space; the pointer's y counts the
+  other rows above it). The checkbox and hover xmark keep their taps by
+  inner-gesture precedence. The dragged row dims and follows the pointer; a 2pt
   accent line marks the insertion point; one `move(from:to:)` commits per
   completed drag.
 - **Adding:** a `+ new task` footer row (placeholder `todosNew`, "new task")

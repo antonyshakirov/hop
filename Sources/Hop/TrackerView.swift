@@ -3,7 +3,7 @@ import HopCore
 
 /// Time-tracker module: a flat list of tasks with play/stop and an all-time
 /// total per row (ticking while active), inline rename and total-editing (scrub
-/// or type), a drag handle to reorder, and an 8-hour "still tracking" warning
+/// or type), whole-row drag to reorder, and an 8-hour "still tracking" warning
 /// under a long-running task. Projects are gone — `rootOrder` is the single
 /// source of the list's order. All state lives in the engine (single-active
 /// invariant, aggregates, corrections); this view is glue. Visual language
@@ -41,7 +41,7 @@ struct TrackerView: View {
     @FocusState private var focused: Field?
 
     @State private var confirmingDeleteTask: UUID?
-    // Which row's trailing xmark / drag handle is revealed.
+    // Which row's trailing xmark is revealed (hover-only).
     @State private var hovered: UUID?
 
     // Scrub-to-edit-total: preview a pending value locally and commit ONE
@@ -51,13 +51,20 @@ struct TrackerView: View {
     @State private var scrubBase: TimeInterval?
     @State private var scrubPending: TimeInterval?
     @State private var scrubSteps = 0
+    // Latched when a total-scrub drag turns out to be vertical-dominant — that's
+    // a row reorder, so the scrub stands down for the rest of the gesture.
+    @State private var scrubRejected = false
 
-    // Drag-to-reorder: a handle at each row's left edge lifts a task; the drop
+    // Drag-to-reorder: a vertical drag anywhere on a row lifts a task; the drop
     // resolves against measured row frames. One engine move per completed drag.
+    // A horizontal-dominant drag is left to the total label's scrub (axis gate).
     @State private var dragTask: UUID?
     @State private var dragTranslation: CGSize = .zero
     @State private var dropIndex: Int?
     @State private var rowFrames: [UUID: CGRect] = [:]
+    // Latched when a reorder drag's first move is horizontal-dominant — that's a
+    // total scrub, so this row-reorder gesture stands down for the rest of it.
+    @State private var dragRejected = false
 
     private var engine: TrackerEngine { tracker.engine }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -76,19 +83,15 @@ struct TrackerView: View {
         let rootIDs = engine.data.rootOrder
         let taskByID = Dictionary(engine.data.tasks.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         return VStack(alignment: .leading, spacing: 6) {
+            subheader
             if rootIDs.isEmpty {
-                // Name the feature above the hint: this space is otherwise a
-                // bare "no tasks yet" with nothing saying what it is.
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(t(.trackerLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Text(t(.trackerEmpty))
-                        .font(Theme.mono(11))
-                        .foregroundStyle(Theme.textTertiary)
-                }
-                .padding(.horizontal, 2)
-                .padding(.vertical, 4)
+                // The subheader already names the module, so the empty state is
+                // just the hint — no duplicate title line.
+                Text(t(.trackerEmpty))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textTertiary)
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 4)
             }
             ForEach(rootIDs, id: \.self) { id in
                 if let task = taskByID[id] {
@@ -119,6 +122,18 @@ struct TrackerView: View {
         }
     }
 
+    // MARK: - Module subheader
+
+    /// A compact module sublabel above the list — same treatment as the settings
+    /// section headers (mono 10 semibold, tertiary, lowercase), so the tracker
+    /// and to-do lists are distinguishable at a glance when stacked on one space.
+    private var subheader: some View {
+        Text(t(.trackerLabel))
+            .font(Theme.mono(10, weight: .semibold))
+            .foregroundStyle(Theme.textTertiary)
+            .padding(.horizontal, 2)
+    }
+
     // MARK: - Task row
 
     @ViewBuilder private func taskRow(_ task: TrackerTask) -> some View {
@@ -137,7 +152,6 @@ struct TrackerView: View {
                 // typing the total: the field + its ✓/✕ own the row's tail,
                 // so the total label steps aside for a clean edit line.
                 HStack(spacing: 6) {
-                    dragHandle(task.id)
                     playStop(task, active: active)
                     taskName(task)
                     Spacer(minLength: 6)
@@ -145,7 +159,6 @@ struct TrackerView: View {
                 }
             } else {
                 HStack(spacing: 6) {
-                    dragHandle(task.id)
                     playStop(task, active: active)
                     taskName(task)
                     Spacer(minLength: 6)
@@ -157,6 +170,9 @@ struct TrackerView: View {
         .padding(.vertical, 5)
         .padding(.horizontal, 2)
         .background(rowFrameReader(task.id))
+        // whole-row drag surface: grabbing anywhere reorders (see dragGesture)
+        .contentShape(Rectangle())
+        .gesture(dragGesture(task.id))
         .opacity(dragTask == task.id ? 0.4 : 1)
         .offset(dragTask == task.id ? dragTranslation : .zero)
         .zIndex(dragTask == task.id ? 2 : 0)
@@ -217,7 +233,7 @@ struct TrackerView: View {
             .hoverDim()
         }
         .padding(.vertical, 3)
-        .padding(.leading, 22)   // sits under the task text, past the handle+play gutter
+        .padding(.leading, 30)   // sits under the task text, past the row inset + play gutter
         .padding(.trailing, 2)
     }
 
@@ -271,7 +287,14 @@ struct TrackerView: View {
         DragGesture(minimumDistance: 4)
             .onChanged { value in
                 guard engine.activeTaskID != taskID else { return }
+                if scrubRejected { return }
                 if scrubbingTask != taskID {
+                    // engage only when the drag is horizontally dominant; a
+                    // vertical-dominant drag is a row reorder, so stand down.
+                    guard abs(value.translation.width) > abs(value.translation.height) else {
+                        scrubRejected = true
+                        return
+                    }
                     scrubbingTask = taskID
                     scrubBase = engine.total(taskID: taskID)
                     scrubSteps = 0
@@ -298,29 +321,28 @@ struct TrackerView: View {
         scrubBase = nil
         scrubPending = nil
         scrubSteps = 0
+        scrubRejected = false
     }
 
     // MARK: - Drag to reorder
 
-    /// A burger handle at the row's left edge. Kept in the layout as a fixed
-    /// gutter (opacity, not conditional removal) so an in-flight drag's gesture
-    /// view survives the pointer leaving the row; only interactive when shown.
-    private func dragHandle(_ id: UUID) -> some View {
-        let shown = hovered == id || dragTask == id
-        return Image(systemName: "line.3.horizontal")
-            .font(.system(size: 9, weight: .semibold))
-            .foregroundStyle(Theme.textTertiary)
-            .frame(width: 14, height: 18)
-            .contentShape(Rectangle())
-            .opacity(shown ? 1 : 0)
-            .allowsHitTesting(shown)
-            .gesture(dragGesture(id))
-    }
-
+    /// The whole row is the drag surface — no reserved handle gutter. The reorder
+    /// engages only when the drag's first move past the threshold is VERTICALLY
+    /// dominant, so a horizontal drag on the total label falls through to its
+    /// scrub (see `totalScrub`). Living on the row container, it leaves the
+    /// play/stop button and the hover xmark their taps — a tap never crosses
+    /// `minimumDistance`, so those child gestures win.
     private func dragGesture(_ id: UUID) -> some Gesture {
-        DragGesture(minimumDistance: 4, coordinateSpace: .named(Self.listSpace))
+        DragGesture(minimumDistance: 3, coordinateSpace: .named(Self.listSpace))
             .onChanged { value in
+                if dragRejected { return }
                 if dragTask == nil {
+                    // decide the axis on the first move: a horizontal-dominant
+                    // drag is a total scrub, not a reorder — stand down.
+                    guard abs(value.translation.height) > abs(value.translation.width) else {
+                        dragRejected = true
+                        return
+                    }
                     dragTask = id
                     // a drag must not fight an open field or a pending confirm
                     endEdit()
@@ -330,7 +352,7 @@ struct TrackerView: View {
                 dropIndex = resolveDrop(at: value.location.y)
             }
             .onEnded { value in
-                commitDrop(id, resolveDrop(at: value.location.y))
+                if dragTask == id { commitDrop(id, resolveDrop(at: value.location.y)) }
                 resetDrag()
             }
     }
@@ -352,6 +374,7 @@ struct TrackerView: View {
         dragTask = nil
         dragTranslation = .zero
         dropIndex = nil
+        dragRejected = false
     }
 
     /// The y at which to draw the drop indicator line for the resolved index.

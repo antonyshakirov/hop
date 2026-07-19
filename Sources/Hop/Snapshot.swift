@@ -155,6 +155,30 @@ enum Snapshot {
         if wantsTorrents, !args.contains("--torrents-empty") {
             model.torrent.loadDemo(demoTorrents(includeMissing: args.contains("--torrents-states")))
         }
+        // --tasks: seed the tracker + to-do modules and open the space that
+        // stacks them, so a snapshot shows both flat lists (subheaders, flush
+        // rows). Staged demo content (English), like the other snapshot flags.
+        if args.contains("--tasks") {
+            let e = model.tracker.engine
+            // snapshots share the .cli sandbox, so wipe any prior run's persisted
+            // tasks/items first — the seed below must render the same every time.
+            for id in e.data.rootOrder { e.deleteTask(id) }
+            for item in model.todos.list.items { model.todos.delete(item.id) }
+            e.addTask(name: "write launch post")
+            e.addTask(name: "review pull requests")
+            e.addTask(name: "sketch tracker rows")
+            let ids = e.data.rootOrder
+            if ids.count == 3 {
+                e.setTotal(taskID: ids[0], to: 2 * 3600 + 12 * 60)   // 2:12
+                e.setTotal(taskID: ids[1], to: 5 * 3600 + 3 * 60)    // ticks while active
+                e.setTotal(taskID: ids[2], to: 47 * 60)              // 47m
+                e.start(taskID: ids[1])                              // active row: emphasized total
+            }
+            model.todos.add(text: "ship the flat tracker")
+            model.todos.add(text: "sync docs and tests")
+            model.todos.add(text: "book flights for the offsite")
+            if let first = model.todos.list.items.first { model.todos.toggle(first.id) }
+        }
         // --convert-files a,b,c: converter queue for the window screenshot;
         // the pause lets thumbnails and size estimates finish (they're async)
         if let ci = args.firstIndex(of: "--convert-files"), args.count > ci + 1 {
@@ -201,6 +225,9 @@ enum Snapshot {
                 }
                 model.stats.injectDemoHistory(demo)
             }
+        }
+        if args.contains("--tasks") {
+            initial = .spaceContaining("tracker")
         }
         if args.contains("--settings") {
             initial = .settings
