@@ -75,5 +75,61 @@ final class TrackerModelTests: XCTestCase {
         XCTAssertTrue(empty.tasks.isEmpty)
         XCTAssertTrue(empty.intervals.isEmpty)
         XCTAssertTrue(empty.corrections.isEmpty)
+        XCTAssertTrue(empty.rootOrder.isEmpty)
+    }
+
+    // A task written with `projectID` (the old shape, every task nested) must
+    // keep decoding to a nested task.
+    func testDecodeNestedTaskKeepsItsProjectID() throws {
+        let json = """
+        {"id": "\(taskID.uuidString)", "projectID": "\(projectID.uuidString)", "name": "Ship 1.4"}
+        """
+        let decoded = try JSONDecoder().decode(TrackerTask.self, from: Data(json.utf8))
+        XCTAssertEqual(decoded.projectID, projectID)
+    }
+
+    // A project-less root task omits `projectID` on disk and decodes to nil.
+    func testDecodeRootTaskWithoutProjectIDIsNil() throws {
+        let json = """
+        {"id": "\(taskID.uuidString)", "name": "Root task"}
+        """
+        let decoded = try JSONDecoder().decode(TrackerTask.self, from: Data(json.utf8))
+        XCTAssertNil(decoded.projectID)
+    }
+
+    func testRootTaskEncodesWithoutProjectIDKeyAndRoundTrips() throws {
+        let task = TrackerTask(projectID: nil, name: "Root task")
+        let encoded = try JSONEncoder().encode(task)
+        let asString = String(decoding: encoded, as: UTF8.self)
+        XCTAssertFalse(asString.contains("projectID"))
+        let decoded = try JSONDecoder().decode(TrackerTask.self, from: encoded)
+        XCTAssertEqual(decoded, task)
+    }
+
+    // An old file has no `rootOrder`; the decode must tolerate its absence
+    // (the engine derives the order on load).
+    func testDecodeToleratesMissingRootOrder() throws {
+        let json = """
+        {
+            "projects": [{"id": "\(projectID.uuidString)", "name": "Hop", "isExpanded": true}],
+            "tasks": [{"id": "\(taskID.uuidString)", "projectID": "\(projectID.uuidString)", "name": "Ship 1.4"}],
+            "intervals": [],
+            "corrections": []
+        }
+        """
+        let decoded = try JSONDecoder().decode(TrackerData.self, from: Data(json.utf8))
+        XCTAssertTrue(decoded.rootOrder.isEmpty)
+        XCTAssertEqual(decoded.tasks.first?.projectID, projectID)
+    }
+
+    func testRootOrderRoundTrips() throws {
+        var data = populatedData()
+        let rootTaskID = UUID()
+        data.tasks.append(TrackerTask(id: rootTaskID, projectID: nil, name: "Root"))
+        data.rootOrder = [projectID, rootTaskID]
+        let encoded = try JSONEncoder().encode(data)
+        let decoded = try JSONDecoder().decode(TrackerData.self, from: encoded)
+        XCTAssertEqual(decoded.rootOrder, [projectID, rootTaskID])
+        XCTAssertEqual(decoded, data)
     }
 }

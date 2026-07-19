@@ -368,6 +368,26 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   membership in the "modules & tabs" table (drag it to/from the inactive
   column). The module title (`trackerLabel`) is "time tracker" — it names the
   feature both in settings and in the empty state.
+- **Mixed root list:** the root is an ORDERED list of interleaved projects and
+  project-less tasks. `TrackerData.rootOrder` holds the ids of every root item
+  — every project plus every task whose `projectID` is nil — with no
+  duplicates; the engine normalizes it on load (keep listed ids in order, drop
+  stale ones, append any missing: projects in array order, then root tasks).
+  A task's `projectID` is optional now: nil marks a ROOT task that tracks,
+  aggregates, edits and deletes exactly like a nested one but belongs to NO
+  project (so it never counts toward any project total). `addTask(projectID:)`
+  takes an optional — nil appends a root task to `rootOrder`.
+- **Reordering (engine):** `move(taskID:toProjectID:at:)` nests a task at a
+  clamped position inside a project (lifting it out of the root or another
+  project), `move(taskID:toRootAt:)` detaches a task to a clamped index in the
+  mixed root list, and `moveRootItem(from:to:)` reorders that list (clamped;
+  `from` out of range is a no-op). Each fires `onChange` once; add/delete keep
+  `rootOrder` in sync.
+- **Migration:** an old `tracker.json` (every task nested, no `rootOrder`)
+  loads losslessly — the decode tolerates the missing field and every array
+  field defaults to empty, and the engine derives `rootOrder` as the projects
+  in their existing order. Open intervals, corrections and expanded flags are
+  untouched.
 - **Single active task:** at most one task is ever tracking. Tapping play on
   task B while A runs stops A first — the engine closes the open interval
   itself (`start(taskID:)`), the UI never juggles two. Deleting the active

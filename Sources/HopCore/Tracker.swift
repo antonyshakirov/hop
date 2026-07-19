@@ -13,13 +13,16 @@ public struct TrackerProject: Codable, Equatable, Identifiable {
     }
 }
 
-/// A trackable unit of work nested under a project.
+/// A trackable unit of work. `projectID == nil` marks a project-less root task
+/// that lives directly in the tracker's root list; otherwise the task is nested
+/// under that project. `var` because a task can be dragged between projects and
+/// in and out of the root.
 public struct TrackerTask: Codable, Equatable, Identifiable {
     public let id: UUID
-    public let projectID: UUID
+    public var projectID: UUID?
     public var name: String
 
-    public init(id: UUID = UUID(), projectID: UUID, name: String) {
+    public init(id: UUID = UUID(), projectID: UUID? = nil, name: String) {
         self.id = id
         self.projectID = projectID
         self.name = name
@@ -57,11 +60,43 @@ public struct TrackerCorrection: Codable, Equatable {
 
 /// The full persisted state of the tracker: projects, their tasks, and the
 /// recorded intervals and corrections against those tasks.
+///
+/// `rootOrder` is the ordered list of ROOT item ids — every project id and
+/// every project-less task id, interleaved in the order they render. It holds
+/// exactly {all project ids} ∪ {ids of tasks with `projectID == nil`}, with no
+/// duplicates; `TrackerEngine.init` normalizes/repairs it on load.
 public struct TrackerData: Codable, Equatable {
     public var projects: [TrackerProject]
     public var tasks: [TrackerTask]
     public var intervals: [TrackerInterval]
     public var corrections: [TrackerCorrection]
+    public var rootOrder: [UUID]
+
+    public init(projects: [TrackerProject],
+                tasks: [TrackerTask],
+                intervals: [TrackerInterval],
+                corrections: [TrackerCorrection],
+                rootOrder: [UUID] = []) {
+        self.projects = projects
+        self.tasks = tasks
+        self.intervals = intervals
+        self.corrections = corrections
+        self.rootOrder = rootOrder
+    }
 
     public static let empty = TrackerData(projects: [], tasks: [], intervals: [], corrections: [])
+}
+
+extension TrackerData {
+    /// Tolerant decode: every array field defaults to empty when absent, so an
+    /// old `tracker.json` written before `rootOrder` existed still loads (the
+    /// engine derives the order on init). Unknown keys are ignored as before.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        projects = try c.decodeIfPresent([TrackerProject].self, forKey: .projects) ?? []
+        tasks = try c.decodeIfPresent([TrackerTask].self, forKey: .tasks) ?? []
+        intervals = try c.decodeIfPresent([TrackerInterval].self, forKey: .intervals) ?? []
+        corrections = try c.decodeIfPresent([TrackerCorrection].self, forKey: .corrections) ?? []
+        rootOrder = try c.decodeIfPresent([UUID].self, forKey: .rootOrder) ?? []
+    }
 }

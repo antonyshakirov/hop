@@ -16,6 +16,27 @@ public final class TrackerEngine: ObservableObject {
         self.data = data
         self.now = now
         self.calendar = calendar
+        normalizeRootOrder()
+    }
+
+    /// Repairs `rootOrder` so it holds exactly {all project ids} ∪ {ids of
+    /// project-less tasks}, no duplicates: keep the ids already listed (in
+    /// order), drop stale ones, then append any missing ids — projects in their
+    /// array order first, then any root tasks. A file without the field (all
+    /// tasks nested, no rootOrder) thus derives to "projects in existing order".
+    /// Runs once on load; not a user mutation, so it never fires `onChange`.
+    private func normalizeRootOrder() {
+        let projectIDs = data.projects.map(\.id)
+        let rootTaskIDs = data.tasks.filter { $0.projectID == nil }.map(\.id)
+        let valid = Set(projectIDs).union(rootTaskIDs)
+
+        var seen = Set<UUID>()
+        var repaired = data.rootOrder.filter { valid.contains($0) && seen.insert($0).inserted }
+
+        for id in projectIDs where seen.insert(id).inserted { repaired.append(id) }
+        for id in rootTaskIDs where seen.insert(id).inserted { repaired.append(id) }
+
+        data.rootOrder = repaired
     }
 
     /// The task with an open interval, if any.
@@ -29,14 +50,19 @@ public final class TrackerEngine: ObservableObject {
     public func addProject(name: String) -> UUID {
         let project = TrackerProject(name: name)
         data.projects.append(project)
+        data.rootOrder.append(project.id)
         onChange?()
         return project.id
     }
 
+    /// `projectID == nil` appends a project-less root task to `rootOrder`;
+    /// a concrete id nests the task under that project (source-compatible with
+    /// the old non-optional signature).
     @discardableResult
-    public func addTask(projectID: UUID, name: String) -> UUID {
+    public func addTask(projectID: UUID?, name: String) -> UUID {
         let task = TrackerTask(projectID: projectID, name: name)
         data.tasks.append(task)
+        if projectID == nil { data.rootOrder.append(task.id) }
         onChange?()
         return task.id
     }
@@ -59,6 +85,7 @@ public final class TrackerEngine: ObservableObject {
         data.tasks.removeAll { taskIDs.contains($0.id) }
         data.intervals.removeAll { taskIDs.contains($0.taskID) }
         data.corrections.removeAll { taskIDs.contains($0.taskID) }
+        data.rootOrder.removeAll { $0 == id }
         onChange?()
     }
 
@@ -68,6 +95,50 @@ public final class TrackerEngine: ObservableObject {
         data.tasks.removeAll { $0.id == id }
         data.intervals.removeAll { $0.taskID == id }
         data.corrections.removeAll { $0.taskID == id }
+        data.rootOrder.removeAll { $0 == id }   // no-op for a nested task
+        onChange?()
+    }
+
+    // MARK: - Reordering (drag)
+
+    /// Moves a task into `projectID` at a clamped position within that project's
+    /// task list, lifting it out of the root or another project. No-op if either
+    /// the task or the target project is unknown.
+    public func move(taskID: UUID, toProjectID projectID: UUID, at position: Int) {
+        guard data.projects.contains(where: { $0.id == projectID }),
+              let taskIndex = data.tasks.firstIndex(where: { $0.id == taskID }) else { return }
+        var task = data.tasks.remove(at: taskIndex)
+        task.projectID = projectID
+        data.rootOrder.removeAll { $0 == taskID }   // no longer a root item
+
+        // Ordering within a project is the relative order in `data.tasks`, so
+        // translate the project-local position into an index in the flat array.
+        let siblingIndices = data.tasks.indices.filter { data.tasks[$0].projectID == projectID }
+        let clamped = max(0, min(position, siblingIndices.count))
+        let insertAt = clamped < siblingIndices.count ? siblingIndices[clamped]
+                     : (siblingIndices.last.map { $0 + 1 } ?? data.tasks.count)
+        data.tasks.insert(task, at: insertAt)
+        onChange?()
+    }
+
+    /// Moves a task to the root at a clamped index in `rootOrder`, detaching it
+    /// from any project. No-op if the task is unknown.
+    public func move(taskID: UUID, toRootAt index: Int) {
+        guard let taskIndex = data.tasks.firstIndex(where: { $0.id == taskID }) else { return }
+        data.tasks[taskIndex].projectID = nil
+        data.rootOrder.removeAll { $0 == taskID }
+        let clamped = max(0, min(index, data.rootOrder.count))
+        data.rootOrder.insert(taskID, at: clamped)
+        onChange?()
+    }
+
+    /// Reorders the mixed root list. `from` out of range is a no-op; `to` is
+    /// clamped into the list after the item is lifted out.
+    public func moveRootItem(from: Int, to: Int) {
+        guard data.rootOrder.indices.contains(from) else { return }
+        let id = data.rootOrder.remove(at: from)
+        let clamped = max(0, min(to, data.rootOrder.count))
+        data.rootOrder.insert(id, at: clamped)
         onChange?()
     }
 
