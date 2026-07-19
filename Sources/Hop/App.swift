@@ -127,10 +127,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // stays in the Dock and is not yanked back.
             // orderFrontRegardless: plain orderFront only reorders within the
             // app's own layer while another app is active — the window came
-            // back UNDER the frontmost app instead of on top with the panel
-            for window in [converterWindow, settingsWindow, aboutWindow, torrentAddWindow]
-            where window?.isVisible == true {
-                window?.orderFrontRegardless()
+            // back UNDER the frontmost app instead of on top with the panel.
+            let ours = Set([converterWindow, settingsWindow, aboutWindow, torrentAddWindow]
+                .compactMap { $0 })
+            // Raise them WITHOUT reshuffling: walk the current front-to-back
+            // order in reverse (back first) so each orderFrontRegardless lands
+            // the windows on top in the SAME relative order the user arranged.
+            // A fixed array order here reshuffled the user's windows on every
+            // panel summon (Anton, 2026-07-19). orderedWindows already excludes
+            // miniaturized windows, so a minimized window stays in the Dock.
+            for window in NSApp.orderedWindows.reversed()
+            where ours.contains(window) && window.isVisible {
+                window.orderFrontRegardless()
             }
         }
         AppIcon.apply() // Finder icon per the selected style

@@ -297,9 +297,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   shows a whole-batch progress bar (files done + the current video's own
   fraction), a percentage and "converting… i/n".
 - Clicking the menu bar star brings already-open auxiliary windows
-  (converter/settings/about) back to the front together with the panel —
-  they sink behind other apps on deactivate and looked "closed".
-  Miniaturized windows stay in the Dock.
+  (converter/settings/about/torrent add) back to the front together with the
+  panel — they sink behind other apps on deactivate and looked "closed".
+  The raise PRESERVES their mutual stacking order (it walks the current
+  front-to-back order in reverse), so the user's arrangement is not reshuffled
+  on every summon (Anton, 2026-07-19). Miniaturized windows stay in the Dock.
+- Panel z-order: the panel is a transient popover on an elevated level. It is
+  above OTHER apps' windows only while explicitly summoned (status-item click,
+  the show-panel hotkey, or the right-click "open" item). App activation alone
+  — clicking one of Hop's own real windows, cmd-tab — never shows or raises the
+  panel. If the panel is open when the user clicks one of Hop's own windows,
+  the panel closes (like any outside click), so it cannot resurface above that
+  window on the next activation (Anton, 2026-07-19).
 - Results: Downloads / next to the original / custom folder; originals are
   never touched; "-min" names with uniquification.
 

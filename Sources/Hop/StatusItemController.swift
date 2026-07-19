@@ -93,6 +93,19 @@ final class StatusItemController: NSObject {
                 // let the click that activated us finish first: focus fields
                 // and editUnit update on the same runloop turn
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    // The app was re-activated by clicking one of its OWN real
+                    // windows (settings/about/converter/…) — that window is now
+                    // key. The panel is a transient popover: it must not stay
+                    // glued on its elevated level above the clicked window, or
+                    // it resurfaces there on the next activation. Close it, just
+                    // as an outside click does. A genuine summon yields activation
+                    // back to the previous app first, so the key window is nil (or
+                    // the panel itself) here and the panel is kept (Anton, 2026-07-19).
+                    let panelWindow = self.popover.contentViewController?.view.window
+                    if let key = NSApp.keyWindow, key !== panelWindow {
+                        self.popover.close()
+                        return
+                    }
                     self.maybeReturnFocus()
                 }
             }
