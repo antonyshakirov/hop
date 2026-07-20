@@ -60,8 +60,8 @@ final class StatusItemController: NSObject {
         // redraw the label on every state change (timer/tracker heartbeat,
         // awake, settings). AppModel already forwards tracker.objectWillChange
         // — both its $heartbeat and the engine's changes — into this stream, so
-        // the purple tracking dot toggles on start/stop and the bar time ticks
-        // 1/s without a separate subscription here.
+        // the stopwatch tracking glyph toggles on start/stop and the bar time
+        // ticks 1/s without a separate subscription here.
         cancellable = model.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.refreshButton() }
@@ -414,12 +414,11 @@ final class StatusItemController: NSObject {
         // the digits themselves say the timer is running
         let countdownVisible = showCountdown && (state == .running || state == .paused)
         let effectiveBadge = countdownVisible ? nil : badge
-        // purple dot while a task is tracking. The timer badge wins the
-        // shared bottom-right slot in the rare digits-off-while-running config;
-        // with the countdown digits shown (the default) the dot stays visible
-        // during a countdown, per the design spec.
+        // a task tracking is shown by a stopwatch glyph in the TITLE (built
+        // below), NOT by an icon badge — so it coexists with the timer badge
+        // and countdown digits instead of fighting for the icon's slot, and it
+        // no longer forces the coloured compose path on its own.
         let tracking = model.tracker.isTracking
-        let trackingDot: NSColor? = tracking && effectiveBadge == nil ? .systemPurple : nil
         // red "!" — only if enabled in the monitor settings.
         // debugRedBadgeAlways — temporary mode for polishing the appearance:
         // defaults write com.antonshakirov.minimo debugRedBadgeAlways -bool true
@@ -431,13 +430,12 @@ final class StatusItemController: NSObject {
             ? .systemYellow
             : (model.keepAwake.lidApplied ? .systemOrange : nil)
 
-        if effectiveBadge != nil || awakeDotColor != nil || alertMark || trackingDot != nil {
+        if effectiveBadge != nil || awakeDotColor != nil || alertMark {
             button.image = MenuBarIcon.compose(
                 base: finished ? .symbol(bell) : .dial,
                 badge: effectiveBadge,
                 awakeDot: awakeDotColor,
-                alertMark: alertMark,
-                trackingDot: trackingDot
+                alertMark: alertMark
             )
         } else if finished {
             button.image = MenuBarIcon.compose(base: .symbol(bell), badge: nil, awakeDot: nil)
@@ -478,25 +476,42 @@ final class StatusItemController: NSObject {
         case .seeding:     title = "↑" + title
         case .none:        break
         }
+        // The stopwatch tracking glyph is the leftmost element of the title
+        // (before the torrent arrows and any digits), on the same attributed
+        // title channel. In `.string` it is two characters — the attachment
+        // (U+FFFC) plus a thin space — so the width-freeze below counts it like
+        // any other character.
+        let glyphPrefixLength = tracking ? 2 : 0
         if let frozen = frozenTitleLength {
             // panel open: the time STAYS visible in the menu bar (Anton,
-            // 2026-07-15) — only the width is frozen: pad with spaces to the
-            // frozen length so the button and the attached panel don't move.
-            // If the digits outgrow the slot (stopwatch passing an hour),
-            // extend the freeze — the didMove observer re-anchors the panel.
-            if title.count > frozen {
-                frozenTitleLength = title.count
+            // 2026-07-15) — only the width is frozen: pad the digit tail with
+            // spaces to the frozen length so the button and the attached panel
+            // don't move. Starting or stopping tracking mid-session changes the
+            // glyph prefix: if the total outgrows the frozen slot (the glyph
+            // appears, or the stopwatch passes an hour) the freeze extends and
+            // the didMove observer re-anchors; if it shrinks (the glyph
+            // disappears) the tail is padded back to the frozen width. Either
+            // way growth is on the RIGHT — the icon anchor never moves.
+            let total = glyphPrefixLength + title.count
+            if total > frozen {
+                frozenTitleLength = total
             } else {
-                title += String(repeating: " ", count: frozen - title.count)
+                title += String(repeating: " ", count: frozen - total)
             }
         }
-        if title.isEmpty {
+        let mono = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
+        if tracking {
+            let attributed = NSMutableAttributedString(
+                attributedString: MenuBarIcon.trackingGlyphString()
+            )
+            if !title.isEmpty {
+                attributed.append(NSAttributedString(string: title, attributes: [.font: mono]))
+            }
+            button.attributedTitle = attributed
+        } else if title.isEmpty {
             button.title = ""
         } else {
-            button.attributedTitle = NSAttributedString(
-                string: title,
-                attributes: [.font: NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)]
-            )
+            button.attributedTitle = NSAttributedString(string: title, attributes: [.font: mono])
         }
 
         // the anchor is fixed to the icon zone — no re-anchoring needed at all:

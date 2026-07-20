@@ -430,15 +430,29 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`start(taskID:)`), the UI never juggles two. Deleting the active task stops
   tracking (its open interval is dropped with it). `activeIntervalStart` exposes
   the open interval's start so the view can flag a long run (see 8-hour warning).
-- **Menu-bar indication:** while a task is tracking, the status-bar icon carries
-  a small purple dot in the bottom-right slot — the same slot the timer badge
-  uses, so the badge wins it in the rare digits-off-while-running config. An
-  opt-in `show task time in menu bar` setting (`trackerTimeInBar`, OFF)
-  additionally shows the active task's ticking `today` value as the bar title,
-  but only when nothing else claimed it — the timer countdown always wins.
-  `today(taskID:)` stays in the engine for this figure and for corrections math;
-  the panel itself shows the total, not today. Both toggle immediately on
-  start/stop and tick 1/s off `tracker.heartbeat`.
+- **Menu-bar indication:** while a task is tracking, a small monochrome
+  stopwatch glyph is shown as the LEFTMOST element of the status-button title
+  (an `NSTextAttachment` on the same attributed-title channel as the torrent
+  ↓/↑ arrows, before the arrows and any time digits, with a thin space after).
+  Because it lives in the title and not in the icon's bottom-right badge slot,
+  it COEXISTS with the timer's play/pause badge and the countdown digits —
+  both indicators are visible together whenever both are active. It is shown
+  whenever a task is tracking, REGARDLESS of the timer state, and it never
+  forces the coloured icon path on its own (tracking with no other decoration
+  keeps the template-icon fast path). The glyph is pre-tinted to the menu bar
+  monochrome (white in dark, 85%-black in light) exactly like the icon glyphs,
+  at ~11pt, baseline-centred on the digits' cap band (attachment y-offset
+  ≈ −2pt). An opt-in `show task time in menu bar` setting (`trackerTimeInBar`,
+  OFF) additionally shows the active task's ticking `today` value as the bar
+  title, but only when nothing else claimed it — the timer countdown always
+  wins; the stopwatch glyph appears in both cases. `today(taskID:)` stays in
+  the engine for this figure and for corrections math; the panel itself shows
+  the total, not today. Both toggle immediately on start/stop and tick 1/s off
+  `tracker.heartbeat`. The width-freeze counts the glyph like any character
+  (attachment + thin space = 2 chars in `.string`): starting or stopping
+  tracking while the panel is open extends or space-pads the frozen width, and
+  since the glyph grows the title on the RIGHT of the fixed icon anchor, the
+  popover does not drift (the didMove observer re-anchors on any extension).
 - **Flat rows** (no card fills — TorrentView-style): regular weight everywhere;
   the ACTIVE task is emphasized by COLOR only (its total label
   `Theme.textPrimary`). Delete xmarks are hover-only. Rows sit FLUSH LEFT — there
@@ -630,10 +644,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"
   variant was tried and reverted. "Same as system" sits on top; there is
   search.
-- Menu bar: asterisk (brand glyph, 8 rays); on the right — play/pause
-  badges or a purple tracking dot (bottom, mutually exclusive) and a yellow
-  awake dot (top); on finish — a blinking bell; the countdown is monospaced
-  and can be disabled in settings.
+- Menu bar: asterisk (brand glyph, 8 rays); on the right — a play/pause
+  badge (bottom) and a yellow awake dot (top); on finish — a blinking bell;
+  the countdown is monospaced and can be disabled in settings. A task tracking
+  is shown by a stopwatch glyph at the LEFT of the title (not an icon badge),
+  so it coexists with the timer badge and countdown instead of sharing a slot.
 - **The panel is keyboard-transparent** (Anton, 2026-07-13; completed
   2026-07-15): it never steals keyboard focus — on open AND after any
   click inside it, focus goes back to the app underneath (dictation and
