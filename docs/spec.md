@@ -638,7 +638,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (the term is bold up to the " — "). The general-tab footer links to
   the GitHub repo next to the version ("open source · version X · GitHub"),
   to antonshakirov.com and to the product landing — in the app's language
-  when the landing has it (8 languages), otherwise English.
+  when the landing has it (8 languages), otherwise English. A third footer
+  row is the support contact: "feedback & support · hop@antonshakirov.com",
+  the address a mailto: link opening the user's mail client.
 - Languages in pickers use the standard order, like system lists:
   alphabetical by NATIVE names, Latin → Cyrillic → CJK (pickerOrder,
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"

@@ -3730,6 +3730,11 @@ struct PanelView: View {
                         // landing exists in 8 languages; everyone else gets English
                         FooterLink(url: productPageURL, label: t(.aboutProductPage))
                     }
+                    HStack(spacing: 6) {
+                        Text("\(t(.aboutSupport)) ·")
+                            .foregroundStyle(Theme.textSecondary)
+                        FooterLink(url: "mailto:hop@antonshakirov.com", label: "hop@antonshakirov.com")
+                    }
                 }
             }
         }
