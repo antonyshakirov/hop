@@ -147,9 +147,13 @@ struct TrackerView: View {
             && !isEditing(.editTotal(task.id))
         Group {
             if confirmingDeleteTask == task.id {
-                // Confirm keeps the row's silhouette: the play/stop circle and
-                // the name stay put, only the tail swaps (the time + hover ✕ give
-                // way to delete/cancel), so the row never collapses or shifts.
+                // Confirm keeps the row's silhouette AND the trailing time: the
+                // play/stop circle, the name and the far-right time all stay put;
+                // only the hover ✕ gives way to delete/cancel, rendered just left
+                // of the (now inert) time. cancel takes the ✕'s EXACT slot (6pt
+                // left of the time — the HStack's own spacing, same gap the ✕
+                // had), delete sits 12pt further left — so a reflexive repeat
+                // click at the ✕ point lands on cancel, never delete.
                 HStack(spacing: 6) {
                     playStop(task, active: active)
                     taskName(task)
@@ -160,6 +164,9 @@ struct TrackerView: View {
                                          confirmingDeleteTask = nil
                                      },
                                      onCancel: { confirmingDeleteTask = nil })
+                    // the time stays where it always is; inert while confirming
+                    // (no tap-to-edit / scrub until the confirm resolves).
+                    totalView(task, active: active, interactive: false)
                 }
             } else if isEditing(.renameTask(task.id)) {
                 nameField(.renameTask(task.id), placeholder: task.name)
@@ -267,7 +274,7 @@ struct TrackerView: View {
 
     // The editing branch lives in `taskRow` (it reshapes the whole row); this is
     // only the read/scrub/tap-to-edit label.
-    @ViewBuilder private func totalView(_ task: TrackerTask, active: Bool) -> some View {
+    @ViewBuilder private func totalView(_ task: TrackerTask, active: Bool, interactive: Bool = true) -> some View {
         let value = (scrubbingTask == task.id ? (scrubPending ?? engine.total(taskID: task.id))
                                               : engine.total(taskID: task.id))
         let label = Text(shortTime(value))
@@ -275,8 +282,10 @@ struct TrackerView: View {
             .foregroundStyle(active ? Theme.textPrimary : Theme.textSecondary)
             .monospacedDigit()
             .fixedSize()
-        if active {
-            // active task: the engine refuses edits, so no affordance is offered
+        if active || !interactive {
+            // active task: the engine refuses edits, so no affordance is offered.
+            // interactive == false: shown during a delete confirm — the time must
+            // stay put but not react to taps/scrub until the confirm resolves.
             label
         } else {
             label

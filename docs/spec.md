@@ -496,14 +496,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   bordered when this task is active), the name, then ONE time — the all-time
   TOTAL (mono 11, `TimeFormatting.short`, ticking while active) — and the hover
   xmark. Clicking the xmark switches the row into an IN-ROW delete confirm rather
-  than deleting on the spot: the play/stop circle and the name stay exactly where
-  they are and only the tail swaps — the time and the ✕ give way to two labelled
-  buttons, `delete` (destructive `Theme.accentRed`, the torrent confirm's token)
-  on the LEFT and `cancel` (tertiary) as the RIGHTMOST element (the slot the ✕
-  just held, so a reflexive repeat click at the same spot cancels), a ~12pt gap
-  between them (`RowDeleteConfirm`, shared with to-dos). There is no question
-  line — the two labelled buttons are the whole prompt. Escape cancels
-  (`.cancelAction`); starting a row drag or closing the panel clears the confirm
+  than deleting on the spot: the play/stop circle, the name AND the far-right time
+  all stay exactly where they are — only the hover ✕ gives way to two labelled
+  buttons rendered just left of the (now inert) time. `cancel` (tertiary) takes
+  the ✕'s EXACT slot (6pt left of the time, the ✕'s own gap), and `delete`
+  (destructive `Theme.accentRed`, the torrent confirm's token) sits 12pt further
+  LEFT — so a reflexive repeat click at the ✕ point lands on cancel, never delete
+  (`RowDeleteConfirm`, shared with to-dos, whose ✕ was already rightmost so cancel
+  sits flush-right there). The time label is INERT while confirming (no
+  tap-to-edit / scrub until the confirm resolves). There is no question line — the
+  two labelled buttons are the whole prompt. Escape cancels (`.cancelAction`);
+  starting a row drag or closing the panel clears the confirm
   (`clearConfirms`/`onDisappear`); the row height and silhouette are unchanged in
   confirm mode. The today/Σ pair from earlier versions is gone: the row shows the
   total only. The active task's total label uses `Theme.textPrimary`.
