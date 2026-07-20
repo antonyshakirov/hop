@@ -3678,7 +3678,7 @@ struct PanelView: View {
     private var aboutTabLabels: [String] {
         [t(.aboutTabGeneral), t(.aboutTabTimer), t(.awakeOff),
          t(.tabSystem), t(.tabClipboard), t(.convertLabel), t(.windowsLabel),
-         t(.speedtestLabel)]
+         t(.speedtestLabel), t(.torrentLabel)]
     }
 
     private var aboutScreen: some View {
@@ -3692,6 +3692,7 @@ struct PanelView: View {
                 ("convert", t(.convertLabel)),
                 ("windows", t(.windowsLabel)),
                 ("speed", t(.speedtestLabel)),
+                ("torrent", t(.torrentLabel)),
                 ("news", t(.aboutTabNews)),
             ], selection: $aboutSection, wraps: true)
 
@@ -3716,6 +3717,8 @@ struct PanelView: View {
                     windowsHotkeyLegend
                 case "speed":
                     DocView(text: t(.docSpeedFull))
+                case "torrent":
+                    DocView(text: t(.docTorrentFull))
                 case "news":
                     // last ~5 releases, 2-4 bullets each (older ones drop off);
                     // the full history lives on GitHub Releases

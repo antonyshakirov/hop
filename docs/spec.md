@@ -460,10 +460,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   popover does not drift (the didMove observer re-anchors on any extension).
 - **Flat rows** (no card fills — TorrentView-style): regular weight everywhere;
   the ACTIVE task is emphasized by COLOR only (its total label
-  `Theme.textPrimary`). Delete xmarks are hover-only. Rows sit FLUSH LEFT — there
-  is no reserved drag-handle gutter; the play/stop button is the leading element
-  at the 2pt row inset, so it lines up with the to-do checkbox on the same left
-  column when the two modules stack on a space.
+  `Theme.textPrimary`). Rows sit FLUSH LEFT — there is no reserved drag-handle
+  gutter; the play/stop button is the leading element at the 2pt row inset,
+  centered in a shared 22pt gutter (`RowCircle.gutter`) so it lines up with the
+  to-do checkbox on the same left column when the two modules stack on a space.
+  The play/stop circle and the checkbox are ONE control at ONE visible diameter
+  (`RowCircle.diameter`, 18pt — between the old transport 22 and checkbox ~13),
+  both drawn by the shared `TransportCircle`. Delete xmarks are hover-only and
+  render as a trailing OVERLAY (`HoverDeleteX`), never in the row flow: a
+  non-hovered row reserves NO width after the time (no hole) and hovering never
+  shifts the layout — the xmark floats over the time's right edge with a subtle
+  backing so it reads.
 - **Subheader:** a compact `time tracker` sublabel sits above the list at all
   times (mono 10 semibold, `Theme.textTertiary`, lowercase — the settings
   section-header treatment), so the tracker and to-do lists are distinguishable
@@ -536,14 +543,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (completed items keep their position), `delete(id)`, and `move(from:to:)`
   reorders (clamped; `from` out of range is a no-op) — the order persists through
   the store. `TodosController.move` saves like every other mutation.
-- **Row:** a circle checkbox (`circle` / `checkmark.circle.fill`), the text
-  (mono 12; done = `Theme.textTertiary` + strikethrough), and a hover-only xmark.
-  Deletion has NO confirmation — a to-do is cheap to lose and to retype — and
-  works for done and active alike. Rows sit FLUSH LEFT (no handle gutter): the
-  checkbox is the leading element at the 2pt row inset and is 22pt like the
-  tracker's play button, so the two line up on the same left column when the
-  modules stack on a space. The checklist rhythm is TIGHTER than the tracker's
-  (VStack spacing 3, `.padding(.vertical, 2)`) so the list reads compact.
+- **Row:** a circle checkbox — the shared `TransportCircle` in muted tokens (an
+  empty ring when open, a filled `Theme.textTertiary` disc with a knocked-out
+  check when done) — the text (mono 12; done = `Theme.textTertiary` +
+  strikethrough), and a hover-only xmark. Deletion has NO confirmation — a to-do
+  is cheap to lose and to retype — and works for done and active alike. Rows sit
+  FLUSH LEFT (no handle gutter): the checkbox is the leading element at the 2pt
+  row inset, ONE control at ONE diameter with the tracker's play/stop
+  (`RowCircle.diameter` centered in the 22pt `RowCircle.gutter`), so the two line
+  up on the same left column when the modules stack on a space. The hover xmark is
+  a trailing OVERLAY (`HoverDeleteX`) — no reserved width, no shift on hover, same
+  as the tracker. The checklist rhythm is TIGHTER than the tracker's (VStack
+  spacing 3, `.padding(.vertical, 2)`) so the list reads compact.
 - **Subheader:** a compact `to-dos` sublabel (`todosLabel`) sits above the list
   at all times, same treatment as the tracker's; the empty state then shows just
   the `nothing to do yet` hint, no duplicate title line.
@@ -573,6 +584,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   local chips (settingChip/unitChip/themeIcon/alertMode/styleChip/
   bigToggleChip/displayStyleCard, onboarding and converter chips) are thin
   wrappers over it. A new chip = SettingChip only; copies are forbidden.
+- **RowCircle + TransportCircle (Controls.swift)** are the shared leading-circle
+  geometry and view for the row modules: the tracker's play/stop button and the
+  to-do checkbox are ONE control at ONE visible diameter (`RowCircle.diameter`,
+  18pt), each centered in the 22pt `RowCircle.gutter` at the 2pt row inset so the
+  two line up on the same left column. `TransportCircle` draws a FILLED disc
+  (glyph knocked out) or a BORDERED ring (an empty `systemName` = an unchecked
+  box), with per-caller colors — the timer transport palette by default, muted
+  tokens for the checkbox.
+- **HoverDeleteX (Controls.swift)** is the shared hover-only row delete, rendered
+  as a trailing OVERLAY by both row modules, so a hidden xmark reserves no width
+  and hovering never shifts the row's trailing content; a subtle backing lets it
+  read when it floats over a trailing label (the tracker's time).
 
 ## Panel and navigation
 
@@ -874,6 +897,11 @@ Anton's primary install must always remain fully functional.
 
 ## Info window
 
+- Opens 940pt wide so all ten section tabs (general, timer, awake, monitor,
+  clipboard, converter, windows, internet, torrents, what's new) sit on ONE line
+  in the widest language: Spanish's natural-width chips total 871pt + 24pt content
+  padding each side (48) = 919pt, rounded up. Each module has its own full
+  documentation tab, torrents included (`docTorrentFull`, all 18 languages).
 - Free resizing in both directions: content scrolls vertically; on width
   changes the section tabs wrap onto new lines (FlowLayout, natural-width
   chips) and the text reflows. Minimum 480×300.

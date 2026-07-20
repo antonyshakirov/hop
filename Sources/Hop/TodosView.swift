@@ -86,10 +86,17 @@ struct TodosView: View {
     private func row(_ item: TodoItem) -> some View {
         HStack(spacing: 6) {
             Button { todos.toggle(item.id) } label: {
-                Image(systemName: item.done ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 13))
-                    .foregroundStyle(item.done ? Theme.textTertiary : Theme.textSecondary)
-                    .frame(width: 22, height: 22)
+                // same circle family and diameter as the tracker's play/stop, in
+                // muted tokens: an empty ring when open, a filled disc with a
+                // knocked-out check when done. Centered in the shared 22pt gutter
+                // so the two modules line up on the same left column.
+                TransportCircle(systemName: item.done ? "checkmark" : "",
+                                filled: item.done,
+                                iconSize: 10,
+                                fillColor: Theme.textTertiary,
+                                strokeColor: Theme.textSecondary,
+                                glyphColor: Theme.background)
+                    .frame(width: RowCircle.gutter, height: RowCircle.gutter)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -100,7 +107,12 @@ struct TodosView: View {
                 .strikethrough(item.done, color: Theme.textTertiary)
                 .lineLimit(1)
                 .truncationMode(.tail)
+            // the Spacer keeps the row full-width (drag surface) with the xmark
+            // gone from the flow — it is a trailing overlay instead, so a
+            // non-hovered row has no reserved gap and hovering never shifts.
             Spacer(minLength: 6)
+        }
+        .overlay(alignment: .trailing) {
             HoverDeleteX(visible: hovered == item.id) { todos.delete(item.id) }
         }
         .padding(.horizontal, 2)

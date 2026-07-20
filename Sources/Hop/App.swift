@@ -344,7 +344,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // WITHOUT fullSizeContentView: content does not slide under the translucent
             // title bar (icons "floated" through it while scrolling)
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 700, height: 560),
+                // 940 wide so all ten section tabs sit on ONE line in the widest
+                // language: Spanish's natural-width chips total 871pt + 24pt
+                // content padding each side (48) = 919pt, rounded up for margin.
+                // Still freely resizable — narrower widths wrap the tabs (FlowLayout).
+                contentRect: NSRect(x: 0, y: 0, width: 940, height: 560),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable],
                 backing: .buffered, defer: false
             )
@@ -375,8 +379,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         observeAboutHeightOnce()
         if !window.isVisible {
             let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
-            // taller: the "general" tab must fit without scrolling
-            window.setContentSize(NSSize(width: 700, height: min(780, screenH * 0.85)))
+            // taller: the "general" tab must fit without scrolling; wide enough
+            // for all section tabs on one line (see the contentRect note above)
+            window.setContentSize(NSSize(width: 940, height: min(780, screenH * 0.85)))
             window.center()
         }
         NSApp.activate(ignoringOtherApps: true)

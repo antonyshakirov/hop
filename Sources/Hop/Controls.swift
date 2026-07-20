@@ -675,9 +675,12 @@ struct FieldCommitButtons: View {
     }
 }
 
-/// Trailing delete affordance revealed on row hover. Kept out of hit-testing
-/// while hidden so the invisible glyph can't be clicked. Callers pass their own
-/// per-row hover state as `visible`.
+/// Trailing delete affordance revealed on row hover. Rendered as an OVERLAY at
+/// the row's trailing edge (never in the flow), so a hidden xmark reserves NO
+/// width and hovering never shifts the layout — the row's own trailing content
+/// (e.g. the tracker's time) keeps its position. A subtle backing lets the glyph
+/// read when it floats over that content. Kept out of hit-testing while hidden so
+/// the invisible glyph can't be clicked; callers pass their per-row hover state.
 struct HoverDeleteX: View {
     let visible: Bool
     let action: () -> Void
@@ -686,8 +689,11 @@ struct HoverDeleteX: View {
         Button(action: action) {
             Image(systemName: "xmark")
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(Theme.textTertiary)
+                .foregroundStyle(Theme.textSecondary)
                 .frame(width: 22, height: 22)
+                // the row color behind the glyph, so it masks whatever it floats
+                // over (a trailing time label) instead of colliding with it.
+                .background(Theme.background, in: RoundedRectangle(cornerRadius: 5))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -697,25 +703,50 @@ struct HoverDeleteX: View {
     }
 }
 
-/// The panel's play/pause transport look, shared so secondary transports (a
-/// tracker task row) belong to the same family as the main timer button: a
-/// circle that is FILLED when it offers "start" (play) and BORDERED when it
-/// offers "pause". Sized by the caller to fit its row.
+/// Shared geometry for the leading circle of the row modules (the tracker's
+/// play/stop button and the to-do checkbox), so the two read as ONE control at
+/// ONE size on the shared left column. The visible circle is `diameter`; both
+/// modules center it in a `gutter`-wide leading slot (the 2pt row inset lines the
+/// slots up), which keeps their left edge and their gap-to-text identical and
+/// leaves the tracker's long-run row inset (2 + gutter + 6 = 30pt) unchanged.
+enum RowCircle {
+    static let diameter: CGFloat = 18   // between the old transport 22 and checkbox ~13
+    static let gutter: CGFloat = 22
+    static let glyphSize: CGFloat = 9
+    static let strokeWidth: CGFloat = 1.5
+}
+
+/// The panel's play/pause transport look, shared so the tracker's play/stop
+/// button AND the to-do checkbox belong to one family at one `RowCircle.diameter`:
+/// a circle that is FILLED (a solid disc, glyph knocked out in `glyphColor`) or
+/// BORDERED (a ring in `strokeColor`, glyph — if any — in `glyphColor`). An empty
+/// `systemName` draws no glyph (an unchecked box). Colors default to the timer
+/// transport palette; the checkbox passes its own muted tokens.
 struct TransportCircle: View {
-    let systemName: String   // "play.fill" (start) / "pause.fill" (running)
-    let filled: Bool         // true = start affordance (filled), false = bordered
-    var diameter: CGFloat = 22
-    var iconSize: CGFloat = 9
+    let systemName: String   // "play.fill" (start) / "pause.fill" (running) / "" (empty ring)
+    let filled: Bool         // true = solid disc, false = ring
+    var diameter: CGFloat = RowCircle.diameter
+    var iconSize: CGFloat = RowCircle.glyphSize
+    var fillColor: Color = Theme.playBg
+    var strokeColor: Color = Theme.controlStroke
+    var glyphColor: Color? = nil   // nil = playFg when filled, textPrimary when bordered
 
     var body: some View {
-        Image(systemName: systemName)
-            .font(.system(size: iconSize, weight: .semibold))
-            .foregroundStyle(filled ? Theme.playFg : Theme.textPrimary)
-            .frame(width: diameter, height: diameter)
-            .background(filled ? Theme.playBg : .clear, in: Circle())
-            .overlay {
-                if !filled { Circle().stroke(Theme.controlStroke, lineWidth: 1.5) }
+        let glyph = glyphColor ?? (filled ? Theme.playFg : Theme.textPrimary)
+        Group {
+            if systemName.isEmpty {
+                Color.clear
+            } else {
+                Image(systemName: systemName)
+                    .font(.system(size: iconSize, weight: .semibold))
+                    .foregroundStyle(glyph)
             }
-            .contentShape(Circle())
+        }
+        .frame(width: diameter, height: diameter)
+        .background(filled ? fillColor : .clear, in: Circle())
+        .overlay {
+            if !filled { Circle().stroke(strokeColor, lineWidth: RowCircle.strokeWidth) }
+        }
+        .contentShape(Circle())
     }
 }

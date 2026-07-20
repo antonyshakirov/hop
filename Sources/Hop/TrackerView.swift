@@ -138,6 +138,11 @@ struct TrackerView: View {
 
     @ViewBuilder private func taskRow(_ task: TrackerTask) -> some View {
         let active = engine.activeTaskID == task.id
+        // The hover xmark shows only in the normal display state — not while a
+        // confirm or an inline field owns the row's tail.
+        let showsHoverX = confirmingDeleteTask != task.id
+            && !isEditing(.renameTask(task.id))
+            && !isEditing(.editTotal(task.id))
         Group {
             if confirmingDeleteTask == task.id {
                 deleteConfirm(.trackerDeleteTask,
@@ -158,13 +163,21 @@ struct TrackerView: View {
                     totalField(task)
                 }
             } else {
+                // the total stays the last IN-FLOW element (flush right, fixed
+                // position); the delete xmark is a trailing OVERLAY, so a
+                // non-hovered row reserves no width after the time (no hole) and
+                // hovering never shifts the layout.
                 HStack(spacing: 6) {
                     playStop(task, active: active)
                     taskName(task)
                     Spacer(minLength: 6)
                     totalView(task, active: active)
-                    HoverDeleteX(visible: hovered == task.id) { confirmingDeleteTask = task.id }
                 }
+            }
+        }
+        .overlay(alignment: .trailing) {
+            if showsHoverX {
+                HoverDeleteX(visible: hovered == task.id) { confirmingDeleteTask = task.id }
             }
         }
         .padding(.vertical, 5)
@@ -189,8 +202,10 @@ struct TrackerView: View {
             // same play/pause family as the main timer button: filled circle
             // offers "start" (play), bordered circle offers "pause". Scaled to
             // the task row.
-            TransportCircle(systemName: active ? "pause.fill" : "play.fill",
-                            filled: !active, diameter: 22, iconSize: 9)
+            // one shared diameter with the to-do checkbox, centered in the 22pt
+            // leading gutter so the two line up on the same left column.
+            TransportCircle(systemName: active ? "pause.fill" : "play.fill", filled: !active)
+                .frame(width: RowCircle.gutter, height: RowCircle.gutter)
         }
         .buttonStyle(.plain)
         .hoverDim()
@@ -227,7 +242,7 @@ struct TrackerView: View {
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 6)
             Button { engine.stopActive() } label: {
-                TransportCircle(systemName: "stop.fill", filled: false, diameter: 20, iconSize: 8)
+                TransportCircle(systemName: "stop.fill", filled: false, iconSize: 8)
             }
             .buttonStyle(.plain)
             .hoverDim()
