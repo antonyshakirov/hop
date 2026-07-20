@@ -196,6 +196,11 @@ struct TrackerView: View {
                 }
             }
         }
+        // Pin content to the tallest natural branch (rename's nameField, 26pt —
+        // FieldCommitButtons' 20pt icon buttons + 3pt vertical padding × 2) so
+        // normal / confirm / rename / total-edit never change the row's height;
+        // the shorter branches just gain breathing room inside the fixed frame.
+        .frame(height: 26)
         .padding(.vertical, 2)
         .padding(.horizontal, 2)
         .background(rowFrameReader(task.id))
@@ -314,6 +319,9 @@ struct TrackerView: View {
         .padding(.horizontal, 5)
         .padding(.vertical, 2)
         .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
+        // matches nameField's 26pt plate exactly — see the row-height comment
+        // on taskRow's `.frame(height: 26)`.
+        .frame(height: 26)
     }
 
     /// Each 8pt of horizontal travel = ±1 minute, a tick per step; the running
@@ -471,6 +479,9 @@ struct TrackerView: View {
         .foregroundStyle(Theme.textTertiary)
         .padding(.horizontal, 2)
         .padding(.vertical, 5)
+        // matches nameField's 26pt below — the footer's button and editing
+        // states must be the same height or the field row jumps on open/close.
+        .frame(height: 26)
         .contentShape(Rectangle())
     }
 
@@ -491,6 +502,10 @@ struct TrackerView: View {
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
         .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+        // FieldCommitButtons' 20pt icon buttons + this 3pt vertical padding × 2
+        // land at 26pt naturally; pinned explicitly so it's exact everywhere
+        // this height is matched (addRowLabel, totalField, taskRow's frame).
+        .frame(height: 26)
     }
 
     // MARK: - Edit lifecycle

@@ -163,6 +163,10 @@ struct TodosView: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 3)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+            // FieldCommitButtons' 20pt icon buttons + this 3pt vertical padding
+            // × 2 land at 26pt naturally; pinned explicitly so it matches the
+            // button branch below exactly (see that branch's comment).
+            .frame(height: 26)
         } else {
             Button { beginAdd() } label: {
                 HStack(spacing: 6) {
@@ -173,6 +177,9 @@ struct TodosView: View {
                 .foregroundStyle(Theme.textTertiary)
                 .padding(.horizontal, 2)
                 .padding(.vertical, 5)
+                // matches the editing branch's 26pt above — otherwise the
+                // footer row jumps by a few px on open/close of the add field.
+                .frame(height: 26)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
