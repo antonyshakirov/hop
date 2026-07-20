@@ -699,6 +699,39 @@ struct HoverDeleteX: View {
     }
 }
 
+/// The in-row delete confirmation shared by the tracker and to-do rows. It is
+/// swapped in for a row's trailing content (the tracker's time; nothing in
+/// to-dos) TOGETHER WITH the hover ✕ that opened it, while the row's leading
+/// circle and name stay exactly where they are — the row keeps its silhouette
+/// and height, only the tail changes. `delete` (destructive `Theme.accentRed`,
+/// the torrent confirm's token) sits on the LEFT; `cancel` (tertiary) is the
+/// RIGHTMOST element — the slot the ✕ just occupied — so a reflexive repeat
+/// click at the same spot cancels instead of deleting, with a clear 12pt gap
+/// between the two options. Escape cancels via `.cancelAction` (same mechanism
+/// as the tab-delete confirm). No question line: the two labelled buttons in the
+/// row are the whole prompt.
+struct RowDeleteConfirm: View {
+    let lang: AppLanguage
+    let onDelete: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: onDelete) {
+                HoverLabel(text: L10n.t(.trackerDelete, lang), size: 10, color: Theme.accentRed)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            Button(action: onCancel) {
+                HoverLabel(text: L10n.t(.quitCancel, lang), size: 10, color: Theme.textTertiary)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .keyboardShortcut(.cancelAction)
+        }
+    }
+}
+
 /// Shared geometry for the leading circle of the row modules (the tracker's
 /// play/stop button and the to-do checkbox), so the two read as ONE control at
 /// ONE size on the shared left column. The visible circle is `diameter`; both

@@ -147,12 +147,20 @@ struct TrackerView: View {
             && !isEditing(.editTotal(task.id))
         Group {
             if confirmingDeleteTask == task.id {
-                deleteConfirm(.trackerDeleteTask,
-                              confirm: {
-                                  engine.deleteTask(task.id)
-                                  confirmingDeleteTask = nil
-                              },
-                              cancel: { confirmingDeleteTask = nil })
+                // Confirm keeps the row's silhouette: the play/stop circle and
+                // the name stay put, only the tail swaps (the time + hover ✕ give
+                // way to delete/cancel), so the row never collapses or shifts.
+                HStack(spacing: 6) {
+                    playStop(task, active: active)
+                    taskName(task)
+                    Spacer(minLength: 6)
+                    RowDeleteConfirm(lang: lang,
+                                     onDelete: {
+                                         engine.deleteTask(task.id)
+                                         confirmingDeleteTask = nil
+                                     },
+                                     onCancel: { confirmingDeleteTask = nil })
+                }
             } else if isEditing(.renameTask(task.id)) {
                 nameField(.renameTask(task.id), placeholder: task.name)
             } else if isEditing(.editTotal(task.id)) {
@@ -458,31 +466,6 @@ struct TrackerView: View {
     }
 
     // MARK: - Shared pieces
-
-    private func deleteConfirm(_ question: L10nKey,
-                               confirm: @escaping () -> Void,
-                               cancel: @escaping () -> Void) -> some View {
-        // question on the left; "cancel" sits rightmost, away from "delete",
-        // so a reflexive tap doesn't land on the destructive option.
-        HStack(spacing: 12) {
-            Text(t(question))
-                .font(Theme.mono(11))
-                .foregroundStyle(Theme.textSecondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
-            Spacer(minLength: 8)
-            Button(action: confirm) {
-                HoverLabel(text: t(.trackerDelete), size: 10, color: Theme.accentRed)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            Button(action: cancel) {
-                HoverLabel(text: t(.quitCancel), size: 10, color: Theme.textTertiary)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-        }
-    }
 
     private func nameField(_ field: Field, placeholder: String) -> some View {
         HStack(spacing: 4) {

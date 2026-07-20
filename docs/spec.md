@@ -493,9 +493,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`TransportCircle`: `play.fill` filled when idle = "start"; `pause.fill`
   bordered when this task is active), the name, then ONE time — the all-time
   TOTAL (mono 11, `TimeFormatting.short`, ticking while active) — and the hover
-  xmark + inline confirm (`delete task?`). The today/Σ pair from earlier versions
-  is gone: the row shows the total only. The active task's total label uses
-  `Theme.textPrimary`.
+  xmark. Clicking the xmark switches the row into an IN-ROW delete confirm rather
+  than deleting on the spot: the play/stop circle and the name stay exactly where
+  they are and only the tail swaps — the time and the ✕ give way to two labelled
+  buttons, `delete` (destructive `Theme.accentRed`, the torrent confirm's token)
+  on the LEFT and `cancel` (tertiary) as the RIGHTMOST element (the slot the ✕
+  just held, so a reflexive repeat click at the same spot cancels), a ~12pt gap
+  between them (`RowDeleteConfirm`, shared with to-dos). There is no question
+  line — the two labelled buttons are the whole prompt. Escape cancels
+  (`.cancelAction`); starting a row drag or closing the panel clears the confirm
+  (`clearConfirms`/`onDisappear`); the row height and silhouette are unchanged in
+  confirm mode. The today/Σ pair from earlier versions is gone: the row shows the
+  total only. The active task's total label uses `Theme.textPrimary`.
 - **Editing the total** (only while the task is NOT active — the engine refuses
   otherwise and the UI hides the affordance): the manual edit targets the TOTAL.
   `setTotal(taskID:to:)` appends a correction = target − rawTotal (the UNCLAMPED
@@ -560,8 +569,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Row:** a circle checkbox — the shared `TransportCircle` in muted tokens (an
   empty ring when open, a filled `Theme.textTertiary` disc with a knocked-out
   check when done) — the text (mono 12; done = `Theme.textTertiary` +
-  strikethrough), and a hover-only xmark. Deletion has NO confirmation — a to-do
-  is cheap to lose and to retype — and works for done and active alike. Rows sit
+  strikethrough), and a hover-only xmark. Clicking the xmark switches the row
+  into the SAME in-row delete confirm as the tracker (`RowDeleteConfirm`: `delete`
+  on the left, `cancel` rightmost in the ✕'s slot, ~12pt gap, Escape cancels via
+  `.cancelAction`); the checkbox and text stay put and only the ✕ swaps for the
+  two buttons, so the row keeps its silhouette and height. Starting a drag,
+  opening the add field, or closing the panel clears the confirm
+  (`clearConfirms`); a new confirm on another row closes the previous one (single
+  `confirmingDelete`). It works for done and active items alike. Rows sit
   FLUSH LEFT (no handle gutter): the checkbox is the leading element at the 2pt
   row inset, LEFT-ALIGNED (not centered) in the 22pt `RowCircle.gutter` — its
   visible edge sits exactly on the row inset line, the same line the `to-dos`

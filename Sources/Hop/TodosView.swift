@@ -4,8 +4,10 @@ import HopCore
 /// To-do module: a flat checklist. Rows are a circle checkbox + text, flush left
 /// (the checkbox is the leading element, lined up with the tracker's play button
 /// on the same left column); a footer row opens an inline field to add a new item
-/// at the bottom. Deletion is a hover xmark with NO confirmation — a to-do is
-/// cheap to lose and cheap to retype. A `to-dos` subheader names the module above
+/// at the bottom. Deletion is a hover xmark that switches the row into an in-row
+/// confirm (delete/cancel) rather than deleting on the spot — the checkbox and
+/// text stay put, only the trailing ✕ swaps for the two buttons, so the row keeps
+/// its silhouette. A `to-dos` subheader names the module above
 /// the list. Rows use a tight rhythm (spacing 3, vertical padding 2) that the
 /// tracker now matches exactly, so the near-twin modules read identically;
 /// reorder is a whole-row vertical drag. Theme tokens only.
@@ -31,6 +33,8 @@ struct TodosView: View {
     @FocusState private var fieldFocused: Bool
     // Which row's trailing xmark is revealed (hover-only).
     @State private var hovered: UUID?
+    // Which row is in delete-confirm mode (single: a new confirm closes any other).
+    @State private var confirmingDelete: UUID?
 
     // Drag-to-reorder: a vertical drag anywhere on a row lifts an item; the drop
     // resolves against measured row frames. One move per completed drag.
@@ -66,9 +70,10 @@ struct TodosView: View {
         .overlay(alignment: .topLeading) { dropIndicatorOverlay }
         .onChange(of: adding) { _, on in onEditingChanged?(on && !Snapshot.active) }
         .onDisappear {
-            // @State survives the popover hide/show — a left-open field would
-            // reappear (unfocused) on the next open, so clear it here.
+            // @State survives the popover hide/show — a left-open field or a
+            // pending confirm would reappear on the next open, so clear both here.
             endAdd()
+            clearConfirms()
             resetDrag()
         }
     }
@@ -115,8 +120,17 @@ struct TodosView: View {
             // long already-truncated text yields room to the xmark instead of
             // running under it (a trailing overlay could not guarantee that).
             Spacer(minLength: 6)
-            if hovered == item.id {
-                HoverDeleteX { todos.delete(item.id) }
+            if confirmingDelete == item.id {
+                // confirm swaps in for the ✕ only — the checkbox and text keep
+                // their place, so the row's silhouette and height don't change.
+                RowDeleteConfirm(lang: lang,
+                                 onDelete: {
+                                     todos.delete(item.id)
+                                     confirmingDelete = nil
+                                 },
+                                 onCancel: { confirmingDelete = nil })
+            } else if hovered == item.id {
+                HoverDeleteX { confirmingDelete = item.id }
             }
         }
         .padding(.horizontal, 2)
@@ -185,7 +199,8 @@ struct TodosView: View {
                         return
                     }
                     dragItem = id
-                    endAdd()   // a drag must not fight an open add field
+                    endAdd()        // a drag must not fight an open add field
+                    clearConfirms() // …or a pending delete confirm
                 }
                 dragTranslation = value.translation
                 dropIndex = resolveDrop(at: value.location.y)
@@ -246,8 +261,13 @@ struct TodosView: View {
 
     private func beginAdd() {
         guard !Snapshot.active else { return }
+        clearConfirms()   // opening the add field drops any pending confirm
         draft = ""
         adding = true
+    }
+
+    private func clearConfirms() {
+        confirmingDelete = nil
     }
 
     private func commit() {
