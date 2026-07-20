@@ -149,9 +149,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   during a countdown.
 - ±5 ("min" capsules) work while running; "−5" while running drives to
   0 → finish; `targetDate` is @Published, the UI doesn't wait for the ticker.
-- Finish: signal per setting (sound+banner / sound / silent), the display
-  blinks zeros, a bell blinks in the menu bar — until reset or a new start.
-  Play from finished restarts the same duration.
+- Finish: signal per setting (sound+banner / sound / silent). The finish
+  sound plays EXACTLY ONCE (no repeat). The display blinks zeros and a bell
+  blinks in the menu bar until the finish is acknowledged — opening the panel
+  acknowledges it (`TimerEngine.acknowledgeFinish`), settling the bell and the
+  digits to steady lit immediately (the state stays `.finished`); a reset or a
+  new start ends the finished state entirely. Play from finished restarts the
+  same duration.
 - Stopwatch: ⏱ icon to the right of the presets, counts up, also shown in
   the menu bar. Mode switching is allowed from idle/finished/PAUSED
   (paused = "already stopped", so discarding an unfinished timer is
@@ -1005,13 +1009,33 @@ release time (on "publish"); dev builds don't touch the number.
   by duration ("original" — the source size, container change only).
   Estimates are marked "~" and never exceed the source size.
 
-## Timer: "okay, got it" after the ring
+## Timer: finish sound and calm-down
 
-Clicking the blinking digits in the finished state (full display and
-compact row) mutes the repeating sound, stops the blinking (the bell in
-the menu bar calms down too — the state leaves finished) and returns the
-timer to the configured duration (engine.reset). Per-digit-group editing
-by click becomes available from the next click, already in idle.
+The finish sound fires EXACTLY ONCE per finish (`engine.onFinish` →
+`Alerts.fire` → `Sounds.alarm`). There is no repeat timer — the earlier
+3-second `startAlarmRepeat` loop (auto-muted after `alarmRepeatSeconds`) was
+the source of the "fires several times" behavior and has been removed, along
+with the now-unused `alarmRepeatSeconds` default.
+
+The finished state blinks (menu-bar bell + zeroed digits) as a lingering "it
+rang" cue. Two things end it:
+
+- **Opening the panel acknowledges the finish** (`presentPopover` →
+  `TimerEngine.acknowledgeFinish`): the bell and the digits stop blinking and
+  settle to steady lit IMMEDIATELY, and the blink ticker stops. The state
+  stays `.finished` (the digits still show the finished value; the bell stays
+  a steady `bell.fill`). Acknowledgment is idempotent and a no-op off the
+  finished state; every fresh finish clears the flag and blinks anew. Both the
+  bar bell (`StatusItemController.refreshButton`) and the panel digits
+  (`AppModel.blinkOn`) derive their blink from `engine.isFinishBlinking`, so
+  one acknowledge settles both. (No grace period: the panel display settles at
+  the same instant as the bar rather than blinking a further ~2-3 s — the
+  finished digits read `0:00` regardless, so a brief extra blink would add
+  nothing to "what rang". Kept immediate and fully covered by engine tests.)
+- **Clicking the finished digits** (full display and compact row) resets the
+  timer to the configured duration (`engine.reset`), leaving the finished
+  state entirely. Per-digit-group editing by click becomes available from the
+  next click, already in idle.
 
 ## Timer: pause media on finish
 

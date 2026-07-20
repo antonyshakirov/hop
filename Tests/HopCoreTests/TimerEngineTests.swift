@@ -233,6 +233,64 @@ final class TimerEngineTests: XCTestCase {
         XCTAssertEqual(engine.state, .idle)
         XCTAssertEqual(engine.remaining, 900)
     }
+
+    // MARK: - Finish acknowledgment (blink calm-down on panel open)
+
+    func testFreshFinishIsBlinkingUnacknowledged() {
+        engine.setDuration(0)
+        engine.start() // all-zero → instant finish
+        XCTAssertEqual(engine.state, .finished)
+        XCTAssertFalse(engine.finishAcknowledged)
+        XCTAssertTrue(engine.isFinishBlinking)
+    }
+
+    func testAcknowledgeStopsBlinkButStaysFinished() {
+        engine.setDuration(0)
+        engine.start()
+        engine.acknowledgeFinish()
+        XCTAssertTrue(engine.finishAcknowledged)
+        XCTAssertFalse(engine.isFinishBlinking)
+        XCTAssertEqual(engine.state, .finished) // still finished, just calm
+        XCTAssertEqual(engine.remaining, 0)
+    }
+
+    func testAcknowledgeIgnoredWhenNotFinished() {
+        engine.acknowledgeFinish() // idle
+        XCTAssertFalse(engine.finishAcknowledged)
+        engine.start() // running
+        engine.acknowledgeFinish()
+        XCTAssertFalse(engine.finishAcknowledged)
+        XCTAssertEqual(engine.state, .running)
+    }
+
+    func testAcknowledgeIsIdempotent() {
+        engine.setDuration(0)
+        engine.start()
+        engine.acknowledgeFinish()
+        engine.acknowledgeFinish()
+        XCTAssertTrue(engine.finishAcknowledged)
+        XCTAssertFalse(engine.isFinishBlinking)
+    }
+
+    func testNewFinishReblinksAfterAcknowledge() {
+        engine.setDuration(0)
+        engine.start()            // finished
+        engine.acknowledgeFinish()
+        XCTAssertFalse(engine.isFinishBlinking)
+        engine.toggle()           // restart the same (zero) duration → finishes again
+        XCTAssertEqual(engine.state, .finished)
+        XCTAssertFalse(engine.finishAcknowledged) // fresh finish clears the flag
+        XCTAssertTrue(engine.isFinishBlinking)
+    }
+
+    func testResetAfterAcknowledgeLeavesFinished() {
+        engine.setDuration(0)
+        engine.start()
+        engine.acknowledgeFinish()
+        engine.reset()
+        XCTAssertEqual(engine.state, .idle)
+        XCTAssertFalse(engine.isFinishBlinking) // idle never blinks
+    }
 }
 
 final class TimeFormattingTests: XCTestCase {

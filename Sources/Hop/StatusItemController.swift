@@ -342,6 +342,9 @@ final class StatusItemController: NSObject {
     private func presentPopover() {
         guard !popover.isShown, let button = statusItem.button else { return }
         model.activity.note() // opening the panel is active use
+        // opening the panel acknowledges a finished timer: the bar bell and the
+        // digits stop blinking and settle steady (the state stays finished).
+        model.engine.acknowledgeFinish()
 
         // the app that was frontmost before the icon click: we give focus back
         // to it so system dictation/paste go there, not into the panel
@@ -438,7 +441,10 @@ final class StatusItemController: NSObject {
             case .idle, .finished: return nil
             }
         }()
-        let bellOn = Int(engine.heartbeat.timeIntervalSinceReferenceDate * 2) % 2 == 0
+        // the bell blinks only while the finish is unacknowledged; once the
+        // panel is opened it settles to the steady lit bell (calm-down).
+        let bellOn = !engine.isFinishBlinking
+            || Int(engine.heartbeat.timeIntervalSinceReferenceDate * 2) % 2 == 0
         let bell = bellOn ? "bell.fill" : "bell"
 
         let showCountdown = UserDefaults.standard

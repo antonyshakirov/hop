@@ -98,10 +98,12 @@ final class AppModel: ObservableObject {
         forwarders.append(converter.$busy.dropFirst().sink { [weak self] _ in
             self?.activity.note()
         })
-        engine.onFinish = { [weak self] in
+        engine.onFinish = {
             MediaPauser.pauseIfEnabled() // silence first, then our alert
+            // the finish sound plays EXACTLY ONCE — no repeat timer. The blink
+            // (bell + digits) carries the "still finished" cue until the panel
+            // is opened (acknowledged), reset, or a new start.
             Alerts.fire(mode: AlertMode.current)
-            self?.startAlarmRepeat()
         }
         engine.onPhaseChange = { nextIsWork in
             let lang = L10n.current
@@ -112,33 +114,11 @@ final class AppModel: ObservableObject {
         }
     }
 
-    private var alarmTimer: Timer?
-
-    /// The alert repeats while the display blinks the finished state; auto-mute on timeout.
-    private func startAlarmRepeat() {
-        alarmTimer?.invalidate()
-        let cap = Sounds.alarmRepeatSeconds
-        guard cap > 0, AlertMode.current != .silent else { return }
-        let startedAt = Date()
-        let timer = Timer(timeInterval: 3, repeats: true) { [weak self] timer in
-            Task { @MainActor in
-                guard let self else { timer.invalidate(); return }
-                let finished = self.engine.state == .finished
-                let expired = Date().timeIntervalSince(startedAt) >= Double(cap)
-                if !finished || expired {
-                    timer.invalidate()
-                    self.alarmTimer = nil
-                } else {
-                    Sounds.alarm()
-                }
-            }
-        }
-        RunLoop.main.add(timer, forMode: .common)
-        alarmTimer = timer
-    }
-
-    /// Blink phase for the finished state: true means "lit".
+    /// Blink phase for the finished state: true means "lit". Once the finish is
+    /// acknowledged (the panel was opened) the blink settles to steady lit, so
+    /// this returns true whenever the engine is no longer blinking.
     var blinkOn: Bool {
-        Int(engine.heartbeat.timeIntervalSinceReferenceDate * 2) % 2 == 0
+        guard engine.isFinishBlinking else { return true }
+        return Int(engine.heartbeat.timeIntervalSinceReferenceDate * 2) % 2 == 0
     }
 }

@@ -5,14 +5,9 @@ import AppKit
 @MainActor
 enum Sounds {
     static let enabledKey = "appSoundsEnabled" // enabled by default
-    static let alarmRepeatKey = "alarmRepeatSeconds"
 
     static var enabled: Bool {
         UserDefaults.standard.object(forKey: enabledKey) as? Bool ?? true
-    }
-
-    static var alarmRepeatSeconds: Int {
-        UserDefaults.standard.object(forKey: alarmRepeatKey) as? Int ?? 120
     }
 
     private static var lastTick = Date.distantPast

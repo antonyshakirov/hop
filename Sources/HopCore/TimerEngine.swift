@@ -32,6 +32,15 @@ public final class TimerEngine: ObservableObject {
     @Published public private(set) var isStopwatch = false
     /// Updated by the ticker every 0.25 s while the timer runs or the finish blinks — drives the UI.
     @Published public private(set) var heartbeat: Date
+    /// True once a finish has been acknowledged (the panel was opened): the
+    /// state stays `.finished`, but the blink settles to steady. Reset to false
+    /// on every fresh finish. Only meaningful while `state == .finished`.
+    @Published public private(set) var finishAcknowledged = false
+
+    /// The finished state is still blinking: finished AND not yet acknowledged.
+    /// Both the menu-bar bell and the panel digits derive their blink from this,
+    /// so acknowledging settles them together.
+    public var isFinishBlinking: Bool { state == .finished && !finishAcknowledged }
 
     public var onFinish: (() -> Void)?
     /// Fired between cycle phases (the next phase starts on its own).
@@ -303,9 +312,22 @@ public final class TimerEngine: ObservableObject {
         cycle = nil
         targetDate = nil
         pausedRemaining = nil
+        finishAcknowledged = false // a fresh finish always blinks
         state = .finished
         onFinish?()
         startTicker() // the ticker keeps running for the blinking
+    }
+
+    /// Acknowledge the finish (the panel was opened): stop the blink and settle
+    /// everything to steady. The state stays `.finished` — the digits keep
+    /// showing the finished value and the menu-bar bell stays lit — only the
+    /// blinking stops, and the ticker stops with it (the blink was its only job
+    /// in this state). Idempotent; a no-op off the finished state.
+    public func acknowledgeFinish() {
+        guard state == .finished, !finishAcknowledged else { return }
+        finishAcknowledged = true
+        stopTicker()
+        heartbeat = now() // one publish so the UI settles to the steady lit frame
     }
 
     private func startTicker() {
