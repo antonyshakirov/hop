@@ -87,6 +87,12 @@ struct PanelView: View {
     @State private var dropColumn: String?               // highlighted target: "inactive" or a tab uuid
     @State private var columnFrames: [String: CGRect] = [:]
     @State private var chipFrames: [String: CGRect] = [:]
+    // Chip-area frame per space column (in table space), so the insertion
+    // indicator has a spot to sit in an empty column with no chips to anchor to.
+    @State private var chipAreaFrames: [String: CGRect] = [:]
+    // Live pointer position (table space) during a chip or header drag — drives
+    // the insertion indicators, which re-run the same resolver the commit uses.
+    @State private var dragLocation: CGPoint?
     @State private var dragHeaderTab: UUID?              // tab column being header-dragged
     @State private var dragHeaderTranslation: CGFloat = 0
     @State private var confirmDeleteTab: UUID?          // inline delete confirmation target
@@ -1028,6 +1034,14 @@ struct PanelView: View {
             value.merge(nextValue(), uniquingKeysWith: { $1 })
         }
     }
+    /// The chip stack's own frame per space column — used to place the insertion
+    /// indicator inside an empty column (no chips to anchor between).
+    private struct ChipAreaKey: PreferenceKey {
+        static let defaultValue: [String: CGRect] = [:]
+        static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
+            value.merge(nextValue(), uniquingKeysWith: { $1 })
+        }
+    }
 
     /// One tab column: header (icon picker + "#N" + hover delete) over its
     /// module chips. The whole column offsets while its header is being dragged
@@ -1118,25 +1132,34 @@ struct PanelView: View {
         .gesture(headerDragGesture(tab.id))
     }
 
-    /// The permanent inactive column: a plain label header (no icon, no delete)
-    /// over dimmed chips of every hidden module.
-    private var inactiveColumn: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 4) {
-                Text(t(.modulesInactive))
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textTertiary)
-                    .lineLimit(1)
-                Spacer(minLength: 0)
+    /// The permanent inactive bucket, now a full-width section BELOW the space
+    /// columns (it used to be a fifth column). Hidden modules wrap as dimmed
+    /// chips in a flow — the natural read at the 720pt settings width, where a
+    /// single stretched column would look stranded. A drag into the section
+    /// highlights the whole area (its bucket order is cosmetic, so no per-slot
+    /// line); a drag out lands in a space column with the usual insertion line.
+    private var inactiveSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(t(.modulesInactive))
+                .font(Theme.mono(10, weight: .semibold))
+                .foregroundStyle(Theme.textTertiary)
+                .lineLimit(1)
+            if tabsModel.inactive.isEmpty {
+                // keep a reachable drop zone even with nothing hidden yet
+                Color.clear.frame(maxWidth: .infinity).frame(height: 30)
+            } else {
+                FlowLayout(spacing: 6) {
+                    ForEach(tabsModel.inactive, id: \.self) { key in
+                        moduleChip(key, inactive: true)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            // matches the tab header height so every column's chips line up;
-            // this label carries no hover affordance (no icon, no delete)
-            .frame(height: 26)
-            columnChips(keys: tabsModel.inactive, columnID: "inactive", inactive: true)
         }
-        .frame(maxWidth: .infinity, alignment: .top)
-        .padding(6)
-        .background(dropColumn == "inactive" ? Theme.chipBg : Color.clear,
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(dropColumn == "inactive" ? Theme.chipBg : Theme.rowBg,
                     in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8)
             .stroke(Theme.divider, style: StrokeStyle(lineWidth: 1, dash: [3, 3])))
@@ -1155,6 +1178,7 @@ struct PanelView: View {
             }
         }
         .frame(maxWidth: .infinity, minHeight: 40, alignment: .top)
+        .background(chipAreaReader(columnID))
     }
 
     /// A draggable module chip. Dragging it reports a live drop-column highlight
@@ -1220,13 +1244,55 @@ struct PanelView: View {
         }
     }
 
-    /// The drop column whose frame spans `point.x`, or the nearest one if the
-    /// pointer sits in a gap or past the edge. The "+" stub is not a drop target.
+    private func chipAreaReader(_ id: String) -> some View {
+        GeometryReader { geo in
+            Color.clear.preference(
+                key: ChipAreaKey.self,
+                value: [id: geo.frame(in: .named(Self.tableCoordinateSpace))]
+            )
+        }
+    }
+
+    /// The drop target a point falls in: a frame that CONTAINS the point wins
+    /// (Y matters now — the full-width inactive section sits below the columns
+    /// and would otherwise shadow every one of them on X alone). Failing an
+    /// outright hit, a point in the inactive section's vertical band is the
+    /// inactive bucket; anything else snaps to the nearest space column by X.
+    /// The "+" stub is not a drop target.
     private func columnID(at point: CGPoint) -> String? {
-        if let hit = columnFrames.first(where: { $0.value.minX <= point.x && point.x <= $0.value.maxX })?.key {
+        if let hit = columnFrames.first(where: { $0.value.contains(point) })?.key {
             return hit
         }
-        return columnFrames.min(by: { abs($0.value.midX - point.x) < abs($1.value.midX - point.x) })?.key
+        if let inactive = columnFrames["inactive"], point.y >= inactive.minY {
+            return "inactive"
+        }
+        let spaceColumns = columnFrames.filter { $0.key != "inactive" }
+        return spaceColumns.min(by: { abs($0.value.midX - point.x) < abs($1.value.midX - point.x) })?.key
+    }
+
+    /// The ordered module keys of a drop target (`"inactive"` or a tab uuid).
+    private func columnKeys(_ columnID: String) -> [String] {
+        if columnID == "inactive" { return tabsModel.inactive }
+        guard let uuid = UUID(uuidString: columnID) else { return [] }
+        return tabsModel.tabs.first { $0.id == uuid }?.moduleKeys ?? []
+    }
+
+    /// Insert index for `key` dropped at `point` in `columnID`, ignoring `key`
+    /// itself. THE single resolver: both the live insertion indicator and the
+    /// committed drop call it, so the line can never disagree with the landing
+    /// spot. Space columns stack vertically (compare chip midY); the inactive
+    /// flow wraps (reading order: an earlier row, or the same row to the left).
+    private func insertIndex(for key: String, in columnID: String, at point: CGPoint) -> Int {
+        let siblings = columnKeys(columnID).filter { $0 != key }
+        if columnID == "inactive" {
+            return siblings.filter { k in
+                guard let f = chipFrames[k] else { return false }
+                return f.maxY <= point.y || (f.minY <= point.y && f.midX < point.x)
+            }.count
+        }
+        return siblings.filter {
+            (chipFrames[$0]?.midY ?? .greatestFiniteMagnitude) < point.y
+        }.count
     }
 
     private func chipDragGesture(_ key: String) -> some Gesture {
@@ -1234,12 +1300,14 @@ struct PanelView: View {
             .onChanged { value in
                 if dragChip == nil { dragChip = key }
                 dragChipTranslation = value.translation
+                dragLocation = value.location
                 dropColumn = columnID(at: value.location)
             }
             .onEnded { value in
                 applyChipDrop(key: key, to: columnID(at: value.location), at: value.location)
                 dragChip = nil
                 dragChipTranslation = .zero
+                dragLocation = nil
                 dropColumn = nil
             }
     }
@@ -1249,18 +1317,7 @@ struct PanelView: View {
     /// reorders: `placeModule`/`deactivateModule` both remove-then-insert.
     private func applyChipDrop(key: String, to columnID: String?, at point: CGPoint) {
         guard let columnID else { return }
-        let targetKeys: [String]
-        if columnID == "inactive" {
-            targetKeys = tabsModel.inactive.filter { $0 != key }
-        } else if let uuid = UUID(uuidString: columnID) {
-            targetKeys = (tabsModel.tabs.first { $0.id == uuid }?.moduleKeys ?? []).filter { $0 != key }
-        } else {
-            return
-        }
-        // insert index = how many of the column's OTHER chips sit above the drop
-        let index = targetKeys.filter {
-            (chipFrames[$0]?.midY ?? .greatestFiniteMagnitude) < point.y
-        }.count
+        let index = insertIndex(for: key, in: columnID, at: point)
         if columnID == "inactive" {
             deactivateModule(key, at: index)
         } else if let uuid = UUID(uuidString: columnID) {
@@ -1268,9 +1325,71 @@ struct PanelView: View {
         }
     }
 
+    /// The horizontal insertion line (table space) for a chip about to land in a
+    /// space column, or nil for the inactive section (it highlights instead).
+    /// Reads the slot straight from `insertIndex`, so it tracks the commit.
+    private func chipInsertionLine(column columnID: String, key: String, at point: CGPoint) -> CGRect? {
+        guard columnID != "inactive", let col = columnFrames[columnID] else { return nil }
+        let siblings = columnKeys(columnID).filter { $0 != key }
+        let index = insertIndex(for: key, in: columnID, at: point)
+        let inset: CGFloat = 8
+        let x = col.minX + inset
+        let width = max(col.width - inset * 2, 0)
+        let y: CGFloat
+        if siblings.isEmpty {
+            y = (chipAreaFrames[columnID] ?? col).midY   // empty column: centre of its chip area
+        } else if index <= 0 {
+            y = (chipFrames[siblings[0]]?.minY ?? col.minY) - 3
+        } else if index >= siblings.count {
+            y = (chipFrames[siblings[siblings.count - 1]]?.maxY ?? col.maxY) + 3
+        } else {
+            let above = chipFrames[siblings[index - 1]]?.maxY ?? col.minY
+            let below = chipFrames[siblings[index]]?.minY ?? col.maxY
+            y = (above + below) / 2
+        }
+        return CGRect(x: x, y: y - 1, width: width, height: 2)
+    }
+
+    /// The vertical insertion line (table space) marking where a header-dragged
+    /// space column will land — same target `columnID(at:)`/`moveTab` commits to,
+    /// so the line and the reorder agree. Nil when the drop is a no-op.
+    private func columnInsertionLine(dragging id: UUID, at point: CGPoint) -> CGRect? {
+        guard let from = tabsModel.tabs.firstIndex(where: { $0.id == id }),
+              let targetID = columnID(at: point),
+              let to = tabsModel.tabs.firstIndex(where: { $0.id.uuidString == targetID }),
+              to != from,
+              let target = columnFrames[targetID] else { return nil }
+        let inset: CGFloat = 4
+        let x = to < from ? target.minX : target.maxX
+        return CGRect(x: x - 1, y: target.minY + inset, width: 2, height: max(target.height - inset * 2, 0))
+    }
+
+    /// The insertion indicators drawn over the table while dragging: a horizontal
+    /// line for a chip landing in a space column, a vertical line for a column
+    /// being reordered. Both use the shared `Theme.editing` accent (the same
+    /// token the timer digit-group highlight uses), 2pt with rounded caps.
+    @ViewBuilder private var dragIndicators: some View {
+        if let key = dragChip, let loc = dragLocation,
+           let target = columnID(at: loc),
+           let line = chipInsertionLine(column: target, key: key, at: loc) {
+            Capsule(style: .continuous)
+                .fill(Theme.editing)
+                .frame(width: line.width, height: line.height)
+                .position(x: line.midX, y: line.midY)
+        }
+        if let headerTab = dragHeaderTab, let loc = dragLocation,
+           let line = columnInsertionLine(dragging: headerTab, at: loc) {
+            Capsule(style: .continuous)
+                .fill(Theme.editing)
+                .frame(width: line.width, height: line.height)
+                .position(x: line.midX, y: line.midY)
+        }
+    }
+
     /// Horizontal header drag reorders tab columns. Commits on release from the
     /// pointer's column against the measured column frames (same slot-detection
-    /// family as the chip drop); no live column shuffle keeps it robust.
+    /// family as the chip drop); no live column shuffle keeps it robust. A
+    /// vertical insertion line marks the landing slot while dragging.
     private func headerDragGesture(_ id: UUID) -> some Gesture {
         DragGesture(minimumDistance: 8, coordinateSpace: .named(Self.tableCoordinateSpace))
             .onChanged { value in
@@ -1279,6 +1398,7 @@ struct PanelView: View {
                     iconPickerTabID = nil   // an open picker would fight the offset
                 }
                 dragHeaderTranslation = value.translation.width
+                dragLocation = value.location
             }
             .onEnded { value in
                 withAnimation(.easeInOut(duration: 0.15)) {
@@ -1290,6 +1410,7 @@ struct PanelView: View {
                     }
                     dragHeaderTab = nil
                     dragHeaderTranslation = 0
+                    dragLocation = nil
                 }
             }
     }
@@ -2838,12 +2959,14 @@ struct PanelView: View {
         }
     }
 
-    /// The panel layout as one table: a column per space plus a permanent
-    /// "inactive" column. Module chips are dragged between and within columns
-    /// (that IS the visibility control — no on/off toggles); a column header is
-    /// dragged to reorder spaces; the "+" stub adds one. The icon picker opens in
-    /// a popover under each header; the delete confirmation floats over the table
-    /// as a scrim + card (neither reflows the columns).
+    /// The panel layout as one table: a column per space on top, then a
+    /// full-width "inactive" section below. Module chips are dragged between and
+    /// within columns and to/from the inactive section (that IS the visibility
+    /// control — no on/off toggles), with a live insertion indicator; a column
+    /// header is dragged to reorder spaces (its own vertical indicator); the "+"
+    /// stub adds one. The icon picker opens in a popover under each header; the
+    /// delete confirmation floats over the table as a scrim + card (neither
+    /// reflows the columns).
     private var layoutSettings: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -2852,21 +2975,26 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textTertiary)
                 Spacer()
             }
-            HStack(alignment: .top, spacing: 10) {
-                ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
-                    tabColumn(tab, number: index + 1)
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top, spacing: 10) {
+                    ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
+                        tabColumn(tab, number: index + 1)
+                    }
+                    if tabsModel.tabs.count < PanelTabsModel.maxTabs {
+                        addColumnStub
+                    }
                 }
-                inactiveColumn
-                if tabsModel.tabs.count < PanelTabsModel.maxTabs {
-                    addColumnStub
-                }
+                inactiveSection
             }
             .coordinateSpace(name: Self.tableCoordinateSpace)
             .onPreferenceChange(ColumnFrameKey.self) { columnFrames = $0 }
             .onPreferenceChange(ChipFrameKey.self) { chipFrames = $0 }
-            // Delete confirmation floats over the table (dimmed scrim + card)
-            // so the columns never reflow; the icon picker is a popover on each
-            // header. Both open on top of the table, not beneath it.
+            .onPreferenceChange(ChipAreaKey.self) { chipAreaFrames = $0 }
+            // Insertion indicators ride above the columns but never intercept
+            // the drag; the delete confirmation floats over the table (dimmed
+            // scrim + card) so the columns never reflow; the icon picker is a
+            // popover on each header. All draw on top of the table, not beneath.
+            .overlay { dragIndicators.allowsHitTesting(false) }
             .overlay {
                 if let id = confirmDeleteTab {
                     deleteTabConfirmOverlay(id)
@@ -2880,6 +3008,7 @@ struct PanelView: View {
             // TrackerView's resetDrag() and the gesture `onEnded` handlers.
             dragChip = nil
             dragChipTranslation = .zero
+            dragLocation = nil
             dropColumn = nil
             dragHeaderTab = nil
             dragHeaderTranslation = 0

@@ -69,8 +69,13 @@ struct ConvertWindowView: View {
         .frame(width: 540)
         .frame(maxHeight: .infinity)
         .background(Theme.panelBackground)
-        // ⌘V pastes files copied in Finder OR a screenshot on the clipboard —
-        // the same pasteboard ingestion the panel's convert row uses.
+        // ⌘V ingests everything on the clipboard the converter supports —
+        // multiple Finder files at once, a raw screenshot, unsupported items
+        // skipped — the same pasteboard path the panel's convert row uses. The
+        // reliable ⌘V route is the window's performKeyEquivalent (ConverterWindow
+        // in App.swift): the accessory app has no Edit menu, so onPasteCommand
+        // alone never fires. This stays as a fallback for any context that does
+        // route a paste command (it never double-fires — the window consumes ⌘V).
         .onPasteCommand(of: [.fileURL, .image]) { _ in
             model.converter.addFromPasteboard()
         }

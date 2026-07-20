@@ -89,12 +89,21 @@ its "resize windows with hotkeys" toggle/grid), "timer", "other modules",
 is its own top-level section. The switcher chips take their natural width and wrap onto
 a second line if a language runs long (`SectionChips(wraps:)`), so the fifth
 chip never truncates in the 720pt window. The "modules & tabs" section is
-ONE combined table: a column per space, in order,
-then a permanent "inactive" column, then a slim "+" stub column while under
-the space cap. Module chips (name, lowercase) stack vertically in each
-column; a hand-rolled drag moves a chip between columns and within a column
-to reorder — that drag IS the visibility control (`move`/`deactivate`/
-`reorder`). Inactive chips render dimmed. Each space column header carries
+ONE combined table: a row of space columns on top (in order, then a slim "+"
+stub column while under the space cap), and BELOW it a full-width, permanent
+"inactive" section. Module chips (name, lowercase) stack vertically in each
+space column and wrap as a flow in the inactive section; a hand-rolled drag
+moves a chip between columns, within a column, and to/from the inactive
+section — that drag IS the visibility control (`move`/`deactivate`/`reorder`).
+Inactive chips render dimmed. While a chip is dragged, a live insertion
+indicator marks exactly where it will land: a 2pt horizontal line with rounded
+caps in the shared `Theme.editing` accent (the same yellow/goldenrod token the
+timer digit-group highlight uses) between the rows of the target space column
+(top/bottom for first/last, and centred in an empty column). The indicator's
+position is read from the SAME resolver that commits the drop
+(`insertIndex(for:in:at:)`), so line and landing can never disagree. Dropping
+into the inactive section highlights the whole area instead of drawing a
+per-slot line (its bucket order is cosmetic). Each space column header carries
 the space icon (a padded icon+chevron control with breathing room around the
 hover highlight — tap it or its rotating disclosure chevron to open the icon
 picker), "#N", and a hover-only delete xmark that opens a delete confirmation
@@ -110,12 +119,17 @@ every name resolves on macOS 14). It dismisses on outside click, Escape, or a
 pick, and never reflows the table; a drag in progress cannot open it. The
 delete confirmation is an overlay ON the table — a dimmed scrim plus a
 centered card — so the columns never reflow beneath it; the scrim tap or
-Escape cancels. The inactive column header is just an "inactive" label — no
-icon, no delete (no hover affordance at all), and
-it cannot be moved. Dragging a column header horizontally reorders spaces
-(`moveTab`, committed on release against the measured column frames). The
-standalone settings window is 720pt wide so up to five columns (4 spaces +
-inactive) read comfortably; chips truncate with `lineLimit(1)`. The in-panel
+Escape cancels. The inactive section header is just an "inactive" label in the
+section-header style — no icon, no delete (no hover affordance at all), and it
+cannot be moved. Dragging a space column header horizontally reorders spaces
+(`moveTab`, committed on release against the measured column frames), with a
+vertical `Theme.editing` insertion line marking the landing slot while dragging
+(read from the same `columnID(at:)` target the move commits to). Column-drag
+and chip-drag never fight: the header and the chips are separate grab zones.
+The standalone settings window is 720pt wide so the space columns plus the "+"
+stub read comfortably across the top and the inactive flow spans the full
+width below; chips truncate with `lineLimit(1)` in a column and take natural
+width in the inactive flow. The in-panel
 `.settings` screen is unreachable (never set outside `init`, which always
 pairs it with the standalone window), so the table is designed for that
 window only. A module can also be re-homed from the panel: right-click it and
@@ -292,16 +306,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   converter row in the panel reopens the window (↗). Dropping onto the
   panel row also adds files and opens the window. Folders are expanded
   (up to 500 files), duplicates are skipped.
-- Paste feeds the clipboard into the converter exactly like a drop: file
-  URLs (a Finder copy) are added straight; a raw image with no backing file
-  (a screenshot copied to the clipboard) is written to a temp file first and
-  then added — both routes end at the same batch path. In the panel, ⌘V /
-  ⌘⇧V ingest ONLY when the converter is on the active space and no field is
-  being edited (a focused tracker/to-do field or timer-digit entry keeps the
-  keys); otherwise the keys pass through, and the clipboard module's own paste
-  is untouched. In the standalone window ⌘V works unconditionally. An empty or
-  text-only clipboard is a silent no-op; an unsupported file lands in the
-  "unsupported" group, same as a dropped file of that type.
+- Paste feeds the clipboard into the converter exactly like a drop, ingesting
+  EVERYTHING it supports at once: every file URL on the pasteboard
+  (`readObjects(forClasses: [NSURL.self])` returns all items, so a multi-file
+  Finder copy adds them all), or a raw image with no backing file (a screenshot
+  copied to the clipboard) written to a temp file first — both routes end at the
+  same `addToBatch` path. In the panel, ⌘V / ⌘⇧V ingest ONLY when the converter
+  is on the active space and no field is being edited (a focused tracker/to-do
+  field or timer-digit entry keeps the keys); otherwise the keys pass through,
+  and the clipboard module's own paste is untouched. In the standalone window ⌘V
+  works unconditionally and regardless of click-focus — Hop is an accessory app
+  with no Edit menu, so there is no Paste key-equivalent to drive SwiftUI's
+  `onPasteCommand`; the window itself catches ⌘V (`ConverterWindow`'s
+  `performKeyEquivalent`) whenever it is key. An empty or text-only clipboard is
+  a silent no-op; an unsupported file lands in the "unsupported" group, same as
+  a dropped file of that type.
 - Groups: images / PDF / video / audio / unsupported. Each file gets:
   a thumbnail (QuickLook), name, its own size "current → ~estimated";
   the circle turns into a green checkmark when done. Finished files

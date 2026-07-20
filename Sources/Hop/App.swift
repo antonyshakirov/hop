@@ -14,7 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusController: StatusItemController?
     private var onboardingWindow: NSWindow?
     private var settingsWindow: NSWindow?
-    private var converterWindow: NSWindow?
+    private var converterWindow: ConverterWindow?
     private var aboutWindow: NSWindow?
     private var torrentAddWindow: NSWindow?
     private var quitWindow: NSWindow?
@@ -476,11 +476,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func showConverterWindow() {
         model.activity.note() // opening a window counts as active use
         if converterWindow == nil {
-            let window = NSWindow(
+            let window = ConverterWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 540, height: 540),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                 backing: .buffered, defer: false
             )
+            // Hop is an accessory app with no Edit menu, so ⌘V has no Paste
+            // key-equivalent to drive SwiftUI's onPasteCommand. The window
+            // catches ⌘V itself (performKeyEquivalent), so paste works whenever
+            // the window is key regardless of which subview holds focus.
+            window.onPaste = { [weak self] in self?.model.converter.addFromPasteboard() }
             window.titlebarAppearsTransparent = true
             window.titleVisibility = .hidden
             // the window drags only by the title bar: background dragging
@@ -798,6 +803,25 @@ enum TorrentSelfTest {
             }
         }
         RunLoop.main.run()
+    }
+}
+
+/// The standalone converter window handles ⌘V itself. Hop is an accessory
+/// (menu-bar) app whose only scene is an empty `Settings` scene, so there is
+/// no Edit → Paste menu item and thus no ⌘V key-equivalent to trigger the
+/// `paste:` action SwiftUI's `onPasteCommand` listens for — pressing ⌘V would
+/// otherwise just beep. Catching it at the window level makes paste reliable
+/// whenever the window is key, no matter which subview (if any) has focus.
+final class ConverterWindow: NSWindow {
+    var onPaste: (() -> Void)?
+
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
+           event.charactersIgnoringModifiers?.lowercased() == "v" {
+            onPaste?()
+            return true
+        }
+        return super.performKeyEquivalent(with: event)
     }
 }
 
