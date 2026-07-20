@@ -6,9 +6,9 @@ import HopCore
 /// on the same left column); a footer row opens an inline field to add a new item
 /// at the bottom. Deletion is a hover xmark with NO confirmation — a to-do is
 /// cheap to lose and cheap to retype. A `to-dos` subheader names the module above
-/// the list. Rows are TIGHTER than the tracker (spacing 3, vertical padding 2) so
-/// the checklist reads compact; reorder is a whole-row vertical drag. Theme
-/// tokens only.
+/// the list. Rows use a tight rhythm (spacing 3, vertical padding 2) that the
+/// tracker now matches exactly, so the near-twin modules read identically;
+/// reorder is a whole-row vertical drag. Theme tokens only.
 struct TodosView: View {
     @ObservedObject var todos: TodosController
     let lang: AppLanguage

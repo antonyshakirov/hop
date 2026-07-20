@@ -8,7 +8,9 @@ import HopCore
 /// source of the list's order. All state lives in the engine (single-active
 /// invariant, aggregates, corrections); this view is glue. Visual language
 /// follows TorrentView's rows — Theme tokens only, no infinite animations.
-/// Labels tick off `tracker.heartbeat` while running.
+/// Row rhythm matches the to-dos list exactly (VStack spacing 3,
+/// `.padding(.vertical, 2)`), so the near-twin modules read identically when
+/// stacked on one space. Labels tick off `tracker.heartbeat` while running.
 struct TrackerView: View {
     @ObservedObject var tracker: TrackerController
     let lang: AppLanguage
@@ -82,7 +84,7 @@ struct TrackerView: View {
         let _ = tracker.heartbeat
         let rootIDs = engine.data.rootOrder
         let taskByID = Dictionary(engine.data.tasks.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
-        return VStack(alignment: .leading, spacing: 6) {
+        return VStack(alignment: .leading, spacing: 3) {
             subheader
             if rootIDs.isEmpty {
                 // The subheader already names the module, so the empty state is
@@ -179,7 +181,7 @@ struct TrackerView: View {
                 }
             }
         }
-        .padding(.vertical, 5)
+        .padding(.vertical, 2)
         .padding(.horizontal, 2)
         .background(rowFrameReader(task.id))
         // whole-row drag surface: grabbing anywhere reorders (see dragGesture)
@@ -248,7 +250,7 @@ struct TrackerView: View {
             .buttonStyle(.plain)
             .hoverDim()
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, 2)   // matches the task-row rhythm (to-dos parity)
         .padding(.leading, 30)   // sits under the task text, past the row inset + play gutter
         .padding(.trailing, 2)
     }
@@ -431,9 +433,9 @@ struct TrackerView: View {
 
     @ViewBuilder private var addTaskRow: some View {
         if isEditing(.newTask) {
+            // no extra wrapper padding — the field's own inset matches the
+            // to-dos add field exactly (see TodosView.addRow).
             nameField(.newTask, placeholder: t(.trackerNewTask))
-                .padding(.horizontal, 2)
-                .padding(.vertical, 5)
         } else {
             Button { beginNewTask() } label: {
                 addRowLabel(t(.trackerNewTask), iconSize: 10)

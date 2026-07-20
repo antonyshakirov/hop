@@ -478,7 +478,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   flexible spacer instead of overlaying the time — the row's normal 6pt HStack
   spacing separates it from the time on one side and the spacer on the other, so
   the time never moves, is never covered, and a non-hovered row reserves no
-  width at all.
+  width at all. Vertical rhythm matches the to-dos list verbatim (VStack
+  spacing 3, `.padding(.vertical, 2)`); the 8-hour warning row and the inline
+  new-task field carry the same tight padding.
 - **Subheader:** a compact `time tracker` sublabel sits above the list at all
   times (mono 10 semibold, `Theme.textTertiary`, lowercase — the settings
   section-header treatment), so the tracker and to-do lists are distinguishable
@@ -565,9 +567,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`HoverDeleteX`) is inserted IN FLOW right after the row's flexible spacer,
   only while hovered, same mechanism as the tracker: no reserved width on a
   non-hovered row, and a long already-truncated todo text yields room to the
-  xmark on hover instead of running under it. The checklist rhythm is TIGHTER
-  than the tracker's (VStack spacing 3, `.padding(.vertical, 2)`) so the list
-  reads compact.
+  xmark on hover instead of running under it. The checklist rhythm (VStack
+  spacing 3, `.padding(.vertical, 2)`) is shared verbatim with the tracker — the
+  two near-twin modules read identically; the 8-hour warning and inline-edit
+  rows adopt the same tight vertical padding.
 - **Subheader:** a compact `to-dos` sublabel (`todosLabel`) sits above the list
   at all times, same treatment as the tracker's; the empty state then shows just
   the `nothing to do yet` hint, no duplicate title line.
