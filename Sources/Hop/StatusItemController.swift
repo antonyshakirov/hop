@@ -135,7 +135,7 @@ final class StatusItemController: NSObject {
             Task { @MainActor in
                 guard let self, let button = self.statusItem.button,
                       (note.object as? NSWindow) === button.window else { return }
-                self.realignPopover()
+                self.realignPopover(reason: "realign-btn")
             }
         }
         // growing content (expanded clipboard) → AppKit recalculates the popover and
@@ -153,12 +153,36 @@ final class StatusItemController: NSObject {
                 let x = panelWindow.frame.origin.x
                 if let known = self.panelOriginX {
                     if abs(known - x) > 0.5 {
-                        self.realignPopover()
+                        self.realignPopover(reason: "realign-h")
                         self.panelOriginX = panelWindow.frame.origin.x
                     }
                 } else {
                     self.panelOriginX = x
                 }
+            }
+        }
+        // dev-only: raw frame diagnostics for the panel-hop investigation
+        // (debugPanelFrameLog flag, see debugLogPanelFrame below) — catches
+        // every geometry change AppKit reports for the panel window, on top
+        // of whatever the handlers above choose to act on
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.didMoveNotification, object: nil, queue: .main
+        ) { [weak self] note in
+            Task { @MainActor in
+                guard let self,
+                      let panelWindow = self.popover.contentViewController?.view.window,
+                      (note.object as? NSWindow) === panelWindow else { return }
+                self.debugLogPanelFrame("move", frame: panelWindow.frame)
+            }
+        }
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.didResizeNotification, object: nil, queue: .main
+        ) { [weak self] note in
+            Task { @MainActor in
+                guard let self,
+                      let panelWindow = self.popover.contentViewController?.view.window,
+                      (note.object as? NSWindow) === panelWindow else { return }
+                self.debugLogPanelFrame("resize", frame: panelWindow.frame)
             }
         }
         applyTheme()
@@ -206,7 +230,13 @@ final class StatusItemController: NSObject {
 
     /// Re-anchor to the current geometry: NSPopover ignores an identical
     /// positioningRect, so nudge it half a pixel and set it back.
-    private func realignPopover() {
+    /// - Parameter reason: which caller triggered the realign — "realign-btn"
+    ///   (status button moved) or "realign-h" (panel drifted horizontally on
+    ///   resize) — used only to tag the debugPanelFrameLog line below.
+    private func realignPopover(reason: String) {
+        if let panelWindow = popover.contentViewController?.view.window {
+            debugLogPanelFrame(reason, frame: panelWindow.frame)
+        }
         // detached mode (icon hidden by a menu bar manager): the anchor is
         // a stub window at the screen's top-right corner, nothing to re-pin
         guard hiddenAnchorWindow == nil else { return }
@@ -330,6 +360,9 @@ final class StatusItemController: NSObject {
             popover.show(relativeTo: Self.iconAnchor(button), of: button, preferredEdge: .minY)
         } else {
             showPopoverDetached()
+        }
+        if let panelWindow = popover.contentViewController?.view.window {
+            debugLogPanelFrame("shown", frame: panelWindow.frame)
         }
         // return focus to the previous app: the panel stays visible
         // (transient doesn't close on programmatic activation), and the keyboard
@@ -516,5 +549,41 @@ final class StatusItemController: NSObject {
 
         // the anchor is fixed to the icon zone — no re-anchoring needed at all:
         // the icon is always on the left, the countdown grows on the right and never touches the anchor
+    }
+
+    // MARK: - Debug: panel frame log
+
+    /// Dev-only diagnostics for the "panel hops on space switch" investigation:
+    /// enable with `defaults write com.antonshakirov.minimo.dev debugPanelFrameLog
+    /// -bool true` (same pattern as debugRedBadgeAlways above), read live via
+    /// `UserDefaults.standard.bool(forKey:)` so no relaunch is needed to toggle
+    /// it. When on, every frame AppKit reports for the popover panel window is
+    /// appended to `<Application Support>/<bundle id>/panel-frames.log` — the
+    /// one thing that can't be watched from outside the app, since macOS
+    /// privacy blocks external window observation. `topEdge` is what must stay
+    /// constant across a space switch; `origin`/`size` are AppKit's bottom-left
+    /// coordinates. Guarded first thing, so the flag being off costs nothing.
+    private func debugLogPanelFrame(_ tag: String, frame: NSRect) {
+        guard UserDefaults.standard.bool(forKey: "debugPanelFrameLog") else { return }
+        // systemUptime: monotonic seconds since boot, unaffected by clock changes
+        let ms = ProcessInfo.processInfo.systemUptime * 1000
+        let topEdge = frame.origin.y + frame.height
+        let line = String(
+            format: "%.3f %@ x=%.2f y=%.2f w=%.2f h=%.2f top=%.2f\n",
+            ms, tag, frame.origin.x, frame.origin.y, frame.width, frame.height, topEdge
+        )
+        guard let data = line.data(using: .utf8) else { return }
+        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(Bundle.storageIdentifier, isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let file = dir.appendingPathComponent("panel-frames.log")
+        if let handle = FileHandle(forWritingAtPath: file.path) {
+            defer { handle.closeFile() }
+            handle.seekToEndOfFile()
+            handle.write(data)
+        } else {
+            // file doesn't exist yet: create it with this first line
+            try? data.write(to: file)
+        }
     }
 }
