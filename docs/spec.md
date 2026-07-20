@@ -435,29 +435,33 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`start(taskID:)`), the UI never juggles two. Deleting the active task stops
   tracking (its open interval is dropped with it). `activeIntervalStart` exposes
   the open interval's start so the view can flag a long run (see 8-hour warning).
-- **Menu-bar indication:** while a task is tracking, a small monochrome
-  stopwatch glyph is shown as the LEFTMOST element of the status-button title
-  (an `NSTextAttachment` on the same attributed-title channel as the torrent
-  ↓/↑ arrows, before the arrows and any time digits, with a thin space after).
-  Because it lives in the title and not in the icon's bottom-right badge slot,
-  it COEXISTS with the timer's play/pause badge and the countdown digits —
-  both indicators are visible together whenever both are active. It is shown
-  whenever a task is tracking, REGARDLESS of the timer state, and it never
-  forces the coloured icon path on its own (tracking with no other decoration
-  keeps the template-icon fast path). The glyph is pre-tinted to the menu bar
-  monochrome (white in dark, 85%-black in light) exactly like the icon glyphs,
-  at ~11pt, baseline-centred on the digits' cap band (attachment y-offset
-  ≈ −2pt). An opt-in `show task time in menu bar` setting (`trackerTimeInBar`,
-  OFF) additionally shows the active task's ticking `today` value as the bar
-  title, but only when nothing else claimed it — the timer countdown always
-  wins; the stopwatch glyph appears in both cases. `today(taskID:)` stays in
-  the engine for this figure and for corrections math; the panel itself shows
-  the total, not today. Both toggle immediately on start/stop and tick 1/s off
-  `tracker.heartbeat`. The width-freeze counts the glyph like any character
-  (attachment + thin space = 2 chars in `.string`): starting or stopping
-  tracking while the panel is open extends or space-pads the frozen width, and
-  since the glyph grows the title on the RIGHT of the fixed icon anchor, the
-  popover does not drift (the didMove observer re-anchors on any extension).
+- **Menu-bar indication:** while a task is tracking, a small hand-drawn
+  monochrome stopwatch BADGE is shown in the icon's bottom-right slot — the
+  same slot the timer's play/pause badge uses (`MenuBarIcon.drawTrackingBadge`:
+  a ~5.4pt stroked circle body with a short crown tick on top, drawn by hand
+  because an SF `stopwatch` symbol reads spiky at 7pt). It is monochrome — the
+  star's glyph colour (white in dark, 85%-black in light), NOT a system colour
+  like the green/orange play/pause badges — so tracking adds no new hue to the
+  bar. Crucially it lives on the FIXED 22×17 icon canvas, so tracking has ZERO
+  effect on the status-item width and cannot shift the attached panel (this
+  replaced an earlier in-title glyph that widened the button — Anton, 2026-07-20).
+  **Slot precedence:** the timer's play/pause badge WINS the slot; the badge
+  only appears when the countdown digits are HIDDEN, so in the normal config
+  (digits on) the countdown sits in the title and the stopwatch badge in the
+  corner — both states visible at once. In the rare overlap (countdown digits
+  OFF + timer running/paused + a task tracking) the timer badge takes the slot
+  and the tracking state is visible only inside the panel; this is deliberate.
+  Tracking is a decoration, so it drops out of the plain-template fast path and
+  the icon goes through `compose` (same as a badge or awake dot). An opt-in
+  `show task time in menu bar` setting (`trackerTimeInBar`, OFF) additionally
+  shows the active task's ticking `today` value as the bar title (digits only —
+  no glyph), but only when nothing else claimed it — the timer countdown always
+  wins. `today(taskID:)` stays in the engine for this figure and for corrections
+  math; the panel itself shows the total, not today. The badge toggles
+  immediately on start/stop off `tracker.heartbeat`; the opt-in bar time ticks
+  1/s. The badge never touches the title, so it plays no part in the
+  width-freeze — only the `trackerTimeInBar` digits (a deliberate, opt-in width
+  change of the same class as the countdown) ever change the title width.
 - **Flat rows** (no card fills — TorrentView-style): regular weight everywhere;
   the ACTIVE task is emphasized by COLOR only (its total label
   `Theme.textPrimary`). Rows sit FLUSH LEFT — there is no reserved drag-handle
@@ -686,11 +690,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"
   variant was tried and reverted. "Same as system" sits on top; there is
   search.
-- Menu bar: asterisk (brand glyph, 8 rays); on the right — a play/pause
-  badge (bottom) and a yellow awake dot (top); on finish — a blinking bell;
-  the countdown is monospaced and can be disabled in settings. A task tracking
-  is shown by a stopwatch glyph at the LEFT of the title (not an icon badge),
-  so it coexists with the timer badge and countdown instead of sharing a slot.
+- Menu bar: asterisk (brand glyph, 8 rays); on the right — a bottom badge and
+  a yellow awake dot (top); on finish — a blinking bell; the countdown is
+  monospaced and can be disabled in settings. The bottom badge is the timer's
+  play/pause when the timer claims it; otherwise, while a task is tracking, a
+  hand-drawn monochrome stopwatch badge sits there. With the countdown on
+  (default) the digits are in the title and the stopwatch badge in the corner,
+  so both show at once; the badge never changes the status-item width.
 - **The panel is keyboard-transparent** (Anton, 2026-07-13; completed
   2026-07-15): it never steals keyboard focus — on open AND after any
   click inside it, focus goes back to the app underneath (dictation and

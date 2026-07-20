@@ -82,52 +82,12 @@ enum MenuBarIcon {
         return image
     }()
 
-    /// Stopwatch glyph for the status-button TITLE, shown while a task is
-    /// tracking. It rides the same attributed-title channel as the torrent
-    /// ↓/↑ arrows, so it never competes with the icon's bottom-right badge
-    /// slot or the countdown digits — the two indicators coexist. Pre-tinted
-    /// to the menu bar monochrome (white in dark, 85%-black in light) exactly
-    /// like the icon glyphs, so it adapts to the bar without relying on a
-    /// status button auto-tinting a template attachment. Returns the
-    /// attachment followed by a thin space (2 characters in `.string`).
-    static func trackingGlyphString() -> NSAttributedString {
-        let dark = NSApplication.shared.effectiveAppearance
-            .bestMatch(from: [.darkAqua, .aqua]) != .aqua
-        let color: NSColor = dark ? .white : NSColor.black.withAlphaComponent(0.85)
-        // ~11pt keeps the glyph a touch smaller than the 12pt mono digits.
-        let pointSize: CGFloat = 11
-        let mono = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
-        let attachment = NSTextAttachment()
-        if let base = NSImage(systemSymbolName: "stopwatch", accessibilityDescription: nil)?
-            .withSymbolConfiguration(.init(pointSize: pointSize, weight: .regular)) {
-            // pre-tint the same way draw(symbol:) does the bell: draw the
-            // template, then flood it with the monochrome via sourceAtop.
-            let tinted = NSImage(size: base.size)
-            tinted.lockFocus()
-            base.draw(in: NSRect(origin: .zero, size: base.size),
-                      from: .zero, operation: .sourceOver, fraction: 1)
-            color.set()
-            NSRect(origin: .zero, size: base.size).fill(using: .sourceAtop)
-            tinted.unlockFocus()
-            tinted.isTemplate = false
-            attachment.image = tinted
-            // center the glyph on the digits' cap band so it doesn't sit high:
-            // y = (capHeight − imageHeight) / 2 ≈ (8.6 − 12.5) / 2 ≈ −2pt.
-            let y = (mono.capHeight - base.size.height) / 2
-            attachment.bounds = NSRect(
-                x: 0, y: y, width: base.size.width, height: base.size.height
-            )
-        }
-        let result = NSMutableAttributedString(attachment: attachment)
-        // a thin space before the arrows/digits — kept at the title font so the
-        // line height stays uniform; it counts as the second prefix character.
-        result.append(NSAttributedString(string: "\u{2009}", attributes: [.font: mono]))
-        return result
-    }
-
     /// awakeDot: yellow — no-sleep is active; orange — ONLY the lid is
     /// enabled (can be closed, but without no-sleep the Mac will doze off); nil — no dot.
-    static func compose(base: Base, badge: StateBadge?, awakeDot: NSColor?, alertMark: Bool = false) -> NSImage {
+    static func compose(
+        base: Base, badge: StateBadge?, awakeDot: NSColor?,
+        tracking: Bool = false, alertMark: Bool = false
+    ) -> NSImage {
         let size = canvasSize
         let image = NSImage(size: size)
         image.lockFocus()
@@ -149,8 +109,21 @@ enum MenuBarIcon {
                  fraction: dark ? 1.0 : 0.85)
         }
 
+        // bottom-right slot: the timer play/pause badge WINS it; only when the
+        // timer isn't claiming the slot does a tracking task show its stopwatch
+        // badge there. Either way the badge lives on the fixed 22×17 canvas, so
+        // tracking adds ZERO width to the status item (unlike the retired
+        // in-title glyph, which widened the button and shifted the panel).
+        let slot = NSRect(x: size.width - 8, y: 0.5, width: 7, height: 7)
         if let badge {
-            drawBadge(badge, in: NSRect(x: size.width - 8, y: 0.5, width: 7, height: 7))
+            drawBadge(badge, in: slot)
+        } else if tracking {
+            // monochrome like the star (NOT a system colour) so tracking never
+            // introduces a new bar hue — 85%-black in light to match the dial.
+            drawTrackingBadge(
+                color: dark ? glyphColor : glyphColor.withAlphaComponent(0.85),
+                in: slot
+            )
         }
         if let awakeDot {
             awakeDot.setFill()
@@ -206,6 +179,28 @@ enum MenuBarIcon {
                 ).fill()
             }
         }
+    }
+
+    /// Tracking indicator: a hand-drawn mini stopwatch in the bottom-right
+    /// slot — a stroked circle body with a short crown tick on top. Drawn by
+    /// hand for the same reason as the play/pause badges: an SF `stopwatch`
+    /// symbol reads spiky and muddy at 7pt. Monochrome (the caller passes the
+    /// star's glyph colour), so it never adds a colour to the bar.
+    private static func drawTrackingBadge(color: NSColor, in rect: NSRect) {
+        color.setStroke()
+        // ~5.4pt body, seated low so the crown clears the slot's top edge.
+        let d: CGFloat = 5.4
+        let body = NSRect(x: rect.midX - d / 2, y: rect.minY + 0.4, width: d, height: d)
+        let circle = NSBezierPath(ovalIn: body)
+        circle.lineWidth = 0.9
+        circle.stroke()
+        // crown: a short vertical tick centred on top of the body
+        let crown = NSBezierPath()
+        crown.move(to: NSPoint(x: rect.midX, y: body.maxY - 0.2))
+        crown.line(to: NSPoint(x: rect.midX, y: body.maxY + 0.9))
+        crown.lineWidth = 1.0
+        crown.lineCapStyle = .round
+        crown.stroke()
     }
 
     private static func draw(
