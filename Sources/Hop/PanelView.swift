@@ -270,6 +270,10 @@ struct PanelView: View {
         VStack(spacing: 0) {
             chrome
                 .background(chromeHeightReader)
+                // dev-only (task 8.18): log the fixed chrome's global minY on
+                // every layout change so one user reproduction says numerically
+                // whether the header top is now identical across spaces
+                .background(chromeFrameLogReader)
             panelScrollRegion
         }
         .frame(width: 368)
@@ -604,6 +608,27 @@ struct PanelView: View {
         }
     }
 
+    /// Dev-only (task 8.18): the fixed chrome's top edge in global coordinates.
+    /// Appends to the SAME panel-frames.log the window-frame observers use
+    /// (`debugPanelFrameLog` flag), tagged `chromeY`, alongside the active space
+    /// key — so a space-switch reproduction shows, on one timeline, whether the
+    /// chrome's minY actually moves inside the (proven pixel-stable) window. Pure
+    /// read: `Color.clear` in a background never affects layout, and the write is
+    /// a no-op unless the flag is set.
+    private var chromeFrameLogReader: some View {
+        GeometryReader { geo in
+            Color.clear
+                .onAppear { logChromeY(geo.frame(in: .global).minY) }
+                .onChange(of: geo.frame(in: .global).minY) { _, y in logChromeY(y) }
+        }
+    }
+
+    private func logChromeY(_ minY: CGFloat) {
+        guard PanelFrameLog.enabled else { return }
+        PanelFrameLog.write("chromeY",
+                            String(format: "minY=%.2f space=%@", minY, scrollResetKey))
+    }
+
     private var contentHeightReader: some View {
         GeometryReader { geo in
             Color.clear
@@ -806,14 +831,28 @@ struct PanelView: View {
     /// content are measured separately (task 8.16): their sum is the panel's full
     /// natural height, but only the content's height feeds the flexing scroll
     /// frame while the chrome stays fixed above it.
+    ///
+    /// Both are rounded UP to whole points (task 8.18). The window size is a
+    /// ceil of the natural panel height (IntegralSizeHostingController), so a
+    /// FRACTIONAL scroll-frame height left the composed panel (chrome + content)
+    /// a sub-point shorter than its own ceil'd window. Different spaces have
+    /// different fractional parts, so that leftover — however the hosting view
+    /// distributes it — surfaced as a persistent per-space 1px vertical shift of
+    /// the fixed chrome (the header sat a point lower on taller spaces). Feeding
+    /// whole-point heights makes chrome + content equal the window EXACTLY: there
+    /// is no leftover to place, so the chrome cannot shift between spaces. The
+    /// content reader still measures the module stack's natural (fractional)
+    /// height, so rounding here is stable — it never feeds back into the measure.
     private func updateChromeHeight(_ height: CGFloat) {
-        guard abs(height - chromeHeight) > 1 else { return }
-        DispatchQueue.main.async { chromeHeight = height }
+        let rounded = height.rounded(.up)
+        guard abs(rounded - chromeHeight) >= 1 else { return }
+        DispatchQueue.main.async { chromeHeight = rounded }
     }
 
     private func updateContentHeight(_ height: CGFloat) {
-        guard abs(height - contentHeight) > 1 else { return }
-        DispatchQueue.main.async { contentHeight = height }
+        let rounded = height.rounded(.up)
+        guard abs(rounded - contentHeight) >= 1 else { return }
+        DispatchQueue.main.async { contentHeight = rounded }
     }
 
     private func updateDisplayWidth(_ width: CGFloat) {

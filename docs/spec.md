@@ -55,14 +55,19 @@ signing would break).
    chrome (the "what's new" banner + the header) is a sibling ABOVE the scroll
    region, never inside it, and ONLY the active space's module stack (or the
    settings/about overlay body) scrolls. Chrome and content heights are measured
-   separately; the scroll region's fixed height is
+   separately AND ROUNDED UP to whole points; the scroll region's fixed height is
    `min(contentHeight, maxPanelHeight − chromeHeight)`, so it flexes and clamps
-   the whole panel to the screen while the chrome stays put. Switching to a
-   taller/shorter space changes the content height instantly and the measurement
-   trails by one runloop, but the header is out of the scroll, so only the scroll
-   region's bottom edge moves — the header cannot bob, nor be dragged by a
-   leftover scroll offset (each space/overlay gets a fresh scroll identity that
-   starts at offset 0).
+   the whole panel to the screen while the chrome stays put. Whole-point rounding
+   matters: the window size is a ceil of the natural panel height, so a
+   fractional content height left chrome + content a sub-point shorter than their
+   own ceil'd window, and that per-space leftover surfaced as a persistent 1px
+   vertical shift of the fixed chrome (the header sat a point lower on taller
+   spaces). Feeding whole-point heights makes chrome + content equal the window
+   exactly — no leftover to place. Switching to a taller/shorter space changes
+   the content height instantly and the measurement trails by one runloop, but
+   the header is out of the scroll, so only the scroll region's bottom edge moves
+   — the header cannot bob, nor be dragged by a leftover scroll offset (each
+   space/overlay gets a fresh scroll identity that starts at offset 0).
 6. popover.animates = false; the popover theme follows the setting/system.
 
 ## Modules

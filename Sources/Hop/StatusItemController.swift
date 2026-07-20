@@ -554,24 +554,40 @@ final class StatusItemController: NSObject {
     // MARK: - Debug: panel frame log
 
     /// Dev-only diagnostics for the "panel hops on space switch" investigation:
-    /// enable with `defaults write com.antonshakirov.minimo.dev debugPanelFrameLog
-    /// -bool true` (same pattern as debugRedBadgeAlways above), read live via
-    /// `UserDefaults.standard.bool(forKey:)` so no relaunch is needed to toggle
-    /// it. When on, every frame AppKit reports for the popover panel window is
-    /// appended to `<Application Support>/<bundle id>/panel-frames.log` — the
-    /// one thing that can't be watched from outside the app, since macOS
-    /// privacy blocks external window observation. `topEdge` is what must stay
-    /// constant across a space switch; `origin`/`size` are AppKit's bottom-left
-    /// coordinates. Guarded first thing, so the flag being off costs nothing.
+    /// every frame AppKit reports for the popover panel window (move/resize/
+    /// realign/show). `topEdge` is what must stay constant across a space switch;
+    /// `origin`/`size` are AppKit's bottom-left coordinates. Routed through the
+    /// shared `PanelFrameLog` sink so these window events and the SwiftUI chrome
+    /// reader (task 8.18, tag `chromeY`) land on one timeline.
     private func debugLogPanelFrame(_ tag: String, frame: NSRect) {
-        guard UserDefaults.standard.bool(forKey: "debugPanelFrameLog") else { return }
+        let topEdge = frame.origin.y + frame.height
+        PanelFrameLog.write(tag, String(
+            format: "x=%.2f y=%.2f w=%.2f h=%.2f top=%.2f",
+            frame.origin.x, frame.origin.y, frame.width, frame.height, topEdge
+        ))
+    }
+}
+
+/// Shared dev-only sink for the panel-hop diagnostics: enable with
+/// `defaults write <bundle id> debugPanelFrameLog -bool true` (same live-read
+/// pattern as debugRedBadgeAlways), read via `UserDefaults.standard` so no
+/// relaunch is needed. When on, each tagged line is appended to
+/// `<Application Support>/<bundle id>/panel-frames.log` — the one thing that
+/// can't be watched from outside the app, since macOS privacy blocks external
+/// window observation. Both the window-frame observers (StatusItemController)
+/// and the chrome global-minY reader (PanelView) write here, so window motion
+/// and in-content chrome motion share a single timeline. Not `@MainActor`: the
+/// file write is thread-agnostic and callers already run on the main thread.
+enum PanelFrameLog {
+    /// Cheap gate so the flag being off costs a single bool read (the `fields`
+    /// autoclosure below is never evaluated when disabled).
+    static var enabled: Bool { UserDefaults.standard.bool(forKey: "debugPanelFrameLog") }
+
+    static func write(_ tag: String, _ fields: @autoclosure () -> String) {
+        guard enabled else { return }
         // systemUptime: monotonic seconds since boot, unaffected by clock changes
         let ms = ProcessInfo.processInfo.systemUptime * 1000
-        let topEdge = frame.origin.y + frame.height
-        let line = String(
-            format: "%.3f %@ x=%.2f y=%.2f w=%.2f h=%.2f top=%.2f\n",
-            ms, tag, frame.origin.x, frame.origin.y, frame.width, frame.height, topEdge
-        )
+        let line = String(format: "%.3f %@ %@\n", ms, tag, fields())
         guard let data = line.data(using: .utf8) else { return }
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent(Bundle.storageIdentifier, isDirectory: true)
