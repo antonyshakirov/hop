@@ -88,15 +88,17 @@ struct TodosView: View {
             Button { todos.toggle(item.id) } label: {
                 // same circle family and diameter as the tracker's play/stop, in
                 // muted tokens: an empty ring when open, a filled disc with a
-                // knocked-out check when done. Centered in the shared 22pt gutter
-                // so the two modules line up on the same left column.
+                // knocked-out check when done. Left-aligned in the shared 22pt
+                // gutter so its visible edge sits on the row inset line (the same
+                // line the subheader/footer text start on) and the two modules
+                // line up on the same left column.
                 TransportCircle(systemName: item.done ? "checkmark" : "",
                                 filled: item.done,
                                 iconSize: 10,
                                 fillColor: Theme.textTertiary,
                                 strokeColor: Theme.textSecondary,
                                 glyphColor: Theme.background)
-                    .frame(width: RowCircle.gutter, height: RowCircle.gutter)
+                    .frame(width: RowCircle.gutter, height: RowCircle.gutter, alignment: .leading)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -107,13 +109,15 @@ struct TodosView: View {
                 .strikethrough(item.done, color: Theme.textTertiary)
                 .lineLimit(1)
                 .truncationMode(.tail)
-            // the Spacer keeps the row full-width (drag surface) with the xmark
-            // gone from the flow — it is a trailing overlay instead, so a
-            // non-hovered row has no reserved gap and hovering never shifts.
+            // the Spacer keeps the row full-width (drag surface); the hover
+            // xmark, when shown, sits IN FLOW right after it, so a non-hovered
+            // row has no reserved gap, hovering never shifts anything, and a
+            // long already-truncated text yields room to the xmark instead of
+            // running under it (a trailing overlay could not guarantee that).
             Spacer(minLength: 6)
-        }
-        .overlay(alignment: .trailing) {
-            HoverDeleteX(visible: hovered == item.id) { todos.delete(item.id) }
+            if hovered == item.id {
+                HoverDeleteX { todos.delete(item.id) }
+            }
         }
         .padding(.horizontal, 2)
         .padding(.vertical, 2)

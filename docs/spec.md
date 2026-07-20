@@ -462,15 +462,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the ACTIVE task is emphasized by COLOR only (its total label
   `Theme.textPrimary`). Rows sit FLUSH LEFT — there is no reserved drag-handle
   gutter; the play/stop button is the leading element at the 2pt row inset,
-  centered in a shared 22pt gutter (`RowCircle.gutter`) so it lines up with the
-  to-do checkbox on the same left column when the two modules stack on a space.
-  The play/stop circle and the checkbox are ONE control at ONE visible diameter
-  (`RowCircle.diameter`, 18pt — between the old transport 22 and checkbox ~13),
-  both drawn by the shared `TransportCircle`. Delete xmarks are hover-only and
-  render as a trailing OVERLAY (`HoverDeleteX`), never in the row flow: a
-  non-hovered row reserves NO width after the time (no hole) and hovering never
-  shifts the layout — the xmark floats over the time's right edge with a subtle
-  backing so it reads.
+  LEFT-ALIGNED (not centered) in a shared 22pt gutter (`RowCircle.gutter`) so its
+  visible edge sits exactly on the row inset line — the same line the
+  `time tracker` subheader and the `+ new task` footer text start on — and lines
+  up with the to-do checkbox on the same left column when the two modules stack
+  on a space. The play/stop circle and the checkbox are ONE control at ONE
+  visible diameter (`RowCircle.diameter`, 18pt — between the old transport 22 and
+  checkbox ~13), both drawn by the shared `TransportCircle`. Delete xmarks are
+  hover-only (`HoverDeleteX`); in the tracker one is inserted IN FLOW right
+  before the total time, only while the row is hovered, eating into the row's
+  flexible spacer instead of overlaying the time — the row's normal 6pt HStack
+  spacing separates it from the time on one side and the spacer on the other, so
+  the time never moves, is never covered, and a non-hovered row reserves no
+  width at all.
 - **Subheader:** a compact `time tracker` sublabel sits above the list at all
   times (mono 10 semibold, `Theme.textTertiary`, lowercase — the settings
   section-header treatment), so the tracker and to-do lists are distinguishable
@@ -549,12 +553,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   strikethrough), and a hover-only xmark. Deletion has NO confirmation — a to-do
   is cheap to lose and to retype — and works for done and active alike. Rows sit
   FLUSH LEFT (no handle gutter): the checkbox is the leading element at the 2pt
-  row inset, ONE control at ONE diameter with the tracker's play/stop
-  (`RowCircle.diameter` centered in the 22pt `RowCircle.gutter`), so the two line
-  up on the same left column when the modules stack on a space. The hover xmark is
-  a trailing OVERLAY (`HoverDeleteX`) — no reserved width, no shift on hover, same
-  as the tracker. The checklist rhythm is TIGHTER than the tracker's (VStack
-  spacing 3, `.padding(.vertical, 2)`) so the list reads compact.
+  row inset, LEFT-ALIGNED (not centered) in the 22pt `RowCircle.gutter` — its
+  visible edge sits exactly on the row inset line, the same line the `to-dos`
+  subheader and the `+ new task` footer text start on — ONE control at ONE
+  diameter with the tracker's play/stop (`RowCircle.diameter`), so the two line
+  up on the same left column when the modules stack on a space. The hover xmark
+  (`HoverDeleteX`) is inserted IN FLOW right after the row's flexible spacer,
+  only while hovered, same mechanism as the tracker: no reserved width on a
+  non-hovered row, and a long already-truncated todo text yields room to the
+  xmark on hover instead of running under it. The checklist rhythm is TIGHTER
+  than the tracker's (VStack spacing 3, `.padding(.vertical, 2)`) so the list
+  reads compact.
 - **Subheader:** a compact `to-dos` sublabel (`todosLabel`) sits above the list
   at all times, same treatment as the tracker's; the empty state then shows just
   the `nothing to do yet` hint, no duplicate title line.
@@ -587,15 +596,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **RowCircle + TransportCircle (Controls.swift)** are the shared leading-circle
   geometry and view for the row modules: the tracker's play/stop button and the
   to-do checkbox are ONE control at ONE visible diameter (`RowCircle.diameter`,
-  18pt), each centered in the 22pt `RowCircle.gutter` at the 2pt row inset so the
-  two line up on the same left column. `TransportCircle` draws a FILLED disc
+  18pt), each LEFT-ALIGNED (not centered) in the 22pt `RowCircle.gutter` at the
+  2pt row inset, so the circle's visible edge sits exactly on the row inset line
+  — the same line the module subheader and footer text start on — and the two
+  circles line up on the same left column. `TransportCircle` draws a FILLED disc
   (glyph knocked out) or a BORDERED ring (an empty `systemName` = an unchecked
   box), with per-caller colors — the timer transport palette by default, muted
   tokens for the checkbox.
-- **HoverDeleteX (Controls.swift)** is the shared hover-only row delete, rendered
-  as a trailing OVERLAY by both row modules, so a hidden xmark reserves no width
-  and hovering never shifts the row's trailing content; a subtle backing lets it
-  read when it floats over a trailing label (the tracker's time).
+- **HoverDeleteX (Controls.swift)** is the shared hover-only row delete. Both row
+  modules insert it IN FLOW, only while the row is hovered, right before the
+  row's trailing fixed content (the tracker's time; nothing follows it in
+  to-dos) — it lives inside the row's flexible spacer, so a non-hovered row
+  reserves no width and the trailing content never moves or gets covered.
 
 ## Panel and navigation
 

@@ -675,14 +675,14 @@ struct FieldCommitButtons: View {
     }
 }
 
-/// Trailing delete affordance revealed on row hover. Rendered as an OVERLAY at
-/// the row's trailing edge (never in the flow), so a hidden xmark reserves NO
-/// width and hovering never shifts the layout — the row's own trailing content
-/// (e.g. the tracker's time) keeps its position. A subtle backing lets the glyph
-/// read when it floats over that content. Kept out of hit-testing while hidden so
-/// the invisible glyph can't be clicked; callers pass their per-row hover state.
+/// Hover-only row delete. The row modules insert it IN FLOW — never as an
+/// overlay — only while the row is hovered, so a non-hovered row reserves no
+/// width and the row's trailing content (the tracker's time; nothing follows
+/// it in to-dos) never moves and is never covered. Its own 22×22 hit area sits
+/// entirely inside the row's flexible spacer gap, with the row's normal 6pt
+/// HStack spacing separating it from its neighbors on both sides, so it can
+/// never intercept a click meant for the time label beside it.
 struct HoverDeleteX: View {
-    let visible: Bool
     let action: () -> Void
 
     var body: some View {
@@ -691,24 +691,23 @@ struct HoverDeleteX: View {
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(Theme.textSecondary)
                 .frame(width: 22, height: 22)
-                // the row color behind the glyph, so it masks whatever it floats
-                // over (a trailing time label) instead of colliding with it.
                 .background(Theme.background, in: RoundedRectangle(cornerRadius: 5))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .hoverHighlight(4)
-        .opacity(visible ? 1 : 0)
-        .allowsHitTesting(visible)
     }
 }
 
 /// Shared geometry for the leading circle of the row modules (the tracker's
 /// play/stop button and the to-do checkbox), so the two read as ONE control at
 /// ONE size on the shared left column. The visible circle is `diameter`; both
-/// modules center it in a `gutter`-wide leading slot (the 2pt row inset lines the
-/// slots up), which keeps their left edge and their gap-to-text identical and
-/// leaves the tracker's long-run row inset (2 + gutter + 6 = 30pt) unchanged.
+/// modules LEFT-ALIGN it (not center it) in a `gutter`-wide leading slot, so its
+/// visible edge sits exactly on the row's 2pt inset — the same line the module
+/// subheader and the "+ new task" footer text start on, edge to edge, no gap.
+/// This keeps the left edge and the gap-to-text identical between the two
+/// modules, and leaves the tracker's long-run row inset (2 + gutter + 6 = 30pt,
+/// which targets the task text past the circle, not the circle itself) unchanged.
 enum RowCircle {
     static let diameter: CGFloat = 18   // between the old transport 22 and checkbox ~13
     static let gutter: CGFloat = 22

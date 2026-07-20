@@ -164,20 +164,19 @@ struct TrackerView: View {
                 }
             } else {
                 // the total stays the last IN-FLOW element (flush right, fixed
-                // position); the delete xmark is a trailing OVERLAY, so a
-                // non-hovered row reserves no width after the time (no hole) and
-                // hovering never shifts the layout.
+                // position); the delete xmark, while hovered, is inserted IN FLOW
+                // right before it — it eats into the flexible spacer instead of
+                // overlaying the time, so the time never moves and is never
+                // covered, and a non-hovered row reserves no width at all.
                 HStack(spacing: 6) {
                     playStop(task, active: active)
                     taskName(task)
                     Spacer(minLength: 6)
+                    if showsHoverX, hovered == task.id {
+                        HoverDeleteX { confirmingDeleteTask = task.id }
+                    }
                     totalView(task, active: active)
                 }
-            }
-        }
-        .overlay(alignment: .trailing) {
-            if showsHoverX {
-                HoverDeleteX(visible: hovered == task.id) { confirmingDeleteTask = task.id }
             }
         }
         .padding(.vertical, 5)
@@ -202,10 +201,12 @@ struct TrackerView: View {
             // same play/pause family as the main timer button: filled circle
             // offers "start" (play), bordered circle offers "pause". Scaled to
             // the task row.
-            // one shared diameter with the to-do checkbox, centered in the 22pt
-            // leading gutter so the two line up on the same left column.
+            // one shared diameter with the to-do checkbox, left-aligned in the
+            // 22pt leading gutter so its visible edge sits on the row inset line
+            // (the same line the subheader/footer text start on) and the two
+            // circles line up on the same left column.
             TransportCircle(systemName: active ? "pause.fill" : "play.fill", filled: !active)
-                .frame(width: RowCircle.gutter, height: RowCircle.gutter)
+                .frame(width: RowCircle.gutter, height: RowCircle.gutter, alignment: .leading)
         }
         .buttonStyle(.plain)
         .hoverDim()
