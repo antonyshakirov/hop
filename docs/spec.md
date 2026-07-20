@@ -490,7 +490,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   section-header treatment), so the tracker and to-do lists are distinguishable
   at a glance when the two modules stack on one space.
 - **Task row:** a play/PAUSE button in the main timer's transport family
-  (`TransportCircle`: `play.fill` filled when idle = "start"; `pause.fill`
+  (`TransportCircle`: a hand-drawn rounded-corner play triangle (`PlayGlyph`,
+  not SF's sharp-cornered `play.fill` — same fill+round-join-stroke technique
+  as the status-bar running badge) filled when idle = "start"; `pause.fill`
   bordered when this task is active), the name, then ONE time — the all-time
   TOTAL (mono 11, `TimeFormatting.short`, ticking while active) — and the hover
   xmark. Clicking the xmark switches the row into an IN-ROW delete confirm rather

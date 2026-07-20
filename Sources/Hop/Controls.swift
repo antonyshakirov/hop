@@ -748,12 +748,62 @@ enum RowCircle {
     static let strokeWidth: CGFloat = 1.5
 }
 
+/// A play triangle drawn as a closed path rather than the SF glyph — lets the
+/// corners come out rounded (see `PlayGlyph` below). `inset` is baked into the
+/// path itself (not `.padding`) so a caller can size the stroke and the path
+/// off the same box.
+private struct PlayTriangleShape: Shape {
+    var inset: CGFloat = 0
+
+    func path(in rect: CGRect) -> Path {
+        let r = rect.insetBy(dx: inset, dy: inset)
+        var path = Path()
+        path.move(to: CGPoint(x: r.minX, y: r.minY))
+        path.addLine(to: CGPoint(x: r.minX, y: r.maxY))
+        path.addLine(to: CGPoint(x: r.maxX, y: r.midY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// Rounded-corner play triangle for `TransportCircle`'s "start" glyph. SF's
+/// `play.fill` is sharp-cornered; `MenuBarIcon.drawBadge`'s hand-drawn running
+/// badge already solved this for the status-bar dot (fill the path, then
+/// stroke it with a round join thick enough to bulge the corners smooth) —
+/// this reproduces the same technique in SwiftUI, scaled to the row circle
+/// instead of the 7pt badge slot.
+private struct PlayGlyph: View {
+    let color: Color
+    var box: CGFloat
+
+    var body: some View {
+        // The path sits inset by half the stroke width, so the stroke's
+        // outward bulge fills back out to `box` — same footprint as an
+        // un-inset sharp triangle would have, just with rounded corners.
+        let strokeWidth = box * 0.34
+        let inset = strokeWidth / 2
+        ZStack {
+            PlayTriangleShape(inset: inset).fill(color)
+            PlayTriangleShape(inset: inset)
+                .stroke(color, style: StrokeStyle(lineWidth: strokeWidth, lineJoin: .round))
+        }
+        .frame(width: box, height: box)
+        // Optical centering: the triangle's mass sits toward its flat left
+        // edge (the point only reaches the box's right edge at one pixel),
+        // so a geometrically centered triangle reads left-heavy — nudge right.
+        .offset(x: box * 0.06)
+    }
+}
+
 /// The panel's play/pause transport look, shared so the tracker's play/stop
 /// button AND the to-do checkbox belong to one family at one `RowCircle.diameter`:
 /// a circle that is FILLED (a solid disc, glyph knocked out in `glyphColor`) or
 /// BORDERED (a ring in `strokeColor`, glyph — if any — in `glyphColor`). An empty
 /// `systemName` draws no glyph (an unchecked box). Colors default to the timer
-/// transport palette; the checkbox passes its own muted tokens.
+/// transport palette; the checkbox passes its own muted tokens. The "start"
+/// glyph is our own rounded-corner triangle (`PlayGlyph`), not SF's
+/// `play.fill` — pause keeps the SF `pause.fill` bars, whose caps are already
+/// rounded via `.semibold`'s corner treatment.
 struct TransportCircle: View {
     let systemName: String   // "play.fill" (start) / "pause.fill" (running) / "" (empty ring)
     let filled: Bool         // true = solid disc, false = ring
@@ -766,7 +816,11 @@ struct TransportCircle: View {
     var body: some View {
         let glyph = glyphColor ?? (filled ? Theme.playFg : Theme.textPrimary)
         Group {
-            if systemName.isEmpty {
+            if systemName == "play.fill" {
+                // ~1.3pt smaller than the SF glyph it replaces (was ~7pt
+                // across an 18pt circle) so it sits lighter inside the disc.
+                PlayGlyph(color: glyph, box: diameter * 0.315)
+            } else if systemName.isEmpty {
                 Color.clear
             } else {
                 Image(systemName: systemName)
