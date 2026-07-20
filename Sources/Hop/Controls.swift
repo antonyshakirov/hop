@@ -648,7 +648,11 @@ struct HoverIconButton: View {
             Image(systemName: symbol)
                 .font(.system(size: size, weight: .semibold))
                 .foregroundStyle(hovering ? Theme.textPrimary : Theme.textTertiary)
-                .frame(width: 20, height: 20)
+                // 18pt — the floor for a comfortable hit target; sized so the
+                // tracker's inline-edit fields (nameField/totalField) fit the
+                // task row's untouched 22pt content budget without growing it
+                // (see the row-height comment on TrackerView's taskRow).
+                .frame(width: 18, height: 18)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

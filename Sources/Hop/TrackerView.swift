@@ -196,11 +196,11 @@ struct TrackerView: View {
                 }
             }
         }
-        // Pin content to the tallest natural branch (rename's nameField, 26pt —
-        // FieldCommitButtons' 20pt icon buttons + 3pt vertical padding × 2) so
-        // normal / confirm / rename / total-edit never change the row's height;
-        // the shorter branches just gain breathing room inside the fixed frame.
-        .frame(height: 26)
+        // No explicit frame needed: normal/confirm are pinned to 22pt by
+        // playStop's fixed 22pt gutter, and nameField/totalField (see below)
+        // are sized to the same 22pt natural height — so all four branches
+        // already agree, and this row matches to-dos' untouched 26pt exactly
+        // (22pt content + this 2pt vertical padding × 2), with zero growth.
         .padding(.vertical, 2)
         .padding(.horizontal, 2)
         .background(rowFrameReader(task.id))
@@ -319,9 +319,8 @@ struct TrackerView: View {
         .padding(.horizontal, 5)
         .padding(.vertical, 2)
         .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
-        // matches nameField's 26pt plate exactly — see the row-height comment
-        // on taskRow's `.frame(height: 26)`.
-        .frame(height: 26)
+        // natural height: FieldCommitButtons' 18pt + this 2pt padding × 2 = 22pt,
+        // matching nameField and the task row's untouched 22pt content budget.
     }
 
     /// Each 8pt of horizontal travel = ±1 minute, a tick per step; the running
@@ -458,9 +457,12 @@ struct TrackerView: View {
 
     @ViewBuilder private var addTaskRow: some View {
         if isEditing(.newTask) {
-            // no extra wrapper padding — the field's own inset matches the
-            // to-dos add field exactly (see TodosView.addRow).
+            // nameField's own natural height is 22pt (sized to match the task
+            // row's content budget — see its definition below); the footer has
+            // no outer-padding wrapper to add the rest, so pin it to 26pt here,
+            // matching addRowLabel's 26pt below it exactly.
             nameField(.newTask, placeholder: t(.trackerNewTask))
+                .frame(height: 26)
         } else {
             Button { beginNewTask() } label: {
                 addRowLabel(t(.trackerNewTask), iconSize: 10)
@@ -479,8 +481,8 @@ struct TrackerView: View {
         .foregroundStyle(Theme.textTertiary)
         .padding(.horizontal, 2)
         .padding(.vertical, 5)
-        // matches nameField's 26pt below — the footer's button and editing
-        // states must be the same height or the field row jumps on open/close.
+        // pinned to 26pt to match the footer's editing state exactly (see
+        // addTaskRow) — content alone is ~13pt, well clear of the 26pt floor.
         .frame(height: 26)
         .contentShape(Rectangle())
     }
@@ -500,12 +502,12 @@ struct TrackerView: View {
             FieldCommitButtons(onCommit: { commitName() }, onCancel: { endEdit() })
         }
         .padding(.horizontal, 6)
-        .padding(.vertical, 3)
+        .padding(.vertical, 2)
         .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
-        // FieldCommitButtons' 20pt icon buttons + this 3pt vertical padding × 2
-        // land at 26pt naturally; pinned explicitly so it's exact everywhere
-        // this height is matched (addRowLabel, totalField, taskRow's frame).
-        .frame(height: 26)
+        // FieldCommitButtons' 18pt icon buttons + this 2pt vertical padding × 2
+        // land at 22pt naturally — the task row's untouched content budget
+        // (playStop's 22pt gutter), so the rename branch never grows the row.
+        // The footer (addTaskRow) pins its own instance up to 26pt separately.
     }
 
     // MARK: - Edit lifecycle
