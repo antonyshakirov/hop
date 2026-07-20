@@ -51,12 +51,18 @@ signing would break).
 6. The popover size is rounded UP to whole points (IntegralSizeHostingController
    + integral fittingSize, content top-aligned): fractional SwiftUI text
    heights otherwise land the frame on a half pixel and the header icons
-   jiggle 1px between tabs. The panel's own height frame
-   (`min(panelContentHeight, maxPanelHeight)`) is top-aligned too: switching to
-   a taller/shorter space changes the content height instantly while
-   `panelContentHeight` trails by one runloop, and a centered frame would split
-   that gap and bob the header up/down for a frame — top-aligned, only the
-   bottom edge moves.
+   jiggle 1px between tabs. The header is also STRUCTURALLY immovable: the fixed
+   chrome (the "what's new" banner + the header) is a sibling ABOVE the scroll
+   region, never inside it, and ONLY the active space's module stack (or the
+   settings/about overlay body) scrolls. Chrome and content heights are measured
+   separately; the scroll region's fixed height is
+   `min(contentHeight, maxPanelHeight − chromeHeight)`, so it flexes and clamps
+   the whole panel to the screen while the chrome stays put. Switching to a
+   taller/shorter space changes the content height instantly and the measurement
+   trails by one runloop, but the header is out of the scroll, so only the scroll
+   region's bottom edge moves — the header cannot bob, nor be dragged by a
+   leftover scroll offset (each space/overlay gets a fresh scroll identity that
+   starts at offset 0).
 6. popover.animates = false; the popover theme follows the setting/system.
 
 ## Modules

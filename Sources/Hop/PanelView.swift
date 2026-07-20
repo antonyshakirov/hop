@@ -136,8 +136,13 @@ struct PanelView: View {
     // actual width of the time display: scrub and digit-group click zones
     // derive from it, not from the dot font — scrubbing is uniform across styles
     @State private var displayMeasuredWidth: CGFloat = 0
-    // actual panel content height — for clamping to the screen
-    @State private var panelContentHeight: CGFloat = 0
+    // Fixed chrome (banner + header) height and the scrollable content's natural
+    // height, measured separately (task 8.16) so the header can live OUTSIDE the
+    // scroll while the panel still clamps its total height to the screen. Their
+    // sum is the full natural panel height; only the content feeds the flexing
+    // scroll frame — the chrome never moves.
+    @State private var chromeHeight: CGFloat = 0
+    @State private var contentHeight: CGFloat = 0
     @State private var newCycleWork = 25
     @State private var newCycleRest = 5
     @State private var newCycleRounds = 4
@@ -252,34 +257,52 @@ struct PanelView: View {
     }
 
     private var panelBody: some View {
-        Group {
-            if panelContentHeight == 0 {
-                // Pre-measurement (first ever open): render at natural height so the
-                // popover opens correctly; the async height update flips us to the
-                // ScrollView below at the SAME height — seamless, and only once.
-                panelStack
-            } else {
-                // One stable ScrollView from then on — never flip between a bare
-                // stack and a scrolled one. That flip tore down and rebuilt the WHOLE
-                // panel when a torrent unfolded past the screen cap (the popover
-                // collapsed and reappeared lower — Anton). Height tracks the measured
-                // content up to the cap; scrolling stays inert until the content
-                // exceeds it. This is the single scroll for the whole panel.
-                ScrollView(showsIndicators: false) {
-                    panelStack
+        // Structural anti-jump (task 8.16). The fixed chrome (banner + header)
+        // is a SIBLING of the scroll region, pinned to the top of the panel;
+        // ONLY the active space's module stack scrolls. Earlier fixes top-aligned
+        // the shared height frame, but the header still sat INSIDE the single
+        // ScrollView, so any scroll offset or the one-runloop height trail during
+        // a space switch dragged it along with the content. Out of the scroll,
+        // the header cannot move — the scroll region absorbs every height change
+        // at its bottom edge. All the panel-wide plumbing (click-outside, key
+        // capture, keyboard-capture sync, disappear cleanup) lives here so it
+        // still covers both the chrome and the content.
+        VStack(spacing: 0) {
+            chrome
+                .background(chromeHeightReader)
+            panelScrollRegion
+        }
+        .frame(width: 368)
+        .background(Theme.panelBackground)
+        .simultaneousGesture(TapGesture().onEnded {
+            // a click outside the display clears the digit-group selection (yellow highlight = focus)
+            let tappedAt = Date()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+                if lastDisplayTap < tappedAt {
+                    editUnit = nil
                 }
-                // alignment: .top pins the header while the height catches up.
-                // Switching spaces changes the content height instantly, but
-                // panelContentHeight (this frame's height) trails by one runloop
-                // — so for one frame the content and the frame disagree. A
-                // default (center) frame splits that gap top and bottom, pushing
-                // the header down (into a shorter stale frame) or clipping it off
-                // the top (in a taller one) until the height lands: the header
-                // visibly bobs. Top-aligned, the whole gap goes to the bottom
-                // edge, so only the bottom moves and the header stays put.
-                .frame(width: 368, height: min(panelContentHeight, maxPanelHeight), alignment: .top)
-                .scrollDisabled(panelContentHeight <= maxPanelHeight)
+                // every resolved click may change who owns the keyboard:
+                // the controller hands focus back to the app underneath
+                // unless the panel is actually typing (digits/search)
+                model.panelFocusChanged?()
             }
+        })
+        .focusable()
+        .focusEffectDisabled()
+        .onKeyPress { press in
+            handleKey(press)
+        }
+        .onChange(of: editUnit) { _, _ in syncKeyboardCapture() }
+        .onChange(of: trackerEditing) { _, _ in syncKeyboardCapture() }
+        .onChange(of: todosEditing) { _, _ in syncKeyboardCapture() }
+        .onChange(of: clipboardSearching) { _, _ in syncKeyboardCapture() }
+        .onDisappear {
+            model.panelKeyboardCaptured = false
+            // A normal left-click / hotkey reopen does not fire the openTab
+            // handler (openTab stays nil), and @State survives the popover
+            // hide/show — so clear the picker here too, or the panel comes
+            // back stuck on the icon grid instead of the space.
+            iconPickerTabID = nil
         }
         .onReceive(model.$openTab) { target in
             guard let target else { return }
@@ -470,10 +493,58 @@ struct PanelView: View {
         torrentFeatureSeen = true   // re-render: the banner drops away
     }
 
-    private var panelStack: some View {
+    /// Fixed chrome pinned to the top of the panel: the optional "what's new"
+    /// banner and the header (space switcher + service trio, or the overlay
+    /// back-chevron). A SIBLING of the scroll region, never inside it, so it
+    /// cannot move when the scrolled content's height changes on a space switch.
+    /// The bottom padding reproduces the 16pt gap the old single VStack kept
+    /// between the header and the first module (it was the VStack spacing).
+    private var chrome: some View {
         VStack(spacing: 16) {
             featureBanner
             header
+        }
+        .padding(.horizontal, 14)
+        .padding(.top, 18)
+        .padding(.bottom, 16)
+        .frame(width: 368)
+    }
+
+    /// The scrollable region — ONLY the active space's module stack (or the
+    /// settings/about overlay body) scrolls. Before it is measured (first open)
+    /// and in snapshots it renders flat at natural height: ImageRenderer does not
+    /// render ScrollView content, and the async measurement has not run yet, so
+    /// the flat branch keeps snapshots and the very first frame correct. Once
+    /// measured, a fixed-height ScrollView clamps the whole panel to the screen
+    /// while the chrome above stays put.
+    @ViewBuilder private var panelScrollRegion: some View {
+        if contentHeight == 0 || Snapshot.active {
+            panelContent
+                .background(contentHeightReader)
+        } else {
+            ScrollView(showsIndicators: false) {
+                panelContent
+                    .background(contentHeightReader)
+            }
+            // Scroll height = the natural content height, capped so chrome +
+            // content never outgrows the screen (invariant #1). The chrome is a
+            // fixed sibling above, so the cap subtracts its measured height.
+            // alignment .top pins content to the top while the height trails by
+            // one runloop — though the header is already immovable up in `chrome`.
+            .frame(height: max(0, min(contentHeight, maxPanelHeight - chromeHeight)),
+                   alignment: .top)
+            // inert until the whole panel (chrome + content) exceeds the screen
+            .scrollDisabled(chromeHeight + contentHeight <= maxPanelHeight)
+            // a fresh identity per space/overlay starts every switch at scroll
+            // offset 0, so a scrolled-down space can never drag the next one up
+            .id(scrollResetKey)
+        }
+    }
+
+    /// The body of the active screen — the space's module stack, or the
+    /// settings/about overlay content. This is the ONLY part that scrolls.
+    private var panelContent: some View {
+        VStack(spacing: 16) {
             switch screen {
             case .space(let rawID):
                 // resolve a possibly-dead id (its space may have been deleted
@@ -511,47 +582,38 @@ struct PanelView: View {
             }
         }
         .padding(.horizontal, 14)
-        .padding(.vertical, 18)
+        .padding(.bottom, 18)
         .frame(width: 368)
-        .background(Theme.panelBackground)
-        .background(GeometryReader { geo in
+    }
+
+    /// Fresh ScrollView identity per screen so switching always starts at the top.
+    private var scrollResetKey: String {
+        switch screen {
+        case .space(let id): return "space:\(effectiveSpaceID(id).uuidString)"
+        case .settings: return "settings"
+        case .about: return "about"
+        }
+    }
+
+    private var chromeHeightReader: some View {
+        GeometryReader { geo in
+            Color.clear
+                // mutate state OUTSIDE the layout pass — see contentHeightReader
+                .onAppear { updateChromeHeight(geo.size.height) }
+                .onChange(of: geo.size.height) { _, h in updateChromeHeight(h) }
+        }
+    }
+
+    private var contentHeightReader: some View {
+        GeometryReader { geo in
             Color.clear
                 // IMPORTANT: mutate state OUTSIDE the current layout pass —
-                // assigning directly from GeometryReader flipped the Group
-                // branch during AppKit's layout cycle, NSHostingView threw an
-                // NSException and the app crashed (the "timer tab" crash)
-                .onAppear { updatePanelHeight(geo.size.height) }
-                .onChange(of: geo.size.height) { _, h in updatePanelHeight(h) }
-        })
-        .simultaneousGesture(TapGesture().onEnded {
-            // a click outside the display clears the digit-group selection (yellow highlight = focus)
-            let tappedAt = Date()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
-                if lastDisplayTap < tappedAt {
-                    editUnit = nil
-                }
-                // every resolved click may change who owns the keyboard:
-                // the controller hands focus back to the app underneath
-                // unless the panel is actually typing (digits/search)
-                model.panelFocusChanged?()
-            }
-        })
-        .focusable()
-        .focusEffectDisabled()
-        .onKeyPress { press in
-            handleKey(press)
-        }
-        .onChange(of: editUnit) { _, _ in syncKeyboardCapture() }
-        .onChange(of: trackerEditing) { _, _ in syncKeyboardCapture() }
-        .onChange(of: todosEditing) { _, _ in syncKeyboardCapture() }
-        .onChange(of: clipboardSearching) { _, _ in syncKeyboardCapture() }
-        .onDisappear {
-            model.panelKeyboardCaptured = false
-            // A normal left-click / hotkey reopen does not fire the openTab
-            // handler (openTab stays nil), and @State survives the popover
-            // hide/show — so clear the picker here too, or the panel comes
-            // back stuck on the icon grid instead of the space.
-            iconPickerTabID = nil
+                // assigning directly from GeometryReader flips the branch during
+                // AppKit's layout cycle, NSHostingView throws an NSException and
+                // the app crashes (the historical "timer tab" crash). Async +
+                // a 1pt hysteresis in the update helpers keep it off the pass.
+                .onAppear { updateContentHeight(geo.size.height) }
+                .onChange(of: geo.size.height) { _, h in updateContentHeight(h) }
         }
     }
 
@@ -739,12 +801,19 @@ struct PanelView: View {
         return fraction < 0.31 ? 3600 : (fraction < 0.65 ? 60 : 1)
     }
 
-    /// Visible display width — measured in the background, without affecting layout.
-    /// Measured-geometry updates run async and with hysteresis,
-    /// to never mutate state inside a layout pass (NSHostingView crash).
-    private func updatePanelHeight(_ height: CGFloat) {
-        guard abs(height - panelContentHeight) > 1 else { return }
-        DispatchQueue.main.async { panelContentHeight = height }
+    /// Measured-geometry updates run async and with hysteresis, to never mutate
+    /// state inside a layout pass (NSHostingView crash). Chrome and the scrollable
+    /// content are measured separately (task 8.16): their sum is the panel's full
+    /// natural height, but only the content's height feeds the flexing scroll
+    /// frame while the chrome stays fixed above it.
+    private func updateChromeHeight(_ height: CGFloat) {
+        guard abs(height - chromeHeight) > 1 else { return }
+        DispatchQueue.main.async { chromeHeight = height }
+    }
+
+    private func updateContentHeight(_ height: CGFloat) {
+        guard abs(height - contentHeight) > 1 else { return }
+        DispatchQueue.main.async { contentHeight = height }
     }
 
     private func updateDisplayWidth(_ width: CGFloat) {
