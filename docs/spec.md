@@ -618,7 +618,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   APPENDS at the bottom (empty = no-op), `toggle(id)` flips `done` IN PLACE
   (completed items keep their position), `delete(id)`, and `move(from:to:)`
   reorders (clamped; `from` out of range is a no-op) — the order persists through
-  the store. `TodosController.move` saves like every other mutation.
+  the store. `TodosController.reorder(dragging:toDisplayInsertion:)` saves like
+  every other mutation.
+- **Completed items sink to the bottom (8.20):** the list DISPLAYS as active
+  items (in stored order) first, then completed items (in stored order) —
+  `TodoDisplay.order` (pure HopCore, tested). Completing an item animates it DOWN
+  into the completed pile; the STORED order is NOT mutated by toggling, so
+  unchecking animates it back to its original slot among the active items for
+  free. The sink/return is a finite `withAnimation` on toggle (`.easeInOut` 0.22,
+  no repeatForever). Drag reorder is CONSTRAINED to a group: an active item can't
+  be dragged below the first completed one and a completed item can't rise above
+  the last active one — `TodoDisplay.clampedInsertion` clamps the insertion (the
+  indicator line stops at the boundary) and `TodoDisplay.reordered` translates the
+  display-order drop back to a MINIMAL stored move so every untouched item keeps
+  its stored slot (only the dragged item relocates). Reordering completed items
+  among themselves is allowed, clamped within the completed group. All of it —
+  order, clamp, minimal-move, the toggle/uncheck slot invariant, and the all-done
+  / all-active edges — is covered by `TodoDisplayTests`.
 - **Row:** a circle checkbox — the shared `TransportCircle` in muted tokens (an
   empty ring when open, a filled `Theme.textTertiary` disc with a knocked-out
   check when done) — the text (mono 12; done = `Theme.textTertiary` +
@@ -651,10 +667,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   container-level gesture as the tracker (`minimumDistance` 3, engaging only on a
   vertically dominant drag) and the same frame-preference resolver (rows report
   their frame in the `todosList` coordinate space; the pointer's y counts the
-  other rows above it). The checkbox and hover xmark keep their taps by
-  inner-gesture precedence. The dragged row dims and follows the pointer; a 2pt
-  accent line marks the insertion point; one `move(from:to:)` commits per
-  completed drag.
+  other rows above it, in DISPLAY order). The checkbox and hover xmark keep their
+  taps by inner-gesture precedence. The dragged row dims and follows the pointer;
+  a 2pt accent line marks the (group-clamped) insertion point; one
+  `reorder(dragging:toDisplayInsertion:)` commits per completed drag.
 - **Adding:** a `+ new task` footer row (placeholder `todosNew`, "new task")
   opens an inline field with the same ✓/✕ buttons and `Snapshot.active` gating as
   the tracker; Return/✓ append, Escape/✕ cancel, empty = cancel.

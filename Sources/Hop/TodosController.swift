@@ -44,10 +44,13 @@ final class TodosController: ObservableObject {
         save()
     }
 
-    /// Reorders the list (drag). Clamped in the model; `from` out of range is a
-    /// model no-op — we still save, mirroring toggle/delete.
-    func move(from: Int, to: Int) {
-        list.move(from: from, to: to)
+    /// Reorders the list for a whole-row drag in the DISPLAYED list (active items
+    /// first, then completed). `toDisplayInsertion` is the drop index among the
+    /// other displayed items; the model clamps it to the dragged item's group so
+    /// a drag never crosses the active/completed boundary. Saved like every other
+    /// mutation.
+    func reorder(dragging id: UUID, toDisplayInsertion index: Int) {
+        list.reorderInDisplay(dragging: id, toDisplayInsertion: index)
         save()
     }
 

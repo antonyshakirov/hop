@@ -48,8 +48,16 @@ struct TodosView: View {
 
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
+    /// Finite reorder animation for the sink-to-bottom (and the return trip).
+    /// No repeatForever — infinite animations retrigger the panel's size
+    /// recompute and jitter the popover.
+    private static let sinkAnimation: Animation = .easeInOut(duration: 0.22)
+
     var body: some View {
-        let items = todos.list.items
+        // Display order: active items (stored order) first, then completed items
+        // (stored order). Completing an item sinks it to the bottom pile WITHOUT
+        // touching the stored order, so unchecking returns it to its slot.
+        let items = todos.list.displayItems
         return VStack(alignment: .leading, spacing: 3) {
             // An empty list shows only the subheader and the add row — the
             // subheader already names the module, so no placeholder line.
@@ -83,7 +91,7 @@ struct TodosView: View {
 
     private func row(_ item: TodoItem) -> some View {
         HStack(spacing: 6) {
-            Button { todos.toggle(item.id) } label: {
+            Button { withAnimation(Self.sinkAnimation) { todos.toggle(item.id) } } label: {
                 // same circle family and diameter as the tracker's play/stop, in
                 // muted tokens: an empty ring when open, a filled disc with a
                 // knocked-out check when done. Left-aligned in the shared 22pt
@@ -203,7 +211,10 @@ struct TodosView: View {
                     clearConfirms() // …or a pending delete confirm
                 }
                 dragTranslation = value.translation
-                dropIndex = resolveDrop(at: value.location.y)
+                // clamp the insertion into the dragged item's group, so the
+                // indicator line stops at the active/completed boundary
+                dropIndex = TodoDisplay.clampedInsertion(
+                    todos.list.items, dragging: id, rawInsertion: resolveDrop(at: value.location.y))
             }
             .onEnded { value in
                 if dragItem == id { commitDrop(id, resolveDrop(at: value.location.y)) }
@@ -218,9 +229,12 @@ struct TodosView: View {
         return others.filter { (rowFrames[$0]?.midY ?? .greatestFiniteMagnitude) < y }.count
     }
 
-    private func commitDrop(_ id: UUID, _ toIndex: Int?) {
-        guard let toIndex, let from = todos.list.items.firstIndex(where: { $0.id == id }) else { return }
-        todos.move(from: from, to: toIndex)
+    private func commitDrop(_ id: UUID, _ toDisplayIndex: Int?) {
+        guard let toDisplayIndex else { return }
+        // reorder clamps to the item's group internally; animate the settle
+        withAnimation(Self.sinkAnimation) {
+            todos.reorder(dragging: id, toDisplayInsertion: toDisplayIndex)
+        }
     }
 
     private func resetDrag() {
@@ -231,7 +245,9 @@ struct TodosView: View {
     }
 
     private func indicatorY(for toIndex: Int) -> CGFloat? {
-        let ids = todos.list.items.map(\.id).filter { $0 != dragItem }
+        // toIndex is a DISPLAY-order insertion index (rows are laid out in display
+        // order), so resolve the line against the display-order ids.
+        let ids = TodoDisplay.order(todos.list.items).map(\.id).filter { $0 != dragItem }
         if ids.isEmpty { return nil }
         if toIndex <= 0 { return rowFrames[ids.first!]?.minY }
         if toIndex >= ids.count { return rowFrames[ids.last!]?.maxY }
