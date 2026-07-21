@@ -318,7 +318,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   works unconditionally and regardless of click-focus — Hop is an accessory app
   with no Edit menu, so there is no Paste key-equivalent to drive SwiftUI's
   `onPasteCommand`; the window itself catches ⌘V (`ConverterWindow`'s
-  `performKeyEquivalent`) whenever it is key. An empty or text-only clipboard is
+  `performKeyEquivalent`) whenever it is key. `performKeyEquivalent` calls
+  `super` FIRST and handles ⌘V only when super returns false, so the responder
+  chain (any future editable field) keeps first refusal on paste; with no such
+  field today the behavior is unchanged. An empty or text-only clipboard is
   a silent no-op; an unsupported file lands in the "unsupported" group, same as
   a dropped file of that type.
 - Groups: images / PDF / video / audio / unsupported. Each file gets:
@@ -869,9 +872,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   magnitude faster than the origin VPS; a "Download from GitHub" button
   is worth adding to the landing page. New releases are duplicated:
   `gh release create vX.Y.Z Hop-X.Y.Z.zip Hop-X.Y.Z.zip.sig -R antonyshakirov/hop`.
-- The dev build (bundle id …minimo.dev) does NOT check for updates
-  automatically — it makes no network calls and doesn't trip testers'
-  firewalls; it updates by rebuilding.
+- The dev build does NOT check for updates automatically — it makes no
+  network calls and doesn't trip testers' firewalls; it updates by
+  rebuilding. "Dev" is ONE shared rule (`Bundle.isDevBuild`): the bundle id is
+  not EXACTLY the production id (`…minimo`). That covers the ".dev" parallel
+  app AND any bundle-less run (raw `swift build` binary, `--snapshot` probe:
+  nil id), so a bundle-less process can never be mistaken for production and
+  auto-update. The same rule drives the menu-bar "D" dev-mark and the
+  Finder-icon "D" badge (the icon badge is additionally suppressed under
+  `--snapshot`, so marketing renders show the production icon). A
+  `.dev`-suffix-only heuristic was wrong: it read a nil-id run as production.
 - The "it just works for users" path: sign releases with Developer ID
   + notarization (Apple Developer Program, $99/year) — Gatekeeper
   warnings and "suspicious signature" flags from firewalls

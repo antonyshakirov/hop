@@ -12,8 +12,23 @@ import Foundation
 /// own "…minimo.cli" folder instead, so they can never see or mutate real
 /// user data.
 extension Bundle {
+    /// The ONE production bundle id. Every other id — the ".dev" parallel app,
+    /// a raw `swift build` binary (nil id), a snapshot probe — is a dev/test
+    /// instance. Never change it (see the signing/version rules).
+    static let productionIdentifier = "com.antonshakirov.minimo"
+
     static var storageIdentifier: String {
-        main.bundleIdentifier ?? "com.antonshakirov.minimo.cli"
+        main.bundleIdentifier ?? "\(productionIdentifier).cli"
+    }
+
+    /// A non-production build: anything whose bundle id is not EXACTLY the
+    /// production id — the ".dev" app AND the bundle-less debug/snapshot binary
+    /// (nil id). The SINGLE rule the auto-updater (stay offline), the menu-bar
+    /// dev-mark and the Finder-icon dev-badge all share; a `.dev`-suffix-only
+    /// heuristic wrongly treated a bundle-less run as production and would let
+    /// it auto-update.
+    static var isDevBuild: Bool {
+        main.bundleIdentifier != productionIdentifier
     }
 }
 

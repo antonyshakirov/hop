@@ -816,12 +816,17 @@ final class ConverterWindow: NSWindow {
     var onPaste: (() -> Void)?
 
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        // Give the responder chain first refusal (a focused text field, a future
+        // editable subview): only fall back to the window-level paste when nothing
+        // else claimed ⌘V. With no such field today, super returns false and the
+        // behavior is unchanged — but this can never silently steal paste later.
+        if super.performKeyEquivalent(with: event) { return true }
         if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
            event.charactersIgnoringModifiers?.lowercased() == "v" {
             onPaste?()
             return true
         }
-        return super.performKeyEquivalent(with: event)
+        return false
     }
 }
 

@@ -141,10 +141,10 @@ final class UpdateChecker: ObservableObject {
     }
 
     /// The dev build stays offline: it updates via rebuilds, and a background
-    /// request to the site would only trip testers' firewalls (LuLu etc.).
-    static var isDevBuild: Bool {
-        Bundle.main.bundleIdentifier?.hasSuffix(".dev") == true
-    }
+    /// request to the site would only trip testers' firewalls (LuLu etc.). Uses
+    /// the shared "bundle id != production id" rule, so a bundle-less run (nil
+    /// id) counts as dev and never auto-updates.
+    static var isDevBuild: Bool { Bundle.isDevBuild }
 
     private func autoCheck(canInstall: @MainActor (Bool) -> Bool) async {
         guard !Self.isDevBuild, autoUpdateEnabled else { return }

@@ -1093,7 +1093,7 @@ struct PanelView: View {
             }
             .buttonStyle(.plain)
             .hoverHighlight(6)
-            .help(t(.tabChangeIcon).capitalizedFirst)
+            .help(t(.tabChangeIcon))
             .animation(.easeInOut(duration: 0.15), value: expanded)
             // The settings window is a real NSWindow (not the transient
             // status-bar panel), so a popover is safe: it floats under the
@@ -1119,7 +1119,7 @@ struct PanelView: View {
                 }
                 .buttonStyle(.plain)
                 .hoverHighlight(4)
-                .help(t(.tabDelete).capitalizedFirst)
+                .help(t(.tabDelete))
                 .opacity(hoveredTabRow == tab.id ? 1 : 0)
                 .allowsHitTesting(hoveredTabRow == tab.id)
             }
@@ -1221,7 +1221,7 @@ struct PanelView: View {
         }
         .buttonStyle(.plain)
         .hoverHighlight(8)
-        .help(t(.tabNew).capitalizedFirst)
+        .help(t(.tabNew))
     }
 
     // MARK: - Table geometry + drag
@@ -1283,16 +1283,13 @@ struct PanelView: View {
     /// spot. Space columns stack vertically (compare chip midY); the inactive
     /// flow wraps (reading order: an earlier row, or the same row to the left).
     private func insertIndex(for key: String, in columnID: String, at point: CGPoint) -> Int {
-        let siblings = columnKeys(columnID).filter { $0 != key }
-        if columnID == "inactive" {
-            return siblings.filter { k in
-                guard let f = chipFrames[k] else { return false }
-                return f.maxY <= point.y || (f.minY <= point.y && f.midX < point.x)
-            }.count
-        }
-        return siblings.filter {
-            (chipFrames[$0]?.midY ?? .greatestFiniteMagnitude) < point.y
-        }.count
+        // Thin wrapper: hand the frame dictionary and point to the pure resolver.
+        SettingsDropGeometry.insertIndex(
+            point: point,
+            keys: columnKeys(columnID),
+            excluding: key,
+            frames: chipFrames,
+            flow: columnID == "inactive" ? .wrapping : .stacked)
     }
 
     private func chipDragGesture(_ key: String) -> some Gesture {
@@ -2251,8 +2248,11 @@ struct PanelView: View {
     private func placeModule(_ key: String, onTab tabID: UUID, at position: Int? = nil) {
         let wasInactive = tabsModel.inactive.contains(key)
         mutateTabs {
-            $0.move(module: key, toTab: tabID)
-            if let position { $0.reorder(module: key, inTab: tabID, to: position) }
+            if let position {
+                $0.applyDrop(module: key, toTab: tabID, at: position)   // drag: resolved index
+            } else {
+                $0.move(module: key, toTab: tabID)                      // menu: append
+            }
         }
         if key == "torrent", wasInactive { model.torrent.prefetchEngineIfNeeded() }
     }
@@ -2260,8 +2260,11 @@ struct PanelView: View {
     /// Hide a module: send it to the permanent inactive bucket.
     private func deactivateModule(_ key: String, at position: Int? = nil) {
         mutateTabs {
-            $0.deactivate(module: key)
-            if let position { $0.reorder(inInactive: key, to: position) }
+            if let position {
+                $0.applyDrop(moduleToInactive: key, at: position)       // drag: resolved index
+            } else {
+                $0.deactivate(module: key)                              // menu: append
+            }
         }
     }
 

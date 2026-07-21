@@ -53,9 +53,7 @@ enum MenuBarIcon {
     /// in the bottom-left corner, monochrome. Anything that is NOT exactly the
     /// production bundle id gets the mark: the ".dev" app, and the raw debug
     /// binary too (no Info.plist, so bundleIdentifier is nil).
-    static var isDevBuild: Bool {
-        Bundle.main.bundleIdentifier != "com.antonshakirov.minimo"
-    }
+    static var isDevBuild: Bool { Bundle.isDevBuild }
 
     private static func drawDevMark(color: NSColor) {
         let r = NSRect(x: 0.9, y: 0.9, width: 3.4, height: 5.6)

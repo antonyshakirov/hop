@@ -34,7 +34,13 @@ enum AppIcon {
     /// Drawn via drawingHandler: redrawn at the target resolution,
     /// no blur on Retina.
     private static func image(dark: Bool) -> NSImage {
-        NSImage(size: NSSize(width: 512, height: 512), flipped: false) { rect in
+        // Same "bundle id != production id" rule as the menu-bar dev-mark and the
+        // updater. A snapshot render is bundle-less (so isDevBuild is true), but a
+        // marketing screenshot must show the production icon — suppress the badge
+        // there; a real ".dev" app bundle still gets it. Read on the main actor
+        // before entering the drawing handler.
+        let showDevBadge = Bundle.isDevBuild && !Snapshot.active
+        return NSImage(size: NSSize(width: 512, height: 512), flipped: false) { rect in
             let inset = rect.insetBy(dx: 50, dy: 50)
             let background = NSBezierPath(roundedRect: inset, xRadius: 94, yRadius: 94)
             let bg = dark
@@ -46,9 +52,9 @@ enum AppIcon {
                 color: dark ? .white : NSColor(white: 0.05, alpha: 1),
                 in: inset.insetBy(dx: 86, dy: 86)
             )
-            // dev build (bundle id …minimo.dev): a "D" badge in the corner,
-            // so production and test versions are told apart at a glance
-            if Bundle.main.bundleIdentifier?.hasSuffix(".dev") == true {
+            // dev build: a "D" badge in the corner, so production and test
+            // versions are told apart at a glance
+            if showDevBadge {
                 let badge = NSRect(x: rect.maxX - 190, y: rect.minY + 60, width: 130, height: 130)
                 let plate = NSBezierPath(roundedRect: badge, xRadius: 32, yRadius: 32)
                 NSColor(red: 0.79, green: 0.62, blue: 0.23, alpha: 1).setFill() // dark gold
