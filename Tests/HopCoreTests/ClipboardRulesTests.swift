@@ -68,6 +68,90 @@ final class ClipboardRulesTests: XCTestCase {
         XCTAssertEqual(out?.last?.imageFile, "shot.png")
     }
 
+    // MARK: - classify (capture order)
+
+    func testClassifyPrefersFilesOverImagePreview() {
+        // a copied icon file carries both a file URL and a thumbnail preview —
+        // the file must win so it never lands as a "1024 × 1024" image row
+        let out = ClipboardRules.classify(fileURLPaths: ["/a/icon.png"], hasImage: true, text: "icon.png")
+        XCTAssertEqual(out, .files(["/a/icon.png"]))
+    }
+
+    func testClassifyImageWhenNoFileURL() {
+        XCTAssertEqual(ClipboardRules.classify(fileURLPaths: [], hasImage: true, text: nil), .image)
+    }
+
+    func testClassifyTextWhenNoFileOrImage() {
+        XCTAssertEqual(ClipboardRules.classify(fileURLPaths: [], hasImage: false, text: "hello"), .text("hello"))
+    }
+
+    func testClassifyFilesBeatTextEvenWithoutImage() {
+        let out = ClipboardRules.classify(fileURLPaths: ["/a/b.zip"], hasImage: false, text: "b.zip")
+        XCTAssertEqual(out, .files(["/a/b.zip"]))
+    }
+
+    func testClassifyIgnoresEmptyPasteboard() {
+        XCTAssertEqual(ClipboardRules.classify(fileURLPaths: [], hasImage: false, text: nil), .ignore)
+        XCTAssertEqual(ClipboardRules.classify(fileURLPaths: [], hasImage: false, text: "  \n "), .ignore)
+        // stray empty path strings don't make a file entry
+        XCTAssertEqual(ClipboardRules.classify(fileURLPaths: [""], hasImage: false, text: nil), .ignore)
+    }
+
+    func testClassifyKeepsMultipleFilePaths() {
+        let out = ClipboardRules.classify(fileURLPaths: ["/a/1", "/a/2"], hasImage: false, text: nil)
+        XCTAssertEqual(out, .files(["/a/1", "/a/2"]))
+    }
+
+    // MARK: - file label
+
+    func testFileLabelSingleIsTheName() {
+        XCTAssertEqual(ClipboardRules.fileLabel(for: ["/a/b/notes.txt"]), "notes.txt")
+    }
+
+    func testFileLabelMultipleAppendsCount() {
+        XCTAssertEqual(ClipboardRules.fileLabel(for: ["/a/one.txt", "/a/two.txt", "/a/three.txt"]),
+                       "one.txt +2")
+    }
+
+    // MARK: - remembering files
+
+    func testRememberingFileInsertsFileEntryWithName() {
+        let out = ClipboardRules.remembering(files: ["/a/report.pdf"], in: [])
+        XCTAssertEqual(out?.first?.text, "report.pdf")
+        XCTAssertEqual(out?.first?.filePaths, ["/a/report.pdf"])
+        XCTAssertNil(out?.first?.imageFile)
+    }
+
+    func testRememberingEmptyFileListIsIgnored() {
+        XCTAssertNil(ClipboardRules.remembering(files: [], in: []))
+    }
+
+    func testRememberingSameFileSetOnTopChangesNothing() {
+        let items = [ClipboardItem(text: "report.pdf", filePaths: ["/a/report.pdf"])]
+        XCTAssertNil(ClipboardRules.remembering(files: ["/a/report.pdf"], in: items))
+    }
+
+    func testRememberingFileSetDeeperMovesToTop() {
+        let items = [
+            ClipboardItem(text: "a.txt", filePaths: ["/a/a.txt"]),
+            item("some text"),
+            ClipboardItem(text: "b.txt", filePaths: ["/a/b.txt"]),
+        ]
+        let out = ClipboardRules.remembering(files: ["/a/b.txt"], in: items)
+        XCTAssertEqual(out?.map(\.text), ["b.txt", "a.txt", "some text"])
+        XCTAssertEqual(out?.first?.filePaths, ["/a/b.txt"])
+    }
+
+    func testFileEntryNeverTakesPartInTextDedup() {
+        // a file entry labeled "notes.txt" must not be swallowed by copying the
+        // literal text "notes.txt"
+        let items = [ClipboardItem(text: "notes.txt", filePaths: ["/a/notes.txt"])]
+        let out = ClipboardRules.remembering("notes.txt", in: items)
+        XCTAssertEqual(out?.count, 2)
+        XCTAssertNil(out?.first?.filePaths)                 // fresh plain-text entry on top
+        XCTAssertEqual(out?.last?.filePaths, ["/a/notes.txt"]) // file entry preserved
+    }
+
     // MARK: - pruned
 
     func testPrunedTrimsTailBeyondMaxItems() {

@@ -269,14 +269,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Clipboard
 
-- Copy history: text, links, files, images. A copied file is stored as its
-  FULL path (the file-url is read BEFORE the plain-text type: Finder also
-  puts the bare file name as a string, which alone is useless). Clicking a
-  row puts the entry back on the clipboard (its position doesn't change); a
-  row that is a path to an existing file goes back as the FILE plus the path
-  as text — Finder pastes the file itself, text fields get the path. Buttons:
-  copy / paste into the last app. Confidential content (password managers) is not stored,
-  and everything lives only on this Mac. The entry limit is in settings.
+- Copy history: text, links, files, images. Capture ORDER is decided by a pure
+  rule in HopCore (`ClipboardRules.classify`): a copied FILE beats image data,
+  image data beats bare text. Files win FIRST because Finder ships the file's
+  icon/thumbnail preview on the pasteboard next to the file URL — reading the
+  file URL first stops a copied file (e.g. a 1024×1024 icon) from landing as a
+  "1024 × 1024" image row. A copied file becomes a FILE entry showing the file
+  NAME (small `doc` glyph); several files copied at once show `name +N`. The
+  paths are stored, not the contents. Clicking a row puts the entry back on the
+  clipboard (its position doesn't change); a FILE entry goes back as the file
+  URL(s) plus the path text — Finder pastes the file itself, text fields get the
+  path (vanished files are skipped). File entries never take part in text dedup.
+  Buttons: copy / paste into the last app. Confidential content (password
+  managers) is not stored, and everything lives only on this Mac. Pruning a file
+  entry off the history never deletes the file on disk. The entry limit is in
+  settings.
 - Images: raw clipboard image data (a screenshot copied straight to the
   clipboard via ⌃⇧⌘4, "copy image" in a browser) is stored as a PNG in
   Application Support (per bundle id); the row shows a small thumbnail and

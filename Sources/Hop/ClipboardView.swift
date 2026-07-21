@@ -186,8 +186,14 @@ struct ClipboardView: View {
                 markCopied(item)
             } label: {
                 HStack(spacing: 6) {
-                    // image entries lead with a small thumbnail; the text is dims
-                    if let file = item.imageFile, let thumb = ClipThumbCache.image(file) {
+                    // file entries lead with a small doc glyph, image entries with
+                    // a thumbnail; both leave the label (a file name / dimensions)
+                    if item.filePaths != nil {
+                        Image(systemName: "doc")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textTertiary)
+                            .frame(width: 16)
+                    } else if let file = item.imageFile, let thumb = ClipThumbCache.image(file) {
                         Image(nsImage: thumb)
                             .resizable()
                             .aspectRatio(contentMode: .fill)

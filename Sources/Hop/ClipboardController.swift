@@ -52,26 +52,27 @@ final class ClipboardController: ObservableObject {
         } ?? false
         guard !concealed else { return }
 
-        // a file was copied — store the FULL path, not the contents.
-        // Checked BEFORE plain text: Finder puts both a file-url and the
-        // bare file NAME as string, and the name alone is useless later
-        if let urls = pasteboard.readObjects(forClasses: [NSURL.self]) as? [URL],
-           let first = urls.first, first.isFileURL {
-            remember(first.path)
-            return
-        }
+        // Read the pasteboard's three faces and let HopCore pick the winner: a
+        // copied FILE beats the icon/thumbnail preview Finder ships beside it,
+        // an image beats bare text. Reading file URLs FIRST is the fix for a
+        // copied file landing as a "1024 × 1024" image row.
+        let fileURLs = pasteboard.readObjects(
+            forClasses: [NSURL.self],
+            options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? []
+        let paths = fileURLs.filter(\.isFileURL).map(\.path)
+        let text = pasteboard.string(forType: .string)
+        // only touch the (potentially large) image data when no file won
+        let image = paths.isEmpty ? Self.pngFromPasteboard(pasteboard) : nil
 
-        // raw image data (a screenshot copied straight to the clipboard,
-        // "copy image" in a browser) has no file and often no string —
-        // store it as a PNG file next to the history
-        if let (data, label) = Self.pngFromPasteboard(pasteboard) {
-            rememberImage(data, label: label)
-            return
-        }
-
-        if let text = pasteboard.string(forType: .string),
-           !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            remember(text)
+        switch ClipboardRules.classify(fileURLPaths: paths, hasImage: image != nil, text: text) {
+        case .files(let paths):
+            rememberFiles(paths)
+        case .image:
+            if let (data, label) = image { rememberImage(data, label: label) }
+        case .text(let value):
+            remember(value)
+        case .ignore:
+            break
         }
     }
 
@@ -145,13 +146,35 @@ final class ClipboardController: ObservableObject {
         save()
     }
 
-    /// Clicking a history row puts the text on the clipboard WITHOUT moving it in the list.
-    /// Only content copied fresh outside the history goes to the top.
-    /// A row that is a path to an existing file goes back as the FILE:
-    /// pasting in Finder pastes the file itself, text fields get the path.
+    /// One or more files copied in Finder become a single FILE entry (the paths
+    /// are stored; the row shows the file name). We never own these files, so
+    /// pruning them off the history never deletes anything on disk.
+    private func rememberFiles(_ paths: [String]) {
+        guard let updated = ClipboardRules.remembering(files: paths, in: items) else { return }
+        items = updated
+        pruneOverflow()
+        save()
+    }
+
+    /// Clicking a history row puts the content on the clipboard WITHOUT moving it
+    /// in the list. Only content copied fresh outside the history goes to the top.
+    /// A FILE entry goes back as the file URL(s): pasting in Finder pastes the
+    /// file itself, a text field gets the path(s).
     func copy(_ item: Item) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
+        if let paths = item.filePaths, !paths.isEmpty {
+            // vanished files are skipped; if all are gone we still hand over the
+            // path text so the row does something meaningful
+            let present = paths.filter { FileManager.default.fileExists(atPath: $0) }
+            let live = present.isEmpty ? paths : present
+            pasteboard.writeObjects(live.map { URL(fileURLWithPath: $0) as NSURL })
+            // the path(s) as text alongside: apps that only take strings still
+            // receive something meaningful
+            pasteboard.setString(live.joined(separator: "\n"), forType: .string)
+            changeCount = pasteboard.changeCount
+            return
+        }
         if let file = item.imageFile {
             // an image entry goes back as the picture itself
             if let image = NSImage(contentsOf: Self.imagesDir.appendingPathComponent(file)) {
