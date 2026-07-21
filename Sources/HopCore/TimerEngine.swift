@@ -30,17 +30,27 @@ public final class TimerEngine: ObservableObject {
     @Published public private(set) var cycle: CycleState?
     /// Stopwatch mode: time grows from zero; presets/scrubbing don't apply.
     @Published public private(set) var isStopwatch = false
-    /// Updated by the ticker every 0.25 s while the timer runs or the finish blinks — drives the UI.
+    /// Updated by the ticker every 0.25 s while the timer runs or the finished
+    /// state blinks (alarm) then pulses (calm) — drives the UI.
     @Published public private(set) var heartbeat: Date
     /// True once a finish has been acknowledged (the panel was opened): the
-    /// state stays `.finished`, but the blink settles to steady. Reset to false
-    /// on every fresh finish. Only meaningful while `state == .finished`.
+    /// state stays `.finished` and the menu-bar bell settles to steady, but the
+    /// panel digits keep a calm pulse (see `isFinishSettled`). Reset to false on
+    /// every fresh finish. Only meaningful while `state == .finished`.
     @Published public private(set) var finishAcknowledged = false
 
-    /// The finished state is still blinking: finished AND not yet acknowledged.
-    /// Both the menu-bar bell and the panel digits derive their blink from this,
-    /// so acknowledging settles them together.
+    /// The pre-acknowledge alarm blink: finished AND not yet acknowledged. The
+    /// menu-bar bell derives its blink from this, so acknowledging settles the
+    /// bell. (The panel digits keep pulsing past acknowledge — see
+    /// `isFinishSettled`; the two never overlap.)
     public var isFinishBlinking: Bool { state == .finished && !finishAcknowledged }
+
+    /// The post-acknowledge calm state: finished AND acknowledged — the alarm has
+    /// settled (bell steady, sound done) but the timer has NOT been reset or
+    /// restarted yet. The panel keeps the zeroed digits pulsing while this holds,
+    /// a lingering "it finished, reset it" cue. Cleared the instant the finished
+    /// state ends (reset / new start / digit entry).
+    public var isFinishSettled: Bool { state == .finished && finishAcknowledged }
 
     public var onFinish: (() -> Void)?
     /// Fired between cycle phases (the next phase starts on its own).
@@ -318,16 +328,18 @@ public final class TimerEngine: ObservableObject {
         startTicker() // the ticker keeps running for the blinking
     }
 
-    /// Acknowledge the finish (the panel was opened): stop the blink and settle
-    /// everything to steady. The state stays `.finished` — the digits keep
-    /// showing the finished value and the menu-bar bell stays lit — only the
-    /// blinking stops, and the ticker stops with it (the blink was its only job
-    /// in this state). Idempotent; a no-op off the finished state.
+    /// Acknowledge the finish (the panel was opened): silence the alarm cue. The
+    /// menu-bar bell stops blinking and holds a steady `bell.fill`, and the finish
+    /// sound was one-shot anyway. The state stays `.finished`, and the zeroed
+    /// digits keep a calm pulse (`isFinishSettled`) as a lingering "finished —
+    /// needs a reset" cue until a reset or a new start ends the finished state.
+    /// Idempotent; a no-op off the finished state.
     public func acknowledgeFinish() {
         guard state == .finished, !finishAcknowledged else { return }
+        // Publishing this flips the bell to steady at once. The ticker deliberately
+        // keeps running: it now drives the post-acknowledge digit pulse, and it is
+        // stopped only when the finished state ends (reset / new start / digit entry).
         finishAcknowledged = true
-        stopTicker()
-        heartbeat = now() // one publish so the UI settles to the steady lit frame
     }
 
     private func startTicker() {

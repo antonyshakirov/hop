@@ -166,12 +166,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - ±5 ("min" capsules) work while running; "−5" while running drives to
   0 → finish; `targetDate` is @Published, the UI doesn't wait for the ticker.
 - Finish: signal per setting (sound+banner / sound / silent). The finish
-  sound plays EXACTLY ONCE (no repeat). The display blinks zeros and a bell
-  blinks in the menu bar until the finish is acknowledged — opening the panel
-  acknowledges it (`TimerEngine.acknowledgeFinish`), settling the bell and the
-  digits to steady lit immediately (the state stays `.finished`); a reset or a
-  new start ends the finished state entirely. Play from finished restarts the
-  same duration.
+  sound plays EXACTLY ONCE (no repeat). The zeroed digits blink and a bell
+  blinks in the menu bar — opening the panel acknowledges it
+  (`TimerEngine.acknowledgeFinish`): the bell settles to a steady lit bell, but
+  the zeroed digits keep a subtle pulse (`isFinishSettled`) as a "reset me" cue
+  until a reset or a new start ends the finished state. Play from finished
+  restarts the same duration.
 - Stopwatch: ⏱ icon to the right of the presets, counts up, also shown in
   the menu bar. Mode switching is allowed from idle/finished/PAUSED
   (paused = "already stopped", so discarding an unfinished timer is
@@ -1219,25 +1219,35 @@ The finish sound fires EXACTLY ONCE per finish (`engine.onFinish` →
 the source of the "fires several times" behavior and has been removed, along
 with the now-unused `alarmRepeatSeconds` default.
 
-The finished state blinks (menu-bar bell + zeroed digits) as a lingering "it
-rang" cue. Two things end it:
+The finished state signals in two phases — an alarm, then a calm reminder — so
+it stays obvious the timer needs a reset without the alarm nagging on:
 
+- **Fresh finish — the alarm blink.** The menu-bar bell blinks and the zeroed
+  digits blink in the panel (`engine.isFinishBlinking`, true while finished and
+  not yet acknowledged). The ticker drives both, and both the bar bell
+  (`StatusItemController.refreshButton`) and the panel digits (`AppModel.blinkOn`)
+  derive their blink from `engine.isFinishBlinking`.
 - **Opening the panel acknowledges the finish** (`presentPopover` →
-  `TimerEngine.acknowledgeFinish`): the bell and the digits stop blinking and
-  settle to steady lit IMMEDIATELY, and the blink ticker stops. The state
-  stays `.finished` (the digits still show the finished value; the bell stays
-  a steady `bell.fill`). Acknowledgment is idempotent and a no-op off the
-  finished state; every fresh finish clears the flag and blinks anew. Both the
-  bar bell (`StatusItemController.refreshButton`) and the panel digits
-  (`AppModel.blinkOn`) derive their blink from `engine.isFinishBlinking`, so
-  one acknowledge settles both. (No grace period: the panel display settles at
-  the same instant as the bar rather than blinking a further ~2-3 s — the
-  finished digits read `0:00` regardless, so a brief extra blink would add
-  nothing to "what rang". Kept immediate and fully covered by engine tests.)
+  `TimerEngine.acknowledgeFinish`): the alarm settles — the menu-bar bell stops
+  blinking and holds a steady `bell.fill`, and the finish sound was one-shot
+  anyway. The state stays `.finished`. Acknowledgment is idempotent and a no-op
+  off the finished state; every fresh finish clears the flag and blinks anew.
+- **After acknowledge — the calm pulse.** The bell is gone, but the zeroed
+  digits keep a subtle pulse (`engine.isFinishSettled`, i.e. finished AND
+  acknowledged) — dimming and returning via `AppModel.finishedPulseOpacity`, a
+  gentle "it finished, reset it" reminder rather than a full-disappear blink.
+  The ticker keeps running to drive it; the pulse is tick-driven opacity, never
+  a `repeatForever` SwiftUI animation (which would break the popover sizing). It
+  runs across all three display styles (dots/text/units) and both themes. It does
+  NOT touch the menu bar: the bar shows the steady bell and no time text for a
+  finished timer, so nothing there pulses.
+- **The pulse ends** the instant the finished state ends — a reset, a new start,
+  or digit entry (`engine.reset` / `start` / `setDuration`) all stop the ticker
+  and exit the `.finished` state.
 - **Clicking the finished digits** (full display and compact row) resets the
   timer to the configured duration (`engine.reset`), leaving the finished
-  state entirely. Per-digit-group editing by click becomes available from the
-  next click, already in idle.
+  state entirely and ending the pulse. Per-digit-group editing by click becomes
+  available from the next click, already in idle.
 
 ## Timer: pause media on finish
 

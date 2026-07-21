@@ -1676,6 +1676,9 @@ struct PanelView: View {
                 dimCount: finished ? 0 : TimeFormatting.dimCount(for: text),
                 blinkOff: finished && !model.blinkOn
             )
+            // calm pulse once the finish is acknowledged — see finishedPulseOpacity
+            .opacity(model.finishedPulseOpacity)
+            .animation(.easeInOut(duration: 0.28), value: model.finishedPulseOpacity)
             .background(displayWidthReader)
             .contentShape(Rectangle())
             .simultaneousGesture(SpatialTapGesture().onEnded { value in
@@ -1797,6 +1800,9 @@ struct PanelView: View {
                 dimCount: finished ? 0 : TimeFormatting.dimCount(for: text),
                 blinkOff: finished && !model.blinkOn
             )
+            // calm pulse once the finish is acknowledged — see finishedPulseOpacity
+            .opacity(model.finishedPulseOpacity)
+            .animation(.easeInOut(duration: 0.28), value: model.finishedPulseOpacity)
             .background(displayWidthReader)
             .contentShape(Rectangle())
             .simultaneousGesture(SpatialTapGesture().onEnded { value in

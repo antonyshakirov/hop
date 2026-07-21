@@ -291,6 +291,56 @@ final class TimerEngineTests: XCTestCase {
         XCTAssertEqual(engine.state, .idle)
         XCTAssertFalse(engine.isFinishBlinking) // idle never blinks
     }
+
+    // MARK: - Finish-settled pulse (digits keep pulsing after acknowledge)
+
+    func testAcknowledgeEntersFinishSettledAndPersists() {
+        engine.setDuration(0)
+        engine.start()
+        XCTAssertFalse(engine.isFinishSettled) // fresh finish is blinking, not settled
+        engine.acknowledgeFinish()
+        XCTAssertTrue(engine.isFinishSettled)  // finished AND acknowledged
+        XCTAssertFalse(engine.isFinishBlinking) // the two never overlap
+        XCTAssertEqual(engine.state, .finished)
+        // it does not clear on its own: the digits keep pulsing across ticks
+        advance(5)
+        engine.tick()
+        advance(5)
+        engine.tick()
+        XCTAssertTrue(engine.isFinishSettled)
+        XCTAssertEqual(engine.state, .finished)
+    }
+
+    func testResetClearsFinishSettled() {
+        engine.setDuration(0)
+        engine.start()
+        engine.acknowledgeFinish()
+        XCTAssertTrue(engine.isFinishSettled)
+        engine.reset()
+        XCTAssertFalse(engine.isFinishSettled)
+    }
+
+    func testNewCountdownClearsFinishSettled() {
+        engine.setDuration(0)
+        engine.start()
+        engine.acknowledgeFinish()
+        XCTAssertTrue(engine.isFinishSettled)
+        engine.setDuration(60) // a real duration
+        engine.start()         // start a new countdown
+        XCTAssertEqual(engine.state, .running)
+        XCTAssertFalse(engine.isFinishSettled)
+    }
+
+    func testDigitEntryClearsFinishSettled() {
+        engine.setDuration(0)
+        engine.start()
+        engine.acknowledgeFinish()
+        XCTAssertTrue(engine.isFinishSettled)
+        // typing a digit routes through setDuration, which leaves the finished state
+        engine.setDuration(120)
+        XCTAssertEqual(engine.state, .idle)
+        XCTAssertFalse(engine.isFinishSettled)
+    }
 }
 
 final class TimeFormattingTests: XCTestCase {
