@@ -196,6 +196,49 @@ public struct PanelTabsModel: Codable, Equatable {
         return Set(allKeys).count == allKeys.count
     }
 
+    /// Rebuilds the ACTIVE layout onto the canonical three-space shape a fresh
+    /// install gets, converging any decoded legacy (1.3.x) or mid-shuffled state
+    /// in one shot — this is the pure core of the 1.4.0 migration, so the new
+    /// time-management modules appear immediately with no opt-in:
+    ///   - space 1: every active module that is NOT system/tracker/todos, in the
+    ///     order first encountered scanning the current spaces front to back,
+    ///     keeping space 1's current icon;
+    ///   - a "display" space with `system` alone — only if system is active;
+    ///   - a "clock" space with `tracker` then `todos` — only whichever of the
+    ///     two are active.
+    /// `inactive` is returned completely untouched: a module the user had hidden
+    /// (e.g. a monitor they turned off before updating) stays hidden, exactly
+    /// where they left it — canonicalization only rearranges what is ON a space.
+    /// Any space beyond these three dissolves; its active modules were already
+    /// folded into space 1. Defensive no-op on a caller-built empty model (there
+    /// is no first-tab icon to keep).
+    public func canonicalized() -> PanelTabsModel {
+        guard let firstIcon = tabs.first?.icon else { return self }
+        let managed: Set<String> = ["system", "tracker", "todos"]
+
+        var seen = Set<String>()
+        var primary: [String] = []
+        for tab in tabs {
+            for key in tab.moduleKeys where !managed.contains(key) && !seen.contains(key) {
+                seen.insert(key)
+                primary.append(key)
+            }
+        }
+
+        var canonical = [PanelTab(icon: firstIcon, moduleKeys: primary)]
+        if !inactive.contains("system") {
+            canonical.append(PanelTab(icon: "display", moduleKeys: ["system"]))
+        }
+        let clock = ["tracker", "todos"].filter { !inactive.contains($0) }
+        if !clock.isEmpty {
+            canonical.append(PanelTab(icon: "clock", moduleKeys: clock))
+        }
+
+        var result = self
+        result.tabs = canonical
+        return result
+    }
+
     /// First-launch migration from the old flat module order: everything
     /// goes into a "house" tab, with the system monitor split into its own
     /// "display" tab (it should LOOK like a monitor) and the time-management

@@ -2137,25 +2137,11 @@ struct PanelView: View {
             defaults.set(true, forKey: SettingsKey.todosSeeded)
         }
 
-        let managed: Set<String> = ["system", "tracker", "todos"]
-        var seen = Set<String>()
-        var primaryModules: [String] = []
-        for tab in model.tabs {
-            for key in tab.moduleKeys where !managed.contains(key) && !seen.contains(key) {
-                seen.insert(key)
-                primaryModules.append(key)
-            }
-        }
-
-        var canonical = [PanelTab(icon: model.tabs[0].icon, moduleKeys: primaryModules)]
-        if !model.inactive.contains("system") {
-            canonical.append(PanelTab(icon: "display", moduleKeys: ["system"]))
-        }
-        let clockModules = ["tracker", "todos"].filter { !model.inactive.contains($0) }
-        if !clockModules.isEmpty {
-            canonical.append(PanelTab(icon: "clock", moduleKeys: clockModules))
-        }
-        model.tabs = canonical
+        // The whole active layout converges on the canonical three-space shape in
+        // one shot via the tested pure transform in HopCore. The new tracker +
+        // to-dos come up immediately (no opt-in banner); `inactive` is preserved,
+        // so any module the user had off (e.g. a monitor they disabled) stays off.
+        model = model.canonicalized()
 
         // The rebuild mints fresh tab ids, so a persisted `activeSpaceID`
         // pointing into the old board can now be dangling. `effectiveSpaceID`

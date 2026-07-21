@@ -784,7 +784,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `todosSeeded`, `systemTabSeeded`) because patching modules in one at a
   time could still leave them stacked on the wrong space depending on what
   else already occupied it. Existing users' icons/layout are otherwise
-  untouched.
+  untouched. The rebuild itself is a tested pure transform in HopCore
+  (`PanelTabsModel.canonicalized()`); the app layer only guards it behind the
+  one-shot flag, resets a dangling `activeSpaceID` and persists.
+- **No opt-in for the new modules (1.4.0):** an upgrading 1.3.x user gets the
+  new canonical layout IMMEDIATELY on first launch — the tabs rebuild at once and
+  the tracker + to-dos are VISIBLE together on the clock space. There is NO
+  feature/opt-in banner and no enable/hide question for them; the only
+  feature-announcement banner in the app is the torrent module's own (its opt-in
+  mechanics are unchanged). The user's existing off-states are preserved: any
+  module inactive before the update (a monitor they turned off, torrent before
+  its opt-in, anything in `inactive`) stays inactive after — only the new modules
+  and the tab restructure appear automatically.
 - Module-visibility migration: the old `show*Module` toggles are read once
   and every OFF module is moved into the inactive bucket, after which
   visibility is pure membership and the toggles are never read again. The

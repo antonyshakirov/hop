@@ -453,4 +453,116 @@ final class PanelTabsTests: XCTestCase {
 
         XCTAssertNil(PanelTabsModel.decode(json))
     }
+
+    // MARK: - canonicalized (1.3.x → 1.4.0 layout, no opt-in)
+
+    // The default upgrade: a 1.3.x board (post-`ensure`, so the new modules sit
+    // active on the first tab) converges on the three canonical spaces, with the
+    // tracker + to-dos VISIBLE together on the third — no banner, no opt-in.
+    func testCanonicalizedDefaultStateGivesThreeSpacesWithTrackerTodosLast() {
+        let model = PanelTabsModel(tabs: [
+            PanelTab(icon: "house", moduleKeys: ["timer", "awake", "clipboard", "system", "tracker", "todos"])
+        ])
+
+        let c = model.canonicalized()
+
+        XCTAssertEqual(c.tabs.count, 3)
+        XCTAssertEqual(c.tabs[0].icon, "house")
+        XCTAssertEqual(c.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
+        XCTAssertEqual(c.tabs[1].icon, "display")
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["system"])
+        XCTAssertEqual(c.tabs[2].icon, "clock")
+        XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
+        XCTAssertEqual(c.inactive, [])
+    }
+
+    // The monitor a 1.3.x user had turned OFF stays inactive after the update; no
+    // "display" space is created for it. The new tracker + to-dos still appear
+    // together, visible, on the clock space (now the last one).
+    func testCanonicalizedKeepsInactiveMonitorHiddenAndStillShowsTrackerTodos() {
+        let model = PanelTabsModel(
+            tabs: [PanelTab(icon: "house", moduleKeys: ["timer", "clipboard", "tracker", "todos"])],
+            inactive: ["system"]
+        )
+
+        let c = model.canonicalized()
+
+        XCTAssertEqual(c.inactive, ["system"], "the monitor the user had off stays off")
+        XCTAssertFalse(c.tabs.contains { $0.moduleKeys.contains("system") }, "no monitor space is created")
+        XCTAssertEqual(c.tabs.count, 2)
+        XCTAssertEqual(c.tabs.last?.icon, "clock")
+        XCTAssertEqual(c.tabs.last?.moduleKeys, ["tracker", "todos"], "the new modules are visible together")
+    }
+
+    // Canonicalization only rearranges what is ON a space — the inactive bucket
+    // (its members AND their order) is returned untouched.
+    func testCanonicalizedLeavesInactiveBucketUntouched() {
+        let model = PanelTabsModel(
+            tabs: [PanelTab(icon: "house", moduleKeys: ["timer", "tracker", "todos"])],
+            inactive: ["torrent", "convert"]
+        )
+
+        let c = model.canonicalized()
+
+        XCTAssertEqual(c.inactive, ["torrent", "convert"])
+    }
+
+    // A user's own extra space dissolves: its active modules fold into space 1 in
+    // first-seen order, scanning the existing spaces front to back.
+    func testCanonicalizedFoldsExtraSpacesIntoFirstInFirstSeenOrder() {
+        let model = PanelTabsModel(tabs: [
+            PanelTab(icon: "house", moduleKeys: ["timer"]),
+            PanelTab(icon: "display", moduleKeys: ["system"]),
+            PanelTab(icon: "clock", moduleKeys: ["tracker", "todos"]),
+            PanelTab(icon: "star", moduleKeys: ["awake", "clipboard"])
+        ])
+
+        let c = model.canonicalized()
+
+        XCTAssertEqual(c.tabs.count, 3)
+        XCTAssertEqual(c.tabs[0].icon, "house")
+        XCTAssertEqual(c.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["system"])
+        XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
+    }
+
+    // Both time-management modules inactive → no clock space at all (their off
+    // state is preserved), only the primary and, if active, the monitor space.
+    func testCanonicalizedDropsClockSpaceWhenTrackerAndTodosBothInactive() {
+        let model = PanelTabsModel(
+            tabs: [PanelTab(icon: "house", moduleKeys: ["timer", "system"])],
+            inactive: ["tracker", "todos"]
+        )
+
+        let c = model.canonicalized()
+
+        XCTAssertEqual(c.tabs.count, 2)
+        XCTAssertEqual(c.tabs[0].moduleKeys, ["timer"])
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["system"])
+        XCTAssertFalse(c.tabs.contains { $0.moduleKeys.contains("tracker") || $0.moduleKeys.contains("todos") })
+        XCTAssertEqual(c.inactive, ["tracker", "todos"])
+    }
+
+    // Fresh install unchanged: a freshly migrated model already has the canonical
+    // shape, so canonicalizing it changes nothing structural, and a second pass is
+    // stable (idempotent).
+    func testCanonicalizedIsIdempotentOnFreshMigrate() {
+        let fresh = PanelTabsModel.migrate(moduleOrder: ["timer", "awake", "clipboard"])
+
+        let once = fresh.canonicalized()
+        XCTAssertEqual(once.tabs.map(\.icon), fresh.tabs.map(\.icon))
+        XCTAssertEqual(once.tabs.map(\.moduleKeys), fresh.tabs.map(\.moduleKeys))
+        XCTAssertEqual(once.inactive, fresh.inactive)
+
+        let twice = once.canonicalized()
+        XCTAssertEqual(twice.tabs.map(\.moduleKeys), once.tabs.map(\.moduleKeys))
+    }
+
+    // Defensive: a caller-built empty model has no first-tab icon to keep, so
+    // canonicalization is a no-op rather than a crash.
+    func testCanonicalizedIsNoOpOnEmptyModel() {
+        let model = PanelTabsModel(tabs: [])
+
+        XCTAssertEqual(model.canonicalized(), model)
+    }
 }
