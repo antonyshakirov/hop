@@ -1,12 +1,14 @@
 import Combine
 import Foundation
 import HopCore
+import os
 
 /// Owns the on-disk tracker: loads `tracker.json` at launch, saves on every
 /// engine mutation, and drives a 1 s ticker while a task is active so ticking
 /// labels in the UI can redraw without polling.
 @MainActor
 final class TrackerController: ObservableObject {
+    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "TrackerController")
     let engine: TrackerEngine
     /// Bumped once a second while a task is active — drives ticking labels.
     @Published private(set) var heartbeat: Date
@@ -29,7 +31,9 @@ final class TrackerController: ObservableObject {
         let id = Bundle.storageIdentifier
         storeDir = base.appendingPathComponent(id, isDirectory: true)
 
-        let data = TrackerStore.load(from: storeDir)
+        // A snapshot/demo render must never load real user data — start from
+        // empty and let the --tasks seed stage its own deterministic content.
+        let data = Snapshot.active ? .empty : TrackerStore.load(from: storeDir)
         engine = TrackerEngine(data: data)
         heartbeat = Date()
 
@@ -40,7 +44,13 @@ final class TrackerController: ObservableObject {
         engine.onChange = { [weak self] in
             guard let self else { return }
             try? FileManager.default.createDirectory(at: self.storeDir, withIntermediateDirectories: true)
-            try? TrackerStore.save(self.engine.data, to: self.storeDir)
+            do {
+                try TrackerStore.save(self.engine.data, to: self.storeDir)
+            } catch {
+                // One line per failure — enough to diagnose a lost write without
+                // spamming the log on every mutation while, say, the disk is full.
+                Self.log.error("tracker save failed: \(error.localizedDescription, privacy: .public)")
+            }
             self.reconcileTicker()
         }
 

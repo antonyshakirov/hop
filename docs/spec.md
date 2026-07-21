@@ -589,6 +589,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   title line.
 - **Snapshot rule:** every focused-field state is gated off `Snapshot.active`,
   so `--snapshot` renders never show an editing TextField (yellow artifact).
+  The tracker AND to-do LOAD paths are gated on `Snapshot.active` too: a
+  snapshot/demo render starts from empty and never reads the real
+  `tracker.json`/`todos.json` (belt-and-suspenders over the bundle-less `.cli`
+  sandbox), so `--tasks` stages its own deterministic content — three tasks (one
+  running), three to-dos (one done) — localized per screenshot locale in
+  `Snapshot.demoTasks` (a sanctioned per-locale string site, English fallback).
 
 ### To-dos
 
@@ -695,6 +701,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   applies it (remove-then-insert, so a drop onto a module's own slot is a no-op).
   `PanelTabsModel` is defensive against a caller-built empty model — `ensure`
   no-ops instead of indexing `tabs[0]`.
+- **1.3.x → spaces migration:** upgrading from a 1.3.x build (one flat module
+  order plus per-module `show*Module` toggles) into 1.4.0 spaces is one-shot on
+  launch — the flat order becomes the "house" space, the system monitor and the
+  tracker+to-do pair split into their own canonical spaces, and every module
+  whose legacy toggle was OFF moves to the inactive bucket (exact seeds and
+  one-shot flags in "Default spaces" below). It is idempotent: each step runs
+  once behind its flag and never re-disturbs a layout the user has since
+  rearranged.
+- **Empty-space hint:** a space with NO visible modules (its modules dragged
+  elsewhere or hidden) shows a centered `tabEmptyHint` ("empty space — move
+  modules here", tertiary) in place of a blank body, so the space still reads as
+  a real, fillable place rather than looking broken.
 - Default spaces: a fresh install migrates into THREE spaces — "house" with
   the general modules, "display" for the system monitor (the monitor tab should
   LOOK like a monitor; was "gauge"), and "clock" for the time-management pair

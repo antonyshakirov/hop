@@ -1,12 +1,14 @@
 import Combine
 import Foundation
 import HopCore
+import os
 
 /// Owns the on-disk to-do list: loads `todos.json` at launch and saves on
 /// every mutation. Mirrors `TrackerController` minus the ticker — a to-do
 /// list has nothing that ticks, so there is no heartbeat or timer here.
 @MainActor
 final class TodosController: ObservableObject {
+    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "TodosController")
     /// The list is a plain value; publishing it is enough for views observing
     /// this controller to redraw (no nested engine to forward, unlike the
     /// tracker). AppModel forwards this controller's objectWillChange onward.
@@ -20,7 +22,9 @@ final class TodosController: ObservableObject {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let id = Bundle.storageIdentifier
         storeDir = base.appendingPathComponent(id, isDirectory: true)
-        list = TodosStore.load(from: storeDir)
+        // A snapshot/demo render must never load real user data — start empty
+        // and let the --tasks seed stage its own deterministic content.
+        list = Snapshot.active ? .empty : TodosStore.load(from: storeDir)
     }
 
     /// Appends a to-do; a blank text is a no-op (the model trims and rejects
@@ -49,6 +53,11 @@ final class TodosController: ObservableObject {
 
     private func save() {
         try? FileManager.default.createDirectory(at: storeDir, withIntermediateDirectories: true)
-        try? TodosStore.save(list, to: storeDir)
+        do {
+            try TodosStore.save(list, to: storeDir)
+        } catch {
+            // One line per failure — no spam (mirrors TrackerController).
+            Self.log.error("todos save failed: \(error.localizedDescription, privacy: .public)")
+        }
     }
 }

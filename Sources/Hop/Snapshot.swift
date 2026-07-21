@@ -74,6 +74,12 @@ enum Snapshot {
             Theme.systemDark = args[ti + 1] != "light"
         }
 
+        // The screenshot locale — drives every localized demo string below
+        // (clipboard long text, tracker/to-do demo content). English by default.
+        let demoLang = args.firstIndex(of: "--lang").flatMap { i in
+            args.count > i + 1 ? args[i + 1] : nil
+        } ?? "en"
+
         // Clean module layout per render: snapshots share the dev bundle's
         // UserDefaults, and visibility is membership now (the inactive bucket).
         // Clear the persisted spaces + the one-shot migration flags + the legacy
@@ -96,9 +102,6 @@ enum Snapshot {
             struct DemoItem: Codable { let id: UUID; let text: String }
             // a link + a file path + a long text (truncated by the row);
             // the long text is localized to the screenshot language
-            let demoLang = args.firstIndex(of: "--lang").flatMap { i in
-                args.count > i + 1 ? args[i + 1] : nil
-            } ?? "en"
             let longText: String
             switch demoLang {
             case "ru": longText = "перепиши этот текст короче и проще, сохрани дружелюбный тон и добавь в конце призыв к действию"
@@ -157,16 +160,15 @@ enum Snapshot {
         }
         // --tasks: seed the tracker + to-do modules and open the space that
         // stacks them, so a snapshot shows both flat lists (subheaders, flush
-        // rows). Staged demo content (English), like the other snapshot flags.
+        // rows). Demo content is localized per screenshot locale (see demoTasks).
         if args.contains("--tasks") {
             let e = model.tracker.engine
-            // snapshots share the .cli sandbox, so wipe any prior run's persisted
-            // tasks/items first — the seed below must render the same every time.
+            // The load path is already gated on Snapshot.active (empty), but wipe
+            // defensively so the seed renders the same every time regardless.
             for id in e.data.rootOrder { e.deleteTask(id) }
             for item in model.todos.list.items { model.todos.delete(item.id) }
-            e.addTask(name: "write launch post")
-            e.addTask(name: "review pull requests")
-            e.addTask(name: "sketch tracker rows")
+            let content = demoTasks(lang: demoLang)
+            for name in content.tasks { e.addTask(name: name) }
             let ids = e.data.rootOrder
             if ids.count == 3 {
                 e.setTotal(taskID: ids[0], to: 2 * 3600 + 12 * 60)   // 2:12
@@ -174,9 +176,7 @@ enum Snapshot {
                 e.setTotal(taskID: ids[2], to: 47 * 60)              // 47m
                 e.start(taskID: ids[1])                              // active row: emphasized total
             }
-            model.todos.add(text: "ship the flat tracker")
-            model.todos.add(text: "sync docs and tests")
-            model.todos.add(text: "book flights for the offsite")
+            for text in content.todos { model.todos.add(text: text) }
             if let first = model.todos.list.items.first { model.todos.toggle(first.id) }
         }
         // --convert-files a,b,c: converter queue for the window screenshot;
@@ -273,6 +273,40 @@ enum Snapshot {
         }
         try? png.write(to: url)
         exit(0)
+    }
+
+    /// Localized tracker + to-do demo content for the `--tasks` snapshot (three
+    /// tasks, three to-dos) — one of the sanctioned per-locale screenshot string
+    /// sites. Falls back to English for locales without a translation, matching
+    /// the `--demo` clipboard-text policy. The staged totals/active/done state is
+    /// applied by the caller, not here.
+    static func demoTasks(lang: String) -> (tasks: [String], todos: [String]) {
+        switch lang {
+        case "ru":
+            return (["написать пост к запуску", "разобрать пул-реквесты", "набросать строки трекера"],
+                    ["выкатить плоский трекер", "синхронизировать доки и тесты", "взять билеты на офсайт"])
+        case "de":
+            return (["launch-post schreiben", "pull requests prüfen", "tracker-zeilen skizzieren"],
+                    ["flachen tracker ausliefern", "docs und tests abgleichen", "flüge fürs offsite buchen"])
+        case "fr":
+            return (["écrire le post de lancement", "relire les pull requests", "esquisser les lignes du tracker"],
+                    ["livrer le tracker à plat", "synchroniser docs et tests", "réserver les vols pour l'offsite"])
+        case "es":
+            return (["escribir el post de lanzamiento", "revisar los pull requests", "bocetar las filas del tracker"],
+                    ["lanzar el tracker plano", "sincronizar docs y tests", "reservar vuelos para el offsite"])
+        case "pt":
+            return (["escrever o post de lançamento", "revisar os pull requests", "esboçar as linhas do tracker"],
+                    ["lançar o tracker plano", "sincronizar docs e testes", "reservar voos para o offsite"])
+        case "zh":
+            return (["写发布贴文", "审查合并请求", "勾画跟踪器行"],
+                    ["发布扁平跟踪器", "同步文档和测试", "预订团建机票"])
+        case "ja":
+            return (["ローンチ投稿を書く", "プルリクをレビュー", "トラッカーの行を下描き"],
+                    ["フラットなトラッカーを出す", "ドキュメントとテストを同期", "オフサイトの航空券を予約"])
+        default:
+            return (["write launch post", "review pull requests", "sketch tracker rows"],
+                    ["ship the flat tracker", "sync docs and tests", "book flights for the offsite"])
+        }
     }
 
     /// Staged torrents for the `--torrents` list snapshot, covering the mixed
