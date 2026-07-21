@@ -77,8 +77,11 @@ final class TorrentController: ObservableObject {
     // MARK: - Settings (UserDefaults)
     static let downloadDirKey = "torrentDownloadDir"
     static let stopAtRatio1Key = "torrentStopAtRatio1"
-    static let rateDownKey = "torrentRateDownKBps"   // KB/s in the UI; 0 = unlimited
+    static let rateDownKey = "torrentRateDownKBps"   // canonical KB/s; 0 = unlimited
     static let rateUpKey = "torrentRateUpKBps"
+    /// Display unit for the two speed-limit fields ("kb" | "mb"), shared by both.
+    /// UI-only: the stored rate stays canonical KB/s, so there is no migration.
+    static let rateUnitKey = "torrentRateUnit"
     static let advancedInfoKey = "torrentAdvancedInfo" // legacy key (per-row detail retired)
     static let showWhenEmptyKey = "torrentShowWhenEmpty" // render the empty add-card with zero torrents
 

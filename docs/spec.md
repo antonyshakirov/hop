@@ -815,6 +815,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   reversing the 2026-07-19 move into "general": general keeps only the global
   hotkeys. The block is verbatim, including the toggle's `refreshSnapHotkeys()`
   re-registration hook.
+- Torrent speed limit (8.22): the down/up limit fields (`RateLimitField`) share
+  one `KB/s | MB/s` unit toggle (segmented, like the window-layout picker). The
+  stored value is ALWAYS canonical KB/s (`torrentRateDownKBps`/`…Up`; 0 =
+  unlimited) — the unit (`torrentRateUnit`, one shared preference) only changes
+  the display: toggling reformats both fields in place, no migration. KB mode
+  accepts up to 6 digits; MB mode up to 4 integer digits + one optional decimal
+  (1 MB = 1000 KB, the module's decimal convention, matching the card's speed
+  readout). Conversion/parse/clamp is `HopCore.RateLimit` (`RateLimitTests`).
   "modules & tabs" is the combined space/module table,
   its own top-level section (a nested general/"modules & tabs" sub-tab was
   tried and rejected). The app version is shown next to the "check & update" button.

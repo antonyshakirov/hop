@@ -119,6 +119,7 @@ struct PanelView: View {
     @AppStorage(TorrentController.stopAtRatio1Key) private var torrentStopAtRatio1 = false
     @AppStorage(TorrentController.rateDownKey) private var torrentRateDown = 0
     @AppStorage(TorrentController.rateUpKey) private var torrentRateUp = 0
+    @AppStorage(TorrentController.rateUnitKey) private var torrentRateUnitRaw = RateUnit.kb.rawValue
     @AppStorage(TorrentController.showWhenEmptyKey) private var torrentShowWhenEmpty = true
     /// "What's new" banner: dismissed once the user saves their choice.
     @AppStorage("featureSeen.torrent") private var torrentFeatureSeen = false
@@ -3150,6 +3151,9 @@ struct PanelView: View {
         }
     }
 
+    /// The chosen display unit for the torrent speed-limit fields.
+    private var torrentRateUnit: RateUnit { RateUnit(rawValue: torrentRateUnitRaw) ?? .kb }
+
     private var torrentSettings: some View {
         VStack(spacing: 14) {
             HStack {
@@ -3193,7 +3197,8 @@ struct PanelView: View {
                 Theme.MiniSwitch(isOn: $torrentStopAtRatio1)
             }
 
-            // blank / 0 = unlimited; NumericField caps at three digits (KB/s)
+            // blank / 0 = unlimited. The canonical value is KB/s; the shared unit
+            // toggle only changes how both fields display/accept it (RateLimit).
             HStack {
                 Text(t(.torrentRateLabel))
                     .font(Theme.mono(12))
@@ -3202,11 +3207,18 @@ struct PanelView: View {
                 Image(systemName: "arrow.down")
                     .font(.system(size: 10))
                     .foregroundStyle(Theme.textTertiary)
-                NumericField(value: $torrentRateDown, range: 0...999)
+                RateLimitField(kb: $torrentRateDown, unit: torrentRateUnit)
                 Image(systemName: "arrow.up")
                     .font(.system(size: 10))
                     .foregroundStyle(Theme.textTertiary)
-                NumericField(value: $torrentRateUp, range: 0...999)
+                RateLimitField(kb: $torrentRateUp, unit: torrentRateUnit)
+                // shared unit toggle (segmented, like the window-layout picker)
+                settingChip(t(.unitKBs), active: torrentRateUnit == .kb) {
+                    torrentRateUnitRaw = RateUnit.kb.rawValue
+                }
+                settingChip(t(.unitMBs), active: torrentRateUnit == .mb) {
+                    torrentRateUnitRaw = RateUnit.mb.rawValue
+                }
             }
 
             HStack {

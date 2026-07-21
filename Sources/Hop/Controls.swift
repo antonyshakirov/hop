@@ -75,6 +75,79 @@ struct VisibleRowsField: View {
     }
 }
 
+/// Torrent speed-limit entry: a free-form field bound to a CANONICAL KB/s value,
+/// shown and entered in the chosen unit (KB/s or MB/s). KB mode accepts up to 6
+/// digits; MB mode accepts up to 4 integer digits plus one optional decimal
+/// (e.g. 12.5). Empty / 0 = unlimited (kept). Toggling the unit reformats the
+/// displayed value in place; the stored KB/s never changes. Conversion, parsing
+/// and clamping live in `HopCore.RateLimit` (tested).
+struct RateLimitField: View {
+    @Binding var kb: Int
+    let unit: RateUnit
+    var color: Color = Theme.textPrimary
+
+    @State private var text = ""
+    @FocusState private var focused: Bool
+
+    var body: some View {
+        TextField("", text: $text)
+            .textFieldStyle(.plain)
+            .focused($focused)
+            .font(Theme.mono(11, weight: .semibold))
+            .foregroundStyle(color)
+            .multilineTextAlignment(.center)
+            // the AppKit field editor lifts the text ~1.5px on focus (matches
+            // NumericField) — compensate so the digit doesn't hop
+            .offset(y: focused ? 1.5 : 0)
+            .frame(width: 56, height: 24)
+            .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+            .onAppear { text = RateLimit.display(kb: kb, unit: unit) }
+            // unit toggled by the parent: reformat the SAME canonical value
+            .onChange(of: unit) { _, u in text = RateLimit.display(kb: kb, unit: u) }
+            .onChange(of: text) { _, new in
+                let filtered = Self.filter(new, unit: unit)
+                if filtered != new { text = filtered }
+                if let v = RateLimit.parse(filtered, unit: unit) { kb = v }
+            }
+            .onChange(of: kb) { _, v in
+                if !focused { text = RateLimit.display(kb: v, unit: unit) }
+            }
+            .onChange(of: focused) { _, isFocused in
+                guard !isFocused else { return }
+                if let v = RateLimit.parse(text, unit: unit) { kb = v }
+                text = RateLimit.display(kb: kb, unit: unit)
+            }
+    }
+
+    /// Keep only the characters valid for the unit and cap the digit count:
+    /// KB — up to 6 digits; MB — up to 4 integer digits + one dot + one decimal.
+    private static func filter(_ raw: String, unit: RateUnit) -> String {
+        switch unit {
+        case .kb:
+            return String(raw.filter(\.isNumber).prefix(6))
+        case .mb:
+            var seenDot = false, intDigits = 0, fracDigits = 0
+            var out = ""
+            for ch in raw {
+                if ch.isNumber {
+                    if seenDot {
+                        guard fracDigits < 1 else { continue }
+                        fracDigits += 1
+                    } else {
+                        guard intDigits < 4 else { continue }
+                        intDigits += 1
+                    }
+                    out.append(ch)
+                } else if ch == ".", !seenDot {
+                    seenDot = true
+                    out.append(ch)
+                }
+            }
+            return out
+        }
+    }
+}
+
 /// Threshold row: two free-form fields, red is always stricter than yellow
 /// (regular metrics: red > yellow; battery is inverted: red < yellow).
 struct ThresholdRow: View {
