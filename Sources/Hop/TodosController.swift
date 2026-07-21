@@ -9,10 +9,11 @@ import os
 @MainActor
 final class TodosController: ObservableObject {
     private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "TodosController")
-    /// "visible rows" cap: 0 = all (default — preserves the uncapped list for
-    /// existing users), 3…15 caps the list to a fixed height with inner scroll.
+    /// "visible rows" cap: always active, 3…15, default 10 — the list caps to a
+    /// fixed height with inner scroll. A stored 0 (legacy "all") reads as the
+    /// default on load.
     static let visibleRowsKey = "todosVisibleRows"
-    static let defaultVisibleRows = RowCap.all
+    static let defaultVisibleRows = RowCap.defaultRows
     /// The list is a plain value; publishing it is enough for views observing
     /// this controller to redraw (no nested engine to forward, unlike the
     /// tracker). AppModel forwards this controller's objectWillChange onward.

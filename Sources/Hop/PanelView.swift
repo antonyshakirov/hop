@@ -3381,8 +3381,8 @@ struct PanelView: View {
         }
     }
 
-    /// The shared "visible rows" row for the tracker and to-do modules: a cap of
-    /// "all" (default) or 3…15 rows, above which the module list scrolls inside a
+    /// The shared "visible rows" row for the tracker and to-do modules: a numeric
+    /// cap of 3…15 rows (default 10), above which the module list scrolls inside a
     /// fixed height (`RowCap`).
     private func visibleRowsSetting(stored: Binding<Int>) -> some View {
         HStack {
@@ -3390,7 +3390,7 @@ struct PanelView: View {
                 .font(Theme.mono(12))
                 .foregroundStyle(Theme.textPrimary)
             Spacer()
-            VisibleRowsField(stored: stored, allLabel: t(.visibleRowsAll))
+            VisibleRowsField(stored: stored)
         }
     }
 

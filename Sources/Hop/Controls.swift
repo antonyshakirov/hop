@@ -10,10 +10,10 @@ struct NumericField: View {
     var color: Color = Theme.textPrimary
 
     @State private var text = ""
-    // The user actually typed since gaining focus. A focus→blur with no edit must
-    // NOT commit the displayed number: the "visible rows" field previews a number
-    // ("8") while "all" is active, and committing that preview on a bare blur
-    // silently switched "all" off.
+    // Whether the user actually typed since gaining focus. A focus→blur with no
+    // edit must NOT rewrite the value: the displayed text can be a clamp-on-read
+    // of the stored value (e.g. a legacy 0 shown as the default), and committing
+    // that on a bare blur would needlessly overwrite what is on disk.
     @State private var edited = false
     @FocusState private var focused: Bool
 
@@ -60,29 +60,19 @@ struct NumericField: View {
     }
 }
 
-/// "visible rows" chooser for the to-do and tracker modules: an "all" chip (no
-/// cap — the default) next to the same `NumericField` the clipboard's visible-rows
-/// setting uses (range 3…15). The stored value is a single Int: 0 for "all", else
-/// the clamped row count. Tapping "all" stores 0; entering / editing the number
-/// stores a cap. When "all" is active the field previews the count you'd get if
-/// you switched — the same "special chip + concrete value" shape as the
-/// converter's Downloads-vs-folder control.
+/// "visible rows" chooser for the to-do and tracker modules: a single always-active
+/// numeric field (range 3…15), sharing `NumericField` with the clipboard's
+/// setting. The "all"/unlimited option is gone (`RowCap` always caps). A stored 0
+/// — the previous "all" sentinel — reads as the default so nothing needs
+/// migrating; any edit writes a clamped 3…15 count.
 struct VisibleRowsField: View {
     @Binding var stored: Int
-    let allLabel: String
-    /// The count the field shows (and switches to) when "all" is the current mode.
-    private static let previewCap = 8
 
     var body: some View {
-        HStack(spacing: 6) {
-            SettingChip(active: stored <= 0, action: { stored = 0 }) {
-                Text(allLabel).font(Theme.mono(10))
-            }
-            NumericField(value: Binding(
-                get: { stored <= 0 ? Self.previewCap : min(max(stored, RowCap.minRows), RowCap.maxRows) },
-                set: { stored = min(max($0, RowCap.minRows), RowCap.maxRows) }
-            ), range: RowCap.minRows...RowCap.maxRows)
-        }
+        NumericField(value: Binding(
+            get: { RowCap.cap(stored) },
+            set: { stored = min(max($0, RowCap.minRows), RowCap.maxRows) }
+        ), range: RowCap.minRows...RowCap.maxRows)
     }
 }
 

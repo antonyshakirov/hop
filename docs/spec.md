@@ -599,8 +599,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   independent. The menu-bar alert icon is deliberately NOT part of this — it
   ships with the corner-system redesign.
 - **Visible rows (8.21):** a per-module `visible rows` cap
-  (`trackerVisibleRows`, "other modules" settings): `all` (DEFAULT — the uncapped
-  list) or 3…15 (`VisibleRowsField`, 0 stored = all). When the TASK count exceeds
+  (`trackerVisibleRows`, "other modules" settings): an ALWAYS-active number 3…15,
+  default 10 (`VisibleRowsField`, a single numeric field — the "all"/unlimited
+  option was dropped; a stored 0 from the old "all" default reads as 10 on load,
+  no migration). When the TASK count exceeds
   the cap, the task list scrolls inside a fixed height of exactly `cap` rows plus
   their inter-row gaps — `29·cap − 3` (26pt row + 3pt spacing, the last gap
   dropped) (`RowCap.listHeight`, INTEGRAL); the subheader, the pinned 8h warning and the
@@ -715,9 +717,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   a 2pt accent line marks the (group-clamped) insertion point; one
   `reorder(dragging:toDisplayInsertion:)` commits per completed drag.
 - **Visible rows (8.21):** a per-module `visible rows` cap
-  (`todosVisibleRows`, "other modules" settings): `all` (DEFAULT — the uncapped
-  list existing users already have) or a number 3…15 (`VisibleRowsField`: an
-  `all` chip + the clipboard's `NumericField`; 0 stored = all). When the COMBINED
+  (`todosVisibleRows`, "other modules" settings): an ALWAYS-active number 3…15,
+  default 10 (`VisibleRowsField`, the clipboard's `NumericField` alone — the
+  "all"/unlimited option was dropped; a stored 0 from the old default reads as 10
+  on load). When the COMBINED
   displayed list (active + completed scroll together) exceeds the cap, the item
   list scrolls inside a fixed height of exactly `cap` rows plus their gaps —
   `29·cap − 3` (26pt row + 3pt spacing) (`RowCap.listHeight`,
@@ -849,7 +852,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   remaining modules. "Remaining modules" = awake/clipboard/tracker/to-dos/converter
   as sections with headers (torrent sits at the end of the same tab). The tracker
   and to-do sections each carry a single `visible rows` row (`VisibleRowsField`:
-  `all` default, or 3…15 — see 8.21). The window-snap block (layout picker,
+  a numeric 3…15, default 10 — see 8.21). The window-snap block (layout picker,
   "resize windows with hotkeys" toggle, its ⌃⌥-key grid) is the LAST section on
   this tab (`windowsSettings`, after torrent) — Anton moved it here on 2026-07-21,
   reversing the 2026-07-19 move into "general": general keeps only the global
