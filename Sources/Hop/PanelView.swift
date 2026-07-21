@@ -3876,6 +3876,7 @@ struct PanelView: View {
                 ("windows", t(.windowsLabel)),
                 ("speed", t(.speedtestLabel)),
                 ("torrent", t(.torrentLabel)),
+                ("tasks", t(.aboutTabTasks)),
                 ("news", t(.aboutTabNews)),
             ], selection: $aboutSection, wraps: true)
 
@@ -3902,6 +3903,14 @@ struct PanelView: View {
                     DocView(text: t(.docSpeedFull))
                 case "torrent":
                     DocView(text: t(.docTorrentFull))
+                case "tasks":
+                    // both new modules in one tab, two clearly separated sections:
+                    // the time tracker above, the to-do list below.
+                    VStack(alignment: .leading, spacing: 12) {
+                        DocView(text: t(.docTrackerFull))
+                        Rectangle().fill(Theme.divider).frame(height: 1)
+                        DocView(text: t(.docTodosFull))
+                    }
                 case "news":
                     // last ~5 releases, 2-4 bullets each (older ones drop off);
                     // the full history lives on GitHub Releases

@@ -1075,11 +1075,19 @@ Anton's primary install must always remain fully functional.
 
 ## Info window
 
-- Opens 940pt wide so all ten section tabs (general, timer, awake, monitor,
-  clipboard, converter, windows, internet, torrents, what's new) sit on ONE line
-  in the widest language: Spanish's natural-width chips total 871pt + 24pt content
-  padding each side (48) = 919pt, rounded up. Each module has its own full
-  documentation tab, torrents included (`docTorrentFull`, all 18 languages).
+- Opens 1060pt wide so all ELEVEN section tabs (general, timer, awake, monitor,
+  clipboard, converter, windows, internet, torrents, tasks & time, what's new) sit
+  on ONE line in the widest language (was 940 for ten; the "tasks & time" tab was
+  added 2026-07-21 and adds ~130pt of natural-width chip). Each module has its own
+  full documentation tab, torrents included (`docTorrentFull`, all 18 languages).
+- The `tasks & time` tab (`aboutTabTasks`, 8.23) documents the two 1.4.0
+  time-management modules together in ONE tab, as two clearly separated sections:
+  the time tracker (`docTrackerFull`) above and the to-do list (`docTodosFull`)
+  below, split by a divider. Same tone/structure as `docTorrentFull`; every claim
+  matches shipped behavior including the sink-to-bottom (8.20) and visible-rows
+  (8.21) changes. The `general` overview tab (`docGeneral`) gained `time tracker`
+  and `to-dos` bullets, and its `header` bullet was refreshed for the 1.4.0
+  spaces-tabs (icon tabs, up to four spaces, arranged in settings). All ×18.
 - Free resizing in both directions: content scrolls vertically; on width
   changes the section tabs wrap onto new lines (FlowLayout, natural-width
   chips) and the text reflows. Minimum 480×300.

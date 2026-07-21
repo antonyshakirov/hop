@@ -344,11 +344,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // WITHOUT fullSizeContentView: content does not slide under the translucent
             // title bar (icons "floated" through it while scrolling)
             let window = NSWindow(
-                // 940 wide so all ten section tabs sit on ONE line in the widest
-                // language: Spanish's natural-width chips total 871pt + 24pt
-                // content padding each side (48) = 919pt, rounded up for margin.
+                // 1060 wide so all ELEVEN section tabs sit on ONE line in the
+                // widest language (the "tasks & time" tab was added 2026-07-21 for
+                // the tracker + to-do modules; ~130pt of natural-width chip on top
+                // of the previous ten's ~919pt, rounded up for margin).
                 // Still freely resizable — narrower widths wrap the tabs (FlowLayout).
-                contentRect: NSRect(x: 0, y: 0, width: 940, height: 560),
+                contentRect: NSRect(x: 0, y: 0, width: 1060, height: 560),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable],
                 backing: .buffered, defer: false
             )
