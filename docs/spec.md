@@ -541,6 +541,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `H:MM:SS`, `H:MM` or bare minutes — 1 number = minutes, 2 = `H:MM`, 3 =
   `H:MM:SS`, parsed leniently. `.help` carries the hint. `setToday(taskID:to:)`
   remains for the menu-bar path and is unaffected.
+- **Mutator guards (engine invariants):** every id-taking mutator no-ops on an
+  UNKNOWN task id rather than recording inconsistent state — `start(taskID:)`
+  opens no orphan interval, and `setToday`/`setTotal` return false and add no
+  orphan correction. A ZERO-DELTA edit (the total/today already equals the
+  target) writes no correction and fires no `onChange`, so re-setting a value —
+  including dragging left while already at zero — never leaves an empty record
+  or triggers a redundant save.
 - **8-hour warning:** when the ACTIVE task's current open interval has been
   running for over 8 hours (`activeIntervalStart` vs now, recomputed off
   `tracker.heartbeat` — no timer of its own, no repeatForever), a warning row
@@ -583,9 +590,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 ### To-dos
 
 - A flat checklist. Logic lives in HopCore (`TodoList` + `TodosStore`,
-  `todos.json`, atomic write, corrupt → `.bak` + empty, tolerant decode of a
-  missing `items` key); `TodosController` mirrors `TrackerController` minus the
-  ticker (a checklist has nothing that ticks). Model API: `add(text:)` trims and
+  `todos.json`, atomic write, tolerant decode of a missing `items` key);
+  `TodosController` mirrors `TrackerController` minus the ticker (a checklist
+  has nothing that ticks). Both stores (`TodosStore`, `TrackerStore`) move an
+  unusable file aside to `.bak` before the next save can overwrite it — not
+  only a file that fails to DECODE (corrupt), but one that EXISTS yet cannot be
+  READ (permissions, transient IO, not a regular file); a missing file is the
+  normal first-run case and is left alone. A save or backup failure logs ONE
+  line (no per-mutation spam). Model API: `add(text:)` trims and
   APPENDS at the bottom (empty = no-op), `toggle(id)` flips `done` IN PLACE
   (completed items keep their position), `delete(id)`, and `move(from:to:)`
   reorders (clamped; `from` out of range is a no-op) — the order persists through
@@ -670,6 +682,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   space. Up to 4 spaces (`PanelTabsModel.maxTabs`) — the
   cap keeps 4×56pt tabs plus the trio inside the 340pt header content
   (≈338pt at the cap). Panel width 368.
+- Deleting a space (in the settings table) sends its modules to the INACTIVE
+  bucket — they are hidden, not silently merged into another space
+  (`PanelTabsModel.deleteTab`; confirm copy "its modules become inactive"). The
+  last remaining space can never be deleted. The settings-table drop is resolved
+  by pure, tested HopCore helpers: `SettingsDropGeometry.insertIndex` turns the
+  laid-out chip frames + the drop point into an insert index (one resolver for
+  both the live indicator and the commit), and `PanelTabsModel.applyDrop`
+  applies it (remove-then-insert, so a drop onto a module's own slot is a no-op).
+  `PanelTabsModel` is defensive against a caller-built empty model — `ensure`
+  no-ops instead of indexing `tabs[0]`.
 - Default spaces: a fresh install migrates into THREE spaces — "house" with
   the general modules, "display" for the system monitor (the monitor tab should
   LOOK like a monitor; was "gauge"), and "clock" for the time-management pair

@@ -191,4 +191,18 @@ final class TodosTests: XCTestCase {
         XCTAssertEqual(loaded, .empty)
         XCTAssertEqual(try Data(contentsOf: bakURL), garbage)
     }
+
+    /// A file that EXISTS but cannot be read (a directory in its place) is
+    /// backed up before the next save can overwrite it, not silently dropped.
+    func testLoadOfUnreadableFileBacksItUpBeforeOverwrite() throws {
+        let fileURL = dir.appendingPathComponent("todos.json")
+        try FileManager.default.createDirectory(at: fileURL, withIntermediateDirectories: false)
+
+        let loaded = TodosStore.load(from: dir)
+
+        XCTAssertEqual(loaded, .empty)
+        let bakURL = dir.appendingPathComponent("todos.json.bak")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: bakURL.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
+    }
 }

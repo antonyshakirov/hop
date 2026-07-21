@@ -135,6 +135,9 @@ public final class TrackerEngine: ObservableObject {
     // MARK: - Tracking
 
     public func start(taskID: UUID) {
+        // An unknown id would open an orphan interval (active state with no task
+        // behind it) — no-op instead, mirroring the other id-taking mutators.
+        guard data.tasks.contains(where: { $0.id == taskID }) else { return }
         guard activeTaskID != taskID else { return }
         closeActiveInterval()
         data.intervals.append(TrackerInterval(taskID: taskID, start: now()))
@@ -160,11 +163,17 @@ public final class TrackerEngine: ObservableObject {
     @discardableResult
     public func setToday(taskID: UUID, to seconds: TimeInterval) -> Bool {
         guard activeTaskID != taskID else { return false }
+        // Unknown id: refuse rather than record an orphan correction.
+        guard data.tasks.contains(where: { $0.id == taskID }) else { return false }
         let target = max(0, seconds)
         // Diff against the raw (unclamped) sum, not the display-clamped today():
         // if the raw sum is already negative, diffing against 0 would under-shoot
         // and the edit could never reach a positive target in one correction.
         let delta = target - rawToday(taskID: taskID)
+        // Setting the value it already holds is a no-op: an empty (zero-second)
+        // correction would only bloat the file and fire a redundant save. This
+        // also closes drag-left-at-zero writing a zero correction.
+        guard delta != 0 else { return true }
         let startOfToday = calendar.startOfDay(for: now())
         data.corrections.append(TrackerCorrection(taskID: taskID, day: startOfToday, seconds: delta))
         onChange?()
@@ -179,8 +188,13 @@ public final class TrackerEngine: ObservableObject {
     @discardableResult
     public func setTotal(taskID: UUID, to seconds: TimeInterval) -> Bool {
         guard activeTaskID != taskID else { return false }
+        // Unknown id: refuse rather than record an orphan correction.
+        guard data.tasks.contains(where: { $0.id == taskID }) else { return false }
         let target = max(0, seconds)
         let delta = target - rawTotal(taskID: taskID)
+        // Zero delta = the total already equals the target: write no empty
+        // correction and fire no redundant save (see `setToday`).
+        guard delta != 0 else { return true }
         let startOfToday = calendar.startOfDay(for: now())
         data.corrections.append(TrackerCorrection(taskID: taskID, day: startOfToday, seconds: delta))
         onChange?()

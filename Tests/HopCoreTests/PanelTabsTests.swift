@@ -320,6 +320,71 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(model.tabs[1].moduleKeys, ["system"])
     }
 
+    // The public init permits an empty model; ensure must not crash on tabs[0].
+    func testEnsureIsNoOpOnEmptyModel() {
+        var model = PanelTabsModel(tabs: [])
+
+        model.ensure(modules: ["timer", "system"])
+
+        XCTAssertTrue(model.tabs.isEmpty)
+        XCTAssertEqual(model.inactive, [])
+    }
+
+    // MARK: - applyDrop (settings-table drop resolver)
+
+    func testApplyDropMovesModuleToTabAtIndex() {
+        let a = PanelTab(icon: "a", moduleKeys: ["timer", "awake"])
+        let b = PanelTab(icon: "b", moduleKeys: ["system", "clipboard"])
+        var model = PanelTabsModel(tabs: [a, b])
+
+        model.applyDrop(module: "timer", toTab: b.id, at: 1)
+
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["awake"])
+        XCTAssertEqual(model.tabs[1].moduleKeys, ["system", "timer", "clipboard"])
+    }
+
+    func testApplyDropToInactiveAtIndex() {
+        let a = PanelTab(icon: "a", moduleKeys: ["timer", "awake"])
+        var model = PanelTabsModel(tabs: [a], inactive: ["clipboard", "convert"])
+
+        model.applyDrop(moduleToInactive: "timer", at: 1)
+
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["awake"])
+        XCTAssertEqual(model.inactive, ["clipboard", "timer", "convert"])
+    }
+
+    func testApplyDropAtFirstIndex() {
+        let a = PanelTab(icon: "a", moduleKeys: ["timer"])
+        let b = PanelTab(icon: "b", moduleKeys: ["system", "clipboard"])
+        var model = PanelTabsModel(tabs: [a, b])
+
+        model.applyDrop(module: "timer", toTab: b.id, at: 0)
+
+        XCTAssertEqual(model.tabs[1].moduleKeys, ["timer", "system", "clipboard"])
+    }
+
+    func testApplyDropAtLastIndexClamps() {
+        let a = PanelTab(icon: "a", moduleKeys: ["timer"])
+        let b = PanelTab(icon: "b", moduleKeys: ["system", "clipboard"])
+        var model = PanelTabsModel(tabs: [a, b])
+
+        model.applyDrop(module: "timer", toTab: b.id, at: 999)
+
+        XCTAssertEqual(model.tabs[1].moduleKeys, ["system", "clipboard", "timer"])
+    }
+
+    // "awake" sits at index 1; dropping it back at index 1 (its own slot,
+    // computed excluding itself) is a remove-then-insert that changes nothing.
+    func testApplyDropOntoOwnSlotIsNoOp() {
+        let a = PanelTab(icon: "a", moduleKeys: ["timer", "awake", "clipboard"])
+        var model = PanelTabsModel(tabs: [a])
+        let before = model
+
+        model.applyDrop(module: "awake", toTab: a.id, at: 1)
+
+        XCTAssertEqual(model, before)
+    }
+
     // MARK: - tabID(containing:)
 
     func testTabIDContainingFindsOwningTab() {

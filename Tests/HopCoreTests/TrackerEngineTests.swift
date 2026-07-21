@@ -97,6 +97,18 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(changeCount, 0)
     }
 
+    /// An unknown id must not open an orphan interval or claim active state.
+    func testStartWithUnknownIDIsNoOp() {
+        _ = engine.addTask(name: "A")
+        changeCount = 0
+
+        engine.start(taskID: UUID())
+
+        XCTAssertNil(engine.activeTaskID)
+        XCTAssertTrue(engine.data.intervals.isEmpty)
+        XCTAssertEqual(changeCount, 0)
+    }
+
     // MARK: - Tracking: stopActive
 
     func testStopActiveClosesIntervalAndClearsActiveTask() {
@@ -326,6 +338,40 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(engine.today(taskID: taskID), 600)
     }
 
+    /// An unknown id adds no orphan correction and reports failure.
+    func testSetTodayWithUnknownIDIsNoOpAndAddsNoCorrection() {
+        _ = engine.addTask(name: "A")
+        changeCount = 0
+
+        let result = engine.setToday(taskID: UUID(), to: 25 * 60)
+
+        XCTAssertFalse(result)
+        XCTAssertTrue(engine.data.corrections.isEmpty)
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    /// Re-setting today to the value it already holds writes no (zero-delta)
+    /// correction and fires no redundant save.
+    func testSetTodayToCurrentValueWritesNoCorrection() {
+        let taskID = UUID()
+        clock = date(2026, 7, 17, 12, 0)
+        engine = TrackerEngine(data: TrackerData(
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
+            intervals: [],
+            corrections: [TrackerCorrection(taskID: taskID, day: date(2026, 7, 17, 0, 0), seconds: 10 * 60)]
+        ), now: { self.clock }, calendar: calendar)
+        engine.onChange = { [weak self] in self?.changeCount += 1 }
+        let before = engine.data.corrections.count
+        changeCount = 0
+
+        let result = engine.setToday(taskID: taskID, to: 10 * 60)   // already 10 min
+
+        XCTAssertTrue(result)
+        XCTAssertEqual(engine.data.corrections.count, before)
+        XCTAssertEqual(changeCount, 0)
+    }
+
     func testSetTodayOnActiveTaskReturnsFalseAndMutatesNothing() {
         let taskID = engine.addTask(name: "A")
         engine.start(taskID: taskID)
@@ -401,6 +447,39 @@ final class TrackerEngineTests: XCTestCase {
         // delta = 600 - (-36000) = 36600, so the raw total reaches exactly 600
         XCTAssertEqual(engine.data.corrections.last?.seconds, 36600)
         XCTAssertEqual(engine.total(taskID: taskID), 600)
+    }
+
+    /// An unknown id adds no orphan correction and reports failure.
+    func testSetTotalWithUnknownIDIsNoOpAndAddsNoCorrection() {
+        _ = engine.addTask(name: "A")
+        changeCount = 0
+
+        let result = engine.setTotal(taskID: UUID(), to: 25 * 60)
+
+        XCTAssertFalse(result)
+        XCTAssertTrue(engine.data.corrections.isEmpty)
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    /// Re-setting the total to the value it already holds writes no (zero-delta)
+    /// correction and fires no redundant save — also closes drag-left-at-zero.
+    func testSetTotalToCurrentValueWritesNoCorrection() {
+        let taskID = UUID()
+        clock = date(2026, 7, 17, 12, 0)
+        engine = TrackerEngine(data: TrackerData(
+            projects: [],
+            tasks: [TrackerTask(id: taskID, name: "A")],
+            intervals: [TrackerInterval(taskID: taskID, start: date(2026, 7, 17, 9, 0), end: date(2026, 7, 17, 10, 0))],
+            corrections: []
+        ), now: { self.clock }, calendar: calendar)
+        engine.onChange = { [weak self] in self?.changeCount += 1 }
+        changeCount = 0
+
+        let result = engine.setTotal(taskID: taskID, to: 1 * 3600)   // already exactly 1h
+
+        XCTAssertTrue(result)
+        XCTAssertTrue(engine.data.corrections.isEmpty)
+        XCTAssertEqual(changeCount, 0)
     }
 
     func testSetTotalOnActiveTaskReturnsFalseAndMutatesNothing() {

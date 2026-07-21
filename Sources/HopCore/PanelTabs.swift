@@ -130,6 +130,10 @@ public struct PanelTabsModel: Codable, Equatable {
     /// introduced modules somewhere (new modules ship visible) without
     /// disturbing existing tabs or reactivating a hidden module.
     public mutating func ensure(modules: [String]) {
+        // A caller can construct a model with no tabs (the public init does not
+        // forbid it, unlike `decode`). There is nowhere to place new modules
+        // then, so this is a no-op rather than a `tabs[0]` out-of-bounds crash.
+        guard !tabs.isEmpty else { return }
         var known = Set(tabs.flatMap(\.moduleKeys)).union(inactive)
         let missing = modules.filter { key in
             guard !known.contains(key) else { return false }
@@ -137,6 +141,25 @@ public struct PanelTabsModel: Codable, Equatable {
             return true
         }
         tabs[0].moduleKeys.append(contentsOf: missing)
+    }
+
+    /// Applies a settings-table drop of `module` onto `tabID` at `index`: the
+    /// module is removed from wherever it currently lives (another tab or the
+    /// inactive bucket) and pinned to `index` within `tabID`. Because it is a
+    /// remove-then-insert, dropping a module onto its own slot is a no-op; the
+    /// underlying mutators guard, so an unknown tab or module is a no-op too.
+    /// This is the pure resolver the panel's drop UI feeds an insert index into.
+    public mutating func applyDrop(module: String, toTab tabID: UUID, at index: Int) {
+        move(module: module, toTab: tabID)
+        reorder(module: module, inTab: tabID, to: index)
+    }
+
+    /// The inactive-bucket sibling of `applyDrop(module:toTab:at:)`: hides
+    /// `module` and pins it to `index` within the bucket. No-op if the module is
+    /// unknown; dropping a bucket item onto its own slot is a no-op.
+    public mutating func applyDrop(moduleToInactive module: String, at index: Int) {
+        deactivate(module: module)
+        reorder(inInactive: module, to: index)
     }
 
     /// The id of the tab holding `module`, or nil if no tab does.

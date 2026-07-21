@@ -74,4 +74,19 @@ final class TrackerStoreTests: XCTestCase {
         XCTAssertEqual(loaded, .empty)
         XCTAssertEqual(try Data(contentsOf: bakURL), garbage)
     }
+
+    /// A file that EXISTS but cannot be read (here a directory in its place —
+    /// unreadable as `Data`, uid-independent) is backed up before the next save
+    /// can overwrite it, not silently dropped.
+    func testLoadOfUnreadableFileBacksItUpBeforeOverwrite() throws {
+        let fileURL = dir.appendingPathComponent("tracker.json")
+        try FileManager.default.createDirectory(at: fileURL, withIntermediateDirectories: false)
+
+        let loaded = TrackerStore.load(from: dir)
+
+        XCTAssertEqual(loaded, .empty)
+        let bakURL = dir.appendingPathComponent("tracker.json.bak")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: bakURL.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
+    }
 }

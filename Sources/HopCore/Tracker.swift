@@ -51,6 +51,12 @@ public struct TrackerInterval: Codable, Equatable {
 /// stop). `seconds` is signed: positive adds time, negative removes it.
 public struct TrackerCorrection: Codable, Equatable {
     public let taskID: UUID
+    /// INVARIANT: every correction the engine writes is dated the START OF DAY
+    /// (midnight) in the engine's calendar — `setToday`/`setTotal` use
+    /// `calendar.startOfDay(for:)`. Today-scoping compares with
+    /// `isDate(_:inSameDayAs:)`, so a stray non-midnight value from a hand-edited
+    /// or legacy file still matches its day, but engine-authored records are
+    /// always normalized to midnight.
     public let day: Date
     public let seconds: TimeInterval
 
