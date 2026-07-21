@@ -83,9 +83,11 @@ bucket).
 
 The settings window's top-level text-switcher has five sibling sections:
 "general" for the everyday options (theme, language, launch, sounds,
-updates, app icon, hotkeys — including the window-snap layout picker and
-its "resize windows with hotkeys" toggle/grid), "timer", "other modules",
-"monitor", and "modules & tabs" for the panel layout — no tab-in-tab, each
+updates, app icon, and the GLOBAL hotkeys only — show panel / timer / no-sleep),
+"timer", "other modules" (which now also carries the window-manager section — the
+grid/row layout picker and the "resize windows with hotkeys" toggle/grid, moved
+out of general on 2026-07-21), "monitor", and "modules & tabs" for the panel
+layout — no tab-in-tab, each
 is its own top-level section. The switcher chips take their natural width and wrap onto
 a second line if a language runs long (`SectionChips(wraps:)`), so the fifth
 chip never truncates in the 720pt window. The "modules & tabs" section is
@@ -413,8 +415,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Glyphs 26×16, fill inset 1pt (any more and the "half" turns into
   a strip). The "center" fill is smaller than the real zone, otherwise
   it is indistinguishable from "full screen".
-- Global zone hotkeys: a toggle in the "general" settings tab, next to the
-  other hotkey rows (ON by default — Anton, 2026-07-15), a fixed ⌃⌥ scheme
+- Global zone hotkeys: a toggle in the window-manager section of the "other
+  modules" settings tab (moved out of "general" 2026-07-21; ON by default —
+  Anton, 2026-07-15), a fixed ⌃⌥ scheme
   covering ALL 18 zones:
   arrows — halves, ↩ — full screen, C — center, U/I/J/K — quarters,
   D/F/G — vertical thirds, E/T — two-thirds, S — center column,
@@ -806,10 +809,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   modules & tabs. "Remaining modules" = awake/clipboard/tracker/to-dos/converter
   as sections with headers (torrent sits at the end of the same tab). The tracker
   and to-do sections each carry a single `visible rows` row (`VisibleRowsField`:
-  `all` default, or 3…15 — see 8.21). The window-snap
-  block (layout picker, "resize windows with hotkeys" toggle, its ⌃⌥-key
-  grid) lives in "general" instead, next to the other hotkey rows
-  (Anton, 2026-07-19) — it reads as a hotkey setting, not a module setting.
+  `all` default, or 3…15 — see 8.21). The window-snap block (layout picker,
+  "resize windows with hotkeys" toggle, its ⌃⌥-key grid) is the LAST section on
+  this tab (`windowsSettings`, after torrent) — Anton moved it here on 2026-07-21,
+  reversing the 2026-07-19 move into "general": general keeps only the global
+  hotkeys. The block is verbatim, including the toggle's `refreshSnapHotkeys()`
+  re-registration hook.
   "modules & tabs" is the combined space/module table,
   its own top-level section (a nested general/"modules & tabs" sub-tab was
   tried and rejected). The app version is shown next to the "check & update" button.

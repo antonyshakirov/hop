@@ -2910,56 +2910,61 @@ struct PanelView: View {
                 .fill(Theme.divider)
                 .frame(height: 1)
 
+            // global hotkeys (show panel / timer / no-sleep) are the last thing on
+            // "general"; the window-manager block (layout + resize hotkeys) lives
+            // in "other modules" now (Anton, 2026-07-21 — reversing the 2026-07-19
+            // move here), where the other module option groups sit.
             hotkeysSection
+        }
+    }
 
-            Rectangle()
-                .fill(Theme.divider)
-                .frame(height: 1)
-
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.windowsLabel))
+    /// Window-manager options, relocated verbatim from "general" into the module
+    /// settings tab (Anton, 2026-07-21): the grid/row layout picker and the
+    /// "resize windows with hotkeys" toggle with its ⌃⌥ zone-key grid. Toggling
+    /// the switch re-registers the snap hotkeys (the hook rides with the block).
+    private var windowsSettings: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Text(t(.windowsLayoutLabel))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                settingChip(t(.windowsGrid), active: windowsLayout == "grid") { windowsLayout = "grid" }
+                settingChip(t(.windowsRow), active: windowsLayout == "row") { windowsLayout = "row" }
+            }
+            VStack(alignment: .leading, spacing: 5) {
                 HStack {
-                    Text(t(.windowsLayoutLabel))
+                    Text(t(.windowsHotkeysLabel))
                         .font(Theme.mono(12))
                         .foregroundStyle(Theme.textPrimary)
                     Spacer()
-                    settingChip(t(.windowsGrid), active: windowsLayout == "grid") { windowsLayout = "grid" }
-                    settingChip(t(.windowsRow), active: windowsLayout == "row") { windowsLayout = "row" }
+                    Theme.MiniSwitch(isOn: $windowsHotkeysOn)
                 }
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack {
-                        Text(t(.windowsHotkeysLabel))
-                            .font(Theme.mono(12))
-                            .foregroundStyle(Theme.textPrimary)
-                        Spacer()
-                        Theme.MiniSwitch(isOn: $windowsHotkeysOn)
-                    }
-                    // zone glyph + its combo, same pairs as the help legend
-                    // four columns: 18 zones in two-column form wasted half
-                    // the width and stretched the section (Anton, 2026-07-15)
-                    LazyVGrid(
-                        columns: Array(
-                            repeating: GridItem(.flexible(), alignment: .leading),
-                            count: 4
-                        ),
-                        alignment: .leading, spacing: 7
-                    ) {
-                        ForEach(Self.snapHotkeyItems, id: \.0) { position, key in
-                            HStack(spacing: 8) {
-                                snapGlyph(position)
-                                    .frame(width: 22, height: 14)
-                                Text("⌃ ⌥ \(key)")
-                                    .font(Theme.mono(10))
-                                    .foregroundStyle(Theme.textTertiary)
-                                Spacer(minLength: 0)
-                            }
+                // zone glyph + its combo, same pairs as the help legend
+                // four columns: 18 zones in two-column form wasted half
+                // the width and stretched the section (Anton, 2026-07-15)
+                LazyVGrid(
+                    columns: Array(
+                        repeating: GridItem(.flexible(), alignment: .leading),
+                        count: 4
+                    ),
+                    alignment: .leading, spacing: 7
+                ) {
+                    ForEach(Self.snapHotkeyItems, id: \.0) { position, key in
+                        HStack(spacing: 8) {
+                            snapGlyph(position)
+                                .frame(width: 22, height: 14)
+                            Text("⌃ ⌥ \(key)")
+                                .font(Theme.mono(10))
+                                .foregroundStyle(Theme.textTertiary)
+                            Spacer(minLength: 0)
                         }
                     }
-                    .padding(.top, 4)
                 }
-                .onChange(of: windowsHotkeysOn) {
-                    HotkeyManager.shared.refreshSnapHotkeys()
-                }
+                .padding(.top, 4)
+            }
+            .onChange(of: windowsHotkeysOn) {
+                HotkeyManager.shared.refreshSnapHotkeys()
             }
         }
     }
@@ -3136,6 +3141,11 @@ struct PanelView: View {
             VStack(spacing: 14) {
                 settingsSectionHeader(t(.torrentLabel))
                 torrentSettings
+            }
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            VStack(spacing: 14) {
+                settingsSectionHeader(t(.windowsLabel))
+                windowsSettings
             }
         }
     }
