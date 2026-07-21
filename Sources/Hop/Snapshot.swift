@@ -277,9 +277,10 @@ enum Snapshot {
 
     /// Localized tracker + to-do demo content for the `--tasks` snapshot (three
     /// tasks, three to-dos) — one of the sanctioned per-locale screenshot string
-    /// sites. Falls back to English for locales without a translation, matching
-    /// the `--demo` clipboard-text policy. The staged totals/active/done state is
-    /// applied by the caller, not here.
+    /// sites. Covers ALL 18 app locales: these flat-list modules are flagship
+    /// 1.4.0 surfaces shown in per-locale marketing screenshots, so an English
+    /// fallback here would be visible. English stays the defensive default. The
+    /// staged totals/active/done state is applied by the caller, not here.
     static func demoTasks(lang: String) -> (tasks: [String], todos: [String]) {
         switch lang {
         case "ru":
@@ -303,6 +304,36 @@ enum Snapshot {
         case "ja":
             return (["ローンチ投稿を書く", "プルリクをレビュー", "トラッカーの行を下描き"],
                     ["フラットなトラッカーを出す", "ドキュメントとテストを同期", "オフサイトの航空券を予約"])
+        case "it":
+            return (["scrivere il post di lancio", "revisionare le pull request", "abbozzare le righe del tracker"],
+                    ["rilasciare il tracker piatto", "sincronizzare docs e test", "prenotare i voli per l'offsite"])
+        case "ko":
+            return (["출시 글 작성하기", "풀 리퀘스트 검토하기", "트래커 행 스케치하기"],
+                    ["플랫 트래커 출시하기", "문서와 테스트 동기화하기", "오프사이트 항공권 예약하기"])
+        case "tr":
+            return (["lansman yazısını yaz", "pull request'leri incele", "tracker satırlarını taslakla"],
+                    ["düz tracker'ı yayınla", "dokümanları ve testleri eşitle", "offsite için uçuşları ayır"])
+        case "uk":
+            return (["написати пост до запуску", "розібрати пул-реквести", "накидати рядки трекера"],
+                    ["випустити плоский трекер", "синхронізувати доки й тести", "взяти квитки на офсайт"])
+        case "pl":
+            return (["napisać post premierowy", "przejrzeć pull requesty", "naszkicować wiersze trackera"],
+                    ["wydać płaski tracker", "zsynchronizować dokumenty i testy", "zarezerwować loty na offsite"])
+        case "id":
+            return (["tulis postingan peluncuran", "tinjau pull request", "sketsa baris tracker"],
+                    ["rilis tracker datar", "sinkronkan dokumen dan tes", "pesan tiket pesawat untuk offsite"])
+        case "th":
+            return (["เขียนโพสต์เปิดตัว", "รีวิวพูลรีเควสต์", "ร่างแถวแทร็กเกอร์"],
+                    ["ปล่อยแทร็กเกอร์แบบแบน", "ซิงก์เอกสารและเทสต์", "จองตั๋วบินไปออฟไซต์"])
+        case "vi":
+            return (["viết bài đăng ra mắt", "duyệt các pull request", "phác thảo các hàng tracker"],
+                    ["phát hành tracker phẳng", "đồng bộ tài liệu và test", "đặt vé máy bay cho offsite"])
+        case "hi":
+            return (["लॉन्च पोस्ट लिखें", "पुल रिक्वेस्ट रिव्यू करें", "ट्रैकर पंक्तियाँ स्केच करें"],
+                    ["फ्लैट ट्रैकर रिलीज़ करें", "डॉक्स और टेस्ट सिंक करें", "ऑफसाइट के लिए फ्लाइट बुक करें"])
+        case "nl":
+            return (["lanceringspost schrijven", "pull requests beoordelen", "trackerrijen schetsen"],
+                    ["de platte tracker uitbrengen", "docs en tests synchroniseren", "vluchten voor de offsite boeken"])
         default:
             return (["write launch post", "review pull requests", "sketch tracker rows"],
                     ["ship the flat tracker", "sync docs and tests", "book flights for the offsite"])
