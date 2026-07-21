@@ -52,7 +52,7 @@ signing would break).
    + integral fittingSize, content top-aligned): fractional SwiftUI text
    heights otherwise land the frame on a half pixel and the header icons
    jiggle 1px between tabs. The header is also STRUCTURALLY immovable: the fixed
-   chrome (the "what's new" banner + the header) is a sibling ABOVE the scroll
+   chrome (the "what's new" and 8-hour overrun banners + the header) is a sibling ABOVE the scroll
    region, never inside it, and ONLY the active space's module stack (or the
    settings/about overlay body) scrolls. Chrome and content heights are measured
    separately AND ROUNDED UP to whole points; the scroll region's fixed height is
@@ -571,6 +571,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   under its task; when the task list is capped and scrolls (see 8.21) it is PINNED
   directly below the scrolling list instead, so the "forgot to stop?" alert is
   never scrolled out of view.
+- **8-hour overrun banner (panel-wide):** the same 8-hour crossing also raises a
+  dismissable banner ABOVE the space tabs, on the same chrome surface as the
+  "what's new" banner (`overrunBanner`, `Theme.rowBg` card, rounded, an
+  `accentYellow` warning glyph + hairline stroke). Copy `t(.trackerOverrunBanner)`
+  ("a task timer has been running for over 8 hours" direction, house lowercase,
+  ×18) with ONE button, `t(.trackerOverrunDismiss)` ("ok", ×18), that only
+  dismisses — the user navigates to the tracker themselves. The episode logic is
+  pure in `HopCore.TrackerOverrun` (`TrackerOverrunTests`): visibility keys off
+  the open interval's START; dismissing records that start
+  (`trackerOverrunAckStart`, a `timeIntervalSinceReferenceDate` Double persisted
+  like other banner dismissals) so the banner stays gone for the rest of that
+  continuous run, and stopping then starting again — a NEW start — makes the next
+  8-hour crossing a fresh episode the stale ack can't suppress. Recomputed off
+  `tracker.heartbeat` (no timer of its own); stopping the task removes it (no
+  active start). The in-module long-run warning row above is unchanged and
+  independent. The menu-bar alert icon is deliberately NOT part of this — it
+  ships with the corner-system redesign.
 - **Visible rows (8.21):** a per-module `visible rows` cap
   (`trackerVisibleRows`, "other modules" settings): `all` (DEFAULT — the uncapped
   list) or 3…15 (`VisibleRowsField`, 0 stored = all). When the TASK count exceeds

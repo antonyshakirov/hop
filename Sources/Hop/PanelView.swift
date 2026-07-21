@@ -129,6 +129,10 @@ struct PanelView: View {
     @State private var bannerEnabled =
         Snapshot.active && CommandLine.arguments.contains("--feature-banner-step2")
     @State private var bannerMakeDefault = false   // step-2 toggle: make Hop default handler
+    // The tracker run the user has dismissed the 8-hour overrun banner for,
+    // stored as `Date.timeIntervalSinceReferenceDate` (0 = none acknowledged).
+    // Tied to the open interval's START, so a new run is a fresh episode.
+    @AppStorage("trackerOverrunAckStart") private var trackerOverrunAckStart = 0.0
     // speedtest was never in this default string either — it appends
     // via allModules; torrent stays last (opt-in), same mechanism, listed here
     // for an explicit new-user order.
@@ -506,15 +510,65 @@ struct PanelView: View {
         torrentFeatureSeen = true   // re-render: the banner drops away
     }
 
-    /// Fixed chrome pinned to the top of the panel: the optional "what's new"
-    /// banner and the header (space switcher + service trio, or the overlay
-    /// back-chevron). A SIBLING of the scroll region, never inside it, so it
-    /// cannot move when the scrolled content's height changes on a space switch.
-    /// The bottom padding reproduces the 16pt gap the old single VStack kept
-    /// between the header and the first module (it was the VStack spacing).
+    // MARK: - 8-hour overrun banner (top of the panel, above the tabs)
+
+    /// A dismissable notice, on the same surface as the "what's new" banner, that
+    /// the active tracker task has been running for over 8 hours. Recomputed off
+    /// `tracker.heartbeat` (no timer of its own), it appears once the open
+    /// interval crosses 8h and the user hasn't acknowledged THIS run; dismissing
+    /// records the run's start so it stays gone until a new run overruns.
+    /// `TrackerOverrun` holds the pure episode logic; the in-module long-run row
+    /// is unchanged and independent.
+    @ViewBuilder private var overrunBanner: some View {
+        let now = model.tracker.heartbeat
+        let ack = trackerOverrunAckStart == 0 ? nil : Date(timeIntervalSinceReferenceDate: trackerOverrunAckStart)
+        if TrackerOverrun.isBannerVisible(
+            activeStart: model.tracker.engine.activeIntervalStart, now: now, acknowledged: ack) {
+            HStack(spacing: 8) {
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.accentYellow)
+                Text(t(.trackerOverrunBanner))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                Button {
+                    // Acknowledge THIS run only — the banner returns for the next
+                    // run that overruns (a different open-interval start).
+                    if let start = model.tracker.engine.activeIntervalStart {
+                        trackerOverrunAckStart = start.timeIntervalSinceReferenceDate
+                    }
+                } label: {
+                    Text(t(.trackerOverrunDismiss))
+                        .font(Theme.mono(10, weight: .bold))
+                        .foregroundStyle(Theme.textSecondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 5)
+                        .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverDim()
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10)
+                .stroke(Theme.accentYellow.opacity(0.35), lineWidth: 1))
+        }
+    }
+
+    /// Fixed chrome pinned to the top of the panel: the optional "what's new" and
+    /// 8-hour overrun banners and the header (space switcher + service trio, or
+    /// the overlay back-chevron). A SIBLING of the scroll region, never inside it,
+    /// so it cannot move when the scrolled content's height changes on a space
+    /// switch. The bottom padding reproduces the 16pt gap the old single VStack
+    /// kept between the header and the first module (it was the VStack spacing).
     private var chrome: some View {
         VStack(spacing: 16) {
             featureBanner
+            overrunBanner
             header
         }
         .padding(.horizontal, 14)
