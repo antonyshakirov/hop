@@ -3944,6 +3944,9 @@ struct PanelView: View {
                 Rectangle()
                     .fill(Theme.divider)
                     .frame(height: 1)
+                // one identical font on every footer line: the plain connective
+                // text now matches the FooterLink size (mono 11) instead of
+                // inheriting the doc-body mono 12, so line heights no longer jump.
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.left.forwardslash.chevron.right")
@@ -3954,11 +3957,13 @@ struct PanelView: View {
                         FooterLink(url: "https://github.com/antonyshakirov/hop", label: "GitHub")
                     }
                     HStack(spacing: 6) {
-                        Text("\(t(.aboutFooter)) ·")
-                            .foregroundStyle(Theme.textSecondary)
+                        // the author's name IS the link now (the separate
+                        // antonshakirov.com link is gone); ru keeps the Russian
+                        // site, everyone else the /en page.
                         FooterLink(url: lang == .ru
                             ? "https://antonshakirov.com"
-                            : "https://antonshakirov.com/en")
+                            : "https://antonshakirov.com/en",
+                            label: t(.aboutFooter))
                         Text("·")
                             .foregroundStyle(Theme.textSecondary)
                         // landing exists in 8 languages; everyone else gets English
@@ -3970,6 +3975,7 @@ struct PanelView: View {
                         FooterLink(url: "mailto:hop@antonshakirov.com", label: "hop@antonshakirov.com")
                     }
                 }
+                .font(Theme.mono(11))
             }
         }
         .font(Theme.mono(12))

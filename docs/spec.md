@@ -832,12 +832,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Toggles are our own MiniSwitch (the system Toggle doesn't render in
   ImageRenderer).
 - Info page: per-module tabs, "term — explanation" style
-  (the term is bold up to the " — "). The general-tab footer links to
-  the GitHub repo next to the version ("open source · version X · GitHub"),
-  to antonshakirov.com and to the product landing — in the app's language
-  when the landing has it (8 languages), otherwise English. A third footer
-  row is the support contact: "feedback & support · hop@antonshakirov.com",
-  the address a mailto: link opening the user's mail client.
+  (the term is bold up to the " — "). The general-tab footer is three lines in
+  ONE identical font (mono 11 — the plain connective text matches the links, so
+  line heights don't jump): "open source · version X · GitHub" (GitHub a link);
+  the author credit (`aboutFooter`, e.g. "made by Anton Shakirov") — the whole
+  credit is itself the link to antonshakirov.com (ru → the Russian site, others
+  → /en; there is no separate antonshakirov.com link) — next to the product
+  landing link, in the app's language when the landing has it (8 languages),
+  otherwise English. A third row is the support contact: "feedback & support ·
+  hop@antonshakirov.com", the address a mailto: link opening the user's mail
+  client. Below the footer sits the donation block (see "Donation block").
 - Languages in pickers use the standard order, like system lists:
   alphabetical by NATIVE names, Latin → Cyrillic → CJK (pickerOrder,
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"

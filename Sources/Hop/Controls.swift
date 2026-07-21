@@ -203,6 +203,8 @@ final class MenuPickTarget: NSObject {
 struct FooterLink: View {
     let url: String
     var label = "antonshakirov.com"
+    // the footer's own link size; the donation CTA passes a bolder font.
+    var font: Font = Theme.mono(11)
     @State private var hovering = false
 
     var body: some View {
@@ -210,7 +212,7 @@ struct FooterLink: View {
             if let link = URL(string: url) { NSWorkspace.shared.open(link) }
         } label: {
             Text(label)
-                .font(Theme.mono(11))
+                .font(font)
                 .foregroundStyle(hovering ? Theme.textPrimary : Theme.textSecondary)
                 .underline(hovering)
                 .contentShape(Rectangle())
