@@ -102,20 +102,26 @@ struct RateLimitField: View {
             .frame(width: 56, height: 24)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
             .onAppear { text = RateLimit.display(kb: kb, unit: unit) }
-            // unit toggled by the parent: reformat the SAME canonical value
+            // unit toggled by the parent: reformat the SAME canonical value in the
+            // new unit. DISPLAY only — it must never rewrite kb, or merely viewing
+            // 1234 KB/s as MB would round the stored value to 1200.
             .onChange(of: unit) { _, u in text = RateLimit.display(kb: kb, unit: u) }
             .onChange(of: text) { _, new in
+                // only WHILE TYPING does the field own the value. The programmatic
+                // reformats below (unit / kb changes) also fire this handler, so the
+                // focus guard keeps them display-only and never parses back into kb.
+                guard focused else { return }
                 let filtered = Self.filter(new, unit: unit)
-                if filtered != new { text = filtered }
+                if filtered != new { text = filtered; return }
                 if let v = RateLimit.parse(filtered, unit: unit) { kb = v }
             }
             .onChange(of: kb) { _, v in
                 if !focused { text = RateLimit.display(kb: v, unit: unit) }
             }
             .onChange(of: focused) { _, isFocused in
-                guard !isFocused else { return }
-                if let v = RateLimit.parse(text, unit: unit) { kb = v }
-                text = RateLimit.display(kb: kb, unit: unit)
+                // kb was already updated live while typing; on blur just normalize
+                // the display ("1." → "1000", "1.20" → "1.2").
+                if !isFocused { text = RateLimit.display(kb: kb, unit: unit) }
             }
     }
 
