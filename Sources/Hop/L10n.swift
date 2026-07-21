@@ -135,7 +135,7 @@ enum L10nKey: String, CaseIterable {
     case trackerLabel, trackerNewTask, trackerDelete, trackerEditHint, trackerBarTime, trackerLongRun
     case trackerOverrunBanner, trackerOverrunDismiss
     case settingsTabLayout
-    case modulesInactive, tabDeleteConfirm
+    case modulesInactive, tabDeleteConfirm, modulesTableHint
     case todosLabel, todosNew
     case visibleRowsLabel, visibleRowsAll
     case aboutTabTasks, docTrackerFull, docTodosFull
@@ -400,6 +400,7 @@ enum L10n {
             .trackerBarTime: "show task time in menu bar",
             .settingsTabLayout: "modules & tabs",
             .modulesInactive: "inactive", .tabDeleteConfirm: "delete this tab? its modules become inactive",
+            .modulesTableHint: "modules in 'inactive' never show in the panel. drag columns to reorder tabs, and drag modules between columns or within one.",
         ],
         .ru: [
             .memPressureNote: "память: цвет — по системному сигналу memory pressure macOS",
@@ -632,6 +633,7 @@ enum L10n {
             .trackerBarTime: "время задачи в menu bar",
             .settingsTabLayout: "модули и вкладки",
             .modulesInactive: "неактивные", .tabDeleteConfirm: "удалить вкладку? её модули станут неактивными",
+            .modulesTableHint: "модули в «неактивных» не показываются в панели. перетаскивайте столбцы, чтобы менять порядок вкладок, а модули — между столбцами и внутри столбца.",
         ],
         .de: [
             .memPressureNote: "speicher: die farbe folgt dem memory-pressure-signal von macOS",
@@ -864,6 +866,7 @@ enum L10n {
             .trackerBarTime: "aufgabenzeit in menüleiste",
             .settingsTabLayout: "module & tabs",
             .modulesInactive: "inaktiv", .tabDeleteConfirm: "diesen tab löschen? seine module werden inaktiv",
+            .modulesTableHint: "module in „inaktiv“ erscheinen nie im panel. ziehe spalten, um tabs umzusortieren, und module zwischen spalten oder innerhalb einer spalte.",
         ],
         .es: [
             .memPressureNote: "memoria: el color sigue la señal de presión de memoria de macOS",
@@ -1096,6 +1099,7 @@ enum L10n {
             .trackerBarTime: "tiempo de tarea en la barra",
             .settingsTabLayout: "módulos y pestañas",
             .modulesInactive: "inactivos", .tabDeleteConfirm: "¿eliminar esta pestaña? sus módulos quedarán inactivos",
+            .modulesTableHint: "los módulos en «inactivos» no aparecen en el panel. arrastra las columnas para reordenar las pestañas y los módulos entre columnas o dentro de una.",
         ],
         .pt: [
             .memPressureNote: "memória: a cor segue o sinal de pressão de memória do macOS",
@@ -1328,6 +1332,7 @@ enum L10n {
             .trackerBarTime: "tempo da tarefa na barra",
             .settingsTabLayout: "módulos e abas",
             .modulesInactive: "inativos", .tabDeleteConfirm: "excluir esta aba? seus módulos ficarão inativos",
+            .modulesTableHint: "módulos em «inativos» não aparecem no painel. arraste as colunas para reordenar as abas e os módulos entre colunas ou dentro de uma.",
         ],
         .fr: [
             .memPressureNote: "mémoire : la couleur suit le signal de pression mémoire de macOS",
@@ -1560,6 +1565,7 @@ enum L10n {
             .trackerBarTime: "temps de la tâche dans la barre",
             .settingsTabLayout: "modules et onglets",
             .modulesInactive: "inactifs", .tabDeleteConfirm: "supprimer cet onglet ? ses modules deviendront inactifs",
+            .modulesTableHint: "les modules dans « inactifs » n'apparaissent jamais dans le panneau. faites glisser les colonnes pour réordonner les onglets, et les modules entre les colonnes ou au sein d'une.",
         ],
         .it: [
             .memPressureNote: "memoria: il colore segue il segnale di pressione della memoria di macOS",
@@ -1792,6 +1798,7 @@ enum L10n {
             .trackerBarTime: "tempo dell'attività nella barra",
             .settingsTabLayout: "moduli e schede",
             .modulesInactive: "inattivi", .tabDeleteConfirm: "eliminare questa scheda? i suoi moduli diventeranno inattivi",
+            .modulesTableHint: "i moduli in «inattivi» non compaiono nel pannello. trascina le colonne per riordinare le schede e i moduli tra le colonne o all'interno di una.",
         ],
         .zh: [
             .memPressureNote: "内存：颜色跟随 macOS 系统的内存压力信号",
@@ -2024,6 +2031,7 @@ enum L10n {
             .trackerBarTime: "菜单栏显示任务时间",
             .settingsTabLayout: "模块与标签",
             .modulesInactive: "未启用", .tabDeleteConfirm: "删除此标签？其模块将变为未启用",
+            .modulesTableHint: "「未启用」里的模块不会显示在面板中。拖动列可重排标签，拖动模块可在列之间或列内移动。",
         ],
         .ja: [
             .memPressureNote: "メモリ：色は macOS のメモリプレッシャー信号に従います",
@@ -2256,6 +2264,7 @@ enum L10n {
             .trackerBarTime: "メニューバーにタスク時間表示",
             .settingsTabLayout: "モジュールとタブ",
             .modulesInactive: "非表示", .tabDeleteConfirm: "このタブを削除しますか？モジュールは非表示になります",
+            .modulesTableHint: "「非表示」のモジュールはパネルに表示されません。列をドラッグしてタブを並べ替え、モジュールは列の間や列内でドラッグできます。",
         ],
         .ko: [
             .memPressureNote: "메모리: 색상은 macOS의 메모리 압박 신호를 따릅니다",
@@ -2488,6 +2497,7 @@ enum L10n {
             .trackerBarTime: "메뉴 막대에 작업 시간 표시",
             .settingsTabLayout: "모듈 및 탭",
             .modulesInactive: "비활성", .tabDeleteConfirm: "이 탭을 삭제할까요? 모듈이 비활성 상태가 됩니다",
+            .modulesTableHint: "'비활성'에 있는 모듈은 패널에 표시되지 않습니다. 열을 드래그해 탭 순서를 바꾸고, 모듈은 열 사이나 열 안에서 드래그하세요.",
         ],
         .tr: [
             .memPressureNote: "bellek: renk, macOS'un bellek baskısı sinyalini izler",
@@ -2737,6 +2747,7 @@ enum L10n {
             .trackerBarTime: "menü çubuğunda görev süresi",
             .settingsTabLayout: "modüller ve sekmeler",
             .modulesInactive: "pasif", .tabDeleteConfirm: "bu sekme silinsin mi? modülleri pasif olacak",
+            .modulesTableHint: "«pasif» içindeki modüller panelde görünmez. sekmeleri yeniden sıralamak için sütunları, modülleri sütunlar arasında veya bir sütun içinde sürükleyin.",
         ],
         .uk: [
             .memPressureNote: "пам'ять: колір — за системним сигналом memory pressure macOS",
@@ -2986,6 +2997,7 @@ enum L10n {
             .trackerBarTime: "час завдання в рядку меню",
             .settingsTabLayout: "модулі та вкладки",
             .modulesInactive: "неактивні", .tabDeleteConfirm: "видалити вкладку? її модулі стануть неактивними",
+            .modulesTableHint: "модулі в «неактивних» не показуються на панелі. перетягуйте стовпці, щоб змінювати порядок вкладок, а модулі — між стовпцями чи всередині стовпця.",
         ],
         .pl: [
             .memPressureNote: "pamięć: kolor podąża za sygnałem memory pressure systemu macOS",
@@ -3235,6 +3247,7 @@ enum L10n {
             .trackerBarTime: "czas zadania na pasku menu",
             .settingsTabLayout: "moduły i karty",
             .modulesInactive: "nieaktywne", .tabDeleteConfirm: "usunąć tę kartę? jej moduły staną się nieaktywne",
+            .modulesTableHint: "moduły w «nieaktywne» nie pojawiają się w panelu. przeciągaj kolumny, aby zmienić kolejność kart, a moduły między kolumnami lub w obrębie jednej.",
         ],
         .id: [
             .memPressureNote: "memori: warna mengikuti sinyal tekanan memori macOS",
@@ -3484,6 +3497,7 @@ enum L10n {
             .trackerBarTime: "waktu tugas di bilah menu",
             .settingsTabLayout: "modul & tab",
             .modulesInactive: "nonaktif", .tabDeleteConfirm: "hapus tab ini? modulnya menjadi nonaktif",
+            .modulesTableHint: "modul di «nonaktif» tidak muncul di panel. seret kolom untuk mengatur ulang tab, dan seret modul antar kolom atau di dalam satu kolom.",
         ],
         .th: [
             .memPressureNote: "หน่วยความจำ: สีตามสัญญาณ memory pressure ของ macOS",
@@ -3733,6 +3747,7 @@ enum L10n {
             .trackerBarTime: "เวลางานบนแถบเมนู",
             .settingsTabLayout: "โมดูลและแท็บ",
             .modulesInactive: "ปิดใช้งาน", .tabDeleteConfirm: "ลบแท็บนี้ไหม? โมดูลจะถูกปิดใช้งาน",
+            .modulesTableHint: "โมดูลใน «ปิดใช้งาน» จะไม่แสดงในแผง ลากคอลัมน์เพื่อจัดลำดับแท็บ และลากโมดูลระหว่างคอลัมน์หรือภายในคอลัมน์เดียวกัน",
         ],
         .vi: [
             .memPressureNote: "bộ nhớ: màu theo tín hiệu memory pressure của macOS",
@@ -3982,6 +3997,7 @@ enum L10n {
             .trackerBarTime: "thời gian công việc trên thanh menu",
             .settingsTabLayout: "mô-đun & tab",
             .modulesInactive: "không dùng", .tabDeleteConfirm: "xóa tab này? các mô-đun sẽ không được dùng",
+            .modulesTableHint: "các mô-đun trong «không dùng» sẽ không hiện trong bảng. kéo các cột để sắp xếp lại tab, và kéo mô-đun giữa các cột hoặc trong cùng một cột.",
         ],
         .hi: [
             .memPressureNote: "मेमोरी: रंग macOS के memory pressure संकेत के अनुसार",
@@ -4231,6 +4247,7 @@ enum L10n {
             .trackerBarTime: "मेनू बार में कार्य समय",
             .settingsTabLayout: "मॉड्यूल और टैब",
             .modulesInactive: "निष्क्रिय", .tabDeleteConfirm: "यह टैब हटाएं? इसके मॉड्यूल निष्क्रिय हो जाएंगे",
+            .modulesTableHint: "«निष्क्रिय» वाले मॉड्यूल पैनल में नहीं दिखते। टैब का क्रम बदलने के लिए कॉलम खींचें, और मॉड्यूल को कॉलम के बीच या एक ही कॉलम में खींचें।",
         ],
         .nl: [
             .memPressureNote: "geheugen: de kleur volgt het memory-pressure-signaal van macOS",
@@ -4480,6 +4497,7 @@ enum L10n {
             .trackerBarTime: "taaktijd in de menubalk",
             .settingsTabLayout: "modules & tabbladen",
             .modulesInactive: "inactief", .tabDeleteConfirm: "dit tabblad verwijderen? de modules worden inactief",
+            .modulesTableHint: "modules in «inactief» verschijnen nooit in het paneel. sleep kolommen om tabbladen te herordenen, en modules tussen kolommen of binnen één kolom.",
         ],
     ]
 }

@@ -1189,33 +1189,28 @@ struct PanelView: View {
         .gesture(headerDragGesture(tab.id))
     }
 
-    /// The permanent inactive bucket, now a full-width section BELOW the space
-    /// columns (it used to be a fifth column). Hidden modules wrap as dimmed
-    /// chips in a flow — the natural read at the 720pt settings width, where a
-    /// single stretched column would look stranded. A drag into the section
-    /// highlights the whole area (its bucket order is cosmetic, so no per-slot
-    /// line); a drag out lands in a space column with the usual insertion line.
-    private var inactiveSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+    /// The permanent inactive bucket, now the FIRST COLUMN of the table (it was a
+    /// full-width bottom section before, 21b8a51). A visually distinct "storage"
+    /// column: a subdued gray fill and a dashed border set it apart from the tab
+    /// columns (clear fill, solid border), so it reads as a holding area, not a
+    /// space. Its chips stack and dim like any hidden module; a drag into it
+    /// highlights and shows the same per-slot insertion line as the space
+    /// columns, and dropping here hides the module — that IS the visibility
+    /// control. The header is a plain "inactive" label (no icon, no delete, not
+    /// draggable). The 26pt header height matches `tabColumnHeader`, so the chip
+    /// areas line up across every column.
+    private var inactiveColumn: some View {
+        VStack(spacing: 8) {
             Text(t(.modulesInactive))
                 .font(Theme.mono(10, weight: .semibold))
                 .foregroundStyle(Theme.textTertiary)
                 .lineLimit(1)
-            if tabsModel.inactive.isEmpty {
-                // keep a reachable drop zone even with nothing hidden yet
-                Color.clear.frame(maxWidth: .infinity).frame(height: 30)
-            } else {
-                FlowLayout(spacing: 6) {
-                    ForEach(tabsModel.inactive, id: \.self) { key in
-                        moduleChip(key, inactive: true)
-                            .fixedSize(horizontal: true, vertical: false)
-                    }
-                }
                 .frame(maxWidth: .infinity, alignment: .leading)
-            }
+                .frame(height: 26)
+            columnChips(keys: tabsModel.inactive, columnID: "inactive", inactive: true)
         }
-        .padding(8)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .top)
+        .padding(6)
         .background(dropColumn == "inactive" ? Theme.chipBg : Theme.rowBg,
                     in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8)
@@ -1262,19 +1257,18 @@ struct PanelView: View {
         Button {
             mutateTabs { $0.addTab(icon: firstUnusedIcon) }
         } label: {
-            VStack(spacing: 0) {
-                Image(systemName: "plus")
-                    .font(.system(size: 13))
-                    .foregroundStyle(Theme.textTertiary)
-                    .frame(height: 26)
-                Spacer(minLength: 0)
-            }
-            .frame(width: 30)
-            .frame(maxHeight: .infinity, alignment: .top)
-            .padding(6)
-            .overlay(RoundedRectangle(cornerRadius: 8)
-                .stroke(Theme.divider, style: StrokeStyle(lineWidth: 1, dash: [3, 3])))
-            .contentShape(Rectangle())
+            // A compact square tile aligned to the TOP of its slot — the HStack
+            // top-aligns, so no stretch is needed (Anton disliked the old
+            // full-height dashed column). REVERT to full-height: replace the
+            // `.frame(width: 30, height: 30)` line with
+            // `.frame(width: 30).frame(maxHeight: .infinity, alignment: .top).padding(6)`.
+            Image(systemName: "plus")
+                .font(.system(size: 13))
+                .foregroundStyle(Theme.textTertiary)
+                .frame(width: 30, height: 30)
+                .overlay(RoundedRectangle(cornerRadius: 8)
+                    .stroke(Theme.divider, style: StrokeStyle(lineWidth: 1, dash: [3, 3])))
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .hoverHighlight(8)
@@ -1310,21 +1304,13 @@ struct PanelView: View {
         }
     }
 
-    /// The drop target a point falls in: a frame that CONTAINS the point wins
-    /// (Y matters now — the full-width inactive section sits below the columns
-    /// and would otherwise shadow every one of them on X alone). Failing an
-    /// outright hit, a point in the inactive section's vertical band is the
-    /// inactive bucket; anything else snaps to the nearest space column by X.
-    /// The "+" stub is not a drop target.
+    /// The drop target a point falls in. "inactive" is the FIRST column again
+    /// (not a bottom band), so a plain column hit-test does the job: containment
+    /// wins, else nearest by X. No vertical-band special case, no exclusion of
+    /// inactive. Lives in `SettingsDropGeometry` (tested). The "+" tile is not in
+    /// `columnFrames`, so it is never a target.
     private func columnID(at point: CGPoint) -> String? {
-        if let hit = columnFrames.first(where: { $0.value.contains(point) })?.key {
-            return hit
-        }
-        if let inactive = columnFrames["inactive"], point.y >= inactive.minY {
-            return "inactive"
-        }
-        let spaceColumns = columnFrames.filter { $0.key != "inactive" }
-        return spaceColumns.min(by: { abs($0.value.midX - point.x) < abs($1.value.midX - point.x) })?.key
+        SettingsDropGeometry.columnID(at: point, frames: columnFrames)
     }
 
     /// The ordered module keys of a drop target (`"inactive"` or a tab uuid).
@@ -1337,16 +1323,15 @@ struct PanelView: View {
     /// Insert index for `key` dropped at `point` in `columnID`, ignoring `key`
     /// itself. THE single resolver: both the live insertion indicator and the
     /// committed drop call it, so the line can never disagree with the landing
-    /// spot. Space columns stack vertically (compare chip midY); the inactive
-    /// flow wraps (reading order: an earlier row, or the same row to the left).
+    /// spot. Every column stacks vertically now (inactive included), so there is
+    /// one shared stacked resolver — no per-column flow.
     private func insertIndex(for key: String, in columnID: String, at point: CGPoint) -> Int {
         // Thin wrapper: hand the frame dictionary and point to the pure resolver.
         SettingsDropGeometry.insertIndex(
             point: point,
             keys: columnKeys(columnID),
             excluding: key,
-            frames: chipFrames,
-            flow: columnID == "inactive" ? .wrapping : .stacked)
+            frames: chipFrames)
     }
 
     private func chipDragGesture(_ key: String) -> some Gesture {
@@ -1380,10 +1365,10 @@ struct PanelView: View {
     }
 
     /// The horizontal insertion line (table space) for a chip about to land in a
-    /// space column, or nil for the inactive section (it highlights instead).
+    /// column — the inactive column shows it too now (it stacks like the rest).
     /// Reads the slot straight from `insertIndex`, so it tracks the commit.
     private func chipInsertionLine(column columnID: String, key: String, at point: CGPoint) -> CGRect? {
-        guard columnID != "inactive", let col = columnFrames[columnID] else { return nil }
+        guard let col = columnFrames[columnID] else { return nil }
         let siblings = columnKeys(columnID).filter { $0 != key }
         let index = insertIndex(for: key, in: columnID, at: point)
         let inset: CGFloat = 8
@@ -3032,16 +3017,16 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textTertiary)
                 Spacer()
             }
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .top, spacing: 10) {
-                    ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
-                        tabColumn(tab, number: index + 1)
-                    }
-                    if tabsModel.tabs.count < PanelTabsModel.maxTabs {
-                        addColumnStub
-                    }
+            // Inactive is the FIRST column, then the spaces in order, then the "+"
+            // add-tab tile.
+            HStack(alignment: .top, spacing: 10) {
+                inactiveColumn
+                ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
+                    tabColumn(tab, number: index + 1)
                 }
-                inactiveSection
+                if tabsModel.tabs.count < PanelTabsModel.maxTabs {
+                    addColumnStub
+                }
             }
             .coordinateSpace(name: Self.tableCoordinateSpace)
             .onPreferenceChange(ColumnFrameKey.self) { columnFrames = $0 }
@@ -3057,6 +3042,14 @@ struct PanelView: View {
                     deleteTabConfirmOverlay(id)
                 }
             }
+            // Airy caption under the table: what "inactive" means, and that both
+            // columns and the chips inside them are draggable.
+            Text(t(.modulesTableHint))
+                .font(Theme.mono(10))
+                .foregroundStyle(Theme.textTertiary)
+                .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .onDisappear {
             // @State survives the settings window's hide/show, so a window

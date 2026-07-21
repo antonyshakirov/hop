@@ -91,21 +91,29 @@ layout — no tab-in-tab, each
 is its own top-level section. The switcher chips take their natural width and wrap onto
 a second line if a language runs long (`SectionChips(wraps:)`), so the fifth
 chip never truncates in the 720pt window. The "modules & tabs" section is
-ONE combined table: a row of space columns on top (in order, then a slim "+"
-stub column while under the space cap), and BELOW it a full-width, permanent
-"inactive" section. Module chips (name, lowercase) stack vertically in each
-space column and wrap as a flow in the inactive section; a hand-rolled drag
-moves a chip between columns, within a column, and to/from the inactive
-section — that drag IS the visibility control (`move`/`deactivate`/`reorder`).
+ONE combined table, a single row of columns: the permanent "inactive" storage
+column FIRST (a subdued gray fill + dashed border set it apart from the tab
+columns' clear fill + solid border, so it reads as a holding area, not a space),
+then the space columns in order, then a compact square "+" add-tab tile aligned
+to the TOP of its slot while under the space cap (it was a full-height dashed
+column before — the stretch was dropped; the revert is a one-liner noted in
+`addColumnStub`). Module chips (name, lowercase) stack vertically in EVERY
+column, inactive included; a hand-rolled drag moves a chip between columns,
+within a column, and into/out of the inactive column — that drag IS the
+visibility control (`move`/`deactivate`/`reorder`).
 Inactive chips render dimmed. While a chip is dragged, a live insertion
 indicator marks exactly where it will land: a 2pt horizontal line with rounded
 caps in the shared `Theme.editing` accent (the same yellow/goldenrod token the
-timer digit-group highlight uses) between the rows of the target space column
-(top/bottom for first/last, and centred in an empty column). The indicator's
-position is read from the SAME resolver that commits the drop
-(`insertIndex(for:in:at:)`), so line and landing can never disagree. Dropping
-into the inactive section highlights the whole area instead of drawing a
-per-slot line (its bucket order is cosmetic). Each space column header carries
+timer digit-group highlight uses) between the rows of the target column —
+the inactive column shows this line too now, since it stacks like the rest
+(top/bottom for first/last, and centred in an empty column); the target column
+also tints while hovered. The indicator's position is read from the SAME
+resolver that commits the drop (`insertIndex(for:in:at:)` → `SettingsDropGeometry`,
+ONE shared stacked resolver for every column), so line and landing can never
+disagree. Which column a point falls in is `SettingsDropGeometry.columnID(at:)`
+(containment wins, else nearest by X; inactive is a regular column — no
+vertical-band special case, no X-nearest exclusion), tested in
+`SettingsDropGeometryTests`. Each space column header carries
 the space icon (a padded icon+chevron control with breathing room around the
 hover highlight — tap it or its rotating disclosure chevron to open the icon
 picker), "#N", and a hover-only delete xmark that opens a delete confirmation
@@ -121,17 +129,19 @@ every name resolves on macOS 14). It dismisses on outside click, Escape, or a
 pick, and never reflows the table; a drag in progress cannot open it. The
 delete confirmation is an overlay ON the table — a dimmed scrim plus a
 centered card — so the columns never reflow beneath it; the scrim tap or
-Escape cancels. The inactive section header is just an "inactive" label in the
+Escape cancels. The inactive column header is just an "inactive" label in the
 section-header style — no icon, no delete (no hover affordance at all), and it
-cannot be moved. Dragging a space column header horizontally reorders spaces
+cannot be dragged. Dragging a space column header horizontally reorders spaces
 (`moveTab`, committed on release against the measured column frames), with a
 vertical `Theme.editing` insertion line marking the landing slot while dragging
 (read from the same `columnID(at:)` target the move commits to). Column-drag
 and chip-drag never fight: the header and the chips are separate grab zones.
-The standalone settings window is 720pt wide so the space columns plus the "+"
-stub read comfortably across the top and the inactive flow spans the full
-width below; chips truncate with `lineLimit(1)` in a column and take natural
-width in the inactive flow. The in-panel
+The standalone settings window is 720pt wide so the inactive column plus the
+space columns and the "+" tile read comfortably across one row; chips truncate
+with `lineLimit(1)` in every column. Under the table sits an airy tertiary
+caption (`modulesTableHint`, ×18) stating that "inactive" modules never show in
+the panel and that both columns (to reorder tabs) and the chips inside them
+(between/within columns) are draggable. The in-panel
 `.settings` screen is unreachable (never set outside `init`, which always
 pairs it with the standalone window), so the table is designed for that
 window only. A module can also be re-homed from the panel: right-click it and
