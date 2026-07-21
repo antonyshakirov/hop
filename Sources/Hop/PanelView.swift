@@ -3969,30 +3969,42 @@ struct PanelView: View {
                 .font(Theme.mono(11))
 
                 // donation block — the ONLY donation surface in the whole product
-                // (the landing and README deliberately have none). Set apart from
-                // the plain footer lines by its own faint card, a bolder headline
-                // and a heart link, so it reads as its own thing. Russian routes to
-                // the ru card, every other locale to the neutral one — the same
-                // rule the localized READMEs follow. No perks are promised anywhere
-                // (donations are gifts).
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(t(.donateTitle))
-                        .font(Theme.mono(13, weight: .semibold))
-                        .foregroundStyle(Theme.textPrimary)
-                    Text(t(.donateBody))
-                        .font(Theme.mono(11))
-                        .foregroundStyle(Theme.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    FooterLink(url: lang == .ru
+                // (the landing and README deliberately have none). The WHOLE card
+                // is one button to the donation link, with the house whole-row
+                // hover (background lift + pointing-hand cursor) and an external-
+                // page glyph on the right, so there is one obvious place to click.
+                // Russian routes to the ru card, every other locale to the neutral
+                // one — the same rule the localized READMEs follow. No perks are
+                // promised anywhere (donations are gifts).
+                Button {
+                    let url = lang == .ru
                         ? "https://web.tribute.tg/d/Nvp"
-                        : "https://web.tribute.tg/d/Nvk",
-                        label: "\(t(.donateAction)) ♥",
-                        font: Theme.mono(12, weight: .semibold))
-                        .padding(.top, 1)
+                        : "https://web.tribute.tg/d/Nvk"
+                    if let link = URL(string: url) { NSWorkspace.shared.open(link) }
+                } label: {
+                    HStack(spacing: 10) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(t(.donateTitle))
+                                .font(Theme.mono(13, weight: .semibold))
+                                .foregroundStyle(Theme.textPrimary)
+                            Text(t(.donateBody))
+                                .font(Theme.mono(11))
+                                .foregroundStyle(Theme.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        // external-page hint, vertically centred against the text
+                        Image(systemName: "arrow.up.forward.app")
+                            .font(.system(size: 13))
+                            .foregroundStyle(Theme.textTertiary)
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .buttonStyle(.plain)
                 .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 8))
+                .hoverHighlight(8)
                 .padding(.top, 4)
             }
         }
