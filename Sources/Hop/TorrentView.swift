@@ -319,7 +319,7 @@ struct TorrentView: View {
                         // stops/resumes the download; when finished it stops/resumes
                         // SEEDING (previously the only way to stop seeding was remove or
                         // the ratio-1.0 policy — a real UX gap).
-                        rowIcon(paused ? "play.fill" : "pause.fill") {
+                        rowPlayPause(paused: paused) {
                             paused ? torrent.resume(id: item.id) : torrent.pause(id: item.id)
                         }
                         if finished {
@@ -583,6 +583,27 @@ struct TorrentView: View {
                 .foregroundStyle(Theme.textSecondary)
                 .frame(width: 22, height: 22)
                 .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverHighlight(4)
+    }
+
+    /// The play/pause row control. Play uses the house rounded `PlayGlyph` (the
+    /// one play glyph across the app); pause keeps SF's `pause.fill`. Same 22pt
+    /// hit target and hover as `rowIcon`.
+    private func rowPlayPause(paused: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Group {
+                if paused {
+                    PlayGlyph(color: Theme.textSecondary, box: 11)
+                } else {
+                    Image(systemName: "pause.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(Theme.textSecondary)
+                }
+            }
+            .frame(width: 22, height: 22)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .hoverHighlight(4)

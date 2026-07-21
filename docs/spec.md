@@ -204,7 +204,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Dot glow is proportional to dot size; on small cells (dot < 3px,
   mini previews) the glow and the background grid of "off" dots are not
   drawn — otherwise everything smears into noise.
-- Transport: stop and play are identical 42pt circles.
+- Transport: the play/pause button is a circle; play draws the house rounded
+  `PlayGlyph` (see "Play glyph"), pause SF `pause.fill`.
 
 ### No sleep (awake)
 
@@ -532,9 +533,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   section-header treatment), so the tracker and to-do lists are distinguishable
   at a glance when the two modules stack on one space.
 - **Task row:** a play/PAUSE button in the main timer's transport family
-  (`TransportCircle`: a hand-drawn rounded-corner play triangle (`PlayGlyph`,
-  not SF's sharp-cornered `play.fill` — same fill+round-join-stroke technique
-  as the status-bar running badge) filled when idle = "start"; `pause.fill`
+  (`TransportCircle`: the house rounded-corner play triangle (`PlayGlyph` — see
+  "Play glyph" under shared components; not SF's sharp `play.fill`) filled when
+  idle = "start"; `pause.fill`
   bordered when this task is active), the name, then ONE time — the all-time
   TOTAL (mono 11, `TimeFormatting.short`, ticking while active) — and the hover
   xmark. Clicking the xmark switches the row into an IN-ROW delete confirm rather
@@ -758,6 +759,20 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (glyph knocked out) or a BORDERED ring (an empty `systemName` = an unchecked
   box), with per-caller colors — the timer transport palette by default, muted
   tokens for the checkbox.
+- **Play glyph (`PlayGlyph`, Controls.swift)** is the ONE play triangle across
+  the whole app — SF's sharp `play.fill` is never used for a play control. It is
+  a hand-drawn triangle filled and then stroked with a thick round line-join so
+  the corners bulge smooth (the same technique as the status-bar running badge),
+  everything proportional to a `box` size and offset right `box·0.06` for optical
+  centering. Corner rounding is the `round` fraction of `box` (0.46 — tuned
+  noticeably rounder than the original 0.34, "round as much as possible", while
+  still reading as a play down to the 18pt row circle); one factor scales sanely
+  to every size. Call sites: the tracker/to-do transport (`TransportCircle`,
+  `box = 0.315·diameter`), the main timer button — compact 27/34pt and full 48pt,
+  `box = 0.315·size` — the torrent row play control (`box 11`, pause keeps SF
+  `pause.fill`), and the timer help-tab icon legend. The menu-bar badge is
+  deliberately excluded (it ships with the corner-system redesign). Pause glyphs
+  everywhere keep SF `pause.fill`.
 - **HoverDeleteX (Controls.swift)** is the shared hover-only row delete. Both row
   modules insert it IN FLOW, only while the row is hovered, right before the
   row's trailing fixed content (the tracker's time; nothing follows it in

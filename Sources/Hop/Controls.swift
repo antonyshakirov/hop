@@ -880,21 +880,27 @@ private struct PlayTriangleShape: Shape {
     }
 }
 
-/// Rounded-corner play triangle for `TransportCircle`'s "start" glyph. SF's
-/// `play.fill` is sharp-cornered; `MenuBarIcon.drawBadge`'s hand-drawn running
-/// badge already solved this for the status-bar dot (fill the path, then
-/// stroke it with a round join thick enough to bulge the corners smooth) —
-/// this reproduces the same technique in SwiftUI, scaled to the row circle
-/// instead of the 7pt badge slot.
-private struct PlayGlyph: View {
+/// The house rounded-corner play triangle — the ONE play glyph across the app
+/// (the tracker/to-do transport, the main timer button, the torrent row control).
+/// SF's `play.fill` is sharp-cornered; `MenuBarIcon.drawBadge`'s hand-drawn
+/// running badge already solved this for the status-bar dot (fill the path, then
+/// stroke it with a round join thick enough to bulge the corners smooth) — this
+/// reproduces the same technique in SwiftUI. Everything scales off `box`, so one
+/// `round` factor serves every size; pause glyphs keep SF's `pause.fill`.
+struct PlayGlyph: View {
     let color: Color
     var box: CGFloat
+    /// Corner rounding, as a fraction of `box`: it sets the round-join stroke
+    /// width, so a bigger fraction bulges the corners rounder. Tuned noticeably
+    /// higher than the original 0.34 (Anton: "round as much as possible") while
+    /// the shape still reads as a play triangle down to the 18pt row circle.
+    var round: CGFloat = 0.46
 
     var body: some View {
         // The path sits inset by half the stroke width, so the stroke's
         // outward bulge fills back out to `box` — same footprint as an
         // un-inset sharp triangle would have, just with rounded corners.
-        let strokeWidth = box * 0.34
+        let strokeWidth = box * round
         let inset = strokeWidth / 2
         ZStack {
             PlayTriangleShape(inset: inset).fill(color)

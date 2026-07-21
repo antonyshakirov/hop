@@ -1669,12 +1669,21 @@ struct PanelView: View {
             Button {
                 model.engine.toggle()
             } label: {
-                Image(systemName: running ? "pause.fill" : "play.fill")
-                    // the transport tracks the DIGIT SIZE setting, not the layout:
-                    // big digits deserve the big button, small ones the small
-                    .font(.system(size: digitsLarge ? 12 : 10, weight: .semibold))
-                    .foregroundStyle(isStart ? Theme.playFg : Theme.textPrimary)
-                    .frame(width: digitsLarge ? 34 : 27, height: digitsLarge ? 34 : 27)
+                // the transport tracks the DIGIT SIZE setting, not the layout:
+                // big digits deserve the big button, small ones the small
+                let size: CGFloat = digitsLarge ? 34 : 27
+                let glyph = isStart ? Theme.playFg : Theme.textPrimary
+                Group {
+                    if running {
+                        Image(systemName: "pause.fill")
+                            .font(.system(size: digitsLarge ? 12 : 10, weight: .semibold))
+                            .foregroundStyle(glyph)
+                    } else {
+                        // the house rounded play triangle, not SF's sharp play.fill
+                        PlayGlyph(color: glyph, box: size * 0.315)
+                    }
+                }
+                    .frame(width: size, height: size)
                     .background(isStart ? Theme.playBg : .clear, in: Circle())
                     .overlay {
                         if running {
@@ -1920,12 +1929,20 @@ struct PanelView: View {
         let state = model.engine.state
         let running = state == .running
         let isStart = state == .idle || state == .finished
+        let glyph = isStart ? Theme.playFg : Theme.textPrimary
         return Button {
             model.engine.toggle()
         } label: {
-            Image(systemName: running ? "pause.fill" : "play.fill")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(isStart ? Theme.playFg : Theme.textPrimary)
+            Group {
+                if running {
+                    Image(systemName: "pause.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(glyph)
+                } else {
+                    // the house rounded play triangle, not SF's sharp play.fill
+                    PlayGlyph(color: glyph, box: 48 * 0.315)
+                }
+            }
                 .frame(width: 48, height: 48)
                 .background(isStart ? Theme.playBg : .clear, in: Circle())
                 .overlay {
@@ -3889,6 +3906,10 @@ struct PanelView: View {
     @ViewBuilder private func legendIcon(_ name: String) -> some View {
         if name == "lid" {
             lidGlyph(closed: false, color: Theme.textSecondary)
+                .frame(width: 22, alignment: .center)
+        } else if name == "play.fill" {
+            // the same house rounded play triangle the timer button now uses
+            PlayGlyph(color: Theme.textSecondary, box: 11)
                 .frame(width: 22, alignment: .center)
         } else {
             Image(systemName: name)
