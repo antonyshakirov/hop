@@ -75,7 +75,7 @@ struct TodosView: View {
             subheader
             // The subheader and the add row stay OUTSIDE the scroll (always
             // visible); only the item list scrolls between them, at exactly
-            // cap × 26pt (integral — no fractional height jump).
+            // cap rows plus their gaps — 29·cap − 3 (integral, no height jump).
             if capped, let height = RowCap.listHeight(stored: visibleRows, count: items.count) {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 3) { ForEach(items) { row($0) } }

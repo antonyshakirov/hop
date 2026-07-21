@@ -111,7 +111,8 @@ struct TrackerView: View {
             // An empty list shows only the subheader and the add row — the
             // subheader already names the module, so no placeholder line.
             // The subheader, the pinned 8h warning and the add row stay OUTSIDE
-            // the scroll; only the task list scrolls, at exactly cap × 26pt.
+            // the scroll; only the task list scrolls, at exactly cap rows plus
+            // their gaps — 29·cap − 3.
             subheader
             if capped, let height = RowCap.listHeight(stored: visibleRows, count: rootIDs.count) {
                 ScrollView(showsIndicators: false) { taskRows }

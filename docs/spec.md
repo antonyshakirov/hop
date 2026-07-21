@@ -574,8 +574,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Visible rows (8.21):** a per-module `visible rows` cap
   (`trackerVisibleRows`, "other modules" settings): `all` (DEFAULT — the uncapped
   list) or 3…15 (`VisibleRowsField`, 0 stored = all). When the TASK count exceeds
-  the cap, the task list scrolls inside a fixed height of exactly `cap × 26pt`
-  (`RowCap.listHeight`, INTEGRAL); the subheader, the pinned 8h warning and the
+  the cap, the task list scrolls inside a fixed height of exactly `cap` rows plus
+  their inter-row gaps — `29·cap − 3` (26pt row + 3pt spacing, the last gap
+  dropped) (`RowCap.listHeight`, INTEGRAL); the subheader, the pinned 8h warning and the
   `+ new task` add row stay OUTSIDE the scroll. While scrolling, the whole-row
   reorder drag stands down (`including: .subviews`) so the pan scrolls, while the
   horizontal total-scrub and the play/stop taps keep working. Snapshots never
@@ -691,7 +692,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   list existing users already have) or a number 3…15 (`VisibleRowsField`: an
   `all` chip + the clipboard's `NumericField`; 0 stored = all). When the COMBINED
   displayed list (active + completed scroll together) exceeds the cap, the item
-  list scrolls inside a fixed height of exactly `cap × 26pt` (`RowCap.listHeight`,
+  list scrolls inside a fixed height of exactly `cap` rows plus their gaps —
+  `29·cap − 3` (26pt row + 3pt spacing) (`RowCap.listHeight`,
   INTEGRAL — no fractional-height header jump); the subheader and the `+ new task`
   add row stay OUTSIDE the scroll (always visible). Scroll indicators are hidden,
   matching the clipboard. While the list scrolls the whole-row reorder drag stands

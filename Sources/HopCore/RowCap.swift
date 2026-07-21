@@ -13,9 +13,13 @@ public enum RowCap {
 
     /// Each to-do / tracker row is 26pt tall (22pt content + 2pt padding × 2) —
     /// the shared row rhythm. INTEGRAL on purpose: a fractional list height made
-    /// the hosting controller re-measure and jump the header (fixed three times);
-    /// `cap × 26` can never land on a fractional value.
+    /// the hosting controller re-measure and jump the header (fixed three times).
     public static let rowHeight: CGFloat = 26
+
+    /// The `spacing:` the list VStack puts between rows. A capped list showing
+    /// exactly `cap` rows must budget for the (cap − 1) gaps between them, or it
+    /// shows ~cap−1 full rows plus a sliver of the next.
+    public static let rowSpacing: CGFloat = 3
 
     /// Normalized cap: nil = show all; otherwise a row count in 3…15.
     public static func cap(_ stored: Int) -> Int? {
@@ -25,9 +29,11 @@ public enum RowCap {
 
     /// The fixed list height when a cap is active AND the list overflows it; nil
     /// when uncapped or when every row already fits (natural height, no scroll).
+    /// `cap` rows plus the (cap − 1) inter-row gaps = 29·cap − 3 — always integral
+    /// (26 and 3 are both whole), so the header never lands on a fractional pixel.
     public static func listHeight(stored: Int, count: Int) -> CGFloat? {
         guard let cap = cap(stored), count > cap else { return nil }
-        return CGFloat(cap) * rowHeight
+        return CGFloat(cap) * (rowHeight + rowSpacing) - rowSpacing
     }
 
     /// True when the list should scroll: a cap is active and is exceeded.

@@ -10,6 +10,11 @@ struct NumericField: View {
     var color: Color = Theme.textPrimary
 
     @State private var text = ""
+    // The user actually typed since gaining focus. A focus→blur with no edit must
+    // NOT commit the displayed number: the "visible rows" field previews a number
+    // ("8") while "all" is active, and committing that preview on a bare blur
+    // silently switched "all" off.
+    @State private var edited = false
     @FocusState private var focused: Bool
 
     var body: some View {
@@ -27,24 +32,30 @@ struct NumericField: View {
             .onAppear { text = "\(value)" }
             .onChange(of: text) { _, new in
                 let digits = String(new.filter(\.isNumber).prefix(3))
-                if digits != new { text = digits }
+                if digits != new { text = digits; return }
+                // only a live edit (focused) owns the value; programmatic
+                // reformats (onAppear, value/preview sync) must not parse back.
+                guard focused else { return }
+                edited = true
                 if let v = Int(digits), range.contains(v) { value = v }
             }
             .onChange(of: value) { _, v in
                 if !focused { text = "\(v)" }
             }
             .onChange(of: focused) { _, isFocused in
-                guard !isFocused else { return }
-                if let v = Int(text) {
+                if isFocused { edited = false; return }
+                if edited, let v = Int(text) {
                     value = min(max(v, range.lowerBound), range.upperBound)
                 }
                 text = "\(value)"
+                edited = false
             }
             .onSubmit {
-                if let v = Int(text) {
+                if edited, let v = Int(text) {
                     value = min(max(v, range.lowerBound), range.upperBound)
                 }
                 text = "\(value)"
+                edited = false
             }
     }
 }

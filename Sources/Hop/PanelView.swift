@@ -3198,11 +3198,16 @@ struct PanelView: View {
                     .font(.system(size: 10))
                     .foregroundStyle(Theme.textTertiary)
                 RateLimitField(kb: $torrentRateUp, unit: torrentRateUnit)
-                // shared unit toggle (segmented, like the window-layout picker)
+                // shared unit toggle (segmented, like the window-layout picker).
+                // Resign a focused rate field FIRST so it normalizes its display
+                // off the canonical kb before the unit flips — the field's parse
+                // guard must not depend on macOS's implicit blur ordering.
                 settingChip(t(.unitKBs), active: torrentRateUnit == .kb) {
+                    NSApp.keyWindow?.makeFirstResponder(nil)
                     torrentRateUnitRaw = RateUnit.kb.rawValue
                 }
                 settingChip(t(.unitMBs), active: torrentRateUnit == .mb) {
+                    NSApp.keyWindow?.makeFirstResponder(nil)
                     torrentRateUnitRaw = RateUnit.mb.rawValue
                 }
             }

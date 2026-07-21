@@ -34,14 +34,28 @@ final class RowCapTests: XCTestCase {
         XCTAssertNil(RowCap.listHeight(stored: 8, count: 8), "exactly at the cap still fits")
     }
 
-    func testListHeightIsCapTimesRowHeightWhenOverflowing() {
-        XCTAssertEqual(RowCap.listHeight(stored: 8, count: 9), 8 * RowCap.rowHeight)
-        XCTAssertEqual(RowCap.listHeight(stored: 3, count: 50), 3 * RowCap.rowHeight)
+    func testListHeightIsCapRowsPlusInterRowGapsWhenOverflowing() {
+        // The list VStack uses spacing:3, so exactly `cap` rows also need their
+        // (cap − 1) gaps — height is 29·cap − 3, not 26·cap (which showed ~cap−1
+        // full rows plus a sliver).
+        XCTAssertEqual(RowCap.listHeight(stored: 8, count: 9),
+                       8 * (RowCap.rowHeight + RowCap.rowSpacing) - RowCap.rowSpacing)
+        XCTAssertEqual(RowCap.listHeight(stored: 8, count: 9), 229)
+        XCTAssertEqual(RowCap.listHeight(stored: 3, count: 50), 84)
     }
 
-    func testRowHeightIsIntegral() {
+    func testRowHeightAndSpacingAreIntegral() {
         // fractional heights caused the header-jump bug — the cap height must be whole
         XCTAssertEqual(RowCap.rowHeight, RowCap.rowHeight.rounded())
+        XCTAssertEqual(RowCap.rowSpacing, RowCap.rowSpacing.rounded())
+    }
+
+    func testListHeightIsIntegralForEveryCap() {
+        for cap in RowCap.minRows...RowCap.maxRows {
+            let h = RowCap.listHeight(stored: cap, count: cap + 1)
+            XCTAssertNotNil(h)
+            XCTAssertEqual(h, h?.rounded(), "cap \(cap) height must be whole")
+        }
     }
 
     func testScrollsMirrorsListHeight() {
