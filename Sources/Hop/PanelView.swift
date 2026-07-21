@@ -3018,14 +3018,15 @@ struct PanelView: View {
         }
     }
 
-    /// The panel layout as one table: a column per space on top, then a
-    /// full-width "inactive" section below. Module chips are dragged between and
-    /// within columns and to/from the inactive section (that IS the visibility
-    /// control — no on/off toggles), with a live insertion indicator; a column
-    /// header is dragged to reorder spaces (its own vertical indicator); the "+"
-    /// stub adds one. The icon picker opens in a popover under each header; the
-    /// delete confirmation floats over the table as a scrim + card (neither
-    /// reflows the columns).
+    /// The panel layout as one table: a single row of columns — the "inactive"
+    /// storage column first, then a column per space, then the "+" add-tab tile.
+    /// Module chips are dragged between and within columns and into/out of the
+    /// inactive column (that IS the visibility control — no on/off toggles), with
+    /// a live insertion indicator; a column header is dragged to reorder spaces
+    /// (its own vertical indicator); the "+" tile adds one. An airy caption under
+    /// the table explains inactive and the drag affordances. The icon picker opens
+    /// in a popover under each header; the delete confirmation floats over the
+    /// table as a scrim + card (neither reflows the columns).
     private var layoutSettings: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
