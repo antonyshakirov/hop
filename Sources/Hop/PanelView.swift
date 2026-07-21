@@ -2851,10 +2851,10 @@ struct PanelView: View {
             // the same overflow handling the about switcher already uses.
             SectionChips(items: [
                 ("general", t(.aboutTabGeneral)),
-                ("timer", t(.aboutTabTimer)),
-                ("modules", t(.otherModulesLabel)),
-                ("monitor", t(.tabSystem)),
                 ("layout", t(.settingsTabLayout)),
+                ("timer", t(.aboutTabTimer)),
+                ("monitor", t(.tabSystem)),
+                ("modules", t(.otherModulesLabel)),
             ], selection: $settingsSection, wraps: true)
 
             switch settingsSection {

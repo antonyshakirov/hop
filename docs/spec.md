@@ -81,13 +81,13 @@ every key lives in exactly one place — a space OR inactive
 across the union and decodes older JSON that lacks the field as an empty
 bucket).
 
-The settings window's top-level text-switcher has five sibling sections:
-"general" for the everyday options (theme, language, launch, sounds,
+The settings window's top-level text-switcher has five sibling sections, in
+order: "general" for the everyday options (theme, language, launch, sounds,
 updates, app icon, and the GLOBAL hotkeys only — show panel / timer / no-sleep),
-"timer", "other modules" (which now also carries the window-manager section — the
-grid/row layout picker and the "resize windows with hotkeys" toggle/grid, moved
-out of general on 2026-07-21), "monitor", and "modules & tabs" for the panel
-layout — no tab-in-tab, each
+"modules & tabs" for the panel layout, "timer", "monitor", and "other modules"
+(which now also carries the window-manager section — the grid/row layout picker
+and the "resize windows with hotkeys" toggle/grid, moved out of general on
+2026-07-21) — no tab-in-tab, each
 is its own top-level section. The switcher chips take their natural width and wrap onto
 a second line if a language runs long (`SectionChips(wraps:)`), so the fifth
 chip never truncates in the 720pt window. The "modules & tabs" section is
@@ -845,8 +845,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   onboarding toggle, so it is never truly empty); the fresh install therefore
   never opens onto a blank tab. Opening a `.torrent` file or magnet link
   reactivates the torrent module the same way.
-- Settings tab order: general → timer → remaining modules → monitor →
-  modules & tabs. "Remaining modules" = awake/clipboard/tracker/to-dos/converter
+- Settings tab order: general → modules & tabs → timer → monitor →
+  remaining modules. "Remaining modules" = awake/clipboard/tracker/to-dos/converter
   as sections with headers (torrent sits at the end of the same tab). The tracker
   and to-do sections each carry a single `visible rows` row (`VisibleRowsField`:
   `all` default, or 3…15 — see 8.21). The window-snap block (layout picker,
