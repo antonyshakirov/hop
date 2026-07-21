@@ -880,19 +880,25 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   → /en; there is no separate antonshakirov.com link) — next to the product
   landing link, in the app's language when the landing has it (8 languages),
   otherwise English. A third row is the support contact: "feedback & support ·
-  hop@antonshakirov.com", the address a mailto: link opening the user's mail
-  client. Below the footer sits the donation block (see "Donation block").
+  hop@antonshakirov.com · telegram", the address a mailto: link opening the
+  user's mail client and "telegram" a link to the support bot
+  (https://t.me/HopSupportBot); both labels are proper nouns, not localized
+  (like "GitHub"). Below the footer sits the donation block (see "Donation
+  block").
 - Donation block: the ONLY donation surface in the whole product — the landing
   and README deliberately have none, and nothing else in the app does either. It
   sits below the general-tab footer, set apart in its own faint card (chipBg,
   rounded). The WHOLE card is a single button that opens the donation link — one
   obvious place to click, with the house whole-row hover (a hoverBg lift plus the
-  pointing-hand cursor). Inside, left-aligned, are only two lines: a bolder title
-  (`donateTitle`, e.g. "support hop", house lowercase) and a subtitle
-  (`donateBody` — gift-framing, e.g. "you're helping ship new features and keep
-  making hop better"). On the right, vertically centred, a small external-page
-  glyph (`arrow.up.forward.app`, the same one the converter and torrent rows use,
-  tertiary tint) signals it leaves the app. There is no separate action link.
+  pointing-hand cursor). Inside, left-aligned, a title ROW — a leading filled
+  heart (`heart.fill`, `Theme.iconHealth`, the house both-theme health red) then
+  a bolder title (`donateTitle`, e.g. "support hop", house lowercase) — over a
+  subtitle (`donateBody` — gift-framing, future-impact, e.g. "your support will
+  help ship new features and keep making hop better"). The card HStack is
+  TOP-aligned so the external-page glyph (`arrow.up.forward.app`, the same one
+  the converter and torrent rows use, tertiary tint) rides the TITLE row at the
+  top-right, not the card's vertical centre; it signals leaving the app. There is
+  no separate action link.
   NO perks or rewards are ever promised (donations are gifts). Link routing
   mirrors the localized-README rule: Russian → https://web.tribute.tg/d/Nvp,
   every other locale → https://web.tribute.tg/d/Nvk. All strings are

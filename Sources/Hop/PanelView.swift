@@ -4017,6 +4017,11 @@ struct PanelView: View {
                         Text("\(t(.aboutSupport)) ·")
                             .foregroundStyle(Theme.textSecondary)
                         FooterLink(url: "mailto:hop@antonshakirov.com", label: "hop@antonshakirov.com")
+                        Text("·")
+                            .foregroundStyle(Theme.textSecondary)
+                        // support bot — a second channel alongside email; proper
+                        // noun, so the label is not localized (like "GitHub")
+                        FooterLink(url: "https://t.me/HopSupportBot", label: "telegram")
                     }
                 }
                 .font(Theme.mono(11))
@@ -4035,18 +4040,27 @@ struct PanelView: View {
                         : "https://web.tribute.tg/d/Nvk"
                     if let link = URL(string: url) { NSWorkspace.shared.open(link) }
                 } label: {
-                    HStack(spacing: 10) {
+                    // Top-aligned so the external-page glyph rides the TITLE row
+                    // (top-right), not the card's vertical centre.
+                    HStack(alignment: .top, spacing: 10) {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(t(.donateTitle))
-                                .font(Theme.mono(13, weight: .semibold))
-                                .foregroundStyle(Theme.textPrimary)
+                            HStack(spacing: 6) {
+                                // leading donation glyph — the house health-heart
+                                // red, tuned for both themes
+                                Image(systemName: "heart.fill")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(Theme.iconHealth)
+                                Text(t(.donateTitle))
+                                    .font(Theme.mono(13, weight: .semibold))
+                                    .foregroundStyle(Theme.textPrimary)
+                            }
                             Text(t(.donateBody))
                                 .font(Theme.mono(11))
                                 .foregroundStyle(Theme.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        // external-page hint, vertically centred against the text
+                        // external-page hint, aligned with the title row
                         Image(systemName: "arrow.up.forward.app")
                             .font(.system(size: 13))
                             .foregroundStyle(Theme.textTertiary)
