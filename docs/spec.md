@@ -842,6 +842,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   otherwise English. A third row is the support contact: "feedback & support ·
   hop@antonshakirov.com", the address a mailto: link opening the user's mail
   client. Below the footer sits the donation block (see "Donation block").
+- Donation block: the ONLY donation surface in the whole product — the landing
+  and README deliberately have none, and nothing else in the app does either. It
+  sits below the general-tab footer, set apart in its own faint card (chipBg,
+  rounded) with a bolder headline (`donateTitle`, e.g. "support hop", house
+  lowercase), one line of body (`donateBody` — "donations help keep hop free and
+  evolving — new modules, faster fixes.") and a heart link-button (`donateAction`
+  + " ♥", mono 12 semibold, FooterLink hover styling). NO perks or rewards are
+  ever promised (donations are gifts). Link routing mirrors the localized-README
+  rule: Russian → https://web.tribute.tg/d/Nvp, every other locale →
+  https://web.tribute.tg/d/Nvk. All strings are country/currency-neutral; the
+  amount and any currency are Tribute's concern. New keys `donateTitle`,
+  `donateBody`, `donateAction` are translated across all 18 languages.
 - Languages in pickers use the standard order, like system lists:
   alphabetical by NATIVE names, Latin → Cyrillic → CJK (pickerOrder,
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"

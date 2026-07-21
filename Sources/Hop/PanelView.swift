@@ -3976,6 +3976,33 @@ struct PanelView: View {
                     }
                 }
                 .font(Theme.mono(11))
+
+                // donation block — the ONLY donation surface in the whole product
+                // (the landing and README deliberately have none). Set apart from
+                // the plain footer lines by its own faint card, a bolder headline
+                // and a heart link, so it reads as its own thing. Russian routes to
+                // the ru card, every other locale to the neutral one — the same
+                // rule the localized READMEs follow. No perks are promised anywhere
+                // (donations are gifts).
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(t(.donateTitle))
+                        .font(Theme.mono(13, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text(t(.donateBody))
+                        .font(Theme.mono(11))
+                        .foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    FooterLink(url: lang == .ru
+                        ? "https://web.tribute.tg/d/Nvp"
+                        : "https://web.tribute.tg/d/Nvk",
+                        label: "\(t(.donateAction)) ♥",
+                        font: Theme.mono(12, weight: .semibold))
+                        .padding(.top, 1)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 8))
+                .padding(.top, 4)
             }
         }
         .font(Theme.mono(12))
