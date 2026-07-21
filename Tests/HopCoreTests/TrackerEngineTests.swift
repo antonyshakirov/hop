@@ -109,6 +109,16 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(changeCount, 0)
     }
 
+    func testDeleteTaskWithUnknownIDIsNoOp() {
+        _ = engine.addTask(name: "A")
+        changeCount = 0
+
+        engine.deleteTask(UUID())
+
+        XCTAssertEqual(engine.data.rootOrder.count, 1)
+        XCTAssertEqual(changeCount, 0)
+    }
+
     // MARK: - Tracking: stopActive
 
     func testStopActiveClosesIntervalAndClearsActiveTask() {

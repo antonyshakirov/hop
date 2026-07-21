@@ -111,6 +111,13 @@ public final class TrackerEngine: ObservableObject {
     }
 
     public func deleteTask(_ id: UUID) {
+        // an unknown id removes nothing — skip the redundant save, mirroring the
+        // other id-taking mutators
+        let present = data.tasks.contains { $0.id == id }
+            || data.rootOrder.contains(id)
+            || data.intervals.contains { $0.taskID == id }
+            || data.corrections.contains { $0.taskID == id }
+        guard present else { return }
         // no separate "stop" step needed: dropping the task's own open
         // interval below already clears it from activeTaskID
         data.tasks.removeAll { $0.id == id }
