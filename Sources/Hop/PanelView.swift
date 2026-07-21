@@ -3223,7 +3223,11 @@ struct PanelView: View {
                         .font(.system(size: 11))
                         .foregroundStyle(Theme.textSecondary)
                 }
-                .padding(.horizontal, 10)
+                // No horizontal inset: the card's full-width fill already spans
+                // the section's content edges, so the label and the trailing badge
+                // must sit flush at those edges — lined up with every other
+                // settings row's text and controls (the sibling rows carry no
+                // horizontal padding). Vertical padding gives the card its height.
                 .padding(.vertical, 9)
                 .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
