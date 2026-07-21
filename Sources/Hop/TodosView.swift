@@ -51,16 +51,9 @@ struct TodosView: View {
     var body: some View {
         let items = todos.list.items
         return VStack(alignment: .leading, spacing: 3) {
+            // An empty list shows only the subheader and the add row — the
+            // subheader already names the module, so no placeholder line.
             subheader
-            if items.isEmpty {
-                // The subheader already names the module, so the empty state is
-                // just the hint — no duplicate title line.
-                Text(t(.todosEmpty))
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textTertiary)
-                    .padding(.horizontal, 2)
-                    .padding(.vertical, 4)
-            }
             ForEach(items) { row($0) }
             addRow
         }

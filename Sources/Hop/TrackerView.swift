@@ -85,16 +85,9 @@ struct TrackerView: View {
         let rootIDs = engine.data.rootOrder
         let taskByID = Dictionary(engine.data.tasks.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         return VStack(alignment: .leading, spacing: 3) {
+            // An empty list shows only the subheader and the add row — the
+            // subheader already names the module, so no placeholder line.
             subheader
-            if rootIDs.isEmpty {
-                // The subheader already names the module, so the empty state is
-                // just the hint — no duplicate title line.
-                Text(t(.trackerEmpty))
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textTertiary)
-                    .padding(.horizontal, 2)
-                    .padding(.vertical, 4)
-            }
             ForEach(rootIDs, id: \.self) { id in
                 if let task = taskByID[id] {
                     taskRow(task)

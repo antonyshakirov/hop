@@ -585,8 +585,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   ✕ (cancel) buttons right of it (`FieldCommitButtons`, house hover style) — the
   mouse equivalent of Return/Escape.
 - **Empty state:** with the always-on subheader naming the module, an empty list
-  shows just the `no tasks yet` hint (tertiary) over the add row — no duplicate
-  title line.
+  shows ONLY the subheader and the `+ new task` add row — no placeholder line.
+  Adding the first task or deleting the last never shifts the subheader or the
+  add row (both keep their heights); the list simply grows or shrinks by one row.
 - **Snapshot rule:** every focused-field state is gated off `Snapshot.active`,
   so `--snapshot` renders never show an editing TextField (yellow artifact).
   The tracker AND to-do LOAD paths are gated on `Snapshot.active` too: a
@@ -636,8 +637,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   two near-twin modules read identically; the 8-hour warning and inline-edit
   rows adopt the same tight vertical padding.
 - **Subheader:** a compact `to-dos` sublabel (`todosLabel`) sits above the list
-  at all times, same treatment as the tracker's; the empty state then shows just
-  the `nothing to do yet` hint, no duplicate title line.
+  at all times, same treatment as the tracker's; an empty list shows ONLY the
+  subheader and the `+ new task` add row — no placeholder line — and adding the
+  first item or deleting the last never shifts either.
 - **Drag to reorder:** grabbing ANYWHERE on a row reorders — the same whole-row,
   container-level gesture as the tracker (`minimumDistance` 3, engaging only on a
   vertically dominant drag) and the same frame-preference resolver (rows report
