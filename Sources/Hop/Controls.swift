@@ -1,3 +1,4 @@
+import HopCore
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -45,6 +46,32 @@ struct NumericField: View {
                 }
                 text = "\(value)"
             }
+    }
+}
+
+/// "visible rows" chooser for the to-do and tracker modules: an "all" chip (no
+/// cap — the default) next to the same `NumericField` the clipboard's visible-rows
+/// setting uses (range 3…15). The stored value is a single Int: 0 for "all", else
+/// the clamped row count. Tapping "all" stores 0; entering / editing the number
+/// stores a cap. When "all" is active the field previews the count you'd get if
+/// you switched — the same "special chip + concrete value" shape as the
+/// converter's Downloads-vs-folder control.
+struct VisibleRowsField: View {
+    @Binding var stored: Int
+    let allLabel: String
+    /// The count the field shows (and switches to) when "all" is the current mode.
+    private static let previewCap = 8
+
+    var body: some View {
+        HStack(spacing: 6) {
+            SettingChip(active: stored <= 0, action: { stored = 0 }) {
+                Text(allLabel).font(Theme.mono(10))
+            }
+            NumericField(value: Binding(
+                get: { stored <= 0 ? Self.previewCap : min(max(stored, RowCap.minRows), RowCap.maxRows) },
+                set: { stored = min(max($0, RowCap.minRows), RowCap.maxRows) }
+            ), range: RowCap.minRows...RowCap.maxRows)
+        }
     }
 }
 

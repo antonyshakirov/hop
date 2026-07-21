@@ -41,6 +41,8 @@ struct PanelView: View {
 
     @AppStorage(ClipboardController.maxItemsKey) private var clipboardMax = ClipboardController.defaultMaxItems
     @AppStorage(ClipboardController.visibleRowsKey) private var clipboardVisibleRows = ClipboardController.defaultVisibleRows
+    @AppStorage(TrackerController.visibleRowsKey) private var trackerVisibleRows = TrackerController.defaultVisibleRows
+    @AppStorage(TodosController.visibleRowsKey) private var todosVisibleRows = TodosController.defaultVisibleRows
     @AppStorage("timerCompact") private var timerCompact = true
     @AppStorage("displayStyle") private var displayStyle = "dots" // dots | text | units
     @AppStorage("digitsSize") private var digitsSize = "large" // large | small
@@ -3117,6 +3119,16 @@ struct PanelView: View {
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
+                settingsSectionHeader(t(.trackerLabel))
+                visibleRowsSetting(stored: $trackerVisibleRows)
+            }
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            VStack(spacing: 14) {
+                settingsSectionHeader(t(.todosLabel))
+                visibleRowsSetting(stored: $todosVisibleRows)
+            }
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            VStack(spacing: 14) {
                 settingsSectionHeader(t(.convertLabel))
                 converterSettings
             }
@@ -3296,6 +3308,19 @@ struct PanelView: View {
                 Spacer()
                 NumericField(value: $clipboardVisibleRows, range: 1...10)
             }
+        }
+    }
+
+    /// The shared "visible rows" row for the tracker and to-do modules: a cap of
+    /// "all" (default) or 3…15 rows, above which the module list scrolls inside a
+    /// fixed height (`RowCap`).
+    private func visibleRowsSetting(stored: Binding<Int>) -> some View {
+        HStack {
+            Text(t(.visibleRowsLabel))
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textPrimary)
+            Spacer()
+            VisibleRowsField(stored: stored, allLabel: t(.visibleRowsAll))
         }
     }
 

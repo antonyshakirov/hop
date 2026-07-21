@@ -564,7 +564,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   appears directly under that task: `t(.trackerLongRun)` (en: `still tracking —
   over 8 hours. forgot to stop?`, `Theme.accentYellow`) with a small stop button
   that calls `stopActive()`. The row appears and disappears off the heartbeat. No
-  system notification in this pass (a possible follow-up).
+  system notification in this pass (a possible follow-up). Normally it sits inline
+  under its task; when the task list is capped and scrolls (see 8.21) it is PINNED
+  directly below the scrolling list instead, so the "forgot to stop?" alert is
+  never scrolled out of view.
+- **Visible rows (8.21):** a per-module `visible rows` cap
+  (`trackerVisibleRows`, "other modules" settings): `all` (DEFAULT — the uncapped
+  list) or 3…15 (`VisibleRowsField`, 0 stored = all). When the TASK count exceeds
+  the cap, the task list scrolls inside a fixed height of exactly `cap × 26pt`
+  (`RowCap.listHeight`, INTEGRAL); the subheader, the pinned 8h warning and the
+  `+ new task` add row stay OUTSIDE the scroll. While scrolling, the whole-row
+  reorder drag stands down (`including: .subviews`) so the pan scrolls, while the
+  horizontal total-scrub and the play/stop taps keep working. Snapshots never
+  scroll. Shares `RowCap` + `VisibleRowsField` with the to-do module.
 - **Drag to reorder:** grabbing ANYWHERE on a row reorders the flat list — the
   reorder gesture lives on the row container (`minimumDistance` 3), not a handle.
   It DISAMBIGUATES BY AXIS against the total label's horizontal scrub: on the
@@ -671,6 +683,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   taps by inner-gesture precedence. The dragged row dims and follows the pointer;
   a 2pt accent line marks the (group-clamped) insertion point; one
   `reorder(dragging:toDisplayInsertion:)` commits per completed drag.
+- **Visible rows (8.21):** a per-module `visible rows` cap
+  (`todosVisibleRows`, "other modules" settings): `all` (DEFAULT — the uncapped
+  list existing users already have) or a number 3…15 (`VisibleRowsField`: an
+  `all` chip + the clipboard's `NumericField`; 0 stored = all). When the COMBINED
+  displayed list (active + completed scroll together) exceeds the cap, the item
+  list scrolls inside a fixed height of exactly `cap × 26pt` (`RowCap.listHeight`,
+  INTEGRAL — no fractional-height header jump); the subheader and the `+ new task`
+  add row stay OUTSIDE the scroll (always visible). Scroll indicators are hidden,
+  matching the clipboard. While the list scrolls the whole-row reorder drag stands
+  down (`including: .subviews`) so the pan drives the scroll — reorder is for the
+  short, fully-visible list. Snapshots never scroll (flat render). `RowCap` +
+  `RowCapTests` hold the cap/height math.
 - **Adding:** a `+ new task` footer row (placeholder `todosNew`, "new task")
   opens an inline field with the same ✓/✕ buttons and `Snapshot.active` gating as
   the tracker; Return/✓ append, Escape/✕ cancel, empty = cancel.
@@ -779,8 +803,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   never opens onto a blank tab. Opening a `.torrent` file or magnet link
   reactivates the torrent module the same way.
 - Settings tab order: general → timer → remaining modules → monitor →
-  modules & tabs. "Remaining modules" = awake/clipboard/converter as sections
-  with headers (torrent sits at the end of the same tab). The window-snap
+  modules & tabs. "Remaining modules" = awake/clipboard/tracker/to-dos/converter
+  as sections with headers (torrent sits at the end of the same tab). The tracker
+  and to-do sections each carry a single `visible rows` row (`VisibleRowsField`:
+  `all` default, or 3…15 — see 8.21). The window-snap
   block (layout picker, "resize windows with hotkeys" toggle, its ⌃⌥-key
   grid) lives in "general" instead, next to the other hotkey rows
   (Anton, 2026-07-19) — it reads as a hotkey setting, not a module setting.

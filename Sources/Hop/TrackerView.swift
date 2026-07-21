@@ -68,6 +68,10 @@ struct TrackerView: View {
     // total scrub, so this row-reorder gesture stands down for the rest of it.
     @State private var dragRejected = false
 
+    /// "visible rows" cap: 0 = all (default), 3…15 caps the task list to a fixed
+    /// height with inner scroll (the 8h warning is pinned outside the scroll).
+    @AppStorage(TrackerController.visibleRowsKey) private var visibleRows = TrackerController.defaultVisibleRows
+
     private var engine: TrackerEngine { tracker.engine }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
     private func shortTime(_ v: TimeInterval) -> String { TimeFormatting.short(v) }
@@ -78,21 +82,45 @@ struct TrackerView: View {
         !Snapshot.active && activeField == field
     }
 
+    /// True when the task list overflows an active cap and therefore scrolls.
+    /// While it scrolls the whole-row reorder drag stands down (the pan scrolls
+    /// instead) — reorder is for the short, fully-visible list; the total-scrub
+    /// (horizontal) and play/stop taps keep working.
+    private var trackerCapped: Bool {
+        !Snapshot.active && RowCap.scrolls(stored: visibleRows, count: engine.data.rootOrder.count)
+    }
+
     var body: some View {
         // read the heartbeat so every label (and the 8h warning) recomputes
         // while a task is tracking
         let _ = tracker.heartbeat
         let rootIDs = engine.data.rootOrder
         let taskByID = Dictionary(engine.data.tasks.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
-        return VStack(alignment: .leading, spacing: 3) {
-            // An empty list shows only the subheader and the add row — the
-            // subheader already names the module, so no placeholder line.
-            subheader
+        let capped = trackerCapped
+        let taskRows = VStack(alignment: .leading, spacing: 3) {
             ForEach(rootIDs, id: \.self) { id in
                 if let task = taskByID[id] {
                     taskRow(task)
-                    if isLongRun(task.id) { longRunRow(task.id) }
+                    // inline warning only when NOT capped; when the list scrolls
+                    // it is pinned below (see the branch) so it never scrolls away
+                    if !capped, isLongRun(task.id) { longRunRow(task.id) }
                 }
+            }
+        }
+        return VStack(alignment: .leading, spacing: 3) {
+            // An empty list shows only the subheader and the add row — the
+            // subheader already names the module, so no placeholder line.
+            // The subheader, the pinned 8h warning and the add row stay OUTSIDE
+            // the scroll; only the task list scrolls, at exactly cap × 26pt.
+            subheader
+            if capped, let height = RowCap.listHeight(stored: visibleRows, count: rootIDs.count) {
+                ScrollView(showsIndicators: false) { taskRows }
+                    .frame(height: height)
+                // the single active task's 8h "still tracking?" warning stays
+                // visible, pinned directly under the scrolling list
+                if let longID = rootIDs.first(where: { isLongRun($0) }) { longRunRow(longID) }
+            } else {
+                taskRows
             }
             addTaskRow
         }
@@ -197,9 +225,11 @@ struct TrackerView: View {
         .padding(.vertical, 2)
         .padding(.horizontal, 2)
         .background(rowFrameReader(task.id))
-        // whole-row drag surface: grabbing anywhere reorders (see dragGesture)
+        // whole-row drag surface: grabbing anywhere reorders (see dragGesture).
+        // While the list scrolls (capped), the row gesture stands down
+        // (`.subviews`) so the pan scrolls and the total-scrub/taps keep working.
         .contentShape(Rectangle())
-        .gesture(dragGesture(task.id))
+        .gesture(dragGesture(task.id), including: trackerCapped ? .subviews : .all)
         .opacity(dragTask == task.id ? 0.4 : 1)
         .offset(dragTask == task.id ? dragTranslation : .zero)
         .zIndex(dragTask == task.id ? 2 : 0)

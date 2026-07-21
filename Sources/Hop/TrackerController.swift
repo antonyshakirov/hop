@@ -9,6 +9,11 @@ import os
 @MainActor
 final class TrackerController: ObservableObject {
     private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "TrackerController")
+    /// "visible rows" cap: 0 = all (default — preserves the uncapped list for
+    /// existing users), 3…15 caps the task list to a fixed height with inner
+    /// scroll (the 8h warning stays pinned outside the scroll).
+    static let visibleRowsKey = "trackerVisibleRows"
+    static let defaultVisibleRows = RowCap.all
     let engine: TrackerEngine
     /// Bumped once a second while a task is active — drives ticking labels.
     @Published private(set) var heartbeat: Date

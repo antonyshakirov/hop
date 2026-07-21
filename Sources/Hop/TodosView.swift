@@ -46,7 +46,18 @@ struct TodosView: View {
     // swipe doesn't lift a row (reorder is vertical).
     @State private var dragRejected = false
 
+    /// "visible rows" cap: 0 = all (default), 3…15 caps the list to a fixed height
+    /// with inner scroll.
+    @AppStorage(TodosController.visibleRowsKey) private var visibleRows = TodosController.defaultVisibleRows
+
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
+
+    /// True when the list overflows an active cap and therefore scrolls. While it
+    /// scrolls the whole-row reorder drag stands down (the pan drives the scroll
+    /// instead) — reorder is for the short, fully-visible list.
+    private var capped: Bool {
+        !Snapshot.active && RowCap.scrolls(stored: visibleRows, count: todos.list.displayItems.count)
+    }
 
     /// Finite reorder animation for the sink-to-bottom (and the return trip).
     /// No repeatForever — infinite animations retrigger the panel's size
@@ -62,7 +73,17 @@ struct TodosView: View {
             // An empty list shows only the subheader and the add row — the
             // subheader already names the module, so no placeholder line.
             subheader
-            ForEach(items) { row($0) }
+            // The subheader and the add row stay OUTSIDE the scroll (always
+            // visible); only the item list scrolls between them, at exactly
+            // cap × 26pt (integral — no fractional height jump).
+            if capped, let height = RowCap.listHeight(stored: visibleRows, count: items.count) {
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 3) { ForEach(items) { row($0) } }
+                }
+                .frame(height: height)
+            } else {
+                ForEach(items) { row($0) }
+            }
             addRow
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -137,9 +158,11 @@ struct TodosView: View {
         .padding(.horizontal, 2)
         .padding(.vertical, 2)
         .background(rowFrameReader(item.id))
-        // whole-row drag surface: grabbing anywhere reorders (see dragGesture)
+        // whole-row drag surface: grabbing anywhere reorders (see dragGesture).
+        // While the list scrolls (capped), the row gesture stands down
+        // (`.subviews`) so the pan scrolls and the checkbox/xmark keep their taps.
         .contentShape(Rectangle())
-        .gesture(dragGesture(item.id))
+        .gesture(dragGesture(item.id), including: capped ? .subviews : .all)
         .opacity(dragItem == item.id ? 0.4 : 1)
         .offset(dragItem == item.id ? dragTranslation : .zero)
         .zIndex(dragItem == item.id ? 2 : 0)
