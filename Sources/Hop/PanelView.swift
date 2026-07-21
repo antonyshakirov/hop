@@ -3281,6 +3281,13 @@ struct PanelView: View {
                     torrentRateUnitRaw = RateUnit.mb.rawValue
                 }
             }
+            // clarifies that a dimmed 0 in either field means "no limit"
+            HStack {
+                Spacer(minLength: 0)
+                Text(t(.torrentRateHint))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+            }
 
             HStack {
                 Text(t(.torrentShowWhenEmpty))

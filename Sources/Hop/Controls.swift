@@ -81,7 +81,9 @@ struct VisibleRowsField: View {
 /// digits; MB mode accepts up to 4 integer digits plus one optional decimal
 /// (e.g. 12.5). Empty / 0 = unlimited (kept). Toggling the unit reformats the
 /// displayed value in place; the stored KB/s never changes. Conversion, parsing
-/// and clamping live in `HopCore.RateLimit` (tested).
+/// and clamping live in `HopCore.RateLimit` (tested). A ZERO value (= no limit,
+/// including one the user just typed) renders in the tertiary/placeholder gray so
+/// it reads as "off"; any non-zero value uses the normal active color.
 struct RateLimitField: View {
     @Binding var kb: Int
     let unit: RateUnit
@@ -91,11 +93,13 @@ struct RateLimitField: View {
     @FocusState private var focused: Bool
 
     var body: some View {
+        // kb is kept in sync with the field live while typing, so 0 (empty or a
+        // typed "0") dims the text the instant it becomes unlimited.
         TextField("", text: $text)
             .textFieldStyle(.plain)
             .focused($focused)
             .font(Theme.mono(11, weight: .semibold))
-            .foregroundStyle(color)
+            .foregroundStyle(kb == 0 ? Theme.textTertiary : color)
             .multilineTextAlignment(.center)
             // the AppKit field editor lifts the text ~1.5px on focus (matches
             // NumericField) — compensate so the digit doesn't hop

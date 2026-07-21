@@ -880,7 +880,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the display: toggling reformats both fields in place, no migration. KB mode
   accepts up to 6 digits; MB mode up to 4 integer digits + one optional decimal
   (1 MB = 1000 KB, the module's decimal convention, matching the card's speed
-  readout). Conversion/parse/clamp is `HopCore.RateLimit` (`RateLimitTests`).
+  readout). Conversion/parse/clamp is `HopCore.RateLimit` (`RateLimitTests`). To
+  make "off" legible, a ZERO value (including one the user just typed) renders in
+  the tertiary/placeholder gray so it reads as inactive, while any non-zero value
+  uses the normal active text color; a short tertiary caption below the row
+  (`torrentRateHint`, "0 — no limit", ×18) spells it out. The semantics are
+  unchanged — 0 still means unlimited; this is presentation only.
   "modules & tabs" is the combined space/module table,
   its own top-level section (a nested general/"modules & tabs" sub-tab was
   tried and rejected). The app version is shown next to the "check & update" button.
