@@ -313,6 +313,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private var aboutHeightObserved = false
+    // First open: the about window is ordered in TRANSPARENT and revealed only
+    // once the first content-height report arrives, so it is never seen at a
+    // guessed height (house invariant: laid out before it is shown). Later opens
+    // reuse the retained, already-correct frame — the active tab is remembered.
+    private var aboutAwaitingReveal = false
+    private var aboutHasBeenSized = false
 
     /// The about window height follows the active tab's content
     /// (no empty area at the bottom); the window's top edge stays put.
@@ -323,11 +329,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             forName: .init("hopAboutContentHeight"), object: nil, queue: .main
         ) { [weak self] note in
             Task { @MainActor in
-                guard let self, let window = self.aboutWindow, window.isVisible,
+                guard let self, let window = self.aboutWindow,
                       let h = note.userInfo?["height"] as? CGFloat else { return }
                 let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
                 let titlebar = window.frame.height - window.contentLayoutRect.height
-                let target = min(h + titlebar, screenH * 0.85)
+                // integral height only — a fractional window height made the
+                // hosting controller re-measure and jump the content on open
+                let target = min((h + titlebar).rounded(.up), (screenH * 0.85).rounded(.down))
+
+                if self.aboutAwaitingReveal {
+                    // the first frame after ordering in transparent: size to the
+                    // content, recenter at that final height, then reveal — so the
+                    // very first appearance is already correct, no visible resize
+                    self.aboutAwaitingReveal = false
+                    self.aboutHasBeenSized = true
+                    var frame = window.frame
+                    frame.size.height = target
+                    window.setFrame(frame, display: false, animate: false)
+                    window.center()
+                    window.alphaValue = 1
+                    return
+                }
+                guard window.isVisible else { return }
                 guard abs(window.frame.height - target) > 2 else { return }
                 var frame = window.frame
                 let topY = frame.maxY
@@ -380,13 +403,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         observeAboutHeightOnce()
         if !window.isVisible {
             let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
-            // taller: the "general" tab must fit without scrolling; wide enough
-            // for all section tabs on one line (see the contentRect note above)
-            window.setContentSize(NSSize(width: 940, height: min(780, screenH * 0.85)))
-            window.center()
+            if aboutHasBeenSized {
+                // reopen: the retained frame is already sized to the last-shown
+                // tab (the section is remembered) — just recenter and show.
+                window.center()
+            } else {
+                // first open ever: the content height is unknown until SwiftUI
+                // lays out, so order in transparent at the target WIDTH (1060 —
+                // all section tabs on one line, matching the window's own width;
+                // 940 was stale, from when there were ten tabs) and let the first
+                // height report size, recenter and reveal it.
+                aboutAwaitingReveal = true
+                window.alphaValue = 0
+                window.setContentSize(NSSize(width: 1060, height: min(780, screenH * 0.85)))
+                window.center()
+            }
         }
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        if aboutAwaitingReveal {
+            // safety net: if the height report never arrives (it should, on the
+            // first appear), reveal at the provisional size rather than leave an
+            // invisible window — no worse than the old fixed-height behavior.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                guard let self, self.aboutAwaitingReveal, let window = self.aboutWindow else { return }
+                self.aboutAwaitingReveal = false
+                self.aboutHasBeenSized = true
+                window.alphaValue = 1
+            }
+        }
     }
 
     /// The torrent add sheet (file selection + destination). A window, like the

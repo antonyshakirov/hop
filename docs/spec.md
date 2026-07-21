@@ -1093,6 +1093,14 @@ Anton's primary install must always remain fully functional.
   chips) and the text reflows. Minimum 480×300.
 - The window size is set explicitly (sizingOptions=[]); .preferredContentSize
   is forbidden — it crashed AutoLayout on baseline views.
+- First-open sizing: the content height is only known after SwiftUI lays out,
+  so the very first open orders the window in TRANSPARENT (alpha 0) at the full
+  1060 width and reveals it only once the first `hopAboutContentHeight` report
+  arrives — sized to the active tab, recentered, faded in — so it is never seen
+  at a guessed/oversized height (house invariant: laid out before shown). A
+  1-second safety net reveals it anyway if no report comes. Later opens reuse
+  the retained, already-correct frame (the active tab is remembered) and just
+  recenter. Heights are integral (a fractional height re-triggered a resize).
 
 ## Versioning (approved 2026-07-13)
 
