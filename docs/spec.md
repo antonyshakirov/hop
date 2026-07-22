@@ -1128,11 +1128,16 @@ Reworked 2026-07-15 (Anton): the old "(used+swap)/RAM %" threshold read
 as if swap were on top of the shown figure and lied about pressure. Now:
 - The row shows RAM used ("18.0 / 24.0 GB") with swap alongside when
   > 50 MB ("swap 4.9 GB") — the figures no longer include each other.
-- "Used" matches Activity Monitor's Memory Used: anonymous pages minus
-  purgeable (App Memory) + wired + compressed. Not the active queue —
-  active_count loses app memory parked on the inactive queue (gigabytes
-  after days of uptime) and wrongly counts the active file cache
-  (fixed 2026-07-18, was ~2 GB under the system's figure).
+- "Used" matches Activity Monitor's Memory Used, computed the way its bar is
+  built: Physical Memory − Cached Files − free, i.e.
+  `hw.memsize − (free + speculative + file-backed + purgeable) × page`
+  (`HopCore.MemoryUsage.usedBytes`). This is the additive App Memory + wired +
+  compressed sum PLUS the kernel/hardware-reserved pages `host_statistics64`
+  files in no queue — on Apple Silicon the GPU/firmware carve-out of unified
+  memory (~1 GB). The additive sum dropped that slice and read ~1 GB under
+  Activity Monitor (fixed 2026-07-22); an earlier active_count formula was
+  ~2 GB under (fixed 2026-07-18). Subtraction degrades cleanly where there is
+  no carve-out (reserved ≈ 0), matching the additive sum.
 - The COLOR comes from macOS's own memory-pressure signal
   (kern.memorystatus_vm_pressure_level): 1 normal (green when colorful),
   2 warning → yellow, 4 critical → red. No user threshold: the system's

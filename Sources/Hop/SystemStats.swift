@@ -223,19 +223,26 @@ final class SystemStatsController: ObservableObject {
         }
         guard kr == KERN_SUCCESS else { return (nil, nil) }
 
-        let page = Double(vm_kernel_page_size)
-        // Activity Monitor's "Memory Used" = App Memory + wired + compressed, where
-        // App Memory is ANONYMOUS pages minus purgeable — not the active queue.
-        // active_count under-reports by whatever app memory sits on the inactive
-        // queue (gigabytes after a few days of uptime) and wrongly includes the
-        // active file cache, so the old formula drifted ~2 GB below the system's.
-        let appPages = stats.internal_page_count &- stats.purgeable_count
-        let used = Double(appPages &+ stats.wire_count &+ stats.compressor_page_count) * page
-
         var total: UInt64 = 0
         var size = MemoryLayout<UInt64>.size
         sysctlbyname("hw.memsize", &total, &size, nil, 0)
-        return (used, total > 0 ? Double(total) : nil)
+        guard total > 0 else { return (nil, nil) }
+
+        // Activity Monitor's "Memory Used" = Physical − Cached Files − free.
+        // Computing it by subtraction (rather than App Memory + wired +
+        // compressed) keeps the kernel/hardware-reserved pages host_statistics64
+        // leaves uncategorised — on Apple Silicon the GPU/firmware carve-out,
+        // ~1 GB — inside the figure, the way Activity Monitor does. The additive
+        // sum dropped that slice and ran ~1 GB low. See HopCore.MemoryUsage.
+        let used = MemoryUsage.usedBytes(
+            physicalBytes: total,
+            pageSize: UInt64(vm_kernel_page_size),
+            free: UInt64(stats.free_count),
+            speculative: UInt64(stats.speculative_count),
+            fileBacked: UInt64(stats.external_page_count),
+            purgeable: UInt64(stats.purgeable_count)
+        )
+        return (used, Double(total))
     }
 
     private static func disk() -> (free: Double?, total: Double?) {
