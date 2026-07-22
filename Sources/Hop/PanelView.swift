@@ -4081,6 +4081,13 @@ struct PanelView: View {
                                     .foregroundStyle(Theme.iconHealth)
                                 Text(t(.donateTitle))
                                     .font(Theme.mono(13, weight: .semibold))
+                                    // Slight negative tracking: the semibold mono
+                                    // space reads wide at 13pt, so the word gap in
+                                    // titles like "support hop" looked like more
+                                    // than one space. -0.5pt closes it just enough;
+                                    // too mild to cramp CJK/Thai (checked in both
+                                    // themes across the wide scripts).
+                                    .tracking(-0.5)
                                     .foregroundStyle(Theme.textPrimary)
                             }
                             Text(t(.donateBody))
