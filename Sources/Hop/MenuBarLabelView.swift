@@ -151,36 +151,42 @@ enum MenuBarIcon {
             dotRight -= dotD - 1.5 // 1.5pt overlap
         }
 
-        // bottom-right: time wedges — green (engine) then dark-green (task). Sized
-        // and placed to MIRROR the awake dots above (owner review): the SAME width,
-        // the SAME right anchor and the SAME 1.5pt overlap as the dots, so each
-        // wedge sits directly under its dot column — engine under no-sleep on the
-        // left, task under lid on the right, the pair's width and centres matching
-        // the dot pair's. Bigger and taller than the first cut, but the horizontal
-        // footprint now equals the dots'. A thin dark keyline seam still keeps the
-        // two greens reading as two.
+        // bottom-right: time wedges — green (engine) then dark-green (task). Two
+        // FULLY-VISIBLE wedges side by side with a thin gap, NEVER overlapping: a
+        // partly covered triangle reads as a smaller, different shape (unlike the
+        // dots' circles, which survive a light overlap). The pair is visually
+        // centred under the awake-dot columns above and kept within their footprint
+        // (its right edge on the shared far-right anchor, so it is no wider than the
+        // dot pair). A lone wedge takes the larger single size in that same far-
+        // right column, like a lone dot. engine = LEFT, task = RIGHT, matching the
+        // dot order above.
         let wedges = c.badges.filter { $0.corner == .bottomRight }
-        let wedgeW = dotD                 // == a dot's diameter → identical columns
-        let wedgeH: CGFloat = 5.6         // taller than a dot; only the WIDTH must match
+        let pairMode = wedges.count > 1
+        // pair wedges are narrower (two must fit the dot pair's span without
+        // overlap); a lone wedge is wider/taller. Proportions kept squat, not flat.
+        // The pair's stride (wedgeW + gap) is a whole 5.0pt so BOTH wedges land on
+        // the same sub-pixel phase and rasterise pixel-identically at any backing
+        // scale — otherwise the twin triangles came out a pixel apart in size.
+        let wedgeW: CGFloat = pairMode ? 4.0 : 5.3
+        let wedgeH: CGFloat = pairMode ? 4.5 : 5.6
+        let gap: CGFloat = 1.0
         let botY: CGFloat = 0.4
-        // right-anchored column boxes, identical stride/overlap to the dots above
-        var wedgeBoxes: [NSRect] = []
-        var wedgeRight = w - 0.4
-        for _ in wedges {
-            wedgeBoxes.append(NSRect(x: wedgeRight - wedgeW, y: botY, width: wedgeW, height: wedgeH))
-            wedgeRight -= dotD - 1.5       // 1.5pt overlap, same as the dots
+        var wedgeBoxes: [NSRect]
+        if pairMode {
+            // centre the pair under the dot pair (same overall span as the dots)
+            let dotRight = w - 0.4
+            let dotLeft = dotRight - dotD - (dotD - 1.5)   // leftmost dot's left edge
+            let pairW = wedgeW * 2 + gap
+            let pairLeft = (dotLeft + dotRight) / 2 - pairW / 2
+            wedgeBoxes = [
+                NSRect(x: pairLeft, y: botY, width: wedgeW, height: wedgeH),
+                NSRect(x: pairLeft + wedgeW + gap, y: botY, width: wedgeW, height: wedgeH),
+            ]
+        } else {
+            wedgeBoxes = [NSRect(x: w - 0.4 - wedgeW, y: botY, width: wedgeW, height: wedgeH)]
         }
-        // draw left→right so the RIGHT (task) wedge lands on top: its clean vertical
-        // base is the seam boundary. wedges[0]=engine takes the LEFT column,
-        // wedges.last=task the right (a lone wedge keeps the far-right column, like
-        // a lone dot).
-        for (badge, box) in zip(wedges, wedgeBoxes.reversed()) {
+        for (badge, box) in zip(wedges, wedgeBoxes) {
             drawWedge(badge, box: box, colored: c.colored, glyph: glyph)
-        }
-        // keyline seam laid on top, just left of the right wedge's base, so the
-        // overlapping pair never fuses into one green blob
-        if wedges.count > 1, let rightBox = wedgeBoxes.first {
-            drawWedgeSeam(box: rightBox)
         }
 
         // bottom-left: torrent arrows — always the glyph colour (white on both
@@ -247,19 +253,6 @@ enum MenuBarIcon {
             tri.fill()
         }
         tri.stroke()
-    }
-
-    /// The thin dark keyline drawn just left of a wedge that has a neighbour, so
-    /// an adjacent pair reads as two marks even at 1x where they nearly touch.
-    private static func drawWedgeSeam(box: NSRect) {
-        NSColor.black.withAlphaComponent(0.9).setStroke()
-        let seam = NSBezierPath()
-        // sits in the middle of the tighter gap now that the pair is closer
-        seam.move(to: NSPoint(x: box.minX - 0.25, y: box.minY))
-        seam.line(to: NSPoint(x: box.minX - 0.25, y: box.maxY))
-        seam.lineWidth = stroke
-        seam.lineCapStyle = .round
-        seam.stroke()
     }
 
     /// Attention "!": a rounded stem plus a dot below it, anchored at its top-left.

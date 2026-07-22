@@ -41,11 +41,23 @@ enum Snapshot {
                                     alertSteady: true, torrentDown: true, torrentUp: true)),
             ]
             let rowH: CGFloat = 26
+            // optional version stamp (short commit hash + timestamp) in a bottom
+            // strip, so a saved sheet always says which build produced it. Passed in
+            // via HOP_MENUBAR_LABEL — computed by the caller, since the binary has no
+            // baked-in git hash.
+            let stamp = ProcessInfo.processInfo.environment["HOP_MENUBAR_LABEL"]
+            let stampH: CGFloat = stamp == nil ? 0 : 14
             // two columns: coloured (dark bar) on the left, monochrome on the right
-            let canvas = NSImage(size: NSSize(width: 340, height: CGFloat(variants.count) * rowH))
+            let canvas = NSImage(size: NSSize(width: 340, height: CGFloat(variants.count) * rowH + stampH))
             canvas.lockFocus()
             NSColor(white: 0.1, alpha: 1).setFill()
             NSRect(origin: .zero, size: canvas.size).fill()
+            if let stamp {
+                NSAttributedString(string: stamp, attributes: [
+                    .font: NSFont.monospacedSystemFont(ofSize: 8, weight: .regular),
+                    .foregroundColor: NSColor.white.withAlphaComponent(0.4),
+                ]).draw(at: NSPoint(x: 8, y: 3))
+            }
             for (index, v) in variants.enumerated() {
                 let y = canvas.size.height - CGFloat(index + 1) * rowH + 4
                 var colored = v.1; colored.colored = true

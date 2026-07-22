@@ -94,9 +94,13 @@ identically on every user's bar.
   running timer shows digits and no green wedge, while a tracking task still
   shows its dark-green wedge in the corner. With the countdown OFF both wedges
   can share the corner: green (engine) then dark-green (task), each a squat,
-  seated, rounded triangle, separated by a small gap plus a thin dark keyline
-  seam so a 1x pair still reads as two. The impossible "timer + stopwatch" combo
-  cannot be expressed (the engine is one value), so a triple never occurs.
+  seated, rounded triangle. The pair sits side by side with a thin gap and NEVER
+  overlaps — a partly covered triangle would read as a smaller, different shape
+  (unlike the awake dots' circles, which tolerate overlap) — and is centred under
+  the awake-dot columns, within their footprint, so the two wedges stay equal and
+  fully visible. A lone wedge is drawn larger, in the far-right column like a lone
+  dot. The impossible "timer + stopwatch" combo cannot be expressed (the engine is
+  one value), so a triple never occurs.
 - **Top-right — awake dots.** Yellow (systemYellow) = no-sleep active; orange
   (systemOrange) = lid mode applied. They are independent, not a priority — BOTH
   dots can show, a dense row with a light overlap (in 1x they melt into one
