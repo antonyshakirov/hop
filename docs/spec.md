@@ -726,7 +726,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `tracker.json`/`todos.json` (belt-and-suspenders over the bundle-less `.cli`
   sandbox), so `--tasks` stages its own deterministic content — three tasks (one
   running), three to-dos (one done) — localized per screenshot locale in
-  `Snapshot.demoTasks` (a sanctioned per-locale string site, English fallback).
+  `Snapshot.demoTasks` (a sanctioned per-locale string site covering all 18
+  locales — English via the `default` case).
 
 ### To-dos
 
