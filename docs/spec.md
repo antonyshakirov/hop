@@ -119,16 +119,10 @@ identically on every user's bar.
   ring; engine = filled wedge, task = outline wedge (same outer size as filled);
   the "!" and arrows stay their single shape. Per-badge on/off switches were
   rejected — a badge always shows while its state is active; only colour is a
-  setting.
-- **Legend** (info window, general tab, below the settings/quit/about rows):
-  each basic single state as the FULL bar icon (star + that one badge, drawn by
-  the real renderer via `MenuBarIcon.legendImage`, in colour) with its meaning
-  beside it, at the menu-row rhythm — engine wedge, task wedge, no-sleep dot,
-  lid dot, "!", ↓, ↑, and one wrapping note about the mono fill/outline
-  distinction. Only single states are listed; combinations are read mark by
-  mark. The no-sleep line uses the module's OWN name pulled from L10n at runtime
-  (`String(format:, t(.awakeOff))`), phrased as a STATE ("<awake module> on"),
-  not an effect ("keeps the Mac awake"). All strings localized x18.
+  setting. There is NO on-screen symbol legend — a badge-meaning legend once
+  lived in the info window's general tab but was removed (the icon is meant to be
+  self-evident; the `colored indicators` toggle is the only badge-related
+  surface there).
 - **Retired indicators** (absorbed by the above): the yellow moon in the title,
   the hand-drawn tracking mini-stopwatch badge, the stopwatch title glyph, and
   the purple task-time idea (dark-green won). The finish **bell** is unchanged

@@ -97,8 +97,8 @@ enum MenuBarIcon {
     }
 
     /// Render the star (or the finish bell) plus every badge in `composition`.
-    /// `dark` overrides the auto-detected bar lightness (used by the legend and
-    /// snapshots); nil = read the live appearance.
+    /// `dark` overrides the auto-detected bar lightness (used by snapshots);
+    /// nil = read the live appearance.
     static func compose(_ composition: IconComposition, base: Base = .dial, dark: Bool? = nil) -> NSImage {
         let image = NSImage(size: canvasSize)
         image.lockFocus()
@@ -321,14 +321,5 @@ enum MenuBarIcon {
             in: NSRect(origin: origin, size: drawSize),
             from: .zero, operation: .sourceOver, fraction: fraction
         )
-    }
-
-    // MARK: - Legend (info window)
-
-    /// The full menu-bar icon — star plus ONE badge in its corner — as it looks
-    /// in the bar, for the info-window symbol legend. Real drawing code, not an
-    /// emoji or an isolated dot. `dark` matches the panel theme.
-    static func legendImage(_ composition: IconComposition, dark: Bool) -> NSImage {
-        compose(composition, base: .dial, dark: dark)
     }
 }
