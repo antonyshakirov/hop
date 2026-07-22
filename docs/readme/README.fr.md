@@ -4,10 +4,11 @@
 
 # Hop
 
-**Un petit compagnon pour la barre de menus de macOS : minuteur, anti-veille,
-moniteur système, historique du presse-papiers, convertisseur de fichiers,
-gestionnaire de fenêtres et client torrent léger. Un clic — et tout ce qu'il
-vous faut est là.**
+**Un petit compagnon pour la barre de menus de macOS : minuteur, suivi du
+temps, liste de tâches, anti-veille, moniteur système, historique du
+presse-papiers, convertisseur de fichiers, gestionnaire de fenêtres et client
+torrent léger — répartis sur jusqu'à quatre onglets de l'icône. Un clic — et
+tout ce qu'il vous faut est là.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -21,12 +22,13 @@ vous faut est là.**
 
 </div>
 
-Hop vit dans la barre de menus de votre Mac et remplace une demi-douzaine de
-petits utilitaires : un minuteur façon Pomodoro, un bloqueur de veille façon
-caffeinate, un moniteur système, un gestionnaire de presse-papiers, un
-convertisseur de fichiers par glisser-déposer, un outil d'ancrage de
-fenêtres et un client torrent léger — une seule app native et légère au lieu
-de sept.
+Hop vit dans la barre de menus de votre Mac et remplace une poignée de petits
+utilitaires : un minuteur façon Pomodoro, un suivi du temps avec liste de
+tâches, un bloqueur de veille façon caffeinate, un moniteur système, un
+gestionnaire de presse-papiers, un convertisseur de fichiers par
+glisser-déposer, un outil d'ancrage de fenêtres et un client torrent léger —
+une seule app native et légère, dont les modules se répartissent sur jusqu'à
+quatre onglets de l'icône.
 
 ## Téléchargement
 
@@ -39,6 +41,13 @@ Premier lancement : clic droit sur `Hop.app` → **Ouvrir** → confirmez
 
 ## Fonctionnalités
 
+### Espaces
+
+L'icône accueille jusqu'à quatre onglets, et vous glissez chaque module dans
+l'onglet de votre choix : le minuteur sur l'un, le moniteur sur l'autre, ce
+que vous ouvrez rarement à l'écart. Une étagère « inactifs » conserve ce que
+vous mettez de côté, sans le supprimer.
+
 ### Minuteur et cycles
 
 Un compte à rebours à matrice de points que vous réglez d'un seul geste :
@@ -46,7 +55,16 @@ faites glisser les chiffres, tapez la durée comme sur un micro-ondes, ou
 choisissez un préréglage. Des cycles travail-pause (Pomodoro 25/5, 52/17,
 90/15 — ou les vôtres), un chronomètre, une mise de côté qui garde un
 minuteur en cours pendant que vous en essayez un autre, et une alerte de fin
-qui peut aussi mettre vos médias en pause.
+qui peut aussi mettre vos médias en pause. À la fin du compte à rebours, un
+seul son retentit et les chiffres clignotent jusqu'à la réinitialisation.
+
+### Suivi du temps et tâches
+
+Suivez le temps sur une liste de tâches à plat : chaque ligne montre le temps
+du jour et un total cumulé, et vous pouvez corriger le chiffre du jour à la
+main. Si l'une tourne trop longtemps, un bandeau vous le rappelle au bout de
+huit heures. À côté, une liste de choses à faire distincte, où le terminé
+descend en bas.
 
 ### Anti-veille
 
@@ -65,9 +83,11 @@ macOS et ne se rafraîchissent que lorsque l'onglet est ouvert.
 
 ### Historique du presse-papiers
 
-Les 100 derniers éléments copiés (jusqu'à 300) — texte et images — un clic pour les recopier ou
-les coller directement dans l'app précédente. Les mots de passe et autres
-saisies masquées ne sont jamais enregistrés.
+Les 100 derniers éléments copiés (jusqu'à 300) — texte, images et fichiers —
+un clic pour les recopier ou les coller directement dans l'app précédente.
+Les fichiers copiés sont retenus par leur nom (plusieurs à la fois
+apparaissent en « nom +N »), et le collage ramène le fichier lui-même. Les
+mots de passe et autres saisies masquées ne sont jamais enregistrés.
 
 ### Convertisseur de fichiers
 
@@ -98,7 +118,9 @@ défaut pour les fichiers .torrent et les liens magnet.
 
 ### Et le reste
 
-Test de débit intégré (networkQuality d'Apple), thèmes sombre et clair avec
+De petits indicateurs d'état sur l'icône de la barre de menus — temps,
+anti-veille, alertes et activité torrent, en couleur ou monochromes —, un
+test de débit intégré (networkQuality d'Apple), thèmes sombre et clair avec
 une texture grain de film, raccourcis globaux, lancement à l'ouverture de
 session, et un mode sans échec qui récupère l'app après une boucle de crash.
 
@@ -130,7 +152,8 @@ Hop est entièrement gratuit : pas d'essai, pas de version pro, pas d'achats
 intégrés. Pas de publicité, pas de collecte de données, pas de comptes — il
 n'y a rien à monétiser ni rien à vendre. C'est un projet personnel : j'ai créé
 Hop pour moi, je l'utilise chaque jour et je le partage, tout simplement. S'il
-vous est utile, faites-le passer.
+vous est utile, faites-le passer. Et si vous voulez contribuer, il est
+désormais possible de soutenir Hop — un simple cadeau, sans contrepartie.
 
 ## Compiler depuis les sources
 

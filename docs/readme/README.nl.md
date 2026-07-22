@@ -4,10 +4,11 @@
 
 # Hop
 
-**Een piepklein menubalk-hulpje voor macOS: timer, slaapblokkering,
-systeemmonitor, klembordgeschiedenis, bestandsconverter, vensterbeheer en
-een lichte torrentclient. Eén klik — en alles wat je nodig hebt staat meteen
-klaar.**
+**Een piepklein menubalk-hulpje voor macOS: timer, tijdregistratie,
+takenlijst, slaapblokkering, systeemmonitor, klembordgeschiedenis,
+bestandsconverter, vensterbeheer en een lichte torrentclient — verdeeld over
+tot vier tabbladen op het icoon. Eén klik — en alles wat je nodig hebt staat
+meteen klaar.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -21,11 +22,12 @@ klaar.**
 
 </div>
 
-Hop woont in de menubalk van je Mac en vervangt een half dozijn kleine
-hulpprogramma's: een timer in Pomodoro-stijl, een slaapblokkering à la
-caffeinate, een systeemmonitor, een klembordbeheerder, een
-drag-and-drop-bestandsconverter, een venster-snapper en een lichte
-torrentclient — één lichtgewicht native app in plaats van zeven.
+Hop woont in de menubalk van je Mac en vervangt een handvol kleine
+hulpprogramma's: een timer in Pomodoro-stijl, een tijdregistratie met
+takenlijst, een slaapblokkering à la caffeinate, een systeemmonitor, een
+klembordbeheerder, een drag-and-drop-bestandsconverter, een venster-snapper
+en een lichte torrentclient — één lichtgewicht native app, met de modules
+die je gebruikt verdeeld over tot vier tabbladen op het icoon.
 
 ## Downloaden
 
@@ -38,13 +40,28 @@ bevestigen (de app is nog niet genotariseerd). Vereist macOS 14 of nieuwer.
 
 ## Functies
 
+### Ruimtes
+
+Het icoon houdt tot vier tabbladen, en je sleept elke module naar het
+tabblad dat je wilt: de timer op de een, de monitor op de ander, wat je
+zelden opent aan de kant. Een plank «inactief» bewaart wat je opzij zet,
+zonder het te verwijderen.
+
 ### Timer & cycli
 
 Een dot-matrix-countdown die je in één gebaar instelt: sleep de cijfers, tik
 de tijd in zoals op een magnetron, of kies een preset. Werk-rustcycli (25/5
 Pomodoro, 52/17, 90/15 — of je eigen), een stopwatch, een stash die een
 lopende timer bewaart terwijl je een andere probeert, en een eindmelding die
-desgewenst ook je media pauzeert.
+desgewenst ook je media pauzeert. Als de countdown afloopt, klinkt er één
+geluid en knipperen de cijfers tot je reset.
+
+### Tijdregistratie & taken
+
+Houd tijd bij op een platte takenlijst: elke rij toont de tijd van vandaag en
+een doorlopend totaal, en het cijfer van vandaag pas je met de hand aan. Loopt
+er een te lang, dan herinnert een banner je na acht uur. Ernaast staat een
+aparte to-do-lijst, waarin afgevinkte items naar onderen zakken.
 
 ### Geen slaap
 
@@ -62,9 +79,11 @@ open is.
 
 ### Klembordgeschiedenis
 
-De laatste 100 (tot 300) dingen die je kopieerde — tekst en afbeeldingen — met één klik terug te
-kopiëren of direct te plakken in de vorige app. Wachtwoorden en andere
-verborgen invoer worden nooit opgeslagen.
+De laatste 100 (tot 300) dingen die je kopieerde — tekst, afbeeldingen en
+bestanden — met één klik terug te kopiëren of direct te plakken in de vorige
+app. Gekopieerde bestanden worden op naam onthouden (meerdere tegelijk
+verschijnen als «naam +N»), en bij het plakken komt het bestand zelf terug.
+Wachtwoorden en andere verborgen invoer worden nooit opgeslagen.
 
 ### Bestandsconverter
 
@@ -95,7 +114,9 @@ poort met Hop praat. Hop kan ook de standaardapp worden voor
 
 ### En de rest
 
-Ingebouwde snelheidstest (Apples networkQuality), donkere en lichte thema's
+Kleine statusindicatoren op het menubalk-icoon — tijd, slaapblokkering,
+waarschuwingen en torrentactiviteit, in kleur of monochroom —, een
+ingebouwde snelheidstest (Apples networkQuality), donkere en lichte thema's
 met een filmkorrel-textuur, globale sneltoetsen, starten bij inloggen en een
 veilige modus die de app uit een crashlus haalt.
 
@@ -126,7 +147,8 @@ Hop is volledig gratis: geen proefperiode, geen pro-versie, geen
 in-app-aankopen. Geen advertenties, geen dataverzameling, geen accounts — er
 valt niets te verdienen en niets te verkopen. Het is een persoonlijk project:
 ik heb Hop voor mezelf gemaakt, gebruik het elke dag en deel het gewoon. Is het
-nuttig, geef het dan door.
+nuttig, geef het dan door. En wil je bijdragen, dan is er nu een manier om Hop
+te steunen — puur een cadeau, zonder dat er iets achter zit.
 
 ## Bouwen vanaf de broncode
 

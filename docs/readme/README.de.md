@@ -4,9 +4,11 @@
 
 # Hop
 
-**Ein winziger Menüleisten-Begleiter für macOS: Timer, Wachhalten, Systemmonitor,
-Zwischenablage-Verlauf, Dateikonverter, Fenstermanager und ein leichter
-Torrent-Client. Ein Klick — und alles, was du brauchst, ist sofort zur Hand.**
+**Ein winziger Menüleisten-Begleiter für macOS: Timer, Zeiterfassung,
+Aufgabenliste, Wachhalten, Systemmonitor, Zwischenablage-Verlauf,
+Dateikonverter, Fenstermanager und ein leichter Torrent-Client — verteilt auf
+bis zu vier Tabs am Symbol. Ein Klick — und alles, was du brauchst, ist sofort
+zur Hand.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -20,11 +22,12 @@ Torrent-Client. Ein Klick — und alles, was du brauchst, ist sofort zur Hand.**
 
 </div>
 
-Hop lebt in der Menüleiste deines Mac und ersetzt ein halbes Dutzend kleiner
-Utilities: einen Timer im Pomodoro-Stil, einen Schlafblocker à la caffeinate,
-einen Systemmonitor, einen Zwischenablage-Manager, einen
-Drag-and-drop-Dateikonverter, einen Fenster-Snapper und einen leichten
-Torrent-Client — eine leichtgewichtige native App statt sieben.
+Hop lebt in der Menüleiste deines Mac und ersetzt eine Handvoll kleiner
+Utilities: einen Timer im Pomodoro-Stil, eine Zeiterfassung mit Aufgabenliste,
+einen Schlafblocker à la caffeinate, einen Systemmonitor, einen
+Zwischenablage-Manager, einen Drag-and-drop-Dateikonverter, einen
+Fenster-Snapper und einen leichten Torrent-Client — eine leichtgewichtige
+native App, deren Module du auf bis zu vier Tabs am Symbol verteilst.
 
 ## Download
 
@@ -37,6 +40,13 @@ Erster Start: Rechtsklick auf `Hop.app` → **Öffnen** → bestätigen
 
 ## Funktionen
 
+### Bereiche
+
+Das Symbol fasst bis zu vier Tabs, und du ziehst jedes Modul in den Tab
+deiner Wahl — den Timer auf den einen, den Monitor auf den anderen, selten
+Genutztes zur Seite. Ein Regal „inaktiv“ bewahrt Beiseitegelegtes auf, ohne
+es zu löschen.
+
 ### Timer & Zyklen
 
 Ein Punktmatrix-Countdown, den du mit einer einzigen Geste stellst: Ziffern
@@ -44,7 +54,15 @@ ziehen, die Zeit wie an einer Mikrowelle eintippen oder ein Preset wählen.
 Arbeits-Pausen-Zyklen (25/5 Pomodoro, 52/17, 90/15 — oder deine eigenen), eine
 Stoppuhr, ein Stash, der einen laufenden Timer aufbewahrt, während du einen
 anderen ausprobierst, und ein Endalarm, der auf Wunsch auch deine Medien
-pausiert.
+pausiert. Läuft der Countdown ab, ertönt ein einzelner Ton und die Ziffern
+pulsieren, bis du zurücksetzt.
+
+### Zeiterfassung & To-dos
+
+Erfasse Zeit über eine flache Aufgabenliste — jede Zeile zeigt die heutige
+Zeit und eine laufende Gesamtsumme, und den heutigen Wert kannst du von Hand
+korrigieren. Läuft eine zu lange, erinnert dich nach acht Stunden ein Banner.
+Daneben liegt eine eigene To-do-Liste, in der Erledigtes nach unten wandert.
 
 ### Kein Schlaf
 
@@ -62,9 +80,11 @@ geöffnet ist.
 
 ### Zwischenablage-Verlauf
 
-Die letzten 100 (bis zu 300) kopierten Einträge — Text und Bilder — ein Klick zum erneuten
-Kopieren oder zum direkten Einfügen in die vorherige App. Passwörter und
-andere verdeckte Eingaben werden niemals gespeichert.
+Die letzten 100 (bis zu 300) kopierten Einträge — Text, Bilder und Dateien —
+ein Klick zum erneuten Kopieren oder zum direkten Einfügen in die vorherige
+App. Kopierte Dateien werden mit Namen gemerkt (mehrere zeigen sich als
+„Name +N“), und beim Einfügen kommt die eigentliche Datei zurück. Passwörter
+und andere verdeckte Eingaben werden niemals gespeichert.
 
 ### Dateikonverter
 
@@ -95,9 +115,11 @@ einen lokalen Port mit Hop spricht. Hop kann außerdem zur Standard-App für
 
 ### Und der Rest
 
-Eingebauter Speedtest (Apples networkQuality), dunkles und helles Design mit
-Filmkorn-Textur, globale Hotkeys, Start beim Anmelden und ein abgesicherter
-Modus, der die App aus einer Absturzschleife rettet.
+Kleine Statusindikatoren am Menüleisten-Symbol — Zeit, Wachhalten, Warnungen
+und Torrent-Aktivität, farbig oder einfarbig —, ein eingebauter Speedtest
+(Apples networkQuality), dunkles und helles Design mit Filmkorn-Textur,
+globale Hotkeys, Start beim Anmelden und ein abgesicherter Modus, der die App
+aus einer Absturzschleife rettet.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/system.png" width="280" alt="Hop-Systemmonitor — Diagramme für CPU, GPU, Speicher, Netzwerk, Festplatte, Batterie">
@@ -126,7 +148,9 @@ Hop ist völlig kostenlos: keine Testphase, keine Pro-Version, keine
 In-App-Käufe. Keine Werbung, keine Datenerfassung, keine Konten — es gibt
 nichts zu monetarisieren und nichts zu verkaufen. Es ist ein persönliches
 Projekt: Ich habe Hop für mich selbst gebaut, nutze es täglich und teile es
-einfach. Wenn es nützlich ist, gib es weiter.
+einfach. Wenn es nützlich ist, gib es weiter. Und wenn du etwas beisteuern
+möchtest, gibt es jetzt eine Möglichkeit, Hop zu unterstützen — einfach ein
+Geschenk, ohne dass etwas dahinter verborgen ist.
 
 ## Aus dem Quellcode bauen
 

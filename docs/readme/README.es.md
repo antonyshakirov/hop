@@ -4,10 +4,11 @@
 
 # Hop
 
-**Un pequeño compañero de barra de menús para macOS: temporizador, modo
-antisueño, monitor del sistema, historial del portapapeles, conversor de
-archivos, gestor de ventanas y un cliente de torrents ligero. Un clic — y
-todo lo que necesitas está ahí.**
+**Un pequeño compañero de barra de menús para macOS: temporizador,
+seguimiento de tiempo, tareas pendientes, modo antisueño, monitor del
+sistema, historial del portapapeles, conversor de archivos, gestor de
+ventanas y un cliente de torrents ligero — repartidos en hasta cuatro
+pestañas del icono. Un clic — y todo lo que necesitas está ahí.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -21,12 +22,13 @@ todo lo que necesitas está ahí.**
 
 </div>
 
-Hop vive en la barra de menús de tu Mac y sustituye a media docena de
-pequeñas utilidades: un temporizador estilo Pomodoro, un bloqueador de
-reposo al estilo de caffeinate, un monitor del sistema, un gestor del
-portapapeles, un conversor de archivos por arrastrar y soltar, un
-organizador de ventanas y un cliente de torrents ligero — una sola app
-nativa y ligera en lugar de siete.
+Hop vive en la barra de menús de tu Mac y sustituye a un puñado de pequeñas
+utilidades: un temporizador estilo Pomodoro, un seguimiento de tiempo con
+lista de tareas, un bloqueador de reposo al estilo de caffeinate, un monitor
+del sistema, un gestor del portapapeles, un conversor de archivos por
+arrastrar y soltar, un organizador de ventanas y un cliente de torrents
+ligero — una sola app nativa y ligera, con los módulos que usas repartidos en
+hasta cuatro pestañas del icono.
 
 ## Descarga
 
@@ -39,13 +41,28 @@ Primer arranque: clic derecho en `Hop.app` → **Abrir** → confirmar
 
 ## Funciones
 
+### Espacios
+
+El icono admite hasta cuatro pestañas, y arrastras cada módulo a la pestaña
+que quieras: el temporizador en una, el monitor en otra, lo que abres rara
+vez a un lado. Un estante «inactivos» guarda lo que apartas sin borrarlo.
+
 ### Temporizador y ciclos
 
 Una cuenta atrás de matriz de puntos que ajustas con un solo gesto: arrastra
 los dígitos, teclea la hora como en un microondas o elige un preajuste.
 Ciclos de trabajo y descanso (25/5 Pomodoro, 52/17, 90/15 — o los tuyos),
 un cronómetro, un almacén que conserva un temporizador en marcha mientras
-pruebas otro, y una alerta de final que además puede pausar tus medios.
+pruebas otro, y una alerta de final que además puede pausar tus medios. Al
+terminar la cuenta atrás suena una sola vez y los dígitos parpadean hasta que
+lo reinicias.
+
+### Seguimiento de tiempo y tareas
+
+Lleva el tiempo sobre una lista plana de tareas: cada fila muestra el tiempo
+de hoy y un total acumulado, y puedes corregir a mano la cifra de hoy. Si una
+corre demasiado, a las ocho horas un aviso te lo recuerda. Al lado hay una
+lista de pendientes aparte, donde lo terminado baja al fondo.
 
 ### Sin reposo
 
@@ -64,9 +81,11 @@ mientras la pestaña está abierta.
 
 ### Historial del portapapeles
 
-Las últimas 100 cosas que copiaste (hasta 300) — texto e imágenes — con un clic para volver a
-copiarlas o pegarlas directamente en la app anterior. Las contraseñas y
-otras entradas ocultas nunca se guardan.
+Las últimas 100 cosas que copiaste (hasta 300) — texto, imágenes y archivos —
+con un clic para volver a copiarlas o pegarlas directamente en la app
+anterior. Los archivos copiados se guardan por su nombre (varios a la vez
+aparecen como «nombre +N»), y al pegar vuelve el archivo en sí. Las
+contraseñas y otras entradas ocultas nunca se guardan.
 
 ### Conversor de archivos
 
@@ -97,9 +116,11 @@ defecto para archivos .torrent y enlaces magnet.
 
 ### Y todo lo demás
 
-Test de velocidad integrado (networkQuality de Apple), temas oscuro y claro
-con textura de grano de película, atajos globales, arranque al iniciar
-sesión y un modo seguro que recupera la app de un bucle de fallos.
+Pequeños indicadores de estado en el icono de la barra de menús — tiempo,
+antisueño, avisos y actividad de torrents, en color o monocromos —, un test
+de velocidad integrado (networkQuality de Apple), temas oscuro y claro con
+textura de grano de película, atajos globales, arranque al iniciar sesión y
+un modo seguro que recupera la app de un bucle de fallos.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/system.png" width="280" alt="Monitor del sistema de Hop — gráficos de CPU, GPU, memoria, red, disco y batería">
@@ -128,7 +149,9 @@ Sitio web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/produc
 Hop es completamente gratis: sin prueba, sin versión pro, sin compras dentro
 de la app. Sin anuncios, sin recopilación de datos, sin cuentas: no hay nada
 que monetizar ni nada que vender. Es un proyecto personal: hice Hop para mí,
-lo uso cada día y simplemente lo comparto. Si te resulta útil, pásalo.
+lo uso cada día y simplemente lo comparto. Si te resulta útil, pásalo. Y si
+quieres aportar algo, ahora hay una forma de apoyar Hop — puramente un
+regalo, sin nada a cambio.
 
 ## Compilar desde el código fuente
 

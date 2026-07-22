@@ -4,10 +4,11 @@
 
 # Hop
 
-**Um pequeno companheiro de barra de menus para macOS: timer, modo
-antissuspensão, monitor do sistema, histórico da área de transferência,
-conversor de arquivos, gerenciador de janelas e um cliente de torrents leve.
-Um clique — e tudo o que você precisa está ali.**
+**Um pequeno companheiro de barra de menus para macOS: timer, controle de
+tempo, lista de tarefas, modo antissuspensão, monitor do sistema, histórico
+da área de transferência, conversor de arquivos, gerenciador de janelas e um
+cliente de torrents leve — distribuídos em até quatro abas no ícone. Um
+clique — e tudo o que você precisa está ali.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -21,11 +22,13 @@ Um clique — e tudo o que você precisa está ali.**
 
 </div>
 
-O Hop mora na barra de menus do seu Mac e substitui meia dúzia de pequenos
-utilitários: um timer estilo Pomodoro, um bloqueador de suspensão à la
-caffeinate, um monitor do sistema, um gerenciador da área de transferência,
-um conversor de arquivos por arrastar e soltar, um organizador de janelas e
-um cliente de torrents leve — um único app nativo e leve no lugar de sete.
+O Hop mora na barra de menus do seu Mac e substitui um punhado de pequenos
+utilitários: um timer estilo Pomodoro, um controle de tempo com lista de
+tarefas, um bloqueador de suspensão à la caffeinate, um monitor do sistema,
+um gerenciador da área de transferência, um conversor de arquivos por
+arrastar e soltar, um organizador de janelas e um cliente de torrents leve —
+um único app nativo e leve, com os módulos que você usa distribuídos em até
+quatro abas no ícone.
 
 ## Download
 
@@ -38,6 +41,12 @@ confirme (o app ainda não é notarizado). Requer macOS 14 ou mais recente.
 
 ## Recursos
 
+### Espaços
+
+O ícone comporta até quatro abas, e você arrasta cada módulo para a aba que
+quiser: o timer em uma, o monitor em outra, o que abre raramente para o lado.
+Uma prateleira «inativos» guarda o que você põe de lado, sem apagar.
+
 ### Timer e ciclos
 
 Uma contagem regressiva em matriz de pontos que você ajusta com um único
@@ -45,7 +54,15 @@ gesto: arraste os dígitos, digite o tempo como em um micro-ondas ou escolha
 uma predefinição. Ciclos de trabalho e descanso (25/5 Pomodoro, 52/17,
 90/15 — ou os seus próprios), um cronômetro, um cofre que guarda um timer
 em andamento enquanto você experimenta outro, e um alerta de término que
-também pode pausar suas mídias.
+também pode pausar suas mídias. Quando a contagem termina, toca um som único
+e os dígitos piscam até você zerar.
+
+### Controle de tempo e tarefas
+
+Acompanhe o tempo por uma lista plana de tarefas: cada linha mostra o tempo
+de hoje e um total acumulado, e você pode corrigir o valor de hoje à mão. Se
+uma correr demais, um aviso lembra você após oito horas. Ao lado há uma lista
+de tarefas separada, em que o que foi concluído desce para o fim.
 
 ### Sem suspensão
 
@@ -62,9 +79,11 @@ vêm direto do macOS e só são atualizadas enquanto a aba está aberta.
 
 ### Histórico da área de transferência
 
-As últimas 100 coisas que você copiou (até 300) — texto e imagens — com um clique para copiar
-de novo ou colar direto no app anterior. Senhas e outras entradas ocultas
-nunca são armazenadas.
+As últimas 100 coisas que você copiou (até 300) — texto, imagens e arquivos —
+com um clique para copiar de novo ou colar direto no app anterior. Arquivos
+copiados são guardados pelo nome (vários de uma vez aparecem como
+«nome +N»), e ao colar o arquivo em si volta. Senhas e outras entradas
+ocultas nunca são armazenadas.
 
 ### Conversor de arquivos
 
@@ -94,7 +113,9 @@ Hop também pode virar o app padrão para arquivos .torrent e links magnet.
 
 ### E o resto
 
-Teste de velocidade integrado (networkQuality da Apple), temas escuro e
+Pequenos indicadores de status no ícone da barra de menus — tempo,
+antissuspensão, avisos e atividade de torrents, coloridos ou monocromáticos —,
+um teste de velocidade integrado (networkQuality da Apple), temas escuro e
 claro com textura de grão de filme, atalhos globais, abertura no login e um
 modo seguro que recupera o app de um loop de travamentos.
 
@@ -125,7 +146,8 @@ Site: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/ho
 O Hop é totalmente grátis: sem teste, sem versão pro, sem compras no app. Sem
 anúncios, sem coleta de dados, sem contas — não há nada para monetizar nem nada
 para vender. É um projeto pessoal: criei o Hop para mim, uso todos os dias e
-simplesmente compartilho. Se for útil, passe adiante.
+simplesmente compartilho. Se for útil, passe adiante. E se quiser contribuir,
+agora há uma forma de apoiar o Hop — puramente um presente, sem nada em troca.
 
 ## Compilando a partir do código-fonte
 

@@ -4,9 +4,10 @@
 
 # Hop
 
-**Pendamping mungil di menu bar macOS: timer, anti-tidur, monitor sistem,
-riwayat clipboard, konverter file, pengelola jendela, dan klien torrent
-ringan. Sekali klik — semua yang kamu butuhkan langsung ada.**
+**Pendamping mungil di menu bar macOS: timer, pelacak waktu, daftar tugas,
+anti-tidur, monitor sistem, riwayat clipboard, konverter file, pengelola
+jendela, dan klien torrent ringan — tersebar di hingga empat tab pada ikon.
+Sekali klik — semua yang kamu butuhkan langsung ada.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -20,10 +21,12 @@ ringan. Sekali klik — semua yang kamu butuhkan langsung ada.**
 
 </div>
 
-Hop tinggal di menu bar Mac kamu dan menggantikan setengah lusin utilitas
-kecil: timer ala Pomodoro, pencegah tidur ala caffeinate, monitor sistem,
-pengelola clipboard, konverter file drag-and-drop, penata jendela, dan
-klien torrent ringan — satu aplikasi native yang ringan, bukan tujuh.
+Hop tinggal di menu bar Mac kamu dan menggantikan segenggam utilitas
+kecil: timer ala Pomodoro, pelacak waktu dengan daftar tugas, pencegah
+tidur ala caffeinate, monitor sistem, pengelola clipboard, konverter file
+drag-and-drop, penata jendela, dan klien torrent ringan — satu aplikasi
+native yang ringan, dengan modul yang kamu pakai tersebar di hingga empat
+tab pada ikon.
 
 ## Unduh
 
@@ -36,6 +39,12 @@ Peluncuran pertama: klik kanan `Hop.app` → **Open** → konfirmasi
 
 ## Fitur
 
+### Ruang
+
+Ikon menampung hingga empat tab, dan kamu menyeret tiap modul ke tab yang
+kamu mau: timer di satu, monitor di lainnya, yang jarang dibuka ke samping.
+Rak «nonaktif» menyimpan apa yang kamu sisihkan tanpa menghapusnya.
+
 ### Timer & siklus
 
 Hitung mundur dot-matrix yang kamu atur dengan satu gerakan: seret
@@ -43,6 +52,15 @@ angkanya, ketik waktunya seperti di microwave, atau pilih preset. Siklus
 kerja-istirahat (Pomodoro 25/5, 52/17, 90/15 — atau buatanmu sendiri),
 stopwatch, kantong simpanan yang menjaga timer tetap berjalan saat kamu
 mencoba timer lain, dan notifikasi selesai yang juga bisa menjeda media.
+Saat hitung mundur selesai, terdengar satu bunyi dan angkanya berkedip
+sampai kamu mereset.
+
+### Pelacak waktu & tugas
+
+Catat waktu di daftar tugas yang datar: tiap baris menampilkan waktu hari
+ini dan total berjalan, dan angka hari ini bisa kamu perbaiki manual. Kalau
+satu berjalan terlalu lama, sebuah spanduk mengingatkan setelah delapan jam.
+Di sebelahnya ada daftar tugas terpisah, tempat yang selesai turun ke bawah.
 
 ### Anti-tidur
 
@@ -60,9 +78,11 @@ datang langsung dari macOS dan hanya diperbarui saat tabnya terbuka.
 
 ### Riwayat clipboard
 
-100 hal terakhir yang kamu salin (hingga 300) — teks dan gambar — sekali klik untuk menyalin
-kembali atau menempel langsung ke aplikasi sebelumnya. Kata sandi dan input
-tersembunyi lainnya tidak pernah disimpan.
+100 hal terakhir yang kamu salin (hingga 300) — teks, gambar, dan file —
+sekali klik untuk menyalin kembali atau menempel langsung ke aplikasi
+sebelumnya. File yang disalin diingat berdasarkan namanya (beberapa sekaligus
+tampil sebagai «nama +N»), dan menempel akan mengembalikan file itu sendiri.
+Kata sandi dan input tersembunyi lainnya tidak pernah disimpan.
 
 ### Konverter file
 
@@ -93,9 +113,11 @@ Hop lewat port lokal. Hop juga bisa menjadi aplikasi bawaan untuk file
 
 ### Dan selebihnya
 
-Tes kecepatan bawaan (networkQuality dari Apple), tema gelap dan terang
-dengan tekstur film-grain, pintasan global, buka saat login, dan mode aman
-yang memulihkan aplikasi dari crash loop.
+Indikator status kecil pada ikon menu bar — waktu, anti-tidur, peringatan,
+dan aktivitas torrent, berwarna atau monokrom —, tes kecepatan bawaan
+(networkQuality dari Apple), tema gelap dan terang dengan tekstur film-grain,
+pintasan global, buka saat login, dan mode aman yang memulihkan aplikasi
+dari crash loop.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor sistem Hop — grafik CPU, GPU, memori, jaringan, disk, baterai">
@@ -126,7 +148,8 @@ Hop sepenuhnya gratis: tanpa masa coba, tanpa versi pro, tanpa pembelian dalam
 aplikasi. Tanpa iklan, tanpa pengumpulan data, tanpa akun — tidak ada yang bisa
 dimonetisasi dan tidak ada yang bisa dijual. Ini proyek pribadi: saya membuat
 Hop untuk diri sendiri, memakainya setiap hari, dan sekadar membagikannya.
-Kalau bermanfaat, teruskan ke orang lain.
+Kalau bermanfaat, teruskan ke orang lain. Dan kalau kamu ingin ikut membantu,
+kini ada cara untuk mendukung Hop — murni sebuah hadiah, tanpa imbalan apa pun.
 
 ## Membangun dari sumber
 

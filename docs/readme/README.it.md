@@ -4,9 +4,10 @@
 
 # Hop
 
-**Un piccolo compagno per la barra dei menu di macOS: timer, anti-stop,
-monitor di sistema, cronologia degli appunti, convertitore di file, gestore
-delle finestre e un client torrent leggero. Un clic — e tutto ciò che ti
+**Un piccolo compagno per la barra dei menu di macOS: timer, monitoraggio del
+tempo, cose da fare, anti-stop, monitor di sistema, cronologia degli appunti,
+convertitore di file, gestore delle finestre e un client torrent leggero —
+distribuiti su fino a quattro schede dell'icona. Un clic — e tutto ciò che ti
 serve è lì.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
@@ -21,11 +22,13 @@ serve è lì.**
 
 </div>
 
-Hop vive nella barra dei menu del tuo Mac e sostituisce una mezza dozzina di
-piccole utility: un timer in stile Pomodoro, un blocca-riposo in stile
-caffeinate, un monitor di sistema, un gestore degli appunti, un convertitore
-di file drag-and-drop, uno strumento per agganciare le finestre e un client
-torrent leggero — una sola app nativa e leggera invece di sette.
+Hop vive nella barra dei menu del tuo Mac e sostituisce una manciata di
+piccole utility: un timer in stile Pomodoro, un monitoraggio del tempo con
+lista di cose da fare, un blocca-riposo in stile caffeinate, un monitor di
+sistema, un gestore degli appunti, un convertitore di file drag-and-drop, uno
+strumento per agganciare le finestre e un client torrent leggero — una sola
+app nativa e leggera, con i moduli che usi distribuiti su fino a quattro
+schede dell'icona.
 
 ## Download
 
@@ -38,13 +41,28 @@ Primo avvio: clic destro su `Hop.app` → **Apri** → conferma
 
 ## Funzionalità
 
+### Spazi
+
+L'icona ospita fino a quattro schede, e trascini ogni modulo nella scheda che
+preferisci: il timer su una, il monitor su un'altra, ciò che apri di rado da
+parte. Un ripiano «inattivi» conserva quel che metti via, senza eliminarlo.
+
 ### Timer e cicli
 
 Un conto alla rovescia a matrice di punti che imposti con un solo gesto:
 trascina le cifre, digita il tempo come su un microonde, oppure scegli un
 preset. Cicli lavoro-pausa (Pomodoro 25/5, 52/17, 90/15 — o i tuoi), un
 cronometro, una tasca che conserva un timer in corso mentre ne provi un
-altro, e un avviso di fine che può anche mettere in pausa i tuoi media.
+altro, e un avviso di fine che può anche mettere in pausa i tuoi media. Quando
+il conto alla rovescia finisce, suona una sola volta e le cifre pulsano finché
+non azzeri.
+
+### Monitoraggio del tempo e attività
+
+Tieni il tempo su una lista piatta di attività: ogni riga mostra il tempo di
+oggi e un totale progressivo, e puoi correggere a mano la cifra di oggi. Se
+una va troppo a lungo, dopo otto ore un banner te lo ricorda. Accanto c'è una
+lista di cose da fare a parte, dove il completato scende in fondo.
 
 ### Niente stop
 
@@ -63,9 +81,11 @@ scheda è aperta.
 
 ### Cronologia degli appunti
 
-Le ultime 100 cose copiate (fino a 300) — testo e immagini — un clic per ricopiarle o incollarle
-direttamente nell'app precedente. Le password e gli altri input nascosti non
-vengono mai salvati.
+Le ultime 100 cose copiate (fino a 300) — testo, immagini e file — un clic per
+ricopiarle o incollarle direttamente nell'app precedente. I file copiati
+vengono ricordati per nome (più file insieme appaiono come «nome +N»), e
+incollando torna il file vero e proprio. Le password e gli altri input
+nascosti non vengono mai salvati.
 
 ### Convertitore di file
 
@@ -96,9 +116,11 @@ predefinita per i file .torrent e i link magnet.
 
 ### E il resto
 
-Test di velocità integrato (networkQuality di Apple), temi scuro e chiaro
-con una texture a grana di pellicola, scorciatoie globali, avvio al login e
-una modalità sicura che recupera l'app da un loop di crash.
+Piccoli indicatori di stato sull'icona nella barra dei menu — tempo,
+anti-stop, avvisi e attività torrent, a colori o monocromatici —, un test di
+velocità integrato (networkQuality di Apple), temi scuro e chiaro con una
+texture a grana di pellicola, scorciatoie globali, avvio al login e una
+modalità sicura che recupera l'app da un loop di crash.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor di sistema di Hop — grafici di CPU, GPU, memoria, rete, disco, batteria">
@@ -128,7 +150,8 @@ Hop è completamente gratis: nessuna prova, nessuna versione pro, nessun
 acquisto in-app. Niente pubblicità, niente raccolta dati, niente account: non
 c'è nulla da monetizzare e nulla da vendere. È un progetto personale: ho creato
 Hop per me, lo uso ogni giorno e semplicemente lo condivido. Se ti è utile,
-passalo ad altri.
+passalo ad altri. E se vuoi contribuire, ora c'è un modo per sostenere Hop —
+semplicemente un regalo, senza nulla in cambio.
 
 ## Compilare dai sorgenti
 

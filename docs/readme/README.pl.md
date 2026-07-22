@@ -4,10 +4,11 @@
 
 # Hop
 
-**Malutki towarzysz na pasku menu macOS: timer, blokada uśpienia,
-monitor systemu, historia schowka, konwerter plików, menedżer okien i
-lekki klient torrentów. Jedno kliknięcie — i wszystko, czego
-potrzebujesz, jest pod ręką.**
+**Malutki towarzysz na pasku menu macOS: timer, śledzenie czasu, lista
+zadań, blokada uśpienia, monitor systemu, historia schowka, konwerter
+plików, menedżer okien i lekki klient torrentów — rozłożone na
+maksymalnie czterech kartach na ikonie. Jedno kliknięcie — i wszystko,
+czego potrzebujesz, jest pod ręką.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -21,11 +22,12 @@ potrzebujesz, jest pod ręką.**
 
 </div>
 
-Hop mieszka na pasku menu Twojego Maca i zastępuje pół tuzina drobnych
-narzędzi: timer w stylu Pomodoro, blokadę uśpienia w duchu caffeinate,
-monitor systemu, menedżer schowka, konwerter plików „przeciągnij i
-upuść", przyciąganie okien oraz lekki klient torrentów — jedna lekka,
-natywna aplikacja zamiast siedmiu.
+Hop mieszka na pasku menu Twojego Maca i zastępuje garść drobnych
+narzędzi: timer w stylu Pomodoro, śledzenie czasu z listą zadań, blokadę
+uśpienia w duchu caffeinate, monitor systemu, menedżer schowka, konwerter
+plików „przeciągnij i upuść", przyciąganie okien oraz lekki klient
+torrentów — jedna lekka, natywna aplikacja, w której używane moduły
+rozkładasz na maksymalnie czterech kartach na ikonie.
 
 ## Pobierz
 
@@ -39,6 +41,12 @@ lub nowszego.
 
 ## Funkcje
 
+### Przestrzenie
+
+Ikona mieści do czterech kart, a każdy moduł przeciągasz na wybraną kartę:
+timer na jedną, monitor na drugą, rzadko używane na bok. Półka „nieaktywne"
+przechowuje odłożone rzeczy, nie usuwając ich.
+
 ### Timer i cykle
 
 Odliczanie na matrycy punktowej, które ustawiasz jednym gestem:
@@ -46,7 +54,15 @@ przeciągnij cyfry, wpisz czas jak na mikrofalówce albo wybierz preset.
 Cykle pracy i odpoczynku (25/5 Pomodoro, 52/17, 90/15 — albo własne),
 stoper, kieszeń, która przechowuje działający timer, gdy próbujesz
 innego, oraz alert końcowy, który może przy okazji wstrzymać odtwarzane
-media.
+media. Gdy odliczanie się kończy, rozlega się jeden dźwięk, a cyfry migają,
+aż je wyzerujesz.
+
+### Śledzenie czasu i zadania
+
+Zliczaj czas na płaskiej liście zadań: w każdym wierszu widać dzisiejszy
+czas i łączną sumę, a dzisiejszą wartość możesz poprawić ręcznie. Jeśli
+któreś działa za długo, po ośmiu godzinach przypomni o tym baner. Obok jest
+osobna lista rzeczy do zrobienia, w której ukończone spada na dół.
 
 ### Blokada uśpienia
 
@@ -65,9 +81,11 @@ jest otwarta.
 
 ### Historia schowka
 
-Ostatnie 100 (do 300) skopiowanych rzeczy — tekst i obrazy — jedno kliknięcie, by
-skopiować ponownie albo wkleić prosto do poprzedniej aplikacji. Hasła i
-inne ukryte dane wejściowe nigdy nie są zapisywane.
+Ostatnie 100 (do 300) skopiowanych rzeczy — tekst, obrazy i pliki — jedno
+kliknięcie, by skopiować ponownie albo wkleić prosto do poprzedniej
+aplikacji. Skopiowane pliki są pamiętane po nazwie (kilka naraz pokazuje
+się jako „nazwa +N"), a wklejenie przywraca sam plik. Hasła i inne ukryte
+dane wejściowe nigdy nie są zapisywane.
 
 ### Konwerter plików
 
@@ -98,10 +116,11 @@ aplikacją dla plików .torrent i linków magnet.
 
 ### I cała reszta
 
-Wbudowany test prędkości (networkQuality od Apple), ciemny i jasny motyw
-z teksturą filmowego ziarna, globalne skróty klawiszowe, uruchamianie
-przy logowaniu oraz tryb awaryjny, który wyciąga aplikację z pętli
-awarii.
+Niewielkie wskaźniki stanu na ikonie na pasku menu — czas, blokada
+uśpienia, ostrzeżenia i aktywność torrentów, kolorowe lub monochromatyczne —
+wbudowany test prędkości (networkQuality od Apple), ciemny i jasny motyw z
+teksturą filmowego ziarna, globalne skróty klawiszowe, uruchamianie przy
+logowaniu oraz tryb awaryjny, który wyciąga aplikację z pętli awarii.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor systemu Hop — wykresy CPU, GPU, pamięci, sieci, dysku i baterii">
@@ -131,7 +150,8 @@ Hop jest całkowicie darmowy: bez okresu próbnego, bez wersji pro, bez zakupów
 aplikacji. Bez reklam, bez zbierania danych, bez kont — nie ma czego
 monetyzować ani czego sprzedawać. To projekt osobisty: zrobiłem Hopa dla
 siebie, używam go codziennie i po prostu się nim dzielę. Jeśli się przyda,
-przekaż go dalej.
+przekaż go dalej. A jeśli chcesz się dołożyć, jest teraz sposób, by wesprzeć
+Hopa — po prostu prezent, bez niczego w zamian.
 
 ## Budowanie ze źródeł
 

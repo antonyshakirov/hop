@@ -4,9 +4,10 @@
 
 # Hop
 
-**macOS menü çubuğu için minik bir yol arkadaşı: zamanlayıcı, uyku
-engelleme, sistem monitörü, pano geçmişi, dosya dönüştürücü, pencere
-yöneticisi ve hafif bir torrent istemcisi. Tek tık — ihtiyacınız olan
+**macOS menü çubuğu için minik bir yol arkadaşı: zamanlayıcı, zaman
+takibi, yapılacaklar, uyku engelleme, sistem monitörü, pano geçmişi,
+dosya dönüştürücü, pencere yöneticisi ve hafif bir torrent istemcisi —
+simgedeki en fazla dört sekmeye dağılmış. Tek tık — ihtiyacınız olan
 her şey elinizin altında.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
@@ -21,11 +22,12 @@ her şey elinizin altında.**
 
 </div>
 
-Hop, Mac'inizin menü çubuğunda yaşar ve yarım düzine küçük aracın yerini
-alır: Pomodoro tarzı bir zamanlayıcı, caffeinate benzeri bir uyku
-engelleyici, sistem monitörü, pano yöneticisi, sürükle-bırak dosya
-dönüştürücü, pencere yerleştirici ve hafif bir torrent istemcisi —
-yedi uygulama yerine tek bir hafif, yerel uygulama.
+Hop, Mac'inizin menü çubuğunda yaşar ve bir avuç küçük aracın yerini
+alır: Pomodoro tarzı bir zamanlayıcı, yapılacaklar listeli bir zaman
+takibi, caffeinate benzeri bir uyku engelleyici, sistem monitörü, pano
+yöneticisi, sürükle-bırak dosya dönüştürücü, pencere yerleştirici ve
+hafif bir torrent istemcisi — tek bir hafif, yerel uygulama; kullandığınız
+modüller simgedeki en fazla dört sekmeye dağılmış.
 
 ## İndir
 
@@ -38,13 +40,27 @@ henüz noter onaylı değil). macOS 14 veya daha yenisi gerekir.
 
 ## Özellikler
 
+### Alanlar
+
+Simge en fazla dört sekme tutar ve her modülü istediğiniz sekmeye
+sürüklersiniz: zamanlayıcı birinde, monitör diğerinde, seyrek açtıklarınız
+bir kenarda. Bir «pasif» raf, kenara ayırdıklarınızı silmeden saklar.
+
 ### Zamanlayıcı ve döngüler
 
 Tek hareketle kurduğunuz nokta matrisli geri sayım: rakamları sürükleyin,
 süreyi mikrodalgadaki gibi yazın ya da bir hazır ayar seçin.
 Çalışma-mola döngüleri (25/5 Pomodoro, 52/17, 90/15 — ya da kendi
 döngünüz), kronometre, başka bir zamanlayıcı denerken çalışan sayacı
-saklayan bir cep ve medyanızı da duraklatabilen bitiş uyarısı.
+saklayan bir cep ve medyanızı da duraklatabilen bitiş uyarısı. Geri sayım
+bitince tek bir ses çalar ve sıfırlayana kadar rakamlar yanıp söner.
+
+### Zaman takibi ve görevler
+
+Düz bir görev listesinde zamanı tutun: her satır bugünkü süreyi ve toplam
+birikimi gösterir, bugünkü değeri elle düzeltebilirsiniz. Biri fazla uzun
+sürerse, sekiz saatin sonunda bir bant hatırlatır. Yanında ayrı bir
+yapılacaklar listesi durur; biten işler dibe iner.
 
 ### Uyku engelleme
 
@@ -61,8 +77,10 @@ doğrudan macOS'ten gelir ve yalnızca sekme açıkken güncellenir.
 
 ### Pano geçmişi
 
-Kopyaladığınız son 100 (300'e kadar) öğe — metin ve görseller — tek tıkla yeniden kopyalayın
-ya da doğrudan önceki uygulamaya yapıştırın. Parolalar ve diğer gizli
+Kopyaladığınız son 100 (300'e kadar) öğe — metin, görseller ve dosyalar —
+tek tıkla yeniden kopyalayın ya da doğrudan önceki uygulamaya yapıştırın.
+Kopyalanan dosyalar adıyla saklanır (birden fazlası «ad +N» olarak görünür)
+ve yapıştırınca dosyanın kendisi geri gelir. Parolalar ve diğer gizli
 girişler asla saklanmaz.
 
 ### Dosya dönüştürücü
@@ -96,9 +114,11 @@ bağlantıları için varsayılan uygulama olabilir.
 
 ### Ve gerisi
 
-Yerleşik hız testi (Apple'ın networkQuality aracı), film greni dokulu
-koyu ve açık temalar, genel kısayollar, oturum açıldığında başlatma ve
-uygulamayı çökme döngüsünden kurtaran güvenli mod.
+Menü çubuğu simgesindeki küçük durum göstergeleri — zaman, uyku engelleme,
+uyarılar ve torrent etkinliği, renkli ya da tek renk —, yerleşik hız testi
+(Apple'ın networkQuality aracı), film greni dokulu koyu ve açık temalar,
+genel kısayollar, oturum açıldığında başlatma ve uygulamayı çökme
+döngüsünden kurtaran güvenli mod.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop sistem monitörü — CPU, GPU, bellek, ağ, disk ve pil grafikleri">
@@ -127,7 +147,9 @@ Web sitesi: [antonshakirov.com/products/hop](https://www.antonshakirov.com/produ
 Hop tamamen ücretsiz: deneme yok, pro sürüm yok, uygulama içi satın alma yok.
 Reklam yok, veri toplama yok, hesap yok — para kazanılacak da satılacak da bir
 şey yok. Bu kişisel bir proje: Hop'u kendim için yaptım, her gün kullanıyorum
-ve sadece paylaşıyorum. İşine yararsa, sen de başkasına ilet.
+ve sadece paylaşıyorum. İşine yararsa, sen de başkasına ilet. Ve katkıda
+bulunmak istersen, artık Hop'a destek olmanın bir yolu var — tamamen bir
+hediye, karşılığında hiçbir şey beklemeden.
 
 ## Kaynaktan derleme
 

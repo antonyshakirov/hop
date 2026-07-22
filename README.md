@@ -4,9 +4,10 @@
 
 # Hop
 
-**A tiny menu bar companion for macOS: timer, keep-awake, system monitor,
-clipboard history, file converter, window manager and a lite torrent
-client. One click — and everything you need is right there.**
+**A tiny menu bar companion for macOS: timer, time tracker, to-dos,
+keep-awake, system monitor, clipboard history, file converter, window
+manager and a lite torrent client — arranged across up to four tabs on
+the icon. One click, and everything you need is right there.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/antonyshakirov/hop/total)](https://github.com/antonyshakirov/hop/releases)
@@ -20,10 +21,12 @@ client. One click — and everything you need is right there.**
 
 </div>
 
-Hop lives in your Mac's menu bar and replaces half a dozen small utilities:
-a Pomodoro-style timer, a caffeinate-style sleep blocker, a system monitor,
-a clipboard manager, a drag-and-drop file converter, a window snapper and a
-lite torrent client — one lightweight native app instead of seven.
+Hop lives in your Mac's menu bar and replaces a handful of small utilities:
+a Pomodoro-style timer, a time tracker with a to-do list, a caffeinate-style
+sleep blocker, a system monitor, a clipboard manager, a drag-and-drop file
+converter, a window snapper and a lite torrent client — one lightweight
+native app, with the modules you use arranged across up to four tabs on the
+icon.
 
 ## Download
 
@@ -36,12 +39,28 @@ First launch: right-click `Hop.app` → **Open** → confirm
 
 ## Features
 
+### Spaces
+
+The icon holds up to four tabs, and you drag each module into whichever tab
+you like — the timer on one, the monitor on another, the things you rarely
+open tucked away. An "inactive" shelf keeps anything you've set aside without
+deleting it.
+
 ### Timer & cycles
 
 A dot-matrix countdown you set in one gesture: drag the digits, type the
 time like on a microwave, or pick a preset. Work-rest cycles (25/5 Pomodoro,
 52/17, 90/15 — or your own), a stopwatch, a stash that keeps a running timer
 while you try another one, and a finish alert that can also pause your media.
+When the countdown ends it plays a single sound and the digits pulse until
+you reset it.
+
+### Time tracker & to-dos
+
+Track time against a flat list of tasks — each row shows today's time and a
+running total, and you can correct today's figure by hand. Leave one running
+too long and a banner reminds you after eight hours. A separate to-do list
+sits alongside, with finished items sinking to the bottom.
 
 ### No sleep
 
@@ -58,9 +77,10 @@ macOS and update only while the tab is open.
 
 ### Clipboard history
 
-The last 100 (up to 300) things you copied — text and images — one click to copy back or
-paste straight into the previous app. Passwords and other concealed input
-are never stored.
+The last 100 (up to 300) things you copied — text, images and files — one
+click to copy back or paste straight into the previous app. Copied files are
+kept by name (several at once show as "name +N"), and pasting puts the actual
+file back. Passwords and other concealed input are never stored.
 
 ### File converter
 
@@ -89,9 +109,11 @@ files and magnet links.
 
 ### And the rest
 
-Built-in speed test (Apple's networkQuality), dark and light themes with a
-film-grain texture, global hotkeys, launch at login, and a safe mode that
-recovers the app from a crash loop.
+Small status badges on the menu bar icon — time, keep-awake, alerts and
+torrent activity, colored or monochrome — a built-in speed test (Apple's
+networkQuality), dark and light themes with a film-grain texture, global
+hotkeys, launch at login, and a safe mode that recovers the app from a crash
+loop.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop system monitor — CPU, GPU, memory, network, disk, battery charts">
@@ -120,7 +142,8 @@ Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products
 Hop is completely free — no trial, no pro tier, no in-app purchases. No ads,
 no data collection, no accounts: there is nothing to monetize and nothing to
 sell. It is a personal project — I built Hop for myself, use it every day, and
-share it. If it is useful, pass it on.
+share it. If it is useful, pass it on. And if you'd like to chip in, there is
+now a way to support Hop — purely a gift, with nothing locked behind it.
 
 ## Building from source
 
