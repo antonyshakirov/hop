@@ -151,23 +151,36 @@ enum MenuBarIcon {
             dotRight -= dotD - 1.5 // 1.5pt overlap
         }
 
-        // bottom-right: time wedges — green (engine) then dark-green (task); a
-        // pair sits with a gap plus a thin dark keyline seam so 1x reads as two.
+        // bottom-right: time wedges — green (engine) then dark-green (task). Sized
+        // and placed to MIRROR the awake dots above (owner review): the SAME width,
+        // the SAME right anchor and the SAME 1.5pt overlap as the dots, so each
+        // wedge sits directly under its dot column — engine under no-sleep on the
+        // left, task under lid on the right, the pair's width and centres matching
+        // the dot pair's. Bigger and taller than the first cut, but the horizontal
+        // footprint now equals the dots'. A thin dark keyline seam still keeps the
+        // two greens reading as two.
         let wedges = c.badges.filter { $0.corner == .bottomRight }
-        let wedgeW: CGFloat = wedges.count > 1 ? 4.5 : 5.3
-        let wedgeH: CGFloat = wedges.count > 1 ? 4.5 : 4.9
-        let gap: CGFloat = 0.7
-        let botY: CGFloat = 0.5
-        var wedgeRight = w - 0.5
-        for badge in wedges.reversed() {
-            let box = NSRect(x: wedgeRight - wedgeW, y: botY, width: wedgeW, height: wedgeH)
-            // keyline seam: when a second wedge sits to the left, notch this one's
-            // left with a thin dark stroke so the two never fuse into one blob
-            if badge != wedges.first {
-                drawWedgeSeam(box: box)
-            }
+        let wedgeW = dotD                 // == a dot's diameter → identical columns
+        let wedgeH: CGFloat = 5.6         // taller than a dot; only the WIDTH must match
+        let botY: CGFloat = 0.4
+        // right-anchored column boxes, identical stride/overlap to the dots above
+        var wedgeBoxes: [NSRect] = []
+        var wedgeRight = w - 0.4
+        for _ in wedges {
+            wedgeBoxes.append(NSRect(x: wedgeRight - wedgeW, y: botY, width: wedgeW, height: wedgeH))
+            wedgeRight -= dotD - 1.5       // 1.5pt overlap, same as the dots
+        }
+        // draw left→right so the RIGHT (task) wedge lands on top: its clean vertical
+        // base is the seam boundary. wedges[0]=engine takes the LEFT column,
+        // wedges.last=task the right (a lone wedge keeps the far-right column, like
+        // a lone dot).
+        for (badge, box) in zip(wedges, wedgeBoxes.reversed()) {
             drawWedge(badge, box: box, colored: c.colored, glyph: glyph)
-            wedgeRight -= wedgeW + gap
+        }
+        // keyline seam laid on top, just left of the right wedge's base, so the
+        // overlapping pair never fuses into one green blob
+        if wedges.count > 1, let rightBox = wedgeBoxes.first {
+            drawWedgeSeam(box: rightBox)
         }
 
         // bottom-left: torrent arrows — always the glyph colour (white on both
@@ -210,8 +223,9 @@ enum MenuBarIcon {
         let round = box.width * 0.42
         let inset = round / 2
         // seated base: the left edge is shorter than the full height (not
-        // equilateral); the apex sits on the vertical centre.
-        let baseInset: CGFloat = 0.35
+        // equilateral); the apex sits on the vertical centre. Trimmed from 0.35
+        // so the wedge keeps more height (owner review: it read too pancaked).
+        let baseInset: CGFloat = 0.12
         let tri = NSBezierPath()
         tri.move(to: NSPoint(x: box.minX + inset, y: box.minY + inset + baseInset))
         tri.line(to: NSPoint(x: box.minX + inset, y: box.maxY - inset - baseInset))
@@ -237,8 +251,9 @@ enum MenuBarIcon {
     private static func drawWedgeSeam(box: NSRect) {
         NSColor.black.withAlphaComponent(0.9).setStroke()
         let seam = NSBezierPath()
-        seam.move(to: NSPoint(x: box.minX - 0.5, y: box.minY))
-        seam.line(to: NSPoint(x: box.minX - 0.5, y: box.maxY))
+        // sits in the middle of the tighter gap now that the pair is closer
+        seam.move(to: NSPoint(x: box.minX - 0.25, y: box.minY))
+        seam.line(to: NSPoint(x: box.minX - 0.25, y: box.maxY))
         seam.lineWidth = stroke
         seam.lineCapStyle = .round
         seam.stroke()
