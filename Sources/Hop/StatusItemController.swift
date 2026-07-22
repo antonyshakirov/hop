@@ -434,13 +434,6 @@ final class StatusItemController: NSObject {
         let engine = model.engine
         let state = engine.state
         let finished = state == .finished
-        let badge: MenuBarIcon.StateBadge? = {
-            switch state {
-            case .running: return .running
-            case .paused: return .paused
-            case .idle, .finished: return nil
-            }
-        }()
         // the bell blinks only while the finish is unacknowledged; once the
         // panel is opened it settles to the steady lit bell (calm-down).
         let bellOn = !engine.isFinishBlinking
@@ -449,43 +442,65 @@ final class StatusItemController: NSObject {
 
         let showCountdown = UserDefaults.standard
             .object(forKey: SettingsKey.showMenuBarCountdown) as? Bool ?? true
-        // the play/pause badge is redundant when the countdown is visible in the menu bar:
-        // the digits themselves say the timer is running
-        let countdownVisible = showCountdown && (state == .running || state == .paused)
-        let effectiveBadge = countdownVisible ? nil : badge
-        // a task tracking is shown by a hand-drawn stopwatch BADGE in the
-        // icon's bottom-right slot (see MenuBarIcon.compose). The timer's
-        // play/pause badge wins that slot when it's present (countdown digits
-        // hidden); otherwise the tracking badge shows there. In the normal
-        // config (digits on) the countdown lives in the TITLE and the tracking
-        // badge in the corner, so both states are visible at once. The badge
-        // sits on the fixed 22×17 canvas, so tracking has ZERO effect on the
-        // status-item width — the whole point of retiring the in-title glyph.
+        // engine → the single running/paused/idle slot; the digits, when shown,
+        // carry the running value so the green wedge would only duplicate them
+        let engineSlot: IconState.Engine = {
+            switch state {
+            case .running: return .running
+            case .paused: return .paused
+            case .idle, .finished: return .idle
+            }
+        }()
+        let engineTimeInTitle = showCountdown && (state == .running || state == .paused)
+
         let tracking = model.tracker.isTracking
-        // red "!" — only if enabled in the monitor settings.
-        // debugRedBadgeAlways — temporary mode for polishing the appearance:
-        // defaults write com.antonshakirov.minimo debugRedBadgeAlways -bool true
-        let alertMark = (UserDefaults.standard.bool(forKey: SettingsKey.menuBarRedAlert)
+        // the task's ticking "today" figure is in the TITLE only when opted in and
+        // nothing else (the countdown) has claimed the title
+        let taskTimeInTitle = tracking
+            && UserDefaults.standard.bool(forKey: SettingsKey.trackerTimeInBar)
+            && !engineTimeInTitle
+
+        // steady "!" — the monitor red zone (opt-in). debugRedBadgeAlways forces
+        // it on for polishing: defaults write com.antonshakirov.minimo debugRedBadgeAlways -bool true
+        let alertSteady = (UserDefaults.standard.bool(forKey: SettingsKey.menuBarRedAlert)
             && model.stats.redZone)
             || UserDefaults.standard.bool(forKey: "debugRedBadgeAlways")
-        // dot: yellow — keep-awake (takes priority); orange — lid only
-        let awakeDotColor: NSColor? = model.keepAwake.isActive
-            ? .systemYellow
-            : (model.keepAwake.lidApplied ? .systemOrange : nil)
+        // blinking "!" — a task left running past 8h (the same episode logic as
+        // the panel banner: respects THIS run's acknowledgment, stored by the
+        // panel under this same UserDefaults key)
+        let ackRaw = UserDefaults.standard.double(forKey: "trackerOverrunAckStart")
+        let ack = ackRaw == 0 ? nil : Date(timeIntervalSinceReferenceDate: ackRaw)
+        let alertBlinking = TrackerOverrun.isBannerVisible(
+            activeStart: model.tracker.engine.activeIntervalStart,
+            now: model.tracker.heartbeat, acknowledged: ack)
+        // 1s-on / 1s-off blink driven by the tracker's per-second heartbeat
+        let blinkOn = Int(model.tracker.heartbeat.timeIntervalSinceReferenceDate) % 2 == 0
 
-        // template fast path ONLY when there is zero decoration; a tracking
-        // task is a decoration now (it draws the corner badge), so it drops
-        // out of the plain-template branch just like a badge or awake dot.
-        if effectiveBadge != nil || awakeDotColor != nil || alertMark || tracking {
-            button.image = MenuBarIcon.compose(
-                base: finished ? .symbol(bell) : .dial,
-                badge: effectiveBadge,
-                awakeDot: awakeDotColor,
-                tracking: tracking,
-                alertMark: alertMark
-            )
+        let transfer = model.torrent.menuBarTransfer
+
+        let colored = UserDefaults.standard
+            .object(forKey: SettingsKey.coloredIndicators) as? Bool ?? true
+
+        let composition = IconBadges.compose(IconState(
+            engine: engineSlot,
+            engineTimeInTitle: engineTimeInTitle,
+            tracking: tracking,
+            taskTimeInTitle: taskTimeInTitle,
+            noSleep: model.keepAwake.isActive,
+            lid: model.keepAwake.lidApplied,
+            alertSteady: alertSteady,
+            alertBlinking: alertBlinking,
+            blinkOn: blinkOn,
+            torrentDown: transfer.down,
+            torrentUp: transfer.up,
+            colored: colored
+        ))
+
+        // template fast path ONLY when the calm star carries no decoration at all
+        if !composition.isEmpty {
+            button.image = MenuBarIcon.compose(composition, base: finished ? .symbol(bell) : .dial)
         } else if finished {
-            button.image = MenuBarIcon.compose(base: .symbol(bell), badge: nil, awakeDot: nil)
+            button.image = MenuBarIcon.compose(composition, base: .symbol(bell))
         } else {
             button.image = MenuBarIcon.dialTemplate
         }
@@ -514,18 +529,10 @@ final class StatusItemController: NSObject {
            let activeID = model.tracker.engine.activeTaskID {
             title = " " + TimeFormatting.short(model.tracker.engine.today(taskID: activeID))
         }
-        // Menu-bar torrent glance: ↓ while downloading, ↑ while seeding, so the
-        // user can see at a glance that something is actually transferring. Sits
-        // left of the countdown and stays visible regardless of the timer; the
-        // width-freeze below keeps it from shifting the panel while it's open.
-        switch model.torrent.menuBarActivity {
-        case .downloading: title = "↓" + title
-        case .seeding:     title = "↑" + title
-        case .none:        break
-        }
-        // The title now carries digits/arrows only — tracking moved to the
-        // icon badge, so it no longer contributes any characters here and the
-        // width is invariant to it.
+        // Torrent transfer moved OUT of the title into the icon's bottom-left
+        // corner (↓/↑ arrows) — it no longer contributes any characters here, so
+        // the title width is invariant to it and can never shift the panel. The
+        // title now carries digits only (countdown or the opt-in tracker time).
         if let frozen = frozenTitleLength {
             // panel open: the time STAYS visible in the menu bar (Anton,
             // 2026-07-15) — only the width is frozen: pad the digit tail with

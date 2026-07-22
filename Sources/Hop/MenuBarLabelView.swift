@@ -1,22 +1,34 @@
 import AppKit
 import SwiftUI
+import HopCore
 
-/// Draws the status-bar icon by hand when color is needed:
-/// yellow awake dot (top corner) and timer status (bottom corner) —
-/// green ▶ = running, orange ⏸ = paused.
+/// Draws the status-bar star and its corner badges by hand. The composition
+/// (which badges, where) is decided by the pure `IconBadges.compose`; this type
+/// only renders `IconComposition` onto the fixed 22×17 canvas. Corner logic:
+/// attention "!" top-left, awake dots top-right, time wedges bottom-right,
+/// torrent arrows bottom-left. Colours are the documented exception to the
+/// Theme-token rule — the star's badges use the fixed Apple system palette so
+/// they read identically on every user's bar.
 @MainActor
 enum MenuBarIcon {
-    enum StateBadge {
-        case running, paused
-
-        var symbol: String { self == .running ? "play.fill" : "pause.fill" }
-        var color: NSColor { self == .running ? .systemGreen : .systemOrange }
-    }
-
     enum Base {
         case dial
         case symbol(String)
     }
+
+    // MARK: - Palette (fixed Apple system colours — the documented badge exception)
+
+    /// Task-time wedge: an opaque dark green derived from systemGreen (~40%
+    /// darker) but kept bright and saturated, so it reads as a second green next
+    /// to the engine's systemGreen without going muddy. Mock-tuned value #159E46.
+    static let darkGreen = NSColor(srgbRed: 0x15 / 255.0, green: 0x9E / 255.0, blue: 0x46 / 255.0, alpha: 1)
+    /// Attention "!": a saturated deep red (mock #D81C0C) — darker and more
+    /// urgent than plain systemRed, still legible on both light and dark bars.
+    static let alertRed = NSColor(srgbRed: 0xD8 / 255.0, green: 0x1C / 255.0, blue: 0x0C / 255.0, alpha: 1)
+
+    /// One unified stroke weight for every drawn glyph — the "!", the torrent
+    /// arrows, the outline dot/wedge — so the whole badge set feels like one pen.
+    private static let stroke: CGFloat = 0.95
 
     /// Signature glyph: an asterisk star with round caps.
     static func drawDial(color: NSColor, in rect: NSRect) {
@@ -38,11 +50,8 @@ enum MenuBarIcon {
         path.stroke()
     }
 
-    /// One canvas size for all states — badges occupy pre-reserved
-    /// space, so the icon in the bar never "breathes".
-    /// The left ("!") and right (badges/dot) zones are EQUAL at 3.5pt — margins
-    /// were tightened at Anton's request, but the dots and the mark still fit;
-    /// the star is always exactly centered on the canvas.
+    /// One canvas size for all states — badges occupy pre-reserved space, so the
+    /// icon in the bar never "breathes". The star is always exactly centered.
     static let canvasSize = NSSize(width: 22, height: 17)
 
     /// Glyph centered: equal margins on the left and right.
@@ -50,9 +59,7 @@ enum MenuBarIcon {
 
     /// Non-production build: TWO identical stars can live in the bar (production
     /// plus a dev or raw-debug instance) — indistinguishable without a mark. "D"
-    /// in the bottom-left corner, monochrome. Anything that is NOT exactly the
-    /// production bundle id gets the mark: the ".dev" app, and the raw debug
-    /// binary too (no Info.plist, so bundleIdentifier is nil).
+    /// in the bottom-left corner, monochrome.
     static var isDevBuild: Bool { Bundle.isDevBuild }
 
     private static func drawDevMark(color: NSColor) {
@@ -80,125 +87,212 @@ enum MenuBarIcon {
         return image
     }()
 
-    /// awakeDot: yellow — no-sleep is active; orange — ONLY the lid is
-    /// enabled (can be closed, but without no-sleep the Mac will doze off); nil — no dot.
-    static func compose(
-        base: Base, badge: StateBadge?, awakeDot: NSColor?,
-        tracking: Bool = false, alertMark: Bool = false
-    ) -> NSImage {
-        let size = canvasSize
-        let image = NSImage(size: size)
-        image.lockFocus()
+    /// The monochrome glyph colour matching the current menu-bar lightness.
+    private static func glyphColor(dark: Bool) -> NSColor {
+        dark ? .white : NSColor(white: 0, alpha: 0.85)
+    }
 
-        // monochrome glyph matching the current menu bar lightness
-        let dark = NSApplication.shared.effectiveAppearance
-            .bestMatch(from: [.darkAqua, .aqua]) != .aqua
-        let glyphColor: NSColor = dark ? .white : .black
+    private static func currentlyDark() -> Bool {
+        NSApplication.shared.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) != .aqua
+    }
+
+    /// Render the star (or the finish bell) plus every badge in `composition`.
+    /// `dark` overrides the auto-detected bar lightness (used by the legend and
+    /// snapshots); nil = read the live appearance.
+    static func compose(_ composition: IconComposition, base: Base = .dial, dark: Bool? = nil) -> NSImage {
+        let image = NSImage(size: canvasSize)
+        image.lockFocus()
+        let dark = dark ?? currentlyDark()
+        let glyph = glyphColor(dark: dark)
 
         switch base {
         case .dial:
-            drawDial(
-                color: dark ? glyphColor : glyphColor.withAlphaComponent(0.85),
-                in: dialRect
-            )
+            drawDial(color: glyph, in: dialRect)
         case .symbol(let name):
-            draw(symbol: name, color: glyphColor, pointSize: 12.5,
-                 at: NSRect(x: 4.5, y: 1, width: 16, height: 15),
-                 fraction: dark ? 1.0 : 0.85)
+            draw(symbol: name, color: glyph, pointSize: 12.5,
+                 at: NSRect(x: 4.5, y: 1, width: 16, height: 15), fraction: dark ? 1.0 : 0.85)
         }
 
-        // bottom-right slot: the timer play/pause badge WINS it; only when the
-        // timer isn't claiming the slot does a tracking task show its stopwatch
-        // badge there. Either way the badge lives on the fixed 22×17 canvas, so
-        // tracking adds ZERO width to the status item (unlike the retired
-        // in-title glyph, which widened the button and shifted the panel).
-        let slot = NSRect(x: size.width - 8, y: 0.5, width: 7, height: 7)
-        if let badge {
-            drawBadge(badge, in: slot)
-        } else if tracking {
-            // monochrome like the star (NOT a system colour) so tracking never
-            // introduces a new bar hue — 85%-black in light to match the dial.
-            drawTrackingBadge(
-                color: dark ? glyphColor : glyphColor.withAlphaComponent(0.85),
-                in: slot
-            )
-        }
-        if let awakeDot {
-            awakeDot.setFill()
-            NSBezierPath(ovalIn: NSRect(
-                x: size.width - 6.5, y: size.height - 6.5, width: 6, height: 6
-            )).fill()
-        }
-        if isDevBuild {
-            drawDevMark(color: glyphColor.withAlphaComponent(0.7))
-        }
-        if alertMark {
-            // monitor red zone: a neat "!" at the top left —
-            // deliberately a mark, not a third dot (the right side already has two)
-            NSColor.systemRed.setFill()
-            NSBezierPath(roundedRect: NSRect(
-                x: 1.1, y: size.height - 5.4, width: 1.8, height: 4.4
-            ), xRadius: 0.9, yRadius: 0.9).fill()
-            NSBezierPath(ovalIn: NSRect(
-                x: 1.1, y: size.height - 8.4, width: 1.8, height: 1.8
-            )).fill()
-        }
+        drawBadges(composition, glyph: glyph)
 
+        // dev "D" — suppressed under a snapshot render (same rule as the Finder
+        // dev-badge in AppIcon), so marketing/diagnostic shots show the real icon
+        if isDevBuild && !Snapshot.active {
+            drawDevMark(color: glyph.withAlphaComponent(dark ? 0.7 : 0.6))
+        }
         image.unlockFocus()
         image.isTemplate = false
         return image
     }
 
-    /// Badges are drawn with our own rounded-corner paths — SF Symbols
-    /// look spiky at this size.
-    private static func drawBadge(_ badge: StateBadge, in rect: NSRect) {
-        badge.color.setFill()
-        badge.color.setStroke()
-        switch badge {
-        case .running:
-            // triangle ▶ rounded via a thick round-join stroke
-            let inset = rect.insetBy(dx: 1.2, dy: 1.2)
-            let path = NSBezierPath()
-            path.move(to: NSPoint(x: inset.minX, y: inset.minY))
-            path.line(to: NSPoint(x: inset.minX, y: inset.maxY))
-            path.line(to: NSPoint(x: inset.maxX, y: inset.midY))
-            path.close()
-            path.lineJoinStyle = .round
-            path.lineWidth = 2.4
-            path.fill()
-            path.stroke()
-        case .paused:
-            // two bars ⏸ with rounded caps
-            let barWidth: CGFloat = 2.2
-            for x in [rect.minX + 0.6, rect.maxX - barWidth - 0.6] {
-                NSBezierPath(
-                    roundedRect: NSRect(x: x, y: rect.minY, width: barWidth, height: rect.height),
-                    xRadius: barWidth / 2, yRadius: barWidth / 2
-                ).fill()
+    // MARK: - Badge layout
+
+    /// All four corners, drawn onto the current focus. `colored` in the
+    /// composition picks colour vs the mono fill/outline mapping.
+    private static func drawBadges(_ c: IconComposition, glyph: NSColor) {
+        let w = canvasSize.width, h = canvasSize.height
+
+        // top-left: attention "!"
+        if c.alert {
+            drawBang(color: c.colored ? alertRed : glyph, atLeft: 1.4, top: h - 1.4)
+        }
+
+        // top-right: awake dots — yellow (no-sleep) then orange (lid), a dense
+        // row with a light overlap; in 1x they melt into one two-colour blob.
+        let dotD: CGFloat = 5.2
+        let topY = h - dotD - 0.2
+        let dots = c.badges.filter { $0.corner == .topRight }
+        // right-anchored so a single dot sits in the far corner and a pair grows left
+        var dotRight = w - 0.4
+        // draw right-to-left so the first (no-sleep) ends up leftmost, overlapping under the lid
+        for badge in dots.reversed() {
+            let box = NSRect(x: dotRight - dotD, y: topY, width: dotD, height: dotD)
+            drawDot(badge, box: box, colored: c.colored, glyph: glyph)
+            dotRight -= dotD - 1.5 // 1.5pt overlap
+        }
+
+        // bottom-right: time wedges — green (engine) then dark-green (task); a
+        // pair sits with a gap plus a thin dark keyline seam so 1x reads as two.
+        let wedges = c.badges.filter { $0.corner == .bottomRight }
+        let wedgeW: CGFloat = wedges.count > 1 ? 4.5 : 5.3
+        let wedgeH: CGFloat = wedges.count > 1 ? 4.5 : 4.9
+        let gap: CGFloat = 0.7
+        let botY: CGFloat = 0.5
+        var wedgeRight = w - 0.5
+        for badge in wedges.reversed() {
+            let box = NSRect(x: wedgeRight - wedgeW, y: botY, width: wedgeW, height: wedgeH)
+            // keyline seam: when a second wedge sits to the left, notch this one's
+            // left with a thin dark stroke so the two never fuse into one blob
+            if badge != wedges.first {
+                drawWedgeSeam(box: box)
             }
+            drawWedge(badge, box: box, colored: c.colored, glyph: glyph)
+            wedgeRight -= wedgeW + gap
+        }
+
+        // bottom-left: torrent arrows — always the glyph colour (white on both
+        // themes), the one bottom badge that is not green.
+        if let torrent = c.torrent {
+            drawTorrent(torrent, glyph: glyph)
         }
     }
 
-    /// Tracking indicator: a hand-drawn mini stopwatch in the bottom-right
-    /// slot — a stroked circle body with a short crown tick on top. Drawn by
-    /// hand for the same reason as the play/pause badges: an SF `stopwatch`
-    /// symbol reads spiky and muddy at 7pt. Monochrome (the caller passes the
-    /// star's glyph colour), so it never adds a colour to the bar.
-    private static func drawTrackingBadge(color: NSColor, in rect: NSRect) {
-        color.setStroke()
-        // ~5.4pt body, seated low so the crown clears the slot's top edge.
-        let d: CGFloat = 5.4
-        let body = NSRect(x: rect.midX - d / 2, y: rect.minY + 0.4, width: d, height: d)
-        let circle = NSBezierPath(ovalIn: body)
-        circle.lineWidth = 0.9
-        circle.stroke()
-        // crown: a short vertical tick centred on top of the body
-        let crown = NSBezierPath()
-        crown.move(to: NSPoint(x: rect.midX, y: body.maxY - 0.2))
-        crown.line(to: NSPoint(x: rect.midX, y: body.maxY + 0.9))
-        crown.lineWidth = 1.0
-        crown.lineCapStyle = .round
-        crown.stroke()
+    // MARK: - Glyphs
+
+    /// Awake dot: a solid disc (no-sleep, and lid in colour) or a thin ring (lid
+    /// in mono). Colour: systemYellow (no-sleep) / systemOrange (lid).
+    private static func drawDot(_ badge: IconBadge, box: NSRect, colored: Bool, glyph: NSColor) {
+        let color: NSColor = colored
+            ? (badge == .noSleep ? .systemYellow : .systemOrange)
+            : glyph
+        let path = NSBezierPath(ovalIn: box)
+        if colored || badge.monoFilled {
+            color.setFill()
+            path.fill()
+        } else {
+            // mono lid: a ring at the SAME outer size as the filled disc
+            color.setStroke()
+            let ring = NSBezierPath(ovalIn: box.insetBy(dx: stroke / 2, dy: stroke / 2))
+            ring.lineWidth = stroke
+            ring.stroke()
+        }
+    }
+
+    /// A squat, seated, rounded play triangle — the branded PlayGlyph look
+    /// (round-join bulge), flattened on the left and reduced in height per the
+    /// spec. Filled (engine, and task in colour) or an outline of the SAME outer
+    /// size (task in mono).
+    private static func drawWedge(_ badge: IconBadge, box: NSRect, colored: Bool, glyph: NSColor) {
+        let color: NSColor = colored
+            ? (badge == .engineTime ? .systemGreen : darkGreen)
+            : glyph
+        // rounding via a thick round-join stroke, exactly like PlayGlyph
+        let round = box.width * 0.42
+        let inset = round / 2
+        // seated base: the left edge is shorter than the full height (not
+        // equilateral); the apex sits on the vertical centre.
+        let baseInset: CGFloat = 0.35
+        let tri = NSBezierPath()
+        tri.move(to: NSPoint(x: box.minX + inset, y: box.minY + inset + baseInset))
+        tri.line(to: NSPoint(x: box.minX + inset, y: box.maxY - inset - baseInset))
+        tri.line(to: NSPoint(x: box.maxX - inset, y: box.midY))
+        tri.close()
+        tri.lineJoinStyle = .round
+        if colored || badge.monoFilled {
+            color.setFill()
+            color.setStroke()
+            tri.lineWidth = round
+            tri.fill()
+            tri.stroke()
+        } else {
+            // mono task: outline only, same outer gabarit as the filled twin
+            color.setStroke()
+            tri.lineWidth = stroke
+            tri.stroke()
+        }
+    }
+
+    /// The thin dark keyline drawn just left of a wedge that has a neighbour, so
+    /// an adjacent pair reads as two marks even at 1x where they nearly touch.
+    private static func drawWedgeSeam(box: NSRect) {
+        NSColor.black.withAlphaComponent(0.9).setStroke()
+        let seam = NSBezierPath()
+        seam.move(to: NSPoint(x: box.minX - 0.5, y: box.minY))
+        seam.line(to: NSPoint(x: box.minX - 0.5, y: box.maxY))
+        seam.lineWidth = stroke
+        seam.lineCapStyle = .round
+        seam.stroke()
+    }
+
+    /// Attention "!": a rounded stem plus a dot below it, anchored at its top-left.
+    private static func drawBang(color: NSColor, atLeft x: CGFloat, top: CGFloat) {
+        color.setFill()
+        let stemW = stroke * 1.15
+        let stemH: CGFloat = 3.2
+        let stem = NSRect(x: x, y: top - stemH, width: stemW, height: stemH)
+        NSBezierPath(roundedRect: stem, xRadius: stemW / 2, yRadius: stemW / 2).fill()
+        let dotD = stemW
+        NSBezierPath(ovalIn: NSRect(
+            x: x, y: top - stemH - dotD - 0.9, width: dotD, height: dotD
+        )).fill()
+    }
+
+    /// Torrent arrows in the bottom-left: ↓ downloading, ↑ seeding, both side by
+    /// side when both are happening. Unified thin stroke, the star's glyph colour.
+    private static func drawTorrent(_ dir: TorrentArrows, glyph: NSColor) {
+        switch dir {
+        case .down: drawArrow(down: true, cx: 3.0, glyph: glyph, full: true)
+        case .up: drawArrow(down: false, cx: 3.0, glyph: glyph, full: true)
+        case .both:
+            drawArrow(down: true, cx: 2.2, glyph: glyph, full: false)
+            drawArrow(down: false, cx: 5.0, glyph: glyph, full: false)
+        }
+    }
+
+    private static func drawArrow(down: Bool, cx: CGFloat, glyph: NSColor, full: Bool) {
+        glyph.setStroke()
+        let bottom: CGFloat = 0.9
+        let height: CGFloat = full ? 5.2 : 4.6
+        let top = bottom + height
+        let head: CGFloat = full ? 1.7 : 1.4
+        let shaft = NSBezierPath()
+        shaft.move(to: NSPoint(x: cx, y: bottom))
+        shaft.line(to: NSPoint(x: cx, y: top))
+        shaft.lineWidth = stroke
+        shaft.lineCapStyle = .round
+        shaft.lineJoinStyle = .round
+        shaft.stroke()
+        // chevron head at the pointing end
+        let tipY = down ? bottom : top
+        let backY = down ? bottom + head : top - head
+        let chev = NSBezierPath()
+        chev.move(to: NSPoint(x: cx - head * 0.75, y: backY))
+        chev.line(to: NSPoint(x: cx, y: tipY))
+        chev.line(to: NSPoint(x: cx + head * 0.75, y: backY))
+        chev.lineWidth = stroke
+        chev.lineCapStyle = .round
+        chev.lineJoinStyle = .round
+        chev.stroke()
     }
 
     private static func draw(
@@ -217,7 +311,6 @@ enum MenuBarIcon {
         NSRect(origin: .zero, size: base.size).fill(using: .sourceAtop)
         tinted.unlockFocus()
 
-        // fit while preserving aspect ratio
         let scale = min(rect.width / base.size.width, rect.height / base.size.height, 1)
         let drawSize = NSSize(width: base.size.width * scale, height: base.size.height * scale)
         let origin = NSPoint(
@@ -228,5 +321,14 @@ enum MenuBarIcon {
             in: NSRect(origin: origin, size: drawSize),
             from: .zero, operation: .sourceOver, fraction: fraction
         )
+    }
+
+    // MARK: - Legend (info window)
+
+    /// The full menu-bar icon — star plus ONE badge in its corner — as it looks
+    /// in the bar, for the info-window symbol legend. Real drawing code, not an
+    /// emoji or an isolated dot. `dark` matches the panel theme.
+    static func legendImage(_ composition: IconComposition, dark: Bool) -> NSImage {
+        compose(composition, base: .dial, dark: dark)
     }
 }

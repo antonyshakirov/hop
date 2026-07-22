@@ -40,6 +40,10 @@ enum SettingsKey {
     static let appLanguage = "appLanguage" // "auto" or an AppLanguage code
     /// Red "!" on the left of the icon when the monitor hits the red zone; off by default.
     static let menuBarRedAlert = "menuBarRedAlert"
+    /// Colour the menu-bar icon's corner badges (green/yellow/orange/red). ON by
+    /// default; OFF renders every badge monochrome, telling same-corner pairs
+    /// apart by shape (filled vs outline).
+    static let coloredIndicators = "coloredIndicators"
     /// JSON-encoded PanelTabsModel: the user's spaces (icon tabs) and their module keys.
     static let panelTabs = "panelTabs"
     /// One-shot flag: models saved before the tracker had its own tab get the

@@ -21,24 +21,39 @@ enum Snapshot {
             exit(0)
         }
 
-        // Render the status bar icons in all states — a visual check of the badges.
+        // Render the status bar icons in all states — a visual check of the
+        // corner-badge system (both colour and monochrome).
         if let i = args.firstIndex(of: "--menubar-icons"), args.count > i + 1 {
-            let variants: [(String, MenuBarIcon.StateBadge?, NSColor?)] = [
-                ("idle", nil, nil),
-                ("running", .running, nil),
-                ("paused", .paused, nil),
-                ("idle+awake", nil, .systemYellow),
-                ("running+awake", .running, .systemYellow),
-                ("lid-only", nil, .systemOrange),
+            active = true // suppress the dev "D" so the badges are seen clean
+            let variants: [(String, IconState)] = [
+                ("idle", IconState()),
+                ("engine", IconState(engine: .running)),
+                ("task", IconState(tracking: true)),
+                ("engine+task", IconState(engine: .running, tracking: true)),
+                ("no-sleep", IconState(noSleep: true)),
+                ("lid", IconState(lid: true)),
+                ("no-sleep+lid", IconState(noSleep: true, lid: true)),
+                ("alert", IconState(alertSteady: true)),
+                ("torrent-down", IconState(torrentDown: true)),
+                ("torrent-both", IconState(torrentDown: true, torrentUp: true)),
+                ("no-sleep+lid+engine", IconState(engine: .running, noSleep: true, lid: true)),
+                ("worst", IconState(engine: .running, tracking: true, noSleep: true, lid: true,
+                                    alertSteady: true, torrentDown: true, torrentUp: true)),
             ]
-            let canvas = NSImage(size: NSSize(width: 130, height: CGFloat(variants.count) * 26))
+            let rowH: CGFloat = 26
+            // two columns: coloured (dark bar) on the left, monochrome on the right
+            let canvas = NSImage(size: NSSize(width: 340, height: CGFloat(variants.count) * rowH))
             canvas.lockFocus()
             NSColor(white: 0.1, alpha: 1).setFill()
             NSRect(origin: .zero, size: canvas.size).fill()
             for (index, v) in variants.enumerated() {
-                let y = canvas.size.height - CGFloat(index + 1) * 26 + 4
-                MenuBarIcon.compose(base: .dial, badge: v.1, awakeDot: v.2)
+                let y = canvas.size.height - CGFloat(index + 1) * rowH + 4
+                var colored = v.1; colored.colored = true
+                var mono = v.1; mono.colored = false
+                MenuBarIcon.compose(IconBadges.compose(colored), dark: true)
                     .draw(at: NSPoint(x: 8, y: y), from: .zero, operation: .sourceOver, fraction: 1)
+                MenuBarIcon.compose(IconBadges.compose(mono), dark: true)
+                    .draw(at: NSPoint(x: 200, y: y), from: .zero, operation: .sourceOver, fraction: 1)
                 let attrs: [NSAttributedString.Key: Any] = [
                     .font: NSFont.monospacedSystemFont(ofSize: 9, weight: .regular),
                     .foregroundColor: NSColor.white.withAlphaComponent(0.6),

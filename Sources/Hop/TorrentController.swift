@@ -322,21 +322,22 @@ final class TorrentController: ObservableObject {
     var aggregateDownBps: Int64 { torrents.compactMap { $0.stats?.downloadBps }.reduce(0, +) }
     var aggregateUpBps: Int64 { torrents.compactMap { $0.stats?.uploadBps }.reduce(0, +) }
 
-    /// What the menu bar should signal at a glance. `.downloading` whenever a
-    /// non-paused torrent is still fetching (steady — not tied to the instantaneous
-    /// speed, so the arrow doesn't flicker); `.seeding` once everything is done but
-    /// still actually uploading; `.none` when idle, paused, or empty.
-    enum MenuBarActivity { case downloading, seeding, none }
-    var menuBarActivity: MenuBarActivity {
+    /// Independent download/upload signals for the menu-bar corner arrows: a
+    /// non-paused torrent still fetching lights ↓ (steady — not tied to the
+    /// instantaneous speed, so it doesn't flicker), a FINISHED torrent that is
+    /// actively uploading lights ↑ (true seeding, not the incidental upload that
+    /// rides along with a download). Both can be true at once — one torrent
+    /// fetching while another seeds — which is the "↓↑" state. Both false when
+    /// idle, paused, or empty.
+    var menuBarTransfer: (down: Bool, up: Bool) {
         let active = torrents.filter {
             !($0.optimisticPaused ?? ($0.pausedByPolicy || $0.stats?.state == .paused))
         }
-        guard !active.isEmpty else { return .none }
-        // An errored torrent isn't "downloading" — don't light the menu-bar arrow for it.
-        if active.contains(where: { !($0.stats?.finished ?? false) && $0.stats?.state != .error }) {
-            return .downloading
-        }
-        return aggregateUpBps > 0 ? .seeding : .none
+        guard !active.isEmpty else { return (false, false) }
+        // An errored torrent isn't "downloading" — don't light the arrow for it.
+        let down = active.contains { !($0.stats?.finished ?? false) && $0.stats?.state != .error }
+        let up = active.contains { ($0.stats?.finished ?? false) && ($0.stats?.uploadBps ?? 0) > 0 }
+        return (down, up)
     }
 
     /// Snapshot/demo seam (mirrors SystemStatsController.injectDemoHistory):

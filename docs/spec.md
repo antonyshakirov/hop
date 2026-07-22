@@ -70,6 +70,73 @@ signing would break).
    space/overlay gets a fresh scroll identity that starts at offset 0).
 6. popover.animates = false; the popover theme follows the setting/system.
 
+## Menu bar icon — corner badges
+
+The status-item star carries small badges in its four corners, on a fixed
+22×17 canvas so the icon never changes width. The composition (which badge,
+where) is a pure HopCore function — `IconBadges.compose(IconState) →
+IconComposition` — with no AppKit, fully unit-tested (`IconBadgesTests`); the
+renderer `MenuBarIcon.compose` only draws what it returns. Corner assignment is
+spatial: attention top-left, awake dots top-right, time wedges bottom-right,
+torrent arrows bottom-left. **Colours are the documented exception to the
+Theme-token rule** — the badges use the fixed Apple system palette so they read
+identically on every user's bar.
+
+- **Bottom-right — time wedges.** A green `PlayGlyph` wedge (systemGreen) =
+  the ENGINE's time is running — either a countdown timer OR a stopwatch; the
+  two are mutually exclusive (one engine slot), so the star never distinguishes
+  them (the title's digits already show whether the value falls or climbs).
+  A dark-green wedge (opaque `#159E46`, a saturated ~40%-darker systemGreen) =
+  a TASK is tracking. A wedge is drawn only while its clock is actually RUNNING
+  (a play triangle means "running" — a PAUSED engine shows no wedge) AND only
+  when that clock's value is NOT already spelled out as digits in the title (the
+  digits are the wedge's redundant twin). So with the countdown ON (default) a
+  running timer shows digits and no green wedge, while a tracking task still
+  shows its dark-green wedge in the corner. With the countdown OFF both wedges
+  can share the corner: green (engine) then dark-green (task), each a squat,
+  seated, rounded triangle, separated by a small gap plus a thin dark keyline
+  seam so a 1x pair still reads as two. The impossible "timer + stopwatch" combo
+  cannot be expressed (the engine is one value), so a triple never occurs.
+- **Top-right — awake dots.** Yellow (systemYellow) = no-sleep active; orange
+  (systemOrange) = lid mode applied. They are independent, not a priority — BOTH
+  dots can show, a dense row with a light overlap (in 1x they melt into one
+  two-colour blob, accepted). A single dot sits in the far corner; a pair grows
+  leftward.
+- **Top-left — attention "!".** A saturated deep red (`#D81C0C`). Two sources:
+  the monitor red zone (opt-in `menuBarRedAlert`) burns STEADILY; a task left
+  running past 8h (`TrackerOverrun.isBannerVisible`, same episode/ack logic as
+  the panel banner) BLINKS 1s-on/1s-off off the tracker heartbeat. If both are
+  active the steady source keeps it lit. Tick-driven only — no `repeatForever`.
+- **Bottom-left — torrent arrows.** ↓ downloading, ↑ seeding (a FINISHED torrent
+  actively uploading), or both side by side — the two can co-occur (one fetching
+  while another seeds). Always the star's glyph colour (white/85%-black), the one
+  bottom badge that is not green. `TorrentController.menuBarTransfer` supplies the
+  two independent booleans. This REPLACES the old ↓/↑ glyph that lived in the
+  title (which no longer carries transfer, so it can never shift the panel).
+- **Colour vs monochrome.** The `colored indicators` setting (general, default
+  ON) colours the badges. OFF renders every badge in the glyph colour and tells
+  the two same-corner pairs apart by SHAPE: no-sleep = filled dot, lid = outline
+  ring; engine = filled wedge, task = outline wedge (same outer size as filled);
+  the "!" and arrows stay their single shape. Per-badge on/off switches were
+  rejected — a badge always shows while its state is active; only colour is a
+  setting.
+- **Legend** (info window, general tab, below the settings/quit/about rows):
+  each basic single state as the FULL bar icon (star + that one badge, drawn by
+  the real renderer via `MenuBarIcon.legendImage`, in colour) with its meaning
+  beside it, at the menu-row rhythm — engine wedge, task wedge, no-sleep dot,
+  lid dot, "!", ↓, ↑, and one wrapping note about the mono fill/outline
+  distinction. Only single states are listed; combinations are read mark by
+  mark. The no-sleep line uses the module's OWN name pulled from L10n at runtime
+  (`String(format:, t(.awakeOff))`), phrased as a STATE ("<awake module> on"),
+  not an effect ("keeps the Mac awake"). All strings localized x18.
+- **Retired indicators** (absorbed by the above): the yellow moon in the title,
+  the hand-drawn tracking mini-stopwatch badge, the stopwatch title glyph, and
+  the purple task-time idea (dark-green won). The finish **bell** is unchanged
+  (base symbol, still blinks until acknowledged). The dev **"D"** mark
+  (bottom-left, suppressed under `--snapshot`) and the template fast path for the
+  calm undecorated star both survive. The template path is used only when the
+  composition is empty; any badge routes through `compose`.
+
 ## Modules
 
 The main screen shows the modules of the selected space (tab) as a stack,
@@ -83,7 +150,8 @@ bucket).
 
 The settings window's top-level text-switcher has five sibling sections, in
 order: "general" for the everyday options (theme, language, launch, sounds,
-updates, app icon, and the GLOBAL hotkeys only — show panel / timer / no-sleep),
+updates, app icon, the `colored indicators` toggle for the menu-bar badges, and
+the GLOBAL hotkeys only — show panel / timer / no-sleep),
 "modules & tabs" for the panel layout, "timer", "monitor", and "other modules"
 (which now also carries the window-manager section — the grid/row layout picker
 and the "resize windows with hotkeys" toggle/grid, moved out of general on
@@ -182,8 +250,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the zeroed digits keep a subtle pulse (`isFinishSettled`) as a "reset me" cue
   until a reset or a new start ends the finished state. Play from finished
   restarts the same duration.
-- Stopwatch: ⏱ icon to the right of the presets, counts up, also shown in
-  the menu bar. Mode switching is allowed from idle/finished/PAUSED
+- Stopwatch: ⏱ icon to the right of the presets, counts up. In the menu bar it
+  shares the engine's green wedge with the timer (see "Menu bar icon — corner
+  badges") — no separate stopwatch glyph. Mode switching is allowed from idle/finished/PAUSED
   (paused = "already stopped", so discarding an unfinished timer is
   deliberate); while running — a pulsing hint "press pause first".
   The switch does NOT depend on preset row visibility: with the preset row
@@ -212,10 +281,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Keeps the Mac awake: downloads/processes aren't interrupted. Options
   15/30 min, 1/2/4/8 h, ∞ (turning it on without an option = ∞); the hour
   letter in the chips is localized (key unitHour), the ∞ glyph is raised
-  1pt toward the optical center. Yellow moon + compact remaining time
-  (29m / 1h59m, unit letters localized); clicking the moon turns it off.
-  In the menu bar — the moon + the remaining time as text
-  (monochrome: color doesn't render in the macOS status bar).
+  1pt toward the optical center. In the panel: a moon that turns yellow while
+  active + compact remaining time (29m / 1h59m, unit letters localized);
+  clicking the moon turns it off. In the menu bar it shows as a yellow corner
+  dot (see "Menu bar icon — corner badges"), not a title glyph.
 - IOPM assertion: PreventUserIdleSystemSleep by default (the display may
   sleep); "display stays on" → PreventUserIdleDisplaySleep.
 - Lid: an icon button next to the moon (while awake is active). Enabling
@@ -276,9 +345,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   The chart window is a setting: 5/10/30 min or 1 hour, default 5
   (history buffer 61 min); lines are laid out by the points' timestamps.
   In chart mode the rows are larger (12pt).
-- A red "!" on the left of the menu bar icon during a red zone (same
-  thresholds that color the values; a charging battery doesn't count).
-  OFF by default, toggle in monitor settings.
+- A red "!" (top-left of the menu bar icon, steady) during a red zone (same
+  thresholds that color the values; a charging battery doesn't count). OFF by
+  default, toggle in monitor settings. It shares the top-left "!" with the
+  tracker's 8-hour blink — see "Menu bar icon — corner badges".
 
 ### Clipboard
 
@@ -497,33 +567,26 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`start(taskID:)`), the UI never juggles two. Deleting the active task stops
   tracking (its open interval is dropped with it). `activeIntervalStart` exposes
   the open interval's start so the view can flag a long run (see 8-hour warning).
-- **Menu-bar indication:** while a task is tracking, a small hand-drawn
-  monochrome stopwatch BADGE is shown in the icon's bottom-right slot — the
-  same slot the timer's play/pause badge uses (`MenuBarIcon.drawTrackingBadge`:
-  a ~5.4pt stroked circle body with a short crown tick on top, drawn by hand
-  because an SF `stopwatch` symbol reads spiky at 7pt). It is monochrome — the
-  star's glyph colour (white in dark, 85%-black in light), NOT a system colour
-  like the green/orange play/pause badges — so tracking adds no new hue to the
-  bar. Crucially it lives on the FIXED 22×17 icon canvas, so tracking has ZERO
-  effect on the status-item width and cannot shift the attached panel (this
-  replaced an earlier in-title glyph that widened the button — Anton, 2026-07-20).
-  **Slot precedence:** the timer's play/pause badge WINS the slot; the badge
-  only appears when the countdown digits are HIDDEN, so in the normal config
-  (digits on) the countdown sits in the title and the stopwatch badge in the
-  corner — both states visible at once. In the rare overlap (countdown digits
-  OFF + timer running/paused + a task tracking) the timer badge takes the slot
-  and the tracking state is visible only inside the panel; this is deliberate.
-  Tracking is a decoration, so it drops out of the plain-template fast path and
-  the icon goes through `compose` (same as a badge or awake dot). An opt-in
-  `show task time in menu bar` setting (`trackerTimeInBar`, OFF) additionally
-  shows the active task's ticking `today` value as the bar title (digits only —
-  no glyph), but only when nothing else claimed it — the timer countdown always
-  wins. `today(taskID:)` stays in the engine for this figure and for corrections
-  math; the panel itself shows the total, not today. The badge toggles
-  immediately on start/stop off `tracker.heartbeat`; the opt-in bar time ticks
-  1/s. The badge never touches the title, so it plays no part in the
-  width-freeze — only the `trackerTimeInBar` digits (a deliberate, opt-in width
-  change of the same class as the countdown) ever change the title width.
+- **Menu-bar indication:** while a task is tracking, a dark-green wedge sits in
+  the icon's bottom-right corner (see "Menu bar icon — corner badges"), next to
+  the engine's green wedge when both run. It is suppressed only when the task's
+  own `today` value is spelled out as digits in the title (the opt-in below);
+  otherwise it shows whether or not a timer is also running. It lives on the
+  FIXED 22×17 icon canvas, so tracking has ZERO effect on the status-item width
+  and cannot shift the attached panel (this replaced an earlier in-title glyph
+  that widened the button — Anton, 2026-07-20). Tracking is a decoration, so it
+  drops out of the plain-template fast path and the icon goes through `compose`.
+  An opt-in `show task time in menu bar` setting (`trackerTimeInBar`, OFF)
+  additionally shows the active task's ticking `today` value as the bar title
+  (digits only — no glyph), but only when nothing else claimed it — the timer
+  countdown always wins; when those digits show, the dark-green wedge is dropped
+  (the digits are its redundant twin). `today(taskID:)` stays in the engine for
+  this figure and for corrections math; the panel itself shows the total, not
+  today. The wedge toggles immediately on start/stop off `tracker.heartbeat`; the
+  opt-in bar time ticks 1/s. The wedge never touches the title, so it plays no
+  part in the width-freeze — only the `trackerTimeInBar` digits (a deliberate,
+  opt-in width change of the same class as the countdown) ever change the title
+  width. A task left running past 8h also raises the blinking top-left "!".
 - **Flat rows** (no card fills — TorrentView-style): regular weight everywhere;
   the ACTIVE task is emphasized by COLOR only (its total label
   `Theme.textPrimary`). Rows sit FLUSH LEFT — there is no reserved drag-handle
