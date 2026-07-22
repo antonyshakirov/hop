@@ -335,15 +335,25 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   is on the active space and no field is being edited (a focused tracker/to-do
   field or timer-digit entry keeps the keys); otherwise the keys pass through,
   and the clipboard module's own paste is untouched. In the standalone window ⌘V
-  works unconditionally and regardless of click-focus — Hop is an accessory app
-  with no Edit menu, so there is no Paste key-equivalent to drive SwiftUI's
-  `onPasteCommand`; the window itself catches ⌘V (`ConverterWindow`'s
-  `performKeyEquivalent`) whenever it is key. `performKeyEquivalent` calls
-  `super` FIRST and handles ⌘V only when super returns false, so the responder
-  chain (any future editable field) keeps first refusal on paste; with no such
-  field today the behavior is unchanged. An empty or text-only clipboard is
-  a silent no-op; an unsupported file lands in the "unsupported" group, same as
-  a dropped file of that type.
+  works regardless of click-focus — Hop is an accessory app with no Edit menu, so
+  there is no Paste key-equivalent to drive SwiftUI's `onPasteCommand`. The
+  primary route is a local keyDown monitor installed with the window: it fires
+  before `NSApplication`'s key-window routing, so paste does NOT depend on the
+  window being `NSApp.keyWindow`. This matters because the window is often opened
+  from a background state (the user copied files in Finder, then triggered Hop),
+  and `NSApp.activate` is asynchronous — on macOS 14+ cooperative activation it
+  can lag or be denied — so `keyWindow` can be nil at the moment ⌘V is pressed;
+  a plain key-equivalent would then reach no window and the paste would be
+  silently dropped. The monitor ingests ⌘V only when the converter window is the
+  intended target — visible AND (already key, or no window has claimed key yet) —
+  so it never steals ⌘V from another window that owns key (the gate is the pure,
+  tested `ConverterPaste.shouldIngest`). `ConverterWindow.performKeyEquivalent`
+  (which calls `super` first) is retained as a harmless fallback, but the monitor
+  is the actual route: it fires first and consumes ⌘V, so nothing double-adds
+  (and `addToBatch` dedups by path regardless). The converter window has no
+  editable field, so the monitor claiming every ⌘V while the window is the target
+  is safe. An empty or text-only clipboard is a silent no-op; an unsupported file
+  lands in the "unsupported" group, same as a dropped file of that type.
 - Groups: images / PDF / video / audio / unsupported. Each file gets:
   a thumbnail (QuickLook), name, its own size "current → ~estimated";
   the circle turns into a green checkmark when done. Finished files

@@ -25,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// auto-fit silently turned off forever — hence the "hole" below an empty converter
     private var converterExpectedHeight: CGFloat = -1
     private var contentHeightSink: AnyCancellable?
+    private var converterPasteMonitor: Any?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Agent without a Dock icon — including dev runs via `swift run`.
@@ -532,6 +533,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // catches ⌘V itself (performKeyEquivalent), so paste works whenever
             // the window is key regardless of which subview holds focus.
             window.onPaste = { [weak self] in self?.model.converter.addFromPasteboard() }
+            // performKeyEquivalent is only offered to NSApp.keyWindow. Opening
+            // the converter from a background state (the user copied in Finder,
+            // then triggered Hop) activates the app asynchronously — on macOS
+            // 14+ cooperative activation it can lag or be denied — so keyWindow
+            // is nil when ⌘V is pressed and the key-equivalent reaches no window,
+            // silently dropping the paste. A local keyDown monitor fires before
+            // that routing, so paste no longer depends on the window being key.
+            converterPasteMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self, weak window] event in
+                // ⌘V or ⌘⇧V (shift-arriving "V"), same as the panel's paste keys.
+                let mods = event.modifierFlags
+                    .intersection(.deviceIndependentFlagsMask).subtracting(.shift)
+                guard let self, let window,
+                      mods == .command,
+                      event.charactersIgnoringModifiers?.lowercased() == "v",
+                      ConverterPaste.shouldIngest(
+                        windowVisible: window.isVisible,
+                        windowIsKey: window.isKeyWindow,
+                        hasKeyWindow: NSApp.keyWindow != nil)
+                else { return event }
+                self.model.converter.addFromPasteboard()
+                return nil // consumed — never double-fires with performKeyEquivalent
+            }
             window.titlebarAppearsTransparent = true
             window.titleVisibility = .hidden
             // the window drags only by the title bar: background dragging
