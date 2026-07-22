@@ -1,5 +1,28 @@
 # Hop — version history
 
+## 1.4.0 — 2026-07-22
+
+- Spaces: the menu-bar icon now carries up to four tabs, and any module can be
+  dragged from one tab to another. A "modules & tabs" table in settings lays it
+  all out, with an inactive bucket for the modules you've set aside.
+- Time tracker: a new module — a flat list of tasks, each with today's time and a
+  running total. Today's time is editable by hand, and a banner appears once a
+  task has been timing for over 8 hours.
+- To-dos: a new checklist module; completed items sink to the bottom.
+- Clipboard: copied files are now kept by name (several at once show as
+  "name +N"), and pasting restores the actual file.
+- Menu-bar icon: small corner badges show status at a glance — time wedges,
+  no-sleep and closed-lid dots, an alert "!", torrent arrows — with a setting to
+  keep them colored or monochrome.
+- Converter: ⌘V paste works on every keyboard layout now, including when the
+  window is opened from the background.
+- Settings: a "visible rows" setting for the task and tracker lists, and a
+  KB/s / MB/s toggle for torrent speed limits.
+- Monitor: the memory figure now matches Activity Monitor's Memory Used exactly.
+- Timer: on finish it plays a single sound, and the digits pulse until you reset.
+- Support: for anyone who'd like to, a card in the info window makes it possible
+  to support hop, with a Telegram link in the footer — a gift, no perks attached.
+
 ## 1.3.1 — 2026-07-18
 
 - Torrents: enabling the module now downloads the engine right away — the
