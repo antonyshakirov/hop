@@ -176,19 +176,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
-        // temp diagnostics: open the converter without clicking the UI
-        if CommandLine.arguments.contains("--open-about") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                self?.showAboutWindow()
-                NSLog("HOP-DIAG about opened frame=%@", NSStringFromRect(self?.aboutWindow?.frame ?? .zero))
+        // Diagnostics: open a window straight from a launch flag (no UI click) and
+        // log its frame to the system log. Dev/snapshot builds only — the
+        // Bundle.isDevBuild gate (the same one the updater and dev-badge share)
+        // keeps both the flags and the HOP-DIAG logging out of the shipped
+        // release app, which is compiled -c release like the dev app, so #if DEBUG
+        // would not tell them apart.
+        if Bundle.isDevBuild {
+            if CommandLine.arguments.contains("--open-about") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                    self?.showAboutWindow()
+                    NSLog("HOP-DIAG about opened frame=%@", NSStringFromRect(self?.aboutWindow?.frame ?? .zero))
+                }
             }
-        }
-        if CommandLine.arguments.contains("--open-converter") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                self?.showConverterWindow()
-                if let f = self?.converterWindow?.frame {
-                    NSLog("HOP-DIAG converter frame=%@ visible=%d",
-                          NSStringFromRect(f), (self?.converterWindow?.isVisible ?? false) ? 1 : 0)
+            if CommandLine.arguments.contains("--open-converter") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                    self?.showConverterWindow()
+                    if let f = self?.converterWindow?.frame {
+                        NSLog("HOP-DIAG converter frame=%@ visible=%d",
+                              NSStringFromRect(f), (self?.converterWindow?.isVisible ?? false) ? 1 : 0)
+                    }
                 }
             }
         }
@@ -733,7 +740,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Safe mode: only an AppKit menu and the updater, no model,
     /// no SwiftUI — a minimal surface with nothing left to crash.
     private func enterSafeMode() {
-        NSLog("HOP-DIAG safe mode entered")
+        // Dev/snapshot builds only — no HOP-DIAG in the shipped release app.
+        if Bundle.isDevBuild { NSLog("HOP-DIAG safe mode entered") }
         let lang = L10n.current
         let updater = UpdateChecker()
         safeUpdater = updater
