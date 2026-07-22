@@ -731,9 +731,23 @@ struct PanelView: View {
         // field or the clipboard module. When the converter isn't here the keys
         // pass through unchanged. An empty/text-only clipboard is a silent no-op,
         // but the key is still swallowed: the converter is the paste target here,
-        // so there is nothing else for Cmd+V to do inside the panel. The "v"
-        // match is case-insensitive so ⌘⇧V (which can arrive as "V") still hits.
-        if press.modifiers.contains(.command), press.key.character.lowercased() == "v" {
+        // so there is nothing else for Cmd+V to do inside the panel.
+        //
+        // Match the PHYSICAL V key (keyCode 9) via the keyDown NSEvent being
+        // dispatched, NOT the produced character: on a non-Latin layout ⌘V maps
+        // to a different character (Cyrillic on a Russian layout), and
+        // `KeyPress.key.character == "v"` silently dropped the paste. Fall back
+        // to the character only if the event bridge is somehow unavailable, so
+        // ANSI layouts never regress.
+        let isPasteChord: Bool
+        if let ev = NSApp.currentEvent, ev.type == .keyDown {
+            isPasteChord = KeyChord.isPasteChord(
+                keyCode: ev.keyCode, modifierFlags: ev.modifierFlags.rawValue)
+        } else {
+            isPasteChord = press.modifiers.contains(.command)
+                && press.key.character.lowercased() == "v"
+        }
+        if isPasteChord {
             guard let id = currentSpaceID,
                   visibleModules(in: id).contains("convert"),
                   editUnit == nil

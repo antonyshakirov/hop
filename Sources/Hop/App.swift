@@ -548,12 +548,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // silently dropping the paste. A local keyDown monitor fires before
             // that routing, so paste no longer depends on the window being key.
             converterPasteMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self, weak window] event in
-                // ⌘V or ⌘⇧V (shift-arriving "V"), same as the panel's paste keys.
-                let mods = event.modifierFlags
-                    .intersection(.deviceIndependentFlagsMask).subtracting(.shift)
+                // Match the PHYSICAL V key (keyCode 9), not the produced character:
+                // a non-Latin layout maps ⌘V to a different character (a Cyrillic
+                // letter on a Russian layout, not "v"), so a character check
+                // silently dropped the paste. ⌘V and ⌘⇧V both count.
                 guard let self, let window,
-                      mods == .command,
-                      event.charactersIgnoringModifiers?.lowercased() == "v",
+                      KeyChord.isPasteChord(
+                        keyCode: event.keyCode,
+                        modifierFlags: event.modifierFlags.rawValue),
                       ConverterPaste.shouldIngest(
                         windowVisible: window.isVisible,
                         windowIsKey: window.isKeyWindow,
@@ -898,8 +900,11 @@ final class ConverterWindow: NSWindow {
         // else claimed ⌘V. With no such field today, super returns false and the
         // behavior is unchanged — but this can never silently steal paste later.
         if super.performKeyEquivalent(with: event) { return true }
-        if event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command,
-           event.charactersIgnoringModifiers?.lowercased() == "v" {
+        // Match the PHYSICAL V key (keyCode 9), not the produced character: a
+        // non-Latin layout maps ⌘V to a different character (Cyrillic on a
+        // Russian layout, not "v"), which a character check would miss. ⌘V and
+        // ⌘⇧V both paste.
+        if KeyChord.isPasteChord(keyCode: event.keyCode, modifierFlags: event.modifierFlags.rawValue) {
             onPaste?()
             return true
         }

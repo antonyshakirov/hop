@@ -339,7 +339,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   there is no Paste key-equivalent to drive SwiftUI's `onPasteCommand`. The
   primary route is a local keyDown monitor installed with the window: it fires
   before `NSApplication`'s key-window routing, so paste does NOT depend on the
-  window being `NSApp.keyWindow`. This matters because the window is often opened
+  window being `NSApp.keyWindow`. Paste chords are matched by the PHYSICAL V key
+  code (kVK_ANSI_V = 9), never by the produced character — `charactersIgnoringModifiers`
+  is layout-dependent, so ⌘V on a Russian layout arrives as a Cyrillic character
+  and a character check would silently drop the paste. Both the panel and the window use the pure,
+  tested `KeyChord.isPasteChord` (⌘ held, ⇧ allowed, ⌃/⌥ absent), so paste is
+  keyboard-layout-independent. This matters because the window is often opened
   from a background state (the user copied files in Finder, then triggered Hop),
   and `NSApp.activate` is asynchronous — on macOS 14+ cooperative activation it
   can lag or be denied — so `keyWindow` can be nil at the moment ⌘V is pressed;
