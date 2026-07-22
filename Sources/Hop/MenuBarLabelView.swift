@@ -221,7 +221,15 @@ enum MenuBarIcon {
             : glyph
         // rounding via a thick round-join stroke, exactly like PlayGlyph
         let round = box.width * 0.42
-        let inset = round / 2
+        let filled = colored || badge.monoFilled
+        // The filled wedge is a triangle inset by round/2 and grown back OUT by a
+        // round-join stroke of width `round`, so its outer edge lands on `box`. The
+        // mono outline must reach that SAME outer edge (only hollow inside), so its
+        // triangle is inset by just stroke/2 and grown back by a `stroke`-wide round
+        // join — both then share identical outer bounds; only the wall differs (full
+        // fill vs a thin ring). Insetting by round/2 too, as before, left the outline
+        // (round-stroke)/2 short on every side and it read visibly smaller.
+        let inset = filled ? round / 2 : stroke / 2
         // seated base: the left edge is shorter than the full height (not
         // equilateral); the apex sits on the vertical centre. Trimmed from 0.35
         // so the wedge keeps more height (owner review: it read too pancaked).
@@ -232,18 +240,13 @@ enum MenuBarIcon {
         tri.line(to: NSPoint(x: box.maxX - inset, y: box.midY))
         tri.close()
         tri.lineJoinStyle = .round
-        if colored || badge.monoFilled {
+        color.setStroke()
+        tri.lineWidth = filled ? round : stroke
+        if filled {
             color.setFill()
-            color.setStroke()
-            tri.lineWidth = round
             tri.fill()
-            tri.stroke()
-        } else {
-            // mono task: outline only, same outer gabarit as the filled twin
-            color.setStroke()
-            tri.lineWidth = stroke
-            tri.stroke()
         }
+        tri.stroke()
     }
 
     /// The thin dark keyline drawn just left of a wedge that has a neighbour, so
