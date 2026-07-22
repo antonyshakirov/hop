@@ -162,30 +162,32 @@ enum MenuBarIcon {
         // dot order above.
         let wedges = c.badges.filter { $0.corner == .bottomRight }
         let pairMode = wedges.count > 1
-        // pair wedges are narrower (two must fit the dot pair's span without
-        // overlap); a lone wedge is wider/taller. Proportions kept squat, not flat.
-        // The pair's stride (wedgeW + gap) is a whole 5.0pt so BOTH wedges land on
-        // the same sub-pixel phase and rasterise pixel-identically at any backing
-        // scale — otherwise the twin triangles came out a pixel apart in size.
-        let wedgeW: CGFloat = pairMode ? 4.0 : 5.3
-        let wedgeH: CGFloat = pairMode ? 4.5 : 5.6
-        let gap: CGFloat = 1.0
+        // Bigger than the last cut. The pair is a TIGHT pair with a SLIGHT overlap
+        // (0.8pt, far less than the old 1.5pt), and the LEFT (engine) wedge is drawn
+        // ON TOP so its thin pointed tip only grazes the right wedge's wide base —
+        // neither twin looks truncated (drawing the right one on top would instead
+        // cover the left one's apex and make it read smaller). Stride (wedgeW −
+        // overlap) is a whole 4.0pt, so both twins share a sub-pixel phase and
+        // rasterise pixel-identically at any backing scale. 4.8 is the widest that
+        // still fits the dot pair's footprint with this overlap; a lone wedge is
+        // larger, in the far-right column like a lone dot.
+        let wedgeW: CGFloat = pairMode ? 4.8 : 5.8
+        let wedgeH: CGFloat = pairMode ? 5.4 : 6.1
+        let overlap: CGFloat = 0.8
         let botY: CGFloat = 0.4
-        var wedgeBoxes: [NSRect]
         if pairMode {
-            // centre the pair under the dot pair (same overall span as the dots)
+            let stride = wedgeW - overlap                  // whole 4.0pt → equal twins
+            let pairW = wedgeW + stride
             let dotRight = w - 0.4
             let dotLeft = dotRight - dotD - (dotD - 1.5)   // leftmost dot's left edge
-            let pairW = wedgeW * 2 + gap
-            let pairLeft = (dotLeft + dotRight) / 2 - pairW / 2
-            wedgeBoxes = [
-                NSRect(x: pairLeft, y: botY, width: wedgeW, height: wedgeH),
-                NSRect(x: pairLeft + wedgeW + gap, y: botY, width: wedgeW, height: wedgeH),
-            ]
-        } else {
-            wedgeBoxes = [NSRect(x: w - 0.4 - wedgeW, y: botY, width: wedgeW, height: wedgeH)]
-        }
-        for (badge, box) in zip(wedges, wedgeBoxes) {
+            let pairLeft = (dotLeft + dotRight) / 2 - pairW / 2   // centred under the dots
+            let engineBox = NSRect(x: pairLeft, y: botY, width: wedgeW, height: wedgeH)
+            let taskBox = NSRect(x: pairLeft + stride, y: botY, width: wedgeW, height: wedgeH)
+            // right (task) first, then left (engine) on top: the tip grazes the base
+            drawWedge(wedges[1], box: taskBox, colored: c.colored, glyph: glyph)
+            drawWedge(wedges[0], box: engineBox, colored: c.colored, glyph: glyph)
+        } else if let badge = wedges.first {
+            let box = NSRect(x: w - 0.4 - wedgeW, y: botY, width: wedgeW, height: wedgeH)
             drawWedge(badge, box: box, colored: c.colored, glyph: glyph)
         }
 
