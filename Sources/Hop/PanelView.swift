@@ -51,6 +51,7 @@ struct PanelView: View {
     @AppStorage("monitorWindowMin") private var monitorWindowMin = 5
     @AppStorage(HotkeyManager.snapHotkeysKey) private var windowsHotkeysOn = true
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
+    @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
     @AppStorage(AppIcon.styleKey) private var appIconStyle = "auto"
     // Default ON — registered as a UserDefaults default in applicationDidFinishLaunching,
@@ -2969,6 +2970,16 @@ struct PanelView: View {
                 appIconChip(dark: true)
             }
 
+            // colour the menu-bar icon's corner badges; off = monochrome, shape
+            // tells the same-corner pairs apart (see the info-window legend)
+            HStack {
+                Text(t(.coloredIndicators))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: $coloredIndicators)
+            }
+
             Rectangle()
                 .fill(Theme.divider)
                 .frame(height: 1)
@@ -3925,6 +3936,46 @@ struct PanelView: View {
         }
     }
 
+    /// The menu-bar symbol legend for the info window's general tab: every basic
+    /// single state shown as the FULL bar icon (star + that one badge), drawn by
+    /// the real renderer, with its meaning beside it — a "what each mark means"
+    /// reference. Combinations are not listed; the user reads each mark on its own.
+    /// Icons render in colour (the dictionary IS colour-based); the final row
+    /// notes the mono fill/outline distinction used when colour is off.
+    private var menuBarBadgeLegend: some View {
+        let dark = Theme.isDark
+        return VStack(alignment: .leading, spacing: 8) {
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            Text(t(.legendBadgeHeader))
+                .font(Theme.mono(10, weight: .semibold))
+                .foregroundStyle(Theme.textTertiary)
+            badgeLegendRow(IconComposition(engineTime: true), t(.legendBadgeEngine), dark)
+            badgeLegendRow(IconComposition(taskTime: true), t(.legendBadgeTask), dark)
+            badgeLegendRow(IconComposition(noSleep: true),
+                           String(format: t(.legendBadgeNoSleep), t(.awakeOff)), dark)
+            badgeLegendRow(IconComposition(lid: true), t(.legendBadgeLid), dark)
+            badgeLegendRow(IconComposition(alert: true), t(.legendBadgeAlert), dark)
+            badgeLegendRow(IconComposition(torrent: .down), t(.legendBadgeDown), dark)
+            badgeLegendRow(IconComposition(torrent: .up), t(.legendBadgeUp), dark)
+            // mono note: its own icon shows the filled-vs-outline pair
+            badgeLegendRow(IconComposition(engineTime: true, taskTime: true, colored: false),
+                           t(.legendBadgeMono), dark)
+        }
+    }
+
+    private func badgeLegendRow(_ composition: IconComposition, _ meaning: String, _ dark: Bool) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(nsImage: MenuBarIcon.legendImage(composition, dark: dark))
+                .frame(width: 24, height: 17, alignment: .center)
+            Text(meaning)
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.docText)
+                // long meanings (the mono note) wrap instead of truncating
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
     @ViewBuilder private func legendIcon(_ name: String) -> some View {
         if name == "lid" {
             lidGlyph(closed: false, color: Theme.textSecondary)
@@ -4025,6 +4076,10 @@ struct PanelView: View {
                         }
                     }
                 }
+            }
+
+            if aboutSection == "general" {
+                menuBarBadgeLegend
             }
 
             if aboutSection == "general" {
