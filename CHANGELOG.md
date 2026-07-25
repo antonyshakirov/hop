@@ -1,6 +1,6 @@
 # Hop — version history
 
-## 1.5.0 — 2026-07-25
+## 1.5.0 — 2026-07-26
 
 - File archives: a new module — its row opens a window, and that window is the
   drop target; ⌘V works too, several files at once. What you add waits in a list
