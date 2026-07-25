@@ -1394,7 +1394,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   check in both themes.
 - `--snapshot out.png [--stats|--finished|…]` — renders the panel to PNG;
   Toggle/TextField/onDrop produce artifacts in snapshots — a rendering
-  quirk, not a bug.
+  quirk, not a bug. `--about --doc <id>` opens any help tab and
+  `--settings --settings-section <id>` any settings tab, so a text change can
+  be checked where it is actually read.
 - Signing: a permanent self-signed "Minimo Signing" certificate —
   permissions survive reinstalls. Ad-hoc fallback only if the certificate
   is missing (undesirable — TCC gets dropped).

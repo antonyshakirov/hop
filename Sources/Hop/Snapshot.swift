@@ -23,6 +23,15 @@ enum Snapshot {
         return "general"
     }
 
+    /// Which settings section a render opens on: "--settings-section <id>".
+    /// Snapshots only — the live app always opens on "general".
+    static var settingsSectionForRender: String {
+        guard active else { return "general" }
+        let args = CommandLine.arguments
+        if let i = args.firstIndex(of: "--settings-section"), args.count > i + 1 { return args[i + 1] }
+        return "general"
+    }
+
     static func runIfRequested() {
         let args = CommandLine.arguments
 

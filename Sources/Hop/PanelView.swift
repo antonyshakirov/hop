@@ -71,7 +71,7 @@ struct PanelView: View {
     // "--news" opens the what's-new section directly in a `--window-about`
     // snapshot, so the release-notes design can be reviewed as a picture.
     @State private var aboutSection = Snapshot.aboutSectionForRender
-    @State private var settingsSection = "general"
+    @State private var settingsSection = Snapshot.settingsSectionForRender
     @State private var editUnit: TimeInterval? // digit group being edited (3600/60/1)
     // A tracker inline field (project/task name or "today" time) is focused.
     // Feeds `panelKeyboardCaptured` alongside `editUnit` so `handleKey` lets
