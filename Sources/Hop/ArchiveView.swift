@@ -29,9 +29,8 @@ struct ArchiveView: View {
             // the window and the help, not on the panel, where they cost a whole
             // second line for a list nobody reads twice (Anton, 2026-07-26).
             HStack(spacing: 6) {
-                Image(systemName: "archivebox")
-                    .font(.system(size: 12))
-                    .foregroundStyle(targeted ? Theme.editing : Theme.textSecondary)
+                ModuleMarkIcon(symbol: "archivebox",
+                               color: targeted ? Theme.editing : Theme.textSecondary)
                 Text(L10n.t(.archiveLabel, lang))
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
@@ -45,7 +44,7 @@ struct ArchiveView: View {
                         .foregroundStyle(Theme.textTertiary)
                         .lineLimit(1)
                 }
-                RowActionIcon(symbol: "arrow.up.forward.app")
+                RowActionIcon(symbol: "arrow.up.forward.app", compact: true)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 9)

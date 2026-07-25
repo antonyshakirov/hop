@@ -33,7 +33,10 @@ final class ColorPickerController: ObservableObject {
 
     /// Show the loupe. Escape (or clicking outside a screen) hands back nil and
     /// nothing is written — a cancelled pick must not touch the clipboard.
-    func pick() {
+    /// - Parameter onPicked: called after a colour was stored, never on cancel.
+    ///   The panel uses it to come back: it had to close for the loupe, and the
+    ///   whole point is to see the new colour in the list (Anton, 2026-07-26).
+    func pick(onPicked: (() -> Void)? = nil) {
         guard !isSampling, !Snapshot.active else { return }
         isSampling = true
         // The sampler calls back on the main thread but its handler is not typed
@@ -45,6 +48,7 @@ final class ColorPickerController: ObservableObject {
                 picker.isSampling = false
                 guard let color else { return }
                 picker.store(color)
+                onPicked?()
             }
         }
     }

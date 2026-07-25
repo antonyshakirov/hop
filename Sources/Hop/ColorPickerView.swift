@@ -12,6 +12,8 @@ struct ColorPickerView: View {
     /// The panel must get out of the way before the loupe appears — a popover
     /// swallows the first click and hides the pixel the user is aiming at.
     var closePanel: () -> Void = {}
+    /// …and comes back once a colour is picked, so the new row is visible.
+    var reopenPanel: () -> Void = {}
 
     @AppStorage(ClipboardController.colorRowsKey) private var visibleRows =
         ClipboardController.defaultColorRows
@@ -33,9 +35,7 @@ struct ColorPickerView: View {
                 // same glyph as the action button beside it, or the row reads as
                 // two pick buttons (Anton, 2026-07-25). Smaller and tertiary,
                 // like every other module's mark.
-                Image(systemName: "paintpalette")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Theme.textTertiary)
+                ModuleMarkIcon(symbol: "paintpalette", color: Theme.textTertiary)
                 Text(L10n.t(.colorLabel, lang))
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
@@ -45,7 +45,7 @@ struct ColorPickerView: View {
                 // shouted over the colours it produces (Anton, 2026-07-25)
                 Button {
                     closePanel()
-                    picker.pick()
+                    picker.pick { reopenPanel() }
                 } label: {
                     RowActionIcon(symbol: "eyedropper", active: picker.isSampling)
                 }

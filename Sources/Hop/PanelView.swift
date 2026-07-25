@@ -2158,16 +2158,18 @@ struct PanelView: View {
             model.openConverterWindow?()
         } label: {
             HStack(spacing: 6) {
-                Image(systemName: "doc.zipper")
-                    .font(.system(size: 12))
-                    .foregroundStyle(dropTargeted ? Theme.editing : Theme.textSecondary)
-                // just the module name: the converter does more than compress
-                // now (documents change format), so the old qualifier would lie
+                ModuleMarkIcon(symbol: "doc.zipper",
+                               color: dropTargeted ? Theme.editing : Theme.textSecondary)
+                // "file converter", not just "converter": next to "file
+                // archives" the bare word left people guessing (Anton,
+                // 2026-07-26). lineLimit keeps the card exactly as tall as the
+                // archive one — an unclamped label reports a taller line box.
                 Text(t(.convertLabel))
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
+                    .lineLimit(1)
                 Spacer()
-                RowActionIcon(symbol: "arrow.up.forward.app")
+                RowActionIcon(symbol: "arrow.up.forward.app", compact: true)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 9)
@@ -2596,7 +2598,12 @@ struct PanelView: View {
                 .id(model.themeVersion)
         case "color":
             ColorPickerView(picker: model.colorPicker, clipboard: model.clipboard, lang: lang,
-                            closePanel: { model.closePanel?() })
+                            closePanel: { model.closePanel?() },
+                            reopenPanel: { [weak model] in
+                                // back to the space the eyedropper lives on, so
+                                // the new colour is the thing you land on
+                                model?.reopenPanel?(.spaceContaining("color"))
+                            })
                 .id(model.themeVersion)
         case "ocr":
             ScreenTextView(reader: model.screenText, lang: lang,

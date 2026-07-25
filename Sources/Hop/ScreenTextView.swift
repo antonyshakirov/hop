@@ -13,9 +13,7 @@ struct ScreenTextView: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Image(systemName: "text.viewfinder")
-                .font(.system(size: 12))
-                .foregroundStyle(Theme.textSecondary)
+            ModuleMarkIcon(symbol: "text.viewfinder")
             Text(L10n.t(.ocrLabel, lang))
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.textSecondary)

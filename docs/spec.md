@@ -845,6 +845,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   in another notation it rewrites the top entry in place, and an older entry for
   that color moves up as a fresh pick (`ClipboardRules.remembering(color:text:in:)`,
   tested). A color needs no file on disk, so pruning one deletes nothing.
+- Picking CLOSES the panel (a popover would cover the pixel being aimed at) and
+  brings it back on the eyedropper's own space once a colour is stored
+  (`AppModel.reopenPanel`, wired to the status item's `togglePopover`). A cancel
+  reopens nothing: there is no result to look at (Anton, 2026-07-26).
 - The module's own mark is a PALETTE, not an eyedropper: the same glyph on both
   ends of the header read as two pick buttons (Anton, 2026-07-25). It is drawn
   small and tertiary like every other module's mark, while the action keeps the
@@ -1147,12 +1151,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `padding(.vertical, 9)` on `Theme.rowBg` — 40pt tall, both of them (Anton,
   2026-07-26). A bare `Image` on one of them and the shared icon on the other is
   what made them differ by a hair.
+- **ModuleMarkIcon (Controls.swift) is the ONLY module mark**: a fixed 16×14
+  frame around a 12pt symbol. SF Symbols differ in HEIGHT too — `doc.zipper` is
+  a tall document, `archivebox` a squat box — so the converter card came out
+  1.5pt taller than the archive card beside it (Anton, 2026-07-26). With the
+  frame both are 32pt, exactly like the clipboard rows.
 - **RowActionIcon (Controls.swift) is the ONLY module-row action icon**: SF
   Symbols are not drawn to a common optical size, so at one point size a dashed
   viewfinder looked smaller than a boxed arrow and the solid eyedropper looked
   darker than both — three buttons in a row that visibly did not match (Anton,
   2026-07-26). The view carries a per-symbol size and weight table (viewfinder
-  and boxed arrow 12.5, eyedropper 12 and .light) and one 24×22 tap area; the
+  and boxed arrow 12.5, eyedropper 12 and .light) and one 24×22 tap area — or
+  16×14 in `compact` mode, where the WHOLE row is the button (converter,
+  archives) and a tap area of its own would only make the card taller. The
   colour is always `textSecondary`, `Theme.editing` while the action runs.
 - The recognition and archive windows size themselves from their content the way
   the converter does (`screenTextContentHeight` / `archiveContentHeight` + the

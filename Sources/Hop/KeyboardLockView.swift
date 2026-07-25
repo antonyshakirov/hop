@@ -14,9 +14,8 @@ struct KeyboardLockView: View {
         // the internet row all sit the same distance from their icon (Anton,
         // 2026-07-26)
         HStack(spacing: 6) {
-            Image(systemName: "keyboard")
-                .font(.system(size: 12))
-                .foregroundStyle(lock.isLocked ? Theme.editing : Theme.textSecondary)
+            ModuleMarkIcon(symbol: "keyboard",
+                           color: lock.isLocked ? Theme.editing : Theme.textSecondary)
             Text(L10n.t(.keylockLabel, lang))
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.textSecondary)

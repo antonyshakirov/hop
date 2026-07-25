@@ -582,6 +582,23 @@ struct DocView: View {
     }
 }
 
+/// A module's own mark at the head of its row. The frame is FIXED because SF
+/// Symbols differ in height as well as width: `doc.zipper` is a tall document
+/// and `archivebox` a squat box, so at the same point size the converter card
+/// came out 1.5pt taller than the archive one right next to it (Anton,
+/// 2026-07-26). Colour stays with the caller — a module marks its own state.
+struct ModuleMarkIcon: View {
+    let symbol: String
+    var color: Color = Theme.textSecondary
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: 12))
+            .foregroundStyle(color)
+            .frame(width: 16, height: 14)
+    }
+}
+
 /// The icon of a module row's action — the one place their size and weight are
 /// decided. SF Symbols are not drawn to a common optical size: at the same point
 /// size a dashed viewfinder looks visibly smaller than a boxed arrow, and the
@@ -593,6 +610,10 @@ struct RowActionIcon: View {
     let symbol: String
     /// The action is running right now (the eyedropper while the loupe is up).
     var active = false
+    /// The WHOLE row is the button (converter, archives), so the glyph needs no
+    /// tap area of its own — and a 22pt one would make those cards taller than
+    /// every other row in the panel (Anton, 2026-07-26).
+    var compact = false
 
     /// Point size per symbol, chosen so the glyphs match on screen rather than
     /// on paper. A symbol that is not listed gets the plain row size.
@@ -614,7 +635,7 @@ struct RowActionIcon: View {
             .font(.system(size: Self.opticalSize[symbol] ?? 13,
                           weight: Self.opticalWeight[symbol] ?? .regular))
             .foregroundStyle(active ? Theme.editing : Theme.textSecondary)
-            .frame(width: 24, height: 22)
+            .frame(width: compact ? 16 : 24, height: compact ? 14 : 22)
             .contentShape(Rectangle())
     }
 }

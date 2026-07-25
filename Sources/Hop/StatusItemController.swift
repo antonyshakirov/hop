@@ -78,6 +78,10 @@ final class StatusItemController: NSObject {
             }
         }
         model.closePanel = { [weak self] in self?.popover.close() }
+        model.reopenPanel = { [weak self] screen in
+            guard let self, !self.popover.isShown else { return }
+            self.togglePopover(opening: screen)
+        }
         // the updater treats an open panel as active use and won't relaunch under it
         model.isPanelOpen = { [weak self] in self?.popover.isShown ?? false }
         model.panelFocusChanged = { [weak self] in self?.maybeReturnFocus() }
