@@ -114,6 +114,34 @@ defecto para archivos .torrent y enlaces magnet.
 <img src="https://www.antonshakirov.com/products/hop/screens/es/torrents.png" width="420" alt="Torrents de Hop — cliente BitTorrent ligero en el panel de la barra de menús">
 </div>
 
+### Archivo
+
+Suelta un comprimido en el panel y se abre justo donde está; suelta archivos o
+carpetas y aparece un comprimido al lado. zip, tar, tar.gz, tar.bz2, tar.xz y
+gz funcionan de inmediato; para rar y 7z se descarga la primera vez un pequeño
+ayudante (~6 MB) con la firma verificada. Hop extrae rar pero nunca lo crea:
+el formato es propietario.
+
+### Documentos
+
+El conversor aprendió documentos: markdown → PDF compuesto por el propio Hop,
+archivos de Word (.docx, .doc, .rtf) → PDF o markdown, y el texto de un PDF
+como markdown — una página escaneada la lee Vision de Apple. Nativo y sin
+conexión, sin suite ofimática incluida ni descargas.
+
+### Herramientas de pantalla
+
+Dos módulos opcionales para diseñadores y desarrolladores. El cuentagotas pone
+cualquier color de la pantalla en el historial del portapapeles como hex, rgb o
+hsl — sin permiso de grabación de pantalla. El texto de pantalla encuadra un
+área y deja el texto o el código QR en ese mismo historial, ya copiado.
+
+### Bloqueo del teclado
+
+Un botón y todo el teclado deja de responder, para limpiarlo sin apagar el Mac
+ni cerrar la tapa. La salida es el ratón o un temporizador de 30 segundos,
+1 minuto o 5 minutos.
+
 ### Y todo lo demás
 
 Pequeños indicadores de estado en el icono de la barra de menús — tiempo,
@@ -141,6 +169,25 @@ velocidad integrado y — si activas el módulo de torrents — para descargar e
 motor una única vez y mover el propio tráfico de torrents. Las
 actualizaciones y el motor de torrents se entregan como archivos firmados y
 se verifican con una firma Ed25519 antes de instalarse.
+
+## Permisos
+
+Hop pide un permiso solo cuando usas la función que lo necesita, y la ventana
+de información los enumera todos con su estado actual:
+
+- **red — antonshakirov.com** — buscar y descargar actualizaciones, más los dos
+  ayudantes opcionales (motor de torrents y archivador 7-Zip)
+- **red — torrents, test de velocidad** — tráfico con otros pares con el módulo
+  de torrents activo; el test usa networkQuality de macOS contra los servidores
+  de Apple
+- **accesibilidad** — pegar en la app de debajo, el gestor de ventanas y el
+  bloqueo del teclado
+- **grabación de pantalla** — solo el módulo de texto de pantalla; el
+  cuentagotas no la necesita
+- **notificaciones** — el aviso del temporizador y un torrent terminado
+- **contraseña de administrador** — una vez, para el modo con la tapa cerrada
+  (pmset solo funciona como root)
+- **abrir al iniciar sesión** — desactivado hasta que lo enciendas
 
 Sitio web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

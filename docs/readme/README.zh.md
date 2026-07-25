@@ -97,6 +97,30 @@ HEIC、AVIF 和 WebP；压缩 PDF；HEVC 视频瘦身，转换前就能看到
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/torrents.png" width="420" alt="Hop 种子下载 — 菜单栏面板中的轻量 BT 客户端">
 </div>
 
+### 压缩包
+
+把压缩包拖到面板上，它就在原处解压；拖入文件或文件夹，旁边就会生成一个压缩包。
+zip、tar、tar.gz、tar.bz2、tar.xz 和 gz 开箱即用；遇到 rar 和 7z 时会一次性下载
+一个校验过签名的小辅助程序（约 6 MB）。Hop 能解压 rar，但从不创建它——该格式是
+专有的。
+
+### 文档
+
+转换器学会了文档：markdown → PDF 由 Hop 自己排版，Word 文件（.docx、.doc、.rtf）
+→ PDF 或 markdown，以及把 PDF 里的文字提取成 markdown——扫描页由 Apple 的 Vision
+识别。全部原生、离线，不捆绑办公套件，也不需要下载。
+
+### 屏幕工具
+
+两个需要手动开启的模块，为设计师和开发者准备。取色器把屏幕上的任意颜色以 hex、
+rgb 或 hsl 放进剪贴板历史——不需要录屏权限。屏幕文字框选一块区域，把其中的文字或
+二维码放进同一个历史，已经复制好，之后还能搜索。
+
+### 键盘锁定
+
+一个按钮，整块键盘停止响应，于是可以擦拭它，而不必关机或合上盖子。退出方式是鼠标，
+或者 30 秒、1 分钟、5 分钟的倒计时。
+
 ### 其他
 
 图标上小巧的状态指示器——时间、防休眠、警示和种子活动，彩色或单色——
@@ -119,6 +143,21 @@ Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, P
 应用仅在检查更新、运行内置测速，以及启用 BT 模块后一次性下载引擎
 和传输 BT 流量本身时才会访问网络。更新和 BT 引擎均以签名压缩包
 形式分发，安装前会用 Ed25519 签名进行校验。
+
+## 权限
+
+只有当你真正使用某个功能时，Hop 才会申请它需要的权限；应用的信息窗口里列出了全部
+权限及其当前状态：
+
+- **网络 — antonshakirov.com** — 检查并下载更新，以及两个可选辅助程序（torrent
+  引擎与 7-Zip 压缩工具）
+- **网络 — torrent、测速** — 开启 torrent 模块时与其他用户的流量；测速使用 macOS
+  自带的 networkQuality，对 Apple 的服务器进行
+- **辅助功能** — 粘贴到下面那个应用、窗口管理器和键盘锁定
+- **录屏** — 仅「屏幕文字」模块需要；取色器不需要
+- **通知** — 计时结束提醒和 torrent 完成提示
+- **管理员密码** — 一次，用于合盖模式（pmset 需要 root）
+- **登录时启动** — 默认关闭，你可以自行打开
 
 官网：[antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

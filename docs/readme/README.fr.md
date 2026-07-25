@@ -116,6 +116,35 @@ défaut pour les fichiers .torrent et les liens magnet.
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/torrents.png" width="420" alt="Torrents Hop — client BitTorrent léger dans le panneau de la barre de menus">
 </div>
 
+### Archive
+
+Dépose une archive sur le panneau et elle s'ouvre là où elle se trouve ; dépose
+des fichiers ou des dossiers et une archive apparaît à côté. zip, tar, tar.gz,
+tar.bz2, tar.xz et gz fonctionnent tout de suite ; pour rar et 7z, un petit
+outil (~6 Mo) à la signature vérifiée se télécharge la première fois. Hop
+extrait le rar mais ne le crée jamais : le format est propriétaire.
+
+### Documents
+
+Le convertisseur sait faire des documents : markdown → PDF composé par Hop
+lui-même, fichiers Word (.docx, .doc, .rtf) → PDF ou markdown, et le texte d'un
+PDF en markdown — une page scannée est lue par Vision d'Apple. Natif et hors
+ligne, sans suite bureautique embarquée ni téléchargement.
+
+### Outils d'écran
+
+Deux modules à activer, pensés pour les designers et les développeurs. La
+pipette met n'importe quelle couleur de l'écran dans l'historique du
+presse-papiers en hex, rgb ou hsl — sans autorisation d'enregistrement d'écran.
+Le texte à l'écran cadre une zone et dépose son texte ou son code QR dans le
+même historique, déjà copié.
+
+### Verrou clavier
+
+Un bouton et tout le clavier cesse de répondre, pour l'essuyer sans éteindre le
+Mac ni rabattre l'écran. On en sort à la souris ou par minuteur : 30 secondes,
+1 minute ou 5 minutes.
+
 ### Et le reste
 
 De petits indicateurs d'état sur l'icône de la barre de menus — temps,
@@ -143,6 +172,25 @@ test de débit intégré et — si vous activez le module torrent — pour
 récupérer le moteur une seule fois et acheminer le trafic torrent lui-même.
 Les mises à jour et le moteur torrent sont livrés sous forme d'archives
 signées et vérifiés avec une signature Ed25519 avant l'installation.
+
+## Autorisations
+
+Hop ne demande une autorisation qu'au moment où la fonction concernée est
+vraiment utilisée ; la fenêtre d'informations les liste toutes avec leur état :
+
+- **réseau — antonshakirov.com** — chercher et télécharger les mises à jour,
+  plus les deux outils optionnels (moteur torrent et archiveur 7-Zip)
+- **réseau — torrents, test de débit** — trafic vers les autres pairs quand le
+  module torrent est activé ; le test utilise networkQuality de macOS vers les
+  serveurs d'Apple
+- **accessibilité** — coller dans l'app en dessous, le gestionnaire de fenêtres
+  et le verrou clavier
+- **enregistrement de l'écran** — uniquement le module texte à l'écran ; la
+  pipette n'en a pas besoin
+- **notifications** — l'alerte du minuteur et un torrent terminé
+- **mot de passe administrateur** — une fois, pour le mode écran rabattu (pmset
+  est réservé à root)
+- **ouvrir à la session** — désactivé tant que tu ne l'actives pas
 
 Site web : [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

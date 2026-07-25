@@ -112,6 +112,33 @@ magnet.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrent trong Hop — trình BitTorrent gọn nhẹ trong bảng điều khiển trên thanh menu">
 </div>
 
+### Kho nén
+
+Thả một kho nén lên bảng và nó bung ra ngay tại chỗ đang nằm; thả tệp hoặc thư
+mục thì bên cạnh chúng xuất hiện một kho nén. zip, tar, tar.gz, tar.bz2, tar.xz
+và gz chạy được ngay; với rar và 7z, lần đầu gặp sẽ tải một trình hỗ trợ nhỏ
+(~6 MB) đã kiểm tra chữ ký. Hop giải nén rar nhưng không bao giờ tạo — định
+dạng này là độc quyền.
+
+### Tài liệu
+
+Bộ chuyển đổi đã biết làm tài liệu: markdown → PDF do chính Hop dàn trang, tệp
+Word (.docx, .doc, .rtf) → PDF hoặc markdown, và trích văn bản của PDF ra
+markdown — trang quét được đọc bằng Vision của Apple. Tất cả đều chạy trong máy
+và ngoại tuyến, không kèm bộ ứng dụng văn phòng, không phải tải gì thêm.
+
+### Công cụ màn hình
+
+Hai mô-đun tự bật, dành cho nhà thiết kế và lập trình viên. Ống hút màu đưa bất
+kỳ màu nào trên màn hình vào lịch sử clipboard dưới dạng hex, rgb hoặc hsl — và
+không cần quyền ghi màn hình. Văn bản màn hình khoanh một vùng rồi thả văn bản
+hay mã QR bên trong vào cùng lịch sử đó, đã sao chép sẵn.
+
+### Khoá bàn phím
+
+Một nút bấm và cả bàn phím ngừng phản hồi, để bạn lau mà không phải tắt máy hay
+gập màn hình. Lối ra là chuột, hoặc bộ đếm 30 giây, 1 phút, 5 phút.
+
 ### Và những thứ còn lại
 
 Các chỉ báo trạng thái nhỏ trên biểu tượng thanh menu — thời gian, chống
@@ -139,6 +166,21 @@ kiểm tra tốc độ tích hợp, và — nếu bạn bật mô-đun torrent �
 một lần duy nhất và truyền chính lưu lượng torrent. Các bản cập nhật và
 engine torrent được phân phối dưới dạng tệp nén có chữ ký và được xác minh
 bằng chữ ký Ed25519 trước khi cài đặt.
+
+## Quyền
+
+Hop chỉ xin quyền khi bạn thật sự dùng tính năng cần đến nó, và cửa sổ thông tin
+của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
+
+- **mạng — antonshakirov.com** — kiểm tra và tải bản cập nhật, cùng hai trình hỗ
+  trợ tuỳ chọn (engine torrent và trình nén 7-Zip)
+- **mạng — torrent, đo tốc độ** — lưu lượng tới các peer khác khi bật mô-đun
+  torrent; phép đo dùng networkQuality của macOS tới máy chủ Apple
+- **trợ năng** — dán vào ứng dụng bên dưới, trình quản lý cửa sổ và khoá bàn phím
+- **ghi màn hình** — chỉ mô-đun văn bản màn hình; ống hút màu không cần
+- **thông báo** — báo hết giờ của bộ đếm và torrent đã xong
+- **mật khẩu quản trị** — một lần, cho chế độ gập màn hình (pmset chỉ chạy với root)
+- **mở khi đăng nhập** — tắt cho đến khi bạn tự bật
 
 Trang web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

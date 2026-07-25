@@ -114,6 +114,34 @@ predefinita per i file .torrent e i link magnet.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrent di Hop — client BitTorrent leggero nel pannello della barra dei menu">
 </div>
 
+### Archivio
+
+Trascina un archivio sul pannello e si apre proprio dove sta; trascina file o
+cartelle e accanto compare un archivio. zip, tar, tar.gz, tar.bz2, tar.xz e gz
+funzionano subito; per rar e 7z la prima volta si scarica un piccolo aiutante
+(~6 MB) con firma verificata. Hop estrae il rar ma non lo crea mai: il formato
+è proprietario.
+
+### Documenti
+
+Il convertitore ha imparato i documenti: markdown → PDF impaginato da Hop
+stesso, file Word (.docx, .doc, .rtf) → PDF o markdown, e il testo di un PDF
+come markdown — una pagina scansionata la legge Vision di Apple. Nativo e
+offline, senza suite d'ufficio inclusa e senza download.
+
+### Strumenti dello schermo
+
+Due moduli da attivare, per designer e sviluppatori. Il contagocce mette
+qualsiasi colore dello schermo nella cronologia degli appunti come hex, rgb o
+hsl — senza permesso di registrazione schermo. Il testo dallo schermo inquadra
+un'area e lascia il testo o il codice QR nella stessa cronologia, già copiato.
+
+### Blocco tastiera
+
+Un pulsante e tutta la tastiera smette di rispondere, così la pulisci senza
+spegnere il Mac né chiudere il coperchio. Si esce con il mouse o con un timer
+di 30 secondi, 1 minuto o 5 minuti.
+
 ### E il resto
 
 Piccoli indicatori di stato sull'icona nella barra dei menu — tempo,
@@ -141,6 +169,24 @@ test di velocità integrato e — se attivi il modulo torrent — per scaricare
 il motore una sola volta e trasportare il traffico torrent stesso. Gli
 aggiornamenti e il motore torrent arrivano come archivi firmati e vengono
 verificati con una firma Ed25519 prima dell'installazione.
+
+## Permessi
+
+Hop chiede un permesso solo quando usi davvero la funzione che lo richiede; la
+finestra informazioni li elenca tutti con il loro stato attuale:
+
+- **rete — antonshakirov.com** — cercare e scaricare aggiornamenti, più i due
+  aiutanti opzionali (motore torrent e archiviatore 7-Zip)
+- **rete — torrent, test di velocità** — traffico verso altri peer con il modulo
+  torrent attivo; il test usa networkQuality di macOS verso i server di Apple
+- **accessibilità** — incollare nell'app sottostante, il gestore finestre e il
+  blocco tastiera
+- **registrazione schermo** — solo il modulo testo dallo schermo; il contagocce
+  non ne ha bisogno
+- **notifiche** — l'avviso del timer e un torrent completato
+- **password di amministratore** — una volta, per la modalità a coperchio chiuso
+  (pmset gira solo come root)
+- **apri all'accesso** — spento finché non lo accendi
 
 Sito web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

@@ -113,6 +113,34 @@ einen lokalen Port mit Hop spricht. Hop kann außerdem zur Standard-App für
 <img src="https://www.antonshakirov.com/products/hop/screens/de/torrents.png" width="420" alt="Hop-Torrents — leichter BitTorrent-Client im Menüleisten-Panel">
 </div>
 
+### Archiv
+
+Zieh ein Archiv auf das Panel und es entpackt sich genau dort, wo es liegt;
+zieh Dateien oder Ordner darauf und daneben entsteht ein Archiv. zip, tar,
+tar.gz, tar.bz2, tar.xz und gz laufen sofort; für rar und 7z lädt beim ersten
+Mal ein kleiner, signaturgeprüfter Helfer (~6 MB). Hop entpackt rar, erstellt
+es aber nie — das Format ist proprietär.
+
+### Dokumente
+
+Der Konverter kann jetzt Dokumente: markdown → PDF, von Hop selbst gesetzt,
+Word-Dateien (.docx, .doc, .rtf) → PDF oder markdown, und der Text eines PDFs
+als markdown — eine gescannte Seite liest Apples Vision. Nativ und offline,
+ohne mitgeliefertes Office-Paket und ohne Download.
+
+### Bildschirm-Werkzeuge
+
+Zwei zuschaltbare Module für Designer und Entwickler. Die Pipette legt jede
+Farbe vom Bildschirm als hex, rgb oder hsl in den Verlauf der Zwischenablage —
+ohne Berechtigung für Bildschirmaufnahmen. Bildschirmtext rahmt einen Bereich
+ein und legt den Text oder QR-Code darin in denselben Verlauf, schon kopiert.
+
+### Tastatursperre
+
+Ein Knopf, und die ganze Tastatur reagiert nicht mehr — zum Abwischen, ohne
+den Mac herunterzufahren oder den Deckel zu schließen. Wieder raus geht es mit
+der Maus oder per Timer: 30 Sekunden, 1 Minute oder 5 Minuten.
+
 ### Und der Rest
 
 Kleine Statusindikatoren am Menüleisten-Symbol — Zeit, Wachhalten, Warnungen
@@ -139,6 +167,25 @@ Speedtest startest und — falls du das Torrent-Modul aktivierst — um die
 Engine einmalig zu laden und den Torrent-Verkehr selbst zu übertragen.
 Updates und die Torrent-Engine werden als signierte Archive ausgeliefert und
 vor der Installation mit einer Ed25519-Signatur verifiziert.
+
+## Berechtigungen
+
+Hop fragt eine Berechtigung erst dann ab, wenn die zugehörige Funktion wirklich
+benutzt wird; das Infofenster listet alle mit ihrem aktuellen Stand auf:
+
+- **Netzwerk — antonshakirov.com** — Updates suchen und laden, dazu die zwei
+  optionalen Helfer (Torrent-Engine und 7-Zip-Archivierer)
+- **Netzwerk — Torrents, Geschwindigkeitstest** — Verkehr zu anderen Teilnehmern
+  bei eingeschaltetem Torrent-Modul; der Test nutzt macOS' networkQuality gegen
+  Apples Server
+- **Bedienungshilfen** — Einfügen in die App darunter, Fenstermanager und
+  Tastatursperre
+- **Bildschirmaufnahme** — nur das Modul für Bildschirmtext; die Pipette braucht
+  sie nicht
+- **Mitteilungen** — der Timer-Hinweis und ein fertiger Torrent
+- **Administratorkennwort** — einmalig, für den Modus mit geschlossenem Deckel
+  (pmset läuft nur als root)
+- **Beim Anmelden öffnen** — aus, bis du es einschaltest
 
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

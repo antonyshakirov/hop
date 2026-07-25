@@ -114,6 +114,34 @@ aplikacją dla plików .torrent i linków magnet.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrenty Hop — lekki klient BitTorrent w panelu na pasku menu">
 </div>
 
+### Archiwum
+
+Upuść archiwum na panel, a rozpakuje się tam, gdzie leży; upuść pliki albo
+foldery, a obok pojawi się jedno archiwum. zip, tar, tar.gz, tar.bz2, tar.xz i
+gz działają od razu; dla rar i 7z przy pierwszym spotkaniu pobiera się mały
+pomocnik (~6 MB) ze sprawdzonym podpisem. Hop rozpakowuje rar, ale nigdy go nie
+tworzy — format jest zamknięty.
+
+### Dokumenty
+
+Konwerter nauczył się dokumentów: markdown → PDF składany przez sam Hop, pliki
+Word (.docx, .doc, .rtf) → PDF albo markdown, a także tekst z PDF-a jako
+markdown — zeskanowaną stronę czyta Vision od Apple. Natywnie i offline, bez
+dołączonego pakietu biurowego i bez pobierania.
+
+### Narzędzia ekranu
+
+Dwa włączane moduły dla projektantów i programistów. Kroplomierz wkłada dowolny
+kolor z ekranu do historii schowka jako hex, rgb albo hsl — bez uprawnienia do
+nagrywania ekranu. Tekst z ekranu zaznacza obszar i zostawia jego tekst albo kod
+QR w tej samej historii, już skopiowany.
+
+### Blokada klawiatury
+
+Jeden przycisk i cała klawiatura przestaje odpowiadać, więc można ją przetrzeć
+bez wyłączania Maca i zamykania klapy. Wyjście to mysz albo licznik: 30 sekund,
+1 minuta lub 5 minut.
+
 ### I cała reszta
 
 Niewielkie wskaźniki stanu na ikonie na pasku menu — czas, blokada
@@ -141,6 +169,24 @@ gdy uruchamiasz wbudowany test prędkości, oraz — jeśli włączysz moduł
 torrentów — by raz pobrać silnik i przesyłać sam ruch torrentowy.
 Aktualizacje i silnik torrentowy są dostarczane jako podpisane archiwa
 i przed instalacją weryfikowane podpisem Ed25519.
+
+## Uprawnienia
+
+Hop prosi o uprawnienie dopiero wtedy, gdy naprawdę używasz funkcji, która go
+potrzebuje; okno informacji wymienia je wszystkie z bieżącym stanem:
+
+- **sieć — antonshakirov.com** — sprawdzanie i pobieranie aktualizacji oraz dwa
+  opcjonalne pomocniki (silnik torrentów i archiwizator 7-Zip)
+- **sieć — torrenty, test prędkości** — ruch do innych użytkowników przy włączonym
+  module torrentów; test używa systemowego networkQuality wobec serwerów Apple
+- **dostępność** — wklejanie do aplikacji pod spodem, menedżer okien i blokada
+  klawiatury
+- **nagrywanie ekranu** — tylko moduł tekstu z ekranu; kroplomierz go nie
+  potrzebuje
+- **powiadomienia** — alarm minutnika i ukończony torrent
+- **hasło administratora** — raz, dla trybu zamkniętej klapy (pmset działa tylko
+  jako root)
+- **otwieraj przy logowaniu** — wyłączone, dopóki sam nie włączysz
 
 Strona: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

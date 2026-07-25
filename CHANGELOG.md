@@ -1,5 +1,28 @@
 # Hop — version history
 
+## 1.5.0 — 2026-07-25
+
+- Archive: a new module — drop an archive on the panel and it unpacks right
+  where it lives; drop files or folders and they become one archive beside them.
+  zip, tar, tar.gz, tar.bz2, tar.xz and gz are handled natively; rar and 7z
+  fetch a small signature-verified helper the first time one turns up. Hop
+  unpacks rar but never creates it.
+- Documents in the converter: markdown to PDF laid out by Hop itself, Word
+  files to PDF or markdown, and a PDF's text extracted as markdown — scanned
+  pages are read with Vision. The markdown engine is our own, so there is still
+  no third-party dependency and nothing to download.
+- Keyboard lock: one button stops every key so the keyboard can be wiped without
+  shutting the Mac down; the mouse or a timer (30 s, 1 min, 5 min) unlocks it.
+- Eyedropper: any color on screen goes into the clipboard history as hex, rgb or
+  hsl, with a strip of recent colors. No screen-recording permission needed.
+- Screen text: frame an area and its text or QR code lands in the same clipboard
+  history, already copied and searchable there later.
+- Permissions tab in the info window: every permission Hop can ask for, what it
+  is for, its live state, and what Hop never does. The same list is in the
+  README, in all 18 languages.
+- The two screen tools ship hidden; the what's-new card offers to enable them,
+  and an enabled module appears on the first space.
+
 ## 1.4.0 — 2026-07-22
 
 - Spaces: the menu-bar icon now carries up to four tabs, and any module can be

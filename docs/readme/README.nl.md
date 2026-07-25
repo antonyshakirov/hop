@@ -112,6 +112,34 @@ poort met Hop praat. Hop kan ook de standaardapp worden voor
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop-torrents — lichte BitTorrent-client in het menubalkpaneel">
 </div>
 
+### Archief
+
+Sleep een archief op het paneel en het pakt zich uit waar het staat; sleep
+bestanden of mappen en er komt één archief naast te staan. zip, tar, tar.gz,
+tar.bz2, tar.xz en gz werken meteen; voor rar en 7z wordt de eerste keer een
+klein hulpje (~6 MB) met gecontroleerde handtekening opgehaald. Hop pakt rar uit
+maar maakt het nooit — het formaat is gesloten.
+
+### Documenten
+
+De converter kan nu documenten: markdown → PDF, opgemaakt door Hop zelf,
+Word-bestanden (.docx, .doc, .rtf) → PDF of markdown, en de tekst uit een PDF als
+markdown — een gescande pagina wordt gelezen door Vision van Apple. Native en
+offline, zonder meegeleverd officepakket en zonder downloads.
+
+### Schermgereedschap
+
+Twee modules die je zelf aanzet, voor ontwerpers en ontwikkelaars. De pipet zet
+elke kleur op je scherm in de klembordgeschiedenis als hex, rgb of hsl — zonder
+toestemming voor schermopname. Schermtekst kadert een gebied en zet de tekst of
+QR-code erin in diezelfde geschiedenis, al gekopieerd.
+
+### Toetsenbordvergrendeling
+
+Eén knop en het hele toetsenbord reageert nergens meer op, zodat je het kunt
+schoonvegen zonder de Mac uit te zetten of de klep te sluiten. Eruit kom je met
+de muis of met een timer van 30 seconden, 1 minuut of 5 minuten.
+
 ### En de rest
 
 Kleine statusindicatoren op het menubalk-icoon — tijd, slaapblokkering,
@@ -138,6 +166,25 @@ ingebouwde snelheidstest draait en — als je de torrentmodule inschakelt — om
 de engine eenmalig op te halen en het torrentverkeer zelf te verplaatsen.
 Updates en de torrent-engine worden geleverd als ondertekende archieven en
 vóór installatie geverifieerd met een Ed25519-handtekening.
+
+## Toestemmingen
+
+Hop vraagt pas om een toestemming wanneer de functie die haar nodig heeft echt
+gebruikt wordt; het infovenster van de app somt ze allemaal op met hun stand:
+
+- **netwerk — antonshakirov.com** — controleren op updates en ze downloaden, plus
+  de twee optionele hulpjes (de torrent-engine en de 7-Zip-archiveerder)
+- **netwerk — torrents, snelheidstest** — verkeer met andere peers zolang de
+  torrentmodule aanstaat; de test gebruikt macOS' eigen networkQuality tegen de
+  servers van Apple
+- **toegankelijkheid** — plakken in de app eronder, de vensterbeheerder en de
+  toetsenbordvergrendeling
+- **schermopname** — alleen de module voor schermtekst; de pipet heeft het niet
+  nodig
+- **berichtgeving** — het signaal van de timer en een afgeronde torrent
+- **beheerderswachtwoord** — één keer, voor de stand met gesloten klep (pmset
+  draait alleen als root)
+- **openen bij inloggen** — uit tot je het zelf aanzet
 
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

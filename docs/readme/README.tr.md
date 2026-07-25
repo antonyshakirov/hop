@@ -112,6 +112,33 @@ bağlantıları için varsayılan uygulama olabilir.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop torrentleri — menü çubuğu panelinde hafif BitTorrent istemcisi">
 </div>
 
+### Arşiv
+
+Panele bir arşiv bırak, bulunduğu yerde açılsın; dosya ya da klasör bırak,
+yanlarında tek bir arşiv oluşsun. zip, tar, tar.gz, tar.bz2, tar.xz ve gz
+hemen çalışır; rar ve 7z ilk karşılaşmada imzası doğrulanmış küçük bir
+yardımcı (~6 MB) indirir. Hop rar açar ama asla oluşturmaz — format tescilli.
+
+### Belgeler
+
+Dönüştürücü belgeleri öğrendi: markdown → PDF dizgisini Hop'un kendisi yapar,
+Word dosyaları (.docx, .doc, .rtf) → PDF ya da markdown, ve bir PDF'in metni
+markdown olarak çıkar — taranmış sayfayı Apple'ın Vision'ı okur. Hepsi yerel ve
+çevrimdışı; paketlenmiş ofis takımı yok, indirilecek bir şey yok.
+
+### Ekran araçları
+
+Tasarımcılar ve geliştiriciler için, açman gereken iki modül. Damlalık
+ekrandaki her rengi hex, rgb ya da hsl olarak pano geçmişine koyar — ekran
+kaydı izni gerekmez. Ekrandaki metin bir alanı çerçeveler ve içindeki metni ya
+da QR kodu aynı geçmişe, kopyalanmış hâlde bırakır.
+
+### Klavye kilidi
+
+Tek düğme ve klavyenin tamamı yanıt vermeyi bırakır; Mac'i kapatmadan, kapağı
+indirmeden silebilirsin. Çıkış fareyle ya da 30 saniye, 1 dakika, 5 dakikalık
+sayaçla olur.
+
 ### Ve gerisi
 
 Menü çubuğu simgesindeki küçük durum göstergeleri — zaman, uyku engelleme,
@@ -139,6 +166,22 @@ ağa yalnızca güncellemeleri denetlemek için, yerleşik hız testini
 bir kez indirmek ve torrent trafiğinin kendisini taşımak için çıkar.
 Güncellemeler ve torrent motoru imzalı arşivler olarak gelir ve
 kurulmadan önce Ed25519 imzasıyla doğrulanır.
+
+## İzinler
+
+Hop bir izni ancak onu gerektiren özelliği gerçekten kullandığında ister;
+uygulamanın bilgi penceresi hepsini güncel durumlarıyla listeler:
+
+- **ağ — antonshakirov.com** — güncelleme aramak ve indirmek, ayrıca iki isteğe
+  bağlı yardımcı (torrent motoru ve 7-Zip arşivleyici)
+- **ağ — torrentler, hız testi** — torrent modülü açıkken diğer eşlerle trafik;
+  hız testi macOS'un networkQuality aracıyla Apple sunucularına yapılır
+- **erişilebilirlik** — alttaki uygulamaya yapıştırmak, pencere yöneticisi ve
+  klavye kilidi
+- **ekran kaydı** — yalnızca ekrandaki metin modülü; damlalığın buna ihtiyacı yok
+- **bildirimler** — zamanlayıcı uyarısı ve tamamlanan torrent
+- **yönetici parolası** — bir kez, kapak kapalı modu için (pmset yalnızca root)
+- **girişte aç** — sen açana kadar kapalı
 
 Web sitesi: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

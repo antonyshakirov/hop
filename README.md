@@ -107,6 +107,34 @@ files and magnet links.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop torrents — lite BitTorrent client in the menu bar panel">
 </div>
 
+### Archive
+
+Drop an archive on the panel and it unpacks right where it lives; drop files
+or folders and they become one archive beside them. zip, tar, tar.gz, tar.bz2,
+tar.xz and gz work out of the box; rar and 7z fetch a small signature-verified
+helper (~6 MB) the first time one turns up. Hop unpacks rar but never creates
+it — the format is proprietary.
+
+### Documents
+
+The converter learned documents: markdown to PDF laid out by Hop itself, Word
+files (.docx, .doc, .rtf) to PDF or markdown, and a PDF's text pulled out as
+markdown — a scanned page is read with Apple's Vision. Native and offline,
+with no office suite bundled and nothing to download.
+
+### Screen tools
+
+Two opt-in modules for designers and developers. The eyedropper puts any color
+on screen into your clipboard history as hex, rgb or hsl — no screen-recording
+permission needed. Screen text frames an area and drops the text or QR code
+inside it into the same history, already copied and searchable there later.
+
+### Keyboard lock
+
+One button and the whole keyboard stops responding, so it can be wiped without
+shutting the Mac down or closing the lid. The way out is the mouse or a timer
+of 30 seconds, 1 minute or 5 minutes.
+
 ### And the rest
 
 Small status badges on the menu bar icon — time, keep-awake, alerts and
@@ -134,6 +162,23 @@ test, and — if you enable the torrent module — to fetch the engine once and
 move the torrent traffic itself. Updates and the torrent engine are
 delivered as signed archives and verified with an Ed25519 signature before
 installing.
+
+## Permissions
+
+Hop asks for a permission only when the feature that needs it is actually used,
+and the app's info window lists them all with their current state:
+
+- **network — antonshakirov.com** — update checks and downloads, plus the two
+  optional helpers (the torrent engine and the 7-Zip archiver)
+- **network — torrents, speed test** — peer traffic while the torrent module is
+  on; the speed test runs macOS's own networkQuality against Apple's servers
+- **accessibility** — pasting into the app underneath, the window manager and
+  the keyboard lock
+- **screen recording** — the screen-text module only; the eyedropper does not
+  need it
+- **notifications** — the timer's alert and a finished torrent
+- **administrator password** — once, for the closed-lid mode (pmset is root-only)
+- **launch at login** — off unless you turn it on
 
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
