@@ -113,13 +113,15 @@ einen lokalen Port mit Hop spricht. Hop kann außerdem zur Standard-App für
 <img src="https://www.antonshakirov.com/products/hop/screens/de/torrents.png" width="420" alt="Hop-Torrents — leichter BitTorrent-Client im Menüleisten-Panel">
 </div>
 
-### Archiv
+### Dateiarchive
 
-Zieh ein Archiv auf das Panel und es entpackt sich genau dort, wo es liegt;
-zieh Dateien oder Ordner darauf und daneben entsteht ein Archiv. zip, tar,
-tar.gz, tar.bz2, tar.xz und gz laufen sofort; für rar und 7z lädt beim ersten
-Mal ein kleiner, signaturgeprüfter Helfer (~6 MB). Hop entpackt rar, erstellt
-es aber nie — das Format ist proprietär.
+Die Zeile des Moduls öffnet ein Fenster, und dort wird abgelegt. Zieh ein
+Archiv hinein und es entpackt sich genau dort, wo es liegt; zieh Dateien oder
+Ordner hinein und daneben entsteht ein Archiv. zip, tar, tar.gz, tar.bz2,
+tar.xz und gz laufen sofort; für rar und 7z lädt beim ersten Mal ein kleiner,
+signaturgeprüfter Helfer (~6 MB). Hop entpackt rar, erstellt es aber nie — das
+Format ist proprietär. Mit «Archive mit Hop öffnen» entpackt ein doppelt
+geklicktes Archiv über Hop, ob das Modul im Panel sichtbar ist oder nicht.
 
 ### Dokumente
 
@@ -128,18 +130,31 @@ Word-Dateien (.docx, .doc, .rtf) → PDF oder markdown, und der Text eines PDFs
 als markdown — eine gescannte Seite liest Apples Vision. Nativ und offline,
 ohne mitgeliefertes Office-Paket und ohne Download.
 
-### Bildschirm-Werkzeuge
+### Farbpipette
 
-Zwei zuschaltbare Module für Designer und Entwickler. Die Pipette legt jede
-Farbe vom Bildschirm als hex, rgb oder hsl in den Verlauf der Zwischenablage —
-ohne Berechtigung für Bildschirmaufnahmen. Bildschirmtext rahmt einen Bereich
-ein und legt den Text oder QR-Code darin in denselben Verlauf, schon kopiert.
+Nimm mit der Systemlupe jede Farbe vom Bildschirm auf: sie bleibt in einer
+Liste, jede Zeile mit hex, rgb und hsl in eigener Spalte — ein Klick kopiert
+genau diese Schreibweise. Die Reihenfolge ändert sich nie unter dem Zeiger,
+Listenlänge und sichtbare Zeilen sind einstellbar, und eine Berechtigung für
+Bildschirmaufnahmen braucht es nicht: die Lupe liefert genau eine Farbe.
+
+### Texterkennung
+
+Rahme einen Bereich des Bildschirms ein oder zieh ein Bild ins Fenster und füge
+eines mit ⌘V ein: Text und QR-Codes darin erscheinen in einem Fenster, das man
+lesen, bearbeiten und daraus kopieren kann, und landen zugleich im Verlauf der
+Zwischenablage. Zeilenumbrüche bleiben, eine Tabelle bleibt lesbar. Erkannt
+wird mit Apples Vision, komplett auf diesem Mac.
 
 ### Tastatursperre
 
-Ein Knopf, und die ganze Tastatur reagiert nicht mehr — zum Abwischen, ohne
-den Mac herunterzufahren oder den Deckel zu schließen. Wieder raus geht es mit
-der Maus oder per Timer: 30 Sekunden, 1 Minute oder 5 Minuten.
+Tippe 1, 5 oder 15 Minuten — oder ∞ — und die ganze Tastatur reagiert nicht
+mehr, zum Abwischen, ohne den Mac herunterzufahren oder den Deckel zu
+schließen. Eine Abdeckung erklärt, was los ist, und das Menüleisten-Symbol wird
+zur Tastatur. Vier Wege hinaus: der Knopf auf der Abdeckung, der Knopf im
+Panel, das Öffnen des Panels oder esc drei Sekunden halten. Ein kurzer Druck
+auf die Ein-/Aus-Taste wird ebenfalls geschluckt; langes Halten schaltet den
+Mac weiterhin aus, denn das macht die Hardware.
 
 ### Und der Rest
 
@@ -180,8 +195,8 @@ benutzt wird; das Infofenster listet alle mit ihrem aktuellen Stand auf:
   Apples Server
 - **Bedienungshilfen** — Einfügen in die App darunter, Fenstermanager und
   Tastatursperre
-- **Bildschirmaufnahme** — nur das Modul für Bildschirmtext; die Pipette braucht
-  sie nicht
+- **Bildschirmaufnahme** — nur die Texterkennung, und nur beim Einrahmen eines
+  Bereichs; die Farbpipette braucht sie nicht
 - **Mitteilungen** — der Timer-Hinweis und ein fertiger Torrent
 - **Administratorkennwort** — einmalig, für den Modus mit geschlossenem Deckel
   (pmset läuft nur als root)

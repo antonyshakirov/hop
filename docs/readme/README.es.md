@@ -114,13 +114,15 @@ defecto para archivos .torrent y enlaces magnet.
 <img src="https://www.antonshakirov.com/products/hop/screens/es/torrents.png" width="420" alt="Torrents de Hop — cliente BitTorrent ligero en el panel de la barra de menús">
 </div>
 
-### Archivo
+### Archivos comprimidos
 
-Suelta un comprimido en el panel y se abre justo donde está; suelta archivos o
-carpetas y aparece un comprimido al lado. zip, tar, tar.gz, tar.bz2, tar.xz y
-gz funcionan de inmediato; para rar y 7z se descarga la primera vez un pequeño
-ayudante (~6 MB) con la firma verificada. Hop extrae rar pero nunca lo crea:
-el formato es propietario.
+La fila del módulo abre una ventana, y ahí es donde se sueltan las cosas.
+Suelta un comprimido y se abre justo donde está; suelta archivos o carpetas y
+aparece un comprimido al lado. zip, tar, tar.gz, tar.bz2, tar.xz y gz funcionan
+de inmediato; para rar y 7z se descarga la primera vez un pequeño ayudante
+(~6 MB) con la firma verificada. Hop extrae rar pero nunca lo crea: el formato
+es propietario. Activa «abrir comprimidos con Hop» y un doble clic los extrae
+con Hop, esté el módulo visible en el panel o no.
 
 ### Documentos
 
@@ -129,18 +131,30 @@ archivos de Word (.docx, .doc, .rtf) → PDF o markdown, y el texto de un PDF
 como markdown — una página escaneada la lee Vision de Apple. Nativo y sin
 conexión, sin suite ofimática incluida ni descargas.
 
-### Herramientas de pantalla
+### Selector de color
 
-Dos módulos opcionales para diseñadores y desarrolladores. El cuentagotas pone
-cualquier color de la pantalla en el historial del portapapeles como hex, rgb o
-hsl — sin permiso de grabación de pantalla. El texto de pantalla encuadra un
-área y deja el texto o el código QR en ese mismo historial, ya copiado.
+Toma cualquier color de la pantalla con la lupa del sistema y queda en una
+lista: cada fila lleva hex, rgb y hsl en su propia columna y al pulsar una se
+copia esa notación. El orden nunca cambia bajo el cursor, cuántos colores
+guardar y cuántas filas ver son ajustes, y no hace falta permiso de grabación
+de pantalla: la lupa devuelve un color y nada más.
+
+### Reconocimiento de texto
+
+Encuadra un área de la pantalla, o suelta una imagen en la ventana y pega otra
+con ⌘V: el texto y los códigos QR salen en una ventana que puedes leer, editar
+y copiar, y llegan a la vez al historial del portapapeles. Los saltos de línea
+se conservan, así que una tabla sigue legible. El reconocimiento es Vision, de
+Apple, todo en este Mac.
 
 ### Bloqueo del teclado
 
-Un botón y todo el teclado deja de responder, para limpiarlo sin apagar el Mac
-ni cerrar la tapa. La salida es el ratón o un temporizador de 30 segundos,
-1 minuto o 5 minutos.
+Pulsa 1, 5 o 15 minutos — o ∞ — y todo el teclado deja de responder, para
+limpiarlo sin apagar el Mac ni cerrar la tapa. Una cubierta explica qué pasa y
+el icono de la barra de menús se convierte en un teclado. Cuatro salidas: el
+botón de la cubierta, el botón del panel, abrir el panel o mantener esc tres
+segundos. Una pulsación corta del botón de encendido también se traga;
+mantenerlo pulsado sigue apagando el Mac, porque de eso se encarga el hardware.
 
 ### Y todo lo demás
 
@@ -182,8 +196,8 @@ de información los enumera todos con su estado actual:
   de Apple
 - **accesibilidad** — pegar en la app de debajo, el gestor de ventanas y el
   bloqueo del teclado
-- **grabación de pantalla** — solo el módulo de texto de pantalla; el
-  cuentagotas no la necesita
+- **grabación de pantalla** — solo el reconocimiento de texto, y solo al
+  encuadrar un área; el selector de color no la necesita
 - **notificaciones** — el aviso del temporizador y un torrent terminado
 - **contraseña de administrador** — una vez, para el modo con la tapa cerrada
   (pmset solo funciona como root)

@@ -2,26 +2,37 @@
 
 ## 1.5.0 — 2026-07-25
 
-- Archive: a new module — drop an archive on the panel and it unpacks right
-  where it lives; drop files or folders and they become one archive beside them.
-  zip, tar, tar.gz, tar.bz2, tar.xz and gz are handled natively; rar and 7z
-  fetch a small signature-verified helper the first time one turns up. Hop
-  unpacks rar but never creates it.
+- File archives: a new module — its row opens a window, and that window is the
+  drop target. Drop an archive and it unpacks right where it lives; drop files
+  or folders and they become one archive beside them. zip, tar, tar.gz,
+  tar.bz2, tar.xz and gz are handled natively; rar and 7z fetch a small
+  signature-verified helper the first time one turns up. Hop unpacks rar but
+  never creates it. "Open archives with Hop" makes Hop the opener in Finder,
+  whether or not the module is visible in the panel.
+- Cleaning mode: a new module — tapping 1, 5 or 15 minutes, or ∞, stops every
+  key so the keyboard can be wiped without shutting the Mac down. A cover
+  explains what is happening and the menu-bar icon turns into a keyboard. Four
+  ways out: the cover's button, the panel's button, opening the panel, or
+  holding esc for three seconds. A short press of the power key is swallowed
+  too; holding it still forces the Mac off, because that is hardware.
+- Color eyedropper: a new module — picked colors stay as a list, each row
+  carrying hex, rgb and hsl in its own column, and each of the three copies on
+  click. The order never changes under the cursor. How many colors to keep and
+  how many rows to show are settings. No screen-recording permission needed.
+- Text recognition: a new module — frame an area of the screen, or drop a
+  picture into the window and paste one with ⌘V. The text and any QR codes come
+  out in a window you can read, edit and copy from, and land in the clipboard
+  history at the same time.
 - Documents in the converter: markdown to PDF laid out by Hop itself, Word
   files to PDF or markdown, and a PDF's text extracted as markdown — scanned
   pages are read with Vision. The markdown engine is our own, so there is still
   no third-party dependency and nothing to download.
-- Keyboard lock: one button stops every key so the keyboard can be wiped without
-  shutting the Mac down; the mouse or a timer (30 s, 1 min, 5 min) unlocks it.
-- Eyedropper: any color on screen goes into the clipboard history as hex, rgb or
-  hsl, with a strip of recent colors. No screen-recording permission needed.
-- Screen text: frame an area and its text or QR code lands in the same clipboard
-  history, already copied and searchable there later.
 - Permissions tab in the info window: every permission Hop can ask for, what it
   is for, its live state, and what Hop never does. The same list is in the
   README, in all 18 languages.
-- The two screen tools ship hidden; the what's-new card offers to enable them,
-  and an enabled module appears on the first space.
+- All five new modules ship hidden: the what's-new card lists them with
+  checkboxes, nothing appears until you tick it, and what you enable lands on
+  the first tab.
 
 ## 1.4.0 — 2026-07-22
 

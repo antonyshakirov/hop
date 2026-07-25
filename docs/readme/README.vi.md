@@ -112,13 +112,14 @@ magnet.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrent trong Hop — trình BitTorrent gọn nhẹ trong bảng điều khiển trên thanh menu">
 </div>
 
-### Kho nén
+### Kho nén tệp
 
-Thả một kho nén lên bảng và nó bung ra ngay tại chỗ đang nằm; thả tệp hoặc thư
-mục thì bên cạnh chúng xuất hiện một kho nén. zip, tar, tar.gz, tar.bz2, tar.xz
-và gz chạy được ngay; với rar và 7z, lần đầu gặp sẽ tải một trình hỗ trợ nhỏ
-(~6 MB) đã kiểm tra chữ ký. Hop giải nén rar nhưng không bao giờ tạo — định
-dạng này là độc quyền.
+Dòng của mô-đun mở một cửa sổ, và bạn thả tệp vào chính cửa sổ đó. Thả một tệp
+nén thì nó bung ra ngay chỗ đang nằm; thả tệp hoặc thư mục thì bên cạnh có một
+tệp nén. zip, tar, tar.gz, tar.bz2, tar.xz và gz chạy ngay; với rar và 7z, lần
+đầu gặp sẽ tải một trợ thủ nhỏ (~6 MB) có kiểm tra chữ ký. Hop bung được rar
+nhưng không bao giờ tạo — đó là định dạng độc quyền. Bật «mở tệp nén bằng Hop»
+thì nhấp đúp sẽ bung qua Hop, dù mô-đun có hiện trong bảng hay không.
 
 ### Tài liệu
 
@@ -127,17 +128,28 @@ Word (.docx, .doc, .rtf) → PDF hoặc markdown, và trích văn bản của PD
 markdown — trang quét được đọc bằng Vision của Apple. Tất cả đều chạy trong máy
 và ngoại tuyến, không kèm bộ ứng dụng văn phòng, không phải tải gì thêm.
 
-### Công cụ màn hình
+### Ống hút màu
 
-Hai mô-đun tự bật, dành cho nhà thiết kế và lập trình viên. Ống hút màu đưa bất
-kỳ màu nào trên màn hình vào lịch sử clipboard dưới dạng hex, rgb hoặc hsl — và
-không cần quyền ghi màn hình. Văn bản màn hình khoanh một vùng rồi thả văn bản
-hay mã QR bên trong vào cùng lịch sử đó, đã sao chép sẵn.
+Lấy màu bất kỳ trên màn hình bằng kính lúp hệ thống: màu ở lại trong danh sách,
+mỗi hàng mang hex, rgb và hsl ở cột riêng — bấm cái nào thì chép cách ghi ấy.
+Thứ tự không đổi dưới con trỏ, giữ bao nhiêu màu và hiện bao nhiêu hàng là tuỳ
+chọn, và không cần quyền ghi màn hình: kính lúp chỉ trả về một màu.
+
+### Nhận dạng văn bản
+
+Khoanh một vùng màn hình, hoặc thả ảnh vào cửa sổ và dán bằng ⌘V: chữ và mã QR
+bên trong hiện ra trong một cửa sổ để đọc, sửa và sao chép, đồng thời vào lịch
+sử clipboard. Ngắt dòng được giữ nên bảng vẫn đọc được. Nhận dạng bằng Vision
+của Apple, hoàn toàn trên chiếc Mac này.
 
 ### Khoá bàn phím
 
-Một nút bấm và cả bàn phím ngừng phản hồi, để bạn lau mà không phải tắt máy hay
-gập màn hình. Lối ra là chuột, hoặc bộ đếm 30 giây, 1 phút, 5 phút.
+Bấm 1, 5 hoặc 15 phút — hoặc ∞ — và cả bàn phím ngừng phản hồi, để lau mà không
+phải tắt máy hay gập nắp. Một tấm che toàn màn hình giải thích chuyện gì đang
+xảy ra, còn biểu tượng trên thanh menu biến thành bàn phím. Có bốn lối ra: nút
+trên tấm che, nút trong bảng, mở bảng, hoặc giữ esc ba giây. Nhấn nhanh phím
+nguồn cũng bị nuốt; giữ lâu thì Mac vẫn tắt cưỡng bức, vì đó là việc của phần
+cứng.
 
 ### Và những thứ còn lại
 
@@ -177,7 +189,8 @@ của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
 - **mạng — torrent, đo tốc độ** — lưu lượng tới các peer khác khi bật mô-đun
   torrent; phép đo dùng networkQuality của macOS tới máy chủ Apple
 - **trợ năng** — dán vào ứng dụng bên dưới, trình quản lý cửa sổ và khoá bàn phím
-- **ghi màn hình** — chỉ mô-đun văn bản màn hình; ống hút màu không cần
+- **ghi màn hình** — chỉ mô-đun nhận dạng văn bản, và chỉ khi khoanh vùng; ống
+  hút màu không cần
 - **thông báo** — báo hết giờ của bộ đếm và torrent đã xong
 - **mật khẩu quản trị** — một lần, cho chế độ gập màn hình (pmset chỉ chạy với root)
 - **mở khi đăng nhập** — tắt cho đến khi bạn tự bật

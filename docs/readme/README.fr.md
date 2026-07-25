@@ -116,13 +116,16 @@ défaut pour les fichiers .torrent et les liens magnet.
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/torrents.png" width="420" alt="Torrents Hop — client BitTorrent léger dans le panneau de la barre de menus">
 </div>
 
-### Archive
+### Archives de fichiers
 
-Dépose une archive sur le panneau et elle s'ouvre là où elle se trouve ; dépose
-des fichiers ou des dossiers et une archive apparaît à côté. zip, tar, tar.gz,
-tar.bz2, tar.xz et gz fonctionnent tout de suite ; pour rar et 7z, un petit
-outil (~6 Mo) à la signature vérifiée se télécharge la première fois. Hop
-extrait le rar mais ne le crée jamais : le format est propriétaire.
+La ligne du module ouvre une fenêtre, et c'est là qu'on dépose. Dépose une
+archive et elle s'ouvre là où elle se trouve ; dépose des fichiers ou des
+dossiers et une archive apparaît à côté. zip, tar, tar.gz, tar.bz2, tar.xz et
+gz fonctionnent tout de suite ; pour rar et 7z, un petit outil (~6 Mo) à la
+signature vérifiée se télécharge la première fois. Hop extrait le rar mais ne
+le crée jamais : le format est propriétaire. Active « ouvrir les archives avec
+Hop » et un double clic les extrait via Hop, que le module soit visible dans le
+panneau ou non.
 
 ### Documents
 
@@ -131,19 +134,32 @@ lui-même, fichiers Word (.docx, .doc, .rtf) → PDF ou markdown, et le texte d'
 PDF en markdown — une page scannée est lue par Vision d'Apple. Natif et hors
 ligne, sans suite bureautique embarquée ni téléchargement.
 
-### Outils d'écran
+### Pipette à couleurs
 
-Deux modules à activer, pensés pour les designers et les développeurs. La
-pipette met n'importe quelle couleur de l'écran dans l'historique du
-presse-papiers en hex, rgb ou hsl — sans autorisation d'enregistrement d'écran.
-Le texte à l'écran cadre une zone et dépose son texte ou son code QR dans le
-même historique, déjà copié.
+Prélève n'importe quelle couleur de l'écran avec la loupe du système : elle
+reste dans une liste, chaque ligne portant hex, rgb et hsl dans sa propre
+colonne — un clic copie cette notation-là. L'ordre ne change jamais sous le
+curseur, le nombre de couleurs gardées et de lignes visibles se règle, et
+aucune autorisation d'enregistrement d'écran n'est nécessaire : la loupe rend
+une seule couleur.
+
+### Reconnaissance de texte
+
+Cadre une zone de l'écran, ou dépose une image dans la fenêtre et colle-en une
+avec ⌘V : le texte et les codes QR sortent dans une fenêtre qu'on peut lire,
+corriger et copier, et rejoignent en même temps l'historique du presse-papiers.
+Les retours à la ligne sont gardés, un tableau reste donc lisible. La
+reconnaissance, c'est Vision d'Apple, entièrement sur ce Mac.
 
 ### Verrou clavier
 
-Un bouton et tout le clavier cesse de répondre, pour l'essuyer sans éteindre le
-Mac ni rabattre l'écran. On en sort à la souris ou par minuteur : 30 secondes,
-1 minute ou 5 minutes.
+Appuie sur 1, 5 ou 15 minutes — ou ∞ — et tout le clavier cesse de répondre,
+pour l'essuyer sans éteindre le Mac ni rabattre l'écran. Un cache explique ce
+qui se passe et l'icône de la barre des menus devient un clavier. Quatre
+sorties : le bouton du cache, le bouton du panneau, l'ouverture du panneau, ou
+échap maintenu trois secondes. Une pression courte sur la touche d'alimentation
+est avalée elle aussi ; la maintenir éteint toujours le Mac, car c'est le
+matériel qui s'en charge.
 
 ### Et le reste
 
@@ -185,8 +201,8 @@ vraiment utilisée ; la fenêtre d'informations les liste toutes avec leur état
   serveurs d'Apple
 - **accessibilité** — coller dans l'app en dessous, le gestionnaire de fenêtres
   et le verrou clavier
-- **enregistrement de l'écran** — uniquement le module texte à l'écran ; la
-  pipette n'en a pas besoin
+- **enregistrement de l'écran** — uniquement la reconnaissance de texte, et
+  seulement au cadrage d'une zone ; la pipette n'en a pas besoin
 - **notifications** — l'alerte du minuteur et un torrent terminé
 - **mot de passe administrateur** — une fois, pour le mode écran rabattu (pmset
   est réservé à root)

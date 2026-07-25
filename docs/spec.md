@@ -829,10 +829,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   nothing. **No Screen Recording permission**: the system loupe returns one
   color, no bitmap of the screen ever reaches Hop (that permission belongs to the
   separate text-recognition module).
-- Notation: `hex` / `rgb` / `hsl` chips in the module header (stored in
-  `colorFormat`, default `hex`). Switching the notation ALSO rewrites the newest
-  color entry, so the change is visible and pastes right instead of only applying
-  to the next pick. The pure conversion (including HSL, hue never rounding to
+- Notation: all three at once. Every row in the list carries `hex`, `rgb` and
+  `hsl` in FIXED-WIDTH columns (48 / 92 / 104), and each one is its own copy
+  button — a chip that switches a global notation was rejected, because the ask
+  is "give me this color as rgb", not "change my mode" (Anton, 2026-07-25).
+  Fixed widths mean a short value in one row cannot shift the next row's columns.
+  `colorFormat` survives only as the notation written to the pasteboard at pick
+  time (default `hex`). The pure conversion (including HSL, hue never rounding to
   360°) lives in `HopCore.ColorFormatting` with tests.
 - History: a color IS a clipboard entry — `ClipboardItem.colorHex` holds the
   canonical `RRGGBB` (the row's swatch is drawn from it, so the swatch survives a
@@ -842,10 +845,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   in another notation it rewrites the top entry in place, and an older entry for
   that color moves up as a fresh pick (`ClipboardRules.remembering(color:text:in:)`,
   tested). A color needs no file on disk, so pruning one deletes nothing.
-- Module strip: the last six colors as swatches; clicking one puts that color
-  back on the pasteboard in the CURRENT notation. Swatches carry a 1px
-  `controlStroke` border — a white swatch would otherwise vanish in the light
-  theme.
+- Module list: the header is one line (name + an icon-only pick action), and
+  under it the picked colors as ROWS — swatch plus the three notations. Clicking
+  a notation copies exactly it and shows an OPAQUE "copied" badge on the row's
+  trailing edge (a translucent one let the numbers show through). Copying goes
+  through `putOnPasteboard`, which does NOT re-remember: the list keeps the order
+  the colors were picked in and never reshuffles under the cursor. Swatches carry
+  a 1px `controlStroke` border — a white swatch would otherwise vanish in the
+  light theme.
+- Two settings, the same pair the clipboard has: how many colors to keep
+  (`maxColorsKey`, 3…100) and how many rows to show before scrolling
+  (`colorRowsKey`, 1…10), in settings → other modules. Colors are pruned by
+  their own cap (`ClipboardRules.pruned(…, maxColorItems:)`), so a busy clipboard
+  cannot evict them.
 - Modules that produce clipboard content enter it through
   `ClipboardController.remember(external:)` / `remember(color:text:)`, which also
   stamp the pasteboard change counter, so Hop's own write never comes back a
@@ -861,13 +873,20 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   space 1); the fresh-migrate path hides it deterministically on every recompute
   and claims the flag itself.
 
-### Screen text (OCR + QR)
+### Text recognition (OCR + QR)
 
-- Opt-in module (key `"ocr"`, title `ocrLabel`): a hotkey or the `read` button
-  hands over macOS's own selection crosshair; text and barcodes inside the frame
-  become ONE clipboard-history entry, already on the pasteboard. Escape cancels
-  and writes nothing. The panel closes before the crosshair appears (a popover
-  would cover what the user is framing).
+- Opt-in module (key `"ocr"`, title `ocrLabel` — "text recognition"; the old
+  "screen text" read as a place, not an action). ONE panel line: the name plus
+  two icon actions — "select on screen" (`ocrSelect`) and "paste picture". Text
+  and barcodes become ONE clipboard-history entry, already on the pasteboard.
+  Escape cancels and writes nothing. The panel closes before the crosshair
+  appears (a popover would cover what the user is framing).
+- **The result is SHOWN, not filed away silently** (Anton, 2026-07-25): a
+  recognition window opens with the text in an editable field, a drop plate for
+  images and a copy button. It is a `ConverterWindow` subclass so ⌘V reaches it,
+  and the paste monitor stands down while it is key — a picture pasted there is
+  input for recognition, not a clipboard entry. The drop plate is generously
+  sized (padding 48) and the window sizes to it.
 - **The reason this module exists**: the result is a HISTORY entry, searchable
   next to everything else copied. Live Text and the standalone grabbers hand the
   text over once and forget it — without the clipboard link this would be a clone
@@ -902,6 +921,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - States (`ScreenTextController.State`): idle → selecting → reading → done(count)
   / empty / denied / failed. A receipt or complaint clears itself after three
   seconds — nothing here is worth a dialog.
+- A dropped or pasted picture skips the crosshair entirely and therefore needs
+  NO permission at all: recognition runs on the image handed over, not on the
+  screen.
 - Hotkey `⌃⌥R`, module-gated exactly like the eyedropper's; ships hidden via
   `optInModules`. Snapshot flags: `--ocr`, or `--tools` for both new modules.
 
@@ -942,6 +964,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   drag starts, pulling the target out from under the file (Anton, 2026-07-25).
   The module's panel row is one line that opens the archive window, exactly like
   the converter's; dropping onto the row still works and opens the window.
+- **Default opener in Finder**, exactly like the torrent module's: a switch in
+  the window claims the archive content types (`LSSetDefaultRoleHandlerForContentType`,
+  read back with `LSCopyDefaultRoleHandlerForContentType`), and `processOpen`
+  routes an opened archive into the extractor. It works with the module HIDDEN —
+  the panel row is a place to drop things, not a precondition for Finder
+  (Anton, 2026-07-25). The types are declared in `Info.plist` with
+  `LSHandlerRank: Alternate` so Hop offers itself without shouldering aside
+  whatever the user already chose.
 - Jobs are in-memory rows (max 4, running rows never trimmed) with a
   reveal-in-Finder action when done; snapshot flags `--archive` (panel) and
   `--window-archive` (the window itself) stage two.
@@ -1008,24 +1038,30 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 ### Keyboard lock (cleaning mode)
 
 - Module key `"keyboard"`, title `keylockLabel` ("keyboard lock" — the name says
-  what it does, Anton 2026-07-25). Two short lines in the panel: name + the three
-  durations, then the lock/unlock button (and the live countdown while it runs).
-  A full-screen cover states what is happening and carries a way out.
+  what it does, Anton 2026-07-25). ONE line in the panel: name + the duration
+  chips; tapping a duration LOCKS immediately, so there is no separate start
+  button to press afterwards. While it runs the same line shows the countdown
+  and an unlock button. A full-screen cover states what is happening and carries
+  a way out.
 - The keys are swallowed by a `CGEventTap` (session tap, head-insert) over
   keyDown, keyUp, flagsChanged AND `NX_SYSDEFINED` (14) — the brightness/volume/
   media row is not "keys" to macOS and would otherwise keep firing. Events are
   DROPPED, never inspected. `tapDisabledByTimeout/ByUserInput` re-arms the tap
   rather than leaving the keyboard half-locked.
-- The POWER key is never swallowed: holding it is the emergency way out of
-  anything, and a cleaning mode must never be why a Mac cannot be shut down. A
-  long hold never reaches a tap anyway (hardware), so the tap only has to let
-  the short press through — it checks `NSEvent.subtype == .powerOff` on the
-  system-defined class.
-- Way out, all by mouse: the cover's done button, the module's own unlock
-  button, OR simply opening the panel — reaching for Hop while the keys are dead
-  IS the ask to release them. Plus the timer: 30 s / 1 min / 5 min
-  (`keyboardLockDuration`, default 1 min). A keyboard shortcut would be exactly
-  the thing that is switched off. The power button and Touch ID stay alive.
+- The POWER key: a SHORT press is swallowed like every other key — on a
+  cleaning cloth it is the one press that would put the Mac to sleep mid-wipe.
+  Holding it still forces the Mac off, because a long hold is handled in
+  hardware and never reaches a tap at all: the emergency exit stays open without
+  Hop having to leave the short press alive (Anton, 2026-07-25). Touch ID keeps
+  working.
+- Way out, four of them: the cover's done button, the module's own unlock
+  button, simply opening the panel — reaching for Hop while the keys are dead IS
+  the ask to release them — or HOLDING ESC for three seconds when the mouse is
+  out of reach (`noteEscape(down:)` times the hold; esc is otherwise swallowed
+  like everything else). A normal keyboard shortcut would be exactly the thing
+  that is switched off. Durations are 1 / 5 / 15 minutes and ∞
+  (`durations = [60, 300, 900, 0]`, 0 = until told otherwise); the countdown is
+  replaced by the infinity glyph in that mode.
 - **The menu bar says so**: while locked, the star is REPLACED by a keyboard
   glyph — a corner dot would be too quiet for a state that stops the whole
   keyboard, and it outranks the finished bell. Unlocking plays the

@@ -107,13 +107,15 @@ files and magnet links.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop torrents — lite BitTorrent client in the menu bar panel">
 </div>
 
-### Archive
+### File archives
 
-Drop an archive on the panel and it unpacks right where it lives; drop files
-or folders and they become one archive beside them. zip, tar, tar.gz, tar.bz2,
-tar.xz and gz work out of the box; rar and 7z fetch a small signature-verified
-helper (~6 MB) the first time one turns up. Hop unpacks rar but never creates
-it — the format is proprietary.
+The module's row opens a window, and that window is where you drop things.
+Drop an archive and it unpacks right where it lives; drop files or folders and
+they become one archive beside them. zip, tar, tar.gz, tar.bz2, tar.xz and gz
+work out of the box; rar and 7z fetch a small signature-verified helper (~6 MB)
+the first time one turns up. Hop unpacks rar but never creates it — the format
+is proprietary. Turn on "open archives with Hop" and a double-clicked archive
+unpacks through Hop, module visible in the panel or not.
 
 ### Documents
 
@@ -122,18 +124,30 @@ files (.docx, .doc, .rtf) to PDF or markdown, and a PDF's text pulled out as
 markdown — a scanned page is read with Apple's Vision. Native and offline,
 with no office suite bundled and nothing to download.
 
-### Screen tools
+### Color picker
 
-Two opt-in modules for designers and developers. The eyedropper puts any color
-on screen into your clipboard history as hex, rgb or hsl — no screen-recording
-permission needed. Screen text frames an area and drops the text or QR code
-inside it into the same history, already copied and searchable there later.
+Pick any color on screen with the system loupe and it stays in a list, each row
+carrying hex, rgb and hsl in its own column — click one of the three and that
+notation is copied. The order never changes under the cursor, the list length
+and its visible rows are settings, and no screen-recording permission is
+needed: the loupe hands back one color and nothing else.
+
+### Text recognition
+
+Frame an area of the screen, or drop a picture into the window and paste one
+with ⌘V: the text and any QR codes inside come out in a window you can read,
+edit and copy from, and land in the clipboard history at the same time. Line
+breaks are kept, so a table or a code snippet stays readable. Recognition is
+Apple's Vision, entirely on this Mac.
 
 ### Keyboard lock
 
-One button and the whole keyboard stops responding, so it can be wiped without
-shutting the Mac down or closing the lid. The way out is the mouse or a timer
-of 30 seconds, 1 minute or 5 minutes.
+Tap 1, 5 or 15 minutes — or ∞ — and the whole keyboard stops responding, so it
+can be wiped without shutting the Mac down or closing the lid. A cover explains
+what is happening and the menu-bar icon turns into a keyboard. Four ways out:
+the cover's button, the panel's button, opening the panel, or holding esc for
+three seconds. A short press of the power key is swallowed too; holding it
+still forces the Mac off, because that is handled in hardware.
 
 ### And the rest
 
@@ -174,8 +188,8 @@ and the app's info window lists them all with their current state:
   on; the speed test runs macOS's own networkQuality against Apple's servers
 - **accessibility** — pasting into the app underneath, the window manager and
   the keyboard lock
-- **screen recording** — the screen-text module only; the eyedropper does not
-  need it
+- **screen recording** — the text recognition module only, and only when it
+  frames an area; the color picker does not need it
 - **notifications** — the timer's alert and a finished torrent
 - **administrator password** — once, for the closed-lid mode (pmset is root-only)
 - **launch at login** — off unless you turn it on

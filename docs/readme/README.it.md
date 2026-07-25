@@ -114,13 +114,15 @@ predefinita per i file .torrent e i link magnet.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrent di Hop — client BitTorrent leggero nel pannello della barra dei menu">
 </div>
 
-### Archivio
+### Archivi di file
 
-Trascina un archivio sul pannello e si apre proprio dove sta; trascina file o
-cartelle e accanto compare un archivio. zip, tar, tar.gz, tar.bz2, tar.xz e gz
-funzionano subito; per rar e 7z la prima volta si scarica un piccolo aiutante
-(~6 MB) con firma verificata. Hop estrae il rar ma non lo crea mai: il formato
-è proprietario.
+La riga del modulo apre una finestra, ed è lì che si trascina. Trascina un
+archivio e si apre proprio dove si trova; trascina file o cartelle e accanto
+nasce un archivio. zip, tar, tar.gz, tar.bz2, tar.xz e gz funzionano subito;
+per rar e 7z alla prima occasione si scarica un piccolo aiutante (~6 MB) con
+firma verificata. Hop estrae i rar ma non li crea mai: il formato è
+proprietario. Attiva «apri gli archivi con Hop» e un doppio clic li estrae
+tramite Hop, che il modulo sia visibile nel pannello o no.
 
 ### Documenti
 
@@ -129,18 +131,31 @@ stesso, file Word (.docx, .doc, .rtf) → PDF o markdown, e il testo di un PDF
 come markdown — una pagina scansionata la legge Vision di Apple. Nativo e
 offline, senza suite d'ufficio inclusa e senza download.
 
-### Strumenti dello schermo
+### Selettore colore
 
-Due moduli da attivare, per designer e sviluppatori. Il contagocce mette
-qualsiasi colore dello schermo nella cronologia degli appunti come hex, rgb o
-hsl — senza permesso di registrazione schermo. Il testo dallo schermo inquadra
-un'area e lascia il testo o il codice QR nella stessa cronologia, già copiato.
+Prendi qualsiasi colore dallo schermo con la lente di sistema: resta in un
+elenco, ogni riga con hex, rgb e hsl nella propria colonna — un clic copia
+quella notazione. L'ordine non cambia mai sotto il cursore, quanti colori
+tenere e quante righe mostrare sono impostazioni, e non serve il permesso di
+registrazione schermo: la lente restituisce un colore e basta.
+
+### Riconoscimento del testo
+
+Inquadra un'area dello schermo, oppure trascina un'immagine nella finestra e
+incollane una con ⌘V: il testo e i codici QR escono in una finestra dove si
+legge, si corregge e si copia, e finiscono insieme nella cronologia degli
+appunti. Le andate a capo restano, così una tabella rimane leggibile. Il
+riconoscimento è Vision di Apple, tutto su questo Mac.
 
 ### Blocco tastiera
 
-Un pulsante e tutta la tastiera smette di rispondere, così la pulisci senza
-spegnere il Mac né chiudere il coperchio. Si esce con il mouse o con un timer
-di 30 secondi, 1 minuto o 5 minuti.
+Tocca 1, 5 o 15 minuti — oppure ∞ — e tutta la tastiera smette di rispondere,
+per pulirla senza spegnere il Mac né chiudere il coperchio. Una copertura
+spiega cosa sta succedendo e l'icona nella barra dei menu diventa una tastiera.
+Quattro vie d'uscita: il pulsante sulla copertura, il pulsante nel pannello,
+aprire il pannello, o tenere esc per tre secondi. Anche una pressione breve del
+tasto di accensione viene ingoiata; tenerlo premuto spegne comunque il Mac,
+perché di quello si occupa l'hardware.
 
 ### E il resto
 
@@ -181,8 +196,8 @@ finestra informazioni li elenca tutti con il loro stato attuale:
   torrent attivo; il test usa networkQuality di macOS verso i server di Apple
 - **accessibilità** — incollare nell'app sottostante, il gestore finestre e il
   blocco tastiera
-- **registrazione schermo** — solo il modulo testo dallo schermo; il contagocce
-  non ne ha bisogno
+- **registrazione schermo** — solo il riconoscimento del testo, e solo quando
+  inquadra un'area; il selettore colore non ne ha bisogno
 - **notifiche** — l'avviso del timer e un torrent completato
 - **password di amministratore** — una volta, per la modalità a coperchio chiuso
   (pmset gira solo come root)

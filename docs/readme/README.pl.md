@@ -114,13 +114,15 @@ aplikacją dla plików .torrent i linków magnet.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrenty Hop — lekki klient BitTorrent w panelu na pasku menu">
 </div>
 
-### Archiwum
+### Archiwa plików
 
-Upuść archiwum na panel, a rozpakuje się tam, gdzie leży; upuść pliki albo
-foldery, a obok pojawi się jedno archiwum. zip, tar, tar.gz, tar.bz2, tar.xz i
-gz działają od razu; dla rar i 7z przy pierwszym spotkaniu pobiera się mały
-pomocnik (~6 MB) ze sprawdzonym podpisem. Hop rozpakowuje rar, ale nigdy go nie
-tworzy — format jest zamknięty.
+Wiersz modułu otwiera okno i to w nim się upuszcza. Upuść archiwum, a rozpakuje
+się dokładnie tam, gdzie leży; upuść pliki albo foldery, a obok powstanie jedno
+archiwum. zip, tar, tar.gz, tar.bz2, tar.xz i gz działają od razu; dla rar i 7z
+przy pierwszym spotkaniu pobiera się mały pomocnik (~6 MB) ze sprawdzonym
+podpisem. Hop rozpakowuje rar, ale nigdy go nie tworzy — format jest
+zastrzeżony. Włącz «otwieraj archiwa w Hop», a dwuklik rozpakuje archiwum przez
+Hop, niezależnie od tego, czy moduł widać w panelu.
 
 ### Dokumenty
 
@@ -129,18 +131,30 @@ Word (.docx, .doc, .rtf) → PDF albo markdown, a także tekst z PDF-a jako
 markdown — zeskanowaną stronę czyta Vision od Apple. Natywnie i offline, bez
 dołączonego pakietu biurowego i bez pobierania.
 
-### Narzędzia ekranu
+### Próbnik koloru
 
-Dwa włączane moduły dla projektantów i programistów. Kroplomierz wkłada dowolny
-kolor z ekranu do historii schowka jako hex, rgb albo hsl — bez uprawnienia do
-nagrywania ekranu. Tekst z ekranu zaznacza obszar i zostawia jego tekst albo kod
-QR w tej samej historii, już skopiowany.
+Pobierz lupą systemową dowolny kolor z ekranu — zostaje na liście, a w każdym
+wierszu hex, rgb i hsl stoją we własnych kolumnach: klikasz jeden i ten zapis
+się kopiuje. Kolejność nie zmienia się pod kursorem, ile kolorów przechowywać i
+ile wierszy pokazywać ustawisz w ustawieniach, a uprawnienie do nagrywania
+ekranu nie jest potrzebne: lupa zwraca jeden kolor i nic więcej.
+
+### Rozpoznawanie tekstu
+
+Zaznacz obszar ekranu albo upuść obraz w oknie i wklej go przez ⌘V: tekst i
+kody QR z niego pojawią się w oknie, w którym można je przeczytać, poprawić i
+skopiować, a jednocześnie trafią do historii schowka. Złamania linii zostają,
+więc tabela pozostaje czytelna. Rozpoznaje Vision od Apple, w całości na tym
+Macu.
 
 ### Blokada klawiatury
 
-Jeden przycisk i cała klawiatura przestaje odpowiadać, więc można ją przetrzeć
-bez wyłączania Maca i zamykania klapy. Wyjście to mysz albo licznik: 30 sekund,
-1 minuta lub 5 minut.
+Naciśnij 1, 5 albo 15 minut — lub ∞ — i cała klawiatura przestaje odpowiadać,
+żeby dało się ją przetrzeć bez wyłączania Maca i zamykania pokrywy. Zasłona
+tłumaczy, co się dzieje, a ikona na pasku menu zmienia się w klawiaturę. Wyjścia
+są cztery: przycisk na zasłonie, przycisk w panelu, samo otwarcie panelu albo
+przytrzymanie esc przez trzy sekundy. Krótkie naciśnięcie przycisku zasilania
+też jest połykane; przytrzymanie nadal wyłącza Maca, bo robi to sprzęt.
 
 ### I cała reszta
 
@@ -181,8 +195,8 @@ potrzebuje; okno informacji wymienia je wszystkie z bieżącym stanem:
   module torrentów; test używa systemowego networkQuality wobec serwerów Apple
 - **dostępność** — wklejanie do aplikacji pod spodem, menedżer okien i blokada
   klawiatury
-- **nagrywanie ekranu** — tylko moduł tekstu z ekranu; kroplomierz go nie
-  potrzebuje
+- **nagrywanie ekranu** — tylko moduł rozpoznawania tekstu i tylko przy
+  zaznaczaniu obszaru; próbnik koloru go nie potrzebuje
 - **powiadomienia** — alarm minutnika i ukończony torrent
 - **hasło administratora** — raz, dla trybu zamkniętej klapy (pmset działa tylko
   jako root)

@@ -111,13 +111,15 @@ Hop lewat port lokal. Hop juga bisa menjadi aplikasi bawaan untuk file
 <img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrent Hop — klien BitTorrent ringan di panel menu bar">
 </div>
 
-### Arsip
+### Arsip berkas
 
-Jatuhkan arsip ke panel dan ia terbuka tepat di tempatnya; jatuhkan berkas atau
-folder dan di sebelahnya muncul satu arsip. zip, tar, tar.gz, tar.bz2, tar.xz,
-dan gz langsung jalan; untuk rar dan 7z, saat pertama kali muncul, diunduh
-pembantu kecil (~6 MB) yang tanda tangannya diverifikasi. Hop membuka rar tapi
-tidak pernah membuatnya — formatnya proprietary.
+Baris modul membuka sebuah jendela, dan di jendela itulah berkas dijatuhkan.
+Jatuhkan arsip dan ia terbuka tepat di tempatnya; jatuhkan berkas atau folder
+dan di sebelahnya muncul satu arsip. zip, tar, tar.gz, tar.bz2, tar.xz, dan gz
+langsung jalan; untuk rar dan 7z, saat pertama kali dijumpai, diunduh pembantu
+kecil (~6 MB) yang tanda tangannya diperiksa. Hop membuka rar tetapi tidak
+pernah membuatnya — formatnya berpemilik. Nyalakan «buka arsip dengan Hop» dan
+klik ganda akan membukanya lewat Hop, terlihat atau tidak modulnya di panel.
 
 ### Dokumen
 
@@ -126,18 +128,30 @@ Konverter belajar dokumen: markdown → PDF yang ditata Hop sendiri, berkas Word
 halaman pindaian dibaca oleh Vision milik Apple. Semuanya native dan offline,
 tanpa paket kantor bawaan dan tanpa unduhan.
 
-### Alat layar
+### Pemilih warna
 
-Dua modul opsional untuk desainer dan pengembang. Pipet memasukkan warna apa pun
-di layar ke riwayat papan klip sebagai hex, rgb, atau hsl — tanpa izin rekam
-layar. Teks layar membingkai sebuah area dan menaruh teks atau kode QR di
-dalamnya ke riwayat yang sama, sudah tersalin.
+Ambil warna apa pun di layar dengan lup sistem: warnanya tinggal di daftar,
+tiap baris membawa hex, rgb, dan hsl di kolomnya sendiri — klik salah satu dan
+notasi itulah yang tersalin. Urutannya tak pernah berubah di bawah kursor,
+berapa warna disimpan dan berapa baris tampil adalah pengaturan, dan izin rekam
+layar tidak diperlukan: lup hanya mengembalikan satu warna.
+
+### Pengenalan teks
+
+Bingkai sebuah area layar, atau jatuhkan gambar ke jendela dan tempel satu
+dengan ⌘V: teks dan kode QR di dalamnya keluar di jendela yang bisa dibaca,
+disunting, dan disalin, sekaligus masuk ke riwayat papan klip. Pemenggalan
+baris dipertahankan, jadi tabel tetap terbaca. Pengenalannya memakai Vision
+milik Apple, sepenuhnya di Mac ini.
 
 ### Kunci papan ketik
 
-Satu tombol dan seluruh papan ketik berhenti merespons, jadi bisa dilap tanpa
-mematikan Mac atau menutup layarnya. Keluarnya lewat tetikus atau penghitung
-waktu 30 detik, 1 menit, atau 5 menit.
+Ketuk 1, 5, atau 15 menit — atau ∞ — dan seluruh papan ketik berhenti merespons,
+sehingga bisa dilap tanpa mematikan Mac atau menutup layar. Penutup layar penuh
+menjelaskan apa yang terjadi, dan ikon bilah menu berubah jadi papan ketik.
+Empat jalan keluar: tombol di penutup, tombol di panel, membuka panel, atau
+menahan esc tiga detik. Tekanan singkat tombol daya juga ditelan; menahannya
+tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 
 ### Dan selebihnya
 
@@ -179,7 +193,8 @@ jendela info aplikasi mendaftar semuanya beserta statusnya saat ini:
   torrent aktif; tesnya memakai networkQuality bawaan macOS ke server Apple
 - **aksesibilitas** — menempel ke aplikasi di bawah, pengatur jendela, dan kunci
   papan ketik
-- **rekam layar** — hanya modul teks layar; pipet tidak memerlukannya
+- **rekam layar** — hanya modul pengenalan teks, dan hanya saat membingkai area;
+  pemilih warna tidak memerlukannya
 - **notifikasi** — peringatan pengatur waktu dan torrent yang selesai
 - **kata sandi administrator** — sekali, untuk mode layar tertutup (pmset hanya
   jalan sebagai root)
