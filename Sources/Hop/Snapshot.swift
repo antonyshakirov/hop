@@ -11,13 +11,15 @@ enum Snapshot {
     static var active = false
 
     /// Which info-window section a render opens on: "--news" for the release
-    /// notes, "--permissions" for the permission list, the usual "general"
-    /// otherwise. Snapshots only — the live app always opens on "general".
+    /// notes, "--permissions" for the permission list, "--doc <id>" for any
+    /// module's help tab, the usual "general" otherwise. Snapshots only — the
+    /// live app always opens on "general".
     static var aboutSectionForRender: String {
         guard active else { return "general" }
         let args = CommandLine.arguments
         if args.contains("--news") { return "news" }
         if args.contains("--permissions") { return "permissions" }
+        if let i = args.firstIndex(of: "--doc"), args.count > i + 1 { return args[i + 1] }
         return "general"
     }
 
