@@ -66,8 +66,7 @@ struct PanelView: View {
     @State private var launchAtLogin = false
     // "--news" opens the what's-new section directly in a `--window-about`
     // snapshot, so the release-notes design can be reviewed as a picture.
-    @State private var aboutSection =
-        Snapshot.active && CommandLine.arguments.contains("--news") ? "news" : "general"
+    @State private var aboutSection = Snapshot.aboutSectionForRender
     @State private var settingsSection = "general"
     @State private var editUnit: TimeInterval? // digit group being edited (3600/60/1)
     // A tracker inline field (project/task name or "today" time) is focused.
@@ -124,6 +123,7 @@ struct PanelView: View {
     @AppStorage(TorrentController.showWhenEmptyKey) private var torrentShowWhenEmpty = true
     /// "What's new" banner: dismissed once the user saves their choice.
     @AppStorage("featureSeen.torrent") private var torrentFeatureSeen = false
+    @AppStorage("featureSeen.tools150") private var toolsFeatureSeen = false
     // Two-step "what's new" card: step 1 = opt-in (enable/hide), step 2 = the
     // follow-up toggles while the engine fetches in the background.
     // "--feature-banner-step2" renders step 2 directly for design review.
@@ -336,27 +336,46 @@ struct PanelView: View {
     // MARK: - "What's new" announcement banner (top of the panel, above the tabs)
 
     private struct FeatureAnnouncement {
-        let id: String          // seen flag lives at featureSeen.<id>
-        let moduleKey: String   // module key activated (lifted out of inactive) on "enable"
+        let id: String            // seen flag lives at featureSeen.<id>
+        let moduleKeys: [String]  // modules activated (lifted out of inactive) on "enable"
         let title: L10nKey
         let body: L10nKey
+        /// The honest price of saying yes, when there is one (the torrent engine
+        /// download). nil for features that cost nothing.
+        var note: L10nKey?
+        /// Whether "enable" opens a second step with the module's follow-up
+        /// settings. Only torrents have one; everything else closes right away.
+        var hasFollowUp = false
     }
     // New features are appended here as the app gains them; each shows a one-time
     // top-of-panel banner to users who updated into it.
     private static let featureAnnouncements: [FeatureAnnouncement] = [
-        .init(id: "torrent", moduleKey: "torrent",
-              title: .featureTorrentTitle, body: .featureTorrentBody)
+        .init(id: "torrent", moduleKeys: ["torrent"],
+              title: .featureTorrentTitle, body: .featureTorrentBody,
+              note: .torrentEngineNote, hasFollowUp: true),
+        .init(id: "tools150", moduleKeys: ["color", "ocr"],
+              title: .featureToolsTitle, body: .featureToolsBody),
     ]
 
     /// The first announcement the user hasn't acted on (enabled or hidden). In a
     /// snapshot it's forced on by `--feature-banner` so the design can be reviewed.
     private var pendingAnnouncement: FeatureAnnouncement? {
         if Snapshot.active {
+            // --feature-banner renders the first announcement, --feature-banner-tools
+            // the newest one, so either card can be reviewed on its own.
+            if CommandLine.arguments.contains("--feature-banner-tools") {
+                return Self.featureAnnouncements.last
+            }
             let wantsBanner = CommandLine.arguments.contains("--feature-banner")
                 || CommandLine.arguments.contains("--feature-banner-step2")
             return wantsBanner ? Self.featureAnnouncements.first : nil
         }
-        return torrentFeatureSeen ? nil : Self.featureAnnouncements.first
+        // The @AppStorage flags are read here so SwiftUI re-renders when one
+        // flips; the lookup itself goes through UserDefaults by id.
+        _ = (torrentFeatureSeen, toolsFeatureSeen)
+        return Self.featureAnnouncements.first {
+            !UserDefaults.standard.bool(forKey: "featureSeen.\($0.id)")
+        }
     }
 
     /// Two-step announcement (Anton, 2026-07-18). Updaters got the module OFF and
@@ -406,27 +425,41 @@ struct PanelView: View {
             .fixedSize(horizontal: false, vertical: true)
             .padding(.top, 5)
         // Honest cost of saying yes — BEFORE the choice, not after.
-        Text(t(.torrentEngineNote))
-            .font(Theme.mono(9))
-            .foregroundStyle(Theme.textTertiary)
-            .fixedSize(horizontal: false, vertical: true)
-            .padding(.top, 3)
+        if let note = ann.note {
+            Text(t(note))
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 3)
+        }
         HStack(spacing: 14) {
             Spacer(minLength: 0)
             Button {
                 UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
-                torrentFeatureSeen = true   // module stays off, banner drops away
+                // mirror into the @AppStorage flags so the banner disappears now
+                torrentFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.torrent")
+                toolsFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.tools150")
             } label: {
                 HoverLabel(text: t(.featureHide), size: 10, color: Theme.textTertiary)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             Button {
-                // Opting in = activate the module (lift it out of inactive onto
-                // the current space) and, via placeModule, fetch the engine NOW
-                // so the first real download doesn't stall behind a 26 MB install.
-                placeModule(ann.moduleKey, onTab: currentSpaceID ?? tabsModel.tabs[0].id)
-                bannerEnabled = true        // same card swaps to follow-up settings
+                // Opting in = activate the modules (lift them out of inactive) and,
+                // via placeModule, fetch the torrent engine NOW so the first real
+                // download doesn't stall behind a 26 MB install. Always the FIRST
+                // space (Anton, 2026-07-25): whichever tab the user happens to be
+                // on, an enabled module appears in the same predictable place.
+                let destination = tabsModel.tabs[0].id
+                for key in ann.moduleKeys {
+                    placeModule(key, onTab: destination)
+                }
+                if ann.hasFollowUp {
+                    bannerEnabled = true    // same card swaps to follow-up settings
+                } else {
+                    UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
+                    toolsFeatureSeen = true
+                }
             } label: {
                 Text(t(.featureEnable))
                     .font(Theme.mono(10, weight: .bold))
@@ -508,7 +541,10 @@ struct PanelView: View {
     private func saveAnnouncement(_ ann: FeatureAnnouncement) {
         if bannerMakeDefault { makeHopDefaultForTorrent() }
         UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
-        torrentFeatureSeen = true   // re-render: the banner drops away
+        // re-render: the banner drops away (and the next unseen one, if any,
+        // appears on the following panel open)
+        torrentFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.torrent")
+        bannerEnabled = false
     }
 
     // MARK: - 8-hour overrun banner (top of the panel, above the tabs)
@@ -2028,8 +2064,14 @@ struct PanelView: View {
     // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent"]
-    static let defaultModuleOrder = "timer,awake,clipboard,convert,windows,speedtest,torrent"
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "archive", "keyboard"]
+    static let defaultModuleOrder = "timer,awake,clipboard,convert,windows,speedtest,torrent,color,ocr,archive,keyboard"
+
+    /// Modules that ship HIDDEN. They serve a narrower audience (designers,
+    /// developers) and must be a deliberate opt-in — an ordinary user should not
+    /// find them cluttering the panel after an update. Torrent predates this list
+    /// and is still handled by its legacy toggle below.
+    private static let optInModules = ["color", "ocr"]
 
     private var moduleOrder: [String] {
         Self.normalizedOrder(moduleOrderRaw)
@@ -2066,11 +2108,16 @@ struct PanelView: View {
             // first, so `seedCanonicalLayout` reads the true active set
             // instead of rebuilding a tab around a module the user turned off.
             migrateModuleVisibility(&model)
+            // BEFORE canonicalization: a module `ensure` has just placed on a
+            // space must already be hidden when the layout is rebuilt, or the
+            // rebuild would carry it onto space 1 for good.
+            seedOptInModules(&model)
             seedCanonicalLayout(&model)
             return model
         }
         var model = PanelTabsModel.migrate(moduleOrder: moduleOrder)
         model.ensure(modules: allModules + ["system", "tracker", "todos"])
+        deactivateOptInModules(&model)
         // Apply the legacy toggles on EVERY fresh-migrate call (it is
         // deterministic — same toggles, same result), NOT behind the one-shot
         // flag: `tabsModel` recomputes many times per render, and if a later
@@ -2087,7 +2134,30 @@ struct PanelView: View {
         UserDefaults.standard.set(true, forKey: SettingsKey.todosSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.moduleVisibilityMigrated)
         UserDefaults.standard.set(true, forKey: SettingsKey.canonicalLayoutSeeded)
+        UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded)
         return model
+    }
+
+    /// Hide every opt-in module. Deterministic, so it can run on EVERY
+    /// fresh-migrate call (same reason as `deactivateOffModules`): a later
+    /// recompute that still sees empty storage must produce the same hidden set,
+    /// otherwise the module would flicker back visible mid-render.
+    private static func deactivateOptInModules(_ model: inout PanelTabsModel) {
+        for key in optInModules where !model.inactive.contains(key) {
+            model.deactivate(module: key)
+        }
+    }
+
+    /// One-shot for models saved BEFORE these modules existed (real updating
+    /// users): `ensure` has just placed them on a space — move them into the
+    /// inactive bucket exactly once, then never again, so the user's own later
+    /// activation sticks. The fresh-migrate path claims the flag itself.
+    private static func seedOptInModules(_ model: inout PanelTabsModel) {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: SettingsKey.optInModulesSeeded) else { return }
+        deactivateOptInModules(&model)
+        defaults.set(true, forKey: SettingsKey.optInModulesSeeded)
+        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 
     /// Every module's legacy visibility toggle: UserDefaults key + its default.
@@ -2137,11 +2207,14 @@ struct PanelView: View {
     static func activateStoredModule(_ key: String) {
         let defaults = UserDefaults.standard
         let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
-        guard var model = PanelTabsModel.decode(raw),
-              model.inactive.contains(key),
-              let first = model.tabs.first else { return }
+        // Nothing stored yet means the panel has never been built (a .torrent
+        // opened right after install, a snapshot render): materialize the
+        // migrated model first, or the activation would silently no-op.
+        var model = PanelTabsModel.decode(raw) ?? storedTabsModel()
+        guard model.inactive.contains(key), let first = model.tabs.first else { return }
         model.move(module: key, toTab: first.id)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
+        HotkeyManager.shared.refreshModuleHotkeys()
     }
 
     /// Hide a module from OUTSIDE a live panel (onboarding): send it to the
@@ -2149,9 +2222,11 @@ struct PanelView: View {
     static func deactivateStoredModule(_ key: String) {
         let defaults = UserDefaults.standard
         let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
-        guard var model = PanelTabsModel.decode(raw), !model.inactive.contains(key) else { return }
+        var model = PanelTabsModel.decode(raw) ?? storedTabsModel()
+        guard !model.inactive.contains(key) else { return }
         model.deactivate(module: key)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
+        HotkeyManager.shared.refreshModuleHotkeys()
     }
 
     /// Whether `key` currently sits in the inactive bucket (used by AppDelegate
@@ -2269,6 +2344,9 @@ struct PanelView: View {
         var model = tabsModel
         body(&model)
         panelTabsRaw = model.encoded()
+        // Module-gated combos follow visibility: showing a module claims its
+        // hotkey, hiding it hands the combo back to the rest of the system.
+        HotkeyManager.shared.refreshModuleHotkeys()
     }
 
     private func visibleModules(in id: UUID) -> [String] {
@@ -2343,6 +2421,10 @@ struct PanelView: View {
         case "windows": return t(.windowsLabel)
         case "speedtest": return t(.speedtestLabel)
         case "torrent": return t(.torrentLabel)
+        case "color": return t(.colorLabel)
+        case "ocr": return t(.ocrLabel)
+        case "archive": return t(.archiveLabel)
+        case "keyboard": return t(.keylockLabel)
         case "system": return t(.tabSystem)
         case "tracker": return t(.trackerLabel)
         case "todos": return t(.todosLabel)
@@ -2364,6 +2446,21 @@ struct PanelView: View {
         case "speedtest": speedtestRow
         case "torrent":
             TorrentView(torrent: model.torrent, lang: lang)
+                .id(model.themeVersion)
+        case "color":
+            ColorPickerView(picker: model.colorPicker, clipboard: model.clipboard, lang: lang,
+                            closePanel: { model.closePanel?() })
+                .id(model.themeVersion)
+        case "ocr":
+            ScreenTextView(reader: model.screenText, lang: lang,
+                           closePanel: { model.closePanel?() })
+                .id(model.themeVersion)
+        case "archive":
+            ArchiveView(archive: model.archive, helper: model.archive.helper, lang: lang)
+                .id(model.themeVersion)
+        case "keyboard":
+            KeyboardLockView(lock: model.keyboardLock, lang: lang,
+                             closePanel: { model.closePanel?() })
                 .id(model.themeVersion)
         case "system":
             StatsView(stats: model.stats, lang: lang)
@@ -3455,7 +3552,24 @@ struct PanelView: View {
             hotkeyRow(.panel, label: t(.hkPanel))
             hotkeyRow(.timer, label: t(.hkTimer))
             hotkeyRow(.awake, label: t(.hkAwake))
+            // A module's combo is only claimed while the module is visible, so
+            // its row appears on the same condition — a shortcut that silently
+            // does nothing would be worse than no row at all.
+            if moduleIsActive("color") {
+                hotkeyRow(.color, label: t(.hkColor))
+            }
+            if moduleIsActive("ocr") {
+                hotkeyRow(.ocr, label: t(.ocrLabel))
+            }
+            if moduleIsActive("keyboard") {
+                hotkeyRow(.keyboardLock, label: t(.keylockLabel))
+            }
         }
+    }
+
+    /// Whether `key` sits on a space right now (visibility is membership).
+    private func moduleIsActive(_ key: String) -> Bool {
+        tabsModel.tabID(containing: key) != nil
     }
 
     private func hotkeyRow(_ action: HotkeyManager.Action, label: String) -> some View {
@@ -3959,7 +4073,8 @@ struct PanelView: View {
     private var aboutTabLabels: [String] {
         [t(.aboutTabGeneral), t(.aboutTabTimer), t(.awakeOff),
          t(.tabSystem), t(.tabClipboard), t(.convertLabel), t(.windowsLabel),
-         t(.speedtestLabel), t(.torrentLabel)]
+         t(.speedtestLabel), t(.torrentLabel), t(.colorLabel), t(.ocrLabel),
+         t(.archiveLabel), t(.keylockLabel), t(.permTab)]
     }
 
     private var aboutScreen: some View {
@@ -3974,6 +4089,11 @@ struct PanelView: View {
                 ("windows", t(.windowsLabel)),
                 ("speed", t(.speedtestLabel)),
                 ("torrent", t(.torrentLabel)),
+                ("color", t(.colorLabel)),
+                ("ocr", t(.ocrLabel)),
+                ("archive", t(.archiveLabel)),
+                ("keyboard", t(.keylockLabel)),
+                ("permissions", t(.permTab)),
                 ("tasks", t(.aboutTabTasks)),
                 ("news", t(.aboutTabNews)),
             ], selection: $aboutSection, wraps: true)
@@ -3993,7 +4113,10 @@ struct PanelView: View {
                 case "more":
                     DocView(text: t(.docClipboardFull))
                 case "convert":
-                    DocView(text: t(.docConverterFull))
+                    VStack(alignment: .leading, spacing: 10) {
+                        DocView(text: t(.docConverterFull))
+                        DocView(text: t(.docConverterDocs))
+                    }
                 case "windows":
                     DocView(text: t(.docWindowsFull))
                     windowsHotkeyLegend
@@ -4001,6 +4124,16 @@ struct PanelView: View {
                     DocView(text: t(.docSpeedFull))
                 case "torrent":
                     DocView(text: t(.docTorrentFull))
+                case "color":
+                    DocView(text: t(.docColorFull))
+                case "ocr":
+                    DocView(text: t(.docOcrFull))
+                case "archive":
+                    DocView(text: t(.docArchiveFull))
+                case "keyboard":
+                    DocView(text: t(.docKeylockFull))
+                case "permissions":
+                    PermissionsView(lang: lang)
                 case "tasks":
                     // both new modules in one tab, two clearly separated sections:
                     // the time tracker above, the to-do list below.

@@ -156,6 +156,37 @@ final class ClipboardController: ObservableObject {
         save()
     }
 
+    /// Content Hop PRODUCED itself — a picked color, text read off the screen —
+    /// enters the history here. Modules can't call `remember` directly (the rules
+    /// and persistence are ours), and they need the value on the pasteboard in the
+    /// same breath: that IS the feature ("key, then paste"). `place` also stamps
+    /// the change counter, so our own write never comes back a second later as a
+    /// foreign copy and a duplicate row.
+    func remember(external raw: String) {
+        remember(raw)
+        place(raw)
+    }
+
+    /// The eyedropper's entry point: `hex` is the canonical "RRGGBB" the row's
+    /// swatch is drawn from, `text` the notation the user pastes. The value goes
+    /// on the pasteboard even when the history stays as it is (the same color
+    /// picked twice) — the point of picking is having it ready to paste.
+    func remember(color hex: String, text: String) {
+        if let updated = ClipboardRules.remembering(color: hex, text: text, in: items) {
+            items = updated
+            pruneOverflow()
+            save()
+        }
+        place(text)
+    }
+
+    private func place(_ text: String) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+        changeCount = pasteboard.changeCount
+    }
+
     /// Clicking a history row puts the content on the clipboard WITHOUT moving it
     /// in the list. Only content copied fresh outside the history goes to the top.
     /// A FILE entry goes back as the file URL(s): pasting in Finder pastes the

@@ -17,6 +17,12 @@ final class AppModel: ObservableObject {
     let torrent = TorrentController()
     let tracker = TrackerController()
     let todos = TodosController()
+    /// Modules that PRODUCE clipboard entries; they take the clipboard
+    /// controller, so they are built in `init` after it exists.
+    let colorPicker: ColorPickerController
+    let screenText: ScreenTextController
+    let archive = ArchiveController()
+    let keyboardLock = KeyboardLockController()
 
     /// Last time the user actively touched Hop. The updater installs a found
     /// release only after a long enough quiet gap (see UpdateInstallPolicy),
@@ -67,6 +73,8 @@ final class AppModel: ObservableObject {
     private var forwarders: [AnyCancellable] = []
 
     init() {
+        colorPicker = ColorPickerController(clipboard: clipboard)
+        screenText = ScreenTextController(clipboard: clipboard)
         Self.sharedKeepAwake = keepAwake
         forwarders.append(engine.objectWillChange.sink { [weak self] in
             self?.objectWillChange.send()
@@ -90,6 +98,22 @@ final class AppModel: ObservableObject {
             self?.objectWillChange.send()
         })
         forwarders.append(todos.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        })
+        forwarders.append(colorPicker.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        })
+        forwarders.append(screenText.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        })
+        forwarders.append(archive.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        })
+        forwarders.append(keyboardLock.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        })
+        // the helper download drives the archive rows' progress text
+        forwarders.append(archive.helper.objectWillChange.sink { [weak self] in
             self?.objectWillChange.send()
         })
         // a conversion starting or finishing counts as active use ("copy-paste"):

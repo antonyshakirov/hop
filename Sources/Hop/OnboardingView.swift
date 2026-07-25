@@ -298,6 +298,7 @@ struct OnboardingView: View {
         // Mark the newest features' "what's new" announcements as seen — the
         // top-of-panel banner is only for users who UPDATED into the feature.
         UserDefaults.standard.set(true, forKey: "featureSeen.torrent")
+        UserDefaults.standard.set(true, forKey: "featureSeen.tools150")
         if launchAtLogin {
             try? SMAppServiceHelper.enableLaunchAtLogin()
         }

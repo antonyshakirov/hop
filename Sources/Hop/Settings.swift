@@ -59,6 +59,12 @@ enum SettingsKey {
     /// and every OFF module is moved into the inactive bucket, after which
     /// visibility is pure membership and the toggles are never read again.
     static let moduleVisibilityMigrated = "moduleVisibilityMigrated"
+    /// One-shot flag: the opt-in modules (the eyedropper and screen text) are
+    /// moved into the inactive bucket exactly once, right after `ensure` places
+    /// them — they ship hidden, and an update must not push a designer tool onto
+    /// everyone's panel. Set on the fresh migrate path too, so a user who
+    /// activates one later keeps it.
+    static let optInModulesSeeded = "optInModulesSeeded"
     /// One-shot flag: decoded legacy models (and any state left mid-shuffled
     /// by the older per-module seeds this superseded) get their whole active
     /// layout rebuilt into the canonical three-tab shape exactly once. Set on

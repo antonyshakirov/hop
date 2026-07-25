@@ -1,0 +1,297 @@
+import AppKit
+import HopCore
+
+/// Drag & drop archiving: drop an archive and it is unpacked NEXT TO the
+/// original; drop files or folders and they are packed there instead. No
+/// windows, no wizard — the drop itself is the whole interface.
+///
+/// zip, tar and gzip are handled by tools every Mac already has. rar and 7z
+/// need the 7-Zip helper, which is fetched once, on demand, and only after its
+/// signature checks out (`ToolInstaller`). Hop never CREATES rar: the format is
+/// proprietary and no free packer may write it.
+@MainActor
+final class ArchiveController: ObservableObject {
+    static let packFormatKey = "archivePackFormat"
+    static let helperManifestURL = "https://www.antonshakirov.com/downloads/hop/tools/7zz.json"
+
+    enum Kind: Equatable { case extract, pack }
+
+    enum Failure: Error, Equatable {
+        /// The 7-Zip helper could not be fetched or verified.
+        case helper
+        /// The tool ran but returned an error (a broken or password-protected archive).
+        case tool
+        /// Nothing usable came out of the archive.
+        case empty
+    }
+
+    enum JobState: Equatable {
+        case waitingForHelper
+        case running
+        /// Path of what was produced — the row reveals it in Finder.
+        case done(String)
+        case failed(Failure)
+    }
+
+    struct Job: Identifiable, Equatable {
+        let id = UUID()
+        let kind: Kind
+        /// What the row shows: the archive being unpacked, or the archive being made.
+        var name: String
+        var state: JobState
+    }
+
+    @Published private(set) var jobs: [Job] = []
+    /// The 7-Zip helper, fetched only when a rar/7z actually turns up.
+    let helper = ToolInstaller(manifestURL: ArchiveController.helperManifestURL,
+                               folderName: "tools",
+                               binaryName: "7zz")
+
+    /// How many finished rows stay on screen; older ones fall off so the module
+    /// cannot grow without bound during a long session.
+    private static let maxJobs = 4
+
+    var packFormat: PackFormat {
+        get { PackFormat(rawValue: UserDefaults.standard.string(forKey: Self.packFormatKey) ?? "") ?? .zip }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: Self.packFormatKey) }
+    }
+
+    /// The one entry point: everything dropped on the module lands here.
+    /// A drop of NOTHING BUT archives unpacks them; anything else packs the whole
+    /// drop into one archive. A mixed drop packs too — dragging a set of things
+    /// together reads as "make this one archive".
+    func handleDrop(_ urls: [URL]) {
+        let files = urls.filter { $0.isFileURL }
+        guard !files.isEmpty else { return }
+        let archives = files.filter {
+            !isDirectory($0) && ArchiveRules.format(ofFileNamed: $0.lastPathComponent) != nil
+        }
+        if archives.count == files.count {
+            for archive in archives { extract(archive) }
+        } else {
+            pack(files)
+        }
+    }
+
+    /// Staged rows for design snapshots (`--archive`); jobs are otherwise
+    /// in-memory only, so a render has nothing to show without this.
+    func loadDemo(_ demo: [Job]) {
+        guard Snapshot.active else { return }
+        jobs = demo
+    }
+
+    func clear() {
+        jobs.removeAll { if case .running = $0.state { return false } else { return true } }
+    }
+
+    // MARK: - Extract
+
+    private func extract(_ archive: URL) {
+        guard let format = ArchiveRules.format(ofFileNamed: archive.lastPathComponent) else { return }
+        let job = Job(kind: .extract, name: archive.lastPathComponent, state: .running)
+        append(job)
+        Task {
+            if !format.isNative, !helper.isInstalled {
+                update(job.id, .waitingForHelper)
+                await helper.install()
+                guard helper.isInstalled else {
+                    update(job.id, .failed(.helper))
+                    return
+                }
+                update(job.id, .running)
+            }
+            let helperPath = helper.installedBinaryURL()?.path
+            let result = await Task.detached(priority: .userInitiated) {
+                Self.runExtract(archive: archive, format: format, helper: helperPath)
+            }.value
+            switch result {
+            case .success(let path):
+                update(job.id, .done(path))
+            case .failure(let failure):
+                update(job.id, .failed(failure))
+            }
+        }
+    }
+
+    /// Unpack into a hidden staging folder INSIDE the destination, then lift the
+    /// result out. That gives two things at once: an archive of many loose files
+    /// never scatters them over the folder (it gets one folder named after the
+    /// archive), and a single-item archive does not gain a pointless wrapper.
+    /// Staging inside the destination also means the move is instant — same volume.
+    private nonisolated static func runExtract(
+        archive: URL, format: ArchiveFormat, helper: String?
+    ) -> Result<String, Failure> {
+        let manager = FileManager.default
+        let destination = archive.deletingLastPathComponent()
+        let staging = destination.appendingPathComponent(".hop-unpack-\(UUID().uuidString)")
+        guard (try? manager.createDirectory(at: staging, withIntermediateDirectories: true)) != nil
+        else { return .failure(.tool) }
+        defer { try? manager.removeItem(at: staging) }
+
+        let ok: Bool
+        switch format {
+        case .zip:
+            // ditto restores macOS metadata a plain unzip would drop
+            ok = run("/usr/bin/ditto", ["-x", "-k", archive.path, staging.path])
+        case .tar, .tarGz, .tarBz2, .tarXz:
+            // bsdtar detects the compression itself and strips absolute paths
+            ok = run("/usr/bin/tar", ["-xf", archive.path, "-C", staging.path])
+        case .gzip:
+            // a bare .gz holds ONE file and no name for it: reuse the archive's
+            // own stem, which is what gunzip would have produced in place
+            let name = ArchiveRules.baseName(ofArchive: archive.lastPathComponent)
+            ok = run("/usr/bin/gunzip", ["-c", archive.path],
+                     writingTo: staging.appendingPathComponent(name))
+        case .sevenZip, .rar:
+            guard let helper else { return .failure(.helper) }
+            ok = run(helper, ["x", "-y", "-bd", "-o\(staging.path)", archive.path])
+        }
+        guard ok else { return .failure(.tool) }
+
+        let produced = (try? manager.contentsOfDirectory(atPath: staging.path))?
+            .filter { $0 != ".DS_Store" } ?? []
+        guard !produced.isEmpty else { return .failure(.empty) }
+
+        let taken = Set((try? manager.contentsOfDirectory(atPath: destination.path)) ?? [])
+        let finalName: String
+        if produced.count == 1 {
+            // one top-level item: keep ITS name, only resolving a collision
+            let item = produced[0]
+            let stem = (item as NSString).deletingPathExtension
+            let ext = (item as NSString).pathExtension
+            finalName = ArchiveRules.uniqueName(
+                base: stem.isEmpty ? item : stem, extension: ext, taken: taken)
+        } else {
+            finalName = ArchiveRules.uniqueName(
+                base: ArchiveRules.baseName(ofArchive: archive.lastPathComponent),
+                extension: "", taken: taken)
+        }
+        let target = destination.appendingPathComponent(finalName)
+        let source = produced.count == 1
+            ? staging.appendingPathComponent(produced[0])
+            : staging
+        do {
+            try manager.moveItem(at: source, to: target)
+        } catch {
+            return .failure(.tool)
+        }
+        return .success(target.path)
+    }
+
+    // MARK: - Pack
+
+    private func pack(_ items: [URL]) {
+        let paths = items.map(\.path)
+        let parent = ArchiveRules.commonParent(of: paths)
+            ?? items[0].deletingLastPathComponent().path
+        let format = packFormat
+        let base = ArchiveRules.packBaseName(for: paths, commonParent: parent)
+        let taken = Set((try? FileManager.default.contentsOfDirectory(atPath: parent)) ?? [])
+        let name = ArchiveRules.uniqueName(base: base, extension: format.fileExtension, taken: taken)
+
+        let job = Job(kind: .pack, name: name, state: .running)
+        append(job)
+        Task {
+            if !format.isNative, !helper.isInstalled {
+                update(job.id, .waitingForHelper)
+                await helper.install()
+                guard helper.isInstalled else {
+                    update(job.id, .failed(.helper))
+                    return
+                }
+                update(job.id, .running)
+            }
+            let helperPath = helper.installedBinaryURL()?.path
+            let names = items.map(\.lastPathComponent)
+            let result = await Task.detached(priority: .userInitiated) {
+                Self.runPack(names: names, in: parent, as: name, format: format, helper: helperPath)
+            }.value
+            switch result {
+            case .success(let path):
+                update(job.id, .done(path))
+            case .failure(let failure):
+                update(job.id, .failed(failure))
+            }
+        }
+    }
+
+    /// Every packer runs WITH THE PARENT AS ITS WORKING DIRECTORY and is handed
+    /// bare item names, so the archive holds "shoot/one.raw" rather than the
+    /// whole "/Users/…" path of this particular Mac.
+    private nonisolated static func runPack(
+        names: [String], in parent: String, as name: String,
+        format: PackFormat, helper: String?
+    ) -> Result<String, Failure> {
+        let destination = (parent as NSString).appendingPathComponent(name)
+        let ok: Bool
+        switch format {
+        case .zip:
+            // -X leaves out the resource-fork junk ("__MACOSX") that makes a Hop
+            // archive look messy when opened on Windows or Linux
+            ok = run("/usr/bin/zip", ["-r", "-q", "-X", destination] + names, cwd: parent)
+        case .tarGz:
+            ok = run("/usr/bin/tar", ["--no-mac-metadata", "-czf", destination] + names, cwd: parent)
+        case .sevenZip:
+            guard let helper else { return .failure(.helper) }
+            ok = run(helper, ["a", "-y", "-bd", destination] + names, cwd: parent)
+        }
+        guard ok, FileManager.default.fileExists(atPath: destination) else {
+            // a half-written archive is worse than none
+            try? FileManager.default.removeItem(atPath: destination)
+            return .failure(.tool)
+        }
+        return .success(destination)
+    }
+
+    // MARK: - Process plumbing
+
+    @discardableResult
+    private nonisolated static func run(
+        _ tool: String, _ arguments: [String], cwd: String? = nil, writingTo output: URL? = nil
+    ) -> Bool {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: tool)
+        process.arguments = arguments
+        if let cwd { process.currentDirectoryURL = URL(fileURLWithPath: cwd) }
+        var handle: FileHandle?
+        if let output {
+            guard FileManager.default.createFile(atPath: output.path, contents: nil),
+                  let file = try? FileHandle(forWritingTo: output) else { return false }
+            handle = file
+            process.standardOutput = file
+        }
+        // the tools are chatty on failure; their output would only pollute the log
+        process.standardError = FileHandle.nullDevice
+        defer { try? handle?.close() }
+        do {
+            try process.run()
+        } catch {
+            return false
+        }
+        process.waitUntilExit()
+        return process.terminationStatus == 0
+    }
+
+    private nonisolated func isDirectory(_ url: URL) -> Bool {
+        var isDir: ObjCBool = false
+        return FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) && isDir.boolValue
+    }
+
+    private func append(_ job: Job) {
+        jobs.insert(job, at: 0)
+        // keep the running ones no matter what; only settled rows fall off
+        if jobs.count > Self.maxJobs {
+            var trimmed = jobs
+            while trimmed.count > Self.maxJobs,
+                  let index = trimmed.lastIndex(where: { $0.state != .running }) {
+                trimmed.remove(at: index)
+            }
+            jobs = trimmed
+        }
+    }
+
+    private func update(_ id: UUID, _ state: JobState) {
+        guard let index = jobs.firstIndex(where: { $0.id == id }) else { return }
+        jobs[index].state = state
+    }
+}

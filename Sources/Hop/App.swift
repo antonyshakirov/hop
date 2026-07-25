@@ -85,6 +85,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 awake.activate(longest)
             }
         }
+        hotkeys.setHandler(.color) { [weak self] in
+            self?.model.activity.note()
+            self?.model.colorPicker.pick()
+        }
+        hotkeys.setHandler(.ocr) { [weak self] in
+            self?.model.activity.note()
+            self?.model.screenText.capture()
+        }
+        hotkeys.setHandler(.keyboardLock) { [weak self] in
+            self?.model.activity.note()
+            self?.model.keyboardLock.lock()
+        }
         // Register the window-snap zone hotkeys ONCE at launch (they were only
         // registered on the first keep-awake keypress — the misplaced call above —
         // so all 18 tiling shortcuts were silently dead on a fresh launch). The
@@ -912,6 +924,45 @@ final class ConverterWindow: NSWindow {
     }
 }
 
+/// Headless document-conversion check, in the spirit of the torrent self-test:
+/// `Hop --doc-selftest <source> <pdf|md|docx> <outDir>` converts one file and
+/// prints where it landed. Debug builds only, like every other dev entry point.
+@MainActor
+enum DocumentSelfTest {
+    static func runIfRequested() {
+        let args = CommandLine.arguments
+        guard let i = args.firstIndex(of: "--doc-selftest"), args.count > i + 3 else { return }
+        let source = URL(fileURLWithPath: args[i + 1])
+        guard let target = DocumentConversion.Target(rawValue: args[i + 2] == "md"
+            ? "markdown" : args[i + 2]) else {
+            print("SELFTEST FAIL: unknown target \(args[i + 2])")
+            exit(1)
+        }
+        let outDir = URL(fileURLWithPath: args[i + 3])
+        let name = source.deletingPathExtension().lastPathComponent
+        let outURL = outDir.appendingPathComponent("\(name).\(target.fileExtension)")
+
+        let ok: Bool
+        switch target {
+        case .markdown:
+            let text = source.pathExtension.lowercased() == "pdf"
+                ? DocumentConversion.markdown(fromPDF: source)
+                : DocumentConversion.read(source).map { DocumentConversion.markdown(from: $0) }
+            ok = text.flatMap { try? $0.write(to: outURL, atomically: true, encoding: .utf8) } != nil
+        case .pdf:
+            ok = DocumentConversion.read(source).map {
+                DocumentConversion.writePDF($0, to: outURL)
+            } ?? false
+        case .docx:
+            ok = DocumentConversion.read(source).map {
+                DocumentConversion.writeDocx($0, to: outURL)
+            } ?? false
+        }
+        print(ok ? "SELFTEST OK: \(outURL.path)" : "SELFTEST FAIL")
+        exit(ok ? 0 : 1)
+    }
+}
+
 @main
 struct HopApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
@@ -925,6 +976,7 @@ struct HopApp: App {
         // None of these are reachable in the shipped, notarized Hop.
         #if DEBUG
         TorrentSelfTest.runIfRequested()
+        DocumentSelfTest.runIfRequested()
         Snapshot.runIfRequested()
         #endif
     }

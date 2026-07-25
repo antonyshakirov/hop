@@ -15,6 +15,8 @@ struct ConvertWindowView: View {
     @AppStorage(FileConverter.videoFormatKey) private var videoFormat = "mp4"
     @AppStorage(FileConverter.videoResolutionKey) private var videoResolution = "original"
     @AppStorage(FileConverter.videoCompressKey) private var videoCompress = true
+    @AppStorage(FileConverter.docTargetKey) private var docTarget = "pdf"
+    @AppStorage(FileConverter.pdfModeKey) private var pdfMode = "compress"
     @State private var targeted = false
 
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
@@ -199,6 +201,7 @@ struct ConvertWindowView: View {
         if !batch.pdfs.isEmpty { groupCard(.pdf, count: batch.pdfs.count) }
         if !batch.videos.isEmpty { groupCard(.video, count: batch.videos.count) }
         if !batch.audios.isEmpty { groupCard(.audio, count: batch.audios.count) }
+        if !batch.documents.isEmpty { groupCard(.document, count: batch.documents.count) }
         if !batch.unsupported.isEmpty { unsupportedCard(batch.unsupported) }
     }
 
@@ -208,6 +211,7 @@ struct ConvertWindowView: View {
         case .pdf: return "PDF"
         case .video: return t(.convCanVideo)
         case .audio: return t(.convCanAudio)
+        case .document: return t(.convCanDocuments)
         case .unsupported: return t(.convUnsupported)
         }
     }
@@ -264,7 +268,9 @@ struct ConvertWindowView: View {
                         .foregroundStyle(Theme.textSecondary)
                 }
                 Spacer()
-                if kind == .image || kind == .pdf {
+                // the quality slider belongs to squeezing; extracting a PDF's
+                // text has nothing to tune
+                if kind == .image || (kind == .pdf && pdfMode != "markdown") {
                     qualityControl(kind)
                 }
             }
@@ -273,8 +279,10 @@ struct ConvertWindowView: View {
                     Text("✓ \(doneCount)/\(files.count)")
                         .font(Theme.mono(10, weight: .semibold))
                         .foregroundStyle(Theme.accentGreen)
-                } else if hasPending, model.converter.activeKind != kind {
-                    // honesty note: the projected sizes are estimates
+                } else if hasPending, model.converter.activeKind != kind, kind != .document {
+                    // honesty note: the projected sizes are estimates. Documents
+                    // show no size forecast at all, so the note would be answering
+                    // a question nobody asked.
                     Text(t(.convApproxNote))
                         .font(Theme.mono(9.5))
                         .foregroundStyle(Theme.textTertiary)
@@ -347,7 +355,31 @@ struct ConvertWindowView: View {
                 Spacer()
             }
         case .pdf:
-            EmptyView() // PDF has a single setting — quality, shown in the shared row
+            // two jobs, not one: squeeze the file (the quality row below) or pull
+            // its text out as markdown
+            HStack(spacing: 5) {
+                rowLabel(t(.convModeLabel))
+                chip(t(.convModeCompress), pdfMode != "markdown") { pdfMode = "compress" }
+                chip("md", pdfMode == "markdown") { pdfMode = "markdown" }
+                Spacer()
+            }
+        case .document:
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 5) {
+                    rowLabel(t(.convFormatLabel))
+                    ForEach(DocumentConversion.Target.allCases) { target in
+                        chip(target.label, docTarget == target.rawValue) {
+                            docTarget = target.rawValue
+                        }
+                    }
+                    Spacer()
+                }
+                // the honest caveat, in the UI rather than only in the docs
+                Text(t(.convDocNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         case .video:
             // three independent settings (Anton, 2026-07-15): container format,
             // target resolution (only options below the source) and a separate

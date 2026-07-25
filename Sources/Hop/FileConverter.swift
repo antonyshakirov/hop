@@ -22,9 +22,15 @@ final class FileConverter: ObservableObject {
     nonisolated static let videoResolutionKey = "convVideoResolution" // original | 2160 | 1080 | 720 | 540
     nonisolated static let videoCompressKey = "convVideoCompress" // HEVC instead of H.264
     nonisolated static let autoClearKey = "convAutoClear"       // finished ones disappear on their own
+    /// Documents: what the group is converted INTO (pdf | md | docx).
+    nonisolated static let docTargetKey = "convDocTarget"
+    /// PDFs have two jobs now: squeeze the file (default) or pull its text out
+    /// as markdown. A mode rather than a category, so a dropped PDF still lands
+    /// in the group the user expects.
+    nonisolated static let pdfModeKey = "convPdfMode"           // compress | markdown
 
     enum MediaKind: Sendable {
-        case image, pdf, video, audio, unsupported
+        case image, pdf, video, audio, document, unsupported
     }
 
     struct BatchFile: Identifiable {
@@ -42,9 +48,10 @@ final class FileConverter: ObservableObject {
         var pdfs: [BatchFile] = []
         var videos: [BatchFile] = []
         var audios: [BatchFile] = []
+        var documents: [BatchFile] = []
         var unsupported: [BatchFile] = []
 
-        var all: [BatchFile] { images + pdfs + videos + audios + unsupported }
+        var all: [BatchFile] { images + pdfs + videos + audios + documents + unsupported }
         var isEmpty: Bool { all.isEmpty }
 
         func files(_ kind: MediaKind) -> [BatchFile] {
@@ -53,6 +60,7 @@ final class FileConverter: ObservableObject {
             case .pdf: return pdfs
             case .video: return videos
             case .audio: return audios
+            case .document: return documents
             case .unsupported: return unsupported
             }
         }
@@ -71,6 +79,7 @@ final class FileConverter: ObservableObject {
             case .pdf: pdfs.append(file)
             case .video: videos.append(file)
             case .audio: audios.append(file)
+            case .document: documents.append(file)
             case .unsupported: unsupported.append(file)
             }
         }
@@ -85,6 +94,7 @@ final class FileConverter: ObservableObject {
             case .pdf: strip(&pdfs)
             case .video: strip(&videos)
             case .audio: strip(&audios)
+            case .document: strip(&documents)
             case .unsupported: strip(&unsupported)
             }
         }
@@ -95,6 +105,7 @@ final class FileConverter: ObservableObject {
             pdfs.removeAll(where: \.done)
             videos.removeAll(where: \.done)
             audios.removeAll(where: \.done)
+            documents.removeAll(where: \.done)
         }
 
         /// Converted files stay in the list with a checkmark — it's clear
@@ -110,6 +121,7 @@ final class FileConverter: ObservableObject {
             case .pdf: mark(&pdfs)
             case .video: mark(&videos)
             case .audio: mark(&audios)
+            case .document: mark(&documents)
             case .unsupported: mark(&unsupported)
             }
         }
@@ -126,6 +138,7 @@ final class FileConverter: ObservableObject {
             case .pdf: mark(&pdfs)
             case .video: mark(&videos)
             case .audio: mark(&audios)
+            case .document: mark(&documents)
             case .unsupported: break
             }
         }
@@ -189,6 +202,17 @@ final class FileConverter: ObservableObject {
         kind == .pdf ? pdfQuality : quality
     }
 
+    /// What documents are converted into; pdf unless the user says otherwise.
+    nonisolated static var docTarget: DocumentConversion.Target {
+        DocumentConversion.Target(rawValue: UserDefaults.standard.string(forKey: docTargetKey) ?? "")
+            ?? .pdf
+    }
+
+    /// Whether a PDF group squeezes its files or extracts their text.
+    nonisolated static var pdfExtractsText: Bool {
+        UserDefaults.standard.string(forKey: pdfModeKey) == "markdown"
+    }
+
     nonisolated static var videoFormat: String {
         UserDefaults.standard.string(forKey: videoFormatKey) ?? "mp4"
     }
@@ -214,6 +238,11 @@ final class FileConverter: ObservableObject {
 
     nonisolated static func classify(_ url: URL) -> MediaKind {
         if url.pathExtension.lowercased() == "pdf" { return .pdf }
+        // documents are matched by extension: .md and .txt also conform to
+        // public.text, which would otherwise fall through as unsupported
+        if DocumentConversion.readableExtensions.contains(url.pathExtension.lowercased()) {
+            return .document
+        }
         guard let type = UTType(filenameExtension: url.pathExtension) else { return .unsupported }
         if type.conforms(to: .image) { return .image }
         if type.conforms(to: .movie) || type.conforms(to: .video) { return .video }
@@ -287,7 +316,7 @@ final class FileConverter: ObservableObject {
             batch.append(url, kind: Self.classify(url))
         }
         lastResult = nil
-        for kind in [MediaKind.image, .pdf, .video, .audio] {
+        for kind in [MediaKind.image, .pdf, .video, .audio, .document] {
             scheduleEstimate(kind)
         }
     }
@@ -373,6 +402,8 @@ final class FileConverter: ObservableObject {
         let videoFormat = Self.videoFormat
         let videoResolution = Self.videoResolution
         let videoCompress = Self.videoCompress
+        let docTarget = Self.docTarget
+        let pdfToText = Self.pdfExtractsText
         let destination = Self.destinationDirectory
 
         Task.detached(priority: .userInitiated) { [weak self] in
@@ -394,8 +425,12 @@ final class FileConverter: ObservableObject {
                 case .image:
                     outURL = Self.convertImage(url, to: outDir, format: format, scale: scale, quality: quality)
                 case .pdf:
-                    // scale applies to images only; PDF is squeezed via quality
-                    outURL = Self.compressPDF(url, to: outDir, scale: 1.0, quality: quality)
+                    if pdfToText {
+                        outURL = await Self.convertDocument(url, to: outDir, target: .markdown)
+                    } else {
+                        // scale applies to images only; PDF is squeezed via quality
+                        outURL = Self.compressPDF(url, to: outDir, scale: 1.0, quality: quality)
+                    }
                 case .video:
                     let report: @Sendable (Double) -> Void = { [weak self] fraction in
                         Task { @MainActor in
@@ -410,6 +445,8 @@ final class FileConverter: ObservableObject {
                     await MainActor.run { [weak self] in self?.fileFraction = nil }
                 case .audio:
                     outURL = await Self.convertAudio(url, to: outDir)
+                case .document:
+                    outURL = await Self.convertDocument(url, to: outDir, target: docTarget)
                 case .unsupported:
                     outURL = nil
                 }
@@ -451,7 +488,11 @@ final class FileConverter: ObservableObject {
     /// first file into a temp folder and extrapolate; for video/audio — only
     /// the current size (a trial conversion would take too long).
     func scheduleEstimate(_ kind: MediaKind) {
-        guard kind != .unsupported else { return }
+        // documents change SHAPE, not weight — a size forecast would be noise
+        guard kind != .unsupported, kind != .document else {
+            estimates[kind] = nil
+            return
+        }
         let files = batch.pending(kind)
         guard !files.isEmpty else {
             estimates[kind] = nil
@@ -579,11 +620,52 @@ final class FileConverter: ObservableObject {
 
     // MARK: - Mechanics (off the main thread)
 
-    nonisolated private static func uniqueURL(_ dir: URL, name: String, ext: String) -> URL {
-        var candidate = dir.appendingPathComponent("\(name)-min.\(ext)")
+    /// One document into another. The heavy lifting lives in
+    /// DocumentConversion; this only picks the direction and the output name.
+    /// A file already in the target format is REWRITTEN rather than refused —
+    /// markdown through our parser comes back normalized, and a Word file comes
+    /// back as a clean document, which is a reasonable thing to ask for.
+    /// Main-actor: AppKit's document readers and its pagination machinery both
+    /// belong there. Only PDF text extraction (PDFKit + Vision, and slow on a
+    /// scan) is pushed off to a detached task.
+    @MainActor
+    private static func convertDocument(
+        _ url: URL, to dir: URL, target: DocumentConversion.Target
+    ) async -> URL? {
+        let name = url.deletingPathExtension().lastPathComponent
+        // documents keep their own name: "-min" belongs to the compression
+        // story, and "notes-min.pdf" would be a lie about what happened
+        let outURL = uniqueURL(dir, name: name, ext: target.fileExtension, suffix: "")
+        switch target {
+        case .markdown:
+            let text: String?
+            if url.pathExtension.lowercased() == "pdf" {
+                text = await Task.detached { DocumentConversion.markdown(fromPDF: url) }.value
+            } else if let attributed = DocumentConversion.read(url) {
+                text = DocumentConversion.markdown(from: attributed)
+            } else {
+                text = nil
+            }
+            guard let text, (try? text.write(to: outURL, atomically: true, encoding: .utf8)) != nil
+            else { return nil }
+            return outURL
+        case .pdf:
+            guard let attributed = DocumentConversion.read(url) else { return nil }
+            return DocumentConversion.writePDF(attributed, to: outURL) ? outURL : nil
+        case .docx:
+            guard let attributed = DocumentConversion.read(url),
+                  DocumentConversion.writeDocx(attributed, to: outURL) else { return nil }
+            return outURL
+        }
+    }
+
+    nonisolated private static func uniqueURL(
+        _ dir: URL, name: String, ext: String, suffix: String = "-min"
+    ) -> URL {
+        var candidate = dir.appendingPathComponent("\(name)\(suffix).\(ext)")
         var index = 2
         while FileManager.default.fileExists(atPath: candidate.path) {
-            candidate = dir.appendingPathComponent("\(name)-min-\(index).\(ext)")
+            candidate = dir.appendingPathComponent("\(name)\(suffix)-\(index).\(ext)")
             index += 1
         }
         return candidate

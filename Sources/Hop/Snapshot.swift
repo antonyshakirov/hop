@@ -10,6 +10,17 @@ enum Snapshot {
     /// standalone screens are drawn without scrolling
     static var active = false
 
+    /// Which info-window section a render opens on: "--news" for the release
+    /// notes, "--permissions" for the permission list, the usual "general"
+    /// otherwise. Snapshots only — the live app always opens on "general".
+    static var aboutSectionForRender: String {
+        guard active else { return "general" }
+        let args = CommandLine.arguments
+        if args.contains("--news") { return "news" }
+        if args.contains("--permissions") { return "permissions" }
+        return "general"
+    }
+
     static func runIfRequested() {
         let args = CommandLine.arguments
 
@@ -114,7 +125,8 @@ enum Snapshot {
         // (below, e.g. --torrents), instead of decoding a prior render's layout.
         for key in [SettingsKey.panelTabs, SettingsKey.moduleVisibilityMigrated,
                     SettingsKey.trackerTabSeeded, SettingsKey.todosSeeded,
-                    SettingsKey.canonicalLayoutSeeded, "moduleOrder",
+                    SettingsKey.canonicalLayoutSeeded, SettingsKey.optInModulesSeeded,
+                    "moduleOrder",
                     "showTimerModule", "showAwakeModule", "showClipboardModule",
                     "showConvertModule", "showWindowsModule", "showSpeedtestModule",
                     "showSystemModule", "showTrackerModule", "showTorrentModule"] {
@@ -152,6 +164,43 @@ enum Snapshot {
             UserDefaults.standard.set(112.0, forKey: "speedLastUp")
             UserDefaults.standard.set(1450, forKey: "speedLastRpm")
             UserDefaults.standard.set(Date(), forKey: "speedLastAt")
+        }
+
+        // --colors / --ocr / --tools: isolate the opt-in tool modules (the
+        // eyedropper, screen text, or both) with a staged swatch strip. They ship
+        // hidden, so they are activated explicitly after the model exists (below)
+        // — the fresh migrate this render takes always hides them.
+        let wantsColors = args.contains("--colors") || args.contains("--tools")
+        let wantsOcr = args.contains("--ocr") || args.contains("--tools")
+        if wantsColors || wantsOcr {
+            for key in ["showTimerModule", "showAwakeModule", "showConvertModule",
+                        "showWindowsModule", "showSpeedtestModule", "showSystemModule",
+                        "showTrackerModule"] {
+                UserDefaults.standard.set(false, forKey: key)
+            }
+            // A picked color IS a clipboard entry, so the strip and the shelf are
+            // staged by the same key — real entries, not a special demo path.
+            let staged = [
+                ClipboardItem(text: "#2F6D5B", colorHex: "2F6D5B"),
+                ClipboardItem(text: "#E8DCC8", colorHex: "E8DCC8"),
+                ClipboardItem(text: "#1B1B1F", colorHex: "1B1B1F"),
+                ClipboardItem(text: "#C7452B", colorHex: "C7452B"),
+                ClipboardItem(text: "#7A8FA6", colorHex: "7A8FA6"),
+            ]
+            if let data = try? JSONEncoder().encode(staged) {
+                UserDefaults.standard.set(data, forKey: "clipboardHistory")
+            }
+        }
+
+        // --archive: isolate the archive module with a couple of settled rows,
+        // so the drop zone, the format chips and the result rows render together.
+        let wantsArchive = args.contains("--archive")
+        if wantsArchive {
+            for key in ["showTimerModule", "showAwakeModule", "showClipboardModule",
+                        "showConvertModule", "showWindowsModule", "showSpeedtestModule",
+                        "showSystemModule", "showTrackerModule"] {
+                UserDefaults.standard.set(false, forKey: key)
+            }
         }
 
         // --torrents: isolate the torrent module (hide the others) so its state
@@ -228,7 +277,23 @@ enum Snapshot {
             model.keepAwake.activate(KeepAwakeController.options[1]) // 30 minutes
         }
 
+        if wantsArchive {
+            model.archive.loadDemo([
+                .init(kind: .extract, name: "sprint-42-assets.zip", state: .done("/tmp/sprint-42-assets")),
+                .init(kind: .pack, name: "raw-shoot.tar.gz", state: .running),
+            ])
+        }
+        if wantsColors { PanelView.activateStoredModule("color") }
+        if wantsOcr { PanelView.activateStoredModule("ocr") }
+
         var initial = PanelView.InitialScreen.spaceContaining("timer")
+        if wantsArchive {
+            initial = .spaceContaining("archive")
+        } else if wantsColors {
+            initial = .spaceContaining("color")
+        } else if wantsOcr {
+            initial = .spaceContaining("ocr")
+        }
         if args.contains("--stats") {
             initial = .spaceContaining("system")
             model.stats.refresh() // primes the deltas
@@ -259,7 +324,7 @@ enum Snapshot {
         if args.contains("--settings") {
             initial = .settings
         }
-        if args.contains("--about") {
+        if args.contains("--about") || args.contains("--permissions") {
             initial = .about
         }
 

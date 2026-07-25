@@ -187,8 +187,16 @@ struct ClipboardView: View {
             } label: {
                 HStack(spacing: 6) {
                     // file entries lead with a small doc glyph, image entries with
-                    // a thumbnail; both leave the label (a file name / dimensions)
-                    if item.filePaths != nil {
+                    // a thumbnail, picked colors with the color itself; all leave
+                    // the label (a file name / dimensions / the notation)
+                    if let color = ColorSwatch.color(item.colorHex) {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(color)
+                            .frame(width: 16, height: 16)
+                            // a white swatch would vanish on the light theme
+                            .overlay(RoundedRectangle(cornerRadius: 3)
+                                .stroke(Theme.controlStroke, lineWidth: 1))
+                    } else if item.filePaths != nil {
                         Image(systemName: "doc")
                             .font(.system(size: 11))
                             .foregroundStyle(Theme.textTertiary)

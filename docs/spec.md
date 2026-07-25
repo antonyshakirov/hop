@@ -820,6 +820,219 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   users get it paired with the tracker on the same space by the canonical
   layout repair described under "Default spaces" below.
 
+### Color (eyedropper)
+
+- Opt-in module (key `"color"`, title `colorLabel`): a hotkey or the panel's
+  `pick` button opens macOS's own loupe (`NSColorSampler`); the clicked pixel
+  becomes a COLOR entry in the clipboard history AND goes onto the pasteboard in
+  one step — "press, then paste" is the whole feature. Escape cancels and writes
+  nothing. **No Screen Recording permission**: the system loupe returns one
+  color, no bitmap of the screen ever reaches Hop (that permission belongs to the
+  separate text-recognition module).
+- Notation: `hex` / `rgb` / `hsl` chips in the module header (stored in
+  `colorFormat`, default `hex`). Switching the notation ALSO rewrites the newest
+  color entry, so the change is visible and pastes right instead of only applying
+  to the next pick. The pure conversion (including HSL, hue never rounding to
+  360°) lives in `HopCore.ColorFormatting` with tests.
+- History: a color IS a clipboard entry — `ClipboardItem.colorHex` holds the
+  canonical `RRGGBB` (the row's swatch is drawn from it, so the swatch survives a
+  notation change) and `text` holds the pasteable notation. Color entries take no
+  part in TEXT dedup, so copying the literal characters "#336699" never swallows
+  the color row; re-picking the same color in the same notation changes nothing,
+  in another notation it rewrites the top entry in place, and an older entry for
+  that color moves up as a fresh pick (`ClipboardRules.remembering(color:text:in:)`,
+  tested). A color needs no file on disk, so pruning one deletes nothing.
+- Module strip: the last six colors as swatches; clicking one puts that color
+  back on the pasteboard in the CURRENT notation. Swatches carry a 1px
+  `controlStroke` border — a white swatch would otherwise vanish in the light
+  theme.
+- Modules that produce clipboard content enter it through
+  `ClipboardController.remember(external:)` / `remember(color:text:)`, which also
+  stamp the pasteboard change counter, so Hop's own write never comes back a
+  second later as a foreign copy and a duplicate row.
+- Hotkey `⌃⌥P` (`HotkeyManager.Action.color`). A module-gated combo is claimed
+  ONLY while its module is visible (`Action.moduleKey` +
+  `refreshModuleHotkeys()`, called at launch and after every layout change):
+  taking a global shortcut away from other apps for a hidden module would be
+  rude. Its settings row appears on the same condition.
+- Ships HIDDEN: it serves designers and developers, so `optInModules` +
+  `SettingsKey.optInModulesSeeded` move it into the inactive bucket exactly once
+  (before the canonical layout repair, so the rebuild cannot carry it back onto
+  space 1); the fresh-migrate path hides it deterministically on every recompute
+  and claims the flag itself.
+
+### Screen text (OCR + QR)
+
+- Opt-in module (key `"ocr"`, title `ocrLabel`): a hotkey or the `read` button
+  hands over macOS's own selection crosshair; text and barcodes inside the frame
+  become ONE clipboard-history entry, already on the pasteboard. Escape cancels
+  and writes nothing. The panel closes before the crosshair appears (a popover
+  would cover what the user is framing).
+- **The reason this module exists**: the result is a HISTORY entry, searchable
+  next to everything else copied. Live Text and the standalone grabbers hand the
+  text over once and forget it — without the clipboard link this would be a clone
+  with no reason to prefer it (Anton, 2026-07-15).
+- Area selection is `/usr/sbin/screencapture -i -x -o -t png` into a temp file,
+  NOT a hand-rolled overlay: the system tool brings the real crosshair
+  (magnifier, live dimensions, space to reposition) and is the UI users already
+  know. A cancelled selection leaves no file, which is exactly how cancel is
+  detected; the temp file is deleted right after recognition.
+- Recognition: one `VNImageRequestHandler` pass with `VNRecognizeTextRequest`
+  (accurate, language correction on) AND `VNDetectBarcodesRequest` — same walk
+  over the same pixels, so QR/barcodes cost nothing extra. Runs off the main
+  thread. Languages are the app's own plus English, prefix-matched against
+  `supportedRecognitionLanguages()` (an unsupported tag fails the whole request);
+  automatic detection is deliberately NOT used — it guesses badly on mixed
+  Latin/Cyrillic screens, and the UI language is the better hint.
+- Assembly is a pure rule in `HopCore.ScreenTextRules` with tests: a barcode WINS
+  over text (framing a code is an unambiguous ask; its caption would be noise),
+  several codes join deduplicated, otherwise text lines join with **newlines
+  kept** — a table or code snippet must not collapse into one run-on line.
+  Repeated text lines are never deduplicated (a column really can hold the same
+  value twice). `readingOrder` sorts observations top-to-bottom then
+  left-to-right, quantizing rows to 1/200 of the height so a hair of vertical
+  noise cannot interleave one visual line, with the index as the final tiebreak
+  (a valid strict ordering for any input).
+- Permission: **Screen Recording**, checked with `CGPreflightScreenCaptureAccess()`
+  BEFORE the crosshair and requested with `CGRequestScreenCaptureAccess()` —
+  without it the capture would come back as a black rectangle, which reads as a
+  broken feature. The denied state shows a line plus a button that deep-links to
+  System Settings → Privacy → Screen Recording. Hop reads only the rectangle the
+  user draws, only when asked.
+- States (`ScreenTextController.State`): idle → selecting → reading → done(count)
+  / empty / denied / failed. A receipt or complaint clears itself after three
+  seconds — nothing here is worth a dialog.
+- Hotkey `⌃⌥R`, module-gated exactly like the eyedropper's; ships hidden via
+  `optInModules`. Snapshot flags: `--ocr`, or `--tools` for both new modules.
+
+### Archive (drag & drop)
+
+- Module key `"archive"`, visible by default (an everyday chore, unlike the two
+  opt-in tools). One drop zone does both jobs: a drop of NOTHING BUT archives
+  unpacks each one; any other drop — files, folders, a mixed set — packs the
+  whole drop into ONE archive. Dragging several things together reads as "make
+  this one archive", so a mixed drop packs rather than half-unpacking.
+- Everything lands NEXT TO the original, never in Downloads. The pack format is
+  a chip row (zip / tar.gz / 7z, stored in `archivePackFormat`, default zip);
+  extraction ignores it — an archive is unpacked as whatever it already is.
+- **Unpack layout**: the tool extracts into a hidden staging folder INSIDE the
+  destination, then the result is lifted out: exactly one top-level item keeps
+  its own name, several items go into one folder named after the archive. That
+  gives both "no pointless wrapper" and "nothing scattered over the desktop"
+  without listing the archive first, and the move is instant (same volume).
+  Names never overwrite: `ArchiveRules.uniqueName` numbers them Finder-style
+  ("photos 2.zip"), comparing case-insensitively because the default macOS
+  volume is.
+- Tools: zip via `ditto -x -k` (keeps macOS metadata a plain unzip drops),
+  tar/tar.gz/tar.bz2/tar.xz via `tar -xf` (bsdtar detects compression and strips
+  absolute paths), a bare `.gz` via `gunzip -c` into the archive's own stem.
+  Packing runs WITH THE PARENT AS WORKING DIRECTORY on bare item names, so an
+  archive holds "shoot/one.raw" and not this Mac's "/Users/…" path: `zip -r -q
+  -X` (no `__MACOSX` junk) and `tar --no-mac-metadata -czf`.
+- **rar / 7z** need the 7-Zip helper (`7zz`, ~6 MB), fetched on the FIRST drop
+  that needs it and installed only after its Ed25519 signature checks out. Hop
+  never CREATES rar — the format is proprietary and no free packer may write it,
+  so `PackFormat` has no rar case at all (asserted by a test).
+- Zip-slip: `ArchiveRules.isSafeEntryPath` rejects absolute and `..` entry paths
+  (tested); staging inside the destination contains anything the tools let past.
+- Jobs are in-memory rows (max 4, running rows never trimmed) with a
+  reveal-in-Finder action when done; snapshot flag `--archive` stages two.
+- `ToolInstaller` is the shared download-verify-install mechanism (one trust
+  root, `toolPublicKeyBase64`, signed with `scripts/sign-tool.swift`);
+  `TorrentEngineInstaller` is now a thin subclass naming the rqbit manifest, and
+  the 7-Zip helper is a second instance. Hop ships no third-party binaries: each
+  is fetched only when its module actually needs it.
+
+### Converter: documents (1.5.0)
+
+- A new `MediaKind.document` group in the SAME converter window and batch
+  machinery: `md`, `markdown`, `txt`, `rtf`, `doc`, `docx`. Its chips choose the
+  TARGET (`convDocTarget`: pdf / md / docx, default pdf) — the first category
+  whose setting is a destination format rather than a compression level.
+  Documents are matched by EXTENSION before the generic UTType checks, since
+  `.md`/`.txt` conform to `public.text` and would otherwise fall through as
+  unsupported. Size estimates are skipped for the group: a document changes
+  shape, not weight, so a forecast would be noise.
+- PDFs keep their own group and gain a MODE (`convPdfMode`: compress / markdown,
+  default compress) instead of moving categories — a dropped PDF still lands
+  where the user expects. In markdown mode the quality slider is hidden: there
+  is nothing to tune about extracting text.
+- Output names drop the `-min` suffix for documents (`notes.pdf`, then
+  `notes-2.pdf`): "-min" belongs to the compression story and would misdescribe
+  what happened. A file already in the target format is REWRITTEN rather than
+  refused — markdown comes back normalized, a Word file comes back clean.
+- **Markdown engine is ours** (`HopCore.Markdown`), not a package: a
+  CommonMark subset (headings, paragraphs with wrapped-line joining, lists,
+  quotes, fenced code, rules; inline bold/italic/code/links with backslash
+  escapes), plus a writer for the reverse direction. Zero dependencies, offline
+  builds, and rendering we can pin with tests. The plan's swift-markdown route
+  was dropped for that reason (Anton, 2026-07-25).
+- **md → pdf**: markdown → `NSAttributedString` with Hop's own typography (A4,
+  2cm margins, 22/17/14pt headings, 11.5pt body, monospaced code on a light
+  fill) → an off-screen `NSTextView` printed via `NSPrintOperation` with
+  `jobDisposition = .save`. That is what gives REAL pagination, and it is the
+  same path a Word file takes, so images inside a .docx survive (an HTML detour
+  would drop them — AppKit's HTML writer exports no images at all, verified).
+- **docx/doc/rtf → pdf or md** through AppKit's own readers (what TextEdit
+  uses). Structure is RECOVERED, not read: `HopCore.DocumentHeuristics` picks
+  the body size as the most common size (ties to the smaller), then classifies
+  by ratio (≥1.6 → h1, ≥1.3 → h2, ≥1.12 → h3, bold at body size → h3). Runs
+  keep bold/italic/monospace/links as markdown markers; consecutive fixed-pitch
+  paragraphs fold into one code block; an all-dashes line becomes a rule.
+- **pdf → md** via PDFKit per-page attributed strings, the same heuristics, plus
+  `continuesParagraph`: a PDF stores one run per VISUAL line, so wrapped lines
+  are merged back into paragraphs unless the previous line ended a sentence or
+  the next starts with a capital, a digit or a list marker. A page with NO text
+  layer (a scan) is rendered at 2× and read with Vision — the screen-text
+  module's recognition — using each box's height as its "type size" so the
+  heading ratios still apply.
+- Honest limits stated in the UI (`convDocNote`) and the help, not hidden: Word
+  columns, footnotes and headers are lost; PDF → md is text extraction with
+  heading guesses, not a faithful conversion.
+- Dev entry point (DEBUG only, like the torrent self-test):
+  `Hop --doc-selftest <source> <pdf|md|docx> <outDir>`.
+
+### Keyboard lock (cleaning mode)
+
+- Module key `"keyboard"`, visible by default. One button and every key stops
+  doing anything, so the keyboard can be wiped without shutting the Mac down or
+  closing the lid. A full-screen cover (screen-saver level, all spaces) states
+  what is happening, counts down, and carries the only way out.
+- The keys are swallowed by a `CGEventTap` (session tap, head-insert) over
+  keyDown, keyUp, flagsChanged AND `NX_SYSDEFINED` (14) — the brightness/volume/
+  media row is not "keys" to macOS and would otherwise keep firing. Events are
+  DROPPED, never inspected. `tapDisabledByTimeout/ByUserInput` re-arms the tap
+  rather than leaving the keyboard half-locked.
+- Way out: the MOUSE (the cover's done button) or the timer — 30 s / 1 min /
+  5 min, `keyboardLockDuration`, default 1 min. A keyboard shortcut would be
+  exactly the thing that is switched off. The power button and Touch ID stay
+  alive; macOS reserves them.
+- Permission: **Accessibility**, asked with `AXIsProcessTrustedWithOptions`
+  BEFORE the lock — without it the tap silently never fires and the cover would
+  promise a lock that isn't there. The module then offers the deep link.
+- Hotkey `⌃⌥X`, module-gated like the other module hotkeys. The tap dies with
+  the process, so a crash can never leave a locked keyboard behind.
+
+### Info window: permissions tab (1.5.0)
+
+- A "permissions" section in the info window listing EVERY permission Hop can
+  ask for, what it is for, and whether it is granted right now — plus what Hop
+  never does. The list is taken from the code (actual API calls), never written
+  from memory; a new permission means a new row.
+- Rows: network to antonshakirov.com (updates + the two downloadable helpers),
+  torrent traffic (only with the module on), the speed test (macOS's own
+  `networkQuality`, Apple's servers), Accessibility (paste-into-app, window
+  manager, keyboard lock), Screen Recording (screen text ONLY — the eyedropper
+  explicitly does not need it), notifications (timer + torrent done),
+  administrator password (once, for closed-lid `pmset`), launch at login.
+- Live status where it can be checked: `AXIsProcessTrusted()`,
+  `CGPreflightScreenCaptureAccess()`, `UNUserNotificationCenter` settings,
+  `SMAppService.mainApp.status`. The notification query is skipped in a
+  bundle-less process (a snapshot render throws otherwise). A row offers its
+  System Settings deep link only when the permission is NOT granted.
+- The same list, condensed, is a README section (all 18 languages).
+- Snapshot: `--about --permissions` (panel) renders the tab.
+
 ## Shared components
 
 - **SettingChip (Controls.swift) is the ONLY chip toggle** in the entire
