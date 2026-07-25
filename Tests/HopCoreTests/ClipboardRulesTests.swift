@@ -185,4 +185,54 @@ final class ClipboardRulesTests: XCTestCase {
         XCTAssertEqual(kept, items)
         XCTAssertTrue(removed.isEmpty)
     }
+
+    // MARK: - color entries (the eyedropper)
+
+    private func color(_ hex: String, _ text: String) -> ClipboardItem {
+        ClipboardItem(text: text, colorHex: hex)
+    }
+
+    func testFirstPickedColorGoesToTop() {
+        let out = ClipboardRules.remembering(color: "336699", text: "#336699", in: [])
+        XCTAssertEqual(out?.map(\.text), ["#336699"])
+        XCTAssertEqual(out?.first?.colorHex, "336699")
+    }
+
+    func testSameColorInTheSameNotationChangesNothing() {
+        let items = [color("336699", "#336699")]
+        XCTAssertNil(ClipboardRules.remembering(color: "336699", text: "#336699", in: items))
+    }
+
+    func testSameColorInAnotherNotationRewritesTheTopEntry() {
+        let items = [color("336699", "#336699"), item("hello")]
+        let out = ClipboardRules.remembering(color: "336699", text: "rgb(51, 102, 153)", in: items)
+        XCTAssertEqual(out?.map(\.text), ["rgb(51, 102, 153)", "hello"])
+        XCTAssertEqual(out?.first?.id, items[0].id) // same entry, not a twin
+    }
+
+    func testOlderEntryForTheSameColorMovesUpAsAFreshPick() {
+        let items = [item("hello"), color("336699", "#336699")]
+        let out = ClipboardRules.remembering(color: "336699", text: "#336699", in: items)
+        XCTAssertEqual(out?.map(\.text), ["#336699", "hello"])
+        XCTAssertEqual(out?.count, 2) // the old color entry is gone, not duplicated
+    }
+
+    func testColorEntriesTakeNoPartInTextDedup() {
+        // copying the literal characters "#336699" must not swallow the color row
+        let items = [color("336699", "#336699")]
+        let out = ClipboardRules.remembering("#336699", in: items)
+        XCTAssertEqual(out?.count, 2)
+        XCTAssertNil(out?.first?.colorHex)
+        XCTAssertEqual(out?.last?.colorHex, "336699")
+    }
+
+    func testColorHexIsComparedCaseInsensitively() {
+        let items = [color("ABCDEF", "#ABCDEF")]
+        XCTAssertNil(ClipboardRules.remembering(color: "abcdef", text: "#ABCDEF", in: items))
+    }
+
+    func testEmptyColorInputIsIgnored() {
+        XCTAssertNil(ClipboardRules.remembering(color: "", text: "#336699", in: []))
+        XCTAssertNil(ClipboardRules.remembering(color: "336699", text: "", in: []))
+    }
 }

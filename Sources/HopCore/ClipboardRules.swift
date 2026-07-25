@@ -13,18 +13,26 @@ public struct ClipboardItem: Identifiable, Equatable, Codable {
     /// at once. Non-nil is what makes this a file entry; activating it puts the
     /// file URL(s) back on the pasteboard.
     public var filePaths: [String]?
+    /// Canonical "RRGGBB" for a COLOR entry (the eyedropper). `text` holds the
+    /// pasteable notation the user chose — "#336699", "rgb(51, 102, 153)" or
+    /// "hsl(210, 50%, 40%)" — while this drives the row's swatch, so the swatch
+    /// survives a format change. A color needs no file on disk: pruning one
+    /// deletes nothing.
+    public var colorHex: String?
 
-    public init(id: UUID = UUID(), text: String, imageFile: String? = nil, filePaths: [String]? = nil) {
+    public init(id: UUID = UUID(), text: String, imageFile: String? = nil,
+                filePaths: [String]? = nil, colorHex: String? = nil) {
         self.id = id
         self.text = text
         self.imageFile = imageFile
         self.filePaths = filePaths
+        self.colorHex = colorHex
     }
 
-    /// A plain-text entry — neither an image nor a file. Only these take part in
-    /// text dedup, so a file label like "notes.txt" is never swallowed by later
-    /// copying the literal text "notes.txt".
-    public var isPlainText: Bool { imageFile == nil && filePaths == nil }
+    /// A plain-text entry — not an image, a file or a color. Only these take part
+    /// in text dedup, so a file label like "notes.txt" (or the literal text
+    /// "#336699") is never swallowed by a copy of the same characters.
+    public var isPlainText: Bool { imageFile == nil && filePaths == nil && colorHex == nil }
 }
 
 /// What a fresh pasteboard change should be captured as. Pure and in HopCore so
@@ -108,6 +116,28 @@ public enum ClipboardRules {
         if let first = items.first, first.filePaths == paths { return nil }
         var out = items.filter { $0.filePaths != paths }
         out.insert(ClipboardItem(text: fileLabel(for: paths), filePaths: paths), at: 0)
+        return out
+    }
+
+    /// A freshly picked color folded into the history. `hex` is the canonical
+    /// "RRGGBB", `text` the notation the user pastes. Returns nil when nothing
+    /// should change — picking the very same color again, in the same notation,
+    /// leaves the list alone. The same color re-picked in ANOTHER notation
+    /// rewrites the top entry's text in place instead of stacking a twin, and an
+    /// older entry for that color moves up as a fresh pick.
+    public static func remembering(
+        color hex: String, text: String, in items: [ClipboardItem]
+    ) -> [ClipboardItem]? {
+        let key = hex.uppercased()
+        guard !key.isEmpty, !text.isEmpty else { return nil }
+        if let first = items.first, first.colorHex?.uppercased() == key {
+            guard first.text != text else { return nil }
+            var out = items
+            out[0].text = text
+            return out
+        }
+        var out = items.filter { $0.colorHex?.uppercased() != key }
+        out.insert(ClipboardItem(text: text, colorHex: key), at: 0)
         return out
     }
 
