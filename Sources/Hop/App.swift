@@ -30,6 +30,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var archiveHeightSink: AnyCancellable?
     private var archiveUserResized = false
     private var archiveExpectedHeight: CGFloat = -1
+    private var screenTextHeightSink: AnyCancellable?
+    private var screenTextUserResized = false
+    private var screenTextExpectedHeight: CGFloat = -1
     private var converterPasteMonitor: Any?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -182,6 +185,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         archiveHeightSink = model.$archiveContentHeight
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.adjustArchiveHeight() }
+        // and so does the recognition window: plate only until there is a result
+        screenTextHeightSink = model.$screenTextContentHeight
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.adjustScreenTextHeight() }
         NotificationCenter.default.addObserver(
             forName: NSWindow.didResizeNotification, object: nil, queue: .main
         ) { [weak self] note in
@@ -197,6 +204,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     if abs(height - self.archiveExpectedHeight) > 1 {
                         self.archiveUserResized = true
                     }
+                } else if resized === self.screenTextWindow {
+                    let height = resized.contentRect(forFrameRect: resized.frame).height
+                    if abs(height - self.screenTextExpectedHeight) > 1 {
+                        self.screenTextUserResized = true
+                    }
                 }
             }
         }
@@ -208,6 +220,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 // next open — auto-fit again
                 if closing === self.converterWindow { self.converterUserResized = false }
                 if closing === self.archiveWindow { self.archiveUserResized = false }
+                if closing === self.screenTextWindow { self.screenTextUserResized = false }
             }
         }
 
@@ -733,22 +746,44 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             )
             host.sizingOptions = []
             window.contentViewController = host
-            window.contentMinSize = NSSize(width: 520, height: 260)
+            // the plate alone is shorter than the old floor, and a floor above
+            // the content is exactly what left the gap
+            window.contentMinSize = NSSize(width: 520, height: 200)
             screenTextWindow = window
         }
         guard let window = screenTextWindow else { return }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         // The window is as tall as what it shows: just the drop plate until a
         // result exists, then room for the text as well (Anton, 2026-07-25).
-        let height: CGFloat = model.screenText.recognized.isEmpty ? 280 : 540
+        // A fixed pair of heights left a gap under the plate, so the real
+        // content height decides — adjustScreenTextHeight takes it from here.
         if !window.isVisible {
-            window.setContentSize(NSSize(width: 560, height: height))
+            window.setContentSize(NSSize(width: 560, height: 240))
             window.center()
-        } else if abs(window.frame.height - height) > 80 {
-            window.setContentSize(NSSize(width: window.frame.width, height: height))
         }
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        adjustScreenTextHeight()
+    }
+
+    /// Height of the recognition window from its content, like the converter's
+    /// and the archive window's.
+    private func adjustScreenTextHeight() {
+        guard let window = screenTextWindow, window.isVisible,
+              !screenTextUserResized else { return }
+        let content = model.screenTextContentHeight
+        guard content > 120 else { return }
+        let topInset = window.contentView?.safeAreaInsets.top ?? 0
+        let screenHeight = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
+        let target = min(content + topInset, screenHeight * 0.75)
+        var frame = window.frame
+        let currentContent = window.contentRect(forFrameRect: frame).height
+        let newHeight = frame.height + (target - currentContent)
+        guard abs(newHeight - frame.height) > 2 else { return }
+        frame.origin.y += (frame.height - newHeight) / 2   // grow around the centre
+        frame.size.height = newHeight
+        screenTextExpectedHeight = window.contentRect(forFrameRect: frame).height
+        window.setFrame(frame, display: true)
     }
 
     private func showOnboarding() {

@@ -41,9 +41,7 @@ struct ArchiveView: View {
                             .foregroundStyle(Theme.textTertiary)
                             .lineLimit(1)
                     }
-                    Image(systemName: "arrow.up.forward.app")
-                        .font(.system(size: 13))
-                        .foregroundStyle(Theme.textSecondary)
+                    RowActionIcon(symbol: "arrow.up.forward.app")
                 }
                 // The formats say what KIND of archive this is: zip files, not
                 // "put it away in my archive" (Anton, 2026-07-25). ALL of them are

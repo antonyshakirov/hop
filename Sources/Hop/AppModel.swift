@@ -44,6 +44,10 @@ final class AppModel: ObservableObject {
     /// drop plate and grows only when there are jobs to show.
     @Published var archiveContentHeight: CGFloat = 0
 
+    /// Desired content height of the recognition window — the plate alone until
+    /// a result exists, then room for the text as well.
+    @Published var screenTextContentHeight: CGFloat = 0
+
     /// Request to open a specific screen (from the right-click menu).
     @Published var openTab: PanelView.InitialScreen?
     /// Close the popover (for "copy and paste").

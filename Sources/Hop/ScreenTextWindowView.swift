@@ -28,6 +28,17 @@ struct ScreenTextWindowView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Theme.panelBackground)
         .id(model.themeVersion)
+        // The window is exactly as tall as this: a plate with a gap under it
+        // reads as a window that failed to load something (Anton, 2026-07-26).
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { model.screenTextContentHeight = geo.size.height }
+                    .onChange(of: geo.size.height) { _, height in
+                        model.screenTextContentHeight = height
+                    }
+            }
+        )
     }
 
     /// Both feeds in one place: the crosshair for the screen, the zone for a

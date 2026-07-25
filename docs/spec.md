@@ -1142,6 +1142,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ## Shared components
 
+- **RowActionIcon (Controls.swift) is the ONLY module-row action icon**: SF
+  Symbols are not drawn to a common optical size, so at one point size a dashed
+  viewfinder looked smaller than a boxed arrow and the solid eyedropper looked
+  darker than both — three buttons in a row that visibly did not match (Anton,
+  2026-07-26). The view carries a per-symbol size and weight table (viewfinder
+  14, boxed arrow 12.5, eyedropper 12 and .light) and one 24×22 tap area; the
+  colour is always `textSecondary`, `Theme.editing` while the action runs.
+- The recognition and archive windows size themselves from their content the way
+  the converter does (`screenTextContentHeight` / `archiveContentHeight` + the
+  matching `adjust…Height`), and their `contentMinSize` sits BELOW the empty
+  content: a floor above it is exactly what leaves a gap under the drop plate.
 - **SettingChip (Controls.swift) is the ONLY chip toggle** in the entire
   app: height 28, corner radius 5, mono 10 / icon 13, padding 9,
   inactive border Theme.divider, hover hoverDim+pointer. All former

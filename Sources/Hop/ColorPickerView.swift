@@ -47,11 +47,7 @@ struct ColorPickerView: View {
                     closePanel()
                     picker.pick()
                 } label: {
-                    Image(systemName: "eyedropper")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(picker.isSampling ? Theme.editing : Theme.textSecondary)
-                        .frame(width: 24, height: 22)
-                        .contentShape(Rectangle())
+                    RowActionIcon(symbol: "eyedropper", active: picker.isSampling)
                 }
                 .buttonStyle(.plain)
                 .hoverHighlight(5)

@@ -582,6 +582,43 @@ struct DocView: View {
     }
 }
 
+/// The icon of a module row's action — the one place their size and weight are
+/// decided. SF Symbols are not drawn to a common optical size: at the same point
+/// size a dashed viewfinder looks visibly smaller than a boxed arrow, and the
+/// eyedropper looks heavier than both, so the row read as a set of mismatched
+/// buttons (Anton, 2026-07-26). The table below trims each glyph to the same
+/// visual height; everything else stays identical — regular weight, secondary
+/// colour, one tap area.
+struct RowActionIcon: View {
+    let symbol: String
+    /// The action is running right now (the eyedropper while the loupe is up).
+    var active = false
+
+    /// Point size per symbol, chosen so the glyphs match on screen rather than
+    /// on paper. A symbol that is not listed gets the plain row size.
+    private static let opticalSize: [String: CGFloat] = [
+        "viewfinder": 14,               // thin dashed corners, draws small
+        "arrow.up.forward.app": 12.5,   // boxed, fills its frame
+        "eyedropper": 12,               // tall and heavy
+    ]
+
+    /// The eyedropper is a SOLID shape while its neighbours are outlines, so at
+    /// the same weight it reads as a much darker button. A lighter stroke puts
+    /// the same amount of ink on screen.
+    private static let opticalWeight: [String: Font.Weight] = [
+        "eyedropper": .light,
+    ]
+
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: Self.opticalSize[symbol] ?? 13,
+                          weight: Self.opticalWeight[symbol] ?? .regular))
+            .foregroundStyle(active ? Theme.editing : Theme.textSecondary)
+            .frame(width: 24, height: 22)
+            .contentShape(Rectangle())
+    }
+}
+
 /// Text label button: color becomes primary on hover,
 /// no background fill (presets, cycle templates).
 struct HoverLabel: View {

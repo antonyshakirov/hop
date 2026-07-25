@@ -39,11 +39,7 @@ struct ScreenTextView: View {
 
     private func action(_ symbol: String, help: String, run: @escaping () -> Void) -> some View {
         Button(action: run) {
-            Image(systemName: symbol)
-                .font(.system(size: 13))
-                .foregroundStyle(Theme.textSecondary)
-                .frame(width: 24, height: 22)
-                .contentShape(Rectangle())
+            RowActionIcon(symbol: symbol)
         }
         .buttonStyle(.plain)
         .hoverHighlight(5)
