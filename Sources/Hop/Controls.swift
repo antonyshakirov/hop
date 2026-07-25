@@ -597,7 +597,7 @@ struct RowActionIcon: View {
     /// Point size per symbol, chosen so the glyphs match on screen rather than
     /// on paper. A symbol that is not listed gets the plain row size.
     private static let opticalSize: [String: CGFloat] = [
-        "viewfinder": 14,               // thin dashed corners, draws small
+        "viewfinder": 12.5,             // thin dashed corners, draws small
         "arrow.up.forward.app": 12.5,   // boxed, fills its frame
         "eyedropper": 12,               // tall and heavy
     ]

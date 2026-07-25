@@ -1142,12 +1142,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ## Shared components
 
+- The converter and archive rows are the SAME card: icon 12, gap 6, name at
+  mono 11, a `RowActionIcon` on the trailing edge, `padding(.horizontal, 10)` /
+  `padding(.vertical, 9)` on `Theme.rowBg` — 40pt tall, both of them (Anton,
+  2026-07-26). A bare `Image` on one of them and the shared icon on the other is
+  what made them differ by a hair.
 - **RowActionIcon (Controls.swift) is the ONLY module-row action icon**: SF
   Symbols are not drawn to a common optical size, so at one point size a dashed
   viewfinder looked smaller than a boxed arrow and the solid eyedropper looked
   darker than both — three buttons in a row that visibly did not match (Anton,
   2026-07-26). The view carries a per-symbol size and weight table (viewfinder
-  14, boxed arrow 12.5, eyedropper 12 and .light) and one 24×22 tap area; the
+  and boxed arrow 12.5, eyedropper 12 and .light) and one 24×22 tap area; the
   colour is always `textSecondary`, `Theme.editing` while the action runs.
 - The recognition and archive windows size themselves from their content the way
   the converter does (`screenTextContentHeight` / `archiveContentHeight` + the

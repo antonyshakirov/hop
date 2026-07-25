@@ -2167,9 +2167,7 @@ struct PanelView: View {
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
                 Spacer()
-                Image(systemName: "arrow.up.forward.app")
-                    .font(.system(size: 13))
-                    .foregroundStyle(Theme.textSecondary)
+                RowActionIcon(symbol: "arrow.up.forward.app")
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 9)
