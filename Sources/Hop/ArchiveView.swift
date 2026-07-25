@@ -28,7 +28,7 @@ struct ArchiveView: View {
             // One line, exactly like the converter's row: the formats belong in
             // the window and the help, not on the panel, where they cost a whole
             // second line for a list nobody reads twice (Anton, 2026-07-26).
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Image(systemName: "archivebox")
                     .font(.system(size: 12))
                     .foregroundStyle(targeted ? Theme.editing : Theme.textSecondary)

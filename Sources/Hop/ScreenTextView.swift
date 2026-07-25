@@ -12,7 +12,7 @@ struct ScreenTextView: View {
     var openWindow: () -> Void = {}
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             Image(systemName: "text.viewfinder")
                 .font(.system(size: 12))
                 .foregroundStyle(Theme.textSecondary)

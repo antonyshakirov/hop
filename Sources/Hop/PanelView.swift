@@ -2157,7 +2157,7 @@ struct PanelView: View {
         Button {
             model.openConverterWindow?()
         } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Image(systemName: "doc.zipper")
                     .font(.system(size: 12))
                     .foregroundStyle(dropTargeted ? Theme.editing : Theme.textSecondary)

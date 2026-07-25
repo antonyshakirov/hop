@@ -10,7 +10,10 @@ struct KeyboardLockView: View {
     var closePanel: () -> Void = {}
 
     var body: some View {
-        HStack(spacing: 8) {
+        // spacing 6 is the module-row standard: keep-awake, the clipboard and
+        // the internet row all sit the same distance from their icon (Anton,
+        // 2026-07-26)
+        HStack(spacing: 6) {
             Image(systemName: "keyboard")
                 .font(.system(size: 12))
                 .foregroundStyle(lock.isLocked ? Theme.editing : Theme.textSecondary)
@@ -55,30 +58,39 @@ struct KeyboardLockView: View {
                 .buttonStyle(.plain)
                 .hoverDim()
             } else {
-                ForEach(KeyboardLockController.durations, id: \.self) { seconds in
-                    durationChip(seconds)
+                HStack(spacing: 5) {   // the spacing keep-awake's options use
+                    ForEach(KeyboardLockController.durations, id: \.self) { seconds in
+                        durationChip(seconds)
+                    }
                 }
             }
         }
     }
 
-    /// A duration chip locks straight away for that long — there is no separate
-    /// start button to press afterwards.
+    /// A duration locks straight away for that long — there is no separate start
+    /// button to press afterwards. Drawn as bare figures, exactly like
+    /// keep-awake's: two neighbouring rows of the same shape must not use two
+    /// different button styles (Anton, 2026-07-26).
     private func durationChip(_ seconds: Int) -> some View {
-        Button {
+        let isInfinity = seconds == 0
+        return Button {
             closePanel()
             lock.lock(seconds: seconds)
         } label: {
             Text(label(seconds))
-                .font(Theme.mono(9))
-                .foregroundStyle(Theme.textPrimary)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 4)
-                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 5))
+                .font(Theme.mono(isInfinity ? 15 : 11, weight: .medium))
+                .foregroundStyle(Theme.textSecondary)
+                .lineLimit(1)
+                // the mono ∞ sits below the optical centre — the same nudge
+                // keep-awake's row uses
+                .offset(y: isInfinity ? -1 : 0)
+                .frame(minWidth: 18)
+                .padding(.horizontal, 3)
+                .frame(height: 22)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .hoverHighlight(5)
+        .hoverHighlight(3)
     }
 
     /// "1m" / "5m" / "15m", and ∞ for the lock that waits for the button —

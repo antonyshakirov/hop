@@ -316,9 +316,23 @@ enum Snapshot {
         if args.contains("--window-ocr"), args.contains("--demo") {
             model.screenText.loadDemo(demoRecognizedText(lang: demoLang))
         }
-        if wantsColors { PanelView.activateStoredModule("color") }
-        if wantsOcr { PanelView.activateStoredModule("ocr") }
-        if wantsKeyboard { PanelView.activateStoredModule("keyboard") }
+        // One module per shot: the isolation flags hide the OTHER new modules as
+        // well, or a colour-picker render comes out with archives and the
+        // keyboard lock stacked above it.
+        if wantsColors || wantsOcr || wantsKeyboard || wantsArchive {
+            var keep: Set<String> = []
+            if wantsColors { keep.insert("color") }
+            if wantsOcr { keep.insert("ocr") }
+            if wantsKeyboard { keep.insert("keyboard") }
+            if wantsArchive { keep.insert("archive") }
+            for key in ["color", "ocr", "keyboard", "archive"] {
+                if keep.contains(key) {
+                    PanelView.activateStoredModule(key)
+                } else {
+                    PanelView.deactivateStoredModule(key)
+                }
+            }
+        }
 
         var initial = PanelView.InitialScreen.spaceContaining("timer")
         if wantsKeyboard {
