@@ -42,6 +42,30 @@ final class ArchiveRulesTests: XCTestCase {
         }
     }
 
+    func testEveryFormatIsListedByAName() {
+        // the module's row shows this list; a new case must never slip in unnamed
+        // or arrive as a raw enum name like "tarGz"
+        for format in ArchiveFormat.allCases {
+            let name = format.displayName
+            XCTAssertFalse(name.isEmpty, "\(format)")
+            XCTAssertEqual(name, name.lowercased(), "\(format)")
+            XCTAssertNotEqual(name, format.rawValue.description.filter { $0.isUppercase }.isEmpty
+                              ? "" : format.rawValue, "\(format)")
+        }
+        XCTAssertEqual(
+            ArchiveFormat.allCases.map(\.displayName),
+            ["zip", "rar", "7z", "tar", "tar.gz", "tar.bz2", "tar.xz", "gz"])
+    }
+
+    func testEveryListedNameIsRecognizedBack() {
+        // what the row promises must be what a dropped file is matched against
+        for format in ArchiveFormat.allCases {
+            XCTAssertEqual(
+                ArchiveRules.format(ofFileNamed: "sample.\(format.displayName)"),
+                format, format.displayName)
+        }
+    }
+
     func testRarIsNotAPackFormat() {
         // creating .rar is legally impossible for us — the list must never offer it
         XCTAssertFalse(PackFormat.allCases.map(\.fileExtension).contains("rar"))

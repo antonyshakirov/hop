@@ -113,13 +113,15 @@ Hop também pode virar o app padrão para arquivos .torrent e links magnet.
 
 ### Arquivos compactados
 
-A linha do módulo abre uma janela, e é nela que você solta as coisas. Solte um
-compactado e ele abre bem onde está; solte arquivos ou pastas e surge um
-compactado ao lado. zip, tar, tar.gz, tar.bz2, tar.xz e gz funcionam de cara;
-para rar e 7z, na primeira vez, baixa um ajudante pequeno (~6 MB) com
-assinatura verificada. O Hop extrai rar mas nunca cria: o formato é
-proprietário. Ligue «abrir compactados com o Hop» e um duplo clique extrai pelo
-Hop, com o módulo visível no painel ou não.
+A linha do módulo abre uma janela, e é nela que você solta as coisas — ⌘V também
+funciona, com vários arquivos de uma vez. O que você adiciona espera numa lista
+até você apertar o botão: os compactados são extraídos e todo o resto vira um
+compactado só. O resultado vai para a mesa por padrão, ou ao lado do original,
+ou para a pasta que você escolher. Valem zip, rar, 7z, tar, tar.gz, tar.bz2,
+tar.xz e gz; para rar e 7z, na primeira vez, baixa um ajudante pequeno (~6 MB)
+com assinatura verificada. O Hop extrai rar mas nunca cria: o formato é
+proprietário. Ligue «abrir arquivos compactados com o Hop» nos ajustes e um
+duplo clique extrai pelo Hop, com o módulo visível no painel ou não.
 
 ### Documentos
 
@@ -149,7 +151,7 @@ Apple, inteiramente neste Mac.
 Toque 1, 5 ou 15 minutos — ou ∞ — e o teclado inteiro para de responder, para
 limpá-lo sem desligar o Mac nem fechar a tampa. Uma cobertura explica o que
 está acontecendo e o ícone da barra de menus vira um teclado. Quatro saídas: o
-botão da cobertura, o botão do painel, abrir o painel ou segurar esc por três
+botão da cobertura, o botão do painel, abrir o painel ou segurar esc por cinco
 segundos. Um toque curto no botão de força também é engolido; segurá-lo ainda
 desliga o Mac à força, porque isso é feito no hardware.
 

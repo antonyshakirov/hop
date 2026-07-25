@@ -115,13 +115,16 @@ einen lokalen Port mit Hop spricht. Hop kann außerdem zur Standard-App für
 
 ### Dateiarchive
 
-Die Zeile des Moduls öffnet ein Fenster, und dort wird abgelegt. Zieh ein
-Archiv hinein und es entpackt sich genau dort, wo es liegt; zieh Dateien oder
-Ordner hinein und daneben entsteht ein Archiv. zip, tar, tar.gz, tar.bz2,
-tar.xz und gz laufen sofort; für rar und 7z lädt beim ersten Mal ein kleiner,
+Die Zeile des Moduls öffnet ein Fenster, und dort wird abgelegt — ⌘V geht auch,
+mehrere Dateien auf einmal. Was du hinzufügst, wartet in einer Liste, bis du auf
+den Knopf drückst: Archive werden entpackt, alles andere wird zu einem Archiv.
+Das Ergebnis landet standardmäßig auf dem Schreibtisch, wahlweise neben dem
+Original oder in einem eigenen Ordner. Unterstützt sind zip, rar, 7z, tar,
+tar.gz, tar.bz2, tar.xz und gz; für rar und 7z lädt beim ersten Mal ein kleiner,
 signaturgeprüfter Helfer (~6 MB). Hop entpackt rar, erstellt es aber nie — das
-Format ist proprietär. Mit «Archive mit Hop öffnen» entpackt ein doppelt
-geklicktes Archiv über Hop, ob das Modul im Panel sichtbar ist oder nicht.
+Format ist proprietär. Schalte «Archive mit Hop öffnen» in den Einstellungen
+ein, und ein doppelt geklicktes Archiv wird über Hop entpackt, ob das Modul im
+Panel sichtbar ist oder nicht.
 
 ### Dokumente
 
@@ -152,7 +155,7 @@ Tippe 1, 5 oder 15 Minuten — oder ∞ — und die ganze Tastatur reagiert nich
 mehr, zum Abwischen, ohne den Mac herunterzufahren oder den Deckel zu
 schließen. Eine Abdeckung erklärt, was los ist, und das Menüleisten-Symbol wird
 zur Tastatur. Vier Wege hinaus: der Knopf auf der Abdeckung, der Knopf im
-Panel, das Öffnen des Panels oder esc drei Sekunden halten. Ein kurzer Druck
+Panel, das Öffnen des Panels oder esc fünf Sekunden halten. Ein kurzer Druck
 auf die Ein-/Aus-Taste wird ebenfalls geschluckt; langes Halten schaltet den
 Mac weiterhin aus, denn das macht die Hardware.
 

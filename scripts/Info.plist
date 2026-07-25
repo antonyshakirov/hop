@@ -86,6 +86,12 @@
 	<string>14.0</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Hop writes unpacked archives and new archives to your Desktop.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Hop writes unpacked archives and converted files where you ask it to.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Hop saves converted files and downloads where you ask it to.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© Anton Shakirov</string>
 	<key>UTImportedTypeDeclarations</key>

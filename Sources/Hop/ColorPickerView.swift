@@ -29,9 +29,13 @@ struct ColorPickerView: View {
     var body: some View {
         VStack(spacing: 6) {
             HStack(spacing: 6) {
-                Image(systemName: "eyedropper")
-                    .font(.system(size: 12))
-                    .foregroundStyle(Theme.textSecondary)
+                // A palette, NOT an eyedropper: the module's mark must not be the
+                // same glyph as the action button beside it, or the row reads as
+                // two pick buttons (Anton, 2026-07-25). Smaller and tertiary,
+                // like every other module's mark.
+                Image(systemName: "paintpalette")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.textTertiary)
                 Text(L10n.t(.colorLabel, lang))
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)

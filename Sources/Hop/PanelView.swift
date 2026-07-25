@@ -470,6 +470,23 @@ struct PanelView: View {
                         get: { bannerChoices[key] ?? false },
                         set: { bannerChoices[key] = $0 }))
                 }
+                // Archives carry a second decision worth making right here:
+                // whether a double-clicked archive should open through Hop. It is
+                // independent of showing the module, so it is offered even when
+                // the module stays hidden (Anton, 2026-07-25).
+                if key == "archive" {
+                    HStack(spacing: 8) {
+                        Text(t(.archiveMakeDefault))
+                            .font(Theme.mono(9))
+                            .foregroundStyle(Theme.textTertiary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer(minLength: 8)
+                        Theme.MiniSwitch(isOn: Binding(
+                            get: { bannerChoices[Self.archiveHandlerChoice] ?? false },
+                            set: { bannerChoices[Self.archiveHandlerChoice] = $0 }))
+                    }
+                    .padding(.leading, 24)
+                }
             }
         }
         .padding(.top, 10)
@@ -506,6 +523,10 @@ struct PanelView: View {
         .padding(.top, 12)
     }
 
+    /// Not a module: the checklist's extra decision about Finder. Kept out of
+    /// `moduleKeys` so it can never be mistaken for something to place in a tab.
+    private static let archiveHandlerChoice = "archive.defaultHandler"
+
     /// Ticked modules go onto the first space, unticked ones stay hidden (and
     /// are moved out if an earlier version had placed them).
     private func saveModuleChoices(_ ann: FeatureAnnouncement) {
@@ -516,6 +537,11 @@ struct PanelView: View {
             } else {
                 deactivateModule(key)   // no-op when it is already hidden
             }
+        }
+        // Only ever CLAIM the archive types here: an untouched switch must not
+        // hand back an opener the user chose earlier, in Finder or in settings.
+        if bannerChoices[Self.archiveHandlerChoice] == true {
+            ArchiveController.setDefaultHandler(true)
         }
         markSeen(ann)
     }
@@ -3449,6 +3475,11 @@ struct PanelView: View {
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
+                settingsSectionHeader(t(.archiveLabel))
+                ArchiveDefaultHandlerRow(label: t(.archiveMakeDefault))
+            }
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            VStack(spacing: 14) {
                 settingsSectionHeader(t(.torrentLabel))
                 torrentSettings
             }
@@ -3730,7 +3761,7 @@ struct PanelView: View {
         switch key {
         case "archive": return "archivebox"
         case "keyboard": return "keyboard"
-        case "color": return "eyedropper"
+        case "color": return "paintpalette"
         case "ocr": return "text.viewfinder"
         case "torrent": return "arrow.down.circle"
         default: return "square.grid.2x2"

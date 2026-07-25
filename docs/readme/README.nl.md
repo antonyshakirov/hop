@@ -114,13 +114,16 @@ poort met Hop praat. Hop kan ook de standaardapp worden voor
 
 ### Bestandsarchieven
 
-De regel van de module opent een venster, en dáárin sleep je je bestanden.
-Sleep een archief en het pakt zich uit waar het staat; sleep bestanden of mappen
-en er ontstaat één archief ernaast. zip, tar, tar.gz, tar.bz2, tar.xz en gz
-werken meteen; voor rar en 7z wordt de eerste keer een kleine, op handtekening
+De regel van de module opent een venster, en dáárin sleep je je bestanden — ⌘V
+kan ook, meerdere bestanden tegelijk. Wat je toevoegt wacht in een lijst tot je
+op de knop drukt: archieven worden uitgepakt, al het andere gaat in één archief.
+Het resultaat komt standaard op het bureaublad, of naast het origineel, of in
+een map naar keuze. Ondersteund zijn zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz
+en gz; voor rar en 7z wordt de eerste keer een kleine, op handtekening
 gecontroleerde helper (~6 MB) opgehaald. Hop pakt rar uit maar maakt het nooit —
-het formaat is propriëtair. Zet «archieven met Hop openen» aan en een dubbelklik
-pakt ze uit via Hop, of de module nu in het paneel staat of niet.
+het formaat is propriëtair. Zet «archieven openen met Hop» aan bij de
+instellingen en een dubbelklik pakt het uit via Hop, of de module nu in het
+paneel staat of niet.
 
 ### Documenten
 
@@ -151,7 +154,7 @@ Tik 1, 5 of 15 minuten — of ∞ — en het hele toetsenbord reageert niet meer
 je het kunt afnemen zonder de Mac uit te zetten of de klep te sluiten. Een
 schermvullende afdekking legt uit wat er gebeurt en het menubalkpictogram wordt
 een toetsenbord. Vier uitwegen: de knop op de afdekking, de knop in het paneel,
-het paneel openen, of esc drie seconden vasthouden. Een korte druk op de
+het paneel openen, of esc vijf seconden vasthouden. Een korte druk op de
 aan/uit-toets wordt ook geslikt; hem ingedrukt houden zet de Mac nog steeds uit,
 want dat regelt de hardware.
 

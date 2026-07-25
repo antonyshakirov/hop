@@ -15,7 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindow: NSWindow?
     private var settingsWindow: NSWindow?
     private var converterWindow: ConverterWindow?
-    private var archiveWindow: NSWindow?
+    private var archiveWindow: ConverterWindow?
     private var screenTextWindow: ConverterWindow?
     private var aboutWindow: NSWindow?
     private var torrentAddWindow: NSWindow?
@@ -27,6 +27,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// auto-fit silently turned off forever — hence the "hole" below an empty converter
     private var converterExpectedHeight: CGFloat = -1
     private var contentHeightSink: AnyCancellable?
+    private var archiveHeightSink: AnyCancellable?
+    private var archiveUserResized = false
+    private var archiveExpectedHeight: CGFloat = -1
     private var converterPasteMonitor: Any?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -175,15 +178,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         contentHeightSink = model.$converterContentHeight
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.adjustConverterHeight() }
+        // the archive window follows the same rule: empty module = drop plate only
+        archiveHeightSink = model.$archiveContentHeight
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.adjustArchiveHeight() }
         NotificationCenter.default.addObserver(
             forName: NSWindow.didResizeNotification, object: nil, queue: .main
         ) { [weak self] note in
             Task { @MainActor in
-                guard let self, let window = self.converterWindow,
-                      (note.object as? NSWindow) === window else { return }
-                let height = window.contentRect(forFrameRect: window.frame).height
-                if abs(height - self.converterExpectedHeight) > 1 {
-                    self.converterUserResized = true
+                guard let self, let resized = note.object as? NSWindow else { return }
+                if resized === self.converterWindow {
+                    let height = resized.contentRect(forFrameRect: resized.frame).height
+                    if abs(height - self.converterExpectedHeight) > 1 {
+                        self.converterUserResized = true
+                    }
+                } else if resized === self.archiveWindow {
+                    let height = resized.contentRect(forFrameRect: resized.frame).height
+                    if abs(height - self.archiveExpectedHeight) > 1 {
+                        self.archiveUserResized = true
+                    }
                 }
             }
         }
@@ -191,8 +204,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             forName: NSWindow.willCloseNotification, object: nil, queue: .main
         ) { [weak self] note in
             Task { @MainActor in
-                guard let self, (note.object as? NSWindow) === self.converterWindow else { return }
-                self.converterUserResized = false // next open — auto again
+                guard let self, let closing = note.object as? NSWindow else { return }
+                // next open — auto-fit again
+                if closing === self.converterWindow { self.converterUserResized = false }
+                if closing === self.archiveWindow { self.archiveUserResized = false }
             }
         }
 
@@ -579,8 +594,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                         keyCode: event.keyCode,
                         modifierFlags: event.modifierFlags.rawValue),
                       // another Hop window can be key and want ⌘V for itself
-                      // (the recognition window pastes a picture there)
+                      // (the recognition window pastes a picture, the archive
+                      // window queues the copied files)
                       self.screenTextWindow?.isKeyWindow != true,
+                      self.archiveWindow?.isKeyWindow != true,
                       ConverterPaste.shouldIngest(
                         windowVisible: window.isVisible,
                         windowIsKey: window.isKeyWindow,
@@ -632,17 +649,43 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Height of the archive window from its content, exactly like the
+    /// converter's: an empty module is a drop plate and nothing else, and the
+    /// window grows only once there are jobs under it (Anton, 2026-07-25).
+    private func adjustArchiveHeight() {
+        guard let window = archiveWindow, window.isVisible,
+              !archiveUserResized else { return }
+        let content = model.archiveContentHeight
+        guard content > 120 else { return }
+        // fullSizeContentView puts the content under the title bar, so the inset
+        // has to be added or the window falls short by exactly that much
+        let topInset = window.contentView?.safeAreaInsets.top ?? 0
+        let screenHeight = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
+        let target = min(content + topInset, screenHeight * 0.75)
+        var frame = window.frame
+        let currentContent = window.contentRect(forFrameRect: frame).height
+        let newHeight = frame.height + (target - currentContent)
+        guard abs(newHeight - frame.height) > 2 else { return }
+        frame.origin.y += (frame.height - newHeight) / 2   // grow around the centre
+        frame.size.height = newHeight
+        archiveExpectedHeight = window.contentRect(forFrameRect: frame).height
+        window.setFrame(frame, display: true)
+    }
+
     /// The archive window: a drop target that stays put while a file is being
     /// dragged onto it — the panel's popover closes the moment a drag starts, so
     /// the module's row only opens this (Anton, 2026-07-25).
     private func showArchiveWindow() {
         model.activity.note()
         if archiveWindow == nil {
-            let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 480, height: 360),
+            // ConverterWindow only for its ⌘V handling: Hop has no Edit menu, so
+            // paste needs a window that catches the key equivalent itself.
+            let window = ConverterWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 480, height: 260),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                 backing: .buffered, defer: false
             )
+            window.onPaste = { [weak self] in self?.model.archive.addFromPasteboard() }
             window.titlebarAppearsTransparent = true
             window.titleVisibility = .hidden
             window.isMovableByWindowBackground = false
@@ -652,17 +695,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             )
             host.sizingOptions = []
             window.contentViewController = host
-            window.contentMinSize = NSSize(width: 420, height: 260)
+            // as short as the drop plate plus the format row: the auto-fit takes
+            // it from here, and a taller floor would reintroduce the empty gap
+            window.contentMinSize = NSSize(width: 420, height: 200)
             archiveWindow = window
         }
         guard let window = archiveWindow else { return }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         if !window.isVisible {
-            window.setContentSize(NSSize(width: 480, height: 360))
+            window.setContentSize(NSSize(width: 480, height: 260))
             window.center()
         }
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        adjustArchiveHeight()
     }
 
     /// The recognition window: a picture goes in (dropped or pasted), the text
@@ -798,6 +844,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if url.isFileURL,
            ArchiveRules.format(ofFileNamed: url.lastPathComponent) != nil {
             model.archive.handleDrop([url])
+            // Double-clicking IS the go-ahead: an opener that only queued the
+            // archive and waited for a second click would be a worse Finder
+            // than the one it replaced (Anton, 2026-07-25).
+            model.archive.start()
             showArchiveWindow()
             return
         }

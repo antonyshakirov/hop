@@ -3,17 +3,19 @@
 ## 1.5.0 — 2026-07-25
 
 - File archives: a new module — its row opens a window, and that window is the
-  drop target. Drop an archive and it unpacks right where it lives; drop files
-  or folders and they become one archive beside them. zip, tar, tar.gz,
-  tar.bz2, tar.xz and gz are handled natively; rar and 7z fetch a small
-  signature-verified helper the first time one turns up. Hop unpacks rar but
-  never creates it. "Open archives with Hop" makes Hop the opener in Finder,
-  whether or not the module is visible in the panel.
+  drop target; ⌘V works too, several files at once. What you add waits in a list
+  until you press the button: archives are unpacked, anything else is packed
+  into one archive. Results land on the Desktop by default, or next to the
+  original, or in any folder you choose. zip, tar, tar.gz, tar.bz2, tar.xz and
+  gz are handled natively; rar and 7z fetch a small signature-verified helper
+  the first time one turns up. Hop unpacks rar but never creates it. "Open
+  archives with Hop" makes Hop the opener in Finder, whether or not the module
+  is visible in the panel.
 - Cleaning mode: a new module — tapping 1, 5 or 15 minutes, or ∞, stops every
   key so the keyboard can be wiped without shutting the Mac down. A cover
   explains what is happening and the menu-bar icon turns into a keyboard. Four
   ways out: the cover's button, the panel's button, opening the panel, or
-  holding esc for three seconds. A short press of the power key is swallowed
+  holding esc for five seconds. A short press of the power key is swallowed
   too; holding it still forces the Mac off, because that is hardware.
 - Color eyedropper: a new module — picked colors stay as a list, each row
   carrying hex, rgb and hsl in its own column, and each of the three copies on
@@ -32,7 +34,8 @@
   README, in all 18 languages.
 - All five new modules ship hidden: the what's-new card lists them with
   checkboxes, nothing appears until you tick it, and what you enable lands on
-  the first tab.
+  the first tab. The archives row carries a second switch there — whether a
+  double-clicked archive should open through Hop.
 
 ## 1.4.0 — 2026-07-22
 

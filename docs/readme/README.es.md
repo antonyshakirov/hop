@@ -116,13 +116,16 @@ defecto para archivos .torrent y enlaces magnet.
 
 ### Archivos comprimidos
 
-La fila del módulo abre una ventana, y ahí es donde se sueltan las cosas.
-Suelta un comprimido y se abre justo donde está; suelta archivos o carpetas y
-aparece un comprimido al lado. zip, tar, tar.gz, tar.bz2, tar.xz y gz funcionan
-de inmediato; para rar y 7z se descarga la primera vez un pequeño ayudante
-(~6 MB) con la firma verificada. Hop extrae rar pero nunca lo crea: el formato
-es propietario. Activa «abrir comprimidos con Hop» y un doble clic los extrae
-con Hop, esté el módulo visible en el panel o no.
+La fila del módulo abre una ventana, y ahí es donde se sueltan las cosas — ⌘V
+también funciona, con varios archivos a la vez. Lo que añades espera en una
+lista hasta que pulsas el botón: los comprimidos se extraen y todo lo demás se
+junta en un comprimido. El resultado va al escritorio por defecto, o junto al
+original, o a la carpeta que elijas. Se admiten zip, rar, 7z, tar, tar.gz,
+tar.bz2, tar.xz y gz; para rar y 7z se descarga la primera vez un pequeño
+ayudante (~6 MB) con la firma verificada. Hop extrae rar pero nunca lo crea: el
+formato es propietario. Activa «abrir archivos comprimidos con Hop» en los
+ajustes y un doble clic los extrae con Hop, esté el módulo visible en el panel
+o no.
 
 ### Documentos
 
@@ -152,7 +155,7 @@ Apple, todo en este Mac.
 Pulsa 1, 5 o 15 minutos — o ∞ — y todo el teclado deja de responder, para
 limpiarlo sin apagar el Mac ni cerrar la tapa. Una cubierta explica qué pasa y
 el icono de la barra de menús se convierte en un teclado. Cuatro salidas: el
-botón de la cubierta, el botón del panel, abrir el panel o mantener esc tres
+botón de la cubierta, el botón del panel, abrir el panel o mantener esc cinco
 segundos. Una pulsación corta del botón de encendido también se traga;
 mantenerlo pulsado sigue apagando el Mac, porque de eso se encarga el hardware.
 

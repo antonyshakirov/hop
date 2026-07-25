@@ -40,6 +40,10 @@ final class AppModel: ObservableObject {
     /// Desired content height of the converter window (from the view's PreferenceKey).
     @Published var converterContentHeight: CGFloat = 0
 
+    /// Desired content height of the archive window — it opens as tall as the
+    /// drop plate and grows only when there are jobs to show.
+    @Published var archiveContentHeight: CGFloat = 0
+
     /// Request to open a specific screen (from the right-click menu).
     @Published var openTab: PanelView.InitialScreen?
     /// Close the popover (for "copy and paste").

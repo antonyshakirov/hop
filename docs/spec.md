@@ -845,6 +845,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   in another notation it rewrites the top entry in place, and an older entry for
   that color moves up as a fresh pick (`ClipboardRules.remembering(color:text:in:)`,
   tested). A color needs no file on disk, so pruning one deletes nothing.
+- The module's own mark is a PALETTE, not an eyedropper: the same glyph on both
+  ends of the header read as two pick buttons (Anton, 2026-07-25). It is drawn
+  small and tertiary like every other module's mark, while the action keeps the
+  eyedropper at full weight. The what's-new checklist uses the same palette.
 - Module list: the header is one line (name + an icon-only pick action), and
   under it the picked colors as ROWS — swatch plus the three notations. Clicking
   a notation copies exactly it and shows an OPAQUE "copied" badge on the row's
@@ -929,17 +933,33 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Archive (drag & drop)
 
-- Module key `"archive"`, title `archiveLabel` ("file archives"), with the
-  formats spelled out beside it in the row — "(zip · rar · 7z…)" — so the module
-  reads as ZIP files rather than "putting something away in an archive" (Anton,
-  2026-07-25). Format names are identical in every language and stay untranslated,
-  like the converter's capability table. One drop zone does both jobs: a drop of NOTHING BUT archives
-  unpacks each one; any other drop — files, folders, a mixed set — packs the
-  whole drop into ONE archive. Dragging several things together reads as "make
-  this one archive", so a mixed drop packs rather than half-unpacking.
-- Everything lands NEXT TO the original, never in Downloads. The pack format is
-  a chip row (zip / tar.gz / 7z, stored in `archivePackFormat`, default zip);
-  extraction ignores it — an archive is unpacked as whatever it already is.
+- Module key `"archive"`, title `archiveLabel` ("file archives"), with EVERY
+  format spelled out on its own line under the name — "zip · rar · 7z · tar ·
+  tar.gz · tar.bz2 · tar.xz · gz" — so the module reads as ZIP files rather than
+  "putting something away in an archive" (Anton, 2026-07-25). An ellipsis was
+  rejected: it leaves the reader guessing which formats it hides, and on the
+  name's line the longest translations pushed the tail off. The list is built
+  from `ArchiveFormat.allCases` via `displayName`, so a new case cannot go
+  unlisted (tested both ways: named, and recognized back).
+- **Adding is not starting** (Anton, 2026-07-25): a drop — or ⌘V, several files
+  at once — fills a QUEUE (`pending`), and the work runs when the button is
+  pressed. The queue decides which button that is (`plannedKind`): NOTHING BUT
+  archives unpacks each one, anything else — files, folders, a mixed set — packs
+  the whole queue into ONE archive, because collecting several things together
+  reads as "make this one archive". A row can be taken back out; the list can be
+  cleared.
+- Results land on the DESKTOP by default (`archiveDestination`, `.desktop`): an
+  unpacked folder has to appear where the user is already looking. `.alongside`
+  keeps the old "next to the original" behaviour and `.custom` is any chosen
+  folder (`archiveDestinationPath`, falling back to the Desktop if it has since
+  gone missing). The pack format is a chip row (zip / tar.gz / 7z, stored in
+  `archivePackFormat`, default zip) shown ONLY when the queue is going to be
+  packed — an archive being opened comes out as whatever it already is, so the
+  format has nothing to say about it.
+- A write macOS refuses (the Desktop, Documents and Downloads folders are gated)
+  is reported as `.denied` with its own row text, never as a generic failure:
+  "nothing appeared" is the worst way to learn a folder needs consent. The
+  usage-description strings ride in `Info.plist`.
 - **Unpack layout**: the tool extracts into a hidden staging folder INSIDE the
   destination, then the result is lifted out: exactly one top-level item keeps
   its own name, several items go into one folder named after the archive. That
@@ -962,10 +982,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (tested); staging inside the destination contains anything the tools let past.
 - **The drop target is a WINDOW**, not the panel: a popover closes the moment a
   drag starts, pulling the target out from under the file (Anton, 2026-07-25).
-  The module's panel row is one line that opens the archive window, exactly like
-  the converter's; dropping onto the row still works and opens the window.
+  The module's panel row opens the archive window, exactly like the converter's;
+  dropping onto the row still works and opens the window. The window is a
+  `ConverterWindow` for its ⌘V handling (Hop has no Edit menu), and the
+  converter's own paste monitor stands down while it is key. Its height follows
+  its content the way the converter's does, so an empty module is a drop plate
+  and nothing else — no gap underneath (Anton, 2026-07-25).
 - **Default opener in Finder**, exactly like the torrent module's: a switch in
-  the window claims the archive content types (`LSSetDefaultRoleHandlerForContentType`,
+  SETTINGS → other modules (not in the window — being the opener outlives any
+  window, Anton 2026-07-25) claims the archive content types (`LSSetDefaultRoleHandlerForContentType`,
   read back with `LSCopyDefaultRoleHandlerForContentType`), and `processOpen`
   routes an opened archive into the extractor. It works with the module HIDDEN —
   the panel row is a place to drop things, not a precondition for Finder
@@ -1056,7 +1081,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   working.
 - Way out, four of them: the cover's done button, the module's own unlock
   button, simply opening the panel — reaching for Hop while the keys are dead IS
-  the ask to release them — or HOLDING ESC for three seconds when the mouse is
+  the ask to release them — or HOLDING ESC for five seconds when the mouse is
   out of reach (`noteEscape(down:)` times the hold; esc is otherwise swallowed
   like everything else). A normal keyboard shortcut would be exactly the thing
   that is switched off. Durations are 1 / 5 / 15 minutes and ∞
@@ -1105,6 +1130,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`newInThisRelease`, one-shot `optInModulesSeeded`); a fresh install has no
   expectations to violate, so only the permanently opt-in tools
   (`optInModules`: eyedropper, screen text) stay hidden there.
+- The archive row carries a SECOND switch of its own — "open archives with Hop"
+  — because a decision worth making about archives is also worth making right
+  here (Anton, 2026-07-25). It is not a module key (`archive.defaultHandler`,
+  deliberately outside `moduleKeys` so nothing tries to place it on a tab), it is
+  offered even when the module itself stays hidden, and saving only ever CLAIMS
+  the types: an untouched switch must not hand back an opener chosen earlier.
 - The torrent card keeps its own two-step shape (opt-in, then follow-up
   settings while the engine downloads); `FeatureAnnouncement.checklist`
   picks which shape a card takes.

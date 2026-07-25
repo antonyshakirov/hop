@@ -118,14 +118,16 @@ défaut pour les fichiers .torrent et les liens magnet.
 
 ### Archives de fichiers
 
-La ligne du module ouvre une fenêtre, et c'est là qu'on dépose. Dépose une
-archive et elle s'ouvre là où elle se trouve ; dépose des fichiers ou des
-dossiers et une archive apparaît à côté. zip, tar, tar.gz, tar.bz2, tar.xz et
-gz fonctionnent tout de suite ; pour rar et 7z, un petit outil (~6 Mo) à la
-signature vérifiée se télécharge la première fois. Hop extrait le rar mais ne
-le crée jamais : le format est propriétaire. Active « ouvrir les archives avec
-Hop » et un double clic les extrait via Hop, que le module soit visible dans le
-panneau ou non.
+La ligne du module ouvre une fenêtre, et c'est là qu'on dépose — ⌘V marche
+aussi, plusieurs fichiers à la fois. Ce que tu ajoutes attend dans une liste
+jusqu'à ce que tu appuies sur le bouton : les archives sont extraites, tout le
+reste part dans une seule archive. Le résultat va sur le bureau par défaut, ou à
+côté de l'original, ou dans le dossier de ton choix. Sont pris en charge zip,
+rar, 7z, tar, tar.gz, tar.bz2, tar.xz et gz ; pour rar et 7z, un petit outil
+(~6 Mo) à la signature vérifiée se télécharge la première fois. Hop extrait le
+rar mais ne le crée jamais : le format est propriétaire. Active « ouvrir les
+archives avec Hop » dans les réglages et un double clic les extrait via Hop, que
+le module soit visible dans le panneau ou non.
 
 ### Documents
 
@@ -157,7 +159,7 @@ Appuie sur 1, 5 ou 15 minutes — ou ∞ — et tout le clavier cesse de répond
 pour l'essuyer sans éteindre le Mac ni rabattre l'écran. Un cache explique ce
 qui se passe et l'icône de la barre des menus devient un clavier. Quatre
 sorties : le bouton du cache, le bouton du panneau, l'ouverture du panneau, ou
-échap maintenu trois secondes. Une pression courte sur la touche d'alimentation
+échap maintenu cinq secondes. Une pression courte sur la touche d'alimentation
 est avalée elle aussi ; la maintenir éteint toujours le Mac, car c'est le
 matériel qui s'en charge.
 

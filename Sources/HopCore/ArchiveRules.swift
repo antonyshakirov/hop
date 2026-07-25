@@ -1,8 +1,9 @@
 import Foundation
 
-/// An archive kind Hop recognizes when something is dropped on it.
+/// An archive kind Hop recognizes when something is dropped on it. The order is
+/// the one the formats are listed in: the three names everyone knows first.
 public enum ArchiveFormat: String, Sendable, CaseIterable {
-    case zip, tar, tarGz, tarBz2, tarXz, gzip, sevenZip, rar
+    case zip, rar, sevenZip, tar, tarGz, tarBz2, tarXz, gzip
 
     /// Unpacked with tools every Mac already has (ditto, tar, gunzip).
     /// The rest need the downloadable 7-Zip helper.
@@ -10,6 +11,21 @@ public enum ArchiveFormat: String, Sendable, CaseIterable {
         switch self {
         case .sevenZip, .rar: return false
         default: return true
+        }
+    }
+
+    /// The extension as a user knows it — the same word in every language, so
+    /// the module's format list needs no translation.
+    public var displayName: String {
+        switch self {
+        case .zip: return "zip"
+        case .rar: return "rar"
+        case .sevenZip: return "7z"
+        case .tar: return "tar"
+        case .tarGz: return "tar.gz"
+        case .tarBz2: return "tar.bz2"
+        case .tarXz: return "tar.xz"
+        case .gzip: return "gz"
         }
     }
 }

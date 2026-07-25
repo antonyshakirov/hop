@@ -113,13 +113,16 @@ Hop lewat port lokal. Hop juga bisa menjadi aplikasi bawaan untuk file
 
 ### Arsip berkas
 
-Baris modul membuka sebuah jendela, dan di jendela itulah berkas dijatuhkan.
-Jatuhkan arsip dan ia terbuka tepat di tempatnya; jatuhkan berkas atau folder
-dan di sebelahnya muncul satu arsip. zip, tar, tar.gz, tar.bz2, tar.xz, dan gz
-langsung jalan; untuk rar dan 7z, saat pertama kali dijumpai, diunduh pembantu
+Baris modul membuka sebuah jendela, dan di jendela itulah berkas dijatuhkan —
+⌘V juga bisa, beberapa berkas sekaligus. Yang kamu tambahkan menunggu dalam
+daftar sampai kamu menekan tombol: arsip diekstrak, sisanya masuk ke satu arsip.
+Hasilnya jatuh ke desktop secara bawaan, atau di sebelah aslinya, atau ke folder
+mana pun yang kamu pilih. Yang didukung: zip, rar, 7z, tar, tar.gz, tar.bz2,
+tar.xz, dan gz; untuk rar dan 7z, saat pertama kali dijumpai, diunduh pembantu
 kecil (~6 MB) yang tanda tangannya diperiksa. Hop membuka rar tetapi tidak
-pernah membuatnya — formatnya berpemilik. Nyalakan «buka arsip dengan Hop» dan
-klik ganda akan membukanya lewat Hop, terlihat atau tidak modulnya di panel.
+pernah membuatnya — formatnya berpemilik. Nyalakan «buka arsip dengan Hop» di
+pengaturan dan klik ganda akan membukanya lewat Hop, terlihat atau tidak
+modulnya di panel.
 
 ### Dokumen
 
@@ -150,7 +153,7 @@ Ketuk 1, 5, atau 15 menit — atau ∞ — dan seluruh papan ketik berhenti mere
 sehingga bisa dilap tanpa mematikan Mac atau menutup layar. Penutup layar penuh
 menjelaskan apa yang terjadi, dan ikon bilah menu berubah jadi papan ketik.
 Empat jalan keluar: tombol di penutup, tombol di panel, membuka panel, atau
-menahan esc tiga detik. Tekanan singkat tombol daya juga ditelan; menahannya
+menahan esc lima detik. Tekanan singkat tombol daya juga ditelan; menahannya
 tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 
 ### Dan selebihnya

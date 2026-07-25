@@ -109,13 +109,15 @@ files and magnet links.
 
 ### File archives
 
-The module's row opens a window, and that window is where you drop things.
-Drop an archive and it unpacks right where it lives; drop files or folders and
-they become one archive beside them. zip, tar, tar.gz, tar.bz2, tar.xz and gz
-work out of the box; rar and 7z fetch a small signature-verified helper (~6 MB)
-the first time one turns up. Hop unpacks rar but never creates it — the format
-is proprietary. Turn on "open archives with Hop" and a double-clicked archive
-unpacks through Hop, module visible in the panel or not.
+The module's row opens a window, and that window is where you drop things —
+⌘V works too, several files at once. What you add waits in a list until you
+press the button: archives are unpacked, anything else is packed into one
+archive. Results land on the Desktop by default, or next to the original, or in
+any folder you choose. zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz and gz are
+covered; rar and 7z fetch a small signature-verified helper (~6 MB) the first
+time one turns up. Hop unpacks rar but never creates it — the format is
+proprietary. Turn on "open archives with Hop" in settings and a double-clicked
+archive unpacks through Hop, module visible in the panel or not.
 
 ### Documents
 
@@ -146,7 +148,7 @@ Tap 1, 5 or 15 minutes — or ∞ — and the whole keyboard stops responding, s
 can be wiped without shutting the Mac down or closing the lid. A cover explains
 what is happening and the menu-bar icon turns into a keyboard. Four ways out:
 the cover's button, the panel's button, opening the panel, or holding esc for
-three seconds. A short press of the power key is swallowed too; holding it
+five seconds. A short press of the power key is swallowed too; holding it
 still forces the Mac off, because that is handled in hardware.
 
 ### And the rest

@@ -116,13 +116,16 @@ predefinita per i file .torrent e i link magnet.
 
 ### Archivi di file
 
-La riga del modulo apre una finestra, ed è lì che si trascina. Trascina un
-archivio e si apre proprio dove si trova; trascina file o cartelle e accanto
-nasce un archivio. zip, tar, tar.gz, tar.bz2, tar.xz e gz funzionano subito;
-per rar e 7z alla prima occasione si scarica un piccolo aiutante (~6 MB) con
-firma verificata. Hop estrae i rar ma non li crea mai: il formato è
-proprietario. Attiva «apri gli archivi con Hop» e un doppio clic li estrae
-tramite Hop, che il modulo sia visibile nel pannello o no.
+La riga del modulo apre una finestra, ed è lì che si trascina — ⌘V funziona
+anche, con più file insieme. Quello che aggiungi aspetta in un elenco finché non
+premi il pulsante: gli archivi vengono estratti, tutto il resto finisce in un
+unico archivio. Il risultato va sulla scrivania per impostazione predefinita,
+oppure accanto all'originale o in una cartella a scelta. Sono supportati zip,
+rar, 7z, tar, tar.gz, tar.bz2, tar.xz e gz; per rar e 7z alla prima occasione si
+scarica un piccolo aiutante (~6 MB) con firma verificata. Hop estrae i rar ma
+non li crea mai: il formato è proprietario. Attiva «aprire gli archivi con Hop»
+nelle impostazioni e un doppio clic li estrae tramite Hop, che il modulo sia
+visibile nel pannello o no.
 
 ### Documenti
 
@@ -153,7 +156,7 @@ Tocca 1, 5 o 15 minuti — oppure ∞ — e tutta la tastiera smette di risponde
 per pulirla senza spegnere il Mac né chiudere il coperchio. Una copertura
 spiega cosa sta succedendo e l'icona nella barra dei menu diventa una tastiera.
 Quattro vie d'uscita: il pulsante sulla copertura, il pulsante nel pannello,
-aprire il pannello, o tenere esc per tre secondi. Anche una pressione breve del
+aprire il pannello, o tenere esc per cinque secondi. Anche una pressione breve del
 tasto di accensione viene ingoiata; tenerlo premuto spegne comunque il Mac,
 perché di quello si occupa l'hardware.
 

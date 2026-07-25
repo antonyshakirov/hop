@@ -13,6 +13,8 @@ import HopCore
 @MainActor
 final class ArchiveController: ObservableObject {
     static let packFormatKey = "archivePackFormat"
+    static let destinationKey = "archiveDestination"
+    static let destinationPathKey = "archiveDestinationPath"
     static let helperManifestURL = "https://www.antonshakirov.com/downloads/hop/tools/7zz.json"
 
     enum Kind: Equatable { case extract, pack }
@@ -24,6 +26,17 @@ final class ArchiveController: ObservableObject {
         case tool
         /// Nothing usable came out of the archive.
         case empty
+        /// macOS refused to write into the destination — the Desktop, Documents
+        /// and Downloads folders need explicit consent, and a silent "nothing
+        /// appeared" is the worst way to learn that (Anton, 2026-07-25).
+        case denied
+    }
+
+    /// Where results are written. The Desktop is the default: an unpacked folder
+    /// has to be somewhere the user is already looking (Anton, 2026-07-25).
+    enum Destination: String, CaseIterable, Identifiable, Sendable {
+        case desktop, alongside, custom
+        public var id: String { rawValue }
     }
 
     enum JobState: Equatable {
@@ -43,6 +56,10 @@ final class ArchiveController: ObservableObject {
     }
 
     @Published private(set) var jobs: [Job] = []
+    /// Files waiting for the user to press the button. Adding something never
+    /// starts work on its own: a drop is "here are the files", not "go" (Anton,
+    /// 2026-07-25).
+    @Published private(set) var pending: [URL] = []
     /// The 7-Zip helper, fetched only when a rar/7z actually turns up.
     let helper = ToolInstaller(manifestURL: ArchiveController.helperManifestURL,
                                folderName: "tools",
@@ -55,6 +72,35 @@ final class ArchiveController: ObservableObject {
     var packFormat: PackFormat {
         get { PackFormat(rawValue: UserDefaults.standard.string(forKey: Self.packFormatKey) ?? "") ?? .zip }
         set { UserDefaults.standard.set(newValue.rawValue, forKey: Self.packFormatKey) }
+    }
+
+    var destination: Destination {
+        get { Destination(rawValue: UserDefaults.standard.string(forKey: Self.destinationKey) ?? "") ?? .desktop }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: Self.destinationKey) }
+    }
+
+    /// The folder behind `.custom`, empty until one is chosen.
+    var customDestinationPath: String {
+        get { UserDefaults.standard.string(forKey: Self.destinationPathKey) ?? "" }
+        set { UserDefaults.standard.set(newValue, forKey: Self.destinationPathKey) }
+    }
+
+    /// What pressing the button would do with what is waiting: a queue of
+    /// NOTHING BUT archives unpacks, anything else packs into one archive.
+    /// A mixed set packs — collecting several things together reads as
+    /// "make this one archive".
+    var plannedKind: Kind? {
+        guard !pending.isEmpty else { return nil }
+        let archives = pending.filter {
+            !isDirectory($0) && ArchiveRules.format(ofFileNamed: $0.lastPathComponent) != nil
+        }
+        return archives.count == pending.count ? .extract : .pack
+    }
+
+    /// True for a queued file that will be unpacked; the pack format has nothing
+    /// to say about it, so the row shows no format (Anton, 2026-07-25).
+    func willUnpack(_ url: URL) -> Bool {
+        !isDirectory(url) && ArchiveRules.format(ofFileNamed: url.lastPathComponent) != nil
     }
 
     /// Content types Hop offers to open. Claiming them makes a double-clicked
@@ -86,22 +132,71 @@ final class ArchiveController: ObservableObject {
         UserDefaults.standard.set(on, forKey: defaultHandlerKey)
     }
 
-    /// The one entry point: everything dropped on the module lands here.
-    /// A drop of NOTHING BUT archives unpacks them; anything else packs the whole
-    /// drop into one archive. A mixed drop packs too — dragging a set of things
-    /// together reads as "make this one archive".
+    /// The one entry point: everything dropped on the module — or pasted into its
+    /// window — lands in the queue. Nothing runs until `start()`.
     func handleDrop(_ urls: [URL]) {
         let files = urls.filter { $0.isFileURL }
         guard !files.isEmpty else { return }
-        let archives = files.filter {
-            !isDirectory($0) && ArchiveRules.format(ofFileNamed: $0.lastPathComponent) != nil
-        }
-        if archives.count == files.count {
-            for archive in archives { extract(archive) }
-        } else {
-            pack(files)
+        let known = Set(pending.map(\.path))
+        // several files at once, in the order they arrived, each counted once
+        for file in files where !known.contains(file.path) {
+            pending.append(file.standardizedFileURL)
         }
     }
+
+    /// ⌘V in the archive window: the same queue, filled from the pasteboard.
+    /// Copying files in Finder puts their URLs on the pasteboard, so a paste of
+    /// several files queues all of them (Anton, 2026-07-25).
+    func addFromPasteboard() {
+        let urls = NSPasteboard.general.readObjects(
+            forClasses: [NSURL.self],
+            options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? []
+        handleDrop(urls)
+    }
+
+    func removePending(_ url: URL) {
+        pending.removeAll { $0.path == url.path }
+    }
+
+    func clearPending() {
+        pending.removeAll()
+    }
+
+    /// Run what is queued: every archive is unpacked, or everything is packed
+    /// into one archive. The queue empties — the jobs list takes over from here.
+    func start() {
+        guard let kind = plannedKind else { return }
+        let items = pending
+        pending.removeAll()
+        switch kind {
+        case .extract:
+            for archive in items { extract(archive) }
+        case .pack:
+            pack(items)
+        }
+    }
+
+    /// Where a result is written. `.alongside` keeps the old behaviour (next to
+    /// the original); the default is the Desktop, and a custom folder that has
+    /// gone missing falls back to it rather than failing.
+    private func destinationFolder(nextTo original: URL) -> URL {
+        switch destination {
+        case .alongside:
+            return original.deletingLastPathComponent()
+        case .custom:
+            let path = customDestinationPath
+            if !path.isEmpty, isDirectory(URL(fileURLWithPath: path)) {
+                return URL(fileURLWithPath: path)
+            }
+            return Self.desktopFolder
+        case .desktop:
+            return Self.desktopFolder
+        }
+    }
+
+    static let desktopFolder: URL = FileManager.default
+        .urls(for: .desktopDirectory, in: .userDomainMask).first
+        ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Desktop")
 
     /// Staged rows for design snapshots (`--archive`); jobs are otherwise
     /// in-memory only, so a render has nothing to show without this.
@@ -118,6 +213,7 @@ final class ArchiveController: ObservableObject {
 
     private func extract(_ archive: URL) {
         guard let format = ArchiveRules.format(ofFileNamed: archive.lastPathComponent) else { return }
+        let folder = destinationFolder(nextTo: archive)
         let job = Job(kind: .extract, name: archive.lastPathComponent, state: .running)
         append(job)
         Task {
@@ -132,7 +228,7 @@ final class ArchiveController: ObservableObject {
             }
             let helperPath = helper.installedBinaryURL()?.path
             let result = await Task.detached(priority: .userInitiated) {
-                Self.runExtract(archive: archive, format: format, helper: helperPath)
+                Self.runExtract(archive: archive, into: folder, format: format, helper: helperPath)
             }.value
             switch result {
             case .success(let path):
@@ -149,13 +245,18 @@ final class ArchiveController: ObservableObject {
     /// archive), and a single-item archive does not gain a pointless wrapper.
     /// Staging inside the destination also means the move is instant — same volume.
     private nonisolated static func runExtract(
-        archive: URL, format: ArchiveFormat, helper: String?
+        archive: URL, into destination: URL, format: ArchiveFormat, helper: String?
     ) -> Result<String, Failure> {
         let manager = FileManager.default
-        let destination = archive.deletingLastPathComponent()
         let staging = destination.appendingPathComponent(".hop-unpack-\(UUID().uuidString)")
-        guard (try? manager.createDirectory(at: staging, withIntermediateDirectories: true)) != nil
-        else { return .failure(.tool) }
+        do {
+            try manager.createDirectory(at: staging, withIntermediateDirectories: true)
+        } catch {
+            // The Desktop, Documents and Downloads folders are gated by macOS:
+            // without consent every write fails and the result would silently
+            // never appear (Anton, 2026-07-25). Say so instead.
+            return .failure(isPermissionError(error) ? .denied : .tool)
+        }
         defer { try? manager.removeItem(at: staging) }
 
         let ok: Bool
@@ -212,11 +313,15 @@ final class ArchiveController: ObservableObject {
 
     private func pack(_ items: [URL]) {
         let paths = items.map(\.path)
+        // The working directory stays the items' own parent — that is what keeps
+        // "shoot/one.raw" inside the archive instead of this Mac's full path —
+        // while the archive ITSELF is written wherever the user chose.
         let parent = ArchiveRules.commonParent(of: paths)
             ?? items[0].deletingLastPathComponent().path
+        let folder = destinationFolder(nextTo: items[0])
         let format = packFormat
         let base = ArchiveRules.packBaseName(for: paths, commonParent: parent)
-        let taken = Set((try? FileManager.default.contentsOfDirectory(atPath: parent)) ?? [])
+        let taken = Set((try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? [])
         let name = ArchiveRules.uniqueName(base: base, extension: format.fileExtension, taken: taken)
 
         let job = Job(kind: .pack, name: name, state: .running)
@@ -233,8 +338,9 @@ final class ArchiveController: ObservableObject {
             }
             let helperPath = helper.installedBinaryURL()?.path
             let names = items.map(\.lastPathComponent)
+            let output = folder.appendingPathComponent(name).path
             let result = await Task.detached(priority: .userInitiated) {
-                Self.runPack(names: names, in: parent, as: name, format: format, helper: helperPath)
+                Self.runPack(names: names, in: parent, to: output, format: format, helper: helperPath)
             }.value
             switch result {
             case .success(let path):
@@ -249,10 +355,13 @@ final class ArchiveController: ObservableObject {
     /// bare item names, so the archive holds "shoot/one.raw" rather than the
     /// whole "/Users/…" path of this particular Mac.
     private nonisolated static func runPack(
-        names: [String], in parent: String, as name: String,
+        names: [String], in parent: String, to destination: String,
         format: PackFormat, helper: String?
     ) -> Result<String, Failure> {
-        let destination = (parent as NSString).appendingPathComponent(name)
+        let folder = (destination as NSString).deletingLastPathComponent
+        guard FileManager.default.isWritableFile(atPath: folder) else {
+            return .failure(.denied)
+        }
         let ok: Bool
         switch format {
         case .zip:
@@ -305,6 +414,19 @@ final class ArchiveController: ObservableObject {
     private nonisolated func isDirectory(_ url: URL) -> Bool {
         var isDir: ObjCBool = false
         return FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) && isDir.boolValue
+    }
+
+    /// A write refused by the file system or by macOS's own folder gate. Both
+    /// arrive as Cocoa errors; the POSIX code is what tells them apart from a
+    /// full disk or a missing folder.
+    private nonisolated static func isPermissionError(_ error: Error) -> Bool {
+        let nsError = error as NSError
+        if nsError.domain == NSCocoaErrorDomain,
+           nsError.code == NSFileWriteNoPermissionError { return true }
+        if let underlying = nsError.userInfo[NSUnderlyingErrorKey] as? NSError,
+           underlying.domain == NSPOSIXErrorDomain,
+           underlying.code == Int(EPERM) || underlying.code == Int(EACCES) { return true }
+        return false
     }
 
     private func append(_ job: Job) {

@@ -163,7 +163,7 @@ final class KeyboardLockController: ObservableObject {
     /// Escape held for `escapeHoldSeconds` unlocks. Auto-repeat delivers a
     /// stream of keyDowns while a key is held, so the hold is measured from the
     /// first one; releasing the key resets it.
-    private static let escapeHoldSeconds: TimeInterval = 3
+    private static let escapeHoldSeconds: TimeInterval = 5
 
     private func noteEscape(down: Bool) {
         guard isLocked else { return }

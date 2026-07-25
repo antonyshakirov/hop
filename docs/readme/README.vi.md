@@ -114,12 +114,14 @@ magnet.
 
 ### Kho nén tệp
 
-Dòng của mô-đun mở một cửa sổ, và bạn thả tệp vào chính cửa sổ đó. Thả một tệp
-nén thì nó bung ra ngay chỗ đang nằm; thả tệp hoặc thư mục thì bên cạnh có một
-tệp nén. zip, tar, tar.gz, tar.bz2, tar.xz và gz chạy ngay; với rar và 7z, lần
-đầu gặp sẽ tải một trợ thủ nhỏ (~6 MB) có kiểm tra chữ ký. Hop bung được rar
-nhưng không bao giờ tạo — đó là định dạng độc quyền. Bật «mở tệp nén bằng Hop»
-thì nhấp đúp sẽ bung qua Hop, dù mô-đun có hiện trong bảng hay không.
+Dòng của mô-đun mở một cửa sổ, và bạn thả tệp vào chính cửa sổ đó — ⌘V cũng
+được, nhiều tệp một lúc. Những gì bạn thêm vào chờ trong một danh sách cho tới
+khi bạn bấm nút: tệp nén được bung, phần còn lại gộp vào một tệp nén. Kết quả
+mặc định nằm trên màn hình nền, hoặc cạnh tệp gốc, hoặc trong thư mục bạn chọn.
+Hỗ trợ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz và gz; với rar và 7z, lần đầu
+gặp sẽ tải một trợ thủ nhỏ (~6 MB) có kiểm tra chữ ký. Hop bung được rar nhưng
+không bao giờ tạo — đó là định dạng độc quyền. Bật «mở kho nén bằng Hop» trong
+cài đặt thì nhấp đúp sẽ bung qua Hop, dù mô-đun có hiện trong bảng hay không.
 
 ### Tài liệu
 
@@ -147,7 +149,7 @@ của Apple, hoàn toàn trên chiếc Mac này.
 Bấm 1, 5 hoặc 15 phút — hoặc ∞ — và cả bàn phím ngừng phản hồi, để lau mà không
 phải tắt máy hay gập nắp. Một tấm che toàn màn hình giải thích chuyện gì đang
 xảy ra, còn biểu tượng trên thanh menu biến thành bàn phím. Có bốn lối ra: nút
-trên tấm che, nút trong bảng, mở bảng, hoặc giữ esc ba giây. Nhấn nhanh phím
+trên tấm che, nút trong bảng, mở bảng, hoặc giữ esc năm giây. Nhấn nhanh phím
 nguồn cũng bị nuốt; giữ lâu thì Mac vẫn tắt cưỡng bức, vì đó là việc của phần
 cứng.
 

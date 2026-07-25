@@ -116,13 +116,15 @@ aplikacją dla plików .torrent i linków magnet.
 
 ### Archiwa plików
 
-Wiersz modułu otwiera okno i to w nim się upuszcza. Upuść archiwum, a rozpakuje
-się dokładnie tam, gdzie leży; upuść pliki albo foldery, a obok powstanie jedno
-archiwum. zip, tar, tar.gz, tar.bz2, tar.xz i gz działają od razu; dla rar i 7z
-przy pierwszym spotkaniu pobiera się mały pomocnik (~6 MB) ze sprawdzonym
-podpisem. Hop rozpakowuje rar, ale nigdy go nie tworzy — format jest
-zastrzeżony. Włącz «otwieraj archiwa w Hop», a dwuklik rozpakuje archiwum przez
-Hop, niezależnie od tego, czy moduł widać w panelu.
+Wiersz modułu otwiera okno i to w nim się upuszcza — ⌘V też działa, od razu z
+kilkoma plikami. To, co dodasz, czeka na liście, dopóki nie naciśniesz
+przycisku: archiwa są rozpakowywane, cała reszta trafia do jednego archiwum.
+Wynik ląduje domyślnie na biurku, a można też obok oryginału albo w dowolnym
+wybranym folderze. Obsługiwane są zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz i
+gz; dla rar i 7z przy pierwszym spotkaniu pobiera się mały pomocnik (~6 MB) ze
+sprawdzonym podpisem. Hop rozpakowuje rar, ale nigdy go nie tworzy — format jest
+zastrzeżony. Włącz «otwieraj archiwa w Hop» w ustawieniach, a dwuklik rozpakuje
+archiwum przez Hop, niezależnie od tego, czy moduł widać w panelu.
 
 ### Dokumenty
 
@@ -153,7 +155,7 @@ Naciśnij 1, 5 albo 15 minut — lub ∞ — i cała klawiatura przestaje odpowi
 żeby dało się ją przetrzeć bez wyłączania Maca i zamykania pokrywy. Zasłona
 tłumaczy, co się dzieje, a ikona na pasku menu zmienia się w klawiaturę. Wyjścia
 są cztery: przycisk na zasłonie, przycisk w panelu, samo otwarcie panelu albo
-przytrzymanie esc przez trzy sekundy. Krótkie naciśnięcie przycisku zasilania
+przytrzymanie esc przez pięć sekund. Krótkie naciśnięcie przycisku zasilania
 też jest połykane; przytrzymanie nadal wyłącza Maca, bo robi to sprzęt.
 
 ### I cała reszta

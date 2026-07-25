@@ -114,13 +114,15 @@ bağlantıları için varsayılan uygulama olabilir.
 
 ### Dosya arşivleri
 
-Modülün satırı bir pencere açar ve bırakma işi o pencerede olur. Bir arşiv
-bırakın, durduğu yerde açılsın; dosya ya da klasör bırakın, yanlarında tek bir
-arşiv oluşsun. zip, tar, tar.gz, tar.bz2, tar.xz ve gz hemen çalışır; rar ve 7z
-için ilk karşılaşmada imzası doğrulanan küçük bir yardımcı (~6 MB) iner. Hop
-rar açar ama asla oluşturmaz — format tescillidir. «Arşivleri Hop ile aç»
-seçeneğiyle çift tıklanan arşiv Hop üzerinden açılır; modül panelde görünür
-olsun ya da olmasın.
+Modülün satırı bir pencere açar ve bırakma işi o pencerede olur — ⌘V de çalışır,
+birden çok dosyayla birlikte. Eklediklerin bir listede bekler, sen düğmeye
+basınca çalışır: arşivler açılır, kalan her şey tek bir arşive girer. Sonuç
+varsayılan olarak masaüstüne, istersen orijinalin yanına ya da seçtiğin bir
+klasöre iner. zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz ve gz desteklenir; rar
+ve 7z için ilk karşılaşmada imzası doğrulanan küçük bir yardımcı (~6 MB) iner.
+Hop rar açar ama asla oluşturmaz — format tescillidir. Ayarlarda «arşivleri Hop
+ile aç» seçeneğini açarsan çift tıklanan arşiv Hop üzerinden açılır; modül
+panelde görünür olsun ya da olmasın.
 
 ### Belgeler
 
@@ -149,7 +151,7 @@ okunur kalır. Tanıma Apple'ın Vision'ıdır, tamamen bu Mac'te çalışır.
 1, 5 ya da 15 dakikaya — veya ∞'a — dokunun, tüm klavye yanıt vermeyi bıraksın;
 Mac'i kapatmadan, kapağı indirmeden silebilirsiniz. Tam ekran bir örtü ne
 olduğunu anlatır, menü çubuğundaki simge klavyeye dönüşür. Dört çıkış yolu var:
-örtüdeki düğme, paneldeki düğme, panelin açılması ya da esc'yi üç saniye basılı
+örtüdeki düğme, paneldeki düğme, panelin açılması ya da esc'yi beş saniye basılı
 tutmak. Güç tuşuna kısa basış da yutulur; basılı tutmak Mac'i yine de
 kapatır, çünkü onu donanım yapar.
 
