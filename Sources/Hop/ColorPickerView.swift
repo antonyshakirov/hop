@@ -108,7 +108,13 @@ struct ColorPickerView: View {
                     .foregroundStyle(Theme.accentGreen)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
-                    .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 4))
+                    // OPAQUE: the badge sits over the values, and a translucent
+                    // fill let them read through it (Anton, 2026-07-25)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Theme.background)
+                            .overlay(RoundedRectangle(cornerRadius: 4).fill(Theme.chipBg))
+                    )
                     .padding(.trailing, 4)
                     .transition(.opacity)
             }
