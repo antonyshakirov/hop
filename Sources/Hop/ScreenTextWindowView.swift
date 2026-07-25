@@ -38,12 +38,14 @@ struct ScreenTextWindowView: View {
                 .font(Theme.mono(11))
                 .foregroundStyle(targeted ? Theme.editing : Theme.textSecondary)
                 .multilineTextAlignment(.center)
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 Button {
                     reader.capture()
                 } label: {
                     Label(t(.ocrRead), systemImage: "viewfinder")
                         .font(Theme.mono(10, weight: .bold))
+                        .lineLimit(1)
+                        .fixedSize()
                         .foregroundStyle(Theme.playFg)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 6)
@@ -58,6 +60,8 @@ struct ScreenTextWindowView: View {
                 } label: {
                     Label(t(.ocrPaste), systemImage: "doc.on.clipboard")
                         .font(Theme.mono(10))
+                        .lineLimit(1)
+                        .fixedSize()
                         .foregroundStyle(Theme.textSecondary)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)

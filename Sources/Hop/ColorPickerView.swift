@@ -141,13 +141,29 @@ struct ColorPickerView: View {
                 .font(Theme.mono(9))
                 .foregroundStyle(copiedKey == key ? Theme.accentGreen : Theme.listText)
                 .lineLimit(1)
-                .fixedSize()
+                // fixed column per notation: "#202020" and "#FFFFFF" are the same
+                // width, but "rgb(32,32,32)" and "rgb(255,255,255)" are not, and
+                // a shorter value used to drag the next column left (Anton,
+                // 2026-07-25). Widths hold the WIDEST value each form can take.
+                .frame(width: Self.columnWidth(format), alignment: .leading)
                 .padding(.horizontal, 5)
                 .padding(.vertical, 3)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .hoverHighlight(4)
+    }
+}
+
+extension ColorPickerView {
+    /// Width of one notation column at mono 9: "#FFFFFF", "rgb(255,255,255)"
+    /// and "hsl(359,100%,100%)" are the longest a value can get.
+    static func columnWidth(_ format: ColorFormat) -> CGFloat {
+        switch format {
+        case .hex: return 48
+        case .rgb: return 92
+        case .hsl: return 104
+        }
     }
 }
 

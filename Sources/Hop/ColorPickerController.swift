@@ -53,7 +53,9 @@ final class ColorPickerController: ObservableObject {
     /// is its own button, so the click already says which form is wanted.
     func copy(text: String, hex: String) {
         guard !hex.isEmpty else { return }
-        clipboard.remember(color: hex, text: text)
+        // the colour is already in the history — only the pasteboard changes,
+        // so the list keeps the order the colours were picked in
+        clipboard.putOnPasteboard(text)
     }
 
     /// The sampler reports a color in whatever space the screen uses; sRGB is the

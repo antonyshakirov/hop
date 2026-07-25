@@ -195,6 +195,15 @@ final class ClipboardController: ObservableObject {
         place(text)
     }
 
+    /// Put text on the pasteboard WITHOUT touching the history — for content
+    /// that is already in the list (clicking a colour the eyedropper picked
+    /// earlier). Re-remembering it would move the row to the top and rebuild it,
+    /// which stole the "copied" mark and reshuffled the list under the cursor
+    /// (Anton, 2026-07-25).
+    func putOnPasteboard(_ text: String) {
+        place(text)
+    }
+
     private func place(_ text: String) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()

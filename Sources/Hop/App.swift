@@ -673,7 +673,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.activity.note()
         if screenTextWindow == nil {
             let window = ConverterWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 460, height: 420),
+                contentRect: NSRect(x: 0, y: 0, width: 560, height: 420),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                 backing: .buffered, defer: false
             )
@@ -687,16 +687,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             )
             host.sizingOptions = []
             window.contentViewController = host
-            window.contentMinSize = NSSize(width: 380, height: 300)
+            window.contentMinSize = NSSize(width: 520, height: 260)
             screenTextWindow = window
         }
         guard let window = screenTextWindow else { return }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         // The window is as tall as what it shows: just the drop plate until a
         // result exists, then room for the text as well (Anton, 2026-07-25).
-        let height: CGFloat = model.screenText.recognized.isEmpty ? 260 : 520
+        let height: CGFloat = model.screenText.recognized.isEmpty ? 280 : 540
         if !window.isVisible {
-            window.setContentSize(NSSize(width: 460, height: height))
+            window.setContentSize(NSSize(width: 560, height: height))
             window.center()
         } else if abs(window.frame.height - height) > 80 {
             window.setContentSize(NSSize(width: window.frame.width, height: height))
