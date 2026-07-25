@@ -13,7 +13,7 @@ import SwiftUI
 @MainActor
 final class KeyboardLockController: ObservableObject {
     static let durationKey = "keyboardLockDuration"   // seconds
-    static let durations: [Int] = [30, 60, 300]
+    static let durations: [Int] = [60, 300, 900]
 
     @Published private(set) var isLocked = false
     /// Seconds left before the automatic unlock; nil when the timer is off.
@@ -42,7 +42,11 @@ final class KeyboardLockController: ObservableObject {
         isLocked ? unlock() : lock()
     }
 
-    func lock() {
+    /// Locking IS the choice of a duration (Anton, 2026-07-25): the module has no
+    /// separate start button — tapping "5 min" locks for five minutes. The value
+    /// is remembered so the hotkey has something to use.
+    func lock(seconds: Int? = nil) {
+        if let seconds { duration = seconds }
         guard !isLocked, !Snapshot.active else { return }
         // Ask first: without the permission the tap silently never fires and the
         // cover would promise a lock that isn't there.

@@ -27,6 +27,13 @@ final class ScreenTextController: ObservableObject {
     }
 
     @Published private(set) var state: State = .idle
+    /// The last text read, kept so the window can SHOW it: a silent copy into
+    /// the clipboard history left no sign anything had happened (Anton,
+    /// 2026-07-25). The window edits this freely; the history keeps the
+    /// recognized original until the user copies an edited version.
+    @Published var recognized: String = ""
+    /// Ask the app to bring the recognition window forward (wired in AppModel).
+    var onResult: (() -> Void)?
 
     private let clipboard: ClipboardController
     /// Screen Recording is what macOS calls the permission; the settings pane
@@ -64,9 +71,74 @@ final class ScreenTextController: ObservableObject {
                 settle(.empty)
                 return
             }
-            clipboard.remember(external: text)
+            store(text)
             settle(.done(text.count))
         }
+    }
+
+    /// A picture that already exists — dropped on the window or pasted into it.
+    /// The same recognition, minus the crosshair; no screen-recording permission
+    /// is involved because nothing is captured from the screen.
+    func recognize(imageAt url: URL) {
+        guard !isBusy, !Snapshot.active else { return }
+        state = .reading
+        Task {
+            let text = await Self.read(url)
+            guard let text else {
+                settle(.empty)
+                return
+            }
+            store(text)
+            settle(.done(text.count))
+        }
+    }
+
+    /// ⌘V into the window: a copied image (a screenshot on the clipboard) is
+    /// recognized; a copied FILE is read from disk.
+    func recognizeFromPasteboard() {
+        let pasteboard = NSPasteboard.general
+        if let urls = pasteboard.readObjects(
+            forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL],
+           let first = urls.first {
+            recognize(imageAt: first)
+            return
+        }
+        guard let data = pasteboard.data(forType: .png) ?? pasteboard.data(forType: .tiff) else {
+            settle(.empty)
+            return
+        }
+        let file = FileManager.default.temporaryDirectory
+            .appendingPathComponent("hop-paste-\(UUID().uuidString).png")
+        // normalize through a PNG on disk so ONE reading path serves every source
+        guard let rep = NSBitmapImageRep(data: data),
+              let png = rep.representation(using: .png, properties: [:]),
+              (try? png.write(to: file)) != nil else {
+            settle(.failed)
+            return
+        }
+        recognize(imageAt: file)
+    }
+
+    /// The window's edits stay in the window until they are copied — a stray
+    /// keystroke must not rewrite what is already in the history.
+    func editRecognized(_ text: String) {
+        recognized = text
+    }
+
+    /// The copy button: whatever the window shows right now goes to the
+    /// pasteboard AND into the history as a fresh entry.
+    func copyRecognized() {
+        let text = recognized.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return }
+        clipboard.remember(external: text)
+    }
+
+    /// One place where a result becomes state: the window shows it, the history
+    /// keeps it, the pasteboard carries it.
+    private func store(_ text: String) {
+        recognized = text
+        clipboard.remember(external: text)
+        onResult?()
     }
 
     /// Clear a receipt (or a complaint) after a moment, so the module returns to

@@ -16,6 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
     private var converterWindow: ConverterWindow?
     private var archiveWindow: NSWindow?
+    private var screenTextWindow: ConverterWindow?
     private var aboutWindow: NSWindow?
     private var torrentAddWindow: NSWindow?
     private var quitWindow: NSWindow?
@@ -129,6 +130,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openArchiveWindow = { [weak self] in
             self?.showArchiveWindow()
         }
+        model.openScreenTextWindow = { [weak self] in
+            self?.showScreenTextWindow()
+        }
         model.openAboutWindow = { [weak self] in
             self?.showAboutWindow()
         }
@@ -146,7 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // app's own layer while another app is active — the window came
             // back UNDER the frontmost app instead of on top with the panel.
             let ours = Set([converterWindow, settingsWindow, aboutWindow, torrentAddWindow,
-                            archiveWindow].compactMap { $0 })
+                            archiveWindow, screenTextWindow].compactMap { $0 })
             // Raise them WITHOUT reshuffling: walk the current front-to-back
             // order in reverse (back first) so each orderFrontRegardless lands
             // the windows on top in the SAME relative order the user arranged.
@@ -515,6 +519,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         converterWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         aboutWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         archiveWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        screenTextWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         torrentAddWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         quitWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         model.themeVersion &+= 1 // redraw everything, including views with unchanged inputs
@@ -651,6 +656,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         if !window.isVisible {
             window.setContentSize(NSSize(width: 480, height: 360))
+            window.center()
+        }
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
+    /// The recognition window: a picture goes in (dropped or pasted), the text
+    /// comes out where it can be read and copied. It reuses ConverterWindow only
+    /// for its ⌘V handling — Hop has no Edit menu, so paste needs a window that
+    /// catches the key equivalent itself.
+    private func showScreenTextWindow() {
+        model.activity.note()
+        if screenTextWindow == nil {
+            let window = ConverterWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 460, height: 420),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered, defer: false
+            )
+            window.onPaste = { [weak self] in self?.model.screenText.recognizeFromPasteboard() }
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.isMovableByWindowBackground = false
+            window.isReleasedWhenClosed = false
+            let host = NSHostingController(
+                rootView: ScreenTextWindowView().environmentObject(model)
+            )
+            host.sizingOptions = []
+            window.contentViewController = host
+            window.contentMinSize = NSSize(width: 380, height: 300)
+            screenTextWindow = window
+        }
+        guard let window = screenTextWindow else { return }
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        if !window.isVisible {
+            window.setContentSize(NSSize(width: 460, height: 420))
             window.center()
         }
         NSApp.activate(ignoringOtherApps: true)

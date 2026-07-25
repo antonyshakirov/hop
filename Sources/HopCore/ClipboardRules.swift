@@ -145,7 +145,7 @@ public enum ClipboardRules {
     /// removed entries. Images have their own cap — they are far heavier
     /// than text, and the oldest ones fall off first.
     public static func pruned(
-        _ items: [ClipboardItem], maxItems: Int, maxImageItems: Int
+        _ items: [ClipboardItem], maxItems: Int, maxImageItems: Int, maxColorItems: Int = .max
     ) -> (kept: [ClipboardItem], removed: [ClipboardItem]) {
         var kept = items
         var removed: [ClipboardItem] = []
@@ -153,12 +153,21 @@ public enum ClipboardRules {
             removed.append(contentsOf: kept.suffix(kept.count - maxItems))
             kept = Array(kept.prefix(maxItems))
         }
-        let images = kept.filter { $0.imageFile != nil }
-        if images.count > maxImageItems {
-            let excess = Set(images.suffix(images.count - maxImageItems).map(\.id))
+
+        /// Trim one KIND to its own cap, oldest first, without touching the rest.
+        func trim(_ isKind: (ClipboardItem) -> Bool, to cap: Int) {
+            let matching = kept.filter(isKind)
+            guard matching.count > cap else { return }
+            let excess = Set(matching.suffix(matching.count - cap).map(\.id))
             removed.append(contentsOf: kept.filter { excess.contains($0.id) })
             kept.removeAll { excess.contains($0.id) }
         }
+
+        trim({ $0.imageFile != nil }, to: maxImageItems)
+        // The eyedropper's own list is these entries, so it carries its own
+        // limit — otherwise a day of picking colors would push everything else
+        // out of a history the user keeps for text.
+        trim({ $0.colorHex != nil }, to: maxColorItems)
         return (kept, removed)
     }
 }

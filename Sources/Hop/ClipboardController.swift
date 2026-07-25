@@ -21,12 +21,26 @@ final class ClipboardController: ObservableObject {
     nonisolated static let maxImageBytes = 25_000_000
     /// how many rows the collapsed clipboard shows (1...10, default 3)
     static let visibleRowsKey = "clipboardVisibleRows"
+    /// Picked colours have their own cap and their own visible-row count: the
+    /// eyedropper module IS this slice of the history (Anton, 2026-07-25).
+    static let maxColorsKey = "colorMaxItems"
+    static let defaultMaxColors = 20
+    static let colorRowsKey = "colorVisibleRows"
+    static let defaultColorRows = 3
     static let defaultVisibleRows = 3
 
     private var maxItems: Int {
         let stored = UserDefaults.standard.integer(forKey: Self.maxItemsKey)
         return stored > 0 ? min(stored, 300) : Self.defaultMaxItems
     }
+
+    private var maxColors: Int {
+        let stored = UserDefaults.standard.integer(forKey: Self.maxColorsKey)
+        return stored > 0 ? min(stored, 100) : Self.defaultMaxColors
+    }
+
+    /// The colours picked so far, newest first — the eyedropper module's list.
+    var colors: [Item] { items.filter { $0.colorHex != nil } }
 
     private var changeCount = NSPasteboard.general.changeCount
     private var ticker: Timer?
@@ -126,7 +140,8 @@ final class ClipboardController: ObservableObject {
     /// Enforce both caps and delete the files of everything that falls off.
     private func pruneOverflow() {
         let (kept, removed) = ClipboardRules.pruned(
-            items, maxItems: maxItems, maxImageItems: Self.maxImageItems)
+            items, maxItems: maxItems, maxImageItems: Self.maxImageItems,
+            maxColorItems: maxColors)
         items = kept
         deleteFiles(of: removed)
     }

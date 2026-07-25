@@ -1,10 +1,10 @@
 import SwiftUI
 import HopCore
 
-/// Eyedropper module: the notation chips, the pick button, and the colors
-/// picked recently. The history itself is the clipboard's — a picked color is a
-/// clipboard entry like any other, so it is searchable and pasteable there. The
-/// strip here is the same entries filtered to colors, kept to one row.
+/// Eyedropper module: one header line and the colors picked so far. Every color
+/// carries all three notations at once and each is a button — clicking hex
+/// copies hex, clicking rgb copies rgb (Anton, 2026-07-25). The old design hid
+/// the result behind "it went to the clipboard", which nobody could see.
 struct ColorPickerView: View {
     @ObservedObject var picker: ColorPickerController
     @ObservedObject var clipboard: ClipboardController
@@ -13,18 +13,21 @@ struct ColorPickerView: View {
     /// swallows the first click and hides the pixel the user is aiming at.
     var closePanel: () -> Void = {}
 
-    @AppStorage(ColorPickerController.formatKey) private var formatRaw = ColorFormat.hex.rawValue
+    @AppStorage(ClipboardController.colorRowsKey) private var visibleRows =
+        ClipboardController.defaultColorRows
+    @State private var copiedKey: String?
 
-    private var format: ColorFormat { ColorFormat(rawValue: formatRaw) ?? .hex }
+    private var colors: [ClipboardItem] { clipboard.colors }
 
-    /// Recent colors, newest first. Six fit the panel width beside the button
-    /// without the row wrapping in any language.
-    private var recent: [ClipboardItem] {
-        Array(clipboard.items.filter { $0.colorHex != nil }.prefix(6))
+    /// The list is as tall as the user's chosen row count; everything older is
+    /// reachable by scrolling, exactly like the clipboard shelf.
+    private var listHeight: CGFloat {
+        let rows = max(1, min(visibleRows, 10))
+        return CGFloat(min(colors.count, rows)) * 30
     }
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             HStack(spacing: 6) {
                 Image(systemName: "eyedropper")
                     .font(.system(size: 12))
@@ -34,84 +37,101 @@ struct ColorPickerView: View {
                     .foregroundStyle(Theme.textSecondary)
                     .lineLimit(1)
                 Spacer(minLength: 6)
-                ForEach(ColorFormat.allCases) { option in
-                    formatChip(option)
-                }
-            }
-            HStack(spacing: 8) {
                 Button {
                     closePanel()
                     picker.pick()
                 } label: {
-                    Text(picker.isSampling ? L10n.t(.colorPicking, lang) : L10n.t(.colorPick, lang))
+                    Text(L10n.t(picker.isSampling ? .colorPicking : .colorPick, lang))
                         .font(Theme.mono(10, weight: .bold))
                         .foregroundStyle(Theme.playFg)
                         .lineLimit(1)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 5)
                         .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .hoverDim()
                 .disabled(picker.isSampling)
-                Spacer(minLength: 0)
-                if recent.isEmpty {
-                    Text(L10n.t(.colorEmpty, lang))
-                        .font(Theme.mono(9))
-                        .foregroundStyle(Theme.textTertiary)
-                        .lineLimit(1)
-                } else {
-                    ForEach(recent) { item in
-                        swatch(item)
+            }
+            if colors.isEmpty {
+                Text(L10n.t(.colorEmpty, lang))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } else if Snapshot.active {
+                // ImageRenderer can't draw a ScrollView — flat rows in a render
+                VStack(spacing: 4) {
+                    ForEach(colors.prefix(max(1, visibleRows))) { color in
+                        colorRow(color)
                     }
                 }
+            } else {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 4) {
+                        ForEach(colors) { color in
+                            colorRow(color)
+                        }
+                    }
+                }
+                .frame(height: listHeight)
             }
         }
     }
 
-    /// A notation chip. Switching it also rewrites the newest color entry, so the
-    /// change is visible (and pastes right) instead of only applying to the next
-    /// pick — the format is what the user came here to control.
-    private func formatChip(_ option: ColorFormat) -> some View {
-        let active = option == format
+    /// One picked color: the swatch plus its three notations, each copyable.
+    private func colorRow(_ item: ClipboardItem) -> some View {
+        let parts = item.colorHex.flatMap(ColorFormatting.components(_:))
+        return HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 3)
+                .fill(ColorSwatch.color(item.colorHex) ?? Theme.rowBg)
+                .frame(width: 16, height: 16)
+                // a white swatch would vanish on the light theme
+                .overlay(RoundedRectangle(cornerRadius: 3)
+                    .stroke(Theme.controlStroke, lineWidth: 1))
+            if let parts {
+                ForEach(ColorFormat.allCases) { format in
+                    valueButton(item: item, format: format, parts: parts)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 4)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 5))
+    }
+
+    private func valueButton(
+        item: ClipboardItem, format: ColorFormat, parts: (r: Int, g: Int, b: Int)
+    ) -> some View {
+        let text = ColorFormatting.string(format, r: parts.r, g: parts.g, b: parts.b)
+        // rgb/hsl are long; the row drops the spaces so all three fit the panel
+        let compact = text.replacingOccurrences(of: ", ", with: ",")
+        let key = "\(item.id)-\(format.rawValue)"
+        let isCopied = copiedKey == key
         return Button {
-            formatRaw = option.rawValue
-            picker.reformatLatest()
+            picker.copy(text: text, hex: item.colorHex ?? "")
+            copiedKey = key
+            Task {
+                try? await Task.sleep(for: .seconds(1))
+                if copiedKey == key { copiedKey = nil }
+            }
         } label: {
-            Text(option.label)
+            Text(isCopied ? L10n.t(.ocrCopied, lang) : compact)
                 .font(Theme.mono(9))
-                .foregroundStyle(active ? Theme.textPrimary : Theme.textTertiary)
-                .padding(.horizontal, 6)
+                .foregroundStyle(isCopied ? Theme.accentGreen : Theme.listText)
+                .lineLimit(1)
+                .fixedSize()
+                .padding(.horizontal, 5)
                 .padding(.vertical, 3)
-                .background(active ? Theme.chipBg : .clear, in: RoundedRectangle(cornerRadius: 4))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .hoverHighlight(4)
     }
-
-    /// One recent color. Clicking it puts that color back on the pasteboard in
-    /// the CURRENT notation — the same "click a row to copy it" rule the
-    /// clipboard shelf follows.
-    private func swatch(_ item: ClipboardItem) -> some View {
-        Button {
-            if let hex = item.colorHex { picker.copy(hex: hex) }
-        } label: {
-            RoundedRectangle(cornerRadius: 3)
-                .fill(ColorSwatch.color(item.colorHex) ?? Theme.rowBg)
-                .frame(width: 18, height: 18)
-                // a white swatch on the light theme would otherwise vanish
-                .overlay(RoundedRectangle(cornerRadius: 3).stroke(Theme.controlStroke, lineWidth: 1))
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .hoverDim()
-        .help(item.text)
-    }
 }
 
-/// Hex string → SwiftUI color, shared by the module strip and the clipboard row.
+/// Hex string → SwiftUI color, shared by the module list and the clipboard row.
 enum ColorSwatch {
     static func color(_ hex: String?) -> Color? {
         guard let hex, let parts = ColorFormatting.components(hex) else { return nil }

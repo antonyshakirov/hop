@@ -40,6 +40,10 @@ struct PanelView: View {
     @AppStorage(Thresholds.battRedKey) private var battRed = Thresholds.battRedDefault
 
     @AppStorage(ClipboardController.maxItemsKey) private var clipboardMax = ClipboardController.defaultMaxItems
+    @AppStorage(ClipboardController.maxColorsKey) private var colorMax =
+        ClipboardController.defaultMaxColors
+    @AppStorage(ClipboardController.colorRowsKey) private var colorVisibleRows =
+        ClipboardController.defaultColorRows
     @AppStorage(ClipboardController.visibleRowsKey) private var clipboardVisibleRows = ClipboardController.defaultVisibleRows
     @AppStorage(TrackerController.visibleRowsKey) private var trackerVisibleRows = TrackerController.defaultVisibleRows
     @AppStorage(TodosController.visibleRowsKey) private var todosVisibleRows = TodosController.defaultVisibleRows
@@ -2562,7 +2566,8 @@ struct PanelView: View {
                 .id(model.themeVersion)
         case "ocr":
             ScreenTextView(reader: model.screenText, lang: lang,
-                           closePanel: { model.closePanel?() })
+                           closePanel: { model.closePanel?() },
+                           openWindow: { model.openScreenTextWindow?() })
                 .id(model.themeVersion)
         case "archive":
             ArchiveView(archive: model.archive, lang: lang,
@@ -3414,6 +3419,11 @@ struct PanelView: View {
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
+                settingsSectionHeader(t(.colorLabel))
+                colorSettings
+            }
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            VStack(spacing: 14) {
                 settingsSectionHeader(t(.trackerLabel))
                 visibleRowsSetting(stored: $trackerVisibleRows)
             }
@@ -3436,6 +3446,28 @@ struct PanelView: View {
             VStack(spacing: 14) {
                 settingsSectionHeader(t(.windowsLabel))
                 windowsSettings
+            }
+        }
+    }
+
+    /// The eyedropper's list is a slice of the clipboard history, so it carries
+    /// the same two knobs the clipboard has: how many colours to keep and how
+    /// many rows to show before scrolling (Anton, 2026-07-25).
+    private var colorSettings: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Text(t(.colorLimit))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                NumericField(value: $colorMax, range: 3...100)
+            }
+            HStack {
+                Text(t(.clipVisibleRows))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                NumericField(value: $colorVisibleRows, range: 1...10)
             }
         }
     }

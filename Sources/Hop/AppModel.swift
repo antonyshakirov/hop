@@ -57,6 +57,9 @@ final class AppModel: ObservableObject {
     /// Open the standalone archive window — a drop target that survives a drag,
     /// which the panel's popover cannot be.
     var openArchiveWindow: (() -> Void)?
+    /// Open the recognition window: where a picture is dropped or pasted, and
+    /// where the recognized text is shown.
+    var openScreenTextWindow: (() -> Void)?
     /// Open the standalone "about" window.
     var openAboutWindow: (() -> Void)?
     /// Open the torrent add sheet (file selection + destination) for a source.
@@ -78,6 +81,9 @@ final class AppModel: ObservableObject {
     init() {
         colorPicker = ColorPickerController(clipboard: clipboard)
         screenText = ScreenTextController(clipboard: clipboard)
+        // a finished recognition brings its window forward: the text has to be
+        // visible, not just quietly filed away
+        screenText.onResult = { [weak self] in self?.openScreenTextWindow?() }
         Self.sharedKeepAwake = keepAwake
         forwarders.append(engine.objectWillChange.sink { [weak self] in
             self?.objectWillChange.send()

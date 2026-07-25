@@ -1,0 +1,152 @@
+import SwiftUI
+import UniformTypeIdentifiers
+
+/// The recognition window: where the text ends up, and the second way to feed
+/// the module — drop a picture or paste one (⌘V), instead of framing the screen.
+/// Seeing the result matters (Anton, 2026-07-25): a silent copy into the
+/// clipboard history left no sign that anything had happened.
+struct ScreenTextWindowView: View {
+    @EnvironmentObject var model: AppModel
+    @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
+    @State private var targeted = false
+    @State private var copied = false
+
+    private var lang: AppLanguage { L10n.resolve(languageRaw) }
+    private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
+    private var reader: ScreenTextController { model.screenText }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            dropZone
+            if reader.recognized.isEmpty {
+                Text(t(.ocrWindowEmpty))
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textTertiary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 18)
+            } else {
+                resultEditor
+            }
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Theme.panelBackground)
+        .id(model.themeVersion)
+    }
+
+    /// Both feeds in one place: the crosshair for the screen, the zone for a
+    /// picture that already exists.
+    private var dropZone: some View {
+        VStack(spacing: 8) {
+            Text(t(.ocrWindowDrop))
+                .font(Theme.mono(11))
+                .foregroundStyle(targeted ? Theme.editing : Theme.textSecondary)
+                .multilineTextAlignment(.center)
+            HStack(spacing: 10) {
+                Button {
+                    reader.capture()
+                } label: {
+                    Label(t(.ocrRead), systemImage: "viewfinder")
+                        .font(Theme.mono(10, weight: .bold))
+                        .foregroundStyle(Theme.playFg)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverDim()
+                .disabled(reader.isBusy)
+                Button {
+                    reader.recognizeFromPasteboard()
+                } label: {
+                    Label(t(.ocrPaste), systemImage: "doc.on.clipboard")
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.textSecondary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 7))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverDim()
+                .disabled(reader.isBusy)
+            }
+            if let status {
+                Text(status)
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 22)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(targeted ? Theme.editing : Theme.divider,
+                              style: StrokeStyle(lineWidth: 1, dash: targeted ? [] : [5, 4]))
+        )
+        .contentShape(Rectangle())
+        .snapshotAwareDrop(of: [.fileURL, .image], isTargeted: $targeted) { providers in
+            Task {
+                for provider in providers {
+                    if let url = await DroppedFiles.url(from: provider) {
+                        reader.recognize(imageAt: url)
+                        return
+                    }
+                }
+            }
+            return true
+        }
+    }
+
+    /// The text itself, selectable and editable — copy a line or fix a stray
+    /// character before taking it somewhere.
+    private var resultEditor: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            TextEditor(text: Binding(
+                get: { reader.recognized },
+                set: { reader.editRecognized($0) }))
+                .font(Theme.mono(11))
+                .scrollContentBackground(.hidden)
+                .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
+                .frame(minHeight: 160)
+            HStack(spacing: 10) {
+                Text(t(.ocrWindowInHistory))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                Spacer()
+                Button {
+                    reader.copyRecognized()
+                    copied = true
+                    Task {
+                        try? await Task.sleep(for: .seconds(1.5))
+                        copied = false
+                    }
+                } label: {
+                    Text(copied ? t(.ocrCopied) : t(.copyLabel))
+                        .font(Theme.mono(10, weight: .bold))
+                        .foregroundStyle(copied ? Theme.accentGreen : Theme.playFg)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(copied ? Theme.chipBg : Theme.playBg,
+                                    in: RoundedRectangle(cornerRadius: 7))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverDim()
+            }
+        }
+    }
+
+    private var status: String? {
+        switch reader.state {
+        case .idle, .done: return nil
+        case .selecting: return t(.ocrSelecting)
+        case .reading: return t(.ocrReading)
+        case .empty: return t(.ocrNothing)
+        case .denied: return t(.ocrNeedsPermission)
+        case .failed: return t(.ocrFailed)
+        }
+    }
+}

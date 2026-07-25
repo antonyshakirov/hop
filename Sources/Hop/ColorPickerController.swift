@@ -49,25 +49,11 @@ final class ColorPickerController: ObservableObject {
         }
     }
 
-    /// Rewrite the top color entry into the current notation, so switching the
-    /// format is visible immediately (and pastes right) instead of only applying
-    /// to the NEXT pick.
-    func reformatLatest() {
-        guard let latest = clipboard.items.first(where: { $0.colorHex != nil }),
-              let hex = latest.colorHex,
-              let parts = ColorFormatting.components(hex) else { return }
-        clipboard.remember(
-            color: hex,
-            text: ColorFormatting.string(format, r: parts.r, g: parts.g, b: parts.b))
-    }
-
-    /// Put a color from the history back on the pasteboard in the CURRENT
-    /// notation — the swatch strip's tap action.
-    func copy(hex: String) {
-        guard let parts = ColorFormatting.components(hex) else { return }
-        clipboard.remember(
-            color: hex,
-            text: ColorFormatting.string(format, r: parts.r, g: parts.g, b: parts.b))
+    /// Copy ONE notation of a stored colour — the list shows all three and each
+    /// is its own button, so the click already says which form is wanted.
+    func copy(text: String, hex: String) {
+        guard !hex.isEmpty else { return }
+        clipboard.remember(color: hex, text: text)
     }
 
     /// The sampler reports a color in whatever space the screen uses; sRGB is the
