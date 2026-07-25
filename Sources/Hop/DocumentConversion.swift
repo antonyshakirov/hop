@@ -186,6 +186,11 @@ enum DocumentConversion {
         info.rightMargin = pageMargin
         info.horizontalPagination = .fit
         info.verticalPagination = .automatic
+        // AppKit centres the content of a PARTIAL page by default, so the last
+        // page of a document floated in the middle of the sheet with a huge gap
+        // above it. Text pages start at the top margin, like anything printed.
+        info.isVerticallyCentered = false
+        info.isHorizontallyCentered = false
         info.jobDisposition = .save
         info.dictionary()[NSPrintInfo.AttributeKey.jobSavingURL] = url
 

@@ -935,8 +935,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   so `PackFormat` has no rar case at all (asserted by a test).
 - Zip-slip: `ArchiveRules.isSafeEntryPath` rejects absolute and `..` entry paths
   (tested); staging inside the destination contains anything the tools let past.
+- **The drop target is a WINDOW**, not the panel: a popover closes the moment a
+  drag starts, pulling the target out from under the file (Anton, 2026-07-25).
+  The module's panel row is one line that opens the archive window, exactly like
+  the converter's; dropping onto the row still works and opens the window.
 - Jobs are in-memory rows (max 4, running rows never trimmed) with a
-  reveal-in-Finder action when done; snapshot flag `--archive` stages two.
+  reveal-in-Finder action when done; snapshot flags `--archive` (panel) and
+  `--window-archive` (the window itself) stage two.
 - `ToolInstaller` is the shared download-verify-install mechanism (one trust
   root, `toolPublicKeyBase64`, signed with `scripts/sign-tool.swift`);
   `TorrentEngineInstaller` is now a thin subclass naming the rqbit manifest, and
@@ -989,24 +994,36 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Honest limits stated in the UI (`convDocNote`) and the help, not hidden: Word
   columns, footnotes and headers are lost; PDF → md is text extraction with
   heading guesses, not a faithful conversion.
+- `isVerticallyCentered = false` on the print info: AppKit centres a PARTIAL
+  page by default, which left the last page of a document floating in the middle
+  of the sheet. Pages start at the top margin, like anything printed.
+- The capability table lists what each category ACCEPTS and what it produces —
+  and nothing else: the "what we cannot do" line is gone (Anton, 2026-07-25).
 - Dev entry point (DEBUG only, like the torrent self-test):
   `Hop --doc-selftest <source> <pdf|md|docx> <outDir>`.
 
 ### Keyboard lock (cleaning mode)
 
-- Module key `"keyboard"`, visible by default. One button and every key stops
-  doing anything, so the keyboard can be wiped without shutting the Mac down or
-  closing the lid. A full-screen cover (screen-saver level, all spaces) states
-  what is happening, counts down, and carries the only way out.
+- Module key `"keyboard"`, title `keylockLabel` ("keyboard lock" — the name says
+  what it does, Anton 2026-07-25). Two short lines in the panel: name + the three
+  durations, then the lock/unlock button (and the live countdown while it runs).
+  A full-screen cover states what is happening and carries a way out.
 - The keys are swallowed by a `CGEventTap` (session tap, head-insert) over
   keyDown, keyUp, flagsChanged AND `NX_SYSDEFINED` (14) — the brightness/volume/
   media row is not "keys" to macOS and would otherwise keep firing. Events are
   DROPPED, never inspected. `tapDisabledByTimeout/ByUserInput` re-arms the tap
   rather than leaving the keyboard half-locked.
-- Way out: the MOUSE (the cover's done button) or the timer — 30 s / 1 min /
-  5 min, `keyboardLockDuration`, default 1 min. A keyboard shortcut would be
-  exactly the thing that is switched off. The power button and Touch ID stay
-  alive; macOS reserves them.
+- Way out, all by mouse: the cover's done button, the module's own unlock
+  button, OR simply opening the panel — reaching for Hop while the keys are dead
+  IS the ask to release them. Plus the timer: 30 s / 1 min / 5 min
+  (`keyboardLockDuration`, default 1 min). A keyboard shortcut would be exactly
+  the thing that is switched off. The power button and Touch ID stay alive.
+- **The menu bar says so**: while locked, the star is REPLACED by a keyboard
+  glyph — a corner dot would be too quiet for a state that stops the whole
+  keyboard, and it outranks the finished bell. Unlocking plays the
+  keep-awake "off" cue, so the release is audible without looking.
+- The cover sits at `.floating`, deliberately BELOW the menu bar: the mark up
+  there is the explanation for dead keys and must stay visible.
 - Permission: **Accessibility**, asked with `AXIsProcessTrustedWithOptions`
   BEFORE the lock — without it the tap silently never fires and the cover would
   promise a lock that isn't there. The module then offers the deep link.
@@ -1032,6 +1049,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   System Settings deep link only when the permission is NOT granted.
 - The same list, condensed, is a README section (all 18 languages).
 - Snapshot: `--about --permissions` (panel) renders the tab.
+
+### What's-new card (module checklist)
+
+- A release that introduces modules announces them as a CHECKLIST: one switch
+  per module, all OFF, plus save/hide. Nothing appears in the panel that was not
+  ticked (Anton, 2026-07-25) — the old single "enable" button pushed modules at
+  people who had not asked. Saving places the ticked modules on the FIRST space,
+  whichever space happens to be open, and hides the rest.
+- For an UPDATING user every module introduced in the release starts hidden
+  (`newInThisRelease`, one-shot `optInModulesSeeded`); a fresh install has no
+  expectations to violate, so only the permanently opt-in tools
+  (`optInModules`: eyedropper, screen text) stay hidden there.
+- The torrent card keeps its own two-step shape (opt-in, then follow-up
+  settings while the engine downloads); `FeatureAnnouncement.checklist`
+  picks which shape a card takes.
 
 ## Shared components
 

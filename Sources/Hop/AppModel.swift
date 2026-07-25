@@ -54,6 +54,9 @@ final class AppModel: ObservableObject {
     var openSettingsWindow: (() -> Void)?
     /// Open the standalone converter window.
     var openConverterWindow: (() -> Void)?
+    /// Open the standalone archive window — a drop target that survives a drag,
+    /// which the panel's popover cannot be.
+    var openArchiveWindow: (() -> Void)?
     /// Open the standalone "about" window.
     var openAboutWindow: (() -> Void)?
     /// Open the torrent add sheet (file selection + destination) for a source.

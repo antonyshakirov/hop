@@ -130,6 +130,9 @@ struct PanelView: View {
     @State private var bannerEnabled =
         Snapshot.active && CommandLine.arguments.contains("--feature-banner-step2")
     @State private var bannerMakeDefault = false   // step-2 toggle: make Hop default handler
+    /// What the user ticked in a checklist card, per module key. Everything
+    /// starts off: a new module appears only when it is asked for.
+    @State private var bannerChoices: [String: Bool] = [:]
     // The tracker run the user has dismissed the 8-hour overrun banner for,
     // stored as `Date.timeIntervalSinceReferenceDate` (0 = none acknowledged).
     // Tied to the open interval's START, so a new run is a fresh episode.
@@ -346,6 +349,13 @@ struct PanelView: View {
         /// Whether "enable" opens a second step with the module's follow-up
         /// settings. Only torrents have one; everything else closes right away.
         var hasFollowUp = false
+        /// A line under the list for something that is NOT a module and needs no
+        /// switch (documents inside the converter).
+        var footnote: L10nKey?
+        /// The card lists its modules with a switch each and a save button, so
+        /// nothing appears in the panel that the user did not tick (Anton,
+        /// 2026-07-25). Without it the card is a single yes/no pitch.
+        var checklist = false
     }
     // New features are appended here as the app gains them; each shows a one-time
     // top-of-panel banner to users who updated into it.
@@ -353,8 +363,9 @@ struct PanelView: View {
         .init(id: "torrent", moduleKeys: ["torrent"],
               title: .featureTorrentTitle, body: .featureTorrentBody,
               note: .torrentEngineNote, hasFollowUp: true),
-        .init(id: "tools150", moduleKeys: ["color", "ocr"],
-              title: .featureToolsTitle, body: .featureToolsBody),
+        .init(id: "tools150", moduleKeys: ["archive", "keyboard", "color", "ocr"],
+              title: .featureModulesTitle, body: .featureModulesBody,
+              footnote: .featureModulesConverter, checklist: true),
     ]
 
     /// The first announcement the user hasn't acted on (enabled or hidden). In a
@@ -403,7 +414,9 @@ struct PanelView: View {
                         .foregroundStyle(Theme.textPrimary)
                     Spacer(minLength: 0)
                 }
-                if bannerEnabled {
+                if ann.checklist {
+                    bannerChecklist(ann)
+                } else if bannerEnabled {
                     bannerFollowUp(ann)
                 } else {
                     bannerOptIn(ann)
@@ -415,6 +428,91 @@ struct PanelView: View {
             .overlay(RoundedRectangle(cornerRadius: 10)
                 .stroke(Theme.accentGreen.opacity(0.35), lineWidth: 1))
         }
+    }
+
+    /// A release that brought several modules: each one gets a switch, all of
+    /// them start OFF, and only what the user ticks is placed in the panel —
+    /// nothing shows up on its own (Anton, 2026-07-25). Saving puts the ticked
+    /// ones on the FIRST space, whichever space happens to be open.
+    @ViewBuilder private func bannerChecklist(_ ann: FeatureAnnouncement) -> some View {
+        Text(t(ann.body))
+            .font(Theme.mono(10))
+            .foregroundStyle(Theme.textSecondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 5)
+        VStack(spacing: 7) {
+            ForEach(ann.moduleKeys, id: \.self) { key in
+                HStack(spacing: 8) {
+                    Image(systemName: moduleGlyph(key))
+                        .font(.system(size: 11))
+                        .foregroundStyle(Theme.textTertiary)
+                        .frame(width: 16)
+                    Text(moduleTitle(key))
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(1)
+                    Spacer(minLength: 8)
+                    Theme.MiniSwitch(isOn: Binding(
+                        get: { bannerChoices[key] ?? false },
+                        set: { bannerChoices[key] = $0 }))
+                }
+            }
+        }
+        .padding(.top, 10)
+        if let footnote = ann.footnote {
+            Text(t(footnote))
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 8)
+        }
+        HStack(spacing: 14) {
+            Spacer(minLength: 0)
+            Button {
+                markSeen(ann)
+            } label: {
+                HoverLabel(text: t(.featureHide), size: 10, color: Theme.textTertiary)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            Button {
+                saveModuleChoices(ann)
+            } label: {
+                Text(t(.featureSave))
+                    .font(Theme.mono(10, weight: .bold))
+                    .foregroundStyle(Theme.playFg)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+                    .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
+        }
+        .padding(.top, 12)
+    }
+
+    /// Ticked modules go onto the first space, unticked ones stay hidden (and
+    /// are moved out if an earlier version had placed them).
+    private func saveModuleChoices(_ ann: FeatureAnnouncement) {
+        let destination = tabsModel.tabs[0].id
+        for key in ann.moduleKeys {
+            if bannerChoices[key] == true {
+                placeModule(key, onTab: destination)
+            } else {
+                deactivateModule(key)   // no-op when it is already hidden
+            }
+        }
+        markSeen(ann)
+    }
+
+    /// The card is done with: remember it and let the @AppStorage mirrors
+    /// re-render the panel without it.
+    private func markSeen(_ ann: FeatureAnnouncement) {
+        UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
+        torrentFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.torrent")
+        toolsFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.tools150")
+        bannerEnabled = false
     }
 
     /// Step 1: the pitch, the price, and the decision.
@@ -2075,6 +2173,13 @@ struct PanelView: View {
     /// and is still handled by its legacy toggle below.
     private static let optInModules = ["color", "ocr"]
 
+    /// Modules INTRODUCED in this release. For someone updating, all of them
+    /// start hidden and are offered by the what's-new card — nothing appears in
+    /// the panel that was not ticked there (Anton, 2026-07-25). A fresh install
+    /// is a different story: it has no expectations to violate, so only the
+    /// `optInModules` above stay hidden there.
+    private static let newInThisRelease = ["archive", "keyboard", "color", "ocr"]
+
     private var moduleOrder: [String] {
         Self.normalizedOrder(moduleOrderRaw)
     }
@@ -2157,7 +2262,9 @@ struct PanelView: View {
     private static func seedOptInModules(_ model: inout PanelTabsModel) {
         let defaults = UserDefaults.standard
         guard !defaults.bool(forKey: SettingsKey.optInModulesSeeded) else { return }
-        deactivateOptInModules(&model)
+        for key in newInThisRelease where !model.inactive.contains(key) {
+            model.deactivate(module: key)
+        }
         defaults.set(true, forKey: SettingsKey.optInModulesSeeded)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
@@ -2458,7 +2565,8 @@ struct PanelView: View {
                            closePanel: { model.closePanel?() })
                 .id(model.themeVersion)
         case "archive":
-            ArchiveView(archive: model.archive, helper: model.archive.helper, lang: lang)
+            ArchiveView(archive: model.archive, lang: lang,
+                        openWindow: { model.openArchiveWindow?() })
                 .id(model.themeVersion)
         case "keyboard":
             KeyboardLockView(lock: model.keyboardLock, lang: lang,
@@ -3566,6 +3674,18 @@ struct PanelView: View {
             if moduleIsActive("keyboard") {
                 hotkeyRow(.keyboardLock, label: t(.keylockLabel))
             }
+        }
+    }
+
+    /// The icon a module is recognized by, for lists that name modules.
+    private func moduleGlyph(_ key: String) -> String {
+        switch key {
+        case "archive": return "archivebox"
+        case "keyboard": return "keyboard"
+        case "color": return "eyedropper"
+        case "ocr": return "text.viewfinder"
+        case "torrent": return "arrow.down.circle"
+        default: return "square.grid.2x2"
         }
     }
 

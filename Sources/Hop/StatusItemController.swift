@@ -311,6 +311,12 @@ final class StatusItemController: NSObject {
     }
 
     private func togglePopover(opening screen: PanelView.InitialScreen? = nil) {
+        // Reaching for Hop while the keyboard is locked IS the way out: the mark
+        // in the menu bar says why the keys do nothing, and opening the panel
+        // lets go of them (Anton, 2026-07-25). The unlock plays its own cue.
+        if model.keyboardLock.isLocked {
+            model.keyboardLock.unlock()
+        }
         if let screen {
             model.openTab = screen
         }
@@ -496,8 +502,16 @@ final class StatusItemController: NSObject {
             colored: colored
         ))
 
+        // A locked keyboard REPLACES the star with a keyboard glyph: the keys
+        // doing nothing needs an unmistakable explanation in the menu bar, and a
+        // corner dot would be too quiet for a state that stops the whole
+        // keyboard (Anton, 2026-07-25). It outranks the finished bell — the
+        // timer can wait, a locked keyboard cannot.
+        let keyboardLocked = model.keyboardLock.isLocked
         // template fast path ONLY when the calm star carries no decoration at all
-        if !composition.isEmpty {
+        if keyboardLocked {
+            button.image = MenuBarIcon.compose(composition, base: .symbol("keyboard.fill"))
+        } else if !composition.isEmpty {
             button.image = MenuBarIcon.compose(composition, base: finished ? .symbol(bell) : .dial)
         } else if finished {
             button.image = MenuBarIcon.compose(composition, base: .symbol(bell))

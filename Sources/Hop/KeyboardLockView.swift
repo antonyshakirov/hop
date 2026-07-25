@@ -1,22 +1,24 @@
 import SwiftUI
 
-/// Keyboard-lock module: the button that starts cleaning mode and the timer
-/// that ends it on its own.
+/// Keyboard-lock module: three durations and one button that locks or unlocks.
+/// Deliberately two short lines — it is a one-gesture module, not a panel.
 struct KeyboardLockView: View {
     @ObservedObject var lock: KeyboardLockController
     let lang: AppLanguage
-    /// The panel closes first — a popover would sit under the cover and steal
-    /// the click meant for "done".
+    /// The panel closes on lock — the cover takes over from there.
     var closePanel: () -> Void = {}
 
     @AppStorage(KeyboardLockController.durationKey) private var duration = 60
 
     var body: some View {
+        // Two short lines rather than one: the module name plus three chips plus
+        // a button does not fit a single row in a long language, and a truncated
+        // module name reads as a bug.
         VStack(spacing: 8) {
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 Image(systemName: "keyboard")
                     .font(.system(size: 12))
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(lock.isLocked ? Theme.editing : Theme.textSecondary)
                 Text(L10n.t(.keylockLabel, lang))
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
@@ -28,10 +30,14 @@ struct KeyboardLockView: View {
             }
             HStack(spacing: 8) {
                 Button {
-                    closePanel()
-                    lock.lock()
+                    if lock.isLocked {
+                        lock.unlock()
+                    } else {
+                        closePanel()
+                        lock.lock()
+                    }
                 } label: {
-                    Text(L10n.t(.keylockStart, lang))
+                    Text(L10n.t(lock.isLocked ? .keylockStop : .keylockStart, lang))
                         .font(Theme.mono(10, weight: .bold))
                         .foregroundStyle(Theme.playFg)
                         .lineLimit(1)
@@ -54,18 +60,19 @@ struct KeyboardLockView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                } else {
-                    Text(L10n.t(.keylockHint, lang))
-                        .font(Theme.mono(9))
-                        .foregroundStyle(Theme.textTertiary)
-                        .lineLimit(1)
+                } else if lock.isLocked, let remaining = lock.remaining {
+                    Text(timeText(remaining))
+                        .font(Theme.mono(11, weight: .semibold))
+                        .foregroundStyle(Theme.editing)
+                        .monospacedDigit()
                 }
             }
         }
     }
 
     /// How long cleaning mode lasts before it lets go by itself. The cover's
-    /// button always works too — the timer is the safety net, not the only exit.
+    /// button and this row both unlock at any moment — the timer is the safety
+    /// net, not the only exit.
     private func durationChip(_ seconds: Int) -> some View {
         let active = seconds == duration
         return Button {
@@ -84,10 +91,14 @@ struct KeyboardLockView: View {
     }
 
     /// "30s" / "1m" / "5m" — the unit letters come from the app's own short
-    /// minute label so they stay readable in every language.
+    /// labels so they stay readable in every language.
     private func label(_ seconds: Int) -> String {
         seconds < 60
             ? "\(seconds)\(L10n.t(.keylockSecondsUnit, lang))"
             : "\(seconds / 60)\(L10n.t(.minUnit, lang))"
+    }
+
+    private func timeText(_ seconds: Int) -> String {
+        String(format: "%d:%02d", seconds / 60, seconds % 60)
     }
 }

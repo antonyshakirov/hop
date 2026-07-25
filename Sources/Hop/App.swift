@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindow: NSWindow?
     private var settingsWindow: NSWindow?
     private var converterWindow: ConverterWindow?
+    private var archiveWindow: NSWindow?
     private var aboutWindow: NSWindow?
     private var torrentAddWindow: NSWindow?
     private var quitWindow: NSWindow?
@@ -125,6 +126,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openConverterWindow = { [weak self] in
             self?.showConverterWindow()
         }
+        model.openArchiveWindow = { [weak self] in
+            self?.showArchiveWindow()
+        }
         model.openAboutWindow = { [weak self] in
             self?.showAboutWindow()
         }
@@ -141,8 +145,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // orderFrontRegardless: plain orderFront only reorders within the
             // app's own layer while another app is active — the window came
             // back UNDER the frontmost app instead of on top with the panel.
-            let ours = Set([converterWindow, settingsWindow, aboutWindow, torrentAddWindow]
-                .compactMap { $0 })
+            let ours = Set([converterWindow, settingsWindow, aboutWindow, torrentAddWindow,
+                            archiveWindow].compactMap { $0 })
             // Raise them WITHOUT reshuffling: walk the current front-to-back
             // order in reverse (back first) so each orderFrontRegardless lands
             // the windows on top in the SAME relative order the user arranged.
@@ -510,6 +514,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         converterWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         aboutWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        archiveWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         torrentAddWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         quitWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         model.themeVersion &+= 1 // redraw everything, including views with unchanged inputs
@@ -617,6 +622,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.adjustConverterHeight()
         }
+    }
+
+    /// The archive window: a drop target that stays put while a file is being
+    /// dragged onto it — the panel's popover closes the moment a drag starts, so
+    /// the module's row only opens this (Anton, 2026-07-25).
+    private func showArchiveWindow() {
+        model.activity.note()
+        if archiveWindow == nil {
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 480, height: 360),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered, defer: false
+            )
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.isMovableByWindowBackground = false
+            window.isReleasedWhenClosed = false
+            let host = NSHostingController(
+                rootView: ArchiveWindowView().environmentObject(model)
+            )
+            host.sizingOptions = []
+            window.contentViewController = host
+            window.contentMinSize = NSSize(width: 420, height: 260)
+            archiveWindow = window
+        }
+        guard let window = archiveWindow else { return }
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        if !window.isVisible {
+            window.setContentSize(NSSize(width: 480, height: 360))
+            window.center()
+        }
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
     }
 
     private func showOnboarding() {

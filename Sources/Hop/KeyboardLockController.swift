@@ -71,6 +71,9 @@ final class KeyboardLockController: ObservableObject {
         remaining = nil
         isLocked = false
         hideOverlay()
+        // a short cue: with the cover gone and the keys back, the sound is what
+        // says "you can type again" without looking anywhere
+        Sounds.awakeCue(on: false)
     }
 
     private func tick() {
@@ -154,7 +157,10 @@ final class KeyboardLockController: ObservableObject {
             styleMask: [.borderless],
             backing: .buffered,
             defer: false)
-        window.level = .screenSaver
+        // BELOW the menu bar on purpose: the locked-keyboard mark in the menu
+        // bar has to stay visible, since that is what tells you why the keys do
+        // nothing (Anton, 2026-07-25).
+        window.level = .floating
         window.isOpaque = false
         window.backgroundColor = .clear
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]

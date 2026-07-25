@@ -336,6 +336,9 @@ enum Snapshot {
             content = AnyView(PanelView(initial: .about, standaloneAbout: true).environmentObject(model))
         } else if args.contains("--window-converter") {
             content = AnyView(ConvertWindowView().environmentObject(model))
+        } else if args.contains("--window-archive") {
+            content = AnyView(ArchiveWindowView().environmentObject(model)
+                .frame(width: 480))
         } else if args.contains("--torrent-addsheet") {
             // Standalone render of the add sheet: the source here is a stand-in —
             // TorrentAddSheet swaps in demoAddSheetPending() under Snapshot.active
