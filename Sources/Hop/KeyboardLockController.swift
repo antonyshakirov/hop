@@ -13,7 +13,10 @@ import SwiftUI
 @MainActor
 final class KeyboardLockController: ObservableObject {
     static let durationKey = "keyboardLockDuration"   // seconds
-    static let durations: [Int] = [60, 300, 900]
+    /// Offered lengths, plus 0 — "until I say so" (Anton, 2026-07-25). A zero
+    /// runs with no timer at all: only the cover's button, the module's own
+    /// button or opening the panel lets the keys go.
+    static let durations: [Int] = [60, 300, 900, 0]
 
     @Published private(set) var isLocked = false
     /// Seconds left before the automatic unlock; nil when the timer is off.
@@ -28,8 +31,11 @@ final class KeyboardLockController: ObservableObject {
 
     var duration: Int {
         get {
-            let stored = UserDefaults.standard.integer(forKey: Self.durationKey)
-            return Self.durations.contains(stored) ? stored : 60
+            // 0 is a valid choice (endless), so a missing key is told apart from
+            // a stored zero by the object, not by the integer
+            guard let stored = UserDefaults.standard.object(forKey: Self.durationKey) as? Int,
+                  Self.durations.contains(stored) else { return 60 }
+            return stored
         }
         set { UserDefaults.standard.set(newValue, forKey: Self.durationKey) }
     }
@@ -58,8 +64,10 @@ final class KeyboardLockController: ObservableObject {
         needsPermission = false
         guard installTap() else { return }
         isLocked = true
-        remaining = duration
+        remaining = duration > 0 ? duration : nil
         showOverlay()
+        // no ticker for an endless lock: there is nothing to count down
+        guard remaining != nil else { return }
         let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
         }

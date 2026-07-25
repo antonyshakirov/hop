@@ -81,9 +81,10 @@ struct KeyboardLockView: View {
         .hoverHighlight(5)
     }
 
-    /// "1m" / "5m" / "15m" in the app's own short minute label.
+    /// "1m" / "5m" / "15m", and ∞ for the lock that waits for the button —
+    /// the same symbol keep-awake uses for "no limit".
     private func label(_ seconds: Int) -> String {
-        "\(seconds / 60)\(L10n.t(.minUnit, lang))"
+        seconds == 0 ? "∞" : "\(seconds / 60)\(L10n.t(.minUnit, lang))"
     }
 
     private func timeText(_ seconds: Int) -> String {
