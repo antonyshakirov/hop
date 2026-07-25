@@ -2023,7 +2023,9 @@ struct PanelView: View {
                 Image(systemName: "doc.zipper")
                     .font(.system(size: 12))
                     .foregroundStyle(dropTargeted ? Theme.editing : Theme.textSecondary)
-                Text("\(t(.convertLabel)) · \(t(.convCompressOnly))")
+                // just the module name: the converter does more than compress
+                // now (documents change format), so the old qualifier would lie
+                Text(t(.convertLabel))
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
                 Spacer()

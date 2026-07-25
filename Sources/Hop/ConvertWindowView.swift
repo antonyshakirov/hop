@@ -159,9 +159,10 @@ struct ConvertWindowView: View {
     private var capabilities: some View {
         VStack(alignment: .leading, spacing: 8) {
             capLine(t(.convCanImages), "JPEG · PNG · HEIC · TIFF · GIF · RAW", imageOutputs)
-            capLine("PDF", "", t(.convCompressOnly))
+            capLine("PDF", "", "\(t(.convCompressOnly)) · MD")
             capLine(t(.convCanVideo), "MP4 · MOV · M4V", "MP4 / MOV · \(t(.convCompressOnly))")
             capLine(t(.convCanAudio), "MP3 · WAV · FLAC · AAC", "M4A")
+            capLine(t(.convCanDocuments), "MD · DOCX · DOC · RTF · TXT", "PDF · MD · DOCX")
             // limitations go right in the table, not only in the help:
             // the user should not discover them by trial and error
             Text(t(.convCantLine))
