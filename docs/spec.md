@@ -907,8 +907,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Archive (drag & drop)
 
-- Module key `"archive"`, visible by default (an everyday chore, unlike the two
-  opt-in tools). One drop zone does both jobs: a drop of NOTHING BUT archives
+- Module key `"archive"`, title `archiveLabel` ("file archives"), with the
+  formats spelled out beside it in the row — "(zip · rar · 7z…)" — so the module
+  reads as ZIP files rather than "putting something away in an archive" (Anton,
+  2026-07-25). Format names are identical in every language and stay untranslated,
+  like the converter's capability table. One drop zone does both jobs: a drop of NOTHING BUT archives
   unpacks each one; any other drop — files, folders, a mixed set — packs the
   whole drop into ONE archive. Dragging several things together reads as "make
   this one archive", so a mixed drop packs rather than half-unpacking.
@@ -1013,6 +1016,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   media row is not "keys" to macOS and would otherwise keep firing. Events are
   DROPPED, never inspected. `tapDisabledByTimeout/ByUserInput` re-arms the tap
   rather than leaving the keyboard half-locked.
+- The POWER key is never swallowed: holding it is the emergency way out of
+  anything, and a cleaning mode must never be why a Mac cannot be shut down. A
+  long hold never reaches a tap anyway (hardware), so the tap only has to let
+  the short press through — it checks `NSEvent.subtype == .powerOff` on the
+  system-defined class.
 - Way out, all by mouse: the cover's done button, the module's own unlock
   button, OR simply opening the panel — reaching for Hop while the keys are dead
   IS the ask to release them. Plus the timer: 30 s / 1 min / 5 min

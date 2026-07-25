@@ -25,6 +25,14 @@ struct ArchiveView: View {
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
                     .lineLimit(1)
+                // the formats say what KIND of archive this is: zip files, not
+                // "put it away in my archive" (Anton, 2026-07-25). Format names
+                // are the same in every language, so they are not translated —
+                // the converter's capability table does the same.
+                Text("(zip · rar · 7z…)")
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .lineLimit(1)
                 Spacer()
                 // a job that is still running keeps its state visible without
                 // opening the window

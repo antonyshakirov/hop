@@ -119,6 +119,15 @@ final class KeyboardLockController: ObservableObject {
                 }
                 return Unmanaged.passUnretained(event)
             }
+            // The power key is LET THROUGH (Anton, 2026-07-25): holding it is the
+            // emergency way out of anything, and a cleaning mode must never be
+            // the reason a Mac cannot be shut down. (A long hold is handled in
+            // hardware and reaches no tap at all — this keeps the short press
+            // honest too.)
+            if type.rawValue == 14, let nsEvent = NSEvent(cgEvent: event),
+               nsEvent.subtype == .powerOff {
+                return Unmanaged.passUnretained(event)
+            }
             return nil   // swallowed: the key does nothing at all
         }
         guard let tap = CGEvent.tapCreate(
