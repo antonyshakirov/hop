@@ -11,6 +11,9 @@ struct ArchiveWindowView: View {
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
     @AppStorage(ArchiveController.packFormatKey) private var packFormatRaw = PackFormat.zip.rawValue
     @State private var targeted = false
+    /// Mirrors the real Launch Services state, read when the window opens: the
+    /// opener may have been changed in Finder since.
+    @State private var defaultHandler = false
 
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -28,6 +31,7 @@ struct ArchiveWindowView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Theme.panelBackground)
+        .onAppear { defaultHandler = ArchiveController.isDefaultHandler }
     }
 
     private var content: some View {
@@ -45,6 +49,21 @@ struct ArchiveWindowView: View {
                             packFormatRaw = option.rawValue
                         }
                     }
+                }
+                // Being the opener is independent of the panel: a hidden module
+                // still unpacks a double-clicked archive (Anton, 2026-07-25).
+                HStack(spacing: 8) {
+                    Text(t(.archiveMakeDefault))
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 8)
+                    Theme.MiniSwitch(isOn: Binding(
+                        get: { defaultHandler },
+                        set: { on in
+                            defaultHandler = on
+                            ArchiveController.setDefaultHandler(on)
+                        }))
                 }
                 if !model.archive.jobs.isEmpty {
                     VStack(spacing: 6) {

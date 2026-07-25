@@ -792,6 +792,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Only ever called past launch and outside safe mode, so touching the model
     /// and showing UI here is safe.
     private func processOpen(_ url: URL) {
+        // An archive opened from Finder is unpacked straight away — even with the
+        // module hidden from the panel, being the opener has to keep working
+        // (Anton, 2026-07-25). The window comes up so the result is visible.
+        if url.isFileURL,
+           ArchiveRules.format(ofFileNamed: url.lastPathComponent) != nil {
+            model.archive.handleDrop([url])
+            showArchiveWindow()
+            return
+        }
         let source: TorrentController.AddSource
         if url.isFileURL {
             guard url.pathExtension.lowercased() == "torrent" else { return }

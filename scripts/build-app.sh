@@ -32,7 +32,18 @@ if [[ $INSTALL == 1 && $DEV == 0 ]]; then
     fi
 fi
 
-swift build -c release
+# Dev installs build DEBUG: the release build is a whole-module compile of the
+# entire app and takes ~25 minutes on this machine, which is no way to look at a
+# change (Anton, 2026-07-25). A debug build of the same tree takes seconds and
+# behaves identically for everything except raw speed. Releases — and anything
+# that is not --dev — stay optimized. HOP_RELEASE_BUILD=1 forces the slow path
+# for a dev bundle when the optimized binary is what needs testing.
+if [[ $DEV == 1 && "${HOP_RELEASE_BUILD:-}" != "1" ]]; then
+    CONFIGURATION="debug"
+else
+    CONFIGURATION="release"
+fi
+swift build -c "$CONFIGURATION"
 
 if [[ ! -f assets/AppIcon.icns ]]; then
     ./scripts/make-icon.sh
@@ -46,7 +57,7 @@ fi
 APP="dist/$APP_NAME.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp .build/release/Hop "$APP/Contents/MacOS/Hop"
+cp ".build/$CONFIGURATION/Hop" "$APP/Contents/MacOS/Hop"
 cp scripts/Info.plist "$APP/Contents/Info.plist"
 cp assets/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 if [[ $DEV == 1 ]]; then
@@ -63,7 +74,7 @@ if ! security find-certificate -c "$IDENTITY" >/dev/null 2>&1; then
 fi
 codesign --force --sign "$IDENTITY" "$APP"
 
-echo "done: $APP"
+echo "done: $APP ($CONFIGURATION)"
 
 if [[ $INSTALL == 1 ]]; then
     TARGET="/Applications/$APP_NAME.app"

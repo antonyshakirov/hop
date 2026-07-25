@@ -27,6 +27,8 @@ final class KeyboardLockController: ObservableObject {
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
     private var ticker: Timer?
+    /// When the current Escape hold began (nil when the key is up).
+    private var escapeHoldStart: Date?
     private var overlay: NSWindow?
 
     var duration: Int {
@@ -82,6 +84,7 @@ final class KeyboardLockController: ObservableObject {
         ticker = nil
         remaining = nil
         isLocked = false
+        escapeHoldStart = nil
         hideOverlay()
         // a short cue: with the cover gone and the keys back, the sound is what
         // says "you can type again" without looking anywhere
@@ -119,15 +122,23 @@ final class KeyboardLockController: ObservableObject {
                 }
                 return Unmanaged.passUnretained(event)
             }
-            // The power key is LET THROUGH (Anton, 2026-07-25): holding it is the
-            // emergency way out of anything, and a cleaning mode must never be
-            // the reason a Mac cannot be shut down. (A long hold is handled in
-            // hardware and reaches no tap at all — this keeps the short press
-            // honest too.)
-            if type.rawValue == 14, let nsEvent = NSEvent(cgEvent: event),
-               nsEvent.subtype == .powerOff {
-                return Unmanaged.passUnretained(event)
+            // Escape held down is the keyboard's own way out (Anton, 2026-07-25):
+            // if the mouse is gone or the cover is somehow unreachable, holding
+            // it for a few seconds releases the keys. The key itself is still
+            // swallowed — nothing reaches the app underneath.
+            if let userInfo, type == .keyDown || type == .keyUp {
+                let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+                if keyCode == 53 {   // kVK_Escape
+                    let controller = Unmanaged<KeyboardLockController>
+                        .fromOpaque(userInfo).takeUnretainedValue()
+                    MainActor.assumeIsolated {
+                        controller.noteEscape(down: type == .keyDown)
+                    }
+                }
             }
+            // A short press of the power key is swallowed like everything else;
+            // the emergency LONG hold is handled in hardware and never reaches
+            // a tap, so a Mac can always still be forced off (Anton, 2026-07-25).
             return nil   // swallowed: the key does nothing at all
         }
         guard let tap = CGEvent.tapCreate(
@@ -147,6 +158,27 @@ final class KeyboardLockController: ObservableObject {
         self.tap = tap
         runLoopSource = source
         return true
+    }
+
+    /// Escape held for `escapeHoldSeconds` unlocks. Auto-repeat delivers a
+    /// stream of keyDowns while a key is held, so the hold is measured from the
+    /// first one; releasing the key resets it.
+    private static let escapeHoldSeconds: TimeInterval = 3
+
+    private func noteEscape(down: Bool) {
+        guard isLocked else { return }
+        guard down else {
+            escapeHoldStart = nil
+            return
+        }
+        guard let start = escapeHoldStart else {
+            escapeHoldStart = Date()
+            return
+        }
+        if Date().timeIntervalSince(start) >= Self.escapeHoldSeconds {
+            escapeHoldStart = nil
+            unlock()
+        }
     }
 
     private func reenableTap() {

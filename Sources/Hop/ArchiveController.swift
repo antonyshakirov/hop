@@ -1,4 +1,5 @@
 import AppKit
+import CoreServices
 import HopCore
 
 /// Drag & drop archiving: drop an archive and it is unpacked NEXT TO the
@@ -54,6 +55,35 @@ final class ArchiveController: ObservableObject {
     var packFormat: PackFormat {
         get { PackFormat(rawValue: UserDefaults.standard.string(forKey: Self.packFormatKey) ?? "") ?? .zip }
         set { UserDefaults.standard.set(newValue.rawValue, forKey: Self.packFormatKey) }
+    }
+
+    /// Content types Hop offers to open. Claiming them makes a double-clicked
+    /// archive unpack through Hop even when the module is hidden from the panel
+    /// (Anton, 2026-07-25) — the same deal the torrent module offers.
+    static let handledContentTypes = [
+        "public.zip-archive", "com.rarlab.rar-archive", "org.7-zip.7-zip-archive",
+        "public.tar-archive", "org.gnu.gnu-zip-archive", "org.gnu.gnu-zip-tar-archive",
+        "public.bzip2-archive", "org.tukaani.xz-archive",
+    ]
+    static let defaultHandlerKey = "archiveDefaultHandler"
+
+    /// Whether Hop is currently the opener for zip files — the one type every
+    /// Mac has an opinion about, so it stands for the whole set.
+    static var isDefaultHandler: Bool {
+        let current = LSCopyDefaultRoleHandlerForContentType(
+            "public.zip-archive" as CFString, .all)?.takeRetainedValue() as String?
+        return current?.caseInsensitiveCompare(Bundle.storageIdentifier) == .orderedSame
+    }
+
+    /// Claim (or release) every archive type at once. Releasing hands them back
+    /// to macOS's own choice — Archive Utility.
+    static func setDefaultHandler(_ on: Bool) {
+        let bundleID = on ? Bundle.storageIdentifier : "com.apple.archiveutility"
+        for type in handledContentTypes {
+            LSSetDefaultRoleHandlerForContentType(
+                type as CFString, .all, bundleID as CFString)
+        }
+        UserDefaults.standard.set(on, forKey: defaultHandlerKey)
     }
 
     /// The one entry point: everything dropped on the module lands here.
