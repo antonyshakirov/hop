@@ -149,7 +149,7 @@ final class KeyboardLockController: ObservableObject {
     /// (screen-saver level) and follows to whichever space is in front.
     private func showOverlay() {
         guard overlay == nil, let screen = NSScreen.main else { return }
-        let window = NSWindow(
+        let window = KeyboardLockWindow(
             contentRect: screen.frame,
             styleMask: [.borderless],
             backing: .buffered,
@@ -161,6 +161,13 @@ final class KeyboardLockController: ObservableObject {
         window.ignoresMouseEvents = false
         window.contentView = NSHostingView(rootView: KeyboardLockOverlay(lock: self))
         window.setFrame(screen.frame, display: true)
+        // The way out is a CLICK, so the cover must be able to take one: a
+        // borderless window refuses to become key by default, and Hop is an
+        // accessory app that is not frontmost. Without both of these the done
+        // button could ignore the first click — with the keyboard locked, that
+        // would leave the timer as the only escape.
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
         window.orderFrontRegardless()
         overlay = window
     }
@@ -169,6 +176,13 @@ final class KeyboardLockController: ObservableObject {
         overlay?.orderOut(nil)
         overlay = nil
     }
+}
+
+/// A borderless window that CAN become key — the cover's button is the way out
+/// of a locked keyboard, so it has to answer the very first click.
+private final class KeyboardLockWindow: NSWindow {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
 }
 
 /// The cover itself: what is happening, how long it lasts, and the one way out.
