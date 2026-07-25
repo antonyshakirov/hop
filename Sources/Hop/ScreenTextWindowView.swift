@@ -16,6 +16,13 @@ struct ScreenTextWindowView: View {
     private var reader: ScreenTextController { model.screenText }
 
     var body: some View {
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(Theme.panelBackground)
+            .id(model.themeVersion)
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 12) {
             dropZone
             // No result yet → the window is nothing but the plate; the text
@@ -25,11 +32,10 @@ struct ScreenTextWindowView: View {
             }
         }
         .padding(20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Theme.panelBackground)
-        .id(model.themeVersion)
-        // The window is exactly as tall as this: a plate with a gap under it
-        // reads as a window that failed to load something (Anton, 2026-07-26).
+        // The window is exactly as tall as THIS — the padded content, measured
+        // before the expanding frame. Measuring after it reads back the window's
+        // own height, which is how the plate kept a strip of empty space under
+        // it while the margin above stayed 20 (Anton, 2026-07-26).
         .background(
             GeometryReader { geo in
                 Color.clear
@@ -115,13 +121,24 @@ struct ScreenTextWindowView: View {
     /// character before taking it somewhere.
     private var resultEditor: some View {
         VStack(alignment: .leading, spacing: 8) {
-            TextEditor(text: Binding(
-                get: { reader.recognized },
-                set: { reader.editRecognized($0) }))
-                .font(Theme.mono(11))
-                .scrollContentBackground(.hidden)
-                .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
-                .frame(minHeight: 160)
+            // ImageRenderer draws a TextEditor as a yellow "not supported" block,
+            // so a render gets the same text as a plain, flat label instead.
+            if Snapshot.active {
+                Text(reader.recognized)
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.listText)
+                    .frame(maxWidth: .infinity, minHeight: 160, alignment: .topLeading)
+                    .padding(8)
+                    .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
+            } else {
+                TextEditor(text: Binding(
+                    get: { reader.recognized },
+                    set: { reader.editRecognized($0) }))
+                    .font(Theme.mono(11))
+                    .scrollContentBackground(.hidden)
+                    .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
+                    .frame(minHeight: 160)
+            }
             HStack(spacing: 10) {
                 Text(t(.ocrWindowInHistory))
                     .font(Theme.mono(9))

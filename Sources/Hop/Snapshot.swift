@@ -203,6 +203,17 @@ enum Snapshot {
             }
         }
 
+        // --keyboard: isolate the cleaning-mode row, the way --archive isolates
+        // the archive one — the marketing shot is about that single line.
+        let wantsKeyboard = args.contains("--keyboard")
+        if wantsKeyboard {
+            for key in ["showTimerModule", "showAwakeModule", "showClipboardModule",
+                        "showConvertModule", "showWindowsModule", "showSpeedtestModule",
+                        "showSystemModule", "showTrackerModule"] {
+                UserDefaults.standard.set(false, forKey: key)
+            }
+        }
+
         // --archive: isolate the archive module with a couple of settled rows,
         // so the drop zone, the format chips and the result rows render together.
         let wantsArchive = args.contains("--archive")
@@ -294,11 +305,25 @@ enum Snapshot {
                 .init(kind: .pack, name: "raw-shoot.tar.gz", state: .running),
             ])
         }
+        // The window shots need the queue as well: the button is the whole point
+        // of the module now, and an empty window would not show it.
+        if args.contains("--window-archive"), args.contains("--demo") {
+            model.archive.loadDemo([], pending: [
+                URL(fileURLWithPath: "/Users/demo/Desktop/sprint-42-assets.zip"),
+                URL(fileURLWithPath: "/Users/demo/Desktop/press-kit.7z"),
+            ])
+        }
+        if args.contains("--window-ocr"), args.contains("--demo") {
+            model.screenText.loadDemo(demoRecognizedText(lang: demoLang))
+        }
         if wantsColors { PanelView.activateStoredModule("color") }
         if wantsOcr { PanelView.activateStoredModule("ocr") }
+        if wantsKeyboard { PanelView.activateStoredModule("keyboard") }
 
         var initial = PanelView.InitialScreen.spaceContaining("timer")
-        if wantsArchive {
+        if wantsKeyboard {
+            initial = .spaceContaining("keyboard")
+        } else if wantsArchive {
             initial = .spaceContaining("archive")
         } else if wantsColors {
             initial = .spaceContaining("color")
@@ -390,6 +415,29 @@ enum Snapshot {
     /// 1.4.0 surfaces shown in per-locale marketing screenshots, so an English
     /// fallback here would be visible. English stays the defensive default. The
     /// staged totals/active/done state is applied by the caller, not here.
+    /// A believable recognition result for the marketing shot: a few lines of a
+    /// receipt-like text, in the screenshot's own language.
+    static func demoRecognizedText(lang: String) -> String {
+        switch lang {
+        case "ru":
+            return "конференция «дизайн-системы»\n12 сентября, 10:00\nул. Рочдельская, 15, стр. 17\nбилет №A-2416 · место 12"
+        case "de":
+            return "konferenz «design-systeme»\n12. september, 10:00\nrochdelskaja 15, haus 17\nticket nr. A-2416 · platz 12"
+        case "fr":
+            return "conférence « design systems »\n12 septembre, 10:00\n15 rue Rochdelskaïa, bât. 17\nbillet n° A-2416 · place 12"
+        case "es":
+            return "conferencia «design systems»\n12 de septiembre, 10:00\ncalle Rochdelskaya 15, edificio 17\nentrada n.º A-2416 · asiento 12"
+        case "pt":
+            return "conferência «design systems»\n12 de setembro, 10:00\nrua Rochdelskaya 15, bloco 17\ningresso n.º A-2416 · assento 12"
+        case "zh":
+            return "「设计系统」大会\n9 月 12 日 10:00\n罗奇杰利斯卡娅街 15 号 17 栋\n票号 A-2416 · 座位 12"
+        case "ja":
+            return "カンファレンス「デザインシステム」\n9月12日 10:00\nロチデリスカヤ通り15号館17\nチケット番号 A-2416 ・ 座席 12"
+        default:
+            return "«design systems» conference\nseptember 12, 10:00\n15 Rochdelskaya st., bldg 17\nticket no. A-2416 · seat 12"
+        }
+    }
+
     static func demoTasks(lang: String) -> (tasks: [String], todos: [String]) {
         switch lang {
         case "ru":

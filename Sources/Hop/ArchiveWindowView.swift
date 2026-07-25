@@ -229,6 +229,12 @@ struct ArchiveWindowView: View {
                 .foregroundStyle(Theme.textTertiary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 2)
+            // the formats live here, where there is room for all of them
+            Text(ArchiveView.formats)
+                .font(Theme.mono(8.5))
+                .foregroundStyle(Theme.textTertiary)
+                .multilineTextAlignment(.center)
+                .padding(.top, 6)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 34)

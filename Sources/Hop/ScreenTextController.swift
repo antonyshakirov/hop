@@ -121,6 +121,14 @@ final class ScreenTextController: ObservableObject {
 
     /// The window's edits stay in the window until they are copied — a stray
     /// keystroke must not rewrite what is already in the history.
+    /// Staged text for design/marketing renders — the controller never reads a
+    /// real screen during a snapshot.
+    func loadDemo(_ text: String) {
+        guard Snapshot.active else { return }
+        recognized = text
+        state = .done(text.split(separator: "\n").count)
+    }
+
     func editRecognized(_ text: String) {
         recognized = text
     }

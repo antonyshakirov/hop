@@ -200,9 +200,10 @@ final class ArchiveController: ObservableObject {
 
     /// Staged rows for design snapshots (`--archive`); jobs are otherwise
     /// in-memory only, so a render has nothing to show without this.
-    func loadDemo(_ demo: [Job]) {
+    func loadDemo(_ demo: [Job], pending: [URL] = []) {
         guard Snapshot.active else { return }
         jobs = demo
+        self.pending = pending
     }
 
     func clear() {

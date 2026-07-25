@@ -14,7 +14,9 @@ struct ArchiveView: View {
     @State private var targeted = false
 
     /// Every format the module opens, in the order a user meets them. Built from
-    /// `ArchiveFormat` so a new case can never quietly go unlisted.
+    /// `ArchiveFormat` so a new case can never quietly go unlisted. It is shown
+    /// in the WINDOW, under the drop plate: the panel row stays one line
+    /// (Anton, 2026-07-26).
     static let formats: String = ArchiveFormat.allCases
         .map(\.displayName)
         .joined(separator: " · ")
@@ -23,38 +25,27 @@ struct ArchiveView: View {
         Button {
             openWindow()
         } label: {
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 8) {
-                    Image(systemName: "archivebox")
-                        .font(.system(size: 12))
-                        .foregroundStyle(targeted ? Theme.editing : Theme.textSecondary)
-                    Text(L10n.t(.archiveLabel, lang))
-                        .font(Theme.mono(11))
-                        .foregroundStyle(Theme.textSecondary)
-                        .lineLimit(1)
-                    Spacer()
-                    // a job that is still running keeps its state visible without
-                    // opening the window
-                    if let running = archive.jobs.first(where: { $0.state == .running }) {
-                        Text(L10n.t(running.kind == .extract ? .archiveUnpacking : .archivePacking, lang))
-                            .font(Theme.mono(9.5))
-                            .foregroundStyle(Theme.textTertiary)
-                            .lineLimit(1)
-                    }
-                    RowActionIcon(symbol: "arrow.up.forward.app")
-                }
-                // The formats say what KIND of archive this is: zip files, not
-                // "put it away in my archive" (Anton, 2026-07-25). ALL of them are
-                // listed — an ellipsis leaves the reader guessing which ones it
-                // hides (Anton, 2026-07-25) — which takes the FULL row width: on
-                // the name's line the longest translations pushed the tail off.
-                // Format names are identical in every language and stay
-                // untranslated, like the converter's capability table.
-                Text(ArchiveView.formats)
-                    .font(Theme.mono(8))
-                    .foregroundStyle(Theme.textTertiary)
+            // One line, exactly like the converter's row: the formats belong in
+            // the window and the help, not on the panel, where they cost a whole
+            // second line for a list nobody reads twice (Anton, 2026-07-26).
+            HStack(spacing: 8) {
+                Image(systemName: "archivebox")
+                    .font(.system(size: 12))
+                    .foregroundStyle(targeted ? Theme.editing : Theme.textSecondary)
+                Text(L10n.t(.archiveLabel, lang))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.85)
+                Spacer()
+                // a job that is still running keeps its state visible without
+                // opening the window
+                if let running = archive.jobs.first(where: { $0.state == .running }) {
+                    Text(L10n.t(running.kind == .extract ? .archiveUnpacking : .archivePacking, lang))
+                        .font(Theme.mono(9.5))
+                        .foregroundStyle(Theme.textTertiary)
+                        .lineLimit(1)
+                }
+                RowActionIcon(symbol: "arrow.up.forward.app")
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 9)
