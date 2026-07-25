@@ -451,10 +451,20 @@ struct PanelView: View {
                         .font(.system(size: 11))
                         .foregroundStyle(Theme.textTertiary)
                         .frame(width: 16)
-                    Text(moduleTitle(key))
-                        .font(Theme.mono(10))
-                        .foregroundStyle(Theme.textPrimary)
-                        .lineLimit(1)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(moduleTitle(key))
+                            .font(Theme.mono(10))
+                            .foregroundStyle(Theme.textPrimary)
+                            .lineLimit(1)
+                        // what a module actually covers, where the name alone
+                        // leaves it open (Anton, 2026-07-25)
+                        if let detail = moduleDetail(key) {
+                            Text(t(detail))
+                                .font(Theme.mono(8.5))
+                                .foregroundStyle(Theme.textTertiary)
+                                .lineLimit(1)
+                        }
+                    }
                     Spacer(minLength: 8)
                     Theme.MiniSwitch(isOn: Binding(
                         get: { bannerChoices[key] ?? false },
@@ -3707,6 +3717,12 @@ struct PanelView: View {
                 hotkeyRow(.keyboardLock, label: t(.keylockLabel))
             }
         }
+    }
+
+    /// A one-line hint under a module's name in the what's-new list, when the
+    /// name does not say enough on its own.
+    private func moduleDetail(_ key: String) -> L10nKey? {
+        key == "archive" ? .featureArchiveFormats : nil
     }
 
     /// The icon a module is recognized by, for lists that name modules.

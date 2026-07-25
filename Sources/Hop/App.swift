@@ -578,6 +578,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                       KeyChord.isPasteChord(
                         keyCode: event.keyCode,
                         modifierFlags: event.modifierFlags.rawValue),
+                      // another Hop window can be key and want ⌘V for itself
+                      // (the recognition window pastes a picture there)
+                      self.screenTextWindow?.isKeyWindow != true,
                       ConverterPaste.shouldIngest(
                         windowVisible: window.isVisible,
                         windowIsKey: window.isKeyWindow,
@@ -689,9 +692,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         guard let window = screenTextWindow else { return }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        // The window is as tall as what it shows: just the drop plate until a
+        // result exists, then room for the text as well (Anton, 2026-07-25).
+        let height: CGFloat = model.screenText.recognized.isEmpty ? 260 : 520
         if !window.isVisible {
-            window.setContentSize(NSSize(width: 460, height: 420))
+            window.setContentSize(NSSize(width: 460, height: height))
             window.center()
+        } else if abs(window.frame.height - height) > 80 {
+            window.setContentSize(NSSize(width: window.frame.width, height: height))
         }
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)

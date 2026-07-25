@@ -18,13 +18,9 @@ struct ScreenTextWindowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             dropZone
-            if reader.recognized.isEmpty {
-                Text(t(.ocrWindowEmpty))
-                    .font(Theme.mono(10))
-                    .foregroundStyle(Theme.textTertiary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 18)
-            } else {
+            // No result yet → the window is nothing but the plate; the text
+            // block (and the extra height for it) appears with the first result.
+            if !reader.recognized.isEmpty {
                 resultEditor
             }
         }
@@ -79,7 +75,7 @@ struct ScreenTextWindowView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 22)
+        .padding(.vertical, 48)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
         .overlay(
             RoundedRectangle(cornerRadius: 10)

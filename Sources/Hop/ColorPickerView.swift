@@ -37,21 +37,21 @@ struct ColorPickerView: View {
                     .foregroundStyle(Theme.textSecondary)
                     .lineLimit(1)
                 Spacer(minLength: 6)
+                // an icon, like the clipboard's row actions: a filled button here
+                // shouted over the colours it produces (Anton, 2026-07-25)
                 Button {
                     closePanel()
                     picker.pick()
                 } label: {
-                    Text(L10n.t(picker.isSampling ? .colorPicking : .colorPick, lang))
-                        .font(Theme.mono(10, weight: .bold))
-                        .foregroundStyle(Theme.playFg)
-                        .lineLimit(1)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 5)
-                        .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                    Image(systemName: "eyedropper")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(picker.isSampling ? Theme.editing : Theme.textSecondary)
+                        .frame(width: 24, height: 22)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .hoverDim()
+                .hoverHighlight(5)
+                .help(L10n.t(picker.isSampling ? .colorPicking : .colorPick, lang))
                 .disabled(picker.isSampling)
             }
             if colors.isEmpty {
@@ -99,6 +99,21 @@ struct ColorPickerView: View {
         .padding(.horizontal, 6)
         .padding(.vertical, 4)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 5))
+        .overlay(alignment: .trailing) {
+            // a badge on the right, laid OVER the row: replacing a value with
+            // the word "copied" made every other value shift sideways
+            if let copiedKey, copiedKey.hasPrefix("\(item.id)-") {
+                Text(L10n.t(.ocrCopied, lang))
+                    .font(Theme.mono(9, weight: .semibold))
+                    .foregroundStyle(Theme.accentGreen)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 4))
+                    .padding(.trailing, 4)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.12), value: copiedKey)
     }
 
     private func valueButton(
@@ -108,18 +123,17 @@ struct ColorPickerView: View {
         // rgb/hsl are long; the row drops the spaces so all three fit the panel
         let compact = text.replacingOccurrences(of: ", ", with: ",")
         let key = "\(item.id)-\(format.rawValue)"
-        let isCopied = copiedKey == key
         return Button {
             picker.copy(text: text, hex: item.colorHex ?? "")
             copiedKey = key
             Task {
-                try? await Task.sleep(for: .seconds(1))
+                try? await Task.sleep(for: .seconds(1.2))
                 if copiedKey == key { copiedKey = nil }
             }
         } label: {
-            Text(isCopied ? L10n.t(.ocrCopied, lang) : compact)
+            Text(compact)
                 .font(Theme.mono(9))
-                .foregroundStyle(isCopied ? Theme.accentGreen : Theme.listText)
+                .foregroundStyle(copiedKey == key ? Theme.accentGreen : Theme.listText)
                 .lineLimit(1)
                 .fixedSize()
                 .padding(.horizontal, 5)
