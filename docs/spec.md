@@ -1138,7 +1138,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `SMAppService.mainApp.status`. The notification query is skipped in a
   bundle-less process (a snapshot render throws otherwise). A row offers its
   System Settings deep link only when the permission is NOT granted.
-- The same list, condensed, is a README section (all 18 languages).
+- The same list, condensed, is a README section (all 18 languages) and a FAQ
+  answer on the landing (all 8). The general help tab points at the tab by name,
+  because a permission page nobody finds explains nothing (Anton, 2026-07-26).
+- Every module tab whose row carries icons ends with an icon legend
+  (`aboutIconLegend`): the glyph as the panel draws it, then what it does. A
+  glyph the help text talks about has to be named somewhere.
 - Snapshot: `--about --permissions` (panel) renders the tab.
 
 ### What's-new card (module checklist)

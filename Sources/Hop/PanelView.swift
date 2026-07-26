@@ -4199,8 +4199,38 @@ struct PanelView: View {
             ]
         case "convert":
             return [
-                ("arrow.up.forward.app", t(.convertLabel)),
+                ("arrow.up.forward.app", t(.iconOpenWindow)),
                 ("arrow.down.doc", t(.convDrop)),
+            ]
+        // Every module whose row carries icons explains them here: a glyph the
+        // help talks about has to be named somewhere (Anton, 2026-07-26).
+        case "color":
+            return [
+                ("paintpalette", t(.colorLabel)),
+                ("eyedropper", t(.colorPick)),
+            ]
+        case "ocr":
+            return [
+                ("text.viewfinder", t(.ocrLabel)),
+                ("viewfinder", t(.ocrRead)),
+                ("arrow.up.forward.app", t(.iconOpenWindow)),
+            ]
+        case "archive":
+            return [
+                ("archivebox", t(.archiveLabel)),
+                ("arrow.up.forward.app", t(.iconOpenWindow)),
+                ("arrow.down.left.and.arrow.up.right", t(.archiveRunExtract)),
+                ("doc", t(.archiveRunPack)),
+            ]
+        case "keyboard":
+            return [
+                ("keyboard", t(.keylockLabel)),
+                ("infinity", t(.iconEndless)),
+            ]
+        case "torrent":
+            return [
+                ("arrow.down.circle", t(.torrentLabel)),
+                ("folder", t(.torrentReveal)),
             ]
         default:
             return nil
