@@ -1019,7 +1019,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   thing that table does — hiding is not switching off.
   `processOpen` routes an opened archive into the extractor, and it works with
   the module HIDDEN — the panel row is a place to drop things, not a
-  precondition for Finder. The types are declared in `Info.plist` with
+  precondition for Finder. Finder-open is a separate path from the drop/paste
+  queue: it extracts only the opened archive, always beside that archive,
+  regardless of `archiveDestination`, and leaves queued items untouched. The
+  archive window stays closed after success and opens only after a failed job
+  has been recorded, so denied/tool/empty/helper failures are visible without
+  putting an empty drop plate in front of every successful double-click. The
+  types are declared in `Info.plist` with
   `LSHandlerRank: Alternate` (and `CFBundleTypeIconFile`, so Finder draws Hop's
   icon on the files it owns) — Hop offers itself without shouldering aside
   whatever the user already chose.

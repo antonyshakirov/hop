@@ -221,10 +221,22 @@ final class ArchiveController: ObservableObject {
         pending.removeAll()
         switch kind {
         case .extract:
-            for archive in items { extract(archive) }
+            for archive in items {
+                extract(archive, into: destinationFolder(nextTo: archive))
+            }
         case .pack:
             pack(items)
         }
+    }
+
+    /// A Finder double-click is a complete command, not an addition to the
+    /// interactive queue. It extracts only this archive, always beside the
+    /// source, and asks for UI only when the job has failed.
+    func openFromFinder(_ archive: URL, onFailure: @escaping () -> Void) {
+        extract(
+            archive,
+            into: ArchiveRules.finderDestination(for: archive),
+            onFailure: onFailure)
     }
 
     /// Where a result is written. `.alongside` keeps the old behaviour (next to
@@ -263,9 +275,12 @@ final class ArchiveController: ObservableObject {
 
     // MARK: - Extract
 
-    private func extract(_ archive: URL) {
+    private func extract(
+        _ archive: URL,
+        into folder: URL,
+        onFailure: (() -> Void)? = nil
+    ) {
         guard let format = ArchiveRules.format(ofFileNamed: archive.lastPathComponent) else { return }
-        let folder = destinationFolder(nextTo: archive)
         let job = Job(kind: .extract, name: archive.lastPathComponent, state: .running)
         append(job)
         Task {
@@ -274,6 +289,7 @@ final class ArchiveController: ObservableObject {
                 await helper.install()
                 guard helper.isInstalled else {
                     update(job.id, .failed(.helper))
+                    onFailure?()
                     return
                 }
                 update(job.id, .running)
@@ -287,6 +303,7 @@ final class ArchiveController: ObservableObject {
                 update(job.id, .done(path))
             case .failure(let failure):
                 update(job.id, .failed(failure))
+                onFailure?()
             }
         }
     }

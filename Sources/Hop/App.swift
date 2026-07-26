@@ -826,7 +826,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if statusController != nil { model.torrent.stopEngine() }
     }
 
-    // MARK: - Opening .torrent files and magnet: links (Launch Services)
+    // MARK: - Opening archives, .torrent files and magnet: links (Launch Services)
 
     /// URLs that Launch Services handed us before the app finished launching — the
     /// common case, since a cold double-click of a `.torrent`/magnet delivers
@@ -874,16 +874,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// and showing UI here is safe.
     private func processOpen(_ url: URL) {
         // An archive opened from Finder is unpacked straight away — even with the
-        // module hidden from the panel, being the opener has to keep working
-        // (Anton, 2026-07-25). The window comes up so the result is visible.
+        // module hidden from the panel, being the opener has to keep working.
+        // Success needs no window: the result appears beside the archive. A failed
+        // job opens the existing archive window so the reason is never silent.
         if url.isFileURL,
            ArchiveRules.format(ofFileNamed: url.lastPathComponent) != nil {
-            model.archive.handleDrop([url])
-            // Double-clicking IS the go-ahead: an opener that only queued the
-            // archive and waited for a second click would be a worse Finder
-            // than the one it replaced (Anton, 2026-07-25).
-            model.archive.start()
-            showArchiveWindow()
+            model.archive.openFromFinder(url) { [weak self] in
+                self?.showArchiveWindow()
+            }
             return
         }
         let source: TorrentController.AddSource

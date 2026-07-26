@@ -138,6 +138,13 @@ public enum ArchiveRules {
         return only
     }
 
+    /// Finder owns the destination decision for a double-clicked archive: its
+    /// result always appears beside the source, never in the interactive
+    /// drop/paste destination stored in settings.
+    public static func finderDestination(for archive: URL) -> URL {
+        archive.deletingLastPathComponent()
+    }
+
     /// Whether an entry path inside an archive is safe to write. Absolute paths
     /// and any "../" escape the destination folder ("zip slip"); the extraction
     /// tools mostly refuse these themselves, but a rule with tests beats trusting

@@ -157,6 +157,13 @@ final class ArchiveRulesTests: XCTestCase {
         XCTAssertNil(ArchiveRules.commonParent(of: ["/Users/a/one", "/Users/b/two"]))
     }
 
+    func testFinderExtractionAlwaysUsesTheArchiveParent() {
+        let archive = URL(fileURLWithPath: "/Users/a/Incoming/photos.7z")
+        XCTAssertEqual(
+            ArchiveRules.finderDestination(for: archive).path,
+            "/Users/a/Incoming")
+    }
+
     // MARK: - entry safety (zip slip)
 
     func testSafeEntryPaths() {
