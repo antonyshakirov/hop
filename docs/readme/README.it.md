@@ -35,6 +35,7 @@ schede dell'icona.
 ## Download
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — aprilo e trascina `Hop.app` in Applicazioni (consigliato)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — la stessa app come semplice archivio (usato dall'aggiornatore integrato); vedi l'[ultima release](https://github.com/antonyshakirov/hop/releases/latest)
 - Mirror veloce: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

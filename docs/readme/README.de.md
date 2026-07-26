@@ -34,6 +34,7 @@ native App, deren Module du auf bis zu vier Tabs am Symbol verteilst.
 ## Download
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — öffnen und `Hop.app` in den Programme-Ordner ziehen (empfohlen)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — dieselbe App als einfaches Archiv (wird vom eingebauten Updater verwendet); siehe das [neueste Release](https://github.com/antonyshakirov/hop/releases/latest)
 - Schneller Mirror: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

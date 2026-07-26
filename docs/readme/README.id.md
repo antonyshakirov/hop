@@ -33,6 +33,7 @@ tab pada ikon.
 ## Unduh
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — buka lalu seret `Hop.app` ke Applications (disarankan)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — aplikasi yang sama dalam bentuk arsip biasa (dipakai oleh pembaru bawaan); lihat [rilis terbaru](https://github.com/antonyshakirov/hop/releases/latest)
 - Mirror cepat: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

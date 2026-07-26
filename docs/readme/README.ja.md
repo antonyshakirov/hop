@@ -35,6 +35,7 @@ Hop は Mac のメニューバーに常駐し、こまごましたユーティ�
 ## ダウンロード
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — 開いて `Hop.app` をアプリケーションフォルダへドラッグ（推奨）
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — 同じアプリの素のアーカイブ（内蔵アップデーターが使用）。[最新リリース](https://github.com/antonyshakirov/hop/releases/latest)を参照
 - 高速ミラー: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

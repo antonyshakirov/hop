@@ -33,6 +33,7 @@ caffeinate जैसा स्लीप ब्लॉकर, सिस्टम �
 ## डाउनलोड
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — खोलें और `Hop.app` को Applications में खींच लें (अनुशंसित)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — वही ऐप एक सादे आर्काइव के रूप में (बिल्ट-इन अपडेटर इसी का उपयोग करता है); देखें [नवीनतम रिलीज़](https://github.com/antonyshakirov/hop/releases/latest)
 - तेज़ मिरर: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

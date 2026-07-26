@@ -34,6 +34,7 @@ die je gebruikt verdeeld over tot vier tabbladen op het icoon.
 ## Downloaden
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — openen en `Hop.app` naar de map Apps slepen (aanbevolen)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — dezelfde app als een gewoon archief (gebruikt door de ingebouwde updater); zie de [nieuwste release](https://github.com/antonyshakirov/hop/releases/latest)
 - Snelle mirror: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

@@ -33,6 +33,7 @@ icon.
 ## Download
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — open and drag `Hop.app` into Applications (recommended)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — the same app as a plain archive (used by the built-in updater); see the [latest release](https://github.com/antonyshakirov/hop/releases/latest)
 - Fast mirror: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

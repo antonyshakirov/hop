@@ -34,6 +34,7 @@ rozkładasz na maksymalnie czterech kartach na ikonie.
 ## Pobierz
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — otwórz i przeciągnij `Hop.app` do katalogu Aplikacje (zalecane)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — ta sama aplikacja jako zwykłe archiwum (używa go wbudowany aktualizator); zobacz [najnowsze wydanie](https://github.com/antonyshakirov/hop/releases/latest)
 - Szybki mirror: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

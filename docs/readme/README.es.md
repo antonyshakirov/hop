@@ -35,6 +35,7 @@ hasta cuatro pestañas del icono.
 ## Descarga
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — ábrelo y arrastra `Hop.app` a Aplicaciones (recomendado)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — la misma app como archivo comprimido (lo usa el actualizador integrado); consulta la [última versión](https://github.com/antonyshakirov/hop/releases/latest)
 - Espejo rápido: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

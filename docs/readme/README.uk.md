@@ -33,6 +33,7 @@ Hop живе в рядку меню вашого Mac і замінює жмен�
 ## Завантажити
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — відкрийте і перетягніть `Hop.app` у «Програми» (рекомендовано)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — той самий застосунок звичайним архівом (його використовує вбудований оновлювач); див. [останній реліз](https://github.com/antonyshakirov/hop/releases/latest)
 - Швидке дзеркало: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

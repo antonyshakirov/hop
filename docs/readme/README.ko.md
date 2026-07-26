@@ -32,6 +32,7 @@ Hop은 Mac의 메뉴 막대에 자리 잡고 자잘한 유틸리티 여러 개�
 ## 다운로드
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — 열어서 `Hop.app`을 응용 프로그램 폴더로 드래그하세요(권장)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — 같은 앱의 일반 아카이브(내장 업데이터가 사용). [최신 릴리스](https://github.com/antonyshakirov/hop/releases/latest) 참고
 - 고속 미러: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

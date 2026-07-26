@@ -30,6 +30,7 @@ Hop 常驻在 Mac 的菜单栏中，一个应用顶替一把小工具：
 ## 下载
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — 打开后把 `Hop.app` 拖入「应用程序」即可（推荐）
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — 同一应用的普通压缩包（供内置更新器使用）；见[最新版本](https://github.com/antonyshakirov/hop/releases/latest)
 - 高速镜像：[hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

@@ -32,6 +32,7 @@ Hop อาศัยอยู่บนแถบเมนูของ Mac แล�
 ## ดาวน์โหลด
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — เปิดแล้วลาก `Hop.app` ไปยังโฟลเดอร์ Applications (แนะนำ)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — แอปตัวเดียวกันในรูปแบบไฟล์บีบอัดธรรมดา (ตัวอัปเดตในตัวใช้ไฟล์นี้) ดูได้ที่[รีลีสล่าสุด](https://github.com/antonyshakirov/hop/releases/latest)
 - มิเรอร์ความเร็วสูง: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

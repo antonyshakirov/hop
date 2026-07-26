@@ -55,6 +55,22 @@ for release lands in `main`:
    Ed25519 and places `latest.json` + the archive into the website repo (`public/downloads/hop/`)
 4. commit in the website repo + `./deploy.sh` — the update ships to users
 5. `git tag vX.Y.Z` in this repo
+6. after `Hop.dmg` is attached to the immutable GitHub release, update
+   `version` and `sha256` in
+   [`Casks/hop.rb`](https://github.com/antonyshakirov/homebrew-tap/blob/main/Casks/hop.rb),
+   then commit and push the tap
+
+Production-cask validation runs only in the disposable macOS runner defined
+by the tap's `.github/workflows/test.yml`. The workflow audits the cask,
+installs it under the runner's temporary directory, launches it briefly,
+terminates that exact process, and uninstalls it without `--zap`.
+
+Never install or launch the production cask on the development Mac: a
+temporary copy has the same bundle identity as `/Applications/Hop.app` and
+can start a second production instance. Local app verification uses only
+`./scripts/build-app.sh --install --dev` and `/Applications/Hop Dev.app`.
+`zap` is also forbidden during verification because it intentionally removes
+Hop's saved preferences and Application Support data.
 
 Auto-update watches `antonshakirov.com/downloads/hop/latest.json`
 (silently, every 6 hours; installs only when the timer and awake are inactive;

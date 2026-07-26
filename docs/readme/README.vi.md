@@ -33,6 +33,7 @@ dùng được trải trên tối đa bốn tab ở biểu tượng.
 ## Tải về
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — mở ra rồi kéo `Hop.app` vào Applications (khuyên dùng)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — vẫn là ứng dụng đó dưới dạng tệp nén thông thường (dùng cho trình cập nhật tích hợp); xem [bản phát hành mới nhất](https://github.com/antonyshakirov/hop/releases/latest)
 - Mirror tốc độ cao: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

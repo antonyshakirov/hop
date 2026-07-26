@@ -34,6 +34,7 @@ modüller simgedeki en fazla dört sekmeye dağılmış.
 ## İndir
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — açın ve `Hop.app`'i Uygulamalar klasörüne sürükleyin (önerilen)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — aynı uygulamanın düz arşiv hâli (yerleşik güncelleyici bunu kullanır); bkz. [en son sürüm](https://github.com/antonyshakirov/hop/releases/latest)
 - Hızlı yansı: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 

@@ -33,6 +33,7 @@ drag-and-drop, раскладку окон и лёгкий торрент-кли
 ## Скачать
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — откройте и перетащите `Hop.app` в «Программы» (рекомендуется)
+- Homebrew: `brew install --cask antonyshakirov/tap/hop`
 - `Hop-x.y.z.zip` — то же приложение обычным архивом (его использует встроенный обновлятор); см. [последний релиз](https://github.com/antonyshakirov/hop/releases/latest)
 - Быстрое зеркало: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
