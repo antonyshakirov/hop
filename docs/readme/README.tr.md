@@ -55,12 +55,20 @@ döngünüz), kronometre, başka bir zamanlayıcı denerken çalışan sayacı
 saklayan bir cep ve medyanızı da duraklatabilen bitiş uyarısı. Geri sayım
 bitince tek bir ses çalar ve sıfırlayana kadar rakamlar yanıp söner.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Zamanlayıcı ve döngüler">
+</div>
+
 ### Zaman takibi ve görevler
 
 Düz bir görev listesinde zamanı tutun: her satır bugünkü süreyi ve toplam
 birikimi gösterir, bugünkü değeri elle düzeltebilirsiniz. Biri fazla uzun
 sürerse, sekiz saatin sonunda bir bant hatırlatır. Yanında ayrı bir
 yapılacaklar listesi durur; biten işler dibe iner.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Zaman takibi ve görevler">
+</div>
 
 ### Uyku engelleme
 
@@ -74,6 +82,10 @@ CPU ve GPU yükü ile sıcaklığı, bellek ve swap, ağ, disk, pil sağlığı 
 güç tüketimi — sparkline grafikleriyle canlı değerler, kendi
 belirlediğiniz renk eşikleri, °C/°F ve çalışma süresi satırı. Veriler
 doğrudan macOS'ten gelir ve yalnızca sekme açıkken güncellenir.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Sistem monitörü">
+</div>
 
 ### Pano geçmişi
 
@@ -89,6 +101,10 @@ Panele bir grup görsel, PDF, video ya da ses bırakın: çıktı olarak JPEG,
 PNG, HEIC, AVIF ve WebP; PDF sıkıştırma; dönüştürmeden önce canlı ve
 dürüst boyut tahminiyle HEVC video küçültme. Her şey yerel olarak
 işlenir.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Dosya dönüştürücü">
+</div>
 
 ### Pencere yöneticisi
 
@@ -125,6 +141,10 @@ macOS'un kendi uygulaması olmayan biçimleri — başta rar ve 7z — üstlenir
 üçüncü taraf uygulamalardan geri alır; zip ve tar Arşiv Yardımcısı'nda kalır.
 Modül gizliyken de çalışır ve kart gerçek durumu gösterir.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Dosya arşivleri">
+</div>
+
 ### Belgeler
 
 Dönüştürücü belgeleri öğrendi: markdown → PDF dizgisini Hop'un kendisi yapar,
@@ -140,12 +160,20 @@ Sıra imlecin altında hiç değişmez, kaç renk saklanacağı ve kaç satır
 görüneceği ayarlardadır, ekran kaydı izni de gerekmez: büyüteç tek bir renk
 döndürür.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Renk damlalığı">
+</div>
+
 ### Metin tanıma
 
 Ekranda bir alan seçin ya da pencereye bir görsel bırakın, ⌘V ile yapıştırın:
 içindeki metin ve QR kodlar okunabilen, düzeltilebilen, kopyalanabilen bir
 pencerede çıkar ve aynı anda pano geçmişine girer. Satır sonları korunur, tablo
 okunur kalır. Tanıma Apple'ın Vision'ıdır, tamamen bu Mac'te çalışır.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Metin tanıma">
+</div>
 
 ### Klavye kilidi
 
@@ -155,6 +183,10 @@ olduğunu anlatır, menü çubuğundaki simge klavyeye dönüşür. Dört çık�
 örtüdeki düğme, paneldeki düğme, panelin açılması ya da esc + shift'i beş saniye basılı
 tutmak. Güç tuşuna kısa basış da yutulur; basılı tutmak Mac'i yine de
 kapatır, çünkü onu donanım yapar.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Klavye kilidi">
+</div>
 
 ### Ve gerisi
 
@@ -175,7 +207,14 @@ döngüsünden kurtaran güvenli mod.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — uygulama kurulumdan itibaren sistem
 dilinize uyar.
 
-## Gizlilik
+## Gizlilik — ve izinleri neden gönül rahatlığıyla verebilirsin
+
+**Hop hiçbir şey toplamaz. Ne şimdi ne sonra.** Kendi sunucusu yok, analitiği
+yok, telemetrisi yok, hesabı yok, çökme raporu yok. Aşağıdaki her izni macOS
+yalnızca ona ihtiyaç duyan özelliği gerçekten kullandığında sorar ve izin tam da
+o özellik çalışsın diye vardır — yan yolda hiçbir şey toplanmaz. Buna inanmak
+zorunda değilsin: uygulama açık kaynak, toplayacak kod zaten yok. Bu depoda bir
+izleme SDK'sı ya da analitik çağrısı ara — bulamayacaksın.
 
 Her şey yerel çalışır: sunucu yok, analitik yok, hesap yok. Uygulama
 ağa yalnızca güncellemeleri denetlemek için, yerleşik hız testini

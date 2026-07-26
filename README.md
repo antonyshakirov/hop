@@ -55,12 +55,20 @@ while you try another one, and a finish alert that can also pause your media.
 When the countdown ends it plays a single sound and the digits pulse until
 you reset it.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Timer & cycles">
+</div>
+
 ### Time tracker & to-dos
 
 Track time against a flat list of tasks — each row shows today's time and a
 running total, and you can correct today's figure by hand. Leave one running
 too long and a banner reminds you after eight hours. A separate to-do list
 sits alongside, with finished items sinking to the bottom.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Time tracker & to-dos">
+</div>
 
 ### No sleep
 
@@ -75,6 +83,10 @@ health and power draw — live values with sparkline charts, color thresholds
 you set yourself, °C/°F, and an uptime line. Readings come straight from
 macOS and update only while the tab is open.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — System monitor">
+</div>
+
 ### Clipboard history
 
 The last 100 (up to 300) things you copied — text, images and files — one
@@ -87,6 +99,10 @@ file back. Passwords and other concealed input are never stored.
 Drop a batch of images, PDFs, videos or audio onto the panel: JPEG, PNG,
 HEIC, AVIF and WebP out; PDF compression; HEVC video shrinking with a live,
 honest size estimate before you convert. Everything is processed locally.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — File converter">
+</div>
 
 ### Window manager
 
@@ -121,6 +137,10 @@ for — rar and 7z above all — and takes them back from third-party apps; zip 
 tar stay with Archive Utility. It works with the module hidden, and the card
 shows the real state, so it can never claim a default Finder has given away.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — File archives">
+</div>
+
 ### Documents
 
 The converter learned documents: markdown to PDF laid out by Hop itself, Word
@@ -136,6 +156,10 @@ notation is copied. The order never changes under the cursor, the list length
 and its visible rows are settings, and no screen-recording permission is
 needed: the loupe hands back one color and nothing else.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Color picker">
+</div>
+
 ### Text recognition
 
 Frame an area of the screen, or drop a picture into the window and paste one
@@ -143,6 +167,10 @@ with ⌘V: the text and any QR codes inside come out in a window you can read,
 edit and copy from, and land in the clipboard history at the same time. Line
 breaks are kept, so a table or a code snippet stays readable. Recognition is
 Apple's Vision, entirely on this Mac.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Text recognition">
+</div>
 
 ### Keyboard lock
 
@@ -152,6 +180,10 @@ what is happening and the menu-bar icon turns into a keyboard. Four ways out:
 the cover's button, the panel's button, opening the panel, or holding esc + shift for
 five seconds. A short press of the power key is swallowed too; holding it
 still forces the Mac off, because that is handled in hardware.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Keyboard lock">
+</div>
 
 ### And the rest
 
@@ -172,7 +204,15 @@ loop.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — the app follows your system language out of
 the box.
 
-## Privacy
+## Privacy — and why the permissions are safe to give
+
+**Hop collects nothing. Not now, not later.** No server of its own, no
+analytics, no telemetry, no accounts, no crash reports. Every permission below
+is asked by macOS only when the feature that needs it is actually used, and each
+one exists so that feature can work — nothing is collected on the side. You do
+not have to take this on trust: the app is open source, so the code that would
+do the collecting simply is not there. Search this repository for a tracking SDK
+or an analytics call and you will not find one.
 
 Everything runs locally: no server, no analytics, no accounts. The app only
 touches the network to check for updates, when you run the built-in speed

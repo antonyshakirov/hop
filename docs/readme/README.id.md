@@ -55,12 +55,20 @@ mencoba timer lain, dan notifikasi selesai yang juga bisa menjeda media.
 Saat hitung mundur selesai, terdengar satu bunyi dan angkanya berkedip
 sampai kamu mereset.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Timer & siklus">
+</div>
+
 ### Pelacak waktu & tugas
 
 Catat waktu di daftar tugas yang datar: tiap baris menampilkan waktu hari
 ini dan total berjalan, dan angka hari ini bisa kamu perbaiki manual. Kalau
 satu berjalan terlalu lama, sebuah spanduk mengingatkan setelah delapan jam.
 Di sebelahnya ada daftar tugas terpisah, tempat yang selesai turun ke bawah.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Pelacak waktu & tugas">
+</div>
 
 ### Anti-tidur
 
@@ -76,6 +84,10 @@ baterai, dan konsumsi daya — nilai langsung dengan grafik sparkline, ambang
 warna yang kamu atur sendiri, °C/°F, dan baris uptime. Semua pembacaan
 datang langsung dari macOS dan hanya diperbarui saat tabnya terbuka.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Monitor sistem">
+</div>
+
 ### Riwayat clipboard
 
 100 hal terakhir yang kamu salin (hingga 300) — teks, gambar, dan file —
@@ -90,6 +102,10 @@ Jatuhkan sekumpulan gambar, PDF, video, atau audio ke panel: keluarannya
 JPEG, PNG, HEIC, AVIF, dan WebP; kompresi PDF; pengecilan video HEVC dengan
 perkiraan ukuran yang jujur dan langsung sebelum kamu mengonversi. Semuanya
 diproses secara lokal.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Konverter file">
+</div>
 
 ### Pengelola jendela
 
@@ -125,6 +141,10 @@ yang tidak punya aplikasi bawaan di macOS — terutama rar dan 7z — dan merebu
 kembali dari aplikasi pihak ketiga; zip dan tar tetap di Utilitas Arsip. Ini
 bekerja walau modulnya disembunyikan, dan kartunya menunjukkan keadaan asli.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Arsip berkas">
+</div>
+
 ### Dokumen
 
 Konverter belajar dokumen: markdown → PDF yang ditata Hop sendiri, berkas Word
@@ -140,6 +160,10 @@ notasi itulah yang tersalin. Urutannya tak pernah berubah di bawah kursor,
 berapa warna disimpan dan berapa baris tampil adalah pengaturan, dan izin rekam
 layar tidak diperlukan: lup hanya mengembalikan satu warna.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Pemilih warna">
+</div>
+
 ### Pengenalan teks
 
 Bingkai sebuah area layar, atau jatuhkan gambar ke jendela dan tempel satu
@@ -147,6 +171,10 @@ dengan ⌘V: teks dan kode QR di dalamnya keluar di jendela yang bisa dibaca,
 disunting, dan disalin, sekaligus masuk ke riwayat papan klip. Pemenggalan
 baris dipertahankan, jadi tabel tetap terbaca. Pengenalannya memakai Vision
 milik Apple, sepenuhnya di Mac ini.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Pengenalan teks">
+</div>
 
 ### Kunci papan ketik
 
@@ -156,6 +184,10 @@ menjelaskan apa yang terjadi, dan ikon bilah menu berubah jadi papan ketik.
 Empat jalan keluar: tombol di penutup, tombol di panel, membuka panel, atau
 menahan esc + shift lima detik. Tekanan singkat tombol daya juga ditelan; menahannya
 tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Kunci papan ketik">
+</div>
 
 ### Dan selebihnya
 
@@ -176,7 +208,16 @@ dari crash loop.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikasi langsung mengikuti bahasa sistem
 kamu.
 
-## Privasi
+## Privasi — dan kenapa izinnya aman diberikan
+
+**Hop tidak mengumpulkan apa pun. Sekarang tidak, nanti juga tidak.** Tidak ada
+server sendiri, tidak ada analitik, tidak ada telemetri, tidak ada akun, tidak
+ada laporan crash. Setiap izin di bawah baru diminta macOS ketika kamu memang
+memakai fungsi yang membutuhkannya, dan izin itu ada persis supaya fungsi itu
+bekerja — tidak ada yang dikumpulkan sambil jalan. Kamu tidak perlu percaya
+begitu saja: aplikasinya open source, dan kode yang mengumpulkan itu memang
+tidak ada. Cari SDK pelacakan atau panggilan analitik di repositori ini — tidak
+akan ketemu.
 
 Semuanya berjalan secara lokal: tanpa server, tanpa analitik, tanpa akun.
 Aplikasi hanya menyentuh jaringan untuk memeriksa pembaruan, saat kamu

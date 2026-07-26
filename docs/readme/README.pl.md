@@ -57,12 +57,20 @@ innego, oraz alert końcowy, który może przy okazji wstrzymać odtwarzane
 media. Gdy odliczanie się kończy, rozlega się jeden dźwięk, a cyfry migają,
 aż je wyzerujesz.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Timer i cykle">
+</div>
+
 ### Śledzenie czasu i zadania
 
 Zliczaj czas na płaskiej liście zadań: w każdym wierszu widać dzisiejszy
 czas i łączną sumę, a dzisiejszą wartość możesz poprawić ręcznie. Jeśli
 któreś działa za długo, po ośmiu godzinach przypomni o tym baner. Obok jest
 osobna lista rzeczy do zrobienia, w której ukończone spada na dół.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Śledzenie czasu i zadania">
+</div>
 
 ### Blokada uśpienia
 
@@ -79,6 +87,10 @@ kolorów, które ustawiasz samodzielnie, °C/°F i linia czasu działania.
 Odczyty pochodzą prosto z macOS i odświeżają się tylko wtedy, gdy karta
 jest otwarta.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Monitor systemu">
+</div>
+
 ### Historia schowka
 
 Ostatnie 100 (do 300) skopiowanych rzeczy — tekst, obrazy i pliki — jedno
@@ -93,6 +105,10 @@ Upuść na panel paczkę obrazów, PDF-ów, wideo lub audio: na wyjściu JPEG,
 PNG, HEIC, AVIF i WebP; kompresja PDF; zmniejszanie wideo w HEVC z
 uczciwym, aktualizowanym na żywo szacunkiem rozmiaru jeszcze przed
 konwersją. Wszystko jest przetwarzane lokalnie.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Konwerter plików">
+</div>
 
 ### Menedżer okien
 
@@ -128,6 +144,10 @@ nie ma własnej aplikacji — przede wszystkim rar i 7z — i odbiera je aplikac
 innych firm; zip i tar zostają przy Narzędziu archiwizacji. Działa też przy
 ukrytym module, a karta pokazuje prawdziwy stan.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Archiwa plików">
+</div>
+
 ### Dokumenty
 
 Konwerter nauczył się dokumentów: markdown → PDF składany przez sam Hop, pliki
@@ -143,6 +163,10 @@ się kopiuje. Kolejność nie zmienia się pod kursorem, ile kolorów przechowyw
 ile wierszy pokazywać ustawisz w ustawieniach, a uprawnienie do nagrywania
 ekranu nie jest potrzebne: lupa zwraca jeden kolor i nic więcej.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Próbnik koloru">
+</div>
+
 ### Rozpoznawanie tekstu
 
 Zaznacz obszar ekranu albo upuść obraz w oknie i wklej go przez ⌘V: tekst i
@@ -150,6 +174,10 @@ kody QR z niego pojawią się w oknie, w którym można je przeczytać, poprawi�
 skopiować, a jednocześnie trafią do historii schowka. Złamania linii zostają,
 więc tabela pozostaje czytelna. Rozpoznaje Vision od Apple, w całości na tym
 Macu.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Rozpoznawanie tekstu">
+</div>
 
 ### Blokada klawiatury
 
@@ -159,6 +187,10 @@ tłumaczy, co się dzieje, a ikona na pasku menu zmienia się w klawiaturę. Wyj
 są cztery: przycisk na zasłonie, przycisk w panelu, samo otwarcie panelu albo
 przytrzymanie esc + shift przez pięć sekund. Krótkie naciśnięcie przycisku zasilania
 też jest połykane; przytrzymanie nadal wyłącza Maca, bo robi to sprzęt.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Blokada klawiatury">
+</div>
 
 ### I cała reszta
 
@@ -179,7 +211,15 @@ logowaniu oraz tryb awaryjny, który wyciąga aplikację z pętli awarii.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikacja od razu podąża za językiem
 Twojego systemu.
 
-## Prywatność
+## Prywatność — i dlaczego uprawnienia można spokojnie dać
+
+**Hop nie zbiera niczego. Ani teraz, ani później.** Brak własnego serwera, brak
+analityki, brak telemetrii, brak kont, brak raportów awarii. O każde uprawnienie
+poniżej macOS pyta dopiero wtedy, gdy naprawdę używasz funkcji, która go
+potrzebuje, i istnieje ono właśnie po to, żeby ta funkcja działała — przy okazji
+nic nie jest zbierane. Nie musisz w to wierzyć: aplikacja jest open source, a
+kodu, który miałby cokolwiek zbierać, po prostu nie ma. Poszukaj w tym
+repozytorium SDK do śledzenia albo wywołania analityki — nie znajdziesz.
 
 Wszystko działa lokalnie: bez serwera, bez analityki, bez kont.
 Aplikacja łączy się z siecią tylko po to, by sprawdzić aktualizacje,

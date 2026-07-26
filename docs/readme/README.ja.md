@@ -57,11 +57,19 @@ Hop は Mac のメニューバーに常駐し、こまごましたユーティ�
 一時停止もできる終了アラート。カウントダウンが終わると一度だけ音が鳴り、
 リセットするまで数字が点滅し続けます。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/timer.png" width="420" alt="Hop — タイマーとサイクル">
+</div>
+
 ### タイムトラッカーとやること
 
 フラットなタスク一覧で時間を記録。各行に今日の時間と累計が表示され、
 今日の値は手で直せます。長く回りすぎたら、8時間でバナーが知らせます。
 隣には独立したやることリストがあり、完了したものは下へ沈みます。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/tracker.png" width="420" alt="Hop — タイムトラッカーとやること">
+</div>
 
 ### スリープ防止
 
@@ -77,6 +85,10 @@ CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク�
 自分で決める色のしきい値、°C/°F 切り替え、稼働時間の表示。値は
 macOS から直接取得し、タブを開いている間だけ更新されます。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/system.png" width="420" alt="Hop — システムモニター">
+</div>
+
 ### クリップボード履歴
 
 コピーした直近 100 件（最大 300 件）を、テキストも画像もファイルも保持。
@@ -91,6 +103,10 @@ macOS から直接取得し、タブを開いている間だけ更新されま�
 AVIF、WebP へ出力、PDF 圧縮、HEVC による動画の軽量化——変換前に
 リアルタイムで正直なサイズ見積もりを表示します。処理はすべて
 ローカルで完結。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/converter.png" width="480" alt="Hop — ファイル変換">
+</div>
 
 ### ウィンドウ管理
 
@@ -123,6 +139,10 @@ zip・rar・7z・tar・tar.gz・tar.bz2・tar.xz・gz。rar と 7z は初回に�
 サードパーティ製アプリからは取り返します。zip と tar はアーカイブユーティリティのまま。モジュールが
 隠れていても働き、カードは実際の状態を表示します。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/archives.png" width="480" alt="Hop — ファイルアーカイブ">
+</div>
+
 ### 書類
 
 コンバータが書類に対応しました。markdown → PDF は Hop 自身が組版し、Word ファイル
@@ -136,11 +156,19 @@ zip・rar・7z・tar・tar.gz・tar.bz2・tar.xz・gz。rar と 7z は初回に�
 列に並び、押したものがコピーされます。並び順はカーソルの下で変わらず、何色まで残すか・何行見せるかは
 設定でき、画面収録の許可も不要です。ルーペが返すのは色ひとつだけだからです。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/colors.png" width="420" alt="Hop — カラーピッカー">
+</div>
+
 ### 文字認識
 
 画面の範囲を囲むか、ウインドウに画像をドラッグするか ⌘V で貼り付けてください。中の文字と QR コードは
 読んで直してコピーできるウインドウに出て、同時にクリップボード履歴にも入ります。改行は保たれるので
 表も読める形で残ります。認識は Apple の Vision で、すべてこの Mac 内で完結します。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/recognition.png" width="480" alt="Hop — 文字認識">
+</div>
 
 ### キーボードロック
 
@@ -148,6 +176,10 @@ zip・rar・7z・tar・tar.gz・tar.bz2・tar.xz・gz。rar と 7z は初回に�
 拭けます。全画面のカバーが状況を説明し、メニューバーのアイコンはキーボードに変わります。解除は 4 通り
 — カバーのボタン、パネルのボタン、パネルを開くこと、esc + shift の 5 秒長押し。電源キーの短押しも飲み込まれ
 ますが、長押しは今も Mac を強制的に切ります。ハードウェアが処理しているからです。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/keyboard.png" width="480" alt="Hop — キーボードロック">
+</div>
 
 ### そのほか
 
@@ -167,7 +199,14 @@ zip・rar・7z・tar・tar.gz・tar.bz2・tar.xz・gz。rar と 7z は初回に�
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — アプリは最初からシステム言語に自動で従います。
 
-## プライバシー
+## プライバシー — 許可を与えても安全な理由
+
+**Hop は何も集めません。いまも、これからも。** 自前のサーバーも、解析も、テレメトリも、
+アカウントも、クラッシュレポートもありません。下の許可はどれも、それを必要とする機能を実際に
+使うときにだけ macOS が尋ね、まさにその機能のためだけに存在します。ついでに何かを集める
+ことはありません。信じてもらう必要もありません。アプリはオープンソースで、集めるための
+コードはそもそも存在しないからです。このリポジトリでトラッキング SDK や解析の呼び出しを
+探してみてください。見つかりません。
 
 すべてローカルで動作します。サーバーなし、アナリティクスなし、
 アカウントなし。アプリがネットワークに触れるのはアップデートの確認時、

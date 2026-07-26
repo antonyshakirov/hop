@@ -55,12 +55,20 @@ hồ khác, và thông báo kết thúc còn có thể tạm dừng nhạc hay v
 Khi đếm ngược kết thúc, một tiếng chuông vang lên và các con số nhấp nháy
 cho đến khi bạn đặt lại.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Hẹn giờ & chu kỳ">
+</div>
+
 ### Theo dõi thời gian & việc cần làm
 
 Ghi lại thời gian trên một danh sách công việc phẳng: mỗi hàng hiển thị thời
 gian hôm nay và tổng tích lũy, và bạn có thể sửa con số hôm nay bằng tay.
 Nếu một việc chạy quá lâu, sau tám giờ sẽ có một dải nhắc bạn. Bên cạnh là
 một danh sách việc cần làm riêng, nơi việc đã xong chìm xuống dưới.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Theo dõi thời gian & việc cần làm">
+</div>
 
 ### Chống ngủ
 
@@ -76,6 +84,10 @@ mức tiêu thụ điện — số liệu trực tiếp kèm biểu đồ sparkl
 chính bạn đặt, °C/°F và dòng hiển thị uptime. Số liệu lấy thẳng từ macOS và
 chỉ cập nhật khi tab đang mở.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Giám sát hệ thống">
+</div>
+
 ### Lịch sử clipboard
 
 100 mục bạn sao chép gần nhất (tối đa 300) — văn bản, hình ảnh và tệp — một
@@ -90,6 +102,10 @@ Thả cả loạt ảnh, PDF, video hoặc âm thanh vào bảng điều khiển
 JPEG, PNG, HEIC, AVIF và WebP; nén PDF; thu nhỏ video bằng HEVC với ước
 tính dung lượng trung thực, hiển thị trực tiếp trước khi chuyển đổi. Mọi
 thứ đều được xử lý cục bộ.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Chuyển đổi tệp">
+</div>
 
 ### Quản lý cửa sổ
 
@@ -124,6 +140,10 @@ không bao giờ tạo — đó là định dạng độc quyền. «Hop làm m�
 riêng — trước hết là rar và 7z — và giành lại từ ứng dụng bên thứ ba; zip và tar
 vẫn thuộc Archive Utility. Nó chạy cả khi mô-đun bị ẩn, và thẻ hiện trạng thái thật.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Kho nén tệp">
+</div>
+
 ### Tài liệu
 
 Bộ chuyển đổi đã biết làm tài liệu: markdown → PDF do chính Hop dàn trang, tệp
@@ -138,12 +158,20 @@ mỗi hàng mang hex, rgb và hsl ở cột riêng — bấm cái nào thì ché
 Thứ tự không đổi dưới con trỏ, giữ bao nhiêu màu và hiện bao nhiêu hàng là tuỳ
 chọn, và không cần quyền ghi màn hình: kính lúp chỉ trả về một màu.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Ống hút màu">
+</div>
+
 ### Nhận dạng văn bản
 
 Khoanh một vùng màn hình, hoặc thả ảnh vào cửa sổ và dán bằng ⌘V: chữ và mã QR
 bên trong hiện ra trong một cửa sổ để đọc, sửa và sao chép, đồng thời vào lịch
 sử clipboard. Ngắt dòng được giữ nên bảng vẫn đọc được. Nhận dạng bằng Vision
 của Apple, hoàn toàn trên chiếc Mac này.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Nhận dạng văn bản">
+</div>
 
 ### Khoá bàn phím
 
@@ -153,6 +181,10 @@ xảy ra, còn biểu tượng trên thanh menu biến thành bàn phím. Có b�
 trên tấm che, nút trong bảng, mở bảng, hoặc giữ esc + shift năm giây. Nhấn nhanh phím
 nguồn cũng bị nuốt; giữ lâu thì Mac vẫn tắt cưỡng bức, vì đó là việc của phần
 cứng.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Khoá bàn phím">
+</div>
 
 ### Và những thứ còn lại
 
@@ -173,7 +205,15 @@ khôi phục ứng dụng khỏi vòng lặp crash.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — ứng dụng tự động theo ngôn ngữ hệ thống của
 bạn ngay từ đầu.
 
-## Quyền riêng tư
+## Quyền riêng tư — và vì sao cấp quyền là an toàn
+
+**Hop không thu thập bất cứ thứ gì. Bây giờ không, sau này cũng không.** Không
+máy chủ riêng, không phân tích, không đo lường từ xa, không tài khoản, không báo
+cáo sự cố. Mọi quyền bên dưới chỉ được macOS hỏi khi bạn thực sự dùng tính năng
+cần nó, và nó tồn tại đúng để tính năng đó chạy — không có gì bị thu thập dọc
+đường. Bạn không cần tin lời: ứng dụng là mã nguồn mở, và đoạn mã để thu thập
+đơn giản là không tồn tại. Hãy thử tìm một SDK theo dõi hay một lệnh gọi phân
+tích trong kho này — bạn sẽ không thấy.
 
 Mọi thứ chạy cục bộ: không máy chủ, không thu thập dữ liệu, không tài
 khoản. Ứng dụng chỉ dùng mạng để kiểm tra bản cập nhật, khi bạn chạy bài

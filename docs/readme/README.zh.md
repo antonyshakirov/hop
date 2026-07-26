@@ -49,11 +49,19 @@ Hop 常驻在 Mac 的菜单栏中，一个应用顶替一把小工具：
 以及结束提醒——还能顺便帮你暂停正在播放的媒体。倒计时结束时会响一声，
 数字会一直闪烁，直到你复位。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/timer.png" width="420" alt="Hop — 计时器与循环">
+</div>
+
 ### 时间跟踪与待办
 
 在一份扁平的任务列表上记录时间：每行显示今天的用时和累计总量，今天的
 数字也可以手动修正。若某项跑得太久，满八小时会有横幅提醒。旁边还有一份
 独立的待办清单，完成的项目会沉到底部。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/tracker.png" width="420" alt="Hop — 时间跟踪与待办">
+</div>
 
 ### 防休眠
 
@@ -67,6 +75,10 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 和功耗——实时数值配迷你曲线图，颜色阈值由你自己设定，支持 °C/°F，
 还有一行开机时长。数据直接来自 macOS，且仅在标签页打开时更新。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/system.png" width="420" alt="Hop — 系统监控">
+</div>
+
 ### 剪贴板历史
 
 最近复制的 100 条（最多 300 条）内容——文字、图片和文件，一键复制回来，
@@ -78,6 +90,10 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 把一批图片、PDF、视频或音频拖到面板上：输出 JPEG、PNG、
 HEIC、AVIF 和 WebP；压缩 PDF；HEVC 视频瘦身，转换前就能看到
 实时且诚实的体积预估。所有处理均在本地完成。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/converter.png" width="480" alt="Hop — 文件转换器">
+</div>
 
 ### 窗口管理器
 
@@ -106,6 +122,10 @@ HEIC、AVIF 和 WebP；压缩 PDF；HEVC 视频瘦身，转换前就能看到
 设置里的「Hop 作为压缩包的默认程序」会接管 macOS 自己没有程序的格式 —— 首先是 rar 和 7z —— 并从第三方应用手里拿回来；
 zip 和 tar 仍留给「归档实用工具」。模块隐藏时同样有效，卡片显示的是真实状态。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/archives.png" width="480" alt="Hop — 文件压缩包">
+</div>
+
 ### 文档
 
 转换器学会了文档：markdown → PDF 由 Hop 自己排版，Word 文件（.docx、.doc、.rtf）
@@ -118,17 +138,29 @@ zip 和 tar 仍留给「归档实用工具」。模块隐藏时同样有效，�
 哪一种写法。顺序不会在光标下变动，保留多少颜色、显示几行都可设置，也不需要录屏权限：放大镜只返回
 一个颜色。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/colors.png" width="420" alt="Hop — 颜色取色器">
+</div>
+
 ### 文字识别
 
 框选屏幕上的一块区域，或者把图片拖进窗口、用 ⌘V 粘贴：其中的文字和二维码会出现在一个可阅读、可
 编辑、可复制的窗口里，同时进入剪贴板历史。换行会保留，表格依然可读。识别用的是 Apple 的 Vision，
 全部在这台 Mac 上完成。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/recognition.png" width="480" alt="Hop — 文字识别">
+</div>
+
 ### 键盘锁定
 
 点 1、5 或 15 分钟 —— 或者 ∞ —— 整块键盘就不再响应，方便擦拭，而不必关机或合盖。一层遮罩会说明
 正在发生什么，菜单栏图标也会变成键盘。四种解除方式：遮罩上的按钮、面板里的按钮、打开面板，或者
 长按 esc + shift 五秒。电源键的短按同样被吞掉；长按仍会强制关机，因为那是硬件负责的。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/keyboard.png" width="480" alt="Hop — 键盘锁定">
+</div>
 
 ### 其他
 
@@ -146,7 +178,13 @@ zip 和 tar 仍留给「归档实用工具」。模块隐藏时同样有效，�
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — 应用开箱即用，自动跟随系统语言。
 
-## 隐私
+## 隐私 —— 以及为什么这些权限可以放心给
+
+**Hop 不收集任何东西。现在不会，以后也不会。** 没有自己的服务器，没有分析统计，没有遥测，
+没有账号，不上报崩溃。下面的每一项权限，都只有在你真正使用需要它的功能时才由 macOS 询问，
+而且它存在的唯一目的就是让那个功能能用 —— 不会顺手收集任何数据。这一点不用你信我的话：
+应用是开源的，那种用来收集数据的代码根本不存在。在这个仓库里搜一搜追踪 SDK 或分析调用，
+你找不到。
 
 一切都在本地运行：没有服务器、没有分析统计、没有账号。
 应用仅在检查更新、运行内置测速，以及启用 BT 模块后一次性下载引擎

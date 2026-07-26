@@ -58,6 +58,10 @@ minuteur en cours pendant que vous en essayez un autre, et une alerte de fin
 qui peut aussi mettre vos médias en pause. À la fin du compte à rebours, un
 seul son retentit et les chiffres clignotent jusqu'à la réinitialisation.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/timer.png" width="420" alt="Hop — Minuteur et cycles">
+</div>
+
 ### Suivi du temps et tâches
 
 Suivez le temps sur une liste de tâches à plat : chaque ligne montre le temps
@@ -65,6 +69,10 @@ du jour et un total cumulé, et vous pouvez corriger le chiffre du jour à la
 main. Si l'une tourne trop longtemps, un bandeau vous le rappelle au bout de
 huit heures. À côté, une liste de choses à faire distincte, où le terminé
 descend en bas.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/tracker.png" width="420" alt="Hop — Suivi du temps et tâches">
+</div>
 
 ### Anti-veille
 
@@ -81,6 +89,10 @@ des graphiques sparkline, des seuils de couleur que vous définissez
 vous-même, °C/°F, et une ligne d'uptime. Les mesures viennent directement de
 macOS et ne se rafraîchissent que lorsque l'onglet est ouvert.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/system.png" width="420" alt="Hop — Moniteur système">
+</div>
+
 ### Historique du presse-papiers
 
 Les 100 derniers éléments copiés (jusqu'à 300) — texte, images et fichiers —
@@ -95,6 +107,10 @@ Déposez un lot d'images, de PDF, de vidéos ou d'audio sur le panneau : JPEG,
 PNG, HEIC, AVIF et WebP en sortie ; compression de PDF ; réduction vidéo en
 HEVC avec une estimation de taille honnête et en direct avant de convertir.
 Tout est traité en local.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/converter.png" width="480" alt="Hop — Convertisseur de fichiers">
+</div>
 
 ### Gestionnaire de fenêtres
 
@@ -130,6 +146,10 @@ dans les réglages prend les formats que macOS n'ouvre pas lui-même — rar et 
 en premier — et les reprend aux apps tierces ; zip et tar restent à Utilitaire
 d'archive. Ça marche avec le module masqué, et la carte affiche l'état réel.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/archives.png" width="480" alt="Hop — Archives de fichiers">
+</div>
+
 ### Documents
 
 Le convertisseur sait faire des documents : markdown → PDF composé par Hop
@@ -146,6 +166,10 @@ curseur, le nombre de couleurs gardées et de lignes visibles se règle, et
 aucune autorisation d'enregistrement d'écran n'est nécessaire : la loupe rend
 une seule couleur.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/colors.png" width="420" alt="Hop — Pipette à couleurs">
+</div>
+
 ### Reconnaissance de texte
 
 Cadre une zone de l'écran, ou dépose une image dans la fenêtre et colle-en une
@@ -153,6 +177,10 @@ avec ⌘V : le texte et les codes QR sortent dans une fenêtre qu'on peut lire,
 corriger et copier, et rejoignent en même temps l'historique du presse-papiers.
 Les retours à la ligne sont gardés, un tableau reste donc lisible. La
 reconnaissance, c'est Vision d'Apple, entièrement sur ce Mac.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/recognition.png" width="480" alt="Hop — Reconnaissance de texte">
+</div>
 
 ### Verrou clavier
 
@@ -163,6 +191,10 @@ sorties : le bouton du cache, le bouton du panneau, l'ouverture du panneau, ou
 échap + maj maintenus cinq secondes. Une pression courte sur la touche d'alimentation
 est avalée elle aussi ; la maintenir éteint toujours le Mac, car c'est le
 matériel qui s'en charge.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/keyboard.png" width="480" alt="Hop — Verrou clavier">
+</div>
 
 ### Et le reste
 
@@ -183,7 +215,15 @@ session, et un mode sans échec qui récupère l'app après une boucle de crash.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — l'app suit la langue de votre système dès
 l'installation.
 
-## Confidentialité
+## Confidentialité — et pourquoi les autorisations sont sans risque
+
+**Hop ne collecte rien. Ni maintenant, ni plus tard.** Pas de serveur à lui, pas
+d'analytique, pas de télémétrie, pas de comptes, pas de rapports de plantage.
+Chaque autorisation ci-dessous est demandée par macOS uniquement quand la
+fonction qui en a besoin est utilisée, et elle sert exactement à ça — rien n'est
+collecté au passage. Tu n'as pas à me croire sur parole : l'app est open source,
+le code qui collecterait n'existe tout simplement pas. Cherche un SDK de tracking
+ou un appel d'analytique dans ce dépôt : tu n'en trouveras aucun.
 
 Tout tourne en local : pas de serveur, pas d'analytics, pas de compte. L'app
 ne touche au réseau que pour vérifier les mises à jour, quand vous lancez le

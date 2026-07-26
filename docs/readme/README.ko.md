@@ -53,12 +53,20 @@ Hop은 Mac의 메뉴 막대에 자리 잡고 자잘한 유틸리티 여러 개�
 그리고 재생 중인 미디어까지 멈춰 줄 수 있는 종료 알림. 카운트다운이 끝나면
 소리가 한 번 울리고, 초기화할 때까지 숫자가 깜박입니다.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — 타이머와 사이클">
+</div>
+
 ### 시간 추적과 할 일
 
 평평한 작업 목록에 시간을 기록합니다. 각 줄에 오늘의 시간과 누적 합계가
 보이고, 오늘의 값은 손으로 고칠 수 있습니다. 하나가 너무 오래 돌면 여덟
 시간이 지날 때 배너가 알려 줍니다. 옆에는 별도의 할 일 목록이 있어, 끝낸
 항목은 아래로 가라앉습니다.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — 시간 추적과 할 일">
+</div>
 
 ### 잠자기 방지
 
@@ -73,6 +81,10 @@ CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, �
 색상 임계값, °C/°F 전환, 가동 시간 표시까지. 값은 macOS에서 바로
 읽어 오며 탭이 열려 있는 동안에만 갱신됩니다.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — 시스템 모니터">
+</div>
+
 ### 클립보드 히스토리
 
 최근에 복사한 100개(최대 300개)의 항목 — 텍스트, 이미지, 파일 — 을 클릭 한
@@ -86,6 +98,10 @@ CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, �
 HEIC, AVIF, WebP로 출력, PDF 압축, HEVC 비디오 용량 줄이기 — 변환 전에
 실시간으로 정직한 용량 예측을 보여 줍니다. 모든 처리는 로컬에서
 이루어집니다.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — 파일 변환기">
+</div>
 
 ### 창 관리자
 
@@ -117,6 +133,10 @@ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz, gz를 지원합니다. rar과 7z은 
 서드파티 앱에서는 도로 가져옵니다. zip과 tar은 «압축 유틸리티»에 그대로 둡니다. 모듈이 숨겨져 있어도
 동작하며, 카드는 실제 상태를 보여 줍니다.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — 파일 압축">
+</div>
+
 ### 문서
 
 변환기가 문서를 익혔습니다. markdown → PDF는 Hop이 직접 조판하고, Word
@@ -130,11 +150,19 @@ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz, gz를 지원합니다. rar과 7z은 
 칸에 담고, 누른 표기가 복사됩니다. 커서 밑에서 순서가 바뀌지 않고, 몇 개를 보관할지와 몇 줄을
 보여 줄지는 설정이며, 화면 기록 권한도 필요 없습니다. 확대경은 색 하나만 돌려줍니다.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — 색상 스포이트">
+</div>
+
 ### 텍스트 인식
 
 화면 영역을 잡거나, 창에 이미지를 끌어다 놓거나 ⌘V로 붙여넣으세요. 그 안의 텍스트와 QR 코드가
 읽고 고치고 복사할 수 있는 창에 나오고, 동시에 클립보드 기록에도 들어갑니다. 줄바꿈이 유지되어
 표도 읽을 수 있습니다. 인식은 Apple의 Vision이며 전부 이 Mac 안에서 이뤄집니다.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — 텍스트 인식">
+</div>
 
 ### 키보드 잠금
 
@@ -142,6 +170,10 @@ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz, gz를 지원합니다. rar과 7z은 
 닦을 수 있습니다. 전체 화면 덮개가 상황을 알려 주고 메뉴 막대 아이콘은 키보드로 바뀝니다. 푸는
 방법은 넷입니다: 덮개의 버튼, 패널의 버튼, 패널 열기, esc + shift 5초 길게 누르기. 전원 키의 짧은 누름도
 삼켜지지만, 길게 누르면 여전히 Mac이 강제로 꺼집니다. 그것은 하드웨어가 처리하기 때문입니다.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — 키보드 잠금">
+</div>
 
 ### 그 밖에
 
@@ -161,7 +193,13 @@ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz, gz를 지원합니다. rar과 7z은 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — 앱은 처음부터 시스템 언어를 그대로
 따라갑니다.
 
-## 개인정보 보호
+## 개인정보 보호 — 그리고 권한을 안심하고 줘도 되는 이유
+
+**Hop은 아무것도 수집하지 않습니다. 지금도, 나중에도.** 자체 서버도, 분석도, 텔레메트리도,
+계정도, 크래시 리포트도 없습니다. 아래의 모든 권한은 그것이 필요한 기능을 실제로 쓸 때만
+macOS가 묻고, 오직 그 기능을 위해 존재합니다. 곁다리로 무언가를 모으는 일은 없습니다.
+믿어 달라고 할 필요도 없습니다. 앱은 오픈 소스이고, 수집할 코드 자체가 없습니다. 이 저장소에서
+트래킹 SDK나 분석 호출을 찾아보세요. 없습니다.
 
 모든 것이 로컬에서 동작합니다: 서버도, 분석 도구도, 계정도 없습니다.
 앱이 네트워크에 접근하는 것은 업데이트를 확인할 때, 내장 속도 측정을

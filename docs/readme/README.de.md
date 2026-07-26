@@ -57,12 +57,20 @@ anderen ausprobierst, und ein Endalarm, der auf Wunsch auch deine Medien
 pausiert. Läuft der Countdown ab, ertönt ein einzelner Ton und die Ziffern
 pulsieren, bis du zurücksetzt.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/timer.png" width="420" alt="Hop — Timer & Zyklen">
+</div>
+
 ### Zeiterfassung & To-dos
 
 Erfasse Zeit über eine flache Aufgabenliste — jede Zeile zeigt die heutige
 Zeit und eine laufende Gesamtsumme, und den heutigen Wert kannst du von Hand
 korrigieren. Läuft eine zu lange, erinnert dich nach acht Stunden ein Banner.
 Daneben liegt eine eigene To-do-Liste, in der Erledigtes nach unten wandert.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/tracker.png" width="420" alt="Hop — Zeiterfassung & To-dos">
+</div>
 
 ### Kein Schlaf
 
@@ -78,6 +86,10 @@ Farbschwellen, die du selbst festlegst, °C/°F und einer Uptime-Zeile. Die
 Messwerte kommen direkt von macOS und aktualisieren sich nur, solange der Tab
 geöffnet ist.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/system.png" width="420" alt="Hop — Systemmonitor">
+</div>
+
 ### Zwischenablage-Verlauf
 
 Die letzten 100 (bis zu 300) kopierten Einträge — Text, Bilder und Dateien —
@@ -92,6 +104,10 @@ Zieh einen Stapel Bilder, PDFs, Videos oder Audiodateien auf das Panel: JPEG,
 PNG, HEIC, AVIF und WebP als Ausgabe; PDF-Komprimierung; HEVC-Videoverkleinerung
 mit einer ehrlichen Live-Größenschätzung, bevor du konvertierst. Alles wird
 lokal verarbeitet.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/converter.png" width="480" alt="Hop — Dateikonverter">
+</div>
 
 ### Fenstermanager
 
@@ -128,6 +144,10 @@ Format ist proprietär. «Hop als Standard für Archive» in den Einstellungen
 Archivierungsprogramm. Es funktioniert auch mit verstecktem Modul, und die Karte
 zeigt den echten Stand.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/archives.png" width="480" alt="Hop — Dateiarchive">
+</div>
+
 ### Dokumente
 
 Der Konverter kann jetzt Dokumente: markdown → PDF, von Hop selbst gesetzt,
@@ -143,6 +163,10 @@ genau diese Schreibweise. Die Reihenfolge ändert sich nie unter dem Zeiger,
 Listenlänge und sichtbare Zeilen sind einstellbar, und eine Berechtigung für
 Bildschirmaufnahmen braucht es nicht: die Lupe liefert genau eine Farbe.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/colors.png" width="420" alt="Hop — Farbpipette">
+</div>
+
 ### Texterkennung
 
 Rahme einen Bereich des Bildschirms ein oder zieh ein Bild ins Fenster und füge
@@ -150,6 +174,10 @@ eines mit ⌘V ein: Text und QR-Codes darin erscheinen in einem Fenster, das man
 lesen, bearbeiten und daraus kopieren kann, und landen zugleich im Verlauf der
 Zwischenablage. Zeilenumbrüche bleiben, eine Tabelle bleibt lesbar. Erkannt
 wird mit Apples Vision, komplett auf diesem Mac.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/recognition.png" width="480" alt="Hop — Texterkennung">
+</div>
 
 ### Tastatursperre
 
@@ -160,6 +188,10 @@ zur Tastatur. Vier Wege hinaus: der Knopf auf der Abdeckung, der Knopf im
 Panel, das Öffnen des Panels oder esc + shift fünf Sekunden halten. Ein kurzer Druck
 auf die Ein-/Aus-Taste wird ebenfalls geschluckt; langes Halten schaltet den
 Mac weiterhin aus, denn das macht die Hardware.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/keyboard.png" width="480" alt="Hop — Tastatursperre">
+</div>
 
 ### Und der Rest
 
@@ -179,7 +211,15 @@ aus einer Absturzschleife rettet.
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — die App folgt von Haus aus deiner Systemsprache.
 
-## Datenschutz
+## Datenschutz — und warum die Berechtigungen unbedenklich sind
+
+**Hop sammelt nichts. Jetzt nicht und später nicht.** Kein eigener Server, keine
+Analytics, keine Telemetrie, keine Accounts, keine Crash-Reports. Jede
+Berechtigung unten fragt macOS erst dann, wenn die Funktion, die sie braucht,
+wirklich benutzt wird, und sie ist genau dafür da — nebenbei wird nichts
+gesammelt. Du musst das nicht glauben: die App ist Open Source, den sammelnden
+Code gibt es schlicht nicht. Suche in diesem Repository nach einem Tracking-SDK
+oder einem Analytics-Aufruf — du wirst keinen finden.
 
 Alles läuft lokal: kein Server, keine Analytics, keine Konten. Die App greift
 nur auf das Netzwerk zu, um nach Updates zu suchen, wenn du den eingebauten

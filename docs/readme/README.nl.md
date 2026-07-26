@@ -56,12 +56,20 @@ lopende timer bewaart terwijl je een andere probeert, en een eindmelding die
 desgewenst ook je media pauzeert. Als de countdown afloopt, klinkt er één
 geluid en knipperen de cijfers tot je reset.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Timer & cycli">
+</div>
+
 ### Tijdregistratie & taken
 
 Houd tijd bij op een platte takenlijst: elke rij toont de tijd van vandaag en
 een doorlopend totaal, en het cijfer van vandaag pas je met de hand aan. Loopt
 er een te lang, dan herinnert een banner je na acht uur. Ernaast staat een
 aparte to-do-lijst, waarin afgevinkte items naar onderen zakken.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Tijdregistratie & taken">
+</div>
 
 ### Geen slaap
 
@@ -77,6 +85,10 @@ kleurdrempels die je zelf instelt, °C/°F en een uptime-regel. De metingen
 komen rechtstreeks van macOS en worden alleen bijgewerkt zolang het tabblad
 open is.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Systeemmonitor">
+</div>
+
 ### Klembordgeschiedenis
 
 De laatste 100 (tot 300) dingen die je kopieerde — tekst, afbeeldingen en
@@ -91,6 +103,10 @@ Sleep een lading afbeeldingen, pdf's, video's of audio op het paneel: JPEG,
 PNG, HEIC, AVIF en WebP als uitvoer; pdf-compressie; HEVC-videoverkleinen met
 een eerlijke live-schatting van de bestandsgrootte vóór je converteert. Alles
 wordt lokaal verwerkt.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Bestandsconverter">
+</div>
 
 ### Vensterbeheer
 
@@ -126,6 +142,10 @@ formaten waarvoor macOS geen eigen app heeft — vooral rar en 7z — en pakt ze
 terug van apps van derden; zip en tar blijven bij Archiefhulpprogramma. Het
 werkt ook met een verborgen module, en de kaart toont de echte stand.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Bestandsarchieven">
+</div>
+
 ### Documenten
 
 De converter kan nu documenten: markdown → PDF, opgemaakt door Hop zelf,
@@ -141,6 +161,10 @@ notatie wordt gekopieerd. De volgorde verandert nooit onder je cursor, hoeveel
 kleuren je bewaart en hoeveel rijen je ziet zijn instellingen, en toestemming
 voor schermopname is niet nodig: de loep geeft één kleur terug.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Kleurenpipet">
+</div>
+
 ### Tekstherkenning
 
 Kader een deel van je scherm, of sleep een afbeelding in het venster en plak er
@@ -148,6 +172,10 @@ een met ⌘V: de tekst en eventuele QR-codes komen in een venster dat je kunt
 lezen, bijwerken en waaruit je kunt kopiëren, en gaan tegelijk naar de
 klembordgeschiedenis. Regeleindes blijven staan, dus een tabel blijft leesbaar.
 De herkenning is Vision van Apple, volledig op deze Mac.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Tekstherkenning">
+</div>
 
 ### Toetsenbordslot
 
@@ -158,6 +186,10 @@ een toetsenbord. Vier uitwegen: de knop op de afdekking, de knop in het paneel,
 het paneel openen, of esc + shift vijf seconden vasthouden. Een korte druk op de
 aan/uit-toets wordt ook geslikt; hem ingedrukt houden zet de Mac nog steeds uit,
 want dat regelt de hardware.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Toetsenbordslot">
+</div>
 
 ### En de rest
 
@@ -177,7 +209,15 @@ veilige modus die de app uit een crashlus haalt.
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — de app volgt standaard je systeemtaal.
 
-## Privacy
+## Privacy — en waarom je de toestemmingen gerust kunt geven
+
+**Hop verzamelt niets. Nu niet en later niet.** Geen eigen server, geen
+analytics, geen telemetrie, geen accounts, geen crashrapporten. Elke toestemming
+hieronder vraagt macOS pas wanneer je de functie die hem nodig heeft echt
+gebruikt, en hij bestaat precies zodat die functie werkt — er wordt onderweg
+niets verzameld. Je hoeft dat niet te geloven: de app is open source, en de code
+die zou moeten verzamelen bestaat er simpelweg niet. Zoek in deze repository
+naar een tracking-SDK of een analytics-aanroep — je vindt er geen.
 
 Alles draait lokaal: geen server, geen analytics, geen accounts. De app
 gebruikt het netwerk alleen om op updates te controleren, wanneer je de
