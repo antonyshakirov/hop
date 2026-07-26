@@ -40,6 +40,31 @@ struct PermissionsView: View {
                     .foregroundStyle(Theme.docText)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            // The closing statement, deliberately the loudest thing on the page:
+            // a list of permissions reads as a list of risks unless somebody
+            // says plainly what they are FOR and what is not happening. And it
+            // ends with the receipt — the source is open (Anton, 2026-07-26).
+            VStack(alignment: .leading, spacing: 7) {
+                Text(L10n.t(.permPledgeTitle, lang))
+                    .font(Theme.mono(13, weight: .bold))
+                    .foregroundStyle(Theme.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(L10n.t(.permPledgeBody, lang))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 6) {
+                    Image(systemName: "chevron.left.forwardslash.chevron.right")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Theme.textTertiary)
+                    FooterLink(url: "https://github.com/antonyshakirov/hop",
+                               label: L10n.t(.permPledgeLink, lang))
+                        .font(Theme.mono(11, weight: .semibold))
+                }
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 9))
         }
         .task {
             // UNUserNotificationCenter throws outright in a process with no

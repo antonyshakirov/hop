@@ -1141,6 +1141,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - The same list, condensed, is a README section (all 18 languages) and a FAQ
   answer on the landing (all 8). The general help tab points at the tab by name,
   because a permission page nobody finds explains nothing (Anton, 2026-07-26).
+- The page CLOSES with a statement, set larger and bolder than anything above
+  it: the permissions exist so features can work, nothing about the user is
+  collected, nothing leaves the Mac — and, because a promise is worth little,
+  a link to the source (Anton, 2026-07-26). A list of permissions reads as a
+  list of risks until somebody says plainly what is NOT happening.
 - Every module tab whose row carries icons ends with an icon legend
   (`aboutIconLegend`): the glyph as the panel draws it, then what it does. A
   glyph the help text talks about has to be named somewhere.
