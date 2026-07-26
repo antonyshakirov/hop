@@ -1123,7 +1123,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Info window: permissions tab (1.5.0)
 
-- A "permissions" section in the info window listing EVERY permission Hop can
+- An "app permissions" section — SECOND in the switcher, right after "general",
+  because it is the page people go looking for (Anton, 2026-07-26) — listing
+  EVERY permission Hop can
   ask for, what it is for, and whether it is granted right now — plus what Hop
   never does. The list is taken from the code (actual API calls), never written
   from memory; a new permission means a new row.

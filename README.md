@@ -206,6 +206,12 @@ exists — and to download it, or one of the two optional helpers, if you say ye
 Everything else stays on this Mac: the clipboard history, tracked time, the
 to-do list, recognized text and picked colors.
 
+Every permission above exists so a feature can work, and for nothing else. You
+do not have to take that on trust: Hop is open source, so the code that would
+have to do the collecting simply is not there — read it in this repository. The
+app's info window has an "app permissions" tab with the same list and each
+permission's current state.
+
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## Free, and why

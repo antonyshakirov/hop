@@ -206,6 +206,11 @@ tải nó, hoặc một trong hai trợ thủ tuỳ chọn, nếu bạn đồng 
 lại chiếc Mac này: lịch sử clipboard, thời gian đã ghi, danh sách việc cần làm,
 văn bản nhận được và những màu đã lấy.
 
+Mọi quyền ở trên chỉ để một tính năng chạy được — không vì gì khác. Bạn không
+cần tin lời: Hop là mã nguồn mở, và đoạn mã để thu thập đơn giản là không tồn
+tại — hãy đọc trong kho này. Cửa sổ thông tin của ứng dụng có thẻ «quyền của ứng
+dụng» với đúng danh sách này và trạng thái hiện tại của từng quyền.
+
 Trang web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## Miễn phí, và vì sao

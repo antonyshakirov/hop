@@ -215,6 +215,12 @@ para descargarla —o uno de los dos ayudantes opcionales— si dices que sí. T
 lo demás se queda en este Mac: el historial del portapapeles, el tiempo
 registrado, la lista de tareas, el texto reconocido y los colores tomados.
 
+Cada permiso de arriba existe para que una función pueda trabajar, y para nada
+más. No hace falta creerlo: Hop es de código abierto, y el código que tendría
+que recopilar sencillamente no existe — léelo en este repositorio. La ventana de
+información de la app tiene una pestaña «permisos de la app» con la misma lista
+y el estado actual de cada permiso.
+
 Sitio web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## Gratis, y por qué

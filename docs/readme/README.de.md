@@ -216,6 +216,12 @@ neuere Version gibt — und um sie oder einen der zwei optionalen Helfer zu lade
 wenn du zustimmst. Alles andere bleibt auf diesem Mac: der Verlauf der
 Zwischenablage, erfasste Zeit, die Aufgabenliste, erkannter Text und Farben.
 
+Jede Berechtigung oben ist dafür da, dass eine Funktion arbeitet — und für
+nichts sonst. Du musst das nicht glauben: Hop ist Open Source, den sammelnden
+Code gibt es schlicht nicht — lies ihn in diesem Repository. Im Infofenster der
+App gibt es den Tab «App-Berechtigungen» mit derselben Liste und dem aktuellen
+Stand jeder einzelnen.
+
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## Kostenlos — und warum

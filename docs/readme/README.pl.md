@@ -214,6 +214,12 @@ wersja — i pobrać ją albo jednego z dwóch opcjonalnych pomocników, jeśli 
 zgodzisz. Cała reszta zostaje na tym Macu: historia schowka, zmierzony czas,
 lista zadań, rozpoznany tekst i pobrane kolory.
 
+Każde uprawnienie powyżej jest po to, żeby funkcja działała — i po nic więcej.
+Nie musisz w to wierzyć: Hop jest open source, a kodu, który miałby cokolwiek
+zbierać, po prostu nie ma — przeczytaj go w tym repozytorium. Okno informacji
+aplikacji ma kartę «uprawnienia aplikacji» z tą samą listą i aktualnym stanem
+każdego z nich.
+
 Strona: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## Za darmo — i dlaczego

@@ -4305,16 +4305,19 @@ struct PanelView: View {
     }
 
     private var aboutTabLabels: [String] {
-        [t(.aboutTabGeneral), t(.aboutTabTimer), t(.awakeOff),
+        [t(.aboutTabGeneral), t(.permTab), t(.aboutTabTimer), t(.awakeOff),
          t(.tabSystem), t(.tabClipboard), t(.convertLabel), t(.windowsLabel),
          t(.speedtestLabel), t(.torrentLabel), t(.colorLabel), t(.ocrLabel),
-         t(.archiveLabel), t(.keylockLabel), t(.permTab)]
+         t(.archiveLabel), t(.keylockLabel)]
     }
 
     private var aboutScreen: some View {
         VStack(alignment: .leading, spacing: 14) {
             SectionChips(items: [
                 ("general", t(.aboutTabGeneral)),
+                // straight after "general": the page people look for when they
+                // wonder what the app is allowed to do (Anton, 2026-07-26)
+                ("permissions", t(.permTab)),
                 ("timer", t(.aboutTabTimer)),
                 ("awake", t(.awakeOff)),
                 ("monitor", t(.tabSystem)),
@@ -4327,7 +4330,6 @@ struct PanelView: View {
                 ("ocr", t(.ocrLabel)),
                 ("archive", t(.archiveLabel)),
                 ("keyboard", t(.keylockLabel)),
-                ("permissions", t(.permTab)),
                 ("tasks", t(.aboutTabTasks)),
                 ("news", t(.aboutTabNews)),
             ], selection: $aboutSection, wraps: true)

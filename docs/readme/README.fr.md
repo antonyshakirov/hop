@@ -221,6 +221,12 @@ optionnels, si tu acceptes. Tout le reste reste sur ce Mac : l'historique du
 presse-papiers, le temps suivi, la liste de tâches, le texte reconnu, les
 couleurs prélevées.
 
+Chaque autorisation ci-dessus sert à faire fonctionner une fonction — et à rien
+d'autre. Tu n'as pas à me croire sur parole : Hop est open source, le code qui
+collecterait n'existe tout simplement pas — lis-le dans ce dépôt. La fenêtre
+d'informations de l'app a un onglet « autorisations de l'app » avec la même
+liste et l'état actuel de chacune.
+
 Site web : [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## Gratuit, et pourquoi

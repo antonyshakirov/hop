@@ -209,6 +209,11 @@ edersen onu ya da iki isteğe bağlı yardımcıdan birini indirmek için. Geri 
 her şey bu Mac'te kalır: pano geçmişi, tutulan süre, yapılacaklar listesi,
 tanınan metin ve alınan renkler.
 
+Yukarıdaki her izin, bir özellik çalışsın diye var — başka hiçbir şey için değil.
+Buna inanmak zorunda değilsin: Hop açık kaynak, toplayacak kod zaten yok — bu
+deposunda oku. Uygulamanın bilgi penceresinde «uygulama izinleri» sekmesi var:
+aynı liste ve her iznin güncel durumu.
+
 Web sitesi: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## Ücretsiz, peki neden

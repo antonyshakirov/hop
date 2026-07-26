@@ -173,6 +173,10 @@ Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, P
 访问 antonshakirov.com 只是为了询问是否有新版本 —— 以及在你同意时下载它，或下载两个可选小助手之一。
 其余一切都留在这台 Mac 上：剪贴板历史、记录的时间、待办清单、识别出的文字和取到的颜色。
 
+上面每一项权限都只是为了让某个功能能用，没有别的用途。这一点不用你信我的话：Hop 是开源的，
+那种用来收集数据的代码根本不存在 —— 就在这个仓库里读它。应用的信息窗口里有「应用权限」标签页，
+列着同样的清单和每项权限的当前状态。
+
 官网：[antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## 为什么免费

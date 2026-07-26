@@ -213,6 +213,12 @@ baru — dan mengunduhnya, atau salah satu dari dua pembantu opsional, kalau kam
 setuju. Sisanya tetap di Mac ini: riwayat papan klip, waktu yang tercatat, daftar
 tugas, teks hasil pengenalan, dan warna yang diambil.
 
+Setiap izin di atas ada supaya sebuah fungsi bisa bekerja — dan tidak untuk hal
+lain. Kamu tidak perlu percaya begitu saja: Hop open source, dan kode yang
+mengumpulkan itu memang tidak ada — baca di repositori ini. Jendela info
+aplikasi punya tab «izin aplikasi» dengan daftar yang sama dan status setiap
+izin saat ini.
+
 Situs web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## Gratis, dan alasannya

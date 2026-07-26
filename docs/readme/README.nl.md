@@ -213,6 +213,12 @@ nieuwere versie is — en om die, of een van de twee optionele helpers, te
 downloaden als jij ja zegt. Al het andere blijft op deze Mac: de
 klembordgeschiedenis, bijgehouden tijd, de takenlijst, herkende tekst en kleuren.
 
+Elke toestemming hierboven is er zodat een functie kan werken — en nergens
+anders voor. Je hoeft dat niet te geloven: Hop is open source, en de code die
+zou moeten verzamelen bestaat er simpelweg niet — lees hem in deze repository.
+Het infovenster van de app heeft een tab «app-toestemmingen» met dezelfde lijst
+en de huidige stand van elke toestemming.
+
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## Gratis, en waarom

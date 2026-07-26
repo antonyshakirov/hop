@@ -216,6 +216,12 @@ versione più recente — e per scaricarla, o uno dei due aiutanti opzionali, se
 acconsenti. Tutto il resto resta su questo Mac: la cronologia degli appunti, il
 tempo registrato, la lista di cose da fare, il testo riconosciuto e i colori.
 
+Ogni permesso qui sopra serve a far funzionare una funzione — e a nient'altro.
+Non serve crederci sulla parola: Hop è open source, e il codice che dovrebbe
+raccogliere semplicemente non c'è — leggilo in questo repository. La finestra di
+informazioni dell'app ha una scheda «permessi dell'app» con lo stesso elenco e
+lo stato attuale di ciascuno.
+
 Sito web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 
 ## Gratis, ed ecco perché
