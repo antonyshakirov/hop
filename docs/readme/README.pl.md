@@ -37,9 +37,12 @@ rozkładasz na maksymalnie czterech kartach na ikonie.
 - `Hop-x.y.z.zip` — ta sama aplikacja jako zwykłe archiwum (używa go wbudowany aktualizator); zobacz [najnowsze wydanie](https://github.com/antonyshakirov/hop/releases/latest)
 - Szybki mirror: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-Pierwsze uruchomienie: kliknij `Hop.app` prawym przyciskiem → **Otwórz**
-→ potwierdź (aplikacja nie jest jeszcze notaryzowana). Wymaga macOS 14
-lub nowszego.
+Pierwsze uruchomienie w macOS 15 lub nowszym: spróbuj raz otworzyć Hop,
+następnie przejdź do **Ustawienia systemowe → Prywatność i ochrona →
+Otwórz mimo to** i potwierdź **Otwórz**. Hop nie jest notaryzowany, ponieważ
+autor nie ma dostępu do członkostwa w Apple Developer Program. Kod źródłowy
+jest publiczny, a wbudowane aktualizacje są weryfikowane za pomocą Ed25519.
+Wymaga macOS 14 lub nowszego.
 
 ## Funkcje
 

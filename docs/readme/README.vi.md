@@ -36,8 +36,11 @@ dùng được trải trên tối đa bốn tab ở biểu tượng.
 - `Hop-x.y.z.zip` — vẫn là ứng dụng đó dưới dạng tệp nén thông thường (dùng cho trình cập nhật tích hợp); xem [bản phát hành mới nhất](https://github.com/antonyshakirov/hop/releases/latest)
 - Mirror tốc độ cao: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-Lần khởi chạy đầu tiên: nhấp chuột phải vào `Hop.app` → **Open** → xác nhận
-(ứng dụng chưa được notarize). Yêu cầu macOS 14 trở lên.
+Lần khởi chạy đầu tiên trên macOS 15 trở lên: hãy thử mở Hop một lần, sau
+đó vào **Cài đặt hệ thống → Quyền riêng tư & Bảo mật → Vẫn mở** và xác nhận
+**Mở**. Hop không được notarize vì tác giả không có quyền sử dụng tư cách
+thành viên Apple Developer Program. Mã nguồn được công khai và các bản cập
+nhật tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
 ## Tính năng
 

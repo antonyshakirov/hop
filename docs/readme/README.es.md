@@ -38,8 +38,12 @@ hasta cuatro pestañas del icono.
 - `Hop-x.y.z.zip` — la misma app como archivo comprimido (lo usa el actualizador integrado); consulta la [última versión](https://github.com/antonyshakirov/hop/releases/latest)
 - Espejo rápido: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-Primer arranque: clic derecho en `Hop.app` → **Abrir** → confirmar
-(la app aún no está notarizada). Requiere macOS 14 o posterior.
+Primer arranque en macOS 15 o posterior: intenta abrir Hop una vez, ve a
+**Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente** y
+confirma **Abrir**. Hop no está notarizada porque el autor no dispone de una
+membresía del Apple Developer Program. El código fuente es público y las
+actualizaciones integradas se verifican con Ed25519. Requiere macOS 14 o
+posterior.
 
 ## Funciones
 

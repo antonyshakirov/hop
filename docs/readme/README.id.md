@@ -36,8 +36,12 @@ tab pada ikon.
 - `Hop-x.y.z.zip` — aplikasi yang sama dalam bentuk arsip biasa (dipakai oleh pembaru bawaan); lihat [rilis terbaru](https://github.com/antonyshakirov/hop/releases/latest)
 - Mirror cepat: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-Peluncuran pertama: klik kanan `Hop.app` → **Open** → konfirmasi
-(aplikasi belum dinotarisasi). Membutuhkan macOS 14 atau lebih baru.
+Peluncuran pertama di macOS 15 atau lebih baru: coba buka Hop sekali, lalu
+buka **Pengaturan Sistem → Privasi & Keamanan → Tetap Buka** dan konfirmasi
+**Buka**. Hop tidak dinotarisasi karena keanggotaan Apple Developer Program
+tidak tersedia bagi pembuatnya. Kode sumbernya terbuka untuk umum, dan
+pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
+lebih baru.
 
 ## Fitur
 

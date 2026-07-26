@@ -33,8 +33,10 @@ Hop 常驻在 Mac 的菜单栏中，一个应用顶替一把小工具：
 - `Hop-x.y.z.zip` — 同一应用的普通压缩包（供内置更新器使用）；见[最新版本](https://github.com/antonyshakirov/hop/releases/latest)
 - 高速镜像：[hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-首次启动：右键点击 `Hop.app` → **打开** → 确认
-（应用尚未经过公证）。需要 macOS 14 或更高版本。
+在 macOS 15 或更高版本上首次启动：先尝试打开一次 Hop，然后前往
+**系统设置 → 隐私与安全性 → 仍要打开**，并确认**打开**。由于作者无法
+使用 Apple Developer Program 会员资格，Hop 未经过公证。源代码已公开，
+内置更新使用 Ed25519 验证。需要 macOS 14 或更高版本。
 
 ## 功能
 

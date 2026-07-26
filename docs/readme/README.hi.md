@@ -36,8 +36,12 @@ caffeinate जैसा स्लीप ब्लॉकर, सिस्टम �
 - `Hop-x.y.z.zip` — वही ऐप एक सादे आर्काइव के रूप में (बिल्ट-इन अपडेटर इसी का उपयोग करता है); देखें [नवीनतम रिलीज़](https://github.com/antonyshakirov/hop/releases/latest)
 - तेज़ मिरर: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-पहली बार लॉन्च करते समय: `Hop.app` पर राइट-क्लिक करें → **Open** → पुष्टि करें
-(ऐप अभी notarized नहीं है)। macOS 14 या नया संस्करण आवश्यक है।
+macOS 15 या नए संस्करण पर पहली बार: Hop को एक बार खोलने की कोशिश करें,
+फिर **System Settings → Privacy & Security → Open Anyway** पर जाएँ और
+**Open** की पुष्टि करें। Hop notarized नहीं है क्योंकि लेखक के लिए Apple
+Developer Program की सदस्यता उपलब्ध नहीं है। सोर्स कोड सार्वजनिक है और
+बिल्ट-इन अपडेट Ed25519 से सत्यापित होते हैं। macOS 14 या नया संस्करण
+आवश्यक है।
 
 ## फ़ीचर
 
