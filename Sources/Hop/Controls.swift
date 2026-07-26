@@ -605,7 +605,12 @@ struct DefaultHandlerCard: View {
             held = isDefault()
         } label: {
             HStack {
-                Text(held ? doneLabel : label)
+                // The LABEL never changes places with the state: two of these
+                // cards sit in the same settings screen, and they have to read
+                // as one control in two states, not as two controls (Anton,
+                // 2026-07-26). The seal carries the state — outline to offer,
+                // filled green once Hop holds the types.
+                Text(label)
                     .font(Theme.mono(11, weight: .semibold))
                     .foregroundStyle(held ? Theme.textSecondary : Theme.textPrimary)
                     .lineLimit(1)
@@ -624,6 +629,7 @@ struct DefaultHandlerCard: View {
         .buttonStyle(.plain)
         .hoverHighlight(7)
         .disabled(held)
+        .help(held ? doneLabel : label)
         .onAppear { held = isDefault() }
         .onReceive(NotificationCenter.default.publisher(
             for: NSApplication.didBecomeActiveNotification)) { _ in

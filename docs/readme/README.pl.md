@@ -123,7 +123,7 @@ Wynik ląduje domyślnie na biurku, a można też obok oryginału albo w dowolny
 wybranym folderze. Obsługiwane są zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz i
 gz; dla rar i 7z przy pierwszym spotkaniu pobiera się mały pomocnik (~6 MB) ze
 sprawdzonym podpisem. Hop rozpakowuje rar, ale nigdy go nie tworzy — format jest
-zastrzeżony. «Otwieraj archiwa w Hop» w ustawieniach przejmuje formaty, dla których macOS
+zastrzeżony. «Hop domyślnie dla archiwów» w ustawieniach przejmuje formaty, dla których macOS
 nie ma własnej aplikacji — przede wszystkim rar i 7z — i odbiera je aplikacjom
 innych firm; zip i tar zostają przy Narzędziu archiwizacji. Działa też przy
 ukrytym module, a karta pokazuje prawdziwy stan.

@@ -123,7 +123,7 @@ unico archivio. Il risultato va sulla scrivania per impostazione predefinita,
 oppure accanto all'originale o in una cartella a scelta. Sono supportati zip,
 rar, 7z, tar, tar.gz, tar.bz2, tar.xz e gz; per rar e 7z alla prima occasione si
 scarica un piccolo aiutante (~6 MB) con firma verificata. Hop estrae i rar ma
-non li crea mai: il formato è proprietario. «Aprire gli archivi con Hop» nelle impostazioni
+non li crea mai: il formato è proprietario. «Hop come predefinito per gli archivi» nelle impostazioni
 prende i formati per cui macOS non ha un'app propria — soprattutto rar e 7z — e
 li riprende dalle app di terze parti; zip e tar restano a Utility Archivio.
 Funziona con il modulo nascosto, e la scheda mostra lo stato reale.

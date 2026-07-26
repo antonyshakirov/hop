@@ -125,7 +125,7 @@ reste part dans une seule archive. Le résultat va sur le bureau par défaut, ou
 côté de l'original, ou dans le dossier de ton choix. Sont pris en charge zip,
 rar, 7z, tar, tar.gz, tar.bz2, tar.xz et gz ; pour rar et 7z, un petit outil
 (~6 Mo) à la signature vérifiée se télécharge la première fois. Hop extrait le
-rar mais ne le crée jamais : le format est propriétaire. « Ouvrir les archives avec Hop »
+rar mais ne le crée jamais : le format est propriétaire. « Hop par défaut pour les archives »
 dans les réglages prend les formats que macOS n'ouvre pas lui-même — rar et 7z
 en premier — et les reprend aux apps tierces ; zip et tar restent à Utilitaire
 d'archive. Ça marche avec le module masqué, et la carte affiche l'état réel.

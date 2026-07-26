@@ -120,7 +120,7 @@ basınca çalışır: arşivler açılır, kalan her şey tek bir arşive girer.
 varsayılan olarak masaüstüne, istersen orijinalin yanına ya da seçtiğin bir
 klasöre iner. zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz ve gz desteklenir; rar
 ve 7z için ilk karşılaşmada imzası doğrulanan küçük bir yardımcı (~6 MB) iner.
-Hop rar açar ama asla oluşturmaz — format tescillidir. Ayarlardaki «arşivleri Hop ile aç»,
+Hop rar açar ama asla oluşturmaz — format tescillidir. Ayarlardaki «arşivler için varsayılan Hop»,
 macOS'un kendi uygulaması olmayan biçimleri — başta rar ve 7z — üstlenir ve
 üçüncü taraf uygulamalardan geri alır; zip ve tar Arşiv Yardımcısı'nda kalır.
 Modül gizliyken de çalışır ve kart gerçek durumu gösterir.

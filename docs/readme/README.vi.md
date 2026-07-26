@@ -120,7 +120,7 @@ khi bạn bấm nút: tệp nén được bung, phần còn lại gộp vào m�
 mặc định nằm trên màn hình nền, hoặc cạnh tệp gốc, hoặc trong thư mục bạn chọn.
 Hỗ trợ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz và gz; với rar và 7z, lần đầu
 gặp sẽ tải một trợ thủ nhỏ (~6 MB) có kiểm tra chữ ký. Hop bung được rar nhưng
-không bao giờ tạo — đó là định dạng độc quyền. «Mở kho nén bằng Hop» trong cài đặt nhận những định dạng macOS không có ứng dụng
+không bao giờ tạo — đó là định dạng độc quyền. «Hop làm mặc định cho kho nén» trong cài đặt nhận những định dạng macOS không có ứng dụng
 riêng — trước hết là rar và 7z — và giành lại từ ứng dụng bên thứ ba; zip và tar
 vẫn thuộc Archive Utility. Nó chạy cả khi mô-đun bị ẩn, và thẻ hiện trạng thái thật.
 
