@@ -538,10 +538,10 @@ struct PanelView: View {
                 deactivateModule(key)   // no-op when it is already hidden
             }
         }
-        // Only ever CLAIM the archive types here: an untouched switch must not
-        // hand back an opener the user chose earlier, in Finder or in settings.
+        // Only ever CLAIM, and only what macOS does not open itself: an
+        // untouched switch must not disturb an opener the user chose earlier.
         if bannerChoices[Self.archiveHandlerChoice] == true {
-            ArchiveController.setDefaultHandler(true)
+            ArchiveController.claimDefaultHandler()
         }
         markSeen(ann)
     }
@@ -3481,7 +3481,8 @@ struct PanelView: View {
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
                 settingsSectionHeader(t(.archiveLabel))
-                ArchiveDefaultHandlerRow(label: t(.archiveMakeDefault))
+                ArchiveDefaultHandlerRow(label: t(.archiveMakeDefault),
+                                         doneLabel: t(.defaultHandlerDone))
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
@@ -3610,32 +3611,13 @@ struct PanelView: View {
 
             // An offer, never automatic on install: register Hop as the system
             // handler for .torrent files so a double-click opens the add flow.
-            Button {
-                makeHopDefaultForTorrent()
-            } label: {
-                HStack {
-                    Text(t(.torrentMakeDefault))
-                        .font(Theme.mono(11, weight: .semibold))
-                        .foregroundStyle(Theme.textPrimary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                    Spacer(minLength: 8)
-                    Image(systemName: "checkmark.seal")
-                        .font(.system(size: 11))
-                        .foregroundStyle(Theme.textSecondary)
-                }
-                // The fill needs its own inset: text pressed against the edge of
-                // a card reads as a layout slip, even though the sibling rows
-                // (which have no fill) start at that very edge (Anton,
-                // 2026-07-26).
-                .padding(.horizontal, 10)
-                .padding(.vertical, 9)
-                .frame(maxWidth: .infinity)
-                .contentShape(Rectangle())
-                .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
-            }
-            .buttonStyle(.plain)
-            .hoverHighlight(7)
+            // The card reads the live state, so it cannot claim to be the
+            // default after the user picked another app in Finder.
+            DefaultHandlerCard(
+                label: t(.torrentMakeDefault),
+                isDefault: { Self.hopOpensTorrents },
+                claim: { makeHopDefaultForTorrent() },
+                doneLabel: t(.defaultHandlerDone))
         }
     }
 
@@ -3644,6 +3626,20 @@ struct PanelView: View {
     /// defaults for itself — the production Hop is left alone. Once Hop owns the
     /// type, Finder shows Hop's document icon (Info.plist CFBundleTypeIconFile)
     /// instead of the previous client's.
+    /// Whether Hop currently opens BOTH .torrent files and magnet links — read
+    /// from Launch Services, never from a flag of our own.
+    static var hopOpensTorrents: Bool {
+        let ours = Bundle.storageIdentifier
+        let file = LSCopyDefaultRoleHandlerForContentType(
+            "org.bittorrent.torrent" as CFString, .all)?.takeRetainedValue() as String?
+        // NSWorkspace is the non-deprecated way to ask who owns a URL scheme
+        let scheme = URL(string: "magnet:?xt=urn:btih:0")
+            .flatMap { NSWorkspace.shared.urlForApplication(toOpen: $0) }
+            .flatMap { Bundle(url: $0)?.bundleIdentifier }
+        return file?.caseInsensitiveCompare(ours) == .orderedSame
+            && scheme?.caseInsensitiveCompare(ours) == .orderedSame
+    }
+
     private func makeHopDefaultForTorrent() {
         let bundleID = Bundle.storageIdentifier
         LSSetDefaultRoleHandlerForContentType(

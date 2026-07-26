@@ -582,6 +582,56 @@ struct DocView: View {
     }
 }
 
+/// "Let Hop open these files" — the one shape both offers use (torrent files and
+/// archives). It shows the LIVE Launch Services state rather than a stored flag:
+/// the default can be changed in Finder at any moment, and a control that
+/// disagrees with the system is worse than no control (Anton, 2026-07-26). The
+/// state is re-read whenever Hop becomes active again, which is exactly when a
+/// user comes back from changing it elsewhere.
+struct DefaultHandlerCard: View {
+    let label: String
+    /// Reads Launch Services; called on appear and on every app activation.
+    let isDefault: () -> Bool
+    /// Claims the types Hop is allowed to claim.
+    let claim: () -> Void
+    /// Shown instead of the label once Hop holds them.
+    let doneLabel: String
+
+    @State private var held = false
+
+    var body: some View {
+        Button {
+            claim()
+            held = isDefault()
+        } label: {
+            HStack {
+                Text(held ? doneLabel : label)
+                    .font(Theme.mono(11, weight: .semibold))
+                    .foregroundStyle(held ? Theme.textSecondary : Theme.textPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                Spacer(minLength: 8)
+                Image(systemName: held ? "checkmark.seal.fill" : "checkmark.seal")
+                    .font(.system(size: 11))
+                    .foregroundStyle(held ? Theme.accentGreen : Theme.textSecondary)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 9)
+            .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
+            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
+        }
+        .buttonStyle(.plain)
+        .hoverHighlight(7)
+        .disabled(held)
+        .onAppear { held = isDefault() }
+        .onReceive(NotificationCenter.default.publisher(
+            for: NSApplication.didBecomeActiveNotification)) { _ in
+            held = isDefault()
+        }
+    }
+}
+
 /// A module's own mark at the head of its row. The frame is FIXED because SF
 /// Symbols differ in height as well as width: `doc.zipper` is a tall document
 /// and `archivebox` a squat box, so at the same point size the converter card

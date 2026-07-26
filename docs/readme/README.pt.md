@@ -120,8 +120,10 @@ compactado só. O resultado vai para a mesa por padrão, ou ao lado do original,
 ou para a pasta que você escolher. Valem zip, rar, 7z, tar, tar.gz, tar.bz2,
 tar.xz e gz; para rar e 7z, na primeira vez, baixa um ajudante pequeno (~6 MB)
 com assinatura verificada. O Hop extrai rar mas nunca cria: o formato é
-proprietário. Ligue «abrir arquivos compactados com o Hop» nos ajustes e um
-duplo clique extrai pelo Hop, com o módulo visível no painel ou não.
+proprietário. «Abrir arquivos compactados com o Hop» nos ajustes assume os
+formatos que o macOS não abre sozinho — sobretudo rar e 7z — e os toma de volta
+de apps de terceiros; zip e tar ficam com o Utilitário de Arquivos. Funciona com
+o módulo oculto, e o cartão mostra o estado real.
 
 ### Documentos
 

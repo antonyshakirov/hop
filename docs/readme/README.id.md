@@ -120,9 +120,10 @@ Hasilnya jatuh ke desktop secara bawaan, atau di sebelah aslinya, atau ke folder
 mana pun yang kamu pilih. Yang didukung: zip, rar, 7z, tar, tar.gz, tar.bz2,
 tar.xz, dan gz; untuk rar dan 7z, saat pertama kali dijumpai, diunduh pembantu
 kecil (~6 MB) yang tanda tangannya diperiksa. Hop membuka rar tetapi tidak
-pernah membuatnya — formatnya berpemilik. Nyalakan «buka arsip dengan Hop» di
-pengaturan dan klik ganda akan membukanya lewat Hop, terlihat atau tidak
-modulnya di panel.
+pernah membuatnya — formatnya berpemilik. «Buka arsip dengan Hop» di pengaturan mengambil format
+yang tidak punya aplikasi bawaan di macOS — terutama rar dan 7z — dan merebutnya
+kembali dari aplikasi pihak ketiga; zip dan tar tetap di Utilitas Arsip. Ini
+bekerja walau modulnya disembunyikan, dan kartunya menunjukkan keadaan asli.
 
 ### Dokumen
 

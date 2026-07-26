@@ -992,14 +992,24 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   converter's own paste monitor stands down while it is key. Its height follows
   its content the way the converter's does, so an empty module is a drop plate
   and nothing else — no gap underneath (Anton, 2026-07-25).
-- **Default opener in Finder**, exactly like the torrent module's: a switch in
+- **Default opener in Finder**, exactly like the torrent module's: a card in
   SETTINGS → other modules (not in the window — being the opener outlives any
-  window, Anton 2026-07-25) claims the archive content types (`LSSetDefaultRoleHandlerForContentType`,
-  read back with `LSCopyDefaultRoleHandlerForContentType`), and `processOpen`
-  routes an opened archive into the extractor. It works with the module HIDDEN —
-  the panel row is a place to drop things, not a precondition for Finder
-  (Anton, 2026-07-25). The types are declared in `Info.plist` with
-  `LSHandlerRank: Alternate` so Hop offers itself without shouldering aside
+  window, Anton 2026-07-25). Two rules, both Anton's (2026-07-26):
+  - **macOS's own app is never overridden.** `claimableTypes` skips every type
+    whose current handler is a `com.apple.*` bundle, so zip and tar stay with
+    Archive Utility; what Hop takes is what the system leaves unclaimed (rar, 7z
+    have no native opener) — and it does take those back from a third-party app.
+  - **The state is READ, never remembered.** `isDefaultHandler` asks Launch
+    Services every time (and `DefaultHandlerCard` re-reads on every app
+    activation), because the default can be changed in Finder at any moment and
+    a control that disagrees with the system is worse than no control. The card
+    only ever CLAIMS: handing a type back would mean choosing an app for the
+    user, and Finder's "Open with → Change all" is the honest way out.
+  `processOpen` routes an opened archive into the extractor, and it works with
+  the module HIDDEN — the panel row is a place to drop things, not a
+  precondition for Finder. The types are declared in `Info.plist` with
+  `LSHandlerRank: Alternate` (and `CFBundleTypeIconFile`, so Finder draws Hop's
+  icon on the files it owns) — Hop offers itself without shouldering aside
   whatever the user already chose.
 - Jobs are in-memory rows (max 4, running rows never trimmed) with a
   reveal-in-Finder action when done; snapshot flags `--archive` (panel) and
@@ -1092,7 +1102,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (shift comes off `event.flags`, so a bare modifier change updates it too) and
   arms a real Timer — shift never auto-repeats, so there would be nothing to
   count. Both keys are still swallowed on the way through, and the cover states
-  the chord on its own line, heavier than the rest. A normal keyboard shortcut would be exactly the thing
+  the chord on its own line, heavier than the rest, with a bar that fills over
+  the five seconds while the pair is held and snaps back the moment either key
+  goes up (`chordHeld`) — a five-second hold with no feedback is five seconds of
+  wondering whether it works. A normal keyboard shortcut would be exactly the thing
   that is switched off. Durations are 1 / 5 / 15 minutes and ∞
   (`durations = [60, 300, 900, 0]`, 0 = until told otherwise); the countdown is
   replaced by the infinity glyph in that mode.

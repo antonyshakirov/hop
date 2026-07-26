@@ -113,23 +113,52 @@ final class ArchiveController: ObservableObject {
     ]
     static let defaultHandlerKey = "archiveDefaultHandler"
 
-    /// Whether Hop is currently the opener for zip files — the one type every
-    /// Mac has an opinion about, so it stands for the whole set.
-    static var isDefaultHandler: Bool {
-        let current = LSCopyDefaultRoleHandlerForContentType(
-            "public.zip-archive" as CFString, .all)?.takeRetainedValue() as String?
-        return current?.caseInsensitiveCompare(Bundle.storageIdentifier) == .orderedSame
+    /// The app that opens a content type right now, or nil when nothing claims it.
+    static func currentHandler(for type: String) -> String? {
+        LSCopyDefaultRoleHandlerForContentType(
+            type as CFString, .all)?.takeRetainedValue() as String?
     }
 
-    /// Claim (or release) every archive type at once. Releasing hands them back
-    /// to macOS's own choice — Archive Utility.
-    static func setDefaultHandler(_ on: Bool) {
-        let bundleID = on ? Bundle.storageIdentifier : "com.apple.archiveutility"
-        for type in handledContentTypes {
+    /// **macOS's own app is never overridden** (Anton, 2026-07-26): zip and tar
+    /// already open in Archive Utility, and a menu-bar tool has no business
+    /// taking that away. Hop offers itself for the types the system leaves to
+    /// somebody else — rar and 7z have no native opener at all — and for those
+    /// it does replace whatever third-party app got there first.
+    static func isAppleHandler(_ bundleID: String?) -> Bool {
+        bundleID?.lowercased().hasPrefix("com.apple.") ?? false
+    }
+
+    /// Types Hop would claim on a tap: nothing Apple opens, nothing Hop already
+    /// holds.
+    static var claimableTypes: [String] {
+        handledContentTypes.filter { type in
+            let current = currentHandler(for: type)
+            return !isAppleHandler(current)
+                && current?.caseInsensitiveCompare(Bundle.storageIdentifier) != .orderedSame
+        }
+    }
+
+    /// Hop is the opener for everything it is allowed to open. Read from Launch
+    /// Services every time, never from a stored flag: the default can be changed
+    /// in Finder at any moment, and a switch that disagrees with the system is
+    /// worse than no switch (Anton, 2026-07-26).
+    static var isDefaultHandler: Bool {
+        let held = handledContentTypes.contains { type in
+            currentHandler(for: type)?.caseInsensitiveCompare(Bundle.storageIdentifier) == .orderedSame
+        }
+        return held && claimableTypes.isEmpty
+    }
+
+    /// Claim every type the system does not open itself. There is no "release":
+    /// handing a type back means choosing an app FOR the user, and Finder's own
+    /// "Open with → Change all" is the honest way out.
+    static func claimDefaultHandler() {
+        let bundleID = Bundle.storageIdentifier
+        for type in claimableTypes {
             LSSetDefaultRoleHandlerForContentType(
                 type as CFString, .all, bundleID as CFString)
         }
-        UserDefaults.standard.set(on, forKey: defaultHandlerKey)
+        UserDefaults.standard.set(true, forKey: defaultHandlerKey)
     }
 
     /// The one entry point: everything dropped on the module — or pasted into its

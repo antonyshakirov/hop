@@ -122,9 +122,11 @@ Das Ergebnis landet standardmäßig auf dem Schreibtisch, wahlweise neben dem
 Original oder in einem eigenen Ordner. Unterstützt sind zip, rar, 7z, tar,
 tar.gz, tar.bz2, tar.xz und gz; für rar und 7z lädt beim ersten Mal ein kleiner,
 signaturgeprüfter Helfer (~6 MB). Hop entpackt rar, erstellt es aber nie — das
-Format ist proprietär. Schalte «Archive mit Hop öffnen» in den Einstellungen
-ein, und ein doppelt geklicktes Archiv wird über Hop entpackt, ob das Modul im
-Panel sichtbar ist oder nicht.
+Format ist proprietär. «Archive mit Hop öffnen» in den Einstellungen
+übernimmt die Formate, für die macOS keine eigene App hat — vor allem rar und
+7z — und holt sie von Fremd-Apps zurück; zip und tar bleiben beim
+Archivierungsprogramm. Es funktioniert auch mit verstecktem Modul, und die Karte
+zeigt den echten Stand.
 
 ### Dokumente
 

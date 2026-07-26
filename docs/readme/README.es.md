@@ -123,9 +123,10 @@ junta en un comprimido. El resultado va al escritorio por defecto, o junto al
 original, o a la carpeta que elijas. Se admiten zip, rar, 7z, tar, tar.gz,
 tar.bz2, tar.xz y gz; para rar y 7z se descarga la primera vez un pequeño
 ayudante (~6 MB) con la firma verificada. Hop extrae rar pero nunca lo crea: el
-formato es propietario. Activa «abrir archivos comprimidos con Hop» en los
-ajustes y un doble clic los extrae con Hop, esté el módulo visible en el panel
-o no.
+formato es propietario. «Abrir archivos comprimidos con Hop» en los ajustes
+toma los formatos para los que macOS no trae app propia —sobre todo rar y 7z— y
+se los quita a apps de terceros; zip y tar se quedan con Utilidad de Archivo.
+Funciona con el módulo oculto, y la tarjeta muestra el estado real.
 
 ### Documentos
 

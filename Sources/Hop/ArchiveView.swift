@@ -72,39 +72,19 @@ struct ArchiveView: View {
     }
 }
 
-/// The "open archives with Hop" switch. It lives in settings rather than in the
-/// archive window: being the opener outlives any window and works with the
-/// module hidden (Anton, 2026-07-25). The state is read from Launch Services on
-/// appear — the opener may have been changed in Finder since.
+/// "Open archives with Hop" — the same card the torrent module offers, and the
+/// same rule: it only ever CLAIMS, and only the types macOS does not open
+/// itself (Anton, 2026-07-26).
 struct ArchiveDefaultHandlerRow: View {
     let label: String
-
-    @State private var isOn = false
+    let doneLabel: String
 
     var body: some View {
-        // The same card the torrent module offers for .torrent / magnet — the
-        // two "let Hop open these" offers must look like one another (Anton,
-        // 2026-07-26). A switch rather than a one-shot button, because handing
-        // the types back has to be as easy as claiming them.
-        HStack {
-            Text(label)
-                .font(Theme.mono(11, weight: .semibold))
-                .foregroundStyle(Theme.textPrimary)
-                .lineLimit(1)
-                .truncationMode(.tail)
-            Spacer(minLength: 8)
-            Theme.MiniSwitch(isOn: Binding(
-                get: { isOn },
-                set: { on in
-                    isOn = on
-                    ArchiveController.setDefaultHandler(on)
-                }))
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 9)
-        .frame(maxWidth: .infinity)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
-        .onAppear { isOn = ArchiveController.isDefaultHandler }
+        DefaultHandlerCard(
+            label: label,
+            isDefault: { ArchiveController.isDefaultHandler },
+            claim: { ArchiveController.claimDefaultHandler() },
+            doneLabel: doneLabel)
     }
 }
 

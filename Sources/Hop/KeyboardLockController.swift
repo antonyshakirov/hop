@@ -23,6 +23,9 @@ final class KeyboardLockController: ObservableObject {
     @Published private(set) var remaining: Int?
     /// Accessibility has not been granted (macOS has just been asked).
     @Published private(set) var needsPermission = false
+    /// Esc + shift are held right now: the cover fills a bar over the five
+    /// seconds so the hold is visibly doing something (Anton, 2026-07-26).
+    @Published private(set) var chordHeld = false
 
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
@@ -183,6 +186,7 @@ final class KeyboardLockController: ObservableObject {
             return
         }
         guard chordTimer == nil else { return }   // already counting
+        chordHeld = true
         let timer = Timer(timeInterval: Self.escapeHoldSeconds, repeats: false) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, self.isLocked, self.escapeDown, self.shiftDown else { return }
@@ -198,6 +202,7 @@ final class KeyboardLockController: ObservableObject {
     private func cancelChord() {
         chordTimer?.invalidate()
         chordTimer = nil
+        chordHeld = false
     }
 
     private func reenableTap() {
@@ -288,8 +293,25 @@ private struct KeyboardLockOverlay: View {
                 // (Anton, 2026-07-26)
                 Text(L10n.t(.keylockChord, lang))
                     .font(Theme.mono(13, weight: .semibold))
-                    .foregroundStyle(Theme.textPrimary)
+                    .foregroundStyle(lock.chordHeld ? Theme.editing : Theme.textPrimary)
                     .multilineTextAlignment(.center)
+                // Fills over the five seconds while the pair is held, and snaps
+                // back the moment either key goes up: without it a hold is five
+                // seconds of wondering whether anything is happening (Anton,
+                // 2026-07-26).
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Theme.divider)
+                        .frame(width: 180, height: 4)
+                    Capsule()
+                        .fill(Theme.editing)
+                        .frame(width: lock.chordHeld ? 180 : 0, height: 4)
+                }
+                .animation(lock.chordHeld
+                           ? .linear(duration: KeyboardLockController.escapeHoldSeconds)
+                           : .easeOut(duration: 0.18),
+                           value: lock.chordHeld)
+                .opacity(lock.chordHeld ? 1 : 0.35)
                 if let remaining = lock.remaining {
                     Text(timeText(remaining))
                         .font(Theme.mono(30, weight: .semibold))
