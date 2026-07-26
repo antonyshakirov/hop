@@ -1,0 +1,35 @@
+# CodeQL — GitHub's static analysis. Swift analysis needs a macOS runner and a
+# real build, which autobuild gets from Package.swift. Weekly, plus on every
+# push to main: the findings land in the repository's Security tab.
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze Swift
+    runs-on: macos-latest
+    timeout-minutes: 60
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: swift
+
+      - uses: github/codeql-action/autobuild@v3
+
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:swift"

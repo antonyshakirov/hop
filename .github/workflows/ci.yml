@@ -1,0 +1,38 @@
+# Build and test on every push and pull request. Debug on purpose: a release
+# build of this app takes ~17 minutes (one optimized module), and nothing here
+# needs the optimizer — the point is that the code compiles, the pure logic in
+# HopCore still passes, and no translation is missing.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build & test
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: swift --version
+
+      - name: Build
+        run: swift build
+
+      - name: Test
+        run: swift test
+
+      # Every UI string has to exist in all 18 languages; the app checks its own
+      # tables and exits non-zero on the first gap.
+      - name: Translations
+        run: ./.build/debug/Hop --l10n-check
