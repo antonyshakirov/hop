@@ -593,16 +593,21 @@ struct DefaultHandlerCard: View {
     /// Reads Launch Services; called on appear and on every app activation.
     let isDefault: () -> Bool
     /// Claims the types Hop is allowed to claim.
-    let claim: () -> Void
+    let claim: () async -> Void
     /// Shown instead of the label once Hop holds them.
     let doneLabel: String
 
     @State private var held = false
+    @State private var changing = false
 
     var body: some View {
         Button {
-            claim()
-            held = isDefault()
+            changing = true
+            Task {
+                await claim()
+                held = isDefault()
+                changing = false
+            }
         } label: {
             HStack {
                 // The LABEL never changes places with the state: two of these
@@ -616,9 +621,15 @@ struct DefaultHandlerCard: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
                 Spacer(minLength: 8)
-                Image(systemName: held ? "checkmark.seal.fill" : "checkmark.seal")
-                    .font(.system(size: 11))
-                    .foregroundStyle(held ? Theme.accentGreen : Theme.textSecondary)
+                if changing {
+                    ProgressView()
+                        .controlSize(.small)
+                        .frame(width: 11, height: 11)
+                } else {
+                    Image(systemName: held ? "checkmark.seal.fill" : "checkmark.seal")
+                        .font(.system(size: 11))
+                        .foregroundStyle(held ? Theme.accentGreen : Theme.textSecondary)
+                }
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 9)
@@ -628,7 +639,7 @@ struct DefaultHandlerCard: View {
         }
         .buttonStyle(.plain)
         .hoverHighlight(7)
-        .disabled(held)
+        .disabled(held || changing)
         .help(held ? doneLabel : label)
         .onAppear { held = isDefault() }
         .onReceive(NotificationCenter.default.publisher(

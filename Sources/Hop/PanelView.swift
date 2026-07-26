@@ -541,7 +541,9 @@ struct PanelView: View {
         // Only ever CLAIM, and only what macOS does not open itself: an
         // untouched switch must not disturb an opener the user chose earlier.
         if bannerChoices[Self.archiveHandlerChoice] == true {
-            ArchiveController.claimDefaultHandler()
+            Task {
+                await ArchiveController.claimDefaultHandler()
+            }
         }
         markSeen(ann)
     }

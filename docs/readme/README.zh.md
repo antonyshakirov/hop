@@ -124,8 +124,8 @@ HEIC、AVIF 和 WebP；压缩 PDF；HEVC 视频瘦身，转换前就能看到
 一份列表，直到你按下按钮：压缩包会被解压，其余文件会打包成一个压缩包。结果默认放到桌面，也可以放在
 原件旁边或任何你选择的文件夹。支持 zip、rar、7z、tar、tar.gz、tar.bz2、tar.xz 和 gz；遇到 rar 和 7z
 时会在第一次下载一个约 6 MB 的小助手，并校验签名。Hop 能解 rar，但从不创建它 —— 这个格式是专有的。
-设置里的「Hop 作为压缩包的默认程序」会接管 macOS 自己没有程序的格式 —— 首先是 rar 和 7z —— 并从第三方应用手里拿回来；
-zip 和 tar 仍留给「归档实用工具」。模块隐藏时同样有效，卡片显示的是真实状态。
+设置里的「Hop 作为压缩包的默认程序」只会在没有 Apple 应用接管时提供 rar，并可从第三方应用手里收回 rar；
+zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同样有效，卡片显示的是真实状态。
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/archives.png" width="480" alt="Hop — 文件压缩包">

@@ -143,9 +143,9 @@ Hasilnya jatuh ke desktop secara bawaan, atau di sebelah aslinya, atau ke folder
 mana pun yang kamu pilih. Yang didukung: zip, rar, 7z, tar, tar.gz, tar.bz2,
 tar.xz, dan gz; untuk rar dan 7z, saat pertama kali dijumpai, diunduh pembantu
 kecil (~6 MB) yang tanda tangannya diperiksa. Hop membuka rar tetapi tidak
-pernah membuatnya — formatnya berpemilik. «Hop sebagai bawaan untuk arsip» di pengaturan mengambil format
-yang tidak punya aplikasi bawaan di macOS — terutama rar dan 7z — dan merebutnya
-kembali dari aplikasi pihak ketiga; zip dan tar tetap di Utilitas Arsip. Ini
+pernah membuatnya — formatnya berpemilik. «Hop sebagai bawaan untuk arsip» di pengaturan hanya
+menawarkan rar saat tidak ada aplikasi Apple yang menanganinya, dan dapat merebut rar
+kembali dari aplikasi pihak ketiga; zip, 7z, dan format bawaan tetap di Utilitas Arsip. Ini
 bekerja walau modulnya disembunyikan, dan kartunya menunjukkan keadaan asli.
 
 <div align="center">

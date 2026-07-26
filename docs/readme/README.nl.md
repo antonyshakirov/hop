@@ -144,9 +144,9 @@ Het resultaat komt standaard op het bureaublad, of naast het origineel, of in
 een map naar keuze. Ondersteund zijn zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz
 en gz; voor rar en 7z wordt de eerste keer een kleine, op handtekening
 gecontroleerde helper (~6 MB) opgehaald. Hop pakt rar uit maar maakt het nooit —
-het formaat is propriëtair. «Hop als standaard voor archieven» bij de instellingen neemt de
-formaten waarvoor macOS geen eigen app heeft — vooral rar en 7z — en pakt ze
-terug van apps van derden; zip en tar blijven bij Archiefhulpprogramma. Het
+het formaat is propriëtair. «Hop als standaard voor archieven» bij de instellingen biedt
+alleen rar aan wanneer geen Apple-app het beheert, en kan rar terugpakken van
+apps van derden; zip, 7z en de native formaten blijven bij Archiefhulpprogramma. Het
 werkt ook met een verborgen module, en de kaart toont de echte stand.
 
 <div align="center">

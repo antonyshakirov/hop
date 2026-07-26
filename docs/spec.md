@@ -1015,27 +1015,40 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     7z stay with Archive Utility. If a future macOS release learns rar, the
     claim card disappears automatically.
   - **The state is READ, never remembered.** `isDefaultHandler` asks Launch
-    Services every time (and `DefaultHandlerCard` re-reads on every app
+    Services through `NSWorkspace` every time (and `DefaultHandlerCard` re-reads
+    on every app
     activation), because the default can be changed in Finder at any moment and
     a control that disagrees with the system is worse than no control.
   Earlier Hop versions claimed every declared archive type. When the live
   Launch Services state shows that Hop still holds any non-rar type, settings
-  show a recovery action that returns every archive type to
-  `com.apple.archiveutility`; the action disappears after the handoff.
+  show a recovery action that returns only those Hop-held non-rar types to
+  `com.apple.archiveutility`; the action never changes rar or a third-party
+  handler and disappears after the handoff. Handler reads and writes use the
+  macOS 12+ `NSWorkspace` content-type API; the deprecated Launch Services
+  setter is not used.
   Settings also carry a "show in the panel" switch for the module itself: being
   the opener and occupying a row are separate decisions, and someone who only
   double-clicks archives in Finder should not have to dig through "modules &
   tabs" to reclaim the space (Anton, 2026-07-26). It flips membership, the same
   thing that table does — hiding is not switching off.
-  `processOpen` routes an opened archive into the extractor, and it works with
+  `processOpenBatch` routes an opened archive into the extractor, and it works with
   the module HIDDEN — the panel row is a place to drop things, not a
   precondition for Finder. Finder-open is a separate path from the drop/paste
   queue: it extracts only the opened archive, always beside that archive,
   regardless of `archiveDestination`, and leaves queued items untouched. The
-  archive window stays closed after success and opens only after a failed job
-  has been recorded, so denied/tool/empty/helper failures are visible without
-  putting an empty drop plate in front of every successful double-click. The
-  types are declared in `Info.plist` with
+  manual archive window is never shown or populated by this path. Instead, each
+  Finder open event immediately creates one small standalone progress window
+  (one row per selected archive, with an indeterminate activity indicator
+  because the command-line extractors provide no reliable fraction). It closes
+  automatically once every archive succeeds; any denied/tool/empty/helper
+  failure keeps it open with the human-readable reason. Closing the progress
+  window manually does not cancel extraction. Several non-native archives in
+  one event share one helper installation rather than racing duplicate
+  downloads. Large batches scroll inside the bounded window. Choosing a final
+  collision-free output name and moving the staged result are serialized, so
+  simultaneous archives cannot select the same path. Dev and bundle-less builds
+  never mutate global archive associations; only the production bundle exposes
+  those writes. The types are declared in `Info.plist` with
   `LSHandlerRank: Alternate` (and `CFBundleTypeIconFile`, so Finder draws Hop's
   icon on the files it owns) — Hop offers itself without shouldering aside
   whatever the user already chose.

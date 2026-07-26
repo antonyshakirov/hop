@@ -149,9 +149,9 @@ côté de l'original, ou dans le dossier de ton choix. Sont pris en charge zip,
 rar, 7z, tar, tar.gz, tar.bz2, tar.xz et gz ; pour rar et 7z, un petit outil
 (~6 Mo) à la signature vérifiée se télécharge la première fois. Hop extrait le
 rar mais ne le crée jamais : le format est propriétaire. « Hop par défaut pour les archives »
-dans les réglages prend les formats que macOS n'ouvre pas lui-même — rar et 7z
-en premier — et les reprend aux apps tierces ; zip et tar restent à Utilitaire
-d'archive. Ça marche avec le module masqué, et la carte affiche l'état réel.
+dans les réglages ne propose que rar lorsqu’aucune app Apple ne le prend en charge,
+et peut le reprendre aux apps tierces ; zip, 7z et les formats natifs restent à
+Utilitaire d'archive. Ça marche avec le module masqué, et la carte affiche l'état réel.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/archives.png" width="480" alt="Hop — Archives de fichiers">

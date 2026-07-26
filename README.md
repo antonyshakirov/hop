@@ -138,9 +138,9 @@ archive. Results land on the Desktop by default, or next to the original, or in
 any folder you choose. zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz and gz are
 covered; rar and 7z fetch a small signature-verified helper (~6 MB) the first
 time one turns up. Hop unpacks rar but never creates it — the format is
-proprietary. "Hop as the default for archives" in settings takes the formats macOS has no opener
-for — rar and 7z above all — and takes them back from third-party apps; zip and
-tar stay with Archive Utility. It works with the module hidden, and the card
+proprietary. "Hop as the default for archives" in settings offers only rar when
+no Apple app owns it, and can take rar back from third-party apps; zip, 7z and
+the native formats stay with Archive Utility. It works with the module hidden, and the card
 shows the real state, so it can never claim a default Finder has given away.
 
 <div align="center">

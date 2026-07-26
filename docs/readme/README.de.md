@@ -146,8 +146,8 @@ Original oder in einem eigenen Ordner. Unterstützt sind zip, rar, 7z, tar,
 tar.gz, tar.bz2, tar.xz und gz; für rar und 7z lädt beim ersten Mal ein kleiner,
 signaturgeprüfter Helfer (~6 MB). Hop entpackt rar, erstellt es aber nie — das
 Format ist proprietär. «Hop als Standard für Archive» in den Einstellungen
-übernimmt die Formate, für die macOS keine eigene App hat — vor allem rar und
-7z — und holt sie von Fremd-Apps zurück; zip und tar bleiben beim
+bietet nur rar an, solange keine Apple-App zuständig ist, und kann rar von
+Fremd-Apps zurückholen; zip, 7z und die nativen Formate bleiben beim
 Archivierungsprogramm. Es funktioniert auch mit verstecktem Modul, und die Karte
 zeigt den echten Stand.
 

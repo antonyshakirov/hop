@@ -1,6 +1,6 @@
 import AppKit
-import CoreServices
 import HopCore
+import UniformTypeIdentifiers
 
 /// Drag & drop archiving: drop an archive and it is unpacked NEXT TO the
 /// original; drop files or folders and they are packed there instead. No
@@ -19,18 +19,7 @@ final class ArchiveController: ObservableObject {
 
     enum Kind: Equatable { case extract, pack }
 
-    enum Failure: Error, Equatable {
-        /// The 7-Zip helper could not be fetched or verified.
-        case helper
-        /// The tool ran but returned an error (a broken or password-protected archive).
-        case tool
-        /// Nothing usable came out of the archive.
-        case empty
-        /// macOS refused to write into the destination — the Desktop, Documents
-        /// and Downloads folders need explicit consent, and a silent "nothing
-        /// appeared" is the worst way to learn that (Anton, 2026-07-25).
-        case denied
-    }
+    typealias Failure = ArchiveFailureKind
 
     /// Where results are written. The Desktop is the default: an unpacked folder
     /// has to be somewhere the user is already looking (Anton, 2026-07-25).
@@ -71,6 +60,12 @@ final class ArchiveController: ObservableObject {
     /// Current-launch staging directories are never swept as orphans, so several
     /// archives may extract concurrently into the same destination.
     private let extractionSessionID = UUID()
+    /// Choosing a collision-free name and moving the staged result must be one
+    /// operation. Separate extraction tasks may finish at the same instant.
+    private nonisolated static let resultMoveLock = NSLock()
+    /// Several Finder-opened rar/7z files can arrive in one event. They all await
+    /// one helper installation instead of racing several downloads and writes.
+    private var helperInstallTask: Task<Bool, Never>?
 
     init() {
         let sessionID = extractionSessionID
@@ -129,15 +124,15 @@ final class ArchiveController: ObservableObject {
 
     /// The app that opens a content type right now, or nil when nothing claims it.
     static func currentHandler(for type: String) -> String? {
-        LSCopyDefaultRoleHandlerForContentType(
-            type as CFString, .all)?.takeRetainedValue() as String?
+        let contentType = UTType(importedAs: type)
+        return NSWorkspace.shared.urlForApplication(toOpen: contentType)
+            .flatMap { Bundle(url: $0)?.bundleIdentifier }
     }
 
     /// **macOS's own app is never overridden** (Anton, 2026-07-26): zip and tar
     /// already open in Archive Utility, and a menu-bar tool has no business
     /// taking that away. Hop offers itself for the types the system leaves to
-    /// somebody else — rar and 7z have no native opener at all — and for those
-    /// it does replace whatever third-party app got there first.
+    /// somebody else. Today the only such type Hop offers to claim is rar.
     static func isAppleHandler(_ bundleID: String?) -> Bool {
         ArchiveHandlerRules.isAppleHandler(bundleID)
     }
@@ -171,12 +166,25 @@ final class ArchiveController: ObservableObject {
         }
     }
 
-    /// Hand every archive type back to macOS's own Archive Utility — the way out
-    /// for anyone who let an earlier version take them all.
-    static func releaseDefaultHandlers() {
-        for type in handledContentTypes {
-            LSSetDefaultRoleHandlerForContentType(
-                type as CFString, .all, "com.apple.archiveutility" as CFString)
+    /// Hand only the non-rar types an earlier Hop version still owns back to
+    /// Archive Utility. Third-party choices and the allowed rar association are
+    /// left untouched.
+    static func releaseDefaultHandlers() async {
+        guard !Bundle.isDevBuild else { return }
+        guard let archiveUtility = NSWorkspace.shared.urlForApplication(
+            withBundleIdentifier: "com.apple.archiveutility")
+        else { return }
+        let ours = Bundle.storageIdentifier
+        let currentHandlers = Dictionary(
+            uniqueKeysWithValues: ArchiveHandlerRules.archiveUtilityContentTypes
+                .compactMap { type in currentHandler(for: type).map { (type, $0) } })
+        for type in ArchiveHandlerRules.contentTypesToRestore(
+            currentHandlers: currentHandlers,
+            hopBundleID: ours) {
+            if currentHandler(for: type)?
+                .caseInsensitiveCompare(ours) == .orderedSame {
+                await setDefaultApplication(archiveUtility, for: type)
+            }
         }
     }
 
@@ -194,11 +202,23 @@ final class ArchiveController: ObservableObject {
     /// Claim every type the system does not open itself. There is no "release":
     /// handing a type back means choosing an app FOR the user, and Finder's own
     /// "Open with → Change all" is the honest way out.
-    static func claimDefaultHandler() {
-        let bundleID = Bundle.storageIdentifier
+    static func claimDefaultHandler() async {
+        guard !Bundle.isDevBuild else { return }
+        let application = Bundle.main.bundleURL
         for type in claimableTypes {
-            LSSetDefaultRoleHandlerForContentType(
-                type as CFString, .all, bundleID as CFString)
+            await setDefaultApplication(application, for: type)
+        }
+    }
+
+    private static func setDefaultApplication(_ application: URL, for type: String) async {
+        let contentType = UTType(importedAs: type)
+        await withCheckedContinuation { continuation in
+            NSWorkspace.shared.setDefaultApplication(
+                at: application,
+                toOpen: contentType
+            ) { _ in
+                continuation.resume()
+            }
         }
     }
 
@@ -250,12 +270,16 @@ final class ArchiveController: ObservableObject {
 
     /// A Finder double-click is a complete command, not an addition to the
     /// interactive queue. It extracts only this archive, always beside the
-    /// source, and asks for UI only when the job has failed.
-    func openFromFinder(_ archive: URL, onFailure: @escaping () -> Void) {
+    /// source, and reports progress to the separate transient Finder window.
+    func openFromFinder(
+        _ archive: URL,
+        onProgress: @escaping (FinderArchiveProgressEvent) -> Void
+    ) {
         extract(
             archive,
             into: ArchiveRules.finderDestination(for: archive),
-            onFailure: onFailure)
+            invocation: .finder,
+            onProgress: onProgress)
     }
 
     /// Where a result is written. `.alongside` keeps the old behaviour (next to
@@ -297,21 +321,32 @@ final class ArchiveController: ObservableObject {
     private func extract(
         _ archive: URL,
         into folder: URL,
-        onFailure: (() -> Void)? = nil
+        invocation: ArchiveInvocation = .manual,
+        onProgress: ((FinderArchiveProgressEvent) -> Void)? = nil
     ) {
         guard let format = ArchiveRules.format(ofFileNamed: archive.lastPathComponent) else { return }
         let job = Job(kind: .extract, name: archive.lastPathComponent, state: .running)
-        append(job)
+        let recordsManualJob = invocation.recordsManualJob
+        if recordsManualJob {
+            append(job)
+        }
         Task {
             if !format.isNative, !helper.isInstalled {
-                update(job.id, .waitingForHelper)
-                await helper.install()
-                guard helper.isInstalled else {
-                    update(job.id, .failed(.helper))
-                    onFailure?()
+                if recordsManualJob {
+                    update(job.id, .waitingForHelper)
+                }
+                onProgress?(.waitingForHelper)
+                guard await ensureHelperInstalled() else {
+                    if recordsManualJob {
+                        update(job.id, .failed(.helper))
+                    }
+                    onProgress?(.failed(.helper))
                     return
                 }
-                update(job.id, .running)
+                if recordsManualJob {
+                    update(job.id, .running)
+                }
+                onProgress?(.extracting)
             }
             let helperPath = helper.installedBinaryURL()?.path
             let sessionID = extractionSessionID
@@ -325,12 +360,33 @@ final class ArchiveController: ObservableObject {
             }.value
             switch result {
             case .success(let path):
-                update(job.id, .done(path))
+                if recordsManualJob {
+                    update(job.id, .done(path))
+                }
+                onProgress?(.succeeded)
             case .failure(let failure):
-                update(job.id, .failed(failure))
-                onFailure?()
+                if recordsManualJob {
+                    update(job.id, .failed(failure))
+                }
+                onProgress?(.failed(failure))
             }
         }
+    }
+
+    private func ensureHelperInstalled() async -> Bool {
+        if helper.isInstalled { return true }
+        if let helperInstallTask {
+            return await helperInstallTask.value
+        }
+        let helper = helper
+        let task = Task { @MainActor in
+            await helper.install()
+            return helper.isInstalled
+        }
+        helperInstallTask = task
+        let installed = await task.value
+        helperInstallTask = nil
+        return installed
     }
 
     /// Unpack into a hidden staging folder INSIDE the destination, then lift the
@@ -405,6 +461,9 @@ final class ArchiveController: ObservableObject {
         }
         guard !produced.isEmpty else { return .failure(.empty) }
 
+        Self.resultMoveLock.lock()
+        defer { Self.resultMoveLock.unlock() }
+
         let taken = Set((try? manager.contentsOfDirectory(atPath: destination.path)) ?? [])
         let finalName: String
         if produced.count == 1 {
@@ -451,8 +510,7 @@ final class ArchiveController: ObservableObject {
         Task {
             if !format.isNative, !helper.isInstalled {
                 update(job.id, .waitingForHelper)
-                await helper.install()
-                guard helper.isInstalled else {
+                guard await ensureHelperInstalled() else {
                     update(job.id, .failed(.helper))
                     return
                 }

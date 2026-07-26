@@ -82,6 +82,7 @@ struct ArchiveDefaultHandlerRow: View {
 
     @State private var showsClaim = false
     @State private var showsRestore = false
+    @State private var restoring = false
 
     var body: some View {
         VStack(spacing: 8) {
@@ -89,13 +90,17 @@ struct ArchiveDefaultHandlerRow: View {
                 DefaultHandlerCard(
                     label: label,
                     isDefault: { ArchiveController.isDefaultHandler },
-                    claim: { ArchiveController.claimDefaultHandler() },
+                    claim: { await ArchiveController.claimDefaultHandler() },
                     doneLabel: doneLabel)
             }
             if showsRestore {
                 Button {
-                    ArchiveController.releaseDefaultHandlers()
-                    refresh()
+                    restoring = true
+                    Task {
+                        await ArchiveController.releaseDefaultHandlers()
+                        refresh()
+                        restoring = false
+                    }
                 } label: {
                     HStack {
                         Text(restoreLabel)
@@ -104,9 +109,15 @@ struct ArchiveDefaultHandlerRow: View {
                             .lineLimit(1)
                             .truncationMode(.tail)
                         Spacer(minLength: 8)
-                        Image(systemName: "arrow.uturn.backward.circle")
-                            .font(.system(size: 11))
-                            .foregroundStyle(Theme.textSecondary)
+                        if restoring {
+                            ProgressView()
+                                .controlSize(.small)
+                                .frame(width: 11, height: 11)
+                        } else {
+                            Image(systemName: "arrow.uturn.backward.circle")
+                                .font(.system(size: 11))
+                                .foregroundStyle(Theme.textSecondary)
+                        }
                     }
                     .padding(.horizontal, 10)
                     .padding(.vertical, 9)
@@ -116,6 +127,7 @@ struct ArchiveDefaultHandlerRow: View {
                 }
                 .buttonStyle(.plain)
                 .hoverHighlight(7)
+                .disabled(restoring)
                 .help(restoreLabel)
             }
         }

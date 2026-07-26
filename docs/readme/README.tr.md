@@ -144,8 +144,8 @@ varsayılan olarak masaüstüne, istersen orijinalin yanına ya da seçtiğin bi
 klasöre iner. zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz ve gz desteklenir; rar
 ve 7z için ilk karşılaşmada imzası doğrulanan küçük bir yardımcı (~6 MB) iner.
 Hop rar açar ama asla oluşturmaz — format tescillidir. Ayarlardaki «arşivler için varsayılan Hop»,
-macOS'un kendi uygulaması olmayan biçimleri — başta rar ve 7z — üstlenir ve
-üçüncü taraf uygulamalardan geri alır; zip ve tar Arşiv Yardımcısı'nda kalır.
+bir Apple uygulaması ilgilenmiyorsa yalnızca rar'ı sunar ve rar'ı üçüncü taraf
+uygulamalardan geri alabilir; zip, 7z ve yerel biçimler Arşiv Yardımcısı'nda kalır.
 Modül gizliyken de çalışır ve kart gerçek durumu gösterir.
 
 <div align="center">

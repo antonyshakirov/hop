@@ -10,6 +10,16 @@ final class ArchiveHandlerRulesTests: XCTestCase {
             ["com.rarlab.rar-archive"])
     }
 
+    func testArchiveUtilityReceivesEveryDeclaredTypeExceptRar() {
+        XCTAssertEqual(
+            Set(ArchiveHandlerRules.archiveUtilityContentTypes),
+            Set(ArchiveHandlerRules.handledContentTypes)
+                .subtracting(ArchiveHandlerRules.claimableContentTypes))
+        XCTAssertFalse(
+            ArchiveHandlerRules.archiveUtilityContentTypes
+                .contains("com.rarlab.rar-archive"))
+    }
+
     func testAppleHandlerIsNeverReplaced() {
         XCTAssertFalse(
             ArchiveHandlerRules.shouldClaim(
@@ -51,5 +61,19 @@ final class ArchiveHandlerRulesTests: XCTestCase {
                 contentType: "public.zip-archive",
                 currentHandler: "com.apple.archiveutility",
                 hopBundleID: hop))
+    }
+
+    func testRestorePlanTouchesOnlyNonRarTypesStillOwnedByHop() {
+        let handlers = [
+            "public.zip-archive": hop,
+            "org.7-zip.7-zip-archive": "com.example.archiver",
+            "com.rarlab.rar-archive": hop,
+        ]
+
+        XCTAssertEqual(
+            ArchiveHandlerRules.contentTypesToRestore(
+                currentHandlers: handlers,
+                hopBundleID: hop),
+            ["public.zip-archive"])
     }
 }

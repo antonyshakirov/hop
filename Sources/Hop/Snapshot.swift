@@ -389,6 +389,16 @@ enum Snapshot {
         } else if args.contains("--window-archive") {
             content = AnyView(ArchiveWindowView().environmentObject(model)
                 .frame(width: 480))
+        } else if args.contains("--window-archive-progress") {
+            let first = UUID()
+            let second = UUID()
+            let progress = FinderArchiveProgressModel(files: [
+                (id: first, fileName: "sprint-42-assets.zip"),
+                (id: second, fileName: "damaged-reference-files.7z"),
+            ])
+            progress.receive(.failed(.tool), for: second)
+            content = AnyView(
+                FinderArchiveProgressView(model: progress, lang: L10n.current))
         } else if args.contains("--window-ocr") {
             content = AnyView(ScreenTextWindowView().environmentObject(model)
                 .frame(width: 560))

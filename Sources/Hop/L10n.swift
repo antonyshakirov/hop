@@ -152,7 +152,7 @@ enum L10nKey: String, CaseIterable {
     case ocrPaste, ocrWindowDrop, ocrWindowEmpty, ocrWindowInHistory, copyLabel
     case colorLimit
     case featureArchiveFormats
-    case archiveMakeDefault, archiveRestoreSystemHandlers
+    case archiveMakeDefault, archiveRestoreSystemHandlers, archiveFinderHelp
     case archiveDestDesktop, archiveRunExtract, archiveRunPack, archiveDenied
     case archivePasteHint, archiveQueueClear
     case keylockBody, keylockDone, keylockChord, docKeylockFull, supportBotWord
@@ -185,12 +185,29 @@ enum L10n {
             for key in L10nKey.allCases where tables[lang]?[key] == nil {
                 out.append("\(lang.rawValue).\(key.rawValue)")
             }
+            // docArchiveFull keeps Finder as its seventh and final section so
+            // `t` can replace that paragraph with archiveFinderHelp. Catch a
+            // translator adding/reordering a section instead of silently
+            // dropping the wrong help paragraph.
+            let archiveSections = tables[lang]?[.docArchiveFull]?
+                .components(separatedBy: "\n\n• ").count
+            if archiveSections != 7 {
+                out.append("\(lang.rawValue).docArchiveFull.finderSection")
+            }
         }
         return out
     }
 
     static func t(_ key: L10nKey, _ lang: AppLanguage) -> String {
-        tables[lang]?[key] ?? tables[.en]?[key] ?? key.rawValue
+        let value = tables[lang]?[key] ?? tables[.en]?[key] ?? key.rawValue
+        guard key == .docArchiveFull,
+              let finder = tables[lang]?[.archiveFinderHelp]
+                ?? tables[.en]?[.archiveFinderHelp]
+        else { return value }
+        let sections = value.components(separatedBy: "\n\n• ")
+        guard sections.count > 1 else { return value }
+        return sections.dropLast().joined(separator: "\n\n• ")
+            + "\n\n• " + finder
     }
 
     private static let tables: [AppLanguage: [L10nKey: String]] = [
@@ -433,7 +450,8 @@ enum L10n {
             .colorLimit: "colors kept",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz and more",
             .archiveMakeDefault: "open rar files with Hop by default",
-            .archiveRestoreSystemHandlers: "return archive types to Archive Utility",
+            .archiveRestoreSystemHandlers: "return old non-rar associations to Archive Utility",
+            .archiveFinderHelp: "opening from Finder — only rar can be assigned to Hop in settings → other modules, and never while an Apple app already owns it. Finder-opened archives unpack beside themselves, regardless of the manual window's destination. A small separate progress window appears immediately; it closes after success and stays open with the reason after failure. Earlier non-rar associations left by Hop can be returned to Archive Utility from the same settings section.",
             .archiveDestDesktop: "Desktop",
             .archiveRunExtract: "unpack",
             .archiveRunPack: "pack",
@@ -733,7 +751,8 @@ enum L10n {
             .colorLimit: "сколько цветов хранить",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz и другие",
             .archiveMakeDefault: "Hop по умолчанию для rar",
-            .archiveRestoreSystemHandlers: "вернуть типы архивов Утилите архивирования",
+            .archiveRestoreSystemHandlers: "вернуть старые привязки не-rar Утилите архивирования",
+            .archiveFinderHelp: "открытие из Finder — в настройках → остальные модули Hop можно назначить только для rar и никогда поверх приложения Apple. Архив из Finder распаковывается рядом с собой независимо от папки ручного окна. Небольшое отдельное окно прогресса появляется сразу, закрывается после успеха и остаётся с причиной при ошибке. Старые привязки не-rar, оставленные Hop, можно вернуть Утилите архивирования там же.",
             .archiveDestDesktop: "рабочий стол",
             .archiveRunExtract: "распаковать",
             .archiveRunPack: "упаковать",
@@ -1033,7 +1052,8 @@ enum L10n {
             .colorLimit: "gespeicherte farben",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz und mehr",
             .archiveMakeDefault: "rar standardmäßig mit Hop öffnen",
-            .archiveRestoreSystemHandlers: "Archivtypen an das Archivierungsprogramm zurückgeben",
+            .archiveRestoreSystemHandlers: "alte Nicht-rar-Zuordnungen zurückgeben",
+            .archiveFinderHelp: "öffnen aus dem Finder — unter einstellungen → weitere module kann Hop nur für rar zugewiesen werden, niemals über eine Apple-app hinweg. archive aus dem Finder werden unabhängig vom ziel des manuellen fensters direkt daneben entpackt. ein kleines separates fortschrittsfenster erscheint sofort, schließt nach erfolg und bleibt bei einem fehler mit dem grund offen. alte Nicht-rar-Zuordnungen von Hop lassen sich dort an das Archivierungsprogramm zurückgeben.",
             .archiveDestDesktop: "Schreibtisch",
             .archiveRunExtract: "entpacken",
             .archiveRunPack: "packen",
@@ -1333,7 +1353,8 @@ enum L10n {
             .colorLimit: "colores guardados",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz y más",
             .archiveMakeDefault: "abrir rar con Hop por defecto",
-            .archiveRestoreSystemHandlers: "devolver los tipos de archivo a Utilidad de Compresión",
+            .archiveRestoreSystemHandlers: "devolver asociaciones antiguas que no sean rar",
+            .archiveFinderHelp: "abrir desde el Finder — en ajustes → otros módulos solo se puede asignar Hop a rar, y nunca si ya lo abre una app de Apple. los archivos del Finder se extraen a su lado, sin importar el destino de la ventana manual. aparece enseguida una pequeña ventana de progreso independiente; se cierra al terminar bien y permanece con el motivo si hay un error. las asociaciones antiguas que no sean rar y que dejó Hop pueden devolverse a Utilidad de Compresión desde la misma sección.",
             .archiveDestDesktop: "escritorio",
             .archiveRunExtract: "extraer",
             .archiveRunPack: "comprimir",
@@ -1633,7 +1654,8 @@ enum L10n {
             .colorLimit: "cores guardadas",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz e mais",
             .archiveMakeDefault: "abrir rar com Hop por padrão",
-            .archiveRestoreSystemHandlers: "devolver os tipos de arquivo ao Utilitário de Arquivo",
+            .archiveRestoreSystemHandlers: "devolver associações antigas que não sejam rar",
+            .archiveFinderHelp: "abrir pelo Finder — em ajustes → outros módulos, o Hop só pode ser atribuído a rar e nunca por cima de um app da Apple. os arquivos do Finder são extraídos ao lado do original, sem considerar o destino da janela manual. uma pequena janela de progresso separada aparece na hora; fecha após o sucesso e fica aberta com o motivo em caso de erro. associações antigas que não sejam rar deixadas pelo Hop podem ser devolvidas ao Utilitário de Arquivo na mesma seção.",
             .archiveDestDesktop: "mesa",
             .archiveRunExtract: "extrair",
             .archiveRunPack: "compactar",
@@ -1933,7 +1955,8 @@ enum L10n {
             .colorLimit: "couleurs gardées",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz et plus",
             .archiveMakeDefault: "ouvrir les rar avec Hop par défaut",
-            .archiveRestoreSystemHandlers: "rendre les types d’archive à Utilitaire d’archive",
+            .archiveRestoreSystemHandlers: "rendre les anciennes associations hors rar",
+            .archiveFinderHelp: "ouvrir depuis le Finder — dans réglages → autres modules, Hop ne peut être attribué qu’aux rar, jamais à la place d’une app Apple. les archives du Finder sont extraites juste à côté, quel que soit le dossier de la fenêtre manuelle. une petite fenêtre de progression séparée apparaît aussitôt ; elle se ferme après un succès et reste ouverte avec la raison après un échec. les anciennes associations hors rar laissées par Hop peuvent être rendues à Utilitaire d’archive au même endroit.",
             .archiveDestDesktop: "bureau",
             .archiveRunExtract: "extraire",
             .archiveRunPack: "compresser",
@@ -2233,7 +2256,8 @@ enum L10n {
             .colorLimit: "colori conservati",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz e altri",
             .archiveMakeDefault: "apri rar con Hop per impostazione predefinita",
-            .archiveRestoreSystemHandlers: "restituisci i tipi di archivio a Utility Compressione",
+            .archiveRestoreSystemHandlers: "restituisci le vecchie associazioni non rar",
+            .archiveFinderHelp: "aprire dal Finder — in impostazioni → altri moduli, Hop può essere assegnato solo ai rar e mai al posto di un’app Apple. gli archivi del Finder vengono estratti accanto all’originale, qualunque sia la destinazione della finestra manuale. compare subito una piccola finestra di avanzamento separata; si chiude dopo il successo e resta aperta con il motivo in caso di errore. le vecchie associazioni non rar lasciate da Hop possono essere restituite a Utility Compressione dalla stessa sezione.",
             .archiveDestDesktop: "scrivania",
             .archiveRunExtract: "estrai",
             .archiveRunPack: "comprimi",
@@ -2533,7 +2557,8 @@ enum L10n {
             .colorLimit: "保留的颜色数",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz 等",
             .archiveMakeDefault: "默认用 Hop 打开 rar",
-            .archiveRestoreSystemHandlers: "将压缩格式交还给归档实用工具",
+            .archiveRestoreSystemHandlers: "将旧的非 rar 关联交还给归档实用工具",
+            .archiveFinderHelp: "从 Finder 打开 — 在“设置 → 其他模块”中，只能把 rar 交给 Hop，而且不会替换 Apple 应用。通过 Finder 打开的压缩包始终解压到原文件旁边，不受手动窗口目标文件夹影响。一个小型独立进度窗口会立即出现；成功后自动关闭，失败时保留并显示原因。Hop 旧版留下的非 rar 关联可在同一设置中交还给归档实用工具。",
             .archiveDestDesktop: "桌面",
             .archiveRunExtract: "解压",
             .archiveRunPack: "压缩",
@@ -2823,7 +2848,8 @@ enum L10n {
             .colorLimit: "保存する色の数",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz ほか",
             .archiveMakeDefault: "rar の既定アプリを Hop に",
-            .archiveRestoreSystemHandlers: "アーカイブ形式をアーカイブユーティリティに戻す",
+            .archiveRestoreSystemHandlers: "以前の rar 以外の関連付けを戻す",
+            .archiveFinderHelp: "Finder から開く — 設定 → 他のモジュールで Hop に割り当てられるのは rar だけで、Apple 製アプリを置き換えません。Finder から開いたアーカイブは、手動ウインドウの出力先に関係なく元ファイルの隣へ展開されます。小さな別の進行状況ウインドウがすぐに現れ、成功後は閉じ、失敗時は理由を表示したまま残ります。以前の Hop が残した rar 以外の関連付けは同じ設定からアーカイブユーティリティへ戻せます。",
             .archiveDestDesktop: "デスクトップ",
             .archiveRunExtract: "展開",
             .archiveRunPack: "圧縮",
@@ -3118,7 +3144,8 @@ enum L10n {
             .colorLimit: "보관할 색 수",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz 등",
             .archiveMakeDefault: "rar 기본 앱을 Hop으로",
-            .archiveRestoreSystemHandlers: "아카이브 형식을 아카이브 유틸리티로 되돌리기",
+            .archiveRestoreSystemHandlers: "예전 rar 이외 연결 되돌리기",
+            .archiveFinderHelp: "Finder에서 열기 — 설정 → 기타 모듈에서 Hop은 rar에만 지정할 수 있고 Apple 앱을 대신하지 않습니다. Finder에서 연 압축 파일은 수동 창의 대상 설정과 관계없이 원본 옆에 풀립니다. 작은 별도 진행 창이 즉시 나타나며 성공하면 닫히고 실패하면 이유와 함께 남습니다. 이전 Hop이 남긴 rar 이외의 연결은 같은 설정에서 아카이브 유틸리티로 돌려보낼 수 있습니다.",
             .archiveDestDesktop: "데스크탑",
             .archiveRunExtract: "풀기",
             .archiveRunPack: "압축",
@@ -3430,7 +3457,8 @@ enum L10n {
             .colorLimit: "saklanan renkler",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz ve daha fazlası",
             .archiveMakeDefault: "rar için varsayılan uygulama Hop",
-            .archiveRestoreSystemHandlers: "arşiv türlerini Arşiv İzlencesi’ne geri ver",
+            .archiveRestoreSystemHandlers: "eski rar dışı ilişkilendirmeleri geri ver",
+            .archiveFinderHelp: "Finder’dan açma — ayarlar → diğer modüller bölümünde Hop yalnızca rar için atanabilir ve bir Apple uygulamasının yerini almaz. Finder’dan açılan arşivler, elle kullanılan pencerenin hedefinden bağımsız olarak kaynağın yanına çıkarılır. küçük ve ayrı bir ilerleme penceresi hemen görünür; başarıdan sonra kapanır, hatada nedeni göstererek açık kalır. eski Hop sürümlerinin bıraktığı rar dışı ilişkilendirmeler aynı bölümden Arşiv İzlencesi’ne geri verilebilir.",
             .archiveDestDesktop: "masaüstü",
             .archiveRunExtract: "aç",
             .archiveRunPack: "sıkıştır",
@@ -3747,7 +3775,8 @@ enum L10n {
             .colorLimit: "скільки кольорів зберігати",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz та інші",
             .archiveMakeDefault: "Hop за замовчуванням для rar",
-            .archiveRestoreSystemHandlers: "повернути типи архівів Утиліті архівування",
+            .archiveRestoreSystemHandlers: "повернути старі прив’язки не-rar",
+            .archiveFinderHelp: "відкриття з Finder — у налаштуваннях → інші модулі Hop можна призначити лише для rar і ніколи замість програми Apple. архів із Finder розпаковується поруч із собою незалежно від теки ручного вікна. невелике окреме вікно прогресу з’являється відразу, закривається після успіху й лишається з причиною після помилки. старі прив’язки не-rar, залишені Hop, можна повернути Утиліті архівування там само.",
             .archiveDestDesktop: "робочий стіл",
             .archiveRunExtract: "розпакувати",
             .archiveRunPack: "запакувати",
@@ -4064,7 +4093,8 @@ enum L10n {
             .colorLimit: "przechowywane kolory",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz i inne",
             .archiveMakeDefault: "Hop domyślnie dla rar",
-            .archiveRestoreSystemHandlers: "zwróć typy archiwów Narzędziu archiwizującemu",
+            .archiveRestoreSystemHandlers: "zwróć stare powiązania inne niż rar",
+            .archiveFinderHelp: "otwieranie z Findera — w ustawieniach → inne moduły Hop można przypisać tylko do rar i nigdy zamiast aplikacji Apple. archiwa z Findera są rozpakowywane obok siebie niezależnie od celu ręcznego okna. małe osobne okno postępu pojawia się od razu, zamyka po sukcesie i zostaje z powodem po błędzie. stare powiązania inne niż rar pozostawione przez Hop można zwrócić Narzędziu archiwizującemu w tej samej sekcji.",
             .archiveDestDesktop: "biurko",
             .archiveRunExtract: "rozpakuj",
             .archiveRunPack: "spakuj",
@@ -4381,7 +4411,8 @@ enum L10n {
             .colorLimit: "warna yang disimpan",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz dan lainnya",
             .archiveMakeDefault: "buka rar dengan Hop secara default",
-            .archiveRestoreSystemHandlers: "kembalikan jenis arsip ke Archive Utility",
+            .archiveRestoreSystemHandlers: "kembalikan kaitan lama selain rar",
+            .archiveFinderHelp: "membuka dari Finder — di pengaturan → modul lainnya, Hop hanya dapat ditetapkan untuk rar dan tidak pernah menggantikan aplikasi Apple. arsip dari Finder diekstrak di sebelah sumbernya, apa pun tujuan jendela manual. jendela progres kecil yang terpisah langsung muncul; jendela menutup setelah berhasil dan tetap terbuka dengan alasannya jika gagal. kaitan lama selain rar yang ditinggalkan Hop dapat dikembalikan ke Archive Utility dari bagian yang sama.",
             .archiveDestDesktop: "desktop",
             .archiveRunExtract: "ekstrak",
             .archiveRunPack: "arsipkan",
@@ -4698,7 +4729,8 @@ enum L10n {
             .colorLimit: "จำนวนสีที่เก็บไว้",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz และอื่น ๆ",
             .archiveMakeDefault: "ใช้ Hop เปิด rar เป็นค่าเริ่มต้น",
-            .archiveRestoreSystemHandlers: "คืนประเภทไฟล์บีบอัดให้ยูทิลิตี้เก็บถาวร",
+            .archiveRestoreSystemHandlers: "คืนการเชื่อมโยงเก่าที่ไม่ใช่ rar",
+            .archiveFinderHelp: "เปิดจาก Finder — ในการตั้งค่า → โมดูลอื่น ๆ จะกำหนดให้ Hop เปิดได้เฉพาะ rar และจะไม่แทนที่แอปของ Apple ไฟล์บีบอัดจาก Finder จะแตกไว้ข้างไฟล์ต้นฉบับเสมอ ไม่ขึ้นกับปลายทางของหน้าต่างแบบกำหนดเอง หน้าต่างความคืบหน้าเล็ก ๆ แยกต่างหากจะปรากฏทันที สำเร็จแล้วปิดเอง และเมื่อผิดพลาดจะค้างไว้พร้อมเหตุผล การเชื่อมโยงเก่าที่ไม่ใช่ rar ซึ่ง Hop รุ่นก่อนทิ้งไว้คืนให้ยูทิลิตี้เก็บถาวรได้จากส่วนเดียวกัน",
             .archiveDestDesktop: "เดสก์ท็อป",
             .archiveRunExtract: "แตกไฟล์",
             .archiveRunPack: "บีบอัด",
@@ -5015,7 +5047,8 @@ enum L10n {
             .colorLimit: "số màu được giữ",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz và nhiều loại khác",
             .archiveMakeDefault: "mở rar bằng Hop theo mặc định",
-            .archiveRestoreSystemHandlers: "trả các loại kho nén về Tiện ích Lưu trữ",
+            .archiveRestoreSystemHandlers: "trả các liên kết cũ không phải rar",
+            .archiveFinderHelp: "mở từ Finder — trong cài đặt → mô-đun khác, Hop chỉ có thể được gán cho rar và không bao giờ thay ứng dụng Apple. tệp nén từ Finder luôn được bung ngay cạnh tệp gốc, bất kể đích của cửa sổ thủ công. một cửa sổ tiến trình nhỏ riêng biệt xuất hiện ngay; nó đóng sau khi thành công và ở lại cùng lý do khi có lỗi. các liên kết cũ không phải rar do Hop để lại có thể được trả về Tiện ích Lưu trữ tại cùng phần cài đặt.",
             .archiveDestDesktop: "màn hình nền",
             .archiveRunExtract: "giải nén",
             .archiveRunPack: "nén",
@@ -5332,7 +5365,8 @@ enum L10n {
             .colorLimit: "कितने रंग रखें",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz और अन्य",
             .archiveMakeDefault: "rar के लिए Hop को डिफ़ॉल्ट बनाएँ",
-            .archiveRestoreSystemHandlers: "आर्काइव प्रकारों को Archive Utility पर लौटाएँ",
+            .archiveRestoreSystemHandlers: "पुराने गैर-rar जुड़ाव वापस करें",
+            .archiveFinderHelp: "Finder से खोलना — सेटिंग्स → अन्य मॉड्यूल में Hop को केवल rar के लिए चुना जा सकता है और वह Apple ऐप की जगह नहीं लेता। Finder से खोला आर्काइव मैनुअल विंडो की मंज़िल से अलग, मूल के बगल में ही खुलता है। एक छोटी अलग प्रगति विंडो तुरंत दिखती है; सफलता पर बंद हो जाती है और त्रुटि पर कारण के साथ खुली रहती है। पुराने Hop के छोड़े गैर-rar जुड़ाव यहीं से Archive Utility को लौटाए जा सकते हैं।",
             .archiveDestDesktop: "डेस्कटॉप",
             .archiveRunExtract: "खोलें",
             .archiveRunPack: "आर्काइव बनाएँ",
@@ -5649,7 +5683,8 @@ enum L10n {
             .colorLimit: "bewaarde kleuren",
             .featureArchiveFormats: "zip · rar · 7z · tar.gz en meer",
             .archiveMakeDefault: "rar standaard met Hop openen",
-            .archiveRestoreSystemHandlers: "archieftypen teruggeven aan Archiveringshulpprogramma",
+            .archiveRestoreSystemHandlers: "oude niet-rar-koppelingen teruggeven",
+            .archiveFinderHelp: "openen vanuit de Finder — bij instellingen → overige modules kan Hop alleen aan rar worden toegewezen, nooit in plaats van een Apple-app. archieven uit de Finder worden ernaast uitgepakt, ongeacht de doelmap van het handmatige venster. een klein apart voortgangsvenster verschijnt meteen, sluit na succes en blijft bij een fout met de reden open. oude niet-rar-koppelingen die Hop achterliet kun je in dezelfde sectie teruggeven aan Archiveringshulpprogramma.",
             .archiveDestDesktop: "bureaublad",
             .archiveRunExtract: "uitpakken",
             .archiveRunPack: "inpakken",

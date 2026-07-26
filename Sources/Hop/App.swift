@@ -16,6 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
     private var converterWindow: ConverterWindow?
     private var archiveWindow: ConverterWindow?
+    private var finderArchiveWindows: [UUID: FinderArchiveProgressWindowController] = [:]
     private var screenTextWindow: ConverterWindow?
     private var aboutWindow: NSWindow?
     private var torrentAddWindow: NSWindow?
@@ -156,7 +157,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // app's own layer while another app is active — the window came
             // back UNDER the frontmost app instead of on top with the panel.
             let ours = Set([converterWindow, settingsWindow, aboutWindow, torrentAddWindow,
-                            archiveWindow, screenTextWindow].compactMap { $0 })
+                            archiveWindow, screenTextWindow].compactMap { $0 }
+                + finderArchiveWindows.values.map(\.presentedWindow))
             // Raise them WITHOUT reshuffling: walk the current front-to-back
             // order in reverse (back first) so each orderFrontRegardless lands
             // the windows on top in the SAME relative order the user arranged.
@@ -547,6 +549,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         converterWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         aboutWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         archiveWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        finderArchiveWindows.values.forEach { $0.applyTheme() }
         screenTextWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         torrentAddWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         quitWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
@@ -828,41 +831,79 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Opening archives, .torrent files and magnet: links (Launch Services)
 
-    /// URLs that Launch Services handed us before the app finished launching — the
-    /// common case, since a cold double-click of a `.torrent`/magnet delivers
+    /// URL batches that Launch Services handed us before the app finished launching
+    /// — the common case, since a cold double-click of an archive, `.torrent`, or
+    /// magnet delivers
     /// `application(_:open:)` BEFORE `applicationDidFinishLaunching`. They wait here
     /// and are flushed by `flushPendingOpens()` at the end of launch, so the
     /// crash-loop guard and the model build always run first.
-    private var pendingOpenURLs: [URL] = []
+    private var pendingOpenBatches: [[URL]] = []
     /// Flipped true at the very end of `applicationDidFinishLaunching` (never in
     /// safe mode). Until then the open handler must not touch the model or show UI.
     private var appDidFinishLaunching = false
 
-    /// A double-clicked `.torrent` file or a clicked `magnet:` link, delivered here
-    /// by Launch Services. On a COLD launch this runs BEFORE
+    /// Finder-opened archives, a double-clicked `.torrent` file, or a clicked
+    /// `magnet:` link, delivered here by Launch Services. On a COLD launch this
+    /// runs BEFORE
     /// `applicationDidFinishLaunching`: the model does not exist yet and the
     /// crash-loop guard has not run, so such URLs are buffered and flushed once
     /// launch finishes. A warm open (app already up, not in safe mode) is processed
     /// immediately. The handler itself never touches the model, shows an alert, or
     /// builds anything — that would defeat the safe-mode invariant.
     func application(_ application: NSApplication, open urls: [URL]) {
-        for url in urls {
-            if appDidFinishLaunching && safeStatusItem == nil {
-                processOpen(url)
-            } else {
-                pendingOpenURLs.append(url)
-            }
+        if appDidFinishLaunching && safeStatusItem == nil {
+            processOpenBatch(urls)
+        } else {
+            pendingOpenBatches.append(urls)
         }
     }
 
     /// Process the URLs that arrived during a cold launch. Called at the very end of
-    /// `applicationDidFinishLaunching`, so the model is built, the crash-loop guard
-    /// has passed and `openTorrentAddSheet` is wired. Never called in safe mode.
+    /// `applicationDidFinishLaunching`, so the model is built, the crash-loop
+    /// guard has passed and the window callbacks are wired. Never called in safe
+    /// mode.
     private func flushPendingOpens() {
         appDidFinishLaunching = true
-        let urls = pendingOpenURLs
-        pendingOpenURLs = []
-        for url in urls { processOpen(url) }
+        let batches = pendingOpenBatches
+        pendingOpenBatches = []
+        processOpenBatch(batches.flatMap { $0 })
+    }
+
+    /// One Finder event can contain several selected archives. They share one
+    /// compact progress window, while non-archive URLs keep their existing
+    /// torrent/magnet route.
+    private func processOpenBatch(_ urls: [URL]) {
+        let archives = urls.filter {
+            $0.isFileURL
+                && ((try? $0.resourceValues(
+                    forKeys: [.isRegularFileKey]))?.isRegularFile ?? false)
+                && ArchiveRules.format(ofFileNamed: $0.lastPathComponent) != nil
+        }
+        if !archives.isEmpty {
+            showFinderArchiveProgress(for: archives)
+        }
+        for url in urls where !archives.contains(url) {
+            processOpen(url)
+        }
+    }
+
+    private func showFinderArchiveProgress(for archives: [URL]) {
+        let files = archives.map {
+            (id: UUID(), fileName: $0.lastPathComponent)
+        }
+        let controller = FinderArchiveProgressWindowController(
+            files: files
+        ) { [weak self] id in
+            self?.finderArchiveWindows[id] = nil
+        }
+        finderArchiveWindows[controller.id] = controller
+        controller.show()
+
+        for (archive, file) in zip(archives, files) {
+            model.archive.openFromFinder(archive) { [weak controller] event in
+                controller?.receive(event, for: file.id)
+            }
+        }
     }
 
     /// Turn an incoming `.torrent` file or `magnet:` URL into an `AddSource` and
@@ -873,17 +914,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Only ever called past launch and outside safe mode, so touching the model
     /// and showing UI here is safe.
     private func processOpen(_ url: URL) {
-        // An archive opened from Finder is unpacked straight away — even with the
-        // module hidden from the panel, being the opener has to keep working.
-        // Success needs no window: the result appears beside the archive. A failed
-        // job opens the existing archive window so the reason is never silent.
-        if url.isFileURL,
-           ArchiveRules.format(ofFileNamed: url.lastPathComponent) != nil {
-            model.archive.openFromFinder(url) { [weak self] in
-                self?.showArchiveWindow()
-            }
-            return
-        }
         let source: TorrentController.AddSource
         if url.isFileURL {
             guard url.pathExtension.lowercased() == "torrent" else { return }

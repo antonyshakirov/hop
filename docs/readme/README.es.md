@@ -147,8 +147,8 @@ original, o a la carpeta que elijas. Se admiten zip, rar, 7z, tar, tar.gz,
 tar.bz2, tar.xz y gz; para rar y 7z se descarga la primera vez un pequeño
 ayudante (~6 MB) con la firma verificada. Hop extrae rar pero nunca lo crea: el
 formato es propietario. «Hop por defecto para archivos comprimidos» en los ajustes
-toma los formatos para los que macOS no trae app propia —sobre todo rar y 7z— y
-se los quita a apps de terceros; zip y tar se quedan con Utilidad de Archivo.
+solo ofrece rar cuando ninguna app de Apple lo abre, y puede quitárselo a apps de
+terceros; zip, 7z y los formatos nativos se quedan con Utilidad de Archivo.
 Funciona con el módulo oculto, y la tarjeta muestra el estado real.
 
 <div align="center">
