@@ -34,6 +34,8 @@ final class KeyboardLockController: ObservableObject {
     private var escapeDown = false
     private var shiftDown = false
     private var chordTimer: Timer?
+    /// When the pair went down; every later event re-checks the deadline against it.
+    private var chordStart: Date?
     private var overlay: NSWindow?
 
     var duration: Int {
@@ -185,7 +187,19 @@ final class KeyboardLockController: ObservableObject {
             cancelChord()
             return
         }
-        guard chordTimer == nil else { return }   // already counting
+        // Already counting: every auto-repeat of esc is a chance to notice that
+        // the deadline has passed. That is what removes the half-second of "the
+        // bar is full but nothing happened" — a Timer on a run loop busy with
+        // the cover's animation can fire late, and repeats arrive every ~33ms
+        // (Anton, 2026-07-26).
+        if let start = chordStart {
+            if Date().timeIntervalSince(start) >= Self.escapeHoldSeconds {
+                cancelChord()
+                unlock()
+            }
+            return
+        }
+        chordStart = Date()
         chordHeld = true
         let timer = Timer(timeInterval: Self.escapeHoldSeconds, repeats: false) { [weak self] _ in
             MainActor.assumeIsolated {
@@ -194,6 +208,7 @@ final class KeyboardLockController: ObservableObject {
                 self.unlock()
             }
         }
+        timer.tolerance = 0        // the deadline is the promise the bar makes
         // .common: a modal loop elsewhere must not stall the way out
         RunLoop.main.add(timer, forMode: .common)
         chordTimer = timer
@@ -202,6 +217,7 @@ final class KeyboardLockController: ObservableObject {
     private func cancelChord() {
         chordTimer?.invalidate()
         chordTimer = nil
+        chordStart = nil
         chordHeld = false
     }
 
@@ -307,8 +323,10 @@ private struct KeyboardLockOverlay: View {
                         .fill(Theme.editing)
                         .frame(width: lock.chordHeld ? 180 : 0, height: 4)
                 }
+                // a hair shorter than the deadline: a bar that fills exactly at
+                // the moment of unlocking looks like it is waiting for something
                 .animation(lock.chordHeld
-                           ? .linear(duration: KeyboardLockController.escapeHoldSeconds)
+                           ? .linear(duration: KeyboardLockController.escapeHoldSeconds - 0.15)
                            : .easeOut(duration: 0.18),
                            value: lock.chordHeld)
                 .opacity(lock.chordHeld ? 1 : 0.35)

@@ -1106,7 +1106,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   lock (Anton, 2026-07-26). `noteChord(escape:shift:)` tracks both from the tap
   (shift comes off `event.flags`, so a bare modifier change updates it too) and
   arms a real Timer — shift never auto-repeats, so there would be nothing to
-  count. Both keys are still swallowed on the way through, and the cover states
+  count. The Timer is a BACKSTOP, not the only clock: every later event
+  (esc auto-repeats ~30 times a second) re-checks the elapsed time against the
+  start, because a timer on a run loop busy with the cover's animation fires late
+  and the release then trails the full bar by half a second (Anton, 2026-07-26).
+  The bar itself fills 0.15s early for the same reason — a finished bar must never
+  sit there waiting. Both keys are still swallowed on the way through, and the cover states
   the chord on its own line, heavier than the rest, with a bar that fills over
   the five seconds while the pair is held and snaps back the moment either key
   goes up (`chordHeld`) — a five-second hold with no feedback is five seconds of
