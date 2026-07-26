@@ -211,6 +211,14 @@ un modo seguro que recupera la app de un bucle de fallos.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — la app sigue el idioma de tu sistema desde el
 primer momento.
 
+## Apoya el proyecto
+
+Hop es gratis y lo seguirá siendo. Si se gana un sitio en tu barra de menús, una
+aportación voluntaria ayuda a sacar funciones nuevas y a pulir las que ya están:
+paga el tiempo que lleva, nada más.
+
+**[→ Apoyar Hop](https://web.tribute.tg/d/Nvk)**
+
 ## Privacidad — y por qué los permisos se pueden dar sin miedo
 
 **Hop no recopila nada. Ni ahora ni después.** Sin servidor propio, sin
@@ -289,10 +297,15 @@ comportamiento están en [docs/development.md](../development.md) y
 
 ## Apoya el proyecto
 
-Si Hop te ahorra un clic o dos, **[dale una estrella al repo](https://github.com/antonyshakirov/hop/stargazers)** —
-las estrellas son la forma en que otros lo encuentran. Los informes de
-errores y las ideas de funciones son bienvenidos en
-[Issues](https://github.com/antonyshakirov/hop/issues).
+Tres formas, y las tres se agradecen:
+
+- **[Apoyar Hop con una aportación](https://web.tribute.tg/d/Nvk)** — va directa
+  a funciones nuevas y arreglos. Voluntaria, sin recompensas, sin nada de pago:
+  todos los módulos son iguales para todos.
+- **[Dar una estrella al repo](https://github.com/antonyshakirov/hop/stargazers)** —
+  por las estrellas lo encuentran otros.
+- **[Abrir un issue](https://github.com/antonyshakirov/hop/issues)** — un informe
+  de error o una idea valen lo mismo.
 
 ## Autor y licencia
 

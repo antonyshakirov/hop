@@ -178,6 +178,13 @@ zip 和 tar 仍留给「归档实用工具」。模块隐藏时同样有效，�
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — 应用开箱即用，自动跟随系统语言。
 
+## 支持这个项目
+
+Hop 是免费的，而且会一直免费。如果它在你的菜单栏里挣到了一个位置，自愿的一点支持能帮助
+继续做新功能、把已有的打磨得更好 —— 它买的是时间，别无他用。
+
+**[→ 支持 Hop](https://web.tribute.tg/d/Nvk)**
+
 ## 隐私 —— 以及为什么这些权限可以放心给
 
 **Hop 不收集任何东西。现在不会，以后也不会。** 没有自己的服务器，没有分析统计，没有遥测，
@@ -237,9 +244,14 @@ swift build
 
 ## 支持这个项目
 
-如果 Hop 帮你省下了哪怕一两次点击，**[给仓库点个星](https://github.com/antonyshakirov/hop/stargazers)**——
-星标是别人发现它的方式。欢迎在 [Issues](https://github.com/antonyshakirov/hop/issues)
-提交 Bug 报告和功能建议。
+三种方式，每一种都欢迎：
+
+- **[用一份支持帮助 Hop](https://web.tribute.tg/d/Nvk)** —— 它会直接变成新功能和
+  修复。完全自愿，没有回报档位，也没有任何付费内容：每个模块对所有人都一样。
+- **[给仓库点个 star](https://github.com/antonyshakirov/hop/stargazers)** —— 别人
+  正是通过 star 找到它的。
+- **[提一个 issue](https://github.com/antonyshakirov/hop/issues)** —— 一份缺陷
+  报告或一个想法，价值同样不小。
 
 ## 作者与许可
 

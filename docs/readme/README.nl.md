@@ -209,6 +209,14 @@ veilige modus die de app uit een crashlus haalt.
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — de app volgt standaard je systeemtaal.
 
+## Steun het project
+
+Hop is gratis en blijft dat. Als het een plek in je menubalk verdient, helpt een
+vrijwillige bijdrage om nieuwe functies uit te brengen en de bestaande bij te
+schaven — hij betaalt de tijd, niets anders.
+
+**[→ Hop steunen](https://web.tribute.tg/d/Nvk)**
+
 ## Privacy — en waarom je de toestemmingen gerust kunt geven
 
 **Hop verzamelt niets. Nu niet en later niet.** Geen eigen server, geen
@@ -286,9 +294,15 @@ De dev-workflow, de release-pipeline en de gedragsspecificatie staan in
 
 ## Steun het project
 
-Als Hop je een klik of twee bespaart, **[geef de repo dan een ster](https://github.com/antonyshakirov/hop/stargazers)** —
-via sterren vinden anderen het project. Bugmeldingen en feature-ideeën zijn
-welkom in [Issues](https://github.com/antonyshakirov/hop/issues).
+Drie manieren, alle drie welkom:
+
+- **[Hop steunen met een bijdrage](https://web.tribute.tg/d/Nvk)** — die gaat recht
+  naar nieuwe functies en fixes. Vrijwillig, zonder perks, niets achter een
+  betaalmuur: elke module is voor iedereen hetzelfde.
+- **[Geef de repo een ster](https://github.com/antonyshakirov/hop/stargazers)** —
+  via sterren vinden anderen het.
+- **[Open een issue](https://github.com/antonyshakirov/hop/issues)** — een
+  bugmelding of een idee is net zoveel waard.
 
 ## Auteur & licentie
 

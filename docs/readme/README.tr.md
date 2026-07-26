@@ -207,6 +207,14 @@ döngüsünden kurtaran güvenli mod.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — uygulama kurulumdan itibaren sistem
 dilinize uyar.
 
+## Projeye destek olun
+
+Hop ücretsiz ve öyle kalacak. Menü çubuğunda bir yer hak ettiyse, gönüllü bir
+katkı yeni özelliklerin çıkmasına ve mevcut olanların cilalanmasına yardım eder —
+satın aldığı tek şey zaman.
+
+**[→ Hop'a destek ol](https://web.tribute.tg/d/Nvk)**
+
 ## Gizlilik — ve izinleri neden gönül rahatlığıyla verebilirsin
 
 **Hop hiçbir şey toplamaz. Ne şimdi ne sonra.** Kendi sunucusu yok, analitiği
@@ -281,10 +289,15 @@ dosyalarında.
 
 ## Projeye destek olun
 
-Hop size bir iki tık kazandırıyorsa, **[depoya yıldız verin](https://github.com/antonyshakirov/hop/stargazers)** —
-başkaları onu yıldızlar sayesinde buluyor. Hata bildirimleri ve özellik
-fikirleri [Issues](https://github.com/antonyshakirov/hop/issues)
-bölümünde memnuniyetle karşılanır.
+Üç yol, hepsi makbul:
+
+- **[Bir katkıyla Hop'a destek ol](https://web.tribute.tg/d/Nvk)** — doğrudan yeni
+  özelliklere ve düzeltmelere gider. Gönüllü, ödülsüz, ücretli hiçbir şey yok:
+  her modül herkes için aynı.
+- **[Depoya yıldız ver](https://github.com/antonyshakirov/hop/stargazers)** —
+  başkaları onu yıldızlarla buluyor.
+- **[Issue aç](https://github.com/antonyshakirov/hop/issues)** — bir hata bildirimi
+  ya da bir fikir de en az o kadar değerli.
 
 ## Yazar ve lisans
 

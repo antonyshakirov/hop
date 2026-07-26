@@ -211,6 +211,14 @@ logowaniu oraz tryb awaryjny, który wyciąga aplikację z pętli awarii.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikacja od razu podąża za językiem
 Twojego systemu.
 
+## Wesprzyj projekt
+
+Hop jest darmowy i taki zostanie. Jeśli zasłużył na miejsce na twoim pasku menu,
+dobrowolne wsparcie pomaga wypuszczać nowe funkcje i dopracowywać te, które już
+są — płaci za czas, i tylko za to.
+
+**[→ Wesprzyj Hopa](https://web.tribute.tg/d/Nvk)**
+
 ## Prywatność — i dlaczego uprawnienia można spokojnie dać
 
 **Hop nie zbiera niczego. Ani teraz, ani później.** Brak własnego serwera, brak
@@ -288,9 +296,15 @@ się w [docs/development.md](../development.md) i
 
 ## Wesprzyj projekt
 
-Jeśli Hop oszczędza Ci kliknięcie czy dwa, **[zostaw repozytorium gwiazdkę](https://github.com/antonyshakirov/hop/stargazers)** —
-to dzięki gwiazdkom znajdują je inni. Zgłoszenia błędów i pomysły na
-funkcje są mile widziane w [Issues](https://github.com/antonyshakirov/hop/issues).
+Trzy sposoby, każdy mile widziany:
+
+- **[Wesprzyj Hopa wpłatą](https://web.tribute.tg/d/Nvk)** — idzie prosto w nowe
+  funkcje i poprawki. Dobrowolnie, bez nagród, bez niczego za opłatą: każdy moduł
+  jest taki sam dla wszystkich.
+- **[Daj repo gwiazdkę](https://github.com/antonyshakirov/hop/stargazers)** — to
+  po gwiazdkach znajdują go inni.
+- **[Otwórz issue](https://github.com/antonyshakirov/hop/issues)** — zgłoszenie
+  błędu albo pomysł są warte tyle samo.
 
 ## Autor i licencja
 

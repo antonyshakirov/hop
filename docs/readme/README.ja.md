@@ -199,6 +199,13 @@ zip・rar・7z・tar・tar.gz・tar.bz2・tar.xz・gz。rar と 7z は初回に�
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — アプリは最初からシステム言語に自動で従います。
 
+## プロジェクトを応援する
+
+Hop は無料で、これからも無料です。メニューバーの一席に値すると思えたら、任意の支援が
+新しい機能を出し、既存のものを磨く助けになります。買っているのは時間だけです。
+
+**[→ Hop を支援する](https://web.tribute.tg/d/Nvk)**
+
 ## プライバシー — 許可を与えても安全な理由
 
 **Hop は何も集めません。いまも、これからも。** 自前のサーバーも、解析も、テレメトリも、
@@ -265,10 +272,14 @@ swift build
 
 ## プロジェクトを応援する
 
-Hop がクリックを 1 つ 2 つ節約してくれたなら、**[リポジトリにスターを](https://github.com/antonyshakirov/hop/stargazers)**——
-スターは、ほかの人がこのアプリを見つけるための道しるべです。バグ報告や
-機能のアイデアは [Issues](https://github.com/antonyshakirov/hop/issues) へ
-どうぞ。
+方法は三つ、どれも歓迎です。
+
+- **[支援して Hop を助ける](https://web.tribute.tg/d/Nvk)** — そのまま新機能と修正に
+  なります。任意で、特典はなく、有料の機能もありません。どのモジュールも全員に同じです。
+- **[リポジトリにスターを付ける](https://github.com/antonyshakirov/hop/stargazers)** —
+  ほかの人はスターから見つけます。
+- **[Issue を立てる](https://github.com/antonyshakirov/hop/issues)** — 不具合の報告や
+  アイデアも、同じくらい価値があります。
 
 ## 作者とライセンス
 

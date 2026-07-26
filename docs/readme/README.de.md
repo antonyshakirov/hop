@@ -211,6 +211,14 @@ aus einer Absturzschleife rettet.
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — die App folgt von Haus aus deiner Systemsprache.
 
+## Unterstütze das Projekt
+
+Hop ist kostenlos und bleibt es. Wenn es sich einen Platz in deiner Menüleiste
+verdient hat, hilft ein freiwilliger Beitrag dabei, neue Funktionen zu bringen
+und die bestehenden zu schleifen — er bezahlt die Zeit, sonst nichts.
+
+**[→ Hop unterstützen](https://web.tribute.tg/d/Nvk)**
+
 ## Datenschutz — und warum die Berechtigungen unbedenklich sind
 
 **Hop sammelt nichts. Jetzt nicht und später nicht.** Kein eigener Server, keine
@@ -290,9 +298,15 @@ Dev-Workflow, Release-Pipeline und die Verhaltensspezifikation findest du in
 
 ## Unterstütze das Projekt
 
-Wenn Hop dir den einen oder anderen Klick spart, **[gib dem Repo einen Stern](https://github.com/antonyshakirov/hop/stargazers)** —
-über Sterne finden andere das Projekt. Bug-Reports und Feature-Ideen sind in
-den [Issues](https://github.com/antonyshakirov/hop/issues) willkommen.
+Drei Wege, jeder davon willkommen:
+
+- **[Hop mit einem Beitrag unterstützen](https://web.tribute.tg/d/Nvk)** — er
+  geht direkt in neue Funktionen und Fixes. Freiwillig, ohne Perks, ohne
+  Bezahlschranke: jedes Modul ist für alle gleich.
+- **[Dem Repo einen Stern geben](https://github.com/antonyshakirov/hop/stargazers)** —
+  über Sterne finden andere es.
+- **[Ein Issue eröffnen](https://github.com/antonyshakirov/hop/issues)** — ein
+  Bug-Report oder eine Idee ist genauso wertvoll.
 
 ## Autor & Lizenz
 

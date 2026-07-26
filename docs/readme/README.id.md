@@ -208,6 +208,14 @@ dari crash loop.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikasi langsung mengikuti bahasa sistem
 kamu.
 
+## Dukung proyek ini
+
+Hop gratis dan akan tetap begitu. Kalau ia layak dapat tempat di bilah menumu,
+kontribusi sukarela membantu merilis fitur baru dan memoles yang sudah ada — yang
+dibelinya cuma waktu.
+
+**[→ Dukung Hop](https://web.tribute.tg/d/Nvk)**
+
 ## Privasi — dan kenapa izinnya aman diberikan
 
 **Hop tidak mengumpulkan apa pun. Sekarang tidak, nanti juga tidak.** Tidak ada
@@ -287,9 +295,15 @@ Alur pengembangan, pipeline rilis, dan spesifikasi perilaku ada di
 
 ## Dukung proyek ini
 
-Kalau Hop menghemat satu-dua klik untukmu, **[beri bintang pada repo](https://github.com/antonyshakirov/hop/stargazers)** —
-lewat bintang itulah orang lain menemukannya. Laporan bug dan ide fitur
-sangat diterima di [Issues](https://github.com/antonyshakirov/hop/issues).
+Tiga cara, semuanya diterima dengan senang hati:
+
+- **[Dukung Hop dengan kontribusi](https://web.tribute.tg/d/Nvk)** — langsung jadi
+  fitur baru dan perbaikan. Sukarela, tanpa imbalan, tanpa apa pun yang berbayar:
+  setiap modul sama untuk semua orang.
+- **[Beri bintang ke repo](https://github.com/antonyshakirov/hop/stargazers)** —
+  lewat bintang orang lain menemukannya.
+- **[Buka issue](https://github.com/antonyshakirov/hop/issues)** — laporan bug atau
+  sebuah ide nilainya sama.
 
 ## Pembuat & lisensi
 

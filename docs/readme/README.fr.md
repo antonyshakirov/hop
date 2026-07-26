@@ -215,6 +215,14 @@ session, et un mode sans échec qui récupère l'app après une boucle de crash.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — l'app suit la langue de votre système dès
 l'installation.
 
+## Soutenir le projet
+
+Hop est gratuit et le restera. S'il mérite sa place dans ta barre des menus, une
+contribution volontaire aide à sortir de nouvelles fonctions et à peaufiner
+celles qui existent : elle paie le temps que ça prend, rien d'autre.
+
+**[→ Soutenir Hop](https://web.tribute.tg/d/Nvk)**
+
 ## Confidentialité — et pourquoi les autorisations sont sans risque
 
 **Hop ne collecte rien. Ni maintenant, ni plus tard.** Pas de serveur à lui, pas
@@ -295,10 +303,15 @@ comportementale se trouvent dans [docs/development.md](../development.md) et
 
 ## Soutenir le projet
 
-Si Hop vous économise un clic ou deux, **[mettez une étoile au repo](https://github.com/antonyshakirov/hop/stargazers)** —
-c'est grâce aux étoiles que les autres le découvrent. Les rapports de bugs
-et les idées de fonctionnalités sont les bienvenus dans les
-[Issues](https://github.com/antonyshakirov/hop/issues).
+Trois façons, toutes bienvenues :
+
+- **[Soutenir Hop par une contribution](https://web.tribute.tg/d/Nvk)** — elle va
+  droit dans les nouvelles fonctions et les correctifs. Volontaire, sans
+  contrepartie, rien derrière un paywall : chaque module est le même pour tous.
+- **[Mettre une étoile au dépôt](https://github.com/antonyshakirov/hop/stargazers)** —
+  c'est par les étoiles que les autres le trouvent.
+- **[Ouvrir une issue](https://github.com/antonyshakirov/hop/issues)** — un
+  rapport de bug ou une idée valent autant.
 
 ## Auteur et licence
 

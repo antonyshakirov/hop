@@ -193,6 +193,13 @@ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz, gz를 지원합니다. rar과 7z은 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — 앱은 처음부터 시스템 언어를 그대로
 따라갑니다.
 
+## 프로젝트 응원하기
+
+Hop은 무료이고 앞으로도 그렇습니다. 메뉴 막대의 한 자리를 얻었다면, 자발적인 후원이 새 기능을
+내고 기존 기능을 다듬는 데 도움이 됩니다. 사는 것은 시간뿐입니다.
+
+**[→ Hop 후원하기](https://web.tribute.tg/d/Nvk)**
+
 ## 개인정보 보호 — 그리고 권한을 안심하고 줘도 되는 이유
 
 **Hop은 아무것도 수집하지 않습니다. 지금도, 나중에도.** 자체 서버도, 분석도, 텔레메트리도,
@@ -257,10 +264,14 @@ swift build
 
 ## 프로젝트 응원하기
 
-Hop이 클릭 한두 번이라도 아껴 줬다면 **[리포지토리에 스타를](https://github.com/antonyshakirov/hop/stargazers)** 눌러 주세요 —
-스타는 다른 사람들이 이 앱을 발견하는 길입니다. 버그 신고와 기능
-아이디어는 [Issues](https://github.com/antonyshakirov/hop/issues)에서
-언제나 환영합니다.
+세 가지 방법, 어느 것이든 반갑습니다:
+
+- **[후원으로 Hop 돕기](https://web.tribute.tg/d/Nvk)** — 그대로 새 기능과 수정에
+  들어갑니다. 자발적이고, 보상도 없고, 유료 기능도 없습니다. 모든 모듈은 모두에게 같습니다.
+- **[저장소에 별 주기](https://github.com/antonyshakirov/hop/stargazers)** — 다른
+  사람들은 별을 보고 찾아옵니다.
+- **[이슈 남기기](https://github.com/antonyshakirov/hop/issues)** — 버그 신고나
+  아이디어도 그만큼 값집니다.
 
 ## 만든 사람과 라이선스
 

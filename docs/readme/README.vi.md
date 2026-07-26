@@ -205,6 +205,14 @@ khôi phục ứng dụng khỏi vòng lặp crash.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — ứng dụng tự động theo ngôn ngữ hệ thống của
 bạn ngay từ đầu.
 
+## Ủng hộ dự án
+
+Hop miễn phí và sẽ luôn như vậy. Nếu nó xứng một chỗ trên thanh menu của bạn, một
+khoản ủng hộ tự nguyện giúp ra tính năng mới và trau chuốt những gì đang có — nó
+mua thời gian, không gì khác.
+
+**[→ Ủng hộ Hop](https://web.tribute.tg/d/Nvk)**
+
 ## Quyền riêng tư — và vì sao cấp quyền là an toàn
 
 **Hop không thu thập bất cứ thứ gì. Bây giờ không, sau này cũng không.** Không
@@ -278,9 +286,15 @@ Quy trình phát triển, pipeline phát hành và đặc tả hành vi nằm tr
 
 ## Ủng hộ dự án
 
-Nếu Hop giúp bạn tiết kiệm được một hai cú nhấp, hãy **[gắn sao cho repo](https://github.com/antonyshakirov/hop/stargazers)** —
-chính những ngôi sao giúp người khác tìm thấy nó. Báo lỗi và ý tưởng tính
-năng luôn được chào đón tại [Issues](https://github.com/antonyshakirov/hop/issues).
+Ba cách, cách nào cũng quý:
+
+- **[Ủng hộ Hop bằng một khoản góp](https://web.tribute.tg/d/Nvk)** — đi thẳng vào
+  tính năng mới và các bản sửa. Tự nguyện, không phần thưởng, không gì thu phí:
+  mọi mô-đun đều như nhau với tất cả.
+- **[Tặng repo một ngôi sao](https://github.com/antonyshakirov/hop/stargazers)** —
+  người khác tìm ra nó nhờ những ngôi sao.
+- **[Mở một issue](https://github.com/antonyshakirov/hop/issues)** — một báo lỗi hay
+  một ý tưởng cũng đáng giá như vậy.
 
 ## Tác giả & giấy phép
 

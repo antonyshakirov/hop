@@ -204,6 +204,14 @@ loop.
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — the app follows your system language out of
 the box.
 
+## Support the project
+
+Hop is free and always will be. If it earns a place in your menu bar, a
+voluntary contribution keeps new features coming and the existing ones
+polished — it pays for the time this takes, nothing else.
+
+**[→ Support Hop](https://web.tribute.tg/d/Nvk)**
+
 ## Privacy — and why the permissions are safe to give
 
 **Hop collects nothing. Not now, not later.** No server of its own, no
@@ -278,9 +286,15 @@ Dev workflow, release pipeline and the behavioral spec live in
 
 ## Support the project
 
-If Hop saves you a click or two, **[star the repo](https://github.com/antonyshakirov/hop/stargazers)** —
-stars are how other people find it. Bug reports and feature ideas are
-welcome in [Issues](https://github.com/antonyshakirov/hop/issues).
+Three ways, all of them welcome:
+
+- **[Support Hop with a contribution](https://web.tribute.tg/d/Nvk)** — it goes
+  straight into new features and fixes. Voluntary, no perks, no paywalled
+  anything: every module is the same for everyone.
+- **[Star the repo](https://github.com/antonyshakirov/hop/stargazers)** — stars
+  are how other people find it.
+- **[Open an issue](https://github.com/antonyshakirov/hop/issues)** — a bug
+  report or an idea is worth as much as either of the above.
 
 ## Author & license
 
