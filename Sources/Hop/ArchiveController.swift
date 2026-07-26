@@ -106,12 +106,7 @@ final class ArchiveController: ObservableObject {
     /// Content types Hop offers to open. Claiming them makes a double-clicked
     /// archive unpack through Hop even when the module is hidden from the panel
     /// (Anton, 2026-07-25) — the same deal the torrent module offers.
-    static let handledContentTypes = [
-        "public.zip-archive", "com.rarlab.rar-archive", "org.7-zip.7-zip-archive",
-        "public.tar-archive", "org.gnu.gnu-zip-archive", "org.gnu.gnu-zip-tar-archive",
-        "public.bzip2-archive", "org.tukaani.xz-archive",
-    ]
-    static let defaultHandlerKey = "archiveDefaultHandler"
+    static let handledContentTypes = ArchiveHandlerRules.handledContentTypes
 
     /// The app that opens a content type right now, or nil when nothing claims it.
     static func currentHandler(for type: String) -> String? {
@@ -125,25 +120,53 @@ final class ArchiveController: ObservableObject {
     /// somebody else — rar and 7z have no native opener at all — and for those
     /// it does replace whatever third-party app got there first.
     static func isAppleHandler(_ bundleID: String?) -> Bool {
-        bundleID?.lowercased().hasPrefix("com.apple.") ?? false
+        ArchiveHandlerRules.isAppleHandler(bundleID)
     }
 
-    /// Types Hop would claim on a tap: nothing Apple opens, nothing Hop already
-    /// holds.
+    /// The ONE type Hop offers to take over: rar, which no Apple app opens on the
+    /// macOS versions Hop supports. zip, tar, gz, bz2, xz and even 7z are opened
+    /// by Archive Utility, and taking those away from a system app nobody asked
+    /// to replace is exactly the kind of squatting a menu-bar tool should not do
+    /// (Anton, 2026-07-26).
+    static let claimableContentTypes = ArchiveHandlerRules.claimableContentTypes
+
+    /// What a tap would actually change: the claimable types that Apple does not
+    /// already open and Hop does not already hold. If a future macOS learns rar,
+    /// this list goes empty on its own and the card stops offering anything.
     static var claimableTypes: [String] {
-        handledContentTypes.filter { type in
-            let current = currentHandler(for: type)
-            return !isAppleHandler(current)
-                && current?.caseInsensitiveCompare(Bundle.storageIdentifier) != .orderedSame
+        claimableContentTypes.filter { type in
+            ArchiveHandlerRules.shouldClaim(
+                currentHandler: currentHandler(for: type),
+                hopBundleID: Bundle.storageIdentifier)
         }
     }
 
-    /// Hop is the opener for everything it is allowed to open. Read from Launch
-    /// Services every time, never from a stored flag: the default can be changed
-    /// in Finder at any moment, and a switch that disagrees with the system is
-    /// worse than no switch (Anton, 2026-07-26).
+    /// Whether Hop holds anything it was never meant to hold — the state left by
+    /// versions that claimed every archive type. Drives the "give them back" row.
+    static var holdsSystemTypes: Bool {
+        handledContentTypes.contains { type in
+            ArchiveHandlerRules.holdsUnexpectedType(
+                contentType: type,
+                currentHandler: currentHandler(for: type),
+                hopBundleID: Bundle.storageIdentifier)
+        }
+    }
+
+    /// Hand every archive type back to macOS's own Archive Utility — the way out
+    /// for anyone who let an earlier version take them all.
+    static func releaseDefaultHandlers() {
+        for type in handledContentTypes {
+            LSSetDefaultRoleHandlerForContentType(
+                type as CFString, .all, "com.apple.archiveutility" as CFString)
+        }
+    }
+
+    /// Hop opens everything it is allowed to open. Read from Launch Services
+    /// every time, never from a stored flag: the default can be changed in Finder
+    /// at any moment, and a control that disagrees with the system is worse than
+    /// no control (Anton, 2026-07-26).
     static var isDefaultHandler: Bool {
-        let held = handledContentTypes.contains { type in
+        let held = claimableContentTypes.contains { type in
             currentHandler(for: type)?.caseInsensitiveCompare(Bundle.storageIdentifier) == .orderedSame
         }
         return held && claimableTypes.isEmpty
@@ -158,7 +181,6 @@ final class ArchiveController: ObservableObject {
             LSSetDefaultRoleHandlerForContentType(
                 type as CFString, .all, bundleID as CFString)
         }
-        UserDefaults.standard.set(true, forKey: defaultHandlerKey)
     }
 
     /// The one entry point: everything dropped on the module — or pasted into its

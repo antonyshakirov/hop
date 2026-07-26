@@ -78,13 +78,58 @@ struct ArchiveView: View {
 struct ArchiveDefaultHandlerRow: View {
     let label: String
     let doneLabel: String
+    let restoreLabel: String
+
+    @State private var showsClaim = false
+    @State private var showsRestore = false
 
     var body: some View {
-        DefaultHandlerCard(
-            label: label,
-            isDefault: { ArchiveController.isDefaultHandler },
-            claim: { ArchiveController.claimDefaultHandler() },
-            doneLabel: doneLabel)
+        VStack(spacing: 8) {
+            if showsClaim {
+                DefaultHandlerCard(
+                    label: label,
+                    isDefault: { ArchiveController.isDefaultHandler },
+                    claim: { ArchiveController.claimDefaultHandler() },
+                    doneLabel: doneLabel)
+            }
+            if showsRestore {
+                Button {
+                    ArchiveController.releaseDefaultHandlers()
+                    refresh()
+                } label: {
+                    HStack {
+                        Text(restoreLabel)
+                            .font(Theme.mono(11, weight: .semibold))
+                            .foregroundStyle(Theme.textPrimary)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                        Spacer(minLength: 8)
+                        Image(systemName: "arrow.uturn.backward.circle")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 9)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                    .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(7)
+                .help(restoreLabel)
+            }
+        }
+        .onAppear(perform: refresh)
+        .onReceive(NotificationCenter.default.publisher(
+            for: NSApplication.didBecomeActiveNotification)) { _ in
+            refresh()
+        }
+    }
+
+    private func refresh() {
+        showsClaim = ArchiveController.isDefaultHandler
+            || !ArchiveController.claimableTypes.isEmpty
+        showsRestore = ArchiveController.holdsSystemTypes
     }
 }
 

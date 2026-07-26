@@ -3498,7 +3498,8 @@ struct PanelView: View {
                         }))
                 }
                 ArchiveDefaultHandlerRow(label: t(.archiveMakeDefault),
-                                         doneLabel: t(.defaultHandlerDone))
+                                         doneLabel: t(.defaultHandlerDone),
+                                         restoreLabel: t(.archiveRestoreSystemHandlers))
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {

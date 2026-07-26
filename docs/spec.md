@@ -999,16 +999,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Default opener in Finder**, exactly like the torrent module's: a card in
   SETTINGS → other modules (not in the window — being the opener outlives any
   window, Anton 2026-07-25). Two rules, both Anton's (2026-07-26):
-  - **macOS's own app is never overridden.** `claimableTypes` skips every type
-    whose current handler is a `com.apple.*` bundle, so zip and tar stay with
-    Archive Utility; what Hop takes is what the system leaves unclaimed (rar, 7z
-    have no native opener) — and it does take those back from a third-party app.
+  - **Only rar may be claimed, and macOS's own app is never overridden.**
+    `claimableTypes` contains only `com.rarlab.rar-archive`, and skips it when
+    its current handler is any `com.apple.*` bundle. Zip, tar, gz, bz2, xz and
+    7z stay with Archive Utility. If a future macOS release learns rar, the
+    claim card disappears automatically.
   - **The state is READ, never remembered.** `isDefaultHandler` asks Launch
     Services every time (and `DefaultHandlerCard` re-reads on every app
     activation), because the default can be changed in Finder at any moment and
-    a control that disagrees with the system is worse than no control. The card
-    only ever CLAIMS: handing a type back would mean choosing an app for the
-    user, and Finder's "Open with → Change all" is the honest way out.
+    a control that disagrees with the system is worse than no control.
+  Earlier Hop versions claimed every declared archive type. When the live
+  Launch Services state shows that Hop still holds any non-rar type, settings
+  show a recovery action that returns every archive type to
+  `com.apple.archiveutility`; the action disappears after the handoff.
   Settings also carry a "show in the panel" switch for the module itself: being
   the opener and occupying a row are separate decisions, and someone who only
   double-clicks archives in Finder should not have to dig through "modules &
