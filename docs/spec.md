@@ -1454,6 +1454,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Full cycle after EVERY change: `swift build` (0 warnings) →
   `swift test` → `--l10n-check` → `./scripts/build-app.sh --install`,
   check in both themes.
+- **Build times, measured 2026-07-26** (this tree, M-series, cold builds):
+  debug 14s · release with `-O` **16m46s** · release with `-Osize` **37s**, and
+  the binary is the same 11.6 MB either way. So the app target ships with
+  `-Osize` (Package.swift, release only) and HopCore keeps `-O`: at `-O` the
+  optimizer hits a pathological case on a 29k-line SwiftUI module and inlines for
+  a quarter of an hour to no measurable effect — the work of a menu-bar app
+  happens inside AppKit, and Hop's own hot paths are in HopCore. `-Onone` was
+  also measured (26s) and rejected: same speed as `-Osize` but a 19 MB binary.
+  Whole-module optimization is NOT the culprit: `-no-whole-module-optimization`
+  took 17m13s, i.e. no better. Release builds are never incremental in SwiftPM,
+  so any one-line change costs the full build — which is exactly why a dev
+  install is `--dev` (debug, ~2s) and release builds happen only for a release.
 - `--snapshot out.png [--stats|--finished|…]` — renders the panel to PNG;
   Toggle/TextField/onDrop produce artifacts in snapshots — a rendering
   quirk, not a bug. `--about --doc <id>` opens any help tab and
