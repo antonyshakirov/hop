@@ -68,6 +68,25 @@ final class ArchiveController: ObservableObject {
     /// How many finished rows stay on screen; older ones fall off so the module
     /// cannot grow without bound during a long session.
     private static let maxJobs = 4
+    /// Current-launch staging directories are never swept as orphans, so several
+    /// archives may extract concurrently into the same destination.
+    private let extractionSessionID = UUID()
+
+    init() {
+        let sessionID = extractionSessionID
+        var folders = [Self.desktopFolder]
+        let customPath = UserDefaults.standard.string(forKey: Self.destinationPathKey) ?? ""
+        if !customPath.isEmpty {
+            folders.append(URL(fileURLWithPath: customPath))
+        }
+        Task.detached(priority: .utility) {
+            for folder in Set(folders) {
+                try? ArchiveStaging.removeOrphans(
+                    in: folder,
+                    preserving: sessionID)
+            }
+        }
+    }
 
     var packFormat: PackFormat {
         get { PackFormat(rawValue: UserDefaults.standard.string(forKey: Self.packFormatKey) ?? "") ?? .zip }
@@ -295,8 +314,14 @@ final class ArchiveController: ObservableObject {
                 update(job.id, .running)
             }
             let helperPath = helper.installedBinaryURL()?.path
+            let sessionID = extractionSessionID
             let result = await Task.detached(priority: .userInitiated) {
-                Self.runExtract(archive: archive, into: folder, format: format, helper: helperPath)
+                Self.runExtract(
+                    archive: archive,
+                    into: folder,
+                    format: format,
+                    helper: helperPath,
+                    sessionID: sessionID)
             }.value
             switch result {
             case .success(let path):
@@ -314,20 +339,43 @@ final class ArchiveController: ObservableObject {
     /// archive), and a single-item archive does not gain a pointless wrapper.
     /// Staging inside the destination also means the move is instant — same volume.
     private nonisolated static func runExtract(
-        archive: URL, into destination: URL, format: ArchiveFormat, helper: String?
+        archive: URL,
+        into destination: URL,
+        format: ArchiveFormat,
+        helper: String?,
+        sessionID: UUID
     ) -> Result<String, Failure> {
         let manager = FileManager.default
-        let staging = destination.appendingPathComponent(".hop-unpack-\(UUID().uuidString)")
         do {
-            try manager.createDirectory(at: staging, withIntermediateDirectories: true)
+            return try ArchiveStaging.withDirectory(
+                in: destination,
+                sessionID: sessionID,
+                fileManager: manager
+            ) { staging in
+                runExtract(
+                    archive: archive,
+                    from: staging,
+                    into: destination,
+                    format: format,
+                    helper: helper,
+                    fileManager: manager)
+            }
         } catch {
             // The Desktop, Documents and Downloads folders are gated by macOS:
             // without consent every write fails and the result would silently
             // never appear (Anton, 2026-07-25). Say so instead.
             return .failure(isPermissionError(error) ? .denied : .tool)
         }
-        defer { try? manager.removeItem(at: staging) }
+    }
 
+    private nonisolated static func runExtract(
+        archive: URL,
+        from staging: URL,
+        into destination: URL,
+        format: ArchiveFormat,
+        helper: String?,
+        fileManager manager: FileManager
+    ) -> Result<String, Failure> {
         let ok: Bool
         switch format {
         case .zip:
@@ -348,8 +396,13 @@ final class ArchiveController: ObservableObject {
         }
         guard ok else { return .failure(.tool) }
 
-        let produced = (try? manager.contentsOfDirectory(atPath: staging.path))?
-            .filter { $0 != ".DS_Store" } ?? []
+        let produced: [String]
+        do {
+            produced = try manager.contentsOfDirectory(atPath: staging.path)
+                .filter { $0 != ".DS_Store" }
+        } catch {
+            return .failure(isPermissionError(error) ? .denied : .tool)
+        }
         guard !produced.isEmpty else { return .failure(.empty) }
 
         let taken = Set((try? manager.contentsOfDirectory(atPath: destination.path)) ?? [])
@@ -373,7 +426,7 @@ final class ArchiveController: ObservableObject {
         do {
             try manager.moveItem(at: source, to: target)
         } catch {
-            return .failure(.tool)
+            return .failure(isPermissionError(error) ? .denied : .tool)
         }
         return .success(target.path)
     }

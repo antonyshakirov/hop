@@ -976,6 +976,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Names never overwrite: `ArchiveRules.uniqueName` numbers them Finder-style
   ("photos 2.zip"), comparing case-insensitively because the default macOS
   volume is.
+- **Staging lifecycle**: new folders are named
+  `.hop-unpack-<launch UUID>--<job UUID>`. Before extraction, Hop removes only
+  managed staging directories from older launches (including the legacy
+  `.hop-unpack-<UUID>` form), preserving current-launch jobs so concurrent
+  extracts cannot delete each other. Similar names, regular files and symlinks
+  are never touched. Desktop and the configured custom destination are swept
+  at launch; arbitrary alongside/Finder destinations are swept when the next
+  extraction reaches them. Success, tool failure, empty output, permission
+  failure and thrown errors all clean their own staging directory before the
+  job finishes.
 - Tools: zip via `ditto -x -k` (keeps macOS metadata a plain unzip drops),
   tar/tar.gz/tar.bz2/tar.xz via `tar -xf` (bsdtar detects compression and strips
   absolute paths), a bare `.gz` via `gunzip -c` into the archive's own stem.
