@@ -1005,6 +1005,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     a control that disagrees with the system is worse than no control. The card
     only ever CLAIMS: handing a type back would mean choosing an app for the
     user, and Finder's "Open with → Change all" is the honest way out.
+  Settings also carry a "show in the panel" switch for the module itself: being
+  the opener and occupying a row are separate decisions, and someone who only
+  double-clicks archives in Finder should not have to dig through "modules &
+  tabs" to reclaim the space (Anton, 2026-07-26). It flips membership, the same
+  thing that table does — hiding is not switching off.
   `processOpen` routes an opened archive into the extractor, and it works with
   the module HIDDEN — the panel row is a place to drop things, not a
   precondition for Finder. The types are declared in `Info.plist` with

@@ -3481,6 +3481,22 @@ struct PanelView: View {
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
                 settingsSectionHeader(t(.archiveLabel))
+                // Being the opener and being IN the panel are separate choices:
+                // someone who only ever double-clicks archives in Finder does not
+                // need the row taking up space (Anton, 2026-07-26). Hiding is not
+                // switching off — the module keeps working.
+                HStack {
+                    Text(t(.showInPanel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: Binding(
+                        get: { moduleIsActive("archive") },
+                        set: { on in
+                            if on { placeModule("archive", onTab: tabsModel.tabs[0].id) }
+                            else { deactivateModule("archive") }
+                        }))
+                }
                 ArchiveDefaultHandlerRow(label: t(.archiveMakeDefault),
                                          doneLabel: t(.defaultHandlerDone))
             }
