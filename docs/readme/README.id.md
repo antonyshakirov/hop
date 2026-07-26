@@ -182,8 +182,10 @@ Semuanya berjalan secara lokal: tanpa server, tanpa analitik, tanpa akun.
 Aplikasi hanya menyentuh jaringan untuk memeriksa pembaruan, saat kamu
 menjalankan tes kecepatan bawaan, dan — jika kamu mengaktifkan modul
 torrent — untuk mengunduh mesinnya sekali serta memindahkan lalu lintas
-torrent itu sendiri. Pembaruan dan mesin torrent dikirim sebagai arsip
-bertanda tangan dan diverifikasi dengan tanda tangan Ed25519 sebelum
+torrent itu sendiri. Pemeriksaan pembaruan itu mengirim versi yang kamu
+jalankan, dan tidak ada yang mengidentifikasi kamu atau Mac-mu. Pembaruan
+dan mesin torrent dikirim sebagai arsip bertanda tangan dan diverifikasi
+dengan tanda tangan Ed25519 sebelum
 dipasang.
 
 ## Izin

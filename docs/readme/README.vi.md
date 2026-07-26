@@ -178,9 +178,10 @@ bạn ngay từ đầu.
 Mọi thứ chạy cục bộ: không máy chủ, không thu thập dữ liệu, không tài
 khoản. Ứng dụng chỉ dùng mạng để kiểm tra bản cập nhật, khi bạn chạy bài
 kiểm tra tốc độ tích hợp, và — nếu bạn bật mô-đun torrent — để tải engine
-một lần duy nhất và truyền chính lưu lượng torrent. Các bản cập nhật và
-engine torrent được phân phối dưới dạng tệp nén có chữ ký và được xác minh
-bằng chữ ký Ed25519 trước khi cài đặt.
+một lần duy nhất và truyền chính lưu lượng torrent. Việc kiểm tra cập nhật
+gửi đi phiên bản bạn đang dùng, và không có gì nhận dạng bạn hay chiếc Mac
+của bạn. Các bản cập nhật và engine torrent được phân phối dưới dạng tệp nén
+có chữ ký và được xác minh bằng chữ ký Ed25519 trước khi cài đặt.
 
 ## Quyền
 

@@ -185,9 +185,11 @@ avvio.
 Tutto gira in locale: nessun server, nessuna analitica, nessun account.
 L'app tocca la rete solo per controllare gli aggiornamenti, quando avvii il
 test di velocità integrato e — se attivi il modulo torrent — per scaricare
-il motore una sola volta e trasportare il traffico torrent stesso. Gli
-aggiornamenti e il motore torrent arrivano come archivi firmati e vengono
-verificati con una firma Ed25519 prima dell'installazione.
+il motore una sola volta e trasportare il traffico torrent stesso. Il
+controllo degli aggiornamenti invia la versione che stai usando, e nulla che
+identifichi te o il tuo Mac. Gli aggiornamenti e il motore torrent arrivano
+come archivi firmati e vengono verificati con una firma Ed25519 prima
+dell'installazione.
 
 ## Permessi
 

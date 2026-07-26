@@ -185,8 +185,9 @@ Wszystko działa lokalnie: bez serwera, bez analityki, bez kont.
 Aplikacja łączy się z siecią tylko po to, by sprawdzić aktualizacje,
 gdy uruchamiasz wbudowany test prędkości, oraz — jeśli włączysz moduł
 torrentów — by raz pobrać silnik i przesyłać sam ruch torrentowy.
-Aktualizacje i silnik torrentowy są dostarczane jako podpisane archiwa
-i przed instalacją weryfikowane podpisem Ed25519.
+Sprawdzanie aktualizacji wysyła używaną wersję i nic, co identyfikowałoby
+Ciebie lub Twojego Maca. Aktualizacje i silnik torrentowy są dostarczane
+jako podpisane archiwa i przed instalacją weryfikowane podpisem Ed25519.
 
 ## Uprawnienia
 

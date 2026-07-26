@@ -181,8 +181,9 @@ Her şey yerel çalışır: sunucu yok, analitik yok, hesap yok. Uygulama
 ağa yalnızca güncellemeleri denetlemek için, yerleşik hız testini
 çalıştırdığınızda ve — torrent modülünü etkinleştirirseniz — motoru
 bir kez indirmek ve torrent trafiğinin kendisini taşımak için çıkar.
-Güncellemeler ve torrent motoru imzalı arşivler olarak gelir ve
-kurulmadan önce Ed25519 imzasıyla doğrulanır.
+Güncelleme denetimi yalnızca kullandığınız sürümü gönderir; sizi ya da
+Mac'inizi tanımlayan hiçbir şey göndermez. Güncellemeler ve torrent motoru
+imzalı arşivler olarak gelir ve kurulmadan önce Ed25519 imzasıyla doğrulanır.
 
 ## İzinler
 

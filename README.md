@@ -177,9 +177,10 @@ the box.
 Everything runs locally: no server, no analytics, no accounts. The app only
 touches the network to check for updates, when you run the built-in speed
 test, and — if you enable the torrent module — to fetch the engine once and
-move the torrent traffic itself. Updates and the torrent engine are
-delivered as signed archives and verified with an Ed25519 signature before
-installing.
+move the torrent traffic itself. That update check sends the version you are
+running, and nothing that identifies you or your Mac. Updates and the
+torrent engine are delivered as signed archives and verified with an Ed25519
+signature before installing.
 
 ## Permissions
 

@@ -182,9 +182,10 @@ Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, P
 Alles draait lokaal: geen server, geen analytics, geen accounts. De app
 gebruikt het netwerk alleen om op updates te controleren, wanneer je de
 ingebouwde snelheidstest draait en — als je de torrentmodule inschakelt — om
-de engine eenmalig op te halen en het torrentverkeer zelf te verplaatsen.
-Updates en de torrent-engine worden geleverd als ondertekende archieven en
-vóór installatie geverifieerd met een Ed25519-handtekening.
+de engine eenmalig op te halen en het torrentverkeer zelf te verplaatsen. Die
+updatecontrole stuurt de versie die je draait, en niets wat jou of je Mac
+identificeert. Updates en de torrent-engine worden geleverd als ondertekende
+archieven en vóór installatie geverifieerd met een Ed25519-handtekening.
 
 ## Toestemmingen
 

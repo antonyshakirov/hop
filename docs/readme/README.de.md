@@ -184,9 +184,11 @@ Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, P
 Alles läuft lokal: kein Server, keine Analytics, keine Konten. Die App greift
 nur auf das Netzwerk zu, um nach Updates zu suchen, wenn du den eingebauten
 Speedtest startest und — falls du das Torrent-Modul aktivierst — um die
-Engine einmalig zu laden und den Torrent-Verkehr selbst zu übertragen.
-Updates und die Torrent-Engine werden als signierte Archive ausgeliefert und
-vor der Installation mit einer Ed25519-Signatur verifiziert.
+Engine einmalig zu laden und den Torrent-Verkehr selbst zu übertragen. Die
+Update-Abfrage sendet die Version, die du nutzt — und nichts, was dich oder
+deinen Mac identifiziert. Updates und die Torrent-Engine werden als signierte
+Archive ausgeliefert und vor der Installation mit einer Ed25519-Signatur
+verifiziert.
 
 ## Berechtigungen
 

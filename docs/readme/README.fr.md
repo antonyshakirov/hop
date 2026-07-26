@@ -189,8 +189,10 @@ Tout tourne en local : pas de serveur, pas d'analytics, pas de compte. L'app
 ne touche au réseau que pour vérifier les mises à jour, quand vous lancez le
 test de débit intégré et — si vous activez le module torrent — pour
 récupérer le moteur une seule fois et acheminer le trafic torrent lui-même.
-Les mises à jour et le moteur torrent sont livrés sous forme d'archives
-signées et vérifiés avec une signature Ed25519 avant l'installation.
+Cette vérification des mises à jour envoie la version que vous utilisez, et
+rien qui vous identifie, vous ou votre Mac. Les mises à jour et le moteur
+torrent sont livrés sous forme d'archives signées et vérifiés avec une
+signature Ed25519 avant l'installation.
 
 ## Autorisations
 

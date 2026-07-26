@@ -8,6 +8,9 @@ import HopCore
 /// release installs at the first idle moment (see UpdateInstallPolicy) rather
 /// than waiting for the next poll — so it lands within a minute of the user
 /// stepping away. A release with critical=true skips the idle wait.
+///
+/// The poll carries the running version (see UpdateFeed) so the site can tell
+/// which releases are still out there. Nothing else is sent.
 @MainActor
 final class UpdateChecker: ObservableObject {
     /// Manifest of the latest release (scripts/release.sh uploads it to the site).
@@ -203,7 +206,8 @@ final class UpdateChecker: ObservableObject {
 
     private func fetchNewerRelease() async -> ReleaseInfo? {
         guard releaseKey != nil else { return nil } // updater is disabled without a key
-        guard let url = URL(string: Self.feedURL) else { return nil }
+        guard let url = UpdateFeed.checkURL(feed: Self.feedURL, version: currentVersion)
+        else { return nil }
         var request = URLRequest(url: url)
         // the manifest is tiny and must be fresh — bypass caches
         request.cachePolicy = .reloadIgnoringLocalCacheData

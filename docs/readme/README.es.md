@@ -184,9 +184,10 @@ primer momento.
 Todo funciona en local: sin servidor, sin analíticas, sin cuentas. La app
 solo toca la red para buscar actualizaciones, cuando ejecutas el test de
 velocidad integrado y — si activas el módulo de torrents — para descargar el
-motor una única vez y mover el propio tráfico de torrents. Las
-actualizaciones y el motor de torrents se entregan como archivos firmados y
-se verifican con una firma Ed25519 antes de instalarse.
+motor una única vez y mover el propio tráfico de torrents. Esa comprobación
+de actualizaciones envía la versión que usas, y nada que te identifique a ti
+ni a tu Mac. Las actualizaciones y el motor de torrents se entregan como
+archivos firmados y se verifican con una firma Ed25519 antes de instalarse.
 
 ## Permisos
 
