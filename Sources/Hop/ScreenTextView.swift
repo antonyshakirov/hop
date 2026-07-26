@@ -25,7 +25,7 @@ struct ScreenTextView: View {
                     .foregroundStyle(status.color)
                     .lineLimit(1)
             }
-            action("viewfinder", help: L10n.t(.ocrRead, lang)) {
+            action("camera.viewfinder", help: L10n.t(.ocrRead, lang)) {
                 closePanel()
                 reader.capture()
             }

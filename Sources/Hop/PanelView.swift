@@ -4228,7 +4228,7 @@ struct PanelView: View {
         case "ocr":
             return [
                 ("text.viewfinder", t(.ocrLabel)),
-                ("viewfinder", t(.ocrRead)),
+                ("camera.viewfinder", t(.ocrRead)),
                 ("arrow.up.forward.app", t(.iconOpenWindow)),
             ]
         case "archive":
