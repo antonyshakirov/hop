@@ -153,7 +153,7 @@ Ketuk 1, 5, atau 15 menit — atau ∞ — dan seluruh papan ketik berhenti mere
 sehingga bisa dilap tanpa mematikan Mac atau menutup layar. Penutup layar penuh
 menjelaskan apa yang terjadi, dan ikon bilah menu berubah jadi papan ketik.
 Empat jalan keluar: tombol di penutup, tombol di panel, membuka panel, atau
-menahan esc lima detik. Tekanan singkat tombol daya juga ditelan; menahannya
+menahan esc + shift lima detik. Tekanan singkat tombol daya juga ditelan; menahannya
 tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 
 ### Dan selebihnya
@@ -202,6 +202,13 @@ jendela info aplikasi mendaftar semuanya beserta statusnya saat ini:
 - **kata sandi administrator** — sekali, untuk mode layar tertutup (pmset hanya
   jalan sebagai root)
 - **buka saat masuk** — mati sampai kamu menyalakannya
+
+Saat dibuka tidak ada yang diminta, dan tidak ada yang ditanyakan untuk modul yang
+belum kamu nyalakan. Tanpa analitik, tanpa telemetri, tanpa akun, tanpa laporan
+crash: antonshakirov.com dihubungi hanya untuk menanyakan apakah ada versi lebih
+baru — dan mengunduhnya, atau salah satu dari dua pembantu opsional, kalau kamu
+setuju. Sisanya tetap di Mac ini: riwayat papan klip, waktu yang tercatat, daftar
+tugas, teks hasil pengenalan, dan warna yang diambil.
 
 Situs web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

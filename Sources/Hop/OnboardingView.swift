@@ -32,6 +32,14 @@ struct OnboardingView: View {
     // Torrents default OFF globally (opt-in via the "what's new" banner for users
     // who updated in); a fresh install gets to choose here, recommended on.
     @State private var enableTorrent = true
+    // The 1.5.0 modules belong on this screen too — a fresh install should see
+    // EVERYTHING it can have and decide once (Anton, 2026-07-26). Archives and
+    // the keyboard lock are everyday tools, so they start on; the eyedropper and
+    // recognition serve designers and developers, so they start off.
+    @State private var showArchiveModule = true
+    @State private var showKeyboardModule = true
+    @State private var showColorModule = false
+    @State private var showOcrModule = false
 
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -144,6 +152,34 @@ struct OnboardingView: View {
                         .foregroundStyle(Theme.textPrimary)
                     Spacer()
                     Theme.MiniSwitch(isOn: $showTodosModule)
+                }
+                HStack {
+                    Text(t(.archiveLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $showArchiveModule)
+                }
+                HStack {
+                    Text(t(.keylockLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $showKeyboardModule)
+                }
+                HStack {
+                    Text(t(.colorLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $showColorModule)
+                }
+                HStack {
+                    Text(t(.ocrLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $showOcrModule)
                 }
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
@@ -285,7 +321,9 @@ struct OnboardingView: View {
             ("clipboard", showClipboardModule), ("convert", showConvertModule),
             ("windows", showWindowsModule), ("torrent", enableTorrent),
             ("system", showSystemModule), ("tracker", showTrackerModule),
-            ("todos", showTodosModule),
+            ("todos", showTodosModule), ("archive", showArchiveModule),
+            ("keyboard", showKeyboardModule), ("color", showColorModule),
+            ("ocr", showOcrModule),
         ]
         for choice in choices {
             if choice.on { PanelView.activateStoredModule(choice.module) }

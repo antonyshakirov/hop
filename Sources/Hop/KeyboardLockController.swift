@@ -27,8 +27,10 @@ final class KeyboardLockController: ObservableObject {
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
     private var ticker: Timer?
-    /// When the current Escape hold began (nil when the key is up).
-    private var escapeHoldStart: Date?
+    /// Live state of the unlock chord and its countdown.
+    private var escapeDown = false
+    private var shiftDown = false
+    private var chordTimer: Timer?
     private var overlay: NSWindow?
 
     var duration: Int {
@@ -84,7 +86,9 @@ final class KeyboardLockController: ObservableObject {
         ticker = nil
         remaining = nil
         isLocked = false
-        escapeHoldStart = nil
+        escapeDown = false
+        shiftDown = false
+        cancelChord()
         hideOverlay()
         // a short cue: with the cover gone and the keys back, the sound is what
         // says "you can type again" without looking anywhere
@@ -122,18 +126,21 @@ final class KeyboardLockController: ObservableObject {
                 }
                 return Unmanaged.passUnretained(event)
             }
-            // Escape held down is the keyboard's own way out (Anton, 2026-07-25):
-            // if the mouse is gone or the cover is somehow unreachable, holding
-            // it for a few seconds releases the keys. The key itself is still
-            // swallowed — nothing reaches the app underneath.
-            if let userInfo, type == .keyDown || type == .keyUp {
-                let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-                if keyCode == 53 {   // kVK_Escape
-                    let controller = Unmanaged<KeyboardLockController>
-                        .fromOpaque(userInfo).takeUnretainedValue()
-                    MainActor.assumeIsolated {
-                        controller.noteEscape(down: type == .keyDown)
-                    }
+            // ESC + SHIFT held together is the keyboard's own way out: if the
+            // mouse is gone or the cover is unreachable, holding the pair for a
+            // few seconds releases the keys. A CHORD rather than a lone key —
+            // something resting on the keyboard can hold one key down for
+            // minutes, and that must not undo a cleaning lock (Anton,
+            // 2026-07-26). Both keys are still swallowed on the way through.
+            if let userInfo, type == .keyDown || type == .keyUp || type == .flagsChanged {
+                let controller = Unmanaged<KeyboardLockController>
+                    .fromOpaque(userInfo).takeUnretainedValue()
+                let shift = event.flags.contains(.maskShift)
+                let isEscape = (type == .keyDown || type == .keyUp)
+                    && event.getIntegerValueField(.keyboardEventKeycode) == 53   // kVK_Escape
+                MainActor.assumeIsolated {
+                    controller.noteChord(escape: isEscape ? type == .keyDown : nil,
+                                         shift: shift)
                 }
             }
             // A short press of the power key is swallowed like everything else;
@@ -160,25 +167,37 @@ final class KeyboardLockController: ObservableObject {
         return true
     }
 
-    /// Escape held for `escapeHoldSeconds` unlocks. Auto-repeat delivers a
-    /// stream of keyDowns while a key is held, so the hold is measured from the
-    /// first one; releasing the key resets it.
-    private static let escapeHoldSeconds: TimeInterval = 5
+    /// Esc + shift held together for `escapeHoldSeconds` unlocks. A real timer
+    /// rather than counting auto-repeats: shift is a modifier and never repeats,
+    /// so there would be nothing to count while the pair is held.
+    static let escapeHoldSeconds: TimeInterval = 5
 
-    private func noteEscape(down: Bool) {
+    /// `escape` is nil for events that say nothing about that key (a bare
+    /// modifier change); `shift` comes with every event, so it is always fresh.
+    private func noteChord(escape: Bool?, shift: Bool) {
         guard isLocked else { return }
-        guard down else {
-            escapeHoldStart = nil
+        if let escape { escapeDown = escape }
+        shiftDown = shift
+        guard escapeDown, shiftDown else {
+            cancelChord()
             return
         }
-        guard let start = escapeHoldStart else {
-            escapeHoldStart = Date()
-            return
+        guard chordTimer == nil else { return }   // already counting
+        let timer = Timer(timeInterval: Self.escapeHoldSeconds, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.isLocked, self.escapeDown, self.shiftDown else { return }
+                self.cancelChord()
+                self.unlock()
+            }
         }
-        if Date().timeIntervalSince(start) >= Self.escapeHoldSeconds {
-            escapeHoldStart = nil
-            unlock()
-        }
+        // .common: a modal loop elsewhere must not stall the way out
+        RunLoop.main.add(timer, forMode: .common)
+        chordTimer = timer
+    }
+
+    private func cancelChord() {
+        chordTimer?.invalidate()
+        chordTimer = nil
     }
 
     private func reenableTap() {
@@ -263,6 +282,13 @@ private struct KeyboardLockOverlay: View {
                 Text(L10n.t(.keylockBody, lang))
                     .font(Theme.mono(12))
                     .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                // the keyboard's own way out, set apart and heavier: it is the
+                // line that matters when the mouse is not within reach
+                // (Anton, 2026-07-26)
+                Text(L10n.t(.keylockChord, lang))
+                    .font(Theme.mono(13, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
                     .multilineTextAlignment(.center)
                 if let remaining = lock.remaining {
                     Text(timeText(remaining))

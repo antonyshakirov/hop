@@ -155,7 +155,7 @@ Apple, todo en este Mac.
 Pulsa 1, 5 o 15 minutos — o ∞ — y todo el teclado deja de responder, para
 limpiarlo sin apagar el Mac ni cerrar la tapa. Una cubierta explica qué pasa y
 el icono de la barra de menús se convierte en un teclado. Cuatro salidas: el
-botón de la cubierta, el botón del panel, abrir el panel o mantener esc cinco
+botón de la cubierta, el botón del panel, abrir el panel o mantener esc + shift cinco
 segundos. Una pulsación corta del botón de encendido también se traga;
 mantenerlo pulsado sigue apagando el Mac, porque de eso se encarga el hardware.
 
@@ -205,6 +205,13 @@ de información los enumera todos con su estado actual:
 - **contraseña de administrador** — una vez, para el modo con la tapa cerrada
   (pmset solo funciona como root)
 - **abrir al iniciar sesión** — desactivado hasta que lo enciendas
+
+Al arrancar no se pide nada, y nada se pide por un módulo que no hayas activado.
+No hay analítica, ni telemetría, ni cuentas, ni informes de fallos: se contacta
+con antonshakirov.com solo para preguntar si existe una versión más nueva, y
+para descargarla —o uno de los dos ayudantes opcionales— si dices que sí. Todo
+lo demás se queda en este Mac: el historial del portapapeles, el tiempo
+registrado, la lista de tareas, el texto reconocido y los colores tomados.
 
 Sitio web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

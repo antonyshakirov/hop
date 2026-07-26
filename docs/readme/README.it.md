@@ -156,7 +156,7 @@ Tocca 1, 5 o 15 minuti — oppure ∞ — e tutta la tastiera smette di risponde
 per pulirla senza spegnere il Mac né chiudere il coperchio. Una copertura
 spiega cosa sta succedendo e l'icona nella barra dei menu diventa una tastiera.
 Quattro vie d'uscita: il pulsante sulla copertura, il pulsante nel pannello,
-aprire il pannello, o tenere esc per cinque secondi. Anche una pressione breve del
+aprire il pannello, o tenere esc + shift per cinque secondi. Anche una pressione breve del
 tasto di accensione viene ingoiata; tenerlo premuto spegne comunque il Mac,
 perché di quello si occupa l'hardware.
 
@@ -205,6 +205,13 @@ finestra informazioni li elenca tutti con il loro stato attuale:
 - **password di amministratore** — una volta, per la modalità a coperchio chiuso
   (pmset gira solo come root)
 - **apri all'accesso** — spento finché non lo accendi
+
+All'avvio non viene chiesto nulla, e nulla viene chiesto per un modulo che non hai
+attivato. Nessuna analytics, nessuna telemetria, nessun account, nessun report di
+crash: antonshakirov.com viene contattato solo per chiedere se esiste una
+versione più recente — e per scaricarla, o uno dei due aiutanti opzionali, se
+acconsenti. Tutto il resto resta su questo Mac: la cronologia degli appunti, il
+tempo registrato, la lista di cose da fare, il testo riconosciuto e i colori.
 
 Sito web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

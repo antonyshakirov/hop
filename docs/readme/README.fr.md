@@ -159,7 +159,7 @@ Appuie sur 1, 5 ou 15 minutes — ou ∞ — et tout le clavier cesse de répond
 pour l'essuyer sans éteindre le Mac ni rabattre l'écran. Un cache explique ce
 qui se passe et l'icône de la barre des menus devient un clavier. Quatre
 sorties : le bouton du cache, le bouton du panneau, l'ouverture du panneau, ou
-échap maintenu cinq secondes. Une pression courte sur la touche d'alimentation
+échap + maj maintenus cinq secondes. Une pression courte sur la touche d'alimentation
 est avalée elle aussi ; la maintenir éteint toujours le Mac, car c'est le
 matériel qui s'en charge.
 
@@ -209,6 +209,14 @@ vraiment utilisée ; la fenêtre d'informations les liste toutes avec leur état
 - **mot de passe administrateur** — une fois, pour le mode écran rabattu (pmset
   est réservé à root)
 - **ouvrir à la session** — désactivé tant que tu ne l'actives pas
+
+Rien n'est demandé au lancement, et rien n'est demandé pour un module que tu n'as
+pas activé. Pas d'analytique, pas de télémétrie, pas de compte, pas de rapport de
+plantage : antonshakirov.com n'est contacté que pour demander s'il existe une
+version plus récente — et pour la télécharger, ou l'un des deux outils
+optionnels, si tu acceptes. Tout le reste reste sur ce Mac : l'historique du
+presse-papiers, le temps suivi, la liste de tâches, le texte reconnu, les
+couleurs prélevées.
 
 Site web : [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

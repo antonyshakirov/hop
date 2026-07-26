@@ -82,11 +82,16 @@ struct ArchiveDefaultHandlerRow: View {
     @State private var isOn = false
 
     var body: some View {
+        // The same card the torrent module offers for .torrent / magnet — the
+        // two "let Hop open these" offers must look like one another (Anton,
+        // 2026-07-26). A switch rather than a one-shot button, because handing
+        // the types back has to be as easy as claiming them.
         HStack {
             Text(label)
-                .font(Theme.mono(12))
+                .font(Theme.mono(11, weight: .semibold))
                 .foregroundStyle(Theme.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(1)
+                .truncationMode(.tail)
             Spacer(minLength: 8)
             Theme.MiniSwitch(isOn: Binding(
                 get: { isOn },
@@ -95,6 +100,10 @@ struct ArchiveDefaultHandlerRow: View {
                     ArchiveController.setDefaultHandler(on)
                 }))
         }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 9)
+        .frame(maxWidth: .infinity)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
         .onAppear { isOn = ArchiveController.isDefaultHandler }
     }
 }

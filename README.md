@@ -147,7 +147,7 @@ Apple's Vision, entirely on this Mac.
 Tap 1, 5 or 15 minutes — or ∞ — and the whole keyboard stops responding, so it
 can be wiped without shutting the Mac down or closing the lid. A cover explains
 what is happening and the menu-bar icon turns into a keyboard. Four ways out:
-the cover's button, the panel's button, opening the panel, or holding esc for
+the cover's button, the panel's button, opening the panel, or holding esc + shift for
 five seconds. A short press of the power key is swallowed too; holding it
 still forces the Mac off, because that is handled in hardware.
 
@@ -195,6 +195,13 @@ and the app's info window lists them all with their current state:
 - **notifications** — the timer's alert and a finished torrent
 - **administrator password** — once, for the closed-lid mode (pmset is root-only)
 - **launch at login** — off unless you turn it on
+
+Nothing is requested at launch, and nothing is asked for a module you have not
+turned on. There is no analytics, no telemetry, no account and no crash
+reporting: antonshakirov.com is contacted only to ask whether a newer version
+exists — and to download it, or one of the two optional helpers, if you say yes.
+Everything else stays on this Mac: the clipboard history, tracked time, the
+to-do list, recognized text and picked colors.
 
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

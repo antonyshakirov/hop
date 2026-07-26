@@ -154,7 +154,7 @@ Tik 1, 5 of 15 minuten — of ∞ — en het hele toetsenbord reageert niet meer
 je het kunt afnemen zonder de Mac uit te zetten of de klep te sluiten. Een
 schermvullende afdekking legt uit wat er gebeurt en het menubalkpictogram wordt
 een toetsenbord. Vier uitwegen: de knop op de afdekking, de knop in het paneel,
-het paneel openen, of esc vijf seconden vasthouden. Een korte druk op de
+het paneel openen, of esc + shift vijf seconden vasthouden. Een korte druk op de
 aan/uit-toets wordt ook geslikt; hem ingedrukt houden zet de Mac nog steeds uit,
 want dat regelt de hardware.
 
@@ -203,6 +203,13 @@ gebruikt wordt; het infovenster van de app somt ze allemaal op met hun stand:
 - **beheerderswachtwoord** — één keer, voor de stand met gesloten klep (pmset
   draait alleen als root)
 - **openen bij inloggen** — uit tot je het zelf aanzet
+
+Bij het starten wordt niets gevraagd, en niets wordt gevraagd voor een module die
+je niet hebt aangezet. Geen analytics, geen telemetrie, geen account, geen
+crashrapporten: antonshakirov.com wordt alleen benaderd om te vragen of er een
+nieuwere versie is — en om die, of een van de twee optionele helpers, te
+downloaden als jij ja zegt. Al het andere blijft op deze Mac: de
+klembordgeschiedenis, bijgehouden tijd, de takenlijst, herkende tekst en kleuren.
 
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

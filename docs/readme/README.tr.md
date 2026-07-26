@@ -151,7 +151,7 @@ okunur kalır. Tanıma Apple'ın Vision'ıdır, tamamen bu Mac'te çalışır.
 1, 5 ya da 15 dakikaya — veya ∞'a — dokunun, tüm klavye yanıt vermeyi bıraksın;
 Mac'i kapatmadan, kapağı indirmeden silebilirsiniz. Tam ekran bir örtü ne
 olduğunu anlatır, menü çubuğundaki simge klavyeye dönüşür. Dört çıkış yolu var:
-örtüdeki düğme, paneldeki düğme, panelin açılması ya da esc'yi beş saniye basılı
+örtüdeki düğme, paneldeki düğme, panelin açılması ya da esc + shift'i beş saniye basılı
 tutmak. Güç tuşuna kısa basış da yutulur; basılı tutmak Mac'i yine de
 kapatır, çünkü onu donanım yapar.
 
@@ -199,6 +199,13 @@ uygulamanın bilgi penceresi hepsini güncel durumlarıyla listeler:
 - **bildirimler** — zamanlayıcı uyarısı ve tamamlanan torrent
 - **yönetici parolası** — bir kez, kapak kapalı modu için (pmset yalnızca root)
 - **girişte aç** — sen açana kadar kapalı
+
+Açılışta hiçbir şey istenmez ve açmadığın bir modül için hiçbir şey sorulmaz.
+Analiz yok, telemetri yok, hesap yok, çökme raporu yok: antonshakirov.com'a
+yalnızca daha yeni bir sürüm olup olmadığını sormak için bağlanılır — ve kabul
+edersen onu ya da iki isteğe bağlı yardımcıdan birini indirmek için. Geri kalan
+her şey bu Mac'te kalır: pano geçmişi, tutulan süre, yapılacaklar listesi,
+tanınan metin ve alınan renkler.
 
 Web sitesi: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

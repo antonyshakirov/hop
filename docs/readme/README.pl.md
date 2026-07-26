@@ -155,7 +155,7 @@ Naciśnij 1, 5 albo 15 minut — lub ∞ — i cała klawiatura przestaje odpowi
 żeby dało się ją przetrzeć bez wyłączania Maca i zamykania pokrywy. Zasłona
 tłumaczy, co się dzieje, a ikona na pasku menu zmienia się w klawiaturę. Wyjścia
 są cztery: przycisk na zasłonie, przycisk w panelu, samo otwarcie panelu albo
-przytrzymanie esc przez pięć sekund. Krótkie naciśnięcie przycisku zasilania
+przytrzymanie esc + shift przez pięć sekund. Krótkie naciśnięcie przycisku zasilania
 też jest połykane; przytrzymanie nadal wyłącza Maca, bo robi to sprzęt.
 
 ### I cała reszta
@@ -203,6 +203,13 @@ potrzebuje; okno informacji wymienia je wszystkie z bieżącym stanem:
 - **hasło administratora** — raz, dla trybu zamkniętej klapy (pmset działa tylko
   jako root)
 - **otwieraj przy logowaniu** — wyłączone, dopóki sam nie włączysz
+
+Przy starcie nie jest proszone o nic, i nic nie jest proszone dla modułu, którego
+nie włączyłeś. Bez analityki, bez telemetrii, bez kont, bez raportów awarii: z
+antonshakirov.com aplikacja łączy się tylko po to, by zapytać, czy jest nowsza
+wersja — i pobrać ją albo jednego z dwóch opcjonalnych pomocników, jeśli się
+zgodzisz. Cała reszta zostaje na tym Macu: historia schowka, zmierzony czas,
+lista zadań, rozpoznany tekst i pobrane kolory.
 
 Strona: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

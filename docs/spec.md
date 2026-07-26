@@ -1085,9 +1085,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   working.
 - Way out, four of them: the cover's done button, the module's own unlock
   button, simply opening the panel — reaching for Hop while the keys are dead IS
-  the ask to release them — or HOLDING ESC for five seconds when the mouse is
-  out of reach (`noteEscape(down:)` times the hold; esc is otherwise swallowed
-  like everything else). A normal keyboard shortcut would be exactly the thing
+  the ask to release them — or HOLDING ESC + SHIFT for five seconds when the
+  mouse is out of reach. A CHORD, not a lone key: something resting on the
+  keyboard can hold one key down for minutes, and that must not undo a cleaning
+  lock (Anton, 2026-07-26). `noteChord(escape:shift:)` tracks both from the tap
+  (shift comes off `event.flags`, so a bare modifier change updates it too) and
+  arms a real Timer — shift never auto-repeats, so there would be nothing to
+  count. Both keys are still swallowed on the way through, and the cover states
+  the chord on its own line, heavier than the rest. A normal keyboard shortcut would be exactly the thing
   that is switched off. Durations are 1 / 5 / 15 minutes and ∞
   (`durations = [60, 300, 900, 0]`, 0 = until told otherwise); the countdown is
   replaced by the infinity glyph in that mode.

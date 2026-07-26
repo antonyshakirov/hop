@@ -149,7 +149,7 @@ của Apple, hoàn toàn trên chiếc Mac này.
 Bấm 1, 5 hoặc 15 phút — hoặc ∞ — và cả bàn phím ngừng phản hồi, để lau mà không
 phải tắt máy hay gập nắp. Một tấm che toàn màn hình giải thích chuyện gì đang
 xảy ra, còn biểu tượng trên thanh menu biến thành bàn phím. Có bốn lối ra: nút
-trên tấm che, nút trong bảng, mở bảng, hoặc giữ esc năm giây. Nhấn nhanh phím
+trên tấm che, nút trong bảng, mở bảng, hoặc giữ esc + shift năm giây. Nhấn nhanh phím
 nguồn cũng bị nuốt; giữ lâu thì Mac vẫn tắt cưỡng bức, vì đó là việc của phần
 cứng.
 
@@ -196,6 +196,13 @@ của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
 - **thông báo** — báo hết giờ của bộ đếm và torrent đã xong
 - **mật khẩu quản trị** — một lần, cho chế độ gập màn hình (pmset chỉ chạy với root)
 - **mở khi đăng nhập** — tắt cho đến khi bạn tự bật
+
+Lúc khởi động không xin gì cả, và không xin gì cho một mô-đun bạn chưa bật.
+Không phân tích, không đo lường từ xa, không tài khoản, không báo cáo sự cố:
+antonshakirov.com chỉ được liên hệ để hỏi xem có phiên bản mới hay không — và để
+tải nó, hoặc một trong hai trợ thủ tuỳ chọn, nếu bạn đồng ý. Mọi thứ còn lại ở
+lại chiếc Mac này: lịch sử clipboard, thời gian đã ghi, danh sách việc cần làm,
+văn bản nhận được và những màu đã lấy.
 
 Trang web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

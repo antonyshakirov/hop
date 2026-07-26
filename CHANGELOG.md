@@ -15,7 +15,7 @@
   key so the keyboard can be wiped without shutting the Mac down. A cover
   explains what is happening and the menu-bar icon turns into a keyboard. Four
   ways out: the cover's button, the panel's button, opening the panel, or
-  holding esc for five seconds. A short press of the power key is swallowed
+  holding esc + shift for five seconds. A short press of the power key is swallowed
   too; holding it still forces the Mac off, because that is hardware.
 - Color eyedropper: a new module — picked colors stay as a list, each row
   carrying hex, rgb and hsl in its own column, and each of the three copies on

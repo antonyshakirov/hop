@@ -155,7 +155,7 @@ Tippe 1, 5 oder 15 Minuten — oder ∞ — und die ganze Tastatur reagiert nich
 mehr, zum Abwischen, ohne den Mac herunterzufahren oder den Deckel zu
 schließen. Eine Abdeckung erklärt, was los ist, und das Menüleisten-Symbol wird
 zur Tastatur. Vier Wege hinaus: der Knopf auf der Abdeckung, der Knopf im
-Panel, das Öffnen des Panels oder esc fünf Sekunden halten. Ein kurzer Druck
+Panel, das Öffnen des Panels oder esc + shift fünf Sekunden halten. Ein kurzer Druck
 auf die Ein-/Aus-Taste wird ebenfalls geschluckt; langes Halten schaltet den
 Mac weiterhin aus, denn das macht die Hardware.
 
@@ -204,6 +204,13 @@ benutzt wird; das Infofenster listet alle mit ihrem aktuellen Stand auf:
 - **Administratorkennwort** — einmalig, für den Modus mit geschlossenem Deckel
   (pmset läuft nur als root)
 - **Beim Anmelden öffnen** — aus, bis du es einschaltest
+
+Beim Start wird nichts angefragt, und nichts wird für ein Modul verlangt, das du
+nicht eingeschaltet hast. Keine Analytics, keine Telemetrie, kein Account, keine
+Crash-Reports: antonshakirov.com wird nur kontaktiert, um zu fragen, ob es eine
+neuere Version gibt — und um sie oder einen der zwei optionalen Helfer zu laden,
+wenn du zustimmst. Alles andere bleibt auf diesem Mac: der Verlauf der
+Zwischenablage, erfasste Zeit, die Aufgabenliste, erkannter Text und Farben.
 
 Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

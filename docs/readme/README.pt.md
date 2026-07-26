@@ -151,7 +151,7 @@ Apple, inteiramente neste Mac.
 Toque 1, 5 ou 15 minutos — ou ∞ — e o teclado inteiro para de responder, para
 limpá-lo sem desligar o Mac nem fechar a tampa. Uma cobertura explica o que
 está acontecendo e o ícone da barra de menus vira um teclado. Quatro saídas: o
-botão da cobertura, o botão do painel, abrir o painel ou segurar esc por cinco
+botão da cobertura, o botão do painel, abrir o painel ou segurar esc + shift por cinco
 segundos. Um toque curto no botão de força também é engolido; segurá-lo ainda
 desliga o Mac à força, porque isso é feito no hardware.
 
@@ -201,6 +201,13 @@ janela de informações lista todas com o estado atual:
 - **senha de administrador** — uma vez, para o modo de tampa fechada (o pmset só
   roda como root)
 - **abrir ao iniciar sessão** — desligado até você ligar
+
+Nada é solicitado ao abrir, e nada é pedido por um módulo que você não ligou.
+Não há analytics, telemetria, contas nem relatórios de erro: o antonshakirov.com
+é contatado apenas para perguntar se existe uma versão mais nova — e para
+baixá-la, ou um dos dois ajudantes opcionais, se você concordar. Todo o resto
+fica neste Mac: o histórico da área de transferência, o tempo registrado, a
+lista de tarefas, o texto reconhecido e as cores capturadas.
 
 Site: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
 

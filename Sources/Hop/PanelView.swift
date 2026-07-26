@@ -3624,11 +3624,11 @@ struct PanelView: View {
                         .font(.system(size: 11))
                         .foregroundStyle(Theme.textSecondary)
                 }
-                // No horizontal inset: the card's full-width fill already spans
-                // the section's content edges, so the label and the trailing badge
-                // must sit flush at those edges — lined up with every other
-                // settings row's text and controls (the sibling rows carry no
-                // horizontal padding). Vertical padding gives the card its height.
+                // The fill needs its own inset: text pressed against the edge of
+                // a card reads as a layout slip, even though the sibling rows
+                // (which have no fill) start at that very edge (Anton,
+                // 2026-07-26).
+                .padding(.horizontal, 10)
                 .padding(.vertical, 9)
                 .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
@@ -4261,8 +4261,10 @@ struct PanelView: View {
             lidGlyph(closed: false, color: Theme.textSecondary)
                 .frame(width: 22, alignment: .center)
         } else if name == "play.fill" {
-            // the same house rounded play triangle the timer button now uses
-            PlayGlyph(color: Theme.textSecondary, box: 11)
+            // the WHOLE button, not a bare triangle: the legend explains what to
+            // look for in the panel, and in the panel it is a filled disc
+            // (Anton, 2026-07-26)
+            TransportCircle(systemName: "play.fill", filled: true, diameter: 18)
                 .frame(width: 22, alignment: .center)
         } else {
             Image(systemName: name)
@@ -4407,14 +4409,17 @@ struct PanelView: View {
                         FooterLink(url: productPageURL, label: t(.aboutProductPage))
                     }
                     HStack(spacing: 6) {
-                        Text("\(t(.aboutSupport)) ·")
+                        // a COLON, not a middle dot: the label heads the two
+                        // channels, and a dot made it read as a third link
+                        // (Anton, 2026-07-26)
+                        Text("\(t(.aboutSupport)):")
                             .foregroundStyle(Theme.textSecondary)
                         FooterLink(url: "mailto:hop@antonshakirov.com", label: "hop@antonshakirov.com")
                         Text("·")
                             .foregroundStyle(Theme.textSecondary)
-                        // support bot — a second channel alongside email; proper
-                        // noun, so the label is not localized (like "GitHub")
-                        FooterLink(url: "https://t.me/HopSupportBot", label: "telegram")
+                        // support bot — a second channel alongside email; "bot"
+                        // says what opens, the name itself stays unlocalized
+                        FooterLink(url: "https://t.me/HopSupportBot", label: "telegram-\(t(.supportBotWord))")
                     }
                 }
                 .font(Theme.mono(11))
