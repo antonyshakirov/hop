@@ -144,7 +144,7 @@ Hỗ trợ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz và gz; với rar và 7z, 
 gặp sẽ tải một trợ thủ nhỏ (~6 MB) có kiểm tra chữ ký. Hop bung được rar nhưng
 không bao giờ tạo — đó là định dạng độc quyền. «Hop làm mặc định cho kho nén» trong cài đặt chỉ đề xuất rar
 khi không có ứng dụng Apple xử lý, và có thể giành lại rar từ ứng dụng bên thứ ba; zip, 7z
-và các định dạng gốc vẫn thuộc Archive Utility. Nó chạy cả khi mô-đun bị ẩn, và thẻ hiện trạng thái thật.
+và các định dạng gốc vẫn thuộc Archive Utility. Nó chạy cả khi mô-đun bị ẩn, và thẻ hiện trạng thái thật. Nhấp đúp vào một tệp nén trong Finder sẽ giải nén ngay cạnh tệp đó, trong một cửa sổ tiến trình nhỏ riêng, và khi thất bại cũng không để lại thứ gì ẩn phía sau. Những tệp Hop mở đều mang biểu tượng riêng có ghi định dạng, nên cả thư mục đọc được chỉ trong một cái liếc.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Kho nén tệp">

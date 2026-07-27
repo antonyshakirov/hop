@@ -1,5 +1,44 @@
 # Hop — version history
 
+## 1.5.1 — 2026-07-27
+
+- Archives claim only rar. Earlier versions took every archive type Hop could
+  read, including the ones Archive Utility already opens; Hop now asks for rar
+  alone, never overrides an Apple app, and settings can hand back whatever an
+  older version claimed. If a future macOS learns rar, the offer disappears by
+  itself.
+- Opening an archive from Finder extracts it beside the archive itself, whatever
+  the module's "where to save" setting says — that setting is for dragging and
+  pasting. A small progress window of its own appears at once, closes when every
+  archive is done, and stays with a plain reason when one fails. Several
+  archives opened together share one helper download instead of racing.
+- A terminated extraction no longer leaves a hidden folder that looked like an
+  empty result. Staging carries a launch identity, orphans from earlier runs are
+  swept before the next job and at startup, and every exit removes its own
+  directory.
+- Every file type Hop opens now has its own document icon with the format
+  written across it — TORRENT, RAR, ZIP, 7Z, TAR, GZ, TGZ, BZ2, XZ — instead of
+  a wall of identical app tiles that said nothing about the files underneath.
+- Monitor: the memory figure matches Activity Monitor exactly. Purgeable pages
+  were being counted as cache and speculative pages twice, which pulled the
+  number under the system's by up to a gigabyte depending on the workload.
+- Monitor: temperature no longer has an invented threshold. Apple publishes no
+  limit and Apple Silicon runs at 90-100 °C under load by design, so the colour
+  now follows macOS's own thermal verdict — the same way the memory row follows
+  memory pressure. The degrees are still shown.
+- A finished torrent says what it downloaded, how much, and whether it is still
+  sharing. It used to borrow the timer's "the timer has finished". Reaching the
+  give-back target now says so too.
+- The keyboard lock releases the instant it is asked to, and hands focus back to
+  the app that had it before the lock.
+- macOS 15 and newer: the first-launch instructions in every README and on the
+  site now describe the path Apple actually left — System Settings → Privacy &
+  Security → Open Anyway.
+- Hop can be installed with Homebrew: `brew install --cask antonyshakirov/tap/hop`.
+- The archive module can be hidden from the panel without switching it off, the
+  screen-selection action wears a camera glyph, and the cleaning-mode keyboard
+  unlocks the moment its bar is full.
+
 ## 1.5.0 — 2026-07-26
 
 - File archives: a new module — its row opens a window, and that window is the

@@ -146,7 +146,7 @@ com assinatura verificada. O Hop extrai rar mas nunca cria: o formato é
 proprietário. «Hop como padrão para compactados» nos ajustes oferece apenas rar
 quando nenhum app da Apple cuida dele, e pode retomá-lo de apps de terceiros;
 zip, 7z e os formatos nativos ficam com o Utilitário de Arquivos. Funciona com
-o módulo oculto, e o cartão mostra o estado real.
+o módulo oculto, e o cartão mostra o estado real. Um duplo clique num compactado no Finder abre-o bem ao lado do arquivo, numa pequena janela de progresso própria, e uma falha não deixa nada escondido para trás. Os arquivos que o Hop abre têm um ícone próprio com o formato escrito nele, então uma pasta se lê num relance.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/archives.png" width="480" alt="Hop — Arquivos compactados">

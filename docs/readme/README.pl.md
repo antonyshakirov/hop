@@ -148,7 +148,7 @@ sprawdzonym podpisem. Hop rozpakowuje rar, ale nigdy go nie tworzy — format je
 zastrzeżony. «Hop domyślnie dla archiwów» w ustawieniach oferuje tylko rar, gdy
 nie obsługuje go aplikacja Apple, i może odebrać rar aplikacjom innych firm;
 zip, 7z i formaty natywne zostają przy Narzędziu archiwizacji. Działa też przy
-ukrytym module, a karta pokazuje prawdziwy stan.
+ukrytym module, a karta pokazuje prawdziwy stan. Podwójne kliknięcie archiwum w Finderze rozpakowuje je tuż obok pliku, we własnym niewielkim oknie postępu, a nieudana próba nie zostawia niczego ukrytego. Pliki, które otwiera Hop, mają własną ikonę z nazwą formatu, więc folder czyta się jednym spojrzeniem.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Archiwa plików">

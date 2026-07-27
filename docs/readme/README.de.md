@@ -149,7 +149,7 @@ Format ist proprietär. «Hop als Standard für Archive» in den Einstellungen
 bietet nur rar an, solange keine Apple-App zuständig ist, und kann rar von
 Fremd-Apps zurückholen; zip, 7z und die nativen Formate bleiben beim
 Archivierungsprogramm. Es funktioniert auch mit verstecktem Modul, und die Karte
-zeigt den echten Stand.
+zeigt den echten Stand. Ein Doppelklick auf ein Archiv im Finder entpackt es direkt neben der Datei, in einem eigenen kleinen Fortschrittsfenster, und ein fehlgeschlagener Lauf lässt nichts Verstecktes zurück. Dateien, die Hop öffnet, tragen ein eigenes Symbol mit dem Format darauf, sodass ein Ordner davon auf einen Blick lesbar ist.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/archives.png" width="480" alt="Hop — Dateiarchive">

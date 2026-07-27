@@ -149,7 +149,7 @@ ayudante (~6 MB) con la firma verificada. Hop extrae rar pero nunca lo crea: el
 formato es propietario. «Hop por defecto para archivos comprimidos» en los ajustes
 solo ofrece rar cuando ninguna app de Apple lo abre, y puede quitárselo a apps de
 terceros; zip, 7z y los formatos nativos se quedan con Utilidad de Archivo.
-Funciona con el módulo oculto, y la tarjeta muestra el estado real.
+Funciona con el módulo oculto, y la tarjeta muestra el estado real. Un doble clic en un comprimido desde Finder lo abre justo al lado del archivo, en su propia ventana de progreso, y un fallo no deja nada oculto detrás. Los archivos que abre Hop llevan su propio icono con el formato escrito encima, así una carpeta se lee de un vistazo.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/archives.png" width="480" alt="Hop — Archivos comprimidos">

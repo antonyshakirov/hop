@@ -146,7 +146,7 @@ kecil (~6 MB) yang tanda tangannya diperiksa. Hop membuka rar tetapi tidak
 pernah membuatnya — formatnya berpemilik. «Hop sebagai bawaan untuk arsip» di pengaturan hanya
 menawarkan rar saat tidak ada aplikasi Apple yang menanganinya, dan dapat merebut rar
 kembali dari aplikasi pihak ketiga; zip, 7z, dan format bawaan tetap di Utilitas Arsip. Ini
-bekerja walau modulnya disembunyikan, dan kartunya menunjukkan keadaan asli.
+bekerja walau modulnya disembunyikan, dan kartunya menunjukkan keadaan asli. Klik ganda pada arsip di Finder membukanya tepat di sebelah berkasnya, dalam jendela progres kecil tersendiri, dan kegagalan tidak meninggalkan apa pun yang tersembunyi. Berkas yang dibuka Hop membawa ikonnya sendiri dengan nama formatnya, jadi satu folder terbaca sekali lihat.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Arsip berkas">

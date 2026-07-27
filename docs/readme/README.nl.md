@@ -147,7 +147,7 @@ gecontroleerde helper (~6 MB) opgehaald. Hop pakt rar uit maar maakt het nooit �
 het formaat is propriëtair. «Hop als standaard voor archieven» bij de instellingen biedt
 alleen rar aan wanneer geen Apple-app het beheert, en kan rar terugpakken van
 apps van derden; zip, 7z en de native formaten blijven bij Archiefhulpprogramma. Het
-werkt ook met een verborgen module, en de kaart toont de echte stand.
+werkt ook met een verborgen module, en de kaart toont de echte stand. Dubbelklikken op een archief in Finder pakt het uit vlak naast het bestand, in een eigen klein voortgangsvenster, en een mislukte poging laat niets verborgens achter. Bestanden die Hop opent dragen een eigen pictogram met het formaat erop, zodat een map in één oogopslag leesbaar is.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Bestandsarchieven">

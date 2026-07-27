@@ -149,7 +149,7 @@ scarica un piccolo aiutante (~6 MB) con firma verificata. Hop estrae i rar ma
 non li crea mai: il formato è proprietario. «Hop come predefinito per gli archivi» nelle impostazioni
 propone solo rar quando nessuna app Apple lo gestisce e può riprenderlo dalle app
 di terze parti; zip, 7z e i formati nativi restano a Utility Archivio.
-Funziona con il modulo nascosto, e la scheda mostra lo stato reale.
+Funziona con il modulo nascosto, e la scheda mostra lo stato reale. Un doppio clic su un archivio nel Finder lo estrae proprio accanto al file, in una piccola finestra di avanzamento tutta sua, e un errore non lascia dietro nulla di nascosto. I file che Hop apre portano una sua icona con il formato scritto sopra, così una cartella si legge a colpo d'occhio.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Archivi di file">

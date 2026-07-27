@@ -146,7 +146,7 @@ ve 7z için ilk karşılaşmada imzası doğrulanan küçük bir yardımcı (~6 
 Hop rar açar ama asla oluşturmaz — format tescillidir. Ayarlardaki «arşivler için varsayılan Hop»,
 bir Apple uygulaması ilgilenmiyorsa yalnızca rar'ı sunar ve rar'ı üçüncü taraf
 uygulamalardan geri alabilir; zip, 7z ve yerel biçimler Arşiv Yardımcısı'nda kalır.
-Modül gizliyken de çalışır ve kart gerçek durumu gösterir.
+Modül gizliyken de çalışır ve kart gerçek durumu gösterir. Finder'da bir arşive çift tıklamak onu dosyanın hemen yanında açar, kendi küçük ilerleme penceresinde, ve başarısız bir iş arkasında gizli hiçbir şey bırakmaz. Hop'un açtığı dosyalar üzerinde biçimi yazan kendi simgesini taşır, böylece bir klasör bir bakışta okunur.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Dosya arşivleri">

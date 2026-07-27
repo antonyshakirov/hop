@@ -137,7 +137,7 @@ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz, gz를 지원합니다. rar과 7z은 
 작은 도우미를 서명 확인 후 내려받습니다. Hop은 rar을 풀지만 만들지는 않습니다. 독점 형식이기
 때문입니다. 설정의 «압축 파일의 기본 앱을 Hop으로»는 Apple 앱이 맡지 않는 rar만 제안하고,
 rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기본 형식은 «압축 유틸리티»에 그대로 둡니다. 모듈이 숨겨져 있어도
-동작하며, 카드는 실제 상태를 보여 줍니다.
+동작하며, 카드는 실제 상태를 보여 줍니다. Finder에서 압축 파일을 두 번 클릭하면 파일 바로 옆에 풀리고, 작은 진행 창이 따로 뜹니다. 실패해도 숨겨진 것이 남지 않습니다. Hop이 여는 파일에는 형식이 적힌 고유 아이콘이 붙어, 폴더를 한눈에 알아볼 수 있습니다.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — 파일 압축">

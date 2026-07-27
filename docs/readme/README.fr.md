@@ -151,7 +151,7 @@ rar, 7z, tar, tar.gz, tar.bz2, tar.xz et gz ; pour rar et 7z, un petit outil
 rar mais ne le crée jamais : le format est propriétaire. « Hop par défaut pour les archives »
 dans les réglages ne propose que rar lorsqu’aucune app Apple ne le prend en charge,
 et peut le reprendre aux apps tierces ; zip, 7z et les formats natifs restent à
-Utilitaire d'archive. Ça marche avec le module masqué, et la carte affiche l'état réel.
+Utilitaire d'archive. Ça marche avec le module masqué, et la carte affiche l'état réel. Un double-clic sur une archive dans le Finder l'extrait juste à côté du fichier, dans sa propre petite fenêtre de progression, et un échec ne laisse rien de caché derrière lui. Les fichiers qu'ouvre Hop portent sa propre icône avec le format inscrit dessus : un dossier se lit d'un coup d'œil.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/archives.png" width="480" alt="Hop — Archives de fichiers">
