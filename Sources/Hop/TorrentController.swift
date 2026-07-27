@@ -438,7 +438,7 @@ final class TorrentController: ObservableObject {
         case .downloaded: key = .notifTorrentDownloaded
         case .seedingFinished: key = .notifTorrentSeedingFinished
         }
-        let body = L10n.t(key, lang).replacingOccurrences(of: "%@", with: size)
+        let body = L10n.fill(key, lang, size)
         Alerts.fire(mode: AlertMode.current, title: name, body: body)
     }
 

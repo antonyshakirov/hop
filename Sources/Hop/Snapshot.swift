@@ -418,7 +418,9 @@ enum Snapshot {
         } else {
             content = AnyView(PanelView(initial: initial).environmentObject(model))
         }
-        let renderer = ImageRenderer(content: content)
+        // Same direction the real windows get, so `--lang ar` renders a
+        // right-to-left panel instead of Arabic text in a left-to-right shell.
+        let renderer = ImageRenderer(content: content.hopLayoutDirection())
         renderer.scale = 2
 
         guard let image = renderer.nsImage,
@@ -435,7 +437,7 @@ enum Snapshot {
 
     /// Localized tracker + to-do demo content for the `--tasks` snapshot (three
     /// tasks, three to-dos) — one of the sanctioned per-locale screenshot string
-    /// sites. Covers ALL 18 app locales: these flat-list modules are flagship
+    /// sites. Covers ALL 22 app locales: these flat-list modules are flagship
     /// 1.4.0 surfaces shown in per-locale marketing screenshots, so an English
     /// fallback here would be visible. English stays the defensive default. The
     /// staged totals/active/done state is applied by the caller, not here.
@@ -457,6 +459,14 @@ enum Snapshot {
             return "「设计系统」大会\n9 月 12 日 10:00\n罗奇杰利斯卡娅街 15 号 17 栋\n票号 A-2416 · 座位 12"
         case "ja":
             return "カンファレンス「デザインシステム」\n9月12日 10:00\nロチデリスカヤ通り15号館17\nチケット番号 A-2416 ・ 座席 12"
+        case "ar":
+            return "مؤتمر «أنظمة التصميم»\n12 سبتمبر، 10:00\nشارع روتشديلسكايا 15، مبنى 17\nتذكرة رقم A-2416 · مقعد 12"
+        case "he":
+            return "כנס «מערכות עיצוב»\n12 בספטמבר, 10:00\nרחוב רוצ׳דלסקאיה 15, בניין 17\nכרטיס מס׳ A-2416 · מושב 12"
+        case "fa":
+            return "همایش «سامانه‌های طراحی»\n۱۲ سپتامبر، ۱۰:۰۰\nخیابان روچدلسکایا ۱۵، ساختمان ۱۷\nبلیت شمارهٔ A-2416 · صندلی ۱۲"
+        case "ur":
+            return "کانفرنس «ڈیزائن سسٹمز»\n۱۲ ستمبر، ۱۰:۰۰\nروچدیلسکایا اسٹریٹ ۱۵، عمارت ۱۷\nٹکٹ نمبر A-2416 · نشست ۱۲"
         default:
             return "«design systems» conference\nseptember 12, 10:00\n15 Rochdelskaya st., bldg 17\nticket no. A-2416 · seat 12"
         }
@@ -515,6 +525,18 @@ enum Snapshot {
         case "nl":
             return (["lanceringspost schrijven", "pull requests beoordelen", "trackerrijen schetsen"],
                     ["de platte tracker uitbrengen", "docs en tests synchroniseren", "vluchten voor de offsite boeken"])
+        case "ar":
+            return (["كتابة منشور الإطلاق", "مراجعة طلبات الدمج", "تخطيط صفوف المتتبّع"],
+                    ["إطلاق المتتبّع المسطّح", "مزامنة الوثائق والاختبارات", "حجز تذاكر رحلة الفريق"])
+        case "he":
+            return (["לכתוב את פוסט ההשקה", "לעבור על הפול ריקווסטים", "לשרטט את שורות המעקב"],
+                    ["להוציא את המעקב השטוח", "לסנכרן תיעוד ובדיקות", "להזמין טיסות לאופסייט"])
+        case "fa":
+            return (["نوشتن پست عرضه", "بازبینی درخواست‌های ادغام", "طرح ردیف‌های ردیاب"],
+                    ["عرضهٔ ردیاب ساده", "همگام‌سازی سندها و آزمون‌ها", "رزرو بلیت سفر تیمی"])
+        case "ur":
+            return (["لانچ پوسٹ لکھیں", "پل ریکویسٹ دیکھیں", "ٹریکر کی قطاریں خاکہ کریں"],
+                    ["سادہ ٹریکر جاری کریں", "دستاویزات اور ٹیسٹ ہم آہنگ کریں", "آف سائٹ کے لیے ٹکٹ بک کریں"])
         default:
             return (["write launch post", "review pull requests", "sketch tracker rows"],
                     ["ship the flat tracker", "sync docs and tests", "book flights for the offsite"])

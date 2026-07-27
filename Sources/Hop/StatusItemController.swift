@@ -41,6 +41,7 @@ final class StatusItemController: NSObject {
         let host = IntegralSizeHostingController(rootView: AnyView(
             PanelView().environmentObject(model)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .hopLayoutDirection()
         ))
         // preferredContentSize: the popover tracks the SwiftUI content size
         // without animating the first recalculation (fixes the shifted first click on monitor)
@@ -394,6 +395,7 @@ final class StatusItemController: NSObject {
     private func showContextMenu() {
         let lang = L10n.current
         let menu = NSMenu()
+        menu.applyHopLayoutDirection()
         // system menu uses capitalized items: lowercase here reads as
         // a mistake, not a style (the signature lowercase lives inside the panel)
 

@@ -24,6 +24,7 @@ struct PanelView: View {
     }
 
     @EnvironmentObject private var model: AppModel
+    @Environment(\.layoutDirection) private var layoutDirection
     @AppStorage(SettingsKey.showMenuBarCountdown) private var showCountdown = true
     @AppStorage(SettingsKey.trackerTimeInBar) private var trackerTimeInBar = false
     @AppStorage(SettingsKey.alertMode) private var alertModeRaw = AlertMode.soundAndBanner.rawValue
@@ -1167,7 +1168,7 @@ struct PanelView: View {
     private func overlayHeaderContent(title: String, back: @escaping () -> Void) -> some View {
         Button(action: back) {
             HStack(spacing: 5) {
-                Image(systemName: "chevron.left")
+                Image(systemName: "chevron.backward")
                     .font(.system(size: 11, weight: .semibold))
                 Text(t(.back))
                     .font(Theme.mono(12, weight: .semibold))
@@ -1326,10 +1327,13 @@ struct PanelView: View {
                     Image(systemName: tab.icon)
                         .font(.system(size: 13))
                         .foregroundStyle(Theme.textPrimary)
-                    Image(systemName: "chevron.right")
+                    // "forward" points the way the language reads; the open
+                    // state rotates towards the list below, which is the
+                    // opposite turn once the chevron itself has flipped.
+                    Image(systemName: "chevron.forward")
                         .font(.system(size: 8, weight: .semibold))
                         .foregroundStyle(Theme.textTertiary)
-                        .rotationEffect(.degrees(expanded ? 90 : 0))
+                        .rotationEffect(.degrees(expanded ? (layoutDirection == .rightToLeft ? -90 : 90) : 0))
                 }
                 // breathing room around icon+chevron so the hover highlight
                 // isn't cramped and the hit target stays comfortable
@@ -1684,7 +1688,7 @@ struct PanelView: View {
 
     /// Icon-picker content for the header popover: a scrollable grid of the
     /// catalog, each thematic group set off by extra vertical spacing (no
-    /// labels — that would cost a translation per group across 18 languages).
+    /// labels — that would cost a translation per group across 22 languages).
     /// The tab's current icon is highlighted; a pick applies it and closes.
     private func iconPickerPopover(for tabID: UUID) -> some View {
         let current = tabsModel.tabs.first { $0.id == tabID }?.icon

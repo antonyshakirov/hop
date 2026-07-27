@@ -48,8 +48,16 @@ enum Theme {
         }
     }
 
+    /// The panel is set in a monospaced face. That is right for Latin and
+    /// Cyrillic, but a fixed-width cell per glyph pulls a cursive script apart:
+    /// Arabic, Persian and Urdu letters must join, and Hebrew is drawn for
+    /// proportional metrics too. Those languages get the proportional system
+    /// face with monospaced digits, so figures still hold their column and the
+    /// timer does not jitter.
     static func mono(_ size: CGFloat, weight: Font.Weight = .medium) -> Font {
-        .system(size: size, weight: weight, design: .monospaced)
+        L10n.current.isRTL
+            ? .system(size: size, weight: weight).monospacedDigit()
+            : .system(size: size, weight: weight, design: .monospaced)
     }
 
     // Mini toggle in the panel style (the system Toggle does not render in
