@@ -2520,18 +2520,14 @@ struct PanelView: View {
         return nil
     }
 
-    /// Visibility is membership: a module shows iff it is NOT in the inactive
-    /// bucket. Torrent keeps one extra rule on top — an installed engine with
-    /// zero torrents may hide its empty add-card unless the user opts to keep it.
+    /// The rule itself lives in HopCore so it can be tested; see
+    /// `ModuleVisibility` for why the torrent engine's state is not part of it.
     private func moduleVisible(_ key: String) -> Bool {
-        guard !tabsModel.inactive.contains(key) else { return false }
-        if key == "torrent",
-           model.torrent.torrents.isEmpty,
-           case .installed = model.torrent.installer.state,
-           !torrentShowWhenEmpty {
-            return false
-        }
-        return true
+        ModuleVisibility.isVisible(
+            module: key,
+            inactive: tabsModel.inactive,
+            torrentCount: model.torrent.torrents.count,
+            showTorrentWhenEmpty: torrentShowWhenEmpty)
     }
 
     /// The single choke point for placing a module ON a tab (settings-table

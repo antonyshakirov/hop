@@ -218,6 +218,16 @@ pick a target under "move to" — one item per other space plus a final
 module is simply not rendered, so there is no inverse "activate" context menu
 — reactivation is a drag out of inactive in settings. The divider between
 modules sits exactly in the middle: top inset = bottom inset = 16pt.
+- **The rule is `HopCore.ModuleVisibility`** and takes exactly three inputs: the
+  inactive bucket, the torrent count, and the "show the card without downloads"
+  preference. Torrent is the one module with an extra condition — with zero
+  torrents its row is hidden unless the preference keeps it — and that condition
+  used to ALSO require the engine installer to be exactly `.installed`. That made
+  the user's answer conditional on machinery they never asked about: on the first
+  launch after an update, while the engine downloaded, or after a failed fetch,
+  the row returned to a panel where it had been switched off (Anton, 2026-07-27,
+  straight after updating to 1.5.1). The engine no longer gets a vote — "do not
+  show this without downloads" is an answer about the row.
 
 ### Timer
 
