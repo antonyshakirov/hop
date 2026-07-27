@@ -925,12 +925,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and barcodes become ONE clipboard-history entry, already on the pasteboard.
   Escape cancels and writes nothing. The panel closes before the crosshair
   appears (a popover would cover what the user is framing).
-- The action's glyph is `rectangle.dashed` — a marquee, the shape the user drags
-  across the screen. A bare `viewfinder` read as "enter full screen" and
+- The action's glyph is `square.dashed` — a marquee, the shape the user drags
+  across the screen, in the same dashed family as the Screen Recording
+  permission's mark. A bare `viewfinder` read as "enter full screen" and
   `camera.viewfinder` fixed the meaning at the cost of the ink: its camera body
   packed a dark clot into a 12pt glyph (Anton, 2026-07-27). The marquee keeps
-  the meaning with an empty middle, and it is already the app's mark for the
-  Screen Recording permission this action needs. Same glyph in the panel row, in
+  the meaning with an empty middle. It is the SQUARE marquee rather than
+  `rectangle.dashed` because the row's icons have to match each other: a
+  landscape marquee tall enough to match the boxed arrow beside it ran half
+  again as wide, and width is what reads as "bigger". At 12.5 the square one
+  draws 11.3 × 12.0 pt — the arrow's own box. Same glyph in the panel row, in
   the window's button and in the help legend.
 - **A reading that holds a web address can be FOLLOWED** (Anton, 2026-07-27):
   the window shows an "open link" button that hands the address to the default

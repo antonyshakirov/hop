@@ -59,7 +59,7 @@ struct ScreenTextWindowView: View {
                 Button {
                     reader.capture()
                 } label: {
-                    Label(t(.ocrRead), systemImage: "rectangle.dashed")
+                    Label(t(.ocrRead), systemImage: "square.dashed")
                         .font(Theme.mono(10, weight: .bold))
                         .lineLimit(1)
                         .fixedSize()

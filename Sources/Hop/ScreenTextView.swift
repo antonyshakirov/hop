@@ -25,7 +25,7 @@ struct ScreenTextView: View {
                     .foregroundStyle(status.color)
                     .lineLimit(1)
             }
-            action("rectangle.dashed", help: L10n.t(.ocrRead, lang)) {
+            action("square.dashed", help: L10n.t(.ocrRead, lang)) {
                 closePanel()
                 reader.capture()
             }
