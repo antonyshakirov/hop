@@ -332,7 +332,7 @@ struct StatsView: View {
         let duration = StatsFormatting.uptime(
             uptime, day: t(.unitDay), hour: t(.unitHour), minute: t(.unitMin)
         )
-        return t(.agoFormat).replacingOccurrences(of: "%@", with: duration)
+        return L10n.fill(.agoFormat, lang, duration)
     }
 
     private func wattsText(_ v: Double?) -> String {

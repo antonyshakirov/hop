@@ -222,7 +222,7 @@ struct OnboardingView: View {
             case .offer(let info):
                 // the archive could be outdated — ask insistently once
                 VStack(spacing: 10) {
-                    Text(t(.updateAvailable).replacingOccurrences(of: "%@", with: info.version))
+                    Text(L10n.fill(.updateAvailable, lang, info.version))
                         .font(Theme.mono(11, weight: .semibold))
                         .foregroundStyle(Theme.textPrimary)
                     Button {

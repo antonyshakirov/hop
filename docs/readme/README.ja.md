@@ -18,7 +18,7 @@
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · **日本語**
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · **日本語**
 
 <img src="https://www.antonshakirov.com/products/hop/screens/ja/panel.png" width="420" alt="Hop パネル — ドットマトリクス表示のメニューバータイマー、プリセットとワーク・レストサイクル">
 
@@ -199,12 +199,12 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/ja/system.png" width="280" alt="Hop システムモニター — CPU、GPU、メモリ、ネットワーク、ディスク、バッテリーのチャート">
 <img src="https://www.antonshakirov.com/products/hop/screens/ja/converter.png" width="280" alt="Hop ファイル変換 — 画像、PDF、動画、音声の一括変換">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/settings.png" width="280" alt="Hop 設定 — テーマ、モジュール、ホットキー、18言語">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/settings.png" width="280" alt="Hop 設定 — テーマ、モジュール、ホットキー、22言語">
 </div>
 
-## 18 言語
+## 22 言語
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — アプリは最初からシステム言語に自動で従います。
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — アプリは最初からシステム言語に自動で従います。
 
 ## プロジェクトを応援する
 

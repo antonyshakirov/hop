@@ -231,7 +231,7 @@ struct TorrentView: View {
         HStack(spacing: 6) {
             // fold chevron on the LEFT: reads as "expand the section", away from
             // the ↓/↑ speed arrows.
-            rowIcon(torrentCollapsed ? "chevron.right" : "chevron.down") {
+            rowIcon(torrentCollapsed ? "chevron.forward" : "chevron.down") {
                 torrentCollapsed.toggle()
             }
             Text(t(.torrentLabel))

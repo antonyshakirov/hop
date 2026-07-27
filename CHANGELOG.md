@@ -1,5 +1,27 @@
 # Hop — version history
 
+## 1.5.2 — 2026-07-29
+
+- Arabic, Hebrew, Persian and Urdu, bringing the app to 22 languages. As
+  before, Hop follows the system language on its own and the picker lists every
+  language under its own name.
+- The interface runs right to left for those four. Hop chooses its language in
+  its own picker rather than through the system locale, so SwiftUI never learned
+  the direction on its own — every window, panel and popover now sets it, and
+  the right-click menus are told separately. The flip follows the picker live,
+  with no restart.
+- The panel drops its monospaced face for these languages and uses the
+  proportional system face with monospaced digits. A fixed-width cell per glyph
+  pulls a cursive script apart; the digits still hold their column, so the timer
+  does not jitter.
+- Directional chevrons follow the writing direction. Drawn geometry deliberately
+  does not: the dot-matrix digits, the monitor graphs and the window-snap glyphs
+  keep their shape, because a snap glyph is a map of the physical screen and its
+  left half stays on the left. Only the order of the buttons in the row mirrors.
+- Values dropped into a translated sentence — a file name, a size, a version
+  number — are isolated, so a right-to-left sentence cannot drag the
+  neighbouring punctuation to the wrong end of them.
+
 ## 1.5.1 — 2026-07-27
 
 - Archives claim only rar. Earlier versions took every archive type Hop could

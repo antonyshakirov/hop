@@ -17,7 +17,7 @@
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · **한국어** · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · **한국어** · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop 패널 — 도트 매트릭스 디스플레이, 프리셋과 작업-휴식 사이클을 갖춘 메뉴 막대 타이머">
 
@@ -191,12 +191,12 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop 시스템 모니터 — CPU, GPU, 메모리, 네트워크, 디스크, 배터리 차트">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop 파일 변환기 — 이미지, PDF, 비디오, 오디오 일괄 변환">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop 설정 — 테마, 모듈, 단축키, 18개 언어">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop 설정 — 테마, 모듈, 단축키, 22개 언어">
 </div>
 
-## 18개 언어
+## 22개 언어
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — 앱은 처음부터 시스템 언어를 그대로
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — 앱은 처음부터 시스템 언어를 그대로
 따라갑니다.
 
 ## 프로젝트 응원하기

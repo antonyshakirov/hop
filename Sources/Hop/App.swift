@@ -301,6 +301,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let host = NSHostingController(
                 rootView: PanelView(initial: .settings, standaloneSettings: true)
                     .environmentObject(model)
+                    .hopLayoutDirection()
             )
             // same reliable path as about/converter: explicit size +
             // sizingOptions=[] so the hosting controller doesn't break AutoLayout with constraints
@@ -353,6 +354,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     onQuit: { NSApp.terminate(nil) },
                     onCancel: { [weak self] in self?.quitWindow?.close() }
                 )
+                .hopLayoutDirection()
             )
             host.sizingOptions = []
             window.contentViewController = host
@@ -443,6 +445,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let host = NSHostingController(
                 rootView: PanelView(initial: .about, standaloneAbout: true)
                     .environmentObject(model)
+                    .hopLayoutDirection()
             )
             // sizingOptions=[] and explicit size: .preferredContentSize made the
             // hosting controller fit the window to content via constraints, which broke
@@ -520,6 +523,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.torrentAddWindow?.close()
             }
             .environmentObject(model)
+            .hopLayoutDirection()
         )
         // preferredContentSize: the window tracks the sheet's own fitting height
         // (now that the view dropped its maxHeight:.infinity frame). It opens snug
@@ -630,6 +634,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isReleasedWhenClosed = false
             let host = NSHostingController(
                 rootView: ConvertWindowView().environmentObject(model)
+                    .hopLayoutDirection()
             )
             // the window resizes only vertically (content sits in a ScrollView);
             // auto-fitting the window size to content is disabled, otherwise
@@ -708,6 +713,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isReleasedWhenClosed = false
             let host = NSHostingController(
                 rootView: ArchiveWindowView().environmentObject(model)
+                    .hopLayoutDirection()
             )
             host.sizingOptions = []
             window.contentViewController = host
@@ -746,6 +752,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isReleasedWhenClosed = false
             let host = NSHostingController(
                 rootView: ScreenTextWindowView().environmentObject(model)
+                    .hopLayoutDirection()
             )
             host.sizingOptions = []
             window.contentViewController = host
@@ -811,7 +818,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if !PanelView.storedModuleIsInactive("torrent") {
                 self?.model.torrent.prefetchEngineIfNeeded()
             }
-        })
+        }.hopLayoutDirection())
         window.center()
         onboardingWindow = window
         NSApp.activate(ignoringOtherApps: true)
@@ -975,6 +982,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         let menu = NSMenu()
+        menu.applyHopLayoutDirection()
         let title = NSMenuItem(
             title: "Hop — " + L10n.t(.safeModeTitle, lang),
             action: nil, keyEquivalent: ""

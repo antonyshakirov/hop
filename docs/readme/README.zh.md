@@ -16,7 +16,7 @@
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
 
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/panel.png" width="420" alt="Hop 面板 — 菜单栏计时器，点阵显示屏、预设与工作-休息循环">
 
@@ -176,12 +176,12 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/system.png" width="280" alt="Hop 系统监控 — CPU、GPU、内存、网络、磁盘、电池图表">
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/converter.png" width="280" alt="Hop 文件转换器 — 批量转换图片、PDF、视频和音频">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/settings.png" width="280" alt="Hop 设置 — 主题、模块、快捷键、18 种语言">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/settings.png" width="280" alt="Hop 设置 — 主题、模块、快捷键、22 种语言">
 </div>
 
-## 18 种语言
+## 22 种语言
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — 应用开箱即用，自动跟随系统语言。
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — 应用开箱即用，自动跟随系统语言。
 
 ## 支持这个项目
 

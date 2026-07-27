@@ -18,7 +18,7 @@ czego potrzebujesz, jest pod ręką.**
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · **Polski** · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · **Polski** · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Panel Hop — timer na pasku menu z wyświetlaczem matrycowym, presetami i cyklami pracy i odpoczynku">
 
@@ -209,12 +209,12 @@ logowaniu oraz tryb awaryjny, który wyciąga aplikację z pętli awarii.
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor systemu Hop — wykresy CPU, GPU, pamięci, sieci, dysku i baterii">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Konwerter plików Hop — wsadowa konwersja obrazów, PDF, wideo i audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Ustawienia Hop — motywy, moduły, skróty klawiszowe, 18 języków">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Ustawienia Hop — motywy, moduły, skróty klawiszowe, 22 języki">
 </div>
 
-## 18 języków
+## 22 języki
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikacja od razu podąża za językiem
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikacja od razu podąża za językiem
 Twojego systemu.
 
 ## Wesprzyj projekt

@@ -17,7 +17,7 @@
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · **Русский** · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · **Русский** · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://www.antonshakirov.com/products/hop/screens/ru/panel.png" width="420" alt="Панель Hop — таймер в строке меню с точечно-матричным дисплеем, пресетами и циклами работы и отдыха">
 
@@ -208,12 +208,12 @@ Word (.docx, .doc, .rtf) → PDF или markdown и текст из PDF в ви�
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/ru/system.png" width="280" alt="Монитор системы Hop — графики CPU, GPU, памяти, сети, диска и батареи">
 <img src="https://www.antonshakirov.com/products/hop/screens/ru/converter.png" width="280" alt="Конвертер файлов Hop — пакетная конвертация изображений, PDF, видео и аудио">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/settings.png" width="280" alt="Настройки Hop — темы, модули, хоткеи, 18 языков">
+<img src="https://www.antonshakirov.com/products/hop/screens/ru/settings.png" width="280" alt="Настройки Hop — темы, модули, хоткеи, 22 языка">
 </div>
 
-## 18 языков
+## 22 языка
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — приложение сразу подхватывает язык вашей
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — приложение сразу подхватывает язык вашей
 системы.
 
 ## Поддержать проект

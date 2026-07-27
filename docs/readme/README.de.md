@@ -18,7 +18,7 @@ zur Hand.**
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-[Bahasa Indonesia](README.id.md) · **Deutsch** · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · **Deutsch** · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://www.antonshakirov.com/products/hop/screens/de/panel.png" width="420" alt="Hop-Panel — Menüleisten-Timer mit Punktmatrix-Anzeige, Presets und Arbeits-Pausen-Zyklen">
 
@@ -211,12 +211,12 @@ aus einer Absturzschleife rettet.
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/system.png" width="280" alt="Hop-Systemmonitor — Diagramme für CPU, GPU, Speicher, Netzwerk, Festplatte, Batterie">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/converter.png" width="280" alt="Hop-Dateikonverter — Stapelkonvertierung von Bildern, PDFs, Videos und Audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/settings.png" width="280" alt="Hop-Einstellungen — Themes, Module, Hotkeys, 18 Sprachen">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/settings.png" width="280" alt="Hop-Einstellungen — Themes, Module, Hotkeys, 22 Sprachen">
 </div>
 
-## 18 Sprachen
+## 22 Sprachen
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — die App folgt von Haus aus deiner Systemsprache.
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — die App folgt von Haus aus deiner Systemsprache.
 
 ## Unterstütze das Projekt
 

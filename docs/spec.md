@@ -752,7 +752,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `tracker.json`/`todos.json` (belt-and-suspenders over the bundle-less `.cli`
   sandbox), so `--tasks` stages its own deterministic content — three tasks (one
   running), three to-dos (one done) — localized per screenshot locale in
-  `Snapshot.demoTasks` (a sanctioned per-locale string site covering all 18
+  `Snapshot.demoTasks` (a sanctioned per-locale string site covering all 22
   locales — English via the `default` case).
 
 ### To-dos
@@ -1235,7 +1235,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `SMAppService.mainApp.status`. The notification query is skipped in a
   bundle-less process (a snapshot render throws otherwise). A row offers its
   System Settings deep link only when the permission is NOT granted.
-- The same list, condensed, is a README section (all 18 languages) and a FAQ
+- The same list, condensed, is a README section (all 22 languages) and a FAQ
   answer on the landing (all 8). The general help tab points at the tab by name,
   because a permission page nobody finds explains nothing (Anton, 2026-07-26).
 - The page CLOSES with a statement, set larger and bolder than anything above
@@ -1477,7 +1477,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   mirrors the localized-README rule: Russian → https://web.tribute.tg/d/Nvp,
   every other locale → https://web.tribute.tg/d/Nvk. All strings are
   country/currency-neutral; the amount and any currency are Tribute's concern.
-  Keys `donateTitle` and `donateBody` are translated across all 18 languages.
+  Keys `donateTitle` and `donateBody` are translated across all 22 languages.
 - Languages in pickers use the standard order, like system lists:
   alphabetical by NATIVE names, Latin → Cyrillic → CJK (pickerOrder,
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"
@@ -1521,13 +1521,45 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ## Localization
 
-- 18 languages: en ru de es pt fr it zh ja ko tr uk pl id th vi hi nl —
-  in this order in L10n.swift (th/vi/hi/nl restored 2026-07-13: old
-  translations from 2042b22 + new keys retranslated). A new UI string =
-  ALL 18 at once; `--l10n-check` must pass. Check long languages
+- 22 languages: en ru de es pt fr it zh ja ko tr uk pl id th vi hi nl
+  ar he fa ur — in this order in L10n.swift (th/vi/hi/nl restored
+  2026-07-13: old translations from 2042b22 + new keys retranslated;
+  ar/he/fa/ur added 2026-07-27 as the first right-to-left set). A new UI
+  string = ALL 22 at once; `--l10n-check` must pass. Check long languages
   (de, fr, hi) for truncation.
 - Inside the panel — brand lowercase; system surfaces (NSMenu,
-  notifications) — sentence case (.capitalizedFirst).
+  notifications) — sentence case (.capitalizedFirst). Arabic, Hebrew,
+  Persian and Urdu have no letter case, so the rule is moot there.
+
+### Right to left (ar, he, fa, ur)
+
+- The language is picked in-app, not through the system locale, so SwiftUI
+  never learns the direction on its own: `layoutDirection` comes from the
+  process locale, which stays left-to-right. Every window, panel and
+  popover root therefore calls `hopLayoutDirection()` (LayoutDirection.swift),
+  which reads the setting through `@AppStorage` and flips live. AppKit
+  surfaces do not see that environment — the right-click menus set
+  `applyHopLayoutDirection()` separately.
+- `Theme.mono` drops the monospaced design for these languages and returns
+  the proportional system face with monospaced digits. A fixed-width cell
+  per glyph pulls a cursive script apart; digits still hold their column,
+  so the timer does not jitter. Urdu renders in SF Arabic (naskh), which
+  is what every system app on macOS does — nastaliq is not a system face.
+- Directional glyphs use the direction-aware SF Symbols (`chevron.backward`,
+  `chevron.forward`), never `chevron.left`/`chevron.right`. The tab
+  disclosure chevron rotates the opposite way in RTL, since the chevron
+  itself has already flipped.
+- Canvas drawings do NOT mirror: the dot-matrix digits, the monitor graphs
+  and the window-snap glyphs keep their geometry, which is correct — a snap
+  glyph is a map of the physical screen, and the left half stays on the
+  left. Only the order of the buttons in the row follows the writing
+  direction.
+- Values substituted into a translated sentence (a file name, "5.1 GB", a
+  version number) go through `L10n.fill`, which wraps them in Unicode
+  isolates. Without that the sentence drags neighbouring punctuation to the
+  wrong end of the value.
+- The menu-bar icon is NOT mirrored: the bar itself stays in the system's
+  direction, and the badge corners are documented positions, not text.
 
 - Copy style: lively, no officialese and no literalism ("the Mac keeps
   counting" — bad; "lets you close the lid without shutting the Mac
@@ -1747,7 +1779,7 @@ Anton's primary install must always remain fully functional.
   clipboard, converter, windows, internet, torrents, tasks & time, what's new) sit
   on ONE line in the widest language (was 940 for ten; the "tasks & time" tab was
   added 2026-07-21 and adds ~130pt of natural-width chip). Each module has its own
-  full documentation tab, torrents included (`docTorrentFull`, all 18 languages).
+  full documentation tab, torrents included (`docTorrentFull`, all 22 languages).
 - The `tasks & time` tab (`aboutTabTasks`, 8.23) documents the two 1.4.0
   time-management modules together in ONE tab, as two clearly separated sections:
   the time tracker (`docTrackerFull`) above and the to-do list (`docTodosFull`)
@@ -1903,7 +1935,7 @@ playback.
   legend "zone glyph + ⌃⌥ key", four columns (shared `snapHotkeyItems` list with the
   help tab legend), replacing the old cryptic symbols-only caption.
 - Help → general no longer ends with the "hop — and it's done…" closing
-  line: it duplicated the page (removed in all 18 languages).
+  line: it duplicated the page (removed in all 22 languages).
 - App icon (Finder/Applications): dark or light chip with the REAL icon
   previews, light is the default; "auto" removed. The row sits after the
   updates section, away from the theme picker (it kept reading as part of

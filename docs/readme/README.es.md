@@ -18,7 +18,7 @@ pestañas del icono. Un clic — y todo lo que necesitas está ahí.**
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · **Español** · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · **Español** · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://www.antonshakirov.com/products/hop/screens/es/panel.png" width="420" alt="Panel de Hop — temporizador en la barra de menús con pantalla de matriz de puntos, preajustes y ciclos de trabajo y descanso">
 
@@ -210,12 +210,12 @@ un modo seguro que recupera la app de un bucle de fallos.
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/system.png" width="280" alt="Monitor del sistema de Hop — gráficos de CPU, GPU, memoria, red, disco y batería">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/converter.png" width="280" alt="Conversor de archivos de Hop — conversión por lotes de imágenes, PDF, vídeo y audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/es/settings.png" width="280" alt="Ajustes de Hop — temas, módulos, atajos, 18 idiomas">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/settings.png" width="280" alt="Ajustes de Hop — temas, módulos, atajos, 22 idiomas">
 </div>
 
-## 18 idiomas
+## 22 idiomas
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — la app sigue el idioma de tu sistema desde el
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — la app sigue el idioma de tu sistema desde el
 primer momento.
 
 ## Apoya el proyecto

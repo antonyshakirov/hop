@@ -17,7 +17,7 @@ the icon. One click, and everything you need is right there.**
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-[Bahasa Indonesia](docs/readme/README.id.md) · [Deutsch](docs/readme/README.de.md) · **English** · [Español](docs/readme/README.es.md) · [Français](docs/readme/README.fr.md) · [Italiano](docs/readme/README.it.md) · [Nederlands](docs/readme/README.nl.md) · [Polski](docs/readme/README.pl.md) · [Português](docs/readme/README.pt.md) · [Tiếng Việt](docs/readme/README.vi.md) · [Türkçe](docs/readme/README.tr.md) · [Русский](docs/readme/README.ru.md) · [Українська](docs/readme/README.uk.md) · [हिन्दी](docs/readme/README.hi.md) · [ไทย](docs/readme/README.th.md) · [한국어](docs/readme/README.ko.md) · [中文](docs/readme/README.zh.md) · [日本語](docs/readme/README.ja.md)
+[Bahasa Indonesia](docs/readme/README.id.md) · [Deutsch](docs/readme/README.de.md) · **English** · [Español](docs/readme/README.es.md) · [Français](docs/readme/README.fr.md) · [Italiano](docs/readme/README.it.md) · [Nederlands](docs/readme/README.nl.md) · [Polski](docs/readme/README.pl.md) · [Português](docs/readme/README.pt.md) · [Tiếng Việt](docs/readme/README.vi.md) · [Türkçe](docs/readme/README.tr.md) · [Русский](docs/readme/README.ru.md) · [Українська](docs/readme/README.uk.md) · [עברית](docs/readme/README.he.md) · [اردو](docs/readme/README.ur.md) · [العربية](docs/readme/README.ar.md) · [فارسی](docs/readme/README.fa.md) · [हिन्दी](docs/readme/README.hi.md) · [ไทย](docs/readme/README.th.md) · [한국어](docs/readme/README.ko.md) · [中文](docs/readme/README.zh.md) · [日本語](docs/readme/README.ja.md)
 
 <img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop panel — menu bar timer with dot-matrix display, presets and work-rest cycles">
 
@@ -202,12 +202,12 @@ loop.
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop system monitor — CPU, GPU, memory, network, disk, battery charts">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop file converter — batch image, PDF, video and audio conversion">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop settings — themes, modules, hotkeys, 18 languages">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop settings — themes, modules, hotkeys, 22 languages">
 </div>
 
-## 18 languages
+## 22 languages
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — the app follows your system language out of
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — the app follows your system language out of
 the box.
 
 ## Support the project

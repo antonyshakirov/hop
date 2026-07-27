@@ -17,7 +17,7 @@ Sekali klik — semua yang kamu butuhkan langsung ada.**
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-**Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+**Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Panel Hop — timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
 
@@ -207,12 +207,12 @@ dari crash loop.
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor sistem Hop — grafik CPU, GPU, memori, jaringan, disk, baterai">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Konverter file Hop — konversi batch gambar, PDF, video, dan audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Pengaturan Hop — tema, modul, pintasan, 18 bahasa">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Pengaturan Hop — tema, modul, pintasan, 22 bahasa">
 </div>
 
-## 18 bahasa
+## 22 bahasa
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikasi langsung mengikuti bahasa sistem
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikasi langsung mengikuti bahasa sistem
 kamu.
 
 ## Dukung proyek ini
