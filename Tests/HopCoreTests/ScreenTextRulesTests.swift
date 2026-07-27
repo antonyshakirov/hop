@@ -47,6 +47,78 @@ final class ScreenTextRulesTests: XCTestCase {
         XCTAssertEqual(ScreenTextRules.assemble(lines: ["one"], barcodes: []), "one")
     }
 
+    // MARK: - the link in a reading
+
+    func testQRPayloadThatIsALinkIsOffered() {
+        XCTAssertEqual(ScreenTextRules.link(in: "https://pay.example.com/i/8f21"),
+                       "https://pay.example.com/i/8f21")
+    }
+
+    func testLinkIsFoundInsideRecognizedText() {
+        let text = "Invoice 42\nPay at https://pay.example.com/i/8f21 before Friday"
+        XCTAssertEqual(ScreenTextRules.link(in: text), "https://pay.example.com/i/8f21")
+    }
+
+    func testTheFirstLinkWinsWhenThereAreSeveral() {
+        let text = "https://first.example/a\nhttps://second.example/b"
+        XCTAssertEqual(ScreenTextRules.link(in: text), "https://first.example/a")
+        // and the order is by POSITION, not by scheme
+        XCTAssertEqual(ScreenTextRules.link(in: "http://plain.example x https://secure.example"),
+                       "http://plain.example")
+    }
+
+    func testSchemeMatchIsCaseInsensitiveButTheAddressIsKeptVerbatim() {
+        XCTAssertEqual(ScreenTextRules.link(in: "HTTPS://Example.com/Path"),
+                       "HTTPS://Example.com/Path")
+    }
+
+    func testSentencePunctuationIsNotPartOfTheAddress() {
+        XCTAssertEqual(ScreenTextRules.link(in: "see https://example.com."), "https://example.com")
+        XCTAssertEqual(ScreenTextRules.link(in: "(https://example.com)"), "https://example.com")
+        XCTAssertEqual(ScreenTextRules.link(in: "«https://example.com»"), "https://example.com")
+    }
+
+    func testBalancedBracketsStayInsideTheAddress() {
+        let wiki = "https://example.org/wiki/Hop_(tool)"
+        XCTAssertEqual(ScreenTextRules.link(in: wiki), wiki)
+    }
+
+    func testABareHostPayloadBecomesHTTPS() {
+        XCTAssertEqual(ScreenTextRules.link(in: "example.com"), "https://example.com")
+        XCTAssertEqual(ScreenTextRules.link(in: " example.com/menu \n"), "https://example.com/menu")
+    }
+
+    func testABareHostIsOnlyPromotedWhenItIsTheWholeReading() {
+        // a file name in a code screenshot must never turn into a link
+        XCTAssertNil(ScreenTextRules.link(in: "open readme.md and api.js"))
+        XCTAssertNil(ScreenTextRules.link(in: "let path = docs/readme.md"))
+    }
+
+    func testVersionsAndNumbersAreNotLinks() {
+        XCTAssertNil(ScreenTextRules.link(in: "1.5.1"))
+        XCTAssertNil(ScreenTextRules.link(in: "v2.0"))
+        XCTAssertNil(ScreenTextRules.link(in: "12.5"))
+    }
+
+    func testNonWebPayloadsAreNotOffered() {
+        XCTAssertNil(ScreenTextRules.link(in: "mailto:hi@example.com"))
+        XCTAssertNil(ScreenTextRules.link(in: "tel:+15550100"))
+        XCTAssertNil(ScreenTextRules.link(in: "WIFI:S:Cafe;T:WPA;P:secret;;"))
+        XCTAssertNil(ScreenTextRules.link(in: "file:///etc/passwd"))
+        XCTAssertNil(ScreenTextRules.link(in: "hop://open/settings"))
+        XCTAssertNil(ScreenTextRules.link(in: "hi@example.com"))
+    }
+
+    func testATruncatedSchemeIsNotALink() {
+        XCTAssertNil(ScreenTextRules.link(in: "https://"))
+        XCTAssertNil(ScreenTextRules.link(in: "read https:// carefully"))
+    }
+
+    func testPlainTextHasNoLink() {
+        XCTAssertNil(ScreenTextRules.link(in: ""))
+        XCTAssertNil(ScreenTextRules.link(in: "just some recognized words"))
+    }
+
     // MARK: - reading order
 
     /// Vision's origin is bottom-left, so a HIGHER y is higher on screen.

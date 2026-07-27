@@ -932,6 +932,27 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the meaning with an empty middle, and it is already the app's mark for the
   Screen Recording permission this action needs. Same glyph in the panel row, in
   the window's button and in the help legend.
+- **A reading that holds a web address can be FOLLOWED** (Anton, 2026-07-27):
+  the window shows an "open link" button that hands the address to the default
+  browser. This is the point of reading a QR code on the Mac rather than
+  pointing a phone at it — a bill's payment link opens in the browser that is
+  already signed in. The rule is `ScreenTextRules.link(in:)`:
+  - `http` and `https` ONLY. A scanned code is untrusted input, and every other
+    scheme is a lever for whoever printed it: `file://` reaches the disk, a
+    custom scheme reaches whatever app claimed it. `mailto:`, `tel:`, `WIFI:`
+    and vCard payloads stay plain text in the history, with no button.
+  - The whole reading is searched, not just barcodes, so an address printed in
+    a screenshot opens the same way. An address must spell its scheme out —
+    `.md` and `.js` are real top-level domains, so a looser match would offer
+    to open `readme.md`. The one exception is a reading that is NOTHING but a
+    bare host (`example.com/menu`, the shape of a printed QR code), which is
+    promoted to `https://`; a bare host inside a sentence never is.
+  - The first address wins, sentence punctuation glued to it is trimmed
+    (`see https://example.com.`), and brackets the address opened itself are
+    kept (`.../Hop_(tool)`).
+  - Where a link is present, open takes the accented button and copy steps back
+    to the quiet one. The address is not repeated on the button — it is in the
+    text field above, in full, so the destination is read before the click.
 - **The result is SHOWN, not filed away silently** (Anton, 2026-07-25): a
   recognition window opens with the text in an editable field, a drop plate for
   images and a copy button. It is a `ConverterWindow` subclass so ⌘V reaches it,

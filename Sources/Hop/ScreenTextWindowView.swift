@@ -144,6 +144,27 @@ struct ScreenTextWindowView: View {
                     .font(Theme.mono(9))
                     .foregroundStyle(Theme.textTertiary)
                 Spacer()
+                // A reading that IS a link is a reading with somewhere to go, so
+                // opening it takes the accented slot and copying steps back. The
+                // address itself is not repeated on the button: it is already in
+                // the field above, in full, which is where it should be read.
+                if hasLink {
+                    Button {
+                        reader.openLink()
+                    } label: {
+                        Label(t(.ocrOpenLink), systemImage: "arrow.up.right")
+                            .font(Theme.mono(10, weight: .bold))
+                            .lineLimit(1)
+                            .fixedSize()
+                            .foregroundStyle(Theme.playFg)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverDim()
+                }
                 Button {
                     reader.copyRecognized()
                     copied = true
@@ -154,10 +175,10 @@ struct ScreenTextWindowView: View {
                 } label: {
                     Text(copied ? t(.ocrCopied) : t(.copyLabel))
                         .font(Theme.mono(10, weight: .bold))
-                        .foregroundStyle(copied ? Theme.accentGreen : Theme.playFg)
+                        .foregroundStyle(copyForeground)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 6)
-                        .background(copied ? Theme.chipBg : Theme.playBg,
+                        .background(copied || hasLink ? Theme.chipBg : Theme.playBg,
                                     in: RoundedRectangle(cornerRadius: 7))
                         .contentShape(Rectangle())
                 }
@@ -165,6 +186,15 @@ struct ScreenTextWindowView: View {
                 .hoverDim()
             }
         }
+    }
+
+    private var hasLink: Bool { reader.link != nil }
+
+    /// Copy keeps the green receipt, gives up the accent when there is a link
+    /// beside it, and is the primary button otherwise.
+    private var copyForeground: Color {
+        if copied { return Theme.accentGreen }
+        return hasLink ? Theme.textSecondary : Theme.playFg
     }
 
     private var status: String? {
