@@ -17,7 +17,7 @@ gian, việc cần làm, chống ngủ, giám sát hệ thống, lịch sử cli
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · **Tiếng Việt** · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · **Tiếng Việt** · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Bảng điều khiển Hop — đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
 
@@ -203,12 +203,12 @@ khôi phục ứng dụng khỏi vòng lặp crash.
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Giám sát hệ thống của Hop — biểu đồ CPU, GPU, bộ nhớ, mạng, ổ đĩa, pin">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Trình chuyển đổi tệp của Hop — chuyển đổi hàng loạt ảnh, PDF, video và âm thanh">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Cài đặt Hop — giao diện, mô-đun, phím tắt, 18 ngôn ngữ">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Cài đặt Hop — giao diện, mô-đun, phím tắt, 22 ngôn ngữ">
 </div>
 
-## 18 ngôn ngữ
+## 22 ngôn ngữ
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — ứng dụng tự động theo ngôn ngữ hệ thống của
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — ứng dụng tự động theo ngôn ngữ hệ thống của
 bạn ngay từ đầu.
 
 ## Ủng hộ dự án
