@@ -178,6 +178,11 @@ içindeki metin ve QR kodlar okunabilen, düzeltilebilen, kopyalanabilen bir
 pencerede çıkar ve aynı anda pano geçmişine girer. Satır sonları korunur, tablo
 okunur kalır. Tanıma Apple'ın Vision'ıdır, tamamen bu Mac'te çalışır.
 
+Sonuçta bir web adresi varsa «bağlantıyı aç» düğmesi çıkar: faturadaki QR
+kodun bağlantısı telefona uzanmadan doğrudan tarayıcıda açılır. Yalnızca web
+adresleri: taranan kod dışarıdan gelen bir girdidir, bu yüzden telefon
+numarası, Wi-Fi parolası ya da kartvizit düz metin olarak kalır.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Metin tanıma">
 </div>

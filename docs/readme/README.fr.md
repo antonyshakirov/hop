@@ -185,6 +185,12 @@ corriger et copier, et rejoignent en même temps l'historique du presse-papiers.
 Les retours à la ligne sont gardés, un tableau reste donc lisible. La
 reconnaissance, c'est Vision d'Apple, entièrement sur ce Mac.
 
+Quand le résultat contient une adresse web, un bouton « ouvrir le lien »
+apparaît : le lien d'un QR code sur une facture s'ouvre directement dans le
+navigateur, sans passer par le téléphone. Uniquement des adresses web : un
+code scanné est une entrée extérieure, donc un numéro, un mot de passe Wi-Fi
+ou une carte de visite restent du texte.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/recognition.png" width="480" alt="Hop — Reconnaissance de texte">
 </div>

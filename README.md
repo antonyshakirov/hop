@@ -174,6 +174,11 @@ edit and copy from, and land in the clipboard history at the same time. Line
 breaks are kept, so a table or a code snippet stays readable. Recognition is
 Apple's Vision, entirely on this Mac.
 
+A reading that holds a web address gets an "open link" button, so the link
+inside a QR code on a bill opens in your browser without reaching for a phone.
+Web addresses only: a scanned code is untrusted input, so a phone number, a
+Wi-Fi password or a contact card stays plain text.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Text recognition">
 </div>

@@ -21,6 +21,20 @@
 - Values dropped into a translated sentence — a file name, a size, a version
   number — are isolated, so a right-to-left sentence cannot drag the
   neighbouring punctuation to the wrong end of them.
+- Text recognition offers to open a web address it read. Framing a QR code on
+  the Mac rather than pointing a phone at it is worth doing precisely because
+  the link can be followed here, in the browser that is already signed in;
+  until now the payload only landed in the clipboard history as text. The
+  button takes the accent and copy steps back, and the address stays in the
+  field above so the destination is read before the click. http and https only:
+  a scanned code is untrusted input, and every other scheme is a lever for
+  whoever printed it. Phone numbers, Wi-Fi credentials and contact cards stay
+  plain text. The whole reading is searched, so an address printed in a
+  screenshot opens the same way.
+- The "select on screen" action is a dashed marquee instead of a camera in a
+  viewfinder. The camera's body packed a dark clot into a 12pt glyph, heavy
+  beside the outline icon sharing its row; the marquee is the shape being drawn
+  on screen anyway, and it now measures the same box as its neighbour.
 - The empty torrent row stays hidden once hidden. Keeping it away required the
   engine's installer to be in exactly one state, so the answer only held while
   that happened to be true: a fresh launch after an update, a download in

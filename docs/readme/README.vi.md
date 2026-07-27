@@ -175,6 +175,11 @@ bên trong hiện ra trong một cửa sổ để đọc, sửa và sao chép, �
 sử clipboard. Ngắt dòng được giữ nên bảng vẫn đọc được. Nhận dạng bằng Vision
 của Apple, hoàn toàn trên chiếc Mac này.
 
+Nếu kết quả có địa chỉ web, nút «mở liên kết» sẽ xuất hiện: liên kết trong mã
+QR trên hoá đơn mở thẳng trong trình duyệt, không cần đến điện thoại. Chỉ địa
+chỉ web: mã quét được là dữ liệu từ bên ngoài, nên số điện thoại, mật khẩu
+Wi-Fi hay danh thiếp vẫn là văn bản thường.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Nhận dạng văn bản">
 </div>

@@ -181,6 +181,11 @@ skopiować, a jednocześnie trafią do historii schowka. Złamania linii zostaj�
 więc tabela pozostaje czytelna. Rozpoznaje Vision od Apple, w całości na tym
 Macu.
 
+Jeśli w odczycie jest adres internetowy, pojawia się przycisk «otwórz link»:
+link z kodu QR na rachunku otwiera się wprost w przeglądarce, bez sięgania po
+telefon. Tylko adresy internetowe: zeskanowany kod to obce wejście, więc numer
+telefonu, hasło Wi-Fi albo wizytówka zostają zwykłym tekstem.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Rozpoznawanie tekstu">
 </div>

@@ -182,6 +182,12 @@ y copiar, y llegan a la vez al historial del portapapeles. Los saltos de línea
 se conservan, así que una tabla sigue legible. El reconocimiento es Vision, de
 Apple, todo en este Mac.
 
+Si el resultado contiene una dirección web aparece el botón «abrir enlace»: el
+enlace de un código QR de una factura se abre directamente en el navegador,
+sin tocar el teléfono. Solo direcciones web: un código escaneado es entrada
+ajena, así que un teléfono, una contraseña de Wi-Fi o una tarjeta de contacto
+siguen siendo texto normal.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/recognition.png" width="480" alt="Hop — Reconocimiento de texto">
 </div>

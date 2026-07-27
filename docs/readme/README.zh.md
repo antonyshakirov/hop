@@ -153,6 +153,9 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 编辑、可复制的窗口里，同时进入剪贴板历史。换行会保留，表格依然可读。识别用的是 Apple 的 Vision，
 全部在这台 Mac 上完成。
 
+如果识别结果里有网址，会出现「打开链接」按钮：账单二维码里的链接直接在浏览器中打开，不用再掏手机
+。只认网址：扫来的码是外来输入，所以电话号码、Wi-Fi 密码或名片仍然只是普通文本。
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/recognition.png" width="480" alt="Hop — 文字识别">
 </div>

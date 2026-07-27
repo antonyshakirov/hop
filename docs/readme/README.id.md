@@ -179,6 +179,11 @@ disunting, dan disalin, sekaligus masuk ke riwayat papan klip. Pemenggalan
 baris dipertahankan, jadi tabel tetap terbaca. Pengenalannya memakai Vision
 milik Apple, sepenuhnya di Mac ini.
 
+Kalau hasilnya memuat alamat web, tombol «buka tautan» muncul: tautan dari
+kode QR pada tagihan langsung terbuka di peramban, tanpa perlu ponsel. Hanya
+alamat web: kode yang dipindai adalah masukan dari luar, jadi nomor telepon,
+kata sandi Wi-Fi atau kartu kontak tetap teks biasa.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Pengenalan teks">
 </div>

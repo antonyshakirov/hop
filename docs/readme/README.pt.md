@@ -179,6 +179,11 @@ entram ao mesmo tempo no histórico da área de transferência. As quebras de
 linha ficam, então uma tabela continua legível. O reconhecimento é o Vision da
 Apple, inteiramente neste Mac.
 
+Se o resultado tiver um endereço web aparece o botão «abrir link»: o link de
+um código QR numa fatura abre direto no navegador, sem precisar do telefone.
+Apenas endereços web: um código lido é entrada alheia, por isso um telefone,
+uma senha de Wi-Fi ou um cartão de contato continuam texto simples.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/recognition.png" width="480" alt="Hop — Reconhecimento de texto">
 </div>

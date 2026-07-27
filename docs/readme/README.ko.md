@@ -166,6 +166,10 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 읽고 고치고 복사할 수 있는 창에 나오고, 동시에 클립보드 기록에도 들어갑니다. 줄바꿈이 유지되어
 표도 읽을 수 있습니다. 인식은 Apple의 Vision이며 전부 이 Mac 안에서 이뤄집니다.
 
+인식 결과에 웹 주소가 있으면 「링크 열기」 버튼이 나타납니다. 청구서 QR 코드의 링크가 휴대폰 없
+이 브라우저에서 바로 열립니다. 웹 주소만 해당합니다. 스캔한 코드는 외부에서 온 입력이므로 전화번
+호나 Wi-Fi 비밀번호, 연락처 카드는 그대로 텍스트로 남습니다.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — 텍스트 인식">
 </div>

@@ -182,6 +182,12 @@ lesen, bearbeiten und daraus kopieren kann, und landen zugleich im Verlauf der
 Zwischenablage. Zeilenumbrüche bleiben, eine Tabelle bleibt lesbar. Erkannt
 wird mit Apples Vision, komplett auf diesem Mac.
 
+Enthält ein Ergebnis eine Web-Adresse, erscheint die Schaltfläche «Link
+öffnen»: der Link aus einem QR-Code auf einer Rechnung öffnet sich direkt im
+Browser, ganz ohne Telefon. Nur Web-Adressen: ein gescannter Code ist fremde
+Eingabe, deshalb bleiben Telefonnummer, WLAN-Passwort oder Visitenkarte
+einfacher Text.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/recognition.png" width="480" alt="Hop — Texterkennung">
 </div>

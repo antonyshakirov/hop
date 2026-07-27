@@ -180,6 +180,12 @@ lezen, bijwerken en waaruit je kunt kopiëren, en gaan tegelijk naar de
 klembordgeschiedenis. Regeleindes blijven staan, dus een tabel blijft leesbaar.
 De herkenning is Vision van Apple, volledig op deze Mac.
 
+Staat er een webadres in het resultaat, dan verschijnt de knop «link openen»:
+de link uit een QR-code op een rekening opent meteen in de browser, zonder dat
+je je telefoon pakt. Alleen webadressen: een gescande code is invoer van
+buiten, dus een telefoonnummer, een wifiwachtwoord of een visitekaartje blijft
+gewone tekst.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Tekstherkenning">
 </div>

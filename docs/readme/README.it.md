@@ -182,6 +182,12 @@ legge, si corregge e si copia, e finiscono insieme nella cronologia degli
 appunti. Le andate a capo restano, così una tabella rimane leggibile. Il
 riconoscimento è Vision di Apple, tutto su questo Mac.
 
+Se il risultato contiene un indirizzo web compare il pulsante «apri il link»:
+il link di un codice QR su una fattura si apre direttamente nel browser, senza
+prendere il telefono. Solo indirizzi web: un codice scansionato è input
+altrui, quindi un numero, una password Wi-Fi o un biglietto da visita restano
+testo semplice.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Riconoscimento del testo">
 </div>
