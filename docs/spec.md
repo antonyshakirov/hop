@@ -338,9 +338,22 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   AppleRawMaxCapacity (fallback only) drifts with temperature/charge and
   showed 95–97% on brand-new machines next to the system's 100%.
 - Value highlighting: white/green — normal, yellow — borderline, red —
-  problem. Thresholds are configurable (temperature, load, disk, battery;
-  battery semantics are inverted — below the threshold is worse). °C/°F:
-  auto by region, can be set explicitly. "Calm" mode is the default:
+  problem. Thresholds are configurable for load, disk and battery (battery
+  semantics are inverted — below the threshold is worse). °C/°F:
+  auto by region, can be set explicitly.
+- **TEMPERATURE HAS NO THRESHOLD** (Anton, 2026-07-27), for the same reason
+  memory has none: the system's verdict is the honest one. Apple publishes no
+  thermal limit, and Apple Silicon sits at 90-100 °C under sustained load by
+  design — the old fixed pair (yellow 70, red 90) called a healthy machine
+  broken under any real workload, and said nothing about a fanless Mac
+  throttling quietly in a warm room. Every temperature on the tab (cpu, gpu,
+  ssd, battery) now takes its colour from `ProcessInfo.thermalState` through
+  `HopCore.ThermalLevel`: nominal and fair are NORMAL — fair only means the
+  fans have picked up — serious is yellow, critical is red, and an unknown
+  future state never alarms. The number in degrees is still shown; only the
+  verdict changed hands. A caption in monitor settings says so, and the two
+  stored keys are swept on reset so an upgraded machine keeps no dead
+  defaults. "Calm" mode is the default:
   color only for problems; the full rainbow via the "color accents" toggle.
 - CPU/GPU temperatures come from the private IOHIDEventSystemClient via
   dlsym: if Apple breaks the API we show "—" and don't crash. No disk
@@ -358,7 +371,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (history buffer 61 min); lines are laid out by the points' timestamps.
   In chart mode the rows are larger (12pt).
 - A red "!" (top-left of the menu bar icon, steady) during a red zone (same
-  thresholds that color the values; a charging battery doesn't count). OFF by
+  thresholds that color the values, and for heat the system's own critical
+  state; a charging battery doesn't count). OFF by
   default, toggle in monitor settings. It shares the top-left "!" with the
   tracker's 8-hour blink — see "Menu bar icon — corner badges".
 

@@ -13,8 +13,6 @@ struct StatsView: View {
     // chart window: how many minutes of history to show (1/5/10/30)
     @AppStorage("monitorWindowMin") private var monitorWindowMin = 5
 
-    @AppStorage(Thresholds.tempYellowKey) private var tempYellow = Thresholds.tempYellowDefault
-    @AppStorage(Thresholds.tempRedKey) private var tempRed = Thresholds.tempRedDefault
     @AppStorage(Thresholds.loadYellowKey) private var loadYellow = Thresholds.loadYellowDefault
     @AppStorage(Thresholds.loadRedKey) private var loadRed = Thresholds.loadRedDefault
     @AppStorage(Thresholds.diskYellowKey) private var diskYellow = Thresholds.diskYellowDefault
@@ -161,11 +159,20 @@ struct StatsView: View {
         return Theme.textSecondary
     }
 
+    /// Temperature has no user threshold. Apple publishes no limit and Apple
+    /// Silicon sits at 90-100 °C under load by design, so any fixed number
+    /// invents a verdict; macOS already weighs the chip, its cooling and the
+    /// room and publishes one. Every temperature on the tab — cpu, gpu, ssd,
+    /// battery — takes its colour from that single signal, because they are all
+    /// symptoms of the same machine being hot.
     private func tempColor(_ t: Double?) -> Color {
-        guard let t else { return Theme.textTertiary }
-        if t >= Double(tempRed) { return Theme.accentRed }
-        if t >= Double(tempYellow) { return Theme.accentYellow }
-        return colorful ? Theme.accentGreen : Theme.textSecondary
+        guard t != nil else { return Theme.textTertiary }
+        switch stats.sample.thermal {
+        case .critical: return Theme.accentRed
+        case .warning: return Theme.accentYellow
+        case .normal: return colorful ? Theme.accentGreen : Theme.textSecondary
+        case nil: return Theme.textSecondary   // no signal — no verdict
+        }
     }
 
     // MARK: - Values

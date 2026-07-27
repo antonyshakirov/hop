@@ -75,8 +75,6 @@ enum SettingsKey {
 /// Highlight thresholds for the system tab: at which value yellow and red kick in.
 /// Battery semantics are inverted: below the threshold is worse.
 enum Thresholds {
-    static let tempYellowKey = "thTempYellow"
-    static let tempRedKey = "thTempRed"
     static let loadYellowKey = "thLoadYellow"
     static let loadRedKey = "thLoadRed"
     static let diskYellowKey = "thDiskYellow"
@@ -84,8 +82,9 @@ enum Thresholds {
     static let battYellowKey = "thBattYellow"
     static let battRedKey = "thBattRed"
 
-    static let tempYellowDefault = 70
-    static let tempRedDefault = 90
+    // temperature has no threshold: the row color follows macOS's own thermal
+    // verdict (see HopCore.ThermalLevel). Apple publishes no limit and Apple
+    // Silicon runs at 90-100 C under load, so any number here would be invented.
     static let loadYellowDefault = 80
     static let loadRedDefault = 95
     // memory has no threshold: the row color follows macOS's own
@@ -95,9 +94,12 @@ enum Thresholds {
     static let battYellowDefault = 30
     static let battRedDefault = 15
 
+    /// The removed temperature keys are swept too, so a machine that upgrades
+    /// from a version with a 70/90 setting does not keep dead defaults on disk.
     static let allKeys = [
-        tempYellowKey, tempRedKey, loadYellowKey, loadRedKey,
+        loadYellowKey, loadRedKey,
         diskYellowKey, diskRedKey, battYellowKey, battRedKey,
+        "thTempYellow", "thTempRed",
     ]
 
     static func resetAll() {

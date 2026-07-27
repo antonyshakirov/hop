@@ -30,8 +30,6 @@ struct PanelView: View {
     @AppStorage(MediaPauser.settingKey) private var pauseMedia = false
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
 
-    @AppStorage(Thresholds.tempYellowKey) private var tempYellow = Thresholds.tempYellowDefault
-    @AppStorage(Thresholds.tempRedKey) private var tempRed = Thresholds.tempRedDefault
     @AppStorage(Thresholds.loadYellowKey) private var loadYellow = Thresholds.loadYellowDefault
     @AppStorage(Thresholds.loadRedKey) private var loadRed = Thresholds.loadRedDefault
     @AppStorage(Thresholds.diskYellowKey) private var diskYellow = Thresholds.diskYellowDefault
@@ -4137,7 +4135,6 @@ struct PanelView: View {
                 Spacer()
             }
             .padding(.top, 2)
-            ThresholdRow(label: t(.thTemp), yellow: $tempYellow, red: $tempRed, maxValue: 130)
             ThresholdRow(label: t(.thLoad), yellow: $loadYellow, red: $loadRed, maxValue: 100)
             ThresholdRow(label: t(.thDisk), yellow: $diskYellow, red: $diskRed, maxValue: 100)
             VStack(alignment: .leading, spacing: 3) {
@@ -4149,10 +4146,16 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textTertiary)
             }
 
-            // memory has no threshold row on purpose: its color follows
-            // macOS's own memory-pressure signal, and the caption says so
+            // memory and temperature have no threshold rows on purpose: both
+            // colors come from macOS's own verdicts, and the captions say so
             HStack {
                 Text(t(.memPressureNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                Spacer()
+            }
+            HStack {
+                Text(t(.thermalNote))
                     .font(Theme.mono(9))
                     .foregroundStyle(Theme.textTertiary)
                 Spacer()
@@ -4161,8 +4164,6 @@ struct PanelView: View {
             HStack {
                 Spacer()
                 Button {
-                    tempYellow = Thresholds.tempYellowDefault
-                    tempRed = Thresholds.tempRedDefault
                     loadYellow = Thresholds.loadYellowDefault
                     loadRed = Thresholds.loadRedDefault
                     diskYellow = Thresholds.diskYellowDefault

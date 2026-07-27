@@ -14,6 +14,7 @@ struct StatsSample {
     var memTotal: Double?     // bytes
     var swapUsed: Double?     // bytes (swap file)
     var memPressure: Int?     // macOS verdict: 1 normal, 2 warning, 4 critical
+    var thermal: ThermalLevel?  // macOS verdict on heat; no user threshold
     var netDown: Double?      // bytes/s
     var netUp: Double?        // bytes/s
     var diskFree: Double?     // bytes
@@ -115,6 +116,8 @@ final class SystemStatsController: ObservableObject {
         (s.memUsed, s.memTotal) = Self.memory()
         s.swapUsed = Self.swapUsed()
         s.memPressure = Self.memoryPressureLevel()
+        s.thermal = ThermalLevel.from(
+            thermalStateRawValue: ProcessInfo.processInfo.thermalState.rawValue)
         (s.netDown, s.netUp) = net.read()
         (s.diskFree, s.diskTotal) = Self.disk()
         s.battery = Self.battery()
@@ -151,14 +154,13 @@ final class SystemStatsController: ObservableObject {
         func value(_ key: String, _ def: Int) -> Double {
             Double((d.object(forKey: key) as? Int) ?? def)
         }
-        let tempRed = value(Thresholds.tempRedKey, Thresholds.tempRedDefault)
         let loadRed = value(Thresholds.loadRedKey, Thresholds.loadRedDefault)
         let diskRed = value(Thresholds.diskRedKey, Thresholds.diskRedDefault)
         let battRed = value(Thresholds.battRedKey, Thresholds.battRedDefault)
 
-        for temp in [s.cpuTemp, s.gpuTemp, s.ssdTemp, s.battery?.tempC] {
-            if let temp, temp >= tempRed { return true }
-        }
+        // Heat has no user threshold: macOS's own verdict decides, the same way
+        // it decides the memory row's colour.
+        if s.thermal == .critical { return true }
         if let load = s.cpuLoad, load * 100 >= loadRed { return true }
         if let free = s.diskFree, let total = s.diskTotal, total > 0,
            (1 - free / total) * 100 >= diskRed { return true }
