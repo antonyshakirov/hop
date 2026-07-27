@@ -1026,6 +1026,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   handler and disappears after the handoff. Handler reads and writes use the
   macOS 12+ `NSWorkspace` content-type API; the deprecated Launch Services
   setter is not used.
+  **Every declared type carries its own document icon** (Anton, 2026-07-27):
+  a sheet of paper with a folded corner, Hop's asterisk, and the format on an
+  ink band at the foot — TORRENT, RAR, ZIP, 7Z, TAR, GZ, TGZ, BZ2, XZ. Before
+  this every type pointed at `AppIcon`, so a folder of archives looked like a
+  wall of duplicated apps and said nothing about what the files were. Documents
+  are paper and the app is a cream plate precisely so the two are never
+  confused. macOS shows the icon only where Hop is the registered opener, which
+  is exactly the intent: the icon appears when Hop owns the file and not before.
+  Each `.icns` is drawn per size rather than downsampled; below 64pt the label
+  is dropped, because at that size any text is a smudge and Finder shows the
+  file name anyway. The files are build output (`scripts/make-doc-icons.sh`),
+  not stored assets, and `DocumentIconDeclarationTests` fails if a type is ever
+  declared without its own icon or the generator and the plist drift apart.
   Settings also carry a "show in the panel" switch for the module itself: being
   the opener and occupying a row are separate decisions, and someone who only
   double-clicks archives in Finder should not have to dig through "modules &

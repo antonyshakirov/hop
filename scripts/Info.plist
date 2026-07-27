@@ -9,19 +9,30 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>zip</string>
 				<string>rar</string>
-				<string>7z</string>
-				<string>tar</string>
-				<string>gz</string>
-				<string>tgz</string>
-				<string>bz2</string>
-				<string>xz</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>AppIcon</string>
+			<string>DocRar</string>
 			<key>CFBundleTypeName</key>
-			<string>Archive</string>
+			<string>RAR Archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.rarlab.rar-archive</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>zip</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>DocZip</string>
+			<key>CFBundleTypeName</key>
+			<string>ZIP Archive</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>LSHandlerRank</key>
@@ -29,12 +40,113 @@
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>public.zip-archive</string>
-				<string>com.rarlab.rar-archive</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>7z</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Doc7z</string>
+			<key>CFBundleTypeName</key>
+			<string>7-Zip Archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
 				<string>org.7-zip.7-zip-archive</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>tar</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>DocTar</string>
+			<key>CFBundleTypeName</key>
+			<string>TAR Archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
 				<string>public.tar-archive</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>DocGz</string>
+			<key>CFBundleTypeName</key>
+			<string>Gzip Archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
 				<string>org.gnu.gnu-zip-archive</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>tgz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>DocTgz</string>
+			<key>CFBundleTypeName</key>
+			<string>Gzip TAR Archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
 				<string>org.gnu.gnu-zip-tar-archive</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>bz2</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>DocBz2</string>
+			<key>CFBundleTypeName</key>
+			<string>Bzip2 Archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
 				<string>public.bzip2-archive</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>xz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>DocXz</string>
+			<key>CFBundleTypeName</key>
+			<string>XZ Archive</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
 				<string>org.tukaani.xz-archive</string>
 			</array>
 		</dict>
@@ -44,7 +156,7 @@
 				<string>torrent</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>AppIcon</string>
+			<string>DocTorrent</string>
 			<key>CFBundleTypeName</key>
 			<string>BitTorrent Document</string>
 			<key>CFBundleTypeRole</key>

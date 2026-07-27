@@ -49,6 +49,16 @@ if [[ ! -f assets/AppIcon.icns ]]; then
     ./scripts/make-icon.sh
 fi
 
+# Document icons are generated rather than stored: nine near-identical sheets
+# would be megabytes of binary in a repo that can redraw them in a second.
+DOC_ICONS=(DocTorrent DocRar DocZip Doc7z DocTar DocGz DocTgz DocBz2 DocXz)
+for icon in "${DOC_ICONS[@]}"; do
+    if [[ ! -f "assets/$icon.icns" ]]; then
+        ./scripts/make-doc-icons.sh
+        break
+    fi
+done
+
 if [[ $DEV == 1 ]]; then
     APP_NAME="Hop Dev"
 else
@@ -60,6 +70,9 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp ".build/$CONFIGURATION/Hop" "$APP/Contents/MacOS/Hop"
 cp scripts/Info.plist "$APP/Contents/Info.plist"
 cp assets/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+for icon in "${DOC_ICONS[@]}"; do
+    cp "assets/$icon.icns" "$APP/Contents/Resources/$icon.icns"
+done
 if [[ $DEV == 1 ]]; then
     # separate identity: no conflicts with the main version over settings
     # or the login item; the canonical bundle id of the main Hop never changes
