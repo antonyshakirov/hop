@@ -21,6 +21,11 @@
 - Values dropped into a translated sentence — a file name, a size, a version
   number — are isolated, so a right-to-left sentence cannot drag the
   neighbouring punctuation to the wrong end of them.
+- The empty torrent row stays hidden once hidden. Keeping it away required the
+  engine's installer to be in exactly one state, so the answer only held while
+  that happened to be true: a fresh launch after an update, a download in
+  flight or a failed fetch each put the row back. The rule now lives in HopCore
+  with tests and no longer consults the engine at all.
 
 ## 1.5.1 — 2026-07-27
 
