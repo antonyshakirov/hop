@@ -378,7 +378,14 @@ final class TorrentController: ObservableObject {
             }
             if stats.finished && !torrents[i].notifiedDone {
                 torrents[i].notifiedDone = true
-                notifyDone(name: torrents[i].name)
+                // Whether the banner may promise continued sharing is decided
+                // here, from the engine's own state: a torrent the user already
+                // paused is complete and quiet, and saying otherwise would be a
+                // small lie in the one place the user is looking.
+                let seeding = stats.state != .paused
+                    && torrents[i].optimisticPaused != true
+                    && !torrents[i].pausedByPolicy
+                notify(.finished(stats: stats, seeding: seeding), name: torrents[i].name)
                 persist()   // persist so a finished torrent isn't re-notified next launch
             }
             // The user deleted the payload out from under an active download (via
@@ -406,16 +413,33 @@ final class TorrentController: ObservableObject {
             if !torrents[i].pausedByPolicy, !torrents[i].seedPolicyOverridden,
                SeedPolicy.shouldPause(stats: stats, stopAtRatio1: stopAtRatio1) {
                 torrents[i].pausedByPolicy = true
+                // The give-back the user asked for is done. That is the end of
+                // the torrent's life in Hop and worth saying out loud, exactly
+                // once — the flag above is what keeps it to once.
+                notify(.seedingStopped(stats: stats), name: torrents[i].name)
                 try? await client.pause(id: id)
             }
         }
     }
 
-    /// One "downloaded" banner per torrent, respecting the app's alert setting.
+    /// One banner per torrent event, respecting the app's alert setting.
     /// Look at Sources/Hop/Alerts.swift for how the app posts notifications and
     /// reuse that path (UNUserNotificationCenter). Silent if alerts are off.
-    private func notifyDone(name: String) {
-        Alerts.fire(mode: AlertMode.current, title: name)
+    ///
+    /// The body is ALWAYS supplied. Passing a title alone let the notification
+    /// helper fall back to its default text, and a finished torrent announced
+    /// itself with the timer's "the timer has finished" (Anton, 2026-07-26).
+    private func notify(_ banner: TorrentBanner, name: String) {
+        let lang = L10n.current
+        let size = SizeFormatting.sizeText(banner.bytes)
+        let key: L10nKey
+        switch banner {
+        case .downloadedSeeding: key = .notifTorrentDownloadedSeeding
+        case .downloaded: key = .notifTorrentDownloaded
+        case .seedingFinished: key = .notifTorrentSeedingFinished
+        }
+        let body = L10n.t(key, lang).replacingOccurrences(of: "%@", with: size)
+        Alerts.fire(mode: AlertMode.current, title: name, body: body)
     }
 
     // MARK: - Persistence
