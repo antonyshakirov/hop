@@ -37,6 +37,11 @@ final class KeyboardLockController: ObservableObject {
     /// When the pair went down; every later event re-checks the deadline against it.
     private var chordStart: Date?
     private var overlay: NSWindow?
+    /// Whoever was frontmost when the cover went up. Locking has to activate Hop
+    /// so the cover's button answers the first click; unlocking has to give that
+    /// app its focus back, or the keys are free but the first thing typed lands
+    /// nowhere and the unlock reads as half a second late (Anton, 2026-07-27).
+    private var appBeforeLock: NSRunningApplication?
 
     var duration: Int {
         get {
@@ -86,7 +91,13 @@ final class KeyboardLockController: ObservableObject {
 
     func unlock() {
         guard isLocked else { return }
+        // ORDER MATTERS. The two things the user can perceive — the keys coming
+        // back and the cover leaving — happen first, in that order, before any
+        // bookkeeping. Anything published to SwiftUI before the cover is gone
+        // buys a layout pass the user reads as lag (Anton, 2026-07-27).
         removeTap()
+        hideOverlay()
+        restoreFocusAfterLock()
         ticker?.invalidate()
         ticker = nil
         remaining = nil
@@ -94,7 +105,6 @@ final class KeyboardLockController: ObservableObject {
         escapeDown = false
         shiftDown = false
         cancelChord()
-        hideOverlay()
         // a short cue: with the cover gone and the keys back, the sound is what
         // says "you can type again" without looking anywhere
         Sounds.awakeCue(on: false)
@@ -265,6 +275,12 @@ final class KeyboardLockController: ObservableObject {
         // accessory app that is not frontmost. Without both of these the done
         // button could ignore the first click — with the keyboard locked, that
         // would leave the timer as the only escape.
+        //
+        // Remember who is losing focus BEFORE taking it, so unlocking can hand
+        // it straight back instead of leaving the user typing into Hop.
+        let previous = NSWorkspace.shared.frontmostApplication
+        appBeforeLock = previous?.bundleIdentifier == Bundle.main.bundleIdentifier
+            ? nil : previous
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
         window.orderFrontRegardless()
@@ -274,6 +290,19 @@ final class KeyboardLockController: ObservableObject {
     private func hideOverlay() {
         overlay?.orderOut(nil)
         overlay = nil
+    }
+
+    /// Give focus back to whoever had it before the cover took it. Hop is an
+    /// accessory app with nothing else on screen, so staying frontmost means the
+    /// user's next keystrokes go to no window at all — the keyboard is free and
+    /// still feels stuck.
+    private func restoreFocusAfterLock() {
+        defer { appBeforeLock = nil }
+        guard let app = appBeforeLock, !app.isTerminated else {
+            NSApp.hide(nil)
+            return
+        }
+        app.activate()
     }
 }
 
