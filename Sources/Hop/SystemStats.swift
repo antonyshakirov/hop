@@ -231,16 +231,16 @@ final class SystemStatsController: ObservableObject {
         // Activity Monitor's "Memory Used" = Physical − Cached Files − free.
         // Computing it by subtraction (rather than App Memory + wired +
         // compressed) keeps the kernel/hardware-reserved pages host_statistics64
-        // leaves uncategorised — on Apple Silicon the GPU/firmware carve-out,
-        // ~1 GB — inside the figure, the way Activity Monitor does. The additive
-        // sum dropped that slice and ran ~1 GB low. See HopCore.MemoryUsage.
+        // leaves uncategorised — on Apple Silicon the GPU/firmware carve-out —
+        // inside the figure, the way Activity Monitor does. Cached Files is
+        // external_page_count alone, and free_count already carries the
+        // speculative pages. See HopCore.MemoryUsage.
         let used = MemoryUsage.usedBytes(
             physicalBytes: total,
             pageSize: UInt64(vm_kernel_page_size),
             free: UInt64(stats.free_count),
             speculative: UInt64(stats.speculative_count),
-            fileBacked: UInt64(stats.external_page_count),
-            purgeable: UInt64(stats.purgeable_count)
+            fileBacked: UInt64(stats.external_page_count)
         )
         return (used, Double(total))
     }

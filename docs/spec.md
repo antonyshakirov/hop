@@ -243,7 +243,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   during a countdown.
 - ±5 ("min" capsules) work while running; "−5" while running drives to
   0 → finish; `targetDate` is @Published, the UI doesn't wait for the ticker.
-- Finish: signal per setting (sound+banner / sound / silent). The finish
+- Finish: signal per setting (sound+banner / sound / silent). Every banner in
+  the app goes through `Alerts.fire`, and every caller supplies BOTH a title and
+  a body. The helper still owns a default pair for the timer, but a caller that
+  passes only a title inherits it: that is how a finished torrent came to
+  announce itself with "the timer has finished" over the torrent's own name
+  (Anton, 2026-07-26). Torrent banners are built from `HopCore.TorrentBanner`,
+  a value with no unset case — the title is the torrent's name and the body is
+  one of three: "%@ downloaded · sharing continues" while it keeps seeding,
+  "%@ downloaded" when it is already paused, and "sharing finished · %@ given
+  back" the once the seeding policy stops it at ratio 1. The size quoted on
+  completion is `progressBytes`, what actually landed on disk, since a partial
+  file selection makes the nominal total a different number from the one the
+  user can find in Finder. The finish
   sound plays EXACTLY ONCE (no repeat). The zeroed digits blink and a bell
   blinks in the menu bar — opening the panel acknowledges it
   (`TimerEngine.acknowledgeFinish`): the bell settles to a steady lit bell, but
@@ -1168,6 +1180,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   that is switched off. Durations are 1 / 5 / 15 minutes and ∞
   (`durations = [60, 300, 900, 0]`, 0 = until told otherwise); the countdown is
   replaced by the infinity glyph in that mode.
+- **Unlocking is ordered, not merely correct** (Anton, 2026-07-27): `unlock()`
+  removes the tap, then orders the cover out, then hands focus back to whichever
+  app was frontmost when the lock went up (remembered in `showOverlay`, before
+  `NSApp.activate`) — and only then updates the published state. Two things made
+  a correct unlock feel half a second late. Publishing `isLocked` while the cover
+  was still on screen bought a SwiftUI layout pass on the way out. Worse, Hop is
+  an accessory app: after activating itself to catch the cover's click it stayed
+  frontmost, so the keys were free but the first thing typed went to no window at
+  all. If the earlier app is gone, Hop hides itself instead, which hands focus to
+  whatever macOS picks next.
 - **The menu bar says so**: while locked, the star is REPLACED by a keyboard
   glyph — a corner dot would be too quiet for a state that stops the whole
   keyboard, and it outranks the finished bell. Unlocking plays the
@@ -1649,14 +1671,23 @@ as if swap were on top of the shown figure and lied about pressure. Now:
   > 50 MB ("swap 4.9 GB") — the figures no longer include each other.
 - "Used" matches Activity Monitor's Memory Used, computed the way its bar is
   built: Physical Memory − Cached Files − free, i.e.
-  `hw.memsize − (free + speculative + file-backed + purgeable) × page`
-  (`HopCore.MemoryUsage.usedBytes`). This is the additive App Memory + wired +
-  compressed sum PLUS the kernel/hardware-reserved pages `host_statistics64`
-  files in no queue — on Apple Silicon the GPU/firmware carve-out of unified
-  memory (~1 GB). The additive sum dropped that slice and read ~1 GB under
-  Activity Monitor (fixed 2026-07-22); an earlier active_count formula was
-  ~2 GB under (fixed 2026-07-18). Subtraction degrades cleanly where there is
-  no carve-out (reserved ≈ 0), matching the additive sum.
+  `hw.memsize − ((free_count − speculative) + file-backed) × page`
+  (`HopCore.MemoryUsage.usedBytes`). Both subtracted terms were measured
+  against a live Activity Monitor reading (2026-07-27, 24 GiB machine, Used
+  20.98 GB): Cached Files is `external_page_count` ALONE, and free is
+  `free_count` MINUS `speculative_count`, because Mach's `free_count` already
+  contains the speculative pages — that is why `vm_stat` prints the two apart.
+  This is the additive App Memory + wired + compressed sum PLUS the
+  kernel/hardware-reserved pages `host_statistics64` files in no queue — on
+  Apple Silicon the GPU/firmware carve-out of unified memory (0.78 GB measured)
+  — plus the speculative and purgeable pages Activity Monitor also counts as
+  used. Three formulas have been wrong here in turn: an active_count one ran
+  ~2 GB under (fixed 2026-07-18), the additive sum ~0.9 GB under (fixed
+  2026-07-22), and the first subtractive one deducted purgeable pages as cache
+  and speculative pages twice, so it drifted under by however much of each the
+  machine held — up to about a gigabyte (fixed 2026-07-27). Subtraction
+  degrades cleanly where there is no carve-out (reserved ≈ 0), matching the
+  additive sum.
 - The COLOR comes from macOS's own memory-pressure signal
   (kern.memorystatus_vm_pressure_level): 1 normal (green when colorful),
   2 warning → yellow, 4 critical → red. No user threshold: the system's
