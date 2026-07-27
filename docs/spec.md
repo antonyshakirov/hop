@@ -925,10 +925,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and barcodes become ONE clipboard-history entry, already on the pasteboard.
   Escape cancels and writes nothing. The panel closes before the crosshair
   appears (a popover would cover what the user is framing).
-- The action's glyph is `camera.viewfinder`, not a bare `viewfinder`: four
-  dashed corners alone read as "enter full screen", while the camera inside them
-  says "frame a shot of the screen" (Anton, 2026-07-26). Same glyph in the panel
-  row, in the window's button and in the help legend.
+- The action's glyph is `rectangle.dashed` — a marquee, the shape the user drags
+  across the screen. A bare `viewfinder` read as "enter full screen" and
+  `camera.viewfinder` fixed the meaning at the cost of the ink: its camera body
+  packed a dark clot into a 12pt glyph (Anton, 2026-07-27). The marquee keeps
+  the meaning with an empty middle, and it is already the app's mark for the
+  Screen Recording permission this action needs. Same glyph in the panel row, in
+  the window's button and in the help legend.
 - **The result is SHOWN, not filed away silently** (Anton, 2026-07-25): a
   recognition window opens with the text in an editable field, a drop plate for
   images and a copy button. It is a `ConverterWindow` subclass so ⌘V reaches it,

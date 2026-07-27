@@ -685,10 +685,12 @@ struct RowActionIcon: View {
     /// Point size per symbol, chosen so the glyphs match on screen rather than
     /// on paper. A symbol that is not listed gets the plain row size.
     private static let opticalSize: [String: CGFloat] = [
-        // a plain viewfinder read as "enter full screen"; the camera inside the
-        // dashed corners says "frame a shot of the screen" (Anton, 2026-07-26)
-        "camera.viewfinder": 12.5,
-        "viewfinder": 12.5,             // thin dashed corners, draws small
+        // a marquee, the shape the user drags on screen. It is a wide outline
+        // with nothing inside, so it needs the largest size here to reach the
+        // same height as its neighbour — and stays lighter than the camera it
+        // replaced, whose body packed a dark clot into a 12pt glyph (Anton,
+        // 2026-07-27)
+        "rectangle.dashed": 14,
         "arrow.up.forward.app": 12.5,   // boxed, fills its frame
         "eyedropper": 12,               // tall and heavy
     ]
