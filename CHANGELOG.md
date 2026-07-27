@@ -21,6 +21,16 @@
 - Values dropped into a translated sentence — a file name, a size, a version
   number — are isolated, so a right-to-left sentence cannot drag the
   neighbouring punctuation to the wrong end of them.
+- The memory row speaks up when a lot of memory has gone to disk. Its colour
+  had been left entirely to macOS's own memory-pressure signal, which answers
+  "am I struggling to hand out pages right now" and nothing else: pages pushed
+  to swap that stay cold cost the system nothing, so a 24 GB machine holding
+  9.4 GB of swap still read as normal, in green. The row now takes the worse of
+  that signal and swap measured against physical RAM, with a threshold back in
+  monitor settings — yellow at a quarter of RAM on disk, red at half. Swap is
+  compared to RAM rather than to the swap file, whose size macOS changes on
+  demand. This is not the old rule returning: that one coloured on
+  (used + swap) ÷ RAM starting at 110%, a sum with no physical meaning.
 - Text recognition offers to open a web address it read. Framing a QR code on
   the Mac rather than pointing a phone at it is worth doing precisely because
   the link can be followed here, in the browser that is already signed in;

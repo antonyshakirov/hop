@@ -81,14 +81,24 @@ enum Thresholds {
     static let diskRedKey = "thDiskRed"
     static let battYellowKey = "thBattYellow"
     static let battRedKey = "thBattRed"
+    /// Swap as a share of physical RAM. Deliberately NOT the old `thMemYellow`
+    /// key: that one held a percentage of `(used + swap) ÷ RAM` whose "normal"
+    /// started at 110, and inheriting a 110 here would mean "warn when swap
+    /// passes 110% of RAM", which is silence.
+    static let swapYellowKey = "thSwapYellow"
+    static let swapRedKey = "thSwapRed"
 
     // temperature has no threshold: the row color follows macOS's own thermal
     // verdict (see HopCore.ThermalLevel). Apple publishes no limit and Apple
     // Silicon runs at 90-100 C under load, so any number here would be invented.
     static let loadYellowDefault = 80
     static let loadRedDefault = 95
-    // memory has no threshold: the row color follows macOS's own
-    // memory-pressure signal (see SystemStats.memoryPressureLevel)
+    // memory: how much of a RAM's worth is allowed to sit in swap before the
+    // row speaks up. macOS's own pressure signal still colours the row and is
+    // never overridden — this only catches what that signal is blind to, a
+    // machine quietly holding gigabytes on disk (see HopCore.MemoryStrain).
+    static let swapYellowDefault = 25
+    static let swapRedDefault = 50
     static let diskYellowDefault = 85
     static let diskRedDefault = 95
     static let battYellowDefault = 30
@@ -99,7 +109,10 @@ enum Thresholds {
     static let allKeys = [
         loadYellowKey, loadRedKey,
         diskYellowKey, diskRedKey, battYellowKey, battRedKey,
-        "thTempYellow", "thTempRed",
+        swapYellowKey, swapRedKey,
+        // dead keys from versions that had them, swept so an upgrade does not
+        // keep defaults nothing reads any more
+        "thTempYellow", "thTempRed", "thMemYellow", "thMemRed",
     ]
 
     static func resetAll() {

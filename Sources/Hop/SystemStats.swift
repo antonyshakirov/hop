@@ -158,8 +158,11 @@ final class SystemStatsController: ObservableObject {
         let diskRed = value(Thresholds.diskRedKey, Thresholds.diskRedDefault)
         let battRed = value(Thresholds.battRedKey, Thresholds.battRedDefault)
 
-        // Heat has no user threshold: macOS's own verdict decides, the same way
-        // it decides the memory row's colour.
+        // Heat has no user threshold: macOS's own verdict decides.
+        // Memory is deliberately absent, as it has been since 1.0: it colours
+        // the row on the tab but never badges the menu-bar icon. Swap fills up
+        // over hours rather than spiking, so a badge for it would sit there all
+        // day and stop meaning anything.
         if s.thermal == .critical { return true }
         if let load = s.cpuLoad, load * 100 >= loadRed { return true }
         if let free = s.diskFree, let total = s.diskTotal, total > 0,

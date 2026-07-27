@@ -37,6 +37,8 @@ struct PanelView: View {
     @AppStorage(Thresholds.diskRedKey) private var diskRed = Thresholds.diskRedDefault
     @AppStorage(Thresholds.battYellowKey) private var battYellow = Thresholds.battYellowDefault
     @AppStorage(Thresholds.battRedKey) private var battRed = Thresholds.battRedDefault
+    @AppStorage(Thresholds.swapYellowKey) private var swapYellow = Thresholds.swapYellowDefault
+    @AppStorage(Thresholds.swapRedKey) private var swapRed = Thresholds.swapRedDefault
 
     @AppStorage(ClipboardController.maxItemsKey) private var clipboardMax = ClipboardController.defaultMaxItems
     @AppStorage(ClipboardController.maxColorsKey) private var colorMax =
@@ -4146,14 +4148,19 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textTertiary)
             }
 
-            // memory and temperature have no threshold rows on purpose: both
-            // colors come from macOS's own verdicts, and the captions say so
-            HStack {
+            VStack(alignment: .leading, spacing: 3) {
+                // memory is the one row with TWO signals: macOS's pressure
+                // verdict always applies, and this threshold catches what that
+                // verdict is blind to — memory quietly parked on disk
+                ThresholdRow(label: t(.thSwap), yellow: $swapYellow, red: $swapRed,
+                             maxValue: 100)
                 Text(t(.memPressureNote))
-                    .font(Theme.mono(9))
+                    .font(Theme.mono(8))
                     .foregroundStyle(Theme.textTertiary)
-                Spacer()
             }
+
+            // temperature has no threshold row on purpose: its color comes from
+            // macOS's own verdict, and the caption says so
             HStack {
                 Text(t(.thermalNote))
                     .font(Theme.mono(9))
@@ -4170,6 +4177,8 @@ struct PanelView: View {
                     diskRed = Thresholds.diskRedDefault
                     battYellow = Thresholds.battYellowDefault
                     battRed = Thresholds.battRedDefault
+                    swapYellow = Thresholds.swapYellowDefault
+                    swapRed = Thresholds.swapRedDefault
                 } label: {
                     Text(t(.resetThresholds))
                         .font(Theme.mono(10))

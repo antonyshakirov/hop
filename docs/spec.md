@@ -1772,10 +1772,31 @@ as if swap were on top of the shown figure and lied about pressure. Now:
   machine held — up to about a gigabyte (fixed 2026-07-27). Subtraction
   degrades cleanly where there is no carve-out (reserved ≈ 0), matching the
   additive sum.
-- The COLOR comes from macOS's own memory-pressure signal
-  (kern.memorystatus_vm_pressure_level): 1 normal (green when colorful),
-  2 warning → yellow, 4 critical → red. No user threshold: the system's
-  verdict is the honest one. A caption in monitor settings says so.
+- The COLOR takes the WORSE of two signals (`HopCore.MemoryStrain`), because
+  each is blind to what the other sees:
+  - macOS's own `kern.memorystatus_vm_pressure_level`: 1 normal (green when
+    colorful), 2 warning → yellow, 4 critical → red. It answers "am I
+    struggling to hand out pages right now" and nothing else.
+  - Swap as a share of physical RAM, against a user threshold
+    (`thSwapYellow` / `thSwapRed`, defaults 25 / 50). Pages pushed to disk that
+    have stayed cold cost the system nothing, so the pressure level keeps
+    reporting normal while a great deal of memory sits in swap: measured on a
+    24 GB machine holding 9.4 GB of swap, the level was still 1 (Anton,
+    2026-07-28). That is a fact about the machine the user can act on, so the
+    row says it.
+- Swap is compared to RAM and NOT to the size of the swap file: macOS grows
+  that file on demand, so "92% of the file" becomes "46%" the moment it grows
+  with nothing about the machine having changed.
+- This is NOT a return of the pre-2026-07-15 rule. That one coloured on
+  `(used + swap) ÷ RAM` with yellow at 110%: it added a figure that already
+  counts compressed memory to a pool living on disk and compared the sum to the
+  size of RAM. A "normal" threshold above 100% is the tell that the metric had
+  no physical meaning. The keys `thMemYellow` / `thMemRed` are swept, and the
+  new ones are named apart so an inherited 110 cannot become "warn when swap
+  passes 110% of RAM", which is silence.
+- Memory is deliberately NOT part of the menu-bar icon's red zone, as it has
+  never been: swap fills over hours rather than spiking, so a badge for it
+  would sit there all day and stop meaning anything.
 
 ## Safe mode (crash loop)
 
