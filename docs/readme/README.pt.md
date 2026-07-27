@@ -20,7 +20,7 @@ clique — e tudo o que você precisa está ali.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · **Português** · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/pt/panel.png" width="420" alt="Painel do Hop — timer na barra de menus com display de matriz de pontos, predefinições e ciclos de trabalho e descanso">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/overview.png" width="360" alt="Painel do Hop — timer na barra de menus com display de matriz de pontos, predefinições e ciclos de trabalho e descanso">
 
 </div>
 
@@ -85,6 +85,10 @@ Mantenha o Mac acordado por 15 minutos, 8 horas ou para sempre — um clique,
 sem senha. Opcionalmente mantenha a tela ligada, ou continue trabalhando com
 a tampa fechada (ótimo para downloads, builds longos e telas externas).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/awake.png" width="420" alt="Hop — Sem suspensão">
+</div>
+
 ### Monitor do sistema
 
 Carga e temperatura de CPU e GPU, memória e swap, rede, disco, saúde da
@@ -104,6 +108,10 @@ copiados são guardados pelo nome (vários de uma vez aparecem como
 «nome +N»), e ao colar o arquivo em si volta. Senhas e outras entradas
 ocultas nunca são armazenadas.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/clipboard.png" width="420" alt="Hop — Histórico da área de transferência">
+</div>
+
 ### Conversor de arquivos
 
 Solte um lote de imagens, PDFs, vídeos ou áudios no painel: JPEG, PNG, HEIC,
@@ -119,6 +127,10 @@ processado localmente.
 
 Encaixe janelas em metades, quartos, terços e no centro com um clique em um
 glifo de zona ou um atalho ⌃⌥ — sem precisar de outro app.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/windows.png" width="420" alt="Hop — Gerenciador de janelas">
+</div>
 
 ### Torrents
 

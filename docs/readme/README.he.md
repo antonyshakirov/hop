@@ -18,7 +18,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · **עברית** · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="הלוח של Hop — טיימר בשורת התפריטים עם תצוגת נקודות, זמנים מוכנים ומחזורי עבודה ומנוחה">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="הלוח של Hop — טיימר בשורת התפריטים עם תצוגת נקודות, זמנים מוכנים ומחזורי עבודה ומנוחה">
 
 </div>
 
@@ -78,6 +78,10 @@ macOS 14 ומעלה.
 אפשר גם להשאיר את המסך דולק, או להמשיך לעבוד עם מכסה סגור (נוח להורדות,
 לבנייה ארוכה ולמסכים חיצוניים).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — בלי שינה">
+</div>
+
 ### מוניטור מערכת
 
 עומס וטמפרטורה של המעבד והגרפיקה, זיכרון והחלפה, רשת, דיסק, בריאות סוללה
@@ -96,6 +100,10 @@ macOS 14 ומעלה.
 ביחד מוצגים כ«שם ‎+N»), והדבקה מחזירה את הקובץ עצמו. סיסמאות וקלט מוסתר אחר
 לא נשמרים לעולם.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — היסטוריית לוח">
+</div>
+
 ### ממיר קבצים
 
 גררו אצווה של תמונות, קובצי PDF, וידאו או שמע אל הלוח: ‏JPEG, PNG, HEIC,
@@ -110,6 +118,10 @@ AVIF ו-WebP ביציאה; דחיסת PDF; כיווץ וידאו ב-HEVC עם ה
 
 הצמידו חלונות לחצאים, רבעים, שלישים ולמרכז בלחיצה על סמל אזור או בקיצור
 ‎⌃⌥ — בלי יישום נוסף.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — מנהל חלונות">
+</div>
 
 ### טורנטים
 

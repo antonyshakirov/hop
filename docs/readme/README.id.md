@@ -19,7 +19,7 @@ Sekali klik — semua yang kamu butuhkan langsung ada.**
 
 **Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Panel Hop — timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Panel Hop — timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
 
 </div>
 
@@ -84,6 +84,10 @@ klik, tanpa kata sandi. Opsional: biarkan layar tetap menyala, atau terus
 bekerja dengan penutup tertutup (praktis untuk unduhan, build panjang, dan
 layar eksternal).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Anti-tidur">
+</div>
+
 ### Monitor sistem
 
 Beban dan suhu CPU dan GPU, memori dan swap, jaringan, disk, kesehatan
@@ -103,6 +107,10 @@ sebelumnya. File yang disalin diingat berdasarkan namanya (beberapa sekaligus
 tampil sebagai «nama +N»), dan menempel akan mengembalikan file itu sendiri.
 Kata sandi dan input tersembunyi lainnya tidak pernah disimpan.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Riwayat clipboard">
+</div>
+
 ### Konverter file
 
 Jatuhkan sekumpulan gambar, PDF, video, atau audio ke panel: keluarannya
@@ -118,6 +126,10 @@ diproses secara lokal.
 
 Tata jendela ke setengah, seperempat, sepertiga, dan tengah layar dengan
 sekali klik pada glyph zona atau pintasan ⌃⌥ — tanpa aplikasi tambahan.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Pengelola jendela">
+</div>
 
 ### Torrent
 

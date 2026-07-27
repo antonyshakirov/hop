@@ -20,7 +20,7 @@ pestañas del icono. Un clic — y todo lo que necesitas está ahí.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · **Español** · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/es/panel.png" width="420" alt="Panel de Hop — temporizador en la barra de menús con pantalla de matriz de puntos, preajustes y ciclos de trabajo y descanso">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/overview.png" width="360" alt="Panel de Hop — temporizador en la barra de menús con pantalla de matriz de puntos, preajustes y ciclos de trabajo y descanso">
 
 </div>
 
@@ -86,6 +86,10 @@ contraseña. Opcionalmente deja la pantalla encendida, o sigue trabajando
 con la tapa cerrada (ideal para descargas, compilaciones largas y pantallas
 externas).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/awake.png" width="420" alt="Hop — Sin reposo">
+</div>
+
 ### Monitor del sistema
 
 Carga y temperatura de CPU y GPU, memoria y swap, red, disco, salud de la
@@ -106,6 +110,10 @@ anterior. Los archivos copiados se guardan por su nombre (varios a la vez
 aparecen como «nombre +N»), y al pegar vuelve el archivo en sí. Las
 contraseñas y otras entradas ocultas nunca se guardan.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/clipboard.png" width="420" alt="Hop — Historial del portapapeles">
+</div>
+
 ### Conversor de archivos
 
 Suelta un lote de imágenes, PDF, vídeos o audio sobre el panel: JPEG, PNG,
@@ -121,6 +129,10 @@ procesa en local.
 
 Ajusta las ventanas a mitades, cuartos, tercios y al centro con un clic en
 un glifo de zona o con un atajo ⌃⌥ — sin necesidad de otra app.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/windows.png" width="420" alt="Hop — Gestor de ventanas">
+</div>
 
 ### Torrents
 

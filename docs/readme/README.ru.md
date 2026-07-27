@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · **Русский** · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/panel.png" width="420" alt="Панель Hop — таймер в строке меню с точечно-матричным дисплеем, пресетами и циклами работы и отдыха">
+<img src="https://www.antonshakirov.com/products/hop/screens/ru/overview.png" width="360" alt="Панель Hop — таймер в строке меню с точечно-матричным дисплеем, пресетами и циклами работы и отдыха">
 
 </div>
 
@@ -83,6 +83,10 @@ macOS 14 или новее.
 пароля. По желанию держите экран включённым или продолжайте работать с
 закрытой крышкой (удобно для загрузок, долгих сборок и внешних мониторов).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ru/awake.png" width="420" alt="Hop — Запрет сна">
+</div>
+
 ### Монитор системы
 
 Загрузка и температура CPU и GPU, память и swap, сеть, диск, здоровье
@@ -103,6 +107,10 @@ macOS 14 или новее.
 «имя +N»), а вставка возвращает сам файл. Пароли и другой скрытый ввод
 никогда не сохраняются.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ru/clipboard.png" width="420" alt="Hop — История буфера обмена">
+</div>
+
 ### Конвертер файлов
 
 Бросьте на панель пачку изображений, PDF, видео или аудио: на выходе
@@ -118,6 +126,10 @@ JPEG, PNG, HEIC, AVIF и WebP; сжатие PDF; уменьшение видео
 
 Раскладывайте окна по половинам, четвертям, третям и по центру кликом
 по глифу зоны или хоткеем ⌃⌥ — без отдельного приложения.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ru/windows.png" width="420" alt="Hop — Менеджер окон">
+</div>
 
 ### Торренты
 

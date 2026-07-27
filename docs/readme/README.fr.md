@@ -20,7 +20,7 @@ tout ce qu'il vous faut est là.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · **Français** · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/fr/panel.png" width="420" alt="Panneau Hop — minuteur dans la barre de menus avec affichage à matrice de points, préréglages et cycles travail-pause">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/overview.png" width="360" alt="Panneau Hop — minuteur dans la barre de menus avec affichage à matrice de points, préréglages et cycles travail-pause">
 
 </div>
 
@@ -88,6 +88,10 @@ clic, pas de mot de passe. En option, gardez l'écran allumé, ou continuez à
 travailler avec le couvercle fermé (pratique pour les téléchargements, les
 longues compilations et les écrans externes).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/awake.png" width="420" alt="Hop — Anti-veille">
+</div>
+
 ### Moniteur système
 
 Charge et température du CPU et du GPU, mémoire et swap, réseau, disque,
@@ -108,6 +112,10 @@ Les fichiers copiés sont retenus par leur nom (plusieurs à la fois
 apparaissent en « nom +N »), et le collage ramène le fichier lui-même. Les
 mots de passe et autres saisies masquées ne sont jamais enregistrés.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/clipboard.png" width="420" alt="Hop — Historique du presse-papiers">
+</div>
+
 ### Convertisseur de fichiers
 
 Déposez un lot d'images, de PDF, de vidéos ou d'audio sur le panneau : JPEG,
@@ -123,6 +131,10 @@ Tout est traité en local.
 
 Ancrez les fenêtres en moitiés, quarts, tiers et au centre d'un clic sur un
 glyphe de zone ou avec un raccourci ⌃⌥ — sans app supplémentaire.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/windows.png" width="420" alt="Hop — Gestionnaire de fenêtres">
+</div>
 
 ### Torrents
 

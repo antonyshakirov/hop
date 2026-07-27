@@ -20,7 +20,7 @@ her şey elinizin altında.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · **Türkçe** · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop paneli — nokta matrisli ekran, hazır ayarlar ve çalışma-mola döngüleriyle menü çubuğu zamanlayıcısı">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop paneli — nokta matrisli ekran, hazır ayarlar ve çalışma-mola döngüleriyle menü çubuğu zamanlayıcısı">
 
 </div>
 
@@ -83,6 +83,10 @@ Mac'i 15 dakika, 8 saat ya da süresiz uyanık tutun — tek tık, parola
 yok. İsterseniz ekranı açık tutun ya da kapak kapalıyken çalışmaya devam
 edin (indirmeler, uzun derlemeler ve harici ekranlar için birebir).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Uyku engelleme">
+</div>
+
 ### Sistem monitörü
 
 CPU ve GPU yükü ile sıcaklığı, bellek ve swap, ağ, disk, pil sağlığı ve
@@ -102,6 +106,10 @@ Kopyalanan dosyalar adıyla saklanır (birden fazlası «ad +N» olarak görün�
 ve yapıştırınca dosyanın kendisi geri gelir. Parolalar ve diğer gizli
 girişler asla saklanmaz.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Pano geçmişi">
+</div>
+
 ### Dosya dönüştürücü
 
 Panele bir grup görsel, PDF, video ya da ses bırakın: çıktı olarak JPEG,
@@ -118,6 +126,10 @@ işlenir.
 Pencereleri yarımlara, çeyreklere, üçte birlere ve ortaya yerleştirin —
 bölge simgesine tek tık ya da ⌃⌥ kısayolu yeter; ek bir uygulamaya gerek
 yok.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Pencere yöneticisi">
+</div>
 
 ### Torrentler
 

@@ -171,11 +171,60 @@ enum Snapshot {
             if let data = try? JSONEncoder().encode(demoItems) {
                 UserDefaults.standard.set(data, forKey: "clipboardHistory")
             }
+            // The overview shot shows every module at once, so no row may look
+            // dead in it: the colour picker reads its swatches out of the same
+            // history the clipboard uses (a picked colour IS an entry), and
+            // without any it says "no colors yet" in the one picture meant to
+            // show what the app does.
+            if args.contains("--overview") {
+                let mixed: [ClipboardItem] = [
+                    ClipboardItem(text: "#2F6D5B", colorHex: "2F6D5B"),
+                    ClipboardItem(text: "#E8DCC8", colorHex: "E8DCC8"),
+                    ClipboardItem(text: "https://antonshakirov.com/products/hop"),
+                    ClipboardItem(text: "~/Documents/design-tokens.css"),
+                    ClipboardItem(text: longText),
+                ]
+                if let data = try? JSONEncoder().encode(mixed) {
+                    UserDefaults.standard.set(data, forKey: "clipboardHistory")
+                }
+            }
             UserDefaults.standard.set(834.0, forKey: "speedLastDown")
             UserDefaults.standard.set(112.0, forKey: "speedLastUp")
             UserDefaults.standard.set(1450, forKey: "speedLastRpm")
             UserDefaults.standard.set(Date(), forKey: "speedLastAt")
         }
+
+        // Every module's legacy visibility toggle, by module id. Setting one to
+        // false is what the isolation flags below use to empty the panel around
+        // the module a shot is about.
+        let moduleKeys = [
+            "timer": "showTimerModule", "awake": "showAwakeModule",
+            "clipboard": "showClipboardModule", "convert": "showConvertModule",
+            "windows": "showWindowsModule", "speed": "showSpeedtestModule",
+            "system": "showSystemModule", "tracker": "showTrackerModule",
+            "torrent": "showTorrentModule",
+        ]
+
+        // --only <id>: leave ONE module's row on the panel and hide everything
+        // else. A section of the README (or of the product page) is about a
+        // single module, and a shot of the whole panel next to it shows the
+        // reader nine other things instead of the one being described — the
+        // timer section carried a picture of the entire app (Anton, 2026-07-28).
+        // The older per-module flags stay: they stage content as well, which
+        // this one does not need beyond --demo.
+        let onlyModule: String? = args.firstIndex(of: "--only").flatMap {
+            args.count > $0 + 1 ? args[$0 + 1] : nil
+        }
+        if let onlyModule {
+            for (id, key) in moduleKeys where id != onlyModule {
+                UserDefaults.standard.set(false, forKey: key)
+            }
+        }
+
+        // --overview: the opposite of --only — every module at once, the opt-in
+        // ones included, for the single shot at the top of the README that has
+        // to answer "what is this app" before any section explains a part of it.
+        let wantsOverview = args.contains("--overview")
 
         // --colors / --ocr / --tools: isolate the opt-in tool modules (the
         // eyedropper, screen text, or both) with a staged swatch strip. They ship
@@ -319,12 +368,19 @@ enum Snapshot {
         // One module per shot: the isolation flags hide the OTHER new modules as
         // well, or a colour-picker render comes out with archives and the
         // keyboard lock stacked above it.
-        if wantsColors || wantsOcr || wantsKeyboard || wantsArchive {
+        if wantsColors || wantsOcr || wantsKeyboard || wantsArchive
+            || onlyModule != nil || wantsOverview {
             var keep: Set<String> = []
+            if wantsOverview {
+                keep = ["color", "ocr", "keyboard", "archive"]
+            }
             if wantsColors { keep.insert("color") }
             if wantsOcr { keep.insert("ocr") }
             if wantsKeyboard { keep.insert("keyboard") }
             if wantsArchive { keep.insert("archive") }
+            // no-op unless --only names one of these four; the rest are hidden
+            // through their legacy keys above
+            if let onlyModule { keep.insert(onlyModule) }
             for key in ["color", "ocr", "keyboard", "archive"] {
                 if keep.contains(key) {
                     PanelView.activateStoredModule(key)
@@ -335,7 +391,9 @@ enum Snapshot {
         }
 
         var initial = PanelView.InitialScreen.spaceContaining("timer")
-        if wantsKeyboard {
+        if let onlyModule {
+            initial = .spaceContaining(onlyModule)
+        } else if wantsKeyboard {
             initial = .spaceContaining("keyboard")
         } else if wantsArchive {
             initial = .spaceContaining("archive")

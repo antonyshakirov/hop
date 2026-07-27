@@ -20,7 +20,7 @@ meteen klaar.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · **Nederlands** · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop-paneel — menubalktimer met dot-matrixdisplay, presets en werk-rustcycli">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop-paneel — menubalktimer met dot-matrixdisplay, presets en werk-rustcycli">
 
 </div>
 
@@ -84,6 +84,10 @@ Houd de Mac 15 minuten, 8 uur of voor altijd wakker — één klik, geen
 wachtwoord. Laat optioneel het scherm aan, of werk door met het deksel dicht
 (handig voor downloads, lange builds en externe schermen).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Geen slaap">
+</div>
+
 ### Systeemmonitor
 
 CPU- en GPU-belasting en -temperatuur, geheugen en swap, netwerk, schijf,
@@ -104,6 +108,10 @@ app. Gekopieerde bestanden worden op naam onthouden (meerdere tegelijk
 verschijnen als «naam +N»), en bij het plakken komt het bestand zelf terug.
 Wachtwoorden en andere verborgen invoer worden nooit opgeslagen.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Klembordgeschiedenis">
+</div>
+
 ### Bestandsconverter
 
 Sleep een lading afbeeldingen, pdf's, video's of audio op het paneel: JPEG,
@@ -119,6 +127,10 @@ wordt lokaal verwerkt.
 
 Klik vensters vast op helften, kwarten, derden en het midden via een
 zonesymbool of een ⌃⌥-sneltoets — geen extra app nodig.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Vensterbeheer">
+</div>
 
 ### Torrents
 

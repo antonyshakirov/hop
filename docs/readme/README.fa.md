@@ -18,7 +18,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · **فارسی** · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="پنل Hop — تایمر نوار منو با نمایشگر نقطه‌ای، زمان‌های آماده و چرخه‌های کار و استراحت">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="پنل Hop — تایمر نوار منو با نمایشگر نقطه‌ای، زمان‌های آماده و چرخه‌های کار و استراحت">
 
 </div>
 
@@ -79,6 +79,10 @@ Mac را ۱۵ دقیقه، ۸ ساعت یا برای همیشه بیدار نگ�
 گذرواژه. اگر خواستید صفحه هم روشن بماند، یا با درِ بسته به کار ادامه دهید
 (به کار دانلودها، بیلدهای طولانی و نمایشگرهای بیرونی می‌آید).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — بی‌خوابی">
+</div>
+
 ### پایشگر سیستم
 
 بار و دمای پردازنده و گرافیک، حافظه و swap، شبکه، دیسک، سلامت باتری و مصرف
@@ -98,6 +102,10 @@ Mac را ۱۵ دقیقه، ۸ ساعت یا برای همیشه بیدار نگ�
 می‌شوند)، و چسباندن خود پرونده را برمی‌گرداند. گذرواژه‌ها و دیگر ورودی‌های
 پنهان هرگز ذخیره نمی‌شوند.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — تاریخچهٔ کلیپ‌بورد">
+</div>
+
 ### مبدل پرونده
 
 دسته‌ای تصویر، PDF، ویدیو یا صدا را روی پنل رها کنید: JPEG، PNG، HEIC، AVIF
@@ -112,6 +120,10 @@ Mac را ۱۵ دقیقه، ۸ ساعت یا برای همیشه بیدار نگ�
 
 پنجره‌ها را با یک کلیک روی نماد ناحیه یا با میان‌بر ⌃⌥ به نصف، ربع، یک‌سوم و
 وسط بچسبانید — بی‌نیاز از برنامه‌ای دیگر.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — مدیر پنجره">
+</div>
 
 ### تورنت
 

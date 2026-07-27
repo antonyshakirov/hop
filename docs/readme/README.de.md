@@ -20,7 +20,7 @@ zur Hand.**
 
 [Bahasa Indonesia](README.id.md) · **Deutsch** · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/de/panel.png" width="420" alt="Hop-Panel — Menüleisten-Timer mit Punktmatrix-Anzeige, Presets und Arbeits-Pausen-Zyklen">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/overview.png" width="360" alt="Hop-Panel — Menüleisten-Timer mit Punktmatrix-Anzeige, Presets und Arbeits-Pausen-Zyklen">
 
 </div>
 
@@ -85,6 +85,10 @@ Halte den Mac 15 Minuten, 8 Stunden oder für immer wach — ein Klick, kein
 Passwort. Optional bleibt das Display an, oder du arbeitest bei geschlossenem
 Deckel weiter (praktisch für Downloads, lange Builds und externe Displays).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/awake.png" width="420" alt="Hop — Kein Schlaf">
+</div>
+
 ### Systemmonitor
 
 CPU- und GPU-Last samt Temperatur, Speicher und Swap, Netzwerk, Festplatte,
@@ -105,6 +109,10 @@ App. Kopierte Dateien werden mit Namen gemerkt (mehrere zeigen sich als
 „Name +N“), und beim Einfügen kommt die eigentliche Datei zurück. Passwörter
 und andere verdeckte Eingaben werden niemals gespeichert.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/clipboard.png" width="420" alt="Hop — Zwischenablage-Verlauf">
+</div>
+
 ### Dateikonverter
 
 Zieh einen Stapel Bilder, PDFs, Videos oder Audiodateien auf das Panel: JPEG,
@@ -120,6 +128,10 @@ lokal verarbeitet.
 
 Fenster mit einem Klick auf ein Zonensymbol oder per ⌃⌥-Hotkey auf Hälften,
 Viertel, Drittel und die Mitte einrasten — ganz ohne zusätzliche App.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/windows.png" width="420" alt="Hop — Fenstermanager">
+</div>
 
 ### Torrents
 

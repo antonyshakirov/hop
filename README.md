@@ -19,7 +19,7 @@ the icon. One click, and everything you need is right there.**
 
 [Bahasa Indonesia](docs/readme/README.id.md) · [Deutsch](docs/readme/README.de.md) · **English** · [Español](docs/readme/README.es.md) · [Français](docs/readme/README.fr.md) · [Italiano](docs/readme/README.it.md) · [Nederlands](docs/readme/README.nl.md) · [Polski](docs/readme/README.pl.md) · [Português](docs/readme/README.pt.md) · [Tiếng Việt](docs/readme/README.vi.md) · [Türkçe](docs/readme/README.tr.md) · [Русский](docs/readme/README.ru.md) · [Українська](docs/readme/README.uk.md) · [עברית](docs/readme/README.he.md) · [اردو](docs/readme/README.ur.md) · [العربية](docs/readme/README.ar.md) · [فارسی](docs/readme/README.fa.md) · [हिन्दी](docs/readme/README.hi.md) · [ไทย](docs/readme/README.th.md) · [한국어](docs/readme/README.ko.md) · [中文](docs/readme/README.zh.md) · [日本語](docs/readme/README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop panel — menu bar timer with dot-matrix display, presets and work-rest cycles">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop panel — menu bar timer with dot-matrix display, presets and work-rest cycles">
 
 </div>
 
@@ -82,6 +82,10 @@ Keep the Mac awake for 15 minutes, 8 hours or forever — one click, no
 password. Optionally keep the display on, or keep working with the lid
 closed (handy for downloads, long builds and external displays).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — No sleep">
+</div>
+
 ### System monitor
 
 CPU and GPU load and temperature, memory and swap, network, disk, battery
@@ -100,6 +104,10 @@ click to copy back or paste straight into the previous app. Copied files are
 kept by name (several at once show as "name +N"), and pasting puts the actual
 file back. Passwords and other concealed input are never stored.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Clipboard history">
+</div>
+
 ### File converter
 
 Drop a batch of images, PDFs, videos or audio onto the panel: JPEG, PNG,
@@ -114,6 +122,10 @@ honest size estimate before you convert. Everything is processed locally.
 
 Snap windows to halves, quarters, thirds and center with a click on a zone
 glyph or a ⌃⌥ hotkey — no extra app needed.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Window manager">
+</div>
 
 ### Torrents
 

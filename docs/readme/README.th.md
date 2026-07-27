@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · **ไทย** · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="แผงควบคุม Hop — ตัวจับเวลาบนแถบเมนูพร้อมจอแสดงผลแบบดอตแมทริกซ์ พรีเซ็ต และรอบทำงาน-พัก">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="แผงควบคุม Hop — ตัวจับเวลาบนแถบเมนูพร้อมจอแสดงผลแบบดอตแมทริกซ์ พรีเซ็ต และรอบทำงาน-พัก">
 
 </div>
 
@@ -81,6 +81,10 @@ Hop อาศัยอยู่บนแถบเมนูของ Mac แล�
 ไม่ต้องใส่รหัสผ่าน เลือกให้จอเปิดค้างไว้ หรือทำงานต่อทั้งที่ปิดฝาเครื่อง
 ก็ได้ (เหมาะกับการดาวน์โหลด งานบิลด์ยาว ๆ และจอภายนอก)
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — กันเครื่องหลับ">
+</div>
+
 ### มอนิเตอร์ระบบ
 
 โหลดและอุณหภูมิของ CPU กับ GPU หน่วยความจำและ swap เครือข่าย ดิสก์
@@ -100,6 +104,10 @@ Hop อาศัยอยู่บนแถบเมนูของ Mac แล�
 และเมื่อวางก็จะได้ไฟล์นั้นกลับคืนมา รหัสผ่านและข้อความที่ถูกซ่อน
 จะไม่ถูกเก็บไว้เด็ดขาด
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — ประวัติคลิปบอร์ด">
+</div>
+
 ### ตัวแปลงไฟล์
 
 ลากรูปภาพ PDF วิดีโอ หรือไฟล์เสียงทั้งชุดมาวางบนแผง: ส่งออกเป็น JPEG, PNG,
@@ -114,6 +122,10 @@ HEIC, AVIF และ WebP บีบอัด PDF ย่อวิดีโอด�
 
 จัดหน้าต่างให้ชิดครึ่งจอ หนึ่งในสี่ หนึ่งในสาม หรือกึ่งกลาง
 ด้วยการคลิกที่สัญลักษณ์โซนหรือกดปุ่มลัด ⌃⌥ — ไม่ต้องติดตั้งแอปเพิ่ม
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — ตัวจัดการหน้าต่าง">
+</div>
 
 ### ทอร์เรนต์
 

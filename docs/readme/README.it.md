@@ -20,7 +20,7 @@ serve è lì.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · **Italiano** · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Pannello di Hop — timer nella barra dei menu con display a matrice di punti, preset e cicli lavoro-pausa">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Pannello di Hop — timer nella barra dei menu con display a matrice di punti, preset e cicli lavoro-pausa">
 
 </div>
 
@@ -86,6 +86,10 @@ password. Facoltativamente tieni acceso lo schermo, oppure continua a
 lavorare con il coperchio chiuso (comodo per download, build lunghe e
 schermi esterni).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Niente stop">
+</div>
+
 ### Monitor di sistema
 
 Carico e temperatura di CPU e GPU, memoria e swap, rete, disco, salute
@@ -106,6 +110,10 @@ vengono ricordati per nome (più file insieme appaiono come «nome +N»), e
 incollando torna il file vero e proprio. Le password e gli altri input
 nascosti non vengono mai salvati.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Cronologia degli appunti">
+</div>
+
 ### Convertitore di file
 
 Trascina sul pannello un gruppo di immagini, PDF, video o audio: JPEG, PNG,
@@ -121,6 +129,10 @@ Tutto viene elaborato in locale.
 
 Aggancia le finestre a metà, quarti, terzi e al centro con un clic su un
 glifo di zona o con una scorciatoia ⌃⌥ — senza app aggiuntive.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Gestore delle finestre">
+</div>
 
 ### Torrent
 

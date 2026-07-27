@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · **हिन्दी** · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop पैनल — डॉट-मैट्रिक्स डिस्प्ले, प्रीसेट और काम-आराम चक्रों वाला मेनू बार टाइमर">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop पैनल — डॉट-मैट्रिक्स डिस्प्ले, प्रीसेट और काम-आराम चक्रों वाला मेनू बार टाइमर">
 
 </div>
 
@@ -82,6 +82,10 @@ Mac को 15 मिनट, 8 घंटे या हमेशा के लि�
 पासवर्ड नहीं। चाहें तो डिस्प्ले चालू रखें, या ढक्कन बंद करके भी काम जारी
 रखें (डाउनलोड, लंबे बिल्ड और बाहरी डिस्प्ले के लिए बेहद काम का)।
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — नो स्लीप">
+</div>
+
 ### सिस्टम मॉनिटर
 
 CPU और GPU का लोड व तापमान, मेमोरी और स्वैप, नेटवर्क, डिस्क, बैटरी
@@ -100,6 +104,10 @@ CPU और GPU का लोड व तापमान, मेमोरी औ�
 फ़ाइलें नाम से याद रहती हैं (एक साथ कई हों तो «नाम +N»), और पेस्ट करने पर
 फ़ाइल खुद वापस आ जाती है। पासवर्ड और दूसरे छिपाए गए इनपुट कभी सेव नहीं होते।
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — क्लिपबोर्ड हिस्ट्री">
+</div>
+
 ### फ़ाइल कन्वर्टर
 
 इमेज, PDF, वीडियो या ऑडियो का पूरा बैच पैनल पर छोड़ दें: आउटपुट में JPEG,
@@ -115,6 +123,10 @@ PNG, HEIC, AVIF और WebP; PDF कम्प्रेशन; HEVC से वी
 
 ज़ोन ग्लिफ़ पर एक क्लिक या ⌃⌥ हॉटकी से विंडो को आधे, चौथाई, तिहाई
 हिस्सों में या बीचोंबीच स्नैप करें — किसी अतिरिक्त ऐप की ज़रूरत नहीं।
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — विंडो मैनेजर">
+</div>
 
 ### टॉरेंट
 

@@ -20,7 +20,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · **日本語**
 
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/panel.png" width="420" alt="Hop パネル — ドットマトリクス表示のメニューバータイマー、プリセットとワーク・レストサイクル">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/overview.png" width="360" alt="Hop パネル — ドットマトリクス表示のメニューバータイマー、プリセットとワーク・レストサイクル">
 
 </div>
 
@@ -85,6 +85,10 @@ Mac を 15 分、8 時間、あるいはずっと起こしておく——ワン�
 続けることもできます（ダウンロード、長いビルド、外部ディスプレイに
 便利）。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/awake.png" width="420" alt="Hop — スリープ防止">
+</div>
+
 ### システムモニター
 
 CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク、ディスク、
@@ -104,6 +108,10 @@ macOS から直接取得し、タブを開いている間だけ更新されま�
 ペーストするとファイルそのものが戻ります。パスワードなどの秘匿入力は
 一切保存されません。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/clipboard.png" width="420" alt="Hop — クリップボード履歴">
+</div>
+
 ### ファイル変換
 
 画像・PDF・動画・音声をまとめてパネルへドロップ。JPEG、PNG、HEIC、
@@ -119,6 +127,10 @@ AVIF、WebP へ出力、PDF 圧縮、HEVC による動画の軽量化——変�
 
 ゾーングリフをクリックするか ⌃⌥ ホットキーを押すだけで、ウィンドウを
 2 分の 1、4 分の 1、3 分の 1、中央へスナップ——追加アプリは不要です。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/windows.png" width="420" alt="Hop — ウィンドウ管理">
+</div>
 
 ### トレント
 

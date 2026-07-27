@@ -1631,6 +1631,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   quirk, not a bug. `--about --doc <id>` opens any help tab and
   `--settings --settings-section <id>` any settings tab, so a text change can
   be checked where it is actually read.
+- `--only <module>` leaves ONE module's row on the panel and hides the rest;
+  `--overview` does the opposite and shows every module at once, the opt-in
+  ones included, with content staged in each (the colour picker draws its
+  swatches out of the clipboard history, so the overview seeds a mixed list —
+  an empty row in the one picture meant to show the whole app is worse than a
+  crowded one).
+- `scripts/make-screens.sh [out-dir] [lang …]` renders the WHOLE product set —
+  every README and product-page image, for the eight languages with their own
+  folder — into the website repo by default. Every other README points at the
+  English folder. The recipes used to live nowhere and each shot was taken by
+  hand, so the set drifted out of date module by module and a section about the
+  timer carried a picture of the entire app (Anton, 2026-07-28). A section that
+  describes one module gets a shot of that module: `--only`. Sample files for
+  the converter window are generated inside the script, so its rows carry real
+  thumbnails and believable size estimates. After a run, bump `SCREENS_VER` in
+  the site's `src/views/hop/config.ts` — the image optimizer caches for 31 days
+  and the file names are stable.
 - Signing: a permanent self-signed "Minimo Signing" certificate —
   permissions survive reinstalls. Ad-hoc fallback only if the certificate
   is missing (undesirable — TCC gets dropped).

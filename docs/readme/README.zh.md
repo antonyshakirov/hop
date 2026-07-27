@@ -18,7 +18,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/panel.png" width="420" alt="Hop 面板 — 菜单栏计时器，点阵显示屏、预设与工作-休息循环">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/overview.png" width="360" alt="Hop 面板 — 菜单栏计时器，点阵显示屏、预设与工作-休息循环">
 
 </div>
 
@@ -74,6 +74,10 @@ Hop 常驻在 Mac 的菜单栏中，一个应用顶替一把小工具：
 可选择让屏幕常亮，或者合上盖子继续工作
 （下载、长时间编译和外接显示器时特别好用）。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/awake.png" width="420" alt="Hop — 防休眠">
+</div>
+
 ### 系统监控
 
 CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电池健康度
@@ -90,6 +94,10 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 或直接粘贴到上一个应用。复制的文件会按文件名记住（多个文件显示为
 「名称 +N」），粘贴时会还原文件本身。密码等隐藏输入绝不会被记录。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/clipboard.png" width="420" alt="Hop — 剪贴板历史">
+</div>
+
 ### 文件转换器
 
 把一批图片、PDF、视频或音频拖到面板上：输出 JPEG、PNG、
@@ -104,6 +112,10 @@ HEIC、AVIF 和 WebP；压缩 PDF；HEVC 视频瘦身，转换前就能看到
 
 点击区域图标或按 ⌃⌥ 快捷键，即可把窗口吸附到二分之一、四分之一、
 三分之一或居中——无需额外安装任何应用。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/windows.png" width="420" alt="Hop — 窗口管理器">
+</div>
 
 ### 种子下载
 

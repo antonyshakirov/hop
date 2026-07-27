@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · **Українська** · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Панель Hop — таймер у рядку меню з точково-матричним дисплеєм, пресетами та циклами роботи й відпочинку">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Панель Hop — таймер у рядку меню з точково-матричним дисплеєм, пресетами та циклами роботи й відпочинку">
 
 </div>
 
@@ -83,6 +83,10 @@ Hop живе в рядку меню вашого Mac і замінює жмен�
 пароля. За бажанням тримайте екран увімкненим або працюйте із закритою
 кришкою (зручно для завантажень, довгих збірок і зовнішніх дисплеїв).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Заборона сну">
+</div>
+
 ### Системний монітор
 
 Навантаження й температура CPU та GPU, пам'ять і swap, мережа, диск,
@@ -102,6 +106,10 @@ Hop живе в рядку меню вашого Mac і замінює жмен�
 «ім'я +N»), а вставлення повертає сам файл. Паролі та інше приховане
 введення ніколи не зберігаються.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Історія буфера обміну">
+</div>
+
 ### Конвертер файлів
 
 Киньте на панель пачку зображень, PDF, відео чи аудіо: на виході JPEG,
@@ -116,6 +124,10 @@ PNG, HEIC, AVIF і WebP; стискання PDF; зменшення відео �
 
 Розкладайте вікна по половинах, чвертях, третинах і по центру кліком на
 гліф зони або хоткеєм ⌃⌥ — без окремого застосунку.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Менеджер вікон">
+</div>
 
 ### Торенти
 

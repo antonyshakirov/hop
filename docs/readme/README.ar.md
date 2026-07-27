@@ -18,7 +18,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · **العربية** · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="لوحة Hop — مؤقّت في شريط القوائم بشاشة نقطية وأوقات جاهزة ودورات عمل وراحة">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="لوحة Hop — مؤقّت في شريط القوائم بشاشة نقطية وأوقات جاهزة ودورات عمل وراحة">
 
 </div>
 
@@ -77,6 +77,10 @@ macOS 14 أو أحدث.
 وبلا كلمة مرور. ويمكنك إبقاء الشاشة مضاءة، أو مواصلة العمل والغطاء مغلق
 (مفيد للتنزيلات وعمليات البناء الطويلة والشاشات الخارجية).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — منع النوم">
+</div>
+
 ### مراقب النظام
 
 حمل المعالج والرسوميات وحرارتهما، والذاكرة والتبديل، والشبكة والقرص، وصحة
@@ -95,6 +99,10 @@ macOS 14 أو أحدث.
 (وعدة ملفات معاً تظهر كـ «اسم ‎+N»)، واللصق يعيد الملف نفسه. أما كلمات المرور
 وسائر المدخلات المخفية فلا تُحفظ أبداً.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — سجل الحافظة">
+</div>
+
 ### محوّل الملفات
 
 أفلِت دفعة من الصور أو ملفات PDF أو الفيديو أو الصوت على اللوحة: JPEG و PNG
@@ -109,6 +117,10 @@ macOS 14 أو أحدث.
 
 رصّ النوافذ في أنصاف وأرباع وأثلاث ووسط بنقرة على رمز المنطقة أو باختصار
 ‎⌃⌥ — بلا حاجة إلى تطبيق إضافي.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — مدير النوافذ">
+</div>
 
 ### التورنت
 

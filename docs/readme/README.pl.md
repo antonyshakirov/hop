@@ -20,7 +20,7 @@ czego potrzebujesz, jest pod ręką.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · **Polski** · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Panel Hop — timer na pasku menu z wyświetlaczem matrycowym, presetami i cyklami pracy i odpoczynku">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Panel Hop — timer na pasku menu z wyświetlaczem matrycowym, presetami i cyklami pracy i odpoczynku">
 
 </div>
 
@@ -85,6 +85,10 @@ jedno kliknięcie, bez hasła. Opcjonalnie utrzymuj włączony ekran albo
 pracuj dalej z zamkniętą pokrywą (przydatne przy pobieraniu, długich
 buildach i zewnętrznych monitorach).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Blokada uśpienia">
+</div>
+
 ### Monitor systemu
 
 Obciążenie i temperatura CPU i GPU, pamięć i swap, sieć, dysk, kondycja
@@ -105,6 +109,10 @@ aplikacji. Skopiowane pliki są pamiętane po nazwie (kilka naraz pokazuje
 się jako „nazwa +N"), a wklejenie przywraca sam plik. Hasła i inne ukryte
 dane wejściowe nigdy nie są zapisywane.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Historia schowka">
+</div>
+
 ### Konwerter plików
 
 Upuść na panel paczkę obrazów, PDF-ów, wideo lub audio: na wyjściu JPEG,
@@ -120,6 +128,10 @@ konwersją. Wszystko jest przetwarzane lokalnie.
 
 Przyciągaj okna do połówek, ćwiartek, jednej trzeciej ekranu i na środek
 kliknięciem w glif strefy albo skrótem ⌃⌥ — bez dodatkowej aplikacji.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Menedżer okien">
+</div>
 
 ### Torrenty
 

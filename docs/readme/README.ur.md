@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · **اردو** · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop کا پینل — مینو بار ٹائمر، نقطوں والی ڈسپلے، تیار اوقات اور کام و آرام کے سائیکل">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop کا پینل — مینو بار ٹائمر، نقطوں والی ڈسپلے، تیار اوقات اور کام و آرام کے سائیکل">
 
 </div>
 
@@ -81,6 +81,10 @@ Mac کو ۱۵ منٹ، ۸ گھنٹے یا ہمیشہ کے لیے جگائے رک
 کے۔ چاہیں تو اسکرین بھی روشن رکھیں، یا ڈھکن بند کر کے کام جاری رکھیں
 (ڈاؤن لوڈ، لمبے بلڈ اور بیرونی اسکرینوں کے لیے کارآمد)۔
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — نیند نہیں">
+</div>
+
 ### سسٹم مانیٹر
 
 پروسیسر اور گرافکس کا بوجھ اور درجہ حرارت، میموری اور swap، نیٹ ورک، ڈسک،
@@ -100,6 +104,10 @@ Mac کو ۱۵ منٹ، ۸ گھنٹے یا ہمیشہ کے لیے جگائے رک
 چسپاں کرنے پر خود فائل واپس آتی ہے۔ پاس ورڈ اور دوسرا چھپا ہوا اندراج کبھی
 محفوظ نہیں ہوتا۔
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — کلپ بورڈ کی تاریخ">
+</div>
+
 ### فائل کنورٹر
 
 تصاویر، PDF، ویڈیو یا آڈیو کا ایک ڈھیر پینل پر چھوڑ دیں: JPEG، PNG، HEIC،
@@ -114,6 +122,10 @@ AVIF اور WebP باہر؛ PDF کی دباؤ کاری؛ HEVC سے ویڈیو ک
 
 ونڈوز کو آدھے، چوتھائی، تہائی اور درمیان میں جمائیں — علاقے کے نشان پر ایک
 کلک یا ⌃⌥ شارٹ کٹ سے، کسی اضافی ایپ کے بغیر۔
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — ونڈو منیجر">
+</div>
 
 ### ٹورنٹ
 

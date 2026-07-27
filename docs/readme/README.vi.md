@@ -19,7 +19,7 @@ gian, việc cần làm, chống ngủ, giám sát hệ thống, lịch sử cli
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · **Tiếng Việt** · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Bảng điều khiển Hop — đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Bảng điều khiển Hop — đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
 
 </div>
 
@@ -83,6 +83,10 @@ không cần mật khẩu. Tùy chọn giữ màn hình luôn sáng, hoặc ti�
 khi gập nắp máy (tiện cho việc tải xuống, các bản build dài và màn hình
 ngoài).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Chống ngủ">
+</div>
+
 ### Giám sát hệ thống
 
 Tải và nhiệt độ CPU và GPU, bộ nhớ và swap, mạng, ổ đĩa, tình trạng pin và
@@ -102,6 +106,10 @@ chép được nhớ theo tên (nhiều tệp cùng lúc hiện là «tên +N»)
 chính tệp đó quay lại. Mật khẩu và các nội dung nhập ẩn khác không bao giờ
 được lưu.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Lịch sử clipboard">
+</div>
+
 ### Chuyển đổi tệp
 
 Thả cả loạt ảnh, PDF, video hoặc âm thanh vào bảng điều khiển: xuất ra
@@ -118,6 +126,10 @@ thứ đều được xử lý cục bộ.
 Sắp cửa sổ vào nửa màn hình, một phần tư, một phần ba và chính giữa bằng
 một cú nhấp vào biểu tượng vùng hoặc phím tắt ⌃⌥ — không cần thêm ứng dụng
 nào khác.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Quản lý cửa sổ">
+</div>
 
 ### Torrent
 

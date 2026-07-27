@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · **한국어** · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop 패널 — 도트 매트릭스 디스플레이, 프리셋과 작업-휴식 사이클을 갖춘 메뉴 막대 타이머">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop 패널 — 도트 매트릭스 디스플레이, 프리셋과 작업-휴식 사이클을 갖춘 메뉴 막대 타이머">
 
 </div>
 
@@ -80,6 +80,10 @@ Mac을 15분, 8시간, 혹은 영원히 깨어 있게 — 클릭 한 번, 암호
 없습니다. 디스플레이를 계속 켜 두거나, 덮개를 닫은 채로 작업을 이어갈
 수도 있습니다(다운로드, 긴 빌드, 외장 디스플레이에 유용).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — 잠자기 방지">
+</div>
+
 ### 시스템 모니터
 
 CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, 배터리
@@ -98,6 +102,10 @@ CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, �
 기억하고(여러 개면 「이름 +N」), 붙여넣으면 파일 자체가 돌아옵니다. 암호를
 비롯한 가려진 입력은 절대 저장되지 않습니다.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — 클립보드 히스토리">
+</div>
+
 ### 파일 변환기
 
 이미지, PDF, 비디오, 오디오를 한꺼번에 패널에 드롭하세요. JPEG, PNG,
@@ -113,6 +121,10 @@ HEIC, AVIF, WebP로 출력, PDF 압축, HEVC 비디오 용량 줄이기 — 변�
 
 존 글리프를 클릭하거나 ⌃⌥ 단축키를 누르면 창을 절반, 4분의 1, 3분의 1,
 가운데로 스냅 — 별도의 앱이 필요 없습니다.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — 창 관리자">
+</div>
 
 ### 토렌트
 
