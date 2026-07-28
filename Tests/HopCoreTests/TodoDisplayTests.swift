@@ -115,4 +115,63 @@ final class TodoDisplayTests: XCTestCase {
         list.toggle(id("b"))
         XCTAssertEqual(names(TodoDisplay.order(list.items)), ["a", "b", "c"], "unchecking returns b to its slot")
     }
+
+    // MARK: - Importance grouping (opt-in "important tasks on top")
+
+    // name, done, important
+    private func make(_ spec: [(String, Bool, Bool)]) -> [TodoItem] {
+        spec.map { TodoItem(id: id($0.0), text: $0.0, done: $0.1, important: $0.2) }
+    }
+
+    func testImportantFirstPutsImportantActivesOnTop() {
+        let items = make([("a", false, false), ("b", false, true),
+                          ("c", true, false), ("d", false, true)])
+        XCTAssertEqual(names(TodoDisplay.order(items, importantFirst: true)),
+                       ["b", "d", "a", "c"])
+    }
+
+    func testImportanceIsIgnoredWhenTheSettingIsOff() {
+        let items = make([("a", false, false), ("b", false, true),
+                          ("c", true, false), ("d", false, true)])
+        XCTAssertEqual(names(TodoDisplay.order(items, importantFirst: false)),
+                       ["a", "b", "d", "c"], "only the completed pile sinks")
+    }
+
+    func testCompletedStaysLastEvenWhenImportant() {
+        let items = make([("a", false, false), ("b", true, true)])
+        XCTAssertEqual(names(TodoDisplay.order(items, importantFirst: true)), ["a", "b"])
+    }
+
+    func testDragIsClampedInsideTheImportantGroup() {
+        let items = make([("b", false, true), ("d", false, true),
+                          ("a", false, false), ("c", true, false)])
+        // dragging "b" far down stops at the end of the important group
+        let clamped = TodoDisplay.clampedInsertion(items, dragging: id("b"),
+                                                   rawInsertion: 3, importantFirst: true)
+        XCTAssertEqual(clamped, 1)
+    }
+
+    func testDragIsClampedAboveTheImportantGroup() {
+        let items = make([("b", false, true), ("a", false, false), ("e", false, false)])
+        // an ordinary item cannot rise above the important ones
+        let clamped = TodoDisplay.clampedInsertion(items, dragging: id("e"),
+                                                   rawInsertion: 0, importantFirst: true)
+        XCTAssertEqual(clamped, 1)
+    }
+
+    func testReorderWithinTheImportantGroupIsAMinimalStoredMove() {
+        let items = make([("b", false, true), ("d", false, true),
+                          ("a", false, false), ("c", true, false)])
+        let out = TodoDisplay.reordered(items, dragging: id("b"),
+                                        toDisplayInsertion: 1, importantFirst: true)
+        XCTAssertEqual(names(out), ["d", "b", "a", "c"], "only the dragged item relocates")
+    }
+
+    func testUnmarkingImportantReturnsTheItemToItsStoredSlot() {
+        var items = make([("a", false, false), ("b", false, true), ("c", false, false)])
+        XCTAssertEqual(names(TodoDisplay.order(items, importantFirst: true)), ["b", "a", "c"])
+        items[1].important = false
+        XCTAssertEqual(names(TodoDisplay.order(items, importantFirst: true)), ["a", "b", "c"],
+                       "the stored order was never mutated by the mark")
+    }
 }
