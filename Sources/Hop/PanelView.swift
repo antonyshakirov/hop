@@ -2217,14 +2217,14 @@ struct PanelView: View {
     // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "archive", "keyboard"]
-    static let defaultModuleOrder = "timer,awake,clipboard,convert,windows,speedtest,torrent,color,ocr,archive,keyboard"
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "archive", "keyboard", "vpn"]
+    static let defaultModuleOrder = "timer,awake,clipboard,convert,windows,speedtest,torrent,color,ocr,archive,keyboard,vpn"
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
     /// developers) and must be a deliberate opt-in — an ordinary user should not
     /// find them cluttering the panel after an update. Torrent predates this list
     /// and is still handled by its legacy toggle below.
-    private static let optInModules = ["color", "ocr"]
+    private static let optInModules = ["color", "ocr", "vpn"]
 
     /// Modules INTRODUCED in this release. For someone updating, all of them
     /// start hidden and are offered by the what's-new card — nothing appears in
@@ -2581,6 +2581,7 @@ struct PanelView: View {
         case "torrent": return t(.torrentLabel)
         case "color": return t(.colorLabel)
         case "ocr": return t(.ocrLabel)
+        case "vpn": return t(.vpnLabel)
         case "archive": return t(.archiveLabel)
         case "keyboard": return t(.keylockLabel)
         case "system": return t(.tabSystem)
@@ -2613,6 +2614,9 @@ struct PanelView: View {
                                 // the new colour is the thing you land on
                                 model?.reopenPanel?(.spaceContaining("color"))
                             })
+                .id(model.themeVersion)
+        case "vpn":
+            VPNView(vpn: model.vpn, lang: lang)
                 .id(model.themeVersion)
         case "ocr":
             ScreenTextView(reader: model.screenText, lang: lang,
@@ -3854,6 +3858,7 @@ struct PanelView: View {
         case "keyboard": return "keyboard"
         case "color": return "paintpalette"
         case "ocr": return "text.viewfinder"
+        case "vpn": return "lock.shield"
         case "torrent": return "arrow.down.circle"
         default: return "square.grid.2x2"
         }
@@ -4428,6 +4433,7 @@ struct PanelView: View {
                 ("torrent", t(.torrentLabel)),
                 ("color", t(.colorLabel)),
                 ("ocr", t(.ocrLabel)),
+                ("vpn", t(.vpnLabel)),
                 ("archive", t(.archiveLabel)),
                 ("keyboard", t(.keylockLabel)),
                 ("tasks", t(.aboutTabTasks)),
@@ -4464,6 +4470,8 @@ struct PanelView: View {
                     DocView(text: t(.docColorFull))
                 case "ocr":
                     DocView(text: t(.docOcrFull))
+                case "vpn":
+                    DocView(text: t(.docVpnFull))
                 case "archive":
                     DocView(text: t(.docArchiveFull))
                 case "keyboard":

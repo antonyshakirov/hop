@@ -23,6 +23,7 @@ final class AppModel: ObservableObject {
     let screenText: ScreenTextController
     let archive = ArchiveController()
     let keyboardLock = KeyboardLockController()
+    let vpn = VPNController()
 
     /// Last time the user actively touched Hop. The updater installs a found
     /// release only after a long enough quiet gap (see UpdateInstallPolicy),

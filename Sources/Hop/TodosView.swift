@@ -284,7 +284,7 @@ struct TodosView: View {
 
     @ViewBuilder private var addRow: some View {
         if adding, !Snapshot.active {
-            HStack(spacing: 4) {
+            HStack(spacing: 8) {
                 TextField(t(.todosNew), text: $draft)
                     .textFieldStyle(.plain)
                     .font(Theme.mono(12))
@@ -295,7 +295,7 @@ struct TodosView: View {
                     .onExitCommand { endAdd() }
                 FieldCommitButtons(onCommit: { commit() }, onCancel: { endAdd() })
             }
-            .padding(.horizontal, 6)
+            .padding(.horizontal, 10)
             .padding(.vertical, 3)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
             // FieldCommitButtons' 18pt icon buttons + this 3pt vertical padding

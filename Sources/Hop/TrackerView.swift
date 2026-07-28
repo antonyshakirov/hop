@@ -606,7 +606,7 @@ struct TrackerView: View {
                 .onExitCommand { endEdit() }
             FieldCommitButtons(onCommit: { commitName() }, onCancel: { endEdit() })
         }
-        .padding(.horizontal, 6)
+        .padding(.horizontal, 10)
         .padding(.vertical, 2)
         .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
         // FieldCommitButtons' 18pt icon buttons + this 2pt vertical padding × 2
