@@ -938,6 +938,49 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 - **The checkbox is drawn 2pt SMALLER than the tracker's play/stop** (`RowCircle.checkboxDiameter` 16 against `diameter` 18): a RING reads bigger than a disc of the same size, and at equal diameters it looked like a different control (Anton, 2026-07-28). The ring is a `strokeBorder`, not a `stroke`, for the same reason — a centred stroke straddles the path and grows the circle by its own 1.5pt.
 
+### VPN
+
+- Every VPN macOS knows about — a client's own configuration, a corporate IKEv2
+  profile, a WireGuard tunnel — with a switch per row. Read and driven through
+  `scutil --nc` (list / start / stop), the same door the system's own menu-bar
+  switch uses. NOT `NEVPNManager`: it only sees configurations the calling app
+  created itself, and reaching another app's tunnel needs an entitlement that
+  comes with a paid developer account.
+- **Nothing is added by hand.** The list IS the system's list: install a client
+  and its configuration appears, remove it and the row goes. There is no "add"
+  button in Hop and there should never be one. A second server shows up as a
+  second row only if the vendor's app creates a second CONFIGURATION for it —
+  macOS's own `+` can only make L2TP, Cisco IPSec and IKEv2, so it cannot add a
+  server to a client that speaks its own protocol.
+- **The row** is the app's name, then in brackets whatever the configuration adds
+  beyond it — a country, a profile. Repeats of the app's own name are stripped,
+  and so are protocol words (`OpenVPN`, `IKEv2`, `WireGuard`…): a protocol tells
+  the user nothing they can act on. So `hidemy.name VPN` shows nothing in
+  brackets, while a configuration named after its country shows `Client (Germany)`.
+  No indicator light in the row — the switch already says on or off.
+- **The country is NEVER guessed from the server's address** (settled 2026-07-29
+  after trying it). The system knows the address and nothing else: no hostname,
+  no reverse DNS. Asking the address registry does return a country — but it is
+  the country the RANGE IS REGISTERED IN, and on the very first live test it said
+  Germany for a server the user had set to the Netherlands. A wrong country
+  stated confidently is worse than no country, and the alternatives cost more
+  than they are worth: a geolocation service would be the first request Hop ever
+  makes to a third party, and an offline database would nearly double a 3.7 MB
+  app. Only what the vendor itself names is shown.
+- **Menu-bar light:** a green dot in the bottom-left corner while any tunnel is
+  up, beside the torrent arrows when those are there — the state worth seeing
+  with the panel closed.
+- **The vendor's window on demand:** the app is not running at all while Hop
+  drives the connection, so it sits in neither the Dock nor the menu bar.
+  Clicking the name launches it, and Hop quits it again once its last ordinary
+  window closes — three quiet ticks and never within two seconds of the window
+  appearing, because a window blinks out of the window-server list during its own
+  startup and the first cut killed the app right after it opened. The connection
+  survives, since the tunnel is held by the system extension rather than the app.
+- Opt-in module (key `"vpn"`, title `vpnLabel`), hidden on a fresh install like
+  the eyedropper and recognition: a Mac with no VPN configured would otherwise
+  get an empty section it never asked for.
+
 ### Color (eyedropper)
 
 - Opt-in module (key `"color"`, title `colorLabel`): a hotkey or the panel's
