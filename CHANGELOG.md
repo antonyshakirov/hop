@@ -21,6 +21,14 @@
 - Values dropped into a translated sentence — a file name, a size, a version
   number — are isolated, so a right-to-left sentence cannot drag the
   neighbouring punctuation to the wrong end of them.
+- Hop's own windows — the converter, archives, recognition, settings and the
+  rest — now appear in the Dock while they are open. A window that could not be
+  reached from the Dock had to be found through the panel every time, and the
+  panel is the whole app when all you wanted back was the converter. The icon
+  appears with the first window and leaves with the last, so an app with
+  nothing open still shows nothing; a click on it brings the window back, even
+  a minimized one. Settings → general can turn it off for anyone who runs a
+  menu-bar app precisely so that nothing appears down there.
 - The memory row speaks up when a lot of memory has gone to disk. Its colour
   had been left entirely to macOS's own memory-pressure signal, which answers
   "am I struggling to hand out pages right now" and nothing else: pages pushed

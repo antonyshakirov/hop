@@ -57,6 +57,7 @@ struct PanelView: View {
     @AppStorage(HotkeyManager.snapHotkeysKey) private var windowsHotkeysOn = true
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
+    @AppStorage(SettingsKey.showWindowsInDock) private var showWindowsInDock = true
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
     @AppStorage(AppIcon.styleKey) private var appIconStyle = "auto"
     // Default ON — registered as a UserDefaults default in applicationDidFinishLaunching,
@@ -3233,6 +3234,22 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Theme.MiniSwitch(isOn: $coloredIndicators)
+            }
+
+            // a Dock icon while one of Hop's own windows is open, so the window
+            // can be reached without opening the panel first. OFF keeps Hop out
+            // of the Dock entirely, which is why some people run a menu-bar app
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(t(.windowsInDock))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $showWindowsInDock)
+                }
+                Text(t(.windowsInDockNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
             }
 
             Rectangle()

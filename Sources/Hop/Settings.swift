@@ -33,6 +33,11 @@ extension Bundle {
 }
 
 enum SettingsKey {
+    /// While one of Hop's own windows is open, put the app in the Dock like any
+    /// other — the window is then reachable by clicking the icon instead of
+    /// going through the panel. ON by default; OFF keeps Hop invisible outside
+    /// the menu bar for people who chose it for exactly that.
+    static let showWindowsInDock = "showWindowsInDock"
     static let showMenuBarCountdown = "showMenuBarCountdown"
     /// Show the active tracker task's ticking "today" time in the menu bar; off by default.
     static let trackerTimeInBar = "trackerTimeInBar"

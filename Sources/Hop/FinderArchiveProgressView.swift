@@ -23,7 +23,8 @@ final class FinderArchiveProgressWindowController: NSObject, NSWindowDelegate {
     let id = UUID()
 
     private let model: FinderArchiveProgressModel
-    private let window: NSWindow
+    /// Read by the app delegate: this window counts towards Hop's Dock presence.
+    let window: NSWindow
     private let onClose: (UUID) -> Void
     private let contentHeight: CGFloat
 

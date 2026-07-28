@@ -1368,6 +1368,37 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   to-dos) — it lives inside the row's flexible spacer, so a non-hovered row
   reserves no width and the trailing content never moves or gets covered.
 
+## Dock presence
+
+Hop is an accessory app (`LSUIElement`, `setActivationPolicy(.accessory)`) and
+has no Dock icon — which is right until it opens a window of its own. A window
+that cannot be reached from the Dock has to be found through the panel every
+time, and the panel is the whole app when all the user wanted back was the
+converter (Anton, 2026-07-28).
+
+- While at least one of Hop's OWN windows is open, the policy is `.regular`:
+  the app takes a Dock icon, a place in Cmd-Tab and a menu bar. The icon and
+  the menu bar leave with the last window (`leaveDockModeIfIdle`, driven by
+  `NSWindow.willCloseNotification` — which arrives while the window still
+  reports itself visible, hence the one-runloop delay before the check).
+- The switch happens BEFORE the window is ordered in (`enterDockMode`, called
+  ahead of every `NSApp.activate` that precedes a window). Switching after it
+  is on screen makes the app blink out of focus and the window drop behind
+  whatever was in front.
+- Counted windows: settings, about, the torrent add sheet, converter, archive,
+  recognition, onboarding and each Finder archive-progress window. NOT the
+  panel — it hangs off the status item and closes on any outside click, so it
+  belongs to the menu bar rather than the Dock. NOT the quit confirmation: it
+  lives for a second and asks one question.
+- A click on the Dock icon reaches the window it is there for, including a
+  minimized one (`applicationShouldHandleReopen` deminiaturizes and raises).
+- `showWindowsInDock` (settings → general) turns it off for people who run a
+  menu-bar app precisely so that nothing appears in the Dock. ON by default.
+- Side effect worth knowing: in `.regular` SwiftUI supplies a real menu bar
+  (Apple · Hop · Edit · View · Window · Help — verified 2026-07-28), so ⌘V in a
+  window goes through the system Edit menu while one is open. The
+  `ConverterPaste` monitor still handles the accessory case and stays.
+
 ## Panel and navigation
 
 - Header: a spaces switcher on the left — one icon tab per space, click to
