@@ -239,9 +239,7 @@ struct TrackerView: View {
                     // A favourite, marked by the card's switch — neutral tokens,
                     // no coloured frame.
                     if task.important {
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 9))
-                            .foregroundStyle(Theme.textSecondary)
+                        StarGlyph(color: Theme.textSecondary, box: 10)
                     }
                     // "there is something inside" — the row's only hint that the
                     // card holds a comment. Inert: the row itself opens the card.

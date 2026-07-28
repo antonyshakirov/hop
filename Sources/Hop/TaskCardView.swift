@@ -101,11 +101,11 @@ struct TaskCardView: View {
             starButton
             if draft.reminder?.date != nil {
                 dayChip
-                NumericField(value: hourBinding, range: 0...23)
+                NumericField(value: hourBinding, range: 0...23, padTo: 2)
                 Text(":")
                     .font(Theme.mono(11, weight: .semibold))
                     .foregroundStyle(Theme.textTertiary)
-                NumericField(value: minuteBinding, range: 0...59)
+                NumericField(value: minuteBinding, range: 0...59, padTo: 2)
             }
             Spacer(minLength: 0)
             FieldCommitButtons(onCommit: onCommit, onCancel: onCancel)
@@ -137,9 +137,8 @@ struct TaskCardView: View {
 
     private var starButton: some View {
         Button { draft.important.toggle() } label: {
-            Image(systemName: draft.important ? "star.fill" : "star")
-                .font(.system(size: 11))
-                .foregroundStyle(draft.important ? Theme.textSecondary : Theme.textTertiary)
+            StarGlyph(color: draft.important ? Theme.textSecondary : Theme.textTertiary,
+                      box: 13, filled: draft.important)
                 .frame(width: 20, height: 20)
                 .contentShape(Rectangle())
         }
@@ -236,10 +235,10 @@ struct TaskCardView: View {
     /// follows the region and can be overridden in settings.
     private var repeatRow: some View {
         HStack(spacing: 4) {
-            Image(systemName: "repeat")
-                .font(.system(size: 9))
-                .foregroundStyle(Theme.textTertiary)
-                .frame(width: 20)
+            // No caption glyph here: a `repeat` icon beside the squares read as
+            // one more button (Anton, 2026-07-28). The row sits under the bell,
+            // which is context enough.
+            Spacer().frame(width: 20)
             ForEach(firstWeekdaySetting.weekOrder, id: \.self) { weekday in
                 weekdaySquare(weekday)
             }

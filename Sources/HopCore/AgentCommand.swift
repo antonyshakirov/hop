@@ -18,7 +18,20 @@ public enum AgentCommand: Equatable, Sendable {
     case trackerStop
     case todoAdd(TodoDraft)
     case todoComplete(text: String)
-    case keepAwake(Bool)
+    case todoDelete(text: String)
+    /// `seconds == nil` means indefinitely.
+    case keepAwake(on: Bool, seconds: Int?)
+    /// Keep working with the lid shut (the display goes dark, the Mac does not).
+    case lidMode(Bool)
+    /// Lock the keyboard for cleaning; `seconds == nil` means until unlocked.
+    case keyboardLock(on: Bool, seconds: Int?)
+    /// Move the frontmost window: "center", "leftHalf", "maximize"…
+    case windowSnap(position: String)
+    case speedTest
+    case colorPick
+    case recognizeText
+    case clipboardCopy(text: String)
+    case openPanel
 
     /// Everything an agent may set on a new to-do in one go.
     public struct TodoDraft: Equatable, Sendable {
@@ -104,8 +117,32 @@ public enum AgentCommandParser {
         case "todo.complete", "task.complete", "todo.done":
             guard let text = nonEmpty(entry["text"] ?? entry["task"] ?? entry["title"]) else { return nil }
             return .todoComplete(text: text)
-        case "keepawake.on", "awake.on": return .keepAwake(true)
-        case "keepawake.off", "awake.off": return .keepAwake(false)
+        case "todo.delete", "task.delete":
+            guard let text = nonEmpty(entry["text"] ?? entry["task"] ?? entry["title"]) else { return nil }
+            return .todoDelete(text: text)
+        case "keepawake.on", "awake.on":
+            // a duration is optional here: "keep the Mac awake" with no number
+            // means until told otherwise
+            return .keepAwake(on: true, seconds: seconds(from: entry))
+        case "keepawake.off", "awake.off": return .keepAwake(on: false, seconds: nil)
+        case "lid.on", "lid.close": return .lidMode(true)
+        case "lid.off": return .lidMode(false)
+        case "keyboard.lock": return .keyboardLock(on: true, seconds: seconds(from: entry))
+        case "keyboard.unlock": return .keyboardLock(on: false, seconds: nil)
+        case "window.snap", "window.move":
+            guard let position = nonEmpty(entry["position"] ?? entry["to"] ?? entry["place"]) else {
+                return nil
+            }
+            return .windowSnap(position: position)
+        case "window.center": return .windowSnap(position: "center")
+        case "window.maximize": return .windowSnap(position: "maximize")
+        case "speedtest.run", "speedtest": return .speedTest
+        case "color.pick", "colorpicker.pick": return .colorPick
+        case "ocr.capture", "text.recognize": return .recognizeText
+        case "clipboard.copy":
+            guard let text = nonEmpty(entry["text"]) else { return nil }
+            return .clipboardCopy(text: text)
+        case "panel.open", "panel.show": return .openPanel
         default: return nil
         }
     }

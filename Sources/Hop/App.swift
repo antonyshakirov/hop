@@ -133,6 +133,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard !Snapshot.active else { return }
         let todos = model.todos
         let bridge = AgentBridge(directory: todos.storeDirectory)
+        bridge.onOpenPanel = { [weak self] in self?.statusController?.togglePanel() }
         bridge.start(model: model)
         agent = bridge
 

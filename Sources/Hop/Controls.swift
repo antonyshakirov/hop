@@ -8,6 +8,15 @@ struct NumericField: View {
     @Binding var value: Int
     let range: ClosedRange<Int>
     var color: Color = Theme.textPrimary
+    /// Minimum digits shown, zero-padded. A clock field passes 2 so single-digit
+    /// hours and minutes read as `09` rather than `9` — "22 : 0" is not a time.
+    var padTo: Int = 0
+
+    private func display(_ value: Int) -> String {
+        let digits = "\(value)"
+        guard digits.count < padTo else { return digits }
+        return String(repeating: "0", count: padTo - digits.count) + digits
+    }
 
     @State private var text = ""
     // Whether the user actually typed since gaining focus. A focus→blur with no
@@ -29,7 +38,7 @@ struct NumericField: View {
             .offset(y: focused ? 1.5 : 0)
             .frame(width: 44, height: 24)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
-            .onAppear { text = "\(value)" }
+            .onAppear { text = display(value) }
             .onChange(of: text) { _, new in
                 let digits = String(new.filter(\.isNumber).prefix(3))
                 if digits != new { text = digits; return }
@@ -40,21 +49,21 @@ struct NumericField: View {
                 if let v = Int(digits), range.contains(v) { value = v }
             }
             .onChange(of: value) { _, v in
-                if !focused { text = "\(v)" }
+                if !focused { text = display(v) }
             }
             .onChange(of: focused) { _, isFocused in
                 if isFocused { edited = false; return }
                 if edited, let v = Int(text) {
                     value = min(max(v, range.lowerBound), range.upperBound)
                 }
-                text = "\(value)"
+                text = display(value)
                 edited = false
             }
             .onSubmit {
                 if edited, let v = Int(text) {
                     value = min(max(v, range.lowerBound), range.upperBound)
                 }
-                text = "\(value)"
+                text = display(value)
                 edited = false
             }
     }
@@ -1050,6 +1059,57 @@ struct PlayGlyph: View {
         // edge (the point only reaches the box's right edge at one pixel),
         // so a geometrically centered triangle reads left-heavy — nudge right.
         .offset(x: box * 0.06)
+    }
+}
+
+/// A five-pointed star as a closed path, so its points can be rounded the way
+/// the play triangle's corners are. SF's `star.fill` comes out needle-sharp next
+/// to the house glyphs (Anton, 2026-07-28).
+private struct StarShape: Shape {
+    var inset: CGFloat = 0
+
+    func path(in rect: CGRect) -> Path {
+        let box = rect.insetBy(dx: inset, dy: inset)
+        let center = CGPoint(x: box.midX, y: box.midY)
+        let outer = min(box.width, box.height) / 2
+        let inner = outer * 0.42
+        var path = Path()
+        for step in 0..<10 {
+            let radius = step.isMultiple(of: 2) ? outer : inner
+            // start at the top point and walk clockwise
+            let angle = -.pi / 2 + CGFloat(step) * .pi / 5
+            let point = CGPoint(x: center.x + cos(angle) * radius,
+                                y: center.y + sin(angle) * radius)
+            step == 0 ? path.move(to: point) : path.addLine(to: point)
+        }
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// The house star: filled or outlined, with rounded points. Same technique as
+/// `PlayGlyph` — fill the path, then stroke it with a round join thick enough to
+/// bulge the corners smooth.
+struct StarGlyph: View {
+    let color: Color
+    var box: CGFloat
+    var filled: Bool = true
+    /// Point rounding as a fraction of `box`. Kept lower than the play glyph's:
+    /// a star has ten corners, and rounding them as hard would turn it into a
+    /// flower.
+    var round: CGFloat = 0.16
+
+    var body: some View {
+        let strokeWidth = box * round
+        let inset = strokeWidth / 2
+        ZStack {
+            if filled { StarShape(inset: inset).fill(color) }
+            StarShape(inset: inset)
+                .stroke(color, style: StrokeStyle(
+                    lineWidth: filled ? strokeWidth : max(1.2, strokeWidth * 0.55),
+                    lineCap: .round, lineJoin: .round))
+        }
+        .frame(width: box, height: box)
     }
 }
 

@@ -106,8 +106,11 @@ final class AgentCommandTests: XCTestCase {
         XCTAssertEqual(parse(#"[{"do":"tracker.start","task":"design"}]"#),
                        [.trackerStart(task: "design")])
         XCTAssertEqual(parse(#"[{"do":"tracker.stop"}]"#), [.trackerStop])
-        XCTAssertEqual(parse(#"[{"do":"keepawake.on"}]"#), [.keepAwake(true)])
-        XCTAssertEqual(parse(#"[{"do":"awake.off"}]"#), [.keepAwake(false)])
+        XCTAssertEqual(parse(#"[{"do":"keepawake.on"}]"#), [.keepAwake(on: true, seconds: nil)])
+        XCTAssertEqual(parse(#"[{"do":"awake.off"}]"#), [.keepAwake(on: false, seconds: nil)])
+        XCTAssertEqual(parse(#"[{"do":"keepawake.on","minutes":30}]"#),
+                       [.keepAwake(on: true, seconds: 1800)],
+                       "a duration is optional but honoured when given")
     }
 
     func testVerbsAreCaseAndSpaceInsensitive() {
@@ -133,7 +136,7 @@ final class AgentCommandTests: XCTestCase {
         XCTAssertEqual(url("hop://timer/pause"), .timerPause)
         XCTAssertEqual(url("hop://timer/reset"), .timerReset)
         XCTAssertEqual(url("hop://stopwatch/start"), .stopwatchStart)
-        XCTAssertEqual(url("hop://awake/on"), .keepAwake(true))
+        XCTAssertEqual(url("hop://awake/on"), .keepAwake(on: true, seconds: nil))
     }
 
     func testLinkAddsATodoWithItsFields() {
@@ -142,6 +145,31 @@ final class AgentCommandTests: XCTestCase {
         XCTAssertEqual(draft.text, "call the notary")
         XCTAssertTrue(draft.important, "a query carries booleans as text")
         XCTAssertEqual(draft.repeatDays, [2, 4], "a query cannot hold an array — mon,wed")
+    }
+
+    // MARK: - The rest of the app
+
+    func testTheWiderSurface() {
+        XCTAssertEqual(parse(#"[{"do":"lid.on"}]"#), [.lidMode(true)])
+        XCTAssertEqual(parse(#"[{"do":"keyboard.lock","minutes":2}]"#),
+                       [.keyboardLock(on: true, seconds: 120)])
+        XCTAssertEqual(parse(#"[{"do":"keyboard.unlock"}]"#), [.keyboardLock(on: false, seconds: nil)])
+        XCTAssertEqual(parse(#"[{"do":"window.snap","position":"leftHalf"}]"#),
+                       [.windowSnap(position: "leftHalf")])
+        XCTAssertEqual(parse(#"[{"do":"window.center"}]"#), [.windowSnap(position: "center")])
+        XCTAssertEqual(parse(#"[{"do":"speedtest.run"}]"#), [.speedTest])
+        XCTAssertEqual(parse(#"[{"do":"color.pick"}]"#), [.colorPick])
+        XCTAssertEqual(parse(#"[{"do":"ocr.capture"}]"#), [.recognizeText])
+        XCTAssertEqual(parse(#"[{"do":"clipboard.copy","text":"hello"}]"#),
+                       [.clipboardCopy(text: "hello")])
+        XCTAssertEqual(parse(#"[{"do":"panel.open"}]"#), [.openPanel])
+        XCTAssertEqual(parse(#"[{"do":"todo.delete","text":"old task"}]"#),
+                       [.todoDelete(text: "old task")])
+    }
+
+    func testCommandsThatNeedAValueAreSkippedWithoutOne() {
+        XCTAssertEqual(parse(#"[{"do":"window.snap"}]"#), [])
+        XCTAssertEqual(parse(#"[{"do":"clipboard.copy"}]"#), [])
     }
 
     func testAForeignSchemeIsRefused() {

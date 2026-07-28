@@ -53,9 +53,6 @@ struct PanelView: View {
     @AppStorage(SettingsKey.todoRemindMark) private var todoRemindMark = true
     @AppStorage(SettingsKey.todoImportantOnTop) private var todoImportantOnTop = false
     @AppStorage(SettingsKey.trackerImportantOnTop) private var trackerImportantOnTop = false
-    /// Space-separated Vision tags; empty = automatic detection. Stored as one
-    /// string because @AppStorage cannot hold an array.
-    @AppStorage(SettingsKey.screenTextLanguages) private var screenTextLanguages = ""
     @AppStorage(SettingsKey.firstWeekday) private var firstWeekday = FirstWeekday.auto
     @AppStorage("timerCompact") private var timerCompact = true
     @AppStorage("displayStyle") private var displayStyle = "dots" // dots | text | units
@@ -3512,11 +3509,6 @@ struct PanelView: View {
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
-                settingsSectionHeader(t(.ocrLabel))
-                recognitionLanguagesSetting
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
                 settingsSectionHeader(t(.convertLabel))
                 converterSettings
             }
@@ -3771,57 +3763,6 @@ struct PanelView: View {
         }
     }
 
-    /// Which languages text recognition asks Vision for. `auto` — the default —
-    /// lets Vision detect the script, which is what reads a screen carrying
-    /// several writing systems at once; naming languages is for someone who
-    /// always reads one and wants the faster pass. Picking a language is
-    /// therefore NOT "more multilingual", and the wording must not imply it.
-    private var recognitionLanguagesSetting: some View {
-        HStack {
-            Text(t(.settingsRecognitionLanguages))
-                .font(Theme.mono(12))
-                .foregroundStyle(Theme.textPrimary)
-            Spacer()
-            Menu {
-                Button(t(.recognitionLanguagesAuto)) { screenTextLanguages = "" }
-                Divider()
-                ForEach(ScreenTextLanguages.supported, id: \.tag) { language in
-                    Button {
-                        toggleRecognitionLanguage(language.tag)
-                    } label: {
-                        Text(selectedRecognitionLanguages.contains(language.tag)
-                             ? "✓ \(language.name)" : language.name)
-                    }
-                }
-            } label: {
-                Text(recognitionLanguagesSummary)
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textSecondary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .frame(maxWidth: 150, alignment: .trailing)
-            }
-            .menuStyle(.borderlessButton)
-            .fixedSize()
-        }
-    }
-
-    private var selectedRecognitionLanguages: [String] {
-        ScreenTextLanguages.selected(from: screenTextLanguages)
-    }
-
-    private var recognitionLanguagesSummary: String {
-        let selected = selectedRecognitionLanguages
-        guard !selected.isEmpty else { return t(.recognitionLanguagesAuto) }
-        return selected.compactMap { ScreenTextLanguages.name(for: $0) }.joined(separator: " · ")
-    }
-
-    private func toggleRecognitionLanguage(_ tag: String) {
-        var selected = selectedRecognitionLanguages
-        if let index = selected.firstIndex(of: tag) { selected.remove(at: index) } else { selected.append(tag) }
-        screenTextLanguages = selected.joined(separator: " ")
-    }
-
     /// Which day the reminder's weekday row starts on. Defaults to the system's
     /// region — the US counts a week from Sunday, most of Europe from Monday —
     /// and can be overridden, because people move and their habits do not.
@@ -3832,13 +3773,13 @@ struct PanelView: View {
                 .foregroundStyle(Theme.textPrimary)
             Spacer()
             Menu {
-                Button(t(.recognitionLanguagesAuto)) { firstWeekday = .auto }
+                Button(t(.settingsAuto)) { firstWeekday = .auto }
                 Divider()
                 Button(FirstWeekday.name(for: 2)) { firstWeekday = .monday }
                 Button(FirstWeekday.name(for: 1)) { firstWeekday = .sunday }
             } label: {
                 Text(firstWeekday == .auto
-                     ? "\(t(.recognitionLanguagesAuto)) · \(FirstWeekday.name(for: FirstWeekday.auto.weekdayNumber))"
+                     ? "\(t(.settingsAuto)) · \(FirstWeekday.name(for: FirstWeekday.auto.weekdayNumber))"
                      : firstWeekday.label)
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)

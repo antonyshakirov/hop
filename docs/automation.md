@@ -27,6 +27,8 @@ Everything lives in
   },
   "tracking": { "task": "design", "todaySeconds": 5400 },
   "keepAwake": false,
+  "lidMode": false,
+  "keyboardLocked": false,
   "todos": [
     {
       "id": "72D31DD8-A52F-466E-86B6-F5BB37D44D0F",
@@ -71,7 +73,17 @@ A file it cannot use at all is left alone rather than silently discarded.
 | `tracker.stop` | — | Stops the active task |
 | `todo.add` | `text`, `note`, `remindAt`, `repeatDays`, `important` | Adds a to-do |
 | `todo.complete` | `text` | Ticks the matching to-do |
-| `keepawake.on` / `keepawake.off` | — | Keeps the Mac awake |
+| `todo.delete` | `text` | Removes it |
+| `keepawake.on` / `keepawake.off` | `minutes` (optional) | Keeps the Mac awake, for a while or until told otherwise |
+| `lid.on` / `lid.off` | — | Keep working with the lid shut |
+| `keyboard.lock` / `keyboard.unlock` | `minutes` (optional) | Locks the keyboard for cleaning |
+| `window.snap` | `position` | Moves the frontmost window: `center`, `maximize`, `leftHalf`, `rightHalf`, `topHalf`, `bottomHalf`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight`, `leftThird`, `centerThird`, `rightThird`, `leftTwoThirds`, `rightTwoThirds`, `centerHalf`, `topThird`, `bottomThird` |
+| `window.center` / `window.maximize` | — | Shorthands for the two common ones |
+| `speedtest.run` | — | Runs a speed test |
+| `color.pick` | — | Opens the eyedropper |
+| `ocr.capture` | — | Starts a screen-text selection |
+| `clipboard.copy` | `text` | Puts text on the pasteboard and into the history |
+| `panel.open` | — | Opens Hop's panel |
 
 The parser is deliberately forgiving, because the thing writing the file is often
 a language model:
@@ -93,7 +105,10 @@ hop://timer/start?minutes=16
 hop://timer/pause
 hop://todo/add?text=call%20the%20notary&important=true&repeatDays=mon,wed
 hop://tracker/start?task=design
-hop://awake/on
+hop://awake/on?minutes=30
+hop://window/snap?position=center
+hop://keyboard/lock?minutes=2
+hop://lid/on
 ```
 
 From a terminal or a script: `open "hop://timer/start?minutes=16"`.

@@ -23,9 +23,12 @@
   language when you always read the same one and want the faster pass.
 - Hop can be driven from outside. Two plain JSON files next to its data — one it
   performs commands from, one it publishes its state to — plus `hop://` links, so
-  your own AI agent, a script or a Shortcut can start a timer, add a task with a
-  reminder, or read what is running. A task written straight into the file now
-  shows up while the app is running instead of waiting for a restart.
+  your own AI agent, a script or a Shortcut can drive nearly the whole app: the
+  timer and stopwatch, time tracking, adding a task with a reminder and a repeat,
+  keeping the Mac awake for a while, lid mode, the keyboard lock, snapping the
+  front window anywhere, the speed test, the eyedropper, recognition, the
+  clipboard. A task written straight into the file now shows up while the app is
+  running instead of waiting for a restart.
 
 ## 1.5.2 — 2026-07-28
 

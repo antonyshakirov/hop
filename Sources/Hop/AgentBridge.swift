@@ -22,6 +22,8 @@ final class AgentBridge {
 
     private let directory: URL
     private weak var model: AppModel?
+    /// Opening the panel belongs to the status item, not the model — wired at launch.
+    var onOpenPanel: (() -> Void)?
     private var commandWatcher: FileWatcher?
     private var stateTicker: Timer?
 
@@ -120,20 +122,59 @@ final class AgentBridge {
                 model.todos.setReminder(id, at: at, repeatDays: draft.repeatDays)
             }
         case .todoComplete(let text):
-            let match = model.todos.list.items.first {
-                !$0.done && $0.text.compare(text, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+            if let match = matchingTodo(text, in: model), !match.done {
+                model.todos.toggle(match.id)
             }
-            if let match { model.todos.toggle(match.id) }
-        case .keepAwake(let on):
+        case .todoDelete(let text):
+            if let match = matchingTodo(text, in: model) { model.todos.delete(match.id) }
+        case .keepAwake(let on, let seconds):
             if on {
-                // the indefinite option — an agent asking to keep the Mac awake
-                // has no way to mean "for 30 minutes" unless it says so
-                if let indefinite = KeepAwakeController.options.first(where: { $0.seconds == nil }) {
-                    model.keepAwake.activate(indefinite)
-                }
+                // With no duration this means "until told otherwise" — an agent
+                // that wants 30 minutes has to say so.
+                let option = seconds.map { KeepAwakeController.Option(label: "agent",
+                                                                     seconds: TimeInterval($0)) }
+                    ?? KeepAwakeController.options.first { $0.seconds == nil }
+                if let option { model.keepAwake.activate(option) }
             } else {
                 model.keepAwake.deactivate()
             }
+        case .lidMode(let on):
+            // The lid switch is a stored preference the controller reads, so set
+            // it and let the controller apply the change.
+            if UserDefaults.standard.bool(forKey: KeepAwakeController.lidKey) != on {
+                UserDefaults.standard.set(on, forKey: KeepAwakeController.lidKey)
+                model.keepAwake.toggleLid()
+            }
+        case .keyboardLock(let on, let seconds):
+            on ? model.keyboardLock.lock(seconds: seconds) : model.keyboardLock.unlock()
+        case .windowSnap(let name):
+            // Accept "leftHalf" and "left-half" alike; a name nobody recognises
+            // is skipped rather than guessed at.
+            let normalized = name.replacingOccurrences(of: "-", with: "")
+                .replacingOccurrences(of: "_", with: "")
+                .lowercased()
+            guard let position = WindowSnapController.Position.allCases.first(where: {
+                $0.rawValue.lowercased() == normalized
+            }) else { return }
+            WindowSnapController.shared.apply(position)
+        case .speedTest:
+            model.speedTest.run()
+        case .colorPick:
+            model.colorPicker.pick()
+        case .recognizeText:
+            model.screenText.capture()
+        case .clipboardCopy(let text):
+            model.clipboard.remember(external: text)
+        case .openPanel:
+            onOpenPanel?()
+        }
+    }
+
+    /// The first task whose text matches, ignoring case and accents — an agent
+    /// names a task the way a person would, not by id.
+    private func matchingTodo(_ text: String, in model: AppModel) -> TodoItem? {
+        model.todos.list.items.first {
+            $0.text.compare(text, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
         }
     }
 
@@ -153,6 +194,8 @@ final class AgentBridge {
                 "durationSeconds": Int(timer.duration),
             ],
             "keepAwake": model.keepAwake.isActive,
+            "lidMode": model.keepAwake.lidApplied,
+            "keyboardLocked": model.keyboardLock.isLocked,
         ]
         let engine = model.tracker.engine
         if let activeID = engine.activeTaskID,

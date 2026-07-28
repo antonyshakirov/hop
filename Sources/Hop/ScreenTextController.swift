@@ -215,13 +215,6 @@ final class ScreenTextController: ObservableObject {
     /// the same walk over the same pixels. Runs off the main thread — recognition
     /// on a large selection takes long enough to stutter the UI.
     private nonisolated static func read(_ file: URL) async -> String? {
-        let supported = (try? VNRecognizeTextRequest().supportedRecognitionLanguages()) ?? []
-        let selected = ScreenTextLanguages.selected(
-            from: UserDefaults.standard.string(forKey: SettingsKey.screenTextLanguages) ?? "")
-        let languages = RecognitionPlan.languages(selected: selected, supported: supported)
-        let detectsAutomatically = RecognitionPlan.detectsAutomatically(selected: selected,
-                                                                       supported: supported)
-
         return await Task.detached(priority: .userInitiated) {
             guard let source = CGImageSourceCreateWithURL(file as CFURL, nil),
                   let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { return nil }
@@ -229,17 +222,13 @@ final class ScreenTextController: ObservableObject {
             let textRequest = VNRecognizeTextRequest()
             textRequest.recognitionLevel = .accurate
             textRequest.usesLanguageCorrection = true
-            // Letting Vision pick the script is what makes a screen with several
-            // of them readable AT ONCE: measured on a six-script image, detection
-            // returned all six, while naming those same six languages explicitly
-            // lost the Russian, Arabic and Thai lines outright. A named list is
-            // therefore an opt-in for people who want one language and the ~4x
-            // faster pass that comes with it.
-            if detectsAutomatically {
-                textRequest.automaticallyDetectsLanguage = true
-            } else {
-                textRequest.recognitionLanguages = languages
-            }
+            // Vision picks the script itself, always. Measured on a six-script
+            // image, detection returned ALL SIX, while naming those same six
+            // languages explicitly lost the Russian, Arabic and Thai lines. There
+            // is deliberately NO language setting: nobody would find it, and
+            // naming languages makes recognition worse rather than better
+            // (Anton, 2026-07-28).
+            textRequest.automaticallyDetectsLanguage = true
             let codeRequest = VNDetectBarcodesRequest()
 
             let handler = VNImageRequestHandler(cgImage: image, options: [:])

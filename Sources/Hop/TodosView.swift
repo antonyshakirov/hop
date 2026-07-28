@@ -204,9 +204,7 @@ struct TodosView: View {
             // in neutral tokens — a coloured frame read as a warning rather than
             // "this one matters" (Anton, 2026-07-28).
             if item.important {
-                Image(systemName: "star.fill")
-                    .font(.system(size: 9))
-                    .foregroundStyle(Theme.textSecondary)
+                StarGlyph(color: Theme.textSecondary, box: 10)
             }
             // "there is something inside" — the collapsed row's only hint that
             // the card holds a comment. Inert: the whole row opens the card.

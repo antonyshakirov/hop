@@ -1018,16 +1018,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Thai lines in 167 ms, and `en-US` alone garbled the Japanese and missed the
   rest. On Latin pages detection matched the explicit list exactly, including the
   mixed Latin/Cyrillic screen an older comment cited as the reason to avoid it.
-  So detection is the DEFAULT and a named list is an opt-in for one language and
-  a ~4× faster pass (`recognition languages` in settings, `screenTextLanguages`,
-  space-separated Vision tags; empty = auto). Two findings are load-bearing and
+  So detection is ALWAYS on and there is deliberately NO language setting: an
+  earlier cut shipped one and Anton removed it the same day — nobody would find
+  it, and naming languages makes recognition worse, not better. Two findings are
+  load-bearing and
   must not be re-litigated without new measurements: Vision's CONFIDENCE cannot
   judge a reading (a wrong-language pass over Chinese reported 1.00 while
   producing nonsense), so no scoring or threshold decides anything here; and
   naming many languages HURTS, so the setting must never be described as making
   recognition "more multilingual". `RecognitionPlan` (pure, tested) maps the
   selection onto what the machine supports — a tag Vision does not list makes the
-  WHOLE request fail, so unsupported tags are dropped.
+  WHOLE request fail.
 - **A reading that holds a web address can be FOLLOWED** (Anton, 2026-07-27):
   the window shows an "open link" button that hands the address to the default
   browser. This is the point of reading a QR code on the Mac rather than
@@ -1418,7 +1419,12 @@ taught anything.
   This is what a Shortcut can open, which is how Siri reaches Hop in whatever
   language the user speaks to it: the phrase is the Shortcut's own name, so it
   needs no localization from us.
-- The vocabulary is a CLOSED list of verbs (`AgentCommand`), not "set any field":
+- The vocabulary covers the app rather than one module: the timer and stopwatch,
+  the tracker, to-dos (add with note/reminder/repeat/star, complete, delete),
+  keep-awake with an optional duration, lid mode, the keyboard lock, window
+  snapping to any of its 18 positions, the speed test, the eyedropper, text
+  recognition, putting text on the clipboard, and opening the panel.
+- It is a CLOSED list of verbs (`AgentCommand`), not "set any field":
   `timer.start` is unambiguous, while a declarative "timer: running" would leave
   the app guessing whether to restart a timer the user just paused. Parsing is
   deliberately forgiving (`AgentCommandParser`, pure, tested) — the writer is a
