@@ -24,7 +24,6 @@ struct TrackerView: View {
     /// suffices. Gated off `Snapshot.active` so demo renders never show a field.
     private enum Field: Hashable {
         case newTask
-        case renameTask(UUID)
         case editTotal(UUID)        // taskID
     }
 
@@ -43,6 +42,10 @@ struct TrackerView: View {
     @FocusState private var focused: Field?
 
     @State private var confirmingDeleteTask: UUID?
+    // Which task is expanded into its card, and the draft it is editing. One card
+    // at a time, exactly like the to-do list.
+    @State private var expandedTask: UUID?
+    @State private var card: TaskCardDraft?
     // Which row's trailing xmark is revealed (hover-only).
     @State private var hovered: UUID?
 
@@ -71,6 +74,9 @@ struct TrackerView: View {
     /// "visible rows" cap: 0 = all (default), 3…15 caps the task list to a fixed
     /// height with inner scroll (the 8h warning is pinned outside the scroll).
     @AppStorage(TrackerController.visibleRowsKey) private var visibleRows = TrackerController.defaultVisibleRows
+    /// Float important tasks to the top. OFF by default — the mark alone moves
+    /// nothing, which keeps the hand-built order the user's own.
+    @AppStorage(SettingsKey.trackerImportantOnTop) private var importantOnTop = false
 
     private var engine: TrackerEngine { tracker.engine }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -94,8 +100,13 @@ struct TrackerView: View {
         // read the heartbeat so every label (and the 8h warning) recomputes
         // while a task is tracking
         let _ = tracker.heartbeat
-        let rootIDs = engine.data.rootOrder
         let taskByID = Dictionary(engine.data.tasks.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        // Display-only ordering: the stored rootOrder is never touched by the
+        // importance mark, so switching the setting off restores the hand order.
+        let rootIDs = TrackerDisplay
+            .order(engine.data.rootOrder.compactMap { taskByID[$0] },
+                   importantFirst: importantOnTop && !Snapshot.active)
+            .map(\.id)
         let capped = trackerCapped
         let taskRows = VStack(alignment: .leading, spacing: 3) {
             ForEach(rootIDs, id: \.self) { id in
@@ -141,6 +152,7 @@ struct TrackerView: View {
             // it here, the same way PanelView drops its inline icon picker.
             endEdit()
             clearConfirms()
+            collapseCard()
             resetScrub()
             resetDrag()
         }
@@ -161,11 +173,26 @@ struct TrackerView: View {
     // MARK: - Task row
 
     @ViewBuilder private func taskRow(_ task: TrackerTask) -> some View {
+        if expandedTask == task.id, card != nil, !Snapshot.active {
+            TaskCardView(draft: Binding(get: { card ?? TaskCardDraft(text: task.name,
+                                                                    note: task.note,
+                                                                    important: task.important) },
+                                        set: { card = $0 }),
+                         lang: lang,
+                         onCommit: { commitCard(task) },
+                         onCancel: { collapseCard() })
+                .padding(.horizontal, 2)
+                .background(rowFrameReader(task.id))
+        } else {
+            collapsedTaskRow(task)
+        }
+    }
+
+    @ViewBuilder private func collapsedTaskRow(_ task: TrackerTask) -> some View {
         let active = engine.activeTaskID == task.id
         // The hover xmark shows only in the normal display state — not while a
         // confirm or an inline field owns the row's tail.
         let showsHoverX = confirmingDeleteTask != task.id
-            && !isEditing(.renameTask(task.id))
             && !isEditing(.editTotal(task.id))
         Group {
             if confirmingDeleteTask == task.id {
@@ -190,8 +217,6 @@ struct TrackerView: View {
                     // (no tap-to-edit / scrub until the confirm resolves).
                     totalView(task, active: active, interactive: false)
                 }
-            } else if isEditing(.renameTask(task.id)) {
-                nameField(.renameTask(task.id), placeholder: task.name)
             } else if isEditing(.editTotal(task.id)) {
                 // typing the total: the field + its ✓/✕ own the row's tail,
                 // so the total label steps aside for a clean edit line.
@@ -211,6 +236,13 @@ struct TrackerView: View {
                     playStop(task, active: active)
                     taskName(task)
                     Spacer(minLength: 6)
+                    // "there is something inside" — the row's only hint that the
+                    // card holds a comment. Inert: the row itself opens the card.
+                    if !task.note.isEmpty {
+                        Image(systemName: "text.alignleft")
+                            .font(.system(size: 9))
+                            .foregroundStyle(Theme.textTertiary)
+                    }
                     if showsHoverX, hovered == task.id {
                         HoverDeleteX { confirmingDeleteTask = task.id }
                     }
@@ -225,11 +257,19 @@ struct TrackerView: View {
         // (22pt content + this 2pt vertical padding × 2), with zero growth.
         .padding(.vertical, 2)
         .padding(.horizontal, 2)
+        // An overlay rather than a border: the frame must not add height, or the
+        // row would stop matching to-dos' 26pt and RowCap's height maths.
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .strokeBorder(Theme.accentOrange.opacity(0.55), lineWidth: 1)
+                .opacity(task.important ? 1 : 0)
+        )
         .background(rowFrameReader(task.id))
         // whole-row drag surface: grabbing anywhere reorders (see dragGesture).
         // While the list scrolls (capped), the row gesture stands down
         // (`.subviews`) so the pan scrolls and the total-scrub/taps keep working.
         .contentShape(Rectangle())
+        .onTapGesture { expandCard(task) }
         .gesture(dragGesture(task.id), including: trackerCapped ? .subviews : .all)
         .opacity(dragTask == task.id ? 0.4 : 1)
         .offset(dragTask == task.id ? dragTranslation : .zero)
@@ -258,14 +298,42 @@ struct TrackerView: View {
         .hoverDim()
     }
 
-    // Rename is a row-level branch (see taskRow), so the name here is display-only.
+    /// Display-only: renaming happens in the card, which the row opens on a tap.
+    /// A double click lands there too — one editing route, not two.
     private func taskName(_ task: TrackerTask) -> some View {
         Text(task.name)
             .font(Theme.mono(12))
             .foregroundStyle(Theme.listText)
             .lineLimit(1)
             .truncationMode(.tail)
-            .onTapGesture(count: 2) { beginRenameTask(task) }
+    }
+
+    // MARK: - Card lifecycle
+
+    private func expandCard(_ task: TrackerTask) {
+        guard !Snapshot.active, expandedTask != task.id else { return }
+        endEdit()
+        clearConfirms()
+        card = TaskCardDraft(text: task.name, note: task.note, important: task.important)
+        expandedTask = task.id
+    }
+
+    private func collapseCard() {
+        expandedTask = nil
+        card = nil
+    }
+
+    /// Writes the draft back through the engine's own mutators, each of which
+    /// no-ops on an unchanged value, so an untouched field saves nothing.
+    private func commitCard(_ task: TrackerTask) {
+        guard let card else { return collapseCard() }
+        let trimmed = card.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty, trimmed != task.name { engine.renameTask(task.id, to: trimmed) }
+        engine.setNote(taskID: task.id, to: card.note)
+        withAnimation(.easeInOut(duration: 0.22)) {
+            engine.setImportant(taskID: task.id, card.important)
+        }
+        collapseCard()
     }
 
     // MARK: - 8-hour warning
@@ -416,15 +484,17 @@ struct TrackerView: View {
                         return
                     }
                     dragTask = id
-                    // a drag must not fight an open field or a pending confirm
+                    // a drag must not fight an open field, a pending confirm or
+                    // an open card, whose own fields want the pointer
                     endEdit()
                     clearConfirms()
+                    collapseCard()
                 }
                 dragTranslation = value.translation
-                dropIndex = resolveDrop(at: value.location.y)
+                dropIndex = clampedDrop(id, at: value.location.y)
             }
             .onEnded { value in
-                if dragTask == id { commitDrop(id, resolveDrop(at: value.location.y)) }
+                if dragTask == id { commitDrop(id, clampedDrop(id, at: value.location.y)) }
                 resetDrag()
             }
     }
@@ -435,6 +505,19 @@ struct TrackerView: View {
     private func resolveDrop(at y: CGFloat) -> Int {
         let others = engine.data.rootOrder.filter { $0 != dragTask }
         return others.filter { (rowFrames[$0]?.midY ?? .greatestFiniteMagnitude) < y }.count
+    }
+
+    /// The drop index, clamped into the dragged task's importance group while
+    /// "important on top" is on — otherwise the list is one group and nothing is
+    /// clamped, exactly as before.
+    private func clampedDrop(_ id: UUID, at y: CGFloat) -> Int {
+        let raw = resolveDrop(at: y)
+        guard importantOnTop else { return raw }
+        let taskByID = Dictionary(engine.data.tasks.map { ($0.id, $0) },
+                                  uniquingKeysWith: { a, _ in a })
+        let ordered = engine.data.rootOrder.compactMap { taskByID[$0] }
+        return TrackerDisplay.clampedInsertion(ordered, dragging: id, rawInsertion: raw,
+                                               importantFirst: true)
     }
 
     private func commitDrop(_ id: UUID, _ toIndex: Int?) {
@@ -543,13 +626,6 @@ struct TrackerView: View {
         activeField = .newTask
     }
 
-    private func beginRenameTask(_ task: TrackerTask) {
-        guard !Snapshot.active else { return }
-        clearConfirms()
-        nameDraft = task.name
-        activeField = .renameTask(task.id)
-    }
-
     private func beginEditTotal(_ task: TrackerTask) {
         guard !Snapshot.active, engine.activeTaskID != task.id else { return }
         clearConfirms()
@@ -569,7 +645,6 @@ struct TrackerView: View {
         guard !name.isEmpty else { return }   // empty input = cancel
         switch activeField {
         case .newTask: engine.addTask(name: name)
-        case .renameTask(let id): engine.renameTask(id, to: name)
         default: break
         }
     }
