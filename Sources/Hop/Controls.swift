@@ -33,9 +33,9 @@ struct NumericField: View {
             .font(Theme.mono(11, weight: .semibold))
             .foregroundStyle(color)
             .multilineTextAlignment(.center)
-            // the AppKit field editor lifts the text by ~1.5px on focus —
-            // compensate so the digit doesn't hop
-            .offset(y: focused ? 1.5 : 0)
+            // No focus nudge: the compensation for AppKit's old field-editor
+            // lift now IS the jump — clicking a field visibly dropped the digits
+            // (Anton, 2026-07-28).
             .frame(width: 44, height: 24)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
             .onAppear { text = display(value) }
@@ -1067,8 +1067,21 @@ struct PlayGlyph: View {
 /// to the house glyphs (Anton, 2026-07-28).
 private struct StarShape: Shape {
     var inset: CGFloat = 0
+    /// Corner rounding as a fraction of the box. The rounded outline is baked
+    /// into the PATH (stroke it, then union with itself), so the shape can be
+    /// filled once — filling and stroking separately made a translucent colour
+    /// pile up along the rim and read as a glow (Anton, 2026-07-28).
+    var round: CGFloat = 0
 
     func path(in rect: CGRect) -> Path {
+        let star = points(in: rect)
+        guard round > 0 else { return star }
+        let width = min(rect.width, rect.height) * round
+        return star.union(star.strokedPath(
+            StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)))
+    }
+
+    private func points(in rect: CGRect) -> Path {
         let box = rect.insetBy(dx: inset, dy: inset)
         let center = CGPoint(x: box.midX, y: box.midY)
         let outer = min(box.width, box.height) / 2
@@ -1100,14 +1113,16 @@ struct StarGlyph: View {
     var round: CGFloat = 0.16
 
     var body: some View {
-        let strokeWidth = box * round
-        let inset = strokeWidth / 2
-        ZStack {
-            if filled { StarShape(inset: inset).fill(color) }
-            StarShape(inset: inset)
-                .stroke(color, style: StrokeStyle(
-                    lineWidth: filled ? strokeWidth : max(1.2, strokeWidth * 0.55),
-                    lineCap: .round, lineJoin: .round))
+        let shape = StarShape(inset: box * round / 2, round: round)
+        Group {
+            // Filled = a flat solid shape, nothing on top of it. Outlined = the
+            // same rounded silhouette drawn as a thin line.
+            if filled {
+                shape.fill(color)
+            } else {
+                shape.stroke(color, style: StrokeStyle(lineWidth: max(1.1, box * 0.09),
+                                                       lineCap: .round, lineJoin: .round))
+            }
         }
         .frame(width: box, height: box)
     }

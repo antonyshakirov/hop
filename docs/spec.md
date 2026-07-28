@@ -866,7 +866,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Return for a new line, so committing is the ✓ button and Escape abandons.
   Beneath them sit two icon switches — a bell (arm/clear the reminder) and a star
   (favourite) — and, once a reminder exists, its day chip and `HH:MM` fields
-  (`NumericField`, the timer's family). An earlier cut labelled every line
+  (`NumericField` with `padTo: 2`, so a clock reads `22:00` rather than `22:0`;
+  the field carries NO focus offset — the old ~1.5pt compensation for AppKit's
+  field-editor lift now IS the jump). The day menu reaches a month out. An earlier cut labelled every line
   (`task`, `note`, `remind`, `important`) and paired the star with a toggle; it
   was rejected as too much furniture for one decision and because plain labels
   next to tappable text were indistinguishable (Anton, 2026-07-28). Opening a
@@ -881,7 +883,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   spacer — the only hint that there is something inside. Inert: the row itself
   opens the card.
 - **Favourites:** `important` on both models. The card's star sets it; the
-  collapsed row shows a `star.fill` in neutral tokens. A coloured frame was tried
+  collapsed row shows the same star. It is the house `StarGlyph`, not SF's
+  needle-sharp `star.fill`, and its rounded outline is baked into ONE path —
+  filling and stroking separately made a translucent token pile up along the rim
+  and read as a glow. A coloured frame was tried
   first and rejected — it read as a warning rather than "this one matters"
   (Anton, 2026-07-28). Per-module `important tasks on top` settings
   (`todoImportantOnTop`, `trackerImportantOnTop`, both OFF) turn the mark into a

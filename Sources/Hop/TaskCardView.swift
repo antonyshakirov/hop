@@ -154,7 +154,7 @@ struct TaskCardView: View {
             Button(t(.todoRemindToday)) { setDay(offset: 0) }
             Button(t(.todoRemindTomorrow)) { setDay(offset: 1) }
             Divider()
-            ForEach(2..<15, id: \.self) { offset in
+            ForEach(2..<31, id: \.self) { offset in
                 Button(Self.dayLabel(offset: offset)) { setDay(offset: offset) }
             }
         } label: {
@@ -222,9 +222,9 @@ struct TaskCardView: View {
             },
             set: { newValue in
                 guard let date = draft.reminder?.date else { return }
-                draft.reminder?.date = Calendar.current.date(
-                    bySetting: component, value: min(max(newValue, range.lowerBound), range.upperBound),
-                    of: date) ?? date
+                draft.reminder?.date = RemindSchedule.replacing(
+                    component, with: min(max(newValue, range.lowerBound), range.upperBound),
+                    in: date, calendar: .current)
             }
         )
     }

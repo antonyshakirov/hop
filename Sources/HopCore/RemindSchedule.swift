@@ -28,6 +28,23 @@ public enum RemindSchedule {
         return best
     }
 
+    /// A date with ONE clock component replaced, keeping the rest of it.
+    ///
+    /// Not `Calendar.date(bySetting:value:of:)`: that searches for the NEXT date
+    /// whose component equals the value, so setting "17 minutes" on a 22:30 date
+    /// returns 23:17. A reminder typed as 22:17 silently became an hour later and
+    /// never fired (Anton, 2026-07-28).
+    public static func replacing(_ component: Calendar.Component, with value: Int,
+                                 in date: Date, calendar: Calendar) -> Date {
+        var fields = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+        switch component {
+        case .hour: fields.hour = max(0, min(23, value))
+        case .minute: fields.minute = max(0, min(59, value))
+        default: return date
+        }
+        return calendar.date(from: fields) ?? date
+    }
+
     /// The time the item actually fires next: a live snooze wins over the schedule.
     public static func effectiveFiring(_ item: TodoItem) -> Date? {
         item.snoozedUntil ?? item.remindAt

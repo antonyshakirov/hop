@@ -169,6 +169,35 @@ final class RemindScheduleTests: XCTestCase {
         XCTAssertEqual(out, item)
     }
 
+    // MARK: - replacing() — the bug that made a typed time silently wrong
+
+    func testReplacingMinuteKeepsTheHourEvenWhenTheMinuteIsEarlier() {
+        // The regression: Calendar's own date(bySetting:) returned 23:17 here.
+        let out = RemindSchedule.replacing(.minute, with: 17,
+                                           in: date("2026-07-28 22:30"), calendar: cal)
+        XCTAssertEqual(out, date("2026-07-28 22:17"))
+    }
+
+    func testReplacingHourKeepsTheMinuteAndTheDay() {
+        let out = RemindSchedule.replacing(.hour, with: 9,
+                                           in: date("2026-07-28 22:30"), calendar: cal)
+        XCTAssertEqual(out, date("2026-07-28 09:30"))
+    }
+
+    func testReplacingClampsOutOfRangeValues() {
+        XCTAssertEqual(RemindSchedule.replacing(.hour, with: 99,
+                                                in: date("2026-07-28 10:00"), calendar: cal),
+                       date("2026-07-28 23:00"))
+        XCTAssertEqual(RemindSchedule.replacing(.minute, with: -5,
+                                                in: date("2026-07-28 10:30"), calendar: cal),
+                       date("2026-07-28 10:00"))
+    }
+
+    func testReplacingAnythingElseLeavesTheDateAlone() {
+        let original = date("2026-07-28 10:30")
+        XCTAssertEqual(RemindSchedule.replacing(.day, with: 3, in: original, calendar: cal), original)
+    }
+
     // MARK: - effectiveFiring()
 
     func testEffectiveFiringPrefersTheSnooze() {
