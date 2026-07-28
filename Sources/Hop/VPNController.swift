@@ -121,6 +121,8 @@ final class VPNController: ObservableObject {
     private func watchForWindowClose(_ bundle: String) {
         windowWatch?.invalidate()
         var sawAWindow = false
+        var emptyTicks = 0
+        var seenAt: Date?
         let timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             Task { @MainActor in
                 guard let app = NSRunningApplication
@@ -128,10 +130,20 @@ final class VPNController: ObservableObject {
                     self.finishWatching()   // the user quit it themselves
                     return
                 }
-                let windows = Self.normalWindowCount(pid: app.processIdentifier)
-                if windows > 0 { sawAWindow = true; return }
-                // Give it a moment to put its window up before deciding it has none.
-                guard sawAWindow else { return }
+                if Self.normalWindowCount(pid: app.processIdentifier) > 0 {
+                    if !sawAWindow { seenAt = Date() }
+                    sawAWindow = true
+                    emptyTicks = 0
+                    return
+                }
+                // A window can blink out of the list for a tick — during a resize,
+                // a sheet, the app's own startup animation — and quitting on the
+                // first empty frame closed the app right after it opened (Anton,
+                // 2026-07-29). Wait for three quiet ticks, and never within two
+                // seconds of the window first appearing.
+                guard sawAWindow, let seenAt, Date().timeIntervalSince(seenAt) > 2 else { return }
+                emptyTicks += 1
+                guard emptyTicks >= 3 else { return }
                 app.terminate()
                 self.finishWatching()
             }

@@ -45,11 +45,10 @@ struct VPNView: View {
     private func row(_ configuration: VPNConfiguration) -> some View {
         let busy = configuration.state.isBusy || vpn.pending.contains(configuration.id)
         return HStack(spacing: 6) {
-            // No indicator light here: the switch on the right already says on or
-            // off, and two things saying it read as two different facts (Anton,
-            // 2026-07-29). The menu-bar icon carries the light instead, for when
-            // the panel is closed.
-            Spacer().frame(width: RowCircle.gutter - 12)
+            // No indicator light and no gutter where one used to be: the switch
+            // on the right already says on or off, and the row starts on the same
+            // left line as every other module's text (Anton, 2026-07-29). The
+            // menu-bar icon carries the light, for when the panel is closed.
             Button { vpn.openApp(for: configuration) } label: {
                 // Baseline alignment, not top: the smaller text sat high and read
                 // as a superscript (Anton, 2026-07-29).
