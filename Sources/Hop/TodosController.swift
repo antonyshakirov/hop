@@ -95,11 +95,18 @@ final class TodosController: ObservableObject {
 
     /// Brings the list up to date — at launch, on wake, on the tick and when the
     /// panel opens. Saves and re-schedules only when a reminder actually came due,
-    /// so an idle tick costs nothing.
+    /// so an idle tick costs nothing. The alert sound is played HERE rather than
+    /// by the notification, so it works with banners switched off and can never
+    /// double up with one.
     func reconcile(now: Date = Date()) {
+        let before = Set(list.items.filter(\.firedUnseen).map(\.id))
         guard list.reconcileReminders(now: now) else { return }
+        let fired = Set(list.items.filter(\.firedUnseen).map(\.id)).subtracting(before)
         save()
         reschedule()
+        if !fired.isEmpty, UserDefaults.standard.bool(forKey: SettingsKey.todoRemindSound) {
+            Sounds.alarm()
+        }
     }
 
     /// The panel was opened and the rows blinked — the firings have been seen.
@@ -108,8 +115,12 @@ final class TodosController: ObservableObject {
         save()
     }
 
-    /// Filled in by ReminderScheduler once notifications are wired up.
-    private func reschedule() {}
+    /// Wired to `ReminderScheduler.reschedule` at launch. A closure rather than a
+    /// direct reference so the store stays free of UserNotifications, and so a
+    /// snapshot or bundle-less run simply has nothing attached.
+    var onRemindersChanged: ((TodoList) -> Void)?
+
+    private func reschedule() { onRemindersChanged?(list) }
 
     private func save() {
         try? FileManager.default.createDirectory(at: storeDir, withIntermediateDirectories: true)

@@ -8,6 +8,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // lazy: model initialization must not run before the crash-loop check —
     // in safe mode the model (and everything that could crash) is never created at all
     lazy var model = AppModel()
+    private let reminders = ReminderScheduler()
+    /// Drives reminder firing independently of the notification centre, so a
+    /// reminder still lands with banners switched off. 15s with a wide tolerance:
+    /// the comparison is two dates, and the banner itself is second-accurate.
+    private var reminderTicker: Timer?
     private var safeStatusItem: NSStatusItem?
     private var safeUpdater: UpdateChecker?
     private var safeStatusSink: AnyCancellable?
@@ -95,6 +100,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// The Dock icon leaves with the last window. `willClose` arrives while the
     /// window still reports itself visible, so the check waits one turn of the
     /// run loop — otherwise the app would keep its icon until the next window.
+    /// Reminders: reconcile at launch, on every tick and on wake, and keep the
+    /// system's pending requests in step with the list. A snapshot render skips
+    /// the lot — it never loaded the real list in the first place.
+    private func startReminders() {
+        guard !Snapshot.active else { return }
+        let todos = model.todos
+        todos.onRemindersChanged = { [weak self] list in self?.reminders.reschedule(list) }
+        reminders.install(todos: todos)
+        todos.reconcile()
+
+        let ticker = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
+            Task { @MainActor in todos.reconcile() }
+        }
+        ticker.tolerance = 5
+        reminderTicker = ticker
+
+        // Sleeping through a firing is the normal case for a laptop: the ticker
+        // does not run while asleep, so catch up the moment the Mac is back.
+        NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
+        ) { _ in
+            Task { @MainActor in todos.reconcile() }
+        }
+    }
+
     private func observeDockWindowClosing() {
         dockWindowSink = NotificationCenter.default.addObserver(
             forName: NSWindow.willCloseNotification, object: nil, queue: .main
@@ -152,6 +182,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         observeDockWindowClosing()
 
         statusController = StatusItemController(model: model)
+        startReminders()
 
         let hotkeys = HotkeyManager.shared
         hotkeys.setHandler(.panel) { [weak self] in
