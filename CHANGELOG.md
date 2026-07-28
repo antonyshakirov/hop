@@ -1,6 +1,6 @@
 # Hop — version history
 
-## 1.5.2 — 2026-07-29
+## 1.5.2 — 2026-07-28
 
 - Arabic, Hebrew, Persian and Urdu, bringing the app to 22 languages. As
   before, Hop follows the system language on its own and the picker lists every
