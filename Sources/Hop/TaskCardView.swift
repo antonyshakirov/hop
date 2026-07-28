@@ -126,11 +126,11 @@ struct TaskCardView: View {
             if draft.reminder != nil { bellButton }
             if draft.reminder?.date != nil {
                 dayChip
-                NumericField(value: hourBinding, range: 0...23, padTo: 2)
+                clockField(hourBinding, range: 0...23)
                 Text(":")
                     .font(Theme.mono(11, weight: .semibold))
                     .foregroundStyle(Theme.textTertiary)
-                NumericField(value: minuteBinding, range: 0...59, padTo: 2)
+                clockField(minuteBinding, range: 0...59)
             }
             Spacer(minLength: 8)
             starButton
@@ -142,6 +142,15 @@ struct TaskCardView: View {
                 .frame(width: 0, height: 0)
         }
         .padding(.top, 6)
+    }
+
+    /// The chip around a clock field: the panel's own field background, with the
+    /// digits drawn by AppKit inside it. 34pt is enough for two digits — the old
+    /// 44pt was sized for a three-digit setting field.
+    private func clockField(_ value: Binding<Int>, range: ClosedRange<Int>) -> some View {
+        ClockField(value: value, range: range)
+            .frame(width: 34, height: 24)
+            .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
     }
 
     /// Arms a reminder at the next full hour, or clears the one that is set.
@@ -272,6 +281,7 @@ struct TaskCardView: View {
                 .font(Theme.mono(9))
                 .foregroundStyle(Theme.textTertiary)
                 .fixedSize()
+                .padding(.trailing, 6)
             ForEach(firstWeekdaySetting.weekOrder, id: \.self) { weekday in
                 weekdaySquare(weekday)
             }
