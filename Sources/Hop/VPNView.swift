@@ -45,14 +45,32 @@ struct VPNView: View {
     private func row(_ configuration: VPNConfiguration) -> some View {
         let busy = configuration.state.isBusy || vpn.pending.contains(configuration.id)
         return HStack(spacing: 6) {
-            light(on: configuration.state.isOn, busy: busy)
+            // No indicator light here: the switch on the right already says on or
+            // off, and two things saying it read as two different facts (Anton,
+            // 2026-07-29). The menu-bar icon carries the light instead, for when
+            // the panel is closed.
+            Spacer().frame(width: RowCircle.gutter - 12)
             Button { vpn.openApp(for: configuration) } label: {
-                Text(configuration.name)
-                    .font(Theme.mono(12))
-                    .foregroundStyle(Theme.listText)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .contentShape(Rectangle())
+                // Baseline alignment, not top: the smaller text sat high and read
+                // as a superscript (Anton, 2026-07-29).
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    Text(configuration.title)
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.listText)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .layoutPriority(1)
+                    // what the configuration adds to the app's name — the country
+                    // it was set to, or the protocol — in brackets and quieter
+                    if let subtitle = configuration.subtitle {
+                        Text("(\(subtitle))")
+                            .font(Theme.mono(10))
+                            .foregroundStyle(Theme.textTertiary)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    }
+                }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .hoverDim()
@@ -69,17 +87,4 @@ struct VPNView: View {
         .padding(.vertical, 2)
     }
 
-    /// Green while the tunnel is up, hollow while it is not, dimmed mid-flight.
-    /// Left-aligned in the same 22pt gutter as the tracker's play button and the
-    /// to-do checkbox, so the modules line up on one left column.
-    private func light(on: Bool, busy: Bool) -> some View {
-        Circle()
-            .fill(on ? Theme.accentGreen : .clear)
-            .overlay(
-                Circle().strokeBorder(on ? .clear : Theme.textTertiary, lineWidth: 1.5)
-            )
-            .frame(width: 10, height: 10)
-            .opacity(busy ? 0.45 : 1)
-            .frame(width: RowCircle.gutter, alignment: .leading)
-    }
 }

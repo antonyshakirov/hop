@@ -510,6 +510,7 @@ final class StatusItemController: NSObject {
             alertBlinking: alertBlinking,
             blinkOn: blinkOn,
             reminderUnseen: reminderUnseen,
+            vpnConnected: model.vpn.isAnyConnected,
             torrentDown: transfer.down,
             torrentUp: transfer.up,
             colored: colored

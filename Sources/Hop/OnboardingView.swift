@@ -40,6 +40,23 @@ struct OnboardingView: View {
     @State private var showKeyboardModule = true
     @State private var showColorModule = false
     @State private var showOcrModule = false
+    /// VPN ships off for the same reason: a Mac with no VPN configured would get
+    /// an empty section it never asked for.
+    @State private var showVpnModule = false
+
+    /// One module in the grid: the switch above its name, both centred, so three
+    /// of them fit a panel-width window without the labels colliding.
+    private func moduleCell(_ title: String, isOn: Binding<Bool>) -> some View {
+        VStack(spacing: 5) {
+            Theme.MiniSwitch(isOn: isOn)
+            Text(title)
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+        .frame(maxWidth: .infinity)
+    }
 
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -125,61 +142,21 @@ struct OnboardingView: View {
                     Spacer()
                     Theme.MiniSwitch(isOn: $showConvertModule)
                 }
-                HStack {
-                    Text(t(.showWindowsLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showWindowsModule)
-                }
-                HStack {
-                    Text(t(.tabSystem))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showSystemModule)
-                }
-                HStack {
-                    Text(t(.trackerLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showTrackerModule)
-                }
-                HStack {
-                    Text(t(.todosLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showTodosModule)
-                }
-                HStack {
-                    Text(t(.archiveLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showArchiveModule)
-                }
-                HStack {
-                    Text(t(.keylockLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showKeyboardModule)
-                }
-                HStack {
-                    Text(t(.colorLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showColorModule)
-                }
-                HStack {
-                    Text(t(.ocrLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showOcrModule)
+                // Eleven modules in one column ran the window off the screen once
+                // the VPN module joined them (Anton, 2026-07-29). Three columns:
+                // the switch on top so the eye finds the row of them at once, the
+                // name under it.
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3),
+                          spacing: 10) {
+                    moduleCell(t(.showWindowsLabel), isOn: $showWindowsModule)
+                    moduleCell(t(.tabSystem), isOn: $showSystemModule)
+                    moduleCell(t(.trackerLabel), isOn: $showTrackerModule)
+                    moduleCell(t(.todosLabel), isOn: $showTodosModule)
+                    moduleCell(t(.archiveLabel), isOn: $showArchiveModule)
+                    moduleCell(t(.keylockLabel), isOn: $showKeyboardModule)
+                    moduleCell(t(.colorLabel), isOn: $showColorModule)
+                    moduleCell(t(.ocrLabel), isOn: $showOcrModule)
+                    moduleCell(t(.vpnLabel), isOn: $showVpnModule)
                 }
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
@@ -323,6 +300,7 @@ struct OnboardingView: View {
             ("system", showSystemModule), ("tracker", showTrackerModule),
             ("todos", showTodosModule), ("archive", showArchiveModule),
             ("keyboard", showKeyboardModule), ("color", showColorModule),
+            ("vpn", showVpnModule),
             ("ocr", showOcrModule),
         ]
         for choice in choices {

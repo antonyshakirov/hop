@@ -47,7 +47,7 @@ final class VPNController: ObservableObject {
     func refresh() {
         guard !Snapshot.active else { return }
         let output = Self.run([Self.scutil, "--nc", "list"])
-        let fresh = VPNConfigurations.parseList(output)
+        let fresh = VPNConfigurations.parseList(output).map(Self.named)
         // Keep a pending row on its optimistic state until the system agrees.
         configurations = fresh.map { configuration in
             guard pending.contains(configuration.id) else { return configuration }
@@ -155,6 +155,18 @@ final class VPNController: ObservableObject {
             (window[kCGWindowOwnerPID as String] as? pid_t) == pid
                 && (window[kCGWindowLayer as String] as? Int) == 0
         }.count
+    }
+
+    /// Looks up what the owning app is called on this Mac — the localized name
+    /// the user sees in Finder, not the bundle's internal one.
+    private nonisolated static func named(_ configuration: VPNConfiguration) -> VPNConfiguration {
+        guard let bundle = configuration.bundleIdentifier,
+              let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundle) else {
+            return configuration
+        }
+        var out = configuration
+        out.appName = FileManager.default.displayName(atPath: url.path)
+        return out
     }
 
     // MARK: - Running the tool

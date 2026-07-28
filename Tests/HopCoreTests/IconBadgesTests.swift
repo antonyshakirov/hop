@@ -201,6 +201,31 @@ final class IconBadgesTests: XCTestCase {
         XCTAssertTrue(c.isEmpty)
     }
 
+    // MARK: - VPN light (bottom-left)
+
+    func testVPNLightShowsWhileATunnelIsUp() {
+        let c = IconBadges.compose(IconState(vpnConnected: true))
+        XCTAssertTrue(c.vpn)
+        XCTAssertEqual(c.badges, [.vpn])
+        XCTAssertEqual(IconBadge.vpn.corner, .bottomLeft)
+        XCTAssertFalse(c.isEmpty)
+    }
+
+    func testVPNLightSharesItsCornerWithTheTorrentArrows() {
+        let c = IconBadges.compose(IconState(vpnConnected: true, torrentDown: true))
+        XCTAssertTrue(c.vpn)
+        XCTAssertEqual(c.torrent, .down)
+    }
+
+    func testNoVPNLightWithoutAConnection() {
+        XCTAssertFalse(IconBadges.compose(IconState()).vpn)
+    }
+
+    func testVPNLightStaysFilledInMonochrome() {
+        // the bottom-left corner has no second dot to tell it apart from
+        XCTAssertTrue(IconBadge.vpn.monoFilled)
+    }
+
     func testReminderMarkDoesNotBlinkWithTheAlert() {
         // the "!" is on its dark blink phase; the reminder dot is steady
         let c = IconBadges.compose(IconState(alertBlinking: true, blinkOn: false,

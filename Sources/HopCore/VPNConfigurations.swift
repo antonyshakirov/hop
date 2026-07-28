@@ -22,13 +22,35 @@ public struct VPNConfiguration: Equatable, Identifiable, Sendable {
     /// The app that owns the configuration, when one does — used to open its
     /// window on request. nil for a profile with no app behind it.
     public let bundleIdentifier: String?
+    /// What that app is called on this Mac, filled in by the app layer. The two
+    /// names differ and both matter: an app may be called one thing while the
+    /// configuration it created is called "Germany" — showing only the second
+    /// looks like Hop invented a country out of nowhere (Anton, 2026-07-29).
+    public var appName: String?
     public var state: State
 
-    public init(id: String, name: String, bundleIdentifier: String?, state: State) {
+    public init(id: String, name: String, bundleIdentifier: String?,
+                appName: String? = nil, state: State) {
         self.id = id
         self.name = name
         self.bundleIdentifier = bundleIdentifier
+        self.appName = appName
         self.state = state
+    }
+
+    /// What the row leads with: the app when it is known, the configuration
+    /// otherwise.
+    public var title: String { appName ?? name }
+
+    /// The short tail beside the title — a country, a protocol, a profile — with
+    /// whatever the app's name already said stripped out.
+    ///
+    /// A client tends to name its configuration after itself ("hidemy.name vpn
+    /// (OpenVPN)" for an app called "hidemy.name VPN"), and printing both in full
+    /// filled the row with the same words twice (Anton, 2026-07-29).
+    public var subtitle: String? {
+        guard let appName else { return nil }
+        return VPNConfigurations.tail(of: name, after: appName)
     }
 }
 
@@ -64,6 +86,25 @@ public enum VPNConfigurations {
     public static func parseStatus(_ output: String) -> VPNConfiguration.State {
         let first = output.split(separator: "\n").first.map(String.init) ?? ""
         return state(named: first.trimmingCharacters(in: .whitespaces))
+    }
+
+    /// What `name` says that `appName` does not. nil when it says nothing new.
+    static func tail(of name: String, after appName: String) -> String? {
+        let words = appName.lowercased()
+            .split(whereSeparator: { !$0.isLetter && !$0.isNumber && $0 != "." })
+            .map(String.init)
+        var kept: [String] = []
+        for token in name.split(separator: " ").map(String.init) {
+            let bare = token.lowercased().trimmingCharacters(
+                in: CharacterSet(charactersIn: "()[]{}"))
+            if words.contains(bare) { continue }
+            // keep the token as written, minus the brackets a client wraps a
+            // protocol in
+            let cleaned = token.trimmingCharacters(in: CharacterSet(charactersIn: "()[]{}"))
+            if !cleaned.isEmpty { kept.append(cleaned) }
+        }
+        let tail = kept.joined(separator: " ").trimmingCharacters(in: .whitespaces)
+        return tail.isEmpty ? nil : tail
     }
 
     // MARK: - Pieces of a line

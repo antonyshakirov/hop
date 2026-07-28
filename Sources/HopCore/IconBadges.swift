@@ -19,7 +19,8 @@ public enum TorrentArrows: Equatable, Sendable {
 /// meaning while it is on, the shape carries it while it is off.
 public enum IconBadge: Equatable, Sendable, CaseIterable {
     case alert       // top-left: red "!" (white in mono)
-    case reminder    // top-left: blue informational dot (outline ring in mono)
+    case reminder    // top-left: informational dot (outline ring in mono)
+    case vpn         // bottom-left: green dot while a tunnel is up
     case noSleep     // top-right: yellow dot (filled in both modes)
     case lid         // top-right: orange dot (filled in colour, outline ring in mono)
     case engineTime  // bottom-right: green wedge (filled in both modes) — timer OR stopwatch
@@ -28,6 +29,7 @@ public enum IconBadge: Equatable, Sendable, CaseIterable {
     public var corner: BadgeCorner {
         switch self {
         case .alert, .reminder: return .topLeft
+        case .vpn: return .bottomLeft
         case .noSleep, .lid: return .topRight
         case .engineTime, .taskTime: return .bottomRight
         }
@@ -40,6 +42,7 @@ public enum IconBadge: Equatable, Sendable, CaseIterable {
         switch self {
         case .alert, .noSleep, .engineTime: return true
         case .lid, .taskTime, .reminder: return false
+        case .vpn: return true
         }
     }
 }
@@ -52,6 +55,7 @@ public enum IconBadge: Equatable, Sendable, CaseIterable {
 public struct IconComposition: Equatable, Sendable {
     public var alert: Bool         // top-left "!" — visible this frame (blink resolved)
     public var reminder: Bool      // top-left informational dot: a reminder fired, unseen
+    public var vpn: Bool           // bottom-left green dot: a VPN tunnel is up
     public var noSleep: Bool       // top-right yellow dot
     public var lid: Bool           // top-right orange dot / ring
     public var engineTime: Bool    // bottom-right green wedge (timer or stopwatch)
@@ -60,13 +64,14 @@ public struct IconComposition: Equatable, Sendable {
     public var colored: Bool       // false → monochrome shape mapping
 
     public init(
-        alert: Bool = false, reminder: Bool = false,
+        alert: Bool = false, reminder: Bool = false, vpn: Bool = false,
         noSleep: Bool = false, lid: Bool = false,
         engineTime: Bool = false, taskTime: Bool = false,
         torrent: TorrentArrows? = nil, colored: Bool = true
     ) {
         self.alert = alert
         self.reminder = reminder
+        self.vpn = vpn
         self.noSleep = noSleep
         self.lid = lid
         self.engineTime = engineTime
@@ -80,6 +85,7 @@ public struct IconComposition: Equatable, Sendable {
         var out: [IconBadge] = []
         if alert { out.append(.alert) }
         if reminder { out.append(.reminder) }
+        if vpn { out.append(.vpn) }
         if noSleep { out.append(.noSleep) }
         if lid { out.append(.lid) }
         if engineTime { out.append(.engineTime) }
@@ -89,7 +95,8 @@ public struct IconComposition: Equatable, Sendable {
 
     /// Any decoration at all → the plain template fast path can't be used.
     public var isEmpty: Bool {
-        !alert && !reminder && !noSleep && !lid && !engineTime && !taskTime && torrent == nil
+        !alert && !reminder && !vpn && !noSleep && !lid && !engineTime && !taskTime
+            && torrent == nil
     }
 }
 
@@ -127,6 +134,10 @@ public struct IconState: Equatable, Sendable {
     /// its own setting, unlike every other badge — a reminder is a one-off user
     /// event rather than an app state (see the spec's note on this exception).
     public var reminderUnseen: Bool
+    /// A VPN tunnel is up. Bottom-left, beside the torrent arrows when those are
+    /// there: the corner is nearly always empty, and a connection is exactly the
+    /// kind of thing worth seeing with the panel closed.
+    public var vpnConnected: Bool
     public var torrentDown: Bool
     public var torrentUp: Bool
     public var colored: Bool
@@ -136,7 +147,7 @@ public struct IconState: Equatable, Sendable {
         tracking: Bool = false, taskTimeInTitle: Bool = false,
         noSleep: Bool = false, lid: Bool = false,
         alertSteady: Bool = false, alertBlinking: Bool = false, blinkOn: Bool = true,
-        reminderUnseen: Bool = false,
+        reminderUnseen: Bool = false, vpnConnected: Bool = false,
         torrentDown: Bool = false, torrentUp: Bool = false, colored: Bool = true
     ) {
         self.engine = engine
@@ -149,6 +160,7 @@ public struct IconState: Equatable, Sendable {
         self.alertBlinking = alertBlinking
         self.blinkOn = blinkOn
         self.reminderUnseen = reminderUnseen
+        self.vpnConnected = vpnConnected
         self.torrentDown = torrentDown
         self.torrentUp = torrentUp
         self.colored = colored
@@ -180,7 +192,7 @@ public enum IconBadges {
         }
 
         return IconComposition(
-            alert: alert, reminder: s.reminderUnseen,
+            alert: alert, reminder: s.reminderUnseen, vpn: s.vpnConnected,
             noSleep: s.noSleep, lid: s.lid,
             engineTime: engineTime, taskTime: taskTime,
             torrent: torrent, colored: s.colored

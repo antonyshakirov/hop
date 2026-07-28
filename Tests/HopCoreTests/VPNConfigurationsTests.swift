@@ -73,6 +73,29 @@ final class VPNConfigurationsTests: XCTestCase {
         }
     }
 
+    // MARK: - What the row is called
+
+    func testTheAppNameLeadsAndTheConfigurationFollows() {
+        // the real confusion: the app has its own name while the configuration
+        // it created is called "Germany"
+        var configuration = VPNConfigurations.parseList(realOutput)[1]
+        configuration.appName = "VanyaVPN"
+        XCTAssertEqual(configuration.title, "VanyaVPN")
+        XCTAssertEqual(configuration.subtitle, "Germany")
+    }
+
+    func testWithoutAnAppTheConfigurationNameLeadsAlone() {
+        let configuration = VPNConfigurations.parseList(realOutput)[1]
+        XCTAssertEqual(configuration.title, "Germany")
+        XCTAssertNil(configuration.subtitle)
+    }
+
+    func testAnAppNamedLikeItsConfigurationIsNotRepeated() {
+        var configuration = VPNConfigurations.parseList(realOutput)[0]
+        configuration.appName = "hidemy.name vpn (OpenVPN)"
+        XCTAssertNil(configuration.subtitle, "the same words twice is noise")
+    }
+
     func testStatusOutputIsOneWord() {
         XCTAssertEqual(VPNConfigurations.parseStatus("Connected\nExtended Status <dictionary> {"),
                        .connected)

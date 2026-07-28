@@ -146,6 +146,16 @@ enum MenuBarIcon {
                             colored: c.colored, glyph: glyph)
         }
 
+        // bottom-left: the VPN light, beside the torrent arrows when both are on.
+        // Green like the running-time wedges — the same "something of yours is
+        // live" family, and the corner is otherwise almost always empty.
+        if c.vpn {
+            let dotD: CGFloat = 4.4
+            let x: CGFloat = c.torrent == nil ? 1.4 : 8.2
+            drawVPNDot(box: NSRect(x: x, y: 1.0, width: dotD, height: dotD),
+                       colored: c.colored, glyph: glyph)
+        }
+
         // top-right: awake dots — yellow (no-sleep) then orange (lid), a dense
         // row with a light overlap; in 1x they melt into one two-colour blob.
         let dotD: CGFloat = 5.2
@@ -267,6 +277,14 @@ enum MenuBarIcon {
     }
 
     /// Attention "!": a rounded stem plus a dot below it, anchored at its top-left.
+    /// The VPN light: a small green disc while a tunnel is up. In monochrome it
+    /// stays filled — the bottom-left corner has no second dot to be confused
+    /// with, only the torrent arrows, which are a different shape entirely.
+    private static func drawVPNDot(box: NSRect, colored: Bool, glyph: NSColor) {
+        (colored ? NSColor.systemGreen : glyph).setFill()
+        NSBezierPath(ovalIn: box).fill()
+    }
+
     /// The reminder mark: a small yellow disc — the app's one accent colour, and
     /// the same yellow the fired time pulses in inside the panel, so the dot and
     /// the row answer each other. Deliberately NOT the alert red: a waiting
