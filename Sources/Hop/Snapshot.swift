@@ -324,7 +324,24 @@ enum Snapshot {
                 e.start(taskID: ids[1])                              // active row: emphasized total
             }
             for text in content.todos { model.todos.add(text: text) }
-            if let first = model.todos.list.items.first { model.todos.toggle(first.id) }
+            let todoIDs = model.todos.list.items.map(\.id)
+            if let first = todoIDs.first { model.todos.toggle(first) }
+            // Show the row's two marks in screenshots: one task carries a note,
+            // one is a favourite with a reminder. Deterministic values only —
+            // a screenshot must render the same on any machine on any day.
+            if todoIDs.count >= 3 {
+                // The note text is borrowed from the same localized set rather
+                // than adding a 22-case string of its own: a screenshot only has
+                // to show that a note EXISTS and reads in the right language.
+                model.todos.setNote(todoIDs[1], to: content.tasks.first ?? "")
+                model.todos.setImportant(todoIDs[2], true)
+                var when = DateComponents()
+                when.year = 2026; when.month = 7; when.day = 28
+                when.hour = 15; when.minute = 0
+                if let date = Calendar.current.date(from: when) {
+                    model.todos.setReminder(todoIDs[2], at: date, repeatDays: [])
+                }
+            }
         }
         // --convert-files a,b,c: converter queue for the window screenshot;
         // the pause lets thumbnails and size estimates finish (they're async)

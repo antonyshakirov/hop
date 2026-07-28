@@ -73,6 +73,19 @@ running total, and you can correct today's figure by hand. Leave one running
 too long and a banner reminds you after eight hours. A separate to-do list
 sits alongside, with finished items sinking to the bottom.
 
+Click any task to open it: the full text on the first line, a description
+underneath, a star to mark a favourite. A to-do can also carry a reminder — a
+day, a time, and any weekdays you want it to repeat on — and Hop tells you when
+it is due with a banner you can snooze or tick off, a sound, a mark in the menu
+bar, whichever of the three you leave switched on.
+
+**Your own AI agent can add tasks too.** The list is a plain JSON file and Hop
+picks up changes to it while it runs, so an agent — or a script, or you in a text
+editor — can append a task and watch it appear. Hop also performs commands from a
+file and answers `hop://` links, so that same agent, or a Shortcut and through it
+Siri in whatever language you speak to it, can start a timer, add a task with a
+reminder, or read what is running. See [docs/automation.md](docs/automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Time tracker & to-dos">
 </div>

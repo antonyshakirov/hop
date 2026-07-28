@@ -1,5 +1,32 @@
 # Hop — version history
 
+## Unreleased
+
+- Tasks open. Click a to-do (or a tracker task) and the row expands into a card:
+  the full text on the first line, a description below it, and Return adds a line
+  in either. Both lists gained a comment, so the address, the phone number or the
+  reason lives with the task instead of in its title.
+- To-dos take a reminder. Pick a day and a time, optionally repeat it on any
+  weekdays you like, and Hop tells you when it is time — a banner with "snooze"
+  and "done", a sound, a mark in the menu bar, each switchable on its own. A
+  repeating task comes back as unfinished on its next round. A reminder that
+  already went off leaves its time struck through in the list, so a banner you
+  missed still left a trace.
+- Which day the week starts on follows your region and can be set by hand — the
+  US counts from Sunday, most of Europe from Monday.
+- Favourites: a star on any task, and a setting per list to float starred tasks
+  to the top. With it off the star is just a mark and nothing moves.
+- Text recognition reads every script on the screen. It used to be told to look
+  for your interface language and English only, so a Japanese or Chinese page
+  came back as nonsense; now Vision detects the writing itself and a screen
+  carrying six alphabets at once comes out in all six. Settings can still pin one
+  language when you always read the same one and want the faster pass.
+- Hop can be driven from outside. Two plain JSON files next to its data — one it
+  performs commands from, one it publishes its state to — plus `hop://` links, so
+  your own AI agent, a script or a Shortcut can start a timer, add a task with a
+  reminder, or read what is running. A task written straight into the file now
+  shows up while the app is running instead of waiting for a restart.
+
 ## 1.5.2 — 2026-07-28
 
 - Arabic, Hebrew, Persian and Urdu, bringing the app to 22 languages. As
