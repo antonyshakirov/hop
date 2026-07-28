@@ -76,6 +76,18 @@ de hoje e um total acumulado, e você pode corrigir o valor de hoje à mão. Se
 uma correr demais, um aviso lembra você após oito horas. Ao lado há uma lista
 de tarefas separada, em que o que foi concluído desce para o fim.
 
+Clique numa tarefa e a linha abre: o texto completo na primeira linha, uma
+descrição abaixo e uma estrela para favoritos. Um afazer pode ter um lembrete —
+dia, hora e os dias da semana que quiser — e o Hop avisa: um alerta com «adiar» e
+«concluído», um som, uma marca na barra de menus; cada um liga-se à parte.
+
+**O seu agente de IA também pode adicionar tarefas.** A lista é um ficheiro JSON
+comum e o Hop recolhe as alterações enquanto está a correr. O Hop também executa
+comandos a partir de um ficheiro e entende links `hop://`: o mesmo agente, ou um
+atalho e através dele a Siri no seu idioma, pode iniciar um temporizador,
+adicionar uma tarefa com lembrete ou saber o que está a correr. Ver
+[docs/automation.md](../automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/tracker.png" width="420" alt="Hop — Controle de tempo e tarefas">
 </div>

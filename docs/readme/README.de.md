@@ -76,6 +76,19 @@ Zeit und eine laufende Gesamtsumme, und den heutigen Wert kannst du von Hand
 korrigieren. Läuft eine zu lange, erinnert dich nach acht Stunden ein Banner.
 Daneben liegt eine eigene To-do-Liste, in der Erledigtes nach unten wandert.
 
+Klicken Sie eine Aufgabe an, und die Zeile klappt auf: der ganze Text in der
+ersten Zeile, darunter eine Beschreibung, ein Stern für Favoriten. Ein To-do
+kann eine Erinnerung tragen — Tag, Uhrzeit und beliebige Wochentage zum
+Wiederholen —, und Hop meldet sich: Banner mit „später“ und „erledigt“, Ton,
+Zeichen in der Menüleiste, jedes einzeln abschaltbar.
+
+**Auch Ihr KI-Agent kann Aufgaben anlegen.** Die Liste ist eine schlichte
+JSON-Datei, und Hop übernimmt Änderungen im laufenden Betrieb. Hop führt zudem
+Befehle aus einer Datei aus und versteht `hop://`-Links — derselbe Agent oder ein
+Kurzbefehl, und damit Siri in Ihrer Sprache, kann einen Timer starten, eine
+Aufgabe mit Erinnerung anlegen oder abfragen, was gerade läuft. Siehe
+[docs/automation.md](../automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/tracker.png" width="420" alt="Hop — Zeiterfassung & To-dos">
 </div>

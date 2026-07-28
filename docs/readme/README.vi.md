@@ -73,6 +73,17 @@ gian hôm nay và tổng tích lũy, và bạn có thể sửa con số hôm nay
 Nếu một việc chạy quá lâu, sau tám giờ sẽ có một dải nhắc bạn. Bên cạnh là
 một danh sách việc cần làm riêng, nơi việc đã xong chìm xuống dưới.
 
+Nhấn vào một công việc và dòng đó mở ra: toàn bộ nội dung ở dòng đầu, mô tả bên
+dưới, một ngôi sao cho mục yêu thích. Một việc cần làm còn có thể mang lời nhắc —
+ngày, giờ và những thứ trong tuần bạn muốn lặp lại — và Hop sẽ báo khi đến giờ:
+biểu ngữ có «hoãn» và «xong», âm thanh, dấu trên thanh menu; mỗi thứ bật riêng.
+
+**Trợ lý AI của bạn cũng có thể thêm công việc.** Danh sách là một tệp JSON bình
+thường, và Hop đọc thay đổi ngay khi đang chạy. Hop cũng thực thi lệnh từ một tệp
+và hiểu liên kết `hop://`: chính trợ lý đó, hoặc một Phím tắt — và qua đó là Siri
+bằng ngôn ngữ của bạn — có thể bắt đầu hẹn giờ, thêm việc kèm lời nhắc, hoặc đọc
+xem cái gì đang chạy. Xem [docs/automation.md](../automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Theo dõi thời gian & việc cần làm">
 </div>

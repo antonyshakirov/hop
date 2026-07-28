@@ -75,6 +75,18 @@ czas i łączną sumę, a dzisiejszą wartość możesz poprawić ręcznie. Jeś
 któreś działa za długo, po ośmiu godzinach przypomni o tym baner. Obok jest
 osobna lista rzeczy do zrobienia, w której ukończone spada na dół.
 
+Kliknij zadanie, a wiersz się rozwinie: pełny tekst w pierwszej linii, opis
+poniżej, gwiazdka dla ulubionych. Zadanie może mieć przypomnienie — dzień,
+godzinę i dowolne dni tygodnia do powtarzania — a Hop da znać, gdy przyjdzie
+pora: baner z «odłóż» i «gotowe», dźwięk, znak na pasku menu; każde włącza się
+osobno.
+
+**Zadania może dodawać także twój agent AI.** Lista to zwykły plik JSON, a Hop
+odczytuje zmiany na bieżąco. Hop wykonuje też polecenia z pliku i rozumie linki
+`hop://`: ten sam agent albo skrót — a przez niego Siri w twoim języku — może
+uruchomić minutnik, dodać zadanie z przypomnieniem lub sprawdzić, co jest
+uruchomione. Zobacz [docs/automation.md](../automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Śledzenie czasu i zadania">
 </div>

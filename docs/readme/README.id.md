@@ -74,6 +74,19 @@ ini dan total berjalan, dan angka hari ini bisa kamu perbaiki manual. Kalau
 satu berjalan terlalu lama, sebuah spanduk mengingatkan setelah delapan jam.
 Di sebelahnya ada daftar tugas terpisah, tempat yang selesai turun ke bawah.
 
+Klik sebuah tugas dan barisnya terbuka: teks lengkap di baris pertama,
+deskripsi di bawahnya, bintang untuk favorit. Sebuah to-do juga bisa membawa
+pengingat — hari, jam, dan hari-hari dalam seminggu untuk mengulanginya — dan Hop
+memberi tahu saat waktunya: spanduk dengan «tunda» dan «selesai», suara, tanda di
+bilah menu; masing-masing dinyalakan terpisah.
+
+**Agen AI Anda juga bisa menambah tugas.** Daftarnya berupa berkas JSON biasa,
+dan Hop membaca perubahannya saat berjalan. Hop juga menjalankan perintah dari
+sebuah berkas dan memahami tautan `hop://`: agen yang sama, atau sebuah Pintasan
+— dan lewatnya Siri dalam bahasa Anda — bisa memulai pengatur waktu, menambah
+tugas berpengingat, atau membaca apa yang sedang berjalan. Lihat
+[docs/automation.md](../automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Pelacak waktu & tugas">
 </div>

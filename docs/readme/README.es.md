@@ -76,6 +76,19 @@ de hoy y un total acumulado, y puedes corregir a mano la cifra de hoy. Si una
 corre demasiado, a las ocho horas un aviso te lo recuerda. Al lado hay una
 lista de pendientes aparte, donde lo terminado baja al fondo.
 
+Haz clic en una tarea y la fila se abre: el texto completo en la primera línea,
+una descripción debajo y una estrella para los favoritos. Un pendiente puede
+llevar un recordatorio — día, hora y los días de la semana que quieras — y Hop
+avisa: un aviso con «posponer» y «hecho», un sonido, una marca en la barra de
+menús; cada uno se activa por separado.
+
+**Tu propio agente de IA también puede añadir tareas.** La lista es un archivo
+JSON normal y Hop recoge los cambios mientras funciona. Hop también ejecuta
+órdenes desde un archivo y entiende enlaces `hop://`: ese mismo agente, o un
+atajo y con él Siri en tu idioma, puede iniciar un temporizador, añadir una tarea
+con recordatorio o consultar qué está en marcha. Ver
+[docs/automation.md](../automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/tracker.png" width="420" alt="Hop — Seguimiento de tiempo y tareas">
 </div>

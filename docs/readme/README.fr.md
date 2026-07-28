@@ -78,6 +78,19 @@ main. Si l'une tourne trop longtemps, un bandeau vous le rappelle au bout de
 huit heures. À côté, une liste de choses à faire distincte, où le terminé
 descend en bas.
 
+Cliquez sur une tâche : la ligne s'ouvre — le texte complet sur la première
+ligne, une description en dessous, une étoile pour les favoris. Une tâche peut
+porter un rappel — jour, heure et les jours de la semaine que vous voulez — et
+Hop vous prévient : une bannière avec « reporter » et « terminé », un son, une
+marque dans la barre des menus, chacun activable séparément.
+
+**Votre agent IA peut aussi ajouter des tâches.** La liste est un simple fichier
+JSON et Hop en suit les modifications en direct. Hop exécute également des
+commandes depuis un fichier et comprend les liens `hop://` : ce même agent, ou un
+raccourci et par lui Siri dans votre langue, peut lancer un minuteur, ajouter une
+tâche avec rappel ou lire ce qui tourne. Voir
+[docs/automation.md](../automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/tracker.png" width="420" alt="Hop — Suivi du temps et tâches">
 </div>

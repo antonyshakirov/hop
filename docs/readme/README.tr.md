@@ -74,6 +74,19 @@ birikimi gösterir, bugünkü değeri elle düzeltebilirsiniz. Biri fazla uzun
 sürerse, sekiz saatin sonunda bir bant hatırlatır. Yanında ayrı bir
 yapılacaklar listesi durur; biten işler dibe iner.
 
+Bir göreve tıklayın, satır açılsın: ilk satırda tam metin, altında açıklama,
+favoriler için bir yıldız. Bir yapılacak öğesi hatırlatma da taşıyabilir — gün,
+saat ve tekrarlanacak günler — ve zamanı gelince Hop haber verir: «ertele» ve
+«tamam» düğmeli bir bildirim, ses, menü çubuğunda bir işaret; her biri ayrı
+açılır.
+
+**Görevleri kendi yapay zekâ ajanınız da ekleyebilir.** Liste sıradan bir JSON
+dosyasıdır ve Hop, çalışırken değişiklikleri alır. Hop ayrıca bir dosyadaki
+komutları yürütür ve `hop://` bağlantılarını anlar: aynı ajan ya da bir kısayol —
+ve onun üzerinden kendi dilinizde Siri — bir sayaç başlatabilir, hatırlatmalı bir
+görev ekleyebilir veya neyin çalıştığını okuyabilir. Bkz.
+[docs/automation.md](../automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Zaman takibi ve görevler">
 </div>

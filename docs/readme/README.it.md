@@ -76,6 +76,19 @@ oggi e un totale progressivo, e puoi correggere a mano la cifra di oggi. Se
 una va troppo a lungo, dopo otto ore un banner te lo ricorda. Accanto c'è una
 lista di cose da fare a parte, dove il completato scende in fondo.
 
+Clicca su un'attività e la riga si apre: il testo completo sulla prima riga, una
+descrizione sotto, una stella per i preferiti. Un'attività può avere un
+promemoria — giorno, ora e i giorni della settimana che vuoi — e Hop avvisa: un
+banner con «posticipa» e «fatto», un suono, un segno nella barra dei menu,
+ciascuno attivabile a parte.
+
+**Anche il tuo agente IA può aggiungere attività.** L'elenco è un normale file
+JSON e Hop ne raccoglie le modifiche mentre è in esecuzione. Hop esegue anche
+comandi da un file e capisce i link `hop://`: lo stesso agente, o un comando
+rapido e con esso Siri nella tua lingua, può avviare un timer, aggiungere
+un'attività con promemoria o leggere cosa sta girando. Vedi
+[docs/automation.md](../automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Monitoraggio del tempo e attività">
 </div>

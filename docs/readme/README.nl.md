@@ -75,6 +75,19 @@ een doorlopend totaal, en het cijfer van vandaag pas je met de hand aan. Loopt
 er een te lang, dan herinnert een banner je na acht uur. Ernaast staat een
 aparte to-do-lijst, waarin afgevinkte items naar onderen zakken.
 
+Klik op een taak en de regel klapt open: de volledige tekst op de eerste regel,
+daaronder een beschrijving, een ster voor favorieten. Een to-do kan ook een
+herinnering dragen — dag, tijd en de weekdagen die je wilt herhalen — en Hop laat
+het weten: een banner met «uitstellen» en «klaar», geluid, een teken in de
+menubalk; elk apart aan te zetten.
+
+**Ook je eigen AI-agent kan taken toevoegen.** De lijst is een gewoon
+JSON-bestand en Hop pikt wijzigingen tijdens het draaien op. Hop voert ook
+opdrachten uit een bestand uit en begrijpt `hop://`-links: diezelfde agent, of een
+Opdracht — en daarmee Siri in jouw taal — kan een timer starten, een taak met
+herinnering toevoegen of lezen wat er draait. Zie
+[docs/automation.md](../automation.md).
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Tijdregistratie & taken">
 </div>
