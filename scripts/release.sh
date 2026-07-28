@@ -41,6 +41,20 @@ cat > "$SITE_DIR/public/downloads/hop/latest.json" << JSON
 }
 JSON
 
+# The landing shows the version in its hero, its footer and its
+# SoftwareApplication markup, out of one constant. Leaving that to a human meant
+# it silently fell two releases behind — the site advertised 1.5.0 while 1.5.2
+# was already downloading (Anton, 2026-07-28). Written here, it cannot drift.
+CONFIG="$SITE_DIR/src/views/hop/config.ts"
+if [[ -f "$CONFIG" ]]; then
+    /usr/bin/sed -i '' -E "s/^export const HOP_VERSION = \".*\";$/export const HOP_VERSION = \"$VERSION\";/" "$CONFIG"
+    grep -q "HOP_VERSION = \"$VERSION\"" "$CONFIG" \
+        || { echo "could not set HOP_VERSION in $CONFIG"; exit 1 }
+    echo "landing HOP_VERSION → $VERSION"
+else
+    echo "warning: $CONFIG not found, landing version left alone"
+fi
+
 # hop-dl CDN zone (Bunny, id 6152002): Hop.dmg lives under an UNversioned
 # name — without a purge after a release the CDN would serve the old DMG until TTL expires.
 # Look for the key in env, then in the Essentóne site .env (it already lives there).
