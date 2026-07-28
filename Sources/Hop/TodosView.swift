@@ -206,9 +206,20 @@ struct TodosView: View {
             Text(item.text)
                 .font(Theme.mono(12))
                 .foregroundStyle(item.done ? Theme.textTertiary : Theme.listText)
-                .strikethrough(item.done, color: Theme.textTertiary)
                 .lineLimit(1)
                 .truncationMode(.tail)
+                // Drawn rather than `.strikethrough`: ticking a task animates the
+                // row down to the completed pile, and SwiftUI rebuilt the
+                // attributed text mid-flight — the line appeared at one height and
+                // then dropped a few points (Anton, 2026-07-29). A plain rule over
+                // the text lands in one place and stays there.
+                .overlay {
+                    if item.done {
+                        Rectangle()
+                            .fill(Theme.textTertiary)
+                            .frame(height: 1)
+                    }
+                }
             // the Spacer keeps the row full-width (drag surface); the hover
             // xmark, when shown, sits IN FLOW right after it, so a non-hovered
             // row has no reserved gap, hovering never shifts anything, and a
