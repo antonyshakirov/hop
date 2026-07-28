@@ -80,9 +80,9 @@ biểu ngữ có «hoãn» và «xong», âm thanh, dấu trên thanh menu; mỗ
 
 **Trợ lý AI của bạn cũng có thể thêm công việc.** Danh sách là một tệp JSON bình
 thường, và Hop đọc thay đổi ngay khi đang chạy. Hop cũng thực thi lệnh từ một tệp
-và hiểu liên kết `hop://`: chính trợ lý đó, hoặc một Phím tắt — và qua đó là Siri
-bằng ngôn ngữ của bạn — có thể bắt đầu hẹn giờ, thêm việc kèm lời nhắc, hoặc đọc
-xem cái gì đang chạy. Xem [docs/automation.md](../automation.md).
+và hiểu liên kết `hop://`: chính trợ lý đó, hoặc một Phím tắt dựng quanh liên kết
+ấy, có thể bắt đầu hẹn giờ, thêm việc kèm lời nhắc, hoặc đọc xem cái gì đang
+chạy. Xem [docs/automation.md](../automation.md).
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Theo dõi thời gian & việc cần làm">
@@ -238,20 +238,6 @@ cửa sổ cuối cùng.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Trình chuyển đổi tệp của Hop — chuyển đổi hàng loạt ảnh, PDF, video và âm thanh">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Cài đặt Hop — giao diện, mô-đun, phím tắt, 22 ngôn ngữ">
 </div>
-
-### Siri, Phím tắt và trợ lý AI của bạn
-
-Nói với Siri và Hop sẽ làm: "start a timer in Hop", "add a task to Hop", "lock the
-keyboard in Hop", "keep the Mac awake with Hop", "recognize text with Hop". Không
-phải thiết lập gì: năm hành động đó cũng tự xuất hiện trong Phím tắt và Spotlight.
-(Apple yêu cầu câu nói phải có tên ứng dụng.)
-
-Trợ lý AI của riêng bạn — Claude Code, Codex hay bất kỳ script nào — điều khiển
-được gần như tất cả phần còn lại: hẹn giờ và bấm giờ, tính giờ làm việc, công việc
-kèm lời nhắc và lặp lại, chống ngủ, chế độ gập máy, khoá bàn phím, xếp cửa sổ, đo
-tốc độ mạng, nhận dạng, bảng nhớ tạm. Nó ghi một tệp JSON nhỏ để Hop thực hiện
-ngay, và đọc tệp thứ hai để biết đang chạy gì. Xem
-[docs/automation.md](../automation.md).
 
 ## 22 ngôn ngữ
 

@@ -70,8 +70,8 @@ Hop 常驻在 Mac 的菜单栏中，一个应用顶替一把小工具：
 声音、菜单栏标记，三者可分别开关。
 
 **你的 AI 助手也能添加任务。** 列表就是一个普通的 JSON 文件，Hop 在运行时会实时读取它的改动。
-Hop 还会执行命令文件并支持 `hop://` 链接：同一个助手，或者一个快捷指令（再通过它用你的语言
-对 Siri 说话），都可以启动计时器、添加带提醒的任务，或读取当前运行状态。详见
+Hop 还会执行命令文件并支持 `hop://` 链接：同一个助手，或者围绕这些链接做的快捷指令，
+都可以启动计时器、添加带提醒的任务，或读取当前运行状态。详见
 [docs/automation.md](../automation.md)。
 
 <div align="center">
@@ -204,17 +204,6 @@ lity）、带胶片颗粒质感的深浅两套主题、 全局快捷键、登录
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/converter.png" width="280" alt="Hop 文件转换器 — 批量转换图片、PDF、视频和音频">
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/settings.png" width="280" alt="Hop 设置 — 主题、模块、快捷键、22 种语言">
 </div>
-
-### Siri、快捷指令与你的 AI 助手
-
-对 Siri 说一句，Hop 就照做：「start a timer in Hop」「add a task to Hop」「lock the
-keyboard in Hop」「keep the Mac awake with Hop」「recognize text with Hop」。无需设置，
-这五个动作也会自动出现在「快捷指令」和 Spotlight 里。（苹果要求语音短语里带上应用名称。）
-
-你自己的 AI 助手 —— Claude Code、Codex 或任意脚本 —— 几乎能操作其余全部：计时器与秒表、
-时间记录、带提醒和重复的任务、防休眠、合盖模式、键盘锁、窗口排布、测速、识别、剪贴板。
-它写入一个小小的 JSON 文件，Hop 立刻执行；再从另一个文件读取当前状态。详见
-[docs/automation.md](../automation.md)。
 
 ## 22 种语言
 

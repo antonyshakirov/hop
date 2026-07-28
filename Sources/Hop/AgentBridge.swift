@@ -34,24 +34,12 @@ final class AgentBridge {
         self.directory = directory
     }
 
-    /// Where an intent leaves a command when the app is not running yet: the
-    /// command file itself, which `start` reads the moment it comes up.
-    static func queueForNextLaunch(_ command: AgentCommand) {
-        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let file = base.appendingPathComponent(Bundle.storageIdentifier, isDirectory: true)
-            .appendingPathComponent(commandsFileName)
-        guard let entry = command.fileEntry,
-              let data = try? JSONSerialization.data(withJSONObject: ["commands": [entry]]) else { return }
-        try? data.write(to: file, options: .atomic)
-    }
-
     /// Starts watching for commands and publishing state.
     /// Also makes itself reachable to App Intents, which run in this same process. A snapshot render is
     /// skipped outright: it must not touch real user data.
     func start(model: AppModel) {
         guard !Snapshot.active else { return }
         self.model = model
-        AgentIntentRunner.bridge = self
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         if !FileManager.default.fileExists(atPath: commandsURL.path) {
             // create it empty so an agent can find the path before ever writing,

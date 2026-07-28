@@ -1448,25 +1448,10 @@ taught anything.
 - `agent-state.json` — written by Hop every 5s and after every command: timer
   mode/state/remaining, keep-awake, the tracking task and its today total, and
   the whole to-do list with notes, reminders and favourites.
-- **App Intents** publish five of these verbs to Siri, Shortcuts and Spotlight —
-  timer, add task, keyboard lock, keep awake, recognize text — so no hand-built
-  Shortcut is needed for them. They run through the same `AgentCommand`
-  vocabulary, so there is ONE list of what Hop can be asked to do. Apple requires
-  a spoken phrase to name the app ("lock the keyboard IN HOP"); a bare phrase goes
-  to the system.
-  - The metadata bundle Siri reads is NOT produced by SwiftPM. It is built after
-    the build by `scripts/app-intents-metadata.sh`, which does what Xcode does:
-    one whole-module compile whose only kept product is the const-value sidecar
-    (`-wmo` + `-emit-const-values-path` + `-const-gather-protocols-file` — miss
-    any one of the three and the compiler writes nothing, silently), then
-    `appintentsmetadataprocessor` over that sidecar. The step is non-fatal: if
-    the toolchain is missing, the app ships without spoken shortcuts rather than
-    failing to build.
 - `hop://` links carry the SAME vocabulary — `hop://timer/start?minutes=16`,
   `hop://todo/add?text=…&important=true&repeatDays=mon,wed`, `hop://tracker/stop`.
-  This is what a Shortcut can open, which is how Siri reaches Hop in whatever
-  language the user speaks to it: the phrase is the Shortcut's own name, so it
-  needs no localization from us.
+  This is what a Shortcut can open, so anything the system can trigger a Shortcut
+  from can reach Hop.
 - The vocabulary covers the app rather than one module: the timer and stopwatch,
   the tracker, to-dos (add with note/reminder/repeat/star, complete, delete),
   keep-awake with an optional duration, lid mode, the keyboard lock, window

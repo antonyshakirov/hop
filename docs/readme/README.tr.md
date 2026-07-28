@@ -82,9 +82,9 @@ açılır.
 
 **Görevleri kendi yapay zekâ ajanınız da ekleyebilir.** Liste sıradan bir JSON
 dosyasıdır ve Hop, çalışırken değişiklikleri alır. Hop ayrıca bir dosyadaki
-komutları yürütür ve `hop://` bağlantılarını anlar: aynı ajan ya da bir kısayol —
-ve onun üzerinden kendi dilinizde Siri — bir sayaç başlatabilir, hatırlatmalı bir
-görev ekleyebilir veya neyin çalıştığını okuyabilir. Bkz.
+komutları yürütür ve `hop://` bağlantılarını anlar: aynı ajan ya da o
+bağlantılardan biriyle kurulmuş bir kısayol, bir sayaç başlatabilir, hatırlatmalı
+bir görev ekleyebilir veya neyin çalıştığını okuyabilir. Bkz.
 [docs/automation.md](../automation.md).
 
 <div align="center">
@@ -242,19 +242,6 @@ pencereyi geri getirir ve son pencereyle birlikte simge de gider.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop dosya dönüştürücü — toplu görsel, PDF, video ve ses dönüştürme">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop ayarları — temalar, modüller, kısayollar, 22 dil">
 </div>
-
-### Siri, Kısayollar ve kendi yapay zekâ ajanınız
-
-Siri'ye söyleyin, Hop yapsın: "start a timer in Hop", "add a task to Hop", "lock
-the keyboard in Hop", "keep the Mac awake with Hop", "recognize text with Hop".
-Ayarlanacak bir şey yok; aynı beş eylem Kısayollar ve Spotlight'ta da kendiliğinden
-görünür. (Apple, söylenen cümlede uygulama adının geçmesini şart koşar.)
-
-Kendi yapay zekâ ajanınız — Claude Code, Codex, herhangi bir betik — geri kalanın
-neredeyse tamamını sürebilir: sayaç ve kronometre, zaman takibi, hatırlatmalı ve
-tekrarlı görevler, uyanık tutma, kapak modu, klavye kilidi, pencere yerleşimi, hız
-testi, tanıma, pano. Küçük bir JSON dosyası yazar, Hop hemen uygular; ikinci bir
-dosyadan neyin çalıştığını okur. Bkz. [docs/automation.md](../automation.md).
 
 ## 22 dil
 

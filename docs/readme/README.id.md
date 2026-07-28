@@ -83,8 +83,8 @@ bilah menu; masing-masing dinyalakan terpisah.
 **Agen AI Anda juga bisa menambah tugas.** Daftarnya berupa berkas JSON biasa,
 dan Hop membaca perubahannya saat berjalan. Hop juga menjalankan perintah dari
 sebuah berkas dan memahami tautan `hop://`: agen yang sama, atau sebuah Pintasan
-— dan lewatnya Siri dalam bahasa Anda — bisa memulai pengatur waktu, menambah
-tugas berpengingat, atau membaca apa yang sedang berjalan. Lihat
+yang dibuat dari tautan itu, bisa memulai pengatur waktu, menambah tugas
+berpengingat, atau membaca apa yang sedang berjalan. Lihat
 [docs/automation.md](../automation.md).
 
 <div align="center">
@@ -245,20 +245,6 @@ terakhir.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Konverter file Hop — konversi batch gambar, PDF, video, dan audio">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Pengaturan Hop — tema, modul, pintasan, 22 bahasa">
 </div>
-
-### Siri, Pintasan, dan agen AI Anda
-
-Minta Siri dan Hop mengerjakannya: "start a timer in Hop", "add a task to Hop",
-"lock the keyboard in Hop", "keep the Mac awake with Hop", "recognize text with
-Hop". Tidak ada yang perlu disiapkan: kelima aksi yang sama muncul sendiri di
-Pintasan dan Spotlight. (Apple mensyaratkan nama aplikasi disebut dalam kalimat.)
-
-Agen AI Anda sendiri — Claude Code, Codex, skrip apa pun — bisa mengendalikan
-hampir semua sisanya: pengatur waktu dan stopwatch, pencatatan waktu, tugas
-berpengingat dan berulang, anti-tidur, mode tutup, kunci papan ketik, penataan
-jendela, tes kecepatan, pengenalan, papan klip. Ia menulis berkas JSON kecil yang
-langsung dijalankan Hop, dan membaca berkas kedua untuk melihat apa yang berjalan.
-Lihat [docs/automation.md](../automation.md).
 
 ## 22 bahasa
 

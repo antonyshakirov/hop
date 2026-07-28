@@ -82,8 +82,8 @@ Hop が知らせます——「スヌーズ」と「完了」付きのバナー�
 
 **あなたの AI エージェントもタスクを追加できます。** リストはただの JSON ファイルで、Hop は
 実行中でもその変更を読み取ります。コマンドファイルの実行と `hop://` リンクにも対応するので、
-同じエージェント、あるいはショートカット（さらにそれ越しに、あなたの言語で話しかける Siri）が
-タイマーを開始したり、リマインド付きのタスクを追加したり、いま動いているものを読み取れます。
+同じエージェント、あるいはそのリンクで作ったショートカットが、タイマーを開始したり、
+リマインド付きのタスクを追加したり、いま動いているものを読み取れます。
 [docs/automation.md](../automation.md) を参照。
 
 <div align="center">
@@ -230,19 +230,6 @@ ck に並び、アイコンを押せばパネルを開かずにそのウイン�
 <img src="https://www.antonshakirov.com/products/hop/screens/ja/converter.png" width="280" alt="Hop ファイル変換 — 画像、PDF、動画、音声の一括変換">
 <img src="https://www.antonshakirov.com/products/hop/screens/ja/settings.png" width="280" alt="Hop 設定 — テーマ、モジュール、ホットキー、22言語">
 </div>
-
-### Siri、ショートカット、そして自分の AI エージェント
-
-Siri に言えば Hop が実行します——「start a timer in Hop」「add a task to Hop」
-「lock the keyboard in Hop」「keep the Mac awake with Hop」「recognize text with Hop」。
-設定は不要で、同じ 5 つの動作はショートカットと Spotlight にも自動で現れます
-（Apple の決まりで、話しかける言葉にアプリ名が必要です）。
-
-自分の AI エージェント——Claude Code、Codex、任意のスクリプト——は残りのほとんども
-動かせます。タイマーとストップウォッチ、時間の記録、リマインドや繰り返し付きのタスク、
-スリープ防止、クラムシェル、キーボードロック、ウィンドウ配置、速度テスト、認識、
-クリップボード。小さな JSON ファイルを書けば Hop がすぐ実行し、もう一つのファイルから
-現在の状態を読み取れます。詳しくは [docs/automation.md](../automation.md)。
 
 ## 22 言語
 

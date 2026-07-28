@@ -84,8 +84,8 @@ dia, hora e os dias da semana que quiser — e o Hop avisa: um alerta com «adia
 **O seu agente de IA também pode adicionar tarefas.** A lista é um ficheiro JSON
 comum e o Hop recolhe as alterações enquanto está a correr. O Hop também executa
 comandos a partir de um ficheiro e entende links `hop://`: o mesmo agente, ou um
-atalho e através dele a Siri no seu idioma, pode iniciar um temporizador,
-adicionar uma tarefa com lembrete ou saber o que está a correr. Ver
+atalho construído sobre um desses links, pode iniciar um temporizador, adicionar
+uma tarefa com lembrete ou saber o que está a correr. Ver
 [docs/automation.md](../automation.md).
 
 <div align="center">
@@ -244,20 +244,6 @@ volta em vez de abrir o painel; com a última janela o ícone desaparece.
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/converter.png" width="280" alt="Conversor de arquivos do Hop — conversão em lote de imagens, PDFs, vídeo e áudio">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/settings.png" width="280" alt="Ajustes do Hop — temas, módulos, atalhos, 22 idiomas">
 </div>
-
-### Siri, Atalhos e o seu agente de IA
-
-Peça à Siri e o Hop faz: «start a timer in Hop», «add a task to Hop», «lock the
-keyboard in Hop», «keep the Mac awake with Hop», «recognize text with Hop». Não
-há nada a configurar: as mesmas cinco ações aparecem sozinhas nos Atalhos e no
-Spotlight. (A Apple exige que a frase falada diga o nome da app.)
-
-O seu agente de IA — Claude Code, Codex, um script — pode conduzir quase todo o
-resto: temporizador e cronómetro, contagem de tempo, tarefas com lembretes e
-repetições, manter acordado, modo tampa, bloqueio do teclado, arrumação de
-janelas, teste de velocidade, reconhecimento, área de transferência. Escreve um
-pequeno ficheiro JSON que o Hop executa de imediato e lê noutro o que está a
-correr. Ver [docs/automation.md](../automation.md).
 
 ## 22 idiomas
 

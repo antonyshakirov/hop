@@ -74,7 +74,7 @@ macOS 14 ומעלה.
 
 **גם סוכן ה-AI שלכם יכול להוסיף משימות.** הרשימה היא קובץ JSON רגיל, ו-Hop קולט את
 השינויים בזמן שהוא פועל. Hop גם מבצע פקודות מתוך קובץ ומבין קישורי `hop://`: אותו סוכן,
-או קיצור — ודרכו Siri בשפה שלכם — יכול להפעיל טיימר, להוסיף משימה עם תזכורת או לקרוא מה
+או קיצור שנבנה סביב קישור כזה, יכול להפעיל טיימר, להוסיף משימה עם תזכורת או לקרוא מה
 פועל כרגע. ראו [docs/automation.md](../automation.md).
 
 <div align="center">
@@ -225,19 +225,6 @@ magnet כברירת מחדל.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="ממיר הקבצים של Hop — המרת אצווה של תמונות, PDF, וידאו ושמע">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="ההגדרות של Hop — ערכות נושא, מודולים, קיצורים, 22 שפות">
 </div>
-
-### Siri, קיצורים וסוכן ה-AI שלכם
-
-אמרו ל-Siri ו-Hop יעשה — "start a timer in Hop", "add a task to Hop", "lock the
-keyboard in Hop", "keep the Mac awake with Hop", "recognize text with Hop". אין מה
-להגדיר: אותן חמש פעולות מופיעות מעצמן גם בקיצורים וב-Spotlight. (אפל דורשת ששם
-האפליקציה יופיע במשפט המדובר.)
-
-סוכן ה-AI שלכם — claude code, codex או כל סקריפט — מפעיל כמעט את כל השאר: טיימר
-וסטופר, מדידת זמן, משימות עם תזכורות וחזרות, מניעת שינה, מצב מכסה סגור, נעילת
-מקלדת, סידור חלונות, בדיקת מהירות, זיהוי טקסט ולוח הגזירים. הוא כותב קובץ JSON קטן
-ש-Hop מבצע מיד, וקורא בקובץ שני מה פועל כרגע. ראו
-[docs/automation.md](../automation.md).
 
 ## 22 שפות
 

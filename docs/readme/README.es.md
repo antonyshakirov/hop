@@ -85,8 +85,8 @@ menús; cada uno se activa por separado.
 **Tu propio agente de IA también puede añadir tareas.** La lista es un archivo
 JSON normal y Hop recoge los cambios mientras funciona. Hop también ejecuta
 órdenes desde un archivo y entiende enlaces `hop://`: ese mismo agente, o un
-atajo y con él Siri en tu idioma, puede iniciar un temporizador, añadir una tarea
-con recordatorio o consultar qué está en marcha. Ver
+atajo construido sobre uno de esos enlaces, puede iniciar un temporizador, añadir
+una tarea con recordatorio o consultar qué está en marcha. Ver
 [docs/automation.md](../automation.md).
 
 <div align="center">
@@ -248,20 +248,6 @@ de abrir el panel; con la última ventana el icono desaparece.
 <img src="https://www.antonshakirov.com/products/hop/screens/es/converter.png" width="280" alt="Conversor de archivos de Hop — conversión por lotes de imágenes, PDF, vídeo y audio">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/settings.png" width="280" alt="Ajustes de Hop — temas, módulos, atajos, 22 idiomas">
 </div>
-
-### Siri, Atajos y tu agente de IA
-
-Pídeselo a Siri y Hop lo hace: «start a timer in Hop», «add a task to Hop», «lock
-the keyboard in Hop», «keep the Mac awake with Hop», «recognize text with Hop».
-No hay nada que configurar: esas mismas cinco acciones aparecen solas en Atajos y
-en Spotlight. (Apple exige que la frase hablada nombre la app.)
-
-Tu propio agente de IA — Claude Code, Codex, un script — puede manejar casi todo
-lo demás: temporizador y cronómetro, seguimiento de tiempo, tareas con
-recordatorios y repeticiones, mantener despierto, modo tapa, bloqueo del teclado,
-colocación de ventanas, test de velocidad, reconocimiento, portapapeles. Escribe
-un pequeño archivo JSON que Hop ejecuta al instante y lee en otro qué está
-pasando. Ver [docs/automation.md](../automation.md).
 
 ## 22 idiomas
 

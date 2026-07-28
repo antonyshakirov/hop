@@ -113,24 +113,10 @@ hop://lid/on
 
 From a terminal or a script: `open "hop://timer/start?minutes=16"`.
 
-### Siri and Shortcuts
+### Shortcuts
 
-Hop publishes five actions of its own — start a timer, add a task, lock the
-keyboard, keep the Mac awake, recognize text on screen. They appear in Shortcuts
-and Spotlight by themselves, and Siri takes them spoken:
-
-- "Start a timer in Hop"
-- "Add a task to Hop"
-- "Lock the keyboard in Hop"
-- "Keep the Mac awake with Hop"
-- "Recognize text with Hop"
-
-Apple's rule, not Hop's: **the phrase has to name the app**. "Lock the keyboard"
-on its own goes to the system, not here.
-
-For anything the five actions do not cover, a Shortcut whose only step is
-**Open URL** with one of the links above works too, and you can name it whatever
-you like to say.
+Any of the links above works as a Shortcut: one action, **Open URL**, with the
+link in it. Name it whatever suits you and it runs like any other shortcut.
 
 ## Editing the task list directly
 

@@ -85,7 +85,7 @@ ciascuno attivabile a parte.
 **Anche il tuo agente IA può aggiungere attività.** L'elenco è un normale file
 JSON e Hop ne raccoglie le modifiche mentre è in esecuzione. Hop esegue anche
 comandi da un file e capisce i link `hop://`: lo stesso agente, o un comando
-rapido e con esso Siri nella tua lingua, può avviare un timer, aggiungere
+rapido costruito su uno di quei link, può avviare un timer, aggiungere
 un'attività con promemoria o leggere cosa sta girando. Vedi
 [docs/automation.md](../automation.md).
 
@@ -249,20 +249,6 @@ pannello; con l'ultima finestra l'icona sparisce.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Convertitore di file di Hop — conversione in batch di immagini, PDF, video e audio">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Impostazioni di Hop — temi, moduli, scorciatoie, 22 lingue">
 </div>
-
-### Siri, Comandi rapidi e il tuo agente IA
-
-Chiedilo a Siri e Hop lo fa: «start a timer in Hop», «add a task to Hop», «lock
-the keyboard in Hop», «keep the Mac awake with Hop», «recognize text with Hop».
-Non c'è nulla da configurare: le stesse cinque azioni compaiono da sole nei
-Comandi rapidi e in Spotlight. (Apple richiede che la frase nomini l'app.)
-
-Il tuo agente IA — Claude Code, Codex, uno script — può guidare quasi tutto il
-resto: timer e cronometro, tracciamento del tempo, attività con promemoria e
-ripetizioni, veglia forzata, modo coperchio, blocco tastiera, disposizione delle
-finestre, test di velocità, riconoscimento, appunti. Scrive un piccolo file JSON
-che Hop esegue subito e legge in un secondo che cosa sta girando. Vedi
-[docs/automation.md](../automation.md).
 
 ## 22 lingue
 

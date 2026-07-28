@@ -52,40 +52,6 @@ public enum AgentCommand: Equatable, Sendable {
     }
 }
 
-public extension AgentCommand {
-    /// The command written back out in the file's own vocabulary — used when an
-    /// intent fires before the app is running and has to leave a note for it.
-    var fileEntry: [String: Any]? {
-        switch self {
-        case .timerStart(let seconds): return ["do": "timer.start", "seconds": seconds]
-        case .timerPause: return ["do": "timer.pause"]
-        case .timerReset: return ["do": "timer.reset"]
-        case .stopwatchStart: return ["do": "stopwatch.start"]
-        case .stopwatchStop: return ["do": "stopwatch.stop"]
-        case .trackerStart(let task): return ["do": "tracker.start", "task": task]
-        case .trackerStop: return ["do": "tracker.stop"]
-        case .todoAdd(let draft): return ["do": "todo.add", "text": draft.text]
-        case .todoComplete(let text): return ["do": "todo.complete", "text": text]
-        case .todoDelete(let text): return ["do": "todo.delete", "text": text]
-        case .keepAwake(let on, let seconds):
-            var entry: [String: Any] = ["do": on ? "keepawake.on" : "keepawake.off"]
-            if let seconds { entry["seconds"] = seconds }
-            return entry
-        case .lidMode(let on): return ["do": on ? "lid.on" : "lid.off"]
-        case .keyboardLock(let on, let seconds):
-            var entry: [String: Any] = ["do": on ? "keyboard.lock" : "keyboard.unlock"]
-            if let seconds { entry["seconds"] = seconds }
-            return entry
-        case .windowSnap(let position): return ["do": "window.snap", "position": position]
-        case .speedTest: return ["do": "speedtest.run"]
-        case .colorPick: return ["do": "color.pick"]
-        case .recognizeText: return ["do": "ocr.capture"]
-        case .clipboardCopy(let text): return ["do": "clipboard.copy", "text": text]
-        case .openPanel: return ["do": "panel.open"]
-        }
-    }
-}
-
 /// Parses the command file. Every rule here is forgiving on purpose: the writer
 /// is a language model or a hand-edited file, so one malformed entry must not
 /// discard the rest, and an unknown verb must not crash a menu-bar app.
@@ -108,10 +74,10 @@ public enum AgentCommandParser {
         return entries.compactMap(command(from:))
     }
 
-    /// A `hop://` link, which is what a Shortcut (and therefore Siri, in whatever
-    /// language the user speaks to it) can open: `hop://timer/start?minutes=16`,
-    /// `hop://todo/add?text=call%20the%20notary`. The host and path spell the same
-    /// verb the file uses, and the query carries the same fields.
+    /// A `hop://` link — what a Shortcut, a script or `open` can fire:
+    /// `hop://timer/start?minutes=16`, `hop://todo/add?text=call%20the%20notary`.
+    /// The host and path spell the same verb the file uses, and the query carries
+    /// the same fields.
     public static func parse(url: URL) -> AgentCommand? {
         guard url.scheme?.lowercased() == "hop" else { return nil }
         let parts = [url.host ?? ""] + url.path.split(separator: "/").map(String.init)

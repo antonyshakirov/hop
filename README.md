@@ -82,9 +82,9 @@ bar, whichever of the three you leave switched on.
 **Your own AI agent can add tasks too.** The list is a plain JSON file and Hop
 picks up changes to it while it runs, so an agent — or a script, or you in a text
 editor — can append a task and watch it appear. Hop also performs commands from a
-file and answers `hop://` links, so that same agent, or a Shortcut and through it
-Siri in whatever language you speak to it, can start a timer, add a task with a
-reminder, or read what is running. See [docs/automation.md](docs/automation.md).
+file and answers `hop://` links, so that same agent — or a Shortcut you build
+around one — can start a timer, add a task with a reminder, or read what is
+running. See [docs/automation.md](docs/automation.md).
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Time tracker & to-dos">
@@ -239,21 +239,6 @@ back instead of opening the panel first; the icon leaves with the last window.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop file converter — batch image, PDF, video and audio conversion">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop settings — themes, modules, hotkeys, 22 languages">
 </div>
-
-### Siri, Shortcuts and your AI agent
-
-Ask Siri and Hop does it — "start a timer in Hop", "add a task to Hop", "lock the
-keyboard in Hop", "keep the Mac awake with Hop", "recognize text with Hop".
-Nothing to set up: the same five actions appear in Shortcuts and Spotlight on
-their own. (Apple requires a spoken phrase to name the app, so a bare "lock the
-keyboard" goes to the system instead.)
-
-Your own AI agent — Claude Code, Codex, a shell script — can drive nearly all of
-Hop as well: the timer and stopwatch, time tracking, tasks with reminders and
-repeats, keep-awake, lid mode, the keyboard lock, window snapping, the speed
-test, recognition, the clipboard. It writes a small JSON file that Hop performs
-at once, and reads a second file to see what is running. See
-[docs/automation.md](docs/automation.md).
 
 ## 22 languages
 

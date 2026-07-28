@@ -87,7 +87,7 @@ marque dans la barre des menus, chacun activable séparément.
 **Votre agent IA peut aussi ajouter des tâches.** La liste est un simple fichier
 JSON et Hop en suit les modifications en direct. Hop exécute également des
 commandes depuis un fichier et comprend les liens `hop://` : ce même agent, ou un
-raccourci et par lui Siri dans votre langue, peut lancer un minuteur, ajouter une
+raccourci bâti autour d'un de ces liens, peut lancer un minuteur, ajouter une
 tâche avec rappel ou lire ce qui tourne. Voir
 [docs/automation.md](../automation.md).
 
@@ -254,20 +254,6 @@ fenêtre l'icône s'en va.
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/converter.png" width="280" alt="Convertisseur de fichiers Hop — conversion par lots d'images, PDF, vidéos et audio">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/settings.png" width="280" alt="Réglages de Hop — thèmes, modules, raccourcis, 22 langues">
 </div>
-
-### Siri, Raccourcis et votre agent IA
-
-Demandez à Siri et Hop s'exécute : « start a timer in Hop », « add a task to
-Hop », « lock the keyboard in Hop », « keep the Mac awake with Hop », « recognize
-text with Hop ». Rien à configurer : ces cinq actions apparaissent d'elles-mêmes
-dans Raccourcis et Spotlight. (Apple exige que la phrase nomme l'application.)
-
-Votre propre agent IA — Claude Code, Codex, un script — pilote presque tout le
-reste : minuteur et chronomètre, suivi du temps, tâches avec rappels et
-répétitions, veille bloquée, mode capot, verrouillage du clavier, placement des
-fenêtres, test de débit, reconnaissance, presse-papiers. Il écrit un petit
-fichier JSON que Hop exécute aussitôt et lit dans un second ce qui tourne. Voir
-[docs/automation.md](../automation.md).
 
 ## 22 langues
 

@@ -85,8 +85,8 @@ Zeichen in der Menüleiste, jedes einzeln abschaltbar.
 **Auch Ihr KI-Agent kann Aufgaben anlegen.** Die Liste ist eine schlichte
 JSON-Datei, und Hop übernimmt Änderungen im laufenden Betrieb. Hop führt zudem
 Befehle aus einer Datei aus und versteht `hop://`-Links — derselbe Agent oder ein
-Kurzbefehl, und damit Siri in Ihrer Sprache, kann einen Timer starten, eine
-Aufgabe mit Erinnerung anlegen oder abfragen, was gerade läuft. Siehe
+Kurzbefehl um so einen Link herum kann einen Timer starten, eine Aufgabe mit
+Erinnerung anlegen oder abfragen, was gerade läuft. Siehe
 [docs/automation.md](../automation.md).
 
 <div align="center">
@@ -249,21 +249,6 @@ mit dem letzten fenster verschwindet es wieder.
 <img src="https://www.antonshakirov.com/products/hop/screens/de/converter.png" width="280" alt="Hop-Dateikonverter — Stapelkonvertierung von Bildern, PDFs, Videos und Audio">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/settings.png" width="280" alt="Hop-Einstellungen — Themes, Module, Hotkeys, 22 Sprachen">
 </div>
-
-### Siri, Kurzbefehle und Ihr KI-Agent
-
-Sagen Sie es Siri, und Hop tut es — „start a timer in Hop", „add a task to Hop",
-„lock the keyboard in Hop", „keep the Mac awake with Hop", „recognize text with
-Hop". Nichts einzurichten: dieselben fünf Aktionen erscheinen von selbst in
-Kurzbefehlen und Spotlight. (Apple verlangt den App-Namen in der gesprochenen
-Phrase.)
-
-Ihr eigener KI-Agent — Claude Code, Codex, ein Shell-Skript — steuert fast alles
-Übrige: Timer und Stoppuhr, Zeiterfassung, Aufgaben mit Erinnerungen und
-Wiederholungen, Wachhalten, Deckelmodus, Tastatursperre, Fensterplatzierung,
-Speedtest, Erkennung, Zwischenablage. Er schreibt eine kleine JSON-Datei, die Hop
-sofort ausführt, und liest in einer zweiten, was gerade läuft. Siehe
-[docs/automation.md](../automation.md).
 
 ## 22 Sprachen
 

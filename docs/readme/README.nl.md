@@ -84,8 +84,8 @@ menubalk; elk apart aan te zetten.
 **Ook je eigen AI-agent kan taken toevoegen.** De lijst is een gewoon
 JSON-bestand en Hop pikt wijzigingen tijdens het draaien op. Hop voert ook
 opdrachten uit een bestand uit en begrijpt `hop://`-links: diezelfde agent, of een
-Opdracht — en daarmee Siri in jouw taal — kan een timer starten, een taak met
-herinnering toevoegen of lezen wat er draait. Zie
+Opdracht rond zo'n link, kan een timer starten, een taak met herinnering
+toevoegen of lezen wat er draait. Zie
 [docs/automation.md](../automation.md).
 
 <div align="center">
@@ -247,20 +247,6 @@ te openen, en met het laatste venster verdwijnt het icoon weer.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop-bestandsconverter — batchconversie van afbeeldingen, pdf's, video en audio">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop-instellingen — thema's, modules, sneltoetsen, 22 talen">
 </div>
-
-### Siri, Opdrachten en je AI-agent
-
-Vraag het Siri en Hop doet het — "start a timer in Hop", "add a task to Hop",
-"lock the keyboard in Hop", "keep the Mac awake with Hop", "recognize text with
-Hop". Niets in te stellen: dezelfde vijf acties verschijnen vanzelf in Opdrachten
-en Spotlight. (Apple eist dat de uitgesproken zin de app-naam bevat.)
-
-Je eigen AI-agent — Claude Code, Codex, een script — bestuurt bijna al het
-overige: timer en stopwatch, tijdregistratie, taken met herinneringen en
-herhalingen, wakker houden, klepmodus, toetsenbordvergrendeling, vensterindeling,
-snelheidstest, herkenning, klembord. Hij schrijft een klein JSON-bestand dat Hop
-meteen uitvoert en leest in een tweede wat er draait. Zie
-[docs/automation.md](../automation.md).
 
 ## 22 talen
 

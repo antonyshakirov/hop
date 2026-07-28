@@ -70,10 +70,6 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp ".build/$CONFIGURATION/Hop" "$APP/Contents/MacOS/Hop"
 cp scripts/Info.plist "$APP/Contents/Info.plist"
 cp assets/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
-# Siri and Shortcuts learn Hop's actions from this bundle; without it the app
-# intents in Sources/Hop/AppIntents.swift are invisible outside the app.
-./scripts/app-intents-metadata.sh "$APP" "$CONFIGURATION" \
-    "$([[ $DEV == 1 ]] && echo com.antonshakirov.minimo.dev || echo com.antonshakirov.minimo)"
 for icon in "${DOC_ICONS[@]}"; do
     cp "assets/$icon.icns" "$APP/Contents/Resources/$icon.icns"
 done
