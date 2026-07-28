@@ -54,8 +54,9 @@ final class TodosController: ObservableObject {
     /// other displayed items; the model clamps it to the dragged item's group so
     /// a drag never crosses the active/completed boundary. Saved like every other
     /// mutation.
-    func reorder(dragging id: UUID, toDisplayInsertion index: Int) {
-        list.reorderInDisplay(dragging: id, toDisplayInsertion: index)
+    func reorder(dragging id: UUID, toDisplayInsertion index: Int, importantFirst: Bool = false) {
+        list.reorderInDisplay(dragging: id, toDisplayInsertion: index,
+                              importantFirst: importantFirst)
         save()
     }
 

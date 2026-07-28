@@ -35,6 +35,13 @@ struct TodosView: View {
     @State private var hovered: UUID?
     // Which row is in delete-confirm mode (single: a new confirm closes any other).
     @State private var confirmingDelete: UUID?
+    // Which row is expanded into its card, and the draft it is editing. One card
+    // at a time: opening another closes this one, so the panel cannot grow without
+    // bound and there is never a question of which edit a commit belongs to.
+    @State private var expanded: UUID?
+    @State private var card: TaskCardDraft?
+    // Rows with an unacknowledged firing blink three times on the first open.
+    @State private var blinkPhase = false
 
     // Drag-to-reorder: a vertical drag anywhere on a row lifts an item; the drop
     // resolves against measured row frames. One move per completed drag.
@@ -49,6 +56,9 @@ struct TodosView: View {
     /// "visible rows" cap: 0 = all (default), 3…15 caps the list to a fixed height
     /// with inner scroll.
     @AppStorage(TodosController.visibleRowsKey) private var visibleRows = TodosController.defaultVisibleRows
+    /// Float important tasks to the top of the list. OFF by default: marking a
+    /// task important is a mark, and moving it is a separate decision.
+    @AppStorage(SettingsKey.todoImportantOnTop) private var importantOnTop = false
 
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
@@ -57,6 +67,12 @@ struct TodosView: View {
     /// instead) — reorder is for the short, fully-visible list.
     private var capped: Bool {
         !Snapshot.active && RowCap.scrolls(stored: visibleRows, count: todos.list.displayItems.count)
+    }
+
+    /// Display order, honouring the importance setting. A snapshot renders the
+    /// plain order so screenshots never depend on a preference.
+    private var displayItems: [TodoItem] {
+        todos.list.displayItems(importantFirst: importantOnTop && !Snapshot.active)
     }
 
     /// Finite reorder animation for the sink-to-bottom (and the return trip).
@@ -68,7 +84,7 @@ struct TodosView: View {
         // Display order: active items (stored order) first, then completed items
         // (stored order). Completing an item sinks it to the bottom pile WITHOUT
         // touching the stored order, so unchecking returns it to its slot.
-        let items = todos.list.displayItems
+        let items = displayItems
         return VStack(alignment: .leading, spacing: 3) {
             // An empty list shows only the subheader and the add row — the
             // subheader already names the module, so no placeholder line.
@@ -91,12 +107,37 @@ struct TodosView: View {
         .onPreferenceChange(RowFrameKey.self) { rowFrames = $0 }
         .overlay(alignment: .topLeading) { dropIndicatorOverlay }
         .onChange(of: adding) { _, on in onEditingChanged?(on && !Snapshot.active) }
+        .onChange(of: expanded) { _, id in onEditingChanged?(id != nil && !Snapshot.active) }
+        .onAppear {
+            // The panel is open, so anything that fired while it was closed has
+            // now been seen: blink the rows three times, then clear the mark.
+            todos.reconcile()
+            acknowledgeWithBlink()
+        }
         .onDisappear {
-            // @State survives the popover hide/show — a left-open field or a
-            // pending confirm would reappear on the next open, so clear both here.
+            // @State survives the popover hide/show — a left-open field, a pending
+            // confirm or an open card would reappear on the next open, so clear
+            // all three here.
             endAdd()
             clearConfirms()
+            collapseCard()
             resetDrag()
+        }
+    }
+
+    /// Three finite blinks (no repeatForever — an endless animation retriggers the
+    /// panel's size recompute), then the firings count as acknowledged.
+    private func acknowledgeWithBlink() {
+        guard !Snapshot.active, todos.list.hasUnseenFiring else { return }
+        blinkPhase = false
+        for step in 0..<6 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35 * Double(step)) {
+                withAnimation(.easeInOut(duration: 0.17)) { blinkPhase = step % 2 == 0 }
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35 * 6) {
+            blinkPhase = false
+            todos.acknowledgeFirings()
         }
     }
 
@@ -110,7 +151,23 @@ struct TodosView: View {
             .padding(.horizontal, 2)
     }
 
-    private func row(_ item: TodoItem) -> some View {
+    @ViewBuilder private func row(_ item: TodoItem) -> some View {
+        if expanded == item.id, card != nil, !Snapshot.active {
+            TaskCardView(draft: Binding(get: { card ?? TaskCardDraft(text: item.text,
+                                                                    note: item.note,
+                                                                    important: item.important) },
+                                        set: { card = $0 }),
+                         lang: lang,
+                         onCommit: { commitCard(item) },
+                         onCancel: { collapseCard() })
+                .padding(.horizontal, 2)
+                .background(rowFrameReader(item.id))
+        } else {
+            collapsedRow(item)
+        }
+    }
+
+    private func collapsedRow(_ item: TodoItem) -> some View {
         HStack(spacing: 6) {
             Button { withAnimation(Self.sinkAnimation) { todos.toggle(item.id) } } label: {
                 // same circle family and diameter as the tracker's play/stop, in
@@ -142,6 +199,21 @@ struct TodosView: View {
             // long already-truncated text yields room to the xmark instead of
             // running under it (a trailing overlay could not guarantee that).
             Spacer(minLength: 6)
+            // "there is something inside" — the collapsed row's only hint that
+            // the card holds a comment. Inert: the whole row opens the card.
+            if !item.note.isEmpty {
+                Image(systemName: "text.alignleft")
+                    .font(.system(size: 9))
+                    .foregroundStyle(Theme.textTertiary)
+            }
+            if let firing = RemindSchedule.effectiveFiring(item) {
+                // A time in the past means it already fired: struck through, so a
+                // banner that went unseen still leaves a trace in the list.
+                Text(Self.timeLabel.string(from: firing))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textTertiary)
+                    .strikethrough(firing <= Date(), color: Theme.textTertiary)
+            }
             if confirmingDelete == item.id {
                 // confirm swaps in for the ✕ only — the checkbox and text keep
                 // their place, so the row's silhouette and height don't change.
@@ -157,11 +229,20 @@ struct TodosView: View {
         }
         .padding(.horizontal, 2)
         .padding(.vertical, 2)
+        // An overlay rather than a border: the frame must not add height, or a
+        // list of important tasks would break RowCap's 29·cap − 3 maths.
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .strokeBorder(Theme.accentOrange.opacity(0.55), lineWidth: 1)
+                .opacity(item.important ? 1 : 0)
+        )
+        .opacity(item.firedUnseen && blinkPhase ? 0.25 : 1)
         .background(rowFrameReader(item.id))
         // whole-row drag surface: grabbing anywhere reorders (see dragGesture).
         // While the list scrolls (capped), the row gesture stands down
         // (`.subviews`) so the pan scrolls and the checkbox/xmark keep their taps.
         .contentShape(Rectangle())
+        .onTapGesture { expandCard(item) }
         .gesture(dragGesture(item.id), including: capped ? .subviews : .all)
         .opacity(dragItem == item.id ? 0.4 : 1)
         .offset(dragItem == item.id ? dragTranslation : .zero)
@@ -170,6 +251,13 @@ struct TodosView: View {
             if inside { hovered = item.id } else if hovered == item.id { hovered = nil }
         }
     }
+
+    /// The row's reminder time, in the user's own clock format.
+    private static let timeLabel: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("j:mm")
+        return formatter
+    }()
 
     @ViewBuilder private var addRow: some View {
         if adding, !Snapshot.active {
@@ -230,14 +318,17 @@ struct TodosView: View {
                         return
                     }
                     dragItem = id
-                    endAdd()        // a drag must not fight an open add field
-                    clearConfirms() // …or a pending delete confirm
+                    endAdd()         // a drag must not fight an open add field
+                    clearConfirms()  // …or a pending delete confirm
+                    collapseCard()   // …or an open card, whose fields own the pointer
                 }
                 dragTranslation = value.translation
                 // clamp the insertion into the dragged item's group, so the
-                // indicator line stops at the active/completed boundary
+                // indicator line stops at a group boundary (active/completed, and
+                // important/ordinary while that setting is on)
                 dropIndex = TodoDisplay.clampedInsertion(
-                    todos.list.items, dragging: id, rawInsertion: resolveDrop(at: value.location.y))
+                    todos.list.items, dragging: id, rawInsertion: resolveDrop(at: value.location.y),
+                    importantFirst: importantOnTop)
             }
             .onEnded { value in
                 if dragItem == id { commitDrop(id, resolveDrop(at: value.location.y)) }
@@ -256,7 +347,8 @@ struct TodosView: View {
         guard let toDisplayIndex else { return }
         // reorder clamps to the item's group internally; animate the settle
         withAnimation(Self.sinkAnimation) {
-            todos.reorder(dragging: id, toDisplayInsertion: toDisplayIndex)
+            todos.reorder(dragging: id, toDisplayInsertion: toDisplayIndex,
+                          importantFirst: importantOnTop)
         }
     }
 
@@ -270,7 +362,8 @@ struct TodosView: View {
     private func indicatorY(for toIndex: Int) -> CGFloat? {
         // toIndex is a DISPLAY-order insertion index (rows are laid out in display
         // order), so resolve the line against the display-order ids.
-        let ids = TodoDisplay.order(todos.list.items).map(\.id).filter { $0 != dragItem }
+        let ids = TodoDisplay.order(todos.list.items, importantFirst: importantOnTop)
+            .map(\.id).filter { $0 != dragItem }
         if ids.isEmpty { return nil }
         if toIndex <= 0 { return rowFrames[ids.first!]?.minY }
         if toIndex >= ids.count { return rowFrames[ids.last!]?.maxY }
@@ -307,6 +400,43 @@ struct TodosView: View {
 
     private func clearConfirms() {
         confirmingDelete = nil
+    }
+
+    // MARK: - Card lifecycle
+
+    /// Opens the card for a row, seeding its draft from what is stored. Opening
+    /// one card closes any other — and any pending confirm or add field, which
+    /// would otherwise compete for the same keyboard.
+    private func expandCard(_ item: TodoItem) {
+        guard !Snapshot.active else { return }
+        guard expanded != item.id else { return }
+        endAdd()
+        clearConfirms()
+        card = TaskCardDraft(text: item.text, note: item.note, important: item.important,
+                             reminder: ReminderDraft(date: item.remindAt,
+                                                     repeatDays: item.repeatDays))
+        expanded = item.id
+    }
+
+    private func collapseCard() {
+        expanded = nil
+        card = nil
+    }
+
+    /// Writes the draft back. Each field goes through its own mutator, so an
+    /// unchanged one costs nothing, and a cleared date removes the reminder
+    /// outright rather than leaving a half-armed one behind.
+    private func commitCard(_ item: TodoItem) {
+        guard let card else { return collapseCard() }
+        todos.setText(item.id, to: card.text)
+        todos.setNote(item.id, to: card.note)
+        withAnimation(Self.sinkAnimation) { todos.setImportant(item.id, card.important) }
+        if let date = card.reminder?.date {
+            todos.setReminder(item.id, at: date, repeatDays: card.reminder?.repeatDays ?? [])
+        } else if item.remindAt != nil {
+            todos.clearReminder(item.id)
+        }
+        collapseCard()
     }
 
     private func commit() {
