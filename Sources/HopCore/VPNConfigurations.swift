@@ -88,7 +88,16 @@ public enum VPNConfigurations {
         return state(named: first.trimmingCharacters(in: .whitespaces))
     }
 
-    /// What `name` says that `appName` does not. nil when it says nothing new.
+    /// Words that describe the plumbing rather than the connection. A protocol
+    /// name in the row tells the user nothing they can act on — what they want to
+    /// see there is the country (Anton, 2026-07-29).
+    private static let technical: Set<String> = [
+        "openvpn", "ikev2", "ikev1", "ipsec", "l2tp", "pptp", "wireguard", "wg",
+        "tcp", "udp", "vpn", "proxy", "tunnel",
+    ]
+
+    /// What `name` says that `appName` does not. nil when it says nothing new, or
+    /// nothing but plumbing.
     static func tail(of name: String, after appName: String) -> String? {
         let words = appName.lowercased()
             .split(whereSeparator: { !$0.isLetter && !$0.isNumber && $0 != "." })
@@ -103,7 +112,12 @@ public enum VPNConfigurations {
             let cleaned = token.trimmingCharacters(in: CharacterSet(charactersIn: "()[]{}"))
             if !cleaned.isEmpty { kept.append(cleaned) }
         }
-        let tail = kept.joined(separator: " ").trimmingCharacters(in: .whitespaces)
+        let meaningful = kept.filter { token in
+            let bare = token.lowercased().trimmingCharacters(
+                in: CharacterSet.alphanumerics.inverted)
+            return !technical.contains(bare)
+        }
+        let tail = meaningful.joined(separator: " ").trimmingCharacters(in: .whitespaces)
         return tail.isEmpty ? nil : tail
     }
 

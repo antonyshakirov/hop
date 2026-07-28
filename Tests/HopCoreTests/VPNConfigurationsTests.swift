@@ -96,6 +96,27 @@ final class VPNConfigurationsTests: XCTestCase {
         XCTAssertNil(configuration.subtitle, "the same words twice is noise")
     }
 
+    func testAProtocolNameIsNotWorthARow() {
+        // "hidemy.name vpn (OpenVPN)" under an app called "hidemy.name VPN" leaves
+        // only the protocol, which tells the user nothing they can act on
+        var configuration = VPNConfigurations.parseList(realOutput)[0]
+        configuration.appName = "hidemy.name VPN"
+        XCTAssertNil(configuration.subtitle)
+    }
+
+    func testACountrySurvivesTheFilter() {
+        var configuration = VPNConfigurations.parseList(realOutput)[1]
+        configuration.appName = "VanyaVPN"
+        XCTAssertEqual(configuration.subtitle, "Germany")
+    }
+
+    func testAProfileNameSurvivesToo() {
+        var configuration = VPNConfiguration(id: "x", name: "Work Berlin IKEv2",
+                                             bundleIdentifier: nil, state: .disconnected)
+        configuration.appName = "Corporate"
+        XCTAssertEqual(configuration.subtitle, "Work Berlin")
+    }
+
     func testStatusOutputIsOneWord() {
         XCTAssertEqual(VPNConfigurations.parseStatus("Connected\nExtended Status <dictionary> {"),
                        .connected)
