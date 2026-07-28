@@ -1026,6 +1026,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// compact progress window, while non-archive URLs keep their existing
     /// torrent/magnet route.
     private func processOpenBatch(_ urls: [URL]) {
+        // hop:// links come from Shortcuts (and therefore from Siri, in whatever
+        // language the user speaks to it) and from anything that can run `open`.
+        // Same command vocabulary as the command file, one parser for both.
+        let hopLinks = urls.filter { $0.scheme?.lowercased() == "hop" }
+        for link in hopLinks {
+            guard let command = AgentCommandParser.parse(url: link) else { continue }
+            agent?.perform(command)
+        }
+
         let archives = urls.filter {
             $0.isFileURL
                 && ((try? $0.resourceValues(
@@ -1035,7 +1044,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if !archives.isEmpty {
             showFinderArchiveProgress(for: archives)
         }
-        for url in urls where !archives.contains(url) {
+        for url in urls where !archives.contains(url) && !hopLinks.contains(url) {
             processOpen(url)
         }
     }

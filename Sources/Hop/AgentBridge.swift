@@ -79,6 +79,13 @@ final class AgentBridge {
         publishState()
     }
 
+    /// Performs one command from wherever it came — the file or a `hop://` link.
+    func perform(_ command: AgentCommand) {
+        guard let model else { return }
+        perform(command, on: model)
+        publishState()
+    }
+
     private func perform(_ command: AgentCommand, on model: AppModel) {
         switch command {
         case .timerStart(let seconds):

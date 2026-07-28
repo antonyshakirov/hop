@@ -1,8 +1,8 @@
 import HopCore
 import SwiftUI
 
-/// A reminder being edited. `date == nil` means "no reminder", which is what the
-/// ✕ in the card writes; `repeatDays` empty means one-shot.
+/// A reminder being edited. `date == nil` means "no reminder"; `repeatDays`
+/// empty means one-shot.
 struct ReminderDraft: Equatable {
     var date: Date?
     var repeatDays: [Int]
@@ -29,11 +29,11 @@ struct TaskCardDraft: Equatable {
 
 /// The expanded form of one task row, shared by the to-do list and the tracker.
 ///
-/// Every line is the SAME shape — a label on the left, a control on the right —
-/// because the first cut mixed plain labels with tappable text and it was not
-/// obvious which was which (Anton, 2026-07-28). So: the two text fields carry
-/// their own labels (`task`, `note`) and a field background, and everything
-/// tappable is drawn as a bordered chip.
+/// Shaped like a note, not like a form (Anton, 2026-07-28): the title is simply
+/// the first line, a hairline separates it from the description, and both fields
+/// take Return for a new line. Everything else is two small icons — a bell for
+/// the reminder, a star for a favourite — so nothing needs a caption to explain
+/// what it is.
 struct TaskCardView: View {
     @Binding var draft: TaskCardDraft
     let lang: AppLanguage
@@ -42,66 +42,65 @@ struct TaskCardView: View {
 
     @FocusState private var titleFocused: Bool
     /// Which day the weekday row starts on: the user's setting, or the system's
-    /// regional answer when it is left on auto.
+    /// regional answer while it is on auto.
     @AppStorage(SettingsKey.firstWeekday) private var firstWeekdaySetting = FirstWeekday.auto
-
-    private static let labelWidth: CGFloat = 62
 
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            field(t(.todoTaskLabel), text: $draft.text, focused: true,
-                  font: Theme.mono(12), color: Theme.textPrimary)
-            field(t(.todoNoteLabel), text: $draft.note, focused: false,
-                  font: Theme.mono(11), color: Theme.textSecondary,
-                  placeholder: t(.todoNotePlaceholder))
-            if draft.reminder != nil {
-                remindRow
-                if draft.reminder?.date != nil { repeatRow }
-            }
-            importantRow
-            HStack(spacing: 4) {
-                Spacer(minLength: 0)
-                FieldCommitButtons(onCommit: onCommit, onCancel: onCancel)
-            }
+        VStack(alignment: .leading, spacing: 0) {
+            title
+            Rectangle()
+                .fill(Theme.divider)
+                .frame(height: 1)
+                .padding(.vertical, 5)
+            description
+            controls
+            if draft.reminder?.date != nil { repeatRow.padding(.top, 5) }
         }
-        .padding(.horizontal, 6)
-        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 7)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
         .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.divider, lineWidth: 1))
+        // Return belongs to the text now, so Escape is what abandons the edit —
+        // the same key that cancels every other inline field in the panel.
+        .onExitCommand(perform: onCancel)
     }
 
-    // MARK: - Text fields
+    // MARK: - Text
 
-    /// Label + a real field box. The title and the note look alike on purpose —
-    /// they are the same kind of thing — and are told apart by their labels
-    /// rather than by size alone.
-    private func field(_ title: String, text: Binding<String>, focused: Bool,
-                       font: Font, color: Color, placeholder: String = "") -> some View {
-        HStack(alignment: .top, spacing: 6) {
-            label(title).padding(.top, 4)
-            TextField(placeholder, text: text, axis: .vertical)
-                .textFieldStyle(.plain)
-                .font(font)
-                .foregroundStyle(color)
-                .lineLimit(1...5)
-                .focused($titleFocused, equals: focused ? true : false)
-                .padding(.horizontal, 5)
-                .padding(.vertical, 4)
-                .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
-                .onSubmit(onCommit)
-        }
-        .onAppear { if focused, !Snapshot.active { titleFocused = true } }
+    /// The task itself, on the first line. No caption: a line at the top of a
+    /// card is its title, and Return here adds a line rather than committing —
+    /// the ✓ button (or Escape to abandon) ends the edit.
+    private var title: some View {
+        TextField("", text: $draft.text, axis: .vertical)
+            .textFieldStyle(.plain)
+            .font(Theme.mono(12))
+            .foregroundStyle(Theme.textPrimary)
+            .lineLimit(1...4)
+            .focused($titleFocused)
+            .onAppear { if !Snapshot.active { titleFocused = true } }
     }
 
-    // MARK: - Reminder
+    private var description: some View {
+        TextField(t(.todoNotePlaceholder), text: $draft.note, axis: .vertical)
+            .textFieldStyle(.plain)
+            .font(Theme.mono(11))
+            .foregroundStyle(Theme.textSecondary)
+            .lineLimit(1...6)
+    }
 
-    private var remindRow: some View {
-        HStack(spacing: 6) {
-            label(t(.todoRemindLabel))
-            dayChip
+    // MARK: - Controls
+
+    /// Two icons and, once a reminder exists, its day and time. The icons ARE the
+    /// switches — an icon next to a toggle saying the same thing was twice the
+    /// furniture for one decision.
+    private var controls: some View {
+        HStack(spacing: 8) {
+            if draft.reminder != nil { bellButton }
+            starButton
             if draft.reminder?.date != nil {
+                dayChip
                 NumericField(value: hourBinding, range: 0...23)
                 Text(":")
                     .font(Theme.mono(11, weight: .semibold))
@@ -109,21 +108,48 @@ struct TaskCardView: View {
                 NumericField(value: minuteBinding, range: 0...59)
             }
             Spacer(minLength: 0)
-            if draft.reminder?.date != nil {
-                Button { draft.reminder?.date = nil } label: {
-                    Image(systemName: "xmark").font(.system(size: 9, weight: .semibold))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(Theme.textTertiary)
-                .hoverDim()
-                .help(t(.todoRemindClear))
-            }
+            FieldCommitButtons(onCommit: onCommit, onCancel: onCancel)
         }
+        .padding(.top, 6)
     }
 
-    /// today / tomorrow / one of the next two weeks. Drawn as a bordered chip with
-    /// a calendar glyph so it reads as something to press — plain text next to a
-    /// plain label was indistinguishable from the label itself.
+    /// Arms a reminder at the next full hour, or clears the one that is set.
+    private var bellButton: some View {
+        let armed = draft.reminder?.date != nil
+        return Button {
+            if armed {
+                draft.reminder?.date = nil
+                draft.reminder?.repeatDays = []
+            } else {
+                setDay(offset: 0)
+            }
+        } label: {
+            Image(systemName: armed ? "bell.fill" : "bell")
+                .font(.system(size: 11))
+                .foregroundStyle(armed ? Theme.textSecondary : Theme.textTertiary)
+                .frame(width: 20, height: 20)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
+        .help(armed ? t(.todoRemindClear) : t(.todoRemindLabel))
+    }
+
+    private var starButton: some View {
+        Button { draft.important.toggle() } label: {
+            Image(systemName: draft.important ? "star.fill" : "star")
+                .font(.system(size: 11))
+                .foregroundStyle(draft.important ? Theme.textSecondary : Theme.textTertiary)
+                .frame(width: 20, height: 20)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
+        .help(t(.todoImportantLabel))
+    }
+
+    /// today / tomorrow / one of the next two weeks. A bordered chip, so it reads
+    /// as something to press rather than as a label.
     private var dayChip: some View {
         Menu {
             Button(t(.todoRemindToday)) { setDay(offset: 0) }
@@ -133,15 +159,14 @@ struct TaskCardView: View {
                 Button(Self.dayLabel(offset: offset)) { setDay(offset: offset) }
             }
         } label: {
-            HStack(spacing: 4) {
-                Image(systemName: "calendar").font(.system(size: 9))
-                Text(dayChipTitle).font(Theme.mono(11)).lineLimit(1)
-            }
-            .foregroundStyle(draft.reminder?.date == nil ? Theme.textTertiary : Theme.textPrimary)
-            .padding(.horizontal, 8)
-            .frame(height: 24)
-            .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 5))
-            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Theme.controlStroke, lineWidth: 1))
+            Text(dayChipTitle)
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.textPrimary)
+                .lineLimit(1)
+                .padding(.horizontal, 8)
+                .frame(height: 24)
+                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 5))
+                .overlay(RoundedRectangle(cornerRadius: 5).stroke(Theme.controlStroke, lineWidth: 1))
         }
         .menuStyle(.borderlessButton)
         .menuIndicator(.hidden)
@@ -167,8 +192,9 @@ struct TaskCardView: View {
         return shortDate.string(from: date)
     }
 
-    /// Picking a day keeps the time already typed; a first pick starts at the next
-    /// full hour, which is what someone setting a reminder usually means.
+    /// Picking a day keeps the time already typed; arming a reminder from nothing
+    /// starts at the next full hour, which is what someone setting one usually
+    /// means.
     private func setDay(offset: Int) {
         let calendar = Calendar.current
         let base = calendar.date(byAdding: .day, value: offset, to: Date()) ?? Date()
@@ -182,6 +208,7 @@ struct TaskCardView: View {
             components.hour = min(23, calendar.component(.hour, from: Date()) + 1)
             components.minute = 0
         }
+        if draft.reminder == nil { draft.reminder = ReminderDraft(date: nil, repeatDays: []) }
         draft.reminder?.date = calendar.date(from: components)
     }
 
@@ -205,9 +232,14 @@ struct TaskCardView: View {
 
     // MARK: - Repeat
 
+    /// Seven squares in the user's own week order — which day the week starts on
+    /// follows the region and can be overridden in settings.
     private var repeatRow: some View {
         HStack(spacing: 4) {
-            label(t(.todoRepeatLabel))
+            Image(systemName: "repeat")
+                .font(.system(size: 9))
+                .foregroundStyle(Theme.textTertiary)
+                .frame(width: 20)
             ForEach(firstWeekdaySetting.weekOrder, id: \.self) { weekday in
                 weekdaySquare(weekday)
             }
@@ -238,27 +270,5 @@ struct TaskCardView: View {
         if days.contains(weekday) { days.remove(weekday) } else { days.insert(weekday) }
         reminder.repeatDays = TodoItem.normalizedWeekdays(Array(days))
         draft.reminder = reminder
-    }
-
-    // MARK: - Importance
-
-    /// The switch sets it; the collapsed row shows a star. Neutral tokens — the
-    /// coloured treatment read as a warning rather than a favourite.
-    private var importantRow: some View {
-        HStack(spacing: 6) {
-            label(t(.todoImportantLabel))
-            Image(systemName: draft.important ? "star.fill" : "star")
-                .font(.system(size: 10))
-                .foregroundStyle(draft.important ? Theme.textSecondary : Theme.textTertiary)
-            Spacer(minLength: 0)
-            Theme.MiniSwitch(isOn: $draft.important, tint: Theme.textSecondary)
-        }
-    }
-
-    private func label(_ text: String) -> some View {
-        Text(text)
-            .font(Theme.mono(10, weight: .semibold))
-            .foregroundStyle(Theme.textTertiary)
-            .frame(width: Self.labelWidth, alignment: .leading)
     }
 }

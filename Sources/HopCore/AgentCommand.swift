@@ -61,6 +61,20 @@ public enum AgentCommandParser {
         return entries.compactMap(command(from:))
     }
 
+    /// A `hop://` link, which is what a Shortcut (and therefore Siri, in whatever
+    /// language the user speaks to it) can open: `hop://timer/start?minutes=16`,
+    /// `hop://todo/add?text=call%20the%20notary`. The host and path spell the same
+    /// verb the file uses, and the query carries the same fields.
+    public static func parse(url: URL) -> AgentCommand? {
+        guard url.scheme?.lowercased() == "hop" else { return nil }
+        let parts = [url.host ?? ""] + url.path.split(separator: "/").map(String.init)
+        var entry: [String: Any] = ["do": parts.filter { !$0.isEmpty }.joined(separator: ".")]
+        for item in URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? [] {
+            if let value = item.value { entry[item.name] = value }
+        }
+        return command(from: entry)
+    }
+
     private static func command(from entry: [String: Any]) -> AgentCommand? {
         // "do" is the documented key; "command" and "action" are accepted because
         // they are the obvious guesses and rejecting them helps nobody.
@@ -86,7 +100,7 @@ public enum AgentCommandParser {
                 note: nonEmpty(entry["note"]) ?? "",
                 remindAt: date(from: entry["remindAt"] ?? entry["remind_at"] ?? entry["due"]),
                 repeatDays: weekdays(from: entry["repeatDays"] ?? entry["repeat_days"]),
-                important: entry["important"] as? Bool ?? false))
+                important: boolean(entry["important"])))
         case "todo.complete", "task.complete", "todo.done":
             guard let text = nonEmpty(entry["text"] ?? entry["task"] ?? entry["title"]) else { return nil }
             return .todoComplete(text: text)
@@ -148,6 +162,13 @@ public enum AgentCommandParser {
         return matched && total > 0 ? total : nil
     }
 
+    /// `true` from JSON, or "true"/"yes"/"1" from a URL query.
+    private static func boolean(_ value: Any?) -> Bool {
+        if let flag = value as? Bool { return flag }
+        guard let text = (value as? String)?.lowercased() else { return false }
+        return ["true", "yes", "1"].contains(text)
+    }
+
     private static func number(_ value: Any?) -> Int? {
         if let int = value as? Int { return int }
         if let double = value as? Double { return Int(double) }
@@ -185,6 +206,10 @@ public enum AgentCommandParser {
         if let numbers = value as? [Int] { return numbers }
         if let names = value as? [String] {
             return names.compactMap { weekday(named: $0) }
+        }
+        // a URL query cannot hold an array: "mon,wed" is how it arrives there
+        if let list = value as? String {
+            return list.split(separator: ",").compactMap { weekday(named: String($0)) }
         }
         return []
     }

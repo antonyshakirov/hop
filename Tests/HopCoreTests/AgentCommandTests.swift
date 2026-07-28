@@ -113,4 +113,39 @@ final class AgentCommandTests: XCTestCase {
     func testVerbsAreCaseAndSpaceInsensitive() {
         XCTAssertEqual(parse(#"[{"do":"  Timer.Pause "}]"#), [.timerPause])
     }
+
+    // MARK: - hop:// links (what a Shortcut, and so Siri, can open)
+
+    private func url(_ string: String) -> AgentCommand? {
+        AgentCommandParser.parse(url: URL(string: string)!)
+    }
+
+    func testLinkStartsATimer() {
+        XCTAssertEqual(url("hop://timer/start?minutes=16"), .timerStart(seconds: 960))
+        XCTAssertEqual(url("hop://timer/start?duration=1h30m"), .timerStart(seconds: 5400))
+    }
+
+    func testLinkWithoutAPathStillWorks() {
+        XCTAssertEqual(url("hop://timer?minutes=5"), .timerStart(seconds: 300))
+    }
+
+    func testLinkPausesResetsAndSwitchesModes() {
+        XCTAssertEqual(url("hop://timer/pause"), .timerPause)
+        XCTAssertEqual(url("hop://timer/reset"), .timerReset)
+        XCTAssertEqual(url("hop://stopwatch/start"), .stopwatchStart)
+        XCTAssertEqual(url("hop://awake/on"), .keepAwake(true))
+    }
+
+    func testLinkAddsATodoWithItsFields() {
+        let out = url("hop://todo/add?text=call%20the%20notary&important=true&repeatDays=mon,wed")
+        guard case .todoAdd(let draft)? = out else { return XCTFail("expected todo.add") }
+        XCTAssertEqual(draft.text, "call the notary")
+        XCTAssertTrue(draft.important, "a query carries booleans as text")
+        XCTAssertEqual(draft.repeatDays, [2, 4], "a query cannot hold an array — mon,wed")
+    }
+
+    func testAForeignSchemeIsRefused() {
+        XCTAssertNil(url("otherapp://timer/start?minutes=5"))
+        XCTAssertNil(url("hop://nonsense/verb"))
+    }
 }
