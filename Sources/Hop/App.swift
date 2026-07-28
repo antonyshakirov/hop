@@ -112,10 +112,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         reminders.install(todos: todos)
         todos.reconcile()
 
-        let ticker = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
+        // A safety net only: the precise per-reminder timer in TodosController is
+        // what makes a reminder land on time. This catches a machine that slept
+        // through one, or a clock that jumped.
+        let ticker = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in
             Task { @MainActor in todos.reconcile() }
         }
-        ticker.tolerance = 5
+        ticker.tolerance = 10
         reminderTicker = ticker
 
         // Sleeping through a firing is the normal case for a laptop: the ticker

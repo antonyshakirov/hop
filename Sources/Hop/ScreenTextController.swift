@@ -214,24 +214,40 @@ final class ScreenTextController: ObservableObject {
     /// One Vision pass over the captured area: text plus barcodes, since it is
     /// the same walk over the same pixels. Runs off the main thread — recognition
     /// on a large selection takes long enough to stutter the UI.
+    /// Set by `--ocr-selftest`: prints what each pass saw, so the two-pass merge
+    /// can be re-checked against the reference pictures without guesswork.
+    nonisolated(unsafe) static var diagnostics = false
+
+    /// Recognition without any UI, for `--ocr-selftest`. Blocks: a self-test has
+    /// nothing else to do while it waits.
+    nonisolated static func recognizeForSelfTest(_ file: URL) -> String? {
+        let semaphore = DispatchSemaphore(value: 0)
+        var result: String?
+        Task {
+            result = await read(file)
+            semaphore.signal()
+        }
+        semaphore.wait()
+        return result
+    }
+
     private nonisolated static func read(_ file: URL) async -> String? {
+        let interfaceScript = script(of: L10n.current)
         return await Task.detached(priority: .userInitiated) {
             guard let source = CGImageSourceCreateWithURL(file as CFURL, nil),
                   let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { return nil }
+            let handler = VNImageRequestHandler(cgImage: image, options: [:])
 
-            let textRequest = VNRecognizeTextRequest()
-            textRequest.recognitionLevel = .accurate
-            textRequest.usesLanguageCorrection = true
-            // Vision picks the script itself, always. Measured on a six-script
+            // Pass one: Vision picks the script itself. Measured on a six-script
             // image, detection returned ALL SIX, while naming those same six
             // languages explicitly lost the Russian, Arabic and Thai lines. There
             // is deliberately NO language setting: nobody would find it, and
-            // naming languages makes recognition worse rather than better
-            // (Anton, 2026-07-28).
+            // naming languages makes recognition worse, not better.
+            let textRequest = VNRecognizeTextRequest()
+            textRequest.recognitionLevel = .accurate
+            textRequest.usesLanguageCorrection = true
             textRequest.automaticallyDetectsLanguage = true
             let codeRequest = VNDetectBarcodesRequest()
-
-            let handler = VNImageRequestHandler(cgImage: image, options: [:])
             do {
                 try handler.perform([textRequest, codeRequest])
             } catch {
@@ -239,10 +255,91 @@ final class ScreenTextController: ObservableObject {
             }
 
             let observations = textRequest.results ?? []
-            let lines = ScreenTextRules.readingOrder(observations.map(\.boundingBox))
-                .compactMap { observations[$0].topCandidates(1).first?.string }
+            let order = ScreenTextRules.readingOrder(observations.map(\.boundingBox))
+            let candidates = order.compactMap { observations[$0].topCandidates(1).first }
+            var lines = candidates.map(\.string)
             let codes = (codeRequest.results ?? []).compactMap(\.payloadStringValue)
+
+            // Pass two, only when a line carries a word that mixes two scripts —
+            // the signature of a line Vision read with the wrong model. A clean
+            // page never pays for this (measured: ~40ms saved on plain Latin).
+            let primary = fragments(of: candidates)
+            if diagnostics {
+                print("  pass 1 words: " + primary.map(\.text).joined(separator: " | "))
+                print("  garbled lines: \(ScriptMerge.garbledLines(primary).sorted())")
+                print("  scripts seen: \(ScriptMerge.competence(of: primary).map(\.rawValue).sorted())")
+                print("  dominant: \(ScriptMerge.dominant(of: primary)?.rawValue ?? "none")")
+                print("  interface: \(L10n.current.rawValue) -> \(interfaceScript.rawValue)")
+            }
+            if !ScriptMerge.garbledLines(primary).isEmpty {
+                let supported = (try? VNRecognizeTextRequest().supportedRecognitionLanguages()) ?? []
+                let helperTags = ScriptMerge.helperLanguages(
+                    seen: ScriptMerge.competence(of: primary),
+                    dominant: ScriptMerge.dominant(of: primary),
+                    interface: interfaceScript,
+                    supported: supported)
+                if diagnostics { print("  helper tags: \(helperTags)") }
+                if !helperTags.isEmpty {
+                    let second = VNRecognizeTextRequest()
+                    second.recognitionLevel = .accurate
+                    second.usesLanguageCorrection = true
+                    second.recognitionLanguages = helperTags
+                    if (try? handler.perform([second])) != nil {
+                        let secondObservations = second.results ?? []
+                        let secondOrder = ScreenTextRules.readingOrder(
+                            secondObservations.map(\.boundingBox))
+                        let helper = fragments(of: secondOrder.compactMap {
+                            secondObservations[$0].topCandidates(1).first
+                        })
+                        let competence = Set(helperTags.compactMap(scriptFor(tag:)))
+                        if diagnostics {
+                            print("  pass 2 words: " + helper.map(\.text).joined(separator: " | "))
+                        }
+                        lines = ScriptMerge.merge(primary: primary, helper: helper,
+                                                  helperCompetence: competence)
+                    }
+                }
+            }
+
             return ScreenTextRules.assemble(lines: lines, barcodes: codes)
         }.value
+    }
+
+    /// Splits each recognised line into words, asking Vision where every one of
+    /// them sits, so the same word can be found in another pass.
+    private nonisolated static func fragments(of candidates: [VNRecognizedText]) -> [TextFragment] {
+        var out: [TextFragment] = []
+        for (line, candidate) in candidates.enumerated() {
+            let string = candidate.string
+            var index = string.startIndex
+            while index < string.endIndex {
+                let next = string[index...].firstIndex(of: " ") ?? string.endIndex
+                let range = index..<next
+                let word = String(string[range])
+                if !word.isEmpty, let quad = try? candidate.boundingBox(for: range) {
+                    out.append(TextFragment(text: word, x: quad.boundingBox.minX, line: line))
+                }
+                index = next < string.endIndex ? string.index(after: next) : string.endIndex
+            }
+        }
+        return out
+    }
+
+    /// The script the reader's own language is written in — the second pass
+    /// includes it, because a screen usually mixes a foreign page with the
+    /// viewer's own tongue.
+    private nonisolated static func script(of language: AppLanguage) -> TextScript {
+        switch language {
+        case .ru, .uk: return .cyrillic
+        case .zh, .ja: return .cjk
+        case .ko: return .hangul
+        case .ar, .fa, .ur: return .arabic
+        case .th: return .thai
+        default: return .latin
+        }
+    }
+
+    private nonisolated static func scriptFor(tag: String) -> TextScript? {
+        TextScript.allCases.first { $0.recognitionTag == tag }
     }
 }

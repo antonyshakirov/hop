@@ -1039,6 +1039,30 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   recognition "more multilingual". `RecognitionPlan` (pure, tested) maps the
   selection onto what the machine supports — a tag Vision does not list makes the
   WHOLE request fail.
+- **A second pass repairs a line carrying two distant scripts** (2026-07-28).
+  Detection picks ONE model per text region, and a line IS a region, so a line
+  holding `Hello 世界` plus two Cyrillic words came back as `Hello 世界 门puBeT
+  MMp` — the ideographs right, the Cyrillic noise. Asking for Russian instead
+  flips the damage. The fix
+  is a rule rather than a better guess: **a pass may only be trusted on the
+  scripts it was actually reading** (`HopCore.ScriptMerge`, pure, tested).
+  - The TRIGGER is a word that mixes two scripts inside itself — no real word
+    does, so it is the signature of a wrong-language reading. Only lines carrying
+    such a word are touched, and a picture without one never runs a second pass
+    at all (measured: plain Latin and a Japanese page cost exactly what they did
+    before; the mixed picture costs ~+75 ms).
+  - The SECOND PASS asks for the ALPHABETS on the picture, not "everything the
+    first pass missed": the damage always runs one way — a CJK model swallows the
+    alphabet beside it, while an alphabetic model merely drops ideographs. Two
+    tags at most, since naming many languages makes Vision worse. The reader's
+    own script is the last resort, for a page whose alphabet was mangled so badly
+    it left no trace to detect.
+  - The MERGE takes each word from whichever pass had the competence to read it,
+    matching words by the box Vision reports for the substring. Word ORDER always
+    comes from the first pass, never from the x coordinate — sorting by x
+    reversed an Arabic line.
+  - Verified end to end through `Hop --ocr-selftest <image> [--verbose]`, which
+    prints the passes and the merge for the reference pictures.
 - **A reading that holds a web address can be FOLLOWED** (Anton, 2026-07-27):
   the window shows an "open link" button that hands the address to the default
   browser. This is the point of reading a QR code on the Mac rather than

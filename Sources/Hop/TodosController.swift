@@ -104,7 +104,10 @@ final class TodosController: ObservableObject {
     /// double up with one.
     func reconcile(now: Date = Date()) {
         let before = Set(list.items.filter(\.firedUnseen).map(\.id))
-        guard list.reconcileReminders(now: now) else { return }
+        guard list.reconcileReminders(now: now) else {
+            scheduleNextFiring()
+            return
+        }
         let fired = Set(list.items.filter(\.firedUnseen).map(\.id)).subtracting(before)
         save()
         reschedule()
@@ -133,12 +136,40 @@ final class TodosController: ObservableObject {
 
     var storeDirectory: URL { storeDir }
 
+    /// Fires exactly when the next reminder is due, instead of waiting for the
+    /// next sweep. The sweep alone meant a reminder could land up to 15 seconds
+    /// late — the banner arrived, the blue dot and the sound followed a while
+    /// after, which read as two unrelated events (Anton, 2026-07-28).
+    private var nextFiringTimer: Timer?
+
+    private func scheduleNextFiring() {
+        nextFiringTimer?.invalidate()
+        nextFiringTimer = nil
+        let now = Date()
+        guard let next = list.items
+            .compactMap({ RemindSchedule.effectiveFiring($0) })
+            .filter({ $0 > now })
+            .min() else { return }
+        // a breath past the moment itself, so the comparison inside reconcile is
+        // unambiguous
+        let timer = Timer(timeInterval: max(0.2, next.timeIntervalSince(now) + 0.3),
+                          repeats: false) { [weak self] _ in
+            Task { @MainActor in self?.reconcile() }
+        }
+        timer.tolerance = 0.1
+        RunLoop.main.add(timer, forMode: .common)
+        nextFiringTimer = timer
+    }
+
     /// Wired to `ReminderScheduler.reschedule` at launch. A closure rather than a
     /// direct reference so the store stays free of UserNotifications, and so a
     /// snapshot or bundle-less run simply has nothing attached.
     var onRemindersChanged: ((TodoList) -> Void)?
 
-    private func reschedule() { onRemindersChanged?(list) }
+    private func reschedule() {
+        onRemindersChanged?(list)
+        scheduleNextFiring()
+    }
 
     private func save() {
         try? FileManager.default.createDirectory(at: storeDir, withIntermediateDirectories: true)

@@ -178,8 +178,8 @@ struct TaskCardView: View {
     private var starButton: some View {
         Button { draft.important.toggle() } label: {
             StarGlyph(color: draft.important ? Theme.textSecondary : Theme.textTertiary,
-                      box: 13, filled: draft.important)
-                .frame(width: 20, height: 20)
+                      box: 10.5, filled: draft.important)
+                .frame(width: 18, height: 18)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

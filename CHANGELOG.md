@@ -16,6 +16,11 @@
   US counts from Sunday, most of Europe from Monday.
 - Favourites: a star on any task, and a setting per list to float starred tasks
   to the top. With it off the star is just a mark and nothing moves.
+- A line that mixes two distant alphabets — say Japanese and Russian in one
+  sentence — is now read correctly too. Recognition notices when a word came out
+  as a jumble of two scripts, asks a second time for the alphabets on the picture,
+  and keeps each word from whichever reading could actually make it out. Pictures
+  without such a line are untouched and just as fast as before.
 - Text recognition reads every script on the screen. It used to be told to look
   for your interface language and English only, so a Japanese or Chinese page
   came back as nonsense; now Vision detects the writing itself and a screen

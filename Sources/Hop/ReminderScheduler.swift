@@ -123,6 +123,10 @@ final class ReminderScheduler: NSObject, UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
+        // The banner IS the moment. Bring the model level with it now rather than
+        // on the next sweep, so the sound, the struck-through time and the
+        // menu-bar dot all land together with it.
+        Task { @MainActor in todos?.reconcile() }
         completionHandler([.banner])
     }
 }

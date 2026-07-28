@@ -104,6 +104,20 @@ enum Snapshot {
             exit(0)
         }
 
+        // `Hop --ocr-selftest <image>` prints what recognition makes of a file
+        // and exits. The reference set for the two-pass merge lives in the specs;
+        // this is how it is re-checked without a human dragging pictures around.
+        if let i = args.firstIndex(of: "--ocr-selftest"), args.count > i + 1 {
+            let url = URL(fileURLWithPath: args[i + 1])
+            ScreenTextController.diagnostics = args.contains("--verbose")
+            let started = Date()
+            let text = ScreenTextController.recognizeForSelfTest(url)
+            let ms = Int(Date().timeIntervalSince(started) * 1000)
+            print("[\(ms) ms]")
+            print(text ?? "(nothing recognized)")
+            exit(text == nil ? 1 : 0)
+        }
+
         if args.contains("--l10n-check") {
             let missing = L10n.missingKeys()
             print(missing.isEmpty ? "l10n: all translations present" : "l10n missing:\n" + missing.joined(separator: "\n"))

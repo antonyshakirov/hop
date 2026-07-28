@@ -42,6 +42,7 @@ struct TodosView: View {
     @State private var card: TaskCardDraft?
     // Rows with an unacknowledged firing blink three times on the first open.
     @State private var blinkPhase = false
+    @State private var blinking = false
 
     // Drag-to-reorder: a vertical drag anywhere on a row lifts an item; the drop
     // resolves against measured row frames. One move per completed drag.
@@ -110,9 +111,14 @@ struct TodosView: View {
         .onChange(of: expanded) { _, id in onEditingChanged?(id != nil && !Snapshot.active) }
         .onAppear {
             // The panel is open, so anything that fired while it was closed has
-            // now been seen: blink the rows three times, then clear the mark.
+            // now been seen: blink the times three times, then clear the mark.
             todos.reconcile()
             acknowledgeWithBlink()
+        }
+        // A reminder that fires WHILE the panel is open has to blink too — on
+        // appear it did not exist yet.
+        .onChange(of: todos.list.hasUnseenFiring) { _, unseen in
+            if unseen { acknowledgeWithBlink() }
         }
         .onDisappear {
             // @State survives the popover hide/show — a left-open field, a pending
@@ -125,18 +131,25 @@ struct TodosView: View {
         }
     }
 
-    /// Three finite blinks (no repeatForever — an endless animation retriggers the
-    /// panel's size recompute), then the firings count as acknowledged.
+    /// Three blue blinks of the fired time, then the firing counts as seen and
+    /// the menu-bar dot goes with it. Finite by construction — a repeatForever
+    /// animation retriggers the panel's size recompute and jitters the popover.
     private func acknowledgeWithBlink() {
         guard !Snapshot.active, todos.list.hasUnseenFiring else { return }
+        guard !blinking else { return }   // a second trigger must not stack blinks
+        blinking = true
         blinkPhase = false
-        for step in 0..<6 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35 * Double(step)) {
-                withAnimation(.easeInOut(duration: 0.17)) { blinkPhase = step % 2 == 0 }
+        let step = 0.9
+        for phase in 0..<6 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + step * Double(phase)) {
+                // slow fade in, slow fade out: the eye should follow it, not be
+                // startled by it
+                withAnimation(.easeInOut(duration: step * 0.9)) { blinkPhase = phase % 2 == 0 }
             }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35 * 6) {
-            blinkPhase = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + step * 6) {
+            withAnimation(.easeInOut(duration: 0.4)) { blinkPhase = false }
+            blinking = false
             todos.acknowledgeFirings()
         }
     }
@@ -216,10 +229,17 @@ struct TodosView: View {
             if let firing = RemindSchedule.effectiveFiring(item) {
                 // A time in the past means it already fired: struck through, so a
                 // banner that went unseen still leaves a trace in the list.
+                //
+                // While it is still unacknowledged the time BLINKS BLUE — the same
+                // blue as the menu-bar dot that brought you here, so the panel
+                // answers "which task was it?" the moment you open it. The dot
+                // leaves with the blink and the struck-through time stays.
+                let blinking = item.firedUnseen && blinkPhase
                 Text(Self.timeLabel.string(from: firing))
                     .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textTertiary)
-                    .strikethrough(firing <= Date(), color: Theme.textTertiary)
+                    .foregroundStyle(blinking ? Theme.accentBlue : Theme.textTertiary)
+                    .strikethrough(firing <= Date(),
+                                   color: blinking ? Theme.accentBlue : Theme.textTertiary)
             }
             if confirmingDelete == item.id {
                 // confirm swaps in for the ✕ only — the checkbox and text keep
@@ -236,7 +256,6 @@ struct TodosView: View {
         }
         .padding(.horizontal, 2)
         .padding(.vertical, 2)
-        .opacity(item.firedUnseen && blinkPhase ? 0.25 : 1)
         .background(rowFrameReader(item.id))
         // whole-row drag surface: grabbing anywhere reorders (see dragGesture).
         // While the list scrolls (capped), the row gesture stands down
