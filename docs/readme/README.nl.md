@@ -248,6 +248,24 @@ te openen, en met het laatste venster verdwijnt het icoon weer.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop-instellingen — thema's, modules, sneltoetsen, 22 talen">
 </div>
 
+### VPN
+
+Elke VPN die je Mac kent, elk met een eigen schakelaar, van welke aanbieder ook.
+Hop leest de lijst rechtstreeks uit systeeminstellingen: een client die je gisteren
+installeerde verschijnt vanzelf, een verwijderde verdwijnt. Hier valt niets toe te
+voegen of in te stellen.
+
+Verbind en verbreek zonder iets te openen. Zolang een tunnel staat, brandt een
+klein groen puntje in de hoek van het menubalkicoon, naast de andere indicatoren.
+Klik op de naam en het venster van die VPN gaat open; sluit je het, dan sluit Hop
+de app. De verbinding blijft: de tunnel wordt door het systeem vastgehouden, niet
+door de app.
+
+De regel toont wat de client zelf meldt: zijn naam en tussen haakjes wat de
+configuratie toevoegt, meestal het land. Hop raadt het land nooit uit het
+serveradres: het register zegt waar een reeks geregistreerd staat, niet waar de
+machine staat.
+
 ## 22 talen
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — de app volgt standaard je systeemtaal.

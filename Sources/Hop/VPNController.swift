@@ -20,6 +20,11 @@ final class VPNController: ObservableObject {
     // nonisolated: both are read from the detached task that runs the command
     private nonisolated static let log = Logger(subsystem: "com.antonshakirov.hop", category: "VPN")
     private nonisolated static let scutil = "/usr/sbin/scutil"
+    /// How many rows are shown before the list scrolls. Three by default: most
+    /// Macs have one or two configurations, and a rare fifth one should not push
+    /// the modules under it off the panel.
+    static let visibleRowsKey = "vpnVisibleRows"
+    static let defaultVisibleRows = 3
 
     @Published private(set) var configurations: [VPNConfiguration] = []
     /// Set while a start/stop is in flight, so the row can show it immediately

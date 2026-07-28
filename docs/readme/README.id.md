@@ -246,6 +246,23 @@ terakhir.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Pengaturan Hop — tema, modul, pintasan, 22 bahasa">
 </div>
 
+### VPN
+
+Semua VPN yang dikenal Mac Anda, masing-masing dengan sakelarnya, dari vendor mana
+pun. Hop membaca daftarnya langsung dari pengaturan sistem: klien yang dipasang
+kemarin muncul sendiri, yang dihapus menghilang. Tidak ada yang perlu ditambahkan
+atau diatur di sini.
+
+Sambung dan putus tanpa membuka apa pun. Selama sebuah terowongan berdiri, titik
+hijau kecil menyala di sudut ikon bilah menu, di samping indikator lain. Klik
+namanya dan jendela VPN itu terbuka; setelah Anda menutupnya, Hop menutup
+aplikasinya. Sambungan tetap ada: terowongan dipegang sistem, bukan aplikasi.
+
+Barisnya menunjukkan apa yang dilaporkan klien itu sendiri: namanya dan, dalam
+kurung, tambahan dari konfigurasi — biasanya negara. Hop tidak pernah menebak
+negara dari alamat server: daftar alamat menyebut di mana rentang itu terdaftar,
+bukan di mana mesinnya berada.
+
 ## 22 bahasa
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikasi langsung mengikuti bahasa sistem

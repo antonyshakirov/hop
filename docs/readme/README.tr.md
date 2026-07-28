@@ -243,6 +243,23 @@ pencereyi geri getirir ve son pencereyle birlikte simge de gider.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop ayarları — temalar, modüller, kısayollar, 22 dil">
 </div>
 
+### VPN
+
+Mac'inizin bildiği bütün VPN'ler, hangi firmadan olursa olsun, her biri kendi
+anahtarıyla. Hop listeyi doğrudan sistem ayarlarından okur: dün kurduğunuz istemci
+kendiliğinden görünür, kaldırdığınız kaybolur. Burada eklenecek bir şey yok,
+belirli bir firma için destek beklemek de gerekmiyor.
+
+Hiçbir şey açmadan bağlanın ve kesin. Bir tünel ayaktayken menü çubuğu simgesinin
+köşesinde küçük yeşil bir nokta yanar, diğer göstergelerin yanında. Ada tıklayınca
+o VPN'in kendi penceresi açılır; kapattığınızda Hop uygulamayı kapatır. Bağlantı
+kalır: tüneli uygulama değil sistem tutar.
+
+Satırda istemcinin kendi bildirdiği şey görünür: adı ve parantez içinde
+yapılandırmanın eklediği, genelde ülke. Hop ülkeyi sunucu adresinden tahmin etmez:
+adres kaydı aralığın nerede kayıtlı olduğunu söyler, makinenin nerede durduğunu
+değil.
+
 ## 22 dil
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — uygulama kurulumdan itibaren sistem

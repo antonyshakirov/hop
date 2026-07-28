@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- A VPN module. Every VPN your Mac knows about gets a switch in the panel,
+  whatever the brand — the list comes straight from system settings, so a client
+  you install appears on its own and one you remove disappears. A green dot in
+  the corner of the menu-bar icon while a tunnel is up. Click a name and that
+  VPN's own window opens for the times you need it; close the window and Hop
+  quits the app, so it never sits in the Dock for a switch you touch twice a
+  week — the connection stays, because the tunnel is held by the system.
+
 - Tasks open. Click a to-do (or a tracker task) and the row expands into a card:
   the full text on the first line, a description below it, and Return adds a line
   in either. Both lists gained a comment, so the address, the phone number or the

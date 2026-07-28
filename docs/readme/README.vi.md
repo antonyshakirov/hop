@@ -239,6 +239,22 @@ cửa sổ cuối cùng.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Cài đặt Hop — giao diện, mô-đun, phím tắt, 22 ngôn ngữ">
 </div>
 
+### VPN
+
+Mọi VPN mà máy Mac của bạn biết, mỗi cái một công tắc, của hãng nào cũng vậy. Hop
+đọc danh sách thẳng từ cài đặt hệ thống: ứng dụng cài hôm qua tự xuất hiện, cái đã
+gỡ thì biến mất. Ở đây không phải thêm hay cấu hình gì cả.
+
+Bật tắt đường hầm mà không phải mở thứ gì. Khi một đường hầm đang chạy, một chấm
+xanh nhỏ sáng ở góc biểu tượng trên thanh menu, cạnh các đèn báo khác. Bấm vào tên
+thì cửa sổ của chính VPN đó mở ra; đóng cửa sổ, Hop tắt luôn ứng dụng. Kết nối vẫn
+còn: đường hầm do hệ thống giữ, không phải ứng dụng.
+
+Dòng hiển thị đúng những gì ứng dụng tự khai báo: tên của nó, và trong ngoặc là
+phần cấu hình thêm vào, thường là quốc gia. Hop không đoán quốc gia từ địa chỉ máy
+chủ: sổ đăng ký địa chỉ cho biết dải số đăng ký ở đâu, chứ không phải máy đặt ở
+đâu.
+
 ## 22 ngôn ngữ
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — ứng dụng tự động theo ngôn ngữ hệ thống của

@@ -54,6 +54,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.todoImportantOnTop) private var todoImportantOnTop = false
     @AppStorage(SettingsKey.trackerImportantOnTop) private var trackerImportantOnTop = false
     @AppStorage(SettingsKey.firstWeekday) private var firstWeekday = FirstWeekday.auto
+    @AppStorage(VPNController.visibleRowsKey) private var vpnVisibleRows = VPNController.defaultVisibleRows
     @AppStorage("timerCompact") private var timerCompact = true
     @AppStorage("displayStyle") private var displayStyle = "dots" // dots | text | units
     @AppStorage("digitsSize") private var digitsSize = "large" // large | small

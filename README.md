@@ -240,6 +240,27 @@ back instead of opening the panel first; the icon leaves with the last window.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop settings — themes, modules, hotkeys, 22 languages">
 </div>
 
+### VPN
+
+Every VPN your Mac knows about, with a switch each — whatever the brand. Hop
+reads the list straight from system settings, so a client you installed
+yesterday appears on its own and one you removed disappears; there is nothing to
+add or configure here, and no per-vendor support to wait for.
+
+Switch a tunnel on and off without opening anything. While one is up, a small
+green dot sits in the corner of the menu bar icon, next to the app's other
+indicators, so you can see it with the panel closed. Click a name and that VPN's
+own window opens for the times you need it — to pick a country or change a
+setting — and Hop quits the app again once you close the window, so it never
+sits in the Dock and the menu bar for a switch you touch twice a week. The
+connection stays up: the tunnel is held by the system, not by the app.
+
+The row shows what the client itself reports — its name, and in brackets what the
+configuration adds, usually the country. Hop never guesses the country from the
+server's address: the address registry says where a range is registered, not
+where the machine stands, and a wrong country stated confidently is worse than
+none.
+
 ## 22 languages
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — the app follows your system language out of

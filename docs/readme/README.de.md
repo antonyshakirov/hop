@@ -250,6 +250,26 @@ mit dem letzten fenster verschwindet es wieder.
 <img src="https://www.antonshakirov.com/products/hop/screens/de/settings.png" width="280" alt="Hop-Einstellungen — Themes, Module, Hotkeys, 22 Sprachen">
 </div>
 
+### VPN
+
+Jedes VPN, das Ihr Mac kennt, mit je einem Schalter — von welchem Anbieter auch
+immer. Hop liest die Liste direkt aus den Systemeinstellungen: ein gestern
+installierter Client erscheint von selbst, ein entfernter verschwindet. Hier gibt
+es nichts hinzuzufügen und auf Unterstützung für einen bestimmten Anbieter muss
+niemand warten.
+
+Schalten Sie einen Tunnel ein und aus, ohne etwas zu öffnen. Solange einer steht,
+sitzt ein kleiner grüner Punkt in der Ecke des Menüleisten-Symbols, neben den
+übrigen Anzeigen — sichtbar auch bei geschlossenem Panel. Ein Klick auf den Namen
+öffnet das Fenster des VPN selbst, wenn Sie es brauchen; schließen Sie es, beendet
+Hop die App wieder. Die Verbindung bleibt: den Tunnel hält das System, nicht die
+App.
+
+In der Zeile steht, was der Client selbst meldet — sein Name und in Klammern, was
+die Konfiguration hinzufügt, meist das Land. Aus der Serveradresse rät Hop das
+Land nicht: das Adressregister sagt, wo ein Bereich registriert ist, nicht wo die
+Maschine steht.
+
 ## 22 Sprachen
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — die App folgt von Haus aus deiner Systemsprache.

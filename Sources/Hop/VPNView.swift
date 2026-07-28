@@ -13,6 +13,11 @@ struct VPNView: View {
     @ObservedObject var vpn: VPNController
     let lang: AppLanguage
 
+    /// Same cap-and-scroll as the clipboard and the task lists: past the cap the
+    /// rows scroll inside a fixed height, so a long list cannot push the modules
+    /// below it off the panel.
+    @AppStorage(VPNController.visibleRowsKey) private var visibleRows = VPNController.defaultVisibleRows
+
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
     var body: some View {
@@ -24,6 +29,15 @@ struct VPNView: View {
                     .foregroundStyle(Theme.textTertiary)
                     .padding(.horizontal, 2)
                     .padding(.vertical, 2)
+            } else if !Snapshot.active,
+                      let height = RowCap.listHeight(stored: visibleRows,
+                                                     count: vpn.configurations.count) {
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        ForEach(vpn.configurations) { row($0) }
+                    }
+                }
+                .frame(height: height)
             } else {
                 ForEach(vpn.configurations) { row($0) }
             }

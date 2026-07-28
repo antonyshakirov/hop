@@ -246,6 +246,21 @@ oknem ikona znika.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Ustawienia Hop — motywy, moduły, skróty klawiszowe, 22 języki">
 </div>
 
+### VPN
+
+Wszystkie VPN, które zna twój Mac, każdy z własnym przełącznikiem, czyjkolwiek by
+był. Hop czyta listę prosto z ustawień systemowych: klient zainstalowany wczoraj
+pojawia się sam, usunięty znika. Nie ma tu nic do dodawania ani konfigurowania.
+
+Włączaj i wyłączaj tunel, nie otwierając niczego. Dopóki stoi, w rogu ikony na
+pasku menu świeci mała zielona kropka, obok pozostałych wskaźników. Kliknij nazwę,
+a otworzy się okno samego VPN; gdy je zamkniesz, Hop zamknie aplikację. Połączenie
+zostaje: tunel trzyma system, nie aplikacja.
+
+W wierszu widać to, co zgłasza sam klient: nazwę i w nawiasie to, co dodaje
+konfiguracja, zwykle kraj. Hop nie zgaduje kraju z adresu serwera: rejestr mówi,
+gdzie zakres jest zarejestrowany, a nie gdzie stoi maszyna.
+
 ## 22 języki
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikacja od razu podąża za językiem
