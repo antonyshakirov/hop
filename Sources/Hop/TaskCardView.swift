@@ -53,7 +53,8 @@ struct TaskCardView: View {
             Rectangle()
                 .fill(Theme.divider)
                 .frame(height: 1)
-                .padding(.vertical, 5)
+                .padding(.top, 6)
+                .padding(.bottom, 8)
             description
             controls
             if draft.reminder?.date != nil { repeatRow.padding(.top, 5) }
@@ -70,35 +71,59 @@ struct TaskCardView: View {
     // MARK: - Text
 
     /// The task itself, on the first line. No caption: a line at the top of a
-    /// card is its title, and Return here adds a line rather than committing —
-    /// the ✓ button (or Escape to abandon) ends the edit.
+    /// card is its title.
+    ///
+    /// A TextEditor rather than a TextField because on macOS a field treats
+    /// Return as "submit" no matter what — the text simply refused to wrap
+    /// (Anton, 2026-07-28). Here Return adds a line in both fields, the ✓ button
+    /// or ⌘Return commits, and Escape abandons.
     private var title: some View {
-        TextField("", text: $draft.text, axis: .vertical)
-            .textFieldStyle(.plain)
-            .font(Theme.mono(12))
-            .foregroundStyle(Theme.textPrimary)
-            .lineLimit(1...4)
+        editor(text: $draft.text, font: Theme.mono(12), color: Theme.textPrimary,
+               minHeight: 18, maxHeight: 64)
             .focused($titleFocused)
             .onAppear { if !Snapshot.active { titleFocused = true } }
     }
 
     private var description: some View {
-        TextField(t(.todoNotePlaceholder), text: $draft.note, axis: .vertical)
-            .textFieldStyle(.plain)
-            .font(Theme.mono(11))
-            .foregroundStyle(Theme.textSecondary)
-            .lineLimit(1...6)
+        editor(text: $draft.note, font: Theme.mono(11), color: Theme.textSecondary,
+               minHeight: 34, maxHeight: 120)
+            .overlay(alignment: .topLeading) {
+                // TextEditor has no placeholder of its own.
+                if draft.note.isEmpty {
+                    Text(t(.todoNotePlaceholder))
+                        .font(Theme.mono(11))
+                        .foregroundStyle(Theme.textTertiary)
+                        .allowsHitTesting(false)
+                }
+            }
+    }
+
+    /// A plain multi-line editor with the panel's own background — TextEditor
+    /// brings a white sheet of its own, which has no place in the card.
+    private func editor(text: Binding<String>, font: Font, color: Color,
+                        minHeight: CGFloat, maxHeight: CGFloat) -> some View {
+        TextEditor(text: text)
+            .font(font)
+            .foregroundStyle(color)
+            .scrollContentBackground(.hidden)
+            .background(.clear)
+            .frame(minHeight: minHeight, maxHeight: maxHeight)
+            .fixedSize(horizontal: false, vertical: true)
+            // TextEditor insets its text by ~5pt; pull it back so both fields and
+            // the icons below share one left edge.
+            .padding(.leading, -5)
     }
 
     // MARK: - Controls
 
-    /// Two icons and, once a reminder exists, its day and time. The icons ARE the
-    /// switches — an icon next to a toggle saying the same thing was twice the
-    /// furniture for one decision.
+    /// Two groups that must not be mistaken for one: everything about the
+    /// reminder on the LEFT (bell, day, time — and the weekday row directly
+    /// under it), the favourite on the RIGHT, away from all of it. Sitting
+    /// between the bell and the day chip, the star looked like part of the
+    /// reminder (Anton, 2026-07-28).
     private var controls: some View {
         HStack(spacing: 8) {
             if draft.reminder != nil { bellButton }
-            starButton
             if draft.reminder?.date != nil {
                 dayChip
                 NumericField(value: hourBinding, range: 0...23, padTo: 2)
@@ -107,8 +132,14 @@ struct TaskCardView: View {
                     .foregroundStyle(Theme.textTertiary)
                 NumericField(value: minuteBinding, range: 0...59, padTo: 2)
             }
-            Spacer(minLength: 0)
+            Spacer(minLength: 8)
+            starButton
             FieldCommitButtons(onCommit: onCommit, onCancel: onCancel)
+            // Return belongs to the text, so the keyboard commit is ⌘Return.
+            Button("", action: onCommit)
+                .keyboardShortcut(.return, modifiers: .command)
+                .opacity(0)
+                .frame(width: 0, height: 0)
         }
         .padding(.top, 6)
     }
@@ -235,10 +266,12 @@ struct TaskCardView: View {
     /// follows the region and can be overridden in settings.
     private var repeatRow: some View {
         HStack(spacing: 4) {
-            // No caption glyph here: a `repeat` icon beside the squares read as
-            // one more button (Anton, 2026-07-28). The row sits under the bell,
-            // which is context enough.
-            Spacer().frame(width: 20)
+            // A word, not a glyph: an icon here read as one more button, and
+            // without anything the squares were a mystery (Anton, 2026-07-28).
+            Text(t(.todoRepeatLabel))
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize()
             ForEach(firstWeekdaySetting.weekOrder, id: \.self) { weekday in
                 weekdaySquare(weekday)
             }

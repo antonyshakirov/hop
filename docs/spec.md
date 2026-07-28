@@ -862,10 +862,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   collapses whatever was open — ONE card at a time, so the panel cannot grow
   without bound. The card is shaped like a note rather than a form: the task text
   is simply the first line (no caption — a line at the top of a card is its
-  title), a hairline separates it from a `description` field below, and BOTH take
-  Return for a new line, so committing is the ✓ button and Escape abandons.
-  Beneath them sit two icon switches — a bell (arm/clear the reminder) and a star
-  (favourite) — and, once a reminder exists, its day chip and `HH:MM` fields
+  title), a hairline separates it from a `description` field below, and BOTH are
+  `TextEditor`s rather than `TextField`s — a macOS field treats Return as submit
+  no matter what, so the text refused to wrap. Return therefore adds a line, ✓ or
+  ⌘Return commits, Escape abandons.
+  Beneath them, the reminder group sits on the LEFT (bell, day chip, time, and
+  the weekday row under it, captioned `repeat` in words — a glyph there read as
+  one more button) and the favourite star on the RIGHT, next to ✓/✕: between the
+  bell and the day chip the star looked like part of the reminder.
+  Once a reminder exists it shows its day chip and `HH:MM` fields
   (`NumericField` with `padTo: 2`, so a clock reads `22:00` rather than `22:0`;
   the field carries NO focus offset — the old ~1.5pt compensation for AppKit's
   field-editor lift now IS the jump). The day menu reaches a month out. An earlier cut labelled every line
