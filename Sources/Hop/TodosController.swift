@@ -34,9 +34,13 @@ final class TodosController: ObservableObject {
 
     /// Appends a to-do; a blank text is a no-op (the model trims and rejects
     /// it), so nothing is saved for an empty commit.
-    func add(text: String) {
-        guard list.add(text: text) != nil else { return }
+    /// Returns the new item's id so a caller that has more to set — a note, a
+    /// reminder — can address it without searching for it by text.
+    @discardableResult
+    func add(text: String) -> UUID? {
+        guard let id = list.add(text: text) else { return nil }
         save()
+        return id
     }
 
     func toggle(_ id: UUID) {
@@ -114,6 +118,20 @@ final class TodosController: ObservableObject {
         guard list.acknowledgeFirings() else { return }
         save()
     }
+
+    /// Adopts the file's version of the list after something outside the app
+    /// changed it — the user's agent, a script, a synced folder. The app's own
+    /// saves land here too, so an identical list is a no-op rather than a redraw.
+    func reloadFromDisk() {
+        guard !Snapshot.active else { return }
+        let onDisk = TodosStore.load(from: storeDir)
+        guard onDisk != list else { return }
+        list = onDisk
+        reconcile()
+        reschedule()
+    }
+
+    var storeDirectory: URL { storeDir }
 
     /// Wired to `ReminderScheduler.reschedule` at launch. A closure rather than a
     /// direct reference so the store stays free of UserNotifications, and so a

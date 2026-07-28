@@ -9,6 +9,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // in safe mode the model (and everything that could crash) is never created at all
     lazy var model = AppModel()
     private let reminders = ReminderScheduler()
+    /// Command and state files an outside agent reads and writes.
+    private var agent: AgentBridge?
+    /// Picks up to-do edits made outside the app, so a task an agent appends to
+    /// todos.json shows up instead of being overwritten by the next save.
+    private var todosWatcher: FileWatcher?
     /// Drives reminder firing independently of the notification centre, so a
     /// reminder still lands with banners switched off. 15s with a wide tolerance:
     /// the comparison is two dates, and the banner itself is second-accurate.
@@ -97,9 +102,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return false
     }
 
-    /// The Dock icon leaves with the last window. `willClose` arrives while the
-    /// window still reports itself visible, so the check waits one turn of the
-    /// run loop — otherwise the app would keep its icon until the next window.
     /// Reminders: reconcile at launch, on every tick and on wake, and keep the
     /// system's pending requests in step with the list. A snapshot render skips
     /// the lot — it never loaded the real list in the first place.
@@ -125,6 +127,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// The file surface an agent talks to, plus the watcher that makes a hand
+    /// edit of todos.json visible while the app is running.
+    private func startAgentBridge() {
+        guard !Snapshot.active else { return }
+        let todos = model.todos
+        let bridge = AgentBridge(directory: todos.storeDirectory)
+        bridge.start(model: model)
+        agent = bridge
+
+        let watcher = FileWatcher(url: todos.storeDirectory.appendingPathComponent("todos.json")) {
+            Task { @MainActor in todos.reloadFromDisk() }
+        }
+        watcher.start()
+        todosWatcher = watcher
+    }
+
+    /// The Dock icon leaves with the last window. `willClose` arrives while the
+    /// window still reports itself visible, so the check waits one turn of the
+    /// run loop — otherwise the app would keep its icon until the next window.
     private func observeDockWindowClosing() {
         dockWindowSink = NotificationCenter.default.addObserver(
             forName: NSWindow.willCloseNotification, object: nil, queue: .main
@@ -183,6 +204,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         statusController = StatusItemController(model: model)
         startReminders()
+        startAgentBridge()
 
         let hotkeys = HotkeyManager.shared
         hotkeys.setHandler(.panel) { [weak self] in
