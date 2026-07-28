@@ -123,12 +123,17 @@ struct ScreenTextWindowView: View {
         VStack(alignment: .leading, spacing: 8) {
             // ImageRenderer draws a TextEditor as a yellow "not supported" block,
             // so a render gets the same text as a plain, flat label instead.
+            // The two branches must be padded IDENTICALLY: the editor used to
+            // carry no inset at all while the render did, so the text sat flush
+            // against the field on screen and nobody saw it in a screenshot
+            // (Anton, 2026-07-28).
             if Snapshot.active {
                 Text(reader.recognized)
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.listText)
-                    .frame(maxWidth: .infinity, minHeight: 160, alignment: .topLeading)
-                    .padding(8)
+                    .frame(maxWidth: .infinity, minHeight: 160 - Self.fieldInset * 2,
+                           alignment: .topLeading)
+                    .padding(Self.fieldInset)
                     .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
             } else {
                 TextEditor(text: Binding(
@@ -136,8 +141,15 @@ struct ScreenTextWindowView: View {
                     set: { reader.editRecognized($0) }))
                     .font(Theme.mono(11))
                     .scrollContentBackground(.hidden)
-                    .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
+                    // safeAreaPadding, NOT padding: padding insets the whole
+                    // editor, and the scroll bar goes in with it — a bar that
+                    // floats 12pt off the edge of its own field (Anton,
+                    // 2026-07-28). This insets the CONTENT and leaves the
+                    // editor filling the field, so the bar stays on the edge.
+                    // contentMargins was tried first and moved nothing.
+                    .safeAreaPadding(Self.fieldInset)
                     .frame(minHeight: 160)
+                    .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
             }
             HStack(spacing: 10) {
                 Text(t(.ocrWindowInHistory))
@@ -187,6 +199,10 @@ struct ScreenTextWindowView: View {
             }
         }
     }
+
+    /// Breathing room between the recognized text and the edge of its field.
+    /// One constant for both branches — see `resultEditor`.
+    private static let fieldInset: CGFloat = 12
 
     private var hasLink: Bool { reader.link != nil }
 
