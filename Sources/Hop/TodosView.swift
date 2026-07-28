@@ -178,6 +178,7 @@ struct TodosView: View {
                 // line up on the same left column.
                 TransportCircle(systemName: item.done ? "checkmark" : "",
                                 filled: item.done,
+                                diameter: RowCircle.checkboxDiameter,
                                 iconSize: 10,
                                 fillColor: Theme.textTertiary,
                                 strokeColor: Theme.textSecondary,

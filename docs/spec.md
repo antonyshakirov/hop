@@ -113,6 +113,15 @@ identically on every user's bar.
   running past 8h (`TrackerOverrun.isBannerVisible`, same episode/ack logic as
   the panel banner) BLINKS 1s-on/1s-off off the tracker heartbeat. If both are
   active the steady source keeps it lit. Tick-driven only — no `repeatForever`.
+- **Top-left — reminder dot.** A small `systemBlue` disc beside the "!" (in the
+  corner itself when the "!" is dark), steady, never blinking: it reports
+  something waiting rather than something wrong. Monochrome renders it as an
+  outline ring, so it stays distinct from the filled "!". Visible while any to-do
+  has an unacknowledged firing. It is the ONE badge with an off switch
+  (`todoRemindMark`) — the documented EXCEPTION to the rule below, because every
+  other badge mirrors an app STATE that is simply true or false, while a reminder
+  is a one-off user event whose signal belongs to the same family as the timer's
+  finish signal.
 - **Bottom-left — torrent arrows.** ↓ downloading, ↑ seeding (a FINISHED torrent
   actively uploading), or both side by side — the two can co-occur (one fetching
   while another seeds). Always the star's glyph colour (white/85%-black), the one
@@ -849,6 +858,67 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Adding:** a `+ new task` footer row (placeholder `todosNew`, "new task")
   opens an inline field with the same ✓/✕ buttons and `Snapshot.active` gating as
   the tracker; Return/✓ append, Escape/✕ cancel, empty = cancel.
+- **Task card (expanded row):** clicking a row expands it into a card and
+  collapses whatever was open — ONE card at a time, so the panel cannot grow
+  without bound. The card is shaped like a note rather than a form: the task text
+  is simply the first line (no caption — a line at the top of a card is its
+  title), a hairline separates it from a `description` field below, and BOTH take
+  Return for a new line, so committing is the ✓ button and Escape abandons.
+  Beneath them sit two icon switches — a bell (arm/clear the reminder) and a star
+  (favourite) — and, once a reminder exists, its day chip and `HH:MM` fields
+  (`NumericField`, the timer's family). An earlier cut labelled every line
+  (`task`, `note`, `remind`, `important`) and paired the star with a toggle; it
+  was rejected as too much furniture for one decision and because plain labels
+  next to tappable text were indistinguishable (Anton, 2026-07-28). Opening a
+  card closes any pending delete confirm and the add field; starting a reorder
+  drag collapses it (its fields own the pointer); closing the panel collapses it.
+  In a capped list the card lives INSIDE the scroll — the list keeps its
+  `29·cap − 3` height. The tracker gets the same card minus the reminder rows,
+  and its double-click-to-rename now opens the card instead of a separate inline
+  field: ONE editing route.
+- **Comment:** `TodoItem.note` (and `TrackerTask.note`), free text. A collapsed
+  row with a non-empty note shows a small `text.alignleft` glyph after the
+  spacer — the only hint that there is something inside. Inert: the row itself
+  opens the card.
+- **Favourites:** `important` on both models. The card's star sets it; the
+  collapsed row shows a `star.fill` in neutral tokens. A coloured frame was tried
+  first and rejected — it read as a warning rather than "this one matters"
+  (Anton, 2026-07-28). Per-module `important tasks on top` settings
+  (`todoImportantOnTop`, `trackerImportantOnTop`, both OFF) turn the mark into a
+  DISPLAY sort: important actives first, then ordinary actives, then the
+  completed pile. Display-only, exactly like the completed sink — the stored
+  order is never mutated, so unmarking returns an item to its slot and switching
+  the setting off restores the hand-built order. Drag is clamped to the dragged
+  item's group (`TodoDisplay` over three groups, `TrackerDisplay` over two).
+- **Reminders (to-dos only):** `remindAt`, `repeatDays` (arbitrary weekdays, 1 =
+  Sunday), `snoozedUntil`, `firedAt`, `firedUnseen` — every one decoded
+  leniently, so a `todos.json` from before the feature loads untouched. The
+  tracker has none: its time already means "how long I worked". All arithmetic is
+  pure in `HopCore.RemindSchedule` (`RemindScheduleTests`): the next firing for a
+  weekday set, DST gaps via `matchingPolicy: .nextTime`, and `reconcile`, which
+  fires a past one-shot EXACTLY once (`firedAt` older than `remindAt` is the
+  test) and collapses a week of missed repeats into ONE unseen firing. A firing
+  rolls a repeating task forward and UN-TICKS it — a task that repeats is not
+  finished because last week's instance was ticked.
+- **Firing:** three independent settings, all ON (`todoRemindBanner`,
+  `todoRemindSound`, `todoRemindMark`). The banner is a `UNCalendarNotificationTrigger`
+  with two actions, `snooze` (+10 min) and `done`; ONE pending request per item,
+  always for its next firing only, so a weekday repeat costs one slot rather than
+  seven and 60 items fit under the system's 64-request ceiling (a drop past the
+  cap is logged, never silent). The banner is SILENT (`content.sound = nil`) and
+  the alert sound is played by the app's own 15s reconcile tick instead, so sound
+  works with banners off and can never double up. The tick, plus a wake observer
+  and a recompute on panel open, is what makes a reminder land at all when
+  notifications are switched off.
+- **After a firing:** the row's time stays visible and STRUCK THROUGH once it is
+  in the past (a repeating task never shows one — it has already rolled forward),
+  and on the next panel open the row blinks three times (finite, no
+  `repeatForever`) before `firedUnseen` clears. So a banner that went unseen
+  still leaves a trace in the list.
+- **Week start:** the weekday squares run in the user's own week order —
+  `firstWeekday` (`auto` follows the system region, or Sunday/Monday explicitly),
+  since the US counts a week from Sunday and most of Europe from Monday and
+  people move without changing habits.
 - Registration is by membership like every module (key `"todos"`, title
   `todosLabel`); it captures the keyboard while its field is focused (same
   `onEditingChanged` path as the tracker) so digits don't leak to the timer.
@@ -936,6 +1006,26 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   again as wide, and width is what reads as "bigger". At 12.5 the square one
   draws 11.3 × 12.0 pt — the arrow's own box. Same glyph in the panel row, in
   the window's button and in the help legend.
+- **Languages: Vision detects the script itself** (fixed 2026-07-28). The
+  request used to name the INTERFACE language plus English and nothing else, so
+  anything not written in Latin came back as garbage — the Mori Art Museum's
+  opening hours read as `4829 8238(` instead of `森美術館`. Measured on macOS 26
+  before choosing the fix: on a six-script image (Japanese, Russian, English,
+  Korean, Arabic, Thai) `automaticallyDetectsLanguage` returned ALL SIX in 488 ms,
+  while naming those same six languages explicitly LOST the Russian, Arabic and
+  Thai lines in 167 ms, and `en-US` alone garbled the Japanese and missed the
+  rest. On Latin pages detection matched the explicit list exactly, including the
+  mixed Latin/Cyrillic screen an older comment cited as the reason to avoid it.
+  So detection is the DEFAULT and a named list is an opt-in for one language and
+  a ~4× faster pass (`recognition languages` in settings, `screenTextLanguages`,
+  space-separated Vision tags; empty = auto). Two findings are load-bearing and
+  must not be re-litigated without new measurements: Vision's CONFIDENCE cannot
+  judge a reading (a wrong-language pass over Chinese reported 1.00 while
+  producing nonsense), so no scoring or threshold decides anything here; and
+  naming many languages HURTS, so the setting must never be described as making
+  recognition "more multilingual". `RecognitionPlan` (pure, tested) maps the
+  selection onto what the machine supports — a tag Vision does not list makes the
+  WHOLE request fail, so unsupported tags are dropped.
 - **A reading that holds a web address can be FOLLOWED** (Anton, 2026-07-27):
   the window shows an "open link" button that hands the address to the default
   browser. This is the point of reading a QR code on the Mac rather than
@@ -1306,6 +1396,38 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - The torrent card keeps its own two-step shape (opt-in, then follow-up
   settings while the engine downloads); `FeatureAnnouncement.checklist`
   picks which shape a card takes.
+
+## Agent bridge (files and hop:// links)
+
+Hop can be READ and DRIVEN from outside — by the user's own AI agent, a script,
+or a Shortcut — through two plain JSON files in the app's Application Support
+folder, plus a URL scheme. Files rather than a socket or a CLI because that is
+the surface an agent already has: it can read and write files without being
+taught anything.
+
+- `agent-commands.json` — written by the agent, performed, then EMPTIED by the
+  app. The emptying is the acknowledgement. A file that parses to nothing usable
+  is left alone rather than silently eaten, so a malformed write can be seen.
+- `agent-state.json` — written by Hop every 5s and after every command: timer
+  mode/state/remaining, keep-awake, the tracking task and its today total, and
+  the whole to-do list with notes, reminders and favourites.
+- `hop://` links carry the SAME vocabulary — `hop://timer/start?minutes=16`,
+  `hop://todo/add?text=…&important=true&repeatDays=mon,wed`, `hop://tracker/stop`.
+  This is what a Shortcut can open, which is how Siri reaches Hop in whatever
+  language the user speaks to it: the phrase is the Shortcut's own name, so it
+  needs no localization from us.
+- The vocabulary is a CLOSED list of verbs (`AgentCommand`), not "set any field":
+  `timer.start` is unambiguous, while a declarative "timer: running" would leave
+  the app guessing whether to restart a timer the user just paused. Parsing is
+  deliberately forgiving (`AgentCommandParser`, pure, tested) — the writer is a
+  language model: `do`/`command`/`action` are all accepted as the verb key, a
+  bare array works as well as `{"commands": […]}`, durations may be `seconds`,
+  `minutes`, `hours` or `"1h30m"`/`"25:00"`/a bare number of minutes, weekdays
+  may be numbers or names, and ONE bad entry never discards the rest.
+- `todos.json` and the command file are watched (`FileWatcher`, coalesced 0.3s,
+  re-arming on the delete/rename that a replacing writer produces), so a task an
+  agent appends to `todos.json` appears while the app runs instead of being
+  overwritten by its next save.
 
 ## Shared components
 

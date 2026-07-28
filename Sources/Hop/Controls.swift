@@ -991,6 +991,10 @@ struct RowDeleteConfirm: View {
 /// which targets the task text past the circle, not the circle itself) unchanged.
 enum RowCircle {
     static let diameter: CGFloat = 18   // between the old transport 22 and checkbox ~13
+    /// The to-do checkbox is a RING, and a ring reads bigger than a disc of the
+    /// same size — next to the tracker's filled play button it looked like a
+    /// different control (Anton, 2026-07-28). 16pt is the optical match.
+    static let checkboxDiameter: CGFloat = 16
     static let gutter: CGFloat = 22
     static let glyphSize: CGFloat = 9
     static let strokeWidth: CGFloat = 1.5
@@ -1085,7 +1089,10 @@ struct TransportCircle: View {
         .frame(width: diameter, height: diameter)
         .background(filled ? fillColor : .clear, in: Circle())
         .overlay {
-            if !filled { Circle().stroke(strokeColor, lineWidth: RowCircle.strokeWidth) }
+            // strokeBorder, not stroke: a centred stroke straddles the path and
+            // grows the circle by its own width, which is half of why the ring
+            // outsized the disc.
+            if !filled { Circle().strokeBorder(strokeColor, lineWidth: RowCircle.strokeWidth) }
         }
         .contentShape(Circle())
     }
