@@ -134,6 +134,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.register(defaults: [
             KeepAwakeController.keepDisplayKey: true,
         ])
+        // The reminder signal ships fully on: a reminder nobody hears is not a
+        // reminder. Registered rather than written, so an explicit OFF wins.
+        UserDefaults.standard.register(defaults: SettingsKey.registeredDefaults)
 
         syncSystemTheme()
         DistributedNotificationCenter.default().addObserver(

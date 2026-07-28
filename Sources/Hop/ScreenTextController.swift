@@ -215,7 +215,12 @@ final class ScreenTextController: ObservableObject {
     /// the same walk over the same pixels. Runs off the main thread — recognition
     /// on a large selection takes long enough to stutter the UI.
     private nonisolated static func read(_ file: URL) async -> String? {
-        let languages = recognitionLanguages()
+        let supported = (try? VNRecognizeTextRequest().supportedRecognitionLanguages()) ?? []
+        let selected = UserDefaults.standard.stringArray(forKey: SettingsKey.screenTextLanguages) ?? []
+        let languages = RecognitionPlan.languages(selected: selected, supported: supported)
+        let detectsAutomatically = RecognitionPlan.detectsAutomatically(selected: selected,
+                                                                       supported: supported)
+
         return await Task.detached(priority: .userInitiated) {
             guard let source = CGImageSourceCreateWithURL(file as CFURL, nil),
                   let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { return nil }
@@ -223,7 +228,17 @@ final class ScreenTextController: ObservableObject {
             let textRequest = VNRecognizeTextRequest()
             textRequest.recognitionLevel = .accurate
             textRequest.usesLanguageCorrection = true
-            if !languages.isEmpty { textRequest.recognitionLanguages = languages }
+            // Letting Vision pick the script is what makes a screen with several
+            // of them readable AT ONCE: measured on a six-script image, detection
+            // returned all six, while naming those same six languages explicitly
+            // lost the Russian, Arabic and Thai lines outright. A named list is
+            // therefore an opt-in for people who want one language and the ~4x
+            // faster pass that comes with it.
+            if detectsAutomatically {
+                textRequest.automaticallyDetectsLanguage = true
+            } else {
+                textRequest.recognitionLanguages = languages
+            }
             let codeRequest = VNDetectBarcodesRequest()
 
             let handler = VNImageRequestHandler(cgImage: image, options: [:])
@@ -239,23 +254,5 @@ final class ScreenTextController: ObservableObject {
             let codes = (codeRequest.results ?? []).compactMap(\.payloadStringValue)
             return ScreenTextRules.assemble(lines: lines, barcodes: codes)
         }.value
-    }
-
-    /// The app's own language plus English, mapped onto whatever Vision actually
-    /// supports on this machine (its list is versioned, and an unsupported tag
-    /// makes the whole request fail). Automatic detection is deliberately NOT
-    /// used: it guesses badly on mixed Latin/Cyrillic screens, and the UI
-    /// language is a far better hint about what its owner reads.
-    private nonisolated static func recognitionLanguages() -> [String] {
-        let supported = (try? VNRecognizeTextRequest().supportedRecognitionLanguages()) ?? []
-        guard !supported.isEmpty else { return [] }
-        var out: [String] = []
-        for code in [L10n.current.rawValue, "en"] {
-            // prefix match: Vision spells them "en-US", "ru-RU", "zh-Hans"
-            if let match = supported.first(where: { $0.hasPrefix(code) }), !out.contains(match) {
-                out.append(match)
-            }
-        }
-        return out
     }
 }

@@ -75,6 +75,27 @@ enum SettingsKey {
     /// layout rebuilt into the canonical three-tab shape exactly once. Set on
     /// the fresh migrate path too, so the seed never runs for new installs.
     static let canonicalLayoutSeeded = "canonicalLayoutSeeded"
+    /// The reminder signal: three independent switches, all ON by default. These
+    /// ARE the documented exception to "no per-badge switches" — a reminder is a
+    /// one-off user event rather than an app state, so its signal is a preference
+    /// of the same family as the timer's finish signal.
+    static let todoRemindBanner = "todoRemindBanner"
+    static let todoRemindSound = "todoRemindSound"
+    static let todoRemindMark = "todoRemindMark"
+    /// Important tasks rise to the top of their list. OFF by default: with it off,
+    /// marking a task changes nothing about where it sits.
+    static let todoImportantOnTop = "todoImportantOnTop"
+    static let trackerImportantOnTop = "trackerImportantOnTop"
+    /// Vision tags the user picked for text recognition; empty = automatic (the
+    /// interface language plus English, with the non-Latin fallback pass armed).
+    static let screenTextLanguages = "screenTextLanguages"
+
+    /// Defaults that are not `false`/nil/0. Registered once at launch.
+    static let registeredDefaults: [String: Any] = [
+        todoRemindBanner: true,
+        todoRemindSound: true,
+        todoRemindMark: true,
+    ]
 }
 
 /// Highlight thresholds for the system tab: at which value yellow and red kick in.
