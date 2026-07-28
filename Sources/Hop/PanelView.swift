@@ -4357,6 +4357,66 @@ struct PanelView: View {
          t(.archiveLabel), t(.keylockLabel)]
     }
 
+    /// The support card. It heads the "general" tab rather than closing it:
+    /// this is the ONLY donation surface in the whole product — the landing and
+    /// the READMEs deliberately have none — and at the foot of a long page nobody
+    /// scrolled far enough to find it (Anton, 2026-07-28).
+    private var donationCard: some View {
+            // donation block — the ONLY donation surface in the whole product
+            // (the landing and README deliberately have none). The WHOLE card
+            // is one button to the donation link, with the house whole-row
+            // hover (background lift + pointing-hand cursor) and an external-
+            // page glyph on the right, so there is one obvious place to click.
+            // Russian routes to the ru card, every other locale to the neutral
+            // one — the same rule the localized READMEs follow. No perks are
+            // promised anywhere (donations are gifts).
+            Button {
+                let url = lang == .ru
+                    ? "https://web.tribute.tg/d/Nvp"
+                    : "https://web.tribute.tg/d/Nvk"
+                if let link = URL(string: url) { NSWorkspace.shared.open(link) }
+            } label: {
+                // Top-aligned so the external-page glyph rides the TITLE row
+                // (top-right), not the card's vertical centre.
+                HStack(alignment: .top, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 6) {
+                            // leading donation glyph — the house health-heart
+                            // red, tuned for both themes
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 11))
+                                .foregroundStyle(Theme.iconHealth)
+                            Text(t(.donateTitle))
+                                .font(Theme.mono(13, weight: .semibold))
+                                // Slight negative tracking: the semibold mono
+                                // space reads wide at 13pt, so the word gap in
+                                // titles like "support hop" looked like more
+                                // than one space. -0.5pt closes it just enough;
+                                // too mild to cramp CJK/Thai (checked in both
+                                // themes across the wide scripts).
+                                .tracking(-0.5)
+                                .foregroundStyle(Theme.textPrimary)
+                        }
+                        Text(t(.donateBody))
+                            .font(Theme.mono(11))
+                            .foregroundStyle(Theme.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    // external-page hint, aligned with the title row
+                    Image(systemName: "arrow.up.forward.app")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Theme.textTertiary)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 8))
+            .hoverHighlight(8)
+    }
+
     private var aboutScreen: some View {
         VStack(alignment: .leading, spacing: 14) {
             SectionChips(items: [
@@ -4379,6 +4439,11 @@ struct PanelView: View {
                 ("tasks", t(.aboutTabTasks)),
                 ("news", t(.aboutTabNews)),
             ], selection: $aboutSection, wraps: true)
+
+            // support first, before the long text: see `donationCard`
+            if aboutSection == "general" {
+                donationCard
+            }
 
             Group {
                 switch aboutSection {
@@ -4497,61 +4562,6 @@ struct PanelView: View {
                     }
                 }
                 .font(Theme.mono(11))
-
-                // donation block — the ONLY donation surface in the whole product
-                // (the landing and README deliberately have none). The WHOLE card
-                // is one button to the donation link, with the house whole-row
-                // hover (background lift + pointing-hand cursor) and an external-
-                // page glyph on the right, so there is one obvious place to click.
-                // Russian routes to the ru card, every other locale to the neutral
-                // one — the same rule the localized READMEs follow. No perks are
-                // promised anywhere (donations are gifts).
-                Button {
-                    let url = lang == .ru
-                        ? "https://web.tribute.tg/d/Nvp"
-                        : "https://web.tribute.tg/d/Nvk"
-                    if let link = URL(string: url) { NSWorkspace.shared.open(link) }
-                } label: {
-                    // Top-aligned so the external-page glyph rides the TITLE row
-                    // (top-right), not the card's vertical centre.
-                    HStack(alignment: .top, spacing: 10) {
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack(spacing: 6) {
-                                // leading donation glyph — the house health-heart
-                                // red, tuned for both themes
-                                Image(systemName: "heart.fill")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(Theme.iconHealth)
-                                Text(t(.donateTitle))
-                                    .font(Theme.mono(13, weight: .semibold))
-                                    // Slight negative tracking: the semibold mono
-                                    // space reads wide at 13pt, so the word gap in
-                                    // titles like "support hop" looked like more
-                                    // than one space. -0.5pt closes it just enough;
-                                    // too mild to cramp CJK/Thai (checked in both
-                                    // themes across the wide scripts).
-                                    .tracking(-0.5)
-                                    .foregroundStyle(Theme.textPrimary)
-                            }
-                            Text(t(.donateBody))
-                                .font(Theme.mono(11))
-                                .foregroundStyle(Theme.textSecondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        // external-page hint, aligned with the title row
-                        Image(systemName: "arrow.up.forward.app")
-                            .font(.system(size: 13))
-                            .foregroundStyle(Theme.textTertiary)
-                    }
-                    .padding(12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 8))
-                .hoverHighlight(8)
-                .padding(.top, 4)
             }
         }
         .font(Theme.mono(12))

@@ -1526,12 +1526,14 @@ converter (Anton, 2026-07-28).
   hop@antonshakirov.com · telegram", the address a mailto: link opening the
   user's mail client and "telegram" a link to the support bot
   (https://t.me/HopSupportBot); both labels are proper nouns, not localized
-  (like "GitHub"). Below the footer sits the donation block (see "Donation
-  block").
+  (like "GitHub"). The donation block does NOT follow the footer any more — it
+  heads the tab (see "Donation block").
 - Donation block: the ONLY donation surface in the whole product — the landing
   and README deliberately have none, and nothing else in the app does either. It
-  sits below the general-tab footer, set apart in its own faint card (chipBg,
-  rounded). The WHOLE card is a single button that opens the donation link — one
+  HEADS the general tab, directly under the section chips and above the
+  description, set apart in its own faint card (chipBg, rounded). It used to
+  close the tab, where a long page meant nobody scrolled far enough to see the
+  one place the product asks for anything (Anton, 2026-07-28). The WHOLE card is a single button that opens the donation link — one
   obvious place to click, with the house whole-row hover (a hoverBg lift plus the
   pointing-hand cursor). Inside, left-aligned, a title ROW — a leading filled
   heart (`heart.fill`, `Theme.iconHealth`, the house both-theme health red) then
