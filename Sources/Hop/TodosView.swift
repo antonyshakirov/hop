@@ -199,6 +199,14 @@ struct TodosView: View {
             // long already-truncated text yields room to the xmark instead of
             // running under it (a trailing overlay could not guarantee that).
             Spacer(minLength: 6)
+            // A favourite: the star is the mark, set by the card's switch. Drawn
+            // in neutral tokens — a coloured frame read as a warning rather than
+            // "this one matters" (Anton, 2026-07-28).
+            if item.important {
+                Image(systemName: "star.fill")
+                    .font(.system(size: 9))
+                    .foregroundStyle(Theme.textSecondary)
+            }
             // "there is something inside" — the collapsed row's only hint that
             // the card holds a comment. Inert: the whole row opens the card.
             if !item.note.isEmpty {
@@ -229,13 +237,6 @@ struct TodosView: View {
         }
         .padding(.horizontal, 2)
         .padding(.vertical, 2)
-        // An overlay rather than a border: the frame must not add height, or a
-        // list of important tasks would break RowCap's 29·cap − 3 maths.
-        .overlay(
-            RoundedRectangle(cornerRadius: 4)
-                .strokeBorder(Theme.accentOrange.opacity(0.55), lineWidth: 1)
-                .opacity(item.important ? 1 : 0)
-        )
         .opacity(item.firedUnseen && blinkPhase ? 0.25 : 1)
         .background(rowFrameReader(item.id))
         // whole-row drag surface: grabbing anywhere reorders (see dragGesture).

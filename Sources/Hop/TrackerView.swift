@@ -236,6 +236,13 @@ struct TrackerView: View {
                     playStop(task, active: active)
                     taskName(task)
                     Spacer(minLength: 6)
+                    // A favourite, marked by the card's switch — neutral tokens,
+                    // no coloured frame.
+                    if task.important {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 9))
+                            .foregroundStyle(Theme.textSecondary)
+                    }
                     // "there is something inside" — the row's only hint that the
                     // card holds a comment. Inert: the row itself opens the card.
                     if !task.note.isEmpty {
@@ -257,13 +264,6 @@ struct TrackerView: View {
         // (22pt content + this 2pt vertical padding × 2), with zero growth.
         .padding(.vertical, 2)
         .padding(.horizontal, 2)
-        // An overlay rather than a border: the frame must not add height, or the
-        // row would stop matching to-dos' 26pt and RowCap's height maths.
-        .overlay(
-            RoundedRectangle(cornerRadius: 4)
-                .strokeBorder(Theme.accentOrange.opacity(0.55), lineWidth: 1)
-                .opacity(task.important ? 1 : 0)
-        )
         .background(rowFrameReader(task.id))
         // whole-row drag surface: grabbing anywhere reorders (see dragGesture).
         // While the list scrolls (capped), the row gesture stands down

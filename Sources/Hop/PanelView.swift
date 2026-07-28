@@ -56,6 +56,7 @@ struct PanelView: View {
     /// Space-separated Vision tags; empty = automatic detection. Stored as one
     /// string because @AppStorage cannot hold an array.
     @AppStorage(SettingsKey.screenTextLanguages) private var screenTextLanguages = ""
+    @AppStorage(SettingsKey.firstWeekday) private var firstWeekday = FirstWeekday.auto
     @AppStorage("timerCompact") private var timerCompact = true
     @AppStorage("displayStyle") private var displayStyle = "dots" // dots | text | units
     @AppStorage("digitsSize") private var digitsSize = "large" // large | small
@@ -3507,6 +3508,7 @@ struct PanelView: View {
                 switchSetting(t(.settingsRemindBanner), isOn: $todoRemindBanner)
                 switchSetting(t(.settingsRemindSound), isOn: $todoRemindSound)
                 switchSetting(t(.settingsRemindMark), isOn: $todoRemindMark)
+                firstWeekdaySetting
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
@@ -3818,6 +3820,33 @@ struct PanelView: View {
         var selected = selectedRecognitionLanguages
         if let index = selected.firstIndex(of: tag) { selected.remove(at: index) } else { selected.append(tag) }
         screenTextLanguages = selected.joined(separator: " ")
+    }
+
+    /// Which day the reminder's weekday row starts on. Defaults to the system's
+    /// region — the US counts a week from Sunday, most of Europe from Monday —
+    /// and can be overridden, because people move and their habits do not.
+    private var firstWeekdaySetting: some View {
+        HStack {
+            Text(t(.settingsFirstWeekday))
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textPrimary)
+            Spacer()
+            Menu {
+                Button(t(.recognitionLanguagesAuto)) { firstWeekday = .auto }
+                Divider()
+                Button(FirstWeekday.name(for: 2)) { firstWeekday = .monday }
+                Button(FirstWeekday.name(for: 1)) { firstWeekday = .sunday }
+            } label: {
+                Text(firstWeekday == .auto
+                     ? "\(t(.recognitionLanguagesAuto)) · \(FirstWeekday.name(for: FirstWeekday.auto.weekdayNumber))"
+                     : firstWeekday.label)
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+                    .lineLimit(1)
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+        }
     }
 
     /// A labelled switch in the settings rhythm — the house MiniSwitch, since the

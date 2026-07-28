@@ -86,6 +86,9 @@ enum SettingsKey {
     /// marking a task changes nothing about where it sits.
     static let todoImportantOnTop = "todoImportantOnTop"
     static let trackerImportantOnTop = "trackerImportantOnTop"
+    /// Which day the week starts on in the reminder's weekday row: "auto" follows
+    /// the system's region, and the two explicit values override it.
+    static let firstWeekday = "firstWeekday"
     /// Vision tags the user picked for text recognition; empty = automatic (the
     /// interface language plus English, with the non-Latin fallback pass armed).
     static let screenTextLanguages = "screenTextLanguages"
