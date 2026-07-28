@@ -205,4 +205,64 @@ final class TodosTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: bakURL.path))
         XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
     }
+
+    // MARK: - Note, reminder and importance fields
+
+    /// A file written before these fields existed must load with defaults. A
+    /// decode failure would move the user's list aside as a .bak.
+    func testDecodesLegacyItemWithoutNewKeys() throws {
+        let json = Data("""
+        {"items":[{"id":"0E7A6E1A-0000-4000-8000-000000000001","text":"a","done":true}]}
+        """.utf8)
+
+        let list = try JSONDecoder().decode(TodoList.self, from: json)
+
+        XCTAssertEqual(list.items.count, 1)
+        XCTAssertEqual(list.items[0].note, "")
+        XCTAssertNil(list.items[0].remindAt)
+        XCTAssertEqual(list.items[0].repeatDays, [])
+        XCTAssertNil(list.items[0].snoozedUntil)
+        XCTAssertNil(list.items[0].firedAt)
+        XCTAssertFalse(list.items[0].firedUnseen)
+        XCTAssertFalse(list.items[0].important)
+    }
+
+    func testWeekdaysAreSortedDeduplicatedAndRangeChecked() {
+        XCTAssertEqual(TodoItem.normalizedWeekdays([7, 1, 1, 0, 8, 4, -2]), [1, 4, 7])
+        XCTAssertEqual(TodoItem.normalizedWeekdays([]), [])
+    }
+
+    func testDecodeNormalizesStoredWeekdays() throws {
+        let json = Data("""
+        {"items":[{"id":"0E7A6E1A-0000-4000-8000-000000000002","text":"a","done":false,\
+        "repeatDays":[5,2,2,99]}]}
+        """.utf8)
+
+        let list = try JSONDecoder().decode(TodoList.self, from: json)
+
+        XCTAssertEqual(list.items[0].repeatDays, [2, 5])
+    }
+
+    func testTrackerTaskDecodesWithoutTheNewKeys() throws {
+        let json = Data("""
+        {"id":"0E7A6E1A-0000-4000-8000-000000000003","name":"a"}
+        """.utf8)
+
+        let task = try JSONDecoder().decode(TrackerTask.self, from: json)
+
+        XCTAssertEqual(task.note, "")
+        XCTAssertFalse(task.important)
+    }
+
+    func testNewFieldsSurviveTheStoreRoundTrip() throws {
+        let at = Date(timeIntervalSinceReferenceDate: 800_000_000)
+        let list = TodoList(items: [
+            TodoItem(text: "a", note: "call first", remindAt: at, repeatDays: [3, 5],
+                     firedAt: at, firedUnseen: true, important: true)
+        ])
+
+        try TodosStore.save(list, to: dir)
+
+        XCTAssertEqual(TodosStore.load(from: dir), list)
+    }
 }

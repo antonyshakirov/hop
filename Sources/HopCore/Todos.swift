@@ -6,11 +6,68 @@ public struct TodoItem: Codable, Equatable, Identifiable {
     public let id: UUID
     public var text: String
     public var done: Bool
+    /// Free-form comment shown in the expanded card; empty = the collapsed row
+    /// draws no note glyph.
+    public var note: String
+    /// The next firing. nil = no reminder.
+    public var remindAt: Date?
+    /// Repeat weekdays in Calendar numbering (1 = Sunday). Empty = one-shot.
+    public var repeatDays: [Int]
+    /// Set by the banner's snooze; supersedes `remindAt` until it passes.
+    public var snoozedUntil: Date?
+    /// When the reminder last fired. Never displayed — it is what makes a firing
+    /// happen ONCE: a one-shot's `remindAt` stays in the past forever, so without
+    /// this every relaunch would treat it as a fresh firing.
+    public var firedAt: Date?
+    /// A firing the user has not acknowledged yet — the row blinks and the menu
+    /// bar carries its mark until it does.
+    public var firedUnseen: Bool
+    /// The importance mark. Whether it also sorts the list is a setting.
+    public var important: Bool
 
-    public init(id: UUID = UUID(), text: String, done: Bool = false) {
+    public init(id: UUID = UUID(), text: String, done: Bool = false,
+                note: String = "", remindAt: Date? = nil, repeatDays: [Int] = [],
+                snoozedUntil: Date? = nil, firedAt: Date? = nil,
+                firedUnseen: Bool = false, important: Bool = false) {
         self.id = id
         self.text = text
         self.done = done
+        self.note = note
+        self.remindAt = remindAt
+        self.repeatDays = Self.normalizedWeekdays(repeatDays)
+        self.snoozedUntil = snoozedUntil
+        self.firedAt = firedAt
+        self.firedUnseen = firedUnseen
+        self.important = important
+    }
+
+    /// Weekdays sorted, de-duplicated and range-checked, so a hand-edited or
+    /// older file can never feed Calendar an impossible weekday.
+    public static func normalizedWeekdays(_ days: [Int]) -> [Int] {
+        Array(Set(days.filter { (1...7).contains($0) })).sorted()
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, text, done, note, remindAt, repeatDays, snoozedUntil,
+             firedAt, firedUnseen, important
+    }
+
+    /// Every field added after the checklist shipped decodes leniently: an older
+    /// todos.json has none of them and must still load, since a decode failure
+    /// moves the user's list aside as a .bak.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        text = try container.decode(String.self, forKey: .text)
+        done = try container.decodeIfPresent(Bool.self, forKey: .done) ?? false
+        note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
+        remindAt = try container.decodeIfPresent(Date.self, forKey: .remindAt)
+        repeatDays = Self.normalizedWeekdays(
+            try container.decodeIfPresent([Int].self, forKey: .repeatDays) ?? [])
+        snoozedUntil = try container.decodeIfPresent(Date.self, forKey: .snoozedUntil)
+        firedAt = try container.decodeIfPresent(Date.self, forKey: .firedAt)
+        firedUnseen = try container.decodeIfPresent(Bool.self, forKey: .firedUnseen) ?? false
+        important = try container.decodeIfPresent(Bool.self, forKey: .important) ?? false
     }
 }
 

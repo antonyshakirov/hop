@@ -24,11 +24,32 @@ public struct TrackerTask: Codable, Equatable, Identifiable {
     public let id: UUID
     public var projectID: UUID?
     public var name: String
+    /// Free-form comment shown in the expanded card.
+    public var note: String
+    /// The importance mark. Whether it also sorts the list is a setting.
+    public var important: Bool
 
-    public init(id: UUID = UUID(), projectID: UUID? = nil, name: String) {
+    public init(id: UUID = UUID(), projectID: UUID? = nil, name: String,
+                note: String = "", important: Bool = false) {
         self.id = id
         self.projectID = projectID
         self.name = name
+        self.note = note
+        self.important = important
+    }
+
+    private enum CodingKeys: String, CodingKey { case id, projectID, name, note, important }
+
+    /// Hand-written rather than synthesised: a tracker.json from before these
+    /// fields existed carries neither key, and a synthesised decoder would reject
+    /// it outright — which would move the user's whole task list aside as a .bak.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        projectID = try container.decodeIfPresent(UUID.self, forKey: .projectID)
+        name = try container.decode(String.self, forKey: .name)
+        note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
+        important = try container.decodeIfPresent(Bool.self, forKey: .important) ?? false
     }
 }
 
