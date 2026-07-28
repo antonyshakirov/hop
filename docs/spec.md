@@ -1908,6 +1908,19 @@ Anton's primary install must always remain fully functional.
   1-second safety net reveals it anyway if no report comes. Later opens reuse
   the retained, already-correct frame (the active tab is remembered) and just
   recenter. Heights are integral (a fractional height re-triggered a resize).
+- The height ceiling is the usable screen MINUS 12pt, not a fraction of it.
+  `visibleFrame` already excludes the menu bar and the Dock, so its height is
+  the real limit and the 12pt only keeps the window off the edges. It was 85%
+  of that, which on an 855pt work area capped the window at 727 while the
+  "general" tab needs 828 (800 of content at the widest language, plus the
+  title bar): the window opened cut off just below the description, and the
+  support card at the foot of the tab was never seen (Anton, 2026-07-28). The
+  tab measures 780-800pt across all 22 languages, so it now fits whole.
+- The `--window-about` render pins the width to 1060. The standalone about is a
+  ScrollView with `maxHeight: .infinity`, and ImageRenderer handed that an
+  unbounded height, so the render came out blank; with the width fixed the
+  content reports its natural height, which also makes the render a measurement
+  of what the window has to fit.
 
 ## Versioning (approved 2026-07-13)
 

@@ -441,7 +441,14 @@ enum Snapshot {
         if args.contains("--window-settings") {
             content = AnyView(PanelView(initial: .settings, standaloneSettings: true).environmentObject(model))
         } else if args.contains("--window-about") {
-            content = AnyView(PanelView(initial: .about, standaloneAbout: true).environmentObject(model))
+            // WIDTH pinned to the window's own 1060: the standalone about is a
+            // ScrollView with maxHeight .infinity, and ImageRenderer handed that
+            // an unbounded height, so the render came out blank. With the width
+            // fixed the content reports its natural height, which is also how
+            // this render doubles as a measurement of what the window must fit.
+            content = AnyView(PanelView(initial: .about, standaloneAbout: true)
+                .environmentObject(model)
+                .frame(width: 1060))
         } else if args.contains("--window-converter") {
             content = AnyView(ConvertWindowView().environmentObject(model))
         } else if args.contains("--window-archive") {

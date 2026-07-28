@@ -468,8 +468,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
                 let titlebar = window.frame.height - window.contentLayoutRect.height
                 // integral height only — a fractional window height made the
-                // hosting controller re-measure and jump the content on open
-                let target = min((h + titlebar).rounded(.up), (screenH * 0.85).rounded(.down))
+                // hosting controller re-measure and jump the content on open.
+                //
+                // The ceiling is the usable screen minus a small margin, NOT a
+                // fraction of it. At 0.85 a 855pt work area capped the window at
+                // 727pt while the "general" tab needs ~810 (780 of content plus
+                // the title bar) — so the window opened cut off exactly below the
+                // description and the support card at the foot of it was never
+                // seen (Anton, 2026-07-28). visibleFrame already excludes the menu
+                // bar and the Dock, so its height IS the limit; the 12pt keeps the
+                // window off the very edges.
+                let ceiling = (screenH - 12).rounded(.down)
+                let target = min((h + titlebar).rounded(.up), ceiling)
 
                 if self.aboutAwaitingReveal {
                     // the first frame after ordering in transparent: size to the
@@ -550,7 +560,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 // height report size, recenter and reveal it.
                 aboutAwaitingReveal = true
                 window.alphaValue = 0
-                window.setContentSize(NSSize(width: 1060, height: min(780, screenH * 0.85)))
+                window.setContentSize(NSSize(width: 1060, height: min(820, screenH - 12)))
                 window.center()
             }
         }
