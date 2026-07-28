@@ -19,9 +19,9 @@ zur Hand.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · **Deutsch** · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · **Deutsch** · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/de/panel.png" width="420" alt="Hop-Panel — Menüleisten-Timer mit Punktmatrix-Anzeige, Presets und Arbeits-Pausen-Zyklen">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/overview.png" width="360" alt="Hop-Panel — Menüleisten-Timer mit Punktmatrix-Anzeige, Presets und Arbeits-Pausen-Zyklen">
 
 </div>
 
@@ -86,13 +86,18 @@ Halte den Mac 15 Minuten, 8 Stunden oder für immer wach — ein Klick, kein
 Passwort. Optional bleibt das Display an, oder du arbeitest bei geschlossenem
 Deckel weiter (praktisch für Downloads, lange Builds und externe Displays).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/awake.png" width="420" alt="Hop — Kein Schlaf">
+</div>
+
 ### Systemmonitor
 
 CPU- und GPU-Last samt Temperatur, Speicher und Swap, Netzwerk, Festplatte,
 Batteriezustand und Leistungsaufnahme — Live-Werte mit Sparkline-Diagrammen,
 Farbschwellen, die du selbst festlegst, °C/°F und einer Uptime-Zeile. Die
 Messwerte kommen direkt von macOS und aktualisieren sich nur, solange der Tab
-geöffnet ist.
+geöffnet ist. Die speicherzeile warnt auch, wenn viel speicher auf der platte
+gelandet ist, und nicht erst, wenn macOS selbst knappheit meldet.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/system.png" width="420" alt="Hop — Systemmonitor">
@@ -105,6 +110,10 @@ ein Klick zum erneuten Kopieren oder zum direkten Einfügen in die vorherige
 App. Kopierte Dateien werden mit Namen gemerkt (mehrere zeigen sich als
 „Name +N“), und beim Einfügen kommt die eigentliche Datei zurück. Passwörter
 und andere verdeckte Eingaben werden niemals gespeichert.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/clipboard.png" width="420" alt="Hop — Zwischenablage-Verlauf">
+</div>
 
 ### Dateikonverter
 
@@ -121,6 +130,10 @@ lokal verarbeitet.
 
 Fenster mit einem Klick auf ein Zonensymbol oder per ⌃⌥-Hotkey auf Hälften,
 Viertel, Drittel und die Mitte einrasten — ganz ohne zusätzliche App.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/windows.png" width="420" alt="Hop — Fenstermanager">
+</div>
 
 ### Torrents
 
@@ -183,6 +196,12 @@ lesen, bearbeiten und daraus kopieren kann, und landen zugleich im Verlauf der
 Zwischenablage. Zeilenumbrüche bleiben, eine Tabelle bleibt lesbar. Erkannt
 wird mit Apples Vision, komplett auf diesem Mac.
 
+Enthält ein Ergebnis eine Web-Adresse, erscheint die Schaltfläche «Link
+öffnen»: der Link aus einem QR-Code auf einer Rechnung öffnet sich direkt im
+Browser, ganz ohne Telefon. Nur Web-Adressen: ein gescannter Code ist fremde
+Eingabe, deshalb bleiben Telefonnummer, WLAN-Passwort oder Visitenkarte
+einfacher Text.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/recognition.png" width="480" alt="Hop — Texterkennung">
 </div>
@@ -207,17 +226,20 @@ Kleine Statusindikatoren am Menüleisten-Symbol — Zeit, Wachhalten, Warnungen
 und Torrent-Aktivität, farbig oder einfarbig —, ein eingebauter Speedtest
 (Apples networkQuality), dunkles und helles Design mit Filmkorn-Textur,
 globale Hotkeys, Start beim Anmelden und ein abgesicherter Modus, der die App
-aus einer Absturzschleife rettet.
+aus einer Absturzschleife rettet. Hops eigene fenster — konverter, archive,
+texterkennung, einstellungen — erscheinen im dock, solange sie offen sind; ein
+klick auf das symbol holt eines zurück, statt erst das panel zu öffnen, und
+mit dem letzten fenster verschwindet es wieder.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/system.png" width="280" alt="Hop-Systemmonitor — Diagramme für CPU, GPU, Speicher, Netzwerk, Festplatte, Batterie">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/converter.png" width="280" alt="Hop-Dateikonverter — Stapelkonvertierung von Bildern, PDFs, Videos und Audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/settings.png" width="280" alt="Hop-Einstellungen — Themes, Module, Hotkeys, 18 Sprachen">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/settings.png" width="280" alt="Hop-Einstellungen — Themes, Module, Hotkeys, 22 Sprachen">
 </div>
 
-## 18 Sprachen
+## 22 Sprachen
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — die App folgt von Haus aus deiner Systemsprache.
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — die App folgt von Haus aus deiner Systemsprache.
 
 ## Unterstütze das Projekt
 

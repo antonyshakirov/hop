@@ -18,9 +18,9 @@ gian, việc cần làm, chống ngủ, giám sát hệ thống, lịch sử cli
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · **Tiếng Việt** · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · **Tiếng Việt** · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Bảng điều khiển Hop — đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Bảng điều khiển Hop — đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
 
 </div>
 
@@ -84,12 +84,17 @@ không cần mật khẩu. Tùy chọn giữ màn hình luôn sáng, hoặc ti�
 khi gập nắp máy (tiện cho việc tải xuống, các bản build dài và màn hình
 ngoài).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Chống ngủ">
+</div>
+
 ### Giám sát hệ thống
 
-Tải và nhiệt độ CPU và GPU, bộ nhớ và swap, mạng, ổ đĩa, tình trạng pin và
-mức tiêu thụ điện — số liệu trực tiếp kèm biểu đồ sparkline, ngưỡng màu do
-chính bạn đặt, °C/°F và dòng hiển thị uptime. Số liệu lấy thẳng từ macOS và
-chỉ cập nhật khi tab đang mở.
+Tải và nhiệt độ CPU và GPU, bộ nhớ và swap, mạng, ổ đĩa, tình trạng pin và mức
+tiêu thụ điện — số liệu trực tiếp kèm biểu đồ sparkline, ngưỡng màu do chính
+bạn đặt, °C/°F và dòng hiển thị uptime. Số liệu lấy thẳng từ macOS và chỉ cập
+nhật khi tab đang mở. Hàng bộ nhớ cũng cảnh báo khi nhiều bộ nhớ đã bị đẩy
+xuống đĩa, chứ không chỉ khi macOS tự báo đang chật vật.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Giám sát hệ thống">
@@ -102,6 +107,10 @@ cú nhấp để sao chép lại hoặc dán thẳng vào ứng dụng trước 
 chép được nhớ theo tên (nhiều tệp cùng lúc hiện là «tên +N»), và khi dán thì
 chính tệp đó quay lại. Mật khẩu và các nội dung nhập ẩn khác không bao giờ
 được lưu.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Lịch sử clipboard">
+</div>
 
 ### Chuyển đổi tệp
 
@@ -119,6 +128,10 @@ thứ đều được xử lý cục bộ.
 Sắp cửa sổ vào nửa màn hình, một phần tư, một phần ba và chính giữa bằng
 một cú nhấp vào biểu tượng vùng hoặc phím tắt ⌃⌥ — không cần thêm ứng dụng
 nào khác.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Quản lý cửa sổ">
+</div>
 
 ### Torrent
 
@@ -176,6 +189,11 @@ bên trong hiện ra trong một cửa sổ để đọc, sửa và sao chép, �
 sử clipboard. Ngắt dòng được giữ nên bảng vẫn đọc được. Nhận dạng bằng Vision
 của Apple, hoàn toàn trên chiếc Mac này.
 
+Nếu kết quả có địa chỉ web, nút «mở liên kết» sẽ xuất hiện: liên kết trong mã
+QR trên hoá đơn mở thẳng trong trình duyệt, không cần đến điện thoại. Chỉ địa
+chỉ web: mã quét được là dữ liệu từ bên ngoài, nên số điện thoại, mật khẩu
+Wi-Fi hay danh thiếp vẫn là văn bản thường.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Nhận dạng văn bản">
 </div>
@@ -195,21 +213,24 @@ cứng.
 
 ### Và những thứ còn lại
 
-Các chỉ báo trạng thái nhỏ trên biểu tượng thanh menu — thời gian, chống
-ngủ, cảnh báo và hoạt động torrent, màu hoặc đơn sắc —, kiểm tra tốc độ mạng
-tích hợp (networkQuality của Apple), giao diện tối và sáng với hiệu ứng hạt
-phim, phím tắt toàn cục, khởi chạy khi đăng nhập, và chế độ an toàn giúp
-khôi phục ứng dụng khỏi vòng lặp crash.
+Các chỉ báo trạng thái nhỏ trên biểu tượng thanh menu — thời gian, chống ngủ,
+cảnh báo và hoạt động torrent, màu hoặc đơn sắc —, kiểm tra tốc độ mạng tích
+hợp (networkQuality của Apple), giao diện tối và sáng với hiệu ứng hạt phim,
+phím tắt toàn cục, khởi chạy khi đăng nhập, và chế độ an toàn giúp khôi phục
+ứng dụng khỏi vòng lặp crash. Các cửa sổ của chính Hop — bộ chuyển đổi, kho
+nén, nhận dạng văn bản, cài đặt — hiện trong dock khi đang mở, nhấn vào biểu
+tượng là cửa sổ trở lại thay vì phải mở bảng trước; biểu tượng biến mất cùng
+cửa sổ cuối cùng.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Giám sát hệ thống của Hop — biểu đồ CPU, GPU, bộ nhớ, mạng, ổ đĩa, pin">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Trình chuyển đổi tệp của Hop — chuyển đổi hàng loạt ảnh, PDF, video và âm thanh">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Cài đặt Hop — giao diện, mô-đun, phím tắt, 18 ngôn ngữ">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Cài đặt Hop — giao diện, mô-đun, phím tắt, 22 ngôn ngữ">
 </div>
 
-## 18 ngôn ngữ
+## 22 ngôn ngữ
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — ứng dụng tự động theo ngôn ngữ hệ thống của
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — ứng dụng tự động theo ngôn ngữ hệ thống của
 bạn ngay từ đầu.
 
 ## Ủng hộ dự án

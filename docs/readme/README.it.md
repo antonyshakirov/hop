@@ -19,9 +19,9 @@ serve è lì.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · **Italiano** · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · **Italiano** · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Pannello di Hop — timer nella barra dei menu con display a matrice di punti, preset e cicli lavoro-pausa">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Pannello di Hop — timer nella barra dei menu con display a matrice di punti, preset e cicli lavoro-pausa">
 
 </div>
 
@@ -87,13 +87,18 @@ password. Facoltativamente tieni acceso lo schermo, oppure continua a
 lavorare con il coperchio chiuso (comodo per download, build lunghe e
 schermi esterni).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Niente stop">
+</div>
+
 ### Monitor di sistema
 
-Carico e temperatura di CPU e GPU, memoria e swap, rete, disco, salute
-della batteria e consumo energetico — valori in tempo reale con grafici
-sparkline, soglie di colore che imposti tu, °C/°F e una riga di uptime. Le
-letture arrivano direttamente da macOS e si aggiornano solo mentre la
-scheda è aperta.
+Carico e temperatura di CPU e GPU, memoria e swap, rete, disco, salute della
+batteria e consumo energetico — valori in tempo reale con grafici sparkline,
+soglie di colore che imposti tu, °C/°F e una riga di uptime. Le letture
+arrivano direttamente da macOS e si aggiornano solo mentre la scheda è aperta.
+La riga della memoria avvisa anche quando molta memoria è finita su disco, non
+solo quando macOS stesso segnala difficoltà.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Monitor di sistema">
@@ -106,6 +111,10 @@ ricopiarle o incollarle direttamente nell'app precedente. I file copiati
 vengono ricordati per nome (più file insieme appaiono come «nome +N»), e
 incollando torna il file vero e proprio. Le password e gli altri input
 nascosti non vengono mai salvati.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Cronologia degli appunti">
+</div>
 
 ### Convertitore di file
 
@@ -122,6 +131,10 @@ Tutto viene elaborato in locale.
 
 Aggancia le finestre a metà, quarti, terzi e al centro con un clic su un
 glifo di zona o con una scorciatoia ⌃⌥ — senza app aggiuntive.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Gestore delle finestre">
+</div>
 
 ### Torrent
 
@@ -183,6 +196,12 @@ legge, si corregge e si copia, e finiscono insieme nella cronologia degli
 appunti. Le andate a capo restano, così una tabella rimane leggibile. Il
 riconoscimento è Vision di Apple, tutto su questo Mac.
 
+Se il risultato contiene un indirizzo web compare il pulsante «apri il link»:
+il link di un codice QR su una fattura si apre direttamente nel browser, senza
+prendere il telefono. Solo indirizzi web: un codice scansionato è input
+altrui, quindi un numero, una password Wi-Fi o un biglietto da visita restano
+testo semplice.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Riconoscimento del testo">
 </div>
@@ -207,17 +226,20 @@ Piccoli indicatori di stato sull'icona nella barra dei menu — tempo,
 anti-stop, avvisi e attività torrent, a colori o monocromatici —, un test di
 velocità integrato (networkQuality di Apple), temi scuro e chiaro con una
 texture a grana di pellicola, scorciatoie globali, avvio al login e una
-modalità sicura che recupera l'app da un loop di crash.
+modalità sicura che recupera l'app da un loop di crash. Le finestre di Hop —
+convertitore, archivi, riconoscimento, impostazioni — compaiono nel dock
+finché sono aperte, e un clic sull'icona ne riporta una invece di aprire il
+pannello; con l'ultima finestra l'icona sparisce.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor di sistema di Hop — grafici di CPU, GPU, memoria, rete, disco, batteria">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Convertitore di file di Hop — conversione in batch di immagini, PDF, video e audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Impostazioni di Hop — temi, moduli, scorciatoie, 18 lingue">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Impostazioni di Hop — temi, moduli, scorciatoie, 22 lingue">
 </div>
 
-## 18 lingue
+## 22 lingue
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — l'app segue la lingua di sistema fin dal primo
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — l'app segue la lingua di sistema fin dal primo
 avvio.
 
 ## Sostieni il progetto

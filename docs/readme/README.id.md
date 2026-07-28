@@ -18,9 +18,9 @@ Sekali klik — semua yang kamu butuhkan langsung ada.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-**Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+**Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Panel Hop — timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Panel Hop — timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
 
 </div>
 
@@ -85,12 +85,18 @@ klik, tanpa kata sandi. Opsional: biarkan layar tetap menyala, atau terus
 bekerja dengan penutup tertutup (praktis untuk unduhan, build panjang, dan
 layar eksternal).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Anti-tidur">
+</div>
+
 ### Monitor sistem
 
 Beban dan suhu CPU dan GPU, memori dan swap, jaringan, disk, kesehatan
 baterai, dan konsumsi daya — nilai langsung dengan grafik sparkline, ambang
-warna yang kamu atur sendiri, °C/°F, dan baris uptime. Semua pembacaan
-datang langsung dari macOS dan hanya diperbarui saat tabnya terbuka.
+warna yang kamu atur sendiri, °C/°F, dan baris uptime. Semua pembacaan datang
+langsung dari macOS dan hanya diperbarui saat tabnya terbuka. Baris memori
+juga memperingatkan saat banyak memori pindah ke disk, bukan hanya saat macOS
+sendiri bilang sedang sesak.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Monitor sistem">
@@ -103,6 +109,10 @@ sekali klik untuk menyalin kembali atau menempel langsung ke aplikasi
 sebelumnya. File yang disalin diingat berdasarkan namanya (beberapa sekaligus
 tampil sebagai «nama +N»), dan menempel akan mengembalikan file itu sendiri.
 Kata sandi dan input tersembunyi lainnya tidak pernah disimpan.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Riwayat clipboard">
+</div>
 
 ### Konverter file
 
@@ -119,6 +129,10 @@ diproses secara lokal.
 
 Tata jendela ke setengah, seperempat, sepertiga, dan tengah layar dengan
 sekali klik pada glyph zona atau pintasan ⌃⌥ — tanpa aplikasi tambahan.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Pengelola jendela">
+</div>
 
 ### Torrent
 
@@ -180,6 +194,11 @@ disunting, dan disalin, sekaligus masuk ke riwayat papan klip. Pemenggalan
 baris dipertahankan, jadi tabel tetap terbaca. Pengenalannya memakai Vision
 milik Apple, sepenuhnya di Mac ini.
 
+Kalau hasilnya memuat alamat web, tombol «buka tautan» muncul: tautan dari
+kode QR pada tagihan langsung terbuka di peramban, tanpa perlu ponsel. Hanya
+alamat web: kode yang dipindai adalah masukan dari luar, jadi nomor telepon,
+kata sandi Wi-Fi atau kartu kontak tetap teks biasa.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Pengenalan teks">
 </div>
@@ -199,21 +218,24 @@ tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 
 ### Dan selebihnya
 
-Indikator status kecil pada ikon menu bar — waktu, anti-tidur, peringatan,
-dan aktivitas torrent, berwarna atau monokrom —, tes kecepatan bawaan
+Indikator status kecil pada ikon menu bar — waktu, anti-tidur, peringatan, dan
+aktivitas torrent, berwarna atau monokrom —, tes kecepatan bawaan
 (networkQuality dari Apple), tema gelap dan terang dengan tekstur film-grain,
-pintasan global, buka saat login, dan mode aman yang memulihkan aplikasi
-dari crash loop.
+pintasan global, buka saat login, dan mode aman yang memulihkan aplikasi dari
+crash loop. Jendela milik Hop sendiri — pengonversi, arsip, pengenalan teks,
+pengaturan — muncul di dock selama terbuka, dan mengeklik ikonnya
+mengembalikan jendela alih-alih membuka panel; ikonnya hilang bersama jendela
+terakhir.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor sistem Hop — grafik CPU, GPU, memori, jaringan, disk, baterai">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Konverter file Hop — konversi batch gambar, PDF, video, dan audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Pengaturan Hop — tema, modul, pintasan, 18 bahasa">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Pengaturan Hop — tema, modul, pintasan, 22 bahasa">
 </div>
 
-## 18 bahasa
+## 22 bahasa
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikasi langsung mengikuti bahasa sistem
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikasi langsung mengikuti bahasa sistem
 kamu.
 
 ## Dukung proyek ini

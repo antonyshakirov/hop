@@ -59,7 +59,7 @@ struct ScreenTextWindowView: View {
                 Button {
                     reader.capture()
                 } label: {
-                    Label(t(.ocrRead), systemImage: "camera.viewfinder")
+                    Label(t(.ocrRead), systemImage: "square.dashed")
                         .font(Theme.mono(10, weight: .bold))
                         .lineLimit(1)
                         .fixedSize()
@@ -123,12 +123,17 @@ struct ScreenTextWindowView: View {
         VStack(alignment: .leading, spacing: 8) {
             // ImageRenderer draws a TextEditor as a yellow "not supported" block,
             // so a render gets the same text as a plain, flat label instead.
+            // The two branches must be padded IDENTICALLY: the editor used to
+            // carry no inset at all while the render did, so the text sat flush
+            // against the field on screen and nobody saw it in a screenshot
+            // (Anton, 2026-07-28).
             if Snapshot.active {
                 Text(reader.recognized)
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.listText)
-                    .frame(maxWidth: .infinity, minHeight: 160, alignment: .topLeading)
-                    .padding(8)
+                    .frame(maxWidth: .infinity, minHeight: 160 - Self.fieldInset * 2,
+                           alignment: .topLeading)
+                    .padding(Self.fieldInset)
                     .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
             } else {
                 TextEditor(text: Binding(
@@ -136,14 +141,42 @@ struct ScreenTextWindowView: View {
                     set: { reader.editRecognized($0) }))
                     .font(Theme.mono(11))
                     .scrollContentBackground(.hidden)
-                    .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
+                    // safeAreaPadding, NOT padding: padding insets the whole
+                    // editor, and the scroll bar goes in with it — a bar that
+                    // floats 12pt off the edge of its own field (Anton,
+                    // 2026-07-28). This insets the CONTENT and leaves the
+                    // editor filling the field, so the bar stays on the edge.
+                    // contentMargins was tried first and moved nothing.
+                    .safeAreaPadding(Self.fieldInset)
                     .frame(minHeight: 160)
+                    .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
             }
             HStack(spacing: 10) {
                 Text(t(.ocrWindowInHistory))
                     .font(Theme.mono(9))
                     .foregroundStyle(Theme.textTertiary)
                 Spacer()
+                // A reading that IS a link is a reading with somewhere to go, so
+                // opening it takes the accented slot and copying steps back. The
+                // address itself is not repeated on the button: it is already in
+                // the field above, in full, which is where it should be read.
+                if hasLink {
+                    Button {
+                        reader.openLink()
+                    } label: {
+                        Label(t(.ocrOpenLink), systemImage: "arrow.up.right")
+                            .font(Theme.mono(10, weight: .bold))
+                            .lineLimit(1)
+                            .fixedSize()
+                            .foregroundStyle(Theme.playFg)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverDim()
+                }
                 Button {
                     reader.copyRecognized()
                     copied = true
@@ -154,10 +187,10 @@ struct ScreenTextWindowView: View {
                 } label: {
                     Text(copied ? t(.ocrCopied) : t(.copyLabel))
                         .font(Theme.mono(10, weight: .bold))
-                        .foregroundStyle(copied ? Theme.accentGreen : Theme.playFg)
+                        .foregroundStyle(copyForeground)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 6)
-                        .background(copied ? Theme.chipBg : Theme.playBg,
+                        .background(copied || hasLink ? Theme.chipBg : Theme.playBg,
                                     in: RoundedRectangle(cornerRadius: 7))
                         .contentShape(Rectangle())
                 }
@@ -165,6 +198,19 @@ struct ScreenTextWindowView: View {
                 .hoverDim()
             }
         }
+    }
+
+    /// Breathing room between the recognized text and the edge of its field.
+    /// One constant for both branches — see `resultEditor`.
+    private static let fieldInset: CGFloat = 12
+
+    private var hasLink: Bool { reader.link != nil }
+
+    /// Copy keeps the green receipt, gives up the accent when there is a link
+    /// beside it, and is the primary button otherwise.
+    private var copyForeground: Color {
+        if copied { return Theme.accentGreen }
+        return hasLink ? Theme.textSecondary : Theme.playFg
     }
 
     private var status: String? {

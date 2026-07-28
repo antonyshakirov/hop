@@ -19,9 +19,9 @@ her şey elinizin altında.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · **Türkçe** · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · **Türkçe** · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop paneli — nokta matrisli ekran, hazır ayarlar ve çalışma-mola döngüleriyle menü çubuğu zamanlayıcısı">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop paneli — nokta matrisli ekran, hazır ayarlar ve çalışma-mola döngüleriyle menü çubuğu zamanlayıcısı">
 
 </div>
 
@@ -84,12 +84,17 @@ Mac'i 15 dakika, 8 saat ya da süresiz uyanık tutun — tek tık, parola
 yok. İsterseniz ekranı açık tutun ya da kapak kapalıyken çalışmaya devam
 edin (indirmeler, uzun derlemeler ve harici ekranlar için birebir).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Uyku engelleme">
+</div>
+
 ### Sistem monitörü
 
-CPU ve GPU yükü ile sıcaklığı, bellek ve swap, ağ, disk, pil sağlığı ve
-güç tüketimi — sparkline grafikleriyle canlı değerler, kendi
-belirlediğiniz renk eşikleri, °C/°F ve çalışma süresi satırı. Veriler
-doğrudan macOS'ten gelir ve yalnızca sekme açıkken güncellenir.
+CPU ve GPU yükü ile sıcaklığı, bellek ve swap, ağ, disk, pil sağlığı ve güç
+tüketimi — sparkline grafikleriyle canlı değerler, kendi belirlediğiniz renk
+eşikleri, °C/°F ve çalışma süresi satırı. Veriler doğrudan macOS'ten gelir ve
+yalnızca sekme açıkken güncellenir. Bellek satırı, yalnızca macOS sıkışıklık
+bildirdiğinde değil, belleğin çoğu diske indiğinde de uyarır.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Sistem monitörü">
@@ -102,6 +107,10 @@ tek tıkla yeniden kopyalayın ya da doğrudan önceki uygulamaya yapıştırın
 Kopyalanan dosyalar adıyla saklanır (birden fazlası «ad +N» olarak görünür)
 ve yapıştırınca dosyanın kendisi geri gelir. Parolalar ve diğer gizli
 girişler asla saklanmaz.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Pano geçmişi">
+</div>
 
 ### Dosya dönüştürücü
 
@@ -119,6 +128,10 @@ işlenir.
 Pencereleri yarımlara, çeyreklere, üçte birlere ve ortaya yerleştirin —
 bölge simgesine tek tık ya da ⌃⌥ kısayolu yeter; ek bir uygulamaya gerek
 yok.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Pencere yöneticisi">
+</div>
 
 ### Torrentler
 
@@ -179,6 +192,11 @@ içindeki metin ve QR kodlar okunabilen, düzeltilebilen, kopyalanabilen bir
 pencerede çıkar ve aynı anda pano geçmişine girer. Satır sonları korunur, tablo
 okunur kalır. Tanıma Apple'ın Vision'ıdır, tamamen bu Mac'te çalışır.
 
+Sonuçta bir web adresi varsa «bağlantıyı aç» düğmesi çıkar: faturadaki QR
+kodun bağlantısı telefona uzanmadan doğrudan tarayıcıda açılır. Yalnızca web
+adresleri: taranan kod dışarıdan gelen bir girdidir, bu yüzden telefon
+numarası, Wi-Fi parolası ya da kartvizit düz metin olarak kalır.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Metin tanıma">
 </div>
@@ -200,19 +218,21 @@ kapatır, çünkü onu donanım yapar.
 
 Menü çubuğu simgesindeki küçük durum göstergeleri — zaman, uyku engelleme,
 uyarılar ve torrent etkinliği, renkli ya da tek renk —, yerleşik hız testi
-(Apple'ın networkQuality aracı), film greni dokulu koyu ve açık temalar,
-genel kısayollar, oturum açıldığında başlatma ve uygulamayı çökme
-döngüsünden kurtaran güvenli mod.
+(Apple'ın networkQuality aracı), film greni dokulu koyu ve açık temalar, genel
+kısayollar, oturum açıldığında başlatma ve uygulamayı çökme döngüsünden
+kurtaran güvenli mod. Hop'un kendi pencereleri — dönüştürücü, arşivler, metin
+tanıma, ayarlar — açıkken dock'ta görünür; simgeye tıklamak paneli açmadan
+pencereyi geri getirir ve son pencereyle birlikte simge de gider.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop sistem monitörü — CPU, GPU, bellek, ağ, disk ve pil grafikleri">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop dosya dönüştürücü — toplu görsel, PDF, video ve ses dönüştürme">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop ayarları — temalar, modüller, kısayollar, 18 dil">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop ayarları — temalar, modüller, kısayollar, 22 dil">
 </div>
 
-## 18 dil
+## 22 dil
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — uygulama kurulumdan itibaren sistem
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — uygulama kurulumdan itibaren sistem
 dilinize uyar.
 
 ## Projeye destek olun

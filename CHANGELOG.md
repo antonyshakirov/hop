@@ -1,5 +1,64 @@
 # Hop — version history
 
+## 1.5.2 — 2026-07-28
+
+- Arabic, Hebrew, Persian and Urdu, bringing the app to 22 languages. As
+  before, Hop follows the system language on its own and the picker lists every
+  language under its own name.
+- The interface runs right to left for those four. Hop chooses its language in
+  its own picker rather than through the system locale, so SwiftUI never learned
+  the direction on its own — every window, panel and popover now sets it, and
+  the right-click menus are told separately. The flip follows the picker live,
+  with no restart.
+- The panel drops its monospaced face for these languages and uses the
+  proportional system face with monospaced digits. A fixed-width cell per glyph
+  pulls a cursive script apart; the digits still hold their column, so the timer
+  does not jitter.
+- Directional chevrons follow the writing direction. Drawn geometry deliberately
+  does not: the dot-matrix digits, the monitor graphs and the window-snap glyphs
+  keep their shape, because a snap glyph is a map of the physical screen and its
+  left half stays on the left. Only the order of the buttons in the row mirrors.
+- Values dropped into a translated sentence — a file name, a size, a version
+  number — are isolated, so a right-to-left sentence cannot drag the
+  neighbouring punctuation to the wrong end of them.
+- Hop's own windows — the converter, archives, recognition, settings and the
+  rest — now appear in the Dock while they are open. A window that could not be
+  reached from the Dock had to be found through the panel every time, and the
+  panel is the whole app when all you wanted back was the converter. The icon
+  appears with the first window and leaves with the last, so an app with
+  nothing open still shows nothing; a click on it brings the window back, even
+  a minimized one. Settings → general can turn it off for anyone who runs a
+  menu-bar app precisely so that nothing appears down there.
+- The memory row speaks up when a lot of memory has gone to disk. Its colour
+  had been left entirely to macOS's own memory-pressure signal, which answers
+  "am I struggling to hand out pages right now" and nothing else: pages pushed
+  to swap that stay cold cost the system nothing, so a 24 GB machine holding
+  9.4 GB of swap still read as normal, in green. The row now takes the worse of
+  that signal and swap measured against physical RAM, with a threshold back in
+  monitor settings — yellow at a quarter of RAM on disk, red at half. Swap is
+  compared to RAM rather than to the swap file, whose size macOS changes on
+  demand. This is not the old rule returning: that one coloured on
+  (used + swap) ÷ RAM starting at 110%, a sum with no physical meaning.
+- Text recognition offers to open a web address it read. Framing a QR code on
+  the Mac rather than pointing a phone at it is worth doing precisely because
+  the link can be followed here, in the browser that is already signed in;
+  until now the payload only landed in the clipboard history as text. The
+  button takes the accent and copy steps back, and the address stays in the
+  field above so the destination is read before the click. http and https only:
+  a scanned code is untrusted input, and every other scheme is a lever for
+  whoever printed it. Phone numbers, Wi-Fi credentials and contact cards stay
+  plain text. The whole reading is searched, so an address printed in a
+  screenshot opens the same way.
+- The "select on screen" action is a dashed marquee instead of a camera in a
+  viewfinder. The camera's body packed a dark clot into a 12pt glyph, heavy
+  beside the outline icon sharing its row; the marquee is the shape being drawn
+  on screen anyway, and it now measures the same box as its neighbour.
+- The empty torrent row stays hidden once hidden. Keeping it away required the
+  engine's installer to be in exactly one state, so the answer only held while
+  that happened to be true: a fresh launch after an update, a download in
+  flight or a failed fetch each put the row back. The rule now lives in HopCore
+  with tests and no longer consults the engine at all.
+
 ## 1.5.1 — 2026-07-27
 
 - Archives claim only rar. Earlier versions took every archive type Hop could

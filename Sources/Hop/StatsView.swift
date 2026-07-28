@@ -1,3 +1,4 @@
+import HopCore
 import SwiftUI
 
 /// System tab: compact metric rows with colored icons and meaning-driven
@@ -19,6 +20,8 @@ struct StatsView: View {
     @AppStorage(Thresholds.diskRedKey) private var diskRed = Thresholds.diskRedDefault
     @AppStorage(Thresholds.battYellowKey) private var battYellow = Thresholds.battYellowDefault
     @AppStorage(Thresholds.battRedKey) private var battRed = Thresholds.battRedDefault
+    @AppStorage(Thresholds.swapYellowKey) private var swapYellow = Thresholds.swapYellowDefault
+    @AppStorage(Thresholds.swapRedKey) private var swapRed = Thresholds.swapRedDefault
 
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
@@ -194,15 +197,19 @@ struct StatsView: View {
 
     /// Memory: the figure is RAM used, swap alongside — they no longer
     /// include each other (the old sum read as if swap were on top of it).
-    /// The COLOR follows macOS's own memory-pressure signal: any formula
-    /// over used/swap second-guesses the system and lies.
+    /// The COLOR takes the worse of macOS's own pressure signal and how much of
+    /// a RAM's worth is sitting in swap; see `HopCore.MemoryStrain` for why one
+    /// of those alone is not enough.
     private func memValue(_ s: StatsSample) -> Text {
+        let strain = MemoryStrain.level(
+            pressure: s.memPressure, swapBytes: s.swapUsed, physicalBytes: s.memTotal,
+            yellowPercent: swapYellow, redPercent: swapRed)
         let pressureColor: Color = {
-            switch s.memPressure {
-            case 4: return Theme.accentRed // critical
-            case 2: return Theme.accentYellow // warning
-            case 1: return colorful ? Theme.accentGreen : Theme.textSecondary
-            default: return Theme.textSecondary // no signal — no verdict
+            switch strain {
+            case .critical: return Theme.accentRed
+            case .warning: return Theme.accentYellow
+            case .normal: return colorful ? Theme.accentGreen : Theme.textSecondary
+            case .unknown: return Theme.textSecondary // no signal — no verdict
             }
         }()
         var text = Text(StatsFormatting.gb(s.memUsed)).foregroundColor(pressureColor)
@@ -332,7 +339,7 @@ struct StatsView: View {
         let duration = StatsFormatting.uptime(
             uptime, day: t(.unitDay), hour: t(.unitHour), minute: t(.unitMin)
         )
-        return t(.agoFormat).replacingOccurrences(of: "%@", with: duration)
+        return L10n.fill(.agoFormat, lang, duration)
     }
 
     private func wattsText(_ v: Double?) -> String {

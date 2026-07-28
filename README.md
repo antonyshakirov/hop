@@ -18,9 +18,9 @@ the icon. One click, and everything you need is right there.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](docs/readme/README.id.md) · [Deutsch](docs/readme/README.de.md) · **English** · [Español](docs/readme/README.es.md) · [Français](docs/readme/README.fr.md) · [Italiano](docs/readme/README.it.md) · [Nederlands](docs/readme/README.nl.md) · [Polski](docs/readme/README.pl.md) · [Português](docs/readme/README.pt.md) · [Tiếng Việt](docs/readme/README.vi.md) · [Türkçe](docs/readme/README.tr.md) · [Русский](docs/readme/README.ru.md) · [Українська](docs/readme/README.uk.md) · [हिन्दी](docs/readme/README.hi.md) · [ไทย](docs/readme/README.th.md) · [한국어](docs/readme/README.ko.md) · [中文](docs/readme/README.zh.md) · [日本語](docs/readme/README.ja.md)
+[Bahasa Indonesia](docs/readme/README.id.md) · [Deutsch](docs/readme/README.de.md) · **English** · [Español](docs/readme/README.es.md) · [Français](docs/readme/README.fr.md) · [Italiano](docs/readme/README.it.md) · [Nederlands](docs/readme/README.nl.md) · [Polski](docs/readme/README.pl.md) · [Português](docs/readme/README.pt.md) · [Tiếng Việt](docs/readme/README.vi.md) · [Türkçe](docs/readme/README.tr.md) · [Русский](docs/readme/README.ru.md) · [Українська](docs/readme/README.uk.md) · [עברית](docs/readme/README.he.md) · [اردو](docs/readme/README.ur.md) · [العربية](docs/readme/README.ar.md) · [فارسی](docs/readme/README.fa.md) · [हिन्दी](docs/readme/README.hi.md) · [ไทย](docs/readme/README.th.md) · [한국어](docs/readme/README.ko.md) · [中文](docs/readme/README.zh.md) · [日本語](docs/readme/README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop panel — menu bar timer with dot-matrix display, presets and work-rest cycles">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop panel — menu bar timer with dot-matrix display, presets and work-rest cycles">
 
 </div>
 
@@ -83,12 +83,18 @@ Keep the Mac awake for 15 minutes, 8 hours or forever — one click, no
 password. Optionally keep the display on, or keep working with the lid
 closed (handy for downloads, long builds and external displays).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — No sleep">
+</div>
+
 ### System monitor
 
 CPU and GPU load and temperature, memory and swap, network, disk, battery
 health and power draw — live values with sparkline charts, color thresholds
-you set yourself, °C/°F, and an uptime line. Readings come straight from
-macOS and update only while the tab is open.
+you set yourself, °C/°F, and an uptime line. Readings come straight from macOS
+and update only while the tab is open. The memory row also speaks up when a
+lot of memory has gone to disk, and not only when macOS itself reports being
+short.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — System monitor">
@@ -100,6 +106,10 @@ The last 100 (up to 300) things you copied — text, images and files — one
 click to copy back or paste straight into the previous app. Copied files are
 kept by name (several at once show as "name +N"), and pasting puts the actual
 file back. Passwords and other concealed input are never stored.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Clipboard history">
+</div>
 
 ### File converter
 
@@ -115,6 +125,10 @@ honest size estimate before you convert. Everything is processed locally.
 
 Snap windows to halves, quarters, thirds and center with a click on a zone
 glyph or a ⌃⌥ hotkey — no extra app needed.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Window manager">
+</div>
 
 ### Torrents
 
@@ -175,6 +189,11 @@ edit and copy from, and land in the clipboard history at the same time. Line
 breaks are kept, so a table or a code snippet stays readable. Recognition is
 Apple's Vision, entirely on this Mac.
 
+A reading that holds a web address gets an "open link" button, so the link
+inside a QR code on a bill opens in your browser without reaching for a phone.
+Web addresses only: a scanned code is untrusted input, so a phone number, a
+Wi-Fi password or a contact card stays plain text.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Text recognition">
 </div>
@@ -198,17 +217,19 @@ Small status badges on the menu bar icon — time, keep-awake, alerts and
 torrent activity, colored or monochrome — a built-in speed test (Apple's
 networkQuality), dark and light themes with a film-grain texture, global
 hotkeys, launch at login, and a safe mode that recovers the app from a crash
-loop.
+loop. Hop's own windows — the converter, archives, recognition, settings —
+show up in the Dock while they are open, so a click on the icon brings one
+back instead of opening the panel first; the icon leaves with the last window.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop system monitor — CPU, GPU, memory, network, disk, battery charts">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop file converter — batch image, PDF, video and audio conversion">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop settings — themes, modules, hotkeys, 18 languages">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop settings — themes, modules, hotkeys, 22 languages">
 </div>
 
-## 18 languages
+## 22 languages
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — the app follows your system language out of
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — the app follows your system language out of
 the box.
 
 ## Support the project

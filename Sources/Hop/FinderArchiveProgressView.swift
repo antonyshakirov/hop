@@ -23,7 +23,8 @@ final class FinderArchiveProgressWindowController: NSObject, NSWindowDelegate {
     let id = UUID()
 
     private let model: FinderArchiveProgressModel
-    private let window: NSWindow
+    /// Read by the app delegate: this window counts towards Hop's Dock presence.
+    let window: NSWindow
     private let onClose: (UUID) -> Void
     private let contentHeight: CGFloat
 
@@ -51,7 +52,8 @@ final class FinderArchiveProgressWindowController: NSObject, NSWindowDelegate {
 
         window.delegate = self
         let host = NSHostingController(
-            rootView: FinderArchiveProgressView(model: model, lang: L10n.current))
+            rootView: FinderArchiveProgressView(model: model, lang: L10n.current)
+                .hopLayoutDirection())
         // The row count never changes, so an explicit fixed content height is
         // safer than preferredContentSize. Asking AppKit and SwiftUI to resize
         // each other while a progress row updates creates a constraint cycle.

@@ -268,7 +268,8 @@ final class KeyboardLockController: ObservableObject {
         window.backgroundColor = .clear
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         window.ignoresMouseEvents = false
-        window.contentView = NSHostingView(rootView: KeyboardLockOverlay(lock: self))
+        window.contentView = NSHostingView(
+            rootView: KeyboardLockOverlay(lock: self).hopLayoutDirection())
         window.setFrame(screen.frame, display: true)
         // The way out is a CLICK, so the cover must be able to take one: a
         // borderless window refuses to become key by default, and Hop is an

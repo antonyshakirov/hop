@@ -19,9 +19,9 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · **日本語**
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · **日本語**
 
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/panel.png" width="420" alt="Hop パネル — ドットマトリクス表示のメニューバータイマー、プリセットとワーク・レストサイクル">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/overview.png" width="360" alt="Hop パネル — ドットマトリクス表示のメニューバータイマー、プリセットとワーク・レストサイクル">
 
 </div>
 
@@ -86,12 +86,16 @@ Mac を 15 分、8 時間、あるいはずっと起こしておく——ワン�
 続けることもできます（ダウンロード、長いビルド、外部ディスプレイに
 便利）。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/awake.png" width="420" alt="Hop — スリープ防止">
+</div>
+
 ### システムモニター
 
-CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク、ディスク、
-バッテリーの状態と消費電力——スパークラインチャート付きのライブ値、
-自分で決める色のしきい値、°C/°F 切り替え、稼働時間の表示。値は
-macOS から直接取得し、タブを開いている間だけ更新されます。
+CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク、ディスク、 バッテリーの状態と消費電力——
+スパークラインチャート付きのライブ値、 自分で決める色のしきい値、°C/°F 切り替え、稼働時間の表示
+。値は macOS から直接取得し、タブを開いている間だけ更新されます。 メモリの行は、macOS 自身が逼迫
+を告げたときだけでなく、多くのメモリがディスクに移ったときにも知らせます。
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/ja/system.png" width="420" alt="Hop — システムモニター">
@@ -104,6 +108,10 @@ macOS から直接取得し、タブを開いている間だけ更新されま�
 ことも。コピーしたファイルは名前で覚え（複数なら「名前 +N」）、
 ペーストするとファイルそのものが戻ります。パスワードなどの秘匿入力は
 一切保存されません。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/clipboard.png" width="420" alt="Hop — クリップボード履歴">
+</div>
 
 ### ファイル変換
 
@@ -120,6 +128,10 @@ AVIF、WebP へ出力、PDF 圧縮、HEVC による動画の軽量化——変�
 
 ゾーングリフをクリックするか ⌃⌥ ホットキーを押すだけで、ウィンドウを
 2 分の 1、4 分の 1、3 分の 1、中央へスナップ——追加アプリは不要です。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/windows.png" width="420" alt="Hop — ウィンドウ管理">
+</div>
 
 ### トレント
 
@@ -174,6 +186,10 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 読んで直してコピーできるウインドウに出て、同時にクリップボード履歴にも入ります。改行は保たれるので
 表も読める形で残ります。認識は Apple の Vision で、すべてこの Mac 内で完結します。
 
+認識結果にウェブアドレスが含まれていると「リンクを開く」ボタンが出ます。請求書の QR コードのリン
+クが、スマホを取り出さずにブラウザで開きます。対象はウェブアドレスだけです。読み取ったコードは外
+部からの入力なので、電話番号や Wi-Fi のパスワード、連絡先カードはそのまま文字として残ります。
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/ja/recognition.png" width="480" alt="Hop — 文字認識">
 </div>
@@ -191,21 +207,22 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 
 ### そのほか
 
-アイコンに表示される小さなステータスインジケータ——時間、スリープ防止、
-警告、トレントの動き、カラーまたはモノクロ——、内蔵スピードテスト
-（Apple の networkQuality）、フィルムグレインの質感を持つダーク／
-ライトテーマ、グローバルホットキー、ログイン時に起動、クラッシュループ
-からアプリを復旧させるセーフモード。
+アイコンに表示される小さなステータスインジケータ——時間、スリープ防止、 警告、トレントの動き、カ
+ラーまたはモノクロ——、内蔵スピードテスト （Apple の networkQuality）、フィルムグレインの質感を持
+つダーク／ ライトテーマ、グローバルホットキー、ログイン時に起動、クラッシュループ からアプリを復
+旧させるセーフモード。 Hop 自身のウインドウ（変換、アーカイブ、文字認識、設定）は開いている間 do
+ck に並び、アイコンを押せばパネルを開かずにそのウインドウが戻ります。最後のウインドウとともにア
+イコンも消えます。
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/ja/system.png" width="280" alt="Hop システムモニター — CPU、GPU、メモリ、ネットワーク、ディスク、バッテリーのチャート">
 <img src="https://www.antonshakirov.com/products/hop/screens/ja/converter.png" width="280" alt="Hop ファイル変換 — 画像、PDF、動画、音声の一括変換">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/settings.png" width="280" alt="Hop 設定 — テーマ、モジュール、ホットキー、18言語">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/settings.png" width="280" alt="Hop 設定 — テーマ、モジュール、ホットキー、22言語">
 </div>
 
-## 18 言語
+## 22 言語
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — アプリは最初からシステム言語に自動で従います。
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — アプリは最初からシステム言語に自動で従います。
 
 ## プロジェクトを応援する
 

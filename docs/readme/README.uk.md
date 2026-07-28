@@ -18,9 +18,9 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · **Українська** · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · **Українська** · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Панель Hop — таймер у рядку меню з точково-матричним дисплеєм, пресетами та циклами роботи й відпочинку">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Панель Hop — таймер у рядку меню з точково-матричним дисплеєм, пресетами та циклами роботи й відпочинку">
 
 </div>
 
@@ -84,12 +84,18 @@ Hop живе в рядку меню вашого Mac і замінює жмен�
 пароля. За бажанням тримайте екран увімкненим або працюйте із закритою
 кришкою (зручно для завантажень, довгих збірок і зовнішніх дисплеїв).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Заборона сну">
+</div>
+
 ### Системний монітор
 
-Навантаження й температура CPU та GPU, пам'ять і swap, мережа, диск,
-стан батареї та енергоспоживання — живі значення з графіками-спарклайнами,
+Навантаження й температура CPU та GPU, пам'ять і swap, мережа, диск, стан
+батареї та енергоспоживання — живі значення з графіками-спарклайнами,
 кольорові пороги, які ви задаєте самі, °C/°F і рядок аптайму. Показання
-надходять просто з macOS і оновлюються лише поки вкладка відкрита.
+надходять просто з macOS і оновлюються лише поки вкладка відкрита. Рядок
+пам'яті попереджає й тоді, коли багато пам'яті пішло на диск, а не лише коли
+macOS сама повідомляє про брак.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Системний монітор">
@@ -102,6 +108,10 @@ Hop живе в рядку меню вашого Mac і замінює жмен�
 застосунок. Скопійовані файли запам'ятовуються за іменем (кілька разом —
 «ім'я +N»), а вставлення повертає сам файл. Паролі та інше приховане
 введення ніколи не зберігаються.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Історія буфера обміну">
+</div>
 
 ### Конвертер файлів
 
@@ -117,6 +127,10 @@ PNG, HEIC, AVIF і WebP; стискання PDF; зменшення відео �
 
 Розкладайте вікна по половинах, чвертях, третинах і по центру кліком на
 гліф зони або хоткеєм ⌃⌥ — без окремого застосунку.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Менеджер вікон">
+</div>
 
 ### Торенти
 
@@ -178,6 +192,12 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 зберігаються, тож таблиця лишається читабельною. Розпізнає Vision від Apple,
 повністю на цьому Маку.
 
+Якщо в розпізнаному є веб-адреса, з'являється кнопка «відкрити посилання»:
+посилання з qr-коду на рахунку відкривається просто в браузері, і телефон для
+цього не потрібен. Лише веб-адреси: відсканований код — це ввід від
+стороннього, тому телефон, пароль від Wi-Fi чи візитівка лишаються звичайним
+текстом.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Розпізнавання тексту">
 </div>
@@ -199,20 +219,23 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 ### І решта
 
 Невеликі індикатори стану на іконці в рядку меню — час, заборона сну,
-попередження та активність торентів, кольорові чи монохромні, —
-вбудований тест швидкості (networkQuality від Apple), темна і світла теми
-з текстурою кіноплівкового зерна, глобальні хоткеї, запуск під час входу
-в систему та безпечний режим, що виводить застосунок із циклу збоїв.
+попередження та активність торентів, кольорові чи монохромні, — вбудований
+тест швидкості (networkQuality від Apple), темна і світла теми з текстурою
+кіноплівкового зерна, глобальні хоткеї, запуск під час входу в систему та
+безпечний режим, що виводить застосунок із циклу збоїв. Власні вікна Hop —
+конвертер, архіви, розпізнавання, налаштування — показуються в доці, поки
+відкриті, і клік по іконці повертає вікно замість того, щоб відкривати панель;
+з останнім вікном іконка зникає.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Системний монітор Hop — графіки CPU, GPU, пам'яті, мережі, диска та батареї">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Конвертер файлів Hop — пакетна конвертація зображень, PDF, відео та аудіо">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Налаштування Hop — теми, модулі, хоткеї, 18 мов">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Налаштування Hop — теми, модулі, хоткеї, 22 мови">
 </div>
 
-## 18 мов
+## 22 мови
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — застосунок одразу підхоплює мову вашої
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — застосунок одразу підхоплює мову вашої
 системи.
 
 ## Підтримати проєкт

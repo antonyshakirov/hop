@@ -24,6 +24,7 @@ struct PanelView: View {
     }
 
     @EnvironmentObject private var model: AppModel
+    @Environment(\.layoutDirection) private var layoutDirection
     @AppStorage(SettingsKey.showMenuBarCountdown) private var showCountdown = true
     @AppStorage(SettingsKey.trackerTimeInBar) private var trackerTimeInBar = false
     @AppStorage(SettingsKey.alertMode) private var alertModeRaw = AlertMode.soundAndBanner.rawValue
@@ -36,6 +37,8 @@ struct PanelView: View {
     @AppStorage(Thresholds.diskRedKey) private var diskRed = Thresholds.diskRedDefault
     @AppStorage(Thresholds.battYellowKey) private var battYellow = Thresholds.battYellowDefault
     @AppStorage(Thresholds.battRedKey) private var battRed = Thresholds.battRedDefault
+    @AppStorage(Thresholds.swapYellowKey) private var swapYellow = Thresholds.swapYellowDefault
+    @AppStorage(Thresholds.swapRedKey) private var swapRed = Thresholds.swapRedDefault
 
     @AppStorage(ClipboardController.maxItemsKey) private var clipboardMax = ClipboardController.defaultMaxItems
     @AppStorage(ClipboardController.maxColorsKey) private var colorMax =
@@ -54,6 +57,7 @@ struct PanelView: View {
     @AppStorage(HotkeyManager.snapHotkeysKey) private var windowsHotkeysOn = true
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
+    @AppStorage(SettingsKey.showWindowsInDock) private var showWindowsInDock = true
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
     @AppStorage(AppIcon.styleKey) private var appIconStyle = "auto"
     // Default ON — registered as a UserDefaults default in applicationDidFinishLaunching,
@@ -1167,7 +1171,7 @@ struct PanelView: View {
     private func overlayHeaderContent(title: String, back: @escaping () -> Void) -> some View {
         Button(action: back) {
             HStack(spacing: 5) {
-                Image(systemName: "chevron.left")
+                Image(systemName: "chevron.backward")
                     .font(.system(size: 11, weight: .semibold))
                 Text(t(.back))
                     .font(Theme.mono(12, weight: .semibold))
@@ -1326,10 +1330,13 @@ struct PanelView: View {
                     Image(systemName: tab.icon)
                         .font(.system(size: 13))
                         .foregroundStyle(Theme.textPrimary)
-                    Image(systemName: "chevron.right")
+                    // "forward" points the way the language reads; the open
+                    // state rotates towards the list below, which is the
+                    // opposite turn once the chevron itself has flipped.
+                    Image(systemName: "chevron.forward")
                         .font(.system(size: 8, weight: .semibold))
                         .foregroundStyle(Theme.textTertiary)
-                        .rotationEffect(.degrees(expanded ? 90 : 0))
+                        .rotationEffect(.degrees(expanded ? (layoutDirection == .rightToLeft ? -90 : 90) : 0))
                 }
                 // breathing room around icon+chevron so the hover highlight
                 // isn't cramped and the hit target stays comfortable
@@ -1684,7 +1691,7 @@ struct PanelView: View {
 
     /// Icon-picker content for the header popover: a scrollable grid of the
     /// catalog, each thematic group set off by extra vertical spacing (no
-    /// labels — that would cost a translation per group across 18 languages).
+    /// labels — that would cost a translation per group across 22 languages).
     /// The tab's current icon is highlighted; a pick applies it and closes.
     private func iconPickerPopover(for tabID: UUID) -> some View {
         let current = tabsModel.tabs.first { $0.id == tabID }?.icon
@@ -2520,18 +2527,14 @@ struct PanelView: View {
         return nil
     }
 
-    /// Visibility is membership: a module shows iff it is NOT in the inactive
-    /// bucket. Torrent keeps one extra rule on top — an installed engine with
-    /// zero torrents may hide its empty add-card unless the user opts to keep it.
+    /// The rule itself lives in HopCore so it can be tested; see
+    /// `ModuleVisibility` for why the torrent engine's state is not part of it.
     private func moduleVisible(_ key: String) -> Bool {
-        guard !tabsModel.inactive.contains(key) else { return false }
-        if key == "torrent",
-           model.torrent.torrents.isEmpty,
-           case .installed = model.torrent.installer.state,
-           !torrentShowWhenEmpty {
-            return false
-        }
-        return true
+        ModuleVisibility.isVisible(
+            module: key,
+            inactive: tabsModel.inactive,
+            torrentCount: model.torrent.torrents.count,
+            showTorrentWhenEmpty: torrentShowWhenEmpty)
     }
 
     /// The single choke point for placing a module ON a tab (settings-table
@@ -3231,6 +3234,22 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Theme.MiniSwitch(isOn: $coloredIndicators)
+            }
+
+            // a Dock icon while one of Hop's own windows is open, so the window
+            // can be reached without opening the panel first. OFF keeps Hop out
+            // of the Dock entirely, which is why some people run a menu-bar app
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(t(.windowsInDock))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $showWindowsInDock)
+                }
+                Text(t(.windowsInDockNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
             }
 
             Rectangle()
@@ -4146,14 +4165,19 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textTertiary)
             }
 
-            // memory and temperature have no threshold rows on purpose: both
-            // colors come from macOS's own verdicts, and the captions say so
-            HStack {
+            VStack(alignment: .leading, spacing: 3) {
+                // memory is the one row with TWO signals: macOS's pressure
+                // verdict always applies, and this threshold catches what that
+                // verdict is blind to — memory quietly parked on disk
+                ThresholdRow(label: t(.thSwap), yellow: $swapYellow, red: $swapRed,
+                             maxValue: 100)
                 Text(t(.memPressureNote))
-                    .font(Theme.mono(9))
+                    .font(Theme.mono(8))
                     .foregroundStyle(Theme.textTertiary)
-                Spacer()
             }
+
+            // temperature has no threshold row on purpose: its color comes from
+            // macOS's own verdict, and the caption says so
             HStack {
                 Text(t(.thermalNote))
                     .font(Theme.mono(9))
@@ -4170,6 +4194,8 @@ struct PanelView: View {
                     diskRed = Thresholds.diskRedDefault
                     battYellow = Thresholds.battYellowDefault
                     battRed = Thresholds.battRedDefault
+                    swapYellow = Thresholds.swapYellowDefault
+                    swapRed = Thresholds.swapRedDefault
                 } label: {
                     Text(t(.resetThresholds))
                         .font(Theme.mono(10))
@@ -4232,7 +4258,7 @@ struct PanelView: View {
         case "ocr":
             return [
                 ("text.viewfinder", t(.ocrLabel)),
-                ("camera.viewfinder", t(.ocrRead)),
+                ("square.dashed", t(.ocrRead)),
                 ("arrow.up.forward.app", t(.iconOpenWindow)),
             ]
         case "archive":

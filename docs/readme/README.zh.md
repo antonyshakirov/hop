@@ -17,9 +17,9 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/panel.png" width="420" alt="Hop 面板 — 菜单栏计时器，点阵显示屏、预设与工作-休息循环">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/overview.png" width="360" alt="Hop 面板 — 菜单栏计时器，点阵显示屏、预设与工作-休息循环">
 
 </div>
 
@@ -75,11 +75,15 @@ Hop 常驻在 Mac 的菜单栏中，一个应用顶替一把小工具：
 可选择让屏幕常亮，或者合上盖子继续工作
 （下载、长时间编译和外接显示器时特别好用）。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/awake.png" width="420" alt="Hop — 防休眠">
+</div>
+
 ### 系统监控
 
-CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电池健康度
-和功耗——实时数值配迷你曲线图，颜色阈值由你自己设定，支持 °C/°F，
-还有一行开机时长。数据直接来自 macOS，且仅在标签页打开时更新。
+CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电池健康度 和功耗——实时数值配迷你曲线图，颜
+色阈值由你自己设定，支持 °C/°F， 还有一行开机时长。数据直接来自 macOS，且仅在标签页打开时更新。
+内存这一行在大量内存被换到硬盘时也会提醒，而不只是在 macOS 自己报告吃紧的时候。
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/system.png" width="420" alt="Hop — 系统监控">
@@ -90,6 +94,10 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 最近复制的 100 条（最多 300 条）内容——文字、图片和文件，一键复制回来，
 或直接粘贴到上一个应用。复制的文件会按文件名记住（多个文件显示为
 「名称 +N」），粘贴时会还原文件本身。密码等隐藏输入绝不会被记录。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/clipboard.png" width="420" alt="Hop — 剪贴板历史">
+</div>
 
 ### 文件转换器
 
@@ -105,6 +113,10 @@ HEIC、AVIF 和 WebP；压缩 PDF；HEVC 视频瘦身，转换前就能看到
 
 点击区域图标或按 ⌃⌥ 快捷键，即可把窗口吸附到二分之一、四分之一、
 三分之一或居中——无需额外安装任何应用。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/windows.png" width="420" alt="Hop — 窗口管理器">
+</div>
 
 ### 种子下载
 
@@ -154,6 +166,9 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 编辑、可复制的窗口里，同时进入剪贴板历史。换行会保留，表格依然可读。识别用的是 Apple 的 Vision，
 全部在这台 Mac 上完成。
 
+如果识别结果里有网址，会出现「打开链接」按钮：账单二维码里的链接直接在浏览器中打开，不用再掏手机
+。只认网址：扫来的码是外来输入，所以电话号码、Wi-Fi 密码或名片仍然只是普通文本。
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/recognition.png" width="480" alt="Hop — 文字识别">
 </div>
@@ -170,19 +185,20 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 
 ### 其他
 
-图标上小巧的状态指示器——时间、防休眠、警示和种子活动，彩色或单色——
-内置测速（Apple 的 networkQuality）、带胶片颗粒质感的深浅两套主题、
-全局快捷键、登录时启动，以及能从崩溃循环中恢复应用的安全模式。
+图标上小巧的状态指示器——时间、防休眠、警示和种子活动，彩色或单色—— 内置测速（Apple 的 networkQua
+lity）、带胶片颗粒质感的深浅两套主题、 全局快捷键、登录时启动，以及能从崩溃循环中恢复应用的安全
+模式。 Hop 自己的窗口——转换器、压缩包、文字识别、设置——打开时会出现在程序坞，点击图标即可把窗口
+调回来，不必先打开面板；最后一个窗口关闭后图标随之消失。
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/system.png" width="280" alt="Hop 系统监控 — CPU、GPU、内存、网络、磁盘、电池图表">
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/converter.png" width="280" alt="Hop 文件转换器 — 批量转换图片、PDF、视频和音频">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/settings.png" width="280" alt="Hop 设置 — 主题、模块、快捷键、18 种语言">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/settings.png" width="280" alt="Hop 设置 — 主题、模块、快捷键、22 种语言">
 </div>
 
-## 18 种语言
+## 22 种语言
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — 应用开箱即用，自动跟随系统语言。
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — 应用开箱即用，自动跟随系统语言。
 
 ## 支持这个项目
 

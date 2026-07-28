@@ -18,9 +18,9 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · **ไทย** · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · **ไทย** · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="แผงควบคุม Hop — ตัวจับเวลาบนแถบเมนูพร้อมจอแสดงผลแบบดอตแมทริกซ์ พรีเซ็ต และรอบทำงาน-พัก">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="แผงควบคุม Hop — ตัวจับเวลาบนแถบเมนูพร้อมจอแสดงผลแบบดอตแมทริกซ์ พรีเซ็ต และรอบทำงาน-พัก">
 
 </div>
 
@@ -82,12 +82,16 @@ Hop อาศัยอยู่บนแถบเมนูของ Mac แล�
 ไม่ต้องใส่รหัสผ่าน เลือกให้จอเปิดค้างไว้ หรือทำงานต่อทั้งที่ปิดฝาเครื่อง
 ก็ได้ (เหมาะกับการดาวน์โหลด งานบิลด์ยาว ๆ และจอภายนอก)
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — กันเครื่องหลับ">
+</div>
+
 ### มอนิเตอร์ระบบ
 
-โหลดและอุณหภูมิของ CPU กับ GPU หน่วยความจำและ swap เครือข่าย ดิสก์
-สุขภาพแบตเตอรี่และการใช้พลังงาน — ค่าแบบเรียลไทม์พร้อมกราฟ sparkline
-เกณฑ์สีที่คุณตั้งเอง สลับ °C/°F ได้ และบรรทัดแสดงเวลาเปิดเครื่อง
-ค่าทั้งหมดอ่านตรงจาก macOS และอัปเดตเฉพาะตอนที่แท็บเปิดอยู่เท่านั้น
+โหลดและอุณหภูมิของ CPU กับ GPU หน่วยความจำและ swap เครือข่าย ดิสก์ สุขภาพแบตเตอรี่และการใช้พลังง
+าน — ค่าแบบเรียลไทม์พร้อมกราฟ sparkline เกณฑ์สีที่คุณตั้งเอง สลับ °C/°F ได้ และบรรทัดแสดงเวลาเปิ
+ดเครื่อง ค่าทั้งหมดอ่านตรงจาก macOS และอัปเดตเฉพาะตอนที่แท็บเปิดอยู่เท่านั้น แถวหน่วยความจำจะเตื
+อนเมื่อหน่วยความจำถูกย้ายลงดิสก์เป็นจำนวนมากด้วย ไม่ใช่เฉพาะตอนที่ macOS บอกเองว่าตึงตัว
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — มอนิเตอร์ระบบ">
@@ -100,6 +104,10 @@ Hop อาศัยอยู่บนแถบเมนูของ Mac แล�
 จะถูกจดจำด้วยชื่อไฟล์ (หลายไฟล์พร้อมกันจะแสดงเป็น «ชื่อ +N»)
 และเมื่อวางก็จะได้ไฟล์นั้นกลับคืนมา รหัสผ่านและข้อความที่ถูกซ่อน
 จะไม่ถูกเก็บไว้เด็ดขาด
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — ประวัติคลิปบอร์ด">
+</div>
 
 ### ตัวแปลงไฟล์
 
@@ -115,6 +123,10 @@ HEIC, AVIF และ WebP บีบอัด PDF ย่อวิดีโอด�
 
 จัดหน้าต่างให้ชิดครึ่งจอ หนึ่งในสี่ หนึ่งในสาม หรือกึ่งกลาง
 ด้วยการคลิกที่สัญลักษณ์โซนหรือกดปุ่มลัด ⌃⌥ — ไม่ต้องติดตั้งแอปเพิ่ม
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — ตัวจัดการหน้าต่าง">
+</div>
 
 ### ทอร์เรนต์
 
@@ -168,6 +180,10 @@ HEIC, AVIF และ WebP บีบอัด PDF ย่อวิดีโอด�
 หน้าต่างที่อ่าน แก้ไข และคัดลอกได้ พร้อมกันนั้นก็เข้าประวัติคลิปบอร์ดด้วย การขึ้นบรรทัดใหม่ยังอยู่ ตาราง
 จึงยังอ่านได้ การอ่านใช้ Vision ของ Apple ทำงานในเครื่อง Mac นี้ทั้งหมด
 
+ถ้าผลลัพธ์มีที่อยู่เว็บ จะมีปุ่ม «เปิดลิงก์» ขึ้นมา ลิงก์จากคิวอาร์โค้ดบนใบเสร็จเปิดในเบราว์เซอร
+์ได้ทันที ไม่ต้องหยิบโทรศัพท์ เฉพาะที่อยู่เว็บเท่านั้น เพราะโค้ดที่สแกนมาเป็นข้อมูลจากภายนอก เบอ
+ร์โทร รหัส Wi-Fi หรือนามบัตรจึงยังเป็นข้อความธรรมดา
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — การอ่านข้อความ">
 </div>
@@ -185,21 +201,22 @@ HEIC, AVIF และ WebP บีบอัด PDF ย่อวิดีโอด�
 
 ### และอื่น ๆ
 
-ตัวบ่งชี้สถานะเล็ก ๆ บนไอคอนแถบเมนู — เวลา ป้องกันเครื่องหลับ การแจ้งเตือน
-และการทำงานของทอร์เรนต์ แบบสีหรือขาวดำ — ทดสอบความเร็วเน็ตในตัว
-(networkQuality ของ Apple) ธีมมืดและสว่างพร้อมพื้นผิวลายเกรนฟิล์ม
-ปุ่มลัดระดับระบบ เปิดอัตโนมัติเมื่อเข้าสู่ระบบ และเซฟโหมดที่กู้แอปคืนจาก
-crash loop
+ตัวบ่งชี้สถานะเล็ก ๆ บนไอคอนแถบเมนู — เวลา ป้องกันเครื่องหลับ การแจ้งเตือน และการทำงานของทอร์เรน
+ต์ แบบสีหรือขาวดำ — ทดสอบความเร็วเน็ตในตัว (networkQuality ของ Apple) ธีมมืดและสว่างพร้อมพื้นผิว
+ลายเกรนฟิล์ม ปุ่มลัดระดับระบบ เปิดอัตโนมัติเมื่อเข้าสู่ระบบ และเซฟโหมดที่กู้แอปคืนจาก crash loop
+หน้าต่างของ Hop เอง ทั้งตัวแปลงไฟล์ ไฟล์บีบอัด การอ่านข้อความ และการตั้งค่า จะอยู่ใน dock ขณะเปิ
+ดอยู่ คลิกที่ไอคอนก็เรียกหน้าต่างกลับมาได้โดยไม่ต้องเปิดแผงก่อน และไอคอนจะหายไปพร้อมหน้าต่างสุดท
+้าย
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="มอนิเตอร์ระบบของ Hop — กราฟ CPU, GPU, หน่วยความจำ, เครือข่าย, ดิสก์, แบตเตอรี่">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="ตัวแปลงไฟล์ของ Hop — แปลงรูปภาพ, PDF, วิดีโอ และเสียงเป็นชุด">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="การตั้งค่า Hop — ธีม, โมดูล, ปุ่มลัด, 18 ภาษา">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="การตั้งค่า Hop — ธีม, โมดูล, ปุ่มลัด, 22 ภาษา">
 </div>
 
-## 18 ภาษา
+## 22 ภาษา
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — แอปเปลี่ยนตามภาษาระบบของคุณ
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — แอปเปลี่ยนตามภาษาระบบของคุณ
 โดยอัตโนมัติตั้งแต่แรก
 
 ## สนับสนุนโปรเจกต์

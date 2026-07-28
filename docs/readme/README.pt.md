@@ -19,9 +19,9 @@ clique — e tudo o que você precisa está ali.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · **Português** · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · **Português** · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/pt/panel.png" width="420" alt="Painel do Hop — timer na barra de menus com display de matriz de pontos, predefinições e ciclos de trabalho e descanso">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/overview.png" width="360" alt="Painel do Hop — timer na barra de menus com display de matriz de pontos, predefinições e ciclos de trabalho e descanso">
 
 </div>
 
@@ -86,12 +86,18 @@ Mantenha o Mac acordado por 15 minutos, 8 horas ou para sempre — um clique,
 sem senha. Opcionalmente mantenha a tela ligada, ou continue trabalhando com
 a tampa fechada (ótimo para downloads, builds longos e telas externas).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/awake.png" width="420" alt="Hop — Sem suspensão">
+</div>
+
 ### Monitor do sistema
 
 Carga e temperatura de CPU e GPU, memória e swap, rede, disco, saúde da
-bateria e consumo de energia — valores ao vivo com gráficos sparkline,
-limites de cor definidos por você, °C/°F e uma linha de uptime. As leituras
-vêm direto do macOS e só são atualizadas enquanto a aba está aberta.
+bateria e consumo de energia — valores ao vivo com gráficos sparkline, limites
+de cor definidos por você, °C/°F e uma linha de uptime. As leituras vêm direto
+do macOS e só são atualizadas enquanto a aba está aberta. A linha de memória
+também avisa quando muita memória foi para o disco, e não só quando o próprio
+macOS diz que está apertado.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/system.png" width="420" alt="Hop — Monitor do sistema">
@@ -104,6 +110,10 @@ com um clique para copiar de novo ou colar direto no app anterior. Arquivos
 copiados são guardados pelo nome (vários de uma vez aparecem como
 «nome +N»), e ao colar o arquivo em si volta. Senhas e outras entradas
 ocultas nunca são armazenadas.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/clipboard.png" width="420" alt="Hop — Histórico da área de transferência">
+</div>
 
 ### Conversor de arquivos
 
@@ -120,6 +130,10 @@ processado localmente.
 
 Encaixe janelas em metades, quartos, terços e no centro com um clique em um
 glifo de zona ou um atalho ⌃⌥ — sem precisar de outro app.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/windows.png" width="420" alt="Hop — Gerenciador de janelas">
+</div>
 
 ### Torrents
 
@@ -180,6 +194,11 @@ entram ao mesmo tempo no histórico da área de transferência. As quebras de
 linha ficam, então uma tabela continua legível. O reconhecimento é o Vision da
 Apple, inteiramente neste Mac.
 
+Se o resultado tiver um endereço web aparece o botão «abrir link»: o link de
+um código QR numa fatura abre direto no navegador, sem precisar do telefone.
+Apenas endereços web: um código lido é entrada alheia, por isso um telefone,
+uma senha de Wi-Fi ou um cartão de contato continuam texto simples.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/recognition.png" width="480" alt="Hop — Reconhecimento de texto">
 </div>
@@ -203,17 +222,20 @@ Pequenos indicadores de status no ícone da barra de menus — tempo,
 antissuspensão, avisos e atividade de torrents, coloridos ou monocromáticos —,
 um teste de velocidade integrado (networkQuality da Apple), temas escuro e
 claro com textura de grão de filme, atalhos globais, abertura no login e um
-modo seguro que recupera o app de um loop de travamentos.
+modo seguro que recupera o app de um loop de travamentos. As janelas do
+próprio Hop — o conversor, os arquivos, o reconhecimento, os ajustes —
+aparecem na dock enquanto estão abertas, e um clique no ícone traz uma de
+volta em vez de abrir o painel; com a última janela o ícone desaparece.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/system.png" width="280" alt="Monitor do sistema do Hop — gráficos de CPU, GPU, memória, rede, disco e bateria">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/converter.png" width="280" alt="Conversor de arquivos do Hop — conversão em lote de imagens, PDFs, vídeo e áudio">
-<img src="https://www.antonshakirov.com/products/hop/screens/pt/settings.png" width="280" alt="Ajustes do Hop — temas, módulos, atalhos, 18 idiomas">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/settings.png" width="280" alt="Ajustes do Hop — temas, módulos, atalhos, 22 idiomas">
 </div>
 
-## 18 idiomas
+## 22 idiomas
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — o app segue o idioma do seu sistema desde o
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — o app segue o idioma do seu sistema desde o
 primeiro momento.
 
 ## Apoie o projeto

@@ -18,9 +18,9 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · **हिन्दी** · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · **हिन्दी** · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop पैनल — डॉट-मैट्रिक्स डिस्प्ले, प्रीसेट और काम-आराम चक्रों वाला मेनू बार टाइमर">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop पैनल — डॉट-मैट्रिक्स डिस्प्ले, प्रीसेट और काम-आराम चक्रों वाला मेनू बार टाइमर">
 
 </div>
 
@@ -83,12 +83,17 @@ Mac को 15 मिनट, 8 घंटे या हमेशा के लि�
 पासवर्ड नहीं। चाहें तो डिस्प्ले चालू रखें, या ढक्कन बंद करके भी काम जारी
 रखें (डाउनलोड, लंबे बिल्ड और बाहरी डिस्प्ले के लिए बेहद काम का)।
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — नो स्लीप">
+</div>
+
 ### सिस्टम मॉनिटर
 
-CPU और GPU का लोड व तापमान, मेमोरी और स्वैप, नेटवर्क, डिस्क, बैटरी
-की सेहत और बिजली की खपत — स्पार्कलाइन चार्ट के साथ लाइव आँकड़े, रंगों की
-सीमाएँ जो आप खुद तय करते हैं, °C/°F, और अपटाइम की एक पंक्ति। सारी
-रीडिंग सीधे macOS से आती हैं और सिर्फ़ तब अपडेट होती हैं जब टैब खुला हो।
+CPU और GPU का लोड व तापमान, मेमोरी और स्वैप, नेटवर्क, डिस्क, बैटरी की सेहत और
+बिजली की खपत — स्पार्कलाइन चार्ट के साथ लाइव आँकड़े, रंगों की सीमाएँ जो आप खुद
+तय करते हैं, °C/°F, और अपटाइम की एक पंक्ति। सारी रीडिंग सीधे macOS से आती हैं
+और सिर्फ़ तब अपडेट होती हैं जब टैब खुला हो। मेमोरी वाली पंक्ति तब भी चेताती है
+जब बहुत सी मेमोरी डिस्क पर चली गई हो, सिर्फ़ तब नहीं जब macOS खुद तंगी बताए।
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — सिस्टम मॉनिटर">
@@ -100,6 +105,10 @@ CPU और GPU का लोड व तापमान, मेमोरी औ�
 एक क्लिक में वापस कॉपी करें या सीधे पिछले ऐप में पेस्ट कर दें। कॉपी की गई
 फ़ाइलें नाम से याद रहती हैं (एक साथ कई हों तो «नाम +N»), और पेस्ट करने पर
 फ़ाइल खुद वापस आ जाती है। पासवर्ड और दूसरे छिपाए गए इनपुट कभी सेव नहीं होते।
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — क्लिपबोर्ड हिस्ट्री">
+</div>
 
 ### फ़ाइल कन्वर्टर
 
@@ -116,6 +125,10 @@ PNG, HEIC, AVIF और WebP; PDF कम्प्रेशन; HEVC से वी
 
 ज़ोन ग्लिफ़ पर एक क्लिक या ⌃⌥ हॉटकी से विंडो को आधे, चौथाई, तिहाई
 हिस्सों में या बीचोंबीच स्नैप करें — किसी अतिरिक्त ऐप की ज़रूरत नहीं।
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — विंडो मैनेजर">
+</div>
 
 ### टॉरेंट
 
@@ -172,6 +185,11 @@ hsl अपने-अपने कॉलम में होते हैं: ज
 भी चले जाते हैं। लाइन ब्रेक बने रहते हैं, इसलिए टेबल पढ़ने लायक रहती है। पहचान Apple के Vision से
 होती है, पूरी तरह इसी Mac पर।
 
+अगर पहचाने गए टेक्स्ट में कोई वेब पता है तो «लिंक खोलें» बटन आ जाता है: बिल के
+QR कोड का लिंक फ़ोन उठाए बिना सीधे ब्राउज़र में खुल जाता है। सिर्फ़ वेब पते:
+स्कैन किया कोड बाहर से आया इनपुट है, इसलिए फ़ोन नंबर, Wi-Fi पासवर्ड या संपर्क
+कार्ड सादा टेक्स्ट ही रहते हैं।
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — टेक्स्ट पहचान">
 </div>
@@ -190,20 +208,23 @@ hsl अपने-अपने कॉलम में होते हैं: ज
 
 ### और भी बहुत कुछ
 
-मेनू बार आइकन पर छोटे स्थिति संकेतक — समय, स्लीप-रोक, चेतावनियाँ और
-टॉरेंट गतिविधि, रंगीन या मोनोक्रोम —, बिल्ट-इन स्पीड टेस्ट (Apple का
-networkQuality), फ़िल्म-ग्रेन बनावट वाली डार्क और लाइट थीम, ग्लोबल हॉटकी,
-लॉगिन पर लॉन्च, और एक सेफ़ मोड जो क्रैश लूप से ऐप को उबार लेता है।
+मेनू बार आइकन पर छोटे स्थिति संकेतक — समय, स्लीप-रोक, चेतावनियाँ और टॉरेंट
+गतिविधि, रंगीन या मोनोक्रोम —, बिल्ट-इन स्पीड टेस्ट (Apple का networkQuality),
+फ़िल्म-ग्रेन बनावट वाली डार्क और लाइट थीम, ग्लोबल हॉटकी, लॉगिन पर लॉन्च, और एक
+सेफ़ मोड जो क्रैश लूप से ऐप को उबार लेता है। Hop की अपनी विंडो — कन्वर्टर,
+आर्काइव, टेक्स्ट पहचान, सेटिंग्स — खुली रहने तक डॉक में दिखती हैं, और आइकन पर
+क्लिक करने से पैनल खोले बिना विंडो वापस आ जाती है; आखिरी विंडो के साथ आइकन भी
+चला जाता है।
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop सिस्टम मॉनिटर — CPU, GPU, मेमोरी, नेटवर्क, डिस्क, बैटरी चार्ट">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop फ़ाइल कन्वर्टर — इमेज, PDF, वीडियो और ऑडियो का बैच रूपांतरण">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop सेटिंग्स — थीम, मॉड्यूल, हॉटकी, 18 भाषाएँ">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop सेटिंग्स — थीम, मॉड्यूल, हॉटकी, 22 भाषाएँ">
 </div>
 
-## 18 भाषाएँ
+## 22 भाषाएँ
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — ऐप शुरू से ही आपकी सिस्टम भाषा को अपना
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — ऐप शुरू से ही आपकी सिस्टम भाषा को अपना
 लेता है।
 
 ## प्रोजेक्ट का समर्थन करें

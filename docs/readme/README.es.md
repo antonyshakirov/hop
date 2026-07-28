@@ -19,9 +19,9 @@ pestañas del icono. Un clic — y todo lo que necesitas está ahí.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · **Español** · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · **Español** · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/es/panel.png" width="420" alt="Panel de Hop — temporizador en la barra de menús con pantalla de matriz de puntos, preajustes y ciclos de trabajo y descanso">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/overview.png" width="360" alt="Panel de Hop — temporizador en la barra de menús con pantalla de matriz de puntos, preajustes y ciclos de trabajo y descanso">
 
 </div>
 
@@ -87,13 +87,18 @@ contraseña. Opcionalmente deja la pantalla encendida, o sigue trabajando
 con la tapa cerrada (ideal para descargas, compilaciones largas y pantallas
 externas).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/awake.png" width="420" alt="Hop — Sin reposo">
+</div>
+
 ### Monitor del sistema
 
 Carga y temperatura de CPU y GPU, memoria y swap, red, disco, salud de la
 batería y consumo de energía — valores en vivo con gráficos sparkline,
 umbrales de color que defines tú mismo, °C/°F y una línea de tiempo de
 actividad. Las lecturas vienen directamente de macOS y solo se actualizan
-mientras la pestaña está abierta.
+mientras la pestaña está abierta. La fila de memoria también avisa cuando
+mucha memoria ha ido al disco, y no solo cuando macOS informa de que va justo.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/system.png" width="420" alt="Hop — Monitor del sistema">
@@ -106,6 +111,10 @@ con un clic para volver a copiarlas o pegarlas directamente en la app
 anterior. Los archivos copiados se guardan por su nombre (varios a la vez
 aparecen como «nombre +N»), y al pegar vuelve el archivo en sí. Las
 contraseñas y otras entradas ocultas nunca se guardan.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/clipboard.png" width="420" alt="Hop — Historial del portapapeles">
+</div>
 
 ### Conversor de archivos
 
@@ -122,6 +131,10 @@ procesa en local.
 
 Ajusta las ventanas a mitades, cuartos, tercios y al centro con un clic en
 un glifo de zona o con un atajo ⌃⌥ — sin necesidad de otra app.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/windows.png" width="420" alt="Hop — Gestor de ventanas">
+</div>
 
 ### Torrents
 
@@ -183,6 +196,12 @@ y copiar, y llegan a la vez al historial del portapapeles. Los saltos de línea
 se conservan, así que una tabla sigue legible. El reconocimiento es Vision, de
 Apple, todo en este Mac.
 
+Si el resultado contiene una dirección web aparece el botón «abrir enlace»: el
+enlace de un código QR de una factura se abre directamente en el navegador,
+sin tocar el teléfono. Solo direcciones web: un código escaneado es entrada
+ajena, así que un teléfono, una contraseña de Wi-Fi o una tarjeta de contacto
+siguen siendo texto normal.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/recognition.png" width="480" alt="Hop — Reconocimiento de texto">
 </div>
@@ -203,20 +222,23 @@ mantenerlo pulsado sigue apagando el Mac, porque de eso se encarga el hardware.
 ### Y todo lo demás
 
 Pequeños indicadores de estado en el icono de la barra de menús — tiempo,
-antisueño, avisos y actividad de torrents, en color o monocromos —, un test
-de velocidad integrado (networkQuality de Apple), temas oscuro y claro con
-textura de grano de película, atajos globales, arranque al iniciar sesión y
-un modo seguro que recupera la app de un bucle de fallos.
+antisueño, avisos y actividad de torrents, en color o monocromos —, un test de
+velocidad integrado (networkQuality de Apple), temas oscuro y claro con
+textura de grano de película, atajos globales, arranque al iniciar sesión y un
+modo seguro que recupera la app de un bucle de fallos. Las ventanas propias de
+Hop — el conversor, los archivos, el reconocimiento, los ajustes — aparecen en
+el dock mientras están abiertas, y un clic en el icono devuelve una en lugar
+de abrir el panel; con la última ventana el icono desaparece.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/system.png" width="280" alt="Monitor del sistema de Hop — gráficos de CPU, GPU, memoria, red, disco y batería">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/converter.png" width="280" alt="Conversor de archivos de Hop — conversión por lotes de imágenes, PDF, vídeo y audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/es/settings.png" width="280" alt="Ajustes de Hop — temas, módulos, atajos, 18 idiomas">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/settings.png" width="280" alt="Ajustes de Hop — temas, módulos, atajos, 22 idiomas">
 </div>
 
-## 18 idiomas
+## 22 idiomas
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — la app sigue el idioma de tu sistema desde el
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — la app sigue el idioma de tu sistema desde el
 primer momento.
 
 ## Apoya el proyecto

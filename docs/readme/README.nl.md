@@ -19,9 +19,9 @@ meteen klaar.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · **Nederlands** · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · **Nederlands** · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop-paneel — menubalktimer met dot-matrixdisplay, presets en werk-rustcycli">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop-paneel — menubalktimer met dot-matrixdisplay, presets en werk-rustcycli">
 
 </div>
 
@@ -85,13 +85,18 @@ Houd de Mac 15 minuten, 8 uur of voor altijd wakker — één klik, geen
 wachtwoord. Laat optioneel het scherm aan, of werk door met het deksel dicht
 (handig voor downloads, lange builds en externe schermen).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Geen slaap">
+</div>
+
 ### Systeemmonitor
 
 CPU- en GPU-belasting en -temperatuur, geheugen en swap, netwerk, schijf,
 batterijconditie en stroomverbruik — livewaarden met sparkline-grafieken,
 kleurdrempels die je zelf instelt, °C/°F en een uptime-regel. De metingen
 komen rechtstreeks van macOS en worden alleen bijgewerkt zolang het tabblad
-open is.
+open is. De geheugenrij waarschuwt ook als veel geheugen naar de schijf is
+verhuisd, en niet pas als macOS zelf krapte meldt.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Systeemmonitor">
@@ -104,6 +109,10 @@ bestanden — met één klik terug te kopiëren of direct te plakken in de vorig
 app. Gekopieerde bestanden worden op naam onthouden (meerdere tegelijk
 verschijnen als «naam +N»), en bij het plakken komt het bestand zelf terug.
 Wachtwoorden en andere verborgen invoer worden nooit opgeslagen.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Klembordgeschiedenis">
+</div>
 
 ### Bestandsconverter
 
@@ -120,6 +129,10 @@ wordt lokaal verwerkt.
 
 Klik vensters vast op helften, kwarten, derden en het midden via een
 zonesymbool of een ⌃⌥-sneltoets — geen extra app nodig.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Vensterbeheer">
+</div>
 
 ### Torrents
 
@@ -181,6 +194,12 @@ lezen, bijwerken en waaruit je kunt kopiëren, en gaan tegelijk naar de
 klembordgeschiedenis. Regeleindes blijven staan, dus een tabel blijft leesbaar.
 De herkenning is Vision van Apple, volledig op deze Mac.
 
+Staat er een webadres in het resultaat, dan verschijnt de knop «link openen»:
+de link uit een QR-code op een rekening opent meteen in de browser, zonder dat
+je je telefoon pakt. Alleen webadressen: een gescande code is invoer van
+buiten, dus een telefoonnummer, een wifiwachtwoord of een visitekaartje blijft
+gewone tekst.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Tekstherkenning">
 </div>
@@ -202,20 +221,23 @@ want dat regelt de hardware.
 ### En de rest
 
 Kleine statusindicatoren op het menubalk-icoon — tijd, slaapblokkering,
-waarschuwingen en torrentactiviteit, in kleur of monochroom —, een
-ingebouwde snelheidstest (Apples networkQuality), donkere en lichte thema's
-met een filmkorrel-textuur, globale sneltoetsen, starten bij inloggen en een
-veilige modus die de app uit een crashlus haalt.
+waarschuwingen en torrentactiviteit, in kleur of monochroom —, een ingebouwde
+snelheidstest (Apples networkQuality), donkere en lichte thema's met een
+filmkorrel-textuur, globale sneltoetsen, starten bij inloggen en een veilige
+modus die de app uit een crashlus haalt. Hops eigen vensters — de converter,
+archieven, tekstherkenning, instellingen — staan in het dock zolang ze open
+zijn; een klik op het icoon haalt er een terug in plaats van eerst het paneel
+te openen, en met het laatste venster verdwijnt het icoon weer.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop-systeemmonitor — grafieken voor CPU, GPU, geheugen, netwerk, schijf, batterij">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop-bestandsconverter — batchconversie van afbeeldingen, pdf's, video en audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop-instellingen — thema's, modules, sneltoetsen, 18 talen">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop-instellingen — thema's, modules, sneltoetsen, 22 talen">
 </div>
 
-## 18 talen
+## 22 talen
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — de app volgt standaard je systeemtaal.
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — de app volgt standaard je systeemtaal.
 
 ## Steun het project
 

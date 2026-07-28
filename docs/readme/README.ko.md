@@ -18,9 +18,9 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · **한국어** · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · **한국어** · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/panel.png" width="420" alt="Hop 패널 — 도트 매트릭스 디스플레이, 프리셋과 작업-휴식 사이클을 갖춘 메뉴 막대 타이머">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop 패널 — 도트 매트릭스 디스플레이, 프리셋과 작업-휴식 사이클을 갖춘 메뉴 막대 타이머">
 
 </div>
 
@@ -81,12 +81,16 @@ Mac을 15분, 8시간, 혹은 영원히 깨어 있게 — 클릭 한 번, 암호
 없습니다. 디스플레이를 계속 켜 두거나, 덮개를 닫은 채로 작업을 이어갈
 수도 있습니다(다운로드, 긴 빌드, 외장 디스플레이에 유용).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — 잠자기 방지">
+</div>
+
 ### 시스템 모니터
 
-CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, 배터리
-상태와 전력 소모 — 스파크라인 차트가 붙은 실시간 값, 직접 정하는
-색상 임계값, °C/°F 전환, 가동 시간 표시까지. 값은 macOS에서 바로
-읽어 오며 탭이 열려 있는 동안에만 갱신됩니다.
+CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, 배터리 상태와 전력 소모 — 스파크라인
+차트가 붙은 실시간 값, 직접 정하는 색상 임계값, °C/°F 전환, 가동 시간 표시까지. 값은 macOS에서
+바로 읽어 오며 탭이 열려 있는 동안에만 갱신됩니다. 메모리 행은 macOS가 부족을 알릴 때뿐 아니라,
+메모리가 디스크로 많이 밀려났을 때도 알려줍니다.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — 시스템 모니터">
@@ -98,6 +102,10 @@ CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, �
 번으로 다시 복사하거나 이전 앱에 바로 붙여넣기. 복사한 파일은 이름으로
 기억하고(여러 개면 「이름 +N」), 붙여넣으면 파일 자체가 돌아옵니다. 암호를
 비롯한 가려진 입력은 절대 저장되지 않습니다.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — 클립보드 히스토리">
+</div>
 
 ### 파일 변환기
 
@@ -114,6 +122,10 @@ HEIC, AVIF, WebP로 출력, PDF 압축, HEVC 비디오 용량 줄이기 — 변�
 
 존 글리프를 클릭하거나 ⌃⌥ 단축키를 누르면 창을 절반, 4분의 1, 3분의 1,
 가운데로 스냅 — 별도의 앱이 필요 없습니다.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — 창 관리자">
+</div>
 
 ### 토렌트
 
@@ -167,6 +179,10 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 읽고 고치고 복사할 수 있는 창에 나오고, 동시에 클립보드 기록에도 들어갑니다. 줄바꿈이 유지되어
 표도 읽을 수 있습니다. 인식은 Apple의 Vision이며 전부 이 Mac 안에서 이뤄집니다.
 
+인식 결과에 웹 주소가 있으면 「링크 열기」 버튼이 나타납니다. 청구서 QR 코드의 링크가 휴대폰 없
+이 브라우저에서 바로 열립니다. 웹 주소만 해당합니다. 스캔한 코드는 외부에서 온 입력이므로 전화번
+호나 Wi-Fi 비밀번호, 연락처 카드는 그대로 텍스트로 남습니다.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — 텍스트 인식">
 </div>
@@ -184,20 +200,21 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 
 ### 그 밖에
 
-아이콘에 표시되는 작은 상태 표시기 — 시간, 잠자기 방지, 경고, 토렌트
-활동, 컬러 또는 흑백 —, 내장 속도 측정(Apple의 networkQuality), 필름
-그레인 질감의 다크·라이트 테마, 전역 단축키, 로그인 시 실행, 그리고
-크래시 루프에서 앱을 복구하는 안전 모드.
+아이콘에 표시되는 작은 상태 표시기 — 시간, 잠자기 방지, 경고, 토렌트 활동, 컬러 또는 흑백 —, 내
+장 속도 측정(Apple의 networkQuality), 필름 그레인 질감의 다크·라이트 테마, 전역 단축키, 로그인
+시 실행, 그리고 크래시 루프에서 앱을 복구하는 안전 모드. Hop 자신의 창(변환기, 압축, 문자 인식,
+설정)은 열려 있는 동안 dock에 나타나고, 아이콘을 누르면 패널을 거치지 않고 창이 돌아옵니다. 마지
+막 창과 함께 아이콘도 사라집니다.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop 시스템 모니터 — CPU, GPU, 메모리, 네트워크, 디스크, 배터리 차트">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop 파일 변환기 — 이미지, PDF, 비디오, 오디오 일괄 변환">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop 설정 — 테마, 모듈, 단축키, 18개 언어">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop 설정 — 테마, 모듈, 단축키, 22개 언어">
 </div>
 
-## 18개 언어
+## 22개 언어
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — 앱은 처음부터 시스템 언어를 그대로
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — 앱은 처음부터 시스템 언어를 그대로
 따라갑니다.
 
 ## 프로젝트 응원하기

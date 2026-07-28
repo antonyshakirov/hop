@@ -35,6 +35,77 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var screenTextUserResized = false
     private var screenTextExpectedHeight: CGFloat = -1
     private var converterPasteMonitor: Any?
+    private var dockWindowSink: Any?
+
+    // MARK: - Dock presence
+
+    /// The windows that earn Hop a Dock icon while they are open. The panel is
+    /// deliberately absent: it hangs off the status item and closes on any
+    /// outside click, so it is part of the menu bar rather than a window
+    /// someone would look for in the Dock. The quit confirmation is absent for
+    /// the same reason — it lives for a second and answers one question.
+    private var dockWindows: [NSWindow] {
+        var list = [settingsWindow, aboutWindow, torrentAddWindow, converterWindow,
+                    archiveWindow, screenTextWindow, onboardingWindow].compactMap { $0 }
+        list.append(contentsOf: finderArchiveWindows.values.map(\.window))
+        return list
+    }
+
+    private var wantsDockIcon: Bool {
+        UserDefaults.standard.object(forKey: SettingsKey.showWindowsInDock) as? Bool ?? true
+    }
+
+    /// Hop is a menu-bar app with no Dock icon, which is right until it opens a
+    /// window of its own. A window that cannot be reached from the Dock has to
+    /// be found through the panel every time, and the panel is the whole app
+    /// when all the user wanted was the converter (Anton, 2026-07-28).
+    ///
+    /// Called BEFORE the window is ordered in: switching policy after it is on
+    /// screen makes the app blink out of focus and the window drop behind
+    /// whatever was in front.
+    private func enterDockMode() {
+        guard !Snapshot.active, wantsDockIcon,
+              NSApp.activationPolicy() != .regular else { return }
+        NSApp.setActivationPolicy(.regular)
+    }
+
+    /// Back to a plain menu-bar app once the last of those windows has gone —
+    /// an icon in the Dock for an app with nothing open is the thing people
+    /// pick a menu-bar utility to avoid.
+    private func leaveDockModeIfIdle() {
+        guard !Snapshot.active, NSApp.activationPolicy() != .accessory,
+              !dockWindows.contains(where: \.isVisible) else { return }
+        NSApp.setActivationPolicy(.accessory)
+    }
+
+    /// A click on the Dock icon must land on the window the icon is there for,
+    /// including when that window is only minimized.
+    func applicationShouldHandleReopen(_ sender: NSApplication,
+                                       hasVisibleWindows: Bool) -> Bool {
+        guard let window = dockWindows.first(where: \.isMiniaturized)
+                ?? dockWindows.first(where: \.isVisible)
+                ?? dockWindows.first else { return false }
+        window.deminiaturize(nil)
+        enterDockMode()
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        return false
+    }
+
+    /// The Dock icon leaves with the last window. `willClose` arrives while the
+    /// window still reports itself visible, so the check waits one turn of the
+    /// run loop — otherwise the app would keep its icon until the next window.
+    private func observeDockWindowClosing() {
+        dockWindowSink = NotificationCenter.default.addObserver(
+            forName: NSWindow.willCloseNotification, object: nil, queue: .main
+        ) { [weak self] note in
+            guard let closing = note.object as? NSWindow else { return }
+            MainActor.assumeIsolated {
+                guard let self, self.dockWindows.contains(where: { $0 === closing }) else { return }
+                DispatchQueue.main.async { [weak self] in self?.leaveDockModeIfIdle() }
+            }
+        }
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Agent without a Dock icon — including dev runs via `swift run`.
@@ -74,6 +145,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // "auto" theme did not follow the system one
             Task { @MainActor in self?.syncSystemTheme() }
         }
+
+        observeDockWindowClosing()
 
         statusController = StatusItemController(model: model)
 
@@ -301,6 +374,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let host = NSHostingController(
                 rootView: PanelView(initial: .settings, standaloneSettings: true)
                     .environmentObject(model)
+                    .hopLayoutDirection()
             )
             // same reliable path as about/converter: explicit size +
             // sizingOptions=[] so the hosting controller doesn't break AutoLayout with constraints
@@ -324,6 +398,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.setContentSize(NSSize(width: 720, height: min(620, screenH * 0.85)))
             window.center()
         }
+        enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
     }
@@ -353,6 +428,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     onQuit: { NSApp.terminate(nil) },
                     onCancel: { [weak self] in self?.quitWindow?.close() }
                 )
+                .hopLayoutDirection()
             )
             host.sizingOptions = []
             window.contentViewController = host
@@ -443,6 +519,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let host = NSHostingController(
                 rootView: PanelView(initial: .about, standaloneAbout: true)
                     .environmentObject(model)
+                    .hopLayoutDirection()
             )
             // sizingOptions=[] and explicit size: .preferredContentSize made the
             // hosting controller fit the window to content via constraints, which broke
@@ -477,6 +554,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 window.center()
             }
         }
+        enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
         if aboutAwaitingReveal {
@@ -520,6 +598,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.torrentAddWindow?.close()
             }
             .environmentObject(model)
+            .hopLayoutDirection()
         )
         // preferredContentSize: the window tracks the sheet's own fitting height
         // (now that the view dropped its maxHeight:.infinity frame). It opens snug
@@ -533,6 +612,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
         window.contentMaxSize = NSSize(width: 440, height: screenH * 0.85)
         window.center()
+        enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
     }
@@ -630,6 +710,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isReleasedWhenClosed = false
             let host = NSHostingController(
                 rootView: ConvertWindowView().environmentObject(model)
+                    .hopLayoutDirection()
             )
             // the window resizes only vertically (content sits in a ScrollView);
             // auto-fitting the window size to content is disabled, otherwise
@@ -657,6 +738,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.setContentSize(NSSize(width: 540, height: 380))
             window.center()
         }
+        enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
         // fit to content — after the PreferenceKey reports the height
@@ -708,6 +790,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isReleasedWhenClosed = false
             let host = NSHostingController(
                 rootView: ArchiveWindowView().environmentObject(model)
+                    .hopLayoutDirection()
             )
             host.sizingOptions = []
             window.contentViewController = host
@@ -722,6 +805,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.setContentSize(NSSize(width: 480, height: 260))
             window.center()
         }
+        enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
         adjustArchiveHeight()
@@ -746,6 +830,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isReleasedWhenClosed = false
             let host = NSHostingController(
                 rootView: ScreenTextWindowView().environmentObject(model)
+                    .hopLayoutDirection()
             )
             host.sizingOptions = []
             window.contentViewController = host
@@ -764,6 +849,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.setContentSize(NSSize(width: 560, height: 240))
             window.center()
         }
+        enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
         adjustScreenTextHeight()
@@ -811,9 +897,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if !PanelView.storedModuleIsInactive("torrent") {
                 self?.model.torrent.prefetchEngineIfNeeded()
             }
-        })
+        }.hopLayoutDirection())
         window.center()
         onboardingWindow = window
+        enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
     }
@@ -975,6 +1062,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         let menu = NSMenu()
+        menu.applyHopLayoutDirection()
         let title = NSMenuItem(
             title: "Hop — " + L10n.t(.safeModeTitle, lang),
             action: nil, keyEquivalent: ""

@@ -46,6 +46,94 @@ public enum ScreenTextRules {
         }
     }
 
+    /// The first web address in a reading, ready to hand to a browser — or nil
+    /// when there is nothing to open.
+    ///
+    /// A QR code on a bill or a poster carries a link, and the point of reading
+    /// it on the Mac instead of pointing a phone at it is to FOLLOW it here
+    /// (Anton, 2026-07-27). The same holds for an address printed in the text of
+    /// a screenshot, so this looks at the whole reading rather than at barcodes
+    /// alone.
+    ///
+    /// Only `http` and `https` are recognized. A scanned code is untrusted input
+    /// and every other scheme hands it a lever: `file://` reaches the disk and a
+    /// custom scheme reaches whatever app claimed it. A payload that is a phone
+    /// number, an address book card or a Wi-Fi password stays plain text.
+    public static func link(in text: String) -> String? {
+        schemeLink(in: text) ?? bareHostLink(in: text)
+    }
+
+    /// An address that spells its scheme out: everything from `http://` to the
+    /// first space or line break. Requiring the scheme is what keeps a reading
+    /// of source code quiet — `readme.md` and `api.js` are host-shaped, and `.md`
+    /// and `.js` are real top-level domains, so a looser match would offer to
+    /// open a file name.
+    private static func schemeLink(in text: String) -> String? {
+        var best: String.Index?
+        for scheme in ["http://", "https://"] {
+            // searched on `text` itself, NOT on a lowercased copy: folding case
+            // can change a string's length, and an index taken from the copy
+            // would then point somewhere else in the original
+            guard let found = text.range(of: scheme, options: [.caseInsensitive]) else { continue }
+            // the earliest of the two — a line may hold one of each
+            if best == nil || found.lowerBound < best! { best = found.lowerBound }
+        }
+        guard let start = best else { return nil }
+        let rest = text[start...]
+        let candidate = rest.prefix { !$0.isWhitespace && !$0.isNewline }
+        let cleaned = strippingTrailingPunctuation(String(candidate))
+        // "https://" and nothing after it is not an address
+        guard let separator = cleaned.range(of: "://"),
+              !cleaned[separator.upperBound...].isEmpty else { return nil }
+        return cleaned
+    }
+
+    /// A whole reading that is nothing but a bare host — the shape of a QR code
+    /// printed as `example.com/menu`. Deliberately narrow: it applies only when
+    /// the ENTIRE reading is that one token, never to a word inside a sentence,
+    /// so prose and file names are never promoted to links.
+    private static func bareHostLink(in text: String) -> String? {
+        let token = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !token.isEmpty,
+              !token.contains(where: { $0.isWhitespace || $0.isNewline }),
+              // an e-mail address is host-shaped and must not open a browser
+              !token.contains("@"),
+              !token.contains(":") else { return nil }
+        let cleaned = strippingTrailingPunctuation(token)
+        let host = cleaned.prefix { $0 != "/" && $0 != "?" && $0 != "#" }
+        let labels = host.split(separator: ".", omittingEmptySubsequences: false)
+        guard labels.count >= 2,
+              labels.allSatisfy({ !$0.isEmpty }),
+              // a top-level domain is letters only, and at least two of them —
+              // this is what rules out "1.5" and "v2.0"
+              let tld = labels.last, tld.count >= 2,
+              tld.allSatisfy({ $0.isLetter }),
+              host.allSatisfy({ $0.isLetter || $0.isNumber || $0 == "." || $0 == "-" })
+        else { return nil }
+        return "https://" + cleaned
+    }
+
+    /// Sentence punctuation that ends up glued to an address when it is read out
+    /// of running text: "see https://example.com." must not open a dot.
+    /// A closing bracket is kept when the address opened one itself, because a
+    /// link really can carry balanced brackets in its path.
+    private static func strippingTrailingPunctuation(_ value: String) -> String {
+        var out = value
+        let always: Set<Character> = [".", ",", ";", ":", "!", "?", "\"", "'", "»", ">"]
+        while let last = out.last {
+            if always.contains(last) {
+                out.removeLast()
+            } else if last == ")" && !out.contains("(") {
+                out.removeLast()
+            } else if last == "]" && !out.contains("[") {
+                out.removeLast()
+            } else {
+                break
+            }
+        }
+        return out
+    }
+
     /// Trim every candidate and drop the empties; optionally remove later
     /// duplicates, keeping the first occurrence's position.
     private static func trimmed(_ values: [String], dropDuplicates: Bool) -> [String] {

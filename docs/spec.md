@@ -218,6 +218,16 @@ pick a target under "move to" — one item per other space plus a final
 module is simply not rendered, so there is no inverse "activate" context menu
 — reactivation is a drag out of inactive in settings. The divider between
 modules sits exactly in the middle: top inset = bottom inset = 16pt.
+- **The rule is `HopCore.ModuleVisibility`** and takes exactly three inputs: the
+  inactive bucket, the torrent count, and the "show the card without downloads"
+  preference. Torrent is the one module with an extra condition — with zero
+  torrents its row is hidden unless the preference keeps it — and that condition
+  used to ALSO require the engine installer to be exactly `.installed`. That made
+  the user's answer conditional on machinery they never asked about: on the first
+  launch after an update, while the engine downloaded, or after a failed fetch,
+  the row returned to a panel where it had been switched off (Anton, 2026-07-27,
+  straight after updating to 1.5.1). The engine no longer gets a vote — "do not
+  show this without downloads" is an answer about the row.
 
 ### Timer
 
@@ -752,7 +762,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `tracker.json`/`todos.json` (belt-and-suspenders over the bundle-less `.cli`
   sandbox), so `--tasks` stages its own deterministic content — three tasks (one
   running), three to-dos (one done) — localized per screenshot locale in
-  `Snapshot.demoTasks` (a sanctioned per-locale string site covering all 18
+  `Snapshot.demoTasks` (a sanctioned per-locale string site covering all 22
   locales — English via the `default` case).
 
 ### To-dos
@@ -915,10 +925,38 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and barcodes become ONE clipboard-history entry, already on the pasteboard.
   Escape cancels and writes nothing. The panel closes before the crosshair
   appears (a popover would cover what the user is framing).
-- The action's glyph is `camera.viewfinder`, not a bare `viewfinder`: four
-  dashed corners alone read as "enter full screen", while the camera inside them
-  says "frame a shot of the screen" (Anton, 2026-07-26). Same glyph in the panel
-  row, in the window's button and in the help legend.
+- The action's glyph is `square.dashed` — a marquee, the shape the user drags
+  across the screen, in the same dashed family as the Screen Recording
+  permission's mark. A bare `viewfinder` read as "enter full screen" and
+  `camera.viewfinder` fixed the meaning at the cost of the ink: its camera body
+  packed a dark clot into a 12pt glyph (Anton, 2026-07-27). The marquee keeps
+  the meaning with an empty middle. It is the SQUARE marquee rather than
+  `rectangle.dashed` because the row's icons have to match each other: a
+  landscape marquee tall enough to match the boxed arrow beside it ran half
+  again as wide, and width is what reads as "bigger". At 12.5 the square one
+  draws 11.3 × 12.0 pt — the arrow's own box. Same glyph in the panel row, in
+  the window's button and in the help legend.
+- **A reading that holds a web address can be FOLLOWED** (Anton, 2026-07-27):
+  the window shows an "open link" button that hands the address to the default
+  browser. This is the point of reading a QR code on the Mac rather than
+  pointing a phone at it — a bill's payment link opens in the browser that is
+  already signed in. The rule is `ScreenTextRules.link(in:)`:
+  - `http` and `https` ONLY. A scanned code is untrusted input, and every other
+    scheme is a lever for whoever printed it: `file://` reaches the disk, a
+    custom scheme reaches whatever app claimed it. `mailto:`, `tel:`, `WIFI:`
+    and vCard payloads stay plain text in the history, with no button.
+  - The whole reading is searched, not just barcodes, so an address printed in
+    a screenshot opens the same way. An address must spell its scheme out —
+    `.md` and `.js` are real top-level domains, so a looser match would offer
+    to open `readme.md`. The one exception is a reading that is NOTHING but a
+    bare host (`example.com/menu`, the shape of a printed QR code), which is
+    promoted to `https://`; a bare host inside a sentence never is.
+  - The first address wins, sentence punctuation glued to it is trimmed
+    (`see https://example.com.`), and brackets the address opened itself are
+    kept (`.../Hop_(tool)`).
+  - Where a link is present, open takes the accented button and copy steps back
+    to the quiet one. The address is not repeated on the button — it is in the
+    text field above, in full, so the destination is read before the click.
 - **The result is SHOWN, not filed away silently** (Anton, 2026-07-25): a
   recognition window opens with the text in an editable field, a drop plate for
   images and a copy button. It is a `ConverterWindow` subclass so ⌘V reaches it,
@@ -1235,7 +1273,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `SMAppService.mainApp.status`. The notification query is skipped in a
   bundle-less process (a snapshot render throws otherwise). A row offers its
   System Settings deep link only when the permission is NOT granted.
-- The same list, condensed, is a README section (all 18 languages) and a FAQ
+- The same list, condensed, is a README section (all 22 languages) and a FAQ
   answer on the landing (all 8). The general help tab points at the tab by name,
   because a permission page nobody finds explains nothing (Anton, 2026-07-26).
 - The page CLOSES with a statement, set larger and bolder than anything above
@@ -1329,6 +1367,37 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   row's trailing fixed content (the tracker's time; nothing follows it in
   to-dos) — it lives inside the row's flexible spacer, so a non-hovered row
   reserves no width and the trailing content never moves or gets covered.
+
+## Dock presence
+
+Hop is an accessory app (`LSUIElement`, `setActivationPolicy(.accessory)`) and
+has no Dock icon — which is right until it opens a window of its own. A window
+that cannot be reached from the Dock has to be found through the panel every
+time, and the panel is the whole app when all the user wanted back was the
+converter (Anton, 2026-07-28).
+
+- While at least one of Hop's OWN windows is open, the policy is `.regular`:
+  the app takes a Dock icon, a place in Cmd-Tab and a menu bar. The icon and
+  the menu bar leave with the last window (`leaveDockModeIfIdle`, driven by
+  `NSWindow.willCloseNotification` — which arrives while the window still
+  reports itself visible, hence the one-runloop delay before the check).
+- The switch happens BEFORE the window is ordered in (`enterDockMode`, called
+  ahead of every `NSApp.activate` that precedes a window). Switching after it
+  is on screen makes the app blink out of focus and the window drop behind
+  whatever was in front.
+- Counted windows: settings, about, the torrent add sheet, converter, archive,
+  recognition, onboarding and each Finder archive-progress window. NOT the
+  panel — it hangs off the status item and closes on any outside click, so it
+  belongs to the menu bar rather than the Dock. NOT the quit confirmation: it
+  lives for a second and asks one question.
+- A click on the Dock icon reaches the window it is there for, including a
+  minimized one (`applicationShouldHandleReopen` deminiaturizes and raises).
+- `showWindowsInDock` (settings → general) turns it off for people who run a
+  menu-bar app precisely so that nothing appears in the Dock. ON by default.
+- Side effect worth knowing: in `.regular` SwiftUI supplies a real menu bar
+  (Apple · Hop · Edit · View · Window · Help — verified 2026-07-28), so ⌘V in a
+  window goes through the system Edit menu while one is open. The
+  `ConverterPaste` monitor still handles the accessory case and stays.
 
 ## Panel and navigation
 
@@ -1477,7 +1546,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   mirrors the localized-README rule: Russian → https://web.tribute.tg/d/Nvp,
   every other locale → https://web.tribute.tg/d/Nvk. All strings are
   country/currency-neutral; the amount and any currency are Tribute's concern.
-  Keys `donateTitle` and `donateBody` are translated across all 18 languages.
+  Keys `donateTitle` and `donateBody` are translated across all 22 languages.
 - Languages in pickers use the standard order, like system lists:
   alphabetical by NATIVE names, Latin → Cyrillic → CJK (pickerOrder,
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"
@@ -1521,13 +1590,45 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ## Localization
 
-- 18 languages: en ru de es pt fr it zh ja ko tr uk pl id th vi hi nl —
-  in this order in L10n.swift (th/vi/hi/nl restored 2026-07-13: old
-  translations from 2042b22 + new keys retranslated). A new UI string =
-  ALL 18 at once; `--l10n-check` must pass. Check long languages
+- 22 languages: en ru de es pt fr it zh ja ko tr uk pl id th vi hi nl
+  ar he fa ur — in this order in L10n.swift (th/vi/hi/nl restored
+  2026-07-13: old translations from 2042b22 + new keys retranslated;
+  ar/he/fa/ur added 2026-07-27 as the first right-to-left set). A new UI
+  string = ALL 22 at once; `--l10n-check` must pass. Check long languages
   (de, fr, hi) for truncation.
 - Inside the panel — brand lowercase; system surfaces (NSMenu,
-  notifications) — sentence case (.capitalizedFirst).
+  notifications) — sentence case (.capitalizedFirst). Arabic, Hebrew,
+  Persian and Urdu have no letter case, so the rule is moot there.
+
+### Right to left (ar, he, fa, ur)
+
+- The language is picked in-app, not through the system locale, so SwiftUI
+  never learns the direction on its own: `layoutDirection` comes from the
+  process locale, which stays left-to-right. Every window, panel and
+  popover root therefore calls `hopLayoutDirection()` (LayoutDirection.swift),
+  which reads the setting through `@AppStorage` and flips live. AppKit
+  surfaces do not see that environment — the right-click menus set
+  `applyHopLayoutDirection()` separately.
+- `Theme.mono` drops the monospaced design for these languages and returns
+  the proportional system face with monospaced digits. A fixed-width cell
+  per glyph pulls a cursive script apart; digits still hold their column,
+  so the timer does not jitter. Urdu renders in SF Arabic (naskh), which
+  is what every system app on macOS does — nastaliq is not a system face.
+- Directional glyphs use the direction-aware SF Symbols (`chevron.backward`,
+  `chevron.forward`), never `chevron.left`/`chevron.right`. The tab
+  disclosure chevron rotates the opposite way in RTL, since the chevron
+  itself has already flipped.
+- Canvas drawings do NOT mirror: the dot-matrix digits, the monitor graphs
+  and the window-snap glyphs keep their geometry, which is correct — a snap
+  glyph is a map of the physical screen, and the left half stays on the
+  left. Only the order of the buttons in the row follows the writing
+  direction.
+- Values substituted into a translated sentence (a file name, "5.1 GB", a
+  version number) go through `L10n.fill`, which wraps them in Unicode
+  isolates. Without that the sentence drags neighbouring punctuation to the
+  wrong end of the value.
+- The menu-bar icon is NOT mirrored: the bar itself stays in the system's
+  direction, and the badge corners are documented positions, not text.
 
 - Copy style: lively, no officialese and no literalism ("the Mac keeps
   counting" — bad; "lets you close the lid without shutting the Mac
@@ -1561,6 +1662,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   quirk, not a bug. `--about --doc <id>` opens any help tab and
   `--settings --settings-section <id>` any settings tab, so a text change can
   be checked where it is actually read.
+- `--only <module>` leaves ONE module's row on the panel and hides the rest;
+  `--overview` does the opposite and shows every module at once, the opt-in
+  ones included, with content staged in each (the colour picker draws its
+  swatches out of the clipboard history, so the overview seeds a mixed list —
+  an empty row in the one picture meant to show the whole app is worse than a
+  crowded one).
+- `scripts/make-screens.sh [out-dir] [lang …]` renders the WHOLE product set —
+  every README and product-page image, for the eight languages with their own
+  folder — into the website repo by default. Every other README points at the
+  English folder. The recipes used to live nowhere and each shot was taken by
+  hand, so the set drifted out of date module by module and a section about the
+  timer carried a picture of the entire app (Anton, 2026-07-28). A section that
+  describes one module gets a shot of that module: `--only`. Sample files for
+  the converter window are generated inside the script, so its rows carry real
+  thumbnails and believable size estimates. After a run, bump `SCREENS_VER` in
+  the site's `src/views/hop/config.ts` — the image optimizer caches for 31 days
+  and the file names are stable.
 - Signing: a permanent self-signed "Minimo Signing" certificate —
   permissions survive reinstalls. Ad-hoc fallback only if the certificate
   is missing (undesirable — TCC gets dropped).
@@ -1702,10 +1820,31 @@ as if swap were on top of the shown figure and lied about pressure. Now:
   machine held — up to about a gigabyte (fixed 2026-07-27). Subtraction
   degrades cleanly where there is no carve-out (reserved ≈ 0), matching the
   additive sum.
-- The COLOR comes from macOS's own memory-pressure signal
-  (kern.memorystatus_vm_pressure_level): 1 normal (green when colorful),
-  2 warning → yellow, 4 critical → red. No user threshold: the system's
-  verdict is the honest one. A caption in monitor settings says so.
+- The COLOR takes the WORSE of two signals (`HopCore.MemoryStrain`), because
+  each is blind to what the other sees:
+  - macOS's own `kern.memorystatus_vm_pressure_level`: 1 normal (green when
+    colorful), 2 warning → yellow, 4 critical → red. It answers "am I
+    struggling to hand out pages right now" and nothing else.
+  - Swap as a share of physical RAM, against a user threshold
+    (`thSwapYellow` / `thSwapRed`, defaults 25 / 50). Pages pushed to disk that
+    have stayed cold cost the system nothing, so the pressure level keeps
+    reporting normal while a great deal of memory sits in swap: measured on a
+    24 GB machine holding 9.4 GB of swap, the level was still 1 (Anton,
+    2026-07-28). That is a fact about the machine the user can act on, so the
+    row says it.
+- Swap is compared to RAM and NOT to the size of the swap file: macOS grows
+  that file on demand, so "92% of the file" becomes "46%" the moment it grows
+  with nothing about the machine having changed.
+- This is NOT a return of the pre-2026-07-15 rule. That one coloured on
+  `(used + swap) ÷ RAM` with yellow at 110%: it added a figure that already
+  counts compressed memory to a pool living on disk and compared the sum to the
+  size of RAM. A "normal" threshold above 100% is the tell that the metric had
+  no physical meaning. The keys `thMemYellow` / `thMemRed` are swept, and the
+  new ones are named apart so an inherited 110 cannot become "warn when swap
+  passes 110% of RAM", which is silence.
+- Memory is deliberately NOT part of the menu-bar icon's red zone, as it has
+  never been: swap fills over hours rather than spiking, so a badge for it
+  would sit there all day and stop meaning anything.
 
 ## Safe mode (crash loop)
 
@@ -1747,7 +1886,7 @@ Anton's primary install must always remain fully functional.
   clipboard, converter, windows, internet, torrents, tasks & time, what's new) sit
   on ONE line in the widest language (was 940 for ten; the "tasks & time" tab was
   added 2026-07-21 and adds ~130pt of natural-width chip). Each module has its own
-  full documentation tab, torrents included (`docTorrentFull`, all 18 languages).
+  full documentation tab, torrents included (`docTorrentFull`, all 22 languages).
 - The `tasks & time` tab (`aboutTabTasks`, 8.23) documents the two 1.4.0
   time-management modules together in ONE tab, as two clearly separated sections:
   the time tracker (`docTrackerFull`) above and the to-do list (`docTodosFull`)
@@ -1903,7 +2042,7 @@ playback.
   legend "zone glyph + ⌃⌥ key", four columns (shared `snapHotkeyItems` list with the
   help tab legend), replacing the old cryptic symbols-only caption.
 - Help → general no longer ends with the "hop — and it's done…" closing
-  line: it duplicated the page (removed in all 18 languages).
+  line: it duplicated the page (removed in all 22 languages).
 - App icon (Finder/Applications): dark or light chip with the REAL icon
   previews, light is the default; "auto" removed. The row sits after the
   updates section, away from the theme picker (it kept reading as part of

@@ -47,6 +47,30 @@ final class ScreenTextController: ObservableObject {
 
     var isBusy: Bool { state == .selecting || state == .reading }
 
+    /// The web address in what was just read, if there is one — the reason to
+    /// frame a QR code on the Mac rather than reach for a phone: the bill's link
+    /// opens here, in the browser that is already signed in (Anton, 2026-07-27).
+    /// nil for a reading that carries no address, and the button stays away.
+    var link: URL? {
+        guard let raw = ScreenTextRules.link(in: recognized),
+              let url = URL(string: raw),
+              // the rule already refuses everything else; this is the second
+              // lock on the same door, because the payload is a SCANNED code and
+              // a `file://` or an app's own scheme would be a lever for whoever
+              // printed it
+              let scheme = url.scheme?.lowercased(), scheme == "http" || scheme == "https",
+              url.host?.isEmpty == false else { return nil }
+        return url
+    }
+
+    /// Hand the address to the default browser. The user has the full text in
+    /// front of them in the window, so there is nothing to confirm — they can
+    /// read where they are going before they click.
+    func openLink() {
+        guard !Snapshot.active, let url = link else { return }
+        NSWorkspace.shared.open(url)
+    }
+
     /// Frame an area, read it, store the result. Cancelling the selection
     /// (Escape) is not a failure: the state goes quietly back to idle.
     func capture() {

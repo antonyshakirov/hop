@@ -19,9 +19,9 @@ tout ce qu'il vous faut est là.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · **Français** · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · **Français** · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/fr/panel.png" width="420" alt="Panneau Hop — minuteur dans la barre de menus avec affichage à matrice de points, préréglages et cycles travail-pause">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/overview.png" width="360" alt="Panneau Hop — minuteur dans la barre de menus avec affichage à matrice de points, préréglages et cycles travail-pause">
 
 </div>
 
@@ -89,13 +89,19 @@ clic, pas de mot de passe. En option, gardez l'écran allumé, ou continuez à
 travailler avec le couvercle fermé (pratique pour les téléchargements, les
 longues compilations et les écrans externes).
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/awake.png" width="420" alt="Hop — Anti-veille">
+</div>
+
 ### Moniteur système
 
-Charge et température du CPU et du GPU, mémoire et swap, réseau, disque,
-santé de la batterie et consommation électrique — des valeurs en direct avec
-des graphiques sparkline, des seuils de couleur que vous définissez
-vous-même, °C/°F, et une ligne d'uptime. Les mesures viennent directement de
-macOS et ne se rafraîchissent que lorsque l'onglet est ouvert.
+Charge et température du CPU et du GPU, mémoire et swap, réseau, disque, santé
+de la batterie et consommation électrique — des valeurs en direct avec des
+graphiques sparkline, des seuils de couleur que vous définissez vous-même,
+°C/°F, et une ligne d'uptime. Les mesures viennent directement de macOS et ne
+se rafraîchissent que lorsque l'onglet est ouvert. La ligne mémoire prévient
+aussi quand beaucoup de mémoire est partie sur le disque, et pas seulement
+quand macOS signale lui-même une tension.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/system.png" width="420" alt="Hop — Moniteur système">
@@ -108,6 +114,10 @@ un clic pour les recopier ou les coller directement dans l'app précédente.
 Les fichiers copiés sont retenus par leur nom (plusieurs à la fois
 apparaissent en « nom +N »), et le collage ramène le fichier lui-même. Les
 mots de passe et autres saisies masquées ne sont jamais enregistrés.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/clipboard.png" width="420" alt="Hop — Historique du presse-papiers">
+</div>
 
 ### Convertisseur de fichiers
 
@@ -124,6 +134,10 @@ Tout est traité en local.
 
 Ancrez les fenêtres en moitiés, quarts, tiers et au centre d'un clic sur un
 glyphe de zone ou avec un raccourci ⌃⌥ — sans app supplémentaire.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/windows.png" width="420" alt="Hop — Gestionnaire de fenêtres">
+</div>
 
 ### Torrents
 
@@ -186,6 +200,12 @@ corriger et copier, et rejoignent en même temps l'historique du presse-papiers.
 Les retours à la ligne sont gardés, un tableau reste donc lisible. La
 reconnaissance, c'est Vision d'Apple, entièrement sur ce Mac.
 
+Quand le résultat contient une adresse web, un bouton « ouvrir le lien »
+apparaît : le lien d'un QR code sur une facture s'ouvre directement dans le
+navigateur, sans passer par le téléphone. Uniquement des adresses web : un
+code scanné est une entrée extérieure, donc un numéro, un mot de passe Wi-Fi
+ou une carte de visite restent du texte.
+
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/recognition.png" width="480" alt="Hop — Reconnaissance de texte">
 </div>
@@ -207,20 +227,24 @@ matériel qui s'en charge.
 ### Et le reste
 
 De petits indicateurs d'état sur l'icône de la barre de menus — temps,
-anti-veille, alertes et activité torrent, en couleur ou monochromes —, un
-test de débit intégré (networkQuality d'Apple), thèmes sombre et clair avec
-une texture grain de film, raccourcis globaux, lancement à l'ouverture de
-session, et un mode sans échec qui récupère l'app après une boucle de crash.
+anti-veille, alertes et activité torrent, en couleur ou monochromes —, un test
+de débit intégré (networkQuality d'Apple), thèmes sombre et clair avec une
+texture grain de film, raccourcis globaux, lancement à l'ouverture de session,
+et un mode sans échec qui récupère l'app après une boucle de crash. Les
+fenêtres propres à Hop — le convertisseur, les archives, la reconnaissance,
+les réglages — apparaissent dans le dock tant qu'elles sont ouvertes, et un
+clic sur l'icône en ramène une au lieu d'ouvrir le panneau ; avec la dernière
+fenêtre l'icône s'en va.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/system.png" width="280" alt="Moniteur système Hop — graphiques CPU, GPU, mémoire, réseau, disque, batterie">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/converter.png" width="280" alt="Convertisseur de fichiers Hop — conversion par lots d'images, PDF, vidéos et audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/fr/settings.png" width="280" alt="Réglages de Hop — thèmes, modules, raccourcis, 18 langues">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/settings.png" width="280" alt="Réglages de Hop — thèmes, modules, raccourcis, 22 langues">
 </div>
 
-## 18 langues
+## 22 langues
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, हिन्दी, ไทย, 한국어, 中文, 日本語 — l'app suit la langue de votre système dès
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — l'app suit la langue de votre système dès
 l'installation.
 
 ## Soutenir le projet
