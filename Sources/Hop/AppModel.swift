@@ -24,6 +24,7 @@ final class AppModel: ObservableObject {
     let archive = ArchiveController()
     let keyboardLock = KeyboardLockController()
     let vpn = VPNController()
+    let appShelves = AppShelvesController()
 
     /// Last time the user actively touched Hop. The updater installs a found
     /// release only after a long enough quiet gap (see UpdateInstallPolicy),

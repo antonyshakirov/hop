@@ -2583,6 +2583,7 @@ struct PanelView: View {
         case "color": return t(.colorLabel)
         case "ocr": return t(.ocrLabel)
         case "vpn": return t(.vpnLabel)
+        case let key where AppShelves.shelfID(fromModuleKey: key) != nil: return t(.appsLabel)
         case "archive": return t(.archiveLabel)
         case "keyboard": return t(.keylockLabel)
         case "system": return t(.tabSystem)
@@ -2619,6 +2620,13 @@ struct PanelView: View {
         case "vpn":
             VPNView(vpn: model.vpn, lang: lang)
                 .id(model.themeVersion)
+        case let key where AppShelves.shelfID(fromModuleKey: key) != nil:
+            // Shelves are the one module that exists in several copies, so the
+            // key carries which one this is.
+            if let id = AppShelves.shelfID(fromModuleKey: key) {
+                AppShelfView(shelves: model.appShelves, shelfID: id, lang: lang)
+                    .id(model.themeVersion)
+            }
         case "ocr":
             ScreenTextView(reader: model.screenText, lang: lang,
                            closePanel: { model.closePanel?() },
@@ -3514,6 +3522,40 @@ struct PanelView: View {
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
+                settingsSectionHeader(t(.vpnLabel))
+                HStack {
+                    Text(t(.clipVisibleRows))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    NumericField(value: $vpnVisibleRows, range: 1...10)
+                }
+            }
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            VStack(spacing: 14) {
+                settingsSectionHeader(t(.appsLabel))
+                HStack {
+                    Text(t(.appsAddShelf))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    // Every other module is one of a kind; a shelf can be added
+                    // again and again, so this is the only "make another one"
+                    // button in settings.
+                    Button { addShelf() } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(Theme.textPrimary)
+                            .frame(width: 24, height: 24)
+                            .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 5))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverDim()
+                }
+            }
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            VStack(spacing: 14) {
                 settingsSectionHeader(t(.convertLabel))
                 converterSettings
             }
@@ -3768,6 +3810,15 @@ struct PanelView: View {
         }
     }
 
+    /// Adds a grid of apps and places it on the first space, so it shows up
+    /// where the user just asked for it rather than in the inactive column.
+    private func addShelf() {
+        let key = model.appShelves.addShelf()
+        var tabs = tabsModel
+        tabs.ensure(modules: [key])
+        panelTabsRaw = tabs.encoded()
+    }
+
     /// Which day the reminder's weekday row starts on. Defaults to the system's
     /// region — the US counts a week from Sunday, most of Europe from Monday —
     /// and can be overridden, because people move and their habits do not.
@@ -3860,6 +3911,7 @@ struct PanelView: View {
         case "color": return "paintpalette"
         case "ocr": return "text.viewfinder"
         case "vpn": return "lock.shield"
+        case let key where AppShelves.shelfID(fromModuleKey: key) != nil: return "square.grid.3x3"
         case "torrent": return "arrow.down.circle"
         default: return "square.grid.2x2"
         }
@@ -4435,6 +4487,7 @@ struct PanelView: View {
                 ("color", t(.colorLabel)),
                 ("ocr", t(.ocrLabel)),
                 ("vpn", t(.vpnLabel)),
+                ("apps", t(.appsLabel)),
                 ("archive", t(.archiveLabel)),
                 ("keyboard", t(.keylockLabel)),
                 ("tasks", t(.aboutTabTasks)),
@@ -4473,6 +4526,8 @@ struct PanelView: View {
                     DocView(text: t(.docOcrFull))
                 case "vpn":
                     DocView(text: t(.docVpnFull))
+                case "apps":
+                    DocView(text: t(.docAppsFull))
                 case "archive":
                     DocView(text: t(.docArchiveFull))
                 case "keyboard":
