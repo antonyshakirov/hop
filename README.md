@@ -90,8 +90,10 @@ closed (handy for downloads, long builds and external displays).
 
 CPU and GPU load and temperature, memory and swap, network, disk, battery
 health and power draw — live values with sparkline charts, color thresholds
-you set yourself, °C/°F, and an uptime line. Readings come straight from
-macOS and update only while the tab is open.
+you set yourself, °C/°F, and an uptime line. Readings come straight from macOS
+and update only while the tab is open. The memory row also speaks up when a
+lot of memory has gone to disk, and not only when macOS itself reports being
+short.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — System monitor">
@@ -214,7 +216,9 @@ Small status badges on the menu bar icon — time, keep-awake, alerts and
 torrent activity, colored or monochrome — a built-in speed test (Apple's
 networkQuality), dark and light themes with a film-grain texture, global
 hotkeys, launch at login, and a safe mode that recovers the app from a crash
-loop.
+loop. Hop's own windows — the converter, archives, recognition, settings —
+show up in the Dock while they are open, so a click on the icon brings one
+back instead of opening the panel first; the icon leaves with the last window.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop system monitor — CPU, GPU, memory, network, disk, battery charts">

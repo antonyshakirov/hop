@@ -92,8 +92,10 @@ layar eksternal).
 
 Beban dan suhu CPU dan GPU, memori dan swap, jaringan, disk, kesehatan
 baterai, dan konsumsi daya — nilai langsung dengan grafik sparkline, ambang
-warna yang kamu atur sendiri, °C/°F, dan baris uptime. Semua pembacaan
-datang langsung dari macOS dan hanya diperbarui saat tabnya terbuka.
+warna yang kamu atur sendiri, °C/°F, dan baris uptime. Semua pembacaan datang
+langsung dari macOS dan hanya diperbarui saat tabnya terbuka. Baris memori
+juga memperingatkan saat banyak memori pindah ke disk, bukan hanya saat macOS
+sendiri bilang sedang sesak.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Monitor sistem">
@@ -215,11 +217,14 @@ tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 
 ### Dan selebihnya
 
-Indikator status kecil pada ikon menu bar — waktu, anti-tidur, peringatan,
-dan aktivitas torrent, berwarna atau monokrom —, tes kecepatan bawaan
+Indikator status kecil pada ikon menu bar — waktu, anti-tidur, peringatan, dan
+aktivitas torrent, berwarna atau monokrom —, tes kecepatan bawaan
 (networkQuality dari Apple), tema gelap dan terang dengan tekstur film-grain,
-pintasan global, buka saat login, dan mode aman yang memulihkan aplikasi
-dari crash loop.
+pintasan global, buka saat login, dan mode aman yang memulihkan aplikasi dari
+crash loop. Jendela milik Hop sendiri — pengonversi, arsip, pengenalan teks,
+pengaturan — muncul di dock selama terbuka, dan mengeklik ikonnya
+mengembalikan jendela alih-alih membuka panel; ikonnya hilang bersama jendela
+terakhir.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor sistem Hop — grafik CPU, GPU, memori, jaringan, disk, baterai">

@@ -89,10 +89,11 @@ edin (indirmeler, uzun derlemeler ve harici ekranlar için birebir).
 
 ### Sistem monitörü
 
-CPU ve GPU yükü ile sıcaklığı, bellek ve swap, ağ, disk, pil sağlığı ve
-güç tüketimi — sparkline grafikleriyle canlı değerler, kendi
-belirlediğiniz renk eşikleri, °C/°F ve çalışma süresi satırı. Veriler
-doğrudan macOS'ten gelir ve yalnızca sekme açıkken güncellenir.
+CPU ve GPU yükü ile sıcaklığı, bellek ve swap, ağ, disk, pil sağlığı ve güç
+tüketimi — sparkline grafikleriyle canlı değerler, kendi belirlediğiniz renk
+eşikleri, °C/°F ve çalışma süresi satırı. Veriler doğrudan macOS'ten gelir ve
+yalnızca sekme açıkken güncellenir. Bellek satırı, yalnızca macOS sıkışıklık
+bildirdiğinde değil, belleğin çoğu diske indiğinde de uyarır.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Sistem monitörü">
@@ -216,9 +217,11 @@ kapatır, çünkü onu donanım yapar.
 
 Menü çubuğu simgesindeki küçük durum göstergeleri — zaman, uyku engelleme,
 uyarılar ve torrent etkinliği, renkli ya da tek renk —, yerleşik hız testi
-(Apple'ın networkQuality aracı), film greni dokulu koyu ve açık temalar,
-genel kısayollar, oturum açıldığında başlatma ve uygulamayı çökme
-döngüsünden kurtaran güvenli mod.
+(Apple'ın networkQuality aracı), film greni dokulu koyu ve açık temalar, genel
+kısayollar, oturum açıldığında başlatma ve uygulamayı çökme döngüsünden
+kurtaran güvenli mod. Hop'un kendi pencereleri — dönüştürücü, arşivler, metin
+tanıma, ayarlar — açıkken dock'ta görünür; simgeye tıklamak paneli açmadan
+pencereyi geri getirir ve son pencereyle birlikte simge de gider.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop sistem monitörü — CPU, GPU, bellek, ağ, disk ve pil grafikleri">

@@ -96,7 +96,8 @@ Carga y temperatura de CPU y GPU, memoria y swap, red, disco, salud de la
 batería y consumo de energía — valores en vivo con gráficos sparkline,
 umbrales de color que defines tú mismo, °C/°F y una línea de tiempo de
 actividad. Las lecturas vienen directamente de macOS y solo se actualizan
-mientras la pestaña está abierta.
+mientras la pestaña está abierta. La fila de memoria también avisa cuando
+mucha memoria ha ido al disco, y no solo cuando macOS informa de que va justo.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/system.png" width="420" alt="Hop — Monitor del sistema">
@@ -220,10 +221,13 @@ mantenerlo pulsado sigue apagando el Mac, porque de eso se encarga el hardware.
 ### Y todo lo demás
 
 Pequeños indicadores de estado en el icono de la barra de menús — tiempo,
-antisueño, avisos y actividad de torrents, en color o monocromos —, un test
-de velocidad integrado (networkQuality de Apple), temas oscuro y claro con
-textura de grano de película, atajos globales, arranque al iniciar sesión y
-un modo seguro que recupera la app de un bucle de fallos.
+antisueño, avisos y actividad de torrents, en color o monocromos —, un test de
+velocidad integrado (networkQuality de Apple), temas oscuro y claro con
+textura de grano de película, atajos globales, arranque al iniciar sesión y un
+modo seguro que recupera la app de un bucle de fallos. Las ventanas propias de
+Hop — el conversor, los archivos, el reconocimiento, los ajustes — aparecen en
+el dock mientras están abiertas, y un clic en el icono devuelve una en lugar
+de abrir el panel; con la última ventana el icono desaparece.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/system.png" width="280" alt="Monitor del sistema de Hop — gráficos de CPU, GPU, memoria, red, disco y batería">

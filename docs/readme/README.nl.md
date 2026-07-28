@@ -94,7 +94,8 @@ CPU- en GPU-belasting en -temperatuur, geheugen en swap, netwerk, schijf,
 batterijconditie en stroomverbruik — livewaarden met sparkline-grafieken,
 kleurdrempels die je zelf instelt, °C/°F en een uptime-regel. De metingen
 komen rechtstreeks van macOS en worden alleen bijgewerkt zolang het tabblad
-open is.
+open is. De geheugenrij waarschuwt ook als veel geheugen naar de schijf is
+verhuisd, en niet pas als macOS zelf krapte meldt.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Systeemmonitor">
@@ -219,10 +220,13 @@ want dat regelt de hardware.
 ### En de rest
 
 Kleine statusindicatoren op het menubalk-icoon — tijd, slaapblokkering,
-waarschuwingen en torrentactiviteit, in kleur of monochroom —, een
-ingebouwde snelheidstest (Apples networkQuality), donkere en lichte thema's
-met een filmkorrel-textuur, globale sneltoetsen, starten bij inloggen en een
-veilige modus die de app uit een crashlus haalt.
+waarschuwingen en torrentactiviteit, in kleur of monochroom —, een ingebouwde
+snelheidstest (Apples networkQuality), donkere en lichte thema's met een
+filmkorrel-textuur, globale sneltoetsen, starten bij inloggen en een veilige
+modus die de app uit een crashlus haalt. Hops eigen vensters — de converter,
+archieven, tekstherkenning, instellingen — staan in het dock zolang ze open
+zijn; een klik op het icoon haalt er een terug in plaats van eerst het paneel
+te openen, en met het laatste venster verdwijnt het icoon weer.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop-systeemmonitor — grafieken voor CPU, GPU, geheugen, netwerk, schijf, batterij">

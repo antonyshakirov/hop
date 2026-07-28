@@ -95,7 +95,8 @@ CPU- und GPU-Last samt Temperatur, Speicher und Swap, Netzwerk, Festplatte,
 Batteriezustand und Leistungsaufnahme — Live-Werte mit Sparkline-Diagrammen,
 Farbschwellen, die du selbst festlegst, °C/°F und einer Uptime-Zeile. Die
 Messwerte kommen direkt von macOS und aktualisieren sich nur, solange der Tab
-geöffnet ist.
+geöffnet ist. Die speicherzeile warnt auch, wenn viel speicher auf der platte
+gelandet ist, und nicht erst, wenn macOS selbst knappheit meldet.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/system.png" width="420" alt="Hop — Systemmonitor">
@@ -224,7 +225,10 @@ Kleine Statusindikatoren am Menüleisten-Symbol — Zeit, Wachhalten, Warnungen
 und Torrent-Aktivität, farbig oder einfarbig —, ein eingebauter Speedtest
 (Apples networkQuality), dunkles und helles Design mit Filmkorn-Textur,
 globale Hotkeys, Start beim Anmelden und ein abgesicherter Modus, der die App
-aus einer Absturzschleife rettet.
+aus einer Absturzschleife rettet. Hops eigene fenster — konverter, archive,
+texterkennung, einstellungen — erscheinen im dock, solange sie offen sind; ein
+klick auf das symbol holt eines zurück, statt erst das panel zu öffnen, und
+mit dem letzten fenster verschwindet es wieder.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/system.png" width="280" alt="Hop-Systemmonitor — Diagramme für CPU, GPU, Speicher, Netzwerk, Festplatte, Batterie">

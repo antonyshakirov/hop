@@ -92,10 +92,11 @@ buildach i zewnętrznych monitorach).
 ### Monitor systemu
 
 Obciążenie i temperatura CPU i GPU, pamięć i swap, sieć, dysk, kondycja
-baterii i pobór mocy — wartości na żywo z wykresami sparkline, progi
-kolorów, które ustawiasz samodzielnie, °C/°F i linia czasu działania.
-Odczyty pochodzą prosto z macOS i odświeżają się tylko wtedy, gdy karta
-jest otwarta.
+baterii i pobór mocy — wartości na żywo z wykresami sparkline, progi kolorów,
+które ustawiasz samodzielnie, °C/°F i linia czasu działania. Odczyty pochodzą
+prosto z macOS i odświeżają się tylko wtedy, gdy karta jest otwarta. Wiersz
+pamięci ostrzega także wtedy, gdy dużo pamięci trafiło na dysk, a nie tylko
+gdy sam macOS zgłasza ciasnotę.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Monitor systemu">
@@ -217,11 +218,14 @@ też jest połykane; przytrzymanie nadal wyłącza Maca, bo robi to sprzęt.
 
 ### I cała reszta
 
-Niewielkie wskaźniki stanu na ikonie na pasku menu — czas, blokada
-uśpienia, ostrzeżenia i aktywność torrentów, kolorowe lub monochromatyczne —
-wbudowany test prędkości (networkQuality od Apple), ciemny i jasny motyw z
-teksturą filmowego ziarna, globalne skróty klawiszowe, uruchamianie przy
-logowaniu oraz tryb awaryjny, który wyciąga aplikację z pętli awarii.
+Niewielkie wskaźniki stanu na ikonie na pasku menu — czas, blokada uśpienia,
+ostrzeżenia i aktywność torrentów, kolorowe lub monochromatyczne — wbudowany
+test prędkości (networkQuality od Apple), ciemny i jasny motyw z teksturą
+filmowego ziarna, globalne skróty klawiszowe, uruchamianie przy logowaniu oraz
+tryb awaryjny, który wyciąga aplikację z pętli awarii. Własne okna Hopa —
+konwerter, archiwa, rozpoznawanie, ustawienia — pojawiają się w docku, gdy są
+otwarte, a kliknięcie ikony przywraca okno zamiast otwierać panel; z ostatnim
+oknem ikona znika.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor systemu Hop — wykresy CPU, GPU, pamięci, sieci, dysku i baterii">

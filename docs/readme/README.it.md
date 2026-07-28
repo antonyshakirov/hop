@@ -92,11 +92,12 @@ schermi esterni).
 
 ### Monitor di sistema
 
-Carico e temperatura di CPU e GPU, memoria e swap, rete, disco, salute
-della batteria e consumo energetico — valori in tempo reale con grafici
-sparkline, soglie di colore che imposti tu, °C/°F e una riga di uptime. Le
-letture arrivano direttamente da macOS e si aggiornano solo mentre la
-scheda è aperta.
+Carico e temperatura di CPU e GPU, memoria e swap, rete, disco, salute della
+batteria e consumo energetico — valori in tempo reale con grafici sparkline,
+soglie di colore che imposti tu, °C/°F e una riga di uptime. Le letture
+arrivano direttamente da macOS e si aggiornano solo mentre la scheda è aperta.
+La riga della memoria avvisa anche quando molta memoria è finita su disco, non
+solo quando macOS stesso segnala difficoltà.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Monitor di sistema">
@@ -224,7 +225,10 @@ Piccoli indicatori di stato sull'icona nella barra dei menu — tempo,
 anti-stop, avvisi e attività torrent, a colori o monocromatici —, un test di
 velocità integrato (networkQuality di Apple), temi scuro e chiaro con una
 texture a grana di pellicola, scorciatoie globali, avvio al login e una
-modalità sicura che recupera l'app da un loop di crash.
+modalità sicura che recupera l'app da un loop di crash. Le finestre di Hop —
+convertitore, archivi, riconoscimento, impostazioni — compaiono nel dock
+finché sono aperte, e un clic sull'icona ne riporta una invece di aprire il
+pannello; con l'ultima finestra l'icona sparisce.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor di sistema di Hop — grafici di CPU, GPU, memoria, rete, disco, batteria">

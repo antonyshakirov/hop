@@ -94,11 +94,13 @@ longues compilations et les écrans externes).
 
 ### Moniteur système
 
-Charge et température du CPU et du GPU, mémoire et swap, réseau, disque,
-santé de la batterie et consommation électrique — des valeurs en direct avec
-des graphiques sparkline, des seuils de couleur que vous définissez
-vous-même, °C/°F, et une ligne d'uptime. Les mesures viennent directement de
-macOS et ne se rafraîchissent que lorsque l'onglet est ouvert.
+Charge et température du CPU et du GPU, mémoire et swap, réseau, disque, santé
+de la batterie et consommation électrique — des valeurs en direct avec des
+graphiques sparkline, des seuils de couleur que vous définissez vous-même,
+°C/°F, et une ligne d'uptime. Les mesures viennent directement de macOS et ne
+se rafraîchissent que lorsque l'onglet est ouvert. La ligne mémoire prévient
+aussi quand beaucoup de mémoire est partie sur le disque, et pas seulement
+quand macOS signale lui-même une tension.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/system.png" width="420" alt="Hop — Moniteur système">
@@ -224,10 +226,14 @@ matériel qui s'en charge.
 ### Et le reste
 
 De petits indicateurs d'état sur l'icône de la barre de menus — temps,
-anti-veille, alertes et activité torrent, en couleur ou monochromes —, un
-test de débit intégré (networkQuality d'Apple), thèmes sombre et clair avec
-une texture grain de film, raccourcis globaux, lancement à l'ouverture de
-session, et un mode sans échec qui récupère l'app après une boucle de crash.
+anti-veille, alertes et activité torrent, en couleur ou monochromes —, un test
+de débit intégré (networkQuality d'Apple), thèmes sombre et clair avec une
+texture grain de film, raccourcis globaux, lancement à l'ouverture de session,
+et un mode sans échec qui récupère l'app après une boucle de crash. Les
+fenêtres propres à Hop — le convertisseur, les archives, la reconnaissance,
+les réglages — apparaissent dans le dock tant qu'elles sont ouvertes, et un
+clic sur l'icône en ramène une au lieu d'ouvrir le panneau ; avec la dernière
+fenêtre l'icône s'en va.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/system.png" width="280" alt="Moniteur système Hop — graphiques CPU, GPU, mémoire, réseau, disque, batterie">

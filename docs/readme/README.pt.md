@@ -92,9 +92,11 @@ a tampa fechada (ótimo para downloads, builds longos e telas externas).
 ### Monitor do sistema
 
 Carga e temperatura de CPU e GPU, memória e swap, rede, disco, saúde da
-bateria e consumo de energia — valores ao vivo com gráficos sparkline,
-limites de cor definidos por você, °C/°F e uma linha de uptime. As leituras
-vêm direto do macOS e só são atualizadas enquanto a aba está aberta.
+bateria e consumo de energia — valores ao vivo com gráficos sparkline, limites
+de cor definidos por você, °C/°F e uma linha de uptime. As leituras vêm direto
+do macOS e só são atualizadas enquanto a aba está aberta. A linha de memória
+também avisa quando muita memória foi para o disco, e não só quando o próprio
+macOS diz que está apertado.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/system.png" width="420" alt="Hop — Monitor do sistema">
@@ -219,7 +221,10 @@ Pequenos indicadores de status no ícone da barra de menus — tempo,
 antissuspensão, avisos e atividade de torrents, coloridos ou monocromáticos —,
 um teste de velocidade integrado (networkQuality da Apple), temas escuro e
 claro com textura de grão de filme, atalhos globais, abertura no login e um
-modo seguro que recupera o app de um loop de travamentos.
+modo seguro que recupera o app de um loop de travamentos. As janelas do
+próprio Hop — o conversor, os arquivos, o reconhecimento, os ajustes —
+aparecem na dock enquanto estão abertas, e um clique no ícone traz uma de
+volta em vez de abrir o painel; com a última janela o ícone desaparece.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/system.png" width="280" alt="Monitor do sistema do Hop — gráficos de CPU, GPU, memória, rede, disco e bateria">

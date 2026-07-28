@@ -89,10 +89,11 @@ ngoài).
 
 ### Giám sát hệ thống
 
-Tải và nhiệt độ CPU và GPU, bộ nhớ và swap, mạng, ổ đĩa, tình trạng pin và
-mức tiêu thụ điện — số liệu trực tiếp kèm biểu đồ sparkline, ngưỡng màu do
-chính bạn đặt, °C/°F và dòng hiển thị uptime. Số liệu lấy thẳng từ macOS và
-chỉ cập nhật khi tab đang mở.
+Tải và nhiệt độ CPU và GPU, bộ nhớ và swap, mạng, ổ đĩa, tình trạng pin và mức
+tiêu thụ điện — số liệu trực tiếp kèm biểu đồ sparkline, ngưỡng màu do chính
+bạn đặt, °C/°F và dòng hiển thị uptime. Số liệu lấy thẳng từ macOS và chỉ cập
+nhật khi tab đang mở. Hàng bộ nhớ cũng cảnh báo khi nhiều bộ nhớ đã bị đẩy
+xuống đĩa, chứ không chỉ khi macOS tự báo đang chật vật.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Giám sát hệ thống">
@@ -211,11 +212,14 @@ cứng.
 
 ### Và những thứ còn lại
 
-Các chỉ báo trạng thái nhỏ trên biểu tượng thanh menu — thời gian, chống
-ngủ, cảnh báo và hoạt động torrent, màu hoặc đơn sắc —, kiểm tra tốc độ mạng
-tích hợp (networkQuality của Apple), giao diện tối và sáng với hiệu ứng hạt
-phim, phím tắt toàn cục, khởi chạy khi đăng nhập, và chế độ an toàn giúp
-khôi phục ứng dụng khỏi vòng lặp crash.
+Các chỉ báo trạng thái nhỏ trên biểu tượng thanh menu — thời gian, chống ngủ,
+cảnh báo và hoạt động torrent, màu hoặc đơn sắc —, kiểm tra tốc độ mạng tích
+hợp (networkQuality của Apple), giao diện tối và sáng với hiệu ứng hạt phim,
+phím tắt toàn cục, khởi chạy khi đăng nhập, và chế độ an toàn giúp khôi phục
+ứng dụng khỏi vòng lặp crash. Các cửa sổ của chính Hop — bộ chuyển đổi, kho
+nén, nhận dạng văn bản, cài đặt — hiện trong dock khi đang mở, nhấn vào biểu
+tượng là cửa sổ trở lại thay vì phải mở bảng trước; biểu tượng biến mất cùng
+cửa sổ cuối cùng.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Giám sát hệ thống của Hop — biểu đồ CPU, GPU, bộ nhớ, mạng, ổ đĩa, pin">
