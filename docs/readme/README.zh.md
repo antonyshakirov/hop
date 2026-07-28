@@ -205,6 +205,17 @@ lity）、带胶片颗粒质感的深浅两套主题、 全局快捷键、登录
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/settings.png" width="280" alt="Hop 设置 — 主题、模块、快捷键、22 种语言">
 </div>
 
+### Siri、快捷指令与你的 AI 助手
+
+对 Siri 说一句，Hop 就照做：「start a timer in Hop」「add a task to Hop」「lock the
+keyboard in Hop」「keep the Mac awake with Hop」「recognize text with Hop」。无需设置，
+这五个动作也会自动出现在「快捷指令」和 Spotlight 里。（苹果要求语音短语里带上应用名称。）
+
+你自己的 AI 助手 —— Claude Code、Codex 或任意脚本 —— 几乎能操作其余全部：计时器与秒表、
+时间记录、带提醒和重复的任务、防休眠、合盖模式、键盘锁、窗口排布、测速、识别、剪贴板。
+它写入一个小小的 JSON 文件，Hop 立刻执行；再从另一个文件读取当前状态。详见
+[docs/automation.md](../automation.md)。
+
 ## 22 种语言
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — 应用开箱即用，自动跟随系统语言。

@@ -255,6 +255,20 @@ fenêtre l'icône s'en va.
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/settings.png" width="280" alt="Réglages de Hop — thèmes, modules, raccourcis, 22 langues">
 </div>
 
+### Siri, Raccourcis et votre agent IA
+
+Demandez à Siri et Hop s'exécute : « start a timer in Hop », « add a task to
+Hop », « lock the keyboard in Hop », « keep the Mac awake with Hop », « recognize
+text with Hop ». Rien à configurer : ces cinq actions apparaissent d'elles-mêmes
+dans Raccourcis et Spotlight. (Apple exige que la phrase nomme l'application.)
+
+Votre propre agent IA — Claude Code, Codex, un script — pilote presque tout le
+reste : minuteur et chronomètre, suivi du temps, tâches avec rappels et
+répétitions, veille bloquée, mode capot, verrouillage du clavier, placement des
+fenêtres, test de débit, reconnaissance, presse-papiers. Il écrit un petit
+fichier JSON que Hop exécute aussitôt et lit dans un second ce qui tourne. Voir
+[docs/automation.md](../automation.md).
+
 ## 22 langues
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — l'app suit la langue de votre système dès

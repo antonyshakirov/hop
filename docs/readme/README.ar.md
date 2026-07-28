@@ -227,6 +227,19 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="إعدادات Hop — المظاهر والوحدات والاختصارات و22 لغة">
 </div>
 
+### Siri والاختصارات ووكيل الذكاء الاصطناعي لديك
+
+قل لـ Siri وينفّذ Hop — "start a timer in Hop"، "add a task to Hop"، "lock the
+keyboard in Hop"، "keep the Mac awake with Hop"، "recognize text with Hop". لا شيء
+لإعداده: الإجراءات الخمسة نفسها تظهر تلقائيًا في الاختصارات وفي Spotlight. (تشترط
+Apple أن تحمل العبارة المنطوقة اسم التطبيق.)
+
+ووكيل الذكاء الاصطناعي لديك — Claude Code أو Codex أو أي سكربت — يشغّل تقريبًا كل
+ما تبقّى: المؤقّت والساعة، تتبّع الوقت، المهام بالتذكيرات والتكرار، منع النوم، وضع
+الغطاء، قفل لوحة المفاتيح، ترتيب النوافذ، اختبار السرعة، التعرّف، الحافظة. يكتب ملف
+JSON صغيرًا ينفّذه Hop فورًا، ويقرأ من ملف ثانٍ ما يجري.
+انظر [docs/automation.md](../automation.md).
+
 ## 22 لغة
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — والتطبيق يتبع لغة

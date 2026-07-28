@@ -223,6 +223,18 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop 설정 — 테마, 모듈, 단축키, 22개 언어">
 </div>
 
+### Siri, 단축어, 그리고 당신의 AI 에이전트
+
+Siri에게 말하면 Hop이 합니다 — "start a timer in Hop", "add a task to Hop",
+"lock the keyboard in Hop", "keep the Mac awake with Hop", "recognize text with
+Hop". 설정할 것은 없고, 같은 다섯 동작이 단축어와 Spotlight에도 저절로 나타납니다.
+(애플 규칙상 말하는 문장에 앱 이름이 들어가야 합니다.)
+
+당신의 AI 에이전트 — Claude Code, Codex, 아무 스크립트나 — 는 나머지 거의 전부를
+조작할 수 있습니다. 타이머와 스톱워치, 시간 기록, 알림과 반복이 있는 작업, 잠자기 방지,
+덮개 모드, 키보드 잠금, 창 배치, 속도 측정, 인식, 클립보드. 작은 JSON 파일을 쓰면 Hop이
+즉시 실행하고, 다른 파일에서 현재 상태를 읽습니다. [docs/automation.md](../automation.md) 참고.
+
 ## 22개 언어
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — 앱은 처음부터 시스템 언어를 그대로

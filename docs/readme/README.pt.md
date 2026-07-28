@@ -245,6 +245,20 @@ volta em vez de abrir o painel; com a última janela o ícone desaparece.
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/settings.png" width="280" alt="Ajustes do Hop — temas, módulos, atalhos, 22 idiomas">
 </div>
 
+### Siri, Atalhos e o seu agente de IA
+
+Peça à Siri e o Hop faz: «start a timer in Hop», «add a task to Hop», «lock the
+keyboard in Hop», «keep the Mac awake with Hop», «recognize text with Hop». Não
+há nada a configurar: as mesmas cinco ações aparecem sozinhas nos Atalhos e no
+Spotlight. (A Apple exige que a frase falada diga o nome da app.)
+
+O seu agente de IA — Claude Code, Codex, um script — pode conduzir quase todo o
+resto: temporizador e cronómetro, contagem de tempo, tarefas com lembretes e
+repetições, manter acordado, modo tampa, bloqueio do teclado, arrumação de
+janelas, teste de velocidade, reconhecimento, área de transferência. Escreve um
+pequeno ficheiro JSON que o Hop executa de imediato e lê noutro o que está a
+correr. Ver [docs/automation.md](../automation.md).
+
 ## 22 idiomas
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — o app segue o idioma do seu sistema desde o

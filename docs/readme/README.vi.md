@@ -239,6 +239,20 @@ cửa sổ cuối cùng.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Cài đặt Hop — giao diện, mô-đun, phím tắt, 22 ngôn ngữ">
 </div>
 
+### Siri, Phím tắt và trợ lý AI của bạn
+
+Nói với Siri và Hop sẽ làm: "start a timer in Hop", "add a task to Hop", "lock the
+keyboard in Hop", "keep the Mac awake with Hop", "recognize text with Hop". Không
+phải thiết lập gì: năm hành động đó cũng tự xuất hiện trong Phím tắt và Spotlight.
+(Apple yêu cầu câu nói phải có tên ứng dụng.)
+
+Trợ lý AI của riêng bạn — Claude Code, Codex hay bất kỳ script nào — điều khiển
+được gần như tất cả phần còn lại: hẹn giờ và bấm giờ, tính giờ làm việc, công việc
+kèm lời nhắc và lặp lại, chống ngủ, chế độ gập máy, khoá bàn phím, xếp cửa sổ, đo
+tốc độ mạng, nhận dạng, bảng nhớ tạm. Nó ghi một tệp JSON nhỏ để Hop thực hiện
+ngay, và đọc tệp thứ hai để biết đang chạy gì. Xem
+[docs/automation.md](../automation.md).
+
 ## 22 ngôn ngữ
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — ứng dụng tự động theo ngôn ngữ hệ thống của

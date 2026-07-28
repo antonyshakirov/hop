@@ -223,6 +223,17 @@ HEIC, AVIF และ WebP บีบอัด PDF ย่อวิดีโอด�
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="การตั้งค่า Hop — ธีม, โมดูล, ปุ่มลัด, 22 ภาษา">
 </div>
 
+### Siri, ทางลัด และเอเจนต์ AI ของคุณ
+
+บอก Siri แล้ว Hop จะทำให้ — "start a timer in Hop", "add a task to Hop", "lock the
+keyboard in Hop", "keep the Mac awake with Hop", "recognize text with Hop" ไม่ต้องตั้งค่าอะไร
+ทั้งห้าคำสั่งนี้ยังปรากฏเองในแอปทางลัดและ Spotlight (แอปเปิลกำหนดให้ประโยคที่พูดต้องมีชื่อแอปด้วย)
+
+เอเจนต์ AI ของคุณเอง — Claude Code, Codex หรือสคริปต์ใด ๆ — สั่งงานส่วนที่เหลือได้เกือบทั้งหมด
+ทั้งจับเวลาและนาฬิกาจับเวลา บันทึกเวลา งานพร้อมการเตือนและการทำซ้ำ กันเครื่องหลับ โหมดปิดฝา
+ล็อกแป้นพิมพ์ จัดหน้าต่าง ทดสอบความเร็ว การรู้จำข้อความ และคลิปบอร์ด โดยเขียนไฟล์ JSON เล็ก ๆ
+ที่ Hop ทำตามทันที และอ่านอีกไฟล์เพื่อดูว่ากำลังทำอะไรอยู่ ดู [docs/automation.md](../automation.md)
+
 ## 22 ภาษา
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — แอปเปลี่ยนตามภาษาระบบของคุณ

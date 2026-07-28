@@ -250,6 +250,21 @@ mit dem letzten fenster verschwindet es wieder.
 <img src="https://www.antonshakirov.com/products/hop/screens/de/settings.png" width="280" alt="Hop-Einstellungen — Themes, Module, Hotkeys, 22 Sprachen">
 </div>
 
+### Siri, Kurzbefehle und Ihr KI-Agent
+
+Sagen Sie es Siri, und Hop tut es — „start a timer in Hop", „add a task to Hop",
+„lock the keyboard in Hop", „keep the Mac awake with Hop", „recognize text with
+Hop". Nichts einzurichten: dieselben fünf Aktionen erscheinen von selbst in
+Kurzbefehlen und Spotlight. (Apple verlangt den App-Namen in der gesprochenen
+Phrase.)
+
+Ihr eigener KI-Agent — Claude Code, Codex, ein Shell-Skript — steuert fast alles
+Übrige: Timer und Stoppuhr, Zeiterfassung, Aufgaben mit Erinnerungen und
+Wiederholungen, Wachhalten, Deckelmodus, Tastatursperre, Fensterplatzierung,
+Speedtest, Erkennung, Zwischenablage. Er schreibt eine kleine JSON-Datei, die Hop
+sofort ausführt, und liest in einer zweiten, was gerade läuft. Siehe
+[docs/automation.md](../automation.md).
+
 ## 22 Sprachen
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — die App folgt von Haus aus deiner Systemsprache.

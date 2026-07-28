@@ -238,6 +238,19 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="تنظیمات Hop — پوسته‌ها، ماژول‌ها، میان‌برها، ۲۲ زبان">
 </div>
 
+### Siri، میان‌برها و عاملِ هوش مصنوعی شما
+
+به Siri بگویید و Hop انجام می‌دهد — «start a timer in Hop»، «add a task to Hop»،
+«lock the keyboard in Hop»، «keep the Mac awake with Hop»، «recognize text with
+Hop». چیزی برای تنظیم نیست: همین پنج کار خودبه‌خود در میان‌برها و Spotlight هم
+پیدا می‌شوند. (اپل خواسته که نام برنامه در جملهٔ گفته‌شده بیاید.)
+
+عاملِ هوش مصنوعی خودتان — Claude Code، Codex یا هر اسکریپتی — تقریباً همهٔ بقیه را
+می‌گرداند: تایمر و کرنومتر، ثبت زمان، کارها با یادآوری و تکرار، جلوگیری از خواب،
+حالت درِ بسته، قفل صفحه‌کلید، چیدمان پنجره‌ها، آزمون سرعت، تشخیص متن و کلیپ‌بورد.
+فایل JSON کوچکی می‌نویسد که Hop بی‌درنگ اجرا می‌کند و از فایلی دیگر می‌خواند چه در
+جریان است. ببینید [docs/automation.md](../automation.md).
+
 ## ۲۲ زبان
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — و برنامه از همان آغاز

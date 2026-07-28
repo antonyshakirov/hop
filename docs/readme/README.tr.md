@@ -243,6 +243,19 @@ pencereyi geri getirir ve son pencereyle birlikte simge de gider.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop ayarları — temalar, modüller, kısayollar, 22 dil">
 </div>
 
+### Siri, Kısayollar ve kendi yapay zekâ ajanınız
+
+Siri'ye söyleyin, Hop yapsın: "start a timer in Hop", "add a task to Hop", "lock
+the keyboard in Hop", "keep the Mac awake with Hop", "recognize text with Hop".
+Ayarlanacak bir şey yok; aynı beş eylem Kısayollar ve Spotlight'ta da kendiliğinden
+görünür. (Apple, söylenen cümlede uygulama adının geçmesini şart koşar.)
+
+Kendi yapay zekâ ajanınız — Claude Code, Codex, herhangi bir betik — geri kalanın
+neredeyse tamamını sürebilir: sayaç ve kronometre, zaman takibi, hatırlatmalı ve
+tekrarlı görevler, uyanık tutma, kapak modu, klavye kilidi, pencere yerleşimi, hız
+testi, tanıma, pano. Küçük bir JSON dosyası yazar, Hop hemen uygular; ikinci bir
+dosyadan neyin çalıştığını okur. Bkz. [docs/automation.md](../automation.md).
+
 ## 22 dil
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — uygulama kurulumdan itibaren sistem

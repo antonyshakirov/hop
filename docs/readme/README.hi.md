@@ -233,6 +233,19 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop सेटिंग्स — थीम, मॉड्यूल, हॉटकी, 22 भाषाएँ">
 </div>
 
+### Siri, शॉर्टकट और आपका AI एजेंट
+
+Siri से कहिए और Hop कर देगा — "start a timer in Hop", "add a task to Hop", "lock
+the keyboard in Hop", "keep the Mac awake with Hop", "recognize text with Hop"।
+कुछ भी सेट करने की ज़रूरत नहीं: वही पाँच काम शॉर्टकट और Spotlight में अपने आप दिखते हैं।
+(ऐपल की शर्त है कि बोले गए वाक्य में ऐप का नाम हो।)
+
+आपका अपना AI एजेंट — Claude Code, Codex या कोई स्क्रिप्ट — बाक़ी लगभग सब चला सकता है:
+टाइमर और स्टॉपवॉच, समय की गिनती, याद दिलाने और दोहराने वाले कार्य, जागते रहना, ढक्कन मोड,
+कीबोर्ड लॉक, खिड़कियों की सजावट, स्पीड टेस्ट, पहचान, क्लिपबोर्ड। वह एक छोटी JSON फ़ाइल लिखता है
+जिसे Hop तुरंत करता है, और दूसरी फ़ाइल से पढ़ता है कि अभी क्या चल रहा है।
+[docs/automation.md](../automation.md) देखें।
+
 ## 22 भाषाएँ
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — ऐप शुरू से ही आपकी सिस्टम भाषा को अपना

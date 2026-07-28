@@ -226,6 +226,19 @@ magnet כברירת מחדל.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="ההגדרות של Hop — ערכות נושא, מודולים, קיצורים, 22 שפות">
 </div>
 
+### Siri, קיצורים וסוכן ה-AI שלכם
+
+אמרו ל-Siri ו-Hop יעשה — "start a timer in Hop", "add a task to Hop", "lock the
+keyboard in Hop", "keep the Mac awake with Hop", "recognize text with Hop". אין מה
+להגדיר: אותן חמש פעולות מופיעות מעצמן גם בקיצורים וב-Spotlight. (אפל דורשת ששם
+האפליקציה יופיע במשפט המדובר.)
+
+סוכן ה-AI שלכם — claude code, codex או כל סקריפט — מפעיל כמעט את כל השאר: טיימר
+וסטופר, מדידת זמן, משימות עם תזכורות וחזרות, מניעת שינה, מצב מכסה סגור, נעילת
+מקלדת, סידור חלונות, בדיקת מהירות, זיהוי טקסט ולוח הגזירים. הוא כותב קובץ JSON קטן
+ש-Hop מבצע מיד, וקורא בקובץ שני מה פועל כרגע. ראו
+[docs/automation.md](../automation.md).
+
 ## 22 שפות
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — היישום עוקב אחרי שפת

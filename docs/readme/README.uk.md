@@ -244,6 +244,20 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Налаштування Hop — теми, модулі, хоткеї, 22 мови">
 </div>
 
+### Siri, «Швидкі команди» і ваш ШІ-агент
+
+Скажіть Siri — і Hop зробить: «start a timer in Hop», «add a task to Hop», «lock
+the keyboard in Hop», «keep the Mac awake with Hop», «recognize text with Hop».
+Налаштовувати нічого: ті самі п'ять дій самі з'являються у «Швидких командах» і
+Spotlight. (Apple вимагає, щоб у фразі звучала назва застосунку.)
+
+Ваш ШІ-агент — Claude Code, Codex, звичайний скрипт — може керувати майже всім
+іншим: таймером і секундоміром, трекінгом часу, завданнями з нагадуваннями та
+повторами, режимом «не спати», режимом кришки, блокуванням клавіатури, розкладкою
+вікон, тестом швидкості, розпізнаванням, буфером. Він пише невеликий JSON-файл, і
+Hop одразу це виконує, а з другого файлу читає, що зараз відбувається. Див.
+[docs/automation.md](../automation.md).
+
 ## 22 мови
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — застосунок одразу підхоплює мову вашої

@@ -246,6 +246,20 @@ oknem ikona znika.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Ustawienia Hop — motywy, moduły, skróty klawiszowe, 22 języki">
 </div>
 
+### Siri, Skróty i twój agent AI
+
+Powiedz Siri, a Hop to zrobi: „start a timer in Hop", „add a task to Hop", „lock
+the keyboard in Hop", „keep the Mac awake with Hop", „recognize text with Hop".
+Nie trzeba nic ustawiać — te same pięć akcji same pojawiają się w Skrótach i
+Spotlight. (Apple wymaga, by wypowiedziana fraza zawierała nazwę aplikacji.)
+
+Twój własny agent AI — Claude Code, Codex, dowolny skrypt — steruje niemal całą
+resztą: minutnikiem i stoperem, liczeniem czasu, zadaniami z przypomnieniami i
+powtórzeniami, blokadą uśpienia, trybem klapy, blokadą klawiatury, układaniem
+okien, testem prędkości, rozpoznawaniem, schowkiem. Zapisuje mały plik JSON, który
+Hop natychmiast wykonuje, a z drugiego czyta, co się dzieje. Zobacz
+[docs/automation.md](../automation.md).
+
 ## 22 języki
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikacja od razu podąża za językiem

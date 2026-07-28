@@ -242,6 +242,19 @@ Hop کی اپنی ونڈوز — کنورٹر، آرکائیوز، متن کی �
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop کی ترتیبات — تھیمیں، ماڈیول، شارٹ کٹ، ۲۲ زبانیں">
 </div>
 
+### Siri، شارٹ کٹس اور آپ کا اے آئی ایجنٹ
+
+Siri سے کہیے اور Hop کر دے گا — "start a timer in Hop"، "add a task to Hop"،
+"lock the keyboard in Hop"، "keep the Mac awake with Hop"، "recognize text with
+Hop"۔ کچھ ترتیب دینے کی ضرورت نہیں: یہی پانچ کام شارٹ کٹس اور Spotlight میں خود
+نمودار ہوتے ہیں۔ (ایپل کی شرط ہے کہ بولے گئے جملے میں ایپ کا نام ہو۔)
+
+آپ کا اپنا اے آئی ایجنٹ — Claude Code، Codex یا کوئی اسکرپٹ — باقی تقریباً سب کچھ
+چلا سکتا ہے: ٹائمر اور اسٹاپ واچ، وقت کی گنتی، یاد دہانی اور دہرانے والے کام، نیند
+روکنا، ڈھکن موڈ، کی بورڈ لاک، کھڑکیوں کی ترتیب، رفتار جانچ، شناخت اور کلپ بورڈ۔ وہ
+ایک چھوٹی JSON فائل لکھتا ہے جسے Hop فوراً کرتا ہے، اور دوسری فائل سے پڑھتا ہے کہ
+ابھی کیا چل رہا ہے۔ دیکھیے [docs/automation.md](../automation.md)۔
+
 ## ۲۲ زبانیں
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — ایپ شروع سے ہی آپ کے

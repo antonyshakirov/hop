@@ -248,6 +248,20 @@ te openen, en met het laatste venster verdwijnt het icoon weer.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop-instellingen — thema's, modules, sneltoetsen, 22 talen">
 </div>
 
+### Siri, Opdrachten en je AI-agent
+
+Vraag het Siri en Hop doet het — "start a timer in Hop", "add a task to Hop",
+"lock the keyboard in Hop", "keep the Mac awake with Hop", "recognize text with
+Hop". Niets in te stellen: dezelfde vijf acties verschijnen vanzelf in Opdrachten
+en Spotlight. (Apple eist dat de uitgesproken zin de app-naam bevat.)
+
+Je eigen AI-agent — Claude Code, Codex, een script — bestuurt bijna al het
+overige: timer en stopwatch, tijdregistratie, taken met herinneringen en
+herhalingen, wakker houden, klepmodus, toetsenbordvergrendeling, vensterindeling,
+snelheidstest, herkenning, klembord. Hij schrijft een klein JSON-bestand dat Hop
+meteen uitvoert en leest in een tweede wat er draait. Zie
+[docs/automation.md](../automation.md).
+
 ## 22 talen
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — de app volgt standaard je systeemtaal.
