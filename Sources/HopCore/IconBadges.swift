@@ -19,6 +19,7 @@ public enum TorrentArrows: Equatable, Sendable {
 /// meaning while it is on, the shape carries it while it is off.
 public enum IconBadge: Equatable, Sendable, CaseIterable {
     case alert       // top-left: red "!" (white in mono)
+    case reminder    // top-left: blue informational dot (outline ring in mono)
     case noSleep     // top-right: yellow dot (filled in both modes)
     case lid         // top-right: orange dot (filled in colour, outline ring in mono)
     case engineTime  // bottom-right: green wedge (filled in both modes) — timer OR stopwatch
@@ -26,7 +27,7 @@ public enum IconBadge: Equatable, Sendable, CaseIterable {
 
     public var corner: BadgeCorner {
         switch self {
-        case .alert: return .topLeft
+        case .alert, .reminder: return .topLeft
         case .noSleep, .lid: return .topRight
         case .engineTime, .taskTime: return .bottomRight
         }
@@ -38,7 +39,7 @@ public enum IconBadge: Equatable, Sendable, CaseIterable {
     public var monoFilled: Bool {
         switch self {
         case .alert, .noSleep, .engineTime: return true
-        case .lid, .taskTime: return false
+        case .lid, .taskTime, .reminder: return false
         }
     }
 }
@@ -50,6 +51,7 @@ public enum IconBadge: Equatable, Sendable, CaseIterable {
 /// corners).
 public struct IconComposition: Equatable, Sendable {
     public var alert: Bool         // top-left "!" — visible this frame (blink resolved)
+    public var reminder: Bool      // top-left informational dot: a reminder fired, unseen
     public var noSleep: Bool       // top-right yellow dot
     public var lid: Bool           // top-right orange dot / ring
     public var engineTime: Bool    // bottom-right green wedge (timer or stopwatch)
@@ -58,11 +60,13 @@ public struct IconComposition: Equatable, Sendable {
     public var colored: Bool       // false → monochrome shape mapping
 
     public init(
-        alert: Bool = false, noSleep: Bool = false, lid: Bool = false,
+        alert: Bool = false, reminder: Bool = false,
+        noSleep: Bool = false, lid: Bool = false,
         engineTime: Bool = false, taskTime: Bool = false,
         torrent: TorrentArrows? = nil, colored: Bool = true
     ) {
         self.alert = alert
+        self.reminder = reminder
         self.noSleep = noSleep
         self.lid = lid
         self.engineTime = engineTime
@@ -75,6 +79,7 @@ public struct IconComposition: Equatable, Sendable {
     public var badges: [IconBadge] {
         var out: [IconBadge] = []
         if alert { out.append(.alert) }
+        if reminder { out.append(.reminder) }
         if noSleep { out.append(.noSleep) }
         if lid { out.append(.lid) }
         if engineTime { out.append(.engineTime) }
@@ -84,7 +89,7 @@ public struct IconComposition: Equatable, Sendable {
 
     /// Any decoration at all → the plain template fast path can't be used.
     public var isEmpty: Bool {
-        !alert && !noSleep && !lid && !engineTime && !taskTime && torrent == nil
+        !alert && !reminder && !noSleep && !lid && !engineTime && !taskTime && torrent == nil
     }
 }
 
@@ -117,6 +122,11 @@ public struct IconState: Equatable, Sendable {
     /// The current tick's blink phase (`true` = lit). Only the blinking source
     /// obeys it; a steady source is lit regardless.
     public var blinkOn: Bool
+    /// A reminder has fired and the user has not seen it yet. Steady, never
+    /// blinking: it reports something waiting, not something wrong. Suppressed by
+    /// its own setting, unlike every other badge — a reminder is a one-off user
+    /// event rather than an app state (see the spec's note on this exception).
+    public var reminderUnseen: Bool
     public var torrentDown: Bool
     public var torrentUp: Bool
     public var colored: Bool
@@ -126,6 +136,7 @@ public struct IconState: Equatable, Sendable {
         tracking: Bool = false, taskTimeInTitle: Bool = false,
         noSleep: Bool = false, lid: Bool = false,
         alertSteady: Bool = false, alertBlinking: Bool = false, blinkOn: Bool = true,
+        reminderUnseen: Bool = false,
         torrentDown: Bool = false, torrentUp: Bool = false, colored: Bool = true
     ) {
         self.engine = engine
@@ -137,6 +148,7 @@ public struct IconState: Equatable, Sendable {
         self.alertSteady = alertSteady
         self.alertBlinking = alertBlinking
         self.blinkOn = blinkOn
+        self.reminderUnseen = reminderUnseen
         self.torrentDown = torrentDown
         self.torrentUp = torrentUp
         self.colored = colored
@@ -168,7 +180,8 @@ public enum IconBadges {
         }
 
         return IconComposition(
-            alert: alert, noSleep: s.noSleep, lid: s.lid,
+            alert: alert, reminder: s.reminderUnseen,
+            noSleep: s.noSleep, lid: s.lid,
             engineTime: engineTime, taskTime: taskTime,
             torrent: torrent, colored: s.colored
         )

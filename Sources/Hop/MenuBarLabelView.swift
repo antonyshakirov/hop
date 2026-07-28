@@ -132,9 +132,18 @@ enum MenuBarIcon {
     private static func drawBadges(_ c: IconComposition, glyph: NSColor) {
         let w = canvasSize.width, h = canvasSize.height
 
-        // top-left: attention "!"
+        // top-left: attention "!" and, beside it, the reminder dot. The "!" keeps
+        // the corner and the dot grows rightward from it — the mirror of the
+        // top-right pair, which is right-anchored and grows left.
         if c.alert {
             drawBang(color: c.colored ? alertRed : glyph, atLeft: 1.4, top: h - 1.4)
+        }
+        if c.reminder {
+            let dotD: CGFloat = 4.4
+            // beside the "!" when it is lit, in the corner itself when it is not
+            let x: CGFloat = c.alert ? 4.6 : 1.4
+            drawReminderDot(box: NSRect(x: x, y: h - dotD - 1.0, width: dotD, height: dotD),
+                            colored: c.colored, glyph: glyph)
         }
 
         // top-right: awake dots — yellow (no-sleep) then orange (lid), a dense
@@ -258,6 +267,22 @@ enum MenuBarIcon {
     }
 
     /// Attention "!": a rounded stem plus a dot below it, anchored at its top-left.
+    /// The reminder mark: a small blue disc, deliberately NOT the alert red — a
+    /// waiting reminder is information, not a warning. In monochrome it becomes a
+    /// ring at the same outer size, so it stays distinct from the filled "!".
+    private static func drawReminderDot(box: NSRect, colored: Bool, glyph: NSColor) {
+        let color: NSColor = colored ? .systemBlue : glyph
+        if colored {
+            color.setFill()
+            NSBezierPath(ovalIn: box).fill()
+        } else {
+            color.setStroke()
+            let ring = NSBezierPath(ovalIn: box.insetBy(dx: stroke / 2, dy: stroke / 2))
+            ring.lineWidth = stroke
+            ring.stroke()
+        }
+    }
+
     private static func drawBang(color: NSColor, atLeft x: CGFloat, top: CGFloat) {
         color.setFill()
         let stemW = stroke * 1.15

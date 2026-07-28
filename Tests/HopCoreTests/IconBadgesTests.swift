@@ -172,4 +172,40 @@ final class IconBadgesTests: XCTestCase {
         XCTAssertEqual(c.badges.filter { $0.corner == .topRight }.count, 2)
         XCTAssertEqual(c.badges.filter { $0.corner == .bottomRight }.count, 2)
     }
+
+    // MARK: - Reminder mark (top-left, beside the "!")
+
+    func testReminderMarkAppearsAloneInTheTopLeft() {
+        let c = IconBadges.compose(IconState(reminderUnseen: true))
+        XCTAssertTrue(c.reminder)
+        XCTAssertFalse(c.alert)
+        XCTAssertEqual(c.badges, [.reminder])
+        XCTAssertFalse(c.isEmpty)
+    }
+
+    func testReminderMarkPairsWithTheAlertAndIsDrawnAfterIt() {
+        let c = IconBadges.compose(IconState(alertSteady: true, reminderUnseen: true))
+        XCTAssertEqual(c.badges, [.alert, .reminder],
+                       "the ! keeps the corner; the informational dot sits beside it")
+    }
+
+    func testReminderMarkIsAnOutlineShapeInMonochrome() {
+        // the "!" is the filled mark in this corner, so the dot must differ by shape
+        XCTAssertFalse(IconBadge.reminder.monoFilled)
+        XCTAssertEqual(IconBadge.reminder.corner, .topLeft)
+    }
+
+    func testNoReminderMarkWithoutAnUnseenFiring() {
+        let c = IconBadges.compose(IconState())
+        XCTAssertFalse(c.reminder)
+        XCTAssertTrue(c.isEmpty)
+    }
+
+    func testReminderMarkDoesNotBlinkWithTheAlert() {
+        // the "!" is on its dark blink phase; the reminder dot is steady
+        let c = IconBadges.compose(IconState(alertBlinking: true, blinkOn: false,
+                                             reminderUnseen: true))
+        XCTAssertFalse(c.alert)
+        XCTAssertTrue(c.reminder)
+    }
 }

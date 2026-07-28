@@ -493,6 +493,12 @@ final class StatusItemController: NSObject {
         let colored = UserDefaults.standard
             .object(forKey: SettingsKey.coloredIndicators) as? Bool ?? true
 
+        // A reminder that fired while nobody was looking. Unlike every other
+        // badge this one has an off switch — it reports a user event rather than
+        // an app state, so it belongs to the reminder signal settings.
+        let reminderUnseen = model.todos.list.hasUnseenFiring
+            && UserDefaults.standard.bool(forKey: SettingsKey.todoRemindMark)
+
         let composition = IconBadges.compose(IconState(
             engine: engineSlot,
             engineTimeInTitle: engineTimeInTitle,
@@ -503,6 +509,7 @@ final class StatusItemController: NSObject {
             alertSteady: alertSteady,
             alertBlinking: alertBlinking,
             blinkOn: blinkOn,
+            reminderUnseen: reminderUnseen,
             torrentDown: transfer.down,
             torrentUp: transfer.up,
             colored: colored
