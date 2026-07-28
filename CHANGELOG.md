@@ -26,6 +26,11 @@
   came back as nonsense; now Vision detects the writing itself and a screen
   carrying six alphabets at once comes out in all six. Settings can still pin one
   language when you always read the same one and want the faster pass.
+- Siri can drive Hop directly: "start a timer in Hop", "add a task to Hop",
+  "lock the keyboard in Hop", "keep the Mac awake with Hop", "recognize text with
+  Hop". The same five actions show up in Shortcuts and Spotlight without building
+  anything by hand. (Apple requires the app's name in a spoken phrase, so a bare
+  "lock the keyboard" still goes to the system.)
 - Hop can be driven from outside. Two plain JSON files next to its data — one it
   performs commands from, one it publishes its state to — plus `hop://` links, so
   your own AI agent, a script or a Shortcut can drive nearly the whole app: the

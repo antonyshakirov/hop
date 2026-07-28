@@ -169,6 +169,24 @@ final class RemindScheduleTests: XCTestCase {
         XCTAssertEqual(out, item)
     }
 
+    // MARK: - nextFullHour() — a new reminder must never start in the past
+
+    func testNextFullHourIsTheComingHour() {
+        XCTAssertEqual(RemindSchedule.nextFullHour(after: date("2026-07-28 10:20"), calendar: cal),
+                       date("2026-07-28 11:00"))
+    }
+
+    func testNextFullHourRollsIntoTomorrowLateAtNight() {
+        // the bug: clamping the hour to 23 produced 23:00, already in the past
+        XCTAssertEqual(RemindSchedule.nextFullHour(after: date("2026-07-28 23:40"), calendar: cal),
+                       date("2026-07-29 00:00"))
+    }
+
+    func testNextFullHourOnTheHourGoesToTheNextOne() {
+        XCTAssertEqual(RemindSchedule.nextFullHour(after: date("2026-07-28 10:00"), calendar: cal),
+                       date("2026-07-28 11:00"))
+    }
+
     // MARK: - replacing() — the bug that made a typed time silently wrong
 
     func testReplacingMinuteKeepsTheHourEvenWhenTheMinuteIsEarlier() {

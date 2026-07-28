@@ -267,11 +267,13 @@ enum MenuBarIcon {
     }
 
     /// Attention "!": a rounded stem plus a dot below it, anchored at its top-left.
-    /// The reminder mark: a small blue disc, deliberately NOT the alert red — a
-    /// waiting reminder is information, not a warning. In monochrome it becomes a
-    /// ring at the same outer size, so it stays distinct from the filled "!".
+    /// The reminder mark: a small yellow disc — the app's one accent colour, and
+    /// the same yellow the fired time pulses in inside the panel, so the dot and
+    /// the row answer each other. Deliberately NOT the alert red: a waiting
+    /// reminder is information, not a warning. In monochrome it becomes a ring at
+    /// the same outer size, so it stays distinct from the filled "!".
     private static func drawReminderDot(box: NSRect, colored: Bool, glyph: NSColor) {
-        let color: NSColor = colored ? .systemBlue : glyph
+        let color: NSColor = colored ? .systemYellow : glyph
         if colored {
             color.setFill()
             NSBezierPath(ovalIn: box).fill()

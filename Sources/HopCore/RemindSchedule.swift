@@ -45,6 +45,22 @@ public enum RemindSchedule {
         return calendar.date(from: fields) ?? date
     }
 
+    /// The next full hour after `date` — where a freshly armed reminder starts.
+    ///
+    /// Always in the FUTURE. Setting the hour to "now + 1" and zeroing the
+    /// minutes is not enough at 23:40, where clamping the hour to 23 produced
+    /// 23:00 — a reminder born already expired (Anton, 2026-07-28). Adding an
+    /// hour first and zeroing the minutes afterwards rolls into tomorrow on its
+    /// own.
+    public static func nextFullHour(after date: Date, calendar: Calendar) -> Date {
+        let shifted = calendar.date(byAdding: .hour, value: 1, to: date) ?? date
+        var fields = calendar.dateComponents([.year, .month, .day, .hour], from: shifted)
+        fields.minute = 0
+        fields.second = 0
+        guard let rounded = calendar.date(from: fields) else { return shifted }
+        return rounded > date ? rounded : calendar.date(byAdding: .hour, value: 1, to: rounded) ?? rounded
+    }
+
     /// The time the item actually fires next: a live snooze wins over the schedule.
     public static func effectiveFiring(_ item: TodoItem) -> Date? {
         item.snoozedUntil ?? item.remindAt

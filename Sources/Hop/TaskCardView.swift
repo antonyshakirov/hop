@@ -244,8 +244,12 @@ struct TaskCardView: View {
             components.hour = time.hour
             components.minute = time.minute
         } else {
-            components.hour = min(23, calendar.component(.hour, from: Date()) + 1)
-            components.minute = 0
+            // Round UP: the old "current hour + 1, clamped to 23" produced 23:00
+            // at 23:40 — a reminder born already expired.
+            let start = RemindSchedule.nextFullHour(after: Date(), calendar: calendar)
+            let time = calendar.dateComponents([.hour, .minute], from: start)
+            components.hour = time.hour
+            components.minute = time.minute
         }
         if draft.reminder == nil { draft.reminder = ReminderDraft(date: nil, repeatDays: []) }
         draft.reminder?.date = calendar.date(from: components)

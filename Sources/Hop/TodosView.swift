@@ -131,24 +131,26 @@ struct TodosView: View {
         }
     }
 
-    /// Three blue blinks of the fired time, then the firing counts as seen and
-    /// the menu-bar dot goes with it. Finite by construction — a repeatForever
-    /// animation retriggers the panel's size recompute and jitters the popover.
+    /// Three seconds of slow yellow pulsing on the fired time, then the firing
+    /// counts as seen and the menu-bar mark goes with it.
+    ///
+    /// Six half-second fades rather than a few sharp flashes: one quick blink was
+    /// over before the eye found it (Anton, 2026-07-28). Finite by construction —
+    /// a repeatForever animation retriggers the panel's size recompute and
+    /// jitters the popover.
     private func acknowledgeWithBlink() {
         guard !Snapshot.active, todos.list.hasUnseenFiring else { return }
         guard !blinking else { return }   // a second trigger must not stack blinks
         blinking = true
         blinkPhase = false
-        let step = 0.9
+        let fade = 0.5
         for phase in 0..<6 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + step * Double(phase)) {
-                // slow fade in, slow fade out: the eye should follow it, not be
-                // startled by it
-                withAnimation(.easeInOut(duration: step * 0.9)) { blinkPhase = phase % 2 == 0 }
+            DispatchQueue.main.asyncAfter(deadline: .now() + fade * Double(phase)) {
+                withAnimation(.easeInOut(duration: fade)) { blinkPhase = phase % 2 == 0 }
             }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + step * 6) {
-            withAnimation(.easeInOut(duration: 0.4)) { blinkPhase = false }
+        DispatchQueue.main.asyncAfter(deadline: .now() + fade * 6) {
+            withAnimation(.easeInOut(duration: fade)) { blinkPhase = false }
             blinking = false
             todos.acknowledgeFirings()
         }
@@ -234,12 +236,14 @@ struct TodosView: View {
                 // blue as the menu-bar dot that brought you here, so the panel
                 // answers "which task was it?" the moment you open it. The dot
                 // leaves with the blink and the struck-through time stays.
-                let blinking = item.firedUnseen && blinkPhase
+                let lit = item.firedUnseen && blinkPhase
                 Text(Self.timeLabel.string(from: firing))
                     .font(Theme.mono(11))
-                    .foregroundStyle(blinking ? Theme.accentBlue : Theme.textTertiary)
-                    .strikethrough(firing <= Date(),
-                                   color: blinking ? Theme.accentBlue : Theme.textTertiary)
+                    .foregroundStyle(lit ? Theme.accentYellow : Theme.textTertiary)
+                    // The strike line keeps ONE colour through the blink: changing
+                    // it rebuilt the attributed text every phase and the line
+                    // visibly jumped (Anton, 2026-07-28).
+                    .strikethrough(firing <= Date(), color: Theme.textTertiary)
             }
             if confirmingDelete == item.id {
                 // confirm swaps in for the ✕ only — the checkbox and text keep

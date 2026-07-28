@@ -20,6 +20,9 @@ let package = Package(
         .executableTarget(
             name: "Hop",
             dependencies: ["HopCore"],
+            // App Intents metadata is produced by scripts/app-intents-metadata.sh
+            // after the build, in its own compiler pass — SwiftPM cannot be made
+            // to emit the const-value sidecars the processor needs.
             swiftSettings: [.unsafeFlags(["-Osize"], .when(configuration: .release))]
         ),
         .testTarget(name: "HopCoreTests", dependencies: ["HopCore"], resources: [.copy("Fixtures")]),
