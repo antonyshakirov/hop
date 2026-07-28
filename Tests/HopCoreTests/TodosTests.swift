@@ -254,6 +254,89 @@ final class TodosTests: XCTestCase {
         XCTAssertFalse(task.important)
     }
 
+    // MARK: - Editing mutators
+
+    func testSetTextTrimsAndRejectsBlank() {
+        var list = TodoList(items: [TodoItem(text: "a")])
+        let id = list.items[0].id
+
+        list.setText(id, to: "  new title  ")
+        XCTAssertEqual(list.items[0].text, "new title")
+
+        list.setText(id, to: "   ")
+        XCTAssertEqual(list.items[0].text, "new title", "a blank commit never wipes the title")
+    }
+
+    func testSetNoteStoresTheComment() {
+        var list = TodoList(items: [TodoItem(text: "a")])
+        let id = list.items[0].id
+
+        list.setNote(id, to: "  ask for the second copy  ")
+
+        XCTAssertEqual(list.items[0].note, "ask for the second copy")
+    }
+
+    func testSetReminderNormalizesWeekdaysAndClearsAStaleFiring() {
+        var list = TodoList(items: [TodoItem(text: "a", firedAt: .distantPast, firedUnseen: true)])
+        let id = list.items[0].id
+        let when = Date(timeIntervalSinceReferenceDate: 800_000_000)
+
+        list.setReminder(id, at: when, repeatDays: [5, 2, 2])
+
+        XCTAssertEqual(list.items[0].remindAt, when)
+        XCTAssertEqual(list.items[0].repeatDays, [2, 5])
+        XCTAssertNil(list.items[0].firedAt, "a re-armed reminder is not an old firing")
+        XCTAssertFalse(list.items[0].firedUnseen)
+    }
+
+    func testClearReminderRemovesEveryTraceOfIt() {
+        var list = TodoList(items: [TodoItem(text: "a", remindAt: Date(), repeatDays: [3],
+                                             snoozedUntil: Date(), firedUnseen: true)])
+        let id = list.items[0].id
+
+        list.clearReminder(id)
+
+        XCTAssertNil(list.items[0].remindAt)
+        XCTAssertEqual(list.items[0].repeatDays, [])
+        XCTAssertNil(list.items[0].snoozedUntil)
+        XCTAssertFalse(list.items[0].firedUnseen)
+    }
+
+    func testSnoozeSetsTheNewFiringAndClearsTheUnseenMark() {
+        var list = TodoList(items: [TodoItem(text: "a", remindAt: Date(), firedUnseen: true)])
+        let id = list.items[0].id
+        let until = Date(timeIntervalSinceReferenceDate: 900_000_000)
+
+        list.snooze(id, until: until)
+
+        XCTAssertEqual(list.items[0].snoozedUntil, until)
+        XCTAssertFalse(list.items[0].firedUnseen, "snoozing is an acknowledgement")
+    }
+
+    func testAcknowledgeClearsEveryUnseenFiring() {
+        var list = TodoList(items: [TodoItem(text: "a", firedUnseen: true),
+                                    TodoItem(text: "b", firedUnseen: true)])
+
+        XCTAssertTrue(list.acknowledgeFirings())
+        XCTAssertFalse(list.hasUnseenFiring)
+        XCTAssertFalse(list.acknowledgeFirings(), "nothing left to acknowledge")
+    }
+
+    func testUnknownIDIsANoOpForEveryMutator() {
+        var list = TodoList(items: [TodoItem(text: "a")])
+        let before = list
+        let stranger = UUID()
+
+        list.setText(stranger, to: "x")
+        list.setNote(stranger, to: "x")
+        list.setImportant(stranger, true)
+        list.setReminder(stranger, at: Date(), repeatDays: [1])
+        list.clearReminder(stranger)
+        list.snooze(stranger, until: Date())
+
+        XCTAssertEqual(list, before)
+    }
+
     func testNewFieldsSurviveTheStoreRoundTrip() throws {
         let at = Date(timeIntervalSinceReferenceDate: 800_000_000)
         let list = TodoList(items: [

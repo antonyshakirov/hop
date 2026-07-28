@@ -110,6 +110,23 @@ public final class TrackerEngine: ObservableObject {
         onChange?()
     }
 
+    /// The task's comment, edited in the expanded card. A zero-delta write saves
+    /// nothing, like every other mutator here.
+    public func setNote(taskID id: UUID, to note: String) {
+        guard let index = data.tasks.firstIndex(where: { $0.id == id }) else { return }
+        let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard data.tasks[index].note != trimmed else { return }
+        data.tasks[index].note = trimmed
+        onChange?()
+    }
+
+    public func setImportant(taskID id: UUID, _ value: Bool) {
+        guard let index = data.tasks.firstIndex(where: { $0.id == id }) else { return }
+        guard data.tasks[index].important != value else { return }
+        data.tasks[index].important = value
+        onChange?()
+    }
+
     public func deleteTask(_ id: UUID) {
         // an unknown id removes nothing — skip the redundant save, mirroring the
         // other id-taking mutators

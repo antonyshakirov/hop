@@ -116,6 +116,72 @@ public struct TodoList: Codable, Equatable {
         items.removeAll { $0.id == id }
     }
 
+    /// Every id-taking mutator no-ops on an unknown id — the engine invariant the
+    /// tracker already follows, so a stale row in a view can never write nonsense.
+    private mutating func mutate(_ id: UUID, _ body: (inout TodoItem) -> Void) {
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return }
+        body(&items[index])
+    }
+
+    /// Renames the item. A blank commit is rejected rather than stored, the same
+    /// rule `add` follows.
+    public mutating func setText(_ id: UUID, to text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        mutate(id) { $0.text = trimmed }
+    }
+
+    /// The comment is stored as typed apart from the outer whitespace — the line
+    /// breaks inside it are the user's own.
+    public mutating func setNote(_ id: UUID, to note: String) {
+        mutate(id) { $0.note = note.trimmingCharacters(in: .whitespacesAndNewlines) }
+    }
+
+    /// Arms or re-arms the reminder. Re-arming clears the previous firing: a new
+    /// time is a new promise, not an old one that already went off.
+    public mutating func setReminder(_ id: UUID, at date: Date, repeatDays: [Int]) {
+        mutate(id) {
+            $0.remindAt = date
+            $0.repeatDays = TodoItem.normalizedWeekdays(repeatDays)
+            $0.snoozedUntil = nil
+            $0.firedAt = nil
+            $0.firedUnseen = false
+        }
+    }
+
+    public mutating func clearReminder(_ id: UUID) {
+        mutate(id) {
+            $0.remindAt = nil
+            $0.repeatDays = []
+            $0.snoozedUntil = nil
+            $0.firedAt = nil
+            $0.firedUnseen = false
+        }
+    }
+
+    /// Pushes this firing later. Snoozing is itself an acknowledgement — the user
+    /// has seen the banner — so the unseen mark clears with it.
+    public mutating func snooze(_ id: UUID, until date: Date) {
+        mutate(id) {
+            $0.snoozedUntil = date
+            $0.firedUnseen = false
+        }
+    }
+
+    public mutating func setImportant(_ id: UUID, _ value: Bool) {
+        mutate(id) { $0.important = value }
+    }
+
+    /// Clears every unseen firing (the panel was opened and the rows blinked).
+    /// True when anything changed, so the caller only saves when there is a
+    /// reason to.
+    @discardableResult
+    public mutating func acknowledgeFirings() -> Bool {
+        guard hasUnseenFiring else { return false }
+        for index in items.indices { items[index].firedUnseen = false }
+        return true
+    }
+
     /// Moves the item at `from` to `to`. `from` out of range is a no-op; `to`
     /// is clamped into range after the item is lifted out. Backs the drag
     /// reorder in TodosView.

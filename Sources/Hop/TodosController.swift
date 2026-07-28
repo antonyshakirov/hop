@@ -59,6 +59,57 @@ final class TodosController: ObservableObject {
         save()
     }
 
+    func setText(_ id: UUID, to text: String) {
+        list.setText(id, to: text)
+        save()
+    }
+
+    func setNote(_ id: UUID, to note: String) {
+        list.setNote(id, to: note)
+        save()
+    }
+
+    func setImportant(_ id: UUID, _ value: Bool) {
+        list.setImportant(id, value)
+        save()
+    }
+
+    func setReminder(_ id: UUID, at date: Date, repeatDays: [Int]) {
+        list.setReminder(id, at: date, repeatDays: repeatDays)
+        save()
+        reschedule()
+    }
+
+    func clearReminder(_ id: UUID) {
+        list.clearReminder(id)
+        save()
+        reschedule()
+    }
+
+    func snooze(_ id: UUID, until date: Date) {
+        list.snooze(id, until: date)
+        save()
+        reschedule()
+    }
+
+    /// Brings the list up to date — at launch, on wake, on the tick and when the
+    /// panel opens. Saves and re-schedules only when a reminder actually came due,
+    /// so an idle tick costs nothing.
+    func reconcile(now: Date = Date()) {
+        guard list.reconcileReminders(now: now) else { return }
+        save()
+        reschedule()
+    }
+
+    /// The panel was opened and the rows blinked — the firings have been seen.
+    func acknowledgeFirings() {
+        guard list.acknowledgeFirings() else { return }
+        save()
+    }
+
+    /// Filled in by ReminderScheduler once notifications are wired up.
+    private func reschedule() {}
+
     private func save() {
         try? FileManager.default.createDirectory(at: storeDir, withIntermediateDirectories: true)
         do {
