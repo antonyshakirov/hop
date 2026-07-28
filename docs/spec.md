@@ -819,9 +819,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   FLUSH LEFT (no handle gutter): the checkbox is the leading element at the 2pt
   row inset, LEFT-ALIGNED (not centered) in the 22pt `RowCircle.gutter` — its
   visible edge sits exactly on the row inset line, the same line the `to-dos`
-  subheader and the `+ new task` footer text start on — ONE control at ONE
-  diameter with the tracker's play/stop (`RowCircle.diameter`), so the two line
-  up on the same left column when the modules stack on a space. The hover xmark
+  subheader and the `+ new task` footer text start on — the same control family as
+  the tracker's play/stop, so the two line up on the same left column when the
+  modules stack on a space. The hover xmark
   (`HoverDeleteX`) is inserted IN FLOW right after the row's flexible spacer,
   only while hovered, same mechanism as the tracker: no reserved width on a
   non-hovered row, and a long already-truncated todo text yields room to the
@@ -925,6 +925,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Fresh installs pair it with the tracker on the "clock" space; existing
   users get it paired with the tracker on the same space by the canonical
   layout repair described under "Default spaces" below.
+
+- **The checkbox is drawn 2pt SMALLER than the tracker's play/stop** (`RowCircle.checkboxDiameter` 16 against `diameter` 18): a RING reads bigger than a disc of the same size, and at equal diameters it looked like a different control (Anton, 2026-07-28). The ring is a `strokeBorder`, not a `stroke`, for the same reason — a centred stroke straddles the path and grows the circle by its own 1.5pt.
 
 ### Color (eyedropper)
 
