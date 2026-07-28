@@ -216,7 +216,8 @@ final class ScreenTextController: ObservableObject {
     /// on a large selection takes long enough to stutter the UI.
     private nonisolated static func read(_ file: URL) async -> String? {
         let supported = (try? VNRecognizeTextRequest().supportedRecognitionLanguages()) ?? []
-        let selected = UserDefaults.standard.stringArray(forKey: SettingsKey.screenTextLanguages) ?? []
+        let selected = ScreenTextLanguages.selected(
+            from: UserDefaults.standard.string(forKey: SettingsKey.screenTextLanguages) ?? "")
         let languages = RecognitionPlan.languages(selected: selected, supported: supported)
         let detectsAutomatically = RecognitionPlan.detectsAutomatically(selected: selected,
                                                                        supported: supported)

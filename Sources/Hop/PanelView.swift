@@ -48,6 +48,14 @@ struct PanelView: View {
     @AppStorage(ClipboardController.visibleRowsKey) private var clipboardVisibleRows = ClipboardController.defaultVisibleRows
     @AppStorage(TrackerController.visibleRowsKey) private var trackerVisibleRows = TrackerController.defaultVisibleRows
     @AppStorage(TodosController.visibleRowsKey) private var todosVisibleRows = TodosController.defaultVisibleRows
+    @AppStorage(SettingsKey.todoRemindBanner) private var todoRemindBanner = true
+    @AppStorage(SettingsKey.todoRemindSound) private var todoRemindSound = true
+    @AppStorage(SettingsKey.todoRemindMark) private var todoRemindMark = true
+    @AppStorage(SettingsKey.todoImportantOnTop) private var todoImportantOnTop = false
+    @AppStorage(SettingsKey.trackerImportantOnTop) private var trackerImportantOnTop = false
+    /// Space-separated Vision tags; empty = automatic detection. Stored as one
+    /// string because @AppStorage cannot hold an array.
+    @AppStorage(SettingsKey.screenTextLanguages) private var screenTextLanguages = ""
     @AppStorage("timerCompact") private var timerCompact = true
     @AppStorage("displayStyle") private var displayStyle = "dots" // dots | text | units
     @AppStorage("digitsSize") private var digitsSize = "large" // large | small
@@ -3486,11 +3494,24 @@ struct PanelView: View {
             VStack(spacing: 14) {
                 settingsSectionHeader(t(.trackerLabel))
                 visibleRowsSetting(stored: $trackerVisibleRows)
+                switchSetting(t(.settingsImportantOnTop), isOn: $trackerImportantOnTop)
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
                 settingsSectionHeader(t(.todosLabel))
                 visibleRowsSetting(stored: $todosVisibleRows)
+                switchSetting(t(.settingsImportantOnTop), isOn: $todoImportantOnTop)
+                // The reminder signal, three independent switches. Deliberately
+                // separate rather than one three-way mode: the menu-bar mark is
+                // useful without a banner, and a banner is useful without sound.
+                switchSetting(t(.settingsRemindBanner), isOn: $todoRemindBanner)
+                switchSetting(t(.settingsRemindSound), isOn: $todoRemindSound)
+                switchSetting(t(.settingsRemindMark), isOn: $todoRemindMark)
+            }
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            VStack(spacing: 14) {
+                settingsSectionHeader(t(.ocrLabel))
+                recognitionLanguagesSetting
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
@@ -3745,6 +3766,69 @@ struct PanelView: View {
                 Spacer()
                 NumericField(value: $clipboardVisibleRows, range: 1...10)
             }
+        }
+    }
+
+    /// Which languages text recognition asks Vision for. `auto` — the default —
+    /// lets Vision detect the script, which is what reads a screen carrying
+    /// several writing systems at once; naming languages is for someone who
+    /// always reads one and wants the faster pass. Picking a language is
+    /// therefore NOT "more multilingual", and the wording must not imply it.
+    private var recognitionLanguagesSetting: some View {
+        HStack {
+            Text(t(.settingsRecognitionLanguages))
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textPrimary)
+            Spacer()
+            Menu {
+                Button(t(.recognitionLanguagesAuto)) { screenTextLanguages = "" }
+                Divider()
+                ForEach(ScreenTextLanguages.supported, id: \.tag) { language in
+                    Button {
+                        toggleRecognitionLanguage(language.tag)
+                    } label: {
+                        Text(selectedRecognitionLanguages.contains(language.tag)
+                             ? "✓ \(language.name)" : language.name)
+                    }
+                }
+            } label: {
+                Text(recognitionLanguagesSummary)
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: 150, alignment: .trailing)
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+        }
+    }
+
+    private var selectedRecognitionLanguages: [String] {
+        ScreenTextLanguages.selected(from: screenTextLanguages)
+    }
+
+    private var recognitionLanguagesSummary: String {
+        let selected = selectedRecognitionLanguages
+        guard !selected.isEmpty else { return t(.recognitionLanguagesAuto) }
+        return selected.compactMap { ScreenTextLanguages.name(for: $0) }.joined(separator: " · ")
+    }
+
+    private func toggleRecognitionLanguage(_ tag: String) {
+        var selected = selectedRecognitionLanguages
+        if let index = selected.firstIndex(of: tag) { selected.remove(at: index) } else { selected.append(tag) }
+        screenTextLanguages = selected.joined(separator: " ")
+    }
+
+    /// A labelled switch in the settings rhythm — the house MiniSwitch, since the
+    /// system Toggle does not render in ImageRenderer and clashes with the theme.
+    private func switchSetting(_ title: String, isOn: Binding<Bool>) -> some View {
+        HStack {
+            Text(title)
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textPrimary)
+            Spacer()
+            Theme.MiniSwitch(isOn: isOn)
         }
     }
 
