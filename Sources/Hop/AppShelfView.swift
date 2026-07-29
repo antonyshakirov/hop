@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 /// One grid of apps: eight across, up to eight rows.
 ///
 /// Behaves the way a home screen does, because that is the behaviour everyone
-/// already knows: drag an icon and a yellow slot shows where it will land; the
+/// already knows: drag an icon and a yellow line shows which two it lands between; the
 /// edit button starts the wobble, which is when a ✕ appears on each icon; apps
 /// arrive either from the + or dropped in from Finder.
 ///
@@ -229,6 +229,7 @@ struct AppShelfView: View {
             }
             .buttonStyle(.plain)
             .offset(x: -3, y: -3)
+            .help(t(.appsRemoveApp))
         }
     }
 

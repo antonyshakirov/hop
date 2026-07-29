@@ -2102,6 +2102,21 @@ converter (Anton, 2026-07-28).
 - `Hop --sensors` dumps both sources, each line labelled `hid` or `smc`. On an
   unfamiliar Mac the question is always which thermometer answered.
 
+## Tooltips
+
+- Every ICON-ONLY control carries a tooltip naming what it does (Anton,
+  2026-07-29): the header trio, copy and paste in the clipboard, its expand and
+  clear-search icons, the note mark on a to-do, the tracker's play and stop, the
+  timer's presets, ±5, restore, play/pause and mode toggle, the ten-plus window
+  zones by name, keep-awake durations, the speed test's rerun, a colour row's
+  three notations, the torrent rows (fold, folder, pause, remove), a grid icon's
+  ✕ and the archive queue's ✕.
+- Controls that already carry a VISIBLE label do not get one. A tooltip
+  repeating the word under the cursor is noise, and it trains people to ignore
+  the ones that say something.
+- Zone names live in L10n like any other string (`tipSnap*`), so the window
+  layouts finally have names in all 22 languages instead of being glyphs only.
+
 ## Architecture and build
 
 - `HopCore` (library, no UI): TimerEngine — a finite state machine

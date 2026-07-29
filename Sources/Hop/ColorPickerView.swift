@@ -152,6 +152,8 @@ struct ColorPickerView: View {
         }
         .buttonStyle(.plain)
         .hoverHighlight(4)
+        // the chip's own text says WHAT it is; the tooltip says what a click does
+        .help("\(L10n.t(.tipCopy, lang)) \(format.rawValue)")
     }
 }
 

@@ -58,6 +58,7 @@ struct ArchiveView: View {
                 .stroke(targeted ? Theme.editing : .clear, lineWidth: 1)
         )
         .hoverHighlight(7)
+        .help(L10n.t(.tipOpenArchives, lang))
         .snapshotAwareDrop(of: [.fileURL], isTargeted: $targeted) { providers in
             Task {
                 var urls: [URL] = []

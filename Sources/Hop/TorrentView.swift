@@ -312,7 +312,9 @@ struct TorrentView: View {
                         // file's download, watch per-file progress). Single-file rows
                         // have nothing to unfold, so the chevron is theirs only.
                         if item.files.count > 1 {
-                            rowIcon(torrent.expandedIds.contains(item.id) ? "chevron.up" : "chevron.down") {
+                            rowIcon(torrent.expandedIds.contains(item.id) ? "chevron.up" : "chevron.down",
+                                    help: t(torrent.expandedIds.contains(item.id)
+                                            ? .tipCollapse : .tipExpand)) {
                                 torrent.toggleExpanded(item.id)   // instant, no animation — the panel must not drift
                             }
                         }
@@ -329,12 +331,14 @@ struct TorrentView: View {
                             // would yank Finder straight back down (the "flash and hide").
                             // With the popover closed, maybeReturnFocus() early-returns and
                             // Finder stays forward — same pattern as clipboard copy-and-paste.
-                            rowIcon("folder") {
+                            rowIcon("folder", help: t(.tipOpenFolder)) {
                                 model.closePanel?()
                                 torrent.revealInFinder(id: item.id)
                             }
                         }
-                        rowIcon("xmark") { confirmingRemove = item.id }
+                        rowIcon("xmark", help: t(.torrentRemoveTorrent)) {
+                            confirmingRemove = item.id
+                        }
                     }
                 }
             }
@@ -609,6 +613,7 @@ struct TorrentView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(paused ? .tipPlayPause : .tipPlayPause))
         .hoverHighlight(4)
     }
 

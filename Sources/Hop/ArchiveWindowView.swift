@@ -128,6 +128,7 @@ struct ArchiveWindowView: View {
                     }
                     .buttonStyle(.plain)
                     .hoverHighlight(4)
+                    .help(t(.convClear))
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 8)

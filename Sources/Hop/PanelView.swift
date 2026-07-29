@@ -2072,6 +2072,7 @@ struct PanelView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.tipAdjustTime))
     }
 
     private func presetButton(_ minutes: Int) -> some View {
@@ -2100,6 +2101,7 @@ struct PanelView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.tipPreset))
     }
 
     private func restoreButton(_ stash: TimerEngine.Stash) -> some View {
@@ -2122,6 +2124,7 @@ struct PanelView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.tipRestoreTime))
     }
 
     private var resetButton: some View {
@@ -2280,6 +2283,7 @@ struct PanelView: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
+        .help(t(.tipPlayPause))
     }
 
     // MARK: - Converter
@@ -2937,6 +2941,7 @@ struct PanelView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.tipRunSpeedtest))
         .hoverHighlight(4)
     }
 
@@ -2982,9 +2987,35 @@ struct PanelView: View {
                 }
                 .buttonStyle(.plain)
                 .hoverHighlight(5)
+                .help(t(snapHelp(position)))
             }
         }
         .padding(.horizontal, -5) // compensates the inner padding of the edge buttons
+    }
+
+    /// Each zone glyph names itself on hover — the diagrams are small, and
+    /// "top left" is not always obvious at 14pt.
+    private func snapHelp(_ position: WindowSnapController.Position) -> L10nKey {
+        switch position {
+        case .leftHalf: return .tipSnapLeftHalf
+        case .rightHalf: return .tipSnapRightHalf
+        case .topHalf: return .tipSnapTopHalf
+        case .bottomHalf: return .tipSnapBottomHalf
+        case .topLeft: return .tipSnapTopLeft
+        case .topRight: return .tipSnapTopRight
+        case .bottomLeft: return .tipSnapBottomLeft
+        case .bottomRight: return .tipSnapBottomRight
+        case .center: return .tipSnapCenter
+        case .maximize: return .tipSnapMaximize
+        case .leftThird: return .tipSnapLeftThird
+        case .centerThird: return .tipSnapCenterThird
+        case .rightThird: return .tipSnapRightThird
+        case .leftTwoThirds: return .tipSnapLeftTwoThirds
+        case .rightTwoThirds: return .tipSnapRightTwoThirds
+        case .centerHalf: return .tipSnapCenterHalf
+        case .topThird: return .tipSnapTopThird
+        case .bottomThird: return .tipSnapBottomThird
+        }
     }
 
     /// Mini zone diagram: screen frame + filled area.
@@ -3273,6 +3304,7 @@ struct PanelView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.tipAwakeFor))
     }
 
     // MARK: - Settings
