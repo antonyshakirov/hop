@@ -180,15 +180,15 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.5.2</string>
+	<string>1.6.0</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.antonshakirov.minimo.magnet</string>
+			<string>com.antonshakirov.minimo.url</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>magnet</string>
+				<string>hop</string>
 			</array>
 		</dict>
 	</array>
@@ -204,17 +204,6 @@
 	<string>Hop writes unpacked archives and converted files where you ask it to.</string>
 	<key>NSDownloadsFolderUsageDescription</key>
 	<string>Hop saves converted files and downloads where you ask it to.</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.antonshakirov.minimo.url</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>hop</string>
-			</array>
-		</dict>
-	</array>
 	<key>NSHumanReadableCopyright</key>
 	<string>© Anton Shakirov</string>
 	<key>UTImportedTypeDeclarations</key>
