@@ -1006,7 +1006,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the layout settings show for that grid's chip, so three grids on one space can
   be told apart.
 - **Names under the icons** can be switched off per grid (`showsLabels`, on by
-  default), leaving bare icons for someone who recognises them by sight. Both
+  default), leaving bare icons for someone who recognises them by sight. The
+  control is an ICON in the header, not the word "names": beside a field holding
+  the grid's own name, that word read as the same thing twice (Anton,
+  2026-07-29). The tooltip carries the wording. Both
   fields decode leniently, so a file written before they existed still loads.
 - **Two visible affordances in the header**: `+` picks apps from disk
   (`NSOpenPanel`, restricted to `.application`, starting in Applications), and
@@ -1540,6 +1543,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - The torrent card keeps its own two-step shape (opt-in, then follow-up
   settings while the engine downloads); `FeatureAnnouncement.checklist`
   picks which shape a card takes.
+- `modules160` announces the VPN list and a grid of apps. The apps row is the
+  only entry that is NOT a module key: it is the bare word `apps` (`appsChoice`),
+  a REQUEST for a grid, because the launcher exists only once a grid does.
+  Ticking it creates one and places it — and it must be introduced to the tabs
+  model (`ensure`) before being placed, since placing a module the model has
+  never seen is a no-op. Its row carries a one-line detail, like archives: the
+  word "apps" alone does not say what the module is.
 
 ## Agent bridge (files and hop:// links)
 

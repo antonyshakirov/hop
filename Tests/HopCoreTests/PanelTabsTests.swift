@@ -589,4 +589,17 @@ final class PanelTabsTests: XCTestCase {
         model.remove(module: "apps:missing")
         XCTAssertEqual(model, original)
     }
+
+    func testAModuleTheModelHasNeverSeenIsNotPlacedUntilItIsIntroduced() {
+        var model = PanelTabsModel(tabs: [PanelTab(icon: "a", moduleKeys: ["timer"]),
+                                          PanelTab(icon: "b", moduleKeys: [])])
+        let second = model.tabs[1].id
+        model.move(module: "apps:new", toTab: second)
+        XCTAssertTrue(model.tabs[1].moduleKeys.isEmpty, "placing an unknown module is a no-op")
+
+        model.ensure(modules: ["apps:new"])
+        model.move(module: "apps:new", toTab: second)
+        XCTAssertEqual(model.tabs[1].moduleKeys, ["apps:new"])
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer"], "and it leaves the first tab as it was")
+    }
 }

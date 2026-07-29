@@ -139,6 +139,7 @@ struct PanelView: View {
     /// "What's new" banner: dismissed once the user saves their choice.
     @AppStorage("featureSeen.torrent") private var torrentFeatureSeen = false
     @AppStorage("featureSeen.tools150") private var toolsFeatureSeen = false
+    @AppStorage("featureSeen.modules160") private var modulesFeatureSeen = false
     // Two-step "what's new" card: step 1 = opt-in (enable/hide), step 2 = the
     // follow-up toggles while the engine fetches in the background.
     // "--feature-banner-step2" renders step 2 directly for design review.
@@ -381,7 +382,17 @@ struct PanelView: View {
         .init(id: "tools150", moduleKeys: ["archive", "keyboard", "color", "ocr"],
               title: .featureModulesTitle, body: .featureModulesBody,
               footnote: .featureModulesConverter, checklist: true),
+        // `apps` here is a REQUEST for a grid, not an existing module key: the
+        // launcher only exists once a grid does, so ticking it makes one.
+        .init(id: "modules160", moduleKeys: ["vpn", Self.appsChoice],
+              title: .featureModulesTitle, body: .featureModulesBody,
+              checklist: true),
     ]
+
+    /// The checklist entry that stands for "a grid of apps". Deliberately the
+    /// bare word: a real shelf key carries a uuid that does not exist yet.
+    static let appsChoice = "apps"
+
 
     /// The first announcement the user hasn't acted on (enabled or hidden). In a
     /// snapshot it's forced on by `--feature-banner` so the design can be reviewed.
@@ -389,8 +400,11 @@ struct PanelView: View {
         if Snapshot.active {
             // --feature-banner renders the first announcement, --feature-banner-tools
             // the newest one, so either card can be reviewed on its own.
+            if CommandLine.arguments.contains("--feature-banner-modules") {
+                return Self.featureAnnouncements.first { $0.id == "modules160" }
+            }
             if CommandLine.arguments.contains("--feature-banner-tools") {
-                return Self.featureAnnouncements.last
+                return Self.featureAnnouncements.first { $0.id == "tools150" }
             }
             let wantsBanner = CommandLine.arguments.contains("--feature-banner")
                 || CommandLine.arguments.contains("--feature-banner-step2")
@@ -398,7 +412,7 @@ struct PanelView: View {
         }
         // The @AppStorage flags are read here so SwiftUI re-renders when one
         // flips; the lookup itself goes through UserDefaults by id.
-        _ = (torrentFeatureSeen, toolsFeatureSeen)
+        _ = (torrentFeatureSeen, toolsFeatureSeen, modulesFeatureSeen)
         return Self.featureAnnouncements.first {
             !UserDefaults.standard.bool(forKey: "featureSeen.\($0.id)")
         }
@@ -543,10 +557,19 @@ struct PanelView: View {
     private func saveModuleChoices(_ ann: FeatureAnnouncement) {
         let destination = tabsModel.tabs[0].id
         for key in ann.moduleKeys {
-            if bannerChoices[key] == true {
-                placeModule(key, onTab: destination)
+            guard bannerChoices[key] == true else {
+                // Nothing to hide for an apps grid that was never made.
+                if key != Self.appsChoice { deactivateModule(key) }
+                continue
+            }
+            if key == Self.appsChoice {
+                // A brand-new shelf key is unknown to the tabs model, and
+                // placing an unknown module is a no-op — introduce it first.
+                let shelfKey = model.appShelves.addShelf()
+                mutateTabs { $0.ensure(modules: [shelfKey]) }
+                placeModule(shelfKey, onTab: destination)
             } else {
-                deactivateModule(key)   // no-op when it is already hidden
+                placeModule(key, onTab: destination)
             }
         }
         // Only ever CLAIM, and only what macOS does not open itself: an
@@ -565,6 +588,7 @@ struct PanelView: View {
         UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
         torrentFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.torrent")
         toolsFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.tools150")
+        modulesFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.modules160")
         bannerEnabled = false
     }
 
@@ -590,6 +614,7 @@ struct PanelView: View {
                 // mirror into the @AppStorage flags so the banner disappears now
                 torrentFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.torrent")
                 toolsFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.tools150")
+                modulesFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.modules160")
             } label: {
                 HoverLabel(text: t(.featureHide), size: 10, color: Theme.textTertiary)
                     .contentShape(Rectangle())
@@ -2652,6 +2677,7 @@ struct PanelView: View {
         case "color": return t(.colorLabel)
         case "ocr": return t(.ocrLabel)
         case "vpn": return t(.vpnLabel)
+        case Self.appsChoice: return t(.appsLabel)
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil:
             let named = model.appShelves.shelf(withKey: key)?.title
                 .trimmingCharacters(in: .whitespaces) ?? ""
@@ -4029,12 +4055,19 @@ struct PanelView: View {
     /// A one-line hint under a module's name in the what's-new list, when the
     /// name does not say enough on its own.
     private func moduleDetail(_ key: String) -> L10nKey? {
-        key == "archive" ? .featureArchiveFormats : nil
+        switch key {
+        case "archive": return .featureArchiveFormats
+        // "apps" alone does not say what the module is; the others are their
+        // own explanation.
+        case Self.appsChoice: return .featureAppsDetail
+        default: return nil
+        }
     }
 
     /// The icon a module is recognized by, for lists that name modules.
     private func moduleGlyph(_ key: String) -> String {
         switch key {
+        case Self.appsChoice: return "square.grid.3x3"
         case "archive": return "archivebox"
         case "keyboard": return "keyboard"
         case "color": return "paintpalette"

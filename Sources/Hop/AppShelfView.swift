@@ -136,21 +136,22 @@ struct AppShelfView: View {
         .help(help)
     }
 
-    /// Names under the icons, on or off. A chip rather than a switch: the header
-    /// has room for one word, and the word is the label either way.
+    /// Names under the icons, on or off. An icon, not the word "names": beside a
+    /// field holding the grid's own name, that word read as the same thing twice
+    /// (Anton, 2026-07-29). The tooltip says what it does.
     private var labelsToggle: some View {
         Button { shelves.setShowsLabels(!showsLabels, for: shelfID) } label: {
-            Text(t(.appsShowNames))
-                .font(Theme.mono(9, weight: .semibold))
+            Image(systemName: "textformat")
+                .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(showsLabels ? Theme.textPrimary : Theme.textTertiary)
-                .padding(.horizontal, 5)
-                .padding(.vertical, 2)
+                .frame(width: 20, height: 16)
                 .background(showsLabels ? Theme.chipBg : Color.clear,
                             in: RoundedRectangle(cornerRadius: 4))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .hoverDim()
+        .help(t(.appsShowNames))
     }
 
     private var empty: some View {
