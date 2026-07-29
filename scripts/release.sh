@@ -18,24 +18,72 @@ plutil -replace CFBundleShortVersionString -string "$VERSION" scripts/Info.plist
 
 ./scripts/build-app.sh
 
-ZIP="dist/Hop-$VERSION.zip"
-rm -f "$ZIP" "$ZIP.sig"
-ditto -c -k --keepParent dist/Hop.app "$ZIP"
-swift scripts/sign-release.swift "$ZIP" | tail -1
+# One universal build, split into two single-architecture bundles. Shipping the
+# universal binary to everyone would double every download and every update for
+# a slice the machine cannot run; thinning it means each Mac gets exactly what it
+# needs, and both halves are the same compile (Anton, 2026-07-29).
+build_slice() {
+    local arch="$1" dir="dist/$1"
+    rm -rf "$dir"
+    mkdir -p "$dir"
+    cp -R dist/Hop.app "$dir/Hop.app"
+    lipo "$dir/Hop.app/Contents/MacOS/Hop" -thin "$arch" -output "$dir/Hop.app/Contents/MacOS/Hop"
+    # thinning invalidates the signature — sign the bundle again, as build-app.sh does
+    codesign --force --deep --sign - "$dir/Hop.app" 2>/dev/null
+    codesign --verify --deep "$dir/Hop.app" || { echo "signature failed: $arch"; exit 1 }
+}
+build_slice arm64
+build_slice x86_64
 
-# polished DMG for the landing page download (placed where the site serves it from)
-./scripts/make-dmg.sh dist/Hop.app
+ZIP="dist/Hop-$VERSION.zip"                 # arm64 keeps the historical name:
+ZIP_INTEL="dist/Hop-$VERSION-intel.zip"     # every client before 1.6.1 reads it
+rm -f "$ZIP" "$ZIP.sig" "$ZIP_INTEL" "$ZIP_INTEL.sig"
+ditto -c -k --keepParent dist/arm64/Hop.app "$ZIP"
+ditto -c -k --keepParent dist/x86_64/Hop.app "$ZIP_INTEL"
+swift scripts/sign-release.swift "$ZIP" | tail -1
+swift scripts/sign-release.swift "$ZIP_INTEL" | tail -1
+
+# polished DMGs for the landing page: one per architecture, offered separately
+./scripts/make-dmg.sh dist/arm64/Hop.app dist/Hop.dmg
+./scripts/make-dmg.sh dist/x86_64/Hop.app dist/Hop-intel.dmg
 mkdir -p "$SITE_DIR/public/products/hop"
 cp dist/Hop.dmg "$SITE_DIR/public/products/hop/Hop.dmg"
+cp dist/Hop-intel.dmg "$SITE_DIR/public/products/hop/Hop-intel.dmg"
+
+# Homebrew tap: version and both checksums, written here so `brew install` can
+# never lag a release behind again — the tap sat at 1.5.1 while 1.6.0 was already
+# downloading from the site (found 2026-07-29).
+TAP_CASK="${HOP_TAP_CASK:-$HOME/Development Projects/Products Platform/projects/homebrew-tap/Casks/hop.rb}"
+if [[ -f "$TAP_CASK" ]]; then
+    ARM_SHA=$(shasum -a 256 dist/Hop.dmg | awk '{print $1}')
+    INTEL_SHA=$(shasum -a 256 dist/Hop-intel.dmg | awk '{print $1}')
+    VERSION="$VERSION" ARM_SHA="$ARM_SHA" INTEL_SHA="$INTEL_SHA" TAP_CASK="$TAP_CASK" python3 - <<'PYEOF'
+import os, re
+path = os.environ["TAP_CASK"]
+text = open(path, encoding="utf-8").read()
+text = re.sub(r'^  version ".*"$', '  version "%s"' % os.environ["VERSION"], text, count=1, flags=re.M)
+# the arm block comes first, the intel block second — replace in that order
+for sha in (os.environ["ARM_SHA"], os.environ["INTEL_SHA"]):
+    text = re.sub(r'    sha256 (?:"[0-9a-f]{64}"|:no_check)', '    sha256 "%s"' % sha, text, count=1)
+open(path, "w", encoding="utf-8").write(text)
+print("cask updated:", os.environ["VERSION"])
+PYEOF
+else
+    echo "⚠ tap cask not found at $TAP_CASK — update it by hand"
+fi
 
 BASE="https://www.antonshakirov.com/downloads/hop"
 mkdir -p "$SITE_DIR/public/downloads/hop"
-cp "$ZIP" "$ZIP.sig" "$SITE_DIR/public/downloads/hop/"
+cp "$ZIP" "$ZIP.sig" "$ZIP_INTEL" "$ZIP_INTEL.sig" "$SITE_DIR/public/downloads/hop/"
+# `zip`/`sig` stay the arm64 build under their historical names, so a client from
+# before 1.6.1 keeps updating; an Intel one reads the `…Intel` pair instead.
 cat > "$SITE_DIR/public/downloads/hop/latest.json" << JSON
 {
   "version": "$VERSION",
   "zip": "$BASE/Hop-$VERSION.zip",
   "sig": "$BASE/Hop-$VERSION.zip.sig",
+  "zipIntel": "$BASE/Hop-$VERSION-intel.zip",
+  "sigIntel": "$BASE/Hop-$VERSION-intel.zip.sig",
   "critical": $CRITICAL,
   "date": "$(date -u +%Y-%m-%d)"
 }
@@ -73,8 +121,9 @@ fi
 
 echo ""
 echo "release $VERSION is ready:"
-echo "  $SITE_DIR/public/downloads/hop/{latest.json, Hop-$VERSION.zip, .sig}"
+echo "  $SITE_DIR/public/downloads/hop/{latest.json, Hop-$VERSION.zip, -intel.zip, .sig}"
 echo "next: 1) commit in the site repo + ./deploy.sh (it self-checks new public names now);"
+echo "      1b) commit the tap (Casks/hop.rb — version + both checksums are written already);"
 echo "      2) ./scripts/verify-release.sh $VERSION  # MUST print the checkmark;"
 echo "      3) only then: git tag v$VERSION + push;"
-echo "         gh release create v$VERSION \"$ZIP\" \"$ZIP.sig\" dist/Hop.dmg -R antonyshakirov/hop"
+echo "         gh release create v$VERSION \"$ZIP\" \"$ZIP.sig\" \"$ZIP_INTEL\" \"$ZIP_INTEL.sig\" dist/Hop.dmg dist/Hop-intel.dmg -R antonyshakirov/hop"

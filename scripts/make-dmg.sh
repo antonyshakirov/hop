@@ -8,7 +8,9 @@ cd "$(dirname "$0")/.."
 
 APP="${1:-dist/Hop.app}"
 [[ -d "$APP" ]] || { echo "missing $APP — run ./scripts/build-app.sh first"; exit 1 }
-OUT="dist/Hop.dmg"
+# A second argument names the image, so the release can build one DMG per
+# architecture without the two overwriting each other.
+OUT="${2:-dist/Hop.dmg}"
 
 # background — classic 1x PNG 640×400: a retina TIFF bloated the image by 3 MB,
 # and Finder does not render a PNG with dpi set; slightly soft text on retina is fine

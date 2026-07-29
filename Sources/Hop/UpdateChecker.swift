@@ -204,6 +204,17 @@ final class UpdateChecker: ObservableObject {
 
     // MARK: - Mechanics
 
+    /// `"zip"` → `"zipIntel"` on an Intel Mac, unchanged elsewhere. Reading the
+    /// running process's own architecture, not the hardware: a build translated
+    /// by Rosetta would have to keep taking the Intel slice it is made of.
+    private static func archKey(_ base: String) -> String {
+        #if arch(x86_64)
+        return base + "Intel"
+        #else
+        return base
+        #endif
+    }
+
     private func fetchNewerRelease() async -> ReleaseInfo? {
         guard releaseKey != nil else { return nil } // updater is disabled without a key
         guard let url = UpdateFeed.checkURL(feed: Self.feedURL, version: currentVersion)
@@ -215,9 +226,17 @@ final class UpdateChecker: ObservableObject {
               (response as? HTTPURLResponse)?.statusCode == 200,
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let version = json["version"] as? String,
-              let zipURL = (json["zip"] as? String).flatMap(URL.init),
+              // Per-architecture builds: an Intel Mac takes `zipIntel`, everything
+              // else takes `zip`. Downloading the slice this Mac can run keeps the
+              // update the size it always was instead of shipping both halves to
+              // everybody. A manifest without the Intel keys still works — the
+              // fallback is the plain `zip`, which is what every release before
+              // 1.6.1 published and what an older client will always read.
+              let zipURL = (json[Self.archKey("zip")] as? String
+                            ?? json["zip"] as? String).flatMap(URL.init),
               // the signature is mandatory: a release without .sig is never installed
-              let signatureURL = (json["sig"] as? String).flatMap(URL.init)
+              let signatureURL = (json[Self.archKey("sig")] as? String
+                                  ?? json["sig"] as? String).flatMap(URL.init)
         else { return nil }
 
         guard Self.isNewer(version, than: currentVersion) else { return nil }

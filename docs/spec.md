@@ -1975,9 +1975,24 @@ converter (Anton, 2026-07-28).
   that is the ONLY reason Hop did not run there: the whole tree compiles for
   x86_64 unchanged. A `--dev` bundle stays single-architecture, since doubling
   the wait to look at a change buys nothing.
-- Cost: the app roughly doubles (15 MB → 29 MB), and so does every auto-update
-  download. Both bundled helpers — the torrent engine and the 7-Zip archiver —
-  have been universal all along, so they cost nothing extra.
+- **Shipped as two single-architecture builds, not one universal bundle.** The
+  universal binary is built once and `lipo`-thinned into `dist/arm64/Hop.app` and
+  `dist/x86_64/Hop.app`, each re-signed, each with its own zip and DMG. Both stay
+  15 MB — the size Hop has always been — instead of one 29 MB download carrying a
+  slice the machine cannot run (Anton, 2026-07-29). Both bundled helpers (the
+  torrent engine, the 7-Zip archiver) have been universal all along.
+- `latest.json` carries `zip`/`sig` (arm64, the historical names, so every client
+  from before 1.6.1 keeps updating) plus `zipIntel`/`sigIntel`. The updater picks
+  by the RUNNING process's architecture (`#if arch(x86_64)`), not by the
+  hardware, and falls back to the plain pair when the Intel keys are missing.
+- The landing offers the two downloads separately — the main button is Apple
+  Silicon, a quiet line under it is Intel — and COUNTS THEM TOGETHER: one Metrika
+  goal (`hop_download`) with the architecture as a parameter. The install counter
+  is unaffected either way: it counts update pings, which carry the version and
+  nothing else.
+- `Casks/hop.rb` in the tap serves both through `on_arm` / `on_intel`, and
+  `release.sh` writes its version and both checksums — the tap had silently sat
+  at 1.5.1 while 1.6.0 was already downloading from the site.
 - **Temperatures** are the one thing that reads differently. Apple Silicon
   publishes sensors through `IOHIDEventSystemClient`; an Intel Mac publishes none
   there and keeps its thermometers behind the SMC. `SMCTemperatureReader` is a
