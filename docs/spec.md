@@ -1963,6 +1963,34 @@ converter (Anton, 2026-07-28).
   counting" — bad; "lets you close the lid without shutting the Mac
   down" — good).
 
+## Intel Macs (universal build)
+
+- Everything shipped is a UNIVERSAL binary (`swift build --arch arm64 --arch
+  x86_64`, taken from `.build/apple/Products/<Config>/Hop`). An arm64-only build
+  does not launch on an Intel Mac at all — Rosetta translates the other way — and
+  that is the ONLY reason Hop did not run there: the whole tree compiles for
+  x86_64 unchanged. A `--dev` bundle stays single-architecture, since doubling
+  the wait to look at a change buys nothing.
+- Cost: the app roughly doubles (15 MB → 29 MB), and so does every auto-update
+  download. Both bundled helpers — the torrent engine and the 7-Zip archiver —
+  have been universal all along, so they cost nothing extra.
+- **Temperatures** are the one thing that reads differently. Apple Silicon
+  publishes sensors through `IOHIDEventSystemClient`; an Intel Mac publishes none
+  there and keeps its thermometers behind the SMC. `SMCTemperatureReader` is a
+  read-only client for it (open `AppleSMC`, ask a key's type and size, decode
+  `sp78` / `flt` / `ui8`), and `TemperatureReader` picks the source by ASKING:
+  HID first, SMC only when HID returns nothing. Not by architecture — a Mac that
+  answers through neither then reads nil instead of taking a branch that cannot
+  work. Verified on Apple Silicon, where the SMC path also answers for the keys
+  that exist there (`TH0x`, `TB0T`, `Ts0P`), which is what proves the struct
+  layout and the decoding are right.
+- The rule for anything else that turns out to be Apple-Silicon-only: replace it
+  where there is a replacement, and otherwise do not offer it on that Mac at all
+  (Anton, 2026-07-29) — a row that can never have a value is worse than a row
+  that is not there.
+- `Hop --sensors` dumps both sources, each line labelled `hid` or `smc`. On an
+  unfamiliar Mac the question is always which thermometer answered.
+
 ## Architecture and build
 
 - `HopCore` (library, no UI): TimerEngine — a finite state machine

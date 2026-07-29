@@ -37,7 +37,7 @@ enum Snapshot {
 
         // Dump of all temperature sensors — diagnoses sensor names on the specific chip.
         if args.contains("--sensors") {
-            for (name, value) in HIDTemperatureReader().allSensors() {
+            for (name, value) in TemperatureReader().allSensors() {
                 print(String(format: "%6.1f  %@", value, name))
             }
             exit(0)

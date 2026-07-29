@@ -62,6 +62,8 @@ final class SystemStatsController: ObservableObject {
     struct History {
         var cpuLoad: [HistoryPoint] = []
         var cpuTemp: [HistoryPoint] = []
+        var gpuLoad: [HistoryPoint] = []
+        var gpuTemp: [HistoryPoint] = []
         var memShare: [HistoryPoint] = []
         var netDown: [HistoryPoint] = []
         var netUp: [HistoryPoint] = []
@@ -76,7 +78,7 @@ final class SystemStatsController: ObservableObject {
 
     private let cpu = CPUUsageReader()
     private let net = NetThroughputReader()
-    private let sensors = HIDTemperatureReader()
+    private let sensors = TemperatureReader()
     private var ticker: Timer?
     private var backgroundTicker: Timer?
 
@@ -131,6 +133,8 @@ final class SystemStatsController: ObservableObject {
 
         Self.push(&history.cpuLoad, s.cpuLoad)
         Self.push(&history.cpuTemp, temps.cpu)
+        Self.push(&history.gpuLoad, s.gpuLoad)
+        Self.push(&history.gpuTemp, temps.gpu)
         if let used = s.memUsed, let total = s.memTotal, total > 0 {
             Self.push(&history.memShare, used / total)
         }

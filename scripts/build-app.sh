@@ -43,7 +43,19 @@ if [[ $DEV == 1 && "${HOP_RELEASE_BUILD:-}" != "1" ]]; then
 else
     CONFIGURATION="release"
 fi
-swift build -c "$CONFIGURATION"
+# A dev bundle builds for THIS machine only — the point is to look at a change,
+# and a second architecture doubles the wait for nothing. Everything shipped is
+# universal: an arm64-only binary does not launch on an Intel Mac at all (Rosetta
+# translates the other way), and both bundled helpers — the torrent engine and
+# the 7-Zip archiver — have been universal all along.
+if [[ $DEV == 1 ]]; then
+    swift build -c "$CONFIGURATION"
+    BINARY=".build/$CONFIGURATION/Hop"
+else
+    swift build -c "$CONFIGURATION" --arch arm64 --arch x86_64
+    # SwiftPM writes the universal binary under a capitalised configuration name
+    BINARY=".build/apple/Products/$(echo "$CONFIGURATION" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')/Hop"
+fi
 
 if [[ ! -f assets/AppIcon.icns ]]; then
     ./scripts/make-icon.sh
@@ -67,7 +79,7 @@ fi
 APP="dist/$APP_NAME.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp ".build/$CONFIGURATION/Hop" "$APP/Contents/MacOS/Hop"
+cp "$BINARY" "$APP/Contents/MacOS/Hop"
 cp scripts/Info.plist "$APP/Contents/Info.plist"
 cp assets/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 for icon in "${DOC_ICONS[@]}"; do

@@ -63,6 +63,20 @@ struct StatsView: View {
             }
             row(icon: "memorychip", color: Theme.accentPurple, label: "gpu",
                 value: gpuValue(s))
+            // Same card as the cpu's, for the same reason: the gpu row carries a
+            // load and a temperature, and a number alone does not say whether it
+            // has been climbing (Anton, 2026-07-29). Drawn only when this Mac
+            // reports at least one of the two — on a machine that reports
+            // neither, an empty chart is worse than no chart.
+            if detailed, s.gpuLoad != nil || s.gpuTemp != nil {
+                SparklineCard(series: [
+                    .init(label: t(.legendLoad), points: windowed(stats.history.gpuLoad, from: chartStart),
+                          color: Theme.accentPurple, maxValue: 1),
+                    .init(label: t(.legendTemp), points: windowed(stats.history.gpuTemp, from: chartStart),
+                          color: Theme.graphShade(Theme.accentPurple), maxValue: 100),
+                ], start: chartStart, end: chartEnd)
+                .padding(.bottom, 6)
+            }
             row(icon: "square.stack.3d.up", color: Theme.accentGreen, label: t(.statMemory),
                 value: memValue(s))
             if detailed {
