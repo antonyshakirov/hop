@@ -2339,7 +2339,7 @@ struct PanelView: View {
     // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "archive", "keyboard", "vpn"]
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "archive", "keyboard", "vpn", "uninstall"]
     static let defaultModuleOrder = "timer,awake,clipboard,convert,windows,speedtest,torrent,color,ocr,archive,keyboard,vpn"
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
@@ -2722,6 +2722,7 @@ struct PanelView: View {
                 .trimmingCharacters(in: .whitespaces) ?? ""
             return named.isEmpty ? t(.appsLabel) : named
         case "archive": return t(.archiveLabel)
+        case "uninstall": return t(.uninstallLabel)
         case "keyboard": return t(.keylockLabel)
         case "system": return t(.tabSystem)
         case "tracker": return t(.trackerLabel)
@@ -2772,6 +2773,10 @@ struct PanelView: View {
         case "archive":
             ArchiveView(archive: model.archive, lang: lang,
                         openWindow: { model.openArchiveWindow?() })
+                .id(model.themeVersion)
+        case "uninstall":
+            UninstallView(uninstall: model.uninstall, lang: lang,
+                          openWindow: { model.openUninstallWindow?() })
                 .id(model.themeVersion)
         case "keyboard":
             KeyboardLockView(lock: model.keyboardLock, lang: lang,
@@ -4192,6 +4197,7 @@ struct PanelView: View {
         switch key {
         case Self.appsChoice: return "square.grid.3x3"
         case "archive": return "archivebox"
+        case "uninstall": return "trash"
         case "keyboard": return "keyboard"
         case "color": return "paintpalette"
         case "ocr": return "text.viewfinder"

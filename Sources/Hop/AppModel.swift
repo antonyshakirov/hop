@@ -24,6 +24,7 @@ final class AppModel: ObservableObject {
     let archive = ArchiveController()
     let keyboardLock = KeyboardLockController()
     let vpn = VPNController()
+    let uninstall = UninstallController()
     let appShelves = AppShelvesController()
 
     /// Last time the user actively touched Hop. The updater installs a found
@@ -71,6 +72,9 @@ final class AppModel: ObservableObject {
     /// Open the standalone archive window — a drop target that survives a drag,
     /// which the panel's popover cannot be.
     var openArchiveWindow: (() -> Void)?
+    /// Open the uninstaller window: an app is dropped there, and the window is
+    /// the only drop target that survives a drag.
+    var openUninstallWindow: (() -> Void)?
     /// Open the recognition window: where a picture is dropped or pasted, and
     /// where the recognized text is shown.
     var openScreenTextWindow: (() -> Void)?

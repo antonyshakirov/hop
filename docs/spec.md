@@ -2112,6 +2112,54 @@ converter (Anton, 2026-07-28).
 - `Hop --sensors` dumps both sources, each line labelled `hid` or `smc`. On an
   unfamiliar Mac the question is always which thermometer answered.
 
+### Uninstaller (1.7.0)
+
+Removes an app AND the dozen places it leaves things behind. A row in the panel
+opens its own window, the way the converter and the archives do; apps arrive by
+drag-and-drop onto that window or through a "+" that opens Finder.
+
+- **It LISTS folders and matches entries, it does not guess paths.** The first
+  cut built exact paths from the bundle identifier and found two of Telegram's ten
+  traces — 2 GB of 28 GB — because the rest are shaped differently:
+  `Containers/<id>.<extension>` for a share extension,
+  `Group Containers/<TEAMID>.<id>`, `Application Scripts/<id>`,
+  `Caches/<id>.ShipIt` for a Squirrel updater (measured 2026-07-30). The folders
+  scanned are `~/Library/{Application Support, Caches, Preferences, Containers,
+  Group Containers, Application Scripts, Saved Application State, HTTPStorages,
+  WebKit, Logs, Cookies, LaunchAgents}` and — behind one admin prompt —
+  `/Library/{Application Support, Preferences, LaunchAgents, LaunchDaemons,
+  PrivilegedHelperTools}`.
+- **An entry matches on a DOT boundary**: equal to the id, `id.`-prefixed,
+  `.id`-suffixed (a team prefix), or `.id.` inside. That is what catches the four
+  real shapes above while `com.acme.notesuite` is never swept up with
+  `com.acme.notes`. File types (`.plist`, `.savedState`, `.binarycookies`) come off
+  before comparing.
+- **Three grades of match, and only two are ticked.** The identifier and the app's
+  EXACT name are ticked — an app's `Application Support/<its name>` is where its
+  gigabytes live, and leaving it unticked made the default run a half-uninstall. A
+  name PREFIX (`Telegram Desktop` for `Telegram`) is listed unticked: often the
+  same app, sometimes another one. A VENDOR folder (`Application Support/Google`
+  when removing Chrome) is never ticked and always labelled — removing it takes
+  Drive's data too, which is the classic uninstaller bug.
+- launchd folders are stricter: only a `.plist` whose label matches the identifier
+  counts, since a label is not a display name.
+- **Everything goes to the TRASH, never `rm`.** The action stays reversible until
+  the user empties it, which is the difference between a tool and a story about a
+  tool. `FileManager.trashItem` for user-level items; the admin sweep moves its
+  files into `~/.Trash` in ONE authorised step rather than deleting them.
+- **The app is quit first** (`NSRunningApplication.terminate()`), and its launch
+  agents are booted out (`launchctl bootout`) before their plists move — otherwise
+  launchd writes them back a second later. An app that refuses to quit stops the
+  run with that reason, rather than half-removing it.
+- **The report says what STAYED.** Install receipts in `/var/db/receipts`, the
+  Spotlight index, system logs, keychain items, system/network extensions and VPN
+  profiles are not ours to remove — keychain entries especially, where a wrong
+  guess costs somebody a password. Claiming "not a single trace left" without that
+  list is the lie the category is known for; the window names each remaining
+  thing and why.
+- The matching rules live in `HopCore.AppUninstall` and are unit-tested: the
+  scanning and trashing is a thin AppKit layer over pure decisions.
+
 ## Tooltips
 
 - Every ICON-ONLY control carries a tooltip naming what it does (Anton,

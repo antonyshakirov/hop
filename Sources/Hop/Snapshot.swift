@@ -35,6 +35,36 @@ enum Snapshot {
     static func runIfRequested() {
         let args = CommandLine.arguments
 
+        // `Hop --uninstall-scan /Applications/Foo.app` prints what the uninstaller
+        // would find, with sizes and flags, and exits. This is how the module is
+        // checked against a real app — and against what other uninstallers claim
+        // — without clicking through a window.
+        if let i = args.firstIndex(of: "--uninstall-scan"), args.count > i + 1 {
+            let path = args[i + 1]
+            let bundle = Bundle(url: URL(fileURLWithPath: path))
+            let name = FileManager.default.displayName(atPath: path)
+                .replacingOccurrences(of: ".app", with: "")
+            let id = bundle?.bundleIdentifier ?? ""
+            print("app: \(name)   id: \(id.isEmpty ? "—" : id)")
+            var total: Int64 = 0
+            for trace in UninstallController.scanTraces(identifier: id, name: name, appPath: path) {
+                total += trace.bytes
+                let flags = [trace.candidate.match == .identifier ? "id"
+                                : (trace.candidate.match == .exactName ? "name" : "name?"),
+                             trace.candidate.shared ? "SHARED" : nil,
+                             trace.kind.needsAdmin ? "admin" : nil,
+                             trace.ticked ? nil : "unticked"]
+                    .compactMap { $0 }.joined(separator: " ")
+                print(String(format: "%10.1f MB  %-16@ %-16@ %@",
+                             Double(trace.bytes) / 1_048_576,
+                             trace.kind.rawValue as NSString,
+                             flags as NSString,
+                             trace.path as NSString))
+            }
+            print(String(format: "total: %.1f MB", Double(total) / 1_048_576))
+            exit(0)
+        }
+
         // Dump of all temperature sensors — diagnoses sensor names on the specific chip.
         if args.contains("--sensors") {
             for (name, value) in TemperatureReader().allSensors() {

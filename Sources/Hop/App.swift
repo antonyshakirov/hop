@@ -26,6 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
     private var converterWindow: ConverterWindow?
     private var archiveWindow: ConverterWindow?
+    private var uninstallWindow: NSWindow?
     private var finderArchiveWindows: [UUID: FinderArchiveProgressWindowController] = [:]
     private var screenTextWindow: ConverterWindow?
     private var aboutWindow: NSWindow?
@@ -56,7 +57,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// the same reason — it lives for a second and answers one question.
     private var dockWindows: [NSWindow] {
         var list = [settingsWindow, aboutWindow, torrentAddWindow, converterWindow,
-                    archiveWindow, screenTextWindow, onboardingWindow].compactMap { $0 }
+                    archiveWindow, uninstallWindow, screenTextWindow,
+                    onboardingWindow].compactMap { $0 }
         list.append(contentsOf: finderArchiveWindows.values.map(\.window))
         return list
     }
@@ -270,6 +272,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openArchiveWindow = { [weak self] in
             self?.showArchiveWindow()
         }
+        model.openUninstallWindow = { [weak self] in
+            self?.showUninstallWindow()
+        }
         model.openScreenTextWindow = { [weak self] in
             self?.showScreenTextWindow()
         }
@@ -290,7 +295,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // app's own layer while another app is active — the window came
             // back UNDER the frontmost app instead of on top with the panel.
             let ours = Set([converterWindow, settingsWindow, aboutWindow, torrentAddWindow,
-                            archiveWindow, screenTextWindow].compactMap { $0 }
+                            archiveWindow, uninstallWindow,
+                            screenTextWindow].compactMap { $0 }
                 + finderArchiveWindows.values.map(\.presentedWindow))
             // Raise them WITHOUT reshuffling: walk the current front-to-back
             // order in reverse (back first) so each orderFrontRegardless lands
@@ -879,6 +885,43 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
         adjustArchiveHeight()
+    }
+
+    /// The uninstaller window: an app goes in (dropped or picked), everything it
+    /// left behind comes out as a list with sizes, and what the user ticks moves
+    /// to the trash. A plain window — no paste handling, since an app is not
+    /// something anybody copies to the clipboard.
+    private func showUninstallWindow() {
+        model.activity.note()
+        if uninstallWindow == nil {
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 560, height: 460),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered, defer: false
+            )
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.isMovableByWindowBackground = false
+            window.isReleasedWhenClosed = false
+            let host = NSHostingController(
+                rootView: UninstallWindowView(uninstall: model.uninstall,
+                                              lang: L10n.current)
+                    .hopLayoutDirection()
+            )
+            host.sizingOptions = []
+            window.contentViewController = host
+            window.contentMinSize = NSSize(width: 460, height: 320)
+            uninstallWindow = window
+        }
+        guard let window = uninstallWindow else { return }
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        if !window.isVisible {
+            window.setContentSize(NSSize(width: 560, height: 460))
+            window.center()
+        }
+        enterDockMode()
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
     }
 
     /// The recognition window: a picture goes in (dropped or pasted), the text
