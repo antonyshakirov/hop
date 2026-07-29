@@ -1116,11 +1116,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   it makes the hosting controller recompute its size forever. Each icon carries a
   ✕ drawn as a muted circle with the glyph knocked out; a bright badge on a
   moving icon reads as blinking.
-- **The icons line up with the module's own edges**: the first icon sits on the
-  left inset and the last on the right one, only the ones between are centred in
-  their column. Centring every cell indented the row by half the column's slack
-  (a 30pt icon in a ~37pt column), so the icons stood further in than every label
-  and row above them (fixed 2026-07-29).
+- **Flush edges AND equal gaps.** A row is eight fixed 30pt slots with `Spacer`s
+  between them, not a `LazyVGrid`: the spacers carry all the slack, so the first
+  icon sits on the module's left inset, the last on its right one, and the seven
+  gaps are identical. Two earlier cuts each failed one half of that — centring
+  every grid cell indented the whole row by half the column's slack, and aligning
+  only the outer two cells to the edges left the outer gaps 3.6pt wider than the
+  inner ones (Anton, 2026-07-29 and 2026-07-30). A half-filled last row keeps the
+  pitch with invisible slots, and the drag maths reads the measured pitch instead
+  of a guessed cell width.
 - **Dragging** reorders the grid: the dragged icon follows the pointer, scaled
   1.08 and above the rest, and a YELLOW LINE marks the GAP it would drop into —
   2pt wide, sitting in the middle of the 6pt column gap. Highlighting the target

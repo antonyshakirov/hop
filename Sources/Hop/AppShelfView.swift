@@ -49,9 +49,21 @@ struct AppShelfView: View {
         return title.isEmpty ? t(.appsLabel) : title
     }
 
-    /// 8 columns, fixed — the row is the unit here, not the panel's width.
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 6),
-                                count: AppShelf.columns)
+    /// The icon's own size. A slot is exactly this wide, so the spacers between
+    /// slots are the only thing between two icons.
+    private static let iconSize: CGFloat = 30
+    /// Measured width of one row — the pitch and the drag maths come from it.
+    @State private var rowWidth: CGFloat = 0
+
+    /// Distance from one icon's left edge to the next one's. Eight icons flush
+    /// against both module edges leave seven EQUAL gaps. A LazyVGrid could not do
+    /// that: centring every cell indented the row by half the column's slack, and
+    /// aligning only the outer two to the edges made the outer gaps 3.6pt wider
+    /// than the inner ones (Anton, 2026-07-30).
+    private var pitch: CGFloat {
+        guard rowWidth > Self.iconSize else { return Self.iconSize + 14 }
+        return (rowWidth - Self.iconSize) / CGFloat(AppShelf.columns - 1)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -177,12 +189,30 @@ struct AppShelfView: View {
     // MARK: - Grid
 
     private func grid(_ shelf: AppShelf) -> some View {
-        LazyVGrid(columns: columns, spacing: 6) {
-            ForEach(Array(shelf.items.enumerated()), id: \.element.id) { index, item in
-                cell(item, at: index)
+        let rows = stride(from: 0, to: shelf.items.count, by: AppShelf.columns).map { start in
+            Array(shelf.items[start..<min(start + AppShelf.columns, shelf.items.count)])
+        }
+        return VStack(spacing: 6) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { rowIndex, row in
+                HStack(spacing: 0) {
+                    ForEach(0..<AppShelf.columns, id: \.self) { column in
+                        if column > 0 { Spacer(minLength: 0) }
+                        if column < row.count {
+                            cell(row[column], at: rowIndex * AppShelf.columns + column)
+                        } else {
+                            // holds the pitch of a half-filled last row
+                            Color.clear.frame(width: Self.iconSize, height: 1)
+                        }
+                    }
+                }
             }
         }
         .padding(.vertical, 2)
+        .background(GeometryReader { geo in
+            Color.clear
+                .onAppear { rowWidth = geo.size.width }
+                .onChange(of: geo.size.width) { _, width in rowWidth = width }
+        })
     }
 
     private func cell(_ item: ShelfItem, at index: Int) -> some View {
@@ -204,7 +234,10 @@ struct AppShelfView: View {
         // cell left the row indented by half the slack (the icon is 30pt in a
         // ~37pt column), so the icons stood further in than every label and row
         // above them (Anton, 2026-07-29).
-        .frame(maxWidth: .infinity, alignment: columnAlignment(of: index))
+        // Exactly one icon wide: the spacers between slots carry all the slack,
+        // so every gap is the same and the outer icons sit on the module's own
+        // left and right lines.
+        .frame(width: Self.iconSize)
         .padding(.vertical, 2)
         // The gap the dragged icon would drop into, on whichever side of this
         // cell it falls.
@@ -272,14 +305,6 @@ struct AppShelfView: View {
         return dropIndex > dragOrigin ? .trailing : .leading
     }
 
-    private func columnAlignment(of index: Int) -> Alignment {
-        switch index % AppShelf.columns {
-        case 0: return .leading
-        case AppShelf.columns - 1: return .trailing
-        default: return .center
-        }
-    }
-
     private func wobbleAngle(at index: Int) -> Double {
         guard editing else { return 0 }
         let leaning = (index % 2 == 0) == wobblePhase
@@ -308,11 +333,12 @@ struct AppShelfView: View {
             }
     }
 
-    /// Cell geometry: 36pt wide, 44pt tall with the names on and 36pt without —
+    /// Cell geometry: the measured pitch across, 44pt down with the names on and
+    /// 36pt without —
     /// close enough that a drag lands where the pointer is.
     private func destination(from index: Int, translation: CGSize) -> Int {
         let rowHeight: CGFloat = showsLabels ? 44 : 36
-        let across = Int((translation.width / 36).rounded())
+        let across = Int((translation.width / pitch).rounded())
         let down = Int((translation.height / rowHeight).rounded())
         let count = shelf?.items.count ?? 0
         return max(0, min(index + across + down * AppShelf.columns, max(0, count - 1)))
