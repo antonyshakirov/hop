@@ -132,10 +132,28 @@ public struct AppShelves: Codable, Equatable, Sendable {
     /// The module keys the panel should know about, in shelf order.
     public var moduleKeys: [String] { shelves.map(\.moduleKey) }
 
-    /// The shelf a module key names, if it names one.
+    /// The shelf a module key names, if it names one. A uuid parses whatever case
+    /// it was written in, so two keys spelled differently can name one shelf.
     public static func shelfID(fromModuleKey key: String) -> UUID? {
         guard key.hasPrefix("apps:") else { return nil }
         return UUID(uuidString: String(key.dropFirst("apps:".count)))
+    }
+
+    /// Every key in `keys` that names `id`. Comparing keys as TEXT is the trap
+    /// this exists to avoid: `moduleKey` builds an uppercase uuid, a key stored
+    /// in lowercase names the same shelf, and string equality would miss it and
+    /// leave a chip behind that names a shelf nobody can delete.
+    public static func moduleKeys(for id: UUID, in keys: [String]) -> [String] {
+        keys.filter { shelfID(fromModuleKey: $0) == id }
+    }
+
+    /// The keys among `keys` that name a shelf which is not here — leftovers of a
+    /// grid that was deleted while its key stayed on a space.
+    public func orphanedModuleKeys(in keys: [String]) -> [String] {
+        keys.filter { key in
+            guard let id = Self.shelfID(fromModuleKey: key) else { return false }
+            return self[id] == nil
+        }
     }
 
     @discardableResult

@@ -164,4 +164,30 @@ final class AppShelfTests: XCTestCase {
         XCTAssertEqual(item.name, "Safari.app")
         XCTAssertNil(item.bundleIdentifier)
     }
+
+    // MARK: - Matching keys to shelves
+
+    func testAKeyNamesItsShelfWhateverCaseTheUUIDIsWrittenIn() {
+        let id = UUID(uuidString: "BB658A89-3685-4619-8267-DC2E7326D6B4")!
+        let lower = "apps:bb658a89-3685-4619-8267-dc2e7326d6b4"
+        XCTAssertEqual(AppShelves.shelfID(fromModuleKey: lower), id)
+        XCTAssertEqual(AppShelves.moduleKeys(for: id, in: ["timer", lower]), [lower],
+                       "matched by id, not by the key's text")
+    }
+
+    func testMatchingIgnoresOtherShelves() {
+        var shelves = AppShelves()
+        let a = shelves.addShelf(), b = shelves.addShelf()
+        let keys = [a.moduleKey, b.moduleKey, "timer"]
+        XCTAssertEqual(AppShelves.moduleKeys(for: a.id, in: keys), [a.moduleKey])
+    }
+
+    func testAKeyWhoseShelfIsGoneIsAnOrphan() {
+        var shelves = AppShelves()
+        let shelf = shelves.addShelf()
+        let ghost = "apps:bb658a89-3685-4619-8267-dc2e7326d6b4"
+        XCTAssertEqual(shelves.orphanedModuleKeys(in: [shelf.moduleKey, ghost, "timer"]), [ghost])
+        shelves.removeShelf(shelf.id)
+        XCTAssertEqual(shelves.orphanedModuleKeys(in: [shelf.moduleKey]), [shelf.moduleKey])
+    }
 }

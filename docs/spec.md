@@ -1004,7 +1004,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `HopCore.AppShelf` / `AppShelves` with tests; the store is
   `app-shelves.json` beside the other module files.
 - **Several grids.** This is the ONE module that exists in copies, so its module
-  key carries an id (`apps:<uuid>`) instead of a bare word. Settings lists the
+  key carries an id (`apps:<uuid>`) instead of a bare word. A key is matched to
+  its shelf by that ID, never as text (`AppShelves.moduleKeys(for:in:)`):
+  `moduleKey` writes an uppercase uuid, a key stored lowercase names the same
+  shelf, and string equality deleted the shelf while leaving its chip behind as a
+  ghost nobody could remove (fixed 2026-07-29). A key whose shelf is gone is an
+  ORPHAN (`orphanedModuleKeys(in:)`) and the panel drops it on appear, so a ghost
+  left by an older build clears itself. Settings lists the
   grids that exist — each with its name and how many apps it holds, and a ✕ that
   deletes it — plus the `+` that makes another and drops it on the first space.
   Deleting a grid calls `PanelTabsModel.remove(module:)`, which forgets the key

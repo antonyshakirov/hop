@@ -312,6 +312,7 @@ struct PanelView: View {
         }
         .frame(width: 368)
         .background(Theme.panelBackground)
+        .onAppear { dropOrphanedShelfKeys() }
         .simultaneousGesture(TapGesture().onEnded {
             // a click outside the display clears the digit-group selection (yellow highlight = focus)
             let tappedAt = Date()
@@ -3968,12 +3969,31 @@ struct PanelView: View {
 
     /// Deletes a grid and forgets its module key. Hiding is not enough here: the
     /// module itself is gone, and a key left on a space would draw nothing.
+    ///
+    /// The key is found by the shelf it NAMES, not by its text. `moduleKey`
+    /// builds an uppercase uuid while a key stored in lowercase names the same
+    /// shelf, and matching as strings deleted the shelf but left its chip behind
+    /// as a ghost nobody could remove (Anton, 2026-07-29). The shelf itself may
+    /// already be gone — this still clears the key.
     private func removeShelf(_ id: UUID) {
-        guard let shelf = model.appShelves.shelves[id] else { return }
         var tabs = tabsModel
-        tabs.remove(module: shelf.moduleKey)
+        let keys = AppShelves.moduleKeys(for: id, in: tabs.tabs.flatMap(\.moduleKeys) + tabs.inactive)
+        for key in keys { tabs.remove(module: key) }
         panelTabsRaw = tabs.encoded()
         model.appShelves.removeShelf(id)
+    }
+
+    /// Drops keys that name a grid which no longer exists. Runs when the panel
+    /// appears, so a ghost left by an older build clears itself instead of
+    /// sitting in the module table forever.
+    private func dropOrphanedShelfKeys() {
+        let tabs = tabsModel
+        let orphans = model.appShelves.shelves
+            .orphanedModuleKeys(in: tabs.tabs.flatMap(\.moduleKeys) + tabs.inactive)
+        guard !orphans.isEmpty else { return }
+        mutateTabs { model in
+            for key in orphans { model.remove(module: key) }
+        }
     }
 
     /// Which day the reminder's weekday row starts on. Defaults to the system's
