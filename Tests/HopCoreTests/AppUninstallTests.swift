@@ -134,8 +134,17 @@ final class AppUninstallTests: XCTestCase {
     }
 
     func testEverySystemFolderNeedsAnAdministrator() {
-        XCTAssertTrue(AppUninstall.systemFolders.allSatisfy { $0.kind.needsAdmin })
-        XCTAssertFalse(AppUninstall.Kind.caches.needsAdmin)
+        // The KIND is not enough: a plug-in folder exists in both trees, so the
+        // decision follows the PATH.
+        for folder in AppUninstall.systemFolders {
+            XCTAssertTrue(AppUninstall.needsAdmin(path: "/Library/\(folder.name)/Thing",
+                                                  kind: folder.kind),
+                          "\(folder.name) is a system location")
+        }
+        XCTAssertFalse(AppUninstall.needsAdmin(path: "/Users/t/Library/QuickLook/Thing.qlgenerator",
+                                               kind: .plugin),
+                       "the same kind under a home folder is the user's own")
+        XCTAssertTrue(AppUninstall.needsAdmin(path: "/var/db/receipts/x.bom", kind: .receipt))
     }
 
     func testTheThingsWeCannotRemoveAreNamed() {

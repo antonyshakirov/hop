@@ -35,6 +35,7 @@ public enum AppUninstall {
         case autosave            // Autosave Information/<id>
         case crashReports        // Logs/DiagnosticReports/<Name>_*.ips
         case sharedFolder        // /Users/Shared/<Name>
+        case plugin              // plug-ins, panes, importers, workflows, kexts
         case systemCaches        // /Library/Caches (admin)
         case receipt             // /var/db/receipts/<id>.{bom,plist} (admin)
         case systemSupport       // /Library/Application Support (admin)
@@ -106,8 +107,15 @@ public enum AppUninstall {
     /// Suffixes that are part of the file TYPE rather than the identifier, so they
     /// come off before matching: `com.acme.notes.plist` is the same name as
     /// `com.acme.notes`.
-    private static let typeSuffixes = [".plist", ".savedState", ".binarycookies",
-                                      ".plist.lockfile", ".sfl3", ".bom"]
+    private static let typeSuffixes = [
+        ".plist", ".savedState", ".binarycookies", ".plist.lockfile", ".sfl3", ".bom", ".ips",
+        // bundle-shaped leftovers: a quick-look generator, a preference pane, an
+        // audio plug-in, a saved workflow. Their base name is the app's, so the
+        // extension has to come off before comparing.
+        ".qlgenerator", ".prefPane", ".bundle", ".plugin", ".component", ".driver",
+        ".workflow", ".saver", ".mdimporter", ".appex", ".framework", ".kext",
+        ".service", ".dockextension", ".wdgt", ".colorPicker", ".app",
+    ]
 
     /// The identifier or name an entry carries, with the file type removed.
     static func base(of entry: String) -> String {
@@ -157,8 +165,26 @@ public enum AppUninstall {
         // Per-host preferences: a real file, commonly missed, and the reason a
         // reinstalled app remembers a setting nobody expected it to.
         ("Preferences/ByHost", .byHost),
+        // Autosave Information is protected by macOS: without Full Disk Access even
+        // `ls` is refused, so the folder is listed and simply comes back empty.
         ("Autosave Information", .autosave),
         ("Logs/DiagnosticReports", .crashReports),
+        ("Application Support/CrashReporter", .crashReports),
+        // Plug-in style leftovers. Every uninstaller worth comparing against looks
+        // here, and an app that installed a quick-look generator or a preference
+        // pane leaves it behind on its own (added 2026-07-30).
+        ("Internet Plug-Ins", .plugin),
+        ("PreferencePanes", .plugin),
+        ("QuickLook", .plugin),
+        ("Spotlight", .plugin),
+        ("Services", .plugin),
+        ("Widgets", .plugin),
+        ("Screen Savers", .plugin),
+        ("Input Methods", .plugin),
+        ("ColorPickers", .plugin),
+        ("Frameworks", .plugin),
+        ("Audio/Plug-Ins/HAL", .plugin),
+        ("Audio/Plug-Ins/Components", .plugin),
     ]
 
     /// The same, under `/Library` — every one of these needs an administrator.
@@ -169,6 +195,14 @@ public enum AppUninstall {
         ("LaunchDaemons", .launchDaemon),
         ("PrivilegedHelperTools", .privilegedHelper),
         ("Caches", .systemCaches),
+        ("Internet Plug-Ins", .plugin),
+        ("PreferencePanes", .plugin),
+        ("QuickLook", .plugin),
+        ("Spotlight", .plugin),
+        ("Extensions", .plugin),
+        ("Frameworks", .plugin),
+        ("Audio/Plug-Ins/HAL", .plugin),
+        ("Audio/Plug-Ins/Components", .plugin),
     ]
 
     /// Folders outside both Library trees, by absolute path.
@@ -183,6 +217,13 @@ public enum AppUninstall {
 
     /// Turns one directory entry into a candidate, or nothing. `kind` says which
     /// folder it came from; `name` is the app's display name.
+    /// Whether a found path needs an administrator to move: any system location,
+    /// whatever kind it is. A plug-in folder exists in both trees.
+    public static func needsAdmin(path: String, kind: Kind) -> Bool {
+        kind.needsAdmin || path.hasPrefix("/Library/") || path.hasPrefix("/var/db/")
+            || path.hasPrefix("/Users/Shared/")
+    }
+
     public static func candidate(
         directory: String, entry: String, kind: Kind,
         identifier id: String, appName name: String

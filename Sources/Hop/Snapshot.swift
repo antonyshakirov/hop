@@ -52,7 +52,8 @@ enum Snapshot {
                 let flags = [trace.candidate.match == .identifier ? "id"
                                 : (trace.candidate.match == .exactName ? "name" : "name?"),
                              trace.candidate.shared ? "SHARED" : nil,
-                             trace.kind.needsAdmin ? "admin" : nil,
+                             AppUninstall.needsAdmin(path: trace.path, kind: trace.kind)
+                                 ? "admin" : nil,
                              trace.ticked ? nil : "unticked"]
                     .compactMap { $0 }.joined(separator: " ")
                 print(String(format: "%10.1f MB  %-16@ %-16@ %@",

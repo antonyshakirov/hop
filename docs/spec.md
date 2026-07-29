@@ -2172,6 +2172,41 @@ drag-and-drop onto that window or through a "+" that opens Finder.
 - The matching rules live in `HopCore.AppUninstall` and are unit-tested: the
   scanning and trashing is a thin AppKit layer over pure decisions.
 
+### The three tools in one row (setting)
+
+- The converter, the archives and the uninstaller are the same shape of thing —
+  a row that opens a window and takes files — and three of them cost a crowded
+  space three lines. `toolsOneRow` (off by default) draws them as ONE row split in
+  equal parts.
+- Each part is an icon and a SINGLE word ("converter", "archives", "uninstall").
+  The full names do not fit three to a 340pt row in any language, least of all in
+  German (Anton, 2026-07-30); they stay in the tooltip, in settings and in the
+  help. A third of the row is 111pt and the widest German chip measures ~75pt.
+- The row is drawn where the FIRST of the three sits in that space's order, and
+  the other two drop out of the drawn list. Nothing is stored: the spaces model
+  keeps holding the real three module keys, so switching the setting back changes
+  nothing else, and a space with only one of them shows that one as a normal
+  module row.
+- The collapsed row has no "move to / hide" context menu: it stands for three
+  modules at once, so the menu would be lying about what it moves.
+
+### Scoring the uninstaller (`scripts/make-uninstall-target.sh`)
+
+- Creates a harmless app in /Applications (`Hop Uninstall Test`, its executable a
+  shell script that exits) and seeds a file in EVERY place the uninstaller
+  scans — 31 user-level ones, plus 14 system-level ones with `--system`.
+- `--check` prints what is still on disk and the score. That is the referee for
+  comparing tools: seed, let ANY uninstaller remove the app, then `--check`
+  reports exactly which of the known traces survived. Neither tool's own report is
+  trusted, and reading the other tool's UI is not needed (Anton's question, 2026-07-30:
+  otherwise we could never learn what a competitor erases and we do not).
+- Two folders cannot be seeded or read without Full Disk Access
+  (`~/Library/Cookies`, `~/Library/Autosave Information`); the script names them
+  and leaves them out of the score instead of dying halfway.
+- Hop finds 30 of the 30 seedable user-level traces (measured 2026-07-30). The
+  gaps that measurement itself exposed — `.wdgt`, `.colorPicker` and `.app`
+  bundle suffixes — were fixed the same day.
+
 ## Tooltips
 
 - Every ICON-ONLY control carries a tooltip naming what it does (Anton,

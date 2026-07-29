@@ -58,7 +58,9 @@ final class UninstallController: ObservableObject {
     @Published private(set) var blockedByRunning = false
 
     var totalBytes: Int64 { traces.filter(\.ticked).reduce(0) { $0 + $1.bytes } }
-    var needsAdmin: Bool { traces.contains { $0.ticked && $0.kind.needsAdmin } }
+    var needsAdmin: Bool {
+        traces.contains { $0.ticked && AppUninstall.needsAdmin(path: $0.path, kind: $0.kind) }
+    }
 
     // MARK: - Picking an app
 
@@ -196,7 +198,7 @@ final class UninstallController: ObservableObject {
         var admin: [String] = []
 
         for trace in chosen {
-            if trace.kind.needsAdmin {
+            if AppUninstall.needsAdmin(path: trace.path, kind: trace.kind) {
                 admin.append(trace.path)
                 continue
             }

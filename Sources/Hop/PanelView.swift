@@ -65,6 +65,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
+    @AppStorage(SettingsKey.toolsOneRow) private var toolsOneRow = false
     @AppStorage(SettingsKey.clipboardToFile) private var clipboardToFile = false
     @AppStorage(SettingsKey.clipboardToFileAsk) private var clipboardToFileAsk = false
     @AppStorage(SettingsKey.clipboardToFileFormat) private var clipboardToFileFormat = "txt"
@@ -851,7 +852,11 @@ struct PanelView: View {
                     // a stack of the space's modules in order. Inner spacing equals
                     // the outer one (16): the divider sits exactly midway between
                     // modules, with equal space above and below
-                    ForEach(Array(modules.enumerated()), id: \.element) { index, key in
+                    // With the setting on, the three window modules are drawn as
+                    // ONE row where the first of them sits, and the other two drop
+                    // out of the list — see `collapsedModules`.
+                    let rendered = collapsedModules(modules)
+                    ForEach(Array(rendered.enumerated()), id: \.element) { index, key in
                         if index == 0 {
                             moduleBlock(key, in: id)
                         } else {
@@ -2645,6 +2650,36 @@ struct PanelView: View {
         HotkeyManager.shared.refreshModuleHotkeys()
     }
 
+    /// The three window modules, in the order the row shows them.
+    private static let toolModules = ["convert", "archive", "uninstall"]
+    /// The synthetic key the collapsed row is rendered under. Never stored: it
+    /// exists only for one draw, so the spaces model keeps holding the real three
+    /// and switching the setting back changes nothing else.
+    private static let toolsRowKey = "tools:row"
+
+    /// The module list as it is DRAWN. With `toolsOneRow` on, the first of the
+    /// three tools becomes the combined row and the others disappear from the
+    /// list; with it off, nothing changes.
+    private func collapsedModules(_ modules: [String]) -> [String] {
+        guard toolsOneRow else { return modules }
+        let present = modules.filter { Self.toolModules.contains($0) }
+        guard present.count > 1 else { return modules }
+        var replaced = false
+        return modules.compactMap { key in
+            guard Self.toolModules.contains(key) else { return key }
+            guard !replaced else { return nil }
+            replaced = true
+            return Self.toolsRowKey
+        }
+    }
+
+    /// Which tools the collapsed row offers, in the panel's own order.
+    private func toolsInRow(_ id: UUID) -> [ToolsRowView.Tool] {
+        visibleModules(in: id)
+            .filter { Self.toolModules.contains($0) }
+            .compactMap { ToolsRowView.Tool(rawValue: $0) }
+    }
+
     private func visibleModules(in id: UUID) -> [String] {
         (tabsModel.tabs.first { $0.id == id }?.moduleKeys ?? [])
             .filter { moduleVisible($0) }
@@ -2732,7 +2767,7 @@ struct PanelView: View {
     }
 
 
-    @ViewBuilder private func moduleContent(_ key: String) -> some View {
+    @ViewBuilder private func moduleContent(_ key: String, in spaceID: UUID) -> some View {
         switch key {
         case "timer": timerModule
         case "awake": keepAwakeSection
@@ -2778,6 +2813,15 @@ struct PanelView: View {
             UninstallView(uninstall: model.uninstall, lang: lang,
                           openWindow: { model.openUninstallWindow?() })
                 .id(model.themeVersion)
+        case Self.toolsRowKey:
+            ToolsRowView(lang: lang, tools: toolsInRow(spaceID)) { tool in
+                switch tool {
+                case .convert: model.openConverterWindow?()
+                case .archive: model.openArchiveWindow?()
+                case .uninstall: model.openUninstallWindow?()
+                }
+            }
+            .id(model.themeVersion)
         case "keyboard":
             KeyboardLockView(lock: model.keyboardLock, lang: lang,
                              closePanel: { model.closePanel?() })
@@ -2805,8 +2849,11 @@ struct PanelView: View {
     /// so there is no inverse "activate" context menu — that happens in settings.)
     @ViewBuilder private func moduleBlock(_ key: String, in tabID: UUID) -> some View {
         let others = tabsModel.tabs.enumerated().filter { $0.element.id != tabID }
-        moduleContent(key)
+        moduleContent(key, in: tabID)
+            // The collapsed tools row stands for three modules at once, so the
+            // "move to / hide" menu would be lying about what it moves.
             .contextMenu {
+                if key != Self.toolsRowKey {
                 Menu(t(.moduleMoveTo).capitalizedFirst) {
                     ForEach(others, id: \.element.id) { index, tab in
                         Button {
@@ -2820,6 +2867,7 @@ struct PanelView: View {
                     } label: {
                         Label(t(.modulesInactive).capitalizedFirst, systemImage: "eye.slash")
                     }
+                }
                 }
             }
     }
@@ -3718,6 +3766,10 @@ struct PanelView: View {
                     NumericField(value: $vpnVisibleRows, range: 1...10)
                 }
                 switchSetting(t(.settingsVpnMark), isOn: $vpnMenuBarMark)
+            }
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            VStack(spacing: 14) {
+                switchSetting(t(.settingsToolsOneRow), isOn: $toolsOneRow)
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {

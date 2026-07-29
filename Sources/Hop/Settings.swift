@@ -101,6 +101,10 @@ enum SettingsKey {
     /// somebody else's app owns, and whether it is worth a mark is the user's
     /// call, not ours (Anton, 2026-07-29).
     static let vpnMenuBarMark = "vpnMenuBarMark"
+    /// The converter, the archives and the uninstaller drawn as ONE row instead of
+    /// three. They are the same shape of thing — a row that opens a window and
+    /// takes files — and three of them cost a crowded space three lines.
+    static let toolsOneRow = "toolsOneRow"
     /// Which day the week starts on in the reminder's weekday row: "auto" follows
     /// the system's region, and the two explicit values override it.
     static let firstWeekday = "firstWeekday"

@@ -181,7 +181,7 @@ struct UninstallWindowView: View {
                     } else if !trace.candidate.byIdentifier {
                         badge(t(.uninstallByName), color: Theme.textTertiary)
                     }
-                    if trace.kind.needsAdmin {
+                    if AppUninstall.needsAdmin(path: trace.path, kind: trace.kind) {
                         badge(t(.uninstallNeedsAdmin), color: Theme.textTertiary)
                     }
                 }
