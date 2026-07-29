@@ -1091,6 +1091,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   generic `apps` label; typed in the header while editing. The name is also what
   the layout settings show for that grid's chip, so three grids on one space can
   be told apart.
+- **The grid's name is typed in a FIELD that looks like one**: a rounded
+  `fieldBg` box with a pencil in front of it and a placeholder that asks —
+  "type a name", not "name". The first cut was a bare line of text with the noun
+  as its placeholder, and it read as a column heading rather than something to
+  click into (Anton, 2026-07-30).
 - **Names under the icons** can be switched off per grid (`showsLabels`, on by
   default), leaving bare icons for someone who recognises them by sight. The
   control is an ICON in the header, not the word "names": beside a field holding

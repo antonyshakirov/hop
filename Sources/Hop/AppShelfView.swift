@@ -92,14 +92,26 @@ struct AppShelfView: View {
     private var subheader: some View {
         HStack(spacing: 6) {
             if editing {
-                TextField(t(.appsNamePlaceholder), text: $draftTitle)
-                    .textFieldStyle(.plain)
-                    .font(Theme.mono(10, weight: .semibold))
-                    .foregroundStyle(Theme.textPrimary)
-                    .frame(maxWidth: 110)
-                    .onChange(of: draftTitle) { _, new in
-                        shelves.setTitle(new, for: shelfID)
-                    }
+                // A bare line of text does not read as a field: it needs a box, a
+                // pencil and a placeholder that ASKS for something (Anton,
+                // 2026-07-30 — "name" sitting there read as a column heading).
+                HStack(spacing: 4) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(Theme.textTertiary)
+                    TextField(t(.appsNamePlaceholder), text: $draftTitle)
+                        .textFieldStyle(.plain)
+                        .font(Theme.mono(10, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                        .onChange(of: draftTitle) { _, new in
+                            shelves.setTitle(new, for: shelfID)
+                        }
+                }
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+                .frame(maxWidth: 132)
+                .help(t(.appsNamePlaceholder))
                 Spacer(minLength: 0)
                 labelsToggle
                 Button(t(.appsDone)) { stopEditing() }
