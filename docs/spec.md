@@ -1094,6 +1094,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   it makes the hosting controller recompute its size forever. Each icon carries a
   ✕ drawn as a muted circle with the glyph knocked out; a bright badge on a
   moving icon reads as blinking.
+- **The icons line up with the module's own edges**: the first icon sits on the
+  left inset and the last on the right one, only the ones between are centred in
+  their column. Centring every cell indented the row by half the column's slack
+  (a 30pt icon in a ~37pt column), so the icons stood further in than every label
+  and row above them (fixed 2026-07-29).
 - **Dragging** reorders the grid: the dragged icon follows the pointer, scaled
   1.08 and above the rest, and a YELLOW LINE marks the GAP it would drop into —
   2pt wide, sitting in the middle of the 6pt column gap. Highlighting the target
@@ -1864,10 +1869,19 @@ converter (Anton, 2026-07-28).
   two-line name cannot lift its switch above its neighbours'. The torrent
   engine-size note sits under the grid and now names torrents, since it no longer
   stands beside them.
-- A grid of apps is one of those choices, off by default like the eyedropper,
-  recognition and VPN. It is the ONLY one that has nothing to switch on: the
-  module exists only once a grid does, so choosing it CREATES the first grid
-  (empty, saying so) and places its key.
+- EVERY switch starts ON, including the eyedropper, recognition, VPN and a grid
+  of apps (Anton, 2026-07-29): the first screen should hand over a whole app, and
+  a module nobody wants is one switch away in the same form. A grid of apps is
+  the only choice with nothing to switch on — the module exists only once a grid
+  does — so choosing it CREATES the first grid (empty, saying so) and places it.
+- Onboarding marks EVERY what's-new announcement as seen (`featureAnnouncementIDs`),
+  not a hardcoded pair. A fresh install has just answered the module question by
+  name in the form, and a card in the panel asking it again is the app not
+  listening; that is exactly what a newly added announcement did until this
+  (Anton, 2026-07-29).
+- The module grid is TWO columns, not three. At three, the gap between a switch
+  and the next column's name was smaller than the gap to its own name, so the
+  switch read as belonging to the wrong row.
 - Settings tab order: general → modules & tabs → timer → monitor →
   remaining modules. "Remaining modules" = awake/clipboard/tracker/to-dos/converter
   as sections with headers (torrent sits at the end of the same tab). The tracker
@@ -2037,9 +2051,12 @@ converter (Anton, 2026-07-28).
   from before 1.6.1 keeps updating) plus `zipIntel`/`sigIntel`. The updater picks
   by the RUNNING process's architecture (`#if arch(x86_64)`), not by the
   hardware, and falls back to the plain pair when the Intel keys are missing.
-- The landing offers the two downloads separately — the main button is Apple
-  Silicon, a quiet line under it is Intel — and COUNTS THEM TOGETHER: one Metrika
-  goal (`hop_download`) with the architecture as a parameter. The install counter
+- The landing offers the two downloads as TWO BUTTONS side by side — the white
+  one is Apple Silicon, the outlined one Intel (Anton, 2026-07-29, after the
+  Intel build was tested on real hardware). Both ship in every release and update
+  through the same manifest; the processor is the only thing that tells them
+  apart, so neither is a footnote. They COUNT TOGETHER: one Metrika goal
+  (`hop_download`) with the architecture as a parameter. The install counter
   is unaffected either way: it counts update pings, which carry the version and
   nothing else.
 - `Casks/hop.rb` in the tap gains its `on_arm` / `on_intel` pair from

@@ -187,7 +187,12 @@ struct AppShelfView: View {
                     .truncationMode(.tail)
             }
         }
-        .frame(maxWidth: .infinity)
+        // The first icon sits ON the module's left line and the last on its right
+        // one; only the ones between are centred in their column. Centring every
+        // cell left the row indented by half the slack (the icon is 30pt in a
+        // ~37pt column), so the icons stood further in than every label and row
+        // above them (Anton, 2026-07-29).
+        .frame(maxWidth: .infinity, alignment: columnAlignment(of: index))
         .padding(.vertical, 2)
         // The gap the dragged icon would drop into, on whichever side of this
         // cell it falls.
@@ -252,6 +257,14 @@ struct AppShelfView: View {
         guard let dropIndex, let dragOrigin,
               dropIndex != dragOrigin, dropIndex == index else { return nil }
         return dropIndex > dragOrigin ? .trailing : .leading
+    }
+
+    private func columnAlignment(of index: Int) -> Alignment {
+        switch index % AppShelf.columns {
+        case 0: return .leading
+        case AppShelf.columns - 1: return .trailing
+        default: return .center
+        }
     }
 
     private func wobbleAngle(at index: Int) -> Double {

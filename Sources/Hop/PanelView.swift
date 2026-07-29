@@ -394,6 +394,10 @@ struct PanelView: View {
               checklist: true),
     ]
 
+    /// Every announcement's id — onboarding marks them all seen, since a fresh
+    /// install has just answered the same question in the form.
+    static var featureAnnouncementIDs: [String] { featureAnnouncements.map(\.id) }
+
     /// The checklist entry that stands for "a grid of apps". Deliberately the
     /// bare word: a real shelf key carries a uuid that does not exist yet.
     static let appsChoice = "apps"

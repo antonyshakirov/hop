@@ -41,14 +41,14 @@ struct OnboardingView: View {
     // recognition serve designers and developers, so they start off.
     @State private var showArchiveModule = true
     @State private var showKeyboardModule = true
-    @State private var showColorModule = false
-    @State private var showOcrModule = false
+    @State private var showColorModule = true
+    @State private var showOcrModule = true
     /// VPN ships off for the same reason: a Mac with no VPN configured would get
     /// an empty section it never asked for.
-    @State private var showVpnModule = false
-    /// A launcher with nothing in it says nothing, so this starts off; turning
-    /// it on creates one empty grid that asks to be filled.
-    @State private var showAppsModule = false
+    @State private var showVpnModule = true
+    /// On like the rest (Anton, 2026-07-29): saying yes creates one empty grid,
+    /// which explains itself in the panel rather than staying invisible.
+    @State private var showAppsModule = true
 
     /// One module in the grid: name on the left, switch on the right — the same
     /// shape as the rows above it, three to a line in a window widened to fit
@@ -124,13 +124,14 @@ struct OnboardingView: View {
                     .id("displayPreview-\(themeRaw)")
                 }
 
-                // Every module switch lives here — fifteen of them, five even
-                // rows. Only the choices that are NOT modules (language, theme,
-                // timer format, launch at login) stay full width above.
+                // Every module switch lives here. TWO columns with a wide gutter,
+                // not three: at three the gap between a switch and the next
+                // column's name was smaller than the gap to its own name, so the
+                // switch read as belonging to the wrong row (Anton, 2026-07-29).
                 // Top-aligned: a two-line name must not lift its switch above
-                // its neighbours'.
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12, alignment: .top),
-                                         count: 3),
+                // its neighbour's.
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 34, alignment: .top),
+                                         count: 2),
                           spacing: 12) {
                     moduleCell(t(.aboutTabTimer), isOn: $showTimerModule)
                     moduleCell(t(.awakeOff), isOn: $showAwakeModule)
@@ -301,10 +302,14 @@ struct OnboardingView: View {
         // spaces (space 2, space 3); drop any that ended up empty so the app
         // never opens onto a blank tab.
         PanelView.dropEmptyOnboardingSpaces()
-        // Mark the newest features' "what's new" announcements as seen — the
-        // top-of-panel banner is only for users who UPDATED into the feature.
-        UserDefaults.standard.set(true, forKey: "featureSeen.torrent")
-        UserDefaults.standard.set(true, forKey: "featureSeen.tools150")
+        // Mark EVERY "what's new" announcement as seen — the top-of-panel banner
+        // exists for people who updated INTO a feature, and this user has just
+        // been asked about all of them by name. Listing the ids by hand meant a
+        // new announcement started greeting fresh installs with a question they
+        // had already answered (Anton, 2026-07-29).
+        for id in PanelView.featureAnnouncementIDs {
+            UserDefaults.standard.set(true, forKey: "featureSeen.\(id)")
+        }
         if launchAtLogin {
             try? SMAppServiceHelper.enableLaunchAtLogin()
         }
