@@ -570,7 +570,7 @@ struct TrackerView: View {
                 addRowLabel(t(.trackerNewTask), iconSize: 10)
             }
             .buttonStyle(.plain)
-            .hoverHighlight(6)
+            .hoverHighlight(6, bleed: 5)
         }
     }
 

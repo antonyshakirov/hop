@@ -325,7 +325,7 @@ struct TodosView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .hoverHighlight(6)
+            .hoverHighlight(6, bleed: 5)
         }
     }
 

@@ -46,7 +46,13 @@ signing would break).
 4. **No repeatForever animations** — they trigger NSHostingController
    size recalculation. Icon changes are an opacity crossfade in a
    fixed-size ZStack.
-5. **One horizontal inset for the whole panel.** The container pads 14pt
+5. **Hover highlights bleed outward, they do not inset the content.** A
+   full-width row (the "new task" footers) starts on the panel's own inset, so a
+   highlight drawn on the row's exact bounds lands on the first glyph and on the
+   panel's border at once. `hoverHighlight(_:bleed:)` grows the shape sideways in
+   the BACKGROUND — the layout never moves — instead of padding the row, which
+   would push its text off the shared left line (Anton, 2026-07-29).
+6. **One horizontal inset for the whole panel.** The container pads 14pt
    left and right and modules add NOTHING of their own: labels, rows,
    cards, dividers and the edges of pill rows all start on the same line.
    Text INSIDE a pill is indented by that pill's own padding, which is the

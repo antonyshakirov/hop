@@ -91,13 +91,20 @@ enum Theme {
     // Hover highlight — applied to every clickable element
     struct HoverHighlight: ViewModifier {
         var cornerRadius: CGFloat = 6
+        /// How far the highlight bleeds OUTWARD past the content, sideways only.
+        /// A full-width row starts on the panel's own inset, so without this the
+        /// highlight's edge lands exactly on the first glyph and on the panel's
+        /// border at once, which reads as a box someone forgot to pad (Anton,
+        /// 2026-07-29). Drawn in the background, so it never moves the layout.
+        var bleed: CGFloat = 0
         @State private var hovering = false
 
         func body(content: Content) -> some View {
             content
                 .background(
-                    hovering ? Theme.hoverBg : .clear,
-                    in: RoundedRectangle(cornerRadius: cornerRadius)
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(hovering ? Theme.hoverBg : .clear)
+                        .padding(.horizontal, -bleed)
                 )
                 .animation(.easeOut(duration: 0.12), value: hovering)
                 .onHover { inside in
@@ -151,8 +158,8 @@ enum Theme {
 }
 
 extension View {
-    func hoverHighlight(_ cornerRadius: CGFloat = 6) -> some View {
-        modifier(Theme.HoverHighlight(cornerRadius: cornerRadius))
+    func hoverHighlight(_ cornerRadius: CGFloat = 6, bleed: CGFloat = 0) -> some View {
+        modifier(Theme.HoverHighlight(cornerRadius: cornerRadius, bleed: bleed))
     }
 
     /// Hover without a background — brightness only: no layout shifts, no confused alignment.
