@@ -111,6 +111,8 @@ struct PanelView: View {
     @State private var dragHeaderTab: UUID?              // tab column being header-dragged
     @State private var dragHeaderTranslation: CGFloat = 0
     @State private var confirmDeleteTab: UUID?          // inline delete confirmation target
+    @State private var confirmDeleteShelf: UUID?        // same, for a grid of apps
+    @State private var hoveredChip: String?             // chip under the pointer (shows its ✕)
     // non-nil while the icon picker grid is open for that tab column
     @State private var iconPickerTabID: UUID?
     // which tab column header is hovered — its delete xmark shows only then
@@ -1440,20 +1442,46 @@ struct PanelView: View {
     /// and, on release, moves the module into that column at the pointer's row.
     private func moduleChip(_ key: String, inactive: Bool) -> some View {
         let dragging = dragChip == key
-        return Text(moduleTitle(key))
-            .font(Theme.mono(11))
-            .foregroundStyle(inactive ? Theme.textTertiary : Theme.textPrimary)
-            .lineLimit(1)
-            .truncationMode(.tail)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
-            .background(chipFrameReader(key))
-            .opacity(dragging ? 0.35 : 1)
-            .offset(dragging ? dragChipTranslation : .zero)
-            .zIndex(dragging ? 3 : 0)
-            .gesture(chipDragGesture(key))
+        let shelf = AppShelves.shelfID(fromModuleKey: key)
+        return HStack(spacing: 4) {
+            Text(moduleTitle(key))
+                .font(Theme.mono(11))
+                .foregroundStyle(inactive ? Theme.textTertiary : Theme.textPrimary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            // Grids of apps are the only modules that can cease to exist — every
+            // other one can be hidden but never deleted — so they are the only
+            // chips carrying a ✕. The slot is reserved whether or not the chip is
+            // hovered, otherwise the chip would resize under the pointer.
+            if let shelf {
+                ZStack {
+                    if hoveredChip == key, dragChip == nil {
+                        Button { confirmDeleteShelf = shelf } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 9, weight: .semibold))
+                                .foregroundStyle(Theme.textSecondary)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .hoverDim()
+                        .help(t(.appsRemoveShelf))
+                    }
+                }
+                .frame(width: 12, height: 13)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
+        .background(chipFrameReader(key))
+        .opacity(dragging ? 0.35 : 1)
+        .offset(dragging ? dragChipTranslation : .zero)
+        .zIndex(dragging ? 3 : 0)
+        .onHover { inside in
+            if inside { hoveredChip = key } else if hoveredChip == key { hoveredChip = nil }
+        }
+        .gesture(chipDragGesture(key))
     }
 
     private var addColumnStub: some View {
@@ -1685,6 +1713,47 @@ struct PanelView: View {
                     }
                     .buttonStyle(.plain)
                     .keyboardShortcut(.cancelAction) // Escape cancels
+                }
+            }
+            .padding(18)
+            .frame(maxWidth: 260)
+            .background(Theme.panelBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.controlStroke, lineWidth: 1))
+            .shadow(color: .black.opacity(0.3), radius: 14, y: 4)
+        }
+    }
+
+    /// Delete confirmation for a grid of apps, the same scrim + card the tab
+    /// delete uses. Deleting a grid is not the same as hiding it: the module
+    /// stops existing, so it says out loud that the apps themselves are fine.
+    private func deleteShelfConfirmOverlay(_ id: UUID) -> some View {
+        ZStack {
+            Theme.background.opacity(0.88)
+                .contentShape(Rectangle())
+                .onTapGesture { confirmDeleteShelf = nil }
+            VStack(spacing: 12) {
+                Text(t(.appsDeleteConfirm))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 18) {
+                    Button {
+                        removeShelf(id)
+                        confirmDeleteShelf = nil
+                    } label: {
+                        HoverLabel(text: t(.trackerDelete), size: 11, color: Theme.accentRed)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    Button { confirmDeleteShelf = nil } label: {
+                        HoverLabel(text: t(.quitCancel), size: 11, color: Theme.textTertiary)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .keyboardShortcut(.cancelAction)
                 }
             }
             .padding(18)
@@ -3379,6 +3448,11 @@ struct PanelView: View {
                     deleteTabConfirmOverlay(id)
                 }
             }
+            .overlay {
+                if let id = confirmDeleteShelf {
+                    deleteShelfConfirmOverlay(id)
+                }
+            }
             // Airy caption under the table: what "inactive" means, and that both
             // columns and the chips inside them are draggable.
             Text(t(.modulesTableHint))
@@ -3412,6 +3486,8 @@ struct PanelView: View {
             dragChipTranslation = .zero
             dragLocation = nil
             dropColumn = nil
+            hoveredChip = nil
+            confirmDeleteShelf = nil
             dragHeaderTab = nil
             dragHeaderTranslation = 0
             // a still-open picker popover or delete confirmation would otherwise

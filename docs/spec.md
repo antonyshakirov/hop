@@ -1040,8 +1040,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   nothing. Grids are made in two places, both of which the user reaches while
   arranging modules: the apps section of settings, and under the module/space
   table itself, where the chips are dragged. A grid chip drags between spaces and
-  into the inactive column like any other module; deleting it for good is the ✕
-  in the apps section.
+  into the inactive column like any other module. It is also the ONLY chip with a
+  ✕ — every other module can be hidden but never deleted — and that ✕ asks first,
+  with the same scrim + card the tab delete uses, saying that the apps themselves
+  are untouched. The apps section of settings deletes a grid too.
 
 ### Color (eyedropper)
 
