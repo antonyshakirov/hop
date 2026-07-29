@@ -3387,6 +3387,21 @@ struct PanelView: View {
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
+            // Chips can only move what exists, and grids of apps are the one
+            // module that comes in copies — so the table itself has to be able
+            // to make another one, however many the user wants.
+            Button { addShelf() } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 9, weight: .semibold))
+                    Text(t(.appsAddShelf))
+                        .font(Theme.mono(10))
+                }
+                .foregroundStyle(Theme.textSecondary)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
         }
         .onDisappear {
             // @State survives the settings window's hide/show, so a window

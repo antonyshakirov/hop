@@ -18,8 +18,10 @@ struct AppShelfView: View {
     let shelfID: UUID
     let lang: AppLanguage
 
-    /// The icon being dragged, how far it has travelled, and where it would land.
+    /// The icon being dragged, where it started, how far it has travelled, and
+    /// where it would land.
     @State private var dragging: UUID?
+    @State private var dragOrigin: Int?
     @State private var dragOffset: CGSize = .zero
     @State private var dropIndex: Int?
     /// Wobble mode: entered from the edit button, left by "done".
@@ -185,8 +187,10 @@ struct AppShelfView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 2)
-        // Where this icon would land if the drag ended now.
-        .background(dropSlot(at: index, itemID: item.id))
+        // The gap the dragged icon would drop into, on whichever side of this
+        // cell it falls.
+        .overlay(alignment: .leading) { insertionLine(at: index, on: .leading) }
+        .overlay(alignment: .trailing) { insertionLine(at: index, on: .trailing) }
         // The wobble: neighbouring icons lean opposite ways, the way a home
         // screen does, so the grid sways instead of pulsing in lockstep. Driven
         // by a timer rather than a repeatForever animation, which makes the
@@ -221,14 +225,31 @@ struct AppShelfView: View {
         }
     }
 
-    /// The yellow slot: the cell the dragged icon will take. Drawn under the
-    /// icon that currently sits there, since the grid only reshuffles on drop.
-    @ViewBuilder private func dropSlot(at index: Int, itemID: UUID) -> some View {
-        if dragging != nil, dragging != itemID, dropIndex == index {
-            RoundedRectangle(cornerRadius: 6)
-                .fill(Theme.editing.opacity(0.16))
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.editing, lineWidth: 1))
+    private enum CellEdge { case leading, trailing }
+
+    /// The yellow line: the GAP the icon drops into, not the icon it lands on.
+    /// Highlighting the target cell read as "swap with this one" (Anton,
+    /// 2026-07-29); a line between two icons says where it goes.
+    ///
+    /// Which gap that is depends on the direction: dragging an icon forward
+    /// pulls everything after it one place back, so it ends up AFTER the cell at
+    /// the drop index; dragging it backwards puts it BEFORE that cell.
+    @ViewBuilder private func insertionLine(at index: Int, on edge: CellEdge) -> some View {
+        if insertionEdge(at: index) == edge {
+            RoundedRectangle(cornerRadius: 1)
+                .fill(Theme.editing)
+                .frame(width: 2)
+                .padding(.vertical, 1)
+                // Half the grid's 6pt column gap, so the line sits in the space
+                // between two icons rather than on top of either.
+                .offset(x: edge == .leading ? -3 : 3)
         }
+    }
+
+    private func insertionEdge(at index: Int) -> CellEdge? {
+        guard let dropIndex, let dragOrigin,
+              dropIndex != dragOrigin, dropIndex == index else { return nil }
+        return dropIndex > dragOrigin ? .trailing : .leading
     }
 
     private func wobbleAngle(at index: Int) -> Double {
@@ -246,12 +267,14 @@ struct AppShelfView: View {
         DragGesture(minimumDistance: 6)
             .onChanged { value in
                 dragging = item.id
+                dragOrigin = index
                 dragOffset = value.translation
                 dropIndex = destination(from: index, translation: value.translation)
             }
             .onEnded { _ in
                 if let dropIndex { shelves.move(item.id, to: dropIndex, in: shelfID) }
                 dragging = nil
+                dragOrigin = nil
                 dragOffset = .zero
                 self.dropIndex = nil
             }

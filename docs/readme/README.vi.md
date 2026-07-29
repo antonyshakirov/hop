@@ -261,7 +261,7 @@ Một lưới các chương trình bạn mở suốt ngày, chỉ một cú nh�
 mục Applications. Bấm + rồi chọn, hoặc kéo từ Finder vào; mỗi hàng tám cái, tối
 đa tám hàng.
 
-Kéo một biểu tượng để đổi chỗ: ô vàng cho biết nó sẽ nằm ở đâu và các biểu tượng
+Kéo một biểu tượng để đổi chỗ: vạch vàng cho biết nó sẽ nằm giữa hai biểu tượng nào và các biểu tượng
 khác tự nhường chỗ như trên màn hình chính. Nút sửa bật chế độ đung đưa, mỗi biểu
 tượng có dấu ✕ và lưới có thể đặt tên riêng; ở đó cũng tắt được tên dưới biểu
 tượng, nếu bạn nhận ra ứng dụng chỉ bằng hình. Bạn muốn bao nhiêu lưới cũng được

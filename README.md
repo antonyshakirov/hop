@@ -267,7 +267,7 @@ A grid of the programs you open all day, one click away without a trip to the
 Applications folder. Press + and pick them, or drag them in from Finder; eight
 fit across a row, up to eight rows.
 
-Drag an icon to move it — a yellow slot shows where it will land and the rest
+Drag an icon to move it — a yellow line shows which two icons it will land between and the rest
 shuffle around it, like a home screen. The edit button starts the wobble, where
 each icon gets a ✕ and the grid can be given a name of its own; the names under
 the icons can be switched off there too, if you know your apps by sight. Keep as

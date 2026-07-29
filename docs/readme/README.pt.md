@@ -268,7 +268,7 @@ Uma grelha com os programas que abre todo o dia, a um clique e sem ir à pasta d
 aplicações. Carregue em + e escolha-os, ou arraste-os do Finder; cabem oito por
 linha, até oito linhas.
 
-Arraste um ícone para o mover: uma célula amarela mostra onde vai ficar e os
+Arraste um ícone para o mover: uma linha amarela mostra entre que dois ícones vai ficar e os
 outros afastam-se, como num ecrã inicial. O botão de edição inicia o balanço,
 cada ícone ganha um ✕ e a grelha pode ter nome próprio; aí também se desligam os
 nomes sob os ícones, se reconhece as suas apps de vista. Pode ter quantas grelhas

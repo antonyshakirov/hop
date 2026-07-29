@@ -266,7 +266,7 @@ Gün boyu açtığınız programlar bir ızgarada, Uygulamalar klasörüne uğra
 tıkla. + düğmesine basıp seçin ya da Finder'dan sürükleyin; bir satıra sekiz
 sığar, en çok sekiz satır.
 
-Bir simgeyi sürükleyerek yerini değiştirin: sarı hücre nereye ineceğini gösterir,
+Bir simgeyi sürükleyerek yerini değiştirin: sarı çizgi hangi iki simgenin arasına ineceğini gösterir,
 diğerleri ana ekrandaki gibi yer açar. Düzenleme düğmesi sallanmayı başlatır, her
 simgede bir ✕ belirir ve ızgaraya kendi adı verilebilir; uygulamalarınızı zaten
 tanıyorsanız simgelerin altındaki adlar da orada kapatılır. İstediğiniz kadar

@@ -273,7 +273,7 @@ Una griglia con i programmi che apri tutto il giorno, a un clic e senza passare
 dalla cartella Applicazioni. Premi + e scegli, oppure trascinali dal Finder: otto
 per riga, fino a otto righe.
 
-Trascina un'icona per spostarla: una casella gialla mostra dove finirà e le altre
+Trascina un'icona per spostarla: una linea gialla mostra tra quali due icone finirà e le altre
 si spostano, come in una schermata home. Il pulsante di modifica avvia
 l'oscillazione, ogni icona riceve una ✕ e la griglia può avere un nome proprio;
 lì si spengono anche i nomi sotto le icone, se riconosci le tue app a colpo

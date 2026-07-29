@@ -276,7 +276,7 @@ Ein Raster mit den Apps, die Sie den ganzen Tag öffnen — einen Klick entfernt
 ohne Umweg über den Programme-Ordner. Auf + drücken und auswählen oder aus dem
 Finder hineinziehen; acht passen nebeneinander, bis zu acht Reihen.
 
-Ziehen Sie ein Symbol, um es zu verschieben: ein gelbes Feld zeigt den Zielplatz,
+Ziehen Sie ein Symbol, um es zu verschieben: eine gelbe Linie zeigt, zwischen welche Symbole es rutscht,
 die übrigen rücken auf wie auf einem Home-Bildschirm. Die Bearbeiten-Taste
 startet das Wackeln, jedes Symbol bekommt ein ✕, und das Raster kann einen
 eigenen Namen bekommen; dort lassen sich auch die Namen unter den Symbolen

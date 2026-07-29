@@ -1023,15 +1023,25 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   ✕ drawn as a muted circle with the glyph knocked out; a bright badge on a
   moving icon reads as blinking.
 - **Dragging** reorders the grid: the dragged icon follows the pointer, scaled
-  1.08 and above the rest, and a YELLOW slot marks the cell it would land in.
-  Without the slot the drop was a guess. The destination is worked out from the
-  travelled distance in cells (36pt across, 44pt down with names, 36pt without),
-  so it does not depend on the panel's width, and it clamps rather than crashes.
-  The grid only reshuffles on drop.
+  1.08 and above the rest, and a YELLOW LINE marks the GAP it would drop into —
+  2pt wide, sitting in the middle of the 6pt column gap. Highlighting the target
+  cell instead was the first cut and read as "swap with this one" (Anton,
+  2026-07-29). Which gap the line marks follows the direction: dragging forward
+  lands the icon AFTER the cell at the drop index (removal shifts the rest back),
+  dragging backwards lands it BEFORE that cell. The destination is worked out
+  from the travelled distance in cells (36pt across, 44pt down with names, 36pt
+  without), so it does not depend on the panel's width, and it clamps rather than
+  crashes. The grid only reshuffles on drop.
 - **A moved app heals itself**: the path launches it, the bundle id finds it
   again if it moved house, and the shelf quietly rewrites the path.
+- **A new grid is empty and says so** — "no apps yet, press + or drag one from
+  finder" — rather than showing an unexplained blank strip.
 - Opt-in: a fresh install has no grid at all, since an empty launcher says
-  nothing. The first one is made in settings.
+  nothing. Grids are made in two places, both of which the user reaches while
+  arranging modules: the apps section of settings, and under the module/space
+  table itself, where the chips are dragged. A grid chip drags between spaces and
+  into the inactive column like any other module; deleting it for good is the ✕
+  in the apps section.
 
 ### Color (eyedropper)
 

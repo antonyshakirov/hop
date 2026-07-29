@@ -273,7 +273,7 @@ Una cuadrícula con los programas que abres todo el día, a un clic y sin pasar 
 la carpeta de aplicaciones. Pulsa + y elígelos, o arrástralos desde el Finder;
 caben ocho por fila, hasta ocho filas.
 
-Arrastra un icono para moverlo: una casilla amarilla muestra dónde caerá y los
+Arrastra un icono para moverlo: una línea amarilla muestra entre qué dos iconos caerá y los
 demás se apartan, como en una pantalla de inicio. El botón de edición inicia el
 balanceo, cada icono recibe una ✕ y la cuadrícula puede tener su propio nombre;
 ahí mismo se apagan los nombres bajo los iconos, si reconoces tus apps de vista.

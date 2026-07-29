@@ -279,8 +279,7 @@ Une grille avec les programmes que vous ouvrez toute la journée, à un clic et
 sans passer par le dossier Applications. Appuyez sur + et choisissez-les, ou
 glissez-les depuis le Finder ; huit par ligne, jusqu'à huit lignes.
 
-Faites glisser une icône pour la déplacer : une case jaune montre où elle se
-posera et les autres s'écartent, comme sur un écran d'accueil. Le bouton
+Faites glisser une icône pour la déplacer : une ligne jaune montre entre quelles deux icônes elle se posera et les autres s'écartent, comme sur un écran d'accueil. Le bouton
 d'édition lance l'oscillation, chaque icône reçoit une ✕ et la grille peut
 recevoir son propre nom ; on y coupe aussi les noms sous les icônes, si vous
 reconnaissez vos apps au premier coup d'œil. Gardez autant de grilles que vous

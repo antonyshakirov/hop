@@ -272,7 +272,7 @@ Een raster met de programma's die je de hele dag opent — één klik weg, zonde
 omweg via de map Programma's. Druk op + en kies ze, of sleep ze uit de Finder;
 er passen er acht naast elkaar, tot acht rijen.
 
-Sleep een symbool om het te verplaatsen: een geel vakje laat zien waar het landt
+Sleep een symbool om het te verplaatsen: een gele lijn laat zien tussen welke twee symbolen het landt
 en de rest schuift opzij, net als op een beginscherm. De bewerkknop start het
 wiegen, elk symbool krijgt een ✕ en het raster kan een eigen naam krijgen; daar
 zet je ook de namen onder de symbolen uit, als je je apps op het oog herkent.
