@@ -2172,6 +2172,33 @@ drag-and-drop onto that window or through a "+" that opens Finder.
 - The matching rules live in `HopCore.AppUninstall` and are unit-tested: the
   scanning and trashing is a thin AppKit layer over pure decisions.
 
+### Two jobs, named in the panel
+
+The module's row is TWO buttons — "remove the app" and "clean up" — each opening
+the window straight into that job. One row that opened a window with tabs inside
+meant you could not tell what you were about to do until it was open (Anton,
+2026-07-30). The window's title follows the job.
+
+- **Remove the app**: the drop plate AND a list of every app in /Applications and
+  ~/Applications, so removing one is a click, not only a drag. Sizes are not
+  computed for that list — walking /Applications takes seconds on a Mac with a
+  design suite installed, and the list is for choosing; the sizes appear in the
+  trace list that follows.
+- **Clean up** is one screen with four sections, because they are one intention:
+  - **caches by app**, built from the cache FOLDERS rather than the list of apps,
+    so an identifier whose app is gone still shows up (labelled as a leftover).
+    Apple's own caches are skipped and anything under a megabyte is noise.
+  - **installers** — folded in here rather than being a screen of its own, which is
+    one screen too many for something this obvious (Anton, 2026-07-30).
+  - **leftovers of apps long gone** — found automatically, which is the whole
+    point: nobody remembers what they uninstalled two years ago. An identifier is
+    a leftover when no installed app answers to it AND no installed app OWNS it —
+    a dot-anchored prefix either way, because `com.foo.App.Updater` looks orphaned
+    while its owner sits in /Applications. Nothing written to in the last 30 days
+    is offered: something is still using it.
+  - **the trash**, with its size and the one irreversible button in the module,
+    said so in the note beneath it.
+
 ### Uninstaller: the other two modes
 
 - **Clear the cache, keep the app.** Only folders macOS itself calls a cache —

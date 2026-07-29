@@ -118,7 +118,7 @@ public enum AppUninstall {
     ]
 
     /// The identifier or name an entry carries, with the file type removed.
-    static func base(of entry: String) -> String {
+    public static func base(of entry: String) -> String {
         for suffix in typeSuffixes.sorted(by: { $0.count > $1.count })
         where entry.hasSuffix(suffix) {
             return String(entry.dropLast(suffix.count))
@@ -236,6 +236,38 @@ public enum AppUninstall {
         }
         let vendor = match != .identifier && isVendorFolder(base(of: entry))
         return Candidate(path: "\(directory)/\(entry)", kind: kind, match: match, shared: vendor)
+    }
+
+    // MARK: - Leftovers of apps that are already gone
+
+    /// Whether `identifier` looks like a leftover: nothing installed answers to it
+    /// and nothing installed OWNS it.
+    ///
+    /// The owner check is the one that matters. An app called `com.foo.App` ships a
+    /// helper `com.foo.App.Updater` and a login item `com.foo.Updater`; neither is
+    /// an installed app on its own, so asking the system "is this installed?"
+    /// answers no while the owner sits right there in /Applications. A dot-anchored
+    /// prefix of any installed identifier is therefore NOT a leftover.
+    public static func isLeftover(identifier: String, installedIdentifiers: Set<String>) -> Bool {
+        guard !identifier.isEmpty else { return false }
+        // Apple's own data is the system's business
+        guard !identifier.hasPrefix("com.apple.") else { return false }
+        guard !installedIdentifiers.contains(identifier) else { return false }
+        for installed in installedIdentifiers where !installed.isEmpty {
+            if identifier.hasPrefix(installed + ".") { return false }   // its helper
+            if installed.hasPrefix(identifier + ".") { return false }   // its family
+        }
+        return true
+    }
+
+    /// A leftover nobody has touched for this long is safe to OFFER. Anything
+    /// written to recently is still in use by something — a background helper, a
+    /// mounted volume's app — and offering it is how a tool deletes live data.
+    public static let leftoverQuietDays = 30
+
+    public static func isQuiet(modified: Date, now: Date = Date(),
+                              days: Int = leftoverQuietDays) -> Bool {
+        now.timeIntervalSince(modified) > Double(days) * 86_400
     }
 
     // MARK: - Finding the identifier when the app is already gone

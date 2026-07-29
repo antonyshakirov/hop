@@ -245,4 +245,33 @@ final class AppUninstallTests: XCTestCase {
                                                      appName: "Notes"),
                        "com.acme.Notes")
     }
+
+    // MARK: - Leftovers of apps long gone
+
+    func testAnIdentifierNothingAnswersToIsALeftover() {
+        XCTAssertTrue(AppUninstall.isLeftover(identifier: "com.gone.App",
+                                              installedIdentifiers: ["com.here.App"]))
+    }
+
+    func testAHelperOfAnInstalledAppIsNotALeftover() {
+        XCTAssertFalse(AppUninstall.isLeftover(identifier: "com.here.App.Updater",
+                                               installedIdentifiers: ["com.here.App"]),
+                       "its owner is installed, the helper only looks orphaned")
+        XCTAssertFalse(AppUninstall.isLeftover(identifier: "com.here.App",
+                                               installedIdentifiers: ["com.here.App.Pro"]),
+                       "the same family, installed under a longer id")
+    }
+
+    func testAppleIsNeverALeftover() {
+        XCTAssertFalse(AppUninstall.isLeftover(identifier: "com.apple.Safari",
+                                               installedIdentifiers: []))
+    }
+
+    func testOnlyQuietLeftoversAreOffered() {
+        let now = Date(timeIntervalSince1970: 100 * 86_400)
+        XCTAssertTrue(AppUninstall.isQuiet(modified: Date(timeIntervalSince1970: 0), now: now))
+        XCTAssertFalse(AppUninstall.isQuiet(modified: Date(timeIntervalSince1970: 99 * 86_400),
+                                            now: now),
+                       "something wrote to it yesterday, so something still uses it")
+    }
 }

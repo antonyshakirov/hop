@@ -2818,7 +2818,9 @@ struct PanelView: View {
                 switch tool {
                 case .convert: model.openConverterWindow?()
                 case .archive: model.openArchiveWindow?()
-                case .uninstall: model.openUninstallWindow?()
+                case .uninstall:
+                    model.uninstall.start(mode: .uninstall)
+                    model.openUninstallWindow?()
                 }
             }
             .id(model.themeVersion)

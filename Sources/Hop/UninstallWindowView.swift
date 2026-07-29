@@ -22,21 +22,14 @@ struct UninstallWindowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             header
-            modePicker
             if let report = uninstall.report {
                 self.report(report)
-            } else if uninstall.mode == .installers {
-                installersBody
+            } else if uninstall.mode == .clean {
+                cleanBody
             } else if uninstall.target == nil {
-                dropPlate
+                uninstallPicker
             } else {
                 appHeader
-                if uninstall.mode == .cache {
-                    Text(t(.uninstallCacheNote))
-                        .font(Theme.mono(9))
-                        .foregroundStyle(Theme.textTertiary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
                 traceList
                 mixedNote
                 footer
@@ -73,7 +66,7 @@ struct UninstallWindowView: View {
 
     private var header: some View {
         HStack {
-            Text(t(.uninstallLabel))
+            Text(t(uninstall.mode == .clean ? .uninstallModeClean : .uninstallLabel))
                 .font(Theme.mono(13, weight: .bold))
                 .foregroundStyle(Theme.textPrimary)
             Spacer()
@@ -97,42 +90,171 @@ struct UninstallWindowView: View {
         }
     }
 
-    /// Three things this window does, as one row of chips: remove an app, clear its
-    /// cache, or sweep up installers. The first two need an app; the third does not.
-    private var modePicker: some View {
-        HStack(spacing: 6) {
-            ForEach(UninstallController.Mode.allCases, id: \.rawValue) { mode in
-                Button { uninstall.mode = mode } label: {
-                    Text(t(Self.modeLabel(mode)))
-                        .font(Theme.mono(10, weight: uninstall.mode == mode ? .bold : .regular))
-                        .foregroundStyle(uninstall.mode == mode
-                                         ? Theme.textPrimary : Theme.textSecondary)
-                        .lineLimit(1)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(uninstall.mode == mode ? Theme.chipBg : Color.clear,
-                                    in: RoundedRectangle(cornerRadius: 6))
-                        .contentShape(Rectangle())
+    /// Removing an app: the drop plate, then every app on this Mac, so a removal is
+    /// a click and not only a drag (Anton, 2026-07-30).
+    private var uninstallPicker: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            dropPlate
+            Text(t(.uninstallPickApp))
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+            ScrollView(showsIndicators: true) {
+                VStack(spacing: 3) {
+                    ForEach(uninstall.installedApps) { app in
+                        Button { uninstall.choose(path: app.path) } label: {
+                            HStack(spacing: 8) {
+                                Image(nsImage: app.icon)
+                                    .resizable()
+                                    .frame(width: 18, height: 18)
+                                Text(app.name)
+                                    .font(Theme.mono(10.5))
+                                    .foregroundStyle(Theme.textPrimary)
+                                    .lineLimit(1)
+                                Spacer(minLength: 8)
+                                Text(app.identifier)
+                                    .font(Theme.mono(8))
+                                    .foregroundStyle(Theme.textTertiary)
+                                    .lineLimit(1)
+                                    .truncationMode(.head)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
+                        .hoverHighlight(6)
+                    }
                 }
-                .buttonStyle(.plain)
-                .hoverHighlight(6)
             }
-            Spacer(minLength: 0)
+            .frame(maxHeight: 260)
         }
     }
 
-    private static func modeLabel(_ mode: UninstallController.Mode) -> L10nKey {
-        switch mode {
-        case .uninstall: return .uninstallModeApp
-        case .cache: return .uninstallModeCache
-        case .installers: return .uninstallModeInstallers
+    /// Everything that is cleaning up rather than removing: caches by app,
+    /// installers, leftovers of apps long gone, and the trash. One screen, because
+    /// they are one intention and three of them do not deserve three windows.
+    private var cleanBody: some View {
+        ScrollView(showsIndicators: true) {
+            VStack(alignment: .leading, spacing: 16) {
+                ownerSection(title: t(.uninstallAllCaches), owners: uninstall.cacheOwners,
+                             action: t(.uninstallClearCache)) { index in
+                    uninstall.cacheOwners[index].ticked.toggle()
+                } run: {
+                    uninstall.clearTickedCaches()
+                }
+                if !uninstall.leftovers.isEmpty {
+                    ownerSection(title: t(.uninstallLeftovers), owners: uninstall.leftovers,
+                                 action: t(.uninstallRemoveInstallers)) { index in
+                        uninstall.leftovers[index].ticked.toggle()
+                    } run: {
+                        uninstall.removeTickedLeftovers()
+                    }
+                }
+                installersBody
+                trashSection
+            }
+            .padding(.bottom, 4)
+        }
+    }
+
+    /// A list of apps (or identifiers) with a size each and one button.
+    @ViewBuilder private func ownerSection(
+        title: String, owners: [UninstallController.CacheOwner], action: String,
+        toggle: @escaping (Int) -> Void, run: @escaping () -> Void
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+            ForEach(Array(owners.enumerated()), id: \.element.id) { index, owner in
+                HStack(spacing: 8) {
+                    Button { toggle(index) } label: {
+                        Image(systemName: owner.ticked ? "checkmark.square.fill" : "square")
+                            .font(.system(size: 12))
+                            .foregroundStyle(owner.ticked ? Theme.textPrimary : Theme.textTertiary)
+                            .frame(width: 18, height: 18)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverDim()
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(owner.name)
+                            .font(Theme.mono(10.5))
+                            .foregroundStyle(Theme.textPrimary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        if owner.isOrphan {
+                            Text(t(.uninstallOrphanCache))
+                                .font(Theme.mono(8))
+                                .foregroundStyle(Theme.textTertiary)
+                        }
+                    }
+                    Spacer(minLength: 8)
+                    Text(StatsFormatting.diskGb(Double(owner.bytes)) + " GB")
+                        .font(Theme.mono(9))
+                        .foregroundStyle(Theme.textTertiary)
+                        .monospacedDigit()
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 5)
+                .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
+            }
+            HStack {
+                Spacer()
+                Button(action: run) {
+                    Text(action)
+                        .font(Theme.mono(10, weight: .bold))
+                        .foregroundStyle(Theme.playFg)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverDim()
+                .disabled(!owners.contains(where: \.ticked))
+            }
+        }
+    }
+
+    /// The trash, with a number and the only irreversible button in the module.
+    private var trashSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(t(.uninstallTrashSection))
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+            HStack(spacing: 8) {
+                Image(systemName: "trash")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.textSecondary)
+                Text("\(uninstall.trashItems) · \(StatsFormatting.diskGb(Double(uninstall.trashBytes))) GB")
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textPrimary)
+                    .monospacedDigit()
+                Spacer()
+                Button { uninstall.emptyTrash() } label: {
+                    HoverLabel(text: t(.uninstallEmptyTrash), size: 10, color: Theme.accentRed)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .disabled(uninstall.trashItems == 0)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
+            Text(t(.uninstallEmptyTrashNote))
+                .font(Theme.mono(8.5))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
     /// What the cache mode will not touch, with its size: the honest half of
     /// "clear the cache".
     @ViewBuilder private var mixedNote: some View {
-        if uninstall.mode == .cache, !uninstall.mixed.isEmpty {
+        if uninstall.mode == .clean, !uninstall.mixed.isEmpty {
             VStack(alignment: .leading, spacing: 3) {
                 Text(t(.uninstallMixedNote))
                     .font(Theme.mono(9))
@@ -367,9 +489,8 @@ struct UninstallWindowView: View {
                 Button {
                     Task { await uninstall.removeTicked() }
                 } label: {
-                    Text(uninstall.mode == .cache
-                         ? t(.uninstallClearCache)
-                         : (uninstall.needsAdmin ? t(.uninstallRemoveAdmin) : t(.uninstallRemove)))
+                    Text(uninstall.needsAdmin ? t(.uninstallRemoveAdmin)
+                                              : t(.uninstallRemove))
                         .font(Theme.mono(10, weight: .bold))
                         .foregroundStyle(Theme.playFg)
                         .padding(.horizontal, 14)
