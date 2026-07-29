@@ -1990,9 +1990,15 @@ converter (Anton, 2026-07-28).
   goal (`hop_download`) with the architecture as a parameter. The install counter
   is unaffected either way: it counts update pings, which carry the version and
   nothing else.
-- `Casks/hop.rb` in the tap serves both through `on_arm` / `on_intel`, and
-  `release.sh` writes its version and both checksums — the tap had silently sat
-  at 1.5.1 while 1.6.0 was already downloading from the site.
+- `Casks/hop.rb` in the tap gains its `on_arm` / `on_intel` pair from
+  `release.sh`, which REGENERATES that whole head — version and both blocks — out
+  of the images it has just built and hashed. Never patched line by line and
+  never `sha256 :no_check`: a checksum that is not the file's is worse than no
+  Intel block at all, since Homebrew then accepts whatever the URL serves, while
+  a missing block simply refuses to install on Intel. Until the first release
+  that ships an Intel image, the cask keeps its single pinned build. The tap had
+  also silently sat at 1.5.1 while 1.6.0 was already downloading from the site,
+  which is why the version is written here rather than by hand.
 - **Temperatures** are the one thing that reads differently. Apple Silicon
   publishes sensors through `IOHIDEventSystemClient`; an Intel Mac publishes none
   there and keeps its thermometers behind the SMC. `SMCTemperatureReader` is a

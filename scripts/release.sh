@@ -59,13 +59,30 @@ if [[ -f "$TAP_CASK" ]]; then
     INTEL_SHA=$(shasum -a 256 dist/Hop-intel.dmg | awk '{print $1}')
     VERSION="$VERSION" ARM_SHA="$ARM_SHA" INTEL_SHA="$INTEL_SHA" TAP_CASK="$TAP_CASK" python3 - <<'PYEOF'
 import os, re
+# The whole head of the cask is REGENERATED — version and both blocks together —
+# rather than patched line by line, so the checksum can never drift from the
+# image it is supposed to pin, and an Intel block never exists without a real
+# hash of a real file (a `sha256 :no_check` would accept whatever the URL serves).
 path = os.environ["TAP_CASK"]
 text = open(path, encoding="utf-8").read()
-text = re.sub(r'^  version ".*"$', '  version "%s"' % os.environ["VERSION"], text, count=1, flags=re.M)
-# the arm block comes first, the intel block second — replace in that order
-for sha in (os.environ["ARM_SHA"], os.environ["INTEL_SHA"]):
-    text = re.sub(r'    sha256 (?:"[0-9a-f]{64}"|:no_check)', '    sha256 "%s"' % sha, text, count=1)
-open(path, "w", encoding="utf-8").write(text)
+head = '''  version "%s"
+
+  # One build per architecture: each carries only the code its own processor
+  # runs, so neither download is heavier than it has to be.
+  on_arm do
+    sha256 "%s"
+    url "https://github.com/antonyshakirov/hop/releases/download/v#{version}/Hop.dmg"
+  end
+  on_intel do
+    sha256 "%s"
+    url "https://github.com/antonyshakirov/hop/releases/download/v#{version}/Hop-intel.dmg"
+  end
+''' % (os.environ["VERSION"], os.environ["ARM_SHA"], os.environ["INTEL_SHA"])
+new, count = re.subn(r'  version ".*?\n(.*?)\n(?=  name "Hop")', head, text,
+                     count=1, flags=re.S)
+if count != 1:
+    raise SystemExit("cask head not recognised — update %s by hand" % path)
+open(path, "w", encoding="utf-8").write(new)
 print("cask updated:", os.environ["VERSION"])
 PYEOF
 else
