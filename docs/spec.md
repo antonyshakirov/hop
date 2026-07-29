@@ -120,6 +120,14 @@ identically on every user's bar.
   running past 8h (`TrackerOverrun.isBannerVisible`, same episode/ack logic as
   the panel banner) BLINKS 1s-on/1s-off off the tracker heartbeat. If both are
   active the steady source keeps it lit. Tick-driven only — no `repeatForever`.
+- **Corner-dot geometry.** Every corner dot is 5.0pt and hangs off the icon's
+  CENTRE by the same distance in every direction (±8.0 across, ±5.5 down), so a
+  dot in one corner is the exact mirror of a dot in another. The numbers are the
+  only set where all four boxes also land on whole half-points (16.5 / 0.5 and
+  11.5 / 0.5), so mirrored dots rasterise identically at 2x instead of one of
+  them catching an extra half-pixel of antialiasing. Before this the awake dot
+  was 5.2pt and sat 0.4pt further out than the 4.4pt VPN dot below it, which read
+  as a crooked pair whenever both were lit (Anton, 2026-07-29).
 - **Top-left — reminder dot.** A small `systemBlue` disc beside the "!" (in the
   corner itself when the "!" is dark), steady, never blinking: it reports
   something waiting rather than something wrong. Monochrome renders it as an
@@ -980,7 +988,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   app. Only what the vendor itself names is shown.
 - **Menu-bar light:** a green dot in the bottom-left corner while any tunnel is
   up, beside the torrent arrows when those are there — the state worth seeing
-  with the panel closed. It can be switched off (`vpnMenuBarMark`, VPN settings,
+  with the panel closed — the exact mirror of the awake dot in the opposite
+  corner. When the torrent arrows share that corner THEY keep it, nudged 0.6pt
+  further left, and the dot steps to their right: moving the arrows inward
+  instead put them under the star's rays, where they stop reading as arrows.
+  It can be switched off (`vpnMenuBarMark`, VPN settings,
   ON by default); the module and the switch go on working without it. HIDING the
   module takes the dot with it — the badge is the module's voice in the menu bar,
   and a module that is on no space has nothing to say there (Anton, 2026-07-29).

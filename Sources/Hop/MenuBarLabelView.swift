@@ -131,6 +131,23 @@ enum MenuBarIcon {
     /// composition picks colour vs the mono fill/outline mapping.
     private static func drawBadges(_ c: IconComposition, glyph: NSColor) {
         let w = canvasSize.width, h = canvasSize.height
+        // Every corner dot hangs off the icon's CENTRE by the same distance, so a
+        // dot in one corner is the exact mirror of a dot in another (Anton,
+        // 2026-07-29: the awake dot sat 0.4pt further out than the VPN dot below
+        // it, which reads as a crooked pair when both are lit). The numbers are
+        // the awake dot's own position, so that badge does not move.
+        let cx = w / 2, cy = h / 2
+        // 5.0 with these offsets is the ONE set of numbers where all four corner
+        // boxes land on whole half-points — 16.5 / 0.5 across, 11.5 / 0.5 down —
+        // so mirrored dots also rasterise identically at 2x instead of one of
+        // them catching an extra half-pixel of antialiasing.
+        let dotSize: CGFloat = 5.0
+        let dotDX: CGFloat = 8.0, dotDY: CGFloat = 5.5
+        /// A dot box centred at the corner the two signs pick.
+        func dotBox(_ sx: CGFloat, _ sy: CGFloat) -> NSRect {
+            NSRect(x: cx + sx * dotDX - dotSize / 2, y: cy + sy * dotDY - dotSize / 2,
+                   width: dotSize, height: dotSize)
+        }
 
         // top-left: attention "!" and, beside it, the reminder dot. The "!" keeps
         // the corner and the dot grows rightward from it — the mirror of the
@@ -139,30 +156,35 @@ enum MenuBarIcon {
             drawBang(color: c.colored ? alertRed : glyph, atLeft: 1.4, top: h - 1.4)
         }
         if c.reminder {
-            let dotD: CGFloat = 4.4
-            // beside the "!" when it is lit, in the corner itself when it is not
-            let x: CGFloat = c.alert ? 4.6 : 1.4
-            drawReminderDot(box: NSRect(x: x, y: h - dotD - 1.0, width: dotD, height: dotD),
-                            colored: c.colored, glyph: glyph)
+            // in its corner, or shifted right to sit beside the "!" when that is lit
+            var box = dotBox(-1, 1)
+            if c.alert { box.origin.x += 3.5 }
+            drawReminderDot(box: box, colored: c.colored, glyph: glyph)
         }
 
         // bottom-left: the VPN light, beside the torrent arrows when both are on.
         // Green like the running-time wedges — the same "something of yours is
         // live" family, and the corner is otherwise almost always empty.
         if c.vpn {
-            let dotD: CGFloat = 4.4
-            let x: CGFloat = c.torrent == nil ? 1.4 : 8.2
-            drawVPNDot(box: NSRect(x: x, y: 1.0, width: dotD, height: dotD),
-                       colored: c.colored, glyph: glyph)
+            // The mirror of the awake dot above it — except when the torrent arrows
+            // share this corner. Then the ARROWS keep it (nudged a little further
+            // left) and the dot steps to their right: moving the arrows inward
+            // instead put them under the star's rays, where they read as part of
+            // the glyph rather than as two arrows (Anton, 2026-07-29).
+            var box = dotBox(-1, -1)
+            if c.torrent != nil { box.origin.x += 6.5 }
+            drawVPNDot(box: box, colored: c.colored, glyph: glyph)
         }
 
         // top-right: awake dots — yellow (no-sleep) then orange (lid), a dense
         // row with a light overlap; in 1x they melt into one two-colour blob.
-        let dotD: CGFloat = 5.2
-        let topY = h - dotD - 0.2
+        let dotD = dotSize
         let dots = c.badges.filter { $0.corner == .topRight }
-        // right-anchored so a single dot sits in the far corner and a pair grows left
-        var dotRight = w - 0.4
+        // anchored on the shared corner point so a single dot mirrors the others;
+        // a pair grows leftward from it
+        let anchor = dotBox(1, 1)
+        let topY = anchor.origin.y
+        var dotRight = anchor.maxX
         // draw right-to-left so the first (no-sleep) ends up leftmost, overlapping under the lid
         for badge in dots.reversed() {
             let box = NSRect(x: dotRight - dotD, y: topY, width: dotD, height: dotD)
@@ -197,7 +219,7 @@ enum MenuBarIcon {
         if pairMode {
             let stride = wedgeW - overlap                  // whole 4.0pt → equal twins
             let pairW = wedgeW + stride
-            let dotRight = w - 0.4
+            let dotRight = cx + dotDX + dotD / 2           // the dot anchor's right edge
             let dotLeft = dotRight - dotD - (dotD - 1.5)   // leftmost dot's left edge
             let pairLeft = (dotLeft + dotRight) / 2 - pairW / 2   // centred under the dots
             let engineBox = NSRect(x: pairLeft, y: botY, width: wedgeW, height: wedgeH)
@@ -206,14 +228,15 @@ enum MenuBarIcon {
             drawWedge(wedges[1], box: taskBox, colored: c.colored, glyph: glyph)
             drawWedge(wedges[0], box: engineBox, colored: c.colored, glyph: glyph)
         } else if let badge = wedges.first {
-            let box = NSRect(x: w - 0.4 - wedgeW, y: botY, width: wedgeW, height: wedgeH)
+            let box = NSRect(x: cx + dotDX + dotD / 2 - wedgeW, y: botY, width: wedgeW, height: wedgeH)
             drawWedge(badge, box: box, colored: c.colored, glyph: glyph)
         }
 
         // bottom-left: torrent arrows — always the glyph colour (white on both
         // themes), the one bottom badge that is not green.
         if let torrent = c.torrent {
-            drawTorrent(torrent, glyph: glyph)
+            // pushed a touch further into the corner when the VPN dot joins them
+            drawTorrent(torrent, glyph: glyph, shift: c.vpn ? -0.6 : 0)
         }
     }
 
@@ -317,13 +340,13 @@ enum MenuBarIcon {
 
     /// Torrent arrows in the bottom-left: ↓ downloading, ↑ seeding, both side by
     /// side when both are happening. Unified thin stroke, the star's glyph colour.
-    private static func drawTorrent(_ dir: TorrentArrows, glyph: NSColor) {
+    private static func drawTorrent(_ dir: TorrentArrows, glyph: NSColor, shift: CGFloat = 0) {
         switch dir {
-        case .down: drawArrow(down: true, cx: 3.0, glyph: glyph, full: true)
-        case .up: drawArrow(down: false, cx: 3.0, glyph: glyph, full: true)
+        case .down: drawArrow(down: true, cx: 3.0 + shift, glyph: glyph, full: true)
+        case .up: drawArrow(down: false, cx: 3.0 + shift, glyph: glyph, full: true)
         case .both:
-            drawArrow(down: true, cx: 2.2, glyph: glyph, full: false)
-            drawArrow(down: false, cx: 5.0, glyph: glyph, full: false)
+            drawArrow(down: true, cx: 2.2 + shift, glyph: glyph, full: false)
+            drawArrow(down: false, cx: 5.0 + shift, glyph: glyph, full: false)
         }
     }
 

@@ -56,11 +56,19 @@ enum Snapshot {
                 ("lid", IconState(lid: true)),
                 ("no-sleep+lid", IconState(noSleep: true, lid: true)),
                 ("alert", IconState(alertSteady: true)),
+                ("vpn", IconState(vpnConnected: true)),
+                ("no-sleep+vpn", IconState(noSleep: true, vpnConnected: true)),
+                ("reminder+vpn", IconState(reminderUnseen: true, vpnConnected: true)),
                 ("torrent-down", IconState(torrentDown: true)),
+                ("vpn+torrent-down", IconState(vpnConnected: true, torrentDown: true)),
+                ("vpn+torrent-both", IconState(vpnConnected: true, torrentDown: true, torrentUp: true)),
                 ("torrent-both", IconState(torrentDown: true, torrentUp: true)),
                 ("no-sleep+lid+engine", IconState(engine: .running, noSleep: true, lid: true)),
                 ("worst", IconState(engine: .running, tracking: true, noSleep: true, lid: true,
                                     alertSteady: true, torrentDown: true, torrentUp: true)),
+                ("worst+vpn", IconState(engine: .running, tracking: true, noSleep: true, lid: true,
+                                        alertSteady: true, vpnConnected: true,
+                                        torrentDown: true, torrentUp: true)),
             ]
             let rowH: CGFloat = 26
             // optional version stamp (short commit hash + timestamp) in a bottom
