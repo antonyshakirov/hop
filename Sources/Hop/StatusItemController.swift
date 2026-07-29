@@ -500,8 +500,13 @@ final class StatusItemController: NSObject {
             && UserDefaults.standard.bool(forKey: SettingsKey.todoRemindMark)
 
         // The tunnel's own mark, which can be switched off: a VPN somebody else's
-        // app holds up is not necessarily something the user wants reported.
+        // app holds up is not necessarily something the user wants reported. A
+        // HIDDEN module carries its mark away with it — the badge is the module's
+        // voice in the menu bar, and a module that is not on any space has no
+        // business talking (Anton, 2026-07-29). Hiding does not touch the switch,
+        // so bringing the module back brings the mark back with it.
         let vpnMark = UserDefaults.standard.bool(forKey: SettingsKey.vpnMenuBarMark)
+            && !PanelView.storedModuleIsInactive("vpn")
 
         let composition = IconBadges.compose(IconState(
             engine: engineSlot,

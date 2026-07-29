@@ -142,7 +142,8 @@ identically on every user's bar.
   rejected — a badge always shows while its state is active; only colour is a
   setting. Exactly two badges are exempt and both are named where they are
   described: the reminder dot (`todoRemindMark`) and the VPN dot
-  (`vpnMenuBarMark`, in the VPN settings section, ON by default). A tunnel is
+  (`vpnMenuBarMark`, in the VPN settings section, ON by default — and gone
+  entirely while the VPN module is hidden). A tunnel is
   held by somebody else's app, so whether it is worth a mark is the user's call
   (Anton, 2026-07-29). There is NO on-screen symbol legend — a badge-meaning legend once
   lived in the info window's general tab but was removed (the icon is meant to be
@@ -980,7 +981,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Menu-bar light:** a green dot in the bottom-left corner while any tunnel is
   up, beside the torrent arrows when those are there — the state worth seeing
   with the panel closed. It can be switched off (`vpnMenuBarMark`, VPN settings,
-  ON by default); the module and the switch go on working without it.
+  ON by default); the module and the switch go on working without it. HIDING the
+  module takes the dot with it — the badge is the module's voice in the menu bar,
+  and a module that is on no space has nothing to say there (Anton, 2026-07-29).
+  Hiding does not touch the setting, so putting the module back on a space brings
+  the dot back too.
 - **The vendor's window on demand:** the app is not running at all while Hop
   drives the connection, so it sits in neither the Dock nor the menu bar.
   Clicking the name launches it, and Hop quits it again once its last ordinary
