@@ -22,13 +22,23 @@ struct UninstallWindowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             header
+            modePicker
             if let report = uninstall.report {
                 self.report(report)
+            } else if uninstall.mode == .installers {
+                installersBody
             } else if uninstall.target == nil {
                 dropPlate
             } else {
                 appHeader
+                if uninstall.mode == .cache {
+                    Text(t(.uninstallCacheNote))
+                        .font(Theme.mono(9))
+                        .foregroundStyle(Theme.textTertiary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 traceList
+                mixedNote
                 footer
             }
         }
@@ -85,6 +95,137 @@ struct UninstallWindowView: View {
             .hoverHighlight(5)
             .help(t(.uninstallPick))
         }
+    }
+
+    /// Three things this window does, as one row of chips: remove an app, clear its
+    /// cache, or sweep up installers. The first two need an app; the third does not.
+    private var modePicker: some View {
+        HStack(spacing: 6) {
+            ForEach(UninstallController.Mode.allCases, id: \.rawValue) { mode in
+                Button { uninstall.mode = mode } label: {
+                    Text(t(Self.modeLabel(mode)))
+                        .font(Theme.mono(10, weight: uninstall.mode == mode ? .bold : .regular))
+                        .foregroundStyle(uninstall.mode == mode
+                                         ? Theme.textPrimary : Theme.textSecondary)
+                        .lineLimit(1)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(uninstall.mode == mode ? Theme.chipBg : Color.clear,
+                                    in: RoundedRectangle(cornerRadius: 6))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(6)
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    private static func modeLabel(_ mode: UninstallController.Mode) -> L10nKey {
+        switch mode {
+        case .uninstall: return .uninstallModeApp
+        case .cache: return .uninstallModeCache
+        case .installers: return .uninstallModeInstallers
+        }
+    }
+
+    /// What the cache mode will not touch, with its size: the honest half of
+    /// "clear the cache".
+    @ViewBuilder private var mixedNote: some View {
+        if uninstall.mode == .cache, !uninstall.mixed.isEmpty {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(t(.uninstallMixedNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                ForEach(uninstall.mixed) { trace in
+                    Text("• \(trace.name) · \(StatsFormatting.diskGb(Double(trace.bytes))) GB")
+                        .font(Theme.mono(9))
+                        .foregroundStyle(Theme.textTertiary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+            }
+        }
+    }
+
+    /// The installers list: no app involved, so it has its own body and its own
+    /// button.
+    private var installersBody: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(t(.uninstallInstallersNote))
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+            if uninstall.installers.isEmpty {
+                Text(t(.uninstallNoInstallers))
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textTertiary)
+                    .padding(.vertical, 10)
+            } else {
+                ScrollView(showsIndicators: true) {
+                    VStack(spacing: 4) {
+                        ForEach(Array(uninstall.installers.enumerated()), id: \.element.id) {
+                            index, file in
+                            HStack(spacing: 8) {
+                                Button { uninstall.installers[index].ticked.toggle() } label: {
+                                    Image(systemName: file.ticked
+                                          ? "checkmark.square.fill" : "square")
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(file.ticked
+                                                         ? Theme.textPrimary : Theme.textTertiary)
+                                        .frame(width: 18, height: 18)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                                .hoverDim()
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(file.found.name)
+                                        .font(Theme.mono(10.5))
+                                        .foregroundStyle(Theme.textPrimary)
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+                                    Text(Self.dateText(file.found.modified))
+                                        .font(Theme.mono(8.5))
+                                        .foregroundStyle(Theme.textTertiary)
+                                }
+                                Spacer(minLength: 8)
+                                Text(StatsFormatting.diskGb(Double(file.found.bytes)) + " GB")
+                                    .font(Theme.mono(9))
+                                    .foregroundStyle(Theme.textTertiary)
+                                    .monospacedDigit()
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
+                        }
+                    }
+                }
+                .frame(maxHeight: 300)
+                HStack {
+                    Spacer()
+                    Button { uninstall.removeTickedInstallers() } label: {
+                        Text(t(.uninstallRemoveInstallers))
+                            .font(Theme.mono(10, weight: .bold))
+                            .foregroundStyle(Theme.playFg)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverDim()
+                    .disabled(!uninstall.installers.contains(where: \.ticked))
+                }
+            }
+        }
+    }
+
+    private static func dateText(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
     }
 
     private var dropPlate: some View {
@@ -226,7 +367,9 @@ struct UninstallWindowView: View {
                 Button {
                     Task { await uninstall.removeTicked() }
                 } label: {
-                    Text(uninstall.needsAdmin ? t(.uninstallRemoveAdmin) : t(.uninstallRemove))
+                    Text(uninstall.mode == .cache
+                         ? t(.uninstallClearCache)
+                         : (uninstall.needsAdmin ? t(.uninstallRemoveAdmin) : t(.uninstallRemove)))
                         .font(Theme.mono(10, weight: .bold))
                         .foregroundStyle(Theme.playFg)
                         .padding(.horizontal, 14)
@@ -259,6 +402,35 @@ struct UninstallWindowView: View {
                             .lineLimit(1)
                             .truncationMode(.head)
                     }
+                }
+            }
+            // Refused by macOS rather than failed: the fix is a switch in System
+            // Settings, and saying so is the difference between a dead end and a
+            // next step.
+            if !report.needsFullDisk.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(t(.uninstallNeedsFullDisk))
+                        .font(Theme.mono(9.5))
+                        .foregroundStyle(Theme.accentYellow)
+                        .fixedSize(horizontal: false, vertical: true)
+                    ForEach(report.needsFullDisk, id: \.self) { path in
+                        Text(path)
+                            .font(Theme.mono(8.5))
+                            .foregroundStyle(Theme.textTertiary)
+                            .lineLimit(1)
+                            .truncationMode(.head)
+                    }
+                    Button {
+                        if let url = URL(string:
+                            "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    } label: {
+                        HoverLabel(text: t(.uninstallOpenFullDisk), size: 9.5,
+                                   color: Theme.textSecondary)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             // The honest half: what no uninstaller can take away.

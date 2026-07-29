@@ -2172,6 +2172,47 @@ drag-and-drop onto that window or through a "+" that opens Finder.
 - The matching rules live in `HopCore.AppUninstall` and are unit-tested: the
   scanning and trashing is a thin AppKit layer over pure decisions.
 
+### Uninstaller: the other two modes
+
+- **Clear the cache, keep the app.** Only folders macOS itself calls a cache —
+  `~/Library/Caches/<id>` and `Containers/<id>/Data/Library/Caches` — because the
+  system may empty those at any moment, so an app that cannot survive it is
+  already broken. A container or GROUP container is never cleared from outside: it
+  holds the cache AND the data in one folder (Telegram's is 25 GB of media cache
+  mixed with the account database, and removing it logs somebody out). Those are
+  listed with their size and the note that only the app's own cleanup can go in
+  there.
+- **Installers** (`HopCore.InstallerFiles`): `.dmg`, `.pkg`, `.mpkg` at the TOP
+  level of Downloads, Desktop and Documents. Deliberately narrow — an `.iso` may be
+  a film and a `.zip` may be a year of work — and NOTHING is ticked by default: an
+  installer on disk is somebody's choice, and a tool that pre-ticks them all
+  eventually deletes the one that mattered. Size and date are shown so the person
+  can decide.
+- **The identifier is recovered when the app is already gone.** Most people drag
+  the app to the Trash first, and without its Info.plist only name matches work: a
+  run then found 13 traces where 22 were waiting (measured 2026-07-30). Two ways
+  back — the bundle sitting in `~/.Trash/<Name>.app`, and the leftovers that spell
+  the id out themselves (`ru.keepcoder.Telegram.plist` ends with the app's name;
+  separators and case are ignored, so `com.x.hop-uninstall-test` matches "Hop
+  Uninstall Test"). If two entries imply DIFFERENT ids, nothing is inferred: two
+  apps sharing a name is exactly when guessing removes a stranger's data.
+- **Containers, autosaved data and cookies need Full Disk Access.** macOS refuses
+  even `mv` on them, so they are reported apart from real failures, with a button
+  that opens the right pane of System Settings. Without it the score stops at 28
+  of 31 seeded traces; with it, at 31.
+
+### Measured against CleanMyMac (2026-07-30)
+
+On the same fixture app, seeded with 31 traces: CleanMyMac removed 9 (the bundle,
+Application Support by id and by name, Caches including the `.ShipIt` one,
+Preferences, Saved Application State, Logs, one CrashReporter report) and left 22 —
+containers, group container, Application Scripts, HTTPStorages, WebKit, ByHost
+preferences, the launch agent, the DiagnosticReports crash log, autosaved data and
+all eleven plug-in locations. Hop's scan finds 30 of the 30 seedable ones and moves
+28 of them (the three protected paths need Full Disk Access). Caveat kept
+deliberately: the fixture was never launched or registered, so a tool leaning on
+its own database of known apps may do better on real software than it did here.
+
 ### The three tools in one row (setting)
 
 - The converter, the archives and the uninstaller are the same shape of thing —

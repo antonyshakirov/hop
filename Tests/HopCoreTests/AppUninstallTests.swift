@@ -184,4 +184,65 @@ final class AppUninstallTests: XCTestCase {
         XCTAssertTrue(paths.contains("/var/db/receipts"))
         XCTAssertTrue(paths.contains("/Users/Shared"))
     }
+
+    // MARK: - Clearing a cache and leaving the app
+
+    func testOnlyFoldersNamedCachesCountAsDisposable() {
+        XCTAssertTrue(AppUninstall.isDisposableCache(path: "/Users/t/Library/Caches/com.x",
+                                                     kind: .caches))
+        XCTAssertTrue(AppUninstall.isDisposableCache(
+            path: "/Users/t/Library/Containers/com.x/Data/Library/Caches", kind: .container))
+        XCTAssertFalse(AppUninstall.isDisposableCache(
+            path: "/Users/t/Library/Containers/com.x", kind: .container),
+            "a container root is data, not a cache")
+        XCTAssertFalse(AppUninstall.isDisposableCache(
+            path: "/Users/t/Library/Application Support/com.x", kind: .support))
+    }
+
+    func testContainersAreNeverClearedFromOutside() {
+        XCTAssertTrue(AppUninstall.holdsMixedData(.container))
+        XCTAssertTrue(AppUninstall.holdsMixedData(.groupContainer),
+                      "25 GB of Telegram is cache AND the account database")
+        XCTAssertFalse(AppUninstall.holdsMixedData(.caches))
+    }
+
+    func testTheSandboxedCachePathIsKnown() {
+        XCTAssertEqual(AppUninstall.containerCache("/c/com.x"), "/c/com.x/Data/Library/Caches")
+    }
+
+    // MARK: - The app is already in the Trash
+
+    func testAPreferenceFileNamesTheIdentifier() {
+        XCTAssertEqual(AppUninstall.impliedIdentifier(from: "ru.keepcoder.Telegram.plist",
+                                                      appName: "Telegram"),
+                       "ru.keepcoder.Telegram")
+    }
+
+    func testATeamPrefixIsDroppedFromTheInference() {
+        XCTAssertEqual(AppUninstall.impliedIdentifier(from: "ABCDE12345.com.acme.Notes",
+                                                      appName: "Notes"),
+                       "com.acme.Notes")
+    }
+
+    func testANameWithSpacesStillMatches() {
+        XCTAssertEqual(AppUninstall.impliedIdentifier(from: "com.antonshakirov.HopUninstallTest",
+                                                      appName: "Hop Uninstall Test"),
+                       "com.antonshakirov.HopUninstallTest")
+    }
+
+    func testAnUnrelatedEntryImpliesNothing() {
+        XCTAssertNil(AppUninstall.impliedIdentifier(from: "com.other.Thing", appName: "Notes"))
+        XCTAssertNil(AppUninstall.impliedIdentifier(from: "Notes", appName: "Notes"),
+                     "a bare folder name is not an identifier")
+    }
+
+    func testTwoDifferentAnswersMeanNoAnswer() {
+        let entries = ["com.acme.Notes.plist", "com.other.Notes.plist"]
+        XCTAssertNil(AppUninstall.agreedIdentifier(entries: entries, appName: "Notes"),
+                     "two apps share the name, so guessing would remove a stranger's data")
+        XCTAssertEqual(AppUninstall.agreedIdentifier(entries: ["com.acme.Notes.plist",
+                                                               "com.acme.Notes"],
+                                                     appName: "Notes"),
+                       "com.acme.Notes")
+    }
 }

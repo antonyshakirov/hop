@@ -238,6 +238,77 @@ public enum AppUninstall {
         return Candidate(path: "\(directory)/\(entry)", kind: kind, match: match, shared: vendor)
     }
 
+    // MARK: - Finding the identifier when the app is already gone
+
+    /// The identifier an entry implies for an app called `name`, or nil.
+    ///
+    /// This is for the case that actually happens: the app was dragged to the
+    /// Trash first, so its Info.plist is unavailable and only name matches work —
+    /// which is how a run found 13 traces where 22 were waiting (measured
+    /// 2026-07-30). A preference file called `ru.keepcoder.Telegram.plist` says the
+    /// identifier out loud: its LAST dot-component is the app's name.
+    public static func impliedIdentifier(from entry: String, appName name: String) -> String? {
+        guard !name.isEmpty else { return nil }
+        let base = base(of: entry)
+        // strip a team prefix if there is one: <TEAMID>.<id>
+        let parts = base.split(separator: ".").map(String.init)
+        guard parts.count >= 3 else { return nil }
+        // Compare with separators removed: an id spells a display name as
+        // "hop-uninstall-test", "HopUninstallTest" or "hop_uninstall_test", and all
+        // three mean the same app.
+        guard let last = parts.last, squashed(last) == squashed(name) else { return nil }
+        // an id needs at least org.name form, and a team prefix is 10 upper-case
+        // characters — drop it so the id itself comes out
+        var id = parts
+        if let first = id.first, first.count == 10,
+           first.uppercased() == first, !first.contains(where: \.isLowercase) {
+            id.removeFirst()
+        }
+        guard id.count >= 2 else { return nil }
+        return id.joined(separator: ".")
+    }
+
+    /// A name with case and separators taken out, for comparing an identifier's
+    /// last component with a display name.
+    static func squashed(_ text: String) -> String {
+        text.lowercased().filter { $0.isLetter || $0.isNumber }
+    }
+
+    /// The one identifier a set of entries agrees on, if they agree. Two different
+    /// answers mean two different apps share a name, and guessing then is exactly
+    /// how somebody else's data gets removed — so it returns nothing.
+    public static func agreedIdentifier(entries: [String], appName name: String) -> String? {
+        let found = Set(entries.compactMap { impliedIdentifier(from: $0, appName: name) })
+        return found.count == 1 ? found.first : nil
+    }
+
+    // MARK: - Clearing a cache without removing the app
+
+    /// Whether a found path is a cache macOS itself considers disposable.
+    ///
+    /// The rule is literal on purpose: a folder NAMED `Caches`, belonging to this
+    /// app. Those the system may purge at any moment, so an app that cannot
+    /// survive losing one is already broken. Everything else stays.
+    public static func isDisposableCache(path: String, kind: Kind) -> Bool {
+        if kind == .caches || kind == .systemCaches { return true }
+        // Containers/<id>/Data/Library/Caches — the sandboxed equivalent
+        return path.contains("/Data/Library/Caches")
+    }
+
+    /// A container holds an app's cache AND its data in one folder, so it is never
+    /// cleared from outside: Telegram's group container is 25 GB of media cache
+    /// mixed with the account database, and removing it logs somebody out and
+    /// takes their local history (Anton asked, 2026-07-30). The window shows the
+    /// size and says the app's own "clear cache" is the only safe route.
+    public static func holdsMixedData(_ kind: Kind) -> Bool {
+        kind == .container || kind == .groupContainer
+    }
+
+    /// Where a sandboxed app keeps the disposable half of its container.
+    public static func containerCache(_ containerPath: String) -> String {
+        "\(containerPath)/Data/Library/Caches"
+    }
+
     /// The launchd domain a plist in `directory` belongs to, for `launchctl
     /// bootout`: a user agent is `gui/<uid>`, anything under /Library is `system`.
     public static func launchdDomain(forDirectory directory: String, uid: UInt32) -> String {

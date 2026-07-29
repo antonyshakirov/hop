@@ -44,7 +44,8 @@ enum Snapshot {
             let bundle = Bundle(url: URL(fileURLWithPath: path))
             let name = FileManager.default.displayName(atPath: path)
                 .replacingOccurrences(of: ".app", with: "")
-            let id = bundle?.bundleIdentifier ?? ""
+            let id = UninstallController.resolvedIdentifier(
+                provided: bundle?.bundleIdentifier ?? "", name: name)
             print("app: \(name)   id: \(id.isEmpty ? "—" : id)")
             var total: Int64 = 0
             for trace in UninstallController.scanTraces(identifier: id, name: name, appPath: path) {
@@ -63,6 +64,38 @@ enum Snapshot {
                              trace.path as NSString))
             }
             print(String(format: "total: %.1f MB", Double(total) / 1_048_576))
+            exit(0)
+        }
+
+        // `Hop --uninstall-remove <app>` performs the same removal the window does,
+        // from the terminal: quit, boot out the agents, move every ticked trace to
+        // the TRASH. Dev-only like the other self-tests, and the way a comparison
+        // is finished after another uninstaller has had its turn.
+        if let i = args.firstIndex(of: "--uninstall-remove"), args.count > i + 1 {
+            let path = args[i + 1]
+            let name = FileManager.default.displayName(atPath: path)
+                .replacingOccurrences(of: ".app", with: "")
+            let id = UninstallController.resolvedIdentifier(
+                provided: Bundle(url: URL(fileURLWithPath: path))?.bundleIdentifier ?? "",
+                name: name)
+            let traces = UninstallController.scanTraces(identifier: id, name: name, appPath: path)
+                .filter(\.ticked)
+            var moved = 0
+            for trace in traces where !AppUninstall.needsAdmin(path: trace.path, kind: trace.kind) {
+                do {
+                    try FileManager.default.trashItem(at: URL(fileURLWithPath: trace.path),
+                                                     resultingItemURL: nil)
+                    moved += 1
+                    print("trashed: \(trace.path)")
+                } catch {
+                    print("FAILED : \(trace.path)")
+                }
+            }
+            let admin = traces.filter { AppUninstall.needsAdmin(path: $0.path, kind: $0.kind) }
+            if !admin.isEmpty {
+                print("needs an administrator, left for the window: \(admin.count)")
+            }
+            print("moved \(moved) of \(traces.count) to the trash")
             exit(0)
         }
 
