@@ -85,6 +85,14 @@ signing would break).
 
 ## Menu bar icon — corner badges
 
+**The icon's colour follows the MENU BAR, not the app.** A decorated icon is a
+bitmap with its glyph colour baked in, drawn from `button.effectiveAppearance` —
+the bar can be dark while the app is light (over a full-screen window, or the
+instant the system flips), and reading `NSApp` instead left the icon in whichever
+colour the bar had when it was last drawn, invisible on the other one (fixed
+2026-07-29). A KVO observer on that appearance redraws it. The countdown beside
+it never had the problem: AppKit colours a title itself.
+
 The status-item star carries small badges in its four corners, on a fixed
 22×17 canvas so the icon never changes width. The composition (which badge,
 where) is a pure HopCore function — `IconBadges.compose(IconState) →

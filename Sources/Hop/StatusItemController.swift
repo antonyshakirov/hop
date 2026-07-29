@@ -27,6 +27,8 @@ final class StatusItemController: NSObject {
     private let statusItem: NSStatusItem
     private let popover = NSPopover()
     private var cancellable: AnyCancellable?
+    /// Redraws the icon when the menu bar's appearance changes under it.
+    private var appearanceObserver: NSKeyValueObservation?
     private var statsCancellable: AnyCancellable?
 
     init(model: AppModel) {
@@ -56,6 +58,13 @@ final class StatusItemController: NSObject {
             button.target = self
             button.action = #selector(handleClick)
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            // A decorated icon is a bitmap, so it has to be redrawn when the bar
+            // changes colour under it — switching to a full-screen window with
+            // the other appearance, or the system flipping at sunset.
+            appearanceObserver = button.observe(\.effectiveAppearance, options: [.new]) {
+                [weak self] _, _ in
+                Task { @MainActor in self?.refreshButton() }
+            }
         }
 
         // redraw the label on every state change (timer/tracker heartbeat,
@@ -531,13 +540,24 @@ final class StatusItemController: NSObject {
         // keyboard (Anton, 2026-07-25). It outranks the finished bell — the
         // timer can wait, a locked keyboard cannot.
         let keyboardLocked = model.keyboardLock.isLocked
+        // The BUTTON's own appearance, not the app's: the menu bar can be dark
+        // while the app is light — over a full-screen window, or the moment the
+        // system switches — and a decorated icon is a bitmap with its colour
+        // baked in. Reading NSApp meant the icon kept the colour of whatever the
+        // bar looked like when it was last drawn, and went invisible on the other
+        // one (Anton, 2026-07-29). The countdown next to it never had the problem:
+        // AppKit colours a title itself.
+        let barIsDark = button.effectiveAppearance
+            .bestMatch(from: [.darkAqua, .aqua]) != .aqua
         // template fast path ONLY when the calm star carries no decoration at all
         if keyboardLocked {
-            button.image = MenuBarIcon.compose(composition, base: .symbol("keyboard.fill"))
+            button.image = MenuBarIcon.compose(composition, base: .symbol("keyboard.fill"),
+                                               dark: barIsDark)
         } else if !composition.isEmpty {
-            button.image = MenuBarIcon.compose(composition, base: finished ? .symbol(bell) : .dial)
+            button.image = MenuBarIcon.compose(composition, base: finished ? .symbol(bell) : .dial,
+                                               dark: barIsDark)
         } else if finished {
-            button.image = MenuBarIcon.compose(composition, base: .symbol(bell))
+            button.image = MenuBarIcon.compose(composition, base: .symbol(bell), dark: barIsDark)
         } else {
             button.image = MenuBarIcon.dialTemplate
         }
