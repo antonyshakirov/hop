@@ -1768,8 +1768,10 @@ converter (Anton, 2026-07-28).
   it was 300pt with four modules as full-width rows and the rest as a cramped
   grid of switch-above-name cells). Each cell is a name on the LEFT and the
   switch on the RIGHT, the same shape as the rows above it. Only the choices
-  that are not modules stay full width: language, theme, timer format, launch at
-  login. Names are nouns, wrap to two lines, and their cells are TOP-aligned so a
+  that are not modules stay full width, and in this order: language, theme,
+  launch at login, timer format. Launch-at-login used to sit directly on top of
+  the grid, where a wide row in a bigger type size read as a first column of it;
+  the timer-format cards now stand between the two. Names are nouns, wrap to two lines, and their cells are TOP-aligned so a
   two-line name cannot lift its switch above its neighbours'. The torrent
   engine-size note sits under the grid and now names torrents, since it no longer
   stands beside them.

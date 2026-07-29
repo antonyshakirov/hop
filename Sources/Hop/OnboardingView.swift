@@ -98,6 +98,13 @@ struct OnboardingView: View {
                     chip("dark", t(.themeDark))
                     chip("light", t(.themeLight))
                 }
+                HStack {
+                    Text(t(.launchAtLogin))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $launchAtLogin)
+                }
                 VStack(spacing: 6) {
                     HStack {
                         Text(t(.displayStyleLabel))
@@ -117,13 +124,6 @@ struct OnboardingView: View {
                     .id("displayPreview-\(themeRaw)")
                 }
 
-                HStack {
-                    Text(t(.launchAtLogin))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $launchAtLogin)
-                }
                 // Every module switch lives here — fifteen of them, five even
                 // rows. Only the choices that are NOT modules (language, theme,
                 // timer format, launch at login) stay full width above.
