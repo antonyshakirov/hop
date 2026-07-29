@@ -413,7 +413,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the areas otherwise started mid-chart and read as different widths.
   The chart window is a setting: 5/10/30 min or 1 hour, default 5
   (history buffer 61 min); lines are laid out by the points' timestamps.
-  In chart mode the rows are larger (12pt).
+  In chart mode the rows are larger (12pt). The GPU row carries the same
+   two-series card as the CPU (load filled, temperature as the thin line) —
+   added 2026-07-29, it was the one metric with a number and no trend — and
+   the card is drawn ONLY when this Mac reports a GPU load or a GPU
+   temperature: an empty chart is worse than no chart.
 - A red "!" (top-left of the menu bar icon, steady) during a red zone (same
   thresholds that color the values, and for heat the system's own critical
   state; a charging battery doesn't count). OFF by
