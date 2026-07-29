@@ -272,7 +272,7 @@ De stip kun je in de instellingen uitzetten — de module en de schakelaars werk
 
 Een raster met de programma's die je de hele dag opent — één klik weg, zonder
 omweg via de map Programma's. Druk op + en kies ze, of sleep ze uit de Finder;
-er passen er acht naast elkaar, tot acht rijen.
+er passen er negen naast elkaar, tot acht rijen.
 
 Sleep een symbool om het te verplaatsen: een gele lijn laat zien tussen welke
 twee symbolen het landt en de rest schuift opzij, net als op een beginscherm. De

@@ -265,8 +265,7 @@ Nokta ayarlardan kapatılabilir; modül de anahtarları da onsuz çalışmaya de
 ### Uygulamalar
 
 Gün boyu açtığınız programlar bir ızgarada, Uygulamalar klasörüne uğramadan tek
-tıkla. + düğmesine basıp seçin ya da Finder'dan sürükleyin; bir satıra sekiz
-sığar, en çok sekiz satır.
+tıkla. + düğmesine basıp seçin ya da Finder'dan sürükleyin; bir satıra dokuz sığar, en çok sekiz satır.
 
 Bir simgeyi sürükleyerek yerini değiştirin: sarı çizgi hangi iki simgenin
 arasına ineceğini gösterir, diğerleri ana ekrandaki gibi yer açar. Düzenleme

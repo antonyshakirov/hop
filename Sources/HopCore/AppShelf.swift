@@ -33,10 +33,13 @@ public struct ShelfItem: Codable, Equatable, Identifiable, Sendable {
 /// a full square at the bottom of another — so each carries its own id and the
 /// panel addresses it by that.
 public struct AppShelf: Codable, Equatable, Identifiable, Sendable {
-    /// Eight across, eight down: the shape Anton asked for, and the point past
-    /// which a grid stops being scannable at a glance.
-    public static let columns = 8
-    public static let maxItems = columns * columns
+    /// NINE across, eight down (Anton, 2026-07-30). Eight was borrowed from the
+    /// window-snap row, but those tiles are wide rectangles and an app icon is a
+    /// square — one more fits the same width without crowding, and the row still
+    /// stops being scannable long before it stops fitting.
+    public static let columns = 9
+    public static let rows = 8
+    public static let maxItems = columns * rows
 
     public let id: UUID
     public var items: [ShelfItem]

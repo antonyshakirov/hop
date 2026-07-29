@@ -1070,7 +1070,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Apps (launcher)
 
-- Grids of apps kept at hand: eight across, up to eight rows (64 icons), 30pt
+- Grids of apps kept at hand: NINE across, up to eight rows (72 icons), 32pt
   icons with the name under each. Clicking an icon launches it. The model is
   `HopCore.AppShelf` / `AppShelves` with tests; the store is
   `app-shelves.json` beside the other module files.

@@ -279,7 +279,7 @@ Le point peut être désactivé dans les réglages : le module et ses interrupte
 
 Une grille avec les programmes que vous ouvrez toute la journée, à un clic et
 sans passer par le dossier Applications. Appuyez sur + et choisissez-les, ou
-glissez-les depuis le Finder ; huit par ligne, jusqu'à huit lignes.
+glissez-les depuis le Finder ; neuf par ligne, jusqu'à huit lignes.
 
 Faites glisser une icône pour la déplacer : une ligne jaune montre entre quelles
 deux icônes elle se posera et les autres s'écartent, comme sur un écran

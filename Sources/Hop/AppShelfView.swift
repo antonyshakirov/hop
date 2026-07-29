@@ -51,7 +51,11 @@ struct AppShelfView: View {
 
     /// The icon's own size. A slot is exactly this wide, so the spacers between
     /// slots are the only thing between two icons.
-    private static let iconSize: CGFloat = 30
+    /// 32, up from 30 (Anton, 2026-07-30). Nine of them across the module leave a
+    /// 6.5pt gap: bigger icons AND one more per row, with the gaps small enough
+    /// that the eye stops comparing them. 34 would leave 4.25pt, which reads as
+    /// icons touching.
+    private static let iconSize: CGFloat = 32
     /// Measured width of one row — the pitch and the drag maths come from it.
     @State private var rowWidth: CGFloat = 0
 
@@ -219,7 +223,7 @@ struct AppShelfView: View {
         VStack(spacing: 3) {
             Image(nsImage: shelves.icon(for: item))
                 .resizable()
-                .frame(width: 30, height: 30)
+                .frame(width: Self.iconSize, height: Self.iconSize)
                 .overlay(alignment: .topLeading) { deleteBadge(item) }
             if showsLabels {
                 Text(item.name)
@@ -337,7 +341,7 @@ struct AppShelfView: View {
     /// 36pt without —
     /// close enough that a drag lands where the pointer is.
     private func destination(from index: Int, translation: CGSize) -> Int {
-        let rowHeight: CGFloat = showsLabels ? 44 : 36
+        let rowHeight: CGFloat = showsLabels ? Self.iconSize + 14 : Self.iconSize + 6
         let across = Int((translation.width / pitch).rounded())
         let down = Int((translation.height / rowHeight).rounded())
         let count = shelf?.items.count ?? 0

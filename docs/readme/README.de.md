@@ -276,7 +276,7 @@ Der Punkt lässt sich in den Einstellungen abschalten — das Modul und seine Sc
 
 Ein Raster mit den Apps, die Sie den ganzen Tag öffnen — einen Klick entfernt,
 ohne Umweg über den Programme-Ordner. Auf + drücken und auswählen oder aus dem
-Finder hineinziehen; acht passen nebeneinander, bis zu acht Reihen.
+Finder hineinziehen; neun passen nebeneinander, bis zu acht Reihen.
 
 Ziehen Sie ein Symbol, um es zu verschieben: eine gelbe Linie zeigt, zwischen
 welche Symbole es rutscht, die übrigen rücken auf wie auf einem Home-Bildschirm.

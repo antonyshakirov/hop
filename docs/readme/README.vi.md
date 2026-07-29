@@ -260,8 +260,7 @@ Chấm này có thể tắt trong cài đặt; mô-đun và các công tắc v�
 ### Ứng dụng
 
 Một lưới các chương trình bạn mở suốt ngày, chỉ một cú nhấp mà không phải vào
-thư mục Applications. Bấm + rồi chọn, hoặc kéo từ Finder vào; mỗi hàng tám cái,
-tối đa tám hàng.
+thư mục Applications. Bấm + rồi chọn, hoặc kéo từ Finder vào; mỗi hàng chín cái, tối đa tám hàng.
 
 Kéo một biểu tượng để đổi chỗ: vạch vàng cho biết nó sẽ nằm giữa hai biểu tượng
 nào và các biểu tượng khác tự nhường chỗ như trên màn hình chính. Nút sửa bật

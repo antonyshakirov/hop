@@ -30,7 +30,7 @@ final class AppShelfTests: XCTestCase {
         for index in 0..<AppShelf.maxItems { shelf.add(item("App\(index)")) }
         XCTAssertTrue(shelf.isFull)
         XCTAssertFalse(shelf.add(item("OneMore")))
-        XCTAssertEqual(shelf.items.count, AppShelf.maxItems, "eight by eight and no further")
+        XCTAssertEqual(shelf.items.count, AppShelf.maxItems, "nine across, eight down, and no further")
     }
 
     func testRemoving() {
@@ -189,5 +189,11 @@ final class AppShelfTests: XCTestCase {
         XCTAssertEqual(shelves.orphanedModuleKeys(in: [shelf.moduleKey, ghost, "timer"]), [ghost])
         shelves.removeShelf(shelf.id)
         XCTAssertEqual(shelves.orphanedModuleKeys(in: [shelf.moduleKey]), [shelf.moduleKey])
+    }
+
+    func testTheGridIsNineAcrossAndEightDown() {
+        XCTAssertEqual(AppShelf.columns, 9)
+        XCTAssertEqual(AppShelf.rows, 8)
+        XCTAssertEqual(AppShelf.maxItems, 72)
     }
 }

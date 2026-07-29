@@ -266,8 +266,7 @@ The dot can be switched off in settings — the module and its switches go on wo
 ### Apps
 
 A grid of the programs you open all day, one click away without a trip to the
-Applications folder. Press + and pick them, or drag them in from Finder; eight
-fit across a row, up to eight rows.
+Applications folder. Press + and pick them, or drag them in from Finder; nine fit across a row, up to eight rows.
 
 Drag an icon to move it — a yellow line shows which two icons it will land
 between and the rest shuffle around it, like a home screen. The edit button

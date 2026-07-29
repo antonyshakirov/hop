@@ -273,7 +273,7 @@ El punto se puede apagar en los ajustes: el módulo y sus interruptores siguen f
 
 Una cuadrícula con los programas que abres todo el día, a un clic y sin pasar
 por la carpeta de aplicaciones. Pulsa + y elígelos, o arrástralos desde el
-Finder; caben ocho por fila, hasta ocho filas.
+Finder; caben nueve por fila, hasta ocho filas.
 
 Arrastra un icono para moverlo: una línea amarilla muestra entre qué dos iconos
 caerá y los demás se apartan, como en una pantalla de inicio. El botón de

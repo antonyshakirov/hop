@@ -273,7 +273,7 @@ Il punto si può spegnere nelle impostazioni: il modulo e i suoi interruttori fu
 
 Una griglia con i programmi che apri tutto il giorno, a un clic e senza passare
 dalla cartella Applicazioni. Premi + e scegli, oppure trascinali dal Finder:
-otto per riga, fino a otto righe.
+nove per riga, fino a otto righe.
 
 Trascina un'icona per spostarla: una linea gialla mostra tra quali due icone
 finirà e le altre si spostano, come in una schermata home. Il pulsante di

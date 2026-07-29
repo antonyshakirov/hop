@@ -267,8 +267,7 @@ O ponto pode ser desligado nas definições: o módulo e os seus interruptores c
 ### Apps
 
 Uma grelha com os programas que abre todo o dia, a um clique e sem ir à pasta de
-aplicações. Carregue em + e escolha-os, ou arraste-os do Finder; cabem oito por
-linha, até oito linhas.
+aplicações. Carregue em + e escolha-os, ou arraste-os do Finder; cabem nove por linha, até oito linhas.
 
 Arraste um ícone para o mover: uma linha amarela mostra entre que dois ícones
 vai ficar e os outros afastam-se, como num ecrã inicial. O botão de edição

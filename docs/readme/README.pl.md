@@ -267,7 +267,7 @@ Kropkę można wyłączyć w ustawieniach — moduł i jego przełączniki dzia�
 
 Siatka programów, które otwierasz przez cały dzień — jednym kliknięciem, bez
 wyprawy do folderu z aplikacjami. Naciśnij + i wybierz je albo przeciągnij z
-Findera; w rzędzie mieści się osiem, rzędów może być do ośmiu.
+Findera; w rzędzie mieści się dziewięć, rzędów może być do ośmiu.
 
 Przeciągnij ikonę, żeby ją przestawić: żółta linia pokazuje, między którymi
 ikonami wyląduje, a reszta rozsuwa się jak na ekranie głównym. Przycisk edycji

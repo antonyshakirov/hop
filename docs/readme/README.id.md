@@ -268,8 +268,7 @@ Titik itu bisa dimatikan di pengaturan; modul dan sakelarnya tetap bekerja.
 ### Aplikasi
 
 Kisi berisi program yang Anda buka sepanjang hari, sekali klik tanpa mampir ke
-folder Applications. Tekan + lalu pilih, atau seret dari Finder; delapan muat
-dalam sebaris, sampai delapan baris.
+folder Applications. Tekan + lalu pilih, atau seret dari Finder; sembilan muat dalam sebaris, sampai delapan baris.
 
 Seret ikon untuk memindahkannya: garis kuning menunjukkan di antara ikon mana ia
 akan jatuh dan yang lain bergeser seperti di layar utama. Tombol ubah memulai
