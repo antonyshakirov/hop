@@ -484,6 +484,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - A name already taken gets Finder's own treatment — ` 2`, ` 3`… — so saving
   the same entry twice never overwrites the first file
   (`uniqueName(_:ext:taken:)`, both in HopCore with tests).
+- **A written file says so in the row**: the save icon becomes a green tick for
+  four seconds and then comes back. Longer than the copy tick (one second) on
+  purpose — copying is confirmed by whatever you paste a moment later, while a
+  file written to the Desktop gives no other sign that it exists. A cancelled
+  save panel writes nothing and shows no tick.
 - `clipboardToFileAsk` swaps the silent Desktop save for the system's save
   panel, the one place where the name can be retyped and the folder chosen in a
   single step. The panel opens on the Desktop with the generated name already

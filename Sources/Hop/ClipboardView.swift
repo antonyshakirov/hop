@@ -8,6 +8,8 @@ struct ClipboardView: View {
     @AppStorage(SettingsKey.clipboardToFile) private var saveToFile = false
     @AppStorage(SettingsKey.clipboardToFileAsk) private var saveToFileAsk = false
     @AppStorage(SettingsKey.clipboardToFileFormat) private var saveToFileFormat = "txt"
+    /// The entry whose save just succeeded — its icon shows a tick meanwhile.
+    @State private var savedId: UUID?
     @ObservedObject var clipboard: ClipboardController
     let lang: AppLanguage
     var closePanel: () -> Void = {}
@@ -233,10 +235,24 @@ struct ClipboardView: View {
                     // document in it — an image or a copied file has nothing to
                     // write (Anton, 2026-07-29).
                     if saveToFile, item.imageFile == nil, item.filePaths == nil {
-                        rowIcon("square.and.arrow.down", help: L10n.t(.clipSaveToFile, lang)) {
-                            clipboard.saveAsDocument(
-                                item, askForLocation: saveToFileAsk,
-                                format: ClipboardDocument.Format.named(saveToFileFormat))
+                        // The written file is somewhere else on disk, so the row
+                        // is the only place that can say it happened: the icon
+                        // becomes a green tick and comes back a few seconds
+                        // later (Anton, 2026-07-29). A cancelled save panel
+                        // returns nothing and the tick never appears.
+                        if savedId == item.id {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Theme.accentGreen)
+                                .frame(width: 22, height: 20)
+                                .transition(.opacity)
+                        } else {
+                            rowIcon("square.and.arrow.down", help: L10n.t(.clipSaveToFile, lang)) {
+                                let saved = clipboard.saveAsDocument(
+                                    item, askForLocation: saveToFileAsk,
+                                    format: ClipboardDocument.Format.named(saveToFileFormat))
+                                if saved != nil { markSaved(item) }
+                            }
                         }
                     }
                     rowIcon("doc.on.doc") {
@@ -261,6 +277,7 @@ struct ClipboardView: View {
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 5))
         .contentShape(Rectangle())
         .animation(.easeOut(duration: 0.12), value: isCopied)
+        .animation(.easeOut(duration: 0.12), value: savedId == item.id)
     }
 
     private func rowIcon(_ symbol: String, help: String? = nil,
@@ -275,6 +292,17 @@ struct ClipboardView: View {
         .buttonStyle(.plain)
         .hoverHighlight(4)
         .help(help ?? "")
+    }
+
+    /// The tick that replaces the save icon after a file is written. Longer than
+    /// the copy tick: copying is confirmed by the thing you paste a second later,
+    /// while a saved file gives no other sign that it exists.
+    private func markSaved(_ item: ClipboardController.Item) {
+        savedId = item.id
+        Task {
+            try? await Task.sleep(for: .seconds(4))
+            if savedId == item.id { savedId = nil }
+        }
     }
 
     private func markCopied(_ item: ClipboardController.Item) {
