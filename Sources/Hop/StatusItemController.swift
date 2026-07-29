@@ -499,6 +499,10 @@ final class StatusItemController: NSObject {
         let reminderUnseen = model.todos.list.hasUnseenFiring
             && UserDefaults.standard.bool(forKey: SettingsKey.todoRemindMark)
 
+        // The tunnel's own mark, which can be switched off: a VPN somebody else's
+        // app holds up is not necessarily something the user wants reported.
+        let vpnMark = UserDefaults.standard.bool(forKey: SettingsKey.vpnMenuBarMark)
+
         let composition = IconBadges.compose(IconState(
             engine: engineSlot,
             engineTimeInTitle: engineTimeInTitle,
@@ -510,7 +514,7 @@ final class StatusItemController: NSObject {
             alertBlinking: alertBlinking,
             blinkOn: blinkOn,
             reminderUnseen: reminderUnseen,
-            vpnConnected: model.vpn.isAnyConnected,
+            vpnConnected: model.vpn.isAnyConnected && vpnMark,
             torrentDown: transfer.down,
             torrentUp: transfer.up,
             colored: colored

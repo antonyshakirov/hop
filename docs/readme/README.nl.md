@@ -266,6 +266,8 @@ configuratie toevoegt, meestal het land. Hop raadt het land nooit uit het
 serveradres: het register zegt waar een reeks geregistreerd staat, niet waar de
 machine staat.
 
+De stip kun je in de instellingen uitzetten — de module en de schakelaars werken gewoon door.
+
 ### Apps
 
 Een raster met de programma's die je de hele dag opent — één klik weg, zonder

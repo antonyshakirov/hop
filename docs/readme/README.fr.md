@@ -273,6 +273,8 @@ parenthèses, ce que la configuration ajoute, le plus souvent le pays. Hop ne
 devine jamais le pays d'après l'adresse du serveur : le registre indique où la
 plage est enregistrée, pas où se trouve la machine.
 
+Le point peut être désactivé dans les réglages : le module et ses interrupteurs fonctionnent très bien sans lui.
+
 ### Apps
 
 Une grille avec les programmes que vous ouvrez toute la journée, à un clic et

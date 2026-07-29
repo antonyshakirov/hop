@@ -262,6 +262,8 @@ a configuração acrescenta, normalmente o país. O Hop nunca adivinha o país p
 endereço do servidor: o registo diz onde a gama está registada, não onde a máquina
 está.
 
+O ponto pode ser desligado nas definições: o módulo e os seus interruptores continuam a funcionar sem ele.
+
 ### Apps
 
 Uma grelha com os programas que abre todo o dia, a um clique e sem ir à pasta de

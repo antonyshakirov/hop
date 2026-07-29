@@ -263,6 +263,8 @@ kurung, tambahan dari konfigurasi — biasanya negara. Hop tidak pernah menebak
 negara dari alamat server: daftar alamat menyebut di mana rentang itu terdaftar,
 bukan di mana mesinnya berada.
 
+Titik itu bisa dimatikan di pengaturan; modul dan sakelarnya tetap bekerja.
+
 ### Aplikasi
 
 Kisi berisi program yang Anda buka sepanjang hari, sekali klik tanpa mampir ke

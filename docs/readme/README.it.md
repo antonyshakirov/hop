@@ -267,6 +267,8 @@ che la configurazione aggiunge, di solito il paese. Hop non indovina mai il paes
 dall'indirizzo del server: il registro dice dove è registrato l'intervallo, non
 dove sta la macchina.
 
+Il punto si può spegnere nelle impostazioni: il modulo e i suoi interruttori funzionano lo stesso.
+
 ### App
 
 Una griglia con i programmi che apri tutto il giorno, a un clic e senza passare

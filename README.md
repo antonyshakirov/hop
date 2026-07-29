@@ -261,6 +261,8 @@ server's address: the address registry says where a range is registered, not
 where the machine stands, and a wrong country stated confidently is worse than
 none.
 
+The dot can be switched off in settings — the module and its switches go on working without it.
+
 ### Apps
 
 A grid of the programs you open all day, one click away without a trip to the

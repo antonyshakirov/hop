@@ -124,11 +124,10 @@ identically on every user's bar.
   corner itself when the "!" is dark), steady, never blinking: it reports
   something waiting rather than something wrong. Monochrome renders it as an
   outline ring, so it stays distinct from the filled "!". Visible while any to-do
-  has an unacknowledged firing. It is the ONE badge with an off switch
-  (`todoRemindMark`) — the documented EXCEPTION to the rule below, because every
-  other badge mirrors an app STATE that is simply true or false, while a reminder
-  is a one-off user event whose signal belongs to the same family as the timer's
-  finish signal.
+  has an unacknowledged firing. One of the TWO badges with an off switch
+  (`todoRemindMark`) — a documented exception to the rule below, because a
+  reminder is a one-off user event whose signal belongs to the same family as the
+  timer's finish signal, not an app state that is simply true or false.
 - **Bottom-left — torrent arrows.** ↓ downloading, ↑ seeding (a FINISHED torrent
   actively uploading), or both side by side — the two can co-occur (one fetching
   while another seeds). Always the star's glyph colour (white/85%-black), the one
@@ -141,7 +140,11 @@ identically on every user's bar.
   ring; engine = filled wedge, task = outline wedge (same outer size as filled);
   the "!" and arrows stay their single shape. Per-badge on/off switches were
   rejected — a badge always shows while its state is active; only colour is a
-  setting. There is NO on-screen symbol legend — a badge-meaning legend once
+  setting. Exactly two badges are exempt and both are named where they are
+  described: the reminder dot (`todoRemindMark`) and the VPN dot
+  (`vpnMenuBarMark`, in the VPN settings section, ON by default). A tunnel is
+  held by somebody else's app, so whether it is worth a mark is the user's call
+  (Anton, 2026-07-29). There is NO on-screen symbol legend — a badge-meaning legend once
   lived in the info window's general tab but was removed (the icon is meant to be
   self-evident; the `colored indicators` toggle is the only badge-related
   surface there).
@@ -976,7 +979,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   app. Only what the vendor itself names is shown.
 - **Menu-bar light:** a green dot in the bottom-left corner while any tunnel is
   up, beside the torrent arrows when those are there — the state worth seeing
-  with the panel closed.
+  with the panel closed. It can be switched off (`vpnMenuBarMark`, VPN settings,
+  ON by default); the module and the switch go on working without it.
 - **The vendor's window on demand:** the app is not running at all while Hop
   drives the connection, so it sits in neither the Dock nor the menu bar.
   Clicking the name launches it, and Hop quits it again once its last ordinary

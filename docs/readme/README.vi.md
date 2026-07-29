@@ -255,6 +255,8 @@ phần cấu hình thêm vào, thường là quốc gia. Hop không đoán quố
 chủ: sổ đăng ký địa chỉ cho biết dải số đăng ký ở đâu, chứ không phải máy đặt ở
 đâu.
 
+Chấm này có thể tắt trong cài đặt; mô-đun và các công tắc vẫn hoạt động như thường.
+
 ### Ứng dụng
 
 Một lưới các chương trình bạn mở suốt ngày, chỉ một cú nhấp mà không phải vào

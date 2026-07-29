@@ -86,6 +86,11 @@ enum SettingsKey {
     /// marking a task changes nothing about where it sits.
     static let todoImportantOnTop = "todoImportantOnTop"
     static let trackerImportantOnTop = "trackerImportantOnTop"
+    /// The green dot the menu-bar icon carries while a VPN tunnel is up. ON by
+    /// default. The second badge with a switch of its own: a tunnel is a state
+    /// somebody else's app owns, and whether it is worth a mark is the user's
+    /// call, not ours (Anton, 2026-07-29).
+    static let vpnMenuBarMark = "vpnMenuBarMark"
     /// Which day the week starts on in the reminder's weekday row: "auto" follows
     /// the system's region, and the two explicit values override it.
     static let firstWeekday = "firstWeekday"
@@ -95,6 +100,7 @@ enum SettingsKey {
         todoRemindBanner: true,
         todoRemindSound: true,
         todoRemindMark: true,
+        vpnMenuBarMark: true,
     ]
 }
 

@@ -260,6 +260,8 @@ yapılandırmanın eklediği, genelde ülke. Hop ülkeyi sunucu adresinden tahmi
 adres kaydı aralığın nerede kayıtlı olduğunu söyler, makinenin nerede durduğunu
 değil.
 
+Nokta ayarlardan kapatılabilir; modül de anahtarları da onsuz çalışmaya devam eder.
+
 ### Uygulamalar
 
 Gün boyu açtığınız programlar bir ızgarada, Uygulamalar klasörüne uğramadan tek

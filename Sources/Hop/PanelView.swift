@@ -64,6 +64,7 @@ struct PanelView: View {
     @AppStorage(HotkeyManager.snapHotkeysKey) private var windowsHotkeysOn = true
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
+    @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
     @AppStorage(SettingsKey.showWindowsInDock) private var showWindowsInDock = true
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
     @AppStorage(AppIcon.styleKey) private var appIconStyle = "auto"
@@ -3650,6 +3651,7 @@ struct PanelView: View {
                     Spacer()
                     NumericField(value: $vpnVisibleRows, range: 1...10)
                 }
+                switchSetting(t(.settingsVpnMark), isOn: $vpnMenuBarMark)
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {

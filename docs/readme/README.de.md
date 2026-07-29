@@ -270,6 +270,8 @@ die Konfiguration hinzufügt, meist das Land. Aus der Serveradresse rät Hop das
 Land nicht: das Adressregister sagt, wo ein Bereich registriert ist, nicht wo die
 Maschine steht.
 
+Der Punkt lässt sich in den Einstellungen abschalten — das Modul und seine Schalter arbeiten auch ohne ihn.
+
 ### Programme
 
 Ein Raster mit den Apps, die Sie den ganzen Tag öffnen — einen Klick entfernt,

@@ -261,6 +261,8 @@ W wierszu widać to, co zgłasza sam klient: nazwę i w nawiasie to, co dodaje
 konfiguracja, zwykle kraj. Hop nie zgaduje kraju z adresu serwera: rejestr mówi,
 gdzie zakres jest zarejestrowany, a nie gdzie stoi maszyna.
 
+Kropkę można wyłączyć w ustawieniach — moduł i jego przełączniki działają i bez niej.
+
 ### Aplikacje
 
 Siatka programów, które otwierasz przez cały dzień — jednym kliknięciem, bez

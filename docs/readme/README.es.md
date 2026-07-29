@@ -267,6 +267,8 @@ lo que añade la configuración, normalmente el país. Hop nunca deduce el país
 la dirección del servidor: el registro dice dónde está registrado el rango, no
 dónde está la máquina.
 
+El punto se puede apagar en los ajustes: el módulo y sus interruptores siguen funcionando sin él.
+
 ### Apps
 
 Una cuadrícula con los programas que abres todo el día, a un clic y sin pasar
