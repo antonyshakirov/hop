@@ -40,10 +40,32 @@ public struct AppShelf: Codable, Equatable, Identifiable, Sendable {
 
     public let id: UUID
     public var items: [ShelfItem]
+    /// What this grid is called. Empty means "no name of its own" and the module
+    /// falls back to the generic label — several grids on one space need telling
+    /// apart, but the first one should not have to be named to be usable.
+    public var title: String
+    /// Whether the app names are drawn under the icons. Off gives a dense wall of
+    /// icons for someone who recognises them by sight.
+    public var showsLabels: Bool
 
-    public init(id: UUID = UUID(), items: [ShelfItem] = []) {
+    public init(id: UUID = UUID(), items: [ShelfItem] = [],
+                title: String = "", showsLabels: Bool = true) {
         self.id = id
         self.items = items
+        self.title = title
+        self.showsLabels = showsLabels
+    }
+
+    private enum CodingKeys: String, CodingKey { case id, items, title, showsLabels }
+
+    /// Both new fields decode leniently, so a file written before they existed
+    /// keeps working.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        items = try container.decodeIfPresent([ShelfItem].self, forKey: .items) ?? []
+        title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
+        showsLabels = try container.decodeIfPresent(Bool.self, forKey: .showsLabels) ?? true
     }
 
     /// The module key the panel stores for this shelf. Every other module is one

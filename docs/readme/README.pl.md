@@ -261,6 +261,19 @@ W wierszu widać to, co zgłasza sam klient: nazwę i w nawiasie to, co dodaje
 konfiguracja, zwykle kraj. Hop nie zgaduje kraju z adresu serwera: rejestr mówi,
 gdzie zakres jest zarejestrowany, a nie gdzie stoi maszyna.
 
+### Aplikacje
+
+Siatka programów, które otwierasz przez cały dzień — jednym kliknięciem, bez
+wyprawy do folderu z aplikacjami. Naciśnij + i wybierz je albo przeciągnij z
+Findera; w rzędzie mieści się osiem, rzędów może być do ośmiu.
+
+Przeciągnij ikonę, żeby ją przestawić: żółte pole pokazuje, gdzie wyląduje, a
+reszta rozsuwa się jak na ekranie głównym. Przycisk edycji włącza kołysanie,
+każda ikona dostaje ✕, a siatce można nadać własną nazwę; tam też wyłącza się
+podpisy pod ikonami, jeśli rozpoznajesz aplikacje z wyglądu. Siatek możesz mieć
+dowolnie wiele — praca na jednej przestrzeni, reszta na drugiej — każda ma swoje
+aplikacje.
+
 ## 22 języki
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikacja od razu podąża za językiem

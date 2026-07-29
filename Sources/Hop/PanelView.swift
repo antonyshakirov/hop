@@ -2583,7 +2583,10 @@ struct PanelView: View {
         case "color": return t(.colorLabel)
         case "ocr": return t(.ocrLabel)
         case "vpn": return t(.vpnLabel)
-        case let key where AppShelves.shelfID(fromModuleKey: key) != nil: return t(.appsLabel)
+        case let key where AppShelves.shelfID(fromModuleKey: key) != nil:
+            let named = model.appShelves.shelf(withKey: key)?.title
+                .trimmingCharacters(in: .whitespaces) ?? ""
+            return named.isEmpty ? t(.appsLabel) : named
         case "archive": return t(.archiveLabel)
         case "keyboard": return t(.keylockLabel)
         case "system": return t(.tabSystem)
@@ -3534,6 +3537,31 @@ struct PanelView: View {
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
                 settingsSectionHeader(t(.appsLabel))
+                // The grids that exist, so several of them can be told apart and
+                // deleted from one place. A grid is named in the module itself.
+                ForEach(model.appShelves.shelves.shelves) { shelf in
+                    HStack {
+                        Text(shelf.title.trimmingCharacters(in: .whitespaces).isEmpty
+                             ? t(.appsLabel) : shelf.title)
+                            .font(Theme.mono(12))
+                            .foregroundStyle(Theme.textPrimary)
+                            .lineLimit(1)
+                        Text("\(shelf.items.count)")
+                            .font(Theme.mono(11))
+                            .foregroundStyle(Theme.textTertiary)
+                        Spacer()
+                        Button { removeShelf(shelf.id) } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(Theme.textSecondary)
+                                .frame(width: 24, height: 24)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .hoverDim()
+                        .help(t(.appsRemoveShelf))
+                    }
+                }
                 HStack {
                     Text(t(.appsAddShelf))
                         .font(Theme.mono(12))
@@ -3817,6 +3845,16 @@ struct PanelView: View {
         var tabs = tabsModel
         tabs.ensure(modules: [key])
         panelTabsRaw = tabs.encoded()
+    }
+
+    /// Deletes a grid and forgets its module key. Hiding is not enough here: the
+    /// module itself is gone, and a key left on a space would draw nothing.
+    private func removeShelf(_ id: UUID) {
+        guard let shelf = model.appShelves.shelves[id] else { return }
+        var tabs = tabsModel
+        tabs.remove(module: shelf.moduleKey)
+        panelTabsRaw = tabs.encoded()
+        model.appShelves.removeShelf(id)
     }
 
     /// Which day the reminder's weekday row starts on. Defaults to the system's

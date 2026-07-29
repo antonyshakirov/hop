@@ -255,6 +255,19 @@ phần cấu hình thêm vào, thường là quốc gia. Hop không đoán quố
 chủ: sổ đăng ký địa chỉ cho biết dải số đăng ký ở đâu, chứ không phải máy đặt ở
 đâu.
 
+### Ứng dụng
+
+Một lưới các chương trình bạn mở suốt ngày, chỉ một cú nhấp mà không phải vào thư
+mục Applications. Bấm + rồi chọn, hoặc kéo từ Finder vào; mỗi hàng tám cái, tối
+đa tám hàng.
+
+Kéo một biểu tượng để đổi chỗ: ô vàng cho biết nó sẽ nằm ở đâu và các biểu tượng
+khác tự nhường chỗ như trên màn hình chính. Nút sửa bật chế độ đung đưa, mỗi biểu
+tượng có dấu ✕ và lưới có thể đặt tên riêng; ở đó cũng tắt được tên dưới biểu
+tượng, nếu bạn nhận ra ứng dụng chỉ bằng hình. Bạn muốn bao nhiêu lưới cũng được
+— công việc ở một không gian, phần còn lại ở không gian khác — mỗi lưới có ứng
+dụng riêng.
+
 ## 22 ngôn ngữ
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — ứng dụng tự động theo ngôn ngữ hệ thống của

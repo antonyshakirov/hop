@@ -263,6 +263,19 @@ kurung, tambahan dari konfigurasi — biasanya negara. Hop tidak pernah menebak
 negara dari alamat server: daftar alamat menyebut di mana rentang itu terdaftar,
 bukan di mana mesinnya berada.
 
+### Aplikasi
+
+Kisi berisi program yang Anda buka sepanjang hari, sekali klik tanpa mampir ke
+folder Applications. Tekan + lalu pilih, atau seret dari Finder; delapan muat
+dalam sebaris, sampai delapan baris.
+
+Seret ikon untuk memindahkannya: kotak kuning menunjukkan tempat jatuhnya dan
+yang lain bergeser seperti di layar utama. Tombol ubah memulai goyangan, tiap
+ikon mendapat ✕, dan kisi bisa diberi nama sendiri; di sana pula nama di bawah
+ikon bisa dimatikan kalau Anda mengenali aplikasi dari tampilannya. Kisinya boleh
+sebanyak apa pun — kerja di satu ruang, sisanya di ruang lain — masing-masing
+punya aplikasi sendiri.
+
 ## 22 bahasa
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — aplikasi langsung mengikuti bahasa sistem

@@ -565,4 +565,28 @@ final class PanelTabsTests: XCTestCase {
 
         XCTAssertEqual(model.canonicalized(), model)
     }
+
+    // MARK: - Forgetting a module that no longer exists
+
+    func testRemovingAModuleTakesItOffItsTab() {
+        var model = PanelTabsModel(tabs: [PanelTab(icon: "a", moduleKeys: ["timer", "apps:x"])])
+        model.remove(module: "apps:x")
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer"])
+        XCTAssertTrue(model.inactive.isEmpty, "a deleted module is gone, not hidden")
+    }
+
+    func testRemovingAHiddenModuleEmptiesItOutOfTheBucket() {
+        var model = PanelTabsModel(tabs: [PanelTab(icon: "a", moduleKeys: ["timer"])],
+                                   inactive: ["apps:x"])
+        model.remove(module: "apps:x")
+        XCTAssertTrue(model.inactive.isEmpty)
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer"])
+    }
+
+    func testRemovingAnUnknownModuleChangesNothing() {
+        let original = PanelTabsModel(tabs: [PanelTab(icon: "a", moduleKeys: ["timer"])])
+        var model = original
+        model.remove(module: "apps:missing")
+        XCTAssertEqual(model, original)
+    }
 }

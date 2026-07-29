@@ -267,6 +267,19 @@ che la configurazione aggiunge, di solito il paese. Hop non indovina mai il paes
 dall'indirizzo del server: il registro dice dove è registrato l'intervallo, non
 dove sta la macchina.
 
+### App
+
+Una griglia con i programmi che apri tutto il giorno, a un clic e senza passare
+dalla cartella Applicazioni. Premi + e scegli, oppure trascinali dal Finder: otto
+per riga, fino a otto righe.
+
+Trascina un'icona per spostarla: una casella gialla mostra dove finirà e le altre
+si spostano, come in una schermata home. Il pulsante di modifica avvia
+l'oscillazione, ogni icona riceve una ✕ e la griglia può avere un nome proprio;
+lì si spengono anche i nomi sotto le icone, se riconosci le tue app a colpo
+d'occhio. Puoi tenere quante griglie vuoi — il lavoro su uno spazio, il resto su
+un altro — ognuna con le sue app.
+
 ## 22 lingue
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — l'app segue la lingua di sistema fin dal primo

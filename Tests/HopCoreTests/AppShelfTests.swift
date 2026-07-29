@@ -111,6 +111,36 @@ final class AppShelfTests: XCTestCase {
         XCTAssertTrue(shelves.shelves.isEmpty)
     }
 
+    // MARK: - Its own name and label setting
+
+    func testAShelfStartsUnnamedAndShowingLabels() {
+        let shelf = AppShelf()
+        XCTAssertEqual(shelf.title, "", "the first grid should be usable without naming it")
+        XCTAssertTrue(shelf.showsLabels)
+    }
+
+    func testNameAndLabelSettingSurviveStorage() throws {
+        var shelves = AppShelves()
+        var shelf = shelves.addShelf()
+        shelf.title = "work"
+        shelf.showsLabels = false
+        shelf.add(item("Safari"))
+        shelves[shelf.id] = shelf
+
+        let data = try JSONEncoder().encode(shelves)
+        let decoded = try JSONDecoder().decode(AppShelves.self, from: data)
+
+        XCTAssertEqual(decoded.shelves.first?.title, "work")
+        XCTAssertEqual(decoded.shelves.first?.showsLabels, false)
+    }
+
+    func testAShelfFromBeforeTheseFieldsStillLoads() throws {
+        let json = Data(#"{"id":"11111111-2222-4333-8444-555555555555","items":[]}"#.utf8)
+        let shelf = try JSONDecoder().decode(AppShelf.self, from: json)
+        XCTAssertEqual(shelf.title, "")
+        XCTAssertTrue(shelf.showsLabels, "labels stay on for a grid that never chose")
+    }
+
     // MARK: - Storage
 
     func testRoundTripsThroughJSON() throws {

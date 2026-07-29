@@ -46,6 +46,13 @@ signing would break).
 4. **No repeatForever animations** — they trigger NSHostingController
    size recalculation. Icon changes are an opacity crossfade in a
    fixed-size ZStack.
+5. **One horizontal inset for the whole panel.** The container pads 14pt
+   left and right and modules add NOTHING of their own: labels, rows,
+   cards, dividers and the edges of pill rows all start on the same line.
+   Text INSIDE a pill is indented by that pill's own padding, which is the
+   only allowed exception. Four modules used to add 2pt for themselves and
+   sat two points to the right of every pill above them (fixed 2026-07-29).
+
 5. Content size is fixed BEFORE the popover is shown (layoutSubtreeIfNeeded
    + contentSize); windows are shown via presentCentered (layout BEFORE show).
 6. The popover size is rounded UP to whole points (IntegralSizeHostingController
@@ -980,6 +987,51 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Opt-in module (key `"vpn"`, title `vpnLabel`), hidden on a fresh install like
   the eyedropper and recognition: a Mac with no VPN configured would otherwise
   get an empty section it never asked for.
+
+### Apps (launcher)
+
+- Grids of apps kept at hand: eight across, up to eight rows (64 icons), 30pt
+  icons with the name under each. Clicking an icon launches it. The model is
+  `HopCore.AppShelf` / `AppShelves` with tests; the store is
+  `app-shelves.json` beside the other module files.
+- **Several grids.** This is the ONE module that exists in copies, so its module
+  key carries an id (`apps:<uuid>`) instead of a bare word. Settings lists the
+  grids that exist — each with its name and how many apps it holds, and a ✕ that
+  deletes it — plus the `+` that makes another and drops it on the first space.
+  Deleting a grid calls `PanelTabsModel.remove(module:)`, which forgets the key
+  rather than moving it to the inactive bucket: hiding is for a module that still
+  exists, and this one is gone.
+- **A grid's own name.** Blank by default, in which case the header shows the
+  generic `apps` label; typed in the header while editing. The name is also what
+  the layout settings show for that grid's chip, so three grids on one space can
+  be told apart.
+- **Names under the icons** can be switched off per grid (`showsLabels`, on by
+  default), leaving bare icons for someone who recognises them by sight. Both
+  fields decode leniently, so a file written before they existed still loads.
+- **Two visible affordances in the header**: `+` picks apps from disk
+  (`NSOpenPanel`, restricted to `.application`, starting in Applications), and
+  the second button opens edit mode. The first build had adding behind a Finder
+  drag and editing behind a 0.6s long press, and Anton found neither
+  (2026-07-29) — a mode that cannot be discovered does not exist. Dropping from
+  Finder still works and is still documented; anything that is not an `.app` is
+  ignored rather than parked as a dead icon.
+- **Edit mode** wobbles the icons ±1.8° with a 0.36s half-period, neighbouring
+  icons leaning opposite ways. The first attempt (±1.4° at 0.14s) read as
+  flicker rather than sway. Driven by a `Timer` that is started on entry and
+  invalidated on exit — NOT `repeatForever`, which is banned panel-wide because
+  it makes the hosting controller recompute its size forever. Each icon carries a
+  ✕ drawn as a muted circle with the glyph knocked out; a bright badge on a
+  moving icon reads as blinking.
+- **Dragging** reorders the grid: the dragged icon follows the pointer, scaled
+  1.08 and above the rest, and a YELLOW slot marks the cell it would land in.
+  Without the slot the drop was a guess. The destination is worked out from the
+  travelled distance in cells (36pt across, 44pt down with names, 36pt without),
+  so it does not depend on the panel's width, and it clamps rather than crashes.
+  The grid only reshuffles on drop.
+- **A moved app heals itself**: the path launches it, the bundle id finds it
+  again if it moved house, and the shelf quietly rewrites the path.
+- Opt-in: a fresh install has no grid at all, since an empty launcher says
+  nothing. The first one is made in settings.
 
 ### Color (eyedropper)
 

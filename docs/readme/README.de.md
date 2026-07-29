@@ -270,6 +270,20 @@ die Konfiguration hinzufügt, meist das Land. Aus der Serveradresse rät Hop das
 Land nicht: das Adressregister sagt, wo ein Bereich registriert ist, nicht wo die
 Maschine steht.
 
+### Programme
+
+Ein Raster mit den Apps, die Sie den ganzen Tag öffnen — einen Klick entfernt,
+ohne Umweg über den Programme-Ordner. Auf + drücken und auswählen oder aus dem
+Finder hineinziehen; acht passen nebeneinander, bis zu acht Reihen.
+
+Ziehen Sie ein Symbol, um es zu verschieben: ein gelbes Feld zeigt den Zielplatz,
+die übrigen rücken auf wie auf einem Home-Bildschirm. Die Bearbeiten-Taste
+startet das Wackeln, jedes Symbol bekommt ein ✕, und das Raster kann einen
+eigenen Namen bekommen; dort lassen sich auch die Namen unter den Symbolen
+abschalten, wenn Sie Ihre Apps ohnehin erkennen. Sie können beliebig viele Raster
+anlegen — Arbeit auf einer Fläche, alles andere auf einer zweiten — jedes mit
+eigenen Apps.
+
 ## 22 Sprachen
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — die App folgt von Haus aus deiner Systemsprache.

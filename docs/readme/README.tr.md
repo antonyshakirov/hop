@@ -260,6 +260,19 @@ yapılandırmanın eklediği, genelde ülke. Hop ülkeyi sunucu adresinden tahmi
 adres kaydı aralığın nerede kayıtlı olduğunu söyler, makinenin nerede durduğunu
 değil.
 
+### Uygulamalar
+
+Gün boyu açtığınız programlar bir ızgarada, Uygulamalar klasörüne uğramadan tek
+tıkla. + düğmesine basıp seçin ya da Finder'dan sürükleyin; bir satıra sekiz
+sığar, en çok sekiz satır.
+
+Bir simgeyi sürükleyerek yerini değiştirin: sarı hücre nereye ineceğini gösterir,
+diğerleri ana ekrandaki gibi yer açar. Düzenleme düğmesi sallanmayı başlatır, her
+simgede bir ✕ belirir ve ızgaraya kendi adı verilebilir; uygulamalarınızı zaten
+tanıyorsanız simgelerin altındaki adlar da orada kapatılır. İstediğiniz kadar
+ızgara tutabilirsiniz — iş bir alanda, gerisi başka bir alanda — her birinin
+kendi uygulamaları olur.
+
 ## 22 dil
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — uygulama kurulumdan itibaren sistem

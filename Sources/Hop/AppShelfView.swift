@@ -1,3 +1,4 @@
+import AppKit
 import HopCore
 import SwiftUI
 import UniformTypeIdentifiers
@@ -5,26 +6,46 @@ import UniformTypeIdentifiers
 /// One grid of apps: eight across, up to eight rows.
 ///
 /// Behaves the way a home screen does, because that is the behaviour everyone
-/// already knows: drag an icon and the others shuffle around it; hold the mouse
-/// down and the whole grid starts to wobble, which is when a ✕ appears on each
-/// icon; drop an app from Finder anywhere on the grid to park it.
+/// already knows: drag an icon and a yellow slot shows where it will land; the
+/// edit button starts the wobble, which is when a ✕ appears on each icon; apps
+/// arrive either from the + or dropped in from Finder.
+///
+/// A grid carries its own name and decides whether the names under the icons are
+/// drawn at all, because several grids on one space have to be told apart and a
+/// wall of bare icons is what some people want.
 struct AppShelfView: View {
     @ObservedObject var shelves: AppShelvesController
     let shelfID: UUID
     let lang: AppLanguage
 
-    /// The icon being dragged, and where it would land.
+    /// The icon being dragged, how far it has travelled, and where it would land.
     @State private var dragging: UUID?
+    @State private var dragOffset: CGSize = .zero
     @State private var dropIndex: Int?
-    /// Wobble mode: reached by holding the mouse on the grid, left by clicking
-    /// anywhere outside an icon.
+    /// Wobble mode: entered from the edit button, left by "done".
     @State private var editing = false
-    @State private var wobble = false
+    @State private var wobblePhase = false
+    @State private var wobbleTimer: Timer?
     @State private var isTargeted = false
+    /// The name being typed. Kept apart from the stored one so a field that is
+    /// mid-word does not fight the model on every keystroke.
+    @State private var draftTitle = ""
+
+    /// How the wobble runs. Slow and wide reads as a swaying icon; fast and
+    /// narrow reads as a flicker, which is what the first attempt looked like.
+    private static let wobbleAngle = 1.8
+    private static let wobbleStep = 0.36
 
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
     private var shelf: AppShelf? { shelves.shelves[shelfID] }
+
+    private var showsLabels: Bool { shelf?.showsLabels ?? true }
+
+    private var displayTitle: String {
+        let title = shelf?.title.trimmingCharacters(in: .whitespaces) ?? ""
+        return title.isEmpty ? t(.appsLabel) : title
+    }
 
     /// 8 columns, fixed — the row is the unit here, not the panel's width.
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 6),
@@ -40,6 +61,13 @@ struct AppShelfView: View {
                     grid(shelf)
                 }
             }
+            if editing {
+                // Says what the wobble means, below the grid rather than in the
+                // header, which is busy with the name while editing.
+                Text(t(.appsEditingHint))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         // A drop anywhere on the module parks the app; Finder hands over a file URL.
@@ -52,38 +80,85 @@ struct AppShelfView: View {
                 .stroke(Theme.editing, lineWidth: 1)
                 .opacity(isTargeted ? 1 : 0)
         )
-        .onDisappear { editing = false; wobble = false }
+        .onAppear { draftTitle = shelf?.title ?? "" }
+        .onDisappear { stopEditing() }
     }
+
+    // MARK: - Header
 
     private var subheader: some View {
         HStack(spacing: 6) {
-            Text(t(.appsLabel))
-                .font(Theme.mono(10, weight: .semibold))
-                .foregroundStyle(Theme.textTertiary)
             if editing {
-                // Says what the wobble means and how to leave it, since a wobbling
-                // grid is a mode and a mode needs a way out.
-                Text(t(.appsEditingHint))
-                    .font(Theme.mono(9))
-                    .foregroundStyle(Theme.textTertiary)
+                TextField(t(.appsNamePlaceholder), text: $draftTitle)
+                    .textFieldStyle(.plain)
+                    .font(Theme.mono(10, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(maxWidth: 110)
+                    .onChange(of: draftTitle) { _, new in
+                        shelves.setTitle(new, for: shelfID)
+                    }
                 Spacer(minLength: 0)
+                labelsToggle
                 Button(t(.appsDone)) { stopEditing() }
                     .buttonStyle(.plain)
                     .font(Theme.mono(9, weight: .semibold))
                     .foregroundStyle(Theme.textSecondary)
                     .hoverDim()
+            } else {
+                Text(displayTitle)
+                    .font(Theme.mono(10, weight: .semibold))
+                    .foregroundStyle(Theme.textTertiary)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+                // Both affordances are always on screen: the first build hid
+                // adding behind a Finder drag and editing behind a long press,
+                // and neither was found.
+                headerButton("plus", help: t(.appsAddApp)) { shelves.promptToAdd(to: shelfID) }
+                    .disabled(shelf?.isFull ?? false)
+                headerButton("slider.horizontal.3", help: t(.appsEditGrid)) { startEditing() }
             }
         }
-        .padding(.horizontal, 2)
+    }
+
+    private func headerButton(_ symbol: String, help: String,
+                              action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(Theme.textTertiary)
+                .frame(width: 16, height: 14)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
+        .help(help)
+    }
+
+    /// Names under the icons, on or off. A chip rather than a switch: the header
+    /// has room for one word, and the word is the label either way.
+    private var labelsToggle: some View {
+        Button { shelves.setShowsLabels(!showsLabels, for: shelfID) } label: {
+            Text(t(.appsShowNames))
+                .font(Theme.mono(9, weight: .semibold))
+                .foregroundStyle(showsLabels ? Theme.textPrimary : Theme.textTertiary)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(showsLabels ? Theme.chipBg : Color.clear,
+                            in: RoundedRectangle(cornerRadius: 4))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
     }
 
     private var empty: some View {
         Text(t(.appsEmpty))
             .font(Theme.mono(11))
             .foregroundStyle(Theme.textTertiary)
-            .padding(.horizontal, 2)
             .padding(.vertical, 6)
     }
+
+    // MARK: - Grid
 
     private func grid(_ shelf: AppShelf) -> some View {
         LazyVGrid(columns: columns, spacing: 6) {
@@ -91,7 +166,6 @@ struct AppShelfView: View {
                 cell(item, at: index)
             }
         }
-        .padding(.horizontal, 2)
         .padding(.vertical, 2)
     }
 
@@ -100,41 +174,70 @@ struct AppShelfView: View {
             Image(nsImage: shelves.icon(for: item))
                 .resizable()
                 .frame(width: 30, height: 30)
-                .overlay(alignment: .topLeading) {
-                    if editing {
-                        Button { shelves.remove(item.id, from: shelfID) } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 11))
-                                .foregroundStyle(Theme.textPrimary, Theme.rowBg)
-                        }
-                        .buttonStyle(.plain)
-                        .offset(x: -4, y: -4)
-                    }
-                }
-            Text(item.name)
-                .font(Theme.mono(8))
-                .foregroundStyle(Theme.textTertiary)
-                .lineLimit(1)
-                .truncationMode(.tail)
+                .overlay(alignment: .topLeading) { deleteBadge(item) }
+            if showsLabels {
+                Text(item.name)
+                    .font(Theme.mono(8))
+                    .foregroundStyle(Theme.textTertiary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
         }
         .frame(maxWidth: .infinity)
-        .opacity(dragging == item.id ? 0.35 : 1)
-        // The wobble: a small finite rotation back and forth. Deliberately driven
-        // by a repeating animation ONLY while editing, and stopped on exit — the
-        // panel must not resize itself forever.
-        .rotationEffect(.degrees(editing && wobble ? 1.4 : editing ? -1.4 : 0))
-        .animation(editing
-                   ? .easeInOut(duration: 0.14).repeatForever(autoreverses: true)
-                   : .default, value: wobble)
+        .padding(.vertical, 2)
+        // Where this icon would land if the drag ended now.
+        .background(dropSlot(at: index, itemID: item.id))
+        // The wobble: neighbouring icons lean opposite ways, the way a home
+        // screen does, so the grid sways instead of pulsing in lockstep. Driven
+        // by a timer rather than a repeatForever animation, which makes the
+        // hosting controller recompute its size forever.
+        .rotationEffect(.degrees(wobbleAngle(at: index)))
+        .animation(.easeInOut(duration: Self.wobbleStep), value: wobblePhase)
+        .animation(.easeInOut(duration: Self.wobbleStep), value: editing)
+        // The dragged icon follows the pointer and rides above the rest.
+        .scaleEffect(dragging == item.id ? 1.08 : 1)
+        .offset(dragging == item.id ? dragOffset : .zero)
+        .zIndex(dragging == item.id ? 1 : 0)
         .contentShape(Rectangle())
         .onTapGesture {
             if editing { return }   // in wobble mode a tap is not a launch
             shelves.launch(item, from: shelfID)
         }
-        .onLongPressGesture(minimumDuration: 0.6) { startEditing() }
         .gesture(dragGesture(item, at: index))
         .help(item.name)
     }
+
+    /// The ✕ that removes an icon. Muted on purpose: a bright badge on a moving
+    /// icon reads as blinking.
+    @ViewBuilder private func deleteBadge(_ item: ShelfItem) -> some View {
+        if editing {
+            Button { shelves.remove(item.id, from: shelfID) } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Theme.background, Theme.textSecondary)
+            }
+            .buttonStyle(.plain)
+            .offset(x: -3, y: -3)
+        }
+    }
+
+    /// The yellow slot: the cell the dragged icon will take. Drawn under the
+    /// icon that currently sits there, since the grid only reshuffles on drop.
+    @ViewBuilder private func dropSlot(at index: Int, itemID: UUID) -> some View {
+        if dragging != nil, dragging != itemID, dropIndex == index {
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Theme.editing.opacity(0.16))
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.editing, lineWidth: 1))
+        }
+    }
+
+    private func wobbleAngle(at index: Int) -> Double {
+        guard editing else { return 0 }
+        let leaning = (index % 2 == 0) == wobblePhase
+        return leaning ? Self.wobbleAngle : -Self.wobbleAngle
+    }
+
+    // MARK: - Dragging
 
     /// Dragging an icon reorders the grid. The drop index is worked out from how
     /// far the pointer travelled in cells, which keeps the maths independent of
@@ -143,33 +246,45 @@ struct AppShelfView: View {
         DragGesture(minimumDistance: 6)
             .onChanged { value in
                 dragging = item.id
+                dragOffset = value.translation
                 dropIndex = destination(from: index, translation: value.translation)
             }
             .onEnded { _ in
                 if let dropIndex { shelves.move(item.id, to: dropIndex, in: shelfID) }
                 dragging = nil
+                dragOffset = .zero
                 self.dropIndex = nil
             }
     }
 
-    /// Cell geometry: 36pt wide, 44pt tall including the label — close enough
-    /// that a drag lands where the pointer is.
+    /// Cell geometry: 36pt wide, 44pt tall with the names on and 36pt without —
+    /// close enough that a drag lands where the pointer is.
     private func destination(from index: Int, translation: CGSize) -> Int {
+        let rowHeight: CGFloat = showsLabels ? 44 : 36
         let across = Int((translation.width / 36).rounded())
-        let down = Int((translation.height / 44).rounded())
+        let down = Int((translation.height / rowHeight).rounded())
         let count = shelf?.items.count ?? 0
         return max(0, min(index + across + down * AppShelf.columns, max(0, count - 1)))
     }
 
+    // MARK: - Edit mode
+
     private func startEditing() {
         guard !Snapshot.active, !editing else { return }
+        draftTitle = shelf?.title ?? ""
         editing = true
-        wobble = true
+        wobblePhase = true
+        wobbleTimer?.invalidate()
+        wobbleTimer = Timer.scheduledTimer(withTimeInterval: Self.wobbleStep, repeats: true) { _ in
+            Task { @MainActor in wobblePhase.toggle() }
+        }
     }
 
     private func stopEditing() {
+        wobbleTimer?.invalidate()
+        wobbleTimer = nil
         editing = false
-        wobble = false
+        wobblePhase = false
     }
 
     /// Finder hands over file URLs; anything that is not an app is ignored.

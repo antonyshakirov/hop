@@ -273,6 +273,19 @@ parenthèses, ce que la configuration ajoute, le plus souvent le pays. Hop ne
 devine jamais le pays d'après l'adresse du serveur : le registre indique où la
 plage est enregistrée, pas où se trouve la machine.
 
+### Apps
+
+Une grille avec les programmes que vous ouvrez toute la journée, à un clic et
+sans passer par le dossier Applications. Appuyez sur + et choisissez-les, ou
+glissez-les depuis le Finder ; huit par ligne, jusqu'à huit lignes.
+
+Faites glisser une icône pour la déplacer : une case jaune montre où elle se
+posera et les autres s'écartent, comme sur un écran d'accueil. Le bouton
+d'édition lance l'oscillation, chaque icône reçoit une ✕ et la grille peut
+recevoir son propre nom ; on y coupe aussi les noms sous les icônes, si vous
+reconnaissez vos apps au premier coup d'œil. Gardez autant de grilles que vous
+voulez — le travail sur un espace, le reste sur un autre — chacune avec ses apps.
+
 ## 22 langues
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — l'app suit la langue de votre système dès

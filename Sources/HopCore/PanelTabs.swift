@@ -103,6 +103,15 @@ public struct PanelTabsModel: Codable, Equatable {
         inactive.append(module)
     }
 
+    /// Forgets `module` completely — off whichever tab holds it and out of the
+    /// inactive bucket. Deactivating hides a module that still exists; this is
+    /// for one that is gone, which only shelves can be, since they are the one
+    /// module a user can delete.
+    public mutating func remove(module: String) {
+        for index in tabs.indices { tabs[index].moduleKeys.removeAll { $0 == module } }
+        inactive.removeAll { $0 == module }
+    }
+
     /// Repositions `module` within `inTab`'s own module list. `to` is
     /// clamped to the tab's valid index range, so a caller can pass an
     /// out-of-range index to mean "move to the start/end". No-op if the tab

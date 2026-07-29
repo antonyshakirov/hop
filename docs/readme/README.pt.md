@@ -262,6 +262,18 @@ a configuração acrescenta, normalmente o país. O Hop nunca adivinha o país p
 endereço do servidor: o registo diz onde a gama está registada, não onde a máquina
 está.
 
+### Apps
+
+Uma grelha com os programas que abre todo o dia, a um clique e sem ir à pasta de
+aplicações. Carregue em + e escolha-os, ou arraste-os do Finder; cabem oito por
+linha, até oito linhas.
+
+Arraste um ícone para o mover: uma célula amarela mostra onde vai ficar e os
+outros afastam-se, como num ecrã inicial. O botão de edição inicia o balanço,
+cada ícone ganha um ✕ e a grelha pode ter nome próprio; aí também se desligam os
+nomes sob os ícones, se reconhece as suas apps de vista. Pode ter quantas grelhas
+quiser — o trabalho num espaço, o resto noutro — cada uma com as suas apps.
+
 ## 22 idiomas
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — o app segue o idioma do seu sistema desde o

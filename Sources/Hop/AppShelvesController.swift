@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import HopCore
+import UniformTypeIdentifiers
 import os
 
 /// The launcher module: grids of apps you keep at hand, so a program you open ten
@@ -44,6 +45,37 @@ final class AppShelvesController: ObservableObject {
     func removeShelf(_ id: UUID) {
         shelves.removeShelf(id)
         save()
+    }
+
+    /// What this grid is called. Blank means "no name of its own" and the
+    /// module falls back to the generic label.
+    func setTitle(_ title: String, for shelfID: UUID) {
+        guard var shelf = shelves[shelfID], shelf.title != title else { return }
+        shelf.title = title
+        shelves[shelfID] = shelf
+        save()
+    }
+
+    func setShowsLabels(_ shows: Bool, for shelfID: UUID) {
+        guard var shelf = shelves[shelfID], shelf.showsLabels != shows else { return }
+        shelf.showsLabels = shows
+        shelves[shelfID] = shelf
+        save()
+    }
+
+    /// Picks apps from disk. Dropping from Finder works, but a popover is an
+    /// awkward drop target and nothing on screen said so — this is the path that
+    /// can be found by looking at the module.
+    func promptToAdd(to shelfID: UUID) {
+        guard !Snapshot.active else { return }
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = true
+        panel.allowedContentTypes = [.application]
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        guard panel.runModal() == .OK else { return }
+        for url in panel.urls { add(path: url.path, to: shelfID) }
     }
 
     func shelf(withKey key: String) -> AppShelf? {

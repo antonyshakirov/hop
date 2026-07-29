@@ -266,6 +266,19 @@ configuratie toevoegt, meestal het land. Hop raadt het land nooit uit het
 serveradres: het register zegt waar een reeks geregistreerd staat, niet waar de
 machine staat.
 
+### Apps
+
+Een raster met de programma's die je de hele dag opent — één klik weg, zonder
+omweg via de map Programma's. Druk op + en kies ze, of sleep ze uit de Finder;
+er passen er acht naast elkaar, tot acht rijen.
+
+Sleep een symbool om het te verplaatsen: een geel vakje laat zien waar het landt
+en de rest schuift opzij, net als op een beginscherm. De bewerkknop start het
+wiegen, elk symbool krijgt een ✕ en het raster kan een eigen naam krijgen; daar
+zet je ook de namen onder de symbolen uit, als je je apps op het oog herkent.
+Houd zoveel rasters aan als je wilt — werk op het ene vlak, de rest op het andere
+— elk met eigen apps.
+
 ## 22 talen
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — de app volgt standaard je systeemtaal.
