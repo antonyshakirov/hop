@@ -947,7 +947,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showOnboarding() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 380),
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 380),
             styleMask: [.titled, .fullSizeContentView, .closable],
             backing: .buffered, defer: false
         )

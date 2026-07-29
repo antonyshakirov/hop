@@ -508,7 +508,7 @@ enum Snapshot {
             content = AnyView(
                 OnboardingView(updater: model.updater, shelves: model.appShelves, finish: {})
                     .padding(20)
-                    .frame(width: 380)
+                    .frame(width: 600)
                     .background(Theme.panelBackground)
             )
         } else {

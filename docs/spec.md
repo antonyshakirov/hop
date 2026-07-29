@@ -1753,13 +1753,16 @@ converter (Anton, 2026-07-28).
   onboarding toggle, so it is never truly empty); the fresh install therefore
   never opens onto a blank tab. Opening a `.torrent` file or magnet link
   reactivates the torrent module the same way.
-- Onboarding's module choices: five full-width rows (launch at login, timer,
-  awake, clipboard, converter), then a 3-column grid of the rest, then torrents
-  with their engine-size note. The grid's names wrap to TWO lines and its cells
-  are TOP-aligned: at one line "text recognition" and "keyboard lock" were cut
-  off in half the languages, and a centred two-line cell lifted its switch above
-  its neighbours' (both fixed 2026-07-29). The cells are nouns, not "show X" —
-  that phrasing belongs to the full-width rows.
+- Onboarding's module choices: ONE 3-column grid holding every module switch —
+  fifteen of them, five even rows — in a 560pt-wide window (Anton, 2026-07-29;
+  it was 300pt with four modules as full-width rows and the rest as a cramped
+  grid of switch-above-name cells). Each cell is a name on the LEFT and the
+  switch on the RIGHT, the same shape as the rows above it. Only the choices
+  that are not modules stay full width: language, theme, timer format, launch at
+  login. Names are nouns, wrap to two lines, and their cells are TOP-aligned so a
+  two-line name cannot lift its switch above its neighbours'. The torrent
+  engine-size note sits under the grid and now names torrents, since it no longer
+  stands beside them.
 - A grid of apps is one of those choices, off by default like the eyedropper,
   recognition and VPN. It is the ONLY one that has nothing to switch on: the
   module exists only once a grid does, so choosing it CREATES the first grid

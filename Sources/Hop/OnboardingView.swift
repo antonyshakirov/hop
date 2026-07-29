@@ -50,18 +50,20 @@ struct OnboardingView: View {
     /// it on creates one empty grid that asks to be filled.
     @State private var showAppsModule = false
 
-    /// One module in the grid: the switch above its name, both centred, so three
-    /// of them fit a panel-width window without the labels colliding.
+    /// One module in the grid: name on the left, switch on the right — the same
+    /// shape as the rows above it, three to a line in a window widened to fit
+    /// them (Anton, 2026-07-29). The earlier switch-above-name cell only existed
+    /// because the window was panel-narrow.
     private func moduleCell(_ title: String, isOn: Binding<Bool>) -> some View {
-        VStack(spacing: 5) {
-            Theme.MiniSwitch(isOn: isOn)
+        HStack(spacing: 6) {
             Text(title)
-                .font(Theme.mono(9))
+                .font(Theme.mono(10))
                 .foregroundStyle(Theme.textPrimary)
-                .multilineTextAlignment(.center)
                 .lineLimit(2)
-                .minimumScaleFactor(0.75)
+                .minimumScaleFactor(0.8)
                 .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Theme.MiniSwitch(isOn: isOn)
         }
         .frame(maxWidth: .infinity)
     }
@@ -122,69 +124,38 @@ struct OnboardingView: View {
                     Spacer()
                     Theme.MiniSwitch(isOn: $launchAtLogin)
                 }
-                HStack {
-                    Text(t(.showTimerLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showTimerModule)
-                }
-                HStack {
-                    Text(t(.showAwakeLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showAwakeModule)
-                }
-                HStack {
-                    Text(t(.showClipboardLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showClipboardModule)
-                }
-                HStack {
-                    Text(t(.showConvertLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $showConvertModule)
-                }
-                // Eleven modules in one column ran the window off the screen once
-                // the VPN module joined them (Anton, 2026-07-29). Three columns:
-                // the switch on top so the eye finds the row of them at once, the
-                // name under it.
-                // Top-aligned: a two-line name makes its cell taller, and centred
-                // cells would then lift that switch above its neighbours.
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8, alignment: .top),
+                // Every module switch lives here — fifteen of them, five even
+                // rows. Only the choices that are NOT modules (language, theme,
+                // timer format, launch at login) stay full width above.
+                // Top-aligned: a two-line name must not lift its switch above
+                // its neighbours'.
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12, alignment: .top),
                                          count: 3),
-                          spacing: 10) {
+                          spacing: 12) {
+                    moduleCell(t(.aboutTabTimer), isOn: $showTimerModule)
+                    moduleCell(t(.awakeOff), isOn: $showAwakeModule)
+                    moduleCell(t(.tabClipboard), isOn: $showClipboardModule)
+                    moduleCell(t(.convertLabel), isOn: $showConvertModule)
                     moduleCell(t(.windowsLabel), isOn: $showWindowsModule)
                     moduleCell(t(.tabSystem), isOn: $showSystemModule)
                     moduleCell(t(.trackerLabel), isOn: $showTrackerModule)
                     moduleCell(t(.todosLabel), isOn: $showTodosModule)
                     moduleCell(t(.archiveLabel), isOn: $showArchiveModule)
                     moduleCell(t(.keylockLabel), isOn: $showKeyboardModule)
+                    moduleCell(t(.torrentLabel), isOn: $enableTorrent)
                     moduleCell(t(.colorLabel), isOn: $showColorModule)
                     moduleCell(t(.ocrLabel), isOn: $showOcrModule)
                     moduleCell(t(.vpnLabel), isOn: $showVpnModule)
                     moduleCell(t(.appsLabel), isOn: $showAppsModule)
                 }
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack {
-                        Text(t(.showTorrentLabel))
-                            .font(Theme.mono(12))
-                            .foregroundStyle(Theme.textPrimary)
-                        Spacer()
-                        Theme.MiniSwitch(isOn: $enableTorrent)
-                    }
-                    // The one module with a real extra cost: a one-time separate
-                    // engine download — say so before the choice, not after.
-                    Text(t(.torrentEngineNote))
-                        .font(Theme.mono(9))
-                        .foregroundStyle(Theme.textTertiary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+                // The one module with a real extra cost: a one-time separate
+                // engine download — say so before the choice, not after. It
+                // names torrents now, since the note no longer sits beside them.
+                Text("\(t(.torrentLabel)): \(t(.torrentEngineNote))")
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.vertical, 6)
 
@@ -241,7 +212,9 @@ struct OnboardingView: View {
             }
         }
         .padding(24)
-        .frame(width: 300)
+        // Wide enough for three name+switch columns; the module choices are the
+        // widest thing in the window and everything else just centres in it.
+        .frame(width: 560)
         .background(Theme.panelBackground)
     }
 
