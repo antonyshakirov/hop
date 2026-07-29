@@ -231,7 +231,8 @@ struct TorrentView: View {
         HStack(spacing: 6) {
             // fold chevron on the LEFT: reads as "expand the section", away from
             // the ↓/↑ speed arrows.
-            rowIcon(torrentCollapsed ? "chevron.forward" : "chevron.down") {
+            rowIcon(torrentCollapsed ? "chevron.forward" : "chevron.down",
+                    help: t(torrentCollapsed ? .tipExpandList : .tipCollapseList)) {
                 torrentCollapsed.toggle()
             }
             Text(t(.torrentLabel))
@@ -576,7 +577,8 @@ struct TorrentView: View {
 
     // MARK: - Helpers
 
-    private func rowIcon(_ symbol: String, action: @escaping () -> Void) -> some View {
+    private func rowIcon(_ symbol: String, help: String = "",
+                         action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 11, weight: .semibold))
@@ -586,6 +588,7 @@ struct TorrentView: View {
         }
         .buttonStyle(.plain)
         .hoverHighlight(4)
+        .help(help)
     }
 
     /// The play/pause row control. Play uses the house rounded `PlayGlyph` (the

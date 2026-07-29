@@ -236,6 +236,7 @@ struct TodosView: View {
                 Image(systemName: "text.alignleft")
                     .font(.system(size: 9))
                     .foregroundStyle(Theme.textTertiary)
+                    .help(t(.tipHasNote))
             }
             if let firing = RemindSchedule.effectiveFiring(item) {
                 // A time in the past means it already fired: struck through, so a

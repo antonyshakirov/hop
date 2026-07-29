@@ -88,6 +88,7 @@ struct ClipboardView: View {
                         .frame(width: 20, height: 18)
                         .geometryGroup()
                         .contentShape(Rectangle())
+                        .help(L10n.t(expanded ? .tipCollapse : .tipExpand, lang))
                     }
                     .buttonStyle(.plain)
                     .hoverHighlight(4)
@@ -129,6 +130,7 @@ struct ClipboardView: View {
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .help(L10n.t(.tipClearSearch, lang))
                     }
                 }
                 .padding(.horizontal, 8)
@@ -255,11 +257,11 @@ struct ClipboardView: View {
                             }
                         }
                     }
-                    rowIcon("doc.on.doc") {
+                    rowIcon("doc.on.doc", help: L10n.t(.tipCopy, lang)) {
                         clipboard.copy(item)
                         markCopied(item)
                     }
-                    rowIcon("text.insert") {
+                    rowIcon("text.insert", help: L10n.t(.tipPasteInto, lang)) {
                         markCopied(item)
                         clipboard.copyAndPaste(item, closePanel: closePanel)
                     }

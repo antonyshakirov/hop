@@ -291,6 +291,7 @@ struct TrackerView: View {
         }
         .buttonStyle(.plain)
         .hoverDim()
+        .help(t(active ? .tipStopTask : .tipStartTask))
     }
 
     /// Display-only: renaming happens in the card, which the row opens on a tap.
@@ -356,6 +357,7 @@ struct TrackerView: View {
             }
             .buttonStyle(.plain)
             .hoverDim()
+            .help(t(.tipStopTask))
         }
         .padding(.vertical, 2)   // matches the task-row rhythm (to-dos parity)
         .padding(.leading, 30)   // sits under the task text, past the row inset + play gutter

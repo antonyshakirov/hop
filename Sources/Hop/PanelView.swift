@@ -1194,13 +1194,13 @@ struct PanelView: View {
                 // space. The service trio returns to the right.
                 tabSwitcher
                 Spacer()
-                headerIcon("info.circle") {
+                headerIcon("info.circle", help: t(.aboutTitle)) {
                     model.openAboutWindow?()
                 }
-                headerIcon("gearshape") {
+                headerIcon("gearshape", help: t(.settingsTitle)) {
                     model.openSettingsWindow?()
                 }
-                headerIcon("power") {
+                headerIcon("power", help: t(.menuQuit)) {
                     model.requestQuit?()
                 }
             }
@@ -1231,7 +1231,10 @@ struct PanelView: View {
             .foregroundStyle(Theme.textTertiary)
     }
 
-    private func headerIcon(_ symbol: String, action: @escaping () -> Void) -> some View {
+    /// Every icon in the header carries its name on hover: an icon alone is a
+    /// guess, and the panel is full of them (Anton, 2026-07-29).
+    private func headerIcon(_ symbol: String, help: String = "",
+                            action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 12))
@@ -1241,6 +1244,7 @@ struct PanelView: View {
         }
         .buttonStyle(.plain)
         .hoverHighlight()
+        .help(help)
     }
 
     // Tab button geometry. Width is doubled from 32 for a comfortable hit target;
@@ -1858,7 +1862,6 @@ struct PanelView: View {
                     restoreButton(stash)
                 }
                 Spacer()
-                stopwatchToggle
             } else {
                 adjustButton(label: "−5 \(t(.minUnit))", delta: -TimerEngine.step)
                 Spacer()
@@ -1869,7 +1872,6 @@ struct PanelView: View {
                 }
                 Spacer()
                 adjustButton(label: "+5 \(t(.minUnit))", delta: TimerEngine.step)
-                stopwatchToggle
             }
         }
     }
@@ -2046,11 +2048,10 @@ struct PanelView: View {
             })
             .simultaneousGesture(scrubGesture(cell: dotCellCompact))
             .help(engine.isStopwatch ? t(.stopwatchLabel) : t(.dragToSet))
-            if engine.isStopwatch || !showPresetsRow {
-                // in stopwatch mode the presets row is hidden; with templates hidden
-                // the toggle must not vanish either — fit it into this same row
-                stopwatchToggle
-            }
+            // always here, whatever the templates below are doing: a control that
+            // moves when the thing it controls changes is a control you have to
+            // hunt for
+            stopwatchToggle
         }
         .padding(.vertical, 2)
     }
@@ -2228,7 +2229,20 @@ struct PanelView: View {
     // MARK: - Transport
 
     private var transport: some View {
-        playPauseButton // the only button at the bottom, centered
+        // The play button stays centred in the row and the mode toggle sits at
+        // the trailing edge — the same place it holds in the compact clock.
+        HStack(spacing: 0) {
+            // mirror weight, keeps play centred — invisible AND untouchable, or
+            // it would be a live button nobody can see
+            stopwatchToggle
+                .opacity(0)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+            Spacer(minLength: 0)
+            playPauseButton
+            Spacer(minLength: 0)
+            stopwatchToggle
+        }
     }
 
     private var playPauseButton: some View {
@@ -2801,37 +2815,32 @@ struct PanelView: View {
             }
     }
 
+    /// Clock first, templates under it.
+    ///
+    /// The presets used to sit ABOVE the display and the mode toggle travelled
+    /// with them, so switching to the stopwatch — which has no presets — pulled
+    /// the clock, the play button and the toggle upward all at once (Anton,
+    /// 2026-07-29). Now the clock row never moves: the toggle is always at its
+    /// trailing edge, and the templates appear and disappear BELOW, where
+    /// nothing above them can shift.
     private var timerModule: some View {
         VStack(spacing: 16) {
-            if !model.engine.isStopwatch {
-                if showPresetsRow || showCyclesRow {
-                    VStack(spacing: 3) {
-                        if showPresetsRow {
-                            presetsRow
-                        }
-                        if showCyclesRow {
-                            cyclesRow
-                        }
-                    }
-                }
-            } else if !timerCompact, showPresetsRow {
-                presetsRow // in large mode the toggle lives in this row
-            }
-            // the stopwatch toggle does not depend on template visibility:
-            // with the presets row hidden it gets its own thin row (in compact —
-            // right in the timer row, see compactTimer)
-            if !showPresetsRow, !timerCompact {
-                HStack {
-                    Spacer()
-                    stopwatchToggle
-                }
-            }
             if timerCompact {
                 compactTimer
             } else {
                 VStack(spacing: 8) {
                     display
                     transport
+                }
+            }
+            if !model.engine.isStopwatch, showPresetsRow || showCyclesRow {
+                VStack(spacing: 3) {
+                    if showPresetsRow {
+                        presetsRow
+                    }
+                    if showCyclesRow {
+                        cyclesRow
+                    }
                 }
             }
         }

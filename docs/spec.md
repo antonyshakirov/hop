@@ -273,6 +273,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Timer
 
+- **The clock never moves.** Presets and cycle templates sit BELOW the display
+  and the play button, and the timer ↔ stopwatch toggle is always at the trailing
+  edge of the clock row. They used to sit above, with the toggle travelling in the
+  presets row, so switching to the stopwatch — which has no presets — dragged the
+  clock, the play button and the toggle upward at once (Anton, 2026-07-29). In the
+  large layout the toggle rides at the end of the transport row, mirrored by an
+  invisible copy on the left so the play button stays centred; that copy is
+  `allowsHitTesting(false)`, since an invisible live button is a trap.
+
 - Counts toward a target date (`Date`), not by decrementing: it doesn't
   drift and survives Mac sleep. The panel can be closed — the countdown
   continues (ticker in TimerEngine).
