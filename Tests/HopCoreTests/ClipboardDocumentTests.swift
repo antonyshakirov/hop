@@ -49,4 +49,30 @@ final class ClipboardDocumentTests: XCTestCase {
     func testTheExtensionIsAddedOnce() {
         XCTAssertTrue(ClipboardDocument.uniqueName("a", taken: { _ in false }).hasSuffix(".txt"))
     }
+
+    // MARK: - Formats
+
+    func testEveryFormatNamesItsOwnExtension() {
+        XCTAssertEqual(ClipboardDocument.Format.allCases.map(\.fileExtension),
+                       ["txt", "md", "pdf", "docx"])
+    }
+
+    func testOnlyTextFormatsAreWrittenAsIs() {
+        XCTAssertTrue(ClipboardDocument.Format.txt.isPlainText)
+        XCTAssertTrue(ClipboardDocument.Format.md.isPlainText)
+        XCTAssertFalse(ClipboardDocument.Format.pdf.isPlainText)
+        XCTAssertFalse(ClipboardDocument.Format.docx.isPlainText)
+    }
+
+    func testAnUnknownStoredFormatFallsBackToText() {
+        XCTAssertEqual(ClipboardDocument.Format.named("rtf"), .txt)
+        XCTAssertEqual(ClipboardDocument.Format.named("pdf"), .pdf)
+    }
+
+    func testTheDuplicateRuleFollowsTheFormat() {
+        let existing: Set<String> = ["note.pdf"]
+        XCTAssertEqual(ClipboardDocument.uniqueName("note", ext: "pdf",
+                                                    taken: { existing.contains($0) }),
+                       "note 2.pdf")
+    }
 }

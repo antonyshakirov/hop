@@ -3,6 +3,22 @@ import Foundation
 /// Turning a clipboard entry into a file on disk: what to call it, and what to
 /// do when that name is taken. Pure — the controller does the writing.
 public enum ClipboardDocument {
+    /// What the entry is written as. Plain text and markdown are the text
+    /// itself; pdf and docx are rendered from it, so a copied markdown snippet
+    /// comes out formatted rather than as its own source.
+    public enum Format: String, CaseIterable, Identifiable, Sendable {
+        case txt, md, pdf, docx
+
+        public var id: String { rawValue }
+        public var fileExtension: String { rawValue }
+        /// Chip label — a file extension needs no translation.
+        public var label: String { rawValue }
+        /// Whether the text is written as-is or rendered first.
+        public var isPlainText: Bool { self == .txt || self == .md }
+
+        public static func named(_ raw: String) -> Format { Format(rawValue: raw) ?? .txt }
+    }
+
     public static let fileExtension = "txt"
     /// How much of the text becomes the name. Long enough to recognise the entry
     /// in a folder, short enough to stay one line in Finder.
@@ -32,8 +48,9 @@ public enum ClipboardDocument {
     /// `name`, or `name 2`, `name 3`… — the first one `taken` does not contain.
     /// Saving the same entry twice must not overwrite the first file, and must
     /// not fail either: Finder's own duplicate rule is what people expect.
-    public static func uniqueName(_ name: String, taken: (String) -> Bool) -> String {
-        let full = { (candidate: String) in "\(candidate).\(fileExtension)" }
+    public static func uniqueName(_ name: String, ext: String = fileExtension,
+                                  taken: (String) -> Bool) -> String {
+        let full = { (candidate: String) in "\(candidate).\(ext)" }
         guard taken(full(name)) else { return full(name) }
         for suffix in 2...999 where !taken(full("\(name) \(suffix)")) {
             return full("\(name) \(suffix)")

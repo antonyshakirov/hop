@@ -1,4 +1,5 @@
 import AppKit
+import HopCore
 import SwiftUI
 
 /// Clipboard tab: recently copied texts; clicking a row puts it back
@@ -6,6 +7,7 @@ import SwiftUI
 struct ClipboardView: View {
     @AppStorage(SettingsKey.clipboardToFile) private var saveToFile = false
     @AppStorage(SettingsKey.clipboardToFileAsk) private var saveToFileAsk = false
+    @AppStorage(SettingsKey.clipboardToFileFormat) private var saveToFileFormat = "txt"
     @ObservedObject var clipboard: ClipboardController
     let lang: AppLanguage
     var closePanel: () -> Void = {}
@@ -232,7 +234,9 @@ struct ClipboardView: View {
                     // write (Anton, 2026-07-29).
                     if saveToFile, item.imageFile == nil, item.filePaths == nil {
                         rowIcon("square.and.arrow.down", help: L10n.t(.clipSaveToFile, lang)) {
-                            clipboard.saveAsDocument(item, askForLocation: saveToFileAsk)
+                            clipboard.saveAsDocument(
+                                item, askForLocation: saveToFileAsk,
+                                format: ClipboardDocument.Format.named(saveToFileFormat))
                         }
                     }
                     rowIcon("doc.on.doc") {

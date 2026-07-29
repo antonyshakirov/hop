@@ -92,6 +92,10 @@ enum SettingsKey {
     /// the Desktop, which is where an unasked save lands.
     static let clipboardToFile = "clipboardToFile"
     static let clipboardToFileAsk = "clipboardToFileAsk"
+    /// Which of txt / md / pdf / docx an entry is saved as. Stored as the raw
+    /// name, read through `ClipboardDocument.Format.named` so an unknown value
+    /// falls back to text rather than refusing to save.
+    static let clipboardToFileFormat = "clipboardToFileFormat"
     /// The green dot the menu-bar icon carries while a VPN tunnel is up. ON by
     /// default. The second badge with a switch of its own: a tunnel is a state
     /// somebody else's app owns, and whether it is worth a mark is the user's

@@ -263,7 +263,8 @@ final class ClipboardController: ObservableObject {
     /// Returns the file it wrote. An entry that is an image, a file or a colour
     /// has no document in it and returns nil.
     @discardableResult
-    func saveAsDocument(_ item: Item, askForLocation: Bool) -> URL? {
+    func saveAsDocument(_ item: Item, askForLocation: Bool,
+                        format: ClipboardDocument.Format = .txt) -> URL? {
         guard !Snapshot.active,
               item.imageFile == nil, item.filePaths == nil,
               !item.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -277,23 +278,47 @@ final class ClipboardController: ObservableObject {
         let target: URL
         if askForLocation {
             let panel = NSSavePanel()
-            panel.nameFieldStringValue = "\(base).\(ClipboardDocument.fileExtension)"
+            panel.nameFieldStringValue = "\(base).\(format.fileExtension)"
             panel.directoryURL = desktop
-            panel.allowedContentTypes = [.plainText]
+            if let type = Self.contentType(for: format) { panel.allowedContentTypes = [type] }
             guard panel.runModal() == .OK, let chosen = panel.url else { return nil }
             target = chosen
         } else {
             // Finder's own rule for a name already taken: " 2", " 3"… — saving the
             // same entry twice must not quietly overwrite the first file.
-            let name = ClipboardDocument.uniqueName(base) { candidate in
+            let name = ClipboardDocument.uniqueName(base, ext: format.fileExtension) { candidate in
                 manager.fileExists(atPath: desktop.appendingPathComponent(candidate).path)
             }
             target = desktop.appendingPathComponent(name)
         }
 
-        guard (try? item.text.write(to: target, atomically: true, encoding: .utf8)) != nil
-        else { return nil }
-        return target
+        return Self.write(item.text, as: format, to: target) ? target : nil
+    }
+
+    /// Text goes to disk as it is; pdf and docx are RENDERED from it through the
+    /// converter's own writers — the same ones the document module uses — so a
+    /// copied markdown snippet comes out formatted instead of showing its
+    /// asterisks, and the pdf carries Hop's typography rather than a default.
+    private static func write(_ text: String, as format: ClipboardDocument.Format,
+                              to url: URL) -> Bool {
+        if format.isPlainText {
+            return (try? text.write(to: url, atomically: true, encoding: .utf8)) != nil
+        }
+        let attributed = DocumentConversion.attributed(markdown: text)
+        switch format {
+        case .pdf: return DocumentConversion.writePDF(attributed, to: url)
+        case .docx: return DocumentConversion.writeDocx(attributed, to: url)
+        case .txt, .md: return false   // handled above
+        }
+    }
+
+    private static func contentType(for format: ClipboardDocument.Format) -> UTType? {
+        switch format {
+        case .txt: return .plainText
+        case .md: return UTType(filenameExtension: "md")
+        case .pdf: return .pdf
+        case .docx: return UTType(filenameExtension: "docx")
+        }
     }
 
     func copyAndPaste(_ item: Item, closePanel: @escaping () -> Void) {

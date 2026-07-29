@@ -67,6 +67,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
     @AppStorage(SettingsKey.clipboardToFile) private var clipboardToFile = false
     @AppStorage(SettingsKey.clipboardToFileAsk) private var clipboardToFileAsk = false
+    @AppStorage(SettingsKey.clipboardToFileFormat) private var clipboardToFileFormat = "txt"
     @AppStorage(SettingsKey.showWindowsInDock) private var showWindowsInDock = true
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
     @AppStorage(AppIcon.styleKey) private var appIconStyle = "auto"
@@ -3970,8 +3971,21 @@ struct PanelView: View {
                 NumericField(value: $clipboardVisibleRows, range: 1...10)
             }
             switchSetting(t(.settingsClipToFile), isOn: $clipboardToFile)
-            // Where the file goes is only a question once saving exists at all.
+            // The format and the place are only questions once saving exists.
             if clipboardToFile {
+                HStack {
+                    Text(t(.settingsClipToFileFormat))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    // Extensions as their own labels — the converter's chips do
+                    // the same, and "pdf" needs no translation.
+                    ForEach(ClipboardDocument.Format.allCases) { format in
+                        settingChip(format.label, active: clipboardToFileFormat == format.rawValue) {
+                            clipboardToFileFormat = format.rawValue
+                        }
+                    }
+                }
                 switchSetting(t(.settingsClipToFileAsk), isOn: $clipboardToFileAsk)
             }
         }

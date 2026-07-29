@@ -468,19 +468,26 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   icon, LEFT of copy and paste: it acts on the entry rather than on the
   pasteboard, so it comes first. An image, a copied file or a colour has no
   document in it and shows no icon.
-- The file is a `.txt` on the DESKTOP, named after the text itself:
+- **The format is a setting** (`clipboardToFileFormat`, default `txt`): txt, md,
+  pdf or docx, offered as chips labelled with the extensions themselves — the
+  converter's chips do the same, and "pdf" needs no translation. txt and md are
+  the text as it stands; pdf and docx are RENDERED through the document module's
+  own writers, so a copied markdown snippet comes out formatted instead of
+  showing its asterisks, and the pdf carries Hop's typography. An unknown stored
+  value falls back to txt rather than refusing to save.
+- The file lands on the DESKTOP, named after the text itself:
   `ClipboardDocument.fileName(for:)` takes the first LINE (not the first
   characters — a paragraph should be named after its opening sentence, not
   trail into the second), strips what a file name cannot hold, collapses the
   whitespace, cuts to 40 characters and refuses to start with a dot. Text that
   survives none of that is saved as `clipboard.txt`.
 - A name already taken gets Finder's own treatment — ` 2`, ` 3`… — so saving
-  the same entry twice never overwrites the first file (`uniqueName(_:taken:)`,
-  both in HopCore with tests).
+  the same entry twice never overwrites the first file
+  (`uniqueName(_:ext:taken:)`, both in HopCore with tests).
 - `clipboardToFileAsk` swaps the silent Desktop save for the system's save
   panel, the one place where the name can be retyped and the folder chosen in a
   single step. The panel opens on the Desktop with the generated name already
-  filled in, so "ask" costs one Return.
+  filled in and the chosen format's type set, so "ask" costs one Return.
 
 ### Converter
 
