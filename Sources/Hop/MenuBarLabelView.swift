@@ -314,7 +314,11 @@ enum MenuBarIcon {
     /// reminder is information, not a warning. In monochrome it becomes a ring at
     /// the same outer size, so it stays distinct from the filled "!".
     private static func drawReminderDot(box: NSRect, colored: Bool, glyph: NSColor) {
-        let color: NSColor = colored ? .systemYellow : glyph
+        // Blue, as the spec has said all along: yellow is the awake dots' colour
+        // in the opposite corner, and two different meanings must not share one.
+        // It turned yellow inside an unrelated commit (the app-intents one, since
+        // reverted) and nothing ever argued for it.
+        let color: NSColor = colored ? .systemBlue : glyph
         if colored {
             color.setFill()
             NSBezierPath(ovalIn: box).fill()
