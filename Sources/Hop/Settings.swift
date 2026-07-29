@@ -86,6 +86,12 @@ enum SettingsKey {
     /// marking a task changes nothing about where it sits.
     static let todoImportantOnTop = "todoImportantOnTop"
     static let trackerImportantOnTop = "trackerImportantOnTop"
+    /// Saving a clipboard entry to a file: an extra icon in every text row.
+    /// OFF by default — most people never need it, and an icon that does nothing
+    /// for them is an icon in the way. `…Ask` picks the system save panel over
+    /// the Desktop, which is where an unasked save lands.
+    static let clipboardToFile = "clipboardToFile"
+    static let clipboardToFileAsk = "clipboardToFileAsk"
     /// The green dot the menu-bar icon carries while a VPN tunnel is up. ON by
     /// default. The second badge with a switch of its own: a tunnel is a state
     /// somebody else's app owns, and whether it is worth a mark is the user's

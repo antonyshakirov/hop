@@ -4,6 +4,8 @@ import SwiftUI
 /// Clipboard tab: recently copied texts; clicking a row puts it back
 /// on the clipboard (the row keeps its position).
 struct ClipboardView: View {
+    @AppStorage(SettingsKey.clipboardToFile) private var saveToFile = false
+    @AppStorage(SettingsKey.clipboardToFileAsk) private var saveToFileAsk = false
     @ObservedObject var clipboard: ClipboardController
     let lang: AppLanguage
     var closePanel: () -> Void = {}
@@ -224,6 +226,15 @@ struct ClipboardView: View {
             // in one fixed-height layer — the row doesn't twitch
             ZStack(alignment: .trailing) {
                 HStack(spacing: 4) {
+                    // Leftmost, before copy and paste: it acts on the entry
+                    // rather than on the pasteboard, and only a text entry has a
+                    // document in it — an image or a copied file has nothing to
+                    // write (Anton, 2026-07-29).
+                    if saveToFile, item.imageFile == nil, item.filePaths == nil {
+                        rowIcon("square.and.arrow.down", help: L10n.t(.clipSaveToFile, lang)) {
+                            clipboard.saveAsDocument(item, askForLocation: saveToFileAsk)
+                        }
+                    }
                     rowIcon("doc.on.doc") {
                         clipboard.copy(item)
                         markCopied(item)
@@ -248,7 +259,8 @@ struct ClipboardView: View {
         .animation(.easeOut(duration: 0.12), value: isCopied)
     }
 
-    private func rowIcon(_ symbol: String, action: @escaping () -> Void) -> some View {
+    private func rowIcon(_ symbol: String, help: String? = nil,
+                         action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 11, weight: .semibold))
@@ -258,6 +270,7 @@ struct ClipboardView: View {
         }
         .buttonStyle(.plain)
         .hoverHighlight(4)
+        .help(help ?? "")
     }
 
     private func markCopied(_ item: ClipboardController.Item) {

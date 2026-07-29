@@ -462,6 +462,26 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   crossfade, no "flight". With ≤5 entries the expander is hidden and its
   state resets.
 
+### Clipboard: an entry as a file (1.6.1)
+
+- OFF by default (`clipboardToFile`). When on, every TEXT row grows one more
+  icon, LEFT of copy and paste: it acts on the entry rather than on the
+  pasteboard, so it comes first. An image, a copied file or a colour has no
+  document in it and shows no icon.
+- The file is a `.txt` on the DESKTOP, named after the text itself:
+  `ClipboardDocument.fileName(for:)` takes the first LINE (not the first
+  characters — a paragraph should be named after its opening sentence, not
+  trail into the second), strips what a file name cannot hold, collapses the
+  whitespace, cuts to 40 characters and refuses to start with a dot. Text that
+  survives none of that is saved as `clipboard.txt`.
+- A name already taken gets Finder's own treatment — ` 2`, ` 3`… — so saving
+  the same entry twice never overwrites the first file (`uniqueName(_:taken:)`,
+  both in HopCore with tests).
+- `clipboardToFileAsk` swaps the silent Desktop save for the system's save
+  panel, the one place where the name can be retyped and the folder chosen in a
+  single step. The panel opens on the Desktop with the generated name already
+  filled in, so "ask" costs one Return.
+
 ### Converter
 
 - Separate window (drag & drop from Finder), width 540, height stretches

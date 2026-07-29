@@ -65,6 +65,8 @@ struct PanelView: View {
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
+    @AppStorage(SettingsKey.clipboardToFile) private var clipboardToFile = false
+    @AppStorage(SettingsKey.clipboardToFileAsk) private var clipboardToFileAsk = false
     @AppStorage(SettingsKey.showWindowsInDock) private var showWindowsInDock = true
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
     @AppStorage(AppIcon.styleKey) private var appIconStyle = "auto"
@@ -2463,6 +2465,18 @@ struct PanelView: View {
     /// Reactivate a module from OUTSIDE a live panel (AppDelegate file-open,
     /// onboarding): lift it out of the inactive bucket onto the first tab,
     /// persisting straight to UserDefaults. No-op if it isn't inactive.
+    /// Puts a module the stored model has never seen onto the first space —
+    /// what a freshly minted shelf key needs, since `activateStoredModule` only
+    /// lifts a module OUT of the inactive bucket and a key nobody knows is in
+    /// neither place. Used by the snapshot renderer and by the what's-new card.
+    static func introduceStoredModule(_ key: String) {
+        let defaults = UserDefaults.standard
+        let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
+        var model = PanelTabsModel.decode(raw) ?? storedTabsModel()
+        model.ensure(modules: [key])
+        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
+    }
+
     static func activateStoredModule(_ key: String) {
         let defaults = UserDefaults.standard
         let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
@@ -3954,6 +3968,11 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textPrimary)
                 Spacer()
                 NumericField(value: $clipboardVisibleRows, range: 1...10)
+            }
+            switchSetting(t(.settingsClipToFile), isOn: $clipboardToFile)
+            // Where the file goes is only a question once saving exists at all.
+            if clipboardToFile {
+                switchSetting(t(.settingsClipToFileAsk), isOn: $clipboardToFileAsk)
             }
         }
     }

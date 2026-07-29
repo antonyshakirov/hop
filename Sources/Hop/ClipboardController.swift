@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import HopCore
+import UniformTypeIdentifiers
 
 /// Clipboard history: once a second we compare the NSPasteboard changeCount
 /// (macOS has no clipboard events — every clipboard manager does it this way).
@@ -254,6 +255,47 @@ final class ClipboardController: ObservableObject {
 
     /// "Copy and paste": put it on the clipboard, close the panel
     /// and press ⌘V for the user (requires Accessibility permission).
+    /// Writes a text entry to disk. Straight to the Desktop under a name taken
+    /// from the text itself, or — when `askForLocation` — through the system's
+    /// own save panel, the one place a person can retype the name and pick the
+    /// folder in a single step.
+    ///
+    /// Returns the file it wrote. An entry that is an image, a file or a colour
+    /// has no document in it and returns nil.
+    @discardableResult
+    func saveAsDocument(_ item: Item, askForLocation: Bool) -> URL? {
+        guard !Snapshot.active,
+              item.imageFile == nil, item.filePaths == nil,
+              !item.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        else { return nil }
+
+        let manager = FileManager.default
+        let desktop = manager.urls(for: .desktopDirectory, in: .userDomainMask).first
+            ?? manager.homeDirectoryForCurrentUser
+        let base = ClipboardDocument.fileName(for: item.text)
+
+        let target: URL
+        if askForLocation {
+            let panel = NSSavePanel()
+            panel.nameFieldStringValue = "\(base).\(ClipboardDocument.fileExtension)"
+            panel.directoryURL = desktop
+            panel.allowedContentTypes = [.plainText]
+            guard panel.runModal() == .OK, let chosen = panel.url else { return nil }
+            target = chosen
+        } else {
+            // Finder's own rule for a name already taken: " 2", " 3"… — saving the
+            // same entry twice must not quietly overwrite the first file.
+            let name = ClipboardDocument.uniqueName(base) { candidate in
+                manager.fileExists(atPath: desktop.appendingPathComponent(candidate).path)
+            }
+            target = desktop.appendingPathComponent(name)
+        }
+
+        guard (try? item.text.write(to: target, atomically: true, encoding: .utf8)) != nil
+        else { return nil }
+        return target
+    }
+
     func copyAndPaste(_ item: Item, closePanel: @escaping () -> Void) {
         copy(item)
         let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
