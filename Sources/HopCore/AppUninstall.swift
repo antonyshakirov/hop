@@ -31,6 +31,12 @@ public enum AppUninstall {
         case logs                // Logs
         case cookies             // Cookies/<id>.binarycookies
         case launchAgent         // LaunchAgents (user)
+        case byHost              // Preferences/ByHost/<id>.<hardware uuid>.plist
+        case autosave            // Autosave Information/<id>
+        case crashReports        // Logs/DiagnosticReports/<Name>_*.ips
+        case sharedFolder        // /Users/Shared/<Name>
+        case systemCaches        // /Library/Caches (admin)
+        case receipt             // /var/db/receipts/<id>.{bom,plist} (admin)
         case systemSupport       // /Library/Application Support (admin)
         case systemPreferences   // /Library/Preferences (admin)
         case systemLaunchAgent   // /Library/LaunchAgents (admin)
@@ -41,7 +47,7 @@ public enum AppUninstall {
         public var needsAdmin: Bool {
             switch self {
             case .systemSupport, .systemPreferences, .systemLaunchAgent,
-                 .launchDaemon, .privilegedHelper:
+                 .launchDaemon, .privilegedHelper, .systemCaches, .receipt:
                 return true
             default:
                 return false
@@ -101,7 +107,7 @@ public enum AppUninstall {
     /// come off before matching: `com.acme.notes.plist` is the same name as
     /// `com.acme.notes`.
     private static let typeSuffixes = [".plist", ".savedState", ".binarycookies",
-                                      ".plist.lockfile", ".sfl3"]
+                                      ".plist.lockfile", ".sfl3", ".bom"]
 
     /// The identifier or name an entry carries, with the file type removed.
     static func base(of entry: String) -> String {
@@ -126,6 +132,9 @@ public enum AppUninstall {
         }
         guard !name.isEmpty else { return nil }
         if base.compare(name, options: .caseInsensitive) == .orderedSame { return .exactName }
+        // a crash report is "<App Name>_2026-07-30-120000.ips" — the underscore is
+        // the boundary macOS itself uses
+        if base.lowercased().hasPrefix(name.lowercased() + "_") { return .exactName }
         // a space keeps "Notes" from claiming "Notesnook"
         if base.lowercased().hasPrefix(name.lowercased() + " ") { return .namePrefix }
         return nil
@@ -145,6 +154,11 @@ public enum AppUninstall {
         ("Logs", .logs),
         ("Cookies", .cookies),
         ("LaunchAgents", .launchAgent),
+        // Per-host preferences: a real file, commonly missed, and the reason a
+        // reinstalled app remembers a setting nobody expected it to.
+        ("Preferences/ByHost", .byHost),
+        ("Autosave Information", .autosave),
+        ("Logs/DiagnosticReports", .crashReports),
     ]
 
     /// The same, under `/Library` — every one of these needs an administrator.
@@ -154,6 +168,17 @@ public enum AppUninstall {
         ("LaunchAgents", .systemLaunchAgent),
         ("LaunchDaemons", .launchDaemon),
         ("PrivilegedHelperTools", .privilegedHelper),
+        ("Caches", .systemCaches),
+    ]
+
+    /// Folders outside both Library trees, by absolute path.
+    public static let otherFolders: [(path: String, kind: Kind)] = [
+        // Some installers leave a folder here for every user of the Mac.
+        ("/Users/Shared", .sharedFolder),
+        // The installer's own record. It CAN go — it is a file like any other —
+        // and until 2026-07-30 it was listed as an unremovable remainder, which
+        // was simply wrong (Anton asked why; the answer was "no reason").
+        ("/var/db/receipts", .receipt),
     ]
 
     /// Turns one directory entry into a candidate, or nothing. `kind` says which
@@ -178,13 +203,26 @@ public enum AppUninstall {
         directory.hasPrefix("/Library") ? "system" : "gui/\(uid)"
     }
 
-    /// What an honest report has to admit it cannot remove. Kept here so the UI
-    /// and the docs cannot drift apart on the promise.
+    /// What an honest report still has to admit. Kept here so the UI and the docs
+    /// cannot drift apart on the promise.
+    ///
+    /// Receipts left this list on 2026-07-30: they are ordinary files in
+    /// /var/db/receipts and are now removed with the rest, behind the same admin
+    /// prompt. What remains here genuinely cannot be removed by an app.
     public enum Remainder: String, CaseIterable, Sendable {
-        case receipts        // /var/db/receipts — the installer's own record
-        case spotlight       // the index rebuilds itself, it is not a file we own
-        case systemLogs      // /var/log, unified logging
-        case keychain        // a wrong guess costs somebody a password
-        case systemExtension // extensions and VPN profiles: a system prompt, not us
+        /// The index is a database macOS maintains, not a per-app file: it forgets
+        /// a deleted file by itself within seconds. Erasing it (`mdutil -E`) would
+        /// re-index the whole disk for hours to achieve nothing.
+        case spotlight
+        /// Unified logging keeps ring buffers, not per-app files. Crash reports ARE
+        /// per-app and are removed; the rest cannot be picked apart.
+        case systemLogs
+        /// Removable through the Security framework, deliberately not touched: the
+        /// match is on a service name an app chose, and a wrong guess costs
+        /// somebody a password they cannot get back.
+        case keychain
+        /// A system or network extension, and a VPN profile, are unloaded by the
+        /// system on its own terms — through its own prompt, not by moving a file.
+        case systemExtension
     }
 }

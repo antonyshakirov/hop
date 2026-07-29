@@ -11,6 +11,7 @@ import UniformTypeIdentifiers
 /// costs a restore rather than the file), and claim a clean sweep. The report
 /// ends with what STAYED and why.
 struct UninstallWindowView: View {
+    @EnvironmentObject var model: AppModel
     @ObservedObject var uninstall: UninstallController
     let lang: AppLanguage
 
@@ -32,7 +33,18 @@ struct UninstallWindowView: View {
             }
         }
         .padding(18)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        // The window follows its content: with only the drop plate on screen a
+        // fixed height left a dark void under it, the same gap the converter and
+        // the archives had before they learned to fit (Anton, 2026-07-30).
+        .background(GeometryReader { geo in
+            Color.clear
+                .onAppear { model.uninstallContentHeight = geo.size.height }
+                .onChange(of: geo.size.height) { _, height in
+                    model.uninstallContentHeight = height
+                }
+        })
+        .frame(maxHeight: .infinity, alignment: .topLeading)
         .background(Theme.panelBackground)
         .snapshotAwareDrop(of: [.fileURL], isTargeted: $targeted) { providers in
             Task {
@@ -266,7 +278,6 @@ struct UninstallWindowView: View {
 
     private static func remainderKey(_ item: AppUninstall.Remainder) -> L10nKey {
         switch item {
-        case .receipts: return .uninstallLeftReceipts
         case .spotlight: return .uninstallLeftSpotlight
         case .systemLogs: return .uninstallLeftLogs
         case .keychain: return .uninstallLeftKeychain

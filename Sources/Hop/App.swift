@@ -27,6 +27,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var converterWindow: ConverterWindow?
     private var archiveWindow: ConverterWindow?
     private var uninstallWindow: NSWindow?
+    private var uninstallUserResized = false
+    private var uninstallExpectedHeight: CGFloat = 0
+    private var uninstallHeightSink: AnyCancellable?
     private var finderArchiveWindows: [UUID: FinderArchiveProgressWindowController] = [:]
     private var screenTextWindow: ConverterWindow?
     private var aboutWindow: NSWindow?
@@ -330,6 +333,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         screenTextHeightSink = model.$screenTextContentHeight
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.adjustScreenTextHeight() }
+        // and the uninstaller: plate only until an app is dropped, then a list
+        uninstallHeightSink = model.$uninstallContentHeight
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.adjustUninstallHeight() }
         NotificationCenter.default.addObserver(
             forName: NSWindow.didResizeNotification, object: nil, queue: .main
         ) { [weak self] note in
@@ -344,6 +351,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     let height = resized.contentRect(forFrameRect: resized.frame).height
                     if abs(height - self.archiveExpectedHeight) > 1 {
                         self.archiveUserResized = true
+                    }
+                } else if resized === self.uninstallWindow {
+                    let height = resized.contentRect(forFrameRect: resized.frame).height
+                    if abs(height - self.uninstallExpectedHeight) > 1 {
+                        self.uninstallUserResized = true
                     }
                 } else if resized === self.screenTextWindow {
                     let height = resized.contentRect(forFrameRect: resized.frame).height
@@ -361,6 +373,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 // next open — auto-fit again
                 if closing === self.converterWindow { self.converterUserResized = false }
                 if closing === self.archiveWindow { self.archiveUserResized = false }
+                if closing === self.uninstallWindow { self.uninstallUserResized = false }
                 if closing === self.screenTextWindow { self.screenTextUserResized = false }
             }
         }
@@ -906,22 +919,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let host = NSHostingController(
                 rootView: UninstallWindowView(uninstall: model.uninstall,
                                               lang: L10n.current)
+                    .environmentObject(model)
                     .hopLayoutDirection()
             )
             host.sizingOptions = []
             window.contentViewController = host
-            window.contentMinSize = NSSize(width: 460, height: 320)
+            // as short as the drop plate: the fit takes it from here
+            window.contentMinSize = NSSize(width: 460, height: 180)
             uninstallWindow = window
         }
         guard let window = uninstallWindow else { return }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         if !window.isVisible {
-            window.setContentSize(NSSize(width: 560, height: 460))
+            window.setContentSize(NSSize(width: 560, height: 220))
             window.center()
         }
         enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        adjustUninstallHeight()
+    }
+
+    /// The uninstaller window follows its content: with only the drop plate on
+    /// screen a fixed height leaves a dark void under it. Same shape as the
+    /// archive window's fit, including "stop once the user has resized it".
+    private func adjustUninstallHeight() {
+        guard let window = uninstallWindow, window.isVisible,
+              !uninstallUserResized else { return }
+        let content = model.uninstallContentHeight
+        guard content > 80 else { return }
+        let topInset = window.contentView?.safeAreaInsets.top ?? 0
+        let screenHeight = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
+        let target = min(content + topInset, screenHeight * 0.8)
+        var frame = window.frame
+        let currentContent = window.contentRect(forFrameRect: frame).height
+        let newHeight = frame.height + (target - currentContent)
+        guard abs(newHeight - frame.height) > 2 else { return }
+        frame.origin.y += (frame.height - newHeight) / 2   // grow around the centre
+        frame.size.height = newHeight
+        uninstallExpectedHeight = window.contentRect(forFrameRect: frame).height
+        window.setFrame(frame, display: true)
     }
 
     /// The recognition window: a picture goes in (dropped or pasted), the text

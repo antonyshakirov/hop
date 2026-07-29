@@ -46,6 +46,7 @@ final class AppModel: ObservableObject {
     /// Desired content height of the archive window — it opens as tall as the
     /// drop plate and grows only when there are jobs to show.
     @Published var archiveContentHeight: CGFloat = 0
+    @Published var uninstallContentHeight: CGFloat = 0
 
     /// Desired content height of the recognition window — the plate alone until
     /// a result exists, then room for the text as well.

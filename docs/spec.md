@@ -2151,12 +2151,24 @@ drag-and-drop onto that window or through a "+" that opens Finder.
   agents are booted out (`launchctl bootout`) before their plists move — otherwise
   launchd writes them back a second later. An app that refuses to quit stops the
   run with that reason, rather than half-removing it.
-- **The report says what STAYED.** Install receipts in `/var/db/receipts`, the
-  Spotlight index, system logs, keychain items, system/network extensions and VPN
-  profiles are not ours to remove — keychain entries especially, where a wrong
-  guess costs somebody a password. Claiming "not a single trace left" without that
-  list is the lie the category is known for; the window names each remaining
-  thing and why.
+- **Also scanned, found by checking a real disk** (2026-07-30):
+  `Preferences/ByHost/<id>.<hardware uuid>.plist` — the reason a reinstalled app
+  remembers a setting nobody expected; `Autosave Information`;
+  `Logs/DiagnosticReports/<Name>_*.ips` crash reports; `/Users/Shared/<Name>`;
+  `/Library/Caches`; and `/var/db/receipts/<id>.{bom,plist}`.
+- **Receipts are REMOVED, not excused.** They were listed as an unremovable
+  remainder until Anton asked why (2026-07-30) — and there was no reason: they are
+  ordinary files behind the same admin prompt as the rest.
+- **The report says what genuinely stays**, and only that: the Spotlight index (a
+  database macOS maintains — it forgets a deleted file by itself in seconds, and
+  `mdutil -E` would re-index the whole disk for hours to achieve nothing), unified
+  logging's ring buffers (crash reports ARE per-app and are removed; the rest
+  cannot be picked apart), keychain items (removable through the Security
+  framework, deliberately not touched: the match is on a service name the app
+  chose, and a wrong guess costs somebody a password), and system/network
+  extensions with VPN profiles (the system unloads those through its own prompt).
+  Claiming "not a single trace left" without that list is the lie the category is
+  known for.
 - The matching rules live in `HopCore.AppUninstall` and are unit-tested: the
   scanning and trashing is a thin AppKit layer over pure decisions.
 

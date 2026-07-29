@@ -140,6 +140,39 @@ final class AppUninstallTests: XCTestCase {
 
     func testTheThingsWeCannotRemoveAreNamed() {
         XCTAssertEqual(Set(AppUninstall.Remainder.allCases.map(\.rawValue)),
-                       ["receipts", "spotlight", "systemLogs", "keychain", "systemExtension"])
+                       ["spotlight", "systemLogs", "keychain", "systemExtension"],
+                       "receipts are ordinary files and are removed, not excused")
+    }
+
+    // MARK: - The places found later, by checking a real disk
+
+    func testPerHostPreferencesAreFound() {
+        // Preferences/ByHost/<id>.<hardware uuid>.plist
+        XCTAssertEqual(match("com.anthropic.claudefordesktop.ShipIt.F6D57E21-A1B8-5272-8E20-C5936891D726",
+                             id: "com.anthropic.claudefordesktop", name: "Claude"),
+                       .identifier)
+    }
+
+    func testACrashReportBelongsToItsApp() {
+        XCTAssertEqual(match("Hop-2026-07-25-173327", id: "com.x.hop", name: "Hop-2026-07-25-173327"),
+                       .exactName)
+        XCTAssertEqual(match("Claude_2026-07-30-120000.ips",
+                             id: "com.anthropic.claudefordesktop", name: "Claude"),
+                       .exactName, "macOS separates the name from the date with an underscore")
+    }
+
+    func testAReceiptIsRemovableAndNeedsAnAdministrator() {
+        XCTAssertTrue(AppUninstall.Kind.receipt.needsAdmin)
+        let bom = AppUninstall.candidate(directory: "/var/db/receipts",
+                                         entry: "com.acme.notes.bom", kind: .receipt,
+                                         identifier: "com.acme.notes", appName: "Notes")
+        XCTAssertEqual(bom?.match, .identifier)
+        XCTAssertTrue(bom?.ticked == true)
+    }
+
+    func testTheFoldersOutsideBothLibrariesAreListed() {
+        let paths = AppUninstall.otherFolders.map(\.path)
+        XCTAssertTrue(paths.contains("/var/db/receipts"))
+        XCTAssertTrue(paths.contains("/Users/Shared"))
     }
 }

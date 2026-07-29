@@ -264,14 +264,58 @@ final class UninstallController: ObservableObject {
 
     /// One administrator prompt for every system-level path at once. `mv` into the
     /// user's trash, not `rm`: same promise as the rest of the run.
+    ///
+    /// NO path is ever interpolated into the AppleScript. The script text is a
+    /// fixed literal that reads its arguments from `argv` and shell-quotes them
+    /// with AppleScript's own `quoted form of`; the paths themselves travel as
+    /// process arguments, and the list of files travels in a NUL-separated temp
+    /// file that only `xargs -0` reads. Building that string by interpolation is a
+    /// local privilege escalation waiting to happen: a folder in /Library whose
+    /// name contains a quote would have closed the literal and run as root
+    /// (flagged in review, 2026-07-30).
     private nonisolated static func moveWithAdmin(_ paths: [String]) -> Bool {
-        let trash = "\(NSHomeDirectory())/.Trash"
-        let quoted = paths.map { "'\($0.replacingOccurrences(of: "'", with: "'\\''"))'" }
-            .joined(separator: " ")
-        let script = "do shell script \"mv -f \(quoted) '\(trash)/'\" with administrator privileges"
+        // Defence in depth: this path only ever handles system locations, and
+        // anything else has no business being here.
+        let allowed = ["/Library/", "/var/db/receipts/", "/Users/Shared/"]
+        let system = paths.filter { path in allowed.contains { path.hasPrefix($0) } }
+        guard !system.isEmpty, system.count == paths.count else { return false }
+
+        let temp = FileManager.default.temporaryDirectory
+        let listURL = temp.appendingPathComponent("hop-uninstall-\(UUID().uuidString)")
+        let scriptURL = temp.appendingPathComponent("hop-uninstall-\(UUID().uuidString).sh")
+        defer {
+            try? FileManager.default.removeItem(at: listURL)
+            try? FileManager.default.removeItem(at: scriptURL)
+        }
+        let list = Data(system.joined(separator: "\0").utf8) + Data([0])
+        let script = """
+        #!/bin/bash
+        trash="$1"
+        list="$2"
+        /usr/bin/xargs -0 -I{} /bin/mv -f {} "$trash/" < "$list"
+        """
+        guard (try? list.write(to: listURL, options: [.atomic])) != nil,
+              (try? Data(script.utf8).write(to: scriptURL, options: [.atomic])) != nil
+        else { return false }
+        try? FileManager.default.setAttributes([.posixPermissions: 0o600],
+                                               ofItemAtPath: listURL.path)
+        try? FileManager.default.setAttributes([.posixPermissions: 0o700],
+                                               ofItemAtPath: scriptURL.path)
+
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        task.arguments = ["-e", script]
+        task.arguments = [
+            "-e", "on run argv",
+            "-e", """
+            do shell script "/bin/bash " & quoted form of (item 1 of argv) \
+                & " " & quoted form of (item 2 of argv) \
+                & " " & quoted form of (item 3 of argv) with administrator privileges
+            """,
+            "-e", "end run",
+            scriptURL.path,
+            "\(NSHomeDirectory())/.Trash",
+            listURL.path,
+        ]
         task.standardOutput = FileHandle.nullDevice
         task.standardError = FileHandle.nullDevice
         do {
