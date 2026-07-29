@@ -45,7 +45,7 @@ enum DocumentConversion {
             guard let text = try? String(contentsOf: url, encoding: .utf8) else { return nil }
             if ext == "txt" {
                 return NSAttributedString(string: text, attributes: [
-                    .font: NSFont.systemFont(ofSize: bodySize),
+                    .font: bodyFont(bodySize),
                     .paragraphStyle: paragraphStyle(spacing: 8),
                 ])
             }
@@ -66,6 +66,28 @@ enum DocumentConversion {
 
     private static let bodySize: CGFloat = 11.5
 
+    /// The face documents are written in.
+    ///
+    /// NOT the system font. Printing an NSTextView set in San Francisco asks
+    /// CoreText for `.SFNS-Regular…` by NAME, gets Times New Roman substituted
+    /// ("it will get TimesNewRomanPSMT rather than the intended font") and
+    /// embeds a mapping under which Cyrillic comes back wrong: a heading written
+    /// in Cyrillic extracted with its "ka" turned into U+0138 (KRA), and copying
+    /// that line out of the pdf in any reader gave the same (found 2026-07-29
+    /// while adding pdf to docx). Helvetica Neue is a real, embeddable family
+    /// with a proper Cyrillic cut, so the text in the file IS the text that went
+    /// in. Latin was fine throughout, which is why this survived so long.
+    nonisolated static func bodyFont(_ size: CGFloat, bold: Bool = false) -> NSFont {
+        let name = bold ? "HelveticaNeue-Bold" : "HelveticaNeue"
+        return NSFont(name: name, size: size)
+            ?? (bold ? .boldSystemFont(ofSize: size) : .systemFont(ofSize: size))
+    }
+
+    /// Fixed-pitch for code blocks, chosen the same way and for the same reason.
+    nonisolated static func codeFont(_ size: CGFloat) -> NSFont {
+        NSFont(name: "Menlo", size: size) ?? .monospacedSystemFont(ofSize: size, weight: .regular)
+    }
+
     /// Markdown rendered with Hop's own typography: the whole point of owning
     /// the parser is that the PDF comes out looking deliberate rather than like
     /// a browser's default stylesheet.
@@ -75,19 +97,19 @@ enum DocumentConversion {
             switch block {
             case .heading(let level, let text):
                 let size: CGFloat = level == 1 ? 22 : (level == 2 ? 17 : 14)
-                out.append(styled(text, font: .boldSystemFont(ofSize: size),
+                out.append(styled(text, font: bodyFont(size, bold: true),
                                   style: paragraphStyle(spacing: 6, before: level == 1 ? 4 : 12)))
             case .paragraph(let text):
-                out.append(styled(text, font: .systemFont(ofSize: bodySize),
+                out.append(styled(text, font: bodyFont(bodySize),
                                   style: paragraphStyle(spacing: 8)))
             case .bullet(let text):
-                out.append(styled("•  " + text, font: .systemFont(ofSize: bodySize),
+                out.append(styled("•  " + text, font: bodyFont(bodySize),
                                   style: paragraphStyle(spacing: 4, indent: 14)))
             case .numbered(let number, let text):
-                out.append(styled("\(number).  " + text, font: .systemFont(ofSize: bodySize),
+                out.append(styled("\(number).  " + text, font: bodyFont(bodySize),
                                   style: paragraphStyle(spacing: 4, indent: 14)))
             case .quote(let text):
-                let attributed = styled(text, font: .systemFont(ofSize: bodySize),
+                let attributed = styled(text, font: bodyFont(bodySize),
                                         style: paragraphStyle(spacing: 8, indent: 18))
                 attributed.addAttribute(.foregroundColor, value: NSColor.darkGray,
                                         range: NSRange(location: 0, length: attributed.length))
@@ -97,7 +119,7 @@ enum DocumentConversion {
                 let text = NSMutableAttributedString(
                     string: lines.joined(separator: "\n") + "\n",
                     attributes: [
-                        .font: NSFont.monospacedSystemFont(ofSize: bodySize - 1, weight: .regular),
+                        .font: codeFont(bodySize - 1),
                         .paragraphStyle: style,
                         .foregroundColor: NSColor.black,
                         .backgroundColor: NSColor(white: 0.95, alpha: 1),
@@ -108,7 +130,7 @@ enum DocumentConversion {
                 // light run of dashes — plain, and it survives every exporter
                 out.append(NSAttributedString(string: String(repeating: "—", count: 32) + "\n",
                                               attributes: [
-                                                  .font: NSFont.systemFont(ofSize: bodySize),
+                                                  .font: bodyFont(bodySize),
                                                   .foregroundColor: NSColor.lightGray,
                                                   .paragraphStyle: paragraphStyle(spacing: 10),
                                               ]))
@@ -128,7 +150,7 @@ enum DocumentConversion {
                 .foregroundColor: NSColor.black,
             ]
             if span.code {
-                attributes[.font] = NSFont.monospacedSystemFont(ofSize: font.pointSize - 1, weight: .regular)
+                attributes[.font] = codeFont(font.pointSize - 1)
                 attributes[.backgroundColor] = NSColor(white: 0.95, alpha: 1)
             } else {
                 attributes[.font] = traited(font, bold: span.bold, italic: span.italic)

@@ -1328,9 +1328,11 @@ enum DocumentSelfTest {
                 DocumentConversion.writePDF($0, to: outURL)
             } ?? false
         case .docx:
-            ok = DocumentConversion.read(source).map {
-                DocumentConversion.writeDocx($0, to: outURL)
-            } ?? false
+            let attributed = source.pathExtension.lowercased() == "pdf"
+                ? DocumentConversion.markdown(fromPDF: source)
+                    .map { DocumentConversion.attributed(markdown: $0) }
+                : DocumentConversion.read(source)
+            ok = attributed.map { DocumentConversion.writeDocx($0, to: outURL) } ?? false
         }
         print(ok ? "SELFTEST OK: \(outURL.path)" : "SELFTEST FAIL")
         exit(ok ? 0 : 1)

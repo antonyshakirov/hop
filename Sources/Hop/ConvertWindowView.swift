@@ -265,7 +265,8 @@ struct ConvertWindowView: View {
                 Spacer()
                 // the quality slider belongs to squeezing; extracting a PDF's
                 // text has nothing to tune
-                if kind == .image || (kind == .pdf && pdfMode != "markdown") {
+                // quality and scale belong to squeezing; extraction has neither
+                if kind == .image || (kind == .pdf && (pdfMode == "compress" || pdfMode.isEmpty)) {
                     qualityControl(kind)
                 }
             }
@@ -354,8 +355,11 @@ struct ConvertWindowView: View {
             // its text out as markdown
             HStack(spacing: 5) {
                 rowLabel(t(.convModeLabel))
-                chip(t(.convModeCompress), pdfMode != "markdown") { pdfMode = "compress" }
+                chip(t(.convModeCompress), pdfMode == "compress" || pdfMode.isEmpty) {
+                    pdfMode = "compress"
+                }
                 chip("md", pdfMode == "markdown") { pdfMode = "markdown" }
+                chip("docx", pdfMode == "docx") { pdfMode = "docx" }
                 Spacer()
             }
         case .document:

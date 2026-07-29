@@ -1449,10 +1449,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `.md`/`.txt` conform to `public.text` and would otherwise fall through as
   unsupported. Size estimates are skipped for the group: a document changes
   shape, not weight, so a forecast would be noise.
-- PDFs keep their own group and gain a MODE (`convPdfMode`: compress / markdown,
-  default compress) instead of moving categories — a dropped PDF still lands
-  where the user expects. In markdown mode the quality slider is hidden: there
-  is nothing to tune about extracting text.
+- PDFs keep their own group and gain a MODE (`convPdfMode`: compress / markdown
+  / docx, default compress) instead of moving categories — a dropped PDF still
+  lands where the user expects. Word joined markdown on 2026-07-29: a pdf that
+  has to be edited usually has to be edited in Word, and the machinery was
+  already there (extract the text the way the markdown target does, lay it out
+  again, hand it to the docx writer). In either extraction mode the quality
+  slider is hidden: there is nothing to tune about extracting text.
+- **Documents are set in Helvetica Neue, not the system font.** Printing an
+  NSTextView set in San Francisco asks CoreText for `.SFNS-Regular…` BY NAME,
+  gets Times New Roman substituted, and embeds a mapping under which Cyrillic
+  extracts wrong: a heading written in Cyrillic came back with its "ka" turned
+  into U+0138 (KRA), and copying that line out of the pdf in any reader gave the
+  same (found 2026-07-29 while adding pdf → docx). Latin was unaffected, which is
+  why it went unnoticed. A real embeddable family with a proper Cyrillic cut
+  fixes it, and incidentally makes the output the deliberate typography the
+  module claims rather than a silent Times fallback. Code blocks take Menlo for
+  the same reason.
 - Output names drop the `-min` suffix for documents (`notes.pdf`, then
   `notes-2.pdf`): "-min" belongs to the compression story and would misdescribe
   what happened. A file already in the target format is REWRITTEN rather than

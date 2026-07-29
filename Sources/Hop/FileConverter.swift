@@ -208,10 +208,20 @@ final class FileConverter: ObservableObject {
             ?? .pdf
     }
 
-    /// Whether a PDF group squeezes its files or extracts their text.
-    nonisolated static var pdfExtractsText: Bool {
-        UserDefaults.standard.string(forKey: pdfModeKey) == "markdown"
+    /// What a PDF group does with its files: nil squeezes them, a target
+    /// extracts their text into that format. Word matters as much as markdown
+    /// here — a pdf that has to be edited usually has to be edited in Word
+    /// (Anton, 2026-07-29).
+    nonisolated static var pdfTextTarget: DocumentConversion.Target? {
+        switch UserDefaults.standard.string(forKey: pdfModeKey) {
+        case "markdown": return .markdown
+        case "docx": return .docx
+        default: return nil
+        }
     }
+
+    /// Whether a PDF group squeezes its files or extracts their text.
+    nonisolated static var pdfExtractsText: Bool { pdfTextTarget != nil }
 
     nonisolated static var videoFormat: String {
         UserDefaults.standard.string(forKey: videoFormatKey) ?? "mp4"
@@ -403,7 +413,7 @@ final class FileConverter: ObservableObject {
         let videoResolution = Self.videoResolution
         let videoCompress = Self.videoCompress
         let docTarget = Self.docTarget
-        let pdfToText = Self.pdfExtractsText
+        let pdfTextTarget = Self.pdfTextTarget
         let destination = Self.destinationDirectory
 
         Task.detached(priority: .userInitiated) { [weak self] in
@@ -425,8 +435,8 @@ final class FileConverter: ObservableObject {
                 case .image:
                     outURL = Self.convertImage(url, to: outDir, format: format, scale: scale, quality: quality)
                 case .pdf:
-                    if pdfToText {
-                        outURL = await Self.convertDocument(url, to: outDir, target: .markdown)
+                    if let target = pdfTextTarget {
+                        outURL = await Self.convertDocument(url, to: outDir, target: target)
                     } else {
                         // scale applies to images only; PDF is squeezed via quality
                         outURL = Self.compressPDF(url, to: outDir, scale: 1.0, quality: quality)
@@ -653,8 +663,17 @@ final class FileConverter: ObservableObject {
             guard let attributed = DocumentConversion.read(url) else { return nil }
             return DocumentConversion.writePDF(attributed, to: outURL) ? outURL : nil
         case .docx:
-            guard let attributed = DocumentConversion.read(url),
-                  DocumentConversion.writeDocx(attributed, to: outURL) else { return nil }
+            // A PDF has no reader of its own — its text is extracted the way the
+            // markdown target extracts it, then laid out again as a document.
+            let attributed: NSAttributedString?
+            if url.pathExtension.lowercased() == "pdf" {
+                let text = await Task.detached { DocumentConversion.markdown(fromPDF: url) }.value
+                attributed = text.map { DocumentConversion.attributed(markdown: $0) }
+            } else {
+                attributed = DocumentConversion.read(url)
+            }
+            guard let attributed, DocumentConversion.writeDocx(attributed, to: outURL)
+            else { return nil }
             return outURL
         }
     }
