@@ -41,7 +41,18 @@ final class VPNController: ObservableObject {
     var isAnyConnected: Bool { configurations.contains { $0.state.isOn } }
 
     init() {
-        guard !Snapshot.active else { return }
+        if Snapshot.active {
+            // A screenshot of an empty list says nothing about the module. Two
+            // configurations, one of them up: a client that names its country and
+            // one that does not, which is exactly the pair the row layout is for.
+            configurations = [
+                VPNConfiguration(id: "demo-1", name: "VPN Client (Netherlands)",
+                                 bundleIdentifier: nil, appName: "VPN Client", state: .connected),
+                VPNConfiguration(id: "demo-2", name: "Office IKEv2",
+                                 bundleIdentifier: nil, appName: nil, state: .disconnected),
+            ]
+            return
+        }
         refresh()
     }
 

@@ -72,8 +72,9 @@ struct AppShelfView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        // A drop anywhere on the module parks the app; Finder hands over a file URL.
-        .onDrop(of: [.fileURL], isTargeted: $isTargeted) { providers in
+        // A drop anywhere on the module parks the app; Finder hands over a file
+        // URL. Snapshot-aware: ImageRenderer draws a raw onDrop as a yellow block.
+        .snapshotAwareDrop(of: [.fileURL], isTargeted: $isTargeted) { providers in
             load(providers)
             return true
         }

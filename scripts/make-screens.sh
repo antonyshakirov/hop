@@ -126,6 +126,8 @@ for lang in "${LANGS[@]}"; do
     shot "$lang" torrents --torrents --demo
     shot "$lang" colors --colors --demo
     shot "$lang" keyboard --keyboard --demo
+    shot "$lang" vpn --only vpn --demo
+    shot "$lang" apps --only apps --demo
 
     # Windows of their own.
     shot "$lang" converter --window-converter \

@@ -26,7 +26,20 @@ final class AppShelvesController: ObservableObject {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         storeDir = base.appendingPathComponent(Bundle.storageIdentifier, isDirectory: true)
         if Snapshot.active {
-            shelves = .empty
+            // Programs every Mac has, so a screenshot carries real icons rather
+            // than an empty grid explaining how to fill it.
+            let demo = ["/Applications/Safari.app", "/System/Applications/Mail.app",
+                        "/System/Applications/Notes.app", "/System/Applications/Music.app",
+                        "/System/Applications/Calendar.app", "/System/Applications/Photos.app",
+                        "/System/Applications/Maps.app", "/System/Applications/Preview.app"]
+                .filter { FileManager.default.fileExists(atPath: $0) }
+                .map { path in
+                    ShelfItem(path: path,
+                              bundleIdentifier: Bundle(url: URL(fileURLWithPath: path))?.bundleIdentifier,
+                              name: FileManager.default.displayName(atPath: path)
+                                  .replacingOccurrences(of: ".app", with: ""))
+                }
+            shelves = AppShelves(shelves: [AppShelf(items: demo)])
             return
         }
         shelves = Self.load(from: storeDir.appendingPathComponent("app-shelves.json"))
