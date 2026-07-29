@@ -163,7 +163,6 @@ struct TodosView: View {
         Text(t(.todosLabel))
             .font(Theme.mono(10, weight: .semibold))
             .foregroundStyle(Theme.textTertiary)
-            .padding(.horizontal, 2)
     }
 
     @ViewBuilder private func row(_ item: TodoItem) -> some View {
@@ -175,7 +174,6 @@ struct TodosView: View {
                          lang: lang,
                          onCommit: { commitCard(item) },
                          onCancel: { collapseCard() })
-                .padding(.horizontal, 2)
                 .background(rowFrameReader(item.id))
         } else {
             collapsedRow(item)
@@ -269,7 +267,6 @@ struct TodosView: View {
                 HoverDeleteX { confirmingDelete = item.id }
             }
         }
-        .padding(.horizontal, 2)
         .padding(.vertical, 2)
         .background(rowFrameReader(item.id))
         // whole-row drag surface: grabbing anywhere reorders (see dragGesture).
@@ -321,7 +318,6 @@ struct TodosView: View {
                     Spacer(minLength: 0)
                 }
                 .foregroundStyle(Theme.textTertiary)
-                .padding(.horizontal, 2)
                 .padding(.vertical, 5)
                 // matches the editing branch's 26pt above — otherwise the
                 // footer row jumps by a few px on open/close of the add field.

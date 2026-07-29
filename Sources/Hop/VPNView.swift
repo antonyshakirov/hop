@@ -27,7 +27,6 @@ struct VPNView: View {
                 Text(t(.vpnEmpty))
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textTertiary)
-                    .padding(.horizontal, 2)
                     .padding(.vertical, 2)
             } else if !Snapshot.active,
                       let height = RowCap.listHeight(stored: visibleRows,
@@ -53,7 +52,6 @@ struct VPNView: View {
         Text(t(.vpnLabel))
             .font(Theme.mono(10, weight: .semibold))
             .foregroundStyle(Theme.textTertiary)
-            .padding(.horizontal, 2)
     }
 
     private func row(_ configuration: VPNConfiguration) -> some View {
@@ -96,7 +94,6 @@ struct VPNView: View {
             ), tint: Theme.accentGreen)
             .opacity(busy ? 0.5 : 1)
         }
-        .padding(.horizontal, 2)
         .padding(.vertical, 2)
     }
 

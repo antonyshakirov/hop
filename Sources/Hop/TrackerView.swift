@@ -167,7 +167,6 @@ struct TrackerView: View {
         Text(t(.trackerLabel))
             .font(Theme.mono(10, weight: .semibold))
             .foregroundStyle(Theme.textTertiary)
-            .padding(.horizontal, 2)
     }
 
     // MARK: - Task row
@@ -181,7 +180,6 @@ struct TrackerView: View {
                          lang: lang,
                          onCommit: { commitCard(task) },
                          onCancel: { collapseCard() })
-                .padding(.horizontal, 2)
                 .background(rowFrameReader(task.id))
         } else {
             collapsedTaskRow(task)
@@ -261,7 +259,6 @@ struct TrackerView: View {
         // already agree, and this row matches to-dos' untouched 26pt exactly
         // (22pt content + this 2pt vertical padding × 2), with zero growth.
         .padding(.vertical, 2)
-        .padding(.horizontal, 2)
         .background(rowFrameReader(task.id))
         // whole-row drag surface: grabbing anywhere reorders (see dragGesture).
         // While the list scrolls (capped), the row gesture stands down
@@ -584,7 +581,6 @@ struct TrackerView: View {
             Spacer(minLength: 0)
         }
         .foregroundStyle(Theme.textTertiary)
-        .padding(.horizontal, 2)
         .padding(.vertical, 5)
         // pinned to 26pt to match the footer's editing state exactly (see
         // addTaskRow) — content alone is ~13pt, well clear of the 26pt floor.
