@@ -3986,7 +3986,14 @@ struct PanelView: View {
                         }
                     }
                 }
-                switchSetting(t(.settingsClipToFileAsk), isOn: $clipboardToFileAsk)
+                VStack(alignment: .leading, spacing: 4) {
+                    switchSetting(t(.settingsClipToFileAsk), isOn: $clipboardToFileAsk)
+                    // Where an unasked save lands, said out loud: without this the
+                    // switch reads as "choose a place" versus "choose nothing".
+                    Text(t(.settingsClipToFileNote))
+                        .font(Theme.mono(8))
+                        .foregroundStyle(Theme.textTertiary)
+                }
             }
         }
     }

@@ -1466,6 +1466,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   fixes it, and incidentally makes the output the deliberate typography the
   module claims rather than a silent Times fallback. Code blocks take Menlo for
   the same reason.
+- **A paragraph is a code block only when ALL of it is fixed-pitch.** Reading the
+  first run alone turned any paragraph that merely began with an inline
+  `snippet` into a fenced block on the way back out of Word (found 2026-07-29 in
+  a round-trip check). Links are the one thing that cannot survive that trip at
+  all: AppKit's Word writer stores no hyperlink relationship, so a link arrives
+  as plain text — said out loud in the module's help rather than left to be
+  discovered.
 - Output names drop the `-min` suffix for documents (`notes.pdf`, then
   `notes-2.pdf`): "-min" belongs to the compression story and would misdescribe
   what happened. A file already in the target format is REWRITTEN rather than

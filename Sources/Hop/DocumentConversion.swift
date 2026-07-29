@@ -324,9 +324,29 @@ enum DocumentConversion {
             out.append(Paragraph(text: substring,
                                  inline: inlineMarkdown(attributed, range: range),
                                  size: size, bold: bold,
-                                 monospaced: font?.isFixedPitch ?? false))
+                                 monospaced: isAllFixedPitch(attributed, range: range)))
         }
         return out
+    }
+
+    /// Whether the WHOLE paragraph is fixed-pitch, which is what makes it a code
+    /// block. Reading the first run alone turned any paragraph that merely began
+    /// with an inline `snippet` into a fenced block on the way back out of Word
+    /// (found 2026-07-29).
+    private nonisolated static func isAllFixedPitch(
+        _ attributed: NSAttributedString, range: NSRange
+    ) -> Bool {
+        var sawFont = false
+        var allFixed = true
+        attributed.enumerateAttribute(.font, in: range, options: []) { value, runRange, stop in
+            // whitespace-only runs carry no evidence either way
+            let text = (attributed.string as NSString).substring(with: runRange)
+            guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+            guard let font = value as? NSFont else { allFixed = false; stop.pointee = true; return }
+            sawFont = true
+            if !font.isFixedPitch { allFixed = false; stop.pointee = true }
+        }
+        return sawFont && allFixed
     }
 
     /// Bold and italic runs inside a paragraph written back as markdown markers,
