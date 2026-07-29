@@ -129,7 +129,6 @@ struct AppShelfView: View {
                 .frame(maxWidth: 132)
                 .help(t(.appsNamePlaceholder))
                 Spacer(minLength: 0)
-                labelsToggle
                 Button(t(.appsDone)) { stopEditing() }
                     .buttonStyle(.plain)
                     .font(Theme.mono(9, weight: .semibold))
@@ -163,24 +162,6 @@ struct AppShelfView: View {
         .buttonStyle(.plain)
         .hoverDim()
         .help(help)
-    }
-
-    /// Names under the icons, on or off. An icon, not the word "names": beside a
-    /// field holding the grid's own name, that word read as the same thing twice
-    /// (Anton, 2026-07-29). The tooltip says what it does.
-    private var labelsToggle: some View {
-        Button { shelves.setShowsLabels(!showsLabels, for: shelfID) } label: {
-            Image(systemName: "textformat")
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(showsLabels ? Theme.textPrimary : Theme.textTertiary)
-                .frame(width: 20, height: 16)
-                .background(showsLabels ? Theme.chipBg : Color.clear,
-                            in: RoundedRectangle(cornerRadius: 4))
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .hoverDim()
-        .help(t(.appsShowNames))
     }
 
     private var empty: some View {

@@ -1098,9 +1098,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   click into (Anton, 2026-07-30).
 - **Names under the icons** can be switched off per grid (`showsLabels`, on by
   default), leaving bare icons for someone who recognises them by sight. The
-  control is an ICON in the header, not the word "names": beside a field holding
-  the grid's own name, that word read as the same thing twice (Anton,
-  2026-07-29). The tooltip carries the wording. Both
+  switch lives in SETTINGS, one row per grid, not in the module's header: as the
+  word "names" it read as a second name field, and as a glyph it was an
+  unexplained "Aa" (Anton, 2026-07-29 and 2026-07-30). A settings row has space
+  for the whole label — "names under the icons". Both
   fields decode leniently, so a file written before they existed still loads.
 - **Two visible affordances in the header**: `+` picks apps from disk
   (`NSOpenPanel`, restricted to `.application`, starting in Applications), and
