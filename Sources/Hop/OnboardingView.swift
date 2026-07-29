@@ -3,6 +3,9 @@ import SwiftUI
 /// First-launch window: language, theme, launch at login — then off to the bar.
 struct OnboardingView: View {
     let updater: UpdateChecker
+    /// The app's own shelves store, so a grid chosen here is the same grid the
+    /// panel shows a moment later.
+    @ObservedObject var shelves: AppShelvesController
     let finish: () -> Void
 
     private enum Phase {
@@ -43,6 +46,9 @@ struct OnboardingView: View {
     /// VPN ships off for the same reason: a Mac with no VPN configured would get
     /// an empty section it never asked for.
     @State private var showVpnModule = false
+    /// A launcher with nothing in it says nothing, so this starts off; turning
+    /// it on creates one empty grid that asks to be filled.
+    @State private var showAppsModule = false
 
     /// One module in the grid: the switch above its name, both centred, so three
     /// of them fit a panel-width window without the labels colliding.
@@ -52,8 +58,10 @@ struct OnboardingView: View {
             Text(title)
                 .font(Theme.mono(9))
                 .foregroundStyle(Theme.textPrimary)
-                .lineLimit(1)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
                 .minimumScaleFactor(0.75)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity)
     }
@@ -146,9 +154,12 @@ struct OnboardingView: View {
                 // the VPN module joined them (Anton, 2026-07-29). Three columns:
                 // the switch on top so the eye finds the row of them at once, the
                 // name under it.
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3),
+                // Top-aligned: a two-line name makes its cell taller, and centred
+                // cells would then lift that switch above its neighbours.
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8, alignment: .top),
+                                         count: 3),
                           spacing: 10) {
-                    moduleCell(t(.showWindowsLabel), isOn: $showWindowsModule)
+                    moduleCell(t(.windowsLabel), isOn: $showWindowsModule)
                     moduleCell(t(.tabSystem), isOn: $showSystemModule)
                     moduleCell(t(.trackerLabel), isOn: $showTrackerModule)
                     moduleCell(t(.todosLabel), isOn: $showTodosModule)
@@ -157,6 +168,7 @@ struct OnboardingView: View {
                     moduleCell(t(.colorLabel), isOn: $showColorModule)
                     moduleCell(t(.ocrLabel), isOn: $showOcrModule)
                     moduleCell(t(.vpnLabel), isOn: $showVpnModule)
+                    moduleCell(t(.appsLabel), isOn: $showAppsModule)
                 }
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
@@ -306,6 +318,11 @@ struct OnboardingView: View {
         for choice in choices {
             if choice.on { PanelView.activateStoredModule(choice.module) }
             else { PanelView.deactivateStoredModule(choice.module) }
+        }
+        // Apps is the one choice that has nothing to switch on: the module only
+        // exists once a grid does, so saying yes here makes the first one.
+        if showAppsModule {
+            PanelView.activateStoredModule(shelves.addShelf())
         }
         // Deactivating the monitor / tracker / to-dos can empty their canonical
         // spaces (space 2, space 3); drop any that ended up empty so the app

@@ -269,12 +269,16 @@ Kisi berisi program yang Anda buka sepanjang hari, sekali klik tanpa mampir ke
 folder Applications. Tekan + lalu pilih, atau seret dari Finder; delapan muat
 dalam sebaris, sampai delapan baris.
 
-Seret ikon untuk memindahkannya: garis kuning menunjukkan di antara ikon mana ia akan jatuh dan
-yang lain bergeser seperti di layar utama. Tombol ubah memulai goyangan, tiap
-ikon mendapat ✕, dan kisi bisa diberi nama sendiri; di sana pula nama di bawah
-ikon bisa dimatikan kalau Anda mengenali aplikasi dari tampilannya. Kisinya boleh
-sebanyak apa pun — kerja di satu ruang, sisanya di ruang lain — masing-masing
-punya aplikasi sendiri.
+Seret ikon untuk memindahkannya: garis kuning menunjukkan di antara ikon mana ia
+akan jatuh dan yang lain bergeser seperti di layar utama. Tombol ubah memulai
+goyangan, tiap ikon mendapat ✕, dan kisi bisa diberi nama sendiri; di sana pula
+nama di bawah ikon bisa dimatikan kalau Anda mengenali aplikasi dari
+tampilannya. Kisinya boleh sebanyak apa pun — kerja di satu ruang, sisanya di
+ruang lain — masing-masing punya aplikasi sendiri.
+
+Kisi dibuat dan dihapus di tempat Anda menyusun modul: di pengaturan atau di
+tabel modul itu sendiri, di mana ✕ pada cip sebuah kisi menghapusnya untuk
+selamanya. Kisi baru mulai kosong dan mengatakannya sampai Anda mengisinya.
 
 ## 22 bahasa
 

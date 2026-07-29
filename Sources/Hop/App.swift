@@ -958,7 +958,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.isMovableByWindowBackground = false
         window.isMovable = false
         window.isReleasedWhenClosed = false
-        window.contentViewController = NSHostingController(rootView: OnboardingView(updater: model.updater) { [weak self] in
+        window.contentViewController = NSHostingController(rootView: OnboardingView(updater: model.updater, shelves: model.appShelves) { [weak self] in
             self?.onboardingWindow?.close()
             self?.onboardingWindow = nil
             self?.applyAppTheme() // theme picked in onboarding applies everywhere immediately

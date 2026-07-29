@@ -279,11 +279,18 @@ Une grille avec les programmes que vous ouvrez toute la journée, à un clic et
 sans passer par le dossier Applications. Appuyez sur + et choisissez-les, ou
 glissez-les depuis le Finder ; huit par ligne, jusqu'à huit lignes.
 
-Faites glisser une icône pour la déplacer : une ligne jaune montre entre quelles deux icônes elle se posera et les autres s'écartent, comme sur un écran d'accueil. Le bouton
-d'édition lance l'oscillation, chaque icône reçoit une ✕ et la grille peut
-recevoir son propre nom ; on y coupe aussi les noms sous les icônes, si vous
-reconnaissez vos apps au premier coup d'œil. Gardez autant de grilles que vous
-voulez — le travail sur un espace, le reste sur un autre — chacune avec ses apps.
+Faites glisser une icône pour la déplacer : une ligne jaune montre entre quelles
+deux icônes elle se posera et les autres s'écartent, comme sur un écran
+d'accueil. Le bouton d'édition lance l'oscillation, chaque icône reçoit une ✕ et
+la grille peut recevoir son propre nom ; on y coupe aussi les noms sous les
+icônes, si vous reconnaissez vos apps au premier coup d'œil. Gardez autant de
+grilles que vous voulez — le travail sur un espace, le reste sur un autre —
+chacune avec ses apps.
+
+Les grilles se créent et se suppriment là où vous rangez les modules : dans les
+réglages ou dans le tableau des modules lui-même, où la ✕ de la pastille d'une
+grille l'efface pour de bon. Une nouvelle grille démarre vide et le dit tant que
+vous ne l'avez pas remplie.
 
 ## 22 langues
 

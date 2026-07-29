@@ -276,13 +276,18 @@ Ein Raster mit den Apps, die Sie den ganzen Tag öffnen — einen Klick entfernt
 ohne Umweg über den Programme-Ordner. Auf + drücken und auswählen oder aus dem
 Finder hineinziehen; acht passen nebeneinander, bis zu acht Reihen.
 
-Ziehen Sie ein Symbol, um es zu verschieben: eine gelbe Linie zeigt, zwischen welche Symbole es rutscht,
-die übrigen rücken auf wie auf einem Home-Bildschirm. Die Bearbeiten-Taste
-startet das Wackeln, jedes Symbol bekommt ein ✕, und das Raster kann einen
-eigenen Namen bekommen; dort lassen sich auch die Namen unter den Symbolen
-abschalten, wenn Sie Ihre Apps ohnehin erkennen. Sie können beliebig viele Raster
-anlegen — Arbeit auf einer Fläche, alles andere auf einer zweiten — jedes mit
-eigenen Apps.
+Ziehen Sie ein Symbol, um es zu verschieben: eine gelbe Linie zeigt, zwischen
+welche Symbole es rutscht, die übrigen rücken auf wie auf einem Home-Bildschirm.
+Die Bearbeiten-Taste startet das Wackeln, jedes Symbol bekommt ein ✕, und das
+Raster kann einen eigenen Namen bekommen; dort lassen sich auch die Namen unter
+den Symbolen abschalten, wenn Sie Ihre Apps ohnehin erkennen. Sie können
+beliebig viele Raster anlegen — Arbeit auf einer Fläche, alles andere auf einer
+zweiten — jedes mit eigenen Apps.
+
+Raster entstehen und verschwinden dort, wo Sie die Module anordnen: in den
+Einstellungen oder in der Modultabelle selbst, wo das ✕ am Chip eines Rasters es
+endgültig löscht. Ein neues Raster ist leer und sagt das auch, bis Sie es
+füllen.
 
 ## 22 Sprachen
 

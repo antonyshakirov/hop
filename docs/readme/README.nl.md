@@ -272,12 +272,16 @@ Een raster met de programma's die je de hele dag opent — één klik weg, zonde
 omweg via de map Programma's. Druk op + en kies ze, of sleep ze uit de Finder;
 er passen er acht naast elkaar, tot acht rijen.
 
-Sleep een symbool om het te verplaatsen: een gele lijn laat zien tussen welke twee symbolen het landt
-en de rest schuift opzij, net als op een beginscherm. De bewerkknop start het
-wiegen, elk symbool krijgt een ✕ en het raster kan een eigen naam krijgen; daar
-zet je ook de namen onder de symbolen uit, als je je apps op het oog herkent.
-Houd zoveel rasters aan als je wilt — werk op het ene vlak, de rest op het andere
-— elk met eigen apps.
+Sleep een symbool om het te verplaatsen: een gele lijn laat zien tussen welke
+twee symbolen het landt en de rest schuift opzij, net als op een beginscherm. De
+bewerkknop start het wiegen, elk symbool krijgt een ✕ en het raster kan een
+eigen naam krijgen; daar zet je ook de namen onder de symbolen uit, als je je
+apps op het oog herkent. Houd zoveel rasters aan als je wilt — werk op het ene
+vlak, de rest op het andere — elk met eigen apps.
+
+Rasters ontstaan en verdwijnen waar je de modules ordent: in de instellingen of
+in de moduletabel zelf, waar de ✕ op de chip van een raster het definitief
+verwijdert. Een nieuw raster begint leeg en zegt dat ook, tot je het vult.
 
 ## 22 talen
 

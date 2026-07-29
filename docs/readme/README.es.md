@@ -269,16 +269,20 @@ dónde está la máquina.
 
 ### Apps
 
-Una cuadrícula con los programas que abres todo el día, a un clic y sin pasar por
-la carpeta de aplicaciones. Pulsa + y elígelos, o arrástralos desde el Finder;
-caben ocho por fila, hasta ocho filas.
+Una cuadrícula con los programas que abres todo el día, a un clic y sin pasar
+por la carpeta de aplicaciones. Pulsa + y elígelos, o arrástralos desde el
+Finder; caben ocho por fila, hasta ocho filas.
 
-Arrastra un icono para moverlo: una línea amarilla muestra entre qué dos iconos caerá y los
-demás se apartan, como en una pantalla de inicio. El botón de edición inicia el
-balanceo, cada icono recibe una ✕ y la cuadrícula puede tener su propio nombre;
-ahí mismo se apagan los nombres bajo los iconos, si reconoces tus apps de vista.
-Puedes tener tantas cuadrículas como quieras — el trabajo en un espacio, lo demás
-en otro — cada una con sus apps.
+Arrastra un icono para moverlo: una línea amarilla muestra entre qué dos iconos
+caerá y los demás se apartan, como en una pantalla de inicio. El botón de
+edición inicia el balanceo, cada icono recibe una ✕ y la cuadrícula puede tener
+su propio nombre; ahí mismo se apagan los nombres bajo los iconos, si reconoces
+tus apps de vista. Puedes tener tantas cuadrículas como quieras — el trabajo en
+un espacio, lo demás en otro — cada una con sus apps.
+
+Las cuadrículas se crean y se borran donde ordenas los módulos: en ajustes o en
+la propia tabla de módulos, donde la ✕ del chip de una cuadrícula la elimina
+para siempre. Una cuadrícula nueva empieza vacía y lo dice hasta que la llenas.
 
 ## 22 idiomas
 

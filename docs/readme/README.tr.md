@@ -266,12 +266,16 @@ Gün boyu açtığınız programlar bir ızgarada, Uygulamalar klasörüne uğra
 tıkla. + düğmesine basıp seçin ya da Finder'dan sürükleyin; bir satıra sekiz
 sığar, en çok sekiz satır.
 
-Bir simgeyi sürükleyerek yerini değiştirin: sarı çizgi hangi iki simgenin arasına ineceğini gösterir,
-diğerleri ana ekrandaki gibi yer açar. Düzenleme düğmesi sallanmayı başlatır, her
-simgede bir ✕ belirir ve ızgaraya kendi adı verilebilir; uygulamalarınızı zaten
-tanıyorsanız simgelerin altındaki adlar da orada kapatılır. İstediğiniz kadar
-ızgara tutabilirsiniz — iş bir alanda, gerisi başka bir alanda — her birinin
-kendi uygulamaları olur.
+Bir simgeyi sürükleyerek yerini değiştirin: sarı çizgi hangi iki simgenin
+arasına ineceğini gösterir, diğerleri ana ekrandaki gibi yer açar. Düzenleme
+düğmesi sallanmayı başlatır, her simgede bir ✕ belirir ve ızgaraya kendi adı
+verilebilir; uygulamalarınızı zaten tanıyorsanız simgelerin altındaki adlar da
+orada kapatılır. İstediğiniz kadar ızgara tutabilirsiniz — iş bir alanda, gerisi
+başka bir alanda — her birinin kendi uygulamaları olur.
+
+Izgaralar modülleri düzenlediğiniz yerde doğar ve silinir: ayarlarda ya da modül
+tablosunun kendisinde, oradaki etiketin ✕ işareti bir ızgarayı temelli siler.
+Yeni bir ızgara boş başlar ve siz doldurana kadar bunu söyler.
 
 ## 22 dil
 

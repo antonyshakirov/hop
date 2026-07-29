@@ -270,15 +270,20 @@ dove sta la macchina.
 ### App
 
 Una griglia con i programmi che apri tutto il giorno, a un clic e senza passare
-dalla cartella Applicazioni. Premi + e scegli, oppure trascinali dal Finder: otto
-per riga, fino a otto righe.
+dalla cartella Applicazioni. Premi + e scegli, oppure trascinali dal Finder:
+otto per riga, fino a otto righe.
 
-Trascina un'icona per spostarla: una linea gialla mostra tra quali due icone finirà e le altre
-si spostano, come in una schermata home. Il pulsante di modifica avvia
-l'oscillazione, ogni icona riceve una ✕ e la griglia può avere un nome proprio;
-lì si spengono anche i nomi sotto le icone, se riconosci le tue app a colpo
-d'occhio. Puoi tenere quante griglie vuoi — il lavoro su uno spazio, il resto su
-un altro — ognuna con le sue app.
+Trascina un'icona per spostarla: una linea gialla mostra tra quali due icone
+finirà e le altre si spostano, come in una schermata home. Il pulsante di
+modifica avvia l'oscillazione, ogni icona riceve una ✕ e la griglia può avere un
+nome proprio; lì si spengono anche i nomi sotto le icone, se riconosci le tue
+app a colpo d'occhio. Puoi tenere quante griglie vuoi — il lavoro su uno spazio,
+il resto su un altro — ognuna con le sue app.
+
+Le griglie si creano e si eliminano dove sistemi i moduli: nelle impostazioni o
+nella tabella dei moduli stessa, dove la ✕ sulla targhetta di una griglia la
+cancella per sempre. Una griglia nuova parte vuota e lo dice finché non la
+riempi.
 
 ## 22 lingue
 

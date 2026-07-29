@@ -267,12 +267,16 @@ A grid of the programs you open all day, one click away without a trip to the
 Applications folder. Press + and pick them, or drag them in from Finder; eight
 fit across a row, up to eight rows.
 
-Drag an icon to move it — a yellow line shows which two icons it will land between and the rest
-shuffle around it, like a home screen. The edit button starts the wobble, where
-each icon gets a ✕ and the grid can be given a name of its own; the names under
-the icons can be switched off there too, if you know your apps by sight. Keep as
-many grids as you like — work on one space, everything else on another — each
-with its own apps.
+Drag an icon to move it — a yellow line shows which two icons it will land
+between and the rest shuffle around it, like a home screen. The edit button
+starts the wobble, where each icon gets a ✕ and the grid can be given a name of
+its own; the names under the icons can be switched off there too, if you know
+your apps by sight. Keep as many grids as you like — work on one space,
+everything else on another — each with its own apps.
+
+Grids are made and unmade where you arrange the modules — settings, or the
+module table itself, where the ✕ on a grid's chip deletes it for good. A new
+grid starts empty and says so until you fill it.
 
 ## 22 languages
 

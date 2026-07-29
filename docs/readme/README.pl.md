@@ -267,12 +267,16 @@ Siatka programów, które otwierasz przez cały dzień — jednym kliknięciem, 
 wyprawy do folderu z aplikacjami. Naciśnij + i wybierz je albo przeciągnij z
 Findera; w rzędzie mieści się osiem, rzędów może być do ośmiu.
 
-Przeciągnij ikonę, żeby ją przestawić: żółta linia pokazuje, między którymi ikonami wyląduje, a
-reszta rozsuwa się jak na ekranie głównym. Przycisk edycji włącza kołysanie,
-każda ikona dostaje ✕, a siatce można nadać własną nazwę; tam też wyłącza się
-podpisy pod ikonami, jeśli rozpoznajesz aplikacje z wyglądu. Siatek możesz mieć
-dowolnie wiele — praca na jednej przestrzeni, reszta na drugiej — każda ma swoje
-aplikacje.
+Przeciągnij ikonę, żeby ją przestawić: żółta linia pokazuje, między którymi
+ikonami wyląduje, a reszta rozsuwa się jak na ekranie głównym. Przycisk edycji
+włącza kołysanie, każda ikona dostaje ✕, a siatce można nadać własną nazwę; tam
+też wyłącza się podpisy pod ikonami, jeśli rozpoznajesz aplikacje z wyglądu.
+Siatek możesz mieć dowolnie wiele — praca na jednej przestrzeni, reszta na
+drugiej — każda ma swoje aplikacje.
+
+Siatki powstają i znikają tam, gdzie układasz moduły: w ustawieniach albo w
+samej tabeli modułów, gdzie ✕ na chipie siatki usuwa ją na dobre. Nowa siatka
+zaczyna pusta i tak o sobie pisze, dopóki jej nie wypełnisz.
 
 ## 22 języki
 

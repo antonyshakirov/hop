@@ -257,16 +257,20 @@ chủ: sổ đăng ký địa chỉ cho biết dải số đăng ký ở đâu, 
 
 ### Ứng dụng
 
-Một lưới các chương trình bạn mở suốt ngày, chỉ một cú nhấp mà không phải vào thư
-mục Applications. Bấm + rồi chọn, hoặc kéo từ Finder vào; mỗi hàng tám cái, tối
-đa tám hàng.
+Một lưới các chương trình bạn mở suốt ngày, chỉ một cú nhấp mà không phải vào
+thư mục Applications. Bấm + rồi chọn, hoặc kéo từ Finder vào; mỗi hàng tám cái,
+tối đa tám hàng.
 
-Kéo một biểu tượng để đổi chỗ: vạch vàng cho biết nó sẽ nằm giữa hai biểu tượng nào và các biểu tượng
-khác tự nhường chỗ như trên màn hình chính. Nút sửa bật chế độ đung đưa, mỗi biểu
-tượng có dấu ✕ và lưới có thể đặt tên riêng; ở đó cũng tắt được tên dưới biểu
-tượng, nếu bạn nhận ra ứng dụng chỉ bằng hình. Bạn muốn bao nhiêu lưới cũng được
-— công việc ở một không gian, phần còn lại ở không gian khác — mỗi lưới có ứng
-dụng riêng.
+Kéo một biểu tượng để đổi chỗ: vạch vàng cho biết nó sẽ nằm giữa hai biểu tượng
+nào và các biểu tượng khác tự nhường chỗ như trên màn hình chính. Nút sửa bật
+chế độ đung đưa, mỗi biểu tượng có dấu ✕ và lưới có thể đặt tên riêng; ở đó cũng
+tắt được tên dưới biểu tượng, nếu bạn nhận ra ứng dụng chỉ bằng hình. Bạn muốn
+bao nhiêu lưới cũng được — công việc ở một không gian, phần còn lại ở không gian
+khác — mỗi lưới có ứng dụng riêng.
+
+Lưới được tạo và xoá ngay nơi bạn sắp xếp các mô-đun: trong cài đặt, hoặc trong
+chính bảng mô-đun, nơi dấu ✕ trên thẻ của một lưới xoá hẳn nó. Lưới mới bắt đầu
+trống và nói rõ như vậy cho tới khi bạn lấp đầy.
 
 ## 22 ngôn ngữ
 

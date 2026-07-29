@@ -506,7 +506,7 @@ enum Snapshot {
         } else if args.contains("--onboarding") {
             // First-launch form (module choices incl. torrents) for design review.
             content = AnyView(
-                OnboardingView(updater: model.updater, finish: {})
+                OnboardingView(updater: model.updater, shelves: model.appShelves, finish: {})
                     .padding(20)
                     .frame(width: 380)
                     .background(Theme.panelBackground)

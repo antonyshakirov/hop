@@ -1036,8 +1036,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   again if it moved house, and the shelf quietly rewrites the path.
 - **A new grid is empty and says so** — "no apps yet, press + or drag one from
   finder" — rather than showing an unexplained blank strip.
-- Opt-in: a fresh install has no grid at all, since an empty launcher says
-  nothing. Grids are made in two places, both of which the user reaches while
+- Opt-in: a fresh install has no grid unless onboarding was asked for one, since
+  an empty launcher says nothing. Grids are made in two places, both of which the user reaches while
   arranging modules: the apps section of settings, and under the module/space
   table itself, where the chips are dragged. A grid chip drags between spaces and
   into the inactive column like any other module. It is also the ONLY chip with a
@@ -1753,6 +1753,17 @@ converter (Anton, 2026-07-28).
   onboarding toggle, so it is never truly empty); the fresh install therefore
   never opens onto a blank tab. Opening a `.torrent` file or magnet link
   reactivates the torrent module the same way.
+- Onboarding's module choices: five full-width rows (launch at login, timer,
+  awake, clipboard, converter), then a 3-column grid of the rest, then torrents
+  with their engine-size note. The grid's names wrap to TWO lines and its cells
+  are TOP-aligned: at one line "text recognition" and "keyboard lock" were cut
+  off in half the languages, and a centred two-line cell lifted its switch above
+  its neighbours' (both fixed 2026-07-29). The cells are nouns, not "show X" —
+  that phrasing belongs to the full-width rows.
+- A grid of apps is one of those choices, off by default like the eyedropper,
+  recognition and VPN. It is the ONLY one that has nothing to switch on: the
+  module exists only once a grid does, so choosing it CREATES the first grid
+  (empty, saying so) and places its key.
 - Settings tab order: general → modules & tabs → timer → monitor →
   remaining modules. "Remaining modules" = awake/clipboard/tracker/to-dos/converter
   as sections with headers (torrent sits at the end of the same tab). The tracker
