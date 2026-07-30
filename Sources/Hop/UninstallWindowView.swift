@@ -157,7 +157,15 @@ struct UninstallWindowView: View {
                                         .font(Theme.mono(9.5))
                                         .foregroundStyle(Theme.textSecondary)
                                         .monospacedDigit()
-                                    Text("(\(Self.sizeText(app.appBytes)) + \(Self.sizeText(app.traceBytes)))")
+                                    // NAMED parts. The second number is not the
+                                    // cache: it is everything the app left in a
+                                    // couple of dozen places — support, its
+                                    // container, preferences, logs, and the
+                                    // cache among them — and calling that
+                                    // "cache" would make removing it sound
+                                    // harmless (Anton asked for the words,
+                                    // 2026-07-30).
+                                    Text("(\(Self.sizeText(app.appBytes)) \(t(.uninstallPartApp)) + \(Self.sizeText(app.traceBytes)) \(t(.uninstallPartData)))")
                                         .font(Theme.mono(8))
                                         .foregroundStyle(Theme.textTertiary)
                                         .monospacedDigit()

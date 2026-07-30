@@ -2227,8 +2227,11 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   ~/Applications, so removing one is a click, not only a drag. The whole screen
   is ONE scroll — the plate scrolls up with the list rather than sitting above a
   list that scrolls inside it — and the window opens tall for it.
-  - **Every app carries its size**, as a total with its parts beside it:
-    `1.4 GB (1.2 GB + 200 MB)` — the bundle plus everything of its elsewhere,
+  - **Every app carries its size**, as a total with its NAMED parts beside it:
+    `1.4 GB (1.2 GB app + 200 MB data)` — the bundle plus everything of its
+    elsewhere. The second word is "data", never "cache": it counts application
+    support, the container, preferences, logs and the cache together, and calling
+    that lot a cache would make removing it sound harmless (Anton, 2026-07-30),
     because "how much do I get back" and "how much of that is the app" are two
     questions (Anton, 2026-07-30). Weighed AFTER the list is on screen, one app
     at a time, off the main thread: adding up /Applications on a Mac with a
@@ -2288,9 +2291,10 @@ nothing about what would be cleaned, and the caches are why anybody opens it
 - The shared controls take it as a parameter rather than leaving it to each call
   site: `HoverIconButton`, `HoverDeleteX` and `NumericField` all accept `help`,
   and `switchSetting` attaches the row's own label.
-- **They appear after ~0.35s**, not the system's lazy couple of seconds:
-  `NSInitialToolTipDelay` is registered at launch. A name that arrives after the
-  pointer has moved on is a name nobody reads.
+- **They appear after one second** (`NSInitialToolTipDelay`, registered at
+  launch). The system's own couple of seconds arrives after the pointer has moved
+  on; a third of a second fires while the pointer is only passing through, which
+  reads as twitchy — Anton tried both (2026-07-30).
 
 ### Uninstaller: the other two modes
 

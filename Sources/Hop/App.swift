@@ -196,10 +196,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // found Hop in its own cache list, 2026-07-30). Zero on both ends: a
         // one-shot download has nothing to gain from being cached, and a speed
         // test served from a cache would measure the wrong thing.
-        // Tooltips after ~0.35s rather than the system's lazy couple of seconds:
-        // a panel of icon-only controls is only readable if the name arrives
-        // while the pointer is still on the icon (Anton, 2026-07-30).
-        UserDefaults.standard.register(defaults: ["NSInitialToolTipDelay": 350])
+        // Tooltips after a second: the system's lazy couple of seconds arrives
+        // after the pointer has moved on, and a third of a second fires while
+        // the pointer is only passing through, which reads as twitchy (Anton
+        // tried both, 2026-07-30).
+        UserDefaults.standard.register(defaults: ["NSInitialToolTipDelay": 1000])
 
         URLCache.shared = URLCache(memoryCapacity: 0, diskCapacity: 0, diskPath: nil)
         Self.dropOwnHTTPCache()
