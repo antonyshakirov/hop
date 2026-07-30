@@ -134,6 +134,10 @@ for lang in "${LANGS[@]}"; do
         --convert-files "$SAMPLES/photo-4231.jpg,$SAMPLES/screenshot.png,$SAMPLES/brand-deck.pdf"
     shot "$lang" archives --window-archive --demo
     shot "$lang" recognition --window-ocr --demo
+    # the uninstaller's two jobs, with staged content: the real lists are this
+    # Mac's own apps and this Mac's own disk
+    shot "$lang" uninstall --window-uninstall
+    shot "$lang" clean --window-clean
     shot "$lang" settings --window-settings
 done
 

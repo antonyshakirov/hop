@@ -45,7 +45,11 @@ enum Sounds {
     static func scrubTick() {
         guard enabled else { return }
         let now = Date()
-        guard now.timeIntervalSince(lastTick) > 0.03 else { return }
+        // Ten a second at most. The gate was 0.03 — thirty ticks a second — and a
+        // fast drag turned the ratchet into a high whine (Anton, 2026-07-30). At
+        // 0.1 the ticks stay separate however fast the digits move, and a slow
+        // drag sounds exactly as it did.
+        guard now.timeIntervalSince(lastTick) > 0.1 else { return }
         lastTick = now
         guard let sound = tickBase?.copy() as? NSSound else { return }
         sound.volume = 0.5

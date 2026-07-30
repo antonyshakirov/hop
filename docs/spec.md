@@ -297,7 +297,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Time input: scrubbing on the display and per-digit-group entry. Scrubbing
   works in ALL display styles (dots/text/units) identically: the digit-group
   zone is computed from the display's actual width, with the same ratchet
-  tick sound; in the "units" style without hours the display splits in half
+  tick sound — TEN a second at most, because at thirty a fast drag turned the
+  ratchet into a high whine (Anton, 2026-07-30); in the "units" style without hours the display splits in half
   (minutes/seconds). **The minimum is zero**: 0:00:01 is valid; "−5" and
   scrubbing clamp to zero; pressing play with an all-zero value is an
   instant finish. TimerEngine.minimumDuration = 0. Scrubbing is disabled
