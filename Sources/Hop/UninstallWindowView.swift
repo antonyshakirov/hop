@@ -19,23 +19,30 @@ struct UninstallWindowView: View {
 
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
+    /// The window's inset. Applied to each part rather than to the window, so a
+    /// scrolling list can carry it INSIDE itself: with the inset on the outside,
+    /// the scroll bar sits at the edge of the CONTENT and draws over the rows
+    /// (Anton, 2026-07-30). Inside, the rows stop short of the bar and the bar
+    /// runs down the edge of the window, where it belongs.
+    private static let inset: CGFloat = 18
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            header
+            header.padding(.horizontal, Self.inset)
             if let report = uninstall.report {
-                self.report(report)
+                self.report(report).padding(.horizontal, Self.inset)
             } else if uninstall.mode == .clean {
                 cleanBody
             } else if uninstall.target == nil {
                 uninstallPicker
             } else {
-                appHeader
+                appHeader.padding(.horizontal, Self.inset)
                 traceList
-                mixedNote
-                footer
+                mixedNote.padding(.horizontal, Self.inset)
+                footer.padding(.horizontal, Self.inset)
             }
         }
-        .padding(18)
+        .padding(.vertical, Self.inset)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         // The window follows its content: with only the drop plate on screen a
         // fixed height left a dark void under it, the same gap the converter and
@@ -103,10 +110,11 @@ struct UninstallWindowView: View {
     /// a click and not only a drag (Anton, 2026-07-30).
     private var uninstallPicker: some View {
         VStack(alignment: .leading, spacing: 10) {
-            dropPlate
+            dropPlate.padding(.horizontal, Self.inset)
             Text(t(.uninstallPickApp))
                 .font(Theme.mono(9))
                 .foregroundStyle(Theme.textTertiary)
+                .padding(.horizontal, Self.inset)
             SnapshotAwareScroll {
                 VStack(spacing: 3) {
                     ForEach(uninstall.installedApps) { app in
@@ -135,6 +143,7 @@ struct UninstallWindowView: View {
                         .hoverHighlight(6)
                     }
                 }
+                .padding(.horizontal, Self.inset)
             }
             .frame(maxHeight: Snapshot.active ? nil : 260)
         }
@@ -183,6 +192,7 @@ struct UninstallWindowView: View {
                 heavySection
                 trashSection
             }
+            .padding(.horizontal, Self.inset)
             .padding(.bottom, 4)
         }
     }
@@ -384,8 +394,8 @@ struct UninstallWindowView: View {
                     .foregroundStyle(Theme.textTertiary)
                     .padding(.vertical, 10)
             } else {
-                SnapshotAwareScroll {
-                    VStack(spacing: 4) {
+                VStack(spacing: 4) {
+                    Group {
                         ForEach(Array(uninstall.installers.enumerated()), id: \.element.id) {
                             index, file in
                             HStack(spacing: 8) {
@@ -422,7 +432,6 @@ struct UninstallWindowView: View {
                         }
                     }
                 }
-                .frame(maxHeight: Snapshot.active ? nil : 300)
                 HStack {
                     Spacer()
                     Button { uninstall.removeTickedInstallers() } label: {
@@ -519,6 +528,7 @@ struct UninstallWindowView: View {
                         .padding(.vertical, 12)
                 }
             }
+            .padding(.horizontal, Self.inset)
         }
         .frame(maxHeight: Snapshot.active ? nil : 320)
     }
