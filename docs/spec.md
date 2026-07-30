@@ -1103,6 +1103,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   unexplained "Aa" (Anton, 2026-07-29 and 2026-07-30). A settings row has space
   for the whole label — "names under the icons". Both
   fields decode leniently, so a file written before they existed still loads.
+  Those rows live in `AppShelvesSettingsView`, which OBSERVES the shelves
+  controller: reading `model.appShelves` from the settings screen renders the
+  switch but never redraws it, so it looked dead however often it was clicked
+  (Anton, 2026-07-30). A nested `ObservableObject` publishes nothing to the
+  parent's view — it has to be observed where it is read.
 - **Two visible affordances in the header**: `+` picks apps from disk
   (`NSOpenPanel`, restricted to `.application`, starting in Applications), and
   the second button opens edit mode. The first build had adding behind a Finder

@@ -3778,44 +3778,8 @@ struct PanelView: View {
                 settingsSectionHeader(t(.appsLabel))
                 // The grids that exist, so several of them can be told apart and
                 // deleted from one place. A grid is named in the module itself.
-                ForEach(model.appShelves.shelves.shelves) { shelf in
-                    VStack(spacing: 8) {
-                        HStack {
-                            Text(shelf.title.trimmingCharacters(in: .whitespaces).isEmpty
-                                 ? t(.appsLabel) : shelf.title)
-                                .font(Theme.mono(12))
-                                .foregroundStyle(Theme.textPrimary)
-                                .lineLimit(1)
-                            Text("\(shelf.items.count)")
-                                .font(Theme.mono(11))
-                                .foregroundStyle(Theme.textTertiary)
-                            Spacer()
-                            Button { removeShelf(shelf.id) } label: {
-                                Image(systemName: "xmark")
-                                    .font(.system(size: 10, weight: .semibold))
-                                    .foregroundStyle(Theme.textSecondary)
-                                    .frame(width: 24, height: 24)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .hoverDim()
-                            .help(t(.appsRemoveShelf))
-                        }
-                        // Lives here, not in the module's header: as a glyph it
-                        // was an unexplained "Aa" and as a word it read as a
-                        // second name field (Anton, 2026-07-29 and 07-30). A
-                        // settings row has room for the whole sentence.
-                        HStack {
-                            Text(t(.appsShowNames))
-                                .font(Theme.mono(11))
-                                .foregroundStyle(Theme.textSecondary)
-                            Spacer()
-                            Theme.MiniSwitch(isOn: Binding(
-                                get: { shelf.showsLabels },
-                                set: { model.appShelves.setShowsLabels($0, for: shelf.id) }))
-                        }
-                        .padding(.leading, 10)
-                    }
+                AppShelvesSettingsView(shelves: model.appShelves, lang: lang) {
+                    removeShelf($0)
                 }
                 HStack {
                     Text(t(.appsAddShelf))
