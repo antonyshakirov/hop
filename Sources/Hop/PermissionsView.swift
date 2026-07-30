@@ -135,6 +135,7 @@ struct PermissionsView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(L10n.t(.ocrOpenSettings, lang))
                 }
             }
         }

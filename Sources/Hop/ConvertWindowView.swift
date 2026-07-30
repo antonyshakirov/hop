@@ -101,6 +101,7 @@ struct ConvertWindowView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.convClearDone))
         .hoverHighlight(5)
     }
 
@@ -313,6 +314,7 @@ struct ConvertWindowView: View {
                             .contentShape(Capsule())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.convConvert))
                     .hoverDim()
                     .disabled(model.converter.busy)
                     .opacity(model.converter.busy ? 0.4 : 1)
@@ -473,6 +475,7 @@ struct ConvertWindowView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.convClear))
             .hoverHighlight(5)
             Spacer()
             if let result = model.converter.lastResult {

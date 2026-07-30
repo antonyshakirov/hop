@@ -307,6 +307,7 @@ struct TaskCardView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.todoRepeatLabel))
         .hoverDim()
     }
 

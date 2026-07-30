@@ -35,6 +35,7 @@ struct KeyboardLockView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(L10n.t(.ocrOpenSettings, lang))
             } else if lock.isLocked {
                 if let remaining = lock.remaining {
                     Text(timeText(remaining))

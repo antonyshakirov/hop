@@ -107,6 +107,7 @@ struct ClipboardView: View {
                     }
                     .buttonStyle(.plain)
                     .hoverHighlight(4)
+                    .help(L10n.t(.tipClipClear, lang))
                 }
             }
             if expanded {

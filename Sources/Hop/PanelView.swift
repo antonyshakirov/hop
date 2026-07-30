@@ -542,6 +542,7 @@ struct PanelView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.featureHide))
             Button {
                 saveModuleChoices(ann)
             } label: {
@@ -554,6 +555,7 @@ struct PanelView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.featureSave))
             .hoverDim()
         }
         .padding(.top, 12)
@@ -631,6 +633,7 @@ struct PanelView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.featureHide))
             Button {
                 // Opting in = activate the modules (lift them out of inactive) and,
                 // via placeModule, fetch the torrent engine NOW so the first real
@@ -657,6 +660,7 @@ struct PanelView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.featureEnable))
             .hoverDim()
         }
         .padding(.top, 12)
@@ -703,6 +707,7 @@ struct PanelView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.featureSave))
             .hoverDim()
         }
         .padding(.top, 12)
@@ -773,6 +778,7 @@ struct PanelView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.trackerOverrunDismiss))
                 .hoverDim()
             }
             .padding(12)
@@ -1230,6 +1236,7 @@ struct PanelView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.back))
         .hoverDim()
         Spacer()
         Text(title)
@@ -1751,11 +1758,13 @@ struct PanelView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.trackerDelete))
                     Button { confirmDeleteTab = nil } label: {
                         HoverLabel(text: t(.quitCancel), size: 11, color: Theme.textTertiary)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.quitCancel))
                     .keyboardShortcut(.cancelAction) // Escape cancels
                 }
             }
@@ -1792,11 +1801,13 @@ struct PanelView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.trackerDelete))
                     Button { confirmDeleteShelf = nil } label: {
                         HoverLabel(text: t(.quitCancel), size: 11, color: Theme.textTertiary)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.quitCancel))
                     .keyboardShortcut(.cancelAction)
                 }
             }
@@ -2318,6 +2329,7 @@ struct PanelView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.convertLabel))
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
         .overlay(
             RoundedRectangle(cornerRadius: 7)
@@ -2963,6 +2975,7 @@ struct PanelView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.speedtestRun))
                 }
             }
             .frame(height: 24) // row height does not shift between states
@@ -3156,6 +3169,7 @@ struct PanelView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.convDestLabel))
                 .hoverHighlight(5)
             }
         }
@@ -3811,6 +3825,7 @@ struct PanelView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.appsAddShelf))
                     .hoverDim()
                 }
             }
@@ -3912,6 +3927,7 @@ struct PanelView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.torrentFolderLabel))
                 .hoverHighlight(5)
             }
 
@@ -4268,6 +4284,7 @@ struct PanelView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.hotkeysLabel))
                 .hoverHighlight(5)
             }
             if hotkeys.conflicts.contains(action) {
@@ -4344,6 +4361,7 @@ struct PanelView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.presetsLabel))
                 .hoverHighlight(4)
                 Spacer()
             }
@@ -4412,6 +4430,7 @@ struct PanelView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.restLabel))
                 .hoverHighlight(4)
             }
             LazyVGrid(
@@ -4503,6 +4522,7 @@ struct PanelView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.checkUpdates))
                 .hoverHighlight(5)
                 Text("\(t(.versionLabel)) \(model.updater.currentVersion)")
                     .font(Theme.mono(10))
@@ -4647,6 +4667,7 @@ struct PanelView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.resetThresholds))
                 .hoverHighlight(5)
             }
         }
@@ -4993,6 +5014,7 @@ struct PanelView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.donateBody))
                 .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 8))
                 .hoverHighlight(8)
                 .padding(.top, 4)

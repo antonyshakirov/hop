@@ -32,6 +32,7 @@ struct QuitConfirmView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.quitCancel))
                 .hoverDim()
                 Button(action: onQuit) {
                     Text(t(.quitConfirm))
@@ -43,6 +44,7 @@ struct QuitConfirmView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.quitConfirm))
                 .hoverDim()
             }
             .padding(.top, 2)

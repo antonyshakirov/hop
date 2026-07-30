@@ -265,6 +265,7 @@ struct TorrentAddSheet: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.quitCancel))
             .hoverDim()
             // Offer Download only once there is a file list to act on. While
             // fetching or after a read failure there is nothing to download, so
@@ -285,6 +286,7 @@ struct TorrentAddSheet: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.torrentDownload))
                 .hoverDim()
                 .disabled(!canDownload)
             }

@@ -200,6 +200,7 @@ struct TodosView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.todosLabel))
             .hoverDim()
             Text(item.text)
                 .font(Theme.mono(12))

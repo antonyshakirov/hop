@@ -93,6 +93,9 @@ struct VPNView: View {
                 set: { _ in vpn.toggle(configuration) }
             ), tint: Theme.accentGreen)
             .opacity(busy ? 0.5 : 1)
+            // Names the tunnel it flips: a row of identical switches says which
+            // is which only on hover (Anton, 2026-07-30).
+            .help("\(t(configuration.state.isOn ? .vpnSwitchOff : .vpnSwitchOn)) — \(configuration.title)")
         }
         .padding(.vertical, 2)
     }

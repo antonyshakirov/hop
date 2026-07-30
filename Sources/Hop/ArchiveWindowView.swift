@@ -79,6 +79,7 @@ struct ArchiveWindowView: View {
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .help(t(.convClear))
                     }
                 }
             }
@@ -170,6 +171,7 @@ struct ArchiveWindowView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.convDestLabel))
             .hoverHighlight(5)
         }
     }
@@ -185,6 +187,7 @@ struct ArchiveWindowView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.archiveQueueClear))
             Spacer(minLength: 0)
             Button {
                 model.archive.start()

@@ -255,6 +255,7 @@ struct UninstallWindowView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.uninstallScanning))
                     .hoverDim()
                     VStack(alignment: .leading, spacing: 1) {
                         Text(owner.name)
@@ -296,6 +297,7 @@ struct UninstallWindowView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.uninstallOrphanCache))
                 .hoverDim()
                 .disabled(!owners.contains(where: \.ticked))
             }
@@ -321,6 +323,7 @@ struct UninstallWindowView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.uninstallSelectAll))
         .hoverDim()
         .disabled(!enabled)
         .opacity(enabled ? 1 : 0.4)
@@ -378,6 +381,7 @@ struct UninstallWindowView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.uninstallEmptyTrash))
                 .disabled(uninstall.trashItems == 0)
             }
             .padding(.horizontal, 8)
@@ -439,6 +443,7 @@ struct UninstallWindowView: View {
                                         .contentShape(Rectangle())
                                 }
                                 .buttonStyle(.plain)
+                                .help(t(.uninstallNoInstallers))
                                 .hoverDim()
                                 VStack(alignment: .leading, spacing: 1) {
                                     Text(file.found.name)
@@ -481,6 +486,7 @@ struct UninstallWindowView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.uninstallRemoveInstallers))
                     .hoverDim()
                     .disabled(!uninstall.installers.contains(where: \.ticked))
                 }
@@ -582,6 +588,7 @@ struct UninstallWindowView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.uninstallNothingFound))
             .hoverDim()
             VStack(alignment: .leading, spacing: 1) {
                 Text(trace.name)
@@ -655,6 +662,7 @@ struct UninstallWindowView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.uninstallTrashNote))
                 .hoverDim()
                 .disabled(uninstall.state == .working || uninstall.totalBytes == 0
                           && !uninstall.traces.contains(where: \.ticked))
@@ -708,6 +716,7 @@ struct UninstallWindowView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.uninstallOpenFullDisk))
                 }
             }
             // The honest half: what no uninstaller can take away.

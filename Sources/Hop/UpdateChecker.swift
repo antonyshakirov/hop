@@ -231,7 +231,7 @@ final class UpdateChecker: ObservableObject {
               // update the size it always was instead of shipping both halves to
               // everybody. A manifest without the Intel keys still works — the
               // fallback is the plain `zip`, which is what every release before
-              // 1.6.1 published and what an older client will always read.
+              // 1.7.0 published and what an older client will always read.
               let zipURL = (json[Self.archKey("zip")] as? String
                             ?? json["zip"] as? String).flatMap(URL.init),
               // the signature is mandatory: a release without .sig is never installed

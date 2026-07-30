@@ -70,6 +70,7 @@ struct ScreenTextWindowView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.ocrWindowDrop))
                 .hoverDim()
                 .disabled(reader.isBusy)
                 Button {
@@ -175,6 +176,7 @@ struct ScreenTextWindowView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.ocrWindowInHistory))
                     .hoverDim()
                 }
                 Button {

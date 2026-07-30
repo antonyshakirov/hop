@@ -79,6 +79,7 @@ struct TorrentView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.torrentDefaultDo))
                 Button {
                     defaultHandlerPrompted = true
                 } label: {
@@ -86,6 +87,7 @@ struct TorrentView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.torrentDefaultLater))
             }
         }
         .padding(.horizontal, 10)
@@ -132,6 +134,7 @@ struct TorrentView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.torrentEnable))
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
         .hoverHighlight(7)
     }
@@ -259,6 +262,7 @@ struct TorrentView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.torrentLabel))
             .hoverHighlight(5)
         }
     }
@@ -375,11 +379,13 @@ struct TorrentView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.torrentAll))
                 Button { torrent.setAllFilesSelected(id: item.id, selected: false) } label: {
                     HoverLabel(text: t(.torrentNone), size: 9, color: Theme.textSecondary)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.torrentNone))
             }
             .padding(.horizontal, 4)
             .padding(.bottom, 1)
@@ -507,6 +513,7 @@ struct TorrentView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.torrentFilesRemoved))
             Button {
                 confirmingRemove = nil
                 torrent.remove(id: item.id, deleteFiles: true)
@@ -515,6 +522,7 @@ struct TorrentView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.torrentRemoveDelete))
             Spacer(minLength: 8)
             Button {
                 confirmingRemove = nil
@@ -523,6 +531,7 @@ struct TorrentView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(t(.quitCancel))
         }
     }
 

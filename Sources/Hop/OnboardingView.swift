@@ -174,6 +174,7 @@ struct OnboardingView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .help(t(.onboardStart))
                 .hoverDim()
             case .checking:
                 Text("…")
@@ -198,6 +199,7 @@ struct OnboardingView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.updateNow))
                     .hoverDim()
                     Button {
                         finish()
@@ -208,6 +210,7 @@ struct OnboardingView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .help(t(.updateLater))
                     .hoverDim()
                 }
             }

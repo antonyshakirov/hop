@@ -158,6 +158,7 @@ struct AppShelfView: View {
                 .help(t(.appsPerRow))
                 Button(t(.appsDone)) { stopEditing() }
                     .buttonStyle(.plain)
+                    .help(t(.appsEditingHint))
                     .font(Theme.mono(9, weight: .semibold))
                     .foregroundStyle(Theme.textSecondary)
                     .hoverDim()
@@ -211,6 +212,7 @@ struct AppShelfView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(t(.appsEmpty))
         .hoverDim()
         .disabled(!AppShelf.columnRange.contains(target))
         .opacity(AppShelf.columnRange.contains(target) ? 1 : 0.35)
