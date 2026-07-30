@@ -175,6 +175,13 @@ final class UninstallController: ObservableObject {
         rescanForMode()
     }
 
+    /// Back to choosing: the app that was picked is forgotten and the list is
+    /// there again, filled if it never was.
+    func back() {
+        reset()
+        if mode == .uninstall, installedApps.isEmpty { listInstalledApps() }
+    }
+
     func reset() {
         target = nil
         traces = []
@@ -217,6 +224,9 @@ final class UninstallController: ObservableObject {
     }
 
     private func rescanForMode() {
+        // A snapshot render stages its own lists; a rescan here would wipe them
+        // and walk somebody's real disk to draw a product picture.
+        guard !Snapshot.active else { return }
         report = nil
         switch mode {
         case .clean:
@@ -566,6 +576,75 @@ final class UninstallController: ObservableObject {
     /// The apps on this Mac, so removing one is a click rather than a drag. Sizes
     /// are deliberately NOT computed here: walking /Applications takes seconds on a
     /// machine with a design suite installed, and the list is for choosing.
+    /// Content for the product screenshots. A picture of an empty window says
+    /// nothing about a module whose whole point is what it FINDS, and the real
+    /// lists are this Mac's own — somebody's apps, somebody's disk. Only ever
+    /// called from a snapshot render.
+    func stageDemo(_ job: Mode) {
+        mode = job
+        report = nil
+        scanning = false
+        let generic = NSWorkspace.shared.icon(for: .application)
+        switch job {
+        case .uninstall:
+            target = Target(path: "/Applications/Krita.app", name: "Krita",
+                            bundleIdentifier: "org.krita.krita", icon: generic)
+            let home = NSHomeDirectory()
+            let staged: [(String, AppUninstall.Kind, Int64)] = [
+                ("/Applications/Krita.app", .app, 612_000_000),
+                ("\(home)/Library/Application Support/org.krita.krita", .support, 148_000_000),
+                ("\(home)/Library/Caches/org.krita.krita", .caches, 96_000_000),
+                ("\(home)/Library/Preferences/org.krita.krita.plist", .preferences, 24_000),
+                ("\(home)/Library/Saved Application State/org.krita.krita.savedState", .savedState, 1_200_000),
+                ("\(home)/Library/HTTPStorages/org.krita.krita", .httpStorages, 640_000),
+                ("\(home)/Library/Logs/Krita", .logs, 4_800_000),
+                ("\(home)/Library/LaunchAgents/org.krita.krita.plist", .launchAgent, 2_100),
+            ]
+            traces = staged.map {
+                Trace(candidate: AppUninstall.Candidate(path: $0.0, kind: $0.1, match: .identifier),
+                      bytes: $0.2, ticked: true)
+            }
+            state = .found
+        case .clean:
+            target = nil
+            cacheOwners = [
+                owner("org.mozilla.firefox", "Firefox", 3_400_000_000),
+                owner("org.blenderfoundation.blender", "Blender", 1_240_000_000),
+                owner("org.videolan.vlc", "VLC", 642_000_000),
+                owner("org.inkscape.Inkscape", "Inkscape", 214_000_000),
+                owner("com.obsproject.obs-studio", "OBS Studio", 88_000_000),
+            ]
+            leftovers = [
+                CacheOwner(identifier: "org.gimp.gimp", name: "org.gimp.gimp", appPath: nil,
+                           paths: [], bytes: 96_000_000, ticked: false),
+                CacheOwner(identifier: "net.sourceforge.audacity", name: "net.sourceforge.audacity",
+                           appPath: nil, paths: [], bytes: 42_000_000, ticked: false),
+            ]
+            installers = [
+                InstallerFile(found: InstallerFiles.Found(
+                    path: "\(NSHomeDirectory())/Downloads/blender-4.2-macos.dmg",
+                    bytes: 384_000_000, modified: Date(timeIntervalSince1970: 1_780_000_000)),
+                              ticked: false),
+                InstallerFile(found: InstallerFiles.Found(
+                    path: "\(NSHomeDirectory())/Downloads/obs-studio.pkg",
+                    bytes: 212_000_000, modified: Date(timeIntervalSince1970: 1_776_000_000)),
+                              ticked: false),
+            ]
+            heavyData = [
+                CacheOwner(identifier: "heavy-1", name: "Telegram", appPath: "/Applications",
+                           paths: [], bytes: 23_100_000_000, ticked: false),
+            ]
+            trashBytes = 4_260_000_000
+            trashItems = 312
+            state = .found
+        }
+    }
+
+    private func owner(_ identifier: String, _ name: String, _ bytes: Int64) -> CacheOwner {
+        CacheOwner(identifier: identifier, name: name, appPath: "/Applications/\(name).app",
+                   paths: [], bytes: bytes, ticked: false)
+    }
+
     func listInstalledApps() {
         let manager = FileManager.default
         let folders = ["/Applications", "\(NSHomeDirectory())/Applications"]

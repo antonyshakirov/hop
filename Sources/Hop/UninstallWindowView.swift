@@ -66,17 +66,26 @@ struct UninstallWindowView: View {
 
     private var header: some View {
         HStack {
+            // A chosen app is a click away from being the WRONG app, so the way
+            // back has to be where a way back always is: an arrow at the left of
+            // the title. "another app" said the same thing in words and did not
+            // read as back (Anton, 2026-07-30).
+            if uninstall.target != nil || uninstall.report != nil {
+                Button { uninstall.back() } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(Theme.textSecondary)
+                        .frame(width: 22, height: 22)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(5)
+                .help(t(.uninstallBack))
+            }
             Text(t(uninstall.mode == .clean ? .uninstallModeClean : .uninstallLabel))
                 .font(Theme.mono(13, weight: .bold))
                 .foregroundStyle(Theme.textPrimary)
             Spacer()
-            if uninstall.target != nil || uninstall.report != nil {
-                Button(t(.uninstallAnother)) { uninstall.reset() }
-                    .buttonStyle(.plain)
-                    .font(Theme.mono(10))
-                    .foregroundStyle(Theme.textSecondary)
-                    .hoverDim()
-            }
             Button { uninstall.promptToChoose() } label: {
                 Image(systemName: "plus")
                     .font(.system(size: 11, weight: .semibold))
@@ -98,7 +107,7 @@ struct UninstallWindowView: View {
             Text(t(.uninstallPickApp))
                 .font(Theme.mono(9))
                 .foregroundStyle(Theme.textTertiary)
-            ScrollView(showsIndicators: true) {
+            SnapshotAwareScroll {
                 VStack(spacing: 3) {
                     ForEach(uninstall.installedApps) { app in
                         Button { uninstall.choose(path: app.path) } label: {
@@ -127,7 +136,7 @@ struct UninstallWindowView: View {
                     }
                 }
             }
-            .frame(maxHeight: 260)
+            .frame(maxHeight: Snapshot.active ? nil : 260)
         }
     }
 
@@ -135,7 +144,7 @@ struct UninstallWindowView: View {
     /// installers, leftovers of apps long gone, and the trash. One screen, because
     /// they are one intention and three of them do not deserve three windows.
     private var cleanBody: some View {
-        ScrollView(showsIndicators: true) {
+        SnapshotAwareScroll {
             VStack(alignment: .leading, spacing: 16) {
                 if uninstall.scanning {
                     HStack(spacing: 7) {
@@ -375,7 +384,7 @@ struct UninstallWindowView: View {
                     .foregroundStyle(Theme.textTertiary)
                     .padding(.vertical, 10)
             } else {
-                ScrollView(showsIndicators: true) {
+                SnapshotAwareScroll {
                     VStack(spacing: 4) {
                         ForEach(Array(uninstall.installers.enumerated()), id: \.element.id) {
                             index, file in
@@ -413,7 +422,7 @@ struct UninstallWindowView: View {
                         }
                     }
                 }
-                .frame(maxHeight: 300)
+                .frame(maxHeight: Snapshot.active ? nil : 300)
                 HStack {
                     Spacer()
                     Button { uninstall.removeTickedInstallers() } label: {
@@ -498,7 +507,7 @@ struct UninstallWindowView: View {
     // MARK: - What was found
 
     private var traceList: some View {
-        ScrollView(showsIndicators: true) {
+        SnapshotAwareScroll {
             VStack(spacing: 4) {
                 ForEach(Array(uninstall.traces.enumerated()), id: \.element.id) { index, trace in
                     row(trace, index: index)
@@ -511,7 +520,7 @@ struct UninstallWindowView: View {
                 }
             }
         }
-        .frame(maxHeight: 320)
+        .frame(maxHeight: Snapshot.active ? nil : 320)
     }
 
     private func row(_ trace: UninstallController.Trace, index: Int) -> some View {

@@ -2385,6 +2385,16 @@ its own database of known apps may do better on real software than it did here.
   quirk, not a bug. `--about --doc <id>` opens any help tab and
   `--settings --settings-section <id>` any settings tab, so a text change can
   be checked where it is actually read.
+- `--window-uninstall` / `--window-clean` render the uninstaller's two jobs with
+  STAGED content: the real lists are this Mac's own apps and this Mac's own disk,
+  and a product picture must not be somebody's home folder. A rescan is skipped
+  entirely under `Snapshot.active` — it would wipe the staged lists on its way to
+  walking that disk.
+- **Lists render in a snapshot through `SnapshotAwareScroll`.** ImageRenderer
+  hands a ScrollView an unbounded height, the ScrollView reports nothing back,
+  and the picture comes out as a title on black — which is exactly how the first
+  render of the clean-up window came out. In a snapshot the rows are laid out
+  directly and the caller gives the render its height.
 - `--only <module>` leaves ONE module's row on the panel and hides the rest;
   `--overview` does the opposite and shows every module at once, the opt-in
   ones included, with content staged in each (the colour picker draws its

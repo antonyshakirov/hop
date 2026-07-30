@@ -582,6 +582,19 @@ enum Snapshot {
             progress.receive(.failed(.tool), for: second)
             content = AnyView(
                 FinderArchiveProgressView(model: progress, lang: L10n.current))
+        } else if args.contains("--window-uninstall") || args.contains("--window-clean") {
+            // The uninstaller's two jobs. Staged rather than scanned: the real
+            // lists are this Mac's own apps and this Mac's own disk, and a
+            // product shot must not be somebody's home folder.
+            model.uninstall.stageDemo(args.contains("--window-clean") ? .clean : .uninstall)
+            content = AnyView(UninstallWindowView(uninstall: model.uninstall,
+                                                  lang: L10n.current)
+                .environmentObject(model)
+                // A ScrollView inside ImageRenderer needs a height to render at
+                // all — unbounded, it reports nothing and the picture comes out
+                // empty, the same trap the about window fell into.
+                .frame(width: args.contains("--window-clean") ? 620 : 560,
+                       height: args.contains("--window-clean") ? 900 : 620))
         } else if args.contains("--window-ocr") {
             content = AnyView(ScreenTextWindowView().environmentObject(model)
                 .frame(width: 560))
@@ -806,6 +819,27 @@ enum Snapshot {
             files: files)
         let selected = Set(files.filter { $0.selected }.map { $0.index })
         return (pending, selected)
+    }
+}
+
+/// A list that scrolls in the app and simply stands still in a snapshot.
+///
+/// ImageRenderer hands a ScrollView an unbounded height, the ScrollView reports
+/// nothing back, and the picture comes out empty — which is how a window full of
+/// rows rendered as a title on black. In a snapshot the rows are laid out
+/// directly instead, and the render is given a height by its caller.
+struct SnapshotAwareScroll<Content: View>: View {
+    var maxHeight: CGFloat?
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        if Snapshot.active {
+            VStack(alignment: .leading, spacing: 0) { content() }
+        } else if let maxHeight {
+            ScrollView(showsIndicators: true) { content() }.frame(maxHeight: maxHeight)
+        } else {
+            ScrollView(showsIndicators: true) { content() }
+        }
     }
 }
 
