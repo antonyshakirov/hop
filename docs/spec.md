@@ -2315,14 +2315,6 @@ nothing about what would be cleaned, and the caches are why anybody opens it
 - `--feature-banner-latest` renders whatever the newest card is, so it can be
   reviewed without knowing its id.
 
-### Settings: telling the sections apart
-
-Every block of module settings is headed by the module's name, and that name is
-LOUD: uppercase, wide tracking, secondary colour, with a rule running to the
-right edge and air above it. At 10pt tertiary the heading was quieter than the
-settings under it, so a screen of thirty switches read as one undifferentiated
-list (Anton, 2026-07-30).
-
 ### Tooltips
 
 - **Every control that does something says what it does, on hover.** Icon-only

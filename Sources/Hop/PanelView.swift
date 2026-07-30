@@ -4079,24 +4079,13 @@ struct PanelView: View {
         }
     }
 
-    /// The name of the module a block of settings belongs to. Loud on purpose:
-    /// at 10pt tertiary it was quieter than the settings under it, and a screen
-    /// of thirty switches read as one undifferentiated list (Anton, 2026-07-30).
-    /// Now it is bigger, brighter, spelled out in wide letters and given air of
-    /// its own above.
     private func settingsSectionHeader(_ title: String) -> some View {
-        HStack(spacing: 8) {
-            Text(title.uppercased())
-                .font(Theme.mono(10.5, weight: .bold))
-                .tracking(1.2)
-                .foregroundStyle(Theme.textSecondary)
-            // a short rule that runs to the edge: the eye finds the break before
-            // it reads the word
-            Rectangle()
-                .fill(Theme.divider)
-                .frame(height: 1)
+        HStack {
+            Text(title)
+                .font(Theme.mono(10, weight: .semibold))
+                .foregroundStyle(Theme.textTertiary)
+            Spacer()
         }
-        .padding(.top, 6)
     }
 
     private var awakeSettings: some View {
