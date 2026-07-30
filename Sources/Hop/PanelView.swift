@@ -2701,7 +2701,10 @@ struct PanelView: View {
     }
 
     /// The three window modules, in the order the row shows them.
-    private static let toolModules = ["convert", "archive", "uninstall"]
+    /// The uninstaller is NOT here. Its row is already two buttons — remove an
+    /// app, clear the cache — so folding it into a one-word row would either
+    /// lose one of them or put four things where three fit (Anton, 2026-07-30).
+    private static let toolModules = ["convert", "archive"]
     /// The synthetic key the collapsed row is rendered under. Never stored: it
     /// exists only for one draw, so the spaces model keeps holding the real three
     /// and switching the setting back changes nothing else.
@@ -2868,9 +2871,6 @@ struct PanelView: View {
                 switch tool {
                 case .convert: model.openConverterWindow?()
                 case .archive: model.openArchiveWindow?()
-                case .uninstall:
-                    model.uninstall.start(mode: .uninstall)
-                    model.openUninstallWindow?()
                 }
             }
             .id(model.themeVersion)
@@ -4079,13 +4079,24 @@ struct PanelView: View {
         }
     }
 
+    /// The name of the module a block of settings belongs to. Loud on purpose:
+    /// at 10pt tertiary it was quieter than the settings under it, and a screen
+    /// of thirty switches read as one undifferentiated list (Anton, 2026-07-30).
+    /// Now it is bigger, brighter, spelled out in wide letters and given air of
+    /// its own above.
     private func settingsSectionHeader(_ title: String) -> some View {
-        HStack {
-            Text(title)
-                .font(Theme.mono(10, weight: .semibold))
-                .foregroundStyle(Theme.textTertiary)
-            Spacer()
+        HStack(spacing: 8) {
+            Text(title.uppercased())
+                .font(Theme.mono(10.5, weight: .bold))
+                .tracking(1.2)
+                .foregroundStyle(Theme.textSecondary)
+            // a short rule that runs to the edge: the eye finds the break before
+            // it reads the word
+            Rectangle()
+                .fill(Theme.divider)
+                .frame(height: 1)
         }
+        .padding(.top, 6)
     }
 
     private var awakeSettings: some View {

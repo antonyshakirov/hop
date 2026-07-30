@@ -2315,6 +2315,14 @@ nothing about what would be cleaned, and the caches are why anybody opens it
 - `--feature-banner-latest` renders whatever the newest card is, so it can be
   reviewed without knowing its id.
 
+### Settings: telling the sections apart
+
+Every block of module settings is headed by the module's name, and that name is
+LOUD: uppercase, wide tracking, secondary colour, with a rule running to the
+right edge and air above it. At 10pt tertiary the heading was quieter than the
+settings under it, so a screen of thirty switches read as one undifferentiated
+list (Anton, 2026-07-30).
+
 ### Tooltips
 
 - **Every control that does something says what it does, on hover.** Icon-only
@@ -2396,22 +2404,23 @@ all eleven plug-in locations. Hop's scan finds 30 of the 30 seedable ones and mo
 deliberately: the fixture was never launched or registered, so a tool leaning on
 its own database of known apps may do better on real software than it did here.
 
-### The three tools in one row (setting)
+### The converter and the archives in one row (setting)
 
-- The converter, the archives and the uninstaller are the same shape of thing —
-  a row that opens a window and takes files — and three of them cost a crowded
-  space three lines. `toolsOneRow` (off by default) draws them as ONE row split in
-  equal parts.
-- Each part is an icon and a SINGLE word ("converter", "archives", "uninstall").
-  The full names do not fit three to a 340pt row in any language, least of all in
-  German (Anton, 2026-07-30); they stay in the tooltip, in settings and in the
-  help. A third of the row is 111pt and the widest German chip measures ~75pt.
-- The row is drawn where the FIRST of the three sits in that space's order, and
-  the other two drop out of the drawn list. Nothing is stored: the spaces model
-  keeps holding the real three module keys, so switching the setting back changes
-  nothing else, and a space with only one of them shows that one as a normal
-  module row.
-- The collapsed row has no "move to / hide" context menu: it stands for three
+- Both are the same shape of thing — a row that opens a window and takes files —
+  and on a crowded space they cost two lines for very little. `toolsOneRow` (off
+  by default) draws them as ONE row split in equal parts.
+- **The uninstaller is NOT part of it.** Its row is already two named buttons
+  ("remove the app", "clear the cache"), so folding it in would either drop one of
+  them or crowd four things into a line built for two (Anton, 2026-07-30). It
+  keeps its own row whatever this setting says.
+- Each part is an icon and a SINGLE word ("converter", "archives"). The full names
+  do not fit side by side on a 340pt row in any language, least of all in German;
+  they stay in the tooltip, in settings and in the help.
+- The row is drawn where the FIRST of the two sits in that space's order, and the
+  other drops out of the drawn list. Nothing is stored: the spaces model keeps
+  holding the real module keys, so switching the setting back changes nothing
+  else, and a space with only one of them shows that one as a normal module row.
+- The collapsed row has no "move to / hide" context menu: it stands for two
   modules at once, so the menu would be lying about what it moves.
 
 ### Scoring the uninstaller (`scripts/make-uninstall-target.sh`)

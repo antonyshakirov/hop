@@ -1,8 +1,13 @@
 import HopCore
 import SwiftUI
 
-/// The three window modules — converter, archives, uninstaller — as ONE row,
-/// split in equal parts: an icon and a single word each.
+/// The two window modules that fit one line — the converter and the archives —
+/// as ONE row, split in equal parts: an icon and a single word each.
+///
+/// The uninstaller is deliberately absent. Its own row is already two named
+/// buttons ("remove the app", "clear the cache"), and folding it in here would
+/// either drop one of them or crowd four things into a line built for two or
+/// three (Anton, 2026-07-30).
 ///
 /// They are the same shape of thing (a row that opens a window and takes files),
 /// so on a crowded space they cost three lines for very little. One word rather
@@ -15,13 +20,12 @@ struct ToolsRowView: View {
     let tools: [Tool]
 
     enum Tool: String {
-        case convert, archive, uninstall
+        case convert, archive
 
         var symbol: String {
             switch self {
             case .convert: return "doc.badge.gearshape"
             case .archive: return "archivebox"
-            case .uninstall: return "trash"
             }
         }
         /// One word, so three of them fit one row.
@@ -29,7 +33,6 @@ struct ToolsRowView: View {
             switch self {
             case .convert: return .toolsShortConvert
             case .archive: return .toolsShortArchive
-            case .uninstall: return .toolsShortUninstall
             }
         }
         /// The full name, kept for the tooltip: the row is short, the meaning is not.
@@ -37,7 +40,6 @@ struct ToolsRowView: View {
             switch self {
             case .convert: return .convertLabel
             case .archive: return .archiveLabel
-            case .uninstall: return .uninstallLabel
             }
         }
     }
