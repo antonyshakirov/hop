@@ -481,7 +481,7 @@ enum Snapshot {
             || onlyModule != nil || wantsOverview {
             var keep: Set<String> = []
             if wantsOverview {
-                keep = ["color", "ocr", "keyboard", "archive", "vpn"]
+                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall"]
             }
             if wantsColors { keep.insert("color") }
             if wantsOcr { keep.insert("ocr") }
@@ -490,7 +490,7 @@ enum Snapshot {
             // no-op unless --only names one of these four; the rest are hidden
             // through their legacy keys above
             if let onlyModule { keep.insert(onlyModule) }
-            for key in ["color", "ocr", "keyboard", "archive", "vpn"] {
+            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall"] {
                 if keep.contains(key) {
                     PanelView.activateStoredModule(key)
                 } else {
