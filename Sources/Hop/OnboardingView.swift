@@ -49,6 +49,10 @@ struct OnboardingView: View {
     /// On like the rest (Anton, 2026-07-29): saying yes creates one empty grid,
     /// which explains itself in the panel rather than staying invisible.
     @State private var showAppsModule = true
+    /// New in 1.7.0, and on like the rest of the everyday tools: a fresh install
+    /// should see EVERYTHING it can have and decide once, and a module that
+    /// removes apps is not a specialist's tool (Anton, 2026-07-30).
+    @State private var showUninstallModule = true
 
     /// One module in the grid: name on the left, switch on the right — the same
     /// shape as the rows above it, three to a line in a window widened to fit
@@ -148,6 +152,7 @@ struct OnboardingView: View {
                     moduleCell(t(.ocrLabel), isOn: $showOcrModule)
                     moduleCell(t(.vpnLabel), isOn: $showVpnModule)
                     moduleCell(t(.appsLabel), isOn: $showAppsModule)
+                    moduleCell(t(.uninstallLabel), isOn: $showUninstallModule)
                 }
                 // The one module with a real extra cost: a one-time separate
                 // engine download — say so before the choice, not after. It
@@ -291,6 +296,7 @@ struct OnboardingView: View {
             ("keyboard", showKeyboardModule), ("color", showColorModule),
             ("vpn", showVpnModule),
             ("ocr", showOcrModule),
+            ("uninstall", showUninstallModule),
         ]
         for choice in choices {
             if choice.on { PanelView.activateStoredModule(choice.module) }

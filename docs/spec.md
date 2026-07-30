@@ -2283,6 +2283,22 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   A line at the top says the disk is still being read, and no section claims to
   be empty until it has actually been looked at.
 
+### A release's first screen
+
+- **Onboarding lists EVERY module, the uninstaller included**, and marks every
+  what's-new announcement seen on the way out: a fresh install has just been
+  asked about all of them by name, so greeting it with a card offering the same
+  modules asks a question it already answered (Anton, 2026-07-29, restated
+  2026-07-30).
+- **Someone who UPDATES gets the card instead.** 1.7.0 announces `modules170`
+  with the uninstaller in it, and the module ships inactive until it is ticked
+  there — nothing appears in a panel that was not asked for.
+- The one-shot that sweeps a new module into the inactive bucket is keyed PER
+  RELEASE (`optInModulesSeeded170`). The original key was claimed in 1.5.0, so
+  reusing it would have let 1.7.0's module land in everyone's panel unasked.
+- `--feature-banner-latest` renders whatever the newest card is, so it can be
+  reviewed without knowing its id.
+
 ### Tooltips
 
 - **Every control that does something says what it does, on hover.** Icon-only

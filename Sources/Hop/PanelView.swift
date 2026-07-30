@@ -264,7 +264,10 @@ struct PanelView: View {
                 .background(Theme.panelBackground)
             }
         } else if standaloneAbout {
-            ScrollView(showsIndicators: false) {
+            // SnapshotAwareScroll: ImageRenderer gives a ScrollView no height and
+            // the render came out as an empty black window, which is no way to
+            // review the page a release is announced on.
+            SnapshotAwareScroll {
                 aboutScreen
                     .padding(24)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -394,6 +397,13 @@ struct PanelView: View {
         .init(id: "modules160", moduleKeys: ["vpn", Self.appsChoice],
               title: .featureModulesTitle, body: .featureModulesBody,
               checklist: true),
+        // 1.7.0: the uninstaller. Offered rather than switched on — somebody who
+        // updated did not ask for a new row in their panel (Anton, 2026-07-25).
+        // A fresh install never sees this card: onboarding marks every
+        // announcement seen, having just asked the same question by name.
+        .init(id: "modules170", moduleKeys: ["uninstall"],
+              title: .featureModulesTitle, body: .featureModulesBody,
+              checklist: true),
     ]
 
     /// Every announcement's id — onboarding marks them all seen, since a fresh
@@ -411,6 +421,9 @@ struct PanelView: View {
         if Snapshot.active {
             // --feature-banner renders the first announcement, --feature-banner-tools
             // the newest one, so either card can be reviewed on its own.
+            if CommandLine.arguments.contains("--feature-banner-latest") {
+                return Self.featureAnnouncements.last
+            }
             if CommandLine.arguments.contains("--feature-banner-modules") {
                 return Self.featureAnnouncements.first { $0.id == "modules160" }
             }
@@ -2393,7 +2406,7 @@ struct PanelView: View {
     /// the panel that was not ticked there (Anton, 2026-07-25). A fresh install
     /// is a different story: it has no expectations to violate, so only the
     /// `optInModules` above stay hidden there.
-    private static let newInThisRelease = ["archive", "keyboard", "color", "ocr"]
+    private static let newInThisRelease = ["uninstall"]
 
     private var moduleOrder: [String] {
         Self.normalizedOrder(moduleOrderRaw)
@@ -2457,6 +2470,7 @@ struct PanelView: View {
         UserDefaults.standard.set(true, forKey: SettingsKey.moduleVisibilityMigrated)
         UserDefaults.standard.set(true, forKey: SettingsKey.canonicalLayoutSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded)
+        UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded170)
         return model
     }
 
@@ -2476,11 +2490,12 @@ struct PanelView: View {
     /// activation sticks. The fresh-migrate path claims the flag itself.
     private static func seedOptInModules(_ model: inout PanelTabsModel) {
         let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: SettingsKey.optInModulesSeeded) else { return }
+        guard !defaults.bool(forKey: SettingsKey.optInModulesSeeded170) else { return }
         for key in newInThisRelease where !model.inactive.contains(key) {
             model.deactivate(module: key)
         }
         defaults.set(true, forKey: SettingsKey.optInModulesSeeded)
+        defaults.set(true, forKey: SettingsKey.optInModulesSeeded170)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 

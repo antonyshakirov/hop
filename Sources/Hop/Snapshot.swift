@@ -223,6 +223,7 @@ enum Snapshot {
         for key in [SettingsKey.panelTabs, SettingsKey.moduleVisibilityMigrated,
                     SettingsKey.trackerTabSeeded, SettingsKey.todosSeeded,
                     SettingsKey.canonicalLayoutSeeded, SettingsKey.optInModulesSeeded,
+                    SettingsKey.optInModulesSeeded170,
                     "moduleOrder",
                     "showTimerModule", "showAwakeModule", "showClipboardModule",
                     "showConvertModule", "showWindowsModule", "showSpeedtestModule",

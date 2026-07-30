@@ -70,6 +70,12 @@ enum SettingsKey {
     /// everyone's panel. Set on the fresh migrate path too, so a user who
     /// activates one later keeps it.
     static let optInModulesSeeded = "optInModulesSeeded"
+    /// The same one-shot, PER RELEASE. The original key was claimed back in
+    /// 1.5.0, so a later release's new module would never be swept into the
+    /// inactive bucket and would simply appear in everyone's panel — which is
+    /// exactly what the sweep exists to prevent (Anton, 2026-07-25: nothing
+    /// appears that was not ticked).
+    static let optInModulesSeeded170 = "optInModulesSeeded170"
     /// One-shot flag: decoded legacy models (and any state left mid-shuffled
     /// by the older per-module seeds this superseded) get their whole active
     /// layout rebuilt into the canonical three-tab shape exactly once. Set on
