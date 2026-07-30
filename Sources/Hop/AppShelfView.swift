@@ -49,13 +49,21 @@ struct AppShelfView: View {
         return title.isEmpty ? t(.appsLabel) : title
     }
 
-    /// The icon's own size. A slot is exactly this wide, so the spacers between
-    /// slots are the only thing between two icons.
-    /// 32, up from 30 (Anton, 2026-07-30). Nine of them across the module leave a
-    /// 6.5pt gap: bigger icons AND one more per row, with the gaps small enough
-    /// that the eye stops comparing them. 34 would leave 4.25pt, which reads as
-    /// icons touching.
-    private static let iconSize: CGFloat = 32
+    /// The gap between two icons, whatever their size. Nine icons of 32pt across
+    /// the module left 6.5pt and that reads right — small enough that the eye
+    /// stops comparing the gaps, wide enough that the icons do not touch.
+    private static let gap: CGFloat = 6.5
+    /// The icon's own size, which FOLLOWS from how many are asked for: the module
+    /// is as wide as the panel either way, so nine across are small and three are
+    /// enormous (Anton, 2026-07-30). The measured row width is the truth; the
+    /// fallback keeps the old nine-at-32 layout before the first measurement.
+    private var iconSize: CGFloat {
+        let count = CGFloat(columns)
+        guard rowWidth > count * 8 else { return 32 }
+        return max(16, (rowWidth - (count - 1) * Self.gap) / count)
+    }
+    /// This grid's width, in icons.
+    private var columns: Int { shelf?.columns ?? AppShelf.defaultColumns }
     /// Measured width of one row — the pitch and the drag maths come from it.
     @State private var rowWidth: CGFloat = 0
 
@@ -65,8 +73,8 @@ struct AppShelfView: View {
     /// aligning only the outer two to the edges made the outer gaps 3.6pt wider
     /// than the inner ones (Anton, 2026-07-30).
     private var pitch: CGFloat {
-        guard rowWidth > Self.iconSize else { return Self.iconSize + 14 }
-        return (rowWidth - Self.iconSize) / CGFloat(AppShelf.columns - 1)
+        guard rowWidth > iconSize, columns > 1 else { return iconSize + 14 }
+        return (rowWidth - iconSize) / CGFloat(columns - 1)
     }
 
     var body: some View {
@@ -129,6 +137,25 @@ struct AppShelfView: View {
                 .frame(maxWidth: 132)
                 .help(t(.appsNamePlaceholder))
                 Spacer(minLength: 0)
+                // Icons per row, edited where the rest of the grid is edited: the
+                // name field and the reordering are here, so the third thing that
+                // belongs to THIS grid belongs here too (Anton, 2026-07-30).
+                HStack(spacing: 3) {
+                    Image(systemName: "square.grid.2x2")
+                        .font(.system(size: 8.5))
+                        .foregroundStyle(Theme.textTertiary)
+                    stepper(-1)
+                    Text("\(columns)")
+                        .font(Theme.mono(9, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                        .monospacedDigit()
+                        .frame(minWidth: 9)
+                    stepper(1)
+                }
+                .padding(.horizontal, 5)
+                .padding(.vertical, 2)
+                .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+                .help(t(.appsPerRow))
                 Button(t(.appsDone)) { stopEditing() }
                     .buttonStyle(.plain)
                     .font(Theme.mono(9, weight: .semibold))
@@ -171,22 +198,42 @@ struct AppShelfView: View {
             .padding(.vertical, 6)
     }
 
+    /// One step of the icons-per-row control, greyed at the ends of the range.
+    private func stepper(_ delta: Int) -> some View {
+        let target = columns + delta
+        return Button {
+            shelves.setColumns(target, for: shelfID)
+        } label: {
+            Image(systemName: delta < 0 ? "minus" : "plus")
+                .font(.system(size: 8, weight: .bold))
+                .foregroundStyle(Theme.textSecondary)
+                .frame(width: 13, height: 13)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
+        .disabled(!AppShelf.columnRange.contains(target))
+        .opacity(AppShelf.columnRange.contains(target) ? 1 : 0.35)
+        .help(t(.appsPerRow))
+    }
+
     // MARK: - Grid
 
     private func grid(_ shelf: AppShelf) -> some View {
-        let rows = stride(from: 0, to: shelf.items.count, by: AppShelf.columns).map { start in
-            Array(shelf.items[start..<min(start + AppShelf.columns, shelf.items.count)])
+        let across = shelf.columns
+        let rows = stride(from: 0, to: shelf.items.count, by: across).map { start in
+            Array(shelf.items[start..<min(start + across, shelf.items.count)])
         }
         return VStack(spacing: 6) {
             ForEach(Array(rows.enumerated()), id: \.offset) { rowIndex, row in
                 HStack(spacing: 0) {
-                    ForEach(0..<AppShelf.columns, id: \.self) { column in
+                    ForEach(0..<across, id: \.self) { column in
                         if column > 0 { Spacer(minLength: 0) }
                         if column < row.count {
-                            cell(row[column], at: rowIndex * AppShelf.columns + column)
+                            cell(row[column], at: rowIndex * across + column)
                         } else {
                             // holds the pitch of a half-filled last row
-                            Color.clear.frame(width: Self.iconSize, height: 1)
+                            Color.clear.frame(width: iconSize, height: 1)
                         }
                     }
                 }
@@ -204,7 +251,7 @@ struct AppShelfView: View {
         VStack(spacing: 3) {
             Image(nsImage: shelves.icon(for: item))
                 .resizable()
-                .frame(width: Self.iconSize, height: Self.iconSize)
+                .frame(width: iconSize, height: iconSize)
                 .overlay(alignment: .topLeading) { deleteBadge(item) }
             if showsLabels {
                 Text(item.name)
@@ -222,7 +269,7 @@ struct AppShelfView: View {
         // Exactly one icon wide: the spacers between slots carry all the slack,
         // so every gap is the same and the outer icons sit on the module's own
         // left and right lines.
-        .frame(width: Self.iconSize)
+        .frame(width: iconSize)
         .padding(.vertical, 2)
         // The gap the dragged icon would drop into, on whichever side of this
         // cell it falls.
@@ -322,11 +369,11 @@ struct AppShelfView: View {
     /// 36pt without —
     /// close enough that a drag lands where the pointer is.
     private func destination(from index: Int, translation: CGSize) -> Int {
-        let rowHeight: CGFloat = showsLabels ? Self.iconSize + 14 : Self.iconSize + 6
+        let rowHeight: CGFloat = showsLabels ? iconSize + 14 : iconSize + 6
         let across = Int((translation.width / pitch).rounded())
         let down = Int((translation.height / rowHeight).rounded())
         let count = shelf?.items.count ?? 0
-        return max(0, min(index + across + down * AppShelf.columns, max(0, count - 1)))
+        return max(0, min(index + across + down * columns, max(0, count - 1)))
     }
 
     // MARK: - Edit mode

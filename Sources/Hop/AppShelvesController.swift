@@ -70,6 +70,18 @@ final class AppShelvesController: ObservableObject {
         save()
     }
 
+    /// How many icons this grid puts in a row, 3...9. The size follows from it,
+    /// so this is also the "big icons" switch (Anton, 2026-07-30). Icons that no
+    /// longer fit the eight rows a narrower grid holds stay in the file rather
+    /// than being dropped: widening the grid again brings them back.
+    func setColumns(_ columns: Int, for shelfID: UUID) {
+        let value = AppShelf.clampColumns(columns)
+        guard var shelf = shelves[shelfID], shelf.columns != value else { return }
+        shelf.columns = value
+        shelves[shelfID] = shelf
+        save()
+    }
+
     func setShowsLabels(_ shows: Bool, for shelfID: UUID) {
         guard var shelf = shelves[shelfID], shelf.showsLabels != shows else { return }
         shelf.showsLabels = shows

@@ -191,9 +191,38 @@ final class AppShelfTests: XCTestCase {
         XCTAssertEqual(shelves.orphanedModuleKeys(in: [shelf.moduleKey]), [shelf.moduleKey])
     }
 
-    func testTheGridIsNineAcrossAndEightDown() {
-        XCTAssertEqual(AppShelf.columns, 9)
+    func testTheGridIsNineAcrossAndEightDownByDefault() {
+        XCTAssertEqual(AppShelf.defaultColumns, 9)
         XCTAssertEqual(AppShelf.rows, 8)
-        XCTAssertEqual(AppShelf.maxItems, 72)
+        XCTAssertEqual(AppShelf().capacity, 72)
+    }
+
+    func testAGridCanBeThreeToNineAcross() {
+        XCTAssertEqual(AppShelf.columnRange, 3...9)
+        XCTAssertEqual(AppShelf(columns: 3).columns, 3)
+        XCTAssertEqual(AppShelf(columns: 5).capacity, 40, "eight rows of whatever the width is")
+    }
+
+    func testAWidthOutsideTheRangeIsClamped() {
+        XCTAssertEqual(AppShelf(columns: 1).columns, 3)
+        XCTAssertEqual(AppShelf(columns: 40).columns, 9)
+        var shelf = AppShelf()
+        shelf.columns = 0
+        XCTAssertEqual(shelf.columns, 3)
+    }
+
+    func testANarrowerGridKeepsTheIconsThatNoLongerFit() throws {
+        // widening it again has to bring them back, so nothing is thrown away
+        var shelf = AppShelf(columns: 9)
+        for index in 0..<40 { shelf.add(item("App\(index)")) }
+        shelf.columns = 3
+        XCTAssertEqual(shelf.items.count, 40)
+        XCTAssertTrue(shelf.isFull, "24 fit a grid three across")
+    }
+
+    func testAGridWrittenBeforeTheWidthExistedLoadsAsNineAcross() throws {
+        let json = Data(#"{"id":"\#(UUID().uuidString)","items":[],"title":"","showsLabels":true}"#.utf8)
+        let shelf = try JSONDecoder().decode(AppShelf.self, from: json)
+        XCTAssertEqual(shelf.columns, 9)
     }
 }

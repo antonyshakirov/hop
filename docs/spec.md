@@ -479,7 +479,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   crossfade, no "flight". With ≤5 entries the expander is hidden and its
   state resets.
 
-### Clipboard: an entry as a file (1.6.1)
+### Clipboard: an entry as a file (1.7.0)
 
 - OFF by default (`clipboardToFile`). When on, every TEXT row grows one more
   icon, LEFT of copy and paste: it acts on the entry rather than on the
@@ -1110,6 +1110,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   "type a name", not "name". The first cut was a bare line of text with the noun
   as its placeholder, and it read as a column heading rather than something to
   click into (Anton, 2026-07-30).
+- **Icons per row, 3...9, per grid** (`columns`, nine by default). How many fit
+  across and how big they are is the SAME question — the module is as wide as the
+  panel either way — so the number is the setting and the size follows from it:
+  nine are small, three are enormous (Anton, 2026-07-30). The control lives in
+  the grid's EDIT mode, beside the name field and the reordering, because that is
+  where everything belonging to this one grid is edited; the ends of the range
+  grey out. The gap between icons stays 6.5pt at every width, and a grid holds
+  eight rows of whatever its width is (three across = 24). Narrowing a grid does
+  NOT throw away the icons that no longer fit: they stay in the file and come
+  back when it is widened again. A grid written before the setting existed loads
+  as nine across.
 - **Names under the icons** can be switched off per grid (`showsLabels`, on by
   default), leaving bare icons for someone who recognises them by sight. The
   switch lives in SETTINGS, one row per grid, not in the module's header: as the
@@ -2094,7 +2105,7 @@ converter (Anton, 2026-07-28).
   slice the machine cannot run (Anton, 2026-07-29). Both bundled helpers (the
   torrent engine, the 7-Zip archiver) have been universal all along.
 - `latest.json` carries `zip`/`sig` (arm64, the historical names, so every client
-  from before 1.6.1 keeps updating) plus `zipIntel`/`sigIntel`. The updater picks
+  from before 1.7.0 keeps updating) plus `zipIntel`/`sigIntel`. The updater picks
   by the RUNNING process's architecture (`#if arch(x86_64)`), not by the
   hardware, and falls back to the plain pair when the Intel keys are missing.
 - The landing offers the two downloads as TWO BUTTONS side by side — the white

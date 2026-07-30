@@ -33,13 +33,18 @@ public struct ShelfItem: Codable, Equatable, Identifiable, Sendable {
 /// a full square at the bottom of another — so each carries its own id and the
 /// panel addresses it by that.
 public struct AppShelf: Codable, Equatable, Identifiable, Sendable {
-    /// NINE across, eight down (Anton, 2026-07-30). Eight was borrowed from the
-    /// window-snap row, but those tiles are wide rectangles and an app icon is a
-    /// square — one more fits the same width without crowding, and the row still
-    /// stops being scannable long before it stops fitting.
-    public static let columns = 9
+    /// How many icons fit across, and how big they are, is the SAME question:
+    /// the module is as wide as the panel, so nine across are small and three are
+    /// enormous. The number is the setting and the size follows from it, per grid
+    /// — one grid of nine for everything, another of three for the two apps you
+    /// live in (Anton, 2026-07-30).
+    public static let columnRange = 3...9
+    public static let defaultColumns = 9
     public static let rows = 8
-    public static let maxItems = columns * rows
+    /// What nine across meant before the number could be chosen; kept for the
+    /// places that ask about the widest grid there can be.
+    public static let maxColumns = 9
+    public static let maxItems = maxColumns * rows
 
     public let id: UUID
     public var items: [ShelfItem]
@@ -50,16 +55,27 @@ public struct AppShelf: Codable, Equatable, Identifiable, Sendable {
     /// Whether the app names are drawn under the icons. Off gives a dense wall of
     /// icons for someone who recognises them by sight.
     public var showsLabels: Bool
+    /// Icons across, 3...9. Always clamped: a number outside the range would be
+    /// a grid that cannot be drawn.
+    public var columns: Int {
+        didSet { columns = Self.clampColumns(columns) }
+    }
 
     public init(id: UUID = UUID(), items: [ShelfItem] = [],
-                title: String = "", showsLabels: Bool = true) {
+                title: String = "", showsLabels: Bool = true,
+                columns: Int = AppShelf.defaultColumns) {
         self.id = id
         self.items = items
         self.title = title
         self.showsLabels = showsLabels
+        self.columns = Self.clampColumns(columns)
     }
 
-    private enum CodingKeys: String, CodingKey { case id, items, title, showsLabels }
+    public static func clampColumns(_ value: Int) -> Int {
+        min(columnRange.upperBound, max(columnRange.lowerBound, value))
+    }
+
+    private enum CodingKeys: String, CodingKey { case id, items, title, showsLabels, columns }
 
     /// Both new fields decode leniently, so a file written before they existed
     /// keeps working.
@@ -69,6 +85,8 @@ public struct AppShelf: Codable, Equatable, Identifiable, Sendable {
         items = try container.decodeIfPresent([ShelfItem].self, forKey: .items) ?? []
         title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
         showsLabels = try container.decodeIfPresent(Bool.self, forKey: .showsLabels) ?? true
+        columns = Self.clampColumns(
+            try container.decodeIfPresent(Int.self, forKey: .columns) ?? Self.defaultColumns)
     }
 
     /// The module key the panel stores for this shelf. Every other module is one
@@ -76,7 +94,10 @@ public struct AppShelf: Codable, Equatable, Identifiable, Sendable {
     /// side by side.
     public var moduleKey: String { "apps:\(id.uuidString)" }
 
-    public var isFull: Bool { items.count >= Self.maxItems }
+    /// How many this grid holds: eight rows of whatever its width is.
+    public var capacity: Int { columns * Self.rows }
+
+    public var isFull: Bool { items.count >= capacity }
 
     /// Appends an app unless the same one is already here or the grid is full.
     /// Returns false when nothing was added, so the caller can say why.
