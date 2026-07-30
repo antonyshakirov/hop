@@ -2069,7 +2069,10 @@ struct PanelView: View {
                 selectUnit(atX: value.location.x, cell: dotCellCompact)
             })
             .simultaneousGesture(scrubGesture(cell: dotCellCompact))
-            .help(engine.isStopwatch ? t(.stopwatchLabel) : t(.dragToSet))
+            .help(engine.isStopwatch
+                  ? "\(t(.stopwatchLabel)) — \(TimeFormatting.display(engine.elapsed))"
+                  : t(.tipDigits).replacingOccurrences(
+                        of: "{n}", with: TimeFormatting.display(engine.remaining)))
             // always here, whatever the templates below are doing: a control that
             // moves when the thing it controls changes is a control you have to
             // hunt for
@@ -2079,7 +2082,8 @@ struct PanelView: View {
     }
 
     private func adjustButton(label: String, delta: TimeInterval) -> some View {
-        Button {
+        let explains = delta > 0 ? L10nKey.tipAddMinutes : .tipTakeMinutes
+        return Button {
             Sounds.scrubTick()
             model.engine.adjust(by: delta)
         } label: {
@@ -2094,7 +2098,7 @@ struct PanelView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(t(.tipAdjustTime))
+        .help(t(explains))
     }
 
     private func presetButton(_ minutes: Int) -> some View {
@@ -2147,7 +2151,8 @@ struct PanelView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(t(.tipRestoreTime))
+        .help(t(.tipRestoreTo).replacingOccurrences(
+            of: "{n}", with: TimeFormatting.display(stash.remaining)))
     }
 
     private var resetButton: some View {
@@ -2164,6 +2169,10 @@ struct PanelView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // the time it goes back to, which is the set duration however it was set
+        // — a preset, a drag, or typed in (Anton, 2026-07-30)
+        .help(t(.tipResetTo).replacingOccurrences(
+            of: "{n}", with: TimeFormatting.display(model.engine.duration)))
     }
 
     // MARK: - Display
@@ -2198,7 +2207,13 @@ struct PanelView: View {
                 selectUnit(atX: value.location.x, cell: dotCellFull)
             })
             .simultaneousGesture(scrubGesture(cell: dotCellFull))
-            .help(t(.dragToSet))
+            // how the digits are edited, plus what they say right now — a
+            // custom time set by drag or keyboard has to read as clearly as a
+            // preset does (Anton, 2026-07-30)
+            .help(t(.tipDigits).replacingOccurrences(
+                of: "{n}", with: TimeFormatting.display(model.engine.isStopwatch
+                                                        ? model.engine.elapsed
+                                                        : model.engine.remaining)))
             // fixed row under the display: hint ↔ reset, with the stash next to it
             HStack(spacing: 14) {
                 if !scrubbable {
@@ -2306,7 +2321,8 @@ struct PanelView: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .help(t(.tipPlayPause))
+        // what this press does right now, not "start or pause" forever
+        .help(t(running ? .tipPlayPauseNow : (state == .paused ? .tipPlayResume : .tipPlayStart)))
     }
 
     // MARK: - Converter

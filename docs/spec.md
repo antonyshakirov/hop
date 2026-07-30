@@ -2291,6 +2291,12 @@ nothing about what would be cleaned, and the caches are why anybody opens it
 - The shared controls take it as a parameter rather than leaving it to each call
   site: `HoverIconButton`, `HoverDeleteX` and `NumericField` all accept `help`,
   and `switchSetting` attaches the row's own label.
+- **A tooltip follows the STATE, not only the control.** The transport says
+  "start", "pause" or "resume" depending on what the next press does; reset says
+  the time it returns to; the stash button says the time it brings back; ±5 says
+  which way it goes; and the digits say how they are edited AND what they read
+  right now — a time set by dragging or typing has to be as legible on hover as a
+  preset is (Anton, 2026-07-30).
 - **A tooltip says what THIS control does, with its own numbers in it.** A
   preset reads "set the timer to 90 min", a cycle template "work 25 min, rest 5
   min, 4 rounds", a keep-awake or keyboard-lock chip "lock the keyboard for 15
