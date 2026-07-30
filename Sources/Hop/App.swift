@@ -167,6 +167,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Throws away what the URL cache left before Hop switched it off. Runs once
+    /// per machine, on the first launch of a build that carries this: the files
+    /// are ours, in our own cache folder, so nothing is asked of the user and
+    /// nothing of theirs is touched — only `Cache.db` and the fetched-file folder
+    /// the URL loading system writes. Deleting them is what "we keep no cache"
+    /// means for someone updating rather than installing fresh (Anton,
+    /// 2026-07-30).
+    private static func dropOwnHTTPCache() {
+        let done = "httpCacheDropped"
+        guard !UserDefaults.standard.bool(forKey: done) else { return }
+        UserDefaults.standard.set(true, forKey: done)
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+        guard let ours = caches?.appendingPathComponent(Bundle.storageIdentifier) else { return }
+        for name in ["Cache.db", "Cache.db-shm", "Cache.db-wal", "fsCachedData"] {
+            try? FileManager.default.removeItem(at: ours.appendingPathComponent(name))
+        }
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Agent without a Dock icon — including dev runs via `swift run`.
         NSApp.setActivationPolicy(.accessory)
@@ -179,6 +197,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // one-shot download has nothing to gain from being cached, and a speed
         // test served from a cache would measure the wrong thing.
         URLCache.shared = URLCache(memoryCapacity: 0, diskCapacity: 0, diskPath: nil)
+        Self.dropOwnHTTPCache()
 
         // crash-loop guard — BEFORE any modules: three unfinished launches in a row =
         // safe mode, where only the updater lives. Even a bug that crashes

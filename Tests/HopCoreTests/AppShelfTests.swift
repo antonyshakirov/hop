@@ -27,10 +27,10 @@ final class AppShelfTests: XCTestCase {
 
     func testAFullShelfRefusesMore() {
         var shelf = AppShelf()
-        for index in 0..<AppShelf.maxItems { shelf.add(item("App\(index)")) }
+        for index in 0..<shelf.capacity { shelf.add(item("App\(index)")) }
         XCTAssertTrue(shelf.isFull)
         XCTAssertFalse(shelf.add(item("OneMore")))
-        XCTAssertEqual(shelf.items.count, AppShelf.maxItems, "nine across, eight down, and no further")
+        XCTAssertEqual(shelf.items.count, shelf.capacity, "eight rows of its own width, and no further")
     }
 
     func testRemoving() {
@@ -191,10 +191,10 @@ final class AppShelfTests: XCTestCase {
         XCTAssertEqual(shelves.orphanedModuleKeys(in: [shelf.moduleKey]), [shelf.moduleKey])
     }
 
-    func testTheGridIsNineAcrossAndEightDownByDefault() {
-        XCTAssertEqual(AppShelf.defaultColumns, 9)
+    func testTheGridIsEightAcrossAndEightDownByDefault() {
+        XCTAssertEqual(AppShelf.defaultColumns, 8)
         XCTAssertEqual(AppShelf.rows, 8)
-        XCTAssertEqual(AppShelf().capacity, 72)
+        XCTAssertEqual(AppShelf().capacity, 64)
     }
 
     func testAGridCanBeThreeToNineAcross() {
@@ -220,9 +220,9 @@ final class AppShelfTests: XCTestCase {
         XCTAssertTrue(shelf.isFull, "24 fit a grid three across")
     }
 
-    func testAGridWrittenBeforeTheWidthExistedLoadsAsNineAcross() throws {
+    func testAGridWrittenBeforeTheWidthExistedLoadsAtTheDefault() throws {
         let json = Data(#"{"id":"\#(UUID().uuidString)","items":[],"title":"","showsLabels":true}"#.utf8)
         let shelf = try JSONDecoder().decode(AppShelf.self, from: json)
-        XCTAssertEqual(shelf.columns, 9)
+        XCTAssertEqual(shelf.columns, AppShelf.defaultColumns)
     }
 }

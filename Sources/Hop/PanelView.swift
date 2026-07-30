@@ -65,6 +65,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
+    @AppStorage(SettingsKey.vpnHoldOff) private var vpnHoldOff = true
     @AppStorage(SettingsKey.toolsOneRow) private var toolsOneRow = false
     @AppStorage(SettingsKey.clipboardToFile) private var clipboardToFile = false
     @AppStorage(SettingsKey.clipboardToFileAsk) private var clipboardToFileAsk = false
@@ -3768,6 +3769,11 @@ struct PanelView: View {
                     NumericField(value: $vpnVisibleRows, range: 1...10)
                 }
                 switchSetting(t(.settingsVpnMark), isOn: $vpnMenuBarMark)
+                switchSetting(t(.settingsVpnHoldOff), isOn: $vpnHoldOff)
+                Text(t(.settingsVpnHoldOffNote))
+                    .font(Theme.mono(8))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {

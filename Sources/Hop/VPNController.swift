@@ -105,6 +105,9 @@ final class VPNController: ObservableObject {
         let id = configuration.id
         let name = configuration.name
         let wasEnabled = configuration.isEnabled
+        // Read here rather than inside the detached work: a setting is main-actor
+        // state, and this is the moment the user's choice applies.
+        let holdOff = UserDefaults.standard.object(forKey: SettingsKey.vpnHoldOff) as? Bool ?? true
         // The command answers in milliseconds but blocks; off the main thread it
         // cannot stutter the panel.
         Task { [weak self] in
@@ -116,7 +119,9 @@ final class VPNController: ObservableObject {
                     // `.com` (Anton, 2026-07-30). Stopping it is not enough; the
                     // service itself has to leave the network set, which is the
                     // only lever a third-party configuration gives us.
-                    if Self.reconnectsByItself(id) { Self.setService(name, enabled: false) }
+                    if holdOff, Self.reconnectsByItself(id) {
+                        Self.setService(name, enabled: false)
+                    }
                 } else {
                     // Switching one back on returns it to the set first, or the
                     // start would have nothing to start.

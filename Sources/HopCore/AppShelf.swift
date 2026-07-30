@@ -39,7 +39,10 @@ public struct AppShelf: Codable, Equatable, Identifiable, Sendable {
     /// — one grid of nine for everything, another of three for the two apps you
     /// live in (Anton, 2026-07-30).
     public static let columnRange = 3...9
-    public static let defaultColumns = 9
+    /// EIGHT by default (Anton, 2026-07-30): nine fit, and nine is the setting's
+    /// ceiling rather than its starting point — a row that starts one short of
+    /// full can be widened as easily as it is narrowed.
+    public static let defaultColumns = 8
     public static let rows = 8
     /// What nine across meant before the number could be chosen; kept for the
     /// places that ask about the widest grid there can be.

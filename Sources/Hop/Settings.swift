@@ -101,6 +101,10 @@ enum SettingsKey {
     /// somebody else's app owns, and whether it is worth a mark is the user's
     /// call, not ours (Anton, 2026-07-29).
     static let vpnMenuBarMark = "vpnMenuBarMark"
+    /// Whether switching a VPN off also takes it out of the network set, so its
+    /// own on-demand rules cannot bring it back. ON by default: a switch that
+    /// does not switch anything off is not a switch (Anton, 2026-07-30).
+    static let vpnHoldOff = "vpnHoldOff"
     /// The converter, the archives and the uninstaller drawn as ONE row instead of
     /// three. They are the same shape of thing — a row that opens a window and
     /// takes files — and three of them cost a crowded space three lines.

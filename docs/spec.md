@@ -1050,6 +1050,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `Invalid`, which is read as off rather than as a fault. Configurations without
   on-demand rules are only stopped; nothing is taken out of the set that did not
   need to be.
+
+  It needs no per-vendor support and no per-configuration setting: `OnDemandEnabled`
+  is a property of a NetworkExtension CONFIGURATION, not of a client, so the same
+  read and the same lever work for every VPN on every Mac — what differs is only
+  whether a given configuration has rules at all (Anton asked whether this could be
+  unified, 2026-07-30). One switch covers the module: **"keep it off until i switch
+  it on"** (`vpnHoldOff`, VPN settings, ON by default). Turned off, Hop only stops
+  the tunnel and leaves the network set alone — for someone who WANTS on-demand to
+  bring it back, or whose configuration is managed by an employer.
 - **The country is NEVER guessed from the server's address** (settled 2026-07-29
   after trying it). The system knows the address and nothing else: no hostname,
   no reverse DNS. Asking the address registry does return a country — but it is
@@ -1110,17 +1119,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   "type a name", not "name". The first cut was a bare line of text with the noun
   as its placeholder, and it read as a column heading rather than something to
   click into (Anton, 2026-07-30).
-- **Icons per row, 3...9, per grid** (`columns`, nine by default). How many fit
+- **Icons per row, 3...9, per grid** (`columns`, EIGHT by default — nine fit, but
+  nine is the ceiling rather than the starting point, and a row one short of full
+  can be widened as easily as narrowed; Anton, 2026-07-30). How many fit
   across and how big they are is the SAME question — the module is as wide as the
   panel either way — so the number is the setting and the size follows from it:
   nine are small, three are enormous (Anton, 2026-07-30). The control lives in
   the grid's EDIT mode, beside the name field and the reordering, because that is
   where everything belonging to this one grid is edited; the ends of the range
   grey out. The gap between icons stays 6.5pt at every width, and a grid holds
-  eight rows of whatever its width is (three across = 24). Narrowing a grid does
+  eight rows of whatever its width is (eight across = 64, three across = 24). Narrowing a grid does
   NOT throw away the icons that no longer fit: they stay in the file and come
   back when it is widened again. A grid written before the setting existed loads
-  as nine across.
+  at the default.
 - **Names under the icons** can be switched off per grid (`showsLabels`, on by
   default), leaving bare icons for someone who recognises them by sight. The
   switch lives in SETTINGS, one row per grid, not in the module's header: as the
@@ -2281,6 +2292,13 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   separators and case are ignored, so `com.x.hop-uninstall-test` matches "Hop
   Uninstall Test"). If two entries imply DIFFERENT ids, nothing is inferred: two
   apps sharing a name is exactly when guessing removes a stranger's data.
+- **The cache Hop already made is thrown away once.** Setting the shared cache to
+  zero stops new files; it does not remove the ones a previous version wrote. So
+  the first launch of a build carrying this deletes `Cache.db`, its `-shm`/`-wal`
+  and `fsCachedData` from Hop's own cache folder and records that it did
+  (`httpCacheDropped`). Our own folder, so nothing is asked of anybody — "we keep
+  no cache" has to mean the same thing for an update as for a fresh install
+  (Anton, 2026-07-30).
 - **Hop keeps no HTTP cache of its own.** It never asked for one: macOS hands
   every app a URL cache, and Hop's few downloads — the update check, the speed
   test, the 7-Zip helper — left megabytes of write-ahead log in
