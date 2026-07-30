@@ -931,7 +931,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let window = uninstallWindow else { return }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         if !window.isVisible {
-            window.setContentSize(NSSize(width: 560, height: 220))
+            // The clean-up job opens TALL: it is five lists, and a short window put
+            // its buttons below the fold, where a button might as well not exist
+            // (Anton, 2026-07-30). Removing an app opens at the drop plate's own
+            // height and grows from there.
+            let clean = model.uninstall.mode == .clean
+            let screen = (NSScreen.main?.visibleFrame.height ?? 900)
+            window.setContentSize(NSSize(width: clean ? 620 : 560,
+                                         height: clean ? min(760, screen * 0.8) : 220))
             window.center()
         }
         enterDockMode()
@@ -945,7 +952,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// archive window's fit, including "stop once the user has resized it".
     private func adjustUninstallHeight() {
         guard let window = uninstallWindow, window.isVisible,
-              !uninstallUserResized else { return }
+              !uninstallUserResized,
+              model.uninstall.mode != .clean else { return }
         let content = model.uninstallContentHeight
         guard content > 80 else { return }
         let topInset = window.contentView?.safeAreaInsets.top ?? 0

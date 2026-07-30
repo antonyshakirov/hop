@@ -112,6 +112,8 @@ final class UninstallController: ObservableObject {
     @Published var installedApps: [InstalledApp] = []
     /// Data of apps that are not on this Mac any more.
     @Published var leftovers: [CacheOwner] = []
+    /// Big app data that only the app itself can clear safely.
+    @Published var heavyData: [CacheOwner] = []
     @Published private(set) var trashBytes: Int64 = 0
     @Published private(set) var trashItems: Int = 0
     /// What the cache mode deliberately leaves alone, with its size, so the window
@@ -217,6 +219,7 @@ final class UninstallController: ObservableObject {
             scanAllCaches()
             scanInstallers()
             scanLeftovers()
+            scanMixedData()
             measureTrash()
         case .uninstall:
             if target != nil { scan() } else { listInstalledApps() }
@@ -257,10 +260,50 @@ final class UninstallController: ObservableObject {
         }
         leftovers = byIdentifier.compactMap { identifier, data -> CacheOwner? in
             guard data.bytes > 1_000_000 else { return nil }
+            // the caches section lists installed apps only, so nothing appears twice
             return CacheOwner(identifier: identifier, name: identifier, appPath: nil,
                               paths: data.paths, bytes: data.bytes, ticked: false)
         }
         .sorted { $0.bytes > $1.bytes }
+    }
+
+    /// The installed identifier that owns this one: itself, or the app it is a
+    /// helper of (`com.foo.App` for `com.foo.App.Updater`).
+    nonisolated static func owningApp(of identifier: String, installed: Set<String>) -> String? {
+        if installed.contains(identifier) { return identifier }
+        return installed.first { identifier.hasPrefix($0 + ".") }
+    }
+
+    /// Containers and group containers big enough to matter, which are NOT offered
+    /// for clearing: cache and data live in one folder there. Telegram's is 23 GB
+    /// with only an empty `Library/Caches` inside — the media sits in its own
+    /// database, and only Telegram's own "clear cache" knows which of it is
+    /// disposable (Anton asked why it was missing, 2026-07-30).
+    func scanMixedData() {
+        let manager = FileManager.default
+        let home = NSHomeDirectory()
+        let installed = Set(installedIdentifiers())
+        var out: [CacheOwner] = []
+        for (folder, _) in [("Containers", 0), ("Group Containers", 0)] {
+            let directory = "\(home)/Library/\(folder)"
+            for entry in (try? manager.contentsOfDirectory(atPath: directory)) ?? [] {
+                let path = "\(directory)/\(entry)"
+                let identifier = strippedTeamPrefix(AppUninstall.base(of: entry))
+                guard !identifier.hasPrefix("com.apple.") else { continue }
+                let bytes = Self.size(of: path)
+                guard bytes > 1_000_000_000 else { continue }   // a gigabyte or more
+                let owner = Self.owningApp(of: identifier, installed: installed)
+                let url = owner.flatMap {
+                    NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0)
+                }
+                let name = url.map {
+                    manager.displayName(atPath: $0.path).replacingOccurrences(of: ".app", with: "")
+                } ?? identifier
+                out.append(CacheOwner(identifier: path, name: name, appPath: url?.path,
+                                      paths: [path], bytes: bytes, ticked: false))
+            }
+        }
+        heavyData = out.sorted { $0.bytes > $1.bytes }
     }
 
     /// Every identifier this Mac has an app for.
@@ -339,12 +382,37 @@ final class UninstallController: ObservableObject {
             guard manager.fileExists(atPath: inner) else { continue }
             add(inner, identifier: entry)
         }
+        // A group container keeps its cache one level in — `<group>/Library/Caches`
+        // and `<group>/<account>/Library/Caches` — so those count too.
+        let groups = "\(home)/Library/Group Containers"
+        for entry in (try? manager.contentsOfDirectory(atPath: groups)) ?? [] {
+            let root = "\(groups)/\(entry)"
+            var candidates = ["\(root)/Library/Caches"]
+            for child in (try? manager.contentsOfDirectory(atPath: root)) ?? [] {
+                candidates.append("\(root)/\(child)/Library/Caches")
+            }
+            for path in candidates where manager.fileExists(atPath: path) {
+                guard Self.size(of: path) > 0 else { continue }
+                add(path, identifier: entry)
+            }
+        }
 
+        let installed = Set(installedIdentifiers())
         cacheOwners = byIdentifier.compactMap { identifier, entry -> CacheOwner? in
             // Apple's own caches are the system's business, not ours
             guard !identifier.hasPrefix("com.apple.") else { return nil }
             guard entry.bytes > 1_000_000 else { return nil }   // below a megabyte is noise
-            let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: identifier)
+            // An app that IS installed but whose cache carries a helper's id —
+            // `com.microsoft.VSCode.ShipIt` is the updater of an installed editor —
+            // must be named after its owner, not called a leftover. Anything that
+            // really has no owner belongs to the leftovers section instead, so it
+            // is not listed twice (Anton, 2026-07-30).
+            guard !AppUninstall.isLeftover(identifier: identifier,
+                                           installedIdentifiers: installed) else { return nil }
+            let owner = Self.owningApp(of: identifier, installed: installed)
+            let url = owner.flatMap {
+                NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0)
+            }
             let name = url.map {
                 FileManager.default.displayName(atPath: $0.path)
                     .replacingOccurrences(of: ".app", with: "")

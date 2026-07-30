@@ -145,13 +145,14 @@ struct UninstallWindowView: View {
                 }
                 if !uninstall.leftovers.isEmpty {
                     ownerSection(title: t(.uninstallLeftovers), owners: uninstall.leftovers,
-                                 action: t(.uninstallRemoveInstallers)) { index in
+                                 action: t(.uninstallRemoveLeftovers)) { index in
                         uninstall.leftovers[index].ticked.toggle()
                     } run: {
                         uninstall.removeTickedLeftovers()
                     }
                 }
                 installersBody
+                heavySection
                 trashSection
             }
             .padding(.bottom, 4)
@@ -192,7 +193,7 @@ struct UninstallWindowView: View {
                         }
                     }
                     Spacer(minLength: 8)
-                    Text(StatsFormatting.diskGb(Double(owner.bytes)) + " GB")
+                    Text(Self.sizeText(owner.bytes))
                         .font(Theme.mono(9))
                         .foregroundStyle(Theme.textTertiary)
                         .monospacedDigit()
@@ -219,6 +220,37 @@ struct UninstallWindowView: View {
         }
     }
 
+    /// Big app data with no tick and no button: the honest answer to "why is
+    /// Telegram not in the cache list" is that its 23 GB is cache and data in one
+    /// folder, and only Telegram knows which is which.
+    @ViewBuilder private var heavySection: some View {
+        if !uninstall.heavyData.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(t(.uninstallHeavySection))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                ForEach(uninstall.heavyData) { owner in
+                    HStack(spacing: 8) {
+                        Text(owner.name)
+                            .font(Theme.mono(10.5))
+                            .foregroundStyle(Theme.textSecondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        Spacer(minLength: 8)
+                        Text(Self.sizeText(owner.bytes))
+                            .font(Theme.mono(9))
+                            .foregroundStyle(Theme.textTertiary)
+                            .monospacedDigit()
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
+                }
+            }
+        }
+    }
+
     /// The trash, with a number and the only irreversible button in the module.
     private var trashSection: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -229,7 +261,7 @@ struct UninstallWindowView: View {
                 Image(systemName: "trash")
                     .font(.system(size: 11))
                     .foregroundStyle(Theme.textSecondary)
-                Text("\(uninstall.trashItems) · \(StatsFormatting.diskGb(Double(uninstall.trashBytes))) GB")
+                Text("\(uninstall.trashItems) · \(Self.sizeText(uninstall.trashBytes))")
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.textPrimary)
                     .monospacedDigit()
@@ -261,7 +293,7 @@ struct UninstallWindowView: View {
                     .foregroundStyle(Theme.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
                 ForEach(uninstall.mixed) { trace in
-                    Text("• \(trace.name) · \(StatsFormatting.diskGb(Double(trace.bytes))) GB")
+                    Text("• \(trace.name) · \(Self.sizeText(trace.bytes))")
                         .font(Theme.mono(9))
                         .foregroundStyle(Theme.textTertiary)
                         .lineLimit(1)
@@ -312,7 +344,7 @@ struct UninstallWindowView: View {
                                         .foregroundStyle(Theme.textTertiary)
                                 }
                                 Spacer(minLength: 8)
-                                Text(StatsFormatting.diskGb(Double(file.found.bytes)) + " GB")
+                                Text(Self.sizeText(file.found.bytes))
                                     .font(Theme.mono(9))
                                     .foregroundStyle(Theme.textTertiary)
                                     .monospacedDigit()
@@ -341,6 +373,16 @@ struct UninstallWindowView: View {
                 }
             }
         }
+    }
+
+    /// A size a person can read: gigabytes when it is gigabytes, megabytes when it
+    /// is not. A list of "0.0 GB" says nothing about which row is worth a click
+    /// (Anton, 2026-07-30).
+    static func sizeText(_ bytes: Int64) -> String {
+        let gb = Double(bytes) / 1_000_000_000
+        if gb >= 1 { return String(format: "%.1f GB", gb) }
+        let mb = Double(bytes) / 1_000_000
+        return mb >= 10 ? String(format: "%.0f MB", mb) : String(format: "%.1f MB", mb)
     }
 
     private static func dateText(_ date: Date) -> String {
@@ -450,7 +492,7 @@ struct UninstallWindowView: View {
                 }
             }
             Spacer(minLength: 8)
-            Text(StatsFormatting.diskGb(Double(trace.bytes)) + " GB")
+            Text(Self.sizeText(trace.bytes))
                 .font(Theme.mono(9))
                 .foregroundStyle(Theme.textTertiary)
                 .monospacedDigit()

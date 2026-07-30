@@ -2184,10 +2184,14 @@ meant you could not tell what you were about to do until it was open (Anton,
   computed for that list — walking /Applications takes seconds on a Mac with a
   design suite installed, and the list is for choosing; the sizes appear in the
   trace list that follows.
-- **Clean up** is one screen with four sections, because they are one intention:
+- **Clean up** is one screen with five sections, because they are one intention:
   - **caches by app**, built from the cache FOLDERS rather than the list of apps,
     so an identifier whose app is gone still shows up (labelled as a leftover).
-    Apple's own caches are skipped and anything under a megabyte is noise.
+    Apple's own caches are skipped and anything under a megabyte is noise. Four
+    places are read, not one: `~/Library/Caches/<id>`, a container's
+    `Data/Library/Caches`, a group container's own `Library/Caches`, and the
+    same folder one level inside a group container — sandboxed apps put their
+    cache in whichever of those their own layout uses.
   - **installers** — folded in here rather than being a screen of its own, which is
     one screen too many for something this obvious (Anton, 2026-07-30).
   - **leftovers of apps long gone** — found automatically, which is the whole
@@ -2196,6 +2200,13 @@ meant you could not tell what you were about to do until it was open (Anton,
     a dot-anchored prefix either way, because `com.foo.App.Updater` looks orphaned
     while its owner sits in /Applications. Nothing written to in the last 30 days
     is offered: something is still using it.
+  - **big app data we do not touch** — a list with no tick and no button, only a
+    name and a size. It answers the question the cache list provokes: Telegram
+    holds 23 GB and never appears among the caches, because its `Library/Caches`
+    is EMPTY — the media sits in its own database inside the group container,
+    cache and account data in one folder. Anything over a gigabyte in a container
+    or group container is named here, with the note that only the app's own
+    cleanup knows which half is disposable (Anton, 2026-07-30).
   - **the trash**, with its size and the one irreversible button in the module,
     said so in the note beneath it.
 
