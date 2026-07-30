@@ -8,6 +8,9 @@ struct NumericField: View {
     @Binding var value: Int
     let range: ClosedRange<Int>
     var color: Color = Theme.textPrimary
+    /// What this number is, on hover — a bare field says nothing once the label
+    /// beside it has scrolled out of the eye's way.
+    var help: String?
     /// Minimum digits shown, zero-padded. A clock field passes 2 so single-digit
     /// hours and minutes read as `09` rather than `9` — "22 : 0" is not a time.
     var padTo: Int = 0
@@ -27,6 +30,12 @@ struct NumericField: View {
     @FocusState private var focused: Bool
 
     var body: some View {
+        // The chain below is long enough that the type-checker gives up when a
+        // modifier is added to it directly, so the tooltip goes on the outside.
+        field.helpIfAny(help)
+    }
+
+    private var field: some View {
         TextField("", text: $text)
             .textFieldStyle(.plain)
             .focused($focused)
@@ -237,6 +246,7 @@ struct FooterLink: View {
             hovering = inside
             if inside { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }
         }
+        .help(label)
     }
 }
 
@@ -893,6 +903,10 @@ struct HoverIconButton: View {
     let symbol: String
     let action: () -> Void
     var size: CGFloat = 10
+    /// What the icon does, on hover. Icon-only controls are unreadable without
+    /// it, so it is a parameter of the shared component rather than something
+    /// each call site remembers (Anton, 2026-07-30).
+    var help: String?
     @State private var hovering = false
 
     var body: some View {
@@ -913,6 +927,7 @@ struct HoverIconButton: View {
             hovering = inside
             if inside { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }
         }
+        .helpIfAny(help)
     }
 }
 
@@ -922,11 +937,14 @@ struct HoverIconButton: View {
 struct FieldCommitButtons: View {
     let onCommit: () -> Void
     let onCancel: () -> Void
+    var lang: AppLanguage = L10n.current
 
     var body: some View {
         HStack(spacing: 2) {
-            HoverIconButton(symbol: "checkmark", action: onCommit)
-            HoverIconButton(symbol: "xmark", action: onCancel)
+            HoverIconButton(symbol: "checkmark", action: onCommit,
+                            help: L10n.t(.fieldCommit, lang))
+            HoverIconButton(symbol: "xmark", action: onCancel,
+                            help: L10n.t(.quitCancel, lang))
         }
     }
 }
@@ -940,6 +958,7 @@ struct FieldCommitButtons: View {
 /// never intercept a click meant for the time label beside it.
 struct HoverDeleteX: View {
     let action: () -> Void
+    var help: String?
 
     var body: some View {
         Button(action: action) {
@@ -952,6 +971,7 @@ struct HoverDeleteX: View {
         }
         .buttonStyle(.plain)
         .hoverHighlight(4)
+        .helpIfAny(help)
     }
 }
 
@@ -979,12 +999,14 @@ struct RowDeleteConfirm: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .help(L10n.t(.trackerDelete, lang))
             Button(action: onCancel) {
                 HoverLabel(text: L10n.t(.quitCancel, lang), size: 10, color: Theme.textTertiary)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .keyboardShortcut(.cancelAction)
+            .help(L10n.t(.quitCancel, lang))
         }
     }
 }

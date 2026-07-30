@@ -2224,10 +2224,18 @@ nothing about what would be cleaned, and the caches are why anybody opens it
 (Anton, 2026-07-30).
 
 - **Remove the app**: the drop plate AND a list of every app in /Applications and
-  ~/Applications, so removing one is a click, not only a drag. Sizes are not
-  computed for that list — walking /Applications takes seconds on a Mac with a
-  design suite installed, and the list is for choosing; the sizes appear in the
-  trace list that follows.
+  ~/Applications, so removing one is a click, not only a drag. The whole screen
+  is ONE scroll — the plate scrolls up with the list rather than sitting above a
+  list that scrolls inside it — and the window opens tall for it.
+  - **Every app carries its size**, as a total with its parts beside it:
+    `1.4 GB (1.2 GB + 200 MB)` — the bundle plus everything of its elsewhere,
+    because "how much do I get back" and "how much of that is the app" are two
+    questions (Anton, 2026-07-30). Weighed AFTER the list is on screen, one app
+    at a time, off the main thread: adding up /Applications on a Mac with a
+    design suite takes seconds, and a list nobody can see yet is not worth
+    waiting for. Until an app is weighed its row shows its identifier.
+  - **Sorted by name or by size** (`uninstallAppSort`, remembered). A list of a
+    hundred apps only answers "what should go" when the big ones can come first.
 - **Clear the cache** is one screen with five sections, because they are one
   intention:
   - **caches by app**, built from the cache FOLDERS rather than the list of apps,
@@ -2255,9 +2263,13 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   - **the trash**, with its size and the one irreversible button in the module,
     said so in the note beneath it.
 
-  Every section with ticks carries **one tick for the whole section**, beside its
-  heading: a list of forty apps holding a cache is a list nobody ticks forty
-  times (Anton, 2026-07-30), and the second click clears the lot again.
+  Every section with ticks carries **one tick for the whole section**, at the
+  BOTTOM LEFT: a list of forty apps holding a cache is a list nobody ticks forty
+  times (Anton, 2026-07-30), and the second click clears the lot again. Its box
+  sits in the same column as every other box in the list and on the same line as
+  the button it feeds; at the top right it was a stray control above the ticks it
+  belonged to. Sections are 28pt apart, because a section ending in a button and
+  the next one opening with a tick read as one row at 16.
 
   **The window opens before the scan does.** Walking every cache folder, every
   container and the trash, adding up sizes as it goes, takes seconds on a full
@@ -2267,6 +2279,18 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   the leftovers, and the containers last because they are the slowest thing here.
   A line at the top says the disk is still being read, and no section claims to
   be empty until it has actually been looked at.
+
+### Tooltips
+
+- **Every control that does something says what it does, on hover.** Icon-only
+  controls are unreadable without it, and a label that truncates is only half a
+  sentence — so the settings switches carry one too (Anton, 2026-07-30).
+- The shared controls take it as a parameter rather than leaving it to each call
+  site: `HoverIconButton`, `HoverDeleteX` and `NumericField` all accept `help`,
+  and `switchSetting` attaches the row's own label.
+- **They appear after ~0.35s**, not the system's lazy couple of seconds:
+  `NSInitialToolTipDelay` is registered at launch. A name that arrives after the
+  pointer has moved on is a name nobody reads.
 
 ### Uninstaller: the other two modes
 

@@ -3597,6 +3597,28 @@ struct PanelView: View {
                     deleteShelfConfirmOverlay(id)
                 }
             }
+            // Chips can only move what exists, and grids of apps are the one
+            // module that comes in copies — so the table itself has to be able
+            // to make another one, however many the user wants. ABOVE the
+            // caption and drawn as a real button: under a paragraph of grey text
+            // it read as part of the paragraph and was never found (Anton,
+            // 2026-07-30).
+            Button { addShelf() } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 10, weight: .semibold))
+                    Text(t(.appsAddShelf))
+                        .font(Theme.mono(10, weight: .semibold))
+                }
+                .foregroundStyle(Theme.textPrimary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverHighlight(7)
+            .help(t(.appsAddShelf))
             // Airy caption under the table: what "inactive" means, and that both
             // columns and the chips inside them are draggable.
             Text(t(.modulesTableHint))
@@ -3605,21 +3627,6 @@ struct PanelView: View {
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            // Chips can only move what exists, and grids of apps are the one
-            // module that comes in copies — so the table itself has to be able
-            // to make another one, however many the user wants.
-            Button { addShelf() } label: {
-                HStack(spacing: 5) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 9, weight: .semibold))
-                    Text(t(.appsAddShelf))
-                        .font(Theme.mono(10))
-                }
-                .foregroundStyle(Theme.textSecondary)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .hoverDim()
         }
         .onDisappear {
             // @State survives the settings window's hide/show, so a window
@@ -4163,6 +4170,10 @@ struct PanelView: View {
             Spacer()
             Theme.MiniSwitch(isOn: isOn)
         }
+        // Every switch answers on hover, including the ones whose label is right
+        // there: a long label truncates, and the tooltip is where the whole
+        // sentence lives (Anton, 2026-07-30).
+        .help(title)
     }
 
     /// The shared "visible rows" row for the tracker and to-do modules: a numeric

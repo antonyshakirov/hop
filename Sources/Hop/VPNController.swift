@@ -114,14 +114,16 @@ final class VPNController: ObservableObject {
             await Task.detached {
                 if turningOff {
                     _ = Self.run([Self.scutil, "--nc", "stop", id])
-                    // A tunnel with on-demand rules is back within seconds — the
-                    // rules connect it again as soon as anything asks for a
-                    // `.com` (Anton, 2026-07-30). Stopping it is not enough; the
-                    // service itself has to leave the network set, which is the
-                    // only lever a third-party configuration gives us.
-                    if holdOff, Self.reconnectsByItself(id) {
-                        Self.setService(name, enabled: false)
-                    }
+                    // A tunnel is back within seconds of being stopped — its own
+                    // on-demand rules connect it again as soon as anything asks
+                    // for a `.com`, and a vendor's background helper can do the
+                    // same without any rules at all. Stopping is not enough: the
+                    // service itself leaves the network set, which is the only
+                    // lever a third-party configuration gives us. Every
+                    // configuration, not only the ones we can see rules on —
+                    // "off" has to mean the same thing for all of them (Anton,
+                    // 2026-07-30).
+                    if holdOff { Self.setService(name, enabled: false) }
                 } else {
                     // Switching one back on returns it to the set first, or the
                     // start would have nothing to start.
@@ -131,12 +133,6 @@ final class VPNController: ObservableObject {
             }.value
             self?.refresh()
         }
-    }
-
-    /// Whether this configuration has on-demand rules, which is what makes a
-    /// stopped tunnel come back on its own.
-    private nonisolated static func reconnectsByItself(_ id: String) -> Bool {
-        run([scutil, "--nc", "show", id]).contains("OnDemandEnabled : TRUE")
     }
 
     /// Switches a service on or off in the network set. `networksetup` takes the

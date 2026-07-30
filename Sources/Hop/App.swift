@@ -196,6 +196,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // found Hop in its own cache list, 2026-07-30). Zero on both ends: a
         // one-shot download has nothing to gain from being cached, and a speed
         // test served from a cache would measure the wrong thing.
+        // Tooltips after ~0.35s rather than the system's lazy couple of seconds:
+        // a panel of icon-only controls is only readable if the name arrives
+        // while the pointer is still on the icon (Anton, 2026-07-30).
+        UserDefaults.standard.register(defaults: ["NSInitialToolTipDelay": 350])
+
         URLCache.shared = URLCache(memoryCapacity: 0, diskCapacity: 0, diskPath: nil)
         Self.dropOwnHTTPCache()
 
@@ -963,10 +968,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // its buttons below the fold, where a button might as well not exist
             // (Anton, 2026-07-30). Removing an app opens at the drop plate's own
             // height and grows from there.
+            // Both jobs open TALL: one is five lists, the other is every app on
+            // the Mac, and a short window put their content below the fold where
+            // a button might as well not exist (Anton, 2026-07-30).
             let clean = model.uninstall.mode == .clean
             let screen = (NSScreen.main?.visibleFrame.height ?? 900)
             window.setContentSize(NSSize(width: clean ? 620 : 560,
-                                         height: clean ? min(760, screen * 0.8) : 220))
+                                         height: min(clean ? 760 : 700, screen * 0.8)))
             window.center()
         }
         enterDockMode()
@@ -981,7 +989,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func adjustUninstallHeight() {
         guard let window = uninstallWindow, window.isVisible,
               !uninstallUserResized,
-              model.uninstall.mode != .clean else { return }
+              model.uninstall.mode != .clean,
+              // the picker scrolls as one screen; fitting the window to a list of
+              // every installed app would make it as tall as the display
+              model.uninstall.target != nil else { return }
         let content = model.uninstallContentHeight
         guard content > 80 else { return }
         let topInset = window.contentView?.safeAreaInsets.top ?? 0
