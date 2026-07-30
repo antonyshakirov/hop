@@ -137,9 +137,24 @@ struct UninstallWindowView: View {
     private var cleanBody: some View {
         ScrollView(showsIndicators: true) {
             VStack(alignment: .leading, spacing: 16) {
+                if uninstall.scanning {
+                    HStack(spacing: 7) {
+                        ProgressView()
+                            .controlSize(.small)
+                            .frame(width: 11, height: 11)
+                        Text(t(.uninstallScanning))
+                            .font(Theme.mono(9.5))
+                            .foregroundStyle(Theme.textTertiary)
+                    }
+                    .padding(.bottom, 2)
+                }
                 ownerSection(title: t(.uninstallAllCaches), owners: uninstall.cacheOwners,
                              action: t(.uninstallClearCache)) { index in
                     uninstall.cacheOwners[index].ticked.toggle()
+                } toggleAll: { on in
+                    for index in uninstall.cacheOwners.indices {
+                        uninstall.cacheOwners[index].ticked = on
+                    }
                 } run: {
                     uninstall.clearTickedCaches()
                 }
@@ -147,6 +162,10 @@ struct UninstallWindowView: View {
                     ownerSection(title: t(.uninstallLeftovers), owners: uninstall.leftovers,
                                  action: t(.uninstallRemoveLeftovers)) { index in
                         uninstall.leftovers[index].ticked.toggle()
+                    } toggleAll: { on in
+                        for index in uninstall.leftovers.indices {
+                            uninstall.leftovers[index].ticked = on
+                        }
                     } run: {
                         uninstall.removeTickedLeftovers()
                     }
@@ -162,13 +181,19 @@ struct UninstallWindowView: View {
     /// A list of apps (or identifiers) with a size each and one button.
     @ViewBuilder private func ownerSection(
         title: String, owners: [UninstallController.CacheOwner], action: String,
-        toggle: @escaping (Int) -> Void, run: @escaping () -> Void
+        toggle: @escaping (Int) -> Void, toggleAll: @escaping (Bool) -> Void,
+        run: @escaping () -> Void
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(Theme.mono(9))
-                .foregroundStyle(Theme.textTertiary)
-                .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .top, spacing: 8) {
+                Text(title)
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                selectAll(!owners.isEmpty && owners.allSatisfy(\.ticked),
+                          enabled: !owners.isEmpty, toggleAll: toggleAll)
+            }
             ForEach(Array(owners.enumerated()), id: \.element.id) { index, owner in
                 HStack(spacing: 8) {
                     Button { toggle(index) } label: {
@@ -218,6 +243,29 @@ struct UninstallWindowView: View {
                 .disabled(!owners.contains(where: \.ticked))
             }
         }
+    }
+
+    /// One tick for a whole section. A list of forty apps holding a cache is a
+    /// list nobody ticks forty times (Anton, 2026-07-30); ticking all of them is
+    /// the common case here, and the second click clears the lot again.
+    private func selectAll(_ on: Bool, enabled: Bool,
+                           toggleAll: @escaping (Bool) -> Void) -> some View {
+        Button { toggleAll(!on) } label: {
+            HStack(spacing: 5) {
+                Image(systemName: on ? "checkmark.square.fill" : "square")
+                    .font(.system(size: 11))
+                    .foregroundStyle(on ? Theme.textPrimary : Theme.textTertiary)
+                Text(t(.uninstallSelectAll))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0.4)
+        .help(t(.uninstallSelectAll))
     }
 
     /// Big app data with no tick and no button: the honest answer to "why is
@@ -307,11 +355,21 @@ struct UninstallWindowView: View {
     /// button.
     private var installersBody: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(t(.uninstallInstallersNote))
-                .font(Theme.mono(9))
-                .foregroundStyle(Theme.textTertiary)
-                .fixedSize(horizontal: false, vertical: true)
-            if uninstall.installers.isEmpty {
+            HStack(alignment: .top, spacing: 8) {
+                Text(t(.uninstallInstallersNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 8)
+                selectAll(!uninstall.installers.isEmpty
+                          && uninstall.installers.allSatisfy(\.ticked),
+                          enabled: !uninstall.installers.isEmpty) { on in
+                    for index in uninstall.installers.indices {
+                        uninstall.installers[index].ticked = on
+                    }
+                }
+            }
+            if uninstall.installers.isEmpty, !uninstall.scanning {
                 Text(t(.uninstallNoInstallers))
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.textTertiary)

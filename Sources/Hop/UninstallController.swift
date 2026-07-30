@@ -125,6 +125,10 @@ final class UninstallController: ObservableObject {
     /// Set when the app refuses to quit — removing a running app leaves half of it
     /// behind and relaunches the rest.
     @Published private(set) var blockedByRunning = false
+    /// True while the clean-up walk is still running, so the window can say so
+    /// instead of looking empty.
+    @Published private(set) var scanning = false
+    private var cleanTask: Task<Void, Never>?
 
     var totalBytes: Int64 { traces.filter(\.ticked).reduce(0) { $0 + $1.bytes } }
     var needsAdmin: Bool {
@@ -216,13 +220,61 @@ final class UninstallController: ObservableObject {
         report = nil
         switch mode {
         case .clean:
-            scanAllCaches()
-            scanInstallers()
-            scanLeftovers()
-            scanMixedData()
-            measureTrash()
+            startCleanScan()
         case .uninstall:
             if target != nil { scan() } else { listInstalledApps() }
+        }
+    }
+
+    /// The clean-up scan, off the main thread and section by section.
+    ///
+    /// It walks every cache folder, every container and the trash, adding up
+    /// sizes — seconds of disk on a full Mac. Doing that before the window
+    /// appeared meant clicking "clear the cache" and staring at nothing (Anton,
+    /// 2026-07-30). Now the window is there immediately and each list drops in
+    /// when it is ready: installers first because they are instant, the
+    /// containers last because they are the slowest thing here.
+    private func startCleanScan() {
+        cleanTask?.cancel()
+        installers = []
+        cacheOwners = []
+        leftovers = []
+        heavyData = []
+        trashBytes = 0
+        trashItems = 0
+        scanning = true
+        cleanTask = Task { [weak self] in
+            let installed = await Task.detached(priority: .utility) {
+                Set(Self.installedIdentifiers())
+            }.value
+            guard !Task.isCancelled, let self else { return }
+
+            let found = await Task.detached(priority: .utility) { Self.rawInstallers() }.value
+            guard !Task.isCancelled else { return }
+            self.installers = InstallerFiles.sorted(found)
+                .map { InstallerFile(found: $0, ticked: InstallerFiles.tickedByDefault) }
+
+            let caches = await Task.detached(priority: .utility) { Self.rawCaches() }.value
+            guard !Task.isCancelled else { return }
+            self.cacheOwners = Self.cacheOwners(from: caches, installed: installed)
+
+            let trash = await Task.detached(priority: .utility) { Self.trashMeasurement() }.value
+            guard !Task.isCancelled else { return }
+            self.trashBytes = trash.bytes
+            self.trashItems = trash.items
+
+            let orphans = await Task.detached(priority: .utility) {
+                Self.rawLeftovers(installed: installed)
+            }.value
+            guard !Task.isCancelled else { return }
+            self.leftovers = orphans
+
+            let heavy = await Task.detached(priority: .utility) { Self.rawHeavy() }.value
+            guard !Task.isCancelled else { return }
+            self.heavyData = Self.named(heavy, installed: installed)
+
+            self.scanning = false
+            self.state = self.cacheOwners.isEmpty ? .empty : .found
         }
     }
 
@@ -230,10 +282,9 @@ final class UninstallController: ObservableObject {
     /// which identifiers it knows and treating the rest as leftovers — with the
     /// guards that keep a helper of an installed app out of the list, and anything
     /// written to in the last month as well.
-    func scanLeftovers() {
+    nonisolated static func rawLeftovers(installed: Set<String>) -> [CacheOwner] {
         let manager = FileManager.default
         let home = NSHomeDirectory()
-        let installed = Set(installedIdentifiers())
         var byIdentifier: [String: (paths: [String], bytes: Int64, modified: Date)] = [:]
 
         for folder in AppUninstall.userFolders {
@@ -258,7 +309,7 @@ final class UninstallController: ObservableObject {
                 byIdentifier[identifier] = entryData
             }
         }
-        leftovers = byIdentifier.compactMap { identifier, data -> CacheOwner? in
+        return byIdentifier.compactMap { identifier, data -> CacheOwner? in
             guard data.bytes > 1_000_000 else { return nil }
             // the caches section lists installed apps only, so nothing appears twice
             return CacheOwner(identifier: identifier, name: identifier, appPath: nil,
@@ -279,12 +330,11 @@ final class UninstallController: ObservableObject {
     /// with only an empty `Library/Caches` inside — the media sits in its own
     /// database, and only Telegram's own "clear cache" knows which of it is
     /// disposable (Anton asked why it was missing, 2026-07-30).
-    func scanMixedData() {
+    nonisolated static func rawHeavy() -> [(path: String, identifier: String, bytes: Int64)] {
         let manager = FileManager.default
         let home = NSHomeDirectory()
-        let installed = Set(installedIdentifiers())
-        var out: [CacheOwner] = []
-        for (folder, _) in [("Containers", 0), ("Group Containers", 0)] {
+        var out: [(path: String, identifier: String, bytes: Int64)] = []
+        for folder in ["Containers", "Group Containers"] {
             let directory = "\(home)/Library/\(folder)"
             for entry in (try? manager.contentsOfDirectory(atPath: directory)) ?? [] {
                 let path = "\(directory)/\(entry)"
@@ -292,22 +342,33 @@ final class UninstallController: ObservableObject {
                 guard !identifier.hasPrefix("com.apple.") else { continue }
                 let bytes = Self.size(of: path)
                 guard bytes > 1_000_000_000 else { continue }   // a gigabyte or more
-                let owner = Self.owningApp(of: identifier, installed: installed)
-                let url = owner.flatMap {
-                    NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0)
-                }
-                let name = url.map {
-                    manager.displayName(atPath: $0.path).replacingOccurrences(of: ".app", with: "")
-                } ?? identifier
-                out.append(CacheOwner(identifier: path, name: name, appPath: url?.path,
-                                      paths: [path], bytes: bytes, ticked: false))
+                out.append((path: path, identifier: identifier, bytes: bytes))
             }
         }
-        heavyData = out.sorted { $0.bytes > $1.bytes }
+        return out.sorted { $0.bytes > $1.bytes }
+    }
+
+    /// Puts an app's name on each of those folders. Split from the walk above
+    /// because it asks LaunchServices, and LaunchServices is happier on the main
+    /// thread than a size walk ever is.
+    static func named(_ found: [(path: String, identifier: String, bytes: Int64)],
+                      installed: Set<String>) -> [CacheOwner] {
+        found.map { item in
+            let owner = owningApp(of: item.identifier, installed: installed)
+            let url = owner.flatMap {
+                NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0)
+            }
+            let name = url.map {
+                FileManager.default.displayName(atPath: $0.path)
+                    .replacingOccurrences(of: ".app", with: "")
+            } ?? item.identifier
+            return CacheOwner(identifier: item.path, name: name, appPath: url?.path,
+                              paths: [item.path], bytes: item.bytes, ticked: false)
+        }
     }
 
     /// Every identifier this Mac has an app for.
-    private func installedIdentifiers() -> [String] {
+    nonisolated static func installedIdentifiers() -> [String] {
         let manager = FileManager.default
         var out: [String] = []
         for folder in ["/Applications", "/Applications/Utilities", "/System/Applications",
@@ -324,7 +385,7 @@ final class UninstallController: ObservableObject {
     }
 
     /// `<TEAMID>.<id>` → `<id>`: a team prefix is not part of the identifier.
-    private func strippedTeamPrefix(_ base: String) -> String {
+    nonisolated static func strippedTeamPrefix(_ base: String) -> String {
         let parts = base.split(separator: ".").map(String.init)
         guard let first = parts.first, first.count == 10,
               first.uppercased() == first, !first.contains(where: \.isLowercase),
@@ -333,11 +394,18 @@ final class UninstallController: ObservableObject {
     }
 
     /// What the trash is holding, so the offer to empty it carries a number.
-    func measureTrash() {
+    nonisolated static func trashMeasurement() -> (bytes: Int64, items: Int) {
         let trash = "\(NSHomeDirectory())/.Trash"
-        trashBytes = Self.size(of: trash)
-        trashItems = ((try? FileManager.default.contentsOfDirectory(atPath: trash)) ?? [])
+        let items = ((try? FileManager.default.contentsOfDirectory(atPath: trash)) ?? [])
             .filter { !$0.hasPrefix(".") }.count
+        return (bytes: size(of: trash), items: items)
+    }
+
+    /// Measures the trash again after emptying it, without redoing the rest.
+    func measureTrash() {
+        let measured = Self.trashMeasurement()
+        trashBytes = measured.bytes
+        trashItems = measured.items
     }
 
     /// Empties the trash through Finder, which is the only thing allowed to. The
@@ -356,8 +424,7 @@ final class UninstallController: ObservableObject {
     /// Every app that is holding a cache, biggest first. Built from the CACHE
     /// folders rather than from the list of apps: that way an identifier whose app
     /// is gone still shows up, labelled as a leftover.
-    func scanAllCaches() {
-        state = .scanning
+    nonisolated static func rawCaches() -> [String: (paths: [String], bytes: Int64)] {
         let manager = FileManager.default
         let home = NSHomeDirectory()
         var byIdentifier: [String: (paths: [String], bytes: Int64)] = [:]
@@ -397,8 +464,15 @@ final class UninstallController: ObservableObject {
             }
         }
 
-        let installed = Set(installedIdentifiers())
-        cacheOwners = byIdentifier.compactMap { identifier, entry -> CacheOwner? in
+        return byIdentifier
+    }
+
+    /// Turns the raw walk into the list the window shows: Apple's own caches out,
+    /// noise out, leftovers out (they have a section of their own), and every
+    /// remaining identifier named after the app that owns it.
+    static func cacheOwners(from byIdentifier: [String: (paths: [String], bytes: Int64)],
+                            installed: Set<String>) -> [CacheOwner] {
+        byIdentifier.compactMap { identifier, entry -> CacheOwner? in
             // Apple's own caches are the system's business, not ours
             guard !identifier.hasPrefix("com.apple.") else { return nil }
             guard entry.bytes > 1_000_000 else { return nil }   // below a megabyte is noise
@@ -409,7 +483,7 @@ final class UninstallController: ObservableObject {
             // is not listed twice (Anton, 2026-07-30).
             guard !AppUninstall.isLeftover(identifier: identifier,
                                            installedIdentifiers: installed) else { return nil }
-            let owner = Self.owningApp(of: identifier, installed: installed)
+            let owner = owningApp(of: identifier, installed: installed)
             let url = owner.flatMap {
                 NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0)
             }
@@ -421,7 +495,6 @@ final class UninstallController: ObservableObject {
                               paths: entry.paths, bytes: entry.bytes, ticked: false)
         }
         .sorted { $0.bytes > $1.bytes }
-        state = cacheOwners.isEmpty ? .empty : .found
     }
 
     /// Moves a list of paths to the trash and writes the report. The one place
@@ -516,8 +589,7 @@ final class UninstallController: ObservableObject {
 
     /// Installers sitting in the folders a download lands in. No app needed: this
     /// mode is about the .dmg nobody opened again.
-    func scanInstallers() {
-        state = .scanning
+    nonisolated static func rawInstallers() -> [InstallerFiles.Found] {
         let manager = FileManager.default
         let home = NSHomeDirectory()
         var found: [InstallerFiles.Found] = []
@@ -533,9 +605,7 @@ final class UninstallController: ObservableObject {
                     modified: values?.contentModificationDate ?? .distantPast))
             }
         }
-        installers = InstallerFiles.sorted(found)
-            .map { InstallerFile(found: $0, ticked: InstallerFiles.tickedByDefault) }
-        state = installers.isEmpty ? .empty : .found
+        return found
     }
 
     /// Moves the ticked installers to the trash. Same promise as everywhere else.
