@@ -1960,6 +1960,11 @@ struct PanelView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    // "25/5 ×4" is a shorthand nobody is born knowing
+                    .help(t(.tipCycleTemplate)
+                        .replacingOccurrences(of: "{w}", with: "\(template.work)")
+                        .replacingOccurrences(of: "{r}", with: "\(template.rest)")
+                        .replacingOccurrences(of: "{n}", with: "\(template.rounds)"))
                 }
             }
             Spacer(minLength: 4)
@@ -2118,7 +2123,8 @@ struct PanelView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(t(.tipPreset))
+        // the number itself, not "a preset": hovering 90 should say what 90 does
+        .help(t(.tipPresetSet).replacingOccurrences(of: "{n}", with: "\(minutes)"))
     }
 
     private func restoreButton(_ stash: TimerEngine.Stash) -> some View {
@@ -3352,6 +3358,14 @@ struct PanelView: View {
         return "\(Int(seconds) / 60)"
     }
 
+    /// "15 m" / "2 h" — the chip's own figure with its unit spelled out, for the
+    /// tooltip. The chip itself shows the bare number.
+    private func awakeDurationText(_ option: KeepAwakeController.Option) -> String {
+        guard let seconds = option.seconds else { return "∞" }
+        if seconds >= 3600 { return "\(Int(seconds) / 3600) \(t(.unitHour))" }
+        return "\(Int(seconds) / 60) \(t(.unitMin))"
+    }
+
     private func awakeChip(_ option: KeepAwakeController.Option) -> some View {
         let isActive = model.keepAwake.isActive && model.keepAwake.selected == option
         let isInfinity = option.seconds == nil
@@ -3374,7 +3388,10 @@ struct PanelView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(t(.tipAwakeFor))
+        // the figure itself: "15" and "∞" mean nothing without the sentence
+        .help(isInfinity
+              ? t(.tipAwakeForever)
+              : t(.tipAwakeFor).replacingOccurrences(of: "{n}", with: awakeDurationText(option)))
     }
 
     // MARK: - Settings

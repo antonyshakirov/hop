@@ -2291,6 +2291,11 @@ nothing about what would be cleaned, and the caches are why anybody opens it
 - The shared controls take it as a parameter rather than leaving it to each call
   site: `HoverIconButton`, `HoverDeleteX` and `NumericField` all accept `help`,
   and `switchSetting` attaches the row's own label.
+- **A tooltip says what THIS control does, with its own numbers in it.** A
+  preset reads "set the timer to 90 min", a cycle template "work 25 min, rest 5
+  min, 4 rounds", a keep-awake or keyboard-lock chip "lock the keyboard for 15
+  min" — and ∞ gets a sentence of its own ("until you stop it"). A generic "a
+  preset" tooltip on a row of bare figures explains nothing (Anton, 2026-07-30).
 - **They appear after one second** (`NSInitialToolTipDelay`, registered at
   launch). The system's own couple of seconds arrives after the pointer has moved
   on; a third of a second fires while the pointer is only passing through, which
@@ -2843,3 +2848,26 @@ playback.
   updates section, away from the theme picker (it kept reading as part of
   the theme). setIcon failure rolls the Finder custom-icon flag back —
   a half-written icon rendered the app as a folder.
+
+### Signing, and why permissions must survive an update
+
+macOS ties a permission — full disk access above all — to the app's CODE
+SIGNATURE. Hop is signed with a stable local certificate ("Minimo Signing"), and
+that is the whole reason a grant survives an update: the designated requirement
+names the certificate, which does not change between builds. An ad-hoc signature
+(`codesign --sign -`) pins the requirement to the build's own hash instead, so
+every update is a DIFFERENT app to the system and every user is asked for every
+permission again (Anton, 2026-07-30).
+
+- `build-app.sh` signs with that identity and falls back to ad-hoc only for a
+  local build with no certificate present.
+- `release.sh` thins the universal build into two bundles, which invalidates the
+  signature — so it signs each slice with the SAME identity, checks the authority
+  afterwards, and REFUSES to build a release at all when the certificate is
+  missing. It signed them ad-hoc when per-architecture builds were introduced,
+  which would have cost every user their permissions on the 1.7.0 update.
+- The updater installs with `ditto`, not `copyItem`: it carries a bundle across
+  whole, and a bundle that arrives intact keeps the signature the permission
+  hangs on.
+
+### Release

@@ -57,6 +57,7 @@ struct KeyboardLockView: View {
                 }
                 .buttonStyle(.plain)
                 .hoverDim()
+                .help(L10n.t(.keylockStop, lang))
             } else {
                 HStack(spacing: 5) {   // the spacing keep-awake's options use
                     ForEach(KeyboardLockController.durations, id: \.self) { seconds in
@@ -91,6 +92,11 @@ struct KeyboardLockView: View {
         }
         .buttonStyle(.plain)
         .hoverHighlight(3)
+        // a bare figure — and ∞ above all — has to say what it will do
+        .help(isInfinity
+              ? L10n.t(.tipLockForever, lang)
+              : L10n.t(.tipLockFor, lang)
+                  .replacingOccurrences(of: "{n}", with: "\(seconds / 60)"))
     }
 
     /// "1m" / "5m" / "15m", and ∞ for the lock that waits for the button —

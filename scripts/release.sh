@@ -22,6 +22,20 @@ plutil -replace CFBundleShortVersionString -string "$VERSION" scripts/Info.plist
 # universal binary to everyone would double every download and every update for
 # a slice the machine cannot run; thinning it means each Mac gets exactly what it
 # needs, and both halves are the same compile (Anton, 2026-07-29).
+# The SAME identity build-app.sh uses. macOS ties a permission — full disk
+# access above all — to the app's code signature, so a release signed ad hoc is
+# a different app to the system every single time: every user who had granted
+# anything is asked again after every update (Anton, 2026-07-30). Signing here
+# with the stable certificate is what makes a grant survive an update, and a
+# missing certificate stops the release rather than quietly costing everyone
+# their permissions.
+IDENTITY="Minimo Signing"
+security find-certificate -c "$IDENTITY" >/dev/null 2>&1 || {
+    echo "signing certificate '$IDENTITY' not found — a release signed ad hoc"
+    echo "would reset every user's permissions on update. Restore it first."
+    exit 1
+}
+
 build_slice() {
     local arch="$1" dir="dist/$1"
     rm -rf "$dir"
@@ -29,14 +43,17 @@ build_slice() {
     cp -R dist/Hop.app "$dir/Hop.app"
     lipo "$dir/Hop.app/Contents/MacOS/Hop" -thin "$arch" -output "$dir/Hop.app/Contents/MacOS/Hop"
     # thinning invalidates the signature — sign the bundle again, as build-app.sh does
-    codesign --force --deep --sign - "$dir/Hop.app" 2>/dev/null
+    codesign --force --deep --sign "$IDENTITY" "$dir/Hop.app" 2>/dev/null
     codesign --verify --deep "$dir/Hop.app" || { echo "signature failed: $arch"; exit 1 }
+    codesign -dv "$dir/Hop.app" 2>&1 | grep -q "Authority=$IDENTITY" || {
+        echo "wrong signing authority in $arch build"; exit 1
+    }
 }
 build_slice arm64
 build_slice x86_64
 
 ZIP="dist/Hop-$VERSION.zip"                 # arm64 keeps the historical name:
-ZIP_INTEL="dist/Hop-$VERSION-intel.zip"     # every client before 1.6.1 reads it
+ZIP_INTEL="dist/Hop-$VERSION-intel.zip"     # every client before 1.7.0 reads it
 rm -f "$ZIP" "$ZIP.sig" "$ZIP_INTEL" "$ZIP_INTEL.sig"
 ditto -c -k --keepParent dist/arm64/Hop.app "$ZIP"
 ditto -c -k --keepParent dist/x86_64/Hop.app "$ZIP_INTEL"
@@ -93,7 +110,7 @@ BASE="https://www.antonshakirov.com/downloads/hop"
 mkdir -p "$SITE_DIR/public/downloads/hop"
 cp "$ZIP" "$ZIP.sig" "$ZIP_INTEL" "$ZIP_INTEL.sig" "$SITE_DIR/public/downloads/hop/"
 # `zip`/`sig` stay the arm64 build under their historical names, so a client from
-# before 1.6.1 keeps updating; an Intel one reads the `…Intel` pair instead.
+# before 1.7.0 keeps updating; an Intel one reads the `…Intel` pair instead.
 cat > "$SITE_DIR/public/downloads/hop/latest.json" << JSON
 {
   "version": "$VERSION",
