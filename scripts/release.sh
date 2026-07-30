@@ -45,9 +45,13 @@ build_slice() {
     # thinning invalidates the signature — sign the bundle again, as build-app.sh does
     codesign --force --deep --sign "$IDENTITY" "$dir/Hop.app" 2>/dev/null
     codesign --verify --deep "$dir/Hop.app" || { echo "signature failed: $arch"; exit 1 }
-    # -dvv, not -dv: the authority line only appears at the second verbosity, so
-    # the check passed nothing and failed a correctly signed build
-    codesign -dvv "$dir/Hop.app" 2>&1 | grep -q "Authority=$IDENTITY" || {
+    # Captured, not piped into grep: `codesign | grep -q` makes grep leave early,
+    # codesign dies of SIGPIPE, and `set -o pipefail` turns a correctly signed
+    # build into a failed one. -dvv because the authority line only appears at
+    # the second verbosity.
+    local info
+    info=$(codesign -dvv "$dir/Hop.app" 2>&1)
+    [[ "$info" == *"Authority=$IDENTITY"* ]] || {
         echo "wrong signing authority in $arch build"; exit 1
     }
 }
