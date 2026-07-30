@@ -262,13 +262,18 @@ enum Snapshot {
             // history the clipboard uses (a picked colour IS an entry), and
             // without any it says "no colors yet" in the one picture meant to
             // show what the app does.
+            //
+            // The colours therefore go BELOW the three visible rows: the clipboard
+            // list shows three by default, and a shot whose clipboard is all
+            // swatches says "this keeps colours" twice over while never showing
+            // that it keeps a link, a file and a piece of text (Anton, 2026-07-30).
             if args.contains("--overview") {
                 let mixed: [ClipboardItem] = [
-                    ClipboardItem(text: "#2F6D5B", colorHex: "2F6D5B"),
-                    ClipboardItem(text: "#E8DCC8", colorHex: "E8DCC8"),
                     ClipboardItem(text: "https://antonshakirov.com/products/hop"),
                     ClipboardItem(text: "~/Documents/design-tokens.css"),
                     ClipboardItem(text: longText),
+                    ClipboardItem(text: "#2F6D5B", colorHex: "2F6D5B"),
+                    ClipboardItem(text: "#E8DCC8", colorHex: "E8DCC8"),
                 ]
                 if let data = try? JSONEncoder().encode(mixed) {
                     UserDefaults.standard.set(data, forKey: "clipboardHistory")

@@ -2339,7 +2339,10 @@ its own database of known apps may do better on real software than it did here.
   ones included, with content staged in each (the colour picker draws its
   swatches out of the clipboard history, so the overview seeds a mixed list —
   an empty row in the one picture meant to show the whole app is worse than a
-  crowded one).
+  crowded one). The colours go BELOW the three rows the clipboard shows by
+  default: with them on top the shot said "this keeps colours" twice and never
+  showed that it also keeps a link, a file and a piece of text (Anton,
+  2026-07-30).
 - `scripts/make-screens.sh [out-dir] [lang …]` renders the WHOLE product set —
   every README and product-page image, for the eight languages with their own
   folder — into the website repo by default. Every other README points at the
