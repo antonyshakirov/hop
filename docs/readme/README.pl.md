@@ -229,21 +229,24 @@ też jest połykane; przytrzymanie nadal wyłącza Maca, bo robi to sprzęt.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Blokada klawiatury">
 </div>
 
-### I cała reszta
+### Test prędkości
 
-Niewielkie wskaźniki stanu na ikonie na pasku menu — czas, blokada uśpienia,
-ostrzeżenia i aktywność torrentów, kolorowe lub monochromatyczne — wbudowany
-test prędkości (networkQuality od Apple), ciemny i jasny motyw z teksturą
-filmowego ziarna, globalne skróty klawiszowe, uruchamianie przy logowaniu oraz
-tryb awaryjny, który wyciąga aplikację z pętli awarii. Własne okna Hopa —
-konwerter, archiwa, rozpoznawanie, ustawienia — pojawiają się w docku, gdy są
-otwarte, a kliknięcie ikony przywraca okno zamiast otwierać panel; z ostatnim
-oknem ikona znika.
+Jedno dotknięcie mierzy łącze narzędziem samego macOS (networkQuality, serwery Apple) — pobieranie, wysyłanie i responsywność, a ostatni wynik zostaje w wierszu.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor systemu Hop — wykresy CPU, GPU, pamięci, sieci, dysku i baterii">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Konwerter plików Hop — wsadowa konwersja obrazów, PDF, wideo i audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Ustawienia Hop — motywy, moduły, skróty klawiszowe, 22 języki">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Test prędkości">
+</div>
+
+### Ikona na pasku menu
+
+Na ikonie siedzą małe znaczniki: biegnący czas, blokada uśpienia, przypomnienie, które zadzwoniło, zielona kropka, gdy VPN jest podniesiony, i strzałki, gdy idą torrenty — kolorowe albo monochromatyczne, każdy da się wyłączyć. Własne okna Hopa pojawiają się w Docku, dopóki są otwarte, więc kliknięcie przywraca okno zamiast otwierać panel, a z ostatnim oknem znika też ikona.
+
+### Motywy, skróty i tryb awaryjny
+
+Ciemny i jasny motyw z fakturą ziarna filmowego, skróty globalne, uruchamianie przy logowaniu i tryb awaryjny, który wyciąga aplikację z pętli awarii — wszystko w jednym oknie ustawień.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Ustawienia">
 </div>
 
 ### VPN
@@ -263,6 +266,10 @@ gdzie zakres jest zarejestrowany, a nie gdzie stoi maszyna.
 
 Kropkę można wyłączyć w ustawieniach — moduł i jego przełączniki działają i bez niej.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — Przełączniki VPN">
+</div>
+
 ### Aplikacje
 
 Siatka programów, które otwierasz przez cały dzień — jednym kliknięciem, bez
@@ -279,6 +286,26 @@ drugiej — każda ma swoje aplikacje.
 Siatki powstają i znikają tam, gdzie układasz moduły: w ustawieniach albo w
 samej tabeli modułów, gdzie ✕ na chipie siatki usuwa ją na dobre. Nowa siatka
 zaczyna pusta i tak o sobie pisze, dopóki jej nie wypełnisz.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — Siatka aplikacji">
+</div>
+
+### Usuwanie aplikacji
+
+Upuść aplikację na wiersz albo wybierz ją z listy wszystkiego, co zainstalowane — zniknie razem z tym, co zostawiła w jakichś trzydziestu miejscach: application support, pamięci podręczne, preferencje, kontenery, launch agents, wtyczki, kwity instalacji i reszta. Każda aplikacja na liście pokazuje, ile waży: pakiet i dane osobno. Aplikacja leżąca już w koszu też zostanie rozpoznana: identyfikator pochodzi z pakietu w koszu albo wynika z pozostałości, które go nazywają.
+
+Nic nie jest kasowane. Wszystko trafia do kosza, więc pomyłka kosztuje przywrócenie, a nie plik, a czego macOS nie oddaje, jest nazwane z powodem, a nie po cichu pominięte.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Usunięcie aplikacji ze wszystkim, co zostawiła">
+</div>
+
+Ten sam moduł sprząta, nic nie usuwając: każda aplikacja z pamięcią podręczną, największe na górze; instalatory w Pobranych, na Biurku i w Dokumentach; dane aplikacji usuniętych lata temu; i kosz wraz z rozmiarem. Jeden ptaszek bierze całą sekcję. Czego celowo nie rusza, też jest wypisane — kontener, w którym cache leży razem z danymi, choćby dwadzieścia gigabajtów komunikatora: co z tego można wyrzucić, wie tylko sama aplikacja.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Czyszczenie cache, instalatorów, pozostałości i kosza">
+</div>
 
 ## 22 języki
 

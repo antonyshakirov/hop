@@ -233,21 +233,24 @@ Mac weiterhin aus, denn das macht die Hardware.
 <img src="https://www.antonshakirov.com/products/hop/screens/de/keyboard.png" width="480" alt="Hop — Tastatursperre">
 </div>
 
-### Und der Rest
+### Geschwindigkeitstest
 
-Kleine Statusindikatoren am Menüleisten-Symbol — Zeit, Wachhalten, Warnungen
-und Torrent-Aktivität, farbig oder einfarbig —, ein eingebauter Speedtest
-(Apples networkQuality), dunkles und helles Design mit Filmkorn-Textur,
-globale Hotkeys, Start beim Anmelden und ein abgesicherter Modus, der die App
-aus einer Absturzschleife rettet. Hops eigene fenster — konverter, archive,
-texterkennung, einstellungen — erscheinen im dock, solange sie offen sind; ein
-klick auf das symbol holt eines zurück, statt erst das panel zu öffnen, und
-mit dem letzten fenster verschwindet es wieder.
+Ein Tippen misst die Verbindung mit macOS' eigenem networkQuality gegen Apples Server — Download, Upload und Reaktionszeit, das letzte Ergebnis bleibt in der Zeile stehen.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/system.png" width="280" alt="Hop-Systemmonitor — Diagramme für CPU, GPU, Speicher, Netzwerk, Festplatte, Batterie">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/converter.png" width="280" alt="Hop-Dateikonverter — Stapelkonvertierung von Bildern, PDFs, Videos und Audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/settings.png" width="280" alt="Hop-Einstellungen — Themes, Module, Hotkeys, 22 Sprachen">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/speed.png" width="420" alt="Hop — Geschwindigkeitstest">
+</div>
+
+### Das Symbol in der Menüleiste
+
+Auf dem Symbol sitzen kleine Marken: die laufende Zeit, der Schlafschutz, eine ausgelöste Erinnerung, ein grüner Punkt solange ein VPN steht, und Pfeile solange Torrents laufen — farbig oder monochrom, jede einzeln abschaltbar. Hops eigene Fenster erscheinen im Dock, solange sie offen sind, ein Klick holt eines zurück statt das Panel zu öffnen, und mit dem letzten Fenster verschwindet das Symbol wieder.
+
+### Themes, Kurzbefehle und der abgesicherte Modus
+
+Dunkles und helles Theme mit Filmkorn-Textur, globale Kurzbefehle, Start bei der Anmeldung und ein abgesicherter Modus, der die App aus einer Absturzschleife holt — alles in einem Einstellungsfenster.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/settings.png" width="480" alt="Hop — Einstellungen">
 </div>
 
 ### VPN
@@ -272,6 +275,10 @@ Maschine steht.
 
 Der Punkt lässt sich in den Einstellungen abschalten — das Modul und seine Schalter arbeiten auch ohne ihn.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/vpn.png" width="420" alt="Hop — VPN-Schalter">
+</div>
+
 ### Programme
 
 Ein Raster mit den Apps, die Sie den ganzen Tag öffnen — einen Klick entfernt,
@@ -290,6 +297,26 @@ Raster entstehen und verschwinden dort, wo Sie die Module anordnen: in den
 Einstellungen oder in der Modultabelle selbst, wo das ✕ am Chip eines Rasters es
 endgültig löscht. Ein neues Raster ist leer und sagt das auch, bis Sie es
 füllen.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/apps.png" width="420" alt="Hop — App-Raster">
+</div>
+
+### Apps entfernen
+
+Leg eine App auf die Zeile oder wähle sie aus der Liste aller installierten — sie geht mitsamt allem, was sie an rund dreißig Stellen hinterlassen hat: application support, Caches, Einstellungen, Container, Launch Agents, Plug-ins, Quittungen und der Rest. Jede App in der Liste zeigt ihr Gewicht, Bundle und Daten getrennt. Eine App, die schon im Papierkorb liegt, wird trotzdem erkannt: die Kennung stammt aus dem Bundle dort oder wird aus den Resten erschlossen, die sie nennen.
+
+Nichts wird gelöscht. Alles wandert in den Papierkorb, ein Fehler kostet also eine Wiederherstellung und keine Datei, und was macOS nicht herausgibt, wird mit Grund genannt statt stillschweigend übergangen.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/uninstall.png" width="480" alt="Hop — eine App mitsamt allem entfernen, was sie hinterließ">
+</div>
+
+Dasselbe Modul räumt auf, ohne etwas zu entfernen: jede App mit Cache, die größten zuerst; Installer in Downloads, auf dem Schreibtisch und in Dokumenten; Daten längst entfernter Apps; und der Papierkorb mit seiner Größe. Ein Häkchen nimmt einen ganzen Abschnitt. Was es bewusst in Ruhe lässt, steht ebenfalls da — ein Container, in dem Cache und Daten zusammenliegen, die zwanzig Gigabyte eines Messengers etwa: was davon entbehrlich ist, weiß nur die App selbst.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/de/clean.png" width="480" alt="Hop — Caches, Installer, Reste und den Papierkorb leeren">
+</div>
 
 ## 22 Sprachen
 

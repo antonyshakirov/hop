@@ -227,20 +227,24 @@ kapatır, çünkü onu donanım yapar.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Klavye kilidi">
 </div>
 
-### Ve gerisi
+### Hız testi
 
-Menü çubuğu simgesindeki küçük durum göstergeleri — zaman, uyku engelleme,
-uyarılar ve torrent etkinliği, renkli ya da tek renk —, yerleşik hız testi
-(Apple'ın networkQuality aracı), film greni dokulu koyu ve açık temalar, genel
-kısayollar, oturum açıldığında başlatma ve uygulamayı çökme döngüsünden
-kurtaran güvenli mod. Hop'un kendi pencereleri — dönüştürücü, arşivler, metin
-tanıma, ayarlar — açıkken dock'ta görünür; simgeye tıklamak paneli açmadan
-pencereyi geri getirir ve son pencereyle birlikte simge de gider.
+Tek dokunuş, bağlantıyı macOS'un kendi networkQuality'siyle Apple sunucularına karşı ölçer — indirme, yükleme ve yanıt süresi; son sonuç satırda kalır.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop sistem monitörü — CPU, GPU, bellek, ağ, disk ve pil grafikleri">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop dosya dönüştürücü — toplu görsel, PDF, video ve ses dönüştürme">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop ayarları — temalar, modüller, kısayollar, 22 dil">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Hız testi">
+</div>
+
+### Menü çubuğu simgesi
+
+Simgede küçük işaretler durur: akan süre, uyku engeli, çalmış bir anımsatıcı, bir VPN açıkken yeşil nokta ve torrentler akarken oklar — renkli ya da tek renk, her biri kapatılabilir. Hop'un kendi pencereleri açıkken Dock'ta görünür, böylece bir tık paneli açmadan pencereyi geri getirir; son pencereyle birlikte simge de gider.
+
+### Temalar, kısayollar ve güvenli mod
+
+Film grenli dokuya sahip koyu ve açık temalar, genel kısayollar, oturum açılışında başlatma ve uygulamayı çökme döngüsünden çıkaran bir güvenli mod — hepsi tek bir ayarlar penceresinde.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Ayarlar">
 </div>
 
 ### VPN
@@ -262,6 +266,10 @@ değil.
 
 Nokta ayarlardan kapatılabilir; modül de anahtarları da onsuz çalışmaya devam eder.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — VPN anahtarları">
+</div>
+
 ### Uygulamalar
 
 Gün boyu açtığınız programlar bir ızgarada, Uygulamalar klasörüne uğramadan tek
@@ -277,6 +285,26 @@ başka bir alanda — her birinin kendi uygulamaları olur.
 Izgaralar modülleri düzenlediğiniz yerde doğar ve silinir: ayarlarda ya da modül
 tablosunun kendisinde, oradaki etiketin ✕ işareti bir ızgarayı temelli siler.
 Yeni bir ızgara boş başlar ve siz doldurana kadar bunu söyler.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — Uygulama ızgarası">
+</div>
+
+### Uygulama kaldırma
+
+Bir uygulamayı satırın üstüne bırakın ya da kurulu olan her şeyin listesinden seçin: otuza yakın yerde bıraktığı her şeyle birlikte gider — application support, önbellekler, tercihler, container'lar, launch agent'lar, eklentiler, kurulum makbuzları ve gerisi. Listedeki her uygulama ne kadar yer kapladığını gösterir, paket ve verisi ayrı ayrı. Çöp kutusundaki bir uygulama da tanınır: kimlik oradaki paketten okunur ya da onu adıyla anan artıklardan çıkarılır.
+
+Hiçbir şey silinmez. Her şey çöp kutusuna gider, yani bir hata bir dosyaya değil bir geri almaya mal olur; macOS'un vermediği şeyler sessizce atlanmaz, nedeniyle birlikte söylenir.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Bir uygulamayı bıraktığı her şeyle kaldırma">
+</div>
+
+Aynı modül hiçbir şeyi kaldırmadan toparlar da: önbellek tutan her uygulama, büyükler önce; İndirilenler'de, Masaüstü'nde ve Belgeler'de kalan kurulum dosyaları; yıllar önce silinmiş uygulamaların verileri; ve boyutuyla birlikte çöp kutusu. Tek kutucuk koca bir bölümü alır. Bilerek dokunmadığı şeyler de listelenir — önbellekle verinin aynı klasörde durduğu bir container, bir mesajlaşma uygulamasının yirmi gigabaytı gibi: hangi yarısının atılabileceğini yalnızca o uygulama bilir.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Önbellek, kurulum dosyaları, artıklar ve çöp kutusu">
+</div>
 
 ## 22 dil
 

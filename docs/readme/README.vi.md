@@ -222,21 +222,24 @@ cứng.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Khoá bàn phím">
 </div>
 
-### Và những thứ còn lại
+### Kiểm tra tốc độ
 
-Các chỉ báo trạng thái nhỏ trên biểu tượng thanh menu — thời gian, chống ngủ,
-cảnh báo và hoạt động torrent, màu hoặc đơn sắc —, kiểm tra tốc độ mạng tích
-hợp (networkQuality của Apple), giao diện tối và sáng với hiệu ứng hạt phim,
-phím tắt toàn cục, khởi chạy khi đăng nhập, và chế độ an toàn giúp khôi phục
-ứng dụng khỏi vòng lặp crash. Các cửa sổ của chính Hop — bộ chuyển đổi, kho
-nén, nhận dạng văn bản, cài đặt — hiện trong dock khi đang mở, nhấn vào biểu
-tượng là cửa sổ trở lại thay vì phải mở bảng trước; biểu tượng biến mất cùng
-cửa sổ cuối cùng.
+Một chạm là đo đường truyền bằng chính networkQuality của macOS, đối với máy chủ của Apple — tải xuống, tải lên và độ phản hồi, kết quả cuối cùng ở lại trong hàng.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Giám sát hệ thống của Hop — biểu đồ CPU, GPU, bộ nhớ, mạng, ổ đĩa, pin">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Trình chuyển đổi tệp của Hop — chuyển đổi hàng loạt ảnh, PDF, video và âm thanh">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Cài đặt Hop — giao diện, mô-đun, phím tắt, 22 ngôn ngữ">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Kiểm tra tốc độ">
+</div>
+
+### Biểu tượng trên thanh trình đơn
+
+Biểu tượng mang những dấu nhỏ: thời gian đang chạy, chống ngủ, một lời nhắc vừa reo, chấm xanh khi vpn đang bật và mũi tên khi torrent đang chạy — màu hay đơn sắc, tắt được từng cái. Cửa sổ của chính Hop hiện trong Dock khi còn mở, nên một cú nhấp đưa cửa sổ trở lại thay vì mở bảng điều khiển, và biểu tượng rời đi cùng cửa sổ cuối cùng.
+
+### Chủ đề, phím tắt và chế độ an toàn
+
+Chủ đề tối và sáng với kết cấu hạt phim, phím tắt toàn cục, khởi động khi đăng nhập, và một chế độ an toàn kéo ứng dụng ra khỏi vòng lặp treo — tất cả trong một cửa sổ cài đặt.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Cài đặt">
 </div>
 
 ### VPN
@@ -257,6 +260,10 @@ chủ: sổ đăng ký địa chỉ cho biết dải số đăng ký ở đâu, 
 
 Chấm này có thể tắt trong cài đặt; mô-đun và các công tắc vẫn hoạt động như thường.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — Công tắc VPN">
+</div>
+
 ### Ứng dụng
 
 Một lưới các chương trình bạn mở suốt ngày, chỉ một cú nhấp mà không phải vào
@@ -272,6 +279,26 @@ khác — mỗi lưới có ứng dụng riêng.
 Lưới được tạo và xoá ngay nơi bạn sắp xếp các mô-đun: trong cài đặt, hoặc trong
 chính bảng mô-đun, nơi dấu ✕ trên thẻ của một lưới xoá hẳn nó. Lưới mới bắt đầu
 trống và nói rõ như vậy cho tới khi bạn lấp đầy.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — Lưới ứng dụng">
+</div>
+
+### Gỡ ứng dụng
+
+Thả một ứng dụng vào hàng này, hoặc chọn từ danh sách mọi thứ đã cài, nó sẽ đi cùng những gì để lại ở khoảng ba chục nơi: application support, bộ đệm, tuỳ chọn, container, launch agents, phần mở rộng, biên nhận cài đặt và phần còn lại. Mỗi ứng dụng trong danh sách ghi rõ nó nặng bao nhiêu, phần ứng dụng và phần dữ liệu tách riêng. Ứng dụng đã nằm trong thùng rác vẫn được nhận ra: định danh đọc từ gói trong thùng rác, hoặc suy ra từ những phần sót có tên nó.
+
+Không gì bị xoá thẳng. Mọi thứ chuyển vào thùng rác, nên một sai sót chỉ tốn một lần khôi phục chứ không mất tệp; và thứ macOS không giao ra được gọi tên kèm lý do, không lặng lẽ bỏ qua.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Gỡ ứng dụng cùng mọi thứ nó để lại">
+</div>
+
+Cũng mô-đun ấy dọn dẹp mà không gỡ gì: mọi ứng dụng đang giữ bộ đệm, lớn trước; bộ cài còn trong Tải xuống, trên Màn hình nền và trong Tài liệu; dữ liệu của ứng dụng đã gỡ từ lâu; và thùng rác với dung lượng của nó. Một dấu tích lấy trọn một mục. Thứ nó cố ý không đụng cũng được liệt kê — container nơi bộ đệm và dữ liệu chung một thư mục, chẳng hạn hai mươi gigabyte của một ứng dụng nhắn tin: chỉ ứng dụng ấy mới biết nửa nào bỏ được.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Dọn bộ đệm, bộ cài, phần sót và thùng rác">
+</div>
 
 ## 22 ngôn ngữ
 

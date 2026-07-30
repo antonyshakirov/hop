@@ -192,17 +192,24 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/keyboard.png" width="480" alt="Hop — 键盘锁定">
 </div>
 
-### 其他
+### 网速测试
 
-图标上小巧的状态指示器——时间、防休眠、警示和种子活动，彩色或单色—— 内置测速（Apple 的 networkQua
-lity）、带胶片颗粒质感的深浅两套主题、 全局快捷键、登录时启动，以及能从崩溃循环中恢复应用的安全
-模式。 Hop 自己的窗口——转换器、压缩包、文字识别、设置——打开时会出现在程序坞，点击图标即可把窗口
-调回来，不必先打开面板；最后一个窗口关闭后图标随之消失。
+一次点按就用 macOS 自带的 networkQuality 对着 Apple 的服务器测一遍——下行、上行和响应，最后一次结果留在这一行里。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/system.png" width="280" alt="Hop 系统监控 — CPU、GPU、内存、网络、磁盘、电池图表">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/converter.png" width="280" alt="Hop 文件转换器 — 批量转换图片、PDF、视频和音频">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/settings.png" width="280" alt="Hop 设置 — 主题、模块、快捷键、22 种语言">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/speed.png" width="420" alt="Hop — 网速测试">
+</div>
+
+### 菜单栏图标
+
+图标上带着小小的标记：正在走的时间、防休眠、响过的提醒、VPN 连着时的绿点，以及torrent 传输时的箭头——彩色或单色，每个都能单独关掉。Hop 自己的窗口在打开时会出现在程序坞里，点一下就把窗口叫回来，而不是先打开面板；最后一个窗口关掉，图标也随之离开。
+
+### 主题、快捷键与安全模式
+
+深色与浅色主题，带胶片颗粒质感；全局快捷键；登录时启动；还有把应用从崩溃循环里救出来的安全模式——全都在同一个设置窗口里。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/settings.png" width="480" alt="Hop — 设置">
 </div>
 
 ### VPN
@@ -219,6 +226,10 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 
 这个绿点可以在设置里关掉，模块和开关照常工作。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/vpn.png" width="420" alt="Hop — VPN 开关">
+</div>
+
 ### 应用
 
 一整天都在开的程序摆成网格，一键可达，不必再去应用程序文件夹。按 + 挑选，或从访达拖进来；每行九个，最多八行。
@@ -226,6 +237,26 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 拖动图标即可挪位：黄色竖线显示它将插入到哪两个图标之间，其余图标自动让位，就像主屏幕一样。编辑按钮启动轻轻摇摆，每个图标带一个 ✕，网格也可以自己命名；如果您本来就认得这些应用，还可以在那里关掉图标下方的名称。网格想要几个就有几个——工作放一个空间，其余放另一个，各有各的应用。
 
 网格在您排列模块的地方创建和删除：设置里，或者模块表格本身——表格里网格方块上的 ✕ 会把它彻底删掉。新网格一开始是空的，在您填满之前会这样写着。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/apps.png" width="420" alt="Hop — 应用格子">
+</div>
+
+### 卸载应用
+
+把应用拖到这一行，或者从已安装列表里挑一个，它会连同散落在大约三十处的东西一起离开：application support、缓存、偏好设置、容器、launch agents、插件、安装回执等等。列表里每个应用都标着它有多大，应用本体和数据分开列出。已经进了废纸篓的应用同样能认出来：标识符从废纸篓里的包中读取，或者从写着它名字的残留里推断。
+
+什么都不会被直接删除。一切先进废纸篓，所以出错的代价是恢复一次，而不是丢一个文件；macOS 不肯交出的部分会连同原因一起点名，而不是悄悄跳过。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/uninstall.png" width="480" alt="Hop — 连同应用留下的一切一起卸载">
+</div>
+
+同一个模块也能只整理、不卸载：所有占着缓存的应用，大的在前；留在下载、桌面和文稿里的安装包；多年前删掉的应用留下的数据；还有废纸篓和它的大小。一个勾选拿走一整节。它有意不碰的东西也列在那里——缓存和数据挤在同一个文件夹里的容器，比如某个即时通讯的二十多 GB：哪一半可以丢，只有那个应用自己知道。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/zh/clean.png" width="480" alt="Hop — 清理缓存、安装包、残留和废纸篓">
+</div>
 
 ## 22 种语言
 

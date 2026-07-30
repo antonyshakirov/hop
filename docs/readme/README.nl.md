@@ -231,21 +231,24 @@ want dat regelt de hardware.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Toetsenbordslot">
 </div>
 
-### En de rest
+### Snelheidstest
 
-Kleine statusindicatoren op het menubalk-icoon — tijd, slaapblokkering,
-waarschuwingen en torrentactiviteit, in kleur of monochroom —, een ingebouwde
-snelheidstest (Apples networkQuality), donkere en lichte thema's met een
-filmkorrel-textuur, globale sneltoetsen, starten bij inloggen en een veilige
-modus die de app uit een crashlus haalt. Hops eigen vensters — de converter,
-archieven, tekstherkenning, instellingen — staan in het dock zolang ze open
-zijn; een klik op het icoon haalt er een terug in plaats van eerst het paneel
-te openen, en met het laatste venster verdwijnt het icoon weer.
+Eén tik meet de verbinding met macOS' eigen networkQuality tegen Apples servers — down, up en reactiesnelheid, en het laatste resultaat blijft in de rij staan.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop-systeemmonitor — grafieken voor CPU, GPU, geheugen, netwerk, schijf, batterij">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop-bestandsconverter — batchconversie van afbeeldingen, pdf's, video en audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop-instellingen — thema's, modules, sneltoetsen, 22 talen">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Snelheidstest">
+</div>
+
+### Het icoon in de menubalk
+
+Op het icoon zitten kleine markeringen: de lopende tijd, de slaapblokkade, een herinnering die afging, een groene stip zolang er een vpn staat en pijlen zolang torrents lopen — in kleur of monochroom, elk apart uit te zetten. Hops eigen vensters verschijnen in het Dock zolang ze open zijn, dus één klik haalt er een terug in plaats van het paneel te openen, en het icoon vertrekt met het laatste venster.
+
+### Thema's, sneltoetsen en veilige modus
+
+Donker en licht thema met filmkorrel-textuur, globale sneltoetsen, starten bij inloggen en een veilige modus die de app uit een crashlus haalt — alles in één instellingenvenster.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Instellingen">
 </div>
 
 ### VPN
@@ -268,6 +271,10 @@ machine staat.
 
 De stip kun je in de instellingen uitzetten — de module en de schakelaars werken gewoon door.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — VPN-schakelaars">
+</div>
+
 ### Apps
 
 Een raster met de programma's die je de hele dag opent — één klik weg, zonder
@@ -284,6 +291,26 @@ vlak, de rest op het andere — elk met eigen apps.
 Rasters ontstaan en verdwijnen waar je de modules ordent: in de instellingen of
 in de moduletabel zelf, waar de ✕ op de chip van een raster het definitief
 verwijdert. Een nieuw raster begint leeg en zegt dat ook, tot je het vult.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — App-raster">
+</div>
+
+### Apps verwijderen
+
+Sleep een app op de rij, of kies hem uit de lijst van alles wat geïnstalleerd is, en hij gaat mét wat hij op een stuk of dertig plekken achterliet: application support, caches, voorkeuren, containers, launch agents, plug-ins, installatiebonnetjes en de rest. Elke app in de lijst toont hoeveel hij weegt, de app en zijn gegevens apart. Een app die al in de prullenmand ligt wordt ook herkend: de identifier komt uit het pakket dat daar staat, of wordt afgeleid uit de resten die hem noemen.
+
+Er wordt niets gewist. Alles gaat naar de prullenmand, dus een vergissing kost een herstel en geen bestand; en wat macOS niet afgeeft wordt met reden genoemd in plaats van stilletjes overgeslagen.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Een app verwijderen met alles wat hij achterliet">
+</div>
+
+Dezelfde module ruimt op zonder iets te verwijderen: elke app die een cache aanhoudt, de grootste eerst; installers in Downloads, op het bureaublad en in Documenten; gegevens van apps die je jaren geleden weghaalde; en de prullenmand met zijn omvang. Eén vinkje neemt een hele sectie. Wat het bewust laat liggen staat er ook bij — een container waarin cache en gegevens in één map zitten, de twintig gigabyte van een berichtenapp bijvoorbeeld: alleen die app weet welke helft weg kan.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Caches, installers, resten en de prullenmand opruimen">
+</div>
 
 ## 22 talen
 

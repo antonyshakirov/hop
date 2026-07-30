@@ -237,22 +237,24 @@ matériel qui s'en charge.
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/keyboard.png" width="480" alt="Hop — Verrou clavier">
 </div>
 
-### Et le reste
+### Test de débit
 
-De petits indicateurs d'état sur l'icône de la barre de menus — temps,
-anti-veille, alertes et activité torrent, en couleur ou monochromes —, un test
-de débit intégré (networkQuality d'Apple), thèmes sombre et clair avec une
-texture grain de film, raccourcis globaux, lancement à l'ouverture de session,
-et un mode sans échec qui récupère l'app après une boucle de crash. Les
-fenêtres propres à Hop — le convertisseur, les archives, la reconnaissance,
-les réglages — apparaissent dans le dock tant qu'elles sont ouvertes, et un
-clic sur l'icône en ramène une au lieu d'ouvrir le panneau ; avec la dernière
-fenêtre l'icône s'en va.
+Une touche mesure la connexion avec le networkQuality de macOS, contre les serveurs d'Apple — descente, montée et réactivité, le dernier résultat restant dans la ligne.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/fr/system.png" width="280" alt="Moniteur système Hop — graphiques CPU, GPU, mémoire, réseau, disque, batterie">
-<img src="https://www.antonshakirov.com/products/hop/screens/fr/converter.png" width="280" alt="Convertisseur de fichiers Hop — conversion par lots d'images, PDF, vidéos et audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/fr/settings.png" width="280" alt="Réglages de Hop — thèmes, modules, raccourcis, 22 langues">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/speed.png" width="420" alt="Hop — Test de débit">
+</div>
+
+### L'icône de la barre des menus
+
+L'icône porte de petites marques : le temps en cours, le mode sans veille, un rappel qui a sonné, un point vert tant qu'un VPN est actif et des flèches tant que les torrents bougent — en couleur ou en monochrome, chacune désactivable. Les fenêtres de Hop apparaissent dans le Dock tant qu'elles sont ouvertes, un clic en ramène une au lieu d'ouvrir le panneau, et l'icône s'en va avec la dernière fenêtre.
+
+### Thèmes, raccourcis et mode sans échec
+
+Thèmes sombre et clair avec une texture de grain argentique, raccourcis globaux, lancement à l'ouverture de session et un mode sans échec qui sort l'app d'une boucle de plantages — le tout dans une seule fenêtre de réglages.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/settings.png" width="480" alt="Hop — Réglages">
 </div>
 
 ### VPN
@@ -275,6 +277,10 @@ plage est enregistrée, pas où se trouve la machine.
 
 Le point peut être désactivé dans les réglages : le module et ses interrupteurs fonctionnent très bien sans lui.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/vpn.png" width="420" alt="Hop — Interrupteurs VPN">
+</div>
+
 ### Apps
 
 Une grille avec les programmes que vous ouvrez toute la journée, à un clic et
@@ -293,6 +299,26 @@ Les grilles se créent et se suppriment là où vous rangez les modules : dans l
 réglages ou dans le tableau des modules lui-même, où la ✕ de la pastille d'une
 grille l'efface pour de bon. Une nouvelle grille démarre vide et le dit tant que
 vous ne l'avez pas remplie.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/apps.png" width="420" alt="Hop — Grille d'apps">
+</div>
+
+### Supprimer des apps
+
+Déposez une app sur la ligne, ou choisissez-la dans la liste de tout ce qui est installé : elle part avec ce qu'elle a laissé dans une trentaine d'endroits — application support, caches, préférences, conteneurs, launch agents, modules, reçus et le reste. Chaque app de la liste indique son poids, le paquet et ses données séparément. Une app déjà à la corbeille est reconnue quand même : son identifiant vient du paquet qui s'y trouve, ou se déduit des restes qui le nomment.
+
+Rien n'est effacé. Tout part à la corbeille, une erreur coûte donc une restauration et non un fichier, et ce que macOS refuse de rendre est nommé avec sa raison plutôt que passé sous silence.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/uninstall.png" width="480" alt="Hop — Supprimer une app avec tout ce qu'elle a laissé">
+</div>
+
+Le même module fait le ménage sans rien supprimer : chaque app qui garde un cache, les plus grosses d'abord ; les installeurs restés dans Téléchargements, sur le bureau et dans Documents ; les données d'apps supprimées depuis longtemps ; et la corbeille avec sa taille. Une case prend toute une section. Ce qu'il laisse volontairement tranquille est listé aussi — un conteneur où cache et données partagent le même dossier, les vingt gigas d'une messagerie par exemple : seule cette app sait quelle moitié est jetable.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/fr/clean.png" width="480" alt="Hop — Vider caches, installeurs, restes et corbeille">
+</div>
 
 ## 22 langues
 

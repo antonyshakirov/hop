@@ -224,20 +224,32 @@ still forces the Mac off, because that is handled in hardware.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Keyboard lock">
 </div>
 
-### And the rest
+### Speed test
 
-Small status badges on the menu bar icon — time, keep-awake, alerts and
-torrent activity, colored or monochrome — a built-in speed test (Apple's
-networkQuality), dark and light themes with a film-grain texture, global
-hotkeys, launch at login, and a safe mode that recovers the app from a crash
-loop. Hop's own windows — the converter, archives, recognition, settings —
-show up in the Dock while they are open, so a click on the icon brings one
-back instead of opening the panel first; the icon leaves with the last window.
+One tap measures your connection through macOS's own networkQuality, against
+Apple's servers — down, up and responsiveness, with the last result kept in the
+row.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop system monitor — CPU, GPU, memory, network, disk, battery charts">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop file converter — batch image, PDF, video and audio conversion">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop settings — themes, modules, hotkeys, 22 languages">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Speed test">
+</div>
+
+### The menu bar icon
+
+The icon carries small badges: the running time, keep-awake, a reminder that
+fired, a green dot while a VPN is up and arrows while torrents move — colored or
+monochrome, each switchable. Hop's own windows appear in the Dock while they are
+open, so a click brings one back instead of opening the panel first, and the icon
+leaves with the last window.
+
+### Themes, hotkeys and safe mode
+
+Dark and light themes with a film-grain texture, global hotkeys, launch at login,
+and a safe mode that recovers the app from a crash loop — everything lives in one
+settings window.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Settings">
 </div>
 
 ### VPN
@@ -263,6 +275,10 @@ none.
 
 The dot can be switched off in settings — the module and its switches go on working without it.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — VPN switches">
+</div>
+
 ### Apps
 
 A grid of the programs you open all day, one click away without a trip to the
@@ -278,6 +294,38 @@ everything else on another — each with its own apps.
 Grids are made and unmade where you arrange the modules — settings, or the
 module table itself, where the ✕ on a grid's chip deletes it for good. A new
 grid starts empty and says so until you fill it.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — App grid">
+</div>
+
+### Uninstall apps
+
+Drop an app on the row, or pick it from the list of everything installed, and it
+goes together with what it left in about thirty places — application support,
+caches, preferences, containers, launch agents, plug-ins, receipts and the rest.
+Each app in the list shows what it weighs, the bundle and its data apart. An app
+already in the Trash is still recognised: its identifier is read from the bundle
+sitting there, or worked out from the leftovers that spell it out.
+
+Nothing is deleted. Everything moves to the Trash, so a mistake costs a restore
+rather than a file, and whatever macOS refuses to hand over is named with the
+reason instead of quietly skipped.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Uninstall an app with everything it left behind">
+</div>
+
+The same module cleans up without removing anything: every app holding a cache,
+biggest first; installers left in Downloads, on the Desktop and in Documents; the
+data of apps removed long ago; and the Trash with its size. One tick takes a whole
+section. What it deliberately leaves alone is listed too — a container where cache
+and data share one folder, a messenger's twenty gigabytes among them, since only
+that app's own cleanup knows which half is disposable.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Clear caches, installers, leftovers and the Trash">
+</div>
 
 ## 22 languages
 

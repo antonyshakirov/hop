@@ -233,21 +233,24 @@ perché di quello si occupa l'hardware.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Blocco tastiera">
 </div>
 
-### E il resto
+### Test di velocità
 
-Piccoli indicatori di stato sull'icona nella barra dei menu — tempo,
-anti-stop, avvisi e attività torrent, a colori o monocromatici —, un test di
-velocità integrato (networkQuality di Apple), temi scuro e chiaro con una
-texture a grana di pellicola, scorciatoie globali, avvio al login e una
-modalità sicura che recupera l'app da un loop di crash. Le finestre di Hop —
-convertitore, archivi, riconoscimento, impostazioni — compaiono nel dock
-finché sono aperte, e un clic sull'icona ne riporta una invece di aprire il
-pannello; con l'ultima finestra l'icona sparisce.
+Un tocco misura la connessione con il networkQuality di macOS contro i server Apple — download, upload e reattività, e l'ultimo risultato resta nella riga.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor di sistema di Hop — grafici di CPU, GPU, memoria, rete, disco, batteria">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Convertitore di file di Hop — conversione in batch di immagini, PDF, video e audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Impostazioni di Hop — temi, moduli, scorciatoie, 22 lingue">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Test di velocità">
+</div>
+
+### L'icona nella barra dei menu
+
+L'icona porta piccoli segni: il tempo in corso, l'anti-sospensione, un promemoria che è suonato, un punto verde finché una VPN è su e frecce finché i torrent si muovono — a colori o monocromatici, ognuno disattivabile. Le finestre di Hop compaiono nel Dock finché sono aperte, così un clic ne riporta una invece di aprire il pannello, e l'icona se ne va con l'ultima finestra.
+
+### Temi, scorciatoie e modalità sicura
+
+Temi scuro e chiaro con texture a grana di pellicola, scorciatoie globali, avvio all'accesso e una modalità sicura che tira fuori l'app da un ciclo di crash — tutto in una finestra di impostazioni.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Impostazioni">
 </div>
 
 ### VPN
@@ -269,6 +272,10 @@ dove sta la macchina.
 
 Il punto si può spegnere nelle impostazioni: il modulo e i suoi interruttori funzionano lo stesso.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — Interruttori VPN">
+</div>
+
 ### App
 
 Una griglia con i programmi che apri tutto il giorno, a un clic e senza passare
@@ -286,6 +293,26 @@ Le griglie si creano e si eliminano dove sistemi i moduli: nelle impostazioni o
 nella tabella dei moduli stessa, dove la ✕ sulla targhetta di una griglia la
 cancella per sempre. Una griglia nuova parte vuota e lo dice finché non la
 riempi.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — Griglia di app">
+</div>
+
+### Rimuovere app
+
+Trascina un'app sulla riga, o scegliela dall'elenco di tutto ciò che è installato, e se ne va insieme a quello che ha lasciato in una trentina di posti: application support, cache, preferenze, container, launch agent, plug-in, ricevute e il resto. Ogni app dell'elenco mostra quanto pesa, il bundle e i dati separati. Un'app già nel cestino viene comunque riconosciuta: l'identificativo si legge dal bundle che sta lì, o si ricava dai resti che lo nominano.
+
+Niente viene cancellato. Tutto va nel cestino, quindi un errore costa un ripristino e non un file, e ciò che macOS non consegna è detto con il motivo invece di essere saltato in silenzio.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Rimuovere un'app con tutto ciò che ha lasciato">
+</div>
+
+Lo stesso modulo mette ordine senza rimuovere nulla: ogni app che tiene una cache, le più grandi prima; gli installer rimasti in Download, sulla Scrivania e in Documenti; i dati di app cancellate anni fa; e il cestino con la sua dimensione. Una spunta prende un'intera sezione. Anche ciò che lascia stare di proposito è elencato — un container dove cache e dati stanno insieme, i venti giga di una messaggistica compresi: solo quell'app sa quale metà è superflua.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Svuotare cache, installer, resti e cestino">
+</div>
 
 ## 22 lingue
 

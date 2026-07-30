@@ -232,21 +232,24 @@ mantenerlo pulsado sigue apagando el Mac, porque de eso se encarga el hardware.
 <img src="https://www.antonshakirov.com/products/hop/screens/es/keyboard.png" width="480" alt="Hop — Bloqueo del teclado">
 </div>
 
-### Y todo lo demás
+### Test de velocidad
 
-Pequeños indicadores de estado en el icono de la barra de menús — tiempo,
-antisueño, avisos y actividad de torrents, en color o monocromos —, un test de
-velocidad integrado (networkQuality de Apple), temas oscuro y claro con
-textura de grano de película, atajos globales, arranque al iniciar sesión y un
-modo seguro que recupera la app de un bucle de fallos. Las ventanas propias de
-Hop — el conversor, los archivos, el reconocimiento, los ajustes — aparecen en
-el dock mientras están abiertas, y un clic en el icono devuelve una en lugar
-de abrir el panel; con la última ventana el icono desaparece.
+Un toque mide la conexión con el propio networkQuality de macOS contra los servidores de Apple — bajada, subida y respuesta, y el último resultado se queda en la fila.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/es/system.png" width="280" alt="Monitor del sistema de Hop — gráficos de CPU, GPU, memoria, red, disco y batería">
-<img src="https://www.antonshakirov.com/products/hop/screens/es/converter.png" width="280" alt="Conversor de archivos de Hop — conversión por lotes de imágenes, PDF, vídeo y audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/es/settings.png" width="280" alt="Ajustes de Hop — temas, módulos, atajos, 22 idiomas">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/speed.png" width="420" alt="Hop — Test de velocidad">
+</div>
+
+### El icono de la barra de menús
+
+El icono lleva marcas pequeñas: el tiempo en marcha, el modo sin reposo, un recordatorio que sonó, un punto verde mientras hay una VPN activa y flechas mientras se mueven los torrents — en color o monocromo, cada una desactivable. Las ventanas propias de Hop aparecen en el Dock mientras están abiertas, así un clic devuelve una en vez de abrir el panel, y el icono se va con la última ventana.
+
+### Temas, atajos y modo seguro
+
+Temas oscuro y claro con textura de grano de película, atajos globales, arranque al iniciar sesión y un modo seguro que saca la app de un bucle de fallos — todo en una ventana de ajustes.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/settings.png" width="480" alt="Hop — Ajustes">
 </div>
 
 ### VPN
@@ -269,6 +272,10 @@ dónde está la máquina.
 
 El punto se puede apagar en los ajustes: el módulo y sus interruptores siguen funcionando sin él.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/vpn.png" width="420" alt="Hop — Interruptores de VPN">
+</div>
+
 ### Apps
 
 Una cuadrícula con los programas que abres todo el día, a un clic y sin pasar
@@ -285,6 +292,26 @@ un espacio, lo demás en otro — cada una con sus apps.
 Las cuadrículas se crean y se borran donde ordenas los módulos: en ajustes o en
 la propia tabla de módulos, donde la ✕ del chip de una cuadrícula la elimina
 para siempre. Una cuadrícula nueva empieza vacía y lo dice hasta que la llenas.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/apps.png" width="420" alt="Hop — Cuadrícula de apps">
+</div>
+
+### Eliminar apps
+
+Suelta una app en la fila, o elígela de la lista de todo lo instalado, y se va junto con lo que dejó en una treintena de sitios: application support, cachés, preferencias, contenedores, launch agents, plug-ins, recibos y lo demás. Cada app de la lista muestra cuánto pesa, el paquete y sus datos por separado. Una app que ya está en la papelera también se reconoce: el identificador sale del paquete que hay allí, o se deduce de los restos que lo nombran.
+
+No se borra nada. Todo va a la papelera, así que un error cuesta una restauración y no un archivo, y lo que macOS no entrega se nombra con su motivo en vez de saltárselo en silencio.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/uninstall.png" width="480" alt="Hop — Eliminar una app con todo lo que dejó">
+</div>
+
+El mismo módulo limpia sin eliminar nada: cada app que guarda caché, las mayores primero; instaladores en Descargas, Escritorio y Documentos; datos de apps eliminadas hace años; y la papelera con su tamaño. Una casilla se lleva una sección entera. Lo que deja en paz a propósito también aparece — un contenedor donde caché y datos comparten carpeta, los veinte gigas de un mensajero entre ellos: solo esa app sabe qué mitad sobra.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/es/clean.png" width="480" alt="Hop — Limpiar cachés, instaladores, restos y la papelera">
+</div>
 
 ## 22 idiomas
 

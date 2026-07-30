@@ -209,18 +209,24 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 <img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — 키보드 잠금">
 </div>
 
-### 그 밖에
+### 속도 테스트
 
-아이콘에 표시되는 작은 상태 표시기 — 시간, 잠자기 방지, 경고, 토렌트 활동, 컬러 또는 흑백 —, 내
-장 속도 측정(Apple의 networkQuality), 필름 그레인 질감의 다크·라이트 테마, 전역 단축키, 로그인
-시 실행, 그리고 크래시 루프에서 앱을 복구하는 안전 모드. Hop 자신의 창(변환기, 압축, 문자 인식,
-설정)은 열려 있는 동안 dock에 나타나고, 아이콘을 누르면 패널을 거치지 않고 창이 돌아옵니다. 마지
-막 창과 함께 아이콘도 사라집니다.
+한 번 누르면 macOS 자체의 networkQuality가 Apple 서버를 상대로 회선을 잽니다. 내려받기, 올리기, 응답성이 나오고 마지막 결과는 줄에 남습니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Hop 시스템 모니터 — CPU, GPU, 메모리, 네트워크, 디스크, 배터리 차트">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Hop 파일 변환기 — 이미지, PDF, 비디오, 오디오 일괄 변환">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Hop 설정 — 테마, 모듈, 단축키, 22개 언어">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — 속도 테스트">
+</div>
+
+### 메뉴 막대 아이콘
+
+아이콘에는 작은 표시가 붙습니다. 흐르는 시간, 잠자기 방지, 울린 알림, VPN이 켜져 있는 동안의 녹색 점, 토렌트가 오가는 동안의 화살표 — 컬러든 단색이든, 각각 끌 수 있습니다. Hop의 창들은 열려 있는 동안 Dock에 나타나므로, 클릭하면 패널을 열지 않고 창이 돌아오고, 마지막 창과 함께 아이콘도 사라집니다.
+
+### 테마, 단축키, 안전 모드
+
+필름 그레인 질감의 어두운 테마와 밝은 테마, 전역 단축키, 로그인 시 실행, 그리고 앱을 충돌 반복에서 꺼내 주는 안전 모드 — 모두 하나의 설정 창 안에.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — 설정">
 </div>
 
 ### VPN
@@ -240,6 +246,10 @@ Mac이 아는 모든 VPN을, 어느 회사 것이든 각각 스위치와 함께.
 
 이 점은 설정에서 끌 수 있습니다. 모듈과 스위치는 그대로 동작합니다.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — VPN 스위치">
+</div>
+
 ### 앱
 
 하루 종일 여는 프로그램을 격자에 모아 두면 응용 프로그램 폴더를 거치지 않고 한 번의 클릭으로 열립니다. + 를 눌러 고르거나 Finder에서
@@ -251,6 +261,26 @@ Mac이 아는 모든 VPN을, 어느 회사 것이든 각각 스위치와 함께.
 
 격자는 모듈을 배치하는 곳에서 만들고 지웁니다. 설정에서도, 모듈 표 자체에서도 가능하며 표 안 칩의 ✕ 가 격자를 완전히 삭제합니다. 새
 격자는 비어 있고 채우기 전까지 그렇다고 알려 줍니다.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — 앱 격자">
+</div>
+
+### 앱 삭제
+
+앱을 이 줄에 끌어다 놓거나 설치된 목록에서 고르면, 서른 곳쯤에 남긴 것까지 함께 사라집니다: application support, 캐시, 환경설정, 컨테이너, launch agents, 플러그인, 설치 영수증 등. 목록의 각 앱에는 크기가 적혀 있습니다(본체와 데이터를 나눠서). 이미 휴지통에 있는 앱도 알아봅니다. 식별자는 휴지통 속 번들에서 읽거나, 그 이름을 담은 잔여물에서 추론합니다.
+
+무엇도 즉시 삭제하지 않습니다. 전부 휴지통으로 가므로 실수의 대가는 복원 한 번이지 파일이 아니며, macOS가 내주지 않는 것은 조용히 건너뛰지 않고 이유와 함께 이름을 밝힙니다.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — 앱을 남긴 것까지 함께 삭제">
+</div>
+
+같은 모듈이 아무것도 지우지 않고 정리도 합니다: 캐시를 안고 있는 모든 앱을 큰 순서로, 다운로드·데스크탑·서류에 남은 설치 파일, 오래전에 지운 앱의 데이터, 그리고 휴지통과 그 크기. 체크 하나로 한 섹션 전체. 일부러 건드리지 않는 것도 함께 적힙니다 — 캐시와 데이터가 한 폴더에 있는 컨테이너, 어느 메신저의 이십여 기가바이트 같은 것. 어느 쪽을 버려도 되는지는 그 앱 자신만 알기 때문입니다.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — 캐시·설치 파일·잔여물·휴지통 정리">
+</div>
 
 ## 22개 언어
 

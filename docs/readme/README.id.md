@@ -229,21 +229,24 @@ tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 <img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Kunci papan ketik">
 </div>
 
-### Dan selebihnya
+### Tes kecepatan
 
-Indikator status kecil pada ikon menu bar — waktu, anti-tidur, peringatan, dan
-aktivitas torrent, berwarna atau monokrom —, tes kecepatan bawaan
-(networkQuality dari Apple), tema gelap dan terang dengan tekstur film-grain,
-pintasan global, buka saat login, dan mode aman yang memulihkan aplikasi dari
-crash loop. Jendela milik Hop sendiri — pengonversi, arsip, pengenalan teks,
-pengaturan — muncul di dock selama terbuka, dan mengeklik ikonnya
-mengembalikan jendela alih-alih membuka panel; ikonnya hilang bersama jendela
-terakhir.
+Sekali ketuk, koneksi diukur lewat networkQuality bawaan macOS terhadap server Apple — unduh, unggah, dan responsivitas, dengan hasil terakhir tersimpan di barisnya.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="280" alt="Monitor sistem Hop — grafik CPU, GPU, memori, jaringan, disk, baterai">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="280" alt="Konverter file Hop — konversi batch gambar, PDF, video, dan audio">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="280" alt="Pengaturan Hop — tema, modul, pintasan, 22 bahasa">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Tes kecepatan">
+</div>
+
+### Ikon di bilah menu
+
+Ikonnya membawa tanda kecil: waktu yang berjalan, penahan tidur, pengingat yang berbunyi, titik hijau selama VPN menyala, dan panah selama torrent bergerak — berwarna atau monokrom, masing-masing bisa dimatikan. Jendela milik Hop muncul di Dock selama terbuka, jadi satu klik mengembalikan jendela alih-alih membuka panel, dan ikonnya pergi bersama jendela terakhir.
+
+### Tema, pintasan, dan mode aman
+
+Tema gelap dan terang dengan tekstur butiran film, pintasan global, jalan saat masuk, dan mode aman yang mengeluarkan aplikasi dari putaran kegagalan — semuanya di satu jendela pengaturan.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Pengaturan">
 </div>
 
 ### VPN
@@ -265,6 +268,10 @@ bukan di mana mesinnya berada.
 
 Titik itu bisa dimatikan di pengaturan; modul dan sakelarnya tetap bekerja.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — Sakelar VPN">
+</div>
+
 ### Aplikasi
 
 Kisi berisi program yang Anda buka sepanjang hari, sekali klik tanpa mampir ke
@@ -280,6 +287,26 @@ ruang lain — masing-masing punya aplikasi sendiri.
 Kisi dibuat dan dihapus di tempat Anda menyusun modul: di pengaturan atau di
 tabel modul itu sendiri, di mana ✕ pada cip sebuah kisi menghapusnya untuk
 selamanya. Kisi baru mulai kosong dan mengatakannya sampai Anda mengisinya.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — Kisi aplikasi">
+</div>
+
+### Menghapus aplikasi
+
+Jatuhkan aplikasi ke baris ini, atau pilih dari daftar semua yang terpasang, dan ia pergi bersama apa yang ditinggalkannya di sekitar tiga puluh tempat: application support, cache, preferensi, container, launch agents, plug-in, tanda terima pemasangan, dan selebihnya. Tiap aplikasi di daftar menunjukkan besarnya, bundel dan datanya terpisah. Aplikasi yang sudah ada di tempat sampah tetap dikenali: pengenalnya dibaca dari bundel di sana, atau disimpulkan dari sisa-sisa yang menyebut namanya.
+
+Tidak ada yang dihapus permanen. Semuanya pindah ke tempat sampah, jadi kesalahan berharga satu pemulihan, bukan sebuah berkas; dan yang tidak diserahkan macOS disebutkan beserta alasannya, bukan dilewati diam-diam.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Menghapus aplikasi beserta semua yang ditinggalkannya">
+</div>
+
+Modul yang sama merapikan tanpa menghapus apa pun: setiap aplikasi yang menyimpan cache, terbesar dulu; pemasang yang tertinggal di Unduhan, Meja, dan Dokumen; data aplikasi yang dihapus bertahun lalu; dan tempat sampah beserta ukurannya. Satu centang mengambil satu bagian penuh. Yang sengaja tidak disentuh juga didaftar — container tempat cache dan data berbagi satu folder, termasuk dua puluh gigabyte sebuah aplikasi pesan: hanya aplikasi itu yang tahu bagian mana yang bisa dibuang.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Membersihkan cache, pemasang, sisa, dan tempat sampah">
+</div>
 
 ## 22 bahasa
 

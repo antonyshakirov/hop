@@ -216,19 +216,24 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 <img src="https://www.antonshakirov.com/products/hop/screens/ja/keyboard.png" width="480" alt="Hop — キーボードロック">
 </div>
 
-### そのほか
+### 速度テスト
 
-アイコンに表示される小さなステータスインジケータ——時間、スリープ防止、 警告、トレントの動き、カ
-ラーまたはモノクロ——、内蔵スピードテスト （Apple の networkQuality）、フィルムグレインの質感を持
-つダーク／ ライトテーマ、グローバルホットキー、ログイン時に起動、クラッシュループ からアプリを復
-旧させるセーフモード。 Hop 自身のウインドウ（変換、アーカイブ、文字認識、設定）は開いている間 do
-ck に並び、アイコンを押せばパネルを開かずにそのウインドウが戻ります。最後のウインドウとともにア
-イコンも消えます。
+ワンタップで、macOS 自身の networkQuality が Apple のサーバー相手に回線を測ります。下り・上り・応答性が出て、最後の結果は行に残ります。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/system.png" width="280" alt="Hop システムモニター — CPU、GPU、メモリ、ネットワーク、ディスク、バッテリーのチャート">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/converter.png" width="280" alt="Hop ファイル変換 — 画像、PDF、動画、音声の一括変換">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/settings.png" width="280" alt="Hop 設定 — テーマ、モジュール、ホットキー、22言語">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/speed.png" width="420" alt="Hop — 速度テスト">
+</div>
+
+### メニューバーのアイコン
+
+アイコンには小さな印が付きます。走っている時間、スリープ防止、鳴ったリマインダー、VPN が上がっている間の緑の点、torrent が動いている間の矢印——カラーでもモノクロでも、どれも個別に切れます。Hop 自身の窓は開いている間 Dock に出るので、クリックすればパネルを開かずに窓が戻り、最後の窓と一緒にアイコンも消えます。
+
+### テーマ・ホットキー・セーフモード
+
+フィルムグレインのテクスチャを持つダークとライトのテーマ、グローバルホットキー、ログイン時の起動、そしてクラッシュの繰り返しからアプリを救うセーフモード——すべて一つの設定窓の中に。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/settings.png" width="480" alt="Hop — 設定">
 </div>
 
 ### VPN
@@ -248,6 +253,10 @@ ck に並び、アイコンを押せばパネルを開かずにそのウイン�
 
 この点は設定で消せます。モジュールもスイッチもそのまま働きます。
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/vpn.png" width="420" alt="Hop — VPN スイッチ">
+</div>
+
 ### アプリ
 
 一日じゅう開くプログラムをグリッドに。アプリケーションフォルダまで行かずにワンクリックで開けます。+ を押して選ぶか、Finder からドラッグしてください。横に九つ、最大八段まで入ります。
@@ -255,6 +264,26 @@ ck に並び、アイコンを押せばパネルを開かずにそのウイン�
 アイコンをドラッグすれば並べ替えられます。黄色い線がどのアイコンとアイコンの間に入るかを示し、ほかのアイコンはホーム画面のように動きます。編集ボタンを押すとアイコンが揺れ、それぞれに ✕ が付き、グリッドに名前を付けられます。アイコンだけで分かるなら、そこで名前表示を消すこともできます。グリッドはいくつでも作れます。仕事用を一つのスペースに、そのほかを別のスペースに、中身はそれぞれ別です。
 
 グリッドはモジュールを並べる場所で作り、そこで消します。設定でも、モジュール表そのものでも構いません。表の中のチップに付いた ✕ でグリッドは完全に削除されます。新しいグリッドは空で、中身を入れるまでそう表示されます。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/apps.png" width="420" alt="Hop — アプリの格子">
+</div>
+
+### アプリの削除
+
+アプリをこの行にドロップするか、インストール済みの一覧から選ぶと、三十カ所ほどに残したものごと消えます。application support、キャッシュ、環境設定、コンテナ、launch agents、プラグイン、インストール記録、その他。一覧の各アプリには大きさが出ます（本体とデータを分けて）。すでにゴミ箱にあるアプリも見つけられます。識別子はゴミ箱の中の本体から読み取るか、それを名乗る残骸から推測します。
+
+消去はしません。すべてゴミ箱へ送るので、間違えても復元で済み、ファイルは失われません。macOS が渡さないものは黙って飛ばさず、理由つきで名前を挙げます。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/uninstall.png" width="480" alt="Hop — 残したものごとアプリを削除">
+</div>
+
+同じモジュールが、何も削除せずに片づけもします。キャッシュを抱えるアプリを大きい順に、ダウンロード・デスクトップ・書類に残ったインストーラ、ずっと前に消したアプリのデータ、そしてゴミ箱とその大きさ。チェック一つで一区画ぶん。あえて触らないものも並びます——キャッシュとデータが一つのフォルダに同居しているコンテナ、あるメッセンジャーの二十数 GB など。どちらが捨てていいかは、そのアプリ自身しか知らないからです。
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/ja/clean.png" width="480" alt="Hop — キャッシュ・インストーラ・残骸・ゴミ箱を片づける">
+</div>
 
 ## 22 言語
 

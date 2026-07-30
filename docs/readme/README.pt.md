@@ -228,21 +228,24 @@ desliga o Mac à força, porque isso é feito no hardware.
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/keyboard.png" width="480" alt="Hop — Bloqueio do teclado">
 </div>
 
-### E o resto
+### Teste de velocidade
 
-Pequenos indicadores de status no ícone da barra de menus — tempo,
-antissuspensão, avisos e atividade de torrents, coloridos ou monocromáticos —,
-um teste de velocidade integrado (networkQuality da Apple), temas escuro e
-claro com textura de grão de filme, atalhos globais, abertura no login e um
-modo seguro que recupera o app de um loop de travamentos. As janelas do
-próprio Hop — o conversor, os arquivos, o reconhecimento, os ajustes —
-aparecem na dock enquanto estão abertas, e um clique no ícone traz uma de
-volta em vez de abrir o painel; com a última janela o ícone desaparece.
+Um toque mede a conexão pelo próprio networkQuality do macOS, contra os servidores da Apple — descida, subida e resposta, com o último resultado guardado na linha.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/pt/system.png" width="280" alt="Monitor do sistema do Hop — gráficos de CPU, GPU, memória, rede, disco e bateria">
-<img src="https://www.antonshakirov.com/products/hop/screens/pt/converter.png" width="280" alt="Conversor de arquivos do Hop — conversão em lote de imagens, PDFs, vídeo e áudio">
-<img src="https://www.antonshakirov.com/products/hop/screens/pt/settings.png" width="280" alt="Ajustes do Hop — temas, módulos, atalhos, 22 idiomas">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/speed.png" width="420" alt="Hop — Teste de velocidade">
+</div>
+
+### O ícone na barra de menus
+
+O ícone carrega marcas pequenas: o tempo correndo, o modo sem repouso, um lembrete que tocou, um ponto verde enquanto uma VPN está de pé e setas enquanto os torrents andam — coloridas ou monocromáticas, cada uma desligável. As janelas do próprio Hop aparecem no Dock enquanto estão abertas, então um clique traz uma de volta em vez de abrir o painel, e o ícone sai com a última janela.
+
+### Temas, atalhos e modo seguro
+
+Temas escuro e claro com textura de grão de filme, atalhos globais, abertura ao iniciar sessão e um modo seguro que tira o app de um ciclo de falhas — tudo em uma janela de ajustes.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/settings.png" width="480" alt="Hop — Ajustes">
 </div>
 
 ### VPN
@@ -264,6 +267,10 @@ está.
 
 O ponto pode ser desligado nas definições: o módulo e os seus interruptores continuam a funcionar sem ele.
 
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/vpn.png" width="420" alt="Hop — Interruptores de VPN">
+</div>
+
 ### Apps
 
 Uma grelha com os programas que abre todo o dia, a um clique e sem ir à pasta de
@@ -279,6 +286,26 @@ uma com as suas apps.
 As grelhas criam-se e apagam-se onde arruma os módulos: nas definições ou na
 própria tabela de módulos, onde o ✕ no chip de uma grelha a elimina de vez. Uma
 grelha nova começa vazia e di-lo até a encher.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/apps.png" width="420" alt="Hop — Grade de apps">
+</div>
+
+### Remover apps
+
+Solte um app na linha, ou escolha na lista de tudo que está instalado, e ele vai junto com o que deixou em umas trinta lugares: application support, caches, preferências, contêineres, launch agents, plug-ins, recibos e o resto. Cada app da lista mostra quanto pesa, o pacote e os dados separados. Um app que já está no lixo também é reconhecido: o identificador vem do pacote que está lá, ou é deduzido dos restos que o nomeiam.
+
+Nada é apagado. Tudo vai para o lixo, então um erro custa uma restauração e não um arquivo, e o que o macOS não entrega é dito com o motivo, não pulado em silêncio.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/uninstall.png" width="480" alt="Hop — Remover um app com tudo o que ele deixou">
+</div>
+
+O mesmo módulo arruma sem remover nada: todo app que guarda cache, os maiores primeiro; instaladores em Downloads, na Mesa e em Documentos; dados de apps removidos há anos; e o lixo com seu tamanho. Uma marca leva a seção inteira. O que ele deixa quieto de propósito também aparece — um contêiner onde cache e dados dividem a pasta, os vinte gigas de um mensageiro entre eles: só aquele app sabe qual metade sobra.
+
+<div align="center">
+<img src="https://www.antonshakirov.com/products/hop/screens/pt/clean.png" width="480" alt="Hop — Limpar caches, instaladores, restos e o lixo">
+</div>
 
 ## 22 idiomas
 
