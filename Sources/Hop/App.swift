@@ -171,6 +171,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Agent without a Dock icon — including dev runs via `swift run`.
         NSApp.setActivationPolicy(.accessory)
 
+        // Hop keeps no HTTP cache on disk. It never asked for one: macOS gives
+        // every app a URL cache, and Hop's few downloads — the update check, the
+        // speed test, the 7-Zip helper — filled ~/Library/Caches/…/Cache.db with
+        // megabytes of write-ahead log that nothing here ever reads again (Anton
+        // found Hop in its own cache list, 2026-07-30). Zero on both ends: a
+        // one-shot download has nothing to gain from being cached, and a speed
+        // test served from a cache would measure the wrong thing.
+        URLCache.shared = URLCache(memoryCapacity: 0, diskCapacity: 0, diskPath: nil)
+
         // crash-loop guard — BEFORE any modules: three unfinished launches in a row =
         // safe mode, where only the updater lives. Even a bug that crashes
         // startup cannot cut off the path to an update carrying the fix
