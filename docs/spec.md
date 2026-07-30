@@ -1036,6 +1036,20 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the user nothing they can act on. So `hidemy.name VPN` shows nothing in
   brackets, while a configuration named after its country shows `Client (Germany)`.
   No indicator light in the row — the switch already says on or off.
+- **Off stays off.** A configuration with on-demand rules is back within seconds
+  of being stopped: the rules reconnect it the moment anything asks for a `.com`,
+  which is how they are meant to work and why Hop's switch looked broken (Anton,
+  2026-07-30). So switching a row off does two things — `scutil --nc stop`, and,
+  only when `scutil --nc show` reports `OnDemandEnabled : TRUE`, it also takes
+  the service out of the network set (`networksetup -setnetworkserviceenabled …
+  off`). A service that is not in the set cannot be started by a rule. Switching
+  the row back on puts it in the set first and then starts it, and so does
+  opening the vendor's own window: a client that could not connect from its own
+  screen would look broken, with Hop as the reason. The list still shows a
+  held-off configuration — `scutil` prints it without its `*` and calls it
+  `Invalid`, which is read as off rather than as a fault. Configurations without
+  on-demand rules are only stopped; nothing is taken out of the set that did not
+  need to be.
 - **The country is NEVER guessed from the server's address** (settled 2026-07-29
   after trying it). The system knows the address and nothing else: no hostname,
   no reverse DNS. Asking the address registry does return a country — but it is
@@ -2179,17 +2193,21 @@ drag-and-drop onto that window or through a "+" that opens Finder.
 
 ### Two jobs, named in the panel
 
-The module's row is TWO buttons — "remove the app" and "clean up" — each opening
-the window straight into that job. One row that opened a window with tabs inside
-meant you could not tell what you were about to do until it was open (Anton,
-2026-07-30). The window's title follows the job.
+The module's row is TWO buttons — "remove the app" and "clear the cache" — each
+opening the window straight into that job. One row that opened a window with tabs
+inside meant you could not tell what you were about to do until it was open
+(Anton, 2026-07-30). The window's title follows the job. The second is named
+after what it mostly does rather than after the whole screen: "clean up" said
+nothing about what would be cleaned, and the caches are why anybody opens it
+(Anton, 2026-07-30).
 
 - **Remove the app**: the drop plate AND a list of every app in /Applications and
   ~/Applications, so removing one is a click, not only a drag. Sizes are not
   computed for that list — walking /Applications takes seconds on a Mac with a
   design suite installed, and the list is for choosing; the sizes appear in the
   trace list that follows.
-- **Clean up** is one screen with five sections, because they are one intention:
+- **Clear the cache** is one screen with five sections, because they are one
+  intention:
   - **caches by app**, built from the cache FOLDERS rather than the list of apps,
     so an identifier whose app is gone still shows up (labelled as a leftover).
     Apple's own caches are skipped and anything under a megabyte is noise. Four
@@ -2215,6 +2233,19 @@ meant you could not tell what you were about to do until it was open (Anton,
   - **the trash**, with its size and the one irreversible button in the module,
     said so in the note beneath it.
 
+  Every section with ticks carries **one tick for the whole section**, beside its
+  heading: a list of forty apps holding a cache is a list nobody ticks forty
+  times (Anton, 2026-07-30), and the second click clears the lot again.
+
+  **The window opens before the scan does.** Walking every cache folder, every
+  container and the trash, adding up sizes as it goes, takes seconds on a full
+  Mac — and doing that first meant clicking the button and staring at nothing
+  (Anton, 2026-07-30). The walk runs off the main thread and each list lands as
+  it is ready: installers first because they are instant, then caches, the trash,
+  the leftovers, and the containers last because they are the slowest thing here.
+  A line at the top says the disk is still being read, and no section claims to
+  be empty until it has actually been looked at.
+
 ### Uninstaller: the other two modes
 
 - **Clear the cache, keep the app.** Only folders macOS itself calls a cache —
@@ -2239,6 +2270,15 @@ meant you could not tell what you were about to do until it was open (Anton,
   separators and case are ignored, so `com.x.hop-uninstall-test` matches "Hop
   Uninstall Test"). If two entries imply DIFFERENT ids, nothing is inferred: two
   apps sharing a name is exactly when guessing removes a stranger's data.
+- **Hop keeps no HTTP cache of its own.** It never asked for one: macOS hands
+  every app a URL cache, and Hop's few downloads — the update check, the speed
+  test, the 7-Zip helper — left megabytes of write-ahead log in
+  `~/Library/Caches/<id>/Cache.db` that nothing ever reads again. Anton found Hop
+  in its own cache list and asked what could possibly be in there (2026-07-30);
+  the honest answer was "nothing of yours, and nothing we use". `URLCache.shared`
+  is set to zero on both memory and disk at launch: a one-shot download gains
+  nothing from being cached, and a speed test served from a cache would measure
+  the wrong thing.
 - **Containers, autosaved data and cookies need Full Disk Access.** macOS refuses
   even `mv` on them, so they are reported apart from real failures, with a button
   that opens the right pane of System Settings. Without it the score stops at 28

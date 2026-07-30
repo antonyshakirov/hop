@@ -28,14 +28,24 @@ public struct VPNConfiguration: Equatable, Identifiable, Sendable {
     /// looks like Hop invented a country out of nowhere (Anton, 2026-07-29).
     public var appName: String?
     public var state: State
+    /// Whether the configuration is switched on in the network set at all — the
+    /// `*` at the head of a `scutil --nc list` line.
+    ///
+    /// This is the only lever there is against a tunnel that comes back by
+    /// itself. A configuration with on-demand rules reconnects the moment
+    /// anything asks for a `.com`, so stopping it lasts seconds (Anton,
+    /// 2026-07-30); a service switched OFF in the set cannot be started by those
+    /// rules, and switching it back on is one command.
+    public var isEnabled: Bool
 
     public init(id: String, name: String, bundleIdentifier: String?,
-                appName: String? = nil, state: State) {
+                appName: String? = nil, state: State, isEnabled: Bool = true) {
         self.id = id
         self.name = name
         self.bundleIdentifier = bundleIdentifier
         self.appName = appName
         self.state = state
+        self.isEnabled = isEnabled
     }
 
     /// What the row leads with: the app when it is known, the configuration
@@ -77,7 +87,8 @@ public enum VPNConfigurations {
             out.append(VPNConfiguration(id: id,
                                         name: name,
                                         bundleIdentifier: bundleIdentifier(in: line),
-                                        state: state(in: line)))
+                                        state: state(in: line),
+                                        isEnabled: isEnabled(in: line)))
         }
         return out
     }
@@ -147,6 +158,13 @@ public enum VPNConfigurations {
         return value.isEmpty ? nil : value
     }
 
+    /// The `*` that marks a service as switched on in the current set. A service
+    /// switched off reads `(Invalid)` rather than `(Disconnected)`, which is the
+    /// system saying "this cannot be started", not that anything is broken.
+    static func isEnabled(in line: String) -> Bool {
+        line.trimmingCharacters(in: .whitespaces).hasPrefix("*")
+    }
+
     /// The state, in parentheses at the head of the line.
     static func state(in line: String) -> VPNConfiguration.State {
         guard let start = line.firstIndex(of: "("),
@@ -160,6 +178,8 @@ public enum VPNConfigurations {
         case "connecting": return .connecting
         case "disconnecting": return .disconnecting
         case "disconnected": return .disconnected
+        // a service switched off in the network set: off, not broken
+        case "invalid": return .disconnected
         default: return .unknown
         }
     }

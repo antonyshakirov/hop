@@ -36,6 +36,30 @@ final class VPNConfigurationsTests: XCTestCase {
         XCTAssertFalse(list.last!.state.isOn)
     }
 
+    /// The same Mac after the second service was switched off in the network set:
+    /// no asterisk, and the system calls it Invalid rather than Disconnected.
+    private let withOneHeldOff = """
+    Available network connection services in the current set (*=enabled):
+    * (Connected)      6A7852E0-3E2A-4C8B-82BA-33132F2B3197 VPN (hidemyname.vpn) "hidemy.name vpn (OpenVPN)"      [VPN:hidemyname.vpn]
+      (Invalid)        0DDD2941-7A01-42A2-AD64-665126E17353 VPN (com.vanyavpn.macos.client) "Germany"                   [VPN:com.vanyavpn.macos.client]
+    """
+
+    func testEveryServiceInTheSetIsEnabledByDefault() {
+        let list = VPNConfigurations.parseList(realOutput)
+        XCTAssertTrue(list.allSatisfy(\.isEnabled))
+    }
+
+    func testAServiceHeldOffIsReadAsOffRatherThanBroken() {
+        let list = VPNConfigurations.parseList(withOneHeldOff)
+        XCTAssertEqual(list.count, 2)
+        XCTAssertTrue(list.first!.isEnabled)
+        XCTAssertFalse(list.last!.isEnabled)
+        // "Invalid" is the system saying it cannot be started, which is what off
+        // means here — the row must not show a broken state for it
+        XCTAssertEqual(list.last?.state, .disconnected)
+        XCTAssertFalse(list.last!.state.isOn)
+    }
+
     func testHeaderAndBlankLinesAreIgnored() {
         XCTAssertTrue(VPNConfigurations.parseList("").isEmpty)
         XCTAssertTrue(VPNConfigurations.parseList(

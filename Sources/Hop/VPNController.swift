@@ -20,6 +20,7 @@ final class VPNController: ObservableObject {
     // nonisolated: both are read from the detached task that runs the command
     private nonisolated static let log = Logger(subsystem: "com.antonshakirov.hop", category: "VPN")
     private nonisolated static let scutil = "/usr/sbin/scutil"
+    private nonisolated static let networksetup = "/usr/sbin/networksetup"
     /// How many rows are shown before the list scrolls. Three by default: most
     /// Macs have one or two configurations, and a rare fifth one should not push
     /// the modules under it off the panel.
@@ -99,15 +100,44 @@ final class VPNController: ObservableObject {
     /// settled state.
     func toggle(_ configuration: VPNConfiguration) {
         guard !Snapshot.active else { return }
-        let verb = configuration.state.isOn ? "stop" : "start"
+        let turningOff = configuration.state.isOn || configuration.state.isBusy
         pending.insert(configuration.id)
         let id = configuration.id
+        let name = configuration.name
+        let wasEnabled = configuration.isEnabled
         // The command answers in milliseconds but blocks; off the main thread it
         // cannot stutter the panel.
         Task { [weak self] in
-            await Task.detached { _ = Self.run([Self.scutil, "--nc", verb, id]) }.value
+            await Task.detached {
+                if turningOff {
+                    _ = Self.run([Self.scutil, "--nc", "stop", id])
+                    // A tunnel with on-demand rules is back within seconds — the
+                    // rules connect it again as soon as anything asks for a
+                    // `.com` (Anton, 2026-07-30). Stopping it is not enough; the
+                    // service itself has to leave the network set, which is the
+                    // only lever a third-party configuration gives us.
+                    if Self.reconnectsByItself(id) { Self.setService(name, enabled: false) }
+                } else {
+                    // Switching one back on returns it to the set first, or the
+                    // start would have nothing to start.
+                    if !wasEnabled { Self.setService(name, enabled: true) }
+                    _ = Self.run([Self.scutil, "--nc", "start", id])
+                }
+            }.value
             self?.refresh()
         }
+    }
+
+    /// Whether this configuration has on-demand rules, which is what makes a
+    /// stopped tunnel come back on its own.
+    private nonisolated static func reconnectsByItself(_ id: String) -> Bool {
+        run([scutil, "--nc", "show", id]).contains("OnDemandEnabled : TRUE")
+    }
+
+    /// Switches a service on or off in the network set. `networksetup` takes the
+    /// name the user sees, which is the quoted name `scutil --nc list` prints.
+    private nonisolated static func setService(_ name: String, enabled: Bool) {
+        _ = run([networksetup, "-setnetworkserviceenabled", name, enabled ? "on" : "off"])
     }
 
     // MARK: - The vendor's window
@@ -118,6 +148,14 @@ final class VPNController: ObservableObject {
     func openApp(for configuration: VPNConfiguration) {
         guard !Snapshot.active, let bundle = configuration.bundleIdentifier,
               let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundle) else { return }
+        // Going to the vendor's own screen means the switch there has to work, so
+        // a configuration Hop is holding out of the network set goes back in
+        // first: a client that cannot connect from its own window would look
+        // broken, and Hop would be the reason.
+        if !configuration.isEnabled {
+            let name = configuration.name
+            Task { await Task.detached { Self.setService(name, enabled: true) }.value }
+        }
         let options = NSWorkspace.OpenConfiguration()
         options.activates = true
         NSWorkspace.shared.openApplication(at: url, configuration: options) { [weak self] _, _ in
