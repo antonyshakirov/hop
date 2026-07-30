@@ -47,8 +47,21 @@ final class UninstallController: ObservableObject {
         let name: String
         let identifier: String
         let icon: NSImage
+        /// The bundle itself, and everything of its that a removal would take.
+        /// Both are shown, because "1.4 GB" answers a different question from
+        /// "1.2 GB of app plus 200 MB it saved up" (Anton, 2026-07-30). Measured
+        /// after the list appears, so an empty size means "not weighed yet".
+        var appBytes: Int64 = 0
+        var traceBytes: Int64 = 0
 
         var id: String { path }
+        var totalBytes: Int64 { appBytes + traceBytes }
+        var weighed: Bool { appBytes > 0 || traceBytes > 0 }
+    }
+
+    /// How the list of installed apps is ordered.
+    enum AppSort: String, CaseIterable {
+        case name, size
     }
 
     /// One installer file, with the tick the user puts on it.
@@ -110,6 +123,14 @@ final class UninstallController: ObservableObject {
     @Published var cacheOwners: [CacheOwner] = []
     /// Apps that can be removed, so the window does not depend on dragging.
     @Published var installedApps: [InstalledApp] = []
+    /// Name or size, remembered between openings.
+    @Published var appSort: AppSort = AppSort(
+        rawValue: UserDefaults.standard.string(forKey: "uninstallAppSort") ?? "") ?? .name {
+        didSet {
+            UserDefaults.standard.set(appSort.rawValue, forKey: "uninstallAppSort")
+            installedApps = Self.sorted(installedApps, by: appSort)
+        }
+    }
     /// Data of apps that are not on this Mac any more.
     @Published var leftovers: [CacheOwner] = []
     /// Big app data that only the app itself can clear safely.
@@ -129,6 +150,7 @@ final class UninstallController: ObservableObject {
     /// instead of looking empty.
     @Published private(set) var scanning = false
     private var cleanTask: Task<Void, Never>?
+    private var appWeighing: Task<Void, Never>?
 
     var totalBytes: Int64 { traces.filter(\.ticked).reduce(0) { $0 + $1.bytes } }
     var needsAdmin: Bool {
@@ -662,8 +684,49 @@ final class UninstallController: ObservableObject {
                     icon: NSWorkspace.shared.icon(forFile: path)))
             }
         }
-        installedApps = apps.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        installedApps = Self.sorted(apps, by: appSort)
         state = installedApps.isEmpty ? .empty : .found
+        weighInstalledApps()
+    }
+
+    static func sorted(_ apps: [InstalledApp], by order: AppSort) -> [InstalledApp] {
+        switch order {
+        case .name:
+            return apps.sorted {
+                $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
+        case .size:
+            // biggest first, and anything not weighed yet keeps its place at the
+            // bottom rather than jumping around as the numbers arrive
+            return apps.sorted { $0.totalBytes > $1.totalBytes }
+        }
+    }
+
+    /// Weighs every app AFTER the list is on screen: /Applications with a design
+    /// suite in it takes seconds to add up, and a list you cannot see yet is not
+    /// worth waiting for. Each app lands as it is measured.
+    private func weighInstalledApps() {
+        appWeighing?.cancel()
+        let apps = installedApps.map { (path: $0.path, id: $0.identifier, name: $0.name) }
+        appWeighing = Task { [weak self] in
+            for app in apps {
+                let sizes = await Task.detached(priority: .utility) { () -> (Int64, Int64) in
+                    let bundle = Self.size(of: app.path)
+                    let traces = Self.scanTraces(identifier: app.id, name: app.name,
+                                                 appPath: app.path)
+                        .filter { $0.path != app.path }
+                        .reduce(Int64(0)) { $0 + $1.bytes }
+                    return (bundle, traces)
+                }.value
+                guard !Task.isCancelled, let self else { return }
+                guard let index = self.installedApps.firstIndex(where: { $0.path == app.path })
+                else { continue }
+                self.installedApps[index].appBytes = sizes.0
+                self.installedApps[index].traceBytes = sizes.1
+            }
+            guard !Task.isCancelled, let self else { return }
+            self.installedApps = Self.sorted(self.installedApps, by: self.appSort)
+        }
     }
 
     /// Installers sitting in the folders a download lands in. No app needed: this

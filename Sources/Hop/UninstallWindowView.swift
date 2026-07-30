@@ -109,13 +109,35 @@ struct UninstallWindowView: View {
     /// Removing an app: the drop plate, then every app on this Mac, so a removal is
     /// a click and not only a drag (Anton, 2026-07-30).
     private var uninstallPicker: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            dropPlate.padding(.horizontal, Self.inset)
-            Text(t(.uninstallPickApp))
-                .font(Theme.mono(9))
-                .foregroundStyle(Theme.textTertiary)
+        // ONE scroll for the whole screen rather than a scrolling list inside a
+        // tall window: the plate scrolls up with the apps, the list runs to the
+        // bottom of the window, and there is no second bar inside the first
+        // (Anton, 2026-07-30).
+        SnapshotAwareScroll {
+            VStack(alignment: .leading, spacing: 10) {
+                dropPlate.padding(.horizontal, Self.inset)
+                HStack(spacing: 8) {
+                    Text(t(.uninstallPickApp))
+                        .font(Theme.mono(9))
+                        .foregroundStyle(Theme.textTertiary)
+                    Spacer(minLength: 8)
+                    // Name or size. A list of a hundred apps answers "what shall
+                    // I remove" only when the big ones can come first (Anton,
+                    // 2026-07-30).
+                    ForEach(UninstallController.AppSort.allCases, id: \.rawValue) { order in
+                        Button { uninstall.appSort = order } label: {
+                            Text(t(order == .name ? .uninstallSortName : .uninstallSortSize))
+                                .font(Theme.mono(9))
+                                .foregroundStyle(uninstall.appSort == order
+                                                 ? Theme.textPrimary : Theme.textTertiary)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .hoverDim()
+                        .help(t(order == .name ? .uninstallSortName : .uninstallSortSize))
+                    }
+                }
                 .padding(.horizontal, Self.inset)
-            SnapshotAwareScroll {
                 VStack(spacing: 3) {
                     ForEach(uninstall.installedApps) { app in
                         Button { uninstall.choose(path: app.path) } label: {
@@ -128,11 +150,24 @@ struct UninstallWindowView: View {
                                     .foregroundStyle(Theme.textPrimary)
                                     .lineLimit(1)
                                 Spacer(minLength: 8)
-                                Text(app.identifier)
-                                    .font(Theme.mono(8))
-                                    .foregroundStyle(Theme.textTertiary)
-                                    .lineLimit(1)
-                                    .truncationMode(.head)
+                                if app.weighed {
+                                    // total first, then what it is made of: the
+                                    // bundle plus everything of its elsewhere
+                                    Text(Self.sizeText(app.totalBytes))
+                                        .font(Theme.mono(9.5))
+                                        .foregroundStyle(Theme.textSecondary)
+                                        .monospacedDigit()
+                                    Text("(\(Self.sizeText(app.appBytes)) + \(Self.sizeText(app.traceBytes)))")
+                                        .font(Theme.mono(8))
+                                        .foregroundStyle(Theme.textTertiary)
+                                        .monospacedDigit()
+                                } else {
+                                    Text(app.identifier)
+                                        .font(Theme.mono(8))
+                                        .foregroundStyle(Theme.textTertiary)
+                                        .lineLimit(1)
+                                        .truncationMode(.head)
+                                }
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
@@ -145,7 +180,6 @@ struct UninstallWindowView: View {
                 }
                 .padding(.horizontal, Self.inset)
             }
-            .frame(maxHeight: Snapshot.active ? nil : 260)
         }
     }
 
@@ -154,7 +188,10 @@ struct UninstallWindowView: View {
     /// they are one intention and three of them do not deserve three windows.
     private var cleanBody: some View {
         SnapshotAwareScroll {
-            VStack(alignment: .leading, spacing: 16) {
+            // 28 rather than 16: a section ends in a button and the next one
+            // opens with a tick, and at 16 those two lines read as one row
+            // (Anton, 2026-07-30).
+            VStack(alignment: .leading, spacing: 28) {
                 if uninstall.scanning {
                     HStack(spacing: 7) {
                         ProgressView()
@@ -204,15 +241,10 @@ struct UninstallWindowView: View {
         run: @escaping () -> Void
     ) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .top, spacing: 8) {
-                Text(title)
-                    .font(Theme.mono(9))
-                    .foregroundStyle(Theme.textTertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 8)
-                selectAll(!owners.isEmpty && owners.allSatisfy(\.ticked),
-                          enabled: !owners.isEmpty, toggleAll: toggleAll)
-            }
+            Text(title)
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
             ForEach(Array(owners.enumerated()), id: \.element.id) { index, owner in
                 HStack(spacing: 8) {
                     Button { toggle(index) } label: {
@@ -246,7 +278,13 @@ struct UninstallWindowView: View {
                 .padding(.vertical, 5)
                 .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
             }
+            // "all" sits at the BOTTOM LEFT, its box in the same column as every
+            // other box in the list and its line level with the button it feeds
+            // (Anton, 2026-07-30). At the top right it was a stray control above
+            // the ticks it belongs to.
             HStack {
+                selectAll(!owners.isEmpty && owners.allSatisfy(\.ticked),
+                          enabled: !owners.isEmpty, toggleAll: toggleAll)
                 Spacer()
                 Button(action: run) {
                     Text(action)
@@ -272,12 +310,14 @@ struct UninstallWindowView: View {
         Button { toggleAll(!on) } label: {
             HStack(spacing: 5) {
                 Image(systemName: on ? "checkmark.square.fill" : "square")
-                    .font(.system(size: 11))
+                    .font(.system(size: 12))
                     .foregroundStyle(on ? Theme.textPrimary : Theme.textTertiary)
+                    .frame(width: 18, height: 18)
                 Text(t(.uninstallSelectAll))
                     .font(Theme.mono(9))
                     .foregroundStyle(Theme.textTertiary)
             }
+            .padding(.leading, 8)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -374,20 +414,10 @@ struct UninstallWindowView: View {
     /// button.
     private var installersBody: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 8) {
-                Text(t(.uninstallInstallersNote))
-                    .font(Theme.mono(9))
-                    .foregroundStyle(Theme.textTertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 8)
-                selectAll(!uninstall.installers.isEmpty
-                          && uninstall.installers.allSatisfy(\.ticked),
-                          enabled: !uninstall.installers.isEmpty) { on in
-                    for index in uninstall.installers.indices {
-                        uninstall.installers[index].ticked = on
-                    }
-                }
-            }
+            Text(t(.uninstallInstallersNote))
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
             if uninstall.installers.isEmpty, !uninstall.scanning {
                 Text(t(.uninstallNoInstallers))
                     .font(Theme.mono(10))
@@ -433,6 +463,13 @@ struct UninstallWindowView: View {
                     }
                 }
                 HStack {
+                    selectAll(!uninstall.installers.isEmpty
+                              && uninstall.installers.allSatisfy(\.ticked),
+                              enabled: !uninstall.installers.isEmpty) { on in
+                        for index in uninstall.installers.indices {
+                            uninstall.installers[index].ticked = on
+                        }
+                    }
                     Spacer()
                     Button { uninstall.removeTickedInstallers() } label: {
                         Text(t(.uninstallRemoveInstallers))
