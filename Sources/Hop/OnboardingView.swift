@@ -134,6 +134,10 @@ struct OnboardingView: View {
                 // switch read as belonging to the wrong row (Anton, 2026-07-29).
                 // Top-aligned: a two-line name must not lift its switch above
                 // its neighbour's.
+                // A hairline down the middle of the gutter: sixteen switches in
+                // two columns need a line to be read as two columns rather than
+                // one wide row (Anton, 2026-07-30). Drawn behind the grid, so it
+                // never touches the hit areas.
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 34, alignment: .top),
                                          count: 2),
                           spacing: 12) {
@@ -153,6 +157,12 @@ struct OnboardingView: View {
                     moduleCell(t(.vpnLabel), isOn: $showVpnModule)
                     moduleCell(t(.appsLabel), isOn: $showAppsModule)
                     moduleCell(t(.uninstallLabel), isOn: $showUninstallModule)
+                }
+                .background(alignment: .center) {
+                    Rectangle()
+                        .fill(Theme.divider)
+                        .frame(width: 1)
+                        .padding(.vertical, 2)
                 }
                 // The one module with a real extra cost: a one-time separate
                 // engine download — say so before the choice, not after. It

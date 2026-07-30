@@ -2283,6 +2283,21 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   A line at the top says the disk is still being read, and no section claims to
   be empty until it has actually been looked at.
 
+### The help window
+
+- **Every module has a tab of its own**, the uninstaller included
+  (`docUninstallFull`): both jobs, the ~30 places a removal looks in, the
+  recovery of an identifier from an app already in the trash, the trash-not-rm
+  promise, and what the cache job deliberately leaves alone.
+- **The general page opens with the donation card.** It used to close with it,
+  and as the module list grew the card sat below the fold where nobody scrolled
+  (Anton, 2026-07-30). It is still the only donation surface in the product.
+- **The general page's three service icons sit in ONE row** (settings, quit,
+  info): they are header buttons, not modules, and three lines of them pushed the
+  page down for nothing. Per-module legends keep their column.
+- The general text names the newest modules — vpn, apps, removing apps — in the
+  order the panel shows them.
+
 ### A release's first screen
 
 - **Onboarding lists EVERY module, the uninstaller included**, and marks every

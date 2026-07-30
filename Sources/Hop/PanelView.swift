@@ -4287,6 +4287,10 @@ struct PanelView: View {
         // "apps" alone does not say what the module is; the others are their
         // own explanation.
         case Self.appsChoice: return .featureAppsDetail
+        // "uninstall" says it removes something; it does not say that it takes
+        // the data and caches with it, nor that it also cleans up without
+        // removing anything (Anton, 2026-07-30).
+        case "uninstall": return .featureUninstallDetail
         default: return nil
         }
     }
@@ -4864,6 +4868,69 @@ struct PanelView: View {
          t(.archiveLabel), t(.keylockLabel)]
     }
 
+
+    /// The donation card. FIRST on the general page, not last: the module list
+    /// grew until the card sat below the fold and nobody scrolled that far
+    /// (Anton, 2026-07-30). Still the only donation surface in the product — the
+    /// landing and the READMEs deliberately have none.
+    private var donateCard: some View {
+        // donation block — the ONLY donation surface in the whole product
+        // (the landing and README deliberately have none). The WHOLE card
+        // is one button to the donation link, with the house whole-row
+        // hover (background lift + pointing-hand cursor) and an external-
+        // page glyph on the right, so there is one obvious place to click.
+        // Russian routes to the ru card, every other locale to the neutral
+        // one — the same rule the localized READMEs follow. No perks are
+        // promised anywhere (donations are gifts).
+        Button {
+            let url = lang == .ru
+                ? "https://web.tribute.tg/d/Nvp"
+                : "https://web.tribute.tg/d/Nvk"
+            if let link = URL(string: url) { NSWorkspace.shared.open(link) }
+        } label: {
+            // Top-aligned so the external-page glyph rides the TITLE row
+            // (top-right), not the card's vertical centre.
+            HStack(alignment: .top, spacing: 10) {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        // leading donation glyph — the house health-heart
+                        // red, tuned for both themes
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.iconHealth)
+                        Text(t(.donateTitle))
+                            .font(Theme.mono(13, weight: .semibold))
+                            // Slight negative tracking: the semibold mono
+                            // space reads wide at 13pt, so the word gap in
+                            // titles like "support hop" looked like more
+                            // than one space. -0.5pt closes it just enough;
+                            // too mild to cramp CJK/Thai (checked in both
+                            // themes across the wide scripts).
+                            .tracking(-0.5)
+                            .foregroundStyle(Theme.textPrimary)
+                    }
+                    Text(t(.donateBody))
+                        .font(Theme.mono(11))
+                        .foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                // external-page hint, aligned with the title row
+                Image(systemName: "arrow.up.forward.app")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Theme.textTertiary)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(t(.donateBody))
+        .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 8))
+        .hoverHighlight(8)
+        .padding(.top, 4)
+    }
+
     private var aboutScreen: some View {
         VStack(alignment: .leading, spacing: 14) {
             SectionChips(items: [
@@ -4883,11 +4950,14 @@ struct PanelView: View {
                 ("ocr", t(.ocrLabel)),
                 ("vpn", t(.vpnLabel)),
                 ("apps", t(.appsLabel)),
+                ("uninstall", t(.uninstallLabel)),
                 ("archive", t(.archiveLabel)),
                 ("keyboard", t(.keylockLabel)),
                 ("tasks", t(.aboutTabTasks)),
                 ("news", t(.aboutTabNews)),
             ], selection: $aboutSection, wraps: true)
+
+            if aboutSection == "general" { donateCard }
 
             Group {
                 switch aboutSection {
@@ -4923,6 +4993,8 @@ struct PanelView: View {
                     DocView(text: t(.docVpnFull))
                 case "apps":
                     DocView(text: t(.docAppsFull))
+                case "uninstall":
+                    DocView(text: t(.docUninstallFull))
                 case "archive":
                     DocView(text: t(.docArchiveFull))
                 case "keyboard":
@@ -4954,13 +5026,33 @@ struct PanelView: View {
                 Rectangle()
                     .fill(Theme.divider)
                     .frame(height: 1)
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(Array(legend.enumerated()), id: \.offset) { _, item in
-                        HStack(spacing: 10) {
-                            legendIcon(item.0)
-                            Text(item.1)
-                                .font(Theme.mono(11))
-                                .foregroundStyle(Theme.docText)
+                // The general page's three service icons sit in ONE row: they are
+                // the settings, quit and info buttons of the header, they need no
+                // paragraph each, and three lines of them pushed everything below
+                // off the screen (Anton, 2026-07-30). The per-module legends keep
+                // their column — those explain a module and are read one by one.
+                if aboutSection == "general" {
+                    HStack(spacing: 18) {
+                        ForEach(Array(legend.enumerated()), id: \.offset) { _, item in
+                            HStack(spacing: 7) {
+                                legendIcon(item.0)
+                                Text(item.1)
+                                    .font(Theme.mono(11))
+                                    .foregroundStyle(Theme.docText)
+                                    .lineLimit(1)
+                            }
+                        }
+                        Spacer(minLength: 0)
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(Array(legend.enumerated()), id: \.offset) { _, item in
+                            HStack(spacing: 10) {
+                                legendIcon(item.0)
+                                Text(item.1)
+                                    .font(Theme.mono(11))
+                                    .foregroundStyle(Theme.docText)
+                            }
                         }
                     }
                 }
@@ -5011,61 +5103,6 @@ struct PanelView: View {
                 }
                 .font(Theme.mono(11))
 
-                // donation block — the ONLY donation surface in the whole product
-                // (the landing and README deliberately have none). The WHOLE card
-                // is one button to the donation link, with the house whole-row
-                // hover (background lift + pointing-hand cursor) and an external-
-                // page glyph on the right, so there is one obvious place to click.
-                // Russian routes to the ru card, every other locale to the neutral
-                // one — the same rule the localized READMEs follow. No perks are
-                // promised anywhere (donations are gifts).
-                Button {
-                    let url = lang == .ru
-                        ? "https://web.tribute.tg/d/Nvp"
-                        : "https://web.tribute.tg/d/Nvk"
-                    if let link = URL(string: url) { NSWorkspace.shared.open(link) }
-                } label: {
-                    // Top-aligned so the external-page glyph rides the TITLE row
-                    // (top-right), not the card's vertical centre.
-                    HStack(alignment: .top, spacing: 10) {
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack(spacing: 6) {
-                                // leading donation glyph — the house health-heart
-                                // red, tuned for both themes
-                                Image(systemName: "heart.fill")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(Theme.iconHealth)
-                                Text(t(.donateTitle))
-                                    .font(Theme.mono(13, weight: .semibold))
-                                    // Slight negative tracking: the semibold mono
-                                    // space reads wide at 13pt, so the word gap in
-                                    // titles like "support hop" looked like more
-                                    // than one space. -0.5pt closes it just enough;
-                                    // too mild to cramp CJK/Thai (checked in both
-                                    // themes across the wide scripts).
-                                    .tracking(-0.5)
-                                    .foregroundStyle(Theme.textPrimary)
-                            }
-                            Text(t(.donateBody))
-                                .font(Theme.mono(11))
-                                .foregroundStyle(Theme.textSecondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        // external-page hint, aligned with the title row
-                        Image(systemName: "arrow.up.forward.app")
-                            .font(.system(size: 13))
-                            .foregroundStyle(Theme.textTertiary)
-                    }
-                    .padding(12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .help(t(.donateBody))
-                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 8))
-                .hoverHighlight(8)
-                .padding(.top, 4)
             }
         }
         .font(Theme.mono(12))
