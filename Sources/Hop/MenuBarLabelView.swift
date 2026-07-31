@@ -165,7 +165,7 @@ enum MenuBarIcon {
         // bottom-left: the VPN light, beside the torrent arrows when both are on.
         // Green like the running-time wedges — the same "something of yours is
         // live" family, and the corner is otherwise almost always empty.
-        if c.vpn {
+        if let vpn = c.vpn {
             // The mirror of the awake dot above it — except when the torrent arrows
             // share this corner. Then the ARROWS keep it (nudged a little further
             // left) and the dot steps to their right: moving the arrows inward
@@ -173,7 +173,7 @@ enum MenuBarIcon {
             // the glyph rather than as two arrows (Anton, 2026-07-29).
             var box = dotBox(-1, -1)
             if c.torrent != nil { box.origin.x += 6.5 }
-            drawVPNDot(box: box, colored: c.colored, glyph: glyph)
+            drawVPNDot(vpn, box: box, colored: c.colored, glyph: glyph)
         }
 
         // top-right: awake dots — yellow (no-sleep) then orange (lid), a dense
@@ -236,7 +236,7 @@ enum MenuBarIcon {
         // themes), the one bottom badge that is not green.
         if let torrent = c.torrent {
             // pushed a touch further into the corner when the VPN dot joins them
-            drawTorrent(torrent, glyph: glyph, shift: c.vpn ? -0.6 : 0)
+            drawTorrent(torrent, glyph: glyph, shift: c.vpn != nil ? -0.6 : 0)
         }
     }
 
@@ -300,12 +300,22 @@ enum MenuBarIcon {
     }
 
     /// Attention "!": a rounded stem plus a dot below it, anchored at its top-left.
-    /// The VPN light: a small green disc while a tunnel is up. In monochrome it
-    /// stays filled — the bottom-left corner has no second dot to be confused
-    /// with, only the torrent arrows, which are a different shape entirely.
-    private static func drawVPNDot(box: NSRect, colored: Bool, glyph: NSColor) {
-        (colored ? NSColor.systemGreen : glyph).setFill()
-        NSBezierPath(ovalIn: box).fill()
+    /// The VPN light: a small disc while a tunnel is up — green while traffic is
+    /// going through it, orange while nothing is coming back. In monochrome the
+    /// stalled one becomes a ring at the SAME outer size, since there is no colour
+    /// left to carry the difference; the live one stays a filled disc, which the
+    /// torrent arrows beside it can never be mistaken for.
+    private static func drawVPNDot(_ mark: VPNMark, box: NSRect, colored: Bool, glyph: NSColor) {
+        let color: NSColor = colored ? (mark == .up ? .systemGreen : .systemOrange) : glyph
+        color.setFill()
+        if colored || mark == .up {
+            NSBezierPath(ovalIn: box).fill()
+        } else {
+            color.setStroke()
+            let ring = NSBezierPath(ovalIn: box.insetBy(dx: stroke / 2, dy: stroke / 2))
+            ring.lineWidth = stroke
+            ring.stroke()
+        }
     }
 
     /// The reminder mark: a small yellow disc — the app's one accent colour, and

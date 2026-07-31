@@ -154,4 +154,34 @@ final class VPNConfigurationsTests: XCTestCase {
         """
         XCTAssertTrue(VPNConfigurations.parseList(output).isEmpty)
     }
+
+    // MARK: - The tunnel's interface
+
+    /// Trimmed from the real `scutil --nc status <id>` of a connected OpenVPN
+    /// configuration.
+    private let connectedStatus = """
+    Connected
+    Extended Status <dictionary> {
+      IPv4 : <dictionary> {
+        Addresses : <array> {
+          0 : 10.87.216.89
+        }
+        InterfaceName : utun4
+        Router : 10.87.216.89
+      }
+      IsPrimaryInterface : 1
+    }
+    """
+
+    func testFindsTheInterfaceTheTunnelIsOn() {
+        XCTAssertEqual(VPNConfigurations.interfaceName(in: connectedStatus), "utun4")
+    }
+
+    func testADisconnectedConfigurationHasNoInterface() {
+        XCTAssertNil(VPNConfigurations.interfaceName(in: "Disconnected"))
+    }
+
+    func testAnEmptyInterfaceNameIsNoInterfaceAtAll() {
+        XCTAssertNil(VPNConfigurations.interfaceName(in: "  InterfaceName : "))
+    }
 }

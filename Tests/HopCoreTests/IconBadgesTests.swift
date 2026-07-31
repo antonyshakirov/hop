@@ -204,26 +204,46 @@ final class IconBadgesTests: XCTestCase {
     // MARK: - VPN light (bottom-left)
 
     func testVPNLightShowsWhileATunnelIsUp() {
-        let c = IconBadges.compose(IconState(vpnConnected: true))
-        XCTAssertTrue(c.vpn)
+        let c = IconBadges.compose(IconState(vpn: .up))
+        XCTAssertEqual(c.vpn, .up)
         XCTAssertEqual(c.badges, [.vpn])
         XCTAssertEqual(IconBadge.vpn.corner, .bottomLeft)
         XCTAssertFalse(c.isEmpty)
     }
 
     func testVPNLightSharesItsCornerWithTheTorrentArrows() {
-        let c = IconBadges.compose(IconState(vpnConnected: true, torrentDown: true))
-        XCTAssertTrue(c.vpn)
+        let c = IconBadges.compose(IconState(vpn: .up, torrentDown: true))
+        XCTAssertEqual(c.vpn, .up)
         XCTAssertEqual(c.torrent, .down)
     }
 
     func testNoVPNLightWithoutAConnection() {
-        XCTAssertFalse(IconBadges.compose(IconState()).vpn)
+        XCTAssertNil(IconBadges.compose(IconState()).vpn)
     }
 
     func testVPNLightStaysFilledInMonochrome() {
         // the bottom-left corner has no second dot to tell it apart from
         XCTAssertTrue(IconBadge.vpn.monoFilled)
+    }
+
+    func testStalledTunnelTakesTheSameCornerAsALiveOne() {
+        let c = IconBadges.compose(IconState(vpn: .stalled))
+        XCTAssertEqual(c.vpn, .stalled)
+        XCTAssertEqual(c.badges, [.vpnStalled])
+        XCTAssertEqual(IconBadge.vpnStalled.corner, .bottomLeft)
+        XCTAssertFalse(c.isEmpty)
+    }
+
+    func testStalledTunnelBecomesARingInMonochrome() {
+        // orange has nothing to say in a monochrome bar, so the shape carries it
+        XCTAssertFalse(IconBadge.vpnStalled.monoFilled)
+        XCTAssertTrue(IconBadge.vpn.monoFilled)
+    }
+
+    func testTheVPNLightIsNeverBothAtOnce() {
+        // one value, not two flags: the light says exactly one thing per frame
+        XCTAssertEqual(IconBadges.compose(IconState(vpn: .stalled)).badges.count, 1)
+        XCTAssertEqual(IconBadges.compose(IconState(vpn: .up)).badges.count, 1)
     }
 
     func testReminderMarkDoesNotBlinkWithTheAlert() {

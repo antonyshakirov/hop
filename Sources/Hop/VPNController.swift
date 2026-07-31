@@ -27,6 +27,15 @@ final class VPNController: ObservableObject {
     static let visibleRowsKey = "vpnVisibleRows"
     static let defaultVisibleRows = 3
 
+    /// How often the tunnels are measured while there is something to measure.
+    /// Counters cost microseconds, so the cadence is set by how quickly a stalled
+    /// tunnel should show — not by what the reading costs.
+    private static let watchInterval: TimeInterval = 2
+    /// The cadence with nothing connected and the panel closed. The list still has
+    /// to be re-read on its own, or a tunnel that comes up while nobody is looking
+    /// would leave the menu bar showing nothing at all.
+    private static let idleInterval: TimeInterval = 30
+
     @Published private(set) var configurations: [VPNConfiguration] = []
     /// Set while a start/stop is in flight, so the row can show it immediately
     /// rather than waiting for the next poll.
@@ -34,12 +43,46 @@ final class VPNController: ObservableObject {
     /// The app Hop launched for its window, and is therefore responsible for
     /// closing again.
     @Published private(set) var openedApp: String?
+    /// Configurations the system calls connected while nothing comes back through
+    /// them.
+    @Published private(set) var stalled: Set<String> = []
 
-    private var poll: Timer?
+    private var tick: Timer?
+    private var tickInterval: TimeInterval = 0
     private var windowWatch: Timer?
+    /// Whether the module's own list is on screen, which is the only thing that
+    /// justifies the fast cadence and a process launch per tick.
+    private var panelOpen = false
+    private var lastListRead = Date.distantPast
+    /// Connected configuration → the interface its tunnel is on. Cached: the name
+    /// cannot change without the tunnel going down first, and looking it up costs
+    /// a process launch.
+    private var interfaces: [String: String] = [:]
+    private var liveness: [String: TunnelLiveness] = [:]
 
-    /// Any tunnel up right now — what the panel's green dot keys off.
+    /// Any tunnel up right now.
     var isAnyConnected: Bool { configurations.contains { $0.state.isOn } }
+
+    /// What the menu-bar light should say, or nil while nothing is up.
+    ///
+    /// One stalled tunnel is enough to turn it orange even with a healthy one
+    /// beside it: a tunnel is only ever called stalled while something is actively
+    /// pushing bytes into it and getting nothing back, and that is broken
+    /// whichever of them it is. Which one the panel says.
+    var mark: VPNMark? {
+        if !stalled.isEmpty { return .stalled }
+        return isAnyConnected ? .up : nil
+    }
+
+    /// Whether anyone can currently see what the module has to say. With the panel
+    /// closed the menu-bar dot is the only consumer, so a module that is on no
+    /// space, or whose dot has been switched off, is not worth measuring — the
+    /// same two conditions the icon itself is drawn under.
+    private var isWatched: Bool {
+        if panelOpen { return true }
+        return UserDefaults.standard.bool(forKey: SettingsKey.vpnMenuBarMark)
+            && !PanelView.storedModuleIsInactive("vpn")
+    }
 
     init() {
         if Snapshot.active {
@@ -55,14 +98,16 @@ final class VPNController: ObservableObject {
             return
         }
         refresh()
+        retune()
     }
 
     // MARK: - Reading
 
-    /// Re-reads the list. Cheap enough to run while the panel is open (one short
-    /// command), and stopped as soon as it closes.
+    /// Re-reads the list. One short command, run every tick while the panel is
+    /// open and every half-minute while it is closed.
     func refresh() {
         guard !Snapshot.active else { return }
+        lastListRead = Date()
         let output = Self.run([Self.scutil, "--nc", "list"])
         let fresh = VPNConfigurations.parseList(output).map(Self.named)
         // Keep a pending row on its optimistic state until the system agrees.
@@ -76,21 +121,101 @@ final class VPNController: ObservableObject {
         pending = pending.filter { id in
             fresh.first { $0.id == id }?.state.isBusy ?? false
         }
+        trackInterfaces()
     }
 
-    func startPolling() {
-        guard !Snapshot.active, poll == nil else { return }
-        refresh()
-        let timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { _ in
-            Task { @MainActor in self.refresh() }
+    /// Ties every connected configuration to the interface its tunnel is on, and
+    /// forgets the ones that have gone down along with whatever was known about
+    /// them.
+    private func trackInterfaces() {
+        let up = Set(configurations.filter { $0.state.isOn }.map(\.id))
+        for id in interfaces.keys where !up.contains(id) {
+            interfaces[id] = nil
+            liveness[id] = nil
         }
-        timer.tolerance = 0.5
-        poll = timer
+        if !stalled.isEmpty { stalled.formIntersection(up) }
+        for id in up where interfaces[id] == nil {
+            let status = Self.run([Self.scutil, "--nc", "status", id])
+            interfaces[id] = VPNConfigurations.interfaceName(in: status)
+        }
     }
 
-    func stopPolling() {
-        poll?.invalidate()
-        poll = nil
+    // MARK: - Measuring
+
+    /// Reads the counters of every tracked tunnel and updates the verdicts.
+    /// Returns whether an interface has gone missing, which means the list is out
+    /// of date and worth re-reading ahead of its cadence.
+    @discardableResult
+    private func sampleTunnels() -> Bool {
+        guard !interfaces.isEmpty else { return false }
+        let now = Date()
+        var vanished = false
+        var fresh: Set<String> = []
+        for (id, interface) in interfaces {
+            guard let counters = InterfaceCounters.read(interface) else {
+                // the tunnel took its interface down; the list will say so
+                vanished = true
+                liveness[id] = nil
+                continue
+            }
+            var watch = liveness[id] ?? TunnelLiveness()
+            if watch.observe(.init(inPackets: counters.inPackets,
+                                   outPackets: counters.outPackets, at: now)) {
+                fresh.insert(id)
+            }
+            liveness[id] = watch
+        }
+        if stalled != fresh { stalled = fresh }
+        return vanished
+    }
+
+    // MARK: - The tick
+
+    /// The module watches on its own, not only while its list is on screen: the
+    /// menu-bar dot is the whole point of the light, and a dot that only updates
+    /// while the panel is open says whatever was true when it last closed.
+    private func fire() {
+        guard isWatched else {
+            // nobody can see it — drop what was being tracked and coast
+            if !interfaces.isEmpty {
+                interfaces.removeAll()
+                liveness.removeAll()
+                stalled.removeAll()
+            }
+            retune()
+            return
+        }
+        let vanished = sampleTunnels()
+        if panelOpen || vanished || Date().timeIntervalSince(lastListRead) >= Self.idleInterval {
+            refresh()
+        }
+        retune()
+    }
+
+    /// Picks the cadence the current state deserves and reschedules only when it
+    /// actually changes.
+    private func retune() {
+        guard !Snapshot.active else { return }
+        let interval = (panelOpen || !interfaces.isEmpty) ? Self.watchInterval : Self.idleInterval
+        guard interval != tickInterval || tick == nil else { return }
+        tick?.invalidate()
+        tickInterval = interval
+        let timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { _ in
+            Task { @MainActor in self.fire() }
+        }
+        timer.tolerance = interval / 4
+        tick = timer
+    }
+
+    func panelAppeared() {
+        panelOpen = true
+        refresh()
+        retune()
+    }
+
+    func panelDisappeared() {
+        panelOpen = false
+        retune()
     }
 
     // MARK: - Switching

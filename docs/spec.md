@@ -158,9 +158,10 @@ identically on every user's bar.
   title (which no longer carries transfer, so it can never shift the panel).
 - **Colour vs monochrome.** The `colored indicators` setting (general, default
   ON) colours the badges. OFF renders every badge in the glyph colour and tells
-  the two same-corner pairs apart by SHAPE: no-sleep = filled dot, lid = outline
+  the three same-corner pairs apart by SHAPE: no-sleep = filled dot, lid = outline
   ring; engine = filled wedge, task = outline wedge (same outer size as filled);
-  the "!" and arrows stay their single shape. Per-badge on/off switches were
+  a live tunnel = filled dot, a stalled one = outline ring; the "!" and arrows
+  stay their single shape. Per-badge on/off switches were
   rejected — a badge always shows while its state is active; only colour is a
   setting. Exactly two badges are exempt and both are named where they are
   described: the reminder dot (`todoRemindMark`) and the VPN dot
@@ -1069,18 +1070,76 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   than they are worth: a geolocation service would be the first request Hop ever
   makes to a third party, and an offline database would nearly double a 3.7 MB
   app. Only what the vendor itself names is shown.
-- **Menu-bar light:** a green dot in the bottom-left corner while any tunnel is
-  up, beside the torrent arrows when those are there — the state worth seeing
-  with the panel closed — the exact mirror of the awake dot in the opposite
-  corner. When the torrent arrows share that corner THEY keep it, nudged 0.6pt
-  further left, and the dot steps to their right: moving the arrows inward
-  instead put them under the star's rays, where they stop reading as arrows.
+- **Menu-bar light:** a dot in the bottom-left corner while any tunnel is
+  up — GREEN while traffic is going through it, ORANGE while one is carrying
+  nothing (see the next bullet) — beside the torrent arrows when those are there,
+  the state worth seeing with the panel closed, the exact mirror of the awake dot
+  in the opposite corner. When the torrent arrows share that corner THEY keep it,
+  nudged 0.6pt further left, and the dot steps to their right: moving the arrows
+  inward instead put them under the star's rays, where they stop reading as
+  arrows. One value (`VPNMark`), not two flags, so "up AND stalled" cannot be
+  expressed; in monochrome the stalled one becomes a ring at the same outer size,
+  since there is no colour left to carry the difference.
   It can be switched off (`vpnMenuBarMark`, VPN settings,
-  ON by default); the module and the switch go on working without it. HIDING the
+  ON by default — the label is about the STATUS, not about a green dot, since the
+  dot has had two colours since 2026-07-31); the module and the switch go on
+  working without it. HIDING the
   module takes the dot with it — the badge is the module's voice in the menu bar,
   and a module that is on no space has nothing to say there (Anton, 2026-07-29).
   Hiding does not touch the setting, so putting the module back on a space brings
   the dot back too.
+- **A tunnel that is up and carrying nothing.** `scutil` reports the state of the
+  SESSION, not of the traffic: a tunnel whose server has gone quiet stays
+  `Connected` while nothing comes back through it — the switch is green and the
+  internet is dead (Anton, 2026-07-31). The evidence is the tunnel interface's own
+  counters. `scutil --nc status <id>` names the interface
+  (`InterfaceName : utun4`, cached while the tunnel stays up since looking it up
+  costs a process launch), and `getifaddrs` reads its counters — NOT a command:
+  this runs every two seconds for as long as a tunnel is up, and launching a
+  process on that cadence to learn two numbers would cost more than the rest of
+  the module put together.
+
+  **PACKETS, not bytes.** Measured against `netstat -ibn` on 2026-07-31: the
+  packet counters `getifaddrs` reports agree to the unit, while its BYTE counters
+  are rounded down to a multiple of 1024 and lag behind. On a quiet but healthy
+  tunnel that rounding can swallow a whole exchange, which would read as a tunnel
+  bringing nothing back — the one mistake this module must not make. A single
+  packet is unambiguous. Do not "improve" this back to bytes.
+
+  The verdict (`TunnelLiveness`, HopCore, pure and fully tested): stalled when
+  nothing has come back for **6 seconds** AND at least **3 packets** went out
+  during that silence. Both halves are load-bearing. Without the silence a
+  connection that drops and returns — how a flaky link behaves all day — would
+  have the icon blinking between two colours; without the packet floor a Mac left
+  alone at night, where nothing is asking for anything, would read exactly like a
+  dead tunnel. So the verdict only ever appears when something wanted an answer
+  and did not get one. Deliberately asymmetric: a single returning packet clears
+  it on the sample that carries it, while making it takes those 6 seconds. A
+  counter that goes BACKWARDS is an interface replaced under the same name (or the
+  32-bit value wrapping) and re-baselines instead of accusing.
+
+  Several tunnels can be up at once and ANY stalled one turns the light orange: a
+  tunnel is only ever called stalled while something is actively pushing bytes
+  into it and getting nothing back, which is broken whichever it is. Which one it
+  is, the panel says — that row's switch takes the same orange (`MiniSwitch`
+  already takes a tint, so no new element and no new string).
+
+  Known limit, accepted: with no network at all, bytes still pile into the `utun`
+  and nothing returns, so a Wi-Fi outage reads as a stalled tunnel for the few
+  seconds before the system moves the session out of `Connected` itself. What is
+  NOT detected — and cannot be, without asking a third party — is a live tunnel
+  whose traffic flows while particular hosts stay unreachable.
+- **The watch runs whether or not the panel is open.** It has to: the menu-bar dot
+  is the whole point of the light, and until 2026-07-31 polling started on the
+  list's `onAppear` and stopped on `onDisappear`, so with the panel closed the dot
+  showed whatever was true when it last closed. One timer at **2 s** while the
+  panel is open or any tunnel is up, **30 s** otherwise; `scutil --nc list` is
+  re-read every tick with the panel open, every 30 s without it, and immediately
+  when a tracked interface vanishes from `getifaddrs` (which is free and means the
+  list is already out of date). Counters are sampled every tick and cost
+  microseconds. The whole thing idles when nobody can see it — the module on no
+  space, or `vpnMenuBarMark` off — which is exactly the pair of conditions the
+  icon itself is drawn under.
 - **The vendor's window on demand:** the app is not running at all while Hop
   drives the connection, so it sits in neither the Dock nor the menu bar.
   Clicking the name launches it, and Hop quits it again once its last ordinary

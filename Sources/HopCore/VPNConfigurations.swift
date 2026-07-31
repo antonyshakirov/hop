@@ -99,6 +99,25 @@ public enum VPNConfigurations {
         return state(named: first.trimmingCharacters(in: .whitespaces))
     }
 
+    /// The tunnel interface a connected configuration is using, from the extended
+    /// status the same command prints below the state:
+    ///
+    ///     IPv4 : <dictionary> {
+    ///       InterfaceName : utun4
+    ///
+    /// This is the one thing that ties a configuration to something measurable:
+    /// the interface's byte counters are how Hop tells a live tunnel from one the
+    /// system still calls connected. nil while the configuration is not up —
+    /// there is no interface until there is a tunnel.
+    public static func interfaceName(in output: String) -> String? {
+        for line in output.split(separator: "\n") {
+            guard let range = line.range(of: "InterfaceName :") else { continue }
+            let value = line[range.upperBound...].trimmingCharacters(in: .whitespaces)
+            return value.isEmpty ? nil : value
+        }
+        return nil
+    }
+
     /// Words that describe the plumbing rather than the connection. A protocol
     /// name in the row tells the user nothing they can act on — what they want to
     /// see there is the country (Anton, 2026-07-29).
