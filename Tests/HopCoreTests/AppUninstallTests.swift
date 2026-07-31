@@ -274,4 +274,127 @@ final class AppUninstallTests: XCTestCase {
                                             now: now),
                        "something wrote to it yesterday, so something still uses it")
     }
+
+    // MARK: - Leftovers that belong to something still installed
+
+    func testAppleGroupContainersAreNeverLeftovers() {
+        XCTAssertFalse(AppUninstall.isLeftover(identifier: "group.com.apple.CoreSpeech",
+                                               installedIdentifiers: []),
+                       "a `group.` prefix must not hide Apple's own data from the check")
+    }
+
+    func testAGroupContainerBelongsToItsInstalledApp() {
+        XCTAssertFalse(AppUninstall.isLeftover(identifier: "group.com.samuellaska.AdBuster",
+                                               installedIdentifiers: ["com.samuellaska.AdBuster"]),
+                       "the app is installed and this folder holds the rules it works from")
+    }
+
+    func testAVendorComponentStaysWhileTheVendorIsInstalled() {
+        XCTAssertFalse(AppUninstall.isLeftover(identifier: "com.google.GoogleUpdater",
+                                               installedIdentifiers: ["com.google.Chrome"]),
+                       "this is what keeps Chrome updated, and Chrome is right there")
+        XCTAssertFalse(AppUninstall.isLeftover(identifier: "com.openai.chat",
+                                               installedIdentifiers: ["com.openai.codex"]),
+                       "an app that changed its identifier still owns the data it wrote")
+    }
+
+    func testAnotherVendorIsStillALeftover() {
+        XCTAssertTrue(AppUninstall.isLeftover(identifier: "com.pixelmator",
+                                              installedIdentifiers: ["com.apple.pixelmator",
+                                                                     "com.pixelmatorteam.photo"]),
+                      "a similar name is not the same vendor")
+        XCTAssertTrue(AppUninstall.isLeftover(identifier: "group.com.gone.App",
+                                              installedIdentifiers: ["com.here.App"]),
+                      "a group container of an app nobody has is still a leftover")
+    }
+
+    func testApplesPluralGroupPrefixIsAlsoApple() {
+        XCTAssertFalse(AppUninstall.isLeftover(identifier: "groups.com.apple.podcasts",
+                                               installedIdentifiers: []),
+                       "Podcasts spells its container `groups.`, with the s")
+    }
+
+    func testApplesHistoricIdentifiersAreNotLeftovers() {
+        for identifier in ["group.is.workflow.my.app", "is.workflow.my.app",
+                           "group.tvappservices.container",
+                           "games.my.gcshowcase.helper"] {
+            XCTAssertFalse(AppUninstall.isLeftover(identifier: identifier,
+                                                   installedIdentifiers: ["com.apple.shortcuts"]),
+                           "\(identifier) is macOS itself under a name it kept from before")
+        }
+    }
+
+    func testApplesOwnTeamPrefixMarksSystemData() {
+        XCTAssertTrue(AppUninstall.isSystemOwned(rawName: "243LU875E5.groups.com.apple.podcasts"))
+        XCTAssertFalse(AppUninstall.isSystemOwned(rawName: "4R6749AYRE.com.pixelmator"),
+                       "another vendor's team identifier says nothing about the system")
+    }
+
+    func testALoadedLaunchdJobMeansTheOwnerIsAlive() {
+        let loaded: Set<String> = ["com.google.GoogleUpdater.wake", "com.here.App"]
+        XCTAssertTrue(AppUninstall.isLoadedByLaunchd(identifier: "com.google.GoogleUpdater",
+                                                     loadedLabels: loaded),
+                      "its job is running right now, whatever the folder dates say")
+        XCTAssertTrue(AppUninstall.isLoadedByLaunchd(identifier: "com.here.App",
+                                                     loadedLabels: loaded))
+        XCTAssertFalse(AppUninstall.isLoadedByLaunchd(identifier: "com.gone.App",
+                                                      loadedLabels: loaded))
+    }
+
+    // MARK: - An identifier goes quiet as a whole
+
+    func testFreshDataInOnePlaceKeepsTheWholeIdentifier() {
+        let now = Date(timeIntervalSince1970: 100 * 86_400)
+        let old = Date(timeIntervalSince1970: 0)
+        let yesterday = Date(timeIntervalSince1970: 99 * 86_400)
+        let found = [
+            AppUninstall.LeftoverPath(identifier: "com.live.App", path: "/live/http",
+                                      bytes: 2_000_000, modified: old),
+            AppUninstall.LeftoverPath(identifier: "com.live.App", path: "/live/prefs",
+                                      bytes: 1_000, modified: yesterday),
+            AppUninstall.LeftoverPath(identifier: "com.gone.App", path: "/gone/support",
+                                      bytes: 3_000_000, modified: old),
+        ]
+        let groups = AppUninstall.quietGroups(from: found, now: now)
+        XCTAssertEqual(groups.map(\.identifier), ["com.gone.App"],
+                       "half of a live app's data is still a live app's data")
+        XCTAssertEqual(groups.first?.bytes, 3_000_000)
+        XCTAssertEqual(groups.first?.paths, ["/gone/support"])
+    }
+
+    func testAGroupAddsUpEveryPlaceItWasFoundIn() {
+        let now = Date(timeIntervalSince1970: 100 * 86_400)
+        let old = Date(timeIntervalSince1970: 0)
+        let found = [
+            AppUninstall.LeftoverPath(identifier: "com.gone.App", path: "/a",
+                                      bytes: 1_000_000, modified: old),
+            AppUninstall.LeftoverPath(identifier: "com.gone.App", path: "/b",
+                                      bytes: 2_000_000, modified: old),
+        ]
+        let groups = AppUninstall.quietGroups(from: found, now: now)
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual(groups.first?.bytes, 3_000_000)
+        XCTAssertEqual(groups.first?.paths.sorted(), ["/a", "/b"])
+    }
+
+    // MARK: - Finding the apps that are installed
+
+    func testAppsInsideAVendorFolderCount() throws {
+        let root = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("hop-apps-\(UUID().uuidString)")
+        let manager = FileManager.default
+        defer { try? manager.removeItem(at: root) }
+        // /Applications/Plain.app, /Applications/Suite/Inside.app, and a bundle
+        // nested inside another bundle, which is never an installed app of its own
+        for path in ["Plain.app/Contents", "Suite/Inside.app/Contents",
+                     "Plain.app/Contents/Library/Helper.app/Contents"] {
+            try manager.createDirectory(at: root.appendingPathComponent(path),
+                                        withIntermediateDirectories: true)
+        }
+        let found = AppUninstall.appBundlePaths(inside: root.path, manager: manager)
+            .map { URL(fileURLWithPath: $0).lastPathComponent }
+            .sorted()
+        XCTAssertEqual(found, ["Inside.app", "Plain.app"],
+                       "Adobe and DaVinci put their apps one folder deep")
+    }
 }

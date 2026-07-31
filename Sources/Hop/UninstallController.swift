@@ -38,7 +38,6 @@ final class UninstallController: ObservableObject {
         var ticked: Bool
 
         var id: String { identifier }
-        var isOrphan: Bool { appPath == nil }
     }
 
     /// One app the window offers to remove.
@@ -317,7 +316,8 @@ final class UninstallController: ObservableObject {
     nonisolated static func rawLeftovers(installed: Set<String>) -> [CacheOwner] {
         let manager = FileManager.default
         let home = NSHomeDirectory()
-        var byIdentifier: [String: (paths: [String], bytes: Int64, modified: Date)] = [:]
+        let loaded = loadedLaunchdLabels()
+        var found: [AppUninstall.LeftoverPath] = []
 
         for folder in AppUninstall.userFolders {
             let directory = "\(home)/Library/\(folder.name)"
@@ -326,35 +326,59 @@ final class UninstallController: ObservableObject {
                 // only identifier-shaped entries: a folder called "Notes" says
                 // nothing about who owns it
                 guard base.split(separator: ".").count >= 3, !base.contains(" ") else { continue }
+                guard !AppUninstall.isSystemOwned(rawName: base) else { continue }
                 let identifier = strippedTeamPrefix(base)
                 guard AppUninstall.isLeftover(identifier: identifier,
                                               installedIdentifiers: installed) else { continue }
+                // a job launchd is running right now has an owner, whatever the
+                // folder dates say
+                guard !AppUninstall.isLoadedByLaunchd(identifier: identifier,
+                                                      loadedLabels: loaded) else { continue }
                 let path = "\(directory)/\(entry)"
                 let values = try? URL(fileURLWithPath: path)
                     .resourceValues(forKeys: [.contentModificationDateKey])
                 let modified = values?.contentModificationDate ?? .distantPast
-                guard AppUninstall.isQuiet(modified: modified) else { continue }
-                var entryData = byIdentifier[identifier] ?? ([], 0, modified)
-                entryData.paths.append(path)
-                entryData.bytes += Self.size(of: path)
-                entryData.modified = max(entryData.modified, modified)
-                byIdentifier[identifier] = entryData
+                // a group container and the plain folder of the same app are one
+                // owner, so they are weighed and offered together
+                found.append(AppUninstall.LeftoverPath(
+                    identifier: AppUninstall.unwrapped(identifier), path: path,
+                    bytes: Self.size(of: path), modified: modified))
             }
         }
-        return byIdentifier.compactMap { identifier, data -> CacheOwner? in
-            guard data.bytes > 1_000_000 else { return nil }
+        return AppUninstall.quietGroups(from: found).compactMap { group -> CacheOwner? in
+            guard group.bytes > 1_000_000 else { return nil }
             // the caches section lists installed apps only, so nothing appears twice
-            return CacheOwner(identifier: identifier, name: identifier, appPath: nil,
-                              paths: data.paths, bytes: data.bytes, ticked: false)
+            return CacheOwner(identifier: group.identifier, name: group.identifier, appPath: nil,
+                              paths: group.paths, bytes: group.bytes, ticked: false)
         }
-        .sorted { $0.bytes > $1.bytes }
+    }
+
+    /// The job labels launchd is running for this user, read once per scan.
+    nonisolated static func loadedLaunchdLabels() -> Set<String> {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+        process.arguments = ["list"]
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+        do { try process.run() } catch { return [] }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        guard let out = String(data: data, encoding: .utf8) else { return [] }
+        // PID <tab> status <tab> label, under a header line
+        return Set(out.split(separator: "\n").dropFirst().compactMap {
+            $0.split(separator: "\t").last.map(String.init)
+        })
     }
 
     /// The installed identifier that owns this one: itself, or the app it is a
     /// helper of (`com.foo.App` for `com.foo.App.Updater`).
     nonisolated static func owningApp(of identifier: String, installed: Set<String>) -> String? {
-        if installed.contains(identifier) { return identifier }
-        return installed.first { identifier.hasPrefix($0 + ".") }
+        // a group container names its app inside the wrapper, so the row can carry
+        // the app's own name instead of a raw identifier
+        let id = AppUninstall.unwrapped(identifier)
+        if installed.contains(id) { return id }
+        return installed.first { id.hasPrefix($0 + ".") }
     }
 
     /// Containers and group containers big enough to matter, which are NOT offered
@@ -371,7 +395,8 @@ final class UninstallController: ObservableObject {
             for entry in (try? manager.contentsOfDirectory(atPath: directory)) ?? [] {
                 let path = "\(directory)/\(entry)"
                 let identifier = strippedTeamPrefix(AppUninstall.base(of: entry))
-                guard !identifier.hasPrefix("com.apple.") else { continue }
+                guard !AppUninstall.isSystemOwned(rawName: AppUninstall.base(of: entry))
+                else { continue }
                 let bytes = Self.size(of: path)
                 guard bytes > 1_000_000_000 else { continue }   // a gigabyte or more
                 out.append((path: path, identifier: identifier, bytes: bytes))
@@ -405,10 +430,8 @@ final class UninstallController: ObservableObject {
         var out: [String] = []
         for folder in ["/Applications", "/Applications/Utilities", "/System/Applications",
                        "\(NSHomeDirectory())/Applications"] {
-            for entry in (try? manager.contentsOfDirectory(atPath: folder)) ?? []
-            where entry.hasSuffix(".app") {
-                if let id = Bundle(url: URL(fileURLWithPath: "\(folder)/\(entry)"))?
-                    .bundleIdentifier {
+            for path in AppUninstall.appBundlePaths(inside: folder, manager: manager) {
+                if let id = Bundle(url: URL(fileURLWithPath: path))?.bundleIdentifier {
                     out.append(id)
                 }
             }
@@ -506,7 +529,7 @@ final class UninstallController: ObservableObject {
                             installed: Set<String>) -> [CacheOwner] {
         byIdentifier.compactMap { identifier, entry -> CacheOwner? in
             // Apple's own caches are the system's business, not ours
-            guard !identifier.hasPrefix("com.apple.") else { return nil }
+            guard !AppUninstall.isSystemOwned(rawName: identifier) else { return nil }
             guard entry.bytes > 1_000_000 else { return nil }   // below a megabyte is noise
             // An app that IS installed but whose cache carries a helper's id —
             // `com.microsoft.VSCode.ShipIt` is the updater of an installed editor —

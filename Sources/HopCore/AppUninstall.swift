@@ -250,14 +250,88 @@ public enum AppUninstall {
     /// prefix of any installed identifier is therefore NOT a leftover.
     public static func isLeftover(identifier: String, installedIdentifiers: Set<String>) -> Bool {
         guard !identifier.isEmpty else { return false }
+        let id = unwrapped(identifier)
         // Apple's own data is the system's business
-        guard !identifier.hasPrefix("com.apple.") else { return false }
-        guard !installedIdentifiers.contains(identifier) else { return false }
+        guard !isSystem(id) else { return false }
+        guard !installedIdentifiers.contains(id) else { return false }
+        let family = vendor(of: id)
         for installed in installedIdentifiers where !installed.isEmpty {
-            if identifier.hasPrefix(installed + ".") { return false }   // its helper
-            if installed.hasPrefix(identifier + ".") { return false }   // its family
+            let owner = unwrapped(installed)
+            if id.hasPrefix(owner + ".") { return false }   // its helper
+            if owner.hasPrefix(id + ".") { return false }   // its family
+            // Same vendor, different component: `com.google.GoogleUpdater` is what
+            // keeps an installed Chrome up to date, and `com.openai.chat` is the
+            // data an installed app wrote before it changed its identifier. Both
+            // were offered for removal on Anton's Mac (2026-07-31). This does hide
+            // a genuine leftover when its vendor still has something installed,
+            // and that is the trade the module takes: a leftover left alone costs
+            // disk space, a live app's data costs the work in it.
+            if let family, family == vendor(of: owner) { return false }
         }
         return true
+    }
+
+    /// The identifier a folder name means, with the container wrapper taken off:
+    /// a group container is called `group.com.foo.App` and belongs to
+    /// `com.foo.App`. Checking the raw name instead makes Apple's own containers
+    /// look orphaned and an installed app's own data look like a stranger's.
+    /// Podcasts writes `groups.` with an s, so both spellings come off.
+    public static func unwrapped(_ identifier: String) -> String {
+        for prefix in ["groups.", "group."] where identifier.hasPrefix(prefix) {
+            return String(identifier.dropFirst(prefix.count))
+        }
+        return identifier
+    }
+
+    /// macOS under the names it kept from before it owned them. Shortcuts still
+    /// writes as `is.workflow`, the TV app as `tvappservices`, Game Center as
+    /// `games.my.gcshowcase` — none of them answer to a `com.apple` identifier,
+    /// and all three were offered for removal on Anton's Mac (2026-07-31).
+    /// A system component has no app in /Applications to vouch for it, so
+    /// nothing but a list of its names can keep it out.
+    static let systemPrefixes = ["com.apple.", "is.workflow.", "tvappservices.",
+                                 "games.my.gcshowcase."]
+
+    static func isSystem(_ identifier: String) -> Bool {
+        systemPrefixes.contains { identifier.hasPrefix($0) }
+    }
+
+    /// Apple's own developer team, which prefixes the containers it ships.
+    public static let appleTeam = "243LU875E5"
+
+    /// Whether a folder name, BEFORE its team prefix is taken off, belongs to the
+    /// system. The team identifier is the one part a historic name cannot hide.
+    public static func isSystemOwned(rawName: String) -> Bool {
+        if rawName.hasPrefix(appleTeam + ".") { return true }
+        return isSystem(unwrapped(strippedTeam(rawName)))
+    }
+
+    /// `<TEAMID>.<id>` → `<id>`: a team prefix is 10 upper-case characters and is
+    /// not part of the identifier itself.
+    public static func strippedTeam(_ base: String) -> String {
+        let parts = base.split(separator: ".").map(String.init)
+        guard let first = parts.first, first.count == 10,
+              first.uppercased() == first, !first.contains(where: \.isLowercase),
+              parts.count > 2 else { return base }
+        return parts.dropFirst().joined(separator: ".")
+    }
+
+    /// The vendor an identifier belongs to: `com.google` out of
+    /// `com.google.GoogleUpdater`.
+    static func vendor(of identifier: String) -> String? {
+        let parts = identifier.split(separator: ".")
+        guard parts.count >= 2 else { return nil }
+        return parts.prefix(2).joined(separator: ".")
+    }
+
+    /// Whether launchd is running a job for this identifier right now. A loaded
+    /// job means the owner is alive whatever the folder dates say — Chrome's
+    /// updater writes to its own folders rarely enough to look abandoned while
+    /// `com.google.GoogleUpdater.wake` sits in `launchctl list`.
+    public static func isLoadedByLaunchd(identifier: String, loadedLabels: Set<String>) -> Bool {
+        let id = unwrapped(identifier)
+        if loadedLabels.contains(id) { return true }
+        return loadedLabels.contains { $0.hasPrefix(id + ".") }
     }
 
     /// A leftover nobody has touched for this long is safe to OFFER. Anything
@@ -268,6 +342,81 @@ public enum AppUninstall {
     public static func isQuiet(modified: Date, now: Date = Date(),
                               days: Int = leftoverQuietDays) -> Bool {
         now.timeIntervalSince(modified) > Double(days) * 86_400
+    }
+
+    /// One folder found under one identifier, before the places it was found in
+    /// are added up.
+    public struct LeftoverPath: Sendable {
+        public let identifier: String
+        public let path: String
+        public let bytes: Int64
+        public let modified: Date
+
+        public init(identifier: String, path: String, bytes: Int64, modified: Date) {
+            self.identifier = identifier
+            self.path = path
+            self.bytes = bytes
+            self.modified = modified
+        }
+    }
+
+    /// Everything one identifier left behind, offered as one row.
+    public struct LeftoverGroup: Sendable {
+        public let identifier: String
+        public let paths: [String]
+        public let bytes: Int64
+    }
+
+    /// Groups the found folders by identifier and drops any identifier that was
+    /// written to recently in ANY of its places.
+    ///
+    /// The quiet test belongs to the identifier, not to the folder: ChatGPT's
+    /// preferences were three weeks old while its `HTTPStorages` folder had not
+    /// been touched since May, and testing each folder on its own offered half of
+    /// a live app's data for removal (Anton's Mac, 2026-07-31).
+    public static func quietGroups(from found: [LeftoverPath],
+                                   now: Date = Date()) -> [LeftoverGroup] {
+        var byIdentifier: [String: (paths: [String], bytes: Int64, newest: Date)] = [:]
+        for item in found {
+            var entry = byIdentifier[item.identifier] ?? ([], 0, Date.distantPast)
+            entry.paths.append(item.path)
+            entry.bytes += item.bytes
+            entry.newest = max(entry.newest, item.modified)
+            byIdentifier[item.identifier] = entry
+        }
+        return byIdentifier.compactMap { identifier, data -> LeftoverGroup? in
+            guard isQuiet(modified: data.newest, now: now) else { return nil }
+            return LeftoverGroup(identifier: identifier, paths: data.paths, bytes: data.bytes)
+        }
+        .sorted { $0.bytes > $1.bytes }
+    }
+
+    /// The app bundles inside a folder, one level of ordinary folders included.
+    ///
+    /// `/Applications` is not a flat list: Adobe installs into
+    /// `/Applications/Adobe Premiere Pro 2026/`, DaVinci Resolve into a folder of
+    /// its own, and reading only the top level means every one of those apps
+    /// counts as not installed — which turned their support folders into
+    /// "leftovers" (Anton's Mac, 2026-07-31). Bundles nested INSIDE a bundle are
+    /// not installed apps of their own and are left where they are.
+    public static func appBundlePaths(inside folder: String,
+                                      manager: FileManager = .default) -> [String] {
+        var out: [String] = []
+        for entry in (try? manager.contentsOfDirectory(atPath: folder)) ?? [] {
+            let path = "\(folder)/\(entry)"
+            if entry.hasSuffix(".app") {
+                out.append(path)
+                continue
+            }
+            var isDirectory: ObjCBool = false
+            guard manager.fileExists(atPath: path, isDirectory: &isDirectory),
+                  isDirectory.boolValue else { continue }
+            for inner in (try? manager.contentsOfDirectory(atPath: path)) ?? []
+            where inner.hasSuffix(".app") {
+                out.append("\(path)/\(inner)")
+            }
+        }
+        return out
     }
 
     // MARK: - Finding the identifier when the app is already gone

@@ -2255,8 +2255,39 @@ nothing about what would be cleaned, and the caches are why anybody opens it
     point: nobody remembers what they uninstalled two years ago. An identifier is
     a leftover when no installed app answers to it AND no installed app OWNS it —
     a dot-anchored prefix either way, because `com.foo.App.Updater` looks orphaned
-    while its owner sits in /Applications. Nothing written to in the last 30 days
-    is offered: something is still using it.
+    while its owner sits in /Applications. Five more guards keep live apps out,
+    every one of them written after a real list on Anton's Mac offered eight rows
+    of which seven belonged to something installed (2026-07-31):
+    - **The container wrapper comes off first.** A group container is called
+      `group.com.foo.App` (Podcasts writes `groups.`, with an s) and belongs to
+      `com.foo.App`. Matching the raw name made Apple's own containers look
+      orphaned and offered the rules file of an installed ad blocker.
+    - **The same vendor is not a leftover.** `com.google.GoogleUpdater` is what
+      keeps an installed Chrome up to date, and `com.openai.chat` is what an
+      installed app wrote before it changed its identifier. Two shared
+      components of an identifier count as one vendor. This hides a genuine
+      leftover whose vendor still has something installed, and that is the trade:
+      a leftover left alone costs disk space, a live app's data costs the work
+      in it.
+    - **Apps one folder deep count as installed.** `/Applications` is not flat:
+      Adobe installs into `/Applications/Adobe Premiere Pro 2026/` and DaVinci
+      Resolve into a folder of its own, and reading only the top level marked
+      every one of them as uninstalled.
+    - **macOS under its historic names** — Shortcuts still writes as
+      `is.workflow`, the TV app as `tvappservices`, Game Center as
+      `games.my.gcshowcase`, and Apple's own team identifier prefixes the
+      containers it ships. None of them answer to `com.apple` and none has an app
+      to vouch for them.
+    - **A job launchd is running has an owner** whatever the dates say. Chrome's
+      updater writes rarely enough to look abandoned while its agent sits in
+      `launchctl list`.
+
+    Nothing written to in the last 30 days is offered: something is still using
+    it. The 30 days belong to the identifier and not to the folder — ChatGPT's
+    preferences were three weeks old while its `HTTPStorages` folder had not been
+    touched since May, and testing each folder on its own offered half of a live
+    app's data. Every place one identifier was found is weighed and removed
+    together.
   - **big app data we do not touch** — a list with no tick and no button, only a
     name and a size. It answers the question the cache list provokes: Telegram
     holds 23 GB and never appears among the caches, because its `Library/Caches`
