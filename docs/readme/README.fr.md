@@ -247,7 +247,12 @@ Une touche mesure la connexion avec le networkQuality de macOS, contre les serve
 
 ### L'icône de la barre des menus
 
-L'icône porte de petites marques : le temps en cours, le mode sans veille, un rappel qui a sonné, un point vert tant qu'un VPN est actif et des flèches tant que les torrents bougent — en couleur ou en monochrome, chacune désactivable. Les fenêtres de Hop apparaissent dans le Dock tant qu'elles sont ouvertes, un clic en ramène une au lieu d'ouvrir le panneau, et l'icône s'en va avec la dernière fenêtre.
+L'icône porte de petites marques : le temps en cours, le mode sans veille, un rappel
+qui a sonné, un point tant qu'un VPN est actif (orange s'il ne laisse plus rien
+passer) et des flèches tant que les torrents bougent — en couleur ou en monochrome,
+chacune désactivable. Les fenêtres de Hop apparaissent dans le Dock tant qu'elles sont
+ouvertes, un clic en ramène une au lieu d'ouvrir le panneau, et l'icône s'en va avec
+la dernière fenêtre.
 
 ### Thèmes, raccourcis et mode sans échec
 
@@ -265,10 +270,12 @@ installé hier apparaît tout seul, un client supprimé disparaît. Rien à ajou
 à configurer ici.
 
 Connectez et déconnectez sans rien ouvrir. Tant qu'un tunnel tient, un petit point
-vert s'allume dans le coin de l'icône de la barre des menus, à côté des autres
-voyants. Cliquez sur le nom et la fenêtre du VPN s'ouvre quand vous en avez
-besoin ; refermez-la et Hop quitte l'app. La connexion reste : le tunnel est tenu
-par le système, pas par l'app.
+s'allume dans le coin de l'icône de la barre des menus, à côté des autres voyants :
+vert tant que quelque chose passe, orange quand le tunnel est actif mais que rien ne
+revient par lui. Une connexion morte en silence cesse ainsi d'avoir l'air saine, et le
+panneau indique la ligne concernée. Cliquez sur le nom et la fenêtre du VPN s'ouvre
+quand vous en avez besoin ; refermez-la et Hop quitte l'app. La connexion reste : le
+tunnel est tenu par le système, pas par l'app.
 
 La ligne montre ce que le client rapporte lui-même : son nom et, entre
 parenthèses, ce que la configuration ajoute, le plus souvent le pays. Hop ne

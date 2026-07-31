@@ -237,7 +237,11 @@ Tek dokunuş, bağlantıyı macOS'un kendi networkQuality'siyle Apple sunucular�
 
 ### Menü çubuğu simgesi
 
-Simgede küçük işaretler durur: akan süre, uyku engeli, çalmış bir anımsatıcı, bir VPN açıkken yeşil nokta ve torrentler akarken oklar — renkli ya da tek renk, her biri kapatılabilir. Hop'un kendi pencereleri açıkken Dock'ta görünür, böylece bir tık paneli açmadan pencereyi geri getirir; son pencereyle birlikte simge de gider.
+Simgede küçük işaretler durur: akan süre, uyku engeli, çalmış bir anımsatıcı, bir VPN
+açıkken nokta (hiçbir şey geçmiyorsa turuncu) ve torrentler akarken oklar — renkli ya
+da tek renk, her biri kapatılabilir. Hop'un kendi pencereleri açıkken Dock'ta görünür,
+böylece bir tık paneli açmadan pencereyi geri getirir; son pencereyle birlikte simge
+de gider.
 
 ### Temalar, kısayollar ve güvenli mod
 
@@ -255,9 +259,11 @@ kendiliğinden görünür, kaldırdığınız kaybolur. Burada eklenecek bir şe
 belirli bir firma için destek beklemek de gerekmiyor.
 
 Hiçbir şey açmadan bağlanın ve kesin. Bir tünel ayaktayken menü çubuğu simgesinin
-köşesinde küçük yeşil bir nokta yanar, diğer göstergelerin yanında. Ada tıklayınca
-o VPN'in kendi penceresi açılır; kapattığınızda Hop uygulamayı kapatır. Bağlantı
-kalır: tüneli uygulama değil sistem tutar.
+köşesinde küçük bir nokta yanar, diğer göstergelerin yanında: bir şeyler geçtiği
+sürece yeşil, tünel açık olduğu hâlde geri hiçbir şey gelmiyorsa turuncu. Sessizce
+ölmüş bir bağlantı böylece sağlam görünmez, hangi satır olduğunu da panel gösterir.
+Ada tıklayınca o VPN'in kendi penceresi açılır; kapattığınızda Hop uygulamayı kapatır.
+Bağlantı kalır: tüneli uygulama değil sistem tutar.
 
 Satırda istemcinin kendi bildirdiği şey görünür: adı ve parantez içinde
 yapılandırmanın eklediği, genelde ülke. Hop ülkeyi sunucu adresinden tahmin etmez:

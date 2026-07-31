@@ -243,7 +243,11 @@ Un tocco misura la connessione con il networkQuality di macOS contro i server Ap
 
 ### L'icona nella barra dei menu
 
-L'icona porta piccoli segni: il tempo in corso, l'anti-sospensione, un promemoria che è suonato, un punto verde finché una VPN è su e frecce finché i torrent si muovono — a colori o monocromatici, ognuno disattivabile. Le finestre di Hop compaiono nel Dock finché sono aperte, così un clic ne riporta una invece di aprire il pannello, e l'icona se ne va con l'ultima finestra.
+L'icona porta piccoli segni: il tempo in corso, l'anti-sospensione, un promemoria che
+è suonato, un punto finché una VPN è su (arancione se smette di far passare qualcosa)
+e frecce finché i torrent si muovono — a colori o monocromatici, ognuno disattivabile.
+Le finestre di Hop compaiono nel Dock finché sono aperte, così un clic ne riporta una
+invece di aprire il pannello, e l'icona se ne va con l'ultima finestra.
 
 ### Temi, scorciatoie e modalità sicura
 
@@ -260,10 +264,13 @@ fornitore. Hop legge l'elenco direttamente dalle impostazioni di sistema: un
 client installato ieri compare da solo, uno rimosso sparisce. Qui non c'è nulla da
 aggiungere né da configurare.
 
-Collega e scollega senza aprire niente. Finché un tunnel è su, un puntino verde
-sta nell'angolo dell'icona nella barra dei menu, accanto agli altri indicatori.
-Clicca il nome e si apre la finestra di quella VPN quando serve; quando la chiudi,
-Hop chiude l'app. La connessione resta: il tunnel lo tiene il sistema, non l'app.
+Collega e scollega senza aprire niente. Finché un tunnel è su, un puntino sta
+nell'angolo dell'icona nella barra dei menu, accanto agli altri indicatori: verde
+finché qualcosa passa, arancione quando il tunnel è acceso ma non torna indietro
+nulla. Una connessione morta in silenzio smette così di sembrare sana, e il pannello
+indica la riga di cui si tratta. Clicca il nome e si apre la finestra di quella VPN
+quando serve; quando la chiudi, Hop chiude l'app. La connessione resta: il tunnel lo
+tiene il sistema, non l'app.
 
 La riga mostra ciò che il client stesso dichiara: il nome e, tra parentesi, quello
 che la configurazione aggiunge, di solito il paese. Hop non indovina mai il paese

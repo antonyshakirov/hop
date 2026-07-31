@@ -241,7 +241,12 @@ Eén tik meet de verbinding met macOS' eigen networkQuality tegen Apples servers
 
 ### Het icoon in de menubalk
 
-Op het icoon zitten kleine markeringen: de lopende tijd, de slaapblokkade, een herinnering die afging, een groene stip zolang er een vpn staat en pijlen zolang torrents lopen — in kleur of monochroom, elk apart uit te zetten. Hops eigen vensters verschijnen in het Dock zolang ze open zijn, dus één klik haalt er een terug in plaats van het paneel te openen, en het icoon vertrekt met het laatste venster.
+Op het icoon zitten kleine markeringen: de lopende tijd, de slaapblokkade, een
+herinnering die afging, een stip zolang er een vpn staat (oranje als er niets meer
+doorheen gaat) en pijlen zolang torrents lopen — in kleur of monochroom, elk apart uit
+te zetten. Hops eigen vensters verschijnen in het Dock zolang ze open zijn, dus één
+klik haalt er een terug in plaats van het paneel te openen, en het icoon vertrekt met
+het laatste venster.
 
 ### Thema's, sneltoetsen en veilige modus
 
@@ -258,11 +263,13 @@ Hop leest de lijst rechtstreeks uit systeeminstellingen: een client die je giste
 installeerde verschijnt vanzelf, een verwijderde verdwijnt. Hier valt niets toe te
 voegen of in te stellen.
 
-Verbind en verbreek zonder iets te openen. Zolang een tunnel staat, brandt een
-klein groen puntje in de hoek van het menubalkicoon, naast de andere indicatoren.
-Klik op de naam en het venster van die VPN gaat open; sluit je het, dan sluit Hop
-de app. De verbinding blijft: de tunnel wordt door het systeem vastgehouden, niet
-door de app.
+Verbind en verbreek zonder iets te openen. Zolang een tunnel staat, brandt een klein
+puntje in de hoek van het menubalkicoon, naast de andere indicatoren: groen zolang er
+iets doorheen gaat, oranje wanneer de tunnel aanstaat maar er niets terugkomt. Een
+stilletjes gestorven verbinding ziet er zo niet langer gezond uit, en het paneel wijst
+de rij aan. Klik op de naam en het venster van die VPN gaat open; sluit je het, dan
+sluit Hop de app. De verbinding blijft: de tunnel wordt door het systeem vastgehouden,
+niet door de app.
 
 De regel toont wat de client zelf meldt: zijn naam en tussen haakjes wat de
 configuratie toevoegt, meestal het land. Hop raadt het land nooit uit het

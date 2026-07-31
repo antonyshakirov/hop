@@ -232,7 +232,11 @@ Một chạm là đo đường truyền bằng chính networkQuality của macOS
 
 ### Biểu tượng trên thanh trình đơn
 
-Biểu tượng mang những dấu nhỏ: thời gian đang chạy, chống ngủ, một lời nhắc vừa reo, chấm xanh khi vpn đang bật và mũi tên khi torrent đang chạy — màu hay đơn sắc, tắt được từng cái. Cửa sổ của chính Hop hiện trong Dock khi còn mở, nên một cú nhấp đưa cửa sổ trở lại thay vì mở bảng điều khiển, và biểu tượng rời đi cùng cửa sổ cuối cùng.
+Biểu tượng mang những dấu nhỏ: thời gian đang chạy, chống ngủ, một lời nhắc vừa reo,
+chấm khi vpn đang bật (chuyển cam nếu không còn gì đi qua) và mũi tên khi torrent đang
+chạy — màu hay đơn sắc, tắt được từng cái. Cửa sổ của chính Hop hiện trong Dock khi
+còn mở, nên một cú nhấp đưa cửa sổ trở lại thay vì mở bảng điều khiển, và biểu tượng
+rời đi cùng cửa sổ cuối cùng.
 
 ### Chủ đề, phím tắt và chế độ an toàn
 
@@ -248,10 +252,12 @@ Mọi VPN mà máy Mac của bạn biết, mỗi cái một công tắc, của h
 đọc danh sách thẳng từ cài đặt hệ thống: ứng dụng cài hôm qua tự xuất hiện, cái đã
 gỡ thì biến mất. Ở đây không phải thêm hay cấu hình gì cả.
 
-Bật tắt đường hầm mà không phải mở thứ gì. Khi một đường hầm đang chạy, một chấm
-xanh nhỏ sáng ở góc biểu tượng trên thanh menu, cạnh các đèn báo khác. Bấm vào tên
-thì cửa sổ của chính VPN đó mở ra; đóng cửa sổ, Hop tắt luôn ứng dụng. Kết nối vẫn
-còn: đường hầm do hệ thống giữ, không phải ứng dụng.
+Bật tắt đường hầm mà không phải mở thứ gì. Khi một đường hầm đang chạy, một chấm nhỏ
+sáng ở góc biểu tượng trên thanh menu, cạnh các đèn báo khác: xanh khi còn có gì đi
+qua, cam khi đường hầm đang bật nhưng không có gì quay lại. Một kết nối chết lặng lẽ
+không còn trông như đang chạy, và bảng cho biết đó là dòng nào. Bấm vào tên thì cửa sổ
+của chính VPN đó mở ra; đóng cửa sổ, Hop tắt luôn ứng dụng. Kết nối vẫn còn: đường hầm
+do hệ thống giữ, không phải ứng dụng.
 
 Dòng hiển thị đúng những gì ứng dụng tự khai báo: tên của nó, và trong ngoặc là
 phần cấu hình thêm vào, thường là quốc gia. Hop không đoán quốc gia từ địa chỉ máy

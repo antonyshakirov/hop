@@ -239,7 +239,11 @@ Jedno dotknięcie mierzy łącze narzędziem samego macOS (networkQuality, serwe
 
 ### Ikona na pasku menu
 
-Na ikonie siedzą małe znaczniki: biegnący czas, blokada uśpienia, przypomnienie, które zadzwoniło, zielona kropka, gdy VPN jest podniesiony, i strzałki, gdy idą torrenty — kolorowe albo monochromatyczne, każdy da się wyłączyć. Własne okna Hopa pojawiają się w Docku, dopóki są otwarte, więc kliknięcie przywraca okno zamiast otwierać panel, a z ostatnim oknem znika też ikona.
+Na ikonie siedzą małe znaczniki: biegnący czas, blokada uśpienia, przypomnienie, które
+zadzwoniło, kropka, gdy VPN jest podniesiony (pomarańczowa, gdy nic już nie
+przechodzi), i strzałki, gdy idą torrenty — kolorowe albo monochromatyczne, każdy da
+się wyłączyć. Własne okna Hopa pojawiają się w Docku, dopóki są otwarte, więc
+kliknięcie przywraca okno zamiast otwierać panel, a z ostatnim oknem znika też ikona.
 
 ### Motywy, skróty i tryb awaryjny
 
@@ -255,10 +259,12 @@ Wszystkie VPN, które zna twój Mac, każdy z własnym przełącznikiem, czyjkol
 był. Hop czyta listę prosto z ustawień systemowych: klient zainstalowany wczoraj
 pojawia się sam, usunięty znika. Nie ma tu nic do dodawania ani konfigurowania.
 
-Włączaj i wyłączaj tunel, nie otwierając niczego. Dopóki stoi, w rogu ikony na
-pasku menu świeci mała zielona kropka, obok pozostałych wskaźników. Kliknij nazwę,
-a otworzy się okno samego VPN; gdy je zamkniesz, Hop zamknie aplikację. Połączenie
-zostaje: tunel trzyma system, nie aplikacja.
+Włączaj i wyłączaj tunel, nie otwierając niczego. Dopóki stoi, w rogu ikony na pasku
+menu świeci mała kropka, obok pozostałych wskaźników: zielona, dopóki coś przechodzi,
+pomarańczowa, gdy tunel jest włączony, ale nic przez niego nie wraca. Cicho zmarłe
+połączenie przestaje wyglądać na sprawne, a panel pokazuje, o który wiersz chodzi.
+Kliknij nazwę, a otworzy się okno samego VPN; gdy je zamkniesz, Hop zamknie aplikację.
+Połączenie zostaje: tunel trzyma system, nie aplikacja.
 
 W wierszu widać to, co zgłasza sam klient: nazwę i w nawiasie to, co dodaje
 konfiguracja, zwykle kraj. Hop nie zgaduje kraju z adresu serwera: rejestr mówi,

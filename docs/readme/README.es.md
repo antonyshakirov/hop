@@ -242,7 +242,12 @@ Un toque mide la conexión con el propio networkQuality de macOS contra los serv
 
 ### El icono de la barra de menús
 
-El icono lleva marcas pequeñas: el tiempo en marcha, el modo sin reposo, un recordatorio que sonó, un punto verde mientras hay una VPN activa y flechas mientras se mueven los torrents — en color o monocromo, cada una desactivable. Las ventanas propias de Hop aparecen en el Dock mientras están abiertas, así un clic devuelve una en vez de abrir el panel, y el icono se va con la última ventana.
+El icono lleva marcas pequeñas: el tiempo en marcha, el modo sin reposo, un
+recordatorio que sonó, un punto mientras hay una VPN activa (naranja si deja de pasar
+algo) y flechas mientras se mueven los torrents — en color o monocromo, cada una
+desactivable. Las ventanas propias de Hop aparecen en el Dock mientras están abiertas,
+así un clic devuelve una en vez de abrir el panel, y el icono se va con la última
+ventana.
 
 ### Temas, atajos y modo seguro
 
@@ -259,11 +264,13 @@ que sea. Hop lee la lista directamente de los ajustes del sistema: un cliente qu
 instalaste ayer aparece solo, y uno que quitaste desaparece. Aquí no hay nada que
 añadir ni que configurar.
 
-Conecta y desconecta sin abrir nada. Mientras un túnel está activo, un pequeño
-punto verde se enciende en la esquina del icono de la barra de menús, junto a los
-demás indicadores. Pulsa el nombre y se abre la ventana de esa VPN para cuando la
-necesites; al cerrarla, Hop cierra la app. La conexión se mantiene: el túnel lo
-sostiene el sistema, no la app.
+Conecta y desconecta sin abrir nada. Mientras un túnel está activo, un pequeño punto
+se enciende en la esquina del icono de la barra de menús, junto a los demás
+indicadores: verde mientras pasa algo, naranja cuando el túnel está activo pero no
+vuelve nada por él. Una conexión que murió en silencio deja de parecer sana, y el
+panel señala la fila de la que se trata. Pulsa el nombre y se abre la ventana de esa
+VPN para cuando la necesites; al cerrarla, Hop cierra la app. La conexión se mantiene:
+el túnel lo sostiene el sistema, no la app.
 
 La fila muestra lo que informa el propio cliente: su nombre y, entre paréntesis,
 lo que añade la configuración, normalmente el país. Hop nunca deduce el país de

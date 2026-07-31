@@ -239,7 +239,11 @@ Sekali ketuk, koneksi diukur lewat networkQuality bawaan macOS terhadap server A
 
 ### Ikon di bilah menu
 
-Ikonnya membawa tanda kecil: waktu yang berjalan, penahan tidur, pengingat yang berbunyi, titik hijau selama VPN menyala, dan panah selama torrent bergerak — berwarna atau monokrom, masing-masing bisa dimatikan. Jendela milik Hop muncul di Dock selama terbuka, jadi satu klik mengembalikan jendela alih-alih membuka panel, dan ikonnya pergi bersama jendela terakhir.
+Ikonnya membawa tanda kecil: waktu yang berjalan, penahan tidur, pengingat yang
+berbunyi, titik selama VPN menyala (jingga bila tak ada lagi yang lewat), dan panah
+selama torrent bergerak — berwarna atau monokrom, masing-masing bisa dimatikan.
+Jendela milik Hop muncul di Dock selama terbuka, jadi satu klik mengembalikan jendela
+alih-alih membuka panel, dan ikonnya pergi bersama jendela terakhir.
 
 ### Tema, pintasan, dan mode aman
 
@@ -256,10 +260,12 @@ pun. Hop membaca daftarnya langsung dari pengaturan sistem: klien yang dipasang
 kemarin muncul sendiri, yang dihapus menghilang. Tidak ada yang perlu ditambahkan
 atau diatur di sini.
 
-Sambung dan putus tanpa membuka apa pun. Selama sebuah terowongan berdiri, titik
-hijau kecil menyala di sudut ikon bilah menu, di samping indikator lain. Klik
-namanya dan jendela VPN itu terbuka; setelah Anda menutupnya, Hop menutup
-aplikasinya. Sambungan tetap ada: terowongan dipegang sistem, bukan aplikasi.
+Sambung dan putus tanpa membuka apa pun. Selama sebuah terowongan berdiri, titik kecil
+menyala di sudut ikon bilah menu, di samping indikator lain: hijau selama ada yang
+lewat, jingga ketika terowongan menyala tetapi tidak ada yang kembali lewat sana.
+Sambungan yang mati diam-diam tidak lagi tampak sehat, dan panel menandai baris yang
+dimaksud. Klik namanya dan jendela VPN itu terbuka; setelah Anda menutupnya, Hop
+menutup aplikasinya. Sambungan tetap ada: terowongan dipegang sistem, bukan aplikasi.
 
 Barisnya menunjukkan apa yang dilaporkan klien itu sendiri: namanya dan, dalam
 kurung, tambahan dari konfigurasi — biasanya negara. Hop tidak pernah menebak

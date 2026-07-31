@@ -238,7 +238,12 @@ Um toque mede a conexão pelo próprio networkQuality do macOS, contra os servid
 
 ### O ícone na barra de menus
 
-O ícone carrega marcas pequenas: o tempo correndo, o modo sem repouso, um lembrete que tocou, um ponto verde enquanto uma VPN está de pé e setas enquanto os torrents andam — coloridas ou monocromáticas, cada uma desligável. As janelas do próprio Hop aparecem no Dock enquanto estão abertas, então um clique traz uma de volta em vez de abrir o painel, e o ícone sai com a última janela.
+O ícone carrega marcas pequenas: o tempo correndo, o modo sem repouso, um lembrete que
+tocou, um ponto enquanto uma VPN está de pé (laranja se deixar de passar seja o que
+for) e setas enquanto os torrents andam — coloridas ou monocromáticas, cada uma
+desligável. As janelas do próprio Hop aparecem no Dock enquanto estão abertas, então
+um clique traz uma de volta em vez de abrir o painel, e o ícone sai com a última
+janela.
 
 ### Temas, atalhos e modo seguro
 
@@ -255,10 +260,12 @@ fornecedor for. O Hop lê a lista diretamente das definições do sistema: um cl
 instalado ontem aparece sozinho e um removido desaparece. Não há nada a acrescentar
 nem a configurar aqui.
 
-Ligue e desligue sem abrir nada. Enquanto um túnel está de pé, um pequeno ponto
-verde fica ao canto do ícone na barra de menus, junto aos restantes indicadores.
-Clique no nome e abre-se a janela dessa VPN para quando precisar; ao fechá-la, o
-Hop fecha a app. A ligação mantém-se: o túnel é do sistema, não da app.
+Ligue e desligue sem abrir nada. Enquanto um túnel está de pé, um pequeno ponto fica
+ao canto do ícone na barra de menus, junto aos restantes indicadores: verde enquanto
+passa algo, laranja quando o túnel está ligado mas não volta nada por ele. Uma ligação
+que morreu em silêncio deixa de parecer boa, e o painel indica a linha em causa.
+Clique no nome e abre-se a janela dessa VPN para quando precisar; ao fechá-la, o Hop
+fecha a app. A ligação mantém-se: o túnel é do sistema, não da app.
 
 A linha mostra o que o próprio cliente reporta: o nome e, entre parênteses, o que
 a configuração acrescenta, normalmente o país. O Hop nunca adivinha o país pelo

@@ -243,7 +243,12 @@ Ein Tippen misst die Verbindung mit macOS' eigenem networkQuality gegen Apples S
 
 ### Das Symbol in der Menüleiste
 
-Auf dem Symbol sitzen kleine Marken: die laufende Zeit, der Schlafschutz, eine ausgelöste Erinnerung, ein grüner Punkt solange ein VPN steht, und Pfeile solange Torrents laufen — farbig oder monochrom, jede einzeln abschaltbar. Hops eigene Fenster erscheinen im Dock, solange sie offen sind, ein Klick holt eines zurück statt das Panel zu öffnen, und mit dem letzten Fenster verschwindet das Symbol wieder.
+Auf dem Symbol sitzen kleine Marken: die laufende Zeit, der Schlafschutz, eine
+ausgelöste Erinnerung, ein Punkt solange ein VPN steht (orange, wenn nichts mehr
+durchkommt), und Pfeile solange Torrents laufen — farbig oder monochrom, jede einzeln
+abschaltbar. Hops eigene Fenster erscheinen im Dock, solange sie offen sind, ein Klick
+holt eines zurück statt das Panel zu öffnen, und mit dem letzten Fenster verschwindet
+das Symbol wieder.
 
 ### Themes, Kurzbefehle und der abgesicherte Modus
 
@@ -262,11 +267,13 @@ es nichts hinzuzufügen und auf Unterstützung für einen bestimmten Anbieter mu
 niemand warten.
 
 Schalten Sie einen Tunnel ein und aus, ohne etwas zu öffnen. Solange einer steht,
-sitzt ein kleiner grüner Punkt in der Ecke des Menüleisten-Symbols, neben den
-übrigen Anzeigen — sichtbar auch bei geschlossenem Panel. Ein Klick auf den Namen
-öffnet das Fenster des VPN selbst, wenn Sie es brauchen; schließen Sie es, beendet
-Hop die App wieder. Die Verbindung bleibt: den Tunnel hält das System, nicht die
-App.
+sitzt ein kleiner Punkt in der Ecke des Menüleisten-Symbols, neben den übrigen
+Anzeigen — sichtbar auch bei geschlossenem Panel: grün, solange etwas durchgeht,
+orange, wenn der Tunnel an ist, aber nichts zurückkommt. Eine still gestorbene
+Verbindung sieht damit nicht mehr nach einer funktionierenden aus, und das Panel
+zeigt, welche Zeile gemeint ist. Ein Klick auf den Namen öffnet das Fenster des VPN
+selbst, wenn Sie es brauchen; schließen Sie es, beendet Hop die App wieder. Die
+Verbindung bleibt: den Tunnel hält das System, nicht die App.
 
 In der Zeile steht, was der Client selbst meldet — sein Name und in Klammern, was
 die Konfiguration hinzufügt, meist das Land. Aus der Serveradresse rät Hop das

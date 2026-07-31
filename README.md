@@ -236,11 +236,11 @@ row.
 
 ### The menu bar icon
 
-The icon carries small badges: the running time, keep-awake, a reminder that
-fired, a green dot while a VPN is up and arrows while torrents move — colored or
-monochrome, each switchable. Hop's own windows appear in the Dock while they are
-open, so a click brings one back instead of opening the panel first, and the icon
-leaves with the last window.
+The icon carries small badges: the running time, keep-awake, a reminder that fired, a
+dot while a VPN is up (orange if it stops passing anything) and arrows while torrents
+move — colored or monochrome, each switchable. Hop's own windows appear in the Dock
+while they are open, so a click brings one back instead of opening the panel first,
+and the icon leaves with the last window.
 
 ### Themes, hotkeys and safe mode
 
@@ -259,13 +259,16 @@ reads the list straight from system settings, so a client you installed
 yesterday appears on its own and one you removed disappears; there is nothing to
 add or configure here, and no per-vendor support to wait for.
 
-Switch a tunnel on and off without opening anything. While one is up, a small
-green dot sits in the corner of the menu bar icon, next to the app's other
-indicators, so you can see it with the panel closed. Click a name and that VPN's
-own window opens for the times you need it — to pick a country or change a
-setting — and Hop quits the app again once you close the window, so it never
-sits in the Dock and the menu bar for a switch you touch twice a week. The
-connection stays up: the tunnel is held by the system, not by the app.
+Switch a tunnel on and off without opening anything. While one is up, a small dot sits
+in the corner of the menu bar icon, next to the app's other indicators, so you can see
+it with the panel closed. It is green while traffic is going through the tunnel and
+turns orange when the tunnel is on but nothing is coming back through it, so a
+connection that quietly died stops looking like a working one — and the panel marks
+the row it means. Click a name and that VPN's own window opens for the times you need
+it — to pick a country or change a setting — and Hop quits the app again once you
+close the window, so it never sits in the Dock and the menu bar for a switch you touch
+twice a week. The connection stays up: the tunnel is held by the system, not by the
+app.
 
 The row shows what the client itself reports — its name, and in brackets what the
 configuration adds, usually the country. Hop never guesses the country from the
