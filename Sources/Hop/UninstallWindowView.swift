@@ -265,18 +265,14 @@ struct UninstallWindowView: View {
                     .buttonStyle(.plain)
                     .help(t(.uninstallScanning))
                     .hoverDim()
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(owner.name)
-                            .font(Theme.mono(10.5))
-                            .foregroundStyle(Theme.textPrimary)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                        if owner.isOrphan {
-                            Text(t(.uninstallOrphanCache))
-                                .font(Theme.mono(8))
-                                .foregroundStyle(Theme.textTertiary)
-                        }
-                    }
+                    // The section heading already says what these rows are; the
+                    // same sentence under every one of them was noise (Anton,
+                    // 2026-07-31).
+                    Text(owner.name)
+                        .font(Theme.mono(10.5))
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
                     Spacer(minLength: 8)
                     Text(Self.sizeText(owner.bytes))
                         .font(Theme.mono(9))
@@ -305,7 +301,6 @@ struct UninstallWindowView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .help(t(.uninstallOrphanCache))
                 .hoverDim()
                 .disabled(!owners.contains(where: \.ticked))
             }
@@ -395,10 +390,6 @@ struct UninstallWindowView: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
             .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
-            Text(t(.uninstallEmptyTrashNote))
-                .font(Theme.mono(8.5))
-                .foregroundStyle(Theme.textTertiary)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

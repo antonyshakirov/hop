@@ -2243,7 +2243,9 @@ nothing about what would be cleaned, and the caches are why anybody opens it
 - **Clear the cache** is one screen with five sections, because they are one
   intention:
   - **caches by app**, built from the cache FOLDERS rather than the list of apps,
-    so an identifier whose app is gone still shows up (labelled as a leftover).
+    so an identifier whose app is gone still shows up. The section heading says
+    what the rows are, and the row itself carries only a name and a size: the
+    same sentence repeated under every row was noise (Anton, 2026-07-31).
     Apple's own caches are skipped and anything under a megabyte is noise. Four
     places are read, not one: `~/Library/Caches/<id>`, a container's
     `Data/Library/Caches`, a group container's own `Library/Caches`, and the
@@ -2295,8 +2297,10 @@ nothing about what would be cleaned, and the caches are why anybody opens it
     cache and account data in one folder. Anything over a gigabyte in a container
     or group container is named here, with the note that only the app's own
     cleanup knows which half is disposable (Anton, 2026-07-30).
-  - **the trash**, with its size and the one irreversible button in the module,
-    said so in the note beneath it.
+  - **the trash**, with its size and the one irreversible button in the module.
+    The note under it explaining that much was dropped (Anton, 2026-07-31): the
+    button is red, it says "empty the trash", and a line of small print under
+    every section is what makes a window tiring to read.
 
   Every section with ticks carries **one tick for the whole section**, at the
   BOTTOM LEFT: a list of forty apps holding a cache is a list nobody ticks forty
