@@ -535,16 +535,35 @@ enum Snapshot {
             if args.contains("--charts") {
                 var demo = SystemStatsController.History()
                 let now = Date()
+                // The gpu card kept its space in every screenshot and drew
+                // nothing in it: the card appears as soon as the Mac reports a
+                // load, and the synthesized history had no gpu series to fill it
+                // (Anton, 2026-08-04). The curve is written to land back near
+                // zero at the right edge, where the row's own reading sits.
+                let hasGpuLoad = model.stats.sample.gpuLoad != nil
+                let hasGpuTemp = model.stats.sample.gpuTemp != nil
                 for i in stride(from: 300, through: 0, by: -5) {
                     let t = now.addingTimeInterval(-Double(i))
                     let x = Double(300 - i) / 300 * .pi * 6
                     demo.cpuLoad.append(.init(t: t, v: 0.32 + 0.16 * sin(x) + 0.09 * sin(x * 2.7)))
                     demo.cpuTemp.append(.init(t: t, v: 49 + 6 * sin(x * 0.8 + 1)))
+                    // bursts with quiet stretches between them — a video, a
+                    // preview render — rather than the steady load of the cpu
+                    if hasGpuLoad {
+                        demo.gpuLoad.append(.init(t: t, v: 0.06 + 0.38 * pow(sin(x * 0.5 + 0.9), 2) * (0.85 + 0.15 * sin(x * 1.7))))
+                    }
+                    // second line only where the chip has the sensor: on a Mac
+                    // that reports no gpu temperature the row shows none either
+                    if hasGpuTemp {
+                        demo.gpuTemp.append(.init(t: t, v: 44 + 7 * sin(x * 0.6 + 0.4)))
+                    }
                     demo.memShare.append(.init(t: t, v: 0.72 + 0.035 * sin(x * 0.5 + 0.6)))
                     demo.netDown.append(.init(t: t, v: max(0, 950_000 + 780_000 * sin(x * 1.3) + 550_000 * sin(x * 3.1))))
                     demo.netUp.append(.init(t: t, v: max(0, 230_000 + 170_000 * sin(x * 1.7 + 2))))
                 }
                 model.stats.injectDemoHistory(demo)
+                // the row is pinned to where its own curve ends
+                model.stats.injectDemoGpu(load: demo.gpuLoad.last?.v, temp: demo.gpuTemp.last?.v)
             }
         }
         if args.contains("--tasks") {

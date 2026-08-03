@@ -2574,6 +2574,15 @@ its own database of known apps may do better on real software than it did here.
   and a product picture must not be somebody's home folder. A rescan is skipped
   entirely under `Snapshot.active` — it would wipe the staged lists on its way to
   walking that disk.
+- `--stats --charts` renders the monitor in chart mode with a SYNTHESIZED
+  history (sin-based, deterministic): a live run has two points by render time
+  and every card would come out empty. The gpu series is staged too, and the
+  gpu ROW is pinned to where its own curve ends — the card appears as soon as
+  the Mac reports a load, so on an idle Mac the picture used to show a gpu
+  reading with a blank card under it, and a raised curve over a "0%" row is no
+  better. The temperature line is staged only where the chip reports one, and
+  the monitor does NOT poll under `Snapshot.active`: a refresh would replace the
+  staged sample a beat before the render.
 - **Lists render in a snapshot through `SnapshotAwareScroll`.** ImageRenderer
   hands a ScrollView an unbounded height, the ScrollView reports nothing back,
   and the picture comes out as a title on black — which is exactly how the first

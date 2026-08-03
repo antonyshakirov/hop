@@ -76,6 +76,14 @@ final class SystemStatsController: ObservableObject {
         history = demo
     }
 
+    /// Snapshot-only: the gpu reading the row shows. The row reads the sample
+    /// and the curve above it reads the history, so a synthesized chart next to
+    /// this Mac's idle gpu had the two disagree in the picture.
+    func injectDemoGpu(load: Double?, temp: Double?) {
+        if let load { sample.gpuLoad = load }
+        if let temp { sample.gpuTemp = temp }
+    }
+
     private let cpu = CPUUsageReader()
     private let net = NetThroughputReader()
     private let sensors = TemperatureReader()

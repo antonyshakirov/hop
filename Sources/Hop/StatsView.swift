@@ -130,7 +130,10 @@ struct StatsView: View {
                 )).foregroundColor(Theme.textSecondary))
         }
         .padding(.vertical, 4)
-        .onAppear { stats.startPolling() }
+        // A snapshot keeps the staged numbers: polling would overwrite the
+        // sample the render was set up with, and the gpu row would go back to
+        // reporting this Mac's idle while the chart above it shows a load.
+        .onAppear { if !Snapshot.active { stats.startPolling() } }
         .onDisappear { stats.stopPolling() }
     }
 
