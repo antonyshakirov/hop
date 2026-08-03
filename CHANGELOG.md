@@ -1,6 +1,67 @@
 # Hop — version history
 
-## Unreleased
+## 1.7.1 — 2026-07-31
+
+- The dot on the menu-bar icon turns orange when a tunnel is up but nothing is
+  coming back through it, so a connection that quietly died stops looking like a
+  working one. The stalled tunnel's own switch in the panel takes the same
+  colour, so it is clear which one is meant. The verdict is read from packet
+  counters rather than byte counters: the byte figures the system reports are
+  rounded and lag behind, while the packet figures agree with `netstat` to the
+  unit. Known limit: with no network at all the same verdict appears for the few
+  seconds before macOS moves the session out of Connected, and a tunnel whose
+  traffic flows while particular hosts stay unreachable is not detected — that
+  cannot be told apart without asking a third party.
+- The dot keeps its colour with the panel closed. It used to freeze at whatever
+  was true when the panel was last open, which meant a tunnel that fell over out
+  of sight kept its green.
+- Leftovers belonging to a program you still have installed are no longer
+  offered for removal. On a real Mac seven of the eight rows had an owner, so
+  the section was mostly noise.
+- The cleanup window reads shorter: the note repeated under every row is gone,
+  because the heading above them already says what they are.
+
+## 1.7.0 — 2026-07-30
+
+- Removing apps — a new module. Drop an app on the row, or pick it from the list
+  of everything installed, and it goes together with what it left in about
+  thirty places: application support, caches, preferences, containers, launch
+  agents, plug-ins, receipts and the rest. Every app in the list shows what it
+  weighs, the bundle and its data apart, and the list sorts by name or by size.
+  An app already in the Trash is still recognised, so a half-finished removal can
+  be finished. Nothing is deleted: it all moves to the Trash, and whatever macOS
+  refuses to hand over is named with the reason instead of quietly skipped.
+- Clearing the cache — the same module, removing nothing. Every app holding a
+  cache, biggest first; installers left in Downloads, on the Desktop and in
+  Documents; the data of apps removed long ago; and the Trash with its size. One
+  tick takes a whole section. What it deliberately leaves alone is listed too: a
+  container where cache and data share one folder, because only that app's own
+  cleanup knows which half is disposable.
+- Intel Macs run Hop again, as their own download. Each build carries only the
+  code its processor runs, so neither is heavier than it was, and both are signed
+  with the same certificate — a permission you grant survives every update.
+- A VPN switched off stays off. Switching one off used to last seconds, because
+  its own on-demand rules brought the tunnel straight back; off now takes the
+  service out of the network set until you switch it on yourself. A setting
+  restores the old behaviour.
+- Apps: choose how many icons a grid puts in a row — three to nine, eight by
+  default — in the grid's edit mode, beside its name.
+- Copied text can be saved as a file. A new icon in the clipboard writes an entry
+  as txt, md, pdf or docx, by default onto the Desktop and named after the text
+  itself. The converter also turns a PDF into a Word file.
+- Every control says what it does on hover, with its own numbers in it: a preset
+  says what 90 sets, a cycle says what 25/5 ×4 runs, a lock chip says what 15 and
+  ∞ mean, and the timer's digits explain how they are edited while showing what
+  they read.
+- Hop keeps no HTTP cache of its own and throws away the one it had. The scrub
+  ratchet stays a ratchet under a fast drag. The uninstaller's window opens
+  before its scan does.
+- Fixes: the menu-bar icon no longer disappears against a bar of the other
+  colour, Cyrillic text copies out of a generated PDF correctly, a grid of apps
+  that refused to delete deletes, and the first screen no longer asks about
+  modules you have just chosen.
+
+## 1.6.0 — 2026-07-29
 
 - A VPN module. Every VPN your Mac knows about gets a switch in the panel,
   whatever the brand — the list comes straight from system settings, so a client
@@ -42,6 +103,16 @@
   front window anywhere, the speed test, the eyedropper, recognition, the
   clipboard. A task written straight into the file now shows up while the app is
   running instead of waiting for a restart.
+- An apps module: a grid of the programs you keep at hand, eight across and up to
+  eight rows. Drag an icon and a yellow line shows which two icons it will land
+  between; the names under the icons can be switched off; and you can keep as
+  many grids as you like, each with its own name.
+- Every module in the panel starts on the same left line. Several of them used to
+  set their own horizontal inset, and the edges did not agree with each other.
+- The first-run screen puts every module switch in one grid instead of a
+  carousel, so the whole set is visible at once.
+- Fixes: the strike line no longer jumps when a task is ticked, and the
+  reminder's clock fields stop hopping and validate as you type.
 
 ## 1.5.2 — 2026-07-28
 
