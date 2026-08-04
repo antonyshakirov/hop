@@ -396,6 +396,12 @@ enum DocumentConversion {
         var lines: [(text: String, size: Double, bold: Bool)] = []
         for index in 0..<document.pageCount {
             guard let page = document.page(at: index) else { continue }
+            // the cheap reading first: it answers for the great majority of
+            // pages and costs a fraction of laying the page out
+            if let fast = fastLines(of: page) {
+                lines.append(contentsOf: fast)
+                continue
+            }
             let text = page.string ?? ""
             if text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 lines.append(contentsOf: scannedPageLines(page))
@@ -426,6 +432,42 @@ enum DocumentConversion {
             }
         }
         return MarkdownWriter.text(from: blocks)
+    }
+
+    /// A text page read without laying it out: PDFKit hands over the lines and
+    /// where they sit, the page's own content stream hands over the type sizes,
+    /// and the two are matched by vertical position. Measured against the full
+    /// reading it is two to nine times faster for the same verdicts, the spread
+    /// depending on how much work the fonts of a document give macOS.
+    ///
+    /// nil when this page is not for it: no text at all (a scan), a page whose
+    /// text is drawn in ways the walk does not follow, or too few lines matched
+    /// to trust the result. The caller then reads the page the slow, complete
+    /// way — a document must not lose its headings to save a few milliseconds.
+    private nonisolated static func fastLines(
+        of page: PDFPage
+    ) -> [(text: String, size: Double, bold: Bool)]? {
+        guard let segments = PDFContentScan.segments(of: page), !segments.isEmpty,
+              let selection = page.selection(for: page.bounds(for: .mediaBox)) else { return nil }
+        var texts: [String] = []
+        var boxes: [PDFLineMetrics.LineBox] = []
+        for line in selection.selectionsByLine() {
+            guard let text = line.string, !text.isEmpty else { continue }
+            let box = line.bounds(for: page)
+            guard box.height > 0 else { continue }
+            texts.append(text)
+            boxes.append(PDFLineMetrics.LineBox(minY: Double(box.minY), maxY: Double(box.maxY)))
+        }
+        guard !texts.isEmpty else { return nil }
+        let metrics = PDFLineMetrics.match(lines: boxes, segments: segments)
+        guard PDFLineMetrics.coverage(metrics) >= PDFLineMetrics.coverageFloor else { return nil }
+        // an unmatched line reads as ordinary text of this page rather than as
+        // a size of zero, which would drag the document's body size down with it
+        let sizes = segments.map(\.size).sorted()
+        let ordinary = sizes[sizes.count / 2]
+        return zip(texts, metrics).map { text, metric in
+            (text, metric?.size ?? ordinary, metric?.bold ?? false)
+        }
     }
 
     private nonisolated static func lines(

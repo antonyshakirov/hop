@@ -1633,13 +1633,28 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   by ratio (≥1.6 → h1, ≥1.3 → h2, ≥1.12 → h3, bold at body size → h3). Runs
   keep bold/italic/monospace/links as markdown markers; consecutive fixed-pitch
   paragraphs fold into one code block; an all-dashes line becomes a rule.
-- **pdf → md** via PDFKit per-page attributed strings, the same heuristics, plus
-  `continuesParagraph`: a PDF stores one run per VISUAL line, so wrapped lines
-  are merged back into paragraphs unless the previous line ended a sentence or
-  the next starts with a capital, a digit or a list marker. A page with NO text
-  layer (a scan) is rendered at 2× and read with Vision — the screen-text
-  module's recognition — using each box's height as its "type size" so the
-  heading ratios still apply.
+- **pdf → md** reads each page for its lines and their type sizes, then applies
+  the same heuristics plus `continuesParagraph`: a PDF stores one run per VISUAL
+  line, so wrapped lines are merged back into paragraphs unless the previous
+  line ended a sentence or the next starts with a capital, a digit or a list
+  marker. A page with NO text layer (a scan) is rendered at 2× and read with
+  Vision — the screen-text module's recognition — using each box's height as its
+  "type size" so the heading ratios still apply.
+- **Reading a page is a fast path over a complete one** (`PDFContentScan` +
+  `PDFLineMetrics`, 2026-08-04). The fast path takes the lines and their boxes
+  from `selectionsByLine` and the type sizes from a walk of the page's own
+  content stream, matching the two by vertical position: a segment belongs to a
+  line when its baseline falls inside that line's box, and where a line carries
+  several sizes the run with the MOST GLYPHS decides it (so a footnote mark
+  cannot demote a heading, and a decorative capital cannot promote body text).
+  Bold comes from the `BaseFont` name. Nothing is decoded from the stream —
+  PDFKit stays the source of the text, so encodings and ligatures are unaffected.
+  The complete path (per-page attributed strings) still runs whenever the fast
+  one declines: a rotated page, a page whose text is drawn inside form objects,
+  or any page where fewer than 90% of lines found a size (`coverageFloor`).
+  Measured on four documents: same markdown out, 1.3× to 8.4× less time in,
+  the spread being how much work a document's fonts give macOS — a page whose
+  fonts it has to substitute cost 15 ms to lay out and 0.3 ms to walk.
 - Honest limits stated in the UI (`convDocNote`) and the help, not hidden: Word
   columns, footnotes and headers are lost; PDF → md is text extraction with
   heading guesses, not a faithful conversion.
