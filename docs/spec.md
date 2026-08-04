@@ -633,7 +633,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   bar told to animate to a new value that often never finished a move — it sat a
   few percent in while the percentage beside it ran to a hundred. The end of
   every file publishes regardless of the throttle, so the bar never stops short,
-  and a 0.12 s linear ease covers the gap between publications.
+  and a 0.12 s linear ease covers the gap between publications. The bar itself
+  is TWO CAPSULES drawn by hand, not a `ProgressView`: AppKit's own animates to
+  its own schedule and, fed several values a second, was a fifth of the way
+  along while the percentage beside it read 100. The fill is exactly as long as
+  the number says, and bar, percentage and label all turn green at 100% —
+  orange is for work in progress.
 - **Where it landed is one click away**: once anything has been converted the
   footer carries a folder button naming the destination folder, which reveals
   the last output IN Finder with the file selected (`activateFileViewerSelecting`).

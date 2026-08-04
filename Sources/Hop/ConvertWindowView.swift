@@ -292,21 +292,32 @@ struct ConvertWindowView: View {
                     // conversion status: a whole-batch bar (files done + the
                     // current video's own fraction) and "converting… i/n"
                     let fraction = model.converter.batchFraction ?? 0
-                    ProgressView(value: fraction)
-                        .progressViewStyle(.linear)
-                        .frame(width: 90)
-                        .tint(Theme.accentOrange)
-                        // reports are published ten times a second; the bar
-                        // covers the gap between them instead of stepping
-                        .animation(.linear(duration: 0.12), value: fraction)
+                    // Green the moment the work is done, orange while it runs —
+                    // one colour for the bar, the percentage and the label.
+                    let tint = fraction >= 1 ? Theme.accentGreen : Theme.accentOrange
+                    // A bar drawn here rather than a ProgressView: AppKit's own
+                    // animates on its own schedule, and with values arriving
+                    // several times a second it was still a fifth of the way
+                    // along when the percentage beside it read 100 (Anton,
+                    // 2026-08-04). This one is exactly as long as the number says.
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Theme.divider)
+                            .frame(width: 90, height: 4)
+                        Capsule()
+                            .fill(tint)
+                            .frame(width: max(2, 90 * min(max(fraction, 0), 1)), height: 4)
+                    }
+                    // reports are published ten times a second; the fill covers
+                    // the gap between them instead of stepping
+                    .animation(.linear(duration: 0.12), value: fraction)
                     Text("\(Int(fraction * 100))%")
                         .font(Theme.mono(10))
-                        .foregroundStyle(Theme.accentOrange)
+                        .foregroundStyle(tint)
                         .monospacedDigit()
-                    // one orange for the whole row: bar, percent and label
                     Text("\(t(.convConverting)) \(progress)")
                         .font(Theme.mono(11, weight: .semibold))
-                        .foregroundStyle(Theme.accentOrange)
+                        .foregroundStyle(tint)
                 } else if hasPending {
                     Button {
                         model.converter.convert(kind)
