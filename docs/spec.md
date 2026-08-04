@@ -702,10 +702,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   that widened the button — Anton, 2026-07-20). Tracking is a decoration, so it
   drops out of the plain-template fast path and the icon goes through `compose`.
   An opt-in `show task time in menu bar` setting (`trackerTimeInBar`, OFF)
-  additionally shows the active task's ticking `today` value as the bar title
-  (digits only — no glyph), but only when nothing else claimed it — the timer
-  countdown always wins; when those digits show, the dark-green wedge is dropped
-  (the digits are its redundant twin). `today(taskID:)` stays in the engine for
+  additionally shows the active task's ticking `today` value as the bar title;
+  when those digits show, the dark-green wedge is dropped (the digits are its
+  redundant twin). **When a countdown is running too, the two SHARE the title**
+  (`MenuBarCycle`, Anton 2026-08-04): each holds it for 5 seconds and hands over
+  through a half-second fade to nothing and back, and while they take turns each
+  reading carries a glyph of its own in front of the digits (`timer` /
+  `stopwatch` for the engine, `record.circle` for the tracked task) — two numbers
+  in one slot are ambiguous without one. A single reading is drawn exactly as
+  before, digits only and no glyph. Whose turn it is and how far through a
+  handover the label is are both computed from the clock, never stored, so a
+  redraw arriving late or twice cannot desynchronise the rotation. The label
+  otherwise redraws once a second off the heartbeat, which is too coarse for a
+  fade, so a 0.05 s ticker is spun up for the length of one handover and
+  invalidated as soon as the digits are legible again. Across a handover the
+  title's colour is set explicitly (white or black by the BAR's appearance, at
+  the fading opacity); at rest it is left to AppKit, which inverts the title
+  itself when the status item is highlighted. `today(taskID:)` stays in the engine for
   this figure and for corrections math; the panel itself shows the total, not
   today. The wedge toggles immediately on start/stop off `tracker.heartbeat`; the
   opt-in bar time ticks 1/s. The wedge never touches the title, so it plays no

@@ -30,6 +30,8 @@ final class StatusItemController: NSObject {
     /// Redraws the icon when the menu bar's appearance changes under it.
     private var appearanceObserver: NSKeyValueObservation?
     private var statsCancellable: AnyCancellable?
+    /// Runs only across a handover between two clocks sharing the bar.
+    private var fadeTicker: Timer?
 
     init(model: AppModel) {
         self.model = model
@@ -475,11 +477,11 @@ final class StatusItemController: NSObject {
         let engineTimeInTitle = showCountdown && (state == .running || state == .paused)
 
         let tracking = model.tracker.isTracking
-        // the task's ticking "today" figure is in the TITLE only when opted in and
-        // nothing else (the countdown) has claimed the title
+        // the task's ticking "today" figure is in the TITLE whenever it is opted
+        // in: a countdown beside it no longer takes the slot away, the two share
+        // it in turns, so the badge stays out of the way either way
         let taskTimeInTitle = tracking
             && UserDefaults.standard.bool(forKey: SettingsKey.trackerTimeInBar)
-            && !engineTimeInTitle
 
         // steady "!" — the monitor red zone (opt-in). debugRedBadgeAlways forces
         // it on for polishing: defaults write com.antonshakirov.minimo debugRedBadgeAlways -bool true
@@ -563,28 +565,59 @@ final class StatusItemController: NSObject {
         }
         button.imagePosition = .imageLeft
 
-        // monospaced font: the width doesn't jump as digits change
-        var title = ""
+        // Every clock that has something to say. The engine's countdown and the
+        // tracked task's running total used to compete for the one slot, and the
+        // countdown always won, so a task tracked under a running timer was
+        // invisible in the bar. They take turns now (Anton, 2026-08-04).
+        var readings: [(symbol: String, text: String)] = []
+        let engineSymbol = engine.isStopwatch ? "stopwatch" : "timer"
         if showCountdown, state == .running || state == .paused {
             let value = engine.isStopwatch ? engine.elapsed : engine.remaining
-            title = " " + TimeFormatting.short(value)
+            readings.append((engineSymbol, TimeFormatting.short(value)))
         } else if showCountdown, frozenBarTimeVisible == true {
             // digits were visible when the panel opened: a reset must not blank
             // the bar mid-session — show the reset value until the panel closes
-            title = " " + TimeFormatting.short(engine.isStopwatch ? engine.elapsed : engine.duration)
+            readings.append((engineSymbol,
+                             TimeFormatting.short(engine.isStopwatch ? engine.elapsed : engine.duration)))
+        }
+        // Tracker time: the active task's ticking "today" value, opt-in.
+        // Ticks off tracker.heartbeat via the refresh path.
+        if tracking, UserDefaults.standard.bool(forKey: SettingsKey.trackerTimeInBar),
+           let activeID = model.tracker.engine.activeTaskID {
+            readings.append(("record.circle",
+                             TimeFormatting.short(model.tracker.engine.today(taskID: activeID))))
         }
         // presence freeze: the bar was empty when the panel opened — a timer
         // started from the panel must not surface the label until close
         if frozenBarTimeVisible == false {
-            title = ""
+            readings.removeAll()
         }
-        // Tracker time: the active task's ticking "today" value, shown only when
-        // nothing else claimed the title (the countdown always wins) and the
-        // opt-in setting is on. Ticks off tracker.heartbeat via the refresh path.
-        if title.isEmpty, tracking,
-           UserDefaults.standard.bool(forKey: SettingsKey.trackerTimeInBar),
-           let activeID = model.tracker.engine.activeTaskID {
-            title = " " + TimeFormatting.short(model.tracker.engine.today(taskID: activeID))
+
+        // monospaced font: the width doesn't jump as digits change
+        var title = ""
+        var glyph: String?
+        var opacity: Double = 1
+        if readings.count > 1 {
+            // whose turn it is, and how far through a handover we are — both
+            // read off the clock, so any redraw lands on the same answer
+            let now = Date()
+            let reading = readings[MenuBarCycle.index(count: readings.count, now: now)]
+            title = " " + reading.text
+            // While the panel is open the status item is HIGHLIGHTED, and AppKit
+            // inverts a title it colours itself. Ours it would not, so the
+            // rotation shows its bare digits for as long as the panel is up —
+            // nobody is reading the menu bar while looking at the panel anyway.
+            if !popover.isShown {
+                glyph = reading.symbol
+                // quantised: the fade is drawn from a bounded set of tints, which
+                // is what lets the tinted glyphs be cached across a handover
+                opacity = (MenuBarCycle.opacity(now: now) * 20).rounded() / 20
+                scheduleFadeTick(from: now)
+            }
+        } else if let reading = readings.first {
+            // one clock speaking needs no glyph: this is the bar as it has
+            // always looked, and a lone number is not ambiguous
+            title = " " + reading.text
         }
         // Torrent transfer moved OUT of the title into the icon's bottom-left
         // corner (↓/↑ arrows) — it no longer contributes any characters here, so
@@ -609,11 +642,103 @@ final class StatusItemController: NSObject {
         if title.isEmpty {
             button.title = ""
         } else {
-            button.attributedTitle = NSAttributedString(string: title, attributes: [.font: mono])
+            button.attributedTitle = Self.barLabel(
+                title, glyph: glyph, opacity: opacity,
+                appearance: button.effectiveAppearance, font: mono)
         }
 
         // the anchor is fixed to the icon zone — no re-anchoring needed at all:
         // the icon is always on the left, the countdown grows on the right and never touches the anchor
+    }
+
+    // MARK: - Taking turns
+
+    /// A fine tick for the length of one handover, and not a moment longer. The
+    /// label otherwise redraws once a second off the heartbeat, which would turn
+    /// the fade into three frames; a menu-bar app that woke up twenty times a
+    /// second all day to keep a fade smooth would be a worse trade.
+    private func scheduleFadeTick(from now: Date) {
+        guard fadeTicker == nil, MenuBarCycle.untilFade(now: now) <= 1 else { return }
+        let ticker = Timer(timeInterval: 0.03, repeats: true) { [weak self] timer in
+            Task { @MainActor in
+                guard let self else { timer.invalidate(); return }
+                // the handover is over once the digits are fully legible again
+                if MenuBarCycle.opacity(now: Date()) >= 1, MenuBarCycle.untilFade(now: Date()) > 0.5 {
+                    timer.invalidate()
+                    self.fadeTicker = nil
+                }
+                self.refreshButton()
+            }
+        }
+        ticker.tolerance = 0.01
+        RunLoop.main.add(ticker, forMode: .common)
+        fadeTicker = ticker
+    }
+
+    /// The digits, with the glyph of whichever clock is speaking right in front
+    /// of them: the gap goes BEFORE the glyph, so the pair reads as one thing
+    /// and it is obvious which clock the number belongs to.
+    ///
+    /// Colour is taken over for the whole rotation rather than only for the
+    /// fading frames. Handing it back to AppKit at full opacity meant the ink
+    /// changed hands mid-fade, and that hand-off is exactly what read as a
+    /// flicker. The colour used IS AppKit's own — `labelColor` resolved in the
+    /// bar's appearance — so a label at rest looks the way it always did.
+    private static func barLabel(
+        _ text: String, glyph: String?, opacity: Double, appearance: NSAppearance, font: NSFont
+    ) -> NSAttributedString {
+        guard let glyph else {
+            // one clock speaking: the label AppKit has always drawn, colour and all
+            return NSAttributedString(string: text, attributes: [.font: font])
+        }
+        var ink = NSColor.labelColor
+        appearance.performAsCurrentDrawingAppearance {
+            ink = NSColor.labelColor.usingColorSpace(.sRGB) ?? ink
+        }
+        let faded = ink.withAlphaComponent(ink.alphaComponent * max(0, min(1, opacity)))
+        let label = NSMutableAttributedString()
+        label.append(NSAttributedString(string: " ", attributes: [.font: font]))
+        if let image = symbolImage(glyph, color: faded, pointSize: font.pointSize - 1.5) {
+            let attachment = NSTextAttachment()
+            attachment.image = image
+            // sit the glyph on the text's own baseline rather than the line box
+            attachment.bounds = NSRect(x: 0, y: font.descender + 1,
+                                       width: image.size.width, height: image.size.height)
+            label.append(NSAttributedString(attachment: attachment))
+        }
+        // a hair space: the number belongs to the glyph, not to the bar
+        let digits = String(text.drop(while: { $0 == " " }))
+        label.append(NSAttributedString(string: "\u{2009}" + digits,
+                                        attributes: [.font: font, .foregroundColor: faded]))
+        return label
+    }
+
+    /// An SF Symbol painted in one colour, the same way the icon's own glyphs
+    /// are painted: a template image inside an attributed title is not tinted
+    /// for us. Tinting means a bitmap per frame, and a fade asks for one every
+    /// 30 ms, so the results are kept — a handover reuses the same twenty.
+    private static var symbolCache: [String: NSImage] = [:]
+
+    private static func symbolImage(
+        _ name: String, color: NSColor, pointSize: CGFloat
+    ) -> NSImage? {
+        let key = "\(name)|\(pointSize)|\(color.description)"
+        if let cached = symbolCache[key] { return cached }
+        guard let base = NSImage(systemSymbolName: name, accessibilityDescription: nil)?
+            .withSymbolConfiguration(.init(pointSize: pointSize, weight: .regular))
+        else { return nil }
+        let tinted = NSImage(size: base.size)
+        tinted.lockFocus()
+        base.draw(in: NSRect(origin: .zero, size: base.size),
+                  from: .zero, operation: .sourceOver, fraction: 1)
+        color.set()
+        NSRect(origin: .zero, size: base.size).fill(using: .sourceAtop)
+        tinted.unlockFocus()
+        // the cache is keyed by colour, and a fade walks a bounded set of them;
+        // a lifetime of appearance flips could still grow it, so it is capped
+        if symbolCache.count > 200 { symbolCache.removeAll() }
+        symbolCache[key] = tinted
+        return tinted
     }
 
     // MARK: - Debug: panel frame log
