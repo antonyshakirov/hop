@@ -1481,6 +1481,7 @@ struct HopApp: App {
         #if DEBUG
         TorrentSelfTest.runIfRequested()
         DocumentSelfTest.runIfRequested()
+        VideoSelfTest.runIfRequested()
         Snapshot.runIfRequested()
         #endif
     }
@@ -1490,6 +1491,32 @@ struct HopApp: App {
         // SwiftUI just formally requires an empty scene
         Settings {
             EmptyView()
+        }
+    }
+}
+
+/// Headless video-reframing check, the same idea as the document one:
+/// `Hop --video-selftest <source> <shape> <fit> <outDir>` converts one file
+/// through the real pipeline and prints where it landed, so the shapes and the
+/// three fits can be looked at without dragging files into a window.
+/// Debug builds only.
+@MainActor
+enum VideoSelfTest {
+    static func runIfRequested() {
+        let args = CommandLine.arguments
+        guard let i = args.firstIndex(of: "--video-selftest"), args.count > i + 4 else { return }
+        let source = URL(fileURLWithPath: args[i + 1])
+        guard let shape = VideoFrame.Shape(rawValue: args[i + 2]),
+              let fit = VideoFrame.Fit(rawValue: args[i + 3]) else {
+            print("SELFTEST FAIL: unknown shape/fit")
+            exit(1)
+        }
+        let outDir = URL(fileURLWithPath: args[i + 4])
+        Task {
+            let result = await FileConverter.reframeForSelfTest(
+                source, to: outDir, shape: shape, fit: fit)
+            print(result.map { "SELFTEST OK: \($0.path)" } ?? "SELFTEST FAIL")
+            exit(result == nil ? 1 : 0)
         }
     }
 }

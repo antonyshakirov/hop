@@ -1676,8 +1676,31 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   of the sheet. Pages start at the top margin, like anything printed.
 - The capability table lists what each category ACCEPTS and what it produces —
   and nothing else: the "what we cannot do" line is gone (Anton, 2026-07-25).
-- Dev entry point (DEBUG only, like the torrent self-test):
-  `Hop --doc-selftest <source> <pdf|md|docx> <outDir>`.
+- **Video frames for the places video gets posted** (`VideoFrame`, Anton
+  2026-08-04). Beside format, resolution and compression the video group has a
+  `frame` row — `original`, 9:16, 4:5, 1:1, 16:9 — and, whenever a frame other
+  than the original is chosen, a `fit` row deciding what happens to a picture of
+  another shape: `crop` (fill the frame, lose the edges — the default and what
+  every platform does anyway), `bars` (all of it, empty space around it) or
+  `blur` (all of it, over an enlarged blurred copy of itself). Ratios are
+  written as ratios rather than platform names, which go stale.
+  - The frame's SHORT side is the chosen resolution, so 1080 means 1080×1920 for
+    a reel and 1920×1080 for a landscape one, and the sides are rounded to even
+    numbers because encoders refuse odd ones.
+  - **Nothing is ever upscaled.** A frame that would need more pixels than the
+    source has shrinks, keeping its shape: 720p footage asked for a 1080-wide
+    reel comes out 405×720, not an invented 1080×1920.
+  - `crop` and `bars` are one layer instruction on an ordinary composition (the
+    empty space is the frame's own black). `blur` goes through Core Image per
+    frame — background scaled to COVER, clamped (a blur reads past the edge and
+    would otherwise leave a transparent halo), blurred by 5% of the short side
+    so a 4K export is blurred as much as a 540p one, with the picture composited
+    over it. It is built ONLY when there is space to fill.
+  - The size forecast runs the same composition, so the "→ ~N MB" beside a
+    reframed group is the reframed size.
+- Dev entry points (DEBUG only, like the torrent self-test):
+  `Hop --doc-selftest <source> <pdf|md|docx> <outDir>` and
+  `Hop --video-selftest <source> <shape> <fit> <outDir>`.
 
 ### Keyboard lock (cleaning mode)
 

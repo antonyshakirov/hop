@@ -15,6 +15,8 @@ struct ConvertWindowView: View {
     @AppStorage(FileConverter.videoFormatKey) private var videoFormat = "mp4"
     @AppStorage(FileConverter.videoResolutionKey) private var videoResolution = "original"
     @AppStorage(FileConverter.videoCompressKey) private var videoCompress = true
+    @AppStorage(FileConverter.videoShapeKey) private var videoShape = "source"
+    @AppStorage(FileConverter.videoFitKey) private var videoFit = "fill"
     @AppStorage(FileConverter.docTargetKey) private var docTarget = "pdf"
     @AppStorage(FileConverter.pdfModeKey) private var pdfMode = "compress"
     @State private var targeted = false
@@ -332,6 +334,8 @@ struct ConvertWindowView: View {
         .onChange(of: videoFormat) { model.converter.scheduleEstimate(kind) }
         .onChange(of: videoResolution) { model.converter.scheduleEstimate(kind) }
         .onChange(of: videoCompress) { model.converter.scheduleEstimate(kind) }
+        .onChange(of: videoShape) { model.converter.scheduleEstimate(kind) }
+        .onChange(of: videoFit) { model.converter.scheduleEstimate(kind) }
     }
 
     @ViewBuilder private func settingsRow(_ kind: FileConverter.MediaKind) -> some View {
@@ -412,6 +416,30 @@ struct ConvertWindowView: View {
                         chip("540p", videoResolution == "540") { videoResolution = "540" }
                     }
                     Spacer()
+                }
+                // The SHAPE, which is what a platform actually asks for: a reel
+                // is 9:16 whatever its resolution. Ratios are written as ratios
+                // — every platform states them that way, and a name would go
+                // stale the moment one of them renames a format.
+                HStack(spacing: 5) {
+                    rowLabel(t(.convFrameLabel))
+                    chip(t(.convQualityOriginal), videoShape == "source") { videoShape = "source" }
+                    chip("9:16", videoShape == "vertical") { videoShape = "vertical" }
+                    chip("4:5", videoShape == "portrait") { videoShape = "portrait" }
+                    chip("1:1", videoShape == "square") { videoShape = "square" }
+                    chip("16:9", videoShape == "landscape") { videoShape = "landscape" }
+                    Spacer()
+                }
+                // What happens to a picture of another shape — asked only when
+                // there is a reshaping to do
+                if videoShape != "source" {
+                    HStack(spacing: 5) {
+                        rowLabel(t(.convFitLabel))
+                        chip(t(.convFitCrop), videoFit == "fill") { videoFit = "fill" }
+                        chip(t(.convFitBars), videoFit == "pad") { videoFit = "pad" }
+                        chip(t(.convFitBlur), videoFit == "blur") { videoFit = "blur" }
+                        Spacer()
+                    }
                 }
                 // resolution is our own composition, so HEVC works at ANY size
                 HStack(spacing: 8) {

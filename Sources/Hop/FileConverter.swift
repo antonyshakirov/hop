@@ -21,6 +21,12 @@ final class FileConverter: ObservableObject {
     nonisolated static let videoQualityKey = "convVideoQuality"
     nonisolated static let videoResolutionKey = "convVideoResolution" // original | 2160 | 1080 | 720 | 540
     nonisolated static let videoCompressKey = "convVideoCompress" // HEVC instead of H.264
+    /// The SHAPE a platform expects (`VideoFrame.Shape`), independent of the
+    /// resolution above: a reel is 9:16 whether it is 1080 or 720 tall.
+    nonisolated static let videoShapeKey = "convVideoShape"        // source | vertical | portrait | square | landscape
+    /// What happens to a picture whose own shape does not match the frame
+    /// (`VideoFrame.Fit`): fill and crop, pad, or pad over a blurred copy.
+    nonisolated static let videoFitKey = "convVideoFit"            // fill | pad | blur
     nonisolated static let autoClearKey = "convAutoClear"       // finished ones disappear on their own
     /// Documents: what the group is converted INTO (pdf | md | docx).
     nonisolated static let docTargetKey = "convDocTarget"
@@ -236,6 +242,20 @@ final class FileConverter: ObservableObject {
         UserDefaults.standard.object(forKey: videoCompressKey) as? Bool ?? true
     }
 
+    /// Default: leave the picture the shape it already is. Reshaping a video is
+    /// something to ask for, never something to do to somebody's file quietly.
+    nonisolated static var videoShape: VideoFrame.Shape {
+        UserDefaults.standard.string(forKey: videoShapeKey)
+            .flatMap(VideoFrame.Shape.init(rawValue:)) ?? .source
+    }
+
+    /// Default: fill the frame. It is what every other tool does and what a
+    /// platform shows anyway — a padded video posted as a reel gets bars.
+    nonisolated static var videoFit: VideoFrame.Fit {
+        UserDefaults.standard.string(forKey: videoFitKey)
+            .flatMap(VideoFrame.Fit.init(rawValue:)) ?? .fill
+    }
+
     /// One-time migration of the legacy single "quality" into the split pair.
     nonisolated static func migrateLegacyVideoQuality() {
         let defaults = UserDefaults.standard
@@ -412,6 +432,8 @@ final class FileConverter: ObservableObject {
         let videoFormat = Self.videoFormat
         let videoResolution = Self.videoResolution
         let videoCompress = Self.videoCompress
+        let videoShape = Self.videoShape
+        let videoFit = Self.videoFit
         let docTarget = Self.docTarget
         let pdfTextTarget = Self.pdfTextTarget
         let destination = Self.destinationDirectory
@@ -451,7 +473,7 @@ final class FileConverter: ObservableObject {
                     outURL = await Self.convertVideo(
                         url, to: outDir, format: videoFormat,
                         resolution: videoResolution, compress: videoCompress,
-                        onProgress: report)
+                        shape: videoShape, fit: videoFit, onProgress: report)
                     await MainActor.run { [weak self] in self?.fileFraction = nil }
                 case .audio:
                     outURL = await Self.convertAudio(url, to: outDir)
@@ -520,13 +542,16 @@ final class FileConverter: ObservableObject {
             let videoFormat = Self.videoFormat
             let videoResolution = Self.videoResolution
             let videoCompress = Self.videoCompress
+            let videoShape = Self.videoShape
+            let videoFit = Self.videoFit
             estimates[kind] = Self.sizeText(total) // while computing — show the current size
             Task.detached(priority: .utility) { [weak self] in
                 let estimate: Int64?
                 if kind == .video {
                     estimate = await Self.estimatedVideoSize(
                         sample, format: videoFormat,
-                        resolution: videoResolution, compress: videoCompress)
+                        resolution: videoResolution, compress: videoCompress,
+                        shape: videoShape, fit: videoFit)
                 } else {
                     estimate = await Self.estimatedAudioSize(sample)
                 }
@@ -776,13 +801,14 @@ final class FileConverter: ObservableObject {
         compress ? AVAssetExportPresetHEVCHighestQuality : AVAssetExportPresetHighestQuality
     }
 
-    /// Downscale to a target SHORT side, aspect ratio and orientation kept
-    /// (vertical stays vertical). nil = source is already at or below the
-    /// target, or the resolution is "original" — no composition needed.
-    nonisolated private static func scaleComposition(
-        asset: AVAsset, resolution: String
-    ) async -> AVMutableVideoComposition? {
-        guard let targetShortSide = Double(resolution) else { return nil }
+    /// The picture placed into the frame the user asked for: a downscale to a
+    /// target SHORT side with the shape left alone, or one of the platform
+    /// shapes (9:16, 4:5, 1:1, 16:9) with the picture filled, padded or padded
+    /// over a blurred copy of itself. nil = nothing to do, and the file goes
+    /// through the encoder untouched in shape and size.
+    nonisolated private static func frameComposition(
+        asset: AVAsset, resolution: String, shape: VideoFrame.Shape, fit: VideoFrame.Fit
+    ) async -> AVVideoComposition? {
         guard let track = try? await asset.loadTracks(withMediaType: .video).first,
               let naturalSize = try? await track.load(.naturalSize),
               let transform = try? await track.load(.preferredTransform)
@@ -790,34 +816,86 @@ final class FileConverter: ObservableObject {
         let oriented = CGRect(origin: .zero, size: naturalSize).applying(transform)
         let width = abs(oriented.width)
         let height = abs(oriented.height)
-        guard width > 0, height > 0 else { return nil }
-        let scale = targetShortSide / min(width, height)
-        guard scale < 1 else { return nil } // never upscale
-        let composition = AVMutableVideoComposition()
-        // encoders want even dimensions
-        composition.renderSize = CGSize(
-            width: (width * scale / 2).rounded() * 2,
-            height: (height * scale / 2).rounded() * 2
-        )
+        guard let layout = VideoFrame.layout(
+            sourceWidth: Double(width), sourceHeight: Double(height),
+            shape: shape, shortSide: Double(resolution), fit: fit
+        ) else { return nil }
+
         let fps = (try? await track.load(.nominalFrameRate)) ?? 30
-        composition.frameDuration = CMTime(
-            value: 1, timescale: CMTimeScale(max(1, fps.rounded()))
-        )
-        let duration = (try? await asset.load(.duration)) ?? .positiveInfinity
-        let instruction = AVMutableVideoCompositionInstruction()
-        instruction.timeRange = CMTimeRange(start: .zero, duration: duration)
-        let layer = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
+        let frameDuration = CMTime(value: 1, timescale: CMTimeScale(max(1, fps.rounded())))
+        let renderSize = CGSize(width: layout.width, height: layout.height)
         // orientation first (origin pulled back to zero — rotation transforms
-        // shift it negative), then the downscale
+        // shift it negative), then the scale, then the placement in the frame
         let normalized = transform.concatenating(
             CGAffineTransform(translationX: -oriented.minX, y: -oriented.minY)
         )
-        layer.setTransform(
-            normalized.concatenating(CGAffineTransform(scaleX: scale, y: scale)),
-            at: .zero
-        )
+        let placed = normalized
+            .concatenating(CGAffineTransform(scaleX: layout.scale, y: layout.scale))
+            .concatenating(CGAffineTransform(translationX: layout.offsetX, y: layout.offsetY))
+
+        if fit == .blur, layout.hasEmptySpace {
+            return await blurredComposition(
+                asset: asset, renderSize: renderSize, frameDuration: frameDuration,
+                orientation: normalized, layout: layout,
+                sourceWidth: Double(width), sourceHeight: Double(height))
+        }
+
+        let composition = AVMutableVideoComposition()
+        composition.renderSize = renderSize
+        composition.frameDuration = frameDuration
+        let duration = (try? await asset.load(.duration)) ?? .positiveInfinity
+        let instruction = AVMutableVideoCompositionInstruction()
+        instruction.timeRange = CMTimeRange(start: .zero, duration: duration)
+        // padding shows through as the frame's own background, which is black
+        let layer = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
+        layer.setTransform(placed, at: .zero)
         instruction.layerInstructions = [layer]
         composition.instructions = [instruction]
+        return composition
+    }
+
+    /// The padded frame with the empty space filled by an enlarged, blurred copy
+    /// of the picture itself — the treatment a vertical feed expects of footage
+    /// that was shot wide. Every frame goes through Core Image, so this is the
+    /// slow one of the three and is only ever built when there is space to fill.
+    nonisolated private static func blurredComposition(
+        asset: AVAsset, renderSize: CGSize, frameDuration: CMTime,
+        orientation: CGAffineTransform, layout: VideoFrame.Layout,
+        sourceWidth: Double, sourceHeight: Double
+    ) async -> AVVideoComposition? {
+        // the background is the same picture scaled to COVER the frame
+        let cover = max(layout.width / sourceWidth, layout.height / sourceHeight)
+        let coverOffset = CGPoint(x: (layout.width - sourceWidth * cover) / 2,
+                                  y: (layout.height - sourceHeight * cover) / 2)
+        let frame = CGRect(origin: .zero, size: renderSize)
+        // enough blur that no detail survives to compete with the picture, and
+        // scaled to the frame so a 4K export is not blurred less than a 540p one
+        let radius = min(renderSize.width, renderSize.height) * 0.05
+        let placement = layout
+        let composition = try? await AVVideoComposition.videoComposition(
+            with: asset
+        ) { request in
+            let source = request.sourceImage.transformed(by: orientation)
+            let background = source
+                .transformed(by: CGAffineTransform(scaleX: cover, y: cover))
+                .transformed(by: CGAffineTransform(translationX: coverOffset.x, y: coverOffset.y))
+                // clamped first: a blur reads pixels beyond the edge, and without
+                // this the frame gets a transparent halo around its border
+                .clampedToExtent()
+                .applyingGaussianBlur(sigma: radius)
+                .cropped(to: frame)
+            let foreground = source
+                .transformed(by: CGAffineTransform(scaleX: placement.scale, y: placement.scale))
+                .transformed(by: CGAffineTransform(translationX: placement.offsetX,
+                                                   y: placement.offsetY))
+            request.finish(with: foreground.composited(over: background).cropped(to: frame),
+                           context: nil)
+        }
+        guard let composition = composition?.mutableCopy() as? AVMutableVideoComposition else {
+            return nil
+        }
+        composition.renderSize = renderSize
+        composition.frameDuration = frameDuration
         return composition
     }
 
@@ -826,7 +904,8 @@ final class FileConverter: ObservableObject {
     /// tables drifted 20%+ from the encoder on real footage — measuring the
     /// encoder itself is the only honest number.
     nonisolated private static func estimatedVideoSize(
-        _ url: URL, format: String, resolution: String, compress: Bool
+        _ url: URL, format: String, resolution: String, compress: Bool,
+        shape: VideoFrame.Shape, fit: VideoFrame.Fit
     ) async -> Int64? {
         let asset = AVURLAsset(url: url)
         guard let seconds = try? await asset.load(.duration).seconds, seconds > 0
@@ -834,11 +913,12 @@ final class FileConverter: ObservableObject {
         let originalBytes = (try? FileManager.default
             .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
         // original size without compression = container change only, size is almost the same
-        guard resolution != "original" || compress else { return originalBytes }
+        guard resolution != "original" || compress || shape != .source else { return originalBytes }
         guard let session = AVAssetExportSession(
             asset: asset, presetName: presetName(compress: compress))
         else { return nil }
-        session.videoComposition = await scaleComposition(asset: asset, resolution: resolution)
+        session.videoComposition = await frameComposition(
+            asset: asset, resolution: resolution, shape: shape, fit: fit)
         let sampleSeconds = min(8.0, seconds)
         session.timeRange = CMTimeRange(
             start: .zero,
@@ -872,14 +952,26 @@ final class FileConverter: ObservableObject {
         return (originalBytes > 0 && projected > originalBytes) ? originalBytes : projected
     }
 
+    #if DEBUG
+    /// The real video path, reachable from the dev self-test entry point.
+    nonisolated static func reframeForSelfTest(
+        _ url: URL, to dir: URL, shape: VideoFrame.Shape, fit: VideoFrame.Fit
+    ) async -> URL? {
+        await convertVideo(url, to: dir, format: videoFormat, resolution: videoResolution,
+                           compress: videoCompress, shape: shape, fit: fit)
+    }
+    #endif
+
     nonisolated private static func convertVideo(
         _ url: URL, to dir: URL, format: String, resolution: String, compress: Bool,
+        shape: VideoFrame.Shape, fit: VideoFrame.Fit,
         onProgress: (@Sendable (Double) -> Void)? = nil
     ) async -> URL? {
         let asset = AVURLAsset(url: url)
         guard let session = AVAssetExportSession(asset: asset, presetName: presetName(compress: compress))
         else { return nil }
-        session.videoComposition = await scaleComposition(asset: asset, resolution: resolution)
+        session.videoComposition = await frameComposition(
+            asset: asset, resolution: resolution, shape: shape, fit: fit)
         let ext = format == "mov" ? "mov" : "mp4"
         let type: AVFileType = format == "mov" ? .mov : .mp4
         let outURL = uniqueURL(dir, name: url.deletingPathExtension().lastPathComponent, ext: ext)
