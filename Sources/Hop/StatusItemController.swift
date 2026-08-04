@@ -134,7 +134,7 @@ final class StatusItemController: NSObject {
                 // closing the panel starts the idle countdown for the updater
                 self?.model.activity.note()
                 self?.frozenTitleLength = nil
-                self?.frozenBarTimeVisible = nil
+                self?.frozenSlots = nil
                 self?.panelOriginX = nil
                 self?.hiddenAnchorWindow?.orderOut(nil)
                 self?.hiddenAnchorWindow = nil
@@ -209,10 +209,20 @@ final class StatusItemController: NSObject {
     /// (nil — panel closed, width is free to change).
     private var frozenTitleLength: Int?
 
-    /// Whether the bar showed the time when the panel opened (nil — closed).
-    /// The PRESENCE is frozen too: a countdown appearing mid-session would
-    /// resize the button and drag the attached panel with it.
-    private var frozenBarTimeVisible: Bool?
+    /// Which clocks the bar was showing when the panel opened (nil — closed).
+    /// The SET is frozen, not just the width: a reading appearing mid-session
+    /// would resize the button and drag the attached panel with it, and a
+    /// reading VANISHING would leave the space it was padded to standing empty
+    /// (Anton, 2026-08-04). A stopped timer keeps its slot and shows what it
+    /// stopped at until the panel is closed.
+    private var frozenSlots: [BarSlot]?
+
+    /// A clock with something to say in the bar. The tracked task carries its
+    /// identity, so its figure survives the task being stopped.
+    private enum BarSlot: Equatable {
+        case engine
+        case tracker(UUID)
+    }
 
     /// Whole-point size: a fractional SwiftUI height lands the popover
     /// frame on a half pixel and the panel content jiggles 1px between tabs.
@@ -350,10 +360,7 @@ final class StatusItemController: NSObject {
         // from "is the title non-empty": the torrent glance arrow (↓/↑) also fills
         // the title, and treating that as "time visible" wrongly surfaced the
         // countdown while the timer was off, which shifted the panel on open.
-        let showCountdown = UserDefaults.standard
-            .object(forKey: SettingsKey.showMenuBarCountdown) as? Bool ?? true
-        frozenBarTimeVisible = showCountdown
-            && (model.engine.state == .running || model.engine.state == .paused)
+        frozenSlots = currentSlots()
         // windows left open (converter mid-batch etc.) come back with the panel:
         // they sink behind other apps and clicking the star is how users return
         model.raiseOpenWindows?()
@@ -569,29 +576,11 @@ final class StatusItemController: NSObject {
         // tracked task's running total used to compete for the one slot, and the
         // countdown always won, so a task tracked under a running timer was
         // invisible in the bar. They take turns now (Anton, 2026-08-04).
-        var readings: [(symbol: String, text: String)] = []
-        let engineSymbol = engine.isStopwatch ? "stopwatch" : "timer"
-        if showCountdown, state == .running || state == .paused {
-            let value = engine.isStopwatch ? engine.elapsed : engine.remaining
-            readings.append((engineSymbol, TimeFormatting.short(value)))
-        } else if showCountdown, frozenBarTimeVisible == true {
-            // digits were visible when the panel opened: a reset must not blank
-            // the bar mid-session — show the reset value until the panel closes
-            readings.append((engineSymbol,
-                             TimeFormatting.short(engine.isStopwatch ? engine.elapsed : engine.duration)))
-        }
-        // Tracker time: the active task's ticking "today" value, opt-in.
-        // Ticks off tracker.heartbeat via the refresh path.
-        if tracking, UserDefaults.standard.bool(forKey: SettingsKey.trackerTimeInBar),
-           let activeID = model.tracker.engine.activeTaskID {
-            readings.append(("record.circle",
-                             TimeFormatting.short(model.tracker.engine.today(taskID: activeID))))
-        }
-        // presence freeze: the bar was empty when the panel opened — a timer
-        // started from the panel must not surface the label until close
-        if frozenBarTimeVisible == false {
-            readings.removeAll()
-        }
+        // While the panel is open the SET of readings is whatever it was when
+        // the panel opened: a clock started from the panel must not surface
+        // mid-session, and one stopped from the panel must not disappear and
+        // leave its padded space empty. The figures themselves stay live.
+        let readings = (frozenSlots ?? currentSlots()).map(reading(for:))
 
         // monospaced font: the width doesn't jump as digits change
         var title = ""
@@ -649,6 +638,43 @@ final class StatusItemController: NSObject {
 
         // the anchor is fixed to the icon zone — no re-anchoring needed at all:
         // the icon is always on the left, the countdown grows on the right and never touches the anchor
+    }
+
+    /// The clocks with something to say right now.
+    private func currentSlots() -> [BarSlot] {
+        var slots: [BarSlot] = []
+        let showCountdown = UserDefaults.standard
+            .object(forKey: SettingsKey.showMenuBarCountdown) as? Bool ?? true
+        let state = model.engine.state
+        if showCountdown, state == .running || state == .paused {
+            slots.append(.engine)
+        }
+        // the tracked task's ticking "today" value, opt-in
+        if model.tracker.isTracking,
+           UserDefaults.standard.bool(forKey: SettingsKey.trackerTimeInBar),
+           let activeID = model.tracker.engine.activeTaskID {
+            slots.append(.tracker(activeID))
+        }
+        return slots
+    }
+
+    /// What a slot reads at this instant. A stopped timer shows what it is set
+    /// to, a stopped task the total it reached — never a blank.
+    private func reading(for slot: BarSlot) -> (symbol: String, text: String) {
+        switch slot {
+        case .engine:
+            let engine = model.engine
+            let running = engine.state == .running || engine.state == .paused
+            let value: TimeInterval
+            if engine.isStopwatch {
+                value = engine.elapsed
+            } else {
+                value = running ? engine.remaining : engine.duration
+            }
+            return (engine.isStopwatch ? "stopwatch" : "timer", TimeFormatting.short(value))
+        case .tracker(let id):
+            return ("record.circle", TimeFormatting.short(model.tracker.engine.today(taskID: id)))
+        }
     }
 
     // MARK: - Taking turns

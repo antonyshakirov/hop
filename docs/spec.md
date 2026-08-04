@@ -35,14 +35,18 @@ signing would break).
    positioningRect: when the button's WINDOW moves (didMove) — always;
    on panel resize — ONLY if origin.x actually moved (>0.5pt).
    Unconditional re-pinning on every resize makes the panel twitch.
-3. **The menu bar button width AND label presence are frozen** while the
-   panel is open (Anton, 2026-07-15). Showing at open → the countdown
-   stays visible and ticking, padded with spaces to the frozen length;
-   if the digits outgrow the slot (stopwatch passing an hour) the freeze
-   extends and the didMove observer re-anchors. A reset while open shows
-   the reset value (the configured duration), never a blank slot. Hidden
-   at open → a timer started from the panel does NOT surface the label
-   until the panel closes; on close the bar reflects reality.
+3. **The menu bar button width AND the SET of readings are frozen** while
+   the panel is open (Anton, 2026-07-15; the set generalised from a single
+   bool 2026-08-04). Whichever clocks were speaking at open keep speaking
+   until the panel closes, padded with spaces to the frozen length; if the
+   digits outgrow the slot (stopwatch passing an hour) the freeze extends
+   and the didMove observer re-anchors. **A clock stopped from the panel
+   keeps its slot** and shows what it stopped at — a reset timer shows its
+   configured duration, a stopped task the total it reached — because the
+   space was already padded for it and a vanished reading leaves that
+   space standing empty. Figures stay live inside their frozen slots.
+   Hidden at open → a clock started from the panel does NOT surface until
+   the panel closes; on close the bar reflects reality.
 4. **No repeatForever animations** — they trigger NSHostingController
    size recalculation. Icon changes are an opacity crossfade in a
    fixed-size ZStack.
