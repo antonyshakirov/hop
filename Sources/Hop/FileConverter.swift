@@ -27,6 +27,9 @@ final class FileConverter: ObservableObject {
     /// What happens to a picture whose own shape does not match the frame
     /// (`VideoFrame.Fit`): fill and crop, pad, or pad over a blurred copy.
     nonisolated static let videoFitKey = "convVideoFit"            // fill | pad | blur
+    /// How hard the encoder squeezes when compression is on: 10…100, the same
+    /// scale the image and PDF sliders use.
+    nonisolated static let videoQualityLevelKey = "convVideoQualityLevel"
     nonisolated static let autoClearKey = "convAutoClear"       // finished ones disappear on their own
     /// Documents: what the group is converted INTO (pdf | md | docx).
     nonisolated static let docTargetKey = "convDocTarget"
@@ -249,6 +252,12 @@ final class FileConverter: ObservableObject {
             .flatMap(VideoFrame.Shape.init(rawValue:)) ?? .source
     }
 
+    /// How hard to squeeze, 0…1. Default 0.55: visibly lighter files that still
+    /// hold up full-screen, the same middle the image slider sits at.
+    nonisolated static var videoQuality: Double {
+        Double((UserDefaults.standard.object(forKey: videoQualityLevelKey) as? Int) ?? 55) / 100
+    }
+
     /// Default: fill the frame. It is what every other tool does and what a
     /// platform shows anyway — a padded video posted as a reel gets bars.
     nonisolated static var videoFit: VideoFrame.Fit {
@@ -434,6 +443,7 @@ final class FileConverter: ObservableObject {
         let videoCompress = Self.videoCompress
         let videoShape = Self.videoShape
         let videoFit = Self.videoFit
+        let videoQuality = Self.videoQuality
         let docTarget = Self.docTarget
         let pdfTextTarget = Self.pdfTextTarget
         let destination = Self.destinationDirectory
@@ -473,7 +483,8 @@ final class FileConverter: ObservableObject {
                     outURL = await Self.convertVideo(
                         url, to: outDir, format: videoFormat,
                         resolution: videoResolution, compress: videoCompress,
-                        shape: videoShape, fit: videoFit, onProgress: report)
+                        shape: videoShape, fit: videoFit, quality: videoQuality,
+                        onProgress: report)
                     await MainActor.run { [weak self] in self?.fileFraction = nil }
                 case .audio:
                     outURL = await Self.convertAudio(url, to: outDir)
@@ -544,6 +555,7 @@ final class FileConverter: ObservableObject {
             let videoCompress = Self.videoCompress
             let videoShape = Self.videoShape
             let videoFit = Self.videoFit
+            let videoQuality = Self.videoQuality
             estimates[kind] = Self.sizeText(total) // while computing — show the current size
             Task.detached(priority: .utility) { [weak self] in
                 let estimate: Int64?
@@ -551,7 +563,7 @@ final class FileConverter: ObservableObject {
                     estimate = await Self.estimatedVideoSize(
                         sample, format: videoFormat,
                         resolution: videoResolution, compress: videoCompress,
-                        shape: videoShape, fit: videoFit)
+                        shape: videoShape, fit: videoFit, quality: videoQuality)
                 } else {
                     estimate = await Self.estimatedAudioSize(sample)
                 }
@@ -903,45 +915,46 @@ final class FileConverter: ObservableObject {
     /// actual export preset and the result extrapolates by duration. Bitrate
     /// tables drifted 20%+ from the encoder on real footage — measuring the
     /// encoder itself is the only honest number.
+    /// What the encode will weigh, worked out from the bitrate it will be given
+    /// rather than by encoding eight seconds and multiplying. The trial encode
+    /// was both slow and, with the system's "highest quality" presets, wrong:
+    /// it forecast the original size no matter where the settings stood.
     nonisolated private static func estimatedVideoSize(
         _ url: URL, format: String, resolution: String, compress: Bool,
-        shape: VideoFrame.Shape, fit: VideoFrame.Fit
+        shape: VideoFrame.Shape, fit: VideoFrame.Fit, quality: Double
     ) async -> Int64? {
         let asset = AVURLAsset(url: url)
         guard let seconds = try? await asset.load(.duration).seconds, seconds > 0
         else { return nil }
         let originalBytes = (try? FileManager.default
             .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
-        // original size without compression = container change only, size is almost the same
-        guard resolution != "original" || compress || shape != .source else { return originalBytes }
-        guard let session = AVAssetExportSession(
-            asset: asset, presetName: presetName(compress: compress))
-        else { return nil }
-        session.videoComposition = await frameComposition(
-            asset: asset, resolution: resolution, shape: shape, fit: fit)
-        let sampleSeconds = min(8.0, seconds)
-        session.timeRange = CMTimeRange(
-            start: .zero,
-            duration: CMTime(seconds: sampleSeconds, preferredTimescale: 600)
-        )
-        let tempDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("hop-estimate-\(UUID().uuidString)")
-        try? FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: tempDir) }
-        let ext = format == "mov" ? "mov" : "mp4"
-        let type: AVFileType = format == "mov" ? .mov : .mp4
-        let outURL = tempDir.appendingPathComponent("sample.\(ext)")
-        guard let exported = await export(session, to: outURL, as: type),
-              let sampleBytes = try? FileManager.default
-                  .attributesOfItem(atPath: exported.path)[.size] as? Int64,
-              sampleBytes > 0
-        else { return nil }
-        let projected = Int64(Double(sampleBytes) * seconds / sampleSeconds)
-        // if the source is already lighter than the target, compression must not inflate it
-        return (originalBytes > 0 && projected > originalBytes) ? originalBytes : projected
+        guard let track = try? await asset.loadTracks(withMediaType: .video).first,
+              let naturalSize = try? await track.load(.naturalSize),
+              let transform = try? await track.load(.preferredTransform)
+        else { return originalBytes }
+
+        let oriented = CGRect(origin: .zero, size: naturalSize).applying(transform)
+        let source = CGSize(width: abs(oriented.width), height: abs(oriented.height))
+        let layout = VideoFrame.layout(
+            sourceWidth: Double(source.width), sourceHeight: Double(source.height),
+            shape: shape, shortSide: Double(resolution), fit: fit)
+        // nothing to re-encode and nothing to reframe: the container changes and
+        // the bytes travel across untouched
+        if !compress, layout == nil { return originalBytes }
+
+        let width = layout?.width ?? Double(source.width)
+        let height = layout?.height ?? Double(source.height)
+        let fps = Double((try? await track.load(.nominalFrameRate)) ?? 30)
+        let bitrate = VideoBitrate.bitsPerSecond(
+            width: width, height: height, fps: fps > 0 ? fps : 30,
+            codec: compress ? .hevc : .h264, quality: compress ? quality : 1)
+        let hasAudio = (try? await asset.loadTracks(withMediaType: .audio).first) != nil
+        let projected = VideoBitrate.projectedBytes(
+            seconds: seconds, videoBitsPerSecond: bitrate,
+            audioBitsPerSecond: hasAudio ? VideoBitrate.audioBitsPerSecond : 0)
+        return VideoBitrate.honestProjection(projected: projected, original: originalBytes)
     }
 
-    /// M4A AAC ~128 kbit/s × duration.
     nonisolated private static func estimatedAudioSize(_ url: URL) async -> Int64? {
         let asset = AVURLAsset(url: url)
         guard let seconds = try? await asset.load(.duration).seconds, seconds > 0
@@ -955,27 +968,202 @@ final class FileConverter: ObservableObject {
     #if DEBUG
     /// The real video path, reachable from the dev self-test entry point.
     nonisolated static func reframeForSelfTest(
-        _ url: URL, to dir: URL, shape: VideoFrame.Shape, fit: VideoFrame.Fit
+        _ url: URL, to dir: URL, shape: VideoFrame.Shape, fit: VideoFrame.Fit,
+        compress: Bool? = nil, quality: Double? = nil
     ) async -> URL? {
         await convertVideo(url, to: dir, format: videoFormat, resolution: videoResolution,
-                           compress: videoCompress, shape: shape, fit: fit)
+                           compress: compress ?? videoCompress, shape: shape, fit: fit,
+                           quality: quality ?? videoQuality)
+    }
+
+    /// The forecast for one file, for the same dev entry point.
+    nonisolated static func estimateForSelfTest(
+        _ url: URL, shape: VideoFrame.Shape, fit: VideoFrame.Fit,
+        compress: Bool, quality: Double
+    ) async -> Int64? {
+        await estimatedVideoSize(url, format: videoFormat, resolution: videoResolution,
+                                 compress: compress, shape: shape, fit: fit, quality: quality)
     }
     #endif
 
     nonisolated private static func convertVideo(
         _ url: URL, to dir: URL, format: String, resolution: String, compress: Bool,
-        shape: VideoFrame.Shape, fit: VideoFrame.Fit,
+        shape: VideoFrame.Shape, fit: VideoFrame.Fit, quality: Double,
         onProgress: (@Sendable (Double) -> Void)? = nil
     ) async -> URL? {
         let asset = AVURLAsset(url: url)
-        guard let session = AVAssetExportSession(asset: asset, presetName: presetName(compress: compress))
-        else { return nil }
-        session.videoComposition = await frameComposition(
-            asset: asset, resolution: resolution, shape: shape, fit: fit)
         let ext = format == "mov" ? "mov" : "mp4"
         let type: AVFileType = format == "mov" ? .mov : .mp4
         let outURL = uniqueURL(dir, name: url.deletingPathExtension().lastPathComponent, ext: ext)
-        return await export(session, to: outURL, as: type, onProgress: onProgress)
+        let composition = await frameComposition(
+            asset: asset, resolution: resolution, shape: shape, fit: fit)
+
+        // Nothing to change but the container: copy the tracks across instead of
+        // re-encoding them. A re-encode at "highest quality" is how this module
+        // used to spend a minute producing a file the same size as the original.
+        if !compress, composition == nil {
+            guard let session = AVAssetExportSession(
+                asset: asset, presetName: AVAssetExportPresetPassthrough) else { return nil }
+            return await export(session, to: outURL, as: type, onProgress: onProgress)
+        }
+        return await encodeVideo(
+            asset: asset, to: outURL, as: type, composition: composition,
+            codec: compress ? .hevc : .h264, quality: compress ? quality : 1,
+            onProgress: onProgress)
+    }
+
+    /// The encode Hop drives itself, because the system's export presets do not
+    /// take a bitrate and a converter without one cannot promise a size. Reader
+    /// and writer are wired straight together: frames come out of the source
+    /// (through the reframing composition when there is one) and go into an
+    /// encoder told exactly how many bits per second to spend.
+    nonisolated private static func encodeVideo(
+        asset: AVAsset, to outURL: URL, as type: AVFileType,
+        composition: AVVideoComposition?, codec: VideoBitrate.Codec, quality: Double,
+        onProgress: (@Sendable (Double) -> Void)? = nil
+    ) async -> URL? {
+        guard let track = try? await asset.loadTracks(withMediaType: .video).first,
+              let naturalSize = try? await track.load(.naturalSize),
+              let transform = try? await track.load(.preferredTransform),
+              let duration = try? await asset.load(.duration)
+        else { return nil }
+
+        let oriented = CGRect(origin: .zero, size: naturalSize).applying(transform)
+        let renderSize = composition?.renderSize
+            ?? CGSize(width: abs(oriented.width), height: abs(oriented.height))
+        let fps = Double((try? await track.load(.nominalFrameRate)) ?? 30)
+        let bitrate = VideoBitrate.bitsPerSecond(
+            width: Double(renderSize.width), height: Double(renderSize.height),
+            fps: fps > 0 ? fps : 30, codec: codec, quality: quality)
+
+        guard let reader = try? AVAssetReader(asset: asset),
+              let writer = try? AVAssetWriter(outputURL: outURL, fileType: type)
+        else { return nil }
+
+        // the reader hands over plain pixel buffers; the composition, when there
+        // is one, does the reframing on the way out
+        let pixelSettings: [String: Any] = [
+            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
+        ]
+        let videoOutput: AVAssetReaderOutput
+        if let composition {
+            let output = AVAssetReaderVideoCompositionOutput(
+                videoTracks: [track], videoSettings: pixelSettings)
+            output.videoComposition = composition
+            videoOutput = output
+        } else {
+            videoOutput = AVAssetReaderTrackOutput(track: track, outputSettings: pixelSettings)
+        }
+        videoOutput.alwaysCopiesSampleData = false
+        guard reader.canAdd(videoOutput) else { return nil }
+        reader.add(videoOutput)
+
+        let videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: [
+            AVVideoCodecKey: codec == .hevc ? AVVideoCodecType.hevc : AVVideoCodecType.h264,
+            AVVideoWidthKey: Int(renderSize.width),
+            AVVideoHeightKey: Int(renderSize.height),
+            AVVideoCompressionPropertiesKey: [
+                AVVideoAverageBitRateKey: bitrate,
+                AVVideoExpectedSourceFrameRateKey: Int(fps.rounded()),
+                // two seconds between key frames: seeking stays usable and the
+                // bitrate is not eaten by key frames on a static shot
+                AVVideoMaxKeyFrameIntervalDurationKey: 2,
+            ],
+        ])
+        videoInput.expectsMediaDataInRealTime = false
+        // with no composition the picture is untouched, so its rotation has to
+        // travel with it rather than be baked in
+        if composition == nil { videoInput.transform = transform }
+        guard writer.canAdd(videoInput) else { return nil }
+        writer.add(videoInput)
+
+        // audio, when the file has any, re-encoded to AAC at a plain rate
+        var audioOutput: AVAssetReaderTrackOutput?
+        var audioInput: AVAssetWriterInput?
+        if let audioTrack = try? await asset.loadTracks(withMediaType: .audio).first {
+            let output = AVAssetReaderTrackOutput(track: audioTrack, outputSettings: [
+                AVFormatIDKey: kAudioFormatLinearPCM,
+                AVLinearPCMBitDepthKey: 16,
+                AVLinearPCMIsFloatKey: false,
+                AVLinearPCMIsBigEndianKey: false,
+                AVLinearPCMIsNonInterleaved: false,
+            ])
+            let input = AVAssetWriterInput(mediaType: .audio, outputSettings: [
+                AVFormatIDKey: kAudioFormatMPEG4AAC,
+                AVSampleRateKey: 44_100,
+                AVNumberOfChannelsKey: 2,
+                AVEncoderBitRateKey: VideoBitrate.audioBitsPerSecond,
+            ])
+            input.expectsMediaDataInRealTime = false
+            if reader.canAdd(output), writer.canAdd(input) {
+                reader.add(output)
+                writer.add(input)
+                audioOutput = output
+                audioInput = input
+            }
+        }
+
+        writer.metadata = [softwareTag()]
+        guard reader.startReading(), writer.startWriting() else { return nil }
+        writer.startSession(atSourceTime: .zero)
+
+        let total = duration.seconds
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                await pump(videoOutput, into: videoInput, label: "video") { time in
+                    guard total > 0 else { return }
+                    onProgress?(min(1, time / total))
+                }
+            }
+            if let audioOutput, let audioInput {
+                group.addTask {
+                    await pump(audioOutput, into: audioInput, label: "audio", onTime: nil)
+                }
+            }
+        }
+
+        await writer.finishWriting()
+        guard writer.status == .completed, reader.status != .failed else {
+            try? FileManager.default.removeItem(at: outURL)
+            return nil
+        }
+        return FileManager.default.fileExists(atPath: outURL.path) ? outURL : nil
+    }
+
+    /// One track's samples, moved across as fast as the encoder will take them.
+    private nonisolated static func pump(
+        _ output: AVAssetReaderOutput, into input: AVAssetWriterInput, label: String,
+        onTime: (@Sendable (Double) -> Void)?
+    ) async {
+        let queue = DispatchQueue(label: "com.antonshakirov.minimo.convert.\(label)")
+        // reader and writer are not Sendable, and they do not need to be: every
+        // touch below happens on this one queue, one sample at a time
+        nonisolated(unsafe) let output = output
+        nonisolated(unsafe) let input = input
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            input.requestMediaDataWhenReady(on: queue) {
+                while input.isReadyForMoreMediaData {
+                    guard let sample = output.copyNextSampleBuffer() else {
+                        input.markAsFinished()
+                        continuation.resume()
+                        return
+                    }
+                    onTime?(CMSampleBufferGetPresentationTimeStamp(sample).seconds)
+                    if !input.append(sample) {
+                        input.markAsFinished()
+                        continuation.resume()
+                        return
+                    }
+                }
+            }
+        }
+    }
+
+    private nonisolated static func softwareTag() -> AVMetadataItem {
+        let software = AVMutableMetadataItem()
+        software.identifier = .commonIdentifierSoftware
+        software.value = "Hop" as NSString
+        return software
     }
 
     /// Audio: anything the system can read (MP3/WAV/FLAC/AAC…) → M4A (AAC).

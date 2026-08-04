@@ -574,14 +574,34 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - PDF: page recompression (~150 dpi), text stops being selectable.
 - Video: MP4/MOV/M4V → MP4/MOV (original/1080/720/540). Audio: → M4A.
   MP3/MKV/WebM output is not supported by the system; we don't embed ffmpeg.
-- Resolution chips at or above the source's short side are hidden — they
-  would re-encode at the same frame size and read as a second "squeeze";
-  a currently selected chip stays visible so the choice is never invisible.
-- Video settings are three independent rows (Anton, 2026-07-15):
-  "format: MP4/MOV", "resolution: original / 4K / 1080p / 720p / 540p"
-  and a "compression" toggle (HEVC instead of H.264, ON by default,
-  available at every resolution). The legacy single "quality" value
-  migrates into the pair on first launch ("hevc" → original + compress).
+- Resolution chips ALWAYS all show; the ones above the source's short side are
+  dimmed and unclickable (`SettingChip.enabled`). They used to be hidden, and a
+  row that changes shape as its neighbour is clicked reads as a bug — picking
+  540p made 1080p and 720p vanish (Anton, 2026-08-04).
+- Video settings are four independent rows (Anton, 2026-07-15; the dial added
+  2026-08-04): "format: MP4/MOV", "resolution: original / 4K / 1080p / 720p /
+  540p", "frame" + "fit" (see the reframing entry below), and "compression" —
+  a toggle (HEVC instead of H.264, ON by default) plus, when it is on, a
+  1…100 slider (`convVideoQualityLevel`, default 55) saying HOW HARD to squeeze.
+  The legacy single "quality" value migrates into the pair on first launch
+  ("hevc" → original + compress).
+- **Hop drives the video encode itself** (`encodeVideo`, 2026-08-04). The system
+  export presets take no bitrate, and their "highest quality" re-encoded most
+  footage back to roughly its original size: the converter looked like it was
+  doing nothing, whatever the settings said. An AVAssetReader feeds an
+  AVAssetWriter with `AVVideoAverageBitRateKey` set from `VideoBitrate`
+  (bits-per-pixel-per-frame interpolated over the dial, squared so the travel
+  sits where the eye notices, HEVC at 0.65 of H.264, floor 120 kbps; audio
+  re-encoded to 128 kbps AAC). Key frames every 2 s. With compression OFF and no
+  reframing to do, the tracks are copied across with `AVAssetExportPresetPassthrough`
+  instead — a container change costs a second, not a re-encode.
+- The video forecast is arithmetic, not a trial encode: bitrate × duration + 2%
+  container overhead, and never more than the original (a re-encode that would
+  come out heavier keeps the original size in the forecast). Measured against
+  real encodes it lands within 2-12%, the widest gap at the bottom of the dial
+  where key frames weigh most. The old path encoded eight seconds and
+  extrapolated — slow, and with the old presets it forecast the original size no
+  matter where the settings stood.
 - Downscaling is hop's own videoComposition targeting the SHORT side,
   aspect ratio and orientation preserved — a vertical 1244×1664 at
   "1080p" becomes 1080×1444. The system resolution presets fit into a
@@ -589,8 +609,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   upscales; dimensions are rounded to even for the encoders.
 - Estimates are honest: images/PDF — a trial conversion of the first file +
   a curve over reference quality points (interpolation, no recompute on
-  every slider move); video/audio — the system encoder's forecast. Per-file
-  estimates use the sample's compression ratio.
+  every slider move); video — bitrate arithmetic (above); audio — the system
+  encoder's forecast. Per-file estimates use the sample's compression ratio.
 - All converter sizes use decimal units (1 MB = 1,000,000 bytes) — the same
   scale as Finder, so the promised and the delivered numbers match; binary
   MiB read ~5% smaller and made every result look heavier than estimated.

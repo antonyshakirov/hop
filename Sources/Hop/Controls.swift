@@ -406,11 +406,18 @@ struct LinePath: Shape {
 /// in sizes (22 vs 28) and borders — hence "two different tab sizes".
 struct SettingChip<Content: View>: View {
     let active: Bool
+    /// A choice that exists but cannot be made here — an upscale the source has
+    /// no pixels for, say. It stays in its place, dimmed: a row of chips that
+    /// appears and disappears as the neighbouring choice changes is worse than
+    /// one with a greyed-out member (Anton, 2026-08-04).
+    var enabled = true
     let action: () -> Void
     private let content: Content
 
-    init(active: Bool, action: @escaping () -> Void, @ViewBuilder content: () -> Content) {
+    init(active: Bool, enabled: Bool = true, action: @escaping () -> Void,
+         @ViewBuilder content: () -> Content) {
         self.active = active
+        self.enabled = enabled
         self.action = action
         self.content = content()
     }
@@ -433,14 +440,16 @@ struct SettingChip<Content: View>: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0.35)
         .hoverDim()
     }
 }
 
 extension SettingChip where Content == Text {
     /// Text chip — the base case.
-    init(_ label: String, active: Bool, action: @escaping () -> Void) {
-        self.init(active: active, action: action) {
+    init(_ label: String, active: Bool, enabled: Bool = true, action: @escaping () -> Void) {
+        self.init(active: active, enabled: enabled, action: action) {
             Text(label).font(Theme.mono(10))
         }
     }

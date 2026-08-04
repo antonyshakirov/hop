@@ -17,6 +17,7 @@ struct ConvertWindowView: View {
     @AppStorage(FileConverter.videoCompressKey) private var videoCompress = true
     @AppStorage(FileConverter.videoShapeKey) private var videoShape = "source"
     @AppStorage(FileConverter.videoFitKey) private var videoFit = "fill"
+    @AppStorage(FileConverter.videoQualityLevelKey) private var videoQualityLevel = 55
     @AppStorage(FileConverter.docTargetKey) private var docTarget = "pdf"
     @AppStorage(FileConverter.pdfModeKey) private var pdfMode = "compress"
     @State private var targeted = false
@@ -336,6 +337,7 @@ struct ConvertWindowView: View {
         .onChange(of: videoCompress) { model.converter.scheduleEstimate(kind) }
         .onChange(of: videoShape) { model.converter.scheduleEstimate(kind) }
         .onChange(of: videoFit) { model.converter.scheduleEstimate(kind) }
+        .onChange(of: videoQualityLevel) { model.converter.scheduleEstimate(kind) }
     }
 
     @ViewBuilder private func settingsRow(_ kind: FileConverter.MediaKind) -> some View {
@@ -399,21 +401,16 @@ struct ConvertWindowView: View {
                 HStack(spacing: 5) {
                     rowLabel(t(.convResolutionLabel))
                     chip(t(.convQualityOriginal), videoResolution == "original") { videoResolution = "original" }
-                    // only resolutions BELOW the source (labels go by the short
-                    // side, scaling keeps the aspect ratio); a selected chip
-                    // stays visible so the choice is never hidden
+                    // The row never changes shape: every resolution is always
+                    // here, and the ones the source has no pixels for are dimmed
+                    // rather than removed. Labels go by the SHORT side, scaling
+                    // keeps the aspect ratio, and nothing is ever upscaled.
                     let sourceSide = model.converter.videoMaxShortSide
-                    if sourceSide > 2160 || videoResolution == "2160" {
-                        chip("4K", videoResolution == "2160") { videoResolution = "2160" }
-                    }
-                    if sourceSide == 0 || sourceSide > 1080 || videoResolution == "1080" {
-                        chip("1080p", videoResolution == "1080") { videoResolution = "1080" }
-                    }
-                    if sourceSide == 0 || sourceSide > 720 || videoResolution == "720" {
-                        chip("720p", videoResolution == "720") { videoResolution = "720" }
-                    }
-                    if sourceSide == 0 || sourceSide > 540 || videoResolution == "540" {
-                        chip("540p", videoResolution == "540") { videoResolution = "540" }
+                    ForEach([("4K", 2160), ("1080p", 1080), ("720p", 720), ("540p", 540)], id: \.1) { label, side in
+                        let available = sourceSide == 0 || side <= sourceSide
+                        chip(label, videoResolution == String(side), enabled: available) {
+                            videoResolution = String(side)
+                        }
                     }
                     Spacer()
                 }
@@ -445,6 +442,11 @@ struct ConvertWindowView: View {
                 HStack(spacing: 8) {
                     rowLabel(t(.convCompressLabel))
                     Theme.MiniSwitch(isOn: $videoCompress)
+                    // how hard, not just whether: the encoder is given a bitrate
+                    // rather than a preset, so this dial has something to turn
+                    if videoCompress {
+                        MiniSlider(value: $videoQualityLevel, range: 1...100, width: 96)
+                    }
                     Spacer()
                 }
                 .help(t(.convSqueezeHint))
@@ -541,8 +543,10 @@ struct ConvertWindowView: View {
     }
 
 
-    private func chip(_ label: String, _ active: Bool, action: @escaping () -> Void) -> some View {
-        SettingChip(label, active: active, action: action)
+    private func chip(
+        _ label: String, _ active: Bool, enabled: Bool = true, action: @escaping () -> Void
+    ) -> some View {
+        SettingChip(label, active: active, enabled: enabled, action: action)
     }
 }
 

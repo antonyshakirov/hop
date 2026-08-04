@@ -1512,9 +1512,19 @@ enum VideoSelfTest {
             exit(1)
         }
         let outDir = URL(fileURLWithPath: args[i + 4])
+        // optional 5th argument: the squeeze dial, 0…100, or "off" for no
+        // compression at all — the settings themselves are not touched
+        let dial = args.count > i + 5 ? args[i + 5] : nil
         Task {
+            let quality = Double(dial ?? "").map { $0 / 100 }
+            if let forecast = await FileConverter.estimateForSelfTest(
+                source, shape: shape, fit: fit, compress: dial != "off",
+                quality: quality ?? 0.55) {
+                print("FORECAST: \(forecast) bytes")
+            }
             let result = await FileConverter.reframeForSelfTest(
-                source, to: outDir, shape: shape, fit: fit)
+                source, to: outDir, shape: shape, fit: fit,
+                compress: dial != "off", quality: quality)
             print(result.map { "SELFTEST OK: \($0.path)" } ?? "SELFTEST FAIL")
             exit(result == nil ? 1 : 0)
         }
