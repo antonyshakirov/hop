@@ -254,6 +254,18 @@ final class FileConverter: ObservableObject {
         UserDefaults.standard.string(forKey: videoFormatKey) ?? "original"
     }
 
+    /// Which container the format row highlights. Until the user picks one it
+    /// is whatever the pending files already are — there is no "original" chip,
+    /// because a person looking at the row wants to read the ANSWER, not a
+    /// setting that stands for one (Anton, 2026-08-04). A format the system
+    /// cannot write reads as mp4, which is what it will become.
+    var highlightedVideoFormat: String {
+        let setting = Self.videoFormat
+        guard setting == "original" else { return setting }
+        guard let first = batch.pending(.video).first ?? batch.videos.first?.url else { return "mp4" }
+        return Self.videoContainer(for: first, setting: "original")
+    }
+
     /// The container a given file will be written into: whatever was chosen, or
     /// the source's own when that is "original". Anything the system cannot
     /// write (avi, mkv) lands in mp4.

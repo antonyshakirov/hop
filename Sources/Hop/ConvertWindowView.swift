@@ -409,12 +409,13 @@ struct ConvertWindowView: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 5) {
                     rowLabel(t(.convFormatLabel))
-                    // "original" keeps the container the file arrived in: mp4 in,
-                    // mp4 out. Changing it does nothing for size and is only
+                    // The row shows what the file WILL be, which until anyone
+                    // touches it is what the file already is: mp4 in, mp4 out.
+                    // Changing the container does nothing for size, so it is
                     // worth doing on purpose (Anton, 2026-08-04).
-                    chip(t(.convQualityOriginal), videoFormat == "original") { videoFormat = "original" }
-                    chip("MP4", videoFormat == "mp4") { videoFormat = "mp4" }
-                    chip("MOV", videoFormat == "mov") { videoFormat = "mov" }
+                    let container = model.converter.highlightedVideoFormat
+                    chip("MP4", container == "mp4") { videoFormat = "mp4" }
+                    chip("MOV", container == "mov") { videoFormat = "mov" }
                     Spacer()
                 }
                 HStack(spacing: 5) {

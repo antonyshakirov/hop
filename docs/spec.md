@@ -579,10 +579,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   row that changes shape as its neighbour is clicked reads as a bug — picking
   540p made 1080p and 720p vanish (Anton, 2026-08-04).
 - Video settings are four independent rows (Anton, 2026-07-15; the dial added
-  2026-08-04): "format: original / MP4 / MOV" — **original by default**, so an
-  mp4 stays an mp4: the container does not affect size and swapping it is only
-  worth doing on purpose (Anton, 2026-08-04); anything the system cannot write
-  falls back to mp4 — "resolution: original / 4K / 1080p / 720p /
+  2026-08-04): "format: MP4 / MOV" — two chips, and until the user picks one
+  the HIGHLIGHTED chip is the container the pending files already have, so an
+  mp4 stays an mp4 (`highlightedVideoFormat`). There is no "original" chip: the
+  row should read as the answer, not as a setting that stands for one (Anton,
+  2026-08-04). A format the system cannot write (avi, mkv) highlights mp4,
+  which is what it becomes. Changing the container does nothing for size — "resolution: original / 4K / 1080p / 720p /
   540p", "frame" + "fit" (see the reframing entry below), and "compression" —
   a toggle (HEVC instead of H.264, ON by default) plus, when it is on, a
   1…100 slider (`convVideoQualityLevel`, default 55) saying HOW HARD to squeeze.
