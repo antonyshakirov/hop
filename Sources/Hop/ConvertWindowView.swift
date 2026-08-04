@@ -296,6 +296,9 @@ struct ConvertWindowView: View {
                         .progressViewStyle(.linear)
                         .frame(width: 90)
                         .tint(Theme.accentOrange)
+                        // the reports arrive in steps; the bar travels between
+                        // them instead of teleporting
+                        .animation(.linear(duration: 0.35), value: fraction)
                     Text("\(Int(fraction * 100))%")
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.accentOrange)
@@ -512,6 +515,31 @@ struct ConvertWindowView: View {
                 Text(result)
                     .font(Theme.mono(11, weight: .semibold))
                     .foregroundStyle(Theme.accentGreen)
+            }
+            // "where did it go" — answered by Finder, with the file selected
+            if let output = model.converter.lastOutput {
+                Button {
+                    NSWorkspace.shared.activateFileViewerSelecting([output])
+                } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "folder")
+                            .font(.system(size: 10))
+                        Text(output.deletingLastPathComponent().lastPathComponent)
+                            .font(Theme.mono(10))
+                            .lineLimit(1)
+                    }
+                    .foregroundStyle(Theme.textSecondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(Theme.divider, lineWidth: 1)
+                    )
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(t(.convReveal))
+                .hoverHighlight(5)
             }
         }
     }

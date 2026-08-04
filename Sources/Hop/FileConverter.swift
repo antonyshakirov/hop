@@ -164,6 +164,11 @@ final class FileConverter: ObservableObject {
     /// Video file resolutions ("1080p") — read when files are added to the batch.
     @Published private(set) var videoResolutions: [String: String] = [:]
     @Published private(set) var lastResult: String?
+    /// The file the last conversion produced — what the reveal button opens.
+    /// Kept as a URL rather than a folder so Finder can select it: "where did
+    /// it go" is answered better by the file being highlighted than by a folder
+    /// of a hundred things (Anton, 2026-08-04).
+    @Published private(set) var lastOutput: URL?
     /// "current size → projected size": trial conversion of the group's first file.
     @Published private(set) var estimates: [MediaKind: String] = [:]
     /// Same per file (keyed by path): files vary in size,
@@ -454,15 +459,39 @@ final class FileConverter: ObservableObject {
             var failedURLs: Set<URL> = []
             var done = Set<URL>()
             let total = files.count
+            // The bar moves by BYTES, not by file count. Counting files made a
+            // batch of one jump straight from nothing to everything, and a big
+            // file among small ones sat still and then leapt (Anton, 2026-08-04).
+            let weights = files.map { url in
+                Double((try? FileManager.default
+                    .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0) + 1
+            }
+            let weightTotal = weights.reduce(0, +)
+            var weightDone: Double = 0
             for (index, url) in files.enumerated() {
+                // this file's slice of the bar, fixed before the work starts so
+                // the progress closure has nothing mutable to reach for
+                let base = weightDone
+                let slice = weights[index]
+                let atFileStart = weightTotal > 0 ? base / weightTotal : 0
                 await MainActor.run { [weak self] in
                     self?.progress = "\(index + 1)/\(total)"
-                    self?.batchFraction = Double(index) / Double(total)
+                    self?.batchFraction = atFileStart
                 }
                 let outDir = destination ?? url.deletingLastPathComponent()
                 let originalSize = (try? FileManager.default
                     .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
                 let outURL: URL?
+                // every kind that can say where it is reports through this
+                let report: @Sendable (Double) -> Void = { [weak self] within in
+                    let value = weightTotal > 0
+                        ? min(1, (base + slice * within) / weightTotal)
+                        : 0
+                    Task { @MainActor in
+                        self?.fileFraction = within
+                        self?.batchFraction = value
+                    }
+                }
                 switch kind {
                 case .image:
                     outURL = Self.convertImage(url, to: outDir, format: format, scale: scale, quality: quality)
@@ -471,15 +500,10 @@ final class FileConverter: ObservableObject {
                         outURL = await Self.convertDocument(url, to: outDir, target: target)
                     } else {
                         // scale applies to images only; PDF is squeezed via quality
-                        outURL = Self.compressPDF(url, to: outDir, scale: 1.0, quality: quality)
+                        outURL = Self.compressPDF(url, to: outDir, scale: 1.0, quality: quality,
+                                                  onProgress: report)
                     }
                 case .video:
-                    let report: @Sendable (Double) -> Void = { [weak self] fraction in
-                        Task { @MainActor in
-                            self?.fileFraction = fraction
-                            self?.batchFraction = (Double(index) + fraction) / Double(total)
-                        }
-                    }
                     outURL = await Self.convertVideo(
                         url, to: outDir, format: videoFormat,
                         resolution: videoResolution, compress: videoCompress,
@@ -493,9 +517,11 @@ final class FileConverter: ObservableObject {
                 case .unsupported:
                     outURL = nil
                 }
+                weightDone += weights[index]
                 if let outURL {
                     converted += 1
                     done.insert(url)
+                    await MainActor.run { [weak self] in self?.lastOutput = outURL }
                     let newSize = (try? FileManager.default
                         .attributesOfItem(atPath: outURL.path)[.size] as? Int64) ?? 0
                     savedBytes += max(0, originalSize - newSize)
@@ -771,7 +797,8 @@ final class FileConverter: ObservableObject {
 
     /// Re-render pages with JPEG compression — the standard way to shrink scans.
     nonisolated private static func compressPDF(
-        _ url: URL, to dir: URL, scale: Double, quality: Double
+        _ url: URL, to dir: URL, scale: Double, quality: Double,
+        onProgress: (@Sendable (Double) -> Void)? = nil
     ) -> URL? {
         guard let document = PDFDocument(url: url), document.pageCount > 0 else { return nil }
         let outURL = uniqueURL(dir, name: url.deletingPathExtension().lastPathComponent, ext: "pdf")
@@ -780,6 +807,9 @@ final class FileConverter: ObservableObject {
         guard let ctx = CGContext(outURL as CFURL, mediaBox: nil, info) else { return nil }
 
         for index in 0..<document.pageCount {
+            // a hundred-page file takes a while, and a bar that only moves when
+            // the whole file is done says nothing while it does
+            onProgress?(Double(index) / Double(document.pageCount))
             guard let page = document.page(at: index) else { continue }
             let bounds = page.bounds(for: .mediaBox)
             // render at ~150dpi × scale — a balance of readability and size

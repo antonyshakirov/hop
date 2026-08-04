@@ -616,8 +616,20 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   MiB read ~5% smaller and made every result look heavier than estimated.
 - Each group card carries an honesty note "output size is approximate"
   (convApproxNote) while files are pending; during conversion the card
-  shows a whole-batch progress bar (files done + the current video's own
-  fraction), a percentage and "converting… i/n".
+  shows a whole-batch progress bar, a percentage and "converting… i/n".
+- **The bar is weighted by BYTES, not by file count** (Anton, 2026-08-04).
+  Counting files made a batch of one jump from nothing to everything, and a
+  large file among small ones sat still and then leapt. Each file's share of the
+  bar is its size; inside a file, video reports its own fraction from the
+  encoder and PDF compression reports one per page. The bar also eases between
+  reports (0.35 s linear) rather than stepping, since the reports themselves
+  arrive in bursts.
+- **Where it landed is one click away**: once anything has been converted the
+  footer carries a folder button naming the destination folder, which reveals
+  the last output IN Finder with the file selected (`activateFileViewerSelecting`).
+  It follows wherever the files actually went — Downloads, the source folder or
+  a custom one — because it is built from the produced file's own URL rather
+  than from the setting.
 - Clicking the menu bar star brings already-open auxiliary windows
   (converter/settings/about/torrent add) back to the front together with the
   panel — they sink behind other apps on deactivate and looked "closed".
