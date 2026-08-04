@@ -129,10 +129,13 @@ Kata sandi dan input tersembunyi lainnya tidak pernah disimpan.
 
 ### Konverter file
 
-Jatuhkan sekumpulan gambar, PDF, video, atau audio ke panel: keluarannya
-JPEG, PNG, HEIC, AVIF, dan WebP; kompresi PDF; pengecilan video HEVC dengan
+Jatuhkan sekumpulan gambar, PDF, video, atau audio ke panel: keluarannya JPEG,
+PNG, HEIC, AVIF, dan WebP; kompresi PDF; pengecilan video HEVC dengan
 perkiraan ukuran yang jujur dan langsung sebelum kamu mengonversi. Semuanya
-diproses secara lokal.
+diproses secara lokal. Video juga bisa dibingkai ulang saat dikonversi — 9:16,
+4:5, persegi, atau 16:9, dipangkas, diberi bilah, atau di atas salinan
+buramnya — dan kompresi punya tingkatnya sendiri, jadi ukuran yang dijanjikan
+sama dengan yang keluar.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Konverter file">

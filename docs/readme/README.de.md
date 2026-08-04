@@ -131,9 +131,12 @@ und andere verdeckte Eingaben werden niemals gespeichert.
 ### Dateikonverter
 
 Zieh einen Stapel Bilder, PDFs, Videos oder Audiodateien auf das Panel: JPEG,
-PNG, HEIC, AVIF und WebP als Ausgabe; PDF-Komprimierung; HEVC-Videoverkleinerung
-mit einer ehrlichen Live-Größenschätzung, bevor du konvertierst. Alles wird
-lokal verarbeitet.
+PNG, HEIC, AVIF und WebP als Ausgabe; PDF-Komprimierung; HEVC-
+Videoverkleinerung mit einer ehrlichen Live-Größenschätzung, bevor du
+konvertierst. Alles wird lokal verarbeitet. Video lässt sich beim Konvertieren
+auch neu rahmen — 9:16, 4:5, Quadrat oder 16:9, beschnitten, mit Balken oder
+auf einer unscharfen Kopie —, und die Komprimierung hat eine eigene Stufe,
+sodass die vorher genannte Größe auch die tatsächliche ist.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/converter.png" width="480" alt="Hop — Dateikonverter">

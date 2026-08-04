@@ -125,10 +125,12 @@ chính tệp đó quay lại. Mật khẩu và các nội dung nhập ẩn khác
 
 ### Chuyển đổi tệp
 
-Thả cả loạt ảnh, PDF, video hoặc âm thanh vào bảng điều khiển: xuất ra
-JPEG, PNG, HEIC, AVIF và WebP; nén PDF; thu nhỏ video bằng HEVC với ước
-tính dung lượng trung thực, hiển thị trực tiếp trước khi chuyển đổi. Mọi
-thứ đều được xử lý cục bộ.
+Thả cả loạt ảnh, PDF, video hoặc âm thanh vào bảng điều khiển: xuất ra JPEG,
+PNG, HEIC, AVIF và WebP; nén PDF; thu nhỏ video bằng HEVC với ước tính dung
+lượng trung thực, hiển thị trực tiếp trước khi chuyển đổi. Mọi thứ đều được xử
+lý cục bộ. Video còn có thể đổi khung hình khi chuyển đổi — 9:16, 4:5, vuông
+hoặc 16:9, cắt đầy khung, thêm viền, hay đặt trên bản sao đã làm mờ — và phần
+nén có mức riêng, nên kích thước hứa trước bằng đúng kích thước nhận được.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Chuyển đổi tệp">

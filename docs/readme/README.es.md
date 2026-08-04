@@ -133,8 +133,11 @@ contraseñas y otras entradas ocultas nunca se guardan.
 
 Suelta un lote de imágenes, PDF, vídeos o audio sobre el panel: JPEG, PNG,
 HEIC, AVIF y WebP de salida; compresión de PDF; reducción de vídeo HEVC con
-una estimación de tamaño honesta y en vivo antes de convertir. Todo se
-procesa en local.
+una estimación de tamaño honesta y en vivo antes de convertir. Todo se procesa
+en local. El vídeo también se puede reencuadrar al convertir — 9:16, 4:5,
+cuadrado o 16:9, recortado, con barras o sobre una copia desenfocada — y la
+compresión tiene su propio nivel, así que el tamaño prometido antes de
+convertir es el que sale.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/es/converter.png" width="480" alt="Hop — Conversor de archivos">

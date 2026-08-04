@@ -132,7 +132,10 @@ Wachtwoorden en andere verborgen invoer worden nooit opgeslagen.
 Sleep een lading afbeeldingen, pdf's, video's of audio op het paneel: JPEG,
 PNG, HEIC, AVIF en WebP als uitvoer; pdf-compressie; HEVC-videoverkleinen met
 een eerlijke live-schatting van de bestandsgrootte vóór je converteert. Alles
-wordt lokaal verwerkt.
+wordt lokaal verwerkt. Video kan bij het converteren ook opnieuw worden
+gekaderd — 9:16, 4:5, vierkant of 16:9, bijgesneden, met balken of op een
+vervaagde kopie — en de compressie heeft een eigen niveau, zodat de vooraf
+beloofde grootte de werkelijke is.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Bestandsconverter">

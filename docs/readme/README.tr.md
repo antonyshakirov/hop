@@ -127,10 +127,12 @@ girişler asla saklanmaz.
 
 ### Dosya dönüştürücü
 
-Panele bir grup görsel, PDF, video ya da ses bırakın: çıktı olarak JPEG,
-PNG, HEIC, AVIF ve WebP; PDF sıkıştırma; dönüştürmeden önce canlı ve
-dürüst boyut tahminiyle HEVC video küçültme. Her şey yerel olarak
-işlenir.
+Panele bir grup görsel, PDF, video ya da ses bırakın: çıktı olarak JPEG, PNG,
+HEIC, AVIF ve WebP; PDF sıkıştırma; dönüştürmeden önce canlı ve dürüst boyut
+tahminiyle HEVC video küçültme. Her şey yerel olarak işlenir. Video
+dönüştürülürken yeniden çerçevelenebilir — 9:16, 4:5, kare ya da 16:9;
+kırpılarak, bantla ya da kendi bulanık kopyasının üzerinde — ve sıkıştırmanın
+kendi seviyesi var, böylece önceden söylenen boyut çıkan boyut oluyor.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Dosya dönüştürücü">

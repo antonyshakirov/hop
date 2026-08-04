@@ -129,10 +129,12 @@ dane wejściowe nigdy nie są zapisywane.
 
 ### Konwerter plików
 
-Upuść na panel paczkę obrazów, PDF-ów, wideo lub audio: na wyjściu JPEG,
-PNG, HEIC, AVIF i WebP; kompresja PDF; zmniejszanie wideo w HEVC z
-uczciwym, aktualizowanym na żywo szacunkiem rozmiaru jeszcze przed
-konwersją. Wszystko jest przetwarzane lokalnie.
+Upuść na panel paczkę obrazów, PDF-ów, wideo lub audio: na wyjściu JPEG, PNG,
+HEIC, AVIF i WebP; kompresja PDF; zmniejszanie wideo w HEVC z uczciwym,
+aktualizowanym na żywo szacunkiem rozmiaru jeszcze przed konwersją. Wszystko
+jest przetwarzane lokalnie. Wideo można też przekadrować przy konwersji —
+9:16, 4:5, kwadrat albo 16:9, z przycięciem, pasami lub na rozmytej kopii — a
+kompresja ma własny poziom, więc obiecany rozmiar jest tym, który wychodzi.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Konwerter plików">

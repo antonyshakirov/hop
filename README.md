@@ -126,9 +126,12 @@ file back. Passwords and other concealed input are never stored.
 
 ### File converter
 
-Drop a batch of images, PDFs, videos or audio onto the panel: JPEG, PNG,
-HEIC, AVIF and WebP out; PDF compression; HEVC video shrinking with a live,
-honest size estimate before you convert. Everything is processed locally.
+Drop a batch of images, PDFs, videos or audio onto the panel: JPEG, PNG, HEIC,
+AVIF and WebP out; PDF compression; HEVC video shrinking with a live, honest
+size estimate before you convert. Everything is processed locally. Video can
+also be reframed as it converts — 9:16, 4:5, square or 16:9, cropped to fill,
+padded, or laid over a blurred copy of itself — and the squeeze has a level of
+its own, so the size promised before you convert is the size you get.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — File converter">

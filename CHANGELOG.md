@@ -1,5 +1,54 @@
 # Hop — version history
 
+## 1.8.0 — 2026-08-04
+
+- Video can be reframed for where it is going: 9:16 for reels and stories, 4:5
+  or square for a feed, 16:9 for the rest. A picture of another shape is cropped
+  to fill, padded, or laid over an enlarged blurred copy of itself, whichever is
+  chosen. The frame's short side is the resolution already picked, and nothing
+  is ever upscaled — 720p footage asked for a 540-wide reel comes out 405×720
+  rather than an invented 1080×1920.
+- Compression actually compresses, and by an amount you set. The system's export
+  presets take no bitrate and their highest-quality setting re-encoded ordinary
+  footage back to about its original size, so the switch changed almost nothing.
+  Hop now drives the encode itself with an average bitrate worked out from frame
+  size, frame rate, codec and a 1–100 dial. On a 14.7 MB test clip: 2.4 MB at
+  20, 4.5 MB at 55, 9.1 MB at 90.
+- The size forecast is arithmetic instead of a trial encode, so it answers
+  instantly and follows the frame as well as the dial. Measured against real
+  encodes it lands within 2–12%.
+- The output container follows the source: an mp4 comes out an mp4. Changing it
+  does nothing for size and is now a deliberate choice; a format the system
+  cannot write into its own container becomes mp4.
+- A timer and a tracked task share the menu bar instead of the countdown always
+  winning. They hold the line for five seconds each with a glyph in front of the
+  digits saying which is speaking, and hand over through an eased fade. A clock
+  stopped while the panel is open keeps its place instead of leaving the padded
+  space empty.
+- PDF into markdown is between 1.3× and 8.4× faster for the same result. The
+  type sizes now come from a walk of the page's own content stream rather than
+  from laying the whole page out with every font resolved; the complete reading
+  still runs for rotated pages, text drawn inside form objects, and any page
+  where fewer than nine tenths of the lines are matched.
+- The converter's progress bar is weighted by bytes rather than by file count,
+  video reports its own fraction from inside the encode and PDF compression
+  reports one per page. Bar, percentage and label turn green together when the
+  work is done.
+- A finished batch plays its own sound, and a button in the footer opens the
+  folder the files went to with one of them already selected — wherever they
+  actually went.
+- Formats macOS cannot open at all (MKV, WebM, WMV, FLV, and WMA among audio)
+  are named as unsupported the moment they are dropped, instead of sitting in a
+  group with a convert button that was always going to fail.
+- Resolution chips no longer disappear: choosing 540p used to hide 1080p and
+  720p. Every resolution is always drawn, and the ones the source has no pixels
+  for are dimmed in place. A video row also reads "718p → 404p" — the source and
+  what the current settings will actually produce.
+- The gpu card in the system monitor carries a chart of its own in the product
+  screenshots. The card is drawn whenever the Mac reports a gpu load, and the
+  synthesized history behind the screenshots had no gpu series in it, so every
+  monitor picture kept a blank strip under the row.
+
 ## 1.7.1 — 2026-07-31
 
 - The dot on the menu-bar icon turns orange when a tunnel is up but nothing is

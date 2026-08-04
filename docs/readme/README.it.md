@@ -132,9 +132,12 @@ nascosti non vengono mai salvati.
 ### Convertitore di file
 
 Trascina sul pannello un gruppo di immagini, PDF, video o audio: JPEG, PNG,
-HEIC, AVIF e WebP in uscita; compressione dei PDF; riduzione video in HEVC
-con una stima delle dimensioni onesta e in tempo reale prima di convertire.
-Tutto viene elaborato in locale.
+HEIC, AVIF e WebP in uscita; compressione dei PDF; riduzione video in HEVC con
+una stima delle dimensioni onesta e in tempo reale prima di convertire. Tutto
+viene elaborato in locale. Il video si può anche reinquadrare durante la
+conversione — 9:16, 4:5, quadrato o 16:9, ritagliato, con bande o su una copia
+sfocata — e la compressione ha un livello suo, così la dimensione promessa è
+quella che esce.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Convertitore di file">

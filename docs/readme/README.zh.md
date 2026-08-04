@@ -110,9 +110,7 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 
 ### 文件转换器
 
-把一批图片、PDF、视频或音频拖到面板上：输出 JPEG、PNG、
-HEIC、AVIF 和 WebP；压缩 PDF；HEVC 视频瘦身，转换前就能看到
-实时且诚实的体积预估。所有处理均在本地完成。
+把一批图片、PDF、视频或音频拖到面板上：输出 JPEG、PNG、 HEIC、AVIF 和 WebP；压缩 PDF；HEVC 视频瘦身，转换前就能看到 实时且诚实的体积预估。所有处理均在本地完成。 视频还能在转换时重新构图 —— 9:16、4:5、正方形或 16:9，可裁切、加黑边，或叠在自身的模糊副本上 —— 压缩也有了自己的级别，转换前承诺的大小就是得到的大小。
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/zh/converter.png" width="480" alt="Hop — 文件转换器">
