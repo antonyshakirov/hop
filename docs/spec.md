@@ -572,8 +572,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Quality: images and PDF have INDEPENDENT sliders (convQuality /
   convPdfQuality, default 55).
 - PDF: page recompression (~150 dpi), text stops being selectable.
-- Video: MP4/MOV/M4V → MP4/MOV (original/1080/720/540). Audio: → M4A.
-  MP3/MKV/WebM output is not supported by the system; we don't embed ffmpeg.
+- Video: MP4/MOV/M4V/AVI/MPG → MP4/MOV. Audio: → M4A. MP3/MKV/WebM output is
+  not supported by the system; we don't embed ffmpeg.
+- **What counts as convertible is asked of the system**, not kept as a list
+  (`systemCanRead`, 2026-08-04). MKV, WebM, WMV and FLV all classify as movies
+  and AVFoundation cannot open ANY of them; they used to land in the video group
+  and fail at convert time with nothing said in advance. They are named
+  unsupported on arrival now, in the drop itself. AVI and MPG do open, subject
+  to the codec inside them (a modern AVI yes, an old DivX one no). The same
+  check covers audio, where WMA is the one that cannot be read.
 - Resolution chips ALWAYS all show; the ones above the source's short side are
   dimmed and unclickable (`SettingChip.enabled`). They used to be hidden, and a
   row that changes shape as its neighbour is clicked reads as a bug — picking

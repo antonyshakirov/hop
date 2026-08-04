@@ -322,9 +322,22 @@ final class FileConverter: ObservableObject {
         }
         guard let type = UTType(filenameExtension: url.pathExtension) else { return .unsupported }
         if type.conforms(to: .image) { return .image }
-        if type.conforms(to: .movie) || type.conforms(to: .video) { return .video }
-        if type.conforms(to: .audio) { return .audio }
+        // The system says what it can open, rather than a list kept here: mkv,
+        // webm, wmv and flv all classify as movies and cannot be read at all,
+        // so they used to land in the video group and fail at convert time with
+        // nothing said in advance (Anton, 2026-08-04). Named as unsupported on
+        // arrival, they are answered honestly by the drop itself.
+        if type.conforms(to: .movie) || type.conforms(to: .video) {
+            return systemCanRead(type) ? .video : .unsupported
+        }
+        if type.conforms(to: .audio) { return systemCanRead(type) ? .audio : .unsupported }
         return .unsupported
+    }
+
+    /// Whether AVFoundation is prepared to open this type at all. Asked of the
+    /// system so the answer stays right as macOS gains and loses formats.
+    private nonisolated static func systemCanRead(_ type: UTType) -> Bool {
+        AVURLAsset.audiovisualTypes().contains { $0.rawValue == type.identifier }
     }
 
     // MARK: - Batch
