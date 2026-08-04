@@ -12,7 +12,7 @@ struct ConvertWindowView: View {
     @AppStorage(FileConverter.scaleKey) private var convScale = 1.0
     @AppStorage(FileConverter.qualityKey) private var convQuality = 55
     @AppStorage(FileConverter.pdfQualityKey) private var convPdfQuality = 55
-    @AppStorage(FileConverter.videoFormatKey) private var videoFormat = "mp4"
+    @AppStorage(FileConverter.videoFormatKey) private var videoFormat = "original"
     @AppStorage(FileConverter.videoResolutionKey) private var videoResolution = "original"
     @AppStorage(FileConverter.videoCompressKey) private var videoCompress = true
     @AppStorage(FileConverter.videoShapeKey) private var videoShape = "source"
@@ -308,9 +308,10 @@ struct ConvertWindowView: View {
                             .fill(tint)
                             .frame(width: max(2, 90 * min(max(fraction, 0), 1)), height: 4)
                     }
-                    // reports are published ten times a second; the fill covers
-                    // the gap between them instead of stepping
-                    .animation(.linear(duration: 0.12), value: fraction)
+                    // No animation: reports already arrive ten times a second,
+                    // which is smooth enough, and an animated subtree made the
+                    // fill lag its own colour — the percentage went green while
+                    // the bar was still orange (Anton, 2026-08-04).
                     Text("\(Int(fraction * 100))%")
                         .font(Theme.mono(10))
                         .foregroundStyle(tint)
@@ -408,6 +409,10 @@ struct ConvertWindowView: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 5) {
                     rowLabel(t(.convFormatLabel))
+                    // "original" keeps the container the file arrived in: mp4 in,
+                    // mp4 out. Changing it does nothing for size and is only
+                    // worth doing on purpose (Anton, 2026-08-04).
+                    chip(t(.convQualityOriginal), videoFormat == "original") { videoFormat = "original" }
                     chip("MP4", videoFormat == "mp4") { videoFormat = "mp4" }
                     chip("MOV", videoFormat == "mov") { videoFormat = "mov" }
                     Spacer()

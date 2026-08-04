@@ -15,7 +15,7 @@ final class FileConverter: ObservableObject {
     // otherwise moving the PDF quality changed images too
     nonisolated static let destKey = "convDest"               // downloads | same | custom
     nonisolated static let destPathKey = "convDestPath"
-    nonisolated static let videoFormatKey = "convVideoFormat" // mp4 | mov
+    nonisolated static let videoFormatKey = "convVideoFormat" // original | mp4 | mov
     /// Legacy single "quality" (original | hevc | 1080 | 720 | 540) —
     /// migrated into resolution + compress on init, read-only since.
     nonisolated static let videoQualityKey = "convVideoQuality"
@@ -247,8 +247,19 @@ final class FileConverter: ObservableObject {
     /// Whether a PDF group squeezes its files or extracts their text.
     nonisolated static var pdfExtractsText: Bool { pdfTextTarget != nil }
 
+    /// Default "original": a container change nobody asked for is not a
+    /// conversion — mp4 in, mp4 out, and the choice is there for when it is
+    /// actually wanted (Anton, 2026-08-04).
     nonisolated static var videoFormat: String {
-        UserDefaults.standard.string(forKey: videoFormatKey) ?? "mp4"
+        UserDefaults.standard.string(forKey: videoFormatKey) ?? "original"
+    }
+
+    /// The container a given file will be written into: whatever was chosen, or
+    /// the source's own when that is "original". Anything the system cannot
+    /// write (avi, mkv) lands in mp4.
+    nonisolated static func videoContainer(for url: URL, setting: String) -> String {
+        guard setting == "original" else { return setting == "mov" ? "mov" : "mp4" }
+        return url.pathExtension.lowercased() == "mov" ? "mov" : "mp4"
     }
 
     nonisolated static var videoResolution: String {
@@ -595,7 +606,7 @@ final class FileConverter: ObservableObject {
                 }
                 self.batch.markFailed(failures, kind: kind)
                 self.scheduleEstimate(kind)
-                if didConvert { Sounds.play("Glass", gain: 0.4) }
+                if didConvert { Sounds.converted() }
             }
         }
     }
@@ -1069,8 +1080,8 @@ final class FileConverter: ObservableObject {
         onProgress: (@Sendable (Double) -> Void)? = nil
     ) async -> URL? {
         let asset = AVURLAsset(url: url)
-        let ext = format == "mov" ? "mov" : "mp4"
-        let type: AVFileType = format == "mov" ? .mov : .mp4
+        let ext = videoContainer(for: url, setting: format)
+        let type: AVFileType = ext == "mov" ? .mov : .mp4
         let outURL = uniqueURL(dir, name: url.deletingPathExtension().lastPathComponent, ext: ext)
         let composition = await frameComposition(
             asset: asset, resolution: resolution, shape: shape, fit: fit)

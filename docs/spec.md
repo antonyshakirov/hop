@@ -579,7 +579,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   row that changes shape as its neighbour is clicked reads as a bug — picking
   540p made 1080p and 720p vanish (Anton, 2026-08-04).
 - Video settings are four independent rows (Anton, 2026-07-15; the dial added
-  2026-08-04): "format: MP4/MOV", "resolution: original / 4K / 1080p / 720p /
+  2026-08-04): "format: original / MP4 / MOV" — **original by default**, so an
+  mp4 stays an mp4: the container does not affect size and swapping it is only
+  worth doing on purpose (Anton, 2026-08-04); anything the system cannot write
+  falls back to mp4 — "resolution: original / 4K / 1080p / 720p /
   540p", "frame" + "fit" (see the reframing entry below), and "compression" —
   a toggle (HEVC instead of H.264, ON by default) plus, when it is on, a
   1…100 slider (`convVideoQualityLevel`, default 55) saying HOW HARD to squeeze.
@@ -637,8 +640,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   is TWO CAPSULES drawn by hand, not a `ProgressView`: AppKit's own animates to
   its own schedule and, fed several values a second, was a fifth of the way
   along while the percentage beside it read 100. The fill is exactly as long as
-  the number says, and bar, percentage and label all turn green at 100% —
-  orange is for work in progress.
+  the number says, with NO animation on it: the reports are already ten a second,
+  and an animated subtree made the fill lag its own colour, so the percentage
+  went green while the bar was still orange. Bar, percentage and label all turn
+  green together at 100% — orange is for work in progress.
+- A finished batch plays its own sound (`Sounds.converted()`, "Ping"), not the
+  timer's alarm: "your time is up" and "your files are ready" are different
+  messages. It obeys the single app-sounds switch like every other cue.
 - **Where it landed is one click away**: once anything has been converted the
   footer carries a folder button naming the destination folder, which reveals
   the last output IN Finder with the file selected (`activateFileViewerSelecting`).

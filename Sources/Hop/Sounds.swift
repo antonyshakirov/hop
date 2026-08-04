@@ -64,4 +64,11 @@ enum Sounds {
     static func alarm() {
         play("Glass")
     }
+
+    /// A batch of files finished converting. Its own sound rather than the
+    /// timer's: the alarm means "your time is up" and a converted folder does
+    /// not (Anton, 2026-08-04). Loud enough to be heard over a browser.
+    static func converted() {
+        play("Ping", gain: 0.9)
+    }
 }
