@@ -1495,6 +1495,7 @@ struct HopApp: App {
     }
 }
 
+#if DEBUG
 /// Headless video-reframing check, the same idea as the document one:
 /// `Hop --video-selftest <source> <shape> <fit> <outDir>` converts one file
 /// through the real pipeline and prints where it landed, so the shapes and the
@@ -1530,3 +1531,4 @@ enum VideoSelfTest {
         }
     }
 }
+#endif
