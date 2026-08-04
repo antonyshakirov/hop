@@ -238,7 +238,7 @@ struct ConvertWindowView: View {
                             .lineLimit(1)
                             .truncationMode(.middle)
                         Spacer(minLength: 8)
-                        if let res = model.converter.videoResolutions[file.url.path] {
+                        if let res = model.converter.resolutionTransition(file.url) {
                             Text(res)
                                 .font(Theme.mono(9.5))
                                 .foregroundStyle(Theme.textTertiary)
@@ -296,9 +296,9 @@ struct ConvertWindowView: View {
                         .progressViewStyle(.linear)
                         .frame(width: 90)
                         .tint(Theme.accentOrange)
-                        // the reports arrive in steps; the bar travels between
-                        // them instead of teleporting
-                        .animation(.linear(duration: 0.35), value: fraction)
+                        // reports are published ten times a second; the bar
+                        // covers the gap between them instead of stepping
+                        .animation(.linear(duration: 0.12), value: fraction)
                     Text("\(Int(fraction * 100))%")
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.accentOrange)

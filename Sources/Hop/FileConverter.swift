@@ -163,7 +163,17 @@ final class FileConverter: ObservableObject {
     @Published private(set) var fileFraction: Double?
     /// Video file resolutions ("1080p") — read when files are added to the batch.
     @Published private(set) var videoResolutions: [String: String] = [:]
+    /// The frame size of each added video, oriented the way it plays. The label
+    /// above is derived from it; the row also needs the two sides themselves to
+    /// work out what the current settings will produce.
+    @Published private(set) var videoSizes: [String: CGSize] = [:]
     @Published private(set) var lastResult: String?
+    /// When the bar last published a value. The video encoder reports every
+    /// sample — thirty times a second — and a bar told to animate to a new
+    /// value that often never finishes a move, so it looked stuck a few percent
+    /// in while the percentage beside it ran to a hundred (Anton, 2026-08-04).
+    private var lastProgressAt = Date.distantPast
+
     /// The file the last conversion produced — what the reveal button opens.
     /// Kept as a URL rather than a folder so Finder can select it: "where did
     /// it go" is answered better by the file being highlighted than by a folder
@@ -307,8 +317,24 @@ final class FileConverter: ObservableObject {
         }
     }
 
+    /// What the current settings will make of a video: "720p → 404p", or just
+    /// "720p" when nothing about the frame is changing. The row used to show the
+    /// source's own resolution and nothing else, so picking 540p left "718p"
+    /// standing over it (Anton, 2026-08-04).
+    func resolutionTransition(_ url: URL) -> String? {
+        guard let source = videoResolutions[url.path] else { return nil }
+        guard let size = videoSizes[url.path] else { return source }
+        let layout = VideoFrame.layout(
+            sourceWidth: Double(size.width), sourceHeight: Double(size.height),
+            shape: Self.videoShape, shortSide: Double(Self.videoResolution),
+            fit: Self.videoFit)
+        guard let layout else { return source }
+        let result = Self.resolutionLabel(CGSize(width: layout.width, height: layout.height))
+        return result == source ? source : "\(source) → \(result)"
+    }
+
     /// "1080p"-style label from the frame's short side.
-    nonisolated private static func resolutionLabel(_ size: CGSize) -> String {
+    nonisolated static func resolutionLabel(_ size: CGSize) -> String {
         let p = Int(min(abs(size.width), abs(size.height)).rounded())
         return p >= 2100 ? "4K" : "\(p)p"
     }
@@ -321,12 +347,28 @@ final class FileConverter: ObservableObject {
                 let asset = AVURLAsset(url: url)
                 guard let track = try? await asset.loadTracks(withMediaType: .video).first,
                       let size = try? await track.load(.naturalSize) else { return }
-                let label = Self.resolutionLabel(size)
+                // a rotated track plays at its transformed size, and that is
+                // the one a person means by "720p"
+                let transform = (try? await track.load(.preferredTransform)) ?? .identity
+                let oriented = CGRect(origin: .zero, size: size).applying(transform)
+                let playing = CGSize(width: abs(oriented.width), height: abs(oriented.height))
+                let label = Self.resolutionLabel(playing)
                 await MainActor.run { [weak self] in
                     self?.videoResolutions[url.path] = label
+                    self?.videoSizes[url.path] = playing
                 }
             }
         }
+    }
+
+    /// Moves the bar, at most ten times a second. The end of a file and the end
+    /// of the batch are always published, so the bar never stops short.
+    private func publishProgress(file: Double?, batch: Double, force: Bool = false) {
+        let now = Date()
+        guard force || batch >= 1 || now.timeIntervalSince(lastProgressAt) >= 0.1 else { return }
+        lastProgressAt = now
+        fileFraction = file
+        batchFraction = batch
     }
 
     /// Folders expand into their contents (up to 500 files); duplicates are skipped.
@@ -488,8 +530,7 @@ final class FileConverter: ObservableObject {
                         ? min(1, (base + slice * within) / weightTotal)
                         : 0
                     Task { @MainActor in
-                        self?.fileFraction = within
-                        self?.batchFraction = value
+                        self?.publishProgress(file: within, batch: value)
                     }
                 }
                 switch kind {
@@ -518,6 +559,12 @@ final class FileConverter: ObservableObject {
                     outURL = nil
                 }
                 weightDone += weights[index]
+                // a finished file lands on the bar whole, whatever the throttle
+                // was in the middle of
+                let atFileEnd = weightTotal > 0 ? weightDone / weightTotal : 1
+                await MainActor.run { [weak self] in
+                    self?.publishProgress(file: nil, batch: atFileEnd, force: true)
+                }
                 if let outURL {
                     converted += 1
                     done.insert(url)

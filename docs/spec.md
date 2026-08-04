@@ -617,13 +617,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Each group card carries an honesty note "output size is approximate"
   (convApproxNote) while files are pending; during conversion the card
   shows a whole-batch progress bar, a percentage and "converting… i/n".
+- **A video row reads "718p → 404p"**: the source resolution and what the
+  current settings will actually produce, worked out through `VideoFrame`. It
+  showed only the source before, so picking 540p left "718p" standing over it
+  (Anton, 2026-08-04). The two agree — and only the source shows — when nothing
+  about the frame changes. The result can differ from the chosen resolution: a
+  718p landscape clip asked for a 540-wide reel comes out 404p, because the
+  frame shrinks rather than upscale.
 - **The bar is weighted by BYTES, not by file count** (Anton, 2026-08-04).
   Counting files made a batch of one jump from nothing to everything, and a
   large file among small ones sat still and then leapt. Each file's share of the
   bar is its size; inside a file, video reports its own fraction from the
-  encoder and PDF compression reports one per page. The bar also eases between
-  reports (0.35 s linear) rather than stepping, since the reports themselves
-  arrive in bursts.
+  encoder and PDF compression reports one per page. Publication is THROTTLED to
+  ten a second: the encoder reports every sample, thirty times a second, and a
+  bar told to animate to a new value that often never finished a move — it sat a
+  few percent in while the percentage beside it ran to a hundred. The end of
+  every file publishes regardless of the throttle, so the bar never stops short,
+  and a 0.12 s linear ease covers the gap between publications.
 - **Where it landed is one click away**: once anything has been converted the
   footer carries a folder button naming the destination folder, which reveals
   the last output IN Finder with the file selected (`activateFileViewerSelecting`).
