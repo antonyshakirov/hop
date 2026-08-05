@@ -769,7 +769,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and cannot shift the attached panel (this replaced an earlier in-title glyph
   that widened the button — Anton, 2026-07-20). Tracking is a decoration, so it
   drops out of the plain-template fast path and the icon goes through `compose`.
-  An opt-in `show task time in menu bar` setting (`trackerTimeInBar`, OFF)
+  An opt-in `show task time in menu bar` setting (`trackerTimeInBar`, OFF —
+  in the "other modules" tab's task section, NOT under "timer": the two clocks
+  are independent and either can hold the bar alone, so a switch placed in the
+  timer's section read as belonging to the timer, Anton 2026-08-05; same rule as
+  the VPN mark, which lives with the VPN settings)
   additionally shows the active task's ticking `today` value as the bar title;
   when those digits show, the dark-green wedge is dropped (the digits are its
   redundant twin). **When a countdown is running too, the two SHARE the title**

@@ -3721,14 +3721,6 @@ struct PanelView: View {
             }
 
             HStack {
-                Text(t(.trackerBarTime))
-                    .font(Theme.mono(12))
-                    .foregroundStyle(Theme.textPrimary)
-                Spacer()
-                Theme.MiniSwitch(isOn: $trackerTimeInBar)
-            }
-
-            HStack {
                 Text(t(.onFinish))
                     .font(Theme.mono(12))
                     .foregroundStyle(Theme.textPrimary)
@@ -3813,6 +3805,13 @@ struct PanelView: View {
                 settingsSectionHeader(t(.trackerLabel))
                 visibleRowsSetting(stored: $trackerVisibleRows)
                 switchSetting(t(.settingsImportantOnTop), isOn: $trackerImportantOnTop)
+                // The task clock's own switch, next to the rest of the task
+                // settings rather than under the timer's. The two clocks are
+                // independent — either can hold the bar alone, and with both on
+                // they take turns (MenuBarCycle) — so a switch sitting in the
+                // timer's section read as the timer's own (Anton, 2026-08-05).
+                // Same placement rule as the VPN mark below.
+                switchSetting(t(.trackerBarTime), isOn: $trackerTimeInBar)
             }
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(spacing: 14) {
