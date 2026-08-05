@@ -5,9 +5,10 @@
 # Hop
 
 **Một trợ thủ nhỏ gọn trên thanh menu của macOS: hẹn giờ, theo dõi thời
-gian, việc cần làm, chống ngủ, giám sát hệ thống, lịch sử clipboard, chuyển
-đổi tệp, quản lý cửa sổ và trình torrent gọn nhẹ — trải trên tối đa bốn tab
-ở biểu tượng. Một cú nhấp — mọi thứ bạn cần đều ở ngay đó.**
+gian, việc cần làm, chống ngủ, giám sát hệ thống, lịch sử clipboard,
+chuyển đổi tệp, quản lý cửa sổ và trình torrent gọn nhẹ. Bạn bật những
+thứ mình cần và trải chúng trên tối đa bốn tab ở biểu tượng. Một cú nhấp —
+mọi thứ bạn cần đều ở ngay đó.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

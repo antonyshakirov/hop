@@ -6,8 +6,9 @@
 
 **A tiny menu bar companion for macOS: timer, time tracker, to-dos,
 keep-awake, system monitor, clipboard history, file converter, window
-manager and a lite torrent client — arranged across up to four tabs on
-the icon. One click, and everything you need is right there.**
+manager and a lite torrent client. You switch on the ones you need and
+arrange them across up to four tabs on the icon. One click, and everything
+you need is right there.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

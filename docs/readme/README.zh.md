@@ -5,8 +5,8 @@
 # Hop
 
 **macOS 菜单栏里的小巧全能助手：计时器、时间跟踪、待办、防休眠、
-系统监控、剪贴板历史、文件转换器、窗口管理器和轻量 BT 客户端——
-分布在图标上多达四个标签里。轻轻一点——你需要的一切都在眼前。**
+系统监控、剪贴板历史、文件转换器、窗口管理器和轻量 BT 客户端。
+你只打开需要的，再分布到图标上多达四个标签里。轻轻一点——你需要的一切都在眼前。**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

@@ -6,9 +6,9 @@
 
 **Ein winziger Menüleisten-Begleiter für macOS: Timer, Zeiterfassung,
 Aufgabenliste, Wachhalten, Systemmonitor, Zwischenablage-Verlauf,
-Dateikonverter, Fenstermanager und ein leichter Torrent-Client — verteilt auf
-bis zu vier Tabs am Symbol. Ein Klick — und alles, was du brauchst, ist sofort
-zur Hand.**
+Dateikonverter, Fenstermanager und ein leichter Torrent-Client. Du
+schaltest ein, was du brauchst, und verteilst es auf bis zu vier Tabs am
+Symbol. Ein Klick — und alles, was du brauchst, ist sofort zur Hand.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

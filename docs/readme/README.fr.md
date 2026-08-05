@@ -6,9 +6,10 @@
 
 **Un petit compagnon pour la barre de menus de macOS : minuteur, suivi du
 temps, liste de tâches, anti-veille, moniteur système, historique du
-presse-papiers, convertisseur de fichiers, gestionnaire de fenêtres et client
-torrent léger — répartis sur jusqu'à quatre onglets de l'icône. Un clic — et
-tout ce qu'il vous faut est là.**
+presse-papiers, convertisseur de fichiers, gestionnaire de fenêtres et
+client torrent léger. Vous activez ceux dont vous avez besoin et vous les
+répartissez sur jusqu'à quatre onglets de l'icône. Un clic — et tout ce
+qu'il vous faut est là.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

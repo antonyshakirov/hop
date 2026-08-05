@@ -6,9 +6,9 @@
 
 **Malutki towarzysz na pasku menu macOS: timer, śledzenie czasu, lista
 zadań, blokada uśpienia, monitor systemu, historia schowka, konwerter
-plików, menedżer okien i lekki klient torrentów — rozłożone na
-maksymalnie czterech kartach na ikonie. Jedno kliknięcie — i wszystko,
-czego potrzebujesz, jest pod ręką.**
+plików, menedżer okien i lekki klient torrentów. Włączasz te, których
+potrzebujesz, i rozkładasz je na maksymalnie czterech kartach na ikonie.
+Jedno kliknięcie — i wszystko, czego potrzebujesz, jest pod ręką.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

@@ -6,8 +6,8 @@
 
 **macOS کے مینو بار کا ایک چھوٹا ساتھی: ٹائمر، وقت کا حساب، کاموں کی فہرست،
 نیند کی روک، سسٹم مانیٹر، کلپ بورڈ کی تاریخ، فائل کنورٹر، ونڈو منیجر اور
-ہلکا ٹورنٹ کلائنٹ — آئیکن پر چار ٹیبوں میں سجے ہوئے۔ ایک کلک، اور جو کچھ
-درکار ہے وہیں موجود ہے۔**
+ہلکا ٹورنٹ کلائنٹ۔ جو درکار ہو وہی آن کرتے ہیں اور انہیں آئیکن پر چار
+ٹیبوں میں سجا لیتے ہیں۔ ایک کلک، اور جو کچھ درکار ہے وہیں موجود ہے۔**
 
 [![تازہ ترین ریلیز](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![انسٹالیشنز](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

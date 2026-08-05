@@ -6,8 +6,9 @@
 
 **Pendamping mungil di menu bar macOS: timer, pelacak waktu, daftar tugas,
 anti-tidur, monitor sistem, riwayat clipboard, konverter file, pengelola
-jendela, dan klien torrent ringan — tersebar di hingga empat tab pada ikon.
-Sekali klik — semua yang kamu butuhkan langsung ada.**
+jendela, dan klien torrent ringan. Kamu menyalakan yang kamu butuhkan dan
+menyebarnya di hingga empat tab pada ikon. Sekali klik — semua yang kamu
+butuhkan langsung ada.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

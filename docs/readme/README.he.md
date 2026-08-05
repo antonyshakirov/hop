@@ -5,8 +5,9 @@
 # Hop
 
 **מלווה קטן בשורת התפריטים של macOS: טיימר, מעקב זמן, רשימת משימות, מניעת
-שינה, מוניטור מערכת, היסטוריית לוח, ממיר קבצים, מנהל חלונות ולקוח טורנט קל —
-מסודרים על פני ארבע לשוניות בסמל. לחיצה אחת, וכל מה שצריך נמצא שם.**
+שינה, מוניטור מערכת, היסטוריית לוח, ממיר קבצים, מנהל חלונות ולקוח טורנט
+קל. מפעילים רק את מה שצריך ומסדרים על פני ארבע לשוניות בסמל. לחיצה אחת,
+וכל מה שצריך נמצא שם.**
 
 [![הגרסה האחרונה](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![התקנות](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

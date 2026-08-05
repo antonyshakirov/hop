@@ -7,8 +7,9 @@
 **Un pequeño compañero de barra de menús para macOS: temporizador,
 seguimiento de tiempo, tareas pendientes, modo antisueño, monitor del
 sistema, historial del portapapeles, conversor de archivos, gestor de
-ventanas y un cliente de torrents ligero — repartidos en hasta cuatro
-pestañas del icono. Un clic — y todo lo que necesitas está ahí.**
+ventanas y un cliente de torrents ligero. Activas los que necesitas y los
+repartes en hasta cuatro pestañas del icono. Un clic — y todo lo que
+necesitas está ahí.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

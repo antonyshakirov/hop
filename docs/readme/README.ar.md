@@ -5,8 +5,9 @@
 # Hop
 
 **رفيق صغير في شريط قوائم macOS: مؤقّت، متتبّع وقت، قائمة مهام، منع نوم،
-مراقب نظام، سجل حافظة، محوّل ملفات، مدير نوافذ وعميل تورنت خفيف — موزّعة
-على أربع تبويبات في الأيقونة. نقرة واحدة، وكل ما تحتاجه هناك.**
+مراقب نظام، سجل حافظة، محوّل ملفات، مدير نوافذ وعميل تورنت خفيف. تشغّل ما
+تحتاجه فقط وتوزّعه على أربع تبويبات في الأيقونة. نقرة واحدة، وكل ما تحتاجه
+هناك.**
 
 [![أحدث إصدار](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![التثبيتات](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

@@ -4,10 +4,10 @@
 
 # Hop
 
-**macOS के मेनू बार में रहने वाला नन्हा साथी: टाइमर, टाइम ट्रैकर,
-कार्यसूची, स्लीप-रोक, सिस्टम मॉनिटर, क्लिपबोर्ड हिस्ट्री, फ़ाइल कन्वर्टर,
-विंडो मैनेजर और एक हल्का टॉरेंट क्लाइंट — आइकन पर चार तक टैब में बँटे।
-एक क्लिक — और आपकी ज़रूरत की हर चीज़ ठीक वहीं मौजूद है।**
+**macOS के मेनू बार में रहने वाला नन्हा साथी: टाइमर, टाइम ट्रैकर, कार्यसूची,
+स्लीप-रोक, सिस्टम मॉनिटर, क्लिपबोर्ड हिस्ट्री, फ़ाइल कन्वर्टर, विंडो मैनेजर और एक
+हल्का टॉरेंट क्लाइंट। जो चाहिए वही चालू करते हैं और उन्हें आइकन पर चार तक टैब में
+बाँट देते हैं। एक क्लिक — और आपकी ज़रूरत की हर चीज़ ठीक वहीं मौजूद है।**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

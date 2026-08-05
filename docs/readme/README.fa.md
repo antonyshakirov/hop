@@ -4,9 +4,10 @@
 
 # Hop
 
-**همراهی کوچک در نوار منوی macOS: تایمر، ردیاب زمان، فهرست کارها، جلوگیری از
-خواب، پایشگر سیستم، تاریخچهٔ کلیپ‌بورد، مبدل پرونده، مدیر پنجره و کلاینت سبک
-تورنت — چیده روی چهار زبانه در نماد. یک کلیک، و هرچه لازم دارید همان‌جاست.**
+**همراهی کوچک در نوار منوی macOS: تایمر، ردیاب زمان، فهرست کارها، جلوگیری
+از خواب، پایشگر سیستم، تاریخچهٔ کلیپ‌بورد، مبدل پرونده، مدیر پنجره و
+کلاینت سبک تورنت. هرچه لازم دارید روشن می‌کنید و روی چهار زبانه در نماد
+می‌چینید. یک کلیک، و هرچه لازم دارید همان‌جاست.**
 
 [![آخرین نسخه](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![نصب‌ها](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

@@ -6,8 +6,9 @@
 
 **Крошечный компаньон в строке меню macOS: таймер, трекер времени,
 список дел, запрет сна, монитор системы, история буфера обмена, конвертер
-файлов, менеджер окон и лёгкий торрент-клиент — разложенные по четырём
-вкладкам на иконке. Один клик — и всё нужное под рукой.**
+файлов, менеджер окон и лёгкий торрент-клиент. Включаете только нужные и
+раскладываете их по четырём вкладкам на иконке. Один клик — и всё нужное
+под рукой.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

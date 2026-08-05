@@ -4,10 +4,10 @@
 
 # Hop
 
-**macOS 메뉴 막대에 사는 작은 동반자: 타이머, 시간 추적, 할 일,
-잠자기 방지, 시스템 모니터, 클립보드 히스토리, 파일 변환기,
-창 관리자, 그리고 가벼운 토렌트 클라이언트 — 아이콘의 최대 네 개
-탭에 나눠 담아. 클릭 한 번이면 필요한 모든 것이 바로 그 자리에.**
+**macOS 메뉴 막대에 사는 작은 동반자: 타이머, 시간 추적, 할 일, 잠자기 방지,
+시스템 모니터, 클립보드 히스토리, 파일 변환기, 창 관리자, 그리고 가벼운
+토렌트 클라이언트. 필요한 것만 켜서 아이콘의 최대 네 개 탭에 나눠 담습니다.
+클릭 한 번이면 필요한 모든 것이 바로 그 자리에.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

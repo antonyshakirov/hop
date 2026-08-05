@@ -4,11 +4,11 @@
 
 # Hop
 
-**Un piccolo compagno per la barra dei menu di macOS: timer, monitoraggio del
-tempo, cose da fare, anti-stop, monitor di sistema, cronologia degli appunti,
-convertitore di file, gestore delle finestre e un client torrent leggero —
-distribuiti su fino a quattro schede dell'icona. Un clic — e tutto ciò che ti
-serve è lì.**
+**Un piccolo compagno per la barra dei menu di macOS: timer, monitoraggio
+del tempo, cose da fare, anti-stop, monitor di sistema, cronologia degli
+appunti, convertitore di file, gestore delle finestre e un client torrent
+leggero. Attivi quelli che ti servono e li distribuisci su fino a quattro
+schede dell'icona. Un clic — e tutto ciò che ti serve è lì.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

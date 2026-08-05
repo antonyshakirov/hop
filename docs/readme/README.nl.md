@@ -6,9 +6,9 @@
 
 **Een piepklein menubalk-hulpje voor macOS: timer, tijdregistratie,
 takenlijst, slaapblokkering, systeemmonitor, klembordgeschiedenis,
-bestandsconverter, vensterbeheer en een lichte torrentclient — verdeeld over
-tot vier tabbladen op het icoon. Eén klik — en alles wat je nodig hebt staat
-meteen klaar.**
+bestandsconverter, vensterbeheer en een lichte torrentclient. Je zet aan
+wat je nodig hebt en verdeelt het over tot vier tabbladen op het icoon.
+Eén klik — en alles wat je nodig hebt staat meteen klaar.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

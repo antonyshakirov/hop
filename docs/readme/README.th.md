@@ -6,8 +6,9 @@
 
 **เพื่อนตัวจิ๋วบนแถบเมนูของ macOS: ตัวจับเวลา ติดตามเวลา สิ่งที่ต้องทำ
 ป้องกันเครื่องหลับ มอนิเตอร์ระบบ ประวัติคลิปบอร์ด ตัวแปลงไฟล์
-ตัวจัดการหน้าต่าง และไคลเอนต์ทอร์เรนต์ตัวเบา — จัดวางในแท็บได้สูงสุด
-สี่แท็บบนไอคอน คลิกเดียว — ทุกอย่างที่คุณต้องการอยู่ตรงนั้น**
+ตัวจัดการหน้าต่าง และไคลเอนต์ทอร์เรนต์ตัวเบา คุณเปิดเฉพาะที่ต้องการ
+แล้วจัดวางในแท็บได้สูงสุดสี่แท็บบนไอคอน คลิกเดียว —
+ทุกอย่างที่คุณต้องการอยู่ตรงนั้น**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)

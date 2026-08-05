@@ -4,11 +4,11 @@
 
 # Hop
 
-**macOS menü çubuğu için minik bir yol arkadaşı: zamanlayıcı, zaman
-takibi, yapılacaklar, uyku engelleme, sistem monitörü, pano geçmişi,
-dosya dönüştürücü, pencere yöneticisi ve hafif bir torrent istemcisi —
-simgedeki en fazla dört sekmeye dağılmış. Tek tık — ihtiyacınız olan
-her şey elinizin altında.**
+**macOS menü çubuğu için minik bir yol arkadaşı: zamanlayıcı, zaman takibi,
+yapılacaklar, uyku engelleme, sistem monitörü, pano geçmişi, dosya
+dönüştürücü, pencere yöneticisi ve hafif bir torrent istemcisi.
+İhtiyacınız olanları açar, simgedeki en fazla dört sekmeye dağıtırsınız.
+Tek tık — ihtiyacınız olan her şey elinizin altında.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)
