@@ -11,7 +11,7 @@ arrange them across up to four tabs on the icon. One click, and everything
 you need is right there.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Finstalls&color=ffd60a)](https://www.antonshakirov.com/api/hop/installs)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -364,6 +364,14 @@ move the torrent traffic itself. That update check sends the version you are
 running, and nothing that identifies you or your Mac. Updates and the
 torrent engine are delivered as signed archives and verified with an Ed25519
 signature before installing.
+
+The `downloads` badge at the top counts the click, not the person. The download
+button and the Homebrew formula go through antonshakirov.com, which writes the
+request to its web server log the way any site logs a page view and redirects to
+the file in the GitHub release. What the log keeps is a salted hash of the
+address, so two clicks from one machine count once and the address itself is
+never stored. None of this involves the app: it is measured before Hop is
+installed, and a copy that never asks for an update counts all the same.
 
 ## Permissions
 
