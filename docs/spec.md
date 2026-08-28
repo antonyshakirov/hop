@@ -832,6 +832,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   whose name was being edited, or whose history sat below it. The row stays —
   name, star, play button and figure — and tapping it again closes the card,
   which is how it is dismissed besides its own ✓/✕.
+  While the card is open the row MIRRORS THE DRAFT: the name being typed and the
+  star being flipped show in the row as they change. Showing the stored values
+  there instead made the pair read as two different tasks — the row said one
+  name while the field said another. An emptied field falls back to the stored
+  name rather than blanking the row.
 - **A task's history, under its open card** (Anton, 2026-08-28). Tracking
   already recorded every stretch of time as an interval; the card now SHOWS
   them, newest first, with the task's total above. Each line can be edited

@@ -443,7 +443,7 @@ struct TrackerView: View {
                     Spacer(minLength: 6)
                     // A favourite, marked by the card's switch — neutral tokens,
                     // no coloured frame.
-                    if task.important {
+                    if displayImportant(task) {
                         StarGlyph(color: Theme.textSecondary, box: 10)
                     }
                     // "there is something inside" — the row's only hint that the
@@ -732,11 +732,30 @@ struct TrackerView: View {
     /// Display-only: renaming happens in the card, which the row opens on a tap.
     /// A double click lands there too — one editing route, not two.
     private func taskName(_ task: TrackerTask) -> some View {
-        Text(task.name)
+        // While the card is open the row shows the DRAFT, so typing a new name
+        // changes it in both places at once. With the row showing the stored
+        // name instead, the two read as two different tasks — the row said one
+        // thing while the field said another (Anton, 2026-08-28).
+        Text(displayName(task))
             .font(Theme.mono(12))
             .foregroundStyle(Theme.listText)
             .lineLimit(1)
             .truncationMode(.tail)
+    }
+
+    /// The name to show for a task: what is being typed if its card is open and
+    /// the field is not empty, otherwise what is stored. An emptied field falls
+    /// back rather than blanking the row — a nameless row is not information.
+    private func displayName(_ task: TrackerTask) -> String {
+        guard expandedTask == task.id, let draft = card?.text else { return task.name }
+        let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? task.name : draft
+    }
+
+    /// Same rule for the star: the card's switch flips it in the row as it is
+    /// pressed, instead of after the card closes.
+    private func displayImportant(_ task: TrackerTask) -> Bool {
+        expandedTask == task.id ? (card?.important ?? task.important) : task.important
     }
 
     // MARK: - Card lifecycle
