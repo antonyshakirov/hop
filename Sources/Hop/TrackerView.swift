@@ -676,7 +676,7 @@ struct TrackerView: View {
                     .foregroundStyle(Theme.textPrimary)
                     .monospacedDigit()
                     .multilineTextAlignment(.trailing)
-                    .frame(width: 58)
+                    .frame(width: 74)
                     .focused($focused, equals: activeField)
                     .onAppear { focused = activeField }
                     .onSubmit { commitEntry(commit) }
@@ -835,7 +835,7 @@ struct TrackerView: View {
 
     private func commitEntry(_ commit: (TimeInterval, Date) -> Void) {
         defer { endEdit() }
-        guard let seconds = parseTotal(totalDraft) else { return }
+        guard let seconds = DurationField.parse(totalDraft) else { return }
         commit(seconds, entryMoment)
     }
 
@@ -976,13 +976,14 @@ struct TrackerView: View {
 
     private func totalField(_ task: TrackerTask) -> some View {
         HStack(spacing: 4) {
-            TextField("", text: $totalDraft)
+            TextField(Self.durationPlaceholder, text: $totalDraft)
                 .textFieldStyle(.plain)
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.textPrimary)
                 .monospacedDigit()
                 .multilineTextAlignment(.trailing)
-                .frame(width: 66)
+                // room for three-digit hours in the full h:mm:ss shape
+                .frame(width: 74)
                 .focused($focused, equals: .editTotal(task.id))
                 .onAppear { focused = .editTotal(task.id) }
                 .onSubmit { commitTotal(task.id) }
@@ -1273,7 +1274,7 @@ struct TrackerView: View {
     private func beginEditEntry(_ entry: TrackerHistoryEntry) {
         guard !Snapshot.active else { return }
         clearConfirms()
-        totalDraft = draftText(for: abs(entry.seconds))
+        totalDraft = DurationField.text(for: abs(entry.seconds))
         seedMoment(entry.moment)
         activeField = .editEntry(entry.id)
     }
@@ -1322,22 +1323,10 @@ struct TrackerView: View {
         activeField = .renameProject(project.id)
     }
 
-    /// A duration written the way the field's own parser reads it back
-    /// (H:MM:SS / H:MM / MM), so opening an edit and pressing return changes
-    /// nothing.
-    private func draftText(for seconds: TimeInterval) -> String {
-        let total = Int(seconds)
-        let h = total / 3600
-        let m = (total % 3600) / 60
-        let s = total % 60
-        if s > 0 { return "\(h):\(String(format: "%02d", m)):\(String(format: "%02d", s))" }
-        return h > 0 ? "\(h):\(String(format: "%02d", m))" : "\(m)"
-    }
-
     private func beginEditTotal(_ task: TrackerTask) {
         guard !Snapshot.active, engine.activeTaskID != task.id else { return }
         clearConfirms()
-        totalDraft = draftText(for: engine.amount(taskID: task.id, period: period))
+        totalDraft = DurationField.text(for: engine.amount(taskID: task.id, period: period))
         activeField = .editTotal(task.id)
     }
 
@@ -1356,7 +1345,7 @@ struct TrackerView: View {
 
     private func commitTotal(_ taskID: UUID) {
         defer { endEdit() }
-        guard let seconds = parseTotal(totalDraft) else { return }
+        guard let seconds = DurationField.parse(totalDraft) else { return }
         engine.set(taskID: taskID, period: period, to: seconds)
     }
 
@@ -1374,27 +1363,4 @@ struct TrackerView: View {
         confirmingDeleteEntry = nil
     }
 
-    /// Lenient parse of the total field. `1` number = minutes, `2` = `H:MM`,
-    /// `3` = `H:MM:SS`. Returns nil for empty or unparseable input (= cancel).
-    private func parseTotal(_ raw: String) -> TimeInterval? {
-        let trimmed = raw.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return nil }
-        let parts = trimmed.split(separator: ":", omittingEmptySubsequences: false).map(String.init)
-        switch parts.count {
-        case 1:
-            guard let m = Int(parts[0]) else { return nil }
-            return TimeInterval(m * 60)
-        case 2:
-            guard let h = Int(parts[0]) else { return nil }
-            let m = Int(parts[1]) ?? 0
-            return TimeInterval(h * 3600 + m * 60)
-        case 3:
-            guard let h = Int(parts[0]) else { return nil }
-            let m = Int(parts[1]) ?? 0
-            let s = Int(parts[2]) ?? 0
-            return TimeInterval(h * 3600 + m * 60 + s)
-        default:
-            return nil
-        }
-    }
 }

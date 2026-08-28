@@ -878,7 +878,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     year, hour and minute, each a small bordered MENU, the three date parts in
     the order this locale writes them (`TrackerMoment.order`, tested) — and HOW
     LONG it ran, in a field showing `0:00:00` as its placeholder rather than
-    sitting empty. Both halves are filled in before it opens: from the line for
+    sitting empty. **A duration is always written and read in full**
+    (`DurationField`, tested): `h:mm:ss`, hours uncapped — "11:00" for eleven
+    hours flat read as eleven MINUTES just as easily (Anton, 2026-08-28). Parts
+    are counted from the right, so a lone number is seconds, and over-large
+    parts simply add up (90:00 is an hour and a half) rather than being
+    refused. Both halves are filled in before it opens: from the line for
     an edit, from the clock on the wall for a new one, so "add time" says what
     it is logging against.
   - **Each part opens a SHORT scrolling list UNDER the editor**, in the flow —
