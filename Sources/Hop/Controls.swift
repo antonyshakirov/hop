@@ -1211,3 +1211,53 @@ struct TransportCircle: View {
         .contentShape(Circle())
     }
 }
+
+/// A tiny diagram of what happens to a picture that is not the frame's shape:
+/// cropped to fill it, fitted whole with empty bars, or fitted over a blurred
+/// copy of itself. Three words are three guesses until you see them (Anton,
+/// 2026-08-28); this draws the answer beside the row.
+struct FitGlyph: View {
+    /// "fill" | "pad" | "blur" — the stored `convVideoFit` values.
+    let fit: String
+    var height: CGFloat = 13
+
+    private var width: CGFloat { height * 1.6 }
+
+    var body: some View {
+        let frame = RoundedRectangle(cornerRadius: 2)
+        ZStack {
+            switch fit {
+            case "pad":
+                // the picture whole, letterboxed: bars above and below stay empty
+                frame.stroke(Theme.textTertiary, lineWidth: 1)
+                Rectangle()
+                    .fill(Theme.textSecondary)
+                    .frame(width: width - 2, height: height * 0.5)
+            case "blur":
+                // the same fit, but the bars carry a soft copy of the picture
+                frame.fill(Theme.textTertiary.opacity(0.45))
+                frame.stroke(Theme.textTertiary, lineWidth: 1)
+                Rectangle()
+                    .fill(Theme.textSecondary)
+                    .frame(width: width - 2, height: height * 0.5)
+            default:
+                // filled edge to edge, with what does not fit hanging outside
+                frame.stroke(Theme.textTertiary, lineWidth: 1)
+                Rectangle()
+                    .fill(Theme.textSecondary)
+                    .frame(width: width + 6, height: height - 2)
+                    .clipShape(frame)
+                Rectangle()
+                    .fill(Theme.textTertiary.opacity(0.5))
+                    .frame(width: width + 6, height: height - 2)
+                    .mask(
+                        HStack(spacing: width - 6) {
+                            Rectangle().frame(width: 3)
+                            Rectangle().frame(width: 3)
+                        }
+                    )
+            }
+        }
+        .frame(width: width, height: height)
+    }
+}

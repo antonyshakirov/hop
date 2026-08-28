@@ -172,6 +172,10 @@ final class FileConverter: ObservableObject {
     /// above is derived from it; the row also needs the two sides themselves to
     /// work out what the current settings will produce.
     @Published private(set) var videoSizes: [String: CGSize] = [:]
+    /// Each added video's frame rate, so the bitrate shown beside the dial is
+    /// the one this file will actually be encoded at — 60 fps costs twice what
+    /// 30 does for the same picture.
+    @Published private(set) var videoFPS: [String: Double] = [:]
     @Published private(set) var lastResult: String?
     /// When the bar last published a value. The video encoder reports every
     /// sample — thirty times a second — and a bar told to animate to a new
@@ -375,6 +379,27 @@ final class FileConverter: ObservableObject {
         }
     }
 
+    /// The bitrate the dial currently means, for the first video in the queue
+    /// and the frame the settings will give it: "≈ 5.2 Mbps". Shown beside the
+    /// dial because a percentage says nothing about what is kept or lost, while
+    /// megabits are the figure every platform states its guidance in (Anton,
+    /// 2026-08-28). nil with compression off — nothing then sets a bitrate.
+    var projectedBitrateText: String? {
+        guard Self.videoCompress,
+              let url = batch.pending(.video).first(where: { !RemuxRules.needsRepacking($0) }),
+              let size = videoSizes[url.path], size.width > 0, size.height > 0
+        else { return nil }
+        let layout = VideoFrame.layout(
+            sourceWidth: size.width, sourceHeight: size.height,
+            shape: Self.videoShape, shortSide: Double(Self.videoResolution), fit: Self.videoFit)
+        let width = layout?.width ?? size.width
+        let height = layout?.height ?? size.height
+        let bits = VideoBitrate.bitsPerSecond(
+            width: width, height: height, fps: videoFPS[url.path] ?? 30,
+            codec: .hevc, quality: Self.videoQuality)
+        return String(format: "≈ %.1f Mbps", Double(bits) / 1_000_000)
+    }
+
     /// What the current settings will make of a video: "720p → 404p", or just
     /// "720p" when nothing about the frame is changing. The row used to show the
     /// source's own resolution and nothing else, so picking 540p left "718p"
@@ -411,9 +436,11 @@ final class FileConverter: ObservableObject {
                 let oriented = CGRect(origin: .zero, size: size).applying(transform)
                 let playing = CGSize(width: abs(oriented.width), height: abs(oriented.height))
                 let label = Self.resolutionLabel(playing)
+                let fps = (try? await track.load(.nominalFrameRate)).map(Double.init) ?? 30
                 await MainActor.run { [weak self] in
                     self?.videoResolutions[url.path] = label
                     self?.videoSizes[url.path] = playing
+                    self?.videoFPS[url.path] = fps > 0 ? fps : 30
                 }
             }
         }

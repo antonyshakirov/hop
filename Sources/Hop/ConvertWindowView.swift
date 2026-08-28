@@ -407,15 +407,20 @@ struct ConvertWindowView: View {
             // three independent settings (Anton, 2026-07-15): container format,
             // target resolution (only options below the source) and a separate
             // compress toggle (HEVC instead of H.264)
-            VStack(alignment: .leading, spacing: 6) {
+            // A GRID, not a stack of rows: the label column takes the width of
+            // the longest label in whatever language the app is in, so every
+            // row's values start on ONE line instead of each after its own word
+            // (Anton, 2026-08-28).
+            Grid(alignment: .leading, horizontalSpacing: 8, verticalSpacing: 6) {
                 // A shortcut across three of the rows below. Somebody about to
                 // post is thinking "this goes to TikTok", not in ratios and
                 // megabits, and the platforms publish both — so one button can
                 // answer all of it (Anton, 2026-08-28). Nothing new is stored:
                 // a preset writes the same three settings by hand, which is why
                 // touching any of them afterwards simply unlights it.
-                HStack(spacing: 5) {
+                GridRow {
                     rowLabel(t(.convPresetLabel))
+                    HStack(spacing: 5) {
                     ForEach(VideoPlatform.allCases, id: \.self) { platform in
                         chip(platform.rawValue, platform.matches(
                             shape: VideoFrame.Shape(rawValue: videoShape) ?? .source,
@@ -431,10 +436,12 @@ struct ConvertWindowView: View {
                         }
                     }
                     Spacer()
+                    }
                 }
                 .help(t(.convPresetHint))
-                HStack(spacing: 5) {
+                GridRow {
                     rowLabel(t(.convFormatLabel))
+                    HStack(spacing: 5) {
                     // The row shows what the file WILL be, which until anyone
                     // touches it is what the file already is: mp4 in, mp4 out.
                     // Changing the container does nothing for size, so it is
@@ -443,9 +450,11 @@ struct ConvertWindowView: View {
                     chip("MP4", container == "mp4") { videoFormat = "mp4" }
                     chip("MOV", container == "mov") { videoFormat = "mov" }
                     Spacer()
+                    }
                 }
-                HStack(spacing: 5) {
+                GridRow {
                     rowLabel(t(.convResolutionLabel))
+                    HStack(spacing: 5) {
                     chip(t(.convQualityOriginal), videoResolution == "original") { videoResolution = "original" }
                     // The row never changes shape: every resolution is always
                     // here, and the ones the source has no pixels for are dimmed
@@ -459,29 +468,36 @@ struct ConvertWindowView: View {
                         }
                     }
                     Spacer()
+                    }
                 }
                 // The SHAPE, which is what a platform actually asks for: a reel
                 // is 9:16 whatever its resolution. Ratios are written as ratios
                 // — every platform states them that way, and a name would go
                 // stale the moment one of them renames a format.
-                HStack(spacing: 5) {
+                GridRow {
                     rowLabel(t(.convFrameLabel))
+                    HStack(spacing: 5) {
                     chip(t(.convQualityOriginal), videoShape == "source") { videoShape = "source" }
                     chip("9:16", videoShape == "vertical") { videoShape = "vertical" }
                     chip("4:5", videoShape == "portrait") { videoShape = "portrait" }
                     chip("1:1", videoShape == "square") { videoShape = "square" }
                     chip("16:9", videoShape == "landscape") { videoShape = "landscape" }
                     Spacer()
+                    }
                 }
                 // What happens to a picture of another shape — asked only when
                 // there is a reshaping to do
                 if videoShape != "source" {
-                    HStack(spacing: 5) {
+                    GridRow {
                         rowLabel(t(.convFitLabel))
+                        HStack(spacing: 5) {
                         chip(t(.convFitCrop), videoFit == "fill") { videoFit = "fill" }
                         chip(t(.convFitBars), videoFit == "pad") { videoFit = "pad" }
                         chip(t(.convFitBlur), videoFit == "blur") { videoFit = "blur" }
-                        Spacer()
+                        Spacer(minLength: 8)
+                        // what the chosen one does, drawn rather than described
+                        FitGlyph(fit: videoFit)
+                        }
                     }
                 }
                 // The one thing in the converter that is not the system's own
@@ -492,15 +508,27 @@ struct ConvertWindowView: View {
                     repackNote
                 }
                 // resolution is our own composition, so HEVC works at ANY size
-                HStack(spacing: 8) {
+                GridRow {
                     rowLabel(t(.convCompressLabel))
+                    HStack(spacing: 8) {
                     Theme.MiniSwitch(isOn: $videoCompress)
                     // how hard, not just whether: the encoder is given a bitrate
                     // rather than a preset, so this dial has something to turn
                     if videoCompress {
                         MiniSlider(value: $videoQualityLevel, range: 1...100, width: 96)
+                        // The number the dial actually means. A percentage says
+                        // nothing about what is being kept or lost; megabits do,
+                        // and they are the figure every platform states its own
+                        // guidance in (Anton, 2026-08-28).
+                        if let rate = model.converter.projectedBitrateText {
+                            Text(rate)
+                                .font(Theme.mono(10))
+                                .foregroundStyle(Theme.textTertiary)
+                                .monospacedDigit()
+                        }
                     }
                     Spacer()
+                    }
                 }
                 .help(t(.convSqueezeHint))
             }
