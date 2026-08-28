@@ -650,19 +650,13 @@ struct TrackerView: View {
                         case .year: yearList
                         }
                     }
-                    pickerMenu(String(format: "%02d", entryHour)) {
-                        ForEach(0..<24, id: \.self) { hour in
-                            Button(String(format: "%02d", hour)) { entryHour = hour }
-                        }
-                    }
+                    ValueChip(values: Array(0...23), selected: entryHour,
+                              title: { String(format: "%02d", $0) }) { entryHour = $0 }
                     Text(":")
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.textTertiary)
-                    pickerMenu(String(format: "%02d", entryMinute)) {
-                        ForEach(0..<60, id: \.self) { minute in
-                            Button(String(format: "%02d", minute)) { entryMinute = minute }
-                        }
-                    }
+                    ValueChip(values: Array(0...59), selected: entryMinute,
+                              title: { String(format: "%02d", $0) }) { entryMinute = $0 }
                 }
             }
             Spacer(minLength: 6)
@@ -690,51 +684,22 @@ struct TrackerView: View {
     /// The shape the field expects, shown rather than explained.
     private static let durationPlaceholder = "0:00:00"
 
-    /// One part of the moment, as a small bordered menu — the same chip the
-    /// reminder's day picker uses, sized for this row.
-    private func pickerMenu<Content: View>(
-        _ title: String, @ViewBuilder content: () -> Content
-    ) -> some View {
-        Menu(content: content) {
-            Text(title)
-                .font(Theme.mono(10))
-                .foregroundStyle(Theme.textPrimary)
-                .lineLimit(1)
-                .padding(.horizontal, 5)
-                .frame(height: 18)
-                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 4))
-                .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.controlStroke, lineWidth: 1))
-        }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .fixedSize()
-    }
-
     /// Only the days the chosen month actually has: pick 31 in March, switch to
     /// February and the choice follows to the 28th (or the 29th in a leap year)
     /// rather than silently meaning something else.
     private var dayList: some View {
         let days = TrackerMoment.daysInMonth(entryMonth, year: entryYear)
-        // String(...), never "\(day)": an interpolated number in a Button's
-        // LocalizedStringKey is formatted as a NUMBER, which is how a year came
-        // out as "2,026" (Anton, 2026-08-28).
-        return pickerMenu(String(entryDayNumber)) {
-            ForEach(1...days, id: \.self) { day in
-                Button(String(day)) { entryDayNumber = day }
-            }
-        }
+        return ValueChip(values: Array(1...days), selected: entryDayNumber,
+                         title: { String($0) }) { entryDayNumber = $0 }
     }
 
     /// Months by NAME, in the app's own language — "08" told nobody anything.
     private var monthList: some View {
-        pickerMenu(Self.monthNames[max(0, min(entryMonth - 1, 11))]) {
-            ForEach(1...12, id: \.self) { month in
-                Button(Self.monthNames[month - 1]) {
-                    entryMonth = month
-                    entryDayNumber = TrackerMoment.clampedDay(entryDayNumber,
-                                                              month: month, year: entryYear)
-                }
-            }
+        ValueChip(values: Array(1...12), selected: entryMonth,
+                  title: { Self.monthNames[max(0, min($0 - 1, 11))] }) { month in
+            entryMonth = month
+            entryDayNumber = TrackerMoment.clampedDay(entryDayNumber,
+                                                      month: month, year: entryYear)
         }
     }
 
@@ -742,14 +707,11 @@ struct TrackerView: View {
     /// enough to stay one glance.
     private var yearList: some View {
         let current = Calendar.current.component(.year, from: Date())
-        return pickerMenu(String(entryYear)) {
-            ForEach(((current - 10)...(current + 1)).reversed(), id: \.self) { year in
-                Button(String(year)) {
-                    entryYear = year
-                    entryDayNumber = TrackerMoment.clampedDay(entryDayNumber,
-                                                              month: entryMonth, year: year)
-                }
-            }
+        return ValueChip(values: Array(((current - 10)...(current + 1)).reversed()),
+                         selected: entryYear, title: { String($0) }) { year in
+            entryYear = year
+            entryDayNumber = TrackerMoment.clampedDay(entryDayNumber,
+                                                      month: entryMonth, year: year)
         }
     }
 

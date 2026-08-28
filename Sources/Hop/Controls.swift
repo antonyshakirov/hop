@@ -1211,3 +1211,75 @@ struct TransportCircle: View {
         .contentShape(Circle())
     }
 }
+
+/// A small bordered chip that opens a SHORT scrolling list of values.
+///
+/// The system menu grows to fit its items, so sixty minutes became a column
+/// down the whole screen (Anton, 2026-08-28). This is the language picker's own
+/// shape instead: a popover of fixed height that scrolls, opened at whatever is
+/// currently chosen.
+struct ValueChip<Value: Hashable>: View {
+    let values: [Value]
+    let selected: Value
+    /// How one value reads in the list and on the chip.
+    let title: (Value) -> String
+    let onPick: (Value) -> Void
+
+    @State private var open = false
+
+    /// Tall enough for seven rows, so the list reads as a list and still fits
+    /// under a row inside the panel.
+    private static var listHeight: CGFloat { 168 }
+
+    var body: some View {
+        Button { open.toggle() } label: {
+            Text(title(selected))
+                .font(Theme.mono(10))
+                .foregroundStyle(Theme.textPrimary)
+                .lineLimit(1)
+                .padding(.horizontal, 5)
+                .frame(height: 18)
+                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 4))
+                .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.controlStroke, lineWidth: 1))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
+        .popover(isPresented: $open, arrowEdge: .bottom) {
+            ScrollViewReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 1) {
+                        ForEach(values, id: \.self) { value in
+                            row(value)
+                        }
+                    }
+                    .padding(4)
+                }
+                .frame(width: 76, height: Self.listHeight)
+                // open where the answer already is, not at the top of a decade
+                .onAppear { proxy.scrollTo(selected, anchor: .center) }
+            }
+        }
+    }
+
+    private func row(_ value: Value) -> some View {
+        let isSelected = value == selected
+        return Button {
+            onPick(value)
+            open = false
+        } label: {
+            Text(title(value))
+                .font(Theme.mono(11))
+                .foregroundStyle(isSelected ? Theme.textPrimary : Theme.listText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(isSelected ? Theme.rowBg : .clear,
+                            in: RoundedRectangle(cornerRadius: 4))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverHighlight(4)
+        .id(value)
+    }
+}
