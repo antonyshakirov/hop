@@ -41,7 +41,6 @@ configure_common=(
   --disable-network
   --disable-debug
   --disable-avdevice
-  --disable-postproc
   --disable-x86asm
   --disable-ffplay
   --disable-ffprobe
@@ -60,14 +59,13 @@ build_arch() {
   rm -rf "$dir"
   cp -R "ffmpeg-${VERSION}" "$dir"
   cd "$dir"
-  local cross=()
+  # built as one array rather than appended conditionally: macOS ships bash 3.2,
+  # where expanding an empty array under `set -u` is an error, not an empty list
+  local args=("${configure_common[@]}" --arch="$arch" --cc="clang -arch ${arch}")
   if [ "$arch" != "$(uname -m)" ]; then
-    cross=(--enable-cross-compile --target-os=darwin)
+    args+=(--enable-cross-compile --target-os=darwin)
   fi
-  ./configure "${configure_common[@]}" \
-    --arch="$arch" \
-    --cc="clang -arch ${arch}" \
-    "${cross[@]}" > "../configure-${arch}.log" 2>&1
+  ./configure "${args[@]}" > "../configure-${arch}.log" 2>&1
   make -j"$(sysctl -n hw.ncpu)" ffmpeg > "../make-${arch}.log" 2>&1
   cd ..
   echo "built ${arch}: $(du -h "${dir}/ffmpeg" | cut -f1)"
