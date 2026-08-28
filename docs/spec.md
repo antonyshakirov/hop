@@ -827,13 +827,32 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   out to the RIGHT, onto the column the times line up in (Anton, 2026-08-28).
   Side by side, the project button read as trailing the task one; on the time
   column it reads as belonging to the list.
+- **An open task keeps its own row above the card** (Anton, 2026-08-28). The
+  card used to REPLACE the row, which left a form with no subject: nothing said
+  whose name was being edited, or whose history sat below it. The row stays —
+  name, star, play button and figure — and tapping it again closes the card,
+  which is how it is dismissed besides its own ✓/✕.
 - **A task's history, under its open card** (Anton, 2026-08-28). Tracking
   already recorded every stretch of time as an interval; the card now SHOWS
   them, newest first, with the task's total above. Each line can be edited
-  (tap the row → the same lenient H:MM:SS / H:MM / MM field the row's own total
-  uses), deleted (hover ✕), and a session that was never tracked can be added
-  by hand ("add time"): `addSession` ends it now and starts it the given length
-  earlier, so it lands on the day it belongs to.
+  (tap the row), deleted (hover ✕), and a session that was never tracked can be
+  added by hand ("add time").
+  - **A line's editor holds both halves of it**: WHEN it started — day, month,
+    year and the clock, each a typed `ClockField`, the three date fields in the
+    order this locale writes them (`TrackerMoment.order`, tested) — and HOW LONG
+    it ran, in a field showing `0:00:00` as its placeholder rather than sitting
+    empty. Both halves are filled in before it opens: from the line for an edit,
+    from the clock on the wall for a new one, so "add time" says what it is
+    logging against. Typed rather than picked from a list: a menu of recent days
+    could not reach last spring (Anton, 2026-08-28).
+  - **A typed date is always a real one.** A day its month does not have is
+    pulled to that month's last — 31 April is the 30th, and 29 February exists
+    in 2028 but not in 2026 (`TrackerMoment.clampedDay`).
+  - `addSession` starts the session at the given moment (now minus its length
+    when none is given, i.e. work that has just finished), so it lands on the
+    day it belongs to. Moving a line keeps its length; editing the length keeps
+    its start. An adjustment moves to that day's midnight, the only precision a
+    correction has.
   - **A session keeps its START and moves its end** when edited. The moment work
     began is a fact; its length is what gets misremembered.
   - **The RUNNING session refuses to be edited** — its end is the clock's to
