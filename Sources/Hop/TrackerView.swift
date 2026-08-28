@@ -263,8 +263,12 @@ struct TrackerView: View {
                     // circle, on the SAME axis: centred in the circle's own
                     // 18pt box inside the 22pt gutter, so every arrow in the
                     // list sits on one vertical line (Anton, 2026-08-28).
-                    PlayGlyph(color: Theme.textSecondary,
-                              box: RowCircle.diameter * 0.315)
+                    PlayGlyph(color: Theme.glyphInk, box: RowCircle.diameter * 0.315)
+                        // one layer, then the transparency: the glyph is a fill
+                        // under a stroke, and a translucent colour would show
+                        // their overlap as an outline
+                        .compositingGroup()
+                        .opacity(Theme.glyphInkSecondary)
                         .rotationEffect(.degrees(project.isExpanded ? 90 : 0))
                         .frame(width: RowCircle.diameter, height: RowCircle.gutter)
                         .frame(width: RowCircle.gutter, alignment: .leading)
@@ -572,21 +576,30 @@ struct TrackerView: View {
 
     /// One field, used both for editing a line and for adding one: the same
     /// lenient H:MM:SS / H:MM / MM parse the row's own total edit uses.
+    /// The field sits where the figure it replaces sits — flush RIGHT, on the
+    /// column every duration lines up in — and carries the same filled
+    /// background the row's own total edit uses, so it reads as a box to type
+    /// in rather than a cursor floating beside two icons (Anton, 2026-08-28).
     private func entryField(commit: @escaping (TimeInterval) -> Void) -> some View {
-        HStack(spacing: 4) {
-            TextField("", text: $totalDraft)
-                .textFieldStyle(.plain)
-                .font(Theme.mono(10))
-                .foregroundStyle(Theme.textPrimary)
-                .monospacedDigit()
-                .multilineTextAlignment(.trailing)
-                .frame(width: 66)
-                .focused($focused, equals: activeField)
-                .onAppear { focused = activeField }
-                .onSubmit { commitEntry(commit) }
-                .onExitCommand { endEdit() }
-            FieldCommitButtons(onCommit: { commitEntry(commit) }, onCancel: { endEdit() })
+        HStack(spacing: 6) {
             Spacer(minLength: 0)
+            HStack(spacing: 4) {
+                TextField("", text: $totalDraft)
+                    .textFieldStyle(.plain)
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textPrimary)
+                    .monospacedDigit()
+                    .multilineTextAlignment(.trailing)
+                    .frame(width: 62)
+                    .focused($focused, equals: activeField)
+                    .onAppear { focused = activeField }
+                    .onSubmit { commitEntry(commit) }
+                    .onExitCommand { endEdit() }
+                FieldCommitButtons(onCommit: { commitEntry(commit) }, onCancel: { endEdit() })
+            }
+            .padding(.horizontal, 5)
+            .padding(.vertical, 2)
+            .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
         }
         .padding(.vertical, 2)
     }

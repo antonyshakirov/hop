@@ -36,6 +36,14 @@ enum Theme {
     static var switchOffBg: Color { isDark ? Color.white.opacity(0.14) : Color.black.opacity(0.15) }
     static var playBg: Color { isDark ? .white : Color(white: 0.1) }
     static var playFg: Color { isDark ? .black : .white }
+    /// Solid ink for a glyph drawn as fill AND stroke of one colour (the house
+    /// play triangle). A translucent colour doubles up where the two overlap
+    /// and the difference reads as an outline around the shape — so those
+    /// glyphs take solid ink and wear their transparency on the outside
+    /// (Anton, 2026-08-28).
+    static var glyphInk: Color { isDark ? .white : .black }
+    /// The opacity that makes `glyphInk` match `textSecondary`.
+    static var glyphInkSecondary: Double { isDark ? 0.66 : 0.68 }
     /// Accent for "currently editing / awake active" — yellow;
     /// in the light theme it is dark gold (accentYellow adapts on its own).
     static var editing: Color { accentYellow }

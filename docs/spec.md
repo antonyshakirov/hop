@@ -807,6 +807,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   calendar, whose `firstWeekday` is the user's own setting (the same one the
   reminder weekday row uses); changing that setting recuts the figures live
   (`TrackerController.refreshWeekStart`).
+- The disclosure triangle is the house play glyph in SOLID ink under an
+  explicit opacity (`Theme.glyphInk` + `compositingGroup`), not a translucent
+  colour: that glyph is a fill under a round-join stroke, and with a translucent
+  colour their overlap is denser than the edges — which reads as an outline
+  drawn around the triangle (Anton, 2026-08-28).
 - **Projects on screen:** a DISCLOSURE TRIANGLE folds and unfolds (`isExpanded`,
   stored — a folded project stays folded across restarts), the name is semibold,
   and the trailing figure is the sum of its tasks over the current period. A
@@ -840,6 +845,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     would not add up to the number above it.
   - The card draws the most recent 8 and says "+N" for the rest, rather than
     turning the panel into a ledger.
+  - The edit field sits FLUSH RIGHT, on the column the durations line up in,
+    with the same filled background the row's own total edit uses: floating a
+    bare cursor beside a ✓/✕ pair read as two icons and no field at all (Anton,
+    2026-08-28).
   - `TrackerInterval` and `TrackerCorrection` therefore carry an `id`. A file
     written before they did gets fresh ones on load (tolerant decode); they are
     stable from the first save after that, which is all editing needs.
