@@ -416,6 +416,13 @@ enum Snapshot {
                 e.setTotal(taskID: ids[1], to: 5 * 3600 + 3 * 60)    // ticks while active
                 e.setTotal(taskID: ids[2], to: 47 * 60)              // 47m
                 e.start(taskID: ids[1])                              // active row: emphasized total
+                // One project holding two of them, one task loose beside it —
+                // the shape 1.9.0 added, and the only way a screenshot can show
+                // a project sum at all. The name is the product's own, so it
+                // needs no translation of its own (unlike the task lines).
+                let project = e.addProject(name: "hop 1.9")
+                e.moveTask(ids[0], toProject: project, at: 0)
+                e.moveTask(ids[1], toProject: project, at: 1)
             }
             for text in content.todos { model.todos.add(text: text) }
             let todoIDs = model.todos.list.items.map(\.id)
