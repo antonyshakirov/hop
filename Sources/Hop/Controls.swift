@@ -1212,52 +1212,62 @@ struct TransportCircle: View {
     }
 }
 
-/// A tiny diagram of what happens to a picture that is not the frame's shape:
-/// cropped to fill it, fitted whole with empty bars, or fitted over a blurred
-/// copy of itself. Three words are three guesses until you see them (Anton,
-/// 2026-08-28); this draws the answer beside the row.
+/// What happens to a picture that is not the frame's shape, drawn: the chosen
+/// FRAME with a source-shaped picture inside it — filling it and spilling over
+/// the edges (crop), sitting whole between empty bars (bars), or sitting whole
+/// over a filled ground (blur). Three words are three guesses until you see
+/// them, and a diagram that ignored the frame said even less (Anton,
+/// 2026-08-28).
 struct FitGlyph: View {
     /// "fill" | "pad" | "blur" — the stored `convVideoFit` values.
     let fit: String
-    var height: CGFloat = 13
+    /// The frame being produced. `.source` never reaches here: the fit row only
+    /// exists once a shape has been chosen.
+    let shape: VideoFrame.Shape
 
-    private var width: CGFloat { height * 1.6 }
+    /// Big enough to read at a glance — a vertical frame is narrow, so the box
+    /// has to be generous or the diagram becomes two stripes (Anton,
+    /// 2026-08-28).
+    private static let box = CGSize(width: 62, height: 40)
+    /// The picture inside is drawn as ordinary landscape footage.
+    private static let sourceRatio: CGFloat = 16.0 / 9
+
+    private var frameSize: CGSize {
+        let ratio = CGFloat(shape.ratio ?? Double(Self.sourceRatio))
+        let byHeight = CGSize(width: Self.box.height * ratio, height: Self.box.height)
+        guard byHeight.width > Self.box.width else { return byHeight }
+        return CGSize(width: Self.box.width, height: Self.box.width / ratio)
+    }
+
+    /// The source picture at the scale this fit gives it: covering the frame, or
+    /// contained within it.
+    private var pictureSize: CGSize {
+        let frame = frameSize
+        let scale = fit == "fill"
+            ? max(frame.width / Self.sourceRatio, frame.height)
+            : min(frame.width / Self.sourceRatio, frame.height)
+        return CGSize(width: scale * Self.sourceRatio, height: scale)
+    }
 
     var body: some View {
-        let frame = RoundedRectangle(cornerRadius: 2)
+        let frame = frameSize
+        let picture = pictureSize
+        let outline = RoundedRectangle(cornerRadius: 3)
         ZStack {
-            switch fit {
-            case "pad":
-                // the picture whole, letterboxed: bars above and below stay empty
-                frame.stroke(Theme.textTertiary, lineWidth: 1)
-                Rectangle()
-                    .fill(Theme.textSecondary)
-                    .frame(width: width - 2, height: height * 0.5)
-            case "blur":
-                // the same fit, but the bars carry a soft copy of the picture
-                frame.fill(Theme.textTertiary.opacity(0.45))
-                frame.stroke(Theme.textTertiary, lineWidth: 1)
-                Rectangle()
-                    .fill(Theme.textSecondary)
-                    .frame(width: width - 2, height: height * 0.5)
-            default:
-                // filled edge to edge, with what does not fit hanging outside
-                frame.stroke(Theme.textTertiary, lineWidth: 1)
-                Rectangle()
-                    .fill(Theme.textSecondary)
-                    .frame(width: width + 6, height: height - 2)
-                    .clipShape(frame)
-                Rectangle()
-                    .fill(Theme.textTertiary.opacity(0.5))
-                    .frame(width: width + 6, height: height - 2)
-                    .mask(
-                        HStack(spacing: width - 6) {
-                            Rectangle().frame(width: 3)
-                            Rectangle().frame(width: 3)
-                        }
-                    )
+            // the ground the bars show: empty for "bars", filled for "blur"
+            if fit == "blur" {
+                outline.fill(Theme.textSecondary.opacity(0.35))
             }
+            Rectangle()
+                .fill(Theme.textPrimary)
+                .frame(width: picture.width, height: picture.height)
         }
-        .frame(width: width, height: height)
+        // the FRAME is what clips, so an overflowing picture is cut by it
+        // instead of stretching the diagram (that made "crop" a plain white
+        // rectangle with no frame at all)
+        .frame(width: frame.width, height: frame.height)
+        .clipShape(outline)
+        .overlay(outline.stroke(Theme.textSecondary, lineWidth: 1))
+        .frame(width: Self.box.width, height: Self.box.height)
     }
 }

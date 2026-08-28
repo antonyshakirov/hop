@@ -444,6 +444,15 @@ enum Snapshot {
                 }
             }
         }
+        // --convert-shape / --convert-fit: stage the video settings so a
+        // screenshot can show the frame and fit rows, which only appear once a
+        // shape is chosen (2026-08-28).
+        if let si = args.firstIndex(of: "--convert-shape"), args.count > si + 1 {
+            UserDefaults.standard.set(args[si + 1], forKey: FileConverter.videoShapeKey)
+        }
+        if let fi = args.firstIndex(of: "--convert-fit"), args.count > fi + 1 {
+            UserDefaults.standard.set(args[fi + 1], forKey: FileConverter.videoFitKey)
+        }
         // --convert-files a,b,c: converter queue for the window screenshot;
         // the pause lets thumbnails and size estimates finish (they're async)
         if let ci = args.firstIndex(of: "--convert-files"), args.count > ci + 1 {

@@ -624,18 +624,29 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   1…100 slider (`convVideoQualityLevel`, default 55) saying HOW HARD to squeeze.
   The legacy single "quality" value migrates into the pair on first launch
   ("hevc" → original + compress).
-- **The video settings are a GRID** (Anton, 2026-08-28): one column of labels
-  as wide as the longest label in the current language, so every row's values
-  start on the same line instead of each one after its own word.
+- **One label column for every group** (Anton, 2026-08-28): images, PDF, video,
+  audio and documents all start their values on the same line, 104pt in, so the
+  window reads as one table rather than five. A per-group grid was tried first
+  and only lined a group up with itself. The image and PDF quality dial is an
+  ordinary labelled row now too — it used to float alone on the far right of its
+  card while everything else began at the left.
 - **The dial shows the bitrate it means** — "55  ≈ 3.7 Mbps" — computed for the
   first video in the queue at the frame the settings will give it and at that
   file's own frame rate (`projectedBitrateText`). A percentage says nothing
   about what is kept or lost; megabits are the figure every platform states its
   own guidance in, and the one a person can hold a floor under (Anton,
   2026-08-28). Hidden with compression off, where nothing sets a bitrate.
-- **The fit row draws what it does** (`FitGlyph`): a frame with the picture
-  overflowing it (crop), letterboxed inside it (bars), or inside it over a
-  filled ground (blur). Three words are three guesses until you see them.
+- **The fit row draws what it does** (`FitGlyph`): the CHOSEN FRAME with a
+  source-shaped picture inside it — filling it and cut by its edges (crop),
+  whole between empty bars (bars), or whole over a filled ground (blur). It
+  follows the frame row, so picking 9:16 turns the diagram vertical. Three words
+  are three guesses until you see them, and a diagram that ignored the frame
+  said even less.
+- **"Off" and "the dial at 100" are different things**, so the row says which is
+  which: with compression off it reads "original", because the tracks are then
+  copied across untouched — no encode at all. At 100 the file IS re-encoded, at
+  the top of the dial's bitrate. The switch also keeps its distance from the
+  dial: side by side they read as one control.
 - **Platform presets** (`VideoPlatform`, Anton 2026-08-28) sit ABOVE those rows
   as a shortcut across three of them: "for: reels / feed / tiktok / shorts /
   youtube". Somebody about to post is thinking about where it goes, not in
