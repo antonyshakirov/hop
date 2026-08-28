@@ -13,6 +13,22 @@ public enum TrackerDisplay {
         return tasks.filter(\.important) + tasks.filter { !$0.important }
     }
 
+    /// The top level in display order. Important tasks float, but only into
+    /// slots that already hold a task: a project keeps its place in the list,
+    /// because moving a whole project because one task inside it was starred is
+    /// not what the mark means.
+    public static func order(topLevel items: [TrackerItem], importantFirst: Bool) -> [TrackerItem] {
+        guard importantFirst else { return items }
+        let tasks: [TrackerTask] = items.compactMap {
+            if case .task(let task) = $0 { return task } else { return nil }
+        }
+        var floated = order(tasks, importantFirst: true).makeIterator()
+        return items.map { item in
+            if case .task = item, let next = floated.next() { return .task(next) }
+            return item
+        }
+    }
+
     /// Clamp a raw display-order insertion index into the dragged task's own
     /// group. With the setting off there are no groups, so nothing is clamped.
     public static func clampedInsertion(_ tasks: [TrackerTask], dragging id: UUID,

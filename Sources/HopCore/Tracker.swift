@@ -1,25 +1,44 @@
 import Foundation
 
-/// LEGACY. The tracker no longer has projects — the model still decodes this
-/// type so an old `tracker.json` written with projects loads, but the engine
-/// flattens every project away on init (its tasks become root tasks) and never
-/// writes a non-empty `projects` array again. Kept only for backward decode.
+/// A named group of tasks. Projects were dissolved in 1.4.0 because they made
+/// a short list feel like a filing cabinet, and brought back in 1.9.0 with
+/// week totals to answer the question that made them worth having: where did
+/// this week go (Anton, 2026-08-28). A file written in between simply has none.
 public struct TrackerProject: Codable, Equatable, Identifiable {
     public let id: UUID
     public var name: String
     public var isExpanded: Bool
+    /// The order of the project's own tasks — the same contract `rootOrder`
+    /// holds for the top level: exactly the ids of the tasks whose `projectID`
+    /// is this project, no duplicates, repaired by the engine on load.
+    public var taskOrder: [UUID]
 
-    public init(id: UUID = UUID(), name: String, isExpanded: Bool = true) {
+    public init(id: UUID = UUID(), name: String, isExpanded: Bool = true,
+                taskOrder: [UUID] = []) {
         self.id = id
         self.name = name
         self.isExpanded = isExpanded
+        self.taskOrder = taskOrder
+    }
+
+    private enum CodingKeys: String, CodingKey { case id, name, isExpanded, taskOrder }
+
+    /// Tolerant like the task's: a project written before `taskOrder` existed
+    /// (every 1.3.x file) carries no such key, and a synthesised decoder would
+    /// reject the whole file over it. The engine derives the order instead.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        isExpanded = try c.decodeIfPresent(Bool.self, forKey: .isExpanded) ?? true
+        taskOrder = try c.decodeIfPresent([UUID].self, forKey: .taskOrder) ?? []
     }
 }
 
-/// A trackable unit of work. The tracker is a flat list now, so every live task
-/// is a ROOT task with `projectID == nil`. The optional stays for backward
-/// decode: an old file nests tasks under a project id, and the engine detaches
-/// them (sets `projectID = nil`) when it flattens on load.
+/// A trackable unit of work. `projectID` is the single source of BELONGING —
+/// nil for a task sitting at the top level, a project's id for one inside it.
+/// The orders (`rootOrder`, `TrackerProject.taskOrder`) only ever say where
+/// among its siblings a task sits, never whose it is.
 public struct TrackerTask: Codable, Equatable, Identifiable {
     public let id: UUID
     public var projectID: UUID?
@@ -50,6 +69,29 @@ public struct TrackerTask: Codable, Equatable, Identifiable {
         name = try container.decode(String.self, forKey: .name)
         note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
         important = try container.decodeIfPresent(Bool.self, forKey: .important) ?? false
+    }
+}
+
+/// The stretch of time a figure covers. The panel shows one of them at a time,
+/// chosen in the tracker's own header, because three numbers per row in a
+/// 360-point panel is a spreadsheet rather than a list (Anton, 2026-08-28).
+public enum TrackerPeriod: String, CaseIterable, Sendable {
+    case today
+    case week
+    case total
+}
+
+/// One line of the top level: a project, or a task belonging to none. The view
+/// walks `rootOrder` through this rather than testing ids against two arrays.
+public enum TrackerItem: Equatable, Identifiable {
+    case project(TrackerProject)
+    case task(TrackerTask)
+
+    public var id: UUID {
+        switch self {
+        case .project(let project): return project.id
+        case .task(let task): return task.id
+        }
     }
 }
 
@@ -88,13 +130,13 @@ public struct TrackerCorrection: Codable, Equatable {
     }
 }
 
-/// The full persisted state of the tracker: a flat list of tasks and the
-/// recorded intervals and corrections against them. `projects` is legacy: it is
-/// still decoded so old files load, but the engine flattens it to empty on init.
+/// The full persisted state of the tracker: projects, tasks, and the recorded
+/// intervals and corrections against those tasks.
 ///
-/// `rootOrder` is the ordered list of task ids — the single source of the flat
-/// list's order. It holds exactly the ids of every task, with no duplicates;
-/// `TrackerEngine.init` flattens legacy projects, then normalizes/repairs it.
+/// `rootOrder` is the ordered list of what sits at the TOP LEVEL — project ids
+/// and the ids of tasks belonging to no project, mixed, because that is how the
+/// list reads on screen. It holds each of them exactly once;
+/// `TrackerEngine.init` repairs it, along with every project's `taskOrder`.
 public struct TrackerData: Codable, Equatable {
     public var projects: [TrackerProject]
     public var tasks: [TrackerTask]

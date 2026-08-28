@@ -51,4 +51,42 @@ final class TrackerDisplayTests: XCTestCase {
                                                       rawInsertion: 2, importantFirst: false)
         XCTAssertEqual(clamped, 2, "with no groups there is nothing to clamp against")
     }
+
+    // MARK: - The top level, where projects sit among the tasks
+
+    private func project(_ name: String) -> TrackerItem {
+        .project(TrackerProject(id: id(name), name: name))
+    }
+
+    private func task(_ name: String, important: Bool) -> TrackerItem {
+        .task(TrackerTask(id: id(name), name: name, important: important))
+    }
+
+    private func names(_ items: [TrackerItem]) -> [String] {
+        items.map {
+            switch $0 {
+            case .project(let p): return p.name
+            case .task(let t): return t.name
+            }
+        }
+    }
+
+    func testAStarredTaskFloatsPastOtherTasksAndNotPastProjects() {
+        let items = [task("a", important: false), project("P"), task("b", important: true)]
+        // "b" takes the first TASK slot; the project stays exactly where it was
+        XCTAssertEqual(names(TrackerDisplay.order(topLevel: items, importantFirst: true)),
+                       ["b", "P", "a"])
+    }
+
+    func testWithTheSettingOffTheTopLevelIsUntouched() {
+        let items = [task("a", important: false), project("P"), task("b", important: true)]
+        XCTAssertEqual(names(TrackerDisplay.order(topLevel: items, importantFirst: false)),
+                       ["a", "P", "b"])
+    }
+
+    func testATopLevelOfProjectsAloneIsLeftAlone() {
+        let items = [project("A"), project("B")]
+        XCTAssertEqual(names(TrackerDisplay.order(topLevel: items, importantFirst: true)),
+                       ["A", "B"])
+    }
 }

@@ -14,6 +14,9 @@ final class TrackerController: ObservableObject {
     /// the scroll). A stored 0 (legacy "all") reads as the default on load.
     static let visibleRowsKey = "trackerVisibleRows"
     static let defaultVisibleRows = RowCap.defaultRows
+    /// Which stretch of time the figures cover: today, this week, or all of it.
+    /// Stored, because the period someone thinks in does not change per session.
+    static let periodKey = "trackerPeriod"
     let engine: TrackerEngine
     /// Bumped once a second while a task is active — drives ticking labels.
     @Published private(set) var heartbeat: Date
@@ -39,7 +42,7 @@ final class TrackerController: ObservableObject {
         // A snapshot/demo render must never load real user data — start from
         // empty and let the --tasks seed stage its own deterministic content.
         let data = Snapshot.active ? .empty : TrackerStore.load(from: storeDir)
-        engine = TrackerEngine(data: data)
+        engine = TrackerEngine(data: data, calendar: Self.weekCalendar())
         heartbeat = Date()
 
         forwarders.append(engine.objectWillChange.sink { [weak self] in
@@ -62,6 +65,25 @@ final class TrackerController: ObservableObject {
         // a loaded open interval keeps ticking: the engine already counts
         // from its persisted start date, the ticker just drives the UI
         reconcileTicker()
+    }
+
+    /// The calendar the week figures are cut by: the system's, with the first
+    /// day the user actually thinks in (the same setting the reminder weekday
+    /// row uses — someone can sit in one region and count weeks like another).
+    private static func weekCalendar() -> Calendar {
+        var calendar = Calendar.current
+        let stored = UserDefaults.standard.string(forKey: SettingsKey.firstWeekday) ?? ""
+        calendar.firstWeekday = FirstWeekday(rawValue: stored)?.weekdayNumber ?? calendar.firstWeekday
+        return calendar
+    }
+
+    /// Re-reads that setting. Called when the setting changes, so a week total
+    /// on screen recuts without a restart.
+    func refreshWeekStart() {
+        let calendar = Self.weekCalendar()
+        guard calendar.firstWeekday != engine.calendar.firstWeekday else { return }
+        engine.calendar = calendar
+        objectWillChange.send()
     }
 
     private func reconcileTicker() {

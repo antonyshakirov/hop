@@ -749,8 +749,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Tracker
 
-- Time tracker over a FLAT LIST OF TASKS — projects are gone (removed in 8.14;
-  an old file that still has them is flattened away on load, see Migration). All
+- Time tracker over tasks that can be grouped into PROJECTS (dissolved in 8.14,
+  brought back in 1.9.0 — Anton, 2026-08-28 — because the week figures below
+  are only worth reading per project). All
   logic lives in HopCore (`TrackerEngine`, persisted to `tracker.json` via
   `TrackerController`); the view is glue. Labels tick off `tracker.heartbeat`
   (1/s while a task is tracking). Active by default — unlike torrents it has no
@@ -758,24 +759,55 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   module by membership in the "modules & tabs" table (drag it to/from the
   inactive column). The module title (`trackerLabel`) is "time tracker" — it
   names the feature in settings and in the always-on subheader above the list.
-- **Flat task list:** `TrackerData.rootOrder` is the single source of the list's
-  order — it holds the id of every task, no duplicates; the engine normalizes it
-  on load (keep listed ids in order, drop stale ones, append any missing in the
-  tasks' array order). A task's `projectID` is a legacy optional kept only for
-  backward decode; every live task is a root task (`nil`). `addTask(name:)`
-  appends a task to the list and to `rootOrder`; each mutation fires `onChange`
-  once, and delete/reorder keep `rootOrder` in sync.
-- **Migration (one-shot, on init):** an old `tracker.json` with projects and
-  nested tasks is FLATTENED by the engine — every task becomes a root task
-  (`projectID` set to nil), a project's tasks expand IN PLACE where the project
-  sat in `rootOrder` (internal order preserved), root tasks stay put, and the
-  `projects` array empties. A file with no `rootOrder` derives the order from the
-  projects' array order (each expanded to its tasks) then any root tasks.
-  Intervals, corrections and the open (active) interval are untouched — an active
-  task inside a project stays active after the flatten. The `projects` and
-  `projectID` Codable fields remain so the old file still decodes; the engine
-  never writes a non-empty `projects` array again, and the flatten is idempotent
-  once flat.
+- **Two levels, three orders.** `TrackerTask.projectID` is the single source of
+  BELONGING — nil for a task at the top level, a project's id for one inside it.
+  `TrackerData.rootOrder` says what the top level looks like: project ids and
+  project-less task ids, mixed, each exactly once. Every project's `taskOrder`
+  says the same for its own tasks. The orders never decide whose a task is; they
+  only say where among its siblings it sits. `normalizeStructure` repairs all of
+  it on load — a task pointing at a project that is not there comes back to the
+  top level, listed ids that are not real are dropped, and anything missing is
+  appended in the arrays' own order. Each mutation fires `onChange` once.
+- **The period switch** (`TrackerPeriod`, stored in `trackerPeriod`, default
+  "total") sits on the subheader line and picks what EVERY figure in the module
+  covers: today, this week, or all time. One switch rather than three columns —
+  three numbers per row in a 360-point panel is a spreadsheet, not a list. It
+  drives the task figures, the project sums, the scrub and the typed edit alike:
+  editing while "week" is showing sets the week. Every edit lands as a
+  correction dated TODAY whatever the period, because today sits inside this
+  week and inside all time, so the three stay consistent with each other.
+  The week is cut by `Calendar.dateInterval(of: .weekOfYear)` on the engine's
+  calendar, whose `firstWeekday` is the user's own setting (the same one the
+  reminder weekday row uses); changing that setting recuts the figures live
+  (`TrackerController.refreshWeekStart`).
+- **Projects on screen:** a chevron folds and unfolds (`isExpanded`, stored — a
+  folded project stays folded across restarts), the name is semibold, and the
+  trailing figure is the sum of its tasks over the current period. A FOLDED
+  project whose task is running carries a small green dot, since its play glyph
+  is not on screen. Hovering reveals a "+" (add a task straight into it) and the
+  delete ✕. A tap on the row renames it inline — projects have no card, and the
+  chevron owns the fold, so the row itself is free for that. Contents are
+  indented 16pt.
+- **Deleting a project deletes its tasks and their history** (Anton,
+  2026-08-28). The confirm keeps the row's silhouette and puts a list glyph with
+  the task count next to the delete/cancel pair — a count of tasks would need a
+  plural form in 22 languages and the glyph needs none. Deleting the project of
+  the running task stops the clock, the same way deleting that task alone does.
+- **Dragging with two levels** (`TrackerDrop`, pure and tested): a drop is a
+  parent AND an index now, and the two cannot be decided separately — the same
+  pointer height means "last in this project" or "first after it" depending on
+  what sits above it. A project only ever lands at the top level and travels
+  with its own tasks (they are excluded from the landmarks). A task takes the
+  level of the row above the pointer: inside a project when that row is one of
+  its tasks or its unfolded header, otherwise at the top level — so a task
+  leaves a project by being dropped above it, or below a row that belongs to
+  nobody, a folded project included. "Important on top" clamps the index within
+  the destination's own siblings, exactly as it did on the flat list.
+- **What a 1.3.x file does now:** nothing special. Its projects and nested tasks
+  load as what they always were — the flatten migration is gone. A file from the
+  flat years has no projects and needs no conversion either. Both decode
+  tolerantly: `taskOrder` and `rootOrder` default to empty and are derived, so a
+  file written before either key existed is not rejected over it.
 - **Single active task:** at most one task is ever tracking. Tapping play on
   task B while A runs stops A first — the engine closes the open interval itself
   (`start(taskID:)`), the UI never juggles two. Deleting the active task stops
@@ -812,8 +844,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   title's colour is set explicitly (white or black by the BAR's appearance, at
   the fading opacity); at rest it is left to AppKit, which inverts the title
   itself when the status item is highlighted. `today(taskID:)` stays in the engine for
-  this figure and for corrections math; the panel itself shows the total, not
-  today. The wedge toggles immediately on start/stop off `tracker.heartbeat`; the
+  this figure and for corrections math; the panel shows whichever period its
+  own switch is on. The wedge toggles immediately on start/stop off `tracker.heartbeat`; the
   opt-in bar time ticks 1/s. The wedge never touches the title, so it plays no
   part in the width-freeze — only the `trackerTimeInBar` digits (a deliberate,
   opt-in width change of the same class as the countdown) ever change the title
@@ -920,7 +952,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   reorder drag stands down (`including: .subviews`) so the pan scrolls, while the
   horizontal total-scrub and the play/stop taps keep working. Snapshots never
   scroll. Shares `RowCap` + `VisibleRowsField` with the to-do module.
-- **Drag to reorder:** grabbing ANYWHERE on a row reorders the flat list — the
+- **Drag to reorder:** grabbing ANYWHERE on a row moves it (see "Dragging with
+  two levels" above for where it lands) — the
   reorder gesture lives on the row container (`minimumDistance` 3), not a handle.
   It DISAMBIGUATES BY AXIS against the total label's horizontal scrub: on the
   first move past the threshold, a vertically dominant drag (`|dy| > |dx|`) lifts
