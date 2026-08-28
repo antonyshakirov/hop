@@ -346,6 +346,80 @@ public final class TrackerEngine: ObservableObject {
         return true
     }
 
+    // MARK: - History
+
+    /// Everything the task's total is made of, newest first: the sessions it
+    /// tracked and the adjustments made by hand. The running session is in
+    /// here too, counted up to now.
+    public func history(taskID: UUID) -> [TrackerHistoryEntry] {
+        let sessions = data.intervals
+            .filter { $0.taskID == taskID }
+            .map { interval in
+                TrackerHistoryEntry(
+                    id: interval.id,
+                    kind: .session(start: interval.start, running: interval.end == nil),
+                    seconds: duration(of: interval))
+            }
+        let adjustments = data.corrections
+            .filter { $0.taskID == taskID }
+            .map { TrackerHistoryEntry(id: $0.id, kind: .adjustment(day: $0.day),
+                                       seconds: $0.seconds) }
+        return (sessions + adjustments).sorted { $0.moment > $1.moment }
+    }
+
+    /// Records a session that was never tracked live — "I worked an hour on
+    /// this and forgot to press play". It ENDS at `endingAt` (now by default)
+    /// and starts `seconds` earlier, so it lands on the day it belongs to.
+    /// Returns nil for an unknown task or a length of zero.
+    @discardableResult
+    public func addSession(taskID: UUID, seconds: TimeInterval,
+                           endingAt: Date? = nil) -> UUID? {
+        guard data.tasks.contains(where: { $0.id == taskID }), seconds > 0 else { return nil }
+        let end = endingAt ?? now()
+        let interval = TrackerInterval(taskID: taskID,
+                                       start: end.addingTimeInterval(-seconds), end: end)
+        data.intervals.append(interval)
+        onChange?()
+        return interval.id
+    }
+
+    /// Changes how long one line of the history is. A session keeps its START
+    /// and moves its end — the moment work began is a fact, its length is what
+    /// gets misremembered. The RUNNING session refuses: its end is the clock's
+    /// to write, and the way to correct it is to stop it first.
+    @discardableResult
+    public func setEntryDuration(_ id: UUID, to seconds: TimeInterval) -> Bool {
+        if let index = data.intervals.firstIndex(where: { $0.id == id }) {
+            guard data.intervals[index].end != nil else { return false }
+            let length = max(0, seconds)
+            guard duration(of: data.intervals[index]) != length else { return true }
+            data.intervals[index].end = data.intervals[index].start.addingTimeInterval(length)
+            onChange?()
+            return true
+        }
+        if let index = data.corrections.firstIndex(where: { $0.id == id }) {
+            guard data.corrections[index].seconds != seconds else { return true }
+            data.corrections[index].seconds = seconds
+            onChange?()
+            return true
+        }
+        return false
+    }
+
+    /// Throws one line away. Deleting the RUNNING session stops the clock with
+    /// it — the alternative is an open interval with nothing on screen.
+    public func deleteEntry(_ id: UUID) {
+        if let index = data.intervals.firstIndex(where: { $0.id == id }) {
+            data.intervals.remove(at: index)
+            onChange?()
+            return
+        }
+        if let index = data.corrections.firstIndex(where: { $0.id == id }) {
+            data.corrections.remove(at: index)
+            onChange?()
+        }
+    }
+
     // MARK: - Aggregates
 
     /// The task's figure for one period. Never negative.

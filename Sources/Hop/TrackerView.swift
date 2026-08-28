@@ -29,6 +29,8 @@ struct TrackerView: View {
         case newProject
         case renameProject(UUID)    // projects have no card, so renaming is inline
         case editTotal(UUID)        // taskID
+        case editEntry(UUID)        // one line of a task's history
+        case newEntry(UUID)         // taskID — a session being added by hand
     }
 
     private struct RowFrameKey: PreferenceKey {
@@ -257,11 +259,15 @@ struct TrackerView: View {
                 // the shape macOS uses for exactly this, so nobody has to learn
                 // it (Anton, 2026-08-28).
                 Button { engine.setProjectExpanded(project.id, !project.isExpanded) } label: {
-                    Image(systemName: "triangle.fill")
-                        .font(.system(size: 7))
-                        .rotationEffect(.degrees(project.isExpanded ? 180 : 90))
-                        .foregroundStyle(Theme.textSecondary)
-                        .frame(width: RowCircle.gutter, height: RowCircle.gutter, alignment: .leading)
+                    // The SAME triangle the play buttons carry, minus the
+                    // circle, on the SAME axis: centred in the circle's own
+                    // 18pt box inside the 22pt gutter, so every arrow in the
+                    // list sits on one vertical line (Anton, 2026-08-28).
+                    PlayGlyph(color: Theme.textSecondary,
+                              box: RowCircle.diameter * 0.315)
+                        .rotationEffect(.degrees(project.isExpanded ? 90 : 0))
+                        .frame(width: RowCircle.diameter, height: RowCircle.gutter)
+                        .frame(width: RowCircle.gutter, alignment: .leading)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -342,13 +348,16 @@ struct TrackerView: View {
     @ViewBuilder private func taskRow(_ task: TrackerTask, indented: Bool) -> some View {
         Group {
             if expandedTask == task.id, card != nil, !Snapshot.active {
-                TaskCardView(draft: Binding(get: { card ?? TaskCardDraft(text: task.name,
-                                                                        note: task.note,
-                                                                        important: task.important) },
-                                            set: { card = $0 }),
-                             lang: lang,
-                             onCommit: { commitCard(task) },
-                             onCancel: { collapseCard() })
+                VStack(alignment: .leading, spacing: 6) {
+                    TaskCardView(draft: Binding(get: { card ?? TaskCardDraft(text: task.name,
+                                                                            note: task.note,
+                                                                            important: task.important) },
+                                                set: { card = $0 }),
+                                 lang: lang,
+                                 onCommit: { commitCard(task) },
+                                 onCancel: { collapseCard() })
+                    history(task)
+                }
                     .background(rowFrameReader(task.id))
             } else {
                 collapsedTaskRow(task)
@@ -444,6 +453,148 @@ struct TrackerView: View {
         .onHover { inside in
             if inside { hovered = task.id } else if hovered == task.id { hovered = nil }
         }
+    }
+
+    // MARK: - A task's history
+
+    /// The sessions the task collected, under its open card: every stretch of
+    /// time it holds, each editable and removable, plus a line to add one that
+    /// was never tracked (Anton, 2026-08-28). The total above them is the same
+    /// number the row shows — that is the point of listing the parts.
+    @ViewBuilder private func history(_ task: TrackerTask) -> some View {
+        let entries = engine.history(taskID: task.id)
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 6) {
+                Text(t(.trackerHistory))
+                    .font(Theme.mono(10, weight: .semibold))
+                    .foregroundStyle(Theme.textTertiary)
+                Spacer(minLength: 6)
+                Text(shortTime(engine.total(taskID: task.id)))
+                    .font(Theme.mono(10, weight: .semibold))
+                    .foregroundStyle(Theme.textSecondary)
+                    .monospacedDigit()
+            }
+            .padding(.bottom, 2)
+            // A long-lived task can hold hundreds of sessions; the card shows
+            // the recent ones and says how many it did not draw, rather than
+            // turning the panel into a ledger.
+            ForEach(entries.prefix(Self.historyLimit)) { entry in
+                historyRow(task, entry)
+            }
+            if entries.count > Self.historyLimit {
+                Text("+\(entries.count - Self.historyLimit)")
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .monospacedDigit()
+            }
+            if isEditing(.newEntry(task.id)) {
+                entryField(commit: { seconds in
+                    engine.addSession(taskID: task.id, seconds: seconds)
+                })
+            } else {
+                Button { beginNewEntry(task) } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus").font(.system(size: 9, weight: .semibold))
+                        Text(t(.trackerHistoryAdd)).font(Theme.mono(10))
+                        Spacer(minLength: 0)
+                    }
+                    .foregroundStyle(Theme.textTertiary)
+                    .padding(.vertical, 3)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(4, bleed: 4)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
+    }
+
+    @ViewBuilder private func historyRow(_ task: TrackerTask, _ entry: TrackerHistoryEntry) -> some View {
+        if isEditing(.editEntry(entry.id)) {
+            entryField(commit: { seconds in engine.setEntryDuration(entry.id, to: seconds) })
+        } else {
+            HStack(spacing: 6) {
+                Text(historyLabel(entry))
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textTertiary)
+                    .lineLimit(1)
+                Spacer(minLength: 6)
+                if hovered == entry.id {
+                    HoverDeleteX { engine.deleteEntry(entry.id) }
+                }
+                Text(shortTime(abs(entry.seconds)))
+                    .font(Theme.mono(10))
+                    .foregroundStyle(entry.isRunning ? Theme.textPrimary : Theme.listText)
+                    .monospacedDigit()
+                    .fixedSize()
+            }
+            .padding(.vertical, 2)
+            .contentShape(Rectangle())
+            // The running session has no end to edit yet — stopping it is how
+            // you correct it, exactly as in the engine.
+            .onTapGesture { if !entry.isRunning { beginEditEntry(entry) } }
+            .onHover { inside in
+                if inside { hovered = entry.id } else if hovered == entry.id { hovered = nil }
+            }
+        }
+    }
+
+    /// What one line says on its left: when the session ran, or that this is a
+    /// by-hand adjustment and which day it was dated to. A minus sign carries
+    /// the sign of a negative adjustment, since the figure itself is drawn
+    /// unsigned.
+    private func historyLabel(_ entry: TrackerHistoryEntry) -> String {
+        switch entry.kind {
+        case .session(let start, let running):
+            let when = Self.historyMoment.string(from: start)
+            return running ? "\(when) ·" : when
+        case .adjustment(let day):
+            let sign = entry.seconds < 0 ? "− " : ""
+            return "\(sign)\(t(.trackerAdjustment)) · \(Self.historyDay.string(from: day))"
+        }
+    }
+
+    private static let historyLimit = 8
+
+    private static let historyMoment: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("d MMM j:mm")
+        return formatter
+    }()
+
+    private static let historyDay: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("d MMM")
+        return formatter
+    }()
+
+    /// One field, used both for editing a line and for adding one: the same
+    /// lenient H:MM:SS / H:MM / MM parse the row's own total edit uses.
+    private func entryField(commit: @escaping (TimeInterval) -> Void) -> some View {
+        HStack(spacing: 4) {
+            TextField("", text: $totalDraft)
+                .textFieldStyle(.plain)
+                .font(Theme.mono(10))
+                .foregroundStyle(Theme.textPrimary)
+                .monospacedDigit()
+                .multilineTextAlignment(.trailing)
+                .frame(width: 66)
+                .focused($focused, equals: activeField)
+                .onAppear { focused = activeField }
+                .onSubmit { commitEntry(commit) }
+                .onExitCommand { endEdit() }
+            FieldCommitButtons(onCommit: { commitEntry(commit) }, onCancel: { endEdit() })
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func commitEntry(_ commit: (TimeInterval) -> Void) {
+        defer { endEdit() }
+        guard let seconds = parseTotal(totalDraft) else { return }
+        commit(seconds)
     }
 
     private func playStop(_ task: TrackerTask, active: Bool) -> some View {
@@ -858,6 +1009,20 @@ struct TrackerView: View {
         activeField = .newTask
     }
 
+    private func beginEditEntry(_ entry: TrackerHistoryEntry) {
+        guard !Snapshot.active else { return }
+        clearConfirms()
+        totalDraft = draftText(for: abs(entry.seconds))
+        activeField = .editEntry(entry.id)
+    }
+
+    private func beginNewEntry(_ task: TrackerTask) {
+        guard !Snapshot.active else { return }
+        clearConfirms()
+        totalDraft = ""
+        activeField = .newEntry(task.id)
+    }
+
     private func beginNewTaskIn(_ projectID: UUID) {
         guard !Snapshot.active else { return }
         clearConfirms()
@@ -883,16 +1048,22 @@ struct TrackerView: View {
         activeField = .renameProject(project.id)
     }
 
-    private func beginEditTotal(_ task: TrackerTask) {
-        guard !Snapshot.active, engine.activeTaskID != task.id else { return }
-        clearConfirms()
-        let total = Int(engine.amount(taskID: task.id, period: period))
+    /// A duration written the way the field's own parser reads it back
+    /// (H:MM:SS / H:MM / MM), so opening an edit and pressing return changes
+    /// nothing.
+    private func draftText(for seconds: TimeInterval) -> String {
+        let total = Int(seconds)
         let h = total / 3600
         let m = (total % 3600) / 60
         let s = total % 60
-        // prefill in a shape the parser reads back (H:MM:SS / H:MM / MM)
-        totalDraft = s > 0 ? "\(h):\(String(format: "%02d", m)):\(String(format: "%02d", s))"
-                   : (h > 0 ? "\(h):\(String(format: "%02d", m))" : "\(m)")
+        if s > 0 { return "\(h):\(String(format: "%02d", m)):\(String(format: "%02d", s))" }
+        return h > 0 ? "\(h):\(String(format: "%02d", m))" : "\(m)"
+    }
+
+    private func beginEditTotal(_ task: TrackerTask) {
+        guard !Snapshot.active, engine.activeTaskID != task.id else { return }
+        clearConfirms()
+        totalDraft = draftText(for: engine.amount(taskID: task.id, period: period))
         activeField = .editTotal(task.id)
     }
 

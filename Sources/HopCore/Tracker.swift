@@ -97,22 +97,43 @@ public enum TrackerItem: Equatable, Identifiable {
 
 /// A single tracked span of time on a task. `end` is nil while the interval
 /// is still open (the timer is running now).
-public struct TrackerInterval: Codable, Equatable {
+///
+/// It has an `id` because a session is now something a person edits: the card
+/// lists every stretch of time the task collected and lets any of them be
+/// changed, removed or added by hand (Anton, 2026-08-28). A file written before
+/// ids existed gets fresh ones on load — they are stable from the first save
+/// after that, which is all editing needs.
+public struct TrackerInterval: Codable, Equatable, Identifiable {
+    public let id: UUID
     public let taskID: UUID
-    public let start: Date
+    public var start: Date
     public var end: Date?
 
-    public init(taskID: UUID, start: Date, end: Date? = nil) {
+    public init(id: UUID = UUID(), taskID: UUID, start: Date, end: Date? = nil) {
+        self.id = id
         self.taskID = taskID
         self.start = start
         self.end = end
+    }
+
+    private enum CodingKeys: String, CodingKey { case id, taskID, start, end }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        taskID = try c.decode(UUID.self, forKey: .taskID)
+        start = try c.decode(Date.self, forKey: .start)
+        end = try c.decodeIfPresent(Date.self, forKey: .end)
     }
 }
 
 /// A manual adjustment to a task's tracked time on a given day, applied on
 /// top of whatever the recorded intervals sum to (e.g. to fix a forgotten
 /// stop). `seconds` is signed: positive adds time, negative removes it.
-public struct TrackerCorrection: Codable, Equatable {
+public struct TrackerCorrection: Codable, Equatable, Identifiable {
+    /// Same reason as the interval's: a correction shows up in the task's
+    /// history and can be edited or thrown away from there.
+    public let id: UUID
     public let taskID: UUID
     /// INVARIANT: every correction the engine writes is dated the START OF DAY
     /// (midnight) in the engine's calendar — `setToday`/`setTotal` use
@@ -121,12 +142,59 @@ public struct TrackerCorrection: Codable, Equatable {
     /// or legacy file still matches its day, but engine-authored records are
     /// always normalized to midnight.
     public let day: Date
-    public let seconds: TimeInterval
+    public var seconds: TimeInterval
 
-    public init(taskID: UUID, day: Date, seconds: TimeInterval) {
+    public init(id: UUID = UUID(), taskID: UUID, day: Date, seconds: TimeInterval) {
+        self.id = id
         self.taskID = taskID
         self.day = day
         self.seconds = seconds
+    }
+
+    private enum CodingKeys: String, CodingKey { case id, taskID, day, seconds }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        taskID = try c.decode(UUID.self, forKey: .taskID)
+        day = try c.decode(Date.self, forKey: .day)
+        seconds = try c.decode(TimeInterval.self, forKey: .seconds)
+    }
+}
+
+/// One line of a task's history: a tracked session, or a by-hand adjustment.
+/// The two are shown together because together they ARE the task's total, and
+/// a list that quietly omitted half of it would not add up on screen.
+public struct TrackerHistoryEntry: Equatable, Identifiable, Sendable {
+    public enum Kind: Equatable, Sendable {
+        /// A stretch that was actually tracked. `running` is the open one.
+        case session(start: Date, running: Bool)
+        /// A correction, dated to its day.
+        case adjustment(day: Date)
+    }
+
+    public let id: UUID
+    public let kind: Kind
+    /// Signed: an adjustment can take time away.
+    public let seconds: TimeInterval
+
+    public init(id: UUID, kind: Kind, seconds: TimeInterval) {
+        self.id = id
+        self.kind = kind
+        self.seconds = seconds
+    }
+
+    public var isRunning: Bool {
+        if case .session(_, let running) = kind { return running }
+        return false
+    }
+
+    /// When the line happened, for sorting and for showing a date.
+    public var moment: Date {
+        switch kind {
+        case .session(let start, _): return start
+        case .adjustment(let day): return day
+        }
     }
 }
 

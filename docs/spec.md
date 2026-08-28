@@ -822,6 +822,27 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   out to the RIGHT, onto the column the times line up in (Anton, 2026-08-28).
   Side by side, the project button read as trailing the task one; on the time
   column it reads as belonging to the list.
+- **A task's history, under its open card** (Anton, 2026-08-28). Tracking
+  already recorded every stretch of time as an interval; the card now SHOWS
+  them, newest first, with the task's total above. Each line can be edited
+  (tap the row → the same lenient H:MM:SS / H:MM / MM field the row's own total
+  uses), deleted (hover ✕), and a session that was never tracked can be added
+  by hand ("add time"): `addSession` ends it now and starts it the given length
+  earlier, so it lands on the day it belongs to.
+  - **A session keeps its START and moves its end** when edited. The moment work
+    began is a fact; its length is what gets misremembered.
+  - **The RUNNING session refuses to be edited** — its end is the clock's to
+    write. Deleting it stops the clock, since an open interval with nothing on
+    screen is worse than either.
+  - **Adjustments are in the list too**, labelled and dated, negative ones with
+    a minus. They are what the scrub and the typed total write, and together
+    with the sessions they ARE the total — a list that quietly omitted them
+    would not add up to the number above it.
+  - The card draws the most recent 8 and says "+N" for the rest, rather than
+    turning the panel into a ledger.
+  - `TrackerInterval` and `TrackerCorrection` therefore carry an `id`. A file
+    written before they did gets fresh ones on load (tolerant decode); they are
+    stable from the first save after that, which is all editing needs.
 - **Deleting a project deletes its tasks and their history** (Anton,
   2026-08-28). The confirm keeps the row's silhouette and puts a list glyph with
   the task count next to the delete/cancel pair — a count of tasks would need a

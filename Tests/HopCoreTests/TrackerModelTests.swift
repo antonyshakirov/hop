@@ -66,7 +66,35 @@ final class TrackerModelTests: XCTestCase {
         }
         """
         let decoded = try JSONDecoder().decode(TrackerData.self, from: Data(json.utf8))
-        XCTAssertEqual(decoded, populatedData())
+        let expected = populatedData()
+        XCTAssertEqual(decoded.projects, expected.projects)
+        XCTAssertEqual(decoded.tasks, expected.tasks)
+        // Intervals and corrections are compared field by field: a file written
+        // before they carried ids gets fresh ones on load, so the ids cannot
+        // match and are not what this test is about.
+        XCTAssertEqual(decoded.intervals.map(\.taskID), expected.intervals.map(\.taskID))
+        XCTAssertEqual(decoded.intervals.map(\.start), expected.intervals.map(\.start))
+        XCTAssertEqual(decoded.intervals.map(\.end), expected.intervals.map(\.end))
+        XCTAssertEqual(decoded.corrections.map(\.taskID), expected.corrections.map(\.taskID))
+        XCTAssertEqual(decoded.corrections.map(\.day), expected.corrections.map(\.day))
+        XCTAssertEqual(decoded.corrections.map(\.seconds), expected.corrections.map(\.seconds))
+        XCTAssertEqual(decoded.rootOrder, expected.rootOrder)
+    }
+
+    func testAFileWithoutIdsGetsThemOnLoad() throws {
+        let json = """
+        {
+            "tasks": [{"id": "\(taskID.uuidString)", "name": "Ship 1.4"}],
+            "intervals": [{"taskID": "\(taskID.uuidString)", "start": 1000, "end": 1600}],
+            "corrections": [{"taskID": "\(taskID.uuidString)", "day": 0, "seconds": -120}]
+        }
+        """
+        let decoded = try JSONDecoder().decode(TrackerData.self, from: Data(json.utf8))
+        // ids are what make a session editable from the card; a 1.8.x file has
+        // none and must still come back with usable ones
+        XCTAssertNotNil(decoded.intervals.first?.id)
+        XCTAssertNotNil(decoded.corrections.first?.id)
+        XCTAssertNotEqual(decoded.intervals.first?.id, decoded.corrections.first?.id)
     }
 
     func testEmptyHasAllArraysEmpty() {

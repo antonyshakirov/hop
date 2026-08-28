@@ -1012,6 +1012,188 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(engine.amount(projectID: UUID(), period: .total), 0)
     }
 
+    // MARK: - The task's own history
+
+    func testEverySessionShowsUpNewestFirst() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(600)
+        engine.stopActive()
+        advance(60)
+        engine.start(taskID: task)
+        advance(300)
+        engine.stopActive()
+
+        let history = engine.history(taskID: task)
+        XCTAssertEqual(history.count, 2)
+        XCTAssertEqual(history.first?.seconds, 300)
+        XCTAssertEqual(history.last?.seconds, 600)
+    }
+
+    func testTheRunningSessionIsInTheHistoryAndSaysSo() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(120)
+
+        let entry = engine.history(taskID: task).first
+        XCTAssertEqual(entry?.seconds, 120)
+        XCTAssertEqual(entry?.isRunning, true)
+    }
+
+    func testAnAdjustmentAppearsBesideTheSessions() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(600)
+        engine.stopActive()
+        engine.setTotal(taskID: task, to: 900)
+
+        let history = engine.history(taskID: task)
+        XCTAssertEqual(history.count, 2)
+        XCTAssertEqual(history.map(\.seconds).reduce(0, +), engine.total(taskID: task))
+        XCTAssertTrue(history.contains { if case .adjustment = $0.kind { return true } else { return false } })
+    }
+
+    func testOneTasksHistoryIsNotAnothers() {
+        let a = engine.addTask(name: "a")
+        let b = engine.addTask(name: "b")
+        engine.start(taskID: a)
+        advance(60)
+        engine.stopActive()
+
+        XCTAssertEqual(engine.history(taskID: a).count, 1)
+        XCTAssertTrue(engine.history(taskID: b).isEmpty)
+    }
+
+    // MARK: - Adding a session by hand
+
+    func testASessionCanBeAddedForWorkNobodyPressedPlayFor() {
+        let task = engine.addTask(name: "t")
+
+        XCTAssertNotNil(engine.addSession(taskID: task, seconds: 3600))
+
+        XCTAssertEqual(engine.total(taskID: task), 3600)
+        XCTAssertEqual(engine.today(taskID: task), 3600)
+        XCTAssertEqual(engine.history(taskID: task).count, 1)
+    }
+
+    func testAnAddedSessionEndsWhenItIsSaidTo() {
+        let task = engine.addTask(name: "t")
+        clock = date(2026, 7, 17, 12, 0)
+        engine.addSession(taskID: task, seconds: 1800, endingAt: date(2026, 7, 14, 10, 0))
+
+        // it belongs to that Tuesday, not to today
+        XCTAssertEqual(engine.today(taskID: task), 0)
+        XCTAssertEqual(engine.week(taskID: task), 1800)
+    }
+
+    func testAnEmptySessionOrAnUnknownTaskAddsNothing() {
+        let task = engine.addTask(name: "t")
+        changeCount = 0
+        XCTAssertNil(engine.addSession(taskID: task, seconds: 0))
+        XCTAssertNil(engine.addSession(taskID: UUID(), seconds: 600))
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    // MARK: - Editing and deleting a line
+
+    func testEditingASessionKeepsItsStartAndMovesItsEnd() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(600)
+        engine.stopActive()
+        let entry = engine.history(taskID: task).first!
+
+        XCTAssertTrue(engine.setEntryDuration(entry.id, to: 900))
+
+        XCTAssertEqual(engine.total(taskID: task), 900)
+        XCTAssertEqual(engine.history(taskID: task).first?.moment, entry.moment)
+    }
+
+    func testTheRunningSessionRefusesToBeEdited() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(60)
+        let entry = engine.history(taskID: task).first!
+
+        XCTAssertFalse(engine.setEntryDuration(entry.id, to: 3600))
+        XCTAssertEqual(engine.total(taskID: task), 60)
+    }
+
+    func testAnAdjustmentCanBeEditedToo() {
+        let task = engine.addTask(name: "t")
+        engine.setTotal(taskID: task, to: 600)
+        let entry = engine.history(taskID: task).first!
+
+        XCTAssertTrue(engine.setEntryDuration(entry.id, to: 1200))
+        XCTAssertEqual(engine.total(taskID: task), 1200)
+    }
+
+    func testEditingToWhatItAlreadyIsSavesNothing() {
+        let task = engine.addTask(name: "t")
+        engine.addSession(taskID: task, seconds: 600)
+        let entry = engine.history(taskID: task).first!
+        changeCount = 0
+
+        XCTAssertTrue(engine.setEntryDuration(entry.id, to: 600))
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    func testEditingSomethingThatIsNotThereChangesNothing() {
+        changeCount = 0
+        XCTAssertFalse(engine.setEntryDuration(UUID(), to: 600))
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    func testDeletingASessionTakesItsTimeWithIt() {
+        let task = engine.addTask(name: "t")
+        engine.addSession(taskID: task, seconds: 600)
+        engine.addSession(taskID: task, seconds: 300)
+        let entry = engine.history(taskID: task).first!
+
+        engine.deleteEntry(entry.id)
+
+        XCTAssertEqual(engine.history(taskID: task).count, 1)
+        XCTAssertEqual(engine.total(taskID: task), 600)
+    }
+
+    func testDeletingTheRunningSessionStopsTheClock() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(60)
+        let entry = engine.history(taskID: task).first!
+
+        engine.deleteEntry(entry.id)
+
+        XCTAssertNil(engine.activeTaskID)
+        XCTAssertEqual(engine.total(taskID: task), 0)
+    }
+
+    func testDeletingAnAdjustmentUndoesTheHandEdit() {
+        let task = engine.addTask(name: "t")
+        engine.addSession(taskID: task, seconds: 600)
+        engine.setTotal(taskID: task, to: 1800)
+        let adjustment = engine.history(taskID: task).first {
+            if case .adjustment = $0.kind { return true } else { return false }
+        }!
+
+        engine.deleteEntry(adjustment.id)
+
+        XCTAssertEqual(engine.total(taskID: task), 600)
+    }
+
+    func testDeletingNothingSavesNothing() {
+        changeCount = 0
+        engine.deleteEntry(UUID())
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    func testDeletingATaskTakesItsHistoryWithIt() {
+        let task = engine.addTask(name: "t")
+        engine.addSession(taskID: task, seconds: 600)
+        engine.deleteTask(task)
+        XCTAssertTrue(engine.data.intervals.isEmpty)
+    }
+
     func testATasksPeriodFiguresMatchTheirOwnAccessors() {
         let task = engine.addTask(name: "t")
         engine.start(taskID: task)
