@@ -71,6 +71,29 @@ final class TrackerDropTests: XCTestCase {
         XCTAssertEqual(target(inside1, at: 100), TrackerDrop.Target(parent: project, index: 1))
     }
 
+    func testDroppingOnAProjectsOwnRowGoesInsideIt() {
+        // the pointer is on the project line itself, not between lines
+        XCTAssertEqual(target(loose1, at: 36), TrackerDrop.Target(parent: project, index: 0))
+    }
+
+    func testAFoldedProjectStillTakesADropOnItsRow() {
+        // nothing of it is on screen to aim between, so its own row is the way in
+        XCTAssertEqual(target(loose2, at: 36, expanded: false),
+                       TrackerDrop.Target(parent: project, index: 0))
+    }
+
+    func testJustBelowAFoldedProjectIsStillTheTopLevel() {
+        // one row further down and it is an ordinary top-level drop again
+        XCTAssertEqual(target(loose2, at: 55, expanded: false),
+                       TrackerDrop.Target(parent: nil, index: 2))
+    }
+
+    func testAProjectDroppedOnAnotherProjectsRowStaysAtTheTopLevel() {
+        // projects do not nest, so the "into it" rule is for tasks only
+        XCTAssertEqual(target(project, isProject: true, at: 10),
+                       TrackerDrop.Target(parent: nil, index: 0))
+    }
+
     // MARK: - Projects
 
     func testAProjectAlwaysLandsAtTheTopLevel() {

@@ -1076,14 +1076,76 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(engine.history(taskID: task).count, 1)
     }
 
-    func testAnAddedSessionEndsWhenItIsSaidTo() {
+    func testAnAddedSessionStartsWhenItIsSaidTo() {
         let task = engine.addTask(name: "t")
         clock = date(2026, 7, 17, 12, 0)
-        engine.addSession(taskID: task, seconds: 1800, endingAt: date(2026, 7, 14, 10, 0))
+        engine.addSession(taskID: task, seconds: 1800, startingAt: date(2026, 7, 14, 10, 0))
 
         // it belongs to that Tuesday, not to today
         XCTAssertEqual(engine.today(taskID: task), 0)
         XCTAssertEqual(engine.week(taskID: task), 1800)
+        XCTAssertEqual(engine.history(taskID: task).first?.moment, date(2026, 7, 14, 10, 0))
+    }
+
+    func testAnAddedSessionWithNoTimeGivenEndsNow() {
+        let task = engine.addTask(name: "t")
+        clock = date(2026, 7, 17, 12, 0)
+        engine.addSession(taskID: task, seconds: 3600)
+
+        // "I have just worked an hour on this": it ends now and starts an hour back
+        XCTAssertEqual(engine.history(taskID: task).first?.moment, date(2026, 7, 17, 11, 0))
+        XCTAssertEqual(engine.today(taskID: task), 3600)
+    }
+
+    // MARK: - Moving a line in time
+
+    func testASessionMovesWholeAndKeepsItsLength() {
+        let task = engine.addTask(name: "t")
+        clock = date(2026, 7, 17, 12, 0)
+        engine.addSession(taskID: task, seconds: 3600, startingAt: date(2026, 7, 17, 9, 0))
+        let entry = engine.history(taskID: task).first!
+
+        XCTAssertTrue(engine.setEntryStart(entry.id, to: date(2026, 7, 15, 14, 0)))
+
+        let moved = engine.history(taskID: task).first!
+        XCTAssertEqual(moved.moment, date(2026, 7, 15, 14, 0))
+        XCTAssertEqual(moved.seconds, 3600)
+        XCTAssertEqual(engine.today(taskID: task), 0)
+    }
+
+    func testTheRunningSessionCannotBeMoved() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        let entry = engine.history(taskID: task).first!
+        XCTAssertFalse(engine.setEntryStart(entry.id, to: clock.addingTimeInterval(-3600)))
+    }
+
+    func testAnAdjustmentMovesToTheDaysMidnight() {
+        let task = engine.addTask(name: "t")
+        clock = date(2026, 7, 17, 12, 0)
+        engine.setTotal(taskID: task, to: 600)
+        let entry = engine.history(taskID: task).first!
+
+        XCTAssertTrue(engine.setEntryStart(entry.id, to: date(2026, 7, 14, 16, 30)))
+
+        XCTAssertEqual(engine.history(taskID: task).first?.moment, date(2026, 7, 14, 0, 0))
+        XCTAssertEqual(engine.today(taskID: task), 0)
+        XCTAssertEqual(engine.week(taskID: task), 600)
+    }
+
+    func testMovingSomethingThatIsNotThereChangesNothing() {
+        changeCount = 0
+        XCTAssertFalse(engine.setEntryStart(UUID(), to: clock))
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    func testMovingToWhereItAlreadyIsSavesNothing() {
+        let task = engine.addTask(name: "t")
+        engine.addSession(taskID: task, seconds: 600, startingAt: date(2026, 7, 17, 9, 0))
+        let entry = engine.history(taskID: task).first!
+        changeCount = 0
+        XCTAssertTrue(engine.setEntryStart(entry.id, to: date(2026, 7, 17, 9, 0)))
+        XCTAssertEqual(changeCount, 0)
     }
 
     func testAnEmptySessionOrAnUnknownTaskAddsNothing() {

@@ -19,14 +19,18 @@ public enum TrackerDrop {
         public let isExpanded: Bool
         /// The row's vertical middle in the list's coordinate space.
         public let midY: Double
+        /// How tall the row is — a drop ON a project row means "into it", and
+        /// that needs the row's extent, not just its middle.
+        public let height: Double
 
         public init(id: UUID, parent: UUID? = nil, isProject: Bool = false,
-                    isExpanded: Bool = false, midY: Double) {
+                    isExpanded: Bool = false, midY: Double, height: Double = 26) {
             self.id = id
             self.parent = parent
             self.isProject = isProject
             self.isExpanded = isExpanded
             self.midY = midY
+            self.height = height
         }
     }
 
@@ -55,6 +59,15 @@ public enum TrackerDrop {
         // the dragged row travels with the pointer, and so do a project's own
         // tasks — neither can be a landmark for the drop
         let others = rows.filter { $0.id != id && $0.parent != id }
+
+        // Dropped ON a project's own row: into that project, at the top. This
+        // is the only way into a FOLDED project — nothing of it is on screen to
+        // aim between — and it works the same when it is open, so there is one
+        // rule rather than two (Anton, 2026-08-28).
+        if !isProject,
+           let over = others.first(where: { $0.isProject && abs($0.midY - y) <= $0.height / 2 }) {
+            return Target(parent: over.id, index: 0)
+        }
 
         let parent: UUID?
         if isProject {

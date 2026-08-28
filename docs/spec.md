@@ -871,7 +871,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   parent AND an index now, and the two cannot be decided separately — the same
   pointer height means "last in this project" or "first after it" depending on
   what sits above it. A project only ever lands at the top level and travels
-  with its own tasks (they are excluded from the landmarks). A task takes the
+  with its own tasks (they are excluded from the landmarks). **A task dropped ON
+  a project's own row goes INSIDE it, at the top** — the only way into a FOLDED
+  project, since none of it is on screen to aim between, and the same gesture
+  works when it is open, so there is one rule rather than two (Anton,
+  2026-08-28); the drop maths is given each row's measured height for it.
+  Otherwise a task takes the
   level of the row above the pointer: inside a project when that row is one of
   its tasks or its unfolded header, otherwise at the top level — so a task
   leaves a project by being dropped above it, or below a row that belongs to

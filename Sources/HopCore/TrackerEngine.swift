@@ -368,19 +368,50 @@ public final class TrackerEngine: ObservableObject {
     }
 
     /// Records a session that was never tracked live — "I worked an hour on
-    /// this and forgot to press play". It ENDS at `endingAt` (now by default)
-    /// and starts `seconds` earlier, so it lands on the day it belongs to.
+    /// this and forgot to press play". `startingAt` says when it began (now
+    /// minus its length by default, i.e. work that has just finished), so the
+    /// session lands on the day it actually belongs to.
     /// Returns nil for an unknown task or a length of zero.
     @discardableResult
     public func addSession(taskID: UUID, seconds: TimeInterval,
-                           endingAt: Date? = nil) -> UUID? {
+                           startingAt: Date? = nil) -> UUID? {
         guard data.tasks.contains(where: { $0.id == taskID }), seconds > 0 else { return nil }
-        let end = endingAt ?? now()
+        let start = startingAt ?? now().addingTimeInterval(-seconds)
         let interval = TrackerInterval(taskID: taskID,
-                                       start: end.addingTimeInterval(-seconds), end: end)
+                                       start: start, end: start.addingTimeInterval(seconds))
         data.intervals.append(interval)
         onChange?()
         return interval.id
+    }
+
+    /// Moves one line of the history in time, keeping its length: the clock on
+    /// the wall was wrong, or the session was logged against the wrong day.
+    /// A session moves whole; an adjustment moves to that day's midnight, which
+    /// is the only precision a correction has. The RUNNING session refuses —
+    /// its start is when the clock actually started.
+    @discardableResult
+    public func setEntryStart(_ id: UUID, to start: Date) -> Bool {
+        if let index = data.intervals.firstIndex(where: { $0.id == id }) {
+            guard let end = data.intervals[index].end else { return false }
+            let length = end.timeIntervalSince(data.intervals[index].start)
+            guard data.intervals[index].start != start else { return true }
+            data.intervals[index].start = start
+            data.intervals[index].end = start.addingTimeInterval(length)
+            onChange?()
+            return true
+        }
+        if let index = data.corrections.firstIndex(where: { $0.id == id }) {
+            let day = calendar.startOfDay(for: start)
+            guard data.corrections[index].day != day else { return true }
+            let moved = TrackerCorrection(id: data.corrections[index].id,
+                                          taskID: data.corrections[index].taskID,
+                                          day: day,
+                                          seconds: data.corrections[index].seconds)
+            data.corrections[index] = moved
+            onChange?()
+            return true
+        }
+        return false
     }
 
     /// Changes how long one line of the history is. A session keeps its START

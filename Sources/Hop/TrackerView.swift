@@ -53,6 +53,12 @@ struct TrackerView: View {
     /// the rows themselves use, because one click on a small ✕ should not throw
     /// a recorded session away (Anton, 2026-08-28).
     @State private var confirmingDeleteEntry: UUID?
+    /// The moment a history line is being given, while its editor is open: the
+    /// day, and the hour and minute it started at. Seeded from the line itself,
+    /// or from the clock on the wall when adding one (Anton, 2026-08-28).
+    @State private var entryDay = Date()
+    @State private var entryHour = 0
+    @State private var entryMinute = 0
     // Which task is expanded into its card, and the draft it is editing. One card
     // at a time, exactly like the to-do list.
     @State private var expandedTask: UUID?
@@ -267,12 +273,13 @@ struct TrackerView: View {
                     // circle, on the SAME axis: centred in the circle's own
                     // 18pt box inside the 22pt gutter, so every arrow in the
                     // list sits on one vertical line (Anton, 2026-08-28).
-                    PlayGlyph(color: Theme.glyphInk, box: RowCircle.diameter * 0.315)
-                        // one layer, then the transparency: the glyph is a fill
-                        // under a stroke, and a translucent colour would show
-                        // their overlap as an outline
-                        .compositingGroup()
-                        .opacity(Theme.glyphInkSecondary)
+                    // A CHEVRON, not the play triangle: the play shape belongs
+                    // to starting a clock, and reusing it for folding read as a
+                    // faded, broken version of the button above it (Anton,
+                    // 2026-08-28). Same axis as those buttons all the same.
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(Theme.textSecondary)
                         .rotationEffect(.degrees(project.isExpanded ? 90 : 0))
                         .frame(width: RowCircle.diameter, height: RowCircle.gutter)
                         .frame(width: RowCircle.gutter, alignment: .leading)
@@ -501,9 +508,9 @@ struct TrackerView: View {
                     .monospacedDigit()
             }
             if isEditing(.newEntry(task.id)) {
-                entryField(commit: { seconds in
-                    engine.addSession(taskID: task.id, seconds: seconds)
-                })
+                entryEditor(allowsMoment: true) { seconds, moment in
+                    engine.addSession(taskID: task.id, seconds: seconds, startingAt: moment)
+                }
             } else {
                 Button { beginNewEntry(task) } label: {
                     HStack(spacing: 6) {
@@ -529,7 +536,12 @@ struct TrackerView: View {
 
     @ViewBuilder private func historyRow(_ task: TrackerTask, _ entry: TrackerHistoryEntry) -> some View {
         if isEditing(.editEntry(entry.id)) {
-            entryField(commit: { seconds in engine.setEntryDuration(entry.id, to: seconds) })
+            // A running session has no end to write and no start to move, so
+            // its editor offers the length alone — and refuses it in the engine.
+            entryEditor(allowsMoment: !entry.isRunning) { seconds, moment in
+                engine.setEntryDuration(entry.id, to: seconds)
+                engine.setEntryStart(entry.id, to: moment)
+            }
         } else {
             let confirming = confirmingDeleteEntry == entry.id
             HStack(spacing: 6) {
@@ -602,21 +614,36 @@ struct TrackerView: View {
 
     /// One field, used both for editing a line and for adding one: the same
     /// lenient H:MM:SS / H:MM / MM parse the row's own total edit uses.
-    /// The field sits where the figure it replaces sits — flush RIGHT, on the
-    /// column every duration lines up in — and carries the same filled
-    /// background the row's own total edit uses, so it reads as a box to type
-    /// in rather than a cursor floating beside two icons (Anton, 2026-08-28).
-    private func entryField(commit: @escaping (TimeInterval) -> Void) -> some View {
+    /// One line's editor: WHEN it started (a day menu and the hour:minute pair
+    /// the reminder row already uses) and HOW LONG it ran, with the commit pair
+    /// at the end. Both halves are filled in before it opens — a bare cursor
+    /// beside two icons said nothing about what to type (Anton, 2026-08-28).
+    private func entryEditor(allowsMoment: Bool,
+                             commit: @escaping (TimeInterval, Date) -> Void) -> some View {
         HStack(spacing: 6) {
-            Spacer(minLength: 0)
+            if allowsMoment {
+                dayMenu
+                HStack(spacing: 2) {
+                    ClockField(value: $entryHour, range: 0...23)
+                        .frame(width: 26, height: 18)
+                        .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
+                    Text(":")
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.textTertiary)
+                    ClockField(value: $entryMinute, range: 0...59)
+                        .frame(width: 26, height: 18)
+                        .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
+                }
+            }
+            Spacer(minLength: 6)
             HStack(spacing: 4) {
-                TextField("", text: $totalDraft)
+                TextField(Self.durationPlaceholder, text: $totalDraft)
                     .textFieldStyle(.plain)
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.textPrimary)
                     .monospacedDigit()
                     .multilineTextAlignment(.trailing)
-                    .frame(width: 62)
+                    .frame(width: 58)
                     .focused($focused, equals: activeField)
                     .onAppear { focused = activeField }
                     .onSubmit { commitEntry(commit) }
@@ -630,10 +657,62 @@ struct TrackerView: View {
         .padding(.vertical, 2)
     }
 
-    private func commitEntry(_ commit: (TimeInterval) -> Void) {
+    /// The shape the field expects, shown rather than explained.
+    private static let durationPlaceholder = "0:00:00"
+
+    /// Which day the line belongs to. Only days that have HAPPENED: a session
+    /// logged into the future is not a mistake anybody makes on purpose.
+    private var dayMenu: some View {
+        Menu {
+            Button(t(.todoRemindToday)) { setEntryDay(offset: 0) }
+            Button(t(.trackerYesterday)) { setEntryDay(offset: -1) }
+            Divider()
+            ForEach(2..<31, id: \.self) { back in
+                Button(Self.historyDay.string(from: Self.day(offset: -back))) {
+                    setEntryDay(offset: -back)
+                }
+            }
+        } label: {
+            Text(entryDayTitle)
+                .font(Theme.mono(10))
+                .foregroundStyle(Theme.textPrimary)
+                .lineLimit(1)
+                .padding(.horizontal, 6)
+                .frame(height: 18)
+                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 4))
+                .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.controlStroke, lineWidth: 1))
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+    }
+
+    private var entryDayTitle: String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(entryDay) { return t(.todoRemindToday) }
+        if calendar.isDateInYesterday(entryDay) { return t(.trackerYesterday) }
+        return Self.historyDay.string(from: entryDay)
+    }
+
+    private static func day(offset: Int) -> Date {
+        Calendar.current.date(byAdding: .day, value: offset, to: Date()) ?? Date()
+    }
+
+    private func setEntryDay(offset: Int) {
+        entryDay = Self.day(offset: offset)
+    }
+
+    /// The day and the hour:minute pair, put back together.
+    private var entryMoment: Date {
+        let calendar = Calendar.current
+        return calendar.date(bySettingHour: entryHour, minute: entryMinute, second: 0,
+                             of: entryDay) ?? entryDay
+    }
+
+    private func commitEntry(_ commit: (TimeInterval, Date) -> Void) {
         defer { endEdit() }
         guard let seconds = parseTotal(totalDraft) else { return }
-        commit(seconds)
+        commit(seconds, entryMoment)
     }
 
     private func playStop(_ task: TrackerTask, active: Bool) -> some View {
@@ -870,7 +949,7 @@ struct TrackerView: View {
             return TrackerDrop.Row(id: row.id, parent: row.parent,
                                    isProject: row.project != nil,
                                    isExpanded: row.project?.isExpanded ?? false,
-                                   midY: frame.midY)
+                                   midY: frame.midY, height: frame.height)
         }
     }
 
@@ -1052,6 +1131,7 @@ struct TrackerView: View {
         guard !Snapshot.active else { return }
         clearConfirms()
         totalDraft = draftText(for: abs(entry.seconds))
+        seedMoment(entry.moment)
         activeField = .editEntry(entry.id)
     }
 
@@ -1059,7 +1139,17 @@ struct TrackerView: View {
         guard !Snapshot.active else { return }
         clearConfirms()
         totalDraft = ""
+        // The clock on the wall, so adding a session says when it is being
+        // logged for rather than making that a guess (Anton, 2026-08-28).
+        seedMoment(Date())
         activeField = .newEntry(task.id)
+    }
+
+    private func seedMoment(_ date: Date) {
+        let parts = Calendar.current.dateComponents([.hour, .minute], from: date)
+        entryDay = date
+        entryHour = parts.hour ?? 0
+        entryMinute = parts.minute ?? 0
     }
 
     private func beginNewTaskIn(_ projectID: UUID) {
