@@ -42,6 +42,21 @@ public enum VideoBitrate {
         return Int(max(raw, 120_000))
     }
 
+    /// Where the dial has to sit for a frame of this size to come out at a
+    /// given bitrate — the inverse of `bitsPerSecond`, for when the target is
+    /// known and the dial position is not (a platform preset states megabits,
+    /// never a dial). Clamped to 0…1: a target the dial cannot reach comes
+    /// back as the nearest end it can.
+    public static func quality(
+        forBitsPerSecond target: Int, width: Double, height: Double,
+        fps: Double, codec: Codec
+    ) -> Double {
+        guard width > 0, height > 0, fps > 0, target > 0 else { return 0 }
+        let bitsPerPixel = Double(target) / (width * height * fps * codec.factor)
+        let span = (bitsPerPixel - lowBitsPerPixel) / (highBitsPerPixel - lowBitsPerPixel)
+        return min(max(span, 0), 1).squareRoot()
+    }
+
     /// The audio bitrate that goes with it. Speech survives 64 kbps and music
     /// does not, and a converter cannot tell them apart, so this stays modest
     /// and constant rather than clever.

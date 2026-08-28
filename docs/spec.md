@@ -597,6 +597,27 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   1…100 slider (`convVideoQualityLevel`, default 55) saying HOW HARD to squeeze.
   The legacy single "quality" value migrates into the pair on first launch
   ("hevc" → original + compress).
+- **Platform presets** (`VideoPlatform`, Anton 2026-08-28) sit ABOVE those rows
+  as a shortcut across three of them: "for: reels / feed / tiktok / shorts /
+  youtube". Somebody about to post is thinking about where it goes, not in
+  ratios and megabits, and the platforms publish both. A preset writes the same
+  settings a person would write by hand — shape, resolution 1080 and the
+  compression dial — and stores NOTHING of its own, so changing any of those
+  afterwards simply unlights it. The figures are the platforms' own published
+  recommendations at 1080p30: 5 Mbps for the two Meta frames (9:16 and 4:5),
+  8 Mbps for YouTube, Shorts and TikTok; all five ask for 1080 across the SHORT
+  side, and only the shape differs. The dial position comes from
+  `VideoBitrate.quality` — the inverse of the bitrate formula — so **the target
+  is the file's WEIGHT, not the codec's quality**: the leaner codec is asked for
+  the same megabits and spends more of its dial to get there, which buys a
+  better picture at the size the platform wanted. A preset always turns
+  compression ON: with it off nothing controls the bitrate and the platform's
+  number is not what comes out. `fit` is deliberately left alone — crop, bars or
+  blur is a taste question the platform has no opinion on. More than one chip
+  can light at once and that is the truth rather than a clash: TikTok and Shorts
+  ask for the same file. A source smaller than 1080 is never upscaled (the frame
+  shrinks instead, per `VideoFrame.layout`), so the preset stays honest on small
+  footage even though the 1080p chip in the resolution row is dimmed there.
 - **Hop drives the video encode itself** (`encodeVideo`, 2026-08-04). The system
   export presets take no bitrate, and their "highest quality" re-encoded most
   footage back to roughly its original size: the converter looked like it was

@@ -1,3 +1,4 @@
+import HopCore
 import QuickLookThumbnailing
 import SwiftUI
 import UniformTypeIdentifiers
@@ -407,6 +408,31 @@ struct ConvertWindowView: View {
             // target resolution (only options below the source) and a separate
             // compress toggle (HEVC instead of H.264)
             VStack(alignment: .leading, spacing: 6) {
+                // A shortcut across three of the rows below. Somebody about to
+                // post is thinking "this goes to TikTok", not in ratios and
+                // megabits, and the platforms publish both — so one button can
+                // answer all of it (Anton, 2026-08-28). Nothing new is stored:
+                // a preset writes the same three settings by hand, which is why
+                // touching any of them afterwards simply unlights it.
+                HStack(spacing: 5) {
+                    rowLabel(t(.convPresetLabel))
+                    ForEach(VideoPlatform.allCases, id: \.self) { platform in
+                        chip(platform.rawValue, platform.matches(
+                            shape: VideoFrame.Shape(rawValue: videoShape) ?? .source,
+                            shortSide: Double(videoResolution),
+                            dialPercent: videoQualityLevel,
+                            compressing: videoCompress,
+                            codec: videoCompress ? .hevc : .h264
+                        )) {
+                            videoShape = platform.shape.rawValue
+                            videoResolution = String(Int(platform.shortSide))
+                            videoCompress = true
+                            videoQualityLevel = platform.dialPercent(codec: .hevc)
+                        }
+                    }
+                    Spacer()
+                }
+                .help(t(.convPresetHint))
                 HStack(spacing: 5) {
                     rowLabel(t(.convFormatLabel))
                     // The row shows what the file WILL be, which until anyone

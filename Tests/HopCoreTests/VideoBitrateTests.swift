@@ -80,4 +80,38 @@ final class VideoBitrateTests: XCTestCase {
     func testWithNoSourceSizeTheProjectionStands() {
         XCTAssertEqual(VideoBitrate.honestProjection(projected: 1_000_000, original: 0), 1_000_000)
     }
+
+    // MARK: - Reading the dial backwards
+
+    private func dial(
+        for target: Int, _ width: Double = 1080, _ height: Double = 1920,
+        codec: VideoBitrate.Codec = .h264
+    ) -> Double {
+        VideoBitrate.quality(forBitsPerSecond: target, width: width, height: height,
+                             fps: 30, codec: codec)
+    }
+
+    func testABitrateComesBackAsTheDialThatProducesIt() {
+        let quality = dial(for: 5_000_000)
+        XCTAssertEqual(rate(1080, 1920, quality: quality), 5_000_000, accuracy: 1)
+    }
+
+    func testAskingForMoreThanTheDialHasPinsItAtTheTop() {
+        XCTAssertEqual(dial(for: 400_000_000), 1)
+    }
+
+    func testAskingForLessThanTheDialHasPinsItAtTheBottom() {
+        XCTAssertEqual(dial(for: 1_000), 0)
+    }
+
+    func testTheLeanerCodecNeedsMoreDialForTheSameWeight() {
+        XCTAssertGreaterThan(dial(for: 5_000_000, codec: .hevc),
+                             dial(for: 5_000_000, codec: .h264))
+    }
+
+    func testANonsenseFrameHasNoDialPosition() {
+        XCTAssertEqual(dial(for: 5_000_000, 0, 1920), 0)
+        XCTAssertEqual(VideoBitrate.quality(forBitsPerSecond: 0, width: 1080, height: 1920,
+                                            fps: 30, codec: .h264), 0)
+    }
 }
