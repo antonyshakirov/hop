@@ -638,6 +638,15 @@ struct ConvertWindowView: View {
             rowLabel(t(.convQualityLabel))
             MiniSlider(value: kind == .pdf ? $convPdfQuality : $convQuality,
                        range: 1...100, width: 96)
+            // Says when the answer is the file itself: at the top of the dial,
+            // in the format it already is, nothing is re-encoded (Anton,
+            // 2026-08-28 — a JPEG re-encoded at 100 came back four times
+            // heavier, which is what re-encoding at 100 means).
+            if kind == .image, model.converter.imagesPassThrough {
+                Text(t(.convQualityOriginal))
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textTertiary)
+            }
             Spacer()
         }
     }

@@ -67,6 +67,11 @@ struct AppShelfView: View {
     /// Measured width of one row — the pitch and the drag maths come from it.
     @State private var rowWidth: CGFloat = 0
 
+    /// The transparent margin macOS leaves around an app icon's tile, as drawn
+    /// at this size. Apple's own grid is a tile in a square about 9% wider on
+    /// each side; capped so a huge icon does not pull the row far off the edge.
+    private var iconTileInset: CGFloat { min(4, iconSize * 0.09) }
+
     /// Distance from one icon's left edge to the next one's. Eight icons flush
     /// against both module edges leave seven EQUAL gaps. A LazyVGrid could not do
     /// that: centring every cell indented the row by half the column's slack, and
@@ -242,6 +247,12 @@ struct AppShelfView: View {
             }
         }
         .padding(.vertical, 2)
+        // Optical, not geometric: an app icon is a rounded tile inside a
+        // transparent square, so a row aligned by its FRAMES stands a couple of
+        // points in from every label above it — which is what the eye reads
+        // (Anton, 2026-08-28). The row is pulled out by that margin so the
+        // visible tiles sit on the module's own line.
+        .padding(.horizontal, -iconTileInset)
         .background(GeometryReader { geo in
             Color.clear
                 .onAppear { rowWidth = geo.size.width }

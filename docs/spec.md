@@ -642,6 +642,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   follows the frame row, so picking 9:16 turns the diagram vertical. Three words
   are three guesses until you see them, and a diagram that ignored the frame
   said even less.
+- **An image conversion that asks for nothing is a COPY** (`ImagePassthrough`,
+  tested; Anton 2026-08-28): same format, full scale, quality at the top — the
+  file itself is the answer, and it is copied rather than re-encoded. Asking a
+  JPEG encoder for 100 is not "leave it alone": the original was written at some
+  ordinary quality with subsampled colour, and the best-quality write keeps full
+  colour and barely quantises, so a grainy photo came back four times heavier
+  for a picture nobody can tell apart. The quality row says "original" while
+  that is what will happen, and the size forecast follows, since the estimate
+  runs the same conversion.
 - **"Off" and "the dial at 100" are different things**, so the row says which is
   which: with compression off it reads "original", because the tracks are then
   copied across untouched — no encode at all. At 100 the file IS re-encoded, at
@@ -1441,6 +1450,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   icons with the name under each. Clicking an icon launches it. The model is
   `HopCore.AppShelf` / `AppShelves` with tests; the store is
   `app-shelves.json` beside the other module files.
+- **The row is aligned OPTICALLY, not by its frames** (Anton, 2026-08-28). An
+  app icon is a rounded tile inside a transparent square, so a row whose cells
+  sit exactly on the module's line still reads as indented next to every label
+  above it. The grid is pulled out by that margin (≈9% of the icon, capped at
+  4pt), which puts the visible tiles on the line instead of the empty squares
+  around them.
 - **Several grids.** This is the ONE module that exists in copies, so its module
   key carries an id (`apps:<uuid>`) instead of a bare word. A key is matched to
   its shelf by that ID, never as text (`AppShelves.moduleKeys(for:in:)`):

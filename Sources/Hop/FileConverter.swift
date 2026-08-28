@@ -400,6 +400,15 @@ final class FileConverter: ObservableObject {
         return String(format: "≈ %.1f Mbps", Double(bits) / 1_000_000)
     }
 
+    /// True when the image settings ask for nothing: the pending files are
+    /// already in the target format, at full scale, with the dial at the top —
+    /// so they are copied rather than re-encoded, and the row can say so.
+    var imagesPassThrough: Bool {
+        guard let url = batch.pending(.image).first else { return false }
+        return ImagePassthrough.isNoOp(source: url, format: Self.format,
+                                       scale: Self.scale, quality: Self.quality(for: .image))
+    }
+
     /// What the current settings will make of a video: "720p → 404p", or just
     /// "720p" when nothing about the frame is changing. The row used to show the
     /// source's own resolution and nothing else, so picking 540p left "718p"
@@ -943,6 +952,14 @@ final class FileConverter: ObservableObject {
 
         let (type, ext) = utType(for: format)
         let outURL = uniqueURL(dir, name: url.deletingPathExtension().lastPathComponent, ext: ext)
+        // Nothing is being asked for — same format, full scale, quality at the
+        // top — so the file itself is the answer. Re-encoding a JPEG at 100
+        // writes full colour and barely-quantised detail, and a grainy photo
+        // came back several times heavier for a picture nobody can tell apart
+        // (Anton, 2026-08-28).
+        if ImagePassthrough.isNoOp(source: url, format: format, scale: scale, quality: quality) {
+            return (try? FileManager.default.copyItem(at: url, to: outURL)) != nil ? outURL : nil
+        }
         guard let dest = CGImageDestinationCreateWithURL(
             outURL as CFURL, type.identifier as CFString, 1, nil
         ) else { return nil }
