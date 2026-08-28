@@ -849,11 +849,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     sitting empty. Both halves are filled in before it opens: from the line for
     an edit, from the clock on the wall for a new one, so "add time" says what
     it is logging against.
-  - **Each part opens a SHORT scrolling list** (`ValueChip`, Controls.swift), not
-    a system menu: a menu grows to fit its items, so sixty minutes became a
-    column down the whole screen (Anton, 2026-08-28). The popover is seven rows
-    tall, scrolls, highlights the current value and opens scrolled TO it — a
-    decade of years starts where the year already is.
+  - **Each part opens a SHORT scrolling list UNDER the editor**, in the flow —
+    not a system menu and not a popover (Anton, 2026-08-28). A menu grows to fit
+    its items, so sixty minutes became a column down the whole screen; a popover
+    brings macOS's own large corner radius, which sat oddly against the panel's
+    4–6pt corners. The list is 132pt tall, scrolls, highlights the current value
+    and opens scrolled TO it — a decade of years starts where the year already
+    is. One list at a time; the open chip carries the editing outline, picking
+    closes it, and so does closing the editor.
   - **The date parts are lists, not typed numbers** (Anton, 2026-08-28). Typing
     left no way back out of a half-entered year, and a bare "08" said nothing
     about which month it was. Months are NAMED in the app's own language

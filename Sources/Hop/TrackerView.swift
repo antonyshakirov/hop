@@ -33,6 +33,11 @@ struct TrackerView: View {
         case newEntry(UUID)         // taskID — a session being added by hand
     }
 
+    /// The five parts of a logged moment, for the one open list at a time.
+    private enum MomentPart: Hashable {
+        case day, month, year, hour, minute
+    }
+
     private struct RowFrameKey: PreferenceKey {
         static let defaultValue: [UUID: CGRect] = [:]
         static func reduce(value: inout [UUID: CGRect], nextValue: () -> [UUID: CGRect]) {
@@ -56,6 +61,11 @@ struct TrackerView: View {
     /// The moment a history line is being given, while its editor is open: the
     /// day, and the hour and minute it started at. Seeded from the line itself,
     /// or from the clock on the wall when adding one (Anton, 2026-08-28).
+    /// Which part of the moment has its list open, if any. The list is drawn
+    /// IN THE FLOW under the editor rather than in a system popover: a popover
+    /// comes with macOS's own large corner radius, which sat oddly against the
+    /// panel's own 4–6pt corners (Anton, 2026-08-28).
+    @State private var openPart: MomentPart?
     @State private var entryYear = 2026
     @State private var entryMonth = 1
     @State private var entryDayNumber = 1
@@ -634,6 +644,7 @@ struct TrackerView: View {
     /// beside two icons said nothing about what to type (Anton, 2026-08-28).
     private func entryEditor(allowsMoment: Bool,
                              commit: @escaping (TimeInterval, Date) -> Void) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
         HStack(spacing: 6) {
             if allowsMoment {
                 HStack(spacing: 3) {
@@ -645,18 +656,16 @@ struct TrackerView: View {
                     // month has.
                     ForEach(Self.dateOrder, id: \.self) { part in
                         switch part {
-                        case .day: dayList
-                        case .month: monthList
-                        case .year: yearList
+                        case .day: dayChip
+                        case .month: monthChip
+                        case .year: yearChip
                         }
                     }
-                    ValueChip(values: Array(0...23), selected: entryHour,
-                              title: { String(format: "%02d", $0) }) { entryHour = $0 }
+                    momentChip(.hour, String(format: "%02d", entryHour))
                     Text(":")
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.textTertiary)
-                    ValueChip(values: Array(0...59), selected: entryMinute,
-                              title: { String(format: "%02d", $0) }) { entryMinute = $0 }
+                    momentChip(.minute, String(format: "%02d", entryMinute))
                 }
             }
             Spacer(minLength: 6)
@@ -679,40 +688,131 @@ struct TrackerView: View {
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
         }
         .padding(.vertical, 2)
+        // the open list lives UNDER the row, in the flow: it pushes the block
+        // taller for as long as it is open instead of floating over it
+        openPartList
+        }
     }
 
     /// The shape the field expects, shown rather than explained.
     private static let durationPlaceholder = "0:00:00"
 
+    /// One part of the moment, as a chip that toggles its own list.
+    private func momentChip(_ part: MomentPart, _ title: String) -> some View {
+        Button { openPart = openPart == part ? nil : part } label: {
+            Text(title)
+                .font(Theme.mono(10))
+                .foregroundStyle(Theme.textPrimary)
+                .lineLimit(1)
+                .padding(.horizontal, 5)
+                .frame(height: 18)
+                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 4))
+                .overlay(RoundedRectangle(cornerRadius: 4)
+                    .stroke(openPart == part ? Theme.editing : Theme.controlStroke, lineWidth: 1))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
+    }
+
     /// Only the days the chosen month actually has: pick 31 in March, switch to
     /// February and the choice follows to the 28th (or the 29th in a leap year)
     /// rather than silently meaning something else.
-    private var dayList: some View {
-        let days = TrackerMoment.daysInMonth(entryMonth, year: entryYear)
-        return ValueChip(values: Array(1...days), selected: entryDayNumber,
-                         title: { String($0) }) { entryDayNumber = $0 }
-    }
+    private var dayChip: some View { momentChip(.day, String(entryDayNumber)) }
 
     /// Months by NAME, in the app's own language — "08" told nobody anything.
-    private var monthList: some View {
-        ValueChip(values: Array(1...12), selected: entryMonth,
-                  title: { Self.monthNames[max(0, min($0 - 1, 11))] }) { month in
-            entryMonth = month
-            entryDayNumber = TrackerMoment.clampedDay(entryDayNumber,
-                                                      month: month, year: entryYear)
+    private var monthChip: some View {
+        momentChip(.month, Self.monthNames[max(0, min(entryMonth - 1, 11))])
+    }
+
+    private var yearChip: some View { momentChip(.year, String(entryYear)) }
+
+    /// The open list, drawn under the editor in the flow: seven rows tall, in
+    /// the panel's own corner radius, scrolled to whatever is chosen.
+    @ViewBuilder private var openPartList: some View {
+        if let part = openPart {
+            let values = momentValues(part)
+            ScrollViewReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 1) {
+                        ForEach(values, id: \.self) { value in
+                            momentRow(part, value)
+                        }
+                    }
+                    .padding(3)
+                }
+                .frame(height: 132)
+                .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+                // open where the answer already is, not at the top of a decade
+                .onAppear { proxy.scrollTo(momentSelection(part), anchor: .center) }
+            }
         }
     }
 
-    /// A decade back and the year ahead: enough for a forgotten session, short
-    /// enough to stay one glance.
-    private var yearList: some View {
-        let current = Calendar.current.component(.year, from: Date())
-        return ValueChip(values: Array(((current - 10)...(current + 1)).reversed()),
-                         selected: entryYear, title: { String($0) }) { year in
-            entryYear = year
-            entryDayNumber = TrackerMoment.clampedDay(entryDayNumber,
-                                                      month: entryMonth, year: year)
+    private func momentRow(_ part: MomentPart, _ value: Int) -> some View {
+        let isSelected = momentSelection(part) == value
+        return Button { pickMoment(part, value) } label: {
+            Text(momentTitle(part, value))
+                .font(Theme.mono(11))
+                .foregroundStyle(isSelected ? Theme.textPrimary : Theme.listText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(isSelected ? Theme.rowBg : .clear,
+                            in: RoundedRectangle(cornerRadius: 4))
+                .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .hoverHighlight(4)
+        .id(value)
+    }
+
+    private func momentValues(_ part: MomentPart) -> [Int] {
+        let current = Calendar.current.component(.year, from: Date())
+        switch part {
+        case .day: return Array(1...TrackerMoment.daysInMonth(entryMonth, year: entryYear))
+        case .month: return Array(1...12)
+        case .year: return Array(((current - 10)...(current + 1)).reversed())
+        case .hour: return Array(0...23)
+        case .minute: return Array(0...59)
+        }
+    }
+
+    private func momentSelection(_ part: MomentPart) -> Int {
+        switch part {
+        case .day: return entryDayNumber
+        case .month: return entryMonth
+        case .year: return entryYear
+        case .hour: return entryHour
+        case .minute: return entryMinute
+        }
+    }
+
+    private func momentTitle(_ part: MomentPart, _ value: Int) -> String {
+        switch part {
+        case .month: return Self.monthNames[max(0, min(value - 1, 11))]
+        case .hour, .minute: return String(format: "%02d", value)
+        case .day, .year: return String(value)
+        }
+    }
+
+    /// Picking closes the list. A shorter month or a non-leap year pulls the day
+    /// down with it, so the moment stays one that exists.
+    private func pickMoment(_ part: MomentPart, _ value: Int) {
+        switch part {
+        case .day: entryDayNumber = value
+        case .month:
+            entryMonth = value
+            entryDayNumber = TrackerMoment.clampedDay(entryDayNumber, month: value,
+                                                      year: entryYear)
+        case .year:
+            entryYear = value
+            entryDayNumber = TrackerMoment.clampedDay(entryDayNumber, month: entryMonth,
+                                                      year: value)
+        case .hour: entryHour = value
+        case .minute: entryMinute = value
+        }
+        openPart = nil
     }
 
     /// The months as this Mac names them, short form so the chip stays narrow.
@@ -1262,6 +1362,7 @@ struct TrackerView: View {
 
     private func endEdit() {
         activeField = nil
+        openPart = nil
         focused = nil
         nameDraft = ""
         totalDraft = ""
