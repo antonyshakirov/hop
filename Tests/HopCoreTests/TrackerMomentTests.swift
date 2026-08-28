@@ -51,6 +51,13 @@ final class TrackerMomentTests: XCTestCase {
         XCTAssertEqual(TrackerMoment.clampedDay(15, month: 13, year: 2026, calendar: calendar), 15)
     }
 
+    func testAMonthKnowsHowManyDaysItHas() {
+        XCTAssertEqual(TrackerMoment.daysInMonth(1, year: 2026, calendar: calendar), 31)
+        XCTAssertEqual(TrackerMoment.daysInMonth(4, year: 2026, calendar: calendar), 30)
+        XCTAssertEqual(TrackerMoment.daysInMonth(2, year: 2026, calendar: calendar), 28)
+        XCTAssertEqual(TrackerMoment.daysInMonth(2, year: 2028, calendar: calendar), 29)
+    }
+
     // MARK: - Building the moment
 
     func testTheNumbersBecomeTheDateTheyDescribe() {

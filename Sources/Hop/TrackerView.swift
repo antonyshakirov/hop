@@ -636,25 +636,33 @@ struct TrackerView: View {
                              commit: @escaping (TimeInterval, Date) -> Void) -> some View {
         HStack(spacing: 6) {
             if allowsMoment {
-                HStack(spacing: 2) {
+                HStack(spacing: 3) {
                     // Day, month and year in the order this locale writes them,
-                    // then the clock. Typed rather than picked from a list:
-                    // a menu of recent days could not reach last spring
-                    // (Anton, 2026-08-28).
+                    // then the clock — each a LIST, not a typed number. Typing
+                    // left no way back out of a half-entered year, and a bare
+                    // "08" says nothing about which month it is (Anton,
+                    // 2026-08-28). The day list only offers days the chosen
+                    // month has.
                     ForEach(Self.dateOrder, id: \.self) { part in
                         switch part {
-                        case .day: numberField($entryDayNumber, range: 1...31, width: 24)
-                        case .month: numberField($entryMonth, range: 1...12, width: 24)
-                        case .year: numberField($entryYear, range: 1970...2100, width: 36)
+                        case .day: dayList
+                        case .month: monthList
+                        case .year: yearList
                         }
                     }
-                    Text(" ")
-                        .font(Theme.mono(10))
-                    numberField($entryHour, range: 0...23, width: 24)
+                    pickerMenu(String(format: "%02d", entryHour)) {
+                        ForEach(0..<24, id: \.self) { hour in
+                            Button(String(format: "%02d", hour)) { entryHour = hour }
+                        }
+                    }
                     Text(":")
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.textTertiary)
-                    numberField($entryMinute, range: 0...59, width: 24)
+                    pickerMenu(String(format: "%02d", entryMinute)) {
+                        ForEach(0..<60, id: \.self) { minute in
+                            Button(String(format: "%02d", minute)) { entryMinute = minute }
+                        }
+                    }
                 }
             }
             Spacer(minLength: 6)
@@ -682,14 +690,71 @@ struct TrackerView: View {
     /// The shape the field expects, shown rather than explained.
     private static let durationPlaceholder = "0:00:00"
 
-    /// One number of the moment. `ClockField` is the reminder row's own
-    /// two-digit field; the year simply needs a wider one.
-    private func numberField(_ value: Binding<Int>, range: ClosedRange<Int>,
-                             width: CGFloat) -> some View {
-        ClockField(value: value, range: range, width: width)
-            .frame(width: width, height: 18)
-            .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
+    /// One part of the moment, as a small bordered menu — the same chip the
+    /// reminder's day picker uses, sized for this row.
+    private func pickerMenu<Content: View>(
+        _ title: String, @ViewBuilder content: () -> Content
+    ) -> some View {
+        Menu(content: content) {
+            Text(title)
+                .font(Theme.mono(10))
+                .foregroundStyle(Theme.textPrimary)
+                .lineLimit(1)
+                .padding(.horizontal, 5)
+                .frame(height: 18)
+                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 4))
+                .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.controlStroke, lineWidth: 1))
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
     }
+
+    /// Only the days the chosen month actually has: pick 31 in March, switch to
+    /// February and the choice follows to the 28th (or the 29th in a leap year)
+    /// rather than silently meaning something else.
+    private var dayList: some View {
+        let days = TrackerMoment.daysInMonth(entryMonth, year: entryYear)
+        return pickerMenu("\(entryDayNumber)") {
+            ForEach(1...days, id: \.self) { day in
+                Button("\(day)") { entryDayNumber = day }
+            }
+        }
+    }
+
+    /// Months by NAME, in the app's own language — "08" told nobody anything.
+    private var monthList: some View {
+        pickerMenu(Self.monthNames[max(0, min(entryMonth - 1, 11))]) {
+            ForEach(1...12, id: \.self) { month in
+                Button(Self.monthNames[month - 1]) {
+                    entryMonth = month
+                    entryDayNumber = TrackerMoment.clampedDay(entryDayNumber,
+                                                              month: month, year: entryYear)
+                }
+            }
+        }
+    }
+
+    /// A decade back and the year ahead: enough for a forgotten session, short
+    /// enough to stay one glance.
+    private var yearList: some View {
+        let current = Calendar.current.component(.year, from: Date())
+        return pickerMenu("\(entryYear)") {
+            ForEach(((current - 10)...(current + 1)).reversed(), id: \.self) { year in
+                Button("\(year)") {
+                    entryYear = year
+                    entryDayNumber = TrackerMoment.clampedDay(entryDayNumber,
+                                                              month: entryMonth, year: year)
+                }
+            }
+        }
+    }
+
+    /// The months as this Mac names them, short form so the chip stays narrow.
+    private static let monthNames: [String] = {
+        let formatter = DateFormatter()
+        return formatter.shortStandaloneMonthSymbols ?? formatter.shortMonthSymbols ?? []
+    }()
 
     /// The order the three date fields sit in, from the locale's own template.
     private static let dateOrder: [TrackerMoment.Part] = TrackerMoment.order(

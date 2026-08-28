@@ -35,22 +35,23 @@ public enum TrackerMoment {
         return seen
     }
 
+    /// How many days that month has — what the day list is allowed to offer.
+    public static func daysInMonth(_ month: Int, year: Int,
+                                   calendar: Calendar = .current) -> Int {
+        var components = DateComponents()
+        components.year = year
+        components.month = min(max(month, 1), 12)
+        guard let firstOfMonth = calendar.date(from: components),
+              let range = calendar.range(of: .day, in: .month, for: firstOfMonth)
+        else { return 31 }
+        return range.count
+    }
+
     /// A day number that exists in that month: February never has a 31st, and
     /// 2026 has no 29th of February while 2028 does.
     public static func clampedDay(_ day: Int, month: Int, year: Int,
                                   calendar: Calendar = .current) -> Int {
-        let month = min(max(month, 1), 12)
-        var components = DateComponents()
-        components.year = year
-        components.month = month
-        let last: Int
-        if let firstOfMonth = calendar.date(from: components),
-           let range = calendar.range(of: .day, in: .month, for: firstOfMonth) {
-            last = range.count
-        } else {
-            last = 31
-        }
-        return min(max(day, 1), last)
+        min(max(day, 1), daysInMonth(month, year: year, calendar: calendar))
     }
 
     /// The moment those numbers describe, with the day clamped into its month.

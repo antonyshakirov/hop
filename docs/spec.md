@@ -843,13 +843,20 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (tap the row), deleted (hover ✕), and a session that was never tracked can be
   added by hand ("add time").
   - **A line's editor holds both halves of it**: WHEN it started — day, month,
-    year and the clock, each a typed `ClockField`, the three date fields in the
-    order this locale writes them (`TrackerMoment.order`, tested) — and HOW LONG
-    it ran, in a field showing `0:00:00` as its placeholder rather than sitting
-    empty. Both halves are filled in before it opens: from the line for an edit,
-    from the clock on the wall for a new one, so "add time" says what it is
-    logging against. Typed rather than picked from a list: a menu of recent days
-    could not reach last spring (Anton, 2026-08-28).
+    year, hour and minute, each a small bordered MENU, the three date parts in
+    the order this locale writes them (`TrackerMoment.order`, tested) — and HOW
+    LONG it ran, in a field showing `0:00:00` as its placeholder rather than
+    sitting empty. Both halves are filled in before it opens: from the line for
+    an edit, from the clock on the wall for a new one, so "add time" says what
+    it is logging against.
+  - **The date parts are lists, not typed numbers** (Anton, 2026-08-28). Typing
+    left no way back out of a half-entered year, and a bare "08" said nothing
+    about which month it was. Months are NAMED in the app's own language
+    (`shortStandaloneMonthSymbols`), the day list offers only the days the
+    chosen month has, and picking a shorter month or a non-leap year pulls the
+    day down with it — pick the 31st in March, switch to February, and the
+    choice follows to the 28th instead of quietly meaning something else. Years
+    run a decade back and one ahead.
   - **A typed date is always a real one.** A day its month does not have is
     pulled to that month's last — 31 April is the 30th, and 29 February exists
     in 2028 but not in 2026 (`TrackerMoment.clampedDay`).
