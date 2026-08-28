@@ -715,9 +715,12 @@ struct TrackerView: View {
     /// rather than silently meaning something else.
     private var dayList: some View {
         let days = TrackerMoment.daysInMonth(entryMonth, year: entryYear)
-        return pickerMenu("\(entryDayNumber)") {
+        // String(...), never "\(day)": an interpolated number in a Button's
+        // LocalizedStringKey is formatted as a NUMBER, which is how a year came
+        // out as "2,026" (Anton, 2026-08-28).
+        return pickerMenu(String(entryDayNumber)) {
             ForEach(1...days, id: \.self) { day in
-                Button("\(day)") { entryDayNumber = day }
+                Button(String(day)) { entryDayNumber = day }
             }
         }
     }
@@ -739,9 +742,9 @@ struct TrackerView: View {
     /// enough to stay one glance.
     private var yearList: some View {
         let current = Calendar.current.component(.year, from: Date())
-        return pickerMenu("\(entryYear)") {
+        return pickerMenu(String(entryYear)) {
             ForEach(((current - 10)...(current + 1)).reversed(), id: \.self) { year in
-                Button("\(year)") {
+                Button(String(year)) {
                     entryYear = year
                     entryDayNumber = TrackerMoment.clampedDay(entryDayNumber,
                                                               month: entryMonth, year: year)
