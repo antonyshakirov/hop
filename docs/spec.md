@@ -807,14 +807,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   calendar, whose `firstWeekday` is the user's own setting (the same one the
   reminder weekday row uses); changing that setting recuts the figures live
   (`TrackerController.refreshWeekStart`).
-- **Projects on screen:** a chevron folds and unfolds (`isExpanded`, stored — a
-  folded project stays folded across restarts), the name is semibold, and the
-  trailing figure is the sum of its tasks over the current period. A FOLDED
-  project whose task is running carries a small green dot, since its play glyph
-  is not on screen. Hovering reveals a "+" (add a task straight into it) and the
-  delete ✕. A tap on the row renames it inline — projects have no card, and the
-  chevron owns the fold, so the row itself is free for that. Contents are
+- **Projects on screen:** a DISCLOSURE TRIANGLE folds and unfolds (`isExpanded`,
+  stored — a folded project stays folded across restarts), the name is semibold,
+  and the trailing figure is the sum of its tasks over the current period. A
+  FOLDED project whose task is running carries a small green dot, since its play
+  glyph is not on screen. Hovering reveals a "+" (add a task straight into it,
+  the same 10pt glyph the footer's own add uses) and the delete ✕. Contents are
   indented 16pt.
+- **Renaming lives on the NAME, not on the row** (Anton, 2026-08-28). With the
+  whole row taking the tap, the triangle's own click was swallowed by it: folding
+  a project started a rename instead. The row keeps only the drag; the name has
+  the tap.
+- **The add row carries both** — "new task" at the left, "new project" pushed
+  out to the RIGHT, onto the column the times line up in (Anton, 2026-08-28).
+  Side by side, the project button read as trailing the task one; on the time
+  column it reads as belonging to the list.
 - **Deleting a project deletes its tasks and their history** (Anton,
   2026-08-28). The confirm keeps the row's silhouette and puts a list glyph with
   the task count next to the delete/cancel pair — a count of tasks would need a

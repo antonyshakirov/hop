@@ -253,20 +253,30 @@ struct TrackerView: View {
         } else {
             let confirming = confirmingDeleteProject == project.id
             HStack(spacing: 6) {
+                // A disclosure triangle, pointing the way the list will go —
+                // the shape macOS uses for exactly this, so nobody has to learn
+                // it (Anton, 2026-08-28).
                 Button { engine.setProjectExpanded(project.id, !project.isExpanded) } label: {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 9, weight: .semibold))
-                        .rotationEffect(.degrees(project.isExpanded ? 90 : 0))
+                    Image(systemName: "triangle.fill")
+                        .font(.system(size: 7))
+                        .rotationEffect(.degrees(project.isExpanded ? 180 : 90))
                         .foregroundStyle(Theme.textSecondary)
                         .frame(width: RowCircle.gutter, height: RowCircle.gutter, alignment: .leading)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .hoverDim()
+                // Renaming lives on the NAME, not on the row: with the whole row
+                // taking the tap, the triangle's own click was being swallowed
+                // and folding a project started a rename instead (Anton,
+                // 2026-08-28).
                 Text(project.name)
                     .font(Theme.mono(12, weight: .semibold))
                     .foregroundStyle(Theme.listText)
                     .lineLimit(1)
                     .truncationMode(.tail)
+                    .contentShape(Rectangle())
+                    .onTapGesture { beginRenameProject(project) }
                 // a folded project still has to show that something under it runs
                 if !project.isExpanded, engine.isTracking(projectID: project.id) {
                     Circle()
@@ -298,8 +308,10 @@ struct TrackerView: View {
                         beginNewTaskIn(project.id)
                     } label: {
                         Image(systemName: "plus")
-                            .font(.system(size: 9, weight: .semibold))
+                            .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(Theme.textTertiary)
+                            .frame(width: 14, height: 14)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .hoverDim()
@@ -314,7 +326,6 @@ struct TrackerView: View {
             .padding(.vertical, 2)
             .background(rowFrameReader(project.id))
             .contentShape(Rectangle())
-            .onTapGesture { beginRenameProject(project) }
             .gesture(dragGesture(project.id, isProject: true),
                      including: trackerCapped ? .subviews : .all)
             .opacity(dragTask == project.id ? 0.4 : 1)
@@ -774,14 +785,26 @@ struct TrackerView: View {
             nameField(.newProject, placeholder: t(.trackerNewProject))
                 .frame(height: 26)
         } else {
+            // Two ways to add on one line, but not two labels crowding the
+            // left: the project one is pushed out to the RIGHT, onto the column
+            // the times line up in, so it reads as belonging to the list rather
+            // than trailing the task button (Anton, 2026-08-28).
             HStack(spacing: 10) {
                 Button { beginNewTask() } label: {
                     addRowLabel(t(.trackerNewTask), iconSize: 10)
                 }
                 .buttonStyle(.plain)
                 .hoverHighlight(6, bleed: 5)
+                Spacer(minLength: 6)
                 Button { beginNewProject() } label: {
-                    addRowLabel(t(.trackerNewProject), iconSize: 10)
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus").font(.system(size: 10, weight: .semibold))
+                        Text(t(.trackerNewProject)).font(Theme.mono(11))
+                    }
+                    .foregroundStyle(Theme.textTertiary)
+                    .padding(.vertical, 5)
+                    .frame(height: 26)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .hoverHighlight(6, bleed: 5)
