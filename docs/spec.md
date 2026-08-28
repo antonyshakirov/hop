@@ -845,6 +845,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     would not add up to the number above it.
   - The card draws the most recent 8 and says "+N" for the rest, rather than
     turning the panel into a ledger.
+  - **The total is the block's headline**, not another line of it: 13pt semibold
+    in primary ink against a 9pt tertiary label, sharing a baseline, with room
+    under the pair (Anton, 2026-08-28 — at matching sizes he read the label as a
+    button and the figure as a row).
   - **Deleting a line asks first**, the same two-step the rows use: the hover ✕
     swaps the line for a delete/cancel pair, and only that deletes (Anton,
     2026-08-28). The ✕ here is 16pt rather than the row's 22 — a history line is

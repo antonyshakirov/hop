@@ -472,17 +472,22 @@ struct TrackerView: View {
     @ViewBuilder private func history(_ task: TrackerTask) -> some View {
         let entries = engine.history(taskID: task.id)
         VStack(alignment: .leading, spacing: 2) {
-            HStack(spacing: 6) {
+            // The total is the headline of this block, not another line of it:
+            // at the same size and weight as the label it read as a row, and
+            // Anton clicked the word trying to find out what the figure meant
+            // (2026-08-28). It now sits a full step up the scale, in primary
+            // ink, on a shared baseline with a smaller, quieter label.
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(t(.trackerHistory))
-                    .font(Theme.mono(10, weight: .semibold))
+                    .font(Theme.mono(9, weight: .semibold))
                     .foregroundStyle(Theme.textTertiary)
                 Spacer(minLength: 6)
                 Text(shortTime(engine.total(taskID: task.id)))
-                    .font(Theme.mono(10, weight: .semibold))
-                    .foregroundStyle(Theme.textSecondary)
+                    .font(Theme.mono(13, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
                     .monospacedDigit()
             }
-            .padding(.bottom, 2)
+            .padding(.bottom, 6)
             // A long-lived task can hold hundreds of sessions; the card shows
             // the recent ones and says how many it did not draw, rather than
             // turning the panel into a ledger.
@@ -515,7 +520,10 @@ struct TrackerView: View {
             }
         }
         .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .padding(.top, 8)
+        // more room under the last line than above the first: the block ends
+        // against the next task, and a tight bottom edge read as cramped
+        .padding(.bottom, 10)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
     }
 
