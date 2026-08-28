@@ -1186,11 +1186,12 @@ struct TransportCircle: View {
         let glyph = glyphColor ?? (filled ? Theme.playFg : Theme.textPrimary)
         Group {
             if systemName == "play.fill" {
-                // Sized back up from 0.315 (Anton, 2026-08-28): the lighter
-                // triangle read as a dot at row size, and the disc's job is to
-                // say "play". Still short of the SF glyph's own ~0.39, which
-                // crowds the circle.
-                PlayGlyph(color: glyph, box: diameter * 0.36)
+                // Bigger than the 0.315 it shrank to, and LESS rounded with it
+                // (Anton, 2026-08-28): at 0.46 the round join eats the tip and
+                // the top and bottom corners, so growing the box only looked
+                // like growing the width. A tighter join keeps the height the
+                // growth was meant to buy.
+                PlayGlyph(color: glyph, box: diameter * 0.38, round: 0.36)
             } else if systemName.isEmpty {
                 Color.clear
             } else {

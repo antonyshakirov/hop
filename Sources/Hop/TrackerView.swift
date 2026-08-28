@@ -95,9 +95,13 @@ struct TrackerView: View {
     /// "visible rows" cap: 0 = all (default), 3…15 caps the task list to a fixed
     /// height with inner scroll (the 8h warning is pinned outside the scroll).
     @AppStorage(TrackerController.visibleRowsKey) private var visibleRows = TrackerController.defaultVisibleRows
-    /// Float important tasks to the top. OFF by default — the mark alone moves
-    /// nothing, which keeps the hand-built order the user's own.
-    @AppStorage(SettingsKey.trackerImportantOnTop) private var importantOnTop = false
+    /// Float starred tasks to the top of whatever list they are in — the top
+    /// level for a loose task, its own project for one inside (Anton,
+    /// 2026-08-28). ON by default now: a star that moved nothing was a mark
+    /// with no consequence, and everybody who used one expected it to lift the
+    /// task. The stored order is still untouched, so switching it off puts
+    /// every task back where it was put by hand.
+    @AppStorage(SettingsKey.trackerImportantOnTop) private var importantOnTop = true
     /// Which period every figure in the module covers.
     @AppStorage(TrackerController.periodKey) private var periodRaw = TrackerPeriod.total.rawValue
     /// The week's first day: read only so a change recuts the week figures.

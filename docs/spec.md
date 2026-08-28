@@ -1211,9 +1211,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and read as a glow. A coloured frame was tried
   first and rejected — it read as a warning rather than "this one matters"
   (Anton, 2026-07-28). Per-module `important tasks on top` settings
-  (`todoImportantOnTop`, `trackerImportantOnTop`, both OFF) turn the mark into a
+  (`todoImportantOnTop` OFF; `trackerImportantOnTop` **ON since 2026-08-28** —
+  a star that moved nothing was a mark with no consequence, and everyone who
+  used one expected it to lift the task) turn the mark into a
   DISPLAY sort: important actives first, then ordinary actives, then the
-  completed pile. Display-only, exactly like the completed sink — the stored
+  completed pile. In the tracker a star lifts a task WITHIN ITS OWN LIST — the
+  top level for a loose task, its own project for one inside — and projects
+  never move for it (`TrackerDisplay.order(topLevel:)`). Display-only, exactly like the completed sink — the stored
   order is never mutated, so unmarking returns an item to its slot and switching
   the setting off restores the hand-built order. Drag is clamped to the dragged
   item's group (`TodoDisplay` over three groups, `TrackerDisplay` over two).
@@ -2130,11 +2134,14 @@ taught anything.
   a hand-drawn triangle filled and then stroked with a thick round line-join so
   the corners bulge smooth (the same technique as the status-bar running badge),
   everything proportional to a `box` size and offset right `box·0.06` for optical
-  centering. Corner rounding is the `round` fraction of `box` (0.46 — tuned
-  noticeably rounder than the original 0.34, "round as much as possible", while
-  still reading as a play down to the 18pt row circle); one factor scales sanely
-  to every size. Call sites: the tracker/to-do transport (`TransportCircle`,
-  `box = 0.315·diameter`), the main timer button — compact 27/34pt and full 48pt,
+  centering. Corner rounding is the `round` fraction of `box`, 0.46 by default
+  (tuned noticeably rounder than the original 0.34, "round as much as possible",
+  while still reading as a play down to the 18pt row circle); one factor scales
+  sanely to every size. Call sites: the tracker/to-do transport
+  (`TransportCircle`, `box = 0.38·diameter` at `round 0.36` — grown 2026-08-28
+  because the glyph read as a dot at row size, and rounded LESS with it: at 0.46
+  the join eats the tip and both far corners, so a bigger box only looked wider),
+  the main timer button — compact 27/34pt and full 48pt,
   `box = 0.315·size` — the torrent row play control (`box 11`, pause keeps SF
   `pause.fill`), and the timer help-tab icon legend. The menu-bar badge is
   deliberately excluded (it ships with the corner-system redesign). Pause glyphs

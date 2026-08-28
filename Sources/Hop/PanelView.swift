@@ -52,7 +52,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.todoRemindSound) private var todoRemindSound = true
     @AppStorage(SettingsKey.todoRemindMark) private var todoRemindMark = true
     @AppStorage(SettingsKey.todoImportantOnTop) private var todoImportantOnTop = false
-    @AppStorage(SettingsKey.trackerImportantOnTop) private var trackerImportantOnTop = false
+    @AppStorage(SettingsKey.trackerImportantOnTop) private var trackerImportantOnTop = true
     @AppStorage(SettingsKey.firstWeekday) private var firstWeekday = FirstWeekday.auto
     @AppStorage(VPNController.visibleRowsKey) private var vpnVisibleRows = VPNController.defaultVisibleRows
     @AppStorage("timerCompact") private var timerCompact = true
