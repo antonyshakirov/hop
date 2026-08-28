@@ -49,6 +49,10 @@ struct TrackerView: View {
 
     @State private var confirmingDeleteTask: UUID?
     @State private var confirmingDeleteProject: UUID?
+    /// Which line of a task's history is asking "delete?" — the same two-step
+    /// the rows themselves use, because one click on a small ✕ should not throw
+    /// a recorded session away (Anton, 2026-08-28).
+    @State private var confirmingDeleteEntry: UUID?
     // Which task is expanded into its card, and the draft it is editing. One card
     // at a time, exactly like the to-do list.
     @State private var expandedTask: UUID?
@@ -519,14 +523,24 @@ struct TrackerView: View {
         if isEditing(.editEntry(entry.id)) {
             entryField(commit: { seconds in engine.setEntryDuration(entry.id, to: seconds) })
         } else {
+            let confirming = confirmingDeleteEntry == entry.id
             HStack(spacing: 6) {
                 Text(historyLabel(entry))
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.textTertiary)
                     .lineLimit(1)
                 Spacer(minLength: 6)
-                if hovered == entry.id {
-                    HoverDeleteX { engine.deleteEntry(entry.id) }
+                if confirming {
+                    RowDeleteConfirm(lang: lang,
+                                     onDelete: {
+                                         engine.deleteEntry(entry.id)
+                                         confirmingDeleteEntry = nil
+                                     },
+                                     onCancel: { confirmingDeleteEntry = nil })
+                } else if hovered == entry.id {
+                    // 16pt, not the row's usual 22: this line is shorter than a
+                    // task row and the ✕ must not grow it on hover
+                    HoverDeleteX(action: { confirmingDeleteEntry = entry.id }, size: 16)
                 }
                 Text(shortTime(abs(entry.seconds)))
                     .font(Theme.mono(10))
@@ -534,11 +548,15 @@ struct TrackerView: View {
                     .monospacedDigit()
                     .fixedSize()
             }
+            // Pinned: the ✕ and the confirm both sit inside this height, so a
+            // pointer crossing the list never shifts the lines under it.
+            .frame(height: 16)
             .padding(.vertical, 2)
             .contentShape(Rectangle())
             // The running session has no end to edit yet — stopping it is how
-            // you correct it, exactly as in the engine.
-            .onTapGesture { if !entry.isRunning { beginEditEntry(entry) } }
+            // you correct it, exactly as in the engine. While a confirm is open
+            // the row belongs to it, not to editing.
+            .onTapGesture { if !entry.isRunning, !confirming { beginEditEntry(entry) } }
             .onHover { inside in
                 if inside { hovered = entry.id } else if hovered == entry.id { hovered = nil }
             }
@@ -1109,6 +1127,7 @@ struct TrackerView: View {
     private func clearConfirms() {
         confirmingDeleteTask = nil
         confirmingDeleteProject = nil
+        confirmingDeleteEntry = nil
     }
 
     /// Lenient parse of the total field. `1` number = minutes, `2` = `H:MM`,

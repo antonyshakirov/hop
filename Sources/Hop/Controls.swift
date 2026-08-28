@@ -968,13 +968,18 @@ struct FieldCommitButtons: View {
 struct HoverDeleteX: View {
     let action: () -> Void
     var help: String?
+    /// The button's box. 22pt matches a task row, whose leading circle already
+    /// makes the row that tall; a shorter row (a line of a task's history) asks
+    /// for a smaller one, or the ✕ would push the row taller the moment the
+    /// pointer arrives (Anton, 2026-08-28).
+    var size: CGFloat = 22
 
     var body: some View {
         Button(action: action) {
             Image(systemName: "xmark")
-                .font(.system(size: 11, weight: .semibold))
+                .font(.system(size: size * 0.5, weight: .semibold))
                 .foregroundStyle(Theme.textSecondary)
-                .frame(width: 22, height: 22)
+                .frame(width: size, height: size)
                 .background(Theme.background, in: RoundedRectangle(cornerRadius: 5))
                 .contentShape(Rectangle())
         }

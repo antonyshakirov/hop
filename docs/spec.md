@@ -845,6 +845,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     would not add up to the number above it.
   - The card draws the most recent 8 and says "+N" for the rest, rather than
     turning the panel into a ledger.
+  - **Deleting a line asks first**, the same two-step the rows use: the hover ✕
+    swaps the line for a delete/cancel pair, and only that deletes (Anton,
+    2026-08-28). The ✕ here is 16pt rather than the row's 22 — a history line is
+    shorter than a task row, and the full-size button grew the line the moment
+    the pointer arrived. The line is pinned to that height, so nothing under it
+    shifts as the pointer crosses the list.
   - The edit field sits FLUSH RIGHT, on the column the durations line up in,
     with the same filled background the row's own total edit uses: floating a
     bare cursor beside a ✓/✕ pair read as two icons and no field at all (Anton,
