@@ -1518,14 +1518,18 @@ enum VideoSelfTest {
         let dial = args.count > i + 5 ? args[i + 5] : nil
         Task {
             let quality = Double(dial ?? "").map { $0 / 100 }
-            if let forecast = await FileConverter.estimateForSelfTest(
+            // an mkv/webm source needs the repacking helper before anything can
+            // read it — the same one the converter itself uses
+            let repacker = await MainActor.run { RemuxInstaller().installedBinaryURL() }
+            if !RemuxRules.needsRepacking(source),
+               let forecast = await FileConverter.estimateForSelfTest(
                 source, shape: shape, fit: fit, compress: dial != "off",
                 quality: quality ?? 0.55) {
                 print("FORECAST: \(forecast) bytes")
             }
             let result = await FileConverter.reframeForSelfTest(
                 source, to: outDir, shape: shape, fit: fit,
-                compress: dial != "off", quality: quality)
+                compress: dial != "off", quality: quality, repacker: repacker)
             print(result.map { "SELFTEST OK: \($0.path)" } ?? "SELFTEST FAIL")
             exit(result == nil ? 1 : 0)
         }

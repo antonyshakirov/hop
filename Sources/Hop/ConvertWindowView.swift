@@ -484,6 +484,13 @@ struct ConvertWindowView: View {
                         Spacer()
                     }
                 }
+                // The one thing in the converter that is not the system's own
+                // work: mkv and webm are repacked by a downloaded helper before
+                // anything else can read them. Said here, before the button is
+                // pressed, rather than as a surprise download afterwards.
+                if model.converter.batch.pending(.video).contains(where: RemuxRules.needsRepacking) {
+                    repackNote
+                }
                 // resolution is our own composition, so HEVC works at ANY size
                 HStack(spacing: 8) {
                     rowLabel(t(.convCompressLabel))
@@ -618,6 +625,34 @@ struct ConvertWindowView: View {
         _ label: String, _ active: Bool, enabled: Bool = true, action: @escaping () -> Void
     ) -> some View {
         SettingChip(label, active: active, enabled: enabled, action: action)
+    }
+
+    /// What the repacking helper is doing, in one line: an offer before the
+    /// first mkv is converted, a percentage while it downloads, nothing once it
+    /// is on disk and the repack is just part of the job.
+    @ViewBuilder private var repackNote: some View {
+        switch model.converter.remuxer.state {
+        case .downloading(let fraction):
+            Text("\(t(.convRepackFetching)) \(Int(fraction * 100))%")
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+        case .verifying:
+            Text(t(.convRepackFetching))
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+        case .failed:
+            Text(t(.convRepackFailed))
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.accentYellow)
+                .fixedSize(horizontal: false, vertical: true)
+        case .installed:
+            EmptyView()
+        case .notInstalled:
+            Text(t(.convRepackNote))
+                .font(Theme.mono(9))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 

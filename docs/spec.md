@@ -577,10 +577,37 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **What counts as convertible is asked of the system**, not kept as a list
   (`systemCanRead`, 2026-08-04). MKV, WebM, WMV and FLV all classify as movies
   and AVFoundation cannot open ANY of them; they used to land in the video group
-  and fail at convert time with nothing said in advance. They are named
+  and fail at convert time with nothing said in advance. WMV and FLV are named
   unsupported on arrival now, in the drop itself. AVI and MPG do open, subject
   to the codec inside them (a modern AVI yes, an old DivX one no). The same
   check covers audio, where WMA is the one that cannot be read.
+- **MKV and WebM are repacked rather than refused** (`RemuxRules`, Anton
+  2026-08-28). Their container is the whole problem: the picture inside is
+  usually h264 or hevc, which MP4 holds perfectly well, so swapping containers
+  is a COPY — a second of work, nothing lost, and what comes out is an ordinary
+  MP4 the normal pipeline reads. They therefore classify as video, and the
+  repack happens first inside `convertVideo`; every setting then applies to the
+  result exactly as it would to any mp4. When nothing else was asked for (no
+  compression, no reframing, mp4 out) the repacked file IS the answer and is
+  moved into place rather than copied through a passthrough export.
+  - The copy is done by a downloaded helper — a minimal LGPL ffmpeg built by
+    `scripts/build-remuxer.sh` (Matroska in, MP4 out, no encoders, no GPL
+    parts), installed through the same `ToolInstaller` mechanism and Ed25519
+    gate as the torrent engine and 7-Zip. Hop bundles no third-party binaries.
+  - **The button fetches it, not the drop** (the archive module's rule): the
+    helper downloads when convert is pressed on a batch that contains one of
+    these files, and the batch then starts by itself. Before that, a line under
+    the video settings says a small helper will download once; during, it shows
+    the percentage; a failed fetch says so rather than failing file by file.
+  - The first video and (if present) the first audio track are copied;
+    subtitle and data tracks are dropped, since MP4 cannot hold them the way
+    Matroska does and re-encoding them is not what a repack is.
+  - **What it will not do is re-encode.** A webm carrying the classic vp8 +
+    vorbis pair cannot go into MP4 at all, and that file fails rather than
+    quietly becoming a re-encode nobody asked for.
+  - No forecast and no resolution chip transition are shown for these files
+    until they are repacked: both are read from the asset, and until the
+    container is swapped there is no asset to read.
 - Resolution chips ALWAYS all show; the ones above the source's short side are
   dimmed and unclickable (`SettingChip.enabled`). They used to be hidden, and a
   row that changes shape as its neighbour is clicked reads as a bug — picking

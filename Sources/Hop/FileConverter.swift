@@ -1,13 +1,18 @@
 import AppKit
 import AVFoundation
+import Combine
 import HopCore
+import os
 import PDFKit
 import UniformTypeIdentifiers
 
 /// Converter: a batch of PDFs/images/videos/audio → compressed copies.
-/// Fully native (ImageIO + PDFKit + AVFoundation), no external dependencies.
+/// Native throughout (ImageIO + PDFKit + AVFoundation); the one exception is
+/// the downloaded helper that repacks mkv/webm, which macOS cannot read at all.
 @MainActor
 final class FileConverter: ObservableObject {
+    nonisolated private static let log = Logger(subsystem: "com.antonshakirov.hop",
+                                                category: "FileConverter")
     nonisolated static let formatKey = "convFormat"           // jpeg | png | heic | avif
     nonisolated static let scaleKey = "convScale"             // 0.25 | 0.5 | 0.75 | 1.0
     nonisolated static let qualityKey = "convQuality"         // 10...100 (images)
@@ -186,6 +191,10 @@ final class FileConverter: ObservableObject {
     @Published private(set) var fileEstimates: [String: String] = [:]
     private var estimateTokens: [MediaKind: UUID] = [:]
 
+    /// The repacking helper, fetched only when an mkv or a webm actually turns
+    /// up. Everything else in the converter is the system's own frameworks.
+    let remuxer = RemuxInstaller()
+
     /// Sample measurements at reference quality points: the slider
     /// interpolates instantly, without a trial conversion on every move.
     /// The struct and its math live in HopCore (unit-tested).
@@ -194,8 +203,15 @@ final class FileConverter: ObservableObject {
     // estimate at defaults is a real measurement, not an interpolation
     nonisolated private static let curveQualities = [10, 35, 55, 80, 100]
 
+    /// The installer is a nested ObservableObject: forward its changes, or the
+    /// download it runs would move behind a view that never redraws.
+    private var forwarders: [AnyCancellable] = []
+
     init() {
         Self.migrateLegacyVideoQuality()
+        forwarders.append(remuxer.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        })
     }
 
     /// AVIF is the main modern web format; the codec ships with recent macOS.
@@ -328,6 +344,12 @@ final class FileConverter: ObservableObject {
         // nothing said in advance (Anton, 2026-08-04). Named as unsupported on
         // arrival, they are answered honestly by the drop itself.
         if type.conforms(to: .movie) || type.conforms(to: .video) {
+            // mkv and webm are the exception the helper exists for: the system
+            // cannot read either, but their container is the only problem, so
+            // they are repacked into MP4 first and then travel the normal video
+            // path (2026-08-28). wmv and flv have no such route and stay
+            // unsupported, named as that on arrival.
+            if RemuxRules.needsRepacking(url) { return .video }
             return systemCanRead(type) ? .video : .unsupported
         }
         if type.conforms(to: .audio) { return systemCanRead(type) ? .audio : .unsupported }
@@ -515,6 +537,26 @@ final class FileConverter: ObservableObject {
         guard !busy, kind != .unsupported else { return }
         let files = batch.pending(kind) // only not-yet-converted files
         guard !files.isEmpty else { return }
+        // An mkv or a webm cannot be read at all until it has been repacked, so
+        // the helper is fetched BEFORE the batch starts rather than failing
+        // file by file. The button is what asks for it — nothing downloads on a
+        // drop alone (the same rule the archive module follows).
+        if kind == .video, files.contains(where: RemuxRules.needsRepacking),
+           remuxer.installedBinaryURL() == nil {
+            busy = true
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                await self.remuxer.install()
+                self.busy = false
+                guard self.remuxer.installedBinaryURL() != nil else {
+                    self.lastResult = nil
+                    return
+                }
+                self.convert(kind)
+            }
+            return
+        }
+        let repacker = remuxer.installedBinaryURL()
         busy = true
         activeKind = kind
         lastResult = nil
@@ -585,7 +627,7 @@ final class FileConverter: ObservableObject {
                         url, to: outDir, format: videoFormat,
                         resolution: videoResolution, compress: videoCompress,
                         shape: videoShape, fit: videoFit, quality: videoQuality,
-                        onProgress: report)
+                        repacker: repacker, onProgress: report)
                     await MainActor.run { [weak self] in self?.fileFraction = nil }
                 case .audio:
                     outURL = await Self.convertAudio(url, to: outDir)
@@ -658,7 +700,14 @@ final class FileConverter: ObservableObject {
             // (estimatedOutputFileLength) — honest and responsive to settings
             let token = UUID()
             estimateTokens[kind] = token
-            let sample = files[0]
+            // A file still in its unreadable container cannot be measured, so
+            // it is not the one the group's forecast is taken from — a single
+            // mkv among mp4s would otherwise silence the estimate for all of
+            // them. A batch of nothing but mkv simply has no forecast yet.
+            guard let sample = files.first(where: { !RemuxRules.needsRepacking($0) }) else {
+                estimates[kind] = nil
+                return
+            }
             let videoFormat = Self.videoFormat
             let videoResolution = Self.videoResolution
             let videoCompress = Self.videoCompress
@@ -1082,11 +1131,11 @@ final class FileConverter: ObservableObject {
     /// The real video path, reachable from the dev self-test entry point.
     nonisolated static func reframeForSelfTest(
         _ url: URL, to dir: URL, shape: VideoFrame.Shape, fit: VideoFrame.Fit,
-        compress: Bool? = nil, quality: Double? = nil
+        compress: Bool? = nil, quality: Double? = nil, repacker: URL? = nil
     ) async -> URL? {
         await convertVideo(url, to: dir, format: videoFormat, resolution: videoResolution,
                            compress: compress ?? videoCompress, shape: shape, fit: fit,
-                           quality: quality ?? videoQuality)
+                           quality: quality ?? videoQuality, repacker: repacker)
     }
 
     /// The forecast for one file, for the same dev entry point.
@@ -1102,14 +1151,40 @@ final class FileConverter: ObservableObject {
     nonisolated private static func convertVideo(
         _ url: URL, to dir: URL, format: String, resolution: String, compress: Bool,
         shape: VideoFrame.Shape, fit: VideoFrame.Fit, quality: Double,
+        repacker: URL? = nil,
         onProgress: (@Sendable (Double) -> Void)? = nil
     ) async -> URL? {
-        let asset = AVURLAsset(url: url)
-        let ext = videoContainer(for: url, setting: format)
+        // A container the system cannot open is swapped for one it can, first
+        // and separately: from here on this is an ordinary MP4 and every
+        // setting below applies to it unchanged.
+        var source = url
+        var staged: URL?
+        if RemuxRules.needsRepacking(url) {
+            guard let repacker, let repacked = await repack(url, with: repacker) else { return nil }
+            source = repacked
+            staged = repacked
+        }
+        defer { if let staged { try? FileManager.default.removeItem(at: staged) } }
+
+        let asset = AVURLAsset(url: source)
+        let ext = videoContainer(for: source, setting: format)
         let type: AVFileType = ext == "mov" ? .mov : .mp4
         let outURL = uniqueURL(dir, name: url.deletingPathExtension().lastPathComponent, ext: ext)
         let composition = await frameComposition(
             asset: asset, resolution: resolution, shape: shape, fit: fit)
+
+        // The repack already produced exactly what was asked for: an mp4 with
+        // the tracks copied across. Passing it through a passthrough export
+        // would copy the same bytes a second time for nothing.
+        if let staged, !compress, composition == nil, ext == "mp4" {
+            do {
+                try FileManager.default.moveItem(at: staged, to: outURL)
+                onProgress?(1)
+                return outURL
+            } catch {
+                return nil   // the staged file is cleaned up by the defer above
+            }
+        }
 
         // Nothing to change but the container: copy the tracks across instead of
         // re-encoding them. A re-encode at "highest quality" is how this module
@@ -1123,6 +1198,39 @@ final class FileConverter: ObservableObject {
             asset: asset, to: outURL, as: type, composition: composition,
             codec: compress ? .hevc : .h264, quality: compress ? quality : 1,
             onProgress: onProgress)
+    }
+
+    /// Runs the helper: Matroska in, MP4 out, tracks copied. Returns nil when
+    /// it refuses — a webm whose vp8/vorbis pair MP4 cannot hold, or a file
+    /// that is simply broken. The helper never inherits a terminal, so it can
+    /// neither prompt nor block.
+    nonisolated private static func repack(_ url: URL, with tool: URL) async -> URL? {
+        let token = String(UUID().uuidString.prefix(8))
+        let out = RemuxRules.temporaryOutput(
+            for: url, in: FileManager.default.temporaryDirectory, token: token)
+        let process = Process()
+        process.executableURL = tool
+        process.arguments = RemuxRules.arguments(input: url, output: out)
+        let errors = Pipe()
+        process.standardError = errors
+        process.standardOutput = FileHandle.nullDevice
+        process.standardInput = FileHandle.nullDevice
+        do {
+            try process.run()
+        } catch {
+            return nil
+        }
+        // read before waiting: a full pipe would deadlock a chatty failure
+        let stderr = errors.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0,
+              FileManager.default.fileExists(atPath: out.path) else {
+            try? FileManager.default.removeItem(at: out)
+            let text = String(data: stderr, encoding: .utf8) ?? ""
+            Self.log.error("repack failed (\(RemuxRules.isCodecRefusal(text) ? "codec" : "file", privacy: .public)): \(text, privacy: .public)")
+            return nil
+        }
+        return out
     }
 
     /// The encode Hop drives itself, because the system's export presets do not
