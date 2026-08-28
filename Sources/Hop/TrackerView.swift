@@ -56,7 +56,9 @@ struct TrackerView: View {
     /// The moment a history line is being given, while its editor is open: the
     /// day, and the hour and minute it started at. Seeded from the line itself,
     /// or from the clock on the wall when adding one (Anton, 2026-08-28).
-    @State private var entryDay = Date()
+    @State private var entryYear = 2026
+    @State private var entryMonth = 1
+    @State private var entryDayNumber = 1
     @State private var entryHour = 0
     @State private var entryMinute = 0
     // Which task is expanded into its card, and the draft it is editing. One card
@@ -364,6 +366,12 @@ struct TrackerView: View {
         Group {
             if expandedTask == task.id, card != nil, !Snapshot.active {
                 VStack(alignment: .leading, spacing: 6) {
+                    // The task's own row stays ON TOP of its open card: without
+                    // it the card was a form with no subject — Anton could not
+                    // tell whose name he was editing, or that the history below
+                    // belonged to it (2026-08-28). Tapping it closes the card
+                    // again, which is the other half of the same confusion.
+                    collapsedTaskRow(task)
                     TaskCardView(draft: Binding(get: { card ?? TaskCardDraft(text: task.name,
                                                                             note: task.note,
                                                                             important: task.important) },
@@ -459,7 +467,9 @@ struct TrackerView: View {
         // While the list scrolls (capped), the row gesture stands down
         // (`.subviews`) so the pan scrolls and the total-scrub/taps keep working.
         .contentShape(Rectangle())
-        .onTapGesture { expandCard(task) }
+        .onTapGesture {
+            if expandedTask == task.id { collapseCard() } else { expandCard(task) }
+        }
         .gesture(dragGesture(task.id, isProject: false),
                  including: trackerCapped ? .subviews : .all)
         .opacity(dragTask == task.id ? 0.4 : 1)
@@ -622,17 +632,25 @@ struct TrackerView: View {
                              commit: @escaping (TimeInterval, Date) -> Void) -> some View {
         HStack(spacing: 6) {
             if allowsMoment {
-                dayMenu
                 HStack(spacing: 2) {
-                    ClockField(value: $entryHour, range: 0...23)
-                        .frame(width: 26, height: 18)
-                        .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
+                    // Day, month and year in the order this locale writes them,
+                    // then the clock. Typed rather than picked from a list:
+                    // a menu of recent days could not reach last spring
+                    // (Anton, 2026-08-28).
+                    ForEach(Self.dateOrder, id: \.self) { part in
+                        switch part {
+                        case .day: numberField($entryDayNumber, range: 1...31, width: 24)
+                        case .month: numberField($entryMonth, range: 1...12, width: 24)
+                        case .year: numberField($entryYear, range: 1970...2100, width: 36)
+                        }
+                    }
+                    Text(" ")
+                        .font(Theme.mono(10))
+                    numberField($entryHour, range: 0...23, width: 24)
                     Text(":")
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.textTertiary)
-                    ClockField(value: $entryMinute, range: 0...59)
-                        .frame(width: 26, height: 18)
-                        .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
+                    numberField($entryMinute, range: 0...59, width: 24)
                 }
             }
             Spacer(minLength: 6)
@@ -660,53 +678,25 @@ struct TrackerView: View {
     /// The shape the field expects, shown rather than explained.
     private static let durationPlaceholder = "0:00:00"
 
-    /// Which day the line belongs to. Only days that have HAPPENED: a session
-    /// logged into the future is not a mistake anybody makes on purpose.
-    private var dayMenu: some View {
-        Menu {
-            Button(t(.todoRemindToday)) { setEntryDay(offset: 0) }
-            Button(t(.trackerYesterday)) { setEntryDay(offset: -1) }
-            Divider()
-            ForEach(2..<31, id: \.self) { back in
-                Button(Self.historyDay.string(from: Self.day(offset: -back))) {
-                    setEntryDay(offset: -back)
-                }
-            }
-        } label: {
-            Text(entryDayTitle)
-                .font(Theme.mono(10))
-                .foregroundStyle(Theme.textPrimary)
-                .lineLimit(1)
-                .padding(.horizontal, 6)
-                .frame(height: 18)
-                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 4))
-                .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.controlStroke, lineWidth: 1))
-        }
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .fixedSize()
+    /// One number of the moment. `ClockField` is the reminder row's own
+    /// two-digit field; the year simply needs a wider one.
+    private func numberField(_ value: Binding<Int>, range: ClosedRange<Int>,
+                             width: CGFloat) -> some View {
+        ClockField(value: value, range: range, width: width)
+            .frame(width: width, height: 18)
+            .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 4))
     }
 
-    private var entryDayTitle: String {
-        let calendar = Calendar.current
-        if calendar.isDateInToday(entryDay) { return t(.todoRemindToday) }
-        if calendar.isDateInYesterday(entryDay) { return t(.trackerYesterday) }
-        return Self.historyDay.string(from: entryDay)
-    }
+    /// The order the three date fields sit in, from the locale's own template.
+    private static let dateOrder: [TrackerMoment.Part] = TrackerMoment.order(
+        template: DateFormatter.dateFormat(fromTemplate: "yMd", options: 0,
+                                           locale: .current) ?? "dMy")
 
-    private static func day(offset: Int) -> Date {
-        Calendar.current.date(byAdding: .day, value: offset, to: Date()) ?? Date()
-    }
-
-    private func setEntryDay(offset: Int) {
-        entryDay = Self.day(offset: offset)
-    }
-
-    /// The day and the hour:minute pair, put back together.
+    /// The five numbers, put back together — with the day pulled into a month
+    /// that has it (31 April is the 30th, not an error).
     private var entryMoment: Date {
-        let calendar = Calendar.current
-        return calendar.date(bySettingHour: entryHour, minute: entryMinute, second: 0,
-                             of: entryDay) ?? entryDay
+        TrackerMoment.date(year: entryYear, month: entryMonth, day: entryDayNumber,
+                           hour: entryHour, minute: entryMinute) ?? Date()
     }
 
     private func commitEntry(_ commit: (TimeInterval, Date) -> Void) {
@@ -1146,10 +1136,12 @@ struct TrackerView: View {
     }
 
     private func seedMoment(_ date: Date) {
-        let parts = Calendar.current.dateComponents([.hour, .minute], from: date)
-        entryDay = date
-        entryHour = parts.hour ?? 0
-        entryMinute = parts.minute ?? 0
+        let parts = TrackerMoment.parts(of: date)
+        entryYear = parts.year
+        entryMonth = parts.month
+        entryDayNumber = parts.day
+        entryHour = parts.hour
+        entryMinute = parts.minute
     }
 
     private func beginNewTaskIn(_ projectID: UUID) {
