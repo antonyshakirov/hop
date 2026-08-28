@@ -1450,12 +1450,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   icons with the name under each. Clicking an icon launches it. The model is
   `HopCore.AppShelf` / `AppShelves` with tests; the store is
   `app-shelves.json` beside the other module files.
-- **The row is aligned OPTICALLY, not by its frames** (Anton, 2026-08-28). An
-  app icon is a rounded tile inside a transparent square, so a row whose cells
-  sit exactly on the module's line still reads as indented next to every label
-  above it. The grid is pulled out by that margin (≈9% of the icon, capped at
-  4pt), which puts the visible tiles on the line instead of the empty squares
-  around them.
+- **The ICON is drawn larger than its cell, optically** (Anton, 2026-08-28). An
+  app icon is a rounded tile inside a transparent square, so at exactly cell
+  size its visible edge stands in from the module's line while every label sits
+  on it. The image is drawn ≈9% bigger (capped at 4pt a side) inside a cell of
+  the old size, which puts the TILE on the line and leaves the layout — and the
+  names under it — untouched. Pulling the whole row out instead was tried first
+  and pushed the names past the line the other way.
 - **Several grids.** This is the ONE module that exists in copies, so its module
   key carries an id (`apps:<uuid>`) instead of a bare word. A key is matched to
   its shelf by that ID, never as text (`AppShelves.moduleKeys(for:in:)`):

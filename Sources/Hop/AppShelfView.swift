@@ -247,12 +247,6 @@ struct AppShelfView: View {
             }
         }
         .padding(.vertical, 2)
-        // Optical, not geometric: an app icon is a rounded tile inside a
-        // transparent square, so a row aligned by its FRAMES stands a couple of
-        // points in from every label above it — which is what the eye reads
-        // (Anton, 2026-08-28). The row is pulled out by that margin so the
-        // visible tiles sit on the module's own line.
-        .padding(.horizontal, -iconTileInset)
         .background(GeometryReader { geo in
             Color.clear
                 .onAppear { rowWidth = geo.size.width }
@@ -262,8 +256,17 @@ struct AppShelfView: View {
 
     private func cell(_ item: ShelfItem, at index: Int) -> some View {
         VStack(spacing: 3) {
+            // Drawn slightly LARGER than the cell it occupies: an app icon is a
+            // rounded tile inside a transparent square, so at exactly cell size
+            // its visible edge stands in from the module's line while every
+            // label sits on it. Growing the icon puts the TILE on the line and
+            // leaves the layout — and the names under it — where they were
+            // (Anton, 2026-08-28; pulling the whole row out instead pushed the
+            // names past the line the other way).
             Image(nsImage: shelves.icon(for: item))
                 .resizable()
+                .frame(width: iconSize + iconTileInset * 2,
+                       height: iconSize + iconTileInset * 2)
                 .frame(width: iconSize, height: iconSize)
                 .overlay(alignment: .topLeading) { deleteBadge(item) }
             if showsLabels {
