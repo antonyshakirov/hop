@@ -278,10 +278,11 @@ struct ConvertWindowView: View {
                     Text("✓ \(doneCount)/\(files.count)")
                         .font(Theme.mono(10, weight: .semibold))
                         .foregroundStyle(Theme.accentGreen)
-                } else if hasPending, model.converter.activeKind != kind, kind != .document {
+                } else if hasPending, model.converter.activeKind != kind,
+                          kind != .document, kind != .iwork {
                     // honesty note: the projected sizes are estimates. Documents
-                    // show no size forecast at all, so the note would be answering
-                    // a question nobody asked.
+                    // and iWork exports show no size forecast at all, so the note
+                    // would be answering a question nobody asked.
                     Text(t(.convApproxNote))
                         .font(Theme.mono(9.5))
                         .foregroundStyle(Theme.textTertiary)
