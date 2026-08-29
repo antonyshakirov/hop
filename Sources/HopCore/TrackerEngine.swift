@@ -50,6 +50,13 @@ public final class TrackerEngine: ObservableObject {
             let own = data.tasks.filter { $0.projectID == data.projects[i].id }.map(\.id)
             data.projects[i].taskOrder = repaired(data.projects[i].taskOrder, against: own)
         }
+
+        // INVARIANT: a clock that is still running is a run in progress, whatever
+        // the file said. It matters for a file written before runs existed, where
+        // every interval — the open one included — decodes as committed.
+        for i in data.intervals.indices where data.intervals[i].end == nil {
+            data.intervals[i].committed = false
+        }
     }
 
     /// Keeps the ids that are really there (in the order given), drops the rest,
@@ -258,10 +265,16 @@ public final class TrackerEngine: ObservableObject {
         guard data.tasks.contains(where: { $0.id == taskID }) else { return }
         guard activeTaskID != taskID else { return }
         closeActiveInterval()
-        data.intervals.append(TrackerInterval(taskID: taskID, start: now()))
+        // Part of the run in progress until the ✓ says otherwise — starting
+        // again after a pause simply lengthens the same run.
+        data.intervals.append(TrackerInterval(taskID: taskID, start: now(), committed: false))
         onChange?()
     }
 
+    /// Stops the clock and leaves the run OPEN: the stretch is still the one the
+    /// row is counting, and pressing play again continues it. Ending a run is
+    /// `commitRun` — that separation is the whole point of the ✓ (Anton,
+    /// 2026-08-29).
     public func stopActive() {
         guard activeTaskID != nil else { return }
         closeActiveInterval()
@@ -271,6 +284,43 @@ public final class TrackerEngine: ObservableObject {
     private func closeActiveInterval() {
         guard let index = data.intervals.firstIndex(where: { $0.end == nil }) else { return }
         data.intervals[index].end = now()
+    }
+
+    // MARK: - The run in progress
+
+    /// How long the task's CURRENT run is: everything it has recorded since the
+    /// last ✓, counting an open interval up to now. nil when the task is between
+    /// runs — the row shows the period's own figure then.
+    ///
+    /// A run is not a separate ledger: its time is in `today`/`week`/`total`
+    /// from the first second, exactly as before. What the ✓ decides is only
+    /// which number the row is showing.
+    public func currentRun(taskID: UUID) -> TimeInterval? {
+        let open = data.intervals.filter { $0.taskID == taskID && !$0.committed }
+        guard !open.isEmpty else { return nil }
+        return max(0, open.reduce(0) { $0 + duration(of: $1) })
+    }
+
+    /// Whether the task is in the middle of a run — running now, or paused
+    /// part-way through one.
+    public func hasOpenRun(taskID: UUID) -> Bool {
+        data.intervals.contains { $0.taskID == taskID && !$0.committed }
+    }
+
+    /// Ends the run: the clock stops if it was this task's, and every stretch
+    /// the run collected becomes plain history. No figure moves — the time was
+    /// always counted — but the row goes back to the period's sum and the next
+    /// play starts from zero. Returns false when there was no run to end.
+    @discardableResult
+    public func commitRun(taskID: UUID) -> Bool {
+        guard hasOpenRun(taskID: taskID) else { return false }
+        if activeTaskID == taskID { closeActiveInterval() }
+        for i in data.intervals.indices
+        where data.intervals[i].taskID == taskID && !data.intervals[i].committed {
+            data.intervals[i].committed = true
+        }
+        onChange?()
+        return true
     }
 
     // MARK: - Manual edits
@@ -357,7 +407,8 @@ public final class TrackerEngine: ObservableObject {
             .map { interval in
                 TrackerHistoryEntry(
                     id: interval.id,
-                    kind: .session(start: interval.start, running: interval.end == nil),
+                    kind: .session(start: interval.start, running: interval.end == nil,
+                                   filed: interval.committed),
                     seconds: duration(of: interval))
             }
         let adjustments = data.corrections
@@ -377,6 +428,8 @@ public final class TrackerEngine: ObservableObject {
                            startingAt: Date? = nil) -> UUID? {
         guard data.tasks.contains(where: { $0.id == taskID }), seconds > 0 else { return nil }
         let start = startingAt ?? now().addingTimeInterval(-seconds)
+        // Filed on arrival: a session typed in by hand is work already finished,
+        // never part of the run the row is counting.
         let interval = TrackerInterval(taskID: taskID,
                                        start: start, end: start.addingTimeInterval(seconds))
         data.intervals.append(interval)

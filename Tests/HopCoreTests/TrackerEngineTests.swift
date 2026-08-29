@@ -1266,4 +1266,165 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(engine.amount(taskID: task, period: .week), engine.week(taskID: task))
         XCTAssertEqual(engine.amount(taskID: task, period: .total), engine.total(taskID: task))
     }
+
+    // MARK: - The run in progress
+
+    func testATaskWithNoTrackedTimeIsBetweenRuns() {
+        let task = engine.addTask(name: "t")
+        XCTAssertNil(engine.currentRun(taskID: task))
+        XCTAssertFalse(engine.hasOpenRun(taskID: task))
+    }
+
+    func testStartingOpensARunThatCountsFromZero() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(90)
+
+        XCTAssertEqual(engine.currentRun(taskID: task), 90)
+        XCTAssertTrue(engine.hasOpenRun(taskID: task))
+    }
+
+    func testPauseHoldsTheRunAndPlayingAgainContinuesIt() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(60)
+        engine.stopActive()
+        advance(3600)                       // away from the desk; not counted
+        XCTAssertEqual(engine.currentRun(taskID: task), 60)
+
+        engine.start(taskID: task)
+        advance(30)
+
+        // one run, two stretches — the ✓ is what ends a run, never pause
+        XCTAssertEqual(engine.currentRun(taskID: task), 90)
+    }
+
+    func testCommittingEndsTheRunAndStopsTheClock() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(120)
+
+        XCTAssertTrue(engine.commitRun(taskID: task))
+
+        XCTAssertNil(engine.activeTaskID)
+        XCTAssertNil(engine.currentRun(taskID: task))
+        XCTAssertFalse(engine.hasOpenRun(taskID: task))
+    }
+
+    func testCommittingMovesNoFigure() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(120)
+        engine.stopActive()
+        let before = engine.total(taskID: task)
+
+        engine.commitRun(taskID: task)
+
+        // the run's time was in the sums from the first second: what the ✓
+        // changes is only which number the row is showing
+        XCTAssertEqual(engine.total(taskID: task), before)
+        XCTAssertEqual(engine.today(taskID: task), 120)
+    }
+
+    func testCommittingLeavesTheRunsStretchesInTheHistory() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(60)
+        engine.stopActive()
+        engine.start(taskID: task)
+        advance(60)
+        engine.commitRun(taskID: task)
+
+        let sessions = engine.history(taskID: task)
+        XCTAssertEqual(sessions.count, 2)
+        XCTAssertTrue(sessions.allSatisfy { !$0.isOpenRun })
+        XCTAssertEqual(sessions.reduce(0) { $0 + $1.seconds }, 120)
+    }
+
+    func testAfterCommittingTheNextStartOpensAFreshRun() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(600)
+        engine.commitRun(taskID: task)
+
+        engine.start(taskID: task)
+        advance(15)
+
+        XCTAssertEqual(engine.currentRun(taskID: task), 15)
+    }
+
+    func testCommittingNothingSavesNothing() {
+        let task = engine.addTask(name: "t")
+        changeCount = 0
+        XCTAssertFalse(engine.commitRun(taskID: task))
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    func testCommittingAnUnknownTaskIsANoOp() {
+        changeCount = 0
+        XCTAssertFalse(engine.commitRun(taskID: UUID()))
+        XCTAssertEqual(changeCount, 0)
+    }
+
+    func testStartingAnotherTaskLeavesTheFirstsRunOpen() {
+        let a = engine.addTask(name: "a")
+        let b = engine.addTask(name: "b")
+        engine.start(taskID: a)
+        advance(300)
+        engine.start(taskID: b)
+        advance(60)
+
+        // a's clock stopped, but its run is still the one its row is counting
+        XCTAssertEqual(engine.currentRun(taskID: a), 300)
+        XCTAssertEqual(engine.currentRun(taskID: b), 60)
+    }
+
+    func testAHandAddedSessionIsHistoryNotARun() {
+        let task = engine.addTask(name: "t")
+        engine.addSession(taskID: task, seconds: 1800)
+
+        XCTAssertNil(engine.currentRun(taskID: task))
+        XCTAssertEqual(engine.history(taskID: task).first?.isOpenRun, false)
+    }
+
+    func testDeletingTheRunsOnlyLineEndsTheRun() {
+        let task = engine.addTask(name: "t")
+        engine.start(taskID: task)
+        advance(60)
+        let line = engine.history(taskID: task).first!
+
+        engine.deleteEntry(line.id)
+
+        XCTAssertNil(engine.currentRun(taskID: task))
+        XCTAssertNil(engine.activeTaskID)
+    }
+
+    func testAClockLeftRunningInAnOldFileLoadsAsARun() {
+        // a file written before runs existed: every interval decodes as filed,
+        // the open one included — which would leave a ticking row with no ✓
+        let task = TrackerTask(name: "t")
+        let open = TrackerInterval(taskID: task.id, start: clock.addingTimeInterval(-120),
+                                   end: nil, committed: true)
+        let loaded = TrackerEngine(data: TrackerData(projects: [], tasks: [task],
+                                                     intervals: [open], corrections: []),
+                                   now: { self.clock }, calendar: calendar)
+
+        XCTAssertEqual(loaded.currentRun(taskID: task.id), 120)
+        XCTAssertTrue(loaded.hasOpenRun(taskID: task.id))
+    }
+
+    func testAFileWrittenBeforeRunsExistedFilesItsClosedSessions() throws {
+        let task = TrackerTask(name: "t")
+        let json = """
+        {"projects":[],"tasks":[{"id":"\(task.id.uuidString)","name":"t"}],
+         "intervals":[{"id":"\(UUID().uuidString)","taskID":"\(task.id.uuidString)",
+                       "start":0,"end":600}],
+         "corrections":[],"rootOrder":[]}
+        """
+        let decoded = try JSONDecoder().decode(TrackerData.self, from: Data(json.utf8))
+        let loaded = TrackerEngine(data: decoded, now: { self.clock }, calendar: calendar)
+
+        XCTAssertNil(loaded.currentRun(taskID: task.id))
+        XCTAssertEqual(loaded.total(taskID: task.id), 600)
+    }
 }

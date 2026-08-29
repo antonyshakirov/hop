@@ -405,6 +405,9 @@ struct TrackerView: View {
 
     @ViewBuilder private func collapsedTaskRow(_ task: TrackerTask) -> some View {
         let active = engine.activeTaskID == task.id
+        // The run the task is in the middle of, if any — what the row counts
+        // until the ✓ closes it (Anton, 2026-08-29).
+        let run = engine.currentRun(taskID: task.id)
         // The hover xmark shows only in the normal display state — not while a
         // confirm or an inline field owns the row's tail.
         let showsHoverX = confirmingDeleteTask != task.id
@@ -430,7 +433,7 @@ struct TrackerView: View {
                                      onCancel: { confirmingDeleteTask = nil })
                     // the time stays where it always is; inert while confirming
                     // (no tap-to-edit / scrub until the confirm resolves).
-                    totalView(task, active: active, interactive: false)
+                    totalView(task, active: active, run: run, interactive: false)
                 }
             } else if isEditing(.editTotal(task.id)) {
                 // typing the total: the field + its ✓/✕ own the row's tail,
@@ -466,7 +469,15 @@ struct TrackerView: View {
                     if showsHoverX, hovered == task.id {
                         HoverDeleteX { confirmingDeleteTask = task.id }
                     }
-                    totalView(task, active: active)
+                    // Closest to the figure it is about, and to the RIGHT of the
+                    // hover ✕ so that the pointer arriving on the row pushes the
+                    // ✕ in beside it rather than moving the ✓ out from under the
+                    // cursor.
+                    if run != nil {
+                        RunCommitButton(action: { engine.commitRun(taskID: task.id) },
+                                        help: t(.tipCommitRun))
+                    }
+                    totalView(task, active: active, run: run)
                 }
             }
         }
@@ -588,7 +599,10 @@ struct TrackerView: View {
                 }
                 Text(shortTime(abs(entry.seconds)))
                     .font(Theme.mono(10))
-                    .foregroundStyle(entry.isRunning ? Theme.textPrimary : Theme.listText)
+                    // primary ink for as long as the line belongs to the run in
+                    // progress: these are the stretches the ✓ is about to file,
+                    // and they settle into the list's own ink once it does
+                    .foregroundStyle(entry.isOpenRun ? Theme.textPrimary : Theme.listText)
                     .monospacedDigit()
                     .fixedSize()
             }
@@ -613,7 +627,7 @@ struct TrackerView: View {
     /// unsigned.
     private func historyLabel(_ entry: TrackerHistoryEntry) -> String {
         switch entry.kind {
-        case .session(let start, let running):
+        case .session(let start, let running, _):
             let when = Self.historyMoment.string(from: start)
             return running ? "\(when) ·" : when
         case .adjustment(let day):
@@ -952,16 +966,23 @@ struct TrackerView: View {
 
     // The editing branch lives in `taskRow` (it reshapes the whole row); this is
     // only the read/scrub/tap-to-edit label.
-    @ViewBuilder private func totalView(_ task: TrackerTask, active: Bool, interactive: Bool = true) -> some View {
-        let figure = engine.amount(taskID: task.id, period: period)
+    @ViewBuilder private func totalView(_ task: TrackerTask, active: Bool,
+                                        run: TimeInterval?, interactive: Bool = true) -> some View {
+        // A task in the middle of a run shows THAT run, counted from zero — the
+        // stopwatch you started, not the week you have had (Anton, 2026-08-29).
+        // The period's own sum comes back the moment the ✓ closes the run, and
+        // it has been counting the run's time all along.
+        let figure = run ?? engine.amount(taskID: task.id, period: period)
         let value = scrubbingTask == task.id ? (scrubPending ?? figure) : figure
         let label = Text(shortTime(value))
             .font(Theme.mono(11))
-            .foregroundStyle(active ? Theme.textPrimary : Theme.textSecondary)
+            .foregroundStyle(run != nil ? Theme.textPrimary : Theme.textSecondary)
             .monospacedDigit()
             .fixedSize()
-        if active || !interactive {
+        if active || run != nil || !interactive {
             // active task: the engine refuses edits, so no affordance is offered.
+            // a run in progress: the figure is the run, and typing over it would
+            // silently mean the period's sum instead — the ✓ comes first.
             // interactive == false: shown during a delete confirm — the time must
             // stay put but not react to taps/scrub until the confirm resolves.
             label
@@ -1002,7 +1023,9 @@ struct TrackerView: View {
     private func totalScrub(_ taskID: UUID) -> some Gesture {
         DragGesture(minimumDistance: 4)
             .onChanged { value in
-                guard engine.activeTaskID != taskID else { return }
+                // a run in progress owns the figure (see totalView) — nothing to
+                // scrub until the ✓ hands it back to the period
+                guard !engine.hasOpenRun(taskID: taskID) else { return }
                 if scrubRejected { return }
                 if scrubbingTask != taskID {
                     // a reorder already claimed this drag — never scrub on top of
@@ -1324,7 +1347,7 @@ struct TrackerView: View {
     }
 
     private func beginEditTotal(_ task: TrackerTask) {
-        guard !Snapshot.active, engine.activeTaskID != task.id else { return }
+        guard !Snapshot.active, !engine.hasOpenRun(taskID: task.id) else { return }
         clearConfirms()
         totalDraft = DurationField.text(for: engine.amount(taskID: task.id, period: period))
         activeField = .editTotal(task.id)

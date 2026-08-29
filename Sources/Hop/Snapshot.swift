@@ -413,9 +413,16 @@ enum Snapshot {
             let ids = e.data.rootOrder
             if ids.count == 3 {
                 e.setTotal(taskID: ids[0], to: 2 * 3600 + 12 * 60)   // 2:12
-                e.setTotal(taskID: ids[1], to: 5 * 3600 + 3 * 60)    // ticks while active
                 e.setTotal(taskID: ids[2], to: 47 * 60)              // 47m
-                e.start(taskID: ids[1])                              // active row: emphasized total
+                // A run left open on the middle task — the row shows the run
+                // itself and the ✓ that closes it, which is the shape 1.9.0
+                // added. The clock only ever counts real seconds, so the run is
+                // given its length through its own history line.
+                e.start(taskID: ids[1])
+                e.stopActive()
+                if let entry = e.history(taskID: ids[1]).first {
+                    e.setEntryDuration(entry.id, to: 5 * 3600 + 3 * 60)
+                }
                 // One project holding two of them, one task loose beside it —
                 // the shape 1.9.0 added, and the only way a screenshot can show
                 // a project sum at all. The name is the product's own, so it

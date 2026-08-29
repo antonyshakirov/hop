@@ -114,7 +114,13 @@ final class AgentBridge {
             let id = existing?.id ?? model.tracker.engine.addTask(name: name)
             model.tracker.engine.start(taskID: id)
         case .trackerStop:
+            // "stop tracking" from an agent means the stretch is finished — it
+            // has no ✓ to press afterwards, and a run left open would keep the
+            // row counting it forever. Closing it files the session and puts the
+            // period's own figure back.
+            let active = model.tracker.engine.activeTaskID
             model.tracker.engine.stopActive()
+            if let active { model.tracker.engine.commitRun(taskID: active) }
         case .todoAdd(let draft):
             guard let id = model.todos.add(text: draft.text) else { return }
             if !draft.note.isEmpty { model.todos.setNote(id, to: draft.note) }

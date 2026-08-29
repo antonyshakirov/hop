@@ -70,7 +70,7 @@ A file it cannot use at all is left alone rather than silently discarded.
 | `timer.reset` | — | Back to idle |
 | `stopwatch.start` / `stopwatch.stop` | — | The stopwatch |
 | `tracker.start` | `task` | Tracks time on that task, creating it if it is new |
-| `tracker.stop` | — | Stops the active task |
+| `tracker.stop` | — | Stops the active task and closes its run, so the time is filed and the row shows the period's total again |
 | `todo.add` | `text`, `note`, `remindAt`, `repeatDays`, `important` | Adds a to-do |
 | `todo.complete` | `text` | Ticks the matching to-do |
 | `todo.delete` | `text` | Removes it |

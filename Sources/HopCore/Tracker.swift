@@ -108,15 +108,24 @@ public struct TrackerInterval: Codable, Equatable, Identifiable {
     public let taskID: UUID
     public var start: Date
     public var end: Date?
+    /// False while the interval belongs to the RUN the task is in the middle of
+    /// — the stretch of work started by play and ended by the ✓ (Anton,
+    /// 2026-08-29). Pausing leaves it false, so play/pause/play is one run made
+    /// of several intervals; the ✓ flips them all to true and the run is over.
+    /// Defaults to true so a file written before runs existed reads as what it
+    /// is: history, already filed.
+    public var committed: Bool
 
-    public init(id: UUID = UUID(), taskID: UUID, start: Date, end: Date? = nil) {
+    public init(id: UUID = UUID(), taskID: UUID, start: Date, end: Date? = nil,
+                committed: Bool = true) {
         self.id = id
         self.taskID = taskID
         self.start = start
         self.end = end
+        self.committed = committed
     }
 
-    private enum CodingKeys: String, CodingKey { case id, taskID, start, end }
+    private enum CodingKeys: String, CodingKey { case id, taskID, start, end, committed }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -124,6 +133,7 @@ public struct TrackerInterval: Codable, Equatable, Identifiable {
         taskID = try c.decode(UUID.self, forKey: .taskID)
         start = try c.decode(Date.self, forKey: .start)
         end = try c.decodeIfPresent(Date.self, forKey: .end)
+        committed = try c.decodeIfPresent(Bool.self, forKey: .committed) ?? true
     }
 }
 
@@ -167,8 +177,10 @@ public struct TrackerCorrection: Codable, Equatable, Identifiable {
 /// a list that quietly omitted half of it would not add up on screen.
 public struct TrackerHistoryEntry: Equatable, Identifiable, Sendable {
     public enum Kind: Equatable, Sendable {
-        /// A stretch that was actually tracked. `running` is the open one.
-        case session(start: Date, running: Bool)
+        /// A stretch that was actually tracked. `running` is the open one;
+        /// `filed` is false while the stretch still belongs to the run in
+        /// progress, so the card can show which lines the ✓ is about to close.
+        case session(start: Date, running: Bool, filed: Bool)
         /// A correction, dated to its day.
         case adjustment(day: Date)
     }
@@ -185,14 +197,21 @@ public struct TrackerHistoryEntry: Equatable, Identifiable, Sendable {
     }
 
     public var isRunning: Bool {
-        if case .session(_, let running) = kind { return running }
+        if case .session(_, let running, _) = kind { return running }
+        return false
+    }
+
+    /// True while this line is part of the run the task is in the middle of —
+    /// the ✓ is what turns it into plain history.
+    public var isOpenRun: Bool {
+        if case .session(_, _, let filed) = kind { return !filed }
         return false
     }
 
     /// When the line happened, for sorting and for showing a date.
     public var moment: Date {
         switch kind {
-        case .session(let start, _): return start
+        case .session(let start, _, _): return start
         case .adjustment(let day): return day
         }
     }

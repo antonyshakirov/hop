@@ -855,7 +855,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   covers: today, this week, or all time. One switch rather than three columns —
   three numbers per row in a 360-point panel is a spreadsheet, not a list. It
   drives the task figures, the project sums, the scrub and the typed edit alike:
-  editing while "week" is showing sets the week. Every edit lands as a
+  editing while "week" is showing sets the week. A task in the middle of a RUN
+  shows the run instead of its period figure (see "A run, and the ✓ that ends
+  it") — project sums are unaffected, since a run's time is counted from its
+  first second. Every edit lands as a
   correction dated TODAY whatever the period, because today sits inside this
   week and inside all time, so the three stay consistent with each other.
   The week is cut by `Calendar.dateInterval(of: .weekOfYear)` on the engine's
@@ -991,6 +994,38 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`start(taskID:)`), the UI never juggles two. Deleting the active task stops
   tracking (its open interval is dropped with it). `activeIntervalStart` exposes
   the open interval's start so the view can flag a long run (see 8-hour warning).
+- **A run, and the ✓ that ends it** (Anton, 2026-08-29). Pause used to be the
+  only way out of a stretch of work, and nothing on screen said what had been
+  recorded or when: the row went on showing the period's sum, so it never came
+  back to zero and the next play simply continued the same number. Play now
+  opens a RUN — `TrackerInterval.committed` is false while an interval belongs
+  to one, `currentRun(taskID:)` is what those intervals add up to, and the row
+  shows THAT figure, counting from zero, in primary ink.
+  - **Pause holds a run; the ✓ ends it.** play → pause → play is ONE run made of
+    several intervals. `commitRun(taskID:)` stops the clock if it was this
+    task's and files every interval of the run, after which the row goes back to
+    the period's figure and the next play counts from zero again.
+  - **Committing moves no figure.** A run's time is inside `today`/`week`/`total`
+    from its first second — the ✓ decides only WHICH number the row shows, never
+    how much time exists. That is why a project's sum is unaffected by whether
+    its tasks are mid-run.
+  - **A run owns the figure while it is open**: no tap-to-type and no scrub
+    (`hasOpenRun` gates both), because typing over the run would silently mean
+    the period's sum. Correcting a paused run's stretches is what the card's
+    history is for.
+  - **The ✓ is always visible while a run is open** (`RunCommitButton`,
+    accent-green checkmark in the row's own 22pt button box) — it is also the
+    row's only sign that a run IS open. It sits to the RIGHT of the hover ✕, so
+    a pointer arriving on the row inserts the ✕ beside it instead of sliding the
+    ✓ out from under the cursor.
+  - In the card's history, the run's own lines are drawn in primary ink until
+    the ✓ files them (`TrackerHistoryEntry.isOpenRun`).
+  - `end == nil ⟹ committed == false`, repaired on load: a file written before
+    runs existed decodes every interval as filed, and an open one would leave a
+    ticking row with no ✓ to close it. A hand-added session (`addSession`) is
+    filed on arrival — it is work already finished, never part of a run.
+  - The agent bridge's `tracker.stop` stops AND commits: an agent has no ✓ to
+    press afterwards, and a run left open would keep the row counting it forever.
 - **Menu-bar indication:** while a task is tracking, a dark-green wedge sits in
   the icon's bottom-right corner (see "Menu bar icon — corner badges"), next to
   the engine's green wedge when both run. It is suppressed only when the task's

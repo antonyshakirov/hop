@@ -989,6 +989,31 @@ struct HoverDeleteX: View {
     }
 }
 
+/// The ✓ that ends a run. It sits beside the figure of a task in the middle of
+/// one — running now, or paused part-way through — and closes it: what the run
+/// collected stays in the history, and the row goes back to showing the period's
+/// own sum (Anton, 2026-08-29). Unlike the hover ✕ it is always visible while a
+/// run is open, because it is also the row's only sign that one IS open.
+struct RunCommitButton: View {
+    let action: () -> Void
+    var help: String?
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "checkmark")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Theme.accentGreen)
+                // the same 22pt box the row's ✕ uses, so the two never disagree
+                // about the row's height when both are on screen
+                .frame(width: 22, height: 22)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverHighlight(4)
+        .helpIfAny(help)
+    }
+}
+
 /// The in-row delete confirmation shared by the tracker and to-do rows. It is
 /// swapped in for the hover ✕ that opened it, while the row's leading circle and
 /// name — and, in the tracker, the far-right time — stay exactly where they are,
