@@ -530,17 +530,21 @@ struct TrackerView: View {
                     .monospacedDigit()
             }
             .padding(.bottom, 6)
-            // A long-lived task can hold hundreds of sessions; the card shows
-            // the recent ones and says how many it did not draw, rather than
-            // turning the panel into a ledger.
-            ForEach(entries.prefix(Self.historyLimit)) { entry in
-                historyRow(task, entry)
-            }
-            if entries.count > Self.historyLimit {
-                Text("+\(entries.count - Self.historyLimit)")
-                    .font(Theme.mono(9))
-                    .foregroundStyle(Theme.textTertiary)
-                    .monospacedDigit()
+            // A long-lived task can hold hundreds of sessions. The card shows
+            // the recent ones and SCROLLS the rest, cut through a row rather
+            // than between two: a list that ended on a whole line looked
+            // finished, and a "+N" under it was a count, not a way in (Anton,
+            // 2026-08-29). While a line is being edited the cap is lifted —
+            // its own date list is taller than the window would be.
+            if entries.count > Self.historyRows, !editingHistory {
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: Self.historyGap) {
+                        ForEach(entries) { entry in historyRow(task, entry) }
+                    }
+                }
+                .frame(height: Self.historyScrollHeight)
+            } else {
+                ForEach(entries) { entry in historyRow(task, entry) }
             }
             if isEditing(.newEntry(task.id)) {
                 entryEditor(allowsMoment: true) { seconds, moment in
@@ -636,7 +640,24 @@ struct TrackerView: View {
         }
     }
 
-    private static let historyLimit = 8
+    /// How many whole lines the history window shows before it scrolls, and
+    /// the geometry that cuts the next one in half so the scroll is visible:
+    /// a line is 16pt of content with 2pt above and below (20), and the list
+    /// puts 2pt between them (22 of pitch).
+    private static let historyRows = 7
+    private static let historyGap: CGFloat = 2
+    private static let historyRowHeight: CGFloat = 20
+    private static let historyScrollHeight =
+        (historyRowHeight + historyGap) * CGFloat(historyRows) + historyRowHeight / 2
+
+    /// True while a history line (or the "add time" line) has its editor open,
+    /// which is taller than one row and must not be trapped in the window.
+    private var editingHistory: Bool {
+        switch activeField {
+        case .editEntry, .newEntry: return true
+        default: return false
+        }
+    }
 
     private static let historyMoment: DateFormatter = {
         let formatter = DateFormatter()

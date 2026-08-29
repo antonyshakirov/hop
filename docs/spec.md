@@ -945,8 +945,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     a minus. They are what the scrub and the typed total write, and together
     with the sessions they ARE the total — a list that quietly omitted them
     would not add up to the number above it.
-  - The card draws the most recent 8 and says "+N" for the rest, rather than
-    turning the panel into a ledger.
+  - **The list scrolls, cut THROUGH a line** (Anton, 2026-08-29). A long-lived
+    task holds hundreds of sessions, so the block is a window seven lines tall
+    plus half of the eighth: `(20 + 2) × 7 + 10 = 164pt` against a line's 16pt
+    of content, its 2pt of padding each side and the list's own 2pt gap. Ending
+    on a whole line read as the end of the list, and the earlier "+N" beneath it
+    was a count rather than a way in. Under eight lines nothing scrolls, and the
+    cap is LIFTED while a line is being edited — the editor's own date list is
+    taller than the window.
   - **The total is the block's headline**, not another line of it: 13pt semibold
     in primary ink against a 9pt tertiary label, sharing a baseline, with room
     under the pair (Anton, 2026-08-28 — at matching sizes he read the label as a
