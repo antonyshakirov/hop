@@ -38,13 +38,16 @@ final class FileConverter: ObservableObject {
     nonisolated static let autoClearKey = "convAutoClear"       // finished ones disappear on their own
     /// Documents: what the group is converted INTO (pdf | md | docx).
     nonisolated static let docTargetKey = "convDocTarget"
+    /// pdf | office — which way an iWork batch goes. "office" means each
+    /// document's own Office format: docx, xlsx or pptx.
+    nonisolated static let iworkTargetKey = "convIWorkTarget"
     /// PDFs have two jobs now: squeeze the file (default) or pull its text out
     /// as markdown. A mode rather than a category, so a dropped PDF still lands
     /// in the group the user expects.
     nonisolated static let pdfModeKey = "convPdfMode"           // compress | markdown
 
     enum MediaKind: Sendable {
-        case image, pdf, video, audio, document, unsupported
+        case image, pdf, video, audio, document, iwork, unsupported
     }
 
     struct BatchFile: Identifiable {
@@ -63,9 +66,12 @@ final class FileConverter: ObservableObject {
         var videos: [BatchFile] = []
         var audios: [BatchFile] = []
         var documents: [BatchFile] = []
+        /// Pages, Numbers and Keynote documents — exported by the applications
+        /// themselves, so they are a group of their own with their own targets.
+        var iworks: [BatchFile] = []
         var unsupported: [BatchFile] = []
 
-        var all: [BatchFile] { images + pdfs + videos + audios + documents + unsupported }
+        var all: [BatchFile] { images + pdfs + videos + audios + documents + iworks + unsupported }
         var isEmpty: Bool { all.isEmpty }
 
         func files(_ kind: MediaKind) -> [BatchFile] {
@@ -75,6 +81,7 @@ final class FileConverter: ObservableObject {
             case .video: return videos
             case .audio: return audios
             case .document: return documents
+            case .iwork: return iworks
             case .unsupported: return unsupported
             }
         }
@@ -94,6 +101,7 @@ final class FileConverter: ObservableObject {
             case .video: videos.append(file)
             case .audio: audios.append(file)
             case .document: documents.append(file)
+            case .iwork: iworks.append(file)
             case .unsupported: unsupported.append(file)
             }
         }
@@ -109,6 +117,7 @@ final class FileConverter: ObservableObject {
             case .video: strip(&videos)
             case .audio: strip(&audios)
             case .document: strip(&documents)
+            case .iwork: strip(&iworks)
             case .unsupported: strip(&unsupported)
             }
         }
@@ -136,6 +145,7 @@ final class FileConverter: ObservableObject {
             case .video: mark(&videos)
             case .audio: mark(&audios)
             case .document: mark(&documents)
+            case .iwork: mark(&iworks)
             case .unsupported: mark(&unsupported)
             }
         }
@@ -153,6 +163,7 @@ final class FileConverter: ObservableObject {
             case .video: mark(&videos)
             case .audio: mark(&audios)
             case .document: mark(&documents)
+            case .iwork: mark(&iworks)
             case .unsupported: break
             }
         }
@@ -305,6 +316,11 @@ final class FileConverter: ObservableObject {
 
     /// Default: leave the picture the shape it already is. Reshaping a video is
     /// something to ask for, never something to do to somebody's file quietly.
+    /// "pdf" | "office" — where an iWork batch goes.
+    nonisolated static var iworkTarget: String {
+        UserDefaults.standard.string(forKey: iworkTargetKey) ?? "pdf"
+    }
+
     nonisolated static var videoShape: VideoFrame.Shape {
         UserDefaults.standard.string(forKey: videoShapeKey)
             .flatMap(VideoFrame.Shape.init(rawValue:)) ?? .source
@@ -335,6 +351,8 @@ final class FileConverter: ObservableObject {
 
     nonisolated static func classify(_ url: URL) -> MediaKind {
         if url.pathExtension.lowercased() == "pdf" { return .pdf }
+        // Pages/Numbers/Keynote: nothing here reads them, their own apps do
+        if IWorkExport.isExportable(url) { return .iwork }
         // documents are matched by extension: .md and .txt also conform to
         // public.text, which would otherwise fall through as unsupported
         if DocumentConversion.readableExtensions.contains(url.pathExtension.lowercased()) {
@@ -606,6 +624,7 @@ final class FileConverter: ObservableObject {
         let videoFit = Self.videoFit
         let videoQuality = Self.videoQuality
         let docTarget = Self.docTarget
+        let iworkTarget = Self.iworkTarget
         let pdfTextTarget = Self.pdfTextTarget
         let destination = Self.destinationDirectory
 
@@ -669,6 +688,8 @@ final class FileConverter: ObservableObject {
                     outURL = await Self.convertAudio(url, to: outDir)
                 case .document:
                     outURL = await Self.convertDocument(url, to: outDir, target: docTarget)
+                case .iwork:
+                    outURL = await Self.exportIWork(url, to: outDir, target: iworkTarget)
                 case .unsupported:
                     outURL = nil
                 }
@@ -730,6 +751,13 @@ final class FileConverter: ObservableObject {
         }
         let total = files.reduce(Int64(0)) { sum, url in
             sum + ((try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0)
+        }
+        // Nothing here can be forecast: a document's size depends on its own
+        // converter, and an iWork export is done by another application
+        // entirely. The group simply shows what it weighs now.
+        guard kind != .document, kind != .iwork else {
+            estimates[kind] = Self.sizeText(total)
+            return
         }
         guard kind == .image || kind == .pdf else {
             // video/audio: the system encoder's own forecast
@@ -1172,6 +1200,13 @@ final class FileConverter: ObservableObject {
     }
 
     #if DEBUG
+    /// The real iWork path, reachable from the dev self-test entry point.
+    nonisolated static func exportIWorkForSelfTest(
+        _ url: URL, to dir: URL, target: String
+    ) async -> URL? {
+        await exportIWork(url, to: dir, target: target)
+    }
+
     /// The real video path, reachable from the dev self-test entry point.
     nonisolated static func reframeForSelfTest(
         _ url: URL, to dir: URL, shape: VideoFrame.Shape, fit: VideoFrame.Fit,
@@ -1242,6 +1277,55 @@ final class FileConverter: ObservableObject {
             asset: asset, to: outURL, as: type, composition: composition,
             codec: compress ? .hevc : .h264, quality: compress ? quality : 1,
             onProgress: onProgress)
+    }
+
+    /// Asks the document's own application to export it, through Apple Events.
+    ///
+    /// Nothing is required up front: a .pages file joins the queue whether or
+    /// not Pages is installed, and only THIS file fails if it turns out not to
+    /// be (Anton, 2026-08-28). The Automation permission is likewise asked for
+    /// by macOS at the first export, not before — there is nothing to grant
+    /// until something is actually being converted.
+    nonisolated private static func exportIWork(_ url: URL, to dir: URL,
+                                                target: String) async -> URL? {
+        guard let app = IWorkExport.app(for: url) else { return nil }
+        let format = target == "office"
+            ? IWorkExport.officeTarget(for: app)
+            : IWorkExport.Target.pdf
+        guard NSWorkspace.shared.urlForApplication(withBundleIdentifier: app.bundleID) != nil
+        else {
+            log.error("iwork export: \(app.appName, privacy: .public) is not installed")
+            return nil
+        }
+        let outURL = uniqueURL(dir, name: url.deletingPathExtension().lastPathComponent,
+                               ext: format.fileExtension)
+        guard let script = IWorkExport.script(input: url, output: outURL, target: format)
+        else { return nil }
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+        process.arguments = ["-e", script]
+        let errors = Pipe()
+        process.standardError = errors
+        process.standardOutput = FileHandle.nullDevice
+        process.standardInput = FileHandle.nullDevice
+        do {
+            try process.run()
+        } catch {
+            return nil
+        }
+        let stderr = errors.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0,
+              FileManager.default.fileExists(atPath: outURL.path) else {
+            let message = String(data: stderr, encoding: .utf8) ?? ""
+            let reason = IWorkExport.isPermissionRefusal(message) ? "permission"
+                : (IWorkExport.isMissingApp(message) ? "missing app" : "document")
+            log.error("iwork export failed (\(reason, privacy: .public)): \(message, privacy: .public)")
+            try? FileManager.default.removeItem(at: outURL)
+            return nil
+        }
+        return outURL
     }
 
     /// Runs the helper: Matroska in, MP4 out, tracks copied. Returns nil when

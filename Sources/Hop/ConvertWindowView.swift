@@ -20,6 +20,7 @@ struct ConvertWindowView: View {
     @AppStorage(FileConverter.videoFitKey) private var videoFit = "fill"
     @AppStorage(FileConverter.videoQualityLevelKey) private var videoQualityLevel = 55
     @AppStorage(FileConverter.docTargetKey) private var docTarget = "pdf"
+    @AppStorage(FileConverter.iworkTargetKey) private var iworkTarget = "pdf"
     @AppStorage(FileConverter.pdfModeKey) private var pdfMode = "compress"
     @State private var targeted = false
 
@@ -168,6 +169,7 @@ struct ConvertWindowView: View {
             capLine(t(.convCanVideo), "MP4 · MOV · M4V", "MP4 / MOV (\(t(.convCompressOnly)))")
             capLine(t(.convCanAudio), "MP3 · WAV · FLAC · AAC", "M4A")
             capLine(t(.convCanDocuments), "MD · DOCX · DOC · RTF · TXT", "PDF · MD · DOCX")
+            capLine("iWork", "PAGES · NUMBERS · KEY", "PDF · DOCX · XLSX · PPTX")
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -202,6 +204,7 @@ struct ConvertWindowView: View {
         if !batch.videos.isEmpty { groupCard(.video, count: batch.videos.count) }
         if !batch.audios.isEmpty { groupCard(.audio, count: batch.audios.count) }
         if !batch.documents.isEmpty { groupCard(.document, count: batch.documents.count) }
+        if !batch.iworks.isEmpty { groupCard(.iwork, count: batch.iworks.count) }
         if !batch.unsupported.isEmpty { unsupportedCard(batch.unsupported) }
     }
 
@@ -212,6 +215,7 @@ struct ConvertWindowView: View {
         case .video: return t(.convCanVideo)
         case .audio: return t(.convCanAudio)
         case .document: return t(.convCanDocuments)
+        case .iwork: return "iWork"
         case .unsupported: return t(.convUnsupported)
         }
     }
@@ -387,6 +391,26 @@ struct ConvertWindowView: View {
             // squeezing has a dial; pulling the text out has nothing to tune
             if pdfMode == "compress" || pdfMode.isEmpty {
                 qualityControl(.pdf)
+            }
+        case .iwork:
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 5) {
+                    rowLabel(t(.convFormatLabel))
+                    chip("PDF", iworkTarget == "pdf") { iworkTarget = "pdf" }
+                    // one switch for a mixed batch: each document goes to its
+                    // OWN Office format — pages to docx, numbers to xlsx,
+                    // keynote to pptx
+                    chip("DOCX · XLSX · PPTX", iworkTarget == "office") { iworkTarget = "office" }
+                    Spacer()
+                }
+                // The one thing Hop does not do itself, said plainly: the apps
+                // export their own documents, so their export is what you get,
+                // and macOS asks for permission the first time (Anton,
+                // 2026-08-28 — nothing is required until a file is converted).
+                Text(t(.convIWorkNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         case .document:
             VStack(alignment: .leading, spacing: 6) {

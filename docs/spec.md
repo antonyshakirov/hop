@@ -574,6 +574,29 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - PDF: page recompression (~150 dpi), text stops being selectable.
 - Video: MP4/MOV/M4V/AVI/MPG → MP4/MOV. Audio: → M4A. MP3/MKV/WebM output is
   not supported by the system; we don't embed ffmpeg.
+- **iWork documents are exported by iWork** (`IWorkExport`, tested; Anton
+  2026-08-28). Pages, Numbers and Keynote files form a group of their own:
+  `.pages`, `.numbers`, `.key` in; PDF out, or each document's own Office format
+  — docx, xlsx, pptx — chosen by one switch, since a mixed batch needs one
+  setting to serve three kinds of document. Hop does not read these formats at
+  all: they are undocumented protobuf containers whose third-party readers break
+  on every major release, formulas first. It sends the application an Apple
+  Event to run its own "Export to…", so the result is exactly what doing it by
+  hand produces, and there is nothing of ours to go stale.
+  - **Nothing is required up front** (Anton, 2026-08-28). A `.pages` file joins
+    the queue whether or not Pages is installed; only THAT file fails if it
+    turns out not to be, and the rest of the batch carries on. The Automation
+    permission is likewise asked for by macOS at the first export — there is
+    nothing to grant until something is actually being converted. The row says
+    so before the button is pressed.
+  - The document is opened, exported and closed WITHOUT saving: a batch must
+    never modify what it was handed. Failures are read apart — permission
+    refused (-1743), application missing (-600 / -10814), or the document
+    itself — because the first two are fixable and say different things.
+  - No size forecast: the output is another application's work, so the group
+    shows what it weighs now and nothing more.
+  - Dev entry point: `Hop --iwork-selftest <file> <out dir> [pdf|office]` runs
+    one export through the app's own path.
 - **What counts as convertible is asked of the system**, not kept as a list
   (`systemCanRead`, 2026-08-04). MKV, WebM, WMV and FLV all classify as movies
   and AVFoundation cannot open ANY of them; they used to land in the video group

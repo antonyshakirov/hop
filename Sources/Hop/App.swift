@@ -1482,6 +1482,7 @@ struct HopApp: App {
         TorrentSelfTest.runIfRequested()
         DocumentSelfTest.runIfRequested()
         VideoSelfTest.runIfRequested()
+        IWorkSelfTest.runIfRequested()
         Snapshot.runIfRequested()
         #endif
     }
@@ -1502,6 +1503,25 @@ struct HopApp: App {
 /// three fits can be looked at without dragging files into a window.
 /// Debug builds only.
 @MainActor
+/// `Hop --iwork-selftest <file> <out dir> [pdf|office]` runs one export through
+/// the app's own path: the same script, the same missing-app check, the same
+/// permission prompt. Dev builds only.
+enum IWorkSelfTest {
+    static func runIfRequested() {
+        let args = CommandLine.arguments
+        guard let i = args.firstIndex(of: "--iwork-selftest"), args.count > i + 2 else { return }
+        let source = URL(fileURLWithPath: args[i + 1])
+        let outDir = URL(fileURLWithPath: args[i + 2])
+        let target = args.count > i + 3 ? args[i + 3] : "pdf"
+        Task {
+            let result = await FileConverter.exportIWorkForSelfTest(source, to: outDir,
+                                                                   target: target)
+            print(result.map { "SELFTEST OK: \($0.path)" } ?? "SELFTEST FAIL")
+            exit(result == nil ? 1 : 0)
+        }
+    }
+}
+
 enum VideoSelfTest {
     static func runIfRequested() {
         let args = CommandLine.arguments
