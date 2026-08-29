@@ -6,9 +6,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   workflow_dispatch:
 
 concurrency:
@@ -26,13 +26,8 @@ jobs:
       - name: Toolchain
         run: swift --version
 
-      - name: Build
-        run: swift build
-
-      - name: Test
-        run: swift test
-
-      # Every UI string has to exist in all 18 languages; the app checks its own
-      # tables and exits non-zero on the first gap.
-      - name: Translations
-        run: ./.build/debug/Hop --l10n-check
+      # The same script the pre-push hook and release.sh run, so CI cannot
+      # pass on something either of them would reject: build (warnings are
+      # failures), tests, and every UI string present in all 22 languages.
+      - name: Checks
+        run: ./scripts/checks.sh

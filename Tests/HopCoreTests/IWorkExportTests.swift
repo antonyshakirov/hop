@@ -64,6 +64,18 @@ final class IWorkExportTests: XCTestCase {
         XCTAssertEqual(script.components(separatedBy: "tell application").count - 1, 1)
     }
 
+    func testALineBreakInANameCannotEndTheStatement() {
+        // a macOS filename may contain a newline; raw, it would close the string
+        // literal and leave the rest of the name standing as script
+        let script = IWorkExport.script(input: URL(fileURLWithPath: "/tmp/a\nb.pages"),
+                                        output: URL(fileURLWithPath: "/tmp/out.pdf"),
+                                        target: .pdf)!
+        XCTAssertFalse(script.contains("/tmp/a\nb.pages"))
+        XCTAssertTrue(script.contains("a\\nb.pages"))
+        // still exactly four lines of script plus the closing one
+        XCTAssertEqual(script.components(separatedBy: "\n").count, 5)
+    }
+
     func testABackslashIsEscapedBeforeTheQuotes() {
         XCTAssertEqual(IWorkExport.escaped("a\\b\"c"), "a\\\\b\\\"c")
     }

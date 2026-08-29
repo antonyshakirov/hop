@@ -113,9 +113,17 @@ public enum IWorkExport {
 
     /// A path inside an AppleScript string literal. Backslashes first, or the
     /// escaping escapes its own escapes.
+    ///
+    /// The line breaks matter as much as the quotes: a macOS filename may
+    /// contain one, and a raw newline inside a string literal ends the
+    /// statement — which turns the rest of the name into script text. Escaped,
+    /// it stays part of the name.
     static func escaped(_ path: String) -> String {
         path.replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
+            .replacingOccurrences(of: "\n", with: "\\n")
+            .replacingOccurrences(of: "\r", with: "\\r")
+            .replacingOccurrences(of: "\t", with: "\\t")
     }
 
     /// Whether the message an export failed with is the system refusing

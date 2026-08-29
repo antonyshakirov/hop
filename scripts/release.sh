@@ -13,6 +13,11 @@ SITE_DIR="${HOP_SITE_DIR:-$HOME/Development Projects/Products Platform/projects/
 [[ -d "$SITE_DIR/public" ]] || { echo "site repo not found: $SITE_DIR"; exit 1 }
 [[ -f "$HOME/.minimo-release-key" ]] || { echo "signing key ~/.minimo-release-key not found"; exit 1 }
 
+# Nothing is packaged from a red tree: build, tests and translations first —
+# the same script CI and the pre-push hook run. A release that fails its own
+# checks is not a release (2026-08-29).
+scripts/checks.sh
+
 # the version is baked into Info.plist BEFORE the build
 plutil -replace CFBundleShortVersionString -string "$VERSION" scripts/Info.plist
 

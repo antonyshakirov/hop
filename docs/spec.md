@@ -3065,6 +3065,23 @@ its own database of known apps may do better on real software than it did here.
 4. Backlog: ffmpeg formats on user request; Arabic/Hebrew will require
    an RTL pass.
 
+## Checks that run themselves
+
+`scripts/checks.sh` is the check cycle in one place — build (warnings count as
+failures), `swift test`, and `--l10n-check` — and THREE things call it, so they
+cannot drift apart (Anton, 2026-08-29):
+
+- **CI** (`.github/workflows/ci.yml`) on every push and pull request to `main`
+  AND `dev`. It used to watch `main` only, which meant the branch all the work
+  actually happens on had no automatic checks at all.
+- **The local pre-push hook**, so nothing red leaves the machine.
+  `HOP_SKIP_CHECKS=1 git push` is the escape hatch for a known-good docs fix.
+  Like the other hooks it lives in `.git/hooks` and is restored by hand after a
+  re-clone.
+- **`release.sh`**, right after it has validated its arguments and found the
+  signing key, and before it packages anything: a release that fails its own
+  checks is not a release.
+
 ## Repo workflow
 
 - **Exactly ONE working session edits the repo at a time.** A second

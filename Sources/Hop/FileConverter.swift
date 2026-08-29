@@ -1302,43 +1302,29 @@ final class FileConverter: ObservableObject {
         guard let script = IWorkExport.script(input: url, output: outURL, target: format)
         else { return nil }
 
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", script]
-        let errors = Pipe()
-        process.standardError = errors
-        process.standardOutput = FileHandle.nullDevice
-        process.standardInput = FileHandle.nullDevice
-        do {
-            try process.run()
-        } catch {
-            return nil
-        }
-        let stderr = errors.fileHandleForReading.readDataToEndOfFile()
-        process.waitUntilExit()
-        guard process.terminationStatus == 0,
-              FileManager.default.fileExists(atPath: outURL.path) else {
-            let message = String(data: stderr, encoding: .utf8) ?? ""
-            let reason = IWorkExport.isPermissionRefusal(message) ? "permission"
-                : (IWorkExport.isMissingApp(message) ? "missing app" : "document")
-            log.error("iwork export failed (\(reason, privacy: .public)): \(message, privacy: .public)")
+        guard let result = run(URL(fileURLWithPath: "/usr/bin/osascript"), ["-e", script],
+                               timeout: iworkTimeout) else { return nil }
+        guard result.status == 0, FileManager.default.fileExists(atPath: outURL.path) else {
+            let reason = IWorkExport.isPermissionRefusal(result.stderr) ? "permission"
+                : (IWorkExport.isMissingApp(result.stderr) ? "missing app" : "document")
+            log.error("iwork export failed (\(reason, privacy: .public)): \(result.stderr, privacy: .public)")
             try? FileManager.default.removeItem(at: outURL)
             return nil
         }
         return outURL
     }
 
-    /// Runs the helper: Matroska in, MP4 out, tracks copied. Returns nil when
-    /// it refuses — a webm whose vp8/vorbis pair MP4 cannot hold, or a file
-    /// that is simply broken. The helper never inherits a terminal, so it can
-    /// neither prompt nor block.
-    nonisolated private static func repack(_ url: URL, with tool: URL) async -> URL? {
-        let token = String(UUID().uuidString.prefix(8))
-        let out = RemuxRules.temporaryOutput(
-            for: url, in: FileManager.default.temporaryDirectory, token: token)
+    /// Runs a helper process and returns its exit status and stderr — with a
+    /// DEADLINE. Neither of the two things Hop shells out to can be trusted to
+    /// finish: ffmpeg can sit on a broken file, and an iWork app can stop on a
+    /// dialog nobody will ever see, since it is launched in the background. A
+    /// batch that waits forever looks exactly like a hung app, so the process
+    /// is killed and the file simply fails (2026-08-29).
+    nonisolated private static func run(_ tool: URL, _ arguments: [String],
+                                        timeout: TimeInterval) -> (status: Int32, stderr: String)? {
         let process = Process()
         process.executableURL = tool
-        process.arguments = RemuxRules.arguments(input: url, output: out)
+        process.arguments = arguments
         let errors = Pipe()
         process.standardError = errors
         process.standardOutput = FileHandle.nullDevice
@@ -1348,18 +1334,43 @@ final class FileConverter: ObservableObject {
         } catch {
             return nil
         }
+        // The deadline runs on its own thread: reading the pipe below blocks
+        // until the process closes it, so nothing here can watch the clock.
+        let killer = DispatchWorkItem {
+            if process.isRunning { process.terminate() }
+        }
+        DispatchQueue.global().asyncAfter(deadline: .now() + timeout, execute: killer)
         // read before waiting: a full pipe would deadlock a chatty failure
-        let stderr = errors.fileHandleForReading.readDataToEndOfFile()
+        let data = errors.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
-        guard process.terminationStatus == 0,
-              FileManager.default.fileExists(atPath: out.path) else {
+        killer.cancel()
+        return (process.terminationStatus, String(data: data, encoding: .utf8) ?? "")
+    }
+
+    /// Runs the helper: Matroska in, MP4 out, tracks copied. Returns nil when
+    /// it refuses — a webm whose vp8/vorbis pair MP4 cannot hold, or a file
+    /// that is simply broken. The helper never inherits a terminal, so it can
+    /// neither prompt nor block, and a deadline covers the rest.
+    nonisolated private static func repack(_ url: URL, with tool: URL) async -> URL? {
+        let token = String(UUID().uuidString.prefix(8))
+        let out = RemuxRules.temporaryOutput(
+            for: url, in: FileManager.default.temporaryDirectory, token: token)
+        guard let result = run(tool, RemuxRules.arguments(input: url, output: out),
+                               timeout: repackTimeout) else { return nil }
+        guard result.status == 0, FileManager.default.fileExists(atPath: out.path) else {
             try? FileManager.default.removeItem(at: out)
-            let text = String(data: stderr, encoding: .utf8) ?? ""
-            Self.log.error("repack failed (\(RemuxRules.isCodecRefusal(text) ? "codec" : "file", privacy: .public)): \(text, privacy: .public)")
+            Self.log.error("repack failed (\(RemuxRules.isCodecRefusal(result.stderr) ? "codec" : "file", privacy: .public)): \(result.stderr, privacy: .public)")
             return nil
         }
         return out
     }
+
+    /// Long enough for a feature-length remux on a slow disk, short enough that
+    /// a stuck helper does not hold a batch hostage.
+    nonisolated private static let repackTimeout: TimeInterval = 600
+    /// An export is one document through another app: generous, but finite.
+    nonisolated private static let iworkTimeout: TimeInterval = 180
+
 
     /// The encode Hop drives itself, because the system's export presets do not
     /// take a bitrate and a converter without one cannot promise a size. Reader
