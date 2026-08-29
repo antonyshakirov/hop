@@ -72,10 +72,14 @@ e os dígitos piscam até você zerar.
 
 ### Controle de tempo e tarefas
 
-Acompanhe o tempo por uma lista plana de tarefas: cada linha mostra o tempo
-de hoje e um total acumulado, e você pode corrigir o valor de hoje à mão. Se
-uma correr demais, um aviso lembra você após oito horas. Ao lado há uma lista
-de tarefas separada, em que o que foi concluído desce para o fim.
+As tarefas podem ser agrupadas em projetos, cada um com sua soma, e um
+interruptor acima da lista mostra hoje, a semana ou tudo. Uma tarefa em
+andamento conta o trecho atual, do zero; o ✓ ao lado o fecha e a linha volta à
+soma do período. Abra uma tarefa e todos os seus trechos estão ali: mudar a
+duração ou o momento, acrescentar uma sessão que ninguém cronometrou ou apagar
+uma; as correções manuais ficam na mesma lista, então as linhas somam o total
+acima. Se uma correr demais, um aviso lembra você após oito horas. Ao lado há
+uma lista de tarefas separada, em que o que foi concluído desce para o fim.
 
 Clique numa tarefa e a linha abre: o texto completo na primeira linha, uma
 descrição abaixo e uma estrela para favoritos. Um afazer pode ter um lembrete —
@@ -137,6 +141,13 @@ localmente. O vídeo também pode ser reenquadrado ao converter — 9:16, 4:5,
 quadrado ou 16:9, cortado, com barras ou sobre uma cópia desfocada — e a
 compressão tem um nível próprio, por isso o tamanho prometido antes é o que
 sai.
+
+Um botão prepara o clipe para onde ele vai — reels, feed, tiktok, shorts ou
+youtube — definindo enquadramento, resolução e compressão conforme a própria
+plataforma recomenda, com o bitrate resultante ao lado do controle. MKV e WebM
+são reempacotados em MP4 primeiro (o macOS não abre nenhum) por um pequeno
+ajudante que baixa uma vez. Documentos do Pages, Numbers e Keynote são
+exportados em lote pelos próprios apps: em PDF, ou em docx, xlsx e pptx.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/pt/converter.png" width="480" alt="Hop — Conversor de arquivos">

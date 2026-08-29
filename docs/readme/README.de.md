@@ -71,10 +71,15 @@ pulsieren, bis du zurücksetzt.
 
 ### Zeiterfassung & To-dos
 
-Erfasse Zeit über eine flache Aufgabenliste — jede Zeile zeigt die heutige
-Zeit und eine laufende Gesamtsumme, und den heutigen Wert kannst du von Hand
-korrigieren. Läuft eine zu lange, erinnert dich nach acht Stunden ein Banner.
-Daneben liegt eine eigene To-do-Liste, in der Erledigtes nach unten wandert.
+Aufgaben lassen sich in Projekten gruppieren, jedes mit eigener Summe, und ein
+Schalter über der Liste zeigt heute, diese Woche oder alles. Eine laufende
+Aufgabe zählt den Abschnitt, in dem man gerade steckt, von null an; das ✓
+daneben schließt ihn, und in der Zeile steht wieder die Summe des Zeitraums.
+Öffne eine Aufgabe, und alle ihre Zeitabschnitte stehen da: Dauer oder
+Zeitpunkt ändern, eine Sitzung nachtragen oder eine löschen — Handkorrekturen
+stehen in derselben Liste, damit die Zeilen zur Summe darüber passen. Läuft
+eine zu lange, erinnert dich nach acht Stunden ein Banner. Daneben liegt eine
+eigene To-do-Liste, in der Erledigtes nach unten wandert.
 
 Klicken Sie eine Aufgabe an, und die Zeile klappt auf: der ganze Text in der
 ersten Zeile, darunter eine Beschreibung, ein Stern für Favoriten. Ein To-do
@@ -137,6 +142,14 @@ konvertierst. Alles wird lokal verarbeitet. Video lässt sich beim Konvertieren
 auch neu rahmen — 9:16, 4:5, Quadrat oder 16:9, beschnitten, mit Balken oder
 auf einer unscharfen Kopie —, und die Komprimierung hat eine eigene Stufe,
 sodass die vorher genannte Größe auch die tatsächliche ist.
+
+Eine Taste richtet den Clip auf sein Ziel aus — reels, feed, tiktok, shorts
+oder youtube — und setzt Bildformat, Auflösung und Kompression nach der
+Empfehlung der Plattform, mit der resultierenden Bitrate neben dem Regler. MKV
+und WebM werden zuerst in MP4 umgepackt (macOS öffnet beide nicht), von einem
+kleinen Helfer, der einmalig lädt. Pages-, Numbers- und Keynote-Dokumente
+exportieren die Apps selbst, stapelweise: als PDF oder als docx, xlsx und
+pptx.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/de/converter.png" width="480" alt="Hop — Dateikonverter">

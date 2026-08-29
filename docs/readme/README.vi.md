@@ -69,10 +69,14 @@ cho đến khi bạn đặt lại.
 
 ### Theo dõi thời gian & việc cần làm
 
-Ghi lại thời gian trên một danh sách công việc phẳng: mỗi hàng hiển thị thời
-gian hôm nay và tổng tích lũy, và bạn có thể sửa con số hôm nay bằng tay.
-Nếu một việc chạy quá lâu, sau tám giờ sẽ có một dải nhắc bạn. Bên cạnh là
-một danh sách việc cần làm riêng, nơi việc đã xong chìm xuống dưới.
+Công việc có thể gom vào dự án, mỗi dự án mang tổng riêng, và công tắc phía
+trên danh sách hiện hôm nay, tuần này hoặc toàn bộ. Công việc đang chạy đếm
+phiên bạn đang làm, từ số không; dấu ✓ bên cạnh kết thúc phiên đó và dòng trở
+về tổng của kỳ. Mở một công việc là thấy mọi đoạn thời gian của nó: sửa độ dài
+hay thời điểm, thêm phiên không ai bấm giờ, hoặc xoá một dòng; các sửa tay nằm
+cùng danh sách, nên các dòng cộng đúng bằng tổng phía trên. Nếu một việc chạy
+quá lâu, sau tám giờ sẽ có một dải nhắc bạn. Bên cạnh là một danh sách việc
+cần làm riêng, nơi việc đã xong chìm xuống dưới.
 
 Nhấn vào một công việc và dòng đó mở ra: toàn bộ nội dung ở dòng đầu, mô tả bên
 dưới, một ngôi sao cho mục yêu thích. Một việc cần làm còn có thể mang lời nhắc —
@@ -132,6 +136,13 @@ lượng trung thực, hiển thị trực tiếp trước khi chuyển đổi. 
 lý cục bộ. Video còn có thể đổi khung hình khi chuyển đổi — 9:16, 4:5, vuông
 hoặc 16:9, cắt đầy khung, thêm viền, hay đặt trên bản sao đã làm mờ — và phần
 nén có mức riêng, nên kích thước hứa trước bằng đúng kích thước nhận được.
+
+Một nút chuẩn bị đoạn phim cho nơi nó sẽ tới — reels, feed, tiktok, shorts hay
+youtube — đặt khung hình, độ phân giải và mức nén theo khuyến nghị của chính
+nền tảng, kèm bitrate kết quả bên cạnh thanh trượt. MKV và WebM được đóng gói
+lại thành MP4 trước (macOS không mở được cả hai) nhờ một trình phụ trợ nhỏ tải
+về một lần. Tài liệu Pages, Numbers và Keynote do chính các ứng dụng xuất hàng
+loạt: ra PDF, hoặc docx, xlsx và pptx.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Chuyển đổi tệp">

@@ -69,10 +69,16 @@ you reset it.
 
 ### Time tracker & to-dos
 
-Track time against a flat list of tasks — each row shows today's time and a
-running total, and you can correct today's figure by hand. Leave one running
-too long and a banner reminds you after eight hours. A separate to-do list
-sits alongside, with finished items sinking to the bottom.
+Tasks can be grouped into projects, each carrying the sum of its own, and one
+switch above the list shows today, this week or all of it. A task that is
+running counts the stretch you are in, from zero; the ✓ beside it closes that
+stretch and the row goes back to the period's sum. Open a task and every
+stretch of time it collected is listed: change how long one ran or when it
+happened, add a session nobody pressed play for, or delete one — hand
+corrections sit in the same list, so the lines always add up to the total
+above them. Leave one running too long and a banner reminds you after eight
+hours. A separate to-do list sits alongside, with finished items sinking to
+the bottom.
 
 Click any task to open it: the full text on the first line, a description
 underneath, a star to mark a favourite. A to-do can also carry a reminder — a
@@ -133,6 +139,13 @@ size estimate before you convert. Everything is processed locally. Video can
 also be reframed as it converts — 9:16, 4:5, square or 16:9, cropped to fill,
 padded, or laid over a blurred copy of itself — and the squeeze has a level of
 its own, so the size promised before you convert is the size you get.
+
+One button sets a clip up for where it is going — reels, feed, tiktok, shorts
+or youtube — writing the frame, the resolution and the squeeze from what the
+platform itself recommends, with the resulting bitrate shown beside the dial.
+MKV and WebM are repacked into MP4 first (macOS opens neither) by a small
+helper that downloads once. Pages, Numbers and Keynote documents are exported
+in batches by the apps themselves — PDF, or docx, xlsx and pptx.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — File converter">

@@ -69,10 +69,15 @@ bitince tek bir ses çalar ve sıfırlayana kadar rakamlar yanıp söner.
 
 ### Zaman takibi ve görevler
 
-Düz bir görev listesinde zamanı tutun: her satır bugünkü süreyi ve toplam
-birikimi gösterir, bugünkü değeri elle düzeltebilirsiniz. Biri fazla uzun
-sürerse, sekiz saatin sonunda bir bant hatırlatır. Yanında ayrı bir
-yapılacaklar listesi durur; biten işler dibe iner.
+Görevler projelerde toplanabilir, her biri kendi toplamını taşır ve listenin
+üstündeki anahtar bugünü, haftayı ya da tümünü gösterir. Süregelen bir görev,
+içinde bulunduğun turu sıfırdan sayar; yanındaki ✓ turu kapatır ve satıra
+dönemin toplamı geri gelir. Bir görevi aç, topladığı bütün süre parçaları
+orada: süreyi ya da anı değiştir, kimsenin başlatmadığı bir oturumu ekle ya da
+birini sil; elle yapılan düzeltmeler de aynı listede, böylece satırlar üstteki
+toplamı verir. Biri fazla uzun sürerse, sekiz saatin sonunda bir bant
+hatırlatır. Yanında ayrı bir yapılacaklar listesi durur; biten işler dibe
+iner.
 
 Bir göreve tıklayın, satır açılsın: ilk satırda tam metin, altında açıklama,
 favoriler için bir yıldız. Bir yapılacak öğesi hatırlatma da taşıyabilir — gün,
@@ -133,6 +138,13 @@ tahminiyle HEVC video küçültme. Her şey yerel olarak işlenir. Video
 dönüştürülürken yeniden çerçevelenebilir — 9:16, 4:5, kare ya da 16:9;
 kırpılarak, bantla ya da kendi bulanık kopyasının üzerinde — ve sıkıştırmanın
 kendi seviyesi var, böylece önceden söylenen boyut çıkan boyut oluyor.
+
+Tek düğme klibi gideceği yere göre ayarlar — reels, feed, tiktok, shorts ya da
+youtube — kareyi, çözünürlüğü ve sıkıştırmayı platformun kendi önerisine göre
+yazar ve ortaya çıkan bit hızını sürgünün yanında gösterir. MKV ve WebM önce
+MP4'e yeniden paketlenir (macOS ikisini de açmaz); bunu bir kez inen küçük bir
+yardımcı yapar. Pages, Numbers ve Keynote belgelerini toplu olarak
+uygulamaların kendisi dışa aktarır: PDF ya da docx, xlsx ve pptx.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Dosya dönüştürücü">

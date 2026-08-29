@@ -70,10 +70,14 @@ aż je wyzerujesz.
 
 ### Śledzenie czasu i zadania
 
-Zliczaj czas na płaskiej liście zadań: w każdym wierszu widać dzisiejszy
-czas i łączną sumę, a dzisiejszą wartość możesz poprawić ręcznie. Jeśli
-któreś działa za długo, po ośmiu godzinach przypomni o tym baner. Obok jest
-osobna lista rzeczy do zrobienia, w której ukończone spada na dół.
+Zadania można zebrać w projekty, każdy z własną sumą, a przełącznik nad listą
+pokazuje dziś, tydzień albo całość. Trwające zadanie liczy bieżący odcinek, od
+zera; ✓ obok zamyka odcinek, a w wierszu wraca suma za okres. Otwórz zadanie,
+a zobaczysz wszystkie jego odcinki: zmienić długość albo moment, dopisać
+sesję, której nikt nie mierzył, albo skasować wpis; poprawki ręczne są na tej
+samej liście, więc wiersze sumują się do liczby nad nimi. Jeśli któreś działa
+za długo, po ośmiu godzinach przypomni o tym baner. Obok jest osobna lista
+rzeczy do zrobienia, w której ukończone spada na dół.
 
 Kliknij zadanie, a wiersz się rozwinie: pełny tekst w pierwszej linii, opis
 poniżej, gwiazdka dla ulubionych. Zadanie może mieć przypomnienie — dzień,
@@ -135,6 +139,13 @@ aktualizowanym na żywo szacunkiem rozmiaru jeszcze przed konwersją. Wszystko
 jest przetwarzane lokalnie. Wideo można też przekadrować przy konwersji —
 9:16, 4:5, kwadrat albo 16:9, z przycięciem, pasami lub na rozmytej kopii — a
 kompresja ma własny poziom, więc obiecany rozmiar jest tym, który wychodzi.
+
+Jeden przycisk ustawia klip pod to, dokąd trafi — reels, feed, tiktok, shorts
+albo youtube — zapisując kadr, rozdzielczość i kompresję według zaleceń samej
+platformy, a obok suwaka pokazuje wynikowy bitrate. MKV i WebM są najpierw
+przepakowywane do MP4 (macOS nie otwiera żadnego) przez małego pomocnika,
+który pobiera się raz. Dokumenty Pages, Numbers i Keynote eksportują partiami
+same aplikacje: do PDF albo do docx, xlsx i pptx.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Konwerter plików">

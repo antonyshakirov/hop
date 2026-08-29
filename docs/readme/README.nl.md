@@ -70,10 +70,15 @@ geluid en knipperen de cijfers tot je reset.
 
 ### Tijdregistratie & taken
 
-Houd tijd bij op een platte takenlijst: elke rij toont de tijd van vandaag en
-een doorlopend totaal, en het cijfer van vandaag pas je met de hand aan. Loopt
-er een te lang, dan herinnert een banner je na acht uur. Ernaast staat een
-aparte to-do-lijst, waarin afgevinkte items naar onderen zakken.
+Taken kunnen in projecten worden gegroepeerd, elk met een eigen som, en een
+schakelaar boven de lijst toont vandaag, deze week of alles. Een lopende taak
+telt de sessie waarin je zit, vanaf nul; het ✓ ernaast sluit die sessie en in
+de rij staat weer de som van de periode. Open een taak en al haar stukken tijd
+staan er: de duur of het moment wijzigen, een sessie toevoegen die niemand
+startte, of er een verwijderen; handmatige correcties staan in dezelfde lijst,
+zodat de regels optellen tot het totaal erboven. Loopt er een te lang, dan
+herinnert een banner je na acht uur. Ernaast staat een aparte to-do-lijst,
+waarin afgevinkte items naar onderen zakken.
 
 Klik op een taak en de regel klapt open: de volledige tekst op de eerste regel,
 daaronder een beschrijving, een ster voor favorieten. Een to-do kan ook een
@@ -136,6 +141,14 @@ wordt lokaal verwerkt. Video kan bij het converteren ook opnieuw worden
 gekaderd — 9:16, 4:5, vierkant of 16:9, bijgesneden, met balken of op een
 vervaagde kopie — en de compressie heeft een eigen niveau, zodat de vooraf
 beloofde grootte de werkelijke is.
+
+Eén knop zet een clip klaar voor waar hij heen gaat — reels, feed, tiktok,
+shorts of youtube — en schrijft kader, resolutie en compressie zoals het
+platform zelf aanraadt, met de resulterende bitrate naast de schuif. MKV en
+WebM worden eerst omgepakt naar MP4 (macOS opent geen van beide) door een
+klein hulpje dat één keer downloadt. Pages-, Numbers- en Keynote-documenten
+worden in batches geëxporteerd door de apps zelf: naar PDF, of naar docx, xlsx
+en pptx.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Bestandsconverter">

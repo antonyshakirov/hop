@@ -71,10 +71,15 @@ non azzeri.
 
 ### Monitoraggio del tempo e attività
 
-Tieni il tempo su una lista piatta di attività: ogni riga mostra il tempo di
-oggi e un totale progressivo, e puoi correggere a mano la cifra di oggi. Se
-una va troppo a lungo, dopo otto ore un banner te lo ricorda. Accanto c'è una
-lista di cose da fare a parte, dove il completato scende in fondo.
+Le attività si raccolgono in progetti, ognuno con la propria somma, e un
+interruttore sopra l'elenco mostra oggi, la settimana o tutto. Un'attività in
+corso conta la sessione del momento, da zero; il ✓ accanto la chiude e la riga
+torna alla somma del periodo. Apri un'attività e ci sono tutti i suoi tratti:
+cambiare la durata o il momento, aggiungere una sessione che nessuno ha
+avviato o eliminarne una; le correzioni a mano stanno nello stesso elenco,
+così le righe fanno il totale sopra. Se una va troppo a lungo, dopo otto ore
+un banner te lo ricorda. Accanto c'è una lista di cose da fare a parte, dove
+il completato scende in fondo.
 
 Clicca su un'attività e la riga si apre: il testo completo sulla prima riga, una
 descrizione sotto, una stella per i preferiti. Un'attività può avere un
@@ -138,6 +143,14 @@ viene elaborato in locale. Il video si può anche reinquadrare durante la
 conversione — 9:16, 4:5, quadrato o 16:9, ritagliato, con bande o su una copia
 sfocata — e la compressione ha un livello suo, così la dimensione promessa è
 quella che esce.
+
+Un pulsante prepara la clip per la sua destinazione — reels, feed, tiktok,
+shorts o youtube — impostando inquadratura, risoluzione e compressione secondo
+il consiglio della piattaforma, con il bitrate risultante accanto al cursore.
+MKV e WebM vengono prima reimpacchettati in MP4 (macOS non apre né l'uno né
+l'altro) da un piccolo aiutante che si scarica una volta. I documenti Pages,
+Numbers e Keynote li esportano in blocco le app stesse: in PDF, oppure in
+docx, xlsx e pptx.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Convertitore di file">

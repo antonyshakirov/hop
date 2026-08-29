@@ -73,11 +73,16 @@ seul son retentit et les chiffres clignotent jusqu'à la réinitialisation.
 
 ### Suivi du temps et tâches
 
-Suivez le temps sur une liste de tâches à plat : chaque ligne montre le temps
-du jour et un total cumulé, et vous pouvez corriger le chiffre du jour à la
-main. Si l'une tourne trop longtemps, un bandeau vous le rappelle au bout de
-huit heures. À côté, une liste de choses à faire distincte, où le terminé
-descend en bas.
+Les tâches se regroupent en projets, chacun portant sa propre somme, et un
+sélecteur au-dessus de la liste montre le jour, la semaine ou tout. Une tâche
+en cours compte la session en cours, à partir de zéro ; le ✓ à côté la clôt et
+la ligne revient à la somme de la période. Ouvrez une tâche et tous ses
+segments sont là : changer la durée ou le moment, ajouter une séance que
+personne n'a chronométrée ou en supprimer une ; les corrections manuelles
+figurent dans la même liste, si bien que les lignes font le total au-dessus.
+Si l'une tourne trop longtemps, un bandeau vous le rappelle au bout de huit
+heures. À côté, une liste de choses à faire distincte, où le terminé descend
+en bas.
 
 Cliquez sur une tâche : la ligne s'ouvre — le texte complet sur la première
 ligne, une description en dessous, une étoile pour les favoris. Une tâche peut
@@ -142,6 +147,14 @@ Tout est traité en local. La vidéo peut aussi être recadrée à la conversion
 9:16, 4:5, carré ou 16:9, rognée, avec des bandes ou sur une copie floutée —
 et la compression a son propre niveau, si bien que la taille annoncée est
 celle obtenue.
+
+Un bouton prépare le clip pour sa destination — reels, feed, tiktok, shorts ou
+youtube — en réglant le cadrage, la résolution et la compression d'après la
+recommandation de la plateforme, avec le débit obtenu affiché près du curseur.
+Les MKV et WebM sont d'abord réemballés en MP4 (macOS n'ouvre ni l'un ni
+l'autre) par un petit utilitaire téléchargé une fois. Les documents Pages,
+Numbers et Keynote sont exportés en lot par les apps elles-mêmes : en PDF, ou
+en docx, xlsx et pptx.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/fr/converter.png" width="480" alt="Hop — Convertisseur de fichiers">

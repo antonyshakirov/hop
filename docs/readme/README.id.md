@@ -70,10 +70,16 @@ sampai kamu mereset.
 
 ### Pelacak waktu & tugas
 
-Catat waktu di daftar tugas yang datar: tiap baris menampilkan waktu hari
-ini dan total berjalan, dan angka hari ini bisa kamu perbaiki manual. Kalau
-satu berjalan terlalu lama, sebuah spanduk mengingatkan setelah delapan jam.
-Di sebelahnya ada daftar tugas terpisah, tempat yang selesai turun ke bawah.
+Tugas bisa dikelompokkan ke proyek, masing-masing membawa jumlahnya sendiri,
+dan sakelar di atas daftar menampilkan hari ini, minggu ini, atau seluruhnya.
+Tugas yang sedang berjalan menghitung sesi yang kamu jalani, dari nol; ✓ di
+sampingnya menutup sesi itu dan baris kembali ke jumlah periode. Buka sebuah
+tugas dan semua potongan waktunya ada di sana: ubah durasi atau waktunya,
+tambahkan sesi yang tak sempat dicatat, atau hapus satu baris; koreksi manual
+ada di daftar yang sama, jadi barisnya berjumlah sama dengan total di atasnya.
+Kalau satu berjalan terlalu lama, sebuah spanduk mengingatkan setelah delapan
+jam. Di sebelahnya ada daftar tugas terpisah, tempat yang selesai turun ke
+bawah.
 
 Klik sebuah tugas dan barisnya terbuka: teks lengkap di baris pertama,
 deskripsi di bawahnya, bintang untuk favorit. Sebuah to-do juga bisa membawa
@@ -137,6 +143,14 @@ diproses secara lokal. Video juga bisa dibingkai ulang saat dikonversi — 9:16,
 4:5, persegi, atau 16:9, dipangkas, diberi bilah, atau di atas salinan
 buramnya — dan kompresi punya tingkatnya sendiri, jadi ukuran yang dijanjikan
 sama dengan yang keluar.
+
+Satu tombol menyiapkan klip untuk tujuannya — reels, feed, tiktok, shorts,
+atau youtube — menuliskan bingkai, resolusi, dan kompresi sesuai anjuran
+platform itu sendiri, dengan bitrate hasilnya di sebelah penggeser. MKV dan
+WebM dikemas ulang ke MP4 lebih dulu (macOS tidak membuka keduanya) oleh
+pembantu kecil yang diunduh sekali. Dokumen Pages, Numbers, dan Keynote
+diekspor secara massal oleh aplikasinya sendiri: ke PDF, atau ke docx, xlsx,
+dan pptx.
 
 <div align="center">
 <img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Konverter file">
