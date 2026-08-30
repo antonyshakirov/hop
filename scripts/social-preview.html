@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+  /* Repository social preview, 1280x640. Colours come from the landing page
+     (hop.css: --hop-bg, --hop-accent); the asterisk is the same geometry as
+     assets/icon/hop-asterisk-white.svg. Render with any headless browser:
+
+     chrome --headless --force-device-scale-factor=2 \
+       --window-size=1280,640 --screenshot=out.png file://.../social-preview.html
+  */
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1280px;height:640px}
+  body{background:#0b0b0b;display:flex;align-items:center;justify-content:center;gap:64px;
+       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif}
+  svg{width:280px;height:280px;flex:none}
+  .txt{display:flex;flex-direction:column;gap:14px}
+  h1{font-size:104px;line-height:.92;font-weight:600;letter-spacing:-.035em;color:#fff}
+  p{font-size:30px;line-height:1.35;color:rgba(255,255,255,.55);max-width:15ch;font-weight:400}
+  .dot{color:#ffd60a}
+</style></head><body>
+  <svg viewBox="0 0 512 512">
+    <g stroke="#ffd60a" stroke-width="49" stroke-linecap="round">
+      <line x1="76.2" y1="181.5" x2="435.8" y2="330.5"/>
+      <line x1="181.5" y1="76.2" x2="330.5" y2="435.8"/>
+      <line x1="330.5" y1="76.2" x2="181.5" y2="435.8"/>
+      <line x1="435.8" y1="181.5" x2="76.2" y2="330.5"/>
+    </g>
+  </svg>
+  <div class="txt"><h1>Hop<span class="dot">.</span></h1><p>Everything you need in your Mac menu bar</p></div>
+</body></html>
