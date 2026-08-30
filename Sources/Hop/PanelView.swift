@@ -146,6 +146,10 @@ struct PanelView: View {
     @AppStorage("featureSeen.torrent") private var torrentFeatureSeen = false
     @AppStorage("featureSeen.tools150") private var toolsFeatureSeen = false
     @AppStorage("featureSeen.modules160") private var modulesFeatureSeen = false
+    /// Release card: read so SwiftUI re-renders the moment it is dismissed.
+    @AppStorage("newsSeen.1.9") private var news19Seen = false
+    /// Whether THIS opening has already been counted against the card's two.
+    @State private var releaseCardCounted = false
     // Two-step "what's new" card: step 1 = opt-in (enable/hide), step 2 = the
     // follow-up toggles while the engine fetches in the background.
     // "--feature-banner-step2" renders step 2 directly for design review.
@@ -286,6 +290,11 @@ struct PanelView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Theme.panelBackground)
+            // The window remembers the tab it was left on, so something sending
+            // the user to a particular one has to say so and be obeyed whether
+            // the window is being built or is already standing open.
+            .onAppear { consumeAboutSectionRequest() }
+            .onChange(of: model.aboutSectionRequest) { _, _ in consumeAboutSectionRequest() }
         } else {
             panelBody
         }
@@ -409,6 +418,179 @@ struct PanelView: View {
     /// Every announcement's id — onboarding marks them all seen, since a fresh
     /// install has just answered the same question in the form.
     static var featureAnnouncementIDs: [String] { featureAnnouncements.map(\.id) }
+
+    // MARK: - Release cards ("what's new in this version")
+
+    /// What a release brought, in a line per thing (Anton, 2026-08-30). The
+    /// announcement above it asks whether to switch new MODULES on, so a release
+    /// that only deepened the modules already there — projects and history in the
+    /// tracker, platform presets in the converter, mkv and webm — told nobody
+    /// anything, and its notes sat in the help behind a tab nobody opens.
+    ///
+    /// A card is WRITTEN per release rather than derived from the version, which
+    /// is what makes "only the second number earns a card" true without a rule in
+    /// the code: a fix rolled out on top of a release simply gets no card, so
+    /// there is nothing to suppress. `ReleaseNews` decides which one is owed.
+    private struct ReleaseCard {
+        /// The release it speaks for, "1.9"; its state lives at `newsSeen.<id>`,
+        /// `newsShown.<id>` and `newsFirstShown.<id>`.
+        let id: String
+        let lines: [L10nKey]
+    }
+    private static let releaseCards: [ReleaseCard] = [
+        .init(id: "1.9", lines: [.news19Tracker, .news19Presets, .news19Remux,
+                                 .news19IWork, .news19Vpn]),
+    ]
+
+    /// Every release card's id — onboarding marks them seen for the same reason
+    /// it marks the announcements: a fresh install has nothing to catch up on.
+    static var releaseCardIDs: [String] { releaseCards.map(\.id) }
+
+    private func consumeAboutSectionRequest() {
+        guard let requested = model.aboutSectionRequest else { return }
+        aboutSection = requested
+        model.aboutSectionRequest = nil
+    }
+
+    static func newsSeenKey(_ id: String) -> String { "newsSeen.\(id)" }
+    private static func newsShownKey(_ id: String) -> String { "newsShown.\(id)" }
+    private static func newsFirstShownKey(_ id: String) -> String { "newsFirstShown.\(id)" }
+
+    /// The release card owed right now, or nil. Never at the same time as a
+    /// module announcement: that one asks a question and this one only tells, so
+    /// the question goes first and the news waits for the next open.
+    private var pendingRelease: ReleaseCard? {
+        if Snapshot.active {
+            return CommandLine.arguments.contains("--news-banner") ? Self.releaseCards.last : nil
+        }
+        _ = news19Seen   // read so SwiftUI re-renders when it flips
+        guard pendingAnnouncement == nil else { return nil }
+        let defaults = UserDefaults.standard
+        let state = Self.releaseCards.map { card in
+            ReleaseNews.Card(
+                id: card.id,
+                seen: defaults.bool(forKey: Self.newsSeenKey(card.id)),
+                shownCount: defaults.integer(forKey: Self.newsShownKey(card.id)),
+                firstShownAt: defaults.object(forKey: Self.newsFirstShownKey(card.id)) as? Date)
+        }
+        guard let owed = ReleaseNews.visible(state, installed: model.updater.currentVersion,
+                                             now: Date()) else { return nil }
+        return Self.releaseCards.first { $0.id == owed.id }
+    }
+
+    /// The card, on the same surface as the announcement above it: what the
+    /// release brought, a line each, with the full notes one button away.
+    @ViewBuilder private var newsBanner: some View {
+        if let card = pendingRelease {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 6) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Theme.accentGreen)
+                    Text(t(.featureNewBadge))
+                        .font(Theme.mono(11, weight: .semibold))
+                        .foregroundStyle(Theme.accentGreen)
+                    Text("·").foregroundStyle(Theme.textTertiary)
+                    // The version is not translated and never will be, so it is a
+                    // literal rather than a string table entry.
+                    Text("Hop \(card.id)")
+                        .font(Theme.mono(11, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer(minLength: 0)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(card.lines, id: \.self) { line in
+                        HStack(alignment: .top, spacing: 6) {
+                            Text("•")
+                                .font(Theme.mono(10))
+                                .foregroundStyle(Theme.textTertiary)
+                            Text(t(line))
+                                .font(Theme.mono(10))
+                                .foregroundStyle(Theme.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer(minLength: 0)
+                        }
+                    }
+                }
+                .padding(.top, 8)
+                HStack(spacing: 14) {
+                    Spacer(minLength: 0)
+                    Button {
+                        markReleaseSeen(card)
+                    } label: {
+                        HoverLabel(text: t(.newsGotIt), size: 10, color: Theme.textTertiary)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .help(t(.newsGotIt))
+                    Button {
+                        openReleaseNotes(card)
+                    } label: {
+                        Text(t(.newsMore))
+                            .font(Theme.mono(10, weight: .bold))
+                            .foregroundStyle(Theme.playFg)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 6)
+                            .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .help(t(.newsMore))
+                }
+                .padding(.top, 10)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10)
+                .stroke(Theme.accentGreen.opacity(0.35), lineWidth: 1))
+            .onAppear { releaseCardAppeared(card) }
+            .onDisappear { releaseCardDisappeared(card) }
+        }
+    }
+
+    /// Starts the card's two-day clock on the opening that actually drew it, and
+    /// retires whatever older cards this one overtook — somebody who skipped a
+    /// release wants to know where the app stands, not to dismiss its history one
+    /// card at a time.
+    private func releaseCardAppeared(_ card: ReleaseCard) {
+        guard !Snapshot.active else { return }
+        let defaults = UserDefaults.standard
+        if defaults.object(forKey: Self.newsFirstShownKey(card.id)) == nil {
+            defaults.set(Date(), forKey: Self.newsFirstShownKey(card.id))
+        }
+        let state = Self.releaseCards.map {
+            ReleaseNews.Card(id: $0.id, seen: defaults.bool(forKey: Self.newsSeenKey($0.id)))
+        }
+        for old in ReleaseNews.overtaken(state, installed: model.updater.currentVersion) {
+            defaults.set(true, forKey: Self.newsSeenKey(old.id))
+        }
+        releaseCardCounted = false
+    }
+
+    /// The showing is counted on the way OUT, not on the way in: counting on
+    /// appear can push the card past its limit while it is still on screen, and a
+    /// banner that vanishes mid-read is worse than one shown once too often.
+    private func releaseCardDisappeared(_ card: ReleaseCard) {
+        guard !Snapshot.active, !releaseCardCounted else { return }
+        releaseCardCounted = true
+        let defaults = UserDefaults.standard
+        defaults.set(defaults.integer(forKey: Self.newsShownKey(card.id)) + 1,
+                     forKey: Self.newsShownKey(card.id))
+    }
+
+    private func markReleaseSeen(_ card: ReleaseCard) {
+        UserDefaults.standard.set(true, forKey: Self.newsSeenKey(card.id))
+        news19Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("1.9"))
+    }
+
+    /// The full notes for the release, which are already written and already
+    /// translated — the card is a summary of the help's own "what's new" tab.
+    private func openReleaseNotes(_ card: ReleaseCard) {
+        markReleaseSeen(card)
+        model.aboutSectionRequest = "news"
+        model.openAboutWindow?()
+    }
 
     /// The checklist entry that stands for "a grid of apps". Deliberately the
     /// bare word: a real shelf key carries a uuid that does not exist yet.
@@ -802,8 +984,9 @@ struct PanelView: View {
         }
     }
 
-    /// Fixed chrome pinned to the top of the panel: the optional "what's new" and
-    /// 8-hour overrun banners and the header (space switcher + service trio, or
+    /// Fixed chrome pinned to the top of the panel: the optional module
+    /// announcement, the release card and the 8-hour overrun banner, then the
+    /// header (space switcher + service trio, or
     /// the overlay back-chevron). A SIBLING of the scroll region, never inside it,
     /// so it cannot move when the scrolled content's height changes on a space
     /// switch. The bottom padding reproduces the 16pt gap the old single VStack
@@ -811,6 +994,7 @@ struct PanelView: View {
     private var chrome: some View {
         VStack(spacing: 16) {
             featureBanner
+            newsBanner
             overrunBanner
             header
         }

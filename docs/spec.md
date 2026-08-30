@@ -2854,6 +2854,45 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   reusing it would have let 1.7.0's module land in everyone's panel unasked.
 - `--feature-banner-latest` renders whatever the newest card is, so it can be
   reviewed without knowing its id.
+- **A release also gets a card that only tells** (`newsBanner`, `--news-banner`,
+  Anton 2026-08-30). The announcement above asks whether to switch new MODULES
+  on, so a release that only deepened the modules already there announced itself
+  nowhere: 1.9.0 brought projects and history to the tracker, platform presets to
+  the converter, mkv and webm, and the iWork batches, and the only place that
+  said so was the help's "what's new" tab, behind a tab nobody opens. The card
+  sits on the same chrome surface, headed `new · Hop <release>` (the version is a
+  literal, never translated), and carries a line per thing the release brought,
+  ×22. `what's new` opens the help ON the news tab — the full notes are already
+  written and already translated, so the card summarises rather than repeats;
+  `got it` only dismisses. Reaching a particular help tab needed
+  `aboutSectionRequest` on the model, consumed once by the window, because the
+  about window remembers the tab it was left on.
+
+  **A card is WRITTEN per release, not derived from the version.** That is what
+  makes "only the second number earns a card" true without a rule in the code: a
+  fix rolled out on top of a release simply gets no card, so there is nothing to
+  suppress, and `ReleaseNews.Version` parses the third number only to drop it —
+  1.9.1 is still the 1.9 card. `HopCore.ReleaseNews` (`ReleaseNewsTests`) picks
+  the NEWEST card at or below the running version, never a queue of them:
+  somebody who skipped a release wants to know where the app stands, not to
+  dismiss its history one card at a time. The ones it passes over are `overtaken`
+  and marked seen so they cannot surface later.
+
+  **It leaves on whichever limit runs out first:** the button, two panel openings
+  that drew it, or two days from the first one that did. The two-day clock exists
+  for somebody who neither reads nor dismisses it, who would otherwise carry the
+  card at the top of the panel for the rest of the release. A showing is counted
+  on the way OUT rather than in, because counting on the way in can push the card
+  past its limit while it is still on screen, and a banner that vanishes mid-read
+  is worse than one shown once too often.
+
+  The 1.9 card ships in 1.9.1 and reaches EVERYONE, including people already on
+  1.9.0: a banner can only travel by update, and nobody has seen this one
+  (Anton, 2026-08-30). It never greets a fresh install — onboarding marks the
+  release cards seen alongside the announcements (`releaseCardIDs`). It also
+  never shares the panel with a module announcement: that one asks a question and
+  this one only tells, so the question goes first and the news waits for the next
+  open.
 
 ### Tooltips
 

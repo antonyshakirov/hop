@@ -329,6 +329,12 @@ struct OnboardingView: View {
         for id in PanelView.featureAnnouncementIDs {
             UserDefaults.standard.set(true, forKey: "featureSeen.\(id)")
         }
+        // The release cards go with them, for the same reason: a fresh install
+        // has no release to catch up on — everything the cards announce is
+        // simply how the app it just installed works.
+        for id in PanelView.releaseCardIDs {
+            UserDefaults.standard.set(true, forKey: PanelView.newsSeenKey(id))
+        }
         if launchAtLogin {
             try? SMAppServiceHelper.enableLaunchAtLogin()
         }
