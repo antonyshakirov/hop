@@ -1,6 +1,12 @@
 .build/
 dist/
 .DS_Store
+# Notarization credentials: an app-specific password lives here and must never
+# reach the repository. The release script reads it from this file so that the
+# secret exists only on the signing machine.
+.env
+.env.*
+!.env.example
 *.png
 !assets/icon/*.png
 assets/Doc*.icns
