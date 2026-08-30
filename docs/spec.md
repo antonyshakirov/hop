@@ -2868,6 +2868,13 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   `aboutSectionRequest` on the model, consumed once by the window, because the
   about window remembers the tab it was left on.
 
+  **A card's lines name what improved, never by how much** (Anton, 2026-08-30).
+  The first cut of the vpn line read "changes colour at once instead of half a
+  minute later", which advertises how bad the old behaviour was and invites the
+  reader to ask why it was ever built that way. It says the connection's state
+  syncs faster and the dot follows it, and no release card quotes a before-figure
+  again.
+
   **A card is WRITTEN per release, not derived from the version.** That is what
   makes "only the second number earns a card" true without a rule in the code: a
   fix rolled out on top of a release simply gets no card, so there is nothing to
