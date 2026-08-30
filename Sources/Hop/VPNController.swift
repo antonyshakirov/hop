@@ -27,14 +27,10 @@ final class VPNController: ObservableObject {
     static let visibleRowsKey = "vpnVisibleRows"
     static let defaultVisibleRows = 3
 
-    /// How often the tunnels are measured while there is something to measure.
-    /// Counters cost microseconds, so the cadence is set by how quickly a stalled
-    /// tunnel should show — not by what the reading costs.
-    private static let watchInterval: TimeInterval = 2
-    /// The cadence with nothing connected and the panel closed. The list still has
-    /// to be re-read on its own, or a tunnel that comes up while nobody is looking
-    /// would leave the menu bar showing nothing at all.
-    private static let idleInterval: TimeInterval = 30
+    /// How long a reading may be in flight before another is allowed to start. A
+    /// module that has stopped reading is worse than two readings at once, and
+    /// `scutil` can wedge along with the daemon behind it.
+    private static let readTimeout: TimeInterval = 10
 
     @Published private(set) var configurations: [VPNConfiguration] = []
     /// Set while a start/stop is in flight, so the row can show it immediately
@@ -54,6 +50,12 @@ final class VPNController: ObservableObject {
     /// justifies the fast cadence and a process launch per tick.
     private var panelOpen = false
     private var lastListRead = Date.distantPast
+    /// When a reading was started, while one is in flight.
+    private var readStartedAt: Date?
+    /// When the system last said the network moved. Everything about how long
+    /// that keeps the module looking quickly is `VPNWatchCadence`.
+    private var lastChange: Date?
+    private var watcher: NetworkChangeWatcher?
     /// Connected configuration → the interface its tunnel is on. Cached: the name
     /// cannot change without the tunnel going down first, and looking it up costs
     /// a process launch.
@@ -97,18 +99,37 @@ final class VPNController: ObservableObject {
             ]
             return
         }
+        watcher = NetworkChangeWatcher { [weak self] in
+            Task { @MainActor in self?.networkChanged() }
+        }
         refresh()
         retune()
     }
 
     // MARK: - Reading
 
-    /// Re-reads the list. One short command, run every tick while the panel is
-    /// open and every half-minute while it is closed.
+    /// Re-reads the list, off the main thread and never twice at once.
+    ///
+    /// Off the main thread because the command blocks (Anton, 2026-08-30): it used
+    /// to run inline here, which was survivable at one launch per tick and is not
+    /// once a network change can ask for a reading of its own. Never twice at once
+    /// because a reading that overlaps its predecessor only spends a process to
+    /// learn the same thing.
     func refresh() {
         guard !Snapshot.active else { return }
-        lastListRead = Date()
-        let output = Self.run([Self.scutil, "--nc", "list"])
+        if let started = readStartedAt, Date().timeIntervalSince(started) < Self.readTimeout { return }
+        let started = Date()
+        readStartedAt = started
+        lastListRead = started
+        Task { [weak self] in
+            await self?.reload()
+            guard let self, readStartedAt == started else { return }
+            readStartedAt = nil
+        }
+    }
+
+    private func reload() async {
+        let output = await Self.runOffMain([Self.scutil, "--nc", "list"])
         let fresh = VPNConfigurations.parseList(output).map(Self.named)
         // Keep a pending row on its optimistic state until the system agrees.
         configurations = fresh.map { configuration in
@@ -121,13 +142,13 @@ final class VPNController: ObservableObject {
         pending = pending.filter { id in
             fresh.first { $0.id == id }?.state.isBusy ?? false
         }
-        trackInterfaces()
+        await trackInterfaces()
     }
 
     /// Ties every connected configuration to the interface its tunnel is on, and
     /// forgets the ones that have gone down along with whatever was known about
     /// them.
-    private func trackInterfaces() {
+    private func trackInterfaces() async {
         let up = Set(configurations.filter { $0.state.isOn }.map(\.id))
         for id in interfaces.keys where !up.contains(id) {
             interfaces[id] = nil
@@ -135,7 +156,7 @@ final class VPNController: ObservableObject {
         }
         if !stalled.isEmpty { stalled.formIntersection(up) }
         for id in up where interfaces[id] == nil {
-            let status = Self.run([Self.scutil, "--nc", "status", id])
+            let status = await Self.runOffMain([Self.scutil, "--nc", "status", id])
             interfaces[id] = VPNConfigurations.interfaceName(in: status)
         }
     }
@@ -174,6 +195,10 @@ final class VPNController: ObservableObject {
     /// The module watches on its own, not only while its list is on screen: the
     /// menu-bar dot is the whole point of the light, and a dot that only updates
     /// while the panel is open says whatever was true when it last closed.
+    ///
+    /// The timer is the floor rather than the mechanism: what usually moves the
+    /// light is `networkChanged`, and this is what catches the configurations the
+    /// system never announces under a key worth watching.
     private func fire() {
         guard isWatched else {
             // nobody can see it — drop what was being tracked and coast
@@ -182,21 +207,38 @@ final class VPNController: ObservableObject {
                 liveness.removeAll()
                 stalled.removeAll()
             }
+            lastChange = nil
             retune()
             return
         }
         let vanished = sampleTunnels()
-        if panelOpen || vanished || Date().timeIntervalSince(lastListRead) >= Self.idleInterval {
-            refresh()
-        }
+        if cadence(vanished: vanished).readsList { refresh() }
         retune()
+    }
+
+    /// The system moved something about the network. Nothing else says so: a
+    /// tunnel that comes up outside Hop, and one the system drops while its `utun`
+    /// stays standing, both look exactly like the previous moment until the list
+    /// is read again.
+    private func networkChanged() {
+        guard !Snapshot.active, isWatched else { return }
+        let now = Date()
+        lastChange = now
+        if VPNWatchCadence.worthReading(lastListRead: lastListRead, now: now) { refresh() }
+        retune()
+    }
+
+    private func cadence(vanished: Bool = false) -> VPNWatchCadence {
+        VPNWatchCadence.decide(panelOpen: panelOpen, tracking: !interfaces.isEmpty,
+                               vanished: vanished, lastChange: lastChange,
+                               lastListRead: lastListRead, now: Date())
     }
 
     /// Picks the cadence the current state deserves and reschedules only when it
     /// actually changes.
     private func retune() {
         guard !Snapshot.active else { return }
-        let interval = (panelOpen || !interfaces.isEmpty) ? Self.watchInterval : Self.idleInterval
+        let interval = cadence().interval
         guard interval != tickInterval || tick == nil else { return }
         tick?.invalidate()
         tickInterval = interval
@@ -227,6 +269,9 @@ final class VPNController: ObservableObject {
         guard !Snapshot.active else { return }
         let turningOff = configuration.state.isOn || configuration.state.isBusy
         pending.insert(configuration.id)
+        // The system will announce this like any other change, but the row is
+        // waiting on it right now: enter the fast cadence without being told.
+        lastChange = Date()
         let id = configuration.id
         let name = configuration.name
         let wasEnabled = configuration.isEnabled
@@ -362,6 +407,13 @@ final class VPNController: ObservableObject {
     }
 
     // MARK: - Running the tool
+
+    /// The same command, off whatever actor asked for it. Every caller in the
+    /// module goes through this: the process blocks, and the main thread is
+    /// drawing a panel.
+    private nonisolated static func runOffMain(_ arguments: [String]) async -> String {
+        await Task.detached { run(arguments) }.value
+    }
 
     private nonisolated static func run(_ arguments: [String]) -> String {
         let process = Process()

@@ -1494,14 +1494,50 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **The watch runs whether or not the panel is open.** It has to: the menu-bar dot
   is the whole point of the light, and until 2026-07-31 polling started on the
   list's `onAppear` and stopped on `onDisappear`, so with the panel closed the dot
-  showed whatever was true when it last closed. One timer at **2 s** while the
-  panel is open or any tunnel is up, **30 s** otherwise; `scutil --nc list` is
-  re-read every tick with the panel open, every 30 s without it, and immediately
-  when a tracked interface vanishes from `getifaddrs` (which is free and means the
-  list is already out of date). Counters are sampled every tick and cost
-  microseconds. The whole thing idles when nobody can see it — the module on no
-  space, or `vpnMenuBarMark` off — which is exactly the pair of conditions the
-  icon itself is drawn under.
+  showed whatever was true when it last closed. Counters are sampled every tick
+  and cost microseconds. The whole thing idles when nobody can see it — the module
+  on no space, or `vpnMenuBarMark` off — which is exactly the pair of conditions
+  the icon itself is drawn under.
+- **The system says when the network moves; the timer is only the floor**
+  (`NetworkChangeWatcher`, `VPNWatchCadence`, Anton 2026-08-30). Until then the
+  list was re-read every **30 s** with the panel closed, and that was the whole
+  latency of the dot: a tunnel brought up outside Hop — from the vendor's own
+  window, or by its on-demand rules — took up to half a minute to turn the dot
+  green, and one the system dropped took the same whenever its `utun` stayed
+  standing behind it, since the free `getifaddrs` check only ever sees an
+  interface leave.
+
+  So the module now watches `SCDynamicStore` — the same subsystem `scutil` reads,
+  taken from the other end. The keys are the SERVICE entities (`IPv4`, `IPv6`,
+  `PPP`, `IPSec` under `State:`, any service) plus global `State:` IPv4 for the
+  default route and global `Setup:` IPv4 for the service order, which is what
+  moves when a service leaves the network set — including when Hop moves it.
+  Services rather than interfaces, because publishing addresses against the
+  service is the one thing true of every configuration whatever the vendor built
+  it on, and because it is the only signal that survives a `utun` outliving its
+  session. Read-only and unentitled: it asks the user for nothing. It is also
+  cheaper than the poll it replaces, since a quiet network wakes nobody.
+
+  A signal does not mean the tunnel has arrived — the route change is published
+  first and the session then walks `Connecting → Connected` over a few seconds —
+  so a signal opens an **8 s window at 1 s** during which the list is re-read
+  every tick, and a further signal inside it restarts the window. Signals arriving
+  together (a tunnel moves several keys at once, each its own callback) ride on
+  one reading: another within **0.3 s** of the last does not order its own. The
+  window is also what covers a client whose own state never lands under a watched
+  key, since some neighbouring change reaches us and the window then reads until
+  the truth shows up. Outside it, the old cadence stands unchanged: **2 s** with
+  the panel open or a tunnel up, **30 s** otherwise, the list re-read every tick
+  with the panel open, on a vanished interface, and on the 30 s floor. That floor
+  is deliberate — a configuration the system announces under nothing at all
+  degrades to the behaviour of 2026-07-31 rather than to no watch. Flipping a
+  switch in Hop opens the window itself, without waiting to be told.
+
+  `scutil` is run **off the main thread** from here on. It used to run inline on
+  the main actor, which was survivable at one launch per tick and is not once a
+  network change can order a reading; a reading in flight blocks another, unless
+  it has been in flight 10 s and looks wedged, because a module that has stopped
+  reading is worse than two readings at once.
 - **The vendor's window on demand:** the app is not running at all while Hop
   drives the connection, so it sits in neither the Dock nor the menu bar.
   Clicking the name launches it, and Hop quits it again once its last ordinary
