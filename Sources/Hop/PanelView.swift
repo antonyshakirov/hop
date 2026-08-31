@@ -88,6 +88,7 @@ struct PanelView: View {
     @State private var aboutSection = Snapshot.aboutSectionForRender
     @State private var settingsSection = Snapshot.settingsSectionForRender
     @State private var editUnit: TimeInterval? // digit group being edited (3600/60/1)
+    @State private var hoverUnit: TimeInterval? // digit group under the pointer
     // A tracker inline field (project/task name or "today" time) is focused.
     // Feeds `panelKeyboardCaptured` alongside `editUnit` so `handleKey` lets
     // Return/Space/digits reach the field instead of driving the timer.
@@ -1293,7 +1294,8 @@ struct PanelView: View {
                 dimCount: dimCount,
                 blinkOff: blinkOff,
                 cell: compact ? dotCellCompact : dotCellFull,
-                highlight: nil // yellow digit-group highlight removed by request
+                highlight: editHighlight,
+                hover: hoverHighlight
             )
         }
     }
@@ -1312,30 +1314,36 @@ struct PanelView: View {
 
     /// Yellow highlight of the digit group being edited on the display.
     private var editHighlight: Range<Int>? {
-        guard model.engine.state == .idle || model.engine.state == .finished,
-              let unit = editUnit else { return nil }
-        switch unit {
-        case 3600: return 0..<2
-        case 60: return 3..<5
-        default: return 6..<8
-        }
+        guard digitsEditable, let unit = editUnit else { return nil }
+        return TimerDigits.range(for: unit)
+    }
+
+    /// Pale plate under the group the pointer is over: what a click would take.
+    /// Never under the edited group — that one is already yellow.
+    private var hoverHighlight: Range<Int>? {
+        guard digitsEditable, scrubUnit == nil,
+              let unit = hoverUnit, unit != editUnit else { return nil }
+        return TimerDigits.range(for: unit)
+    }
+
+    private var digitsEditable: Bool {
+        displayStyle == "dots" && !model.engine.isStopwatch
+            && (model.engine.state == .idle || model.engine.state == .finished)
     }
 
     private func selectUnit(atX x: CGFloat, cell: CGFloat) {
-        let fallback = CGFloat(DotFont.columns(for: "00:00:00")) * cell
-        let width = displayMeasuredWidth > 0 ? displayMeasuredWidth : fallback
-        let fraction = x / max(width, 1)
-        editUnit = unitForScrub(fraction: fraction)
+        editUnit = unitForScrub(fraction: fraction(atX: x, cell: cell))
     }
 
-    /// Digit-group zone by fraction of display width — one logic for all styles.
-    /// In the "units" style hours are hidden when zero — the display splits
-    /// in half: minutes on the left, seconds on the right.
+    private func fraction(atX x: CGFloat, cell: CGFloat) -> CGFloat {
+        let fallback = CGFloat(DotFont.columns(for: "00:00:00")) * cell
+        let width = displayMeasuredWidth > 0 ? displayMeasuredWidth : fallback
+        return x / max(width, 1)
+    }
+
     private func unitForScrub(fraction: CGFloat) -> TimeInterval {
-        if displayStyle == "units", model.engine.remaining < 3600 {
-            return fraction < 0.5 ? 60 : 1
-        }
-        return fraction < 0.31 ? 3600 : (fraction < 0.65 ? 60 : 1)
+        TimerDigits.unit(atFraction: Double(fraction),
+                         hoursHidden: displayStyle == "units" && model.engine.remaining < 3600)
     }
 
     /// Measured-geometry updates run async and with hysteresis, to never mutate
@@ -2270,6 +2278,9 @@ struct PanelView: View {
                 selectUnit(atX: value.location.x, cell: dotCellCompact)
             })
             .simultaneousGesture(scrubGesture(cell: dotCellCompact))
+            .modifier(DigitHoverTracking(unitAtX: { x in
+                digitsEditable ? unitForScrub(fraction: fraction(atX: x, cell: dotCellCompact)) : nil
+            }, unit: $hoverUnit))
             .help(engine.isStopwatch
                   ? "\(t(.stopwatchLabel)) — \(TimeFormatting.display(engine.elapsed))"
                   : t(.tipDigits).replacingOccurrences(
@@ -2408,6 +2419,9 @@ struct PanelView: View {
                 selectUnit(atX: value.location.x, cell: dotCellFull)
             })
             .simultaneousGesture(scrubGesture(cell: dotCellFull))
+            .modifier(DigitHoverTracking(unitAtX: { x in
+                digitsEditable ? unitForScrub(fraction: fraction(atX: x, cell: dotCellFull)) : nil
+            }, unit: $hoverUnit))
             // how the digits are edited, plus what they say right now — a
             // custom time set by drag or keyboard has to read as clearly as a
             // preset does (Anton, 2026-07-30)

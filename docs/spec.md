@@ -301,10 +301,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   size as the time presets (font 11, NumericField 44×24).
 - Time input: scrubbing on the display and per-digit-group entry. Scrubbing
   works in ALL display styles (dots/text/units) identically: the digit-group
-  zone is computed from the display's actual width, with the same ratchet
-  tick sound — TEN a second at most, because at thirty a fast drag turned the
-  ratchet into a high whine (Anton, 2026-07-30); in the "units" style without hours the display splits in half
-  (minutes/seconds). **The minimum is zero**: 0:00:01 is valid; "−5" and
+  zone is computed from the display's actual width (`TimerDigits`, tested), with
+  the same ratchet tick — the Tink sound, TWENTY a second at most. Thirty ticks
+  a second turned a fast drag into a high whine (Anton, 2026-07-30) and ten read
+  as too sparse and too dull (Anton, 2026-08-31). In the "units" style without
+  hours the display splits in half (minutes/seconds).
+- **The digit group answers the pointer** (dots style, idle or finished, timer
+  only): the group under the cursor carries a pale plate — what a click would
+  take — and the group actually being edited carries the yellow one, which is
+  what says the keyboard now types into it. Hovering never changes the
+  selection, so moving the mouse away mid-entry loses nothing; a scrub hides the
+  pale plate, since the yellow one already follows the drag. **The minimum is zero**: 0:00:01 is valid; "−5" and
   scrubbing clamp to zero; pressing play with an all-zero value is an
   instant finish. TimerEngine.minimumDuration = 0. Scrubbing is disabled
   during a countdown.

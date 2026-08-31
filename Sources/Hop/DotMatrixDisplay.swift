@@ -1,5 +1,21 @@
 import SwiftUI
 
+/// Which digit group the pointer is over, so the display can show what a click
+/// would select. `unitAtX` returns nil wherever the digits cannot be edited.
+struct DigitHoverTracking: ViewModifier {
+    let unitAtX: (CGFloat) -> TimeInterval?
+    @Binding var unit: TimeInterval?
+
+    func body(content: Content) -> some View {
+        content.onContinuousHover { phase in
+            switch phase {
+            case .active(let location): unit = unitAtX(location.x)
+            case .ended: unit = nil
+            }
+        }
+    }
+}
+
 /// Display made of "lamp" dots in the interval spirit:
 /// active dots glow with a halo, inactive ones barely emerge from the dark.
 struct DotMatrixDisplay: View {
@@ -8,6 +24,7 @@ struct DotMatrixDisplay: View {
     let blinkOff: Bool
     var cell: CGFloat = 7.0 // compact mode passes a smaller value
     var highlight: Range<Int>? = nil // digit being edited — in yellow
+    var hover: Range<Int>? = nil // digit group under the pointer — a pale plate
 
     // light theme: without the glow the dots read worse — compensate with size
     private var dot: CGFloat { cell * (Theme.isDark ? 0.657 : 0.87) }
@@ -23,29 +40,30 @@ struct DotMatrixDisplay: View {
             // light theme: a solid yellow plate under the whole group being
             // edited (like a text selection) — yellow spots on every dot
             // looked dirty
-            if !Theme.isDark, let highlight, !highlight.isEmpty, !blinkOff {
+            func plate(_ range: Range<Int>?, color: Color) {
+                guard let range, !range.isEmpty, !blinkOff else { return }
                 var x = 0
                 var startX: CGFloat?
                 var endX: CGFloat = 0
                 for (index, ch) in text.enumerated() {
                     let width = DotFont.glyph(for: ch).width
-                    if highlight.contains(index) {
+                    if range.contains(index) {
                         if startX == nil { startX = CGFloat(x) * cell }
                         endX = CGFloat(x + width) * cell
                     }
                     x += width + 1
                 }
-                if let startX {
-                    let plate = CGRect(
-                        x: startX - 2, y: -2,
-                        width: endX - startX + 4, height: 7 * cell + 4
-                    )
-                    ctx.fill(
-                        Path(roundedRect: plate, cornerRadius: 4),
-                        with: .color(Color(nsColor: .systemYellow).opacity(0.45))
-                    )
-                }
+                guard let startX else { return }
+                let rect = CGRect(
+                    x: startX - 2, y: -2,
+                    width: endX - startX + 4, height: 7 * cell + 4
+                )
+                ctx.fill(Path(roundedRect: rect, cornerRadius: 4), with: .color(color))
             }
+            if !Theme.isDark {
+                plate(highlight, color: Color(nsColor: .systemYellow).opacity(0.45))
+            }
+            plate(hover, color: Theme.editing.opacity(Theme.isDark ? 0.13 : 0.16))
 
             var xCol = 0
             for (index, ch) in text.enumerated() {
