@@ -14,8 +14,8 @@
 set -euo pipefail
 
 VERSION="${1:?usage: verify-release.sh <version>}"
-BASE="https://www.antonshakirov.com/downloads/hop"
-DMG_URL="https://www.antonshakirov.com/products/hop/Hop.dmg"
+BASE="https://hop.tools/downloads/hop"
+DMG_URL="https://hop.tools/downloads/hop/Hop.dmg"
 
 fail() { echo "❌ $1"; exit 1 }
 
@@ -56,8 +56,8 @@ VERDICT="$(spctl -a -vvv -t exec "$TMP/x/Hop.app" 2>&1 || true)"
 xcrun stapler validate "$TMP/x/Hop.app" >/dev/null 2>&1 \
     || fail "the served app carries no stapled ticket — a first launch offline would be blocked"
 
-curl -fsS --max-time 120 "$DMG_URL" -o "$TMP/Hop.dmg" || fail "landing DMG is unreachable"
+curl -fsS --max-time 120 "$DMG_URL" -o "$TMP/Hop.dmg" || fail "served DMG is unreachable"
 xcrun stapler validate "$TMP/Hop.dmg" >/dev/null 2>&1 \
-    || fail "the landing DMG carries no stapled ticket"
+    || fail "the served DMG carries no stapled ticket"
 
 echo "✓ release $VERSION is live and correct: latest.json → zip (bundle $BUNDLE_VERSION, $ZIP_SIZE bytes, notarised) + 64-byte sig + notarised DMG"

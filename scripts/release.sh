@@ -1,8 +1,8 @@
 #!/bin/zsh
 # Hop release: ./scripts/release.sh 1.0.1 [--critical]
 # Builds Hop.app, signs it with Developer ID, has Apple notarise it, staples the
-# ticket, zips it, signs the zip with Ed25519, writes latest.json and lays
-# everything out in the site repo (public/hop/). Site deploy is separate.
+# ticket, zips it, signs the zip with Ed25519, writes latest.json and uploads
+# the lot to the site's server. The site repo only learns the version number.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 source scripts/signing.sh
@@ -11,8 +11,11 @@ VERSION="${1:?usage: release.sh <version> [--critical]}"
 CRITICAL=false
 [[ "${2:-}" == "--critical" ]] && CRITICAL=true
 
-SITE_DIR="${HOP_SITE_DIR:-$HOME/Development Projects/Products Platform/projects/antonshakirov-com/development}"
-[[ -d "$SITE_DIR/public" ]] || { echo "site repo not found: $SITE_DIR"; exit 1 }
+SITE_DIR="${HOP_SITE_DIR:-$HOME/Development Projects/Products Platform/projects/hop-website}"
+[[ -d "$SITE_DIR/src" ]] || { echo "site repo not found: $SITE_DIR"; exit 1 }
+# Outside the static site's root: the site deploy syncs with --delete.
+SITE_SSH="${HOP_SITE_SSH:-atelier-nl}"
+SITE_DOWNLOADS="${HOP_SITE_DOWNLOADS:-/var/www/hop-website/downloads/hop}"
 [[ -f "$HOME/.minimo-release-key" ]] || { echo "signing key ~/.minimo-release-key not found"; exit 1 }
 
 # SPEC: docs/spec.md — "Signing, notarisation, and why permissions must survive
@@ -144,9 +147,7 @@ sign_dmg() {
 ./scripts/make-dmg.sh dist/x86_64/Hop.app dist/Hop-intel.dmg
 sign_dmg dist/Hop.dmg
 sign_dmg dist/Hop-intel.dmg
-mkdir -p "$SITE_DIR/public/products/hop"
-cp dist/Hop.dmg "$SITE_DIR/public/products/hop/Hop.dmg"
-cp dist/Hop-intel.dmg "$SITE_DIR/public/products/hop/Hop-intel.dmg"
+# Both images are uploaded further down, together with the zips.
 
 # Homebrew tap: version and both checksums, written here so `brew install` can
 # never lag a release behind again — the tap sat at 1.5.1 while 1.6.0 was already
@@ -187,12 +188,11 @@ else
     echo "⚠ tap cask not found at $TAP_CASK — update it by hand"
 fi
 
-BASE="https://www.antonshakirov.com/downloads/hop"
-mkdir -p "$SITE_DIR/public/downloads/hop"
-cp "$ZIP" "$ZIP.sig" "$ZIP_INTEL" "$ZIP_INTEL.sig" "$SITE_DIR/public/downloads/hop/"
+BASE="https://hop.tools/downloads/hop"
 # `zip`/`sig` stay the arm64 build under their historical names, so a client from
 # before 1.7.0 keeps updating; an Intel one reads the `…Intel` pair instead.
-cat > "$SITE_DIR/public/downloads/hop/latest.json" << JSON
+STAGE="$(mktemp -d)"
+cat > "$STAGE/latest.json" << JSON
 {
   "version": "$VERSION",
   "zip": "$BASE/Hop-$VERSION.zip",
@@ -203,6 +203,19 @@ cat > "$SITE_DIR/public/downloads/hop/latest.json" << JSON
   "date": "$(date -u +%Y-%m-%d)"
 }
 JSON
+
+# Builds first, latest.json last: a manifest naming files the server does not
+# have yet sends every installed copy to a 404.
+cp dist/Hop.dmg dist/Hop-intel.dmg "$STAGE/"
+rsync -az --chmod=F644 \
+    "$ZIP" "$ZIP.sig" "$ZIP_INTEL" "$ZIP_INTEL.sig" \
+    "$STAGE/Hop.dmg" "$STAGE/Hop-intel.dmg" \
+    "$SITE_SSH:$SITE_DOWNLOADS/" \
+    || { echo "upload of the builds failed"; exit 1 }
+rsync -az --chmod=F644 "$STAGE/latest.json" "$SITE_SSH:$SITE_DOWNLOADS/" \
+    || { echo "upload of latest.json failed"; exit 1 }
+rm -rf "$STAGE"
+echo "uploaded to $SITE_SSH:$SITE_DOWNLOADS"
 
 # The landing shows the version in its hero, its footer and its
 # SoftwareApplication markup, out of one constant. Leaving that to a human meant
@@ -235,9 +248,9 @@ else
 fi
 
 echo ""
-echo "release $VERSION is ready:"
-echo "  $SITE_DIR/public/downloads/hop/{latest.json, Hop-$VERSION.zip, -intel.zip, .sig}"
-echo "next: 1) commit in the site repo + ./deploy.sh (it self-checks new public names now);"
+echo "release $VERSION is ready and already served:"
+echo "  $BASE/{latest.json, Hop-$VERSION.zip, -intel.zip, .sig, Hop.dmg}"
+echo "next: 1) commit the site repo (HOP_VERSION) + ./deploy.sh — the landing prints the version;"
 echo "      1b) commit the tap (Casks/hop.rb — version + both checksums are written already);"
 echo "      2) ./scripts/verify-release.sh $VERSION  # MUST print the checkmark;"
 echo "      3) only then: git tag v$VERSION + push;"
