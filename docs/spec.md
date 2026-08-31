@@ -302,16 +302,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Time input: scrubbing on the display and per-digit-group entry. Scrubbing
   works in ALL display styles (dots/text/units) identically: the digit-group
   zone is computed from the display's actual width (`TimerDigits`, tested), with
-  the same ratchet tick — the Tink sound, TWENTY a second at most. Thirty ticks
-  a second turned a fast drag into a high whine (Anton, 2026-07-30) and ten read
-  as too sparse and too dull (Anton, 2026-08-31). In the "units" style without
-  hours the display splits in half (minutes/seconds).
-- **The digit group answers the pointer** (dots style, idle or finished, timer
-  only): the group under the cursor carries a pale plate — what a click would
-  take — and the group actually being edited carries the yellow one, which is
-  what says the keyboard now types into it. Hovering never changes the
-  selection, so moving the mouse away mid-entry loses nothing; a scrub hides the
-  pale plate, since the yellow one already follows the drag. **The minimum is zero**: 0:00:01 is valid; "−5" and
+  the same ratchet tick sound — TEN a second at most, because at thirty a fast
+  drag turned the ratchet into a high whine (Anton, 2026-07-30). A brighter,
+  denser ratchet (Tink at twenty) was tried on 2026-08-31 and rejected: the
+  original Pop click is the ratchet. In the "units" style without hours the
+  display splits in half (minutes/seconds).
+- **The selected digit group lights up** (dots style, idle or finished, timer
+  only): a click or a drag selects a group and its DOTS turn yellow — in both
+  themes, with no plate and no tinted background behind them (Anton,
+  2026-08-31). That glow is the only thing saying the keyboard now types into
+  that group. Hovering does nothing: a pale hover plate was tried the same day
+  and rejected. **The minimum is zero**: 0:00:01 is valid; "−5" and
   scrubbing clamp to zero; pressing play with an all-zero value is an
   instant finish. TimerEngine.minimumDuration = 0. Scrubbing is disabled
   during a countdown.

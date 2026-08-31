@@ -1,21 +1,5 @@
 import SwiftUI
 
-/// Which digit group the pointer is over, so the display can show what a click
-/// would select. `unitAtX` returns nil wherever the digits cannot be edited.
-struct DigitHoverTracking: ViewModifier {
-    let unitAtX: (CGFloat) -> TimeInterval?
-    @Binding var unit: TimeInterval?
-
-    func body(content: Content) -> some View {
-        content.onContinuousHover { phase in
-            switch phase {
-            case .active(let location): unit = unitAtX(location.x)
-            case .ended: unit = nil
-            }
-        }
-    }
-}
-
 /// Display made of "lamp" dots in the interval spirit:
 /// active dots glow with a halo, inactive ones barely emerge from the dark.
 struct DotMatrixDisplay: View {
@@ -23,8 +7,7 @@ struct DotMatrixDisplay: View {
     let dimCount: Int
     let blinkOff: Bool
     var cell: CGFloat = 7.0 // compact mode passes a smaller value
-    var highlight: Range<Int>? = nil // digit being edited — in yellow
-    var hover: Range<Int>? = nil // digit group under the pointer — a pale plate
+    var highlight: Range<Int>? = nil // digit group being edited — its dots turn yellow
 
     // light theme: without the glow the dots read worse — compensate with size
     private var dot: CGFloat { cell * (Theme.isDark ? 0.657 : 0.87) }
@@ -36,34 +19,6 @@ struct DotMatrixDisplay: View {
         let columns = DotFont.columns(for: text)
         Canvas { ctx, _ in
             let inset = (cell - dot) / 2
-
-            // light theme: a solid yellow plate under the whole group being
-            // edited (like a text selection) — yellow spots on every dot
-            // looked dirty
-            func plate(_ range: Range<Int>?, color: Color) {
-                guard let range, !range.isEmpty, !blinkOff else { return }
-                var x = 0
-                var startX: CGFloat?
-                var endX: CGFloat = 0
-                for (index, ch) in text.enumerated() {
-                    let width = DotFont.glyph(for: ch).width
-                    if range.contains(index) {
-                        if startX == nil { startX = CGFloat(x) * cell }
-                        endX = CGFloat(x + width) * cell
-                    }
-                    x += width + 1
-                }
-                guard let startX else { return }
-                let rect = CGRect(
-                    x: startX - 2, y: -2,
-                    width: endX - startX + 4, height: 7 * cell + 4
-                )
-                ctx.fill(Path(roundedRect: rect, cornerRadius: 4), with: .color(color))
-            }
-            if !Theme.isDark {
-                plate(highlight, color: Color(nsColor: .systemYellow).opacity(0.45))
-            }
-            plate(hover, color: Theme.editing.opacity(Theme.isDark ? 0.13 : 0.16))
 
             var xCol = 0
             for (index, ch) in text.enumerated() {
@@ -79,14 +34,11 @@ struct DotMatrixDisplay: View {
                         let isEditing = highlight?.contains(index) ?? false
                         let haloInset = -dot * 0.37 // proportional to the dot
                         if on && !blinkOff && isEditing {
-                            if Theme.isDark {
+                            if showsGlow {
                                 let halo = rect.insetBy(dx: haloInset, dy: haloInset)
                                 ctx.fill(Path(ellipseIn: halo), with: .color(Theme.editing.opacity(0.25)))
-                                ctx.fill(Path(ellipseIn: rect), with: .color(Theme.editing))
-                            } else {
-                                // light: dark dots on top of the yellow plate
-                                ctx.fill(Path(ellipseIn: rect), with: .color(Theme.dotBright))
                             }
+                            ctx.fill(Path(ellipseIn: rect), with: .color(Theme.editing))
                         } else if on && !isDim && !blinkOff {
                             // halo under a bright dot — only on the large display
                             if showsGlow {
@@ -96,12 +48,6 @@ struct DotMatrixDisplay: View {
                             ctx.fill(Path(ellipseIn: rect), with: .color(Theme.dotBright))
                         } else if on && !blinkOff {
                             ctx.fill(Path(ellipseIn: rect), with: .color(Theme.dotDim))
-                        } else if isEditing {
-                            // background of the digit being edited — matches the accent, no dirt
-                            let tint = Theme.isDark
-                                ? Theme.editing.opacity(0.14)
-                                : Color.black.opacity(0.12) // on the yellow plate
-                            ctx.fill(Path(ellipseIn: rect), with: .color(tint))
                         } else if showsGlow {
                             // background matrix grid — noise in the mini preview
                             ctx.fill(Path(ellipseIn: rect), with: .color(Theme.dotOff))
