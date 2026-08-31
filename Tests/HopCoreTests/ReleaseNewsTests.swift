@@ -9,16 +9,34 @@ final class ReleaseNewsTests: XCTestCase {
 
     // MARK: - Reading a version
 
-    func testAVersionIsItsFirstTwoNumbers() {
+    func testAVersionIsAllThreeOfItsNumbers() {
         let version = ReleaseNews.Version("1.9.1")
         XCTAssertEqual(version?.major, 1)
         XCTAssertEqual(version?.minor, 9)
+        XCTAssertEqual(version?.patch, 1)
     }
 
-    /// The whole point of dropping the third number: a fix rolled out on top of a
-    /// release is still that release.
-    func testAFixOnTopOfAReleaseIsTheSameRelease() {
-        XCTAssertEqual(ReleaseNews.Version("1.9.1"), ReleaseNews.Version("1.9.0"))
+    /// A card written as "1.9" is the card of the whole release, so it still
+    /// stands on the fixes rolled out on top of it.
+    func testACardWrittenWithoutAThirdNumberStartsAtZero() {
+        XCTAssertEqual(ReleaseNews.Version("1.9"), ReleaseNews.Version("1.9.0"))
+        XCTAssertTrue(ReleaseNews.Version("1.9")! < ReleaseNews.Version("1.9.1")!)
+    }
+
+    /// A release that changes something for everybody earns a card whatever its
+    /// number — 1.9.1, where the signature changed, is the reason this is not
+    /// decided by the second number alone.
+    func testAFixReleaseCanCarryACardOfItsOwn() {
+        let cards = [card19, ReleaseNews.Card(id: "1.9.1")]
+        XCTAssertEqual(ReleaseNews.visible(cards, installed: "1.9.1", now: now)?.id, "1.9.1")
+        XCTAssertEqual(ReleaseNews.overtaken(cards, installed: "1.9.1").map(\.id), ["1.9"])
+    }
+
+    /// Still on 1.9.0: the card for the fix is not owed yet, and the release's
+    /// own card is what stands.
+    func testTheFixCardWaitsForTheFixToBeInstalled() {
+        let cards = [card19, ReleaseNews.Card(id: "1.9.1")]
+        XCTAssertEqual(ReleaseNews.visible(cards, installed: "1.9.0", now: now)?.id, "1.9")
     }
 
     func testTenComesAfterNine() {

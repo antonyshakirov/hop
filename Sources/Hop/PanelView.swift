@@ -148,6 +148,7 @@ struct PanelView: View {
     @AppStorage("featureSeen.modules160") private var modulesFeatureSeen = false
     /// Release card: read so SwiftUI re-renders the moment it is dismissed.
     @AppStorage("newsSeen.1.9") private var news19Seen = false
+    @AppStorage("newsSeen.1.9.1") private var news191Seen = false
     /// Whether THIS opening has already been counted against the card's two.
     @State private var releaseCardCounted = false
     // Two-step "what's new" card: step 1 = opt-in (enable/hide), step 2 = the
@@ -440,6 +441,7 @@ struct PanelView: View {
     private static let releaseCards: [ReleaseCard] = [
         .init(id: "1.9", lines: [.news19Tracker, .news19Presets, .news19Remux,
                                  .news19IWork, .news19Vpn]),
+        .init(id: "1.9.1", lines: [.news191Signed, .news191Permissions]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -464,6 +466,7 @@ struct PanelView: View {
             return CommandLine.arguments.contains("--news-banner") ? Self.releaseCards.last : nil
         }
         _ = news19Seen   // read so SwiftUI re-renders when it flips
+        _ = news191Seen
         guard pendingAnnouncement == nil else { return nil }
         let defaults = UserDefaults.standard
         let state = Self.releaseCards.map { card in
@@ -582,6 +585,7 @@ struct PanelView: View {
     private func markReleaseSeen(_ card: ReleaseCard) {
         UserDefaults.standard.set(true, forKey: Self.newsSeenKey(card.id))
         news19Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("1.9"))
+        news191Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("1.9.1"))
     }
 
     /// The full notes for the release, which are already written and already

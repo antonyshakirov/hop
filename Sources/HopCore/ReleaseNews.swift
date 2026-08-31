@@ -8,21 +8,23 @@ import Foundation
 /// in the tracker, platform presets in the converter, mkv and webm — announced
 /// itself nowhere, and the full notes sat in the help behind a tab nobody opens.
 ///
-/// A card is declared per release rather than derived from the version, which is
-/// what keeps the rule "only the second number earns a card" honest: a fix rolled
-/// out on top of a release simply gets no card written for it, so there is
-/// nothing to suppress. The third number is parsed and dropped for exactly that
-/// reason — 1.9.1 is still the 1.9 card.
+/// A card is declared per release rather than derived from the version: a fix
+/// rolled out on top of a release usually gets no card written for it, so there
+/// is nothing to suppress. Usually — a release that changes something for
+/// everybody earns one whatever its number, which is why a card is placed by its
+/// full version and 1.9.1 is a card of its own rather than the 1.9 one again.
 ///
 /// Nothing here talks to the system or to storage. It is given the cards and
 /// their state and returns the one to draw, which is what makes every rule below
 /// testable.
 public struct ReleaseNews {
 
-    /// A version reduced to what a card cares about: the first two numbers.
+    /// A version as a card is placed by it: three numbers, the third defaulting
+    /// to zero so that the card written as "1.9" still stands on 1.9.1.
     public struct Version: Comparable, Equatable, Sendable {
         public let major: Int
         public let minor: Int
+        public let patch: Int
 
         /// nil for anything that is not a version, which is the only safe answer:
         /// a card that cannot be placed against the running build is not shown.
@@ -32,10 +34,11 @@ public struct ReleaseNews {
                   major >= 0, minor >= 0 else { return nil }
             self.major = major
             self.minor = minor
+            self.patch = parts.count > 2 ? (Int(parts[2]).map { max($0, 0) } ?? 0) : 0
         }
 
         public static func < (a: Version, b: Version) -> Bool {
-            a.major == b.major ? a.minor < b.minor : a.major < b.major
+            (a.major, a.minor, a.patch) < (b.major, b.minor, b.patch)
         }
     }
 
