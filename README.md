@@ -39,10 +39,8 @@ icon.
 - `Hop-x.y.z.zip` — the same app as a plain archive (used by the built-in updater); see the [latest release](https://github.com/antonyshakirov/hop/releases/latest)
 - Fast mirror: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-First launch on macOS 15 or newer: try to open Hop once, then go to
-**System Settings → Privacy & Security → Open Anyway** and confirm **Open**.
-Hop is not notarized because Apple Developer Program membership is
-unavailable to the author. The source is public, and built-in updates are
+Hop is signed with an Apple Developer ID and notarized by Apple, so macOS
+opens it like any other app. The source is public, and built-in updates are
 verified with Ed25519. Requires macOS 14 or newer.
 
 ## Features

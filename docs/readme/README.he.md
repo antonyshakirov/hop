@@ -36,10 +36,8 @@ Hop יושב בשורת התפריטים של ה-Mac ומחליף חופן כל�
 - `Hop-x.y.z.zip` — אותו יישום כארכיון רגיל (המעדכן המובנה משתמש בו); ראו את [הגרסה האחרונה](https://github.com/antonyshakirov/hop/releases/latest)
 - מראה מהירה: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-בהפעלה הראשונה ב-macOS 15 ומעלה: נסו לפתוח את Hop פעם אחת, ואז לכו אל
-**System Settings ← Privacy & Security ← Open Anyway** ואשרו **Open**.
-‏Hop אינו מאושר על ידי Apple מפני שחברות ב-Apple Developer Program אינה
-זמינה למחבר. הקוד פומבי, והעדכונים המובנים מאומתים ב-Ed25519. נדרש
+‏Hop חתום עם Apple Developer ID ומאושר על ידי Apple, כך ש-macOS פותח אותו
+כמו כל אפליקציה אחרת. הקוד פומבי, והעדכונים המובנים מאומתים ב-Ed25519. נדרש
 macOS 14 ומעלה.
 
 ## יכולות

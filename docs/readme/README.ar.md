@@ -36,11 +36,9 @@
 - `Hop-x.y.z.zip` — التطبيق نفسه كأرشيف عادي (يستخدمه المحدّث المدمج)؛ انظر [أحدث إصدار](https://github.com/antonyshakirov/hop/releases/latest)
 - مرآة سريعة: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-عند أول تشغيل على macOS 15 أو أحدث: جرّب فتح Hop مرة، ثم اذهب إلى
-**System Settings ← Privacy & Security ← Open Anyway** وأكّد **Open**.
-‏Hop غير موثّق من Apple لأن عضوية Apple Developer Program غير متاحة لمؤلفه.
-الشيفرة علنية، والتحديثات المدمجة يجري التحقّق منها بـ Ed25519. يتطلب
-macOS 14 أو أحدث.
+‏Hop موقّع بمعرّف Apple Developer ID وموثّق من Apple، لذا يفتحه macOS مثل أي
+تطبيق آخر. الشيفرة علنية، والتحديثات المدمجة يجري التحقّق منها بـ Ed25519.
+يتطلب macOS 14 أو أحدث.
 
 ## المزايا
 

@@ -39,12 +39,10 @@ modüller simgedeki en fazla dört sekmeye dağılmış.
 - `Hop-x.y.z.zip` — aynı uygulamanın düz arşiv hâli (yerleşik güncelleyici bunu kullanır); bkz. [en son sürüm](https://github.com/antonyshakirov/hop/releases/latest)
 - Hızlı yansı: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-macOS 15 veya daha yenisinde ilk açılış: Hop'u bir kez açmayı deneyin,
-ardından **Sistem Ayarları → Gizlilik ve Güvenlik → Yine de Aç** yoluna
-gidip **Aç** seçeneğini onaylayın. Yazarın Apple Developer Program
-üyeliğine erişimi olmadığı için Hop noter onaylı değildir. Kaynak kodu
+Hop bir Apple Developer ID ile imzalanmış ve Apple tarafından
+noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
-veya daha yenisi gerekir.
+veya üzeri gerekir.
 
 ## Özellikler
 

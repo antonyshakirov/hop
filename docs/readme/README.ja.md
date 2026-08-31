@@ -40,12 +40,8 @@ Hop は Mac のメニューバーに常駐し、こまごましたユーティ�
 - `Hop-x.y.z.zip` — 同じアプリの素のアーカイブ（内蔵アップデーターが使用）。[最新リリース](https://github.com/antonyshakirov/hop/releases/latest)を参照
 - 高速ミラー: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-macOS 15 以降での初回起動：まず Hop を一度開こうとしてから、
-**システム設定 → プライバシーとセキュリティ → このまま開く**へ進み、
-**開く**を確認してください。作者が Apple Developer Program のメンバー
-シップを利用できないため、Hop は公証されていません。ソースコードは公開
-されており、内蔵アップデートは Ed25519 で検証されます。macOS 14 以降が
-必要です。
+Hop は Apple Developer ID で署名され、Apple の公証を受けています。macOS
+は他のアプリと同じように開きます。ソースコードは公開されており、内蔵アップデートは Ed25519 で検証されます。macOS 14 以降が必要です。
 
 ## 機能
 

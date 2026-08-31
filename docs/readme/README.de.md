@@ -39,12 +39,10 @@ native App, deren Module du auf bis zu vier Tabs am Symbol verteilst.
 - `Hop-x.y.z.zip` — dieselbe App als einfaches Archiv (wird vom eingebauten Updater verwendet); siehe das [neueste Release](https://github.com/antonyshakirov/hop/releases/latest)
 - Schneller Mirror: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-Erster Start unter macOS 15 oder neuer: Versuche Hop einmal zu öffnen.
-Gehe dann zu **Systemeinstellungen → Datenschutz & Sicherheit → Dennoch
-öffnen** und bestätige **Öffnen**. Hop ist nicht notarisiert, weil dem Autor
-keine Mitgliedschaft im Apple Developer Program zur Verfügung steht. Der
-Quellcode ist öffentlich, und integrierte Updates werden mit Ed25519
-verifiziert. Benötigt macOS 14 oder neuer.
+Hop ist mit einer Apple Developer ID signiert und von Apple notarisiert,
+macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
+integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
+neuer.
 
 ## Funktionen
 

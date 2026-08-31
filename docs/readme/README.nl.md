@@ -39,11 +39,9 @@ die je gebruikt verdeeld over tot vier tabbladen op het icoon.
 - `Hop-x.y.z.zip` — dezelfde app als een gewoon archief (gebruikt door de ingebouwde updater); zie de [nieuwste release](https://github.com/antonyshakirov/hop/releases/latest)
 - Snelle mirror: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-Eerste keer starten op macOS 15 of nieuwer: probeer Hop eenmaal te openen,
-ga daarna naar **Systeeminstellingen → Privacy en beveiliging → Open toch**
-en bevestig **Open**. Hop is niet genotariseerd omdat de auteur niet over
-een Apple Developer Program-lidmaatschap beschikt. De broncode is openbaar
-en ingebouwde updates worden met Ed25519 geverifieerd. Vereist macOS 14 of
+Hop is ondertekend met een Apple Developer ID en genotariseerd door Apple,
+dus macOS opent het als elke andere app. De broncode is openbaar en
+ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
 ## Functies

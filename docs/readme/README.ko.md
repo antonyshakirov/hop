@@ -37,11 +37,8 @@ Hop은 Mac의 메뉴 막대에 자리 잡고 자잘한 유틸리티 여러 개�
 - `Hop-x.y.z.zip` — 같은 앱의 일반 아카이브(내장 업데이터가 사용). [최신 릴리스](https://github.com/antonyshakirov/hop/releases/latest) 참고
 - 고속 미러: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-macOS 15 이상에서 처음 실행할 때: 먼저 Hop을 한 번 열어 본 다음
-**시스템 설정 → 개인정보 보호 및 보안 → 확인 없이 열기**로 이동해
-**열기**를 확인하세요. 저자가 Apple Developer Program 멤버십을 이용할 수
-없어 Hop은 공증되지 않았습니다. 소스 코드는 공개되어 있으며 내장 업데이트는
-Ed25519로 검증됩니다. macOS 14 이상이 필요합니다.
+Hop은 Apple Developer ID로 서명되고 Apple의 공증을 받았습니다. macOS는 다른 앱과 똑같이 엽니다. 소스 코드는
+공개되어 있으며, 내장 업데이트는 Ed25519로 검증됩니다. macOS 14 이상이 필요합니다.
 
 ## 기능
 

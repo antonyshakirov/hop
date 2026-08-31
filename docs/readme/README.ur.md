@@ -36,11 +36,9 @@ Hop آپ کے Mac کے مینو بار میں رہتا ہے اور مٹھی بھ
 - `Hop-x.y.z.zip` — وہی ایپ سادہ آرکائیو کے طور پر (اندرونی اپ ڈیٹر اسی کو استعمال کرتا ہے)؛ [تازہ ترین ریلیز](https://github.com/antonyshakirov/hop/releases/latest) دیکھیں
 - تیز مرر: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-macOS 15 یا اس سے نئے پر پہلی بار چلانے پر: ایک بار Hop کھولنے کی کوشش کریں،
-پھر **System Settings ← Privacy & Security ← Open Anyway** میں جا کر **Open**
-کی تصدیق کریں۔ Hop کو Apple کی توثیق حاصل نہیں، کیونکہ Apple Developer
-Program کی رکنیت اس کے مصنف کے لیے دستیاب نہیں۔ کوڈ عوامی ہے، اور اندرونی
-اپ ڈیٹس کی تصدیق Ed25519 سے ہوتی ہے۔ macOS 14 یا اس سے نیا درکار ہے۔
+‏Hop کو Apple Developer ID سے دستخط کیا گیا ہے اور Apple سے notarized ہے، اس
+لیے macOS اسے کسی بھی دوسری ایپ کی طرح کھولتا ہے۔ سورس کوڈ عوامی ہے اور بلٹ
+اِن اپڈیٹس Ed25519 سے تصدیق ہوتی ہیں۔ macOS 14 یا نیا درکار ہے۔
 
 ## خاصیتیں
 

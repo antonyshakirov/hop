@@ -36,11 +36,10 @@ Hop در نوار منوی Mac می‌نشیند و جای مشتی ابزار �
 - `Hop-x.y.z.zip` — همان برنامه در قالب آرشیو ساده (به‌روزرسان درونی از آن استفاده می‌کند)؛ [آخرین نسخه](https://github.com/antonyshakirov/hop/releases/latest) را ببینید
 - آینهٔ سریع: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-نخستین اجرا روی macOS 15 یا بالاتر: یک بار Hop را باز کنید، سپس به
-**System Settings ← Privacy & Security ← Open Anyway** بروید و **Open** را
-تأیید کنید. Hop از سوی Apple گواهی نشده، چون عضویت Apple Developer Program
-برای نویسنده‌اش در دسترس نیست. کد عمومی است و به‌روزرسانی‌های درونی با
-Ed25519 راستی‌آزمایی می‌شوند. نیازمند macOS 14 یا بالاتر.
+‏Hop با Apple Developer ID امضا شده و از Apple گواهی notarization دارد،
+بنابراین macOS آن را مانند هر برنامهٔ دیگری باز می‌کند. کد عمومی است و
+به‌روزرسانی‌های درونی با Ed25519 راستی‌آزمایی می‌شوند. نیازمند macOS 14 یا
+بالاتر.
 
 ## قابلیت‌ها
 

@@ -40,12 +40,10 @@ schede dell'icona.
 - `Hop-x.y.z.zip` — la stessa app come semplice archivio (usato dall'aggiornatore integrato); vedi l'[ultima release](https://github.com/antonyshakirov/hop/releases/latest)
 - Mirror veloce: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-Primo avvio su macOS 15 o successivo: prova ad aprire Hop una volta, poi vai
-in **Impostazioni di Sistema → Privacy e sicurezza → Apri comunque** e
-conferma **Apri**. Hop non è notarizzata perché l'autore non ha accesso a
-un'iscrizione all'Apple Developer Program. Il codice sorgente è pubblico e
-gli aggiornamenti integrati vengono verificati con Ed25519. Richiede macOS
-14 o successivo.
+Hop è firmata con un Apple Developer ID e notarizzata da Apple, quindi macOS
+la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
+aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
+successivo.
 
 ## Funzionalità
 

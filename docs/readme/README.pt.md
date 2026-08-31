@@ -41,12 +41,10 @@ quatro abas no ícone.
 - `Hop-x.y.z.zip` — o mesmo app como um arquivo simples (usado pelo atualizador integrado); veja a [versão mais recente](https://github.com/antonyshakirov/hop/releases/latest)
 - Espelho rápido: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
-Primeira abertura no macOS 15 ou mais recente: tente abrir o Hop uma vez,
-depois vá a **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo
-Assim** e confirme **Abrir**. O Hop não é notarizado porque o autor não tem
-acesso a uma assinatura do Apple Developer Program. O código-fonte é
-público e as atualizações integradas são verificadas com Ed25519. Requer
-macOS 14 ou mais recente.
+O Hop é assinado com um Apple Developer ID e notarizado pela Apple, então o
+macOS abre como qualquer outro app. O código-fonte é público e as
+atualizações integradas são verificadas com Ed25519. Requer macOS 14 ou mais
+recente.
 
 ## Recursos
 
