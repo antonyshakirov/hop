@@ -1,9 +1,11 @@
 #!/bin/zsh
 # Hop release: ./scripts/release.sh 1.0.1 [--critical]
-# Builds Hop.app, zips it, signs with Ed25519, writes latest.json and
-# lays everything out in the site repo (public/hop/). Site deploy is separate.
+# Builds Hop.app, signs it with Developer ID, has Apple notarise it, staples the
+# ticket, zips it, signs the zip with Ed25519, writes latest.json and lays
+# everything out in the site repo (public/hop/). Site deploy is separate.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+source scripts/signing.sh
 
 VERSION="${1:?usage: release.sh <version> [--critical]}"
 CRITICAL=false
@@ -12,6 +14,51 @@ CRITICAL=false
 SITE_DIR="${HOP_SITE_DIR:-$HOME/Development Projects/Products Platform/projects/antonshakirov-com/development}"
 [[ -d "$SITE_DIR/public" ]] || { echo "site repo not found: $SITE_DIR"; exit 1 }
 [[ -f "$HOME/.minimo-release-key" ]] || { echo "signing key ~/.minimo-release-key not found"; exit 1 }
+
+# SPEC: docs/spec.md — "Signing, notarisation, and why permissions must survive
+# an update". Everything Apple has to accept is proven before the build, not
+# after it.
+IDENTITY="$(hop_signing_identity)"
+[[ -n "$IDENTITY" ]] || {
+    echo "no Developer ID Application certificate in the login keychain."
+    echo "Without it a release is neither trusted by Gatekeeper nor notarisable,"
+    echo "and it would reset every user's permissions. Restore it first."
+    exit 1
+}
+DAYS_LEFT="$(hop_certificate_days_left || true)"
+if [[ -n "$DAYS_LEFT" ]]; then
+    (( DAYS_LEFT > 0 )) || {
+        echo "the Developer ID certificate expired ${DAYS_LEFT#-} days ago — renew it"
+        exit 1
+    }
+    if (( DAYS_LEFT > 30 )); then
+        echo "signing as: $IDENTITY ($DAYS_LEFT days left)"
+    else
+        echo "⚠ signing as: $IDENTITY — the certificate expires in $DAYS_LEFT days"
+    fi
+fi
+
+[[ -f .env ]] || {
+    echo "no .env — copy .env.example and fill in the app-specific password."
+    exit 1
+}
+eval "$(python3 - <<'PYENV'
+import re, shlex
+for line in open(".env"):
+    match = re.match(r"^(APPLE_[A-Z_]+)=(.*)$", line.strip())
+    if match:
+        print(f"export {match.group(1)}={shlex.quote(match.group(2))}")
+PYENV
+)"
+for name in APPLE_ID APPLE_TEAM_ID APPLE_APP_PASSWORD; do
+    [[ -n "${(P)name:-}" ]] || { echo ".env is missing $name"; exit 1 }
+done
+xcrun notarytool history --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
+    --password "$APPLE_APP_PASSWORD" >/dev/null 2>&1 || {
+    echo "Apple refuses these notary credentials — check APPLE_ID and the"
+    echo "app-specific password in .env (appleid.apple.com → Sign-In and Security)."
+    exit 1
+}
 
 # Nothing is packaged from a red tree: build, tests and translations first —
 # the same script CI and the pre-push hook run. A release that fails its own
@@ -23,24 +70,34 @@ plutil -replace CFBundleShortVersionString -string "$VERSION" scripts/Info.plist
 
 ./scripts/build-app.sh
 
+# WORKAROUND: notarytool can exit zero on a submission Apple rejected, so the
+# status line is read as well.
+notarize() {
+    local file="$1" output
+    echo "notarising $(basename "$file")…"
+    output=$(xcrun notarytool submit "$file" \
+        --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
+        --password "$APPLE_APP_PASSWORD" --wait --timeout 30m 2>&1) || {
+        echo "$output"
+        echo "notarisation failed for $(basename "$file")"
+        exit 1
+    }
+    if [[ "$output" != *"status: Accepted"* ]]; then
+        echo "$output"
+        local id
+        id=$(echo "$output" | sed -n 's/.*id: \([0-9a-f-]\{36\}\).*/\1/p' | head -1)
+        [[ -n "$id" ]] && xcrun notarytool log "$id" \
+            --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
+            --password "$APPLE_APP_PASSWORD" 2>&1 | head -40
+        echo "notarisation was not accepted for $(basename "$file")"
+        exit 1
+    fi
+}
+
 # One universal build, split into two single-architecture bundles. Shipping the
 # universal binary to everyone would double every download and every update for
 # a slice the machine cannot run; thinning it means each Mac gets exactly what it
 # needs, and both halves are the same compile (Anton, 2026-07-29).
-# The SAME identity build-app.sh uses. macOS ties a permission — full disk
-# access above all — to the app's code signature, so a release signed ad hoc is
-# a different app to the system every single time: every user who had granted
-# anything is asked again after every update (Anton, 2026-07-30). Signing here
-# with the stable certificate is what makes a grant survive an update, and a
-# missing certificate stops the release rather than quietly costing everyone
-# their permissions.
-IDENTITY="Minimo Signing"
-security find-certificate -c "$IDENTITY" >/dev/null 2>&1 || {
-    echo "signing certificate '$IDENTITY' not found — a release signed ad hoc"
-    echo "would reset every user's permissions on update. Restore it first."
-    exit 1
-}
-
 build_slice() {
     local arch="$1" dir="dist/$1"
     rm -rf "$dir"
@@ -48,16 +105,21 @@ build_slice() {
     cp -R dist/Hop.app "$dir/Hop.app"
     lipo "$dir/Hop.app/Contents/MacOS/Hop" -thin "$arch" -output "$dir/Hop.app/Contents/MacOS/Hop"
     # thinning invalidates the signature — sign the bundle again, as build-app.sh does
-    codesign --force --deep --sign "$IDENTITY" "$dir/Hop.app" 2>/dev/null
-    codesign --verify --deep "$dir/Hop.app" || { echo "signature failed: $arch"; exit 1 }
-    # Captured, not piped into grep: `codesign | grep -q` makes grep leave early,
-    # codesign dies of SIGPIPE, and `set -o pipefail` turns a correctly signed
-    # build into a failed one. -dvv because the authority line only appears at
-    # the second verbosity.
-    local info
-    info=$(codesign -dvv "$dir/Hop.app" 2>&1)
-    [[ "$info" == *"Authority=$IDENTITY"* ]] || {
-        echo "wrong signing authority in $arch build"; exit 1
+    hop_sign_app "$dir/Hop.app" "$IDENTITY"
+    hop_verify_signature "$dir/Hop.app" "$IDENTITY" || {
+        echo "wrong or broken signature in $arch build"; exit 1
+    }
+    ditto -c -k --keepParent "$dir/Hop.app" "dist/notarize-$arch.zip"
+    notarize "dist/notarize-$arch.zip"
+    rm -f "dist/notarize-$arch.zip"
+    xcrun stapler staple "$dir/Hop.app" >/dev/null || {
+        echo "stapling failed: $arch"; exit 1
+    }
+    local verdict
+    verdict=$(spctl -a -vvv -t exec "$dir/Hop.app" 2>&1)
+    [[ "$verdict" == *"source=Notarized Developer ID"* ]] || {
+        echo "$verdict"
+        echo "Gatekeeper does not see the $arch build as notarised"; exit 1
     }
 }
 build_slice arm64
@@ -72,8 +134,16 @@ swift scripts/sign-release.swift "$ZIP" | tail -1
 swift scripts/sign-release.swift "$ZIP_INTEL" | tail -1
 
 # polished DMGs for the landing page: one per architecture, offered separately
+sign_dmg() {
+    local dmg="$1"
+    codesign --force --timestamp --sign "$IDENTITY" "$dmg"
+    notarize "$dmg"
+    xcrun stapler staple "$dmg" >/dev/null || { echo "stapling failed: $dmg"; exit 1 }
+}
 ./scripts/make-dmg.sh dist/arm64/Hop.app dist/Hop.dmg
 ./scripts/make-dmg.sh dist/x86_64/Hop.app dist/Hop-intel.dmg
+sign_dmg dist/Hop.dmg
+sign_dmg dist/Hop-intel.dmg
 mkdir -p "$SITE_DIR/public/products/hop"
 cp dist/Hop.dmg "$SITE_DIR/public/products/hop/Hop.dmg"
 cp dist/Hop-intel.dmg "$SITE_DIR/public/products/hop/Hop-intel.dmg"

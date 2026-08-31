@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Builds Hop.app from the Swift package and signs it with an ad-hoc signature.
+# Builds Hop.app from the Swift package and signs it with Developer ID.
 #
 # Modes:
 #   ./scripts/build-app.sh                 — only build dist/Hop.app
@@ -92,12 +92,15 @@ if [[ $DEV == 1 ]]; then
     plutil -replace CFBundleName -string "Hop Dev" "$APP/Contents/Info.plist"
     plutil -replace CFBundleDisplayName -string "Hop Dev" "$APP/Contents/Info.plist"
 fi
-# stable signature: macOS permissions survive updates
-IDENTITY="Minimo Signing"
-if ! security find-certificate -c "$IDENTITY" >/dev/null 2>&1; then
+source scripts/signing.sh
+IDENTITY="$(hop_signing_identity)"
+if [[ -z "$IDENTITY" ]]; then
+    echo "⚠ no Developer ID Application certificate — signing ad hoc."
+    echo "  This build is for looking at a change only: Gatekeeper rejects it,"
+    echo "  and every permission it is granted dies with it."
     IDENTITY="-"
 fi
-codesign --force --sign "$IDENTITY" "$APP"
+hop_sign_app "$APP" "$IDENTITY" no-timestamp
 
 echo "done: $APP ($CONFIGURATION)"
 

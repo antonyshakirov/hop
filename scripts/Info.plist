@@ -198,6 +198,8 @@
 	<string>14.0</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Hop asks Pages, Numbers and Keynote to export the documents you convert.</string>
 	<key>NSDesktopFolderUsageDescription</key>
 	<string>Hop writes unpacked archives and new archives to your Desktop.</string>
 	<key>NSDocumentsFolderUsageDescription</key>

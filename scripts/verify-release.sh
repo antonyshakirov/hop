@@ -2,7 +2,8 @@
 # Release gate: proves version X.Y.Z is ACTUALLY live on production before it
 # is announced anywhere (git tag, GitHub release, posts). Checks the live
 # latest.json, downloads the exact zip it points to, and inspects the bundle
-# inside — a reference published before the files themselves would fail here.
+# inside — a reference published before the files themselves would fail here,
+# and so does a copy Gatekeeper would refuse to open.
 #
 #   ./scripts/verify-release.sh 1.3.1   # exit 0 = safe to announce
 #
@@ -46,6 +47,17 @@ BUNDLE_VERSION="$(plutil -extract CFBundleShortVersionString raw "$TMP/x/Hop.app
 [[ "$BUNDLE_VERSION" == "$VERSION" ]] \
     || fail "the served zip contains Hop $BUNDLE_VERSION, expected $VERSION"
 
-curl -fsS --max-time 60 -o /dev/null "$DMG_URL" || fail "landing DMG is unreachable"
+# What the user's Mac will decide about this exact download. A build that is
+# signed but not notarised passes every check above and is still blocked on a
+# first install, which is the one thing the served copy has to prove.
+VERDICT="$(spctl -a -vvv -t exec "$TMP/x/Hop.app" 2>&1 || true)"
+[[ "$VERDICT" == *"source=Notarized Developer ID"* ]] \
+    || fail "the served app is not notarised — Gatekeeper says: $VERDICT"
+xcrun stapler validate "$TMP/x/Hop.app" >/dev/null 2>&1 \
+    || fail "the served app carries no stapled ticket — a first launch offline would be blocked"
 
-echo "✓ release $VERSION is live and correct: latest.json → zip (bundle $BUNDLE_VERSION, $ZIP_SIZE bytes) + 64-byte sig + DMG"
+curl -fsS --max-time 120 "$DMG_URL" -o "$TMP/Hop.dmg" || fail "landing DMG is unreachable"
+xcrun stapler validate "$TMP/Hop.dmg" >/dev/null 2>&1 \
+    || fail "the landing DMG carries no stapled ticket"
+
+echo "✓ release $VERSION is live and correct: latest.json → zip (bundle $BUNDLE_VERSION, $ZIP_SIZE bytes, notarised) + 64-byte sig + notarised DMG"

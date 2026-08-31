@@ -3157,11 +3157,9 @@ its own database of known apps may do better on real software than it did here.
   Finder-icon "D" badge (the icon badge is additionally suppressed under
   `--snapshot`, so marketing renders show the production icon). A
   `.dev`-suffix-only heuristic was wrong: it read a nil-id run as production.
-- The "it just works for users" path: sign releases with Developer ID
-  + notarization (Apple Developer Program, $99/year) — Gatekeeper
-  warnings and "suspicious signature" flags from firewalls
-  (LuLu/Little Snitch) disappear. The self-signed "Minimo Signing" is for
-  local development only.
+- Releases are signed with Developer ID and notarised by Apple as of 1.9.1, so
+  the Gatekeeper warning on a first install is gone — see "Signing,
+  notarisation, and why permissions must survive an update".
 - Updater: watches the GitHub Release (the repo will be antonshakirov/hop),
   the Ed25519 signature is mandatory, disabled until the public key is
   embedded; a silent hourly check, installs at the first moment the user
@@ -3500,25 +3498,54 @@ playback.
   the theme). setIcon failure rolls the Finder custom-icon flag back —
   a half-written icon rendered the app as a folder.
 
-### Signing, and why permissions must survive an update
+### Signing, notarisation, and why permissions must survive an update
 
 macOS ties a permission — full disk access above all — to the app's CODE
-SIGNATURE. Hop is signed with a stable local certificate ("Minimo Signing"), and
-that is the whole reason a grant survives an update: the designated requirement
-names the certificate, which does not change between builds. An ad-hoc signature
-(`codesign --sign -`) pins the requirement to the build's own hash instead, so
-every update is a DIFFERENT app to the system and every user is asked for every
-permission again (Anton, 2026-07-30).
+SIGNATURE. Hop is signed with **Developer ID Application: Anton Shakirov
+(8GL36WUJPX)**, and a stable certificate is the whole reason a grant survives an
+update: the designated requirement names the certificate, which does not change
+between builds. An ad-hoc signature (`codesign --sign -`) pins the requirement to
+the build's own hash instead, so every update is a DIFFERENT app to the system
+and every user is asked for every permission again (Anton, 2026-07-30).
 
+Developer ID is also the only signature Gatekeeper accepts from outside the App
+Store, and only once Apple has NOTARISED the build. Until 1.9.1 releases were
+signed with a self-signed local certificate ("Minimo Signing"), which kept
+permissions alive but left every first install blocked behind the "cannot be
+opened" dialog and the Privacy & Security override.
+
+- One-time cost of the move: the signature changed, so every permission granted
+  to the old builds is gone on the machines that update to 1.9.1 — the system
+  sees a different app. The release card in the panel says so; nothing else can,
+  since the app is not asked before the system decides.
+- `signing.sh` holds the identity, the runtime options and the entitlements in
+  ONE place, sourced by both scripts, so a build and the release made from it
+  cannot drift apart. The certificate is looked up by kind ("Developer ID
+  Application"), so a renewal needs no edit.
+- The hardened runtime (`--options runtime`) is required by the notary service
+  and is on for dev builds too, so anything that only breaks under it surfaces
+  while a change is being looked at. It costs one entitlement:
+  `com.apple.security.automation.apple-events` in `scripts/Hop.entitlements`,
+  without which the iWork export and the lid switch lose their Apple events.
+  `NSAppleEventsUsageDescription` accompanies it in `Info.plist` — a process
+  that sends an Apple event without one is killed by the system.
 - `build-app.sh` signs with that identity and falls back to ad-hoc only for a
   local build with no certificate present.
-- `release.sh` thins the universal build into two bundles, which invalidates the
-  signature — so it signs each slice with the SAME identity, checks the authority
-  afterwards, and REFUSES to build a release at all when the certificate is
-  missing. It signed them ad-hoc when per-architecture builds were introduced,
-  which would have cost every user their permissions on the 1.7.0 update.
+- `release.sh` proves the certificate, its expiry and the notary credentials
+  BEFORE the 25-minute build. It thins the universal build into two bundles,
+  which invalidates the signature — so it signs each slice again, submits it,
+  staples the ticket into the bundle, and asks `spctl` what the user's Mac will
+  decide. Both DMGs are signed, notarised and stapled in turn. A missing
+  certificate, a rejected submission or refused credentials all stop the release.
+- Notary credentials live in a git-ignored `.env` (`APPLE_ID`, `APPLE_TEAM_ID`,
+  `APPLE_APP_PASSWORD` — an app-specific password from appleid.apple.com, never
+  the account password). `.env.example` is the template.
+- `verify-release.sh` re-checks the SERVED copy: it downloads what `latest.json`
+  points to, runs `spctl` over it and validates the stapled ticket, on the app
+  and on the landing DMG. A build that is signed but not notarised passes every
+  other check and is still blocked on a first install.
 - The updater installs with `ditto`, not `copyItem`: it carries a bundle across
-  whole, and a bundle that arrives intact keeps the signature the permission
-  hangs on.
+  whole, and a bundle that arrives intact keeps both the signature the permission
+  hangs on and the stapled ticket.
 
 ### Release
