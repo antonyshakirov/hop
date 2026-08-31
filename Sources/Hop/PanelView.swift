@@ -1329,10 +1329,10 @@ struct PanelView: View {
         editUnit = unitForScrub(fraction: fraction(atX: x, cell: cell))
     }
 
-    /// The selection lives two seconds past the pointer leaving the digits, and
-    /// every typed digit starts those two seconds over: a number half entered
-    /// from the keyboard must not lose its group mid-word.
-    private static let digitFocusGrace: TimeInterval = 2
+    /// The selection lives one second past the pointer leaving the digits, and
+    /// every typed digit starts that second over: a number half entered from the
+    /// keyboard must not lose its group mid-word.
+    private static let digitFocusGrace: TimeInterval = 1
 
     private func digitPointer(_ inside: Bool) {
         pointerOnDigits = inside
