@@ -1,0 +1,5 @@
+# Sponsor button on the repository page. A custom URL needs no GitHub Sponsors
+# account and no payment processor of our own: it simply links out.
+# The English (USD) Tribute page is used here — the repository audience is
+# international; the rouble page stays on the Russian landing.
+custom: ["https://web.tribute.tg/d/Nvk"]
