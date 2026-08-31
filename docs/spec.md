@@ -311,8 +311,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   only): a click or a drag selects a group and its DOTS turn yellow — in both
   themes, with no plate and no tinted background behind them (Anton,
   2026-08-31). That glow is the only thing saying the keyboard now types into
-  that group. Hovering does nothing: a pale hover plate was tried the same day
-  and rejected. **The minimum is zero**: 0:00:01 is valid; "−5" and
+  that group. Hovering does not select anything: a pale hover plate was tried
+  the same day and rejected. The selection does outlive the pointer by TWO
+  seconds after it leaves the digits, and every typed digit or backspace starts
+  those two seconds over, so a number being entered from the keyboard never
+  loses its group mid-word. Esc and Return still end the entry at once. **The minimum is zero**: 0:00:01 is valid; "−5" and
   scrubbing clamp to zero; pressing play with an all-zero value is an
   instant finish. TimerEngine.minimumDuration = 0. Scrubbing is disabled
   during a countdown.

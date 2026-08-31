@@ -1,5 +1,20 @@
 import SwiftUI
 
+/// Reports whether the pointer is over the digits, so the selection can outlive
+/// it by a moment instead of dying the instant the mouse moves off.
+struct DigitPointerTracking: ViewModifier {
+    let changed: (Bool) -> Void
+
+    func body(content: Content) -> some View {
+        content.onContinuousHover { phase in
+            switch phase {
+            case .active: changed(true)
+            case .ended: changed(false)
+            }
+        }
+    }
+}
+
 /// Display made of "lamp" dots in the interval spirit:
 /// active dots glow with a halo, inactive ones barely emerge from the dark.
 struct DotMatrixDisplay: View {

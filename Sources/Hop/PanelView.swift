@@ -88,6 +88,8 @@ struct PanelView: View {
     @State private var aboutSection = Snapshot.aboutSectionForRender
     @State private var settingsSection = Snapshot.settingsSectionForRender
     @State private var editUnit: TimeInterval? // digit group being edited (3600/60/1)
+    @State private var pointerOnDigits = false
+    @State private var digitFocusRelease: DispatchWorkItem?
     // A tracker inline field (project/task name or "today" time) is focused.
     // Feeds `panelKeyboardCaptured` alongside `editUnit` so `handleKey` lets
     // Return/Space/digits reach the field instead of driving the timer.
@@ -1202,11 +1204,13 @@ struct PanelView: View {
         if let ch = press.characters.first, ch.isNumber, let d = ch.wholeNumberValue {
             if editUnit == nil { editUnit = 60 } // no selection — edit minutes
             mutateSelectedUnit { ($0 * 10 + d) % 100 }
+            if !pointerOnDigits { releaseDigitFocusSoon() }
             return .handled
         }
         switch press.key {
         case .delete:
             mutateSelectedUnit { $0 / 10 }
+            if !pointerOnDigits { releaseDigitFocusSoon() }
             return .handled
         case .escape:
             editUnit = nil
@@ -1323,6 +1327,27 @@ struct PanelView: View {
 
     private func selectUnit(atX x: CGFloat, cell: CGFloat) {
         editUnit = unitForScrub(fraction: fraction(atX: x, cell: cell))
+    }
+
+    /// The selection lives two seconds past the pointer leaving the digits, and
+    /// every typed digit starts those two seconds over: a number half entered
+    /// from the keyboard must not lose its group mid-word.
+    private static let digitFocusGrace: TimeInterval = 2
+
+    private func digitPointer(_ inside: Bool) {
+        pointerOnDigits = inside
+        digitFocusRelease?.cancel()
+        digitFocusRelease = nil
+        guard !inside else { return }
+        releaseDigitFocusSoon()
+    }
+
+    private func releaseDigitFocusSoon() {
+        guard !Snapshot.active, editUnit != nil else { return }
+        digitFocusRelease?.cancel()
+        let release = DispatchWorkItem { editUnit = nil }
+        digitFocusRelease = release
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.digitFocusGrace, execute: release)
     }
 
     private func fraction(atX x: CGFloat, cell: CGFloat) -> CGFloat {
@@ -2268,6 +2293,7 @@ struct PanelView: View {
                 selectUnit(atX: value.location.x, cell: dotCellCompact)
             })
             .simultaneousGesture(scrubGesture(cell: dotCellCompact))
+            .modifier(DigitPointerTracking(changed: digitPointer))
             .help(engine.isStopwatch
                   ? "\(t(.stopwatchLabel)) — \(TimeFormatting.display(engine.elapsed))"
                   : t(.tipDigits).replacingOccurrences(
@@ -2406,6 +2432,7 @@ struct PanelView: View {
                 selectUnit(atX: value.location.x, cell: dotCellFull)
             })
             .simultaneousGesture(scrubGesture(cell: dotCellFull))
+            .modifier(DigitPointerTracking(changed: digitPointer))
             // how the digits are edited, plus what they say right now — a
             // custom time set by drag or keyboard has to read as clearly as a
             // preset does (Anton, 2026-07-30)
