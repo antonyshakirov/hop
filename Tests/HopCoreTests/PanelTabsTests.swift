@@ -602,4 +602,63 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(model.tabs[1].moduleKeys, ["apps:new"])
         XCTAssertEqual(model.tabs[0].moduleKeys, ["timer"], "and it leaves the first tab as it was")
     }
+
+    // MARK: - hidden
+
+    func testInactiveBucketBecomesHiddenOnTheFirstSpace() {
+        var model = PanelTabsModel(
+            tabs: [PanelTab(icon: "house", moduleKeys: ["timer", "awake"])],
+            inactive: ["color", "ocr"]
+        )
+        model.liftInactiveIntoHidden()
+
+        XCTAssertTrue(model.inactive.isEmpty)
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer", "awake", "color", "ocr"])
+        XCTAssertEqual(model.hidden, ["color", "ocr"])
+        XCTAssertFalse(model.isHidden("timer"))
+    }
+
+    func testHidingKeepsTheModuleOnItsSpace() {
+        var model = PanelTabsModel(tabs: [PanelTab(icon: "house", moduleKeys: ["timer"])])
+        model.setHidden("timer", hidden: true)
+
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer"])
+        XCTAssertTrue(model.isHidden("timer"))
+
+        model.setHidden("timer", hidden: false)
+        XCTAssertFalse(model.isHidden("timer"))
+    }
+
+    func testHiddenSurvivesEncoding() throws {
+        var model = PanelTabsModel(tabs: [PanelTab(icon: "house", moduleKeys: ["timer", "color"])])
+        model.setHidden("color", hidden: true)
+
+        let restored = try XCTUnwrap(PanelTabsModel.decode(model.encoded()))
+        XCTAssertEqual(restored.hidden, ["color"])
+    }
+
+    func testModelsSavedBeforeHiddenExistedStillDecode() throws {
+        let raw = """
+        {"tabs":[{"id":"\(UUID().uuidString)","icon":"house","moduleKeys":["timer"]}],"inactive":["color"]}
+        """
+        let model = try XCTUnwrap(PanelTabsModel.decode(raw))
+
+        XCTAssertTrue(model.hidden.isEmpty)
+        XCTAssertEqual(model.inactive, ["color"])
+    }
+
+    func testHiddenModulesMustExistSomewhereInTheModel() {
+        let raw = """
+        {"tabs":[{"id":"\(UUID().uuidString)","icon":"house","moduleKeys":["timer"]}],"hidden":["ocr"]}
+        """
+        XCTAssertNil(PanelTabsModel.decode(raw), "a hidden module that sits nowhere is not a valid model")
+    }
+
+    func testRemovingAModuleForgetsThatItWasHidden() {
+        var model = PanelTabsModel(tabs: [PanelTab(icon: "house", moduleKeys: ["apps:one"])])
+        model.setHidden("apps:one", hidden: true)
+        model.remove(module: "apps:one")
+
+        XCTAssertTrue(model.hidden.isEmpty)
+    }
 }

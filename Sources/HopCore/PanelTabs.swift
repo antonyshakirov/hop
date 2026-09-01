@@ -27,15 +27,18 @@ public struct PanelTabsModel: Codable, Equatable {
     public var tabs: [PanelTab]
     /// Hidden modules, ordered. A permanent, non-deletable bucket in the UI.
     public var inactive: [String]
+    /// Modules that keep their place on a space but are not drawn there.
+    public var hidden: Set<String>
 
     public static let maxTabs = 4
 
-    public init(tabs: [PanelTab], inactive: [String] = []) {
+    public init(tabs: [PanelTab], inactive: [String] = [], hidden: Set<String> = []) {
         self.tabs = tabs
         self.inactive = inactive
+        self.hidden = hidden
     }
 
-    private enum CodingKeys: String, CodingKey { case tabs, inactive }
+    private enum CodingKeys: String, CodingKey { case tabs, inactive, hidden }
 
     /// `inactive` is decoded leniently so models saved before the field
     /// existed keep loading (missing → empty bucket) instead of failing to
@@ -44,6 +47,7 @@ public struct PanelTabsModel: Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         tabs = try container.decode([PanelTab].self, forKey: .tabs)
         inactive = try container.decodeIfPresent([String].self, forKey: .inactive) ?? []
+        hidden = try container.decodeIfPresent(Set<String>.self, forKey: .hidden) ?? []
     }
 
     /// Adds an empty tab with `icon`. Returns its id, or nil (no change) if
@@ -110,6 +114,24 @@ public struct PanelTabsModel: Codable, Equatable {
     public mutating func remove(module: String) {
         for index in tabs.indices { tabs[index].moduleKeys.removeAll { $0 == module } }
         inactive.removeAll { $0 == module }
+        hidden.remove(module)
+    }
+
+    public func isHidden(_ module: String) -> Bool { hidden.contains(module) }
+
+    /// Hides or shows `module` where it already sits; its place does not change.
+    public mutating func setHidden(_ module: String, hidden isHidden: Bool) {
+        if isHidden { hidden.insert(module) } else { hidden.remove(module) }
+    }
+
+    /// SPEC: hop-private/specs/2026-09-01-settings-window-design.md — everything the
+    /// old model parked in the inactive bucket moves onto the first space and is
+    /// hidden there, which is exactly what the user saw before the update.
+    public mutating func liftInactiveIntoHidden() {
+        guard !inactive.isEmpty, !tabs.isEmpty else { return }
+        tabs[0].moduleKeys.append(contentsOf: inactive)
+        hidden.formUnion(inactive)
+        inactive = []
     }
 
     /// Repositions `module` within `inTab`'s own module list. `to` is
@@ -202,6 +224,7 @@ public struct PanelTabsModel: Codable, Equatable {
     private var isValid: Bool {
         guard (1...Self.maxTabs).contains(tabs.count) else { return false }
         let allKeys = tabs.flatMap(\.moduleKeys) + inactive
+        guard hidden.isSubset(of: Set(allKeys)) else { return false }
         return Set(allKeys).count == allKeys.count
     }
 
