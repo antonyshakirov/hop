@@ -76,7 +76,6 @@ struct PanelView: View {
 
     @State private var screen: Screen
     // nil → the overlay back button falls through to the restored space
-    @State private var overlayReturnScreen: Screen? = nil
     @State private var scrubBaseDuration: TimeInterval?
     @State private var scrubUnit: TimeInterval?
     @State private var launchAtLogin = false
@@ -322,7 +321,6 @@ struct PanelView: View {
         }
         .onReceive(model.$openTab) { target in
             guard let target else { return }
-            overlayReturnScreen = nil
             iconPickerTabID = nil
             let resolved = Self.resolve(target)
             screen = resolved
@@ -1381,30 +1379,6 @@ struct PanelView: View {
             }
         }
         .frame(height: 34)
-    }
-
-    /// Shared back-chevron header used by the settings/about overlays: a "back"
-    /// button on the left, a dim screen title on the right.
-    @ViewBuilder
-    private func overlayHeaderContent(title: String, back: @escaping () -> Void) -> some View {
-        Button(action: back) {
-            HStack(spacing: 5) {
-                Image(systemName: "chevron.backward")
-                    .font(.system(size: 11, weight: .semibold))
-                Text(t(.back))
-                    .font(Theme.mono(12, weight: .semibold))
-            }
-            .foregroundStyle(Theme.textPrimary)
-            .padding(.vertical, 6)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .help(t(.back))
-        .hoverDim()
-        Spacer()
-        Text(title)
-            .font(Theme.mono(10))
-            .foregroundStyle(Theme.textTertiary)
     }
 
     /// Every icon in the header carries its name on hover: an icon alone is a
