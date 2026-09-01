@@ -250,26 +250,16 @@ struct PanelView: View {
 
     var body: some View {
         if standaloneSettings {
-            if Snapshot.active {
-                // ImageRenderer does not render ScrollView content — snapshots
-                // take the flat stack at its natural height
-                settingsScreen
-                    .padding(20)
-                    .frame(width: 720)
-                    .background(Theme.panelBackground)
-            } else {
-                ScrollView(showsIndicators: false) {
-                    settingsScreen
-                        .padding(20)
-                        // a theme change must rebuild ALL child views:
-                        // LanguagePicker and others get unchanged inputs, so SwiftUI
-                        // skips them — text stayed white in the light theme
-                        .id(model.themeVersion)
-                }
-                .frame(width: 720)
-                .frame(maxHeight: .infinity)
+            settingsScreen
+                // a theme change must rebuild ALL child views:
+                // LanguagePicker and others get unchanged inputs, so SwiftUI
+                // skips them — text stayed white in the light theme
+                .id(model.themeVersion)
+                // a snapshot has no window to be sized by, so it takes the
+                // window's own width and reports its natural height
+                .frame(width: Snapshot.active ? 940 : nil)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .background(Theme.panelBackground)
-            }
         } else if standaloneAbout {
             // SnapshotAwareScroll: ImageRenderer gives a ScrollView no height and
             // the render came out as an empty black window, which is no way to
@@ -3641,34 +3631,59 @@ struct PanelView: View {
     // MARK: - Settings
 
     private var settingsScreen: some View {
-        VStack(spacing: 16) {
-            // "modules & tabs" is its own top-level section, not nested under
-            // "general" — a tab-in-tab was rejected. Five chips at their natural
-            // width fit one line in the 720pt window; `wraps` lets the longest
-            // languages (fr/tr) flow onto a second line instead of truncating,
-            // the same overflow handling the about switcher already uses.
-            SectionChips(items: [
-                ("general", t(.aboutTabGeneral)),
-                ("layout", t(.settingsTabLayout)),
-                ("timer", t(.aboutTabTimer)),
-                ("monitor", t(.tabSystem)),
-                ("modules", t(.otherModulesLabel)),
-            ], selection: $settingsSection, wraps: true)
+        HStack(alignment: .top, spacing: 0) {
+            SettingsSidebar(lang: lang, selection: $settingsSection)
 
-            switch settingsSection {
-            case "timer":
-                timerSettings
-            case "monitor":
-                thresholdsSection
-            case "modules":
-                modulesSettings
-            case "layout":
-                layoutSettings
-            default:
-                generalBasics
+            Rectangle()
+                .fill(Theme.divider)
+                .frame(width: 1)
+
+            SnapshotAwareScroll {
+                settingsPage
+                    .padding(24)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(.vertical, 4)
+    }
+
+    @ViewBuilder private var settingsPage: some View {
+        switch SettingsSelection(id: settingsSection) {
+        case .general: generalBasics
+        case .spaces: layoutSettings
+        case .hotkeys: hotkeysSection
+        case .permissions: PermissionsView(lang: lang)
+        case .updates: updatesSection
+        case .otherModules: modulesSettings
+        case .module(let key): modulePage(key)
+        }
+    }
+
+    /// A module's own page: what it is, what it can be given a key for, and the
+    /// settings that have already moved here.
+    @ViewBuilder private func modulePage(_ key: String) -> some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack(spacing: 10) {
+                Image(systemName: ModulePresentation.icon(key))
+                    .font(.system(size: 18))
+                    .foregroundStyle(Theme.textSecondary)
+                Text(moduleTitle(key))
+                    .font(Theme.mono(15))
+                    .foregroundStyle(Theme.textPrimary)
+            }
+
+            switch key {
+            case "timer": timerSettings
+            case "system": thresholdsSection
+            default: EmptyView()
+            }
+
+            if let action = ModuleCatalog.open(key), hotkeys.hasHandler(action) {
+                VStack(alignment: .leading, spacing: 10) {
+                    settingsSectionHeader(t(.hotkeysLabel))
+                    hotkeyRow(action, label: moduleTitle(key))
+                }
+            }
+        }
     }
 
     /// Everyday options: theme, language, launch, sounds, updates, app icon,
@@ -3717,14 +3732,6 @@ struct PanelView: View {
                 .fill(Theme.divider)
                 .frame(height: 1)
 
-            // updates right after the basics (Anton, 2026-07-14): version and
-            // the update button matter more often than module reordering
-            updatesSection
-
-            Rectangle()
-                .fill(Theme.divider)
-                .frame(height: 1)
-
             // Finder icon lives away from the theme row on purpose: right
             // under it the two pickers read as one confusing "theme" block
             HStack {
@@ -3761,16 +3768,6 @@ struct PanelView: View {
                     .font(Theme.mono(9))
                     .foregroundStyle(Theme.textTertiary)
             }
-
-            Rectangle()
-                .fill(Theme.divider)
-                .frame(height: 1)
-
-            // global hotkeys (show panel / timer / no-sleep) are the last thing on
-            // "general"; the window-manager block (layout + resize hotkeys) lives
-            // in "other modules" now (Anton, 2026-07-21 — reversing the 2026-07-19
-            // move here), where the other module option groups sit.
-            hotkeysSection
         }
     }
 

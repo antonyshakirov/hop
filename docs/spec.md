@@ -195,17 +195,20 @@ every key lives in exactly one place — a space OR inactive
 across the union and decodes older JSON that lacks the field as an empty
 bucket).
 
-The settings window's top-level text-switcher has five sibling sections, in
-order: "general" for the everyday options (theme, language, launch, sounds,
-updates, app icon, the `colored indicators` toggle for the menu-bar badges, and
-the GLOBAL hotkeys only — show panel / timer / no-sleep),
-"modules & tabs" for the panel layout, "timer", "monitor", and "other modules"
-(which now also carries the window-manager section — the grid/row layout picker
-and the "resize windows with hotkeys" toggle/grid, moved out of general on
-2026-07-21) — no tab-in-tab, each
-is its own top-level section. The switcher chips take their natural width and wrap onto
-a second line if a language runs long (`SectionChips(wraps:)`), so the fifth
-chip never truncates in the 720pt window. The "modules & tabs" section is
+The settings window is a 220pt sidebar and a page (`SettingsSidebar`,
+`SettingsSelection`). The sidebar lists the sections first — "general" (theme,
+language, launch, sounds, app icon, the `colored indicators` toggle for the
+menu-bar badges, the Dock switch), "modules & tabs" for the panel layout,
+"hotkeys", "app permissions", "updates", and "other modules" (the module option
+groups that have not moved to their own pages yet, the window-manager section
+among them) — then every module of `ModuleCatalog` in panel order, each with its
+icon and name (`ModulePresentation`). A module's page carries its heading, the
+settings that have already moved there (timer, monitor), and the hotkey of its
+"open" action — but only when something answers that key, since a recorder for
+an action with no handler would promise what it cannot do. The window is 940×640,
+resizable, minimum 820×480; the sidebar scrolls with the page. The section ids
+of the old chip switcher still work in `--settings-section`: "timer" and
+"monitor" open those two module pages. The "modules & tabs" section is
 ONE combined table, a single row of columns: the permanent "inactive" storage
 column FIRST (a subdued gray fill + dashed border set it apart from the tab
 columns' clear fill + solid border, so it reads as a holding area, not a space),
@@ -251,7 +254,7 @@ cannot be dragged. Dragging a space column header horizontally reorders spaces
 vertical `Theme.editing` insertion line marking the landing slot while dragging
 (read from the same `columnID(at:)` target the move commits to). Column-drag
 and chip-drag never fight: the header and the chips are separate grab zones.
-The standalone settings window is 720pt wide so the inactive column plus the
+The page beside the 220pt sidebar is 720pt wide, so the inactive column plus the
 space columns and the "+" tile read comfortably across one row; chips truncate
 with `lineLimit(1)` in every column. Under the table sits an airy tertiary
 caption (`modulesTableHint`, ×18) stating that "inactive" modules never show in

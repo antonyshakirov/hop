@@ -479,14 +479,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.activity.note() // opening a window counts as active use
         if settingsWindow == nil {
             let window = NSWindow(
-                // 720 wide so the "modules & tabs" table reads 5 columns
-                // (up to 4 spaces + the inactive column) without cramping
-                contentRect: NSRect(x: 0, y: 0, width: 720, height: 620),
+                // 940 wide: the 220pt sidebar plus a page that still reads the
+                // spaces table across one row
+                contentRect: NSRect(x: 0, y: 0, width: 940, height: 640),
                 // miniaturizable like the converter: settings can be sent to
                 // the Dock instead of only closed. WITHOUT fullSizeContentView,
                 // like the about window: content must not slide under the
                 // translucent title bar (rows showed through it while scrolling)
-                styleMask: [.titled, .closable, .miniaturizable],
+                styleMask: [.titled, .closable, .miniaturizable, .resizable],
                 backing: .buffered, defer: false
             )
             window.titlebarAppearsTransparent = true
@@ -504,8 +504,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // sizingOptions=[] so the hosting controller doesn't break AutoLayout with constraints
             host.sizingOptions = []
             window.contentViewController = host
-            window.contentMinSize = NSSize(width: 720, height: 300)
-            window.contentMaxSize = NSSize(width: 720, height: 100_000)
+            window.contentMinSize = NSSize(width: 820, height: 480)
+            window.contentMaxSize = NSSize(width: 100_000, height: 100_000)
             // "latest version installed" must not survive the settings window:
             // an update may ship while it's closed and the note would lie
             NotificationCenter.default.addObserver(
@@ -519,7 +519,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         if !window.isVisible {
             let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
-            window.setContentSize(NSSize(width: 720, height: min(620, screenH * 0.85)))
+            window.setContentSize(NSSize(width: 940, height: min(640, screenH * 0.85)))
             window.center()
         }
         enterDockMode()

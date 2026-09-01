@@ -154,6 +154,10 @@ final class HotkeyManager: ObservableObject {
         return register(action)
     }
 
+    /// Whether the action does anything at all: a row offering to record a key
+    /// for an action nobody answers would be a lie.
+    func hasHandler(_ action: ModuleAction) -> Bool { handlers[action.hotKeyID] != nil }
+
     func setHandler(_ action: ModuleAction, _ handler: @escaping () -> Void) {
         installIfNeeded()
         handlers[action.hotKeyID] = handler
