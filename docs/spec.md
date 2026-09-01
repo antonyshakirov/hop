@@ -208,10 +208,15 @@ language, launch, sounds, app icon, the `colored indicators` toggle for the
 menu-bar badges, the Dock switch), "modules & tabs" for the panel layout,
 "hotkeys", "app permissions" and "updates" — then every module of
 `ModuleCatalog` in panel order, each with its icon and name
-(`ModulePresentation`). A module's page carries its heading, its own options
-(`moduleSettings`, keyed by the same identifier) and the hotkey of its "open"
-action — but only when something answers that key, since a recorder for an
-action with no handler would promise what it cannot do. Two settings stayed off
+(`ModulePresentation`). A module's page carries its heading with a one-line
+"what it is for" (`purpose*`, ×22 — the onboarding cards will read the same
+keys), its own options (`moduleSettings`, keyed by the same identifier), the
+hotkey of its "open" action — but only when something answers that key, since a
+recorder for an action with no handler would promise what it cannot do — and a
+link to the guide on the site. That link carries `?m=` with one letter per
+module the user still sees (`ModuleCatalog.guideCode`, letters fixed forever by
+`hop-website/docs/guide-code.md`, tested), and the site's own language when it
+has one, so the page shows their Hop rather than every module there is. Two settings stayed off
 the module pages because they are not about one module: the grids of apps (made,
 renamed and removed on "modules & tabs", the only module a person creates
 themselves) and "the converter and the archives in one row", which says how the

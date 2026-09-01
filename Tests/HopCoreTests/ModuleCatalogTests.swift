@@ -75,6 +75,36 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertFalse(actions.contains(ModuleCatalog.panelAction))
     }
 
+    /// The letters are a contract with the website: reassigning one would make
+    /// old links show a different module than the person picked.
+    /// SPEC: hop-website/docs/guide-code.md
+    func testGuideLettersMatchThePublishedTable() {
+        let letters = Dictionary(uniqueKeysWithValues: ModuleCatalog.modules.map { ($0.id, $0.guideLetter) })
+        XCTAssertEqual(letters["timer"], "t")
+        XCTAssertEqual(letters["tracker"], "r")
+        XCTAssertEqual(letters["awake"], "a")
+        XCTAssertEqual(letters["system"], "m")
+        XCTAssertEqual(letters["clipboard"], "c")
+        XCTAssertEqual(letters["convert"], "f")
+        XCTAssertEqual(letters["windows"], "w")
+        XCTAssertEqual(letters["archive"], "z")
+        XCTAssertEqual(letters["ocr"], "o")
+        XCTAssertEqual(letters["keyboard"], "k")
+        XCTAssertEqual(letters["speedtest"], "s")
+        XCTAssertEqual(letters["vpn"], "n")
+        XCTAssertEqual(letters["uninstall"], "u")
+        XCTAssertEqual(letters["torrent"], "d")
+        XCTAssertEqual(letters["color"], "p")
+        XCTAssertEqual(letters["todos"], "l", "free letter; the site skips one it does not know")
+        XCTAssertEqual(Set(letters.values).count, letters.count)
+    }
+
+    func testGuideCodeCarriesOnlyWhatTheUserStillSees() {
+        XCTAssertEqual(ModuleCatalog.guideCode(shown: ["timer", "clipboard", "convert"]), "tcf")
+        XCTAssertEqual(ModuleCatalog.guideCode(shown: []), "")
+        XCTAssertEqual(ModuleCatalog.guideCode(shown: ["nothing-of-the-sort"]), "")
+    }
+
     func testTheOpenActionIsReachableByModuleIdentifier() {
         XCTAssertEqual(ModuleCatalog.open("timer"), ModuleCatalog.module("timer")?.openAction)
         XCTAssertEqual(ModuleCatalog.open("timer")?.storageKey, "hotkey_timer")

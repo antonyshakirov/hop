@@ -28,6 +28,29 @@ enum ModulePresentation {
         }
     }
 
+    /// One line on what the module is for; the onboarding cards read the same key.
+    static func purposeKey(_ module: String) -> L10nKey? {
+        switch module {
+        case "timer": return .purposeTimer
+        case "awake": return .purposeAwake
+        case "clipboard": return .purposeClipboard
+        case "convert": return .purposeConvert
+        case "windows": return .purposeWindows
+        case "speedtest": return .purposeSpeedtest
+        case "torrent": return .purposeTorrent
+        case "color": return .purposeColor
+        case "ocr": return .purposeOcr
+        case "archive": return .purposeArchive
+        case "keyboard": return .purposeKeyboard
+        case "vpn": return .purposeVpn
+        case "uninstall": return .purposeUninstall
+        case "system": return .purposeSystem
+        case "tracker": return .purposeTracker
+        case "todos": return .purposeTodos
+        default: return nil
+        }
+    }
+
     static func icon(_ module: String) -> String {
         switch module {
         case "timer": return "timer"

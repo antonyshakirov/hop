@@ -39,11 +39,15 @@ public struct ModuleAction: Equatable, Hashable, Sendable {
 public struct ModuleEntry: Equatable, Hashable, Sendable {
     public let id: String
     public let hiddenOnFirstRun: Bool
+    /// The module's letter in the guide address; never reassigned.
+    /// SPEC: hop-website/docs/guide-code.md
+    public let guideLetter: String
     public let actions: [ModuleAction]
 
-    public init(id: String, hiddenOnFirstRun: Bool = false, actions: [ModuleAction]) {
+    public init(id: String, hiddenOnFirstRun: Bool = false, guideLetter: String, actions: [ModuleAction]) {
         self.id = id
         self.hiddenOnFirstRun = hiddenOnFirstRun
+        self.guideLetter = guideLetter
         self.actions = actions
     }
 
@@ -61,43 +65,43 @@ public enum ModuleCatalog {
     )
 
     public static let modules: [ModuleEntry] = [
-        ModuleEntry(id: "timer", actions: [
+        ModuleEntry(id: "timer", guideLetter: "t", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_timer", hotKeyID: 2,
                          defaultCombo: ModuleCombo(keyCode: 17, modifiers: controlOption)),
         ]),
-        ModuleEntry(id: "awake", actions: [
+        ModuleEntry(id: "awake", guideLetter: "a", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_awake", hotKeyID: 3,
                          defaultCombo: ModuleCombo(keyCode: 13, modifiers: controlOption)),
         ]),
-        ModuleEntry(id: "clipboard", actions: []),
-        ModuleEntry(id: "convert", actions: [
+        ModuleEntry(id: "clipboard", guideLetter: "c", actions: []),
+        ModuleEntry(id: "convert", guideLetter: "f", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_convert", hotKeyID: 21),
         ]),
-        ModuleEntry(id: "windows", actions: []),
-        ModuleEntry(id: "speedtest", actions: []),
-        ModuleEntry(id: "torrent", actions: []),
-        ModuleEntry(id: "color", hiddenOnFirstRun: true, actions: [
+        ModuleEntry(id: "windows", guideLetter: "w", actions: []),
+        ModuleEntry(id: "speedtest", guideLetter: "s", actions: []),
+        ModuleEntry(id: "torrent", guideLetter: "d", actions: []),
+        ModuleEntry(id: "color", hiddenOnFirstRun: true, guideLetter: "p", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_color", hotKeyID: 4,
                          defaultCombo: ModuleCombo(keyCode: 35, modifiers: controlOption)),
         ]),
-        ModuleEntry(id: "ocr", hiddenOnFirstRun: true, actions: [
+        ModuleEntry(id: "ocr", hiddenOnFirstRun: true, guideLetter: "o", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_ocr", hotKeyID: 5,
                          defaultCombo: ModuleCombo(keyCode: 15, modifiers: controlOption)),
         ]),
-        ModuleEntry(id: "archive", actions: [
+        ModuleEntry(id: "archive", guideLetter: "z", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_archive", hotKeyID: 25),
         ]),
-        ModuleEntry(id: "keyboard", actions: [
+        ModuleEntry(id: "keyboard", guideLetter: "k", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_keyboardLock", hotKeyID: 6,
                          defaultCombo: ModuleCombo(keyCode: 7, modifiers: controlOption)),
         ]),
-        ModuleEntry(id: "vpn", hiddenOnFirstRun: true, actions: []),
-        ModuleEntry(id: "uninstall", actions: [
+        ModuleEntry(id: "vpn", hiddenOnFirstRun: true, guideLetter: "n", actions: []),
+        ModuleEntry(id: "uninstall", guideLetter: "u", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_uninstall", hotKeyID: 27),
         ]),
-        ModuleEntry(id: "system", actions: []),
-        ModuleEntry(id: "tracker", actions: []),
-        ModuleEntry(id: "todos", actions: []),
+        ModuleEntry(id: "system", guideLetter: "m", actions: []),
+        ModuleEntry(id: "tracker", guideLetter: "r", actions: []),
+        ModuleEntry(id: "todos", guideLetter: "l", actions: []),
     ]
 
     public static func module(_ id: String) -> ModuleEntry? {
@@ -115,4 +119,10 @@ public enum ModuleCatalog {
     }
 
     public static var allIDs: [String] { modules.map(\.id) }
+
+    /// The `?m=` code the guide address takes: one letter per module the user
+    /// still sees, in catalog order. SPEC: hop-website/docs/guide-code.md
+    public static func guideCode(shown: Set<String>) -> String {
+        modules.filter { shown.contains($0.id) }.map(\.guideLetter).joined()
+    }
 }

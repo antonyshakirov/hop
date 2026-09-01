@@ -3617,13 +3617,23 @@ struct PanelView: View {
 
     @ViewBuilder private func modulePage(_ key: String) -> some View {
         VStack(alignment: .leading, spacing: 18) {
-            HStack(spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
                 Image(systemName: ModulePresentation.icon(key))
                     .font(.system(size: 18))
                     .foregroundStyle(Theme.textSecondary)
-                Text(moduleTitle(key))
-                    .font(Theme.mono(15))
-                    .foregroundStyle(Theme.textPrimary)
+                    .frame(width: 22, height: 22)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(moduleTitle(key))
+                        .font(Theme.mono(15))
+                        .foregroundStyle(Theme.textPrimary)
+                    if let purpose = ModulePresentation.purposeKey(key) {
+                        Text(t(purpose))
+                            .font(Theme.mono(10))
+                            .foregroundStyle(Theme.textTertiary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                Spacer(minLength: 0)
             }
 
             moduleSettings(key)
@@ -3634,7 +3644,31 @@ struct PanelView: View {
                     hotkeyRow(action, label: moduleTitle(key))
                 }
             }
+
+            Link(destination: URL(string: guideURL)!) {
+                HStack(spacing: 5) {
+                    Text(t(.guideLink))
+                    Image(systemName: "arrow.up.forward")
+                        .font(.system(size: 8, weight: .semibold))
+                }
+                .font(Theme.mono(10))
+                .foregroundStyle(Theme.textTertiary)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
         }
+    }
+
+    /// The guide on the site, carrying the modules the user still sees so the
+    /// page shows their Hop and not every module there is.
+    /// SPEC: hop-website/docs/guide-code.md
+    private var guideURL: String {
+        let shown = Set(tabsModel.tabs.flatMap(\.moduleKeys).filter { moduleVisible($0) })
+        let code = ModuleCatalog.guideCode(shown: shown)
+        let onSite: Set<String> = ["ru", "de", "es", "pt", "fr", "zh", "ja"]
+        let prefix = onSite.contains(lang.rawValue) ? "\(lang.rawValue)/" : ""
+        return "https://hop.tools/\(prefix)guide/?m=\(code)"
     }
 
     /// Everyday options: theme, language, launch, sounds, updates, app icon,
