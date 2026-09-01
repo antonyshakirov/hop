@@ -78,59 +78,8 @@ final class HotkeyManager: ObservableObject {
     /// Combos that failed to register (taken by the system/other apps).
     @Published private(set) var conflicts: Set<ModuleAction> = []
 
-    // MARK: - Window zone hotkeys
-
-    /// Fixed ⌃⌥ scheme in the Rectangle spirit; a toggle in the windows
-    /// settings, ON by default (Anton, 2026-07-15). IDs start at 101
-    /// to avoid overlapping with Action. Every zone has a key: thirds on
-    /// D/F/G, two-thirds on E/T (Rectangle's convention), the center
-    /// column on S, horizontal thirds on O/L.
+    /// The window-manager's zones, on by default (a missing key reads as ON).
     static let snapHotkeysKey = "windowsHotkeysOn"
-
-    static let snapScheme: [(position: WindowSnapController.Position, keyCode: Int, id: UInt32)] = [
-        (.leftHalf, kVK_LeftArrow, 101),
-        (.rightHalf, kVK_RightArrow, 102),
-        (.topHalf, kVK_UpArrow, 103),
-        (.bottomHalf, kVK_DownArrow, 104),
-        (.maximize, kVK_Return, 105),
-        (.center, kVK_ANSI_C, 106),
-        (.topLeft, kVK_ANSI_U, 107),
-        (.topRight, kVK_ANSI_I, 108),
-        (.bottomLeft, kVK_ANSI_J, 109),
-        (.bottomRight, kVK_ANSI_K, 110),
-        (.leftThird, kVK_ANSI_D, 111),
-        (.centerThird, kVK_ANSI_F, 112),
-        (.rightThird, kVK_ANSI_G, 113),
-        (.leftTwoThirds, kVK_ANSI_E, 114),
-        (.rightTwoThirds, kVK_ANSI_T, 115),
-        (.centerHalf, kVK_ANSI_S, 116),
-        (.topThird, kVK_ANSI_O, 117),
-        (.bottomThird, kVK_ANSI_L, 118),
-    ]
-
-    private var snapRefs: [UInt32: EventHotKeyRef] = [:]
-
-    /// Re-register the zones according to the current toggle state.
-    func refreshSnapHotkeys() {
-        installIfNeeded()
-        for (_, ref) in snapRefs { UnregisterEventHotKey(ref) }
-        snapRefs.removeAll()
-        // missing key = ON: the zones work out of the box
-        let enabled = UserDefaults.standard.object(forKey: Self.snapHotkeysKey) as? Bool ?? true
-        guard enabled else { return }
-        for entry in Self.snapScheme {
-            handlers[entry.id] = { WindowSnapController.shared.apply(entry.position) }
-            var ref: EventHotKeyRef?
-            let hotKeyID = EventHotKeyID(signature: OSType(0x4D4E4D4F), id: entry.id)
-            let status = RegisterEventHotKey(
-                UInt32(entry.keyCode), UInt32(controlKey | optionKey),
-                hotKeyID, GetEventDispatcherTarget(), 0, &ref
-            )
-            if status == noErr, let ref {
-                snapRefs[entry.id] = ref
-            }
-        }
-    }
 
     private var handlers: [UInt32: () -> Void] = [:]
     private var refs: [UInt32: EventHotKeyRef] = [:]
@@ -165,6 +114,8 @@ final class HotkeyManager: ObservableObject {
     }
 
     /// SPEC: docs/spec.md, "Which combination may be claimed".
+    func refreshSnapHotkeys() { refreshModuleHotkeys() }
+
     func refreshModuleHotkeys() {
         installIfNeeded()
         let allowed = Self.registrableActions()
@@ -183,8 +134,26 @@ final class HotkeyManager: ObservableObject {
     private static func registrableActions() -> Set<ModuleAction> {
         Set(HotkeyActivation.registrable(
             hidden: hiddenModules(),
-            hiddenKeepHotkeys: UserDefaults.standard.bool(forKey: SettingsKey.hiddenModulesKeepHotkeys)
+            hiddenKeepHotkeys: UserDefaults.standard.bool(forKey: SettingsKey.hiddenModulesKeepHotkeys),
+            windowZones: UserDefaults.standard.object(forKey: snapHotkeysKey) as? Bool ?? true
         ))
+    }
+
+    /// Whether the action still answers the combination it shipped with.
+    func isDefault(_ action: ModuleAction) -> Bool {
+        UserDefaults.standard.string(forKey: action.storageKey) == nil
+    }
+
+    /// Hand the action its shipped combination back.
+    func reset(_ action: ModuleAction) {
+        UserDefaults.standard.removeObject(forKey: action.storageKey)
+        refreshModuleHotkeys()
+    }
+
+    /// Hand a whole group of actions their shipped combinations back.
+    func reset(_ actions: [ModuleAction]) {
+        for action in actions { UserDefaults.standard.removeObject(forKey: action.storageKey) }
+        refreshModuleHotkeys()
     }
 
     /// What the panel does not show right now — SPEC: docs/spec.md, "Which

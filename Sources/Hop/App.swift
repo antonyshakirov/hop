@@ -256,11 +256,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard let action = ModuleCatalog.open(module) else { continue }
             hotkeys.setHandler(action, handler)
         }
-        // Register the window-snap zone hotkeys ONCE at launch (they were only
-        // registered on the first keep-awake keypress — the misplaced call above —
-        // so all 18 tiling shortcuts were silently dead on a fresh launch). The
-        // call itself is gated on the windows-hotkeys toggle inside.
-        hotkeys.refreshSnapHotkeys()
+        for action in ModuleCatalog.zoneActions {
+            guard let name = action.zoneName,
+                  let position = WindowSnapController.Position(rawValue: name) else { continue }
+            hotkeys.setHandler(action) { WindowSnapController.shared.apply(position) }
+        }
 
         let model = self.model
         model.updater.startAutoChecks { critical in

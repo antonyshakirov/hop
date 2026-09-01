@@ -18,6 +18,8 @@ public struct ModuleCombo: Equatable, Hashable, Sendable {
 
 /// One thing a hotkey can do: `defaultCombo` nil means nothing is claimed until the user picks one.
 public struct ModuleAction: Equatable, Hashable, Sendable {
+    public static let zonePrefix = "zone:"
+
     public let id: String
     public let storageKey: String
     public let hotKeyID: UInt32
@@ -28,6 +30,14 @@ public struct ModuleAction: Equatable, Hashable, Sendable {
         self.storageKey = storageKey
         self.hotKeyID = hotKeyID
         self.defaultCombo = defaultCombo
+    }
+
+    /// One of the window-manager's zones, which the whole set can be silenced by.
+    public var isWindowZone: Bool { id.hasPrefix(Self.zonePrefix) }
+
+    /// The zone's own name, for the view layer to draw it by.
+    public var zoneName: String? {
+        isWindowZone ? String(id.dropFirst(Self.zonePrefix.count)) : nil
     }
 }
 
@@ -77,7 +87,7 @@ public enum ModuleCatalog {
         ModuleEntry(id: "convert", guideLetter: "f", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_convert", hotKeyID: 21),
         ]),
-        ModuleEntry(id: "windows", guideLetter: "w", actions: []),
+        ModuleEntry(id: "windows", guideLetter: "w", actions: zoneActions),
         ModuleEntry(id: "speedtest", guideLetter: "s", actions: []),
         ModuleEntry(id: "torrent", guideLetter: "d", actions: []),
         ModuleEntry(id: "color", hiddenOnFirstRun: true, guideLetter: "p", actions: [
@@ -103,6 +113,36 @@ public enum ModuleCatalog {
         ModuleEntry(id: "tracker", guideLetter: "r", actions: []),
         ModuleEntry(id: "todos", guideLetter: "l", actions: []),
     ]
+
+    /// The window-manager's zones, in the order the settings grid draws them.
+    /// The ⌃⌥ defaults follow Rectangle's convention; every one is rebindable.
+    public static let zoneActions: [ModuleAction] = [
+        zone("leftHalf", key: 123, hotKeyID: 101),
+        zone("rightHalf", key: 124, hotKeyID: 102),
+        zone("topHalf", key: 126, hotKeyID: 103),
+        zone("bottomHalf", key: 125, hotKeyID: 104),
+        zone("maximize", key: 36, hotKeyID: 105),
+        zone("center", key: 8, hotKeyID: 106),
+        zone("topLeft", key: 32, hotKeyID: 107),
+        zone("topRight", key: 34, hotKeyID: 108),
+        zone("bottomLeft", key: 38, hotKeyID: 109),
+        zone("bottomRight", key: 40, hotKeyID: 110),
+        zone("leftThird", key: 2, hotKeyID: 111),
+        zone("centerThird", key: 3, hotKeyID: 112),
+        zone("rightThird", key: 5, hotKeyID: 113),
+        zone("leftTwoThirds", key: 14, hotKeyID: 114),
+        zone("rightTwoThirds", key: 17, hotKeyID: 115),
+        zone("centerHalf", key: 1, hotKeyID: 116),
+        zone("topThird", key: 31, hotKeyID: 117),
+        zone("bottomThird", key: 37, hotKeyID: 118),
+    ]
+
+    private static func zone(_ name: String, key: UInt32, hotKeyID: UInt32) -> ModuleAction {
+        ModuleAction(id: "\(ModuleAction.zonePrefix)\(name)",
+                     storageKey: "hotkey_zone_\(name)",
+                     hotKeyID: hotKeyID,
+                     defaultCombo: ModuleCombo(keyCode: key, modifiers: controlOption))
+    }
 
     public static func module(_ id: String) -> ModuleEntry? {
         modules.first { $0.id == id }

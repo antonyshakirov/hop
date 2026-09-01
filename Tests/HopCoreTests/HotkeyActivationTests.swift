@@ -19,6 +19,20 @@ final class HotkeyActivationTests: XCTestCase {
         XCTAssertTrue(actions.contains { $0.storageKey == "hotkey_timer" })
     }
 
+    func testTheWindowZonesGoQuietTogether() {
+        let off = HotkeyActivation.registrable(hidden: [], hiddenKeepHotkeys: false, windowZones: false)
+        XCTAssertFalse(off.contains { $0.isWindowZone })
+        XCTAssertTrue(off.contains { $0.storageKey == "hotkey_timer" })
+
+        let on = HotkeyActivation.registrable(hidden: [], hiddenKeepHotkeys: false, windowZones: true)
+        XCTAssertEqual(on.filter(\.isWindowZone).count, 18)
+    }
+
+    func testAHiddenWindowManagerTakesItsZonesWithIt() {
+        let actions = HotkeyActivation.registrable(hidden: ["windows"], hiddenKeepHotkeys: false)
+        XCTAssertFalse(actions.contains { $0.isWindowZone })
+    }
+
     func testThePanelActionIsAlwaysThere() {
         let actions = HotkeyActivation.registrable(
             hidden: Set(ModuleCatalog.allIDs), hiddenKeepHotkeys: false)

@@ -17,22 +17,37 @@ final class ModuleCatalogTests: XCTestCase {
 
     /// A key is only worth having where pressing it shows something without the
     /// panel: a window of its own, or a change on screen. The other modules are
-    /// read IN the panel, which already has a key of its own.
+    /// read IN the panel, which already has a key of its own. The window manager
+    /// is the exception with no "open" at all — its eighteen zones ARE its keys.
     func testOnlyModulesAKeyCanShowCarryAnAction() {
         let withActions = ModuleCatalog.modules.filter { !$0.actions.isEmpty }.map(\.id)
         XCTAssertEqual(
             Set(withActions),
-            ["timer", "awake", "color", "ocr", "keyboard", "convert", "archive", "uninstall"]
+            ["timer", "awake", "color", "ocr", "keyboard", "convert", "archive", "uninstall", "windows"]
         )
-        for module in ModuleCatalog.modules where !module.actions.isEmpty {
+        for module in ModuleCatalog.modules where !module.actions.isEmpty && module.id != "windows" {
             XCTAssertEqual(module.actions.filter { $0.id == "open" }.count, 1, "module \(module.id)")
         }
+        XCTAssertNil(ModuleCatalog.open("windows"))
     }
 
+    func testEveryWindowZoneIsItsOwnRebindableAction() {
+        let zones = ModuleCatalog.zoneActions
+        XCTAssertEqual(zones.count, 18)
+        XCTAssertTrue(zones.allSatisfy(\.isWindowZone))
+        XCTAssertTrue(zones.allSatisfy { $0.defaultCombo != nil }, "a zone ships with a key")
+        XCTAssertEqual(ModuleCatalog.module("windows")?.actions, zones)
+        XCTAssertEqual(zones.first?.zoneName, "leftHalf")
+        XCTAssertEqual(zones.first?.storageKey, "hotkey_zone_leftHalf")
+        XCTAssertNil(ModuleCatalog.panelAction.zoneName)
+    }
+
+    /// Only the actions that had a combination before the catalog keep one; the
+    /// three window actions added with it claim nothing on anybody's behalf.
     func testOnlyLegacyActionsCarryADefaultCombo() {
         let withDefaults = ModuleCatalog.modules
             .flatMap(\.actions)
-            .filter { $0.defaultCombo != nil }
+            .filter { $0.defaultCombo != nil && !$0.isWindowZone }
             .map(\.storageKey)
         XCTAssertEqual(
             Set(withDefaults),
