@@ -3059,13 +3059,18 @@ its own database of known apps may do better on real software than it did here.
   settings in UserDefaults, signals (NSSound Glass + UNUserNotificationCenter,
   notifications only work from the .app bundle).
 - **One list of modules** — `HopCore.ModuleCatalog`: identity, whether a module
-  ships hidden, and what it can be asked to do (every module has an "open"
-  action). The hotkey manager reads it instead of spelling the sixteen modules
-  out a second time. The storage keys of the six actions that had one
-  (`hotkey_panel`, `hotkey_timer`, `hotkey_awake`, `hotkey_color`, `hotkey_ocr`,
-  `hotkey_keyboardLock`) never change — saved combinations hang on them; the
-  actions added with the catalog ship with no combination, because claiming
-  sixteen global shortcuts on somebody's behalf is rude.
+  ships hidden, and what it can be asked to do. The hotkey manager reads it
+  instead of spelling the sixteen modules out a second time. A module carries an
+  "open" action only where pressing a key SHOWS something without the panel — a
+  window of its own (converter, archives, uninstaller) or a change on screen
+  (eyedropper, text recognition, keyboard lock), plus the timer and no-sleep
+  (Anton, 2026-09-01). The clipboard, the monitor, the tracker, the to-dos and
+  the rest are read IN the panel, which has a key of its own, so a second key
+  would only open the same panel. The storage keys of the six actions that had
+  one (`hotkey_panel`, `hotkey_timer`, `hotkey_awake`, `hotkey_color`,
+  `hotkey_ocr`, `hotkey_keyboardLock`) never change — saved combinations hang on
+  them; the three window actions ship with no combination, because claiming
+  global shortcuts on somebody's behalf is rude.
 - **Which combination may be claimed** — `HopCore.HotkeyActivation.registrable`:
   the panel's own always, a module's only while the module is visible, unless
   `hiddenModulesKeepHotkeys` lets hidden modules answer anyway (off by default,

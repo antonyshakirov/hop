@@ -472,6 +472,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.model.activity.note()
                 self?.model.keyboardLock.lock()
             },
+            "convert": { [weak self] in self?.showConverterWindow() },
+            "archive": { [weak self] in self?.showArchiveWindow() },
+            "uninstall": { [weak self] in self?.showUninstallWindow() },
         ]
     }
 

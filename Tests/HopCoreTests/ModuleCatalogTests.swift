@@ -15,10 +15,17 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertTrue(ids.contains("uninstall"))
     }
 
-    func testEveryModuleHasExactlyOneOpenAction() {
-        for module in ModuleCatalog.modules {
-            let opens = module.actions.filter { $0.id == "open" }
-            XCTAssertEqual(opens.count, 1, "module \(module.id)")
+    /// A key is only worth having where pressing it shows something without the
+    /// panel: a window of its own, or a change on screen. The other modules are
+    /// read IN the panel, which already has a key of its own.
+    func testOnlyModulesAKeyCanShowCarryAnAction() {
+        let withActions = ModuleCatalog.modules.filter { !$0.actions.isEmpty }.map(\.id)
+        XCTAssertEqual(
+            Set(withActions),
+            ["timer", "awake", "color", "ocr", "keyboard", "convert", "archive", "uninstall"]
+        )
+        for module in ModuleCatalog.modules where !module.actions.isEmpty {
+            XCTAssertEqual(module.actions.filter { $0.id == "open" }.count, 1, "module \(module.id)")
         }
     }
 
@@ -61,7 +68,7 @@ final class ModuleCatalogTests: XCTestCase {
     }
 
     func testAnActionIsItsOwnIdentityInASet() throws {
-        let all = ModuleCatalog.modules.flatMap(\.actions)
+        let all = ModuleCatalog.modules.flatMap(\.actions)  // 8 open actions
         let actions = Set(all)
         XCTAssertEqual(actions.count, all.count)
         XCTAssertTrue(actions.contains(try XCTUnwrap(ModuleCatalog.open("timer"))))
@@ -72,5 +79,6 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertEqual(ModuleCatalog.open("timer"), ModuleCatalog.module("timer")?.openAction)
         XCTAssertEqual(ModuleCatalog.open("timer")?.storageKey, "hotkey_timer")
         XCTAssertNil(ModuleCatalog.open("nothing-of-the-sort"))
+        XCTAssertNil(ModuleCatalog.open("clipboard"), "read in the panel, not by a key")
     }
 }

@@ -31,7 +31,11 @@ public struct ModuleAction: Equatable, Hashable, Sendable {
     }
 }
 
-/// One module of the panel, as data: identity, how it ships, and what it can be asked to do.
+/// One module of the panel, as data: identity, how it ships, and what it can be
+/// asked to do. A module has an "open" action only when pressing a key would
+/// show something without the panel — a window of its own, or a change on screen
+/// (Anton, 2026-09-01): the rest of the modules are read IN the panel, so a key
+/// for them would only open the panel a key already opens.
 public struct ModuleEntry: Equatable, Hashable, Sendable {
     public let id: String
     public let hiddenOnFirstRun: Bool
@@ -43,7 +47,7 @@ public struct ModuleEntry: Equatable, Hashable, Sendable {
         self.actions = actions
     }
 
-    /// The action every module has: show the module to the user.
+    /// The action that shows the module, when it has one.
     public var openAction: ModuleAction? { actions.first { $0.id == "open" } }
 }
 
@@ -65,21 +69,13 @@ public enum ModuleCatalog {
             ModuleAction(id: "open", storageKey: "hotkey_awake", hotKeyID: 3,
                          defaultCombo: ModuleCombo(keyCode: 13, modifiers: controlOption)),
         ]),
-        ModuleEntry(id: "clipboard", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_clipboard", hotKeyID: 20),
-        ]),
+        ModuleEntry(id: "clipboard", actions: []),
         ModuleEntry(id: "convert", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_convert", hotKeyID: 21),
         ]),
-        ModuleEntry(id: "windows", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_windows", hotKeyID: 22),
-        ]),
-        ModuleEntry(id: "speedtest", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_speedtest", hotKeyID: 23),
-        ]),
-        ModuleEntry(id: "torrent", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_torrent", hotKeyID: 24),
-        ]),
+        ModuleEntry(id: "windows", actions: []),
+        ModuleEntry(id: "speedtest", actions: []),
+        ModuleEntry(id: "torrent", actions: []),
         ModuleEntry(id: "color", hiddenOnFirstRun: true, actions: [
             ModuleAction(id: "open", storageKey: "hotkey_color", hotKeyID: 4,
                          defaultCombo: ModuleCombo(keyCode: 35, modifiers: controlOption)),
@@ -95,21 +91,13 @@ public enum ModuleCatalog {
             ModuleAction(id: "open", storageKey: "hotkey_keyboardLock", hotKeyID: 6,
                          defaultCombo: ModuleCombo(keyCode: 7, modifiers: controlOption)),
         ]),
-        ModuleEntry(id: "vpn", hiddenOnFirstRun: true, actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_vpn", hotKeyID: 26),
-        ]),
+        ModuleEntry(id: "vpn", hiddenOnFirstRun: true, actions: []),
         ModuleEntry(id: "uninstall", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_uninstall", hotKeyID: 27),
         ]),
-        ModuleEntry(id: "system", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_system", hotKeyID: 28),
-        ]),
-        ModuleEntry(id: "tracker", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_tracker", hotKeyID: 29),
-        ]),
-        ModuleEntry(id: "todos", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_todos", hotKeyID: 30),
-        ]),
+        ModuleEntry(id: "system", actions: []),
+        ModuleEntry(id: "tracker", actions: []),
+        ModuleEntry(id: "todos", actions: []),
     ]
 
     public static func module(_ id: String) -> ModuleEntry? {
