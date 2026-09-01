@@ -826,14 +826,14 @@ struct PanelView: View {
             .buttonStyle(.plain)
             .help(t(.featureHide))
             Button {
-                // Opting in = activate the modules (lift them out of inactive) and,
-                // via placeModule, fetch the torrent engine NOW so the first real
-                // download doesn't stall behind a 26 MB install. Always the FIRST
-                // space (Anton, 2026-07-25): whichever tab the user happens to be
-                // on, an enabled module appears in the same predictable place.
+                // Always the FIRST space (Anton, 2026-07-25): whichever tab the
+                // user happens to be on, an enabled module appears in the same
+                // predictable place. Showing it also fetches the torrent engine
+                // now, so the first real download doesn't stall behind an install.
                 let destination = tabsModel.tabs[0].id
                 for key in ann.moduleKeys {
                     placeModule(key, onTab: destination)
+                    setModuleHidden(key, false)
                 }
                 if ann.hasFollowUp {
                     bannerEnabled = true    // same card swaps to follow-up settings
@@ -2751,7 +2751,12 @@ struct PanelView: View {
         let defaults = UserDefaults.standard
         let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
         guard var model = PanelTabsModel.decode(raw), model.tabs.count > 1 else { return }
-        model.tabs = [model.tabs[0]] + model.tabs.dropFirst().filter { !$0.moduleKeys.isEmpty }
+        model.liftInactiveIntoHidden()
+        // A space whose every module is hidden draws nothing, so it counts as empty.
+        for tab in model.tabs.dropFirst()
+        where tab.moduleKeys.allSatisfy({ model.isHidden($0) }) {
+            model.deleteTab(tab.id)
+        }
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 
@@ -3990,10 +3995,7 @@ struct PanelView: View {
                 Spacer()
                 Theme.MiniSwitch(isOn: Binding(
                     get: { moduleIsActive("archive") },
-                    set: { on in
-                        if on { placeModule("archive", onTab: tabsModel.tabs[0].id) }
-                        else { deactivateModule("archive") }
-                    }))
+                    set: { setModuleHidden("archive", !$0) }))
             }
             ArchiveDefaultHandlerRow(label: t(.archiveMakeDefault),
                                      doneLabel: t(.defaultHandlerDone),
@@ -4421,9 +4423,9 @@ struct PanelView: View {
         }
     }
 
-    /// Whether `key` sits on a space right now (visibility is membership).
+    /// Whether the panel draws `key` right now.
     private func moduleIsActive(_ key: String) -> Bool {
-        tabsModel.tabID(containing: key) != nil
+        tabsModel.tabID(containing: key) != nil && !tabsModel.isHidden(key)
     }
 
     @ViewBuilder
