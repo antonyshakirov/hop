@@ -48,8 +48,8 @@ tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 ### Không gian
 
 Biểu tượng chứa được tối đa bốn tab, và bạn kéo từng mô-đun vào tab bạn
-muốn: hẹn giờ ở một tab, giám sát ở tab khác, thứ ít mở thì để sang bên. Kệ
-«không hoạt động» giữ lại những gì bạn gác qua một bên mà không xóa đi.
+muốn: hẹn giờ ở một tab, giám sát ở tab khác, thứ ít mở thì để sang bên.
+Biểu tượng mắt cạnh mô-đun sẽ ẩn nó đi mà không di chuyển hay xóa.
 
 ### Hẹn giờ & chu kỳ
 

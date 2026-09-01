@@ -49,8 +49,8 @@ nowszego.
 ### Przestrzenie
 
 Ikona mieści do czterech kart, a każdy moduł przeciągasz na wybraną kartę:
-timer na jedną, monitor na drugą, rzadko używane na bok. Półka „nieaktywne"
-przechowuje odłożone rzeczy, nie usuwając ich.
+timer na jedną, monitor na drugą, rzadko używane na bok. Oko obok modułu
+ukrywa go, nie przenosząc ani nie usuwając.
 
 ### Timer i cykle
 

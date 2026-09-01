@@ -50,8 +50,8 @@ nieuwer.
 
 Het icoon houdt tot vier tabbladen, en je sleept elke module naar het
 tabblad dat je wilt: de timer op de een, de monitor op de ander, wat je
-zelden opent aan de kant. Een plank «inactief» bewaart wat je opzij zet,
-zonder het te verwijderen.
+zelden opent aan de kant. Het oog naast een module verbergt hem, zonder hem
+te verplaatsen of te verwijderen.
 
 ### Timer & cycli
 

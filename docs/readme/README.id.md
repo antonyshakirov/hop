@@ -50,7 +50,8 @@ lebih baru.
 
 Ikon menampung hingga empat tab, dan kamu menyeret tiap modul ke tab yang
 kamu mau: timer di satu, monitor di lainnya, yang jarang dibuka ke samping.
-Rak «nonaktif» menyimpan apa yang kamu sisihkan tanpa menghapusnya.
+Ikon mata di samping modul menyembunyikannya tanpa memindahkan atau
+menghapusnya.
 
 ### Timer & siklus
 

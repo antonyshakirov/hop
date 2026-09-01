@@ -51,7 +51,8 @@ successivo.
 
 L'icona ospita fino a quattro schede, e trascini ogni modulo nella scheda che
 preferisci: il timer su una, il monitor su un'altra, ciò che apri di rado da
-parte. Un ripiano «inattivi» conserva quel che metti via, senza eliminarlo.
+parte. L'occhio accanto a un modulo lo nasconde, senza spostarlo né
+eliminarlo.
 
 ### Timer e cicli
 

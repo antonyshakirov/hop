@@ -52,7 +52,7 @@ recente.
 
 O ícone comporta até quatro abas, e você arrasta cada módulo para a aba que
 quiser: o timer em uma, o monitor em outra, o que abre raramente para o lado.
-Uma prateleira «inativos» guarda o que você põe de lado, sem apagar.
+O olho ao lado de um módulo o oculta, sem mover nem apagar.
 
 ### Timer e ciclos
 

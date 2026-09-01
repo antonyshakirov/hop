@@ -50,7 +50,7 @@ veya üzeri gerekir.
 
 Simge en fazla dört sekme tutar ve her modülü istediğiniz sekmeye
 sürüklersiniz: zamanlayıcı birinde, monitör diğerinde, seyrek açtıklarınız
-bir kenarda. Bir «pasif» raf, kenara ayırdıklarınızı silmeden saklar.
+bir kenarda. Modülün yanındaki göz, onu taşımadan ve silmeden gizler.
 
 ### Zamanlayıcı ve döngüler
 

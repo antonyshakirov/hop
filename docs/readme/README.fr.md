@@ -52,8 +52,8 @@ plus récent.
 
 L'icône accueille jusqu'à quatre onglets, et vous glissez chaque module dans
 l'onglet de votre choix : le minuteur sur l'un, le moniteur sur l'autre, ce
-que vous ouvrez rarement à l'écart. Une étagère « inactifs » conserve ce que
-vous mettez de côté, sans le supprimer.
+que vous ouvrez rarement à l'écart. L'œil à côté d'un module le masque, sans
+le déplacer ni le supprimer.
 
 ### Minuteur et cycles
 

@@ -52,7 +52,7 @@ posterior.
 
 El icono admite hasta cuatro pestañas, y arrastras cada módulo a la pestaña
 que quieras: el temporizador en una, el monitor en otra, lo que abres rara
-vez a un lado. Un estante «inactivos» guarda lo que apartas sin borrarlo.
+vez a un lado. El ojo junto a un módulo lo oculta sin moverlo ni borrarlo.
 
 ### Temporizador y ciclos
 

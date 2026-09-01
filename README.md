@@ -49,8 +49,8 @@ verified with Ed25519. Requires macOS 14 or newer.
 
 The icon holds up to four tabs, and you drag each module into whichever tab
 you like — the timer on one, the monitor on another, the things you rarely
-open tucked away. An "inactive" shelf keeps anything you've set aside without
-deleting it.
+open tucked away. The eye beside a module hides it without moving or deleting
+it.
 
 ### Timer & cycles
 

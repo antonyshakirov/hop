@@ -50,8 +50,8 @@ neuer.
 
 Das Symbol fasst bis zu vier Tabs, und du ziehst jedes Modul in den Tab
 deiner Wahl — den Timer auf den einen, den Monitor auf den anderen, selten
-Genutztes zur Seite. Ein Regal „inaktiv“ bewahrt Beiseitegelegtes auf, ohne
-es zu löschen.
+Genutztes zur Seite. Das Auge neben einem Modul blendet es aus, ohne es zu
+verschieben oder zu löschen.
 
 ### Timer & Zyklen
 
