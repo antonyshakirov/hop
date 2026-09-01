@@ -10,25 +10,15 @@ enum Snapshot {
     /// standalone screens are drawn without scrolling
     static var active = false
 
-    /// Which info-window section a render opens on: "--news" for the release
-    /// notes, "--permissions" for the permission list, "--doc <id>" for any
-    /// module's help tab, the usual "general" otherwise. Snapshots only — the
-    /// live app always opens on "general".
-    static var aboutSectionForRender: String {
-        guard active else { return "general" }
-        let args = CommandLine.arguments
-        if args.contains("--news") { return "news" }
-        if args.contains("--permissions") { return "permissions" }
-        if let i = args.firstIndex(of: "--doc"), args.count > i + 1 { return args[i + 1] }
-        return "general"
-    }
-
-    /// Which settings section a render opens on: "--settings-section <id>".
-    /// Snapshots only — the live app always opens on "general".
+    /// Which settings page a render opens on: "--settings-section <id>", plus
+    /// the two shorthands the screenshot script has always used. Snapshots only —
+    /// the live app opens on "general" unless something asks for a page.
     static var settingsSectionForRender: String {
         guard active else { return "general" }
         let args = CommandLine.arguments
         if let i = args.firstIndex(of: "--settings-section"), args.count > i + 1 { return args[i + 1] }
+        if args.contains("--news") { return "about" }
+        if args.contains("--permissions") { return "permissions" }
         return "general"
     }
 
@@ -592,26 +582,11 @@ enum Snapshot {
         if args.contains("--tasks") {
             initial = .spaceContaining("tracker")
         }
-        if args.contains("--settings") {
-            initial = .settings
-        }
-        if args.contains("--about") || args.contains("--permissions") {
-            initial = .about
-        }
-
-        // standalone windows: settings/about/converter
+        // standalone windows: settings/converter
         let content: AnyView
-        if args.contains("--window-settings") {
-            content = AnyView(PanelView(initial: .settings, standaloneSettings: true).environmentObject(model))
-        } else if args.contains("--window-about") {
-            // WIDTH pinned to the window's own 1060: the standalone about is a
-            // ScrollView with maxHeight .infinity, and ImageRenderer handed that
-            // an unbounded height, so the render came out blank. With the width
-            // fixed the content reports its natural height, which is also how
-            // this render doubles as a measurement of what the window must fit.
-            content = AnyView(PanelView(initial: .about, standaloneAbout: true)
-                .environmentObject(model)
-                .frame(width: 1060))
+        if args.contains("--window-settings") || args.contains("--settings")
+            || args.contains("--about") || args.contains("--permissions") {
+            content = AnyView(PanelView(standaloneSettings: true).environmentObject(model))
         } else if args.contains("--window-converter") {
             content = AnyView(ConvertWindowView().environmentObject(model))
         } else if args.contains("--window-archive") {

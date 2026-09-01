@@ -2178,11 +2178,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Hotkey `⌃⌥X`, module-gated like the other module hotkeys. The tap dies with
   the process, so a crash can never leave a locked keyboard behind.
 
-### Info window: permissions tab (1.5.0)
+### Permissions (settings window)
 
-- An "app permissions" section — SECOND in the switcher, right after "general",
-  because it is the page people go looking for (Anton, 2026-07-26) — listing
-  EVERY permission Hop can
+- An "app permissions" page — fourth in the sidebar, because it is the page
+  people go looking for (Anton, 2026-07-26) — listing EVERY permission Hop can
   ask for, what it is for, and whether it is granted right now — plus what Hop
   never does. The list is taken from the code (actual API calls), never written
   from memory; a new permission means a new row.
@@ -2205,10 +2204,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   collected, nothing leaves the Mac — and, because a promise is worth little,
   a link to the source (Anton, 2026-07-26). A list of permissions reads as a
   list of risks until somebody says plainly what is NOT happening.
-- Every module tab whose row carries icons ends with an icon legend
-  (`aboutIconLegend`): the glyph as the panel draws it, then what it does. A
-  glyph the help text talks about has to be named somewhere.
-- Snapshot: `--about --permissions` (panel) renders the tab.
+- Snapshot: `--permissions` opens the settings window on that page.
 
 ### What's-new card (module checklist)
 
@@ -2355,7 +2351,7 @@ converter (Anton, 2026-07-28).
   ahead of every `NSApp.activate` that precedes a window). Switching after it
   is on screen makes the app blink out of focus and the window drop behind
   whatever was in front.
-- Counted windows: settings, about, the torrent add sheet, converter, archive,
+- Counted windows: settings, the torrent add sheet, converter, archive,
   recognition, onboarding and each Finder archive-progress window. NOT the
   panel — it hangs off the status item and closes on any outside click, so it
   belongs to the menu bar rather than the Dock. NOT the quit confirmation: it
@@ -2846,21 +2842,6 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   A line at the top says the disk is still being read, and no section claims to
   be empty until it has actually been looked at.
 
-### The help window
-
-- **Every module has a tab of its own**, the uninstaller included
-  (`docUninstallFull`): both jobs, the ~30 places a removal looks in, the
-  recovery of an identifier from an app already in the trash, the trash-not-rm
-  promise, and what the cache job deliberately leaves alone.
-- **The general page opens with the donation card.** It used to close with it,
-  and as the module list grew the card sat below the fold where nobody scrolled
-  (Anton, 2026-07-30). It is still the only donation surface in the product.
-- **The general page's three service icons sit in ONE row** (settings, quit,
-  info): they are header buttons, not modules, and three lines of them pushed the
-  page down for nothing. Per-module legends keep their column.
-- The general text names the newest modules — vpn, apps, removing apps — in the
-  order the panel shows them.
-
 ### A release's first screen
 
 - **Onboarding lists EVERY module, the uninstaller included**, and marks every
@@ -2881,14 +2862,14 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   on, so a release that only deepened the modules already there announced itself
   nowhere: 1.9.0 brought projects and history to the tracker, platform presets to
   the converter, mkv and webm, and the iWork batches, and the only place that
-  said so was the help's "what's new" tab, behind a tab nobody opens. The card
+  said so was the "what's new" text, behind a window nobody opens. The card
   sits on the same chrome surface, headed `new · Hop <release>` (the version is a
   literal, never translated), and carries a line per thing the release brought,
-  ×22. `what's new` opens the help ON the news tab — the full notes are already
-  written and already translated, so the card summarises rather than repeats;
-  `got it` only dismisses. Reaching a particular help tab needed
-  `aboutSectionRequest` on the model, consumed once by the window, because the
-  about window remembers the tab it was left on.
+  ×22. `what's new` opens the settings window ON its about page — the full notes
+  are already written and already translated, so the card summarises rather than
+  repeats; `got it` only dismisses. Reaching a particular page needed
+  `settingsSectionRequest` on the model, consumed once by the window, because the
+  window remembers the page it was left on.
 
   **A card's lines name what improved, never by how much** (Anton, 2026-08-30).
   The first cut of the vpn line read "changes colour at once instead of half a
@@ -3101,9 +3082,9 @@ its own database of known apps may do better on real software than it did here.
   install is `--dev` (debug, ~2s) and release builds happen only for a release.
 - `--snapshot out.png [--stats|--finished|…]` — renders the panel to PNG;
   Toggle/TextField/onDrop produce artifacts in snapshots — a rendering
-  quirk, not a bug. `--about --doc <id>` opens any help tab and
-  `--settings --settings-section <id>` any settings tab, so a text change can
-  be checked where it is actually read.
+  quirk, not a bug. `--window-settings --settings-section <id>` opens any
+  settings page (`--news` and `--permissions` are shorthands for two of them),
+  so a text change can be checked where it is actually read.
 - `--window-uninstall` / `--window-clean` render the uninstaller's two jobs with
   STAGED content: the real lists are this Mac's own apps and this Mac's own disk,
   and a product picture must not be somebody's home folder. A rescan is skipped
@@ -3368,47 +3349,25 @@ Anton's primary install must always remain fully functional.
   bundle path).
 - Until the first release, `--install` still updates Hop.app directly.
 
-## Info window
+## The about page (settings window)
 
-- Opens 1060pt wide so all ELEVEN section tabs (general, timer, awake, monitor,
-  clipboard, converter, windows, internet, torrents, tasks & time, what's new) sit
-  on ONE line in the widest language (was 940 for ten; the "tasks & time" tab was
-  added 2026-07-21 and adds ~130pt of natural-width chip). Each module has its own
-  full documentation tab, torrents included (`docTorrentFull`, all 22 languages).
-- The `tasks & time` tab (`aboutTabTasks`, 8.23) documents the two 1.4.0
-  time-management modules together in ONE tab, as two clearly separated sections:
-  the time tracker (`docTrackerFull`) above and the to-do list (`docTodosFull`)
-  below, split by a divider. Same tone/structure as `docTorrentFull`; every claim
-  matches shipped behavior including the sink-to-bottom (8.20) and visible-rows
-  (8.21) changes. The `general` overview tab (`docGeneral`) gained `time tracker`
-  and `to-dos` bullets, and its `header` bullet was refreshed for the 1.4.0
-  spaces-tabs (icon tabs, up to four spaces, arranged in settings). All ×18.
-- Free resizing in both directions: content scrolls vertically; on width
-  changes the section tabs wrap onto new lines (FlowLayout, natural-width
-  chips) and the text reflows. Minimum 480×300.
-- The window size is set explicitly (sizingOptions=[]); .preferredContentSize
-  is forbidden — it crashed AutoLayout on baseline views.
-- First-open sizing: the content height is only known after SwiftUI lays out,
-  so the very first open orders the window in TRANSPARENT (alpha 0) at the full
-  1060 width and reveals it only once the first `hopAboutContentHeight` report
-  arrives — sized to the active tab, recentered, faded in — so it is never seen
-  at a guessed/oversized height (house invariant: laid out before shown). A
-  1-second safety net reveals it anyway if no report comes. Later opens reuse
-  the retained, already-correct frame (the active tab is remembered) and just
-  recenter. Heights are integral (a fractional height re-triggered a resize).
-- The height ceiling is the usable screen MINUS 12pt, not a fraction of it.
-  `visibleFrame` already excludes the menu bar and the Dock, so its height is
-  the real limit and the 12pt only keeps the window off the edges. It was 85%
-  of that, which on an 855pt work area capped the window at 727 while the
-  "general" tab needs 828 (800 of content at the widest language, plus the
-  title bar): the window opened cut off just below the description, and the
-  support card at the foot of the tab was never seen (Anton, 2026-07-28). The
-  tab measures 780-800pt across all 22 languages, so it now fits whole.
-- The `--window-about` render pins the width to 1060. The standalone about is a
-  ScrollView with `maxHeight: .infinity`, and ImageRenderer handed that an
-  unbounded height, so the render came out blank; with the width fixed the
-  content reports its natural height, which also makes the render a measurement
-  of what the window has to fit.
+- What the app is has no window of its own any more. The ⓘ button in the panel
+  header, the right-click menu's "about" item and a release card's "what's new"
+  all open the SETTINGS window on its "about" page
+  (`model.settingsSectionRequest`, consumed once by the window, which otherwise
+  remembers the page it was left on).
+- The page carries the donation card (still the only donation surface in the
+  product), the last ~5 releases (`docNews`, ×22) with a link to the full history
+  on GitHub Releases, and the footer: version, source, the author's site, the
+  product page, support mail and the Telegram bot.
+- **The per-module documentation is gone from the app.** It was fourteen tabs of
+  text that had to be written, translated ×22 and kept true release after
+  release, read by almost nobody, in a window nobody opened. The guide lives on
+  the site instead, and every module page links to it with the code of the
+  modules that person actually sees (`?m=`, see "Modules"). The site's guide is
+  published in 8 languages, so a reader in one of the other 14 gets it in
+  English — a step back for them, and the reason to translate the guide page
+  next rather than to keep two copies of the same text.
 
 ## Versioning (approved 2026-07-13)
 

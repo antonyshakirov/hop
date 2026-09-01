@@ -5,11 +5,9 @@ import SwiftUI
 import HopCore
 
 struct PanelView: View {
-    /// A panel screen: one of the user's spaces, or an overlay (settings/about).
+    /// A panel screen: one of the user's spaces.
     enum Screen: Equatable {
         case space(UUID)
-        case settings
-        case about
     }
 
     /// What to show when the panel is (re)built. Resolved against the stored
@@ -19,8 +17,6 @@ struct PanelView: View {
         case restore
         case firstSpace
         case spaceContaining(String)
-        case settings
-        case about
     }
 
     @EnvironmentObject private var model: AppModel
@@ -86,7 +82,6 @@ struct PanelView: View {
     @State private var launchAtLogin = false
     // "--news" opens the what's-new section directly in a `--window-about`
     // snapshot, so the release-notes design can be reviewed as a picture.
-    @State private var aboutSection = Snapshot.aboutSectionForRender
     @State private var settingsSection = Snapshot.settingsSectionForRender
     @State private var editUnit: TimeInterval? // digit group being edited (3600/60/1)
     @State private var pointerOnDigits = false
@@ -216,14 +211,12 @@ struct PanelView: View {
 
     /// true — standalone settings window (no panel header, wider).
     var standaloneSettings = false
-    var standaloneAbout = false
 
-    init(initial: InitialScreen = .restore, standaloneSettings: Bool = false, standaloneAbout: Bool = false) {
+    init(initial: InitialScreen = .restore, standaloneSettings: Bool = false) {
         // The panel content view is built once at launch, so this resolves the
         // restored space from UserDefaults directly — as `initialTab` did.
         _screen = State(initialValue: Self.resolve(initial))
         self.standaloneSettings = standaloneSettings
-        self.standaloneAbout = standaloneAbout
     }
 
     private var cycleTemplates: [(work: Int, rest: Int, rounds: Int)] {
@@ -260,34 +253,8 @@ struct PanelView: View {
                 .frame(width: Snapshot.active ? 940 : nil)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .background(Theme.panelBackground)
-        } else if standaloneAbout {
-            // SnapshotAwareScroll: ImageRenderer gives a ScrollView no height and
-            // the render came out as an empty black window, which is no way to
-            // review the page a release is announced on.
-            SnapshotAwareScroll {
-                aboutScreen
-                    .padding(24)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    // same as settings: a theme change must rebuild children
-                    // whose inputs didn't change — the help text kept the old
-                    // theme's colors until a tab switch recreated it
-                    .id(model.themeVersion)
-                    // the window is sized to the active tab's content:
-                    // measure and report outward (AppDelegate does the resize,
-                    // NOT during the layout pass)
-                    .background(GeometryReader { geo in
-                        Color.clear
-                            .onAppear { reportAboutHeight(geo.size.height) }
-                            .onChange(of: geo.size.height) { _, h in reportAboutHeight(h) }
-                    })
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Theme.panelBackground)
-            // The window remembers the tab it was left on, so something sending
-            // the user to a particular one has to say so and be obeyed whether
-            // the window is being built or is already standing open.
-            .onAppear { consumeAboutSectionRequest() }
-            .onChange(of: model.aboutSectionRequest) { _, _ in consumeAboutSectionRequest() }
+                .onAppear { consumeSettingsSectionRequest() }
+                .onChange(of: model.settingsSectionRequest) { _, _ in consumeSettingsSectionRequest() }
         } else {
             panelBody
         }
@@ -440,10 +407,10 @@ struct PanelView: View {
     /// it marks the announcements: a fresh install has nothing to catch up on.
     static var releaseCardIDs: [String] { releaseCards.map(\.id) }
 
-    private func consumeAboutSectionRequest() {
-        guard let requested = model.aboutSectionRequest else { return }
-        aboutSection = requested
-        model.aboutSectionRequest = nil
+    private func consumeSettingsSectionRequest() {
+        guard let requested = model.settingsSectionRequest else { return }
+        settingsSection = requested
+        model.settingsSectionRequest = nil
     }
 
     static func newsSeenKey(_ id: String) -> String { "newsSeen.\(id)" }
@@ -584,8 +551,8 @@ struct PanelView: View {
     /// translated — the card is a summary of the help's own "what's new" tab.
     private func openReleaseNotes(_ card: ReleaseCard) {
         markReleaseSeen(card)
-        model.aboutSectionRequest = "news"
-        model.openAboutWindow?()
+        model.settingsSectionRequest = SettingsSelection.about.id
+        model.openSettingsWindow?()
     }
 
     /// The checklist entry that stands for "a grid of apps". Deliberately the
@@ -1069,10 +1036,6 @@ struct PanelView: View {
                         }
                     }
                 }
-            case .settings:
-                settingsScreen
-            case .about:
-                aboutScreen
             }
         }
         .padding(.horizontal, 14)
@@ -1084,8 +1047,6 @@ struct PanelView: View {
     private var scrollResetKey: String {
         switch screen {
         case .space(let id): return "space:\(effectiveSpaceID(id).uuidString)"
-        case .settings: return "settings"
-        case .about: return "about"
         }
     }
 
@@ -1404,34 +1365,22 @@ struct PanelView: View {
 
     // MARK: - Header
 
-    private var isOverlayScreen: Bool {
-        screen == .settings || screen == .about
-    }
-
     private var header: some View {
         HStack(spacing: 8) {
-            if isOverlayScreen {
-                overlayHeaderContent(title: screen == .about ? t(.aboutTitle) : t(.settingsTitle)) {
-                    screen = overlayReturnScreen ?? Self.resolve(.restore)
-                }
-            } else {
-                // pure switcher: creating/reordering/renaming/deleting tabs all
-                // live in settings now, so a stray header click can't spawn a
-                // space. The service trio returns to the right.
-                tabSwitcher
-                Spacer()
-                headerIcon("info.circle", help: t(.aboutTitle)) {
-                    model.openAboutWindow?()
-                }
-                headerIcon("gearshape", help: t(.settingsTitle)) {
-                    model.openSettingsWindow?()
-                }
-                headerIcon("power", help: t(.menuQuit)) {
-                    model.requestQuit?()
-                }
+            tabSwitcher
+            Spacer()
+            headerIcon("info.circle", help: t(.aboutTitle)) {
+                model.settingsSectionRequest = SettingsSelection.about.id
+                model.openSettingsWindow?()
+            }
+            headerIcon("gearshape", help: t(.settingsTitle)) {
+                model.openSettingsWindow?()
+            }
+            headerIcon("power", help: t(.menuQuit)) {
+                model.requestQuit?()
             }
         }
-        .frame(height: 34) // same header height on all screens
+        .frame(height: 34)
     }
 
     /// Shared back-chevron header used by the settings/about overlays: a "back"
@@ -2828,8 +2777,6 @@ struct PanelView: View {
     /// model always has at least one tab, so `tabs[0]` is a safe fallback.
     private static func resolve(_ initial: InitialScreen) -> Screen {
         switch initial {
-        case .settings: return .settings
-        case .about: return .about
         case .firstSpace:
             return .space(storedTabsModel().tabs[0].id)
         case .spaceContaining(let module):
@@ -3593,6 +3540,7 @@ struct PanelView: View {
         case .hotkeys: hotkeysSection
         case .permissions: PermissionsView(lang: lang)
         case .updates: updatesSection
+        case .about: aboutPage
         case .module(let key): modulePage(key)
         }
     }
@@ -4881,74 +4829,6 @@ struct PanelView: View {
     // MARK: - About
 
     /// Icon legend for the current help tab: what it is and what it does.
-    private var aboutIconLegend: [(String, String)]? {
-        switch aboutSection {
-        case "timer":
-            return [
-                ("play.fill", t(.hkTimer)),
-                ("arrow.counterclockwise", t(.iconReset)),
-                ("stopwatch", t(.stopwatchLabel)),
-                ("arrow.uturn.backward", t(.iconPocket)),
-            ]
-        case "awake":
-            return [
-                ("moon", t(.awakeOff)),
-                ("lid", t(.awakeLid)),
-            ]
-        case "more":
-            return [
-                ("doc.on.doc", t(.iconCopy)),
-                ("text.insert", t(.iconPaste)),
-                ("arrow.up.left.and.arrow.down.right", t(.iconExpand)),
-            ]
-        case "general":
-            return [
-                ("gearshape", t(.settingsTitle)),
-                ("power", t(.menuQuit)),
-                ("info.circle", t(.aboutTitle)),
-            ]
-        case "convert":
-            return [
-                ("arrow.up.forward.app", t(.iconOpenWindow)),
-                ("arrow.down.doc", t(.convDrop)),
-            ]
-        // Every module whose row carries icons explains them here: a glyph the
-        // help talks about has to be named somewhere (Anton, 2026-07-26).
-        case "color":
-            return [
-                ("paintpalette", t(.colorLabel)),
-                ("eyedropper", t(.colorPick)),
-            ]
-        case "ocr":
-            return [
-                ("text.viewfinder", t(.ocrLabel)),
-                ("square.dashed", t(.ocrRead)),
-                ("arrow.up.forward.app", t(.iconOpenWindow)),
-            ]
-        case "archive":
-            return [
-                ("archivebox", t(.archiveLabel)),
-                ("arrow.up.forward.app", t(.iconOpenWindow)),
-                ("arrow.down.left.and.arrow.up.right", t(.archiveRunExtract)),
-                ("doc", t(.archiveRunPack)),
-            ]
-        case "keyboard":
-            return [
-                ("keyboard", t(.keylockLabel)),
-                ("infinity", t(.iconEndless)),
-            ]
-        case "torrent":
-            return [
-                ("arrow.down.circle", t(.torrentLabel)),
-                ("folder", t(.torrentReveal)),
-            ]
-        default:
-            return nil
-        }
-    }
-
-    /// Zone → key pairs, shared by the help legend and the settings section.
-    /// Every zone of the scheme is listed — a hidden hotkey is a lost hotkey.
     static let snapHotkeyItems: [(WindowSnapController.Position, String)] = [
         (.leftHalf, "←"), (.rightHalf, "→"),
         (.topHalf, "↑"), (.bottomHalf, "↓"),
@@ -4961,66 +4841,53 @@ struct PanelView: View {
         (.topThird, "O"), (.bottomThird, "L"),
     ]
 
-    /// Windows hotkey legend: zone glyph + combo (⌃ ⌥ …), in four columns.
-    private var windowsHotkeyLegend: some View {
-        let items = Self.snapHotkeyItems
-        return VStack(alignment: .leading, spacing: 10) {
-            Rectangle()
-                .fill(Theme.divider)
-                .frame(height: 1)
-            Text(t(.hotkeysLabel))
-                .font(Theme.mono(10, weight: .semibold))
-                .foregroundStyle(Theme.textTertiary)
-            LazyVGrid(
-                columns: Array(
-                    repeating: GridItem(.flexible(), alignment: .leading),
-                    count: 4
-                ),
-                alignment: .leading, spacing: 9
-            ) {
-                ForEach(items, id: \.0) { position, key in
-                    HStack(spacing: 10) {
-                        snapGlyph(position)
-                            .frame(width: 26, height: 17)
-                        Text("⌃ ⌥ \(key)")
-                            .font(Theme.mono(11))
-                            .foregroundStyle(Theme.textSecondary)
-                        Spacer(minLength: 0)
-                    }
-                }
+    private var aboutPage: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            donateCard
+
+            VStack(alignment: .leading, spacing: 10) {
+                settingsSectionHeader(t(.aboutTabNews))
+                DocView(text: t(.docNews))
+                FooterLink(url: "https://github.com/antonyshakirov/hop/releases",
+                           label: t(.newsAllReleases))
+            }
+
+            Rectangle().fill(Theme.divider).frame(height: 1)
+
+            aboutFooterLinks
+        }
+    }
+
+    private var aboutFooterLinks: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: "chevron.left.forwardslash.chevron.right")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Theme.textTertiary)
+                Text("open source · \(t(.versionLabel)) \(model.updater.currentVersion) ·")
+                    .foregroundStyle(Theme.textSecondary)
+                FooterLink(url: "https://github.com/antonyshakirov/hop", label: "GitHub")
+            }
+            HStack(spacing: 6) {
+                FooterLink(url: lang == .ru
+                    ? "https://antonshakirov.com"
+                    : "https://antonshakirov.com/en",
+                    label: t(.aboutFooter))
+                Text("·")
+                    .foregroundStyle(Theme.textSecondary)
+                FooterLink(url: productPageURL, label: t(.aboutProductPage))
+            }
+            HStack(spacing: 6) {
+                Text("\(t(.aboutSupport)):")
+                    .foregroundStyle(Theme.textSecondary)
+                FooterLink(url: "mailto:support@hop.tools", label: "support@hop.tools")
+                Text("·")
+                    .foregroundStyle(Theme.textSecondary)
+                FooterLink(url: "https://t.me/HopSupportBot", label: "telegram-\(t(.supportBotWord))")
             }
         }
+        .font(Theme.mono(11))
     }
-
-    @ViewBuilder private func legendIcon(_ name: String) -> some View {
-        if name == "lid" {
-            lidGlyph(closed: false, color: Theme.textSecondary)
-                .frame(width: 22, alignment: .center)
-        } else if name == "play.fill" {
-            // the WHOLE button, not a bare triangle: the legend explains what to
-            // look for in the panel, and in the panel it is a filled disc
-            // (Anton, 2026-07-26)
-            TransportCircle(systemName: "play.fill", filled: true, diameter: 18)
-                .frame(width: 22, alignment: .center)
-        } else {
-            Image(systemName: name)
-                .font(.system(size: 12))
-                .foregroundStyle(Theme.textSecondary)
-                .frame(width: 22)
-        }
-    }
-
-    private var settingsTabLabels: [String] {
-        [t(.aboutTabGeneral), t(.aboutTabTimer), t(.otherModulesLabel), t(.tabSystem)]
-    }
-
-    private var aboutTabLabels: [String] {
-        [t(.aboutTabGeneral), t(.permTab), t(.aboutTabTimer), t(.awakeOff),
-         t(.tabSystem), t(.tabClipboard), t(.convertLabel), t(.windowsLabel),
-         t(.speedtestLabel), t(.torrentLabel), t(.colorLabel), t(.ocrLabel),
-         t(.archiveLabel), t(.keylockLabel)]
-    }
-
 
     /// The donation card. FIRST on the general page, not last: the module list
     /// grew until the card sat below the fold and nobody scrolled that far
@@ -5083,188 +4950,6 @@ struct PanelView: View {
         .hoverHighlight(8)
         .padding(.top, 4)
     }
-
-    private var aboutScreen: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            SectionChips(items: [
-                ("general", t(.aboutTabGeneral)),
-                // straight after "general": the page people look for when they
-                // wonder what the app is allowed to do (Anton, 2026-07-26)
-                ("permissions", t(.permTab)),
-                ("timer", t(.aboutTabTimer)),
-                ("awake", t(.awakeOff)),
-                ("monitor", t(.tabSystem)),
-                ("more", t(.tabClipboard)),
-                ("convert", t(.convertLabel)),
-                ("windows", t(.windowsLabel)),
-                ("speed", t(.speedtestLabel)),
-                ("torrent", t(.torrentLabel)),
-                ("color", t(.colorLabel)),
-                ("ocr", t(.ocrLabel)),
-                ("vpn", t(.vpnLabel)),
-                ("apps", t(.appsLabel)),
-                ("uninstall", t(.uninstallLabel)),
-                ("archive", t(.archiveLabel)),
-                ("keyboard", t(.keylockLabel)),
-                ("tasks", t(.aboutTabTasks)),
-                ("news", t(.aboutTabNews)),
-            ], selection: $aboutSection, wraps: true)
-
-            if aboutSection == "general" { donateCard }
-
-            Group {
-                switch aboutSection {
-                case "timer":
-                    DocView(text: t(.docTimerFull))
-                case "monitor":
-                    VStack(alignment: .leading, spacing: 10) {
-                        DocView(text: t(.docMonitorRows))
-                        DocView(text: t(.docMonitorRows2))
-                        DocView(text: t(.docMonitorColors))
-                    }
-                case "awake":
-                    DocView(text: t(.docAwakeFull))
-                case "more":
-                    DocView(text: t(.docClipboardFull))
-                case "convert":
-                    VStack(alignment: .leading, spacing: 10) {
-                        DocView(text: t(.docConverterFull))
-                        DocView(text: t(.docConverterDocs))
-                    }
-                case "windows":
-                    DocView(text: t(.docWindowsFull))
-                    windowsHotkeyLegend
-                case "speed":
-                    DocView(text: t(.docSpeedFull))
-                case "torrent":
-                    DocView(text: t(.docTorrentFull))
-                case "color":
-                    DocView(text: t(.docColorFull))
-                case "ocr":
-                    DocView(text: t(.docOcrFull))
-                case "vpn":
-                    DocView(text: t(.docVpnFull))
-                case "apps":
-                    DocView(text: t(.docAppsFull))
-                case "uninstall":
-                    DocView(text: t(.docUninstallFull))
-                case "archive":
-                    DocView(text: t(.docArchiveFull))
-                case "keyboard":
-                    DocView(text: t(.docKeylockFull))
-                case "permissions":
-                    PermissionsView(lang: lang)
-                case "tasks":
-                    // both new modules in one tab, two clearly separated sections:
-                    // the time tracker above, the to-do list below.
-                    VStack(alignment: .leading, spacing: 12) {
-                        DocView(text: t(.docTrackerFull))
-                        Rectangle().fill(Theme.divider).frame(height: 1)
-                        DocView(text: t(.docTodosFull))
-                    }
-                case "news":
-                    // last ~5 releases, 2-4 bullets each (older ones drop off);
-                    // the full history lives on GitHub Releases
-                    VStack(alignment: .leading, spacing: 10) {
-                        DocView(text: t(.docNews))
-                        FooterLink(url: "https://github.com/antonyshakirov/hop/releases",
-                                   label: t(.newsAllReleases))
-                    }
-                default:
-                    DocView(text: t(.docGeneral))
-                }
-            }
-
-            if let legend = aboutIconLegend {
-                Rectangle()
-                    .fill(Theme.divider)
-                    .frame(height: 1)
-                // The general page's three service icons sit in ONE row: they are
-                // the settings, quit and info buttons of the header, they need no
-                // paragraph each, and three lines of them pushed everything below
-                // off the screen (Anton, 2026-07-30). The per-module legends keep
-                // their column — those explain a module and are read one by one.
-                if aboutSection == "general" {
-                    HStack(spacing: 18) {
-                        ForEach(Array(legend.enumerated()), id: \.offset) { _, item in
-                            HStack(spacing: 7) {
-                                legendIcon(item.0)
-                                Text(item.1)
-                                    .font(Theme.mono(11))
-                                    .foregroundStyle(Theme.docText)
-                                    .lineLimit(1)
-                            }
-                        }
-                        Spacer(minLength: 0)
-                    }
-                } else {
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(Array(legend.enumerated()), id: \.offset) { _, item in
-                            HStack(spacing: 10) {
-                                legendIcon(item.0)
-                                Text(item.1)
-                                    .font(Theme.mono(11))
-                                    .foregroundStyle(Theme.docText)
-                            }
-                        }
-                    }
-                }
-            }
-
-            if aboutSection == "general" {
-                Rectangle()
-                    .fill(Theme.divider)
-                    .frame(height: 1)
-                // one identical font on every footer line: the plain connective
-                // text now matches the FooterLink size (mono 11) instead of
-                // inheriting the doc-body mono 12, so line heights no longer jump.
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chevron.left.forwardslash.chevron.right")
-                            .font(.system(size: 10))
-                            .foregroundStyle(Theme.textTertiary)
-                        Text("open source · \(t(.versionLabel)) \(model.updater.currentVersion) ·")
-                            .foregroundStyle(Theme.textSecondary)
-                        FooterLink(url: "https://github.com/antonyshakirov/hop", label: "GitHub")
-                    }
-                    HStack(spacing: 6) {
-                        // the author's name IS the link now (the separate
-                        // antonshakirov.com link is gone); ru keeps the Russian
-                        // site, everyone else the /en page.
-                        FooterLink(url: lang == .ru
-                            ? "https://antonshakirov.com"
-                            : "https://antonshakirov.com/en",
-                            label: t(.aboutFooter))
-                        Text("·")
-                            .foregroundStyle(Theme.textSecondary)
-                        // landing exists in 8 languages; everyone else gets English
-                        FooterLink(url: productPageURL, label: t(.aboutProductPage))
-                    }
-                    HStack(spacing: 6) {
-                        // a COLON, not a middle dot: the label heads the two
-                        // channels, and a dot made it read as a third link
-                        // (Anton, 2026-07-26)
-                        Text("\(t(.aboutSupport)):")
-                            .foregroundStyle(Theme.textSecondary)
-                        FooterLink(url: "mailto:support@hop.tools", label: "support@hop.tools")
-                        Text("·")
-                            .foregroundStyle(Theme.textSecondary)
-                        // support bot — a second channel alongside email; "bot"
-                        // says what opens, the name itself stays unlocalized
-                        FooterLink(url: "https://t.me/HopSupportBot", label: "telegram-\(t(.supportBotWord))")
-                    }
-                }
-                .font(Theme.mono(11))
-
-            }
-        }
-        .font(Theme.mono(12))
-        .foregroundStyle(Theme.textPrimary)
-        .lineSpacing(5)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 4)
-    }
-
 
     /// Chip sized like the "timer size" one — for paired toggle settings.
     private func bigToggleChip(_ label: String, active: Bool, action: @escaping () -> Void) -> some View {

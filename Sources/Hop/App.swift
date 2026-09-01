@@ -32,7 +32,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var uninstallHeightSink: AnyCancellable?
     private var finderArchiveWindows: [UUID: FinderArchiveProgressWindowController] = [:]
     private var screenTextWindow: ConverterWindow?
-    private var aboutWindow: NSWindow?
     private var torrentAddWindow: NSWindow?
     private var quitWindow: NSWindow?
     private var converterUserResized = false
@@ -59,7 +58,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// someone would look for in the Dock. The quit confirmation is absent for
     /// the same reason — it lives for a second and answers one question.
     private var dockWindows: [NSWindow] {
-        var list = [settingsWindow, aboutWindow, torrentAddWindow, converterWindow,
+        var list = [settingsWindow, torrentAddWindow, converterWindow,
                     archiveWindow, uninstallWindow, screenTextWindow,
                     onboardingWindow].compactMap { $0 }
         list.append(contentsOf: finderArchiveWindows.values.map(\.window))
@@ -294,9 +293,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openScreenTextWindow = { [weak self] in
             self?.showScreenTextWindow()
         }
-        model.openAboutWindow = { [weak self] in
-            self?.showAboutWindow()
-        }
         model.openTorrentAddSheet = { [weak self] source in
             self?.showTorrentAddWindow(source)
         }
@@ -310,7 +306,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // orderFrontRegardless: plain orderFront only reorders within the
             // app's own layer while another app is active — the window came
             // back UNDER the frontmost app instead of on top with the panel.
-            let ours = Set([converterWindow, settingsWindow, aboutWindow, torrentAddWindow,
+            let ours = Set([converterWindow, settingsWindow, torrentAddWindow,
                             archiveWindow, uninstallWindow,
                             screenTextWindow].compactMap { $0 }
                 + finderArchiveWindows.values.map(\.presentedWindow))
@@ -398,12 +394,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // release app, which is compiled -c release like the dev app, so #if DEBUG
         // would not tell them apart.
         if Bundle.isDevBuild {
-            if CommandLine.arguments.contains("--open-about") {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                    self?.showAboutWindow()
-                    NSLog("HOP-DIAG about opened frame=%@", NSStringFromRect(self?.aboutWindow?.frame ?? .zero))
-                }
-            }
             if CommandLine.arguments.contains("--open-converter") {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     self?.showConverterWindow()
@@ -499,7 +489,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isMovableByWindowBackground = false
             window.isReleasedWhenClosed = false
             let host = NSHostingController(
-                rootView: PanelView(initial: .settings, standaloneSettings: true)
+                rootView: PanelView(standaloneSettings: true)
                     .environmentObject(model)
                     .hopLayoutDirection()
             )
@@ -573,140 +563,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
     }
 
-    private var aboutHeightObserved = false
-    // First open: the about window is ordered in TRANSPARENT and revealed only
-    // once the first content-height report arrives, so it is never seen at a
-    // guessed height (house invariant: laid out before it is shown). Later opens
-    // reuse the retained, already-correct frame — the active tab is remembered.
-    private var aboutAwaitingReveal = false
-    private var aboutHasBeenSized = false
-
-    /// The about window height follows the active tab's content
-    /// (no empty area at the bottom); the window's top edge stays put.
-    private func observeAboutHeightOnce() {
-        guard !aboutHeightObserved else { return }
-        aboutHeightObserved = true
-        NotificationCenter.default.addObserver(
-            forName: .init("hopAboutContentHeight"), object: nil, queue: .main
-        ) { [weak self] note in
-            Task { @MainActor in
-                guard let self, let window = self.aboutWindow,
-                      let h = note.userInfo?["height"] as? CGFloat else { return }
-                let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
-                let titlebar = window.frame.height - window.contentLayoutRect.height
-                // integral height only — a fractional window height made the
-                // hosting controller re-measure and jump the content on open.
-                //
-                // The ceiling is the usable screen minus a small margin, NOT a
-                // fraction of it. At 0.85 a 855pt work area capped the window at
-                // 727pt while the "general" tab needs ~810 (780 of content plus
-                // the title bar) — so the window opened cut off exactly below the
-                // description and the support card at the foot of it was never
-                // seen (Anton, 2026-07-28). visibleFrame already excludes the menu
-                // bar and the Dock, so its height IS the limit; the 12pt keeps the
-                // window off the very edges.
-                let ceiling = (screenH - 12).rounded(.down)
-                let target = min((h + titlebar).rounded(.up), ceiling)
-
-                if self.aboutAwaitingReveal {
-                    // the first frame after ordering in transparent: size to the
-                    // content, recenter at that final height, then reveal — so the
-                    // very first appearance is already correct, no visible resize
-                    self.aboutAwaitingReveal = false
-                    self.aboutHasBeenSized = true
-                    var frame = window.frame
-                    frame.size.height = target
-                    window.setFrame(frame, display: false, animate: false)
-                    window.center()
-                    window.alphaValue = 1
-                    return
-                }
-                guard window.isVisible else { return }
-                guard abs(window.frame.height - target) > 2 else { return }
-                var frame = window.frame
-                let topY = frame.maxY
-                frame.size.height = target
-                frame.origin.y = topY - target
-                window.setFrame(frame, display: true, animate: false)
-            }
-        }
-    }
-
-    private func showAboutWindow() {
-        model.activity.note() // opening a window counts as active use
-        if aboutWindow == nil {
-            // WITHOUT fullSizeContentView: content does not slide under the translucent
-            // title bar (icons "floated" through it while scrolling)
-            let window = NSWindow(
-                // 1060 wide so all ELEVEN section tabs sit on ONE line in the
-                // widest language (the "tasks & time" tab was added 2026-07-21 for
-                // the tracker + to-do modules; ~130pt of natural-width chip on top
-                // of the previous ten's ~919pt, rounded up for margin).
-                // Still freely resizable — narrower widths wrap the tabs (FlowLayout).
-                contentRect: NSRect(x: 0, y: 0, width: 1060, height: 560),
-                styleMask: [.titled, .closable, .miniaturizable, .resizable],
-                backing: .buffered, defer: false
-            )
-            window.titlebarAppearsTransparent = true
-            window.titleVisibility = .hidden
-            // the window drags only by the title bar: background dragging
-            // caught clicks on tabs and chips — the window moved when switching
-            window.isMovableByWindowBackground = false
-            window.isReleasedWhenClosed = false
-            let host = NSHostingController(
-                rootView: PanelView(initial: .about, standaloneAbout: true)
-                    .environmentObject(model)
-                    .hopLayoutDirection()
-            )
-            // sizingOptions=[] and explicit size: .preferredContentSize made the
-            // hosting controller fit the window to content via constraints, which broke
-            // the about window's AutoLayout (invalid baselines). Scrolling lives in the view itself
-            host.sizingOptions = []
-            window.contentViewController = host
-            // free resize: vertically the content scrolls, horizontally
-            // tabs wrap onto new lines and text reflows
-            window.contentMinSize = NSSize(width: 480, height: 300)
-            window.contentMaxSize = NSSize(width: 100_000, height: 100_000)
-            aboutWindow = window
-        }
-        guard let window = aboutWindow else { return }
-        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
-        window.backgroundColor = NSColor(Theme.background) // title bar matches the panel color
-        observeAboutHeightOnce()
-        if !window.isVisible {
-            let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
-            if aboutHasBeenSized {
-                // reopen: the retained frame is already sized to the last-shown
-                // tab (the section is remembered) — just recenter and show.
-                window.center()
-            } else {
-                // first open ever: the content height is unknown until SwiftUI
-                // lays out, so order in transparent at the target WIDTH (1060 —
-                // all section tabs on one line, matching the window's own width;
-                // 940 was stale, from when there were ten tabs) and let the first
-                // height report size, recenter and reveal it.
-                aboutAwaitingReveal = true
-                window.alphaValue = 0
-                window.setContentSize(NSSize(width: 1060, height: min(820, screenH - 12)))
-                window.center()
-            }
-        }
-        enterDockMode()
-        NSApp.activate(ignoringOtherApps: true)
-        window.makeKeyAndOrderFront(nil)
-        if aboutAwaitingReveal {
-            // safety net: if the height report never arrives (it should, on the
-            // first appear), reveal at the provisional size rather than leave an
-            // invisible window — no worse than the old fixed-height behavior.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-                guard let self, self.aboutAwaitingReveal, let window = self.aboutWindow else { return }
-                self.aboutAwaitingReveal = false
-                self.aboutHasBeenSized = true
-                window.alphaValue = 1
-            }
-        }
-    }
-
     /// The torrent add sheet (file selection + destination). A window, like the
     /// converter: the popover collapses on any outside click. Each call rebuilds
     /// the content for the new source; the sheet fetches its own file list.
@@ -764,7 +620,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusController?.applyTheme()
         settingsWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         converterWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
-        aboutWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         archiveWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         finderArchiveWindows.values.forEach { $0.applyTheme() }
         screenTextWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)

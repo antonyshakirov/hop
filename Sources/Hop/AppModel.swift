@@ -79,12 +79,10 @@ final class AppModel: ObservableObject {
     /// Open the recognition window: where a picture is dropped or pasted, and
     /// where the recognized text is shown.
     var openScreenTextWindow: (() -> Void)?
-    /// Open the standalone "about" window.
-    var openAboutWindow: (() -> Void)?
-    /// A section the about window should jump to on its next open, consumed once
-    /// by the window itself. The about window remembers the tab it was left on,
-    /// so the release card cannot simply open it and hope — it has to say where.
-    @Published var aboutSectionRequest: String?
+    /// A page the settings window should jump to on its next open, consumed once
+    /// by the window itself. The window remembers the page it was left on, so a
+    /// caller that needs a particular one has to say which.
+    @Published var settingsSectionRequest: String?
     /// Open the torrent add sheet (file selection + destination) for a source.
     /// The sheet fetches the file list itself and shows a "fetching…" state, so
     /// the window appears instantly on a magnet paste. Presented as a window,
