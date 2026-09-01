@@ -1,3 +1,4 @@
+import HopCore
 import SwiftUI
 
 /// First-launch window: language, theme, launch at login — then off to the bar.
@@ -23,43 +24,27 @@ struct OnboardingView: View {
     // membership now, so onboarding drives the panel-tabs model directly (see
     // finishOnboarding) instead of the dead show*Module keys. displayStyle is a
     // real persisted setting and stays @AppStorage.
-    @State private var showTimerModule = true
     @AppStorage("displayStyle") private var displayStyle = "dots"
-    @State private var showAwakeModule = true
-    @State private var showClipboardModule = true
-    @State private var showConvertModule = true
-    @State private var showWindowsModule = true
-    @State private var showSystemModule = true
-    @State private var showTrackerModule = true
-    @State private var showTodosModule = true
-    // Torrents default OFF globally (opt-in via the "what's new" banner for users
-    // who updated in); a fresh install gets to choose here, recommended on.
-    @State private var enableTorrent = true
-    // The 1.5.0 modules belong on this screen too — a fresh install should see
-    // EVERYTHING it can have and decide once (Anton, 2026-07-26). Archives and
-    // the keyboard lock are everyday tools, so they start on; the eyedropper and
-    // recognition serve designers and developers, so they start off.
-    @State private var showArchiveModule = true
-    @State private var showKeyboardModule = true
-    @State private var showColorModule = true
-    @State private var showOcrModule = true
-    /// VPN ships off for the same reason: a Mac with no VPN configured would get
-    /// an empty section it never asked for.
-    @State private var showVpnModule = true
-    /// On like the rest (Anton, 2026-07-29): saying yes creates one empty grid,
-    /// which explains itself in the panel rather than staying invisible.
-    @State private var showAppsModule = true
-    /// New in 1.7.0, and on like the rest of the everyday tools: a fresh install
-    /// should see EVERYTHING it can have and decide once, and a module that
-    /// removes apps is not a specialist's tool (Anton, 2026-07-30).
-    @State private var showUninstallModule = true
+    /// The modules the person keeps. Every module starts on, the ones that ship
+    /// hidden for an update included: a fresh install should see EVERYTHING it
+    /// can have and decide once (Anton, 2026-07-26/29/30). Read from the
+    /// registry, so a module added later needs no second list.
+    @State private var chosen: Set<String> = Set(ModuleCatalog.allIDs + [OnboardingView.appsChoice])
+
+    /// Grids of apps are not in the registry — the module only exists once a
+    /// grid does — so the checklist carries them under a key of their own.
+    static let appsChoice = "apps"
 
     /// One module in the grid: name on the left, switch on the right — the same
     /// shape as the rows above it, three to a line in a window widened to fit
     /// them (Anton, 2026-07-29). The earlier switch-above-name cell only existed
     /// because the window was panel-narrow.
-    private func moduleCell(_ title: String, isOn: Binding<Bool>) -> some View {
-        HStack(spacing: 6) {
+    private func moduleCell(_ key: String, title: String) -> some View {
+        let isOn = Binding(
+            get: { chosen.contains(key) },
+            set: { on in if on { chosen.insert(key) } else { chosen.remove(key) } }
+        )
+        return HStack(spacing: 6) {
             Text(title)
                 .font(Theme.mono(10))
                 .foregroundStyle(Theme.textPrimary)
@@ -141,22 +126,12 @@ struct OnboardingView: View {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 34, alignment: .top),
                                          count: 2),
                           spacing: 12) {
-                    moduleCell(t(.aboutTabTimer), isOn: $showTimerModule)
-                    moduleCell(t(.awakeOff), isOn: $showAwakeModule)
-                    moduleCell(t(.tabClipboard), isOn: $showClipboardModule)
-                    moduleCell(t(.convertLabel), isOn: $showConvertModule)
-                    moduleCell(t(.windowsLabel), isOn: $showWindowsModule)
-                    moduleCell(t(.tabSystem), isOn: $showSystemModule)
-                    moduleCell(t(.trackerLabel), isOn: $showTrackerModule)
-                    moduleCell(t(.todosLabel), isOn: $showTodosModule)
-                    moduleCell(t(.archiveLabel), isOn: $showArchiveModule)
-                    moduleCell(t(.keylockLabel), isOn: $showKeyboardModule)
-                    moduleCell(t(.torrentLabel), isOn: $enableTorrent)
-                    moduleCell(t(.colorLabel), isOn: $showColorModule)
-                    moduleCell(t(.ocrLabel), isOn: $showOcrModule)
-                    moduleCell(t(.vpnLabel), isOn: $showVpnModule)
-                    moduleCell(t(.appsLabel), isOn: $showAppsModule)
-                    moduleCell(t(.uninstallLabel), isOn: $showUninstallModule)
+                    ForEach(ModuleCatalog.allIDs, id: \.self) { key in
+                        if let title = ModulePresentation.titleKey(key) {
+                            moduleCell(key, title: t(title))
+                        }
+                    }
+                    moduleCell(Self.appsChoice, title: t(.appsLabel))
                 }
                 .background(alignment: .center) {
                     Rectangle()
@@ -297,24 +272,13 @@ struct OnboardingView: View {
         // on space 3), so an "on" choice is a no-op and only "off" moves a
         // module out — except torrent, which starts inactive and activates onto
         // space 1.
-        let choices: [(module: String, on: Bool)] = [
-            ("timer", showTimerModule), ("awake", showAwakeModule),
-            ("clipboard", showClipboardModule), ("convert", showConvertModule),
-            ("windows", showWindowsModule), ("torrent", enableTorrent),
-            ("system", showSystemModule), ("tracker", showTrackerModule),
-            ("todos", showTodosModule), ("archive", showArchiveModule),
-            ("keyboard", showKeyboardModule), ("color", showColorModule),
-            ("vpn", showVpnModule),
-            ("ocr", showOcrModule),
-            ("uninstall", showUninstallModule),
-        ]
-        for choice in choices {
-            if choice.on { PanelView.activateStoredModule(choice.module) }
-            else { PanelView.deactivateStoredModule(choice.module) }
+        for key in ModuleCatalog.allIDs {
+            if chosen.contains(key) { PanelView.activateStoredModule(key) }
+            else { PanelView.deactivateStoredModule(key) }
         }
         // Apps is the one choice that has nothing to switch on: the module only
         // exists once a grid does, so saying yes here makes the first one.
-        if showAppsModule {
+        if chosen.contains(Self.appsChoice) {
             PanelView.activateStoredModule(shelves.addShelf())
         }
         // Deactivating the monitor / tracker / to-dos can empty their canonical

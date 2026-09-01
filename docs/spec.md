@@ -2844,7 +2844,10 @@ nothing about what would be cleaned, and the caches are why anybody opens it
 
 ### A release's first screen
 
-- **Onboarding lists EVERY module, the uninstaller included**, and marks every
+- **Onboarding lists EVERY module, the uninstaller included** — the list is
+  `ModuleCatalog` in panel order plus "apps" (a grid of apps is not a registry
+  module: it exists only once a grid does), every switch on, so a module added
+  later appears on the first screen with no second list to update. It marks every
   what's-new announcement seen on the way out: a fresh install has just been
   asked about all of them by name, so greeting it with a card offering the same
   modules asks a question it already answered (Anton, 2026-07-29, restated
