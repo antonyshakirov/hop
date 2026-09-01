@@ -14,18 +14,9 @@ public struct PanelTab: Codable, Equatable, Identifiable {
     }
 }
 
-/// The user's arrangement of panel tabs. Every mutating method below
-/// preserves two invariants: `tabs.count` stays within `1...maxTabs`, and
-/// each module key lives in at most one place — a tab OR the inactive bucket.
-/// Methods that would otherwise break an invariant (deleting the last tab,
-/// referencing an unknown tab or module) are no-ops rather than errors, since
-/// callers are UI actions that can simply be stale.
-///
-/// Module visibility is MEMBERSHIP: a module is shown iff it sits on a tab, and
-/// hidden iff it sits in `inactive`. There is no separate on/off flag.
+/// The user's arrangement of panel tabs. SPEC: docs/spec.md — "Modules".
 public struct PanelTabsModel: Codable, Equatable {
     public var tabs: [PanelTab]
-    /// Hidden modules, ordered. A permanent, non-deletable bucket in the UI.
     public var inactive: [String]
     /// Modules that keep their place on a space but are not drawn there.
     public var hidden: Set<String>
@@ -60,13 +51,12 @@ public struct PanelTabsModel: Codable, Equatable {
         return tab.id
     }
 
-    /// Removes the tab, sending its modules to the inactive bucket (they are
-    /// hidden, not silently merged into another space). No-op if `id` is
-    /// unknown or this is the last tab.
+    /// Removes the tab; its modules move to the first remaining space, hidden.
     public mutating func deleteTab(_ id: UUID) {
         guard tabs.count > 1, let index = tabs.firstIndex(where: { $0.id == id }) else { return }
         let removed = tabs.remove(at: index)
-        inactive.append(contentsOf: removed.moduleKeys)
+        tabs[0].moduleKeys.append(contentsOf: removed.moduleKeys)
+        hidden.formUnion(removed.moduleKeys)
     }
 
     /// Moves the tab at `from` to `to`. No-op if either index is out of
@@ -99,18 +89,7 @@ public struct PanelTabsModel: Codable, Equatable {
         tabs[toIndex].moduleKeys.append(module)
     }
 
-    /// Hides `module`: removes it from its tab and appends it to the inactive
-    /// bucket. No-op if the module is unknown or already inactive.
-    public mutating func deactivate(module: String) {
-        guard let fromIndex = tabs.firstIndex(where: { $0.moduleKeys.contains(module) }) else { return }
-        tabs[fromIndex].moduleKeys.removeAll { $0 == module }
-        inactive.append(module)
-    }
-
-    /// Forgets `module` completely — off whichever tab holds it and out of the
-    /// inactive bucket. Deactivating hides a module that still exists; this is
-    /// for one that is gone, which only shelves can be, since they are the one
-    /// module a user can delete.
+    /// Forgets `module` completely — for one that is gone, not one that is hidden.
     public mutating func remove(module: String) {
         for index in tabs.indices { tabs[index].moduleKeys.removeAll { $0 == module } }
         inactive.removeAll { $0 == module }
@@ -124,9 +103,7 @@ public struct PanelTabsModel: Codable, Equatable {
         if isHidden { hidden.insert(module) } else { hidden.remove(module) }
     }
 
-    /// SPEC: hop-private/specs/2026-09-01-settings-window-design.md — everything the
-    /// old model parked in the inactive bucket moves onto the first space and is
-    /// hidden there, which is exactly what the user saw before the update.
+    /// SPEC: docs/spec.md — the old bucket's modules become hidden on space one.
     public mutating func liftInactiveIntoHidden() {
         guard !inactive.isEmpty, !tabs.isEmpty else { return }
         tabs[0].moduleKeys.append(contentsOf: inactive)
@@ -144,16 +121,6 @@ public struct PanelTabsModel: Codable, Equatable {
         tabs[tabIndex].moduleKeys.remove(at: moduleIndex)
         let clamped = min(max(to, 0), tabs[tabIndex].moduleKeys.count)
         tabs[tabIndex].moduleKeys.insert(module, at: clamped)
-    }
-
-    /// Repositions `module` within the inactive bucket — the symmetric sibling
-    /// of `reorder(module:inTab:to:)`, treating `inactive` as a pseudo-column.
-    /// `to` is clamped; no-op if the module isn't in the bucket.
-    public mutating func reorder(inInactive module: String, to: Int) {
-        guard let moduleIndex = inactive.firstIndex(of: module) else { return }
-        inactive.remove(at: moduleIndex)
-        let clamped = min(max(to, 0), inactive.count)
-        inactive.insert(module, at: clamped)
     }
 
     /// Appends any of `modules` not already present in a tab OR the inactive
@@ -183,14 +150,6 @@ public struct PanelTabsModel: Codable, Equatable {
     public mutating func applyDrop(module: String, toTab tabID: UUID, at index: Int) {
         move(module: module, toTab: tabID)
         reorder(module: module, inTab: tabID, to: index)
-    }
-
-    /// The inactive-bucket sibling of `applyDrop(module:toTab:at:)`: hides
-    /// `module` and pins it to `index` within the bucket. No-op if the module is
-    /// unknown; dropping a bucket item onto its own slot is a no-op.
-    public mutating func applyDrop(moduleToInactive module: String, at index: Int) {
-        deactivate(module: module)
-        reorder(inInactive: module, to: index)
     }
 
     /// The id of the tab holding `module`, or nil if no tab does.
@@ -238,7 +197,7 @@ public struct PanelTabsModel: Codable, Equatable {
     ///   - a "display" space with `system` alone — only if system is active;
     ///   - a "clock" space with `tracker` then `todos` — only whichever of the
     ///     two are active.
-    /// `inactive` is returned completely untouched: a module the user had hidden
+    /// A hidden module stays hidden: one the user had put away
     /// (e.g. a monitor they turned off before updating) stays hidden, exactly
     /// where they left it — canonicalization only rearranges what is ON a space.
     /// Any space beyond these three dissolves; its active modules were already
@@ -258,10 +217,10 @@ public struct PanelTabsModel: Codable, Equatable {
         }
 
         var canonical = [PanelTab(icon: firstIcon, moduleKeys: primary)]
-        if !inactive.contains("system") {
+        if !isPutAway("system") {
             canonical.append(PanelTab(icon: "display", moduleKeys: ["system"]))
         }
-        let clock = ["tracker", "todos"].filter { !inactive.contains($0) }
+        let clock = ["tracker", "todos"].filter { !isPutAway($0) }
         if !clock.isEmpty {
             canonical.append(PanelTab(icon: "clock", moduleKeys: clock))
         }
@@ -269,6 +228,10 @@ public struct PanelTabsModel: Codable, Equatable {
         var result = self
         result.tabs = canonical
         return result
+    }
+
+    private func isPutAway(_ module: String) -> Bool {
+        hidden.contains(module) || inactive.contains(module)
     }
 
     /// First-launch migration from the old flat module order: everything

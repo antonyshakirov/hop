@@ -187,13 +187,20 @@ identically on every user's bar.
 ## Modules
 
 The main screen shows the modules of the selected space (tab) as a stack,
-in the order the user set. **Module visibility is membership**: a module is
-shown iff it sits on a space and hidden iff it sits in a permanent,
-non-deletable "inactive" bucket. There are NO per-module on/off toggles;
-every key lives in exactly one place — a space OR inactive
-(`PanelTabsModel.inactive`, an ordered list; HopCore enforces uniqueness
-across the union and decodes older JSON that lacks the field as an empty
-bucket).
+in the order the user set. **A module always sits on exactly one space and
+carries a `hidden` flag there** (`PanelTabsModel.hidden`): hiding it changes
+nothing about where it lives, only whether the panel draws it. The eye in
+"modules & tabs" and the "hide" item in a module's right-click menu are the
+same switch. A hidden module is also switched off — it does not run and its
+hotkey is handed back to other applications, unless
+`hiddenModulesKeepHotkeys` says otherwise.
+
+Older versions spelled hidden differently: the module was parked in an
+"inactive" bucket off the spaces. That bucket is still decoded and
+`liftInactiveIntoHidden` puts its contents back on the first space as hidden —
+exactly what the user saw before the update. The conversion runs on every load
+rather than behind a one-shot flag, so it cannot be missed or replayed, and
+nothing is ever written back into the bucket.
 
 The settings window is a 220pt sidebar and a page (`SettingsSidebar`,
 `SettingsSelection`). The sidebar lists the sections first — "general" (theme,
@@ -212,35 +219,30 @@ panel draws three modules rather than what any of them does. The window is 940×
 resizable, minimum 820×480; the sidebar scrolls with the page. The section ids
 of the old chip switcher still work in `--settings-section`: "timer" and
 "monitor" open those two module pages. The "modules & tabs" section is
-ONE combined table, a single row of columns: the permanent "inactive" storage
-column FIRST (a subdued gray fill + dashed border set it apart from the tab
-columns' clear fill + solid border, so it reads as a holding area, not a space),
-then the space columns in order, then a compact square "+" add-tab tile aligned
-to the TOP of its slot while under the space cap (it was a full-height dashed
-column before — the stretch was dropped; the revert is a one-liner noted in
-`addColumnStub`). Module chips (name, lowercase) stack vertically in EVERY
-column, inactive included; a hand-rolled drag moves a chip between columns,
-within a column, and into/out of the inactive column — that drag IS the
-visibility control (`move`/`deactivate`/`reorder`).
-Inactive chips render dimmed. While a chip is dragged, a live insertion
+ONE combined table, a single row of columns: the space columns in order, then a
+compact square "+" add-tab tile aligned to the TOP of its slot while under the
+space cap (it was a full-height dashed column before — the stretch was dropped;
+the revert is a one-liner noted in `addColumnStub`). Module chips (name,
+lowercase) stack vertically in every column; a hand-rolled drag moves a chip
+between columns and within a column (`move`/`reorder`) — placement only, since
+the eye on the chip is the visibility control. A hidden chip is dimmed and its
+eye is crossed out. While a chip is dragged, a live insertion
 indicator marks exactly where it will land: a 2pt horizontal line with rounded
 caps in the shared `Theme.editing` accent (the same yellow/goldenrod token the
-timer digit-group highlight uses) between the rows of the target column —
-the inactive column shows this line too now, since it stacks like the rest
+timer digit-group highlight uses) between the rows of the target column
 (top/bottom for first/last, and centred in an empty column); the target column
 also tints while hovered. The indicator's position is read from the SAME
 resolver that commits the drop (`insertIndex(for:in:at:)` → `SettingsDropGeometry`,
 ONE shared stacked resolver for every column), so line and landing can never
 disagree. Which column a point falls in is `SettingsDropGeometry.columnID(at:)`
-(containment wins, else nearest by X; inactive is a regular column — no
-vertical-band special case, no X-nearest exclusion), tested in
-`SettingsDropGeometryTests`. Each space column header carries
+(containment wins, else nearest by X), tested in `SettingsDropGeometryTests`. Each space column header carries
 the space icon (a padded icon+chevron control with breathing room around the
 hover highlight — tap it or its rotating disclosure chevron to open the icon
 picker), "#N", and a hover-only delete xmark that opens a delete confirmation
-(`delete this tab? its modules become inactive` + delete/cancel); confirming
-sends the space's modules to the inactive bucket (they are hidden, not merged
-into another space). The icon picker is an anchored popover under the header
+(`delete this tab? its modules move to the first one and are hidden` +
+delete/cancel); confirming moves them to the first remaining space and hides
+them there, so a deleted space never makes a module appear somewhere the user
+did not put it. The icon picker is an anchored popover under the header
 control (the settings window is a real NSWindow, so a popover is safe here,
 unlike the status-bar panel): a scrollable grid, ~7 columns, capped ~320pt
 tall, of the curated SF Symbols catalog (`IconCatalog`, 200+ symbols grouped
@@ -250,29 +252,28 @@ every name resolves on macOS 14). It dismisses on outside click, Escape, or a
 pick, and never reflows the table; a drag in progress cannot open it. The
 delete confirmation is an overlay ON the table — a dimmed scrim plus a
 centered card — so the columns never reflow beneath it; the scrim tap or
-Escape cancels. The inactive column header is just an "inactive" label in the
-section-header style — no icon, no delete (no hover affordance at all), and it
-cannot be dragged. Dragging a space column header horizontally reorders spaces
+Escape cancels. Dragging a space column header horizontally reorders spaces
 (`moveTab`, committed on release against the measured column frames), with a
 vertical `Theme.editing` insertion line marking the landing slot while dragging
 (read from the same `columnID(at:)` target the move commits to). Column-drag
 and chip-drag never fight: the header and the chips are separate grab zones.
-The page beside the 220pt sidebar is 720pt wide, so the inactive column plus the
-space columns and the "+" tile read comfortably across one row; chips truncate
-with `lineLimit(1)` in every column. Under the table sits an airy tertiary
-caption (`modulesTableHint`, ×18) stating that "inactive" modules never show in
-the panel and that both columns (to reorder tabs) and the chips inside them
-(between/within columns) are draggable. The in-panel
+The page beside the 220pt sidebar is 720pt wide, so the space columns and the
+"+" tile read comfortably across one row; chips truncate with `lineLimit(1)` in
+every column. Under the table sits an airy tertiary caption
+(`modulesTableHint`, ×22) stating what the eye does — the module keeps its place
+and stops showing in the panel — and that both columns (to reorder tabs) and the
+chips inside them (between/within columns) are draggable. Below the caption sit
+the grids of apps (rename, the icon-name switch, ✕) and the
+"converter and archives in one row" switch. The in-panel
 `.settings` screen is unreachable (never set outside `init`, which always
 pairs it with the standalone window), so the table is designed for that
-window only. A module can also be re-homed from the panel: right-click it and
-pick a target under "move to" — one item per other space plus a final
-"inactive" destination that hides it (the menu is never empty). A hidden
-module is simply not rendered, so there is no inverse "activate" context menu
-— reactivation is a drag out of inactive in settings. The divider between
+window only. A module can also be re-homed from the panel: right-click it for
+"move to" (one item per OTHER space, omitted when there is no other) and "hide".
+A hidden module is simply not rendered, so there is no inverse "show" context
+menu — that is the eye in settings. The divider between
 modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **The rule is `HopCore.ModuleVisibility`** and takes exactly three inputs: the
-  inactive bucket, the torrent count, and the "show the card without downloads"
+  hidden set, the torrent count, and the "show the card without downloads"
   preference. Torrent is the one module with an extra condition — with zero
   torrents its row is hidden unless the preference keeps it — and that condition
   used to ALSO require the engine installer to be exactly `.installed`. That made
@@ -856,8 +857,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `TrackerController`); the view is glue. Labels tick off `tracker.heartbeat`
   (1/s while a task is tracking). Active by default — unlike torrents it has no
   engine to download, so it isn't opt-in; hidden or shown like every other
-  module by membership in the "modules & tabs" table (drag it to/from the
-  inactive column). The module title (`trackerLabel`) is "time tracker" — it
+  module by its eye in the "modules & tabs" table. The module title (`trackerLabel`) is "time tracker" — it
   names the feature in settings and in the always-on subheader above the list.
 - **Two levels, three orders.** `TrackerTask.projectID` is the single source of
   BELONGING — nil for a task at the top level, a project's id for one inside it.
@@ -1591,8 +1591,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   grids that exist — each with its name and how many apps it holds, and a ✕ that
   deletes it — plus the `+` that makes another and drops it on the first space.
   Deleting a grid calls `PanelTabsModel.remove(module:)`, which forgets the key
-  rather than moving it to the inactive bucket: hiding is for a module that still
-  exists, and this one is gone.
+  rather than hiding it: hiding is for a module that still exists, and this one
+  is gone.
 - **A grid's own name.** Blank by default, in which case the header shows the
   generic `apps` label; typed in the header while editing. The name is also what
   the layout settings show for that grid's chip, so three grids on one space can
@@ -1668,7 +1668,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   an empty launcher says nothing. Grids are made in two places, both of which the user reaches while
   arranging modules: the apps section of settings, and under the module/space
   table itself, where the chips are dragged. A grid chip drags between spaces and
-  into the inactive column like any other module. It is also the ONLY chip with a
+  hides under its eye like any other module. It is also the ONLY chip with a
   ✕ — every other module can be hidden but never deleted — and that ✕ asks first,
   with the same scrim + card the tab delete uses, saying that the apps themselves
   are untouched. The apps section of settings deletes a grid too.
@@ -1729,10 +1729,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   taking a global shortcut away from other apps for a hidden module would be
   rude. Its settings row appears on the same condition.
 - Ships HIDDEN: it serves designers and developers, so `optInModules` +
-  `SettingsKey.optInModulesSeeded` move it into the inactive bucket exactly once
-  (before the canonical layout repair, so the rebuild cannot carry it back onto
-  space 1); the fresh-migrate path hides it deterministically on every recompute
-  and claims the flag itself.
+  `SettingsKey.optInModulesSeeded` set its hidden flag exactly once; the
+  fresh-migrate path hides it deterministically on every recompute and claims
+  the flag itself.
 
 ### Text recognition (OCR + QR)
 
@@ -2376,9 +2375,10 @@ converter (Anton, 2026-07-28).
   space. Up to 4 spaces (`PanelTabsModel.maxTabs`) — the
   cap keeps 4×56pt tabs plus the trio inside the 340pt header content
   (≈338pt at the cap). Panel width 368.
-- Deleting a space (in the settings table) sends its modules to the INACTIVE
-  bucket — they are hidden, not silently merged into another space
-  (`PanelTabsModel.deleteTab`; confirm copy "its modules become inactive"). The
+- Deleting a space (in the settings table) moves its modules to the first
+  remaining space and hides them there — nothing appears where the user did not
+  put it (`PanelTabsModel.deleteTab`; confirm copy "its modules move to the
+  first one and are hidden"). The
   last remaining space can never be deleted. The settings-table drop is resolved
   by pure, tested HopCore helpers: `SettingsDropGeometry.insertIndex` turns the
   laid-out chip frames + the drop point into an insert index (one resolver for
@@ -2390,7 +2390,7 @@ converter (Anton, 2026-07-28).
   order plus per-module `show*Module` toggles) into 1.4.0 spaces is one-shot on
   launch — the flat order becomes the "house" space, the system monitor and the
   tracker+to-do pair split into their own canonical spaces, and every module
-  whose legacy toggle was OFF moves to the inactive bucket (exact seeds and
+  whose legacy toggle was OFF is hidden (exact seeds and
   one-shot flags in "Default spaces" below). It is idempotent: each step runs
   once behind its flag and never re-disturbs a layout the user has since
   rearranged.
@@ -2401,18 +2401,17 @@ converter (Anton, 2026-07-28).
 - Default spaces: a fresh install migrates into THREE spaces — "house" with
   the general modules, "display" for the system monitor (the monitor tab should
   LOOK like a monitor; was "gauge"), and "clock" for the time-management pair
-  `["tracker", "todos"]`. Modules whose legacy default is hidden start in the
-  inactive bucket on a fresh migrate (currently the torrent module, opt-in
+  `["tracker", "todos"]`. Modules whose legacy default is hidden start hidden
+  on a fresh migrate (currently the torrent module, opt-in
   before its onboarding/banner "enable" — which still activates it). A
   decoded legacy model gets its whole active layout rebuilt into that same
   three-space shape exactly once (`canonicalLayoutSeeded`): space 1 gets
   every other active module, in the order first encountered scanning the
   existing spaces, keeping space 1's current icon; space 2 gets "system"
   alone (icon "display") only if system is active; space 3 gets "tracker"
-  then "todos" (icon "clock") only for whichever of the two are active. The
-  inactive bucket itself is untouched — canonicalization only rearranges
-  what is ON a space, and any space beyond these three dissolves, its active
-  modules folded into space 1. This replaced three earlier one-shot seeds
+  then "todos" (icon "clock") only for whichever of the two are shown. Hidden
+  flags are untouched — canonicalization only rearranges where modules sit, and
+  any space beyond these three dissolves, its modules folded into space 1. This replaced three earlier one-shot seeds
   that each nudged a single module in place (`trackerTabSeeded`,
   `todosSeeded`, `systemTabSeeded`) because patching modules in one at a
   time could still leave them stacked on the wrong space depending on what
@@ -2426,12 +2425,12 @@ converter (Anton, 2026-07-28).
   feature/opt-in banner and no enable/hide question for them; the only
   feature-announcement banner in the app is the torrent module's own (its opt-in
   mechanics are unchanged). The user's existing off-states are preserved: any
-  module inactive before the update (a monitor they turned off, torrent before
-  its opt-in, anything in `inactive`) stays inactive after — only the new modules
-  and the tab restructure appear automatically.
+  module hidden before the update (a monitor they turned off, torrent before
+  its opt-in, anything the old bucket held) stays hidden after — only the new
+  modules and the tab restructure appear automatically.
 - Module-visibility migration: the old `show*Module` toggles are read once
-  and every OFF module is moved into the inactive bucket, after which
-  visibility is pure membership and the toggles are never read again. The
+  and every OFF module is hidden, after which visibility is the `hidden` flag
+  and the toggles are never read again. The
   fresh-migrate path applies this deterministically on every recompute (so a
   module never flickers visible while `panelTabsRaw` catches up) and claims
   the `moduleVisibilityMigrated` flag; a decoded legacy model runs it once,
@@ -2441,8 +2440,8 @@ converter (Anton, 2026-07-28).
   (transient `@State`, not the dead `show*Module` keys) — and applies the
   choices straight to the spaces model (`activateStoredModule`/
   `deactivateStoredModule`): an enabled module stays on the canonical space the
-  launch-time fresh migrate already placed it on, a disabled one goes to the
-  inactive bucket. Because the fresh migrate always lays down all three
+  launch-time fresh migrate already placed it on, a disabled one is hidden
+  where it stands. Because the fresh migrate always lays down all three
   canonical spaces, turning the monitor / tracker / to-dos off can empty space
   2 or 3, so `dropEmptyOnboardingSpaces` runs once right after and removes any
   space left empty (except space 1, which always stays — the speed test has no
@@ -2865,9 +2864,9 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   modules asks a question it already answered (Anton, 2026-07-29, restated
   2026-07-30).
 - **Someone who UPDATES gets the card instead.** 1.7.0 announces `modules170`
-  with the uninstaller in it, and the module ships inactive until it is ticked
+  with the uninstaller in it, and the module ships hidden until it is ticked
   there — nothing appears in a panel that was not asked for.
-- The one-shot that sweeps a new module into the inactive bucket is keyed PER
+- The one-shot that hides a new module is keyed PER
   RELEASE (`optInModulesSeeded170`). The original key was claimed in 1.5.0, so
   reusing it would have let 1.7.0's module land in everyone's panel unasked.
 - `--feature-banner-latest` renders whatever the newest card is, so it can be

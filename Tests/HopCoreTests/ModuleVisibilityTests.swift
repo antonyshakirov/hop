@@ -9,22 +9,22 @@ final class ModuleVisibilityTests: XCTestCase {
 
     private func visible(
         _ module: String,
-        inactive: [String] = [],
+        hidden: Set<String> = [],
         torrents: Int = 0,
         showWhenEmpty: Bool = true
     ) -> Bool {
         ModuleVisibility.isVisible(
-            module: module, inactive: inactive,
+            module: module, hidden: hidden,
             torrentCount: torrents, showTorrentWhenEmpty: showWhenEmpty)
     }
 
-    func testInactiveModulesNeverShow() {
-        XCTAssertFalse(visible("timer", inactive: ["timer", "color"]))
-        XCTAssertFalse(visible("torrent", inactive: ["torrent"], torrents: 3))
+    func testHiddenModulesNeverShow() {
+        XCTAssertFalse(visible("timer", hidden: ["timer", "color"]))
+        XCTAssertFalse(visible("torrent", hidden: ["torrent"], torrents: 3))
     }
 
-    func testActiveModulesShow() {
-        XCTAssertTrue(visible("timer", inactive: ["color"]))
+    func testShownModulesShow() {
+        XCTAssertTrue(visible("timer", hidden: ["color"]))
     }
 
     func testEmptyTorrentRowHidesWhenAsked() {

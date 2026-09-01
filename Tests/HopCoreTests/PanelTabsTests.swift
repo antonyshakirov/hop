@@ -37,14 +37,14 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(model?.tabs.count, 2)
     }
 
-    func testEncodedDecodeRoundTripsWithInactive() {
+    func testEncodedDecodeRoundTripsWithHiddenModules() {
         var model = PanelTabsModel.migrate(moduleOrder: ["timer", "awake"])
-        model.deactivate(module: "awake")
+        model.setHidden("awake", hidden: true)
 
         let decoded = PanelTabsModel.decode(model.encoded())
 
         XCTAssertEqual(decoded, model)
-        XCTAssertEqual(decoded?.inactive, ["awake"])
+        XCTAssertEqual(decoded?.hidden, ["awake"])
     }
 
     // The uniqueness invariant now spans tabs AND the inactive bucket.
@@ -58,23 +58,24 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertNil(PanelTabsModel.decode(json))
     }
 
-    func testDeactivateMovesModuleFromTabToInactive() {
+    func testHidingLeavesTheModuleWhereItSits() {
         let first = PanelTab(icon: "house", moduleKeys: ["timer", "awake"])
         var model = PanelTabsModel(tabs: [first])
 
-        model.deactivate(module: "awake")
+        model.setHidden("awake", hidden: true)
 
-        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer"])
-        XCTAssertEqual(model.inactive, ["awake"])
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer", "awake"])
+        XCTAssertTrue(model.isHidden("awake"))
+        XCTAssertFalse(model.isHidden("timer"))
     }
 
-    func testDeactivateIsNoOpForUnknownOrAlreadyInactiveModule() {
+    func testShowingAgainIsTheExactOpposite() {
         let first = PanelTab(icon: "house", moduleKeys: ["timer"])
-        var model = PanelTabsModel(tabs: [first], inactive: ["awake"])
+        var model = PanelTabsModel(tabs: [first])
         let before = model
 
-        model.deactivate(module: "nonexistent")
-        model.deactivate(module: "awake")   // already inactive
+        model.setHidden("timer", hidden: true)
+        model.setHidden("timer", hidden: false)
 
         XCTAssertEqual(model, before)
     }
@@ -90,15 +91,16 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(model.inactive, [])
     }
 
-    func testReorderInInactiveMovesWithinBucketAndClamps() {
-        var model = PanelTabsModel(tabs: [PanelTab(icon: "house", moduleKeys: ["timer"])],
-                                   inactive: ["awake", "clipboard", "convert"])
+    func testMovingAHiddenModuleKeepsItHidden() {
+        let first = PanelTab(icon: "house", moduleKeys: ["timer", "awake"])
+        let second = PanelTab(icon: "star", moduleKeys: [])
+        var model = PanelTabsModel(tabs: [first, second])
+        model.setHidden("awake", hidden: true)
 
-        model.reorder(inInactive: "convert", to: 0)
-        XCTAssertEqual(model.inactive, ["convert", "awake", "clipboard"])
+        model.move(module: "awake", toTab: second.id)
 
-        model.reorder(inInactive: "convert", to: 999)
-        XCTAssertEqual(model.inactive, ["awake", "clipboard", "convert"])
+        XCTAssertEqual(model.tabs[1].moduleKeys, ["awake"])
+        XCTAssertTrue(model.isHidden("awake"), "the eye is the only thing that shows a module")
     }
 
     // A deactivated module must NOT be re-added to a tab by ensure — it is known.
@@ -138,7 +140,7 @@ final class PanelTabsTests: XCTestCase {
 
     // MARK: - deleteTab
 
-    func testDeleteTabSendsItsModulesToInactive() {
+    func testDeleteTabParksItsModulesHiddenOnTheFirstSpace() {
         let first = PanelTab(icon: "house", moduleKeys: ["timer"])
         let second = PanelTab(icon: "gauge", moduleKeys: ["system"])
         let third = PanelTab(icon: "star", moduleKeys: ["clipboard"])
@@ -147,12 +149,12 @@ final class PanelTabsTests: XCTestCase {
         model.deleteTab(second.id)
 
         XCTAssertEqual(model.tabs.map(\.id), [first.id, third.id])
-        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer"], "modules are NOT folded into the first tab anymore")
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer", "system"])
         XCTAssertEqual(model.tabs[1].moduleKeys, ["clipboard"])
-        XCTAssertEqual(model.inactive, ["system"])
+        XCTAssertEqual(model.hidden, ["system"], "nothing appears where the user did not put it")
     }
 
-    func testDeleteFirstTabSendsItsModulesToInactive() {
+    func testDeleteFirstTabParksItsModulesOnWhatIsNowTheFirst() {
         let first = PanelTab(icon: "house", moduleKeys: ["timer"])
         let second = PanelTab(icon: "gauge", moduleKeys: ["system"])
         var model = PanelTabsModel(tabs: [first, second])
@@ -160,8 +162,8 @@ final class PanelTabsTests: XCTestCase {
         model.deleteTab(first.id)
 
         XCTAssertEqual(model.tabs.map(\.id), [second.id])
-        XCTAssertEqual(model.tabs[0].moduleKeys, ["system"])
-        XCTAssertEqual(model.inactive, ["timer"])
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["system", "timer"])
+        XCTAssertEqual(model.hidden, ["timer"])
     }
 
     func testDeleteTabIsNoOpOnLastRemainingTab() {
@@ -343,14 +345,17 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(model.tabs[1].moduleKeys, ["system", "timer", "clipboard"])
     }
 
-    func testApplyDropToInactiveAtIndex() {
+    func testApplyDropKeepsAHiddenModuleHidden() {
         let a = PanelTab(icon: "a", moduleKeys: ["timer", "awake"])
-        var model = PanelTabsModel(tabs: [a], inactive: ["clipboard", "convert"])
+        let b = PanelTab(icon: "b", moduleKeys: ["clipboard", "convert"])
+        var model = PanelTabsModel(tabs: [a, b])
+        model.setHidden("timer", hidden: true)
 
-        model.applyDrop(moduleToInactive: "timer", at: 1)
+        model.applyDrop(module: "timer", toTab: b.id, at: 1)
 
         XCTAssertEqual(model.tabs[0].moduleKeys, ["awake"])
-        XCTAssertEqual(model.inactive, ["clipboard", "timer", "convert"])
+        XCTAssertEqual(model.tabs[1].moduleKeys, ["clipboard", "timer", "convert"])
+        XCTAssertTrue(model.isHidden("timer"))
     }
 
     func testApplyDropAtFirstIndex() {

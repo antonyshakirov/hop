@@ -1,6 +1,6 @@
 /// Whether a module's row belongs on the panel right now.
 ///
-/// Membership decides it: a module shows unless it sits in the inactive bucket.
+/// The user's own answer is the `hidden` flag the module carries on its space.
 /// Torrent carries one extra rule, because an empty torrent module is a row that
 /// offers to start a download and nothing else — worth hiding for someone who
 /// only downloads occasionally.
@@ -17,11 +17,11 @@ public enum ModuleVisibility {
 
     public static func isVisible(
         module: String,
-        inactive: [String],
+        hidden: Set<String>,
         torrentCount: Int,
         showTorrentWhenEmpty: Bool
     ) -> Bool {
-        guard !inactive.contains(module) else { return false }
+        guard !hidden.contains(module) else { return false }
         if module == torrent, torrentCount == 0, !showTorrentWhenEmpty { return false }
         return true
     }

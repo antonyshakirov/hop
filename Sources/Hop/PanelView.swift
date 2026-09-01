@@ -67,6 +67,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
     @AppStorage(SettingsKey.vpnHoldOff) private var vpnHoldOff = true
     @AppStorage(SettingsKey.toolsOneRow) private var toolsOneRow = false
+    @AppStorage(SettingsKey.hiddenModulesKeepHotkeys) private var hiddenKeepHotkeys = false
     @AppStorage(SettingsKey.clipboardToFile) private var clipboardToFile = false
     @AppStorage(SettingsKey.clipboardToFileAsk) private var clipboardToFileAsk = false
     @AppStorage(SettingsKey.clipboardToFileFormat) private var clipboardToFileFormat = "txt"
@@ -101,13 +102,12 @@ struct PanelView: View {
     // its ⌘V must paste into the search, not the converter sharing this space.
     @State private var clipboardSearching = false
     @State private var languageMenuTarget: MenuPickTarget?
-    // Settings module table (a column per tab + a permanent inactive column):
     // one hand-rolled drag moves a module chip between/within columns; a header
     // drag reorders whole tab columns. Column and chip frames are measured in
     // the "modTable" coordinate space so a drop resolves to a column + index.
     @State private var dragChip: String?                 // module key being dragged
     @State private var dragChipTranslation: CGSize = .zero
-    @State private var dropColumn: String?               // highlighted target: "inactive" or a tab uuid
+    @State private var dropColumn: String?               // highlighted target: a tab uuid
     @State private var columnFrames: [String: CGRect] = [:]
     @State private var chipFrames: [String: CGRect] = [:]
     // Chip-area frame per space column (in table space), so the insertion
@@ -1539,13 +1539,10 @@ struct PanelView: View {
         activeSpaceRaw = id.uuidString
     }
 
-    // MARK: - Settings module table (columns = tabs + inactive)
+    // MARK: - Settings module table (columns = tabs)
 
     private static let tableCoordinateSpace = "modTable"
 
-    /// Frames of the drop columns (tab uuid string / "inactive") and of the
-    /// module chips, measured in the table's coordinate space so a drag can be
-    /// resolved to a target column and an insert index.
     private struct ColumnFrameKey: PreferenceKey {
         static let defaultValue: [String: CGRect] = [:]
         static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
@@ -1574,7 +1571,7 @@ struct PanelView: View {
         let headerDragging = dragHeaderTab == tab.id
         return VStack(spacing: 8) {
             tabColumnHeader(tab, number: number)
-            columnChips(keys: tab.moduleKeys, columnID: tab.id.uuidString, inactive: false)
+            columnChips(keys: tab.moduleKeys, columnID: tab.id.uuidString)
         }
         .frame(maxWidth: .infinity, alignment: .top)
         .padding(6)
@@ -1659,41 +1656,12 @@ struct PanelView: View {
         .gesture(headerDragGesture(tab.id))
     }
 
-    /// The permanent inactive bucket, now the FIRST COLUMN of the table (it was a
-    /// full-width bottom section before, 21b8a51). A visually distinct "storage"
-    /// column: a subdued gray fill and a dashed border set it apart from the tab
-    /// columns (clear fill, solid border), so it reads as a holding area, not a
-    /// space. Its chips stack and dim like any hidden module; a drag into it
-    /// highlights and shows the same per-slot insertion line as the space
-    /// columns, and dropping here hides the module — that IS the visibility
-    /// control. The header is a plain "inactive" label (no icon, no delete, not
-    /// draggable). The 26pt header height matches `tabColumnHeader`, so the chip
-    /// areas line up across every column.
-    private var inactiveColumn: some View {
-        VStack(spacing: 8) {
-            Text(t(.modulesInactive))
-                .font(Theme.mono(10, weight: .semibold))
-                .foregroundStyle(Theme.textTertiary)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(height: 26)
-            columnChips(keys: tabsModel.inactive, columnID: "inactive", inactive: true)
-        }
-        .frame(maxWidth: .infinity, alignment: .top)
-        .padding(6)
-        .background(dropColumn == "inactive" ? Theme.chipBg : Theme.rowBg,
-                    in: RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8)
-            .stroke(Theme.divider, style: StrokeStyle(lineWidth: 1, dash: [3, 3])))
-        .background(columnFrameReader("inactive"))
-    }
-
     /// The stacked module chips of one column. An empty column keeps a small
     /// clear area so it is still a reachable drop target.
-    private func columnChips(keys: [String], columnID: String, inactive: Bool) -> some View {
+    private func columnChips(keys: [String], columnID: String) -> some View {
         VStack(spacing: 6) {
             ForEach(keys, id: \.self) { key in
-                moduleChip(key, inactive: inactive)
+                moduleChip(key)
             }
             if keys.isEmpty {
                 Color.clear.frame(height: 26)
@@ -1703,18 +1671,27 @@ struct PanelView: View {
         .background(chipAreaReader(columnID))
     }
 
-    /// A draggable module chip. Dragging it reports a live drop-column highlight
-    /// and, on release, moves the module into that column at the pointer's row.
-    private func moduleChip(_ key: String, inactive: Bool) -> some View {
+    private func moduleChip(_ key: String) -> some View {
         let dragging = dragChip == key
         let shelf = AppShelves.shelfID(fromModuleKey: key)
+        let hidden = tabsModel.isHidden(key)
         return HStack(spacing: 4) {
             Text(moduleTitle(key))
                 .font(Theme.mono(11))
-                .foregroundStyle(inactive ? Theme.textTertiary : Theme.textPrimary)
+                .foregroundStyle(hidden ? Theme.textTertiary : Theme.textPrimary)
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .leading)
+            Button { setModuleHidden(key, !hidden) } label: {
+                Image(systemName: hidden ? "eye.slash" : "eye")
+                    .font(.system(size: 9))
+                    .foregroundStyle(hidden ? Theme.textTertiary : Theme.textSecondary)
+                    .frame(width: 14, height: 13)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
+            .help(t(hidden ? .moduleShow : .featureHide))
             // Grids of apps are the only modules that can cease to exist — every
             // other one can be hidden but never deleted — so they are the only
             // chips carrying a ✕. The slot is reserved whether or not the chip is
@@ -1800,18 +1777,12 @@ struct PanelView: View {
         }
     }
 
-    /// The drop target a point falls in. "inactive" is the FIRST column again
-    /// (not a bottom band), so a plain column hit-test does the job: containment
-    /// wins, else nearest by X. No vertical-band special case, no exclusion of
-    /// inactive. Lives in `SettingsDropGeometry` (tested). The "+" tile is not in
-    /// `columnFrames`, so it is never a target.
+    /// SPEC: `SettingsDropGeometry` — the "+" tile is never a target.
     private func columnID(at point: CGPoint) -> String? {
         SettingsDropGeometry.columnID(at: point, frames: columnFrames)
     }
 
-    /// The ordered module keys of a drop target (`"inactive"` or a tab uuid).
     private func columnKeys(_ columnID: String) -> [String] {
-        if columnID == "inactive" { return tabsModel.inactive }
         guard let uuid = UUID(uuidString: columnID) else { return [] }
         return tabsModel.tabs.first { $0.id == uuid }?.moduleKeys ?? []
     }
@@ -1819,8 +1790,7 @@ struct PanelView: View {
     /// Insert index for `key` dropped at `point` in `columnID`, ignoring `key`
     /// itself. THE single resolver: both the live insertion indicator and the
     /// committed drop call it, so the line can never disagree with the landing
-    /// spot. Every column stacks vertically now (inactive included), so there is
-    /// one shared stacked resolver — no per-column flow.
+    /// spot.
     private func insertIndex(for key: String, in columnID: String, at point: CGPoint) -> Int {
         // Thin wrapper: hand the frame dictionary and point to the pure resolver.
         SettingsDropGeometry.insertIndex(
@@ -1847,22 +1817,12 @@ struct PanelView: View {
             }
     }
 
-    /// Resolve a chip release to a column + insert index and write it through the
-    /// tabs model. Same helper handles cross-column moves and same-column
-    /// reorders: `placeModule`/`deactivateModule` both remove-then-insert.
     private func applyChipDrop(key: String, to columnID: String?, at point: CGPoint) {
-        guard let columnID else { return }
-        let index = insertIndex(for: key, in: columnID, at: point)
-        if columnID == "inactive" {
-            deactivateModule(key, at: index)
-        } else if let uuid = UUID(uuidString: columnID) {
-            placeModule(key, onTab: uuid, at: index)
-        }
+        guard let columnID, let uuid = UUID(uuidString: columnID) else { return }
+        placeModule(key, onTab: uuid, at: insertIndex(for: key, in: columnID, at: point))
     }
 
-    /// The horizontal insertion line (table space) for a chip about to land in a
-    /// column — the inactive column shows it too now (it stacks like the rest).
-    /// Reads the slot straight from `insertIndex`, so it tracks the commit.
+    /// The line reads the same `insertIndex` the drop commits, so they agree.
     private func chipInsertionLine(column columnID: String, key: String, at point: CGPoint) -> CGRect? {
         guard let col = columnFrames[columnID] else { return nil }
         let siblings = columnKeys(columnID).filter { $0 != key }
@@ -2640,6 +2600,7 @@ struct PanelView: View {
     private static func loadTabs(panelTabsRaw: String, moduleOrder: [String]) -> PanelTabsModel {
         if let decoded = PanelTabsModel.decode(panelTabsRaw) {
             var model = decoded
+            model.liftInactiveIntoHidden()
             model.ensure(modules: allModules + ["system", "tracker", "todos"])
             // Migrate legacy visibility BEFORE seeding: a legacy
             // `showTrackerModule=false` state must deactivate the tracker
@@ -2682,21 +2643,14 @@ struct PanelView: View {
     /// recompute that still sees empty storage must produce the same hidden set,
     /// otherwise the module would flicker back visible mid-render.
     private static func deactivateOptInModules(_ model: inout PanelTabsModel) {
-        for key in optInModules where !model.inactive.contains(key) {
-            model.deactivate(module: key)
-        }
+        for key in optInModules { model.setHidden(key, hidden: true) }
     }
 
-    /// One-shot for models saved BEFORE these modules existed (real updating
-    /// users): `ensure` has just placed them on a space — move them into the
-    /// inactive bucket exactly once, then never again, so the user's own later
-    /// activation sticks. The fresh-migrate path claims the flag itself.
+    /// One-shot: hide this release's new modules once, so a later showing sticks.
     private static func seedOptInModules(_ model: inout PanelTabsModel) {
         let defaults = UserDefaults.standard
         guard !defaults.bool(forKey: SettingsKey.optInModulesSeeded170) else { return }
-        for key in newInThisRelease where !model.inactive.contains(key) {
-            model.deactivate(module: key)
-        }
+        for key in newInThisRelease { model.setHidden(key, hidden: true) }
         defaults.set(true, forKey: SettingsKey.optInModulesSeeded)
         defaults.set(true, forKey: SettingsKey.optInModulesSeeded170)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
@@ -2725,9 +2679,7 @@ struct PanelView: View {
             let on = defaults.object(forKey: toggle.key) == nil
                 ? toggle.defaultOn
                 : defaults.bool(forKey: toggle.key)
-            if !on, !model.inactive.contains(toggle.module) {
-                model.deactivate(module: toggle.module)
-            }
+            if !on { model.setHidden(toggle.module, hidden: true) }
         }
     }
 
@@ -2743,13 +2695,6 @@ struct PanelView: View {
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 
-    /// Reactivate a module from OUTSIDE a live panel (AppDelegate file-open,
-    /// onboarding): lift it out of the inactive bucket onto the first tab,
-    /// persisting straight to UserDefaults. No-op if it isn't inactive.
-    /// Puts a module the stored model has never seen onto the first space —
-    /// what a freshly minted shelf key needs, since `activateStoredModule` only
-    /// lifts a module OUT of the inactive bucket and a key nobody knows is in
-    /// neither place. Used by the snapshot renderer and by the what's-new card.
     static func introduceStoredModule(_ key: String) {
         let defaults = UserDefaults.standard
         let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
@@ -2765,29 +2710,30 @@ struct PanelView: View {
         // opened right after install, a snapshot render): materialize the
         // migrated model first, or the activation would silently no-op.
         var model = PanelTabsModel.decode(raw) ?? storedTabsModel()
-        guard model.inactive.contains(key), let first = model.tabs.first else { return }
-        model.move(module: key, toTab: first.id)
+        model.liftInactiveIntoHidden()
+        guard model.isHidden(key) else { return }
+        model.setHidden(key, hidden: false)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
         HotkeyManager.shared.refreshModuleHotkeys()
     }
 
-    /// Hide a module from OUTSIDE a live panel (onboarding): send it to the
-    /// inactive bucket. No-op if it is unknown or already inactive.
     static func deactivateStoredModule(_ key: String) {
         let defaults = UserDefaults.standard
         let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
         var model = PanelTabsModel.decode(raw) ?? storedTabsModel()
-        guard !model.inactive.contains(key) else { return }
-        model.deactivate(module: key)
+        model.liftInactiveIntoHidden()
+        guard !model.isHidden(key) else { return }
+        model.setHidden(key, hidden: true)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
         HotkeyManager.shared.refreshModuleHotkeys()
     }
 
-    /// Whether `key` currently sits in the inactive bucket (used by AppDelegate
-    /// to decide the torrent engine prefetch after onboarding).
+    /// Whether `key` is hidden right now (AppDelegate: torrent engine prefetch).
     static func storedModuleIsInactive(_ key: String) -> Bool {
         let raw = UserDefaults.standard.string(forKey: SettingsKey.panelTabs) ?? ""
-        return PanelTabsModel.decode(raw)?.inactive.contains(key) ?? false
+        guard var model = PanelTabsModel.decode(raw) else { return false }
+        model.liftInactiveIntoHidden()
+        return model.isHidden(key)
     }
 
     /// Called once, right after onboarding reconciles the fresh install's module
@@ -2963,17 +2909,12 @@ struct PanelView: View {
     private func moduleVisible(_ key: String) -> Bool {
         ModuleVisibility.isVisible(
             module: key,
-            inactive: tabsModel.inactive,
+            hidden: tabsModel.hidden,
             torrentCount: model.torrent.torrents.count,
             showTorrentWhenEmpty: torrentShowWhenEmpty)
     }
 
-    /// The single choke point for placing a module ON a tab (settings-table
-    /// drag, right-click "move to", banner enable). Lifting torrent out of the
-    /// inactive bucket is the one activation with a side effect — fetch its
-    /// engine here so no caller can forget.
     private func placeModule(_ key: String, onTab tabID: UUID, at position: Int? = nil) {
-        let wasInactive = tabsModel.inactive.contains(key)
         mutateTabs {
             if let position {
                 $0.applyDrop(module: key, toTab: tabID, at: position)   // drag: resolved index
@@ -2981,18 +2922,16 @@ struct PanelView: View {
                 $0.move(module: key, toTab: tabID)                      // menu: append
             }
         }
-        if key == "torrent", wasInactive { model.torrent.prefetchEngineIfNeeded() }
     }
 
-    /// Hide a module: send it to the permanent inactive bucket.
-    private func deactivateModule(_ key: String, at position: Int? = nil) {
-        mutateTabs {
-            if let position {
-                $0.applyDrop(moduleToInactive: key, at: position)       // drag: resolved index
-            } else {
-                $0.deactivate(module: key)                              // menu: append
-            }
-        }
+    private func setModuleHidden(_ key: String, _ hidden: Bool) {
+        mutateTabs { $0.setHidden(key, hidden: hidden) }
+        HotkeyManager.shared.refreshModuleHotkeys()
+        if key == "torrent", !hidden { model.torrent.prefetchEngineIfNeeded() }
+    }
+
+    private func deactivateModule(_ key: String) {
+        setModuleHidden(key, true)
     }
 
     private func moduleTitle(_ key: String) -> String {
@@ -3096,12 +3035,6 @@ struct PanelView: View {
         }
     }
 
-    /// A panel module wrapped with its right-click "move to …" menu: one item
-    /// per OTHER tab plus a final "inactive" destination that hides it. The wrap
-    /// lives on the module container, so a module's own inner context menus and
-    /// gestures win locally. There is always at least the "inactive" target, so
-    /// the menu is never empty. (A hidden module is simply no longer rendered,
-    /// so there is no inverse "activate" context menu — that happens in settings.)
     @ViewBuilder private func moduleBlock(_ key: String, in tabID: UUID) -> some View {
         let others = tabsModel.tabs.enumerated().filter { $0.element.id != tabID }
         moduleContent(key, in: tabID)
@@ -3109,19 +3042,21 @@ struct PanelView: View {
             // "move to / hide" menu would be lying about what it moves.
             .contextMenu {
                 if key != Self.toolsRowKey {
-                Menu(t(.moduleMoveTo).capitalizedFirst) {
-                    ForEach(others, id: \.element.id) { index, tab in
-                        Button {
-                            placeModule(key, onTab: tab.id)
-                        } label: {
-                            Label("#\(index + 1)", systemImage: tab.icon)
+                if !others.isEmpty {
+                    Menu(t(.moduleMoveTo).capitalizedFirst) {
+                        ForEach(others, id: \.element.id) { index, tab in
+                            Button {
+                                placeModule(key, onTab: tab.id)
+                            } label: {
+                                Label("#\(index + 1)", systemImage: tab.icon)
+                            }
                         }
                     }
-                    Button {
-                        deactivateModule(key)
-                    } label: {
-                        Label(t(.modulesInactive).capitalizedFirst, systemImage: "eye.slash")
-                    }
+                }
+                Button {
+                    deactivateModule(key)
+                } label: {
+                    Label(t(.featureHide).capitalizedFirst, systemImage: "eye.slash")
                 }
                 }
             }
@@ -3853,7 +3788,6 @@ struct PanelView: View {
             // Inactive is the FIRST column, then the spaces in order, then the "+"
             // add-tab tile.
             HStack(alignment: .top, spacing: 10) {
-                inactiveColumn
                 ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
                     tabColumn(tab, number: index + 1)
                 }
@@ -4067,7 +4001,6 @@ struct PanelView: View {
         }
     }
 
-    /// SPEC: docs/spec.md — the grids of apps are made and removed here.
     @ViewBuilder private var appShelvesSettings: some View {
         if !model.appShelves.shelves.shelves.isEmpty {
             VStack(spacing: 14) {
@@ -4423,20 +4356,36 @@ struct PanelView: View {
                 Spacer()
             }
             hotkeyRow(ModuleCatalog.panelAction, label: t(.hkPanel))
-            moduleHotkeyRow("timer", label: t(.hkTimer))
-            moduleHotkeyRow("awake", label: t(.hkAwake))
-            // A module's combo is only claimed while the module is visible, so
-            // its row appears on the same condition — a shortcut that silently
-            // does nothing would be worse than no row at all.
-            if moduleIsActive("color") {
-                moduleHotkeyRow("color", label: t(.hkColor))
+            ForEach(hotkeyModules, id: \.self) { key in
+                moduleHotkeyRow(key, label: hotkeyRowLabel(key))
+                    .opacity(moduleIsActive(key) || hiddenKeepHotkeys ? 1 : 0.5)
             }
-            if moduleIsActive("ocr") {
-                moduleHotkeyRow("ocr", label: t(.ocrLabel))
-            }
-            if moduleIsActive("keyboard") {
-                moduleHotkeyRow("keyboard", label: t(.keylockLabel))
-            }
+
+            Rectangle().fill(Theme.divider).frame(height: 1).padding(.vertical, 4)
+
+            switchSetting(t(.hkHiddenKeep), isOn: $hiddenKeepHotkeys)
+            Text(t(.hkHiddenKeepNote))
+                .font(Theme.mono(8))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .onChange(of: hiddenKeepHotkeys) { _, _ in
+            HotkeyManager.shared.refreshModuleHotkeys()
+        }
+    }
+
+    private var hotkeyModules: [String] {
+        ModuleCatalog.modules
+            .filter { $0.openAction.map { hotkeys.hasHandler($0) } ?? false }
+            .map(\.id)
+    }
+
+    private func hotkeyRowLabel(_ module: String) -> String {
+        switch module {
+        case "timer": return t(.hkTimer)
+        case "awake": return t(.hkAwake)
+        default: return moduleTitle(module)
         }
     }
 
