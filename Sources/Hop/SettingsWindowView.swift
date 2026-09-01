@@ -60,6 +60,17 @@ struct SettingsCard<Content: View>: View {
     }
 }
 
+/// The hairline between two rows of a card: a page of switches is read line by
+/// line, and a line needs an edge to be read along.
+struct SettingsRule: View {
+    var body: some View {
+        Rectangle()
+            .fill(Theme.divider)
+            .frame(height: 1)
+            .padding(.vertical, -2)
+    }
+}
+
 /// The caption above a card: what the group of settings is.
 struct SettingsGroupLabel: View {
     let title: String

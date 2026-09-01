@@ -3563,6 +3563,7 @@ struct PanelView: View {
                     switchSetting(t(.showInPanel), isOn: Binding(
                         get: { moduleIsActive(key) },
                         set: { setModuleHidden(key, !$0) }))
+                    SettingsRule()
                 }
                 moduleSettings(key)
             }
@@ -3650,6 +3651,7 @@ struct PanelView: View {
             }
 
 
+            SettingsRule()
             HStack {
                 Text(t(.language))
                     .font(Theme.mono(12))
@@ -3657,6 +3659,7 @@ struct PanelView: View {
                 Spacer()
                 languageDropdown
             }
+            SettingsRule()
 
             HStack {
                 Text(t(.launchAtLogin))
@@ -3672,6 +3675,7 @@ struct PanelView: View {
                 launchAtLogin = SMAppService.mainApp.status == .enabled
             }
 
+            SettingsRule()
             soundsSettings
             }
 
@@ -3689,8 +3693,9 @@ struct PanelView: View {
                 appIconChip(dark: true)
             }
 
+            SettingsRule()
             // colour the menu-bar icon's corner badges; off = monochrome, shape
-            // tells the same-corner pairs apart (see the info-window legend)
+            // tells the same-corner pairs apart
             HStack {
                 Text(t(.coloredIndicators))
                     .font(Theme.mono(12))
@@ -3699,6 +3704,7 @@ struct PanelView: View {
                 Theme.MiniSwitch(isOn: $coloredIndicators)
             }
 
+            SettingsRule()
             // a Dock icon while one of Hop's own windows is open, so the window
             // can be reached without opening the panel first. OFF keeps Hop out
             // of the Dock entirely, which is why some people run a menu-bar app
@@ -4307,6 +4313,7 @@ struct PanelView: View {
         VStack(alignment: .leading, spacing: 10) {
             SettingsCard {
                 hotkeyRow(ModuleCatalog.panelAction, label: t(.hkPanel))
+                SettingsRule()
                 ForEach(hotkeyModules, id: \.self) { key in
                     moduleHotkeyRow(key, label: hotkeyRowLabel(key))
                         .opacity(moduleIsActive(key) || hiddenKeepHotkeys ? 1 : 0.5)
@@ -4318,6 +4325,7 @@ struct PanelView: View {
             SettingsCard {
                 switchSetting(t(.windowsHotkeysLabel), isOn: $windowsHotkeysOn)
                 if windowsHotkeysOn {
+                    SettingsRule()
                     // eighteen zones in one column is a page of scrolling; two
                     // columns keep the whole set in view
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .leading),
