@@ -108,8 +108,11 @@ struct SettingsSidebar: View {
                     .frame(width: 16)
                 Text(item.title)
                     .font(Theme.mono(11))
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+                    // two lines rather than an ellipsis: the longest module
+                    // names in de/fr do not fit 220pt on one
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.leading)
                 Spacer(minLength: 0)
             }
             .foregroundStyle(selected ? Theme.textPrimary : Theme.textSecondary)

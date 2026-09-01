@@ -208,7 +208,8 @@ language, launch, sounds, app icon, the `colored indicators` toggle for the
 menu-bar badges, the Dock switch), "modules & tabs" for the panel layout,
 "hotkeys", "app permissions" and "updates" — then every module of
 `ModuleCatalog` in panel order, each with its icon and name
-(`ModulePresentation`). A module's page carries its heading with a one-line
+(`ModulePresentation`). A row wraps onto a second line rather than truncating:
+the longest module names in German and French do not fit 220pt on one. A module's page carries its heading with a one-line
 "what it is for" (`purpose*`, ×22 — the onboarding cards will read the same
 keys), its own options (`moduleSettings`, keyed by the same identifier), the
 hotkey of its "open" action — but only when something answers that key, since a
