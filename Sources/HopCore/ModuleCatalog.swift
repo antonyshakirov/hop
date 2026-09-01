@@ -1,7 +1,7 @@
 import Foundation
 
 /// A key combination as Carbon stores it, spelled out so HopCore needs no Carbon import.
-public struct ModuleCombo: Equatable, Sendable {
+public struct ModuleCombo: Equatable, Hashable, Sendable {
     public static let control: UInt32 = 0x1000
     public static let option: UInt32 = 0x0800
     public static let shift: UInt32 = 0x0200
@@ -17,7 +17,7 @@ public struct ModuleCombo: Equatable, Sendable {
 }
 
 /// One thing a hotkey can do: `defaultCombo` nil means nothing is claimed until the user picks one.
-public struct ModuleAction: Equatable, Sendable {
+public struct ModuleAction: Equatable, Hashable, Sendable {
     public let id: String
     public let storageKey: String
     public let hotKeyID: UInt32
@@ -32,7 +32,7 @@ public struct ModuleAction: Equatable, Sendable {
 }
 
 /// One module of the panel, as data: identity, how it ships, and what it can be asked to do.
-public struct ModuleEntry: Equatable, Sendable {
+public struct ModuleEntry: Equatable, Hashable, Sendable {
     public let id: String
     public let hiddenOnFirstRun: Bool
     public let actions: [ModuleAction]
@@ -42,6 +42,9 @@ public struct ModuleEntry: Equatable, Sendable {
         self.hiddenOnFirstRun = hiddenOnFirstRun
         self.actions = actions
     }
+
+    /// The action every module has: show the module to the user.
+    public var openAction: ModuleAction? { actions.first { $0.id == "open" } }
 }
 
 /// SPEC: hop-private/specs/2026-09-01-settings-window-design.md — the one list of modules.
@@ -111,6 +114,16 @@ public enum ModuleCatalog {
 
     public static func module(_ id: String) -> ModuleEntry? {
         modules.first { $0.id == id }
+    }
+
+    /// The "open" action of one module, or nil when no such module exists.
+    public static func open(_ id: String) -> ModuleAction? {
+        module(id)?.openAction
+    }
+
+    /// Every action the app can register, the panel's own included.
+    public static var allActions: [ModuleAction] {
+        [panelAction] + modules.flatMap(\.actions)
     }
 
     public static var allIDs: [String] { modules.map(\.id) }

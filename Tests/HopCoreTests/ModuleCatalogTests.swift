@@ -53,4 +53,24 @@ final class ModuleCatalogTests: XCTestCase {
         let hidden = ModuleCatalog.modules.filter(\.hiddenOnFirstRun).map(\.id)
         XCTAssertEqual(Set(hidden), ["color", "ocr", "vpn"])
     }
+
+    func testStorageKeysAreUniqueSoTwoActionsCannotShareASavedCombo() {
+        var keys = ModuleCatalog.modules.flatMap(\.actions).map(\.storageKey)
+        keys.append(ModuleCatalog.panelAction.storageKey)
+        XCTAssertEqual(Set(keys).count, keys.count)
+    }
+
+    func testAnActionIsItsOwnIdentityInASet() throws {
+        let all = ModuleCatalog.modules.flatMap(\.actions)
+        let actions = Set(all)
+        XCTAssertEqual(actions.count, all.count)
+        XCTAssertTrue(actions.contains(try XCTUnwrap(ModuleCatalog.open("timer"))))
+        XCTAssertFalse(actions.contains(ModuleCatalog.panelAction))
+    }
+
+    func testTheOpenActionIsReachableByModuleIdentifier() {
+        XCTAssertEqual(ModuleCatalog.open("timer"), ModuleCatalog.module("timer")?.openAction)
+        XCTAssertEqual(ModuleCatalog.open("timer")?.storageKey, "hotkey_timer")
+        XCTAssertNil(ModuleCatalog.open("nothing-of-the-sort"))
+    }
 }

@@ -8,48 +8,6 @@ import HopCore
 final class HotkeyManager: ObservableObject {
     static let shared = HotkeyManager()
 
-    enum Action: String, CaseIterable, Identifiable {
-        case panel, timer, awake, color, ocr, keyboardLock
-
-        var id: String { rawValue }
-        var storageKey: String { "hotkey_\(rawValue)" }
-        var hotKeyID: UInt32 {
-            switch self {
-            case .panel: return 1
-            case .timer: return 2
-            case .awake: return 3
-            case .color: return 4
-            case .ocr: return 5
-            case .keyboardLock: return 6
-            }
-        }
-
-        /// Unconventional defaults: ⌃⌥ combos are almost always free.
-        var defaultCombo: Combo {
-            switch self {
-            case .panel: return Combo(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(controlKey | optionKey))
-            case .timer: return Combo(keyCode: UInt32(kVK_ANSI_T), modifiers: UInt32(controlKey | optionKey))
-            case .awake: return Combo(keyCode: UInt32(kVK_ANSI_W), modifiers: UInt32(controlKey | optionKey))
-            case .color: return Combo(keyCode: UInt32(kVK_ANSI_P), modifiers: UInt32(controlKey | optionKey))
-            case .ocr: return Combo(keyCode: UInt32(kVK_ANSI_R), modifiers: UInt32(controlKey | optionKey))
-            case .keyboardLock: return Combo(keyCode: UInt32(kVK_ANSI_X), modifiers: UInt32(controlKey | optionKey))
-            }
-        }
-
-        /// An action that belongs to ONE module: the combo is claimed only while
-        /// that module is visible. Taking a global combo away from other apps for
-        /// a module the user keeps hidden would be rude — and these modules ship
-        /// hidden. nil means "always registered" (panel, timer, awake).
-        var moduleKey: String? {
-            switch self {
-            case .color: return "color"
-            case .ocr: return "ocr"
-            case .keyboardLock: return "keyboard"
-            default: return nil
-            }
-        }
-    }
-
     struct Combo: Equatable {
         var keyCode: UInt32
         var modifiers: UInt32 // Carbon flags
@@ -67,6 +25,10 @@ final class HotkeyManager: ObservableObject {
                   let mods = UInt32(parts[0]), let code = UInt32(parts[1])
             else { return nil }
             self.init(keyCode: code, modifiers: mods)
+        }
+
+        init(_ combo: ModuleCombo) {
+            self.init(keyCode: combo.keyCode, modifiers: combo.modifiers)
         }
 
         init?(event: NSEvent) {
@@ -114,7 +76,7 @@ final class HotkeyManager: ObservableObject {
     }
 
     /// Combos that failed to register (taken by the system/other apps).
-    @Published private(set) var conflicts: Set<Action> = []
+    @Published private(set) var conflicts: Set<ModuleAction> = []
 
     // MARK: - Window zone hotkeys
 
@@ -172,44 +134,41 @@ final class HotkeyManager: ObservableObject {
 
     private var handlers: [UInt32: () -> Void] = [:]
     private var refs: [UInt32: EventHotKeyRef] = [:]
+    private var claimed: [UInt32: Combo] = [:]
     private var handlerInstalled = false
 
-    func combo(for action: Action) -> Combo {
+    /// The combination an action answers to; nil while it has none.
+    func combo(for action: ModuleAction) -> Combo? {
         if let raw = UserDefaults.standard.string(forKey: action.storageKey),
            let combo = Combo(storage: raw) {
             return combo
         }
-        return action.defaultCombo
+        guard let fallback = action.defaultCombo else { return nil }
+        return Combo(fallback)
     }
 
     @discardableResult
-    func setCombo(_ combo: Combo, for action: Action) -> Bool {
+    func setCombo(_ combo: Combo, for action: ModuleAction) -> Bool {
         UserDefaults.standard.set(combo.storage, forKey: action.storageKey)
-        // A module's combo is only claimed while the module is visible: recording
-        // one for a hidden module stores the choice without stealing it globally.
-        guard let module = action.moduleKey else { return register(action) }
-        guard Self.activeModules().contains(module) else { return true }
+        guard Self.registrableActions().contains(action) else { return true }
         return register(action)
     }
 
-    func setHandler(_ action: Action, _ handler: @escaping () -> Void) {
+    func setHandler(_ action: ModuleAction, _ handler: @escaping () -> Void) {
         installIfNeeded()
         handlers[action.hotKeyID] = handler
-        if action.moduleKey == nil {
-            _ = register(action)
-        } else {
-            refreshModuleHotkeys()
-        }
+        refreshModuleHotkeys()
     }
 
-    /// Claim (or release) every module-gated combo according to what is visible
-    /// right now. Called at launch and after any change to the module layout.
+    /// SPEC: docs/spec.md, "Which combination may be claimed".
     func refreshModuleHotkeys() {
         installIfNeeded()
-        let active = Self.activeModules()
-        for action in Action.allCases {
-            guard let module = action.moduleKey else { continue }
-            if active.contains(module) {
+        let allowed = Self.registrableActions()
+        for action in ModuleCatalog.allActions {
+            let claimable = allowed.contains(action)
+                && handlers[action.hotKeyID] != nil
+                && combo(for: action) != nil
+            if claimable {
                 _ = register(action)
             } else {
                 unregister(action)
@@ -217,16 +176,28 @@ final class HotkeyManager: ObservableObject {
         }
     }
 
-    /// Modules currently sitting on a space (visibility is membership). An
-    /// undecodable or missing layout means the app hasn't migrated yet — the
-    /// gated modules all ship hidden, so nothing is claimed until it has.
-    private static func activeModules() -> Set<String> {
-        let raw = UserDefaults.standard.string(forKey: SettingsKey.panelTabs) ?? ""
-        guard let model = PanelTabsModel.decode(raw) else { return [] }
-        return Set(model.tabs.flatMap(\.moduleKeys))
+    private static func registrableActions() -> Set<ModuleAction> {
+        Set(HotkeyActivation.registrable(
+            hidden: hiddenModules(),
+            hiddenKeepHotkeys: UserDefaults.standard.bool(forKey: SettingsKey.hiddenModulesKeepHotkeys)
+        ))
     }
 
-    private func unregister(_ action: Action) {
+    /// What the panel does not show right now — SPEC: docs/spec.md, "Which
+    /// combination may be claimed".
+    private static func hiddenModules() -> Set<String> {
+        let raw = UserDefaults.standard.string(forKey: SettingsKey.panelTabs) ?? ""
+        guard let model = PanelTabsModel.decode(raw) else {
+            return Set(ModuleCatalog.modules.filter(\.hiddenOnFirstRun).map(\.id))
+        }
+        let placed = Set(model.tabs.flatMap(\.moduleKeys))
+        return model.hidden
+            .union(model.inactive)
+            .union(ModuleCatalog.allIDs.filter { !placed.contains($0) })
+    }
+
+    private func unregister(_ action: ModuleAction) {
+        claimed[action.hotKeyID] = nil
         guard let ref = refs[action.hotKeyID] else { return }
         UnregisterEventHotKey(ref)
         refs[action.hotKeyID] = nil
@@ -234,12 +205,14 @@ final class HotkeyManager: ObservableObject {
     }
 
     @discardableResult
-    private func register(_ action: Action) -> Bool {
+    private func register(_ action: ModuleAction) -> Bool {
+        guard let combo = combo(for: action) else { return false }
+        // Re-registering an unchanged combo hands it to other apps for that instant.
+        if claimed[action.hotKeyID] == combo, refs[action.hotKeyID] != nil { return true }
         if let existing = refs[action.hotKeyID] {
             UnregisterEventHotKey(existing)
             refs[action.hotKeyID] = nil
         }
-        let combo = combo(for: action)
         var ref: EventHotKeyRef?
         let id = EventHotKeyID(signature: OSType(0x4D4E4D4F), id: action.hotKeyID) // 'MNMO'
         let status = RegisterEventHotKey(
@@ -247,9 +220,11 @@ final class HotkeyManager: ObservableObject {
         )
         if status == noErr, let ref {
             refs[action.hotKeyID] = ref
+            claimed[action.hotKeyID] = combo
             conflicts.remove(action)
             return true
         }
+        claimed[action.hotKeyID] = nil
         conflicts.insert(action) // taken by another application
         return false
     }

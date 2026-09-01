@@ -250,33 +250,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         startAgentBridge()
 
         let hotkeys = HotkeyManager.shared
-        hotkeys.setHandler(.panel) { [weak self] in
+        hotkeys.setHandler(ModuleCatalog.panelAction) { [weak self] in
             self?.statusController?.togglePanel()
         }
-        hotkeys.setHandler(.timer) { [weak self] in
-            self?.model.activity.note()
-            self?.model.engine.toggle()
-        }
-        hotkeys.setHandler(.awake) { [weak self] in
-            guard let awake = self?.model.keepAwake else { return }
-            self?.model.activity.note()
-            if awake.isActive {
-                awake.deactivate()
-            } else if let longest = KeepAwakeController.options.last {
-                awake.activate(longest)
-            }
-        }
-        hotkeys.setHandler(.color) { [weak self] in
-            self?.model.activity.note()
-            self?.model.colorPicker.pick()
-        }
-        hotkeys.setHandler(.ocr) { [weak self] in
-            self?.model.activity.note()
-            self?.model.screenText.capture()
-        }
-        hotkeys.setHandler(.keyboardLock) { [weak self] in
-            self?.model.activity.note()
-            self?.model.keyboardLock.lock()
+        for (module, handler) in moduleHotkeyHandlers() {
+            guard let action = ModuleCatalog.open(module) else { continue }
+            hotkeys.setHandler(action, handler)
         }
         // Register the window-snap zone hotkeys ONCE at launch (they were only
         // registered on the first keep-awake keypress — the misplaced call above —
@@ -462,6 +441,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             await model.torrent.restore()
         }
+    }
+
+    /// What a module's "open" hotkey does, keyed by the catalog's module id. A
+    /// module missing here answers no key: nothing is registered without a handler.
+    private func moduleHotkeyHandlers() -> [String: () -> Void] {
+        [
+            "timer": { [weak self] in
+                self?.model.activity.note()
+                self?.model.engine.toggle()
+            },
+            "awake": { [weak self] in
+                guard let awake = self?.model.keepAwake else { return }
+                self?.model.activity.note()
+                if awake.isActive {
+                    awake.deactivate()
+                } else if let longest = KeepAwakeController.options.last {
+                    awake.activate(longest)
+                }
+            },
+            "color": { [weak self] in
+                self?.model.activity.note()
+                self?.model.colorPicker.pick()
+            },
+            "ocr": { [weak self] in
+                self?.model.activity.note()
+                self?.model.screenText.capture()
+            },
+            "keyboard": { [weak self] in
+                self?.model.activity.note()
+                self?.model.keyboardLock.lock()
+            },
+        ]
     }
 
     private func showSettingsWindow() {

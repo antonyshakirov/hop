@@ -1717,8 +1717,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `ClipboardController.remember(external:)` / `remember(color:text:)`, which also
   stamp the pasteboard change counter, so Hop's own write never comes back a
   second later as a foreign copy and a duplicate row.
-- Hotkey `⌃⌥P` (`HotkeyManager.Action.color`). A module-gated combo is claimed
-  ONLY while its module is visible (`Action.moduleKey` +
+- Hotkey `⌃⌥P` (the "open" action of the `color` module in `ModuleCatalog`). A
+  combo is claimed ONLY while its module is visible (`HotkeyActivation` +
   `refreshModuleHotkeys()`, called at launch and after every layout change):
   taking a global shortcut away from other apps for a hidden module would be
   rude. Its settings row appears on the same condition.
@@ -3053,6 +3053,22 @@ its own database of known apps may do better on real software than it did here.
 - `Hop` (executable): SwiftUI panel, 5×7 dot font on Canvas,
   settings in UserDefaults, signals (NSSound Glass + UNUserNotificationCenter,
   notifications only work from the .app bundle).
+- **One list of modules** — `HopCore.ModuleCatalog`: identity, whether a module
+  ships hidden, and what it can be asked to do (every module has an "open"
+  action). The hotkey manager reads it instead of spelling the sixteen modules
+  out a second time. The storage keys of the six actions that had one
+  (`hotkey_panel`, `hotkey_timer`, `hotkey_awake`, `hotkey_color`, `hotkey_ocr`,
+  `hotkey_keyboardLock`) never change — saved combinations hang on them; the
+  actions added with the catalog ship with no combination, because claiming
+  sixteen global shortcuts on somebody's behalf is rude.
+- **Which combination may be claimed** — `HopCore.HotkeyActivation.registrable`:
+  the panel's own always, a module's only while the module is visible, unless
+  `hiddenModulesKeepHotkeys` lets hidden modules answer anyway (off by default,
+  no UI until the hotkeys page exists). Hidden means what the panel does not
+  show: the layout's `hidden` set, the legacy `inactive` bucket it is migrating
+  from, and any module sitting on no space at all. `HotkeyManager` claims
+  nothing for an action with no handler — a global shortcut that swallows the
+  key and does nothing is worse than no shortcut.
 - Full cycle after EVERY change: `swift build` (0 warnings) →
   `swift test` → `--l10n-check` → `./scripts/build-app.sh --install`,
   check in both themes.

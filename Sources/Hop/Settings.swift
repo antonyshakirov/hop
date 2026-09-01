@@ -118,6 +118,10 @@ enum SettingsKey {
     /// Which day the week starts on in the reminder's weekday row: "auto" follows
     /// the system's region, and the two explicit values override it.
     static let firstWeekday = "firstWeekday"
+    /// Hidden modules answer their hotkeys anyway. OFF by default: hiding a
+    /// module hands its combination back to other applications.
+    /// SPEC: hop-private/specs/2026-09-01-settings-window-design.md
+    static let hiddenModulesKeepHotkeys = "hiddenModulesKeepHotkeys"
 
     /// Defaults that are not `false`/nil/0. Registered once at launch.
     static let registeredDefaults: [String: Any] = [

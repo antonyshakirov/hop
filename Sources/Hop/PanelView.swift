@@ -194,7 +194,7 @@ struct PanelView: View {
     @State private var newCycleRounds = 4
     @State private var lastDisplayTap = Date.distantPast
     @State private var chosenPreset: Int?
-    @State private var recordingHotkey: HotkeyManager.Action?
+    @State private var recordingHotkey: ModuleAction?
     @State private var hotkeyMonitor: Any?
     @ObservedObject private var hotkeys = HotkeyManager.shared
     @AppStorage(Sounds.enabledKey) private var appSoundsOn = true
@@ -4473,20 +4473,20 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textTertiary)
                 Spacer()
             }
-            hotkeyRow(.panel, label: t(.hkPanel))
-            hotkeyRow(.timer, label: t(.hkTimer))
-            hotkeyRow(.awake, label: t(.hkAwake))
+            hotkeyRow(ModuleCatalog.panelAction, label: t(.hkPanel))
+            moduleHotkeyRow("timer", label: t(.hkTimer))
+            moduleHotkeyRow("awake", label: t(.hkAwake))
             // A module's combo is only claimed while the module is visible, so
             // its row appears on the same condition — a shortcut that silently
             // does nothing would be worse than no row at all.
             if moduleIsActive("color") {
-                hotkeyRow(.color, label: t(.hkColor))
+                moduleHotkeyRow("color", label: t(.hkColor))
             }
             if moduleIsActive("ocr") {
-                hotkeyRow(.ocr, label: t(.ocrLabel))
+                moduleHotkeyRow("ocr", label: t(.ocrLabel))
             }
             if moduleIsActive("keyboard") {
-                hotkeyRow(.keyboardLock, label: t(.keylockLabel))
+                moduleHotkeyRow("keyboard", label: t(.keylockLabel))
             }
         }
     }
@@ -4528,7 +4528,14 @@ struct PanelView: View {
         tabsModel.tabID(containing: key) != nil
     }
 
-    private func hotkeyRow(_ action: HotkeyManager.Action, label: String) -> some View {
+    @ViewBuilder
+    private func moduleHotkeyRow(_ module: String, label: String) -> some View {
+        if let action = ModuleCatalog.open(module) {
+            hotkeyRow(action, label: label)
+        }
+    }
+
+    private func hotkeyRow(_ action: ModuleAction, label: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack {
                 Text(label)
@@ -4538,7 +4545,7 @@ struct PanelView: View {
                 Button {
                     startRecording(action)
                 } label: {
-                    Text(recordingHotkey == action ? t(.hkRecord) : hotkeys.combo(for: action).display)
+                    Text(recordingHotkey == action ? t(.hkRecord) : (hotkeys.combo(for: action)?.display ?? "—"))
                         .font(Theme.mono(11, weight: .semibold))
                         .foregroundStyle(recordingHotkey == action ? Theme.editing : Theme.textPrimary)
                         .frame(minWidth: 64)
@@ -4560,7 +4567,7 @@ struct PanelView: View {
     }
 
     /// Recorder: the next keypress with modifiers becomes the combo.
-    private func startRecording(_ action: HotkeyManager.Action) {
+    private func startRecording(_ action: ModuleAction) {
         if let monitor = hotkeyMonitor {
             NSEvent.removeMonitor(monitor)
             hotkeyMonitor = nil
