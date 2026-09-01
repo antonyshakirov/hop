@@ -1755,8 +1755,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `rectangle.dashed` because the row's icons have to match each other: a
   landscape marquee tall enough to match the boxed arrow beside it ran half
   again as wide, and width is what reads as "bigger". At 12.5 the square one
-  draws 11.3 × 12.0 pt — the arrow's own box. Same glyph in the panel row, in
-  the window's button and in the help legend.
+  draws 11.3 × 12.0 pt — the arrow's own box. Same glyph in the panel row and in
+  the window's button.
 - **Languages: Vision detects the script itself** (fixed 2026-07-28). The
   request used to name the INTERFACE language plus English and nothing else, so
   anything not written in Latin came back as garbage — the Mori Art Museum's
@@ -2082,7 +2082,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Measured on four documents: same markdown out, 1.3× to 8.4× less time in,
   the spread being how much work a document's fonts give macOS — a page whose
   fonts it has to substitute cost 15 ms to lay out and 0.3 ms to walk.
-- Honest limits stated in the UI (`convDocNote`) and the help, not hidden: Word
+- Honest limits stated in the UI (`convDocNote`) and the guide, not hidden: Word
   columns, footnotes and headers are lost; PDF → md is text extraction with
   heading guesses, not a faithful conversion.
 - `isVerticallyCentered = false` on the print info: AppKit centres a PARTIAL
@@ -2197,8 +2197,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   bundle-less process (a snapshot render throws otherwise). A row offers its
   System Settings deep link only when the permission is NOT granted.
 - The same list, condensed, is a README section (all 22 languages) and a FAQ
-  answer on the landing (all 8). The general help tab points at the tab by name,
-  because a permission page nobody finds explains nothing (Anton, 2026-07-26).
+  answer on the landing (all 8).
 - The page CLOSES with a statement, set larger and bolder than anything above
   it: the permissions exist so features can work, nothing about the user is
   collected, nothing leaves the Mac — and, because a promise is worth little,
@@ -2996,7 +2995,7 @@ its own database of known apps may do better on real software than it did here.
   keeps its own row whatever this setting says.
 - Each part is an icon and a SINGLE word ("converter", "archives"). The full names
   do not fit side by side on a 340pt row in any language, least of all in German;
-  they stay in the tooltip, in settings and in the help.
+  they stay in the tooltip and in settings.
 - The row is drawn where the FIRST of the two sits in that space's order, and the
   other drops out of the drawn list. Nothing is stored: the spaces model keeps
   holding the real module keys, so switching the setting back changes nothing
@@ -3498,11 +3497,9 @@ playback.
 - Compact timer transport tracks the DIGIT SIZE setting, not the layout:
   small digits → play/pause 27pt (icon 10) and reset 21pt (icon 9);
   large digits → 34pt/26pt as before.
-- Settings → general → "resize windows with hotkeys": under the toggle sits a
-  legend "zone glyph + ⌃⌥ key", four columns (shared `snapHotkeyItems` list with the
-  help tab legend), replacing the old cryptic symbols-only caption.
-- Help → general no longer ends with the "hop — and it's done…" closing
-  line: it duplicated the page (removed in all 22 languages).
+- The windows module page → "resize windows with hotkeys": under the toggle sits
+  a legend "zone glyph + ⌃⌥ key", four columns (`snapHotkeyItems`), replacing the
+  old cryptic symbols-only caption.
 - App icon (Finder/Applications): dark or light chip with the REAL icon
   previews, light is the default; "auto" removed. The row sits after the
   updates section, away from the theme picker (it kept reading as part of
