@@ -373,7 +373,7 @@ verifiziert.
 ## Berechtigungen
 
 Hop fragt eine Berechtigung erst dann ab, wenn die zugehörige Funktion wirklich
-benutzt wird; das Infofenster listet alle mit ihrem aktuellen Stand auf:
+benutzt wird; das Einstellungsfenster listet alle mit ihrem aktuellen Stand auf:
 
 - **Netzwerk — antonshakirov.com** — Updates suchen und laden, dazu die zwei
   optionalen Helfer (Torrent-Engine und 7-Zip-Archivierer)
@@ -398,8 +398,8 @@ Zwischenablage, erfasste Zeit, die Aufgabenliste, erkannter Text und Farben.
 
 Jede Berechtigung oben ist dafür da, dass eine Funktion arbeitet — und für
 nichts sonst. Du musst das nicht glauben: Hop ist Open Source, den sammelnden
-Code gibt es schlicht nicht — lies ihn in diesem Repository. Im Infofenster der
-App gibt es den Tab «App-Berechtigungen» mit derselben Liste und dem aktuellen
+Code gibt es schlicht nicht — lies ihn in diesem Repository. Im Einstellungsfenster der
+App gibt es den Bereich «App-Berechtigungen» mit derselben Liste und dem aktuellen
 Stand jeder einzelnen.
 
 Website: [hop.tools](https://hop.tools)

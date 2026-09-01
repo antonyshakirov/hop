@@ -351,7 +351,7 @@ có chữ ký và được xác minh bằng chữ ký Ed25519 trước khi cài 
 
 ## Quyền
 
-Hop chỉ xin quyền khi bạn thật sự dùng tính năng cần đến nó, và cửa sổ thông tin
+Hop chỉ xin quyền khi bạn thật sự dùng tính năng cần đến nó, và cửa sổ cài đặt
 của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
 
 - **mạng — antonshakirov.com** — kiểm tra và tải bản cập nhật, cùng hai trình hỗ
@@ -374,7 +374,7 @@ văn bản nhận được và những màu đã lấy.
 
 Mọi quyền ở trên chỉ để một tính năng chạy được — không vì gì khác. Bạn không
 cần tin lời: Hop là mã nguồn mở, và đoạn mã để thu thập đơn giản là không tồn
-tại — hãy đọc trong kho này. Cửa sổ thông tin của ứng dụng có thẻ «quyền của ứng
+tại — hãy đọc trong kho này. Cửa sổ cài đặt của ứng dụng có trang «quyền của ứng
 dụng» với đúng danh sách này và trạng thái hiện tại của từng quyền.
 
 Trang web: [hop.tools](https://hop.tools)

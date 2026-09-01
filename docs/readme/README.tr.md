@@ -357,7 +357,7 @@ imzalı arşivler olarak gelir ve kurulmadan önce Ed25519 imzasıyla doğrulan�
 ## İzinler
 
 Hop bir izni ancak onu gerektiren özelliği gerçekten kullandığında ister;
-uygulamanın bilgi penceresi hepsini güncel durumlarıyla listeler:
+uygulamanın ayarlar penceresi hepsini güncel durumlarıyla listeler:
 
 - **ağ — antonshakirov.com** — güncelleme aramak ve indirmek, ayrıca iki isteğe
   bağlı yardımcı (torrent motoru ve 7-Zip arşivleyici)
@@ -380,7 +380,7 @@ tanınan metin ve alınan renkler.
 
 Yukarıdaki her izin, bir özellik çalışsın diye var — başka hiçbir şey için değil.
 Buna inanmak zorunda değilsin: Hop açık kaynak, toplayacak kod zaten yok — bu
-deposunda oku. Uygulamanın bilgi penceresinde «uygulama izinleri» sekmesi var:
+deposunda oku. Uygulamanın ayarlar penceresinde «uygulama izinleri» bölümü var:
 aynı liste ve her iznin güncel durumu.
 
 Web sitesi: [hop.tools](https://hop.tools)

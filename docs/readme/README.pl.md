@@ -358,7 +358,7 @@ jako podpisane archiwa i przed instalacją weryfikowane podpisem Ed25519.
 ## Uprawnienia
 
 Hop prosi o uprawnienie dopiero wtedy, gdy naprawdę używasz funkcji, która go
-potrzebuje; okno informacji wymienia je wszystkie z bieżącym stanem:
+potrzebuje; okno ustawień wymienia je wszystkie z bieżącym stanem:
 
 - **sieć — antonshakirov.com** — sprawdzanie i pobieranie aktualizacji oraz dwa
   opcjonalne pomocniki (silnik torrentów i archiwizator 7-Zip)
@@ -382,8 +382,8 @@ lista zadań, rozpoznany tekst i pobrane kolory.
 
 Każde uprawnienie powyżej jest po to, żeby funkcja działała — i po nic więcej.
 Nie musisz w to wierzyć: Hop jest open source, a kodu, który miałby cokolwiek
-zbierać, po prostu nie ma — przeczytaj go w tym repozytorium. Okno informacji
-aplikacji ma kartę «uprawnienia aplikacji» z tą samą listą i aktualnym stanem
+zbierać, po prostu nie ma — przeczytaj go w tym repozytorium. Okno ustawień
+aplikacji ma sekcję «uprawnienia aplikacji» z tą samą listą i aktualnym stanem
 każdego z nich.
 
 Strona: [hop.tools](https://hop.tools)

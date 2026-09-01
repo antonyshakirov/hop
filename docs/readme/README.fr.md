@@ -377,7 +377,7 @@ signature Ed25519 avant l'installation.
 ## Autorisations
 
 Hop ne demande une autorisation qu'au moment où la fonction concernée est
-vraiment utilisée ; la fenêtre d'informations les liste toutes avec leur état :
+vraiment utilisée ; la fenêtre des réglages les liste toutes avec leur état :
 
 - **réseau — antonshakirov.com** — chercher et télécharger les mises à jour,
   plus les deux outils optionnels (moteur torrent et archiveur 7-Zip)
@@ -404,7 +404,7 @@ couleurs prélevées.
 Chaque autorisation ci-dessus sert à faire fonctionner une fonction — et à rien
 d'autre. Tu n'as pas à me croire sur parole : Hop est open source, le code qui
 collecterait n'existe tout simplement pas — lis-le dans ce dépôt. La fenêtre
-d'informations de l'app a un onglet « autorisations de l'app » avec la même
+des réglages de l'app a une page « autorisations de l'app » avec la même
 liste et l'état actuel de chacune.
 
 Site web : [hop.tools](https://hop.tools)

@@ -368,7 +368,7 @@ dipasang.
 ## Izin
 
 Hop meminta izin hanya ketika fitur yang membutuhkannya benar-benar dipakai, dan
-jendela info aplikasi mendaftar semuanya beserta statusnya saat ini:
+jendela pengaturan aplikasi mendaftar semuanya beserta statusnya saat ini:
 
 - **jaringan — antonshakirov.com** — memeriksa dan mengunduh pembaruan, plus dua
   pembantu opsional (mesin torrent dan pengarsip 7-Zip)
@@ -392,8 +392,8 @@ tugas, teks hasil pengenalan, dan warna yang diambil.
 
 Setiap izin di atas ada supaya sebuah fungsi bisa bekerja — dan tidak untuk hal
 lain. Kamu tidak perlu percaya begitu saja: Hop open source, dan kode yang
-mengumpulkan itu memang tidak ada — baca di repositori ini. Jendela info
-aplikasi punya tab «izin aplikasi» dengan daftar yang sama dan status setiap
+mengumpulkan itu memang tidak ada — baca di repositori ini. Jendela pengaturan
+aplikasi punya bagian «izin aplikasi» dengan daftar yang sama dan status setiap
 izin saat ini.
 
 Situs web: [hop.tools](https://hop.tools)

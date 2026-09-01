@@ -371,7 +371,7 @@ dell'installazione.
 ## Permessi
 
 Hop chiede un permesso solo quando usi davvero la funzione che lo richiede; la
-finestra informazioni li elenca tutti con il loro stato attuale:
+finestra delle impostazioni li elenca tutti con il loro stato attuale:
 
 - **rete — antonshakirov.com** — cercare e scaricare aggiornamenti, più i due
   aiutanti opzionali (motore torrent e archiviatore 7-Zip)
@@ -395,8 +395,8 @@ tempo registrato, la lista di cose da fare, il testo riconosciuto e i colori.
 
 Ogni permesso qui sopra serve a far funzionare una funzione — e a nient'altro.
 Non serve crederci sulla parola: Hop è open source, e il codice che dovrebbe
-raccogliere semplicemente non c'è — leggilo in questo repository. La finestra di
-informazioni dell'app ha una scheda «permessi dell'app» con lo stesso elenco e
+raccogliere semplicemente non c'è — leggilo in questo repository. La finestra delle
+impostazioni dell'app ha una sezione «permessi dell'app» con lo stesso elenco e
 lo stato attuale di ciascuno.
 
 Sito web: [hop.tools](https://hop.tools)

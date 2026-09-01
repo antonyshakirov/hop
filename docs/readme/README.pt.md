@@ -387,8 +387,8 @@ lista de tarefas, o texto reconhecido e as cores capturadas.
 
 Cada permissão acima existe para que uma função funcione — e para mais nada.
 Não precisa acreditar na palavra: o Hop é open source, e o código que faria essa
-coleta simplesmente não existe — leia neste repositório. A janela de informações
-do app tem uma aba «permissões do app» com a mesma lista e o estado atual de
+coleta simplesmente não existe — leia neste repositório. A janela de ajustes
+do app tem uma seção «permissões do app» com a mesma lista e o estado atual de
 cada uma.
 
 Site: [hop.tools](https://hop.tools)

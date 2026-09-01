@@ -366,7 +366,7 @@ archieven en vóór installatie geverifieerd met een Ed25519-handtekening.
 ## Toestemmingen
 
 Hop vraagt pas om een toestemming wanneer de functie die haar nodig heeft echt
-gebruikt wordt; het infovenster van de app somt ze allemaal op met hun stand:
+gebruikt wordt; het instellingenvenster van de app somt ze allemaal op met hun stand:
 
 - **netwerk — antonshakirov.com** — controleren op updates en ze downloaden, plus
   de twee optionele hulpjes (de torrent-engine en de 7-Zip-archiveerder)
@@ -392,7 +392,7 @@ klembordgeschiedenis, bijgehouden tijd, de takenlijst, herkende tekst en kleuren
 Elke toestemming hierboven is er zodat een functie kan werken — en nergens
 anders voor. Je hoeft dat niet te geloven: Hop is open source, en de code die
 zou moeten verzamelen bestaat er simpelweg niet — lees hem in deze repository.
-Het infovenster van de app heeft een tab «app-toestemmingen» met dezelfde lijst
+Het instellingenvenster van de app heeft een pagina «app-toestemmingen» met dezelfde lijst
 en de huidige stand van elke toestemming.
 
 Website: [hop.tools](https://hop.tools)

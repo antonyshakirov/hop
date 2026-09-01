@@ -387,7 +387,7 @@ installed, and a copy that never asks for an update counts all the same.
 ## Permissions
 
 Hop asks for a permission only when the feature that needs it is actually used,
-and the app's info window lists them all with their current state:
+and the settings window lists them all with their current state:
 
 - **network — antonshakirov.com** — update checks and downloads, plus the two
   optional helpers (the torrent engine and the 7-Zip archiver)
@@ -411,7 +411,7 @@ to-do list, recognized text and picked colors.
 Every permission above exists so a feature can work, and for nothing else. You
 do not have to take that on trust: Hop is open source, so the code that would
 have to do the collecting simply is not there — read it in this repository. The
-app's info window has an "app permissions" tab with the same list and each
+settings window has an "app permissions" page with the same list and each
 permission's current state.
 
 Website: [hop.tools](https://hop.tools)
