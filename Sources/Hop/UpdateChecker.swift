@@ -3,7 +3,7 @@ import CryptoKit
 import Foundation
 import HopCore
 
-/// Updates via antonshakirov.com (latest.json + zip + signature):
+/// Updates via hop.tools (latest.json + zip + signature):
 /// silent auto-update and manual check. The site is polled hourly; a found
 /// release installs at the first idle moment (see UpdateInstallPolicy) rather
 /// than waiting for the next poll — so it lands within a minute of the user
@@ -14,7 +14,7 @@ import HopCore
 @MainActor
 final class UpdateChecker: ObservableObject {
     /// Manifest of the latest release (scripts/release.sh uploads it to the site).
-    static let feedURL = "https://www.antonshakirov.com/downloads/hop/latest.json"
+    static let feedURL = "https://hop.tools/downloads/hop/latest.json"
 
     /// Ed25519 release signing key (scripts/sign-release.swift).
     /// Installation is possible ONLY with a valid signature by this key —

@@ -6,7 +6,7 @@ import HopCore
 /// lives in ToolInstaller — this only says WHICH binary and where it comes from.
 @MainActor
 final class TorrentEngineInstaller: ToolInstaller {
-    static let manifestURL = "https://www.antonshakirov.com/downloads/hop/engine/engine.json"
+    static let manifestURL = "https://hop.tools/downloads/hop/engine/engine.json"
     /// Kept as its own name because the engine card quotes the size in its copy.
     var engineSizeBytes: Int64 { sizeBytes }
 

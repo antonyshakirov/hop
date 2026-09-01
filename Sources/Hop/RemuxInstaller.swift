@@ -11,7 +11,7 @@ import HopCore
 /// third-party binaries — this one arrives only when an mkv or a webm does.
 @MainActor
 final class RemuxInstaller: ToolInstaller {
-    static let manifestURL = "https://www.antonshakirov.com/downloads/hop/remuxer/remuxer.json"
+    static let manifestURL = "https://hop.tools/downloads/hop/remuxer/remuxer.json"
 
     init() {
         super.init(manifestURL: Self.manifestURL,

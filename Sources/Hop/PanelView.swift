@@ -244,8 +244,8 @@ struct PanelView: View {
     private var productPageURL: String {
         let landing: Set<String> = ["ru", "de", "es", "pt", "fr", "zh", "ja"]
         return landing.contains(lang.rawValue)
-            ? "https://antonshakirov.com/products/hop/\(lang.rawValue)"
-            : "https://antonshakirov.com/products/hop"
+            ? "https://hop.tools/\(lang.rawValue)/"
+            : "https://hop.tools/"
     }
 
     var body: some View {
@@ -5305,7 +5305,7 @@ struct PanelView: View {
                         // (Anton, 2026-07-26)
                         Text("\(t(.aboutSupport)):")
                             .foregroundStyle(Theme.textSecondary)
-                        FooterLink(url: "mailto:hop@antonshakirov.com", label: "hop@antonshakirov.com")
+                        FooterLink(url: "mailto:support@hop.tools", label: "support@hop.tools")
                         Text("·")
                             .foregroundStyle(Theme.textSecondary)
                         // support bot — a second channel alongside email; "bot"

@@ -15,7 +15,7 @@ final class ArchiveController: ObservableObject {
     static let packFormatKey = "archivePackFormat"
     static let destinationKey = "archiveDestination"
     static let destinationPathKey = "archiveDestinationPath"
-    static let helperManifestURL = "https://www.antonshakirov.com/downloads/hop/tools/7zz.json"
+    static let helperManifestURL = "https://hop.tools/downloads/hop/tools/7zz.json"
 
     enum Kind: Equatable { case extract, pack }
 

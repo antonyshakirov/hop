@@ -253,7 +253,7 @@ enum Snapshot {
             default: longText = "rewrite this text shorter and simpler, keep the friendly tone and end with a call to action"
             }
             let demoItems = [
-                DemoItem(id: UUID(), text: "https://antonshakirov.com/products/hop"),
+                DemoItem(id: UUID(), text: "https://hop.tools"),
                 DemoItem(id: UUID(), text: "~/Documents/design-tokens.css"),
                 DemoItem(id: UUID(), text: longText),
             ]
@@ -272,7 +272,7 @@ enum Snapshot {
             // that it keeps a link, a file and a piece of text (Anton, 2026-07-30).
             if args.contains("--overview") {
                 let mixed: [ClipboardItem] = [
-                    ClipboardItem(text: "https://antonshakirov.com/products/hop"),
+                    ClipboardItem(text: "https://hop.tools"),
                     ClipboardItem(text: "~/Documents/design-tokens.css"),
                     ClipboardItem(text: longText),
                     ClipboardItem(text: "#2F6D5B", colorHex: "2F6D5B"),
