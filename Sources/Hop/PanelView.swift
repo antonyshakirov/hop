@@ -3584,6 +3584,13 @@ struct PanelView: View {
                 Spacer(minLength: 0)
             }
 
+            // The same state the eye in "modules & tabs" holds, said in words.
+            if ModulePresentation.titleKey(key) != nil {
+                switchSetting(t(.showInPanel), isOn: Binding(
+                    get: { moduleIsActive(key) },
+                    set: { setModuleHidden(key, !$0) }))
+            }
+
             moduleSettings(key)
 
             if let action = ModuleCatalog.open(key), hotkeys.hasHandler(action) {
@@ -3970,15 +3977,6 @@ struct PanelView: View {
 
     private var archiveSettings: some View {
         VStack(spacing: 14) {
-            HStack {
-                Text(t(.showInPanel))
-                    .font(Theme.mono(12))
-                    .foregroundStyle(Theme.textPrimary)
-                Spacer()
-                Theme.MiniSwitch(isOn: Binding(
-                    get: { moduleIsActive("archive") },
-                    set: { setModuleHidden("archive", !$0) }))
-            }
             ArchiveDefaultHandlerRow(label: t(.archiveMakeDefault),
                                      doneLabel: t(.defaultHandlerDone),
                                      restoreLabel: t(.archiveRestoreSystemHandlers))

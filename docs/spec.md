@@ -211,8 +211,9 @@ menu-bar badges, the Dock switch), "modules & tabs" for the panel layout,
 (`ModulePresentation`). A row wraps onto a second line rather than truncating:
 the longest module names in German and French do not fit 220pt on one. A module's page carries its heading with a one-line
 "what it is for" (`purpose*`, ×22 — the onboarding cards will read the same
-keys), its own options (`moduleSettings`, keyed by the same identifier), the
-hotkey of its "open" action — but only when something answers that key, since a
+keys), a "show in the panel" switch holding exactly the state the eye holds (one
+answer, in the two places somebody looks for it), its own options
+(`moduleSettings`, keyed by the same identifier), the hotkey of its "open" action — but only when something answers that key, since a
 recorder for an action with no handler would promise what it cannot do — and a
 link to the guide on the site. That link carries `?m=` with one letter per
 module the user still sees (`ModuleCatalog.guideCode`, letters fixed forever by
