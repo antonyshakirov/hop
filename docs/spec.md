@@ -3129,6 +3129,15 @@ its own database of known apps may do better on real software than it did here.
 - Distribution formats: DMG — for people, from the landing page (the
   "drag to Applications" window); ZIP+sig — for the auto-update channel.
   Both are built by release.sh.
+- DMG window: 640×400, icons at (170, 165) and (470, 165), picture 1280×800
+  at 144 dpi drawn by make-dmg-bg.swift in the landing's palette (#0b0b0b,
+  accent #ffd60a). Finder draws that picture only when it sits inside
+  `.background/` on the volume, the icvp alias points at it, and dmgbuild's
+  pBBk bookmark record is gone — each of the three was checked on its own
+  against freshly built images. With a picture in place Finder also switches
+  both icon labels to dark text whatever the system appearance is, so the
+  backdrop carries light pads under "Hop" and "Applications". make-dmg.sh
+  asserts the whole layout after building.
 - After installing an update the app relaunches itself: a detached shell
   helper waits for the old process to exit and opens the new bundle
   (a plain `open` before terminate only activates the still-running old

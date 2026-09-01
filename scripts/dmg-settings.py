@@ -22,7 +22,9 @@ show_sidebar = False
 
 icon_size = 128
 text_size = 13
+# SPEC: the row sits high enough to leave the caption room above Finder's status
+# bar; make-dmg-bg.swift draws the arrow and the label pads from the same value.
 icon_locations = {
-    os.path.basename(app): (170, 185),
-    "Applications": (470, 185),
+    os.path.basename(app): (170, 165),
+    "Applications": (470, 165),
 }

@@ -1,52 +1,90 @@
-// DMG window background: dark backdrop, dotted arrow and a caption.
-// Draw at 1280×800 and set 144 dpi — Finder renders it crisply on Retina.
 import AppKit
 
-// scale as an argument: 1 → 640×400, 2 → 1280×800 (layers for a retina TIFF)
-let scale = CGFloat(Double(CommandLine.arguments.count > 2 ? CommandLine.arguments[2] : "2") ?? 2)
-let size = NSSize(width: 640 * scale, height: 400 * scale)
-let image = NSImage(size: size)
-image.lockFocus()
+let width = 640.0
+let height = 400.0
+let scale = 2.0
 
-NSColor(white: 0.043, alpha: 1).setFill()
-NSRect(origin: .zero, size: size).fill()
+guard let rep = NSBitmapImageRep(
+    bitmapDataPlanes: nil,
+    pixelsWide: Int(width * scale),
+    pixelsHigh: Int(height * scale),
+    bitsPerSample: 8,
+    samplesPerPixel: 4,
+    hasAlpha: true,
+    isPlanar: false,
+    colorSpaceName: .deviceRGB,
+    bytesPerRow: 0,
+    bitsPerPixel: 0
+) else { fatalError("bitmap fail") }
+rep.size = NSSize(width: width, height: height)
 
-// dotted arrow between the icon spots (icons at y≈400, centers x=340/940)
-let arrow = NSBezierPath()
-arrow.move(to: NSPoint(x: 235 * scale, y: 205 * scale))
-arrow.line(to: NSPoint(x: 395 * scale, y: 205 * scale))
-arrow.lineWidth = 3 * scale
-let dashes: [CGFloat] = [1 * scale, 11 * scale]
-arrow.setLineDash(dashes, count: 2, phase: 0)
-arrow.lineCapStyle = .round
-NSColor(white: 0.42, alpha: 1).setStroke()
-arrow.stroke()
-// arrowhead — three dots in a wedge
-for (dx, dy) in [(0, 0), (-13, 9), (-13, -9)] {
-    let dot = NSRect(x: 405 * scale + CGFloat(dx) * scale - 2 * scale,
-                     y: 205 * scale + CGFloat(dy) * scale - 2 * scale,
-                     width: 4.5 * scale, height: 4.5 * scale)
-    NSColor(white: 0.42, alpha: 1).setFill()
-    NSBezierPath(ovalIn: dot).fill()
+guard let context = NSGraphicsContext(bitmapImageRep: rep) else { fatalError("context fail") }
+NSGraphicsContext.saveGraphicsState()
+NSGraphicsContext.current = context
+
+let backdrop = NSColor(red: 0.043, green: 0.043, blue: 0.043, alpha: 1)
+let yellow = NSColor(red: 1.0, green: 0.839, blue: 0.039, alpha: 1)
+
+backdrop.setFill()
+NSRect(x: 0, y: 0, width: width, height: height).fill()
+
+func dot(_ x: Double, _ y: Double, radius: Double, color: NSColor) {
+    color.setFill()
+    NSBezierPath(ovalIn: NSRect(x: x - radius, y: y - radius, width: radius * 2, height: radius * 2)).fill()
 }
 
-// caption bottom center, signature lowercase
+let gridStep = 20.0
+for row in stride(from: gridStep / 2, to: height, by: gridStep) {
+    for column in stride(from: gridStep / 2, to: width, by: gridStep) {
+        dot(column, row, radius: 1.1, color: NSColor(white: 1, alpha: 0.12))
+    }
+}
+
+// SPEC: docs/spec.md, "DMG window" — iconTop must match icon_locations in dmg-settings.py
+let iconTop = 165.0
+let axis = height - iconTop
+
+// WORKAROUND: a window with a background picture makes Finder draw both icon
+// labels in dark text whatever the system appearance is, so they need a pad
+func labelPad(_ label: String, centerX: Double) {
+    let font = NSFont.systemFont(ofSize: 13)
+    let textWidth = (label as NSString).size(withAttributes: [.font: font]).width
+    let padWidth = textWidth + 26
+    let rect = NSRect(x: centerX - padWidth / 2, y: axis - 97, width: padWidth, height: 26)
+    NSColor(white: 0.93, alpha: 1).setFill()
+    NSBezierPath(roundedRect: rect, xRadius: 13, yRadius: 13).fill()
+}
+labelPad("Hop", centerX: 170)
+labelPad("Applications", centerX: 470)
+
+let tail = 268.0
+let tip = 372.0
+let spacing = (tip - tail) / 12
+
+for index in 0...12 {
+    dot(tail + spacing * Double(index), axis, radius: 2.5, color: yellow)
+}
+
+let diagonal = spacing / 2.0.squareRoot()
+for step in 1...3 {
+    let offset = diagonal * Double(step)
+    dot(tip - offset, axis + offset, radius: 2.5, color: yellow)
+    dot(tip - offset, axis - offset, radius: 2.5, color: yellow)
+}
+
 let text = "drag hop into applications" as NSString
-let font = NSFont.monospacedSystemFont(ofSize: 15 * scale, weight: .medium)
 let attrs: [NSAttributedString.Key: Any] = [
-    .font: font,
-    .foregroundColor: NSColor(white: 0.52, alpha: 1),
-    .kern: 0.75 * scale,
+    .font: NSFont.monospacedSystemFont(ofSize: 13, weight: .regular),
+    .foregroundColor: NSColor(white: 1, alpha: 0.55),
+    .kern: 0.6,
 ]
-let tsize = text.size(withAttributes: attrs)
-text.draw(at: NSPoint(x: (size.width - tsize.width) / 2, y: 64 * scale), withAttributes: attrs)
+let textSize = text.size(withAttributes: attrs)
+text.draw(at: NSPoint(x: (width - textSize.width) / 2, y: 92), withAttributes: attrs)
 
-image.unlockFocus()
+NSGraphicsContext.current?.flushGraphics()
+NSGraphicsContext.restoreGraphicsState()
 
-guard let tiff = image.tiffRepresentation,
-      let rep = NSBitmapImageRep(data: tiff),
-      let png = rep.representation(using: .png, properties: [:])
-else { fatalError("png fail") }
+guard let png = rep.representation(using: .png, properties: [:]) else { fatalError("png fail") }
 let out = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "dist/dmg-bg.png"
 try! png.write(to: URL(fileURLWithPath: out))
 print("background: \(out)")
