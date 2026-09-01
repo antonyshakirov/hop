@@ -1367,10 +1367,6 @@ struct PanelView: View {
         HStack(spacing: 8) {
             tabSwitcher
             Spacer()
-            headerIcon("info.circle", help: t(.aboutTitle)) {
-                model.settingsSectionRequest = SettingsSelection.about.id
-                model.openSettingsWindow?()
-            }
             headerIcon("gearshape", help: t(.settingsTitle)) {
                 model.openSettingsWindow?()
             }
@@ -3502,6 +3498,9 @@ struct PanelView: View {
             SnapshotAwareScroll {
                 settingsPage
                     .padding(24)
+                    // a line of settings is easier to follow when the switch on
+                    // its right is not a screen away from the label on its left
+                    .frame(maxWidth: 680, alignment: .leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -3509,13 +3508,28 @@ struct PanelView: View {
 
     @ViewBuilder private var settingsPage: some View {
         switch SettingsSelection(id: settingsSection) {
-        case .general: generalBasics
-        case .spaces: layoutSettings
-        case .hotkeys: hotkeysSection
-        case .permissions: PermissionsView(lang: lang)
-        case .updates: updatesSection
-        case .about: aboutPage
-        case .module(let key): modulePage(key)
+        case .general:
+            page("gearshape", t(.aboutTabGeneral)) { generalBasics }
+        case .spaces:
+            page("square.grid.2x2", t(.settingsTabLayout)) { layoutSettings }
+        case .hotkeys:
+            page("command", t(.hotkeysLabel)) { hotkeysSection }
+        case .permissions:
+            page("lock.shield", t(.permTab)) { PermissionsView(lang: lang) }
+        case .updates:
+            page("arrow.down.circle", t(.updatesLabel)) { updatesSection }
+        case .about:
+            page("info.circle", t(.aboutTitle)) { aboutPage }
+        case .module(let key):
+            modulePage(key)
+        }
+    }
+
+    private func page<Content: View>(_ icon: String, _ title: String,
+                                     @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            pageHeader(icon: icon, title: title, subtitle: nil)
+            content()
         }
     }
 
@@ -3538,38 +3552,25 @@ struct PanelView: View {
     }
 
     @ViewBuilder private func modulePage(_ key: String) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: ModulePresentation.icon(key))
-                    .font(.system(size: 18))
-                    .foregroundStyle(Theme.textSecondary)
-                    .frame(width: 22, height: 22)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(moduleTitle(key))
-                        .font(Theme.mono(15))
-                        .foregroundStyle(Theme.textPrimary)
-                    if let purpose = ModulePresentation.purposeKey(key) {
-                        Text(t(purpose))
-                            .font(Theme.mono(10))
-                            .foregroundStyle(Theme.textTertiary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
+        VStack(alignment: .leading, spacing: 10) {
+            pageHeader(icon: ModulePresentation.icon(key),
+                       title: moduleTitle(key),
+                       subtitle: ModulePresentation.purposeKey(key).map { t($0) })
+
+            SettingsCard {
+                // The same state the eye in "modules & tabs" holds, in words.
+                if ModulePresentation.titleKey(key) != nil {
+                    switchSetting(t(.showInPanel), isOn: Binding(
+                        get: { moduleIsActive(key) },
+                        set: { setModuleHidden(key, !$0) }))
                 }
-                Spacer(minLength: 0)
+                moduleSettings(key)
             }
-
-            // The same state the eye in "modules & tabs" holds, said in words.
-            if ModulePresentation.titleKey(key) != nil {
-                switchSetting(t(.showInPanel), isOn: Binding(
-                    get: { moduleIsActive(key) },
-                    set: { setModuleHidden(key, !$0) }))
-            }
-
-            moduleSettings(key)
 
             if let action = ModuleCatalog.open(key), hotkeys.hasHandler(action) {
-                VStack(alignment: .leading, spacing: 10) {
-                    settingsSectionHeader(t(.hotkeysLabel))
+                SettingsGroupLabel(title: t(.hotkeysLabel))
+                    .padding(.top, 8)
+                SettingsCard {
                     hotkeyRow(action, label: moduleTitle(key))
                 }
             }
@@ -3586,7 +3587,37 @@ struct PanelView: View {
             }
             .buttonStyle(.plain)
             .hoverDim()
+            .padding(.top, 4)
         }
+    }
+
+    /// A page's own heading: what it is, and one line on what it is for.
+    private func pageHeader(icon: String, title: String, subtitle: String?) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(width: 34, height: 34)
+                    .background(RoundedRectangle(cornerRadius: 9).fill(Theme.chipBg))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(Theme.mono(15, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(Theme.mono(10))
+                            .foregroundStyle(Theme.textTertiary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            Rectangle()
+                .fill(Theme.divider)
+                .frame(height: 1)
+        }
+        .padding(.bottom, 6)
     }
 
     /// The guide on the site, carrying the modules the user still sees so the
@@ -3606,7 +3637,8 @@ struct PanelView: View {
     /// section EXCEPT the spaces/module arrangement, which is its own
     /// top-level "modules & tabs" section.
     private var generalBasics: some View {
-        VStack(spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
+            SettingsCard {
             HStack {
                 Text(t(.themeLabel))
                     .font(Theme.mono(12))
@@ -3641,11 +3673,11 @@ struct PanelView: View {
             }
 
             soundsSettings
+            }
 
-            Rectangle()
-                .fill(Theme.divider)
-                .frame(height: 1)
-
+            SettingsGroupLabel(title: t(.groupAppearance))
+                .padding(.top, 8)
+            SettingsCard {
             // Finder icon lives away from the theme row on purpose: right
             // under it the two pickers read as one confusing "theme" block
             HStack {
@@ -3682,6 +3714,7 @@ struct PanelView: View {
                     .font(Theme.mono(9))
                     .foregroundStyle(Theme.textTertiary)
             }
+            }
         }
     }
 
@@ -3690,49 +3723,13 @@ struct PanelView: View {
     /// "resize windows with hotkeys" toggle with its ⌃⌥ zone-key grid. Toggling
     /// the switch re-registers the snap hotkeys (the hook rides with the block).
     private var windowsSettings: some View {
-        VStack(spacing: 14) {
-            HStack {
-                Text(t(.windowsLayoutLabel))
-                    .font(Theme.mono(12))
-                    .foregroundStyle(Theme.textPrimary)
-                Spacer()
-                settingChip(t(.windowsGrid), active: windowsLayout == "grid") { windowsLayout = "grid" }
-                settingChip(t(.windowsRow), active: windowsLayout == "row") { windowsLayout = "row" }
-            }
-            VStack(alignment: .leading, spacing: 5) {
-                HStack {
-                    Text(t(.windowsHotkeysLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: $windowsHotkeysOn)
-                }
-                // zone glyph + its combo, same pairs as the help legend
-                // four columns: 18 zones in two-column form wasted half
-                // the width and stretched the section (Anton, 2026-07-15)
-                LazyVGrid(
-                    columns: Array(
-                        repeating: GridItem(.flexible(), alignment: .leading),
-                        count: 4
-                    ),
-                    alignment: .leading, spacing: 7
-                ) {
-                    ForEach(Self.snapHotkeyItems, id: \.0) { position, key in
-                        HStack(spacing: 8) {
-                            snapGlyph(position)
-                                .frame(width: 22, height: 14)
-                            Text("⌃ ⌥ \(key)")
-                                .font(Theme.mono(10))
-                                .foregroundStyle(Theme.textTertiary)
-                            Spacer(minLength: 0)
-                        }
-                    }
-                }
-                .padding(.top, 4)
-            }
-            .onChange(of: windowsHotkeysOn) {
-                HotkeyManager.shared.refreshSnapHotkeys()
-            }
+        HStack {
+            Text(t(.windowsLayoutLabel))
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textPrimary)
+            Spacer()
+            settingChip(t(.windowsGrid), active: windowsLayout == "grid") { windowsLayout = "grid" }
+            settingChip(t(.windowsRow), active: windowsLayout == "row") { windowsLayout = "row" }
         }
     }
 
@@ -3815,8 +3812,10 @@ struct PanelView: View {
 
             appShelvesSettings
 
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            switchSetting(t(.settingsToolsOneRow), isOn: $toolsOneRow)
+            SettingsCard {
+                switchSetting(t(.settingsToolsOneRow), isOn: $toolsOneRow)
+            }
+            .padding(.top, 8)
         }
         .onDisappear {
             // @State survives the settings window's hide/show, so a window
@@ -3959,8 +3958,9 @@ struct PanelView: View {
 
     @ViewBuilder private var appShelvesSettings: some View {
         if !model.appShelves.shelves.shelves.isEmpty {
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.appsLabel))
+            SettingsGroupLabel(title: t(.appsLabel))
+                .padding(.top, 8)
+            SettingsCard {
                 AppShelvesSettingsView(shelves: model.appShelves, lang: lang) {
                     removeShelf($0)
                 }
@@ -4304,30 +4304,96 @@ struct PanelView: View {
     }
 
     private var hotkeysSection: some View {
-        VStack(spacing: 10) {
-            HStack {
-                Text(t(.hotkeysLabel))
-                    .font(Theme.mono(10))
+        VStack(alignment: .leading, spacing: 10) {
+            SettingsCard {
+                hotkeyRow(ModuleCatalog.panelAction, label: t(.hkPanel))
+                ForEach(hotkeyModules, id: \.self) { key in
+                    moduleHotkeyRow(key, label: hotkeyRowLabel(key))
+                        .opacity(moduleIsActive(key) || hiddenKeepHotkeys ? 1 : 0.5)
+                }
+            }
+
+            groupLabelWithReset(t(.windowsLabel), actions: ModuleCatalog.zoneActions)
+                .padding(.top, 8)
+            SettingsCard {
+                switchSetting(t(.windowsHotkeysLabel), isOn: $windowsHotkeysOn)
+                if windowsHotkeysOn {
+                    // eighteen zones in one column is a page of scrolling; two
+                    // columns keep the whole set in view
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .leading),
+                                             count: 2),
+                              alignment: .leading, spacing: 10) {
+                        ForEach(ModuleCatalog.zoneActions, id: \.self) { action in
+                            zoneHotkeyRow(action)
+                        }
+                    }
+                }
+            }
+
+            SettingsCard {
+                switchSetting(t(.hkHiddenKeep), isOn: $hiddenKeepHotkeys)
+                Text(t(.hkHiddenKeepNote))
+                    .font(Theme.mono(8))
                     .foregroundStyle(Theme.textTertiary)
-                Spacer()
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-            hotkeyRow(ModuleCatalog.panelAction, label: t(.hkPanel))
-            ForEach(hotkeyModules, id: \.self) { key in
-                moduleHotkeyRow(key, label: hotkeyRowLabel(key))
-                    .opacity(moduleIsActive(key) || hiddenKeepHotkeys ? 1 : 0.5)
+            .padding(.top, 8)
+
+            Button {
+                hotkeys.reset(ModuleCatalog.allActions)
+            } label: {
+                Text(t(.resetDefaults))
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textSecondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Theme.divider, lineWidth: 1))
+                    .contentShape(Rectangle())
             }
-
-            Rectangle().fill(Theme.divider).frame(height: 1).padding(.vertical, 4)
-
-            switchSetting(t(.hkHiddenKeep), isOn: $hiddenKeepHotkeys)
-            Text(t(.hkHiddenKeepNote))
-                .font(Theme.mono(8))
-                .foregroundStyle(Theme.textTertiary)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            .buttonStyle(.plain)
+            .help(t(.resetDefaults))
+            .hoverHighlight(5)
+            .padding(.top, 4)
         }
         .onChange(of: hiddenKeepHotkeys) { _, _ in
             HotkeyManager.shared.refreshModuleHotkeys()
+        }
+        .onChange(of: windowsHotkeysOn) { _, _ in
+            HotkeyManager.shared.refreshModuleHotkeys()
+        }
+    }
+
+    /// A group's caption with its own "back to defaults", shown only while
+    /// something in the group is not on its default.
+    private func groupLabelWithReset(_ title: String, actions: [ModuleAction]) -> some View {
+        HStack(spacing: 8) {
+            SettingsGroupLabel(title: title)
+            if actions.contains(where: { !hotkeys.isDefault($0) }) {
+                Button { hotkeys.reset(actions) } label: {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 9))
+                        .foregroundStyle(Theme.textTertiary)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(t(.resetDefaults))
+                .hoverDim()
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    /// One window zone: the shape it puts a window in, then its combination.
+    private func zoneHotkeyRow(_ action: ModuleAction) -> some View {
+        HStack(spacing: 10) {
+            if let name = action.zoneName,
+               let position = WindowSnapController.Position(rawValue: name) {
+                snapGlyph(position)
+                    .frame(width: 22, height: 14)
+            }
+            hotkeyRecorder(action)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -4390,32 +4456,53 @@ struct PanelView: View {
     }
 
     private func hotkeyRow(_ action: ModuleAction, label: String) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            HStack {
-                Text(label)
-                    .font(Theme.mono(12))
-                    .foregroundStyle(Theme.textPrimary)
-                Spacer()
-                Button {
-                    startRecording(action)
-                } label: {
-                    Text(recordingHotkey == action ? t(.hkRecord) : (hotkeys.combo(for: action)?.display ?? "—"))
-                        .font(Theme.mono(11, weight: .semibold))
-                        .foregroundStyle(recordingHotkey == action ? Theme.editing : Theme.textPrimary)
-                        .frame(minWidth: 64)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .help(t(.hotkeysLabel))
-                .hoverHighlight(5)
+        HStack {
+            Text(label)
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textPrimary)
+            Spacer()
+            hotkeyRecorder(action)
+        }
+    }
+
+    /// The combination itself: click to record a new one, and — while it is not
+    /// the one the action shipped with — a ↺ that hands the default back.
+    private func hotkeyRecorder(_ action: ModuleAction) -> some View {
+        HStack(spacing: 6) {
+            Button {
+                startRecording(action)
+            } label: {
+                Text(recordingHotkey == action ? t(.hkRecord) : (hotkeys.combo(for: action)?.display ?? "—"))
+                    .font(Theme.mono(11, weight: .semibold))
+                    .foregroundStyle(recordingHotkey == action ? Theme.editing : Theme.textPrimary)
+                    .frame(minWidth: 64)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+                    .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .help(t(.hotkeysLabel))
+            .hoverHighlight(5)
+
+            Button { hotkeys.reset(action) } label: {
+                Image(systemName: "arrow.counterclockwise")
+                    .font(.system(size: 9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .frame(width: 14, height: 14)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(t(.resetDefaults))
+            .hoverDim()
+            .opacity(hotkeys.isDefault(action) ? 0 : 1)
+            .allowsHitTesting(!hotkeys.isDefault(action))
+
             if hotkeys.conflicts.contains(action) {
                 Text(t(.hkTaken))
                     .font(Theme.mono(8))
                     .foregroundStyle(Theme.accentRed)
+                    .lineLimit(1)
             }
         }
     }
@@ -4619,13 +4706,7 @@ struct PanelView: View {
     // MARK: - Updates
 
     private var updatesSection: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Text(t(.updatesLabel))
-                    .font(Theme.mono(10))
-                    .foregroundStyle(Theme.textTertiary)
-                Spacer()
-            }
+        SettingsCard(spacing: 12) {
             HStack {
                 Text(t(.autoUpdateLabel))
                     .font(Theme.mono(12))
@@ -4799,19 +4880,6 @@ struct PanelView: View {
     }
 
     // MARK: - About
-
-    /// Icon legend for the current help tab: what it is and what it does.
-    static let snapHotkeyItems: [(WindowSnapController.Position, String)] = [
-        (.leftHalf, "←"), (.rightHalf, "→"),
-        (.topHalf, "↑"), (.bottomHalf, "↓"),
-        (.maximize, "↩"), (.center, "C"),
-        (.topLeft, "U"), (.topRight, "I"),
-        (.bottomLeft, "J"), (.bottomRight, "K"),
-        (.leftThird, "D"), (.centerThird, "F"),
-        (.rightThird, "G"), (.leftTwoThirds, "E"),
-        (.rightTwoThirds, "T"), (.centerHalf, "S"),
-        (.topThird, "O"), (.bottomThird, "L"),
-    ]
 
     private var aboutPage: some View {
         VStack(alignment: .leading, spacing: 18) {

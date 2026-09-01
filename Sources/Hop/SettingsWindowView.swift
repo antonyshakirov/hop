@@ -44,6 +44,36 @@ enum SettingsSelection: Hashable {
     }
 }
 
+/// A group of settings drawn as one block: a filled, outlined card with its rows
+/// inside. Groups are what a page is read by — a wall of rows on a flat window
+/// has nothing to hold on to (Anton, 2026-09-01).
+struct SettingsCard<Content: View>: View {
+    var spacing: CGFloat = 14
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: spacing) { content() }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 10).fill(Theme.rowBg))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.divider, lineWidth: 1))
+    }
+}
+
+/// The caption above a card: what the group of settings is.
+struct SettingsGroupLabel: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(Theme.mono(9, weight: .semibold))
+            .foregroundStyle(Theme.textTertiary)
+            .textCase(.uppercase)
+            .tracking(0.6)
+            .padding(.leading, 2)
+    }
+}
+
 /// The settings window's left column: the sections, then every module of the
 /// registry in panel order.
 struct SettingsSidebar: View {
@@ -83,18 +113,22 @@ struct SettingsSidebar: View {
     var body: some View {
         SnapshotAwareScroll {
             VStack(alignment: .leading, spacing: 1) {
+                SettingsGroupLabel(title: t(.settingsTitle))
+                    .padding(.leading, 10)
+                    .padding(.bottom, 6)
                 ForEach(sections) { row($0) }
 
-                Rectangle()
-                    .fill(Theme.divider)
-                    .frame(height: 1)
-                    .padding(.vertical, 10)
-
+                SettingsGroupLabel(title: t(.modulesLabel))
+                    .padding(.leading, 10)
+                    .padding(.top, 18)
+                    .padding(.bottom, 6)
                 ForEach(modules) { row($0) }
             }
             .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(width: Self.width)
+        .background(Theme.rowBg)
     }
 
     private func row(_ item: Item) -> some View {
@@ -117,10 +151,14 @@ struct SettingsSidebar: View {
             }
             .foregroundStyle(selected ? Theme.textPrimary : Theme.textSecondary)
             .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+            .padding(.vertical, 7)
             .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(selected ? Theme.fieldBg : Color.clear)
+                RoundedRectangle(cornerRadius: 7)
+                    .fill(selected ? Theme.chipBg : Color.clear)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 7)
+                    .stroke(selected ? Theme.controlStroke : Color.clear, lineWidth: 1)
             )
             .contentShape(Rectangle())
         }

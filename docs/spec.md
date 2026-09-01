@@ -2180,6 +2180,24 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Hotkey `⌃⌥X`, module-gated like the other module hotkeys. The tap dies with
   the process, so a crash can never leave a locked keyboard behind.
 
+### Hotkeys (settings window)
+
+- **Every combination in one page and every one of them rebindable**
+  (Anton, 2026-09-01): the panel's own, the modules that answer a key, and the
+  eighteen window zones — each drawn as the shape it puts a window in plus its
+  combination. Recording is the same click-then-press it always was.
+- **Anything changed can be handed back.** A row whose combination is not the
+  one it shipped with grows a ↺ (`HotkeyManager.isDefault`/`reset`); a group's
+  caption carries the same ↺ for the whole group; the page ends with "reset
+  defaults" for every key at once. Reset means "forget the stored value", so the
+  default is not copied anywhere and a later change of default reaches everyone
+  who never rebound.
+- The window-manager module's page keeps only its layout picker: the zone keys
+  and their on/off switch live here, where keys live.
+- `⌃⌥T` is claimed by BOTH the timer and the right-two-thirds zone. That
+  collision is older than this page — one of the two simply failed to register —
+  and is now visible: the loser says "shortcut is taken" and can be rebound.
+
 ### Permissions (settings window)
 
 - An "app permissions" page — fourth in the sidebar, because it is the page
@@ -3056,15 +3074,19 @@ its own database of known apps may do better on real software than it did here.
   (eyedropper, text recognition, keyboard lock), plus the timer and no-sleep
   (Anton, 2026-09-01). The clipboard, the monitor, the tracker, the to-dos and
   the rest are read IN the panel, which has a key of its own, so a second key
-  would only open the same panel. The storage keys of the six actions that had
-  one (`hotkey_panel`, `hotkey_timer`, `hotkey_awake`, `hotkey_color`,
-  `hotkey_ocr`, `hotkey_keyboardLock`) never change — saved combinations hang on
-  them; the three window actions ship with no combination, because claiming
-  global shortcuts on somebody's behalf is rude.
+  would only open the same panel. The window manager has no "open" at all: its
+  EIGHTEEN zones are its actions (`ModuleCatalog.zoneActions`, ids `zone:<name>`,
+  storage `hotkey_zone_<name>`, ⌃⌥ defaults in Rectangle's convention), so every
+  one of them is rebindable like any other key. The storage keys of the six
+  actions that had one (`hotkey_panel`, `hotkey_timer`, `hotkey_awake`,
+  `hotkey_color`, `hotkey_ocr`, `hotkey_keyboardLock`) never change — saved
+  combinations hang on them; the three window actions ship with no combination,
+  because claiming global shortcuts on somebody's behalf is rude.
 - **Which combination may be claimed** — `HopCore.HotkeyActivation.registrable`:
   the panel's own always, a module's only while the module is visible, unless
   `hiddenModulesKeepHotkeys` lets hidden modules answer anyway (off by default,
-  no UI until the hotkeys page exists). Hidden means what the panel does not
+  switchable on the hotkeys page). The window zones answer one more question —
+  `windowsHotkeysOn`, the toggle that silences the whole set at once. Hidden means what the panel does not
   show: the layout's `hidden` set, the legacy `inactive` bucket it is migrating
   from, and any module sitting on no space at all. `HotkeyManager` claims
   nothing for an action with no handler — a global shortcut that swallows the

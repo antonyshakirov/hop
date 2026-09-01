@@ -432,7 +432,6 @@ final class StatusItemController: NSObject {
         }
 
         menu.addItem(item(L10n.t(.menuOpen, lang).capitalizedFirst, #selector(menuOpenPanel)))
-        menu.addItem(item(L10n.t(.aboutTitle, lang).capitalizedFirst, #selector(menuOpenAbout)))
         menu.addItem(item(L10n.t(.settingsTitle, lang).capitalizedFirst, #selector(menuOpenSettings)))
         menu.addItem(.separator())
         menu.addItem(item(L10n.t(.menuQuit, lang).capitalizedFirst, #selector(menuQuit)))
@@ -451,10 +450,6 @@ final class StatusItemController: NSObject {
     }
 
     @objc private func menuOpenPanel() { togglePopover(opening: .spaceContaining("timer")) }
-    @objc private func menuOpenAbout() {
-        model.settingsSectionRequest = SettingsSelection.about.id
-        model.openSettingsWindow?()
-    }
     @objc private func menuOpenSettings() { model.openSettingsWindow?() }
     @objc private func menuQuit() { model.requestQuit?() }
     @objc private func menuStopEngine() { model.engine.reset() }
