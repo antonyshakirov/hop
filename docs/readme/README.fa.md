@@ -10,7 +10,7 @@
 می‌چینید. یک کلیک، و هرچه لازم دارید همان‌جاست.**
 
 [![آخرین نسخه](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![دانلودها](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![دانلودها](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 [![پروانه: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · **فارسی** · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="پنل Hop — تایمر نوار منو با نمایشگر نقطه‌ای، زمان‌های آماده و چرخه‌های کار و استراحت">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="پنل Hop — تایمر نوار منو با نمایشگر نقطه‌ای، زمان‌های آماده و چرخه‌های کار و استراحت">
 
 </div>
 
@@ -59,7 +59,7 @@ Hop در نوار منوی Mac می‌نشیند و جای مشتی ابزار �
 می‌تپند تا صفرشان کنید.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — تایمر و چرخه‌ها">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — تایمر و چرخه‌ها">
 </div>
 
 ### ردیاب زمان و کارها
@@ -85,7 +85,7 @@ Hop در نوار منوی Mac می‌نشیند و جای مشتی ابزار �
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — ردیاب زمان و کارها">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — ردیاب زمان و کارها">
 </div>
 
 ### بی‌خوابی
@@ -95,7 +95,7 @@ Mac را ۱۵ دقیقه، ۸ ساعت یا برای همیشه بیدار نگ�
 (به کار دانلودها، بیلدهای طولانی و نمایشگرهای بیرونی می‌آید).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — بی‌خوابی">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — بی‌خوابی">
 </div>
 
 ### پایشگر سیستم
@@ -107,7 +107,7 @@ Mac را ۱۵ دقیقه، ۸ ساعت یا برای همیشه بیدار نگ�
 می‌دهد، نه فقط وقتی خود macOS از کمبود خبر می‌دهد.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — پایشگر سیستم">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — پایشگر سیستم">
 </div>
 
 ### تاریخچهٔ کلیپ‌بورد
@@ -119,7 +119,7 @@ Mac را ۱۵ دقیقه، ۸ ساعت یا برای همیشه بیدار نگ�
 پنهان هرگز ذخیره نمی‌شوند.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — تاریخچهٔ کلیپ‌بورد">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — تاریخچهٔ کلیپ‌بورد">
 </div>
 
 ### مبدل پرونده
@@ -139,7 +139,7 @@ youtube — قاب، وضوح و شدت فشرده‌سازی را مطابق ت
 می‌کنند: به PDF یا به docx، xlsx و pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — مبدل پرونده">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — مبدل پرونده">
 </div>
 
 ### مدیر پنجره
@@ -148,7 +148,7 @@ youtube — قاب، وضوح و شدت فشرده‌سازی را مطابق ت
 وسط بچسبانید — بی‌نیاز از برنامه‌ای دیگر.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — مدیر پنجره">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — مدیر پنجره">
 </div>
 
 ### تورنت
@@ -162,7 +162,7 @@ magnet بچسبانید، دقیقاً همان پرونده‌هایی را ک�
 ‎.torrent و لینک‌های magnet هم بشود.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="تورنت Hop — کلاینت سبک BitTorrent در پنل نوار منو">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="تورنت Hop — کلاینت سبک BitTorrent در پنل نوار منو">
 </div>
 
 ### بایگانی‌ها
@@ -185,7 +185,7 @@ magnet بچسبانید، دقیقاً همان پرونده‌هایی را ک�
 یک نگاه خوانده می‌شود.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — بایگانی‌ها">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — بایگانی‌ها">
 </div>
 
 ### سندها
@@ -204,7 +204,7 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 و بس.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — انتخابگر رنگ">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — انتخابگر رنگ">
 </div>
 
 ### شناسایی متن
@@ -221,7 +221,7 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 متن ساده باقی می‌ماند.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — شناسایی متن">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — شناسایی متن">
 </div>
 
 ### قفل صفحه‌کلید
@@ -234,7 +234,7 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 خاموش می‌کند، چون آن کار در سخت‌افزار انجام می‌شود.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — قفل صفحه‌کلید">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — قفل صفحه‌کلید">
 </div>
 
 ### آزمون سرعت
@@ -242,7 +242,7 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 یک ضربه، اتصال را با networkQuality خودِ macOS در برابر سرورهای Apple می‌سنجد — دریافت، ارسال و پاسخ‌دهی، و آخرین نتیجه در همان ردیف می‌ماند.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — آزمون سرعت">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — آزمون سرعت">
 </div>
 
 ### نماد نوار منو
@@ -254,7 +254,7 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 پوستهٔ تیره و روشن با بافت دانهٔ فیلم، میان‌برهای سراسری، اجرا هنگام ورود، و حالت امنی که برنامه را از چرخهٔ فروپاشی بیرون می‌کشد — همه در یک پنجرهٔ تنظیمات.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — تنظیمات">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — تنظیمات">
 </div>
 
 ### VPN
@@ -273,7 +273,7 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 این نقطه را می‌توان در تنظیمات خاموش کرد؛ ماژول و کلیدها بدون آن هم کار می‌کنند.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — کلیدهای VPN">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — کلیدهای VPN">
 </div>
 
 ### برنامه‌ها
@@ -293,7 +293,7 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 شبکهٔ تازه خالی آغاز می‌شود و تا پرش نکنید همین را می‌گوید.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — شبکهٔ برنامه‌ها">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — شبکهٔ برنامه‌ها">
 </div>
 
 ### حذف برنامه‌ها
@@ -303,13 +303,13 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 چیزی پاک نمی‌شود. همه‌چیز به سطل زباله می‌رود، پس بهای اشتباه یک بازگردانی است نه یک پرونده؛ و آنچه macOS تحویل نمی‌دهد با دلیلش نام برده می‌شود، نه اینکه بی‌صدا رد شود.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — حذف برنامه همراه هرچه به‌جا گذاشته">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — حذف برنامه همراه هرچه به‌جا گذاشته">
 </div>
 
 همان ماژول بدون حذف چیزی مرتب هم می‌کند: هر برنامه‌ای که حافظهٔ موقت نگه داشته، بزرگ‌ها نخست؛ نصب‌کننده‌های جامانده در دانلودها، روی میز کار و در اسناد؛ داده‌های برنامه‌هایی که سال‌ها پیش حذف شده‌اند؛ و سطل زباله با اندازه‌اش. یک تیک یک بخش کامل را برمی‌دارد. آنچه عمداً دست نمی‌خورد هم فهرست می‌شود — کانتینری که حافظهٔ موقت و داده در یک پوشه‌اند، از جمله بیست گیگابایت یک پیام‌رسان: تنها همان برنامه می‌داند کدام نیمه دورریختنی است.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — پاک‌سازی حافظهٔ موقت، نصب‌کننده‌ها، باقی‌مانده‌ها و سطل زباله">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — پاک‌سازی حافظهٔ موقت، نصب‌کننده‌ها، باقی‌مانده‌ها و سطل زباله">
 </div>
 
 ## ۲۲ زبان
@@ -369,7 +369,7 @@ antonshakirov.com تنها برای این تماس گرفته می‌شود ک�
 در همین مخزن بخوانیدش. پنجرهٔ اطلاعات برنامه زبانه‌ای به نام «دسترسی‌های
 برنامه» دارد با همین فهرست و وضعیت کنونی هر دسترسی.
 
-وب‌سایت: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+وب‌سایت: [hop.tools](https://hop.tools)
 
 ## رایگان، و چرا
 

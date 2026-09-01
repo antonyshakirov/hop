@@ -11,7 +11,7 @@ thứ mình cần và trải chúng trên tối đa bốn tab ở biểu tượn
 mọi thứ bạn cần đều ở ngay đó.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -21,7 +21,7 @@ mọi thứ bạn cần đều ở ngay đó.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · **Tiếng Việt** · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Bảng điều khiển Hop — đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Bảng điều khiển Hop — đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
 
 </div>
 
@@ -62,7 +62,7 @@ Khi đếm ngược kết thúc, một tiếng chuông vang lên và các con s�
 cho đến khi bạn đặt lại.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Hẹn giờ & chu kỳ">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Hẹn giờ & chu kỳ">
 </div>
 
 ### Theo dõi thời gian & việc cần làm
@@ -88,7 +88,7 @@ và hiểu liên kết `hop://`: chính trợ lý đó, hoặc một Phím tắt
 chạy. Xem [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Theo dõi thời gian & việc cần làm">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Theo dõi thời gian & việc cần làm">
 </div>
 
 ### Chống ngủ
@@ -99,7 +99,7 @@ khi gập nắp máy (tiện cho việc tải xuống, các bản build dài và
 ngoài).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Chống ngủ">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Chống ngủ">
 </div>
 
 ### Giám sát hệ thống
@@ -111,7 +111,7 @@ nhật khi tab đang mở. Hàng bộ nhớ cũng cảnh báo khi nhiều bộ n
 xuống đĩa, chứ không chỉ khi macOS tự báo đang chật vật.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Giám sát hệ thống">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Giám sát hệ thống">
 </div>
 
 ### Lịch sử clipboard
@@ -123,7 +123,7 @@ chính tệp đó quay lại. Mật khẩu và các nội dung nhập ẩn khác
 được lưu.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Lịch sử clipboard">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Lịch sử clipboard">
 </div>
 
 ### Chuyển đổi tệp
@@ -143,7 +143,7 @@ về một lần. Tài liệu Pages, Numbers và Keynote do chính các ứng d�
 loạt: ra PDF, hoặc docx, xlsx và pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Chuyển đổi tệp">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Chuyển đổi tệp">
 </div>
 
 ### Quản lý cửa sổ
@@ -153,7 +153,7 @@ một cú nhấp vào biểu tượng vùng hoặc phím tắt ⌃⌥ — không
 nào khác.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Quản lý cửa sổ">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Quản lý cửa sổ">
 </div>
 
 ### Torrent
@@ -168,7 +168,7 @@ cũng có thể trở thành ứng dụng mặc định cho tệp .torrent và l
 magnet.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrent trong Hop — trình BitTorrent gọn nhẹ trong bảng điều khiển trên thanh menu">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Torrent trong Hop — trình BitTorrent gọn nhẹ trong bảng điều khiển trên thanh menu">
 </div>
 
 ### Kho nén tệp
@@ -184,7 +184,7 @@ khi không có ứng dụng Apple xử lý, và có thể giành lại rar từ 
 và các định dạng gốc vẫn thuộc Archive Utility. Nó chạy cả khi mô-đun bị ẩn, và thẻ hiện trạng thái thật. Nhấp đúp vào một tệp nén trong Finder sẽ giải nén ngay cạnh tệp đó, trong một cửa sổ tiến trình nhỏ riêng, và khi thất bại cũng không để lại thứ gì ẩn phía sau. Những tệp Hop mở đều mang biểu tượng riêng có ghi định dạng, nên cả thư mục đọc được chỉ trong một cái liếc.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Kho nén tệp">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Kho nén tệp">
 </div>
 
 ### Tài liệu
@@ -202,7 +202,7 @@ Thứ tự không đổi dưới con trỏ, giữ bao nhiêu màu và hiện bao
 chọn, và không cần quyền ghi màn hình: kính lúp chỉ trả về một màu.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Ống hút màu">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Ống hút màu">
 </div>
 
 ### Nhận dạng văn bản
@@ -218,7 +218,7 @@ chỉ web: mã quét được là dữ liệu từ bên ngoài, nên số điệ
 Wi-Fi hay danh thiếp vẫn là văn bản thường.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Nhận dạng văn bản">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Nhận dạng văn bản">
 </div>
 
 ### Khoá bàn phím
@@ -231,7 +231,7 @@ nguồn cũng bị nuốt; giữ lâu thì Mac vẫn tắt cưỡng bức, vì �
 cứng.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Khoá bàn phím">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Khoá bàn phím">
 </div>
 
 ### Kiểm tra tốc độ
@@ -239,7 +239,7 @@ cứng.
 Một chạm là đo đường truyền bằng chính networkQuality của macOS, đối với máy chủ của Apple — tải xuống, tải lên và độ phản hồi, kết quả cuối cùng ở lại trong hàng.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Kiểm tra tốc độ">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Kiểm tra tốc độ">
 </div>
 
 ### Biểu tượng trên thanh trình đơn
@@ -255,7 +255,7 @@ rời đi cùng cửa sổ cuối cùng.
 Chủ đề tối và sáng với kết cấu hạt phim, phím tắt toàn cục, khởi động khi đăng nhập, và một chế độ an toàn kéo ứng dụng ra khỏi vòng lặp treo — tất cả trong một cửa sổ cài đặt.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Cài đặt">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — Cài đặt">
 </div>
 
 ### VPN
@@ -279,7 +279,7 @@ chủ: sổ đăng ký địa chỉ cho biết dải số đăng ký ở đâu, 
 Chấm này có thể tắt trong cài đặt; mô-đun và các công tắc vẫn hoạt động như thường.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — Công tắc VPN">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — Công tắc VPN">
 </div>
 
 ### Ứng dụng
@@ -299,7 +299,7 @@ chính bảng mô-đun, nơi dấu ✕ trên thẻ của một lưới xoá hẳ
 trống và nói rõ như vậy cho tới khi bạn lấp đầy.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — Lưới ứng dụng">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — Lưới ứng dụng">
 </div>
 
 ### Gỡ ứng dụng
@@ -309,13 +309,13 @@ Thả một ứng dụng vào hàng này, hoặc chọn từ danh sách mọi th
 Không gì bị xoá thẳng. Mọi thứ chuyển vào thùng rác, nên một sai sót chỉ tốn một lần khôi phục chứ không mất tệp; và thứ macOS không giao ra được gọi tên kèm lý do, không lặng lẽ bỏ qua.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Gỡ ứng dụng cùng mọi thứ nó để lại">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — Gỡ ứng dụng cùng mọi thứ nó để lại">
 </div>
 
 Cũng mô-đun ấy dọn dẹp mà không gỡ gì: mọi ứng dụng đang giữ bộ đệm, lớn trước; bộ cài còn trong Tải xuống, trên Màn hình nền và trong Tài liệu; dữ liệu của ứng dụng đã gỡ từ lâu; và thùng rác với dung lượng của nó. Một dấu tích lấy trọn một mục. Thứ nó cố ý không đụng cũng được liệt kê — container nơi bộ đệm và dữ liệu chung một thư mục, chẳng hạn hai mươi gigabyte của một ứng dụng nhắn tin: chỉ ứng dụng ấy mới biết nửa nào bỏ được.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Dọn bộ đệm, bộ cài, phần sót và thùng rác">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Dọn bộ đệm, bộ cài, phần sót và thùng rác">
 </div>
 
 ## 22 ngôn ngữ
@@ -377,7 +377,7 @@ cần tin lời: Hop là mã nguồn mở, và đoạn mã để thu thập đơ
 tại — hãy đọc trong kho này. Cửa sổ thông tin của ứng dụng có thẻ «quyền của ứng
 dụng» với đúng danh sách này và trạng thái hiện tại của từng quyền.
 
-Trang web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+Trang web: [hop.tools](https://hop.tools)
 
 ## Miễn phí, và vì sao
 

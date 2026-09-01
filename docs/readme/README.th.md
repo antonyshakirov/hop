@@ -11,7 +11,7 @@
 ทุกอย่างที่คุณต้องการอยู่ตรงนั้น**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -21,7 +21,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · **ไทย** · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="แผงควบคุม Hop — ตัวจับเวลาบนแถบเมนูพร้อมจอแสดงผลแบบดอตแมทริกซ์ พรีเซ็ต และรอบทำงาน-พัก">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="แผงควบคุม Hop — ตัวจับเวลาบนแถบเมนูพร้อมจอแสดงผลแบบดอตแมทริกซ์ พรีเซ็ต และรอบทำงาน-พัก">
 
 </div>
 
@@ -60,7 +60,7 @@ Hop เซ็นด้วย Apple Developer ID และผ่านการ�
 จบ จะมีเสียงดังหนึ่งครั้ง และตัวเลขจะกะพริบจนกว่าคุณจะรีเซ็ต
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — ตัวจับเวลาและรอบทำงาน">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — ตัวจับเวลาและรอบทำงาน">
 </div>
 
 ### ติดตามเวลาและสิ่งที่ต้องทำ
@@ -85,7 +85,7 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 [docs/automation.md](../automation.md)
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — ติดตามเวลาและสิ่งที่ต้องทำ">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — ติดตามเวลาและสิ่งที่ต้องทำ">
 </div>
 
 ### กันเครื่องหลับ
@@ -95,7 +95,7 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 ก็ได้ (เหมาะกับการดาวน์โหลด งานบิลด์ยาว ๆ และจอภายนอก)
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — กันเครื่องหลับ">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — กันเครื่องหลับ">
 </div>
 
 ### มอนิเตอร์ระบบ
@@ -106,7 +106,7 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 อนเมื่อหน่วยความจำถูกย้ายลงดิสก์เป็นจำนวนมากด้วย ไม่ใช่เฉพาะตอนที่ macOS บอกเองว่าตึงตัว
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — มอนิเตอร์ระบบ">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — มอนิเตอร์ระบบ">
 </div>
 
 ### ประวัติคลิปบอร์ด
@@ -118,7 +118,7 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 จะไม่ถูกเก็บไว้เด็ดขาด
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — ประวัติคลิปบอร์ด">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — ประวัติคลิปบอร์ด">
 </div>
 
 ### ตัวแปลงไฟล์
@@ -138,7 +138,7 @@ youtube — โดยตั้งกรอบภาพ ความละเอ�
 xlsx และ pptx
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — ตัวแปลงไฟล์">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — ตัวแปลงไฟล์">
 </div>
 
 ### ตัวจัดการหน้าต่าง
@@ -147,7 +147,7 @@ xlsx และ pptx
 ด้วยการคลิกที่สัญลักษณ์โซนหรือกดปุ่มลัด ⌃⌥ — ไม่ต้องติดตั้งแอปเพิ่ม
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — ตัวจัดการหน้าต่าง">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — ตัวจัดการหน้าต่าง">
 </div>
 
 ### ทอร์เรนต์
@@ -162,7 +162,7 @@ xlsx และ pptx
 และ Hop ยังตั้งเป็นแอปเริ่มต้นสำหรับไฟล์ .torrent และลิงก์ magnet ได้ด้วย
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="ทอร์เรนต์ของ Hop — ไคลเอนต์ BitTorrent ตัวเบาในแผงบนแถบเมนู">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="ทอร์เรนต์ของ Hop — ไคลเอนต์ BitTorrent ตัวเบาในแผงบนแถบเมนู">
 </div>
 
 ### ไฟล์บีบอัด
@@ -176,7 +176,7 @@ xlsx และ pptx
 และการ์ดแสดงสถานะจริง ดับเบิลคลิกไฟล์บีบอัดใน Finder จะแตกไฟล์ไว้ข้าง ๆ ไฟล์นั้นเลย พร้อมหน้าต่างแสดงความคืบหน้าเล็ก ๆ ของตัวเอง และหากล้มเหลวก็ไม่เหลืออะไรซ่อนไว้ ไฟล์ที่ Hop เปิดจะมีไอคอนของตัวเองที่เขียนชื่อรูปแบบไว้ ทำให้ดูทั้งโฟลเดอร์ออกในพริบตา
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — ไฟล์บีบอัด">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — ไฟล์บีบอัด">
 </div>
 
 ### เอกสาร
@@ -193,7 +193,7 @@ xlsx และ pptx
 สิทธิ์บันทึกหน้าจอ เพราะแว่นขยายส่งคืนแค่สีเดียว
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — หลอดดูดสี">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — หลอดดูดสี">
 </div>
 
 ### การอ่านข้อความ
@@ -207,7 +207,7 @@ xlsx และ pptx
 ร์โทร รหัส Wi-Fi หรือนามบัตรจึงยังเป็นข้อความธรรมดา
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — การอ่านข้อความ">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — การอ่านข้อความ">
 </div>
 
 ### ล็อกคีย์บอร์ด
@@ -218,7 +218,7 @@ xlsx และ pptx
 แต่การกดค้างยังบังคับปิดเครื่องได้ เพราะนั่นเป็นเรื่องของฮาร์ดแวร์
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — ล็อกคีย์บอร์ด">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — ล็อกคีย์บอร์ด">
 </div>
 
 ### ทดสอบความเร็ว
@@ -226,7 +226,7 @@ xlsx และ pptx
 แตะครั้งเดียวก็วัดการเชื่อมต่อด้วย networkQuality ของ macOS เองกับเซิร์ฟเวอร์ของ Apple — ดาวน์โหลด อัปโหลด และการตอบสนอง โดยผลล่าสุดค้างอยู่ในแถว
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — ทดสอบความเร็ว">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — ทดสอบความเร็ว">
 </div>
 
 ### ไอคอนบนแถบเมนู
@@ -238,7 +238,7 @@ xlsx และ pptx
 ธีมมืดและสว่างพร้อมพื้นผิวเกรนฟิล์ม คีย์ลัดทั่วระบบ เปิดตอนล็อกอิน และเซฟโหมดที่ดึงแอปออกจากวงจรแครช — ทั้งหมดอยู่ในหน้าต่างตั้งค่าเดียว
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — ตั้งค่า">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — ตั้งค่า">
 </div>
 
 ### VPN
@@ -255,7 +255,7 @@ Hop จะไม่เดาประเทศจากที่อยู่เ�
 จุดนี้ปิดได้ในตั้งค่า โมดูลและสวิตช์ยังทำงานเหมือนเดิม
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — สวิตช์ VPN">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — สวิตช์ VPN">
 </div>
 
 ### แอป
@@ -267,7 +267,7 @@ Hop จะไม่เดาประเทศจากที่อยู่เ�
 ตารางเกิดและหายไปในที่เดียวกับที่คุณจัดวางโมดูล: ในตั้งค่า หรือในตารางโมดูลเอง ซึ่ง ✕ บนป้ายของตารางจะลบมันถาวร ตารางใหม่เริ่มต้นว่างเปล่าและบอกไว้แบบนั้นจนกว่าคุณจะเติมมัน
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — ตารางแอป">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — ตารางแอป">
 </div>
 
 ### ลบแอป
@@ -277,13 +277,13 @@ Hop จะไม่เดาประเทศจากที่อยู่เ�
 ไม่มีอะไรถูกลบทิ้งทันที ทุกอย่างย้ายไปถังขยะ ความผิดพลาดจึงมีราคาเท่ากับการกู้คืน ไม่ใช่ไฟล์ที่หายไป ส่วนที่ macOS ไม่ยอมให้ เราจะบอกชื่อพร้อมเหตุผล ไม่ข้ามเงียบ ๆ
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — ลบแอปพร้อมทุกอย่างที่มันทิ้งไว้">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — ลบแอปพร้อมทุกอย่างที่มันทิ้งไว้">
 </div>
 
 โมดูลเดียวกันยังจัดให้เรียบร้อยโดยไม่ลบอะไรเลย: ทุกแอปที่กองแคชไว้ ใหญ่ก่อน; ตัวติดตั้งที่ค้างในดาวน์โหลด เดสก์ท็อป และเอกสาร; ข้อมูลของแอปที่ลบไปนานแล้ว; และถังขยะพร้อมขนาดของมัน ติ๊กเดียวได้ทั้งหมวด สิ่งที่ตั้งใจไม่แตะก็อยู่ในรายการด้วย — คอนเทนเนอร์ที่แคชกับข้อมูลอยู่โฟลเดอร์เดียวกัน เช่นยี่สิบกว่ากิกะไบต์ของแอปแชท เพราะมีแต่แอปนั้นเองที่รู้ว่าครึ่งไหนทิ้งได้
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — ล้างแคช ตัวติดตั้ง ของตกค้าง และถังขยะ">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — ล้างแคช ตัวติดตั้ง ของตกค้าง และถังขยะ">
 </div>
 
 ## 22 ภาษา
@@ -340,7 +340,7 @@ Hop จะขอสิทธิ์ก็ต่อเมื่อคุณใช�
 เพราะ Hop เป็นโอเพนซอร์ส โค้ดที่จะเก็บข้อมูลนั้นไม่มีอยู่จริง อ่านได้ในรีโพนี้ ในหน้าต่างข้อมูลของแอป
 มีแท็บ «สิทธิ์ของแอป» ที่แสดงรายการเดียวกันพร้อมสถานะปัจจุบันของแต่ละสิทธิ์
 
-เว็บไซต์: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+เว็บไซต์: [hop.tools](https://hop.tools)
 
 ## ฟรี และทำไมถึงฟรี
 

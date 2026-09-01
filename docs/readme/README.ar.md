@@ -10,7 +10,7 @@
 هناك.**
 
 [![أحدث إصدار](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![التنزيلات](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![التنزيلات](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 [![الرخصة: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · **العربية** · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="لوحة Hop — مؤقّت في شريط القوائم بشاشة نقطية وأوقات جاهزة ودورات عمل وراحة">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="لوحة Hop — مؤقّت في شريط القوائم بشاشة نقطية وأوقات جاهزة ودورات عمل وراحة">
 
 </div>
 
@@ -57,7 +57,7 @@
 صوتاً واحداً وتنبض الأرقام حتى تصفّرها.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — المؤقّت والدورات">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — المؤقّت والدورات">
 </div>
 
 ### متتبّع الوقت والمهام
@@ -80,7 +80,7 @@ Hop تعديلاته أثناء التشغيل. كما ينفّذ Hop أوامر
 يعمل الآن. انظر [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — متتبّع الوقت والمهام">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — متتبّع الوقت والمهام">
 </div>
 
 ### منع النوم
@@ -90,7 +90,7 @@ Hop تعديلاته أثناء التشغيل. كما ينفّذ Hop أوامر
 (مفيد للتنزيلات وعمليات البناء الطويلة والشاشات الخارجية).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — منع النوم">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — منع النوم">
 </div>
 
 ### مراقب النظام
@@ -102,7 +102,7 @@ Hop تعديلاته أثناء التشغيل. كما ينفّذ Hop أوامر
 يعلن macOS نفسه الضيق فحسب.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — مراقب النظام">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — مراقب النظام">
 </div>
 
 ### سجل الحافظة
@@ -113,7 +113,7 @@ Hop تعديلاته أثناء التشغيل. كما ينفّذ Hop أوامر
 وسائر المدخلات المخفية فلا تُحفظ أبداً.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — سجل الحافظة">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — سجل الحافظة">
 </div>
 
 ### محوّل الملفات
@@ -131,7 +131,7 @@ HEIC و AVIF و WebP خروجاً؛ وضغط PDF؛ وتصغير فيديو HEVC 
 التطبيقات نفسها دفعةً واحدة: إلى PDF أو إلى docx وxlsx وpptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — محوّل الملفات">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — محوّل الملفات">
 </div>
 
 ### مدير النوافذ
@@ -140,7 +140,7 @@ HEIC و AVIF و WebP خروجاً؛ وضغط PDF؛ وتصغير فيديو HEVC 
 ‎⌃⌥ — بلا حاجة إلى تطبيق إضافي.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — مدير النوافذ">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — مدير النوافذ">
 </div>
 
 ### التورنت
@@ -153,7 +153,7 @@ magnet، واختر بالضبط أي الملفات تنزّل — قبل ال�
 التطبيق الافتراضي لملفات ‎.torrent وروابط magnet.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="تورنت Hop — عميل BitTorrent خفيف في لوحة شريط القوائم">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="تورنت Hop — عميل BitTorrent خفيف في لوحة شريط القوائم">
 </div>
 
 ### الأرشيفات
@@ -173,7 +173,7 @@ tar.bz2 و tar.xz و gz؛ وصيغتا rar و 7z تجلبان أداة صغير�
 Hop تحمل أيقونته مع الصيغة مكتوبة عليها، فمجلد منها يُقرأ بلمحة.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — الأرشيفات">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — الأرشيفات">
 </div>
 
 ### المستندات
@@ -191,7 +191,7 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 تسجيل الشاشة: العدسة تعيد لوناً واحداً لا غير.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — منتقي الألوان">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — منتقي الألوان">
 </div>
 
 ### التعرّف على النص
@@ -207,7 +207,7 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 الاتصال نصًا عاديًا.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — التعرّف على النص">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — التعرّف على النص">
 </div>
 
 ### قفل لوحة المفاتيح
@@ -220,7 +220,7 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 في العتاد.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — قفل لوحة المفاتيح">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — قفل لوحة المفاتيح">
 </div>
 
 ### اختبار السرعة
@@ -228,7 +228,7 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 نقرة واحدة تقيس الاتصال عبر networkQuality الخاص بـmacOS مقابل خوادم Apple — التنزيل والرفع والاستجابة، وتبقى آخر نتيجة في السطر.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — اختبار السرعة">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — اختبار السرعة">
 </div>
 
 ### أيقونة شريط القوائم
@@ -240,7 +240,7 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 سمة داكنة وأخرى فاتحة بنسيج حُبيبات الفيلم، واختصارات عامة، وتشغيل عند تسجيل الدخول، ووضع آمن يُخرج التطبيق من دوّامة الأعطال — كل ذلك في نافذة إعدادات واحدة.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — الإعدادات">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — الإعدادات">
 </div>
 
 ### VPN
@@ -258,7 +258,7 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 يمكن إطفاء النقطة من الإعدادات، وتظل الوحدة ومفاتيحها تعمل كما هي.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — مفاتيح الشبكات الخاصة">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — مفاتيح الشبكات الخاصة">
 </div>
 
 ### التطبيقات
@@ -277,7 +277,7 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 فارغة وتقول ذلك حتى تملأها.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — شبكة التطبيقات">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — شبكة التطبيقات">
 </div>
 
 ### حذف التطبيقات
@@ -287,13 +287,13 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 لا شيء يُمحى. كل شيء ينتقل إلى سلة المهملات، فالخطأ يكلّف استعادة لا ملفًا؛ وما يرفض macOS تسليمه يُذكر مع سببه بدل تخطّيه بصمت.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — حذف تطبيق مع كل ما تركه">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — حذف تطبيق مع كل ما تركه">
 </div>
 
 الوحدة نفسها ترتّب دون أن تحذف شيئًا: كل تطبيق يحتفظ بذاكرة مؤقتة، الأكبر أولًا؛ وملفات التثبيت الباقية في التنزيلات وعلى سطح المكتب وفي المستندات؛ وبيانات تطبيقات حُذفت منذ سنوات؛ وسلة المهملات بحجمها. علامة واحدة تأخذ قسمًا كاملًا. وما تتركه عمدًا مذكور أيضًا — حاوية تجتمع فيها الذاكرة المؤقتة والبيانات في مجلد واحد، ومنها عشرون غيغابايت لتطبيق مراسلة: لا يعرف أي نصف يمكن التخلص منه سوى ذلك التطبيق.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — تنظيف الذاكرة المؤقتة وملفات التثبيت والبقايا وسلة المهملات">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — تنظيف الذاكرة المؤقتة وملفات التثبيت والبقايا وسلة المهملات">
 </div>
 
 ## 22 لغة
@@ -352,7 +352,7 @@ Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, P
 في هذا المستودع. ونافذة معلومات التطبيق فيها تبويب «أذونات التطبيق» بالقائمة
 نفسها وحالة كل إذن.
 
-الموقع: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+الموقع: [hop.tools](https://hop.tools)
 
 ## مجاني، ولماذا
 

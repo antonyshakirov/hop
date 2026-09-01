@@ -11,7 +11,7 @@ schaltest ein, was du brauchst, und verteilst es auf bis zu vier Tabs am
 Symbol. Ein Klick — und alles, was du brauchst, ist sofort zur Hand.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -21,7 +21,7 @@ Symbol. Ein Klick — und alles, was du brauchst, ist sofort zur Hand.**
 
 [Bahasa Indonesia](README.id.md) · **Deutsch** · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/de/overview.png" width="360" alt="Hop-Panel — Menüleisten-Timer mit Punktmatrix-Anzeige, Presets und Arbeits-Pausen-Zyklen">
+<img src="https://hop.tools/screens/de/overview.webp" width="360" alt="Hop-Panel — Menüleisten-Timer mit Punktmatrix-Anzeige, Presets und Arbeits-Pausen-Zyklen">
 
 </div>
 
@@ -64,7 +64,7 @@ pausiert. Läuft der Countdown ab, ertönt ein einzelner Ton und die Ziffern
 pulsieren, bis du zurücksetzt.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/timer.png" width="420" alt="Hop — Timer & Zyklen">
+<img src="https://hop.tools/screens/de/timer.webp" width="420" alt="Hop — Timer & Zyklen">
 </div>
 
 ### Zeiterfassung & To-dos
@@ -93,7 +93,7 @@ Erinnerung anlegen oder abfragen, was gerade läuft. Siehe
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/tracker.png" width="420" alt="Hop — Zeiterfassung & To-dos">
+<img src="https://hop.tools/screens/de/tracker.webp" width="420" alt="Hop — Zeiterfassung & To-dos">
 </div>
 
 ### Kein Schlaf
@@ -103,7 +103,7 @@ Passwort. Optional bleibt das Display an, oder du arbeitest bei geschlossenem
 Deckel weiter (praktisch für Downloads, lange Builds und externe Displays).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/awake.png" width="420" alt="Hop — Kein Schlaf">
+<img src="https://hop.tools/screens/de/awake.webp" width="420" alt="Hop — Kein Schlaf">
 </div>
 
 ### Systemmonitor
@@ -116,7 +116,7 @@ geöffnet ist. Die speicherzeile warnt auch, wenn viel speicher auf der platte
 gelandet ist, und nicht erst, wenn macOS selbst knappheit meldet.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/system.png" width="420" alt="Hop — Systemmonitor">
+<img src="https://hop.tools/screens/de/system.webp" width="420" alt="Hop — Systemmonitor">
 </div>
 
 ### Zwischenablage-Verlauf
@@ -128,7 +128,7 @@ App. Kopierte Dateien werden mit Namen gemerkt (mehrere zeigen sich als
 und andere verdeckte Eingaben werden niemals gespeichert.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/clipboard.png" width="420" alt="Hop — Zwischenablage-Verlauf">
+<img src="https://hop.tools/screens/de/clipboard.webp" width="420" alt="Hop — Zwischenablage-Verlauf">
 </div>
 
 ### Dateikonverter
@@ -150,7 +150,7 @@ exportieren die Apps selbst, stapelweise: als PDF oder als docx, xlsx und
 pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/converter.png" width="480" alt="Hop — Dateikonverter">
+<img src="https://hop.tools/screens/de/converter.webp" width="480" alt="Hop — Dateikonverter">
 </div>
 
 ### Fenstermanager
@@ -159,7 +159,7 @@ Fenster mit einem Klick auf ein Zonensymbol oder per ⌃⌥-Hotkey auf Hälften,
 Viertel, Drittel und die Mitte einrasten — ganz ohne zusätzliche App.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/windows.png" width="420" alt="Hop — Fenstermanager">
+<img src="https://hop.tools/screens/de/windows.webp" width="420" alt="Hop — Fenstermanager">
 </div>
 
 ### Torrents
@@ -174,7 +174,7 @@ einen lokalen Port mit Hop spricht. Hop kann außerdem zur Standard-App für
 .torrent-Dateien und magnet-Links werden.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/torrents.png" width="420" alt="Hop-Torrents — leichter BitTorrent-Client im Menüleisten-Panel">
+<img src="https://hop.tools/screens/de/torrents.webp" width="420" alt="Hop-Torrents — leichter BitTorrent-Client im Menüleisten-Panel">
 </div>
 
 ### Dateiarchive
@@ -193,7 +193,7 @@ Archivierungsprogramm. Es funktioniert auch mit verstecktem Modul, und die Karte
 zeigt den echten Stand. Ein Doppelklick auf ein Archiv im Finder entpackt es direkt neben der Datei, in einem eigenen kleinen Fortschrittsfenster, und ein fehlgeschlagener Lauf lässt nichts Verstecktes zurück. Dateien, die Hop öffnet, tragen ein eigenes Symbol mit dem Format darauf, sodass ein Ordner davon auf einen Blick lesbar ist.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/archives.png" width="480" alt="Hop — Dateiarchive">
+<img src="https://hop.tools/screens/de/archives.webp" width="480" alt="Hop — Dateiarchive">
 </div>
 
 ### Dokumente
@@ -212,7 +212,7 @@ Listenlänge und sichtbare Zeilen sind einstellbar, und eine Berechtigung für
 Bildschirmaufnahmen braucht es nicht: die Lupe liefert genau eine Farbe.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/colors.png" width="420" alt="Hop — Farbpipette">
+<img src="https://hop.tools/screens/de/colors.webp" width="420" alt="Hop — Farbpipette">
 </div>
 
 ### Texterkennung
@@ -230,7 +230,7 @@ Eingabe, deshalb bleiben Telefonnummer, WLAN-Passwort oder Visitenkarte
 einfacher Text.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/recognition.png" width="480" alt="Hop — Texterkennung">
+<img src="https://hop.tools/screens/de/recognition.webp" width="480" alt="Hop — Texterkennung">
 </div>
 
 ### Tastatursperre
@@ -244,7 +244,7 @@ auf die Ein-/Aus-Taste wird ebenfalls geschluckt; langes Halten schaltet den
 Mac weiterhin aus, denn das macht die Hardware.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/keyboard.png" width="480" alt="Hop — Tastatursperre">
+<img src="https://hop.tools/screens/de/keyboard.webp" width="480" alt="Hop — Tastatursperre">
 </div>
 
 ### Geschwindigkeitstest
@@ -252,7 +252,7 @@ Mac weiterhin aus, denn das macht die Hardware.
 Ein Tippen misst die Verbindung mit macOS' eigenem networkQuality gegen Apples Server — Download, Upload und Reaktionszeit, das letzte Ergebnis bleibt in der Zeile stehen.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/speed.png" width="420" alt="Hop — Geschwindigkeitstest">
+<img src="https://hop.tools/screens/de/speed.webp" width="420" alt="Hop — Geschwindigkeitstest">
 </div>
 
 ### Das Symbol in der Menüleiste
@@ -269,7 +269,7 @@ das Symbol wieder.
 Dunkles und helles Theme mit Filmkorn-Textur, globale Kurzbefehle, Start bei der Anmeldung und ein abgesicherter Modus, der die App aus einer Absturzschleife holt — alles in einem Einstellungsfenster.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/settings.png" width="480" alt="Hop — Einstellungen">
+<img src="https://hop.tools/screens/de/settings.webp" width="480" alt="Hop — Einstellungen">
 </div>
 
 ### VPN
@@ -297,7 +297,7 @@ Maschine steht.
 Der Punkt lässt sich in den Einstellungen abschalten — das Modul und seine Schalter arbeiten auch ohne ihn.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/vpn.png" width="420" alt="Hop — VPN-Schalter">
+<img src="https://hop.tools/screens/de/vpn.webp" width="420" alt="Hop — VPN-Schalter">
 </div>
 
 ### Programme
@@ -320,7 +320,7 @@ endgültig löscht. Ein neues Raster ist leer und sagt das auch, bis Sie es
 füllen.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/apps.png" width="420" alt="Hop — App-Raster">
+<img src="https://hop.tools/screens/de/apps.webp" width="420" alt="Hop — App-Raster">
 </div>
 
 ### Apps entfernen
@@ -330,13 +330,13 @@ Leg eine App auf die Zeile oder wähle sie aus der Liste aller installierten —
 Nichts wird gelöscht. Alles wandert in den Papierkorb, ein Fehler kostet also eine Wiederherstellung und keine Datei, und was macOS nicht herausgibt, wird mit Grund genannt statt stillschweigend übergangen.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/uninstall.png" width="480" alt="Hop — eine App mitsamt allem entfernen, was sie hinterließ">
+<img src="https://hop.tools/screens/de/uninstall.webp" width="480" alt="Hop — eine App mitsamt allem entfernen, was sie hinterließ">
 </div>
 
 Dasselbe Modul räumt auf, ohne etwas zu entfernen: jede App mit Cache, die größten zuerst; Installer in Downloads, auf dem Schreibtisch und in Dokumenten; Daten längst entfernter Apps; und der Papierkorb mit seiner Größe. Ein Häkchen nimmt einen ganzen Abschnitt. Was es bewusst in Ruhe lässt, steht ebenfalls da — ein Container, in dem Cache und Daten zusammenliegen, die zwanzig Gigabyte eines Messengers etwa: was davon entbehrlich ist, weiß nur die App selbst.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/de/clean.png" width="480" alt="Hop — Caches, Installer, Reste und den Papierkorb leeren">
+<img src="https://hop.tools/screens/de/clean.webp" width="480" alt="Hop — Caches, Installer, Reste und den Papierkorb leeren">
 </div>
 
 ## 22 Sprachen
@@ -402,7 +402,7 @@ Code gibt es schlicht nicht — lies ihn in diesem Repository. Im Infofenster de
 App gibt es den Tab «App-Berechtigungen» mit derselben Liste und dem aktuellen
 Stand jeder einzelnen.
 
-Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+Website: [hop.tools](https://hop.tools)
 
 ## Kostenlos — und warum
 

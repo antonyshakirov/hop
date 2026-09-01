@@ -11,7 +11,7 @@ menyebarnya di hingga empat tab pada ikon. Sekali klik — semua yang kamu
 butuhkan langsung ada.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -21,7 +21,7 @@ butuhkan langsung ada.**
 
 **Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Panel Hop — timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Panel Hop — timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
 
 </div>
 
@@ -63,7 +63,7 @@ Saat hitung mundur selesai, terdengar satu bunyi dan angkanya berkedip
 sampai kamu mereset.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Timer & siklus">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Timer & siklus">
 </div>
 
 ### Pelacak waktu & tugas
@@ -93,7 +93,7 @@ berpengingat, atau membaca apa yang sedang berjalan. Lihat
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Pelacak waktu & tugas">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Pelacak waktu & tugas">
 </div>
 
 ### Anti-tidur
@@ -104,7 +104,7 @@ bekerja dengan penutup tertutup (praktis untuk unduhan, build panjang, dan
 layar eksternal).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Anti-tidur">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Anti-tidur">
 </div>
 
 ### Monitor sistem
@@ -117,7 +117,7 @@ juga memperingatkan saat banyak memori pindah ke disk, bukan hanya saat macOS
 sendiri bilang sedang sesak.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Monitor sistem">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Monitor sistem">
 </div>
 
 ### Riwayat clipboard
@@ -129,7 +129,7 @@ tampil sebagai «nama +N»), dan menempel akan mengembalikan file itu sendiri.
 Kata sandi dan input tersembunyi lainnya tidak pernah disimpan.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Riwayat clipboard">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Riwayat clipboard">
 </div>
 
 ### Konverter file
@@ -151,7 +151,7 @@ diekspor secara massal oleh aplikasinya sendiri: ke PDF, atau ke docx, xlsx,
 dan pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Konverter file">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Konverter file">
 </div>
 
 ### Pengelola jendela
@@ -160,7 +160,7 @@ Tata jendela ke setengah, seperempat, sepertiga, dan tengah layar dengan
 sekali klik pada glyph zona atau pintasan ⌃⌥ — tanpa aplikasi tambahan.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Pengelola jendela">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Pengelola jendela">
 </div>
 
 ### Torrent
@@ -175,7 +175,7 @@ Hop lewat port lokal. Hop juga bisa menjadi aplikasi bawaan untuk file
 .torrent dan tautan magnet.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Torrent Hop — klien BitTorrent ringan di panel menu bar">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Torrent Hop — klien BitTorrent ringan di panel menu bar">
 </div>
 
 ### Arsip berkas
@@ -193,7 +193,7 @@ kembali dari aplikasi pihak ketiga; zip, 7z, dan format bawaan tetap di Utilitas
 bekerja walau modulnya disembunyikan, dan kartunya menunjukkan keadaan asli. Klik ganda pada arsip di Finder membukanya tepat di sebelah berkasnya, dalam jendela progres kecil tersendiri, dan kegagalan tidak meninggalkan apa pun yang tersembunyi. Berkas yang dibuka Hop membawa ikonnya sendiri dengan nama formatnya, jadi satu folder terbaca sekali lihat.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Arsip berkas">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Arsip berkas">
 </div>
 
 ### Dokumen
@@ -212,7 +212,7 @@ berapa warna disimpan dan berapa baris tampil adalah pengaturan, dan izin rekam
 layar tidak diperlukan: lup hanya mengembalikan satu warna.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Pemilih warna">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Pemilih warna">
 </div>
 
 ### Pengenalan teks
@@ -229,7 +229,7 @@ alamat web: kode yang dipindai adalah masukan dari luar, jadi nomor telepon,
 kata sandi Wi-Fi atau kartu kontak tetap teks biasa.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Pengenalan teks">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Pengenalan teks">
 </div>
 
 ### Kunci papan ketik
@@ -242,7 +242,7 @@ menahan esc + shift lima detik. Tekanan singkat tombol daya juga ditelan; menaha
 tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Kunci papan ketik">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Kunci papan ketik">
 </div>
 
 ### Tes kecepatan
@@ -250,7 +250,7 @@ tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 Sekali ketuk, koneksi diukur lewat networkQuality bawaan macOS terhadap server Apple — unduh, unggah, dan responsivitas, dengan hasil terakhir tersimpan di barisnya.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Tes kecepatan">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Tes kecepatan">
 </div>
 
 ### Ikon di bilah menu
@@ -266,7 +266,7 @@ alih-alih membuka panel, dan ikonnya pergi bersama jendela terakhir.
 Tema gelap dan terang dengan tekstur butiran film, pintasan global, jalan saat masuk, dan mode aman yang mengeluarkan aplikasi dari putaran kegagalan — semuanya di satu jendela pengaturan.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Pengaturan">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — Pengaturan">
 </div>
 
 ### VPN
@@ -291,7 +291,7 @@ bukan di mana mesinnya berada.
 Titik itu bisa dimatikan di pengaturan; modul dan sakelarnya tetap bekerja.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — Sakelar VPN">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — Sakelar VPN">
 </div>
 
 ### Aplikasi
@@ -311,7 +311,7 @@ tabel modul itu sendiri, di mana ✕ pada cip sebuah kisi menghapusnya untuk
 selamanya. Kisi baru mulai kosong dan mengatakannya sampai Anda mengisinya.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — Kisi aplikasi">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — Kisi aplikasi">
 </div>
 
 ### Menghapus aplikasi
@@ -321,13 +321,13 @@ Jatuhkan aplikasi ke baris ini, atau pilih dari daftar semua yang terpasang, dan
 Tidak ada yang dihapus permanen. Semuanya pindah ke tempat sampah, jadi kesalahan berharga satu pemulihan, bukan sebuah berkas; dan yang tidak diserahkan macOS disebutkan beserta alasannya, bukan dilewati diam-diam.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Menghapus aplikasi beserta semua yang ditinggalkannya">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — Menghapus aplikasi beserta semua yang ditinggalkannya">
 </div>
 
 Modul yang sama merapikan tanpa menghapus apa pun: setiap aplikasi yang menyimpan cache, terbesar dulu; pemasang yang tertinggal di Unduhan, Meja, dan Dokumen; data aplikasi yang dihapus bertahun lalu; dan tempat sampah beserta ukurannya. Satu centang mengambil satu bagian penuh. Yang sengaja tidak disentuh juga didaftar — container tempat cache dan data berbagi satu folder, termasuk dua puluh gigabyte sebuah aplikasi pesan: hanya aplikasi itu yang tahu bagian mana yang bisa dibuang.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Membersihkan cache, pemasang, sisa, dan tempat sampah">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Membersihkan cache, pemasang, sisa, dan tempat sampah">
 </div>
 
 ## 22 bahasa
@@ -395,7 +395,7 @@ mengumpulkan itu memang tidak ada — baca di repositori ini. Jendela info
 aplikasi punya tab «izin aplikasi» dengan daftar yang sama dan status setiap
 izin saat ini.
 
-Situs web: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+Situs web: [hop.tools](https://hop.tools)
 
 ## Gratis, dan alasannya
 

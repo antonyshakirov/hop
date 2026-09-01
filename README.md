@@ -11,7 +11,7 @@ arrange them across up to four tabs on the icon. One click, and everything
 you need is right there.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -21,7 +21,7 @@ you need is right there.**
 
 [Bahasa Indonesia](docs/readme/README.id.md) · [Deutsch](docs/readme/README.de.md) · **English** · [Español](docs/readme/README.es.md) · [Français](docs/readme/README.fr.md) · [Italiano](docs/readme/README.it.md) · [Nederlands](docs/readme/README.nl.md) · [Polski](docs/readme/README.pl.md) · [Português](docs/readme/README.pt.md) · [Tiếng Việt](docs/readme/README.vi.md) · [Türkçe](docs/readme/README.tr.md) · [Русский](docs/readme/README.ru.md) · [Українська](docs/readme/README.uk.md) · [עברית](docs/readme/README.he.md) · [اردو](docs/readme/README.ur.md) · [العربية](docs/readme/README.ar.md) · [فارسی](docs/readme/README.fa.md) · [हिन्दी](docs/readme/README.hi.md) · [ไทย](docs/readme/README.th.md) · [한국어](docs/readme/README.ko.md) · [中文](docs/readme/README.zh.md) · [日本語](docs/readme/README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop panel — menu bar timer with dot-matrix display, presets and work-rest cycles">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop panel — menu bar timer with dot-matrix display, presets and work-rest cycles">
 
 </div>
 
@@ -62,7 +62,7 @@ When the countdown ends it plays a single sound and the digits pulse until
 you reset it.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Timer & cycles">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Timer & cycles">
 </div>
 
 ### Time tracker & to-dos
@@ -92,7 +92,7 @@ around one — can start a timer, add a task with a reminder, or read what is
 running. See [docs/automation.md](docs/automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Time tracker & to-dos">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Time tracker & to-dos">
 </div>
 
 ### No sleep
@@ -102,7 +102,7 @@ password. Optionally keep the display on, or keep working with the lid
 closed (handy for downloads, long builds and external displays).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — No sleep">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — No sleep">
 </div>
 
 ### System monitor
@@ -115,7 +115,7 @@ lot of memory has gone to disk, and not only when macOS itself reports being
 short.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — System monitor">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — System monitor">
 </div>
 
 ### Clipboard history
@@ -126,7 +126,7 @@ kept by name (several at once show as "name +N"), and pasting puts the actual
 file back. Passwords and other concealed input are never stored.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Clipboard history">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Clipboard history">
 </div>
 
 ### File converter
@@ -146,7 +146,7 @@ helper that downloads once. Pages, Numbers and Keynote documents are exported
 in batches by the apps themselves — PDF, or docx, xlsx and pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — File converter">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — File converter">
 </div>
 
 ### Window manager
@@ -155,7 +155,7 @@ Snap windows to halves, quarters, thirds and center with a click on a zone
 glyph or a ⌃⌥ hotkey — no extra app needed.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Window manager">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Window manager">
 </div>
 
 ### Torrents
@@ -169,7 +169,7 @@ Hop over a local port. Hop can also become the default app for .torrent
 files and magnet links.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop torrents — lite BitTorrent client in the menu bar panel">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop torrents — lite BitTorrent client in the menu bar panel">
 </div>
 
 ### File archives
@@ -187,7 +187,7 @@ the native formats stay with Archive Utility. It works with the module hidden, a
 shows the real state, so it can never claim a default Finder has given away. Double-clicking an archive in Finder unpacks it right beside the file, in a small progress window of its own, and a failed job leaves nothing hidden behind. Files Hop opens carry its own icon with the format written across it, so a folder of them reads at a glance.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — File archives">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — File archives">
 </div>
 
 ### Documents
@@ -206,7 +206,7 @@ and its visible rows are settings, and no screen-recording permission is
 needed: the loupe hands back one color and nothing else.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Color picker">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Color picker">
 </div>
 
 ### Text recognition
@@ -223,7 +223,7 @@ Web addresses only: a scanned code is untrusted input, so a phone number, a
 Wi-Fi password or a contact card stays plain text.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Text recognition">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Text recognition">
 </div>
 
 ### Keyboard lock
@@ -236,7 +236,7 @@ five seconds. A short press of the power key is swallowed too; holding it
 still forces the Mac off, because that is handled in hardware.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Keyboard lock">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Keyboard lock">
 </div>
 
 ### Speed test
@@ -246,7 +246,7 @@ Apple's servers — down, up and responsiveness, with the last result kept in th
 row.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Speed test">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Speed test">
 </div>
 
 ### The menu bar icon
@@ -264,7 +264,7 @@ and a safe mode that recovers the app from a crash loop — everything lives in 
 settings window.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Settings">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — Settings">
 </div>
 
 ### VPN
@@ -294,7 +294,7 @@ none.
 The dot can be switched off in settings — the module and its switches go on working without it.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — VPN switches">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — VPN switches">
 </div>
 
 ### Apps
@@ -314,7 +314,7 @@ module table itself, where the ✕ on a grid's chip deletes it for good. A new
 grid starts empty and says so until you fill it.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — App grid">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — App grid">
 </div>
 
 ### Uninstall apps
@@ -331,7 +331,7 @@ rather than a file, and whatever macOS refuses to hand over is named with the
 reason instead of quietly skipped.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Uninstall an app with everything it left behind">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — Uninstall an app with everything it left behind">
 </div>
 
 The same module cleans up without removing anything: every app holding a cache,
@@ -342,7 +342,7 @@ and data share one folder, a messenger's twenty gigabytes among them, since only
 that app's own cleanup knows which half is disposable.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Clear caches, installers, leftovers and the Trash">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Clear caches, installers, leftovers and the Trash">
 </div>
 
 ## 22 languages
@@ -414,7 +414,7 @@ have to do the collecting simply is not there — read it in this repository. Th
 app's info window has an "app permissions" tab with the same list and each
 permission's current state.
 
-Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+Website: [hop.tools](https://hop.tools)
 
 ## Free, and why
 

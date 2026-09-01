@@ -9,7 +9,7 @@
 你只打开需要的，再分布到图标上多达四个标签里。轻轻一点——你需要的一切都在眼前。**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/overview.png" width="360" alt="Hop 面板 — 菜单栏计时器，点阵显示屏、预设与工作-休息循环">
+<img src="https://hop.tools/screens/zh/overview.webp" width="360" alt="Hop 面板 — 菜单栏计时器，点阵显示屏、预设与工作-休息循环">
 
 </div>
 
@@ -54,7 +54,7 @@ Ed25519 验证。需要 macOS 14 或更高版本。
 数字会一直闪烁，直到你复位。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/timer.png" width="420" alt="Hop — 计时器与循环">
+<img src="https://hop.tools/screens/zh/timer.webp" width="420" alt="Hop — 计时器与循环">
 </div>
 
 ### 时间跟踪与待办
@@ -76,7 +76,7 @@ Hop 还会执行命令文件并支持 `hop://` 链接：同一个助手，或者
 [docs/automation.md](../automation.md)。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/tracker.png" width="420" alt="Hop — 时间跟踪与待办">
+<img src="https://hop.tools/screens/zh/tracker.webp" width="420" alt="Hop — 时间跟踪与待办">
 </div>
 
 ### 防休眠
@@ -86,7 +86,7 @@ Hop 还会执行命令文件并支持 `hop://` 链接：同一个助手，或者
 （下载、长时间编译和外接显示器时特别好用）。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/awake.png" width="420" alt="Hop — 防休眠">
+<img src="https://hop.tools/screens/zh/awake.webp" width="420" alt="Hop — 防休眠">
 </div>
 
 ### 系统监控
@@ -96,7 +96,7 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 内存这一行在大量内存被换到硬盘时也会提醒，而不只是在 macOS 自己报告吃紧的时候。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/system.png" width="420" alt="Hop — 系统监控">
+<img src="https://hop.tools/screens/zh/system.webp" width="420" alt="Hop — 系统监控">
 </div>
 
 ### 剪贴板历史
@@ -106,7 +106,7 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 「名称 +N」），粘贴时会还原文件本身。密码等隐藏输入绝不会被记录。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/clipboard.png" width="420" alt="Hop — 剪贴板历史">
+<img src="https://hop.tools/screens/zh/clipboard.webp" width="420" alt="Hop — 剪贴板历史">
 </div>
 
 ### 文件转换器
@@ -121,7 +121,7 @@ tiktok、shorts 或 youtube —按平台自己的建议设定画幅、
 批量导出：PDF，或 docx、xlsx 和 pptx。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/converter.png" width="480" alt="Hop — 文件转换器">
+<img src="https://hop.tools/screens/zh/converter.webp" width="480" alt="Hop — 文件转换器">
 </div>
 
 ### 窗口管理器
@@ -130,7 +130,7 @@ tiktok、shorts 或 youtube —按平台自己的建议设定画幅、
 三分之一或居中——无需额外安装任何应用。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/windows.png" width="420" alt="Hop — 窗口管理器">
+<img src="https://hop.tools/screens/zh/windows.webp" width="420" alt="Hop — 窗口管理器">
 </div>
 
 ### 种子下载
@@ -143,7 +143,7 @@ tiktok、shorts 或 youtube —按平台自己的建议设定画幅、
 默认应用。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/torrents.png" width="420" alt="Hop 种子下载 — 菜单栏面板中的轻量 BT 客户端">
+<img src="https://hop.tools/screens/zh/torrents.webp" width="420" alt="Hop 种子下载 — 菜单栏面板中的轻量 BT 客户端">
 </div>
 
 ### 文件压缩包
@@ -156,7 +156,7 @@ tiktok、shorts 或 youtube —按平台自己的建议设定画幅、
 zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同样有效，卡片显示的是真实状态。 在访达里双击压缩包，会就地在文件旁边解压，并单独弹出一个小的进度窗口；即使失败也不会留下任何隐藏的东西。由 Hop 打开的文件都带有自己的图标，上面写着格式，一整个文件夹一眼就能看清。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/archives.png" width="480" alt="Hop — 文件压缩包">
+<img src="https://hop.tools/screens/zh/archives.webp" width="480" alt="Hop — 文件压缩包">
 </div>
 
 ### 文档
@@ -172,7 +172,7 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 一个颜色。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/colors.png" width="420" alt="Hop — 颜色取色器">
+<img src="https://hop.tools/screens/zh/colors.webp" width="420" alt="Hop — 颜色取色器">
 </div>
 
 ### 文字识别
@@ -185,7 +185,7 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 。只认网址：扫来的码是外来输入，所以电话号码、Wi-Fi 密码或名片仍然只是普通文本。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/recognition.png" width="480" alt="Hop — 文字识别">
+<img src="https://hop.tools/screens/zh/recognition.webp" width="480" alt="Hop — 文字识别">
 </div>
 
 ### 键盘锁定
@@ -195,7 +195,7 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 长按 esc + shift 五秒。电源键的短按同样被吞掉；长按仍会强制关机，因为那是硬件负责的。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/keyboard.png" width="480" alt="Hop — 键盘锁定">
+<img src="https://hop.tools/screens/zh/keyboard.webp" width="480" alt="Hop — 键盘锁定">
 </div>
 
 ### 网速测试
@@ -203,7 +203,7 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 一次点按就用 macOS 自带的 networkQuality 对着 Apple 的服务器测一遍——下行、上行和响应，最后一次结果留在这一行里。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/speed.png" width="420" alt="Hop — 网速测试">
+<img src="https://hop.tools/screens/zh/speed.webp" width="420" alt="Hop — 网速测试">
 </div>
 
 ### 菜单栏图标
@@ -215,7 +215,7 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 深色与浅色主题，带胶片颗粒质感；全局快捷键；登录时启动；还有把应用从崩溃循环里救出来的安全模式——全都在同一个设置窗口里。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/settings.png" width="480" alt="Hop — 设置">
+<img src="https://hop.tools/screens/zh/settings.webp" width="480" alt="Hop — 设置">
 </div>
 
 ### VPN
@@ -232,7 +232,7 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 这个绿点可以在设置里关掉，模块和开关照常工作。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/vpn.png" width="420" alt="Hop — VPN 开关">
+<img src="https://hop.tools/screens/zh/vpn.webp" width="420" alt="Hop — VPN 开关">
 </div>
 
 ### 应用
@@ -244,7 +244,7 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 网格在您排列模块的地方创建和删除：设置里，或者模块表格本身——表格里网格方块上的 ✕ 会把它彻底删掉。新网格一开始是空的，在您填满之前会这样写着。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/apps.png" width="420" alt="Hop — 应用格子">
+<img src="https://hop.tools/screens/zh/apps.webp" width="420" alt="Hop — 应用格子">
 </div>
 
 ### 卸载应用
@@ -254,13 +254,13 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 什么都不会被直接删除。一切先进废纸篓，所以出错的代价是恢复一次，而不是丢一个文件；macOS 不肯交出的部分会连同原因一起点名，而不是悄悄跳过。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/uninstall.png" width="480" alt="Hop — 连同应用留下的一切一起卸载">
+<img src="https://hop.tools/screens/zh/uninstall.webp" width="480" alt="Hop — 连同应用留下的一切一起卸载">
 </div>
 
 同一个模块也能只整理、不卸载：所有占着缓存的应用，大的在前；留在下载、桌面和文稿里的安装包；多年前删掉的应用留下的数据；还有废纸篓和它的大小。一个勾选拿走一整节。它有意不碰的东西也列在那里——缓存和数据挤在同一个文件夹里的容器，比如某个即时通讯的二十多 GB：哪一半可以丢，只有那个应用自己知道。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/zh/clean.png" width="480" alt="Hop — 清理缓存、安装包、残留和废纸篓">
+<img src="https://hop.tools/screens/zh/clean.webp" width="480" alt="Hop — 清理缓存、安装包、残留和废纸篓">
 </div>
 
 ## 22 种语言
@@ -311,7 +311,7 @@ Hop 是免费的，而且会一直免费。如果它在你的菜单栏里挣到�
 那种用来收集数据的代码根本不存在 —— 就在这个仓库里读它。应用的信息窗口里有「应用权限」标签页，
 列着同样的清单和每项权限的当前状态。
 
-官网：[antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+官网：[hop.tools](https://hop.tools)
 
 ## 为什么免费
 

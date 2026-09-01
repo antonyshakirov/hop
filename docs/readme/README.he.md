@@ -10,7 +10,7 @@
 וכל מה שצריך נמצא שם.**
 
 [![הגרסה האחרונה](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![הורדות](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![הורדות](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 [![רישיון: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · **עברית** · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="הלוח של Hop — טיימר בשורת התפריטים עם תצוגת נקודות, זמנים מוכנים ומחזורי עבודה ומנוחה">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="הלוח של Hop — טיימר בשורת התפריטים עם תצוגת נקודות, זמנים מוכנים ומחזורי עבודה ומנוחה">
 
 </div>
 
@@ -57,7 +57,7 @@ macOS 14 ומעלה.
 והספרות פועמות עד שתאפסו.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — טיימר ומחזורים">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — טיימר ומחזורים">
 </div>
 
 ### מעקב זמן ומשימות
@@ -80,7 +80,7 @@ macOS 14 ומעלה.
 פועל כרגע. ראו [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — מעקב זמן ומשימות">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — מעקב זמן ומשימות">
 </div>
 
 ### בלי שינה
@@ -90,7 +90,7 @@ macOS 14 ומעלה.
 לבנייה ארוכה ולמסכים חיצוניים).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — בלי שינה">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — בלי שינה">
 </div>
 
 ### מוניטור מערכת
@@ -102,7 +102,7 @@ macOS 14 ומעלה.
 עצמו מדווח על מחסור.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — מוניטור מערכת">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — מוניטור מערכת">
 </div>
 
 ### היסטוריית לוח
@@ -113,7 +113,7 @@ macOS 14 ומעלה.
 לא נשמרים לעולם.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — היסטוריית לוח">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — היסטוריית לוח">
 </div>
 
 ### ממיר קבצים
@@ -131,7 +131,7 @@ macOS 14 ומעלה.
 בידי האפליקציות עצמן: ל‑PDF, או ל‑docx, xlsx ו‑pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — ממיר קבצים">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — ממיר קבצים">
 </div>
 
 ### מנהל חלונות
@@ -140,7 +140,7 @@ macOS 14 ומעלה.
 ‎⌃⌥ — בלי יישום נוסף.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — מנהל חלונות">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — מנהל חלונות">
 </div>
 
 ### טורנטים
@@ -153,7 +153,7 @@ Hop דרך פורט מקומי. ‏Hop יכול גם להיות היישום ש�
 magnet כברירת מחדל.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="טורנטים ב-Hop — לקוח BitTorrent קל בלוח שבשורת התפריטים">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="טורנטים ב-Hop — לקוח BitTorrent קל בלוח שבשורת התפריטים">
 </div>
 
 ### ארכיונים
@@ -173,7 +173,7 @@ magnet כברירת מחדל.
 הפורמט כתוב עליו, כך שתיקייה שלמה נקראת במבט.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — ארכיונים">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — ארכיונים">
 </div>
 
 ### מסמכים
@@ -191,7 +191,7 @@ magnet כברירת מחדל.
 צורך בהרשאת הקלטת מסך: זכוכית המגדלת מחזירה צבע אחד ותו לא.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — בוחר צבעים">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — בוחר צבעים">
 </div>
 
 ### זיהוי טקסט
@@ -206,7 +206,7 @@ magnet כברירת מחדל.
 הוא קלט מבחוץ, ולכן מספר טלפון, סיסמת Wi-Fi או כרטיס איש קשר נשארים טקסט רגיל.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — זיהוי טקסט">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — זיהוי טקסט">
 </div>
 
 ### נעילת מקלדת
@@ -218,7 +218,7 @@ magnet כברירת מחדל.
 נבלעת; החזקה עדיין מכבה את ה-Mac בכוח, כי זה מטופל בחומרה.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — נעילת מקלדת">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — נעילת מקלדת">
 </div>
 
 ### בדיקת מהירות
@@ -226,7 +226,7 @@ magnet כברירת מחדל.
 הקשה אחת מודדת את החיבור באמצעות networkQuality של macOS מול השרתים של Apple — הורדה, העלאה ותגובתיות, והתוצאה האחרונה נשארת בשורה.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — בדיקת מהירות">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — בדיקת מהירות">
 </div>
 
 ### הסמל בשורת התפריטים
@@ -238,7 +238,7 @@ magnet כברירת מחדל.
 ערכה כהה ובהירה עם מרקם גרעיני סרט, קיצורים גלובליים, הפעלה בכניסה למערכת ומצב בטוח שמוציא את האפליקציה ממעגל קריסות — הכול בחלון הגדרות אחד.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — הגדרות">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — הגדרות">
 </div>
 
 ### VPN
@@ -257,7 +257,7 @@ Hop לעולם לא מנחש מדינה לפי כתובת השרת: מרשם ה�
 אפשר לכבות את הנקודה בהגדרות — המודול והמתגים ממשיכים לעבוד בלעדיה.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — מתגי VPN">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — מתגי VPN">
 </div>
 
 ### אפליקציות
@@ -275,7 +275,7 @@ Hop לעולם לא מנחש מדינה לפי כתובת השרת: מרשם ה�
 ואומרת זאת עד שתמלאו אותה.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — רשת אפליקציות">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — רשת אפליקציות">
 </div>
 
 ### הסרת אפליקציות
@@ -285,13 +285,13 @@ Hop לעולם לא מנחש מדינה לפי כתובת השרת: מרשם ה�
 דבר אינו נמחק. הכול עובר לאשפה, כך שטעות עולה שחזור ולא קובץ; ומה ש‑macOS לא מוסר נאמר עם הסיבה ולא מדולג בשקט.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — הסרת אפליקציה עם כל מה שהשאירה">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — הסרת אפליקציה עם כל מה שהשאירה">
 </div>
 
 אותו מודול מסדר בלי להסיר דבר: כל אפליקציה שמחזיקה מטמון, הגדולות ראשונות; קובצי התקנה שנשארו בהורדות, בשולחן העבודה ובמסמכים; נתונים של אפליקציות שהוסרו לפני שנים; והאשפה עם גודלה. סימון אחד לוקח מקטע שלם. גם מה שהוא לא נוגע בו בכוונה מופיע — קונטיינר שבו המטמון והנתונים באותה תיקייה, למשל עשרים ג׳יגה של אפליקציית הודעות: רק אותה אפליקציה יודעת איזה חצי מיותר.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — ניקוי מטמונים, קובצי התקנה, שאריות והאשפה">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — ניקוי מטמונים, קובצי התקנה, שאריות והאשפה">
 </div>
 
 ## 22 שפות
@@ -350,7 +350,7 @@ Hop מבקש הרשאה רק כשהתכונה שזקוקה לה באמת בשי�
 במאגר הזה. בחלון המידע של היישום יש לשונית «הרשאות היישום» עם אותה רשימה ועם
 המצב הנוכחי של כל הרשאה.
 
-אתר: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+אתר: [hop.tools](https://hop.tools)
 
 ## חינמי, ולמה
 

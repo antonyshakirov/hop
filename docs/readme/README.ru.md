@@ -11,7 +11,7 @@
 под рукой.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -21,7 +21,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · **Русский** · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/overview.png" width="360" alt="Панель Hop — таймер в строке меню с точечно-матричным дисплеем, пресетами и циклами работы и отдыха">
+<img src="https://hop.tools/screens/ru/overview.webp" width="360" alt="Панель Hop — таймер в строке меню с точечно-матричным дисплеем, пресетами и циклами работы и отдыха">
 
 </div>
 
@@ -62,7 +62,7 @@ Hop подписан Apple Developer ID и заверен в Apple, поэтом
 сбросите таймер.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/timer.png" width="420" alt="Hop — Таймер и циклы">
+<img src="https://hop.tools/screens/ru/timer.webp" width="420" alt="Hop — Таймер и циклы">
 </div>
 
 ### Трекер времени и список дел
@@ -90,7 +90,7 @@ Hop подписан Apple Developer ID и заверен в Apple, поэтом
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/tracker.png" width="420" alt="Hop — Трекер времени и список дел">
+<img src="https://hop.tools/screens/ru/tracker.webp" width="420" alt="Hop — Трекер времени и список дел">
 </div>
 
 ### Запрет сна
@@ -100,7 +100,7 @@ Hop подписан Apple Developer ID и заверен в Apple, поэтом
 закрытой крышкой (удобно для загрузок, долгих сборок и внешних мониторов).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/awake.png" width="420" alt="Hop — Запрет сна">
+<img src="https://hop.tools/screens/ru/awake.webp" width="420" alt="Hop — Запрет сна">
 </div>
 
 ### Монитор системы
@@ -113,7 +113,7 @@ Hop подписан Apple Developer ID и заверен в Apple, поэтом
 macOS сама сообщает о нехватке.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/system.png" width="420" alt="Hop — Монитор системы">
+<img src="https://hop.tools/screens/ru/system.webp" width="420" alt="Hop — Монитор системы">
 </div>
 
 ### История буфера обмена
@@ -125,7 +125,7 @@ macOS сама сообщает о нехватке.
 никогда не сохраняются.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/clipboard.png" width="420" alt="Hop — История буфера обмена">
+<img src="https://hop.tools/screens/ru/clipboard.webp" width="420" alt="Hop — История буфера обмена">
 </div>
 
 ### Конвертер файлов
@@ -145,7 +145,7 @@ shorts или youtube: кадр, разрешение и сила сжатия �
 экспортируют пачками сами приложения: в PDF либо в docx, xlsx и pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/converter.png" width="480" alt="Hop — Конвертер файлов">
+<img src="https://hop.tools/screens/ru/converter.webp" width="480" alt="Hop — Конвертер файлов">
 </div>
 
 ### Менеджер окон
@@ -154,7 +154,7 @@ shorts или youtube: кадр, разрешение и сила сжатия �
 по глифу зоны или хоткеем ⌃⌥ — без отдельного приложения.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/windows.png" width="420" alt="Hop — Менеджер окон">
+<img src="https://hop.tools/screens/ru/windows.webp" width="420" alt="Hop — Менеджер окон">
 </div>
 
 ### Торренты
@@ -169,7 +169,7 @@ Hop только через локальный порт. Hop также може
 умолчанию для файлов .torrent и magnet-ссылок.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/torrents.png" width="420" alt="Торренты Hop — лёгкий BitTorrent-клиент в панели в строке меню">
+<img src="https://hop.tools/screens/ru/torrents.webp" width="420" alt="Торренты Hop — лёгкий BitTorrent-клиент в панели в строке меню">
 </div>
 
 ### Архивы файлов
@@ -187,7 +187,7 @@ zip, 7z и нативные форматы остаются за «Утилит�
 скрытым модулем, а карточка показывает реальное состояние. Двойной клик по архиву в Finder распаковывает его прямо рядом с файлом, в отдельном небольшом окне прогресса, а после сбоя не остаётся ничего скрытого. У файлов, которые открывает Hop, своя иконка с названием формата, поэтому папка с ними читается с одного взгляда.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/archives.png" width="480" alt="Hop — Архивы файлов">
+<img src="https://hop.tools/screens/ru/archives.webp" width="480" alt="Hop — Архивы файлов">
 </div>
 
 ### Документы
@@ -206,7 +206,7 @@ Word (.docx, .doc, .rtf) → PDF или markdown и текст из PDF в ви�
 нужно: лупа отдаёт один цвет и больше ничего.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/colors.png" width="420" alt="Hop — Пипетка цвета">
+<img src="https://hop.tools/screens/ru/colors.webp" width="420" alt="Hop — Пипетка цвета">
 </div>
 
 ### Распознавание текста
@@ -223,7 +223,7 @@ Word (.docx, .doc, .rtf) → PDF или markdown и текст из PDF в ви�
 поэтому телефон, пароль от Wi-Fi или визитка остаются обычным текстом.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/recognition.png" width="480" alt="Hop — Распознавание текста">
+<img src="https://hop.tools/screens/ru/recognition.webp" width="480" alt="Hop — Распознавание текста">
 </div>
 
 ### Блокировка клавиатуры
@@ -237,7 +237,7 @@ Word (.docx, .doc, .rtf) → PDF или markdown и текст из PDF в ви�
 аппаратура.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/keyboard.png" width="480" alt="Hop — Блокировка клавиатуры">
+<img src="https://hop.tools/screens/ru/keyboard.webp" width="480" alt="Hop — Блокировка клавиатуры">
 </div>
 
 ### Тест скорости
@@ -245,7 +245,7 @@ Word (.docx, .doc, .rtf) → PDF или markdown и текст из PDF в ви�
 Один тап измеряет соединение средствами самого macOS (networkQuality, серверы Apple) — приём, отдача и отзывчивость, а последний результат остаётся в строке.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/speed.png" width="420" alt="Hop — тест скорости">
+<img src="https://hop.tools/screens/ru/speed.webp" width="420" alt="Hop — тест скорости">
 </div>
 
 ### Иконка в строке меню
@@ -261,7 +261,7 @@ Word (.docx, .doc, .rtf) → PDF или markdown и текст из PDF в ви�
 Тёмная и светлая темы с текстурой киноплёночного зерна, глобальные хоткеи, запуск при входе в систему и безопасный режим, который выводит приложение из цикла падений — всё в одном окне настроек.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/settings.png" width="480" alt="Hop — настройки">
+<img src="https://hop.tools/screens/ru/settings.webp" width="480" alt="Hop — настройки">
 </div>
 
 ### VPN
@@ -289,7 +289,7 @@ Word (.docx, .doc, .rtf) → PDF или markdown и текст из PDF в ви�
 Точку можно выключить в настройках — модуль и переключатели работают и без неё.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/vpn.png" width="420" alt="Hop — переключатели VPN">
+<img src="https://hop.tools/screens/ru/vpn.webp" width="420" alt="Hop — переключатели VPN">
 </div>
 
 ### Приложения
@@ -309,7 +309,7 @@ Word (.docx, .doc, .rtf) → PDF или markdown и текст из PDF в ви�
 остаётся пустой и пишет об этом, пока вы её не наполните.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/apps.png" width="420" alt="Hop — сетка приложений">
+<img src="https://hop.tools/screens/ru/apps.webp" width="420" alt="Hop — сетка приложений">
 </div>
 
 ### Удаление программ
@@ -319,13 +319,13 @@ Word (.docx, .doc, .rtf) → PDF или markdown и текст из PDF в ви�
 Ничего не стирается. Всё уходит в корзину, поэтому ошибка стоит восстановления, а не файла, а то, что macOS не отдаёт, названо с причиной, а не пропущено молча.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/uninstall.png" width="480" alt="Hop — удаление приложения вместе со всем, что оно оставило">
+<img src="https://hop.tools/screens/ru/uninstall.webp" width="480" alt="Hop — удаление приложения вместе со всем, что оно оставило">
 </div>
 
 Тот же модуль умеет убирать, ничего не удаляя: все программы, которые держат кэш, крупные сверху; инсталляторы в загрузках, на рабочем столе и в документах; данные давно удалённых приложений; и корзина с её размером. Одна галочка забирает целую секцию. То, что он намеренно не трогает, тоже показано — контейнер, где кэш лежит вместе с данными, включая двадцать гигабайт мессенджера: что там можно выбросить, знает только сама программа.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ru/clean.png" width="480" alt="Hop — очистка кэшей, инсталляторов, остатков и корзины">
+<img src="https://hop.tools/screens/ru/clean.webp" width="480" alt="Hop — очистка кэшей, инсталляторов, остатков и корзины">
 </div>
 
 ## 22 языка
@@ -389,7 +389,7 @@ Hop просит разрешение только тогда, когда вы �
 есть вкладка «разрешения приложения» с тем же списком и текущим состоянием
 каждого.
 
-Сайт: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+Сайт: [hop.tools](https://hop.tools)
 
 ## Почему бесплатно
 

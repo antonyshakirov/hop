@@ -10,7 +10,7 @@
 클릭 한 번이면 필요한 모든 것이 바로 그 자리에.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -20,7 +20,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · **한국어** · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop 패널 — 도트 매트릭스 디스플레이, 프리셋과 작업-휴식 사이클을 갖춘 메뉴 막대 타이머">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop 패널 — 도트 매트릭스 디스플레이, 프리셋과 작업-휴식 사이클을 갖춘 메뉴 막대 타이머">
 
 </div>
 
@@ -58,7 +58,7 @@ Hop은 Apple Developer ID로 서명되고 Apple의 공증을 받았습니다. ma
 소리가 한 번 울리고, 초기화할 때까지 숫자가 깜박입니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — 타이머와 사이클">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — 타이머와 사이클">
 </div>
 
 ### 시간 추적과 할 일
@@ -81,7 +81,7 @@ Hop이 알려줍니다 — '다시 알림'과 '완료'가 있는 배너, 소리,
 [docs/automation.md](../automation.md) 참고.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — 시간 추적과 할 일">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — 시간 추적과 할 일">
 </div>
 
 ### 잠자기 방지
@@ -91,7 +91,7 @@ Mac을 15분, 8시간, 혹은 영원히 깨어 있게 — 클릭 한 번, 암호
 수도 있습니다(다운로드, 긴 빌드, 외장 디스플레이에 유용).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — 잠자기 방지">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — 잠자기 방지">
 </div>
 
 ### 시스템 모니터
@@ -102,7 +102,7 @@ CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, �
 메모리가 디스크로 많이 밀려났을 때도 알려줍니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — 시스템 모니터">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — 시스템 모니터">
 </div>
 
 ### 클립보드 히스토리
@@ -113,7 +113,7 @@ CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, �
 비롯한 가려진 입력은 절대 저장되지 않습니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — 클립보드 히스토리">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — 클립보드 히스토리">
 </div>
 
 ### 파일 변환기
@@ -126,7 +126,7 @@ CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, �
 PDF, 또는 docx·xlsx·pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — 파일 변환기">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — 파일 변환기">
 </div>
 
 ### 창 관리자
@@ -135,7 +135,7 @@ PDF, 또는 docx·xlsx·pptx.
 가운데로 스냅 — 별도의 앱이 필요 없습니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — 창 관리자">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — 창 관리자">
 </div>
 
 ### 토렌트
@@ -149,7 +149,7 @@ magnet 링크를 붙여넣고, 내려받을 파일을 정확히 골라 보세요
 .torrent 파일과 magnet 링크의 기본 앱으로 지정할 수도 있습니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop 토렌트 — 메뉴 막대 패널의 가벼운 BitTorrent 클라이언트">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop 토렌트 — 메뉴 막대 패널의 가벼운 BitTorrent 클라이언트">
 </div>
 
 ### 파일 압축
@@ -164,7 +164,7 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 동작하며, 카드는 실제 상태를 보여 줍니다. Finder에서 압축 파일을 두 번 클릭하면 파일 바로 옆에 풀리고, 작은 진행 창이 따로 뜹니다. 실패해도 숨겨진 것이 남지 않습니다. Hop이 여는 파일에는 형식이 적힌 고유 아이콘이 붙어, 폴더를 한눈에 알아볼 수 있습니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — 파일 압축">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — 파일 압축">
 </div>
 
 ### 문서
@@ -181,7 +181,7 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 보여 줄지는 설정이며, 화면 기록 권한도 필요 없습니다. 확대경은 색 하나만 돌려줍니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — 색상 스포이트">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — 색상 스포이트">
 </div>
 
 ### 텍스트 인식
@@ -195,7 +195,7 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 호나 Wi-Fi 비밀번호, 연락처 카드는 그대로 텍스트로 남습니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — 텍스트 인식">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — 텍스트 인식">
 </div>
 
 ### 키보드 잠금
@@ -206,7 +206,7 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 삼켜지지만, 길게 누르면 여전히 Mac이 강제로 꺼집니다. 그것은 하드웨어가 처리하기 때문입니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — 키보드 잠금">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — 키보드 잠금">
 </div>
 
 ### 속도 테스트
@@ -214,7 +214,7 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 한 번 누르면 macOS 자체의 networkQuality가 Apple 서버를 상대로 회선을 잽니다. 내려받기, 올리기, 응답성이 나오고 마지막 결과는 줄에 남습니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — 속도 테스트">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — 속도 테스트">
 </div>
 
 ### 메뉴 막대 아이콘
@@ -226,7 +226,7 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 필름 그레인 질감의 어두운 테마와 밝은 테마, 전역 단축키, 로그인 시 실행, 그리고 앱을 충돌 반복에서 꺼내 주는 안전 모드 — 모두 하나의 설정 창 안에.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — 설정">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — 설정">
 </div>
 
 ### VPN
@@ -246,7 +246,7 @@ Mac이 아는 모든 VPN을, 어느 회사 것이든 각각 스위치와 함께.
 이 점은 설정에서 끌 수 있습니다. 모듈과 스위치는 그대로 동작합니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — VPN 스위치">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — VPN 스위치">
 </div>
 
 ### 앱
@@ -262,7 +262,7 @@ Mac이 아는 모든 VPN을, 어느 회사 것이든 각각 스위치와 함께.
 격자는 비어 있고 채우기 전까지 그렇다고 알려 줍니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — 앱 격자">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — 앱 격자">
 </div>
 
 ### 앱 삭제
@@ -272,13 +272,13 @@ Mac이 아는 모든 VPN을, 어느 회사 것이든 각각 스위치와 함께.
 무엇도 즉시 삭제하지 않습니다. 전부 휴지통으로 가므로 실수의 대가는 복원 한 번이지 파일이 아니며, macOS가 내주지 않는 것은 조용히 건너뛰지 않고 이유와 함께 이름을 밝힙니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — 앱을 남긴 것까지 함께 삭제">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — 앱을 남긴 것까지 함께 삭제">
 </div>
 
 같은 모듈이 아무것도 지우지 않고 정리도 합니다: 캐시를 안고 있는 모든 앱을 큰 순서로, 다운로드·데스크탑·서류에 남은 설치 파일, 오래전에 지운 앱의 데이터, 그리고 휴지통과 그 크기. 체크 하나로 한 섹션 전체. 일부러 건드리지 않는 것도 함께 적힙니다 — 캐시와 데이터가 한 폴더에 있는 컨테이너, 어느 메신저의 이십여 기가바이트 같은 것. 어느 쪽을 버려도 되는지는 그 앱 자신만 알기 때문입니다.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — 캐시·설치 파일·잔여물·휴지통 정리">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — 캐시·설치 파일·잔여물·휴지통 정리">
 </div>
 
 ## 22개 언어
@@ -334,7 +334,7 @@ Hop은 그 권한이 필요한 기능을 실제로 쓸 때만 권한을 요청�
 없습니다. Hop은 오픈 소스이고, 무언가를 수집할 코드 자체가 없습니다 — 이 저장소에서 직접 읽어
 보세요. 앱의 정보 창에는 «앱 권한» 탭이 있어 같은 목록과 각 권한의 현재 상태를 보여 줍니다.
 
-웹사이트: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+웹사이트: [hop.tools](https://hop.tools)
 
 ## 무료인 이유
 

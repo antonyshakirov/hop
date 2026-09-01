@@ -11,7 +11,7 @@
 ワンクリックで、必要なものがすべてそこに。**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -21,7 +21,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · **日本語**
 
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/overview.png" width="360" alt="Hop パネル — ドットマトリクス表示のメニューバータイマー、プリセットとワーク・レストサイクル">
+<img src="https://hop.tools/screens/ja/overview.webp" width="360" alt="Hop パネル — ドットマトリクス表示のメニューバータイマー、プリセットとワーク・レストサイクル">
 
 </div>
 
@@ -62,7 +62,7 @@ Hop は Apple Developer ID で署名され、Apple の公証を受けていま�
 リセットするまで数字が点滅し続けます。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/timer.png" width="420" alt="Hop — タイマーとサイクル">
+<img src="https://hop.tools/screens/ja/timer.webp" width="420" alt="Hop — タイマーとサイクル">
 </div>
 
 ### タイムトラッカーとやること
@@ -87,7 +87,7 @@ Hop が知らせます——「スヌーズ」と「完了」付きのバナー�
 [docs/automation.md](../automation.md) を参照。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/tracker.png" width="420" alt="Hop — タイムトラッカーとやること">
+<img src="https://hop.tools/screens/ja/tracker.webp" width="420" alt="Hop — タイムトラッカーとやること">
 </div>
 
 ### スリープ防止
@@ -98,7 +98,7 @@ Mac を 15 分、8 時間、あるいはずっと起こしておく——ワン�
 便利）。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/awake.png" width="420" alt="Hop — スリープ防止">
+<img src="https://hop.tools/screens/ja/awake.webp" width="420" alt="Hop — スリープ防止">
 </div>
 
 ### システムモニター
@@ -109,7 +109,7 @@ CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク�
 を告げたときだけでなく、多くのメモリがディスクに移ったときにも知らせます。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/system.png" width="420" alt="Hop — システムモニター">
+<img src="https://hop.tools/screens/ja/system.webp" width="420" alt="Hop — システムモニター">
 </div>
 
 ### クリップボード履歴
@@ -121,7 +121,7 @@ CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク�
 一切保存されません。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/clipboard.png" width="420" alt="Hop — クリップボード履歴">
+<img src="https://hop.tools/screens/ja/clipboard.webp" width="420" alt="Hop — クリップボード履歴">
 </div>
 
 ### ファイル変換
@@ -137,7 +137,7 @@ Keynote の書類は、アプリ自身がまとめて書き出します。
 PDF、または docx・xlsx・pptx です。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/converter.png" width="480" alt="Hop — ファイル変換">
+<img src="https://hop.tools/screens/ja/converter.webp" width="480" alt="Hop — ファイル変換">
 </div>
 
 ### ウィンドウ管理
@@ -146,7 +146,7 @@ PDF、または docx・xlsx・pptx です。
 2 分の 1、4 分の 1、3 分の 1、中央へスナップ——追加アプリは不要です。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/windows.png" width="420" alt="Hop — ウィンドウ管理">
+<img src="https://hop.tools/screens/ja/windows.webp" width="420" alt="Hop — ウィンドウ管理">
 </div>
 
 ### トレント
@@ -161,7 +161,7 @@ PDF、または docx・xlsx・pptx です。
 ファイルと magnet リンクのデフォルトアプリにすることもできます。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/torrents.png" width="420" alt="Hop トレント — メニューバーパネルの軽量 BitTorrent クライアント">
+<img src="https://hop.tools/screens/ja/torrents.webp" width="420" alt="Hop トレント — メニューバーパネルの軽量 BitTorrent クライアント">
 </div>
 
 ### ファイルアーカイブ
@@ -176,7 +176,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 隠れていても働き、カードは実際の状態を表示します。 Finder でアーカイブをダブルクリックすると、そのファイルのすぐ隣に展開され、専用の小さな進捗ウインドウが出ます。失敗しても隠しものは残りません。Hop が開くファイルには形式を記した独自のアイコンが付くので、フォルダを一目で見分けられます。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/archives.png" width="480" alt="Hop — ファイルアーカイブ">
+<img src="https://hop.tools/screens/ja/archives.webp" width="480" alt="Hop — ファイルアーカイブ">
 </div>
 
 ### 書類
@@ -193,7 +193,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 設定でき、画面収録の許可も不要です。ルーペが返すのは色ひとつだけだからです。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/colors.png" width="420" alt="Hop — カラーピッカー">
+<img src="https://hop.tools/screens/ja/colors.webp" width="420" alt="Hop — カラーピッカー">
 </div>
 
 ### 文字認識
@@ -207,7 +207,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 部からの入力なので、電話番号や Wi-Fi のパスワード、連絡先カードはそのまま文字として残ります。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/recognition.png" width="480" alt="Hop — 文字認識">
+<img src="https://hop.tools/screens/ja/recognition.webp" width="480" alt="Hop — 文字認識">
 </div>
 
 ### キーボードロック
@@ -218,7 +218,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 ますが、長押しは今も Mac を強制的に切ります。ハードウェアが処理しているからです。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/keyboard.png" width="480" alt="Hop — キーボードロック">
+<img src="https://hop.tools/screens/ja/keyboard.webp" width="480" alt="Hop — キーボードロック">
 </div>
 
 ### 速度テスト
@@ -226,7 +226,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 ワンタップで、macOS 自身の networkQuality が Apple のサーバー相手に回線を測ります。下り・上り・応答性が出て、最後の結果は行に残ります。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/speed.png" width="420" alt="Hop — 速度テスト">
+<img src="https://hop.tools/screens/ja/speed.webp" width="420" alt="Hop — 速度テスト">
 </div>
 
 ### メニューバーのアイコン
@@ -238,7 +238,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 フィルムグレインのテクスチャを持つダークとライトのテーマ、グローバルホットキー、ログイン時の起動、そしてクラッシュの繰り返しからアプリを救うセーフモード——すべて一つの設定窓の中に。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/settings.png" width="480" alt="Hop — 設定">
+<img src="https://hop.tools/screens/ja/settings.webp" width="480" alt="Hop — 設定">
 </div>
 
 ### VPN
@@ -258,7 +258,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 この点は設定で消せます。モジュールもスイッチもそのまま働きます。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/vpn.png" width="420" alt="Hop — VPN スイッチ">
+<img src="https://hop.tools/screens/ja/vpn.webp" width="420" alt="Hop — VPN スイッチ">
 </div>
 
 ### アプリ
@@ -270,7 +270,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 グリッドはモジュールを並べる場所で作り、そこで消します。設定でも、モジュール表そのものでも構いません。表の中のチップに付いた ✕ でグリッドは完全に削除されます。新しいグリッドは空で、中身を入れるまでそう表示されます。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/apps.png" width="420" alt="Hop — アプリの格子">
+<img src="https://hop.tools/screens/ja/apps.webp" width="420" alt="Hop — アプリの格子">
 </div>
 
 ### アプリの削除
@@ -280,13 +280,13 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 消去はしません。すべてゴミ箱へ送るので、間違えても復元で済み、ファイルは失われません。macOS が渡さないものは黙って飛ばさず、理由つきで名前を挙げます。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/uninstall.png" width="480" alt="Hop — 残したものごとアプリを削除">
+<img src="https://hop.tools/screens/ja/uninstall.webp" width="480" alt="Hop — 残したものごとアプリを削除">
 </div>
 
 同じモジュールが、何も削除せずに片づけもします。キャッシュを抱えるアプリを大きい順に、ダウンロード・デスクトップ・書類に残ったインストーラ、ずっと前に消したアプリのデータ、そしてゴミ箱とその大きさ。チェック一つで一区画ぶん。あえて触らないものも並びます——キャッシュとデータが一つのフォルダに同居しているコンテナ、あるメッセンジャーの二十数 GB など。どちらが捨てていいかは、そのアプリ自身しか知らないからです。
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/ja/clean.png" width="480" alt="Hop — キャッシュ・インストーラ・残骸・ゴミ箱を片づける">
+<img src="https://hop.tools/screens/ja/clean.webp" width="480" alt="Hop — キャッシュ・インストーラ・残骸・ゴミ箱を片づける">
 </div>
 
 ## 22 言語
@@ -343,7 +343,7 @@ Hop が許可を求めるのは、それを必要とする機能を実際に使�
 集めるためのコードはそもそも存在しません。このリポジトリで読めます。アプリの情報ウインドウには
 「アプリの許可」タブがあり、同じ一覧と、それぞれの現在の状態が並んでいます。
 
-ウェブサイト: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+ウェブサイト: [hop.tools](https://hop.tools)
 
 ## 無料である理由
 

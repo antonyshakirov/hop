@@ -10,7 +10,7 @@
 बाँट देते हैं। एक क्लिक — और आपकी ज़रूरत की हर चीज़ ठीक वहीं मौजूद है।**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -20,7 +20,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · **हिन्दी** · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop पैनल — डॉट-मैट्रिक्स डिस्प्ले, प्रीसेट और काम-आराम चक्रों वाला मेनू बार टाइमर">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop पैनल — डॉट-मैट्रिक्स डिस्प्ले, प्रीसेट और काम-आराम चक्रों वाला मेनू बार टाइमर">
 
 </div>
 
@@ -61,7 +61,7 @@ Hop को Apple Developer ID से साइन किया गया है 
 आवाज़ बजती है और रीसेट करने तक अंक टिमटिमाते रहते हैं।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — टाइमर और चक्र">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — टाइमर और चक्र">
 </div>
 
 ### टाइम ट्रैकर और कार्यसूची
@@ -87,7 +87,7 @@ Hop को Apple Developer ID से साइन किया गया है 
 [docs/automation.md](../automation.md) देखें।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — टाइम ट्रैकर और कार्यसूची">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — टाइम ट्रैकर और कार्यसूची">
 </div>
 
 ### नो स्लीप
@@ -97,7 +97,7 @@ Mac को 15 मिनट, 8 घंटे या हमेशा के लि�
 रखें (डाउनलोड, लंबे बिल्ड और बाहरी डिस्प्ले के लिए बेहद काम का)।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — नो स्लीप">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — नो स्लीप">
 </div>
 
 ### सिस्टम मॉनिटर
@@ -109,7 +109,7 @@ CPU और GPU का लोड व तापमान, मेमोरी औ�
 जब बहुत सी मेमोरी डिस्क पर चली गई हो, सिर्फ़ तब नहीं जब macOS खुद तंगी बताए।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — सिस्टम मॉनिटर">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — सिस्टम मॉनिटर">
 </div>
 
 ### क्लिपबोर्ड हिस्ट्री
@@ -120,7 +120,7 @@ CPU और GPU का लोड व तापमान, मेमोरी औ�
 फ़ाइल खुद वापस आ जाती है। पासवर्ड और दूसरे छिपाए गए इनपुट कभी सेव नहीं होते।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — क्लिपबोर्ड हिस्ट्री">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — क्लिपबोर्ड हिस्ट्री">
 </div>
 
 ### फ़ाइल कन्वर्टर
@@ -141,7 +141,7 @@ WebM पहले MP4 में दोबारा पैक होते है
 में।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — फ़ाइल कन्वर्टर">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — फ़ाइल कन्वर्टर">
 </div>
 
 ### विंडो मैनेजर
@@ -150,7 +150,7 @@ WebM पहले MP4 में दोबारा पैक होते है
 हिस्सों में या बीचोंबीच स्नैप करें — किसी अतिरिक्त ऐप की ज़रूरत नहीं।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — विंडो मैनेजर">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — विंडो मैनेजर">
 </div>
 
 ### टॉरेंट
@@ -165,7 +165,7 @@ magnet लिंक पेस्ट करें, ठीक-ठीक चुन�
 magnet लिंक के लिए डिफ़ॉल्ट ऐप भी बन सकता है।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop टॉरेंट — मेनू बार पैनल में हल्का BitTorrent क्लाइंट">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop टॉरेंट — मेनू बार पैनल में हल्का BitTorrent क्लाइंट">
 </div>
 
 ### फ़ाइल आर्काइव
@@ -180,7 +180,7 @@ magnet लिंक के लिए डिफ़ॉल्ट ऐप भी ब�
 रहते हैं। यह छिपे मॉड्यूल के साथ भी काम करता है, और कार्ड असली स्थिति दिखाता है। Finder में किसी संग्रह पर डबल-क्लिक करने से वह फ़ाइल के ठीक बगल में खुल जाता है, अपनी एक छोटी प्रगति विंडो के साथ, और विफल होने पर कुछ भी छिपा हुआ पीछे नहीं छूटता। Hop जो फ़ाइलें खोलता है उन पर उसका अपना आइकॉन होता है जिस पर प्रारूप लिखा रहता है, इसलिए पूरा फ़ोल्डर एक नज़र में पढ़ा जाता है।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — फ़ाइल आर्काइव">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — फ़ाइल आर्काइव">
 </div>
 
 ### दस्तावेज़
@@ -198,7 +198,7 @@ hsl अपने-अपने कॉलम में होते हैं: ज
 सिर्फ़ एक रंग लौटाता है।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — रंग पिकर">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — रंग पिकर">
 </div>
 
 ### टेक्स्ट पहचान
@@ -214,7 +214,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 कार्ड सादा टेक्स्ट ही रहते हैं।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — टेक्स्ट पहचान">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — टेक्स्ट पहचान">
 </div>
 
 ### कीबोर्ड लॉक
@@ -226,7 +226,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 ज़बरन बंद होता है, क्योंकि वह हार्डवेयर करता है।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — कीबोर्ड लॉक">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — कीबोर्ड लॉक">
 </div>
 
 ### स्पीड टेस्ट
@@ -234,7 +234,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 एक टैप में macOS का अपना networkQuality, Apple के सर्वरों के सामने कनेक्शन नापता है — डाउनलोड, अपलोड और प्रतिक्रिया, और आख़िरी नतीजा पंक्ति में रह जाता है।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — स्पीड टेस्ट">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — स्पीड टेस्ट">
 </div>
 
 ### मेन्यू बार का आइकन
@@ -246,7 +246,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 फ़िल्म-ग्रेन बनावट वाली गहरी और हल्की थीम, ग्लोबल हॉटकी, लॉगिन पर शुरुआत, और एक सुरक्षित मोड जो ऐप को क्रैश के चक्र से बाहर निकालता है — सब एक ही सेटिंग्स विंडो में।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — सेटिंग्स">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — सेटिंग्स">
 </div>
 
 ### VPN
@@ -266,7 +266,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 इस बिंदु को सेटिंग्स में बंद किया जा सकता है — मॉड्यूल और स्विच उसके बिना भी काम करते हैं।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — VPN स्विच">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — VPN स्विच">
 </div>
 
 ### ऐप
@@ -285,7 +285,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 खाली शुरू होती है और भरने तक यही लिखती है।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — ऐप ग्रिड">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — ऐप ग्रिड">
 </div>
 
 ### ऐप हटाना
@@ -295,13 +295,13 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 कुछ भी मिटाया नहीं जाता। सब ट्रैश में जाता है, इसलिए ग़लती की क़ीमत एक रीस्टोर है, फ़ाइल नहीं; और जो macOS नहीं देता, उसका नाम कारण सहित लिखा जाता है, चुपचाप छोड़ा नहीं जाता।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — ऐप को उसके छोड़े हुए सब कुछ के साथ हटाना">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — ऐप को उसके छोड़े हुए सब कुछ के साथ हटाना">
 </div>
 
 वही मॉड्यूल बिना कुछ हटाए सफ़ाई भी करता है: कैश रखने वाला हर ऐप, बड़े पहले; डाउनलोड, डेस्कटॉप और डॉक्युमेंट्स में पड़े इंस्टॉलर; सालों पहले हटाए ऐप्स का डेटा; और ट्रैश अपने आकार के साथ। एक टिक पूरा सेक्शन ले लेता है। जिसे वह जानबूझकर नहीं छूता, वह भी सूची में है — वह कंटेनर जहाँ कैश और डेटा एक ही फ़ोल्डर में हैं, किसी मैसेंजर के बीस गीगाबाइट समेत: कौन-सा आधा फेंका जा सकता है, यह केवल वही ऐप जानता है।
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — कैश, इंस्टॉलर, बचे हुए डेटा और ट्रैश की सफ़ाई">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — कैश, इंस्टॉलर, बचे हुए डेटा और ट्रैश की सफ़ाई">
 </div>
 
 ## 22 भाषाएँ
@@ -358,7 +358,7 @@ Hop कोई अनुमति तभी माँगता है जब आ�
 ज़रूरी नहीं: Hop ओपन सोर्स है, और जो कोड कुछ इकट्ठा करता, वह वहाँ है ही नहीं — इसी रिपॉज़िटरी में
 पढ़िए। ऐप की जानकारी विंडो में «ऐप की अनुमतियाँ» टैब है, उसी सूची और हर अनुमति की मौजूदा स्थिति के साथ।
 
-वेबसाइट: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+वेबसाइट: [hop.tools](https://hop.tools)
 
 ## मुफ़्त — और क्यों
 

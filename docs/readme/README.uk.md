@@ -11,7 +11,7 @@
 під рукою.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -21,7 +21,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · **Українська** · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Панель Hop — таймер у рядку меню з точково-матричним дисплеєм, пресетами та циклами роботи й відпочинку">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Панель Hop — таймер у рядку меню з точково-матричним дисплеєм, пресетами та циклами роботи й відпочинку">
 
 </div>
 
@@ -62,7 +62,7 @@ Hop підписано Apple Developer ID і завірено в Apple, тому
 скинете таймер.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Таймер і цикли">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Таймер і цикли">
 </div>
 
 ### Трекер часу і справи
@@ -88,7 +88,7 @@ Hop підписано Apple Developer ID і завірено в Apple, тому
 що працює зараз. Див. [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Трекер часу і справи">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Трекер часу і справи">
 </div>
 
 ### Заборона сну
@@ -98,7 +98,7 @@ Hop підписано Apple Developer ID і завірено в Apple, тому
 кришкою (зручно для завантажень, довгих збірок і зовнішніх дисплеїв).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Заборона сну">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Заборона сну">
 </div>
 
 ### Системний монітор
@@ -111,7 +111,7 @@ Hop підписано Apple Developer ID і завірено в Apple, тому
 macOS сама повідомляє про брак.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Системний монітор">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Системний монітор">
 </div>
 
 ### Історія буфера обміну
@@ -123,7 +123,7 @@ macOS сама повідомляє про брак.
 введення ніколи не зберігаються.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Історія буфера обміну">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Історія буфера обміну">
 </div>
 
 ### Конвертер файлів
@@ -143,7 +143,7 @@ WebM спершу перекладаються в MP4 (macOS їх не відк�
 пачками самі застосунки: у PDF або в docx, xlsx і pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Конвертер файлів">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Конвертер файлів">
 </div>
 
 ### Менеджер вікон
@@ -152,7 +152,7 @@ WebM спершу перекладаються в MP4 (macOS їх не відк�
 гліф зони або хоткеєм ⌃⌥ — без окремого застосунку.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Менеджер вікон">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Менеджер вікон">
 </div>
 
 ### Торенти
@@ -167,7 +167,7 @@ WebM спершу перекладаються в MP4 (macOS їх не відк�
 застосунком для файлів .torrent і magnet-посилань.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Торенти Hop — легкий BitTorrent-клієнт у панелі в рядку меню">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Торенти Hop — легкий BitTorrent-клієнт у панелі в рядку меню">
 </div>
 
 ### Архіви файлів
@@ -185,7 +185,7 @@ rar Hop розпаковує, але ніколи не створює — фор
 справжній стан. Подвійний клік по архіву у Finder розпаковує його просто поруч із файлом, в окремому невеликому вікні прогресу, а після збою не лишається нічого прихованого. Файли, які відкриває Hop, мають власну іконку з назвою формату, тож тека з ними читається з одного погляду.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Архіви файлів">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Архіви файлів">
 </div>
 
 ### Документи
@@ -204,7 +204,7 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 запис екрана не потрібен: лупа віддає один колір і більше нічого.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Піпетка кольору">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Піпетка кольору">
 </div>
 
 ### Розпізнавання тексту
@@ -222,7 +222,7 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 текстом.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Розпізнавання тексту">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Розпізнавання тексту">
 </div>
 
 ### Блокування клавіатури
@@ -236,7 +236,7 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 апаратура.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Блокування клавіатури">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Блокування клавіатури">
 </div>
 
 ### Тест швидкості
@@ -244,7 +244,7 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 Один тап вимірює з'єднання засобами самого macOS (networkQuality, сервери Apple) — прийом, віддача та відгук, а останній результат лишається в рядку.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — тест швидкості">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — тест швидкості">
 </div>
 
 ### Іконка в рядку меню
@@ -260,7 +260,7 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 Темна і світла теми з текстурою кіноплівкового зерна, глобальні хоткеї, запуск при вході в систему і безпечний режим, який виводить застосунок із циклу падінь — усе в одному вікні налаштувань.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — налаштування">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — налаштування">
 </div>
 
 ### VPN
@@ -283,7 +283,7 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 Крапку можна вимкнути в налаштуваннях — модуль і перемикачі працюють і без неї.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — перемикачі VPN">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — перемикачі VPN">
 </div>
 
 ### Застосунки
@@ -303,7 +303,7 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 назовсім. Нова сітка лишається порожньою і пише про це, доки ви її не наповните.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — сітка застосунків">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — сітка застосунків">
 </div>
 
 ### Видалення програм
@@ -313,13 +313,13 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 Нічого не стирається. Усе йде в кошик, тому помилка коштує відновлення, а не файлу, а те, чого macOS не віддає, назване з причиною, а не пропущене мовчки.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — видалення застосунку разом з усім, що він лишив">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — видалення застосунку разом з усім, що він лишив">
 </div>
 
 Той самий модуль уміє прибирати, нічого не видаляючи: усі програми, що тримають кеш, великі згори; інсталятори в завантаженнях, на робочому столі й у документах; дані давно видалених застосунків; і кошик з його розміром. Одна галочка забирає цілу секцію. Те, чого він свідомо не торкається, теж показано — контейнер, де кеш лежить разом із даними, включно з двадцятьма гігабайтами месенджера: що там можна викинути, знає лише сама програма.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — очищення кешів, інсталяторів, решток і кошика">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — очищення кешів, інсталяторів, решток і кошика">
 </div>
 
 ## 22 мови
@@ -382,7 +382,7 @@ antonshakirov.com застосунок ходить лише щоб запита
 просто немає — читайте в цьому репозиторії. У вікні інформації застосунку є
 вкладка «дозволи застосунку» з тим самим списком і поточним станом кожного.
 
-Сайт: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+Сайт: [hop.tools](https://hop.tools)
 
 ## Чому безкоштовно
 

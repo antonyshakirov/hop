@@ -10,7 +10,7 @@
 ٹیبوں میں سجا لیتے ہیں۔ ایک کلک، اور جو کچھ درکار ہے وہیں موجود ہے۔**
 
 [![تازہ ترین ریلیز](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![ڈاؤن لوڈز](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![ڈاؤن لوڈز](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 [![لائسنس: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
@@ -19,7 +19,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · **اردو** · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop کا پینل — مینو بار ٹائمر، نقطوں والی ڈسپلے، تیار اوقات اور کام و آرام کے سائیکل">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop کا پینل — مینو بار ٹائمر، نقطوں والی ڈسپلے، تیار اوقات اور کام و آرام کے سائیکل">
 
 </div>
 
@@ -59,7 +59,7 @@ Hop آپ کے Mac کے مینو بار میں رہتا ہے اور مٹھی بھ
 دھڑکتے رہتے ہیں جب تک آپ انہیں صفر نہ کریں۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — ٹائمر اور سائیکل">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — ٹائمر اور سائیکل">
 </div>
 
 ### وقت کا حساب اور کام
@@ -86,7 +86,7 @@ Hop آپ کے Mac کے مینو بار میں رہتا ہے اور مٹھی بھ
 دیکھیے [docs/automation.md](../automation.md)۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — وقت کا حساب اور کام">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — وقت کا حساب اور کام">
 </div>
 
 ### نیند نہیں
@@ -96,7 +96,7 @@ Mac کو ۱۵ منٹ، ۸ گھنٹے یا ہمیشہ کے لیے جگائے رک
 (ڈاؤن لوڈ، لمبے بلڈ اور بیرونی اسکرینوں کے لیے کارآمد)۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — نیند نہیں">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — نیند نہیں">
 </div>
 
 ### سسٹم مانیٹر
@@ -109,7 +109,7 @@ Mac کو ۱۵ منٹ، ۸ گھنٹے یا ہمیشہ کے لیے جگائے رک
 جب macOS خود تنگی بتائے۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — سسٹم مانیٹر">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — سسٹم مانیٹر">
 </div>
 
 ### کلپ بورڈ کی تاریخ
@@ -121,7 +121,7 @@ Mac کو ۱۵ منٹ، ۸ گھنٹے یا ہمیشہ کے لیے جگائے رک
 محفوظ نہیں ہوتا۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — کلپ بورڈ کی تاریخ">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — کلپ بورڈ کی تاریخ">
 </div>
 
 ### فائل کنورٹر
@@ -142,7 +142,7 @@ Keynote کی دستاویزات کو ایپس خود گروہ کی صورت ای
 docx، xlsx اور pptx میں۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — فائل کنورٹر">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — فائل کنورٹر">
 </div>
 
 ### ونڈو منیجر
@@ -151,7 +151,7 @@ docx، xlsx اور pptx میں۔
 کلک یا ⌃⌥ شارٹ کٹ سے، کسی اضافی ایپ کے بغیر۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — ونڈو منیجر">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — ونڈو منیجر">
 </div>
 
 ### ٹورنٹ
@@ -165,7 +165,7 @@ docx، xlsx اور pptx میں۔
 magnet لنکس کے لیے طے شدہ ایپ بھی بن سکتا ہے۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop ٹورنٹ — مینو بار پینل میں ہلکا BitTorrent کلائنٹ">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop ٹورنٹ — مینو بار پینل میں ہلکا BitTorrent کلائنٹ">
 </div>
 
 ### آرکائیو
@@ -188,7 +188,7 @@ Finder میں آرکائیو پر ڈبل کلک اسے فائل کے بالکل 
 سو ان کا فولڈر ایک نظر میں پڑھا جاتا ہے۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — آرکائیو">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — آرکائیو">
 </div>
 
 ### دستاویزات
@@ -207,7 +207,7 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 ریکارڈنگ کی اجازت درکار نہیں: عدسہ صرف ایک رنگ لوٹاتا ہے اور بس۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — رنگ چننے والا">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — رنگ چننے والا">
 </div>
 
 ### متن کی شناخت
@@ -224,7 +224,7 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 سادہ متن ہی رہتے ہیں۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — متن کی شناخت">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — متن کی شناخت">
 </div>
 
 ### کی بورڈ لاک
@@ -237,7 +237,7 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 بھی Mac کو زبردستی بند کر دیتا ہے، کیونکہ وہ کام ہارڈ ویئر میں ہوتا ہے۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — کی بورڈ لاک">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — کی بورڈ لاک">
 </div>
 
 ### رفتار کی جانچ
@@ -245,7 +245,7 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 ایک ٹیپ میں macOS کا اپنا networkQuality، Apple کے سرورز کے مقابل کنکشن ناپتا ہے — ڈاؤن لوڈ، اپ لوڈ اور ردِعمل، اور آخری نتیجہ اسی قطار میں رہ جاتا ہے۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — رفتار کی جانچ">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — رفتار کی جانچ">
 </div>
 
 ### مینو بار کا آئیکن
@@ -257,7 +257,7 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 فلم گرین بناوٹ والی گہری اور ہلکی تھیم، عالمی شارٹ کٹس، لاگ اِن پر آغاز، اور ایک محفوظ موڈ جو ایپ کو کریش کے چکر سے نکالتا ہے — سب ایک ہی سیٹنگز ونڈو میں۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — سیٹنگز">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — سیٹنگز">
 </div>
 
 ### VPN
@@ -277,7 +277,7 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 یہ نقطہ ترتیبات میں بند کیا جا سکتا ہے؛ ماڈیول اور سوئچ اس کے بغیر بھی کام کرتے ہیں۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — وی پی این سوئچ">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — وی پی این سوئچ">
 </div>
 
 ### ایپس
@@ -297,7 +297,7 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 شروع ہوتی ہے اور بھرنے تک یہی بتاتی ہے۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — ایپس کی گرڈ">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — ایپس کی گرڈ">
 </div>
 
 ### ایپ ہٹانا
@@ -307,13 +307,13 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 کچھ بھی مٹایا نہیں جاتا۔ سب کچھ ردی میں جاتا ہے، سو غلطی کی قیمت ایک بحالی ہے، فائل نہیں؛ اور جو macOS نہیں دیتا، اُس کا نام وجہ سمیت لکھا جاتا ہے، خاموشی سے نہیں چھوڑا جاتا۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — ایپ کو اُس کی چھوڑی ہر چیز سمیت ہٹانا">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — ایپ کو اُس کی چھوڑی ہر چیز سمیت ہٹانا">
 </div>
 
 وہی ماڈیول کچھ ہٹائے بغیر صفائی بھی کرتا ہے: کیش رکھنے والی ہر ایپ، بڑی پہلے؛ ڈاؤن لوڈز، ڈیسک ٹاپ اور دستاویزات میں پڑے انسٹالر؛ برسوں پہلے ہٹائی گئی ایپس کا ڈیٹا؛ اور ردی اپنے حجم کے ساتھ۔ ایک ٹِک پورا حصہ لے لیتا ہے۔ جسے وہ جان بوجھ کر نہیں چھوتا وہ بھی درج ہے — وہ کنٹینر جہاں کیش اور ڈیٹا ایک ہی فولڈر میں ہیں، کسی میسنجر کے بیس گیگا بائٹ سمیت: کون سا حصہ پھینکا جا سکتا ہے یہ صرف وہی ایپ جانتی ہے۔
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — کیش، انسٹالر، باقیات اور ردی کی صفائی">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — کیش، انسٹالر، باقیات اور ردی کی صفائی">
 </div>
 
 ## ۲۲ زبانیں
@@ -377,7 +377,7 @@ Hop کوئی اجازت تبھی مانگتا ہے جب اس کی محتاج خ�
 ونڈو میں «ایپ کی اجازتیں» کا ٹیب اسی فہرست اور ہر اجازت کی موجودہ حالت کے
 ساتھ موجود ہے۔
 
-ویب سائٹ: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+ویب سائٹ: [hop.tools](https://hop.tools)
 
 ## مفت، اور کیوں
 

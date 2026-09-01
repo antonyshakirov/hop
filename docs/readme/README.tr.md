@@ -11,7 +11,7 @@ dönüştürücü, pencere yöneticisi ve hafif bir torrent istemcisi.
 Tek tık — ihtiyacınız olan her şey elinizin altında.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -21,7 +21,7 @@ Tek tık — ihtiyacınız olan her şey elinizin altında.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · **Türkçe** · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop paneli — nokta matrisli ekran, hazır ayarlar ve çalışma-mola döngüleriyle menü çubuğu zamanlayıcısı">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop paneli — nokta matrisli ekran, hazır ayarlar ve çalışma-mola döngüleriyle menü çubuğu zamanlayıcısı">
 
 </div>
 
@@ -62,7 +62,7 @@ saklayan bir cep ve medyanızı da duraklatabilen bitiş uyarısı. Geri sayım
 bitince tek bir ses çalar ve sıfırlayana kadar rakamlar yanıp söner.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Zamanlayıcı ve döngüler">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Zamanlayıcı ve döngüler">
 </div>
 
 ### Zaman takibi ve görevler
@@ -91,7 +91,7 @@ bir görev ekleyebilir veya neyin çalıştığını okuyabilir. Bkz.
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Zaman takibi ve görevler">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Zaman takibi ve görevler">
 </div>
 
 ### Uyku engelleme
@@ -101,7 +101,7 @@ yok. İsterseniz ekranı açık tutun ya da kapak kapalıyken çalışmaya devam
 edin (indirmeler, uzun derlemeler ve harici ekranlar için birebir).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Uyku engelleme">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Uyku engelleme">
 </div>
 
 ### Sistem monitörü
@@ -113,7 +113,7 @@ yalnızca sekme açıkken güncellenir. Bellek satırı, yalnızca macOS sıkı�
 bildirdiğinde değil, belleğin çoğu diske indiğinde de uyarır.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Sistem monitörü">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Sistem monitörü">
 </div>
 
 ### Pano geçmişi
@@ -125,7 +125,7 @@ ve yapıştırınca dosyanın kendisi geri gelir. Parolalar ve diğer gizli
 girişler asla saklanmaz.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Pano geçmişi">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Pano geçmişi">
 </div>
 
 ### Dosya dönüştürücü
@@ -145,7 +145,7 @@ yardımcı yapar. Pages, Numbers ve Keynote belgelerini toplu olarak
 uygulamaların kendisi dışa aktarır: PDF ya da docx, xlsx ve pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Dosya dönüştürücü">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Dosya dönüştürücü">
 </div>
 
 ### Pencere yöneticisi
@@ -155,7 +155,7 @@ bölge simgesine tek tık ya da ⌃⌥ kısayolu yeter; ek bir uygulamaya gerek
 yok.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Pencere yöneticisi">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Pencere yöneticisi">
 </div>
 
 ### Torrentler
@@ -171,7 +171,7 @@ doğrulanmış) olarak alınır. Hop ayrıca .torrent dosyaları ve magnet
 bağlantıları için varsayılan uygulama olabilir.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop torrentleri — menü çubuğu panelinde hafif BitTorrent istemcisi">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop torrentleri — menü çubuğu panelinde hafif BitTorrent istemcisi">
 </div>
 
 ### Dosya arşivleri
@@ -188,7 +188,7 @@ uygulamalardan geri alabilir; zip, 7z ve yerel biçimler Arşiv Yardımcısı'nd
 Modül gizliyken de çalışır ve kart gerçek durumu gösterir. Finder'da bir arşive çift tıklamak onu dosyanın hemen yanında açar, kendi küçük ilerleme penceresinde, ve başarısız bir iş arkasında gizli hiçbir şey bırakmaz. Hop'un açtığı dosyalar üzerinde biçimi yazan kendi simgesini taşır, böylece bir klasör bir bakışta okunur.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Dosya arşivleri">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Dosya arşivleri">
 </div>
 
 ### Belgeler
@@ -207,7 +207,7 @@ görüneceği ayarlardadır, ekran kaydı izni de gerekmez: büyüteç tek bir r
 döndürür.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Renk damlalığı">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Renk damlalığı">
 </div>
 
 ### Metin tanıma
@@ -223,7 +223,7 @@ adresleri: taranan kod dışarıdan gelen bir girdidir, bu yüzden telefon
 numarası, Wi-Fi parolası ya da kartvizit düz metin olarak kalır.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Metin tanıma">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Metin tanıma">
 </div>
 
 ### Klavye kilidi
@@ -236,7 +236,7 @@ tutmak. Güç tuşuna kısa basış da yutulur; basılı tutmak Mac'i yine de
 kapatır, çünkü onu donanım yapar.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Klavye kilidi">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Klavye kilidi">
 </div>
 
 ### Hız testi
@@ -244,7 +244,7 @@ kapatır, çünkü onu donanım yapar.
 Tek dokunuş, bağlantıyı macOS'un kendi networkQuality'siyle Apple sunucularına karşı ölçer — indirme, yükleme ve yanıt süresi; son sonuç satırda kalır.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Hız testi">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Hız testi">
 </div>
 
 ### Menü çubuğu simgesi
@@ -260,7 +260,7 @@ de gider.
 Film grenli dokuya sahip koyu ve açık temalar, genel kısayollar, oturum açılışında başlatma ve uygulamayı çökme döngüsünden çıkaran bir güvenli mod — hepsi tek bir ayarlar penceresinde.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Ayarlar">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — Ayarlar">
 </div>
 
 ### VPN
@@ -285,7 +285,7 @@ değil.
 Nokta ayarlardan kapatılabilir; modül de anahtarları da onsuz çalışmaya devam eder.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — VPN anahtarları">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — VPN anahtarları">
 </div>
 
 ### Uygulamalar
@@ -305,7 +305,7 @@ tablosunun kendisinde, oradaki etiketin ✕ işareti bir ızgarayı temelli sile
 Yeni bir ızgara boş başlar ve siz doldurana kadar bunu söyler.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — Uygulama ızgarası">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — Uygulama ızgarası">
 </div>
 
 ### Uygulama kaldırma
@@ -315,13 +315,13 @@ Bir uygulamayı satırın üstüne bırakın ya da kurulu olan her şeyin listes
 Hiçbir şey silinmez. Her şey çöp kutusuna gider, yani bir hata bir dosyaya değil bir geri almaya mal olur; macOS'un vermediği şeyler sessizce atlanmaz, nedeniyle birlikte söylenir.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Bir uygulamayı bıraktığı her şeyle kaldırma">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — Bir uygulamayı bıraktığı her şeyle kaldırma">
 </div>
 
 Aynı modül hiçbir şeyi kaldırmadan toparlar da: önbellek tutan her uygulama, büyükler önce; İndirilenler'de, Masaüstü'nde ve Belgeler'de kalan kurulum dosyaları; yıllar önce silinmiş uygulamaların verileri; ve boyutuyla birlikte çöp kutusu. Tek kutucuk koca bir bölümü alır. Bilerek dokunmadığı şeyler de listelenir — önbellekle verinin aynı klasörde durduğu bir container, bir mesajlaşma uygulamasının yirmi gigabaytı gibi: hangi yarısının atılabileceğini yalnızca o uygulama bilir.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Önbellek, kurulum dosyaları, artıklar ve çöp kutusu">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Önbellek, kurulum dosyaları, artıklar ve çöp kutusu">
 </div>
 
 ## 22 dil
@@ -383,7 +383,7 @@ Buna inanmak zorunda değilsin: Hop açık kaynak, toplayacak kod zaten yok — 
 deposunda oku. Uygulamanın bilgi penceresinde «uygulama izinleri» sekmesi var:
 aynı liste ve her iznin güncel durumu.
 
-Web sitesi: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+Web sitesi: [hop.tools](https://hop.tools)
 
 ## Ücretsiz, peki neden
 

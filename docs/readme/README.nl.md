@@ -11,7 +11,7 @@ wat je nodig hebt en verdeelt het over tot vier tabbladen op het icoon.
 Eén klik — en alles wat je nodig hebt staat meteen klaar.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fwww.antonshakirov.com%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://www.antonshakirov.com/api/hop/downloads)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](../../LICENSE)
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
@@ -21,7 +21,7 @@ Eén klik — en alles wat je nodig hebt staat meteen klaar.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · **Nederlands** · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://www.antonshakirov.com/products/hop/screens/en/overview.png" width="360" alt="Hop-paneel — menubalktimer met dot-matrixdisplay, presets en werk-rustcycli">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop-paneel — menubalktimer met dot-matrixdisplay, presets en werk-rustcycli">
 
 </div>
 
@@ -63,7 +63,7 @@ desgewenst ook je media pauzeert. Als de countdown afloopt, klinkt er één
 geluid en knipperen de cijfers tot je reset.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/timer.png" width="420" alt="Hop — Timer & cycli">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Timer & cycli">
 </div>
 
 ### Tijdregistratie & taken
@@ -92,7 +92,7 @@ toevoegen of lezen wat er draait. Zie
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/tracker.png" width="420" alt="Hop — Tijdregistratie & taken">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Tijdregistratie & taken">
 </div>
 
 ### Geen slaap
@@ -102,7 +102,7 @@ wachtwoord. Laat optioneel het scherm aan, of werk door met het deksel dicht
 (handig voor downloads, lange builds en externe schermen).
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/awake.png" width="420" alt="Hop — Geen slaap">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Geen slaap">
 </div>
 
 ### Systeemmonitor
@@ -115,7 +115,7 @@ open is. De geheugenrij waarschuwt ook als veel geheugen naar de schijf is
 verhuisd, en niet pas als macOS zelf krapte meldt.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/system.png" width="420" alt="Hop — Systeemmonitor">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Systeemmonitor">
 </div>
 
 ### Klembordgeschiedenis
@@ -127,7 +127,7 @@ verschijnen als «naam +N»), en bij het plakken komt het bestand zelf terug.
 Wachtwoorden en andere verborgen invoer worden nooit opgeslagen.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clipboard.png" width="420" alt="Hop — Klembordgeschiedenis">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Klembordgeschiedenis">
 </div>
 
 ### Bestandsconverter
@@ -149,7 +149,7 @@ worden in batches geëxporteerd door de apps zelf: naar PDF, of naar docx, xlsx
 en pptx.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/converter.png" width="480" alt="Hop — Bestandsconverter">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Bestandsconverter">
 </div>
 
 ### Vensterbeheer
@@ -158,7 +158,7 @@ Klik vensters vast op helften, kwarten, derden en het midden via een
 zonesymbool of een ⌃⌥-sneltoets — geen extra app nodig.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/windows.png" width="420" alt="Hop — Vensterbeheer">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Vensterbeheer">
 </div>
 
 ### Torrents
@@ -173,7 +173,7 @@ poort met Hop praat. Hop kan ook de standaardapp worden voor
 .torrent-bestanden en magnet-links.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/torrents.png" width="420" alt="Hop-torrents — lichte BitTorrent-client in het menubalkpaneel">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop-torrents — lichte BitTorrent-client in het menubalkpaneel">
 </div>
 
 ### Bestandsarchieven
@@ -191,7 +191,7 @@ apps van derden; zip, 7z en de native formaten blijven bij Archiefhulpprogramma.
 werkt ook met een verborgen module, en de kaart toont de echte stand. Dubbelklikken op een archief in Finder pakt het uit vlak naast het bestand, in een eigen klein voortgangsvenster, en een mislukte poging laat niets verborgens achter. Bestanden die Hop opent dragen een eigen pictogram met het formaat erop, zodat een map in één oogopslag leesbaar is.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/archives.png" width="480" alt="Hop — Bestandsarchieven">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Bestandsarchieven">
 </div>
 
 ### Documenten
@@ -210,7 +210,7 @@ kleuren je bewaart en hoeveel rijen je ziet zijn instellingen, en toestemming
 voor schermopname is niet nodig: de loep geeft één kleur terug.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/colors.png" width="420" alt="Hop — Kleurenpipet">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Kleurenpipet">
 </div>
 
 ### Tekstherkenning
@@ -228,7 +228,7 @@ buiten, dus een telefoonnummer, een wifiwachtwoord of een visitekaartje blijft
 gewone tekst.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/recognition.png" width="480" alt="Hop — Tekstherkenning">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Tekstherkenning">
 </div>
 
 ### Toetsenbordslot
@@ -242,7 +242,7 @@ aan/uit-toets wordt ook geslikt; hem ingedrukt houden zet de Mac nog steeds uit,
 want dat regelt de hardware.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/keyboard.png" width="480" alt="Hop — Toetsenbordslot">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Toetsenbordslot">
 </div>
 
 ### Snelheidstest
@@ -250,7 +250,7 @@ want dat regelt de hardware.
 Eén tik meet de verbinding met macOS' eigen networkQuality tegen Apples servers — down, up en reactiesnelheid, en het laatste resultaat blijft in de rij staan.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/speed.png" width="420" alt="Hop — Snelheidstest">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Snelheidstest">
 </div>
 
 ### Het icoon in de menubalk
@@ -267,7 +267,7 @@ het laatste venster.
 Donker en licht thema met filmkorrel-textuur, globale sneltoetsen, starten bij inloggen en een veilige modus die de app uit een crashlus haalt — alles in één instellingenvenster.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/settings.png" width="480" alt="Hop — Instellingen">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — Instellingen">
 </div>
 
 ### VPN
@@ -293,7 +293,7 @@ machine staat.
 De stip kun je in de instellingen uitzetten — de module en de schakelaars werken gewoon door.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/vpn.png" width="420" alt="Hop — VPN-schakelaars">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — VPN-schakelaars">
 </div>
 
 ### Apps
@@ -314,7 +314,7 @@ in de moduletabel zelf, waar de ✕ op de chip van een raster het definitief
 verwijdert. Een nieuw raster begint leeg en zegt dat ook, tot je het vult.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/apps.png" width="420" alt="Hop — App-raster">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — App-raster">
 </div>
 
 ### Apps verwijderen
@@ -324,13 +324,13 @@ Sleep een app op de rij, of kies hem uit de lijst van alles wat geïnstalleerd i
 Er wordt niets gewist. Alles gaat naar de prullenmand, dus een vergissing kost een herstel en geen bestand; en wat macOS niet afgeeft wordt met reden genoemd in plaats van stilletjes overgeslagen.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/uninstall.png" width="480" alt="Hop — Een app verwijderen met alles wat hij achterliet">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — Een app verwijderen met alles wat hij achterliet">
 </div>
 
 Dezelfde module ruimt op zonder iets te verwijderen: elke app die een cache aanhoudt, de grootste eerst; installers in Downloads, op het bureaublad en in Documenten; gegevens van apps die je jaren geleden weghaalde; en de prullenmand met zijn omvang. Eén vinkje neemt een hele sectie. Wat het bewust laat liggen staat er ook bij — een container waarin cache en gegevens in één map zitten, de twintig gigabyte van een berichtenapp bijvoorbeeld: alleen die app weet welke helft weg kan.
 
 <div align="center">
-<img src="https://www.antonshakirov.com/products/hop/screens/en/clean.png" width="480" alt="Hop — Caches, installers, resten en de prullenmand opruimen">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Caches, installers, resten en de prullenmand opruimen">
 </div>
 
 ## 22 talen
@@ -395,7 +395,7 @@ zou moeten verzamelen bestaat er simpelweg niet — lees hem in deze repository.
 Het infovenster van de app heeft een tab «app-toestemmingen» met dezelfde lijst
 en de huidige stand van elke toestemming.
 
-Website: [antonshakirov.com/products/hop](https://www.antonshakirov.com/products/hop)
+Website: [hop.tools](https://hop.tools)
 
 ## Gratis, en waarom
 
