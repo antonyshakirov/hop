@@ -199,13 +199,16 @@ The settings window is a 220pt sidebar and a page (`SettingsSidebar`,
 `SettingsSelection`). The sidebar lists the sections first — "general" (theme,
 language, launch, sounds, app icon, the `colored indicators` toggle for the
 menu-bar badges, the Dock switch), "modules & tabs" for the panel layout,
-"hotkeys", "app permissions", "updates", and "other modules" (the module option
-groups that have not moved to their own pages yet, the window-manager section
-among them) — then every module of `ModuleCatalog` in panel order, each with its
-icon and name (`ModulePresentation`). A module's page carries its heading, the
-settings that have already moved there (timer, monitor), and the hotkey of its
-"open" action — but only when something answers that key, since a recorder for
-an action with no handler would promise what it cannot do. The window is 940×640,
+"hotkeys", "app permissions" and "updates" — then every module of
+`ModuleCatalog` in panel order, each with its icon and name
+(`ModulePresentation`). A module's page carries its heading, its own options
+(`moduleSettings`, keyed by the same identifier) and the hotkey of its "open"
+action — but only when something answers that key, since a recorder for an
+action with no handler would promise what it cannot do. Two settings stayed off
+the module pages because they are not about one module: the grids of apps (made,
+renamed and removed on "modules & tabs", the only module a person creates
+themselves) and "the converter and the archives in one row", which says how the
+panel draws three modules rather than what any of them does. The window is 940×640,
 resizable, minimum 820×480; the sidebar scrolls with the page. The section ids
 of the old chip switcher still work in `--settings-section`: "timer" and
 "monitor" open those two module pages. The "modules & tabs" section is
@@ -1057,7 +1060,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   that widened the button — Anton, 2026-07-20). Tracking is a decoration, so it
   drops out of the plain-template fast path and the icon goes through `compose`.
   An opt-in `show task time in menu bar` setting (`trackerTimeInBar`, OFF —
-  in the "other modules" tab's task section, NOT under "timer": the two clocks
+  on the time tracker's own settings page, NOT the timer's: the two clocks
   are independent and either can hold the bar alone, so a switch placed in the
   timer's section read as belonging to the timer, Anton 2026-08-05; same rule as
   the VPN mark, which lives with the VPN settings)
@@ -1175,7 +1178,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   independent. The menu-bar alert icon is deliberately NOT part of this — it
   ships with the corner-system redesign.
 - **Visible rows (8.21):** a per-module `visible rows` cap
-  (`trackerVisibleRows`, "other modules" settings): an ALWAYS-active number 3…15,
+  (`trackerVisibleRows`, the tracker's settings page): an ALWAYS-active number 3…15,
   default 10 (`VisibleRowsField`, a single numeric field — the "all"/unlimited
   option was dropped; a stored 0 from the old "all" default reads as 10 on load,
   no migration). When the TASK count exceeds
@@ -1295,7 +1298,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   a 2pt accent line marks the (group-clamped) insertion point; one
   `reorder(dragging:toDisplayInsertion:)` commits per completed drag.
 - **Visible rows (8.21):** a per-module `visible rows` cap
-  (`todosVisibleRows`, "other modules" settings): an ALWAYS-active number 3…15,
+  (`todosVisibleRows`, the to-do settings page): an ALWAYS-active number 3…15,
   default 10 (`VisibleRowsField`, the clipboard's `NumericField` alone — the
   "all"/unlimited option was dropped; a stored 0 from the old default reads as 10
   on load). When the COMBINED
@@ -1713,7 +1716,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   light theme.
 - Two settings, the same pair the clipboard has: how many colors to keep
   (`maxColorsKey`, 3…100) and how many rows to show before scrolling
-  (`colorRowsKey`, 1…10), in settings → other modules. Colors are pruned by
+  (`colorRowsKey`, 1…10), on the eyedropper's settings page. Colors are pruned by
   their own cap (`ClipboardRules.pruned(…, maxColorItems:)`), so a busy clipboard
   cannot evict them.
 - Modules that produce clipboard content enter it through
@@ -1930,7 +1933,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   its content the way the converter's does, so an empty module is a drop plate
   and nothing else — no gap underneath (Anton, 2026-07-25).
 - **Default opener in Finder**, exactly like the torrent module's: a card in
-  SETTINGS → other modules (not in the window — being the opener outlives any
+  SETTINGS → the archives page (not in the window — being the opener outlives any
   window, Anton 2026-07-25). Two rules, both Anton's (2026-07-26):
   - **Only rar may be claimed, and macOS's own app is never overridden.**
     `claimableTypes` contains only `com.rarlab.rar-archive`, and skips it when

@@ -3653,13 +3653,28 @@ struct PanelView: View {
         case .hotkeys: hotkeysSection
         case .permissions: PermissionsView(lang: lang)
         case .updates: updatesSection
-        case .otherModules: modulesSettings
         case .module(let key): modulePage(key)
         }
     }
 
-    /// A module's own page: what it is, what it can be given a key for, and the
-    /// settings that have already moved here.
+    @ViewBuilder private func moduleSettings(_ key: String) -> some View {
+        switch key {
+        case "timer": timerSettings
+        case "system": thresholdsSection
+        case "awake": awakeSettings
+        case "clipboard": clipboardSettings
+        case "color": colorSettings
+        case "tracker": trackerSettings
+        case "todos": todosSettings
+        case "vpn": vpnSettings
+        case "convert": converterSettings
+        case "archive": archiveSettings
+        case "torrent": torrentSettings
+        case "windows": windowsSettings
+        default: EmptyView()
+        }
+    }
+
     @ViewBuilder private func modulePage(_ key: String) -> some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 10) {
@@ -3671,11 +3686,7 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textPrimary)
             }
 
-            switch key {
-            case "timer": timerSettings
-            case "system": thresholdsSection
-            default: EmptyView()
-            }
+            moduleSettings(key)
 
             if let action = ModuleCatalog.open(key), hotkeys.hasHandler(action) {
                 VStack(alignment: .leading, spacing: 10) {
@@ -3899,6 +3910,11 @@ struct PanelView: View {
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
+
+            appShelvesSettings
+
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            switchSetting(t(.settingsToolsOneRow), isOn: $toolsOneRow)
         }
         .onDisappear {
             // @State survives the settings window's hide/show, so a window
@@ -3994,135 +4010,71 @@ struct PanelView: View {
     /// Keep-awake, clipboard and converter have few settings — they live as
     /// sections on a single tab, alongside torrent. Windows moved out to
     /// "general" (Anton, 2026-07-19): it sits next to the other hotkeys.
-    private var modulesSettings: some View {
+    private var trackerSettings: some View {
         VStack(spacing: 14) {
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.awakeOff))
-                awakeSettings
+            visibleRowsSetting(stored: $trackerVisibleRows)
+            switchSetting(t(.settingsImportantOnTop), isOn: $trackerImportantOnTop)
+            switchSetting(t(.trackerBarTime), isOn: $trackerTimeInBar)
+        }
+    }
+
+    private var todosSettings: some View {
+        VStack(spacing: 14) {
+            visibleRowsSetting(stored: $todosVisibleRows)
+            switchSetting(t(.settingsImportantOnTop), isOn: $todoImportantOnTop)
+            switchSetting(t(.settingsRemindBanner), isOn: $todoRemindBanner)
+            switchSetting(t(.settingsRemindSound), isOn: $todoRemindSound)
+            switchSetting(t(.settingsRemindMark), isOn: $todoRemindMark)
+            firstWeekdaySetting
+        }
+    }
+
+    private var vpnSettings: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Text(t(.clipVisibleRows))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                NumericField(value: $vpnVisibleRows, range: 1...10)
             }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.tabClipboard))
-                clipboardSettings
+            switchSetting(t(.settingsVpnMark), isOn: $vpnMenuBarMark)
+            switchSetting(t(.settingsVpnHoldOff), isOn: $vpnHoldOff)
+            Text(t(.settingsVpnHoldOffNote))
+                .font(Theme.mono(8))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var archiveSettings: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Text(t(.showInPanel))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: Binding(
+                    get: { moduleIsActive("archive") },
+                    set: { on in
+                        if on { placeModule("archive", onTab: tabsModel.tabs[0].id) }
+                        else { deactivateModule("archive") }
+                    }))
             }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.colorLabel))
-                colorSettings
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.trackerLabel))
-                visibleRowsSetting(stored: $trackerVisibleRows)
-                switchSetting(t(.settingsImportantOnTop), isOn: $trackerImportantOnTop)
-                // The task clock's own switch, next to the rest of the task
-                // settings rather than under the timer's. The two clocks are
-                // independent — either can hold the bar alone, and with both on
-                // they take turns (MenuBarCycle) — so a switch sitting in the
-                // timer's section read as the timer's own (Anton, 2026-08-05).
-                // Same placement rule as the VPN mark below.
-                switchSetting(t(.trackerBarTime), isOn: $trackerTimeInBar)
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.todosLabel))
-                visibleRowsSetting(stored: $todosVisibleRows)
-                switchSetting(t(.settingsImportantOnTop), isOn: $todoImportantOnTop)
-                // The reminder signal, three independent switches. Deliberately
-                // separate rather than one three-way mode: the menu-bar mark is
-                // useful without a banner, and a banner is useful without sound.
-                switchSetting(t(.settingsRemindBanner), isOn: $todoRemindBanner)
-                switchSetting(t(.settingsRemindSound), isOn: $todoRemindSound)
-                switchSetting(t(.settingsRemindMark), isOn: $todoRemindMark)
-                firstWeekdaySetting
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.vpnLabel))
-                HStack {
-                    Text(t(.clipVisibleRows))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    NumericField(value: $vpnVisibleRows, range: 1...10)
-                }
-                switchSetting(t(.settingsVpnMark), isOn: $vpnMenuBarMark)
-                switchSetting(t(.settingsVpnHoldOff), isOn: $vpnHoldOff)
-                Text(t(.settingsVpnHoldOffNote))
-                    .font(Theme.mono(8))
-                    .foregroundStyle(Theme.textTertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                switchSetting(t(.settingsToolsOneRow), isOn: $toolsOneRow)
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
+            ArchiveDefaultHandlerRow(label: t(.archiveMakeDefault),
+                                     doneLabel: t(.defaultHandlerDone),
+                                     restoreLabel: t(.archiveRestoreSystemHandlers))
+        }
+    }
+
+    /// SPEC: docs/spec.md — the grids of apps are made and removed here.
+    @ViewBuilder private var appShelvesSettings: some View {
+        if !model.appShelves.shelves.shelves.isEmpty {
             VStack(spacing: 14) {
                 settingsSectionHeader(t(.appsLabel))
-                // The grids that exist, so several of them can be told apart and
-                // deleted from one place. A grid is named in the module itself.
                 AppShelvesSettingsView(shelves: model.appShelves, lang: lang) {
                     removeShelf($0)
                 }
-                HStack {
-                    Text(t(.appsAddShelf))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    // Every other module is one of a kind; a shelf can be added
-                    // again and again, so this is the only "make another one"
-                    // button in settings.
-                    Button { addShelf() } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(Theme.textPrimary)
-                            .frame(width: 24, height: 24)
-                            .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 5))
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .help(t(.appsAddShelf))
-                    .hoverDim()
-                }
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.convertLabel))
-                converterSettings
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.archiveLabel))
-                // Being the opener and being IN the panel are separate choices:
-                // someone who only ever double-clicks archives in Finder does not
-                // need the row taking up space (Anton, 2026-07-26). Hiding is not
-                // switching off — the module keeps working.
-                HStack {
-                    Text(t(.showInPanel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer()
-                    Theme.MiniSwitch(isOn: Binding(
-                        get: { moduleIsActive("archive") },
-                        set: { on in
-                            if on { placeModule("archive", onTab: tabsModel.tabs[0].id) }
-                            else { deactivateModule("archive") }
-                        }))
-                }
-                ArchiveDefaultHandlerRow(label: t(.archiveMakeDefault),
-                                         doneLabel: t(.defaultHandlerDone),
-                                         restoreLabel: t(.archiveRestoreSystemHandlers))
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.torrentLabel))
-                torrentSettings
-            }
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            VStack(spacing: 14) {
-                settingsSectionHeader(t(.windowsLabel))
-                windowsSettings
             }
         }
     }
