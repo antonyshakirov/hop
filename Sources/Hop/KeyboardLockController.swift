@@ -26,9 +26,12 @@ final class KeyboardLockController: ObservableObject {
     @Published private(set) var isLocked = false
     /// Seconds left before the automatic unlock; nil when the timer is off.
     @Published private(set) var remaining: Int?
-    /// Esc + shift are held right now: the cover fills a bar over the five
-    /// seconds so the hold is visibly doing something (Anton, 2026-07-26).
-    @Published private(set) var chordHeld = false
+    /// When esc + shift went down together, nil when they are not both held.
+    /// The cover's bar reads its progress off THIS, never off an implicit
+    /// animation. SPEC: docs/spec.md — "Keyboard lock (cleaning mode)".
+    @Published private(set) var chordSince: Date?
+
+    var chordHeld: Bool { chordSince != nil }
 
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
@@ -81,9 +84,14 @@ final class KeyboardLockController: ObservableObject {
     func lock(seconds: Int? = nil, then: ((Bool) -> Void)? = nil) {
         if let seconds { duration = seconds }
         guard !isLocked, !verifying, !Snapshot.active else { then?(false); return }
-        // No prompt option: `refuse` does the asking, after dropping the row.
-        guard AXIsProcessTrusted(), installTap() else {
+        // Checked apart: the repair after a refusal drops Hop's TCC row, which
+        // a working grant must not pay for.
+        guard AXIsProcessTrusted() else {
             refuse(then, askSystem: true)
+            return
+        }
+        guard installTap() else {
+            refuse(then, askSystem: false)
             return
         }
         proveLock { [weak self] proven in
@@ -392,7 +400,7 @@ final class KeyboardLockController: ObservableObject {
             return
         }
         chordStart = Date()
-        chordHeld = true
+        chordSince = chordStart
         let timer = Timer(timeInterval: Self.escapeHoldSeconds, repeats: false) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, self.isLocked, self.escapeDown, self.shiftDown else { return }
@@ -410,7 +418,7 @@ final class KeyboardLockController: ObservableObject {
         chordTimer?.invalidate()
         chordTimer = nil
         chordStart = nil
-        chordHeld = false
+        chordSince = nil
     }
 
     private func reenableTap() {
@@ -531,16 +539,14 @@ private struct KeyboardLockOverlay: View {
                     Capsule()
                         .fill(Theme.divider)
                         .frame(width: 180, height: 4)
-                    Capsule()
-                        .fill(Theme.editing)
-                        .frame(width: lock.chordHeld ? 180 : 0, height: 4)
+                    if let since = lock.chordSince {
+                        TimelineView(.animation) { timeline in
+                            Capsule()
+                                .fill(Theme.editing)
+                                .frame(width: 180 * Self.progress(since, timeline.date), height: 4)
+                        }
+                    }
                 }
-                // a hair shorter than the deadline: a bar that fills exactly at
-                // the moment of unlocking looks like it is waiting for something
-                .animation(lock.chordHeld
-                           ? .linear(duration: KeyboardLockController.escapeHoldSeconds - 0.15)
-                           : .easeOut(duration: 0.18),
-                           value: lock.chordHeld)
                 .opacity(lock.chordHeld ? 1 : 0.35)
                 if let remaining = lock.remaining {
                     Text(timeText(remaining))
@@ -570,5 +576,11 @@ private struct KeyboardLockOverlay: View {
 
     private func timeText(_ seconds: Int) -> String {
         String(format: "%d:%02d", seconds / 60, seconds % 60)
+    }
+
+    /// Full a hair before the deadline, so it never sits there finished.
+    private static func progress(_ since: Date, _ now: Date) -> Double {
+        let span = KeyboardLockController.escapeHoldSeconds - 0.15
+        return min(max(now.timeIntervalSince(since) / span, 0), 1)
     }
 }

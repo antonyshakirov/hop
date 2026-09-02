@@ -2131,6 +2131,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   media row is not "keys" to macOS and would otherwise keep firing. Events are
   DROPPED, never inspected. `tapDisabledByTimeout/ByUserInput` re-arms the tap
   rather than leaving the keyboard half-locked.
+- **The trust check and the tap creation are guarded apart.** The repair that
+  follows a refusal drops Hop's TCC row, which is right when the permission is
+  the problem and wrong when it is not: a tap that failed to be created under a
+  working grant would have cost the user that grant.
 - **The cover goes up only on a PROVEN lock** (Anton, 2026-09-02). Neither
   `AXIsProcessTrusted` answering yes nor `tapCreate` returning a tap says
   anything about whether events are really being stopped: macOS can keep a
@@ -2195,7 +2199,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   start, because a timer on a run loop busy with the cover's animation fires late
   and the release then trails the full bar by half a second (Anton, 2026-07-26).
   The bar itself fills 0.15s early for the same reason — a finished bar must never
-  sit there waiting. Both keys are still swallowed on the way through, and the cover states
+  sit there waiting — and it reads its progress off `chordSince` through a
+  `TimelineView` rather than off an implicit animation. Handed to an animation it
+  was late by a third: the countdown redraws the cover every second, each redraw
+  started a fresh 4.85s animation from wherever the bar stood, and so it covered
+  a fifth of what remained each second and never the rest — 21%, 37%, 50%, 60%,
+  about two thirds at the moment the keys came back. A bar that promises a
+  deadline has to be read off the clock (Anton, 2026-09-02). Both keys are still swallowed on the way through, and the cover states
   the chord on its own line, heavier than the rest, with a bar that fills over
   the five seconds while the pair is held and snaps back the moment either key
   goes up (`chordHeld`) — a five-second hold with no feedback is five seconds of
