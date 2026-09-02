@@ -17,7 +17,7 @@ enum Snapshot {
         guard active else { return "general" }
         let args = CommandLine.arguments
         if let i = args.firstIndex(of: "--settings-section"), args.count > i + 1 { return args[i + 1] }
-        if args.contains("--news") { return "about" }
+        if args.contains("--news") { return "updates" }
         if args.contains("--permissions") { return "permissions" }
         return "general"
     }

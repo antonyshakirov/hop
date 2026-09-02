@@ -547,10 +547,10 @@ struct PanelView: View {
     }
 
     /// The full notes for the release, which are already written and already
-    /// translated — the card is a summary of the help's own "what's new" tab.
+    /// translated — the card is a summary of what the updates page carries.
     private func openReleaseNotes(_ card: ReleaseCard) {
         markReleaseSeen(card)
-        model.settingsSectionRequest = SettingsSelection.about.id
+        model.settingsSectionRequest = SettingsSelection.updates.id
         model.openSettingsWindow?()
     }
 
@@ -4773,7 +4773,20 @@ struct PanelView: View {
 
     // MARK: - Updates
 
+    /// SPEC: docs/spec.md — "Updates (settings window)".
     private var updatesSection: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            updateControls
+            VStack(alignment: .leading, spacing: 10) {
+                settingsSectionHeader(t(.aboutTabNews))
+                DocView(text: t(.docNews))
+                FooterLink(url: "https://github.com/antonyshakirov/hop/releases",
+                           label: t(.newsAllReleases))
+            }
+        }
+    }
+
+    private var updateControls: some View {
         SettingsCard(spacing: 12) {
             HStack {
                 Text(t(.autoUpdateLabel))
@@ -4949,20 +4962,35 @@ struct PanelView: View {
 
     // MARK: - About
 
+    /// SPEC: docs/spec.md — "The about page (settings window)".
     private var aboutPage: some View {
         VStack(alignment: .leading, spacing: 18) {
             donateCard
+            supportCard
 
             VStack(alignment: .leading, spacing: 10) {
-                settingsSectionHeader(t(.aboutTabNews))
-                DocView(text: t(.docNews))
-                FooterLink(url: "https://github.com/antonyshakirov/hop/releases",
-                           label: t(.newsAllReleases))
+                settingsSectionHeader(t(.aboutHowTitle))
+                DocView(text: t(.aboutHowBody))
             }
 
             Rectangle().fill(Theme.divider).frame(height: 1)
 
             aboutFooterLinks
+        }
+    }
+
+    private var supportCard: some View {
+        SettingsCard(spacing: 6) {
+            Text(t(.aboutSupport))
+                .font(Theme.mono(12, weight: .semibold))
+                .foregroundStyle(Theme.textPrimary)
+            HStack(spacing: 6) {
+                FooterLink(url: "mailto:support@hop.tools", label: "support@hop.tools")
+                Text("·")
+                    .foregroundStyle(Theme.textSecondary)
+                FooterLink(url: "https://t.me/HopSupportBot", label: "telegram-\(t(.supportBotWord))")
+            }
+            .font(Theme.mono(11))
         }
     }
 
@@ -4984,14 +5012,6 @@ struct PanelView: View {
                 Text("·")
                     .foregroundStyle(Theme.textSecondary)
                 FooterLink(url: productPageURL, label: t(.aboutProductPage))
-            }
-            HStack(spacing: 6) {
-                Text("\(t(.aboutSupport)):")
-                    .foregroundStyle(Theme.textSecondary)
-                FooterLink(url: "mailto:support@hop.tools", label: "support@hop.tools")
-                Text("·")
-                    .foregroundStyle(Theme.textSecondary)
-                FooterLink(url: "https://t.me/HopSupportBot", label: "telegram-\(t(.supportBotWord))")
             }
         }
         .font(Theme.mono(11))

@@ -3594,14 +3594,21 @@ Anton's primary install must always remain fully functional.
 ## The about page (settings window)
 
 - What the app is has no window of its own any more. The ⓘ button in the panel
-  header, the right-click menu's "about" item and a release card's "what's new"
-  all open the SETTINGS window on its "about" page
-  (`model.settingsSectionRequest`, consumed once by the window, which otherwise
-  remembers the page it was left on).
-- The page carries the donation card (still the only donation surface in the
-  product), the last ~5 releases (`docNews`, ×22) with a link to the full history
-  on GitHub Releases, and the footer: version, source, the author's site, the
-  product page, support mail and the Telegram bot.
+  header and the right-click menu's "about" item open the SETTINGS window on its
+  "about" page; a release card's "what's new" opens the UPDATES page, where the
+  notes now live (`model.settingsSectionRequest`, consumed once by the window,
+  which otherwise remembers the page it was left on).
+- **The page answers "what is this and who do I write to"** (Anton, 2026-09-02):
+  the donation card (still the only donation surface in the product), then
+  support — the mail address and the Telegram bot, in a card of their own rather
+  than a line of footer nobody reads — then "how hop works" (`aboutHowTitle` /
+  `aboutHowBody`, ×22): four short paragraphs saying where Hop lives, that the
+  panel is built of modules sitting on spaces, that each module has a page here
+  and a key of its own, and that nothing leaves the Mac. The footer keeps
+  version, source, the author's site and the product page.
+- **Release notes belong to the updates page**, with the auto-update switch, the
+  check button and the version: the whole history of what shipped is what
+  somebody on that page came for, and "about" was carrying it for no reason.
 - **The per-module documentation is gone from the app.** It was fourteen tabs of
   text that had to be written, translated ×22 and kept true release after
   release, read by almost nobody, in a window nobody opened. The guide lives on
