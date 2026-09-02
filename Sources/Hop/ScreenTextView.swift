@@ -19,7 +19,22 @@ struct ScreenTextView: View {
                 .foregroundStyle(Theme.textSecondary)
                 .lineLimit(1)
             Spacer(minLength: 6)
-            if let status {
+            if reader.state == .denied {
+                // The line said what was wrong and answered to nothing; pressing
+                // it now asks macOS for the permission (Anton, 2026-09-03).
+                Button {
+                    PermissionRepair.askAgain(.screenCapture, force: true)
+                } label: {
+                    Text(L10n.t(.ocrNeedsPermission, lang))
+                        .font(Theme.mono(9))
+                        .foregroundStyle(Theme.accentYellow)
+                        .lineLimit(1)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverDim()
+                .help(L10n.t(.permGrant, lang))
+            } else if let status {
                 Text(status.text)
                     .font(Theme.mono(9))
                     .foregroundStyle(status.color)

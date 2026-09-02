@@ -56,6 +56,10 @@ enum PermissionRepair {
     }
 
     private static func request(_ service: Service) {
+        // WORKAROUND: Hop is an accessory app, so the dialog macOS raises for it
+        // opens BEHIND whatever is in front and the press looks like it did
+        // nothing (Anton, 2026-09-03). Activating first puts it where it was asked for.
+        NSApp.activate(ignoringOtherApps: true)
         switch service {
         case .accessibility:
             let prompt = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary

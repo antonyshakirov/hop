@@ -2416,6 +2416,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the measurement can fail for reasons that are not the permission's fault, and
   throwing away a working grant on a guess is the worse trade. That one waits
   for the button.
+- **The line that says a permission is missing IS the button** (Anton,
+  2026-09-03). The recognition row's yellow "needs screen recording" and the same
+  words in the recognition window are pressable and run the repair; the row's
+  crosshair does too, on every press rather than once per run (`force`), because
+  a press is somebody asking. Before the repair, `NSApp.activate` — Hop is an
+  accessory app, so the dialog macOS raises for it opens BEHIND whatever is in
+  front, which is what "I press it and nothing happens" was.
 - Screen Recording gets the same repair on the FIRST refusal. The earlier
   two-step (a plain `CGRequestScreenCaptureAccess` first, the repair only on a
   second press) shows NOTHING when the list already holds a row that grants
@@ -2476,10 +2483,11 @@ taught anything.
   is left alone rather than silently eaten, so a malformed write can be seen.
 - `agent-state.json` — written by Hop every 5s and after every command: timer
   mode/state/remaining, keep-awake, the tracking task and its today total, the
-  whole to-do list with notes, reminders and favourites, and `accessibility` —
+  whole to-do list with notes, reminders and favourites, `accessibility` —
   `none` / `missing` / `lost` / `stale`, the reason `keyboard.lock` or
-  `window.snap` did nothing. An agent sees neither the system dialog nor the
-  panel's banner, so without that field the only thing it can report back is
+  `window.snap` did nothing — and `screenRecording`, the same answer for
+  `ocr.read`. An agent sees neither the system dialog nor the
+  panel's banner, so without those fields the only thing it can report back is
   that its command was accepted and changed nothing.
 - `hop://` links carry the SAME vocabulary — `hop://timer/start?minutes=16`,
   `hop://todo/add?text=…&important=true&repeatDays=mon,wed`, `hop://tracker/stop`.

@@ -90,7 +90,25 @@ struct ScreenTextWindowView: View {
                 .hoverDim()
                 .disabled(reader.isBusy)
             }
-            if let status {
+            if reader.state == .denied {
+                Button {
+                    PermissionRepair.askAgain(.screenCapture, force: true)
+                } label: {
+                    Text(t(.permGrant))
+                        .font(Theme.mono(10, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 5)
+                        .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverDim()
+                .help(t(.permGrant))
+                Text(t(.ocrNeedsPermission))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.accentYellow)
+            } else if let status {
                 Text(status)
                     .font(Theme.mono(9))
                     .foregroundStyle(Theme.textTertiary)

@@ -1,4 +1,5 @@
 import AppKit
+import CoreGraphics
 import HopCore
 import os
 
@@ -206,6 +207,8 @@ final class AgentBridge {
             // Why `keyboard.lock` or `window.snap` did nothing: an agent sees
             // neither the system dialog nor the panel's banner.
             "accessibility": AccessibilityWatch.shared.alert.rawValue,
+            // Same for `ocr.read`: framing an area needs screen recording.
+            "screenRecording": Snapshot.active ? true : CGPreflightScreenCaptureAccess(),
         ]
         let engine = model.tracker.engine
         if let activeID = engine.activeTaskID,

@@ -84,7 +84,7 @@ final class ScreenTextController: ObservableObject {
             // it), so the first press used to end in "allow it in settings" —
             // pointing at a switch that was already on. `askAgain` drops that row
             // and the dialog comes back, once per run (Anton, 2026-09-02).
-            PermissionRepair.askAgain(.screenCapture)
+            PermissionRepair.askAgain(.screenCapture, force: true)
             state = .denied
             return
         }
