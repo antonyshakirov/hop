@@ -2146,10 +2146,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   first half stands alone, which is weaker than this wants and still stronger
   than trusting a permission check. It costs the 0.06s grace after the probe
   arrives, not the 0.3s deadline, which is only for the probe that never comes.
-  The measurement gets ONE retry before a refusal, because refusing a lock that
-  would have worked is its own kind of lie and a probe can go missing without
-  the permission being at fault — a hiccup, or another app's tap in front of
-  ours swallowing it first. The retry costs nothing on the path that succeeds.
+  The measurement gets TWO retries before a refusal, because refusing a lock
+  that would have worked is its own kind of lie and a probe can go missing
+  without the permission being at fault: the probe and its deadline both wait on
+  the main run loop, so a main thread busy past 0.3s can have the deadline win a
+  race it should have lost. Retries cost nothing on the path that succeeds, and
+  they matter most to the people who have nothing wrong with their permission —
+  they are the ones a false refusal would send looking for a problem that is not
+  there (Anton, 2026-09-02).
 - **The panel closes on the LOCK, never on the click** (Anton, 2026-09-02).
   `lock(seconds:then:)` hands `then` true only once the keyboard is measurably
   locked; the module's chip closes the panel from inside that. A panel that

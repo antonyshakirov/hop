@@ -115,9 +115,9 @@ final class KeyboardLockController: ObservableObject {
         }
     }
 
-    /// The measurement, with one retry: refusing a lock that would have worked
-    /// is its own kind of lie, and a probe can go missing on its own.
-    private func proveLock(attempts: Int = 2, _ done: @escaping (Bool) -> Void) {
+    /// The measurement, with two retries: refusing a lock that would have worked
+    /// is its own kind of lie, and a busy main thread can lose a probe.
+    private func proveLock(attempts: Int = 3, _ done: @escaping (Bool) -> Void) {
         verifySuppression { [weak self] proven in
             guard let self, !proven, attempts > 1 else {
                 done(proven)
