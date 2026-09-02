@@ -774,7 +774,7 @@ enum L10n {
             .coloredIndicatorsNote: "the marks in the icon's corners follow the state in color; off draws them in one color and shape tells them apart",
             .trackerBarTime: "show task time in menu bar",
             .settingsTabLayout: "modules & tabs",
-            .tabDeleteConfirm: "delete this tab? its modules move to the first one and are hidden",
+            .tabDeleteConfirm: "delete this tab? its modules move to the end of the tab on its left",
             .modulesTableHint: "the eye hides a module: it keeps its place and stops showing in the panel. drag columns to reorder tabs, and drag modules between columns or within one.",
         ],
         .ru: [
@@ -1272,7 +1272,7 @@ enum L10n {
             .coloredIndicatorsNote: "метки в углах иконки окрашены по состоянию; выключено — все одного цвета, различаются формой",
             .trackerBarTime: "время задачи в menu bar",
             .settingsTabLayout: "модули и вкладки",
-            .tabDeleteConfirm: "удалить вкладку? её модули переедут на первую и будут скрыты",
+            .tabDeleteConfirm: "удалить вкладку? её модули переедут в конец соседней слева",
             .modulesTableHint: "глаз прячет модуль: он остаётся на своём месте, но не показывается в панели. перетаскивайте столбцы, чтобы менять порядок вкладок, а модули — между столбцами и внутри столбца.",
         ],
         .de: [
@@ -1770,7 +1770,7 @@ enum L10n {
             .coloredIndicatorsNote: "die markierungen in den ecken des symbols folgen dem zustand in farbe; aus zeichnet sie einfarbig, die form unterscheidet sie",
             .trackerBarTime: "aufgabenzeit in menüleiste",
             .settingsTabLayout: "module & tabs",
-            .tabDeleteConfirm: "diesen tab löschen? seine module wandern auf den ersten und werden ausgeblendet",
+            .tabDeleteConfirm: "diesen tab löschen? seine module wandern ans ende des tabs links daneben",
             .modulesTableHint: "das auge blendet ein modul aus: es behält seinen platz und erscheint nicht mehr im panel. ziehe spalten, um tabs umzusortieren, und module zwischen spalten oder innerhalb einer spalte.",
         ],
         .es: [
@@ -2268,7 +2268,7 @@ enum L10n {
             .coloredIndicatorsNote: "las marcas en las esquinas del icono siguen el estado con color; apagado las dibuja de un solo color y la forma las distingue",
             .trackerBarTime: "tiempo de tarea en la barra",
             .settingsTabLayout: "módulos y pestañas",
-            .tabDeleteConfirm: "¿eliminar esta pestaña? sus módulos pasan a la primera y quedan ocultos",
+            .tabDeleteConfirm: "¿eliminar esta pestaña? sus módulos pasan al final de la pestaña de su izquierda",
             .modulesTableHint: "el ojo oculta un módulo: conserva su sitio y deja de aparecer en el panel. arrastra columnas para reordenar pestañas y módulos entre columnas o dentro de una.",
         ],
         .pt: [
@@ -2766,7 +2766,7 @@ enum L10n {
             .coloredIndicatorsNote: "as marcas nos cantos do ícone seguem o estado pela cor; desligado desenha todas na mesma cor e a forma as distingue",
             .trackerBarTime: "tempo da tarefa na barra",
             .settingsTabLayout: "módulos e abas",
-            .tabDeleteConfirm: "excluir esta aba? seus módulos vão para a primeira e ficam ocultos",
+            .tabDeleteConfirm: "excluir esta aba? seus módulos vão para o fim da aba à esquerda",
             .modulesTableHint: "o olho oculta um módulo: ele mantém seu lugar e deixa de aparecer no painel. arraste colunas para reordenar abas e módulos entre colunas ou dentro de uma.",
         ],
         .fr: [
@@ -3264,7 +3264,7 @@ enum L10n {
             .coloredIndicatorsNote: "les marques aux coins de l'icône suivent l'état par la couleur; désactivé les dessine d'une seule couleur, la forme les distingue",
             .trackerBarTime: "temps de la tâche dans la barre",
             .settingsTabLayout: "modules et onglets",
-            .tabDeleteConfirm: "supprimer cet onglet ? ses modules passent au premier et sont masqués",
+            .tabDeleteConfirm: "supprimer cet onglet ? ses modules passent à la fin de l'onglet de gauche",
             .modulesTableHint: "l'œil masque un module : il garde sa place et n'apparaît plus dans le panneau. faites glisser les colonnes pour réordonner les onglets, et les modules entre colonnes ou dans une colonne.",
         ],
         .it: [
@@ -3762,7 +3762,7 @@ enum L10n {
             .coloredIndicatorsNote: "i segni negli angoli dell'icona seguono lo stato con il colore; disattivato li disegna di un solo colore e la forma li distingue",
             .trackerBarTime: "tempo dell'attività nella barra",
             .settingsTabLayout: "moduli e schede",
-            .tabDeleteConfirm: "eliminare questa scheda? i suoi moduli passano alla prima e restano nascosti",
+            .tabDeleteConfirm: "eliminare questa scheda? i suoi moduli passano in fondo alla scheda a sinistra",
             .modulesTableHint: "l'occhio nasconde un modulo: mantiene il suo posto e non appare più nel pannello. trascina le colonne per riordinare le schede e i moduli tra le colonne o dentro una.",
         ],
         .zh: [
@@ -4253,7 +4253,7 @@ enum L10n {
             .coloredIndicatorsNote: "图标角上的标记用颜色表示状态；关闭后全部为单色，用形状区分",
             .trackerBarTime: "菜单栏显示任务时间",
             .settingsTabLayout: "模块与标签",
-            .tabDeleteConfirm: "删除此标签页？它的模块会移到第一个标签页并被隐藏",
+            .tabDeleteConfirm: "删除这个标签页？它的模块会移到左侧标签页的末尾",
             .modulesTableHint: "眼睛用于隐藏模块：它保留原位，只是不再显示在面板中。拖动列可重排标签页，拖动模块可在列之间或列内移动。",
         ],
         .ja: [
@@ -4748,7 +4748,7 @@ enum L10n {
             .coloredIndicatorsNote: "アイコンの角のマークは状態を色で示します。オフでは単色になり、形で見分けます",
             .trackerBarTime: "メニューバーにタスク時間表示",
             .settingsTabLayout: "モジュールとタブ",
-            .tabDeleteConfirm: "このタブを削除しますか？モジュールは最初のタブへ移り、非表示になります",
+            .tabDeleteConfirm: "このタブを削除しますか？モジュールは左隣のタブの末尾に移ります",
             .modulesTableHint: "目のアイコンはモジュールを隠します。場所はそのままで、パネルに表示されなくなります。列をドラッグするとタブの並びが変わり、モジュールは列の間でも列の中でも動かせます。",
         ],
         .ko: [
@@ -5243,7 +5243,7 @@ enum L10n {
             .coloredIndicatorsNote: "아이콘 모서리의 표시가 상태를 색으로 나타냅니다. 끄면 단색으로 그려지고 모양으로 구분합니다",
             .trackerBarTime: "메뉴 막대에 작업 시간 표시",
             .settingsTabLayout: "모듈 및 탭",
-            .tabDeleteConfirm: "이 탭을 삭제할까요? 모듈은 첫 번째 탭으로 옮겨져 숨겨집니다",
+            .tabDeleteConfirm: "이 탭을 삭제할까요? 모듈은 왼쪽 탭의 끝으로 옮겨집니다",
             .modulesTableHint: "눈 아이콘은 모듈을 숨깁니다. 자리는 그대로 두고 패널에만 표시되지 않습니다. 열을 끌어 탭 순서를 바꾸고, 모듈은 열 사이나 열 안에서 끌어 옮기세요.",
         ],
         .tr: [
@@ -5757,7 +5757,7 @@ enum L10n {
             .coloredIndicatorsNote: "simgenin köşelerindeki işaretler durumu renkle gösterir; kapalıyken tek renk çizilir ve biçimleriyle ayrılır",
             .trackerBarTime: "menü çubuğunda görev süresi",
             .settingsTabLayout: "modüller ve sekmeler",
-            .tabDeleteConfirm: "bu sekme silinsin mi? modülleri ilkine taşınır ve gizlenir",
+            .tabDeleteConfirm: "bu sekme silinsin mi? modülleri solundaki sekmenin sonuna taşınır",
             .modulesTableHint: "göz simgesi modülü gizler: yeri korunur, yalnızca panelde görünmez. sekmeleri yeniden sıralamak için sütunları, modülleri ise sütunlar arasında veya sütun içinde sürükleyin.",
         ],
         .uk: [
@@ -6271,7 +6271,7 @@ enum L10n {
             .coloredIndicatorsNote: "позначки в кутах іконки передають стан кольором; вимкнено — усі одного кольору, різняться формою",
             .trackerBarTime: "час завдання в рядку меню",
             .settingsTabLayout: "модулі та вкладки",
-            .tabDeleteConfirm: "видалити вкладку? її модулі перейдуть на першу та будуть сховані",
+            .tabDeleteConfirm: "видалити вкладку? її модулі переїдуть у кінець сусідньої зліва",
             .modulesTableHint: "око ховає модуль: він лишається на своєму місці, але не показується в панелі. перетягуйте стовпці, щоб змінити порядок вкладок, а модулі — між стовпцями та всередині стовпця.",
         ],
         .pl: [
@@ -6785,7 +6785,7 @@ enum L10n {
             .coloredIndicatorsNote: "znaczniki w rogach ikony pokazują stan kolorem; wyłączone rysuje je jednym kolorem, rozróżnia je kształt",
             .trackerBarTime: "czas zadania na pasku menu",
             .settingsTabLayout: "moduły i karty",
-            .tabDeleteConfirm: "usunąć tę kartę? jej moduły przejdą na pierwszą i zostaną ukryte",
+            .tabDeleteConfirm: "usunąć tę kartę? jej moduły trafią na koniec karty po lewej",
             .modulesTableHint: "oko ukrywa moduł: zostaje na swoim miejscu, ale nie pojawia się w panelu. przeciągaj kolumny, aby zmienić kolejność kart, a moduły między kolumnami lub w jednej.",
         ],
         .id: [
@@ -7299,7 +7299,7 @@ enum L10n {
             .coloredIndicatorsNote: "tanda di sudut ikon menunjukkan keadaan lewat warna; mati menggambarnya satu warna dan bentuknya yang membedakan",
             .trackerBarTime: "waktu tugas di bilah menu",
             .settingsTabLayout: "modul & tab",
-            .tabDeleteConfirm: "hapus tab ini? modulnya pindah ke tab pertama dan disembunyikan",
+            .tabDeleteConfirm: "hapus tab ini? modulnya pindah ke akhir tab di sebelah kirinya",
             .modulesTableHint: "ikon mata menyembunyikan modul: tempatnya tetap, hanya tidak tampil di panel. seret kolom untuk mengurutkan tab, dan seret modul antar kolom atau di dalam satu kolom.",
         ],
         .th: [
@@ -7813,7 +7813,7 @@ enum L10n {
             .coloredIndicatorsNote: "เครื่องหมายที่มุมไอคอนบอกสถานะด้วยสี ปิดแล้วจะเป็นสีเดียวและแยกกันด้วยรูปทรง",
             .trackerBarTime: "เวลางานบนแถบเมนู",
             .settingsTabLayout: "โมดูลและแท็บ",
-            .tabDeleteConfirm: "ลบแท็บนี้ไหม โมดูลจะย้ายไปแท็บแรกและถูกซ่อน",
+            .tabDeleteConfirm: "ลบแท็บนี้ไหม โมดูลจะย้ายไปต่อท้ายแท็บทางซ้าย",
             .modulesTableHint: "ไอคอนตาใช้ซ่อนโมดูล โมดูลยังอยู่ที่เดิมแต่ไม่แสดงในแผง ลากคอลัมน์เพื่อจัดลำดับแท็บ และลากโมดูลระหว่างคอลัมน์หรือภายในคอลัมน์",
         ],
         .vi: [
@@ -8327,7 +8327,7 @@ enum L10n {
             .coloredIndicatorsNote: "các dấu ở góc biểu tượng thể hiện trạng thái bằng màu; tắt thì vẽ một màu và phân biệt bằng hình dạng",
             .trackerBarTime: "thời gian công việc trên thanh menu",
             .settingsTabLayout: "mô-đun & tab",
-            .tabDeleteConfirm: "xoá thẻ này? các mô-đun sẽ chuyển sang thẻ đầu và bị ẩn",
+            .tabDeleteConfirm: "xóa thẻ này? các mô-đun của nó chuyển xuống cuối thẻ bên trái",
             .modulesTableHint: "biểu tượng mắt ẩn mô-đun: nó vẫn giữ chỗ, chỉ không hiện trong bảng. kéo cột để sắp xếp thẻ, kéo mô-đun giữa các cột hoặc trong một cột.",
         ],
         .hi: [
@@ -8841,7 +8841,7 @@ enum L10n {
             .coloredIndicatorsNote: "आइकन के कोनों के निशान स्थिति को रंग से दिखाते हैं; बंद होने पर सब एक ही रंग में और आकार से पहचाने जाते हैं",
             .trackerBarTime: "मेनू बार में कार्य समय",
             .settingsTabLayout: "मॉड्यूल और टैब",
-            .tabDeleteConfirm: "यह टैब हटाएँ? इसके मॉड्यूल पहले टैब पर चले जाएँगे और छिप जाएँगे",
+            .tabDeleteConfirm: "यह टैब हटाएँ? इसके मॉड्यूल बाईं ओर वाले टैब के अंत में चले जाएँगे",
             .modulesTableHint: "आँख मॉड्यूल को छिपाती है: वह अपनी जगह पर रहता है, बस पैनल में नहीं दिखता। टैब का क्रम बदलने के लिए कॉलम खींचें, और मॉड्यूल कॉलम के बीच या एक कॉलम के भीतर खींचें।",
         ],
         .nl: [
@@ -9355,7 +9355,7 @@ enum L10n {
             .coloredIndicatorsNote: "de markeringen in de hoeken van het pictogram volgen de toestand in kleur; uit tekent ze in één kleur en de vorm onderscheidt ze",
             .trackerBarTime: "taaktijd in de menubalk",
             .settingsTabLayout: "modules & tabbladen",
-            .tabDeleteConfirm: "dit tabblad verwijderen? de modules gaan naar het eerste en worden verborgen",
+            .tabDeleteConfirm: "dit tabblad verwijderen? de modules gaan naar het einde van het tabblad links ervan",
             .modulesTableHint: "het oog verbergt een module: hij houdt zijn plek en verschijnt niet meer in het paneel. sleep kolommen om tabbladen te herschikken en modules tussen kolommen of binnen één kolom.",
         ],
         .ar: [
@@ -9929,7 +9929,7 @@ enum L10n {
             .coloredIndicatorsNote: "العلامات في زوايا الأيقونة تتبع الحالة باللون؛ عند الإيقاف تُرسم بلون واحد ويميّزها الشكل",
             .trackerBarTime: "إظهار وقت المهمة في شريط القوائم",
             .settingsTabLayout: "الوحدات والتبويبات",
-            .tabDeleteConfirm: "حذف علامة التبويب هذه؟ ستنتقل وحداتها إلى الأولى وتصبح مخفية",
+            .tabDeleteConfirm: "حذف هذا التبويب؟ وحداته تنتقل إلى نهاية التبويب الذي على يمينه",
             .modulesTableHint: "تخفي العين وحدة: تبقى في مكانها ولا تظهر في اللوحة. اسحب الأعمدة لإعادة ترتيب علامات التبويب، واسحب الوحدات بين الأعمدة أو داخل العمود.",
         ],
         .he: [
@@ -10503,7 +10503,7 @@ enum L10n {
             .coloredIndicatorsNote: "הסימונים בפינות הסמל מציינים את המצב בצבע; כבוי מצייר את כולם בצבע אחד והצורה מבדילה ביניהם",
             .trackerBarTime: "הצגת זמן המשימה בשורת התפריטים",
             .settingsTabLayout: "מודולים ולשוניות",
-            .tabDeleteConfirm: "למחוק את הלשונית? המודולים יעברו לראשונה ויוסתרו",
+            .tabDeleteConfirm: "למחוק את הלשונית? המודולים שלה יעברו לסוף הלשונית שמימינה",
             .modulesTableHint: "העין מסתירה מודול: הוא נשאר במקומו ופשוט לא מוצג בפאנל. גררו עמודות כדי לסדר לשוניות, ומודולים בין עמודות או בתוך עמודה.",
         ],
         .fa: [
@@ -11077,7 +11077,7 @@ enum L10n {
             .coloredIndicatorsNote: "نشانه‌های گوشهٔ آیکن وضعیت را با رنگ نشان می‌دهند؛ خاموش همه را یک‌رنگ می‌کشد و شکل آن‌ها را از هم جدا می‌کند",
             .trackerBarTime: "نمایش زمان کار در نوار منو",
             .settingsTabLayout: "ماژول‌ها و زبانه‌ها",
-            .tabDeleteConfirm: "این زبانه حذف شود؟ ماژول‌هایش به زبانهٔ اول می‌روند و پنهان می‌شوند",
+            .tabDeleteConfirm: "این زبانه حذف شود؟ ماژول‌هایش به انتهای زبانهٔ سمت راستش می‌روند",
             .modulesTableHint: "چشم ماژول را پنهان می‌کند: جای خود را نگه می‌دارد و فقط در پنل دیده نمی‌شود. ستون‌ها را بکشید تا ترتیب زبانه‌ها عوض شود و ماژول‌ها را میان ستون‌ها یا درون یک ستون بکشید.",
         ],
         .ur: [
@@ -11651,7 +11651,7 @@ enum L10n {
             .coloredIndicatorsNote: "آئیکن کے کونوں کے نشان حالت کو رنگ سے دکھاتے ہیں؛ بند ہونے پر سب ایک رنگ میں اور شکل سے پہچانے جاتے ہیں",
             .trackerBarTime: "مینو بار میں کام کا وقت دکھائیں",
             .settingsTabLayout: "ماڈیول اور ٹیب",
-            .tabDeleteConfirm: "یہ ٹیب حذف کریں؟ اس کے ماڈیول پہلے ٹیب پر چلے جائیں گے اور چھپ جائیں گے",
+            .tabDeleteConfirm: "یہ ٹیب حذف کریں؟ اس کے ماڈیول ساتھ والے ٹیب کے آخر میں چلے جائیں گے",
             .modulesTableHint: "آنکھ ماڈیول کو چھپاتی ہے: وہ اپنی جگہ پر رہتا ہے، بس پینل میں نظر نہیں آتا۔ ٹیبز کی ترتیب بدلنے کے لیے کالم گھسیٹیں، اور ماڈیول کالموں کے درمیان یا ایک کالم کے اندر گھسیٹیں۔",
         ],
     ]

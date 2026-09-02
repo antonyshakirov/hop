@@ -140,18 +140,30 @@ final class PanelTabsTests: XCTestCase {
 
     // MARK: - deleteTab
 
-    func testDeleteTabParksItsModulesHiddenOnTheFirstSpace() {
+    func testDeleteTabAppendsItsModulesToTheSpaceOnItsLeft() {
         let first = PanelTab(icon: "house", moduleKeys: ["timer"])
         let second = PanelTab(icon: "gauge", moduleKeys: ["system"])
         let third = PanelTab(icon: "star", moduleKeys: ["clipboard"])
         var model = PanelTabsModel(tabs: [first, second, third])
 
+        model.deleteTab(third.id)
+
+        XCTAssertEqual(model.tabs.map(\.id), [first.id, second.id])
+        XCTAssertEqual(model.tabs[1].moduleKeys, ["system", "clipboard"], "the neighbour, not the first space")
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer"])
+    }
+
+    /// The modules keep the visibility they had: a space that goes away is not a
+    /// reason to hide what was on it (Anton, 2026-09-02).
+    func testDeleteTabHidesNothing() {
+        let first = PanelTab(icon: "house", moduleKeys: ["timer"])
+        let second = PanelTab(icon: "gauge", moduleKeys: ["system", "clipboard"])
+        var model = PanelTabsModel(tabs: [first, second], hidden: ["clipboard"])
+
         model.deleteTab(second.id)
 
-        XCTAssertEqual(model.tabs.map(\.id), [first.id, third.id])
-        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer", "system"])
-        XCTAssertEqual(model.tabs[1].moduleKeys, ["clipboard"])
-        XCTAssertEqual(model.hidden, ["system"], "nothing appears where the user did not put it")
+        XCTAssertEqual(model.tabs[0].moduleKeys, ["timer", "system", "clipboard"])
+        XCTAssertEqual(model.hidden, ["clipboard"])
     }
 
     func testDeleteFirstTabParksItsModulesOnWhatIsNowTheFirst() {
@@ -163,7 +175,7 @@ final class PanelTabsTests: XCTestCase {
 
         XCTAssertEqual(model.tabs.map(\.id), [second.id])
         XCTAssertEqual(model.tabs[0].moduleKeys, ["system", "timer"])
-        XCTAssertEqual(model.hidden, ["timer"])
+        XCTAssertEqual(model.hidden, [])
     }
 
     func testDeleteTabIsNoOpOnLastRemainingTab() {

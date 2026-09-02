@@ -118,7 +118,6 @@ struct PanelView: View {
     @State private var iconPickerTabID: UUID?
     // which tab column header is hovered — its delete xmark shows only then
     // (same reveal-on-hover pattern as the tracker/torrent row deletes)
-    @State private var hoveredTabRow: UUID?
     @AppStorage("cycleTemplates") private var cycleTemplatesRaw = "25/5x4,52/17x3,90/15x2"
     @AppStorage("showPresetsRow") private var showPresetsRow = true
     @AppStorage("showCyclesRow") private var showCyclesRow = true
@@ -1481,9 +1480,8 @@ struct PanelView: View {
         return IconCatalog.symbols.first { !used.contains($0) } ?? IconCatalog.symbols[0]
     }
 
-    /// Delete a tab from settings. HopCore sends the deleted tab's modules to
-    /// the inactive bucket (hidden, not silently merged), which is why the UI
-    /// asks for confirmation first. Settings is a separate window, so this can't
+    /// Delete a tab from settings; HopCore appends its modules to the space on
+    /// its left. Settings is a separate window, so this can't
     /// touch the live panel screen; instead clear the saved active space if it
     /// pointed at the deleted tab, so the panel reopens on a valid space.
     private func deleteTab(_ id: UUID) {
@@ -1597,7 +1595,7 @@ struct PanelView: View {
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.textTertiary)
             Spacer(minLength: 0)
-            if tabsModel.tabs.count > 1 {
+            if number > 1 {
                 Button { confirmDeleteTab = tab.id } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 10))
@@ -1608,15 +1606,10 @@ struct PanelView: View {
                 .buttonStyle(.plain)
                 .hoverHighlight(4)
                 .help(t(.tabDelete))
-                .opacity(hoveredTabRow == tab.id ? 1 : 0)
-                .allowsHitTesting(hoveredTabRow == tab.id)
             }
         }
         .frame(height: 26)
         .contentShape(Rectangle())
-        .onHover { inside in
-            if inside { hoveredTabRow = tab.id } else if hoveredTabRow == tab.id { hoveredTabRow = nil }
-        }
         .gesture(headerDragGesture(tab.id))
     }
 

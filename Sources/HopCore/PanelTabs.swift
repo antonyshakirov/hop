@@ -51,12 +51,15 @@ public struct PanelTabsModel: Codable, Equatable {
         return tab.id
     }
 
-    /// Removes the tab; its modules move to the first remaining space, hidden.
+    /// Removes the tab; its modules land at the END of the space to its LEFT,
+    /// keeping whatever visibility they had. Deleting the first space sends them
+    /// to what becomes the first.
+    /// SPEC: docs/spec.md — the spaces table.
     public mutating func deleteTab(_ id: UUID) {
         guard tabs.count > 1, let index = tabs.firstIndex(where: { $0.id == id }) else { return }
         let removed = tabs.remove(at: index)
-        tabs[0].moduleKeys.append(contentsOf: removed.moduleKeys)
-        hidden.formUnion(removed.moduleKeys)
+        let target = max(0, index - 1)
+        tabs[target].moduleKeys.append(contentsOf: removed.moduleKeys)
     }
 
     /// Moves the tab at `from` to `to`. No-op if either index is out of

@@ -258,11 +258,12 @@ disagree. Which column a point falls in is `SettingsDropGeometry.columnID(at:)`
 (containment wins, else nearest by X), tested in `SettingsDropGeometryTests`. Each space column header carries
 the space icon (a padded icon+chevron control with breathing room around the
 hover highlight — tap it or its rotating disclosure chevron to open the icon
-picker), "#N", and a hover-only delete xmark that opens a delete confirmation
-(`delete this tab? its modules move to the first one and are hidden` +
-delete/cancel); confirming moves them to the first remaining space and hides
-them there, so a deleted space never makes a module appear somewhere the user
-did not put it. The icon picker is an anchored popover under the header
+picker), "#N", and — on every space but the FIRST — a delete xmark that is
+always visible, not hover-only, so what a column can do is on the page rather
+than under the pointer (Anton, 2026-09-02). It opens a delete confirmation
+(`delete this tab? its modules move to the end of the tab on its left` +
+cancel/delete); confirming appends them to the space on its left, keeping
+whatever visibility they had. The icon picker is an anchored popover under the header
 control (the settings window is a real NSWindow, so a popover is safe here,
 unlike the status-bar panel): a scrollable grid, ~7 columns, capped ~320pt
 tall, of the curated SF Symbols catalog (`IconCatalog`, 200+ symbols grouped
@@ -2615,17 +2616,21 @@ converter (Anton, 2026-07-28).
 - Header: a spaces switcher on the left — one icon tab per space, click to
   switch, the active one chip-highlighted — and the service trio on the
   right: ⓘ (about), gear (settings), ⏻ (quit, with a confirmation dialog).
+  **With one space the switcher is not drawn at all** (Anton, 2026-09-02): a row
+  of one tab switches to nothing and only takes the header's width.
   The switcher is pure navigation: adding, reordering, renaming (icon) and
   deleting spaces all live in the settings "modules & tabs" table (the
   combined space/module table), so a stray header click can't create a
   space. Up to 4 spaces (`PanelTabsModel.maxTabs`) — the
   cap keeps 4×56pt tabs plus the trio inside the 340pt header content
   (≈338pt at the cap). Panel width 368.
-- Deleting a space (in the settings table) moves its modules to the first
-  remaining space and hides them there — nothing appears where the user did not
-  put it (`PanelTabsModel.deleteTab`; confirm copy "its modules move to the
-  first one and are hidden"). The
-  last remaining space can never be deleted. The settings-table drop is resolved
+- Deleting a space (in the settings table) appends its modules to the END of the
+  space on its LEFT, with their visibility untouched (`PanelTabsModel.deleteTab`;
+  confirm copy "its modules move to the end of the tab on its left"). It used to
+  send them to the first space and hide them; a neighbour is where the eye
+  expects them, and a space going away is no reason to hide what was on it
+  (Anton, 2026-09-02). Deleting the first space sends them to what becomes the
+  first. The last remaining space can never be deleted. The settings-table drop is resolved
   by pure, tested HopCore helpers: `SettingsDropGeometry.insertIndex` turns the
   laid-out chip frames + the drop point into an insert index (one resolver for
   both the live indicator and the commit), and `PanelTabsModel.applyDrop`
