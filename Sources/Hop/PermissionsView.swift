@@ -95,10 +95,6 @@ struct PermissionsView: View {
         return [
             Item(id: "network", symbol: "arrow.down.circle", title: .permNetworkTitle,
                  body: .permNetworkBody, granted: nil, settingsURL: nil),
-            Item(id: "torrent", symbol: "arrow.up.arrow.down", title: .permTorrentTitle,
-                 body: .permTorrentBody, granted: nil, settingsURL: nil),
-            Item(id: "speed", symbol: "speedometer", title: .permSpeedTitle,
-                 body: .permSpeedBody, granted: nil, settingsURL: nil),
             Item(id: "accessibility", symbol: "accessibility", title: .permAccessibilityTitle,
                  body: .permAccessibilityBody,
                  granted: Snapshot.active ? true : AXIsProcessTrusted(),
@@ -144,69 +140,50 @@ struct PermissionsView: View {
                 .foregroundStyle(Theme.textSecondary)
                 .frame(width: 18)
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 8) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text(L10n.t(item.title, lang))
                         .font(Theme.mono(11, weight: .semibold))
                         .foregroundStyle(Theme.textPrimary)
                     Spacer(minLength: 6)
-                    Text(statusText(item))
-                        .font(Theme.mono(9))
-                        .foregroundStyle(statusColor(item))
-                        .lineLimit(1)
+                    trailing(item)
                 }
                 Text(L10n.t(item.body, lang))
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.docText)
                     .fixedSize(horizontal: false, vertical: true)
-                if item.granted == false {
-                    HStack(spacing: 10) {
-                        if let grant = item.grant {
-                            Button(action: grant) {
-                                Text(L10n.t(.permGrant, lang))
-                                    .font(Theme.mono(10, weight: .semibold))
-                                    .foregroundStyle(Theme.textPrimary)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .help(L10n.t(.permGrant, lang))
-                            .hoverDim()
-                        }
-                        if let url = item.settingsURL {
-                            Button {
-                                if let link = URL(string: url) { NSWorkspace.shared.open(link) }
-                            } label: {
-                                HoverLabel(text: L10n.t(.ocrOpenSettings, lang), size: 9,
-                                           color: Theme.textSecondary)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .help(L10n.t(.ocrOpenSettings, lang))
-                        }
-                    }
-                    .padding(.top, 2)
-                }
             }
         }
     }
 
-    /// "granted" / "not granted" for what can be checked; everything else says
-    /// it is asked for only when the feature is used.
+    /// SPEC: docs/spec.md — "Permissions (settings window)", one trailing slot.
+    @ViewBuilder
+    private func trailing(_ item: Item) -> some View {
+        if item.granted == false, let grant = item.grant {
+            Button(action: grant) {
+                Text(L10n.t(.permGrant, lang))
+                    .font(Theme.mono(10, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(L10n.t(.permGrant, lang))
+            .hoverDim()
+        } else {
+            Text(statusText(item))
+                .font(Theme.mono(9))
+                .foregroundStyle(item.granted == true ? Theme.accentGreen : Theme.textTertiary)
+                .lineLimit(1)
+        }
+    }
+
     private func statusText(_ item: Item) -> String {
         switch item.granted {
         case true: return L10n.t(.permGranted, lang)
         case false: return L10n.t(.permNotGranted, lang)
         case nil: return L10n.t(.permWhenUsed, lang)
-        }
-    }
-
-    private func statusColor(_ item: Item) -> Color {
-        switch item.granted {
-        case true: return Theme.accentGreen
-        case false: return Theme.textTertiary
-        case nil: return Theme.textTertiary
         }
     }
 }

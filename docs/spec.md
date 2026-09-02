@@ -2300,12 +2300,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   ask for, what it is for, and whether it is granted right now — plus what Hop
   never does. The list is taken from the code (actual API calls), never written
   from memory; a new permission means a new row.
-- Rows: network to antonshakirov.com (updates + the two downloadable helpers),
-  torrent traffic (only with the module on), the speed test (macOS's own
-  `networkQuality`, Apple's servers), Accessibility (paste-into-app, window
-  manager, keyboard lock), Screen Recording (screen text ONLY — the eyedropper
-  explicitly does not need it), notifications (timer + torrent done),
-  administrator password (once, for closed-lid `pmset`), launch at login.
+- **One row per PERMISSION, not per feature, and one line each** (Anton,
+  2026-09-02). Network used to be three rows — updates, torrent traffic, the
+  speed test — for what macOS treats as one thing; they are now a single row
+  naming all three uses. Six rows in total: network, Accessibility
+  (paste-into-app, window manager, keyboard lock), Screen Recording (screen text
+  ONLY — the eyedropper explicitly does not need it), notifications (timer +
+  torrent done), administrator password (once, for closed-lid `pmset`), launch
+  at login. Each body is one sentence: a paragraph per permission read as a
+  wall, and the page is scanned rather than studied.
 - Live status where it can be checked: `AXIsProcessTrusted()`,
   `CGPreflightScreenCaptureAccess()`, `UNUserNotificationCenter` settings,
   `SMAppService.mainApp.status`. The notification query is skipped in a
@@ -2313,18 +2316,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   tick while the page is open: a grant lands in another process (the system
   dialog, the settings pane) and none of those four checks publishes anything to
   watch, so the only way the list stops lying is to look again.
-- **A missing permission carries a "grant access" button** (Anton, 2026-09-02) —
-  the page is where people go when something does not work, and until now all it
-  could do was point at System Settings. Accessibility and Screen Recording ask
+- **The trailing slot holds ONE thing: the button, or the status** (Anton,
+  2026-09-02) — a row that says "not granted" AND carries a button says the same
+  thing twice. Missing and askable → the "grant access" button; granted → the
+  green word; nothing to check → "asked when used". The System Settings link is
+  gone from the rows: the button does what the link was there to lead to.
+  Accessibility and Screen Recording ask
   through `PermissionRepair.askAgain(_:force:)` (drop Hop's own row, then
   request), which is the only thing that raises the real dialog when the row
   already there grants nothing; notifications ask
   `UNUserNotificationCenter.requestAuthorization` and fall back to the
   notification pane once macOS answers from a refusal on file; launch at login
   is `SMAppService.mainApp.register()`. `force` is what lets a button pressed by
-  hand ask more than once per run, unlike a feature's own automatic repair. The
-  System Settings deep link stays beside the button, and both appear only while
-  the permission is NOT granted.
+  hand ask more than once per run, unlike a feature's own automatic repair.
 - The same list, condensed, is a README section (all 22 languages) and a FAQ
   answer on the landing (all 8).
 - The page CLOSES with a statement, set larger and bolder than anything above
