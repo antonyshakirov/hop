@@ -526,7 +526,10 @@ struct DocView: View {
     let text: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        // 15 between blocks against 5 inside a line: at 10 a wrapped bullet and
+        // the next bullet were the same distance apart, and a page of them read
+        // as one grey block (Anton, 2026-09-02).
+        VStack(alignment: .leading, spacing: 15) {
             ForEach(Array(text.components(separatedBy: "\n\n").enumerated()), id: \.offset) { index, paragraph in
                 let trimmed = paragraph.trimmingCharacters(in: .whitespacesAndNewlines)
                 // A release heading ("1.2.0 — date") opens a new block: give it

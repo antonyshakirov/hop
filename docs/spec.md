@@ -3629,6 +3629,11 @@ Anton's primary install must always remain fully functional.
   and all of them together make the handbook page. The site's guide stays, one
   link under each of them, for the 8 languages it is published in.
 
+- **Documentation is set with air.** `DocView` puts 15pt between blocks against
+  the 5pt inside a wrapped line — at 10 a bullet and its own second line sat the
+  same distance apart and the page read as one grey slab — and a rule closes the
+  settings above "how it works" on a module page, as it does between the
+  handbook's sections (Anton, 2026-09-02).
 - **A section inside a page is mono 13 semibold in the page's ink**
   (`settingsSectionHeader`) — one step under the 15pt page heading. At the old
   mono 10 tertiary a heading like "how it works" vanished above a wall of 12pt

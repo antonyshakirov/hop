@@ -3622,8 +3622,12 @@ struct PanelView: View {
 
             let how = ModulePresentation.howKeys(key)
             if !how.isEmpty {
+                Rectangle()
+                    .fill(Theme.divider)
+                    .frame(height: 1)
+                    .padding(.top, 14)
                 settingsSectionHeader(t(.moduleHowTitle))
-                    .padding(.top, 10)
+                    .padding(.top, 6)
                 DocView(text: how.map { t($0) }.joined(separator: "\n\n"))
             }
 
@@ -4975,13 +4979,15 @@ struct PanelView: View {
             ForEach(ModuleCatalog.modules, id: \.id) { entry in
                 let how = ModulePresentation.howKeys(entry.id)
                 if !how.isEmpty {
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Rectangle().fill(Theme.divider).frame(height: 1)
                         settingsSectionHeader(moduleTitle(entry.id))
                         DocView(text: how.map { t($0) }.joined(separator: "\n\n"))
                     }
                 }
             }
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 12) {
+                Rectangle().fill(Theme.divider).frame(height: 1)
                 settingsSectionHeader(t(.appsLabel))
                 DocView(text: t(.docAppsFull))
             }
