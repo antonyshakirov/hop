@@ -1645,20 +1645,12 @@ struct PanelView: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Button { setModuleHidden(key, !hidden) } label: {
-                Image(systemName: hidden ? "eye.slash" : "eye")
-                    .font(.system(size: 9))
-                    .foregroundStyle(hidden ? Theme.textTertiary : Theme.textSecondary)
-                    .frame(width: 14, height: 13)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .hoverDim()
-            .help(t(hidden ? .moduleShow : .featureHide))
             // Grids of apps are the only modules that can cease to exist — every
             // other one can be hidden but never deleted — so they are the only
-            // chips carrying a ✕. The slot is reserved whether or not the chip is
-            // hovered, otherwise the chip would resize under the pointer.
+            // chips carrying a ✕. It sits LEFT of the eye and its slot is
+            // reserved whether or not the chip is hovered: the eye then keeps
+            // the same trailing position on every chip, deletable or not, and
+            // the chip never resizes under the pointer (Anton, 2026-09-02).
             if let shelf {
                 ZStack {
                     if hoveredChip == key, dragChip == nil {
@@ -1675,6 +1667,16 @@ struct PanelView: View {
                 }
                 .frame(width: 12, height: 13)
             }
+            Button { setModuleHidden(key, !hidden) } label: {
+                Image(systemName: hidden ? "eye.slash" : "eye")
+                    .font(.system(size: 9))
+                    .foregroundStyle(hidden ? Theme.textTertiary : Theme.textSecondary)
+                    .frame(width: 14, height: 13)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
+            .help(t(hidden ? .moduleShow : .featureHide))
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)

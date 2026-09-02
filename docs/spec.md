@@ -1678,7 +1678,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   hides under its eye like any other module. It is also the ONLY chip with a
   ✕ — every other module can be hidden but never deleted — and that ✕ asks first,
   with the same scrim + card the tab delete uses, saying that the apps themselves
-  are untouched. The apps section of settings deletes a grid too.
+  are untouched. The ✕ sits LEFT of the eye, in a slot reserved whether or not
+  the chip is hovered: the eye then holds the same trailing position on every
+  chip, deletable or not, and the chip does not resize under the pointer. (It
+  used to sit right of the eye, which pushed the eye of a grid chip out of line
+  with every other chip's — Anton, 2026-09-02.) The apps section of settings
+  deletes a grid too.
 
 ### Color (eyedropper)
 
