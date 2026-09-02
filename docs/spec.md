@@ -194,9 +194,12 @@ in the order the user set. **A module always sits on exactly one space and
 carries a `hidden` flag there** (`PanelTabsModel.hidden`): hiding it changes
 nothing about where it lives, only whether the panel draws it. The eye in
 "modules & tabs" and the "hide" item in a module's right-click menu are the
-same switch. A hidden module is also switched off — it does not run and its
-hotkey is handed back to other applications, unless
-`hiddenModulesKeepHotkeys` says otherwise.
+same switch. A hidden module is also switched off — it does not run — but its
+KEY still answers: pressing it does the thing (Anton, 2026-09-02). Hiding used
+to hand the combination back to other applications, with a setting to undo that;
+both are gone. The setting explained a rule nobody asked for and made the page
+harder to read, and a key that quietly stops working is a bug from where the
+user sits.
 
 Older versions spelled hidden differently: the module was parked in an
 "inactive" bucket off the spaces. That bucket is still decoded and
@@ -2259,12 +2262,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (Anton, 2026-09-01): the panel's own, the modules that answer a key, and the
   eighteen window zones — each drawn as the shape it puts a window in plus its
   combination. Recording is the same click-then-press it always was.
-- **Anything changed can be handed back.** A row whose combination is not the
-  one it shipped with grows a ↺ (`HotkeyManager.isDefault`/`reset`); a group's
-  caption carries the same ↺ for the whole group; the page ends with "reset
-  defaults" for every key at once. Reset means "forget the stored value", so the
-  default is not copied anywhere and a later change of default reaches everyone
-  who never rebound.
+- **Anything changed can be handed back, one group at a time.** A row whose
+  combination is not the one it shipped with grows a ↺
+  (`HotkeyManager.isDefault`/`reset`), and each card is followed by its OWN
+  "reset defaults" button — the panel and the modules under the first card, the
+  eighteen zones under the second — greyed out and unpressable while that group
+  is untouched. One button at the foot of the page reset the zones together with
+  everything else and sat below the fold besides (Anton, 2026-09-02). Reset means
+  "forget the stored value", so the default is not copied anywhere and a later
+  change of default reaches everyone who never rebound.
 - The window-manager module's page keeps only its layout picker: the zone keys
   and their on/off switch live here, where keys live.
 - **The zones follow Rectangle's map and the modules move around them** (Anton,
@@ -2281,13 +2287,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   hotkey 20pt short of the edge the switches below sit on (Anton, 2026-09-02).
   The zone grid is left-aligned and keeps the plain chip-then-↺ order, where the
   reserved slot costs the edge nothing.
-- **The switch that dims a row sits with the rows it dims.** A module hidden
-  from the panel hands its combination back to other apps, and its row here is
-  drawn at half opacity; "hidden modules keep their keys"
-  (`hiddenModulesKeepHotkeys`, OFF by default) is the last row of that same
-  card — not a card of its own further down the page, where a row greyed out for
-  a reason the user has to scroll to find reads as a broken key (Anton,
-  2026-09-02).
+- **A key answers whether or not the module is shown.** No dimmed rows, and no
+  "hidden modules keep their keys" switch: hiding a module used to take its
+  combination away, and the setting that undid that only made the page harder
+  (Anton, 2026-09-02). The zones keep their own on/off switch, which is about
+  eighteen keys at once rather than about hiding.
 
 ### Permissions (settings window)
 
@@ -3294,12 +3298,9 @@ its own database of known apps may do better on real software than it did here.
   combinations hang on them; the three window actions ship with no combination,
   because claiming global shortcuts on somebody's behalf is rude.
 - **Which combination may be claimed** — `HopCore.HotkeyActivation.registrable`:
-  the panel's own always, a module's only while the module is visible, unless
-  `hiddenModulesKeepHotkeys` lets hidden modules answer anyway (off by default,
-  switchable on the hotkeys page). The window zones answer one more question —
-  `windowsHotkeysOn`, the toggle that silences the whole set at once. Hidden means what the panel does not
-  show: the layout's `hidden` set, the legacy `inactive` bucket it is migrating
-  from, and any module sitting on no space at all. `HotkeyManager` claims
+  every action, the panel's own included, with one question left —
+  `windowsHotkeysOn`, the toggle that silences all eighteen zones at once.
+  Visibility no longer enters into it (Anton, 2026-09-02). `HotkeyManager` claims
   nothing for an action with no handler — a global shortcut that swallows the
   key and does nothing is worse than no shortcut.
 - Full cycle after EVERY change: `swift build` (0 warnings) →

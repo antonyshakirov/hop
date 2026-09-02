@@ -63,7 +63,6 @@ struct PanelView: View {
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
     @AppStorage(SettingsKey.vpnHoldOff) private var vpnHoldOff = true
     @AppStorage(SettingsKey.toolsOneRow) private var toolsOneRow = false
-    @AppStorage(SettingsKey.hiddenModulesKeepHotkeys) private var hiddenKeepHotkeys = false
     @AppStorage(SettingsKey.clipboardToFile) private var clipboardToFile = false
     @AppStorage(SettingsKey.clipboardToFileAsk) private var clipboardToFileAsk = false
     @AppStorage(SettingsKey.clipboardToFileFormat) private var clipboardToFileFormat = "txt"
@@ -4374,22 +4373,11 @@ struct PanelView: View {
                 SettingsRule()
                 ForEach(hotkeyModules, id: \.self) { key in
                     moduleHotkeyRow(key, label: hotkeyRowLabel(key))
-                        .opacity(moduleIsActive(key) || hiddenKeepHotkeys ? 1 : 0.5)
                 }
-                // The switch that explains the dimmed rows above it lives WITH
-                // them, not in a card of its own further down the page: a row
-                // greyed out for a reason the user has to scroll to find reads
-                // as a broken key (Anton, 2026-09-02).
-                SettingsRule()
-                switchSetting(t(.hkHiddenKeep), isOn: $hiddenKeepHotkeys)
-                Text(t(.hkHiddenKeepNote))
-                    .font(Theme.mono(8))
-                    .foregroundStyle(Theme.textTertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            resetGroupButton([ModuleCatalog.panelAction] + moduleActions)
 
-            groupLabelWithReset(t(.windowsLabel), actions: ModuleCatalog.zoneActions)
+            SettingsGroupLabel(title: t(.windowsLabel))
                 .padding(.top, 8)
             SettingsCard {
                 switchSetting(t(.windowsHotkeysLabel), isOn: $windowsHotkeysOn)
@@ -4406,51 +4394,40 @@ struct PanelView: View {
                     }
                 }
             }
-
-            Button {
-                hotkeys.reset(ModuleCatalog.allActions)
-            } label: {
-                Text(t(.resetDefaults))
-                    .font(Theme.mono(10))
-                    .foregroundStyle(Theme.textSecondary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(Theme.divider, lineWidth: 1))
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .help(t(.resetDefaults))
-            .hoverHighlight(5)
-            .padding(.top, 4)
-        }
-        .onChange(of: hiddenKeepHotkeys) { _, _ in
-            HotkeyManager.shared.refreshModuleHotkeys()
+            resetGroupButton(ModuleCatalog.zoneActions)
         }
         .onChange(of: windowsHotkeysOn) { _, _ in
             HotkeyManager.shared.refreshModuleHotkeys()
         }
     }
 
-    /// A group's caption with its own "back to defaults", shown only while
-    /// something in the group is not on its default.
-    private func groupLabelWithReset(_ title: String, actions: [ModuleAction]) -> some View {
-        HStack(spacing: 8) {
-            SettingsGroupLabel(title: title)
-            if actions.contains(where: { !hotkeys.isDefault($0) }) {
-                Button { hotkeys.reset(actions) } label: {
-                    Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 9))
-                        .foregroundStyle(Theme.textTertiary)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .help(t(.resetDefaults))
-                .hoverDim()
-            }
-            Spacer(minLength: 0)
-        }
+    /// SPEC: docs/spec.md — "Hotkeys (settings window)", the per-group reset.
+    private var moduleActions: [ModuleAction] {
+        ModuleCatalog.modules.flatMap(\.actions).filter { !$0.isWindowZone }
     }
 
+    private func resetGroupButton(_ actions: [ModuleAction]) -> some View {
+        let changed = actions.contains { !hotkeys.isDefault($0) }
+        return Button {
+            hotkeys.reset(actions)
+        } label: {
+            Text(t(.resetDefaults))
+                .font(Theme.mono(10))
+                .foregroundStyle(changed ? Theme.textSecondary : Theme.textTertiary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .overlay(RoundedRectangle(cornerRadius: 5).stroke(Theme.divider, lineWidth: 1))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(t(.resetDefaults))
+        .hoverHighlight(5)
+        .disabled(!changed)
+        .padding(.top, 2)
+    }
+
+    /// A group's caption with its own "back to defaults", shown only while
+    /// something in the group is not on its default.
     /// One window zone: the shape it puts a window in, then its combination.
     private func zoneHotkeyRow(_ action: ModuleAction) -> some View {
         HStack(spacing: 10) {

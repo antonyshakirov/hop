@@ -133,8 +133,6 @@ final class HotkeyManager: ObservableObject {
 
     private static func registrableActions() -> Set<ModuleAction> {
         Set(HotkeyActivation.registrable(
-            hidden: hiddenModules(),
-            hiddenKeepHotkeys: UserDefaults.standard.bool(forKey: SettingsKey.hiddenModulesKeepHotkeys),
             windowZones: UserDefaults.standard.object(forKey: snapHotkeysKey) as? Bool ?? true
         ))
     }
@@ -154,19 +152,6 @@ final class HotkeyManager: ObservableObject {
     func reset(_ actions: [ModuleAction]) {
         for action in actions { UserDefaults.standard.removeObject(forKey: action.storageKey) }
         refreshModuleHotkeys()
-    }
-
-    /// What the panel does not show right now — SPEC: docs/spec.md, "Which
-    /// combination may be claimed".
-    private static func hiddenModules() -> Set<String> {
-        let raw = UserDefaults.standard.string(forKey: SettingsKey.panelTabs) ?? ""
-        guard let model = PanelTabsModel.decode(raw) else {
-            return Set(ModuleCatalog.modules.filter(\.hiddenOnFirstRun).map(\.id))
-        }
-        let placed = Set(model.tabs.flatMap(\.moduleKeys))
-        return model.hidden
-            .union(model.inactive)
-            .union(ModuleCatalog.allIDs.filter { !placed.contains($0) })
     }
 
     private func unregister(_ action: ModuleAction) {
