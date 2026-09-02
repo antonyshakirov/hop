@@ -1876,9 +1876,11 @@ struct PanelView: View {
     }
 
     /// Delete confirmation for a tab column, drawn as an overlay ON the table: a
-    /// dimmed scrim + a centered card (the house-style question + delete/cancel).
+    /// dimmed scrim + a centered card (the house-style question + cancel/delete).
     /// An overlay rather than a bar below the table keeps the columns from
-    /// reflowing; a scrim tap or Escape cancels.
+    /// reflowing; a scrim tap or Escape cancels. Button order is the macOS one —
+    /// the action the sheet is about sits on the TRAILING edge with cancel to its
+    /// leading side, everywhere in the app (Anton, 2026-09-02).
     private func deleteTabConfirmOverlay(_ id: UUID) -> some View {
         ZStack {
             Theme.background.opacity(0.88)
@@ -1892,12 +1894,6 @@ struct PanelView: View {
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 18) {
-                    Button { deleteTab(id) } label: {
-                        HoverLabel(text: t(.trackerDelete), size: 11, color: Theme.accentRed)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .help(t(.trackerDelete))
                     Button { confirmDeleteTab = nil } label: {
                         HoverLabel(text: t(.quitCancel), size: 11, color: Theme.textTertiary)
                             .contentShape(Rectangle())
@@ -1905,6 +1901,12 @@ struct PanelView: View {
                     .buttonStyle(.plain)
                     .help(t(.quitCancel))
                     .keyboardShortcut(.cancelAction) // Escape cancels
+                    Button { deleteTab(id) } label: {
+                        HoverLabel(text: t(.trackerDelete), size: 11, color: Theme.accentRed)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .help(t(.trackerDelete))
                 }
             }
             .padding(18)
@@ -1932,6 +1934,13 @@ struct PanelView: View {
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 18) {
+                    Button { confirmDeleteShelf = nil } label: {
+                        HoverLabel(text: t(.quitCancel), size: 11, color: Theme.textTertiary)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .help(t(.quitCancel))
+                    .keyboardShortcut(.cancelAction)
                     Button {
                         removeShelf(id)
                         confirmDeleteShelf = nil
@@ -1941,13 +1950,6 @@ struct PanelView: View {
                     }
                     .buttonStyle(.plain)
                     .help(t(.trackerDelete))
-                    Button { confirmDeleteShelf = nil } label: {
-                        HoverLabel(text: t(.quitCancel), size: 11, color: Theme.textTertiary)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .help(t(.quitCancel))
-                    .keyboardShortcut(.cancelAction)
                 }
             }
             .padding(18)

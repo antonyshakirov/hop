@@ -595,7 +595,8 @@ struct TrackerView: View {
                                          engine.deleteEntry(entry.id)
                                          confirmingDeleteEntry = nil
                                      },
-                                     onCancel: { confirmingDeleteEntry = nil })
+                                     onCancel: { confirmingDeleteEntry = nil },
+                                     reserve: 16)
                 } else if hovered == entry.id {
                     // 16pt, not the row's usual 22: this line is shorter than a
                     // task row and the ✕ must not grow it on hover

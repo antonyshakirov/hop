@@ -1126,12 +1126,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   xmark. Clicking the xmark switches the row into an IN-ROW delete confirm rather
   than deleting on the spot: the play/stop circle, the name AND the far-right time
   all stay exactly where they are — only the hover ✕ gives way to two labelled
-  buttons rendered just left of the (now inert) time. `cancel` (tertiary) takes
-  the ✕'s EXACT slot (6pt left of the time, the ✕'s own gap), and `delete`
-  (destructive `Theme.accentRed`, the torrent confirm's token) sits 12pt further
-  LEFT — so a reflexive repeat click at the ✕ point lands on cancel, never delete
-  (`RowDeleteConfirm`, shared with to-dos, whose ✕ was already rightmost so cancel
-  sits flush-right there). The time label is INERT while confirming (no
+  buttons rendered just left of the (now inert) time. Order is macOS's, as
+  everywhere in the app: `cancel` (tertiary) leading, `delete` (destructive
+  `Theme.accentRed`, the torrent confirm's token) trailing, 12pt apart. What
+  keeps a reflexive repeat click from deleting is a DEAD SLOT the width of the ✕
+  that opened the confirm, held at the trailing end (`RowDeleteConfirm(reserve:)`
+  — 22pt on a task row, 16 on a history line), so the pointer's own spot answers
+  to nothing and both options sit clear of it. The time label is INERT while confirming (no
   tap-to-edit / scrub until the confirm resolves). There is no question line — the
   two labelled buttons are the whole prompt. Escape cancels (`.cancelAction`);
   starting a row drag or closing the panel clears the confirm
@@ -1220,9 +1221,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Adding / renaming:** a single `+ new task` footer row swaps into an inline
   TextField (lowercase placeholder = the label), committed on Return (empty =
   cancel), Escape cancels. Double-clicking a name opens the same inline field to
-  rename. Every inline field (new/rename/total-edit) shows explicit ✓ (commit) /
-  ✕ (cancel) buttons right of it (`FieldCommitButtons`, house hover style) — the
-  mouse equivalent of Return/Escape.
+  rename. Every inline field (new/rename/total-edit) shows explicit ✕ (cancel) /
+  ✓ (commit) buttons right of it (`FieldCommitButtons`, house hover style, macOS
+  order: what the field is for lands trailing) — the mouse equivalent of
+  Return/Escape.
 - **Empty state:** with the always-on subheader naming the module, an empty list
   shows ONLY the subheader and the `+ new task` add row — no placeholder line.
   Adding the first task or deleting the last never shifts the subheader or the
@@ -1272,8 +1274,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   empty ring when open, a filled `Theme.textTertiary` disc with a knocked-out
   check when done) — the text (mono 12; done = `Theme.textTertiary` +
   strikethrough), and a hover-only xmark. Clicking the xmark switches the row
-  into the SAME in-row delete confirm as the tracker (`RowDeleteConfirm`: `delete`
-  on the left, `cancel` rightmost in the ✕'s slot, ~12pt gap, Escape cancels via
+  into the SAME in-row delete confirm as the tracker (`RowDeleteConfirm`:
+  `cancel` leading, `delete` trailing, ~12pt gap, then the ✕-wide dead slot,
+  Escape cancels via
   `.cancelAction`); the checkbox and text stay put and only the ✕ swaps for the
   two buttons, so the row keeps its silhouette and height. Starting a drag,
   opening the add field, or closing the panel clears the confirm
@@ -2439,6 +2442,16 @@ taught anything.
 
 ## Shared components
 
+- **Button order is macOS's, everywhere a pair of options is drawn** (Anton,
+  2026-09-02): the action the surface is about sits on the TRAILING edge, cancel
+  to its leading side. That covers the tab and grid delete cards, the in-row
+  delete confirm (`RowDeleteConfirm`), the torrent remove row (the harsher
+  "delete with files" pushed to the leading edge, then cancel, then "remove
+  torrent"), the inline field's ✕/✓ (`FieldCommitButtons`), the quit
+  confirmation and the torrent add sheet — the last two already read that way.
+  Where the confirm REPLACES a hover ✕, a dead slot the ✕'s own width is held at
+  the trailing end so the pointer's spot answers to nothing; that, not a
+  reversed order, is what stops a reflexive second click from deleting.
 - The converter and archive rows are the SAME card: icon 12, gap 6, name at
   mono 11, a `RowActionIcon` on the trailing edge, `padding(.horizontal, 10)` /
   `padding(.vertical, 9)` on `Theme.rowBg` — 40pt tall, both of them (Anton,

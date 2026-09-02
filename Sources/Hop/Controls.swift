@@ -940,9 +940,7 @@ struct HoverIconButton: View {
     }
 }
 
-/// The commit/cancel pair shown right of an inline edit field: `checkmark`
-/// commits, `xmark` cancels. Return/Escape keep working independently; this is
-/// the mouse-only equivalent so a field can be finished without the keyboard.
+/// SPEC: docs/spec.md — "Shared components", button order.
 struct FieldCommitButtons: View {
     let onCommit: () -> Void
     let onCancel: () -> Void
@@ -950,10 +948,10 @@ struct FieldCommitButtons: View {
 
     var body: some View {
         HStack(spacing: 2) {
-            HoverIconButton(symbol: "checkmark", action: onCommit,
-                            help: L10n.t(.fieldCommit, lang))
             HoverIconButton(symbol: "xmark", action: onCancel,
                             help: L10n.t(.quitCancel, lang))
+            HoverIconButton(symbol: "checkmark", action: onCommit,
+                            help: L10n.t(.fieldCommit, lang))
         }
     }
 }
@@ -1014,31 +1012,16 @@ struct RunCommitButton: View {
     }
 }
 
-/// The in-row delete confirmation shared by the tracker and to-do rows. It is
-/// swapped in for the hover ✕ that opened it, while the row's leading circle and
-/// name — and, in the tracker, the far-right time — stay exactly where they are,
-/// so the row keeps its silhouette and height and only the ✕ region changes.
-/// `delete` (destructive `Theme.accentRed`, the torrent confirm's token) sits on
-/// the LEFT; `cancel` (tertiary) is this component's RIGHTMOST element and takes
-/// the ✕'s EXACT slot — flush-right in to-dos (where the ✕ was rightmost), or
-/// immediately left of the tracker's inert time (where the ✕ was), so a reflexive
-/// repeat click at the same spot cancels instead of deleting, with a clear 12pt
-/// gap between the two options. Escape cancels via `.cancelAction` (same
-/// mechanism as the tab-delete confirm). No question line: the two labelled
-/// buttons in the row are the whole prompt.
+/// SPEC: docs/spec.md — "Shared components", button order.
 struct RowDeleteConfirm: View {
     let lang: AppLanguage
     let onDelete: () -> Void
     let onCancel: () -> Void
+    /// The ✕'s own width (`HoverDeleteX.size`), held dead at the trailing end.
+    var reserve: CGFloat = 22
 
     var body: some View {
         HStack(spacing: 12) {
-            Button(action: onDelete) {
-                HoverLabel(text: L10n.t(.trackerDelete, lang), size: 10, color: Theme.accentRed)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .help(L10n.t(.trackerDelete, lang))
             Button(action: onCancel) {
                 HoverLabel(text: L10n.t(.quitCancel, lang), size: 10, color: Theme.textTertiary)
                     .contentShape(Rectangle())
@@ -1046,6 +1029,13 @@ struct RowDeleteConfirm: View {
             .buttonStyle(.plain)
             .keyboardShortcut(.cancelAction)
             .help(L10n.t(.quitCancel, lang))
+            Button(action: onDelete) {
+                HoverLabel(text: L10n.t(.trackerDelete, lang), size: 10, color: Theme.accentRed)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(L10n.t(.trackerDelete, lang))
+            Color.clear.frame(width: reserve, height: 1)
         }
     }
 }

@@ -499,21 +499,13 @@ struct TorrentView: View {
     }
 
     private func removeConfirm(_ item: TorrentController.TorrentItem) -> some View {
-        // The two destructive options sit at the row's left edge (same edge as the
-        // name/icons); "cancel" is pushed to the far right, away from them, so a
-        // reflexive tap doesn't land on a delete. "delete torrent" (red) drops the
-        // torrent but leaves the download on disk; "delete with files" (red) erases it too.
+        // macOS three-button order, the app's order everywhere: the harsher
+        // alternative ("delete with files", which erases the download too) is
+        // pushed to the leading edge, away from the pair; then "cancel", then the
+        // action the ✕ was about ("delete torrent" — drops it, files stay). The
+        // 22pt dead slot at the trailing end is the ✕'s own width, so a reflexive
+        // repeat click at the same spot hits nothing.
         HStack(spacing: 16) {
-            Button {
-                confirmingRemove = nil
-                torrent.remove(id: item.id, deleteFiles: false)
-            } label: {
-                HoverLabel(text: t(item.fromMagnet ? .torrentRemoveMagnet : .torrentRemoveTorrent),
-                           size: 10, color: Theme.accentRed)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .help(t(.torrentFilesRemoved))
             Button {
                 confirmingRemove = nil
                 torrent.remove(id: item.id, deleteFiles: true)
@@ -532,6 +524,17 @@ struct TorrentView: View {
             }
             .buttonStyle(.plain)
             .help(t(.quitCancel))
+            Button {
+                confirmingRemove = nil
+                torrent.remove(id: item.id, deleteFiles: false)
+            } label: {
+                HoverLabel(text: t(item.fromMagnet ? .torrentRemoveMagnet : .torrentRemoveTorrent),
+                           size: 10, color: Theme.accentRed)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(t(.torrentFilesRemoved))
+            Color.clear.frame(width: 22, height: 1)
         }
     }
 
