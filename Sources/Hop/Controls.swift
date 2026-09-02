@@ -526,19 +526,27 @@ struct DocView: View {
     let text: String
 
     var body: some View {
-        // 15 between blocks against 5 inside a line: at 10 a wrapped bullet and
-        // the next bullet were the same distance apart, and a page of them read
-        // as one grey block (Anton, 2026-09-02).
-        VStack(alignment: .leading, spacing: 15) {
-            ForEach(Array(text.components(separatedBy: "\n\n").enumerated()), id: \.offset) { index, paragraph in
-                let trimmed = paragraph.trimmingCharacters(in: .whitespacesAndNewlines)
-                // A release heading ("1.2.0 — date") opens a new block: give it
-                // extra air above so versions read as sections, not as one more
-                // bullet in the previous release's list.
-                paragraphView(trimmed)
-                    .padding(.top, index > 0 && isVersionHeading(trimmed) ? 10 : 0)
+        let blocks = text.components(separatedBy: "\n\n")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(blocks.enumerated()), id: \.offset) { index, paragraph in
+                paragraphView(paragraph)
+                    .padding(.top, gap(before: index, in: blocks))
             }
         }
+    }
+
+    /// The distance a block keeps from the one above it. Items of the same list
+    /// sit closer to each other than two paragraphs do, and a release heading
+    /// ("1.2.0 — date") opens a section rather than continuing a list — spacing
+    /// says what belongs together (Anton, 2026-09-02).
+    private func gap(before index: Int, in blocks: [String]) -> CGFloat {
+        guard index > 0 else { return 0 }
+        if isVersionHeading(blocks[index]) { return 26 }
+        let isList = blocks[index].hasPrefix("• ")
+        let afterList = blocks[index - 1].hasPrefix("• ")
+        return isList && afterList ? 9 : 17
     }
 
     private func isVersionHeading(_ paragraph: String) -> Bool {

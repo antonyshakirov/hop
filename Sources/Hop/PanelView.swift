@@ -3629,6 +3629,7 @@ struct PanelView: View {
                 settingsSectionHeader(t(.moduleHowTitle))
                     .padding(.top, 6)
                 DocView(text: how.map { t($0) }.joined(separator: "\n\n"))
+                    .padding(.top, 6)
             }
 
             Link(destination: URL(string: guideURL(module: key))!) {
@@ -4983,6 +4984,7 @@ struct PanelView: View {
                         Rectangle().fill(Theme.divider).frame(height: 1)
                         settingsSectionHeader(moduleTitle(entry.id))
                         DocView(text: how.map { t($0) }.joined(separator: "\n\n"))
+                            .padding(.top, 2)
                     }
                 }
             }

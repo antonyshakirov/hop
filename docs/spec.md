@@ -3629,11 +3629,14 @@ Anton's primary install must always remain fully functional.
   and all of them together make the handbook page. The site's guide stays, one
   link under each of them, for the 8 languages it is published in.
 
-- **Documentation is set with air.** `DocView` puts 15pt between blocks against
-  the 5pt inside a wrapped line — at 10 a bullet and its own second line sat the
-  same distance apart and the page read as one grey slab — and a rule closes the
-  settings above "how it works" on a module page, as it does between the
-  handbook's sections (Anton, 2026-09-02).
+- **Spacing says what belongs together** (Anton, 2026-09-02). `DocView` measures
+  the gap ABOVE each block from what it follows: 9pt between two items of the
+  same list, 17pt where a paragraph meets a paragraph or a list starts or ends,
+  26pt above a release heading, against 5pt between the wrapped lines inside one
+  block. One flat 10 made a bullet's own second line and the next bullet the
+  same distance apart, and the page read as one grey slab. A rule closes the
+  settings above "how it works" on a module page, as between the handbook's
+  sections, and the heading keeps 6pt of its own before the text starts.
 - **A section inside a page is mono 13 semibold in the page's ink**
   (`settingsSectionHeader`) — one step under the 15pt page heading. At the old
   mono 10 tertiary a heading like "how it works" vanished above a wall of 12pt
