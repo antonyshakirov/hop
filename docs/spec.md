@@ -2275,6 +2275,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   timer moved to **⌃⌥H**. `ModuleCatalogTests.testNoTwoActionsShipTheSameCombination`
   fails if any two shipped combinations ever meet again. Reset means "forget the
   stored value", so everyone who never rebound the timer gets ⌃⌥H on update.
+- **One right edge down the page.** In a right-aligned row the combination chip
+  comes LAST, with the ↺ and any "shortcut is taken" ahead of it: the ↺ slot is
+  held whether or not it shows, and keeping it after the chip pushed every
+  hotkey 20pt short of the edge the switches below sit on (Anton, 2026-09-02).
+  The zone grid is left-aligned and keeps the plain chip-then-↺ order, where the
+  reserved slot costs the edge nothing.
 - **The switch that dims a row sits with the rows it dims.** A module hidden
   from the panel hands its combination back to other apps, and its row here is
   drawn at half opacity; "hidden modules keep their keys"

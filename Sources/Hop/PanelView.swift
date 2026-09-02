@@ -4528,49 +4528,73 @@ struct PanelView: View {
                 .font(Theme.mono(12))
                 .foregroundStyle(Theme.textPrimary)
             Spacer()
-            hotkeyRecorder(action)
+            hotkeyRecorder(action, comboLast: true)
         }
     }
 
     /// The combination itself: click to record a new one, and — while it is not
     /// the one the action shipped with — a ↺ that hands the default back.
-    private func hotkeyRecorder(_ action: ModuleAction) -> some View {
+    /// `comboLast` puts the combination on the trailing edge, with the ↺ and the
+    /// clash note ahead of it: in a right-aligned row the ↺ slot is reserved
+    /// whether or not it is shown, and holding it AFTER the combination pushed
+    /// every hotkey chip 20pt off the edge the switches below them sit on
+    /// (Anton, 2026-09-02). The zone grid is left-aligned and keeps the plain
+    /// order, where the same slot costs the edge nothing.
+    @ViewBuilder
+    private func hotkeyRecorder(_ action: ModuleAction, comboLast: Bool = false) -> some View {
         HStack(spacing: 6) {
-            Button {
-                startRecording(action)
-            } label: {
-                Text(recordingHotkey == action ? t(.hkRecord) : (hotkeys.combo(for: action)?.display ?? "—"))
-                    .font(Theme.mono(11, weight: .semibold))
-                    .foregroundStyle(recordingHotkey == action ? Theme.editing : Theme.textPrimary)
-                    .frame(minWidth: 64)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
-                    .contentShape(Rectangle())
+            if comboLast {
+                hotkeyClash(action)
+                hotkeyReset(action)
+                hotkeyCombo(action)
+            } else {
+                hotkeyCombo(action)
+                hotkeyReset(action)
+                hotkeyClash(action)
             }
-            .buttonStyle(.plain)
-            .help(t(.hotkeysLabel))
-            .hoverHighlight(5)
+        }
+    }
 
-            Button { hotkeys.reset(action) } label: {
-                Image(systemName: "arrow.counterclockwise")
-                    .font(.system(size: 9))
-                    .foregroundStyle(Theme.textTertiary)
-                    .frame(width: 14, height: 14)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .help(t(.resetDefaults))
-            .hoverDim()
-            .opacity(hotkeys.isDefault(action) ? 0 : 1)
-            .allowsHitTesting(!hotkeys.isDefault(action))
+    private func hotkeyCombo(_ action: ModuleAction) -> some View {
+        Button {
+            startRecording(action)
+        } label: {
+            Text(recordingHotkey == action ? t(.hkRecord) : (hotkeys.combo(for: action)?.display ?? "—"))
+                .font(Theme.mono(11, weight: .semibold))
+                .foregroundStyle(recordingHotkey == action ? Theme.editing : Theme.textPrimary)
+                .frame(minWidth: 64)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(t(.hotkeysLabel))
+        .hoverHighlight(5)
+    }
 
-            if hotkeys.conflicts.contains(action) {
-                Text(t(.hkTaken))
-                    .font(Theme.mono(8))
-                    .foregroundStyle(Theme.accentRed)
-                    .lineLimit(1)
-            }
+    private func hotkeyReset(_ action: ModuleAction) -> some View {
+        Button { hotkeys.reset(action) } label: {
+            Image(systemName: "arrow.counterclockwise")
+                .font(.system(size: 9))
+                .foregroundStyle(Theme.textTertiary)
+                .frame(width: 14, height: 14)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(t(.resetDefaults))
+        .hoverDim()
+        .opacity(hotkeys.isDefault(action) ? 0 : 1)
+        .allowsHitTesting(!hotkeys.isDefault(action))
+    }
+
+    @ViewBuilder
+    private func hotkeyClash(_ action: ModuleAction) -> some View {
+        if hotkeys.conflicts.contains(action) {
+            Text(t(.hkTaken))
+                .font(Theme.mono(8))
+                .foregroundStyle(Theme.accentRed)
+                .lineLimit(1)
         }
     }
 
