@@ -2276,13 +2276,22 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   ever written true. `suppressionProven` is the keyboard lock's measurement,
   nil until one is made.
   - `.none` — nothing owed.
-  - `.missing` — never granted. Asks for itself, and ONLY once a feature has
-    actually been stopped this run: Hop is a timer and a converter to plenty of
-    people, and a permission they never needed is not a banner.
+  - `.missing` — never granted here. Asks for itself, and ONLY once a feature
+    has actually been stopped this run: Hop is a timer and a converter to plenty
+    of people, and a permission they never needed is not a banner.
   - `.lost` — granted before, gone now. Says so without waiting for a feature to
     fail, because an update that changes the signature takes it back and macOS
     does not ask again on its own: its dialog appears only where no decision is
     on file, and an old row counts as a decision.
+  - **Both of those say to remove Hop from the list and add it again, not
+    merely to grant the permission** (Anton, 2026-09-02, from his own Mac). The
+    switch and the permission are separate things: `AXIsProcessTrusted()`
+    answered false for Hop Dev while System Settings showed its switch ON,
+    because the row belonged to the previous signature. Sending somebody to a
+    switch that is already on, with nothing to press, is worse than saying
+    nothing. Neither state can be told apart from a plain refusal through any
+    API, so the sentence has to cover both — and the population this was written
+    for lands on `.missing`, since no released version ever wrote `wasGranted`.
   - `.stale` — macOS says granted, the measurement says events are not being
     stopped. The only state where opening the switch is not the fix; the row has
     to be removed with the minus button and added again. No API reports it, so
