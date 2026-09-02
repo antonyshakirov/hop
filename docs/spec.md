@@ -220,7 +220,11 @@ the longest module names in German and French do not fit 220pt on one. A module'
 keys), a "show in the panel" switch holding exactly the state the eye holds (one
 answer, in the two places somebody looks for it), its own options
 (`moduleSettings`, keyed by the same identifier), the hotkey of its "open" action — but only when something answers that key, since a
-recorder for an action with no handler would promise what it cannot do — and a
+recorder for an action with no handler would promise what it cannot do — then
+**"how it works"**: two or three sentences under the settings saying what the
+module does and what is worth knowing about it (`ModulePresentation.howKey`,
+`how*`, ×22, added 2026-09-02 — the answers to the questions the app used to
+send people off-site for), and last a
 link to the guide on the site. That link carries `?m=` with one letter per
 module the user still sees (`ModuleCatalog.guideCode`, letters fixed forever by
 `hop-website/docs/guide-code.md`, tested), and the site's own language when it

@@ -3625,6 +3625,17 @@ struct PanelView: View {
                 }
             }
 
+            if let how = ModulePresentation.howKey(key) {
+                SettingsGroupLabel(title: t(.moduleHowTitle))
+                    .padding(.top, 8)
+                Text(t(how))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.docText)
+                    .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
             Link(destination: URL(string: guideURL)!) {
                 HStack(spacing: 5) {
                     Text(t(.guideLink))

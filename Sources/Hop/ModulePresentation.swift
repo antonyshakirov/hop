@@ -51,6 +51,29 @@ enum ModulePresentation {
         }
     }
 
+    /// SPEC: docs/spec.md — "The module page (settings window)", the how-it-works line.
+    static func howKey(_ module: String) -> L10nKey? {
+        switch module {
+        case "timer": return .howTimer
+        case "awake": return .howAwake
+        case "clipboard": return .howClipboard
+        case "convert": return .howConvert
+        case "windows": return .howWindows
+        case "speedtest": return .howSpeedtest
+        case "torrent": return .howTorrent
+        case "color": return .howColor
+        case "ocr": return .howOcr
+        case "archive": return .howArchive
+        case "keyboard": return .howKeyboard
+        case "vpn": return .howVpn
+        case "uninstall": return .howUninstall
+        case "system": return .howSystem
+        case "tracker": return .howTracker
+        case "todos": return .howTodos
+        default: return nil
+        }
+    }
+
     static func icon(_ module: String) -> String {
         switch module {
         case "timer": return "timer"
