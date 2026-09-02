@@ -1409,7 +1409,7 @@ struct PanelView: View {
 
     private var header: some View {
         HStack(spacing: 8) {
-            tabSwitcher
+            if tabsModel.tabs.count > 1 { tabSwitcher }
             Spacer()
             headerIcon("gearshape", help: t(.settingsTitle)) {
                 model.openSettingsWindow?()
