@@ -203,6 +203,9 @@ final class AgentBridge {
             "keepAwake": model.keepAwake.isActive,
             "lidMode": model.keepAwake.lidApplied,
             "keyboardLocked": model.keyboardLock.isLocked,
+            // Why `keyboard.lock` or `window.snap` did nothing: an agent sees
+            // neither the system dialog nor the panel's banner.
+            "accessibility": AccessibilityWatch.shared.alert.rawValue,
         ]
         let engine = model.tracker.engine
         if let activeID = engine.activeTaskID,

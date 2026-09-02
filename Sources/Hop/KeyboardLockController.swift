@@ -1,4 +1,5 @@
 import AppKit
+import HopCore
 import SwiftUI
 
 /// "Cleaning mode": every key stops doing anything, so the keyboard can be
@@ -10,6 +11,10 @@ import SwiftUI
 /// same permission the window manager already asks for. Nothing is recorded:
 /// events are dropped, never inspected. The power button and Touch ID stay
 /// alive; macOS reserves those and it would be wrong to take them anyway.
+///
+/// The cover goes up only once the lock has been PROVEN, never on the strength
+/// of a permission check.
+/// SPEC: docs/spec.md — "Keyboard lock (cleaning mode)".
 @MainActor
 final class KeyboardLockController: ObservableObject {
     static let durationKey = "keyboardLockDuration"   // seconds
@@ -30,6 +35,15 @@ final class KeyboardLockController: ObservableObject {
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
     private var ticker: Timer?
+    /// The proof's second tap, downstream of the first.
+    private var verifyTap: CFMachPort?
+    private var verifySource: CFRunLoopSource?
+    private var verifying = false
+    private var probeSeenByTap = false
+    private var probeSeenDownstream = false
+    private var probeTimer: Timer?
+    private var probeCompletion: ((Bool) -> Void)?
+    private var reArmedLastTick = false
     /// Live state of the unlock chord and its countdown.
     private var escapeDown = false
     private var shiftDown = false
@@ -65,23 +79,65 @@ final class KeyboardLockController: ObservableObject {
     /// Locking IS the choice of a duration (Anton, 2026-07-25): the module has no
     /// separate start button — tapping "5 min" locks for five minutes. The value
     /// is remembered so the hotkey has something to use.
-    func lock(seconds: Int? = nil) {
+    /// `then` is handed true only once the keyboard is measurably locked.
+    func lock(seconds: Int? = nil, then: ((Bool) -> Void)? = nil) {
         if let seconds { duration = seconds }
-        guard !isLocked, !Snapshot.active else { return }
+        guard !isLocked, !verifying, !Snapshot.active else { then?(false); return }
         // Ask first: without the permission the tap silently never fires and the
         // cover would promise a lock that isn't there.
         let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
-        guard AXIsProcessTrustedWithOptions(options) else {
-            needsPermission = true
+        guard AXIsProcessTrustedWithOptions(options), installTap() else {
+            refuse(then)
             return
         }
-        needsPermission = false
-        guard installTap() else { return }
-        isLocked = true
-        remaining = duration > 0 ? duration : nil
-        showOverlay()
-        // no ticker for an endless lock: there is nothing to count down
-        guard remaining != nil else { return }
+        proveLock { [weak self] proven in
+            guard let self else { return }
+            AccessibilityWatch.shared.noteSuppression(proven: proven)
+            guard proven else {
+                self.removeTap()
+                self.refuse(then)
+                return
+            }
+            self.needsPermission = false
+            self.isLocked = true
+            self.remaining = self.duration > 0 ? self.duration : nil
+            self.showOverlay()
+            self.startTicker()
+            then?(true)
+        }
+    }
+
+    /// Measure without locking anything: a `.stale` verdict would otherwise
+    /// outlive the repair, which macOS reports no differently.
+    func remeasure() {
+        guard !isLocked, !verifying, !Snapshot.active,
+              AXIsProcessTrusted(), installTap() else { return }
+        proveLock { [weak self] proven in
+            self?.removeTap()
+            AccessibilityWatch.shared.noteSuppression(proven: proven)
+        }
+    }
+
+    /// The measurement, with one retry: refusing a lock that would have worked
+    /// is its own kind of lie, and a probe can go missing on its own.
+    private func proveLock(attempts: Int = 2, _ done: @escaping (Bool) -> Void) {
+        verifySuppression { [weak self] proven in
+            guard let self, !proven, attempts > 1 else {
+                done(proven)
+                return
+            }
+            self.proveLock(attempts: attempts - 1, done)
+        }
+    }
+
+    private func refuse(_ then: ((Bool) -> Void)?) {
+        needsPermission = true
+        AccessibilityWatch.shared.reportBlocked()
+        then?(false)
+    }
+
+    /// One second, under an endless lock too: half countdown, half watchdog.
+    private func startTicker() {
         let timer = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
         }
@@ -104,6 +160,7 @@ final class KeyboardLockController: ObservableObject {
         isLocked = false
         escapeDown = false
         shiftDown = false
+        reArmedLastTick = false
         cancelChord()
         // a short cue: with the cover gone and the keys back, the sound is what
         // says "you can type again" without looking anywhere
@@ -111,12 +168,33 @@ final class KeyboardLockController: ObservableObject {
     }
 
     private func tick() {
+        guard isLocked else { return }
+        let live = tap.map { CGEvent.tapIsEnabled(tap: $0) } ?? false
+        switch TapWatchdog.step(tapEnabled: live, reArmedLastTick: reArmedLastTick) {
+        case .fine:
+            reArmedLastTick = false
+        case .reArm:
+            reArmedLastTick = true
+            reenableTap()
+        case .giveUp:
+            surrender()
+            return
+        }
         guard let left = remaining else { return }
         if left <= 1 {
             unlock()
         } else {
             remaining = left - 1
         }
+    }
+
+    /// The tap will not stay on, and a cover over a live keyboard is worse
+    /// than no lock at all.
+    private func surrender() {
+        unlock()
+        let lang = L10n.current
+        Alerts.notice(title: L10n.t(.keylockLabel, lang).capitalizedFirst,
+                      body: L10n.t(.keylockBroken, lang).capitalizedFirst)
     }
 
     // MARK: - The tap
@@ -140,6 +218,12 @@ final class KeyboardLockController: ObservableObject {
                     MainActor.assumeIsolated { controller.reenableTap() }
                 }
                 return Unmanaged.passUnretained(event)
+            }
+            if let userInfo, type.rawValue == 14 {
+                let controller = Unmanaged<KeyboardLockController>
+                    .fromOpaque(userInfo).takeUnretainedValue()
+                MainActor.assumeIsolated { controller.noteSystemDefined(event) }
+                return nil
             }
             // ESC + SHIFT held together is the keyboard's own way out: if the
             // mouse is gone or the cover is unreachable, holding the pair for a
@@ -180,6 +264,109 @@ final class KeyboardLockController: ObservableObject {
         self.tap = tap
         runLoopSource = source
         return true
+    }
+
+    // MARK: - Proving the lock
+
+    /// A subtype nothing in macOS acts on, so the probe changes nothing either
+    /// way. SPEC: docs/spec.md — "Keyboard lock (cleaning mode)".
+    private static let probeSubtype: Int16 = 0x4870
+    private static let probeDeadline: TimeInterval = 0.3
+    private static let probeGrace: TimeInterval = 0.06
+
+    /// Proven when the main tap saw the probe and the downstream tap did not.
+    private func verifySuppression(_ done: @escaping (Bool) -> Void) {
+        verifying = true
+        probeSeenByTap = false
+        probeSeenDownstream = false
+        probeCompletion = done
+        installVerifyTap()
+        postProbe()
+        scheduleProbeDecision(after: Self.probeDeadline)
+    }
+
+    private func noteSystemDefined(_ event: CGEvent) {
+        guard verifying, !probeSeenByTap, isProbe(event) else { return }
+        probeSeenByTap = true
+        scheduleProbeDecision(after: Self.probeGrace)
+    }
+
+    private func noteProbeDownstream(_ event: CGEvent) {
+        guard verifying, isProbe(event) else { return }
+        probeSeenDownstream = true
+    }
+
+    private func isProbe(_ event: CGEvent) -> Bool {
+        guard let ns = NSEvent(cgEvent: event), ns.type == .systemDefined else { return false }
+        return ns.subtype.rawValue == Self.probeSubtype
+    }
+
+    private func scheduleProbeDecision(after delay: TimeInterval) {
+        probeTimer?.invalidate()
+        let timer = Timer(timeInterval: delay, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated { self?.finishProbe() }
+        }
+        timer.tolerance = 0
+        RunLoop.main.add(timer, forMode: .common)
+        probeTimer = timer
+    }
+
+    private func finishProbe() {
+        guard verifying else { return }
+        verifying = false
+        probeTimer?.invalidate()
+        probeTimer = nil
+        removeVerifyTap()
+        let done = probeCompletion
+        probeCompletion = nil
+        done?(probeSeenByTap && !probeSeenDownstream)
+    }
+
+    private func postProbe() {
+        guard let event = NSEvent.otherEvent(
+            with: .systemDefined, location: .zero, modifierFlags: [], timestamp: 0,
+            windowNumber: 0, context: nil, subtype: Self.probeSubtype, data1: 0, data2: -1
+        ) else { return }
+        // Entered where the hardware enters, so it meets the taps in the same
+        // order a real key does.
+        event.cgEvent?.post(tap: .cghidEventTap)
+    }
+
+    private func installVerifyTap() {
+        guard verifyTap == nil else { return }
+        let callback: CGEventTapCallBack = { _, type, event, userInfo in
+            if let userInfo, type.rawValue == 14 {
+                let controller = Unmanaged<KeyboardLockController>
+                    .fromOpaque(userInfo).takeUnretainedValue()
+                MainActor.assumeIsolated { controller.noteProbeDownstream(event) }
+            }
+            return Unmanaged.passUnretained(event)
+        }
+        guard let tap = CGEvent.tapCreate(
+            tap: .cgAnnotatedSessionEventTap,
+            place: .tailAppendEventTap,
+            options: .listenOnly,
+            eventsOfInterest: CGEventMask(1 << 14),
+            callback: callback,
+            userInfo: Unmanaged.passUnretained(self).toOpaque()
+        ) else { return }
+        let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
+        CFRunLoopAddSource(CFRunLoopGetCurrent(), source, .commonModes)
+        CGEvent.tapEnable(tap: tap, enable: true)
+        verifyTap = tap
+        verifySource = source
+    }
+
+    private func removeVerifyTap() {
+        if let verifyTap {
+            CGEvent.tapEnable(tap: verifyTap, enable: false)
+            CFMachPortInvalidate(verifyTap)
+        }
+        if let verifySource {
+            CFRunLoopRemoveSource(CFRunLoopGetCurrent(), verifySource, .commonModes)
+        }
+        verifyTap = nil
+        verifySource = nil
     }
 
     /// Esc + shift held together for `escapeHoldSeconds` unlocks. A real timer

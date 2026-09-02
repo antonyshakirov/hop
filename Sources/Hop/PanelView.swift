@@ -142,6 +142,8 @@ struct PanelView: View {
     @AppStorage("featureSeen.torrent") private var torrentFeatureSeen = false
     @AppStorage("featureSeen.tools150") private var toolsFeatureSeen = false
     @AppStorage("featureSeen.modules160") private var modulesFeatureSeen = false
+    /// The one permission three modules share.
+    @ObservedObject private var permissions = AccessibilityWatch.shared
     /// Release card: read so SwiftUI re-renders the moment it is dismissed.
     @AppStorage("newsSeen.1.9") private var news19Seen = false
     @AppStorage("newsSeen.1.9.1") private var news191Seen = false
@@ -895,6 +897,55 @@ struct PanelView: View {
         bannerEnabled = false
     }
 
+    // MARK: - Accessibility banner (above everything: nothing else is broken)
+
+    /// Above the release card: a feature that has stopped working outranks news
+    /// about features that have not.
+    /// SPEC: docs/spec.md — "A permission that goes missing says so".
+    @ViewBuilder private var permissionBanner: some View {
+        if permissions.showsBanner {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Theme.accentYellow)
+                    Text(t(permissions.titleKey))
+                        .font(Theme.mono(11, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 0)
+                }
+                Text(t(permissions.bodyKey))
+                    .font(Theme.mono(10))
+                    .foregroundStyle(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 0) {
+                    Spacer(minLength: 0)
+                    Button {
+                        permissions.openSettings()
+                    } label: {
+                        Text(t(.ocrOpenSettings))
+                            .font(Theme.mono(10, weight: .bold))
+                            .foregroundStyle(Theme.playFg)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 6)
+                            .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverDim()
+                    .help(t(.ocrOpenSettings))
+                }
+                .padding(.top, 4)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10)
+                .stroke(Theme.accentYellow.opacity(0.35), lineWidth: 1))
+        }
+    }
+
     // MARK: - 8-hour overrun banner (top of the panel, above the tabs)
 
     /// A dismissable notice, on the same surface as the "what's new" banner, that
@@ -954,10 +1005,17 @@ struct PanelView: View {
     /// kept between the header and the first module (it was the VStack spacing).
     private var chrome: some View {
         VStack(spacing: 16) {
+            permissionBanner
             featureBanner
             newsBanner
             overrunBanner
             header
+        }
+        // A stale verdict needs measuring rather than reading: macOS reports
+        // that one as granted before and after the repair.
+        .onAppear {
+            permissions.refresh()
+            if permissions.alert == .stale { model.keyboardLock.remeasure() }
         }
         .padding(.horizontal, 14)
         .padding(.top, 18)

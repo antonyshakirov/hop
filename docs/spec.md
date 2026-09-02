@@ -2131,6 +2131,42 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   media row is not "keys" to macOS and would otherwise keep firing. Events are
   DROPPED, never inspected. `tapDisabledByTimeout/ByUserInput` re-arms the tap
   rather than leaving the keyboard half-locked.
+- **The cover goes up only on a PROVEN lock** (Anton, 2026-09-02). Neither
+  `AXIsProcessTrusted` answering yes nor `tapCreate` returning a tap says
+  anything about whether events are really being stopped: macOS can keep a
+  permission row from an older signature, and then every check reports success
+  while every key still works. Proof is two taps and one event —
+  `verifySuppression` posts a `systemDefined` event of subtype `0x4870` (a
+  subtype nothing in macOS acts on, so it changes nothing either way) at the HID
+  point, the main tap swallows it like any key, and a second listen-only tap at
+  the ANNOTATED-session point — downstream of every session tap — listens for
+  what got through. Locked means the main tap saw it and the downstream tap did
+  not. Both halves matter: without the first, an event that was never posted at
+  all would read as a perfect lock. If the second tap cannot be created the
+  first half stands alone, which is weaker than this wants and still stronger
+  than trusting a permission check. It costs the 0.06s grace after the probe
+  arrives, not the 0.3s deadline, which is only for the probe that never comes.
+  The measurement gets ONE retry before a refusal, because refusing a lock that
+  would have worked is its own kind of lie and a probe can go missing without
+  the permission being at fault — a hiccup, or another app's tap in front of
+  ours swallowing it first. The retry costs nothing on the path that succeeds.
+- **The panel closes on the LOCK, never on the click** (Anton, 2026-09-02).
+  `lock(seconds:then:)` hands `then` true only once the keyboard is measurably
+  locked; the module's chip closes the panel from inside that. A panel that
+  shuts on the click leaves nothing on screen to carry the bad news, and the
+  user goes off wiping a keyboard that was never locked. What that looked like
+  from the outside was the F row firing under the cover — the volume moving, do
+  not disturb going on — because those are the only keys whose effect is visible
+  while a full-screen cover holds the focus.
+- **A watchdog runs at 1 Hz for as long as the lock does**, endless locks
+  included: the ticker is no longer only a countdown. `TapWatchdog.step` is
+  given `CGEvent.tapIsEnabled` and whether last tick already re-armed it, and
+  answers fine / re-arm / give up. macOS switches a tap off when its callback
+  overruns, and the disable arrives as an event the callback re-arms from — but
+  that path needs an event, and the whole point of the lock is that no events
+  arrive. Two ticks off in a row ends the lock and says so in a notification
+  (`keylockBroken`): a cover left over a live keyboard is the one outcome worse
+  than no lock at all.
 - The POWER key: a SHORT press is swallowed like every other key — on a
   cleaning cloth it is the one press that would put the Mac to sleep mid-wipe.
   Holding it still forces the Mac off, because a long hold is handled in
@@ -2225,6 +2261,46 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   list of risks until somebody says plainly what is NOT happening.
 - Snapshot: `--permissions` opens the settings window on that page.
 
+### A permission that goes missing says so (panel banner)
+
+- One macOS switch governs three features — the keyboard lock, the window zones
+  and the clipboard's paste — and all three used to answer a missing permission
+  with `return`. Nothing appeared anywhere: the zone did not move a window, the
+  paste did not paste, the lock closed the panel and did nothing. A signed
+  release made that everybody's problem at once, because macOS ties a permission
+  to the code signature and 1.9.1 changed it (Anton, 2026-09-02).
+- `AccessibilityWatch` (one shared object) holds the live answer, and
+  `AccessibilityVerdict.alert` — pure, in HopCore, tested — turns three facts
+  into one of four states. `granted` is `AXIsProcessTrusted()`. `wasGranted` is
+  remembered in `UserDefaults` the first time a grant is ever seen, and only
+  ever written true. `suppressionProven` is the keyboard lock's measurement,
+  nil until one is made.
+  - `.none` — nothing owed.
+  - `.missing` — never granted. Asks for itself, and ONLY once a feature has
+    actually been stopped this run: Hop is a timer and a converter to plenty of
+    people, and a permission they never needed is not a banner.
+  - `.lost` — granted before, gone now. Says so without waiting for a feature to
+    fail, because an update that changes the signature takes it back and macOS
+    does not ask again on its own: its dialog appears only where no decision is
+    on file, and an old row counts as a decision.
+  - `.stale` — macOS says granted, the measurement says events are not being
+    stopped. The only state where opening the switch is not the fix; the row has
+    to be removed with the minus button and added again. No API reports it, so
+    only the keyboard lock's probe can put the panel into it.
+- The banner sits ABOVE the release card in the panel chrome: a feature that has
+  stopped working outranks news about features that have not. Title, one line of
+  body, and the System Settings deep link. Opening the panel re-reads the live
+  state, so coming back from System Settings clears it. `.stale` is the one
+  verdict re-reading cannot clear — macOS reports that state as granted both
+  before and after the repair — so a panel opened under a `.stale` banner has
+  `KeyboardLockController.remeasure()` take the measurement again, tap and probe
+  and all, without locking anything.
+- The zones and the paste report themselves when they are stopped. The zones
+  also post a notification — they are used with the panel shut, so the banner
+  alone would arrive far too late — one per run, never one per failed drag. The
+  paste does not: the copy went through, the entry IS on the clipboard, and the
+  panel it was clicked in is still open to carry the reason.
+
 ### What's-new card (module checklist)
 
 - A release that introduces modules announces them as a CHECKLIST: one switch
@@ -2265,8 +2341,12 @@ taught anything.
   app. The emptying is the acknowledgement. A file that parses to nothing usable
   is left alone rather than silently eaten, so a malformed write can be seen.
 - `agent-state.json` — written by Hop every 5s and after every command: timer
-  mode/state/remaining, keep-awake, the tracking task and its today total, and
-  the whole to-do list with notes, reminders and favourites.
+  mode/state/remaining, keep-awake, the tracking task and its today total, the
+  whole to-do list with notes, reminders and favourites, and `accessibility` —
+  `none` / `missing` / `lost` / `stale`, the reason `keyboard.lock` or
+  `window.snap` did nothing. An agent sees neither the system dialog nor the
+  panel's banner, so without that field the only thing it can report back is
+  that its command was accepted and changed nothing.
 - `hop://` links carry the SAME vocabulary — `hop://timer/start?minutes=16`,
   `hop://todo/add?text=…&important=true&repeatDays=mon,wed`, `hop://tracker/stop`.
   This is what a Shortcut can open, so anything the system can trigger a Shortcut

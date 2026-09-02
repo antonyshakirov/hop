@@ -31,13 +31,20 @@ enum Alerts {
             .requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }
 
-    private static func postNotification(title: String? = nil, body: String? = nil) {
+    /// A banner that only informs: no sound, unlike the alarm's.
+    static func notice(title: String, body: String) {
+        postNotification(title: title, body: body, sound: false)
+    }
+
+    private static func postNotification(title: String? = nil, body: String? = nil,
+                                         sound: Bool = true) {
         guard notificationsAvailable else { return }
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
             guard granted else { return }
             let content = UNMutableNotificationContent()
-            content.sound = .default // the banner plays its own sound — the app mute does not affect it
+            // the banner plays its own sound — the app mute does not affect it
+            content.sound = sound ? .default : nil
             let lang = L10n.current
             content.title = (title ?? L10n.t(.notifTitle, lang)).capitalizedFirst
             content.body = body ?? L10n.t(.notifBody, lang)

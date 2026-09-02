@@ -75,8 +75,12 @@ struct KeyboardLockView: View {
     private func durationChip(_ seconds: Int) -> some View {
         let isInfinity = seconds == 0
         return Button {
-            closePanel()
-            lock.lock(seconds: seconds)
+            // The panel closes on the LOCK, never on the click. A lock that
+            // cannot start has to be able to say so, and there is nowhere to say
+            // it from once the panel is gone (Anton, 2026-09-02).
+            lock.lock(seconds: seconds) { locked in
+                if locked { closePanel() }
+            }
         } label: {
             Text(label(seconds))
                 .font(Theme.mono(isInfinity ? 15 : 11, weight: .medium))

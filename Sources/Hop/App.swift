@@ -188,6 +188,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Agent without a Dock icon — including dev runs via `swift run`.
         NSApp.setActivationPolicy(.accessory)
 
+        // So the first launch after an update that took the permission away
+        // already knows it is gone.
+        AccessibilityWatch.shared.refresh()
+
         // Hop keeps no HTTP cache on disk. It never asked for one: macOS gives
         // every app a URL cache, and Hop's few downloads — the update check, the
         // speed test, the 7-Zip helper — filled ~/Library/Caches/…/Cache.db with
