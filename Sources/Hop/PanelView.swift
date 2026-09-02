@@ -3745,13 +3745,21 @@ struct PanelView: View {
 
             SettingsRule()
             // colour the menu-bar icon's corner badges; off = monochrome, shape
-            // tells the same-corner pairs apart
-            HStack {
-                Text(t(.coloredIndicators))
-                    .font(Theme.mono(12))
-                    .foregroundStyle(Theme.textPrimary)
-                Spacer()
-                Theme.MiniSwitch(isOn: $coloredIndicators)
+            // tells the same-corner pairs apart. The title alone said
+            // "indicators" and named nothing the user could point at, so it
+            // carries a note like the dock row does (Anton, 2026-09-02).
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(t(.coloredIndicators))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textPrimary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $coloredIndicators)
+                }
+                Text(t(.coloredIndicatorsNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             SettingsRule()

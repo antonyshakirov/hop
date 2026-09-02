@@ -160,8 +160,11 @@ identically on every user's bar.
   bottom badge that is not green. `TorrentController.menuBarTransfer` supplies the
   two independent booleans. This REPLACES the old ↓/↑ glyph that lived in the
   title (which no longer carries transfer, so it can never shift the panel).
-- **Colour vs monochrome.** The `colored indicators` setting (general, default
-  ON) colours the badges. OFF renders every badge in the glyph colour and tells
+- **Colour vs monochrome.** The setting (general, default ON) reads "colored
+  marks on the menu-bar icon" and carries a note saying the corner marks follow
+  the state in colour and that off tells them apart by shape — "colored
+  indicators" alone named nothing the user could point at (Anton, 2026-09-02).
+  It colours the badges. OFF renders every badge in the glyph colour and tells
   the three same-corner pairs apart by SHAPE: no-sleep = filled dot, lid = outline
   ring; engine = filled wedge, task = outline wedge (same outer size as filled);
   a live tunnel = filled dot, a stalled one = outline ring; the "!" and arrows
@@ -2577,7 +2580,10 @@ converter (Anton, 2026-07-28).
 - A click on the Dock icon reaches the window it is there for, including a
   minimized one (`applicationShouldHandleReopen` deminiaturizes and raises).
 - `showWindowsInDock` (settings → general) turns it off for people who run a
-  menu-bar app precisely so that nothing appears in the Dock. ON by default.
+  menu-bar app precisely so that nothing appears in the Dock. ON by default. The
+  row reads "show hop in the dock" over the note that already explains WHEN the
+  icon appears; the old title, "windows in the dock", named the windows rather
+  than the icon and read as if it were about hiding windows (Anton, 2026-09-02).
 - Side effect worth knowing: in `.regular` SwiftUI supplies a real menu bar
   (Apple · Hop · Edit · View · Window · Help — verified 2026-07-28), so ⌘V in a
   window goes through the system Edit menu while one is open. The
