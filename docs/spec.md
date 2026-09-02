@@ -225,10 +225,13 @@ recorder for an action with no handler would promise what it cannot do — then
 (`ModulePresentation.howKeys` → the `doc*Full` strings, ×22, rendered by
 `DocView` with its bullets, bold terms and inline `{sym:…}` icons; the monitor
 takes three of them and the converter two), and last a
-link to the guide on the site. That link carries `?m=` with one letter per
-module the user still sees (`ModuleCatalog.guideCode`, letters fixed forever by
-`hop-website/docs/guide-code.md`, tested), and the site's own language when it
-has one, so the page shows their Hop rather than every module there is. Two settings stayed off
+link to the guide on the site. From a MODULE's page that link carries the letter
+of THAT module alone — it sits under that module's own documentation, and a page
+about all sixteen is not what was asked for (Anton, 2026-09-02); the handbook's
+link keeps the full code, one letter per module the user still sees
+(`ModuleCatalog.guideCode`, letters fixed forever by
+`hop-website/docs/guide-code.md`, tested). Both carry the site's own language
+when it has one. Two settings stayed off
 the module pages because they are not about one module: the grids of apps (made,
 renamed and removed on "modules & tabs", the only module a person creates
 themselves) and "the converter and the archives in one row", which says how the
@@ -3620,6 +3623,13 @@ Anton's primary install must always remain fully functional.
   of the module it describes, where somebody is already looking at that module,
   and all of them together make the handbook page. The site's guide stays, one
   link under each of them, for the 8 languages it is published in.
+
+- **A section inside a page is mono 13 semibold in the page's ink**
+  (`settingsSectionHeader`) — one step under the 15pt page heading. At the old
+  mono 10 tertiary a heading like "how it works" vanished above a wall of 12pt
+  body text (Anton, 2026-09-02). `SettingsGroupLabel` (mono 9, uppercase,
+  tertiary) stays what it is: the caption ABOVE a card, not a heading inside a
+  page.
 
 ## The handbook page (settings window)
 

@@ -3629,12 +3629,12 @@ struct PanelView: View {
 
             let how = ModulePresentation.howKeys(key)
             if !how.isEmpty {
-                SettingsGroupLabel(title: t(.moduleHowTitle))
-                    .padding(.top, 8)
+                settingsSectionHeader(t(.moduleHowTitle))
+                    .padding(.top, 10)
                 DocView(text: how.map { t($0) }.joined(separator: "\n\n"))
             }
 
-            Link(destination: URL(string: guideURL)!) {
+            Link(destination: URL(string: guideURL(module: key))!) {
                 HStack(spacing: 5) {
                     Text(t(.guideLink))
                     Image(systemName: "arrow.up.forward")
@@ -3679,12 +3679,15 @@ struct PanelView: View {
         .padding(.bottom, 6)
     }
 
-    /// The guide on the site, carrying the modules the user still sees so the
-    /// page shows their Hop and not every module there is.
-    /// SPEC: hop-website/docs/guide-code.md
-    private var guideURL: String {
-        let shown = Set(tabsModel.tabs.flatMap(\.moduleKeys).filter { moduleVisible($0) })
-        let code = ModuleCatalog.guideCode(shown: shown)
+    /// SPEC: hop-website/docs/guide-code.md; docs/spec.md — the module page's link.
+    private func guideURL(module: String? = nil) -> String {
+        let code: String
+        if let module {
+            code = ModuleCatalog.guideCode(shown: [module])
+        } else {
+            let shown = Set(tabsModel.tabs.flatMap(\.moduleKeys).filter { moduleVisible($0) })
+            code = ModuleCatalog.guideCode(shown: shown)
+        }
         let onSite: Set<String> = ["ru", "de", "es", "pt", "fr", "zh", "ja"]
         let prefix = onSite.contains(lang.rawValue) ? "\(lang.rawValue)/" : ""
         return "https://hop.tools/\(prefix)guide/?m=\(code)"
@@ -4201,11 +4204,12 @@ struct PanelView: View {
         }
     }
 
+    /// SPEC: docs/spec.md — a section heading inside a page.
     private func settingsSectionHeader(_ title: String) -> some View {
         HStack {
             Text(title)
-                .font(Theme.mono(10, weight: .semibold))
-                .foregroundStyle(Theme.textTertiary)
+                .font(Theme.mono(13, weight: .semibold))
+                .foregroundStyle(Theme.textPrimary)
             Spacer()
         }
     }
@@ -4988,7 +4992,7 @@ struct PanelView: View {
                 settingsSectionHeader(t(.appsLabel))
                 DocView(text: t(.docAppsFull))
             }
-            Link(destination: URL(string: guideURL)!) {
+            Link(destination: URL(string: guideURL())!) {
                 HStack(spacing: 5) {
                     Text(t(.guideLink))
                     Image(systemName: "arrow.up.forward")
