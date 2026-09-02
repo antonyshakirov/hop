@@ -2296,8 +2296,22 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Live status where it can be checked: `AXIsProcessTrusted()`,
   `CGPreflightScreenCaptureAccess()`, `UNUserNotificationCenter` settings,
   `SMAppService.mainApp.status`. The notification query is skipped in a
-  bundle-less process (a snapshot render throws otherwise). A row offers its
-  System Settings deep link only when the permission is NOT granted.
+  bundle-less process (a snapshot render throws otherwise). Re-read on a 2s
+  tick while the page is open: a grant lands in another process (the system
+  dialog, the settings pane) and none of those four checks publishes anything to
+  watch, so the only way the list stops lying is to look again.
+- **A missing permission carries a "grant access" button** (Anton, 2026-09-02) —
+  the page is where people go when something does not work, and until now all it
+  could do was point at System Settings. Accessibility and Screen Recording ask
+  through `PermissionRepair.askAgain(_:force:)` (drop Hop's own row, then
+  request), which is the only thing that raises the real dialog when the row
+  already there grants nothing; notifications ask
+  `UNUserNotificationCenter.requestAuthorization` and fall back to the
+  notification pane once macOS answers from a refusal on file; launch at login
+  is `SMAppService.mainApp.register()`. `force` is what lets a button pressed by
+  hand ask more than once per run, unlike a feature's own automatic repair. The
+  System Settings deep link stays beside the button, and both appear only while
+  the permission is NOT granted.
 - The same list, condensed, is a README section (all 22 languages) and a FAQ
   answer on the landing (all 8).
 - The page CLOSES with a statement, set larger and bolder than anything above
@@ -2345,9 +2359,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   away. macOS is already asking with its own dialog, which is the only thing
   that can actually grant the permission; a panel lecturing on top of that is
   one surface too many, and a standing banner turns a moment into furniture.
-  There is no title, no paragraph and no "ask again" button: the earlier version
-  had all three and they explained a situation the user could do nothing with
-  from inside the app.
+  There is no title and no paragraph: the earlier version had both and they
+  explained a situation the user could do nothing with from inside the app. The
+  one button says "grant access" and runs the repair — it used to open System
+  Settings, which is the wrong destination when Hop's switch there is already on
+  (Anton, 2026-09-02).
 - **NO state announces itself before something has actually been stopped by it.**
   Hop is a timer and a converter to plenty of people, and a permission they
   never needed is not news. A permission that works again also retires the line
@@ -2375,9 +2391,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the measurement can fail for reasons that are not the permission's fault, and
   throwing away a working grant on a guess is the worse trade. That one waits
   for the button.
-- Screen Recording gets the same repair on the SECOND refusal, not the first: a
-  first refusal can be a grant that has not taken effect yet, and that one is
-  famous for wanting a relaunch.
+- Screen Recording gets the same repair on the FIRST refusal. The earlier
+  two-step (a plain `CGRequestScreenCaptureAccess` first, the repair only on a
+  second press) shows NOTHING when the list already holds a row that grants
+  nothing, so the first press ended in "allow it in settings" pointing at a
+  switch that was already on — which is exactly what Anton hit on 2026-09-02
+  pressing the recognition hotkey. `askAgain` still asks once per run.
+- **One sweep on the first run of 2.0** (`PermissionRepair.sweepDeadRowsOnce`,
+  flag `permissionsSwept.2.0`): 1.9.1 changed the signature, so every Mac that
+  had granted anything before it carries rows macOS answers from that grant
+  nothing. The sweep drops such a row for Accessibility and Screen Recording so
+  the list tells the truth and the next request raises the real dialog. A
+  permission that is actually granted right now is LEFT ALONE — resetting a live
+  one would take a working feature away to fix nothing.
 - The zones and the paste report themselves when they are stopped. The zones
   also post a notification — they are used with the panel shut, so the banner
   alone would arrive far too late — one per run, never one per failed drag. The

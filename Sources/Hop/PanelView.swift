@@ -914,15 +914,17 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 8)
+                // Asks macOS, rather than sending the user to a pane where Hop's
+                // switch may already be on and change nothing when pressed.
                 Button {
-                    permissions.openSettings()
+                    PermissionRepair.askAgain(.accessibility, force: true)
                 } label: {
-                    HoverLabel(text: t(.ocrOpenSettings), size: 10,
+                    HoverLabel(text: t(.permGrant), size: 10,
                                color: Theme.accentYellow)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .help(t(.ocrOpenSettings))
+                .help(t(.permGrant))
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 9)

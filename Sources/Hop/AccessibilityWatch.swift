@@ -85,9 +85,4 @@ final class AccessibilityWatch: ObservableObject {
         RunLoop.main.add(timer, forMode: .common)
         expiry = timer
     }
-
-    func openSettings() {
-        guard let url = URL(string: KeyboardLockController.privacySettingsURL) else { return }
-        NSWorkspace.shared.open(url)
-    }
 }

@@ -188,6 +188,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Agent without a Dock icon — including dev runs via `swift run`.
         NSApp.setActivationPolicy(.accessory)
 
+        // Rows left by the old signature grant nothing but still answer for Hop:
+        // dropped once here, so what the permission list shows is the truth and
+        // the next request raises the real dialog.
+        PermissionRepair.sweepDeadRowsOnce()
+
         // So the first launch after an update that took the permission away
         // already knows it is gone.
         AccessibilityWatch.shared.refresh()

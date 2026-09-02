@@ -73,27 +73,21 @@ final class ScreenTextController: ObservableObject {
 
     /// Frame an area, read it, store the result. Cancelling the selection
     /// (Escape) is not a failure: the state goes quietly back to idle.
-    private var deniedOnce = false
-
     func capture() {
         guard !isBusy, !Snapshot.active else { return }
         // Ask BEFORE the crosshair: without the permission the capture would come
         // back as a black rectangle, which reads as "the feature is broken".
         guard CGPreflightScreenCaptureAccess() else {
-            // The second refusal is the telling one: the first can simply be a
-            // grant that has not taken effect yet, while a second means macOS is
-            // answering from a row that grants nothing, and only dropping that
-            // row brings the dialog back (Anton, 2026-09-02).
-            if deniedOnce {
-                PermissionRepair.askAgain(.screenCapture)
-            } else {
-                deniedOnce = true
-                _ = CGRequestScreenCaptureAccess()   // one-time system prompt
-            }
+            // Straight to the repair, not a plain request first: a plain
+            // `CGRequestScreenCaptureAccess` shows NOTHING when the list already
+            // holds a row for Hop that grants nothing (the signature changed under
+            // it), so the first press used to end in "allow it in settings" —
+            // pointing at a switch that was already on. `askAgain` drops that row
+            // and the dialog comes back, once per run (Anton, 2026-09-02).
+            PermissionRepair.askAgain(.screenCapture)
             state = .denied
             return
         }
-        deniedOnce = false
         state = .selecting
         Task {
             guard let file = await Self.selectArea() else {

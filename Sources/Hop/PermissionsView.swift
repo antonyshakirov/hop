@@ -13,6 +13,8 @@ struct PermissionsView: View {
 
     /// Live state is read once per appearance; notifications answer asynchronously.
     @State private var notificationsGranted: Bool?
+    /// SPEC: docs/spec.md — "Permissions (settings window)", the 2s re-read.
+    @State private var poll = 0
 
     private struct Item: Identifiable {
         let id: String
@@ -23,6 +25,8 @@ struct PermissionsView: View {
         let granted: Bool?
         /// System Settings deep link, when the user can flip it by hand.
         let settingsURL: String?
+        /// nil where nothing can be asked for from here.
+        var grant: (() -> Void)?
     }
 
     var body: some View {
@@ -74,10 +78,21 @@ struct PermissionsView: View {
             let settings = await UNUserNotificationCenter.current().notificationSettings()
             notificationsGranted = settings.authorizationStatus == .authorized
         }
+        .onReceive(Timer.publish(every: 2, on: .main, in: .common).autoconnect()) { _ in
+            guard !Snapshot.active else { return }
+            poll &+= 1
+            guard Bundle.main.bundleIdentifier != nil else { return }
+            Task {
+                let settings = await UNUserNotificationCenter.current().notificationSettings()
+                let granted = settings.authorizationStatus == .authorized
+                await MainActor.run { notificationsGranted = granted }
+            }
+        }
     }
 
     private var items: [Item] {
-        [
+        _ = poll
+        return [
             Item(id: "network", symbol: "arrow.down.circle", title: .permNetworkTitle,
                  body: .permNetworkBody, granted: nil, settingsURL: nil),
             Item(id: "torrent", symbol: "arrow.up.arrow.down", title: .permTorrentTitle,
@@ -87,20 +102,39 @@ struct PermissionsView: View {
             Item(id: "accessibility", symbol: "accessibility", title: .permAccessibilityTitle,
                  body: .permAccessibilityBody,
                  granted: Snapshot.active ? true : AXIsProcessTrusted(),
-                 settingsURL: KeyboardLockController.privacySettingsURL),
+                 settingsURL: KeyboardLockController.privacySettingsURL,
+                 grant: { PermissionRepair.askAgain(.accessibility, force: true) }),
             Item(id: "screen", symbol: "rectangle.dashed", title: .permScreenTitle,
                  body: .permScreenBody,
                  granted: Snapshot.active ? false : CGPreflightScreenCaptureAccess(),
-                 settingsURL: ScreenTextController.privacySettingsURL),
+                 settingsURL: ScreenTextController.privacySettingsURL,
+                 grant: { PermissionRepair.askAgain(.screenCapture, force: true) }),
             Item(id: "notify", symbol: "bell", title: .permNotifyTitle, body: .permNotifyBody,
                  granted: Snapshot.active ? true : notificationsGranted,
-                 settingsURL: "x-apple.systempreferences:com.apple.preference.notifications"),
+                 settingsURL: "x-apple.systempreferences:com.apple.preference.notifications",
+                 grant: { requestNotifications() }),
             Item(id: "admin", symbol: "lock", title: .permAdminTitle, body: .permAdminBody,
                  granted: nil, settingsURL: nil),
             Item(id: "login", symbol: "power", title: .permLoginTitle, body: .permLoginBody,
                  granted: Snapshot.active ? true : SMAppService.mainApp.status == .enabled,
-                 settingsURL: nil),
+                 settingsURL: nil,
+                 grant: { try? SMAppService.mainApp.register() }),
         ]
+    }
+
+    /// A refusal already on file raises no dialog, so that case goes to the pane.
+    private func requestNotifications() {
+        guard !Snapshot.active, Bundle.main.bundleIdentifier != nil else { return }
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
+            Task { @MainActor in
+                notificationsGranted = granted
+                guard !granted,
+                      let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications")
+                else { return }
+                NSWorkspace.shared.open(url)
+            }
+        }
     }
 
     private func row(_ item: Item) -> some View {
@@ -124,18 +158,35 @@ struct PermissionsView: View {
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.docText)
                     .fixedSize(horizontal: false, vertical: true)
-                // Only where the user can actually change something by hand:
-                // a granted permission needs no invitation to go looking.
-                if let url = item.settingsURL, item.granted == false {
-                    Button {
-                        if let link = URL(string: url) { NSWorkspace.shared.open(link) }
-                    } label: {
-                        HoverLabel(text: L10n.t(.ocrOpenSettings, lang), size: 9,
-                                   color: Theme.textSecondary)
-                            .contentShape(Rectangle())
+                if item.granted == false {
+                    HStack(spacing: 10) {
+                        if let grant = item.grant {
+                            Button(action: grant) {
+                                Text(L10n.t(.permGrant, lang))
+                                    .font(Theme.mono(10, weight: .semibold))
+                                    .foregroundStyle(Theme.textPrimary)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .help(L10n.t(.permGrant, lang))
+                            .hoverDim()
+                        }
+                        if let url = item.settingsURL {
+                            Button {
+                                if let link = URL(string: url) { NSWorkspace.shared.open(link) }
+                            } label: {
+                                HoverLabel(text: L10n.t(.ocrOpenSettings, lang), size: 9,
+                                           color: Theme.textSecondary)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .help(L10n.t(.ocrOpenSettings, lang))
+                        }
                     }
-                    .buttonStyle(.plain)
-                    .help(L10n.t(.ocrOpenSettings, lang))
+                    .padding(.top, 2)
                 }
             }
         }
