@@ -133,20 +133,24 @@ struct PermissionsView: View {
         }
     }
 
+    /// The title line is a fixed 24pt tall — the height of the "grant access"
+    /// button — and the icon is centred in the same 24, so a row with a button
+    /// and a row without one hold their icon at the same place.
     private func row(_ item: Item) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: item.symbol)
                 .font(.system(size: 12))
                 .foregroundStyle(Theme.textSecondary)
-                .frame(width: 18)
+                .frame(width: 18, height: 24)
             VStack(alignment: .leading, spacing: 3) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                HStack(spacing: 8) {
                     Text(L10n.t(item.title, lang))
                         .font(Theme.mono(11, weight: .semibold))
                         .foregroundStyle(Theme.textPrimary)
                     Spacer(minLength: 6)
                     trailing(item)
                 }
+                .frame(height: 24)
                 Text(L10n.t(item.body, lang))
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.docText)

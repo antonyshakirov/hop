@@ -139,6 +139,7 @@ struct SettingsSidebar: View {
                 ForEach(modules) { row($0) }
             }
             .padding(10)
+            .padding(.top, 12)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(width: Self.width)
