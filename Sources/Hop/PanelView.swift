@@ -4366,6 +4366,17 @@ struct PanelView: View {
                     moduleHotkeyRow(key, label: hotkeyRowLabel(key))
                         .opacity(moduleIsActive(key) || hiddenKeepHotkeys ? 1 : 0.5)
                 }
+                // The switch that explains the dimmed rows above it lives WITH
+                // them, not in a card of its own further down the page: a row
+                // greyed out for a reason the user has to scroll to find reads
+                // as a broken key (Anton, 2026-09-02).
+                SettingsRule()
+                switchSetting(t(.hkHiddenKeep), isOn: $hiddenKeepHotkeys)
+                Text(t(.hkHiddenKeepNote))
+                    .font(Theme.mono(8))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             groupLabelWithReset(t(.windowsLabel), actions: ModuleCatalog.zoneActions)
@@ -4385,16 +4396,6 @@ struct PanelView: View {
                     }
                 }
             }
-
-            SettingsCard {
-                switchSetting(t(.hkHiddenKeep), isOn: $hiddenKeepHotkeys)
-                Text(t(.hkHiddenKeepNote))
-                    .font(Theme.mono(8))
-                    .foregroundStyle(Theme.textTertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(.top, 8)
 
             Button {
                 hotkeys.reset(ModuleCatalog.allActions)

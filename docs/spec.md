@@ -2264,9 +2264,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   who never rebound.
 - The window-manager module's page keeps only its layout picker: the zone keys
   and their on/off switch live here, where keys live.
-- `⌃⌥T` is claimed by BOTH the timer and the right-two-thirds zone. That
-  collision is older than this page — one of the two simply failed to register —
-  and is now visible: the loser says "shortcut is taken" and can be rebound.
+- **The zones follow Rectangle's map and the modules move around them** (Anton,
+  2026-09-02). `⌃⌥T` shipped claimed by BOTH the timer and the right-two-thirds
+  zone — a collision older than this page, which registered one of the two and
+  said "shortcut is taken" on the other out of the box. The zone keeps ⌃⌥T,
+  because that is the combination people arrive with in their fingers, and the
+  timer moved to **⌃⌥H**. `ModuleCatalogTests.testNoTwoActionsShipTheSameCombination`
+  fails if any two shipped combinations ever meet again. Reset means "forget the
+  stored value", so everyone who never rebound the timer gets ⌃⌥H on update.
+- **The switch that dims a row sits with the rows it dims.** A module hidden
+  from the panel hands its combination back to other apps, and its row here is
+  drawn at half opacity; "hidden modules keep their keys"
+  (`hiddenModulesKeepHotkeys`, OFF by default) is the last row of that same
+  card — not a card of its own further down the page, where a row greyed out for
+  a reason the user has to scroll to find reads as a broken key (Anton,
+  2026-09-02).
 
 ### Permissions (settings window)
 

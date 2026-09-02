@@ -56,6 +56,22 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertNotNil(ModuleCatalog.panelAction.defaultCombo)
     }
 
+    /// Two actions shipping the SAME combination is a defect the user meets as
+    /// "shortcut is taken" on a fresh install, with one of the two silently dead:
+    /// the timer and the zone for the right two thirds both shipped ⌃⌥T until
+    /// 2026-09-02. The zones follow Rectangle's map, so a clash is settled by
+    /// moving the module.
+    func testNoTwoActionsShipTheSameCombination() {
+        let combos = (ModuleCatalog.allActions).compactMap(\.defaultCombo)
+        var seen: [ModuleCombo: String] = [:]
+        for action in ModuleCatalog.allActions {
+            guard let combo = action.defaultCombo else { continue }
+            XCTAssertNil(seen[combo], "\(action.id) ships the combination of \(seen[combo] ?? "")")
+            seen[combo] = action.id
+        }
+        XCTAssertEqual(Set(combos).count, combos.count)
+    }
+
     func testHotKeyIdentifiersAreUnique() {
         var ids = ModuleCatalog.modules.flatMap(\.actions).map(\.hotKeyID)
         ids.append(ModuleCatalog.panelAction.hotKeyID)

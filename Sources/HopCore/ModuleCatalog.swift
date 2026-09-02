@@ -76,8 +76,13 @@ public enum ModuleCatalog {
 
     public static let modules: [ModuleEntry] = [
         ModuleEntry(id: "timer", guideLetter: "t", actions: [
+            // ⌃⌥H, not the obvious ⌃⌥T: T belongs to the window zones, which
+            // follow Rectangle's map to the letter, and the two claimed the same
+            // keys — the zone row said "shortcut is taken" out of the box. The
+            // zones keep the convention people already have in their fingers and
+            // the modules move around them (Anton, 2026-09-02).
             ModuleAction(id: "open", storageKey: "hotkey_timer", hotKeyID: 2,
-                         defaultCombo: ModuleCombo(keyCode: 17, modifiers: controlOption)),
+                         defaultCombo: ModuleCombo(keyCode: 4, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "awake", guideLetter: "a", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_awake", hotKeyID: 3,
