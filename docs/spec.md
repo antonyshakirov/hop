@@ -2125,7 +2125,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   chips; tapping a duration LOCKS immediately, so there is no separate start
   button to press afterwards. While it runs the same line shows the countdown
   and an unlock button. A full-screen cover states what is happening and carries
-  a way out.
+  a way out. It sits ABOVE the Dock and below the menu bar
+  (`CGWindowLevelForKey(.dockWindow) + 1`): at `.floating` the Dock drew over the
+  cover and stayed clickable, which made the lock look like it had not taken
+  (Anton, 2026-09-02). The menu bar is left uncovered on purpose — its
+  locked-keyboard mark is what says why the keys do nothing.
 - The keys are swallowed by a `CGEventTap` (session tap, head-insert) over
   keyDown, keyUp, flagsChanged AND `NX_SYSDEFINED` (14) — the brightness/volume/
   media row is not "keys" to macOS and would otherwise keep firing. Events are
@@ -2198,9 +2202,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (esc auto-repeats ~30 times a second) re-checks the elapsed time against the
   start, because a timer on a run loop busy with the cover's animation fires late
   and the release then trails the full bar by half a second (Anton, 2026-07-26).
-  The bar itself fills 0.15s early for the same reason — a finished bar must never
-  sit there waiting — and it reads its progress off `chordSince` through a
-  `TimelineView` rather than off an implicit animation. Handed to an animation it
+  The bar fills AT the deadline, not before it: it used to aim 0.15s early so a
+  finished bar would never sit waiting, but it never finished, so that wait was
+  invisible — and once it did finish, the lead was the whole of what "it took
+  longer than five seconds" felt like (Anton, 2026-09-02). It reads its progress
+  off `chordSince` through a `TimelineView` rather than off an implicit
+  animation. Handed to an animation it
   was late by a third: the countdown redraws the cover every second, each redraw
   started a fresh 4.85s animation from wherever the bar stood, and so it covered
   a fifth of what remained each second and never the rest — 21%, 37%, 50%, 60%,

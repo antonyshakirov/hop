@@ -450,10 +450,9 @@ final class KeyboardLockController: ObservableObject {
             styleMask: [.borderless],
             backing: .buffered,
             defer: false)
-        // BELOW the menu bar on purpose: the locked-keyboard mark in the menu
-        // bar has to stay visible, since that is what tells you why the keys do
-        // nothing (Anton, 2026-07-25).
-        window.level = .floating
+        // Above the Dock, below the menu bar, which keeps its locked-keyboard
+        // mark. SPEC: docs/spec.md — "Keyboard lock (cleaning mode)".
+        window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.dockWindow)) + 1)
         window.isOpaque = false
         window.backgroundColor = .clear
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
@@ -578,9 +577,9 @@ private struct KeyboardLockOverlay: View {
         String(format: "%d:%02d", seconds / 60, seconds % 60)
     }
 
-    /// Full a hair before the deadline, so it never sits there finished.
+    /// Full AT the deadline, never before it.
     private static func progress(_ since: Date, _ now: Date) -> Double {
-        let span = KeyboardLockController.escapeHoldSeconds - 0.15
+        let span = KeyboardLockController.escapeHoldSeconds
         return min(max(now.timeIntervalSince(since) / span, 0), 1)
     }
 }
