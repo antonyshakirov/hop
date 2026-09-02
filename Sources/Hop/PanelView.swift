@@ -3567,6 +3567,8 @@ struct PanelView: View {
             page("lock.shield", t(.permTab)) { PermissionsView(lang: lang) }
         case .updates:
             page("arrow.down.circle", t(.updatesLabel)) { updatesSection }
+        case .guide:
+            page("book", t(.guideTab)) { guidePage }
         case .about:
             page("info.circle", t(.aboutTitle)) { aboutPage }
         case .module(let key):
@@ -3625,15 +3627,11 @@ struct PanelView: View {
                 }
             }
 
-            if let how = ModulePresentation.howKey(key) {
+            let how = ModulePresentation.howKeys(key)
+            if !how.isEmpty {
                 SettingsGroupLabel(title: t(.moduleHowTitle))
                     .padding(.top, 8)
-                Text(t(how))
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.docText)
-                    .lineSpacing(3)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                DocView(text: how.map { t($0) }.joined(separator: "\n\n"))
             }
 
             Link(destination: URL(string: guideURL)!) {
@@ -4972,6 +4970,38 @@ struct PanelView: View {
     }
 
     // MARK: - About
+
+    /// SPEC: docs/spec.md — "The handbook page (settings window)".
+    private var guidePage: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            DocView(text: t(.docGeneral))
+            ForEach(ModuleCatalog.modules, id: \.id) { entry in
+                let how = ModulePresentation.howKeys(entry.id)
+                if !how.isEmpty {
+                    VStack(alignment: .leading, spacing: 10) {
+                        settingsSectionHeader(moduleTitle(entry.id))
+                        DocView(text: how.map { t($0) }.joined(separator: "\n\n"))
+                    }
+                }
+            }
+            VStack(alignment: .leading, spacing: 10) {
+                settingsSectionHeader(t(.appsLabel))
+                DocView(text: t(.docAppsFull))
+            }
+            Link(destination: URL(string: guideURL)!) {
+                HStack(spacing: 5) {
+                    Text(t(.guideLink))
+                    Image(systemName: "arrow.up.forward")
+                        .font(.system(size: 8, weight: .semibold))
+                }
+                .font(Theme.mono(10))
+                .foregroundStyle(Theme.textTertiary)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
+        }
+    }
 
     /// SPEC: docs/spec.md — "The about page (settings window)".
     private var aboutPage: some View {

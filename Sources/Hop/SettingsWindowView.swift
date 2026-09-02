@@ -5,7 +5,7 @@ import HopCore
 /// takes and what the window is left on.
 /// SPEC: hop-private/specs/2026-09-01-settings-window-design.md
 enum SettingsSelection: Hashable {
-    case general, spaces, hotkeys, permissions, updates, about
+    case general, spaces, hotkeys, permissions, updates, guide, about
     case module(String)
 
     var id: String {
@@ -15,6 +15,7 @@ enum SettingsSelection: Hashable {
         case .hotkeys: return "hotkeys"
         case .permissions: return "permissions"
         case .updates: return "updates"
+        case .guide: return "guide"
         case .about: return "about"
         case .module(let key): return "\(Self.modulePrefix)\(key)"
         }
@@ -30,6 +31,7 @@ enum SettingsSelection: Hashable {
         case "hotkeys": self = .hotkeys
         case "permissions": self = .permissions
         case "updates": self = .updates
+        case "guide": self = .guide
         case "about": self = .about
         case "modules": self = .spaces
         case "timer": self = .module("timer")
@@ -106,6 +108,7 @@ struct SettingsSidebar: View {
             Item(id: SettingsSelection.hotkeys.id, icon: "command", title: t(.hotkeysLabel)),
             Item(id: SettingsSelection.permissions.id, icon: "lock.shield", title: t(.permTab)),
             Item(id: SettingsSelection.updates.id, icon: "arrow.down.circle", title: t(.updatesLabel)),
+            Item(id: SettingsSelection.guide.id, icon: "book", title: t(.guideTab)),
             Item(id: SettingsSelection.about.id, icon: "info.circle", title: t(.aboutTitle)),
         ]
     }

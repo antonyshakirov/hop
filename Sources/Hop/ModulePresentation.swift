@@ -51,26 +51,26 @@ enum ModulePresentation {
         }
     }
 
-    /// SPEC: docs/spec.md — "The module page (settings window)", the how-it-works line.
-    static func howKey(_ module: String) -> L10nKey? {
+    /// SPEC: docs/spec.md — "The module page (settings window)", how it works.
+    static func howKeys(_ module: String) -> [L10nKey] {
         switch module {
-        case "timer": return .howTimer
-        case "awake": return .howAwake
-        case "clipboard": return .howClipboard
-        case "convert": return .howConvert
-        case "windows": return .howWindows
-        case "speedtest": return .howSpeedtest
-        case "torrent": return .howTorrent
-        case "color": return .howColor
-        case "ocr": return .howOcr
-        case "archive": return .howArchive
-        case "keyboard": return .howKeyboard
-        case "vpn": return .howVpn
-        case "uninstall": return .howUninstall
-        case "system": return .howSystem
-        case "tracker": return .howTracker
-        case "todos": return .howTodos
-        default: return nil
+        case "timer": return [.docTimerFull]
+        case "awake": return [.docAwakeFull]
+        case "clipboard": return [.docClipboardFull]
+        case "convert": return [.docConverterFull, .docConverterDocs]
+        case "windows": return [.docWindowsFull]
+        case "speedtest": return [.docSpeedFull]
+        case "torrent": return [.docTorrentFull]
+        case "color": return [.docColorFull]
+        case "ocr": return [.docOcrFull]
+        case "archive": return [.docArchiveFull]
+        case "keyboard": return [.docKeylockFull]
+        case "vpn": return [.docVpnFull]
+        case "uninstall": return [.docUninstallFull]
+        case "system": return [.docMonitorRows, .docMonitorRows2, .docMonitorColors]
+        case "tracker": return [.docTrackerFull]
+        case "todos": return [.docTodosFull]
+        default: return []
         }
     }
 

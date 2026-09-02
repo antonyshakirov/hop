@@ -221,10 +221,10 @@ keys), a "show in the panel" switch holding exactly the state the eye holds (one
 answer, in the two places somebody looks for it), its own options
 (`moduleSettings`, keyed by the same identifier), the hotkey of its "open" action — but only when something answers that key, since a
 recorder for an action with no handler would promise what it cannot do — then
-**"how it works"**: two or three sentences under the settings saying what the
-module does and what is worth knowing about it (`ModulePresentation.howKey`,
-`how*`, ×22, added 2026-09-02 — the answers to the questions the app used to
-send people off-site for), and last a
+**"how it works"**: the module's full documentation under its settings
+(`ModulePresentation.howKeys` → the `doc*Full` strings, ×22, rendered by
+`DocView` with its bullets, bold terms and inline `{sym:…}` icons; the monitor
+takes three of them and the converter two), and last a
 link to the guide on the site. That link carries `?m=` with one letter per
 module the user still sees (`ModuleCatalog.guideCode`, letters fixed forever by
 `hop-website/docs/guide-code.md`, tested), and the site's own language when it
@@ -3613,14 +3613,26 @@ Anton's primary install must always remain fully functional.
 - **Release notes belong to the updates page**, with the auto-update switch, the
   check button and the version: the whole history of what shipped is what
   somebody on that page came for, and "about" was carrying it for no reason.
-- **The per-module documentation is gone from the app.** It was fourteen tabs of
-  text that had to be written, translated ×22 and kept true release after
-  release, read by almost nobody, in a window nobody opened. The guide lives on
-  the site instead, and every module page links to it with the code of the
-  modules that person actually sees (`?m=`, see "Modules"). The site's guide is
-  published in 8 languages, so a reader in one of the other 14 gets it in
-  English — a step back for them, and the reason to translate the guide page
-  next rather than to keep two copies of the same text.
+- **The per-module documentation is back in the app** (Anton, 2026-09-02), the
+  same twenty-one strings ×22 that 1.9.1 had moved out to the site (e807a79),
+  restored from that commit. What made them dead weight was the WINDOW they
+  lived in — fourteen tabs nobody opened. Now each text sits under the settings
+  of the module it describes, where somebody is already looking at that module,
+  and all of them together make the handbook page. The site's guide stays, one
+  link under each of them, for the 8 languages it is published in.
+
+## The handbook page (settings window)
+
+- Sixth in the sidebar, between updates and about: `docGeneral` (what Hop is,
+  the panel, the spaces, the menu bar) followed by every module's own text in
+  catalog order, each under its name, then the grids of apps, then the link to
+  the site's guide. One place to read the whole thing straight through, without
+  a window of its own and without going to the site (Anton, 2026-09-02).
+- The texts are NOT duplicated: the page and the module pages read the same
+  `ModulePresentation.howKeys`, so a correction lands in both.
+- It does not render as a snapshot — the page is taller than `ImageRenderer`
+  will draw at scale 2, and `--snapshot --settings-section guide` says so
+  instead of writing a file. In the window it is a normal scrolling page.
 
 ## Versioning (approved 2026-07-13)
 
