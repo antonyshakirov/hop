@@ -899,61 +899,36 @@ struct PanelView: View {
 
     // MARK: - Accessibility banner (above everything: nothing else is broken)
 
-    /// Above the release card: a feature that has stopped working outranks news
-    /// about features that have not.
+    /// One line, and it leaves on its own. macOS is already asking with its own
+    /// dialog, so the panel's whole job here is to leave a mark saying what just
+    /// did not happen (Anton, 2026-09-02).
     /// SPEC: docs/spec.md — "A permission that goes missing says so".
     @ViewBuilder private var permissionBanner: some View {
         if permissions.showsBanner {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 6) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 11))
-                        .foregroundStyle(Theme.accentYellow)
-                    Text(t(permissions.titleKey))
-                        .font(Theme.mono(11, weight: .semibold))
-                        .foregroundStyle(Theme.textPrimary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Spacer(minLength: 0)
-                }
-                Text(t(permissions.bodyKey))
+            HStack(spacing: 6) {
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.accentYellow)
+                Text(t(.permNoAccess))
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
-                HStack(spacing: 14) {
-                    Spacer(minLength: 0)
-                    Button {
-                        permissions.openSettings()
-                    } label: {
-                        HoverLabel(text: t(.ocrOpenSettings), size: 10,
-                                   color: Theme.textTertiary)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .help(t(.ocrOpenSettings))
-                    // The one that actually changes something when the switch is
-                    // already on, so it is the one that looks like the answer.
-                    Button {
-                        permissions.askAgain()
-                    } label: {
-                        Text(t(.permAskAgain))
-                            .font(Theme.mono(10, weight: .bold))
-                            .foregroundStyle(Theme.playFg)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 6)
-                            .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .hoverDim()
-                    .help(t(.permAskAgain))
+                Spacer(minLength: 8)
+                Button {
+                    permissions.openSettings()
+                } label: {
+                    HoverLabel(text: t(.ocrOpenSettings), size: 10,
+                               color: Theme.accentYellow)
+                        .contentShape(Rectangle())
                 }
-                .padding(.top, 4)
+                .buttonStyle(.plain)
+                .help(t(.ocrOpenSettings))
             }
-            .padding(12)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10)
-                .stroke(Theme.accentYellow.opacity(0.35), lineWidth: 1))
+            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 9))
+            .transition(.opacity)
         }
     }
 

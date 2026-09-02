@@ -2298,21 +2298,24 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     stopped. The only state where opening the switch is not the fix; the row has
     to be removed with the minus button and added again. No API reports it, so
     only the keyboard lock's probe can put the panel into it.
-- The banner sits ABOVE the release card in the panel chrome: a feature that has
-  stopped working outranks news about features that have not. Title, one line of
-  body, and two buttons — "ask again" and the System Settings deep link.
-- **NO state announces itself before something has actually been stopped by it**
-  (Anton, 2026-09-02), and the banner goes the moment the permission works
-  again. Hop is a timer and a converter to plenty of people, and a permission
-  they never needed is not news; a banner that outlives the repair is worse
-  still. Granting a permission tells the app nothing, so while an alert stands
-  `AccessibilityWatch` polls at 2 Hz-ish (every 2s) and stops the moment it
-  clears, which also clears `featureWasBlocked` and re-arms the one notice.
-  `.stale` is the one verdict re-reading cannot clear — macOS reports that state
-  as granted both before and after the repair — so a panel opened under a
-  `.stale` banner has `KeyboardLockController.remeasure()` take the measurement
-  again, tap and probe and all, without locking anything.
-- **"Ask again" is `tccutil reset <service> <bundle id>` followed by the app's
+- **The panel explains nothing and leaves in six seconds** (Anton, 2026-09-02).
+  One line above the release card — "hop has no accessibility yet" and the
+  System Settings link — and `featureWasBlocked` expires on a timer, taking it
+  away. macOS is already asking with its own dialog, which is the only thing
+  that can actually grant the permission; a panel lecturing on top of that is
+  one surface too many, and a standing banner turns a moment into furniture.
+  There is no title, no paragraph and no "ask again" button: the earlier version
+  had all three and they explained a situation the user could do nothing with
+  from inside the app.
+- **NO state announces itself before something has actually been stopped by it.**
+  Hop is a timer and a converter to plenty of people, and a permission they
+  never needed is not news. A permission that works again also retires the line
+  and re-arms the single notification for whatever fails next.
+- `.stale` is the one verdict re-reading cannot clear — macOS reports that state
+  as granted both before and after the repair — so a panel opened while it
+  stands has `KeyboardLockController.remeasure()` take the measurement again,
+  tap and probe and all, without locking anything.
+- **The repair is `tccutil reset <service> <bundle id>` followed by the app's
   own request** (`PermissionRepair`). Opening System Settings is useless when
   the row is already there with its switch on: there is nothing to press.
   Dropping Hop's own row puts the decision back to "not made", and the request
@@ -2325,9 +2328,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the popover carrying the explanation, so the whole thing read as Settings
   opening for no stated reason. The deep link stays as a button in the banner,
   pressed on purpose or not at all.
-- The automatic repair asks ONCE per run per service, so a zone dragged five
-  times does not raise five dialogs; the banner's button carries `force` and
-  always asks. `.stale` never repairs itself: there the permission IS granted,
+- The repair asks ONCE per run per service, so a zone dragged five times does
+  not raise five dialogs. `.stale` never repairs itself: there the permission IS
+  granted,
   the measurement can fail for reasons that are not the permission's fault, and
   throwing away a working grant on a guess is the worse trade. That one waits
   for the button.

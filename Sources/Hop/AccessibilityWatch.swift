@@ -16,10 +16,9 @@ final class AccessibilityWatch: ObservableObject {
 
     private var suppressionProven: Bool?
     private var noticeSent = false
-    /// Runs only while something is wrong. Granting the permission in System
-    /// Settings tells the app nothing, so a banner with no way of noticing the
-    /// repair sits there over a working feature (Anton, 2026-09-02).
-    private var poller: Timer?
+    private var expiry: Timer?
+    /// How long the line stays before it takes itself away.
+    private static let noticeLife: TimeInterval = 6
 
     var showsBanner: Bool {
         AccessibilityVerdict.showsBanner(alert, featureWasBlocked: featureWasBlocked)
@@ -54,20 +53,6 @@ final class AccessibilityWatch: ObservableObject {
             featureWasBlocked = false
             noticeSent = false
         }
-        pollWhileBroken()
-    }
-
-    private func pollWhileBroken() {
-        let wanted = alert != .none && featureWasBlocked
-        guard wanted != (poller != nil) else { return }
-        poller?.invalidate()
-        poller = nil
-        guard wanted else { return }
-        let timer = Timer(timeInterval: 2, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.refresh() }
-        }
-        RunLoop.main.add(timer, forMode: .common)
-        poller = timer
     }
 
     func noteSuppression(proven: Bool) {
@@ -75,36 +60,34 @@ final class AccessibilityWatch: ObservableObject {
         refresh()
     }
 
+    /// Nothing is explained here. macOS is already asking with its own dialog,
+    /// and a panel that lectures on top of that is one surface too many
+    /// (Anton, 2026-09-02).
     func reportBlocked(notify: Bool = true) {
         if !featureWasBlocked { featureWasBlocked = true }
         refresh()
+        startExpiry()
         guard notify, !noticeSent, alert != .none else { return }
         noticeSent = true
         let lang = L10n.current
-        Alerts.notice(title: L10n.t(titleKey, lang).capitalizedFirst,
-                      body: L10n.t(bodyKey, lang).capitalizedFirst)
+        Alerts.notice(title: L10n.t(.permAccessibilityTitle, lang).capitalizedFirst,
+                      body: L10n.t(.permNoAccess, lang).capitalizedFirst)
     }
 
-    var bodyKey: L10nKey {
-        switch alert {
-        case .stale: return .permStaleBody
-        case .lost: return .permLostBody
-        default: return .permMissingBody
+    private func startExpiry() {
+        expiry?.invalidate()
+        let timer = Timer(timeInterval: Self.noticeLife, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.featureWasBlocked else { return }
+                self.featureWasBlocked = false
+            }
         }
-    }
-
-    var titleKey: L10nKey {
-        alert == .stale ? .permStaleTitle : .permAccessibilityTitle
+        RunLoop.main.add(timer, forMode: .common)
+        expiry = timer
     }
 
     func openSettings() {
         guard let url = URL(string: KeyboardLockController.privacySettingsURL) else { return }
         NSWorkspace.shared.open(url)
-    }
-
-    /// Drop the row macOS is answering from and ask properly, which is the only
-    /// move that reaches a switch already sitting in the position the user wants.
-    func askAgain() {
-        PermissionRepair.askAgain(.accessibility, force: true)
     }
 }
