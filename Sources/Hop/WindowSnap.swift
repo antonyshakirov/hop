@@ -60,11 +60,11 @@ final class WindowSnapController {
     }
 
     func apply(_ position: Position) {
-        let prompt = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
-        guard AXIsProcessTrustedWithOptions(prompt) else {
+        guard AXIsProcessTrusted() else {
             // A zone is used with the panel shut, so a bare `return` is a window
             // that does not move and no way to find out why.
             AccessibilityWatch.shared.reportBlocked()
+            PermissionRepair.askAgain(.accessibility)
             return
         }
         guard let pid = lastExternalPID else { return }

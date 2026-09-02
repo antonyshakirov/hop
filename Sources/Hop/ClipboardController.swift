@@ -323,11 +323,11 @@ final class ClipboardController: ObservableObject {
 
     func copyAndPaste(_ item: Item, closePanel: @escaping () -> Void) {
         copy(item)
-        let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
-        guard AXIsProcessTrustedWithOptions(options) else {
+        guard AXIsProcessTrusted() else {
             // The copy went through: only the keystroke failed, and the panel
             // stays open to carry the reason.
             AccessibilityWatch.shared.reportBlocked(notify: false)
+            PermissionRepair.askAgain(.accessibility)
             return
         }
         closePanel()

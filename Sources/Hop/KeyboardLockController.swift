@@ -81,11 +81,9 @@ final class KeyboardLockController: ObservableObject {
     func lock(seconds: Int? = nil, then: ((Bool) -> Void)? = nil) {
         if let seconds { duration = seconds }
         guard !isLocked, !verifying, !Snapshot.active else { then?(false); return }
-        // Ask first: without the permission the tap silently never fires and the
-        // cover would promise a lock that isn't there.
-        let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as String: true] as CFDictionary
-        guard AXIsProcessTrustedWithOptions(options), installTap() else {
-            refuse(then)
+        // No prompt option: `refuse` does the asking, after dropping the row.
+        guard AXIsProcessTrusted(), installTap() else {
+            refuse(then, askSystem: true)
             return
         }
         proveLock { [weak self] proven in
@@ -93,7 +91,9 @@ final class KeyboardLockController: ObservableObject {
             AccessibilityWatch.shared.noteSuppression(proven: proven)
             guard proven else {
                 self.removeTap()
-                self.refuse(then)
+                // Trusted and still not suppressing: that repair waits for the
+                // button, never a guess against a working grant.
+                self.refuse(then, askSystem: false)
                 return
             }
             self.isLocked = true
@@ -127,8 +127,10 @@ final class KeyboardLockController: ObservableObject {
         }
     }
 
-    private func refuse(_ then: ((Bool) -> Void)?) {
+    /// No lock happened, and macOS does the asking.
+    private func refuse(_ then: ((Bool) -> Void)?, askSystem: Bool) {
         AccessibilityWatch.shared.reportBlocked()
+        if askSystem { PermissionRepair.askAgain(.accessibility) }
         then?(false)
     }
 

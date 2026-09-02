@@ -66,10 +66,10 @@ struct KeyboardLockView: View {
             // The durations stay put whatever the permission is doing: a row
             // that swaps its figures for a link has nothing left to press, and
             // pressing IS how you find out something is wrong. The panel closes
-            // on the LOCK, never on the click, and a lock that cannot start
-            // opens System Settings itself (Anton, 2026-09-02).
+            // on the LOCK and only on the lock — a refusal leaves it open, with
+            // the banner above and the system's own dialog in front.
             lock.lock(seconds: seconds) { locked in
-                locked ? closePanel() : AccessibilityWatch.shared.openSettings()
+                if locked { closePanel() }
             }
         } label: {
             Text(label(seconds))

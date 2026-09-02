@@ -2158,10 +2158,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   from the outside was the F row firing under the cover — the volume moving, do
   not disturb going on — because those are the only keys whose effect is visible
   while a full-screen cover holds the focus.
-- **The durations stay on the row whatever the permission is doing**, and a lock
-  that cannot start opens System Settings itself. The row used to swap its
-  figures for an "open settings" link, which left nothing to press — and
-  pressing is how you find out anything is wrong in the first place.
+- **The durations stay on the row whatever the permission is doing.** The row
+  used to swap its figures for an "open settings" link, which left nothing to
+  press — and pressing is how you find out anything is wrong in the first place.
+  A refusal leaves the panel open, with the banner above the modules and the
+  system's own dialog in front of it.
 - **A watchdog runs at 1 Hz for as long as the lock does**, endless locks
   included: the ticker is no longer only a countdown. `TapWatchdog.step` is
   given `CGEvent.tapIsEnabled` and whether last tick already re-armed it, and
@@ -2315,9 +2316,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   own request** (`PermissionRepair`). Opening System Settings is useless when
   the row is already there with its switch on: there is nothing to press.
   Dropping Hop's own row puts the decision back to "not made", and the request
-  that follows shows the real system dialog. Only ever from a button on a
-  feature that is refusing to work — it throws away whatever answer is on file,
-  which on a permission that is merely slow to be noticed is a step backwards.
+  that follows shows the real system dialog.
+- **macOS does the asking, and Hop opens nothing on top of it** (Anton,
+  2026-09-02). A refused feature runs that repair itself — the trust check is
+  the plain `AXIsProcessTrusted()`, so the one dialog comes from the repair
+  rather than two from both. Hop no longer opens System Settings for the user:
+  it took the focus, hid the very dialog that grants the permission, and closed
+  the popover carrying the explanation, so the whole thing read as Settings
+  opening for no stated reason. The deep link stays as a button in the banner,
+  pressed on purpose or not at all.
+- The automatic repair asks ONCE per run per service, so a zone dragged five
+  times does not raise five dialogs; the banner's button carries `force` and
+  always asks. `.stale` never repairs itself: there the permission IS granted,
+  the measurement can fail for reasons that are not the permission's fault, and
+  throwing away a working grant on a guess is the worse trade. That one waits
+  for the button.
 - Screen Recording gets the same repair on the SECOND refusal, not the first: a
   first refusal can be a grant that has not taken effect yet, and that one is
   famous for wanting a relaunch.

@@ -10,10 +10,14 @@ enum PermissionRepair {
         case screenCapture = "ScreenCapture"
     }
 
-    /// Only ever from a button on a feature that is refusing to work: it throws
-    /// away whatever answer is on file.
-    static func askAgain(_ service: Service) {
+    private static var askedThisRun: Set<Service> = []
+
+    /// `force` is the user's own button. Without it this asks once per run per
+    /// service: a zone dragged five times must not raise five dialogs.
+    static func askAgain(_ service: Service, force: Bool = false) {
         guard let bundleID = Bundle.main.bundleIdentifier else { return }
+        guard force || !askedThisRun.contains(service) else { return }
+        askedThisRun.insert(service)
         reset(service, bundleID: bundleID)
         // tccd needs a moment to write the reset before the request reads it.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { request(service) }

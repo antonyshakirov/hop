@@ -105,6 +105,6 @@ final class AccessibilityWatch: ObservableObject {
     /// Drop the row macOS is answering from and ask properly, which is the only
     /// move that reaches a switch already sitting in the position the user wants.
     func askAgain() {
-        PermissionRepair.askAgain(.accessibility)
+        PermissionRepair.askAgain(.accessibility, force: true)
     }
 }
