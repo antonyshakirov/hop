@@ -919,12 +919,23 @@ struct PanelView: View {
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
-                HStack(spacing: 0) {
+                HStack(spacing: 14) {
                     Spacer(minLength: 0)
                     Button {
                         permissions.openSettings()
                     } label: {
-                        Text(t(.ocrOpenSettings))
+                        HoverLabel(text: t(.ocrOpenSettings), size: 10,
+                                   color: Theme.textTertiary)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .help(t(.ocrOpenSettings))
+                    // The one that actually changes something when the switch is
+                    // already on, so it is the one that looks like the answer.
+                    Button {
+                        permissions.askAgain()
+                    } label: {
+                        Text(t(.permAskAgain))
                             .font(Theme.mono(10, weight: .bold))
                             .foregroundStyle(Theme.playFg)
                             .padding(.horizontal, 16)
@@ -934,7 +945,7 @@ struct PanelView: View {
                     }
                     .buttonStyle(.plain)
                     .hoverDim()
-                    .help(t(.ocrOpenSettings))
+                    .help(t(.permAskAgain))
                 }
                 .padding(.top, 4)
             }

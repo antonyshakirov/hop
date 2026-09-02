@@ -26,8 +26,6 @@ final class KeyboardLockController: ObservableObject {
     @Published private(set) var isLocked = false
     /// Seconds left before the automatic unlock; nil when the timer is off.
     @Published private(set) var remaining: Int?
-    /// Accessibility has not been granted (macOS has just been asked).
-    @Published private(set) var needsPermission = false
     /// Esc + shift are held right now: the cover fills a bar over the five
     /// seconds so the hold is visibly doing something (Anton, 2026-07-26).
     @Published private(set) var chordHeld = false
@@ -98,7 +96,6 @@ final class KeyboardLockController: ObservableObject {
                 self.refuse(then)
                 return
             }
-            self.needsPermission = false
             self.isLocked = true
             self.remaining = self.duration > 0 ? self.duration : nil
             self.showOverlay()
@@ -131,7 +128,6 @@ final class KeyboardLockController: ObservableObject {
     }
 
     private func refuse(_ then: ((Bool) -> Void)?) {
-        needsPermission = true
         AccessibilityWatch.shared.reportBlocked()
         then?(false)
     }
@@ -254,10 +250,7 @@ final class KeyboardLockController: ObservableObject {
             eventsOfInterest: CGEventMask(mask),
             callback: callback,
             userInfo: Unmanaged.passUnretained(self).toOpaque()
-        ) else {
-            needsPermission = true
-            return false
-        }
+        ) else { return false }
         let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
         CFRunLoopAddSource(CFRunLoopGetCurrent(), source, .commonModes)
         CGEvent.tapEnable(tap: tap, enable: true)

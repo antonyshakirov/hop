@@ -2158,6 +2158,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   from the outside was the F row firing under the cover — the volume moving, do
   not disturb going on — because those are the only keys whose effect is visible
   while a full-screen cover holds the focus.
+- **The durations stay on the row whatever the permission is doing**, and a lock
+  that cannot start opens System Settings itself. The row used to swap its
+  figures for an "open settings" link, which left nothing to press — and
+  pressing is how you find out anything is wrong in the first place.
 - **A watchdog runs at 1 Hz for as long as the lock does**, endless locks
   included: the ticker is no longer only a countdown. `TapWatchdog.step` is
   given `CGEvent.tapIsEnabled` and whether last tick already re-armed it, and
@@ -2276,13 +2280,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   ever written true. `suppressionProven` is the keyboard lock's measurement,
   nil until one is made.
   - `.none` — nothing owed.
-  - `.missing` — never granted here. Asks for itself, and ONLY once a feature
-    has actually been stopped this run: Hop is a timer and a converter to plenty
-    of people, and a permission they never needed is not a banner.
-  - `.lost` — granted before, gone now. Says so without waiting for a feature to
-    fail, because an update that changes the signature takes it back and macOS
-    does not ask again on its own: its dialog appears only where no decision is
-    on file, and an old row counts as a decision.
+  - `.missing` — never granted here.
+  - `.lost` — granted before, gone now: an update that changes the signature
+    takes it back, and macOS does not ask again on its own, since its dialog
+    appears only where no decision is on file and an old row counts as one.
   - **Both of those say to remove Hop from the list and add it again, not
     merely to grant the permission** (Anton, 2026-09-02, from his own Mac). The
     switch and the permission are separate things: `AXIsProcessTrusted()`
@@ -2298,12 +2299,28 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     only the keyboard lock's probe can put the panel into it.
 - The banner sits ABOVE the release card in the panel chrome: a feature that has
   stopped working outranks news about features that have not. Title, one line of
-  body, and the System Settings deep link. Opening the panel re-reads the live
-  state, so coming back from System Settings clears it. `.stale` is the one
-  verdict re-reading cannot clear — macOS reports that state as granted both
-  before and after the repair — so a panel opened under a `.stale` banner has
-  `KeyboardLockController.remeasure()` take the measurement again, tap and probe
-  and all, without locking anything.
+  body, and two buttons — "ask again" and the System Settings deep link.
+- **NO state announces itself before something has actually been stopped by it**
+  (Anton, 2026-09-02), and the banner goes the moment the permission works
+  again. Hop is a timer and a converter to plenty of people, and a permission
+  they never needed is not news; a banner that outlives the repair is worse
+  still. Granting a permission tells the app nothing, so while an alert stands
+  `AccessibilityWatch` polls at 2 Hz-ish (every 2s) and stops the moment it
+  clears, which also clears `featureWasBlocked` and re-arms the one notice.
+  `.stale` is the one verdict re-reading cannot clear — macOS reports that state
+  as granted both before and after the repair — so a panel opened under a
+  `.stale` banner has `KeyboardLockController.remeasure()` take the measurement
+  again, tap and probe and all, without locking anything.
+- **"Ask again" is `tccutil reset <service> <bundle id>` followed by the app's
+  own request** (`PermissionRepair`). Opening System Settings is useless when
+  the row is already there with its switch on: there is nothing to press.
+  Dropping Hop's own row puts the decision back to "not made", and the request
+  that follows shows the real system dialog. Only ever from a button on a
+  feature that is refusing to work — it throws away whatever answer is on file,
+  which on a permission that is merely slow to be noticed is a step backwards.
+- Screen Recording gets the same repair on the SECOND refusal, not the first: a
+  first refusal can be a grant that has not taken effect yet, and that one is
+  famous for wanting a relaunch.
 - The zones and the paste report themselves when they are stopped. The zones
   also post a notification — they are used with the panel shut, so the banner
   alone would arrive far too late — one per run, never one per failed drag. The

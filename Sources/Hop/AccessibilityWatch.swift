@@ -16,6 +16,10 @@ final class AccessibilityWatch: ObservableObject {
 
     private var suppressionProven: Bool?
     private var noticeSent = false
+    /// Runs only while something is wrong. Granting the permission in System
+    /// Settings tells the app nothing, so a banner with no way of noticing the
+    /// repair sits there over a working feature (Anton, 2026-09-02).
+    private var poller: Timer?
 
     var showsBanner: Bool {
         AccessibilityVerdict.showsBanner(alert, featureWasBlocked: featureWasBlocked)
@@ -44,6 +48,26 @@ final class AccessibilityWatch: ObservableObject {
         // Only on a real change: the agent bridge re-reads this every 5s and an
         // unchanged republish would redraw the panel on that beat.
         if fresh != alert { alert = fresh }
+        // A permission that works again closes the case, notice included: the
+        // next thing to fail deserves to be heard as news.
+        if fresh == .none, featureWasBlocked {
+            featureWasBlocked = false
+            noticeSent = false
+        }
+        pollWhileBroken()
+    }
+
+    private func pollWhileBroken() {
+        let wanted = alert != .none && featureWasBlocked
+        guard wanted != (poller != nil) else { return }
+        poller?.invalidate()
+        poller = nil
+        guard wanted else { return }
+        let timer = Timer(timeInterval: 2, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.refresh() }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        poller = timer
     }
 
     func noteSuppression(proven: Bool) {
@@ -76,5 +100,11 @@ final class AccessibilityWatch: ObservableObject {
     func openSettings() {
         guard let url = URL(string: KeyboardLockController.privacySettingsURL) else { return }
         NSWorkspace.shared.open(url)
+    }
+
+    /// Drop the row macOS is answering from and ask properly, which is the only
+    /// move that reaches a switch already sitting in the position the user wants.
+    func askAgain() {
+        PermissionRepair.askAgain(.accessibility)
     }
 }

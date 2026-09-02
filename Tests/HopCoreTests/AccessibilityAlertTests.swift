@@ -63,9 +63,14 @@ final class AccessibilityAlertTests: XCTestCase {
         XCTAssertTrue(AccessibilityVerdict.showsBanner(.missing, featureWasBlocked: true))
     }
 
-    func testAPermissionTakenAwayIsAnnouncedWithoutWaiting() {
-        XCTAssertTrue(AccessibilityVerdict.showsBanner(.lost, featureWasBlocked: false))
-        XCTAssertTrue(AccessibilityVerdict.showsBanner(.stale, featureWasBlocked: false))
+    func testNoStateIsAnnouncedBeforeItStopsSomething() {
+        XCTAssertFalse(AccessibilityVerdict.showsBanner(.lost, featureWasBlocked: false))
+        XCTAssertFalse(AccessibilityVerdict.showsBanner(.stale, featureWasBlocked: false))
+    }
+
+    func testEveryBrokenStateIsAnnouncedOnceItDoes() {
+        XCTAssertTrue(AccessibilityVerdict.showsBanner(.lost, featureWasBlocked: true))
+        XCTAssertTrue(AccessibilityVerdict.showsBanner(.stale, featureWasBlocked: true))
     }
 
     // MARK: - The watchdog

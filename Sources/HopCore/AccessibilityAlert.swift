@@ -19,14 +19,11 @@ public enum AccessibilityVerdict {
         return suppressionProven == false ? .stale : .none
     }
 
-    /// Whether the panel carries the alert at the top.
+    /// Whether the panel carries the alert at the top. Never before something
+    /// has actually been stopped by it (Anton, 2026-09-02).
     public static func showsBanner(_ alert: AccessibilityAlert,
                                    featureWasBlocked: Bool) -> Bool {
-        switch alert {
-        case .none: return false
-        case .missing: return featureWasBlocked
-        case .lost, .stale: return true
-        }
+        alert != .none && featureWasBlocked
     }
 }
 

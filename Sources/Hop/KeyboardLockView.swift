@@ -24,19 +24,7 @@ struct KeyboardLockView: View {
                 // shrinking a hair beats an ellipsis in the middle of a name
                 .minimumScaleFactor(0.85)
             Spacer(minLength: 6)
-            if lock.needsPermission {
-                Button {
-                    if let url = URL(string: KeyboardLockController.privacySettingsURL) {
-                        NSWorkspace.shared.open(url)
-                    }
-                } label: {
-                    HoverLabel(text: L10n.t(.ocrOpenSettings, lang), size: 9,
-                               color: Theme.accentYellow)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .help(L10n.t(.ocrOpenSettings, lang))
-            } else if lock.isLocked {
+            if lock.isLocked {
                 if let remaining = lock.remaining {
                     Text(timeText(remaining))
                         .font(Theme.mono(11, weight: .semibold))
@@ -75,11 +63,13 @@ struct KeyboardLockView: View {
     private func durationChip(_ seconds: Int) -> some View {
         let isInfinity = seconds == 0
         return Button {
-            // The panel closes on the LOCK, never on the click. A lock that
-            // cannot start has to be able to say so, and there is nowhere to say
-            // it from once the panel is gone (Anton, 2026-09-02).
+            // The durations stay put whatever the permission is doing: a row
+            // that swaps its figures for a link has nothing left to press, and
+            // pressing IS how you find out something is wrong. The panel closes
+            // on the LOCK, never on the click, and a lock that cannot start
+            // opens System Settings itself (Anton, 2026-09-02).
             lock.lock(seconds: seconds) { locked in
-                if locked { closePanel() }
+                locked ? closePanel() : AccessibilityWatch.shared.openSettings()
             }
         } label: {
             Text(label(seconds))
