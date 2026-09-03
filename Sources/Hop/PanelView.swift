@@ -3566,7 +3566,10 @@ struct PanelView: View {
         case .hotkeys:
             page("command", t(.hotkeysLabel)) { hotkeysSection }
         case .permissions:
-            page("lock.shield", t(.permTab)) { PermissionsView(lang: lang) }
+            page("lock.shield", t(.permTab)) {
+                PermissionsView(lang: lang,
+                                removeLidRule: { model.keepAwake.removeLidRule() })
+            }
         case .updates:
             page("arrow.down.circle", t(.updatesLabel)) { updatesSection }
         case .guide:

@@ -219,6 +219,29 @@ final class KeepAwakeController: ObservableObject {
         // rights from scratch
     }
 
+    /// SPEC: docs/spec.md — "Lid mode without a password", taking the rule back.
+    static let lidRulePath = "/etc/sudoers.d/hop-pmset"
+
+    static var lidRuleInstalled: Bool {
+        if Snapshot.active { return CommandLine.arguments.contains("--revoke-row") }
+        return FileManager.default.fileExists(atPath: lidRulePath)
+    }
+
+    /// Restores sleep first and drops the rule second, under ONE password prompt:
+    /// removing the rule while `SleepDisabled` is 1 would leave a Mac that never
+    /// sleeps and no longer any way for Hop to change that without asking again.
+    func removeLidRule() {
+        guard !Snapshot.active, Self.lidRuleInstalled else { return }
+        let shell = "/usr/bin/pmset disablesleep 0 ; /bin/rm -f \(Self.lidRulePath)"
+        let source = "do shell script \"\(shell)\" with administrator privileges"
+        var error: NSDictionary?
+        NSAppleScript(source: source)?.executeAndReturnError(&error)
+        guard error == nil, !Self.lidRuleInstalled else { return }
+        lidApplied = false
+        UserDefaults.standard.set(false, forKey: "lidSleepAppliedPending")
+        updateLidDimmer()
+    }
+
     /// The dimmer only runs while lid mode is active: the machine stays awake
     /// with the lid closed, so the built-in backlight must be blanked by us.
     private func updateLidDimmer() {

@@ -2319,6 +2319,33 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   wall, and the page is scanned rather than studied. A seventh row — `restart` —
   joins them once something has been asked for in this run; see the restart under
   "A permission that goes missing says so".
+
+### Lid mode without a password
+
+- The closed-lid mode runs `pmset disablesleep`, which is root-only, so the first
+  use raises one macOS password prompt and installs
+  `/etc/sudoers.d/hop-pmset` — NOPASSWD strictly for `pmset disablesleep 0/1`,
+  validated by visudo. After that `sudo -n` carries it with no dialog ever again.
+- **The password row shows no state, deliberately.** Whether the next use will
+  ask cannot be read: `sudo -n -l <command>` answers success for anything the
+  policy allows at all, password or not (measured, 2026-09-03), and the only
+  exact test is running `pmset` itself, which a page redrawn every two seconds
+  must not do. What CAN be read is whether Hop's own rule is on disk
+  (`/etc/sudoers.d` is world-readable, Hop is not sandboxed), and that is used
+  only to offer the button below.
+- Hop's rule is not the only way the prompt can stay away: another app's rule for
+  the same command serves Hop just as well. Anton's Mac carried
+  `vorssaint-clamshell`, so the lid mode worked on the short path and Hop never
+  installed a rule of its own (2026-09-03). Nothing is wrong with that — if the
+  other rule goes, the next toggle asks once and installs Hop's.
+- **`revoke` gives it back** (`KeepAwakeController.removeLidRule`): where Hop's
+  own rule exists, the administrator-password row carries the button. It restores
+  sleep and deletes the rule under ONE prompt, in that order — dropping the rule
+  while `SleepDisabled` is 1 would leave a Mac that never sleeps and no way for
+  Hop to change it without asking again.
+- The rule cannot be removed on uninstall from inside the app: Hop is dragged to
+  the Trash and its code does not run at that moment. `brew uninstall --zap`
+  deletes it (the cask's `zap delete:`), and the button covers everyone else.
 - Live status where it can be checked: `AXIsProcessTrusted()`,
   `CGPreflightScreenCaptureAccess()`, `UNUserNotificationCenter` settings,
   `SMAppService.mainApp.status`. The notification query is skipped in a
@@ -3504,14 +3531,12 @@ its own database of known apps may do better on real software than it did here.
 
 ## Planned (approved by Anton, not done yet)
 
-1. **Lid without a password every time — IN PROGRESS in a second working
-   session** via sudoers: a one-time password entry installs the rule
-   `/etc/sudoers.d/hop-pmset` (NOPASSWD strictly for `pmset disablesleep 0/1`,
-   validated with visudo), after which `sudo -n` runs without dialogs.
-   The alternative (an SMAppService daemon + XPC) is deferred to avoid
-   maintaining two mechanisms. TODO for the sudoers path: remove the rule
-   when the feature is disabled or the app is deleted — the file in
-   /etc/sudoers.d won't disappear on its own.
+1. (done) **Lid without a password every time** via sudoers: a one-time password
+   entry installs the rule `/etc/sudoers.d/hop-pmset` (NOPASSWD strictly for
+   `pmset disablesleep 0/1`, validated with visudo), after which `sudo -n` runs
+   without dialogs. The alternative (an SMAppService daemon + XPC) is deferred to
+   avoid maintaining two mechanisms. See "Lid mode without a password" below for
+   how the rule is taken back.
 2. (done 2026-07-13) Icons in the documentation: DocView renders SF
    Symbols inline via the `{sym:name}` token in the translation string
    (engine in DocView.rich); icons accompany the transport, the clipboard

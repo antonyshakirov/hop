@@ -10,6 +10,8 @@ import UserNotifications
 /// from memory, and it stays that way: a new permission means a new row here.
 struct PermissionsView: View {
     let lang: AppLanguage
+    /// SPEC: docs/spec.md — "Lid mode without a password", taking the rule back.
+    var removeLidRule: () -> Void = {}
 
     /// Live state is read once per appearance; notifications answer asynchronously.
     @State private var notificationsGranted: Bool?
@@ -27,6 +29,8 @@ struct PermissionsView: View {
         let settingsURL: String?
         /// nil where nothing can be asked for from here.
         var grant: (() -> Void)?
+        /// Set where a permission already given can be taken back from here.
+        var revoke: (() -> Void)?
     }
 
     var body: some View {
@@ -111,7 +115,8 @@ struct PermissionsView: View {
                  settingsURL: "x-apple.systempreferences:com.apple.preference.notifications",
                  grant: { requestNotifications() }),
             Item(id: "admin", symbol: "lock", title: .permAdminTitle, body: .permAdminBody,
-                 granted: nil, settingsURL: nil),
+                 granted: nil, settingsURL: nil,
+                 revoke: KeepAwakeController.lidRuleInstalled ? removeLidRule : nil),
             Item(id: "login", symbol: "power", title: .permLoginTitle, body: .permLoginBody,
                  granted: Snapshot.active ? true : SMAppService.mainApp.status == .enabled,
                  settingsURL: nil,
@@ -202,7 +207,20 @@ struct PermissionsView: View {
     /// SPEC: docs/spec.md — "Permissions (settings window)", one trailing slot.
     @ViewBuilder
     private func trailing(_ item: Item) -> some View {
-        if item.granted == false, let grant = item.grant {
+        if let revoke = item.revoke {
+            Button(action: revoke) {
+                Text(L10n.t(.permRevoke, lang))
+                    .font(Theme.mono(10, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(L10n.t(.permRevoke, lang))
+            .hoverDim()
+        } else if item.granted == false, let grant = item.grant {
             Button(action: grant) {
                 Text(L10n.t(.permGrant, lang))
                     .font(Theme.mono(10, weight: .semibold))
