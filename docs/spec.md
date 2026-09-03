@@ -2316,7 +2316,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   ONLY — the eyedropper explicitly does not need it), notifications (timer +
   torrent done), administrator password (once, for closed-lid `pmset`), launch
   at login. Each body is one sentence: a paragraph per permission read as a
-  wall, and the page is scanned rather than studied.
+  wall, and the page is scanned rather than studied. A seventh row — `restart` —
+  joins them once something has been asked for in this run; see the restart under
+  "A permission that goes missing says so".
 - Live status where it can be checked: `AXIsProcessTrusted()`,
   `CGPreflightScreenCaptureAccess()`, `UNUserNotificationCenter` settings,
   `SMAppService.mainApp.status`. The notification query is skipped in a
@@ -2429,13 +2431,41 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   nothing, so the first press ended in "allow it in settings" pointing at a
   switch that was already on — which is exactly what Anton hit on 2026-09-02
   pressing the recognition hotkey. `askAgain` still asks once per run.
-- **One sweep on the first run of 2.0** (`PermissionRepair.sweepDeadRowsOnce`,
-  flag `permissionsSwept.2.0`): 1.9.1 changed the signature, so every Mac that
-  had granted anything before it carries rows macOS answers from that grant
-  nothing. The sweep drops such a row for Accessibility and Screen Recording so
-  the list tells the truth and the next request raises the real dialog. A
-  permission that is actually granted right now is LEFT ALONE — resetting a live
-  one would take a working feature away to fix nothing.
+- **Every permission is cleared once, on the first run of 1.10.0**
+  (`PermissionRepair.resetEverythingOnce`, `tccutil reset All <bundle id>`, flag
+  `permissionsReset.1.10.0`): 1.9.1 changed the signature, so a Mac that had
+  granted anything before it carries rows that answer for Hop and grant nothing,
+  and no API tells such a row apart from a working grant. Everything Hop can hold
+  goes — Accessibility, Screen Recording, Automation, files — and each one is
+  asked for again from scratch, which is the only way a request raises the real
+  dialog (Anton, 2026-09-03). Launch at login is NOT touched: it is a setting
+  rather than a permission, and clearing it would leave Hop silently not starting
+  in the morning. `AccessibilityWatch.forgetGrant()` drops the remembered grant
+  in the same breath, so what follows reads as `.missing` — never granted here —
+  rather than as `.lost`, whose wording sends people hunting in the list for a row
+  the reset removed.
+- The card that explains it is the release card for 1.10, whose button opens the
+  permissions page rather than the notes: the release took the permissions away,
+  and that page is where each one is given back. It is the one release card whose
+  `destination` is not `.updates`.
+- The cost, stated and accepted: somebody whose permissions worked has to grant
+  them again. A blanket reset was refused for 1.9.2 for exactly that reason and
+  taken for this release, because the alternative leaves everyone whose grant is
+  dead with no way to tell (Anton, 2026-09-03).
+- **A permission granted while Hop runs needs a restart, and the restart comes
+  back to the page** (`AppRelaunch`, Anton 2026-09-03). macOS answers a
+  permission question once per process, at launch: the switch goes on, the row
+  can even say "granted", and the running app still refuses. Restarting by hand
+  loses the settings window in the middle of granting the rest — which is exactly
+  when several permissions are being handed over one after another. So the
+  permissions page grows a `restart` row with a button, `AppRelaunch.now` writes
+  `reopenSettingsSection`, and the next launch opens the settings window on that
+  page. The relaunch itself is the updater's trick: a detached shell waits for
+  this process to die, then `open`s the bundle, because a plain `open` would only
+  activate the instance still running.
+- The restart row appears only once something has been asked for in this run
+  (`PermissionRepair.askedAnythingThisRun`) — a page opened to read what Hop uses
+  never carries it. `--restart-row` draws it for a snapshot.
 - The zones and the paste report themselves when they are stopped. The zones
   also post a notification — they are used with the panel shut, so the banner
   alone would arrive far too late — one per run, never one per failed drag. The
@@ -3131,6 +3161,12 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   repeats; `got it` only dismisses. Reaching a particular page needed
   `settingsSectionRequest` on the model, consumed once by the window, because the
   window remembers the page it was left on.
+
+  **A card whose release asks something of the user goes where that is done**
+  (Anton, 2026-09-03). The button carries the card's own `destination` and label
+  instead of always being "what's new" → updates: 1.10 cleared everybody's
+  permissions, so its button says `grant access` and lands on the permissions
+  page. Every other card keeps the notes as its destination.
 
   **A card's lines name what improved, never by how much** (Anton, 2026-08-30).
   The first cut of the vpn line read "changes colour at once instead of half a

@@ -55,6 +55,11 @@ final class AccessibilityWatch: ObservableObject {
         }
     }
 
+    /// SPEC: docs/spec.md — "A permission that goes missing says so", the 1.10.0 reset.
+    static func forgetGrant() {
+        UserDefaults.standard.removeObject(forKey: wasGrantedKey)
+    }
+
     func noteSuppression(proven: Bool) {
         suppressionProven = proven
         refresh()

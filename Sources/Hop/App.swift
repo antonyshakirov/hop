@@ -188,10 +188,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Agent without a Dock icon — including dev runs via `swift run`.
         NSApp.setActivationPolicy(.accessory)
 
-        // Rows left by the old signature grant nothing but still answer for Hop:
-        // dropped once here, so what the permission list shows is the truth and
-        // the next request raises the real dialog.
-        PermissionRepair.sweepDeadRowsOnce()
+        // SPEC: docs/spec.md — "A permission that goes missing says so", the 1.10.0 reset.
+        PermissionRepair.resetEverythingOnce()
 
         // So the first launch after an update that took the permission away
         // already knows it is gone.
@@ -416,6 +414,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         if !UserDefaults.standard.bool(forKey: "onboardingDone") {
             showOnboarding()
+        }
+
+        // SPEC: docs/spec.md — "A permission that goes missing says so", the restart.
+        if let section = AppRelaunch.pendingSettingsSection() {
+            model.settingsSectionRequest = section
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+                self?.showSettingsWindow()
+            }
         }
 
         // Launch finished: the model is built, the crash-loop guard has passed and

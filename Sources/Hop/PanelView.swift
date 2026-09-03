@@ -145,6 +145,7 @@ struct PanelView: View {
     /// Release card: read so SwiftUI re-renders the moment it is dismissed.
     @AppStorage("newsSeen.1.9") private var news19Seen = false
     @AppStorage("newsSeen.1.9.1") private var news191Seen = false
+    @AppStorage("newsSeen.1.10") private var news110Seen = false
     /// Whether THIS opening has already been counted against the card's two.
     @State private var releaseCardCounted = false
     // Two-step "what's new" card: step 1 = opt-in (enable/hide), step 2 = the
@@ -394,11 +395,16 @@ struct PanelView: View {
         /// `newsShown.<id>` and `newsFirstShown.<id>`.
         let id: String
         let lines: [L10nKey]
+        /// Where the card's main button leads, and what it says.
+        var destination: SettingsSelection = .updates
+        var action: L10nKey = .newsMore
     }
     private static let releaseCards: [ReleaseCard] = [
         .init(id: "1.9", lines: [.news19Tracker, .news19Presets, .news19Remux,
                                  .news19IWork, .news19Vpn]),
         .init(id: "1.9.1", lines: [.news191Signed, .news191Permissions]),
+        .init(id: "1.10", lines: [.news110Permissions, .news110Settings, .news110Lock],
+              destination: .permissions, action: .permGrant),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -424,6 +430,7 @@ struct PanelView: View {
         }
         _ = news19Seen   // read so SwiftUI re-renders when it flips
         _ = news191Seen
+        _ = news110Seen
         guard pendingAnnouncement == nil else { return nil }
         let defaults = UserDefaults.standard
         let state = Self.releaseCards.map { card in
@@ -486,7 +493,7 @@ struct PanelView: View {
                     Button {
                         openReleaseNotes(card)
                     } label: {
-                        Text(t(.newsMore))
+                        Text(t(card.action))
                             .font(Theme.mono(10, weight: .bold))
                             .foregroundStyle(Theme.playFg)
                             .padding(.horizontal, 16)
@@ -495,7 +502,7 @@ struct PanelView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .help(t(.newsMore))
+                    .help(t(card.action))
                 }
                 .padding(.top, 10)
             }
@@ -543,13 +550,15 @@ struct PanelView: View {
         UserDefaults.standard.set(true, forKey: Self.newsSeenKey(card.id))
         news19Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("1.9"))
         news191Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("1.9.1"))
+        news110Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("1.10"))
     }
 
     /// The full notes for the release, which are already written and already
-    /// translated — the card is a summary of what the updates page carries.
+    /// translated — the card is a summary of what the updates page carries. A
+    /// card whose release asks something of the user goes where that is done.
     private func openReleaseNotes(_ card: ReleaseCard) {
         markReleaseSeen(card)
-        model.settingsSectionRequest = SettingsSelection.updates.id
+        model.settingsSectionRequest = card.destination.id
         model.openSettingsWindow?()
     }
 

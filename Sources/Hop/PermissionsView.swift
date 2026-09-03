@@ -34,6 +34,7 @@ struct PermissionsView: View {
             ForEach(items) { item in
                 row(item)
             }
+            restartRow
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(alignment: .leading, spacing: 5) {
                 Text(L10n.t(.permNeverTitle, lang))
@@ -116,6 +117,45 @@ struct PermissionsView: View {
                  settingsURL: nil,
                  grant: { try? SMAppService.mainApp.register() }),
         ]
+    }
+
+    /// SPEC: docs/spec.md — "A permission that goes missing says so", the restart.
+    @ViewBuilder
+    private var restartRow: some View {
+        if Snapshot.active ? CommandLine.arguments.contains("--restart-row")
+                           : PermissionRepair.askedAnythingThisRun {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.textSecondary)
+                    .frame(width: 18, height: 24)
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 8) {
+                        Text(L10n.t(.permRestartTitle, lang))
+                            .font(Theme.mono(11, weight: .semibold))
+                            .foregroundStyle(Theme.textPrimary)
+                        Spacer(minLength: 6)
+                        Button { AppRelaunch.now(reopening: .permissions) } label: {
+                            Text(L10n.t(.permRestart, lang))
+                                .font(Theme.mono(10, weight: .semibold))
+                                .foregroundStyle(Theme.textPrimary)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 4)
+                                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .help(L10n.t(.permRestart, lang))
+                        .hoverDim()
+                    }
+                    .frame(height: 24)
+                    Text(L10n.t(.permRestartBody, lang))
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.docText)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
     }
 
     /// A refusal already on file raises no dialog, so that case goes to the pane.

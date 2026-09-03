@@ -20,6 +20,9 @@ enum PermissionRepair {
 
     private static var askedThisRun: Set<Service> = []
 
+    /// Whether anything has been asked for since Hop started.
+    static var askedAnythingThisRun: Bool { !askedThisRun.isEmpty }
+
     /// Once per run per service; `force` is a button the user pressed, which may
     /// ask as often as it is pressed.
     static func askAgain(_ service: Service, force: Bool = false) {
@@ -31,24 +34,27 @@ enum PermissionRepair {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { request(service) }
     }
 
-    /// SPEC: docs/spec.md — "A permission that goes missing says so", the 2.0 sweep.
-    static func sweepDeadRowsOnce() {
+    /// SPEC: docs/spec.md — "A permission that goes missing says so", the 1.10.0 reset.
+    static func resetEverythingOnce() {
         guard !Snapshot.active, let bundleID = Bundle.main.bundleIdentifier else { return }
         let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: sweepKey) else { return }
-        defaults.set(true, forKey: sweepKey)
-        for service in [Service.accessibility, .screenCapture] where !service.isGranted {
-            reset(service, bundleID: bundleID)
-        }
+        guard !defaults.bool(forKey: resetKey) else { return }
+        defaults.set(true, forKey: resetKey)
+        reset("All", bundleID: bundleID)
+        AccessibilityWatch.forgetGrant()
     }
 
-    /// Bumped by hand when a release must sweep again (a new signature).
-    private static let sweepKey = "permissionsSwept.2.0"
+    /// Bumped by hand when a release must clear permissions again.
+    private static let resetKey = "permissionsReset.1.10.0"
 
     private static func reset(_ service: Service, bundleID: String) {
+        reset(service.rawValue, bundleID: bundleID)
+    }
+
+    private static func reset(_ service: String, bundleID: String) {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
-        task.arguments = ["reset", service.rawValue, bundleID]
+        task.arguments = ["reset", service, bundleID]
         task.standardOutput = FileHandle.nullDevice
         task.standardError = FileHandle.nullDevice
         try? task.run()
