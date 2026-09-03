@@ -370,7 +370,7 @@ dipasang.
 Hop meminta izin hanya ketika fitur yang membutuhkannya benar-benar dipakai, dan
 jendela pengaturan aplikasi mendaftar semuanya beserta statusnya saat ini:
 
-- **jaringan — antonshakirov.com** — memeriksa dan mengunduh pembaruan, plus dua
+- **jaringan — hop.tools** — memeriksa dan mengunduh pembaruan, plus dua
   pembantu opsional (mesin torrent dan pengarsip 7-Zip)
 - **jaringan — torrent, tes kecepatan** — lalu lintas ke peer lain saat modul
   torrent aktif; tesnya memakai networkQuality bawaan macOS ke server Apple
@@ -385,7 +385,7 @@ jendela pengaturan aplikasi mendaftar semuanya beserta statusnya saat ini:
 
 Saat dibuka tidak ada yang diminta, dan tidak ada yang ditanyakan untuk modul yang
 belum kamu nyalakan. Tanpa analitik, tanpa telemetri, tanpa akun, tanpa laporan
-crash: antonshakirov.com dihubungi hanya untuk menanyakan apakah ada versi lebih
+crash: hop.tools dihubungi hanya untuk menanyakan apakah ada versi lebih
 baru — dan mengunduhnya, atau salah satu dari dua pembantu opsional, kalau kamu
 setuju. Sisanya tetap di Mac ini: riwayat papan klip, waktu yang tercatat, daftar
 tugas, teks hasil pengenalan, dan warna yang diambil.
@@ -395,6 +395,11 @@ lain. Kamu tidak perlu percaya begitu saja: Hop open source, dan kode yang
 mengumpulkan itu memang tidak ada — baca di repositori ini. Jendela pengaturan
 aplikasi punya bagian «izin aplikasi» dengan daftar yang sama dan status setiap
 izin saat ini.
+
+Pembaruan ke 1.10.0 menghapus semua izin sekali dan memintanya lagi. Izin
+melekat pada tanda tangan kode, dan tanda tangan Hop berubah saat Apple
+menandatanganinya: izin yang diberikan ke tanda tangan lama masih terdaftar
+tetapi tidak lagi berfungsi. Sejak 1.10.0 izin bertahan melewati pembaruan.
 
 Situs web: [hop.tools](https://hop.tools)
 

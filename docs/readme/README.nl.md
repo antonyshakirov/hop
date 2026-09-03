@@ -368,7 +368,7 @@ archieven en vóór installatie geverifieerd met een Ed25519-handtekening.
 Hop vraagt pas om een toestemming wanneer de functie die haar nodig heeft echt
 gebruikt wordt; het instellingenvenster van de app somt ze allemaal op met hun stand:
 
-- **netwerk — antonshakirov.com** — controleren op updates en ze downloaden, plus
+- **netwerk — hop.tools** — controleren op updates en ze downloaden, plus
   de twee optionele hulpjes (de torrent-engine en de 7-Zip-archiveerder)
 - **netwerk — torrents, snelheidstest** — verkeer met andere peers zolang de
   torrentmodule aanstaat; de test gebruikt macOS' eigen networkQuality tegen de
@@ -384,7 +384,7 @@ gebruikt wordt; het instellingenvenster van de app somt ze allemaal op met hun s
 
 Bij het starten wordt niets gevraagd, en niets wordt gevraagd voor een module die
 je niet hebt aangezet. Geen analytics, geen telemetrie, geen account, geen
-crashrapporten: antonshakirov.com wordt alleen benaderd om te vragen of er een
+crashrapporten: hop.tools wordt alleen benaderd om te vragen of er een
 nieuwere versie is — en om die, of een van de twee optionele helpers, te
 downloaden als jij ja zegt. Al het andere blijft op deze Mac: de
 klembordgeschiedenis, bijgehouden tijd, de takenlijst, herkende tekst en kleuren.
@@ -394,6 +394,11 @@ anders voor. Je hoeft dat niet te geloven: Hop is open source, en de code die
 zou moeten verzamelen bestaat er simpelweg niet — lees hem in deze repository.
 Het instellingenvenster van de app heeft een pagina «app-toestemmingen» met dezelfde lijst
 en de huidige stand van elke toestemming.
+
+Bijwerken naar 1.10.0 wist alle toestemmingen één keer en vraagt ze opnieuw.
+Een toestemming hoort bij een handtekening, en die van Hop veranderde toen
+Apple hem ondertekende: wat aan de oude handtekening was gegeven stond nog in
+de lijst maar werkte niet meer. Vanaf 1.10.0 overleven ze een update.
 
 Website: [hop.tools](https://hop.tools)
 

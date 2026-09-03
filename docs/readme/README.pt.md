@@ -364,7 +364,7 @@ da instalação.
 O Hop pede uma permissão só quando você usa o recurso que precisa dela, e a
 janela de informações lista todas com o estado atual:
 
-- **rede — antonshakirov.com** — procurar e baixar atualizações, mais os dois
+- **rede — hop.tools** — procurar e baixar atualizações, mais os dois
   ajudantes opcionais (motor de torrent e arquivador 7-Zip)
 - **rede — torrents, teste de velocidade** — tráfego com outros pares com o
   módulo de torrent ligado; o teste usa o networkQuality do macOS contra os
@@ -379,7 +379,7 @@ janela de informações lista todas com o estado atual:
 - **abrir ao iniciar sessão** — desligado até você ligar
 
 Nada é solicitado ao abrir, e nada é pedido por um módulo que você não ligou.
-Não há analytics, telemetria, contas nem relatórios de erro: o antonshakirov.com
+Não há analytics, telemetria, contas nem relatórios de erro: o hop.tools
 é contatado apenas para perguntar se existe uma versão mais nova — e para
 baixá-la, ou um dos dois ajudantes opcionais, se você concordar. Todo o resto
 fica neste Mac: o histórico da área de transferência, o tempo registrado, a
@@ -390,6 +390,11 @@ Não precisa acreditar na palavra: o Hop é open source, e o código que faria e
 coleta simplesmente não existe — leia neste repositório. A janela de ajustes
 do app tem uma seção «permissões do app» com a mesma lista e o estado atual de
 cada uma.
+
+Atualizar para 1.10.0 limpa todas as permissões uma vez e pede de novo. Uma
+permissão pertence a uma assinatura, e a do Hop mudou quando a Apple a
+assinou: as concedidas à assinatura antiga continuavam na lista mas já não
+funcionavam. A partir de 1.10.0 elas sobrevivem a uma atualização.
 
 Site: [hop.tools](https://hop.tools)
 

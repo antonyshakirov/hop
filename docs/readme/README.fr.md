@@ -379,7 +379,7 @@ signature Ed25519 avant l'installation.
 Hop ne demande une autorisation qu'au moment où la fonction concernée est
 vraiment utilisée ; la fenêtre des réglages les liste toutes avec leur état :
 
-- **réseau — antonshakirov.com** — chercher et télécharger les mises à jour,
+- **réseau — hop.tools** — chercher et télécharger les mises à jour,
   plus les deux outils optionnels (moteur torrent et archiveur 7-Zip)
 - **réseau — torrents, test de débit** — trafic vers les autres pairs quand le
   module torrent est activé ; le test utilise networkQuality de macOS vers les
@@ -395,7 +395,7 @@ vraiment utilisée ; la fenêtre des réglages les liste toutes avec leur état 
 
 Rien n'est demandé au lancement, et rien n'est demandé pour un module que tu n'as
 pas activé. Pas d'analytique, pas de télémétrie, pas de compte, pas de rapport de
-plantage : antonshakirov.com n'est contacté que pour demander s'il existe une
+plantage : hop.tools n'est contacté que pour demander s'il existe une
 version plus récente — et pour la télécharger, ou l'un des deux outils
 optionnels, si tu acceptes. Tout le reste reste sur ce Mac : l'historique du
 presse-papiers, le temps suivi, la liste de tâches, le texte reconnu, les
@@ -406,6 +406,11 @@ d'autre. Tu n'as pas à me croire sur parole : Hop est open source, le code qui
 collecterait n'existe tout simplement pas — lis-le dans ce dépôt. La fenêtre
 des réglages de l'app a une page « autorisations de l'app » avec la même
 liste et l'état actuel de chacune.
+
+La mise à jour vers 1.10.0 efface toutes les autorisations une fois et les
+redemande. Une autorisation appartient à une signature, et celle de Hop a
+changé quand Apple l'a signée : celles accordées à l'ancienne restaient dans la
+liste sans plus fonctionner. À partir de 1.10.0 elles survivent à une mise à jour.
 
 Site web : [hop.tools](https://hop.tools)
 

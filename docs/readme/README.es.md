@@ -370,7 +370,7 @@ archivos firmados y se verifican con una firma Ed25519 antes de instalarse.
 Hop pide un permiso solo cuando usas la función que lo necesita, y la ventana
 de información los enumera todos con su estado actual:
 
-- **red — antonshakirov.com** — buscar y descargar actualizaciones, más los dos
+- **red — hop.tools** — buscar y descargar actualizaciones, más los dos
   ayudantes opcionales (motor de torrents y archivador 7-Zip)
 - **red — torrents, test de velocidad** — tráfico con otros pares con el módulo
   de torrents activo; el test usa networkQuality de macOS contra los servidores
@@ -386,7 +386,7 @@ de información los enumera todos con su estado actual:
 
 Al arrancar no se pide nada, y nada se pide por un módulo que no hayas activado.
 No hay analítica, ni telemetría, ni cuentas, ni informes de fallos: se contacta
-con antonshakirov.com solo para preguntar si existe una versión más nueva, y
+con hop.tools solo para preguntar si existe una versión más nueva, y
 para descargarla —o uno de los dos ayudantes opcionales— si dices que sí. Todo
 lo demás se queda en este Mac: el historial del portapapeles, el tiempo
 registrado, la lista de tareas, el texto reconocido y los colores tomados.
@@ -396,6 +396,11 @@ más. No hace falta creerlo: Hop es de código abierto, y el código que tendrí
 que recopilar sencillamente no existe — léelo en este repositorio. La ventana de
 ajustes de la app tiene una sección «permisos de la app» con la misma lista
 y el estado actual de cada permiso.
+
+Actualizar a 1.10.0 borra todos los permisos una vez y los vuelve a pedir. Un
+permiso pertenece a una firma, y la de Hop cambió cuando Apple la firmó: los
+concedidos a la firma anterior seguían en la lista pero ya no funcionaban.
+Desde 1.10.0 sobreviven a una actualización.
 
 Sitio web: [hop.tools](https://hop.tools)
 

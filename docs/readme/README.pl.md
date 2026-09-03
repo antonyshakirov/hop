@@ -360,7 +360,7 @@ jako podpisane archiwa i przed instalacją weryfikowane podpisem Ed25519.
 Hop prosi o uprawnienie dopiero wtedy, gdy naprawdę używasz funkcji, która go
 potrzebuje; okno ustawień wymienia je wszystkie z bieżącym stanem:
 
-- **sieć — antonshakirov.com** — sprawdzanie i pobieranie aktualizacji oraz dwa
+- **sieć — hop.tools** — sprawdzanie i pobieranie aktualizacji oraz dwa
   opcjonalne pomocniki (silnik torrentów i archiwizator 7-Zip)
 - **sieć — torrenty, test prędkości** — ruch do innych użytkowników przy włączonym
   module torrentów; test używa systemowego networkQuality wobec serwerów Apple
@@ -375,7 +375,7 @@ potrzebuje; okno ustawień wymienia je wszystkie z bieżącym stanem:
 
 Przy starcie nie jest proszone o nic, i nic nie jest proszone dla modułu, którego
 nie włączyłeś. Bez analityki, bez telemetrii, bez kont, bez raportów awarii: z
-antonshakirov.com aplikacja łączy się tylko po to, by zapytać, czy jest nowsza
+hop.tools aplikacja łączy się tylko po to, by zapytać, czy jest nowsza
 wersja — i pobrać ją albo jednego z dwóch opcjonalnych pomocników, jeśli się
 zgodzisz. Cała reszta zostaje na tym Macu: historia schowka, zmierzony czas,
 lista zadań, rozpoznany tekst i pobrane kolory.
@@ -385,6 +385,11 @@ Nie musisz w to wierzyć: Hop jest open source, a kodu, który miałby cokolwiek
 zbierać, po prostu nie ma — przeczytaj go w tym repozytorium. Okno ustawień
 aplikacji ma sekcję «uprawnienia aplikacji» z tą samą listą i aktualnym stanem
 każdego z nich.
+
+Aktualizacja do 1.10.0 raz czyści wszystkie uprawnienia i prosi o nie ponownie.
+Uprawnienie należy do podpisu, a podpis Hopa zmienił się, gdy podpisało go
+Apple: nadane staremu podpisowi wciąż były na liście, ale już nie działały.
+Od 1.10.0 przetrwają aktualizację.
 
 Strona: [hop.tools](https://hop.tools)
 

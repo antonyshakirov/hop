@@ -359,7 +359,7 @@ imzalı arşivler olarak gelir ve kurulmadan önce Ed25519 imzasıyla doğrulan�
 Hop bir izni ancak onu gerektiren özelliği gerçekten kullandığında ister;
 uygulamanın ayarlar penceresi hepsini güncel durumlarıyla listeler:
 
-- **ağ — antonshakirov.com** — güncelleme aramak ve indirmek, ayrıca iki isteğe
+- **ağ — hop.tools** — güncelleme aramak ve indirmek, ayrıca iki isteğe
   bağlı yardımcı (torrent motoru ve 7-Zip arşivleyici)
 - **ağ — torrentler, hız testi** — torrent modülü açıkken diğer eşlerle trafik;
   hız testi macOS'un networkQuality aracıyla Apple sunucularına yapılır
@@ -372,7 +372,7 @@ uygulamanın ayarlar penceresi hepsini güncel durumlarıyla listeler:
 - **girişte aç** — sen açana kadar kapalı
 
 Açılışta hiçbir şey istenmez ve açmadığın bir modül için hiçbir şey sorulmaz.
-Analiz yok, telemetri yok, hesap yok, çökme raporu yok: antonshakirov.com'a
+Analiz yok, telemetri yok, hesap yok, çökme raporu yok: hop.tools'a
 yalnızca daha yeni bir sürüm olup olmadığını sormak için bağlanılır — ve kabul
 edersen onu ya da iki isteğe bağlı yardımcıdan birini indirmek için. Geri kalan
 her şey bu Mac'te kalır: pano geçmişi, tutulan süre, yapılacaklar listesi,
@@ -382,6 +382,11 @@ Yukarıdaki her izin, bir özellik çalışsın diye var — başka hiçbir şey
 Buna inanmak zorunda değilsin: Hop açık kaynak, toplayacak kod zaten yok — bu
 deposunda oku. Uygulamanın ayarlar penceresinde «uygulama izinleri» bölümü var:
 aynı liste ve her iznin güncel durumu.
+
+1.10.0'a güncellemek tüm izinleri bir kez siler ve yeniden ister. İzin bir kod
+imzasına bağlıdır ve Hop'unki Apple imzaladığında değişti: eski imzaya verilen
+izinler listede duruyordu ama artık çalışmıyordu. 1.10.0'dan itibaren
+güncellemeyi atlatırlar.
 
 Web sitesi: [hop.tools](https://hop.tools)
 

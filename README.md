@@ -377,7 +377,7 @@ torrent engine are delivered as signed archives and verified with an Ed25519
 signature before installing.
 
 The `downloads` badge at the top counts the click, not the person. The download
-button and the Homebrew formula go through antonshakirov.com, which writes the
+button and the Homebrew formula go through hop.tools, which writes the
 request to its web server log the way any site logs a page view and redirects to
 the file in the GitHub release. What the log keeps is a salted hash of the
 address, so two clicks from one machine count once and the address itself is
@@ -389,7 +389,7 @@ installed, and a copy that never asks for an update counts all the same.
 Hop asks for a permission only when the feature that needs it is actually used,
 and the settings window lists them all with their current state:
 
-- **network — antonshakirov.com** — update checks and downloads, plus the two
+- **network — hop.tools** — update checks and downloads, plus the two
   optional helpers (the torrent engine and the 7-Zip archiver)
 - **network — torrents, speed test** — peer traffic while the torrent module is
   on; the speed test runs macOS's own networkQuality against Apple's servers
@@ -403,7 +403,7 @@ and the settings window lists them all with their current state:
 
 Nothing is requested at launch, and nothing is asked for a module you have not
 turned on. There is no analytics, no telemetry, no account and no crash
-reporting: antonshakirov.com is contacted only to ask whether a newer version
+reporting: hop.tools is contacted only to ask whether a newer version
 exists — and to download it, or one of the two optional helpers, if you say yes.
 Everything else stays on this Mac: the clipboard history, tracked time, the
 to-do list, recognized text and picked colors.
@@ -413,6 +413,11 @@ do not have to take that on trust: Hop is open source, so the code that would
 have to do the collecting simply is not there — read it in this repository. The
 settings window has an "app permissions" page with the same list and each
 permission's current state.
+
+Updating to 1.10.0 clears every permission once and asks for it again. A
+permission belongs to a code signature, and Hop's changed when Apple signed it,
+so the ones granted to the old signature were listed but no longer worked. From
+1.10.0 on they survive an update.
 
 Website: [hop.tools](https://hop.tools)
 

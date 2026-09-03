@@ -354,7 +354,7 @@ có chữ ký và được xác minh bằng chữ ký Ed25519 trước khi cài 
 Hop chỉ xin quyền khi bạn thật sự dùng tính năng cần đến nó, và cửa sổ cài đặt
 của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
 
-- **mạng — antonshakirov.com** — kiểm tra và tải bản cập nhật, cùng hai trình hỗ
+- **mạng — hop.tools** — kiểm tra và tải bản cập nhật, cùng hai trình hỗ
   trợ tuỳ chọn (engine torrent và trình nén 7-Zip)
 - **mạng — torrent, đo tốc độ** — lưu lượng tới các peer khác khi bật mô-đun
   torrent; phép đo dùng networkQuality của macOS tới máy chủ Apple
@@ -367,7 +367,7 @@ của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
 
 Lúc khởi động không xin gì cả, và không xin gì cho một mô-đun bạn chưa bật.
 Không phân tích, không đo lường từ xa, không tài khoản, không báo cáo sự cố:
-antonshakirov.com chỉ được liên hệ để hỏi xem có phiên bản mới hay không — và để
+hop.tools chỉ được liên hệ để hỏi xem có phiên bản mới hay không — và để
 tải nó, hoặc một trong hai trợ thủ tuỳ chọn, nếu bạn đồng ý. Mọi thứ còn lại ở
 lại chiếc Mac này: lịch sử clipboard, thời gian đã ghi, danh sách việc cần làm,
 văn bản nhận được và những màu đã lấy.
@@ -376,6 +376,11 @@ Mọi quyền ở trên chỉ để một tính năng chạy được — không
 cần tin lời: Hop là mã nguồn mở, và đoạn mã để thu thập đơn giản là không tồn
 tại — hãy đọc trong kho này. Cửa sổ cài đặt của ứng dụng có trang «quyền của ứng
 dụng» với đúng danh sách này và trạng thái hiện tại của từng quyền.
+
+Cập nhật lên 1.10.0 xoá mọi quyền một lần và hỏi lại. Quyền gắn với chữ ký mã,
+mà chữ ký của Hop đã đổi khi Apple ký cho nó: những quyền cấp cho chữ ký cũ vẫn
+nằm trong danh sách nhưng không còn tác dụng. Từ 1.10.0 trở đi, quyền sống sót
+qua các bản cập nhật.
 
 Trang web: [hop.tools](https://hop.tools)
 

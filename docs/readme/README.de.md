@@ -375,7 +375,7 @@ verifiziert.
 Hop fragt eine Berechtigung erst dann ab, wenn die zugehörige Funktion wirklich
 benutzt wird; das Einstellungsfenster listet alle mit ihrem aktuellen Stand auf:
 
-- **Netzwerk — antonshakirov.com** — Updates suchen und laden, dazu die zwei
+- **Netzwerk — hop.tools** — Updates suchen und laden, dazu die zwei
   optionalen Helfer (Torrent-Engine und 7-Zip-Archivierer)
 - **Netzwerk — Torrents, Geschwindigkeitstest** — Verkehr zu anderen Teilnehmern
   bei eingeschaltetem Torrent-Modul; der Test nutzt macOS' networkQuality gegen
@@ -391,7 +391,7 @@ benutzt wird; das Einstellungsfenster listet alle mit ihrem aktuellen Stand auf:
 
 Beim Start wird nichts angefragt, und nichts wird für ein Modul verlangt, das du
 nicht eingeschaltet hast. Keine Analytics, keine Telemetrie, kein Account, keine
-Crash-Reports: antonshakirov.com wird nur kontaktiert, um zu fragen, ob es eine
+Crash-Reports: hop.tools wird nur kontaktiert, um zu fragen, ob es eine
 neuere Version gibt — und um sie oder einen der zwei optionalen Helfer zu laden,
 wenn du zustimmst. Alles andere bleibt auf diesem Mac: der Verlauf der
 Zwischenablage, erfasste Zeit, die Aufgabenliste, erkannter Text und Farben.
@@ -401,6 +401,11 @@ nichts sonst. Du musst das nicht glauben: Hop ist Open Source, den sammelnden
 Code gibt es schlicht nicht — lies ihn in diesem Repository. Im Einstellungsfenster der
 App gibt es den Bereich «App-Berechtigungen» mit derselben Liste und dem aktuellen
 Stand jeder einzelnen.
+
+Das Update auf 1.10.0 löscht alle Berechtigungen einmal und fragt sie neu ab.
+Eine Berechtigung gehört zu einer Signatur, und Hops Signatur wechselte, als
+Apple sie ausstellte: die der alten Signatur erteilten standen zwar in der
+Liste, wirkten aber nicht mehr. Ab 1.10.0 überstehen sie ein Update.
 
 Website: [hop.tools](https://hop.tools)
 
