@@ -239,7 +239,7 @@ final class UpdateChecker: ObservableObject {
                                   ?? json["sig"] as? String).flatMap(URL.init)
         else { return nil }
 
-        guard Self.isNewer(version, than: currentVersion) else { return nil }
+        guard UpdateFeed.isNewer(version, than: currentVersion) else { return nil }
         return ReleaseInfo(
             version: version,
             zipURL: zipURL,
@@ -317,15 +317,4 @@ final class UpdateChecker: ObservableObject {
         return process.terminationStatus
     }
 
-    /// Compare versions by numeric components: 1.2.10 > 1.2.9.
-    static func isNewer(_ candidate: String, than current: String) -> Bool {
-        let a = candidate.split(separator: ".").map { Int($0) ?? 0 }
-        let b = current.split(separator: ".").map { Int($0) ?? 0 }
-        for i in 0..<max(a.count, b.count) {
-            let x = i < a.count ? a[i] : 0
-            let y = i < b.count ? b[i] : 0
-            if x != y { return x > y }
-        }
-        return false
-    }
 }

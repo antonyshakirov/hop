@@ -40,4 +40,27 @@ final class UpdateFeedTests: XCTestCase {
         XCTAssertNil(UpdateFeed.checkURL(feed: "downloads/hop/latest.json", version: "1.4.0"))
         XCTAssertNil(UpdateFeed.checkURL(feed: "/downloads/hop/latest.json", version: "1.4.0"))
     }
+
+    // MARK: - Which of two versions is later
+
+    /// The release that made this worth a test of its own: every Mac on 1.9.1
+    /// updates to 1.10.0, and as text "1.10.0" sorts BELOW "1.9.1".
+    func testATwoDigitMinorIsNewerThanASingleDigitOne() {
+        XCTAssertTrue(UpdateFeed.isNewer("1.10.0", than: "1.9.1"))
+        XCTAssertFalse(UpdateFeed.isNewer("1.9.1", than: "1.10.0"))
+        XCTAssertTrue(UpdateFeed.isNewer("1.10.1", than: "1.10.0"))
+        XCTAssertTrue(UpdateFeed.isNewer("2.0.0", than: "1.10.0"))
+    }
+
+    func testTheSameVersionIsNotNewer() {
+        XCTAssertFalse(UpdateFeed.isNewer("1.10.0", than: "1.10.0"))
+        XCTAssertFalse(UpdateFeed.isNewer("1.10", than: "1.10.0"))
+    }
+
+    /// A build is never replaced on a version string that cannot be read.
+    func testAnythingThatIsNotAVersionIsNotNewer() {
+        XCTAssertFalse(UpdateFeed.isNewer("dev", than: "1.9.1"))
+        XCTAssertFalse(UpdateFeed.isNewer("", than: "1.9.1"))
+        XCTAssertFalse(UpdateFeed.isNewer("1.10.0", than: "nightly"))
+    }
 }

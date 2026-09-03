@@ -28,4 +28,15 @@ public enum UpdateFeed {
         components.queryItems = [URLQueryItem(name: "v", value: trimmed)]
         return components.url
     }
+
+    /// Whether the release being offered is later than the one running. Compared
+    /// as numbers per component, never as text: 1.10.0 stands above 1.9.1 while
+    /// the strings sort the other way round, and every Mac's update to 1.10.0
+    /// rides on that (Anton, 2026-09-03). Anything that is not a version answers
+    /// false — a build is not replaced on a reading nobody can make sense of.
+    public static func isNewer(_ candidate: String, than current: String) -> Bool {
+        guard let offered = ReleaseNews.Version(candidate),
+              let running = ReleaseNews.Version(current) else { return false }
+        return running < offered
+    }
 }

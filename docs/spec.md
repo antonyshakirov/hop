@@ -3696,6 +3696,13 @@ release time (on "publish"); dev builds don't touch the number.
 - Manifest: `https://www.antonshakirov.com/downloads/hop/latest.json`
   (version, zip, sig, critical, date); the archive and signature sit
   next to it.
+- Whether the manifest offers something newer is `UpdateFeed.isNewer`
+  (`UpdateFeedTests`), comparing the numbers rather than the text — 1.10.0 stands
+  above 1.9.1 while the strings sort the other way round, and every Mac's update
+  to 1.10.0 rides on it. It lives in HopCore beside `ReleaseNews.Version`, which
+  does the parsing, so the app and the release cards agree on what a version is.
+  A string that is not a version answers false: no build is replaced on a reading
+  nobody can make sense of.
 - Release: `scripts/release.sh X.Y.Z [--critical]` → files go into the
   website repo `public/downloads/hop/` (the `/hop/*` path is taken by the
   landing redirect) → commit + site deploy → `scripts/verify-release.sh
