@@ -433,6 +433,9 @@ final class StatusItemController: NSObject {
 
         menu.addItem(item(L10n.t(.menuOpen, lang).capitalizedFirst, #selector(menuOpenPanel)))
         menu.addItem(item(L10n.t(.settingsTitle, lang).capitalizedFirst, #selector(menuOpenSettings)))
+        // the same words the sidebar uses for those two pages: one screen, one name
+        menu.addItem(item(L10n.t(.guideTab, lang).capitalizedFirst, #selector(menuOpenGuide)))
+        menu.addItem(item(L10n.t(.aboutTitle, lang).capitalizedFirst, #selector(menuOpenAbout)))
         menu.addItem(.separator())
         menu.addItem(item(L10n.t(.menuQuit, lang).capitalizedFirst, #selector(menuQuit)))
 
@@ -451,6 +454,13 @@ final class StatusItemController: NSObject {
 
     @objc private func menuOpenPanel() { togglePopover(opening: .spaceContaining("timer")) }
     @objc private func menuOpenSettings() { model.openSettingsWindow?() }
+    @objc private func menuOpenGuide() { openSettings(at: .guide) }
+    @objc private func menuOpenAbout() { openSettings(at: .about) }
+
+    private func openSettings(at section: SettingsSelection) {
+        model.settingsSectionRequest = section.id
+        model.openSettingsWindow?()
+    }
     @objc private func menuQuit() { model.requestQuit?() }
     @objc private func menuStopEngine() { model.engine.reset() }
     @objc private func menuDisableAwake() { model.keepAwake.deactivate() }

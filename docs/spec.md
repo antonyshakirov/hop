@@ -2863,8 +2863,14 @@ converter (Anton, 2026-07-28).
 - Right-click on the icon — a system NSMenu in sentence case:
   DYNAMIC items on top based on active state ("Stop Timer"/
   "Stop Stopwatch" during a countdown, "Turn Off No Sleep" while awake is
-  active — they act without opening the panel), then Open / About /
-  Settings / Quit.
+  active — they act without opening the panel), then Open / Settings /
+  Handbook / About / Quit.
+- **The menu carries the handbook and about, not only settings** (Anton,
+  2026-09-03). Both open the settings window on their own page
+  (`settingsSectionRequest`), and both are labelled with the SAME string the
+  sidebar uses for that page — `guideTab` and `aboutTitle` — so one screen has
+  one name wherever it is reached from. They sit under Settings because all three
+  open the same window.
 - Launch at login — SMAppService.mainApp.
 
 ## Localization
