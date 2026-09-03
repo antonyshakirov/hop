@@ -207,12 +207,16 @@ JSON
 # Builds first, latest.json last: a manifest naming files the server does not
 # have yet sends every installed copy to a 404.
 cp dist/Hop.dmg dist/Hop-intel.dmg "$STAGE/"
-rsync -az --chmod=F644 \
+# Symbolic mode, not `F644`: macOS ships openrsync now, which refuses every
+# numeric form and takes this one. GNU rsync understands it too, so the script
+# runs the same on a machine that still has it (1.10.0 release, 2026-09-03).
+UPLOAD_MODE="u=rw,go=r"
+rsync -az --chmod="$UPLOAD_MODE" \
     "$ZIP" "$ZIP.sig" "$ZIP_INTEL" "$ZIP_INTEL.sig" \
     "$STAGE/Hop.dmg" "$STAGE/Hop-intel.dmg" \
     "$SITE_SSH:$SITE_DOWNLOADS/" \
     || { echo "upload of the builds failed"; exit 1 }
-rsync -az --chmod=F644 "$STAGE/latest.json" "$SITE_SSH:$SITE_DOWNLOADS/" \
+rsync -az --chmod="$UPLOAD_MODE" "$STAGE/latest.json" "$SITE_SSH:$SITE_DOWNLOADS/" \
     || { echo "upload of latest.json failed"; exit 1 }
 rm -rf "$STAGE"
 echo "uploaded to $SITE_SSH:$SITE_DOWNLOADS"
