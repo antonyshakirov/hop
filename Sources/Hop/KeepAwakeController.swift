@@ -232,7 +232,7 @@ final class KeepAwakeController: ObservableObject {
     /// sleeps and no longer any way for Hop to change that without asking again.
     func removeLidRule() {
         guard !Snapshot.active, Self.lidRuleInstalled else { return }
-        let shell = "/usr/bin/pmset disablesleep 0 ; /bin/rm -f \(Self.lidRulePath)"
+        let shell = "/usr/bin/pmset disablesleep 0 && /bin/rm -f \(Self.lidRulePath)"
         let source = "do shell script \"\(shell)\" with administrator privileges"
         var error: NSDictionary?
         NSAppleScript(source: source)?.executeAndReturnError(&error)
