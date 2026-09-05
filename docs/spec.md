@@ -195,7 +195,7 @@ identically on every user's bar.
 
 ## Onboarding
 
-A wizard, one thing per screen, in a 620×560 window that has no close button:
+A wizard, one thing per screen, in an 880×700 window that has no close button:
 onboarding is finished, not dismissed. It opens dead centre of the screen, and
 holds that position: `isRestorable` is off and the centring repeats on the next
 run-loop turn, because AppKit restores a titled window's last position and
@@ -248,8 +248,9 @@ code (`PanelView(previewModule:)`) and made unclickable. Not a screenshot: it
 follows the language and the theme picked two screens earlier without anything
 being re-rendered, and it cannot drift from what the panel actually looks like
 (Anton, 2026-09-05). **Every module gets its own picture, beside its own row**:
-a 170×86 thumbnail of that module, laid out at the panel's real 368pt and scaled
-down, so the row shows what the switch is about. One picture per screen said
+the module at the panel's real 368pt, cropped to 124 tall, so the row shows what
+the switch is about. Scaled down to a 170pt thumbnail first, it was a grey blur;
+the window grew instead. One picture per screen said
 nothing about the two modules under it. The tracker and the to-dos carry two
 sample rows (`onbSampleTask*`, ×22) — an empty list is a heading and nothing
 else.

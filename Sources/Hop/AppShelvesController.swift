@@ -22,10 +22,14 @@ final class AppShelvesController: ObservableObject {
     /// asking the workspace each time made the panel stutter.
     private var iconCache: [String: NSImage] = [:]
 
-    init() {
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    private let demo: Bool
+
+    init(demo: Bool = false) {
+        self.demo = demo
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         storeDir = base.appendingPathComponent(Bundle.storageIdentifier, isDirectory: true)
-        if Snapshot.active {
+        if Snapshot.active || demo {
             // Programs every Mac has, so a screenshot carries real icons rather
             // than an empty grid explaining how to fill it.
             let demo = ["/Applications/Safari.app", "/System/Applications/Mail.app",
@@ -93,7 +97,7 @@ final class AppShelvesController: ObservableObject {
     /// awkward drop target and nothing on screen said so — this is the path that
     /// can be found by looking at the module.
     func promptToAdd(to shelfID: UUID) {
-        guard !Snapshot.active else { return }
+        guard !Snapshot.active, !demo else { return }
         let panel = NSOpenPanel()
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
@@ -147,7 +151,7 @@ final class AppShelvesController: ObservableObject {
     /// Opens the app. If it has moved since it was parked, the bundle id finds it
     /// again and the shelf quietly updates its path rather than failing.
     func launch(_ item: ShelfItem, from shelfID: UUID) {
-        guard !Snapshot.active else { return }
+        guard !Snapshot.active, !demo else { return }
         let manager = FileManager.default
         var url = URL(fileURLWithPath: item.path)
         if !manager.fileExists(atPath: item.path) {
@@ -192,7 +196,7 @@ final class AppShelvesController: ObservableObject {
     }
 
     private func save() {
-        guard !Snapshot.active else { return }
+        guard !Snapshot.active, !demo else { return }
         do {
             try FileManager.default.createDirectory(at: storeDir, withIntermediateDirectories: true)
             let data = try JSONEncoder().encode(shelves)

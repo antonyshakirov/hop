@@ -627,8 +627,7 @@ enum Snapshot {
             // First-launch form (module choices incl. torrents) for design review.
             content = AnyView(
                 OnboardingView(updater: model.updater, shelves: model.appShelves, finish: {})
-                    .padding(20)
-                    .frame(width: 600)
+                    .frame(width: 880, height: 700)
                     .background(Theme.panelBackground)
             )
         } else {

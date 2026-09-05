@@ -987,7 +987,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // dismissed, and quitting only means it reopens on the same step
         // (Anton, 2026-09-05).
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 620, height: 560),
+            contentRect: NSRect(x: 0, y: 0, width: 880, height: 700),
             styleMask: [.titled, .fullSizeContentView],
             backing: .buffered, defer: false
         )

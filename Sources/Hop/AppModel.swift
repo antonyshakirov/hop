@@ -25,7 +25,7 @@ final class AppModel: ObservableObject {
     let keyboardLock = KeyboardLockController()
     let vpn: VPNController
     let uninstall = UninstallController()
-    let appShelves = AppShelvesController()
+    let appShelves: AppShelvesController
 
     /// Last time the user actively touched Hop. The updater installs a found
     /// release only after a long enough quiet gap (see UpdateInstallPolicy),
@@ -108,6 +108,7 @@ final class AppModel: ObservableObject {
         tracker = TrackerController(demo: preview)
         todos = TodosController(demo: preview)
         vpn = VPNController(demo: preview)
+        appShelves = AppShelvesController(demo: preview)
         colorPicker = ColorPickerController(clipboard: clipboard)
         screenText = ScreenTextController(clipboard: clipboard)
         if preview {

@@ -43,7 +43,7 @@ struct OnboardingView: View {
     static let appsChoice = "apps"
 
     /// Window height minus the footer.
-    private static let contentHeight: CGFloat = 470
+    private static let contentHeight: CGFloat = 600
 
     private var step: OnboardStep { OnboardStep.stored(stepIndex) }
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
@@ -53,7 +53,7 @@ struct OnboardingView: View {
         VStack(spacing: 0) {
             SnapshotAwareScroll {
                 content
-                    .frame(maxWidth: 520)
+                    .frame(maxWidth: 780)
                     .padding(.horizontal, 30)
                     .padding(.vertical, 30)
                     // A short screen sits in the middle of the window rather
@@ -64,7 +64,7 @@ struct OnboardingView: View {
             .frame(maxHeight: .infinity)
             footer
         }
-        .frame(minWidth: 620, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)
+        .frame(minWidth: 880, maxWidth: .infinity, minHeight: 700, maxHeight: .infinity)
         .background {
             Theme.panelBackground
             OnboardingBackdrop(focus: step == .welcome
@@ -287,12 +287,17 @@ struct OnboardingView: View {
     /// sits beside its row. `scaleEffect` does not change the layout size, so the
     /// panel is laid out at its real 368pt and then cropped to the tile.
     private func modulePreview(_ key: String) -> some View {
-        let width: CGFloat = 170
-        return PanelView(previewModules: [key])
+        // The panel's own width, unscaled: at 170pt the rows were a grey blur
+        // and said nothing about the module (Anton, 2026-09-05).
+        // "apps" is not a module key: the launcher exists as a shelf, so the
+        // preview asks the staged model for the one it made.
+        let drawn = key == Self.appsChoice
+            ? previewModel.appShelves.shelves.shelves.first.map { "apps:\($0.id.uuidString)" }
+            : key
+        return PanelView(previewModules: [drawn].compactMap { $0 })
             .environmentObject(previewModel)
             .frame(width: 368, alignment: .top)
-            .scaleEffect(width / 368, anchor: .topLeading)
-            .frame(width: width, height: 86, alignment: .topLeading)
+            .frame(width: 368, height: 124, alignment: .topLeading)
             .clipped()
             .background(Theme.background)
             .clipShape(RoundedRectangle(cornerRadius: 8))
