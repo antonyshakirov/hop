@@ -65,6 +65,8 @@ Hop підписано Apple Developer ID і завірено в Apple, тому
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Таймер і цикли">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### Трекер часу і справи
 
 Задачі можна зібрати в проєкти, у кожного своя сума, а перемикач над списком
@@ -91,6 +93,8 @@ Hop підписано Apple Developer ID і завірено в Apple, тому
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Трекер часу і справи">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### Заборона сну
 
 Не давайте Mac заснути 15 хвилин, 8 годин або назавжди — один клік, без
@@ -100,6 +104,8 @@ Hop підписано Apple Developer ID і завірено в Apple, тому
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Заборона сну">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### Системний монітор
 
@@ -114,6 +120,8 @@ macOS сама повідомляє про брак.
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Системний монітор">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### Історія буфера обміну
 
 Останні 100 (до 300) скопійованих елементів — текст, картинки й файли —
@@ -125,6 +133,8 @@ macOS сама повідомляє про брак.
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Історія буфера обміну">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### Конвертер файлів
 
@@ -146,6 +156,8 @@ WebM спершу перекладаються в MP4 (macOS їх не відк�
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Конвертер файлів">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### Менеджер вікон
 
 Розкладайте вікна по половинах, чвертях, третинах і по центру кліком на
@@ -154,6 +166,8 @@ WebM спершу перекладаються в MP4 (macOS їх не відк�
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Менеджер вікон">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### Торенти
 
@@ -169,6 +183,8 @@ WebM спершу перекладаються в MP4 (macOS їх не відк�
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Торенти Hop — легкий BitTorrent-клієнт у панелі в рядку меню">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### Архіви файлів
 
@@ -188,12 +204,16 @@ rar Hop розпаковує, але ніколи не створює — фор
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Архіви файлів">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### Документи
 
 Конвертер навчився документів: markdown → PDF з версткою самого Hop, файли
 Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у вигляді markdown —
 відскановану сторінку читає Vision від Apple. Нативно й офлайн, без вбудованого
 офісного пакета та без довантажень.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### Піпетка кольору
 
@@ -206,6 +226,8 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Піпетка кольору">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### Розпізнавання тексту
 
@@ -225,6 +247,10 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Розпізнавання тексту">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### Блокування клавіатури
 
 Натисніть 1, 5 або 15 хвилин — чи ∞ — і клавіатура цілком перестає відповідати,
@@ -239,6 +265,8 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Блокування клавіатури">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### Тест швидкості
 
 Один тап вимірює з'єднання засобами самого macOS (networkQuality, сервери Apple) — прийом, віддача та відгук, а останній результат лишається в рядку.
@@ -246,6 +274,8 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — тест швидкості">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### Іконка в рядку меню
 
@@ -286,6 +316,8 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — перемикачі VPN">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### Застосунки
 
 Сітка програм, які ви відкриваєте цілий день, — за один клік, без походу до теки
@@ -306,6 +338,8 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — сітка застосунків">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### Видалення програм
 
 Перетягніть застосунок на рядок або виберіть його зі списку всього встановленого — і він піде разом з тим, що лишив приблизно в тридцяти місцях: application support, кеші, налаштування, контейнери, launch agents, плагіни, чеки встановлення та решта. У списку в кожного застосунку написано, скільки він важить: сам бандл і його дані окремо. Застосунок, що вже лежить у кошику, теж розпізнається — ідентифікатор беруть із бандла в кошику або виводять з решток, які його називають.
@@ -321,6 +355,8 @@ Word (.docx, .doc, .rtf) → PDF або markdown і текст із PDF у ви�
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — очищення кешів, інсталяторів, решток і кошика">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 мови
 

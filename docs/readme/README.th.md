@@ -63,6 +63,8 @@ Hop เซ็นด้วย Apple Developer ID และผ่านการ�
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — ตัวจับเวลาและรอบทำงาน">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### ติดตามเวลาและสิ่งที่ต้องทำ
 
 งานสามารถจัดเข้ากลุ่มโปรเจกต์ได้ แต่ละกลุ่มมีผลรวมของตัวเอง
@@ -88,6 +90,8 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — ติดตามเวลาและสิ่งที่ต้องทำ">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### กันเครื่องหลับ
 
 ให้ Mac ตื่นอยู่ 15 นาที 8 ชั่วโมง หรือตลอดไป — คลิกเดียว
@@ -97,6 +101,8 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — กันเครื่องหลับ">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### มอนิเตอร์ระบบ
 
@@ -109,6 +115,8 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — มอนิเตอร์ระบบ">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### ประวัติคลิปบอร์ด
 
 100 รายการล่าสุดที่คุณคัดลอก (สูงสุด 300 รายการ) ทั้งข้อความ รูปภาพ และไฟล์
@@ -120,6 +128,8 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — ประวัติคลิปบอร์ด">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### ตัวแปลงไฟล์
 
@@ -141,6 +151,8 @@ xlsx และ pptx
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — ตัวแปลงไฟล์">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### ตัวจัดการหน้าต่าง
 
 จัดหน้าต่างให้ชิดครึ่งจอ หนึ่งในสี่ หนึ่งในสาม หรือกึ่งกลาง
@@ -149,6 +161,8 @@ xlsx และ pptx
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — ตัวจัดการหน้าต่าง">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### ทอร์เรนต์
 
@@ -165,6 +179,8 @@ xlsx และ pptx
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="ทอร์เรนต์ของ Hop — ไคลเอนต์ BitTorrent ตัวเบาในแผงบนแถบเมนู">
 </div>
 
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
+
 ### ไฟล์บีบอัด
 
 แถวของโมดูลจะเปิดหน้าต่างขึ้นมา และการวางไฟล์ทำในหน้าต่างนั้น — ⌘V ก็ใช้ได้ และวางได้หลายไฟล์พร้อมกัน
@@ -179,12 +195,16 @@ xlsx และ pptx
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — ไฟล์บีบอัด">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### เอกสาร
 
 ตัวแปลงไฟล์ทำเอกสารได้แล้ว: markdown → PDF จัดหน้าโดย Hop เอง, ไฟล์ Word
 (.docx, .doc, .rtf) → PDF หรือ markdown และดึงข้อความจาก PDF ออกมาเป็น markdown —
 หน้าที่สแกนมาจะอ่านด้วย Vision ของ Apple ทั้งหมดทำงานในเครื่องและออฟไลน์ ไม่มีชุด
 ออฟฟิศแถมมา และไม่ต้องดาวน์โหลดอะไร
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### หลอดดูดสี
 
@@ -195,6 +215,8 @@ xlsx และ pptx
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — หลอดดูดสี">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### การอ่านข้อความ
 
@@ -210,6 +232,10 @@ xlsx และ pptx
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — การอ่านข้อความ">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### ล็อกคีย์บอร์ด
 
 กด 1, 5 หรือ 15 นาที — หรือ ∞ — แล้วคีย์บอร์ดทั้งแผงจะไม่ตอบสนอง เช็ดได้โดยไม่ต้องปิดเครื่องหรือปิดฝา
@@ -221,6 +247,8 @@ xlsx และ pptx
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — ล็อกคีย์บอร์ด">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### ทดสอบความเร็ว
 
 แตะครั้งเดียวก็วัดการเชื่อมต่อด้วย networkQuality ของ macOS เองกับเซิร์ฟเวอร์ของ Apple — ดาวน์โหลด อัปโหลด และการตอบสนอง โดยผลล่าสุดค้างอยู่ในแถว
@@ -228,6 +256,8 @@ xlsx และ pptx
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — ทดสอบความเร็ว">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### ไอคอนบนแถบเมนู
 
@@ -258,6 +288,8 @@ Hop จะไม่เดาประเทศจากที่อยู่เ�
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — สวิตช์ VPN">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### แอป
 
 ตารางของโปรแกรมที่คุณเปิดทั้งวัน อยู่ห่างแค่คลิกเดียวโดยไม่ต้องเข้าโฟลเดอร์แอปกด + แล้วเลือก หรือลากมาจาก Finder แถวหนึ่งวางได้เก้าตัว สูงสุดแปดแถว
@@ -269,6 +301,8 @@ Hop จะไม่เดาประเทศจากที่อยู่เ�
 <div align="center">
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — ตารางแอป">
 </div>
+
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
 
 ### ลบแอป
 
@@ -285,6 +319,8 @@ Hop จะไม่เดาประเทศจากที่อยู่เ�
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — ล้างแคช ตัวติดตั้ง ของตกค้าง และถังขยะ">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 ภาษา
 

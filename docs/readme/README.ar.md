@@ -60,6 +60,8 @@
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — المؤقّت والدورات">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### متتبّع الوقت والمهام
 
 يمكن جمع المهام في مشاريع، لكل مشروع مجموعه، ومفتاح فوق القائمة يعرض اليوم أو
@@ -83,6 +85,8 @@ Hop تعديلاته أثناء التشغيل. كما ينفّذ Hop أوامر
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — متتبّع الوقت والمهام">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### منع النوم
 
 أبقِ الـ Mac مستيقظاً ربع ساعة أو ثماني ساعات أو إلى الأبد — بنقرة واحدة
@@ -92,6 +96,8 @@ Hop تعديلاته أثناء التشغيل. كما ينفّذ Hop أوامر
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — منع النوم">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### مراقب النظام
 
@@ -105,6 +111,8 @@ Hop تعديلاته أثناء التشغيل. كما ينفّذ Hop أوامر
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — مراقب النظام">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### سجل الحافظة
 
 آخر 100 (وحتى 300) شيء نسخته — نصوص وصور وملفات — بنقرة واحدة تعيده إلى
@@ -115,6 +123,8 @@ Hop تعديلاته أثناء التشغيل. كما ينفّذ Hop أوامر
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — سجل الحافظة">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### محوّل الملفات
 
@@ -134,6 +144,8 @@ HEIC و AVIF و WebP خروجاً؛ وضغط PDF؛ وتصغير فيديو HEVC 
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — محوّل الملفات">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### مدير النوافذ
 
 رصّ النوافذ في أنصاف وأرباع وأثلاث ووسط بنقرة على رمز المنطقة أو باختصار
@@ -142,6 +154,8 @@ HEIC و AVIF و WebP خروجاً؛ وضغط PDF؛ وتصغير فيديو HEVC 
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — مدير النوافذ">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### التورنت
 
@@ -155,6 +169,8 @@ magnet، واختر بالضبط أي الملفات تنزّل — قبل ال�
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="تورنت Hop — عميل BitTorrent خفيف في لوحة شريط القوائم">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### الأرشيفات
 
@@ -176,12 +192,16 @@ Hop تحمل أيقونته مع الصيغة مكتوبة عليها، فمجل
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — الأرشيفات">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### المستندات
 
 تعلّم المحوّل المستندات: markdown إلى PDF يخرجه Hop بنفسه، وملفات Word
 (‏.docx و .doc و .rtf) إلى PDF أو markdown، ونصّ الـ PDF يُستخرج بصيغة
 markdown — والصفحة الممسوحة تُقرأ بتقنية Vision من Apple. أصلي وبلا إنترنت،
 بلا حزمة مكتبية مرفقة وبلا شيء يُنزَّل.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### منتقي الألوان
 
@@ -193,6 +213,8 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — منتقي الألوان">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### التعرّف على النص
 
@@ -210,6 +232,10 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — التعرّف على النص">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### قفل لوحة المفاتيح
 
 انقر 1 أو 5 أو 15 دقيقة — أو ∞ — فتتوقف لوحة المفاتيح كلها عن الاستجابة،
@@ -223,6 +249,8 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — قفل لوحة المفاتيح">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### اختبار السرعة
 
 نقرة واحدة تقيس الاتصال عبر networkQuality الخاص بـmacOS مقابل خوادم Apple — التنزيل والرفع والاستجابة، وتبقى آخر نتيجة في السطر.
@@ -230,6 +258,8 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — اختبار السرعة">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### أيقونة شريط القوائم
 
@@ -261,6 +291,8 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — مفاتيح الشبكات الخاصة">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### التطبيقات
 
 شبكة تضم البرامج التي تفتحها طوال اليوم، على بعد نقرة واحدة دون المرور بمجلد
@@ -280,6 +312,8 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — شبكة التطبيقات">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### حذف التطبيقات
 
 أفلت تطبيقًا على السطر، أو اخترْه من قائمة كل ما هو مثبّت، فيذهب مع ما تركه في نحو ثلاثين موضعًا: application support، والذاكرات المؤقتة، والتفضيلات، والحاويات، وlaunch agents، والملحقات، وإيصالات التثبيت وسواها. كل تطبيق في القائمة يبيّن حجمه، الحزمة وبياناته على حدة. والتطبيق الموجود في سلة المهملات يُعرف أيضًا: يُقرأ معرّفه من الحزمة هناك، أو يُستنتج من البقايا التي تحمل اسمه.
@@ -295,6 +329,8 @@ hsl في عمود خاص — انقر واحدة من الثلاث فتُنسخ 
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — تنظيف الذاكرة المؤقتة وملفات التثبيت والبقايا وسلة المهملات">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 لغة
 

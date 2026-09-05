@@ -250,6 +250,8 @@ Wi-Fi password or a contact card stays plain text.
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
 
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### Keyboard lock
 
 Tap 1, 5 or 15 minutes — or ∞ — and the whole keyboard stops responding, so it

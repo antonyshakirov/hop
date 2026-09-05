@@ -67,6 +67,8 @@ sampai kamu mereset.
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Timer & siklus">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### Pelacak waktu & tugas
 
 Tugas bisa dikelompokkan ke proyek, masing-masing membawa jumlahnya sendiri,
@@ -97,6 +99,8 @@ berpengingat, atau membaca apa yang sedang berjalan. Lihat
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Pelacak waktu & tugas">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### Anti-tidur
 
 Jaga Mac tetap terjaga selama 15 menit, 8 jam, atau selamanya — sekali
@@ -107,6 +111,8 @@ layar eksternal).
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Anti-tidur">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### Monitor sistem
 
@@ -121,6 +127,8 @@ sendiri bilang sedang sesak.
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Monitor sistem">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### Riwayat clipboard
 
 100 hal terakhir yang kamu salin (hingga 300) — teks, gambar, dan file —
@@ -132,6 +140,8 @@ Kata sandi dan input tersembunyi lainnya tidak pernah disimpan.
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Riwayat clipboard">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### Konverter file
 
@@ -155,6 +165,8 @@ dan pptx.
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Konverter file">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### Pengelola jendela
 
 Tata jendela ke setengah, seperempat, sepertiga, dan tengah layar dengan
@@ -163,6 +175,8 @@ sekali klik pada glyph zona atau pintasan ⌃⌥ — tanpa aplikasi tambahan.
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Pengelola jendela">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### Torrent
 
@@ -178,6 +192,8 @@ Hop lewat port lokal. Hop juga bisa menjadi aplikasi bawaan untuk file
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Torrent Hop — klien BitTorrent ringan di panel menu bar">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### Arsip berkas
 
@@ -197,12 +213,16 @@ bekerja walau modulnya disembunyikan, dan kartunya menunjukkan keadaan asli. Kli
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Arsip berkas">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### Dokumen
 
 Konverter belajar dokumen: markdown → PDF yang ditata Hop sendiri, berkas Word
 (.docx, .doc, .rtf) → PDF atau markdown, dan teks dari PDF sebagai markdown —
 halaman pindaian dibaca oleh Vision milik Apple. Semuanya native dan offline,
 tanpa paket kantor bawaan dan tanpa unduhan.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### Pemilih warna
 
@@ -215,6 +235,8 @@ layar tidak diperlukan: lup hanya mengembalikan satu warna.
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Pemilih warna">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### Pengenalan teks
 
@@ -233,6 +255,10 @@ kata sandi Wi-Fi atau kartu kontak tetap teks biasa.
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Pengenalan teks">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### Kunci papan ketik
 
 Ketuk 1, 5, atau 15 menit — atau ∞ — dan seluruh papan ketik berhenti merespons,
@@ -246,6 +272,8 @@ tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Kunci papan ketik">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### Tes kecepatan
 
 Sekali ketuk, koneksi diukur lewat networkQuality bawaan macOS terhadap server Apple — unduh, unggah, dan responsivitas, dengan hasil terakhir tersimpan di barisnya.
@@ -253,6 +281,8 @@ Sekali ketuk, koneksi diukur lewat networkQuality bawaan macOS terhadap server A
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Tes kecepatan">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### Ikon di bilah menu
 
@@ -295,6 +325,8 @@ Titik itu bisa dimatikan di pengaturan; modul dan sakelarnya tetap bekerja.
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — Sakelar VPN">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### Aplikasi
 
 Kisi berisi program yang Anda buka sepanjang hari, sekali klik tanpa mampir ke
@@ -315,6 +347,8 @@ selamanya. Kisi baru mulai kosong dan mengatakannya sampai Anda mengisinya.
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — Kisi aplikasi">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### Menghapus aplikasi
 
 Jatuhkan aplikasi ke baris ini, atau pilih dari daftar semua yang terpasang, dan ia pergi bersama apa yang ditinggalkannya di sekitar tiga puluh tempat: application support, cache, preferensi, container, launch agents, plug-in, tanda terima pemasangan, dan selebihnya. Tiap aplikasi di daftar menunjukkan besarnya, bundel dan datanya terpisah. Aplikasi yang sudah ada di tempat sampah tetap dikenali: pengenalnya dibaca dari bundel di sana, atau disimpulkan dari sisa-sisa yang menyebut namanya.
@@ -330,6 +364,8 @@ Modul yang sama merapikan tanpa menghapus apa pun: setiap aplikasi yang menyimpa
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Membersihkan cache, pemasang, sisa, dan tempat sampah">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 bahasa
 

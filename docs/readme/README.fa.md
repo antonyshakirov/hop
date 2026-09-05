@@ -62,6 +62,8 @@ Hop در نوار منوی Mac می‌نشیند و جای مشتی ابزار �
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — تایمر و چرخه‌ها">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### ردیاب زمان و کارها
 
 کارها را می‌توان در پروژه‌ها گرد آورد، هر کدام با مجموع خودش، و کلید بالای
@@ -88,6 +90,8 @@ Hop در نوار منوی Mac می‌نشیند و جای مشتی ابزار �
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — ردیاب زمان و کارها">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### بی‌خوابی
 
 Mac را ۱۵ دقیقه، ۸ ساعت یا برای همیشه بیدار نگه دارید — یک کلیک، بدون
@@ -97,6 +101,8 @@ Mac را ۱۵ دقیقه، ۸ ساعت یا برای همیشه بیدار نگ�
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — بی‌خوابی">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### پایشگر سیستم
 
@@ -110,6 +116,8 @@ Mac را ۱۵ دقیقه، ۸ ساعت یا برای همیشه بیدار نگ�
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — پایشگر سیستم">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### تاریخچهٔ کلیپ‌بورد
 
 ۱۰۰ چیز آخر (تا ۳۰۰) که کپی کرده‌اید — متن، تصویر و پرونده — با یک کلیک به
@@ -121,6 +129,8 @@ Mac را ۱۵ دقیقه، ۸ ساعت یا برای همیشه بیدار نگ�
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — تاریخچهٔ کلیپ‌بورد">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### مبدل پرونده
 
@@ -142,6 +152,8 @@ youtube — قاب، وضوح و شدت فشرده‌سازی را مطابق ت
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — مبدل پرونده">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### مدیر پنجره
 
 پنجره‌ها را با یک کلیک روی نماد ناحیه یا با میان‌بر ⌃⌥ به نصف، ربع، یک‌سوم و
@@ -150,6 +162,8 @@ youtube — قاب، وضوح و شدت فشرده‌سازی را مطابق ت
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — مدیر پنجره">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### تورنت
 
@@ -164,6 +178,8 @@ magnet بچسبانید، دقیقاً همان پرونده‌هایی را ک�
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="تورنت Hop — کلاینت سبک BitTorrent در پنل نوار منو">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### بایگانی‌ها
 
@@ -188,12 +204,16 @@ magnet بچسبانید، دقیقاً همان پرونده‌هایی را ک�
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — بایگانی‌ها">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### سندها
 
 مبدل سندها را هم آموخت: markdown به PDF که Hop خودش می‌چیندش، پرونده‌های Word
 (‏.docx و .doc و .rtf) به PDF یا markdown، و متن PDF که همچون markdown بیرون
 کشیده می‌شود — صفحهٔ اسکن‌شده با Vision اپل خوانده می‌شود. بومی و آفلاین، بی
 هیچ مجموعهٔ اداری همراه و بی چیزی برای دانلود.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### انتخابگر رنگ
 
@@ -206,6 +226,8 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — انتخابگر رنگ">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### شناسایی متن
 
@@ -224,6 +246,10 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — شناسایی متن">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### قفل صفحه‌کلید
 
 ۱ یا ۵ یا ۱۵ دقیقه — یا ∞ — را بزنید و تمام صفحه‌کلید از پاسخ می‌ایستد، تا
@@ -237,6 +263,8 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — قفل صفحه‌کلید">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### آزمون سرعت
 
 یک ضربه، اتصال را با networkQuality خودِ macOS در برابر سرورهای Apple می‌سنجد — دریافت، ارسال و پاسخ‌دهی، و آخرین نتیجه در همان ردیف می‌ماند.
@@ -244,6 +272,8 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — آزمون سرعت">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### نماد نوار منو
 
@@ -276,6 +306,8 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — کلیدهای VPN">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### برنامه‌ها
 
 شبکه‌ای از برنامه‌هایی که تمام روز باز می‌کنید — تنها یک کلیک، بدون سر زدن به
@@ -296,6 +328,8 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — شبکهٔ برنامه‌ها">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### حذف برنامه‌ها
 
 برنامه‌ای را روی این ردیف رها کنید یا از فهرست همهٔ نصب‌شده‌ها انتخاب کنید تا همراه آنچه در حدود سی جا گذاشته برود: application support، حافظه‌های موقت، تنظیمات، کانتینرها، launch agents، افزونه‌ها، رسیدهای نصب و باقی. هر برنامه در فهرست اندازه‌اش را نشان می‌دهد، خود برنامه و داده‌ها جدا. برنامه‌ای که پیشتر در سطل زباله است هم شناخته می‌شود: شناسه‌اش از بستهٔ همان‌جا خوانده می‌شود یا از باقی‌مانده‌هایی که نامش را دارند استنتاج می‌شود.
@@ -311,6 +345,8 @@ hex و rgb و hsl در ستون خودش — روی یکی از این سه بز
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — پاک‌سازی حافظهٔ موقت، نصب‌کننده‌ها، باقی‌مانده‌ها و سطل زباله">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## ۲۲ زبان
 

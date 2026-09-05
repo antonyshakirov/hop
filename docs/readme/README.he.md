@@ -60,6 +60,8 @@ macOS 14 ומעלה.
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — טיימר ומחזורים">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### מעקב זמן ומשימות
 
 אפשר לקבץ משימות לפרויקטים, לכל אחד סכום משלו, ומתג מעל הרשימה מציג את היום,
@@ -83,6 +85,8 @@ macOS 14 ומעלה.
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — מעקב זמן ומשימות">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### בלי שינה
 
 השאירו את ה-Mac ער ל-15 דקות, ל-8 שעות או לתמיד — לחיצה אחת, בלי סיסמה.
@@ -92,6 +96,8 @@ macOS 14 ומעלה.
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — בלי שינה">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### מוניטור מערכת
 
@@ -105,6 +111,8 @@ macOS 14 ומעלה.
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — מוניטור מערכת">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### היסטוריית לוח
 
 ‏100 הדברים האחרונים (ועד 300) שהעתקתם — טקסטים, תמונות וקבצים — לחיצה אחת
@@ -115,6 +123,8 @@ macOS 14 ומעלה.
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — היסטוריית לוח">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### ממיר קבצים
 
@@ -134,6 +144,8 @@ macOS 14 ומעלה.
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — ממיר קבצים">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### מנהל חלונות
 
 הצמידו חלונות לחצאים, רבעים, שלישים ולמרכז בלחיצה על סמל אזור או בקיצור
@@ -142,6 +154,8 @@ macOS 14 ומעלה.
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — מנהל חלונות">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### טורנטים
 
@@ -155,6 +169,8 @@ magnet כברירת מחדל.
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="טורנטים ב-Hop — לקוח BitTorrent קל בלוח שבשורת התפריטים">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### ארכיונים
 
@@ -176,12 +192,16 @@ magnet כברירת מחדל.
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — ארכיונים">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### מסמכים
 
 הממיר למד מסמכים: ‏markdown ל-PDF שמעומד על ידי Hop עצמו, קובצי Word
 (‏.docx, ‏.doc, ‏.rtf) ל-PDF או ל-markdown, וטקסט של PDF שנשלף כ-markdown —
 עמוד סרוק נקרא עם Vision של Apple. מקורי ואופליין, בלי חבילת אופיס מצורפת
 ובלי מה להוריד.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### בוחר צבעים
 
@@ -193,6 +213,8 @@ magnet כברירת מחדל.
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — בוחר צבעים">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### זיהוי טקסט
 
@@ -209,6 +231,10 @@ magnet כברירת מחדל.
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — זיהוי טקסט">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### נעילת מקלדת
 
 הקישו 1, 5 או 15 דקות — או ∞ — וכל המקלדת מפסיקה להגיב, כדי שאפשר יהיה לנגב
@@ -221,6 +247,8 @@ magnet כברירת מחדל.
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — נעילת מקלדת">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### בדיקת מהירות
 
 הקשה אחת מודדת את החיבור באמצעות networkQuality של macOS מול השרתים של Apple — הורדה, העלאה ותגובתיות, והתוצאה האחרונה נשארת בשורה.
@@ -228,6 +256,8 @@ magnet כברירת מחדל.
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — בדיקת מהירות">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### הסמל בשורת התפריטים
 
@@ -260,6 +290,8 @@ Hop לעולם לא מנחש מדינה לפי כתובת השרת: מרשם ה�
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — מתגי VPN">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### אפליקציות
 
 רשת של התוכנות שאתם פותחים כל היום — במרחק לחיצה, בלי לעבור דרך תיקיית היישומים.
@@ -278,6 +310,8 @@ Hop לעולם לא מנחש מדינה לפי כתובת השרת: מרשם ה�
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — רשת אפליקציות">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### הסרת אפליקציות
 
 גררו אפליקציה לשורה, או בחרו אותה מרשימת כל המותקן, והיא הולכת יחד עם מה שהשאירה בכשלושים מקומות: application support, מטמונים, העדפות, קונטיינרים, launch agents, תוספים, קבלות התקנה והשאר. כל אפליקציה ברשימה מציינת כמה היא תופסת, האפליקציה והנתונים בנפרד. אפליקציה שכבר באשפה מזוהה גם היא: המזהה נקרא מהחבילה שם, או מוסק מהשאריות שנושאות את שמה.
@@ -293,6 +327,8 @@ Hop לעולם לא מנחש מדינה לפי כתובת השרת: מרשם ה�
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — ניקוי מטמונים, קובצי התקנה, שאריות והאשפה">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 שפות
 

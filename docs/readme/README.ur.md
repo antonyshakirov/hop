@@ -61,6 +61,8 @@ Hop آپ کے Mac کے مینو بار میں رہتا ہے اور مٹھی بھ
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — ٹائمر اور سائیکل">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### وقت کا حساب اور کام
 
 کاموں کو پروجیکٹس میں جمع کیا جا سکتا ہے، ہر ایک کا اپنا مجموعہ، اور فہرست کے
@@ -88,6 +90,8 @@ Hop آپ کے Mac کے مینو بار میں رہتا ہے اور مٹھی بھ
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — وقت کا حساب اور کام">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### نیند نہیں
 
 Mac کو ۱۵ منٹ، ۸ گھنٹے یا ہمیشہ کے لیے جگائے رکھیں — ایک کلک، بغیر پاس ورڈ
@@ -97,6 +101,8 @@ Mac کو ۱۵ منٹ، ۸ گھنٹے یا ہمیشہ کے لیے جگائے رک
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — نیند نہیں">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### سسٹم مانیٹر
 
@@ -111,6 +117,8 @@ Mac کو ۱۵ منٹ، ۸ گھنٹے یا ہمیشہ کے لیے جگائے رک
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — سسٹم مانیٹر">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### کلپ بورڈ کی تاریخ
 
 آخری ۱۰۰ (اور ۳۰۰ تک) چیزیں جو آپ نے کاپی کیں — متن، تصاویر اور فائلیں — ایک
@@ -122,6 +130,8 @@ Mac کو ۱۵ منٹ، ۸ گھنٹے یا ہمیشہ کے لیے جگائے رک
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — کلپ بورڈ کی تاریخ">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### فائل کنورٹر
 
@@ -144,6 +154,8 @@ docx، xlsx اور pptx میں۔
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — فائل کنورٹر">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### ونڈو منیجر
 
 ونڈوز کو آدھے، چوتھائی، تہائی اور درمیان میں جمائیں — علاقے کے نشان پر ایک
@@ -152,6 +164,8 @@ docx، xlsx اور pptx میں۔
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — ونڈو منیجر">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### ٹورنٹ
 
@@ -166,6 +180,8 @@ magnet لنکس کے لیے طے شدہ ایپ بھی بن سکتا ہے۔
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop ٹورنٹ — مینو بار پینل میں ہلکا BitTorrent کلائنٹ">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### آرکائیو
 
@@ -190,12 +206,16 @@ Finder میں آرکائیو پر ڈبل کلک اسے فائل کے بالکل 
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — آرکائیو">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### دستاویزات
 
 کنورٹر نے دستاویزات بھی سیکھ لیں: markdown سے PDF جسے Hop خود ترتیب دیتا ہے،
 Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور PDF کا متن markdown
 کے طور پر نکالا ہوا — اسکین شدہ صفحہ Apple کے Vision سے پڑھا جاتا ہے۔ مقامی
 اور آف لائن، بغیر کسی ساتھ آنے والے آفس سوٹ کے اور بغیر کچھ ڈاؤن لوڈ کیے۔
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### رنگ چننے والا
 
@@ -208,6 +228,8 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — رنگ چننے والا">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### متن کی شناخت
 
@@ -226,6 +248,10 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — متن کی شناخت">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### کی بورڈ لاک
 
 ۱، ۵ یا ۱۵ منٹ — یا ∞ — پر ضرب لگائیں اور پورا کی بورڈ جواب دینا بند کر دیتا
@@ -239,6 +265,8 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — کی بورڈ لاک">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### رفتار کی جانچ
 
 ایک ٹیپ میں macOS کا اپنا networkQuality، Apple کے سرورز کے مقابل کنکشن ناپتا ہے — ڈاؤن لوڈ، اپ لوڈ اور ردِعمل، اور آخری نتیجہ اسی قطار میں رہ جاتا ہے۔
@@ -246,6 +274,8 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — رفتار کی جانچ">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### مینو بار کا آئیکن
 
@@ -279,6 +309,8 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — وی پی این سوئچ">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### ایپس
 
 دن بھر کھلنے والے پروگرام ایک گرڈ میں — ایپلیکیشنز فولڈر تک گئے بغیر، ایک کلک کی
@@ -299,6 +331,8 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — ایپس کی گرڈ">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### ایپ ہٹانا
 
 ایپ کو اس قطار پر چھوڑیں، یا نصب شدہ سب کی فہرست سے چنیں — وہ اُن تیس کے قریب جگہوں پر چھوڑی چیزوں سمیت چلی جاتی ہے: application support، کیش، ترجیحات، کنٹینر، launch agents، پلگ اِن، تنصیب کی رسیدیں اور باقی سب۔ فہرست میں ہر ایپ بتاتی ہے کہ وہ کتنی جگہ لیتی ہے، ایپ اور ڈیٹا الگ الگ۔ جو ایپ پہلے ہی ردی میں ہے وہ بھی پہچانی جاتی ہے: شناخت وہیں پڑے بنڈل سے پڑھی جاتی ہے، یا اُن باقیات سے اخذ کی جاتی ہے جو اُس کا نام لیتی ہیں۔
@@ -314,6 +348,8 @@ Word فائلیں (‏.docx، ‏.doc، ‏.rtf) سے PDF یا markdown، اور
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — کیش، انسٹالر، باقیات اور ردی کی صفائی">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## ۲۲ زبانیں
 

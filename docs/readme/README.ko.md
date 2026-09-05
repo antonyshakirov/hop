@@ -61,6 +61,8 @@ Hop은 Apple Developer ID로 서명되고 Apple의 공증을 받았습니다. ma
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — 타이머와 사이클">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### 시간 추적과 할 일
 
 작업은 프로젝트로 묶을 수 있고 각각 합계가 붙습니다. 목록 위 스위치로 오늘·이번 주·전체를 고릅니다. 진행 중인 작업은 지금의 구간을
@@ -84,6 +86,8 @@ Hop이 알려줍니다 — '다시 알림'과 '완료'가 있는 배너, 소리,
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — 시간 추적과 할 일">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### 잠자기 방지
 
 Mac을 15분, 8시간, 혹은 영원히 깨어 있게 — 클릭 한 번, 암호는 필요
@@ -93,6 +97,8 @@ Mac을 15분, 8시간, 혹은 영원히 깨어 있게 — 클릭 한 번, 암호
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — 잠자기 방지">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### 시스템 모니터
 
@@ -105,6 +111,8 @@ CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, �
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — 시스템 모니터">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### 클립보드 히스토리
 
 최근에 복사한 100개(최대 300개)의 항목 — 텍스트, 이미지, 파일 — 을 클릭 한
@@ -115,6 +123,8 @@ CPU와 GPU의 부하와 온도, 메모리와 스왑, 네트워크, 디스크, �
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — 클립보드 히스토리">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### 파일 변환기
 
@@ -129,6 +139,8 @@ PDF, 또는 docx·xlsx·pptx.
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — 파일 변환기">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### 창 관리자
 
 존 글리프를 클릭하거나 ⌃⌥ 단축키를 누르면 창을 절반, 4분의 1, 3분의 1,
@@ -137,6 +149,8 @@ PDF, 또는 docx·xlsx·pptx.
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — 창 관리자">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### 토렌트
 
@@ -151,6 +165,8 @@ magnet 링크를 붙여넣고, 내려받을 파일을 정확히 골라 보세요
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop 토렌트 — 메뉴 막대 패널의 가벼운 BitTorrent 클라이언트">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### 파일 압축
 
@@ -167,12 +183,16 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — 파일 압축">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### 문서
 
 변환기가 문서를 익혔습니다. markdown → PDF는 Hop이 직접 조판하고, Word
 파일(.docx, .doc, .rtf) → PDF 또는 markdown, PDF의 본문을 markdown으로 뽑아낼
 수도 있습니다. 스캔한 페이지는 Apple의 Vision이 읽습니다. 전부 네이티브에
 오프라인이며, 내장 오피스도 추가 다운로드도 없습니다.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### 색상 스포이트
 
@@ -183,6 +203,8 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — 색상 스포이트">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### 텍스트 인식
 
@@ -198,6 +220,10 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — 텍스트 인식">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### 키보드 잠금
 
 1분, 5분, 15분 — 또는 ∞ — 를 누르면 키보드 전체가 반응하지 않아, Mac을 끄거나 덮개를 닫지 않고도
@@ -209,6 +235,8 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — 키보드 잠금">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### 속도 테스트
 
 한 번 누르면 macOS 자체의 networkQuality가 Apple 서버를 상대로 회선을 잽니다. 내려받기, 올리기, 응답성이 나오고 마지막 결과는 줄에 남습니다.
@@ -216,6 +244,8 @@ rar은 서드파티 앱에서 도로 가져올 수 있습니다. zip, 7z과 기�
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — 속도 테스트">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### 메뉴 막대 아이콘
 
@@ -249,6 +279,8 @@ Mac이 아는 모든 VPN을, 어느 회사 것이든 각각 스위치와 함께.
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — VPN 스위치">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### 앱
 
 하루 종일 여는 프로그램을 격자에 모아 두면 응용 프로그램 폴더를 거치지 않고 한 번의 클릭으로 열립니다. + 를 눌러 고르거나 Finder에서
@@ -265,6 +297,8 @@ Mac이 아는 모든 VPN을, 어느 회사 것이든 각각 스위치와 함께.
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — 앱 격자">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### 앱 삭제
 
 앱을 이 줄에 끌어다 놓거나 설치된 목록에서 고르면, 서른 곳쯤에 남긴 것까지 함께 사라집니다: application support, 캐시, 환경설정, 컨테이너, launch agents, 플러그인, 설치 영수증 등. 목록의 각 앱에는 크기가 적혀 있습니다(본체와 데이터를 나눠서). 이미 휴지통에 있는 앱도 알아봅니다. 식별자는 휴지통 속 번들에서 읽거나, 그 이름을 담은 잔여물에서 추론합니다.
@@ -280,6 +314,8 @@ Mac이 아는 모든 VPN을, 어느 회사 것이든 각각 스위치와 함께.
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — 캐시·설치 파일·잔여물·휴지통 정리">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22개 언어
 

@@ -65,6 +65,8 @@ Hop は Apple Developer ID で署名され、Apple の公証を受けていま�
 <img src="https://hop.tools/screens/ja/timer.webp" width="420" alt="Hop — タイマーとサイクル">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### タイムトラッカーとやること
 
 タスクはプロジェクトにまとめられ、それぞれに合計が付きます。
@@ -90,6 +92,8 @@ Hop が知らせます——「スヌーズ」と「完了」付きのバナー�
 <img src="https://hop.tools/screens/ja/tracker.webp" width="420" alt="Hop — タイムトラッカーとやること">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### スリープ防止
 
 Mac を 15 分、8 時間、あるいはずっと起こしておく——ワンクリック、
@@ -100,6 +104,8 @@ Mac を 15 分、8 時間、あるいはずっと起こしておく——ワン�
 <div align="center">
 <img src="https://hop.tools/screens/ja/awake.webp" width="420" alt="Hop — スリープ防止">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### システムモニター
 
@@ -112,6 +118,8 @@ CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク�
 <img src="https://hop.tools/screens/ja/system.webp" width="420" alt="Hop — システムモニター">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### クリップボード履歴
 
 コピーした直近 100 件（最大 300 件）を、テキストも画像もファイルも保持。
@@ -123,6 +131,8 @@ CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク�
 <div align="center">
 <img src="https://hop.tools/screens/ja/clipboard.webp" width="420" alt="Hop — クリップボード履歴">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### ファイル変換
 
@@ -140,6 +150,8 @@ PDF、または docx・xlsx・pptx です。
 <img src="https://hop.tools/screens/ja/converter.webp" width="480" alt="Hop — ファイル変換">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### ウィンドウ管理
 
 ゾーングリフをクリックするか ⌃⌥ ホットキーを押すだけで、ウィンドウを
@@ -148,6 +160,8 @@ PDF、または docx・xlsx・pptx です。
 <div align="center">
 <img src="https://hop.tools/screens/ja/windows.webp" width="420" alt="Hop — ウィンドウ管理">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### トレント
 
@@ -164,6 +178,8 @@ PDF、または docx・xlsx・pptx です。
 <img src="https://hop.tools/screens/ja/torrents.webp" width="420" alt="Hop トレント — メニューバーパネルの軽量 BitTorrent クライアント">
 </div>
 
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
+
 ### ファイルアーカイブ
 
 モジュールの行がウインドウを開き、ドロップはそのウインドウで行います。⌘V も使え、複数ファイルもまとめて
@@ -179,12 +195,16 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 <img src="https://hop.tools/screens/ja/archives.webp" width="480" alt="Hop — ファイルアーカイブ">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### 書類
 
 コンバータが書類に対応しました。markdown → PDF は Hop 自身が組版し、Word ファイル
 （.docx、.doc、.rtf）→ PDF または markdown、PDF の本文を markdown として抽出
 できます。スキャンされたページは Apple の Vision が読み取ります。すべてネイティブ
 かつオフラインで、オフィススイートの同梱も追加ダウンロードもありません。
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### カラーピッカー
 
@@ -195,6 +215,8 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 <div align="center">
 <img src="https://hop.tools/screens/ja/colors.webp" width="420" alt="Hop — カラーピッカー">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### 文字認識
 
@@ -210,6 +232,10 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 <img src="https://hop.tools/screens/ja/recognition.webp" width="480" alt="Hop — 文字認識">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### キーボードロック
 
 1・5・15 分、または ∞ を押すとキーボード全体が反応しなくなり、Mac を切ったりふたを閉じたりせずに
@@ -221,6 +247,8 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 <img src="https://hop.tools/screens/ja/keyboard.webp" width="480" alt="Hop — キーボードロック">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### 速度テスト
 
 ワンタップで、macOS 自身の networkQuality が Apple のサーバー相手に回線を測ります。下り・上り・応答性が出て、最後の結果は行に残ります。
@@ -228,6 +256,8 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 <div align="center">
 <img src="https://hop.tools/screens/ja/speed.webp" width="420" alt="Hop — 速度テスト">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### メニューバーのアイコン
 
@@ -261,6 +291,8 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 <img src="https://hop.tools/screens/ja/vpn.webp" width="420" alt="Hop — VPN スイッチ">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### アプリ
 
 一日じゅう開くプログラムをグリッドに。アプリケーションフォルダまで行かずにワンクリックで開けます。+ を押して選ぶか、Finder からドラッグしてください。横に九つ、最大八段まで入ります。
@@ -272,6 +304,8 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 <div align="center">
 <img src="https://hop.tools/screens/ja/apps.webp" width="420" alt="Hop — アプリの格子">
 </div>
+
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
 
 ### アプリの削除
 
@@ -288,6 +322,8 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 <div align="center">
 <img src="https://hop.tools/screens/ja/clean.webp" width="480" alt="Hop — キャッシュ・インストーラ・残骸・ゴミ箱を片づける">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 言語
 

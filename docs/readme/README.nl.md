@@ -66,6 +66,8 @@ geluid en knipperen de cijfers tot je reset.
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Timer & cycli">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### Tijdregistratie & taken
 
 Taken kunnen in projecten worden gegroepeerd, elk met een eigen som, en een
@@ -95,6 +97,8 @@ toevoegen of lezen wat er draait. Zie
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Tijdregistratie & taken">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### Geen slaap
 
 Houd de Mac 15 minuten, 8 uur of voor altijd wakker — één klik, geen
@@ -104,6 +108,8 @@ wachtwoord. Laat optioneel het scherm aan, of werk door met het deksel dicht
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Geen slaap">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### Systeemmonitor
 
@@ -118,6 +124,8 @@ verhuisd, en niet pas als macOS zelf krapte meldt.
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Systeemmonitor">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### Klembordgeschiedenis
 
 De laatste 100 (tot 300) dingen die je kopieerde — tekst, afbeeldingen en
@@ -129,6 +137,8 @@ Wachtwoorden en andere verborgen invoer worden nooit opgeslagen.
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Klembordgeschiedenis">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### Bestandsconverter
 
@@ -152,6 +162,8 @@ en pptx.
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Bestandsconverter">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### Vensterbeheer
 
 Klik vensters vast op helften, kwarten, derden en het midden via een
@@ -160,6 +172,8 @@ zonesymbool of een ⌃⌥-sneltoets — geen extra app nodig.
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Vensterbeheer">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### Torrents
 
@@ -175,6 +189,8 @@ poort met Hop praat. Hop kan ook de standaardapp worden voor
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop-torrents — lichte BitTorrent-client in het menubalkpaneel">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### Bestandsarchieven
 
@@ -194,12 +210,16 @@ werkt ook met een verborgen module, en de kaart toont de echte stand. Dubbelklik
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Bestandsarchieven">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### Documenten
 
 De converter kan nu documenten: markdown → PDF, opgemaakt door Hop zelf,
 Word-bestanden (.docx, .doc, .rtf) → PDF of markdown, en de tekst uit een PDF als
 markdown — een gescande pagina wordt gelezen door Vision van Apple. Native en
 offline, zonder meegeleverd officepakket en zonder downloads.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### Kleurenpipet
 
@@ -212,6 +232,8 @@ voor schermopname is niet nodig: de loep geeft één kleur terug.
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Kleurenpipet">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### Tekstherkenning
 
@@ -231,6 +253,10 @@ gewone tekst.
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Tekstherkenning">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### Toetsenbordslot
 
 Tik 1, 5 of 15 minuten — of ∞ — en het hele toetsenbord reageert niet meer, zodat
@@ -245,6 +271,8 @@ want dat regelt de hardware.
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Toetsenbordslot">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### Snelheidstest
 
 Eén tik meet de verbinding met macOS' eigen networkQuality tegen Apples servers — down, up en reactiesnelheid, en het laatste resultaat blijft in de rij staan.
@@ -252,6 +280,8 @@ Eén tik meet de verbinding met macOS' eigen networkQuality tegen Apples servers
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Snelheidstest">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### Het icoon in de menubalk
 
@@ -296,6 +326,8 @@ De stip kun je in de instellingen uitzetten — de module en de schakelaars werk
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — VPN-schakelaars">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### Apps
 
 Een raster met de programma's die je de hele dag opent — één klik weg, zonder
@@ -317,6 +349,8 @@ verwijdert. Een nieuw raster begint leeg en zegt dat ook, tot je het vult.
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — App-raster">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### Apps verwijderen
 
 Sleep een app op de rij, of kies hem uit de lijst van alles wat geïnstalleerd is, en hij gaat mét wat hij op een stuk of dertig plekken achterliet: application support, caches, voorkeuren, containers, launch agents, plug-ins, installatiebonnetjes en de rest. Elke app in de lijst toont hoeveel hij weegt, de app en zijn gegevens apart. Een app die al in de prullenmand ligt wordt ook herkend: de identifier komt uit het pakket dat daar staat, of wordt afgeleid uit de resten die hem noemen.
@@ -332,6 +366,8 @@ Dezelfde module ruimt op zonder iets te verwijderen: elke app die een cache aanh
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Caches, installers, resten en de prullenmand opruimen">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 talen
 

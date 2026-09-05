@@ -69,6 +69,8 @@ seul son retentit et les chiffres clignotent jusqu'à la réinitialisation.
 <img src="https://hop.tools/screens/fr/timer.webp" width="420" alt="Hop — Minuteur et cycles">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### Suivi du temps et tâches
 
 Les tâches se regroupent en projets, chacun portant sa propre somme, et un
@@ -99,6 +101,8 @@ tâche avec rappel ou lire ce qui tourne. Voir
 <img src="https://hop.tools/screens/fr/tracker.webp" width="420" alt="Hop — Suivi du temps et tâches">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### Anti-veille
 
 Gardez le Mac éveillé pendant 15 minutes, 8 heures ou pour toujours — un
@@ -109,6 +113,8 @@ longues compilations et les écrans externes).
 <div align="center">
 <img src="https://hop.tools/screens/fr/awake.webp" width="420" alt="Hop — Anti-veille">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### Moniteur système
 
@@ -124,6 +130,8 @@ quand macOS signale lui-même une tension.
 <img src="https://hop.tools/screens/fr/system.webp" width="420" alt="Hop — Moniteur système">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### Historique du presse-papiers
 
 Les 100 derniers éléments copiés (jusqu'à 300) — texte, images et fichiers —
@@ -135,6 +143,8 @@ mots de passe et autres saisies masquées ne sont jamais enregistrés.
 <div align="center">
 <img src="https://hop.tools/screens/fr/clipboard.webp" width="420" alt="Hop — Historique du presse-papiers">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### Convertisseur de fichiers
 
@@ -158,6 +168,8 @@ en docx, xlsx et pptx.
 <img src="https://hop.tools/screens/fr/converter.webp" width="480" alt="Hop — Convertisseur de fichiers">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### Gestionnaire de fenêtres
 
 Ancrez les fenêtres en moitiés, quarts, tiers et au centre d'un clic sur un
@@ -166,6 +178,8 @@ glyphe de zone ou avec un raccourci ⌃⌥ — sans app supplémentaire.
 <div align="center">
 <img src="https://hop.tools/screens/fr/windows.webp" width="420" alt="Hop — Gestionnaire de fenêtres">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### Torrents
 
@@ -181,6 +195,8 @@ défaut pour les fichiers .torrent et les liens magnet.
 <div align="center">
 <img src="https://hop.tools/screens/fr/torrents.webp" width="420" alt="Torrents Hop — client BitTorrent léger dans le panneau de la barre de menus">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### Archives de fichiers
 
@@ -200,12 +216,16 @@ Utilitaire d'archive. Ça marche avec le module masqué, et la carte affiche l'�
 <img src="https://hop.tools/screens/fr/archives.webp" width="480" alt="Hop — Archives de fichiers">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### Documents
 
 Le convertisseur sait faire des documents : markdown → PDF composé par Hop
 lui-même, fichiers Word (.docx, .doc, .rtf) → PDF ou markdown, et le texte d'un
 PDF en markdown — une page scannée est lue par Vision d'Apple. Natif et hors
 ligne, sans suite bureautique embarquée ni téléchargement.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### Pipette à couleurs
 
@@ -219,6 +239,8 @@ une seule couleur.
 <div align="center">
 <img src="https://hop.tools/screens/fr/colors.webp" width="420" alt="Hop — Pipette à couleurs">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### Reconnaissance de texte
 
@@ -238,6 +260,10 @@ ou une carte de visite restent du texte.
 <img src="https://hop.tools/screens/fr/recognition.webp" width="480" alt="Hop — Reconnaissance de texte">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### Verrou clavier
 
 Appuie sur 1, 5 ou 15 minutes — ou ∞ — et tout le clavier cesse de répondre,
@@ -252,6 +278,8 @@ matériel qui s'en charge.
 <img src="https://hop.tools/screens/fr/keyboard.webp" width="480" alt="Hop — Verrou clavier">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### Test de débit
 
 Une touche mesure la connexion avec le networkQuality de macOS, contre les serveurs d'Apple — descente, montée et réactivité, le dernier résultat restant dans la ligne.
@@ -259,6 +287,8 @@ Une touche mesure la connexion avec le networkQuality de macOS, contre les serve
 <div align="center">
 <img src="https://hop.tools/screens/fr/speed.webp" width="420" alt="Hop — Test de débit">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### L'icône de la barre des menus
 
@@ -303,6 +333,8 @@ Le point peut être désactivé dans les réglages : le module et ses interrupte
 <img src="https://hop.tools/screens/fr/vpn.webp" width="420" alt="Hop — Interrupteurs VPN">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### Apps
 
 Une grille avec les programmes que vous ouvrez toute la journée, à un clic et
@@ -326,6 +358,8 @@ vous ne l'avez pas remplie.
 <img src="https://hop.tools/screens/fr/apps.webp" width="420" alt="Hop — Grille d'apps">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### Supprimer des apps
 
 Déposez une app sur la ligne, ou choisissez-la dans la liste de tout ce qui est installé : elle part avec ce qu'elle a laissé dans une trentaine d'endroits — application support, caches, préférences, conteneurs, launch agents, modules, reçus et le reste. Chaque app de la liste indique son poids, le paquet et ses données séparément. Une app déjà à la corbeille est reconnue quand même : son identifiant vient du paquet qui s'y trouve, ou se déduit des restes qui le nomment.
@@ -341,6 +375,8 @@ Le même module fait le ménage sans rien supprimer : chaque app qui garde un ca
 <div align="center">
 <img src="https://hop.tools/screens/fr/clean.webp" width="480" alt="Hop — Vider caches, installeurs, restes et corbeille">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 langues
 

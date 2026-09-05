@@ -65,6 +65,8 @@ cho đến khi bạn đặt lại.
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Hẹn giờ & chu kỳ">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### Theo dõi thời gian & việc cần làm
 
 Công việc có thể gom vào dự án, mỗi dự án mang tổng riêng, và công tắc phía
@@ -91,6 +93,8 @@ chạy. Xem [docs/automation.md](../automation.md).
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Theo dõi thời gian & việc cần làm">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### Chống ngủ
 
 Giữ máy Mac luôn thức trong 15 phút, 8 giờ hoặc mãi mãi — một cú nhấp,
@@ -101,6 +105,8 @@ ngoài).
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Chống ngủ">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### Giám sát hệ thống
 
@@ -114,6 +120,8 @@ xuống đĩa, chứ không chỉ khi macOS tự báo đang chật vật.
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Giám sát hệ thống">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### Lịch sử clipboard
 
 100 mục bạn sao chép gần nhất (tối đa 300) — văn bản, hình ảnh và tệp — một
@@ -125,6 +133,8 @@ chính tệp đó quay lại. Mật khẩu và các nội dung nhập ẩn khác
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Lịch sử clipboard">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### Chuyển đổi tệp
 
@@ -146,6 +156,8 @@ loạt: ra PDF, hoặc docx, xlsx và pptx.
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Chuyển đổi tệp">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### Quản lý cửa sổ
 
 Sắp cửa sổ vào nửa màn hình, một phần tư, một phần ba và chính giữa bằng
@@ -155,6 +167,8 @@ nào khác.
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Quản lý cửa sổ">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### Torrent
 
@@ -170,6 +184,8 @@ magnet.
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Torrent trong Hop — trình BitTorrent gọn nhẹ trong bảng điều khiển trên thanh menu">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### Kho nén tệp
 
@@ -187,12 +203,16 @@ và các định dạng gốc vẫn thuộc Archive Utility. Nó chạy cả khi
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Kho nén tệp">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### Tài liệu
 
 Bộ chuyển đổi đã biết làm tài liệu: markdown → PDF do chính Hop dàn trang, tệp
 Word (.docx, .doc, .rtf) → PDF hoặc markdown, và trích văn bản của PDF ra
 markdown — trang quét được đọc bằng Vision của Apple. Tất cả đều chạy trong máy
 và ngoại tuyến, không kèm bộ ứng dụng văn phòng, không phải tải gì thêm.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### Ống hút màu
 
@@ -204,6 +224,8 @@ chọn, và không cần quyền ghi màn hình: kính lúp chỉ trả về m�
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Ống hút màu">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### Nhận dạng văn bản
 
@@ -221,6 +243,10 @@ Wi-Fi hay danh thiếp vẫn là văn bản thường.
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Nhận dạng văn bản">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### Khoá bàn phím
 
 Bấm 1, 5 hoặc 15 phút — hoặc ∞ — và cả bàn phím ngừng phản hồi, để lau mà không
@@ -234,6 +260,8 @@ cứng.
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Khoá bàn phím">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### Kiểm tra tốc độ
 
 Một chạm là đo đường truyền bằng chính networkQuality của macOS, đối với máy chủ của Apple — tải xuống, tải lên và độ phản hồi, kết quả cuối cùng ở lại trong hàng.
@@ -241,6 +269,8 @@ Một chạm là đo đường truyền bằng chính networkQuality của macOS
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Kiểm tra tốc độ">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### Biểu tượng trên thanh trình đơn
 
@@ -282,6 +312,8 @@ Chấm này có thể tắt trong cài đặt; mô-đun và các công tắc v�
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — Công tắc VPN">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### Ứng dụng
 
 Một lưới các chương trình bạn mở suốt ngày, chỉ một cú nhấp mà không phải vào
@@ -302,6 +334,8 @@ trống và nói rõ như vậy cho tới khi bạn lấp đầy.
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — Lưới ứng dụng">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### Gỡ ứng dụng
 
 Thả một ứng dụng vào hàng này, hoặc chọn từ danh sách mọi thứ đã cài, nó sẽ đi cùng những gì để lại ở khoảng ba chục nơi: application support, bộ đệm, tuỳ chọn, container, launch agents, phần mở rộng, biên nhận cài đặt và phần còn lại. Mỗi ứng dụng trong danh sách ghi rõ nó nặng bao nhiêu, phần ứng dụng và phần dữ liệu tách riêng. Ứng dụng đã nằm trong thùng rác vẫn được nhận ra: định danh đọc từ gói trong thùng rác, hoặc suy ra từ những phần sót có tên nó.
@@ -317,6 +351,8 @@ Cũng mô-đun ấy dọn dẹp mà không gỡ gì: mọi ứng dụng đang gi
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Dọn bộ đệm, bộ cài, phần sót và thùng rác">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 ngôn ngữ
 

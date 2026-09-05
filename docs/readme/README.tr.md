@@ -65,6 +65,8 @@ bitince tek bir ses çalar ve sıfırlayana kadar rakamlar yanıp söner.
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Zamanlayıcı ve döngüler">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### Zaman takibi ve görevler
 
 Görevler projelerde toplanabilir, her biri kendi toplamını taşır ve listenin
@@ -94,6 +96,8 @@ bir görev ekleyebilir veya neyin çalıştığını okuyabilir. Bkz.
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Zaman takibi ve görevler">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### Uyku engelleme
 
 Mac'i 15 dakika, 8 saat ya da süresiz uyanık tutun — tek tık, parola
@@ -103,6 +107,8 @@ edin (indirmeler, uzun derlemeler ve harici ekranlar için birebir).
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Uyku engelleme">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### Sistem monitörü
 
@@ -116,6 +122,8 @@ bildirdiğinde değil, belleğin çoğu diske indiğinde de uyarır.
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Sistem monitörü">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### Pano geçmişi
 
 Kopyaladığınız son 100 (300'e kadar) öğe — metin, görseller ve dosyalar —
@@ -127,6 +135,8 @@ girişler asla saklanmaz.
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Pano geçmişi">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### Dosya dönüştürücü
 
@@ -148,6 +158,8 @@ uygulamaların kendisi dışa aktarır: PDF ya da docx, xlsx ve pptx.
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Dosya dönüştürücü">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### Pencere yöneticisi
 
 Pencereleri yarımlara, çeyreklere, üçte birlere ve ortaya yerleştirin —
@@ -157,6 +169,8 @@ yok.
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Pencere yöneticisi">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### Torrentler
 
@@ -173,6 +187,8 @@ bağlantıları için varsayılan uygulama olabilir.
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop torrentleri — menü çubuğu panelinde hafif BitTorrent istemcisi">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### Dosya arşivleri
 
@@ -191,12 +207,16 @@ Modül gizliyken de çalışır ve kart gerçek durumu gösterir. Finder'da bir 
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Dosya arşivleri">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### Belgeler
 
 Dönüştürücü belgeleri öğrendi: markdown → PDF dizgisini Hop'un kendisi yapar,
 Word dosyaları (.docx, .doc, .rtf) → PDF ya da markdown, ve bir PDF'in metni
 markdown olarak çıkar — taranmış sayfayı Apple'ın Vision'ı okur. Hepsi yerel ve
 çevrimdışı; paketlenmiş ofis takımı yok, indirilecek bir şey yok.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### Renk damlalığı
 
@@ -209,6 +229,8 @@ döndürür.
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Renk damlalığı">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### Metin tanıma
 
@@ -226,6 +248,10 @@ numarası, Wi-Fi parolası ya da kartvizit düz metin olarak kalır.
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Metin tanıma">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### Klavye kilidi
 
 1, 5 ya da 15 dakikaya — veya ∞'a — dokunun, tüm klavye yanıt vermeyi bıraksın;
@@ -239,6 +265,8 @@ kapatır, çünkü onu donanım yapar.
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Klavye kilidi">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### Hız testi
 
 Tek dokunuş, bağlantıyı macOS'un kendi networkQuality'siyle Apple sunucularına karşı ölçer — indirme, yükleme ve yanıt süresi; son sonuç satırda kalır.
@@ -246,6 +274,8 @@ Tek dokunuş, bağlantıyı macOS'un kendi networkQuality'siyle Apple sunucular�
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Hız testi">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### Menü çubuğu simgesi
 
@@ -288,6 +318,8 @@ Nokta ayarlardan kapatılabilir; modül de anahtarları da onsuz çalışmaya de
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — VPN anahtarları">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### Uygulamalar
 
 Gün boyu açtığınız programlar bir ızgarada, Uygulamalar klasörüne uğramadan tek
@@ -308,6 +340,8 @@ Yeni bir ızgara boş başlar ve siz doldurana kadar bunu söyler.
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — Uygulama ızgarası">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### Uygulama kaldırma
 
 Bir uygulamayı satırın üstüne bırakın ya da kurulu olan her şeyin listesinden seçin: otuza yakın yerde bıraktığı her şeyle birlikte gider — application support, önbellekler, tercihler, container'lar, launch agent'lar, eklentiler, kurulum makbuzları ve gerisi. Listedeki her uygulama ne kadar yer kapladığını gösterir, paket ve verisi ayrı ayrı. Çöp kutusundaki bir uygulama da tanınır: kimlik oradaki paketten okunur ya da onu adıyla anan artıklardan çıkarılır.
@@ -323,6 +357,8 @@ Aynı modül hiçbir şeyi kaldırmadan toparlar da: önbellek tutan her uygulam
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Önbellek, kurulum dosyaları, artıklar ve çöp kutusu">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 dil
 

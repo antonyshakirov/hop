@@ -57,6 +57,8 @@ Ed25519 验证。需要 macOS 14 或更高版本。
 <img src="https://hop.tools/screens/zh/timer.webp" width="420" alt="Hop — 计时器与循环">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### 时间跟踪与待办
 
 任务可以归进项目，每个项目带着自己的合计，列表上方的开关切换今天、
@@ -79,6 +81,8 @@ Hop 还会执行命令文件并支持 `hop://` 链接：同一个助手，或者
 <img src="https://hop.tools/screens/zh/tracker.webp" width="420" alt="Hop — 时间跟踪与待办">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### 防休眠
 
 让 Mac 保持清醒 15 分钟、8 小时或永久——一次点击，无需密码。
@@ -88,6 +92,8 @@ Hop 还会执行命令文件并支持 `hop://` 链接：同一个助手，或者
 <div align="center">
 <img src="https://hop.tools/screens/zh/awake.webp" width="420" alt="Hop — 防休眠">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### 系统监控
 
@@ -99,6 +105,8 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 <img src="https://hop.tools/screens/zh/system.webp" width="420" alt="Hop — 系统监控">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### 剪贴板历史
 
 最近复制的 100 条（最多 300 条）内容——文字、图片和文件，一键复制回来，
@@ -108,6 +116,8 @@ CPU 与 GPU 的负载和温度、内存与交换分区、网络、磁盘、电�
 <div align="center">
 <img src="https://hop.tools/screens/zh/clipboard.webp" width="420" alt="Hop — 剪贴板历史">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### 文件转换器
 
@@ -124,6 +134,8 @@ tiktok、shorts 或 youtube —按平台自己的建议设定画幅、
 <img src="https://hop.tools/screens/zh/converter.webp" width="480" alt="Hop — 文件转换器">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### 窗口管理器
 
 点击区域图标或按 ⌃⌥ 快捷键，即可把窗口吸附到二分之一、四分之一、
@@ -132,6 +144,8 @@ tiktok、shorts 或 youtube —按平台自己的建议设定画幅、
 <div align="center">
 <img src="https://hop.tools/screens/zh/windows.webp" width="420" alt="Hop — 窗口管理器">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### 种子下载
 
@@ -146,6 +160,8 @@ tiktok、shorts 或 youtube —按平台自己的建议设定画幅、
 <img src="https://hop.tools/screens/zh/torrents.webp" width="420" alt="Hop 种子下载 — 菜单栏面板中的轻量 BT 客户端">
 </div>
 
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
+
 ### 文件压缩包
 
 模块那一行会打开一个窗口，拖放就在那个窗口里进行 —— ⌘V 也可以，一次多个文件。加进来的文件会先排成
@@ -159,11 +175,15 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 <img src="https://hop.tools/screens/zh/archives.webp" width="480" alt="Hop — 文件压缩包">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### 文档
 
 转换器学会了文档：markdown → PDF 由 Hop 自己排版，Word 文件（.docx、.doc、.rtf）
 → PDF 或 markdown，以及把 PDF 里的文字提取成 markdown——扫描页由 Apple 的 Vision
 识别。全部原生、离线，不捆绑办公套件，也不需要下载。
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### 颜色取色器
 
@@ -174,6 +194,8 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 <div align="center">
 <img src="https://hop.tools/screens/zh/colors.webp" width="420" alt="Hop — 颜色取色器">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### 文字识别
 
@@ -188,6 +210,10 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 <img src="https://hop.tools/screens/zh/recognition.webp" width="480" alt="Hop — 文字识别">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### 键盘锁定
 
 点 1、5 或 15 分钟 —— 或者 ∞ —— 整块键盘就不再响应，方便擦拭，而不必关机或合盖。一层遮罩会说明
@@ -198,6 +224,8 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 <img src="https://hop.tools/screens/zh/keyboard.webp" width="480" alt="Hop — 键盘锁定">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### 网速测试
 
 一次点按就用 macOS 自带的 networkQuality 对着 Apple 的服务器测一遍——下行、上行和响应，最后一次结果留在这一行里。
@@ -205,6 +233,8 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 <div align="center">
 <img src="https://hop.tools/screens/zh/speed.webp" width="420" alt="Hop — 网速测试">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### 菜单栏图标
 
@@ -235,6 +265,8 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 <img src="https://hop.tools/screens/zh/vpn.webp" width="420" alt="Hop — VPN 开关">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### 应用
 
 一整天都在开的程序摆成网格，一键可达，不必再去应用程序文件夹。按 + 挑选，或从访达拖进来；每行九个，最多八行。
@@ -246,6 +278,8 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 <div align="center">
 <img src="https://hop.tools/screens/zh/apps.webp" width="420" alt="Hop — 应用格子">
 </div>
+
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
 
 ### 卸载应用
 
@@ -262,6 +296,8 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 <div align="center">
 <img src="https://hop.tools/screens/zh/clean.webp" width="480" alt="Hop — 清理缓存、安装包、残留和废纸篓">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 种语言
 

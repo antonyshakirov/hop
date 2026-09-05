@@ -68,6 +68,8 @@ non azzeri.
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Timer e cicli">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### Monitoraggio del tempo e attività
 
 Le attività si raccolgono in progetti, ognuno con la propria somma, e un
@@ -97,6 +99,8 @@ un'attività con promemoria o leggere cosa sta girando. Vedi
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Monitoraggio del tempo e attività">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### Niente stop
 
 Tieni il Mac sveglio per 15 minuti, 8 ore o per sempre — un clic, nessuna
@@ -107,6 +111,8 @@ schermi esterni).
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Niente stop">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### Monitor di sistema
 
@@ -121,6 +127,8 @@ solo quando macOS stesso segnala difficoltà.
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Monitor di sistema">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### Cronologia degli appunti
 
 Le ultime 100 cose copiate (fino a 300) — testo, immagini e file — un clic per
@@ -132,6 +140,8 @@ nascosti non vengono mai salvati.
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Cronologia degli appunti">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### Convertitore di file
 
@@ -155,6 +165,8 @@ docx, xlsx e pptx.
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Convertitore di file">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### Gestore delle finestre
 
 Aggancia le finestre a metà, quarti, terzi e al centro con un clic su un
@@ -163,6 +175,8 @@ glifo di zona o con una scorciatoia ⌃⌥ — senza app aggiuntive.
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Gestore delle finestre">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### Torrent
 
@@ -178,6 +192,8 @@ predefinita per i file .torrent e i link magnet.
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Torrent di Hop — client BitTorrent leggero nel pannello della barra dei menu">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### Archivi di file
 
@@ -197,12 +213,16 @@ Funziona con il modulo nascosto, e la scheda mostra lo stato reale. Un doppio cl
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Archivi di file">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### Documenti
 
 Il convertitore ha imparato i documenti: markdown → PDF impaginato da Hop
 stesso, file Word (.docx, .doc, .rtf) → PDF o markdown, e il testo di un PDF
 come markdown — una pagina scansionata la legge Vision di Apple. Nativo e
 offline, senza suite d'ufficio inclusa e senza download.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### Selettore colore
 
@@ -215,6 +235,8 @@ registrazione schermo: la lente restituisce un colore e basta.
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Selettore colore">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### Riconoscimento del testo
 
@@ -234,6 +256,10 @@ testo semplice.
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Riconoscimento del testo">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
+→ [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
+
 ### Blocco tastiera
 
 Tocca 1, 5 o 15 minuti — oppure ∞ — e tutta la tastiera smette di rispondere,
@@ -248,6 +274,8 @@ perché di quello si occupa l'hardware.
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Blocco tastiera">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### Test di velocità
 
 Un tocco misura la connessione con il networkQuality di macOS contro i server Apple — download, upload e reattività, e l'ultimo risultato resta nella riga.
@@ -255,6 +283,8 @@ Un tocco misura la connessione con il networkQuality di macOS contro i server Ap
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Test di velocità">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### L'icona nella barra dei menu
 
@@ -298,6 +328,8 @@ Il punto si può spegnere nelle impostazioni: il modulo e i suoi interruttori fu
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — Interruttori VPN">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### App
 
 Una griglia con i programmi che apri tutto il giorno, a un clic e senza passare
@@ -320,6 +352,8 @@ riempi.
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — Griglia di app">
 </div>
 
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
+
 ### Rimuovere app
 
 Trascina un'app sulla riga, o scegliela dall'elenco di tutto ciò che è installato, e se ne va insieme a quello che ha lasciato in una trentina di posti: application support, cache, preferenze, container, launch agent, plug-in, ricevute e il resto. Ogni app dell'elenco mostra quanto pesa, il bundle e i dati separati. Un'app già nel cestino viene comunque riconosciuta: l'identificativo si legge dal bundle che sta lì, o si ricava dai resti che lo nominano.
@@ -335,6 +369,8 @@ Lo stesso modulo mette ordine senza rimuovere nulla: ogni app che tiene una cach
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Svuotare cache, installer, resti e cestino">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 lingue
 
