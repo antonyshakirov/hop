@@ -182,9 +182,9 @@ struct OnboardingView: View {
     private var privacyStep: some View {
         VStack(spacing: 14) {
             Image(systemName: "lock")
-                .font(.system(size: 24, weight: .light))
+                .font(.system(size: 40, weight: .light))
                 .foregroundStyle(Theme.textPrimary)
-                .padding(.bottom, 2)
+                .padding(.bottom, 6)
             stepHeading(t(.onbPrivacyTitle))
             VStack(spacing: 6) {
                 privacyClaim("bolt.horizontal.circle", t(.onbPrivacyNoServer))
@@ -198,7 +198,7 @@ struct OnboardingView: View {
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 12)
+                .padding(.top, 30)
             HStack(spacing: 18) {
                 privacyLink("heart.fill", t(.donateTitle), url: donateURL, tint: Theme.iconHealth)
                 privacyLink("chevron.left.forwardslash.chevron.right", t(.permPledgeLink),
@@ -326,29 +326,8 @@ struct OnboardingView: View {
             : key
         return previewBody(drawn)
             .frame(width: 368, alignment: .topLeading)
-            .modifier(FadingTail(height: key == "system" ? 300 : nil))
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .allowsHitTesting(false)
-    }
-
-    /// SPEC: docs/spec.md — "Onboarding", the module preview.
-    private struct FadingTail: ViewModifier {
-        let height: CGFloat?
-
-        func body(content: Content) -> some View {
-            if let height {
-                content
-                    .frame(height: height, alignment: .top)
-                    .clipped()
-                    .mask(LinearGradient(stops: [
-                        .init(color: .black, location: 0),
-                        .init(color: .black, location: 0.86),
-                        .init(color: .black.opacity(0), location: 1),
-                    ], startPoint: .top, endPoint: .bottom))
-            } else {
-                content
-            }
-        }
     }
 
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
@@ -375,23 +354,23 @@ struct OnboardingView: View {
     private var permissionsStep: some View {
         VStack(spacing: 16) {
             stepHeading(t(.permTab), subtitle: t(.onbPermBody))
-            PermissionsView(lang: lang, showsPledge: false)
+            PermissionsView(lang: lang, showsPledge: false, large: true)
         }
     }
 
     private var doneStep: some View {
-        VStack(spacing: 16) {
-            asterisk(size: 84)
+        VStack(spacing: 18) {
+            asterisk(size: 104)
                 .padding(.top, 20)
             Text(t(.onbDoneTitle))
-                .font(Theme.mono(17, weight: .bold))
+                .font(Theme.mono(28, weight: .bold))
                 .foregroundStyle(Theme.textPrimary)
             Text(t(.onbDoneBody))
-                .font(Theme.mono(11))
+                .font(Theme.mono(13))
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: 400)
+                .frame(maxWidth: 420)
             if case .offer(let info) = phase {
                 VStack(spacing: 10) {
                     Text(L10n.fill(.updateAvailable, lang, info.version))
@@ -481,8 +460,6 @@ struct OnboardingView: View {
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
-        .background(Theme.rowBg)
-        .overlay(alignment: .top) { Rectangle().fill(Theme.divider).frame(height: 1) }
     }
 
     private var isBusy: Bool {

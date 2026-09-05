@@ -378,10 +378,13 @@ final class ClipboardController: ObservableObject {
 
     /// Two rows that need no translation: a link and a path.
     private static var demoItems: [Item] {
-        [Item(text: "https://hop.tools"),
+        // The three visible rows are a link, a path and a copied file. The
+         // colours sit under them: the eyedropper draws its own picture from the
+         // same history, and a swatch in the clipboard's picture says the same
+         // thing twice (Anton, 2026-09-05).
+         [Item(text: "https://hop.tools"),
          Item(text: "~/Documents/design-tokens.css"),
-         // The app's own accents: the star's yellow, the switches' green, the
-         // reminder dot's blue.
+         Item(text: "poster.png", filePaths: ["/Users/preview/Desktop/poster.png"]),
          Item(text: "#FFD60A", colorHex: "FFD60A"),
          Item(text: "#30D158", colorHex: "30D158"),
          Item(text: "#0A84FF", colorHex: "0A84FF")]

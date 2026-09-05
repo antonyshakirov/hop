@@ -14,6 +14,16 @@ struct PermissionsView: View {
     var removeLidRule: () -> Void = {}
     /// Onboarding shows the pledge on a screen of its own, one step earlier.
     var showsPledge = true
+    /// Onboarding gives this list a whole window; the settings tab shares one.
+    /// SPEC: docs/spec.md — "Onboarding".
+    var large = false
+
+    private var titleFont: Font { Theme.mono(large ? 13 : 11, weight: .semibold) }
+    private var bodyFont: Font { Theme.mono(large ? 12 : 10) }
+    private var buttonFont: Font { Theme.mono(large ? 12 : 10, weight: .semibold) }
+    private var statusFont: Font { Theme.mono(large ? 11 : 9) }
+    private var symbolSize: CGFloat { large ? 15 : 12 }
+    private var rowHeight: CGFloat { large ? 28 : 24 }
 
     /// Live state is read once per appearance; notifications answer asynchronously.
     @State private var notificationsGranted: Bool?
@@ -44,10 +54,10 @@ struct PermissionsView: View {
             Rectangle().fill(Theme.divider).frame(height: 1)
             VStack(alignment: .leading, spacing: 5) {
                 Text(L10n.t(.permNeverTitle, lang))
-                    .font(Theme.mono(11, weight: .semibold))
+                    .font(titleFont)
                     .foregroundStyle(Theme.textPrimary)
                 Text(L10n.t(.permNeverBody, lang))
-                    .font(Theme.mono(10))
+                    .font(bodyFont)
                     .foregroundStyle(Theme.docText)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -135,18 +145,18 @@ struct PermissionsView: View {
                            : PermissionRepair.askedAnythingThisRun {
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: "arrow.clockwise")
-                    .font(.system(size: 12))
+                    .font(.system(size: symbolSize))
                     .foregroundStyle(Theme.textSecondary)
-                    .frame(width: 18, height: 24)
+                    .frame(width: 18, height: rowHeight)
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 8) {
                         Text(L10n.t(.permRestartTitle, lang))
-                            .font(Theme.mono(11, weight: .semibold))
+                            .font(titleFont)
                             .foregroundStyle(Theme.textPrimary)
                         Spacer(minLength: 6)
                         Button { AppRelaunch.now(reopening: .permissions) } label: {
                             Text(L10n.t(.permRestart, lang))
-                                .font(Theme.mono(10, weight: .semibold))
+                                .font(buttonFont)
                                 .foregroundStyle(Theme.textPrimary)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4)
@@ -157,9 +167,9 @@ struct PermissionsView: View {
                         .help(L10n.t(.permRestart, lang))
                         .hoverDim()
                     }
-                    .frame(height: 24)
+                    .frame(height: rowHeight)
                     Text(L10n.t(.permRestartBody, lang))
-                        .font(Theme.mono(10))
+                        .font(bodyFont)
                         .foregroundStyle(Theme.docText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -188,20 +198,20 @@ struct PermissionsView: View {
     private func row(_ item: Item) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: item.symbol)
-                .font(.system(size: 12))
+                .font(.system(size: symbolSize))
                 .foregroundStyle(Theme.textSecondary)
-                .frame(width: 18, height: 24)
+                .frame(width: 18, height: rowHeight)
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 8) {
                     Text(L10n.t(item.title, lang))
-                        .font(Theme.mono(11, weight: .semibold))
+                        .font(titleFont)
                         .foregroundStyle(Theme.textPrimary)
                     Spacer(minLength: 6)
                     trailing(item)
                 }
-                .frame(height: 24)
+                .frame(height: rowHeight)
                 Text(L10n.t(item.body, lang))
-                    .font(Theme.mono(10))
+                    .font(bodyFont)
                     .foregroundStyle(Theme.docText)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -214,7 +224,7 @@ struct PermissionsView: View {
         if let revoke = item.revoke {
             Button(action: revoke) {
                 Text(L10n.t(.permRevoke, lang))
-                    .font(Theme.mono(10, weight: .semibold))
+                    .font(buttonFont)
                     .foregroundStyle(Theme.textPrimary)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
@@ -227,7 +237,7 @@ struct PermissionsView: View {
         } else if item.granted == false, let grant = item.grant {
             Button(action: grant) {
                 Text(L10n.t(.permGrant, lang))
-                    .font(Theme.mono(10, weight: .semibold))
+                    .font(buttonFont)
                     .foregroundStyle(Theme.textPrimary)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
@@ -239,7 +249,7 @@ struct PermissionsView: View {
             .hoverDim()
         } else {
             Text(statusText(item))
-                .font(Theme.mono(9))
+                .font(statusFont)
                 .foregroundStyle(item.granted == true ? Theme.accentGreen : Theme.textTertiary)
                 .lineLimit(1)
         }

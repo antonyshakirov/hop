@@ -295,6 +295,17 @@ struct UninstallWindowView: View {
                         .lineLimit(1)
                         .truncationMode(.middle)
                     Spacer(minLength: 8)
+                    // The picture has to say WHAT is being removed: a name and a
+                    // size beside a tick read as the app itself going in the bin
+                    // (Anton, 2026-09-05).
+                    if preview {
+                        Text(t(.uninstallCacheWord))
+                            .font(Theme.mono(8.5))
+                            .foregroundStyle(Theme.textTertiary)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 4))
+                    }
                     Text(Self.sizeText(owner.bytes))
                         .font(Theme.mono(9))
                         .foregroundStyle(Theme.textTertiary)

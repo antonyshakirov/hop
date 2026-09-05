@@ -6,9 +6,15 @@ import SwiftUI
 struct StatsView: View {
     @ObservedObject var stats: SystemStatsController
     let lang: AppLanguage
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    var preview = false
 
     @AppStorage("tempUnit") private var tempUnitRaw = "auto"
-    @AppStorage("monitorDetailed") private var detailed = false
+    @AppStorage("monitorDetailed") private var detailedSetting = false
+
+    /// A picture always shows its charts: the row of figures alone is what the
+    /// module looks like with the setting off.
+    private var detailed: Bool { preview || detailedSetting }
     // calm mode: only problems get color; the rainbow is opt-in
     @AppStorage("monitorColorful") private var colorful = false
     // chart window: how many minutes of history to show (1/5/10/30)
@@ -61,6 +67,7 @@ struct StatsView: View {
                 ], start: chartStart, end: chartEnd)
                 .padding(.bottom, 6)
             }
+            if !preview {
             row(icon: "memorychip", color: Theme.accentPurple, label: "gpu",
                 value: gpuValue(s))
             // Same card as the cpu's, for the same reason: the gpu row carries a
@@ -77,6 +84,7 @@ struct StatsView: View {
                 ], start: chartStart, end: chartEnd)
                 .padding(.bottom, 6)
             }
+            }
             row(icon: "square.stack.3d.up", color: Theme.accentGreen, label: t(.statMemory),
                 value: memValue(s))
             if detailed {
@@ -86,6 +94,7 @@ struct StatsView: View {
                 ], start: chartStart, end: chartEnd)
                 .padding(.bottom, 6)
             }
+            if !preview {
             row(icon: "arrow.up.arrow.down", color: Theme.accentCyan, label: t(.statNetwork),
                 value: netValue(s))
             if detailed {
@@ -128,13 +137,14 @@ struct StatsView: View {
                 value: Text(StatsFormatting.uptime(
                     s.uptime, day: t(.unitDay), hour: t(.unitHour), minute: t(.unitMin)
                 )).foregroundColor(Theme.textSecondary))
+            }
         }
         .padding(.vertical, 4)
         // A snapshot keeps the staged numbers: polling would overwrite the
         // sample the render was set up with, and the gpu row would go back to
         // reporting this Mac's idle while the chart above it shows a load.
-        .onAppear { if !Snapshot.active { stats.startPolling() } }
-        .onDisappear { stats.stopPolling() }
+        .onAppear { if !Snapshot.active, !preview { stats.startPolling() } }
+        .onDisappear { if !preview { stats.stopPolling() } }
     }
 
     /// Slice of history within the window: points older than its start are not drawn.

@@ -651,6 +651,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusController?.applyTheme()
         settingsWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         onboardingWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        onboardingWindow?.backgroundColor = NSColor(Theme.background)
         converterWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         archiveWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         finderArchiveWindows.values.forEach { $0.applyTheme() }

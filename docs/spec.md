@@ -239,7 +239,10 @@ one card saying the app is free, has no paid tier and lives on donations) → si
 dot grid the timer's display is built from, spread across the window, with two
 slow waves crossing it and the light gathering where the screen's subject is.
 It runs on a `TimelineView` at 12fps rather than a `repeatForever` animation,
-which this codebase does not use. **The welcome screen arrives a piece at a
+which this codebase does not use, and it is deliberately faint — at a tenth of
+the ink it was read through the permissions screen's paragraphs and made them
+hard to follow. The footer carries no bar of its own: a strip with its own
+background under the wizard read as a second surface (Anton, 2026-09-05). **The welcome screen arrives a piece at a
 time** — the star, the name, the line under it, then the language card, each
 fading up from 14pt below over 0.45 s. One orchestrated moment, on the first
 screen only: nothing else in the wizard moves, and a snapshot renders the
@@ -261,9 +264,10 @@ no frame of its own, no fixed height and no crop, so it ends where the module
 ends. A frame taller than what it held showed a band of empty black under every
 short module, and a frame shorter than its module cut a row in half. Nothing is
 scaled down either — the windows draw at 368pt like the panel does, so their text
-is the same size as everywhere else. The monitor is the one exception: eight
-metrics with a chart each would take the screen, so its picture stops at 300pt
-and fades out rather than ending on a cut edge.
+is the same size as everywhere else. The monitor is the one exception: eight metrics
+with a chart each would take the screen, so its picture shows the two that
+answer "is this Mac busy" — the processor and memory, with their charts — and
+nothing else.
 
 The three modules whose panel row is only a button — the converter, the archiver
 and the uninstaller — show the WINDOW they open instead, since the row itself
@@ -296,8 +300,10 @@ sentence; a very short one keeps the purpose line in front of it.
 
 The data behind it is staged and lives nowhere else. `AppModel(preview: true)`
 builds a second set of controllers with `demo: true`, which read nothing of the
-user's and write nothing back: the clipboard shows two rows that need no
-translation (a link and a path), the monitor takes one live reading plus an hour
+user's and write nothing back: the clipboard shows three rows that need no
+translation (a link, a path and a copied file, with the eyedropper's colours
+below them, out of the clipboard's own picture and into the one the eyedropper
+draws from the same history), the monitor takes one live reading plus an hour
 of staged history (cpu load and throughput are deltas between two readings, so
 the sample's own figures come from the staged curve rather than showing a dash;
 the history is collected every five seconds, like a running Mac's, because one
@@ -305,7 +311,10 @@ point a minute drew as a straight line in the five-minute window the chart opens
 with, and it is measured back from the newest point so the figure the row shows
 is a middling one; the staged curve keeps growing while the wizard is open, since
 a fixed hour of history ages out of that window in five minutes and leaves an
-empty panel), the internet row carries a fresh staged measurement of its own
+empty panel; each metric has a shape of its own — the processor spikes, the
+graphics card wakes up twice an hour, memory fills and is released, the network
+arrives in bursts — because one set of waves drew four charts that looked like
+copies of each other), the internet row carries a fresh staged measurement of its own
 rather than whatever the user last measured, which may be a month old and drawn
 faded, and the tracker and to-dos start empty. Nothing in a picture runs a
 countdown: a timer left running finishes and starts blinking at whoever is still

@@ -117,20 +117,29 @@ final class SystemStatsController: ObservableObject {
         return out
     }
 
-    /// Three periods that do not divide into each other, so no window of the
-    /// chart repeats the one before it.
+    /// One point of the staged curve. Each metric gets a shape of its own — the
+    /// processor spikes, the graphics card wakes up twice an hour, memory drifts
+    /// up in steps and the network arrives in bursts — because one set of waves
+    /// drew four charts that looked like copies of each other (Anton,
+    /// 2026-09-05).
     private static func append(_ out: inout History, x: Double, at t: Date) {
-        let slow = sin(x / 220)
-        let mid = sin(x / 47 + 1.1)
-        let fast = sin(x / 13 + 0.4)
-        let busy = max(0, slow) * 0.5
-        out.cpuLoad.append(HistoryPoint(t: t, v: clamped(0.30 + 0.15 * mid + 0.10 * fast + busy)))
-        out.cpuTemp.append(HistoryPoint(t: t, v: 48 + 7 * mid + 3 * fast + 8 * busy))
-        out.gpuLoad.append(HistoryPoint(t: t, v: clamped(0.20 + 0.14 * slow + 0.09 * fast)))
-        out.gpuTemp.append(HistoryPoint(t: t, v: 43 + 6 * slow + 2 * fast))
-        out.memShare.append(HistoryPoint(t: t, v: clamped(0.58 + 0.06 * slow + 0.02 * mid)))
-        out.netDown.append(HistoryPoint(t: t, v: max(0, 2_100_000 + 1_800_000 * fast + 3_000_000 * busy)))
-        out.netUp.append(HistoryPoint(t: t, v: max(0, 340_000 + 260_000 * mid)))
+        let burst = pow(max(0, sin(x / 97 + 0.8)), 3)          // work, then quiet
+        let jitter = sin(x / 11 + 0.3) * 0.5 + sin(x / 4.3) * 0.5
+        out.cpuLoad.append(HistoryPoint(t: t, v: clamped(0.17 + 0.55 * burst + 0.06 * jitter)))
+        out.cpuTemp.append(HistoryPoint(t: t, v: 44 + 16 * burst + 2 * jitter))
+
+        let wake = pow(max(0, sin(x / 317 + 2.1)), 5)          // idle, then a job
+        out.gpuLoad.append(HistoryPoint(t: t, v: clamped(0.05 + 0.62 * wake + 0.02 * jitter)))
+        out.gpuTemp.append(HistoryPoint(t: t, v: 40 + 14 * wake))
+
+        // fills up, is released, fills up again
+        let cycle = (x / 1_450).truncatingRemainder(dividingBy: 1)
+        let filling = cycle < 0.82 ? 0.34 + cycle * 0.42 : 0.34 + (1 - cycle) * 2.0
+        out.memShare.append(HistoryPoint(t: t, v: clamped(filling + 0.012 * jitter)))
+
+        let packet = pow(max(0, sin(x / 41 + 1.7)), 6)
+        out.netDown.append(HistoryPoint(t: t, v: max(0, 120_000 + 9_400_000 * packet)))
+        out.netUp.append(HistoryPoint(t: t, v: max(0, 40_000 + 900_000 * pow(max(0, sin(x / 63)), 4))))
     }
 
     private static func clamped(_ value: Double) -> Double { min(max(value, 0.02), 0.98) }

@@ -3121,7 +3121,7 @@ struct PanelView: View {
                              closePanel: { model.closePanel?() })
                 .id(model.themeVersion)
         case "system":
-            StatsView(stats: model.stats, lang: lang)
+            StatsView(stats: model.stats, lang: lang, preview: !previewModules.isEmpty)
                 .id(model.themeVersion)
         case "tracker":
             TrackerView(tracker: model.tracker, lang: lang,
