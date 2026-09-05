@@ -380,9 +380,11 @@ final class ClipboardController: ObservableObject {
     private static var demoItems: [Item] {
         [Item(text: "https://hop.tools"),
          Item(text: "~/Documents/design-tokens.css"),
-         Item(text: "#2E7D32", colorHex: "2E7D32"),
-         Item(text: "#F2B705", colorHex: "F2B705"),
-         Item(text: "#1F6FEB", colorHex: "1F6FEB")]
+         // The app's own accents: the star's yellow, the switches' green, the
+         // reminder dot's blue.
+         Item(text: "#FFD60A", colorHex: "FFD60A"),
+         Item(text: "#30D158", colorHex: "30D158"),
+         Item(text: "#0A84FF", colorHex: "0A84FF")]
     }
 
     private func save() {
