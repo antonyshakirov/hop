@@ -196,7 +196,11 @@ identically on every user's bar.
 ## Onboarding
 
 A wizard, one thing per screen, in a 620×560 window that has no close button:
-onboarding is finished, not dismissed. Quitting the app does not end it — the
+onboarding is finished, not dismissed. It opens dead centre of the screen, and
+holds that position: `isRestorable` is off and the centring repeats on the next
+run-loop turn, because AppKit restores a titled window's last position and
+cascades new windows off the previous one — either one moved it (Anton,
+2026-09-05). Quitting the app does not end it — the
 step is stored (`SettingsKey.onboardingStep`) and the window reopens on it, which
 is also what makes granting a permission survivable: macOS answers a permission
 question once per process, hop restarts to ask again, and the wizard comes back
