@@ -213,11 +213,17 @@ struct PanelView: View {
     /// true — standalone settings window (no panel header, wider).
     var standaloneSettings = false
 
-    init(initial: InitialScreen = .restore, standaloneSettings: Bool = false) {
+    /// Draw one module and nothing else, for the onboarding's picture of it.
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    private let previewModule: String?
+
+    init(initial: InitialScreen = .restore, standaloneSettings: Bool = false,
+         previewModule: String? = nil) {
         // The panel content view is built once at launch, so this resolves the
         // restored space from UserDefaults directly — as `initialTab` did.
         _screen = State(initialValue: Self.resolve(initial))
         self.standaloneSettings = standaloneSettings
+        self.previewModule = previewModule
     }
 
     private var cycleTemplates: [(work: Int, rest: Int, rounds: Int)] {
@@ -243,7 +249,15 @@ struct PanelView: View {
     }
 
     var body: some View {
-        if standaloneSettings {
+        if let previewModule {
+            moduleContent(previewModule, in: tabsModel.tabs[0].id)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .frame(width: 368)
+                .background(Theme.panelBackground)
+                .allowsHitTesting(false)   // a picture, not a control
+                .id(model.themeVersion)
+        } else if standaloneSettings {
             settingsScreen
                 // a theme change must rebuild ALL child views:
                 // LanguagePicker and others get unchanged inputs, so SwiftUI

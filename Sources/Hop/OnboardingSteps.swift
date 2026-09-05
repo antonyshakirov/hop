@@ -39,14 +39,20 @@ enum OnboardStep: Equatable {
 /// SPEC: docs/spec.md — "Onboarding".
 struct ModuleGroup {
     let titleKey: L10nKey
+    /// The module the screen draws live, chosen for having something to show.
+    let preview: String
     let modules: [String]
 
-    private static let titles: [L10nKey] = [
-        .onbGroupTime, .onbGroupFiles, .onbGroupScreen,
-        .onbGroupMac, .onbGroupNetwork, .onbGroupDesk,
+    private static let heads: [(L10nKey, String)] = [
+        (.onbGroupTime, "timer"),
+        (.onbGroupFiles, "convert"),
+        (.onbGroupScreen, "clipboard"),
+        (.onbGroupMac, "system"),
+        (.onbGroupNetwork, "vpn"),
+        (.onbGroupDesk, "windows"),
     ]
 
-    static let all: [ModuleGroup] = zip(titles, ModuleCatalog.onboardingGroups).map {
-        ModuleGroup(titleKey: $0, modules: $1)
+    static let all: [ModuleGroup] = zip(heads, ModuleCatalog.onboardingGroups).map {
+        ModuleGroup(titleKey: $0.0, preview: $0.1, modules: $1)
     }
 }

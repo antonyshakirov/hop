@@ -86,8 +86,12 @@ final class VPNController: ObservableObject {
             && !PanelView.storedModuleIsInactive("vpn")
     }
 
-    init() {
-        if Snapshot.active {
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    private let demo: Bool
+
+    init(demo: Bool = false) {
+        self.demo = demo
+        if Snapshot.active || demo {
             // A screenshot of an empty list says nothing about the module. Two
             // configurations, one of them up: a client that names its country and
             // one that does not, which is exactly the pair the row layout is for.

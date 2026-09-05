@@ -34,14 +34,17 @@ final class TrackerController: ObservableObject {
     /// redraw while no task is active.
     private var forwarders: [AnyCancellable] = []
 
-    init() {
+    private let demo: Bool
+
+    init(demo: Bool = false) {
+        self.demo = demo
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let id = Bundle.storageIdentifier
         storeDir = base.appendingPathComponent(id, isDirectory: true)
 
         // A snapshot/demo render must never load real user data — start from
         // empty and let the --tasks seed stage its own deterministic content.
-        let data = Snapshot.active ? .empty : TrackerStore.load(from: storeDir)
+        let data = (Snapshot.active || demo) ? .empty : TrackerStore.load(from: storeDir)
         engine = TrackerEngine(data: data, calendar: Self.weekCalendar())
         heartbeat = Date()
 
@@ -50,7 +53,7 @@ final class TrackerController: ObservableObject {
         })
 
         engine.onChange = { [weak self] in
-            guard let self else { return }
+            guard let self, !self.demo else { return }
             try? FileManager.default.createDirectory(at: self.storeDir, withIntermediateDirectories: true)
             do {
                 try TrackerStore.save(self.engine.data, to: self.storeDir)

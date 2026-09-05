@@ -23,13 +23,16 @@ final class TodosController: ObservableObject {
     /// into; TodosStore appends todos.json itself.
     private let storeDir: URL
 
-    init() {
+    private let demo: Bool
+
+    init(demo: Bool = false) {
+        self.demo = demo
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let id = Bundle.storageIdentifier
         storeDir = base.appendingPathComponent(id, isDirectory: true)
         // A snapshot/demo render must never load real user data — start empty
         // and let the --tasks seed stage its own deterministic content.
-        list = Snapshot.active ? .empty : TodosStore.load(from: storeDir)
+        list = (Snapshot.active || demo) ? .empty : TodosStore.load(from: storeDir)
         // Switching the module off drops every armed banner, and switching it
         // back on arms them again from the same reminders.
         NotificationCenter.default.addObserver(
@@ -181,6 +184,7 @@ final class TodosController: ObservableObject {
     }
 
     private func save() {
+        guard !demo else { return }
         try? FileManager.default.createDirectory(at: storeDir, withIntermediateDirectories: true)
         do {
             try TodosStore.save(list, to: storeDir)

@@ -29,6 +29,9 @@ struct OnboardingView: View {
     /// Bumped by every switch so the module rows redraw: their state lives in
     /// stored defaults, which SwiftUI does not observe.
     @State private var moduleRevision = 0
+    /// Controllers of its own, with staged data: the pictures are the real
+    /// modules, and must not touch what the person already has.
+    @StateObject private var previewModel = AppModel(preview: true)
 
     /// Grids of apps are not in the registry — the module only exists once a
     /// grid does — so the checklist carries them under a key of their own.
@@ -152,6 +155,7 @@ struct OnboardingView: View {
     private func groupStep(_ group: ModuleGroup) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             stepHeading(t(group.titleKey), subtitle: t(.onbGroupHint))
+            modulePreview(group.preview)
             SettingsCard {
                 ForEach(Array(group.modules.enumerated()), id: \.element) { index, key in
                     if index > 0 { SettingsRule() }
@@ -194,6 +198,19 @@ struct OnboardingView: View {
                 .padding(.top, 6)
         }
         .id("\(key)-\(moduleRevision)")
+    }
+
+    /// The module as it will actually look, drawn by the panel's own code with
+    /// the preview model's staged data. Nothing to redraw per language or theme:
+    /// it is the same view the panel shows.
+    private func modulePreview(_ key: String) -> some View {
+        PanelView(previewModule: key)
+            .environmentObject(previewModel)
+            .frame(width: 368)
+            .frame(maxHeight: 190, alignment: .top)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.divider, lineWidth: 1))
+            .frame(maxWidth: .infinity)
     }
 
     private var permissionsStep: some View {

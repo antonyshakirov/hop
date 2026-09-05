@@ -9,21 +9,21 @@ final class AppModel: ObservableObject {
 
     let engine = TimerEngine()
     let keepAwake = KeepAwakeController()
-    let stats = SystemStatsController()
-    let clipboard = ClipboardController()
+    let stats: SystemStatsController
+    let clipboard: ClipboardController
     let updater = UpdateChecker()
     let converter = FileConverter()
     let speedTest = SpeedTestController()
     let torrent = TorrentController()
-    let tracker = TrackerController()
-    let todos = TodosController()
+    let tracker: TrackerController
+    let todos: TodosController
     /// Modules that PRODUCE clipboard entries; they take the clipboard
     /// controller, so they are built in `init` after it exists.
     let colorPicker: ColorPickerController
     let screenText: ScreenTextController
     let archive = ArchiveController()
     let keyboardLock = KeyboardLockController()
-    let vpn = VPNController()
+    let vpn: VPNController
     let uninstall = UninstallController()
     let appShelves = AppShelvesController()
 
@@ -99,7 +99,15 @@ final class AppModel: ObservableObject {
 
     private var forwarders: [AnyCancellable] = []
 
-    init() {
+    /// A preview model feeds the onboarding's live module pictures: the same
+    /// controllers, with staged data, reading and writing nothing of the user's.
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    init(preview: Bool = false) {
+        stats = SystemStatsController(demo: preview)
+        clipboard = ClipboardController(demo: preview)
+        tracker = TrackerController(demo: preview)
+        todos = TodosController(demo: preview)
+        vpn = VPNController(demo: preview)
         colorPicker = ColorPickerController(clipboard: clipboard)
         screenText = ScreenTextController(clipboard: clipboard)
         // a finished recognition brings its window forward: the text has to be

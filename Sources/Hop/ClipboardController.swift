@@ -47,7 +47,17 @@ final class ClipboardController: ObservableObject {
     private var ticker: Timer?
     private let storageKey = "clipboardHistory"
 
-    init() {
+    /// Preview mode: the onboarding renders a real module with staged rows, and
+    /// must not read or write the person's own history.
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    private let demo: Bool
+
+    init(demo: Bool = false) {
+        self.demo = demo
+        guard !demo else {
+            items = Self.demoItems
+            return
+        }
         load()
         applyActivation()
         NotificationCenter.default.addObserver(
@@ -366,7 +376,14 @@ final class ClipboardController: ObservableObject {
         save()
     }
 
+    /// Two rows that need no translation: a link and a path.
+    private static var demoItems: [Item] {
+        [Item(text: "https://hop.tools"),
+         Item(text: "~/Documents/design-tokens.css")]
+    }
+
     private func save() {
+        guard !demo else { return }
         if let data = try? JSONEncoder().encode(items) {
             UserDefaults.standard.set(data, forKey: storageKey)
         }

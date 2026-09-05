@@ -43,7 +43,22 @@ final class SystemStatsController: ObservableObject {
     /// Some metric is in the red zone (for the menu bar indicator).
     @Published private(set) var redZone = false
 
-    init() {
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    private let demo: Bool
+
+    init(demo: Bool = false) {
+        self.demo = demo
+        guard !demo else {
+            refresh()
+            history = Self.demoHistory()
+            // cpu load and throughput are deltas between two readings, so a
+            // single refresh has nothing to report: take the staged curve's own
+            // last point instead of showing a dash.
+            sample.cpuLoad = history.cpuLoad.last?.v
+            sample.netDown = history.netDown.last?.v
+            sample.netUp = history.netUp.last?.v
+            return
+        }
         applyActivation()
         NotificationCenter.default.addObserver(
             forName: ModuleActivation.didChange, object: nil, queue: .main
@@ -88,6 +103,22 @@ final class SystemStatsController: ObservableObject {
         var netUp: [HistoryPoint] = []
     }
     @Published private(set) var history = History()
+
+    /// A plausible hour, so a preview draws a curve instead of a flat line.
+    private static func demoHistory() -> History {
+        var out = History()
+        let now = Date()
+        for step in 0..<60 {
+            let t = now.addingTimeInterval(Double(step - 59) * 60)
+            let wave = sin(Double(step) / 7)
+            out.cpuLoad.append(HistoryPoint(t: t, v: 0.28 + 0.16 * wave))
+            out.cpuTemp.append(HistoryPoint(t: t, v: 52 + 6 * wave))
+            out.memShare.append(HistoryPoint(t: t, v: 0.61 + 0.05 * wave))
+            out.netDown.append(HistoryPoint(t: t, v: max(0, 2_400_000 + 1_900_000 * wave)))
+            out.netUp.append(HistoryPoint(t: t, v: max(0, 380_000 + 240_000 * wave)))
+        }
+        return out
+    }
 
     /// Snapshot-only: pre-filled chart history for product screenshots —
     /// a live run has just two points by render time, which draws as empty.

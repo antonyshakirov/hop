@@ -225,6 +225,24 @@ one card saying the app is free, has no paid tier and lives on donations) → si
 - Finishing marks every "what's new" announcement and release card seen: a fresh
   install has no release to catch up on.
 
+**The picture on a group screen is the module itself**, drawn by the panel's own
+code (`PanelView(previewModule:)`) and made unclickable. Not a screenshot: it
+follows the language and the theme picked two screens earlier without anything
+being re-rendered, and it cannot drift from what the panel actually looks like
+(Anton, 2026-09-05). Each group names the module worth showing — timer,
+converter, clipboard, monitor, vpn, windows.
+
+The data behind it is staged and lives nowhere else. `AppModel(preview: true)`
+builds a second set of controllers with `demo: true`, which read nothing of the
+user's and write nothing back: the clipboard shows two rows that need no
+translation (a link and a path), the monitor takes one live reading plus an hour
+of staged history (cpu load and throughput are deltas between two readings, so
+the sample's own figures come from the staged curve rather than showing a dash),
+the tunnel list shows the two configurations the snapshots already use, and the
+tracker and to-dos start empty. Writing demo data into the real stores and
+clearing it afterwards was the alternative, and it leaves fake rows behind the
+moment somebody quits mid-wizard.
+
 ## Modules
 
 The main screen shows the modules of the selected space (tab) as a stack,
