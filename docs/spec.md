@@ -251,7 +251,9 @@ being re-rendered, and it cannot drift from what the panel actually looks like
 the module at the panel's real 368pt, cropped to 124 tall, so the row shows what
 the switch is about. Scaled down to a 170pt thumbnail first, it was a grey blur;
 the window grew instead. One picture per screen said
-nothing about the two modules under it. The four modules whose panel row is only
+nothing about the two modules under it. A picture is as tall as its own module (`previewHeight`), so a one-row module is
+a strip rather than a strip with empty space under it, and a list is cut between
+rows instead of through one. The four modules whose panel row is only
 a button — the converter, the archiver, recognition and the uninstaller — show
 the WINDOW they open instead, since the row itself says nothing. Staged content
 fills the rest: two rows in the clipboard and three picked colours, different

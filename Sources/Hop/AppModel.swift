@@ -8,7 +8,7 @@ final class AppModel: ObservableObject {
     static var sharedKeepAwake: KeepAwakeController?
 
     let engine = TimerEngine()
-    let keepAwake = KeepAwakeController()
+    let keepAwake: KeepAwakeController
     let stats: SystemStatsController
     let clipboard: ClipboardController
     let updater = UpdateChecker()
@@ -103,6 +103,7 @@ final class AppModel: ObservableObject {
     /// controllers, with staged data, reading and writing nothing of the user's.
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
     init(preview: Bool = false) {
+        keepAwake = preview ? KeepAwakeController(demo: true) : KeepAwakeController()
         stats = SystemStatsController(demo: preview)
         clipboard = ClipboardController(demo: preview)
         tracker = TrackerController(demo: preview)

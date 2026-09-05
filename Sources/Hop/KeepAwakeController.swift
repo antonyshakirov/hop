@@ -39,6 +39,15 @@ final class KeepAwakeController: ObservableObject {
     private var ticker: Timer?
     private var terminateObserver: NSObjectProtocol?
 
+    /// Preview: the row shows the module ON, without holding a real power
+    /// assertion or making a sound.
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    init(demo: Bool) {
+        isActive = true
+        selected = Self.options.first { $0.label == "4h" }
+        until = Date().addingTimeInterval(4 * 3600)
+    }
+
     init() {
         LidDimmer.restorePendingAtLaunch()
         // safety net: on app exit, release the assertion and restore lid sleep

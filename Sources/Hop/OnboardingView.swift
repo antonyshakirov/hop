@@ -305,12 +305,28 @@ struct OnboardingView: View {
             : key
         return previewBody(drawn)
             .frame(width: 368, alignment: .top)
-            .frame(width: 368, height: 124, alignment: .topLeading)
+            .frame(width: 368, height: Self.previewHeight(key), alignment: .topLeading)
             .clipped()
             .background(Theme.background)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.divider, lineWidth: 1))
             .allowsHitTesting(false)
+    }
+
+    /// A picture is as tall as its module, so a one-row module is a strip rather
+    /// than a strip with empty space under it, and a list is cut between rows
+    /// instead of through one (Anton, 2026-09-05).
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    private static func previewHeight(_ key: String) -> CGFloat {
+        switch key {
+        case "awake", "keyboard", "speedtest", "torrent": return 58
+        case "windows": return 68
+        case "clipboard": return 106
+        case "apps", "vpn": return 96
+        case "todos": return 114
+        case "color": return 142
+        default: return 124
+        }
     }
 
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
