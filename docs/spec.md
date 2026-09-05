@@ -216,7 +216,7 @@ what decides now.
 ### Switching a module off
 
 The switch is in three places and they are one answer: the power button on the
-module's chip in "modules & tabs" (filled = on), the item in a module's
+module's chip in "modules & tabs" (green = on), the item in a module's
 right-click menu in the panel, and "enable the module" on its page.
 
 **A module that is busy says what stopping it will do, and waits.** The rule is
@@ -312,9 +312,13 @@ space cap (it was a full-height dashed column before — the stretch was dropped
 the revert is a one-liner noted in `addColumnStub`). Module chips (name,
 lowercase) stack vertically in every column; a hand-rolled drag moves a chip
 between columns and within a column (`move`/`reorder`) — placement only, since
-the power button on the chip is the on/off control. A switched-off chip is
-dimmed and its power button is the hollow ring rather than the filled one
-(`power.circle` / `power.circle.fill`). While a chip is dragged, a live insertion
+the power button on the chip is the on/off control: the bare `power` glyph, green
+while the module runs and grey once it is off, with the chip's name dimmed
+alongside it. It was drawn in a circle at first (`power.circle.fill`), which read
+as a smiley rather than a switch, and both states were grey, so neither said
+which was which (Anton, 2026-09-05). A dotted ring for the off state was tried
+next and read as a loading spinner; one glyph in two colours is what stayed.
+While a chip is dragged, a live insertion
 indicator marks exactly where it will land: a 2pt horizontal line with rounded
 caps in the shared `Theme.editing` accent (the same yellow/goldenrod token the
 timer digit-group highlight uses) between the rows of the target column

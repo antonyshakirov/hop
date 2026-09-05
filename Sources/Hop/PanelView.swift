@@ -1673,12 +1673,13 @@ struct PanelView: View {
                 }
                 .frame(width: 12, height: 13)
             }
+            // SPEC: docs/spec.md — the power button on a chip.
             Button {
                 if hidden { setModuleHidden(key, false) } else { requestModuleOff(key) }
             } label: {
-                Image(systemName: hidden ? "power.circle" : "power.circle.fill")
-                    .font(.system(size: 10))
-                    .foregroundStyle(hidden ? Theme.textTertiary : Theme.textSecondary)
+                Image(systemName: "power")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(hidden ? Theme.textTertiary : Theme.accentGreen)
                     .frame(width: 14, height: 13)
                     .contentShape(Rectangle())
             }
