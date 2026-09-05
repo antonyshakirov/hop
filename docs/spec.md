@@ -229,8 +229,11 @@ one card saying the app is free, has no paid tier and lives on donations) → si
 code (`PanelView(previewModule:)`) and made unclickable. Not a screenshot: it
 follows the language and the theme picked two screens earlier without anything
 being re-rendered, and it cannot drift from what the panel actually looks like
-(Anton, 2026-09-05). Each group names the module worth showing — timer,
-converter, clipboard, monitor, vpn, windows.
+(Anton, 2026-09-05). Each group names the modules worth showing: timer · the
+converter and the archives together · clipboard · monitor · vpn and the speed
+test together · the window zones. Two are drawn where one says too little — the
+converter and the archives are single rows in the panel, since their work
+happens in a window of their own.
 
 The data behind it is staged and lives nowhere else. `AppModel(preview: true)`
 builds a second set of controllers with `demo: true`, which read nothing of the

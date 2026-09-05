@@ -123,7 +123,7 @@ struct OnboardingView: View {
 
     private var privacyStep: some View {
         VStack(alignment: .leading, spacing: 14) {
-            stepHeading(t(.permPledgeTitle))
+            stepHeading(t(.onbPrivacyTitle))
             Text(t(.permPledgeBody))
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.docText)
@@ -205,8 +205,8 @@ struct OnboardingView: View {
     /// The module as it will actually look, drawn by the panel's own code with
     /// the preview model's staged data. Nothing to redraw per language or theme:
     /// it is the same view the panel shows.
-    private func modulePreview(_ key: String) -> some View {
-        PanelView(previewModule: key)
+    private func modulePreview(_ keys: [String]) -> some View {
+        PanelView(previewModules: keys)
             .environmentObject(previewModel)
             .frame(width: 368)
             .frame(maxHeight: 190, alignment: .top)
