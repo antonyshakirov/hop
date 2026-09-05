@@ -54,6 +54,7 @@ enum SettingsKey {
     /// Which onboarding step to reopen on. SPEC: docs/spec.md — "Onboarding".
     static let onboardingStep = "onboardingStep"
     static let onboardingWantsApps = "onboardingWantsApps"
+    static let onboardingLaunchAtLogin = "onboardingLaunchAtLogin"
     /// One-shot flag: models saved before the tracker had its own tab get the
     /// tracker lifted into a fresh "clock" tab exactly once. Set on the fresh
     /// migrate path too, so the seed never runs for new installs.

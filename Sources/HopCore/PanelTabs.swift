@@ -206,9 +206,15 @@ public struct PanelTabsModel: Codable, Equatable {
     /// Any space beyond these three dissolves; its active modules were already
     /// folded into space 1. Defensive no-op on a caller-built empty model (there
     /// is no first-tab icon to keep).
+    /// The second space is everything that REPORTS: the monitor, the speed test
+    /// and the torrents (Anton, 2026-09-05). The first space was carrying all
+    /// three plus every tool, which is more than one panel should say at once.
+    public static let reportingModules = ["system", "speedtest", "torrent"]
+    public static let timeModules = ["tracker", "todos"]
+
     public func canonicalized() -> PanelTabsModel {
         guard let firstIcon = tabs.first?.icon else { return self }
-        let managed: Set<String> = ["system", "tracker", "todos"]
+        let managed = Set(Self.reportingModules + Self.timeModules)
 
         var seen = Set<String>()
         var primary: [String] = []
@@ -220,10 +226,13 @@ public struct PanelTabsModel: Codable, Equatable {
         }
 
         var canonical = [PanelTab(icon: firstIcon, moduleKeys: primary)]
-        if !isPutAway("system") {
-            canonical.append(PanelTab(icon: "display", moduleKeys: ["system"]))
+        // A module that is off still belongs to its space, so the space exists as
+        // long as ANY of its modules is on.
+        let reporting = Self.reportingModules.filter { !isPutAway($0) }
+        if !reporting.isEmpty {
+            canonical.append(PanelTab(icon: "display", moduleKeys: reporting))
         }
-        let clock = ["tracker", "todos"].filter { !isPutAway($0) }
+        let clock = Self.timeModules.filter { !isPutAway($0) }
         if !clock.isEmpty {
             canonical.append(PanelTab(icon: "clock", moduleKeys: clock))
         }
@@ -244,9 +253,10 @@ public struct PanelTabsModel: Codable, Equatable {
     /// contains "system", "tracker" and "todos", so `ensure` appends nothing
     /// for them.
     public static func migrate(moduleOrder: [String]) -> PanelTabsModel {
-        let primary = PanelTab(icon: "house", moduleKeys: moduleOrder)
-        let system = PanelTab(icon: "display", moduleKeys: ["system"])
-        let tracker = PanelTab(icon: "clock", moduleKeys: ["tracker", "todos"])
+        let managed = Set(reportingModules + timeModules)
+        let primary = PanelTab(icon: "house", moduleKeys: moduleOrder.filter { !managed.contains($0) })
+        let system = PanelTab(icon: "display", moduleKeys: reportingModules)
+        let tracker = PanelTab(icon: "clock", moduleKeys: timeModules)
         return PanelTabsModel(tabs: [primary, system, tracker])
     }
 }

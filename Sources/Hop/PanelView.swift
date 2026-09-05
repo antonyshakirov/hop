@@ -169,7 +169,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.panelTabs) private var panelTabsRaw = ""
     // Last space the user viewed; restored on the next open (mirrors initialTab).
     @AppStorage("activeSpaceID") private var activeSpaceRaw = ""
-    @AppStorage("windowsLayout") private var windowsLayout = "grid" // grid | row
+    @AppStorage("windowsLayout") private var windowsLayout = "row" // grid | row
 
     @AppStorage("monitorColorful") private var monitorColorful = false
     @State private var dropTargeted = false

@@ -298,6 +298,15 @@ The confirmation is the same scrim-and-card the deletions use, over the panel
 and over the settings window alike, with cancel on the leading edge (Escape) and
 "turn off" on the trailing one. It is not red: nothing is being destroyed.
 
+**The default layout, from 2026-09-05:** space 1 is the tools, space 2 is
+everything that REPORTS — the monitor, the speed test and the torrents
+(`PanelTabsModel.reportingModules`) — and space 3 is the tracker with the
+to-dos. The speed test and the torrents used to sit on space 1, which carried
+every tool plus them. A reporting space survives as long as any one of its three
+is on. The window zones also ship as one row rather than the grid
+(`windowsLayout` defaults to `row`); an install that already exists is written
+`grid` once at launch, so nobody's panel changes shape under them.
+
 Older versions spelled hidden differently: the module was parked in an
 "inactive" bucket off the spaces. That bucket is still decoded and
 `liftInactiveIntoHidden` puts its contents back on the first space as hidden —

@@ -110,6 +110,17 @@ final class AppModel: ObservableObject {
         vpn = VPNController(demo: preview)
         colorPicker = ColorPickerController(clipboard: clipboard)
         screenText = ScreenTextController(clipboard: clipboard)
+        if preview {
+            // Three staged files, so the converter's screen shows a queue rather
+            // than an empty drop plate. Names need no translation.
+            converter.batch.images = [
+                .init(url: URL(fileURLWithPath: "/Users/preview/Pictures/cover.heic"), bytes: 4_182_000),
+                .init(url: URL(fileURLWithPath: "/Users/preview/Pictures/poster.png"), bytes: 2_640_000),
+            ]
+            converter.batch.videos = [
+                .init(url: URL(fileURLWithPath: "/Users/preview/Movies/clip.mov"), bytes: 88_500_000),
+            ]
+        }
         // a finished recognition brings its window forward: the text has to be
         // visible, not just quietly filed away
         screenText.onResult = { [weak self] in self?.openScreenTextWindow?() }

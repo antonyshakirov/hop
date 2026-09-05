@@ -25,7 +25,9 @@ struct OnboardingView: View {
     /// A grid of apps is not a module until one exists, so the answer is kept
     /// here and acted on at the end.
     @AppStorage(SettingsKey.onboardingWantsApps) private var wantsApps = true
-    @State private var launchAtLogin = true
+    /// Stored, not @State: the wizard is restarted by the permissions step, and
+    /// an answer given on the first screen must still be there afterwards.
+    @AppStorage(SettingsKey.onboardingLaunchAtLogin) private var launchAtLogin = true
     /// Bumped by every switch so the module rows redraw: their state lives in
     /// stored defaults, which SwiftUI does not observe.
     @State private var moduleRevision = 0

@@ -414,7 +414,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
-        if !UserDefaults.standard.bool(forKey: "onboardingDone") {
+        // The zones ship as one row now (Anton, 2026-09-05). Somebody who has
+        // been using the grid keeps it: the default only applies where the app
+        // has never run, so a Mac that already finished onboarding is written
+        // the old value once.
+        let defaults = UserDefaults.standard
+        if defaults.bool(forKey: "onboardingDone"), defaults.string(forKey: "windowsLayout") == nil {
+            defaults.set("grid", forKey: "windowsLayout")
+        }
+
+        if !defaults.bool(forKey: "onboardingDone") {
             showOnboarding()
         }
 

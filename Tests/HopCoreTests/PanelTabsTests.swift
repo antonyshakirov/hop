@@ -12,7 +12,8 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(model.tabs[0].icon, "house")
         XCTAssertEqual(model.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
         XCTAssertEqual(model.tabs[1].icon, "display")
-        XCTAssertEqual(model.tabs[1].moduleKeys, ["system"])
+        XCTAssertEqual(model.tabs[1].moduleKeys, ["system", "speedtest", "torrent"],
+                       "everything that reports shares the second space")
         XCTAssertEqual(model.tabs[2].icon, "clock")
         XCTAssertEqual(model.tabs[2].moduleKeys, ["tracker", "todos"])
         XCTAssertEqual(model.inactive, [], "a fresh migrate has an empty inactive bucket")
@@ -487,7 +488,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(c.tabs[0].icon, "house")
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
         XCTAssertEqual(c.tabs[1].icon, "display")
-        XCTAssertEqual(c.tabs[1].moduleKeys, ["system"])
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
         XCTAssertEqual(c.tabs[2].icon, "clock")
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
         XCTAssertEqual(c.inactive, [])
@@ -505,8 +506,10 @@ final class PanelTabsTests: XCTestCase {
         let c = model.canonicalized()
 
         XCTAssertEqual(c.inactive, ["system"], "the monitor the user had off stays off")
-        XCTAssertFalse(c.tabs.contains { $0.moduleKeys.contains("system") }, "no monitor space is created")
-        XCTAssertEqual(c.tabs.count, 2)
+        XCTAssertFalse(c.tabs.contains { $0.moduleKeys.contains("system") }, "no monitor row is created")
+        // The reporting space still exists for the speed test and the torrents.
+        XCTAssertEqual(c.tabs.count, 3)
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["speedtest", "torrent"])
         XCTAssertEqual(c.tabs.last?.icon, "clock")
         XCTAssertEqual(c.tabs.last?.moduleKeys, ["tracker", "todos"], "the new modules are visible together")
     }
@@ -539,7 +542,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(c.tabs.count, 3)
         XCTAssertEqual(c.tabs[0].icon, "house")
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
-        XCTAssertEqual(c.tabs[1].moduleKeys, ["system"])
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
     }
 
@@ -555,7 +558,7 @@ final class PanelTabsTests: XCTestCase {
 
         XCTAssertEqual(c.tabs.count, 2)
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer"])
-        XCTAssertEqual(c.tabs[1].moduleKeys, ["system"])
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
         XCTAssertFalse(c.tabs.contains { $0.moduleKeys.contains("tracker") || $0.moduleKeys.contains("todos") })
         XCTAssertEqual(c.inactive, ["tracker", "todos"])
     }
