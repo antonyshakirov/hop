@@ -642,7 +642,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Repaint everything at once: popover, windows, menu bar icon.
-    func applyAppTheme() {
+    /// `refreshIcon: false` leaves the Dock icon alone. Rewriting it goes through
+    /// `NSWorkspace.setIcon`, which writes into the bundle and waits on the
+    /// Finder — seconds, on the main thread, for a theme chip that should answer
+    /// at once (Anton, 2026-09-05). The onboarding passes false and the icon is
+    /// written once at the end.
+    func applyAppTheme(refreshIcon: Bool = true) {
         statusController?.applyTheme()
         settingsWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         onboardingWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
@@ -653,8 +658,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         torrentAddWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         quitWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         model.themeVersion &+= 1 // redraw everything, including views with unchanged inputs
-        AppIcon.apply() // the "auto" icon follows the system theme
+        guard refreshIcon else { return }
+        // Debounced: clicking through the three chips would otherwise write the
+        // icon three times.
+        iconRefresh?.cancel()
+        let work = DispatchWorkItem { AppIcon.apply() } // the "auto" icon follows the system theme
+        iconRefresh = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: work)
     }
+
+    private var iconRefresh: DispatchWorkItem?
 
     /// Window height = content (up to 70% of the screen) until the user
     /// drags an edge themselves — then their choice is respected until close.
@@ -991,11 +1004,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.isReleasedWhenClosed = false
         window.contentViewController = NSHostingController(rootView: OnboardingView(
             updater: model.updater, shelves: model.appShelves,
-            applyTheme: { [weak self] in self?.applyAppTheme() }
+            applyTheme: { [weak self] in self?.applyAppTheme(refreshIcon: false) }
         ) { [weak self] in
             self?.onboardingWindow?.close()
             self?.onboardingWindow = nil
-            self?.applyAppTheme() // theme picked in onboarding applies everywhere immediately
+            self?.applyAppTheme() // theme picked in onboarding applies everywhere, icon included
             // onboarding is where most modules are first switched off
             ModuleActivation.announceChange()
             // Torrents kept active in onboarding = fetch the engine right away,

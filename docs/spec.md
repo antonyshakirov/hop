@@ -224,6 +224,12 @@ one card saying the app is free, has no paid tier and lives on donations) → si
   before it.
 - The permissions step embeds the settings window's own `PermissionsView`, so
   there is one list of permissions in the app rather than two.
+- **A theme chip answers at once.** `applyAppTheme(refreshIcon:)` splits the
+  cheap work (windows, the menu-bar icon, a redraw) from writing the Dock icon,
+  which goes through `NSWorkspace.setIcon` into the bundle: measured at 620–850ms
+  per call on this Mac, so three clicks through the chips cost over two seconds
+  of frozen main thread (Anton, 2026-09-05). The onboarding never writes it — the
+  finish does, once — and everywhere else the write is debounced by 0.5s.
 - "apps" is not a module until a grid exists, so its answer is kept in
   `SettingsKey.onboardingWantsApps` and the grid is made at the end.
 - Finishing marks every "what's new" announcement and release card seen: a fresh
