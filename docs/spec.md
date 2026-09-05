@@ -247,11 +247,12 @@ pledge under them in small type: a paragraph of that length was skipped.
 code (`PanelView(previewModule:)`) and made unclickable. Not a screenshot: it
 follows the language and the theme picked two screens earlier without anything
 being re-rendered, and it cannot drift from what the panel actually looks like
-(Anton, 2026-09-05). Each group names the modules worth showing: timer · the
-converter and the archives together · clipboard · monitor · vpn and the speed
-test together · the window zones. Two are drawn where one says too little — the
-converter and the archives are single rows in the panel, since their work
-happens in a window of their own.
+(Anton, 2026-09-05). **Every module gets its own picture, beside its own row**:
+a 170×86 thumbnail of that module, laid out at the panel's real 368pt and scaled
+down, so the row shows what the switch is about. One picture per screen said
+nothing about the two modules under it. The tracker and the to-dos carry two
+sample rows (`onbSampleTask*`, ×22) — an empty list is a heading and nothing
+else.
 
 The data behind it is staged and lives nowhere else. `AppModel(preview: true)`
 builds a second set of controllers with `demo: true`, which read nothing of the

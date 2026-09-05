@@ -110,6 +110,19 @@ final class AppModel: ObservableObject {
         vpn = VPNController(demo: preview)
         colorPicker = ColorPickerController(clipboard: clipboard)
         screenText = ScreenTextController(clipboard: clipboard)
+        if preview {
+            // Staged rows for the pictures: an empty tracker and an empty list
+            // show a heading and nothing else. The sample names are translated
+            // like any other string.
+            let lang = L10n.current
+            let a = L10n.t(.onbSampleTaskA, lang)
+            let b = L10n.t(.onbSampleTaskB, lang)
+            todos.add(text: a)
+            todos.add(text: b)
+            let task = tracker.engine.addTask(name: b)
+            _ = tracker.engine.addSession(taskID: task, seconds: 42 * 60)
+            _ = tracker.engine.addTask(name: a)
+        }
         // a finished recognition brings its window forward: the text has to be
         // visible, not just quietly filed away
         screenText.onResult = { [weak self] in self?.openScreenTextWindow?() }

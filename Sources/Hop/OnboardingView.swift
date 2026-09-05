@@ -53,7 +53,7 @@ struct OnboardingView: View {
         VStack(spacing: 0) {
             SnapshotAwareScroll {
                 content
-                    .frame(maxWidth: 460)
+                    .frame(maxWidth: 520)
                     .padding(.horizontal, 30)
                     .padding(.vertical, 30)
                     // A short screen sits in the middle of the window rather
@@ -238,13 +238,11 @@ struct OnboardingView: View {
     private func groupStep(_ group: ModuleGroup) -> some View {
         VStack(spacing: 16) {
             stepHeading(t(group.titleKey), subtitle: t(.onbGroupHint))
-            modulePreview(group.preview)
-            opaque(10) { SettingsCard {
-                ForEach(Array(group.modules.enumerated()), id: \.element) { index, key in
-                    if index > 0 { SettingsRule() }
-                    moduleRow(key)
+            VStack(spacing: 10) {
+                ForEach(group.modules, id: \.self) { key in
+                    opaque(10) { SettingsCard(spacing: 10) { moduleRow(key) } }
                 }
-            } }
+            }
         }
     }
 
@@ -254,11 +252,10 @@ struct OnboardingView: View {
             set: { setModule(key, on: $0) }
         )
         return HStack(alignment: .top, spacing: 12) {
-            Image(systemName: ModulePresentation.icon(key == Self.appsChoice ? "apps" : key))
-                .font(.system(size: 13))
-                .foregroundStyle(Theme.textPrimary)
-                .frame(width: 30, height: 30)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Theme.chipBg))
+            // Each module carries its OWN picture, beside its own row: one
+            // picture per screen said nothing about the two modules under it
+            // (Anton, 2026-09-05).
+            modulePreview(key)
             VStack(alignment: .leading, spacing: 3) {
                 Text(moduleTitle(key))
                     .font(Theme.mono(12))
@@ -286,15 +283,21 @@ struct OnboardingView: View {
     /// The module as it will actually look, drawn by the panel's own code with
     /// the preview model's staged data. Nothing to redraw per language or theme:
     /// it is the same view the panel shows.
-    private func modulePreview(_ keys: [String]) -> some View {
-        PanelView(previewModules: keys)
+    /// The module drawn by the panel's own code, scaled down to a thumbnail that
+    /// sits beside its row. `scaleEffect` does not change the layout size, so the
+    /// panel is laid out at its real 368pt and then cropped to the tile.
+    private func modulePreview(_ key: String) -> some View {
+        let width: CGFloat = 170
+        return PanelView(previewModules: [key])
             .environmentObject(previewModel)
-            .frame(width: 368)
-            .frame(maxHeight: 190, alignment: .top)
+            .frame(width: 368, alignment: .top)
+            .scaleEffect(width / 368, anchor: .topLeading)
+            .frame(width: width, height: 86, alignment: .topLeading)
+            .clipped()
             .background(Theme.background)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.divider, lineWidth: 1))
-            .frame(maxWidth: .infinity)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.divider, lineWidth: 1))
+            .allowsHitTesting(false)
     }
 
     private var permissionsStep: some View {
