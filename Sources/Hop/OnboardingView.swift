@@ -1,3 +1,4 @@
+import AppKit
 import HopCore
 import ServiceManagement
 import SwiftUI
@@ -148,32 +149,27 @@ struct OnboardingView: View {
     }
 
     private var privacyStep: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 14) {
+            Image(systemName: "lock")
+                .font(.system(size: 24, weight: .light))
+                .foregroundStyle(Theme.textPrimary)
+                .padding(.bottom, 2)
             stepHeading(t(.onbPrivacyTitle))
             VStack(spacing: 6) {
                 privacyClaim("bolt.horizontal.circle", t(.onbPrivacyNoServer))
                 privacyClaim("chart.bar.xaxis", t(.onbPrivacyNoAnalytics))
-                privacyClaim("chevron.left.forwardslash.chevron.right", t(.onbPrivacyOpenSource))
+                privacyClaim("chevron.left.forwardslash.chevron.right", t(.onbPrivacyOpenSource),
+                             url: "https://github.com/antonyshakirov/hop")
             }
-            Text(t(.onbFreeBody))
-                .font(Theme.mono(12))
-                .foregroundStyle(Theme.textSecondary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 4)
-            Link(destination: URL(string: "https://github.com/antonyshakirov/hop")!) {
-                HStack(spacing: 5) {
-                    Text(t(.permPledgeLink))
-                    Image(systemName: "arrow.up.forward")
-                        .font(.system(size: 8, weight: .semibold))
-                }
-                .font(Theme.mono(10))
-                .foregroundStyle(Theme.textTertiary)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .hoverDim()
+            privacyClaim("heart.fill", t(.onbFreeBody), url: donateURL, tint: Theme.iconHealth)
+                .padding(.top, 14)
         }
+    }
+
+    /// Russian routes to the ru card, every other locale to the neutral one —
+    /// the same rule the settings page and the localized READMEs follow.
+    private var donateURL: String {
+        lang == .ru ? "https://web.tribute.tg/d/Nvp" : "https://web.tribute.tg/d/Nvk"
     }
 
     /// Every card sits on the panel's own colour: `Theme.rowBg` is 4.5% ink, so
@@ -183,23 +179,46 @@ struct OnboardingView: View {
         content().background(RoundedRectangle(cornerRadius: radius).fill(Theme.background))
     }
 
-    /// One line of the pledge, with its own mark: three short claims read where
-    /// a paragraph of the same length does not.
-    private func privacyClaim(_ symbol: String, _ text: String) -> some View {
-        HStack(spacing: 10) {
+    /// One claim: mark and words as one group in the middle of a narrow card.
+    /// With a `url` the whole card opens it and says so with the external-page
+    /// glyph — the claim about open source is checkable, so it is a link
+    /// (Anton, 2026-09-05).
+    @ViewBuilder
+    private func privacyClaim(_ symbol: String, _ text: String,
+                              url: String? = nil, tint: Color = Theme.accentGreen) -> some View {
+        let card = HStack(spacing: 9) {
             Image(systemName: symbol)
                 .font(.system(size: 12))
-                .foregroundStyle(Theme.accentGreen)
-                .frame(width: 22)
+                .foregroundStyle(tint)
             Text(text)
                 .font(Theme.mono(12))
                 .foregroundStyle(Theme.textPrimary)
-            Spacer(minLength: 0)
+                .multilineTextAlignment(.center)
+            if url != nil {
+                Image(systemName: "arrow.up.forward")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(Theme.textTertiary)
+            }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 9)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Theme.background))
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 8))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerRadius: 9).fill(Theme.background))
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 9))
+        .overlay(RoundedRectangle(cornerRadius: 9).stroke(Theme.controlStroke, lineWidth: 1))
+        .frame(maxWidth: 360)
+
+        if let url {
+            Button {
+                if let link = URL(string: url) { NSWorkspace.shared.open(link) }
+            } label: {
+                card.contentShape(RoundedRectangle(cornerRadius: 9))
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
+        } else {
+            card
+        }
     }
 
     private func groupStep(_ group: ModuleGroup) -> some View {
