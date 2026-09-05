@@ -1000,20 +1000,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.model.torrent.prefetchEngineIfNeeded()
             }
         }.hopLayoutDirection())
-        // Dead centre of the screen, not AppKit's `center()`, which sits a
-        // window a little above the middle (Anton, 2026-09-05).
-        if let screen = NSScreen.main?.visibleFrame {
-            let size = window.frame.size
-            window.setFrameOrigin(NSPoint(x: screen.midX - size.width / 2,
-                                          y: screen.midY - size.height / 2))
-        } else {
-            window.center()
-        }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         onboardingWindow = window
         enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        centreOnboarding()
+    }
+
+    /// Dead centre of the screen it opens on. AppKit's `center()` sits a window
+    /// a little above the middle, and centring before the hosting controller has
+    /// sized the window measures the wrong height (Anton, 2026-09-05).
+    private func centreOnboarding() {
+        guard let window = onboardingWindow,
+              let visible = (window.screen ?? NSScreen.main)?.visibleFrame else { return }
+        let frame = window.frame
+        window.setFrameOrigin(NSPoint(x: visible.midX - frame.width / 2,
+                                      y: visible.midY - frame.height / 2))
     }
 
     func applicationWillTerminate(_ notification: Notification) {

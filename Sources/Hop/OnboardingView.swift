@@ -97,7 +97,7 @@ struct OnboardingView: View {
             .frame(maxWidth: .infinity)
             .padding(.top, 26)
 
-            SettingsCard {
+            opaque(10) { SettingsCard {
                 HStack {
                     Text(t(.language))
                         .font(Theme.mono(12))
@@ -123,7 +123,7 @@ struct OnboardingView: View {
                     Spacer()
                     Theme.MiniSwitch(isOn: $launchAtLogin)
                 }
-            }
+            } }
         }
     }
 
@@ -141,7 +141,7 @@ struct OnboardingView: View {
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
-            SettingsCard {
+            opaque(10) { SettingsCard {
                 VStack(alignment: .leading, spacing: 5) {
                     Text(t(.onbFreeTitle))
                         .font(Theme.mono(11, weight: .semibold))
@@ -151,7 +151,7 @@ struct OnboardingView: View {
                         .foregroundStyle(Theme.docText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-            }
+            } }
             Link(destination: URL(string: "https://github.com/antonyshakirov/hop")!) {
                 HStack(spacing: 5) {
                     Text(t(.permPledgeLink))
@@ -165,6 +165,13 @@ struct OnboardingView: View {
             .buttonStyle(.plain)
             .hoverDim()
         }
+    }
+
+    /// Every card sits on the panel's own colour: `Theme.rowBg` is 4.5% ink, so
+    /// without this the backdrop's dots read straight through the cards
+    /// (Anton, 2026-09-05).
+    private func opaque<V: View>(_ radius: CGFloat, @ViewBuilder _ content: () -> V) -> some View {
+        content().background(RoundedRectangle(cornerRadius: radius).fill(Theme.background))
     }
 
     /// One line of the pledge, with its own mark: three short claims read where
@@ -182,6 +189,7 @@ struct OnboardingView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)
+        .background(RoundedRectangle(cornerRadius: 8).fill(Theme.background))
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 8))
     }
 
@@ -189,12 +197,12 @@ struct OnboardingView: View {
         VStack(spacing: 16) {
             stepHeading(t(group.titleKey), subtitle: t(.onbGroupHint))
             modulePreview(group.preview)
-            SettingsCard {
+            opaque(10) { SettingsCard {
                 ForEach(Array(group.modules.enumerated()), id: \.element) { index, key in
                     if index > 0 { SettingsRule() }
                     moduleRow(key)
                 }
-            }
+            } }
         }
     }
 
@@ -241,6 +249,7 @@ struct OnboardingView: View {
             .environmentObject(previewModel)
             .frame(width: 368)
             .frame(maxHeight: 190, alignment: .top)
+            .background(Theme.background)
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.divider, lineWidth: 1))
             .frame(maxWidth: .infinity)
