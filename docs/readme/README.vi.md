@@ -1,13 +1,13 @@
 <div align="center">
 
-<img src="../../assets/icon/hop-icon-app.svg" width="96" alt="Biểu tượng ứng dụng Hop — dấu hoa thị bốn nét">
+<img src="../../assets/icon/hop-icon-app.svg" width="96" alt="Biểu tượng ứng dụng Hop – dấu hoa thị bốn nét">
 
 # Hop
 
 **Một trợ thủ nhỏ gọn trên thanh menu của macOS: hẹn giờ, theo dõi thời
 gian, việc cần làm, chống ngủ, giám sát hệ thống, lịch sử clipboard,
 chuyển đổi tệp, quản lý cửa sổ và trình torrent gọn nhẹ. Bạn bật những
-thứ mình cần và trải chúng trên tối đa bốn tab ở biểu tượng. Một cú nhấp —
+thứ mình cần và trải chúng trên tối đa bốn tab ở biểu tượng. Một cú nhấp –
 mọi thứ bạn cần đều ở ngay đó.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
@@ -21,7 +21,7 @@ mọi thứ bạn cần đều ở ngay đó.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · **Tiếng Việt** · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Bảng điều khiển Hop — đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
+<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Bảng điều khiển Hop – đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
 
 </div>
 
@@ -29,14 +29,14 @@ Hop nằm trên thanh menu của máy Mac và thay thế cả một nắm tiện
 đồng hồ hẹn giờ kiểu Pomodoro, trình theo dõi thời gian kèm danh sách việc
 cần làm, trình chặn ngủ kiểu caffeinate, trình giám sát hệ thống, trình
 quản lý clipboard, trình chuyển đổi tệp kéo-thả, công cụ sắp xếp cửa sổ và
-trình torrent gọn nhẹ — một ứng dụng native nhẹ nhàng, với các mô-đun bạn
+trình torrent gọn nhẹ – một ứng dụng native nhẹ nhàng, với các mô-đun bạn
 dùng được trải trên tối đa bốn tab ở biểu tượng.
 
 ## Tải về
 
-- **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — mở ra rồi kéo `Hop.app` vào Applications (khuyên dùng)
+- **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – mở ra rồi kéo `Hop.app` vào Applications (khuyên dùng)
 - Homebrew: `brew install --cask antonyshakirov/tap/hop`
-- `Hop-x.y.z.zip` — vẫn là ứng dụng đó dưới dạng tệp nén thông thường (dùng cho trình cập nhật tích hợp); xem [bản phát hành mới nhất](https://github.com/antonyshakirov/hop/releases/latest)
+- `Hop-x.y.z.zip` – vẫn là ứng dụng đó dưới dạng tệp nén thông thường (dùng cho trình cập nhật tích hợp); xem [bản phát hành mới nhất](https://github.com/antonyshakirov/hop/releases/latest)
 - Mirror tốc độ cao: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
 Hop được ký bằng Apple Developer ID và đã qua notarization của Apple, nên
@@ -49,21 +49,21 @@ tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
 Biểu tượng chứa được tối đa bốn tab, và bạn kéo từng mô-đun vào tab bạn
 muốn: hẹn giờ ở một tab, giám sát ở tab khác, thứ ít mở thì để sang bên.
-Nút nguồn cạnh mô-đun sẽ tắt nó: mô-đun vẫn giữ chỗ nhưng ngừng chạy — không
+Nút nguồn cạnh mô-đun sẽ tắt nó: mô-đun vẫn giữ chỗ nhưng ngừng chạy – không
 phím tắt, không dấu hiệu, không thu thập gì ở nền.
 
 ### Hẹn giờ & chu kỳ
 
 Đồng hồ đếm ngược ma trận điểm mà bạn đặt chỉ bằng một thao tác: kéo các
 con số, gõ thời gian như trên lò vi sóng, hoặc chọn một mức cài sẵn. Chu kỳ
-làm việc-nghỉ ngơi (Pomodoro 25/5, 52/17, 90/15 — hoặc tự đặt), đồng hồ bấm
+làm việc-nghỉ ngơi (Pomodoro 25/5, 52/17, 90/15 – hoặc tự đặt), đồng hồ bấm
 giờ, ngăn cất giữ giúp đồng hồ đang chạy không bị mất khi bạn thử một đồng
 hồ khác, và thông báo kết thúc còn có thể tạm dừng nhạc hay video của bạn.
 Khi đếm ngược kết thúc, một tiếng chuông vang lên và các con số nhấp nháy
 cho đến khi bạn đặt lại.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Hẹn giờ & chu kỳ">
+<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – Hẹn giờ & chu kỳ">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -80,8 +80,8 @@ quá lâu, sau tám giờ sẽ có một dải nhắc bạn. Bên cạnh là m�
 cần làm riêng, nơi việc đã xong chìm xuống dưới.
 
 Nhấn vào một công việc và dòng đó mở ra: toàn bộ nội dung ở dòng đầu, mô tả bên
-dưới, một ngôi sao cho mục yêu thích. Một việc cần làm còn có thể mang lời nhắc —
-ngày, giờ và những thứ trong tuần bạn muốn lặp lại — và Hop sẽ báo khi đến giờ:
+dưới, một ngôi sao cho mục yêu thích. Một việc cần làm còn có thể mang lời nhắc –
+ngày, giờ và những thứ trong tuần bạn muốn lặp lại – và Hop sẽ báo khi đến giờ:
 biểu ngữ có «hoãn» và «xong», âm thanh, dấu trên thanh menu; mỗi thứ bật riêng.
 
 **Trợ lý AI của bạn cũng có thể thêm công việc.** Danh sách là một tệp JSON bình
@@ -91,20 +91,20 @@ và hiểu liên kết `hop://`: chính trợ lý đó, hoặc một Phím tắt
 chạy. Xem [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Theo dõi thời gian & việc cần làm">
+<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – Theo dõi thời gian & việc cần làm">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
 
 ### Chống ngủ
 
-Giữ máy Mac luôn thức trong 15 phút, 8 giờ hoặc mãi mãi — một cú nhấp,
+Giữ máy Mac luôn thức trong 15 phút, 8 giờ hoặc mãi mãi – một cú nhấp,
 không cần mật khẩu. Tùy chọn giữ màn hình luôn sáng, hoặc tiếp tục làm việc
 khi gập nắp máy (tiện cho việc tải xuống, các bản build dài và màn hình
 ngoài).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — Chống ngủ">
+<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – Chống ngủ">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -112,27 +112,27 @@ ngoài).
 ### Giám sát hệ thống
 
 Tải và nhiệt độ CPU và GPU, bộ nhớ và swap, mạng, ổ đĩa, tình trạng pin và mức
-tiêu thụ điện — số liệu trực tiếp kèm biểu đồ sparkline, ngưỡng màu do chính
+tiêu thụ điện – số liệu trực tiếp kèm biểu đồ sparkline, ngưỡng màu do chính
 bạn đặt, °C/°F và dòng hiển thị uptime. Số liệu lấy thẳng từ macOS và chỉ cập
 nhật khi tab đang mở. Hàng bộ nhớ cũng cảnh báo khi nhiều bộ nhớ đã bị đẩy
 xuống đĩa, chứ không chỉ khi macOS tự báo đang chật vật.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — Giám sát hệ thống">
+<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – Giám sát hệ thống">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
 ### Lịch sử clipboard
 
-100 mục bạn sao chép gần nhất (tối đa 300) — văn bản, hình ảnh và tệp — một
+100 mục bạn sao chép gần nhất (tối đa 300) – văn bản, hình ảnh và tệp – một
 cú nhấp để sao chép lại hoặc dán thẳng vào ứng dụng trước đó. Các tệp đã sao
 chép được nhớ theo tên (nhiều tệp cùng lúc hiện là «tên +N»), và khi dán thì
 chính tệp đó quay lại. Mật khẩu và các nội dung nhập ẩn khác không bao giờ
 được lưu.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Lịch sử clipboard">
+<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – Lịch sử clipboard">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -142,19 +142,19 @@ chính tệp đó quay lại. Mật khẩu và các nội dung nhập ẩn khác
 Thả cả loạt ảnh, PDF, video hoặc âm thanh vào bảng điều khiển: xuất ra JPEG,
 PNG, HEIC, AVIF và WebP; nén PDF; thu nhỏ video bằng HEVC với ước tính dung
 lượng trung thực, hiển thị trực tiếp trước khi chuyển đổi. Mọi thứ đều được xử
-lý cục bộ. Video còn có thể đổi khung hình khi chuyển đổi — 9:16, 4:5, vuông
-hoặc 16:9, cắt đầy khung, thêm viền, hay đặt trên bản sao đã làm mờ — và phần
+lý cục bộ. Video còn có thể đổi khung hình khi chuyển đổi – 9:16, 4:5, vuông
+hoặc 16:9, cắt đầy khung, thêm viền, hay đặt trên bản sao đã làm mờ – và phần
 nén có mức riêng, nên kích thước hứa trước bằng đúng kích thước nhận được.
 
-Một nút chuẩn bị đoạn phim cho nơi nó sẽ tới — reels, feed, tiktok, shorts hay
-youtube — đặt khung hình, độ phân giải và mức nén theo khuyến nghị của chính
+Một nút chuẩn bị đoạn phim cho nơi nó sẽ tới – reels, feed, tiktok, shorts hay
+youtube – đặt khung hình, độ phân giải và mức nén theo khuyến nghị của chính
 nền tảng, kèm bitrate kết quả bên cạnh thanh trượt. MKV và WebM được đóng gói
 lại thành MP4 trước (macOS không mở được cả hai) nhờ một trình phụ trợ nhỏ tải
 về một lần. Tài liệu Pages, Numbers và Keynote do chính các ứng dụng xuất hàng
 loạt: ra PDF, hoặc docx, xlsx và pptx.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — Chuyển đổi tệp">
+<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – Chuyển đổi tệp">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -162,11 +162,11 @@ loạt: ra PDF, hoặc docx, xlsx và pptx.
 ### Quản lý cửa sổ
 
 Sắp cửa sổ vào nửa màn hình, một phần tư, một phần ba và chính giữa bằng
-một cú nhấp vào biểu tượng vùng hoặc phím tắt ⌃⌥ — không cần thêm ứng dụng
+một cú nhấp vào biểu tượng vùng hoặc phím tắt ⌃⌥ – không cần thêm ứng dụng
 nào khác.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Quản lý cửa sổ">
+<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – Quản lý cửa sổ">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -174,8 +174,8 @@ nào khác.
 ### Torrent
 
 Một trình BitTorrent gọn nhẹ ngay trong cùng bảng điều khiển: thả tệp
-.torrent hoặc dán liên kết magnet, chọn chính xác những tệp muốn tải —
-trước hoặc thậm chí ngay trong lúc tải — tạm dừng, tiếp tục và seed, kèm
+.torrent hoặc dán liên kết magnet, chọn chính xác những tệp muốn tải –
+trước hoặc thậm chí ngay trong lúc tải – tạm dừng, tiếp tục và seed, kèm
 tùy chọn tự dừng khi đạt ratio 1.0. Mô-đun này mặc định tắt; khi bật, ứng
 dụng sẽ tải engine mã nguồn mở dưới dạng gói nhỏ riêng (~26 MB, có xác
 minh chữ ký) và engine chỉ giao tiếp với Hop qua một cổng cục bộ. Hop
@@ -183,25 +183,25 @@ cũng có thể trở thành ứng dụng mặc định cho tệp .torrent và l
 magnet.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Torrent trong Hop — trình BitTorrent gọn nhẹ trong bảng điều khiển trên thanh menu">
+<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Torrent trong Hop – trình BitTorrent gọn nhẹ trong bảng điều khiển trên thanh menu">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### Kho nén tệp
 
-Dòng của mô-đun mở một cửa sổ, và bạn thả tệp vào chính cửa sổ đó — ⌘V cũng
+Dòng của mô-đun mở một cửa sổ, và bạn thả tệp vào chính cửa sổ đó – ⌘V cũng
 được, nhiều tệp một lúc. Những gì bạn thêm vào chờ trong một danh sách cho tới
 khi bạn bấm nút: tệp nén được bung, phần còn lại gộp vào một tệp nén. Kết quả
 mặc định nằm trên màn hình nền, hoặc cạnh tệp gốc, hoặc trong thư mục bạn chọn.
 Hỗ trợ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz và gz; với rar và 7z, lần đầu
 gặp sẽ tải một trợ thủ nhỏ (~6 MB) có kiểm tra chữ ký. Hop bung được rar nhưng
-không bao giờ tạo — đó là định dạng độc quyền. «Hop làm mặc định cho kho nén» trong cài đặt chỉ đề xuất rar
+không bao giờ tạo – đó là định dạng độc quyền. «Hop làm mặc định cho kho nén» trong cài đặt chỉ đề xuất rar
 khi không có ứng dụng Apple xử lý, và có thể giành lại rar từ ứng dụng bên thứ ba; zip, 7z
 và các định dạng gốc vẫn thuộc Archive Utility. Nó chạy cả khi mô-đun bị ẩn, và thẻ hiện trạng thái thật. Nhấp đúp vào một tệp nén trong Finder sẽ giải nén ngay cạnh tệp đó, trong một cửa sổ tiến trình nhỏ riêng, và khi thất bại cũng không để lại thứ gì ẩn phía sau. Những tệp Hop mở đều mang biểu tượng riêng có ghi định dạng, nên cả thư mục đọc được chỉ trong một cái liếc.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — Kho nén tệp">
+<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – Kho nén tệp">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -210,7 +210,7 @@ và các định dạng gốc vẫn thuộc Archive Utility. Nó chạy cả khi
 
 Bộ chuyển đổi đã biết làm tài liệu: markdown → PDF do chính Hop dàn trang, tệp
 Word (.docx, .doc, .rtf) → PDF hoặc markdown, và trích văn bản của PDF ra
-markdown — trang quét được đọc bằng Vision của Apple. Tất cả đều chạy trong máy
+markdown – trang quét được đọc bằng Vision của Apple. Tất cả đều chạy trong máy
 và ngoại tuyến, không kèm bộ ứng dụng văn phòng, không phải tải gì thêm.
 
 → [Document conversion on Mac](https://hop.tools/features/file-converter/)
@@ -218,12 +218,12 @@ và ngoại tuyến, không kèm bộ ứng dụng văn phòng, không phải t�
 ### Ống hút màu
 
 Lấy màu bất kỳ trên màn hình bằng kính lúp hệ thống: màu ở lại trong danh sách,
-mỗi hàng mang hex, rgb và hsl ở cột riêng — bấm cái nào thì chép cách ghi ấy.
+mỗi hàng mang hex, rgb và hsl ở cột riêng – bấm cái nào thì chép cách ghi ấy.
 Thứ tự không đổi dưới con trỏ, giữ bao nhiêu màu và hiện bao nhiêu hàng là tuỳ
 chọn, và không cần quyền ghi màn hình: kính lúp chỉ trả về một màu.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Ống hút màu">
+<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – Ống hút màu">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -241,7 +241,7 @@ chỉ web: mã quét được là dữ liệu từ bên ngoài, nên số điệ
 Wi-Fi hay danh thiếp vẫn là văn bản thường.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Nhận dạng văn bản">
+<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – Nhận dạng văn bản">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -250,7 +250,7 @@ Wi-Fi hay danh thiếp vẫn là văn bản thường.
 
 ### Khoá bàn phím
 
-Bấm 1, 5 hoặc 15 phút — hoặc ∞ — và cả bàn phím ngừng phản hồi, để lau mà không
+Bấm 1, 5 hoặc 15 phút – hoặc ∞ – và cả bàn phím ngừng phản hồi, để lau mà không
 phải tắt máy hay gập nắp. Một tấm che toàn màn hình giải thích chuyện gì đang
 xảy ra, còn biểu tượng trên thanh menu biến thành bàn phím. Có bốn lối ra: nút
 trên tấm che, nút trong bảng, mở bảng, hoặc giữ esc + shift năm giây. Nhấn nhanh phím
@@ -258,17 +258,17 @@ nguồn cũng bị nuốt; giữ lâu thì Mac vẫn tắt cưỡng bức, vì �
 cứng.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Khoá bàn phím">
+<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – Khoá bàn phím">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
 
 ### Kiểm tra tốc độ
 
-Một chạm là đo đường truyền bằng chính networkQuality của macOS, đối với máy chủ của Apple — tải xuống, tải lên và độ phản hồi, kết quả cuối cùng ở lại trong hàng.
+Một chạm là đo đường truyền bằng chính networkQuality của macOS, đối với máy chủ của Apple – tải xuống, tải lên và độ phản hồi, kết quả cuối cùng ở lại trong hàng.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Kiểm tra tốc độ">
+<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – Kiểm tra tốc độ">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -277,16 +277,16 @@ Một chạm là đo đường truyền bằng chính networkQuality của macOS
 
 Biểu tượng mang những dấu nhỏ: thời gian đang chạy, chống ngủ, một lời nhắc vừa reo,
 chấm khi vpn đang bật (chuyển cam nếu không còn gì đi qua) và mũi tên khi torrent đang
-chạy — màu hay đơn sắc, tắt được từng cái. Cửa sổ của chính Hop hiện trong Dock khi
+chạy – màu hay đơn sắc, tắt được từng cái. Cửa sổ của chính Hop hiện trong Dock khi
 còn mở, nên một cú nhấp đưa cửa sổ trở lại thay vì mở bảng điều khiển, và biểu tượng
 rời đi cùng cửa sổ cuối cùng.
 
 ### Chủ đề, phím tắt và chế độ an toàn
 
-Chủ đề tối và sáng với kết cấu hạt phim, phím tắt toàn cục, khởi động khi đăng nhập, và một chế độ an toàn kéo ứng dụng ra khỏi vòng lặp treo — tất cả trong một cửa sổ cài đặt.
+Chủ đề tối và sáng với kết cấu hạt phim, phím tắt toàn cục, khởi động khi đăng nhập, và một chế độ an toàn kéo ứng dụng ra khỏi vòng lặp treo – tất cả trong một cửa sổ cài đặt.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop — Cài đặt">
+<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – Cài đặt">
 </div>
 
 ### VPN
@@ -310,7 +310,7 @@ chủ: sổ đăng ký địa chỉ cho biết dải số đăng ký ở đâu, 
 Chấm này có thể tắt trong cài đặt; mô-đun và các công tắc vẫn hoạt động như thường.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — Công tắc VPN">
+<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – Công tắc VPN">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -324,15 +324,15 @@ Kéo một biểu tượng để đổi chỗ: vạch vàng cho biết nó sẽ 
 nào và các biểu tượng khác tự nhường chỗ như trên màn hình chính. Nút sửa bật
 chế độ đung đưa, mỗi biểu tượng có dấu ✕ và lưới có thể đặt tên riêng; ở đó cũng
 tắt được tên dưới biểu tượng, nếu bạn nhận ra ứng dụng chỉ bằng hình. Bạn muốn
-bao nhiêu lưới cũng được — công việc ở một không gian, phần còn lại ở không gian
-khác — mỗi lưới có ứng dụng riêng.
+bao nhiêu lưới cũng được – công việc ở một không gian, phần còn lại ở không gian
+khác – mỗi lưới có ứng dụng riêng.
 
 Lưới được tạo và xoá ngay nơi bạn sắp xếp các mô-đun: trong cài đặt, hoặc trong
 chính bảng mô-đun, nơi dấu ✕ trên thẻ của một lưới xoá hẳn nó. Lưới mới bắt đầu
 trống và nói rõ như vậy cho tới khi bạn lấp đầy.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — Lưới ứng dụng">
+<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – Lưới ứng dụng">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -344,43 +344,43 @@ Thả một ứng dụng vào hàng này, hoặc chọn từ danh sách mọi th
 Không gì bị xoá thẳng. Mọi thứ chuyển vào thùng rác, nên một sai sót chỉ tốn một lần khôi phục chứ không mất tệp; và thứ macOS không giao ra được gọi tên kèm lý do, không lặng lẽ bỏ qua.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop — Gỡ ứng dụng cùng mọi thứ nó để lại">
+<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – Gỡ ứng dụng cùng mọi thứ nó để lại">
 </div>
 
-Cũng mô-đun ấy dọn dẹp mà không gỡ gì: mọi ứng dụng đang giữ bộ đệm, lớn trước; bộ cài còn trong Tải xuống, trên Màn hình nền và trong Tài liệu; dữ liệu của ứng dụng đã gỡ từ lâu; và thùng rác với dung lượng của nó. Một dấu tích lấy trọn một mục. Thứ nó cố ý không đụng cũng được liệt kê — container nơi bộ đệm và dữ liệu chung một thư mục, chẳng hạn hai mươi gigabyte của một ứng dụng nhắn tin: chỉ ứng dụng ấy mới biết nửa nào bỏ được.
+Cũng mô-đun ấy dọn dẹp mà không gỡ gì: mọi ứng dụng đang giữ bộ đệm, lớn trước; bộ cài còn trong Tải xuống, trên Màn hình nền và trong Tài liệu; dữ liệu của ứng dụng đã gỡ từ lâu; và thùng rác với dung lượng của nó. Một dấu tích lấy trọn một mục. Thứ nó cố ý không đụng cũng được liệt kê – container nơi bộ đệm và dữ liệu chung một thư mục, chẳng hạn hai mươi gigabyte của một ứng dụng nhắn tin: chỉ ứng dụng ấy mới biết nửa nào bỏ được.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Dọn bộ đệm, bộ cài, phần sót và thùng rác">
+<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – Dọn bộ đệm, bộ cài, phần sót và thùng rác">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 ngôn ngữ
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — ứng dụng tự động theo ngôn ngữ hệ thống của
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 – ứng dụng tự động theo ngôn ngữ hệ thống của
 bạn ngay từ đầu.
 
 ## Ủng hộ dự án
 
 Hop miễn phí và sẽ luôn như vậy. Nếu nó xứng một chỗ trên thanh menu của bạn, một
-khoản ủng hộ tự nguyện giúp ra tính năng mới và trau chuốt những gì đang có — nó
+khoản ủng hộ tự nguyện giúp ra tính năng mới và trau chuốt những gì đang có – nó
 mua thời gian, không gì khác.
 
 **[→ Ủng hộ Hop](https://web.tribute.tg/d/Nvk)**
 
-## Quyền riêng tư — và vì sao cấp quyền là an toàn
+## Quyền riêng tư – và vì sao cấp quyền là an toàn
 
 **Hop không thu thập bất cứ thứ gì. Bây giờ không, sau này cũng không.** Không
 máy chủ riêng, không phân tích, không đo lường từ xa, không tài khoản, không báo
 cáo sự cố. Mọi quyền bên dưới chỉ được macOS hỏi khi bạn thực sự dùng tính năng
-cần nó, và nó tồn tại đúng để tính năng đó chạy — không có gì bị thu thập dọc
+cần nó, và nó tồn tại đúng để tính năng đó chạy – không có gì bị thu thập dọc
 đường. Bạn không cần tin lời: ứng dụng là mã nguồn mở, và đoạn mã để thu thập
 đơn giản là không tồn tại. Hãy thử tìm một SDK theo dõi hay một lệnh gọi phân
-tích trong kho này — bạn sẽ không thấy.
+tích trong kho này – bạn sẽ không thấy.
 
 Mọi thứ chạy cục bộ: không máy chủ, không thu thập dữ liệu, không tài
 khoản. Ứng dụng chỉ dùng mạng để kiểm tra bản cập nhật, khi bạn chạy bài
-kiểm tra tốc độ tích hợp, và — nếu bạn bật mô-đun torrent — để tải engine
+kiểm tra tốc độ tích hợp, và – nếu bạn bật mô-đun torrent – để tải engine
 một lần duy nhất và truyền chính lưu lượng torrent. Việc kiểm tra cập nhật
 gửi đi phiên bản bạn đang dùng, và không có gì nhận dạng bạn hay chiếc Mac
 của bạn. Các bản cập nhật và engine torrent được phân phối dưới dạng tệp nén
@@ -391,27 +391,27 @@ có chữ ký và được xác minh bằng chữ ký Ed25519 trước khi cài 
 Hop chỉ xin quyền khi bạn thật sự dùng tính năng cần đến nó, và cửa sổ cài đặt
 của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
 
-- **mạng — hop.tools** — kiểm tra và tải bản cập nhật, cùng hai trình hỗ
+- **mạng – hop.tools** – kiểm tra và tải bản cập nhật, cùng hai trình hỗ
   trợ tuỳ chọn (engine torrent và trình nén 7-Zip)
-- **mạng — torrent, đo tốc độ** — lưu lượng tới các peer khác khi bật mô-đun
+- **mạng – torrent, đo tốc độ** – lưu lượng tới các peer khác khi bật mô-đun
   torrent; phép đo dùng networkQuality của macOS tới máy chủ Apple
-- **trợ năng** — dán vào ứng dụng bên dưới, trình quản lý cửa sổ và khoá bàn phím
-- **ghi màn hình** — chỉ mô-đun nhận dạng văn bản, và chỉ khi khoanh vùng; ống
+- **trợ năng** – dán vào ứng dụng bên dưới, trình quản lý cửa sổ và khoá bàn phím
+- **ghi màn hình** – chỉ mô-đun nhận dạng văn bản, và chỉ khi khoanh vùng; ống
   hút màu không cần
-- **thông báo** — báo hết giờ của bộ đếm và torrent đã xong
-- **mật khẩu quản trị** — một lần, cho chế độ gập màn hình (pmset chỉ chạy với root)
-- **mở khi đăng nhập** — tắt cho đến khi bạn tự bật
+- **thông báo** – báo hết giờ của bộ đếm và torrent đã xong
+- **mật khẩu quản trị** – một lần, cho chế độ gập màn hình (pmset chỉ chạy với root)
+- **mở khi đăng nhập** – tắt cho đến khi bạn tự bật
 
 Lúc khởi động không xin gì cả, và không xin gì cho một mô-đun bạn chưa bật.
 Không phân tích, không đo lường từ xa, không tài khoản, không báo cáo sự cố:
-hop.tools chỉ được liên hệ để hỏi xem có phiên bản mới hay không — và để
+hop.tools chỉ được liên hệ để hỏi xem có phiên bản mới hay không – và để
 tải nó, hoặc một trong hai trợ thủ tuỳ chọn, nếu bạn đồng ý. Mọi thứ còn lại ở
 lại chiếc Mac này: lịch sử clipboard, thời gian đã ghi, danh sách việc cần làm,
 văn bản nhận được và những màu đã lấy.
 
-Mọi quyền ở trên chỉ để một tính năng chạy được — không vì gì khác. Bạn không
+Mọi quyền ở trên chỉ để một tính năng chạy được – không vì gì khác. Bạn không
 cần tin lời: Hop là mã nguồn mở, và đoạn mã để thu thập đơn giản là không tồn
-tại — hãy đọc trong kho này. Cửa sổ cài đặt của ứng dụng có trang «quyền của ứng
+tại – hãy đọc trong kho này. Cửa sổ cài đặt của ứng dụng có trang «quyền của ứng
 dụng» với đúng danh sách này và trạng thái hiện tại của từng quyền.
 
 Cập nhật lên 1.10.0 xoá mọi quyền một lần và hỏi lại. Quyền gắn với chữ ký mã,
@@ -424,11 +424,11 @@ Trang web: [hop.tools](https://hop.tools)
 ## Miễn phí, và vì sao
 
 Hop hoàn toàn miễn phí: không dùng thử, không bản pro, không mua trong ứng
-dụng. Không quảng cáo, không thu thập dữ liệu, không tài khoản — chẳng có gì để
+dụng. Không quảng cáo, không thu thập dữ liệu, không tài khoản – chẳng có gì để
 kiếm tiền và chẳng có gì để bán. Đây là dự án cá nhân: tôi làm Hop cho chính
 mình, dùng nó mỗi ngày và chỉ đơn giản là chia sẻ. Nếu thấy hữu ích, hãy giới
 thiệu cho người khác. Và nếu bạn muốn góp một tay, giờ đã có cách để ủng hộ
-Hop — thuần túy là một món quà, không kèm bất kỳ đặc quyền nào.
+Hop – thuần túy là một món quà, không kèm bất kỳ đặc quyền nào.
 
 ## Biên dịch từ mã nguồn
 
@@ -448,17 +448,17 @@ Quy trình phát triển, pipeline phát hành và đặc tả hành vi nằm tr
 
 Ba cách, cách nào cũng quý:
 
-- **[Ủng hộ Hop bằng một khoản góp](https://web.tribute.tg/d/Nvk)** — đi thẳng vào
+- **[Ủng hộ Hop bằng một khoản góp](https://web.tribute.tg/d/Nvk)** – đi thẳng vào
   tính năng mới và các bản sửa. Tự nguyện, không phần thưởng, không gì thu phí:
   mọi mô-đun đều như nhau với tất cả.
-- **[Tặng repo một ngôi sao](https://github.com/antonyshakirov/hop/stargazers)** —
+- **[Tặng repo một ngôi sao](https://github.com/antonyshakirov/hop/stargazers)** –
   người khác tìm ra nó nhờ những ngôi sao.
-- **[Mở một issue](https://github.com/antonyshakirov/hop/issues)** — một báo lỗi hay
+- **[Mở một issue](https://github.com/antonyshakirov/hop/issues)** – một báo lỗi hay
   một ý tưởng cũng đáng giá như vậy.
 
 ## Tác giả & giấy phép
 
 Được tạo bởi [Anton Shakirov](https://www.antonshakirov.com/en). Phát hành
 theo [giấy phép MIT](../../LICENSE): tự do sử dụng và chỉnh sửa, giữ nguyên
-thông báo bản quyền — nhận ứng dụng này là sản phẩm của riêng bạn là vi
+thông báo bản quyền – nhận ứng dụng này là sản phẩm của riêng bạn là vi
 phạm giấy phép.

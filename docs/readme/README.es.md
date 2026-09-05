@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="../../assets/icon/hop-icon-app.svg" width="96" alt="Icono de la app Hop — asterisco de cuatro líneas">
+<img src="../../assets/icon/hop-icon-app.svg" width="96" alt="Icono de la app Hop – asterisco de cuatro líneas">
 
 # Hop
 
@@ -8,7 +8,7 @@
 seguimiento de tiempo, tareas pendientes, modo antisueño, monitor del
 sistema, historial del portapapeles, conversor de archivos, gestor de
 ventanas y un cliente de torrents ligero. Activas los que necesitas y los
-repartes en hasta cuatro pestañas del icono. Un clic — y todo lo que
+repartes en hasta cuatro pestañas del icono. Un clic – y todo lo que
 necesitas está ahí.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
@@ -22,7 +22,7 @@ necesitas está ahí.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · **Español** · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/es/overview.webp" width="360" alt="Panel de Hop — temporizador en la barra de menús con pantalla de matriz de puntos, preajustes y ciclos de trabajo y descanso">
+<img src="https://hop.tools/screens/es/overview.webp" width="360" alt="Panel de Hop – temporizador en la barra de menús con pantalla de matriz de puntos, preajustes y ciclos de trabajo y descanso">
 
 </div>
 
@@ -31,14 +31,14 @@ utilidades: un temporizador estilo Pomodoro, un seguimiento de tiempo con
 lista de tareas, un bloqueador de reposo al estilo de caffeinate, un monitor
 del sistema, un gestor del portapapeles, un conversor de archivos por
 arrastrar y soltar, un organizador de ventanas y un cliente de torrents
-ligero — una sola app nativa y ligera, con los módulos que usas repartidos en
+ligero – una sola app nativa y ligera, con los módulos que usas repartidos en
 hasta cuatro pestañas del icono.
 
 ## Descarga
 
-- **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — ábrelo y arrastra `Hop.app` a Aplicaciones (recomendado)
+- **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – ábrelo y arrastra `Hop.app` a Aplicaciones (recomendado)
 - Homebrew: `brew install --cask antonyshakirov/tap/hop`
-- `Hop-x.y.z.zip` — la misma app como archivo comprimido (lo usa el actualizador integrado); consulta la [última versión](https://github.com/antonyshakirov/hop/releases/latest)
+- `Hop-x.y.z.zip` – la misma app como archivo comprimido (lo usa el actualizador integrado); consulta la [última versión](https://github.com/antonyshakirov/hop/releases/latest)
 - Espejo rápido: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
 Hop está firmada con un Apple Developer ID y notarizada por Apple, así que
@@ -53,21 +53,21 @@ posterior.
 El icono admite hasta cuatro pestañas, y arrastras cada módulo a la pestaña
 que quieras: el temporizador en una, el monitor en otra, lo que abres rara
 vez a un lado. El botón de encendido junto a un módulo lo
-desactiva: conserva su sitio y deja de funcionar — sin atajo, sin marca y sin
+desactiva: conserva su sitio y deja de funcionar – sin atajo, sin marca y sin
 nada recogido en segundo plano.
 
 ### Temporizador y ciclos
 
 Una cuenta atrás de matriz de puntos que ajustas con un solo gesto: arrastra
 los dígitos, teclea la hora como en un microondas o elige un preajuste.
-Ciclos de trabajo y descanso (25/5 Pomodoro, 52/17, 90/15 — o los tuyos),
+Ciclos de trabajo y descanso (25/5 Pomodoro, 52/17, 90/15 – o los tuyos),
 un cronómetro, un almacén que conserva un temporizador en marcha mientras
 pruebas otro, y una alerta de final que además puede pausar tus medios. Al
 terminar la cuenta atrás suena una sola vez y los dígitos parpadean hasta que
 lo reinicias.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/timer.webp" width="420" alt="Hop — Temporizador y ciclos">
+<img src="https://hop.tools/screens/es/timer.webp" width="420" alt="Hop – Temporizador y ciclos">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -86,7 +86,7 @@ donde lo terminado baja al fondo.
 
 Haz clic en una tarea y la fila se abre: el texto completo en la primera línea,
 una descripción debajo y una estrella para los favoritos. Un pendiente puede
-llevar un recordatorio — día, hora y los días de la semana que quieras — y Hop
+llevar un recordatorio – día, hora y los días de la semana que quieras – y Hop
 avisa: un aviso con «posponer» y «hecho», un sonido, una marca en la barra de
 menús; cada uno se activa por separado.
 
@@ -98,20 +98,20 @@ una tarea con recordatorio o consultar qué está en marcha. Ver
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://hop.tools/screens/es/tracker.webp" width="420" alt="Hop — Seguimiento de tiempo y tareas">
+<img src="https://hop.tools/screens/es/tracker.webp" width="420" alt="Hop – Seguimiento de tiempo y tareas">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
 
 ### Sin reposo
 
-Mantén el Mac despierto 15 minutos, 8 horas o para siempre — un clic, sin
+Mantén el Mac despierto 15 minutos, 8 horas o para siempre – un clic, sin
 contraseña. Opcionalmente deja la pantalla encendida, o sigue trabajando
 con la tapa cerrada (ideal para descargas, compilaciones largas y pantallas
 externas).
 
 <div align="center">
-<img src="https://hop.tools/screens/es/awake.webp" width="420" alt="Hop — Sin reposo">
+<img src="https://hop.tools/screens/es/awake.webp" width="420" alt="Hop – Sin reposo">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -119,28 +119,28 @@ externas).
 ### Monitor del sistema
 
 Carga y temperatura de CPU y GPU, memoria y swap, red, disco, salud de la
-batería y consumo de energía — valores en vivo con gráficos sparkline,
+batería y consumo de energía – valores en vivo con gráficos sparkline,
 umbrales de color que defines tú mismo, °C/°F y una línea de tiempo de
 actividad. Las lecturas vienen directamente de macOS y solo se actualizan
 mientras la pestaña está abierta. La fila de memoria también avisa cuando
 mucha memoria ha ido al disco, y no solo cuando macOS informa de que va justo.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/system.webp" width="420" alt="Hop — Monitor del sistema">
+<img src="https://hop.tools/screens/es/system.webp" width="420" alt="Hop – Monitor del sistema">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
 
 ### Historial del portapapeles
 
-Las últimas 100 cosas que copiaste (hasta 300) — texto, imágenes y archivos —
+Las últimas 100 cosas que copiaste (hasta 300) – texto, imágenes y archivos –
 con un clic para volver a copiarlas o pegarlas directamente en la app
 anterior. Los archivos copiados se guardan por su nombre (varios a la vez
 aparecen como «nombre +N»), y al pegar vuelve el archivo en sí. Las
 contraseñas y otras entradas ocultas nunca se guardan.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/clipboard.webp" width="420" alt="Hop — Historial del portapapeles">
+<img src="https://hop.tools/screens/es/clipboard.webp" width="420" alt="Hop – Historial del portapapeles">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -150,20 +150,20 @@ contraseñas y otras entradas ocultas nunca se guardan.
 Suelta un lote de imágenes, PDF, vídeos o audio sobre el panel: JPEG, PNG,
 HEIC, AVIF y WebP de salida; compresión de PDF; reducción de vídeo HEVC con
 una estimación de tamaño honesta y en vivo antes de convertir. Todo se procesa
-en local. El vídeo también se puede reencuadrar al convertir — 9:16, 4:5,
-cuadrado o 16:9, recortado, con barras o sobre una copia desenfocada — y la
+en local. El vídeo también se puede reencuadrar al convertir – 9:16, 4:5,
+cuadrado o 16:9, recortado, con barras o sobre una copia desenfocada – y la
 compresión tiene su propio nivel, así que el tamaño prometido antes de
 convertir es el que sale.
 
-Un botón prepara el clip para su destino — reels, feed, tiktok, shorts o
-youtube — fijando encuadre, resolución y compresión según recomienda la propia
+Un botón prepara el clip para su destino – reels, feed, tiktok, shorts o
+youtube – fijando encuadre, resolución y compresión según recomienda la propia
 plataforma, con el bitrate resultante junto al control. MKV y WebM se
 reempaquetan primero a MP4 (macOS no abre ninguno) mediante un pequeño
 ayudante que se descarga una vez. Los documentos de Pages, Numbers y Keynote
 los exportan por lotes las propias apps: a PDF, o a docx, xlsx y pptx.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/converter.webp" width="480" alt="Hop — Conversor de archivos">
+<img src="https://hop.tools/screens/es/converter.webp" width="480" alt="Hop – Conversor de archivos">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -171,10 +171,10 @@ los exportan por lotes las propias apps: a PDF, o a docx, xlsx y pptx.
 ### Gestor de ventanas
 
 Ajusta las ventanas a mitades, cuartos, tercios y al centro con un clic en
-un glifo de zona o con un atajo ⌃⌥ — sin necesidad de otra app.
+un glifo de zona o con un atajo ⌃⌥ – sin necesidad de otra app.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/windows.webp" width="420" alt="Hop — Gestor de ventanas">
+<img src="https://hop.tools/screens/es/windows.webp" width="420" alt="Hop – Gestor de ventanas">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -182,8 +182,8 @@ un glifo de zona o con un atajo ⌃⌥ — sin necesidad de otra app.
 ### Torrents
 
 Un cliente BitTorrent ligero en el mismo panel: suelta un archivo .torrent o
-pega un enlace magnet, elige exactamente qué archivos descargar — antes o
-incluso durante la descarga —, pausa, reanuda y comparte como seed, con una
+pega un enlace magnet, elige exactamente qué archivos descargar – antes o
+incluso durante la descarga –, pausa, reanuda y comparte como seed, con una
 parada opcional al llegar al ratio 1.0. El módulo viene desactivado por
 defecto; al activarlo se descarga el motor de código abierto como un pequeño
 paquete aparte (~26 MB, con firma verificada) que solo se comunica con Hop a
@@ -191,14 +191,14 @@ través de un puerto local. Hop también puede convertirse en la app por
 defecto para archivos .torrent y enlaces magnet.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/torrents.webp" width="420" alt="Torrents de Hop — cliente BitTorrent ligero en el panel de la barra de menús">
+<img src="https://hop.tools/screens/es/torrents.webp" width="420" alt="Torrents de Hop – cliente BitTorrent ligero en el panel de la barra de menús">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### Archivos comprimidos
 
-La fila del módulo abre una ventana, y ahí es donde se sueltan las cosas — ⌘V
+La fila del módulo abre una ventana, y ahí es donde se sueltan las cosas – ⌘V
 también funciona, con varios archivos a la vez. Lo que añades espera en una
 lista hasta que pulsas el botón: los comprimidos se extraen y todo lo demás se
 junta en un comprimido. El resultado va al escritorio por defecto, o junto al
@@ -211,7 +211,7 @@ terceros; zip, 7z y los formatos nativos se quedan con Utilidad de Archivo.
 Funciona con el módulo oculto, y la tarjeta muestra el estado real. Un doble clic en un comprimido desde Finder lo abre justo al lado del archivo, en su propia ventana de progreso, y un fallo no deja nada oculto detrás. Los archivos que abre Hop llevan su propio icono con el formato escrito encima, así una carpeta se lee de un vistazo.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/archives.webp" width="480" alt="Hop — Archivos comprimidos">
+<img src="https://hop.tools/screens/es/archives.webp" width="480" alt="Hop – Archivos comprimidos">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -220,7 +220,7 @@ Funciona con el módulo oculto, y la tarjeta muestra el estado real. Un doble cl
 
 El conversor aprendió documentos: markdown → PDF compuesto por el propio Hop,
 archivos de Word (.docx, .doc, .rtf) → PDF o markdown, y el texto de un PDF
-como markdown — una página escaneada la lee Vision de Apple. Nativo y sin
+como markdown – una página escaneada la lee Vision de Apple. Nativo y sin
 conexión, sin suite ofimática incluida ni descargas.
 
 → [Document conversion on Mac](https://hop.tools/features/file-converter/)
@@ -234,7 +234,7 @@ guardar y cuántas filas ver son ajustes, y no hace falta permiso de grabación
 de pantalla: la lupa devuelve un color y nada más.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/colors.webp" width="420" alt="Hop — Selector de color">
+<img src="https://hop.tools/screens/es/colors.webp" width="420" alt="Hop – Selector de color">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -254,7 +254,7 @@ ajena, así que un teléfono, una contraseña de Wi-Fi o una tarjeta de contacto
 siguen siendo texto normal.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/recognition.webp" width="480" alt="Hop — Reconocimiento de texto">
+<img src="https://hop.tools/screens/es/recognition.webp" width="480" alt="Hop – Reconocimiento de texto">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -263,7 +263,7 @@ siguen siendo texto normal.
 
 ### Bloqueo del teclado
 
-Pulsa 1, 5 o 15 minutos — o ∞ — y todo el teclado deja de responder, para
+Pulsa 1, 5 o 15 minutos – o ∞ – y todo el teclado deja de responder, para
 limpiarlo sin apagar el Mac ni cerrar la tapa. Una cubierta explica qué pasa y
 el icono de la barra de menús se convierte en un teclado. Cuatro salidas: el
 botón de la cubierta, el botón del panel, abrir el panel o mantener esc + shift cinco
@@ -271,17 +271,17 @@ segundos. Una pulsación corta del botón de encendido también se traga;
 mantenerlo pulsado sigue apagando el Mac, porque de eso se encarga el hardware.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/keyboard.webp" width="480" alt="Hop — Bloqueo del teclado">
+<img src="https://hop.tools/screens/es/keyboard.webp" width="480" alt="Hop – Bloqueo del teclado">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
 
 ### Test de velocidad
 
-Un toque mide la conexión con el propio networkQuality de macOS contra los servidores de Apple — bajada, subida y respuesta, y el último resultado se queda en la fila.
+Un toque mide la conexión con el propio networkQuality de macOS contra los servidores de Apple – bajada, subida y respuesta, y el último resultado se queda en la fila.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/speed.webp" width="420" alt="Hop — Test de velocidad">
+<img src="https://hop.tools/screens/es/speed.webp" width="420" alt="Hop – Test de velocidad">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -290,17 +290,17 @@ Un toque mide la conexión con el propio networkQuality de macOS contra los serv
 
 El icono lleva marcas pequeñas: el tiempo en marcha, el modo sin reposo, un
 recordatorio que sonó, un punto mientras hay una VPN activa (naranja si deja de pasar
-algo) y flechas mientras se mueven los torrents — en color o monocromo, cada una
+algo) y flechas mientras se mueven los torrents – en color o monocromo, cada una
 desactivable. Las ventanas propias de Hop aparecen en el Dock mientras están abiertas,
 así un clic devuelve una en vez de abrir el panel, y el icono se va con la última
 ventana.
 
 ### Temas, atajos y modo seguro
 
-Temas oscuro y claro con textura de grano de película, atajos globales, arranque al iniciar sesión y un modo seguro que saca la app de un bucle de fallos — todo en una ventana de ajustes.
+Temas oscuro y claro con textura de grano de película, atajos globales, arranque al iniciar sesión y un modo seguro que saca la app de un bucle de fallos – todo en una ventana de ajustes.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/settings.webp" width="480" alt="Hop — Ajustes">
+<img src="https://hop.tools/screens/es/settings.webp" width="480" alt="Hop – Ajustes">
 </div>
 
 ### VPN
@@ -326,7 +326,7 @@ dónde está la máquina.
 El punto se puede apagar en los ajustes: el módulo y sus interruptores siguen funcionando sin él.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/vpn.webp" width="420" alt="Hop — Interruptores de VPN">
+<img src="https://hop.tools/screens/es/vpn.webp" width="420" alt="Hop – Interruptores de VPN">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -341,15 +341,15 @@ Arrastra un icono para moverlo: una línea amarilla muestra entre qué dos icono
 caerá y los demás se apartan, como en una pantalla de inicio. El botón de
 edición inicia el balanceo, cada icono recibe una ✕ y la cuadrícula puede tener
 su propio nombre; ahí mismo se apagan los nombres bajo los iconos, si reconoces
-tus apps de vista. Puedes tener tantas cuadrículas como quieras — el trabajo en
-un espacio, lo demás en otro — cada una con sus apps.
+tus apps de vista. Puedes tener tantas cuadrículas como quieras – el trabajo en
+un espacio, lo demás en otro – cada una con sus apps.
 
 Las cuadrículas se crean y se borran donde ordenas los módulos: en ajustes o en
 la propia tabla de módulos, donde la ✕ del chip de una cuadrícula la elimina
 para siempre. Una cuadrícula nueva empieza vacía y lo dice hasta que la llenas.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/apps.webp" width="420" alt="Hop — Cuadrícula de apps">
+<img src="https://hop.tools/screens/es/apps.webp" width="420" alt="Hop – Cuadrícula de apps">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -361,20 +361,20 @@ Suelta una app en la fila, o elígela de la lista de todo lo instalado, y se va 
 No se borra nada. Todo va a la papelera, así que un error cuesta una restauración y no un archivo, y lo que macOS no entrega se nombra con su motivo en vez de saltárselo en silencio.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/uninstall.webp" width="480" alt="Hop — Eliminar una app con todo lo que dejó">
+<img src="https://hop.tools/screens/es/uninstall.webp" width="480" alt="Hop – Eliminar una app con todo lo que dejó">
 </div>
 
-El mismo módulo limpia sin eliminar nada: cada app que guarda caché, las mayores primero; instaladores en Descargas, Escritorio y Documentos; datos de apps eliminadas hace años; y la papelera con su tamaño. Una casilla se lleva una sección entera. Lo que deja en paz a propósito también aparece — un contenedor donde caché y datos comparten carpeta, los veinte gigas de un mensajero entre ellos: solo esa app sabe qué mitad sobra.
+El mismo módulo limpia sin eliminar nada: cada app que guarda caché, las mayores primero; instaladores en Descargas, Escritorio y Documentos; datos de apps eliminadas hace años; y la papelera con su tamaño. Una casilla se lleva una sección entera. Lo que deja en paz a propósito también aparece – un contenedor donde caché y datos comparten carpeta, los veinte gigas de un mensajero entre ellos: solo esa app sabe qué mitad sobra.
 
 <div align="center">
-<img src="https://hop.tools/screens/es/clean.webp" width="480" alt="Hop — Limpiar cachés, instaladores, restos y la papelera">
+<img src="https://hop.tools/screens/es/clean.webp" width="480" alt="Hop – Limpiar cachés, instaladores, restos y la papelera">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 idiomas
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — la app sigue el idioma de tu sistema desde el
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 – la app sigue el idioma de tu sistema desde el
 primer momento.
 
 ## Apoya el proyecto
@@ -385,7 +385,7 @@ paga el tiempo que lleva, nada más.
 
 **[→ Apoyar Hop](https://web.tribute.tg/d/Nvk)**
 
-## Privacidad — y por qué los permisos se pueden dar sin miedo
+## Privacidad – y por qué los permisos se pueden dar sin miedo
 
 **Hop no recopila nada. Ni ahora ni después.** Sin servidor propio, sin
 analítica, sin telemetría, sin cuentas, sin informes de fallos. Cada permiso de
@@ -397,7 +397,7 @@ llamada de analítica y no la encontrarás.
 
 Todo funciona en local: sin servidor, sin analíticas, sin cuentas. La app
 solo toca la red para buscar actualizaciones, cuando ejecutas el test de
-velocidad integrado y — si activas el módulo de torrents — para descargar el
+velocidad integrado y – si activas el módulo de torrents – para descargar el
 motor una única vez y mover el propio tráfico de torrents. Esa comprobación
 de actualizaciones envía la versión que usas, y nada que te identifique a ti
 ni a tu Mac. Las actualizaciones y el motor de torrents se entregan como
@@ -408,30 +408,30 @@ archivos firmados y se verifican con una firma Ed25519 antes de instalarse.
 Hop pide un permiso solo cuando usas la función que lo necesita, y la ventana
 de información los enumera todos con su estado actual:
 
-- **red — hop.tools** — buscar y descargar actualizaciones, más los dos
+- **red – hop.tools** – buscar y descargar actualizaciones, más los dos
   ayudantes opcionales (motor de torrents y archivador 7-Zip)
-- **red — torrents, test de velocidad** — tráfico con otros pares con el módulo
+- **red – torrents, test de velocidad** – tráfico con otros pares con el módulo
   de torrents activo; el test usa networkQuality de macOS contra los servidores
   de Apple
-- **accesibilidad** — pegar en la app de debajo, el gestor de ventanas y el
+- **accesibilidad** – pegar en la app de debajo, el gestor de ventanas y el
   bloqueo del teclado
-- **grabación de pantalla** — solo el reconocimiento de texto, y solo al
+- **grabación de pantalla** – solo el reconocimiento de texto, y solo al
   encuadrar un área; el selector de color no la necesita
-- **notificaciones** — el aviso del temporizador y un torrent terminado
-- **contraseña de administrador** — una vez, para el modo con la tapa cerrada
+- **notificaciones** – el aviso del temporizador y un torrent terminado
+- **contraseña de administrador** – una vez, para el modo con la tapa cerrada
   (pmset solo funciona como root)
-- **abrir al iniciar sesión** — desactivado hasta que lo enciendas
+- **abrir al iniciar sesión** – desactivado hasta que lo enciendas
 
 Al arrancar no se pide nada, y nada se pide por un módulo que no hayas activado.
 No hay analítica, ni telemetría, ni cuentas, ni informes de fallos: se contacta
 con hop.tools solo para preguntar si existe una versión más nueva, y
-para descargarla —o uno de los dos ayudantes opcionales— si dices que sí. Todo
+para descargarla –o uno de los dos ayudantes opcionales– si dices que sí. Todo
 lo demás se queda en este Mac: el historial del portapapeles, el tiempo
 registrado, la lista de tareas, el texto reconocido y los colores tomados.
 
 Cada permiso de arriba existe para que una función pueda trabajar, y para nada
 más. No hace falta creerlo: Hop es de código abierto, y el código que tendría
-que recopilar sencillamente no existe — léelo en este repositorio. La ventana de
+que recopilar sencillamente no existe – léelo en este repositorio. La ventana de
 ajustes de la app tiene una sección «permisos de la app» con la misma lista
 y el estado actual de cada permiso.
 
@@ -448,7 +448,7 @@ Hop es completamente gratis: sin prueba, sin versión pro, sin compras dentro
 de la app. Sin anuncios, sin recopilación de datos, sin cuentas: no hay nada
 que monetizar ni nada que vender. Es un proyecto personal: hice Hop para mí,
 lo uso cada día y simplemente lo comparto. Si te resulta útil, pásalo. Y si
-quieres aportar algo, ahora hay una forma de apoyar Hop — puramente un
+quieres aportar algo, ahora hay una forma de apoyar Hop – puramente un
 regalo, sin nada a cambio.
 
 ## Compilar desde el código fuente
@@ -470,17 +470,17 @@ comportamiento están en [docs/development.md](../development.md) y
 
 Tres formas, y las tres se agradecen:
 
-- **[Apoyar Hop con una aportación](https://web.tribute.tg/d/Nvk)** — va directa
+- **[Apoyar Hop con una aportación](https://web.tribute.tg/d/Nvk)** – va directa
   a funciones nuevas y arreglos. Voluntaria, sin recompensas, sin nada de pago:
   todos los módulos son iguales para todos.
-- **[Dar una estrella al repo](https://github.com/antonyshakirov/hop/stargazers)** —
+- **[Dar una estrella al repo](https://github.com/antonyshakirov/hop/stargazers)** –
   por las estrellas lo encuentran otros.
-- **[Abrir un issue](https://github.com/antonyshakirov/hop/issues)** — un informe
+- **[Abrir un issue](https://github.com/antonyshakirov/hop/issues)** – un informe
   de error o una idea valen lo mismo.
 
 ## Autor y licencia
 
 Creado por [Anton Shakirov](https://www.antonshakirov.com/en). Publicado
 bajo la [licencia MIT](../../LICENSE): úsalo y modifícalo libremente,
-conserva el aviso de copyright — hacer pasar la app por obra propia es una
+conserva el aviso de copyright – hacer pasar la app por obra propia es una
 violación de la licencia.

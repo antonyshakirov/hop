@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="../../assets/icon/hop-icon-app.svg" width="96" alt="Hop アプリアイコン — 4本線のアスタリスク">
+<img src="../../assets/icon/hop-icon-app.svg" width="96" alt="Hop アプリアイコン – 4本線のアスタリスク">
 
 # Hop
 
@@ -21,7 +21,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · **日本語**
 
-<img src="https://hop.tools/screens/ja/overview.webp" width="360" alt="Hop パネル — ドットマトリクス表示のメニューバータイマー、プリセットとワーク・レストサイクル">
+<img src="https://hop.tools/screens/ja/overview.webp" width="360" alt="Hop パネル – ドットマトリクス表示のメニューバータイマー、プリセットとワーク・レストサイクル">
 
 </div>
 
@@ -29,15 +29,15 @@ Hop は Mac のメニューバーに常駐し、こまごましたユーティ�
 まとめて置き換えます。ポモドーロ式タイマー、やることリスト付きの
 タイムトラッカー、caffeinate 風のスリープブロッカー、システムモニター、
 クリップボードマネージャー、ドラッグ＆ドロップのファイル変換、
-ウィンドウスナップ、そして軽量トレントクライアント——軽量な
+ウィンドウスナップ、そして軽量トレントクライアント––軽量な
 ネイティブアプリ 1 本に、よく使うモジュールをアイコン上の最大4つの
 タブへ振り分けて。
 
 ## ダウンロード
 
-- **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** — 開いて `Hop.app` をアプリケーションフォルダへドラッグ（推奨）
+- **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – 開いて `Hop.app` をアプリケーションフォルダへドラッグ（推奨）
 - Homebrew: `brew install --cask antonyshakirov/tap/hop`
-- `Hop-x.y.z.zip` — 同じアプリの素のアーカイブ（内蔵アップデーターが使用）。[最新リリース](https://github.com/antonyshakirov/hop/releases/latest)を参照
+- `Hop-x.y.z.zip` – 同じアプリの素のアーカイブ（内蔵アップデーターが使用）。[最新リリース](https://github.com/antonyshakirov/hop/releases/latest)を参照
 - 高速ミラー: [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
 Hop は Apple Developer ID で署名され、Apple の公証を受けています。macOS
@@ -49,12 +49,12 @@ Hop は Apple Developer ID で署名され、Apple の公証を受けていま�
 
 アイコンには最大4つのタブを持て、各モジュールを好きなタブへドラッグ
 できます。タイマーを一つ、モニターをもう一つ、めったに開かないものは
-脇へ。モジュール横の電源ボタンはそれをオフにします。場所はそのままで、動作は止まります — ショートカットも、記号も、背景での収集もなくなります。
+脇へ。モジュール横の電源ボタンはそれをオフにします。場所はそのままで、動作は止まります – ショートカットも、記号も、背景での収集もなくなります。
 
 ### タイマーとサイクル
 
 ワンジェスチャーで設定できるドットマトリクスのカウントダウン。数字を
-ドラッグする、電子レンジのように時間を打ち込む、プリセットを選ぶ——
+ドラッグする、電子レンジのように時間を打ち込む、プリセットを選ぶ––
 どれでも。ワーク・レストサイクル（25/5 のポモドーロ、52/17、90/15、
 もちろん自分好みにも）、ストップウォッチ、別のタイマーを試す間も
 進行中のタイマーを取っておけるスタッシュ、そして再生中のメディアを
@@ -62,7 +62,7 @@ Hop は Apple Developer ID で署名され、Apple の公証を受けていま�
 リセットするまで数字が点滅し続けます。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/timer.webp" width="420" alt="Hop — タイマーとサイクル">
+<img src="https://hop.tools/screens/ja/timer.webp" width="420" alt="Hop – タイマーとサイクル">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -79,7 +79,7 @@ Hop は Apple Developer ID で署名され、Apple の公証を受けていま�
 
 タスクをクリックすると開きます。1 行目に全文、その下に説明、星でお気に入り。やること
 には日付と時刻、繰り返す曜日を自由に指定したリマインドを付けられます。時間になると
-Hop が知らせます——「スヌーズ」と「完了」付きのバナー、サウンド、メニューバーの印。
+Hop が知らせます––「スヌーズ」と「完了」付きのバナー、サウンド、メニューバーの印。
 それぞれ個別に切り替えられます。
 
 **あなたの AI エージェントもタスクを追加できます。** リストはただの JSON ファイルで、Hop は
@@ -89,33 +89,33 @@ Hop が知らせます——「スヌーズ」と「完了」付きのバナー�
 [docs/automation.md](../automation.md) を参照。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/tracker.webp" width="420" alt="Hop — タイムトラッカーとやること">
+<img src="https://hop.tools/screens/ja/tracker.webp" width="420" alt="Hop – タイムトラッカーとやること">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
 
 ### スリープ防止
 
-Mac を 15 分、8 時間、あるいはずっと起こしておく——ワンクリック、
+Mac を 15 分、8 時間、あるいはずっと起こしておく––ワンクリック、
 パスワード不要。ディスプレイを点けたままにも、蓋を閉じたまま作業を
 続けることもできます（ダウンロード、長いビルド、外部ディスプレイに
 便利）。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/awake.webp" width="420" alt="Hop — スリープ防止">
+<img src="https://hop.tools/screens/ja/awake.webp" width="420" alt="Hop – スリープ防止">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### システムモニター
 
-CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク、ディスク、 バッテリーの状態と消費電力——
+CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク、ディスク、 バッテリーの状態と消費電力––
 スパークラインチャート付きのライブ値、 自分で決める色のしきい値、°C/°F 切り替え、稼働時間の表示
 。値は macOS から直接取得し、タブを開いている間だけ更新されます。 メモリの行は、macOS 自身が逼迫
 を告げたときだけでなく、多くのメモリがディスクに移ったときにも知らせます。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/system.webp" width="420" alt="Hop — システムモニター">
+<img src="https://hop.tools/screens/ja/system.webp" width="420" alt="Hop – システムモニター">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -129,17 +129,17 @@ CPU と GPU の負荷・温度、メモリとスワップ、ネットワーク�
 一切保存されません。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/clipboard.webp" width="420" alt="Hop — クリップボード履歴">
+<img src="https://hop.tools/screens/ja/clipboard.webp" width="420" alt="Hop – クリップボード履歴">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### ファイル変換
 
-画像・PDF・動画・音声をまとめてパネルへドロップ。JPEG、PNG、HEIC、 AVIF、WebP へ出力、PDF 圧縮、HEVC による動画の軽量化——変換前に リアルタイムで正直なサイズ見積もりを表示します。処理はすべて ローカルで完結。 動画は変換のときに画角も変えられます。9:16、4:5、正方形、16:9 のいずれかへ、切り抜き・帯・自身のぼかしコピーの上、いずれかで。圧縮には強さの目盛りがあり、変換前に示すサイズがそのまま出てきます。
+画像・PDF・動画・音声をまとめてパネルへドロップ。JPEG、PNG、HEIC、 AVIF、WebP へ出力、PDF 圧縮、HEVC による動画の軽量化––変換前に リアルタイムで正直なサイズ見積もりを表示します。処理はすべて ローカルで完結。 動画は変換のときに画角も変えられます。9:16、4:5、正方形、16:9 のいずれかへ、切り抜き・帯・自身のぼかしコピーの上、いずれかで。圧縮には強さの目盛りがあり、変換前に示すサイズがそのまま出てきます。
 
-ボタンひとつで、動画を行き先に合わせて整えます— reels・feed・tikt
-ok・shorts・youtube —画面比・解像度・圧縮の強さをプラットフォー
+ボタンひとつで、動画を行き先に合わせて整えます– reels・feed・tikt
+ok・shorts・youtube –画面比・解像度・圧縮の強さをプラットフォー
 ム自身の推奨どおりに設定し、結果のビットレートをスライダーの横に表示します。
 MKV と WebM はまず MP4 に詰め替えます（macOS はどちらも開け
 ません）。小さな補助プログラムを一度だけ取得します。Pages・Numbers・
@@ -147,7 +147,7 @@ Keynote の書類は、アプリ自身がまとめて書き出します。
 PDF、または docx・xlsx・pptx です。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/converter.webp" width="480" alt="Hop — ファイル変換">
+<img src="https://hop.tools/screens/ja/converter.webp" width="480" alt="Hop – ファイル変換">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -155,10 +155,10 @@ PDF、または docx・xlsx・pptx です。
 ### ウィンドウ管理
 
 ゾーングリフをクリックするか ⌃⌥ ホットキーを押すだけで、ウィンドウを
-2 分の 1、4 分の 1、3 分の 1、中央へスナップ——追加アプリは不要です。
+2 分の 1、4 分の 1、3 分の 1、中央へスナップ––追加アプリは不要です。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/windows.webp" width="420" alt="Hop — ウィンドウ管理">
+<img src="https://hop.tools/screens/ja/windows.webp" width="420" alt="Hop – ウィンドウ管理">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -167,7 +167,7 @@ PDF、または docx・xlsx・pptx です。
 
 同じパネルに収まる軽量 BitTorrent クライアント。.torrent ファイルを
 ドロップするか magnet リンクをペーストして、ダウンロードするファイルを
-正確に選べます——開始前でも、ダウンロードの最中でも。一時停止、再開、
+正確に選べます––開始前でも、ダウンロードの最中でも。一時停止、再開、
 シードに対応し、レシオ 1.0 で自動停止するオプションも。モジュールは
 デフォルトでオフになっており、有効化するとオープンソースのエンジンを
 小さな別ダウンロード（約 26 MB、署名検証済み）として取得します。
@@ -175,7 +175,7 @@ PDF、または docx・xlsx・pptx です。
 ファイルと magnet リンクのデフォルトアプリにすることもできます。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/torrents.webp" width="420" alt="Hop トレント — メニューバーパネルの軽量 BitTorrent クライアント">
+<img src="https://hop.tools/screens/ja/torrents.webp" width="420" alt="Hop トレント – メニューバーパネルの軽量 BitTorrent クライアント">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -192,7 +192,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 隠れていても働き、カードは実際の状態を表示します。 Finder でアーカイブをダブルクリックすると、そのファイルのすぐ隣に展開され、専用の小さな進捗ウインドウが出ます。失敗しても隠しものは残りません。Hop が開くファイルには形式を記した独自のアイコンが付くので、フォルダを一目で見分けられます。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/archives.webp" width="480" alt="Hop — ファイルアーカイブ">
+<img src="https://hop.tools/screens/ja/archives.webp" width="480" alt="Hop – ファイルアーカイブ">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -213,7 +213,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 設定でき、画面収録の許可も不要です。ルーペが返すのは色ひとつだけだからです。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/colors.webp" width="420" alt="Hop — カラーピッカー">
+<img src="https://hop.tools/screens/ja/colors.webp" width="420" alt="Hop – カラーピッカー">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -229,7 +229,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 部からの入力なので、電話番号や Wi-Fi のパスワード、連絡先カードはそのまま文字として残ります。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/recognition.webp" width="480" alt="Hop — 文字認識">
+<img src="https://hop.tools/screens/ja/recognition.webp" width="480" alt="Hop – 文字認識">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -240,11 +240,11 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 
 1・5・15 分、または ∞ を押すとキーボード全体が反応しなくなり、Mac を切ったりふたを閉じたりせずに
 拭けます。全画面のカバーが状況を説明し、メニューバーのアイコンはキーボードに変わります。解除は 4 通り
-— カバーのボタン、パネルのボタン、パネルを開くこと、esc + shift の 5 秒長押し。電源キーの短押しも飲み込まれ
+– カバーのボタン、パネルのボタン、パネルを開くこと、esc + shift の 5 秒長押し。電源キーの短押しも飲み込まれ
 ますが、長押しは今も Mac を強制的に切ります。ハードウェアが処理しているからです。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/keyboard.webp" width="480" alt="Hop — キーボードロック">
+<img src="https://hop.tools/screens/ja/keyboard.webp" width="480" alt="Hop – キーボードロック">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -254,21 +254,21 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 ワンタップで、macOS 自身の networkQuality が Apple のサーバー相手に回線を測ります。下り・上り・応答性が出て、最後の結果は行に残ります。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/speed.webp" width="420" alt="Hop — 速度テスト">
+<img src="https://hop.tools/screens/ja/speed.webp" width="420" alt="Hop – 速度テスト">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### メニューバーのアイコン
 
-アイコンには小さな印が付きます。走っている時間、スリープ防止、鳴ったリマインダー、VPN が上がっている間の点（何も通らなくなれば橙）、torrent が動いている間の矢印——カラーでもモノクロでも、どれも個別に切れます。Hop 自身の窓は開いている間 Dock に出るので、クリックすればパネルを開かずに窓が戻り、最後の窓と一緒にアイコンも消えます。
+アイコンには小さな印が付きます。走っている時間、スリープ防止、鳴ったリマインダー、VPN が上がっている間の点（何も通らなくなれば橙）、torrent が動いている間の矢印––カラーでもモノクロでも、どれも個別に切れます。Hop 自身の窓は開いている間 Dock に出るので、クリックすればパネルを開かずに窓が戻り、最後の窓と一緒にアイコンも消えます。
 
 ### テーマ・ホットキー・セーフモード
 
-フィルムグレインのテクスチャを持つダークとライトのテーマ、グローバルホットキー、ログイン時の起動、そしてクラッシュの繰り返しからアプリを救うセーフモード——すべて一つの設定窓の中に。
+フィルムグレインのテクスチャを持つダークとライトのテーマ、グローバルホットキー、ログイン時の起動、そしてクラッシュの繰り返しからアプリを救うセーフモード––すべて一つの設定窓の中に。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/settings.webp" width="480" alt="Hop — 設定">
+<img src="https://hop.tools/screens/ja/settings.webp" width="480" alt="Hop – 設定">
 </div>
 
 ### VPN
@@ -278,7 +278,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 ます。ここで追加する設定はなく、特定ベンダーへの対応を待つ必要もありません。
 
 何も開かずに接続と切断ができます。トンネルが立っている間は、メニューバーのアイコンの角に小さな点が灯り、ほかの表示と並びます。何かが通っている間は緑、トンネルはオンなのに何も返ってこないときは橙になり、静かに死んだ接続が生きているようには見えなくなります。どの行のことかはパネルが示します。名前をクリックすればその VPN 自身のウインドウが
-開き、閉じると Hop がアプリを終了します。接続は切れません——トンネルを保つのはシステムで、
+開き、閉じると Hop がアプリを終了します。接続は切れません––トンネルを保つのはシステムで、
 アプリではないからです。
 
 行に出るのはクライアント自身が申告した内容です。名前と、括弧の中に構成が付け足すもの、
@@ -288,7 +288,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 この点は設定で消せます。モジュールもスイッチもそのまま働きます。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/vpn.webp" width="420" alt="Hop — VPN スイッチ">
+<img src="https://hop.tools/screens/ja/vpn.webp" width="420" alt="Hop – VPN スイッチ">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -302,7 +302,7 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 グリッドはモジュールを並べる場所で作り、そこで消します。設定でも、モジュール表そのものでも構いません。表の中のチップに付いた ✕ でグリッドは完全に削除されます。新しいグリッドは空で、中身を入れるまでそう表示されます。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/apps.webp" width="420" alt="Hop — アプリの格子">
+<img src="https://hop.tools/screens/ja/apps.webp" width="420" alt="Hop – アプリの格子">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -314,20 +314,20 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 消去はしません。すべてゴミ箱へ送るので、間違えても復元で済み、ファイルは失われません。macOS が渡さないものは黙って飛ばさず、理由つきで名前を挙げます。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/uninstall.webp" width="480" alt="Hop — 残したものごとアプリを削除">
+<img src="https://hop.tools/screens/ja/uninstall.webp" width="480" alt="Hop – 残したものごとアプリを削除">
 </div>
 
-同じモジュールが、何も削除せずに片づけもします。キャッシュを抱えるアプリを大きい順に、ダウンロード・デスクトップ・書類に残ったインストーラ、ずっと前に消したアプリのデータ、そしてゴミ箱とその大きさ。チェック一つで一区画ぶん。あえて触らないものも並びます——キャッシュとデータが一つのフォルダに同居しているコンテナ、あるメッセンジャーの二十数 GB など。どちらが捨てていいかは、そのアプリ自身しか知らないからです。
+同じモジュールが、何も削除せずに片づけもします。キャッシュを抱えるアプリを大きい順に、ダウンロード・デスクトップ・書類に残ったインストーラ、ずっと前に消したアプリのデータ、そしてゴミ箱とその大きさ。チェック一つで一区画ぶん。あえて触らないものも並びます––キャッシュとデータが一つのフォルダに同居しているコンテナ、あるメッセンジャーの二十数 GB など。どちらが捨てていいかは、そのアプリ自身しか知らないからです。
 
 <div align="center">
-<img src="https://hop.tools/screens/ja/clean.webp" width="480" alt="Hop — キャッシュ・インストーラ・残骸・ゴミ箱を片づける">
+<img src="https://hop.tools/screens/ja/clean.webp" width="480" alt="Hop – キャッシュ・インストーラ・残骸・ゴミ箱を片づける">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 言語
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 — アプリは最初からシステム言語に自動で従います。
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 – アプリは最初からシステム言語に自動で従います。
 
 ## プロジェクトを応援する
 
@@ -336,7 +336,7 @@ Hop は無料で、これからも無料です。メニューバーの一席に�
 
 **[→ Hop を支援する](https://web.tribute.tg/d/Nvk)**
 
-## プライバシー — 許可を与えても安全な理由
+## プライバシー – 許可を与えても安全な理由
 
 **Hop は何も集めません。いまも、これからも。** 自前のサーバーも、解析も、テレメトリも、
 アカウントも、クラッシュレポートもありません。下の許可はどれも、それを必要とする機能を実際に
@@ -347,8 +347,8 @@ Hop は無料で、これからも無料です。メニューバーの一席に�
 
 すべてローカルで動作します。サーバーなし、アナリティクスなし、
 アカウントなし。アプリがネットワークに触れるのはアップデートの確認時、
-内蔵スピードテストを実行した時、そして——トレントモジュールを有効に
-した場合——エンジンを一度取得する時とトレント通信そのものの時だけ。
+内蔵スピードテストを実行した時、そして––トレントモジュールを有効に
+した場合––エンジンを一度取得する時とトレント通信そのものの時だけ。
 アップデートの確認で送るのは使用中のバージョンだけで、あなたや Mac を
 識別するものは含まれません。アップデートとトレントエンジンは署名付き
 アーカイブで配信され、インストール前に Ed25519 署名で検証されます。
@@ -358,16 +358,16 @@ Hop は無料で、これからも無料です。メニューバーの一席に�
 Hop が許可を求めるのは、それを必要とする機能を実際に使うときだけです。アプリの
 設定ウインドウに、すべての許可と現在の状態が並んでいます。
 
-- **ネットワーク — hop.tools** — アップデートの確認とダウンロード、そして
+- **ネットワーク – hop.tools** – アップデートの確認とダウンロード、そして
   任意の補助ツール 2 つ（トレントエンジンと 7-Zip アーカイバ）
-- **ネットワーク — トレント、速度テスト** — トレントモジュール有効時のほかの参加者
+- **ネットワーク – トレント、速度テスト** – トレントモジュール有効時のほかの参加者
   との通信。速度テストは macOS の networkQuality で Apple のサーバーに対して行います
-- **アクセシビリティ** — 下のアプリへの貼り付け、ウインドウマネージャ、キーボード
+- **アクセシビリティ** – 下のアプリへの貼り付け、ウインドウマネージャ、キーボード
   ロック
-- **画面収録** — 文字認識モジュールのみ、しかも範囲を囲むときだけ。カラーピッカーには不要です
-- **通知** — タイマー終了のお知らせと、トレント完了の通知
-- **管理者パスワード** — 一度だけ、蓋を閉じたままのモードのため（pmset は root 専用）
-- **ログイン時に開く** — 自分でオンにするまでは無効
+- **画面収録** – 文字認識モジュールのみ、しかも範囲を囲むときだけ。カラーピッカーには不要です
+- **通知** – タイマー終了のお知らせと、トレント完了の通知
+- **管理者パスワード** – 一度だけ、蓋を閉じたままのモードのため（pmset は root 専用）
+- **ログイン時に開く** – 自分でオンにするまでは無効
 
 起動時には何も要求せず、あなたが有効にしていないモジュールのために何かを求めることもありません。
 解析も、テレメトリも、アカウントも、クラッシュレポートもありません。hop.tools へは、
@@ -387,7 +387,7 @@ Apple が署名したとき Hop の署名は変わった。古い署名に与え
 
 ## 無料である理由
 
-Hop は完全に無料です。試用期間も、Pro 版も、アプリ内課金もありません。広告もデータ収集もアカウントもなく、収益化するものも売るものもありません。これは個人プロジェクトです。自分のために Hop を作り、毎日使っていて、ただ共有しているだけです。役に立ったら、誰かに教えてあげてください。そして、もし力を貸したくなったら、いまは Hop を応援する方法もあります——ただの贈り物で、見返りは何もありません。
+Hop は完全に無料です。試用期間も、Pro 版も、アプリ内課金もありません。広告もデータ収集もアカウントもなく、収益化するものも売るものもありません。これは個人プロジェクトです。自分のために Hop を作り、毎日使っていて、ただ共有しているだけです。役に立ったら、誰かに教えてあげてください。そして、もし力を貸したくなったら、いまは Hop を応援する方法もあります––ただの贈り物で、見返りは何もありません。
 
 ## ソースからのビルド
 
@@ -408,16 +408,16 @@ swift build
 
 方法は三つ、どれも歓迎です。
 
-- **[支援して Hop を助ける](https://web.tribute.tg/d/Nvk)** — そのまま新機能と修正に
+- **[支援して Hop を助ける](https://web.tribute.tg/d/Nvk)** – そのまま新機能と修正に
   なります。任意で、特典はなく、有料の機能もありません。どのモジュールも全員に同じです。
-- **[リポジトリにスターを付ける](https://github.com/antonyshakirov/hop/stargazers)** —
+- **[リポジトリにスターを付ける](https://github.com/antonyshakirov/hop/stargazers)** –
   ほかの人はスターから見つけます。
-- **[Issue を立てる](https://github.com/antonyshakirov/hop/issues)** — 不具合の報告や
+- **[Issue を立てる](https://github.com/antonyshakirov/hop/issues)** – 不具合の報告や
   アイデアも、同じくらい価値があります。
 
 ## 作者とライセンス
 
 作者: [Anton Shakirov](https://www.antonshakirov.com/en)。
 [MIT ライセンス](../../LICENSE)で公開しています。自由に使用・改変できます
-が、著作権表示は残してください——このアプリを自作と偽ることはライセンス
+が、著作権表示は残してください––このアプリを自作と偽ることはライセンス
 違反です。
