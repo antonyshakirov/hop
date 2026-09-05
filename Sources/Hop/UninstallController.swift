@@ -110,6 +110,30 @@ final class UninstallController: ObservableObject {
         case done
     }
 
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    private var demo = false
+
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    func loadDemo() {
+        demo = true
+        mode = .clean
+        cacheOwners = [
+            CacheOwner(identifier: "com.demo.xcode", name: "Xcode", appPath: nil,
+                       paths: [], bytes: 12_400_000_000, ticked: true),
+            CacheOwner(identifier: "com.demo.chrome", name: "Google Chrome", appPath: nil,
+                       paths: [], bytes: 2_180_000_000, ticked: true),
+            CacheOwner(identifier: "com.demo.slack", name: "Slack", appPath: nil,
+                       paths: [], bytes: 940_000_000, ticked: false),
+        ]
+        leftovers = [
+            CacheOwner(identifier: "com.demo.gone", name: "Sketch", appPath: nil,
+                       paths: [], bytes: 316_000_000, ticked: true),
+        ]
+        trashBytes = 4_700_000_000
+        trashItems = 132
+        state = .found
+    }
+
     @Published var mode: Mode = .uninstall {
         didSet { if oldValue != mode { rescanForMode() } }
     }
@@ -245,9 +269,10 @@ final class UninstallController: ObservableObject {
     }
 
     private func rescanForMode() {
-        // A snapshot render stages its own lists; a rescan here would wipe them
-        // and walk somebody's real disk to draw a product picture.
-        guard !Snapshot.active else { return }
+        // A snapshot render and the onboarding picture stage their own lists; a
+        // rescan here would wipe them and walk somebody's real disk to draw a
+        // picture.
+        guard !Snapshot.active, !demo else { return }
         report = nil
         switch mode {
         case .clean:

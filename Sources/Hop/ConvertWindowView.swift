@@ -6,6 +6,11 @@ import UniformTypeIdentifiers
 /// Standalone converter window: convenient to drag files here from Finder —
 /// the status bar popup is no good for that (it collapses on a click outside).
 struct ConvertWindowView: View {
+    /// Drawn as the onboarding picture: the drop plate is dropped, so the tile
+    /// shows the finished batch instead of an empty panel (Anton, 2026-09-05).
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    var preview = false
+
     @EnvironmentObject private var model: AppModel
 
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
@@ -29,11 +34,11 @@ struct ConvertWindowView: View {
 
     private var scrollContent: some View {
         VStack(spacing: 16) {
-            dropZone
+            if !preview { dropZone }
             if model.converter.batch.isEmpty {
                 capabilities
             } else {
-                if model.converter.batch.all.contains(where: \.done) {
+                if model.converter.batch.all.contains(where: \.done), !preview {
                     HStack {
                         Spacer()
                         clearDoneButton
@@ -42,7 +47,7 @@ struct ConvertWindowView: View {
                 VStack(spacing: 10) {
                     groupCards
                 }
-                footer
+                if !preview { footer }
             }
         }
         .padding(20)

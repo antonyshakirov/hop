@@ -77,6 +77,15 @@ final class KeyboardLockController: ObservableObject {
         isLocked ? unlock() : lock()
     }
 
+    /// The module locked and counting down, for the onboarding picture: the row
+    /// of durations says what you can pick, not what the module does.
+    /// Nothing is tapped and no cover goes up — only the two published values.
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    func loadDemo() {
+        isLocked = true
+        remaining = 272
+    }
+
     /// Locking IS the choice of a duration (Anton, 2026-07-25): the module has no
     /// separate start button — tapping "5 min" locks for five minutes. The value
     /// is remembered so the hotkey has something to use.

@@ -32,6 +32,24 @@ final class TorrentController: ObservableObject {
         })
     }
 
+    /// One torrent mid-download for the onboarding picture: an empty add plate
+    /// says nothing about what the module does (Anton, 2026-09-05).
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    func loadDemo() {
+        let total: Int64 = 5_400_000_000
+        let file = TorrentFile(index: 0, name: "ubuntu-24.04-desktop-amd64.iso",
+                               lengthBytes: total, selected: true)
+        torrents = [
+            TorrentItem(id: "demo-1", infoHash: "demo", name: "ubuntu-24.04-desktop-amd64.iso",
+                        files: [file], outputFolder: "/Users/preview/Downloads",
+                        stats: TorrentStats(state: .live, progressBytes: 3_726_000_000,
+                                            totalBytes: total, uploadedBytes: 412_000_000,
+                                            downloadBps: 11_400_000, uploadBps: 1_260_000,
+                                            peersLive: 24, peersSeen: 61, etaSeconds: 147,
+                                            finished: false, fileProgressBytes: [3_726_000_000])),
+        ]
+    }
+
     struct TorrentItem: Identifiable, Equatable {
         var id: String            // var: re-mapped to the new session id if the engine is restarted
         let infoHash: String      // stable identity across engine restarts

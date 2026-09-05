@@ -255,10 +255,20 @@ nothing about the two modules under it. A picture is as tall as its own module (
 a strip rather than a strip with empty space under it, and a list is cut between
 rows instead of through one. The four modules whose panel row is only
 a button — the converter, the archiver, recognition and the uninstaller — show
-the WINDOW they open instead, since the row itself says nothing. Staged content
-fills the rest: two rows in the clipboard and three picked colours, different
-sample tasks for the tracker and the to-do list (`onbSample*`, ×22), and the
-launcher's grid of everyday apps, eight of them so it stays one row.
+the WINDOW they open instead, since the row itself says nothing.
+
+**Every picture shows the module at work, never its empty plate** (Anton,
+2026-09-05): a drop zone, an add button or a row of durations says what you can
+press, not what the module is for. So the timer is counting down, the keyboard
+is locked with time left on it, a torrent is downloading at 69%, the converter
+has finished two files with their new sizes beside them, the archiver has one
+archive unpacked and one packed, recognition shows the text it read, and the
+uninstaller shows the caches it found with a size each. The windows those four
+modules open drop their drop plate in a picture (`preview: true`) and start at
+the result. Staged content fills the rest: two rows in the clipboard and three
+picked colours in the app's own accents, different sample tasks for the tracker
+and the to-do list (`onbSample*`, ×22), and the launcher's grid of everyday
+apps, eight of them so it stays one row.
 
 The description under a module's name is the opening paragraph of its handbook
 text rather than the one-line `purpose`: the short line did not answer "what is
@@ -270,9 +280,14 @@ builds a second set of controllers with `demo: true`, which read nothing of the
 user's and write nothing back: the clipboard shows two rows that need no
 translation (a link and a path), the monitor takes one live reading plus an hour
 of staged history (cpu load and throughput are deltas between two readings, so
-the sample's own figures come from the staged curve rather than showing a dash),
-the tunnel list shows the two configurations the snapshots already use, and the
-tracker and to-dos start empty. Writing demo data into the real stores and
+the sample's own figures come from the staged curve rather than showing a dash;
+the history is collected every five seconds, like a running Mac's, because one
+point a minute drew as a straight line in the five-minute window the chart opens
+with, and it is measured back from the newest point so the figure the row shows
+is a middling one), and the tracker and to-dos start empty. **The VPN picture
+reads the user's own configurations once**, capped at two rows and falling back
+to the two staged ones on a Mac with none: nothing there starts a tunnel, opens
+a vendor's app or runs a timer. Writing demo data into the real stores and
 clearing it afterwards was the alternative, and it leaves fake rows behind the
 moment somebody quits mid-wizard.
 

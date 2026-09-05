@@ -319,12 +319,19 @@ struct OnboardingView: View {
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
     private static func previewHeight(_ key: String) -> CGFloat {
         switch key {
-        case "awake", "keyboard", "speedtest", "torrent": return 58
-        case "windows": return 68
-        case "clipboard": return 106
-        case "apps", "vpn": return 96
-        case "todos": return 114
-        case "color": return 142
+        case "awake", "keyboard", "speedtest": return 58
+        case "windows": return 56
+        case "ocr": return 64
+        case "archive": return 78
+        case "vpn": return 88
+        case "apps": return 96
+        case "clipboard": return 100
+        case "torrent": return 104
+        case "timer", "todos", "tracker": return 106
+        case "uninstall": return 112
+        case "system": return 118
+        case "convert": return 136
+        case "color": return 138
         default: return 124
         }
     }
@@ -334,15 +341,15 @@ struct OnboardingView: View {
     private func previewBody(_ key: String?) -> some View {
         switch key {
         case "convert":
-            ConvertWindowView().environmentObject(previewModel)
+            ConvertWindowView(preview: true).environmentObject(previewModel)
                 .frame(width: 620).scaleEffect(368 / 620, anchor: .topLeading)
                 .frame(width: 368, alignment: .topLeading)
         case "archive":
-            ArchiveWindowView().environmentObject(previewModel)
+            ArchiveWindowView(preview: true).environmentObject(previewModel)
                 .frame(width: 520).scaleEffect(368 / 520, anchor: .topLeading)
                 .frame(width: 368, alignment: .topLeading)
         case "ocr":
-            ScreenTextWindowView().environmentObject(previewModel)
+            ScreenTextWindowView(preview: true).environmentObject(previewModel)
                 .frame(width: 520).scaleEffect(368 / 520, anchor: .topLeading)
                 .frame(width: 368, alignment: .topLeading)
         case "uninstall":

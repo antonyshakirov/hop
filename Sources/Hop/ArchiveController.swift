@@ -316,6 +316,17 @@ final class ArchiveController: ObservableObject {
         jobs.removeAll { if case .running = $0.state { return false } else { return true } }
     }
 
+    /// Two finished jobs for the onboarding picture.
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    func loadDemo() {
+        jobs = [
+            Job(kind: .extract, name: "photos-2026.zip",
+                state: .done("/Users/preview/Desktop/photos-2026")),
+            Job(kind: .pack, name: "design-review.zip",
+                state: .done("/Users/preview/Desktop/design-review.zip")),
+        ]
+    }
+
     // MARK: - Extract
 
     private func extract(

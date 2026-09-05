@@ -7,6 +7,11 @@ import UniformTypeIdentifiers
 /// the moment a drag starts, so the module's row only opens this (Anton,
 /// 2026-07-25).
 struct ArchiveWindowView: View {
+    /// Drawn as the onboarding picture: the drop plate is dropped, so the tile
+    /// shows finished jobs instead of an empty panel (Anton, 2026-09-05).
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    var preview = false
+
     @EnvironmentObject var model: AppModel
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
     @AppStorage(ArchiveController.packFormatKey) private var packFormatRaw = PackFormat.zip.rawValue
@@ -38,7 +43,7 @@ struct ArchiveWindowView: View {
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 14) {
-                dropZone
+                if !preview { dropZone }
                 if !model.archive.pending.isEmpty {
                     queue
                     destinationRow
@@ -70,6 +75,7 @@ struct ArchiveWindowView: View {
                             ArchiveJobRow(job: job, helper: model.archive.helper, lang: lang)
                         }
                     }
+                    if !preview {
                     HStack {
                         Spacer()
                         Button {
@@ -80,6 +86,7 @@ struct ArchiveWindowView: View {
                         }
                         .buttonStyle(.plain)
                         .help(t(.convClear))
+                    }
                     }
                 }
             }

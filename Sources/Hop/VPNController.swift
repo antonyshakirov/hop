@@ -89,18 +89,22 @@ final class VPNController: ObservableObject {
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
     private let demo: Bool
 
+    /// A screenshot of an empty list says nothing about the module.
+    private static let staged = [
+        VPNConfiguration(id: "demo-1", name: "VPN Client (Netherlands)",
+                         bundleIdentifier: nil, appName: "VPN Client", state: .connected),
+        VPNConfiguration(id: "demo-2", name: "Office IKEv2",
+                         bundleIdentifier: nil, appName: nil, state: .disconnected),
+    ]
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    private static let demoRows = 2
+
     init(demo: Bool = false) {
         self.demo = demo
-        if Snapshot.active || demo {
-            // A screenshot of an empty list says nothing about the module. Two
-            // configurations, one of them up: a client that names its country and
-            // one that does not, which is exactly the pair the row layout is for.
-            configurations = [
-                VPNConfiguration(id: "demo-1", name: "VPN Client (Netherlands)",
-                                 bundleIdentifier: nil, appName: "VPN Client", state: .connected),
-                VPNConfiguration(id: "demo-2", name: "Office IKEv2",
-                                 bundleIdentifier: nil, appName: nil, state: .disconnected),
-            ]
+        configurations = Self.staged
+        if Snapshot.active { return }
+        if demo {
+            refresh()   // once: the user's own list makes the better picture
             return
         }
         applyActivation()
@@ -155,6 +159,10 @@ final class VPNController: ObservableObject {
     private func reload() async {
         let output = await Self.runOffMain([Self.scutil, "--nc", "list"])
         let fresh = VPNConfigurations.parseList(output).map(Self.named)
+        if demo {
+            configurations = fresh.isEmpty ? Self.staged : Array(fresh.prefix(Self.demoRows))
+            return
+        }
         // Keep a pending row on its optimistic state until the system agrees.
         configurations = fresh.map { configuration in
             guard pending.contains(configuration.id) else { return configuration }
@@ -261,7 +269,7 @@ final class VPNController: ObservableObject {
     /// Picks the cadence the current state deserves and reschedules only when it
     /// actually changes.
     private func retune() {
-        guard !Snapshot.active else { return }
+        guard !Snapshot.active, !demo else { return }
         let interval = cadence().interval
         guard interval != tickInterval || tick == nil else { return }
         tick?.invalidate()
@@ -290,7 +298,7 @@ final class VPNController: ObservableObject {
     /// up a moment later, so the row is marked pending until the system reports a
     /// settled state.
     func toggle(_ configuration: VPNConfiguration) {
-        guard !Snapshot.active else { return }
+        guard !Snapshot.active, !demo else { return }
         let turningOff = configuration.state.isOn || configuration.state.isBusy
         pending.insert(configuration.id)
         // The system will announce this like any other change, but the row is
@@ -341,7 +349,7 @@ final class VPNController: ObservableObject {
     /// the app — this is for the times you want the vendor's own screen, to pick
     /// a country or change a setting.
     func openApp(for configuration: VPNConfiguration) {
-        guard !Snapshot.active, let bundle = configuration.bundleIdentifier,
+        guard !Snapshot.active, !demo, let bundle = configuration.bundleIdentifier,
               let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundle) else { return }
         // Going to the vendor's own screen means the switch there has to work, so
         // a configuration Hop is holding out of the network set goes back in

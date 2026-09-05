@@ -126,10 +126,15 @@ final class AppModel: ObservableObject {
             let second = tracker.engine.addTask(name: L10n.t(.onbSampleTrackB, lang))
             _ = tracker.engine.addSession(taskID: second, seconds: 15 * 60)
             screenText.loadDemo(L10n.t(.onbSampleOcr, lang))
-            converter.batch.images = [
-                .init(url: URL(fileURLWithPath: "/Users/preview/Pictures/cover.heic"), bytes: 4_182_000),
-                .init(url: URL(fileURLWithPath: "/Users/preview/Pictures/poster.png"), bytes: 2_640_000),
-            ]
+            converter.loadDemo()
+            archive.loadDemo()
+            torrent.loadDemo()
+            keyboardLock.loadDemo()
+            uninstall.loadDemo()
+            // A stopped clock says as little as an empty list: the timer runs,
+            // and the picture counts down with it.
+            engine.setDuration(25 * 60)
+            engine.start()
         }
         // a finished recognition brings its window forward: the text has to be
         // visible, not just quietly filed away

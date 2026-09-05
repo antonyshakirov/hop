@@ -585,6 +585,26 @@ final class FileConverter: ObservableObject {
         lastResult = nil
     }
 
+    /// A finished batch for the onboarding picture.
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    func loadDemo() {
+        let sizes: [(String, Int64, Int64)] = [
+            ("cover.heic", 4_182_000, 486_000),
+            ("poster.png", 2_640_000, 312_000),
+        ]
+        batch = Batch()
+        batch.images = sizes.map {
+            BatchFile(url: URL(fileURLWithPath: "/Users/preview/Pictures/\($0.0)"),
+                      bytes: $0.1, done: true)
+        }
+        for (index, file) in batch.images.enumerated() {
+            fileEstimates[file.url.path] =
+                "\(Self.sizeText(file.bytes)) → \(Self.sizeText(sizes[index].2))"
+        }
+        lastResult = Self.summary(converted: sizes.count,
+                                  savedBytes: sizes.reduce(0) { $0 + $1.1 - $1.2 })
+    }
+
     // MARK: - Conversion
 
     func convert(_ kind: MediaKind) {
