@@ -146,6 +146,12 @@ identically on every user's bar.
   them catching an extra half-pixel of antialiasing. Before this the awake dot
   was 5.2pt and sat 0.4pt further out than the 4.4pt VPN dot below it, which read
   as a crooked pair whenever both were lit (Anton, 2026-07-29).
+- **Top-left — the "!".** `systemOrange`, and drawn at the weight of the dots
+  around it: a 2.0pt stem with a tittle of the same width, against the 5.0pt
+  corner dots. It was `#D81C0C` red at `stroke × 1.15`, which said catastrophe
+  for a state that means "a reading is high", and was thin enough to look
+  borrowed from another icon set (Anton, 2026-09-05). Orange is the colour a
+  stalled tunnel already carries, so the bar has one word for "something is off".
 - **Top-left — reminder dot.** A small `systemBlue` disc beside the "!" (in the
   corner itself when the "!" is dark), steady, never blinking: it reports
   something waiting rather than something wrong. Monochrome renders it as an
@@ -554,7 +560,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
    added 2026-07-29, it was the one metric with a number and no trend — and
    the card is drawn ONLY when this Mac reports a GPU load or a GPU
    temperature: an empty chart is worse than no chart.
-- A red "!" (top-left of the menu bar icon, steady) during a red zone (same
+- An orange "!" (top-left of the menu bar icon, steady) during a red zone (same
   thresholds that color the values, and for heat the system's own critical
   state; a charging battery doesn't count). OFF by
   default, toggle in monitor settings. It shares the top-left "!" with the

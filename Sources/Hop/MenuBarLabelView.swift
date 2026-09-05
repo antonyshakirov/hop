@@ -22,9 +22,10 @@ enum MenuBarIcon {
     /// darker) but kept bright and saturated, so it reads as a second green next
     /// to the engine's systemGreen without going muddy. Mock-tuned value #159E46.
     static let darkGreen = NSColor(srgbRed: 0x15 / 255.0, green: 0x9E / 255.0, blue: 0x46 / 255.0, alpha: 1)
-    /// Attention "!": a saturated deep red (mock #D81C0C) — darker and more
-    /// urgent than plain systemRed, still legible on both light and dark bars.
-    static let alertRed = NSColor(srgbRed: 0xD8 / 255.0, green: 0x1C / 255.0, blue: 0x0C / 255.0, alpha: 1)
+    /// Attention "!": systemOrange, the same colour a stalled tunnel already
+    /// uses. Red said catastrophe for a state that means "a reading is high"
+    /// (Anton, 2026-09-05).
+    static let alertOrange = NSColor.systemOrange
 
     /// One unified stroke weight for every drawn glyph — the "!", the torrent
     /// arrows, the outline dot/wedge — so the whole badge set feels like one pen.
@@ -153,7 +154,7 @@ enum MenuBarIcon {
         // the corner and the dot grows rightward from it — the mirror of the
         // top-right pair, which is right-anchored and grows left.
         if c.alert {
-            drawBang(color: c.colored ? alertRed : glyph, atLeft: 1.4, top: h - 1.4)
+            drawBang(color: c.colored ? alertOrange : glyph, atLeft: 1.4, top: h - 1.4)
         }
         if c.reminder {
             // in its corner, or shifted right to sit beside the "!" when that is lit
@@ -340,15 +341,19 @@ enum MenuBarIcon {
         }
     }
 
+    /// The "!" is drawn at the weight of the dots around it, not at the weight
+    /// of a hairline: a stem 2pt wide against the 5pt dots, with the tittle the
+    /// same width. At `stroke × 1.15` it looked like a glyph borrowed from
+    /// another icon set (Anton, 2026-09-05).
     private static func drawBang(color: NSColor, atLeft x: CGFloat, top: CGFloat) {
         color.setFill()
-        let stemW = stroke * 1.15
-        let stemH: CGFloat = 3.2
+        let stemW: CGFloat = 2.0
+        let stemH: CGFloat = 3.6
         let stem = NSRect(x: x, y: top - stemH, width: stemW, height: stemH)
         NSBezierPath(roundedRect: stem, xRadius: stemW / 2, yRadius: stemW / 2).fill()
         let dotD = stemW
         NSBezierPath(ovalIn: NSRect(
-            x: x, y: top - stemH - dotD - 0.9, width: dotD, height: dotD
+            x: x, y: top - stemH - dotD - 0.8, width: dotD, height: dotD
         )).fill()
     }
 
