@@ -45,6 +45,16 @@ struct OnboardingView: View {
     /// Window height minus the footer.
     private static let contentHeight: CGFloat = 600
 
+    /// The module screens need room for a 368pt picture beside its text; a
+    /// screen with one card underneath a heading does not, and a card stretched
+    /// across the whole window reads as a stray band (Anton, 2026-09-05).
+    private var contentWidth: CGFloat {
+        switch step {
+        case .welcome, .setup, .privacy, .done: return 520
+        default: return 780
+        }
+    }
+
     private var step: OnboardStep { OnboardStep.stored(stepIndex) }
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -53,7 +63,7 @@ struct OnboardingView: View {
         VStack(spacing: 0) {
             SnapshotAwareScroll {
                 content
-                    .frame(maxWidth: 780)
+                    .frame(maxWidth: contentWidth)
                     .padding(.horizontal, 30)
                     .padding(.vertical, 30)
                     // A short screen sits in the middle of the window rather
