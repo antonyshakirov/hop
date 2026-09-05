@@ -225,6 +225,14 @@ one card saying the app is free, has no paid tier and lives on donations) → si
 - Finishing marks every "what's new" announcement and release card seen: a fresh
   install has no release to catch up on.
 
+**The screens are centred and sit on a live backdrop** (Anton, 2026-09-05): the
+dot grid the timer's display is built from, spread across the window, with two
+slow waves crossing it and the light gathering where the screen's subject is.
+It runs on a `TimelineView` at 12fps rather than a `repeatForever` animation,
+which this codebase does not use. The privacy screen says its three claims as
+rows with their own marks — no server, no analytics, open source — with the full
+pledge under them in small type: a paragraph of that length was skipped.
+
 **The picture on a group screen is the module itself**, drawn by the panel's own
 code (`PanelView(previewModule:)`) and made unclickable. Not a screenshot: it
 follows the language and the theme picked two screens earlier without anything

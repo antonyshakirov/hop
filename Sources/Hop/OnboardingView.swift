@@ -49,16 +49,20 @@ struct OnboardingView: View {
         VStack(spacing: 0) {
             SnapshotAwareScroll {
                 content
+                    .frame(maxWidth: 460)
                     .padding(.horizontal, 30)
-                    .padding(.top, 28)
-                    .padding(.bottom, 12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 30)
+                    .frame(maxWidth: .infinity)
             }
-            .frame(maxHeight: .infinity, alignment: .top)
+            .frame(maxHeight: .infinity)
             footer
         }
         .frame(width: 620, height: 560)
-        .background(Theme.panelBackground)
+        .background {
+            Theme.panelBackground
+            OnboardingBackdrop(focus: step == .welcome
+                               ? UnitPoint(x: 0.5, y: 0.22) : UnitPoint(x: 0.5, y: 0.3))
+        }
     }
 
     // MARK: - Steps
@@ -124,11 +128,18 @@ struct OnboardingView: View {
     }
 
     private var privacyStep: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(spacing: 16) {
             stepHeading(t(.onbPrivacyTitle))
+            VStack(spacing: 10) {
+                privacyClaim("bolt.horizontal.circle", t(.onbPrivacyNoServer))
+                privacyClaim("chart.bar.xaxis", t(.onbPrivacyNoAnalytics))
+                privacyClaim("chevron.left.forwardslash.chevron.right", t(.onbPrivacyOpenSource))
+            }
             Text(t(.permPledgeBody))
-                .font(Theme.mono(11))
-                .foregroundStyle(Theme.docText)
+                .font(Theme.mono(10.5))
+                .foregroundStyle(Theme.textTertiary)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
             SettingsCard {
                 VStack(alignment: .leading, spacing: 5) {
@@ -156,8 +167,26 @@ struct OnboardingView: View {
         }
     }
 
+    /// One line of the pledge, with its own mark: three short claims read where
+    /// a paragraph of the same length does not.
+    private func privacyClaim(_ symbol: String, _ text: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.accentGreen)
+                .frame(width: 22)
+            Text(text)
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textPrimary)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 9)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 8))
+    }
+
     private func groupStep(_ group: ModuleGroup) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(spacing: 16) {
             stepHeading(t(group.titleKey), subtitle: t(.onbGroupHint))
             modulePreview(group.preview)
             SettingsCard {
@@ -218,7 +247,7 @@ struct OnboardingView: View {
     }
 
     private var permissionsStep: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(spacing: 16) {
             stepHeading(t(.permTab), subtitle: t(.onbPermBody))
             PermissionsView(lang: lang, showsPledge: false)
         }
@@ -266,18 +295,22 @@ struct OnboardingView: View {
     // MARK: - Chrome
 
     private func stepHeading(_ title: String, subtitle: String? = nil) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(spacing: 8) {
             Text(title)
-                .font(Theme.mono(16, weight: .bold))
+                .font(Theme.mono(21, weight: .bold))
                 .foregroundStyle(Theme.textPrimary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             if let subtitle {
                 Text(subtitle)
-                    .font(Theme.mono(11))
+                    .font(Theme.mono(11.5))
                     .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding(.bottom, 2)
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, 4)
     }
 
     /// Back, the step dots, and the one button forward. There is no close and no
