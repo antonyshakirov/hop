@@ -154,7 +154,6 @@ final class ScreenTextController: ObservableObject {
     /// Staged text for design/marketing renders — the controller never reads a
     /// real screen during a snapshot.
     func loadDemo(_ text: String) {
-        guard Snapshot.active else { return }
         recognized = text
         state = .done(text.split(separator: "\n").count)
     }

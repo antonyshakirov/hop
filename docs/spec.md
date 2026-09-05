@@ -251,9 +251,17 @@ being re-rendered, and it cannot drift from what the panel actually looks like
 the module at the panel's real 368pt, cropped to 124 tall, so the row shows what
 the switch is about. Scaled down to a 170pt thumbnail first, it was a grey blur;
 the window grew instead. One picture per screen said
-nothing about the two modules under it. The tracker and the to-dos carry two
-sample rows (`onbSampleTask*`, ×22) — an empty list is a heading and nothing
-else.
+nothing about the two modules under it. The four modules whose panel row is only
+a button — the converter, the archiver, recognition and the uninstaller — show
+the WINDOW they open instead, since the row itself says nothing. Staged content
+fills the rest: two rows in the clipboard and three picked colours, different
+sample tasks for the tracker and the to-do list (`onbSample*`, ×22), and the
+launcher's grid of everyday apps, eight of them so it stays one row.
+
+The description under a module's name is the opening paragraph of its handbook
+text rather than the one-line `purpose`: the short line did not answer "what is
+this for?" (Anton, 2026-09-05). A long opening is cut at the end of its first
+sentence; a very short one keeps the purpose line in front of it.
 
 The data behind it is staged and lives nowhere else. `AppModel(preview: true)`
 builds a second set of controllers with `demo: true`, which read nothing of the

@@ -120,9 +120,15 @@ final class AppModel: ObservableObject {
             let b = L10n.t(.onbSampleTaskB, lang)
             todos.add(text: a)
             todos.add(text: b)
-            let task = tracker.engine.addTask(name: b)
-            _ = tracker.engine.addSession(taskID: task, seconds: 42 * 60)
-            _ = tracker.engine.addTask(name: a)
+            let track = tracker.engine.addTask(name: L10n.t(.onbSampleTrackA, lang))
+            _ = tracker.engine.addSession(taskID: track, seconds: 42 * 60)
+            let second = tracker.engine.addTask(name: L10n.t(.onbSampleTrackB, lang))
+            _ = tracker.engine.addSession(taskID: second, seconds: 15 * 60)
+            screenText.loadDemo(L10n.t(.onbSampleOcr, lang))
+            converter.batch.images = [
+                .init(url: URL(fileURLWithPath: "/Users/preview/Pictures/cover.heic"), bytes: 4_182_000),
+                .init(url: URL(fileURLWithPath: "/Users/preview/Pictures/poster.png"), bytes: 2_640_000),
+            ]
         }
         // a finished recognition brings its window forward: the text has to be
         // visible, not just quietly filed away

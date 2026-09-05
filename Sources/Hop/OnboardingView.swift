@@ -270,12 +270,11 @@ struct OnboardingView: View {
                 Text(moduleTitle(key))
                     .font(Theme.mono(12))
                     .foregroundStyle(Theme.textPrimary)
-                if let purpose = purposeKey(key) {
-                    Text(t(purpose))
-                        .font(Theme.mono(10))
-                        .foregroundStyle(Theme.textTertiary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+                Text(moduleBlurb(key))
+                    .font(Theme.mono(10.5))
+                    .foregroundStyle(Theme.textTertiary)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
                 if key == "torrent" {
                     Text(t(.torrentEngineNote))
                         .font(Theme.mono(9))
@@ -304,8 +303,7 @@ struct OnboardingView: View {
         let drawn = key == Self.appsChoice
             ? previewModel.appShelves.shelves.shelves.first.map { "apps:\($0.id.uuidString)" }
             : key
-        return PanelView(previewModules: [drawn].compactMap { $0 })
-            .environmentObject(previewModel)
+        return previewBody(drawn)
             .frame(width: 368, alignment: .top)
             .frame(width: 368, height: 124, alignment: .topLeading)
             .clipped()
@@ -313,6 +311,33 @@ struct OnboardingView: View {
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.divider, lineWidth: 1))
             .allowsHitTesting(false)
+    }
+
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    @ViewBuilder
+    private func previewBody(_ key: String?) -> some View {
+        switch key {
+        case "convert":
+            ConvertWindowView().environmentObject(previewModel)
+                .frame(width: 620).scaleEffect(368 / 620, anchor: .topLeading)
+                .frame(width: 368, alignment: .topLeading)
+        case "archive":
+            ArchiveWindowView().environmentObject(previewModel)
+                .frame(width: 520).scaleEffect(368 / 520, anchor: .topLeading)
+                .frame(width: 368, alignment: .topLeading)
+        case "ocr":
+            ScreenTextWindowView().environmentObject(previewModel)
+                .frame(width: 520).scaleEffect(368 / 520, anchor: .topLeading)
+                .frame(width: 368, alignment: .topLeading)
+        case "uninstall":
+            UninstallWindowView(uninstall: previewModel.uninstall, lang: lang)
+                .environmentObject(previewModel)
+                .frame(width: 560).scaleEffect(368 / 560, anchor: .topLeading)
+                .frame(width: 368, alignment: .topLeading)
+        default:
+            PanelView(previewModules: [key].compactMap { $0 })
+                .environmentObject(previewModel)
+        }
     }
 
     private var permissionsStep: some View {
@@ -472,6 +497,18 @@ struct OnboardingView: View {
 
     private func purposeKey(_ key: String) -> L10nKey? {
         key == Self.appsChoice ? .purposeApps : ModulePresentation.purposeKey(key)
+    }
+
+    /// SPEC: docs/spec.md — "Onboarding", the module description.
+    private func moduleBlurb(_ key: String) -> String {
+        let short = purposeKey(key).map { t($0) } ?? ""
+        guard let doc = ModulePresentation.howKeys(key == Self.appsChoice ? "apps" : key).first
+        else { return short }
+        let opening = t(doc).components(separatedBy: "\n\n").first ?? ""
+        if opening.count > 170, let stop = opening.prefix(170).lastIndex(of: ".") {
+            return String(opening[..<stop]) + "."
+        }
+        return opening.count < 60 && !short.isEmpty ? "\(short). \(opening)" : opening
     }
 
     // MARK: - Pieces

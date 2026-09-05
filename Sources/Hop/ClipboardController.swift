@@ -379,7 +379,10 @@ final class ClipboardController: ObservableObject {
     /// Two rows that need no translation: a link and a path.
     private static var demoItems: [Item] {
         [Item(text: "https://hop.tools"),
-         Item(text: "~/Documents/design-tokens.css")]
+         Item(text: "~/Documents/design-tokens.css"),
+         Item(text: "#2E7D32", colorHex: "2E7D32"),
+         Item(text: "#F2B705", colorHex: "F2B705"),
+         Item(text: "#1F6FEB", colorHex: "1F6FEB")]
     }
 
     private func save() {

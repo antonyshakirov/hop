@@ -35,8 +35,7 @@ final class AppShelvesController: ObservableObject {
             let demo = ["/Applications/Safari.app", "/System/Applications/Mail.app",
                         "/System/Applications/Notes.app", "/System/Applications/Music.app",
                         "/System/Applications/Calendar.app", "/System/Applications/Photos.app",
-                        "/System/Applications/Maps.app", "/System/Applications/Preview.app",
-                        "/System/Applications/Reminders.app"]
+                        "/System/Applications/Maps.app", "/System/Applications/Preview.app"]
                 .filter { FileManager.default.fileExists(atPath: $0) }
                 .map { path in
                     ShelfItem(path: path,
