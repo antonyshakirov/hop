@@ -65,6 +65,8 @@ you reset it.
 <img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop — Timer & cycles">
 </div>
 
+→ [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
+
 ### Time tracker & to-dos
 
 Tasks can be grouped into projects, each carrying the sum of its own, and one
@@ -95,6 +97,8 @@ running. See [docs/automation.md](docs/automation.md).
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop — Time tracker & to-dos">
 </div>
 
+→ [Time tracker for Mac](https://hop.tools/features/time-tracker/)
+
 ### No sleep
 
 Keep the Mac awake for 15 minutes, 8 hours or forever — one click, no
@@ -104,6 +108,8 @@ closed (handy for downloads, long builds and external displays).
 <div align="center">
 <img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop — No sleep">
 </div>
+
+→ [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
 
 ### System monitor
 
@@ -118,6 +124,8 @@ short.
 <img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop — System monitor">
 </div>
 
+→ [System monitor for Mac](https://hop.tools/features/system-monitor/)
+
 ### Clipboard history
 
 The last 100 (up to 300) things you copied — text, images and files — one
@@ -128,6 +136,8 @@ file back. Passwords and other concealed input are never stored.
 <div align="center">
 <img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop — Clipboard history">
 </div>
+
+→ [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
 
 ### File converter
 
@@ -149,6 +159,8 @@ in batches by the apps themselves — PDF, or docx, xlsx and pptx.
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop — File converter">
 </div>
 
+→ [File converter for Mac](https://hop.tools/features/file-converter/)
+
 ### Window manager
 
 Snap windows to halves, quarters, thirds and center with a click on a zone
@@ -157,6 +169,8 @@ glyph or a ⌃⌥ hotkey — no extra app needed.
 <div align="center">
 <img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop — Window manager">
 </div>
+
+→ [Window manager for Mac](https://hop.tools/features/window-manager/)
 
 ### Torrents
 
@@ -171,6 +185,8 @@ files and magnet links.
 <div align="center">
 <img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop torrents — lite BitTorrent client in the menu bar panel">
 </div>
+
+→ [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
 
 ### File archives
 
@@ -190,12 +206,16 @@ shows the real state, so it can never claim a default Finder has given away. Dou
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop — File archives">
 </div>
 
+→ [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
+
 ### Documents
 
 The converter learned documents: markdown to PDF laid out by Hop itself, Word
 files (.docx, .doc, .rtf) to PDF or markdown, and a PDF's text pulled out as
 markdown — a scanned page is read with Apple's Vision. Native and offline,
 with no office suite bundled and nothing to download.
+
+→ [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
 ### Color picker
 
@@ -208,6 +228,8 @@ needed: the loupe hands back one color and nothing else.
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop — Color picker">
 </div>
+
+→ [Color picker for Mac](https://hop.tools/features/color-picker/)
 
 ### Text recognition
 
@@ -226,6 +248,8 @@ Wi-Fi password or a contact card stays plain text.
 <img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop — Text recognition">
 </div>
 
+→ [Text recognition for Mac](https://hop.tools/features/text-recognition/)
+
 ### Keyboard lock
 
 Tap 1, 5 or 15 minutes — or ∞ — and the whole keyboard stops responding, so it
@@ -239,6 +263,8 @@ still forces the Mac off, because that is handled in hardware.
 <img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop — Keyboard lock">
 </div>
 
+→ [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
+
 ### Speed test
 
 One tap measures your connection through macOS's own networkQuality, against
@@ -248,6 +274,8 @@ row.
 <div align="center">
 <img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop — Speed test">
 </div>
+
+→ [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
 
 ### The menu bar icon
 
@@ -297,6 +325,8 @@ The dot can be switched off in settings — the module and its switches go on wo
 <img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop — VPN switches">
 </div>
 
+→ [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
+
 ### Apps
 
 A grid of the programs you open all day, one click away without a trip to the
@@ -316,6 +346,8 @@ grid starts empty and says so until you fill it.
 <div align="center">
 <img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop — App grid">
 </div>
+
+→ [App launcher for Mac](https://hop.tools/features/app-launcher/)
 
 ### Uninstall apps
 
@@ -344,6 +376,8 @@ that app's own cleanup knows which half is disposable.
 <div align="center">
 <img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop — Clear caches, installers, leftovers and the Trash">
 </div>
+
+→ [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
 ## 22 languages
 
