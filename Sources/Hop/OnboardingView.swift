@@ -41,6 +41,9 @@ struct OnboardingView: View {
     /// grid does — so the checklist carries them under a key of their own.
     static let appsChoice = "apps"
 
+    /// Window height minus the footer.
+    private static let contentHeight: CGFloat = 470
+
     private var step: OnboardStep { OnboardStep.stored(stepIndex) }
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -52,7 +55,10 @@ struct OnboardingView: View {
                     .frame(maxWidth: 460)
                     .padding(.horizontal, 30)
                     .padding(.vertical, 30)
-                    .frame(maxWidth: .infinity)
+                    // A short screen sits in the middle of the window rather
+                    // than at the top of it; a long one (permissions) outgrows
+                    // this and scrolls as usual.
+                    .frame(maxWidth: .infinity, minHeight: Self.contentHeight, alignment: .center)
             }
             .frame(maxHeight: .infinity)
             footer
