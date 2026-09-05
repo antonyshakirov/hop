@@ -12,6 +12,8 @@ struct PermissionsView: View {
     let lang: AppLanguage
     /// SPEC: docs/spec.md — "Lid mode without a password", taking the rule back.
     var removeLidRule: () -> Void = {}
+    /// Onboarding shows the pledge on a screen of its own, one step earlier.
+    var showsPledge = true
 
     /// Live state is read once per appearance; notifications answer asynchronously.
     @State private var notificationsGranted: Bool?
@@ -53,6 +55,7 @@ struct PermissionsView: View {
             // a list of permissions reads as a list of risks unless somebody
             // says plainly what they are FOR and what is not happening. And it
             // ends with the receipt — the source is open (Anton, 2026-07-26).
+            if showsPledge {
             VStack(alignment: .leading, spacing: 7) {
                 Text(L10n.t(.permPledgeTitle, lang))
                     .font(Theme.mono(13, weight: .bold))
@@ -74,6 +77,7 @@ struct PermissionsView: View {
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 9))
+            }
         }
         .task {
             // UNUserNotificationCenter throws outright in a process with no

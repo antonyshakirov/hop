@@ -21,7 +21,7 @@ struct OnboardingView: View {
 
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
-    @AppStorage(SettingsKey.onboardingStep) private var stepRaw = OnboardStep.welcome.rawValue
+    @AppStorage(SettingsKey.onboardingStep) private var stepIndex = 0
     /// A grid of apps is not a module until one exists, so the answer is kept
     /// here and acted on at the end.
     @AppStorage(SettingsKey.onboardingWantsApps) private var wantsApps = true
@@ -34,7 +34,7 @@ struct OnboardingView: View {
     /// grid does — so the checklist carries them under a key of their own.
     static let appsChoice = "apps"
 
-    private var step: OnboardStep { OnboardStep.stored(stepRaw) }
+    private var step: OnboardStep { OnboardStep.stored(stepIndex) }
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
@@ -199,7 +199,7 @@ struct OnboardingView: View {
     private var permissionsStep: some View {
         VStack(alignment: .leading, spacing: 14) {
             stepHeading(t(.permTab), subtitle: t(.onbPermBody))
-            PermissionsView(lang: lang)
+            PermissionsView(lang: lang, showsPledge: false)
         }
     }
 
@@ -277,10 +277,10 @@ struct OnboardingView: View {
             .disabled(step == .welcome)
 
             HStack(spacing: 5) {
-                ForEach(OnboardStep.ordered, id: \.rawValue) { s in
+                ForEach(Array(OnboardStep.ordered.enumerated()), id: \.offset) { index, _ in
                     Capsule()
-                        .fill(s == step ? Theme.textPrimary : Theme.divider)
-                        .frame(width: s == step ? 14 : 5, height: 4)
+                        .fill(index == stepIndex ? Theme.textPrimary : Theme.divider)
+                        .frame(width: index == stepIndex ? 14 : 5, height: 4)
                 }
             }
             Spacer()
@@ -311,20 +311,15 @@ struct OnboardingView: View {
     }
 
     private func goBack() {
-        let all = OnboardStep.ordered
-        guard let i = all.firstIndex(of: step), i > 0 else { return }
-        stepRaw = all[i - 1].rawValue
+        guard stepIndex > 0 else { return }
+        stepIndex -= 1
     }
 
     private func goForward() {
         let all = OnboardStep.ordered
-        guard let i = all.firstIndex(of: step) else { return }
-        if i + 1 < all.count {
-            stepRaw = all[i + 1].rawValue
-            if all[i + 1] == .done { checkForUpdate() }
-        } else {
-            finishOnboarding()
-        }
+        guard stepIndex + 1 < all.count else { return finishOnboarding() }
+        stepIndex += 1
+        if all[stepIndex] == .done { checkForUpdate() }
     }
 
     // MARK: - Module state

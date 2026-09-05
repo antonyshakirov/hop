@@ -1,34 +1,38 @@
 import Foundation
 import HopCore
 
-/// The onboarding's running order; raw values are stored.
+/// The onboarding's running order. What is stored is the INDEX in `ordered`: the
+/// group screens are generated from the catalog, so they have no cases of their
+/// own to number, and numbering them by arithmetic on a raw value collapsed all
+/// six into one step.
 /// SPEC: docs/spec.md — "Onboarding".
-enum OnboardStep: Int, CaseIterable {
-    case welcome = 0
-    case privacy = 1
-    case modules = 2          // + group index, see `group`
-    case permissions = 100
-    case done = 200
-
-    static func modules(_ index: Int) -> OnboardStep {
-        OnboardStep(rawValue: OnboardStep.modules.rawValue + index) ?? .privacy
-    }
-
-    /// Which group screen this step is, if it is one.
-    var groupIndex: Int? {
-        let base = OnboardStep.modules.rawValue
-        guard rawValue >= base, rawValue < base + ModuleGroup.all.count else { return nil }
-        return rawValue - base
-    }
+enum OnboardStep: Equatable {
+    case welcome
+    case privacy
+    case modules(Int)
+    case permissions
+    case done
 
     static var ordered: [OnboardStep] {
         [.welcome, .privacy]
-            + (0..<ModuleGroup.all.count).map { modules($0) }
+            + (0..<ModuleGroup.all.count).map { OnboardStep.modules($0) }
             + [.permissions, .done]
     }
 
-    static func stored(_ raw: Int) -> OnboardStep {
-        ordered.first { $0.rawValue == raw } ?? .welcome
+    var groupIndex: Int? {
+        if case .modules(let i) = self { return i }
+        return nil
+    }
+
+    /// Where a stored index lands, clamped to a step that exists.
+    static func stored(_ index: Int) -> OnboardStep {
+        let all = ordered
+        guard index >= 0, index < all.count else { return .welcome }
+        return all[index]
+    }
+
+    static func index(of step: OnboardStep) -> Int {
+        ordered.firstIndex(of: step) ?? 0
     }
 }
 
