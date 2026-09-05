@@ -70,6 +70,7 @@ struct OnboardingView: View {
     @ViewBuilder private var content: some View {
         switch step {
         case .welcome: welcomeStep
+        case .setup: setupStep
         case .privacy: privacyStep
         case .permissions: permissionsStep
         case .done: doneStep
@@ -93,6 +94,9 @@ struct OnboardingView: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: 420)
+                Text(t(.onbWelcomeSetup))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textTertiary)
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 26)
@@ -105,7 +109,17 @@ struct OnboardingView: View {
                     Spacer()
                     LanguagePicker(selection: $languageRaw)
                 }
-                SettingsRule()
+            } }
+        }
+    }
+
+    /// The second screen: what it looks like and when it starts. Split off the
+    /// welcome, which is now the app introducing itself and asking one thing
+    /// (Anton, 2026-09-05).
+    private var setupStep: some View {
+        VStack(spacing: 16) {
+            stepHeading(t(.onbSetupTitle))
+            opaque(10) { SettingsCard {
                 HStack {
                     Text(t(.themeLabel))
                         .font(Theme.mono(12))

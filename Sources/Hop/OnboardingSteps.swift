@@ -8,13 +8,14 @@ import HopCore
 /// SPEC: docs/spec.md — "Onboarding".
 enum OnboardStep: Equatable {
     case welcome
+    case setup
     case privacy
     case modules(Int)
     case permissions
     case done
 
     static var ordered: [OnboardStep] {
-        [.welcome, .privacy]
+        [.welcome, .setup, .privacy]
             + (0..<ModuleGroup.all.count).map { OnboardStep.modules($0) }
             + [.permissions, .done]
     }

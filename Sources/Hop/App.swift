@@ -980,6 +980,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
+        // AppKit remembers where a titled window was and cascades new ones from
+        // the last one it opened. Either would put the wizard somewhere other
+        // than the middle of the screen (Anton, 2026-09-05).
+        window.isRestorable = false
         // onboarding is pinned: only windows with a title bar move
         // (about, converter) — clicks on chips don't drag the window
         window.isMovableByWindowBackground = false
@@ -1006,6 +1010,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
         centreOnboarding()
+        // Again on the next turn of the run loop: the activation policy change
+        // and AppKit's own cascade both land after this call.
+        DispatchQueue.main.async { [weak self] in self?.centreOnboarding() }
     }
 
     /// Dead centre of the screen it opens on. AppKit's `center()` sits a window
