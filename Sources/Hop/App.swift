@@ -645,6 +645,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applyAppTheme() {
         statusController?.applyTheme()
         settingsWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        onboardingWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         converterWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         archiveWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         finderArchiveWindows.values.forEach { $0.applyTheme() }
@@ -984,7 +985,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.isMovableByWindowBackground = false
         window.isMovable = false
         window.isReleasedWhenClosed = false
-        window.contentViewController = NSHostingController(rootView: OnboardingView(updater: model.updater, shelves: model.appShelves) { [weak self] in
+        window.contentViewController = NSHostingController(rootView: OnboardingView(
+            updater: model.updater, shelves: model.appShelves,
+            applyTheme: { [weak self] in self?.applyAppTheme() }
+        ) { [weak self] in
             self?.onboardingWindow?.close()
             self?.onboardingWindow = nil
             self?.applyAppTheme() // theme picked in onboarding applies everywhere immediately
@@ -996,7 +1000,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.model.torrent.prefetchEngineIfNeeded()
             }
         }.hopLayoutDirection())
-        window.center()
+        // Dead centre of the screen, not AppKit's `center()`, which sits a
+        // window a little above the middle (Anton, 2026-09-05).
+        if let screen = NSScreen.main?.visibleFrame {
+            let size = window.frame.size
+            window.setFrameOrigin(NSPoint(x: screen.midX - size.width / 2,
+                                          y: screen.midY - size.height / 2))
+        } else {
+            window.center()
+        }
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         onboardingWindow = window
         enterDockMode()
         NSApp.activate(ignoringOtherApps: true)

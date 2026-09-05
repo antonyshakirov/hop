@@ -10,6 +10,8 @@ struct OnboardingView: View {
     /// The app's own shelves store, so a grid chosen here is the same grid the
     /// panel shows a moment later.
     @ObservedObject var shelves: AppShelvesController
+    /// Hands the chosen theme to the app, windows included.
+    var applyTheme: () -> Void = {}
     let finish: () -> Void
 
     private enum Phase {
@@ -75,21 +77,21 @@ struct OnboardingView: View {
     }
 
     private var welcomeStep: some View {
-        VStack(spacing: 18) {
-            VStack(spacing: 9) {
-                asterisk // vector: the menu bar bitmap got blurry when scaled up
+        VStack(spacing: 24) {
+            VStack(spacing: 14) {
+                asterisk(size: 84) // vector: the menu bar bitmap got blurry when scaled up
                 Text("hop")
-                    .font(Theme.mono(17, weight: .bold))
+                    .font(Theme.mono(30, weight: .bold))
                     .foregroundStyle(Theme.textPrimary)
                 Text(t(.onbWelcomeBody))
-                    .font(Theme.mono(11))
+                    .font(Theme.mono(13))
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: 380)
+                    .frame(maxWidth: 420)
             }
             .frame(maxWidth: .infinity)
-            .padding(.top, 10)
+            .padding(.top, 26)
 
             SettingsCard {
                 HStack {
@@ -224,7 +226,7 @@ struct OnboardingView: View {
 
     private var doneStep: some View {
         VStack(spacing: 16) {
-            asterisk
+            asterisk(size: 84)
                 .padding(.top, 20)
             Text(t(.onbDoneTitle))
                 .font(Theme.mono(17, weight: .bold))
@@ -374,15 +376,9 @@ struct OnboardingView: View {
 
     /// Color taken directly from the theme picked in the form — the global
     /// Theme.isDark lagged behind here during a live switch.
-    private var asteriskColor: Color {
-        switch themeRaw {
-        case "dark": return .white
-        case "light": return Color(white: 0.05)
-        default: return Theme.systemDark ? .white : Color(white: 0.05)
-        }
-    }
+    private var asteriskColor: Color { Theme.accentYellow }
 
-    private var asterisk: some View {
+    private func asterisk(size: CGFloat = 44) -> some View {
         // geometry 1:1 with the menu bar icon: 8 rays offset by half a step
         Canvas { ctx, size in
             let center = CGPoint(x: size.width / 2, y: size.height / 2)
@@ -399,14 +395,21 @@ struct OnboardingView: View {
                            style: StrokeStyle(lineWidth: size.width * 0.095, lineCap: .round))
             }
         }
-        .frame(width: 44, height: 44)
+        .frame(width: size, height: size)
         // SwiftUI does not redraw a Canvas with no input dependencies on a
         // theme change — the id forces it to be recreated with the new color
         .id(themeRaw)
     }
 
+    /// Applying it to the WINDOW as well: a popover (the language list) is a
+    /// window of its own and inherits the parent's appearance, so without this
+    /// the list opened in the old theme — dark text on a dark sheet
+    /// (Anton, 2026-09-05).
     private func themeChip(_ raw: String, _ label: String) -> some View {
-        SettingChip(label, active: themeRaw == raw) { themeRaw = raw }
+        SettingChip(label, active: themeRaw == raw) {
+            themeRaw = raw
+            applyTheme()
+        }
     }
 
     // MARK: - Finishing
