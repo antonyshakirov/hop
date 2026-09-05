@@ -149,6 +149,17 @@ public enum ModuleCatalog {
                      defaultCombo: ModuleCombo(keyCode: key, modifiers: controlOption))
     }
 
+    /// Modules that own settings beyond the on/off switch.
+    /// SPEC: docs/spec.md — "The module page (settings window)".
+    public static let modulesWithSettings: Set<String> = [
+        "timer", "system", "awake", "clipboard", "color", "tracker",
+        "todos", "vpn", "convert", "archive", "torrent", "windows",
+    ]
+
+    public static func hasSettings(_ id: String) -> Bool {
+        modulesWithSettings.contains(id)
+    }
+
     public static func module(_ id: String) -> ModuleEntry? {
         modules.first { $0.id == id }
     }

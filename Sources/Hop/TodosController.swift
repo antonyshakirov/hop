@@ -30,6 +30,13 @@ final class TodosController: ObservableObject {
         // A snapshot/demo render must never load real user data — start empty
         // and let the --tasks seed stage its own deterministic content.
         list = Snapshot.active ? .empty : TodosStore.load(from: storeDir)
+        // Switching the module off drops every armed banner, and switching it
+        // back on arms them again from the same reminders.
+        NotificationCenter.default.addObserver(
+            forName: ModuleActivation.didChange, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.reschedule() }
+        }
     }
 
     /// Appends a to-do; a blank text is a no-op (the model trims and rejects
@@ -111,7 +118,9 @@ final class TodosController: ObservableObject {
         let fired = Set(list.items.filter(\.firedUnseen).map(\.id)).subtracting(before)
         save()
         reschedule()
-        if !fired.isEmpty, UserDefaults.standard.bool(forKey: SettingsKey.todoRemindSound) {
+        if !fired.isEmpty,
+           UserDefaults.standard.bool(forKey: SettingsKey.todoRemindSound),
+           ModuleActivation.isOn("todos") {
             Sounds.alarm()
         }
     }

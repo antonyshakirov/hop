@@ -113,6 +113,7 @@ struct PanelView: View {
     @State private var dragHeaderTranslation: CGFloat = 0
     @State private var confirmDeleteTab: UUID?          // inline delete confirmation target
     @State private var confirmDeleteShelf: UUID?        // same, for a grid of apps
+    @State private var confirmModuleOff: String?        // a busy module about to be switched off
     @State private var hoveredChip: String?             // chip under the pointer (shows its ✕)
     // non-nil while the icon picker grid is open for that tab column
     @State private var iconPickerTabID: UUID?
@@ -253,10 +254,12 @@ struct PanelView: View {
                 .frame(width: Snapshot.active ? 940 : nil)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .background(Theme.panelBackground)
+                .overlay { moduleOffConfirmLayer }
                 .onAppear { consumeSettingsSectionRequest() }
                 .onChange(of: model.settingsSectionRequest) { _, _ in consumeSettingsSectionRequest() }
         } else {
             panelBody
+                .overlay { moduleOffConfirmLayer }
         }
     }
 
@@ -1670,16 +1673,18 @@ struct PanelView: View {
                 }
                 .frame(width: 12, height: 13)
             }
-            Button { setModuleHidden(key, !hidden) } label: {
-                Image(systemName: hidden ? "eye.slash" : "eye")
-                    .font(.system(size: 9))
+            Button {
+                if hidden { setModuleHidden(key, false) } else { requestModuleOff(key) }
+            } label: {
+                Image(systemName: hidden ? "power.circle" : "power.circle.fill")
+                    .font(.system(size: 10))
                     .foregroundStyle(hidden ? Theme.textTertiary : Theme.textSecondary)
                     .frame(width: 14, height: 13)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .hoverDim()
-            .help(t(hidden ? .moduleShow : .featureHide))
+            .help(t(hidden ? .moduleEnable : .moduleDisable))
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
@@ -1918,6 +1923,45 @@ struct PanelView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.controlStroke, lineWidth: 1))
             .shadow(color: .black.opacity(0.3), radius: 14, y: 4)
+        }
+    }
+
+    /// SPEC: docs/spec.md — "Switching a module off". Not red: nothing is lost.
+    @ViewBuilder private var moduleOffConfirmLayer: some View {
+        if let key = confirmModuleOff, let message = moduleOffMessage(key) {
+            ZStack {
+                Theme.background.opacity(0.88)
+                    .contentShape(Rectangle())
+                    .onTapGesture { confirmModuleOff = nil }
+                VStack(spacing: 12) {
+                    Text(message)
+                        .font(Theme.mono(11))
+                        .foregroundStyle(Theme.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                    HStack(spacing: 18) {
+                        Button { confirmModuleOff = nil } label: {
+                            HoverLabel(text: t(.quitCancel), size: 11, color: Theme.textTertiary)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .help(t(.quitCancel))
+                        .keyboardShortcut(.cancelAction)
+                        Button { turnModuleOff(key) } label: {
+                            HoverLabel(text: t(.moduleTurnOff), size: 11, color: Theme.textPrimary)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .help(t(.moduleTurnOff))
+                    }
+                }
+                .padding(18)
+                .frame(maxWidth: 300)
+                .background(Theme.panelBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.controlStroke, lineWidth: 1))
+                .shadow(color: .black.opacity(0.3), radius: 14, y: 4)
+            }
         }
     }
 
@@ -2685,6 +2729,7 @@ struct PanelView: View {
         model.setHidden(key, hidden: false)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
         HotkeyManager.shared.refreshModuleHotkeys()
+        ModuleActivation.announceChange()
     }
 
     static func deactivateStoredModule(_ key: String) {
@@ -2696,6 +2741,7 @@ struct PanelView: View {
         model.setHidden(key, hidden: true)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
         HotkeyManager.shared.refreshModuleHotkeys()
+        ModuleActivation.announceChange()
     }
 
     /// Whether `key` is hidden right now (AppDelegate: torrent engine prefetch).
@@ -2900,11 +2946,70 @@ struct PanelView: View {
     private func setModuleHidden(_ key: String, _ hidden: Bool) {
         mutateTabs { $0.setHidden(key, hidden: hidden) }
         HotkeyManager.shared.refreshModuleHotkeys()
+        ModuleActivation.announceChange()
         if key == "torrent", !hidden { model.torrent.prefetchEngineIfNeeded() }
     }
 
     private func deactivateModule(_ key: String) {
         setModuleHidden(key, true)
+    }
+
+    /// SPEC: docs/spec.md — "Switching a module off".
+    private var moduleActivity: ModuleShutdown.Activity {
+        let now = Date()
+        let engineState = model.engine.state
+        let downloading = model.torrent.torrents.filter {
+            !($0.optimisticPaused ?? ($0.pausedByPolicy || $0.stats?.state == .paused))
+        }
+        return ModuleShutdown.Activity(
+            timerRunning: engineState == .running || engineState == .paused,
+            keepAwakeActive: model.keepAwake.isActive,
+            trackerRunning: model.tracker.isTracking,
+            activeDownloads: downloading.count,
+            converterBusy: model.converter.busy,
+            archiveRunning: model.archive.jobs.contains { $0.state == .running },
+            armedReminders: model.todos.list.items.filter {
+                (RemindSchedule.effectiveFiring($0).map { $0 > now }) ?? false
+            }.count)
+    }
+
+    private func requestModuleOff(_ key: String) {
+        if ModuleShutdown.needsConfirmation(module: key, activity: moduleActivity) {
+            confirmModuleOff = key
+        } else {
+            setModuleHidden(key, true)
+        }
+    }
+
+    private func turnModuleOff(_ key: String) {
+        stopModuleWork(key)
+        setModuleHidden(key, true)
+        confirmModuleOff = nil
+    }
+
+    /// SPEC: docs/spec.md — "Switching a module off", the table of stops.
+    private func stopModuleWork(_ key: String) {
+        switch key {
+        case "timer": model.engine.reset()
+        case "awake": model.keepAwake.deactivate()
+        case "tracker": model.tracker.engine.stopActive()
+        case "torrent":
+            for torrent in model.torrent.torrents { model.torrent.pause(id: torrent.id) }
+            model.torrent.stopEngine()
+        default: break
+        }
+    }
+
+    private func moduleOffMessage(_ key: String) -> String? {
+        switch ModuleShutdown.consequence(module: key, activity: moduleActivity) {
+        case .countdownStops: return t(.moduleOffCountdown)
+        case .sleepAllowedAgain: return t(.moduleOffAwake)
+        case .openStretchFiled: return t(.moduleOffTracker)
+        case .downloadsPause: return t(.moduleOffTorrent)
+        case .jobFinishesInItsWindow: return t(.moduleOffJob)
+        case .remindersGoQuiet: return t(.moduleOffReminders)
+        case nil: return nil
+        }
     }
 
     private func moduleTitle(_ key: String) -> String {
@@ -3027,9 +3132,9 @@ struct PanelView: View {
                     }
                 }
                 Button {
-                    deactivateModule(key)
+                    requestModuleOff(key)
                 } label: {
-                    Label(t(.featureHide).capitalizedFirst, systemImage: "eye.slash")
+                    Label(t(.moduleDisable).capitalizedFirst, systemImage: "power")
                 }
                 }
             }
@@ -3608,23 +3713,30 @@ struct PanelView: View {
     }
 
     @ViewBuilder private func modulePage(_ key: String) -> some View {
+        // SPEC: docs/spec.md — the module page of a module that is off.
+        let switchable = ModulePresentation.titleKey(key) != nil
+        let on = !switchable || moduleIsActive(key)
         VStack(alignment: .leading, spacing: 10) {
             pageHeader(icon: ModulePresentation.icon(key),
                        title: moduleTitle(key),
                        subtitle: ModulePresentation.purposeKey(key).map { t($0) })
 
             SettingsCard {
-                // The same state the eye in "modules & tabs" holds, in words.
-                if ModulePresentation.titleKey(key) != nil {
-                    switchSetting(t(.showInPanel), isOn: Binding(
+                // The same state the power button in "modules & tabs" holds, in words.
+                if switchable {
+                    switchSetting(t(.moduleEnable), isOn: Binding(
                         get: { moduleIsActive(key) },
-                        set: { setModuleHidden(key, !$0) }))
-                    SettingsRule()
+                        set: { on in
+                            if on { setModuleHidden(key, false) } else { requestModuleOff(key) }
+                        }))
                 }
-                moduleSettings(key)
+                if on, ModuleCatalog.hasSettings(key) {
+                    if switchable { SettingsRule() }
+                    moduleSettings(key)
+                }
             }
 
-            if let action = ModuleCatalog.open(key), hotkeys.hasHandler(action) {
+            if on, let action = ModuleCatalog.open(key), hotkeys.hasHandler(action) {
                 SettingsGroupLabel(title: t(.hotkeysLabel))
                     .padding(.top, 8)
                 SettingsCard {
@@ -4400,24 +4512,27 @@ struct PanelView: View {
             }
             resetGroupButton([ModuleCatalog.panelAction] + moduleActions)
 
-            SettingsGroupLabel(title: t(.windowsLabel))
-                .padding(.top, 8)
-            SettingsCard {
-                switchSetting(t(.windowsHotkeysLabel), isOn: $windowsHotkeysOn)
-                if windowsHotkeysOn {
-                    SettingsRule()
-                    // eighteen zones in one column is a page of scrolling; two
-                    // columns keep the whole set in view
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .leading),
-                                             count: 2),
-                              alignment: .leading, spacing: 10) {
-                        ForEach(ModuleCatalog.zoneActions, id: \.self) { action in
-                            zoneHotkeyRow(action)
+            // the zones are the windows module's keys and go with it
+            if moduleIsActive("windows") {
+                SettingsGroupLabel(title: t(.windowsLabel))
+                    .padding(.top, 8)
+                SettingsCard {
+                    switchSetting(t(.windowsHotkeysLabel), isOn: $windowsHotkeysOn)
+                    if windowsHotkeysOn {
+                        SettingsRule()
+                        // eighteen zones in one column is a page of scrolling; two
+                        // columns keep the whole set in view
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .leading),
+                                                 count: 2),
+                                  alignment: .leading, spacing: 10) {
+                            ForEach(ModuleCatalog.zoneActions, id: \.self) { action in
+                                zoneHotkeyRow(action)
+                            }
                         }
                     }
                 }
+                resetGroupButton(ModuleCatalog.zoneActions)
             }
-            resetGroupButton(ModuleCatalog.zoneActions)
         }
         .onChange(of: windowsHotkeysOn) { _, _ in
             HotkeyManager.shared.refreshModuleHotkeys()
@@ -4464,9 +4579,11 @@ struct PanelView: View {
         }
     }
 
+    /// Only what a key can actually reach — SPEC: "Which combination may be claimed".
     private var hotkeyModules: [String] {
         ModuleCatalog.modules
             .filter { $0.openAction.map { hotkeys.hasHandler($0) } ?? false }
+            .filter { moduleIsActive($0.id) }
             .map(\.id)
     }
 

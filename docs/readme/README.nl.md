@@ -50,8 +50,9 @@ nieuwer.
 
 Het icoon houdt tot vier tabbladen, en je sleept elke module naar het
 tabblad dat je wilt: de timer op de een, de monitor op de ander, wat je
-zelden opent aan de kant. Het oog naast een module verbergt hem, zonder hem
-te verplaatsen of te verwijderen.
+zelden opent aan de kant. De aan-uitknop naast een module schakelt hem
+uit: hij houdt zijn plek, maar draait niet meer — geen sneltoets, geen teken,
+niets dat op de achtergrond wordt verzameld.
 
 ### Timer & cycli
 

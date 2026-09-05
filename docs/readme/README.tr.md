@@ -50,7 +50,9 @@ veya üzeri gerekir.
 
 Simge en fazla dört sekme tutar ve her modülü istediğiniz sekmeye
 sürüklersiniz: zamanlayıcı birinde, monitör diğerinde, seyrek açtıklarınız
-bir kenarda. Modülün yanındaki göz, onu taşımadan ve silmeden gizler.
+bir kenarda. Modülün yanındaki güç düğmesi onu
+kapatır: yeri korunur, ama çalışmayı bırakır — kısayol yok, işaret yok, arka
+planda toplanan bir şey yok.
 
 ### Zamanlayıcı ve döngüler
 

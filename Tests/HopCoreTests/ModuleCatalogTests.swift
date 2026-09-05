@@ -142,4 +142,19 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertNil(ModuleCatalog.open("nothing-of-the-sort"))
         XCTAssertNil(ModuleCatalog.open("clipboard"), "read in the panel, not by a key")
     }
+
+    /// The module page reads this to decide whether a rule belongs under the
+    /// on/off switch. A name that no module answers to would draw the rule over
+    /// nothing — the very thing the list exists to prevent.
+    func testEveryModuleWithSettingsIsAModuleThatExists() {
+        let ids = Set(ModuleCatalog.allIDs)
+        for id in ModuleCatalog.modulesWithSettings {
+            XCTAssertTrue(ids.contains(id), "no module answers to \(id)")
+        }
+        XCTAssertTrue(ModuleCatalog.hasSettings("timer"))
+        for bare in ["speedtest", "ocr", "keyboard", "uninstall"] {
+            XCTAssertFalse(ModuleCatalog.hasSettings(bare), "\(bare) carries the switch alone")
+        }
+        XCTAssertFalse(ModuleCatalog.hasSettings("nothing-of-the-sort"))
+    }
 }

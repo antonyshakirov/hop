@@ -51,8 +51,9 @@ successivo.
 
 L'icona ospita fino a quattro schede, e trascini ogni modulo nella scheda che
 preferisci: il timer su una, il monitor su un'altra, ciò che apri di rado da
-parte. L'occhio accanto a un modulo lo nasconde, senza spostarlo né
-eliminarlo.
+parte. Il pulsante di accensione accanto a un modulo
+lo disattiva: mantiene il suo posto e smette di funzionare — niente scorciatoia,
+niente segno, niente raccolta in background.
 
 ### Timer e cicli
 

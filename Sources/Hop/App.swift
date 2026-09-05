@@ -252,6 +252,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         observeDockWindowClosing()
 
         statusController = StatusItemController(model: model)
+        // the controllers were built before the launch migrations wrote the layout
+        ModuleActivation.announceChange()
         startReminders()
         startAgentBridge()
 
@@ -974,6 +976,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.onboardingWindow?.close()
             self?.onboardingWindow = nil
             self?.applyAppTheme() // theme picked in onboarding applies everywhere immediately
+            // onboarding is where most modules are first switched off
+            ModuleActivation.announceChange()
             // Torrents kept active in onboarding = fetch the engine right away,
             // in the background — the module is ready before its first download.
             if !PanelView.storedModuleIsInactive("torrent") {

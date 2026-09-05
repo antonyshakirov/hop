@@ -1,9 +1,7 @@
 import XCTest
 @testable import HopCore
 
-/// Hiding a module used to take its combination away, and a setting existed to
-/// undo that. Both are gone: a key answers whether or not the module is drawn in
-/// the panel (Anton, 2026-09-02). The window zones keep their own switch.
+/// SPEC: docs/spec.md — "Which combination may be claimed".
 final class HotkeyActivationTests: XCTestCase {
 
     func testEveryActionIsRegistrable() {
@@ -22,5 +20,24 @@ final class HotkeyActivationTests: XCTestCase {
 
         let on = HotkeyActivation.registrable(windowZones: true)
         XCTAssertEqual(on.filter(\.isWindowZone).count, 18)
+    }
+
+    func testASwitchedOffModuleClaimsNothing() {
+        let actions = HotkeyActivation.registrable(inactiveModules: ["timer", "color"])
+        XCTAssertFalse(actions.contains { $0.storageKey == "hotkey_timer" })
+        XCTAssertFalse(actions.contains { $0.storageKey == "hotkey_color" })
+        XCTAssertTrue(actions.contains { $0.storageKey == "hotkey_ocr" }, "another module keeps its key")
+    }
+
+    func testThePanelKeepsItsKeyWhateverIsSwitchedOff() {
+        let actions = HotkeyActivation.registrable(
+            inactiveModules: Set(ModuleCatalog.allIDs))
+        XCTAssertEqual(actions, [ModuleCatalog.panelAction])
+    }
+
+    func testTheZonesFollowTheirModule() {
+        let moduleOff = HotkeyActivation.registrable(inactiveModules: ["windows"])
+        XCTAssertFalse(moduleOff.contains { $0.isWindowZone })
+        XCTAssertTrue(moduleOff.contains { $0.storageKey == "hotkey_timer" })
     }
 }

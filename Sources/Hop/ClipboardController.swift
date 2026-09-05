@@ -49,6 +49,24 @@ final class ClipboardController: ObservableObject {
 
     init() {
         load()
+        applyActivation()
+        NotificationCenter.default.addObserver(
+            forName: ModuleActivation.didChange, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.applyActivation() }
+        }
+    }
+
+    /// SPEC: docs/spec.md — "A module that is off is off everywhere".
+    func applyActivation() {
+        guard ModuleActivation.isOn("clipboard") else {
+            ticker?.invalidate()
+            ticker = nil
+            return
+        }
+        guard ticker == nil else { return }
+        // what was copied while the module was off belongs to that time
+        changeCount = NSPasteboard.general.changeCount
         let t = Timer(timeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.check() }
         }

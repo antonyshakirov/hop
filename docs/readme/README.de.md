@@ -50,8 +50,9 @@ neuer.
 
 Das Symbol fasst bis zu vier Tabs, und du ziehst jedes Modul in den Tab
 deiner Wahl — den Timer auf den einen, den Monitor auf den anderen, selten
-Genutztes zur Seite. Das Auge neben einem Modul blendet es aus, ohne es zu
-verschieben oder zu löschen.
+Genutztes zur Seite. Der Ein-Aus-Knopf neben einem Modul schaltet es
+ab: es behält seinen Platz, läuft aber nicht mehr — keine Taste, kein Zeichen,
+nichts im Hintergrund.
 
 ### Timer & Zyklen
 

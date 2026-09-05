@@ -99,6 +99,26 @@ final class VPNController: ObservableObject {
             ]
             return
         }
+        applyActivation()
+        NotificationCenter.default.addObserver(
+            forName: ModuleActivation.didChange, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.applyActivation() }
+        }
+    }
+
+    /// Stops the `scutil` reads while the module is off; no tunnel is touched.
+    /// SPEC: docs/spec.md — "A module that is off is off everywhere".
+    func applyActivation() {
+        guard ModuleActivation.isOn("vpn") else {
+            tick?.invalidate()
+            tick = nil
+            tickInterval = 0
+            watcher = nil
+            configurations = []
+            return
+        }
+        guard watcher == nil else { return }
         watcher = NetworkChangeWatcher { [weak self] in
             Task { @MainActor in self?.networkChanged() }
         }

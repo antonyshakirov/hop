@@ -52,7 +52,8 @@ recente.
 
 O ícone comporta até quatro abas, e você arrasta cada módulo para a aba que
 quiser: o timer em uma, o monitor em outra, o que abre raramente para o lado.
-O olho ao lado de um módulo o oculta, sem mover nem apagar.
+O botão de energia ao lado de um módulo o desativa: ele mantém seu lugar e
+para de funcionar — sem atalho, sem marca e sem nada coletado em segundo plano.
 
 ### Timer e ciclos
 

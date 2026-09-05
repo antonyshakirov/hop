@@ -52,8 +52,9 @@ plus récent.
 
 L'icône accueille jusqu'à quatre onglets, et vous glissez chaque module dans
 l'onglet de votre choix : le minuteur sur l'un, le moniteur sur l'autre, ce
-que vous ouvrez rarement à l'écart. L'œil à côté d'un module le masque, sans
-le déplacer ni le supprimer.
+que vous ouvrez rarement à l'écart. Le bouton d'alimentation à côté d'un module
+le désactive : il garde sa place et cesse de fonctionner — plus de raccourci,
+plus de marque, plus rien en arrière-plan.
 
 ### Minuteur et cycles
 

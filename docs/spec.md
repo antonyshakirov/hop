@@ -191,15 +191,56 @@ identically on every user's bar.
 
 The main screen shows the modules of the selected space (tab) as a stack,
 in the order the user set. **A module always sits on exactly one space and
-carries a `hidden` flag there** (`PanelTabsModel.hidden`): hiding it changes
-nothing about where it lives, only whether the panel draws it. The eye in
-"modules & tabs" and the "hide" item in a module's right-click menu are the
-same switch. A hidden module is also switched off — it does not run — but its
-KEY still answers: pressing it does the thing (Anton, 2026-09-02). Hiding used
-to hand the combination back to other applications, with a setting to undo that;
-both are gone. The setting explained a rule nobody asked for and made the page
-harder to read, and a key that quietly stops working is a bug from where the
-user sits.
+carries a `hidden` flag there** (`PanelTabsModel.hidden`): the flag changes
+nothing about where the module lives, only whether it is on. The power button in
+"modules & tabs", the item in a module's right-click menu and the "enable the
+module" switch on its page are one switch with one answer.
+
+**A module that is off is off everywhere** (Anton, 2026-09-05). It is not drawn
+in the panel; its page shows the switch and its documentation and no settings;
+its badge and its digits are gone from the menu bar; its key is not claimed, so
+the combination is free for another module to take; and what it used to collect
+while nobody was looking is not collected — the clipboard watches no pasteboard,
+the monitor measures nothing and keeps no history, the tunnel list is not read,
+and no reminder banner is armed. Nothing is deleted: the history, the tasks, the
+downloads and the settings are exactly where they were when it comes back on.
+
+This replaced the rule of 2026-09-02, under which a hidden module kept answering
+its key — "a key that quietly stops working is a bug from where the user sits".
+The key no longer stops quietly: the switch says "enable the module" rather than
+"show in the panel", and switching one off that is busy says first what that
+will stop (see "Switching a module off" below). The setting that used to hand
+combinations back to other applications stays gone; the module's own switch is
+what decides now.
+
+### Switching a module off
+
+The switch is in three places and they are one answer: the power button on the
+module's chip in "modules & tabs" (filled = on), the item in a module's
+right-click menu in the panel, and "enable the module" on its page.
+
+**A module that is busy says what stopping it will do, and waits.** The rule is
+`ModuleShutdown` in HopCore (pure, tested); the app fills in an `Activity` from
+its controllers. A module that is idle is switched off on the spot — a question
+with nothing behind it only teaches people to click through the ones that have
+something behind them.
+
+| module | busy when | what the question says, and what then happens |
+|---|---|---|
+| timer | counting down or paused | the countdown stops (`reset`, back to what it was set to) |
+| awake | sleep prevention active | the Mac may sleep again (`deactivate`) |
+| tracker | a task is being timed | the open stretch is closed INTO the task's history (`stopActive`) — the run itself is not committed, the ✓ still owns that |
+| torrent | at least one transfer is not paused | every torrent is paused and the engine is stopped; switching the module back on does NOT resume them |
+| convert / archive | a job is running | nothing is killed: neither has a cancel, so the job finishes in the window it is already showing in |
+| todos | a reminder is still ahead | reminders stay in the list and stop ringing |
+
+Every other module is switched off without a word: nothing of theirs is in
+flight. Nothing anywhere is deleted — history, tasks, downloads, colours and
+settings are all where they were.
+
+The confirmation is the same scrim-and-card the deletions use, over the panel
+and over the settings window alike, with cancel on the leading edge (Escape) and
+"turn off" on the trailing one. It is not red: nothing is being destroyed.
 
 Older versions spelled hidden differently: the module was parked in an
 "inactive" bucket off the spaces. That bucket is still decoded and
@@ -207,6 +248,17 @@ Older versions spelled hidden differently: the module was parked in an
 exactly what the user saw before the update. The conversion runs on every load
 rather than behind a one-shot flag, so it cannot be missed or replayed, and
 nothing is ever written back into the bucket.
+
+**What "off" costs the app to honour** (`ModuleActivation`, one read of the
+stored arrangement, cached against the stored text itself): the hotkey refresh
+asks it for the whole inactive set, the menu bar asks on every redraw, and four
+collectors start and stop with it — the clipboard's one-second pasteboard poll,
+the monitor's five-second sampler (its history is dropped, an hour with a hole
+in it is a curve that never happened), the tunnel list's `scutil` reads, and the
+reminder banners. The collectors are not SwiftUI views, so they listen for
+`ModuleActivation.didChange`, which is posted from every place a module is
+switched: the panel, the stored-module helpers, the end of onboarding, and once
+at launch after the migrations have run.
 
 The settings window is a 220pt sidebar and a page (`SettingsSidebar`,
 `SettingsSelection`). The sidebar lists the sections first — "general" (theme,
@@ -217,8 +269,9 @@ menu-bar badges, the Dock switch), "modules & tabs" for the panel layout,
 (`ModulePresentation`). A row wraps onto a second line rather than truncating:
 the longest module names in German and French do not fit 220pt on one. A module's page carries its heading with a one-line
 "what it is for" (`purpose*`, ×22 — the onboarding cards will read the same
-keys), a "show in the panel" switch holding exactly the state the eye holds (one
-answer, in the two places somebody looks for it), its own options
+keys), an **"enable the module"** switch holding exactly the state the power
+button on the chip holds (one answer, in the two places somebody looks for it),
+its own options
 (`moduleSettings`, keyed by the same identifier), the hotkey of its "open" action — but only when something answers that key, since a
 recorder for an action with no handler would promise what it cannot do — then
 **"how it works"**: the module's full documentation under its settings
@@ -231,7 +284,21 @@ about all sixteen is not what was asked for (Anton, 2026-09-02); the handbook's
 link keeps the full code, one letter per module the user still sees
 (`ModuleCatalog.guideCode`, letters fixed forever by
 `hop-website/docs/guide-code.md`, tested). Both carry the site's own language
-when it has one. Two settings stayed off
+when it has one.
+
+**A module that is off shows nothing but its switch and its documentation**
+(Anton, 2026-09-05). Switching it off takes its options off the page, and the
+hotkey row with them: settings for something that does not run are settings
+nobody can act on, and leaving them in place was what made the switch read as
+"hide the row" rather than "turn this off". What stays is the heading, the
+switch, "how it works" and the link to the guide — the page still says what the
+module would do for somebody deciding whether to bring it back. The rule under
+the switch is drawn only for modules that own settings at all
+(`ModuleCatalog.modulesWithSettings`, tested): the speed test, recognition, the
+keyboard lock and the uninstaller carry the switch alone, and used to draw a
+hairline over empty space.
+
+Two settings stayed off
 the module pages because they are not about one module: the grids of apps (made,
 renamed and removed on "modules & tabs", the only module a person creates
 themselves) and "the converter and the archives in one row", which says how the
@@ -245,8 +312,9 @@ space cap (it was a full-height dashed column before — the stretch was dropped
 the revert is a one-liner noted in `addColumnStub`). Module chips (name,
 lowercase) stack vertically in every column; a hand-rolled drag moves a chip
 between columns and within a column (`move`/`reorder`) — placement only, since
-the eye on the chip is the visibility control. A hidden chip is dimmed and its
-eye is crossed out. While a chip is dragged, a live insertion
+the power button on the chip is the on/off control. A switched-off chip is
+dimmed and its power button is the hollow ring rather than the filled one
+(`power.circle` / `power.circle.fill`). While a chip is dragged, a live insertion
 indicator marks exactly where it will land: a 2pt horizontal line with rounded
 caps in the shared `Theme.editing` accent (the same yellow/goldenrod token the
 timer digit-group highlight uses) between the rows of the target column
@@ -281,17 +349,18 @@ and chip-drag never fight: the header and the chips are separate grab zones.
 The page beside the 220pt sidebar is 720pt wide, so the space columns and the
 "+" tile read comfortably across one row; chips truncate with `lineLimit(1)` in
 every column. Under the table sits an airy tertiary caption
-(`modulesTableHint`, ×22) stating what the eye does — the module keeps its place
-and stops showing in the panel — and that both columns (to reorder tabs) and the
+(`modulesTableHint`, ×22) stating what the power button does — the module keeps
+its place, stops running and leaves the panel — and that both columns (to reorder tabs) and the
 chips inside them (between/within columns) are draggable. Below the caption sit
 the grids of apps (rename, the icon-name switch, ✕) and the
 "converter and archives in one row" switch. The in-panel
 `.settings` screen is unreachable (never set outside `init`, which always
 pairs it with the standalone window), so the table is designed for that
 window only. A module can also be re-homed from the panel: right-click it for
-"move to" (one item per OTHER space, omitted when there is no other) and "hide".
-A hidden module is simply not rendered, so there is no inverse "show" context
-menu — that is the eye in settings. The divider between
+"move to" (one item per OTHER space, omitted when there is no other) and "turn
+the module off" — which asks first when the module is busy, exactly as the
+settings switch does. A module that is off is not rendered, so there is no
+inverse "on" context menu — that is the power button in settings. The divider between
 modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **The rule is `HopCore.ModuleVisibility`** and takes exactly three inputs: the
   hidden set, the torrent count, and the "show the card without downloads"
@@ -878,7 +947,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `TrackerController`); the view is glue. Labels tick off `tracker.heartbeat`
   (1/s while a task is tracking). Active by default — unlike torrents it has no
   engine to download, so it isn't opt-in; hidden or shown like every other
-  module by its eye in the "modules & tabs" table. The module title (`trackerLabel`) is "time tracker" — it
+  module by its power button in the "modules & tabs" table. The module title (`trackerLabel`) is "time tracker" — it
   names the feature in settings and in the always-on subheader above the list.
 - **Two levels, three orders.** `TrackerTask.projectID` is the single source of
   BELONGING — nil for a task at the top level, a project's id for one inside it.
@@ -1692,13 +1761,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   an empty launcher says nothing. Grids are made in two places, both of which the user reaches while
   arranging modules: the apps section of settings, and under the module/space
   table itself, where the chips are dragged. A grid chip drags between spaces and
-  hides under its eye like any other module. It is also the ONLY chip with a
-  ✕ — every other module can be hidden but never deleted — and that ✕ asks first,
+  switches off under its power button like any other module. It is also the ONLY
+  chip with a
+  ✕ — every other module can be switched off but never deleted — and that ✕ asks first,
   with the same scrim + card the tab delete uses, saying that the apps themselves
-  are untouched. The ✕ sits LEFT of the eye, in a slot reserved whether or not
-  the chip is hovered: the eye then holds the same trailing position on every
-  chip, deletable or not, and the chip does not resize under the pointer. (It
-  used to sit right of the eye, which pushed the eye of a grid chip out of line
+  are untouched. The ✕ sits LEFT of the power button, in a slot reserved whether
+  or not the chip is hovered: the button then holds the same trailing position on
+  every chip, deletable or not, and the chip does not resize under the pointer. (It
+  used to sit right of it, which pushed a grid chip's control out of line
   with every other chip's — Anton, 2026-09-02.) The apps section of settings
   deletes a grid too.
 
@@ -1753,10 +1823,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   stamp the pasteboard change counter, so Hop's own write never comes back a
   second later as a foreign copy and a duplicate row.
 - Hotkey `⌃⌥P` (the "open" action of the `color` module in `ModuleCatalog`). A
-  combo is claimed ONLY while its module is visible (`HotkeyActivation` +
+  combo is claimed ONLY while its module is switched on (`HotkeyActivation` +
   `refreshModuleHotkeys()`, called at launch and after every layout change):
-  taking a global shortcut away from other apps for a hidden module would be
-  rude. Its settings row appears on the same condition.
+  taking a global shortcut away from other apps for a module that is off would
+  be rude. Its settings row appears on the same condition.
 - Ships HIDDEN: it serves designers and developers, so `optInModules` +
   `SettingsKey.optInModulesSeeded` set its hidden flag exactly once; the
   fresh-migrate path hides it deterministically on every recompute and claims
@@ -2295,11 +2365,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   hotkey 20pt short of the edge the switches below sit on (Anton, 2026-09-02).
   The zone grid is left-aligned and keeps the plain chip-then-↺ order, where the
   reserved slot costs the edge nothing.
-- **A key answers whether or not the module is shown.** No dimmed rows, and no
-  "hidden modules keep their keys" switch: hiding a module used to take its
-  combination away, and the setting that undid that only made the page harder
-  (Anton, 2026-09-02). The zones keep their own on/off switch, which is about
-  eighteen keys at once rather than about hiding.
+- **A key answers only while its module is on.** No dimmed rows: a
+  switched-off module's row leaves the page with the module, and its
+  combination is free again (Anton, 2026-09-05). There is still no "keep the
+  keys of modules that are off" switch — the setting that used to undo this only
+  made the page harder (Anton, 2026-09-02), and the switch that decides is the
+  module's own. The zones keep their extra on/off switch, which is about
+  eighteen keys at once rather than about the module.
 
 ### Permissions (settings window)
 
@@ -3391,11 +3463,17 @@ its own database of known apps may do better on real software than it did here.
   combinations hang on them; the three window actions ship with no combination,
   because claiming global shortcuts on somebody's behalf is rude.
 - **Which combination may be claimed** — `HopCore.HotkeyActivation.registrable`:
-  every action, the panel's own included, with one question left —
-  `windowsHotkeysOn`, the toggle that silences all eighteen zones at once.
-  Visibility no longer enters into it (Anton, 2026-09-02). `HotkeyManager` claims
+  every action of every module that is ON, plus the panel's own, which is never
+  withheld — it is how somebody who switched off everything gets back to the
+  settings. A module that is switched off claims nothing, and its combination is
+  free for another module to take (Anton, 2026-09-05; this reverses the
+  2026-09-02 rule under which a hidden module kept its key). The zones carry the
+  extra `windowsHotkeysOn` question on top of their module's, silencing all
+  eighteen at once while the module is on. `HotkeyManager` claims
   nothing for an action with no handler — a global shortcut that swallows the
-  key and does nothing is worse than no shortcut.
+  key and does nothing is worse than no shortcut. The hotkeys page lists only
+  what a key can reach: a switched-off module's row is not drawn, and the whole
+  zones group goes with the windows module.
 - Full cycle after EVERY change: `swift build` (0 warnings) →
   `swift test` → `--l10n-check` → `./scripts/build-app.sh --install`,
   check in both themes.

@@ -469,9 +469,13 @@ final class StatusItemController: NSObject {
 
     func refreshButton() {
         guard let button = statusItem.button else { return }
+        // SPEC: docs/spec.md — "A module that is off is off everywhere".
+        let off = ModuleActivation.inactiveModules()
+        let timerOn = !off.contains("timer")
+
         let engine = model.engine
         let state = engine.state
-        let finished = state == .finished
+        let finished = state == .finished && timerOn
         // the bell blinks only while the finish is unacknowledged; once the
         // panel is opened it settles to the steady lit bell (calm-down).
         let bellOn = !engine.isFinishBlinking
@@ -483,15 +487,16 @@ final class StatusItemController: NSObject {
         // engine → the single running/paused/idle slot; the digits, when shown,
         // carry the running value so the green wedge would only duplicate them
         let engineSlot: IconState.Engine = {
+            guard timerOn else { return .idle }
             switch state {
             case .running: return .running
             case .paused: return .paused
             case .idle, .finished: return .idle
             }
         }()
-        let engineTimeInTitle = showCountdown && (state == .running || state == .paused)
+        let engineTimeInTitle = timerOn && showCountdown && (state == .running || state == .paused)
 
-        let tracking = model.tracker.isTracking
+        let tracking = model.tracker.isTracking && !off.contains("tracker")
         // the task's ticking "today" figure is in the TITLE whenever it is opted
         // in: a countdown beside it no longer takes the slot away, the two share
         // it in turns, so the badge stays out of the way either way
@@ -501,20 +506,22 @@ final class StatusItemController: NSObject {
         // steady "!" — the monitor red zone (opt-in). debugRedBadgeAlways forces
         // it on for polishing: defaults write com.antonshakirov.minimo debugRedBadgeAlways -bool true
         let alertSteady = (UserDefaults.standard.bool(forKey: SettingsKey.menuBarRedAlert)
-            && model.stats.redZone)
+            && model.stats.redZone
+            && !off.contains("system"))
             || UserDefaults.standard.bool(forKey: "debugRedBadgeAlways")
         // blinking "!" — a task left running past 8h (the same episode logic as
         // the panel banner: respects THIS run's acknowledgment, stored by the
         // panel under this same UserDefaults key)
         let ackRaw = UserDefaults.standard.double(forKey: "trackerOverrunAckStart")
         let ack = ackRaw == 0 ? nil : Date(timeIntervalSinceReferenceDate: ackRaw)
-        let alertBlinking = TrackerOverrun.isBannerVisible(
+        let alertBlinking = tracking && TrackerOverrun.isBannerVisible(
             activeStart: model.tracker.engine.activeIntervalStart,
             now: model.tracker.heartbeat, acknowledged: ack)
         // 1s-on / 1s-off blink driven by the tracker's per-second heartbeat
         let blinkOn = Int(model.tracker.heartbeat.timeIntervalSinceReferenceDate) % 2 == 0
 
-        let transfer = model.torrent.menuBarTransfer
+        let transfer = off.contains("torrent") ? (down: false, up: false)
+            : model.torrent.menuBarTransfer
 
         let colored = UserDefaults.standard
             .object(forKey: SettingsKey.coloredIndicators) as? Bool ?? true
@@ -524,6 +531,7 @@ final class StatusItemController: NSObject {
         // an app state, so it belongs to the reminder signal settings.
         let reminderUnseen = model.todos.list.hasUnseenFiring
             && UserDefaults.standard.bool(forKey: SettingsKey.todoRemindMark)
+            && !off.contains("todos")
 
         // The tunnel's own mark, which can be switched off: a VPN somebody else's
         // app holds up is not necessarily something the user wants reported. A
@@ -532,15 +540,15 @@ final class StatusItemController: NSObject {
         // business talking (Anton, 2026-07-29). Hiding does not touch the switch,
         // so bringing the module back brings the mark back with it.
         let vpnMark = UserDefaults.standard.bool(forKey: SettingsKey.vpnMenuBarMark)
-            && !PanelView.storedModuleIsInactive("vpn")
+            && !off.contains("vpn")
 
         let composition = IconBadges.compose(IconState(
             engine: engineSlot,
             engineTimeInTitle: engineTimeInTitle,
             tracking: tracking,
             taskTimeInTitle: taskTimeInTitle,
-            noSleep: model.keepAwake.isActive,
-            lid: model.keepAwake.lidApplied,
+            noSleep: model.keepAwake.isActive && !off.contains("awake"),
+            lid: model.keepAwake.lidApplied && !off.contains("awake"),
             alertSteady: alertSteady,
             alertBlinking: alertBlinking,
             blinkOn: blinkOn,
@@ -651,14 +659,16 @@ final class StatusItemController: NSObject {
     /// The clocks with something to say right now.
     private func currentSlots() -> [BarSlot] {
         var slots: [BarSlot] = []
+        let off = ModuleActivation.inactiveModules()
         let showCountdown = UserDefaults.standard
             .object(forKey: SettingsKey.showMenuBarCountdown) as? Bool ?? true
         let state = model.engine.state
-        if showCountdown, state == .running || state == .paused {
+        if showCountdown, !off.contains("timer"), state == .running || state == .paused {
             slots.append(.engine)
         }
         // the tracked task's ticking "today" value, opt-in
         if model.tracker.isTracking,
+           !off.contains("tracker"),
            UserDefaults.standard.bool(forKey: SettingsKey.trackerTimeInBar),
            let activeID = model.tracker.engine.activeTaskID {
             slots.append(.tracker(activeID))

@@ -50,8 +50,8 @@ lebih baru.
 
 Ikon menampung hingga empat tab, dan kamu menyeret tiap modul ke tab yang
 kamu mau: timer di satu, monitor di lainnya, yang jarang dibuka ke samping.
-Ikon mata di samping modul menyembunyikannya tanpa memindahkan atau
-menghapusnya.
+Tombol daya di samping modul mematikannya: tempatnya tetap, tapi berhenti
+bekerja — tanpa pintasan, tanpa tanda, tanpa apa pun yang dikumpulkan di latar.
 
 ### Timer & siklus
 

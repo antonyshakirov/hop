@@ -49,8 +49,9 @@ nowszego.
 ### Przestrzenie
 
 Ikona mieści do czterech kart, a każdy moduł przeciągasz na wybraną kartę:
-timer na jedną, monitor na drugą, rzadko używane na bok. Oko obok modułu
-ukrywa go, nie przenosząc ani nie usuwając.
+timer na jedną, monitor na drugą, rzadko używane na bok. Przycisk zasilania obok modułu
+wyłącza go: zostaje na swoim miejscu, ale przestaje działać — bez skrótu, bez
+znaku, bez zbierania czegokolwiek w tle.
 
 ### Timer i cykle
 

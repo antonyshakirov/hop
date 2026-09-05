@@ -133,7 +133,8 @@ final class HotkeyManager: ObservableObject {
 
     private static func registrableActions() -> Set<ModuleAction> {
         Set(HotkeyActivation.registrable(
-            windowZones: UserDefaults.standard.object(forKey: snapHotkeysKey) as? Bool ?? true
+            windowZones: UserDefaults.standard.object(forKey: snapHotkeysKey) as? Bool ?? true,
+            inactiveModules: ModuleActivation.inactiveModules()
         ))
     }
 

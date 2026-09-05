@@ -44,6 +44,25 @@ final class SystemStatsController: ObservableObject {
     @Published private(set) var redZone = false
 
     init() {
+        applyActivation()
+        NotificationCenter.default.addObserver(
+            forName: ModuleActivation.didChange, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.applyActivation() }
+        }
+    }
+
+    /// SPEC: docs/spec.md — "A module that is off is off everywhere".
+    func applyActivation() {
+        guard ModuleActivation.isOn("system") else {
+            stopPolling()
+            backgroundTicker?.invalidate()
+            backgroundTicker = nil
+            history = History()
+            redZone = false     // nothing is being watched, so nothing is in the red
+            return
+        }
+        guard backgroundTicker == nil else { return }
         // sample right at startup: without it the first show of the monitor tab
         // rendered without the battery/uptime rows and "grew" from bottom to top
         refresh()

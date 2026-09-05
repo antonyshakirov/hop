@@ -52,7 +52,9 @@ posterior.
 
 El icono admite hasta cuatro pestañas, y arrastras cada módulo a la pestaña
 que quieras: el temporizador en una, el monitor en otra, lo que abres rara
-vez a un lado. El ojo junto a un módulo lo oculta sin moverlo ni borrarlo.
+vez a un lado. El botón de encendido junto a un módulo lo
+desactiva: conserva su sitio y deja de funcionar — sin atajo, sin marca y sin
+nada recogido en segundo plano.
 
 ### Temporizador y ciclos
 

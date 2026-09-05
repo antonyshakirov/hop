@@ -54,7 +54,9 @@ final class ReminderScheduler: NSObject, UNUserNotificationCenterDelegate {
         guard Bundle.main.bundleIdentifier != nil else { return }
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: list.items.map(\.id.uuidString))
-        guard UserDefaults.standard.bool(forKey: SettingsKey.todoRemindBanner) else { return }
+        // the drop above silences what was armed; the reminders themselves keep
+        guard UserDefaults.standard.bool(forKey: SettingsKey.todoRemindBanner),
+              ModuleActivation.isOn("todos") else { return }
 
         let now = Date()
         let due = list.items

@@ -49,7 +49,8 @@ tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
 Biểu tượng chứa được tối đa bốn tab, và bạn kéo từng mô-đun vào tab bạn
 muốn: hẹn giờ ở một tab, giám sát ở tab khác, thứ ít mở thì để sang bên.
-Biểu tượng mắt cạnh mô-đun sẽ ẩn nó đi mà không di chuyển hay xóa.
+Nút nguồn cạnh mô-đun sẽ tắt nó: mô-đun vẫn giữ chỗ nhưng ngừng chạy — không
+phím tắt, không dấu hiệu, không thu thập gì ở nền.
 
 ### Hẹn giờ & chu kỳ
 
