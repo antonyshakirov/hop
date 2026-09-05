@@ -72,47 +72,54 @@ struct ScreenTextArt: View {
 struct KeyboardLockArt: View {
     let lang: AppLanguage
 
-    /// Staggered like a real keyboard: rows of equal length, each starting half
-    /// a key further in, so the shape is a keyboard and not a pyramid.
-    private static let rows = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
-    private static let key: CGFloat = 22
-    private static let gap: CGFloat = 4
+    /// A whole keyboard rather than three rows of letters: the modifier keys and
+    /// a space bar with something on either side of it are what makes the shape
+    /// read as a keyboard (Anton, 2026-09-05).
+    private static let rows: [[(String, CGFloat)]] = [
+        [("esc", 1.4)] + "QWERTYUIOP".map { (String($0), 1) },
+        [("tab", 1.6)] + "ASDFGHJKL".map { (String($0), 1) } + [("↩", 1.6)],
+        [("⇧", 2)] + "ZXCVBNM".map { (String($0), 1) } + [("⇧", 1.8)],
+        [("fn", 1), ("⌃", 1), ("⌥", 1), ("⌘", 1.4), ("", 4.6), ("⌘", 1.4), ("⌥", 1)],
+    ]
+    private static let key: CGFloat = 20
+    private static let gap: CGFloat = 3
 
     var body: some View {
         ZStack {
-            VStack(alignment: .leading, spacing: Self.gap) {
-                ForEach(Array(Self.rows.enumerated()), id: \.offset) { index, row in
+            VStack(spacing: Self.gap) {
+                ForEach(Array(Self.rows.enumerated()), id: \.offset) { _, row in
                     HStack(spacing: Self.gap) {
-                        ForEach(Array(row), id: \.self) { cap(String($0)) }
+                        ForEach(Array(row.enumerated()), id: \.offset) { _, item in
+                            cap(item.0, width: item.1)
+                        }
                     }
-                    .padding(.leading, CGFloat(index) * (Self.key + Self.gap) / 2)
                 }
-                Capsule()
-                    .fill(Theme.rowBg)
-                    .overlay(Capsule().stroke(Theme.divider, lineWidth: 1))
-                    .frame(width: 140, height: 20)
-                    .padding(.leading, (Self.key + Self.gap) * 2)
             }
-            .opacity(0.7)
-            .blur(radius: 1.4)
-            Image(systemName: "lock.fill")
-                .font(.system(size: 22))
-                .foregroundStyle(Theme.accentYellow)
-                .padding(16)
-                .background(.ultraThinMaterial, in: Circle())
-                .overlay(Circle().stroke(Theme.divider, lineWidth: 1))
+            .opacity(0.8)
+            VStack(spacing: 5) {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 20))
+                    .foregroundStyle(Theme.accentYellow)
+                Text(L10n.t(.keylockLabel, lang))
+                    .font(Theme.mono(10, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.divider, lineWidth: 1))
         }
         .padding(12)
         .frame(maxWidth: .infinity)
         .background(Theme.panelBackground)
     }
 
-    private func cap(_ letter: String) -> some View {
+    private func cap(_ letter: String, width: CGFloat) -> some View {
         Text(letter)
-            .font(Theme.mono(8, weight: .medium))
+            .font(Theme.mono(7.5, weight: .medium))
             .foregroundStyle(Theme.textTertiary)
-            .frame(width: Self.key, height: 20)
-            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 4))
-            .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.divider, lineWidth: 1))
+            .frame(width: Self.key * width + Self.gap * (width - 1), height: 18)
+            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 3.5))
+            .overlay(RoundedRectangle(cornerRadius: 3.5).stroke(Theme.divider, lineWidth: 1))
     }
 }

@@ -70,6 +70,7 @@ enum ModulePresentation {
         case "system": return [.docMonitorRows, .docMonitorRows2, .docMonitorColors]
         case "tracker": return [.docTrackerFull]
         case "todos": return [.docTodosFull]
+        case "apps": return [.docAppsFull]
         default: return []
         }
     }

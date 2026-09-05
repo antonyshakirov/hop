@@ -148,31 +148,30 @@ struct PermissionsView: View {
                     .font(.system(size: symbolSize))
                     .foregroundStyle(Theme.textSecondary)
                     .frame(width: 18, height: rowHeight)
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 8) {
-                        Text(L10n.t(.permRestartTitle, lang))
-                            .font(titleFont)
-                            .foregroundStyle(Theme.textPrimary)
-                        Spacer(minLength: 6)
-                        Button { AppRelaunch.now(reopening: .permissions) } label: {
-                            Text(L10n.t(.permRestart, lang))
-                                .font(buttonFont)
-                                .foregroundStyle(Theme.textPrimary)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 4)
-                                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .help(L10n.t(.permRestart, lang))
-                        .hoverDim()
-                    }
-                    .frame(height: rowHeight)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(L10n.t(.permRestartTitle, lang))
+                        .font(titleFont)
+                        .foregroundStyle(Theme.textPrimary)
+                        .frame(height: rowHeight, alignment: .leading)
                     Text(L10n.t(.permRestartBody, lang))
                         .font(bodyFont)
                         .foregroundStyle(Theme.docText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                Spacer(minLength: 16)
+                Button { AppRelaunch.now(reopening: .permissions) } label: {
+                    Text(L10n.t(.permRestart, lang))
+                        .font(buttonFont)
+                        .foregroundStyle(Theme.textPrimary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(L10n.t(.permRestart, lang))
+                .hoverDim()
+                .frame(height: rowHeight)
             }
         }
     }
@@ -196,25 +195,27 @@ struct PermissionsView: View {
     /// button — and the icon is centred in the same 24, so a row with a button
     /// and a row without one hold their icon at the same place.
     private func row(_ item: Item) -> some View {
+        // The state sits in a column of its own rather than above the text: a
+        // description that runs on under "asked when used" reads as one line
+        // (Anton, 2026-09-05).
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: item.symbol)
                 .font(.system(size: symbolSize))
                 .foregroundStyle(Theme.textSecondary)
                 .frame(width: 18, height: rowHeight)
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 8) {
-                    Text(L10n.t(item.title, lang))
-                        .font(titleFont)
-                        .foregroundStyle(Theme.textPrimary)
-                    Spacer(minLength: 6)
-                    trailing(item)
-                }
-                .frame(height: rowHeight)
+            VStack(alignment: .leading, spacing: 0) {
+                Text(L10n.t(item.title, lang))
+                    .font(titleFont)
+                    .foregroundStyle(Theme.textPrimary)
+                    .frame(height: rowHeight, alignment: .leading)
                 Text(L10n.t(item.body, lang))
                     .font(bodyFont)
                     .foregroundStyle(Theme.docText)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            Spacer(minLength: 16)
+            trailing(item)
+                .frame(height: rowHeight)
         }
     }
 

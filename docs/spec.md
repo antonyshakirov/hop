@@ -246,7 +246,9 @@ background under the wizard read as a second surface (Anton, 2026-09-05). **The 
 time** — the star, the name, the line under it, then the language card, each
 fading up from 14pt below over 0.45 s. One orchestrated moment, on the first
 screen only: nothing else in the wizard moves, and a snapshot renders the
-finished state. The privacy screen says its three claims as
+finished state. A permission row keeps its state in a column of its own, so the
+description wraps before it rather than running on under "asked when used".
+The privacy screen says its three claims as
 rows with their own marks — no server, no analytics, open source — with the full
 pledge under them in small type: a paragraph of that length was skipped.
 
@@ -295,7 +297,13 @@ apps, eight of them so it stays one row.
 
 The description under a module's name is the opening paragraph of its handbook
 text rather than the one-line `purpose`: the short line did not answer "what is
-this for?" (Anton, 2026-09-05). A long opening is cut at the end of its first
+this for?" (Anton, 2026-09-05). **That opening paragraph says what the module
+lets you do, with the formats and the figures in it** (Anton, 2026-09-05): "and
+nothing starts on its own: what you add waits until you press the button" states
+what any button already states, while "unpacks zip, rar, 7z, tar, tar.gz,
+tar.bz2, tar.xz and gz" answers whether the module is worth switching on. Every
+module's opening was rewritten this way in all 22 languages; the bullets under it
+keep the detail. A long opening is cut at the end of its first
 sentence; a very short one keeps the purpose line in front of it.
 
 The data behind it is staged and lives nowhere else. `AppModel(preview: true)`
