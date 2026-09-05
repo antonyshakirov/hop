@@ -143,6 +143,18 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertNil(ModuleCatalog.open("clipboard"), "read in the panel, not by a key")
     }
 
+    /// Onboarding walks these groups. A module missing from them would never be
+    /// offered on a fresh install, and one listed twice would be asked about
+    /// twice.
+    func testTheOnboardingGroupsCoverEveryModuleExactlyOnce() {
+        let listed = ModuleCatalog.onboardingGroups.flatMap { $0 }
+        XCTAssertEqual(Set(listed).count, listed.count, "a module is listed twice")
+        // "apps" is not a module until a grid exists; everything else is.
+        XCTAssertEqual(Set(listed).subtracting(["apps"]), Set(ModuleCatalog.allIDs))
+        XCTAssertTrue(listed.contains("apps"))
+        XCTAssertTrue(ModuleCatalog.onboardingGroups.allSatisfy { !$0.isEmpty })
+    }
+
     /// The module page reads this to decide whether a rule belongs under the
     /// on/off switch. A name that no module answers to would draw the rule over
     /// nothing — the very thing the list exists to prevent.

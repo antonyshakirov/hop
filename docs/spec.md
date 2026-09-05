@@ -193,6 +193,38 @@ identically on every user's bar.
   calm undecorated star both survive. The template path is used only when the
   composition is empty; any badge routes through `compose`.
 
+## Onboarding
+
+A wizard, one thing per screen, in a 620×560 window that has no close button:
+onboarding is finished, not dismissed. Quitting the app does not end it — the
+step is stored (`SettingsKey.onboardingStep`) and the window reopens on it, which
+is also what makes granting a permission survivable: macOS answers a permission
+question once per process, hop restarts to ask again, and the wizard comes back
+where it was (Anton, 2026-09-05).
+
+The order (`OnboardStep.ordered`): **hop** (language, theme, launch at login) →
+**nothing leaves this Mac** (the same pledge the permissions page carries, plus
+one card saying the app is free, has no paid tier and lives on donations) → six
+**module groups** → **permissions** → **done**.
+
+- The groups are `ModuleCatalog.onboardingGroups`, tested to cover every module
+  exactly once: time (timer, tracker, to-dos) · files (converter, archives) ·
+  screen and clipboard (clipboard, eyedropper, recognition) · the Mac itself
+  (monitor, sleep block, keyboard lock) · network (speed, vpn, torrents) ·
+  everyday things (windows, apps, uninstaller). Each row is the module's icon,
+  its name, the one-line `purpose*` the settings pages already use, and a switch.
+  Sixteen switches on a single page said nothing about what any of them did.
+- **The switches write through immediately** (`activateStoredModule` /
+  `deactivateStoredModule`), rather than being collected and applied at the end.
+  A restart in the middle of the wizard would otherwise lose every answer given
+  before it.
+- The permissions step embeds the settings window's own `PermissionsView`, so
+  there is one list of permissions in the app rather than two.
+- "apps" is not a module until a grid exists, so its answer is kept in
+  `SettingsKey.onboardingWantsApps` and the grid is made at the end.
+- Finishing marks every "what's new" announcement and release card seen: a fresh
+  install has no release to catch up on.
+
 ## Modules
 
 The main screen shows the modules of the selected space (tab) as a stack,

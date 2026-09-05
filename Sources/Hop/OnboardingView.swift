@@ -1,7 +1,10 @@
 import HopCore
+import ServiceManagement
 import SwiftUI
 
-/// First-launch window: language, theme, launch at login — then off to the bar.
+/// First-launch wizard: one thing per screen, a step remembered across quits and
+/// restarts, and no way out except through it.
+/// SPEC: docs/spec.md — "Onboarding".
 struct OnboardingView: View {
     let updater: UpdateChecker
     /// The app's own shelves store, so a grid chosen here is the same grid the
@@ -10,83 +13,98 @@ struct OnboardingView: View {
     let finish: () -> Void
 
     private enum Phase {
-        case form
+        case steps
         case checking
         case offer(UpdateChecker.ReleaseInfo)
     }
-    @State private var phase: Phase = .form
+    @State private var phase: Phase = .steps
 
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
+    @AppStorage(SettingsKey.onboardingStep) private var stepRaw = OnboardStep.welcome.rawValue
+    /// A grid of apps is not a module until one exists, so the answer is kept
+    /// here and acted on at the end.
+    @AppStorage(SettingsKey.onboardingWantsApps) private var wantsApps = true
     @State private var launchAtLogin = true
-    @State private var menuTarget: MenuPickTarget?
-    // The module choices are transient @State, not @AppStorage: visibility is
-    // membership now, so onboarding drives the panel-tabs model directly (see
-    // finishOnboarding) instead of the dead show*Module keys. displayStyle is a
-    // real persisted setting and stays @AppStorage.
-    @AppStorage("displayStyle") private var displayStyle = "dots"
-    /// The modules the person keeps. Every module starts on, the ones that ship
-    /// hidden for an update included: a fresh install should see EVERYTHING it
-    /// can have and decide once (Anton, 2026-07-26/29/30). Read from the
-    /// registry, so a module added later needs no second list.
-    @State private var chosen: Set<String> = Set(ModuleCatalog.allIDs + [OnboardingView.appsChoice])
+    /// Bumped by every switch so the module rows redraw: their state lives in
+    /// stored defaults, which SwiftUI does not observe.
+    @State private var moduleRevision = 0
 
     /// Grids of apps are not in the registry — the module only exists once a
     /// grid does — so the checklist carries them under a key of their own.
     static let appsChoice = "apps"
 
-    /// One module in the grid: name on the left, switch on the right — the same
-    /// shape as the rows above it, three to a line in a window widened to fit
-    /// them (Anton, 2026-07-29). The earlier switch-above-name cell only existed
-    /// because the window was panel-narrow.
-    private func moduleCell(_ key: String, title: String) -> some View {
-        let isOn = Binding(
-            get: { chosen.contains(key) },
-            set: { on in if on { chosen.insert(key) } else { chosen.remove(key) } }
-        )
-        return HStack(spacing: 6) {
-            Text(title)
-                .font(Theme.mono(10))
-                .foregroundStyle(Theme.textPrimary)
-                .lineLimit(2)
-                .minimumScaleFactor(0.8)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Theme.MiniSwitch(isOn: isOn)
-        }
-        .frame(maxWidth: .infinity)
-    }
-
+    private var step: OnboardStep { OnboardStep.stored(stepRaw) }
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
     var body: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 0) {
+            SnapshotAwareScroll {
+                content
+                    .padding(.horizontal, 30)
+                    .padding(.top, 28)
+                    .padding(.bottom, 12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .frame(maxHeight: .infinity, alignment: .top)
+            footer
+        }
+        .frame(width: 620, height: 560)
+        .background(Theme.panelBackground)
+    }
+
+    // MARK: - Steps
+
+    @ViewBuilder private var content: some View {
+        switch step {
+        case .welcome: welcomeStep
+        case .privacy: privacyStep
+        case .permissions: permissionsStep
+        case .done: doneStep
+        default:
+            if let index = step.groupIndex {
+                groupStep(ModuleGroup.all[index])
+            }
+        }
+    }
+
+    private var welcomeStep: some View {
+        VStack(spacing: 18) {
             VStack(spacing: 9) {
                 asterisk // vector: the menu bar bitmap got blurry when scaled up
                 Text("hop")
                     .font(Theme.mono(17, weight: .bold))
                     .foregroundStyle(Theme.textPrimary)
+                Text(t(.onbWelcomeBody))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: 380)
             }
-            .padding(.top, 2)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 10)
 
-            VStack(spacing: 14) {
+            SettingsCard {
                 HStack {
                     Text(t(.language))
                         .font(Theme.mono(12))
                         .foregroundStyle(Theme.textPrimary)
                     Spacer()
-                    languagePicker
+                    LanguagePicker(selection: $languageRaw)
                 }
+                SettingsRule()
                 HStack {
                     Text(t(.themeLabel))
                         .font(Theme.mono(12))
                         .foregroundStyle(Theme.textPrimary)
                     Spacer()
-                    chip("auto", t(.themeAuto))
-                    chip("dark", t(.themeDark))
-                    chip("light", t(.themeLight))
+                    themeChip("auto", t(.themeAuto))
+                    themeChip("dark", t(.themeDark))
+                    themeChip("light", t(.themeLight))
                 }
+                SettingsRule()
                 HStack {
                     Text(t(.launchAtLogin))
                         .font(Theme.mono(12))
@@ -94,85 +112,111 @@ struct OnboardingView: View {
                     Spacer()
                     Theme.MiniSwitch(isOn: $launchAtLogin)
                 }
-                VStack(spacing: 6) {
-                    HStack {
-                        Text(t(.displayStyleLabel))
-                            .font(Theme.mono(12))
-                            .foregroundStyle(Theme.textPrimary)
-                        Spacer()
-                    }
-                    // digits of all three previews share one visual height,
-                    // as in settings (the window is narrower, so slightly smaller)
-                    HStack(spacing: 6) {
-                        displayCard("dots", DotMatrixDisplay(text: "12:34", dimCount: 0, blinkOff: false, cell: 1.8))
-                        displayCard("text", Text("12:34").font(Theme.mono(15, weight: .semibold)).monospacedDigit())
-                        displayCard("units", Text("12\(t(.unitMin)) 34\(t(.unitSec))").font(Theme.mono(15, weight: .semibold)).monospacedDigit())
-                    }
-                    // dots take their color from Theme at draw time — on a live
-                    // theme change we recreate the row, otherwise dark dots on dark
-                    .id("displayPreview-\(themeRaw)")
-                }
-
-                // Every module switch lives here. TWO columns with a wide gutter,
-                // not three: at three the gap between a switch and the next
-                // column's name was smaller than the gap to its own name, so the
-                // switch read as belonging to the wrong row (Anton, 2026-07-29).
-                // Top-aligned: a two-line name must not lift its switch above
-                // its neighbour's.
-                // A hairline down the middle of the gutter: sixteen switches in
-                // two columns need a line to be read as two columns rather than
-                // one wide row (Anton, 2026-07-30). Drawn behind the grid, so it
-                // never touches the hit areas.
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 34, alignment: .top),
-                                         count: 2),
-                          spacing: 12) {
-                    ForEach(ModuleCatalog.allIDs, id: \.self) { key in
-                        if let title = ModulePresentation.titleKey(key) {
-                            moduleCell(key, title: t(title))
-                        }
-                    }
-                    moduleCell(Self.appsChoice, title: t(.appsLabel))
-                }
-                .background(alignment: .center) {
-                    Rectangle()
-                        .fill(Theme.divider)
-                        .frame(width: 1)
-                        .padding(.vertical, 2)
-                }
-                // The one module with a real extra cost: a one-time separate
-                // engine download — say so before the choice, not after. It
-                // names torrents now, since the note no longer sits beside them.
-                Text("\(t(.torrentLabel)): \(t(.torrentEngineNote))")
-                    .font(Theme.mono(9))
-                    .foregroundStyle(Theme.textTertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.vertical, 6)
+        }
+    }
 
-            switch phase {
-            case .form:
-                Button {
-                    finishOnboarding()
-                } label: {
-                    Text(t(.onboardStart))
-                        .font(Theme.mono(13, weight: .bold))
-                        .foregroundStyle(Theme.playFg)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 8))
-                        .contentShape(Rectangle())
+    private var privacyStep: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            stepHeading(t(.permPledgeTitle))
+            Text(t(.permPledgeBody))
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.docText)
+                .fixedSize(horizontal: false, vertical: true)
+            SettingsCard {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(t(.onbFreeTitle))
+                        .font(Theme.mono(11, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text(t(.onbFreeBody))
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.docText)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .buttonStyle(.plain)
-                .help(t(.onboardStart))
-                .hoverDim()
-            case .checking:
-                Text("…")
-                    .font(Theme.mono(13, weight: .bold))
-                    .foregroundStyle(Theme.textTertiary)
-                    .padding(.vertical, 10)
-            case .offer(let info):
-                // the archive could be outdated — ask insistently once
+            }
+            Link(destination: URL(string: "https://github.com/antonyshakirov/hop")!) {
+                HStack(spacing: 5) {
+                    Text(t(.permPledgeLink))
+                    Image(systemName: "arrow.up.forward")
+                        .font(.system(size: 8, weight: .semibold))
+                }
+                .font(Theme.mono(10))
+                .foregroundStyle(Theme.textTertiary)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
+        }
+    }
+
+    private func groupStep(_ group: ModuleGroup) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            stepHeading(t(group.titleKey), subtitle: t(.onbGroupHint))
+            SettingsCard {
+                ForEach(Array(group.modules.enumerated()), id: \.element) { index, key in
+                    if index > 0 { SettingsRule() }
+                    moduleRow(key)
+                }
+            }
+        }
+    }
+
+    private func moduleRow(_ key: String) -> some View {
+        let isOn = Binding<Bool>(
+            get: { moduleIsOn(key) },
+            set: { setModule(key, on: $0) }
+        )
+        return HStack(alignment: .top, spacing: 12) {
+            Image(systemName: ModulePresentation.icon(key == Self.appsChoice ? "apps" : key))
+                .font(.system(size: 13))
+                .foregroundStyle(Theme.textPrimary)
+                .frame(width: 30, height: 30)
+                .background(RoundedRectangle(cornerRadius: 8).fill(Theme.chipBg))
+            VStack(alignment: .leading, spacing: 3) {
+                Text(moduleTitle(key))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.textPrimary)
+                if let purpose = purposeKey(key) {
+                    Text(t(purpose))
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.textTertiary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                if key == "torrent" {
+                    Text(t(.torrentEngineNote))
+                        .font(Theme.mono(9))
+                        .foregroundStyle(Theme.textTertiary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Spacer(minLength: 8)
+            Theme.MiniSwitch(isOn: isOn)
+                .padding(.top, 6)
+        }
+        .id("\(key)-\(moduleRevision)")
+    }
+
+    private var permissionsStep: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            stepHeading(t(.permTab), subtitle: t(.onbPermBody))
+            PermissionsView(lang: lang)
+        }
+    }
+
+    private var doneStep: some View {
+        VStack(spacing: 16) {
+            asterisk
+                .padding(.top, 20)
+            Text(t(.onbDoneTitle))
+                .font(Theme.mono(17, weight: .bold))
+                .foregroundStyle(Theme.textPrimary)
+            Text(t(.onbDoneBody))
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: 400)
+            if case .offer(let info) = phase {
                 VStack(spacing: 10) {
                     Text(L10n.fill(.updateAvailable, lang, info.version))
                         .font(Theme.mono(11, weight: .semibold))
@@ -181,36 +225,138 @@ struct OnboardingView: View {
                         Task { await updater.install(info) } // restarts on its own
                     } label: {
                         Text(t(.updateNow))
-                            .font(Theme.mono(13, weight: .bold))
+                            .font(Theme.mono(12, weight: .bold))
                             .foregroundStyle(Theme.playFg)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 8)
                             .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 8))
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .help(t(.updateNow))
                     .hoverDim()
-                    Button {
-                        finish()
-                    } label: {
-                        Text(t(.updateLater))
-                            .font(Theme.mono(11))
-                            .foregroundStyle(Theme.textSecondary)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .help(t(.updateLater))
-                    .hoverDim()
                 }
+                .padding(.top, 6)
             }
         }
-        .padding(24)
-        // Wide enough for three name+switch columns; the module choices are the
-        // widest thing in the window and everything else just centres in it.
-        .frame(width: 560)
-        .background(Theme.panelBackground)
+        .frame(maxWidth: .infinity)
     }
+
+    // MARK: - Chrome
+
+    private func stepHeading(_ title: String, subtitle: String? = nil) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(Theme.mono(16, weight: .bold))
+                .foregroundStyle(Theme.textPrimary)
+            if let subtitle {
+                Text(subtitle)
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.bottom, 2)
+    }
+
+    /// Back, the step dots, and the one button forward. There is no close and no
+    /// skip: the wizard is the only way in (Anton, 2026-09-05).
+    private var footer: some View {
+        HStack(spacing: 12) {
+            Button { goBack() } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Theme.textTertiary)
+                    .frame(width: 26, height: 26)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
+            .help(t(.onbBack))
+            .opacity(step == .welcome ? 0 : 1)
+            .disabled(step == .welcome)
+
+            HStack(spacing: 5) {
+                ForEach(OnboardStep.ordered, id: \.rawValue) { s in
+                    Capsule()
+                        .fill(s == step ? Theme.textPrimary : Theme.divider)
+                        .frame(width: s == step ? 14 : 5, height: 4)
+                }
+            }
+            Spacer()
+            Button { goForward() } label: {
+                Text(step == .done ? t(.onboardStart) : t(.onbNext))
+                    .font(Theme.mono(12, weight: .bold))
+                    .foregroundStyle(Theme.playFg)
+                    .padding(.horizontal, 22)
+                    .padding(.vertical, 9)
+                    .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 8))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .keyboardShortcut(.defaultAction)
+            .hoverDim()
+            .disabled(isBusy)
+            .opacity(isBusy ? 0.5 : 1)
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 16)
+        .background(Theme.rowBg)
+        .overlay(alignment: .top) { Rectangle().fill(Theme.divider).frame(height: 1) }
+    }
+
+    private var isBusy: Bool {
+        if case .checking = phase { return true }
+        return false
+    }
+
+    private func goBack() {
+        let all = OnboardStep.ordered
+        guard let i = all.firstIndex(of: step), i > 0 else { return }
+        stepRaw = all[i - 1].rawValue
+    }
+
+    private func goForward() {
+        let all = OnboardStep.ordered
+        guard let i = all.firstIndex(of: step) else { return }
+        if i + 1 < all.count {
+            stepRaw = all[i + 1].rawValue
+            if all[i + 1] == .done { checkForUpdate() }
+        } else {
+            finishOnboarding()
+        }
+    }
+
+    // MARK: - Module state
+
+    /// The switches write straight through to the stored arrangement, so the
+    /// answers survive the restart a permission asks for.
+    private func moduleIsOn(_ key: String) -> Bool {
+        key == Self.appsChoice ? wantsApps : !PanelView.storedModuleIsInactive(key)
+    }
+
+    private func setModule(_ key: String, on: Bool) {
+        if key == Self.appsChoice {
+            wantsApps = on
+        } else if on {
+            PanelView.activateStoredModule(key)
+        } else {
+            PanelView.deactivateStoredModule(key)
+        }
+        ModuleActivation.announceChange()
+        moduleRevision += 1
+    }
+
+    private func moduleTitle(_ key: String) -> String {
+        if key == Self.appsChoice { return t(.appsLabel) }
+        return ModulePresentation.titleKey(key).map { t($0) } ?? key
+    }
+
+    private func purposeKey(_ key: String) -> L10nKey? {
+        key == Self.appsChoice ? .purposeApps : ModulePresentation.purposeKey(key)
+    }
+
+    // MARK: - Pieces
 
     /// Color taken directly from the theme picked in the form — the global
     /// Theme.isDark lagged behind here during a live switch.
@@ -239,49 +385,38 @@ struct OnboardingView: View {
                            style: StrokeStyle(lineWidth: size.width * 0.095, lineCap: .round))
             }
         }
-        .frame(width: 40, height: 40)
+        .frame(width: 44, height: 44)
         // SwiftUI does not redraw a Canvas with no input dependencies on a
         // theme change — the id forces it to be recreated with the new color
         .id(themeRaw)
     }
 
-    private var languagePicker: some View {
-        LanguagePicker(selection: $languageRaw)
-    }
-
-    private func displayCard(_ raw: String, _ preview: some View) -> some View {
-        SettingChip(active: displayStyle == raw, action: { displayStyle = raw }) {
-            preview
-                .frame(height: 20)
-                .frame(maxWidth: .infinity)
-        }
-    }
-
-    private func chip(_ raw: String, _ label: String) -> some View {
+    private func themeChip(_ raw: String, _ label: String) -> some View {
         SettingChip(label, active: themeRaw == raw) { themeRaw = raw }
+    }
+
+    // MARK: - Finishing
+
+    private func checkForUpdate() {
+        phase = .checking
+        Task {
+            if let info = await updater.newerReleaseIfAny() {
+                phase = .offer(info)
+            } else {
+                phase = .steps
+            }
+        }
     }
 
     private func finishOnboarding() {
         UserDefaults.standard.set(true, forKey: "onboardingDone")
-        // Fresh install: apply the module choices to the spaces directly.
-        // Visibility is membership now — a chosen module stays on its canonical
-        // space, an unchosen one goes to the inactive bucket (the loadTabs
-        // migration ran with defaults before onboarding, so reconcile
-        // explicitly here). The fresh migrate already put every module on its
-        // canonical space (general on space 1, system on space 2, tracker+todos
-        // on space 3), so an "on" choice is a no-op and only "off" moves a
-        // module out — except torrent, which starts inactive and activates onto
-        // space 1.
-        for key in ModuleCatalog.allIDs {
-            if chosen.contains(key) { PanelView.activateStoredModule(key) }
-            else { PanelView.deactivateStoredModule(key) }
-        }
+        UserDefaults.standard.removeObject(forKey: SettingsKey.onboardingStep)
         // Apps is the one choice that has nothing to switch on: the module only
         // exists once a grid does, so saying yes here makes the first one.
-        if chosen.contains(Self.appsChoice) {
+        if wantsApps {
             PanelView.activateStoredModule(shelves.addShelf())
         }
-        // Deactivating the monitor / tracker / to-dos can empty their canonical
+        // Switching the monitor / tracker / to-dos off can empty their canonical
         // spaces (space 2, space 3); drop any that ended up empty so the app
         // never opens onto a blank tab.
         PanelView.dropEmptyOnboardingSpaces()
@@ -302,18 +437,9 @@ struct OnboardingView: View {
         if launchAtLogin {
             try? SMAppServiceHelper.enableLaunchAtLogin()
         }
-        phase = .checking
-        Task {
-            if let info = await updater.newerReleaseIfAny() {
-                phase = .offer(info)
-            } else {
-                finish()
-            }
-        }
+        finish()
     }
 }
-
-import ServiceManagement
 
 enum SMAppServiceHelper {
     static func enableLaunchAtLogin() throws {

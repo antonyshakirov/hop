@@ -160,6 +160,21 @@ public enum ModuleCatalog {
         modulesWithSettings.contains(id)
     }
 
+    /// The onboarding's screens, one per theme: sixteen switches on a single
+    /// page said nothing about what any of them did (Anton, 2026-09-05). The
+    /// view layer supplies each group's title; the order here is the order the
+    /// wizard walks. "apps" is not a module until a grid exists, so it rides
+    /// along as an id the catalog does not carry.
+    /// SPEC: docs/spec.md — "Onboarding".
+    public static let onboardingGroups: [[String]] = [
+        ["timer", "tracker", "todos"],
+        ["convert", "archive"],
+        ["clipboard", "color", "ocr"],
+        ["system", "awake", "keyboard"],
+        ["speedtest", "vpn", "torrent"],
+        ["windows", "apps", "uninstall"],
+    ]
+
     public static func module(_ id: String) -> ModuleEntry? {
         modules.first { $0.id == id }
     }

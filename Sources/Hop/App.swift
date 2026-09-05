@@ -960,9 +960,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func showOnboarding() {
+        // No close button and no .closable: onboarding is finished, not
+        // dismissed, and quitting only means it reopens on the same step
+        // (Anton, 2026-09-05).
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 560, height: 380),
-            styleMask: [.titled, .fullSizeContentView, .closable],
+            contentRect: NSRect(x: 0, y: 0, width: 620, height: 560),
+            styleMask: [.titled, .fullSizeContentView],
             backing: .buffered, defer: false
         )
         window.titlebarAppearsTransparent = true
