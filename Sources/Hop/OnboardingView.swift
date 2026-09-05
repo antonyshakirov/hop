@@ -158,12 +158,44 @@ struct OnboardingView: View {
             VStack(spacing: 6) {
                 privacyClaim("bolt.horizontal.circle", t(.onbPrivacyNoServer))
                 privacyClaim("chart.bar.xaxis", t(.onbPrivacyNoAnalytics))
-                privacyClaim("chevron.left.forwardslash.chevron.right", t(.onbPrivacyOpenSource),
-                             url: "https://github.com/antonyshakirov/hop")
+                privacyClaim("chevron.left.forwardslash.chevron.right", t(.onbPrivacyOpenSource))
             }
-            privacyClaim("heart.fill", t(.onbFreeBody), url: donateURL, tint: Theme.iconHealth)
-                .padding(.top, 14)
+            // Plain text and two links under the cards: everything in a card
+            // made the screen read as a list of buttons (Anton, 2026-09-05).
+            Text(t(.onbFreeBody))
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 12)
+            HStack(spacing: 18) {
+                privacyLink("heart.fill", t(.donateTitle), url: donateURL, tint: Theme.iconHealth)
+                privacyLink("chevron.left.forwardslash.chevron.right", t(.permPledgeLink),
+                            url: "https://github.com/antonyshakirov/hop")
+            }
         }
+    }
+
+    private func privacyLink(_ symbol: String, _ text: String,
+                            url: String, tint: Color = Theme.textTertiary) -> some View {
+        Button {
+            if let link = URL(string: url) { NSWorkspace.shared.open(link) }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: symbol)
+                    .font(.system(size: 10))
+                    .foregroundStyle(tint)
+                Text(text)
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+                Image(systemName: "arrow.up.forward")
+                    .font(.system(size: 8, weight: .semibold))
+                    .foregroundStyle(Theme.textTertiary)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
     }
 
     /// Russian routes to the ru card, every other locale to the neutral one —
@@ -183,10 +215,9 @@ struct OnboardingView: View {
     /// With a `url` the whole card opens it and says so with the external-page
     /// glyph — the claim about open source is checkable, so it is a link
     /// (Anton, 2026-09-05).
-    @ViewBuilder
     private func privacyClaim(_ symbol: String, _ text: String,
-                              url: String? = nil, tint: Color = Theme.accentGreen) -> some View {
-        let card = HStack(spacing: 9) {
+                              tint: Color = Theme.accentGreen) -> some View {
+        HStack(spacing: 9) {
             Image(systemName: symbol)
                 .font(.system(size: 12))
                 .foregroundStyle(tint)
@@ -194,11 +225,6 @@ struct OnboardingView: View {
                 .font(Theme.mono(12))
                 .foregroundStyle(Theme.textPrimary)
                 .multilineTextAlignment(.center)
-            if url != nil {
-                Image(systemName: "arrow.up.forward")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(Theme.textTertiary)
-            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -207,18 +233,6 @@ struct OnboardingView: View {
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 9))
         .overlay(RoundedRectangle(cornerRadius: 9).stroke(Theme.controlStroke, lineWidth: 1))
         .frame(maxWidth: 360)
-
-        if let url {
-            Button {
-                if let link = URL(string: url) { NSWorkspace.shared.open(link) }
-            } label: {
-                card.contentShape(RoundedRectangle(cornerRadius: 9))
-            }
-            .buttonStyle(.plain)
-            .hoverDim()
-        } else {
-            card
-        }
     }
 
     private func groupStep(_ group: ModuleGroup) -> some View {
