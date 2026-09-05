@@ -993,14 +993,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
+        // The title bar shows the window's own colour, which is white in the
+        // light theme and read as a strip above the wizard (Anton, 2026-09-05).
+        window.backgroundColor = NSColor(Theme.background)
         // AppKit remembers where a titled window was and cascades new ones from
         // the last one it opened. Either would put the wizard somewhere other
         // than the middle of the screen (Anton, 2026-09-05).
         window.isRestorable = false
-        // onboarding is pinned: only windows with a title bar move
-        // (about, converter) — clicks on chips don't drag the window
+        // Draggable by its title bar, not by its background: a drag started on a
+        // chip would otherwise move the window instead of pressing the chip
+        // (Anton, 2026-09-05, asking for a window that can be moved).
         window.isMovableByWindowBackground = false
-        window.isMovable = false
+        window.isMovable = true
         window.isReleasedWhenClosed = false
         window.contentViewController = NSHostingController(rootView: OnboardingView(
             updater: model.updater, shelves: model.appShelves,

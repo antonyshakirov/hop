@@ -63,7 +63,7 @@ struct OnboardingView: View {
             .frame(maxHeight: .infinity)
             footer
         }
-        .frame(width: 620, height: 560)
+        .frame(minWidth: 620, maxWidth: .infinity, minHeight: 560, maxHeight: .infinity)
         .background {
             Theme.panelBackground
             OnboardingBackdrop(focus: step == .welcome
@@ -150,28 +150,17 @@ struct OnboardingView: View {
     private var privacyStep: some View {
         VStack(spacing: 16) {
             stepHeading(t(.onbPrivacyTitle))
-            VStack(spacing: 10) {
+            VStack(spacing: 6) {
                 privacyClaim("bolt.horizontal.circle", t(.onbPrivacyNoServer))
                 privacyClaim("chart.bar.xaxis", t(.onbPrivacyNoAnalytics))
                 privacyClaim("chevron.left.forwardslash.chevron.right", t(.onbPrivacyOpenSource))
             }
-            Text(t(.permPledgeBody))
-                .font(Theme.mono(10.5))
-                .foregroundStyle(Theme.textTertiary)
+            Text(t(.onbFreeBody))
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
-                .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
-            opaque(10) { SettingsCard {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(t(.onbFreeTitle))
-                        .font(Theme.mono(11, weight: .semibold))
-                        .foregroundStyle(Theme.textPrimary)
-                    Text(t(.onbFreeBody))
-                        .font(Theme.mono(10))
-                        .foregroundStyle(Theme.docText)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            } }
+                .padding(.top, 4)
             Link(destination: URL(string: "https://github.com/antonyshakirov/hop")!) {
                 HStack(spacing: 5) {
                     Text(t(.permPledgeLink))
