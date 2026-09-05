@@ -3227,7 +3227,7 @@ struct PanelView: View {
                     Text("\(speedPairText(down: last.down, up: last.up)) · \(last.rpm) RPM")
                         .font(Theme.mono(10))
                         // an old measurement stays readable but clearly "faded"
-                        .foregroundStyle(speed.isStale ? Theme.textTertiary.opacity(0.45) : Theme.textSecondary)
+                        .foregroundStyle(speed.isStale ? Theme.textTertiary.opacity(0.45) : Theme.textPrimary)
                         .lineLimit(1)
                         .fixedSize()
                         .help("\(t(.speedResponsiveness)): \(last.rpm) RPM")

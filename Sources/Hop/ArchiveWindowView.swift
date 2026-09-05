@@ -31,13 +31,13 @@ struct ArchiveWindowView: View {
         // ImageRenderer cannot draw a ScrollView, so a dev snapshot gets the
         // content flat — the same trick the converter window uses.
         Group {
-            if Snapshot.active {
+            if Snapshot.active || preview {
                 content
             } else {
                 ScrollView(showsIndicators: false) { content }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: preview ? nil : .infinity, alignment: .top)
         .background(Theme.panelBackground)
     }
 
@@ -90,7 +90,7 @@ struct ArchiveWindowView: View {
                     }
                 }
             }
-        .padding(20)
+        .padding(preview ? 12 : 20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .id(model.themeVersion)
         // The window is exactly as tall as this, so an empty module opens as a

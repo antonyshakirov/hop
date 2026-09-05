@@ -14,6 +14,8 @@ struct UninstallWindowView: View {
     @EnvironmentObject var model: AppModel
     @ObservedObject var uninstall: UninstallController
     let lang: AppLanguage
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    var preview = false
 
     @State private var targeted = false
 
@@ -27,6 +29,23 @@ struct UninstallWindowView: View {
     private static let inset: CGFloat = 18
 
     var body: some View {
+        if preview { previewBody } else { window }
+    }
+
+    /// What the clean-up found, and nothing to press: the picture beside a switch
+    /// has to fit whole.
+    private var previewBody: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            header
+            ownerSection(title: t(.uninstallAllCaches), owners: uninstall.cacheOwners,
+                         action: "", toggle: { _ in }, toggleAll: { _ in }, run: {})
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .background(Theme.panelBackground)
+    }
+
+    private var window: some View {
         VStack(alignment: .leading, spacing: 14) {
             header.padding(.horizontal, Self.inset)
             if let report = uninstall.report {
@@ -93,6 +112,7 @@ struct UninstallWindowView: View {
                 .font(Theme.mono(13, weight: .bold))
                 .foregroundStyle(Theme.textPrimary)
             Spacer()
+            if !preview {
             Button { uninstall.promptToChoose() } label: {
                 Image(systemName: "plus")
                     .font(.system(size: 11, weight: .semibold))
@@ -103,6 +123,7 @@ struct UninstallWindowView: View {
             .buttonStyle(.plain)
             .hoverHighlight(5)
             .help(t(.uninstallPick))
+            }
         }
     }
 
@@ -287,6 +308,7 @@ struct UninstallWindowView: View {
             // other box in the list and its line level with the button it feeds
             // (Anton, 2026-07-30). At the top right it was a stray control above
             // the ticks it belongs to.
+            if !preview {
             HStack {
                 selectAll(!owners.isEmpty && owners.allSatisfy(\.ticked),
                           enabled: !owners.isEmpty, toggleAll: toggleAll)
@@ -303,6 +325,7 @@ struct UninstallWindowView: View {
                 .buttonStyle(.plain)
                 .hoverDim()
                 .disabled(!owners.contains(where: \.ticked))
+            }
             }
         }
     }

@@ -239,7 +239,11 @@ one card saying the app is free, has no paid tier and lives on donations) → si
 dot grid the timer's display is built from, spread across the window, with two
 slow waves crossing it and the light gathering where the screen's subject is.
 It runs on a `TimelineView` at 12fps rather than a `repeatForever` animation,
-which this codebase does not use. The privacy screen says its three claims as
+which this codebase does not use. **The welcome screen arrives a piece at a
+time** — the star, the name, the line under it, then the language card, each
+fading up from 14pt below over 0.45 s. One orchestrated moment, on the first
+screen only: nothing else in the wizard moves, and a snapshot renders the
+finished state. The privacy screen says its three claims as
 rows with their own marks — no server, no analytics, open source — with the full
 pledge under them in small type: a paragraph of that length was skipped.
 
@@ -248,14 +252,29 @@ code (`PanelView(previewModule:)`) and made unclickable. Not a screenshot: it
 follows the language and the theme picked two screens earlier without anything
 being re-rendered, and it cannot drift from what the panel actually looks like
 (Anton, 2026-09-05). **Every module gets its own picture, beside its own row**:
-the module at the panel's real 368pt, cropped to 124 tall, so the row shows what
-the switch is about. Scaled down to a 170pt thumbnail first, it was a grey blur;
-the window grew instead. One picture per screen said
-nothing about the two modules under it. A picture is as tall as its own module (`previewHeight`), so a one-row module is
-a strip rather than a strip with empty space under it, and a list is cut between
-rows instead of through one. The four modules whose panel row is only
-a button — the converter, the archiver, recognition and the uninstaller — show
-the WINDOW they open instead, since the row itself says nothing.
+the module at the panel's real 368pt, so the row shows what the switch is about.
+Scaled down to a 170pt thumbnail first, it was a grey blur; the window grew
+instead. One picture per screen said nothing about the two modules under it.
+
+**A picture is whole, and it is nothing but the picture** (Anton, 2026-09-05):
+no frame of its own, no fixed height and no crop, so it ends where the module
+ends. A frame taller than what it held showed a band of empty black under every
+short module, and a frame shorter than its module cut a row in half. Nothing is
+scaled down either — the windows draw at 368pt like the panel does, so their text
+is the same size as everywhere else. The monitor is the one exception: eight
+metrics with a chart each would take the screen, so its picture stops at 300pt
+and fades out rather than ending on a cut edge.
+
+The three modules whose panel row is only a button — the converter, the archiver
+and the uninstaller — show the WINDOW they open instead, since the row itself
+says nothing. In a picture those windows drop their drop plate, their buttons and
+their settings rows: what is left is the result, which is the whole point.
+Recognition and the keyboard lock get a DRAWN picture instead
+(`OnboardingArt.swift`): a window of recognized text does not show that the text
+came off the screen, and a row of durations does not show a locked keyboard. So
+recognition is a picture with a marquee across part of it and the lines that came
+out of it beside it, and the lock is a keyboard of dimmed keys with a lock over
+them.
 
 **Every picture shows the module at work, never its empty plate** (Anton,
 2026-09-05): a drop zone, an add button or a row of durations says what you can
@@ -284,7 +303,13 @@ the sample's own figures come from the staged curve rather than showing a dash;
 the history is collected every five seconds, like a running Mac's, because one
 point a minute drew as a straight line in the five-minute window the chart opens
 with, and it is measured back from the newest point so the figure the row shows
-is a middling one), and the tracker and to-dos start empty. **The VPN picture
+is a middling one; the staged curve keeps growing while the wizard is open, since
+a fixed hour of history ages out of that window in five minutes and leaves an
+empty panel), the internet row carries a fresh staged measurement of its own
+rather than whatever the user last measured, which may be a month old and drawn
+faded, and the tracker and to-dos start empty. Nothing in a picture runs a
+countdown: a timer left running finishes and starts blinking at whoever is still
+reading the screen. **The VPN picture
 reads the user's own configurations once**, capped at two rows and falling back
 to the two staged ones on a Mac with none: nothing there starts a tunnel, opens
 a vendor's app or runs a timer. Writing demo data into the real stores and
@@ -3787,7 +3812,10 @@ system language. Order — alphabetical by native names.
 A main-panel module (hideable/reorderable like the rest). The "test"
 button → the system `/usr/bin/networkQuality -c` (Apple CDN servers,
 ~15–20 s) → a "↓ N · ↑ M Mbit/s · RPM" row. Repeat via the ↻ icon. No
-custom servers and no third-party services.
+custom servers and no third-party services. A fresh result is drawn in the
+primary ink, like the module's own name: it is the answer the row exists for,
+and in secondary grey it read as a caption (Anton, 2026-09-05). A stale one
+(30+ minutes, or another network) stays faded.
 
 ## Memory (monitor)
 Reworked 2026-07-15 (Anton): the old "(used+swap)/RAM %" threshold read

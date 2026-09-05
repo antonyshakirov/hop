@@ -6,11 +6,6 @@ import UniformTypeIdentifiers
 /// Seeing the result matters (Anton, 2026-07-25): a silent copy into the
 /// clipboard history left no sign that anything had happened.
 struct ScreenTextWindowView: View {
-    /// Drawn as the onboarding picture: the plate is dropped, so the tile shows
-    /// recognized text instead of two buttons (Anton, 2026-09-05).
-    /// SPEC: docs/spec.md — "Onboarding", the module preview.
-    var preview = false
-
     @EnvironmentObject var model: AppModel
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
     @State private var targeted = false
@@ -29,7 +24,7 @@ struct ScreenTextWindowView: View {
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if !preview { dropZone }
+            dropZone
             // No result yet → the window is nothing but the plate; the text
             // block (and the extra height for it) appears with the first result.
             if !reader.recognized.isEmpty {

@@ -27,6 +27,13 @@ final class SpeedTestController: ObservableObject {
     private static let atKey = "speedLastAt"
     private static let netKey = "speedLastNet"
 
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    init(demo: Bool) {
+        last = Result(down: 834, up: 112, rpm: 1450)
+        lastAt = Date()
+        lastNetwork = Self.currentNetwork
+    }
+
     init() {
         let defaults = UserDefaults.standard
         if let down = defaults.object(forKey: Self.downKey) as? Double,

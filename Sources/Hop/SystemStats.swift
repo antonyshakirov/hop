@@ -51,13 +51,8 @@ final class SystemStatsController: ObservableObject {
         guard !demo else {
             refresh()
             history = Self.demoHistory()
-            // cpu load and throughput are deltas between two readings, so a
-            // single refresh has nothing to report: take the staged curve's own
-            // last point instead of showing a dash.
-            sample.cpuLoad = history.cpuLoad.last?.v
-            sample.gpuLoad = history.gpuLoad.last?.v
-            sample.netDown = history.netDown.last?.v
-            sample.netUp = history.netUp.last?.v
+            publishDemoSample()
+            startDemoTicker()
             return
         }
         applyActivation()
@@ -105,32 +100,72 @@ final class SystemStatsController: ObservableObject {
     }
     @Published private(set) var history = History()
 
+    private static let demoStep = 5.0
+    private var demoX = 0.0
+    private var demoTicker: Timer?
+
     /// A plausible hour at the cadence a running Mac collects.
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
     private static func demoHistory() -> History {
         var out = History()
         let now = Date()
-        let step = 5.0
-        let count = Int(61 * 60 / step)
+        let count = Int(61 * 60 / demoStep)
         for index in 0..<count {
-            let t = now.addingTimeInterval(Double(index - count + 1) * step)
-            let x = Double(index - count + 1) * step
-            let slow = sin(x / 220)
-            let mid = sin(x / 47 + 1.1)
-            let fast = sin(x / 13 + 0.4)
-            let busy = max(0, slow) * 0.5
-            out.cpuLoad.append(HistoryPoint(t: t, v: clamped(0.30 + 0.15 * mid + 0.10 * fast + busy)))
-            out.cpuTemp.append(HistoryPoint(t: t, v: 48 + 7 * mid + 3 * fast + 8 * busy))
-            out.gpuLoad.append(HistoryPoint(t: t, v: clamped(0.20 + 0.14 * slow + 0.09 * fast)))
-            out.gpuTemp.append(HistoryPoint(t: t, v: 43 + 6 * slow + 2 * fast))
-            out.memShare.append(HistoryPoint(t: t, v: clamped(0.58 + 0.06 * slow + 0.02 * mid)))
-            out.netDown.append(HistoryPoint(t: t, v: max(0, 2_100_000 + 1_800_000 * fast + 3_000_000 * busy)))
-            out.netUp.append(HistoryPoint(t: t, v: max(0, 340_000 + 260_000 * mid)))
+            let x = Double(index - count + 1) * demoStep
+            append(&out, x: x, at: now.addingTimeInterval(x))
         }
         return out
     }
 
+    /// Three periods that do not divide into each other, so no window of the
+    /// chart repeats the one before it.
+    private static func append(_ out: inout History, x: Double, at t: Date) {
+        let slow = sin(x / 220)
+        let mid = sin(x / 47 + 1.1)
+        let fast = sin(x / 13 + 0.4)
+        let busy = max(0, slow) * 0.5
+        out.cpuLoad.append(HistoryPoint(t: t, v: clamped(0.30 + 0.15 * mid + 0.10 * fast + busy)))
+        out.cpuTemp.append(HistoryPoint(t: t, v: 48 + 7 * mid + 3 * fast + 8 * busy))
+        out.gpuLoad.append(HistoryPoint(t: t, v: clamped(0.20 + 0.14 * slow + 0.09 * fast)))
+        out.gpuTemp.append(HistoryPoint(t: t, v: 43 + 6 * slow + 2 * fast))
+        out.memShare.append(HistoryPoint(t: t, v: clamped(0.58 + 0.06 * slow + 0.02 * mid)))
+        out.netDown.append(HistoryPoint(t: t, v: max(0, 2_100_000 + 1_800_000 * fast + 3_000_000 * busy)))
+        out.netUp.append(HistoryPoint(t: t, v: max(0, 340_000 + 260_000 * mid)))
+    }
+
     private static func clamped(_ value: Double) -> Double { min(max(value, 0.02), 0.98) }
+
+    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    private func startDemoTicker() {
+        let timer = Timer.scheduledTimer(withTimeInterval: Self.demoStep, repeats: true) { _ in
+            Task { @MainActor in self.pushDemoPoint() }
+        }
+        timer.tolerance = 1
+        demoTicker = timer
+    }
+
+    private func pushDemoPoint() {
+        demoX += Self.demoStep
+        Self.append(&history, x: demoX, at: Date())
+        let cutoff = Date().addingTimeInterval(-61 * 60)
+        history.cpuLoad.removeAll { $0.t < cutoff }
+        history.cpuTemp.removeAll { $0.t < cutoff }
+        history.gpuLoad.removeAll { $0.t < cutoff }
+        history.gpuTemp.removeAll { $0.t < cutoff }
+        history.memShare.removeAll { $0.t < cutoff }
+        history.netDown.removeAll { $0.t < cutoff }
+        history.netUp.removeAll { $0.t < cutoff }
+        publishDemoSample()
+    }
+
+    private func publishDemoSample() {
+        sample.cpuLoad = history.cpuLoad.last?.v
+        sample.cpuTemp = history.cpuTemp.last?.v
+        sample.gpuLoad = history.gpuLoad.last?.v
+        sample.gpuTemp = history.gpuTemp.last?.v
+        sample.netDown = history.netDown.last?.v
+        sample.netUp = history.netUp.last?.v
+    }
 
     /// Snapshot-only: pre-filled chart history for product screenshots —
     /// a live run has just two points by render time, which draws as empty.

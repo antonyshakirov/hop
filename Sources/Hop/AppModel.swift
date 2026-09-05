@@ -13,7 +13,7 @@ final class AppModel: ObservableObject {
     let clipboard: ClipboardController
     let updater = UpdateChecker()
     let converter = FileConverter()
-    let speedTest = SpeedTestController()
+    let speedTest: SpeedTestController
     let torrent = TorrentController()
     let tracker: TrackerController
     let todos: TodosController
@@ -109,6 +109,7 @@ final class AppModel: ObservableObject {
         tracker = TrackerController(demo: preview)
         todos = TodosController(demo: preview)
         vpn = VPNController(demo: preview)
+        speedTest = preview ? SpeedTestController(demo: true) : SpeedTestController()
         appShelves = AppShelvesController(demo: preview)
         colorPicker = ColorPickerController(clipboard: clipboard)
         screenText = ScreenTextController(clipboard: clipboard)
@@ -131,10 +132,7 @@ final class AppModel: ObservableObject {
             torrent.loadDemo()
             keyboardLock.loadDemo()
             uninstall.loadDemo()
-            // A stopped clock says as little as an empty list: the timer runs,
-            // and the picture counts down with it.
             engine.setDuration(25 * 60)
-            engine.start()
         }
         // a finished recognition brings its window forward: the text has to be
         // visible, not just quietly filed away

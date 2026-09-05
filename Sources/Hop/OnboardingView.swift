@@ -34,6 +34,7 @@ struct OnboardingView: View {
     /// Bumped by every switch so the module rows redraw: their state lives in
     /// stored defaults, which SwiftUI does not observe.
     @State private var moduleRevision = 0
+    @State private var entered = false
     /// Controllers of its own, with staged data: the pictures are the real
     /// modules, and must not touch what the person already has.
     @StateObject private var previewModel = AppModel(preview: true)
@@ -102,18 +103,22 @@ struct OnboardingView: View {
         VStack(spacing: 24) {
             VStack(spacing: 14) {
                 asterisk(size: 84) // vector: the menu bar bitmap got blurry when scaled up
+                    .modifier(Rises(after: 0, shown: entered))
                 Text("hop")
                     .font(Theme.mono(30, weight: .bold))
                     .foregroundStyle(Theme.textPrimary)
+                    .modifier(Rises(after: 0.14, shown: entered))
                 Text(t(.onbWelcomeBody))
                     .font(Theme.mono(13))
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: 420)
+                    .modifier(Rises(after: 0.28, shown: entered))
                 Text(t(.onbWelcomeSetup))
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textTertiary)
+                    .modifier(Rises(after: 0.38, shown: entered))
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 26)
@@ -127,6 +132,22 @@ struct OnboardingView: View {
                     LanguagePicker(selection: $languageRaw)
                 }
             } }
+            .modifier(Rises(after: 0.5, shown: entered))
+        }
+        .onAppear { entered = true }
+    }
+
+    /// SPEC: docs/spec.md — "Onboarding".
+    private struct Rises: ViewModifier {
+        let after: Double
+        let shown: Bool
+
+        func body(content: Content) -> some View {
+            let on = shown || Snapshot.active
+            return content
+                .opacity(on ? 1 : 0)
+                .offset(y: on ? 0 : 14)
+                .animation(.easeOut(duration: 0.45).delay(after), value: on)
         }
     }
 
@@ -304,35 +325,29 @@ struct OnboardingView: View {
             ? previewModel.appShelves.shelves.shelves.first.map { "apps:\($0.id.uuidString)" }
             : key
         return previewBody(drawn)
-            .frame(width: 368, alignment: .top)
-            .frame(width: 368, height: Self.previewHeight(key), alignment: .topLeading)
-            .clipped()
-            .background(Theme.background)
+            .frame(width: 368, alignment: .topLeading)
+            .modifier(FadingTail(height: key == "system" ? 300 : nil))
             .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.divider, lineWidth: 1))
             .allowsHitTesting(false)
     }
 
-    /// A picture is as tall as its module, so a one-row module is a strip rather
-    /// than a strip with empty space under it, and a list is cut between rows
-    /// instead of through one (Anton, 2026-09-05).
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
-    private static func previewHeight(_ key: String) -> CGFloat {
-        switch key {
-        case "awake", "keyboard", "speedtest": return 58
-        case "windows": return 56
-        case "ocr": return 64
-        case "archive": return 78
-        case "vpn": return 88
-        case "apps": return 96
-        case "clipboard": return 100
-        case "torrent": return 104
-        case "timer", "todos", "tracker": return 106
-        case "uninstall": return 112
-        case "system": return 118
-        case "convert": return 136
-        case "color": return 138
-        default: return 124
+    private struct FadingTail: ViewModifier {
+        let height: CGFloat?
+
+        func body(content: Content) -> some View {
+            if let height {
+                content
+                    .frame(height: height, alignment: .top)
+                    .clipped()
+                    .mask(LinearGradient(stops: [
+                        .init(color: .black, location: 0),
+                        .init(color: .black, location: 0.86),
+                        .init(color: .black.opacity(0), location: 1),
+                    ], startPoint: .top, endPoint: .bottom))
+            } else {
+                content
+            }
         }
     }
 
@@ -342,21 +357,15 @@ struct OnboardingView: View {
         switch key {
         case "convert":
             ConvertWindowView(preview: true).environmentObject(previewModel)
-                .frame(width: 620).scaleEffect(368 / 620, anchor: .topLeading)
-                .frame(width: 368, alignment: .topLeading)
         case "archive":
             ArchiveWindowView(preview: true).environmentObject(previewModel)
-                .frame(width: 520).scaleEffect(368 / 520, anchor: .topLeading)
-                .frame(width: 368, alignment: .topLeading)
         case "ocr":
-            ScreenTextWindowView(preview: true).environmentObject(previewModel)
-                .frame(width: 520).scaleEffect(368 / 520, anchor: .topLeading)
-                .frame(width: 368, alignment: .topLeading)
+            ScreenTextArt(lang: lang)
+        case "keyboard":
+            KeyboardLockArt(lang: lang)
         case "uninstall":
-            UninstallWindowView(uninstall: previewModel.uninstall, lang: lang)
+            UninstallWindowView(uninstall: previewModel.uninstall, lang: lang, preview: true)
                 .environmentObject(previewModel)
-                .frame(width: 560).scaleEffect(368 / 560, anchor: .topLeading)
-                .frame(width: 368, alignment: .topLeading)
         default:
             PanelView(previewModules: [key].compactMap { $0 })
                 .environmentObject(previewModel)

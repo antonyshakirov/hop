@@ -50,7 +50,7 @@ struct ConvertWindowView: View {
                 if !preview { footer }
             }
         }
-        .padding(20)
+        .padding(preview ? 12 : 20)
         .background(
             // direct measurement instead of a PreferenceKey: the preference
             // consistently reported 0 through the ScrollView, so the window
@@ -70,7 +70,7 @@ struct ConvertWindowView: View {
         // screen, then scrolling; a manual user resize is respected.
         // In snapshots — no ScrollView: ImageRenderer doesn't draw it.
         Group {
-            if Snapshot.active {
+            if Snapshot.active || preview {
                 scrollContent
             } else {
                 ScrollView(showsIndicators: false) {
@@ -78,8 +78,8 @@ struct ConvertWindowView: View {
                 }
             }
         }
-        .frame(width: 540)
-        .frame(maxHeight: .infinity)
+        .frame(width: preview ? 368 : 540)
+        .frame(maxHeight: preview ? nil : .infinity)
         .background(Theme.panelBackground)
         // ⌘V ingests everything on the clipboard the converter supports —
         // multiple Finder files at once, a raw screenshot, unsupported items
@@ -267,7 +267,7 @@ struct ConvertWindowView: View {
                         .foregroundStyle(Theme.textTertiary)
                 }
             }
-            settingsRow(kind)
+            if !preview { settingsRow(kind) }
             HStack(spacing: 8) {
                 // the group total only makes sense for multiple files —
                 // for a single file it repeats the line above verbatim
