@@ -427,8 +427,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             showOnboarding()
         }
 
-        // SPEC: docs/spec.md — "A permission that goes missing says so", the restart.
-        if let section = AppRelaunch.pendingSettingsSection() {
+        // SPEC: docs/spec.md — "A permission that goes missing says so", the
+        // restart; and "Onboarding", where the wizard is the only thing on screen.
+        if let section = AppRelaunch.pendingSettingsSection(),
+           defaults.bool(forKey: "onboardingDone") {
             model.settingsSectionRequest = section
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
                 self?.showSettingsWindow()

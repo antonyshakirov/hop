@@ -314,6 +314,21 @@ picked colours in the app's own accents, different sample tasks for the tracker
 and the to-do list (`onbSample*`, ×10), and the launcher's grid of everyday
 apps, eight of them so it stays one row.
 
+**Every module starts switched ON in the wizard**, the opt-in ones (the
+eyedropper, recognition, the vpn list, torrents) included: the wizard is where a
+person decides what to keep, and switching something off is easier than finding
+what was never offered (Anton, 2026-09-06). The seeding runs once, behind
+`onboardingSeededAllOn`, so the permissions step's restart does not undo what was
+switched off before it. Leaving torrents on means the engine is fetched once the
+wizard closes, which is what its footnote says.
+
+**The wizard is the only thing on screen, restart included.** A permission
+granted from the wizard restarts hop, and the restart used to reopen the settings
+window on top of the wizard: the pending section is now consumed and ignored
+while onboarding is unfinished. Verified with a stored step 9 and a pending
+section: the wizard came back on step 9, one window, and the pending key was
+spent (Anton, 2026-09-06).
+
 **A module that ships with a hotkey says so under its description**, one line:
 the label plus the combination, read from `HotkeyManager` so a rebound key shows
 the user's own (Anton, 2026-09-06). The window zones name none — eighteen actions

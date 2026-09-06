@@ -35,6 +35,9 @@ struct OnboardingView: View {
     /// stored defaults, which SwiftUI does not observe.
     @State private var moduleRevision = 0
     @State private var entered = false
+    /// Kept in defaults: the wizard is restarted by the permissions step, and the
+    /// seeding must not undo what the person switched off before the restart.
+    @AppStorage("onboardingSeededAllOn") private var seededAllOn = false
     /// Controllers of its own, with staged data: the pictures are the real
     /// modules, and must not touch what the person already has.
     @StateObject private var previewModel = AppModel(preview: true)
@@ -54,6 +57,19 @@ struct OnboardingView: View {
         case .welcome, .setup, .privacy, .done: return 520
         default: return 780
         }
+    }
+
+    /// Every module starts switched ON, the opt-in ones included: the wizard is
+    /// where a person decides what to keep, and deciding is easier by switching
+    /// something off than by finding what was never offered (Anton, 2026-09-06).
+    /// SPEC: docs/spec.md — "Onboarding".
+    private func seedEverythingOn() {
+        guard !seededAllOn else { return }
+        seededAllOn = true
+        for module in ModuleCatalog.modules {
+            PanelView.activateStoredModule(module.id)
+        }
+        moduleRevision += 1
     }
 
     private var step: OnboardStep { OnboardStep.stored(stepIndex) }
@@ -76,6 +92,7 @@ struct OnboardingView: View {
             footer
         }
         .frame(minWidth: 880, maxWidth: .infinity, minHeight: 700, maxHeight: .infinity)
+        .onAppear { seedEverythingOn() }
         .background {
             Theme.panelBackground
             OnboardingBackdrop(focus: step == .welcome
