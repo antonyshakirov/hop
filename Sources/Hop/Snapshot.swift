@@ -674,14 +674,6 @@ enum Snapshot {
             return "「设计系统」大会\n9 月 12 日 10:00\n罗奇杰利斯卡娅街 15 号 17 栋\n票号 A-2416 · 座位 12"
         case "ja":
             return "カンファレンス「デザインシステム」\n9月12日 10:00\nロチデリスカヤ通り15号館17\nチケット番号 A-2416 ・ 座席 12"
-        case "ar":
-            return "مؤتمر «أنظمة التصميم»\n12 سبتمبر، 10:00\nشارع روتشديلسكايا 15، مبنى 17\nتذكرة رقم A-2416 · مقعد 12"
-        case "he":
-            return "כנס «מערכות עיצוב»\n12 בספטמבר, 10:00\nרחוב רוצ׳דלסקאיה 15, בניין 17\nכרטיס מס׳ A-2416 · מושב 12"
-        case "fa":
-            return "همایش «سامانه‌های طراحی»\n۱۲ سپتامبر، ۱۰:۰۰\nخیابان روچدلسکایا ۱۵، ساختمان ۱۷\nبلیت شمارهٔ A-2416 · صندلی ۱۲"
-        case "ur":
-            return "کانفرنس «ڈیزائن سسٹمز»\n۱۲ ستمبر، ۱۰:۰۰\nروچدیلسکایا اسٹریٹ ۱۵، عمارت ۱۷\nٹکٹ نمبر A-2416 · نشست ۱۲"
         default:
             return "«design systems» conference\nseptember 12, 10:00\n15 Rochdelskaya st., bldg 17\nticket no. A-2416 · seat 12"
         }
@@ -713,45 +705,9 @@ enum Snapshot {
         case "it":
             return (["scrivere il post di lancio", "revisionare le pull request", "abbozzare le righe del tracker"],
                     ["rilasciare il tracker piatto", "sincronizzare docs e test", "prenotare i voli per l'offsite"])
-        case "ko":
-            return (["출시 글 작성하기", "풀 리퀘스트 검토하기", "트래커 행 스케치하기"],
-                    ["플랫 트래커 출시하기", "문서와 테스트 동기화하기", "오프사이트 항공권 예약하기"])
-        case "tr":
-            return (["lansman yazısını yaz", "pull request'leri incele", "tracker satırlarını taslakla"],
-                    ["düz tracker'ı yayınla", "dokümanları ve testleri eşitle", "offsite için uçuşları ayır"])
-        case "uk":
-            return (["написати пост до запуску", "розібрати пул-реквести", "накидати рядки трекера"],
-                    ["випустити плоский трекер", "синхронізувати доки й тести", "взяти квитки на офсайт"])
-        case "pl":
-            return (["napisać post premierowy", "przejrzeć pull requesty", "naszkicować wiersze trackera"],
-                    ["wydać płaski tracker", "zsynchronizować dokumenty i testy", "zarezerwować loty na offsite"])
-        case "id":
-            return (["tulis postingan peluncuran", "tinjau pull request", "sketsa baris tracker"],
-                    ["rilis tracker datar", "sinkronkan dokumen dan tes", "pesan tiket pesawat untuk offsite"])
-        case "th":
-            return (["เขียนโพสต์เปิดตัว", "รีวิวพูลรีเควสต์", "ร่างแถวแทร็กเกอร์"],
-                    ["ปล่อยแทร็กเกอร์แบบแบน", "ซิงก์เอกสารและเทสต์", "จองตั๋วบินไปออฟไซต์"])
-        case "vi":
-            return (["viết bài đăng ra mắt", "duyệt các pull request", "phác thảo các hàng tracker"],
-                    ["phát hành tracker phẳng", "đồng bộ tài liệu và test", "đặt vé máy bay cho offsite"])
-        case "hi":
-            return (["लॉन्च पोस्ट लिखें", "पुल रिक्वेस्ट रिव्यू करें", "ट्रैकर पंक्तियाँ स्केच करें"],
-                    ["फ्लैट ट्रैकर रिलीज़ करें", "डॉक्स और टेस्ट सिंक करें", "ऑफसाइट के लिए फ्लाइट बुक करें"])
         case "nl":
             return (["lanceringspost schrijven", "pull requests beoordelen", "trackerrijen schetsen"],
                     ["de platte tracker uitbrengen", "docs en tests synchroniseren", "vluchten voor de offsite boeken"])
-        case "ar":
-            return (["كتابة منشور الإطلاق", "مراجعة طلبات الدمج", "تخطيط صفوف المتتبّع"],
-                    ["إطلاق المتتبّع المسطّح", "مزامنة الوثائق والاختبارات", "حجز تذاكر رحلة الفريق"])
-        case "he":
-            return (["לכתוב את פוסט ההשקה", "לעבור על הפול ריקווסטים", "לשרטט את שורות המעקב"],
-                    ["להוציא את המעקב השטוח", "לסנכרן תיעוד ובדיקות", "להזמין טיסות לאופסייט"])
-        case "fa":
-            return (["نوشتن پست عرضه", "بازبینی درخواست‌های ادغام", "طرح ردیف‌های ردیاب"],
-                    ["عرضهٔ ردیاب ساده", "همگام‌سازی سندها و آزمون‌ها", "رزرو بلیت سفر تیمی"])
-        case "ur":
-            return (["لانچ پوسٹ لکھیں", "پل ریکویسٹ دیکھیں", "ٹریکر کی قطاریں خاکہ کریں"],
-                    ["سادہ ٹریکر جاری کریں", "دستاویزات اور ٹیسٹ ہم آہنگ کریں", "آف سائٹ کے لیے ٹکٹ بک کریں"])
         default:
             return (["write launch post", "review pull requests", "sketch tracker rows"],
                     ["ship the flat tracker", "sync docs and tests", "book flights for the offsite"])

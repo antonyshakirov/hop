@@ -19,7 +19,7 @@ Eén klik – en alles wat je nodig hebt staat meteen klaar.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · **Nederlands** · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · **Nederlands** · [Português](README.pt.md) · [Русский](README.ru.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop-paneel – menubalktimer met dot-matrixdisplay, presets en werk-rustcycli">
 
@@ -370,9 +370,9 @@ Dezelfde module ruimt op zonder iets te verwijderen: elke app die een cache aanh
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
-## 22 talen
+## 10 talen
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 – de app volgt standaard je systeemtaal.
+Deutsch, English, Español, Français, Italiano, Nederlands, Português, Русский, 中文, 日本語 – de app volgt standaard je systeemtaal.
 
 ## Steun het project
 

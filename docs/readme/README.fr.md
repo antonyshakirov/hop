@@ -20,7 +20,7 @@ qu'il vous faut est là.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · **Français** · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · **Français** · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Русский](README.ru.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/fr/overview.webp" width="360" alt="Panneau Hop – minuteur dans la barre de menus avec affichage à matrice de points, préréglages et cycles travail-pause">
 
@@ -379,9 +379,9 @@ Le même module fait le ménage sans rien supprimer : chaque app qui garde un ca
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
-## 22 langues
+## 10 langues
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 – l'app suit la langue de votre système dès
+Deutsch, English, Español, Français, Italiano, Nederlands, Português, Русский, 中文, 日本語 – l'app suit la langue de votre système dès
 l'installation.
 
 ## Soutenir le projet

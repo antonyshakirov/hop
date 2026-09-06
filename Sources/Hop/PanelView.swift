@@ -2032,7 +2032,7 @@ struct PanelView: View {
 
     /// Icon-picker content for the header popover: a scrollable grid of the
     /// catalog, each thematic group set off by extra vertical spacing (no
-    /// labels — that would cost a translation per group across 22 languages).
+    /// labels — that would cost a translation per group in every language).
     /// The tab's current icon is highlighted; a pick applies it and closes.
     private func iconPickerPopover(for tabID: UUID) -> some View {
         let current = tabsModel.tabs.first { $0.id == tabID }?.icon

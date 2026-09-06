@@ -323,7 +323,7 @@ struct TrackerView: View {
                 Spacer(minLength: 6)
                 if confirming {
                     // what is about to go, in glyphs rather than a sentence: a
-                    // count of tasks needs a plural form in 22 languages, and
+                    // count of tasks needs a plural form in every language, and
                     // the icons say it in none of them
                     HStack(spacing: 4) {
                         Image(systemName: "list.bullet").font(.system(size: 9))

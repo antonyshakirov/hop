@@ -335,11 +335,8 @@ final class ScreenTextController: ObservableObject {
     /// viewer's own tongue.
     private nonisolated static func script(of language: AppLanguage) -> TextScript {
         switch language {
-        case .ru, .uk: return .cyrillic
+        case .ru: return .cyrillic
         case .zh, .ja: return .cjk
-        case .ko: return .hangul
-        case .ar, .fa, .ur: return .arabic
-        case .th: return .thai
         default: return .latin
         }
     }

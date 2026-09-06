@@ -292,7 +292,7 @@ uninstaller shows the caches it found with a size each. The windows those four
 modules open drop their drop plate in a picture (`preview: true`) and start at
 the result. Staged content fills the rest: two rows in the clipboard and three
 picked colours in the app's own accents, different sample tasks for the tracker
-and the to-do list (`onbSample*`, ×22), and the launcher's grid of everyday
+and the to-do list (`onbSample*`, ×10), and the launcher's grid of everyday
 apps, eight of them so it stays one row.
 
 The description under a module's name is the opening paragraph of its handbook
@@ -302,7 +302,7 @@ lets you do, with the formats and the figures in it** (Anton, 2026-09-05): "and
 nothing starts on its own: what you add waits until you press the button" states
 what any button already states, while "unpacks zip, rar, 7z, tar, tar.gz,
 tar.bz2, tar.xz and gz" answers whether the module is worth switching on. Every
-module's opening was rewritten this way in all 22 languages; the bullets under it
+module's opening was rewritten this way in every language; the bullets under it
 keep the detail. A long opening is cut at the end of its first
 sentence; a very short one keeps the purpose line in front of it.
 
@@ -423,14 +423,14 @@ menu-bar badges, the Dock switch), "modules & tabs" for the panel layout,
 `ModuleCatalog` in panel order, each with its icon and name
 (`ModulePresentation`). A row wraps onto a second line rather than truncating:
 the longest module names in German and French do not fit 220pt on one. A module's page carries its heading with a one-line
-"what it is for" (`purpose*`, ×22 — the onboarding cards will read the same
+"what it is for" (`purpose*`, ×10 — the onboarding cards will read the same
 keys), an **"enable the module"** switch holding exactly the state the power
 button on the chip holds (one answer, in the two places somebody looks for it),
 its own options
 (`moduleSettings`, keyed by the same identifier), the hotkey of its "open" action — but only when something answers that key, since a
 recorder for an action with no handler would promise what it cannot do — then
 **"how it works"**: the module's full documentation under its settings
-(`ModulePresentation.howKeys` → the `doc*Full` strings, ×22, rendered by
+(`ModulePresentation.howKeys` → the `doc*Full` strings, ×10, rendered by
 `DocView` with its bullets, bold terms and inline `{sym:…}` icons; the monitor
 takes three of them and the converter two), and last a
 link to the guide on the site. From a MODULE's page that link carries the letter
@@ -508,7 +508,7 @@ and chip-drag never fight: the header and the chips are separate grab zones.
 The page beside the 220pt sidebar is 720pt wide, so the space columns and the
 "+" tile read comfortably across one row; chips truncate with `lineLimit(1)` in
 every column. Under the table sits an airy tertiary caption
-(`modulesTableHint`, ×22) stating what the power button does — the module keeps
+(`modulesTableHint`, ×10) stating what the power button does — the module keeps
 its place, stops running and leaves the panel — and that both columns (to reorder tabs) and the
 chips inside them (between/within columns) are draggable. Below the caption sit
 the grids of apps (rename, the icon-name switch, ✕) and the
@@ -1249,7 +1249,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Deleting a project deletes its tasks and their history** (Anton,
   2026-08-28). The confirm keeps the row's silhouette and puts a list glyph with
   the task count next to the delete/cancel pair — a count of tasks would need a
-  plural form in 22 languages and the glyph needs none. Deleting the project of
+  plural form in every language and the glyph needs none. Deleting the project of
   the running task stops the clock, the same way deleting that task alone does.
 - **Dragging with two levels** (`TrackerDrop`, pure and tested): a drop is a
   parent AND an index now, and the two cannot be decided separately — the same
@@ -2606,7 +2606,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   notification pane once macOS answers from a refusal on file; launch at login
   is `SMAppService.mainApp.register()`. `force` is what lets a button pressed by
   hand ask more than once per run, unlike a feature's own automatic repair.
-- The same list, condensed, is a README section (all 22 languages) and a FAQ
+- The same list, condensed, is a README section (every language) and a FAQ
   answer on the landing (all 8).
 - The page CLOSES with a statement, set larger and bolder than anything above
   it: the permissions exist so features can work, nothing about the user is
@@ -2835,7 +2835,7 @@ taught anything.
   viewfinder looked smaller than a boxed arrow and the solid eyedropper looked
   darker than both — three buttons in a row that visibly did not match (Anton,
   2026-07-26). The view carries a per-symbol size and weight table (viewfinder
-  and boxed arrow 12.5, eyedropper 12 and .light) and one 24×22 tap area — or
+  and boxed arrow 12.5, eyedropper 12 and .light) and one 24×10 tap area — or
   16×14 in `compact` mode, where the WHOLE row is the button (converter,
   archives) and a tap area of its own would only make the card taller. The
   colour is always `textSecondary`, `Theme.editing` while the action runs.
@@ -3142,17 +3142,18 @@ converter (Anton, 2026-07-28).
 
 ## Localization
 
-- 22 languages: en ru de es pt fr it zh ja ko tr uk pl id th vi hi nl
-  ar he fa ur — in this order in L10n.swift (th/vi/hi/nl restored
-  2026-07-13: old translations from 2042b22 + new keys retranslated;
-  ar/he/fa/ur added 2026-07-27 as the first right-to-left set). A new UI
-  string = ALL 22 at once; `--l10n-check` must pass. Check long languages
-  (de, fr, hi) for truncation.
+- 10 languages: en ru de es pt fr it zh ja nl — in this order in
+  L10n.swift. A new UI string = ALL 10 at once; `--l10n-check` must pass.
+  Check long languages (de, fr) for truncation.
+- The set shipped is the one the app is released with, not everything that
+  was ever translated: the wider set was cut back on 2026-09-06 (Anton) to
+  the ten with the largest macOS audiences. The right-to-left machinery
+  below stays in place — nothing about it is language-specific until a
+  right-to-left language is in the list again.
 - Inside the panel — brand lowercase; system surfaces (NSMenu,
-  notifications) — sentence case (.capitalizedFirst). Arabic, Hebrew,
-  Persian and Urdu have no letter case, so the rule is moot there.
+  notifications) — sentence case (.capitalizedFirst).
 
-### Right to left (ar, he, fa, ur)
+### Right to left
 
 - The language is picked in-app, not through the system locale, so SwiftUI
   never learns the direction on its own: `layoutDirection` comes from the
@@ -3429,7 +3430,7 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   said so was the "what's new" text, behind a window nobody opens. The card
   sits on the same chrome surface, headed `new · Hop <release>` (the version is a
   literal, never translated), and carries a line per thing the release brought,
-  ×22. `what's new` opens the settings window ON its about page — the full notes
+  ×10. `what's new` opens the settings window ON its about page — the full notes
   are already written and already translated, so the card summarises rather than
   repeats; `got it` only dismisses. Reaching a particular page needed
   `settingsSectionRequest` on the model, consumed once by the window, because the
@@ -3938,7 +3939,7 @@ Anton's primary install must always remain fully functional.
   the donation card (still the only donation surface in the product), then
   support — the mail address and the Telegram bot, in a card of their own rather
   than a line of footer nobody reads — then "how hop works" (`aboutHowTitle` /
-  `aboutHowBody`, ×22): four short paragraphs saying where Hop lives, that the
+  `aboutHowBody`, ×10): four short paragraphs saying where Hop lives, that the
   panel is built of modules sitting on spaces, that each module has a page here
   and a key of its own, and that nothing leaves the Mac. The footer keeps
   version, source, the author's site and the product page.
@@ -3946,7 +3947,7 @@ Anton's primary install must always remain fully functional.
   check button and the version: the whole history of what shipped is what
   somebody on that page came for, and "about" was carrying it for no reason.
 - **The per-module documentation is back in the app** (Anton, 2026-09-02), the
-  same twenty-one strings ×22 that 1.9.1 had moved out to the site (e807a79),
+  same twenty-one strings ×10 that 1.9.1 had moved out to the site (e807a79),
   restored from that commit. What made them dead weight was the WINDOW they
   lived in — fourteen tabs nobody opened. Now each text sits under the settings
   of the module it describes, where somebody is already looking at that module,

@@ -19,7 +19,7 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Türkçe](README.tr.md) · **Русский** · [Українська](README.uk.md) · [עברית](README.he.md) · [اردو](README.ur.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · **Русский** · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/ru/overview.webp" width="360" alt="Панель Hop – таймер в строке меню с точечно-матричным дисплеем, пресетами и циклами работы и отдыха">
 
@@ -366,9 +366,9 @@ Word (.docx, .doc, .rtf) → PDF или markdown и текст из PDF в ви�
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
-## 22 языка
+## 10 языков
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Tiếng Việt, Türkçe, Русский, Українська, עברית, اردو, العربية, فارسی, हिन्दी, ไทย, 한국어, 中文, 日本語 – приложение сразу подхватывает язык вашей
+Deutsch, English, Español, Français, Italiano, Nederlands, Português, Русский, 中文, 日本語 – приложение сразу подхватывает язык вашей
 системы.
 
 ## Поддержать проект
