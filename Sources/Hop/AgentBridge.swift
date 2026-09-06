@@ -119,9 +119,9 @@ final class AgentBridge {
             // has no ✓ to press afterwards, and a run left open would keep the
             // row counting it forever. Closing it files the session and puts the
             // period's own figure back.
-            let active = model.tracker.engine.activeTaskID
+            let running = model.tracker.engine.activeTaskIDs
             model.tracker.engine.stopActive()
-            if let active { model.tracker.engine.commitRun(taskID: active) }
+            for id in running { model.tracker.engine.commitRun(taskID: id) }
         case .todoAdd(let draft):
             guard let id = model.todos.add(text: draft.text) else { return }
             if !draft.note.isEmpty { model.todos.setNote(id, to: draft.note) }

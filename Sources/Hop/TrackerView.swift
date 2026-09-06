@@ -404,7 +404,7 @@ struct TrackerView: View {
     }
 
     @ViewBuilder private func collapsedTaskRow(_ task: TrackerTask) -> some View {
-        let active = engine.activeTaskID == task.id
+        let active = engine.isActive(taskID: task.id)
         // The run the task is in the middle of, if any — what the row counts
         // until the ✓ closes it (Anton, 2026-08-29).
         let run = engine.currentRun(taskID: task.id)
@@ -878,7 +878,7 @@ struct TrackerView: View {
     private func playStop(_ task: TrackerTask, active: Bool) -> some View {
         Button {
             // the engine stops the previously active task itself (single-active)
-            active ? engine.stopActive() : engine.start(taskID: task.id)
+            active ? engine.stop(taskID: task.id) : engine.start(taskID: task.id)
         } label: {
             // same play/pause family as the main timer button: filled circle
             // offers "start" (play), bordered circle offers "pause". Scaled to
@@ -958,7 +958,7 @@ struct TrackerView: View {
     /// over 8 hours. Recomputed off `tracker.heartbeat`, so the row appears and
     /// disappears without any timer of its own (no repeatForever).
     private func isLongRun(_ taskID: UUID) -> Bool {
-        guard engine.activeTaskID == taskID, let start = engine.activeIntervalStart else { return false }
+        guard let start = engine.activeIntervalStart(taskID: taskID) else { return false }
         return Date().timeIntervalSince(start) > 8 * 3600
     }
 
@@ -972,7 +972,7 @@ struct TrackerView: View {
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 6)
-            Button { engine.stopActive() } label: {
+            Button { engine.stop(taskID: taskID) } label: {
                 TransportCircle(systemName: "stop.fill", filled: false, iconSize: 8)
             }
             .buttonStyle(.plain)

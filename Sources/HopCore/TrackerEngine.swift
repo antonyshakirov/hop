@@ -69,15 +69,25 @@ public final class TrackerEngine: ObservableObject {
         return result
     }
 
-    /// The task with an open interval, if any.
-    public var activeTaskID: UUID? {
-        data.intervals.first(where: { $0.end == nil })?.taskID
+    /// SPEC: docs/spec.md — "Tracker", several clocks at once.
+    public var activeTaskIDs: Set<UUID> {
+        Set(data.intervals.filter { $0.end == nil }.map(\.taskID))
     }
 
-    /// The start of the currently open interval, if a task is active — lets the
-    /// view flag a run that has been going for over 8 hours.
-    public var activeIntervalStart: Date? {
-        data.intervals.first(where: { $0.end == nil })?.start
+    public func isActive(taskID: UUID) -> Bool {
+        data.intervals.contains { $0.taskID == taskID && $0.end == nil }
+    }
+
+    private var newestOpenInterval: TrackerInterval? {
+        data.intervals.filter { $0.end == nil }.max(by: { $0.start < $1.start })
+    }
+
+    public var activeTaskID: UUID? { newestOpenInterval?.taskID }
+
+    public var activeIntervalStart: Date? { newestOpenInterval?.start }
+
+    public func activeIntervalStart(taskID: UUID) -> Date? {
+        data.intervals.first { $0.taskID == taskID && $0.end == nil }?.start
     }
 
     // MARK: - Reading the tree
@@ -102,8 +112,9 @@ public final class TrackerEngine: ObservableObject {
     /// Whether the running task is inside this project — a collapsed project
     /// still has to show that something under it is ticking.
     public func isTracking(projectID: UUID) -> Bool {
-        guard let active = activeTaskID else { return false }
-        return data.tasks.first { $0.id == active }?.projectID == projectID
+        let running = activeTaskIDs
+        guard !running.isEmpty else { return false }
+        return data.tasks.contains { running.contains($0.id) && $0.projectID == projectID }
     }
 
     // MARK: - Structure
@@ -200,7 +211,7 @@ public final class TrackerEngine: ObservableObject {
             || data.corrections.contains { $0.taskID == id }
         guard present else { return }
         // no separate "stop" step needed: dropping the task's own open
-        // interval below already clears it from activeTaskID
+        // interval below already stops its clock
         data.tasks.removeAll { $0.id == id }
         data.intervals.removeAll { $0.taskID == id }
         data.corrections.removeAll { $0.taskID == id }
@@ -259,31 +270,33 @@ public final class TrackerEngine: ObservableObject {
 
     // MARK: - Tracking
 
+    /// Starts a task's clock, leaving every other running clock alone.
     public func start(taskID: UUID) {
-        // An unknown id would open an orphan interval (active state with no task
-        // behind it) — no-op instead, mirroring the other id-taking mutators.
         guard data.tasks.contains(where: { $0.id == taskID }) else { return }
-        guard activeTaskID != taskID else { return }
-        closeActiveInterval()
-        // Part of the run in progress until the ✓ says otherwise — starting
-        // again after a pause simply lengthens the same run.
+        guard !isActive(taskID: taskID) else { return }
         data.intervals.append(TrackerInterval(taskID: taskID, start: now(), committed: false))
         onChange?()
     }
 
-    /// Stops the clock and leaves the run OPEN: the stretch is still the one the
-    /// row is counting, and pressing play again continues it. Ending a run is
-    /// `commitRun` — that separation is the whole point of the ✓ (Anton,
-    /// 2026-08-29).
-    public func stopActive() {
-        guard activeTaskID != nil else { return }
-        closeActiveInterval()
+    /// Stops one clock and leaves the run OPEN; ending a run is `commitRun`.
+    public func stop(taskID: UUID) {
+        guard closeInterval(taskID: taskID) else { return }
         onChange?()
     }
 
-    private func closeActiveInterval() {
-        guard let index = data.intervals.firstIndex(where: { $0.end == nil }) else { return }
+    public func stopActive() {
+        let running = activeTaskIDs
+        guard !running.isEmpty else { return }
+        for id in running { _ = closeInterval(taskID: id) }
+        onChange?()
+    }
+
+    @discardableResult
+    private func closeInterval(taskID: UUID) -> Bool {
+        guard let index = data.intervals.firstIndex(where: { $0.taskID == taskID && $0.end == nil })
+        else { return false }
         data.intervals[index].end = now()
+        return true
     }
 
     // MARK: - The run in progress
@@ -314,7 +327,7 @@ public final class TrackerEngine: ObservableObject {
     @discardableResult
     public func commitRun(taskID: UUID) -> Bool {
         guard hasOpenRun(taskID: taskID) else { return false }
-        if activeTaskID == taskID { closeActiveInterval() }
+        closeInterval(taskID: taskID)
         for i in data.intervals.indices
         where data.intervals[i].taskID == taskID && !data.intervals[i].committed {
             data.intervals[i].committed = true
@@ -330,7 +343,7 @@ public final class TrackerEngine: ObservableObject {
     /// "today" figure — the panel edits the total (see `setTotal`).
     @discardableResult
     public func setToday(taskID: UUID, to seconds: TimeInterval) -> Bool {
-        guard activeTaskID != taskID else { return false }
+        guard !isActive(taskID: taskID) else { return false }
         // Unknown id: refuse rather than record an orphan correction.
         guard data.tasks.contains(where: { $0.id == taskID }) else { return false }
         let target = max(0, seconds)
@@ -355,7 +368,7 @@ public final class TrackerEngine: ObservableObject {
     /// back to a positive target in one edit. The target is clamped ≥ 0.
     @discardableResult
     public func setTotal(taskID: UUID, to seconds: TimeInterval) -> Bool {
-        guard activeTaskID != taskID else { return false }
+        guard !isActive(taskID: taskID) else { return false }
         // Unknown id: refuse rather than record an orphan correction.
         guard data.tasks.contains(where: { $0.id == taskID }) else { return false }
         let target = max(0, seconds)
@@ -386,7 +399,7 @@ public final class TrackerEngine: ObservableObject {
     /// taken against the RAW weekly sum and dated today.
     @discardableResult
     public func setWeek(taskID: UUID, to seconds: TimeInterval) -> Bool {
-        guard activeTaskID != taskID else { return false }
+        guard !isActive(taskID: taskID) else { return false }
         guard data.tasks.contains(where: { $0.id == taskID }) else { return false }
         let delta = max(0, seconds) - rawWeek(taskID: taskID)
         guard delta != 0 else { return true }

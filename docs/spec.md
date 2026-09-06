@@ -1108,6 +1108,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   engine to download, so it isn't opt-in; hidden or shown like every other
   module by its power button in the "modules & tabs" table. The module title (`trackerLabel`) is "time tracker" — it
   names the feature in settings and in the always-on subheader above the list.
+- **Several clocks at once** (Anton, 2026-09-06). Starting a task no longer
+  stops the one before it: `TrackerEngine.activeTaskIDs` is every task with an
+  open interval, `start(taskID:)` touches nothing else, and `stop(taskID:)`
+  closes one clock while `stopActive()` closes them all (the panel's "stop
+  tracking" and the agent bridge). A review, a call and a build running in the
+  background are three tasks, not a queue. What stayed single is the MENU BAR:
+  it shows the clock started last (`activeTaskID`, `activeIntervalStart`), since
+  one line cannot carry three. Each row counts its own run, and the 8-hour
+  warning reads that task's own interval (`activeIntervalStart(taskID:)`).
 - **Two levels, three orders.** `TrackerTask.projectID` is the single source of
   BELONGING — nil for a task at the top level, a project's id for one inside it.
   `TrackerData.rootOrder` says what the top level looks like: project ids and

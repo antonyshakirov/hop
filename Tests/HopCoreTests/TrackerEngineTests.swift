@@ -68,7 +68,7 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(engine.data.intervals.first?.start, clock)
     }
 
-    func testStartingAnotherTaskClosesFirstIntervalAndOpensNew() {
+    func testStartingAnotherTaskLeavesTheFirstRunning() {
         let taskA = engine.addTask(name: "A")
         let taskB = engine.addTask(name: "B")
 
@@ -76,14 +76,57 @@ final class TrackerEngineTests: XCTestCase {
         advance(60)
         engine.start(taskID: taskB)
 
+        XCTAssertEqual(engine.activeTaskIDs, [taskA, taskB])
+        XCTAssertTrue(engine.isActive(taskID: taskA))
+        XCTAssertTrue(engine.isActive(taskID: taskB))
+        // the menu bar shows the clock started last
         XCTAssertEqual(engine.activeTaskID, taskB)
-        // exactly one open interval, ever
-        let openIntervals = engine.data.intervals.filter { $0.end == nil }
-        XCTAssertEqual(openIntervals.count, 1)
-        XCTAssertEqual(openIntervals.first?.taskID, taskB)
+        XCTAssertEqual(engine.data.intervals.filter { $0.end == nil }.count, 2)
+    }
 
-        let closedInterval = engine.data.intervals.first { $0.taskID == taskA }
-        XCTAssertEqual(closedInterval?.end, clock)
+    func testStoppingOneTaskLeavesTheOtherRunning() {
+        let taskA = engine.addTask(name: "A")
+        let taskB = engine.addTask(name: "B")
+        engine.start(taskID: taskA)
+        engine.start(taskID: taskB)
+        advance(60)
+
+        engine.stop(taskID: taskB)
+
+        XCTAssertEqual(engine.activeTaskIDs, [taskA])
+        XCTAssertEqual(engine.activeTaskID, taskA)
+        XCTAssertEqual(engine.data.intervals.first { $0.taskID == taskB }?.end, clock)
+        XCTAssertEqual(engine.today(taskID: taskA), 60)
+        XCTAssertEqual(engine.today(taskID: taskB), 60)
+    }
+
+    func testStopActiveStopsEveryRunningTask() {
+        let taskA = engine.addTask(name: "A")
+        let taskB = engine.addTask(name: "B")
+        engine.start(taskID: taskA)
+        engine.start(taskID: taskB)
+        advance(120)
+
+        engine.stopActive()
+
+        XCTAssertTrue(engine.activeTaskIDs.isEmpty)
+        XCTAssertNil(engine.activeTaskID)
+        XCTAssertEqual(engine.today(taskID: taskA), 120)
+        XCTAssertEqual(engine.today(taskID: taskB), 120)
+    }
+
+    func testTwoClocksCountTheirOwnTime() {
+        let taskA = engine.addTask(name: "A")
+        let taskB = engine.addTask(name: "B")
+        engine.start(taskID: taskA)
+        advance(300)
+        engine.start(taskID: taskB)
+        advance(60)
+
+        XCTAssertEqual(engine.today(taskID: taskA), 360)
+        XCTAssertEqual(engine.today(taskID: taskB), 60)
+        XCTAssertEqual(engine.activeIntervalStart(taskID: taskA), clock.addingTimeInterval(-360))
+        XCTAssertEqual(engine.activeIntervalStart(taskID: taskB), clock.addingTimeInterval(-60))
     }
 
     func testStartingAlreadyActiveTaskIsNoOp() {
@@ -1366,7 +1409,7 @@ final class TrackerEngineTests: XCTestCase {
         XCTAssertEqual(changeCount, 0)
     }
 
-    func testStartingAnotherTaskLeavesTheFirstsRunOpen() {
+    func testEachRunCountsItsOwnClock() {
         let a = engine.addTask(name: "a")
         let b = engine.addTask(name: "b")
         engine.start(taskID: a)
@@ -1374,8 +1417,8 @@ final class TrackerEngineTests: XCTestCase {
         engine.start(taskID: b)
         advance(60)
 
-        // a's clock stopped, but its run is still the one its row is counting
-        XCTAssertEqual(engine.currentRun(taskID: a), 300)
+        // both clocks are running, and each row counts its own run
+        XCTAssertEqual(engine.currentRun(taskID: a), 360)
         XCTAssertEqual(engine.currentRun(taskID: b), 60)
     }
 
