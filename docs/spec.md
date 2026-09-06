@@ -2483,6 +2483,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   height first; past `HTMLConversion.snapshotHeightCap` (16000 pt) it is scaled
   down rather than cropped, because an image cut at an arbitrary line looks like
   the page ended there.
+- **A picture is refused past `HTMLConversion.renderHeightCap` (100000 pt)**
+  (`canRenderWhole`), because the view really is grown to the document's height
+  and the memory that costs grows with it: an off-screen view of 800 × 500000 is
+  a backing store of 1.6 GB, and at the cap it is 330 MB. The limit is memory,
+  not legibility — a page at the cap is already shrunk to 16% by
+  `snapshotHeightCap` and nothing in it can be read (Anton chose the looser of
+  the two bounds offered, 2026-09-06). The pdf has no such limit: `createPDF`
+  never grows the view, and `PagePagination.pageLimit` bounds it instead.
+- **Every answer from WebKit is taken under a 30 s watchdog that resumes once**
+  (`PageRender.answer`), and `webViewWebContentProcessDidTerminate` settles a
+  waiting one immediately. `createPDF`, `takeSnapshot` and `evaluateJavaScript`
+  call back through the WebContent process, and a process that dies mid-answer
+  never calls back at all: the continuation waiting on it is never resumed and
+  the batch row spins for ever, with no result and no failure. A machine under
+  memory pressure kills that process routinely (2026-09-06: with the swap full,
+  three WebContent processes came and went inside one minute). A timed-out
+  answer is a failed row, which is what the user needs to see.
 - A page loads with media autoplay off (a batch must not start making noise) and
   under a 30 s timeout, so one page that never settles cannot hold the batch.
   `com.apple.security.cs.allow-jit` is entitled: WebKit compiles JavaScript at

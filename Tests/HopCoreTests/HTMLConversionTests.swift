@@ -181,4 +181,31 @@ final class HTMLConversionTests: XCTestCase {
         XCTAssertEqual(HTMLConversion.snapshotScale(contentHeight: 0, cap: 16000), 1)
         XCTAssertEqual(HTMLConversion.snapshotScale(contentHeight: -10, cap: 16000), 1)
     }
+
+    // MARK: - How tall a page may be laid out
+
+    func testAnOrdinaryPageIsRendered() {
+        XCTAssertTrue(HTMLConversion.canRenderWhole(contentHeight: 900, cap: 100_000))
+        XCTAssertTrue(HTMLConversion.canRenderWhole(contentHeight: 16000, cap: 100_000))
+    }
+
+    func testAPageExactlyAtTheCapIsStillRendered() {
+        XCTAssertTrue(HTMLConversion.canRenderWhole(contentHeight: 100_000, cap: 100_000))
+    }
+
+    func testAPageTallerThanTheCapIsRefused() {
+        XCTAssertFalse(HTMLConversion.canRenderWhole(contentHeight: 100_001, cap: 100_000))
+        XCTAssertFalse(HTMLConversion.canRenderWhole(contentHeight: 500_000, cap: 100_000))
+    }
+
+    func testAPageWithNoHeightIsRefusedRatherThanRendered() {
+        XCTAssertFalse(HTMLConversion.canRenderWhole(contentHeight: 0, cap: 100_000))
+        XCTAssertFalse(HTMLConversion.canRenderWhole(contentHeight: -10, cap: 100_000))
+    }
+
+    func testAPageAtTheCapIsShrunkFarPastReading() {
+        let scale = HTMLConversion.snapshotScale(contentHeight: HTMLConversion.renderHeightCap,
+                                                 cap: HTMLConversion.snapshotHeightCap)
+        XCTAssertEqual(scale, 0.16, accuracy: 0.0001)
+    }
 }

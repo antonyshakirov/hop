@@ -123,4 +123,12 @@ public enum HTMLConversion {
     }
 
     public static let snapshotHeightCap: Double = 16_000
+
+    /// The tallest page the renderer will grow its off-screen view to.
+    public static let renderHeightCap: Double = 100_000
+
+    /// Whether a page of this height can be laid out whole for a picture.
+    public static func canRenderWhole(contentHeight: Double, cap: Double) -> Bool {
+        contentHeight > 0 && contentHeight <= cap
+    }
 }
