@@ -3279,6 +3279,14 @@ converter (Anton, 2026-07-28).
   open the same window.
 - Launch at login — SMAppService.mainApp.
 
+## Window zones
+
+- **The zones ship as ONE row**, not the 3×6 grid (`windowsLayout` defaults to
+  "row"). Somebody who had been using the grid before the key existed keeps it:
+  App.swift writes "grid" once for a Mac whose onboarding is already done. The
+  wizard claims the key as "row" when it finishes, so a fresh install is never
+  mistaken for an upgrader on its next launch (Anton, 2026-09-06).
+
 ## Settings window
 
 - The sidebar lists the modules in the PANEL's own order, space by space

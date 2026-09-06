@@ -609,6 +609,12 @@ struct OnboardingView: View {
     }
 
     private func finishOnboarding() {
+        // Claimed here so the upgrade rule in App.swift (which writes the old
+        // grid for anyone whose onboarding predates the key) never mistakes a
+        // fresh install for an upgrader (Anton, 2026-09-06).
+        if UserDefaults.standard.string(forKey: "windowsLayout") == nil {
+            UserDefaults.standard.set("row", forKey: "windowsLayout")
+        }
         UserDefaults.standard.set(true, forKey: "onboardingDone")
         UserDefaults.standard.removeObject(forKey: SettingsKey.onboardingStep)
         // Apps is the one choice that has nothing to switch on: the module only
