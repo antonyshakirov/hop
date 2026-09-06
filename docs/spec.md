@@ -306,8 +306,10 @@ nothing starts on its own: what you add waits until you press the button" states
 what any button already states, while "unpacks zip, rar, 7z, tar, tar.gz,
 tar.bz2, tar.xz and gz" answers whether the module is worth switching on. Every
 module's opening was rewritten this way in every language; the bullets under it
-keep the detail. A long opening is cut at the end of its first
-sentence; a very short one keeps the purpose line in front of it.
+keep the detail. A long opening is cut at the end of a
+sentence — a period FOLLOWED BY A SPACE, since cutting at any period ended the
+archiver's format list in the middle of "tar.gz" (Anton, 2026-09-06) — and a very
+short one keeps the purpose line in front of it.
 
 The data behind it is staged and lives nowhere else. `AppModel(preview: true)`
 builds a second set of controllers with `demo: true`, which read nothing of the

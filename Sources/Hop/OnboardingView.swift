@@ -187,8 +187,8 @@ struct OnboardingView: View {
                 .padding(.bottom, 6)
             stepHeading(t(.onbPrivacyTitle))
             VStack(spacing: 6) {
-                privacyClaim("bolt.horizontal.circle", t(.onbPrivacyNoServer))
                 privacyClaim("chart.bar.xaxis", t(.onbPrivacyNoAnalytics))
+                privacyClaim("person.crop.circle.badge.xmark", t(.onbPrivacyNoServer))
                 privacyClaim("chevron.left.forwardslash.chevron.right", t(.onbPrivacyOpenSource))
             }
             // Plain text and two links under the cards: everything in a card
@@ -514,8 +514,10 @@ struct OnboardingView: View {
         guard let doc = ModulePresentation.howKeys(key == Self.appsChoice ? "apps" : key).first
         else { return short }
         let opening = t(doc).components(separatedBy: "\n\n").first ?? ""
-        if opening.count > 170, let stop = opening.prefix(170).lastIndex(of: ".") {
-            return String(opening[..<stop]) + "."
+        // A sentence ends at a period FOLLOWED BY A SPACE: cutting at any period
+        // ends the archiver's list in the middle of "tar.gz" (Anton, 2026-09-06).
+        if opening.count > 260, let stop = opening.prefix(260).range(of: ". ", options: .backwards) {
+            return String(opening[..<stop.lowerBound]) + "."
         }
         return opening.count < 60 && !short.isEmpty ? "\(short). \(opening)" : opening
     }
