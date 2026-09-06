@@ -987,8 +987,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // No close button and no .closable: onboarding is finished, not
         // dismissed, and quitting only means it reopens on the same step
         // (Anton, 2026-09-05).
+        // SPEC: docs/spec.md — "Onboarding", the window's frame before it shows.
+        let size = NSSize(width: 880, height: 700)
+        let visible = (NSScreen.main ?? NSScreen.screens.first)?.visibleFrame
+            ?? NSRect(x: 0, y: 0, width: size.width, height: size.height)
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 880, height: 700),
+            contentRect: NSRect(x: visible.midX - size.width / 2,
+                                y: visible.midY - size.height / 2,
+                                width: size.width, height: size.height),
             styleMask: [.titled, .fullSizeContentView],
             backing: .buffered, defer: false
         )
@@ -1022,14 +1028,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.model.torrent.prefetchEngineIfNeeded()
             }
         }.hopLayoutDirection())
+        // Handing a window an NSHostingController collapses its frame to the
+        // SwiftUI view's not-yet-measured size — zero — so it was ordered in at
+        // 0×0 and grew into place a frame later, which is the jump (Anton,
+        // 2026-09-06). The size is put back before anyone can see it.
+        window.setContentSize(size)
+        window.layoutIfNeeded()
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         onboardingWindow = window
         enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
-        // Placed BEFORE it is shown: a window ordered in at AppKit's default
-        // origin and centred afterwards is visibly thrown from the corner to the
-        // middle (Anton, 2026-09-06). The frame is already the size it was asked
-        // for, so nothing has to be measured first.
         centreOnboarding()
         window.makeKeyAndOrderFront(nil)
         // Again on the next turn of the run loop: the activation policy change
@@ -1042,7 +1050,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// sized the window measures the wrong height (Anton, 2026-09-05).
     private func centreOnboarding() {
         guard let window = onboardingWindow,
-              let visible = (window.screen ?? NSScreen.main)?.visibleFrame else { return }
+              let visible = (window.screen ?? NSScreen.main ?? NSScreen.screens.first)?.visibleFrame
+        else { return }
         let frame = window.frame
         window.setFrameOrigin(NSPoint(x: visible.midX - frame.width / 2,
                                       y: visible.midY - frame.height / 2))
@@ -1501,3 +1510,4 @@ enum VideoSelfTest {
     }
 }
 #endif
+

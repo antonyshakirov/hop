@@ -296,6 +296,12 @@ struct OnboardingView: View {
                     .foregroundStyle(Theme.textTertiary)
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
+                if let combo = moduleHotkey(key) {
+                    Text("\(t(.hotkeysLabel)): \(combo)")
+                        .font(Theme.mono(9))
+                        .foregroundStyle(Theme.textTertiary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 if key == "torrent" {
                     Text(t(.torrentEngineNote))
                         .font(Theme.mono(9))
@@ -506,6 +512,16 @@ struct OnboardingView: View {
 
     private func purposeKey(_ key: String) -> L10nKey? {
         key == Self.appsChoice ? .purposeApps : ModulePresentation.purposeKey(key)
+    }
+
+    /// The key the module answers to, for the modules that ship with one. The
+    /// window zones are eighteen actions and name none of them here.
+    /// SPEC: docs/spec.md — "Onboarding", the module description.
+    private func moduleHotkey(_ key: String) -> String? {
+        guard let entry = ModuleCatalog.modules.first(where: { $0.id == key }),
+              let action = entry.actions.first(where: { !$0.isWindowZone }),
+              let combo = HotkeyManager.shared.combo(for: action) else { return nil }
+        return combo.display.replacingOccurrences(of: " ", with: "\u{00A0}")
     }
 
     /// SPEC: docs/spec.md — "Onboarding", the module description.

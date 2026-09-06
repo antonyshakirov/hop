@@ -259,9 +259,17 @@ The privacy screen says its three claims as rows with their own marks — nothin
 collected, no sign-up, open source — with the full
 pledge under them in small type: a paragraph of that length was skipped.
 
-The wizard's window is placed on the middle of the screen BEFORE it is ordered
-in: shown first and centred after, it was visibly thrown from the corner to the
-middle (Anton, 2026-09-06).
+The wizard's window is created at its final size and its final place, before it
+is ordered in. Three things had to be true at once for that (Anton, 2026-09-06):
+the contentRect is computed around the screen's centre rather than at (0, 0),
+which is the bottom-left CORNER; `NSScreen.main` is nil while an accessory app
+has no key window, so the fallback is `NSScreen.screens.first`; and handing the
+window an `NSHostingController` collapses its frame to the SwiftUI view's
+not-yet-measured size — zero — after which the view settles on a size of its own
+a frame later. `setContentSize` plus `layoutIfNeeded` force that measurement
+while the window is still invisible, so what is centred and shown is the frame it
+keeps. Verified by logging the frame at creation, at ordering and one run-loop
+turn later: all three read the same rect.
 
 **The picture on a group screen is the module itself**, drawn by the panel's own
 code (`PanelView(previewModule:)`) and made unclickable. Not a screenshot: it
@@ -305,6 +313,12 @@ the result. Staged content fills the rest: two rows in the clipboard and three
 picked colours in the app's own accents, different sample tasks for the tracker
 and the to-do list (`onbSample*`, ×10), and the launcher's grid of everyday
 apps, eight of them so it stays one row.
+
+**A module that ships with a hotkey says so under its description**, one line:
+the label plus the combination, read from `HotkeyManager` so a rebound key shows
+the user's own (Anton, 2026-09-06). The window zones name none — eighteen actions
+do not fit a line — and the modules whose action ships without a combination show
+nothing rather than an empty promise.
 
 The description under a module's name is the opening paragraph of its handbook
 text rather than the one-line `purpose`: the short line did not answer "what is
