@@ -213,7 +213,7 @@ public struct PanelTabsModel: Codable, Equatable {
     public static let timeModules = ["tracker", "todos"]
     /// The fourth space: what works ON files rather than reporting about the Mac
     /// (Anton, 2026-09-06).
-    public static let toolModules = ["convert", "archive", "uninstall", "color"]
+    public static let toolModules = ["archive", "uninstall", "color"]
 
     public func canonicalized() -> PanelTabsModel {
         guard let firstIcon = tabs.first?.icon else { return self }

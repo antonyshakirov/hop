@@ -17,7 +17,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(model.tabs[2].icon, "clock")
         XCTAssertEqual(model.tabs[2].moduleKeys, ["tracker", "todos"])
         XCTAssertEqual(model.tabs[3].icon, "wrench.and.screwdriver")
-        XCTAssertEqual(model.tabs[3].moduleKeys, ["convert", "archive", "uninstall", "color"],
+        XCTAssertEqual(model.tabs[3].moduleKeys, ["archive", "uninstall", "color"],
                        "what works on files shares the fourth space")
         XCTAssertEqual(model.inactive, [], "a fresh migrate has an empty inactive bucket")
     }
@@ -495,7 +495,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(c.tabs[2].icon, "clock")
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
         XCTAssertEqual(c.tabs[3].icon, "wrench.and.screwdriver")
-        XCTAssertEqual(c.tabs[3].moduleKeys, ["convert", "archive", "uninstall", "color"])
+        XCTAssertEqual(c.tabs[3].moduleKeys, ["archive", "uninstall", "color"])
         XCTAssertEqual(c.inactive, [])
     }
 
@@ -550,7 +550,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
         XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
-        XCTAssertEqual(c.tabs[3].moduleKeys, ["convert", "archive", "uninstall", "color"])
+        XCTAssertEqual(c.tabs[3].moduleKeys, ["archive", "uninstall", "color"])
     }
 
     // Both time-management modules inactive → no clock space at all (their off
@@ -566,7 +566,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(c.tabs.count, 3)
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer"])
         XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
-        XCTAssertEqual(c.tabs[2].moduleKeys, ["convert", "archive", "uninstall", "color"])
+        XCTAssertEqual(c.tabs[2].moduleKeys, ["archive", "uninstall", "color"])
         XCTAssertFalse(c.tabs.contains { $0.moduleKeys.contains("tracker") || $0.moduleKeys.contains("todos") })
         XCTAssertEqual(c.inactive, ["tracker", "todos"])
     }

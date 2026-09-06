@@ -440,8 +440,9 @@ and over the settings window alike, with cancel on the leading edge (Escape) and
 **The default layout, from 2026-09-05:** space 1 is the tools, space 2 is
 everything that REPORTS — the monitor, the speed test and the torrents
 (`PanelTabsModel.reportingModules`) — space 4 is what works ON files
-(`toolModules`: the converter, the archiver, the eyedropper and the uninstaller,
-Anton 2026-09-06) — and space 3 is the tracker with the
+(`toolModules`: the archiver, the uninstaller and the eyedropper, Anton
+2026-09-06; the converter is reached often enough to stay on space one, and the
+window zones sit at the bottom of it) — and space 3 is the tracker with the
 to-dos. The speed test and the torrents used to sit on space 1, which carried
 every tool plus them. A reporting space survives as long as any one of its three
 is on. The window zones also ship as one row rather than the grid
