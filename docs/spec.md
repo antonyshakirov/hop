@@ -239,9 +239,12 @@ one card saying the app is free, has no paid tier and lives on donations) → si
 dot grid the timer's display is built from, spread across the window, with two
 slow waves crossing it and the light gathering where the screen's subject is.
 It runs on a `TimelineView` at 12fps rather than a `repeatForever` animation,
-which this codebase does not use, and it is deliberately faint — at a tenth of
-the ink it was read through the permissions screen's paragraphs and made them
-hard to follow. The footer carries no bar of its own: a strip with its own
+which this codebase does not use. It is deliberately faint — at full strength it
+was read through the permissions screen's paragraphs and made them hard to
+follow — but it has a FLOOR: both the falloff from the focus and the wave keep a
+dot at three quarters of its own strength at worst, so the field is present in
+every corner instead of leaving black holes where the wave is at its trough
+(Anton, 2026-09-06). The footer carries no bar of its own: a strip with its own
 background under the wizard read as a second surface (Anton, 2026-09-05). **The welcome screen arrives a piece at a
 time** — the star, the name, the line under it, then the language card, each
 fading up from 14pt below over 0.45 s. One orchestrated moment, on the first
