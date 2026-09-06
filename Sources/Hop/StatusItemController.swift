@@ -113,10 +113,11 @@ final class StatusItemController: NSObject {
                     // windows (settings/about/converter/…) — that window is now
                     // key. The panel is a transient popover: it must not stay
                     // glued on its elevated level above the clicked window, or
-                    // it resurfaces there on the next activation. Close it, just
-                    // as an outside click does. A genuine summon yields activation
-                    // back to the previous app first, so the key window is nil (or
-                    // the panel itself) here and the panel is kept (Anton, 2026-07-19).
+                    // it resurfaces there on the next activation. Close it,
+                    // just as an outside click does. A genuine summon yields
+                    // activation back to the previous app first, so the key
+                    // window is nil (or the panel itself) here and the panel is
+                    // kept.
                     let panelWindow = self.popover.contentViewController?.view.window
                     if let key = NSApp.keyWindow, key !== panelWindow {
                         self.popover.close()
@@ -212,9 +213,9 @@ final class StatusItemController: NSObject {
     /// Which clocks the bar was showing when the panel opened (nil — closed).
     /// The SET is frozen, not just the width: a reading appearing mid-session
     /// would resize the button and drag the attached panel with it, and a
-    /// reading VANISHING would leave the space it was padded to standing empty
-    /// (Anton, 2026-08-04). A stopped timer keeps its slot and shows what it
-    /// stopped at until the panel is closed.
+    /// reading VANISHING would leave the space it was padded to standing empty.
+    /// A stopped timer keeps its slot and shows what it stopped at until the
+    /// panel is closed.
     private var frozenSlots: [BarSlot]?
 
     /// A clock with something to say in the bar. The tracked task carries its
@@ -337,9 +338,9 @@ final class StatusItemController: NSObject {
     }
 
     private func togglePopover(opening screen: PanelView.InitialScreen? = nil) {
-        // Reaching for Hop while the keyboard is locked IS the way out: the mark
-        // in the menu bar says why the keys do nothing, and opening the panel
-        // lets go of them (Anton, 2026-07-25). The unlock plays its own cue.
+        // Reaching for Hop while the keyboard is locked IS the way out: the
+        // mark in the menu bar says why the keys do nothing, and opening the
+        // panel lets go of them. The unlock plays its own cue.
         if model.keyboardLock.isLocked {
             model.keyboardLock.unlock()
         }
@@ -533,11 +534,11 @@ final class StatusItemController: NSObject {
             && UserDefaults.standard.bool(forKey: SettingsKey.todoRemindMark)
             && !off.contains("todos")
 
-        // The tunnel's own mark, which can be switched off: a VPN somebody else's
-        // app holds up is not necessarily something the user wants reported. A
-        // HIDDEN module carries its mark away with it — the badge is the module's
-        // voice in the menu bar, and a module that is not on any space has no
-        // business talking (Anton, 2026-07-29). Hiding does not touch the switch,
+        // The tunnel's own mark, which can be switched off: a VPN somebody
+        // else's app holds up is not necessarily something the user wants
+        // reported. A HIDDEN module carries its mark away with it — the badge
+        // is the module's voice in the menu bar, and a module that is not on
+        // any space has no business talking. Hiding does not touch the switch,
         // so bringing the module back brings the mark back with it.
         let vpnMark = UserDefaults.standard.bool(forKey: SettingsKey.vpnMenuBarMark)
             && !off.contains("vpn")
@@ -560,18 +561,18 @@ final class StatusItemController: NSObject {
         ))
 
         // A locked keyboard REPLACES the star with a keyboard glyph: the keys
-        // doing nothing needs an unmistakable explanation in the menu bar, and a
-        // corner dot would be too quiet for a state that stops the whole
-        // keyboard (Anton, 2026-07-25). It outranks the finished bell — the
-        // timer can wait, a locked keyboard cannot.
+        // doing nothing needs an unmistakable explanation in the menu bar, and
+        // a corner dot would be too quiet for a state that stops the whole
+        // keyboard. It outranks the finished bell — the timer can wait, a
+        // locked keyboard cannot.
         let keyboardLocked = model.keyboardLock.isLocked
         // The BUTTON's own appearance, not the app's: the menu bar can be dark
         // while the app is light — over a full-screen window, or the moment the
         // system switches — and a decorated icon is a bitmap with its colour
-        // baked in. Reading NSApp meant the icon kept the colour of whatever the
-        // bar looked like when it was last drawn, and went invisible on the other
-        // one (Anton, 2026-07-29). The countdown next to it never had the problem:
-        // AppKit colours a title itself.
+        // baked in. Reading NSApp meant the icon kept the colour of whatever
+        // the bar looked like when it was last drawn, and went invisible on the
+        // other one. The countdown next to it never had the problem: AppKit
+        // colours a title itself.
         let barIsDark = button.effectiveAppearance
             .bestMatch(from: [.darkAqua, .aqua]) != .aqua
         // template fast path ONLY when the calm star carries no decoration at all
@@ -589,13 +590,13 @@ final class StatusItemController: NSObject {
         button.imagePosition = .imageLeft
 
         // Every clock that has something to say. The engine's countdown and the
-        // tracked task's running total used to compete for the one slot, and the
-        // countdown always won, so a task tracked under a running timer was
-        // invisible in the bar. They take turns now (Anton, 2026-08-04).
-        // While the panel is open the SET of readings is whatever it was when
-        // the panel opened: a clock started from the panel must not surface
-        // mid-session, and one stopped from the panel must not disappear and
-        // leave its padded space empty. The figures themselves stay live.
+        // tracked task's running total used to compete for the one slot, and
+        // the countdown always won, so a task tracked under a running timer was
+        // invisible in the bar. They take turns now. While the panel is open
+        // the SET of readings is whatever it was when the panel opened: a clock
+        // started from the panel must not surface mid-session, and one stopped
+        // from the panel must not disappear and leave its padded space empty.
+        // The figures themselves stay live.
         let readings = (frozenSlots ?? currentSlots()).map(reading(for:))
 
         // monospaced font: the width doesn't jump as digits change
@@ -629,13 +630,12 @@ final class StatusItemController: NSObject {
         // the title width is invariant to it and can never shift the panel. The
         // title now carries digits only (countdown or the opt-in tracker time).
         if let frozen = frozenTitleLength {
-            // panel open: the time STAYS visible in the menu bar (Anton,
-            // 2026-07-15) — only the width is frozen: pad the digit tail with
-            // spaces to the frozen length so the button and the attached panel
-            // don't move. If the total outgrows the frozen slot (the stopwatch
-            // passes an hour) the freeze extends and the didMove observer
-            // re-anchors; growth is always on the RIGHT, so the icon anchor
-            // never moves.
+            // panel open: the time STAYS visible in the menu bar — only the
+            // width is frozen: pad the digit tail with spaces to the frozen
+            // length so the button and the attached panel don't move. If the
+            // total outgrows the frozen slot (the stopwatch passes an hour) the
+            // freeze extends and the didMove observer re-anchors; growth is
+            // always on the RIGHT, so the icon anchor never moves.
             let total = title.count
             if total > frozen {
                 frozenTitleLength = total
@@ -792,7 +792,7 @@ final class StatusItemController: NSObject {
     /// realign/show). `topEdge` is what must stay constant across a space switch;
     /// `origin`/`size` are AppKit's bottom-left coordinates. Routed through the
     /// shared `PanelFrameLog` sink so these window events and the SwiftUI chrome
-    /// reader (task 8.18, tag `chromeY`) land on one timeline.
+    /// reader (tag `chromeY`) land on one timeline.
     private func debugLogPanelFrame(_ tag: String, frame: NSRect) {
         let topEdge = frame.origin.y + frame.height
         PanelFrameLog.write(tag, String(

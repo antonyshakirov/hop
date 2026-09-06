@@ -23,7 +23,7 @@ final class ClipboardController: ObservableObject {
     /// how many rows the collapsed clipboard shows (1...10, default 3)
     static let visibleRowsKey = "clipboardVisibleRows"
     /// Picked colours have their own cap and their own visible-row count: the
-    /// eyedropper module IS this slice of the history (Anton, 2026-07-25).
+    /// eyedropper module IS this slice of the history.
     static let maxColorsKey = "colorMaxItems"
     static let defaultMaxColors = 20
     static let colorRowsKey = "colorVisibleRows"
@@ -226,9 +226,9 @@ final class ClipboardController: ObservableObject {
 
     /// Put text on the pasteboard WITHOUT touching the history — for content
     /// that is already in the list (clicking a colour the eyedropper picked
-    /// earlier). Re-remembering it would move the row to the top and rebuild it,
-    /// which stole the "copied" mark and reshuffled the list under the cursor
-    /// (Anton, 2026-07-25).
+    /// earlier). Re-remembering it would move the row to the top and rebuild
+    /// it, which stole the "copied" mark and reshuffled the list under the
+    /// cursor.
     func putOnPasteboard(_ text: String) {
         place(text)
     }
@@ -379,9 +379,9 @@ final class ClipboardController: ObservableObject {
     /// Two rows that need no translation: a link and a path.
     private static var demoItems: [Item] {
         // The three visible rows are a link, a path and a copied file. The
-         // colours sit under them: the eyedropper draws its own picture from the
-         // same history, and a swatch in the clipboard's picture says the same
-         // thing twice (Anton, 2026-09-05).
+        // colours sit under them: the eyedropper draws its own picture from the
+        // same history, and a swatch in the clipboard's picture says the same
+        // thing twice.
          [Item(text: "https://hop.tools"),
          Item(text: "~/Documents/design-tokens.css"),
          Item(text: "poster.png", filePaths: ["/Users/preview/Desktop/poster.png"]),

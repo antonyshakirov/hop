@@ -269,8 +269,8 @@ struct TorrentView: View {
 
     /// No inner scroll: the torrent rows render inline and the whole panel is the
     /// single scroll (the panel caps its own height in StatusItemController). A
-    /// per-module scroll here would nest inside the panel's — scroll-in-scroll,
-    /// which Anton nixed.
+    /// per-module scroll here would nest inside the panel's, and the panel never
+    /// puts a scroll inside a scroll.
     private var listBody: some View {
         VStack(spacing: 6) {
             ForEach(torrent.torrents) { row($0) }
@@ -285,10 +285,10 @@ struct TorrentView: View {
         let finished = stats?.finished ?? false
         let paused = item.optimisticPaused ?? (item.pausedByPolicy || stats?.state == .paused)
         let errored = stats?.state == .error
-        // The download glyph lights up only while bytes are ACTUALLY flowing
-        // (Anton, 2026-07-18): white when live and receiving, gray when paused,
-        // stalled (no peers) or not started yet — the color answers "is it
-        // downloading right now?" at a glance.
+        // The download glyph lights up only while bytes are ACTUALLY flowing:
+        // white when live and receiving, gray when paused, stalled (no peers)
+        // or not started yet — the color answers "is it downloading right now?"
+        // at a glance.
         let downloadingNow = !paused && !finished && !errored && !item.filesMissing
             && stats?.state == .live && (stats?.downloadBps ?? 0) > 0
         return VStack(spacing: 4) {
@@ -414,8 +414,9 @@ struct TorrentView: View {
             Spacer(minLength: 6)
             Group {
                 if !file.selected {
-                    // Excluded file: show what was already downloaded of it (Anton) —
-                    // partial data may still be on disk — not just its total size.
+                    // Excluded file: show what was already downloaded of it —
+                    // partial data may still be on disk — not just its total
+                    // size.
                     Text(bytes > 0
                          ? "\(SizeFormatting.sizeText(bytes)) / \(SizeFormatting.sizeText(file.lengthBytes))"
                          : SizeFormatting.sizeText(file.lengthBytes))

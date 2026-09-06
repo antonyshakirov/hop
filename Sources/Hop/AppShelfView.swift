@@ -53,10 +53,10 @@ struct AppShelfView: View {
     /// the module left 6.5pt and that reads right — small enough that the eye
     /// stops comparing the gaps, wide enough that the icons do not touch.
     private static let gap: CGFloat = 6.5
-    /// The icon's own size, which FOLLOWS from how many are asked for: the module
-    /// is as wide as the panel either way, so nine across are small and three are
-    /// enormous (Anton, 2026-07-30). The measured row width is the truth; the
-    /// fallback keeps the old nine-at-32 layout before the first measurement.
+    /// The icon's own size, which FOLLOWS from how many are asked for: the
+    /// module is as wide as the panel either way, so nine across are small and
+    /// three are enormous. The measured row width is the truth; the fallback
+    /// keeps the old nine-at-32 layout before the first measurement.
     private var iconSize: CGFloat {
         let count = CGFloat(columns)
         guard rowWidth > count * 8 else { return 32 }
@@ -73,10 +73,10 @@ struct AppShelfView: View {
     private var iconTileInset: CGFloat { min(4, iconSize * 0.09) }
 
     /// Distance from one icon's left edge to the next one's. Eight icons flush
-    /// against both module edges leave seven EQUAL gaps. A LazyVGrid could not do
-    /// that: centring every cell indented the row by half the column's slack, and
-    /// aligning only the outer two to the edges made the outer gaps 3.6pt wider
-    /// than the inner ones (Anton, 2026-07-30).
+    /// against both module edges leave seven EQUAL gaps. A LazyVGrid could not
+    /// do that: centring every cell indented the row by half the column's
+    /// slack, and aligning only the outer two to the edges made the outer gaps
+    /// 3.6pt wider than the inner ones.
     private var pitch: CGFloat {
         guard rowWidth > iconSize, columns > 1 else { return iconSize + 14 }
         return (rowWidth - iconSize) / CGFloat(columns - 1)
@@ -121,9 +121,8 @@ struct AppShelfView: View {
     private var subheader: some View {
         HStack(spacing: 6) {
             if editing {
-                // A bare line of text does not read as a field: it needs a box, a
-                // pencil and a placeholder that ASKS for something (Anton,
-                // 2026-07-30 — "name" sitting there read as a column heading).
+                // A bare line of text does not read as a field: it needs a box,
+                // a pencil and a placeholder that ASKS for something.
                 HStack(spacing: 4) {
                     Image(systemName: "pencil")
                         .font(.system(size: 9, weight: .semibold))
@@ -142,9 +141,9 @@ struct AppShelfView: View {
                 .frame(maxWidth: 132)
                 .help(t(.appsNamePlaceholder))
                 Spacer(minLength: 0)
-                // Icons per row, edited where the rest of the grid is edited: the
-                // name field and the reordering are here, so the third thing that
-                // belongs to THIS grid belongs here too (Anton, 2026-07-30).
+                // Icons per row, edited where the rest of the grid is edited:
+                // the name field and the reordering are here, so the third
+                // thing that belongs to THIS grid belongs here too.
                 HStack(spacing: 3) {
                     Image(systemName: "square.grid.2x2")
                         .font(.system(size: 8.5))
@@ -260,9 +259,7 @@ struct AppShelfView: View {
             // rounded tile inside a transparent square, so at exactly cell size
             // its visible edge stands in from the module's line while every
             // label sits on it. Growing the icon puts the TILE on the line and
-            // leaves the layout — and the names under it — where they were
-            // (Anton, 2026-08-28; pulling the whole row out instead pushed the
-            // names past the line the other way).
+            // leaves the layout — and the names under it — where they were.
             Image(nsImage: shelves.icon(for: item))
                 .resizable()
                 .frame(width: iconSize + iconTileInset * 2,
@@ -277,14 +274,13 @@ struct AppShelfView: View {
                     .truncationMode(.tail)
             }
         }
-        // The first icon sits ON the module's left line and the last on its right
-        // one; only the ones between are centred in their column. Centring every
-        // cell left the row indented by half the slack (the icon is 30pt in a
-        // ~37pt column), so the icons stood further in than every label and row
-        // above them (Anton, 2026-07-29).
-        // Exactly one icon wide: the spacers between slots carry all the slack,
-        // so every gap is the same and the outer icons sit on the module's own
-        // left and right lines.
+        // The first icon sits ON the module's left line and the last on its
+        // right one; only the ones between are centred in their column.
+        // Centring every cell left the row indented by half the slack (the icon
+        // is 30pt in a ~37pt column), so the icons stood further in than every
+        // label and row above them. Exactly one icon wide: the spacers between
+        // slots carry all the slack, so every gap is the same and the outer
+        // icons sit on the module's own left and right lines.
         .frame(width: iconSize)
         .padding(.vertical, 2)
         // The gap the dragged icon would drop into, on whichever side of this
@@ -329,8 +325,8 @@ struct AppShelfView: View {
     private enum CellEdge { case leading, trailing }
 
     /// The yellow line: the GAP the icon drops into, not the icon it lands on.
-    /// Highlighting the target cell read as "swap with this one" (Anton,
-    /// 2026-07-29); a line between two icons says where it goes.
+    /// Highlighting the target cell read as "swap with this one"; a line
+    /// between two icons says where it goes.
     ///
     /// Which gap that is depends on the direction: dragging an icon forward
     /// pulls everything after it one place back, so it ends up AFTER the cell at

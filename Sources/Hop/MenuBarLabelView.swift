@@ -23,8 +23,7 @@ enum MenuBarIcon {
     /// to the engine's systemGreen without going muddy. Mock-tuned value #159E46.
     static let darkGreen = NSColor(srgbRed: 0x15 / 255.0, green: 0x9E / 255.0, blue: 0x46 / 255.0, alpha: 1)
     /// Attention "!": systemOrange, the same colour a stalled tunnel already
-    /// uses. Red said catastrophe for a state that means "a reading is high"
-    /// (Anton, 2026-09-05).
+    /// uses. Red said catastrophe for a state that means "a reading is high".
     static let alertOrange = NSColor.systemOrange
 
     /// One unified stroke weight for every drawn glyph — the "!", the torrent
@@ -132,11 +131,10 @@ enum MenuBarIcon {
     /// composition picks colour vs the mono fill/outline mapping.
     private static func drawBadges(_ c: IconComposition, glyph: NSColor) {
         let w = canvasSize.width, h = canvasSize.height
-        // Every corner dot hangs off the icon's CENTRE by the same distance, so a
-        // dot in one corner is the exact mirror of a dot in another (Anton,
-        // 2026-07-29: the awake dot sat 0.4pt further out than the VPN dot below
-        // it, which reads as a crooked pair when both are lit). The numbers are
-        // the awake dot's own position, so that badge does not move.
+        // Every corner dot hangs off the icon's CENTRE by the same distance, so
+        // a dot in one corner is the exact mirror of a dot in another. The
+        // numbers are the awake dot's own position, so that badge does not
+        // move.
         let cx = w / 2, cy = h / 2
         // 5.0 with these offsets is the ONE set of numbers where all four corner
         // boxes land on whole half-points — 16.5 / 0.5 across, 11.5 / 0.5 down —
@@ -167,11 +165,11 @@ enum MenuBarIcon {
         // Green like the running-time wedges — the same "something of yours is
         // live" family, and the corner is otherwise almost always empty.
         if let vpn = c.vpn {
-            // The mirror of the awake dot above it — except when the torrent arrows
-            // share this corner. Then the ARROWS keep it (nudged a little further
-            // left) and the dot steps to their right: moving the arrows inward
-            // instead put them under the star's rays, where they read as part of
-            // the glyph rather than as two arrows (Anton, 2026-07-29).
+            // The mirror of the awake dot above it — except when the torrent
+            // arrows share this corner. Then the ARROWS keep it (nudged a
+            // little further left) and the dot steps to their right: moving the
+            // arrows inward instead put them under the star's rays, where they
+            // read as part of the glyph rather than as two arrows.
             var box = dotBox(-1, -1)
             if c.torrent != nil { box.origin.x += 6.5 }
             drawVPNDot(vpn, box: box, colored: c.colored, glyph: glyph)
@@ -344,7 +342,7 @@ enum MenuBarIcon {
     /// The "!" is drawn at the weight of the dots around it, not at the weight
     /// of a hairline: a stem 2pt wide against the 5pt dots, with the tittle the
     /// same width. At `stroke × 1.15` it looked like a glyph borrowed from
-    /// another icon set (Anton, 2026-09-05).
+    /// another icon set.
     private static func drawBang(color: NSColor, atLeft x: CGFloat, top: CGFloat) {
         color.setFill()
         let stemW: CGFloat = 2.0

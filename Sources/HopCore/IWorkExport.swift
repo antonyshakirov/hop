@@ -4,7 +4,7 @@ import Foundation
 ///
 /// The iWork formats are undocumented zip containers of protobuf, and every
 /// third-party reader of them is reverse engineering that breaks on the next
-/// major release — formulas first (decided 2026-07-25). So Hop does not read
+/// major release, formulas first. So Hop does not read
 /// them at all: it asks the applications themselves, through Apple Events, to
 /// run their own "Export to…". The quality is therefore exactly the quality of
 /// doing it by hand, and there is nothing of ours to break.

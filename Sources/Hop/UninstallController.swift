@@ -48,8 +48,8 @@ final class UninstallController: ObservableObject {
         let icon: NSImage
         /// The bundle itself, and everything of its that a removal would take.
         /// Both are shown, because "1.4 GB" answers a different question from
-        /// "1.2 GB of app plus 200 MB it saved up" (Anton, 2026-07-30). Measured
-        /// after the list appears, so an empty size means "not weighed yet".
+        /// "1.2 GB of app plus 200 MB it saved up". Measured after the list
+        /// appears, so an empty size means "not weighed yet".
         var appBytes: Int64 = 0
         var traceBytes: Int64 = 0
 
@@ -91,10 +91,10 @@ final class UninstallController: ObservableObject {
         var needsFullDisk: [String] = []
     }
 
-    /// What the window is doing with the app it was given.
-    /// Two jobs, two entry points. Installers used to be a mode of their own and
-    /// that was one screen too many for something this obvious (Anton, 2026-07-30):
-    /// they belong beside the caches, offered while you are already cleaning up.
+    /// What the window is doing with the app it was given. Two jobs, two entry
+    /// points. Installers used to be a mode of their own and that was one
+    /// screen too many for something this obvious: they belong beside the
+    /// caches, offered while you are already cleaning up.
     enum Mode: String, CaseIterable, Equatable {
         /// Remove an app and everything it left.
         case uninstall
@@ -141,8 +141,8 @@ final class UninstallController: ObservableObject {
     /// Installers found on disk (the `installers` mode).
     @Published var installers: [InstallerFile] = []
     /// Every app that has a cache, biggest first (the `cache` mode with no app
-    /// chosen). Anton, 2026-07-30: a cache mode that makes you drop apps one by
-    /// one answers the wrong question — the question is "who is holding my disk".
+    /// chosen). A cache mode that makes you drop apps one by one answers the
+    /// wrong question: the question is "who is holding my disk".
     @Published var cacheOwners: [CacheOwner] = []
     /// Apps that can be removed, so the window does not depend on dragging.
     @Published var installedApps: [InstalledApp] = []
@@ -286,10 +286,10 @@ final class UninstallController: ObservableObject {
     ///
     /// It walks every cache folder, every container and the trash, adding up
     /// sizes — seconds of disk on a full Mac. Doing that before the window
-    /// appeared meant clicking "clear the cache" and staring at nothing (Anton,
-    /// 2026-07-30). Now the window is there immediately and each list drops in
-    /// when it is ready: installers first because they are instant, the
-    /// containers last because they are the slowest thing here.
+    /// appeared meant clicking "clear the cache" and staring at nothing. Now
+    /// the window is there immediately and each list drops in when it is ready:
+    /// installers first because they are instant, the containers last because
+    /// they are the slowest thing here.
     private func startCleanScan() {
         cleanTask?.cancel()
         installers = []
@@ -406,11 +406,11 @@ final class UninstallController: ObservableObject {
         return installed.first { id.hasPrefix($0 + ".") }
     }
 
-    /// Containers and group containers big enough to matter, which are NOT offered
-    /// for clearing: cache and data live in one folder there. Telegram's is 23 GB
-    /// with only an empty `Library/Caches` inside — the media sits in its own
-    /// database, and only Telegram's own "clear cache" knows which of it is
-    /// disposable (Anton asked why it was missing, 2026-07-30).
+    /// Containers and group containers big enough to matter, which are NOT
+    /// offered for clearing: cache and data live in one folder there.
+    /// Telegram's is 23 GB with only an empty `Library/Caches` inside — the
+    /// media sits in its own database, and only Telegram's own "clear cache"
+    /// knows which of it is disposable.
     nonisolated static func rawHeavy() -> [(path: String, identifier: String, bytes: Int64)] {
         let manager = FileManager.default
         let home = NSHomeDirectory()
@@ -557,10 +557,10 @@ final class UninstallController: ObservableObject {
             guard !AppUninstall.isSystemOwned(rawName: identifier) else { return nil }
             guard entry.bytes > 1_000_000 else { return nil }   // below a megabyte is noise
             // An app that IS installed but whose cache carries a helper's id —
-            // `com.microsoft.VSCode.ShipIt` is the updater of an installed editor —
-            // must be named after its owner, not called a leftover. Anything that
-            // really has no owner belongs to the leftovers section instead, so it
-            // is not listed twice (Anton, 2026-07-30).
+            // `com.microsoft.VSCode.ShipIt` is the updater of an installed
+            // editor — must be named after its owner, not called a leftover.
+            // Anything that really has no owner belongs to the leftovers
+            // section instead, so it is not listed twice.
             guard !AppUninstall.isLeftover(identifier: identifier,
                                            installedIdentifiers: installed) else { return nil }
             let owner = owningApp(of: identifier, installed: installed)
@@ -1019,8 +1019,7 @@ final class UninstallController: ObservableObject {
     /// process arguments, and the list of files travels in a NUL-separated temp
     /// file that only `xargs -0` reads. Building that string by interpolation is a
     /// local privilege escalation waiting to happen: a folder in /Library whose
-    /// name contains a quote would have closed the literal and run as root
-    /// (flagged in review, 2026-07-30).
+    /// name contains a quote would close the literal and run as root.
     private nonisolated static func moveWithAdmin(_ paths: [String]) -> Bool {
         // Defence in depth: this path only ever handles system locations, and
         // anything else has no business being here.

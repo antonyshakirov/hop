@@ -63,7 +63,7 @@ public enum TrackerDrop {
         // Dropped ON a project's own row: into that project, at the top. This
         // is the only way into a FOLDED project — nothing of it is on screen to
         // aim between — and it works the same when it is open, so there is one
-        // rule rather than two (Anton, 2026-08-28).
+        // rule rather than two.
         if !isProject,
            let over = others.first(where: { $0.isProject && abs($0.midY - y) <= $0.height / 2 }) {
             return Target(parent: over.id, index: 0)

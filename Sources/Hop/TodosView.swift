@@ -134,9 +134,9 @@ struct TodosView: View {
     /// Three seconds of slow yellow pulsing on the fired time, then the firing
     /// counts as seen and the menu-bar mark goes with it.
     ///
-    /// Six half-second fades rather than a few sharp flashes: one quick blink was
-    /// over before the eye found it (Anton, 2026-07-28). Finite by construction —
-    /// a repeatForever animation retriggers the panel's size recompute and
+    /// Six half-second fades rather than a few sharp flashes: one quick blink
+    /// was over before the eye found it. Finite by construction — a
+    /// repeatForever animation retriggers the panel's size recompute and
     /// jitters the popover.
     private func acknowledgeWithBlink() {
         guard !Snapshot.active, todos.list.hasUnseenFiring else { return }
@@ -207,11 +207,11 @@ struct TodosView: View {
                 .foregroundStyle(item.done ? Theme.textTertiary : Theme.listText)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                // Drawn rather than `.strikethrough`: ticking a task animates the
-                // row down to the completed pile, and SwiftUI rebuilt the
-                // attributed text mid-flight — the line appeared at one height and
-                // then dropped a few points (Anton, 2026-07-29). A plain rule over
-                // the text lands in one place and stays there.
+                // Drawn rather than `.strikethrough`: ticking a task animates
+                // the row down to the completed pile, and SwiftUI rebuilt the
+                // attributed text mid-flight — the line appeared at one height
+                // and then dropped a few points. A plain rule over the text
+                // lands in one place and stays there.
                 .overlay {
                     if item.done {
                         Rectangle()
@@ -225,9 +225,9 @@ struct TodosView: View {
             // long already-truncated text yields room to the xmark instead of
             // running under it (a trailing overlay could not guarantee that).
             Spacer(minLength: 6)
-            // A favourite: the star is the mark, set by the card's switch. Drawn
-            // in neutral tokens — a coloured frame read as a warning rather than
-            // "this one matters" (Anton, 2026-07-28).
+            // A favourite: the star is the mark, set by the card's switch.
+            // Drawn in neutral tokens — a coloured frame read as a warning
+            // rather than "this one matters".
             if item.important {
                 StarGlyph(color: Theme.textSecondary, box: 10)
             }
@@ -251,9 +251,9 @@ struct TodosView: View {
                 Text(Self.timeLabel.string(from: firing))
                     .font(Theme.mono(11))
                     .foregroundStyle(lit ? Theme.accentYellow : Theme.textTertiary)
-                    // The strike line keeps ONE colour through the blink: changing
-                    // it rebuilt the attributed text every phase and the line
-                    // visibly jumped (Anton, 2026-07-28).
+                    // The strike line keeps ONE colour through the blink:
+                    // changing it rebuilt the attributed text every phase and
+                    // the line visibly jumped.
                     .strikethrough(firing <= Date(), color: Theme.textTertiary)
             }
             if confirmingDelete == item.id {

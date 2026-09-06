@@ -33,8 +33,8 @@ final class TorrentController: ObservableObject {
     }
 
     /// One torrent mid-download for the onboarding picture: an empty add plate
-    /// says nothing about what the module does (Anton, 2026-09-05).
-    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    /// says nothing about what the module does. SPEC: docs/spec.md —
+    /// "Onboarding", the module preview.
     func loadDemo() {
         let total: Int64 = 5_400_000_000
         let file = TorrentFile(index: 0, name: "ubuntu-24.04-desktop-amd64.iso",
@@ -323,9 +323,9 @@ final class TorrentController: ObservableObject {
                 return
             }
         }
-        // Otherwise OPEN the torrent's own folder so its files are shown inside it,
-        // not just the folder selected in its parent (Anton: reveal opened plain
-        // Finder). Fall back to the nearest existing ancestor if it isn't on disk yet.
+        // Otherwise OPEN the torrent's own folder so its files are shown inside
+        // it, not just the folder selected in its parent. Fall back to the
+        // nearest existing ancestor if it isn't on disk yet.
         if fm.fileExists(atPath: folder.path) {
             NSWorkspace.shared.open(folder)
             return
@@ -446,7 +446,7 @@ final class TorrentController: ObservableObject {
     ///
     /// The body is ALWAYS supplied. Passing a title alone let the notification
     /// helper fall back to its default text, and a finished torrent announced
-    /// itself with the timer's "the timer has finished" (Anton, 2026-07-26).
+    /// itself with the timer's "the timer has finished".
     private func notify(_ banner: TorrentBanner, name: String) {
         let lang = L10n.current
         let size = SizeFormatting.sizeText(banner.bytes)

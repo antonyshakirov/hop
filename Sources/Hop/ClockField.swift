@@ -4,10 +4,10 @@ import SwiftUI
 /// A two-digit clock field — hours or minutes — backed by NSTextField.
 ///
 /// Not SwiftUI's `TextField`: on focus it hands the text to AppKit's field
-/// editor, whose vertical metric differs from the unfocused render, so the digits
-/// visibly hop the moment you click them. An earlier fix nudged the text by
-/// 1.5pt and only moved the hop to the other side (Anton, 2026-07-28). AppKit
-/// draws both states itself, so there is nothing to compensate.
+/// editor, whose vertical metric differs from the unfocused render, so the
+/// digits visibly hop the moment you click them. An earlier fix nudged the text
+/// by 1.5pt and only moved the hop to the other side. AppKit draws both states
+/// itself, so there is nothing to compensate.
 ///
 /// It also validates as you type rather than on commit: hours clamp to 0…23 and
 /// minutes to 0…59, and a third digit is refused outright.

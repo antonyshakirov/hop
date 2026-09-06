@@ -7,13 +7,13 @@ import SwiftUI
 /// The uninstaller is deliberately absent. Its own row is already two named
 /// buttons ("remove the app", "clear the cache"), and folding it in here would
 /// either drop one of them or crowd four things into a line built for two or
-/// three (Anton, 2026-07-30).
+/// three.
 ///
-/// They are the same shape of thing (a row that opens a window and takes files),
-/// so on a crowded space they cost three lines for very little. One word rather
-/// than the module's full name is deliberate: "file converter" and "uninstall
-/// apps" side by side do not fit a 340pt row in any language, let alone in German
-/// (Anton, 2026-07-30). The full names stay in settings and in the help.
+/// They are the same shape of thing (a row that opens a window and takes
+/// files), so on a crowded space they cost three lines for very little. One
+/// word rather than the module's full name is deliberate: "file converter" and
+/// "uninstall apps" side by side do not fit a 340pt row in any language, let
+/// alone in German. The full names stay in settings and in the help.
 struct ToolsRowView: View {
     let lang: AppLanguage
     /// Only the tools actually present on this space, in the panel's own order.

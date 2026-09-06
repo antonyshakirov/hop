@@ -2,9 +2,9 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// The recognition window: where the text ends up, and the second way to feed
-/// the module — drop a picture or paste one (⌘V), instead of framing the screen.
-/// Seeing the result matters (Anton, 2026-07-25): a silent copy into the
-/// clipboard history left no sign that anything had happened.
+/// the module — drop a picture or paste one (⌘V), instead of framing the
+/// screen. Seeing the result matters: a silent copy into the clipboard history
+/// left no sign that anything had happened.
 struct ScreenTextWindowView: View {
     @EnvironmentObject var model: AppModel
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
@@ -33,9 +33,9 @@ struct ScreenTextWindowView: View {
         }
         .padding(20)
         // The window is exactly as tall as THIS — the padded content, measured
-        // before the expanding frame. Measuring after it reads back the window's
-        // own height, which is how the plate kept a strip of empty space under
-        // it while the margin above stayed 20 (Anton, 2026-07-26).
+        // before the expanding frame. Measuring after it reads back the
+        // window's own height, which is how the plate kept a strip of empty
+        // space under it while the margin above stayed 20.
         .background(
             GeometryReader { geo in
                 Color.clear
@@ -140,12 +140,12 @@ struct ScreenTextWindowView: View {
     /// character before taking it somewhere.
     private var resultEditor: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // ImageRenderer draws a TextEditor as a yellow "not supported" block,
-            // so a render gets the same text as a plain, flat label instead.
-            // The two branches must be padded IDENTICALLY: the editor used to
-            // carry no inset at all while the render did, so the text sat flush
-            // against the field on screen and nobody saw it in a screenshot
-            // (Anton, 2026-07-28).
+            // ImageRenderer draws a TextEditor as a yellow "not supported"
+            // block, so a render gets the same text as a plain, flat label
+            // instead. The two branches must be padded IDENTICALLY: the editor
+            // used to carry no inset at all while the render did, so the text
+            // sat flush against the field on screen and nobody saw it in a
+            // screenshot.
             if Snapshot.active {
                 Text(reader.recognized)
                     .font(Theme.mono(11))
@@ -162,10 +162,10 @@ struct ScreenTextWindowView: View {
                     .scrollContentBackground(.hidden)
                     // safeAreaPadding, NOT padding: padding insets the whole
                     // editor, and the scroll bar goes in with it — a bar that
-                    // floats 12pt off the edge of its own field (Anton,
-                    // 2026-07-28). This insets the CONTENT and leaves the
-                    // editor filling the field, so the bar stays on the edge.
-                    // contentMargins was tried first and moved nothing.
+                    // floats 12pt off the edge of its own field. This insets
+                    // the CONTENT and leaves the editor filling the field, so
+                    // the bar stays on the edge. contentMargins was tried first
+                    // and moved nothing.
                     .safeAreaPadding(Self.fieldInset)
                     .frame(minHeight: 160)
                     .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))

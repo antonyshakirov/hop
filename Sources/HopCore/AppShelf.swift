@@ -34,14 +34,14 @@ public struct ShelfItem: Codable, Equatable, Identifiable, Sendable {
 /// panel addresses it by that.
 public struct AppShelf: Codable, Equatable, Identifiable, Sendable {
     /// How many icons fit across, and how big they are, is the SAME question:
-    /// the module is as wide as the panel, so nine across are small and three are
-    /// enormous. The number is the setting and the size follows from it, per grid
-    /// — one grid of nine for everything, another of three for the two apps you
-    /// live in (Anton, 2026-07-30).
+    /// the module is as wide as the panel, so nine across are small and three
+    /// are enormous. The number is the setting and the size follows from it,
+    /// per grid — one grid of nine for everything, another of three for the two
+    /// apps you live in.
     public static let columnRange = 3...9
-    /// EIGHT by default (Anton, 2026-07-30): nine fit, and nine is the setting's
-    /// ceiling rather than its starting point — a row that starts one short of
-    /// full can be widened as easily as it is narrowed.
+    /// EIGHT by default: nine fit, and nine is the setting's ceiling rather
+    /// than its starting point — a row that starts one short of full can be
+    /// widened as easily as it is narrowed.
     public static let defaultColumns = 8
     public static let rows = 8
     /// What nine across meant before the number could be chosen; kept for the

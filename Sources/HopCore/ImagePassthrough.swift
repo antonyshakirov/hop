@@ -6,9 +6,8 @@ import Foundation
 /// was written at some ordinary quality with subsampled colour, and asking the
 /// encoder for its best writes full colour and barely-quantised detail — a
 /// grainy photo can come back several times heavier for a picture nobody can
-/// tell apart (Anton, 2026-08-28). When nothing is actually being asked for —
-/// same format, full scale, quality at the top — the honest answer is the file
-/// itself, copied.
+/// tell apart. When nothing is actually being asked for — same format, full
+/// scale, quality at the top — the honest answer is the file itself, copied.
 public enum ImagePassthrough {
     /// The extensions each output format may already be in. JPEG has two
     /// spellings, and HEIC files are sometimes named .heif.

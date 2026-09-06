@@ -56,19 +56,19 @@ struct VPNView: View {
 
     private func row(_ configuration: VPNConfiguration) -> some View {
         let busy = configuration.state.isBusy || vpn.pending.contains(configuration.id)
-        // The switch carries the same orange as the menu-bar dot when this tunnel
-        // is the one carrying nothing. Seeing orange in the bar is what brings you
-        // here, and with more than one row the panel has to say which (Anton,
-        // 2026-07-31).
+        // The switch carries the same orange as the menu-bar dot when this
+        // tunnel is the one carrying nothing. Seeing orange in the bar is what
+        // brings you here, and with more than one row the panel has to say
+        // which.
         let stalled = vpn.stalled.contains(configuration.id)
         return HStack(spacing: 6) {
             // No indicator light and no gutter where one used to be: the switch
-            // on the right already says on or off, and the row starts on the same
-            // left line as every other module's text (Anton, 2026-07-29). The
-            // menu-bar icon carries the light, for when the panel is closed.
+            // on the right already says on or off, and the row starts on the
+            // same left line as every other module's text. The menu-bar icon
+            // carries the light, for when the panel is closed.
             Button { vpn.openApp(for: configuration) } label: {
-                // Baseline alignment, not top: the smaller text sat high and read
-                // as a superscript (Anton, 2026-07-29).
+                // Baseline alignment, not top: the smaller text sat high and
+                // read as a superscript.
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
                     Text(configuration.title)
                         .font(Theme.mono(12))
@@ -99,7 +99,7 @@ struct VPNView: View {
             ), tint: stalled ? Theme.accentOrange : Theme.accentGreen)
             .opacity(busy ? 0.5 : 1)
             // Names the tunnel it flips: a row of identical switches says which
-            // is which only on hover (Anton, 2026-07-30).
+            // is which only on hover.
             .help("\(t(configuration.state.isOn ? .vpnSwitchOff : .vpnSwitchOn)) — \(configuration.title)")
         }
         .padding(.vertical, 2)

@@ -29,11 +29,10 @@ struct TaskCardDraft: Equatable {
 
 /// The expanded form of one task row, shared by the to-do list and the tracker.
 ///
-/// Shaped like a note, not like a form (Anton, 2026-07-28): the title is simply
-/// the first line, a hairline separates it from the description, and both fields
-/// take Return for a new line. Everything else is two small icons — a bell for
-/// the reminder, a star for a favourite — so nothing needs a caption to explain
-/// what it is.
+/// Shaped like a note, not like a form: the title is simply the first line, a
+/// hairline separates it from the description, and both fields take Return for
+/// a new line. Everything else is two small icons — a bell for the reminder, a
+/// star for a favourite — so nothing needs a caption to explain what it is.
 struct TaskCardView: View {
     @Binding var draft: TaskCardDraft
     let lang: AppLanguage
@@ -74,9 +73,9 @@ struct TaskCardView: View {
     /// card is its title.
     ///
     /// A TextEditor rather than a TextField because on macOS a field treats
-    /// Return as "submit" no matter what — the text simply refused to wrap
-    /// (Anton, 2026-07-28). Here Return adds a line in both fields, the ✓ button
-    /// or ⌘Return commits, and Escape abandons.
+    /// Return as "submit" no matter what — the text simply refused to wrap.
+    /// Here Return adds a line in both fields, the ✓ button or ⌘Return commits,
+    /// and Escape abandons.
     private var title: some View {
         editor(text: $draft.text, font: Theme.mono(12), color: Theme.textPrimary,
                minHeight: 18, maxHeight: 64)
@@ -120,7 +119,7 @@ struct TaskCardView: View {
     /// reminder on the LEFT (bell, day, time — and the weekday row directly
     /// under it), the favourite on the RIGHT, away from all of it. Sitting
     /// between the bell and the day chip, the star looked like part of the
-    /// reminder (Anton, 2026-07-28).
+    /// reminder.
     private var controls: some View {
         HStack(spacing: 8) {
             if draft.reminder != nil { bellButton }
@@ -280,7 +279,7 @@ struct TaskCardView: View {
     private var repeatRow: some View {
         HStack(spacing: 4) {
             // A word, not a glyph: an icon here read as one more button, and
-            // without anything the squares were a mystery (Anton, 2026-07-28).
+            // without anything the squares were a mystery.
             Text(t(.todoRepeatLabel))
                 .font(Theme.mono(9))
                 .foregroundStyle(Theme.textTertiary)

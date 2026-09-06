@@ -191,9 +191,8 @@ final class DocumentHeuristicsTests: XCTestCase {
 
     /// Word and AppKit's HTML reader both separate a list marker from its text
     /// with a TAB, not a space: a page's `<ul><li>` arrives as "•\ttext", and a
-    /// Word list the same way. Requiring a space turned every one of them into
-    /// an ordinary paragraph with a stray bullet in it (found 2026-09-06 while
-    /// converting a page to markdown).
+    /// Word list the same way. Requiring a space turns every one of them into an
+    /// ordinary paragraph with a stray bullet in it.
     func testAMarkerSeparatedByATabIsStillAListItem() {
         XCTAssertEqual(DocumentHeuristics.listItem("•\tbullet"),
                        .init(ordered: false, number: nil, text: "bullet"))

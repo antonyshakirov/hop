@@ -18,9 +18,9 @@ import SwiftUI
 @MainActor
 final class KeyboardLockController: ObservableObject {
     static let durationKey = "keyboardLockDuration"   // seconds
-    /// Offered lengths, plus 0 — "until I say so" (Anton, 2026-07-25). A zero
-    /// runs with no timer at all: only the cover's button, the module's own
-    /// button or opening the panel lets the keys go.
+    /// Offered lengths, plus 0 — "until I say so". A zero runs with no timer at
+    /// all: only the cover's button, the module's own button or opening the
+    /// panel lets the keys go.
     static let durations: [Int] = [60, 300, 900, 0]
 
     @Published private(set) var isLocked = false
@@ -52,10 +52,10 @@ final class KeyboardLockController: ObservableObject {
     /// When the pair went down; every later event re-checks the deadline against it.
     private var chordStart: Date?
     private var overlay: NSWindow?
-    /// Whoever was frontmost when the cover went up. Locking has to activate Hop
-    /// so the cover's button answers the first click; unlocking has to give that
-    /// app its focus back, or the keys are free but the first thing typed lands
-    /// nowhere and the unlock reads as half a second late (Anton, 2026-07-27).
+    /// Whoever was frontmost when the cover went up. Locking has to activate
+    /// Hop so the cover's button answers the first click; unlocking has to give
+    /// that app its focus back, or the keys are free but the first thing typed
+    /// lands nowhere and the unlock reads as half a second late.
     private var appBeforeLock: NSRunningApplication?
 
     var duration: Int {
@@ -86,10 +86,10 @@ final class KeyboardLockController: ObservableObject {
         remaining = 272
     }
 
-    /// Locking IS the choice of a duration (Anton, 2026-07-25): the module has no
-    /// separate start button — tapping "5 min" locks for five minutes. The value
-    /// is remembered so the hotkey has something to use.
-    /// `then` is handed true only once the keyboard is measurably locked.
+    /// Locking IS the choice of a duration: the module has no separate start
+    /// button — tapping "5 min" locks for five minutes. The value is remembered
+    /// so the hotkey has something to use. `then` is handed true only once the
+    /// keyboard is measurably locked.
     func lock(seconds: Int? = nil, then: ((Bool) -> Void)? = nil) {
         if let seconds { duration = seconds }
         guard !isLocked, !verifying, !Snapshot.active else { then?(false); return }
@@ -165,7 +165,7 @@ final class KeyboardLockController: ObservableObject {
         // ORDER MATTERS. The two things the user can perceive — the keys coming
         // back and the cover leaving — happen first, in that order, before any
         // bookkeeping. Anything published to SwiftUI before the cover is gone
-        // buys a layout pass the user reads as lag (Anton, 2026-07-27).
+        // buys a layout pass the user reads as lag.
         removeTap()
         hideOverlay()
         restoreFocusAfterLock()
@@ -244,8 +244,8 @@ final class KeyboardLockController: ObservableObject {
             // mouse is gone or the cover is unreachable, holding the pair for a
             // few seconds releases the keys. A CHORD rather than a lone key —
             // something resting on the keyboard can hold one key down for
-            // minutes, and that must not undo a cleaning lock (Anton,
-            // 2026-07-26). Both keys are still swallowed on the way through.
+            // minutes, and that must not undo a cleaning lock. Both keys are
+            // still swallowed on the way through.
             if let userInfo, type == .keyDown || type == .keyUp || type == .flagsChanged {
                 let controller = Unmanaged<KeyboardLockController>
                     .fromOpaque(userInfo).takeUnretainedValue()
@@ -259,7 +259,7 @@ final class KeyboardLockController: ObservableObject {
             }
             // A short press of the power key is swallowed like everything else;
             // the emergency LONG hold is handled in hardware and never reaches
-            // a tap, so a Mac can always still be forced off (Anton, 2026-07-25).
+            // a tap, so a Mac can always still be forced off.
             return nil   // swallowed: the key does nothing at all
         }
         guard let tap = CGEvent.tapCreate(
@@ -399,8 +399,7 @@ final class KeyboardLockController: ObservableObject {
         // Already counting: every auto-repeat of esc is a chance to notice that
         // the deadline has passed. That is what removes the half-second of "the
         // bar is full but nothing happened" — a Timer on a run loop busy with
-        // the cover's animation can fire late, and repeats arrive every ~33ms
-        // (Anton, 2026-07-26).
+        // the cover's animation can fire late, and repeats arrive every ~33ms.
         if let start = chordStart {
             if Date().timeIntervalSince(start) >= Self.escapeHoldSeconds {
                 cancelChord()
@@ -534,15 +533,13 @@ private struct KeyboardLockOverlay: View {
                     .multilineTextAlignment(.center)
                 // the keyboard's own way out, set apart and heavier: it is the
                 // line that matters when the mouse is not within reach
-                // (Anton, 2026-07-26)
                 Text(L10n.t(.keylockChord, lang))
                     .font(Theme.mono(13, weight: .semibold))
                     .foregroundStyle(lock.chordHeld ? Theme.editing : Theme.textPrimary)
                     .multilineTextAlignment(.center)
                 // Fills over the five seconds while the pair is held, and snaps
                 // back the moment either key goes up: without it a hold is five
-                // seconds of wondering whether anything is happening (Anton,
-                // 2026-07-26).
+                // seconds of wondering whether anything is happening.
                 ZStack(alignment: .leading) {
                     Capsule()
                         .fill(Theme.divider)

@@ -9,7 +9,7 @@ import XCTest
 final class MemoryUsageTests: XCTestCase {
 
     // A live sample taken beside an Activity Monitor reading of 20.98 GB Used
-    // on a 24 GiB machine with 16 KiB pages (2026-07-27).
+    // on a 24 GiB machine with 16 KiB pages.
     private let page: UInt64 = 16384
     private let physical: UInt64 = 25_769_803_776
     private let free: UInt64 = 9409             // free_count, speculative included

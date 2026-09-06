@@ -1,10 +1,8 @@
 import AppKit
 
-/// App icon in Finder/Applications: dark or light, light by default
-/// (Anton, 2026-07-15 — the light one is more noticeable; "auto" removed,
-/// the toggle is a small delight, not a theme).
-/// Applied via NSWorkspace.setIcon; in the menu bar the icon always
-/// stays a monochrome system template.
+/// App icon in Finder/Applications: dark or light, light by default. Applied
+/// via NSWorkspace.setIcon; in the menu bar the icon always stays a monochrome
+/// system template.
 @MainActor
 enum AppIcon {
     static let styleKey = "appIconStyle" // dark | light (legacy "auto" → light)

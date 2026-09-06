@@ -58,9 +58,9 @@ final class ModuleCatalogTests: XCTestCase {
 
     /// Two actions shipping the SAME combination is a defect the user meets as
     /// "shortcut is taken" on a fresh install, with one of the two silently dead:
-    /// the timer and the zone for the right two thirds both shipped ⌃⌥T until
-    /// 2026-09-02. The zones follow Rectangle's map, so a clash is settled by
-    /// moving the module.
+    /// the timer and the zone for the right two thirds once shipped the same
+    /// ⌃⌥T. The zones follow Rectangle's map, so a clash is settled by moving
+    /// the module.
     func testNoTwoActionsShipTheSameCombination() {
         let combos = (ModuleCatalog.allActions).compactMap(\.defaultCombo)
         var seen: [ModuleCombo: String] = [:]

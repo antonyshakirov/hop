@@ -56,15 +56,15 @@ struct TrackerView: View {
     @State private var confirmingDeleteProject: UUID?
     /// Which line of a task's history is asking "delete?" — the same two-step
     /// the rows themselves use, because one click on a small ✕ should not throw
-    /// a recorded session away (Anton, 2026-08-28).
+    /// a recorded session away.
     @State private var confirmingDeleteEntry: UUID?
     /// The moment a history line is being given, while its editor is open: the
     /// day, and the hour and minute it started at. Seeded from the line itself,
-    /// or from the clock on the wall when adding one (Anton, 2026-08-28).
-    /// Which part of the moment has its list open, if any. The list is drawn
-    /// IN THE FLOW under the editor rather than in a system popover: a popover
-    /// comes with macOS's own large corner radius, which sat oddly against the
-    /// panel's own 4–6pt corners (Anton, 2026-08-28).
+    /// or from the clock on the wall when adding one. Which part of the moment
+    /// has its list open, if any. The list is drawn IN THE FLOW under the
+    /// editor rather than in a system popover: a popover comes with macOS's own
+    /// large corner radius, which sat oddly against the panel's own 4–6pt
+    /// corners.
     @State private var openPart: MomentPart?
     @State private var entryYear = 2026
     @State private var entryMonth = 1
@@ -106,11 +106,11 @@ struct TrackerView: View {
     /// height with inner scroll (the 8h warning is pinned outside the scroll).
     @AppStorage(TrackerController.visibleRowsKey) private var visibleRows = TrackerController.defaultVisibleRows
     /// Float starred tasks to the top of whatever list they are in — the top
-    /// level for a loose task, its own project for one inside (Anton,
-    /// 2026-08-28). ON by default now: a star that moved nothing was a mark
-    /// with no consequence, and everybody who used one expected it to lift the
-    /// task. The stored order is still untouched, so switching it off puts
-    /// every task back where it was put by hand.
+    /// level for a loose task, its own project for one inside. ON by default
+    /// now: a star that moved nothing was a mark with no consequence, and
+    /// everybody who used one expected it to lift the task. The stored order is
+    /// still untouched, so switching it off puts every task back where it was
+    /// put by hand.
     @AppStorage(SettingsKey.trackerImportantOnTop) private var importantOnTop = true
     /// Which period every figure in the module covers.
     @AppStorage(TrackerController.periodKey) private var periodRaw = TrackerPeriod.total.rawValue
@@ -283,16 +283,16 @@ struct TrackerView: View {
             HStack(spacing: 6) {
                 // A disclosure triangle, pointing the way the list will go —
                 // the shape macOS uses for exactly this, so nobody has to learn
-                // it (Anton, 2026-08-28).
+                // it.
                 Button { engine.setProjectExpanded(project.id, !project.isExpanded) } label: {
                     // The SAME triangle the play buttons carry, minus the
                     // circle, on the SAME axis: centred in the circle's own
                     // 18pt box inside the 22pt gutter, so every arrow in the
-                    // list sits on one vertical line (Anton, 2026-08-28).
-                    // A CHEVRON, not the play triangle: the play shape belongs
-                    // to starting a clock, and reusing it for folding read as a
-                    // faded, broken version of the button above it (Anton,
-                    // 2026-08-28). Same axis as those buttons all the same.
+                    // list sits on one vertical line. A CHEVRON, not the play
+                    // triangle: the play shape belongs to starting a clock, and
+                    // reusing it for folding read as a faded, broken version of
+                    // the button above it. Same axis as those buttons all the
+                    // same.
                     Image(systemName: "chevron.right")
                         .font(.system(size: 9, weight: .semibold))
                         .foregroundStyle(Theme.textSecondary)
@@ -303,10 +303,9 @@ struct TrackerView: View {
                 }
                 .buttonStyle(.plain)
                 .hoverDim()
-                // Renaming lives on the NAME, not on the row: with the whole row
-                // taking the tap, the triangle's own click was being swallowed
-                // and folding a project started a rename instead (Anton,
-                // 2026-08-28).
+                // Renaming lives on the NAME, not on the row: with the whole
+                // row taking the tap, the triangle's own click was being
+                // swallowed and folding a project started a rename instead.
                 Text(project.name)
                     .font(Theme.mono(12, weight: .semibold))
                     .foregroundStyle(Theme.listText)
@@ -381,10 +380,9 @@ struct TrackerView: View {
             if expandedTask == task.id, card != nil, !Snapshot.active {
                 VStack(alignment: .leading, spacing: 6) {
                     // The task's own row stays ON TOP of its open card: without
-                    // it the card was a form with no subject — Anton could not
-                    // tell whose name he was editing, or that the history below
-                    // belonged to it (2026-08-28). Tapping it closes the card
-                    // again, which is the other half of the same confusion.
+                    // it the card is a form with no subject, and nothing says
+                    // whose name is being edited or that the history below
+                    // belongs to it. Tapping the row closes the card again.
                     collapsedTaskRow(task)
                     TaskCardView(draft: Binding(get: { card ?? TaskCardDraft(text: task.name,
                                                                             note: task.note,
@@ -406,7 +404,7 @@ struct TrackerView: View {
     @ViewBuilder private func collapsedTaskRow(_ task: TrackerTask) -> some View {
         let active = engine.isActive(taskID: task.id)
         // The run the task is in the middle of, if any — what the row counts
-        // until the ✓ closes it (Anton, 2026-08-29).
+        // until the ✓ closes it.
         let run = engine.currentRun(taskID: task.id)
         // The hover xmark shows only in the normal display state — not while a
         // confirm or an inline field owns the row's tail.
@@ -509,16 +507,16 @@ struct TrackerView: View {
 
     /// The sessions the task collected, under its open card: every stretch of
     /// time it holds, each editable and removable, plus a line to add one that
-    /// was never tracked (Anton, 2026-08-28). The total above them is the same
-    /// number the row shows — that is the point of listing the parts.
+    /// was never tracked. The total above them is the same number the row shows
+    /// — that is the point of listing the parts.
     @ViewBuilder private func history(_ task: TrackerTask) -> some View {
         let entries = engine.history(taskID: task.id)
         VStack(alignment: .leading, spacing: 2) {
             // The total is the headline of this block, not another line of it:
-            // at the same size and weight as the label it read as a row, and
-            // Anton clicked the word trying to find out what the figure meant
-            // (2026-08-28). It now sits a full step up the scale, in primary
-            // ink, on a shared baseline with a smaller, quieter label.
+            // at the same size and weight as the label it reads as a row, and
+            // the label gets clicked as if it explained the figure. It sits a
+            // full step up the scale, in primary ink, on a shared baseline with
+            // a smaller, quieter label.
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(t(.trackerHistory))
                     .font(Theme.mono(9, weight: .semibold))
@@ -533,9 +531,9 @@ struct TrackerView: View {
             // A long-lived task can hold hundreds of sessions. The card shows
             // the recent ones and SCROLLS the rest, cut through a row rather
             // than between two: a list that ended on a whole line looked
-            // finished, and a "+N" under it was a count, not a way in (Anton,
-            // 2026-08-29). While a line is being edited the cap is lifted —
-            // its own date list is taller than the window would be.
+            // finished, and a "+N" under it was a count, not a way in. While a
+            // line is being edited the cap is lifted — its own date list is
+            // taller than the window would be.
             if entries.count > Self.historyRows, !editingHistory {
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: Self.historyGap) {
@@ -673,11 +671,11 @@ struct TrackerView: View {
     }()
 
     /// One field, used both for editing a line and for adding one: the same
-    /// lenient H:MM:SS / H:MM / MM parse the row's own total edit uses.
-    /// One line's editor: WHEN it started (a day menu and the hour:minute pair
-    /// the reminder row already uses) and HOW LONG it ran, with the commit pair
-    /// at the end. Both halves are filled in before it opens — a bare cursor
-    /// beside two icons said nothing about what to type (Anton, 2026-08-28).
+    /// lenient H:MM:SS / H:MM / MM parse the row's own total edit uses. One
+    /// line's editor: WHEN it started (a day menu and the hour:minute pair the
+    /// reminder row already uses) and HOW LONG it ran, with the commit pair at
+    /// the end. Both halves are filled in before it opens — a bare cursor
+    /// beside two icons said nothing about what to type.
     private func entryEditor(allowsMoment: Bool,
                              commit: @escaping (TimeInterval, Date) -> Void) -> some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -687,9 +685,8 @@ struct TrackerView: View {
                     // Day, month and year in the order this locale writes them,
                     // then the clock — each a LIST, not a typed number. Typing
                     // left no way back out of a half-entered year, and a bare
-                    // "08" says nothing about which month it is (Anton,
-                    // 2026-08-28). The day list only offers days the chosen
-                    // month has.
+                    // "08" says nothing about which month it is. The day list
+                    // only offers days the chosen month has.
                     ForEach(Self.dateOrder, id: \.self) { part in
                         switch part {
                         case .day: dayChip
@@ -901,7 +898,7 @@ struct TrackerView: View {
         // While the card is open the row shows the DRAFT, so typing a new name
         // changes it in both places at once. With the row showing the stored
         // name instead, the two read as two different tasks — the row said one
-        // thing while the field said another (Anton, 2026-08-28).
+        // thing while the field said another.
         Text(displayName(task))
             .font(Theme.mono(12))
             .foregroundStyle(Theme.listText)
@@ -991,9 +988,9 @@ struct TrackerView: View {
     @ViewBuilder private func totalView(_ task: TrackerTask, active: Bool,
                                         run: TimeInterval?, interactive: Bool = true) -> some View {
         // A task in the middle of a run shows THAT run, counted from zero — the
-        // stopwatch you started, not the week you have had (Anton, 2026-08-29).
-        // The period's own sum comes back the moment the ✓ closes the run, and
-        // it has been counting the run's time all along.
+        // stopwatch you started, not the week you have had. The period's own
+        // sum comes back the moment the ✓ closes the run, and it has been
+        // counting the run's time all along.
         let figure = run ?? engine.amount(taskID: task.id, period: period)
         let value = scrubbingTask == task.id ? (scrubPending ?? figure) : figure
         let label = Text(shortTime(value))
@@ -1246,7 +1243,7 @@ struct TrackerView: View {
             // Two ways to add on one line, but not two labels crowding the
             // left: the project one is pushed out to the RIGHT, onto the column
             // the times line up in, so it reads as belonging to the list rather
-            // than trailing the task button (Anton, 2026-08-28).
+            // than trailing the task button.
             HStack(spacing: 10) {
                 Button { beginNewTask() } label: {
                     addRowLabel(t(.trackerNewTask), iconSize: 10)
@@ -1329,7 +1326,7 @@ struct TrackerView: View {
         clearConfirms()
         totalDraft = ""
         // The clock on the wall, so adding a session says when it is being
-        // logged for rather than making that a guess (Anton, 2026-08-28).
+        // logged for rather than making that a guess.
         seedMoment(Date())
         activeField = .newEntry(task.id)
     }

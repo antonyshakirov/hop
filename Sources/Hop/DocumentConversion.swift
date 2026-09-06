@@ -75,10 +75,9 @@ enum DocumentConversion {
     /// ("it will get TimesNewRomanPSMT rather than the intended font") and
     /// embeds a mapping under which Cyrillic comes back wrong: a heading written
     /// in Cyrillic extracted with its "ka" turned into U+0138 (KRA), and copying
-    /// that line out of the pdf in any reader gave the same (found 2026-07-29
-    /// while adding pdf to docx). Helvetica Neue is a real, embeddable family
-    /// with a proper Cyrillic cut, so the text in the file IS the text that went
-    /// in. Latin was fine throughout, which is why this survived so long.
+    /// that line out of the pdf in any reader gives the same. Helvetica Neue is
+    /// a real, embeddable family with a proper Cyrillic cut, so the text in the
+    /// file IS the text that went in. Latin is unaffected either way.
     nonisolated static func bodyFont(_ size: CGFloat, bold: Bool = false) -> NSFont {
         let name = bold ? "HelveticaNeue-Bold" : "HelveticaNeue"
         return NSFont(name: name, size: size)
@@ -363,9 +362,8 @@ enum DocumentConversion {
     }
 
     /// Whether the WHOLE paragraph is fixed-pitch, which is what makes it a code
-    /// block. Reading the first run alone turned any paragraph that merely began
-    /// with an inline `snippet` into a fenced block on the way back out of Word
-    /// (found 2026-07-29).
+    /// block. Reading the first run alone turns any paragraph that merely begins
+    /// with an inline `snippet` into a fenced block on the way back out of Word.
     private nonisolated static func isAllFixedPitch(
         _ attributed: NSAttributedString, range: NSRange
     ) -> Bool {

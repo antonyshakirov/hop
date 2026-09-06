@@ -285,9 +285,8 @@ final class UpdateChecker: ObservableObject {
             try? FileManager.default.removeItem(atPath: target)
             // ditto rather than copyItem: it is the tool that carries a bundle
             // across whole — extended attributes, ACLs, symlinks — and a bundle
-            // that arrives intact keeps the signature macOS ties its permissions
-            // to (Anton asked why full disk access is requested again after every
-            // update, 2026-07-30).
+            // that arrives intact keeps the signature macOS ties its
+            // permissions to.
             try run("/usr/bin/ditto", [newApp.path, target])
 
             // relaunch into the new version. A plain `open` here would only

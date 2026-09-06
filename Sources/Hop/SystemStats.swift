@@ -118,10 +118,9 @@ final class SystemStatsController: ObservableObject {
     }
 
     /// One point of the staged curve. Each metric gets a shape of its own — the
-    /// processor spikes, the graphics card wakes up twice an hour, memory drifts
-    /// up in steps and the network arrives in bursts — because one set of waves
-    /// drew four charts that looked like copies of each other (Anton,
-    /// 2026-09-05).
+    /// processor spikes, the graphics card wakes up twice an hour, memory
+    /// drifts up in steps and the network arrives in bursts — because one set
+    /// of waves drew four charts that looked like copies of each other.
     private static func append(_ out: inout History, x: Double, at t: Date) {
         let burst = pow(max(0, sin(x / 97 + 0.8)), 3)          // work, then quiet
         let jitter = sin(x / 11 + 0.3) * 0.5 + sin(x / 4.3) * 0.5

@@ -68,10 +68,10 @@ struct PermissionsView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.top, large ? 6 : 0)
-            // The closing statement, deliberately the loudest thing on the page:
-            // a list of permissions reads as a list of risks unless somebody
-            // says plainly what they are FOR and what is not happening. And it
-            // ends with the receipt — the source is open (Anton, 2026-07-26).
+            // The closing statement, deliberately the loudest thing on the
+            // page: a list of permissions reads as a list of risks unless
+            // somebody says plainly what they are FOR and what is not
+            // happening. And it ends with the receipt — the source is open.
             if showsPledge {
             VStack(alignment: .leading, spacing: 7) {
                 Text(L10n.t(.permPledgeTitle, lang))
@@ -203,8 +203,7 @@ struct PermissionsView: View {
     /// and a row without one hold their icon at the same place.
     private func row(_ item: Item) -> some View {
         // The state sits in a column of its own rather than above the text: a
-        // description that runs on under "asked when used" reads as one line
-        // (Anton, 2026-09-05).
+        // description that runs on under "asked when used" reads as one line.
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: item.symbol)
                 .font(.system(size: symbolSize))

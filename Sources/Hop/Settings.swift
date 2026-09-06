@@ -77,8 +77,7 @@ enum SettingsKey {
     /// The same one-shot, PER RELEASE. The original key was claimed back in
     /// 1.5.0, so a later release's new module would never be swept into the
     /// inactive bucket and would simply appear in everyone's panel — which is
-    /// exactly what the sweep exists to prevent (Anton, 2026-07-25: nothing
-    /// appears that was not ticked).
+    /// exactly what the sweep exists to prevent.
     static let optInModulesSeeded170 = "optInModulesSeeded170"
     /// One-shot flag: decoded legacy models (and any state left mid-shuffled
     /// by the older per-module seeds this superseded) get their whole active
@@ -109,11 +108,11 @@ enum SettingsKey {
     /// The green dot the menu-bar icon carries while a VPN tunnel is up. ON by
     /// default. The second badge with a switch of its own: a tunnel is a state
     /// somebody else's app owns, and whether it is worth a mark is the user's
-    /// call, not ours (Anton, 2026-07-29).
+    /// call, not ours.
     static let vpnMenuBarMark = "vpnMenuBarMark"
     /// Whether switching a VPN off also takes it out of the network set, so its
     /// own on-demand rules cannot bring it back. ON by default: a switch that
-    /// does not switch anything off is not a switch (Anton, 2026-07-30).
+    /// does not switch anything off is not a switch.
     static let vpnHoldOff = "vpnHoldOff"
     /// The converter, the archives and the uninstaller drawn as ONE row instead of
     /// three. They are the same shape of thing — a row that opens a window and

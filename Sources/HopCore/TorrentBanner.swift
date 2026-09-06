@@ -1,8 +1,8 @@
 /// What a torrent's banner says. A finished torrent used to post a banner with
 /// its own title and NO body, and the notification helper filled the gap with
-/// its default — the timer's "the timer has finished" (Anton, 2026-07-26). The
-/// message is a value here so that no banner can inherit another module's words
-/// again: there is nothing to leave unset.
+/// its default — the timer's "the timer has finished". The message is a value
+/// here so that no banner can inherit another module's words again: there is
+/// nothing to leave unset.
 public enum TorrentBanner: Equatable {
     /// The payload is complete and the torrent keeps sharing it.
     case downloadedSeeding(bytes: Int64)

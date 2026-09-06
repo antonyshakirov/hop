@@ -4,10 +4,10 @@ import Foundation
 ///
 /// The system's export presets only offer "highest quality", which on ordinary
 /// footage re-encodes to roughly the size it started at — the converter looked
-/// like it was doing nothing because, size-wise, it very nearly was (Anton,
-/// 2026-08-04). Deciding the bitrate ourselves gives the user a dial AND makes
-/// the forecast arithmetic rather than a trial encode: bitrate times duration
-/// IS the file size, to within a couple of percent.
+/// like it was doing nothing because, size-wise, it very nearly was. Deciding
+/// the bitrate ourselves gives the user a dial AND makes the forecast
+/// arithmetic rather than a trial encode: bitrate times duration IS the file
+/// size, to within a couple of percent.
 public enum VideoBitrate {
     public enum Codec: String, CaseIterable, Sendable {
         case h264

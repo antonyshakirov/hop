@@ -66,8 +66,7 @@ final class AccessibilityWatch: ObservableObject {
     }
 
     /// Nothing is explained here. macOS is already asking with its own dialog,
-    /// and a panel that lectures on top of that is one surface too many
-    /// (Anton, 2026-09-02).
+    /// and a panel that lectures on top of that is one surface too many.
     func reportBlocked(notify: Bool = true) {
         if !featureWasBlocked { featureWasBlocked = true }
         refresh()

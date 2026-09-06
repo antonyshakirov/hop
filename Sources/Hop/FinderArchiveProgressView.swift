@@ -117,7 +117,7 @@ struct FinderArchiveProgressView: View {
             } else {
                 // The inset lives INSIDE the scroll, so the bar runs down the
                 // window rather than across the rows — the same fix the
-                // uninstaller's lists needed (Anton, 2026-07-30).
+                // uninstaller's lists needed.
                 ScrollView(.vertical) {
                     rows.padding(.horizontal, 20)
                 }

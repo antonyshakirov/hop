@@ -234,15 +234,15 @@ struct ClipboardView: View {
             ZStack(alignment: .trailing) {
                 HStack(spacing: 4) {
                     // Leftmost, before copy and paste: it acts on the entry
-                    // rather than on the pasteboard, and only a text entry has a
-                    // document in it — an image or a copied file has nothing to
-                    // write (Anton, 2026-07-29).
+                    // rather than on the pasteboard, and only a text entry has
+                    // a document in it — an image or a copied file has nothing
+                    // to write.
                     if saveToFile, item.imageFile == nil, item.filePaths == nil {
-                        // The written file is somewhere else on disk, so the row
-                        // is the only place that can say it happened: the icon
-                        // becomes a green tick and comes back a few seconds
-                        // later (Anton, 2026-07-29). A cancelled save panel
-                        // returns nothing and the tick never appears.
+                        // The written file is somewhere else on disk, so the
+                        // row is the only place that can say it happened: the
+                        // icon becomes a green tick and comes back a few
+                        // seconds later. A cancelled save panel returns nothing
+                        // and the tick never appears.
                         if savedId == item.id {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 11, weight: .bold))

@@ -151,7 +151,7 @@ final class TodosController: ObservableObject {
     /// Fires exactly when the next reminder is due, instead of waiting for the
     /// next sweep. The sweep alone meant a reminder could land up to 15 seconds
     /// late — the banner arrived, the blue dot and the sound followed a while
-    /// after, which read as two unrelated events (Anton, 2026-07-28).
+    /// after, which read as two unrelated events.
     private var nextFiringTimer: Timer?
 
     private func scheduleNextFiring() {

@@ -117,14 +117,10 @@ struct PanelView: View {
     @State private var hoveredChip: String?             // chip under the pointer (shows its ✕)
     // non-nil while the icon picker grid is open for that tab column
     @State private var iconPickerTabID: UUID?
-    // which tab column header is hovered — its delete xmark shows only then
-    // (same reveal-on-hover pattern as the tracker/torrent row deletes)
+    // which tab column header is hovered: its delete xmark shows only then
     @AppStorage("cycleTemplates") private var cycleTemplatesRaw = "25/5x4,52/17x3,90/15x2"
     @AppStorage("showPresetsRow") private var showPresetsRow = true
     @AppStorage("showCyclesRow") private var showCyclesRow = true
-    // Per-module visibility is membership now (the inactive bucket in the tabs
-    // model), not `show*Module` toggles — those legacy keys are read once by
-    // `migrateModuleVisibility` and never again.
     @AppStorage(FileConverter.formatKey) private var convFormat = "jpeg"
     @AppStorage(FileConverter.scaleKey) private var convScale = 1.0
     @AppStorage(FileConverter.qualityKey) private var convQuality = 55
@@ -162,9 +158,8 @@ struct PanelView: View {
     // stored as `Date.timeIntervalSinceReferenceDate` (0 = none acknowledged).
     // Tied to the open interval's START, so a new run is a fresh episode.
     @AppStorage("trackerOverrunAckStart") private var trackerOverrunAckStart = 0.0
-    // speedtest was never in this default string either — it appends
-    // via allModules; torrent stays last (opt-in), same mechanism, listed here
-    // for an explicit new-user order.
+    // torrent and speedtest are appended by `allModules` rather than listed
+    // here; torrent stays last because it ships off.
     @AppStorage("moduleOrder") private var moduleOrderRaw = PanelView.defaultModuleOrder
     @AppStorage(SettingsKey.panelTabs) private var panelTabsRaw = ""
     // Last space the user viewed; restored on the next open (mirrors initialTab).
@@ -179,8 +174,8 @@ struct PanelView: View {
     // derive from it, not from the dot font — scrubbing is uniform across styles
     @State private var displayMeasuredWidth: CGFloat = 0
     // Fixed chrome (banner + header) height and the scrollable content's natural
-    // height, measured separately (task 8.16) so the header can live OUTSIDE the
-    // scroll while the panel still clamps its total height to the screen. Their
+    // height, measured separately so the header can live OUTSIDE the scroll
+    // while the panel still clamps its total height to the screen. Their
     // sum is the full natural panel height; only the content feeds the flexing
     // scroll frame — the chrome never moves.
     @State private var chromeHeight: CGFloat = 0
@@ -220,7 +215,7 @@ struct PanelView: View {
     init(initial: InitialScreen = .restore, standaloneSettings: Bool = false,
          previewModules: [String] = []) {
         // The panel content view is built once at launch, so this resolves the
-        // restored space from UserDefaults directly — as `initialTab` did.
+        // restored space from UserDefaults directly.
         _screen = State(initialValue: Self.resolve(initial))
         self.standaloneSettings = standaloneSettings
         self.previewModules = previewModules
@@ -266,9 +261,8 @@ struct PanelView: View {
                 .id(model.themeVersion)
         } else if standaloneSettings {
             settingsScreen
-                // a theme change must rebuild ALL child views:
-                // LanguagePicker and others get unchanged inputs, so SwiftUI
-                // skips them — text stayed white in the light theme
+                // a theme change must rebuild ALL child views: LanguagePicker
+                // and others get unchanged inputs, so SwiftUI skips them
                 .id(model.themeVersion)
                 // a snapshot has no window to be sized by, so it takes the
                 // window's own width and reports its natural height
@@ -292,22 +286,20 @@ struct PanelView: View {
     }
 
     private var panelBody: some View {
-        // Structural anti-jump (task 8.16). The fixed chrome (banner + header)
-        // is a SIBLING of the scroll region, pinned to the top of the panel;
-        // ONLY the active space's module stack scrolls. Earlier fixes top-aligned
-        // the shared height frame, but the header still sat INSIDE the single
-        // ScrollView, so any scroll offset or the one-runloop height trail during
-        // a space switch dragged it along with the content. Out of the scroll,
-        // the header cannot move — the scroll region absorbs every height change
-        // at its bottom edge. All the panel-wide plumbing (click-outside, key
-        // capture, keyboard-capture sync, disappear cleanup) lives here so it
-        // still covers both the chrome and the content.
+        // The fixed chrome (banner + header) is a SIBLING of the scroll region,
+        // pinned to the top of the panel; ONLY the active space's module stack
+        // scrolls. A header inside the ScrollView moves with any scroll offset
+        // and with the one-runloop height trail of a space switch; out of it,
+        // the scroll region absorbs every height change at its bottom edge.
+        // All the panel-wide plumbing (click-outside, key capture,
+        // keyboard-capture sync, disappear cleanup) lives here so it covers
+        // both the chrome and the content.
         VStack(spacing: 0) {
             chrome
                 .background(chromeHeightReader)
-                // dev-only (task 8.18): log the fixed chrome's global minY on
-                // every layout change so one user reproduction says numerically
-                // whether the header top is now identical across spaces
+                // dev-only: logs the fixed chrome's global minY on every layout
+                // change, so one reproduction says numerically whether the
+                // header top is identical across spaces
                 .background(chromeFrameLogReader)
             panelScrollRegion
         }
@@ -371,8 +363,7 @@ struct PanelView: View {
         /// switch (documents inside the converter).
         var footnote: L10nKey?
         /// The card lists its modules with a switch each and a save button, so
-        /// nothing appears in the panel that the user did not tick (Anton,
-        /// 2026-07-25). Without it the card is a single yes/no pitch.
+        /// nothing appears in the panel that the user did not tick.
         var checklist = false
     }
     // New features are appended here as the app gains them; each shows a one-time
@@ -389,10 +380,9 @@ struct PanelView: View {
         .init(id: "modules160", moduleKeys: ["vpn", Self.appsChoice],
               title: .featureModulesTitle, body: .featureModulesBody,
               checklist: true),
-        // 1.7.0: the uninstaller. Offered rather than switched on — somebody who
-        // updated did not ask for a new row in their panel (Anton, 2026-07-25).
-        // A fresh install never sees this card: onboarding marks every
-        // announcement seen, having just asked the same question by name.
+        // 1.7.0: the uninstaller, offered rather than switched on. A fresh
+        // install never sees this card: onboarding marks every announcement
+        // seen, having just asked the same question by name.
         .init(id: "modules170", moduleKeys: ["uninstall"],
               title: .featureModulesTitle, body: .featureModulesBody,
               checklist: true),
@@ -404,11 +394,7 @@ struct PanelView: View {
 
     // MARK: - Release cards ("what's new in this version")
 
-    /// What a release brought, in a line per thing (Anton, 2026-08-30). The
-    /// announcement above it asks whether to switch new MODULES on, so a release
-    /// that only deepened the modules already there — projects and history in the
-    /// tracker, platform presets in the converter, mkv and webm — told nobody
-    /// anything, and its notes sat in the help behind a tab nobody opens.
+    /// What a release brought, in a line per thing.
     ///
     /// A card is WRITTEN per release rather than derived from the version, which
     /// is what makes "only the second number earns a card" true without a rule in
@@ -483,8 +469,8 @@ struct PanelView: View {
                         .font(Theme.mono(11, weight: .semibold))
                         .foregroundStyle(Theme.accentGreen)
                     Text("·").foregroundStyle(Theme.textTertiary)
-                    // The version is not translated and never will be, so it is a
-                    // literal rather than a string table entry.
+                    // The version is not translated, so it is a literal rather
+                    // than a string table entry.
                     Text("Hop \(card.id)")
                         .font(Theme.mono(11, weight: .semibold))
                         .foregroundStyle(Theme.textPrimary)
@@ -542,9 +528,7 @@ struct PanelView: View {
     }
 
     /// Starts the card's two-day clock on the opening that actually drew it, and
-    /// retires whatever older cards this one overtook — somebody who skipped a
-    /// release wants to know where the app stands, not to dismiss its history one
-    /// card at a time.
+    /// retires whatever older cards this one overtook.
     private func releaseCardAppeared(_ card: ReleaseCard) {
         guard !Snapshot.active else { return }
         let defaults = UserDefaults.standard
@@ -578,9 +562,9 @@ struct PanelView: View {
         news110Seen = UserDefaults.standard.bool(forKey: Self.newsSeenKey("1.10"))
     }
 
-    /// The full notes for the release, which are already written and already
-    /// translated — the card is a summary of what the updates page carries. A
-    /// card whose release asks something of the user goes where that is done.
+    /// The full notes for the release; the card is a summary of what the updates
+    /// page carries. A card whose release asks something of the user goes where
+    /// that is done instead.
     private func openReleaseNotes(_ card: ReleaseCard) {
         markReleaseSeen(card)
         model.settingsSectionRequest = card.destination.id
@@ -613,8 +597,8 @@ struct PanelView: View {
         }
         // Nothing is announced until the wizard has been through: it asks the
         // same questions by name, and a card over the panel while it is still
-        // open offers a module the person is about to be offered anyway
-        // (Anton, 2026-09-06). SPEC: docs/spec.md — "Onboarding".
+        // open offers a module the person is about to be offered anyway.
+        // SPEC: docs/spec.md - "Onboarding".
         guard UserDefaults.standard.bool(forKey: "onboardingDone") else { return nil }
         // The @AppStorage flags are read here so SwiftUI re-renders when one
         // flips; the lookup itself goes through UserDefaults by id.
@@ -624,9 +608,9 @@ struct PanelView: View {
         }
     }
 
-    /// Two-step announcement (Anton, 2026-07-18). Updaters got the module OFF and
-    /// need a real opt-in, not just a visibility toggle:
-    ///  step 1 — "new · torrents" + description + the honest cost ("enabling
+    /// Two-step announcement, because the module ships off and needs a real
+    /// opt-in rather than a visibility toggle:
+    ///  step 1 - "new · torrents" + description + the honest cost ("enabling
     ///           downloads the engine, ~26 MB") with [enable] / [hide];
     ///  step 2 — enable starts the background engine fetch and the SAME card
     ///           swaps to the follow-up settings: show-when-empty and
@@ -634,8 +618,7 @@ struct PanelView: View {
     @ViewBuilder private var featureBanner: some View {
         if let ann = pendingAnnouncement {
             VStack(alignment: .leading, spacing: 0) {
-                // "new · <feature>" in ONE type size — the badge used to be two
-                // points smaller and read as detached from the feature name.
+                // "new · <feature>" in ONE type size
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles")
                         .font(.system(size: 11))
@@ -666,9 +649,9 @@ struct PanelView: View {
     }
 
     /// A release that brought several modules: each one gets a switch, all of
-    /// them start OFF, and only what the user ticks is placed in the panel —
-    /// nothing shows up on its own (Anton, 2026-07-25). Saving puts the ticked
-    /// ones on the FIRST space, whichever space happens to be open.
+    /// them start OFF, and only what the user ticks is placed in the panel.
+    /// Saving puts the ticked ones on the FIRST space, whichever space happens
+    /// to be open.
     @ViewBuilder private func bannerChecklist(_ ann: FeatureAnnouncement) -> some View {
         Text(t(ann.body))
             .font(Theme.mono(10))
@@ -687,8 +670,8 @@ struct PanelView: View {
                             .font(Theme.mono(10))
                             .foregroundStyle(Theme.textPrimary)
                             .lineLimit(1)
-                        // what a module actually covers, where the name alone
-                        // leaves it open (Anton, 2026-07-25)
+                        // what a module covers, where the name alone leaves it
+                        // open
                         if let detail = moduleDetail(key) {
                             Text(t(detail))
                                 .font(Theme.mono(8.5))
@@ -701,10 +684,9 @@ struct PanelView: View {
                         get: { bannerChoices[key] ?? false },
                         set: { bannerChoices[key] = $0 }))
                 }
-                // Archives carry a second decision worth making right here:
-                // whether a double-clicked archive should open through Hop. It is
-                // independent of showing the module, so it is offered even when
-                // the module stays hidden (Anton, 2026-07-25).
+                // Archives carry a second decision: whether a double-clicked
+                // archive opens through Hop. It is independent of showing the
+                // module, so it is offered even when the module stays hidden.
                 if key == "archive" {
                     HStack(spacing: 8) {
                         Text(t(.archiveMakeDefault))
@@ -830,10 +812,10 @@ struct PanelView: View {
             .buttonStyle(.plain)
             .help(t(.featureHide))
             Button {
-                // Always the FIRST space (Anton, 2026-07-25): whichever tab the
-                // user happens to be on, an enabled module appears in the same
-                // predictable place. Showing it also fetches the torrent engine
-                // now, so the first real download doesn't stall behind an install.
+                // Always the FIRST space: whichever tab the user happens to be
+                // on, an enabled module appears in the same place. Showing it
+                // also fetches the torrent engine now, so the first download
+                // doesn't stall behind an install.
                 let destination = tabsModel.tabs[0].id
                 for key in ann.moduleKeys {
                     placeModule(key, onTab: destination)
@@ -938,8 +920,8 @@ struct PanelView: View {
 
     /// One line, and it leaves on its own. macOS is already asking with its own
     /// dialog, so the panel's whole job here is to leave a mark saying what just
-    /// did not happen (Anton, 2026-09-02).
-    /// SPEC: docs/spec.md — "A permission that goes missing says so".
+    /// did not happen.
+    /// SPEC: docs/spec.md - "A permission that goes missing says so".
     @ViewBuilder private var permissionBanner: some View {
         if permissions.showsBanner {
             HStack(spacing: 6) {
@@ -1140,7 +1122,7 @@ struct PanelView: View {
         }
     }
 
-    /// Dev-only (task 8.18): the fixed chrome's top edge in global coordinates.
+    /// Dev-only: the fixed chrome's top edge in global coordinates.
     /// Appends to the SAME panel-frames.log the window-frame observers use
     /// (`debugPanelFrameLog` flag), tagged `chromeY`, alongside the active space
     /// key — so a space-switch reproduction shows, on one timeline, whether the
@@ -1164,11 +1146,11 @@ struct PanelView: View {
     private var contentHeightReader: some View {
         GeometryReader { geo in
             Color.clear
-                // IMPORTANT: mutate state OUTSIDE the current layout pass —
-                // assigning directly from GeometryReader flips the branch during
+                // IMPORTANT: mutate state OUTSIDE the current layout pass.
+                // Assigning directly from GeometryReader flips the branch during
                 // AppKit's layout cycle, NSHostingView throws an NSException and
-                // the app crashes (the historical "timer tab" crash). Async +
-                // a 1pt hysteresis in the update helpers keep it off the pass.
+                // the app crashes. Async + a 1pt hysteresis in the update
+                // helpers keep it off the pass.
                 .onAppear { updateContentHeight(geo.size.height) }
                 .onChange(of: geo.size.height) { _, h in updateContentHeight(h) }
         }
@@ -1248,8 +1230,8 @@ struct PanelView: View {
             editUnit = nil
             return .handled
         case .return:
-            // Return ends digit entry (like Esc) — it must NOT start the timer,
-            // which starts/stops ONLY via its play button (Anton, 2026-07-19).
+            // Return ends digit entry (like Esc) and must NOT start the timer,
+            // which starts/stops ONLY via its play button.
             // Without this, Return would fall through to `.ignored` while
             // `editUnit` keeps the keyboard captured, so the capture would never
             // release. Matches "capture ends on Esc/Enter" in the spec.
@@ -1259,8 +1241,8 @@ struct PanelView: View {
             }
             return .ignored
         default:
-            // Return/Space no longer toggle the timer (Anton, 2026-07-19):
-            // the timer starts/stops ONLY via its on-screen play button.
+            // Return/Space do not toggle the timer: it starts and stops ONLY
+            // via its on-screen play button.
             return .ignored
         }
     }
@@ -1285,10 +1267,8 @@ struct PanelView: View {
     /// and both layouts (full and compact module row); small is roughly
     /// half of large, so the difference is immediately visible.
     private var digitsLarge: Bool { digitsSize != "small" }
-    // +25% per Anton's request; the dots hit the panel width limit:
-    // 39 columns × 8.6 ≈ 335 of ~340 available
-    // large dots are at the panel width ceiling (39 columns × 8.6 ≈ 335),
-    // no room to grow; text and units styles got another +25%
+    // large dots sit at the panel's width ceiling: 39 columns × 8.6 ≈ 335 of
+    // the ~340 available, so there is no room to grow
     private var dotCellFull: CGFloat { digitsLarge ? 8.6 : 5.6 }
     private var textSizeFull: CGFloat { digitsLarge ? 62 : 33 }
     private var unitsSizeFull: CGFloat { digitsLarge ? 52 : 29 }
@@ -1395,11 +1375,11 @@ struct PanelView: View {
 
     /// Measured-geometry updates run async and with hysteresis, to never mutate
     /// state inside a layout pass (NSHostingView crash). Chrome and the scrollable
-    /// content are measured separately (task 8.16): their sum is the panel's full
+    /// content are measured separately: their sum is the panel's full
     /// natural height, but only the content's height feeds the flexing scroll
     /// frame while the chrome stays fixed above it.
     ///
-    /// Both are rounded UP to whole points (task 8.18). The window size is a
+    /// Both are rounded UP to whole points. The window size is a
     /// ceil of the natural panel height (IntegralSizeHostingController), so a
     /// FRACTIONAL scroll-frame height left the composed panel (chrome + content)
     /// a sub-point shorter than its own ceil'd window. Different spaces have
@@ -1461,7 +1441,7 @@ struct PanelView: View {
     }
 
     /// Every icon in the header carries its name on hover: an icon alone is a
-    /// guess, and the panel is full of them (Anton, 2026-07-29).
+    /// guess, and the panel is full of them.
     private func headerIcon(_ symbol: String, help: String = "",
                             action: @escaping () -> Void) -> some View {
         Button(action: action) {
@@ -1476,9 +1456,8 @@ struct PanelView: View {
         .help(help)
     }
 
-    // Tab button geometry. Width is doubled from 32 for a comfortable hit target;
-    // at maxTabs (4): 4×56 + inner gaps + the 3-icon service trio still fit the
-    // 340pt header content (see report arithmetic).
+    // Tab button geometry. At maxTabs (4): 4×56 + inner gaps + the 3-icon
+    // service trio still fit the 340pt header content.
     private static let tabButtonWidth: CGFloat = 56
     private static let tabSpacing: CGFloat = 2
 
@@ -1683,7 +1662,7 @@ struct PanelView: View {
             // chips carrying a ✕. It sits LEFT of the eye and its slot is
             // reserved whether or not the chip is hovered: the eye then keeps
             // the same trailing position on every chip, deletable or not, and
-            // the chip never resizes under the pointer (Anton, 2026-09-02).
+            // the chip never resizes under the pointer.
             if let shelf {
                 ZStack {
                     if hoveredChip == key, dragChip == nil {
@@ -1731,11 +1710,8 @@ struct PanelView: View {
         Button {
             mutateTabs { $0.addTab(icon: firstUnusedIcon) }
         } label: {
-            // A compact square tile aligned to the TOP of its slot — the HStack
-            // top-aligns, so no stretch is needed (Anton disliked the old
-            // full-height dashed column). REVERT to full-height: replace the
-            // `.frame(width: 30, height: 30)` line with
-            // `.frame(width: 30).frame(maxHeight: .infinity, alignment: .top).padding(6)`.
+            // A compact square tile aligned to the TOP of its slot: the HStack
+            // top-aligns, so no stretch is needed.
             Image(systemName: "plus")
                 .font(.system(size: 13))
                 .foregroundStyle(Theme.textTertiary)
@@ -1914,9 +1890,9 @@ struct PanelView: View {
     /// Delete confirmation for a tab column, drawn as an overlay ON the table: a
     /// dimmed scrim + a centered card (the house-style question + cancel/delete).
     /// An overlay rather than a bar below the table keeps the columns from
-    /// reflowing; a scrim tap or Escape cancels. Button order is the macOS one —
+    /// reflowing; a scrim tap or Escape cancels. Button order is the macOS one:
     /// the action the sheet is about sits on the TRAILING edge with cancel to its
-    /// leading side, everywhere in the app (Anton, 2026-09-02).
+    /// leading side, everywhere in the app.
     private func deleteTabConfirmOverlay(_ id: UUID) -> some View {
         ZStack {
             Theme.background.opacity(0.88)
@@ -2386,8 +2362,8 @@ struct PanelView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        // the time it goes back to, which is the set duration however it was set
-        // — a preset, a drag, or typed in (Anton, 2026-07-30)
+        // the time it goes back to, which is the set duration however it was
+        // set: a preset, a drag, or typed in
         .help(t(.tipResetTo).replacingOccurrences(
             of: "{n}", with: TimeFormatting.display(model.engine.duration)))
     }
@@ -2425,9 +2401,8 @@ struct PanelView: View {
             })
             .simultaneousGesture(scrubGesture(cell: dotCellFull))
             .modifier(DigitPointerTracking(changed: digitPointer))
-            // how the digits are edited, plus what they say right now — a
-            // custom time set by drag or keyboard has to read as clearly as a
-            // preset does (Anton, 2026-07-30)
+            // how the digits are edited, plus what they say right now: a custom
+            // time set by drag or keyboard has to read as clearly as a preset
             .help(t(.tipDigits).replacingOccurrences(
                 of: "{n}", with: TimeFormatting.display(model.engine.isStopwatch
                                                         ? model.engine.elapsed
@@ -2553,9 +2528,9 @@ struct PanelView: View {
                 ModuleMarkIcon(symbol: "doc.zipper",
                                color: dropTargeted ? Theme.editing : Theme.textSecondary)
                 // "file converter", not just "converter": next to "file
-                // archives" the bare word left people guessing (Anton,
-                // 2026-07-26). lineLimit keeps the card exactly as tall as the
-                // archive one — an unclamped label reports a taller line box.
+                // archives" the bare word leaves people guessing. lineLimit
+                // keeps the card exactly as tall as the archive one, since an
+                // unclamped label reports a taller line box.
                 Text(t(.convertLabel))
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
@@ -2601,16 +2576,15 @@ struct PanelView: View {
     static let defaultModuleOrder = "timer,awake,clipboard,vpn,keyboard,ocr,convert,windows,speedtest,torrent,color,archive"
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
-    /// developers) and must be a deliberate opt-in — an ordinary user should not
-    /// find them cluttering the panel after an update. Torrent predates this list
-    /// and is still handled by its legacy toggle below.
+    /// developers) and must be a deliberate opt-in: an ordinary user should not
+    /// find them cluttering the panel after an update. Torrent is not here, it
+    /// is handled by its own toggle below.
     private static let optInModules = ["color", "ocr", "vpn"]
 
     /// Modules INTRODUCED in this release. For someone updating, all of them
-    /// start hidden and are offered by the what's-new card — nothing appears in
-    /// the panel that was not ticked there (Anton, 2026-07-25). A fresh install
-    /// is a different story: it has no expectations to violate, so only the
-    /// `optInModules` above stay hidden there.
+    /// start hidden and are offered by the what's-new card, so nothing appears
+    /// in the panel that was not ticked there. A fresh install has no
+    /// expectations to violate, so only the `optInModules` above stay hidden.
     private static let newInThisRelease = ["uninstall"]
 
     private var moduleOrder: [String] {
@@ -2804,31 +2778,21 @@ struct PanelView: View {
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 
-    /// One-shot canonical layout repair for decoded legacy models — including
-    /// any state left mid-shuffled by the OLD per-module seeds this replaces
-    /// (`seedSystemTab`, `seedTrackerTab`, `seedTodos`; each nudged ONE module
-    /// without ever looking at the whole board, which is exactly how a real
-    /// state went wrong: a second tab that already held the tracker got
-    /// "system" stacked onto it instead of a "display" tab of its own).
-    /// Rather than resume patching individual modules into place, this
-    /// rebuilds the ENTIRE active layout in one shot, converging on the same
-    /// shape a fresh install gets:
+    /// One-shot layout repair for decoded legacy models. Rather than nudge one
+    /// module at a time, it rebuilds the ENTIRE active layout in one pass,
+    /// converging on the shape a fresh install gets:
     ///   - tab 1: every other active module, in the order first encountered
     ///     scanning the existing tabs front to back, keeping tab 1's current
     ///     icon
-    ///   - tab 2: "system" alone (icon "display") — only if system is active
-    ///   - tab 3: "tracker" then "todos" (icon "clock") — only whichever of
-    ///     the two are active
-    /// `inactive` is left completely untouched: the user's hidden choices
-    /// stay hidden exactly where they left them — this only rearranges what
-    /// is ON a tab. Any tab beyond these three (a user's own extra space)
-    /// dissolves; its active modules were already folded into tab 1 above, so
-    /// nothing is lost, just re-homed. This SUPERSEDES `trackerTabSeeded`/
-    /// `todosSeeded`: `canonicalLayoutSeeded` is a brand-new flag, false for
-    /// every decoded state (even ones where those two already fired), so it
-    /// runs exactly once for everybody and claims all three flags together —
-    /// there is no leftover call path that could still nudge a single module
-    /// after the board has already been canonicalized.
+    ///   - tab 2: "system" alone (icon "display"), only if system is active
+    ///   - tab 3: "tracker" then "todos" (icon "clock"), only whichever of the
+    ///     two are active
+    /// `inactive` is left untouched: hidden modules stay hidden exactly where
+    /// they were left, and this only rearranges what is ON a tab. Any tab beyond
+    /// these three dissolves, its active modules having been folded into tab 1.
+    /// `canonicalLayoutSeeded` is false for every decoded state, so this runs
+    /// once for everybody and claims `trackerTabSeeded` and `todosSeeded` with
+    /// it, leaving no path that could still nudge a single module afterwards.
     private static func seedCanonicalLayout(_ model: inout PanelTabsModel) {
         let defaults = UserDefaults.standard
         guard !defaults.bool(forKey: SettingsKey.canonicalLayoutSeeded) else { return }
@@ -2858,9 +2822,8 @@ struct PanelView: View {
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 
-    /// The tabs model read straight from UserDefaults — usable from `init`,
-    /// before the @AppStorage wrappers are readable. The panel content view is
-    /// built once at launch, so this matches how `initialTab` resolved before.
+    /// The tabs model read straight from UserDefaults, usable from `init` before
+    /// the @AppStorage wrappers are readable.
     private static func storedTabsModel() -> PanelTabsModel {
         let defaults = UserDefaults.standard
         let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
@@ -2903,10 +2866,9 @@ struct PanelView: View {
         HotkeyManager.shared.refreshModuleHotkeys()
     }
 
-    /// The three window modules, in the order the row shows them.
-    /// The uninstaller is NOT here. Its row is already two buttons — remove an
-    /// app, clear the cache — so folding it into a one-word row would either
-    /// lose one of them or put four things where three fit (Anton, 2026-07-30).
+    /// The three window modules, in the order the row shows them. The
+    /// uninstaller is NOT here: its row is already two buttons, remove an app
+    /// and clear the cache, and a one-word row holds one of them at most.
     private static let toolModules = ["convert", "archive"]
     /// The synthetic key the collapsed row is rendered under. Never stored: it
     /// exists only for one draw, so the spaces model keeps holding the real three
@@ -3175,14 +3137,10 @@ struct PanelView: View {
             }
     }
 
-    /// Clock first, templates under it.
-    ///
-    /// The presets used to sit ABOVE the display and the mode toggle travelled
-    /// with them, so switching to the stopwatch — which has no presets — pulled
-    /// the clock, the play button and the toggle upward all at once (Anton,
-    /// 2026-07-29). Now the clock row never moves: the toggle is always at its
-    /// trailing edge, and the templates appear and disappear BELOW, where
-    /// nothing above them can shift.
+    /// Clock first, templates under it. The clock row never moves: the mode
+    /// toggle is always at its trailing edge, and the templates appear and
+    /// disappear BELOW, where nothing above them can shift. The stopwatch has
+    /// no templates, and switching to it must not pull the clock upward.
     private var timerModule: some View {
         VStack(spacing: 16) {
             if timerCompact {
@@ -3234,9 +3192,8 @@ struct PanelView: View {
                     ProgressView()
                         .controlSize(.small)
                 } else if let last = speed.last {
-                    // stale (30+ min or a different network) — barely visible.
-                    // RPM right in the row: responsiveness under load,
-                    // hiding it in a tooltip felt dishonest
+                    // stale (30+ min or a different network): barely visible.
+                    // RPM sits in the row itself, not in a tooltip
                     Text("\(speedPairText(down: last.down, up: last.up)) · \(last.rpm) RPM")
                         .font(Theme.mono(10))
                         // an old measurement stays readable but clearly "faded"
@@ -3307,9 +3264,9 @@ struct PanelView: View {
     // MARK: - Window manager
 
     private var windowSnapRow: some View {
-        // Approved 2026-07-13: the short layout is one row of 8,
-        // the full one is TWO rows of 8. Rows must be exactly equal length,
-        // otherwise Spacers stretch the shorter row and columns drift.
+        // The short layout is one row of 8, the full one is TWO rows of 8.
+        // Rows must be exactly equal length, otherwise Spacers stretch the
+        // shorter row and the columns drift.
         let essentials: [WindowSnapController.Position] =
             [.leftHalf, .rightHalf, .topHalf, .bottomHalf, .center, .maximize]
         return Group {
@@ -3550,9 +3507,8 @@ struct PanelView: View {
         }
     }
 
-    /// Side-view laptop per Anton's reference (2026-07-13): the screen tilted
-    /// left of vertical, the base extending right of the hinge, inside — an arc
-    /// arrow falling down toward the base (lid-closing gesture).
+    /// Side-view laptop: the screen tilted left of vertical, the base extending
+    /// right of the hinge, and inside an arc arrow falling towards the base.
     private func lidGlyph(closed: Bool, color: Color) -> some View {
         Canvas { ctx, size in
             let w = size.width
@@ -3594,7 +3550,7 @@ struct PanelView: View {
             arc.addQuadCurve(to: arcEnd, control: control)
             ctx.stroke(arc, with: .color(color),
                        style: StrokeStyle(lineWidth: 1.1, lineCap: .round))
-            // chevron arrowhead pointing down, as in the reference
+            // chevron arrowhead pointing down
             var head = Path()
             head.move(to: CGPoint(x: arcEnd.x - 2.6, y: arcEnd.y - 2.4))
             head.addLine(to: arcEnd)
@@ -3850,11 +3806,10 @@ struct PanelView: View {
         return "https://hop.tools/\(prefix)guide/?m=\(code)"
     }
 
-    /// Everyday options: theme, language, launch, sounds, updates, app icon,
-    /// hotkeys (including the window-snap hotkeys, moved in next to the rest
-    /// of the hotkey rows — Anton, 2026-07-19). Everything on the "general"
-    /// section EXCEPT the spaces/module arrangement, which is its own
-    /// top-level "modules & tabs" section.
+    /// Everyday options: theme, language, launch, sounds, updates, app icon and
+    /// hotkeys, the window-snap ones included. Everything on the "general"
+    /// section EXCEPT the spaces/module arrangement, which is its own top-level
+    /// "modules & tabs" section.
     private var generalBasics: some View {
         VStack(alignment: .leading, spacing: 10) {
             SettingsCard {
@@ -3913,9 +3868,9 @@ struct PanelView: View {
 
             SettingsRule()
             // colour the menu-bar icon's corner badges; off = monochrome, shape
-            // tells the same-corner pairs apart. The title alone said
-            // "indicators" and named nothing the user could point at, so it
-            // carries a note like the dock row does (Anton, 2026-09-02).
+            // tells the same-corner pairs apart. The title says "indicators"
+            // and names nothing to point at, so the row carries a note like the
+            // dock one does.
             VStack(alignment: .leading, spacing: 3) {
                 HStack {
                     Text(t(.coloredIndicators))
@@ -3950,10 +3905,9 @@ struct PanelView: View {
         }
     }
 
-    /// Window-manager options, relocated verbatim from "general" into the module
-    /// settings tab (Anton, 2026-07-21): the grid/row layout picker and the
-    /// "resize windows with hotkeys" toggle with its ⌃⌥ zone-key grid. Toggling
-    /// the switch re-registers the snap hotkeys (the hook rides with the block).
+    /// Window-manager options on the module settings tab: the grid/row layout
+    /// picker and the "resize windows with hotkeys" toggle with its ⌃⌥ zone-key
+    /// grid. Toggling the switch re-registers the snap hotkeys.
     private var windowsSettings: some View {
         HStack {
             Text(t(.windowsLayoutLabel))
@@ -4012,11 +3966,9 @@ struct PanelView: View {
                 }
             }
             // Chips can only move what exists, and grids of apps are the one
-            // module that comes in copies — so the table itself has to be able
-            // to make another one, however many the user wants. ABOVE the
-            // caption and drawn as a real button: under a paragraph of grey text
-            // it read as part of the paragraph and was never found (Anton,
-            // 2026-07-30).
+            // module that comes in copies, so the table itself has to be able to
+            // make another one. ABOVE the caption and drawn as a real button:
+            // under a paragraph of grey text it reads as part of the paragraph.
             Button { addShelf() } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "plus")
@@ -4140,9 +4092,9 @@ struct PanelView: View {
         }
     }
 
-    /// Keep-awake, clipboard and converter have few settings — they live as
-    /// sections on a single tab, alongside torrent. Windows moved out to
-    /// "general" (Anton, 2026-07-19): it sits next to the other hotkeys.
+    /// Keep-awake, clipboard and converter have few settings, so they live as
+    /// sections on a single tab, alongside torrent. Windows is not here: it sits
+    /// on "general", next to the other hotkeys.
     private var trackerSettings: some View {
         VStack(spacing: 14) {
             visibleRowsSetting(stored: $trackerVisibleRows)
@@ -4202,7 +4154,7 @@ struct PanelView: View {
 
     /// The eyedropper's list is a slice of the clipboard history, so it carries
     /// the same two knobs the clipboard has: how many colours to keep and how
-    /// many rows to show before scrolling (Anton, 2026-07-25).
+    /// many rows to show before scrolling.
     private var colorSettings: some View {
         VStack(spacing: 14) {
             HStack {
@@ -4325,13 +4277,8 @@ struct PanelView: View {
         }
     }
 
-    /// Register this bundle as the default handler for `.torrent` documents AND
-    /// `magnet:` links. The dev build carries its own bundle id, so it claims the
-    /// defaults for itself — the production Hop is left alone. Once Hop owns the
-    /// type, Finder shows Hop's document icon (Info.plist CFBundleTypeIconFile)
-    /// instead of the previous client's.
-    /// Whether Hop currently opens BOTH .torrent files and magnet links — read
-    /// from Launch Services, never from a flag of our own.
+    /// Whether Hop currently opens BOTH .torrent files and magnet links, read
+    /// from Launch Services and never from a flag of our own.
     static var hopOpensTorrents: Bool {
         let ours = Bundle.storageIdentifier
         let file = LSCopyDefaultRoleHandlerForContentType(
@@ -4454,11 +4401,11 @@ struct PanelView: View {
     /// Deletes a grid and forgets its module key. Hiding is not enough here: the
     /// module itself is gone, and a key left on a space would draw nothing.
     ///
-    /// The key is found by the shelf it NAMES, not by its text. `moduleKey`
+    /// The key is found by the shelf it NAMES, not by its text: `moduleKey`
     /// builds an uppercase uuid while a key stored in lowercase names the same
-    /// shelf, and matching as strings deleted the shelf but left its chip behind
-    /// as a ghost nobody could remove (Anton, 2026-07-29). The shelf itself may
-    /// already be gone — this still clears the key.
+    /// shelf, so matching as strings leaves the chip behind as a ghost nobody
+    /// can remove. The shelf itself may already be gone, and this still clears
+    /// the key.
     private func removeShelf(_ id: UUID) {
         var tabs = tabsModel
         let keys = AppShelves.moduleKeys(for: id, in: tabs.tabs.flatMap(\.moduleKeys) + tabs.inactive)
@@ -4519,7 +4466,7 @@ struct PanelView: View {
         }
         // Every switch answers on hover, including the ones whose label is right
         // there: a long label truncates, and the tooltip is where the whole
-        // sentence lives (Anton, 2026-07-30).
+        // sentence lives.
         .help(title)
     }
 
@@ -4599,8 +4546,6 @@ struct PanelView: View {
         .padding(.top, 2)
     }
 
-    /// A group's caption with its own "back to defaults", shown only while
-    /// something in the group is not on its default.
     /// One window zone: the shape it puts a window in, then its combination.
     private func zoneHotkeyRow(_ action: ModuleAction) -> some View {
         HStack(spacing: 10) {
@@ -4640,7 +4585,7 @@ struct PanelView: View {
         case Self.appsChoice: return .featureAppsDetail
         // "uninstall" says it removes something; it does not say that it takes
         // the data and caches with it, nor that it also cleans up without
-        // removing anything (Anton, 2026-07-30).
+        // removing anything.
         case "uninstall": return .featureUninstallDetail
         default: return nil
         }
@@ -4688,10 +4633,10 @@ struct PanelView: View {
     /// the one the action shipped with — a ↺ that hands the default back.
     /// `comboLast` puts the combination on the trailing edge, with the ↺ and the
     /// clash note ahead of it: in a right-aligned row the ↺ slot is reserved
-    /// whether or not it is shown, and holding it AFTER the combination pushed
-    /// every hotkey chip 20pt off the edge the switches below them sit on
-    /// (Anton, 2026-09-02). The zone grid is left-aligned and keeps the plain
-    /// order, where the same slot costs the edge nothing.
+    /// whether or not it is shown, so holding it AFTER the combination would
+    /// push every hotkey chip 20pt off the edge the switches below them sit on.
+    /// The zone grid is left-aligned and keeps the plain order, where the same
+    /// slot costs the edge nothing.
     @ViewBuilder
     private func hotkeyRecorder(_ action: ModuleAction, comboLast: Bool = false) -> some View {
         HStack(spacing: 6) {
@@ -5227,19 +5172,16 @@ struct PanelView: View {
         .font(Theme.mono(11))
     }
 
-    /// The donation card. FIRST on the general page, not last: the module list
-    /// grew until the card sat below the fold and nobody scrolled that far
-    /// (Anton, 2026-07-30). Still the only donation surface in the product — the
-    /// landing and the READMEs deliberately have none.
+    /// The donation card, FIRST on the general page so the module list cannot
+    /// push it below the fold. The only donation surface in the product: the
+    /// landing and the READMEs deliberately have none, and no perks are promised
+    /// anywhere.
     private var donateCard: some View {
-        // donation block — the ONLY donation surface in the whole product
-        // (the landing and README deliberately have none). The WHOLE card
-        // is one button to the donation link, with the house whole-row
-        // hover (background lift + pointing-hand cursor) and an external-
-        // page glyph on the right, so there is one obvious place to click.
-        // Russian routes to the ru card, every other locale to the neutral
-        // one — the same rule the localized READMEs follow. No perks are
-        // promised anywhere (donations are gifts).
+        // The WHOLE card is one button to the donation link, with the house
+        // whole-row hover (background lift + pointing-hand cursor) and an
+        // external-page glyph on the right. Russian routes to the ru card,
+        // every other locale to the neutral one, the same rule the localized
+        // READMEs follow.
         Button {
             let url = lang == .ru
                 ? "https://web.tribute.tg/d/Nvp"

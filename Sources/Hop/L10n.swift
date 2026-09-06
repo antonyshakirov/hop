@@ -43,8 +43,6 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 
     /// Order for language pickers – standard, matching system lists:
     /// alphabet of NATIVE names (Deutsch, English, Español… then Russian and 中文 by their native names).
-    /// FINAL decision by Anton 2026-07-13 ("the way it's officially written everywhere");
-    /// an English-alphabet variant was tried and reverted.
     static var pickerOrder: [AppLanguage] {
         allCases.sorted { $0.nativeName.localizedCompare($1.nativeName) == .orderedAscending }
     }

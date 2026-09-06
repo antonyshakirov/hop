@@ -57,8 +57,7 @@ final class AppModel: ObservableObject {
     /// Close the popover (for "copy and paste").
     var closePanel: (() -> Void)?
     /// Bring the panel back on a module's own terms — the eyedropper closes it
-    /// to get out of the way of the loupe and owes the user the result
-    /// (Anton, 2026-07-26).
+    /// to get out of the way of the loupe and owes the user the result.
     var reopenPanel: ((PanelView.InitialScreen?) -> Void)?
     /// The panel needs the keyboard right now (digit entry into the display).
     /// Everything else is mouse-only: keystrokes belong to the app underneath.

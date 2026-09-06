@@ -256,10 +256,10 @@ enum Snapshot {
             // without any it says "no colors yet" in the one picture meant to
             // show what the app does.
             //
-            // The colours therefore go BELOW the three visible rows: the clipboard
-            // list shows three by default, and a shot whose clipboard is all
-            // swatches says "this keeps colours" twice over while never showing
-            // that it keeps a link, a file and a piece of text (Anton, 2026-07-30).
+            // The colours therefore go BELOW the three visible rows: the
+            // clipboard list shows three by default, and a shot whose clipboard
+            // is all swatches says "this keeps colours" twice over while never
+            // showing that it keeps a link, a file and a piece of text.
             if args.contains("--overview") {
                 let mixed: [ClipboardItem] = [
                     ClipboardItem(text: "https://hop.tools"),
@@ -293,9 +293,9 @@ enum Snapshot {
         // else. A section of the README (or of the product page) is about a
         // single module, and a shot of the whole panel next to it shows the
         // reader nine other things instead of the one being described — the
-        // timer section carried a picture of the entire app (Anton, 2026-07-28).
-        // The older per-module flags stay: they stage content as well, which
-        // this one does not need beyond --demo.
+        // timer section carried a picture of the entire app. The older per-
+        // module flags stay: they stage content as well, which this one does
+        // not need beyond --demo.
         let onlyModule: String? = args.firstIndex(of: "--only").flatMap {
             args.count > $0 + 1 ? args[$0 + 1] : nil
         }
@@ -443,7 +443,7 @@ enum Snapshot {
         }
         // --convert-shape / --convert-fit: stage the video settings so a
         // screenshot can show the frame and fit rows, which only appear once a
-        // shape is chosen (2026-08-28).
+        // shape is chosen.
         if let si = args.firstIndex(of: "--convert-shape"), args.count > si + 1 {
             UserDefaults.standard.set(args[si + 1], forKey: FileConverter.videoShapeKey)
         }
@@ -550,9 +550,9 @@ enum Snapshot {
                 let now = Date()
                 // The gpu card kept its space in every screenshot and drew
                 // nothing in it: the card appears as soon as the Mac reports a
-                // load, and the synthesized history had no gpu series to fill it
-                // (Anton, 2026-08-04). The curve is written to land back near
-                // zero at the right edge, where the row's own reading sits.
+                // load, and the synthesized history had no gpu series to fill
+                // it. The curve is written to land back near zero at the right
+                // edge, where the row's own reading sits.
                 let hasGpuLoad = model.stats.sample.gpuLoad != nil
                 let hasGpuTemp = model.stats.sample.gpuTemp != nil
                 for i in stride(from: 300, through: 0, by: -5) {

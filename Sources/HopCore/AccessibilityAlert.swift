@@ -20,7 +20,7 @@ public enum AccessibilityVerdict {
     }
 
     /// Whether the panel carries the alert at the top. Never before something
-    /// has actually been stopped by it (Anton, 2026-09-02).
+    /// has actually been stopped by it.
     public static func showsBanner(_ alert: AccessibilityAlert,
                                    featureWasBlocked: Bool) -> Bool {
         alert != .none && featureWasBlocked

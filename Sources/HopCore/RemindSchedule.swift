@@ -30,10 +30,10 @@ public enum RemindSchedule {
 
     /// A date with ONE clock component replaced, keeping the rest of it.
     ///
-    /// Not `Calendar.date(bySetting:value:of:)`: that searches for the NEXT date
-    /// whose component equals the value, so setting "17 minutes" on a 22:30 date
-    /// returns 23:17. A reminder typed as 22:17 silently became an hour later and
-    /// never fired (Anton, 2026-07-28).
+    /// Not `Calendar.date(bySetting:value:of:)`: that searches for the NEXT
+    /// date whose component equals the value, so setting "17 minutes" on a
+    /// 22:30 date returns 23:17. A reminder typed as 22:17 silently became an
+    /// hour later and never fired.
     public static func replacing(_ component: Calendar.Component, with value: Int,
                                  in date: Date, calendar: Calendar) -> Date {
         var fields = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
@@ -49,9 +49,8 @@ public enum RemindSchedule {
     ///
     /// Always in the FUTURE. Setting the hour to "now + 1" and zeroing the
     /// minutes is not enough at 23:40, where clamping the hour to 23 produced
-    /// 23:00 — a reminder born already expired (Anton, 2026-07-28). Adding an
-    /// hour first and zeroing the minutes afterwards rolls into tomorrow on its
-    /// own.
+    /// 23:00 — a reminder born already expired. Adding an hour first and
+    /// zeroing the minutes afterwards rolls into tomorrow on its own.
     public static func nextFullHour(after date: Date, calendar: Calendar) -> Date {
         let shifted = calendar.date(byAdding: .hour, value: 1, to: date) ?? date
         var fields = calendar.dateComponents([.year, .month, .day, .hour], from: shifted)

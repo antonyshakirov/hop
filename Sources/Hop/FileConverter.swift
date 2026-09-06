@@ -206,13 +206,13 @@ final class FileConverter: ObservableObject {
     /// When the bar last published a value. The video encoder reports every
     /// sample — thirty times a second — and a bar told to animate to a new
     /// value that often never finishes a move, so it looked stuck a few percent
-    /// in while the percentage beside it ran to a hundred (Anton, 2026-08-04).
+    /// in while the percentage beside it ran to a hundred.
     private var lastProgressAt = Date.distantPast
 
     /// The file the last conversion produced — what the reveal button opens.
     /// Kept as a URL rather than a folder so Finder can select it: "where did
     /// it go" is answered better by the file being highlighted than by a folder
-    /// of a hundred things (Anton, 2026-08-04).
+    /// of a hundred things.
     @Published private(set) var lastOutput: URL?
     /// "current size → projected size": trial conversion of the group's first file.
     @Published private(set) var estimates: [MediaKind: String] = [:]
@@ -280,8 +280,7 @@ final class FileConverter: ObservableObject {
 
     /// What a PDF group does with its files: nil squeezes them, a target
     /// extracts their text into that format. Word matters as much as markdown
-    /// here — a pdf that has to be edited usually has to be edited in Word
-    /// (Anton, 2026-07-29).
+    /// here — a pdf that has to be edited usually has to be edited in Word.
     nonisolated static var pdfTextTarget: DocumentConversion.Target? {
         switch UserDefaults.standard.string(forKey: pdfModeKey) {
         case "markdown": return .markdown
@@ -295,7 +294,7 @@ final class FileConverter: ObservableObject {
 
     /// Default "original": a container change nobody asked for is not a
     /// conversion — mp4 in, mp4 out, and the choice is there for when it is
-    /// actually wanted (Anton, 2026-08-04).
+    /// actually wanted.
     nonisolated static var videoFormat: String {
         UserDefaults.standard.string(forKey: videoFormatKey) ?? "original"
     }
@@ -303,8 +302,8 @@ final class FileConverter: ObservableObject {
     /// Which container the format row highlights. Until the user picks one it
     /// is whatever the pending files already are — there is no "original" chip,
     /// because a person looking at the row wants to read the ANSWER, not a
-    /// setting that stands for one (Anton, 2026-08-04). A format the system
-    /// cannot write reads as mp4, which is what it will become.
+    /// setting that stands for one. A format the system cannot write reads as
+    /// mp4, which is what it will become.
     var highlightedVideoFormat: String {
         let setting = Self.videoFormat
         guard setting == "original" else { return setting }
@@ -386,14 +385,14 @@ final class FileConverter: ObservableObject {
         // The system says what it can open, rather than a list kept here: mkv,
         // webm, wmv and flv all classify as movies and cannot be read at all,
         // so they used to land in the video group and fail at convert time with
-        // nothing said in advance (Anton, 2026-08-04). Named as unsupported on
-        // arrival, they are answered honestly by the drop itself.
+        // nothing said in advance. Named as unsupported on arrival, they are
+        // answered honestly by the drop itself.
         if type.conforms(to: .movie) || type.conforms(to: .video) {
             // mkv and webm are the exception the helper exists for: the system
             // cannot read either, but their container is the only problem, so
             // they are repacked into MP4 first and then travel the normal video
-            // path (2026-08-28). wmv and flv have no such route and stay
-            // unsupported, named as that on arrival.
+            // path. wmv and flv have no such route and stay unsupported, named
+            // as that on arrival.
             if RemuxRules.needsRepacking(url) { return .video }
             return systemCanRead(type) ? .video : .unsupported
         }
@@ -423,8 +422,8 @@ final class FileConverter: ObservableObject {
     /// The bitrate the dial currently means, for the first video in the queue
     /// and the frame the settings will give it: "≈ 5.2 Mbps". Shown beside the
     /// dial because a percentage says nothing about what is kept or lost, while
-    /// megabits are the figure every platform states its guidance in (Anton,
-    /// 2026-08-28). nil with compression off — nothing then sets a bitrate.
+    /// megabits are the figure every platform states its guidance in. nil with
+    /// compression off — nothing then sets a bitrate.
     var projectedBitrateText: String? {
         guard Self.videoCompress,
               let url = batch.pending(.video).first(where: { !RemuxRules.needsRepacking($0) }),
@@ -451,9 +450,9 @@ final class FileConverter: ObservableObject {
     }
 
     /// What the current settings will make of a video: "720p → 404p", or just
-    /// "720p" when nothing about the frame is changing. The row used to show the
-    /// source's own resolution and nothing else, so picking 540p left "718p"
-    /// standing over it (Anton, 2026-08-04).
+    /// "720p" when nothing about the frame is changing. The row used to show
+    /// the source's own resolution and nothing else, so picking 540p left
+    /// "718p" standing over it.
     func resolutionTransition(_ url: URL) -> String? {
         guard let source = videoResolutions[url.path] else { return nil }
         guard let size = videoSizes[url.path] else { return source }
@@ -692,7 +691,7 @@ final class FileConverter: ObservableObject {
             let total = files.count
             // The bar moves by BYTES, not by file count. Counting files made a
             // batch of one jump straight from nothing to everything, and a big
-            // file among small ones sat still and then leapt (Anton, 2026-08-04).
+            // file among small ones sat still and then leapt.
             let weights = files.map { url in
                 Double((try? FileManager.default
                     .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0) + 1
@@ -1113,8 +1112,7 @@ final class FileConverter: ObservableObject {
         // Nothing is being asked for — same format, full scale, quality at the
         // top — so the file itself is the answer. Re-encoding a JPEG at 100
         // writes full colour and barely-quantised detail, and a grainy photo
-        // came back several times heavier for a picture nobody can tell apart
-        // (Anton, 2026-08-28).
+        // came back several times heavier for a picture nobody can tell apart.
         if ImagePassthrough.isNoOp(source: url, format: format, scale: scale, quality: quality) {
             return (try? FileManager.default.copyItem(at: url, to: outURL)) != nil ? outURL : nil
         }
@@ -1411,11 +1409,11 @@ final class FileConverter: ObservableObject {
 
     /// Asks the document's own application to export it, through Apple Events.
     ///
-    /// Nothing is required up front: a .pages file joins the queue whether or
+    /// Nothing is required up front: a.pages file joins the queue whether or
     /// not Pages is installed, and only THIS file fails if it turns out not to
-    /// be (Anton, 2026-08-28). The Automation permission is likewise asked for
-    /// by macOS at the first export, not before — there is nothing to grant
-    /// until something is actually being converted.
+    /// be. The Automation permission is likewise asked for by macOS at the
+    /// first export, not before — there is nothing to grant until something is
+    /// actually being converted.
     nonisolated private static func exportIWork(_ url: URL, to dir: URL,
                                                 target: String) async -> URL? {
         guard let app = IWorkExport.app(for: url) else { return nil }
@@ -1449,7 +1447,7 @@ final class FileConverter: ObservableObject {
     /// finish: ffmpeg can sit on a broken file, and an iWork app can stop on a
     /// dialog nobody will ever see, since it is launched in the background. A
     /// batch that waits forever looks exactly like a hung app, so the process
-    /// is killed and the file simply fails (2026-08-29).
+    /// is killed and the file simply fails.
     nonisolated private static func run(_ tool: URL, _ arguments: [String],
                                         timeout: TimeInterval) -> (status: Int32, stderr: String)? {
         let process = Process()

@@ -7,8 +7,8 @@ import UniformTypeIdentifiers
 /// the status bar popup is no good for that (it collapses on a click outside).
 struct ConvertWindowView: View {
     /// Drawn as the onboarding picture: the drop plate is dropped, so the tile
-    /// shows the finished batch instead of an empty panel (Anton, 2026-09-05).
-    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    /// shows the finished batch instead of an empty panel. SPEC: docs/spec.md —
+    /// "Onboarding", the module preview.
     var preview = false
 
     @EnvironmentObject private var model: AppModel
@@ -325,8 +325,8 @@ struct ConvertWindowView: View {
                     // A bar drawn here rather than a ProgressView: AppKit's own
                     // animates on its own schedule, and with values arriving
                     // several times a second it was still a fifth of the way
-                    // along when the percentage beside it read 100 (Anton,
-                    // 2026-08-04). This one is exactly as long as the number says.
+                    // along when the percentage beside it read 100. This one is
+                    // exactly as long as the number says.
                     ZStack(alignment: .leading) {
                         Capsule()
                             .fill(Theme.divider)
@@ -338,7 +338,7 @@ struct ConvertWindowView: View {
                     // No animation: reports already arrive ten times a second,
                     // which is smooth enough, and an animated subtree made the
                     // fill lag its own colour — the percentage went green while
-                    // the bar was still orange (Anton, 2026-08-04).
+                    // the bar was still orange.
                     Text("\(Int(fraction * 100))%")
                         .font(Theme.mono(10))
                         .foregroundStyle(tint)
@@ -402,7 +402,7 @@ struct ConvertWindowView: View {
             }
             // The quality dial is a row like any other now: it used to float on
             // the far right of the card, on its own line, while every other
-            // control started at the left (Anton, 2026-08-28).
+            // control started at the left.
             qualityControl(.image)
         case .pdf:
             // two jobs, not one: squeeze the file (the quality row below) or pull
@@ -433,8 +433,7 @@ struct ConvertWindowView: View {
                 }
                 // The one thing Hop does not do itself, said plainly: the apps
                 // export their own documents, so their export is what you get,
-                // and macOS asks for permission the first time (Anton,
-                // 2026-08-28 — nothing is required until a file is converted).
+                // and macOS asks for permission the first time.
                 Text(t(.convIWorkNote))
                     .font(Theme.mono(9))
                     .foregroundStyle(Theme.textTertiary)
@@ -475,16 +474,16 @@ struct ConvertWindowView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         case .video:
-            // three independent settings (Anton, 2026-07-15): container format,
-            // target resolution (only options below the source) and a separate
-            // compress toggle (HEVC instead of H.264)
+            // three independent settings: container format, target resolution
+            // (only options below the source) and a separate compress toggle
+            // (HEVC instead of H.264)
             VStack(alignment: .leading, spacing: 6) {
                 // A shortcut across three of the rows below. Somebody about to
                 // post is thinking "this goes to TikTok", not in ratios and
                 // megabits, and the platforms publish both — so one button can
-                // answer all of it (Anton, 2026-08-28). Nothing new is stored:
-                // a preset writes the same three settings by hand, which is why
-                // touching any of them afterwards simply unlights it.
+                // answer all of it. Nothing new is stored: a preset writes the
+                // same three settings by hand, which is why touching any of
+                // them afterwards simply unlights it.
                 HStack(spacing: 5) {
                     rowLabel(t(.convPresetLabel))
                     ForEach(VideoPlatform.allCases, id: \.self) { platform in
@@ -509,7 +508,7 @@ struct ConvertWindowView: View {
                     // The row shows what the file WILL be, which until anyone
                     // touches it is what the file already is: mp4 in, mp4 out.
                     // Changing the container does nothing for size, so it is
-                    // worth doing on purpose (Anton, 2026-08-04).
+                    // worth doing on purpose.
                     let container = model.converter.highlightedVideoFormat
                     chip("MP4", container == "mp4") { videoFormat = "mp4" }
                     chip("MOV", container == "mov") { videoFormat = "mov" }
@@ -569,17 +568,17 @@ struct ConvertWindowView: View {
                 HStack(spacing: 8) {
                     rowLabel(t(.convCompressLabel))
                     Theme.MiniSwitch(isOn: $videoCompress)
-                    // how hard, not just whether: the encoder is given a bitrate
-                    // rather than a preset, so this dial has something to turn.
-                    // Kept well clear of the switch — side by side they read as
-                    // one control (Anton, 2026-08-28).
+                    // how hard, not just whether: the encoder is given a
+                    // bitrate rather than a preset, so this dial has something
+                    // to turn. Kept well clear of the switch — side by side
+                    // they read as one control.
                     if videoCompress {
                         Spacer().frame(width: 10)
                         MiniSlider(value: $videoQualityLevel, range: 1...100, width: 96)
                         // The number the dial actually means. A percentage says
-                        // nothing about what is being kept or lost; megabits do,
-                        // and they are the figure every platform states its own
-                        // guidance in (Anton, 2026-08-28).
+                        // nothing about what is being kept or lost; megabits
+                        // do, and they are the figure every platform states its
+                        // own guidance in.
                         if let rate = model.converter.projectedBitrateText {
                             Text(rate)
                                 .font(Theme.mono(10))
@@ -587,10 +586,10 @@ struct ConvertWindowView: View {
                                 .monospacedDigit()
                         }
                     } else {
-                        // With the switch off nothing sets a bitrate: the tracks
-                        // are copied across untouched. Said in words, because
-                        // "off" and "the dial at 100" are NOT the same thing and
-                        // looked the same (Anton, 2026-08-28).
+                        // With the switch off nothing sets a bitrate: the
+                        // tracks are copied across untouched. Said in words,
+                        // because "off" and "the dial at 100" are NOT the same
+                        // thing and looked the same.
                         Spacer().frame(width: 10)
                         Text(t(.convQualityOriginal))
                             .font(Theme.mono(10))
@@ -708,9 +707,7 @@ struct ConvertWindowView: View {
             MiniSlider(value: kind == .pdf ? $convPdfQuality : $convQuality,
                        range: 1...100, width: 96)
             // Says when the answer is the file itself: at the top of the dial,
-            // in the format it already is, nothing is re-encoded (Anton,
-            // 2026-08-28 — a JPEG re-encoded at 100 came back four times
-            // heavier, which is what re-encoding at 100 means).
+            // in the format it already is, nothing is re-encoded.
             if kind == .image, model.converter.imagesPassThrough {
                 Text(t(.convQualityOriginal))
                     .font(Theme.mono(10))
@@ -722,9 +719,8 @@ struct ConvertWindowView: View {
 
     /// Every settings row in every group starts its values on the SAME line —
     /// images, PDF, video, audio and documents share one label column, so the
-    /// window reads as one table rather than five (Anton, 2026-08-28). Fixed
-    /// rather than measured: a per-group grid lined each group up with itself
-    /// and with nothing else.
+    /// window reads as one table rather than five. Fixed rather than measured:
+    /// a per-group grid lined each group up with itself and with nothing else.
     private static let labelColumn: CGFloat = 104
 
     private func rowLabel(_ text: String) -> some View {

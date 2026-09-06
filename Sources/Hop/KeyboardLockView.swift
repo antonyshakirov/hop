@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Keyboard-lock module: one line. The durations ARE the button — tapping "5 min"
-/// locks for five minutes, the way a timer preset starts the timer (Anton,
-/// 2026-07-25). While it runs, the same line shows the countdown and the way out.
+/// Keyboard-lock module: one line. The durations ARE the button — tapping "5
+/// min" locks for five minutes, the way a timer preset starts the timer. While
+/// it runs, the same line shows the countdown and the way out.
 struct KeyboardLockView: View {
     @ObservedObject var lock: KeyboardLockController
     let lang: AppLanguage
@@ -11,8 +11,7 @@ struct KeyboardLockView: View {
 
     var body: some View {
         // spacing 6 is the module-row standard: keep-awake, the clipboard and
-        // the internet row all sit the same distance from their icon (Anton,
-        // 2026-07-26)
+        // the internet row all sit the same distance from their icon
         HStack(spacing: 6) {
             ModuleMarkIcon(symbol: "keyboard",
                            color: lock.isLocked ? Theme.editing : Theme.textSecondary)
@@ -56,10 +55,10 @@ struct KeyboardLockView: View {
         }
     }
 
-    /// A duration locks straight away for that long — there is no separate start
-    /// button to press afterwards. Drawn as bare figures, exactly like
+    /// A duration locks straight away for that long — there is no separate
+    /// start button to press afterwards. Drawn as bare figures, exactly like
     /// keep-awake's: two neighbouring rows of the same shape must not use two
-    /// different button styles (Anton, 2026-07-26).
+    /// different button styles.
     private func durationChip(_ seconds: Int) -> some View {
         let isInfinity = seconds == 0
         return Button {

@@ -8,12 +8,12 @@ import Foundation
 /// risky part of an uninstaller (deciding that a folder belongs to this app and
 /// not to five others) is unit-tested rather than trusted.
 ///
-/// The first cut guessed exact paths from the bundle identifier and missed most
-/// of what a real app leaves: `Containers/<id>.<extension>` for its share
-/// extensions, `Group Containers/<TEAMID>.<id>`, `Application Scripts/<id>`,
+/// Guessing exact paths from the bundle identifier misses most of what a real
+/// app leaves: `Containers/<id>.<extension>` for its share extensions,
+/// `Group Containers/<TEAMID>.<id>`, `Application Scripts/<id>`,
 /// `Caches/<id>.ShipIt` for a Squirrel updater. Checked against three installed
-/// apps, that approach found two traces of Telegram's nine (2026-07-30). Listing
-/// the folders and MATCHING is what finds the rest.
+/// apps, that approach found two traces of Telegram's nine. Listing the folders
+/// and MATCHING is what finds the rest.
 public enum AppUninstall {
 
     /// Where a trace lives, which is also how the window groups it.
@@ -172,7 +172,7 @@ public enum AppUninstall {
         ("Application Support/CrashReporter", .crashReports),
         // Plug-in style leftovers. Every uninstaller worth comparing against looks
         // here, and an app that installed a quick-look generator or a preference
-        // pane leaves it behind on its own (added 2026-07-30).
+        // pane leaves it behind on its own.
         ("Internet Plug-Ins", .plugin),
         ("PreferencePanes", .plugin),
         ("QuickLook", .plugin),
@@ -209,9 +209,8 @@ public enum AppUninstall {
     public static let otherFolders: [(path: String, kind: Kind)] = [
         // Some installers leave a folder here for every user of the Mac.
         ("/Users/Shared", .sharedFolder),
-        // The installer's own record. It CAN go — it is a file like any other —
-        // and until 2026-07-30 it was listed as an unremovable remainder, which
-        // was simply wrong (Anton asked why; the answer was "no reason").
+        // The installer's own record. It CAN go: it is a file like any other,
+        // not an unremovable remainder.
         ("/var/db/receipts", .receipt),
     ]
 
@@ -262,8 +261,8 @@ public enum AppUninstall {
             // Same vendor, different component: `com.google.GoogleUpdater` is what
             // keeps an installed Chrome up to date, and `com.openai.chat` is the
             // data an installed app wrote before it changed its identifier. Both
-            // were offered for removal on Anton's Mac (2026-07-31). This does hide
-            // a genuine leftover when its vendor still has something installed,
+            // would otherwise be offered for removal. This does hide a genuine
+            // leftover when its vendor still has something installed,
             // and that is the trade the module takes: a leftover left alone costs
             // disk space, a live app's data costs the work in it.
             if let family, family == vendor(of: owner) { return false }
@@ -286,9 +285,9 @@ public enum AppUninstall {
     /// macOS under the names it kept from before it owned them. Shortcuts still
     /// writes as `is.workflow`, the TV app as `tvappservices`, Game Center as
     /// `games.my.gcshowcase` — none of them answer to a `com.apple` identifier,
-    /// and all three were offered for removal on Anton's Mac (2026-07-31).
-    /// A system component has no app in /Applications to vouch for it, so
-    /// nothing but a list of its names can keep it out.
+    /// and without this list all three are offered for removal. A system
+    /// component has no app in /Applications to vouch for it, so nothing but a
+    /// list of its names can keep it out.
     static let systemPrefixes = ["com.apple.", "is.workflow.", "tvappservices.",
                                  "games.my.gcshowcase."]
 
@@ -372,8 +371,8 @@ public enum AppUninstall {
     ///
     /// The quiet test belongs to the identifier, not to the folder: ChatGPT's
     /// preferences were three weeks old while its `HTTPStorages` folder had not
-    /// been touched since May, and testing each folder on its own offered half of
-    /// a live app's data for removal (Anton's Mac, 2026-07-31).
+    /// been touched since May, and testing each folder on its own offered half
+    /// of a live app's data for removal.
     public static func quietGroups(from found: [LeftoverPath],
                                    now: Date = Date()) -> [LeftoverGroup] {
         var byIdentifier: [String: (paths: [String], bytes: Int64, newest: Date)] = [:]
@@ -394,11 +393,11 @@ public enum AppUninstall {
     /// The app bundles inside a folder, one level of ordinary folders included.
     ///
     /// `/Applications` is not a flat list: Adobe installs into
-    /// `/Applications/Adobe Premiere Pro 2026/`, DaVinci Resolve into a folder of
-    /// its own, and reading only the top level means every one of those apps
+    /// `/Applications/Adobe Premiere Pro 2026/`, DaVinci Resolve into a folder
+    /// of its own, and reading only the top level means every one of those apps
     /// counts as not installed — which turned their support folders into
-    /// "leftovers" (Anton's Mac, 2026-07-31). Bundles nested INSIDE a bundle are
-    /// not installed apps of their own and are left where they are.
+    /// "leftovers". Bundles nested INSIDE a bundle are not installed apps of
+    /// their own and are left where they are.
     public static func appBundlePaths(inside folder: String,
                                       manager: FileManager = .default) -> [String] {
         var out: [String] = []
@@ -425,9 +424,9 @@ public enum AppUninstall {
     ///
     /// This is for the case that actually happens: the app was dragged to the
     /// Trash first, so its Info.plist is unavailable and only name matches work —
-    /// which is how a run found 13 traces where 22 were waiting (measured
-    /// 2026-07-30). A preference file called `ru.keepcoder.Telegram.plist` says the
-    /// identifier out loud: its LAST dot-component is the app's name.
+    /// which is how a run finds 13 traces where 22 are waiting. A preference
+    /// file called `ru.keepcoder.Telegram.plist` says the identifier out loud:
+    /// its LAST dot-component is the app's name.
     public static func impliedIdentifier(from entry: String, appName name: String) -> String? {
         guard !name.isEmpty else { return nil }
         let base = base(of: entry)
@@ -476,11 +475,11 @@ public enum AppUninstall {
         return path.contains("/Data/Library/Caches")
     }
 
-    /// A container holds an app's cache AND its data in one folder, so it is never
-    /// cleared from outside: Telegram's group container is 25 GB of media cache
-    /// mixed with the account database, and removing it logs somebody out and
-    /// takes their local history (Anton asked, 2026-07-30). The window shows the
-    /// size and says the app's own "clear cache" is the only safe route.
+    /// A container holds an app's cache AND its data in one folder, so it is
+    /// never cleared from outside: Telegram's group container is 25 GB of media
+    /// cache mixed with the account database, and removing it logs somebody out
+    /// and takes their local history. The window shows the size and says the
+    /// app's own "clear cache" is the only safe route.
     public static func holdsMixedData(_ kind: Kind) -> Bool {
         kind == .container || kind == .groupContainer
     }
@@ -499,9 +498,9 @@ public enum AppUninstall {
     /// What an honest report still has to admit. Kept here so the UI and the docs
     /// cannot drift apart on the promise.
     ///
-    /// Receipts left this list on 2026-07-30: they are ordinary files in
-    /// /var/db/receipts and are now removed with the rest, behind the same admin
-    /// prompt. What remains here genuinely cannot be removed by an app.
+    /// Receipts are not here: they are ordinary files in /var/db/receipts and go
+    /// with the rest, behind the same admin prompt. What remains genuinely
+    /// cannot be removed by an app.
     public enum Remainder: String, CaseIterable, Sendable {
         /// The index is a database macOS maintains, not a per-app file: it forgets
         /// a deleted file by itself within seconds. Erasing it (`mdutil -E`) would

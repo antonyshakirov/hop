@@ -10,8 +10,8 @@ import Foundation
 /// This way a reading takes microseconds and spawns nothing.
 enum InterfaceCounters {
 
-    /// PACKETS, not bytes, and that is deliberate. Measured against `netstat -ibn`
-    /// on 2026-07-31: the packet counters agree to the unit, while the BYTE
+    /// PACKETS, not bytes, and that is deliberate. Measured against `netstat
+    /// -ibn`: the packet counters agree to the unit, while the BYTE
     /// counters this call reports are rounded down to a multiple of 1024 and lag
     /// behind. On a quiet but healthy tunnel that rounding can swallow a whole
     /// exchange, which would read as a tunnel bringing nothing back — the one

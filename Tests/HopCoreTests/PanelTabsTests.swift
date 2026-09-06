@@ -157,8 +157,8 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(model.tabs[0].moduleKeys, ["timer"])
     }
 
-    /// The modules keep the visibility they had: a space that goes away is not a
-    /// reason to hide what was on it (Anton, 2026-09-02).
+    /// The modules keep the visibility they had: a space that goes away is not
+    /// a reason to hide what was on it.
     func testDeleteTabHidesNothing() {
         let first = PanelTab(icon: "house", moduleKeys: ["timer"])
         let second = PanelTab(icon: "gauge", moduleKeys: ["system", "clipboard"])

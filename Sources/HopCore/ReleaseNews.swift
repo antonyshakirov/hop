@@ -2,11 +2,11 @@ import Foundation
 
 /// Which "what's new" card the panel owes the user, and how long it owes it.
 ///
-/// The app had no way of telling anyone what a release brought (Anton,
-/// 2026-08-30). The one banner it had asks whether to switch new MODULES on, so
-/// a release that only deepened the modules already there — projects and history
-/// in the tracker, platform presets in the converter, mkv and webm — announced
-/// itself nowhere, and the full notes sat in the help behind a tab nobody opens.
+/// The app had no way of telling anyone what a release brought. The one banner
+/// it had asks whether to switch new MODULES on, so a release that only
+/// deepened the modules already there — projects and history in the tracker,
+/// platform presets in the converter, mkv and webm — announced itself nowhere,
+/// and the full notes sat in the help behind a tab nobody opens.
 ///
 /// A card is declared per release rather than derived from the version: a fix
 /// rolled out on top of a release usually gets no card written for it, so there

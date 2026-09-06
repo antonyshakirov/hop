@@ -3,7 +3,7 @@ import HopCore
 
 /// Which page the settings window shows. The raw id is what `--settings-section`
 /// takes and what the window is left on.
-/// SPEC: hop-private/specs/2026-09-01-settings-window-design.md
+/// SPEC: docs/spec.md — "Settings window".
 enum SettingsSelection: Hashable {
     case general, spaces, hotkeys, permissions, updates, guide, about
     case module(String)
@@ -46,9 +46,9 @@ enum SettingsSelection: Hashable {
     }
 }
 
-/// A group of settings drawn as one block: a filled, outlined card with its rows
-/// inside. Groups are what a page is read by — a wall of rows on a flat window
-/// has nothing to hold on to (Anton, 2026-09-01).
+/// A group of settings drawn as one block: a filled, outlined card with its
+/// rows inside. Groups are what a page is read by — a wall of rows on a flat
+/// window has nothing to hold on to.
 struct SettingsCard<Content: View>: View {
     var spacing: CGFloat = 14
     @ViewBuilder var content: () -> Content
@@ -113,9 +113,9 @@ struct SettingsSidebar: View {
         ]
     }
 
-    /// In the panel's own order, space by space: a module added to the middle of
-    /// space one gets its page in the middle of this list too, not at the end
-    /// (Anton, 2026-09-06). SPEC: docs/spec.md — "Settings window".
+    /// In the panel's own order, space by space: a module added to the middle
+    /// of space one gets its page in the middle of this list too, not at the
+    /// end. SPEC: docs/spec.md — "Settings window".
     private var modules: [Item] {
         let order = PanelView.storedModuleOrder()
         let placed = ModuleCatalog.modules.sorted { a, b in

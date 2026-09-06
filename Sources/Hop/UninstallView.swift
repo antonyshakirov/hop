@@ -13,9 +13,9 @@ struct UninstallView: View {
 
     @State private var targeted = false
 
-    /// TWO actions, named: "remove an app" and "clean up". A single row that opened
-    /// a window with tabs inside meant you could not tell what you were about to do
-    /// until it was open (Anton, 2026-07-30).
+    /// TWO actions, named: "remove an app" and "clean up". A single row that
+    /// opened a window with tabs inside meant you could not tell what you were
+    /// about to do until it was open.
     var body: some View {
         HStack(spacing: 6) {
             action(.uninstall, symbol: "trash", label: .uninstallModeApp)

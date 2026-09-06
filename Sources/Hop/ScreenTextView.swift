@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Screen-text module: one line — the name, then two actions. The crosshair
 /// reads an area of the screen; the window is where a picture can be dropped or
-/// pasted and where the recognized text is shown (Anton, 2026-07-25).
+/// pasted and where the recognized text is shown.
 struct ScreenTextView: View {
     @ObservedObject var reader: ScreenTextController
     let lang: AppLanguage
@@ -20,8 +20,8 @@ struct ScreenTextView: View {
                 .lineLimit(1)
             Spacer(minLength: 6)
             if reader.state == .denied {
-                // The line said what was wrong and answered to nothing; pressing
-                // it now asks macOS for the permission (Anton, 2026-09-03).
+                // The line said what was wrong and answered to nothing;
+                // pressing it now asks macOS for the permission.
                 Button {
                     PermissionRepair.askAgain(.screenCapture, force: true)
                 } label: {

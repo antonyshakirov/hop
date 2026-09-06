@@ -25,7 +25,7 @@ public struct VPNConfiguration: Equatable, Identifiable, Sendable {
     /// What that app is called on this Mac, filled in by the app layer. The two
     /// names differ and both matter: an app may be called one thing while the
     /// configuration it created is called "Germany" — showing only the second
-    /// looks like Hop invented a country out of nowhere (Anton, 2026-07-29).
+    /// looks like Hop invented a country out of nowhere.
     public var appName: String?
     public var state: State
     /// Whether the configuration is switched on in the network set at all — the
@@ -33,9 +33,9 @@ public struct VPNConfiguration: Equatable, Identifiable, Sendable {
     ///
     /// This is the only lever there is against a tunnel that comes back by
     /// itself. A configuration with on-demand rules reconnects the moment
-    /// anything asks for a `.com`, so stopping it lasts seconds (Anton,
-    /// 2026-07-30); a service switched OFF in the set cannot be started by those
-    /// rules, and switching it back on is one command.
+    /// anything asks for a `.com`, so stopping it lasts seconds; a service
+    /// switched OFF in the set cannot be started by those rules, and switching
+    /// it back on is one command.
     public var isEnabled: Bool
 
     public init(id: String, name: String, bundleIdentifier: String?,
@@ -56,8 +56,8 @@ public struct VPNConfiguration: Equatable, Identifiable, Sendable {
     /// whatever the app's name already said stripped out.
     ///
     /// A client tends to name its configuration after itself ("hidemy.name vpn
-    /// (OpenVPN)" for an app called "hidemy.name VPN"), and printing both in full
-    /// filled the row with the same words twice (Anton, 2026-07-29).
+    /// (OpenVPN)" for an app called "hidemy.name VPN"), and printing both in
+    /// full filled the row with the same words twice.
     public var subtitle: String? {
         guard let appName else { return nil }
         return VPNConfigurations.tail(of: name, after: appName)
@@ -119,8 +119,8 @@ public enum VPNConfigurations {
     }
 
     /// Words that describe the plumbing rather than the connection. A protocol
-    /// name in the row tells the user nothing they can act on — what they want to
-    /// see there is the country (Anton, 2026-07-29).
+    /// name in the row tells the user nothing they can act on — what they want
+    /// to see there is the country.
     private static let technical: Set<String> = [
         "openvpn", "ikev2", "ikev1", "ipsec", "l2tp", "pptp", "wireguard", "wg",
         "tcp", "udp", "vpn", "proxy", "tunnel",

@@ -3,12 +3,12 @@ import Foundation
 /// Repacking a Matroska file into MP4 without touching the picture.
 ///
 /// macOS cannot open mkv or webm at all — AVFoundation refuses them whatever is
-/// inside — so the converter used to name them unsupported on arrival. But the
-/// PICTURE inside is usually h264 or hevc, which MP4 holds perfectly well: the
-/// container is the whole problem. Swapping it is a copy, not an encode — it
-/// takes a second, loses nothing, and hands the normal pipeline a file it can
-/// read (decided 2026-08-04). The copy is done by a downloaded helper, because
-/// the system has no muxer of its own to lend.
+/// inside — so on their own they would arrive unsupported. But the PICTURE
+/// inside is usually h264 or hevc, which MP4 holds perfectly well: the container
+/// is the whole problem. Swapping it is a copy, not an encode; it takes a
+/// second, loses nothing, and hands the normal pipeline a file it can read. The
+/// copy is done by a downloaded helper, because the system has no muxer of its
+/// own to lend.
 public enum RemuxRules {
     /// The containers the system will not open and the helper can repack.
     public static let repackableExtensions: Set<String> = ["mkv", "webm"]

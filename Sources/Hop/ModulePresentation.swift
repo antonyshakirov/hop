@@ -4,7 +4,7 @@ import HopCore
 /// The view layer of the module registry: an identifier becomes an icon and a
 /// name. HopCore carries neither SF Symbols nor translations, so the mapping
 /// lives here.
-/// SPEC: hop-private/specs/2026-09-01-settings-window-design.md
+/// SPEC: docs/spec.md — "Settings window".
 enum ModulePresentation {
     static func titleKey(_ module: String) -> L10nKey? {
         switch module {

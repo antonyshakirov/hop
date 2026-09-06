@@ -51,7 +51,7 @@ struct OnboardingView: View {
 
     /// The module screens need room for a 368pt picture beside its text; a
     /// screen with one card underneath a heading does not, and a card stretched
-    /// across the whole window reads as a stray band (Anton, 2026-09-05).
+    /// across the whole window reads as a stray band.
     private var contentWidth: CGFloat {
         switch step {
         case .welcome, .setup, .privacy, .done: return 520
@@ -61,8 +61,8 @@ struct OnboardingView: View {
 
     /// Every module starts switched ON, the opt-in ones included: the wizard is
     /// where a person decides what to keep, and deciding is easier by switching
-    /// something off than by finding what was never offered (Anton, 2026-09-06).
-    /// SPEC: docs/spec.md — "Onboarding".
+    /// something off than by finding what was never offered. SPEC: docs/spec.md
+    /// — "Onboarding".
     private func seedEverythingOn() {
         guard !seededAllOn else { return }
         seededAllOn = true
@@ -169,8 +169,7 @@ struct OnboardingView: View {
     }
 
     /// The second screen: what it looks like and when it starts. Split off the
-    /// welcome, which is now the app introducing itself and asking one thing
-    /// (Anton, 2026-09-05).
+    /// welcome, which is now the app introducing itself and asking one thing.
     private var setupStep: some View {
         VStack(spacing: 16) {
             stepHeading(t(.onbSetupTitle))
@@ -209,7 +208,7 @@ struct OnboardingView: View {
                 privacyClaim("chevron.left.forwardslash.chevron.right", t(.onbPrivacyOpenSource))
             }
             // Plain text and two links under the cards: everything in a card
-            // made the screen read as a list of buttons (Anton, 2026-09-05).
+            // made the screen read as a list of buttons.
             Text(t(.onbFreeBody))
                 .font(Theme.mono(12))
                 .foregroundStyle(Theme.textSecondary)
@@ -253,16 +252,14 @@ struct OnboardingView: View {
     }
 
     /// Every card sits on the panel's own colour: `Theme.rowBg` is 4.5% ink, so
-    /// without this the backdrop's dots read straight through the cards
-    /// (Anton, 2026-09-05).
+    /// without this the backdrop's dots read straight through the cards.
     private func opaque<V: View>(_ radius: CGFloat, @ViewBuilder _ content: () -> V) -> some View {
         content().background(RoundedRectangle(cornerRadius: radius).fill(Theme.background))
     }
 
     /// One claim: mark and words as one group in the middle of a narrow card.
     /// With a `url` the whole card opens it and says so with the external-page
-    /// glyph — the claim about open source is checkable, so it is a link
-    /// (Anton, 2026-09-05).
+    /// glyph — the claim about open source is checkable, so it is a link.
     private func privacyClaim(_ symbol: String, _ text: String,
                               tint: Color = Theme.accentGreen) -> some View {
         HStack(spacing: 9) {
@@ -301,8 +298,7 @@ struct OnboardingView: View {
         )
         return HStack(alignment: .top, spacing: 12) {
             // Each module carries its OWN picture, beside its own row: one
-            // picture per screen said nothing about the two modules under it
-            // (Anton, 2026-09-05).
+            // picture per screen said nothing about the two modules under it.
             modulePreview(key)
             VStack(alignment: .leading, spacing: 3) {
                 Text(moduleTitle(key))
@@ -341,9 +337,9 @@ struct OnboardingView: View {
     /// panel is laid out at its real 368pt and then cropped to the tile.
     private func modulePreview(_ key: String) -> some View {
         // The panel's own width, unscaled: at 170pt the rows were a grey blur
-        // and said nothing about the module (Anton, 2026-09-05).
-        // "apps" is not a module key: the launcher exists as a shelf, so the
-        // preview asks the staged model for the one it made.
+        // and said nothing about the module. "apps" is not a module key: the
+        // launcher exists as a shelf, so the preview asks the staged model for
+        // the one it made.
         let drawn = key == Self.appsChoice
             ? previewModel.appShelves.shelves.shelves.first.map { "apps:\($0.id.uuidString)" }
             : key
@@ -441,8 +437,8 @@ struct OnboardingView: View {
         .padding(.bottom, 4)
     }
 
-    /// Back, the step dots, and the one button forward. There is no close and no
-    /// skip: the wizard is the only way in (Anton, 2026-09-05).
+    /// Back, the step dots, and the one button forward. There is no close and
+    /// no skip: the wizard is the only way in.
     private var footer: some View {
         HStack(spacing: 12) {
             Button { goBack() } label: {
@@ -547,8 +543,8 @@ struct OnboardingView: View {
         guard let doc = ModulePresentation.howKeys(key == Self.appsChoice ? "apps" : key).first
         else { return short }
         let opening = t(doc).components(separatedBy: "\n\n").first ?? ""
-        // A sentence ends at a period FOLLOWED BY A SPACE: cutting at any period
-        // ends the archiver's list in the middle of "tar.gz" (Anton, 2026-09-06).
+        // A sentence ends at a period FOLLOWED BY A SPACE: cutting at any
+        // period ends the archiver's list in the middle of "tar.gz".
         if opening.count > 260, let stop = opening.prefix(260).range(of: ". ", options: .backwards) {
             return String(opening[..<stop.lowerBound]) + "."
         }
@@ -586,8 +582,7 @@ struct OnboardingView: View {
 
     /// Applying it to the WINDOW as well: a popover (the language list) is a
     /// window of its own and inherits the parent's appearance, so without this
-    /// the list opened in the old theme — dark text on a dark sheet
-    /// (Anton, 2026-09-05).
+    /// the list opened in the old theme — dark text on a dark sheet.
     private func themeChip(_ raw: String, _ label: String) -> some View {
         SettingChip(label, active: themeRaw == raw) {
             themeRaw = raw
@@ -611,7 +606,7 @@ struct OnboardingView: View {
     private func finishOnboarding() {
         // Claimed here so the upgrade rule in App.swift (which writes the old
         // grid for anyone whose onboarding predates the key) never mistakes a
-        // fresh install for an upgrader (Anton, 2026-09-06).
+        // fresh install for an upgrader.
         if UserDefaults.standard.string(forKey: "windowsLayout") == nil {
             UserDefaults.standard.set("row", forKey: "windowsLayout")
         }
@@ -626,11 +621,11 @@ struct OnboardingView: View {
         // spaces (space 2, space 3); drop any that ended up empty so the app
         // never opens onto a blank tab.
         PanelView.dropEmptyOnboardingSpaces()
-        // Mark EVERY "what's new" announcement as seen — the top-of-panel banner
-        // exists for people who updated INTO a feature, and this user has just
-        // been asked about all of them by name. Listing the ids by hand meant a
-        // new announcement started greeting fresh installs with a question they
-        // had already answered (Anton, 2026-07-29).
+        // Mark EVERY "what's new" announcement as seen — the top-of-panel
+        // banner exists for people who updated INTO a feature, and this user
+        // has just been asked about all of them by name. Listing the ids by
+        // hand meant a new announcement started greeting fresh installs with a
+        // question they had already answered.
         for id in PanelView.featureAnnouncementIDs {
             UserDefaults.standard.set(true, forKey: "featureSeen.\(id)")
         }

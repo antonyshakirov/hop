@@ -3,8 +3,8 @@ import HopCore
 
 /// Eyedropper module: one header line and the colors picked so far. Every color
 /// carries all three notations at once and each is a button — clicking hex
-/// copies hex, clicking rgb copies rgb (Anton, 2026-07-25). The old design hid
-/// the result behind "it went to the clipboard", which nobody could see.
+/// copies hex, clicking rgb copies rgb. The old design hid the result behind
+/// "it went to the clipboard", which nobody could see.
 struct ColorPickerView: View {
     @ObservedObject var picker: ColorPickerController
     @ObservedObject var clipboard: ClipboardController
@@ -31,18 +31,18 @@ struct ColorPickerView: View {
     var body: some View {
         VStack(spacing: 6) {
             HStack(spacing: 6) {
-                // A palette, NOT an eyedropper: the module's mark must not be the
-                // same glyph as the action button beside it, or the row reads as
-                // two pick buttons (Anton, 2026-07-25). Smaller and tertiary,
-                // like every other module's mark.
+                // A palette, NOT an eyedropper: the module's mark must not be
+                // the same glyph as the action button beside it, or the row
+                // reads as two pick buttons. Smaller and tertiary, like every
+                // other module's mark.
                 ModuleMarkIcon(symbol: "paintpalette", color: Theme.textTertiary)
                 Text(L10n.t(.colorLabel, lang))
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
                     .lineLimit(1)
                 Spacer(minLength: 6)
-                // an icon, like the clipboard's row actions: a filled button here
-                // shouted over the colours it produces (Anton, 2026-07-25)
+                // an icon, like the clipboard's row actions: a filled button
+                // here shouted over the colours it produces
                 Button {
                     closePanel()
                     picker.pick { reopenPanel() }
@@ -109,7 +109,7 @@ struct ColorPickerView: View {
                     .padding(.horizontal, 6)
                     .padding(.vertical, 3)
                     // OPAQUE: the badge sits over the values, and a translucent
-                    // fill let them read through it (Anton, 2026-07-25)
+                    // fill let them read through it
                     .background(
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Theme.background)
@@ -141,10 +141,10 @@ struct ColorPickerView: View {
                 .font(Theme.mono(9))
                 .foregroundStyle(copiedKey == key ? Theme.accentGreen : Theme.listText)
                 .lineLimit(1)
-                // fixed column per notation: "#202020" and "#FFFFFF" are the same
-                // width, but "rgb(32,32,32)" and "rgb(255,255,255)" are not, and
-                // a shorter value used to drag the next column left (Anton,
-                // 2026-07-25). Widths hold the WIDEST value each form can take.
+                // fixed column per notation: "#202020" and "#FFFFFF" are the
+                // same width, but "rgb(32,32,32)" and "rgb(255,255,255)" are
+                // not, and a shorter value used to drag the next column left.
+                // Widths hold the WIDEST value each form can take.
                 .frame(width: Self.columnWidth(format), alignment: .leading)
                 .padding(.horizontal, 5)
                 .padding(.vertical, 3)

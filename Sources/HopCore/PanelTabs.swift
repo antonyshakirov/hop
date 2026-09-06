@@ -207,12 +207,12 @@ public struct PanelTabsModel: Codable, Equatable {
     /// folded into space 1. Defensive no-op on a caller-built empty model (there
     /// is no first-tab icon to keep).
     /// The second space is everything that REPORTS: the monitor, the speed test
-    /// and the torrents (Anton, 2026-09-05). The first space was carrying all
+    /// and the torrents. The first space was carrying all
     /// three plus every tool, which is more than one panel should say at once.
     public static let reportingModules = ["system", "speedtest", "torrent"]
     public static let timeModules = ["tracker", "todos"]
-    /// The fourth space: what works ON files rather than reporting about the Mac
-    /// (Anton, 2026-09-06).
+    /// The fourth space: what works ON files rather than reporting about the
+    /// Mac.
     public static let toolModules = ["archive", "uninstall", "color"]
 
     public func canonicalized() -> PanelTabsModel {

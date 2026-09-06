@@ -4,9 +4,9 @@ import Foundation
 ///
 /// The field used to shorten what it showed — "11:00" for eleven hours flat,
 /// "45" for three quarters of an hour — and a shortened duration is ambiguous:
-/// 11:00 reads as eleven minutes just as easily (Anton, 2026-08-28). It always
-/// spells out hours:minutes:seconds now, and reads them back the same way,
-/// from the right: the last number is seconds, whatever else is there.
+/// 11:00 reads as eleven minutes just as easily. It always spells out
+/// hours:minutes:seconds now, and reads them back the same way, from the right:
+/// the last number is seconds, whatever else is there.
 public enum DurationField {
     /// The full form, always three parts. Hours are not padded and are not
     /// capped — a task can hold hundreds of them.

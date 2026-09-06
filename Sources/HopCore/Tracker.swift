@@ -1,9 +1,9 @@
 import Foundation
 
-/// A named group of tasks. Projects were dissolved in 1.4.0 because they made
-/// a short list feel like a filing cabinet, and brought back in 1.9.0 with
-/// week totals to answer the question that made them worth having: where did
-/// this week go (Anton, 2026-08-28). A file written in between simply has none.
+/// A named group of tasks. Projects were dissolved in 1.4.0 because they made a
+/// short list feel like a filing cabinet, and brought back in 1.9.0 with week
+/// totals to answer the question that made them worth having: where did this
+/// week go. A file written in between simply has none.
 public struct TrackerProject: Codable, Equatable, Identifiable {
     public let id: UUID
     public var name: String
@@ -74,7 +74,7 @@ public struct TrackerTask: Codable, Equatable, Identifiable {
 
 /// The stretch of time a figure covers. The panel shows one of them at a time,
 /// chosen in the tracker's own header, because three numbers per row in a
-/// 360-point panel is a spreadsheet rather than a list (Anton, 2026-08-28).
+/// 360-point panel is a spreadsheet rather than a list.
 public enum TrackerPeriod: String, CaseIterable, Sendable {
     case today
     case week
@@ -100,20 +100,19 @@ public enum TrackerItem: Equatable, Identifiable {
 ///
 /// It has an `id` because a session is now something a person edits: the card
 /// lists every stretch of time the task collected and lets any of them be
-/// changed, removed or added by hand (Anton, 2026-08-28). A file written before
-/// ids existed gets fresh ones on load — they are stable from the first save
-/// after that, which is all editing needs.
+/// changed, removed or added by hand. A file written before ids existed gets
+/// fresh ones on load — they are stable from the first save after that, which
+/// is all editing needs.
 public struct TrackerInterval: Codable, Equatable, Identifiable {
     public let id: UUID
     public let taskID: UUID
     public var start: Date
     public var end: Date?
     /// False while the interval belongs to the RUN the task is in the middle of
-    /// — the stretch of work started by play and ended by the ✓ (Anton,
-    /// 2026-08-29). Pausing leaves it false, so play/pause/play is one run made
-    /// of several intervals; the ✓ flips them all to true and the run is over.
-    /// Defaults to true so a file written before runs existed reads as what it
-    /// is: history, already filed.
+    /// — the stretch of work started by play and ended by the ✓. Pausing leaves
+    /// it false, so play/pause/play is one run made of several intervals; the ✓
+    /// flips them all to true and the run is over. Defaults to true so a file
+    /// written before runs existed reads as what it is: history, already filed.
     public var committed: Bool
 
     public init(id: UUID = UUID(), taskID: UUID, start: Date, end: Date? = nil,

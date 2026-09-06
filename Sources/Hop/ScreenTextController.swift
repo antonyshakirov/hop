@@ -28,9 +28,9 @@ final class ScreenTextController: ObservableObject {
 
     @Published private(set) var state: State = .idle
     /// The last text read, kept so the window can SHOW it: a silent copy into
-    /// the clipboard history left no sign anything had happened (Anton,
-    /// 2026-07-25). The window edits this freely; the history keeps the
-    /// recognized original until the user copies an edited version.
+    /// the clipboard history left no sign anything had happened. The window
+    /// edits this freely; the history keeps the recognized original until the
+    /// user copies an edited version.
     @Published var recognized: String = ""
     /// Ask the app to bring the recognition window forward (wired in AppModel).
     var onResult: (() -> Void)?
@@ -48,9 +48,9 @@ final class ScreenTextController: ObservableObject {
     var isBusy: Bool { state == .selecting || state == .reading }
 
     /// The web address in what was just read, if there is one — the reason to
-    /// frame a QR code on the Mac rather than reach for a phone: the bill's link
-    /// opens here, in the browser that is already signed in (Anton, 2026-07-27).
-    /// nil for a reading that carries no address, and the button stays away.
+    /// frame a QR code on the Mac rather than reach for a phone: the bill's
+    /// link opens here, in the browser that is already signed in. nil for a
+    /// reading that carries no address, and the button stays away.
     var link: URL? {
         guard let raw = ScreenTextRules.link(in: recognized),
               let url = URL(string: raw),
@@ -79,11 +79,11 @@ final class ScreenTextController: ObservableObject {
         // back as a black rectangle, which reads as "the feature is broken".
         guard CGPreflightScreenCaptureAccess() else {
             // Straight to the repair, not a plain request first: a plain
-            // `CGRequestScreenCaptureAccess` shows NOTHING when the list already
-            // holds a row for Hop that grants nothing (the signature changed under
-            // it), so the first press used to end in "allow it in settings" —
-            // pointing at a switch that was already on. `askAgain` drops that row
-            // and the dialog comes back, once per run (Anton, 2026-09-02).
+            // `CGRequestScreenCaptureAccess` shows NOTHING when the list
+            // already holds a row for Hop that grants nothing (the signature
+            // changed under it), so the first press used to end in "allow it in
+            // settings" — pointing at a switch that was already on. `askAgain`
+            // drops that row and the dialog comes back, once per run.
             PermissionRepair.askAgain(.screenCapture, force: true)
             state = .denied
             return

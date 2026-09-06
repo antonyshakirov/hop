@@ -3,9 +3,9 @@ import Foundation
 /// Which day a week starts on in the reminder's weekday row.
 ///
 /// The region decides this and people disagree with their region: the US counts
-/// from Sunday, most of Europe from Monday, and someone can sit in one place and
-/// think in the other's week. So the default follows the system's regional
-/// setting and the user can override it (Anton, 2026-07-28).
+/// from Sunday, most of Europe from Monday, and someone can sit in one place
+/// and think in the other's week. So the default follows the system's regional
+/// setting and the user can override it.
 enum FirstWeekday: String, CaseIterable, Identifiable {
     case auto
     case sunday

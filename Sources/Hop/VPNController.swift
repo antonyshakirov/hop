@@ -11,10 +11,10 @@ import os
 /// network settings works without support for that particular vendor and without
 /// the user adding anything by hand.
 ///
-/// The window trick (Anton, 2026-07-29): a VPN client normally sits in the Dock
-/// and the menu bar all day for a switch you touch twice a week. Here the app is
-/// not running at all — the tunnel is held by the system — and Hop launches it
-/// only when you ask for its window, then quits it once the window is closed.
+/// The window trick: a VPN client normally sits in the Dock and the menu bar
+/// all day for a switch you touch twice a week. Here the app is not running at
+/// all — the tunnel is held by the system — and Hop launches it only when you
+/// ask for its window, then quits it once the window is closed.
 @MainActor
 final class VPNController: ObservableObject {
     // nonisolated: both are read from the detached task that runs the command
@@ -138,9 +138,9 @@ final class VPNController: ObservableObject {
 
     /// Re-reads the list, off the main thread and never twice at once.
     ///
-    /// Off the main thread because the command blocks (Anton, 2026-08-30): it used
-    /// to run inline here, which was survivable at one launch per tick and is not
-    /// once a network change can ask for a reading of its own. Never twice at once
+    /// Off the main thread because the command blocks: it used to run inline
+    /// here, which was survivable at one launch per tick and is not once a
+    /// network change can ask for a reading of its own. Never twice at once
     /// because a reading that overlaps its predecessor only spends a process to
     /// learn the same thing.
     func refresh() {
@@ -316,15 +316,14 @@ final class VPNController: ObservableObject {
             await Task.detached {
                 if turningOff {
                     _ = Self.run([Self.scutil, "--nc", "stop", id])
-                    // A tunnel is back within seconds of being stopped — its own
-                    // on-demand rules connect it again as soon as anything asks
-                    // for a `.com`, and a vendor's background helper can do the
-                    // same without any rules at all. Stopping is not enough: the
-                    // service itself leaves the network set, which is the only
-                    // lever a third-party configuration gives us. Every
-                    // configuration, not only the ones we can see rules on —
-                    // "off" has to mean the same thing for all of them (Anton,
-                    // 2026-07-30).
+                    // A tunnel is back within seconds of being stopped — its
+                    // own on-demand rules connect it again as soon as anything
+                    // asks for a `.com`, and a vendor's background helper can
+                    // do the same without any rules at all. Stopping is not
+                    // enough: the service itself leaves the network set, which
+                    // is the only lever a third-party configuration gives us.
+                    // Every configuration, not only the ones we can see rules
+                    // on — "off" has to mean the same thing for all of them.
                     if holdOff { Self.setService(name, enabled: false) }
                 } else {
                     // Switching one back on returns it to the set first, or the
@@ -393,10 +392,10 @@ final class VPNController: ObservableObject {
                     emptyTicks = 0
                     return
                 }
-                // A window can blink out of the list for a tick — during a resize,
-                // a sheet, the app's own startup animation — and quitting on the
-                // first empty frame closed the app right after it opened (Anton,
-                // 2026-07-29). Wait for three quiet ticks, and never within two
+                // A window can blink out of the list for a tick — during a
+                // resize, a sheet, the app's own startup animation — and
+                // quitting on the first empty frame closed the app right after
+                // it opened. Wait for three quiet ticks, and never within two
                 // seconds of the window first appearing.
                 guard sawAWindow, let seenAt, Date().timeIntervalSince(seenAt) > 2 else { return }
                 emptyTicks += 1

@@ -51,8 +51,7 @@ public enum DocumentHeuristics {
         let trimmed = line.trimmingCharacters(in: .whitespaces)
         // The gap after a marker is a space OR A TAB. Word writes its lists with
         // a tab, and so does AppKit's HTML reader, so a page's "•\ttext" and a
-        // Word document's alike came back as prose with a stray bullet in it
-        // (found 2026-09-06 converting a page to markdown).
+        // Word document's alike come back as prose with a stray bullet in it.
         for marker in ["•", "‣", "◦", "–", "-", "*"] where trimmed.hasPrefix(marker) {
             let rest = trimmed.dropFirst(marker.count)
             guard let gap = rest.first, gap == " " || gap == "\t" else { continue }

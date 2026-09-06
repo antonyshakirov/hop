@@ -165,8 +165,8 @@ public final class TrackerEngine: ObservableObject {
     }
 
     /// Deletes a project AND everything inside it — its tasks and all of their
-    /// history (Anton, 2026-08-28). The view asks first, naming how many tasks
-    /// and how many hours are about to go.
+    /// history. The view asks first, naming how many tasks and how many hours
+    /// are about to go.
     public func deleteProject(_ id: UUID) {
         guard data.projects.contains(where: { $0.id == id }) else { return }
         for task in data.tasks where task.projectID == id {

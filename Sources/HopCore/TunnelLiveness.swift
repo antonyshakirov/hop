@@ -2,11 +2,11 @@ import Foundation
 
 /// Whether a tunnel the system calls connected is actually carrying anything.
 ///
-/// `scutil` reports the state of the SESSION, not of the traffic. A tunnel whose
-/// server has gone quiet stays `Connected` while nothing comes back through it —
-/// the switch is green and the internet is dead (Anton, 2026-07-31). The only
-/// local evidence that tells the two apart is the tunnel interface's own
-/// counters: packets keep going out and none come in.
+/// `scutil` reports the state of the SESSION, not of the traffic. A tunnel
+/// whose server has gone quiet stays `Connected` while nothing comes back
+/// through it — the switch is green and the internet is dead. The only local
+/// evidence that tells the two apart is the tunnel interface's own counters:
+/// packets keep going out and none come in.
 ///
 /// Nothing here talks to the system. It is fed readings and returns a verdict,
 /// which is what makes every rule below testable.

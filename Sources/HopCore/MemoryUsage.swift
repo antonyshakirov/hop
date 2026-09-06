@@ -3,8 +3,8 @@
 /// Activity Monitor splits the whole Physical Memory bar into three slices —
 /// Memory Used, Cached Files, and free — so its "Used" figure is
 /// `Physical − Cached Files − free`. Measured against a live Activity Monitor
-/// reading (2026-07-27, 24 GiB machine, "Used" 20.98 GB) the two subtracted
-/// terms are exactly:
+/// reading (a 24 GiB machine, "Used" 20.98 GB) the two subtracted terms are
+/// exactly:
 ///
 /// - **Cached Files** = `external_page_count` and nothing else. Purgeable pages
 ///   are NOT cache here: Activity Monitor counts them inside App Memory, and

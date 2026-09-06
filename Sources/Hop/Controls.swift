@@ -43,8 +43,8 @@ struct NumericField: View {
             .foregroundStyle(color)
             .multilineTextAlignment(.center)
             // No focus nudge: the compensation for AppKit's old field-editor
-            // lift now IS the jump — clicking a field visibly dropped the digits
-            // (Anton, 2026-07-28).
+            // lift now IS the jump — clicking a field visibly dropped the
+            // digits.
             .frame(width: 44, height: 24)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
             .onAppear { text = display(value) }
@@ -296,11 +296,11 @@ struct MiniSlider: View {
     }
 }
 
-/// Metric chart in the iStat spirit (Anton, 2026-07-15): a full-width
-/// filled area right under the metric's row — no scale, no legend, no
-/// time labels. The row above already shows the current value; the shape
-/// only conveys the trend. The first series is the filled primary, any
-/// further series (temperature, upload) draw as thinner plain lines.
+/// Metric chart in the iStat spirit: a full-width filled area right under the
+/// metric's row — no scale, no legend, no time labels. The row above already
+/// shows the current value; the shape only conveys the trend. The first series
+/// is the filled primary, any further series (temperature, upload) draw as
+/// thinner plain lines.
 struct SparklineCard: View {
     struct Series: Identifiable {
         let label: String // identity only — never rendered
@@ -409,7 +409,7 @@ struct SettingChip<Content: View>: View {
     /// A choice that exists but cannot be made here — an upscale the source has
     /// no pixels for, say. It stays in its place, dimmed: a row of chips that
     /// appears and disappears as the neighbouring choice changes is worse than
-    /// one with a greyed-out member (Anton, 2026-08-04).
+    /// one with a greyed-out member.
     var enabled = true
     let action: () -> Void
     private let content: Content
@@ -540,7 +540,7 @@ struct DocView: View {
     /// The distance a block keeps from the one above it. Items of the same list
     /// sit closer to each other than two paragraphs do, and a release heading
     /// ("1.2.0 — date") opens a section rather than continuing a list — spacing
-    /// says what belongs together (Anton, 2026-09-02).
+    /// says what belongs together.
     private func gap(before index: Int, in blocks: [String]) -> CGFloat {
         guard index > 0 else { return 0 }
         if isVersionHeading(blocks[index]) { return 26 }
@@ -621,12 +621,12 @@ struct DocView: View {
     }
 }
 
-/// "Let Hop open these files" — the one shape both offers use (torrent files and
-/// archives). It shows the LIVE Launch Services state rather than a stored flag:
-/// the default can be changed in Finder at any moment, and a control that
-/// disagrees with the system is worse than no control (Anton, 2026-07-26). The
-/// state is re-read whenever Hop becomes active again, which is exactly when a
-/// user comes back from changing it elsewhere.
+/// "Let Hop open these files" — the one shape both offers use (torrent files
+/// and archives). It shows the LIVE Launch Services state rather than a stored
+/// flag: the default can be changed in Finder at any moment, and a control that
+/// disagrees with the system is worse than no control. The state is re-read
+/// whenever Hop becomes active again, which is exactly when a user comes back
+/// from changing it elsewhere.
 struct DefaultHandlerCard: View {
     let label: String
     /// Reads Launch Services; called on appear and on every app activation.
@@ -651,9 +651,9 @@ struct DefaultHandlerCard: View {
             HStack {
                 // The LABEL never changes places with the state: two of these
                 // cards sit in the same settings screen, and they have to read
-                // as one control in two states, not as two controls (Anton,
-                // 2026-07-26). The seal carries the state — outline to offer,
-                // filled green once Hop holds the types.
+                // as one control in two states, not as two controls. The seal
+                // carries the state — outline to offer, filled green once Hop
+                // holds the types.
                 Text(label)
                     .font(Theme.mono(11, weight: .semibold))
                     .foregroundStyle(held ? Theme.textSecondary : Theme.textPrimary)
@@ -691,8 +691,8 @@ struct DefaultHandlerCard: View {
 /// A module's own mark at the head of its row. The frame is FIXED because SF
 /// Symbols differ in height as well as width: `doc.zipper` is a tall document
 /// and `archivebox` a squat box, so at the same point size the converter card
-/// came out 1.5pt taller than the archive one right next to it (Anton,
-/// 2026-07-26). Colour stays with the caller — a module marks its own state.
+/// came out 1.5pt taller than the archive one right next to it. Colour stays
+/// with the caller — a module marks its own state.
 struct ModuleMarkIcon: View {
     let symbol: String
     var color: Color = Theme.textSecondary
@@ -706,19 +706,19 @@ struct ModuleMarkIcon: View {
 }
 
 /// The icon of a module row's action — the one place their size and weight are
-/// decided. SF Symbols are not drawn to a common optical size: at the same point
-/// size a dashed viewfinder looks visibly smaller than a boxed arrow, and the
-/// eyedropper looks heavier than both, so the row read as a set of mismatched
-/// buttons (Anton, 2026-07-26). The table below trims each glyph to the same
-/// visual height; everything else stays identical — regular weight, secondary
-/// colour, one tap area.
+/// decided. SF Symbols are not drawn to a common optical size: at the same
+/// point size a dashed viewfinder looks visibly smaller than a boxed arrow, and
+/// the eyedropper looks heavier than both, so the row read as a set of
+/// mismatched buttons. The table below trims each glyph to the same visual
+/// height; everything else stays identical — regular weight, secondary colour,
+/// one tap area.
 struct RowActionIcon: View {
     let symbol: String
     /// The action is running right now (the eyedropper while the loupe is up).
     var active = false
     /// The WHOLE row is the button (converter, archives), so the glyph needs no
     /// tap area of its own — and a 22pt one would make those cards taller than
-    /// every other row in the panel (Anton, 2026-07-26).
+    /// every other row in the panel.
     var compact = false
 
     /// Point size per symbol, chosen so the glyphs match on screen rather than
@@ -728,7 +728,7 @@ struct RowActionIcon: View {
         // enough for a shape this different: a landscape marquee tall enough to
         // match the arrow ran half again as wide, and width is what reads as
         // "bigger". The square one at this size draws 11.3 x 12.0 — the arrow's
-        // own box to a fraction of a point (Anton, 2026-07-27).
+        // own box to a fraction of a point.
         "square.dashed": 12.5,
         "arrow.up.forward.app": 12.5,   // boxed, fills its frame
         "eyedropper": 12,               // tall and heavy
@@ -925,7 +925,7 @@ struct HoverIconButton: View {
     var size: CGFloat = 10
     /// What the icon does, on hover. Icon-only controls are unreadable without
     /// it, so it is a parameter of the shared component rather than something
-    /// each call site remembers (Anton, 2026-07-30).
+    /// each call site remembers.
     var help: String?
     @State private var hovering = false
 
@@ -980,7 +980,7 @@ struct HoverDeleteX: View {
     /// The button's box. 22pt matches a task row, whose leading circle already
     /// makes the row that tall; a shorter row (a line of a task's history) asks
     /// for a smaller one, or the ✕ would push the row taller the moment the
-    /// pointer arrives (Anton, 2026-08-28).
+    /// pointer arrives.
     var size: CGFloat = 22
 
     var body: some View {
@@ -1000,9 +1000,9 @@ struct HoverDeleteX: View {
 
 /// The ✓ that ends a run. It sits beside the figure of a task in the middle of
 /// one — running now, or paused part-way through — and closes it: what the run
-/// collected stays in the history, and the row goes back to showing the period's
-/// own sum (Anton, 2026-08-29). Unlike the hover ✕ it is always visible while a
-/// run is open, because it is also the row's only sign that one IS open.
+/// collected stays in the history, and the row goes back to showing the
+/// period's own sum. Unlike the hover ✕ it is always visible while a run is
+/// open, because it is also the row's only sign that one IS open.
 struct RunCommitButton: View {
     let action: () -> Void
     var help: String?
@@ -1064,7 +1064,7 @@ enum RowCircle {
     static let diameter: CGFloat = 18   // between the old transport 22 and checkbox ~13
     /// The to-do checkbox is a RING, and a ring reads bigger than a disc of the
     /// same size — next to the tracker's filled play button it looked like a
-    /// different control (Anton, 2026-07-28). 16pt is the optical match.
+    /// different control. 16pt is the optical match.
     static let checkboxDiameter: CGFloat = 16
     static let gutter: CGFloat = 22
     static let glyphSize: CGFloat = 9
@@ -1101,8 +1101,8 @@ struct PlayGlyph: View {
     var box: CGFloat
     /// Corner rounding, as a fraction of `box`: it sets the round-join stroke
     /// width, so a bigger fraction bulges the corners rounder. Tuned noticeably
-    /// higher than the original 0.34 (Anton: "round as much as possible") while
-    /// the shape still reads as a play triangle down to the 18pt row circle.
+    /// higher than the original 0.34 while the shape still reads as a play
+    /// triangle down to the 18pt row circle.
     var round: CGFloat = 0.46
 
     var body: some View {
@@ -1125,14 +1125,14 @@ struct PlayGlyph: View {
 }
 
 /// A five-pointed star as a closed path, so its points can be rounded the way
-/// the play triangle's corners are. SF's `star.fill` comes out needle-sharp next
-/// to the house glyphs (Anton, 2026-07-28).
+/// the play triangle's corners are. SF's `star.fill` comes out needle-sharp
+/// next to the house glyphs.
 private struct StarShape: Shape {
     var inset: CGFloat = 0
     /// Corner rounding as a fraction of the box. The rounded outline is baked
     /// into the PATH (stroke it, then union with itself), so the shape can be
     /// filled once — filling and stroking separately made a translucent colour
-    /// pile up along the rim and read as a glow (Anton, 2026-07-28).
+    /// pile up along the rim and read as a glow.
     var round: CGFloat = 0
 
     func path(in rect: CGRect) -> Path {
@@ -1212,11 +1212,11 @@ struct TransportCircle: View {
         let glyph = glyphColor ?? (filled ? Theme.playFg : Theme.textPrimary)
         Group {
             if systemName == "play.fill" {
-                // Bigger than the 0.315 it shrank to, and LESS rounded with it
-                // (Anton, 2026-08-28): at 0.46 the round join eats the tip and
-                // the top and bottom corners, so growing the box only looked
-                // like growing the width. A tighter join keeps the height the
-                // growth was meant to buy.
+                // Bigger than the 0.315 it shrank to, and LESS rounded with it:
+                // at 0.46 the round join eats the tip and the top and bottom
+                // corners, so growing the box only looked like growing the
+                // width. A tighter join keeps the height the growth was meant
+                // to buy.
                 PlayGlyph(color: glyph, box: diameter * 0.38, round: 0.36)
             } else if systemName.isEmpty {
                 Color.clear
@@ -1242,8 +1242,7 @@ struct TransportCircle: View {
 /// FRAME with a source-shaped picture inside it — filling it and spilling over
 /// the edges (crop), sitting whole between empty bars (bars), or sitting whole
 /// over a filled ground (blur). Three words are three guesses until you see
-/// them, and a diagram that ignored the frame said even less (Anton,
-/// 2026-08-28).
+/// them, and a diagram that ignored the frame said even less.
 struct FitGlyph: View {
     /// "fill" | "pad" | "blur" — the stored `convVideoFit` values.
     let fit: String
@@ -1252,8 +1251,7 @@ struct FitGlyph: View {
     let shape: VideoFrame.Shape
 
     /// Big enough to read at a glance — a vertical frame is narrow, so the box
-    /// has to be generous or the diagram becomes two stripes (Anton,
-    /// 2026-08-28).
+    /// has to be generous or the diagram becomes two stripes.
     private static let box = CGSize(width: 62, height: 40)
     /// The picture inside is drawn as ordinary landscape footage.
     private static let sourceRatio: CGFloat = 16.0 / 9

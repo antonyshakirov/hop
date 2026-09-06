@@ -6,8 +6,8 @@ import SwiftUI
 ///
 /// Its own view because it OBSERVES the shelves controller. Inside the settings
 /// screen the same rows read `model.appShelves` without observing it, so a
-/// toggled switch changed the stored value and the row kept drawing the old one —
-/// the switch looked broken (Anton, 2026-07-30).
+/// toggled switch changed the stored value and the row kept drawing the old one
+/// — the switch looked broken.
 struct AppShelvesSettingsView: View {
     @ObservedObject var shelves: AppShelvesController
     let lang: AppLanguage
@@ -39,8 +39,8 @@ struct AppShelvesSettingsView: View {
                     .hoverDim()
                     .help(t(.appsRemoveShelf))
                 }
-                // Flush with the row above it: an indent here read as "belongs to
-                // something else" (Anton, 2026-07-30).
+                // Flush with the row above it: an indent here read as "belongs
+                // to something else".
                 HStack {
                     Text(t(.appsShowNames))
                         .font(Theme.mono(11))

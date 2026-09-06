@@ -3,11 +3,11 @@ import Foundation
 /// How often the VPN module looks, and whether this look re-reads the system's
 /// list.
 ///
-/// Until 2026-08-30 the list was re-read every 30 seconds with the panel closed,
-/// so a tunnel that came up outside Hop took up to half a minute to reach the
-/// menu-bar dot, and one that went down took the same whenever its `utun` stayed
-/// standing behind it (Anton, 2026-08-30). The system announces both the moment
-/// they happen; this decides what the module does about an announcement.
+/// A list re-read on a 30-second tick with the panel closed leaves a tunnel that
+/// came up outside Hop up to half a minute short of the menu-bar dot, and one
+/// that went down the same whenever its `utun` stays standing behind it. The
+/// system announces both the moment they happen; this decides what the module
+/// does about an announcement.
 ///
 /// Nothing here talks to the system. It is given the state and returns a plan,
 /// which is what makes every rule below testable.

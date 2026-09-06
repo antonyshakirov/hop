@@ -6,8 +6,7 @@
 /// nothing about a fanless Mac quietly throttling in a warm room. macOS already
 /// weighs the chip, its cooling and the ambient temperature and publishes the
 /// verdict through `ProcessInfo.thermalState`, so the row follows that, exactly
-/// as the memory row follows the system's memory-pressure signal (Anton,
-/// 2026-07-27).
+/// as the memory row follows the system's memory-pressure signal.
 public enum ThermalLevel: Int, Equatable, Sendable {
     case normal
     case warning

@@ -50,10 +50,9 @@ public enum ScreenTextRules {
     /// when there is nothing to open.
     ///
     /// A QR code on a bill or a poster carries a link, and the point of reading
-    /// it on the Mac instead of pointing a phone at it is to FOLLOW it here
-    /// (Anton, 2026-07-27). The same holds for an address printed in the text of
-    /// a screenshot, so this looks at the whole reading rather than at barcodes
-    /// alone.
+    /// it on the Mac instead of pointing a phone at it is to FOLLOW it here.
+    /// The same holds for an address printed in the text of a screenshot, so
+    /// this looks at the whole reading rather than at barcodes alone.
     ///
     /// Only `http` and `https` are recognized. A scanned code is untrusted input
     /// and every other scheme hands it a lever: `file://` reaches the disk and a

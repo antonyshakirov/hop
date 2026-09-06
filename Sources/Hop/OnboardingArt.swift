@@ -72,9 +72,9 @@ struct ScreenTextArt: View {
 struct KeyboardLockArt: View {
     let lang: AppLanguage
 
-    /// A whole keyboard rather than three rows of letters: the modifier keys and
-    /// a space bar with something on either side of it are what makes the shape
-    /// read as a keyboard (Anton, 2026-09-05).
+    /// A whole keyboard rather than three rows of letters: the modifier keys
+    /// and a space bar with something on either side of it are what makes the
+    /// shape read as a keyboard.
     private static let rows: [[(String, CGFloat)]] = [
         [("esc", 1.4)] + "QWERTYUIOP".map { (String($0), 1) },
         [("tab", 1.6)] + "ASDFGHJKL".map { (String($0), 1) } + [("↩", 1.6)],

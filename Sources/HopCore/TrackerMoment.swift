@@ -3,10 +3,10 @@ import Foundation
 /// The date and time a history line carries, as three numbers plus a clock.
 ///
 /// A menu of the last thirty days answered "when did I do this" only while the
-/// answer was recent; a session logged for last spring had nowhere to go
-/// (Anton, 2026-08-28). Typed day, month and year reach any date at all — and
-/// typed fields need someone to keep them honest, which is what this does: the
-/// 31st of a thirty-day month is not an error message, it is the 30th.
+/// answer was recent; a session logged for last spring had nowhere to go. Typed
+/// day, month and year reach any date at all — and typed fields need someone to
+/// keep them honest, which is what this does: the 31st of a thirty-day month is
+/// not an error message, it is the 30th.
 public enum TrackerMoment {
     public enum Part: String, Equatable, Sendable {
         case day

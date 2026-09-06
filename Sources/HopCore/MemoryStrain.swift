@@ -11,7 +11,7 @@ import Foundation
 ///   answer to that question and nothing else. Pages that were pushed to disk
 ///   and have stayed cold since cost the system nothing, so it keeps reporting
 ///   normal while a great deal of memory sits in swap — measured on a 24 GB
-///   machine holding 9.4 GB of swap, the level was still 1 (Anton, 2026-07-28).
+/// machine holding 9.4 GB of swap, the level was still 1.
 /// - **Swap measured against physical RAM** answers "how much of my working set
 ///   is living on disk". That is a fact about the machine rather than a guess at
 ///   how it feels, and it is the part the user can act on: close something.

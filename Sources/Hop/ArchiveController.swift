@@ -21,8 +21,8 @@ final class ArchiveController: ObservableObject {
 
     typealias Failure = ArchiveFailureKind
 
-    /// Where results are written. The Desktop is the default: an unpacked folder
-    /// has to be somewhere the user is already looking (Anton, 2026-07-25).
+    /// Where results are written. The Desktop is the default: an unpacked
+    /// folder has to be somewhere the user is already looking.
     enum Destination: String, CaseIterable, Identifiable, Sendable {
         case desktop, alongside, custom
         public var id: String { rawValue }
@@ -46,8 +46,7 @@ final class ArchiveController: ObservableObject {
 
     @Published private(set) var jobs: [Job] = []
     /// Files waiting for the user to press the button. Adding something never
-    /// starts work on its own: a drop is "here are the files", not "go" (Anton,
-    /// 2026-07-25).
+    /// starts work on its own: a drop is "here are the files", not "go".
     @Published private(set) var pending: [URL] = []
     /// The 7-Zip helper, fetched only when a rar/7z actually turns up.
     let helper = ToolInstaller(manifestURL: ArchiveController.helperManifestURL,
@@ -111,15 +110,15 @@ final class ArchiveController: ObservableObject {
         return archives.count == pending.count ? .extract : .pack
     }
 
-    /// True for a queued file that will be unpacked; the pack format has nothing
-    /// to say about it, so the row shows no format (Anton, 2026-07-25).
+    /// True for a queued file that will be unpacked; the pack format has
+    /// nothing to say about it, so the row shows no format.
     func willUnpack(_ url: URL) -> Bool {
         !isDirectory(url) && ArchiveRules.format(ofFileNamed: url.lastPathComponent) != nil
     }
 
     /// Content types Hop offers to open. Claiming them makes a double-clicked
     /// archive unpack through Hop even when the module is hidden from the panel
-    /// (Anton, 2026-07-25) — the same deal the torrent module offers.
+    /// — the same deal the torrent module offers.
     static let handledContentTypes = ArchiveHandlerRules.handledContentTypes
 
     /// The app that opens a content type right now, or nil when nothing claims it.
@@ -129,19 +128,19 @@ final class ArchiveController: ObservableObject {
             .flatMap { Bundle(url: $0)?.bundleIdentifier }
     }
 
-    /// **macOS's own app is never overridden** (Anton, 2026-07-26): zip and tar
-    /// already open in Archive Utility, and a menu-bar tool has no business
-    /// taking that away. Hop offers itself for the types the system leaves to
-    /// somebody else. Today the only such type Hop offers to claim is rar.
+    /// **macOS's own app is never overridden**: zip and tar already open in
+    /// Archive Utility, and a menu-bar tool has no business taking that away.
+    /// Hop offers itself for the types the system leaves to somebody else.
+    /// Today the only such type Hop offers to claim is rar.
     static func isAppleHandler(_ bundleID: String?) -> Bool {
         ArchiveHandlerRules.isAppleHandler(bundleID)
     }
 
-    /// The ONE type Hop offers to take over: rar, which no Apple app opens on the
-    /// macOS versions Hop supports. zip, tar, gz, bz2, xz and even 7z are opened
-    /// by Archive Utility, and taking those away from a system app nobody asked
-    /// to replace is exactly the kind of squatting a menu-bar tool should not do
-    /// (Anton, 2026-07-26).
+    /// The ONE type Hop offers to take over: rar, which no Apple app opens on
+    /// the macOS versions Hop supports. zip, tar, gz, bz2, xz and even 7z are
+    /// opened by Archive Utility, and taking those away from a system app
+    /// nobody asked to replace is exactly the kind of squatting a menu-bar tool
+    /// should not do.
     static let claimableContentTypes = ArchiveHandlerRules.claimableContentTypes
 
     /// What a tap would actually change: the claimable types that Apple does not
@@ -189,9 +188,9 @@ final class ArchiveController: ObservableObject {
     }
 
     /// Hop opens everything it is allowed to open. Read from Launch Services
-    /// every time, never from a stored flag: the default can be changed in Finder
-    /// at any moment, and a control that disagrees with the system is worse than
-    /// no control (Anton, 2026-07-26).
+    /// every time, never from a stored flag: the default can be changed in
+    /// Finder at any moment, and a control that disagrees with the system is
+    /// worse than no control.
     static var isDefaultHandler: Bool {
         let held = claimableContentTypes.contains { type in
             currentHandler(for: type)?.caseInsensitiveCompare(Bundle.storageIdentifier) == .orderedSame
@@ -236,7 +235,7 @@ final class ArchiveController: ObservableObject {
 
     /// ⌘V in the archive window: the same queue, filled from the pasteboard.
     /// Copying files in Finder puts their URLs on the pasteboard, so a paste of
-    /// several files queues all of them (Anton, 2026-07-25).
+    /// several files queues all of them.
     func addFromPasteboard() {
         let urls = NSPasteboard.general.readObjects(
             forClasses: [NSURL.self],
@@ -430,7 +429,7 @@ final class ArchiveController: ObservableObject {
         } catch {
             // The Desktop, Documents and Downloads folders are gated by macOS:
             // without consent every write fails and the result would silently
-            // never appear (Anton, 2026-07-25). Say so instead.
+            // never appear. Say so instead.
             return .failure(isPermissionError(error) ? .denied : .tool)
         }
     }

@@ -35,10 +35,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var torrentAddWindow: NSWindow?
     private var quitWindow: NSWindow?
     private var converterUserResized = false
-    /// Content height we set on the window ourselves. A resize to any other
-    /// height is a user action. A temporary flag did not work: didResize arrives
-    /// asynchronously (queue .main + Task) after the flag is already reset, so
-    /// auto-fit silently turned off forever — hence the "hole" below an empty converter
+    /// Content height we set on the window ourselves; a resize to any other
+    /// height is a user action. A temporary flag cannot do this job: didResize
+    /// arrives asynchronously (queue .main + Task), by which time the flag is
+    /// already reset and auto-fit stays off for good.
     private var converterExpectedHeight: CGFloat = -1
     private var contentHeightSink: AnyCancellable?
     private var archiveHeightSink: AnyCancellable?
@@ -72,7 +72,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Hop is a menu-bar app with no Dock icon, which is right until it opens a
     /// window of its own. A window that cannot be reached from the Dock has to
     /// be found through the panel every time, and the panel is the whole app
-    /// when all the user wanted was the converter (Anton, 2026-07-28).
+    /// when all the user wanted was the converter.
     ///
     /// Called BEFORE the window is ordered in: switching policy after it is on
     /// screen makes the app blink out of focus and the window drop behind
@@ -169,10 +169,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Throws away what the URL cache left before Hop switched it off. Runs once
     /// per machine, on the first launch of a build that carries this: the files
     /// are ours, in our own cache folder, so nothing is asked of the user and
-    /// nothing of theirs is touched — only `Cache.db` and the fetched-file folder
+    /// nothing of theirs is touched: only `Cache.db` and the fetched-file folder
     /// the URL loading system writes. Deleting them is what "we keep no cache"
-    /// means for someone updating rather than installing fresh (Anton,
-    /// 2026-07-30).
+    /// means for someone updating rather than installing fresh.
     private static func dropOwnHTTPCache() {
         let done = "httpCacheDropped"
         guard !UserDefaults.standard.bool(forKey: done) else { return }
@@ -195,21 +194,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // already knows it is gone.
         AccessibilityWatch.shared.refresh()
 
-        // Hop keeps no HTTP cache on disk. It never asked for one: macOS gives
-        // every app a URL cache, and Hop's few downloads — the update check, the
-        // speed test, the 7-Zip helper — filled ~/Library/Caches/…/Cache.db with
-        // megabytes of write-ahead log that nothing here ever reads again (Anton
-        // found Hop in its own cache list, 2026-07-30). Zero on both ends: a
-        // one-shot download has nothing to gain from being cached, and a speed
-        // test served from a cache would measure the wrong thing.
         // Tooltips after a second: the system's lazy couple of seconds arrives
         // after the pointer has moved on, and a third of a second fires while
-        // the pointer is only passing through, which reads as twitchy (Anton
-        // tried both, 2026-07-30).
+        // the pointer is only passing through, which reads as twitchy.
         UserDefaults.standard.register(defaults: ["NSInitialToolTipDelay": 1000])
 
         URLCache.shared = URLCache(memoryCapacity: 0, diskCapacity: 0, diskPath: nil)
         Self.dropOwnHTTPCache()
+
+        // Hop keeps no HTTP cache on disk. macOS gives every app a URL cache,
+        // and Hop's few downloads (the update check, the speed test, the 7-Zip
+        // helper) fill ~/Library/Caches/…/Cache.db with megabytes of
+        // write-ahead log that nothing here ever reads again. A one-shot
+        // download has nothing to gain from being cached, and a speed test
+        // served from a cache would measure the wrong thing.
 
         // crash-loop guard — BEFORE any modules: three unfinished launches in a row =
         // safe mode, where only the updater lives. Even a bug that crashes
@@ -223,14 +221,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        // Registered defaults. "display stays on" defaults ON: keep-awake should keep
-        // the MONITOR awake, not just the system — a caffeine tool that lets the screen
-        // sleep by default is a surprise ("I pressed keep-awake and the monitor still
-        // turned off"). Registered rather than written, so a user who explicitly turns
-        // it off still wins, and BOTH readers agree: the settings toggle (@AppStorage)
-        // and the controller (UserDefaults.bool(forKey:)) — which returned false for the
-        // never-set key, so the assertion was PreventUserIdleSystemSleep and the display
-        // slept regardless of what the toggle appeared to show.
+        // Registered defaults. "display stays on" defaults ON: keep-awake keeps
+        // the MONITOR awake, not just the system. Registered rather than
+        // written, so a user who explicitly turns it off still wins and BOTH
+        // readers agree: the settings toggle (@AppStorage) and the controller
+        // (UserDefaults.bool(forKey:)), which reads a never-set key as false and
+        // would otherwise assert PreventUserIdleSystemSleep alone.
         UserDefaults.standard.register(defaults: [
             KeepAwakeController.keepDisplayKey: true,
         ])
@@ -243,9 +239,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             forName: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
             object: nil, queue: .main
         ) { [weak self] _ in
-            // NOT via NSApp.delegate: with @NSApplicationDelegateAdaptor it holds
-            // a SwiftUI wrapper, so the cast to AppDelegate silently failed — the
-            // "auto" theme did not follow the system one
+            // NOT via NSApp.delegate: with @NSApplicationDelegateAdaptor it
+            // holds a SwiftUI wrapper, so a cast to AppDelegate fails and the
+            // "auto" theme stops following the system one
             Task { @MainActor in self?.syncSystemTheme() }
         }
 
@@ -321,10 +317,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 + finderArchiveWindows.values.map(\.presentedWindow))
             // Raise them WITHOUT reshuffling: walk the current front-to-back
             // order in reverse (back first) so each orderFrontRegardless lands
-            // the windows on top in the SAME relative order the user arranged.
-            // A fixed array order here reshuffled the user's windows on every
-            // panel summon (Anton, 2026-07-19). orderedWindows already excludes
-            // miniaturized windows, so a minimized window stays in the Dock.
+            // the windows on top in the SAME relative order the user arranged;
+            // a fixed array order here would reshuffle them on every panel
+            // summon. orderedWindows already excludes miniaturized windows, so
+            // a minimized window stays in the Dock.
             for window in NSApp.orderedWindows.reversed()
             where ours.contains(window) && window.isVisible {
                 window.orderFrontRegardless()
@@ -336,10 +332,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         WindowSnapController.shared.startTracking()
 
-        // auto-height of the converter window from its content (until the user resizes it)
-        // no removeDuplicates: on reopen the content height is the same,
-        // and deduplication muted the fit — the window got stuck at the initial height.
-        // adjustConverterHeight is idempotent (guard abs>2), so no loop
+        // auto-height of the converter window from its content, until the user
+        // resizes it. No removeDuplicates: on reopen the content height is the
+        // same, so deduplication would mute the fit and leave the window at its
+        // initial height. adjustConverterHeight is idempotent (guard abs>2).
         contentHeightSink = model.$converterContentHeight
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in self?.adjustConverterHeight() }
@@ -414,8 +410,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
-        // The zones ship as one row now (Anton, 2026-09-05). Somebody who has
-        // been using the grid keeps it: the default only applies where the app
+        // The zones ship as one row. Somebody who has been using the grid keeps
+        // it: the default only applies where the app
         // has never run, so a Mac that already finished onboarding is written
         // the old value once.
         let defaults = UserDefaults.standard
@@ -445,9 +441,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Repopulate the torrent list from the engine's persisted session, so a
         // relaunch (or a dev reinstall) doesn't leave active torrents invisible in
-        // the panel while they keep running in the engine. No-op when nothing was
-        // saved or the engine isn't installed. This was never wired — torrents only
-        // "survived" a restart when `open` reused the running instance.
+        // the panel while they keep running in the engine. No-op when nothing
+        // was saved or the engine isn't installed.
         Task {
             // First reap any engine orphaned by a previous instance: a reinstall's
             // SIGKILL bypasses applicationWillTerminate, leaving rqbit holding the
@@ -646,9 +641,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Repaint everything at once: popover, windows, menu bar icon.
     /// `refreshIcon: false` leaves the Dock icon alone. Rewriting it goes through
     /// `NSWorkspace.setIcon`, which writes into the bundle and waits on the
-    /// Finder — seconds, on the main thread, for a theme chip that should answer
-    /// at once (Anton, 2026-09-05). The onboarding passes false and the icon is
-    /// written once at the end.
+    /// Finder: seconds on the main thread, for a theme chip that should answer
+    /// at once. The onboarding passes false and the icon is written once at the
+    /// end.
     func applyAppTheme(refreshIcon: Bool = true) {
         statusController?.applyTheme()
         settingsWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
@@ -759,15 +754,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         guard let window = converterWindow else { return }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
-        // CUSTOM presentation without fittingSize: the window has auto-sizing off and
-        // maxHeight:.infinity, so fittingSize degenerates to 0 — because of that
-        // the window kept opening at 1x1 and was invisible. Set an explicit
-        // sensible size, center, show — adjustConverterHeight then
-        // fits the height to the content
+        // CUSTOM presentation without fittingSize: the window has auto-sizing
+        // off and maxHeight:.infinity, so fittingSize degenerates to 0 and the
+        // window opens at 1x1, invisible. Set an explicit size, centre, show;
+        // adjustConverterHeight then fits the height to the content
         if !window.isVisible {
-            // fresh open — auto-height to content again; record the initial size
-            // as programmatic, otherwise didResize flags it as "user resized"
-            // and auto-fit turns off forever (the window got stuck large with a hole)
+            // fresh open: auto-height to content again, recording the initial
+            // size as programmatic. Otherwise didResize flags it as "user
+            // resized" and auto-fit turns off for good.
             converterUserResized = false
             converterExpectedHeight = 380
             window.setContentSize(NSSize(width: 540, height: 380))
@@ -784,7 +778,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Height of the archive window from its content, exactly like the
     /// converter's: an empty module is a drop plate and nothing else, and the
-    /// window grows only once there are jobs under it (Anton, 2026-07-25).
+    /// window grows only once there are jobs under it.
     private func adjustArchiveHeight() {
         guard let window = archiveWindow, window.isVisible,
               !archiveUserResized else { return }
@@ -806,8 +800,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// The archive window: a drop target that stays put while a file is being
-    /// dragged onto it — the panel's popover closes the moment a drag starts, so
-    /// the module's row only opens this (Anton, 2026-07-25).
+    /// dragged onto it: the panel's popover closes the moment a drag starts, so
+    /// the module's row only opens this.
     private func showArchiveWindow() {
         model.activity.note()
         if archiveWindow == nil {
@@ -877,13 +871,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let window = uninstallWindow else { return }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         if !window.isVisible {
-            // The clean-up job opens TALL: it is five lists, and a short window put
-            // its buttons below the fold, where a button might as well not exist
-            // (Anton, 2026-07-30). Removing an app opens at the drop plate's own
-            // height and grows from there.
             // Both jobs open TALL: one is five lists, the other is every app on
-            // the Mac, and a short window put their content below the fold where
-            // a button might as well not exist (Anton, 2026-07-30).
+            // the Mac, and a short window puts their content below the fold
+            // where a button might as well not exist.
             let clean = model.uninstall.mode == .clean
             let screen = (NSScreen.main?.visibleFrame.height ?? 900)
             window.setContentSize(NSSize(width: clean ? 620 : 560,
@@ -952,9 +942,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let window = screenTextWindow else { return }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         // The window is as tall as what it shows: just the drop plate until a
-        // result exists, then room for the text as well (Anton, 2026-07-25).
-        // A fixed pair of heights left a gap under the plate, so the real
-        // content height decides — adjustScreenTextHeight takes it from here.
+        // result exists, then room for the text as well. A fixed pair of heights
+        // leaves a gap under the plate, so the real content height decides and
+        // adjustScreenTextHeight takes it from here.
         if !window.isVisible {
             window.setContentSize(NSSize(width: 560, height: 240))
             window.center()
@@ -987,8 +977,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showOnboarding() {
         // No close button and no .closable: onboarding is finished, not
-        // dismissed, and quitting only means it reopens on the same step
-        // (Anton, 2026-09-05).
+        // dismissed, and quitting only means it reopens on the same step.
         // SPEC: docs/spec.md — "Onboarding", the window's frame before it shows.
         let size = NSSize(width: 880, height: 700)
         let visible = (NSScreen.main ?? NSScreen.screens.first)?.visibleFrame
@@ -1003,15 +992,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
         // The title bar shows the window's own colour, which is white in the
-        // light theme and read as a strip above the wizard (Anton, 2026-09-05).
+        // light theme and reads as a strip above the wizard.
         window.backgroundColor = NSColor(Theme.background)
         // AppKit remembers where a titled window was and cascades new ones from
         // the last one it opened. Either would put the wizard somewhere other
-        // than the middle of the screen (Anton, 2026-09-05).
+        // than the middle of the screen.
         window.isRestorable = false
         // Draggable by its title bar, not by its background: a drag started on a
-        // chip would otherwise move the window instead of pressing the chip
-        // (Anton, 2026-09-05, asking for a window that can be moved).
+        // chip would otherwise move the window instead of pressing the chip.
         window.isMovableByWindowBackground = false
         window.isMovable = true
         window.isReleasedWhenClosed = false
@@ -1031,9 +1019,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }.hopLayoutDirection())
         // Handing a window an NSHostingController collapses its frame to the
-        // SwiftUI view's not-yet-measured size — zero — so it was ordered in at
-        // 0×0 and grew into place a frame later, which is the jump (Anton,
-        // 2026-09-06). The size is put back before anyone can see it.
+        // SwiftUI view's not-yet-measured size, zero, so the window would be
+        // ordered in at 0×0 and grow into place a frame later. The size is put
+        // back before anyone can see it.
         window.setContentSize(size)
         window.layoutIfNeeded()
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
@@ -1049,7 +1037,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Dead centre of the screen it opens on. AppKit's `center()` sits a window
     /// a little above the middle, and centring before the hosting controller has
-    /// sized the window measures the wrong height (Anton, 2026-09-05).
+    /// sized the window measures the wrong height.
     private func centreOnboarding() {
         guard let window = onboardingWindow,
               let visible = (window.screen ?? NSScreen.main ?? NSScreen.screens.first)?.visibleFrame
@@ -1156,10 +1144,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Turn an incoming `.torrent` file or `magnet:` URL into an `AddSource` and
-    /// hand it to the add sheet — but only once the engine is installed. With no
-    /// engine (the common case until it is hosted) the sheet would sit on
-    /// "fetching…" forever, so instead we make the torrent module visible and
-    /// point the user at the enable-torrents step. Never hangs, never crashes.
+    /// hand it to the add sheet, but only once the engine is installed. With no
+    /// engine the sheet would sit on "fetching…" for ever, so instead we make the
+    /// torrent module visible and point the user at the enable-torrents step.
+    /// Never hangs, never crashes.
     /// Only ever called past launch and outside safe mode, so touching the model
     /// and showing UI here is safe.
     private func processOpen(_ url: URL) {

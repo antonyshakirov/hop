@@ -43,9 +43,9 @@ public struct ModuleAction: Equatable, Hashable, Sendable {
 
 /// One module of the panel, as data: identity, how it ships, and what it can be
 /// asked to do. A module has an "open" action only when pressing a key would
-/// show something without the panel — a window of its own, or a change on screen
-/// (Anton, 2026-09-01): the rest of the modules are read IN the panel, so a key
-/// for them would only open the panel a key already opens.
+/// show something without the panel — a window of its own, or a change on
+/// screen: the rest of the modules are read IN the panel, so a key for them
+/// would only open the panel a key already opens.
 public struct ModuleEntry: Equatable, Hashable, Sendable {
     public let id: String
     public let hiddenOnFirstRun: Bool
@@ -65,7 +65,7 @@ public struct ModuleEntry: Equatable, Hashable, Sendable {
     public var openAction: ModuleAction? { actions.first { $0.id == "open" } }
 }
 
-/// SPEC: hop-private/specs/2026-09-01-settings-window-design.md — the one list of modules.
+/// SPEC: docs/spec.md — "Settings window", the one list of modules.
 public enum ModuleCatalog {
     private static let controlOption = ModuleCombo.control | ModuleCombo.option
 
@@ -77,10 +77,10 @@ public enum ModuleCatalog {
     public static let modules: [ModuleEntry] = [
         ModuleEntry(id: "timer", guideLetter: "t", actions: [
             // ⌃⌥H, not the obvious ⌃⌥T: T belongs to the window zones, which
-            // follow Rectangle's map to the letter, and the two claimed the same
-            // keys — the zone row said "shortcut is taken" out of the box. The
-            // zones keep the convention people already have in their fingers and
-            // the modules move around them (Anton, 2026-09-02).
+            // follow Rectangle's map to the letter, and the two claimed the
+            // same keys — the zone row said "shortcut is taken" out of the box.
+            // The zones keep the convention people already have in their
+            // fingers and the modules move around them.
             ModuleAction(id: "open", storageKey: "hotkey_timer", hotKeyID: 2,
                          defaultCombo: ModuleCombo(keyCode: 4, modifiers: controlOption)),
         ]),
@@ -161,11 +161,10 @@ public enum ModuleCatalog {
     }
 
     /// The onboarding's screens, one per theme: sixteen switches on a single
-    /// page said nothing about what any of them did (Anton, 2026-09-05). The
-    /// view layer supplies each group's title; the order here is the order the
-    /// wizard walks. "apps" is not a module until a grid exists, so it rides
-    /// along as an id the catalog does not carry.
-    /// SPEC: docs/spec.md — "Onboarding".
+    /// page said nothing about what any of them did. The view layer supplies
+    /// each group's title; the order here is the order the wizard walks. "apps"
+    /// is not a module until a grid exists, so it rides along as an id the
+    /// catalog does not carry. SPEC: docs/spec.md — "Onboarding".
     public static let onboardingGroups: [[String]] = [
         ["timer", "tracker", "todos"],
         ["convert", "archive"],

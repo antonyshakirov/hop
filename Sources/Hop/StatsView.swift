@@ -70,11 +70,11 @@ struct StatsView: View {
             if !preview {
             row(icon: "memorychip", color: Theme.accentPurple, label: "gpu",
                 value: gpuValue(s))
-            // Same card as the cpu's, for the same reason: the gpu row carries a
-            // load and a temperature, and a number alone does not say whether it
-            // has been climbing (Anton, 2026-07-29). Drawn only when this Mac
-            // reports at least one of the two — on a machine that reports
-            // neither, an empty chart is worse than no chart.
+            // Same card as the cpu's, for the same reason: the gpu row carries
+            // a load and a temperature, and a number alone does not say whether
+            // it has been climbing. Drawn only when this Mac reports at least
+            // one of the two — on a machine that reports neither, an empty
+            // chart is worse than no chart.
             if detailed, s.gpuLoad != nil || s.gpuTemp != nil {
                 SparklineCard(series: [
                     .init(label: t(.legendLoad), points: windowed(stats.history.gpuLoad, from: chartStart),

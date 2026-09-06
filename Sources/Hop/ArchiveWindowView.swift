@@ -4,12 +4,11 @@ import UniformTypeIdentifiers
 
 /// The archive window — the same shape as the converter's: a real window with a
 /// drop zone that stays put while you drag onto it. The panel's popover closes
-/// the moment a drag starts, so the module's row only opens this (Anton,
-/// 2026-07-25).
+/// the moment a drag starts, so the module's row only opens this.
 struct ArchiveWindowView: View {
     /// Drawn as the onboarding picture: the drop plate is dropped, so the tile
-    /// shows finished jobs instead of an empty panel (Anton, 2026-09-05).
-    /// SPEC: docs/spec.md — "Onboarding", the module preview.
+    /// shows finished jobs instead of an empty panel. SPEC: docs/spec.md —
+    /// "Onboarding", the module preview.
     var preview = false
 
     @EnvironmentObject var model: AppModel
@@ -47,9 +46,9 @@ struct ArchiveWindowView: View {
                 if !model.archive.pending.isEmpty {
                     queue
                     destinationRow
-                    // The format belongs to PACKING only: an archive being opened
-                    // comes out as whatever it already is, so the row is not shown
-                    // when the queue is going to be unpacked (Anton, 2026-07-25).
+                    // The format belongs to PACKING only: an archive being
+                    // opened comes out as whatever it already is, so the row is
+                    // not shown when the queue is going to be unpacked.
                     if model.archive.plannedKind == .pack {
                         HStack(spacing: 6) {
                             Text(t(.convFormatLabel))
@@ -66,9 +65,8 @@ struct ArchiveWindowView: View {
                     runRow
                 }
                 // Being the opener for archives is a SETTING, not a window
-                // control: it outlives this window and belongs next to the other
-                // module settings, the way the torrent module's does (Anton,
-                // 2026-07-25).
+                // control: it outlives this window and belongs next to the
+                // other module settings, the way the torrent module's does.
                 if !model.archive.jobs.isEmpty {
                     VStack(spacing: 6) {
                         ForEach(model.archive.jobs) { job in
@@ -94,9 +92,9 @@ struct ArchiveWindowView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .id(model.themeVersion)
         // The window is exactly as tall as this, so an empty module opens as a
-        // drop plate and nothing else — no hole under it (Anton, 2026-07-25).
-        // Measured directly rather than through a PreferenceKey: the preference
-        // reports 0 through a ScrollView, the same trap the converter hit.
+        // drop plate and nothing else — no hole under it. Measured directly
+        // rather than through a PreferenceKey: the preference reports 0 through
+        // a ScrollView, the same trap the converter hit.
         .background(
             GeometryReader { geo in
                 Color.clear
@@ -145,8 +143,8 @@ struct ArchiveWindowView: View {
         }
     }
 
-    /// Where the result goes. The Desktop is the default — an unpacked folder has
-    /// to land where the user is already looking (Anton, 2026-07-25).
+    /// Where the result goes. The Desktop is the default — an unpacked folder
+    /// has to land where the user is already looking.
     private var destinationRow: some View {
         HStack(spacing: 6) {
             Text(t(.convDestLabel))
@@ -183,8 +181,7 @@ struct ArchiveWindowView: View {
         }
     }
 
-    /// The button that actually starts the work — nothing runs on a drop alone
-    /// (Anton, 2026-07-25).
+    /// The button that actually starts the work — nothing runs on a drop alone.
     private var runRow: some View {
         HStack(spacing: 14) {
             Button {

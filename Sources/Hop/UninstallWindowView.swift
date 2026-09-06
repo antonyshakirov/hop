@@ -22,10 +22,10 @@ struct UninstallWindowView: View {
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
     /// The window's inset. Applied to each part rather than to the window, so a
-    /// scrolling list can carry it INSIDE itself: with the inset on the outside,
-    /// the scroll bar sits at the edge of the CONTENT and draws over the rows
-    /// (Anton, 2026-07-30). Inside, the rows stop short of the bar and the bar
-    /// runs down the edge of the window, where it belongs.
+    /// scrolling list can carry it INSIDE itself: with the inset on the
+    /// outside, the scroll bar sits at the edge of the CONTENT and draws over
+    /// the rows. Inside, the rows stop short of the bar and the bar runs down
+    /// the edge of the window, where it belongs.
     private static let inset: CGFloat = 18
 
     var body: some View {
@@ -64,8 +64,8 @@ struct UninstallWindowView: View {
         .padding(.vertical, Self.inset)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         // The window follows its content: with only the drop plate on screen a
-        // fixed height left a dark void under it, the same gap the converter and
-        // the archives had before they learned to fit (Anton, 2026-07-30).
+        // fixed height left a dark void under it, the same gap the converter
+        // and the archives had before they learned to fit.
         .background(GeometryReader { geo in
             Color.clear
                 .onAppear { model.uninstallContentHeight = geo.size.height }
@@ -93,9 +93,9 @@ struct UninstallWindowView: View {
     private var header: some View {
         HStack {
             // A chosen app is a click away from being the WRONG app, so the way
-            // back has to be where a way back always is: an arrow at the left of
-            // the title. "another app" said the same thing in words and did not
-            // read as back (Anton, 2026-07-30).
+            // back has to be where a way back always is: an arrow at the left
+            // of the title. "another app" said the same thing in words and did
+            // not read as back.
             if uninstall.target != nil || uninstall.report != nil {
                 Button { uninstall.back() } label: {
                     Image(systemName: "chevron.left")
@@ -127,13 +127,12 @@ struct UninstallWindowView: View {
         }
     }
 
-    /// Removing an app: the drop plate, then every app on this Mac, so a removal is
-    /// a click and not only a drag (Anton, 2026-07-30).
+    /// Removing an app: the drop plate, then every app on this Mac, so a
+    /// removal is a click and not only a drag.
     private var uninstallPicker: some View {
         // ONE scroll for the whole screen rather than a scrolling list inside a
         // tall window: the plate scrolls up with the apps, the list runs to the
-        // bottom of the window, and there is no second bar inside the first
-        // (Anton, 2026-07-30).
+        // bottom of the window, and there is no second bar inside the first.
         SnapshotAwareScroll {
             VStack(alignment: .leading, spacing: 10) {
                 dropPlate.padding(.horizontal, Self.inset)
@@ -142,9 +141,8 @@ struct UninstallWindowView: View {
                         .font(Theme.mono(9))
                         .foregroundStyle(Theme.textTertiary)
                     Spacer(minLength: 8)
-                    // Name or size. A list of a hundred apps answers "what shall
-                    // I remove" only when the big ones can come first (Anton,
-                    // 2026-07-30).
+                    // Name or size. A list of a hundred apps answers "what
+                    // shall I remove" only when the big ones can come first.
                     ForEach(UninstallController.AppSort.allCases, id: \.rawValue) { order in
                         Button { uninstall.appSort = order } label: {
                             Text(t(order == .name ? .uninstallSortName : .uninstallSortSize))
@@ -184,8 +182,7 @@ struct UninstallWindowView: View {
                                     // container, preferences, logs, and the
                                     // cache among them — and calling that
                                     // "cache" would make removing it sound
-                                    // harmless (Anton asked for the words,
-                                    // 2026-07-30).
+                                    // harmless.
                                     Text("(\(Self.sizeText(app.appBytes)) \(t(.uninstallPartApp)) + \(Self.sizeText(app.traceBytes)) \(t(.uninstallPartData)))")
                                         .font(Theme.mono(8))
                                         .foregroundStyle(Theme.textTertiary)
@@ -218,8 +215,7 @@ struct UninstallWindowView: View {
     private var cleanBody: some View {
         SnapshotAwareScroll {
             // 28 rather than 16: a section ends in a button and the next one
-            // opens with a tick, and at 16 those two lines read as one row
-            // (Anton, 2026-07-30).
+            // opens with a tick, and at 16 those two lines read as one row.
             VStack(alignment: .leading, spacing: 28) {
                 if uninstall.scanning {
                     HStack(spacing: 7) {
@@ -287,17 +283,16 @@ struct UninstallWindowView: View {
                     .help(t(.uninstallScanning))
                     .hoverDim()
                     // The section heading already says what these rows are; the
-                    // same sentence under every one of them was noise (Anton,
-                    // 2026-07-31).
+                    // same sentence under every one of them was noise.
                     Text(owner.name)
                         .font(Theme.mono(10.5))
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                     Spacer(minLength: 8)
-                    // The picture has to say WHAT is being removed: a name and a
-                    // size beside a tick read as the app itself going in the bin
-                    // (Anton, 2026-09-05).
+                    // The picture has to say WHAT is being removed: a name and
+                    // a size beside a tick read as the app itself going in the
+                    // bin.
                     if preview {
                         Text(t(.uninstallCacheWord))
                             .font(Theme.mono(8.5))
@@ -315,10 +310,10 @@ struct UninstallWindowView: View {
                 .padding(.vertical, 5)
                 .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
             }
-            // "all" sits at the BOTTOM LEFT, its box in the same column as every
-            // other box in the list and its line level with the button it feeds
-            // (Anton, 2026-07-30). At the top right it was a stray control above
-            // the ticks it belongs to.
+            // "all" sits at the BOTTOM LEFT, its box in the same column as
+            // every other box in the list and its line level with the button it
+            // feeds. At the top right it was a stray control above the ticks it
+            // belongs to.
             if !preview {
             HStack {
                 selectAll(!owners.isEmpty && owners.allSatisfy(\.ticked),
@@ -342,8 +337,8 @@ struct UninstallWindowView: View {
     }
 
     /// One tick for a whole section. A list of forty apps holding a cache is a
-    /// list nobody ticks forty times (Anton, 2026-07-30); ticking all of them is
-    /// the common case here, and the second click clears the lot again.
+    /// list nobody ticks forty times; ticking all of them is the common case
+    /// here, and the second click clears the lot again.
     private func selectAll(_ on: Bool, enabled: Bool,
                            toggleAll: @escaping (Bool) -> Void) -> some View {
         Button { toggleAll(!on) } label: {
@@ -527,9 +522,9 @@ struct UninstallWindowView: View {
         }
     }
 
-    /// A size a person can read: gigabytes when it is gigabytes, megabytes when it
-    /// is not. A list of "0.0 GB" says nothing about which row is worth a click
-    /// (Anton, 2026-07-30).
+    /// A size a person can read: gigabytes when it is gigabytes, megabytes when
+    /// it is not. A list of "0.0 GB" says nothing about which row is worth a
+    /// click.
     static func sizeText(_ bytes: Int64) -> String {
         let gb = Double(bytes) / 1_000_000_000
         if gb >= 1 { return String(format: "%.1f GB", gb) }

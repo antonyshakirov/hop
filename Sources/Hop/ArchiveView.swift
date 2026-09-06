@@ -13,10 +13,9 @@ struct ArchiveView: View {
 
     @State private var targeted = false
 
-    /// Every format the module opens, in the order a user meets them. Built from
-    /// `ArchiveFormat` so a new case can never quietly go unlisted. It is shown
-    /// in the WINDOW, under the drop plate: the panel row stays one line
-    /// (Anton, 2026-07-26).
+    /// Every format the module opens, in the order a user meets them. Built
+    /// from `ArchiveFormat` so a new case can never quietly go unlisted. It is
+    /// shown in the WINDOW, under the drop plate: the panel row stays one line.
     static let formats: String = ArchiveFormat.allCases
         .map(\.displayName)
         .joined(separator: " · ")
@@ -26,8 +25,8 @@ struct ArchiveView: View {
             openWindow()
         } label: {
             // One line, exactly like the converter's row: the formats belong in
-            // the window and the help, not on the panel, where they cost a whole
-            // second line for a list nobody reads twice (Anton, 2026-07-26).
+            // the window and the help, not on the panel, where they cost a
+            // whole second line for a list nobody reads twice.
             HStack(spacing: 6) {
                 ModuleMarkIcon(symbol: "archivebox",
                                color: targeted ? Theme.editing : Theme.textSecondary)
@@ -75,7 +74,7 @@ struct ArchiveView: View {
 
 /// "Open archives with Hop" — the same card the torrent module offers, and the
 /// same rule: it only ever CLAIMS, and only the types macOS does not open
-/// itself (Anton, 2026-07-26).
+/// itself.
 struct ArchiveDefaultHandlerRow: View {
     let label: String
     let doneLabel: String

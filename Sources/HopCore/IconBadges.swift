@@ -1,8 +1,8 @@
 import Foundation
 
-/// Which corner of the menu-bar star a decoration occupies. The colour logic
-/// is spatial (Anton's spec): warm dots on top, green time-wedges below, the
-/// attention mark top-left, torrent bottom-left.
+/// Which corner of the menu-bar star a decoration occupies. The colour logic is
+/// spatial: warm dots on top, green time-wedges below, the attention mark top-
+/// left, torrent bottom-left.
 public enum BadgeCorner: Equatable, Sendable {
     case topLeft, topRight, bottomLeft, bottomRight
 }

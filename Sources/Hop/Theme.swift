@@ -39,8 +39,7 @@ enum Theme {
     /// Solid ink for a glyph drawn as fill AND stroke of one colour (the house
     /// play triangle). A translucent colour doubles up where the two overlap
     /// and the difference reads as an outline around the shape — so those
-    /// glyphs take solid ink and wear their transparency on the outside
-    /// (Anton, 2026-08-28).
+    /// glyphs take solid ink and wear their transparency on the outside.
     static var glyphInk: Color { isDark ? .white : .black }
     /// The opacity that makes `glyphInk` match `textSecondary`.
     static var glyphInkSecondary: Double { isDark ? 0.66 : 0.68 }
@@ -99,11 +98,11 @@ enum Theme {
     // Hover highlight — applied to every clickable element
     struct HoverHighlight: ViewModifier {
         var cornerRadius: CGFloat = 6
-        /// How far the highlight bleeds OUTWARD past the content, sideways only.
-        /// A full-width row starts on the panel's own inset, so without this the
-        /// highlight's edge lands exactly on the first glyph and on the panel's
-        /// border at once, which reads as a box someone forgot to pad (Anton,
-        /// 2026-07-29). Drawn in the background, so it never moves the layout.
+        /// How far the highlight bleeds OUTWARD past the content, sideways
+        /// only. A full-width row starts on the panel's own inset, so without
+        /// this the highlight's edge lands exactly on the first glyph and on
+        /// the panel's border at once, which reads as a box someone forgot to
+        /// pad. Drawn in the background, so it never moves the layout.
         var bleed: CGFloat = 0
         @State private var hovering = false
 

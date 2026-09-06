@@ -45,10 +45,10 @@ enum Sounds {
     static func scrubTick() {
         guard enabled else { return }
         let now = Date()
-        // Ten a second at most. The gate was 0.03 — thirty ticks a second — and a
-        // fast drag turned the ratchet into a high whine (Anton, 2026-07-30). At
-        // 0.1 the ticks stay separate however fast the digits move, and a slow
-        // drag sounds exactly as it did.
+        // Ten a second at most. The gate was 0.03 — thirty ticks a second — and
+        // a fast drag turned the ratchet into a high whine. At 0.1 the ticks
+        // stay separate however fast the digits move, and a slow drag sounds
+        // exactly as it did.
         guard now.timeIntervalSince(lastTick) > 0.1 else { return }
         lastTick = now
         guard let sound = tickBase?.copy() as? NSSound else { return }
@@ -67,7 +67,7 @@ enum Sounds {
 
     /// A batch of files finished converting. Its own sound rather than the
     /// timer's: the alarm means "your time is up" and a converted folder does
-    /// not (Anton, 2026-08-04). Loud enough to be heard over a browser.
+    /// not. Loud enough to be heard over a browser.
     static func converted() {
         play("Ping", gain: 0.9)
     }
