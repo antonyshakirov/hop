@@ -3968,7 +3968,7 @@ its own database of known apps may do better on real software than it did here.
    Symbols inline via the `{sym:name}` token in the translation string
    (engine in DocView.rich); icons accompany the transport, the clipboard
    expander, and the lid; the lid wording was rewritten in plain language
-   in 14 languages.
+   in every language.
 3. (done 2026-07-13) Clamping the whole panel's height to the screen:
    content is measured with a GeometryReader; when it exceeds the visible
    screen area, a shared fixed-height scroll kicks in.
