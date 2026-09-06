@@ -211,10 +211,13 @@ public struct PanelTabsModel: Codable, Equatable {
     /// three plus every tool, which is more than one panel should say at once.
     public static let reportingModules = ["system", "speedtest", "torrent"]
     public static let timeModules = ["tracker", "todos"]
+    /// The fourth space: what works ON files rather than reporting about the Mac
+    /// (Anton, 2026-09-06).
+    public static let toolModules = ["convert", "archive", "color", "uninstall"]
 
     public func canonicalized() -> PanelTabsModel {
         guard let firstIcon = tabs.first?.icon else { return self }
-        let managed = Set(Self.reportingModules + Self.timeModules)
+        let managed = Set(Self.reportingModules + Self.timeModules + Self.toolModules)
 
         var seen = Set<String>()
         var primary: [String] = []
@@ -236,6 +239,10 @@ public struct PanelTabsModel: Codable, Equatable {
         if !clock.isEmpty {
             canonical.append(PanelTab(icon: "clock", moduleKeys: clock))
         }
+        let tools = Self.toolModules.filter { !isPutAway($0) }
+        if !tools.isEmpty {
+            canonical.append(PanelTab(icon: "wrench.and.screwdriver", moduleKeys: tools))
+        }
 
         var result = self
         result.tabs = canonical
@@ -253,10 +260,11 @@ public struct PanelTabsModel: Codable, Equatable {
     /// contains "system", "tracker" and "todos", so `ensure` appends nothing
     /// for them.
     public static func migrate(moduleOrder: [String]) -> PanelTabsModel {
-        let managed = Set(reportingModules + timeModules)
+        let managed = Set(reportingModules + timeModules + toolModules)
         let primary = PanelTab(icon: "house", moduleKeys: moduleOrder.filter { !managed.contains($0) })
         let system = PanelTab(icon: "display", moduleKeys: reportingModules)
         let tracker = PanelTab(icon: "clock", moduleKeys: timeModules)
-        return PanelTabsModel(tabs: [primary, system, tracker])
+        let tools = PanelTab(icon: "wrench.and.screwdriver", moduleKeys: toolModules)
+        return PanelTabsModel(tabs: [primary, system, tracker, tools])
     }
 }

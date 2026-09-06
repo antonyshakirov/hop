@@ -322,6 +322,13 @@ what was never offered (Anton, 2026-09-06). The seeding runs once, behind
 switched off before it. Leaving torrents on means the engine is fetched once the
 wizard closes, which is what its footnote says.
 
+**Nothing is announced over the panel until the wizard is done.** The
+announcement banner and the release cards both return nil while `onboardingDone`
+is false: they exist for people who updated INTO a feature, and a fresh install
+is being asked the same questions by name a screen away (Anton, 2026-09-06).
+Finishing the wizard marks every announcement and release card seen, as before,
+so the two rules together mean a new install never sees either.
+
 **The wizard is the only thing on screen, restart included.** A permission
 granted from the wizard restarts hop, and the restart used to reopen the settings
 window on top of the wizard: the pending section is now consumed and ignored
@@ -432,7 +439,9 @@ and over the settings window alike, with cancel on the leading edge (Escape) and
 
 **The default layout, from 2026-09-05:** space 1 is the tools, space 2 is
 everything that REPORTS — the monitor, the speed test and the torrents
-(`PanelTabsModel.reportingModules`) — and space 3 is the tracker with the
+(`PanelTabsModel.reportingModules`) — space 4 is what works ON files
+(`toolModules`: the converter, the archiver, the eyedropper and the uninstaller,
+Anton 2026-09-06) — and space 3 is the tracker with the
 to-dos. The speed test and the torrents used to sit on space 1, which carried
 every tool plus them. A reporting space survives as long as any one of its three
 is on. The window zones also ship as one row rather than the grid

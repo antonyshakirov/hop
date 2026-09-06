@@ -5,10 +5,10 @@ final class PanelTabsTests: XCTestCase {
 
     // MARK: - migrate
 
-    func testMigrateBuildsThreeTabLayout() {
+    func testMigrateBuildsFourTabLayout() {
         let model = PanelTabsModel.migrate(moduleOrder: ["timer", "awake", "clipboard"])
 
-        XCTAssertEqual(model.tabs.count, 3)
+        XCTAssertEqual(model.tabs.count, 4)
         XCTAssertEqual(model.tabs[0].icon, "house")
         XCTAssertEqual(model.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
         XCTAssertEqual(model.tabs[1].icon, "display")
@@ -16,6 +16,9 @@ final class PanelTabsTests: XCTestCase {
                        "everything that reports shares the second space")
         XCTAssertEqual(model.tabs[2].icon, "clock")
         XCTAssertEqual(model.tabs[2].moduleKeys, ["tracker", "todos"])
+        XCTAssertEqual(model.tabs[3].icon, "wrench.and.screwdriver")
+        XCTAssertEqual(model.tabs[3].moduleKeys, ["convert", "archive", "color", "uninstall"],
+                       "what works on files shares the fourth space")
         XCTAssertEqual(model.inactive, [], "a fresh migrate has an empty inactive bucket")
     }
 
@@ -477,20 +480,22 @@ final class PanelTabsTests: XCTestCase {
     // The default upgrade: a 1.3.x board (post-`ensure`, so the new modules sit
     // active on the first tab) converges on the three canonical spaces, with the
     // tracker + to-dos VISIBLE together on the third — no banner, no opt-in.
-    func testCanonicalizedDefaultStateGivesThreeSpacesWithTrackerTodosLast() {
+    func testCanonicalizedDefaultStateGivesFourSpacesWithToolsLast() {
         let model = PanelTabsModel(tabs: [
             PanelTab(icon: "house", moduleKeys: ["timer", "awake", "clipboard", "system", "tracker", "todos"])
         ])
 
         let c = model.canonicalized()
 
-        XCTAssertEqual(c.tabs.count, 3)
+        XCTAssertEqual(c.tabs.count, 4)
         XCTAssertEqual(c.tabs[0].icon, "house")
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
         XCTAssertEqual(c.tabs[1].icon, "display")
         XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
         XCTAssertEqual(c.tabs[2].icon, "clock")
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
+        XCTAssertEqual(c.tabs[3].icon, "wrench.and.screwdriver")
+        XCTAssertEqual(c.tabs[3].moduleKeys, ["convert", "archive", "color", "uninstall"])
         XCTAssertEqual(c.inactive, [])
     }
 
@@ -508,10 +513,11 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(c.inactive, ["system"], "the monitor the user had off stays off")
         XCTAssertFalse(c.tabs.contains { $0.moduleKeys.contains("system") }, "no monitor row is created")
         // The reporting space still exists for the speed test and the torrents.
-        XCTAssertEqual(c.tabs.count, 3)
+        XCTAssertEqual(c.tabs.count, 4)
         XCTAssertEqual(c.tabs[1].moduleKeys, ["speedtest", "torrent"])
-        XCTAssertEqual(c.tabs.last?.icon, "clock")
-        XCTAssertEqual(c.tabs.last?.moduleKeys, ["tracker", "todos"], "the new modules are visible together")
+        XCTAssertEqual(c.tabs[2].icon, "clock")
+        XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"], "the new modules are visible together")
+        XCTAssertEqual(c.tabs.last?.icon, "wrench.and.screwdriver")
     }
 
     // Canonicalization only rearranges what is ON a space — the inactive bucket
@@ -539,11 +545,12 @@ final class PanelTabsTests: XCTestCase {
 
         let c = model.canonicalized()
 
-        XCTAssertEqual(c.tabs.count, 3)
+        XCTAssertEqual(c.tabs.count, 4)
         XCTAssertEqual(c.tabs[0].icon, "house")
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
         XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
+        XCTAssertEqual(c.tabs[3].moduleKeys, ["convert", "archive", "color", "uninstall"])
     }
 
     // Both time-management modules inactive → no clock space at all (their off
@@ -556,9 +563,10 @@ final class PanelTabsTests: XCTestCase {
 
         let c = model.canonicalized()
 
-        XCTAssertEqual(c.tabs.count, 2)
+        XCTAssertEqual(c.tabs.count, 3)
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer"])
         XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
+        XCTAssertEqual(c.tabs[2].moduleKeys, ["convert", "archive", "color", "uninstall"])
         XCTAssertFalse(c.tabs.contains { $0.moduleKeys.contains("tracker") || $0.moduleKeys.contains("todos") })
         XCTAssertEqual(c.inactive, ["tracker", "todos"])
     }

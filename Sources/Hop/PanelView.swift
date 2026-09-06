@@ -457,6 +457,7 @@ struct PanelView: View {
         _ = news110Seen
         guard pendingAnnouncement == nil else { return nil }
         let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: "onboardingDone") else { return nil }
         let state = Self.releaseCards.map { card in
             ReleaseNews.Card(
                 id: card.id,
@@ -610,6 +611,11 @@ struct PanelView: View {
                 || CommandLine.arguments.contains("--feature-banner-step2")
             return wantsBanner ? Self.featureAnnouncements.first : nil
         }
+        // Nothing is announced until the wizard has been through: it asks the
+        // same questions by name, and a card over the panel while it is still
+        // open offers a module the person is about to be offered anyway
+        // (Anton, 2026-09-06). SPEC: docs/spec.md — "Onboarding".
+        guard UserDefaults.standard.bool(forKey: "onboardingDone") else { return nil }
         // The @AppStorage flags are read here so SwiftUI re-renders when one
         // flips; the lookup itself goes through UserDefaults by id.
         _ = (torrentFeatureSeen, toolsFeatureSeen, modulesFeatureSeen)
