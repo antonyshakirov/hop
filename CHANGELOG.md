@@ -26,6 +26,13 @@
   went to disk.
 - Every module's opening paragraph was rewritten to say what the module lets you
   do, with the formats and the figures, in every language Hop speaks.
+- A running timer no longer holds a quarter of a CPU core. The clock ticks four
+  times a second so it ends on time, but it now tells the interface only when
+  the second changes, so the panel and the menu-bar label are drawn once instead
+  of four times; a clipboard row folds its text into one line once instead of on
+  every redraw; and the temperature sensors are resolved once instead of every
+  five seconds. Measured with a timer running: 25-33% of a core before, 0.8-3.4%
+  after.
 - Updates arrive from a second server. A download asks hop.tools first and
   ru.hop.tools after it, so a copy that cannot reach one of them still gets its
   update; the manifest, the build, its signature and the downloadable helpers

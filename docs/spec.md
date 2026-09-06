@@ -193,6 +193,37 @@ identically on every user's bar.
   calm undecorated star both survive. The template path is used only when the
   composition is empty; any badge routes through `compose`.
 
+## What a running clock costs
+
+A running timer used to hold a quarter of a CPU core, whether or not the panel
+was open (measured on 1.10.0: 25-33% of a core, panel closed). Three things
+made it, and each is a rule now.
+
+- **The heartbeat publishes only what changes.** `TimerEngine` ticks four times
+  a second so a countdown ends on time, but `heartbeat` is what the interface
+  watches, and publishing it rebuilds every view that reads the model: the whole
+  panel, each module in it and the menu-bar label. A running clock shows whole
+  seconds, so three of those four ticks changed nothing and cost a full redraw
+  each. `TimerEngine.publishes(at:since:fineGrained:)` (`TimerHeartbeatTests`)
+  keeps the tick for accuracy and publishes once a second - twice a second only
+  in the finished state, where the alarm blink and the calm pulse after it are
+  drawn at 2 Hz.
+- **A row's text is folded once, not per redraw.** A clipboard entry holds up to
+  20 000 characters, and the row label folded all of them into one line on every
+  render of every visible row. `ClipboardRules.previewLine`
+  (`ClipboardPreviewTests`) stops at the width a row can show, and
+  `ClipPreviewCache` keeps the result per entry.
+- **The temperature sensors are resolved once.** Reading them re-copied the HID
+  service list and every sensor's "Product" name, five seconds apart, all day.
+  The list and the names do not change while the app runs, so they are resolved
+  on the first reading and only the readings repeat.
+
+Measured after, on a release build: 0.8-3.4% with the same timer running.
+
+The panel keeps its whole view tree alive while the popover is closed, so
+anything published while it is hidden is drawn anyway. That is why the rule is
+about what gets published rather than about who is watching.
+
 ## Onboarding
 
 **Only a fresh install sees it.** An update is not a first run: somebody who has

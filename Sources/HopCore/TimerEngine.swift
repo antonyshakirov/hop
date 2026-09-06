@@ -307,8 +307,30 @@ public final class TimerEngine: ObservableObject {
 
     /// Called by the ticker; invoked manually in tests.
     public func tick() {
-        heartbeat = now()
-        if !isStopwatch, state == .running, remaining <= 0 { finish() }
+        let moment = now()
+        if !isStopwatch, state == .running, remaining <= 0 {
+            heartbeat = moment
+            finish()
+            return
+        }
+        guard Self.publishes(at: moment, since: heartbeat, fineGrained: state == .finished)
+        else { return }
+        heartbeat = moment
+    }
+
+    /// Whether this tick changes anything anyone can see.
+    ///
+    /// The ticker runs four times a second so that a countdown ends on time, but
+    /// `heartbeat` is what the interface watches, and publishing it rebuilds every
+    /// view that reads the model - the whole panel, the menu-bar label and each
+    /// module in it. A running clock shows whole seconds, so three of those four
+    /// ticks change nothing and cost a full redraw each. Only the finished state
+    /// is drawn twice a second, for the alarm blink and the calm pulse after it.
+    /// SPEC: docs/spec.md - "Timer", the heartbeat.
+    public static func publishes(at moment: Date, since last: Date, fineGrained: Bool) -> Bool {
+        let scale = fineGrained ? 2.0 : 1.0
+        return Int(moment.timeIntervalSinceReferenceDate * scale)
+            != Int(last.timeIntervalSinceReferenceDate * scale)
     }
 
     private func finish() {

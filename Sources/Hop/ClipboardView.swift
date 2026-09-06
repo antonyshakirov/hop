@@ -217,7 +217,7 @@ struct ClipboardView: View {
                             .frame(width: 26, height: 16)
                             .clipShape(RoundedRectangle(cornerRadius: 3))
                     }
-                    Text(oneLine(item.text))
+                    Text(oneLine(item))
                         .font(Theme.mono(10))
                         .lineLimit(1)
                         .truncationMode(.tail)
@@ -316,10 +316,8 @@ struct ClipboardView: View {
         }
     }
 
-    private func oneLine(_ text: String) -> String {
-        text.split(whereSeparator: \.isNewline)
-            .joined(separator: " ")
-            .trimmingCharacters(in: .whitespaces)
+    private func oneLine(_ item: ClipboardController.Item) -> String {
+        ClipPreviewCache.line(for: item)
     }
 }
 
@@ -338,6 +336,22 @@ private struct ClipboardRowStyle: ButtonStyle {
 /// Downscaled thumbnails for image entries: the stored PNGs are full-size
 /// screenshots, decoding them per render would chew memory and CPU.
 @MainActor
+/// The row label of an entry, worked out once. `ClipboardRules.previewLine`
+/// walks the text, and an entry holds up to 20 000 characters; the panel
+/// rebuilds its rows on every publish of the model, so the walk used to run
+/// per row per redraw.
+enum ClipPreviewCache {
+    private static let cache = NSCache<NSString, NSString>()
+
+    static func line(for item: ClipboardController.Item) -> String {
+        let key = item.id.uuidString as NSString
+        if let cached = cache.object(forKey: key) { return cached as String }
+        let line = ClipboardRules.previewLine(item.text) as NSString
+        cache.setObject(line, forKey: key)
+        return line as String
+    }
+}
+
 enum ClipThumbCache {
     private static let cache = NSCache<NSString, NSImage>()
 

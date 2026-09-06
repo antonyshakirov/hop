@@ -560,22 +560,55 @@ final class HIDTemperatureReader {
         return out.sorted { $0.0 < $1.0 }
     }
 
+    /// Which figure a sensor feeds, worked out from its name once.
+    private enum Kind { case cpu, gpu, ssd }
+
+    /// The sensors of this Mac, resolved on the first reading. The service list
+    /// and the names in it do not change while the app runs, but copying the
+    /// list and every "Product" string again cost more than the readings
+    /// themselves: this runs every five seconds all day.
+    private var sensors: [(service: AnyObject, kind: Kind)]?
+
+    private func resolveSensors() -> [(service: AnyObject, kind: Kind)] {
+        guard let client, let copyServices, let copyProperty,
+              let services = copyServices(client)?.takeRetainedValue() as? [AnyObject]
+        else { return [] }
+        var out: [(AnyObject, Kind)] = []
+        for service in services {
+            guard let name = copyProperty(service, "Product" as CFString)?
+                .takeRetainedValue() as? String else { continue }
+            let n = name.lowercased()
+            if n.contains("gpu") || n.contains("gfx") {
+                out.append((service, .gpu))
+            } else if n.contains("tdie") || n.contains("pacc") || n.contains("eacc")
+                || n.contains("cpu") || n.contains("soc") {
+                // PMU chips (tdie1..N) have no separate GPU sensor - treat the
+                // tdie maximum as the SoC temperature and show it as cpu
+                out.append((service, .cpu))
+            } else if n.contains("nand") || n.contains("ssd") {
+                out.append((service, .ssd))
+            }
+        }
+        return out
+    }
+
     func read() -> (cpu: Double?, gpu: Double?, ssd: Double?) {
+        guard let copyEvent, let getFloat else { return (nil, nil, nil) }
+        // An empty list is not cached: the client can hand back nothing while
+        // the machine is waking, and a cached nothing would be permanent.
+        if sensors?.isEmpty ?? true { sensors = resolveSensors() }
         var cpuMax: Double?
         var gpuMax: Double?
         var ssdMax: Double?
-        for (name, value) in allSensors() {
+        for (service, kind) in sensors ?? [] {
+            guard let event = copyEvent(service, Self.kEventTypeTemperature, 0, 0)?
+                .takeRetainedValue() else { continue }
+            let value = getFloat(event, Int32(Self.kEventTypeTemperature << 16))
             guard value > 1, value < 130 else { continue }
-            let n = name.lowercased()
-            if n.contains("gpu") || n.contains("gfx") {
-                gpuMax = max(gpuMax ?? 0, value)
-            } else if n.contains("tdie") || n.contains("pacc") || n.contains("eacc")
-                || n.contains("cpu") || n.contains("soc") {
-                // PMU chips (tdie1..N) have no separate GPU sensor —
-                // treat the tdie maximum as the SoC temperature and show it as cpu
-                cpuMax = max(cpuMax ?? 0, value)
-            } else if n.contains("nand") || n.contains("ssd") {
-                ssdMax = max(ssdMax ?? 0, value)
+            switch kind {
+            case .cpu: cpuMax = max(cpuMax ?? 0, value)
+            case .gpu: gpuMax = max(gpuMax ?? 0, value)
+            case .ssd: ssdMax = max(ssdMax ?? 0, value)
             }
         }
         return (cpuMax, gpuMax, ssdMax)

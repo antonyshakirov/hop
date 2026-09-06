@@ -53,6 +53,33 @@ public enum ClipboardRules {
     /// truncated, so even a full history weighs next to nothing.
     public static let maxItemLength = 20_000
 
+    /// How much of an entry a one-line row can possibly show. A row is one line
+    /// of a 340pt panel; the rest is laid out only to be clipped.
+    public static let previewLength = 160
+
+    /// The row's label: one line, trimmed, and no longer than a row can show.
+    /// An entry holds up to `maxItemLength` characters, and folding all of them
+    /// on every redraw is what a redraw of the panel used to cost most.
+    public static func previewLine(_ text: String) -> String {
+        var line = ""
+        line.reserveCapacity(previewLength)
+        var spaceOwed = false
+        for character in text {
+            if character.isNewline || character == "\t" {
+                spaceOwed = !line.isEmpty
+                continue
+            }
+            if spaceOwed {
+                line.append(" ")
+                spaceOwed = false
+                if line.count >= previewLength { break }
+            }
+            line.append(character)
+            if line.count >= previewLength { break }
+        }
+        return line.trimmingCharacters(in: .whitespaces)
+    }
+
     /// Decide what a fresh pasteboard change should become. A copied FILE always
     /// wins over image data — Finder puts the file's icon/thumbnail on the
     /// pasteboard next to the file URL, and that preview must never mask the
