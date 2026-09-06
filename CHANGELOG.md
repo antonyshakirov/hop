@@ -2,7 +2,9 @@
 
 ## 2.0.0 - 2026-09-06
 
-- The first run sets Hop up. A screen per group of modules shows each one at
+- The first run sets Hop up. Only a fresh install sees it: a Mac that has been
+  running Hop keeps its arrangement and its settings, and the wizard never
+  opens there. A screen per group of modules shows each one at
   work - a finished conversion, a torrent at 69%, a locked keyboard, a staged
   monitor curve - and the modules picked there are switched on. Every permission
   is asked for on one page, with a screen of its own for what Hop does and does

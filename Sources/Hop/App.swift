@@ -184,6 +184,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // BEFORE anything writes: the marks an older version left are the only
+        // way to tell a fresh install from an update, and this launch is about
+        // to leave marks of its own.
+        // SPEC: docs/spec.md — "Onboarding", who the wizard is for.
+        let freshInstall = FirstRun.isFresh(
+            domain: UserDefaults.standard.persistentDomain(forName: Bundle.storageIdentifier) ?? [:])
+
         // Agent without a Dock icon — including dev runs via `swift run`.
         NSApp.setActivationPolicy(.accessory)
 
@@ -415,6 +422,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // has never run, so a Mac that already finished onboarding is written
         // the old value once.
         let defaults = UserDefaults.standard
+        // An update is not a first run. Somebody who has been using Hop has an
+        // arrangement, and the wizard would both stand in front of it with no
+        // way out and switch every module back on.
+        if !freshInstall {
+            defaults.set(true, forKey: "onboardingDone")
+        }
+
         if defaults.bool(forKey: "onboardingDone"), defaults.string(forKey: "windowsLayout") == nil {
             defaults.set("grid", forKey: "windowsLayout")
         }

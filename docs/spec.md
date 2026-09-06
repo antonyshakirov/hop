@@ -195,16 +195,28 @@ identically on every user's bar.
 
 ## Onboarding
 
+**Only a fresh install sees it.** An update is not a first run: somebody who has
+been using Hop has an arrangement of their own, and a wizard with no close button
+would stand in front of it and switch every module back on. `onboardingDone`
+alone cannot answer this — the key has never been written on a Mac updating from
+1.10.0 or earlier, so it reads false for exactly the people who must not see the
+wizard. `FirstRun.isFresh` (HopCore, `FirstRunTests`) reads the app's own
+persistent domain for the marks an older version is certain to have left
+(`panelTabs`, `canonicalLayoutSeeded`, the per-release `newsSeen.` /
+`featureSeen.` / `permissionsReset.` flags, and the rest of `FirstRun.marks`);
+finding any of them, the launch writes `onboardingDone` itself and the wizard
+never opens. The domain is read at the TOP of
+`applicationDidFinishLaunching`, before this run leaves marks of its own.
+
 A wizard, one thing per screen, in an 880×700 window that has no close button:
 onboarding is finished, not dismissed. It opens dead centre of the screen, and
 holds that position: `isRestorable` is off and the centring repeats on the next
 run-loop turn, because AppKit restores a titled window's last position and
-cascades new windows off the previous one — either one moved it (Anton,
-2026-09-05). Quitting the app does not end it — the
-step is stored (`SettingsKey.onboardingStep`) and the window reopens on it, which
-is also what makes granting a permission survivable: macOS answers a permission
-question once per process, hop restarts to ask again, and the wizard comes back
-where it was (Anton, 2026-09-05).
+cascades new windows off the previous one, and either one moves it. Quitting the
+app does not end it: the step is stored (`SettingsKey.onboardingStep`) and the
+window reopens on it, which is also what makes granting a permission survivable.
+macOS answers a permission question once per process, hop restarts to ask again,
+and the wizard comes back where it was.
 
 The order (`OnboardStep.ordered`): **hop** (language, theme, launch at login) →
 **nothing leaves this Mac** (the same pledge the permissions page carries, plus
