@@ -189,6 +189,35 @@ final class DocumentHeuristicsTests: XCTestCase {
         XCTAssertNil(DocumentHeuristics.listItem("2026. was a year"))  // no marker space rule met
     }
 
+    /// Word and AppKit's HTML reader both separate a list marker from its text
+    /// with a TAB, not a space: a page's `<ul><li>` arrives as "•\ttext", and a
+    /// Word list the same way. Requiring a space turned every one of them into
+    /// an ordinary paragraph with a stray bullet in it (found 2026-09-06 while
+    /// converting a page to markdown).
+    func testAMarkerSeparatedByATabIsStillAListItem() {
+        XCTAssertEqual(DocumentHeuristics.listItem("•\tbullet"),
+                       .init(ordered: false, number: nil, text: "bullet"))
+        XCTAssertEqual(DocumentHeuristics.listItem("\t–\tdash"),
+                       .init(ordered: false, number: nil, text: "dash"))
+    }
+
+    func testANumberFollowedByATabIsAnOrderedItem() {
+        XCTAssertEqual(DocumentHeuristics.listItem("1\tfirst"),
+                       .init(ordered: true, number: 1, text: "first"))
+        XCTAssertEqual(DocumentHeuristics.listItem("12\ttwelfth"),
+                       .init(ordered: true, number: 12, text: "twelfth"))
+    }
+
+    func testANumberFollowedByATabKeepsTheTwoDigitGuard() {
+        // a year introducing a sentence is not item 2026, tab or no tab
+        XCTAssertNil(DocumentHeuristics.listItem("2026\twas a year"))
+    }
+
+    func testADottedMarkerSeparatedByATabIsStillAnOrderedItem() {
+        XCTAssertEqual(DocumentHeuristics.listItem("3.\tthird"),
+                       .init(ordered: true, number: 3, text: "third"))
+    }
+
     func testWrappedLineContinuesTheParagraph() {
         XCTAssertTrue(DocumentHeuristics.continuesParagraph(
             previous: "this sentence is long enough to", next: "wrap onto the next line"))

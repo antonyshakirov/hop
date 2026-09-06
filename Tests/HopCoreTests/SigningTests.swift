@@ -32,6 +32,17 @@ final class SigningTests: XCTestCase {
             "without this the iWork export and the lid switch fail under the hardened runtime")
     }
 
+    /// The converter renders web pages through WebKit, whose JavaScript engine
+    /// compiles code at run time. Under the hardened runtime that is refused
+    /// unless it is entitled, and the WebContent process dies with the page
+    /// half-drawn — on the user's machine, never on a debug build.
+    func testWebKitIsEntitledToCompileJavaScript() throws {
+        let entitlements = try plist("scripts/Hop.entitlements")
+        XCTAssertEqual(
+            entitlements["com.apple.security.cs.allow-jit"] as? Bool, true,
+            "without this the html group renders pages in a process macOS keeps killing")
+    }
+
     func testAppleEventsCarryAUsageDescription() throws {
         let info = try plist("scripts/Info.plist")
         let description = info["NSAppleEventsUsageDescription"] as? String

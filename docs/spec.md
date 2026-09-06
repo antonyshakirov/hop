@@ -2426,8 +2426,87 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   - The size forecast runs the same composition, so the "→ ~N MB" beside a
     reframed group is the reframed size.
 - Dev entry points (DEBUG only, like the torrent self-test):
-  `Hop --doc-selftest <source> <pdf|md|docx> <outDir>` and
-  `Hop --video-selftest <source> <shape> <fit> <outDir>`.
+  `Hop --doc-selftest <source> <pdf|md|docx|rtf|txt> <outDir>`,
+  `Hop --video-selftest <source> <shape> <fit> <outDir>` and
+  `Hop --page-selftest <file|address> <pdf|docx|md|rtf|txt|png> <outDir>`.
+
+### Converter: web pages
+
+- A `MediaKind.html` group of its own, beside documents rather than inside them:
+  it is the only kind that is RENDERED rather than read, and the only kind whose
+  batch row need not be a file on disk. It accepts `html`, `htm`, `xhtml`,
+  `webarchive`, `mhtml`, `mht` — and a pasted address. Its chips
+  (`convHtmlTarget`, default pdf) are pdf · docx · md · rtf · txt · png.
+- **Two engines behind one row of chips**, split by `HTMLConversion.Target
+  .rendersPage`. `pdf` and `png` lay the page out in WebKit, which is the only
+  way the result looks like the page — its stylesheet, its fonts, its images.
+  `docx`, `md`, `rtf` and `txt` READ it and travel the document path, so
+  headings, emphasis, lists, tables and links survive and layout does not.
+- **The pdf is WebKit's own render cut into sheets, not a print job.**
+  `WKWebView.printOperation` is the obvious route and cannot be used here: run
+  against the off-screen window this renderer needs, WebKit's print view never
+  receives its layout back from the WebContent process, keeps the placeholder
+  page range `1…NSIntegerMax` and prints until the disk fills — 1.6 GB in three
+  minutes for a one-screen page, under every pagination mode and view size tried
+  (2026-09-06). `createPDF` answers in milliseconds with ONE page as tall as the
+  document, and `HopCore.PagePagination` works out the sheets: fit the width
+  (never enlarging), then slice down the page. Refuses beyond
+  `PagePagination.pageLimit` (2000) rather than half-writing a runaway.
+  The honest cost, stated in the module note: the cut falls where it falls, so a
+  line can land across a sheet boundary. A real print engine would avoid that.
+- **Pages are laid out at 800 pt, the width a browser composes a printed page
+  at** (A4 is 794 CSS pixels at 96 dpi). Both neighbours are wrong: the sheet's
+  own printable width (523) trips the phone breakpoints that start at 768 and
+  produced a phone screenshot stretched down a page, while a desktop width
+  (1200) hands the whole window to the scaler — a site with a centred 654-wide
+  column was shrunk by 1200/523 instead of by what it had drawn, and came out
+  small and adrift in white space (measured 2026-09-06).
+- **The reading path goes to the network only when there is no other way to the
+  markup.** A plain `.html` on disk is read from disk, so asking for markdown
+  never fetches anything. A web archive is not a file of HTML and an address has
+  no file at all, so those load in WebKit and hand over `outerHTML`.
+- **What fetches is stripped before AppKit reads it** (`HopCore.HTMLSource`):
+  `script`, `style`, `iframe`, `object`, `video`, `audio`, `svg` and `noscript`
+  go with their contents, `img`, `link`, `source`, `embed`, `track` and `input`
+  go alone. Not sanitisation — nothing here is rendered or executed — but the
+  difference between a conversion that finishes and one that hangs: AppKit's
+  HTML reader fetches what the markup points at, synchronously, on the main
+  thread. A stray `<` in prose stays text; a tag the document ends inside takes
+  the rest of the document with it rather than printing its half as markup.
+- **An address is a batch row without a file.** `addToBatch` lets a non-file URL
+  past its existence check, `classify` calls anything that is not a file URL a
+  page, and the row shows host + path with a globe where a thumbnail would be
+  and no size — an address weighs nothing until fetched, and "0 B" would read as
+  an empty file. Its result goes to the chosen destination, falling back to
+  Downloads when that is "next to the original", which means nothing here.
+- **Batch rows are told apart by the whole address, not the path**
+  (`HTMLConversion.batchKey`, and `BatchFile.id` with it). By path,
+  `example.com/post` and `other.com/post` collide and the second page dropped
+  would silently never be added.
+- A pasted address is accepted only when the pasteboard text reads as one and
+  nothing else (`HTMLConversion.address`): an explicit http(s) scheme, or a bare
+  host with no whitespace in it. A path, another scheme, prose, and a bare
+  filename are all refused — "page.html" parses as a host whose domain is its
+  extension, and fetching it would be a request nobody asked for.
+- The snapshot is the WHOLE page in one image, the view grown to the document's
+  height first; past `HTMLConversion.snapshotHeightCap` (16000 pt) it is scaled
+  down rather than cropped, because an image cut at an arbitrary line looks like
+  the page ended there.
+- A page loads with media autoplay off (a batch must not start making noise) and
+  under a 30 s timeout, so one page that never settles cannot hold the batch.
+  `com.apple.security.cs.allow-jit` is entitled: WebKit compiles JavaScript at
+  run time, and the hardened runtime otherwise kills the WebContent process
+  mid-render — on a user's machine, never on a debug build (SigningTests).
+- The document group gained `rtf` and `txt` targets in the same pass, the
+  readers and writers being already in place.
+- **A list marker is separated from its text by a space OR A TAB**
+  (`DocumentHeuristics.listItem`). Word writes its lists with a tab and so does
+  AppKit's HTML reader, so every `<ul><li>` and every Word list came back as
+  prose with a stray bullet in it (found 2026-09-06). A number may carry its own
+  punctuation or not: "1. first" and "1\tfirst" are both item one, and the
+  two-digit guard that keeps "2026 was a year" prose still applies.
+- Finished iWork exports and finished pages clear with everything else
+  (`Batch.clearDone`); the iWork group had been left out of it.
 
 ### Keyboard lock (cleaning mode)
 
