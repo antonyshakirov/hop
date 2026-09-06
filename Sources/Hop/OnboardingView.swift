@@ -371,12 +371,6 @@ struct OnboardingView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: 420)
-            Text(t(.onbDoneSettings))
-                .font(Theme.mono(11))
-                .foregroundStyle(Theme.textTertiary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: 420)
             if case .offer(let info) = phase {
                 VStack(spacing: 10) {
                     Text(L10n.fill(.updateAvailable, lang, info.version))

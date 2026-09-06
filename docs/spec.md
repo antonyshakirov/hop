@@ -252,10 +252,11 @@ screen only: nothing else in the wizard moves, and a snapshot renders the
 finished state. A permission row keeps its state in a column of its own, so the
 description wraps before it rather than running on under "asked when used", and
 the closing "what Hop never does" carries a shield and stands off from the rows
-above it. The last screen adds a line saying every choice made here can be
-changed in settings afterwards.
-The privacy screen says its three claims as
-rows with their own marks — no server, no analytics, open source — with the full
+above it. The last screen carries two texts, not three: the heading states
+that hop is already running, and the line under it says how to open the panel and
+that any module can be switched and reordered in settings.
+The privacy screen says its three claims as rows with their own marks — nothing
+collected, no sign-up, open source — with the full
 pledge under them in small type: a paragraph of that length was skipped.
 
 The wizard's window is placed on the middle of the screen BEFORE it is ordered
