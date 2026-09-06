@@ -16,7 +16,7 @@ final class PanelTabsTests: XCTestCase {
                        "everything that reports shares the second space")
         XCTAssertEqual(model.tabs[2].icon, "clock")
         XCTAssertEqual(model.tabs[2].moduleKeys, ["tracker", "todos"])
-        XCTAssertEqual(model.tabs[3].icon, "wrench.and.screwdriver")
+        XCTAssertEqual(model.tabs[3].icon, "puzzlepiece")
         XCTAssertEqual(model.tabs[3].moduleKeys, ["archive", "uninstall", "color"],
                        "what works on files shares the fourth space")
         XCTAssertEqual(model.inactive, [], "a fresh migrate has an empty inactive bucket")
@@ -494,7 +494,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
         XCTAssertEqual(c.tabs[2].icon, "clock")
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
-        XCTAssertEqual(c.tabs[3].icon, "wrench.and.screwdriver")
+        XCTAssertEqual(c.tabs[3].icon, "puzzlepiece")
         XCTAssertEqual(c.tabs[3].moduleKeys, ["archive", "uninstall", "color"])
         XCTAssertEqual(c.inactive, [])
     }
@@ -517,7 +517,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(c.tabs[1].moduleKeys, ["speedtest", "torrent"])
         XCTAssertEqual(c.tabs[2].icon, "clock")
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"], "the new modules are visible together")
-        XCTAssertEqual(c.tabs.last?.icon, "wrench.and.screwdriver")
+        XCTAssertEqual(c.tabs.last?.icon, "puzzlepiece")
     }
 
     // Canonicalization only rearranges what is ON a space — the inactive bucket
