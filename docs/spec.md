@@ -3165,6 +3165,19 @@ converter (Anton, 2026-07-28).
   right-to-left language is in the list again.
 - Inside the panel — brand lowercase; system surfaces (NSMenu,
   notifications) — sentence case (.capitalizedFirst).
+- **No word is left hanging at the end of a line** (Anton, 2026-09-06): a short
+  preposition or conjunction is joined to the word after it with a non-breaking
+  space, in the L10n tables and in the README translations alike. Russian takes
+  the full rule (every one- and two-letter preposition and conjunction, plus the
+  three-letter ones); the other alphabetic languages take their
+  single-letter words (en a/I, es a y o e u, pt a e o, it e a o è, fr à y).
+  German has no single-letter words and needs none; Chinese and Japanese do not
+  wrap on spaces. Key chords are joined the same way (⌃⌥M, ⌘V), which is what
+  keeps them from breaking across two lines.
+- **One form of address per language**, the one that already dominates its table
+  (measured 2026-09-06): ru, es, pt and fr are polite; de, it and nl are
+  familiar. A new
+  string follows its language's form rather than the English original's.
 
 ### Right to left
 

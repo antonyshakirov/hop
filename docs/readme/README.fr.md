@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="../../assets/icon/hop-icon-app.svg" width="96" alt="Icône de l'app Hop – astérisque à quatre traits">
+<img src="../../assets/icon/hop-icon-app.svg" width="96" alt="Icône de l'app Hop – astérisque à quatre traits">
 
 # Hop
 
@@ -8,7 +8,7 @@
 temps, liste de tâches, anti-veille, moniteur système, historique du
 presse-papiers, convertisseur de fichiers, gestionnaire de fenêtres et
 client torrent léger. Vous activez ceux dont vous avez besoin et vous les
-répartissez sur jusqu'à quatre onglets de l'icône. Un clic – et tout ce
+répartissez sur jusqu'à quatre onglets de l'icône. Un clic – et tout ce
 qu'il vous faut est là.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
@@ -22,7 +22,7 @@ qu'il vous faut est là.**
 
 [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · **Français** · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Русский](README.ru.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/fr/overview.webp" width="360" alt="Panneau Hop – minuteur dans la barre de menus avec affichage à matrice de points, préréglages et cycles travail-pause">
+<img src="https://hop.tools/screens/fr/overview.webp" width="360" alt="Panneau Hop – minuteur dans la barre de menus avec affichage à matrice de points, préréglages et cycles travail-pause">
 
 </div>
 
@@ -38,33 +38,33 @@ quatre onglets de l'icône.
 
 - **[Hop.dmg](https://github.com/antonyshakirov/hop/releases/latest/download/Hop.dmg)** – ouvrez-le et glissez `Hop.app` dans Applications (recommandé)
 - Homebrew : `brew install --cask antonyshakirov/tap/hop`
-- `Hop-x.y.z.zip` – la même app en archive simple (utilisée par le système de mise à jour intégré) ; voir la [dernière release](https://github.com/antonyshakirov/hop/releases/latest)
+- `Hop-x.y.z.zip` – la même app en archive simple (utilisée par le système de mise à jour intégré) ; voir la [dernière release](https://github.com/antonyshakirov/hop/releases/latest)
 - Miroir rapide : [hop-dl.b-cdn.net/products/hop/Hop.dmg](https://hop-dl.b-cdn.net/products/hop/Hop.dmg)
 
 Hop est signée avec un Apple Developer ID et notariée par Apple : macOS
 l'ouvre comme n'importe quelle autre app. Le code source est public et les
-mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
+mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
 plus récent.
 
 ## Fonctionnalités
 
 ### Espaces
 
-L'icône accueille jusqu'à quatre onglets, et vous glissez chaque module dans
+L'icône accueille jusqu'à quatre onglets, et vous glissez chaque module dans
 l'onglet de votre choix : le minuteur sur l'un, le moniteur sur l'autre, ce
-que vous ouvrez rarement à l'écart. Le bouton d'alimentation à côté d'un module
+que vous ouvrez rarement à l'écart. Le bouton d'alimentation à côté d'un module
 le désactive : il garde sa place et cesse de fonctionner – plus de raccourci,
 plus de marque, plus rien en arrière-plan.
 
 ### Minuteur et cycles
 
-Un compte à rebours à matrice de points que vous réglez d'un seul geste :
+Un compte à rebours à matrice de points que vous réglez d'un seul geste :
 faites glisser les chiffres, tapez la durée comme sur un micro-ondes, ou
 choisissez un préréglage. Des cycles travail-pause (Pomodoro 25/5, 52/17,
 90/15 – ou les vôtres), un chronomètre, une mise de côté qui garde un
 minuteur en cours pendant que vous en essayez un autre, et une alerte de fin
-qui peut aussi mettre vos médias en pause. À la fin du compte à rebours, un
-seul son retentit et les chiffres clignotent jusqu'à la réinitialisation.
+qui peut aussi mettre vos médias en pause. À la fin du compte à rebours, un
+seul son retentit et les chiffres clignotent jusqu'à la réinitialisation.
 
 <div align="center">
 <img src="https://hop.tools/screens/fr/timer.webp" width="420" alt="Hop – Minuteur et cycles">
@@ -76,13 +76,13 @@ seul son retentit et les chiffres clignotent jusqu'à la réinitialisation.
 
 Les tâches se regroupent en projets, chacun portant sa propre somme, et un
 sélecteur au-dessus de la liste montre le jour, la semaine ou tout. Une tâche
-en cours compte la session en cours, à partir de zéro ; le ✓ à côté la clôt et
-la ligne revient à la somme de la période. Ouvrez une tâche et tous ses
+en cours compte la session en cours, à partir de zéro ; le ✓ à côté la clôt et
+la ligne revient à la somme de la période. Ouvrez une tâche et tous ses
 segments sont là : changer la durée ou le moment, ajouter une séance que
 personne n'a chronométrée ou en supprimer une ; les corrections manuelles
 figurent dans la même liste, si bien que les lignes font le total au-dessus.
 Si l'une tourne trop longtemps, un bandeau vous le rappelle au bout de huit
-heures. À côté, une liste de choses à faire distincte, où le terminé descend
+heures. À côté, une liste de choses à faire distincte, où le terminé descend
 en bas.
 
 Cliquez sur une tâche : la ligne s'ouvre – le texte complet sur la première
@@ -135,9 +135,9 @@ quand macOS signale lui-même une tension.
 
 ### Historique du presse-papiers
 
-Les 100 derniers éléments copiés (jusqu'à 300) – texte, images et fichiers –
+Les 100 derniers éléments copiés (jusqu'à 300) – texte, images et fichiers –
 un clic pour les recopier ou les coller directement dans l'app précédente.
-Les fichiers copiés sont retenus par leur nom (plusieurs à la fois
+Les fichiers copiés sont retenus par leur nom (plusieurs à la fois
 apparaissent en « nom +N »), et le collage ramène le fichier lui-même. Les
 mots de passe et autres saisies masquées ne sont jamais enregistrés.
 
@@ -152,7 +152,7 @@ mots de passe et autres saisies masquées ne sont jamais enregistrés.
 Déposez un lot d'images, de PDF, de vidéos ou d'audio sur le panneau : JPEG,
 PNG, HEIC, AVIF et WebP en sortie ; compression de PDF ; réduction vidéo en
 HEVC avec une estimation de taille honnête et en direct avant de convertir.
-Tout est traité en local. La vidéo peut aussi être recadrée à la conversion –
+Tout est traité en local. La vidéo peut aussi être recadrée à la conversion –
 9:16, 4:5, carré ou 16:9, rognée, avec des bandes ou sur une copie floutée –
 et la compression a son propre niveau, si bien que la taille annoncée est
 celle obtenue.
@@ -202,16 +202,16 @@ défaut pour les fichiers .torrent et les liens magnet.
 ### Archives de fichiers
 
 La ligne du module ouvre une fenêtre, et c'est là qu'on dépose – ⌘V marche
-aussi, plusieurs fichiers à la fois. Ce que tu ajoutes attend dans une liste
-jusqu'à ce que tu appuies sur le bouton : les archives sont extraites, tout le
+aussi, plusieurs fichiers à la fois. Ce que tu ajoutes attend dans une liste
+jusqu'à ce que tu appuies sur le bouton : les archives sont extraites, tout le
 reste part dans une seule archive. Le résultat va sur le bureau par défaut, ou à
 côté de l'original, ou dans le dossier de ton choix. Sont pris en charge zip,
 rar, 7z, tar, tar.gz, tar.bz2, tar.xz et gz ; pour rar et 7z, un petit outil
-(~6 Mo) à la signature vérifiée se télécharge la première fois. Hop extrait le
+(~6 Mo) à la signature vérifiée se télécharge la première fois. Hop extrait le
 rar mais ne le crée jamais : le format est propriétaire. « Hop par défaut pour les archives »
 dans les réglages ne propose que rar lorsqu’aucune app Apple ne le prend en charge,
 et peut le reprendre aux apps tierces ; zip, 7z et les formats natifs restent à
-Utilitaire d'archive. Ça marche avec le module masqué, et la carte affiche l'état réel. Un double-clic sur une archive dans le Finder l'extrait juste à côté du fichier, dans sa propre petite fenêtre de progression, et un échec ne laisse rien de caché derrière lui. Les fichiers qu'ouvre Hop portent sa propre icône avec le format inscrit dessus : un dossier se lit d'un coup d'œil.
+Utilitaire d'archive. Ça marche avec le module masqué, et la carte affiche l'état réel. Un double-clic sur une archive dans le Finder l'extrait juste à côté du fichier, dans sa propre petite fenêtre de progression, et un échec ne laisse rien de caché derrière lui. Les fichiers qu'ouvre Hop portent sa propre icône avec le format inscrit dessus : un dossier se lit d'un coup d'œil.
 
 <div align="center">
 <img src="https://hop.tools/screens/fr/archives.webp" width="480" alt="Hop – Archives de fichiers">
@@ -228,7 +228,7 @@ ligne, sans suite bureautique embarquée ni téléchargement.
 
 → [Document conversion on Mac](https://hop.tools/features/file-converter/)
 
-### Pipette à couleurs
+### Pipette à couleurs
 
 Prélève n'importe quelle couleur de l'écran avec la loupe du système : elle
 reste dans une liste, chaque ligne portant hex, rgb et hsl dans sa propre
@@ -238,7 +238,7 @@ aucune autorisation d'enregistrement d'écran n'est nécessaire : la loupe rend
 une seule couleur.
 
 <div align="center">
-<img src="https://hop.tools/screens/fr/colors.webp" width="420" alt="Hop – Pipette à couleurs">
+<img src="https://hop.tools/screens/fr/colors.webp" width="420" alt="Hop – Pipette à couleurs">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -248,7 +248,7 @@ une seule couleur.
 Cadre une zone de l'écran, ou dépose une image dans la fenêtre et colle-en une
 avec ⌘V : le texte et les codes QR sortent dans une fenêtre qu'on peut lire,
 corriger et copier, et rejoignent en même temps l'historique du presse-papiers.
-Les retours à la ligne sont gardés, un tableau reste donc lisible. La
+Les retours à la ligne sont gardés, un tableau reste donc lisible. La
 reconnaissance, c'est Vision d'Apple, entièrement sur ce Mac.
 
 Quand le résultat contient une adresse web, un bouton « ouvrir le lien »
@@ -302,7 +302,7 @@ la dernière fenêtre.
 
 ### Thèmes, raccourcis et mode sans échec
 
-Thèmes sombre et clair avec une texture de grain argentique, raccourcis globaux, lancement à l'ouverture de session et un mode sans échec qui sort l'app d'une boucle de plantages – le tout dans une seule fenêtre de réglages.
+Thèmes sombre et clair avec une texture de grain argentique, raccourcis globaux, lancement à l'ouverture de session et un mode sans échec qui sort l'app d'une boucle de plantages – le tout dans une seule fenêtre de réglages.
 
 <div align="center">
 <img src="https://hop.tools/screens/fr/settings.webp" width="480" alt="Hop – Réglages">
@@ -312,11 +312,11 @@ Thèmes sombre et clair avec une texture de grain argentique, raccourcis globaux
 
 Tous les VPN que votre Mac connaît, chacun avec son interrupteur, quel que soit
 l'éditeur. Hop lit la liste directement dans les réglages système : un client
-installé hier apparaît tout seul, un client supprimé disparaît. Rien à ajouter ni
-à configurer ici.
+installé hier apparaît tout seul, un client supprimé disparaît. Rien à ajouter ni
+à configurer ici.
 
 Connectez et déconnectez sans rien ouvrir. Tant qu'un tunnel tient, un petit point
-s'allume dans le coin de l'icône de la barre des menus, à côté des autres voyants :
+s'allume dans le coin de l'icône de la barre des menus, à côté des autres voyants :
 vert tant que quelque chose passe, orange quand le tunnel est actif mais que rien ne
 revient par lui. Une connexion morte en silence cesse ainsi d'avoir l'air saine, et le
 panneau indique la ligne concernée. Cliquez sur le nom et la fenêtre du VPN s'ouvre
@@ -338,14 +338,14 @@ Le point peut être désactivé dans les réglages : le module et ses interrupte
 
 ### Apps
 
-Une grille avec les programmes que vous ouvrez toute la journée, à un clic et
+Une grille avec les programmes que vous ouvrez toute la journée, à un clic et
 sans passer par le dossier Applications. Appuyez sur + et choisissez-les, ou
-glissez-les depuis le Finder ; neuf par ligne, jusqu'à huit lignes.
+glissez-les depuis le Finder ; neuf par ligne, jusqu'à huit lignes.
 
 Faites glisser une icône pour la déplacer : une ligne jaune montre entre quelles
 deux icônes elle se posera et les autres s'écartent, comme sur un écran
 d'accueil. Le bouton d'édition lance l'oscillation, chaque icône reçoit une ✕ et
-la grille peut recevoir son propre nom ; on y coupe aussi les noms sous les
+la grille peut recevoir son propre nom ; on y coupe aussi les noms sous les
 icônes, si vous reconnaissez vos apps au premier coup d'œil. Gardez autant de
 grilles que vous voulez – le travail sur un espace, le reste sur un autre –
 chacune avec ses apps.
@@ -363,9 +363,9 @@ vous ne l'avez pas remplie.
 
 ### Supprimer des apps
 
-Déposez une app sur la ligne, ou choisissez-la dans la liste de tout ce qui est installé : elle part avec ce qu'elle a laissé dans une trentaine d'endroits – application support, caches, préférences, conteneurs, launch agents, modules, reçus et le reste. Chaque app de la liste indique son poids, le paquet et ses données séparément. Une app déjà à la corbeille est reconnue quand même : son identifiant vient du paquet qui s'y trouve, ou se déduit des restes qui le nomment.
+Déposez une app sur la ligne, ou choisissez-la dans la liste de tout ce qui est installé : elle part avec ce qu'elle a laissé dans une trentaine d'endroits – application support, caches, préférences, conteneurs, launch agents, modules, reçus et le reste. Chaque app de la liste indique son poids, le paquet et ses données séparément. Une app déjà à la corbeille est reconnue quand même : son identifiant vient du paquet qui s'y trouve, ou se déduit des restes qui le nomment.
 
-Rien n'est effacé. Tout part à la corbeille, une erreur coûte donc une restauration et non un fichier, et ce que macOS refuse de rendre est nommé avec sa raison plutôt que passé sous silence.
+Rien n'est effacé. Tout part à la corbeille, une erreur coûte donc une restauration et non un fichier, et ce que macOS refuse de rendre est nommé avec sa raison plutôt que passé sous silence.
 
 <div align="center">
 <img src="https://hop.tools/screens/fr/uninstall.webp" width="480" alt="Hop – Supprimer une app avec tout ce qu'elle a laissé">
@@ -387,27 +387,27 @@ l'installation.
 ## Soutenir le projet
 
 Hop est gratuit et le restera. S'il mérite sa place dans ta barre des menus, une
-contribution volontaire aide à sortir de nouvelles fonctions et à peaufiner
+contribution volontaire aide à sortir de nouvelles fonctions et à peaufiner
 celles qui existent : elle paie le temps que ça prend, rien d'autre.
 
 **[→ Soutenir Hop](https://web.tribute.tg/d/Nvk)**
 
 ## Confidentialité – et pourquoi les autorisations sont sans risque
 
-**Hop ne collecte rien. Ni maintenant, ni plus tard.** Pas de serveur à lui, pas
+**Hop ne collecte rien. Ni maintenant, ni plus tard.** Pas de serveur à lui, pas
 d'analytique, pas de télémétrie, pas de comptes, pas de rapports de plantage.
 Chaque autorisation ci-dessous est demandée par macOS uniquement quand la
-fonction qui en a besoin est utilisée, et elle sert exactement à ça – rien n'est
-collecté au passage. Tu n'as pas à me croire sur parole : l'app est open source,
+fonction qui en a besoin est utilisée, et elle sert exactement à ça – rien n'est
+collecté au passage. Tu n'as pas à me croire sur parole : l'app est open source,
 le code qui collecterait n'existe tout simplement pas. Cherche un SDK de tracking
 ou un appel d'analytique dans ce dépôt : tu n'en trouveras aucun.
 
 Tout tourne en local : pas de serveur, pas d'analytics, pas de compte. L'app
-ne touche au réseau que pour vérifier les mises à jour, quand vous lancez le
+ne touche au réseau que pour vérifier les mises à jour, quand vous lancez le
 test de débit intégré et – si vous activez le module torrent – pour
 récupérer le moteur une seule fois et acheminer le trafic torrent lui-même.
-Cette vérification des mises à jour envoie la version que vous utilisez, et
-rien qui vous identifie, vous ou votre Mac. Les mises à jour et le moteur
+Cette vérification des mises à jour envoie la version que vous utilisez, et
+rien qui vous identifie, vous ou votre Mac. Les mises à jour et le moteur
 torrent sont livrés sous forme d'archives signées et vérifiés avec une
 signature Ed25519 avant l'installation.
 
@@ -416,7 +416,7 @@ signature Ed25519 avant l'installation.
 Hop ne demande une autorisation qu'au moment où la fonction concernée est
 vraiment utilisée ; la fenêtre des réglages les liste toutes avec leur état :
 
-- **réseau – hop.tools** – chercher et télécharger les mises à jour,
+- **réseau – hop.tools** – chercher et télécharger les mises à jour,
   plus les deux outils optionnels (moteur torrent et archiveur 7-Zip)
 - **réseau – torrents, test de débit** – trafic vers les autres pairs quand le
   module torrent est activé ; le test utilise networkQuality de macOS vers les
@@ -427,8 +427,8 @@ vraiment utilisée ; la fenêtre des réglages les liste toutes avec leur état 
   seulement au cadrage d'une zone ; la pipette n'en a pas besoin
 - **notifications** – l'alerte du minuteur et un torrent terminé
 - **mot de passe administrateur** – une fois, pour le mode écran rabattu (pmset
-  est réservé à root)
-- **ouvrir à la session** – désactivé tant que tu ne l'actives pas
+  est réservé à root)
+- **ouvrir à la session** – désactivé tant que tu ne l'actives pas
 
 Rien n'est demandé au lancement, et rien n'est demandé pour un module que tu n'as
 pas activé. Pas d'analytique, pas de télémétrie, pas de compte, pas de rapport de
@@ -438,16 +438,16 @@ optionnels, si tu acceptes. Tout le reste reste sur ce Mac : l'historique du
 presse-papiers, le temps suivi, la liste de tâches, le texte reconnu, les
 couleurs prélevées.
 
-Chaque autorisation ci-dessus sert à faire fonctionner une fonction – et à rien
-d'autre. Tu n'as pas à me croire sur parole : Hop est open source, le code qui
+Chaque autorisation ci-dessus sert à faire fonctionner une fonction – et à rien
+d'autre. Tu n'as pas à me croire sur parole : Hop est open source, le code qui
 collecterait n'existe tout simplement pas – lis-le dans ce dépôt. La fenêtre
 des réglages de l'app a une page « autorisations de l'app » avec la même
 liste et l'état actuel de chacune.
 
-La mise à jour vers 1.10.0 efface toutes les autorisations une fois et les
-redemande. Une autorisation appartient à une signature, et celle de Hop a
-changé quand Apple l'a signée : celles accordées à l'ancienne restaient dans la
-liste sans plus fonctionner. À partir de 1.10.0 elles survivent à une mise à jour.
+La mise à jour vers 1.10.0 efface toutes les autorisations une fois et les
+redemande. Une autorisation appartient à une signature, et celle de Hop a
+changé quand Apple l'a signée : celles accordées à l'ancienne restaient dans la
+liste sans plus fonctionner. À partir de 1.10.0 elles survivent à une mise à jour.
 
 Site web : [hop.tools](https://hop.tools)
 
@@ -455,7 +455,7 @@ Site web : [hop.tools](https://hop.tools)
 
 Hop est entièrement gratuit : pas d'essai, pas de version pro, pas d'achats
 intégrés. Pas de publicité, pas de collecte de données, pas de comptes – il
-n'y a rien à monétiser ni rien à vendre. C'est un projet personnel : j'ai créé
+n'y a rien à monétiser ni rien à vendre. C'est un projet personnel : j'ai créé
 Hop pour moi, je l'utilise chaque jour et je le partage, tout simplement. S'il
 vous est utile, faites-le passer. Et si vous voulez contribuer, il est
 désormais possible de soutenir Hop – un simple cadeau, sans contrepartie.
