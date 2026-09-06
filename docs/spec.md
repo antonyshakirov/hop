@@ -3992,6 +3992,12 @@ Reworked 2026-07-15 (Anton): the old "(used+swap)/RAM %" threshold read
 as if swap were on top of the shown figure and lied about pressure. Now:
 - The row shows RAM used ("18.0 / 24.0 GB") with swap alongside when
   > 50 MB ("swap 4.9 GB") — the figures no longer include each other.
+- **Each figure carries its own verdict** (Anton, 2026-09-06). The used figure
+  follows macOS's pressure signal alone; the swap figure follows the share of RAM
+  sitting on disk alone. They used to share the worse of the two, so a machine
+  quietly holding a third of its memory in swap painted "20.2 / 24.0" red while
+  the pressure level said normal — the red was true about the swap and false
+  about the RAM.
 - "Used" matches Activity Monitor's Memory Used, computed the way its bar is
   built: Physical Memory − Cached Files − free, i.e.
   `hw.memsize − ((free_count − speculative) + file-backed) × page`

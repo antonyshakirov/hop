@@ -224,30 +224,32 @@ struct StatsView: View {
 
     /// Memory: the figure is RAM used, swap alongside — they no longer
     /// include each other (the old sum read as if swap were on top of it).
-    /// The COLOR takes the worse of macOS's own pressure signal and how much of
-    /// a RAM's worth is sitting in swap; see `HopCore.MemoryStrain` for why one
-    /// of those alone is not enough.
+    /// Each figure carries its OWN verdict: the used figure follows macOS's
+    /// pressure signal, the swap figure follows how much of a RAM's worth is on
+    /// disk. SPEC: docs/spec.md — "Memory (monitor)".
     private func memValue(_ s: StatsSample) -> Text {
-        let strain = MemoryStrain.level(
-            pressure: s.memPressure, swapBytes: s.swapUsed, physicalBytes: s.memTotal,
-            yellowPercent: swapYellow, redPercent: swapRed)
-        let pressureColor: Color = {
-            switch strain {
-            case .critical: return Theme.accentRed
-            case .warning: return Theme.accentYellow
-            case .normal: return colorful ? Theme.accentGreen : Theme.textSecondary
-            case .unknown: return Theme.textSecondary // no signal — no verdict
-            }
-        }()
-        var text = Text(StatsFormatting.gb(s.memUsed)).foregroundColor(pressureColor)
+        let used = strainColor(MemoryStrain.fromPressure(s.memPressure))
+        let onDisk = strainColor(MemoryStrain.fromSwap(
+            swapBytes: s.swapUsed, physicalBytes: s.memTotal,
+            yellowPercent: swapYellow, redPercent: swapRed))
+        var text = Text(StatsFormatting.gb(s.memUsed)).foregroundColor(used)
             + Text(" / \(StatsFormatting.gb(s.memTotal)) \(t(.unitGB))").foregroundColor(Theme.textSecondary)
         // if there is swap — clarify how much of it went to disk;
         // with its own unit: a bare "swap 2.0" left the scale ambiguous
         if let swap = s.swapUsed, swap > 50_000_000 {
             text = text + Text("  swap \(StatsFormatting.gb(swap)) \(t(.unitGB))")
-                .foregroundColor(pressureColor)
+                .foregroundColor(onDisk)
         }
         return text
+    }
+
+    private func strainColor(_ level: MemoryStrain.Level) -> Color {
+        switch level {
+        case .critical: return Theme.accentRed
+        case .warning: return Theme.accentYellow
+        case .normal: return colorful ? Theme.accentGreen : Theme.textSecondary
+        case .unknown: return Theme.textSecondary // no signal — no verdict
+        }
     }
 
     // both arrows use informational colors (not status): ↓ blue, ↑ cyan
