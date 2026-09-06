@@ -13,7 +13,8 @@ import HopCore
 /// which releases are still out there. Nothing else is sent.
 @MainActor
 final class UpdateChecker: ObservableObject {
-    /// Manifest of the latest release (scripts/release.sh uploads it to the site).
+    /// Manifest of the latest release (scripts/release.sh uploads it to every
+    /// host in `DownloadMirrors.hosts`).
     static let feedURL = "https://hop.tools/downloads/hop/latest.json"
 
     /// Ed25519 release signing key (scripts/sign-release.swift).
@@ -26,6 +27,8 @@ final class UpdateChecker: ObservableObject {
         let zipURL: URL
         let signatureURL: URL
         let critical: Bool
+        /// Hosts to fetch the build from, the one that served the manifest first.
+        var hosts: [String] = DownloadMirrors.hosts
     }
 
     enum Status: Equatable {
@@ -219,12 +222,10 @@ final class UpdateChecker: ObservableObject {
         guard releaseKey != nil else { return nil } // updater is disabled without a key
         guard let url = UpdateFeed.checkURL(feed: Self.feedURL, version: currentVersion)
         else { return nil }
-        var request = URLRequest(url: url)
         // the manifest is tiny and must be fresh — bypass caches
-        request.cachePolicy = .reloadIgnoringLocalCacheData
-        guard let (data, response) = try? await URLSession.shared.data(for: request),
-              (response as? HTTPURLResponse)?.statusCode == 200,
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        guard let answer = try? await MirrorFetch.data(
+                from: url, cachePolicy: .reloadIgnoringLocalCacheData),
+              let json = try? JSONSerialization.jsonObject(with: answer.data) as? [String: Any],
               let version = json["version"] as? String,
               // Per-architecture builds: an Intel Mac takes `zipIntel`, everything
               // else takes `zip`. Downloading the slice this Mac can run keeps the
@@ -240,19 +241,32 @@ final class UpdateChecker: ObservableObject {
         else { return nil }
 
         guard UpdateFeed.isNewer(version, than: currentVersion) else { return nil }
+        // The build comes from the host that just answered: a client reaching
+        // only the mirror must not be sent back to the primary to download.
+        let served = answer.url.host ?? ""
+        var hosts = DownloadMirrors.hosts(declared: json["mirrors"] as? [String] ?? [])
+        if let index = hosts.firstIndex(of: served) {
+            hosts.insert(hosts.remove(at: index), at: 0)
+        }
         return ReleaseInfo(
             version: version,
-            zipURL: zipURL,
-            signatureURL: signatureURL,
-            critical: json["critical"] as? Bool ?? false
+            zipURL: DownloadMirrors.moving(zipURL, to: served, hosts: hosts),
+            signatureURL: DownloadMirrors.moving(signatureURL, to: served, hosts: hosts),
+            critical: json["critical"] as? Bool ?? false,
+            hosts: hosts
         )
     }
 
     func install(_ info: ReleaseInfo) async {
         do {
             status = .downloading
-            let (tempZip, _) = try await URLSession.shared.download(from: info.zipURL)
-            let (signature, _) = try await URLSession.shared.data(from: info.signatureURL)
+            let build = try await MirrorFetch.download(from: info.zipURL, hosts: info.hosts)
+            let tempZip = build.file
+            let served = build.url.host ?? ""
+            let signature = try await MirrorFetch.data(
+                from: DownloadMirrors.moving(info.signatureURL, to: served, hosts: info.hosts),
+                hosts: info.hosts
+            ).data
 
             // cryptographic verification of the release with our key is
             // the only path to installation; a foreign build won't pass

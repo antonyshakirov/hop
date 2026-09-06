@@ -4184,9 +4184,11 @@ release time (on "publish"); dev builds don't touch the number.
 
 ## Update channel (production path, since 1.0.0)
 
-- Manifest: `https://www.antonshakirov.com/downloads/hop/latest.json`
-  (version, zip, sig, critical, date); the archive and signature sit
-  next to it.
+- Manifest: `https://hop.tools/downloads/hop/latest.json` (version, zip,
+  sig, critical, date, mirrors); the archive and signature sit next to it.
+  The old address `https://www.antonshakirov.com/downloads/hop/latest.json`,
+  which every build before 1.10.0 asks for, answers 301 to the one above so
+  those copies keep updating.
 - Whether the manifest offers something newer is `UpdateFeed.isNewer`
   (`UpdateFeedTests`), comparing the numbers rather than the text — 1.10.0 stands
   above 1.9.1 while the strings sort the other way round, and every Mac's update
@@ -4194,10 +4196,27 @@ release time (on "publish"); dev builds don't touch the number.
   does the parsing, so the app and the release cards agree on what a version is.
   A string that is not a version answers false: no build is replaced on a reading
   nobody can make sense of.
-- Release: `scripts/release.sh X.Y.Z [--critical]` → files go into the
-  website repo `public/downloads/hop/` (the `/hop/*` path is taken by the
-  landing redirect) → commit + site deploy → `scripts/verify-release.sh
-  X.Y.Z` → `git tag vX.Y.Z` + GitHub release.
+- Mirrors (since 2.0.0). The hosts a download may come from are
+  `DownloadMirrors.hosts` — `hop.tools`, then `ru.hop.tools` — and every
+  fetch walks them in order (`MirrorFetch`), treating anything but a 200 as
+  no answer. It covers the manifest, the build, its signature and the three
+  helper manifests alike; the host that answers is asked for the rest of the
+  same download. A machine can be unreachable from a whole country without
+  being down, and an update that asks one host stops arriving for those
+  people entirely.
+  - The fallback host is built INTO the app, not carried in the manifest: a
+    mirror list inside `latest.json` cannot help when it is `latest.json`
+    that fails to arrive. `mirrors` in the manifest only ADDS hosts, which
+    is how one can be introduced without an app update; entries that are not
+    plain host names are ignored (`DownloadMirrorsTests`).
+  - A mirror cannot change what gets installed: the Ed25519 check stands
+    between the download and the install, and it is the same key on every
+    host.
+- Release: `scripts/release.sh X.Y.Z [--critical]` → the build, its
+  signature and `latest.json` are rsynced to `downloads/hop/` on EVERY
+  mirror, manifest last → the site's version number is committed and
+  deployed → `scripts/verify-release.sh X.Y.Z` → `git tag vX.Y.Z` + GitHub
+  release.
 - Nothing is announced before the files serve: verify-release.sh downloads
   the LIVE latest.json, the exact zip it points to, checks the 64-byte
   signature file and the bundle version inside the zip, and the landing

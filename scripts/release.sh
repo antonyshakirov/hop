@@ -16,6 +16,12 @@ SITE_DIR="${HOP_SITE_DIR:-$HOME/Development Projects/Products Platform/projects/
 # Outside the static site's root: the site deploy syncs with --delete.
 SITE_SSH="${HOP_SITE_SSH:-atelier-nl}"
 SITE_DOWNLOADS="${HOP_SITE_DOWNLOADS:-/var/www/hop-website/downloads/hop}"
+# Every host a client may download from, primary first. The app carries the same
+# list in Sources/HopCore/DownloadMirrors.swift and the two must agree.
+MIRROR_SSH="${HOP_MIRROR_SSH:-timeweb-new}"
+MIRROR_DOWNLOADS="${HOP_MIRROR_DOWNLOADS:-/var/www/hop-mirror/downloads/hop}"
+typeset -a TARGETS
+TARGETS=("$SITE_SSH:$SITE_DOWNLOADS" "$MIRROR_SSH:$MIRROR_DOWNLOADS")
 [[ -f "$HOME/.minimo-release-key" ]] || { echo "signing key ~/.minimo-release-key not found"; exit 1 }
 
 # SPEC: docs/spec.md — "Signing, notarisation, and why permissions must survive
@@ -200,26 +206,33 @@ cat > "$STAGE/latest.json" << JSON
   "zipIntel": "$BASE/Hop-$VERSION-intel.zip",
   "sigIntel": "$BASE/Hop-$VERSION-intel.zip.sig",
   "critical": $CRITICAL,
-  "date": "$(date -u +%Y-%m-%d)"
+  "date": "$(date -u +%Y-%m-%d)",
+  "mirrors": ["ru.hop.tools"]
 }
 JSON
 
-# Builds first, latest.json last: a manifest naming files the server does not
-# have yet sends every installed copy to a 404.
+# Builds to EVERY host first, latest.json to every host after: a client may take
+# the manifest from one host and the build from another, so no manifest may name
+# a file that any host is still missing.
 cp dist/Hop.dmg dist/Hop-intel.dmg "$STAGE/"
 # Symbolic mode, not `F644`: macOS ships openrsync now, which refuses every
 # numeric form and takes this one. GNU rsync understands it too, so the script
-# runs the same on a machine that still has it (1.10.0 release, 2026-09-03).
+# runs the same on a machine that still has it.
 UPLOAD_MODE="u=rw,go=r"
-rsync -az --chmod="$UPLOAD_MODE" \
-    "$ZIP" "$ZIP.sig" "$ZIP_INTEL" "$ZIP_INTEL.sig" \
-    "$STAGE/Hop.dmg" "$STAGE/Hop-intel.dmg" \
-    "$SITE_SSH:$SITE_DOWNLOADS/" \
-    || { echo "upload of the builds failed"; exit 1 }
-rsync -az --chmod="$UPLOAD_MODE" "$STAGE/latest.json" "$SITE_SSH:$SITE_DOWNLOADS/" \
-    || { echo "upload of latest.json failed"; exit 1 }
+for target in $TARGETS; do
+    rsync -az --chmod="$UPLOAD_MODE" \
+        "$ZIP" "$ZIP.sig" "$ZIP_INTEL" "$ZIP_INTEL.sig" \
+        "$STAGE/Hop.dmg" "$STAGE/Hop-intel.dmg" \
+        "$target/" \
+        || { echo "upload of the builds to $target failed"; exit 1 }
+    echo "builds uploaded to $target"
+done
+for target in $TARGETS; do
+    rsync -az --chmod="$UPLOAD_MODE" "$STAGE/latest.json" "$target/" \
+        || { echo "upload of latest.json to $target failed"; exit 1 }
+    echo "latest.json uploaded to $target"
+done
 rm -rf "$STAGE"
-echo "uploaded to $SITE_SSH:$SITE_DOWNLOADS"
 
 # The landing shows the version in its hero, its footer and its
 # SoftwareApplication markup, out of one constant. Leaving that to a human meant

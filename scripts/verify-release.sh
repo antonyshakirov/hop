@@ -60,4 +60,30 @@ curl -fsS --max-time 120 "$DMG_URL" -o "$TMP/Hop.dmg" || fail "served DMG is unr
 xcrun stapler validate "$TMP/Hop.dmg" >/dev/null 2>&1 \
     || fail "the served DMG carries no stapled ticket"
 
-echo "✓ release $VERSION is live and correct: latest.json → zip (bundle $BUNDLE_VERSION, $ZIP_SIZE bytes, notarised) + 64-byte sig + notarised DMG"
+# Every mirror, byte for byte: a mirror that lags tells the copies reaching it
+# that there is nothing new.
+ZIP_SHA="$(shasum -a 256 "$TMP/release.zip" | cut -d' ' -f1)"
+SIG_SHA="$(shasum -a 256 "$TMP/release.sig" | cut -d' ' -f1)"
+typeset -a MIRRORS
+MIRRORS=(${HOP_MIRROR_HOSTS:-ru.hop.tools})
+for host in $MIRRORS; do
+    base="https://$host/downloads/hop"
+    curl -fsS --max-time 30 "$base/latest.json" -o "$TMP/mirror.json" \
+        || fail "mirror $host does not serve latest.json"
+    mirror_version="$(python3 -c "import json;print(json.load(open('$TMP/mirror.json'))['version'])")"
+    [[ "$mirror_version" == "$VERSION" ]] \
+        || fail "mirror $host says '$mirror_version', expected '$VERSION'"
+    curl -fsS --max-time 120 "$base/$(basename "$ZIP_URL")" -o "$TMP/mirror.zip" \
+        || fail "mirror $host does not serve the zip"
+    curl -fsS --max-time 30 "$base/$(basename "$SIG_URL")" -o "$TMP/mirror.sig" \
+        || fail "mirror $host does not serve the signature"
+    [[ "$(shasum -a 256 "$TMP/mirror.zip" | cut -d' ' -f1)" == "$ZIP_SHA" ]] \
+        || fail "mirror $host serves a DIFFERENT zip"
+    [[ "$(shasum -a 256 "$TMP/mirror.sig" | cut -d' ' -f1)" == "$SIG_SHA" ]] \
+        || fail "mirror $host serves a different signature"
+    curl -fsS --max-time 120 "$base/Hop.dmg" -o /dev/null \
+        || fail "mirror $host does not serve the DMG"
+    echo "✓ mirror $host serves $VERSION, identical zip and signature"
+done
+
+echo "✓ release $VERSION is live and correct: latest.json → zip (bundle $BUNDLE_VERSION, $ZIP_SIZE bytes, notarised) + 64-byte sig + notarised DMG, on every mirror"

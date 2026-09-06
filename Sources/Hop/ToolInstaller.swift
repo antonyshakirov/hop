@@ -73,8 +73,9 @@ class ToolInstaller: ObservableObject {
         }
         do {
             state = .downloading(0)
-            let (manifestData, _) = try await URLSession.shared.data(from: manifestURL)
-            let manifest = try JSONDecoder().decode(EngineManifest.self, from: manifestData)
+            let answer = try await MirrorFetch.data(from: manifestURL)
+            let manifest = try JSONDecoder().decode(EngineManifest.self, from: answer.data)
+            let served = answer.url.host ?? ""
             // Require https on both URLs: a tampered manifest must not coerce a
             // file:// read or a plaintext-http fetch. (The Ed25519 gate still prevents
             // installing a foreign binary; this closes the scheme-downgrade angle.)
@@ -83,8 +84,12 @@ class ToolInstaller: ObservableObject {
                 state = .failed; return
             }
             sizeBytes = manifest.size ?? 0
-            let tmpBin = try await downloadWithProgress(from: binURL)
-            let (signature, _) = try await URLSession.shared.data(from: sigURL)
+            // Both files follow the host that served the manifest.
+            let tmpBin = try await MirrorFetch.attempt(
+                DownloadMirrors.moving(binURL, to: served), DownloadMirrors.hosts
+            ) { try await self.downloadWithProgress(from: $0) }.0
+            let signature = try await MirrorFetch.data(
+                from: DownloadMirrors.moving(sigURL, to: served)).data
 
             state = .verifying
             guard let binData = try? Data(contentsOf: tmpBin),
@@ -129,12 +134,16 @@ class ToolInstaller: ObservableObject {
         let name = binaryName
         return try await withCheckedThrowingContinuation { continuation in
             var observation: NSKeyValueObservation?
-            let task = session.downloadTask(with: url) { tmp, _, error in
+            let task = session.downloadTask(with: url) { tmp, response, error in
                 observation?.invalidate()
                 observation = nil
                 session.finishTasksAndInvalidate()
                 if let error { continuation.resume(throwing: error); return }
-                guard let tmp else { continuation.resume(throwing: URLError(.badServerResponse)); return }
+                // Anything but a 200 is a miss, not a binary: an error page
+                // would otherwise be "downloaded" and fail the signature check
+                // instead of handing on to the next host.
+                guard let tmp, (response as? HTTPURLResponse)?.statusCode == 200
+                else { continuation.resume(throwing: URLError(.badServerResponse)); return }
                 let dest = FileManager.default.temporaryDirectory
                     .appendingPathComponent("hop-\(name)-\(UUID().uuidString)")
                 do {
