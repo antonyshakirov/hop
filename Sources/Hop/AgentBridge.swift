@@ -190,6 +190,13 @@ final class AgentBridge {
 
     /// A snapshot of what Hop is doing, for an agent to read before it decides
     /// anything. Written whole each time; never partially updated.
+    /// One formatter for the whole file: building an ISO8601DateFormatter is
+    /// expensive, and the old code built one per to-do per write.
+    private static let iso = ISO8601DateFormatter()
+
+    /// The bytes last written, so an unchanged snapshot is not written again.
+    private var lastPublished: Data?
+
     private func publishState() {
         guard let model else { return }
         let timer = model.engine
@@ -219,13 +226,18 @@ final class AgentBridge {
             var out: [String: Any] = ["id": item.id.uuidString, "text": item.text, "done": item.done]
             if !item.note.isEmpty { out["note"] = item.note }
             if item.important { out["important"] = true }
-            if let at = item.remindAt { out["remindAt"] = ISO8601DateFormatter().string(from: at) }
+            if let at = item.remindAt { out["remindAt"] = Self.iso.string(from: at) }
             if !item.repeatDays.isEmpty { out["repeatDays"] = item.repeatDays }
             return out
         }
 
         guard let data = try? JSONSerialization.data(withJSONObject: state,
                                                      options: [.prettyPrinted, .sortedKeys]) else { return }
+        // The snapshot is written every five seconds for as long as Hop runs, and
+        // most of that time nothing in it has changed: an idle app rewrote the
+        // same bytes seventeen thousand times a day.
+        guard data != lastPublished else { return }
+        lastPublished = data
         write(data, to: stateURL)
     }
 

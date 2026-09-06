@@ -532,11 +532,17 @@ struct UninstallWindowView: View {
         return mb >= 10 ? String(format: "%.0f MB", mb) : String(format: "%.1f MB", mb)
     }
 
-    private static func dateText(_ date: Date) -> String {
+    /// Built once: a DateFormatter costs real work to create, and this runs per
+    /// row of a list that can hold every app on the Mac.
+    private static let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
-        return formatter.string(from: date)
+        return formatter
+    }()
+
+    private static func dateText(_ date: Date) -> String {
+        dayFormatter.string(from: date)
     }
 
     private var dropPlate: some View {

@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import HopCore
 import IOKit.pwr_mgt
 
 /// "Caffeine": keeps the Mac awake via a system power assertion.
@@ -29,6 +30,9 @@ final class KeepAwakeController: ObservableObject {
     @Published private(set) var selected: Option?
     @Published private(set) var until: Date?
     @Published private(set) var heartbeat = Date()
+    /// The figure the row currently shows, so a tick that would draw the same
+    /// one publishes nothing (`AwakeCountdown`).
+    private var shownMinutes: Int?
 
     private var assertionID: IOPMAssertionID = 0
     private var hasAssertion = false
@@ -86,6 +90,7 @@ final class KeepAwakeController: ObservableObject {
         selected = option
         Sounds.awakeCue(on: true)
         until = option.seconds.map { Date().addingTimeInterval($0) }
+        shownMinutes = until.map { AwakeCountdown.minutes(remaining: $0.timeIntervalSinceNow) }
 
         let t = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
@@ -107,6 +112,7 @@ final class KeepAwakeController: ObservableObject {
         isActive = false
         selected = nil
         until = nil
+        shownMinutes = nil
         ticker?.invalidate()
         ticker = nil
         // lid mode lives only inside an awake session: when the session ends
@@ -305,9 +311,14 @@ final class KeepAwakeController: ObservableObject {
     }
 
     private func tick() {
-        heartbeat = Date()
-        if let until, until.timeIntervalSinceNow <= 0 {
+        guard let until else { return }
+        if until.timeIntervalSinceNow <= 0 {
             deactivate()
+            return
         }
+        let remaining = until.timeIntervalSinceNow
+        guard AwakeCountdown.publishes(remaining: remaining, shown: shownMinutes) else { return }
+        shownMinutes = AwakeCountdown.minutes(remaining: remaining)
+        heartbeat = Date()
     }
 }

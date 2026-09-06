@@ -19,7 +19,7 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Русский](README.ru.md) · [中文](README.zh.md) · **日本語**
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · **日本語**
 
 <img src="https://hop.tools/screens/ja/overview.webp" width="360" alt="Hop パネル – ドットマトリクス表示のメニューバータイマー、プリセットとワーク・レストサイクル">
 
@@ -330,9 +330,9 @@ rar はサードパーティ製アプリから取り返せます。zip・7z・�
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
-## 10 言語
+## 15 言語
 
-Deutsch, English, Español, Français, Italiano, Nederlands, Português, Русский, 中文, 日本語 – アプリは最初からシステム言語に自動で従います。
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Português, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – アプリは最初からシステム言語に自動で従います。
 
 ## プロジェクトを応援する
 

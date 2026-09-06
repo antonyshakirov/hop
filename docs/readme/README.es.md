@@ -20,7 +20,7 @@ necesitas está ahí.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Deutsch](README.de.md) · [English](../../README.md) · **Español** · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Русский](README.ru.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · **Español** · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/es/overview.webp" width="360" alt="Panel de Hop – temporizador en la barra de menús con pantalla de matriz de puntos, preajustes y ciclos de trabajo y descanso">
 
@@ -378,9 +378,9 @@ El mismo módulo limpia sin eliminar nada: cada app que guarda caché, las mayor
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
-## 10 idiomas
+## 15 idiomas
 
-Deutsch, English, Español, Français, Italiano, Nederlands, Português, Русский, 中文, 日本語 – la app sigue el idioma de tu sistema desde el
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Português, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – la app sigue el idioma de tu sistema desde el
 primer momento.
 
 ## Apoya el proyecto

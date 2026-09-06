@@ -26,6 +26,11 @@
   went to disk.
 - Every module's opening paragraph was rewritten to say what the module lets you
   do, with the formats and the figures, in every language Hop speaks.
+- Korean, Thai, Vietnamese, Hindi and Indonesian are in the app again, which
+  brings it to fifteen languages. The handbook, the onboarding and the what's-new
+  block are translated in all of them; the module descriptions keep the wording
+  they had before this release's rewrite, and that wording is refreshed in the
+  next pass.
 - A running timer no longer holds a quarter of a CPU core. The clock ticks four
   times a second so it ends on time, but it now tells the interface only when
   the second changes, so the panel and the menu-bar label are drawn once instead

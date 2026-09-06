@@ -652,7 +652,7 @@ enum Snapshot {
 
     /// Localized tracker + to-do demo content for the `--tasks` snapshot (three
     /// tasks, three to-dos) — one of the sanctioned per-locale screenshot string
-    /// sites. Covers ALL ten app locales: these flat-list modules are flagship
+    /// sites. Covers ALL fifteen app locales: these flat-list modules are flagship
     /// 1.4.0 surfaces shown in per-locale marketing screenshots, so an English
     /// fallback here would be visible. English stays the defensive default. The
     /// staged totals/active/done state is applied by the caller, not here.

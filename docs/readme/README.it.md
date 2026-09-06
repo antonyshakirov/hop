@@ -19,7 +19,7 @@ schede dell'icona. Un clic – e tutto ciò che ti serve è lì.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · **Italiano** · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Русский](README.ru.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · **Italiano** · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Pannello di Hop – timer nella barra dei menu con display a matrice di punti, preset e cicli lavoro-pausa">
 
@@ -379,9 +379,9 @@ Lo stesso modulo mette ordine senza rimuovere nulla: ogni app che tiene una cach
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
-## 10 lingue
+## 15 lingue
 
-Deutsch, English, Español, Français, Italiano, Nederlands, Português, Русский, 中文, 日本語 – l'app segue la lingua di sistema fin dal primo
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Português, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – l'app segue la lingua di sistema fin dal primo
 avvio.
 
 ## Sostieni il progetto
