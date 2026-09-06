@@ -250,10 +250,17 @@ time** — the star, the name, the line under it, then the language card, each
 fading up from 14pt below over 0.45 s. One orchestrated moment, on the first
 screen only: nothing else in the wizard moves, and a snapshot renders the
 finished state. A permission row keeps its state in a column of its own, so the
-description wraps before it rather than running on under "asked when used".
+description wraps before it rather than running on under "asked when used", and
+the closing "what Hop never does" carries a shield and stands off from the rows
+above it. The last screen adds a line saying every choice made here can be
+changed in settings afterwards.
 The privacy screen says its three claims as
 rows with their own marks — no server, no analytics, open source — with the full
 pledge under them in small type: a paragraph of that length was skipped.
+
+The wizard's window is placed on the middle of the screen BEFORE it is ordered
+in: shown first and centred after, it was visibly thrown from the corner to the
+middle (Anton, 2026-09-06).
 
 **The picture on a group screen is the module itself**, drawn by the panel's own
 code (`PanelView(previewModule:)`) and made unclickable. Not a screenshot: it

@@ -1026,8 +1026,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         onboardingWindow = window
         enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
-        window.makeKeyAndOrderFront(nil)
+        // Placed BEFORE it is shown: a window ordered in at AppKit's default
+        // origin and centred afterwards is visibly thrown from the corner to the
+        // middle (Anton, 2026-09-06). The frame is already the size it was asked
+        // for, so nothing has to be measured first.
         centreOnboarding()
+        window.makeKeyAndOrderFront(nil)
         // Again on the next turn of the run loop: the activation policy change
         // and AppKit's own cascade both land after this call.
         DispatchQueue.main.async { [weak self] in self?.centreOnboarding() }

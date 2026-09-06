@@ -52,15 +52,22 @@ struct PermissionsView: View {
             }
             restartRow
             Rectangle().fill(Theme.divider).frame(height: 1)
+                .padding(.top, large ? 14 : 2)
             VStack(alignment: .leading, spacing: 5) {
-                Text(L10n.t(.permNeverTitle, lang))
-                    .font(titleFont)
-                    .foregroundStyle(Theme.textPrimary)
+                HStack(spacing: 8) {
+                    Image(systemName: "lock.shield")
+                        .font(.system(size: symbolSize))
+                        .foregroundStyle(Theme.accentGreen)
+                    Text(L10n.t(.permNeverTitle, lang))
+                        .font(titleFont)
+                        .foregroundStyle(Theme.textPrimary)
+                }
                 Text(L10n.t(.permNeverBody, lang))
                     .font(bodyFont)
                     .foregroundStyle(Theme.docText)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            .padding(.top, large ? 6 : 0)
             // The closing statement, deliberately the loudest thing on the page:
             // a list of permissions reads as a list of risks unless somebody
             // says plainly what they are FOR and what is not happening. And it
