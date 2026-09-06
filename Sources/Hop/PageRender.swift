@@ -10,6 +10,8 @@ enum PageRender {
     private static let layoutHeight: CGFloat = 900
     private static let loadTimeout: TimeInterval = 30
 
+    private static let answerTimeout: TimeInterval = 30
+
     /// Web fonts and late stylesheets arrive after `didFinish`.
     private static let settleNanoseconds: UInt64 = 400_000_000
 
@@ -124,9 +126,9 @@ enum PageRender {
     }
 
     private static func pdfData(_ page: Page) async -> Data? {
-        await withCheckedContinuation { continuation in
+        await answer(page) { settle in
             page.webView.createPDF(configuration: WKPDFConfiguration()) { result in
-                continuation.resume(returning: try? result.get())
+                settle(try? result.get())
             }
         }
     }
@@ -137,6 +139,10 @@ enum PageRender {
         let measured = await contentHeight(page)
         let width = page.webView.frame.width
         let height = max(measured, page.webView.frame.height)
+        // SPEC: docs/spec.md — "Converter: web pages", the render height cap.
+        guard HTMLConversion.canRenderWhole(contentHeight: Double(height),
+                                            cap: HTMLConversion.renderHeightCap)
+        else { return false }
 
         // grown to the document's height, so the whole page is "on screen"
         page.window.setContentSize(NSSize(width: width, height: height))
@@ -160,10 +166,8 @@ enum PageRender {
     private static func snapshot(
         _ page: Page, configuration: WKSnapshotConfiguration
     ) async -> NSImage? {
-        await withCheckedContinuation { continuation in
-            page.webView.takeSnapshot(with: configuration) { image, _ in
-                continuation.resume(returning: image)
-            }
+        await answer(page) { settle in
+            page.webView.takeSnapshot(with: configuration) { image, _ in settle(image) }
         }
     }
 
@@ -184,11 +188,43 @@ enum PageRender {
     /// WORKAROUND: the async overload of `evaluateJavaScript` traps when a
     /// script returns nothing, and a page is entitled to return nothing.
     private static func evaluate(_ page: Page, _ script: String) async -> Any? {
-        await withCheckedContinuation { continuation in
-            page.webView.evaluateJavaScript(script) { value, _ in
-                continuation.resume(returning: value)
-            }
+        await answer(page) { settle in
+            page.webView.evaluateJavaScript(script) { value, _ in settle(value) }
         }
+    }
+
+    // MARK: - Waiting on WebKit
+
+    /// WORKAROUND: a WebContent process that dies mid-answer never calls back, and
+    /// the continuation waiting on it is never resumed — the row spins for ever.
+    /// SPEC: docs/spec.md — "Converter: web pages", answers under a watchdog.
+    private static func answer<T>(
+        _ page: Page, _ start: (@escaping (T?) -> Void) -> Void
+    ) async -> T? {
+        let settler = AnswerSettler<T>()
+        defer { page.loader.onProcessDidTerminate = nil }
+        return await withCheckedContinuation { continuation in
+            settler.continuation = continuation
+            page.loader.onProcessDidTerminate = { settler.settle(nil) }
+            DispatchQueue.main.asyncAfter(deadline: .now() + answerTimeout) {
+                settler.settle(nil)
+            }
+            start { value in settler.settle(value) }
+        }
+    }
+}
+
+/// Resumes exactly once: resuming a checked continuation twice is a crash.
+private final class AnswerSettler<T> {
+    var continuation: CheckedContinuation<T?, Never>?
+    private var settled = false
+
+    func settle(_ value: T?) {
+        guard !settled else { return }
+        settled = true
+        let pending = continuation
+        continuation = nil
+        pending?.resume(returning: value)
     }
 }
 
@@ -197,6 +233,8 @@ enum PageRender {
 private final class PageLoad: NSObject, WKNavigationDelegate {
     private var continuation: CheckedContinuation<Bool, Never>?
     private var settled = false
+
+    var onProcessDidTerminate: (() -> Void)?
 
     func wait(timeout: TimeInterval) async -> Bool {
         await withCheckedContinuation { continuation in
@@ -226,5 +264,10 @@ private final class PageLoad: NSObject, WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!,
                  withError error: Error) {
         settle(false)
+    }
+
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        settle(false)
+        onProcessDidTerminate?()
     }
 }
