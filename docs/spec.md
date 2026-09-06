@@ -1559,7 +1559,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `tracker.json`/`todos.json` (belt-and-suspenders over the bundle-less `.cli`
   sandbox), so `--tasks` stages its own deterministic content — three tasks (one
   running), three to-dos (one done) — localized per screenshot locale in
-  `Snapshot.demoTasks` (a sanctioned per-locale string site covering all 22
+  `Snapshot.demoTasks` (a sanctioned per-locale string site covering all ten
   locales — English via the `default` case).
 
 ### To-dos
@@ -3243,7 +3243,7 @@ converter (Anton, 2026-07-28).
   mirrors the localized-README rule: Russian → https://web.tribute.tg/d/Nvp,
   every other locale → https://web.tribute.tg/d/Nvk. All strings are
   country/currency-neutral; the amount and any currency are Tribute's concern.
-  Keys `donateTitle` and `donateBody` are translated across all 22 languages.
+  Keys `donateTitle` and `donateBody` are translated across all ten languages.
 - Languages in pickers use the standard order, like system lists:
   alphabetical by NATIVE names, Latin → Cyrillic → CJK (pickerOrder,
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"
@@ -3785,7 +3785,7 @@ its own database of known apps may do better on real software than it did here.
   repeating the word under the cursor is noise, and it trains people to ignore
   the ones that say something.
 - Zone names live in L10n like any other string (`tipSnap*`), so the window
-  layouts finally have names in all 22 languages instead of being glyphs only.
+  layouts finally have names in all ten languages instead of being glyphs only.
 
 ## Architecture and build
 
