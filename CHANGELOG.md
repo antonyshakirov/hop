@@ -1,12 +1,100 @@
-# Hop — version history
+# Hop - version history
 
-## 1.8.0 — 2026-08-04
+## 2.0.0 - 2026-09-06
+
+- The first run sets Hop up. A screen per group of modules shows each one at
+  work - a finished conversion, a torrent at 69%, a locked keyboard, a staged
+  monitor curve - and the modules picked there are switched on. Every permission
+  is asked for on one page, with a screen of its own for what Hop does and does
+  not collect. Nothing opens over the wizard, and quitting halfway brings it
+  back on the same step.
+- A new install starts with four spaces: the timer, keep-awake, clipboard, vpn,
+  keyboard lock, recognition, converter and windows on the first; the monitor,
+  internet and torrents on the second; the tracker and to-dos on the third; and
+  archives, the uninstaller and the eyedropper on a fourth of their own. A panel
+  that has already been arranged is left exactly as it is. The module list in
+  settings now follows the panel's own order rather than a list of its own.
+- The converter takes web pages. Paste an address or drop a saved page, and it
+  comes out as PDF, DOCX, Markdown, RTF or plain text. A page that never
+  finishes loading fails instead of holding the queue.
+- Several tracked tasks run at the same time, and the menu bar shows the clock
+  started last.
+- Memory and swap are coloured separately in the monitor: the used figure
+  follows the system's memory pressure, the swap figure the share of RAM that
+  went to disk.
+- Every module's opening paragraph was rewritten to say what the module lets you
+  do, with the formats and the figures, in every language Hop speaks.
+- Updates arrive from a second server. A download asks hop.tools first and
+  ru.hop.tools after it, so a copy that cannot reach one of them still gets its
+  update; the manifest, the build, its signature and the downloadable helpers
+  all follow the same rule. Nothing is trusted more for being nearer - the
+  Ed25519 signature is checked before anything is installed, with the same key
+  on every host.
+
+## 1.10.0 - 2026-09-03
+
+- Settings became a window: a sidebar instead of tabs inside the panel, a page
+  per module saying in two sentences what it does, every hotkey in one place,
+  and about, what's new and the handbook alongside them.
+- The handbook is back in the app - the full instructions for every module,
+  no longer only a page on the site.
+- Permissions live on one page: what is granted, what is not, and a button that
+  asks for it right there instead of sending you to a switch that is already on.
+  Updating to this version clears every permission once and asks again - a
+  permission belongs to a signature, and Hop's changed when Apple signed it.
+  From here on they survive an update.
+- The keyboard lock proves itself. The cover goes up only once the keys have
+  actually gone quiet, the check repeats every second for as long as the lock
+  stands, the countdown bar tells the truth, and the Dock no longer floats over
+  a locked screen.
+- Nothing fails in silence: a feature stopped by a missing permission says so in
+  one line, and that line is the button that asks for it.
+- A right click on the icon opens the handbook and about, not only settings.
+
+## 1.9.1 - 2026-08-31
+
+- Hop carries an Apple Developer ID and Apple's notarisation, so macOS opens it
+  without the warning a first install used to show. The signature is new, which
+  makes Hop a new app to macOS: the permissions granted before are gone, and Hop
+  asks for each one again when it needs it.
+- VPN state is taken from the system the moment it changes, so the dot in the
+  menu bar follows a connection going up or down without a wait. It holds for
+  clients that leave their interface standing after the session itself is gone.
+- A card at the top of the panel names what a new version brought, with the full
+  notes one button away. It arrives with the update, keeps to a couple of
+  showings and leaves on its own.
+
+## 1.9.0 - 2026-08-29
+
+- Projects and history in the tracker. Tasks can be grouped into projects, each
+  with its own sum, and one switch above the list shows today, this week or all
+  of it. Open a task and every stretch of time it collected is listed: change how
+  long one ran or when it happened, add a session nobody pressed play for, or
+  throw one away. A star lifts a task to the top of its own list. The row counts
+  the run you are in, from zero, and the ✓ beside it closes the run - the
+  period's sum comes back and the next start begins at zero.
+- One button for where the video is going: reels, feed, tiktok, shorts or
+  youtube sets the frame, the resolution and how hard to squeeze, from what the
+  platform itself recommends. The dial says the bitrate it means, in megabits,
+  so what is being traded is visible.
+- MKV and WebM at last. macOS opens neither, so Hop repacks them into MP4 first,
+  copying the picture across untouched, and everything else works as usual. A
+  small helper downloads once, the first time one is converted.
+- Pages, Numbers and Keynote: drop a pile of them in and they come out as PDF,
+  or as DOCX, XLSX and PPTX. The documents are exported by the apps themselves,
+  so the result is what "export to…" gives, formulas included.
+- Smaller things: an image asked for in the format it already is, at full
+  quality, is copied instead of re-encoded (it used to come back several times
+  heavier); durations are always written in full, h:mm:ss; and the converter's
+  settings line up in one column.
+
+## 1.8.0 - 2026-08-04
 
 - Video can be reframed for where it is going: 9:16 for reels and stories, 4:5
   or square for a feed, 16:9 for the rest. A picture of another shape is cropped
   to fill, padded, or laid over an enlarged blurred copy of itself, whichever is
   chosen. The frame's short side is the resolution already picked, and nothing
-  is ever upscaled — 720p footage asked for a 540-wide reel comes out 405×720
+  is ever upscaled - 720p footage asked for a 540-wide reel comes out 405×720
   rather than an invented 1080×1920.
 - Compression actually compresses, and by an amount you set. The system's export
   presets take no bitrate and their highest-quality setting re-encoded ordinary
@@ -35,21 +123,21 @@
   reports one per page. Bar, percentage and label turn green together when the
   work is done.
 - A finished batch plays its own sound, and a button in the footer opens the
-  folder the files went to with one of them already selected — wherever they
+  folder the files went to with one of them already selected - wherever they
   actually went.
 - Formats macOS cannot open at all (MKV, WebM, WMV, FLV, and WMA among audio)
   are named as unsupported the moment they are dropped, instead of sitting in a
   group with a convert button that was always going to fail.
 - Resolution chips no longer disappear: choosing 540p used to hide 1080p and
   720p. Every resolution is always drawn, and the ones the source has no pixels
-  for are dimmed in place. A video row also reads "718p → 404p" — the source and
+  for are dimmed in place. A video row also reads "718p → 404p" - the source and
   what the current settings will actually produce.
 - The gpu card in the system monitor carries a chart of its own in the product
   screenshots. The card is drawn whenever the Mac reports a gpu load, and the
   synthesized history behind the screenshots had no gpu series in it, so every
   monitor picture kept a blank strip under the row.
 
-## 1.7.1 — 2026-07-31
+## 1.7.1 - 2026-07-31
 
 - The dot on the menu-bar icon turns orange when a tunnel is up but nothing is
   coming back through it, so a connection that quietly died stops looking like a
@@ -59,7 +147,7 @@
   rounded and lag behind, while the packet figures agree with `netstat` to the
   unit. Known limit: with no network at all the same verdict appears for the few
   seconds before macOS moves the session out of Connected, and a tunnel whose
-  traffic flows while particular hosts stay unreachable is not detected — that
+  traffic flows while particular hosts stay unreachable is not detected - that
   cannot be told apart without asking a third party.
 - The dot keeps its colour with the panel closed. It used to freeze at whatever
   was true when the panel was last open, which meant a tunnel that fell over out
@@ -70,9 +158,9 @@
 - The cleanup window reads shorter: the note repeated under every row is gone,
   because the heading above them already says what they are.
 
-## 1.7.0 — 2026-07-30
+## 1.7.0 - 2026-07-30
 
-- Removing apps — a new module. Drop an app on the row, or pick it from the list
+- Removing apps - a new module. Drop an app on the row, or pick it from the list
   of everything installed, and it goes together with what it left in about
   thirty places: application support, caches, preferences, containers, launch
   agents, plug-ins, receipts and the rest. Every app in the list shows what it
@@ -80,7 +168,7 @@
   An app already in the Trash is still recognised, so a half-finished removal can
   be finished. Nothing is deleted: it all moves to the Trash, and whatever macOS
   refuses to hand over is named with the reason instead of quietly skipped.
-- Clearing the cache — the same module, removing nothing. Every app holding a
+- Clearing the cache - the same module, removing nothing. Every app holding a
   cache, biggest first; installers left in Downloads, on the Desktop and in
   Documents; the data of apps removed long ago; and the Trash with its size. One
   tick takes a whole section. What it deliberately leaves alone is listed too: a
@@ -88,13 +176,13 @@
   cleanup knows which half is disposable.
 - Intel Macs run Hop again, as their own download. Each build carries only the
   code its processor runs, so neither is heavier than it was, and both are signed
-  with the same certificate — a permission you grant survives every update.
+  with the same certificate - a permission you grant survives every update.
 - A VPN switched off stays off. Switching one off used to last seconds, because
   its own on-demand rules brought the tunnel straight back; off now takes the
   service out of the network set until you switch it on yourself. A setting
   restores the old behaviour.
-- Apps: choose how many icons a grid puts in a row — three to nine, eight by
-  default — in the grid's edit mode, beside its name.
+- Apps: choose how many icons a grid puts in a row - three to nine, eight by
+  default - in the grid's edit mode, beside its name.
 - Copied text can be saved as a file. A new icon in the clipboard writes an entry
   as txt, md, pdf or docx, by default onto the Desktop and named after the text
   itself. The converter also turns a PDF into a Word file.
@@ -110,32 +198,32 @@
   that refused to delete deletes, and the first screen no longer asks about
   modules you have just chosen.
 
-## 1.6.0 — 2026-07-29
+## 1.6.0 - 2026-07-29
 
 - A VPN module. Every VPN your Mac knows about gets a switch in the panel,
-  whatever the brand — the list comes straight from system settings, so a client
+  whatever the brand - the list comes straight from system settings, so a client
   you install appears on its own and one you remove disappears. A green dot in
   the corner of the menu-bar icon while a tunnel is up. Click a name and that
   VPN's own window opens for the times you need it; close the window and Hop
   quits the app, so it never sits in the Dock for a switch you touch twice a
-  week — the connection stays, because the tunnel is held by the system.
+  week - the connection stays, because the tunnel is held by the system.
 
 - Tasks open. Click a to-do (or a tracker task) and the row expands into a card:
   the full text on the first line, a description below it, and Return adds a line
   in either. Both lists gained a comment, so the address, the phone number or the
   reason lives with the task instead of in its title.
 - To-dos take a reminder. Pick a day and a time, optionally repeat it on any
-  weekdays you like, and Hop tells you when it is time — a banner with "snooze"
+  weekdays you like, and Hop tells you when it is time - a banner with "snooze"
   and "done", a sound, a mark in the menu bar, each switchable on its own. A
   repeating task comes back as unfinished on its next round. A reminder that
   already went off leaves its time struck through in the list, so a banner you
   missed still left a trace.
-- Which day the week starts on follows your region and can be set by hand — the
+- Which day the week starts on follows your region and can be set by hand - the
   US counts from Sunday, most of Europe from Monday.
 - Favourites: a star on any task, and a setting per list to float starred tasks
   to the top. With it off the star is just a mark and nothing moves.
-- A line that mixes two distant alphabets — say Japanese and Russian in one
-  sentence — is now read correctly too. Recognition notices when a word came out
+- A line that mixes two distant alphabets - say Japanese and Russian in one
+  sentence - is now read correctly too. Recognition notices when a word came out
   as a jumble of two scripts, asks a second time for the alphabets on the picture,
   and keeps each word from whichever reading could actually make it out. Pictures
   without such a line are untouched and just as fast as before.
@@ -144,8 +232,8 @@
   came back as nonsense; now Vision detects the writing itself and a screen
   carrying six alphabets at once comes out in all six. Settings can still pin one
   language when you always read the same one and want the faster pass.
-- Hop can be driven from outside. Two plain JSON files next to its data — one it
-  performs commands from, one it publishes its state to — plus `hop://` links, so
+- Hop can be driven from outside. Two plain JSON files next to its data - one it
+  performs commands from, one it publishes its state to - plus `hop://` links, so
   your own AI agent, a script or a Shortcut can drive nearly the whole app: the
   timer and stopwatch, time tracking, adding a task with a reminder and a repeat,
   keeping the Mac awake for a while, lid mode, the keyboard lock, snapping the
@@ -163,14 +251,14 @@
 - Fixes: the strike line no longer jumps when a task is ticked, and the
   reminder's clock fields stop hopping and validate as you type.
 
-## 1.5.2 — 2026-07-28
+## 1.5.2 - 2026-07-28
 
 - Arabic, Hebrew, Persian and Urdu, bringing the app to 22 languages. As
   before, Hop follows the system language on its own and the picker lists every
   language under its own name.
 - The interface runs right to left for those four. Hop chooses its language in
   its own picker rather than through the system locale, so SwiftUI never learned
-  the direction on its own — every window, panel and popover now sets it, and
+  the direction on its own - every window, panel and popover now sets it, and
   the right-click menus are told separately. The flip follows the picker live,
   with no restart.
 - The panel drops its monospaced face for these languages and uses the
@@ -181,11 +269,11 @@
   does not: the dot-matrix digits, the monitor graphs and the window-snap glyphs
   keep their shape, because a snap glyph is a map of the physical screen and its
   left half stays on the left. Only the order of the buttons in the row mirrors.
-- Values dropped into a translated sentence — a file name, a size, a version
-  number — are isolated, so a right-to-left sentence cannot drag the
+- Values dropped into a translated sentence - a file name, a size, a version
+  number - are isolated, so a right-to-left sentence cannot drag the
   neighbouring punctuation to the wrong end of them.
-- Hop's own windows — the converter, archives, recognition, settings and the
-  rest — now appear in the Dock while they are open. A window that could not be
+- Hop's own windows - the converter, archives, recognition, settings and the
+  rest - now appear in the Dock while they are open. A window that could not be
   reached from the Dock had to be found through the panel every time, and the
   panel is the whole app when all you wanted back was the converter. The icon
   appears with the first window and leaves with the last, so an app with
@@ -198,7 +286,7 @@
   to swap that stay cold cost the system nothing, so a 24 GB machine holding
   9.4 GB of swap still read as normal, in green. The row now takes the worse of
   that signal and swap measured against physical RAM, with a threshold back in
-  monitor settings — yellow at a quarter of RAM on disk, red at half. Swap is
+  monitor settings - yellow at a quarter of RAM on disk, red at half. Swap is
   compared to RAM rather than to the swap file, whose size macOS changes on
   demand. This is not the old rule returning: that one coloured on
   (used + swap) ÷ RAM starting at 110%, a sum with no physical meaning.
@@ -222,7 +310,7 @@
   flight or a failed fetch each put the row back. The rule now lives in HopCore
   with tests and no longer consults the engine at all.
 
-## 1.5.1 — 2026-07-27
+## 1.5.1 - 2026-07-27
 
 - Archives claim only rar. Earlier versions took every archive type Hop could
   read, including the ones Archive Utility already opens; Hop now asks for rar
@@ -230,7 +318,7 @@
   older version claimed. If a future macOS learns rar, the offer disappears by
   itself.
 - Opening an archive from Finder extracts it beside the archive itself, whatever
-  the module's "where to save" setting says — that setting is for dragging and
+  the module's "where to save" setting says - that setting is for dragging and
   pasting. A small progress window of its own appears at once, closes when every
   archive is done, and stays with a plain reason when one fails. Several
   archives opened together share one helper download instead of racing.
@@ -239,14 +327,14 @@
   swept before the next job and at startup, and every exit removes its own
   directory.
 - Every file type Hop opens now has its own document icon with the format
-  written across it — TORRENT, RAR, ZIP, 7Z, TAR, GZ, TGZ, BZ2, XZ — instead of
+  written across it - TORRENT, RAR, ZIP, 7Z, TAR, GZ, TGZ, BZ2, XZ - instead of
   a wall of identical app tiles that said nothing about the files underneath.
 - Monitor: the memory figure matches Activity Monitor exactly. Purgeable pages
   were being counted as cache and speculative pages twice, which pulled the
   number under the system's by up to a gigabyte depending on the workload.
 - Monitor: temperature no longer has an invented threshold. Apple publishes no
   limit and Apple Silicon runs at 90-100 °C under load by design, so the colour
-  now follows macOS's own thermal verdict — the same way the memory row follows
+  now follows macOS's own thermal verdict - the same way the memory row follows
   memory pressure. The degrees are still shown.
 - A finished torrent says what it downloaded, how much, and whether it is still
   sharing. It used to borrow the timer's "the timer has finished". Reaching the
@@ -254,16 +342,16 @@
 - The keyboard lock releases the instant it is asked to, and hands focus back to
   the app that had it before the lock.
 - macOS 15 and newer: the first-launch instructions in every README and on the
-  site now describe the path Apple actually left — System Settings → Privacy &
+  site now describe the path Apple actually left - System Settings → Privacy &
   Security → Open Anyway.
 - Hop can be installed with Homebrew: `brew install --cask antonyshakirov/tap/hop`.
 - The archive module can be hidden from the panel without switching it off, the
   screen-selection action wears a camera glyph, and the cleaning-mode keyboard
   unlocks the moment its bar is full.
 
-## 1.5.0 — 2026-07-26
+## 1.5.0 - 2026-07-26
 
-- File archives: a new module — its row opens a window, and that window is the
+- File archives: a new module - its row opens a window, and that window is the
   drop target; ⌘V works too, several files at once. What you add waits in a list
   until you press the button: archives are unpacked, anything else is packed
   into one archive. Results land on the Desktop by default, or next to the
@@ -272,22 +360,22 @@
   the first time one turns up. Hop unpacks rar but never creates it. "Open
   archives with Hop" makes Hop the opener in Finder, whether or not the module
   is visible in the panel.
-- Cleaning mode: a new module — tapping 1, 5 or 15 minutes, or ∞, stops every
+- Cleaning mode: a new module - tapping 1, 5 or 15 minutes, or ∞, stops every
   key so the keyboard can be wiped without shutting the Mac down. A cover
   explains what is happening and the menu-bar icon turns into a keyboard. Four
   ways out: the cover's button, the panel's button, opening the panel, or
   holding esc + shift for five seconds. A short press of the power key is swallowed
   too; holding it still forces the Mac off, because that is hardware.
-- Color eyedropper: a new module — picked colors stay as a list, each row
+- Color eyedropper: a new module - picked colors stay as a list, each row
   carrying hex, rgb and hsl in its own column, and each of the three copies on
   click. The order never changes under the cursor. How many colors to keep and
   how many rows to show are settings. No screen-recording permission needed.
-- Text recognition: a new module — frame an area of the screen, or drop a
+- Text recognition: a new module - frame an area of the screen, or drop a
   picture into the window and paste one with ⌘V. The text and any QR codes come
   out in a window you can read, edit and copy from, and land in the clipboard
   history at the same time.
 - Documents in the converter: markdown to PDF laid out by Hop itself, Word
-  files to PDF or markdown, and a PDF's text extracted as markdown — scanned
+  files to PDF or markdown, and a PDF's text extracted as markdown - scanned
   pages are read with Vision. The markdown engine is our own, so there is still
   no third-party dependency and nothing to download.
 - Permissions tab in the info window: every permission Hop can ask for, what it
@@ -295,22 +383,22 @@
   README, in all 18 languages.
 - All five new modules ship hidden: the what's-new card lists them with
   checkboxes, nothing appears until you tick it, and what you enable lands on
-  the first tab. The archives row carries a second switch there — whether a
+  the first tab. The archives row carries a second switch there - whether a
   double-clicked archive should open through Hop.
 
-## 1.4.0 — 2026-07-22
+## 1.4.0 - 2026-07-22
 
 - Spaces: the menu-bar icon now carries up to four tabs, and any module can be
   dragged from one tab to another. A "modules & tabs" table in settings lays it
   all out, with an inactive bucket for the modules you've set aside.
-- Time tracker: a new module — a flat list of tasks, each with today's time and a
+- Time tracker: a new module - a flat list of tasks, each with today's time and a
   running total. Today's time is editable by hand, and a banner appears once a
   task has been timing for over 8 hours.
 - To-dos: a new checklist module; completed items sink to the bottom.
 - Clipboard: copied files are now kept by name (several at once show as
   "name +N"), and pasting restores the actual file.
-- Menu-bar icon: small corner badges show status at a glance — time wedges,
-  no-sleep and closed-lid dots, an alert "!", torrent arrows — with a setting to
+- Menu-bar icon: small corner badges show status at a glance - time wedges,
+  no-sleep and closed-lid dots, an alert "!", torrent arrows - with a setting to
   keep them colored or monochrome.
 - Converter: ⌘V paste works on every keyboard layout now, including when the
   window is opened from the background.
@@ -319,11 +407,11 @@
 - Monitor: the memory figure now matches Activity Monitor's Memory Used exactly.
 - Timer: on finish it plays a single sound, and the digits pulse until you reset.
 - Support: for anyone who'd like to, a card in the info window makes it possible
-  to support hop, with a Telegram link in the footer — a gift, no perks attached.
+  to support hop, with a Telegram link in the footer - a gift, no perks attached.
 
-## 1.3.1 — 2026-07-18
+## 1.3.1 - 2026-07-18
 
-- Torrents: enabling the module now downloads the engine right away — the
+- Torrents: enabling the module now downloads the engine right away - the
   what's-new card walks through it in two steps: an explicit enable with
   the honest ~26 MB cost, then live download progress with the follow-up
   choices (show the module when empty, make Hop the default for .torrent
@@ -338,12 +426,12 @@
 - What's new: releases are visually separated, and every screenshot uses
   unambiguously open content.
 
-## 1.3.0 — 2026-07-18
+## 1.3.0 - 2026-07-18
 
 - Torrents: a lite BitTorrent client built into the panel. Drop a .torrent
   file or paste a magnet link; pick individual files before and during the
   download; pause, resume and seed with an optional stop-at-ratio-1.0
-  policy. The download engine is not bundled — it downloads on demand
+  policy. The download engine is not bundled - it downloads on demand
   (~26 MB, signature-verified) the first time you enable the module, and
   talks only to the app over a local loopback port. Hop can optionally
   become the default app for .torrent files and magnet links. If a
@@ -354,7 +442,7 @@
   button's one-time admin prompt actually appears now (it silently failed
   for everyone since 1.0.0), and lid mode verifies the real power state,
   re-requesting rights when the setup goes stale.
-- Windows: the tiling hotkeys register at launch — they used to stay dead
+- Windows: the tiling hotkeys register at launch - they used to stay dead
   until the keep-awake hotkey was pressed once.
 - Monitor: battery discharge wattage is computed correctly (some Macs
   showed absurd readings); power and battery-health icons no longer clash
@@ -365,18 +453,18 @@
   builds; engine downloads require https and validate every member path
   inside a torrent.
 
-## 1.2.0 — 2026-07-15
+## 1.2.0 - 2026-07-15
 
 - Updates: the app relaunches itself after installing a release, and a
   found update also installs right after the Mac wakes from sleep. This
   fixes the broken Finder icon two live instances used to cause.
 - Monitor: the memory row shows RAM and swap separately, and its color
-  follows macOS's own memory-pressure signal — the manual "memory+swap %"
+  follows macOS's own memory-pressure signal - the manual "memory+swap %"
   threshold is gone.
-- Panel: keyboard transparency — typing goes to the app underneath the
+- Panel: keyboard transparency - typing goes to the app underneath the
   open panel, except timer digit entry and the clipboard search field.
 
-## 1.1.0 — 2026-07-15
+## 1.1.0 - 2026-07-15
 
 - Clipboard history keeps images, with a setting for visible rows.
 - Video conversion: format, resolution and compression are independent
@@ -392,7 +480,7 @@
 - Fixes: window raising above the frontmost app, hotkey legend covering
   every zone, light-theme contrast, theme switch repainting open windows.
 
-## 1.0.0 — 2026-07-13
+## 1.0.0 - 2026-07-13
 
 First release. Timer with a dot-matrix display, cycle templates and a
 stopwatch; no-sleep (including a closed-lid mode); system monitor with swap

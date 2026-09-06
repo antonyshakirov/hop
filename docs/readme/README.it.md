@@ -83,6 +83,9 @@ così le righe fanno il totale sopra. Se una va troppo a lungo, dopo otto ore
 un banner te lo ricorda. Accanto c'è una lista di cose da fare a parte, dove
 il completato scende in fondo.
 
+Più attività possono andare insieme, e nella barra dei menu compare l'orologio
+avviato per ultimo.
+
 Clicca su un'attività e la riga si apre: il testo completo sulla prima riga, una
 descrizione sotto, una stella per i preferiti. Un'attività può avere un
 promemoria – giorno, ora e i giorni della settimana che vuoi – e Hop avvisa: un
@@ -161,6 +164,9 @@ MKV e WebM vengono prima reimpacchettati in MP4 (macOS non apre né l'uno né
 l'altro) da un piccolo aiutante che si scarica una volta. I documenti Pages,
 Numbers e Keynote li esportano in blocco le app stesse: in PDF, oppure in
 docx, xlsx e pptx.
+
+Anche le pagine web si convertono: incolla un indirizzo o lascia cadere una
+pagina salvata, ed esce in PDF, docx, Markdown, RTF o testo semplice.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – Convertitore di file">

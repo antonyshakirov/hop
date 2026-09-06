@@ -80,6 +80,9 @@ above them. Leave one running too long and a banner reminds you after eight
 hours. A separate to-do list sits alongside, with finished items sinking to
 the bottom.
 
+More than one task can run at once, and the menu bar shows the clock started
+last.
+
 Click any task to open it: the full text on the first line, a description
 underneath, a star to mark a favourite. A to-do can also carry a reminder – a
 day, a time, and any weekdays you want it to repeat on – and Hop tells you when
@@ -154,6 +157,9 @@ platform itself recommends, with the resulting bitrate shown beside the dial.
 MKV and WebM are repacked into MP4 first (macOS opens neither) by a small
 helper that downloads once. Pages, Numbers and Keynote documents are exported
 in batches by the apps themselves – PDF, or docx, xlsx and pptx.
+
+Web pages convert too: paste an address or drop a saved page, and it comes
+out as PDF, docx, Markdown, RTF or plain text.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – File converter">

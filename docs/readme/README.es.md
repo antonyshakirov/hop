@@ -84,6 +84,9 @@ que las líneas suman el total de arriba. Si una corre demasiado, a las ocho
 horas un aviso te lo recuerda. Al lado hay una lista de pendientes aparte,
 donde lo terminado baja al fondo.
 
+Varias tareas pueden correr a la vez, y la barra de menús muestra el reloj que
+se inició en último lugar.
+
 Haz clic en una tarea y la fila se abre: el texto completo en la primera línea,
 una descripción debajo y una estrella para los favoritos. Un pendiente puede
 llevar un recordatorio – día, hora y los días de la semana que quieras – y Hop
@@ -161,6 +164,9 @@ plataforma, con el bitrate resultante junto al control. MKV y WebM se
 reempaquetan primero a MP4 (macOS no abre ninguno) mediante un pequeño
 ayudante que se descarga una vez. Los documentos de Pages, Numbers y Keynote
 los exportan por lotes las propias apps: a PDF, o a docx, xlsx y pptx.
+
+Las páginas web también se convierten: pegue una dirección o suelte una página
+guardada, y sale como PDF, docx, Markdown, RTF o texto plano.
 
 <div align="center">
 <img src="https://hop.tools/screens/es/converter.webp" width="480" alt="Hop – Conversor de archivos">

@@ -415,6 +415,8 @@ struct PanelView: View {
         .init(id: "1.9.1", lines: [.news191Signed, .news191Permissions]),
         .init(id: "1.10", lines: [.news110Permissions, .news110Settings, .news110Lock],
               destination: .permissions, action: .permGrant),
+        .init(id: "2.0", lines: [.news20Onboarding, .news20Spaces, .news20Pages,
+                                 .news20Tracker, .news20Updates]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason

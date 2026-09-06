@@ -85,6 +85,9 @@ Si l'une tourne trop longtemps, un bandeau vous le rappelle au bout de huit
 heures. À côté, une liste de choses à faire distincte, où le terminé descend
 en bas.
 
+Plusieurs tâches peuvent tourner en même temps, et la barre de menus affiche
+l'horloge lancée en dernier.
+
 Cliquez sur une tâche : la ligne s'ouvre – le texte complet sur la première
 ligne, une description en dessous, une étoile pour les favoris. Une tâche peut
 porter un rappel – jour, heure et les jours de la semaine que vous voulez – et
@@ -164,6 +167,9 @@ Les MKV et WebM sont d'abord réemballés en MP4 (macOS n'ouvre ni l'un ni
 l'autre) par un petit utilitaire téléchargé une fois. Les documents Pages,
 Numbers et Keynote sont exportés en lot par les apps elles-mêmes : en PDF, ou
 en docx, xlsx et pptx.
+
+Les pages web se convertissent aussi : collez une adresse ou déposez une page
+enregistrée, elle ressort en PDF, docx, Markdown, RTF ou texte brut.
 
 <div align="center">
 <img src="https://hop.tools/screens/fr/converter.webp" width="480" alt="Hop – Convertisseur de fichiers">

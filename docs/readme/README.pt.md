@@ -82,6 +82,9 @@ uma; as correções manuais ficam na mesma lista, então as linhas somam o tota
 acima. Se uma correr demais, um aviso lembra você após oito horas. Ao lado há
 uma lista de tarefas separada, em que o que foi concluído desce para o fim.
 
+Várias tarefas podem correr ao mesmo tempo, e a barra de menus mostra o relógio
+iniciado por último.
+
 Clique numa tarefa e a linha abre: o texto completo na primeira linha, uma
 descrição abaixo e uma estrela para favoritos. Um afazer pode ter um lembrete –
 dia, hora e os dias da semana que quiser – e o Hop avisa: um alerta com «adiar» e
@@ -157,6 +160,9 @@ plataforma recomenda, com o bitrate resultante ao lado do controle. MKV e WebM
 são reempacotados em MP4 primeiro (o macOS não abre nenhum) por um pequeno
 ajudante que baixa uma vez. Documentos do Pages, Numbers e Keynote são
 exportados em lote pelos próprios apps: em PDF, ou em docx, xlsx e pptx.
+
+As páginas web também se convertem: cole um endereço ou largue uma página
+guardada, e sai em PDF, docx, Markdown, RTF ou texto simples.
 
 <div align="center">
 <img src="https://hop.tools/screens/pt/converter.webp" width="480" alt="Hop – Conversor de arquivos">

@@ -81,6 +81,9 @@ zodat de regels optellen tot het totaal erboven. Loopt er een te lang, dan
 herinnert een banner je na acht uur. Ernaast staat een aparte to-do-lijst,
 waarin afgevinkte items naar onderen zakken.
 
+Meerdere taken kunnen tegelijk lopen, en in de menubalk staat de klok die het
+laatst is gestart.
+
 Klik op een taak en de regel klapt open: de volledige tekst op de eerste regel,
 daaronder een beschrijving, een ster voor favorieten. Een to-do kan ook een
 herinnering dragen – dag, tijd en de weekdagen die je wilt herhalen – en Hop laat
@@ -158,6 +161,9 @@ WebM worden eerst omgepakt naar MP4 (macOS opent geen van beide) door een
 klein hulpje dat één keer downloadt. Pages-, Numbers- en Keynote-documenten
 worden in batches geëxporteerd door de apps zelf: naar PDF, of naar docx, xlsx
 en pptx.
+
+Webpagina's zijn er ook bij: plak een adres of laat een opgeslagen pagina
+vallen, en er komt PDF, docx, Markdown, RTF of platte tekst uit.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – Bestandsconverter">

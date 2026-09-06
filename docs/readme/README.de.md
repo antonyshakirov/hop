@@ -82,6 +82,9 @@ stehen in derselben Liste, damit die Zeilen zur Summe darüber passen. Läuft
 eine zu lange, erinnert dich nach acht Stunden ein Banner. Daneben liegt eine
 eigene To-do-Liste, in der Erledigtes nach unten wandert.
 
+Mehrere Aufgaben können gleichzeitig laufen, und in der Menüleiste steht die
+zuletzt gestartete Uhr.
+
 Klicken Sie eine Aufgabe an, und die Zeile klappt auf: der ganze Text in der
 ersten Zeile, darunter eine Beschreibung, ein Stern für Favoriten. Ein To-do
 kann eine Erinnerung tragen – Tag, Uhrzeit und beliebige Wochentage zum
@@ -159,6 +162,10 @@ und WebM werden zuerst in MP4 umgepackt (macOS öffnet beide nicht), von einem
 kleinen Helfer, der einmalig lädt. Pages-, Numbers- und Keynote-Dokumente
 exportieren die Apps selbst, stapelweise: als PDF oder als docx, xlsx und
 pptx.
+
+Auch Webseiten lassen sich umwandeln: eine Adresse einfügen oder eine
+gespeicherte Seite ablegen, heraus kommt PDF, docx, Markdown, RTF oder reiner
+Text.
 
 <div align="center">
 <img src="https://hop.tools/screens/de/converter.webp" width="480" alt="Hop – Dateikonverter">
