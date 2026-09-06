@@ -447,6 +447,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
+        // An offer to switch on modules that are already on reads as if the app
+        // had forgotten the user; it is retired before the panel can draw it.
+        PanelView.retireSatisfiedAnnouncements()
+
         // Launch finished: the model is built, the crash-loop guard has passed and
         // the add sheet is wired. Only now flush any .torrent/magnet URLs that
         // arrived during a cold launch (see `application(_:open:)`). Not reached in

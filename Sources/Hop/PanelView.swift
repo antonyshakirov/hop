@@ -368,25 +368,43 @@ struct PanelView: View {
     }
     // New features are appended here as the app gains them; each shows a one-time
     // top-of-panel banner to users who updated into it.
-    private static let featureAnnouncements: [FeatureAnnouncement] = [
-        .init(id: "torrent", moduleKeys: ["torrent"],
-              title: .featureTorrentTitle, body: .featureTorrentBody,
-              note: .torrentEngineNote, hasFollowUp: true),
-        .init(id: "tools150", moduleKeys: ["archive", "keyboard", "color", "ocr"],
-              title: .featureModulesTitle, body: .featureModulesBody,
-              footnote: .featureModulesConverter, checklist: true),
-        // `apps` here is a REQUEST for a grid, not an existing module key: the
-        // launcher only exists once a grid does, so ticking it makes one.
-        .init(id: "modules160", moduleKeys: ["vpn", Self.appsChoice],
-              title: .featureModulesTitle, body: .featureModulesBody,
-              checklist: true),
-        // 1.7.0: the uninstaller, offered rather than switched on. A fresh
-        // install never sees this card: onboarding marks every announcement
-        // seen, having just asked the same question by name.
-        .init(id: "modules170", moduleKeys: ["uninstall"],
-              title: .featureModulesTitle, body: .featureModulesBody,
-              checklist: true),
-    ]
+    /// Announcements, and there are none.
+    ///
+    /// A card offering to switch a module on has exactly one honest reader: a
+    /// person who was using Hop before that module existed. Everybody else has
+    /// already chosen - an old user arranged their panel by hand, a new one
+    /// answered the same question in the wizard - and asking them again reads
+    /// as if the app had forgotten them. The four cards that used to live here
+    /// (torrents, the 1.5 tools, vpn and a grid of apps, the uninstaller)
+    /// outlived their releases by years and are gone.
+    ///
+    /// The machinery stays for the one case that earns it: a module that did
+    /// NOT exist before the release being shipped. Add the entry then, and only
+    /// then; it retires itself once every module in it is in the panel
+    /// (`retireSatisfiedAnnouncements`).
+    /// SPEC: docs/spec.md - "What's-new card (module checklist)".
+    private static let featureAnnouncements: [FeatureAnnouncement] = []
+
+    /// An offer whose modules are all in the panel already has nothing to say.
+    /// Marked seen at launch rather than merely hidden, so switching one of them
+    /// off later does not bring the question back.
+    static func retireSatisfiedAnnouncements() {
+        let defaults = UserDefaults.standard
+        let model = storedTabsModel()
+        var active = Set(model.tabs.flatMap(\.moduleKeys).filter { !storedModuleIsInactive($0) })
+        if model.tabs.flatMap(\.moduleKeys).contains(where: {
+            AppShelves.shelfID(fromModuleKey: $0) != nil && !storedModuleIsInactive($0)
+        }) {
+            active.insert(appsChoice)
+        }
+        for announcement in featureAnnouncements {
+            let key = "featureSeen.\(announcement.id)"
+            guard !defaults.bool(forKey: key),
+                  !FeatureOffer.worthShowing(announcement.moduleKeys, active: active)
+            else { continue }
+            defaults.set(true, forKey: key)
+        }
+    }
 
     /// Every announcement's id — onboarding marks them all seen, since a fresh
     /// install has just answered the same question in the form.
@@ -415,8 +433,10 @@ struct PanelView: View {
         .init(id: "1.9.1", lines: [.news191Signed, .news191Permissions]),
         .init(id: "1.10", lines: [.news110Permissions, .news110Settings, .news110Lock],
               destination: .permissions, action: .permGrant),
-        .init(id: "2.0", lines: [.news20Onboarding, .news20Spaces, .news20Pages,
-                                 .news20Tracker, .news20Updates]),
+        // The id stays "2.0": a card is state, not text. Somebody who dismissed
+        // it never sees it again, and somebody still holding it gets these lines
+        // instead of the ones written before the release went out.
+        .init(id: "2.0", lines: [.news20Lighter, .news20Adds, .news20Ahead]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -496,17 +516,21 @@ struct PanelView: View {
                 HStack(spacing: 14) {
                     Spacer(minLength: 0)
                     Button {
-                        markReleaseSeen(card)
+                        openReleaseNotes(card)
                     } label: {
-                        HoverLabel(text: t(.newsGotIt), size: 10, color: Theme.textTertiary)
+                        HoverLabel(text: t(card.action), size: 10, color: Theme.textTertiary)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .help(t(.newsGotIt))
+                    .help(t(card.action))
+                    // Reading the card IS the whole ask, so "got it" is the
+                    // filled one and sits on the trailing edge, where the house
+                    // keeps the action a card is about. The full notes are the
+                    // quiet way out for anyone who wants more.
                     Button {
-                        openReleaseNotes(card)
+                        markReleaseSeen(card)
                     } label: {
-                        Text(t(card.action))
+                        Text(t(.newsGotIt))
                             .font(Theme.mono(10, weight: .bold))
                             .foregroundStyle(Theme.playFg)
                             .padding(.horizontal, 16)
@@ -515,7 +539,7 @@ struct PanelView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .help(t(card.action))
+                    .help(t(.newsGotIt))
                 }
                 .padding(.top, 10)
             }
@@ -607,7 +631,19 @@ struct PanelView: View {
         _ = (torrentFeatureSeen, toolsFeatureSeen, modulesFeatureSeen)
         return Self.featureAnnouncements.first {
             !UserDefaults.standard.bool(forKey: "featureSeen.\($0.id)")
+                && FeatureOffer.worthShowing($0.moduleKeys, active: activeOfferKeys)
         }
+    }
+
+    /// The keys an offer must not repeat: the modules the panel already shows.
+    /// `apps` stands for "a grid of apps", and one grid is enough to make the
+    /// offer pointless.
+    private var activeOfferKeys: Set<String> {
+        var active = Set(tabsModel.tabs.flatMap(\.moduleKeys).filter { moduleIsActive($0) })
+        if model.appShelves.shelves.moduleKeys.contains(where: { moduleIsActive($0) }) {
+            active.insert(Self.appsChoice)
+        }
+        return active
     }
 
     /// Two-step announcement, because the module ships off and needs a real
@@ -661,7 +697,7 @@ struct PanelView: View {
             .fixedSize(horizontal: false, vertical: true)
             .padding(.top, 5)
         VStack(spacing: 7) {
-            ForEach(ann.moduleKeys, id: \.self) { key in
+            ForEach(FeatureOffer.remaining(ann.moduleKeys, active: activeOfferKeys), id: \.self) { key in
                 HStack(spacing: 8) {
                     Image(systemName: moduleGlyph(key))
                         .font(.system(size: 11))

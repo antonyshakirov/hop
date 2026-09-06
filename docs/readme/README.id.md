@@ -19,7 +19,7 @@ butuhkan langsung ada.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-**Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+**Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Panel Hop – timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
 
@@ -373,9 +373,9 @@ Modul yang sama merapikan tanpa menghapus apa pun: setiap aplikasi yang menyimpa
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
-## 15 bahasa
+## Bahasa
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Português, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – aplikasi langsung mengikuti bahasa sistem
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – aplikasi langsung mengikuti bahasa sistem
 kamu.
 
 ## Dukung proyek ini

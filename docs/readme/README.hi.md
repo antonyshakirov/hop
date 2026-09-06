@@ -18,7 +18,7 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · **हिन्दी** · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · **हिन्दी** · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop पैनल – डॉट-मैट्रिक्स डिस्प्ले, प्रीसेट और काम-आराम चक्रों वाला मेनू बार टाइमर">
 
@@ -345,9 +345,9 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
-## 15 भाषाएँ
+## भाषाएँ
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Português, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – ऐप शुरू से ही आपकी सिस्टम भाषा को अपना
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – ऐप शुरू से ही आपकी सिस्टम भाषा को अपना
 लेता है।
 
 ## प्रोजेक्ट का समर्थन करें

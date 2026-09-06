@@ -2923,10 +2923,28 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### What's-new card (module checklist)
 
+**The list is empty, and that is the rule, not the current state.** A card
+offering to switch a module on has exactly one honest reader: somebody who was
+using Hop before that module existed. Everybody else has already chosen. An old
+user arranged their panel by hand; a new one answered the same question in the
+wizard, which marks every announcement read as it finishes. Asking either of
+them again reads as if the app had forgotten them.
+
+So an entry is added for one reason only: a module that did NOT exist before the
+release being shipped. It is removed in the release after that. The four cards
+that used to live here - torrents, the 1.5 tools, vpn with a grid of apps, the
+uninstaller - outlived their releases by years and are gone (2.0.1).
+
+A card also retires itself: `retireSatisfiedAnnouncements` marks it read at
+launch once every module it offers is already in the panel, so switching one of
+them off later does not bring the question back
+(`FeatureOffer`, `FeatureOfferTests`).
+
+The shape below is what an entry looks like when one is earned.
+
 - A release that introduces modules announces them as a CHECKLIST: one switch
   per module, all OFF, plus save/hide. Nothing appears in the panel that was not
-  ticked (Anton, 2026-07-25) — the old single "enable" button pushed modules at
-  people who had not asked. Saving places the ticked modules on the FIRST space,
+  ticked - a single "enable" button pushes modules at people who have not asked. Saving places the ticked modules on the FIRST space,
   whichever space happens to be open, and hides the rest.
 - For an UPDATING user every module introduced in the release starts hidden
   (`newInThisRelease`, one-shot `optInModulesSeeded`); a fresh install has no
@@ -3340,9 +3358,15 @@ converter (Anton, 2026-07-28).
 
 ## Localization
 
-- 10 languages: en ru de es pt fr it zh ja nl — in this order in
-  L10n.swift. A new UI string = ALL 10 at once; `--l10n-check` must pass.
+- Languages: en ru de es pt fr it zh ja nl ko th vi hi id tr pl — in this order in
+  L10n.swift. A new UI string goes into every one of them at once;
+  `--l10n-check` must pass.
   Check long languages (de, fr) for truncation.
+- **The number of languages is never printed anywhere.** Not in the app, not in
+  a readme heading, not on the site, not in release notes. A count is a quantity
+  that goes up and down, and printing it turns the set into a story about
+  languages arriving and leaving. The list of names says what is supported
+  without inviting that reading.
 - The set shipped is the one the app is released with, not everything that
   was ever translated: the wider set was cut back on 2026-09-06 (Anton) to
   the ten with the largest macOS audiences. The right-to-left machinery

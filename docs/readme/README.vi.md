@@ -19,7 +19,7 @@ mọi thứ bạn cần đều ở ngay đó.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · **Tiếng Việt** · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · **Tiếng Việt** · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Bảng điều khiển Hop – đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
 
@@ -360,9 +360,9 @@ Cũng mô-đun ấy dọn dẹp mà không gỡ gì: mọi ứng dụng đang gi
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
-## 15 ngôn ngữ
+## Ngôn ngữ
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Português, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – ứng dụng tự động theo ngôn ngữ hệ thống của
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – ứng dụng tự động theo ngôn ngữ hệ thống của
 bạn ngay từ đầu.
 
 ## Ủng hộ dự án

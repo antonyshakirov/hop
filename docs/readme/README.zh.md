@@ -17,7 +17,7 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Português](README.pt.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/zh/overview.webp" width="360" alt="Hop 面板 – 菜单栏计时器，点阵显示屏、预设与工作-休息循环">
 
@@ -304,9 +304,9 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
-## 15 种语言
+## 语言
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Português, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – 应用开箱即用，自动跟随系统语言。
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – 应用开箱即用，自动跟随系统语言。
 
 ## 支持这个项目
 

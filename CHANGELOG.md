@@ -1,5 +1,23 @@
 # Hop - version history
 
+## 2.0.1 - 2026-09-07
+
+- The what's-new card is written for the person who can actually see it. That
+  card is only ever shown to somebody who updated: a fresh install marks every
+  card read during setup. Two of its lines described the first run and the layout
+  a new install gets, which is exactly what its readers do not have. It is three
+  lines now, about what changed for somebody who was already using Hop, and the
+  button that closes it says "okay".
+- No card offers to switch a module on any more. Such a card has one honest
+  reader, somebody who was using Hop before that module existed, and everybody
+  else has already chosen: an old user arranged their panel by hand, a new one
+  answered the same question during setup. A card returns only for a module that
+  did not exist before the release it appears in, and it retires itself once
+  everything it offers is already in the panel.
+- Turkish and Polish are in the app.
+- The number of languages is not printed anywhere - not in the app, not in a
+  readme heading, not on the site. What is printed is the list of names.
+
 ## 2.0.0 - 2026-09-06
 
 - The first run sets Hop up. Only a fresh install sees it: a Mac that has been
@@ -26,11 +44,8 @@
   went to disk.
 - Every module's opening paragraph was rewritten to say what the module lets you
   do, with the formats and the figures, in every language Hop speaks.
-- Korean, Thai, Vietnamese, Hindi and Indonesian are in the app again, which
-  brings it to fifteen languages. The handbook, the onboarding and the what's-new
-  block are translated in all of them; the module descriptions keep the wording
-  they had before this release's rewrite, and that wording is refreshed in the
-  next pass.
+- Korean, Thai, Vietnamese, Hindi and Indonesian are in the app. The handbook,
+  the onboarding and the what's-new block are translated in all of them.
 - A running timer no longer holds a quarter of a CPU core. The clock ticks four
   times a second so it ends on time, but it now tells the interface only when
   the second changes, so the panel and the menu-bar label are drawn once instead
