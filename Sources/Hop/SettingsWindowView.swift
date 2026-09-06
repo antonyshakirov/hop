@@ -113,8 +113,17 @@ struct SettingsSidebar: View {
         ]
     }
 
+    /// In the panel's own order, space by space: a module added to the middle of
+    /// space one gets its page in the middle of this list too, not at the end
+    /// (Anton, 2026-09-06). SPEC: docs/spec.md — "Settings window".
     private var modules: [Item] {
-        ModuleCatalog.modules.compactMap { entry in
+        let order = PanelView.storedModuleOrder()
+        let placed = ModuleCatalog.modules.sorted { a, b in
+            let ia = order.firstIndex(of: a.id) ?? order.count
+            let ib = order.firstIndex(of: b.id) ?? order.count
+            return ia == ib ? false : ia < ib
+        }
+        return placed.compactMap { entry in
             guard let key = ModulePresentation.titleKey(entry.id) else { return nil }
             return Item(
                 id: SettingsSelection.module(entry.id).id,

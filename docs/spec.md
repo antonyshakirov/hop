@@ -3270,6 +3270,14 @@ converter (Anton, 2026-07-28).
   open the same window.
 - Launch at login — SMAppService.mainApp.
 
+## Settings window
+
+- The sidebar lists the modules in the PANEL's own order, space by space
+  (`PanelView.storedModuleOrder()`), not in the registry's: a module that sits in
+  the middle of space one has its page in the middle of the list, and a new one
+  slots in where it belongs rather than at the end (Anton, 2026-09-06). A module
+  the arrangement does not mention keeps its registry position at the tail.
+
 ## Localization
 
 - 10 languages: en ru de es pt fr it zh ja nl — in this order in

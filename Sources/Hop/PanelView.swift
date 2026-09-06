@@ -2598,7 +2598,7 @@ struct PanelView: View {
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
     private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "archive", "keyboard", "vpn", "uninstall"]
-    static let defaultModuleOrder = "timer,awake,clipboard,convert,windows,speedtest,torrent,color,ocr,archive,keyboard,vpn"
+    static let defaultModuleOrder = "timer,awake,clipboard,convert,speedtest,torrent,color,ocr,archive,keyboard,vpn,windows"
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
     /// developers) and must be a deliberate opt-in — an ordinary user should not
@@ -2866,6 +2866,13 @@ struct PanelView: View {
         let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
         let orderRaw = defaults.string(forKey: "moduleOrder") ?? defaultModuleOrder
         return loadTabs(panelTabsRaw: raw, moduleOrder: normalizedOrder(orderRaw))
+    }
+
+    /// The modules in the order the panel itself shows them, space by space, so
+    /// another list can follow the same map.
+    /// SPEC: docs/spec.md — "Settings window".
+    static func storedModuleOrder() -> [String] {
+        storedTabsModel().tabs.flatMap(\.moduleKeys)
     }
 
     /// Resolves a requested initial screen against the stored tabs. The stored
