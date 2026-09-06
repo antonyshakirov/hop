@@ -6,5 +6,10 @@
 	     with errAEEventNotPermitted without this. Covered by SigningTests. -->
 	<key>com.apple.security.automation.apple-events</key>
 	<true/>
+	<!-- SPEC: docs/spec.md — "Converter: web pages". WebKit compiles JavaScript
+	     at run time, which the hardened runtime refuses without this; the
+	     WebContent process is then killed mid-render. Covered by SigningTests. -->
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
 </dict>
 </plist>

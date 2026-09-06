@@ -26,6 +26,7 @@ struct ConvertWindowView: View {
     @AppStorage(FileConverter.videoQualityLevelKey) private var videoQualityLevel = 55
     @AppStorage(FileConverter.docTargetKey) private var docTarget = "pdf"
     @AppStorage(FileConverter.iworkTargetKey) private var iworkTarget = "pdf"
+    @AppStorage(FileConverter.htmlTargetKey) private var htmlTarget = "pdf"
     @AppStorage(FileConverter.pdfModeKey) private var pdfMode = "compress"
     @State private var targeted = false
 
@@ -173,7 +174,10 @@ struct ConvertWindowView: View {
             capLine("PDF", "PDF", "PDF (\(t(.convCompressOnly))) · MD")
             capLine(t(.convCanVideo), "MP4 · MOV · M4V", "MP4 / MOV (\(t(.convCompressOnly)))")
             capLine(t(.convCanAudio), "MP3 · WAV · FLAC · AAC", "M4A")
-            capLine(t(.convCanDocuments), "MD · DOCX · DOC · RTF · TXT", "PDF · MD · DOCX")
+            capLine(t(.convCanDocuments), "MD · DOCX · DOC · RTF · TXT",
+                    "PDF · MD · DOCX · RTF · TXT")
+            capLine(t(.convCanPages), "HTML · WEBARCHIVE · MHTML · \(t(.convCanLink))",
+                    "PDF · DOCX · MD · RTF · TXT · PNG")
             capLine("iWork", "PAGES · NUMBERS · KEY", "PDF · DOCX · XLSX · PPTX")
         }
         .padding(12)
@@ -209,8 +213,25 @@ struct ConvertWindowView: View {
         if !batch.videos.isEmpty { groupCard(.video, count: batch.videos.count) }
         if !batch.audios.isEmpty { groupCard(.audio, count: batch.audios.count) }
         if !batch.documents.isEmpty { groupCard(.document, count: batch.documents.count) }
+        if !batch.pages.isEmpty { groupCard(.html, count: batch.pages.count) }
         if !batch.iworks.isEmpty { groupCard(.iwork, count: batch.iworks.count) }
         if !batch.unsupported.isEmpty { unsupportedCard(batch.unsupported) }
+    }
+
+    private func sizeText(_ text: String) -> some View {
+        Text(text)
+            .font(Theme.mono(9.5))
+            .foregroundStyle(Theme.textTertiary)
+            .lineLimit(1)
+            .fixedSize()
+    }
+
+    /// What a batch row is called: a filename, or a site and path.
+    static func rowName(_ url: URL) -> String {
+        guard !url.isFileURL else { return url.lastPathComponent }
+        let host = url.host ?? url.absoluteString
+        let path = url.path
+        return path.isEmpty || path == "/" ? host : host + path
     }
 
     private func kindLabel(_ kind: FileConverter.MediaKind) -> String {
@@ -220,6 +241,7 @@ struct ConvertWindowView: View {
         case .video: return t(.convCanVideo)
         case .audio: return t(.convCanAudio)
         case .document: return t(.convCanDocuments)
+        case .html: return t(.convCanPages)
         case .iwork: return "iWork"
         case .unsupported: return t(.convUnsupported)
         }
@@ -242,7 +264,7 @@ struct ConvertWindowView: View {
                                              : file.done ? Theme.accentGreen : Theme.textTertiary)
                             .help(file.failed ? t(.convFileFailed) : "")
                         FileThumbnail(url: file.url)
-                        Text(file.url.lastPathComponent)
+                        Text(Self.rowName(file.url))
                             .font(Theme.mono(10))
                             .foregroundStyle(file.done ? Theme.textTertiary : Theme.textSecondary)
                             .lineLimit(1)
@@ -253,12 +275,12 @@ struct ConvertWindowView: View {
                                 .font(Theme.mono(9.5))
                                 .foregroundStyle(Theme.textTertiary)
                         }
-                        Text(model.converter.fileEstimates[file.url.path]
-                             ?? FileConverter.sizeText(file.bytes))
-                            .font(Theme.mono(9.5))
-                            .foregroundStyle(Theme.textTertiary)
-                            .lineLimit(1)
-                            .fixedSize()
+                        // an address weighs nothing until fetched
+                        if let estimate = model.converter.fileEstimates[file.url.path] {
+                            sizeText(estimate)
+                        } else if file.bytes > 0 {
+                            sizeText(FileConverter.sizeText(file.bytes))
+                        }
                     }
                 }
                 if files.count > 8 {
@@ -284,7 +306,7 @@ struct ConvertWindowView: View {
                         .font(Theme.mono(10, weight: .semibold))
                         .foregroundStyle(Theme.accentGreen)
                 } else if hasPending, model.converter.activeKind != kind,
-                          kind != .document, kind != .iwork {
+                          kind != .document, kind != .iwork, kind != .html {
                     // honesty note: the projected sizes are estimates. Documents
                     // and iWork exports show no size forecast at all, so the note
                     // would be answering a question nobody asked.
@@ -414,6 +436,23 @@ struct ConvertWindowView: View {
                 // and macOS asks for permission the first time (Anton,
                 // 2026-08-28 — nothing is required until a file is converted).
                 Text(t(.convIWorkNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        case .html:
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 5) {
+                    rowLabel(t(.convFormatLabel))
+                    ForEach(HTMLConversion.Target.allCases) { target in
+                        chip(target.label, htmlTarget == target.rawValue) {
+                            htmlTarget = target.rawValue
+                        }
+                    }
+                    Spacer()
+                }
+                Text(t(HTMLConversion.Target(rawValue: htmlTarget)?.rendersPage ?? true
+                       ? .convPageRenderNote : .convPageTextNote))
                     .font(Theme.mono(9))
                     .foregroundStyle(Theme.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -747,7 +786,7 @@ struct FileThumbnail: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
             } else {
-                Image(systemName: "doc")
+                Image(systemName: url.isFileURL ? "doc" : "globe")
                     .font(.system(size: 9))
                     .foregroundStyle(Theme.textTertiary)
             }

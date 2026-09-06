@@ -1417,6 +1417,14 @@ enum DocumentSelfTest {
                     .map { DocumentConversion.attributed(markdown: $0) }
                 : DocumentConversion.read(source)
             ok = attributed.map { DocumentConversion.writeDocx($0, to: outURL) } ?? false
+        case .rtf:
+            ok = DocumentConversion.read(source).map {
+                DocumentConversion.writeRTF($0, to: outURL)
+            } ?? false
+        case .txt:
+            ok = DocumentConversion.read(source).map {
+                DocumentConversion.writeText($0, to: outURL)
+            } ?? false
         }
         print(ok ? "SELFTEST OK: \(outURL.path)" : "SELFTEST FAIL")
         exit(ok ? 0 : 1)
@@ -1437,6 +1445,7 @@ struct HopApp: App {
         #if DEBUG
         TorrentSelfTest.runIfRequested()
         DocumentSelfTest.runIfRequested()
+        PageSelfTest.runIfRequested()
         VideoSelfTest.runIfRequested()
         IWorkSelfTest.runIfRequested()
         Snapshot.runIfRequested()
@@ -1453,6 +1462,49 @@ struct HopApp: App {
 }
 
 #if DEBUG
+/// Headless page-conversion check:
+/// `Hop --page-selftest <file|address> <pdf|docx|md|rtf|txt|png> <outDir>`.
+/// WORKAROUND: the run loop is turned by hand rather than through
+/// `NSApplication.run()` — this runs inside `HopApp.init()`, and a second run
+/// started before SwiftUI's own never returns. Debug builds only.
+@MainActor
+enum PageSelfTest {
+    private static let deadline: TimeInterval = 120
+
+    static func runIfRequested() {
+        let args = CommandLine.arguments
+        guard let i = args.firstIndex(of: "--page-selftest"), args.count > i + 3 else { return }
+        let raw = args[i + 1]
+        let source = HTMLConversion.address(fromPasted: raw) ?? URL(fileURLWithPath: raw)
+        guard let target = HTMLConversion.Target(rawValue: args[i + 2] == "md"
+            ? "markdown" : args[i + 2]) else {
+            print("SELFTEST FAIL: unknown target \(args[i + 2])")
+            exit(1)
+        }
+        let outDir = URL(fileURLWithPath: args[i + 3])
+
+        // WebKit wants a launched application before it puts a web view in a window
+        let app = NSApplication.shared
+        app.setActivationPolicy(.accessory)
+        app.finishLaunching()
+
+        var outcome: URL??
+        Task { @MainActor in
+            outcome = await FileConverter.convertPage(source, to: outDir, target: target)
+        }
+        let expiry = Date().addingTimeInterval(deadline)
+        while outcome == nil, Date() < expiry {
+            RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.02))
+        }
+        guard let out = outcome ?? nil else {
+            print(outcome == nil ? "SELFTEST FAIL: timed out" : "SELFTEST FAIL")
+            exit(1)
+        }
+        print("SELFTEST OK: \(out.path)")
+        exit(0)
+    }
+}
+
 /// Headless video-reframing check, the same idea as the document one:
 /// `Hop --video-selftest <source> <shape> <fit> <outDir>` converts one file
 /// through the real pipeline and prints where it landed, so the shapes and the

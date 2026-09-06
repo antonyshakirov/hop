@@ -45,9 +45,11 @@ final class FileConverter: ObservableObject {
     /// as markdown. A mode rather than a category, so a dropped PDF still lands
     /// in the group the user expects.
     nonisolated static let pdfModeKey = "convPdfMode"           // compress | markdown
+    /// pdf | docx | markdown | rtf | txt | png — what a page group becomes.
+    nonisolated static let htmlTargetKey = "convHtmlTarget"
 
     enum MediaKind: Sendable {
-        case image, pdf, video, audio, document, iwork, unsupported
+        case image, pdf, video, audio, document, iwork, html, unsupported
     }
 
     struct BatchFile: Identifiable {
@@ -57,7 +59,7 @@ final class FileConverter: ObservableObject {
         /// The system failed to read/convert the file (for example, AVI
         /// classifies as video, but AVFoundation cannot read it).
         var failed = false
-        var id: String { url.path }
+        var id: String { HTMLConversion.batchKey(url) }
     }
 
     struct Batch {
@@ -69,9 +71,13 @@ final class FileConverter: ObservableObject {
         /// Pages, Numbers and Keynote documents — exported by the applications
         /// themselves, so they are a group of their own with their own targets.
         var iworks: [BatchFile] = []
+        /// Saved pages and pasted addresses.
+        var pages: [BatchFile] = []
         var unsupported: [BatchFile] = []
 
-        var all: [BatchFile] { images + pdfs + videos + audios + documents + iworks + unsupported }
+        var all: [BatchFile] {
+            images + pdfs + videos + audios + documents + iworks + pages + unsupported
+        }
         var isEmpty: Bool { all.isEmpty }
 
         func files(_ kind: MediaKind) -> [BatchFile] {
@@ -82,6 +88,7 @@ final class FileConverter: ObservableObject {
             case .audio: return audios
             case .document: return documents
             case .iwork: return iworks
+            case .html: return pages
             case .unsupported: return unsupported
             }
         }
@@ -92,8 +99,10 @@ final class FileConverter: ObservableObject {
         }
 
         mutating func append(_ url: URL, kind: MediaKind) {
-            let size = (try? FileManager.default
-                .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
+            let size = url.isFileURL
+                ? (try? FileManager.default
+                    .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
+                : 0
             let file = BatchFile(url: url, bytes: size)
             switch kind {
             case .image: images.append(file)
@@ -102,6 +111,7 @@ final class FileConverter: ObservableObject {
             case .audio: audios.append(file)
             case .document: documents.append(file)
             case .iwork: iworks.append(file)
+            case .html: pages.append(file)
             case .unsupported: unsupported.append(file)
             }
         }
@@ -118,6 +128,7 @@ final class FileConverter: ObservableObject {
             case .audio: strip(&audios)
             case .document: strip(&documents)
             case .iwork: strip(&iworks)
+            case .html: strip(&pages)
             case .unsupported: strip(&unsupported)
             }
         }
@@ -129,6 +140,8 @@ final class FileConverter: ObservableObject {
             videos.removeAll(where: \.done)
             audios.removeAll(where: \.done)
             documents.removeAll(where: \.done)
+            iworks.removeAll(where: \.done)
+            pages.removeAll(where: \.done)
         }
 
         /// Converted files stay in the list with a checkmark — it's clear
@@ -146,6 +159,7 @@ final class FileConverter: ObservableObject {
             case .audio: mark(&audios)
             case .document: mark(&documents)
             case .iwork: mark(&iworks)
+            case .html: mark(&pages)
             case .unsupported: mark(&unsupported)
             }
         }
@@ -164,6 +178,7 @@ final class FileConverter: ObservableObject {
             case .audio: mark(&audios)
             case .document: mark(&documents)
             case .iwork: mark(&iworks)
+            case .html: mark(&pages)
             case .unsupported: break
             }
         }
@@ -321,6 +336,11 @@ final class FileConverter: ObservableObject {
         UserDefaults.standard.string(forKey: iworkTargetKey) ?? "pdf"
     }
 
+    nonisolated static var htmlTarget: HTMLConversion.Target {
+        HTMLConversion.Target(rawValue: UserDefaults.standard.string(forKey: htmlTargetKey) ?? "")
+            ?? .pdf
+    }
+
     nonisolated static var videoShape: VideoFrame.Shape {
         UserDefaults.standard.string(forKey: videoShapeKey)
             .flatMap(VideoFrame.Shape.init(rawValue:)) ?? .source
@@ -350,7 +370,10 @@ final class FileConverter: ObservableObject {
     }
 
     nonisolated static func classify(_ url: URL) -> MediaKind {
+        guard url.isFileURL else { return .html }
         if url.pathExtension.lowercased() == "pdf" { return .pdf }
+        // by extension, before the UTType checks below would call these unsupported
+        if HTMLConversion.isPage(url) { return .html }
         // Pages/Numbers/Keynote: nothing here reads them, their own apps do
         if IWorkExport.isExportable(url) { return .iwork }
         // documents are matched by extension: .md and .txt also conform to
@@ -487,6 +510,10 @@ final class FileConverter: ObservableObject {
     func addToBatch(_ urls: [URL]) {
         var incoming: [URL] = []
         for url in urls {
+            guard url.isFileURL else {
+                incoming.append(url)
+                continue
+            }
             var isDirectory: ObjCBool = false
             guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory)
             else { continue }
@@ -507,10 +534,11 @@ final class FileConverter: ObservableObject {
                 incoming.append(url)
             }
         }
-        var seen = Set(batch.all.map(\.url.path))
+        // by the whole address: by path, two sites' /post rows would collide
+        var seen = Set(batch.all.map { HTMLConversion.batchKey($0.url) })
         loadResolutions(incoming)
-        for url in incoming where !seen.contains(url.path) {
-            seen.insert(url.path)
+        for url in incoming where !seen.contains(HTMLConversion.batchKey(url)) {
+            seen.insert(HTMLConversion.batchKey(url))
             batch.append(url, kind: Self.classify(url))
         }
         lastResult = nil
@@ -541,6 +569,11 @@ final class FileConverter: ObservableObject {
         // A raw image (screenshot on the clipboard, no file): materialize it.
         if let url = Self.materializePasteboardImage(pasteboard) {
             addToBatch([url])
+            return true
+        }
+        if let text = pasteboard.string(forType: .string),
+           let address = HTMLConversion.address(fromPasted: text) {
+            addToBatch([address])
             return true
         }
         return false
@@ -645,8 +678,11 @@ final class FileConverter: ObservableObject {
         let videoQuality = Self.videoQuality
         let docTarget = Self.docTarget
         let iworkTarget = Self.iworkTarget
+        let htmlTarget = Self.htmlTarget
         let pdfTextTarget = Self.pdfTextTarget
         let destination = Self.destinationDirectory
+        // "next to the original" means nothing for an address
+        let addressDestination = destination ?? Self.downloadsDirectory
 
         Task.detached(priority: .userInitiated) { [weak self] in
             var converted = 0
@@ -673,9 +709,13 @@ final class FileConverter: ObservableObject {
                     self?.progress = "\(index + 1)/\(total)"
                     self?.batchFraction = atFileStart
                 }
-                let outDir = destination ?? url.deletingLastPathComponent()
-                let originalSize = (try? FileManager.default
-                    .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
+                let outDir = HTMLConversion.hasOwnFolder(url)
+                    ? (destination ?? url.deletingLastPathComponent())
+                    : addressDestination
+                let originalSize = url.isFileURL
+                    ? (try? FileManager.default
+                        .attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
+                    : 0
                 let outURL: URL?
                 // every kind that can say where it is reports through this
                 let report: @Sendable (Double) -> Void = { [weak self] within in
@@ -710,6 +750,8 @@ final class FileConverter: ObservableObject {
                     outURL = await Self.convertDocument(url, to: outDir, target: docTarget)
                 case .iwork:
                     outURL = await Self.exportIWork(url, to: outDir, target: iworkTarget)
+                case .html:
+                    outURL = await Self.convertPage(url, to: outDir, target: htmlTarget)
                 case .unsupported:
                     outURL = nil
                 }
@@ -954,7 +996,75 @@ final class FileConverter: ObservableObject {
             guard let attributed, DocumentConversion.writeDocx(attributed, to: outURL)
             else { return nil }
             return outURL
+        case .rtf, .txt:
+            let attributed: NSAttributedString?
+            if url.pathExtension.lowercased() == "pdf" {
+                let text = await Task.detached { DocumentConversion.markdown(fromPDF: url) }.value
+                attributed = text.map { DocumentConversion.attributed(markdown: $0) }
+            } else {
+                attributed = DocumentConversion.read(url)
+            }
+            guard let attributed else { return nil }
+            let written = target == .rtf
+                ? DocumentConversion.writeRTF(attributed, to: outURL)
+                : DocumentConversion.writeText(attributed, to: outURL)
+            return written ? outURL : nil
         }
+    }
+
+    /// One web page into one file.
+    /// SPEC: docs/spec.md — "Converter: web pages", two engines behind one row.
+    @MainActor
+    static func convertPage(
+        _ url: URL, to dir: URL, target: HTMLConversion.Target
+    ) async -> URL? {
+        if target.rendersPage {
+            guard let page = await PageRender.load(url) else { return nil }
+            defer { page.finish() }
+            let outURL = uniqueURL(dir, name: HTMLConversion.outputName(for: url, title: page.title),
+                                   ext: target.fileExtension, suffix: "")
+            switch target {
+            case .pdf: return await PageRender.writePDF(page, to: outURL) ? outURL : nil
+            case .png: return await PageRender.writePNG(page, to: outURL) ? outURL : nil
+            default: return nil
+            }
+        }
+
+        let html: String?
+        var title: String?
+        if url.isFileURL, ["html", "htm", "xhtml"].contains(url.pathExtension.lowercased()) {
+            html = plainHTML(at: url)
+        } else {
+            guard let page = await PageRender.load(url) else { return nil }
+            defer { page.finish() }
+            html = await PageRender.source(of: page)
+            title = page.title
+        }
+        guard let html, let attributed = DocumentConversion.attributed(html: html) else { return nil }
+        let outURL = uniqueURL(dir, name: HTMLConversion.outputName(for: url, title: title),
+                               ext: target.fileExtension, suffix: "")
+        switch target {
+        case .markdown:
+            let text = DocumentConversion.markdown(from: attributed)
+            guard (try? text.write(to: outURL, atomically: true, encoding: .utf8)) != nil
+            else { return nil }
+            return outURL
+        case .docx:
+            return DocumentConversion.writeDocx(attributed, to: outURL) ? outURL : nil
+        case .rtf:
+            return DocumentConversion.writeRTF(attributed, to: outURL) ? outURL : nil
+        case .txt:
+            return DocumentConversion.writeText(attributed, to: outURL) ? outURL : nil
+        case .pdf, .png:
+            return nil // handled above
+        }
+    }
+
+    /// A page off the disk, in whatever encoding it was written in.
+    nonisolated private static func plainHTML(at url: URL) -> String? {
+        if let text = try? String(contentsOf: url, encoding: .utf8) { return text }
+        var encoding = String.Encoding.utf8
+        return try? String(contentsOf: url, usedEncoding: &encoding)
     }
 
     nonisolated private static func uniqueURL(
@@ -1599,10 +1709,15 @@ final class FileConverter: ObservableObject {
             if let path = UserDefaults.standard.string(forKey: destPathKey) {
                 return URL(fileURLWithPath: path, isDirectory: true)
             }
-            return FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+            return downloadsDirectory
         default:
-            return FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+            return downloadsDirectory
         }
+    }
+
+    nonisolated static var downloadsDirectory: URL {
+        FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+            ?? FileManager.default.homeDirectoryForCurrentUser
     }
 
     nonisolated private static func summary(converted: Int, savedBytes: Int64) -> String {

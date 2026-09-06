@@ -16,7 +16,7 @@ import Vision
 enum DocumentConversion {
     /// What a document group can be turned into.
     enum Target: String, CaseIterable, Identifiable {
-        case pdf, markdown, docx
+        case pdf, markdown, docx, rtf, txt
 
         var id: String { rawValue }
         var fileExtension: String {
@@ -24,6 +24,8 @@ enum DocumentConversion {
             case .pdf: return "pdf"
             case .markdown: return "md"
             case .docx: return "docx"
+            case .rtf: return "rtf"
+            case .txt: return "txt"
             }
         }
         /// Chip label — file extensions, no translation needed.
@@ -245,6 +247,37 @@ enum DocumentConversion {
             documentAttributes: [.documentType: NSAttributedString.DocumentType.officeOpenXML])
         else { return false }
         return (try? data.write(to: url)) != nil
+    }
+
+    // MARK: - Attributed → rtf and plain text
+
+    nonisolated static func writeRTF(_ attributed: NSAttributedString, to url: URL) -> Bool {
+        let range = NSRange(location: 0, length: attributed.length)
+        guard let data = try? attributed.data(
+            from: range,
+            documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])
+        else { return false }
+        return (try? data.write(to: url)) != nil
+    }
+
+    nonisolated static func writeText(_ attributed: NSAttributedString, to url: URL) -> Bool {
+        (try? attributed.string.write(to: url, atomically: true, encoding: .utf8)) != nil
+    }
+
+    // MARK: - HTML → attributed
+
+    /// A page read as a document; main-actor because AppKit's HTML reader is.
+    /// SPEC: docs/spec.md — "Converter: web pages", what fetches is stripped first.
+    @MainActor
+    static func attributed(html: String) -> NSAttributedString? {
+        guard let data = HTMLSource.readable(html).data(using: .utf8) else { return nil }
+        return try? NSAttributedString(
+            data: data,
+            options: [
+                .documentType: NSAttributedString.DocumentType.html,
+                .characterEncoding: String.Encoding.utf8.rawValue,
+            ],
+            documentAttributes: nil)
     }
 
     // MARK: - Attributed → markdown

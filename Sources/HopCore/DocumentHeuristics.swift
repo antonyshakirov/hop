@@ -49,8 +49,14 @@ public enum DocumentHeuristics {
 
     public static func listItem(_ line: String) -> ListItem? {
         let trimmed = line.trimmingCharacters(in: .whitespaces)
-        for marker in ["• ", "‣ ", "◦ ", "– ", "- ", "* "] where trimmed.hasPrefix(marker) {
-            let text = String(trimmed.dropFirst(marker.count)).trimmingCharacters(in: .whitespaces)
+        // The gap after a marker is a space OR A TAB. Word writes its lists with
+        // a tab, and so does AppKit's HTML reader, so a page's "•\ttext" and a
+        // Word document's alike came back as prose with a stray bullet in it
+        // (found 2026-09-06 converting a page to markdown).
+        for marker in ["•", "‣", "◦", "–", "-", "*"] where trimmed.hasPrefix(marker) {
+            let rest = trimmed.dropFirst(marker.count)
+            guard let gap = rest.first, gap == " " || gap == "\t" else { continue }
+            let text = String(rest).trimmingCharacters(in: .whitespaces)
             return text.isEmpty ? nil : ListItem(ordered: false, number: nil, text: text)
         }
         // At most two digits: a document's numbered list does not reach 100, but
@@ -58,9 +64,12 @@ public enum DocumentHeuristics {
         // item number 2026 would mangle it.
         let digits = trimmed.prefix { $0.isNumber }
         if !digits.isEmpty, digits.count <= 2, let number = Int(digits) {
-            let rest = trimmed.dropFirst(digits.count)
-            if rest.hasPrefix(". ") || rest.hasPrefix(") ") {
-                let text = String(rest.dropFirst(2)).trimmingCharacters(in: .whitespaces)
+            var rest = trimmed.dropFirst(digits.count)
+            // the number may or may not carry its own punctuation: a browser's
+            // list arrives as "1\tfirst", a typed one as "1. first"
+            if rest.hasPrefix(".") || rest.hasPrefix(")") { rest = rest.dropFirst() }
+            if let gap = rest.first, gap == " " || gap == "\t" {
+                let text = String(rest).trimmingCharacters(in: .whitespaces)
                 if !text.isEmpty { return ListItem(ordered: true, number: number, text: text) }
             }
         }
