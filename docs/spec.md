@@ -2293,6 +2293,90 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Hotkey `⌃⌥R`, module-gated exactly like the eyedropper's; ships hidden via
   `optInModules`. Snapshot flags: `--ocr`, or `--tools` for both new modules.
 
+### Screenshot (capture and mark up)
+
+- Module `"shot"`, title `shotLabel` — "screenshot", guide letter `g`. The panel
+  row carries three buttons — area, window, screen — and a fourth, "repeat
+  area", once a rectangle has been framed at least once. The panel closes before
+  the frame appears; a popover would land in the picture.
+- Hotkeys: ⌃⌥A takes an area out of the box. Window, screen and repeat ship with
+  NO combination and are assigned in the hotkeys page — the letters that would
+  read best were already the window manager's.
+- **The selection frame is Hop's own, not `screencapture -i`.** The system tool
+  never reports WHICH rectangle was chosen, so "repeat the last area" cannot be
+  built on it. The frame carries the size in pixels, a loupe over the pointer,
+  and three keys: space takes the window under the pointer, `r` the last
+  rectangle, escape cancels.
+- Capture runs through ScreenCaptureKit in the display's BACKING pixels, so a
+  retina shot is saved at full size. Hop's own windows are excluded from the
+  filter: the panel never appears in the frame.
+- Delay (off, 3, 5, 10 seconds) is a module setting, for a menu that closes on a
+  click. The pointer is left out of the picture unless the setting asks for it.
+- **The editor opens on every capture**, in a window of its own like the
+  converter. Tools: crop, pencil, marker, arrow, line, rectangle, oval, numbered
+  steps, text, magnifier, blur, eraser; undo ⌘Z and redo ⇧⌘Z. Every tool
+  remembers its own colour and width, so the fat yellow marker and the thin red
+  pencil live side by side.
+- **Blur works in both directions.** "Inside the area" hides what the region
+  covers; "around the area" keeps the region sharp and smears the rest, with a
+  dimming slider on top of the strength one, because blur alone does not read as
+  emphasis. The region is a rectangle, an oval or a freehand lasso, and there
+  can be several. "Pixels" is offered beside "blur": a blur over small type can
+  sometimes be read back, a mosaic cannot.
+- **Frame dressing** (left column, off by default): a background from six
+  presets, a colour or a two-stop gradient of the user's own; padding, corner
+  radius and shadow as sliders; an optional browser bar with an address the user
+  types. Padding is a share of the frame's SHORTER side, so one setting reads
+  the same on a wide shot and a narrow one. "Reset to defaults" is one button.
+- **Watermark** (same column, off by default): the user's own text or an image,
+  with opacity, size, one of five spots and a "tile it" switch. An image chosen
+  here is COPIED into `Application Support/Hop/`, so a file moved or deleted
+  later cannot silently empty the mark.
+- Export: "save" writes a file into the module's folder (Pictures/Hop by
+  default), "copy" puts the picture on the clipboard. PNG and JPEG only — macOS
+  ships no WebP encoder, so the list must not promise one. Names are
+  `shot <date> at <time>.<ext>`, with ` 2`, ` 3`… appended rather than
+  overwriting a shot taken in the same minute.
+- `Hop --markup-selftest <out.png>` runs the whole export path — marks, blur,
+  dressing, watermark — over a made-up frame and writes the result. It found the
+  browser bar drawn below the picture and an arrow head too thin to read.
+
+### Draw over the screen
+
+- Module `"annotate"`, title `annotateLabel` — "draw over the screen", guide
+  letter `i`, ⌃⌥B out of the box. A transparent layer on EVERY display, rebuilt
+  when displays come and go.
+- **Two modes**, switched at the left of the toolbar. Drawing: the layer takes
+  the mouse, a yellow border runs around the screen edge and a tag reads
+  "drawing on" — a layer silently eating clicks reads as a frozen Mac. Clicks
+  through: the layer stops taking events, the border goes, the panel dims, and
+  the marks stay where they are.
+- Tools: pencil, fading ink, marker, arrow, line, rectangle, oval, steps, text,
+  eraser. No crop, blur or magnifier — the layer is transparent and there are no
+  pixels under it to work on.
+- **Fading ink** disappears about two seconds after the pointer lifts, over half
+  a second. ONE timer serves the whole layer and stops the moment the last
+  fading stroke is gone; a layer of ordinary marks keeps no schedule alive.
+- "Save" and "copy" capture the screen together with the drawing; the toolbar
+  steps out of the shot first. "Clear" empties the layer, the cross closes it.
+- **The layer is NOT excluded from screen capture** — that is the point: the
+  marks have to be visible to the other side of a call and in a recording.
+- Known limit, said out loud in the docs: the drawing reaches other people only
+  when the WHOLE screen is shared. Sharing a single window composites that
+  window alone, and Hop's layer is not part of it.
+
+### The markup toolbar (both modules)
+
+- One panel, both modules. Dragged by anything that is not a button; it snaps to
+  the nearest screen edge and turns with it — horizontal at the top and bottom,
+  vertical at the sides. The edge is remembered per module.
+- Colour and width live in a popover above the panel, never in the panel itself.
+  Hovering a tool shows its name and its letter.
+- The drawing tools are one family of glyphs: each body is built upright and
+  turned by the same 45°, and every silhouette is ONE closed outline — two
+  shapes sharing an edge stroke it twice, and the joint swells at 19 pt (Anton,
+  2026-09-07). Icons are checked by RENDERING them, not by reading the paths.
+
 ### Archive (drag & drop)
 
 - Module key `"archive"`, title `archiveLabel` ("file archives"), with EVERY

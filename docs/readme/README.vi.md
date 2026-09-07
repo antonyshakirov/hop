@@ -253,6 +253,22 @@ Wi-Fi hay danh thiếp vẫn là văn bản thường.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Ảnh màn hình
+
+Khoanh một vùng, chụp cửa sổ dưới con trỏ hoặc cả màn hình — trình sửa mở ra với ảnh đã sẵn trong đó. Đánh dấu bằng bút chì, bút dạ quang, mũi tên, hình khối, các bước đánh số và văn bản; giấu phần riêng tư sau lớp làm mờ hoặc ô vuông, hoặc làm mờ mọi thứ TRỪ chỗ bạn đang chỉ. Sau đó lưu thành tệp hoặc chép vào bảng nháp.
+
+Cùng một vùng chụp lại chỉ bằng một phím — đúng thứ mà một loạt ảnh của cùng màn hình cần. Ảnh có thể được khoác áo cho trang web: nền, khoảng thở quanh khung, bo góc, bóng đổ, khung trình duyệt và hình mờ của riêng bạn, bằng chữ hoặc bằng ảnh.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Vẽ trên màn hình
+
+Vẽ thẳng lên màn hình khi gọi, khi quay hoặc khi soi lại: bút chì, bút dạ quang bản rộng vẫn để đọc được chữ bên dưới, mũi tên, hình khối và các bước đánh số. Mực phai tự biến mất vài giây sau khi bạn nhấc con trỏ.
+
+Một công tắc trả cú nhấp về cho các ứng dụng bên dưới trong khi nét vẽ vẫn nằm trên màn hình. «Lưu» và «chép» chụp màn hình cùng với hình vẽ. Người khác thấy nét vẽ khi bạn chia sẻ toàn màn hình; một cửa sổ riêng lẻ do macOS tự ghép.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Khoá bàn phím
 
 Bấm 1, 5 hoặc 15 phút – hoặc ∞ – và cả bàn phím ngừng phản hồi, để lau mà không

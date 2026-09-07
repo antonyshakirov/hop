@@ -261,6 +261,22 @@ uma senha de Wi-Fi ou um cartão de contato continuam texto simples.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Capturas de tela
+
+Enquadre uma área, capture a janela sob o cursor ou a tela inteira — o editor abre com a imagem pronta. Marque com lápis, marcador, setas, formas, passos numerados e texto, esconda o que é privado atrás de desfoque ou mosaico, ou desfoque tudo EXCETO aquilo que você aponta. Depois salve o arquivo ou copie para a área de transferência.
+
+A mesma área é capturada de novo com uma tecla — é o que costuma pedir uma série de capturas da mesma tela. A imagem pode ser vestida para uma página: fundo, ar em volta, cantos arredondados, sombra, moldura de navegador e sua marca d'água, em texto ou imagem.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Desenhar sobre a tela
+
+Desenhe direto na tela durante uma chamada, uma gravação ou uma revisão: lápis, marcador largo que deixa o texto embaixo legível, setas, formas e passos numerados. A tinta que some desaparece sozinha alguns segundos depois que você levanta o cursor.
+
+Um botão devolve os cliques aos apps de baixo enquanto as marcas continuam na tela. «Salvar» e «copiar» capturam a tela junto com o desenho. Os outros veem as marcas quando você compartilha a tela inteira; uma janela única o macOS compõe sozinho.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Bloqueio do teclado
 
 Toque 1, 5 ou 15 minutos – ou ∞ – e o teclado inteiro para de responder, para

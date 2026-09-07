@@ -260,6 +260,22 @@ numarası, Wi-Fi parolası ya da kartvizit düz metin olarak kalır.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Ekran görüntüleri
+
+Bir alanı çerçeveleyin, imlecin altındaki pencereyi ya da tüm ekranı alın — düzenleyici görüntüyle birlikte açılır. Kalem, fosforlu kalem, oklar, şekiller, numaralı adımlar ve metinle işaretleyin, görünmemesi gerekeni bulanıklık ya da mozaik arkasına saklayın — veya gösterdiğiniz yer DIŞINDA her şeyi bulanıklaştırın. Sonra dosyayı kaydedin ya da panoya kopyalayın.
+
+Aynı alan tek tuşla yeniden alınır; aynı ekrandan bir dizi görüntü tam da bunu ister. Görüntü bir sayfa için giydirilebilir: arka plan, çevresinde boşluk, yuvarlak köşeler, gölge, tarayıcı çerçevesi ve metin ya da görsel olarak kendi filigranınız.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Ekranın üzerine çizme
+
+Görüşme, kayıt veya inceleme sırasında doğrudan ekrana çizin: kalem, altındaki metni okunur bırakan geniş fosforlu kalem, oklar, şekiller ve numaralı adımlar. Kaybolan mürekkep, imleci kaldırdıktan birkaç saniye sonra kendiliğinden gider.
+
+Tek bir anahtar tıklamaları alttaki uygulamalara geri verirken işaretler ekranda kalır. «Kaydet» ve «kopyala» ekranı çizimle birlikte alır. Tüm ekranı paylaştığınızda karşı taraf işaretleri görür; tek bir paylaşılan pencereyi macOS kendi başına birleştirir.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Klavye kilidi
 
 1, 5 ya da 15 dakikaya – veya ∞'a – dokunun, tüm klavye yanıt vermeyi bıraksın;

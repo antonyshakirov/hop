@@ -258,6 +258,36 @@ Wi-Fi password or a contact card stays plain text.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Screenshots
+
+Frame an area, take the window under the pointer or a whole screen, and the
+editor opens with the picture already in it. Mark it up with a pencil, a
+marker, arrows, shapes, numbered steps and text, hide what nobody needs to see
+behind a blur or a mosaic — or blur everything EXCEPT the part you are pointing
+at. Then save the file or copy it to the clipboard.
+
+The same rectangle can be taken again with one key, which is what a series of
+screenshots of one screen usually needs. A shot can be dressed for a page: a
+background, air around the frame, rounded corners, a shadow, a browser window
+bar — and your own watermark, in text or as an image.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Draw over the screen
+
+Draw straight on the screen during a call, a recording or a review: a pencil, a
+wide marker that leaves the text under it readable, arrows, shapes and numbered
+steps. Ink that fades on its own disappears a couple of seconds after you lift
+the pointer, so nothing has to be cleaned up mid-sentence.
+
+One switch hands the clicks back to the apps underneath while the marks stay on
+screen, so you can keep working with your notes in front of you. Save or copy
+captures the screen together with the drawing. The marks are visible to other
+people when you share the whole screen; a single shared window is composited by
+macOS alone and no layer can join it.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Keyboard lock
 
 Tap 1, 5 or 15 minutes – or ∞ – and the whole keyboard stops responding, so it

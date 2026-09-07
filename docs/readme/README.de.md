@@ -267,6 +267,22 @@ einfacher Text.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Bildschirmfotos
+
+Rahmen Sie einen Bereich ein, nehmen Sie das Fenster unter dem Zeiger oder den ganzen Bildschirm auf — der Editor öffnet sich mit dem fertigen Bild. Markieren Sie mit Stift, Marker, Pfeilen, Formen, nummerierten Schritten und Text, verbergen Sie Vertrauliches hinter Weichzeichner oder Mosaik — oder zeichnen Sie alles weich AUSSER der Stelle, auf die Sie zeigen. Dann als Datei sichern oder in die Zwischenablage kopieren.
+
+Derselbe Ausschnitt lässt sich mit einer Taste erneut aufnehmen — genau das braucht eine Serie vom selben Bildschirm. Ein Bild lässt sich für eine Seite einkleiden: Hintergrund, Luft ringsum, runde Ecken, Schatten, Browserleiste und ein eigenes Wasserzeichen als Text oder Bild.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Über den Bildschirm zeichnen
+
+Zeichnen Sie während eines Anrufs, einer Aufnahme oder einer Durchsicht direkt auf den Bildschirm: Stift, breiter Marker, unter dem der Text lesbar bleibt, Pfeile, Formen und nummerierte Schritte. Verblassende Tinte verschwindet ein paar Sekunden nach dem Absetzen von selbst.
+
+Ein Schalter gibt die Klicks an die Apps darunter zurück, während die Markierungen stehen bleiben. «Sichern» und «Kopieren» nehmen den Bildschirm samt Zeichnung auf. Andere sehen die Markierungen, wenn Sie den ganzen Bildschirm teilen; ein einzelnes geteiltes Fenster setzt macOS allein zusammen.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Tastatursperre
 
 Tippe 1, 5 oder 15 Minuten – oder ∞ – und die ganze Tastatur reagiert nicht

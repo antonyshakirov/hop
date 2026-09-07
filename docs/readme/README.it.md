@@ -267,6 +267,22 @@ testo semplice.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Schermate
+
+Inquadra un'area, cattura la finestra sotto il puntatore o l'intero schermo: l'editor si apre con l'immagine già dentro. Annota con matita, evidenziatore, frecce, forme, passaggi numerati e testo, nascondi ciò che è privato dietro una sfocatura o un mosaico, oppure sfoca tutto TRANNE ciò che stai indicando. Poi salva il file o copialo negli appunti.
+
+La stessa area si riprende con un tasto, che è ciò che serve a una serie di schermate dello stesso schermo. Un'immagine si può vestire per una pagina: sfondo, aria intorno, angoli arrotondati, ombra, cornice del browser e la tua filigrana, in testo o immagine.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Disegnare sullo schermo
+
+Disegna direttamente sullo schermo durante una chiamata, una registrazione o una revisione: matita, evidenziatore largo che lascia leggibile il testo sotto, frecce, forme e passaggi numerati. L'inchiostro che svanisce se ne va da solo un paio di secondi dopo aver sollevato il puntatore.
+
+Un interruttore restituisce i clic alle app sottostanti mentre i segni restano sullo schermo. «Salva» e «copia» catturano lo schermo insieme al disegno. Gli altri vedono i segni quando condividi l'intero schermo; una singola finestra condivisa la compone macOS da sé.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Blocco tastiera
 
 Tocca 1, 5 o 15 minuti – oppure ∞ – e tutta la tastiera smette di rispondere,

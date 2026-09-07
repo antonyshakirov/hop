@@ -264,6 +264,22 @@ gewone tekst.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Schermafbeeldingen
+
+Kader een gebied in, neem het venster onder de aanwijzer of het hele scherm: de editor opent met de afbeelding er al in. Markeer met potlood, marker, pijlen, vormen, genummerde stappen en tekst, verberg wat privé is achter vervaging of een mozaïek, of vervaag alles BEHALVE waar je naar wijst. Bewaar daarna het bestand of kopieer het naar het klembord.
+
+Hetzelfde gebied neem je met één toets opnieuw, precies wat een reeks van hetzelfde scherm nodig heeft. Een opname kan voor een pagina worden aangekleed: achtergrond, lucht eromheen, ronde hoeken, schaduw, browserkader en je eigen watermerk, in tekst of als afbeelding.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Over het scherm tekenen
+
+Teken tijdens een gesprek, een opname of een review rechtstreeks op het scherm: potlood, brede marker die de tekst eronder leesbaar laat, pijlen, vormen en genummerde stappen. Vervagende inkt verdwijnt vanzelf een paar seconden nadat je de aanwijzer optilt.
+
+Eén schakelaar geeft de kliks terug aan de apps eronder terwijl de markeringen op het scherm blijven. «Bewaren» en «kopiëren» leggen het scherm samen met de tekening vast. Anderen zien de markeringen als je het hele scherm deelt; één gedeeld venster stelt macOS zelf samen.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Toetsenbordslot
 
 Tik 1, 5 of 15 minuten – of ∞ – en het hele toetsenbord reageert niet meer, zodat

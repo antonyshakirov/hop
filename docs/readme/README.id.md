@@ -265,6 +265,22 @@ kata sandi Wi-Fi atau kartu kontak tetap teks biasa.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Tangkapan layar
+
+Bingkai sebuah area, ambil jendela di bawah penunjuk atau seluruh layar — penyunting terbuka dengan gambarnya sudah di dalam. Tandai dengan pensil, stabilo, panah, bentuk, langkah bernomor dan teks, sembunyikan yang privat di balik buram atau mozaik — atau buramkan semuanya KECUALI yang sedang Anda tunjuk. Lalu simpan berkas atau salin ke papan klip.
+
+Area yang sama diambil lagi dengan satu tombol, dan itulah yang dibutuhkan serangkaian tangkapan dari layar yang sama. Gambar bisa didandani untuk sebuah halaman: latar, ruang di sekelilingnya, sudut membulat, bayangan, bingkai peramban, dan tanda air Anda sendiri, berupa teks atau gambar.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Menggambar di layar
+
+Gambarlah langsung di layar saat panggilan, perekaman, atau tinjauan: pensil, stabilo lebar yang membuat teks di bawahnya tetap terbaca, panah, bentuk, dan langkah bernomor. Tinta yang memudar hilang sendiri beberapa detik setelah penunjuk diangkat.
+
+Satu sakelar mengembalikan klik ke aplikasi di bawahnya sementara tanda tetap di layar. «Simpan» dan «salin» merekam layar bersama gambarnya. Orang lain melihat tanda saat Anda berbagi seluruh layar; satu jendela yang dibagikan disusun macOS sendiri.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Kunci papan ketik
 
 Ketuk 1, 5, atau 15 menit – atau ∞ – dan seluruh papan ketik berhenti merespons,

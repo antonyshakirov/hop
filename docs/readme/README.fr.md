@@ -271,6 +271,22 @@ ou une carte de visite restent du texte.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Captures d'écran
+
+Cadrez une zone, prenez la fenêtre sous le pointeur ou tout l'écran : l'éditeur s'ouvre avec l'image déjà dedans. Annotez au crayon, au surligneur, avec des flèches, des formes, des étapes numérotées et du texte, masquez le confidentiel derrière un flou ou une mosaïque, ou floutez tout SAUF ce que vous montrez. Puis enregistrez le fichier ou copiez-le dans le presse-papiers.
+
+La même zone se reprend d'une touche, ce dont a besoin une série de captures d'un même écran. Une capture peut être habillée pour une page : fond, air autour, coins arrondis, ombre, cadre de navigateur et votre filigrane, en texte ou en image.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Dessiner sur l'écran
+
+Dessinez directement sur l'écran pendant un appel, un enregistrement ou une relecture : crayon, surligneur large qui laisse le texte lisible, flèches, formes et étapes numérotées. L'encre qui s'efface disparaît d'elle-même deux secondes après avoir relevé le pointeur.
+
+Un interrupteur rend les clics aux applications en dessous pendant que les annotations restent à l'écran. « Enregistrer » et « copier » capturent l'écran avec le dessin. Les autres voient les annotations quand vous partagez l'écran entier ; une fenêtre partagée seule est composée par macOS.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Verrou clavier
 
 Appuie sur 1, 5 ou 15 minutes – ou ∞ – et tout le clavier cesse de répondre,

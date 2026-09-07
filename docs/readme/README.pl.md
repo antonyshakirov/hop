@@ -260,6 +260,22 @@ telefonu, hasło Wi-Fi albo wizytówka zostają zwykłym tekstem.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Zrzuty ekranu
+
+Zaznacz obszar, zrób zdjęcie okna pod wskaźnikiem albo całego ekranu — edytor otworzy się z gotowym obrazem. Opisz go ołówkiem, zakreślaczem, strzałkami, figurami, numerowanymi krokami i tekstem, ukryj poufne za rozmyciem lub mozaiką — albo rozmyj wszystko OPRÓCZ tego, co pokazujesz. Potem zapisz plik lub skopiuj do schowka.
+
+Ten sam obszar powtórzysz jednym klawiszem, a właśnie tego wymaga seria zrzutów z jednego ekranu. Obraz można ubrać na stronę: tło, powietrze dookoła, zaokrąglone rogi, cień, ramka przeglądarki i własny znak wodny, tekstem lub obrazkiem.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Rysowanie na ekranie
+
+Rysuj wprost na ekranie podczas rozmowy, nagrania albo przeglądu: ołówek, szeroki zakreślacz, pod którym tekst pozostaje czytelny, strzałki, figury i numerowane kroki. Znikający tusz gaśnie sam kilka sekund po uniesieniu wskaźnika.
+
+Jeden przełącznik oddaje kliknięcia aplikacjom pod spodem, a znaki zostają na ekranie. «Zapisz» i «kopiuj» rejestrują ekran razem z rysunkiem. Inni widzą znaki, gdy udostępniasz cały ekran; pojedyncze udostępnione okno macOS składa samodzielnie.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Blokada klawiatury
 
 Naciśnij 1, 5 albo 15 minut – lub ∞ – i cała klawiatura przestaje odpowiadać,

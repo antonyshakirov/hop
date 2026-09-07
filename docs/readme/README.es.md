@@ -267,6 +267,22 @@ siguen siendo texto normal.
 
 → [Scan a QR code on your Mac](https://hop.tools/features/scan-qr-code-on-mac/)
 
+### Capturas de pantalla
+
+Encuadre un área, capture la ventana bajo el cursor o toda la pantalla: el editor se abre con la imagen ya dentro. Marque con lápiz, marcador, flechas, formas, pasos numerados y texto, oculte lo privado tras un desenfoque o un mosaico, o desenfoque todo EXCEPTO aquello que señala. Después guarde el archivo o cópielo al portapapeles.
+
+La misma área se repite con una tecla, que es lo que suele necesitar una serie de capturas de una pantalla. La imagen puede vestirse para una página: fondo, aire alrededor, esquinas redondeadas, sombra, marco de navegador y su propia marca de agua, en texto o imagen.
+
+→ [Screenshots on Mac](https://hop.tools/features/screenshots/)
+
+### Dibujar sobre la pantalla
+
+Dibuje directamente en la pantalla durante una llamada, una grabación o una revisión: lápiz, marcador ancho que deja legible el texto debajo, flechas, formas y pasos numerados. La tinta que se desvanece desaparece sola un par de segundos después de levantar el cursor.
+
+Un interruptor devuelve los clics a las apps de debajo mientras las marcas siguen en pantalla. «Guardar» y «copiar» capturan la pantalla junto con el dibujo. Los demás ven las marcas cuando comparte la pantalla completa; una sola ventana compartida la compone macOS por su cuenta.
+
+→ [Draw on your screen](https://hop.tools/features/draw-on-screen/)
+
 ### Bloqueo del teclado
 
 Pulsa 1, 5 o 15 minutos – o ∞ – y todo el teclado deja de responder, para
