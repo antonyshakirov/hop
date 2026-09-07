@@ -39,6 +39,7 @@ final class AppModel: ObservableObject {
     /// SPEC: docs/spec.md - "What a running clock costs".
     let clockTicked = PassthroughSubject<Void, Never>()
     private var redraw = PanelRedraw()
+    private var lastClockSignature: TimerEngine.Signature?
 
     /// Incremented on every theme change: .id(themeVersion) recreates views
     /// that SwiftUI would otherwise not redraw (their inputs did not change).
@@ -142,8 +143,13 @@ final class AppModel: ObservableObject {
         screenText.onResult = { [weak self] in self?.openScreenTextWindow?() }
         Self.sharedKeepAwake = keepAwake
         forwarders.append(engine.objectWillChange.sink { [weak self] in
-            self?.clockChanged()
+            self?.clockTicked.send()
         })
+        // objectWillChange fires BEFORE the value moves, so the signature is read
+        // a turn later, once the engine actually holds the new state.
+        forwarders.append(engine.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.clockStateChanged() })
         forwarders.append(keepAwake.objectWillChange.sink { [weak self] in
             self?.objectWillChange.send()
         })
@@ -208,33 +214,15 @@ final class AppModel: ObservableObject {
         if redraw.ticks() { objectWillChange.send() }
     }
 
+    /// SPEC: docs/spec.md — "What a running clock costs".
+    private func clockStateChanged() {
+        let now = engine.signature
+        guard now != lastClockSignature else { return }
+        lastClockSignature = now
+        if redraw.ticks() { objectWillChange.send() }
+    }
+
     func setPanelVisible(_ visible: Bool) {
         if redraw.setVisible(visible) { objectWillChange.send() }
-    }
-
-    /// Alarm-blink phase for the finished state: true means "lit". This is the
-    /// urgent PRE-acknowledge blink (full on/off). Once the finish is acknowledged
-    /// (the panel was opened) the alarm blink settles to steady lit, so this
-    /// returns true whenever the engine is no longer blinking. The gentle
-    /// post-acknowledge pulse lives in `finishedPulseOpacity`.
-    var blinkOn: Bool {
-        guard engine.isFinishBlinking else { return true }
-        return Int(engine.heartbeat.timeIntervalSinceReferenceDate * 2) % 2 == 0
-    }
-
-    /// Dim level for the calm post-acknowledge finished pulse — subtle enough to
-    /// read as a breath, never a full disappear.
-    private static let finishedPulseDim: Double = 0.4
-
-    /// Opacity for the zeroed digits' calm pulse AFTER the finish is acknowledged:
-    /// the alarm blink and the bell are gone, but the digits keep dimming and
-    /// returning as a "finished — reset me" cue until the timer is reset or
-    /// restarted. Tick-driven off the engine heartbeat (never a `repeatForever`
-    /// animation, which would break the popover sizing); 1.0 everywhere else, so
-    /// it never touches the running countdown or the pre-acknowledge alarm blink.
-    var finishedPulseOpacity: Double {
-        guard engine.isFinishSettled else { return 1 }
-        let lit = Int(engine.heartbeat.timeIntervalSinceReferenceDate * 2) % 2 == 0
-        return lit ? 1 : Self.finishedPulseDim
     }
 }

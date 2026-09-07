@@ -248,11 +248,25 @@ after a panel has been opened and closed at least once.
   same of anything holding a `TimelineView`, a `Timer.publish` or an animation
   that outlives the event that started it.
 
-Measured on a release build with the same timer running: 1.2% of a core with the
-panel closed, 7.1% with it open, 0.7% with no timer at all. Figures taken in
-different sittings are not comparable - the same build reads 1.2% on a quiet
-machine and 2.7% under load. A comparison is two builds measured side by side in
-one window, which is what `ps -o time=` deltas on both pids give.
+- **The panel hears a second only when the second is not all that changed.**
+  `AppModel` funnels every controller into one `objectWillChange` and `PanelView`
+  is a single view, so one tick rebuilt every module on the panel to move two
+  figures. `TimerEngine.signature` is everything the engine publishes EXCEPT the
+  heartbeat (`ClockSignatureTests`), and a change reaches the panel only when
+  that differs - a new `@Published` on the engine belongs in it. The digits are
+  the one thing that does move every second, so `TimerReadout` watches the clock
+  itself; the finish blink, the settled pulse and the tooltip went with it,
+  because a tooltip reading the parent's state reports the second the panel was
+  last rebuilt on rather than the one it is showing.
+
+Measured on a release build with the same timer running: 2.3% of a core with the
+panel open and 2.4% with it closed, one sitting on a busy machine - an open panel
+no longer costs more than a closed one, because neither is redrawn for a second
+passing. The open figure was 7.0% before this rule and 15.1% before the pulse
+went. Figures taken in different sittings are not comparable - the same build
+reads 1.2% on a quiet machine and 2.4% under load. A comparison is two builds
+measured side by side in one window, which is what `ps -o time=` deltas on both
+pids give.
 
 ## Onboarding
 

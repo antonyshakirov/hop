@@ -52,6 +52,26 @@ public final class TimerEngine: ObservableObject {
     /// state ends (reset / new start / digit entry).
     public var isFinishSettled: Bool { state == .finished && finishAcknowledged }
 
+    /// Everything published EXCEPT `heartbeat`. A new `@Published` on this engine
+    /// belongs here; the heartbeat is the one that must stay out.
+    /// SPEC: docs/spec.md - "What a running clock costs". Tests: ClockSignatureTests.
+    public struct Signature: Equatable {
+        public let state: State
+        public let duration: TimeInterval
+        public let stash: Stash?
+        public let cycle: CycleState?
+        public let isStopwatch: Bool
+        public let finishAcknowledged: Bool
+        public let deadline: Date?
+        public let heldRemaining: TimeInterval?
+    }
+
+    public var signature: Signature {
+        Signature(state: state, duration: duration, stash: stash, cycle: cycle,
+                  isStopwatch: isStopwatch, finishAcknowledged: finishAcknowledged,
+                  deadline: targetDate, heldRemaining: pausedRemaining)
+    }
+
     public var onFinish: (() -> Void)?
     /// Fired between cycle phases (the next phase starts on its own).
     public var onPhaseChange: ((_ nextIsWork: Bool) -> Void)?

@@ -1321,49 +1321,6 @@ struct PanelView: View {
     private var textSizeCompact: CGFloat { digitsLarge ? 29 : 15.5 }
     private var unitsSizeCompact: CGFloat { digitsLarge ? 25.5 : 13.7 }
 
-    /// Display in the chosen format. Dots are the signature look;
-    /// digit-group highlight and clicks live only in the dots style.
-    @ViewBuilder
-    private func timeDisplay(text: String, seconds: TimeInterval, compact: Bool,
-                             dimCount: Int, blinkOff: Bool) -> some View {
-        switch displayStyle {
-        case "text":
-            Text(text)
-                .font(Theme.mono(compact ? textSizeCompact : textSizeFull, weight: .semibold))
-                .foregroundStyle(blinkOff ? Theme.dotOff : Theme.textPrimary)
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-        case "units":
-            Text(unitsString(seconds))
-                .font(Theme.mono(compact ? unitsSizeCompact : unitsSizeFull, weight: .semibold))
-                .foregroundStyle(blinkOff ? Theme.dotOff : Theme.textPrimary)
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-        default:
-            DotMatrixDisplay(
-                text: text,
-                dimCount: dimCount,
-                blinkOff: blinkOff,
-                cell: compact ? dotCellCompact : dotCellFull,
-                highlight: editHighlight
-            )
-        }
-    }
-
-    private func unitsString(_ value: TimeInterval) -> String {
-        let total = max(0, Int(value.rounded(.up)))
-        let h = total / 3600
-        let m = (total % 3600) / 60
-        let s = total % 60
-        var parts: [String] = []
-        if h > 0 { parts.append("\(h)\(t(.unitHour))") }
-        parts.append(String(format: "%02d%@", m, t(.unitMin)))
-        parts.append(String(format: "%02d%@", s, t(.unitSec)))
-        return parts.joined(separator: " ") // thin space: units do not drift apart
-    }
-
     /// Yellow highlight of the digit group being edited on the display.
     private var editHighlight: Range<Int>? {
         guard digitsEditable, let unit = editUnit else { return nil }
@@ -2219,7 +2176,6 @@ struct PanelView: View {
 
     private var compactTimer: some View {
         let engine = model.engine
-        let text = TimeFormatting.display(engine.isStopwatch ? engine.elapsed : engine.remaining)
         let state = model.engine.state
         let finished = state == .finished
         let running = state == .running
@@ -2277,16 +2233,16 @@ struct PanelView: View {
             }
             Spacer(minLength: 6)
             // digits on the right, with breathing room from the buttons
-            timeDisplay(
-                text: text,
-                seconds: engine.isStopwatch ? engine.elapsed : engine.remaining,
-                compact: true,
-                dimCount: finished ? 0 : TimeFormatting.dimCount(for: text),
-                blinkOff: finished && !model.blinkOn
+            TimerReadout(
+                engine: engine,
+                usesElapsed: true,
+                style: displayStyle,
+                cell: dotCellCompact,
+                textSize: textSizeCompact,
+                unitsSize: unitsSizeCompact,
+                highlight: editHighlight,
+                lang: lang
             )
-            // calm pulse once the finish is acknowledged — see finishedPulseOpacity
-            .opacity(model.finishedPulseOpacity)
-            .animation(.easeInOut(duration: 0.28), value: model.finishedPulseOpacity)
             .background(displayWidthReader)
             .contentShape(Rectangle())
             .simultaneousGesture(SpatialTapGesture().onEnded { value in
@@ -2300,10 +2256,6 @@ struct PanelView: View {
             })
             .simultaneousGesture(scrubGesture(cell: dotCellCompact))
             .modifier(DigitPointerTracking(changed: digitPointer))
-            .help(engine.isStopwatch
-                  ? "\(t(.stopwatchLabel)) — \(TimeFormatting.display(engine.elapsed))"
-                  : t(.tipDigits).replacingOccurrences(
-                        of: "{n}", with: TimeFormatting.display(engine.remaining)))
             // always here, whatever the templates below are doing: a control that
             // moves when the thing it controls changes is a control you have to
             // hunt for
@@ -2409,21 +2361,19 @@ struct PanelView: View {
     // MARK: - Display
 
     private var display: some View {
-        let text = TimeFormatting.display(model.engine.remaining)
         let state = model.engine.state
-        let finished = state == .finished
         let scrubbable = state == .idle || state == .finished
         return VStack(spacing: 6) {
-            timeDisplay(
-                text: text,
-                seconds: model.engine.remaining,
-                compact: false,
-                dimCount: finished ? 0 : TimeFormatting.dimCount(for: text),
-                blinkOff: finished && !model.blinkOn
+            TimerReadout(
+                engine: model.engine,
+                usesElapsed: false,
+                style: displayStyle,
+                cell: dotCellFull,
+                textSize: textSizeFull,
+                unitsSize: unitsSizeFull,
+                highlight: editHighlight,
+                lang: lang
             )
-            // calm pulse once the finish is acknowledged — see finishedPulseOpacity
-            .opacity(model.finishedPulseOpacity)
-            .animation(.easeInOut(duration: 0.28), value: model.finishedPulseOpacity)
             .background(displayWidthReader)
             .contentShape(Rectangle())
             .simultaneousGesture(SpatialTapGesture().onEnded { value in
@@ -2439,12 +2389,6 @@ struct PanelView: View {
             })
             .simultaneousGesture(scrubGesture(cell: dotCellFull))
             .modifier(DigitPointerTracking(changed: digitPointer))
-            // how the digits are edited, plus what they say right now: a custom
-            // time set by drag or keyboard has to read as clearly as a preset
-            .help(t(.tipDigits).replacingOccurrences(
-                of: "{n}", with: TimeFormatting.display(model.engine.isStopwatch
-                                                        ? model.engine.elapsed
-                                                        : model.engine.remaining)))
             // fixed row under the display: hint ↔ reset, with the stash next to it
             HStack(spacing: 14) {
                 if !scrubbable {

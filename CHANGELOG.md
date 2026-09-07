@@ -6,6 +6,11 @@
   the pause button used to fade in and out, and every frame of that fade
   re-measured the whole panel. The outline now simply stays lit. Measured on a
   release build with the same timer running: 15.1% of a core before, 7.1% after.
+- A timer running with the panel open costs a third of what it did. The panel is
+  one view, so a second passing rebuilt every module on it to move two figures;
+  the digits keep their own time now and the rest of the panel is told only when
+  something other than the second has changed. Measured on a release build with
+  the same timer running, panel open: 7.0% of a core before, 2.3% after.
 - A Mac left unable to sleep gets it back. Lid mode undoes itself when the
   awake session ends and when Hop quits, but a crash ran neither, and the Mac
   then never slept again with nothing to say why. Hop now puts it back the next
