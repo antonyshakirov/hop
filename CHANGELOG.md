@@ -1,5 +1,12 @@
 # Hop - version history
 
+## Unreleased
+
+- An open panel with a running timer costs half what it did. The outline around
+  the pause button used to fade in and out, and every frame of that fade
+  re-measured the whole panel. The outline now simply stays lit. Measured on a
+  release build with the same timer running: 15.1% of a core before, 7.1% after.
+
 ## 2.0.2 - 2026-09-07
 
 - A running timer costs a tenth of what it did once the panel has been opened.

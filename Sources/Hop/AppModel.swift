@@ -38,7 +38,6 @@ final class AppModel: ObservableObject {
 
     /// SPEC: docs/spec.md - "What a running clock costs".
     let clockTicked = PassthroughSubject<Void, Never>()
-    @Published private(set) var panelVisible = false
     private var redraw = PanelRedraw()
 
     /// Incremented on every theme change: .id(themeVersion) recreates views
@@ -210,9 +209,7 @@ final class AppModel: ObservableObject {
     }
 
     func setPanelVisible(_ visible: Bool) {
-        let owed = redraw.setVisible(visible)
-        panelVisible = visible
-        if owed { objectWillChange.send() }
+        if redraw.setVisible(visible) { objectWillChange.send() }
     }
 
     /// Alarm-blink phase for the finished state: true means "lit". This is the

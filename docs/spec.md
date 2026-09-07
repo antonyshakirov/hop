@@ -233,16 +233,26 @@ after a panel has been opened and closed at least once.
   `PanelRedrawTests`) says the panel is visible. A panel coming back is handed
   the one redraw it owes, so it opens showing the current second rather than the
   one it was closed on.
-- **A view that drives itself stands still while nobody is looking.** A schedule
-  of its own owes nothing to the model and walks straight past the rule above:
-  `PulsingRing` kept breathing at 1 Hz, with a second-long animation between the
-  ticks, inside a hidden panel - eight percent of a core for a ring on no
-  screen. It takes `breathing` and draws a still ring while the panel is closed.
-  Ask the same of anything holding a `TimelineView`, a `Timer.publish` or an
-  animation that outlives the event that started it.
+- **A view that drives itself is the most expensive thing the panel can hold.**
+  A schedule of its own owes nothing to the model and walks straight past the
+  rule above. The price is not the drawing: the outline around the pause button
+  cost the same eight percentage points whether it updated 120 times a second or
+  30, because one `NSHostingController` measures the WHOLE panel and any live
+  schedule inside it buys a layout pass over every module on every display
+  cycle. **The pulse is gone** (Anton, 2026-09-07): `RunningRing` is a plain
+  outline at full strength, and half of what an open panel cost went with it.
+  Handing the pulse to a `CABasicAnimation` on a layer was tried and measured
+  and did work, but an effect that has to leave SwiftUI to be affordable is an
+  effect the panel should not carry — and an `NSViewRepresentable` renders in a
+  `--snapshot` as a yellow block, which took the pause button with it. Ask the
+  same of anything holding a `TimelineView`, a `Timer.publish` or an animation
+  that outlives the event that started it.
 
 Measured on a release build with the same timer running: 1.2% of a core with the
-panel closed, 0.7% with no timer at all.
+panel closed, 7.1% with it open, 0.7% with no timer at all. Figures taken in
+different sittings are not comparable - the same build reads 1.2% on a quiet
+machine and 2.7% under load. A comparison is two builds measured side by side in
+one window, which is what `ps -o time=` deltas on both pids give.
 
 ## Onboarding
 
