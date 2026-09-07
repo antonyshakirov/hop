@@ -83,3 +83,26 @@ final class MarkupOverlayController {
         }
     }
 }
+
+/// The toolbar's own window: small, always able to take a click, and above the
+/// drawing layer. It has to be separate — a layer that lets clicks through does
+/// so for everything inside it, and the panel would go with it.
+final class MarkupToolbarWindow: NSPanel {
+    override var canBecomeKey: Bool { true }
+
+    init(content: NSView) {
+        super.init(contentRect: NSRect(x: 0, y: 0, width: 10, height: 10),
+                   styleMask: [.borderless, .nonactivatingPanel],
+                   backing: .buffered, defer: false)
+        isOpaque = false
+        backgroundColor = .clear
+        hasShadow = false
+        level = NSWindow.Level(rawValue: NSWindow.Level.screenSaver.rawValue + 1)
+        collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+        isReleasedWhenClosed = false
+        isMovableByWindowBackground = false
+        hidesOnDeactivate = false
+        contentView = content
+        setContentSize(content.fittingSize)
+    }
+}

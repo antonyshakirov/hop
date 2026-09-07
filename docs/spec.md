@@ -2349,8 +2349,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Two modes**, switched at the left of the toolbar. Drawing: the layer takes
   the mouse, a yellow border runs around the screen edge and a tag reads
   "drawing on" — a layer silently eating clicks reads as a frozen Mac. Clicks
-  through: the layer stops taking events, the border goes, the panel dims, and
-  the marks stay where they are.
+  through: the layer stops taking events, the border goes, and the marks stay
+  where they are.
+- **The toolbar is a window of its own**, above the layer and always able to
+  take a click. It has to be: `ignoresMouseEvents` belongs to a whole window, so
+  a panel living inside the layer went unclickable together with it the moment
+  the clicks-through mode was switched on — the panel looked switched off with
+  no way back (found by Anton on the first run, 2026-09-07). Dragging moves that
+  window; on release it takes the nearest edge and turns with it.
+- Both mode buttons carry their name as a tooltip: an arrow on its own says
+  nothing about what pressing it will do.
 - Tools: pencil, fading ink, marker, arrow, line, rectangle, oval, steps, text,
   eraser. No crop, blur or magnifier — the layer is transparent and there are no
   pixels under it to work on.

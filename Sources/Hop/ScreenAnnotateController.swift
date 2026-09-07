@@ -23,6 +23,7 @@ final class ScreenAnnotateController: ObservableObject {
     ]
 
     private let overlay = MarkupOverlayController()
+    private var toolbarWindow: MarkupToolbarWindow?
 
     func toggle() {
         isUp ? exit() : show()
@@ -42,6 +43,63 @@ final class ScreenAnnotateController: ObservableObject {
             ))
         }
         overlay.setPassesClicks(false)
+        showToolbar()
+    }
+
+    /// The panel lives in a window of its own, so the mode that lets clicks
+    /// through cannot take the panel with it.
+    private func showToolbar() {
+        guard toolbarWindow == nil else { return }
+        let host = NSHostingView(rootView: ScreenAnnotateToolbar(controller: self,
+                                                                 surface: surface,
+                                                                 lang: L10n.current))
+        let window = MarkupToolbarWindow(content: host)
+        toolbarWindow = window
+        place(window, on: CaptureController.screenUnderPointer())
+        window.orderFrontRegardless()
+    }
+
+    /// Along its edge the panel keeps where it was left; across it, a fixed
+    /// distance from the border.
+    func place(_ window: NSWindow, on screen: NSScreen?) {
+        guard let screen = screen ?? NSScreen.main else { return }
+        let size = window.frame.size
+        let inset: CGFloat = 28
+        let frame = screen.frame
+        let spot: NSPoint
+        switch edge {
+        case .top:
+            spot = NSPoint(x: frame.midX - size.width / 2, y: frame.maxY - size.height - inset)
+        case .bottom:
+            spot = NSPoint(x: frame.midX - size.width / 2, y: frame.minY + inset)
+        case .leading:
+            spot = NSPoint(x: frame.minX + inset, y: frame.midY - size.height / 2)
+        case .trailing:
+            spot = NSPoint(x: frame.maxX - size.width - inset, y: frame.midY - size.height / 2)
+        }
+        window.setFrameOrigin(spot)
+    }
+
+    /// Dragging moves the window itself; on release it takes the nearest edge
+    /// and turns with it.
+    func dragToolbar(by translation: CGSize) {
+        guard let window = toolbarWindow else { return }
+        let origin = window.frame.origin
+        window.setFrameOrigin(NSPoint(x: origin.x + translation.width,
+                                      y: origin.y - translation.height))
+    }
+
+    func settleToolbar() {
+        guard let window = toolbarWindow,
+              let screen = window.screen ?? NSScreen.main else { return }
+        let centre = CGPoint(x: window.frame.midX - screen.frame.minX,
+                             y: screen.frame.maxY - window.frame.midY)
+        edge = MarkupToolbar.Edge.nearest(to: centre, in: screen.frame.size)
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let window = self.toolbarWindow else { return }
+            window.setContentSize(window.contentView?.fittingSize ?? window.frame.size)
+            self.place(window, on: screen)
+        }
     }
 
     func setDrawing(_ drawing: Bool) {
@@ -57,6 +115,9 @@ final class ScreenAnnotateController: ObservableObject {
         surface.stop()
         surface.clear()
         overlay.hide()
+        toolbarWindow?.orderOut(nil)
+        toolbarWindow?.contentView = nil
+        toolbarWindow = nil
         isUp = false
     }
 
@@ -64,8 +125,9 @@ final class ScreenAnnotateController: ObservableObject {
     /// already on screen, so they are captured with everything else.
     func picture() async -> CGImage? {
         guard let screen = CaptureController.screenUnderPointer() else { return nil }
-        overlay.setPassesClicks(true)
-        defer { overlay.setPassesClicks(!isDrawing) }
+        // The panel steps out of the shot; the marks stay, they are the point.
+        toolbarWindow?.orderOut(nil)
+        defer { toolbarWindow?.orderFrontRegardless() }
 
         do {
             let content = try await SCShareableContent.excludingDesktopWindows(
@@ -133,40 +195,74 @@ struct ScreenAnnotateView: View {
                     .allowsHitTesting(false)
             }
 
-            MarkupToolbarLayer(surface: surface,
-                               tools: ScreenAnnotateController.tools,
-                               edge: $controller.edge,
-                               size: screenSize,
-                               lang: lang,
-                               trailing: AnyView(actions))
-                .opacity(controller.isDrawing ? 1 : 0.72)
-                .frame(width: screenSize.width, height: screenSize.height)
         }
         .frame(width: screenSize.width, height: screenSize.height)
-        .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
+    }
+}
+
+/// The panel of the drawing layer, in its own window: the mode switch, the
+/// tools, and what to do with the result.
+struct ScreenAnnotateToolbar: View {
+    @ObservedObject var controller: ScreenAnnotateController
+    @ObservedObject var surface: MarkupSurface
+    let lang: AppLanguage
+
+    var body: some View {
+        MarkupToolbar(surface: surface,
+                      tools: ScreenAnnotateController.tools,
+                      edge: $controller.edge,
+                      lang: lang,
+                      trailing: AnyView(actions))
+            .padding(6)
+            .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
+            .gesture(
+                DragGesture(minimumDistance: 6)
+                    .onChanged { value in controller.dragToolbar(by: value.translation) }
+                    .onEnded { _ in controller.settleToolbar() }
+            )
     }
 
     private var actions: some View {
-        HStack(spacing: 4) {
-            modeSwitch
-            Rectangle().fill(Theme.divider).frame(width: 1, height: 20)
-            action(.clear) { surface.clear() }
-            action(.copy) { controller.copyToClipboard() }
-            action(.save) { controller.save() }
-            action(.close) { controller.exit() }
+        Group {
+            if controller.edge.isVertical {
+                VStack(spacing: 4) { buttons }
+            } else {
+                HStack(spacing: 4) { buttons }
+            }
         }
     }
 
+    @ViewBuilder
+    private var buttons: some View {
+        modeSwitch
+        Rectangle().fill(Theme.divider)
+            .frame(width: controller.edge.isVertical ? 20 : 1,
+                   height: controller.edge.isVertical ? 1 : 20)
+        action(.clear, .annotateClear) { surface.clear() }
+        action(.copy, .copyLabel) { controller.copyToClipboard() }
+        action(.save, .featureSave) { controller.save() }
+        action(.close, .annotateExit) { controller.exit() }
+    }
+
     private var modeSwitch: some View {
-        HStack(spacing: 3) {
-            modeButton(drawing: false, glyph: .cursor)
-            modeButton(drawing: true, glyph: .pencil)
+        Group {
+            if controller.edge.isVertical {
+                VStack(spacing: 3) { modeButtons }
+            } else {
+                HStack(spacing: 3) { modeButtons }
+            }
         }
         .padding(3)
         .background(RoundedRectangle(cornerRadius: 9).fill(Theme.fieldBg))
     }
 
-    private func modeButton(drawing: Bool, glyph: MarkupGlyph) -> some View {
+    @ViewBuilder
+    private var modeButtons: some View {
+        modeButton(drawing: false, glyph: .cursor, name: .annotateClickMode)
+        modeButton(drawing: true, glyph: .pencil, name: .annotateDrawMode)
+    }
+
+    private func modeButton(drawing: Bool, glyph: MarkupGlyph, name: L10nKey) -> some View {
         let chosen = controller.isDrawing == drawing
         return Button {
             controller.setDrawing(drawing)
@@ -178,16 +274,20 @@ struct ScreenAnnotateView: View {
                     RoundedRectangle(cornerRadius: 6)
                         .fill(chosen ? (drawing ? Theme.accentYellow.opacity(0.92) : Theme.chipBg) : .clear)
                 )
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(L10n.t(name, lang))
     }
 
-    private func action(_ glyph: MarkupGlyph, run: @escaping () -> Void) -> some View {
+    private func action(_ glyph: MarkupGlyph, _ name: L10nKey, run: @escaping () -> Void) -> some View {
         Button(action: run) {
             MarkupIcon(glyph: glyph)
                 .foregroundStyle(Theme.textSecondary)
                 .frame(width: 32, height: 32)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help(L10n.t(name, lang))
     }
 }
