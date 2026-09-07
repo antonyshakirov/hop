@@ -2,13 +2,12 @@
 
 ## Unreleased
 
-- A module doing its work no longer costs anything while the panel is shut. A
-  torrent running held 4.2% of a core with nothing on screen, and almost none of
-  that was the download - it was the panel being rebuilt for rows nobody could
-  see. Every module that lives only in the panel now waits until something is
-  drawing it; the menu bar keeps up regardless, and windows of their own carry on
-  as before. Measured with a torrent running, panel shut: 4.2% of a core before,
-  1.1% after.
+- A module no longer costs anything while the panel is shut. One torrent in the
+  list held 4.2% of a core with nothing on screen, and none of that was the
+  transfer - it was the panel being rebuilt for rows nobody could see. Every
+  module that lives only in the panel now waits until something is drawing it;
+  the menu bar keeps up regardless, and windows of their own carry on as before.
+  Measured with a torrent loaded, panel shut: 4.2% of a core before, 1.1% after.
 
 ## 2.0.3 - 2026-09-07
 

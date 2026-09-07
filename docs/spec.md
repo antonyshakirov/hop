@@ -260,9 +260,10 @@ after a panel has been opened and closed at least once.
   last rebuilt on rather than the one it is showing.
 
 - **Every module keeps to this, not only the clock.** A module publishing while
-  nobody is looking rebuilds the panel exactly as a tick did: torrents held 4.23%
-  of a core with the panel SHUT, against 0.8% at rest, and the engine itself was
-  0.085% - the cost was Hop's, not the download's. The eight that live only in
+  nobody is looking rebuilds the panel exactly as a tick did: one torrent loaded
+  held 4.23% of a core with the panel SHUT, against 0.8% at rest. The engine is
+  polled about once a second whatever it answers, so this is the module's own
+  price and not the transfer's. The eight that live only in
   the panel (keep-awake, updates, the speed test, torrents, the tracker, to-dos,
   the eyedropper, the keyboard lock) reach the view tree through `PanelRedraw`.
   The four with windows of their own (the converter, recognition, archives and
