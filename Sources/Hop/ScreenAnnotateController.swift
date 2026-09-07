@@ -133,19 +133,17 @@ struct ScreenAnnotateView: View {
                     .allowsHitTesting(false)
             }
 
-            VStack {
-                Spacer()
-                MarkupToolbar(surface: surface,
-                              tools: ScreenAnnotateController.tools,
-                              edge: $controller.edge,
-                              lang: lang,
-                              trailing: AnyView(actions))
-                    .opacity(controller.isDrawing ? 1 : 0.72)
-                    .padding(.bottom, 28)
-            }
-            .frame(width: screenSize.width, height: screenSize.height)
+            MarkupToolbarLayer(surface: surface,
+                               tools: ScreenAnnotateController.tools,
+                               edge: $controller.edge,
+                               size: screenSize,
+                               lang: lang,
+                               trailing: AnyView(actions))
+                .opacity(controller.isDrawing ? 1 : 0.72)
+                .frame(width: screenSize.width, height: screenSize.height)
         }
         .frame(width: screenSize.width, height: screenSize.height)
+        .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
     }
 
     private var actions: some View {

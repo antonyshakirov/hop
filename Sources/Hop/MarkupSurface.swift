@@ -14,6 +14,8 @@ final class MarkupSurface: ObservableObject {
     @Published var tool: MarkupTool = .pencil
     @Published var blur = MarkupBlur(mode: .inside, shape: .rectangle, style: .blur, strength: 7, dim: 2)
     @Published private(set) var now: TimeInterval = 0
+    /// A text mark waiting for its words; the canvas shows a field over it.
+    @Published var typing: MarkupShape?
 
     private let document = MarkupDocument()
     private var inks: [MarkupTool: MarkupInk] = [:]
@@ -54,6 +56,10 @@ final class MarkupSurface: ObservableObject {
                                      step: StepNumbering.next(in: shapes), createdAt: stamp)
             document.add(circle)
             publish()
+        case .text:
+            commitTyping()
+            typing = MarkupShape(tool: .text, points: [point], ink: ink(for: .text),
+                                 text: "", createdAt: stamp)
         default:
             origin = point
             var shape = MarkupShape(tool: tool, points: [point], ink: ink(for: tool), createdAt: stamp)
@@ -82,10 +88,26 @@ final class MarkupSurface: ObservableObject {
         publish()
     }
 
+    /// The words are kept only when there are some: an empty label would be an
+    /// invisible mark nobody can select again.
+    func commitTyping() {
+        guard var shape = typing else { return }
+        typing = nil
+        shape.text = shape.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let text = shape.text, !text.isEmpty else { return }
+        document.add(shape)
+        publish()
+    }
+
     func erase(at point: MarkupPoint) {
         guard let hit = shapes.last(where: { MarkupGeometry.hits(shape: $0, point: point, tolerance: 6) })
         else { return }
         document.apply { StepNumbering.renumbered($0.filter { $0.id != hit.id }) }
+        publish()
+    }
+
+    func dropCropFrames() {
+        document.apply { $0.filter { $0.tool != .crop } }
         publish()
     }
 

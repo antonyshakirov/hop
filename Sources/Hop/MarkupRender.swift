@@ -29,9 +29,44 @@ enum MarkupRender {
         context.setLineJoin(.round)
 
         for shape in shapes where shape.tool != .blur {
+            if shape.tool == .magnifier {
+                magnify(shape, base: blurred, scale: scale, in: context)
+                continue
+            }
             draw(shape, scale: scale, in: context)
         }
         return context.makeImage()
+    }
+
+    /// The region under the frame, drawn back at twice the size inside it.
+    private static func magnify(
+        _ shape: MarkupShape, base: CGImage, scale: Double, in context: CGContext
+    ) {
+        let box = MarkupGeometry.boundingBox(shape.points)
+        guard box.size.x > 8, box.size.y > 8 else { return }
+        let frame = CGRect(x: box.origin.x * scale, y: box.origin.y * scale,
+                           width: box.size.x * scale, height: box.size.y * scale)
+        // `cropping` measures from the image's top left, which is the same
+        // corner the flipped context counts from — no conversion needed.
+        let source = CGRect(x: frame.midX - frame.width / 4, y: frame.midY - frame.height / 4,
+                            width: frame.width / 2, height: frame.height / 2)
+        guard let piece = base.cropping(to: source) else { return }
+
+        let round = CGPath(ellipseIn: frame, transform: nil)
+        context.saveGState()
+        context.addPath(round)
+        context.clip()
+        // Images draw bottom-up even in a flipped context, so the frame is
+        // turned over once more before the piece lands in it.
+        context.translateBy(x: frame.minX, y: frame.minY + frame.height)
+        context.scaleBy(x: 1, y: -1)
+        context.draw(piece, in: CGRect(origin: .zero, size: frame.size))
+        context.restoreGState()
+
+        context.addPath(round)
+        context.setStrokeColor(NSColor(hex: shape.ink.hex).cgColor)
+        context.setLineWidth(shape.ink.width * scale)
+        context.strokePath()
     }
 
     private static func smeared(base: CGImage, shapes: [MarkupShape], scale: Double) -> CGImage? {

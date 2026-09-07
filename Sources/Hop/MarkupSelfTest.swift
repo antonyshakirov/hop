@@ -34,6 +34,10 @@ enum MarkupSelfTest {
                         text: "markup", createdAt: 5),
         ]
 
+        shapes.append(MarkupShape(tool: .magnifier,
+                                  points: [MarkupPoint(x: 150, y: 48), MarkupPoint(x: 470, y: 168)],
+                                  ink: MarkupInk(hex: "#FFFFFF", width: 5), createdAt: 7))
+
         var inside = MarkupShape(tool: .blur,
                                  points: [MarkupPoint(x: 168, y: 476), MarkupPoint(x: 560, y: 512)],
                                  ink: ink, createdAt: 6)

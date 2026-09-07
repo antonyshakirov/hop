@@ -21,6 +21,7 @@ struct MarkupCanvas: View {
                 background.resizable().scaledToFit()
             }
         }
+        .overlay(alignment: .topLeading) { typingField }
         .contentShape(Rectangle())
         .gesture(
             DragGesture(minimumDistance: 0)
@@ -34,6 +35,24 @@ struct MarkupCanvas: View {
                 }
                 .onEnded { _ in surface.finish() }
         )
+    }
+
+    @ViewBuilder
+    private var typingField: some View {
+        if let shape = surface.typing, let point = shape.points.first {
+            TextField("", text: Binding(
+                get: { surface.typing?.text ?? "" },
+                set: { surface.typing?.text = $0 }
+            ))
+            .textFieldStyle(.plain)
+            .font(.system(size: shape.ink.width * scale, weight: .semibold))
+            .foregroundStyle(Color(markupHex: shape.ink.hex))
+            .frame(width: 240)
+            .padding(.horizontal, 6).padding(.vertical, 3)
+            .background(RoundedRectangle(cornerRadius: 5).fill(Theme.fieldBg))
+            .offset(x: point.x * scale, y: point.y * scale)
+            .onSubmit { surface.commitTyping() }
+        }
     }
 
     private func draw(_ shape: MarkupShape, in context: inout GraphicsContext) {
@@ -67,15 +86,16 @@ struct MarkupCanvas: View {
             context.stroke(Path(roundedRect: box(first, points[1]), cornerRadius: 4 * scale),
                            with: .color(colour), style: stroke)
 
-        case .oval, .blur, .magnifier, .crop:
+        case .oval, .magnifier:
             guard points.count > 1 else { return }
             var path = Path()
-            if shape.tool == .oval {
-                path.addEllipse(in: box(first, points[1]))
-            } else {
-                path.addRect(box(first, points[1]))
-            }
+            path.addEllipse(in: box(first, points[1]))
             context.stroke(path, with: .color(colour), style: stroke)
+
+        case .blur, .crop:
+            guard points.count > 1 else { return }
+            context.stroke(Path(box(first, points[1])), with: .color(colour),
+                           style: StrokeStyle(lineWidth: max(1.5, width / 2), dash: [6, 4]))
 
         case .steps:
             let radius = 17 * scale

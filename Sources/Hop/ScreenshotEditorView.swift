@@ -37,6 +37,21 @@ final class ScreenshotEditor: ObservableObject {
 
     var scale: Double { rect.scale }
 
+    /// A frame drawn with the crop tool becomes the crop and leaves the
+    /// document: an outline that stayed would be exported as a red rectangle.
+    func applyCropIfDrawn() {
+        guard let frame = surface.shapes.last(where: { $0.tool == .crop }),
+              frame.points.count > 1 else { return }
+        let box = MarkupGeometry.boundingBox(frame.points)
+        let rect = CaptureRect(x: box.origin.x, y: box.origin.y,
+                               width: box.size.x, height: box.size.y,
+                               scale: scale, displayID: rect.displayID)
+        surface.dropCropFrames()
+        guard rect.isUsable else { return }
+        crop = rect
+        refreshPreview()
+    }
+
     func refreshPreview() {
         guard dressing.isOn || watermark.hasSomethingToStamp else {
             dressedPreview = nil
@@ -146,19 +161,18 @@ struct ScreenshotEditorView: View {
                                  scale: shown.width / editor.rect.width)
                         .frame(width: shown.width, height: shown.height)
                         .clipped()
+                        .onChange(of: editor.surface.shapes.count) { editor.applyCropIfDrawn() }
                 }
 
-                VStack {
-                    Spacer()
-                    MarkupToolbar(surface: editor.surface,
-                                  tools: ScreenshotEditor.tools,
-                                  edge: $editor.edge,
-                                  lang: lang,
-                                  trailing: AnyView(undoRedo))
-                        .padding(.bottom, 26)
-                }
+                MarkupToolbarLayer(surface: editor.surface,
+                                   tools: ScreenshotEditor.tools,
+                                   edge: $editor.edge,
+                                   size: geometry.size,
+                                   lang: lang,
+                                   trailing: AnyView(undoRedo))
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
+            .background(MarkupKeys(surface: editor.surface, tools: ScreenshotEditor.tools))
         }
     }
 

@@ -1,3 +1,4 @@
+import AppKit
 import HopCore
 import SwiftUI
 
@@ -225,5 +226,98 @@ struct MarkupInkPopover: View {
         .padding(12)
         .frame(width: 244)
         .background(Theme.background)
+    }
+}
+
+/// The toolbar as it actually lives on a surface: floating, dragged by any
+/// spot that is not a button, snapping to the nearest edge when released and
+/// turning with it.
+struct MarkupToolbarLayer: View {
+    @ObservedObject var surface: MarkupSurface
+    let tools: [MarkupTool]
+    @Binding var edge: MarkupToolbar.Edge
+    let size: CGSize
+    var lang: AppLanguage
+    var trailing: AnyView?
+
+    @State private var dragged: CGSize = .zero
+    @State private var spot: CGPoint?
+
+    var body: some View {
+        MarkupToolbar(surface: surface, tools: tools, edge: $edge, lang: lang, trailing: trailing)
+            .position(place())
+            .offset(dragged)
+            .gesture(
+                DragGesture(minimumDistance: 6)
+                    .onChanged { value in dragged = value.translation }
+                    .onEnded { value in
+                        let dropped = CGPoint(x: place().x + value.translation.width,
+                                              y: place().y + value.translation.height)
+                        edge = MarkupToolbar.Edge.nearest(to: dropped, in: size)
+                        spot = clamp(dropped)
+                        dragged = .zero
+                    }
+            )
+    }
+
+    /// Along its edge the panel stays where it was dropped; across it, it sits
+    /// at a fixed distance, so it never drifts off the screen.
+    private func place() -> CGPoint {
+        let inset: CGFloat = 60
+        let along = spot ?? CGPoint(x: size.width / 2, y: size.height / 2)
+        switch edge {
+        case .top: return CGPoint(x: along.x, y: inset)
+        case .bottom: return CGPoint(x: along.x, y: size.height - inset)
+        case .leading: return CGPoint(x: inset, y: along.y)
+        case .trailing: return CGPoint(x: size.width - inset, y: along.y)
+        }
+    }
+
+    private func clamp(_ point: CGPoint) -> CGPoint {
+        CGPoint(x: min(max(point.x, 120), size.width - 120),
+                y: min(max(point.y, 80), size.height - 80))
+    }
+}
+
+/// The tool letters, live while a markup surface is on screen. ⌘Z and ⇧⌘Z stay
+/// with the window's own menu handling; these are the bare letters.
+struct MarkupKeys: NSViewRepresentable {
+    @ObservedObject var surface: MarkupSurface
+    let tools: [MarkupTool]
+
+    func makeNSView(context: Context) -> NSView {
+        let view = KeyView()
+        view.pick = { letter in
+            guard let tool = MarkupToolbar.tool(forLetter: letter), tools.contains(tool) else { return false }
+            surface.tool = tool
+            return true
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+
+    final class KeyView: NSView {
+        var pick: ((String) -> Bool)?
+        private var monitor: Any?
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            guard window != nil, monitor == nil else { return }
+            monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+                guard let self, self.window?.isVisible == true,
+                      !event.modifierFlags.contains(.command),
+                      // a field being typed into owns its letters
+                      !(self.window?.firstResponder is NSTextView),
+                      let letter = event.charactersIgnoringModifiers,
+                      self.pick?(letter) == true
+                else { return event }
+                return nil
+            }
+        }
+
+        deinit {
+            if let monitor { NSEvent.removeMonitor(monitor) }
+        }
     }
 }
