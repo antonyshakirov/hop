@@ -1,6 +1,6 @@
 # Hop - version history
 
-## Unreleased
+## 2.0.3 - 2026-09-07
 
 - An open panel with a running timer costs half what it did. The outline around
   the pause button used to fade in and out, and every frame of that fade
