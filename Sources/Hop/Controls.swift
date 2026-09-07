@@ -871,15 +871,22 @@ struct FlowLayout: Layout {
 /// Soft pulsing of the outline — hints that the timer is alive
 /// and pause is clickable.
 struct PulsingRing: View {
+    /// SPEC: docs/spec.md — "What a running clock costs".
+    var breathing = true
+
     var body: some View {
-        // no repeatForever: an infinite animation made NSHostingController
-        // constantly recalculate its size — the popover trembled
-        TimelineView(.periodic(from: .now, by: 1.0)) { context in
-            let bright = Int(context.date.timeIntervalSinceReferenceDate) % 2 == 0
-            Circle()
-                .stroke(Theme.controlStroke, lineWidth: 1.5)
-                .opacity(bright ? 1 : 0.35)
-                .animation(.easeInOut(duration: 1.0), value: bright)
+        if breathing {
+            // no repeatForever: an infinite animation made NSHostingController
+            // constantly recalculate its size — the popover trembled
+            TimelineView(.periodic(from: .now, by: 1.0)) { context in
+                let bright = Int(context.date.timeIntervalSinceReferenceDate) % 2 == 0
+                Circle()
+                    .stroke(Theme.controlStroke, lineWidth: 1.5)
+                    .opacity(bright ? 1 : 0.35)
+                    .animation(.easeInOut(duration: 1.0), value: bright)
+            }
+        } else {
+            Circle().stroke(Theme.controlStroke, lineWidth: 1.5)
         }
     }
 }

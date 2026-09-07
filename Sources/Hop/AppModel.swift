@@ -36,6 +36,11 @@ final class AppModel: ObservableObject {
     /// The updater treats an open panel as active use and won't relaunch under it.
     var isPanelOpen: (() -> Bool)?
 
+    /// SPEC: docs/spec.md - "What a running clock costs".
+    let clockTicked = PassthroughSubject<Void, Never>()
+    @Published private(set) var panelVisible = false
+    private var redraw = PanelRedraw()
+
     /// Incremented on every theme change: .id(themeVersion) recreates views
     /// that SwiftUI would otherwise not redraw (their inputs did not change).
     @Published var themeVersion = 0
@@ -138,7 +143,7 @@ final class AppModel: ObservableObject {
         screenText.onResult = { [weak self] in self?.openScreenTextWindow?() }
         Self.sharedKeepAwake = keepAwake
         forwarders.append(engine.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            self?.clockChanged()
         })
         forwarders.append(keepAwake.objectWillChange.sink { [weak self] in
             self?.objectWillChange.send()
@@ -156,7 +161,7 @@ final class AppModel: ObservableObject {
             self?.objectWillChange.send()
         })
         forwarders.append(tracker.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            self?.clockChanged()
         })
         forwarders.append(todos.objectWillChange.sink { [weak self] in
             self?.objectWillChange.send()
@@ -197,6 +202,17 @@ final class AppModel: ObservableObject {
                 title: L10n.t(nextIsWork ? .workLabel : .restLabel, lang)
             )
         }
+    }
+
+    private func clockChanged() {
+        clockTicked.send()
+        if redraw.ticks() { objectWillChange.send() }
+    }
+
+    func setPanelVisible(_ visible: Bool) {
+        let owed = redraw.setVisible(visible)
+        panelVisible = visible
+        if owed { objectWillChange.send() }
     }
 
     /// Alarm-blink phase for the finished state: true means "lit". This is the

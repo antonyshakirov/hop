@@ -218,11 +218,41 @@ made it, and each is a rule now.
   The list and the names do not change while the app runs, so they are resolved
   on the first reading and only the readings repeat.
 
-Measured after, on a release build: 0.8-3.4% with the same timer running.
+Those three cut it fourfold, and the figure they were measured at - 0.8-3.4% of
+a core - was taken on an app whose panel had never been shown. Nobody uses Hop
+that way. The panel keeps its whole view tree alive from the first time it
+opens, so after one click on the icon the same running timer held 12.95% of a
+core with the panel closed. Two more rules, and every figure below is taken
+after a panel has been opened and closed at least once.
 
-The panel keeps its whole view tree alive while the popover is closed, so
-anything published while it is hidden is drawn anyway. That is why the rule is
-about what gets published rather than about who is watching.
+- **A tick reaches the panel only while the panel is on screen.** The clock and
+  the tracker publish once a second, and `AppModel` funnels every controller into
+  one `objectWillChange`, so one second of the clock rebuilt the whole panel.
+  Those two reach the menu-bar label on `clockTicked`, which the label reads
+  directly, and the view tree only while `PanelRedraw` (HopCore,
+  `PanelRedrawTests`) says the panel is visible. A panel coming back is handed
+  the one redraw it owes, so it opens showing the current second rather than the
+  one it was closed on.
+- **A view that drives itself stands still while nobody is looking.** A schedule
+  of its own owes nothing to the model and walks straight past the rule above:
+  `PulsingRing` kept breathing at 1 Hz, with a second-long animation between the
+  ticks, inside a hidden panel - eight percent of a core for a ring on no
+  screen. It takes `breathing` and draws a still ring while the panel is closed.
+  Ask the same of anything holding a `TimelineView`, a `Timer.publish` or an
+  animation that outlives the event that started it.
+
+Measured on a release build with the same timer running: 1.2% of a core with the
+panel closed, 0.7% with no timer at all.
+
+**An OPEN panel is still over budget: 15% of a core with a clock running**, and
+it is not the ring. One `NSHostingController` measures the whole panel, so any
+update inside it — a frame of the ring as much as a second of the clock —
+recomputes the size of everything on the panel. Standing the ring still takes it
+to 7%, which is the clock's own second doing the same thing. Two attempts missed
+and neither moved the figure: dropping `preferredContentSize` while the popover
+is closed, and drawing the ring in a `Canvas` on a 30 Hz schedule instead of
+animating it. Whoever takes this next starts at what a single update costs the
+panel's layout, not at the ring.
 
 ## Onboarding
 

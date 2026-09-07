@@ -1,5 +1,16 @@
 # Hop - version history
 
+## Unreleased
+
+- A running timer costs a tenth of what it did once the panel has been opened.
+  The panel keeps its view tree alive from the first time it is shown, and a
+  clock ticking into it rebuilt the whole panel every second behind a closed
+  popover. A second of the clock now reaches the menu-bar label, which is what
+  shows it, and the panel only while the panel is on screen; the ring that
+  breathes around the pause button stands still while nobody is looking.
+  Measured on a release build with the same timer running: 12.95% of a core
+  before, 1.2% after.
+
 ## 2.0.1 - 2026-09-07
 
 - The what's-new card is written for the person who can actually see it. That

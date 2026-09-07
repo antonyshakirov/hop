@@ -27,6 +27,7 @@ final class StatusItemController: NSObject {
     private let statusItem: NSStatusItem
     private let popover = NSPopover()
     private var cancellable: AnyCancellable?
+    private var clockCancellable: AnyCancellable?
     /// Redraws the icon when the menu bar's appearance changes under it.
     private var appearanceObserver: NSKeyValueObservation?
     private var statsCancellable: AnyCancellable?
@@ -69,12 +70,11 @@ final class StatusItemController: NSObject {
             }
         }
 
-        // redraw the label on every state change (timer/tracker heartbeat,
-        // awake, settings). AppModel already forwards tracker.objectWillChange
-        // — both its $heartbeat and the engine's changes — into this stream, so
-        // the stopwatch tracking badge toggles on start/stop and the bar time
-        // ticks 1/s without a separate subscription here.
         cancellable = model.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.refreshButton() }
+        // SPEC: docs/spec.md — "What a running clock costs", the label's own stream.
+        clockCancellable = model.clockTicked
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.refreshButton() }
         // the monitor's red zone is refreshed by the background stats tick
@@ -141,6 +141,7 @@ final class StatusItemController: NSObject {
                 self?.hiddenAnchorWindow = nil
                 self?.previousApp = nil
                 self?.model.panelKeyboardCaptured = false
+                self?.model.setPanelVisible(false)
                 self?.refreshButton()
             }
         }
@@ -371,6 +372,7 @@ final class StatusItemController: NSObject {
 
     private func presentPopover() {
         guard !popover.isShown, let button = statusItem.button else { return }
+        model.setPanelVisible(true) // before the size is measured
         model.activity.note() // opening the panel is active use
         // opening the panel acknowledges a finished timer: the bar bell and the
         // digits stop blinking and settle steady (the state stays finished).

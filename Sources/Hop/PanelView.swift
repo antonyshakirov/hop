@@ -2247,7 +2247,7 @@ struct PanelView: View {
                     .background(isStart ? Theme.playBg : .clear, in: Circle())
                     .overlay {
                         if running {
-                            PulsingRing() // countdown running — the button "breathes"
+                            PulsingRing(breathing: model.panelVisible)
                         } else if !isStart {
                             Circle().stroke(Theme.controlStroke, lineWidth: 1.5)
                         }
@@ -2539,7 +2539,7 @@ struct PanelView: View {
                 .background(isStart ? Theme.playBg : .clear, in: Circle())
                 .overlay {
                     if running {
-                        PulsingRing()
+                        PulsingRing(breathing: model.panelVisible)
                     } else if !isStart {
                         Circle().stroke(Theme.controlStroke, lineWidth: 1.5)
                     }
