@@ -103,6 +103,19 @@ public enum ModuleCatalog {
             ModuleAction(id: "open", storageKey: "hotkey_ocr", hotKeyID: 5,
                          defaultCombo: ModuleCombo(keyCode: 15, modifiers: controlOption)),
         ]),
+        ModuleEntry(id: "shot", guideLetter: "g", actions: [
+            // ⌃⌥A: S, C and G belong to the window zones, P to the picker and R
+            // to text recognition, so the obvious letters were all taken.
+            ModuleAction(id: "open", storageKey: "hotkey_shot", hotKeyID: 30,
+                         defaultCombo: ModuleCombo(keyCode: 0, modifiers: controlOption)),
+            ModuleAction(id: "window", storageKey: "hotkey_shot_window", hotKeyID: 31),
+            ModuleAction(id: "screen", storageKey: "hotkey_shot_screen", hotKeyID: 32),
+            ModuleAction(id: "repeat", storageKey: "hotkey_shot_repeat", hotKeyID: 33),
+        ]),
+        ModuleEntry(id: "annotate", guideLetter: "i", actions: [
+            ModuleAction(id: "open", storageKey: "hotkey_annotate", hotKeyID: 34,
+                         defaultCombo: ModuleCombo(keyCode: 11, modifiers: controlOption)),
+        ]),
         ModuleEntry(id: "archive", guideLetter: "z", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_archive", hotKeyID: 25),
         ]),
@@ -154,6 +167,7 @@ public enum ModuleCatalog {
     public static let modulesWithSettings: Set<String> = [
         "timer", "system", "awake", "clipboard", "color", "tracker",
         "todos", "vpn", "convert", "archive", "torrent", "windows",
+        "shot", "annotate",
     ]
 
     public static func hasSettings(_ id: String) -> Bool {
@@ -169,6 +183,7 @@ public enum ModuleCatalog {
         ["timer", "tracker", "todos"],
         ["convert", "archive"],
         ["clipboard", "color", "ocr"],
+        ["shot", "annotate"],
         ["system", "awake", "keyboard"],
         ["speedtest", "vpn", "torrent"],
         ["windows", "apps", "uninstall"],

@@ -9,7 +9,7 @@ final class ModuleCatalogTests: XCTestCase {
     func testIdentifiersAreUniqueAndMatchThePanelDefaults() {
         let ids = ModuleCatalog.modules.map(\.id)
         XCTAssertEqual(Set(ids).count, ids.count)
-        XCTAssertEqual(ids.count, 16)
+        XCTAssertEqual(ids.count, 18)
         XCTAssertTrue(ids.contains("timer"))
         XCTAssertTrue(ids.contains("todos"))
         XCTAssertTrue(ids.contains("uninstall"))
@@ -23,7 +23,8 @@ final class ModuleCatalogTests: XCTestCase {
         let withActions = ModuleCatalog.modules.filter { !$0.actions.isEmpty }.map(\.id)
         XCTAssertEqual(
             Set(withActions),
-            ["timer", "awake", "color", "ocr", "keyboard", "convert", "archive", "uninstall", "windows"]
+            ["timer", "awake", "color", "ocr", "keyboard", "convert", "archive", "uninstall", "windows",
+             "shot", "annotate"]
         )
         for module in ModuleCatalog.modules where !module.actions.isEmpty && module.id != "windows" {
             XCTAssertEqual(module.actions.filter { $0.id == "open" }.count, 1, "module \(module.id)")
@@ -42,16 +43,17 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertNil(ModuleCatalog.panelAction.zoneName)
     }
 
-    /// Only the actions that had a combination before the catalog keep one; the
-    /// three window actions added with it claim nothing on anybody's behalf.
-    func testOnlyLegacyActionsCarryADefaultCombo() {
+    /// Every other action ships without a combination and claims nothing on
+    /// anybody's behalf.
+    func testOnlyTheOpeningActionsCarryADefaultCombo() {
         let withDefaults = ModuleCatalog.modules
             .flatMap(\.actions)
             .filter { $0.defaultCombo != nil && !$0.isWindowZone }
             .map(\.storageKey)
         XCTAssertEqual(
             Set(withDefaults),
-            ["hotkey_timer", "hotkey_awake", "hotkey_color", "hotkey_ocr", "hotkey_keyboardLock"]
+            ["hotkey_timer", "hotkey_awake", "hotkey_color", "hotkey_ocr", "hotkey_keyboardLock",
+             "hotkey_shot", "hotkey_annotate"]
         )
         XCTAssertNotNil(ModuleCatalog.panelAction.defaultCombo)
     }
@@ -168,5 +170,50 @@ final class ModuleCatalogTests: XCTestCase {
             XCTAssertFalse(ModuleCatalog.hasSettings(bare), "\(bare) carries the switch alone")
         }
         XCTAssertFalse(ModuleCatalog.hasSettings("nothing-of-the-sort"))
+    }
+
+    /// A guide letter is an address printed on the site.
+    func testTheMarkupModulesCarryTheirOwnGuideLetters() {
+        XCTAssertEqual(ModuleCatalog.module("shot")?.guideLetter, "g")
+        XCTAssertEqual(ModuleCatalog.module("annotate")?.guideLetter, "i")
+
+        let letters = ModuleCatalog.modules.map(\.guideLetter)
+        XCTAssertEqual(Set(letters).count, letters.count, "a guide letter is used twice")
+    }
+
+    func testEveryHotkeyIdentifierIsUsedOnce() {
+        let ids = ModuleCatalog.allActions.map(\.hotKeyID)
+        XCTAssertEqual(Set(ids).count, ids.count, "two actions claim one hotkey id")
+    }
+
+    func testTheShotModuleOffersFourWaysToCapture() {
+        XCTAssertEqual(ModuleCatalog.module("shot")?.actions.map(\.id).sorted(),
+                       ["open", "repeat", "screen", "window"])
+    }
+
+    /// The rest stay free so they collide with nothing.
+    func testOnlyTheTwoOpenActionsClaimACombination() {
+        let claimed = ["shot", "annotate"].compactMap { ModuleCatalog.module($0) }
+            .flatMap(\.actions).filter { $0.defaultCombo != nil }.map(\.id)
+        XCTAssertEqual(claimed.sorted(), ["open", "open"])
+    }
+
+    /// A combination spoken for twice is dead on a clean install.
+    func testTheNewCombinationsAreFreeOfTheOnesAlreadyThere() {
+        let combos = ModuleCatalog.allActions.compactMap(\.defaultCombo)
+        XCTAssertEqual(Set(combos).count, combos.count, "two actions claim one combination")
+    }
+
+    func testBothMarkupModulesOwnSettings() {
+        XCTAssertTrue(ModuleCatalog.hasSettings("shot"))
+        XCTAssertTrue(ModuleCatalog.hasSettings("annotate"))
+    }
+
+    /// A module left out of the groups is one nobody learns exists.
+    func testTheWizardShowsEveryModule() {
+        let shown = Set(ModuleCatalog.onboardingGroups.flatMap { $0 })
+        for module in ModuleCatalog.modules {
+            XCTAssertTrue(shown.contains(module.id), "\(module.id) is in no onboarding group")
+        }
     }
 }
