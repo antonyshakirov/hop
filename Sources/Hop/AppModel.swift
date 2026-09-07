@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import CoreGraphics
 import HopCore
 
 @MainActor
@@ -21,6 +22,8 @@ final class AppModel: ObservableObject {
     /// controller, so they are built in `init` after it exists.
     let colorPicker: ColorPickerController
     let screenText: ScreenTextController
+    let shot = CaptureController()
+    let annotate = ScreenAnnotateController()
     let archive = ArchiveController()
     let keyboardLock = KeyboardLockController()
     let vpn: VPNController
@@ -83,6 +86,7 @@ final class AppModel: ObservableObject {
     /// Open the recognition window: where a picture is dropped or pasted, and
     /// where the recognized text is shown.
     var openScreenTextWindow: (() -> Void)?
+    var openShotEditor: ((CGImage, CaptureRect) -> Void)?
     /// A page the settings window should jump to on its next open, consumed once
     /// by the window itself. The window remembers the page it was left on, so a
     /// caller that needs a particular one has to say which.
@@ -141,6 +145,10 @@ final class AppModel: ObservableObject {
         // a finished recognition brings its window forward: the text has to be
         // visible, not just quietly filed away
         screenText.onResult = { [weak self] in self?.openScreenTextWindow?() }
+        shot.onCaptured = { [weak self] image, rect in
+            guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
+            self?.openShotEditor?(cgImage, rect)
+        }
         Self.sharedKeepAwake = keepAwake
         forwarders.append(engine.objectWillChange.sink { [weak self] in
             self?.barChanged.send()
@@ -177,6 +185,8 @@ final class AppModel: ObservableObject {
         forwarders.append(converter.objectWillChange.sink { [weak self] in
             self?.windowModuleChanged()
         })
+        forwarders.append(shot.objectWillChange.sink { [weak self] in self?.objectWillChange.send() })
+        forwarders.append(annotate.objectWillChange.sink { [weak self] in self?.objectWillChange.send() })
         forwarders.append(screenText.objectWillChange.sink { [weak self] in
             self?.windowModuleChanged()
         })

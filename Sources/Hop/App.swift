@@ -25,6 +25,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindow: NSWindow?
     private var settingsWindow: NSWindow?
     private var converterWindow: ConverterWindow?
+    private var shotEditorWindow: NSWindow?
+    private var shotEditor: ScreenshotEditor?
     private var archiveWindow: ConverterWindow?
     private var uninstallWindow: NSWindow?
     private var uninstallUserResized = false
@@ -268,6 +270,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard let action = ModuleCatalog.open(module) else { continue }
             hotkeys.setHandler(action, handler)
         }
+        if let shot = ModuleCatalog.module("shot") {
+            let modes: [String: CaptureController.Mode] = [
+                "window": .window, "screen": .screen, "repeat": .repeatLast,
+            ]
+            for action in shot.actions {
+                guard let mode = modes[action.id] else { continue }
+                hotkeys.setHandler(action) { [weak self] in
+                    self?.model.activity.note()
+                    self?.model.shot.capture(mode)
+                }
+            }
+        }
         for action in ModuleCatalog.zoneActions {
             guard let name = action.zoneName,
                   let position = WindowSnapController.Position(rawValue: name) else { continue }
@@ -295,6 +309,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         model.openConverterWindow = { [weak self] in
             self?.showConverterWindow()
+        }
+        model.openShotEditor = { [weak self] image, rect in
+            self?.showShotEditorWindow(image: image, rect: rect)
         }
         model.openArchiveWindow = { [weak self] in
             self?.showArchiveWindow()
@@ -498,6 +515,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             "ocr": { [weak self] in
                 self?.model.activity.note()
                 self?.model.screenText.capture()
+            },
+            "shot": { [weak self] in
+                self?.model.activity.note()
+                self?.model.shot.capture(.area)
+            },
+            "annotate": { [weak self] in
+                self?.model.activity.note()
+                self?.model.annotate.toggle()
             },
             "keyboard": { [weak self] in
                 self?.model.activity.note()
@@ -711,6 +736,44 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         frame.size.height = newHeight
         converterExpectedHeight = window.contentRect(forFrameRect: frame).height
         window.setFrame(frame, display: true)
+    }
+
+    /// The editor opens on every capture, in a window of its own like the
+    /// converter and the archiver. A second shot replaces what is in it.
+    private func showShotEditorWindow(image: CGImage, rect: CaptureRect) {
+        model.activity.note()
+        let editor = ScreenshotEditor(base: image, rect: rect)
+        shotEditor = editor
+
+        if shotEditorWindow == nil {
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 1180, height: 760),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered, defer: false
+            )
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.isMovableByWindowBackground = false
+            window.isReleasedWhenClosed = false
+            window.contentMinSize = NSSize(width: 980, height: 640)
+            shotEditorWindow = window
+        }
+        guard let window = shotEditorWindow else { return }
+
+        let host = NSHostingController(
+            rootView: ScreenshotEditorView(
+                editor: editor,
+                lang: L10n.current,
+                onClose: { [weak self] in self?.shotEditorWindow?.close() }
+            )
+            .hopLayoutDirection()
+        )
+        host.sizingOptions = []
+        window.contentViewController = host
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        if !window.isVisible { window.center() }
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
     }
 
     private func showConverterWindow() {
