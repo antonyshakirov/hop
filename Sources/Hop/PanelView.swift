@@ -22,6 +22,10 @@ struct PanelView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.layoutDirection) private var layoutDirection
     @AppStorage(SettingsKey.showMenuBarCountdown) private var showCountdown = true
+    @AppStorage(MarkupSettings.formatKey) private var shotFormat = "png"
+    @AppStorage(MarkupSettings.delayKey) private var shotDelay = 0
+    @AppStorage(MarkupSettings.pointerKey) private var shotPointer = false
+    @AppStorage("annotateStartsDrawing") private var annotateStartsDrawing = true
     @AppStorage(SettingsKey.trackerTimeInBar) private var trackerTimeInBar = false
     @AppStorage(SettingsKey.alertMode) private var alertModeRaw = AlertMode.soundAndBanner.rawValue
     @AppStorage(MediaPauser.settingKey) private var pauseMedia = false
@@ -2554,7 +2558,7 @@ struct PanelView: View {
     // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "archive", "keyboard", "vpn", "uninstall"]
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall"]
     static let defaultModuleOrder = "timer,awake,clipboard,vpn,keyboard,ocr,convert,windows,speedtest,torrent,color,archive"
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
@@ -3002,6 +3006,8 @@ struct PanelView: View {
         case "torrent": return t(.torrentLabel)
         case "color": return t(.colorLabel)
         case "ocr": return t(.ocrLabel)
+        case "shot": return t(.shotLabel)
+        case "annotate": return t(.annotateLabel)
         case "vpn": return t(.vpnLabel)
         case Self.appsChoice: return t(.appsLabel)
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil:
@@ -3056,6 +3062,14 @@ struct PanelView: View {
             ScreenTextView(reader: model.screenText, lang: lang,
                            closePanel: { model.closePanel?() },
                            openWindow: { model.openScreenTextWindow?() })
+                .id(model.themeVersion)
+        case "shot":
+            ShotView(shot: model.shot, lang: lang,
+                     closePanel: { model.closePanel?() })
+                .id(model.themeVersion)
+        case "annotate":
+            ScreenAnnotateRow(annotate: model.annotate, lang: lang,
+                              closePanel: { model.closePanel?() })
                 .id(model.themeVersion)
         case "archive":
             ArchiveView(archive: model.archive, lang: lang,
@@ -3681,6 +3695,8 @@ struct PanelView: View {
         case "archive": archiveSettings
         case "torrent": torrentSettings
         case "windows": windowsSettings
+        case "shot": shotSettings
+        case "annotate": annotateSettings
         default: EmptyView()
         }
     }
@@ -4137,6 +4153,65 @@ struct PanelView: View {
     /// The eyedropper's list is a slice of the clipboard history, so it carries
     /// the same two knobs the clipboard has: how many colours to keep and how
     /// many rows to show before scrolling.
+    private var shotSettings: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Text(t(.shotFolderLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Button(MarkupExport.folder().lastPathComponent) { pickShotFolder() }
+                    .buttonStyle(.plain)
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+            }
+            HStack {
+                Text(t(.shotFormatLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Picker("", selection: $shotFormat) {
+                    Text("png").tag("png")
+                    Text("jpg").tag("jpg")
+                }
+                .labelsHidden()
+                .frame(width: 90)
+            }
+            HStack {
+                Text(t(.shotDelayLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Picker("", selection: $shotDelay) {
+                    Text(t(.shotDelayOff)).tag(0)
+                    Text("3").tag(3)
+                    Text("5").tag(5)
+                    Text("10").tag(10)
+                }
+                .labelsHidden()
+                .frame(width: 90)
+            }
+            HStack {
+                Text(t(.shotPointerLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: $shotPointer)
+            }
+        }
+    }
+
+    private var annotateSettings: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Text(t(.annotateDrawMode)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: $annotateStartsDrawing)
+            }
+        }
+    }
+
+    private func pickShotFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        UserDefaults.standard.set(url.path, forKey: MarkupSettings.folderKey)
+    }
+
     private var colorSettings: some View {
         VStack(spacing: 14) {
             HStack {
@@ -4582,6 +4657,8 @@ struct PanelView: View {
         case "keyboard": return "keyboard"
         case "color": return "paintpalette"
         case "ocr": return "text.viewfinder"
+        case "shot": return "camera.viewfinder"
+        case "annotate": return "pencil.tip"
         case "vpn": return "lock.shield"
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil: return "square.grid.3x3"
         case "torrent": return "arrow.down.circle"
