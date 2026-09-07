@@ -33,6 +33,12 @@ public final class MarkupDocument {
         commit { $0.removeAll() }
     }
 
+    /// One history entry for a change that touches several marks at once —
+    /// erasing a step circle and renumbering the rest is one undo, not two.
+    public func apply(_ transform: ([MarkupShape]) -> [MarkupShape]) {
+        commit { $0 = transform($0) }
+    }
+
     public func undo() {
         guard let previous = past.popLast() else { return }
         future.append(shapes)

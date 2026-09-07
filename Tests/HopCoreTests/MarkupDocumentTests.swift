@@ -94,4 +94,24 @@ final class MarkupDocumentTests: XCTestCase {
         doc.undo()
         XCTAssertTrue(doc.shapes.isEmpty)
     }
+
+    /// Erasing a step circle renumbers the rest, and taking that back must
+    /// restore both at once.
+    func testAChangeToSeveralShapesIsOneUndo() {
+        let doc = MarkupDocument()
+        var first = stroke(.steps); first.step = 1
+        var second = stroke(.steps); second.step = 2
+        doc.add(first)
+        doc.add(second)
+
+        doc.apply { $0.filter { $0.step != 1 }.map { shape in
+            var renumbered = shape
+            renumbered.step = 1
+            return renumbered
+        } }
+        XCTAssertEqual(doc.shapes.compactMap(\.step), [1])
+
+        doc.undo()
+        XCTAssertEqual(doc.shapes.compactMap(\.step), [1, 2])
+    }
 }
