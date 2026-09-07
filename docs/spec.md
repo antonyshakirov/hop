@@ -244,16 +244,6 @@ after a panel has been opened and closed at least once.
 Measured on a release build with the same timer running: 1.2% of a core with the
 panel closed, 0.7% with no timer at all.
 
-**An OPEN panel is still over budget: 15% of a core with a clock running**, and
-it is not the ring. One `NSHostingController` measures the whole panel, so any
-update inside it — a frame of the ring as much as a second of the clock —
-recomputes the size of everything on the panel. Standing the ring still takes it
-to 7%, which is the clock's own second doing the same thing. Two attempts missed
-and neither moved the figure: dropping `preferredContentSize` while the popover
-is closed, and drawing the ring in a `Canvas` on a 30 Hz schedule instead of
-animating it. Whoever takes this next starts at what a single update costs the
-panel's layout, not at the ring.
-
 ## Onboarding
 
 **Only a fresh install sees it.** An update is not a first run: somebody who has

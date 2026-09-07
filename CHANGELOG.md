@@ -1,6 +1,6 @@
 # Hop - version history
 
-## Unreleased
+## 2.0.2 - 2026-09-07
 
 - A running timer costs a tenth of what it did once the panel has been opened.
   The panel keeps its view tree alive from the first time it is shown, and a
