@@ -3211,10 +3211,13 @@ taught anything.
   tokens for the checkbox.
 - **Play glyph (`PlayGlyph`, Controls.swift)** is the ONE play triangle across
   the whole app — SF's sharp `play.fill` is never used for a play control. It is
-  a hand-drawn triangle filled and then stroked with a thick round line-join so
-  the corners bulge smooth (the same technique as the status-bar running badge),
-  everything proportional to a `box` size and offset right `box·0.06` for optical
-  centering. Corner rounding is the `round` fraction of `box`, 0.46 by default
+  a hand-drawn triangle whose outline is round-joined thick enough to bulge the
+  corners smooth (the same technique as the status-bar running badge), with that
+  outline unioned INTO the path so the glyph is filled exactly once: every ink
+  token here carries opacity, and a separate fill and stroke stacked it along the
+  rim — at the torrent row's secondary ink the doubled rim read as an outlined
+  triangle instead of a solid one. Everything is proportional to a `box` size and
+  offset right `box·0.06` for optical centering. Corner rounding is the `round` fraction of `box`, 0.46 by default
   (tuned noticeably rounder than the original 0.34, "round as much as possible",
   while still reading as a play down to the 18pt row circle); one factor scales
   sanely to every size. Call sites: the tracker/to-do transport
@@ -3222,8 +3225,10 @@ taught anything.
   because the glyph read as a dot at row size, and rounded LESS with it: at 0.46
   the join eats the tip and both far corners, so a bigger box only looked wider),
   the main timer button — compact 27/34pt and full 48pt,
-  `box = 0.315·size` — the torrent row play control (`box 11`, pause keeps SF
-  `pause.fill`), and the timer help-tab icon legend. The menu-bar badge is
+  `box = 0.315·size` — the torrent row play control (`box 11` in the PRIMARY ink,
+  the same weight the tracker transport carries, since resuming is what a stopped
+  row invites; pause keeps SF `pause.fill` in the secondary ink), and the timer
+  help-tab icon legend. The menu-bar badge is
   deliberately excluded (it ships with the corner-system redesign). Pause glyphs
   everywhere keep SF `pause.fill`.
 - **HoverDeleteX (Controls.swift)** is the shared hover-only row delete. Both row
