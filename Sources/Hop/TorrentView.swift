@@ -615,7 +615,7 @@ struct TorrentView: View {
         Button(action: action) {
             Group {
                 if paused {
-                    PlayGlyph(color: Theme.textSecondary, box: 11)
+                    PlayGlyph(color: Theme.textPrimary, box: 11)
                 } else {
                     Image(systemName: "pause.fill")
                         .font(.system(size: 11, weight: .semibold))

@@ -1069,8 +1069,18 @@ enum RowCircle {
 /// off the same box.
 private struct PlayTriangleShape: Shape {
     var inset: CGFloat = 0
+    /// SPEC: corner rounding, baked in so the glyph is filled ONCE (docs/spec.md).
+    var round: CGFloat = 0
 
     func path(in rect: CGRect) -> Path {
+        let triangle = corners(in: rect)
+        guard round > 0 else { return triangle }
+        let width = min(rect.width, rect.height) * round
+        return triangle.union(triangle.strokedPath(
+            StrokeStyle(lineWidth: width, lineJoin: .round)))
+    }
+
+    private func corners(in rect: CGRect) -> Path {
         let r = rect.insetBy(dx: inset, dy: inset)
         var path = Path()
         path.move(to: CGPoint(x: r.minX, y: r.minY))
@@ -1083,11 +1093,9 @@ private struct PlayTriangleShape: Shape {
 
 /// The house rounded-corner play triangle — the ONE play glyph across the app
 /// (the tracker/to-do transport, the main timer button, the torrent row control).
-/// SF's `play.fill` is sharp-cornered; `MenuBarIcon.drawBadge`'s hand-drawn
-/// running badge already solved this for the status-bar dot (fill the path, then
-/// stroke it with a round join thick enough to bulge the corners smooth) — this
-/// reproduces the same technique in SwiftUI. Everything scales off `box`, so one
-/// `round` factor serves every size; pause glyphs keep SF's `pause.fill`.
+/// SF's `play.fill` is sharp-cornered; this one rounds its corners in the path
+/// and fills once. Everything scales off `box`, so one `round` factor serves
+/// every size; pause glyphs keep SF's `pause.fill`.
 struct PlayGlyph: View {
     let color: Color
     var box: CGFloat
@@ -1098,17 +1106,9 @@ struct PlayGlyph: View {
     var round: CGFloat = 0.46
 
     var body: some View {
-        // The path sits inset by half the stroke width, so the stroke's
-        // outward bulge fills back out to `box` — same footprint as an
-        // un-inset sharp triangle would have, just with rounded corners.
-        let strokeWidth = box * round
-        let inset = strokeWidth / 2
-        ZStack {
-            PlayTriangleShape(inset: inset).fill(color)
-            PlayTriangleShape(inset: inset)
-                .stroke(color, style: StrokeStyle(lineWidth: strokeWidth, lineJoin: .round))
-        }
-        .frame(width: box, height: box)
+        PlayTriangleShape(inset: box * round / 2, round: round)
+            .fill(color)
+            .frame(width: box, height: box)
         // Optical centering: the triangle's mass sits toward its flat left
         // edge (the point only reaches the box's right edge at one pixel),
         // so a geometrically centered triangle reads left-heavy — nudge right.
