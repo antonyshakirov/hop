@@ -37,7 +37,7 @@ final class AppModel: ObservableObject {
     var isPanelOpen: (() -> Bool)?
 
     /// SPEC: docs/spec.md - "What a running clock costs".
-    let clockTicked = PassthroughSubject<Void, Never>()
+    let barChanged = PassthroughSubject<Void, Never>()
     private var redraw = PanelRedraw()
     private var lastClockSignature: TimerEngine.Signature?
 
@@ -143,7 +143,7 @@ final class AppModel: ObservableObject {
         screenText.onResult = { [weak self] in self?.openScreenTextWindow?() }
         Self.sharedKeepAwake = keepAwake
         forwarders.append(engine.objectWillChange.sink { [weak self] in
-            self?.clockTicked.send()
+            self?.barChanged.send()
         })
         // objectWillChange fires BEFORE the value moves, so the signature is read
         // a turn later, once the engine actually holds the new state.
@@ -151,41 +151,40 @@ final class AppModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.clockStateChanged() })
         forwarders.append(keepAwake.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            self?.panelModuleChanged()
         })
         forwarders.append(updater.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
-        })
-        forwarders.append(converter.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            self?.panelModuleChanged()
         })
         forwarders.append(speedTest.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            self?.panelModuleChanged()
         })
         forwarders.append(torrent.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            self?.panelModuleChanged()
         })
         forwarders.append(tracker.objectWillChange.sink { [weak self] in
-            self?.clockChanged()
+            self?.panelModuleChanged()
         })
         forwarders.append(todos.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            self?.panelModuleChanged()
         })
         forwarders.append(colorPicker.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
-        })
-        forwarders.append(screenText.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
-        })
-        forwarders.append(archive.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            self?.panelModuleChanged()
         })
         forwarders.append(keyboardLock.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            self?.panelModuleChanged()
         })
-        // the helper download drives the archive rows' progress text
+        forwarders.append(converter.objectWillChange.sink { [weak self] in
+            self?.windowModuleChanged()
+        })
+        forwarders.append(screenText.objectWillChange.sink { [weak self] in
+            self?.windowModuleChanged()
+        })
+        forwarders.append(archive.objectWillChange.sink { [weak self] in
+            self?.windowModuleChanged()
+        })
         forwarders.append(archive.helper.objectWillChange.sink { [weak self] in
-            self?.objectWillChange.send()
+            self?.windowModuleChanged()
         })
         // a conversion starting or finishing counts as active use ("copy-paste"):
         // dropFirst skips the value the subscription replays at init, so launch
@@ -209,9 +208,14 @@ final class AppModel: ObservableObject {
         }
     }
 
-    private func clockChanged() {
-        clockTicked.send()
+    private func panelModuleChanged() {
+        barChanged.send()
         if redraw.ticks() { objectWillChange.send() }
+    }
+
+    private func windowModuleChanged() {
+        barChanged.send()
+        objectWillChange.send()
     }
 
     /// SPEC: docs/spec.md — "What a running clock costs".
@@ -222,7 +226,7 @@ final class AppModel: ObservableObject {
         if redraw.ticks() { objectWillChange.send() }
     }
 
-    func setPanelVisible(_ visible: Bool) {
-        if redraw.setVisible(visible) { objectWillChange.send() }
+    func setPanelVisible(_ visible: Bool, surface: String) {
+        if redraw.setVisible(visible, surface: surface) { objectWillChange.send() }
     }
 }

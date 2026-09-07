@@ -73,8 +73,8 @@ final class StatusItemController: NSObject {
         cancellable = model.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.refreshButton() }
-        // SPEC: docs/spec.md — "What a running clock costs", the label's own stream.
-        clockCancellable = model.clockTicked
+        // SPEC: docs/spec.md — "What a running clock costs", the bar's own stream.
+        clockCancellable = model.barChanged
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.refreshButton() }
         // the monitor's red zone is refreshed by the background stats tick
@@ -141,7 +141,7 @@ final class StatusItemController: NSObject {
                 self?.hiddenAnchorWindow = nil
                 self?.previousApp = nil
                 self?.model.panelKeyboardCaptured = false
-                self?.model.setPanelVisible(false)
+                self?.model.setPanelVisible(false, surface: "popover")
                 self?.refreshButton()
             }
         }
@@ -372,7 +372,7 @@ final class StatusItemController: NSObject {
 
     private func presentPopover() {
         guard !popover.isShown, let button = statusItem.button else { return }
-        model.setPanelVisible(true) // before the size is measured
+        model.setPanelVisible(true, surface: "popover") // before the size is measured
         model.activity.note() // opening the panel is active use
         // opening the panel acknowledges a finished timer: the bar bell and the
         // digits stop blinking and settle steady (the state stays finished).

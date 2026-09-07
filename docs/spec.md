@@ -259,6 +259,21 @@ after a panel has been opened and closed at least once.
   because a tooltip reading the parent's state reports the second the panel was
   last rebuilt on rather than the one it is showing.
 
+- **Every module keeps to this, not only the clock.** A module publishing while
+  nobody is looking rebuilds the panel exactly as a tick did: torrents held 4.23%
+  of a core with the panel SHUT, against 0.8% at rest, and the engine itself was
+  0.085% - the cost was Hop's, not the download's. The eight that live only in
+  the panel (keep-awake, updates, the speed test, torrents, the tracker, to-dos,
+  the eyedropper, the keyboard lock) reach the view tree through `PanelRedraw`.
+  The four with windows of their own (the converter, recognition, archives and
+  the archive helper) do not - those windows stay open with the panel shut and
+  read the model. The menu bar shows a little of every module and reads
+  `barChanged`, which the gate never touches. `PanelRedraw` counts surfaces BY
+  NAME (`PanelRedrawTests`): the popover and the settings window are the same
+  `PanelView`, either one on screen keeps the panel drawn, and a surface
+  reporting itself twice cannot leave the panel frozen. Measured with a torrent
+  running, panel shut: 4.23% before, 1.07% after.
+
 Measured on a release build with the same timer running: 2.3% of a core with the
 panel open and 2.4% with it closed, one sitting on a busy machine - an open panel
 no longer costs more than a closed one, because neither is redrawn for a second

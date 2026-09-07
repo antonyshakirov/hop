@@ -545,11 +545,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NotificationCenter.default.addObserver(
                 forName: NSWindow.willCloseNotification, object: window, queue: .main
             ) { [weak self] _ in
-                Task { @MainActor in self?.model.updater.clearTransientStatus() }
+                Task { @MainActor in
+                    self?.model.updater.clearTransientStatus()
+                    // SPEC: docs/spec.md — "What a running clock costs".
+                    self?.model.setPanelVisible(false, surface: "settings")
+                }
             }
             settingsWindow = window
         }
         guard let window = settingsWindow else { return }
+        model.setPanelVisible(true, surface: "settings")
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         if !window.isVisible {
             let screenH = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
