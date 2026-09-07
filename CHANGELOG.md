@@ -6,6 +6,10 @@
   the pause button used to fade in and out, and every frame of that fade
   re-measured the whole panel. The outline now simply stays lit. Measured on a
   release build with the same timer running: 15.1% of a core before, 7.1% after.
+- A Mac left unable to sleep gets it back. Lid mode undoes itself when the
+  awake session ends and when Hop quits, but a crash ran neither, and the Mac
+  then never slept again with nothing to say why. Hop now puts it back the next
+  time it starts.
 
 ## 2.0.2 - 2026-09-07
 

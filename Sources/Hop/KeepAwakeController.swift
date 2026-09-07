@@ -54,6 +54,7 @@ final class KeepAwakeController: ObservableObject {
 
     init() {
         LidDimmer.restorePendingAtLaunch()
+        revertLidIfPending()
         // safety net: on app exit, release the assertion and restore lid sleep
         terminateObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.willTerminateNotification,
@@ -303,11 +304,22 @@ final class KeepAwakeController: ObservableObject {
         return process.terminationStatus == 0
     }
 
-    /// Undo a "stuck" no-sleep state (e.g. after a cancelled password or a crash).
+    /// Takes back a no-sleep state left standing by a crash or a kill: without
+    /// this the Mac never sleeps again and Hop, restarted, does not know it.
+    /// Only the silent path — an administrator dialog nobody asked for is not how
+    /// an app opens, and the next lid toggle re-runs the whole flow anyway.
+    /// SPEC: docs/spec.md — "Lid mode without a password".
     func revertLidIfPending() {
-        if UserDefaults.standard.bool(forKey: "lidSleepAppliedPending"), !isActive {
-            applyLidSleepDisabled(false)
-        }
+        guard !Snapshot.active,
+              UserDefaults.standard.bool(forKey: "lidSleepAppliedPending"),
+              !isActive
+        else { return }
+        guard runQuiet("/usr/bin/sudo", ["-n", "/usr/bin/pmset", "disablesleep", "0"]),
+              sleepDisabledStateMatches(false)
+        else { return }
+        UserDefaults.standard.set(false, forKey: "lidSleepAppliedPending")
+        lidApplied = false
+        updateLidDimmer()
     }
 
     private func tick() {

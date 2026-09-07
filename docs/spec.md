@@ -2789,6 +2789,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `vorssaint-clamshell`, so the lid mode worked on the short path and Hop never
   installed a rule of its own (2026-09-03). Nothing is wrong with that — if the
   other rule goes, the next toggle asks once and installs Hop's.
+- **A launch takes back a no-sleep state nobody turned off.** Lid mode is undone
+  when the awake session ends and when Hop quits, but a crash or a `kill` runs
+  neither, and the Mac is then left never sleeping with no sign of why.
+  `lidSleepAppliedPending` records that `disablesleep` is ours, and
+  `revertLidIfPending` (from `init`) puts it back. Only over `sudo -n`: a
+  password dialog on launch is not something the user asked for, so where the
+  silent path is gone the flag simply stays and the next toggle settles it.
 - **`revoke` gives it back** (`KeepAwakeController.removeLidRule`): where Hop's
   own rule exists, the administrator-password row carries the button. It restores
   sleep and deletes the rule under ONE prompt, in that order — dropping the rule
