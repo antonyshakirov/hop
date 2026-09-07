@@ -2346,11 +2346,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Module `"annotate"`, title `annotateLabel` — "draw over the screen", guide
   letter `i`, ⌃⌥B out of the box. A transparent layer on EVERY display, rebuilt
   when displays come and go.
-- **Two modes**, switched at the left of the toolbar. Drawing: the layer takes
-  the mouse, a yellow border runs around the screen edge and a tag reads
-  "drawing on" — a layer silently eating clicks reads as a frozen Mac. Clicks
-  through: the layer stops taking events, the border goes, and the marks stay
-  where they are.
+- **The mode follows the tool** (Anton, 2026-09-07). Picking any tool means
+  drawing over the screen; the arrow at the head of the row is a tool of its
+  own — "no tool" — and it hands the screen back while the panel stays where it
+  is, so you can scroll, click and show something and then pick a pencil again.
+  A separate mode switch was the first attempt and it was one entity too many:
+  an arrow beside a pencil says nothing about what pressing it does.
+- While a tool is in hand the layer takes the mouse, a yellow border runs around
+  the screen edge and a tag reads "drawing on" — a layer silently eating clicks
+  reads as a frozen Mac. With the arrow, the layer stops taking events, the
+  border goes, and the marks stay where they are.
 - **The toolbar is a window of its own**, above the layer and always able to
   take a click. It has to be: `ignoresMouseEvents` belongs to a whole window, so
   a panel living inside the layer went unclickable together with it the moment

@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import HopCore
 import ScreenCaptureKit
 import SwiftUI
@@ -24,6 +25,7 @@ final class ScreenAnnotateController: ObservableObject {
 
     private let overlay = MarkupOverlayController()
     private var toolbarWindow: MarkupToolbarWindow?
+    private var toolWatch: AnyCancellable?
 
     func toggle() {
         isUp ? exit() : show()
@@ -44,6 +46,11 @@ final class ScreenAnnotateController: ObservableObject {
         }
         overlay.setPassesClicks(false)
         showToolbar()
+        // Picking a tool IS entering the drawing mode: the arrow at the head of
+        // the row is what hands the screen back.
+        toolWatch = surface.$tool.dropFirst().sink { [weak self] _ in
+            self?.setDrawing(true)
+        }
     }
 
     /// The panel lives in a window of its own, so the mode that lets clicks
@@ -112,6 +119,7 @@ final class ScreenAnnotateController: ObservableObject {
     }
 
     func exit() {
+        toolWatch = nil
         surface.stop()
         surface.clear()
         overlay.hide()
@@ -212,7 +220,9 @@ struct ScreenAnnotateToolbar: View {
                       tools: ScreenAnnotateController.tools,
                       edge: $controller.edge,
                       lang: lang,
-                      trailing: AnyView(actions))
+                      toolsActive: controller.isDrawing,
+                      trailing: AnyView(actions),
+                      leading: AnyView(cursorButton))
             .padding(6)
             .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
             .gesture(
@@ -234,50 +244,29 @@ struct ScreenAnnotateToolbar: View {
 
     @ViewBuilder
     private var buttons: some View {
-        modeSwitch
-        Rectangle().fill(Theme.divider)
-            .frame(width: controller.edge.isVertical ? 20 : 1,
-                   height: controller.edge.isVertical ? 1 : 20)
         action(.clear, .annotateClear) { surface.clear() }
         action(.copy, .copyLabel) { controller.copyToClipboard() }
         action(.save, .featureSave) { controller.save() }
         action(.close, .annotateExit) { controller.exit() }
     }
 
-    private var modeSwitch: some View {
-        Group {
-            if controller.edge.isVertical {
-                VStack(spacing: 3) { modeButtons }
-            } else {
-                HStack(spacing: 3) { modeButtons }
-            }
-        }
-        .padding(3)
-        .background(RoundedRectangle(cornerRadius: 9).fill(Theme.fieldBg))
-    }
-
-    @ViewBuilder
-    private var modeButtons: some View {
-        modeButton(drawing: false, glyph: .cursor, name: .annotateClickMode)
-        modeButton(drawing: true, glyph: .pencil, name: .annotateDrawMode)
-    }
-
-    private func modeButton(drawing: Bool, glyph: MarkupGlyph, name: L10nKey) -> some View {
-        let chosen = controller.isDrawing == drawing
-        return Button {
-            controller.setDrawing(drawing)
+    /// The arrow is not a mode switch but a tool of its own: "no tool", which
+    /// is what gives the screen back while the panel stays where it is.
+    private var cursorButton: some View {
+        Button {
+            controller.setDrawing(false)
         } label: {
-            MarkupIcon(glyph: glyph)
-                .foregroundStyle(chosen ? (drawing ? Color.black : Theme.textPrimary) : Theme.textSecondary)
-                .frame(width: 32, height: 28)
+            MarkupIcon(glyph: .cursor)
+                .foregroundStyle(controller.isDrawing ? Theme.textSecondary : Theme.textPrimary)
+                .frame(width: 32, height: 32)
                 .background(
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(chosen ? (drawing ? Theme.accentYellow.opacity(0.92) : Theme.chipBg) : .clear)
+                    RoundedRectangle(cornerRadius: 7)
+                        .fill(controller.isDrawing ? Color.clear : Theme.chipBg)
                 )
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(L10n.t(name, lang))
+        .help(L10n.t(.annotateClickMode, lang))
     }
 
     private func action(_ glyph: MarkupGlyph, _ name: L10nKey, run: @escaping () -> Void) -> some View {

@@ -29,7 +29,11 @@ struct MarkupToolbar: View {
     let tools: [MarkupTool]
     @Binding var edge: Edge
     var lang: AppLanguage
+    /// False while the surface is handing clicks to whatever is underneath: no
+    /// tool is in hand, so none is shown as chosen.
+    var toolsActive = true
     var trailing: AnyView?
+    var leading: AnyView?
 
     @State private var showingInk = false
     @State private var hovered: MarkupTool?
@@ -60,6 +64,11 @@ struct MarkupToolbar: View {
         MarkupIcon(glyph: .grip, size: 16)
             .foregroundStyle(Theme.textTertiary)
             .rotationEffect(.degrees(edge.isVertical ? 90 : 0))
+
+        if let leading {
+            leading
+            divider
+        }
 
         ForEach(tools, id: \.self) { tool in
             button(for: tool)
@@ -92,7 +101,7 @@ struct MarkupToolbar: View {
     }
 
     private func button(for tool: MarkupTool) -> some View {
-        let chosen = surface.tool == tool
+        let chosen = toolsActive && surface.tool == tool
         return Button {
             surface.tool = tool
         } label: {
