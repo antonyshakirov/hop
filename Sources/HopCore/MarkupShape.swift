@@ -1,0 +1,108 @@
+import Foundation
+
+/// SPEC: .claude/specs/2026-09-07-markup-modules-design.md
+public enum MarkupTool: String, Codable, CaseIterable, Sendable {
+    case pencil
+    case fadingInk
+    case marker
+    case arrow
+    case line
+    case rectangle
+    case oval
+    case steps
+    case text
+    case blur
+    case magnifier
+    case eraser
+    case crop
+}
+
+/// Pixels of the captured frame, or points of the screen the layer covers.
+public struct MarkupPoint: Equatable, Codable, Sendable {
+    public var x: Double
+    public var y: Double
+
+    public init(x: Double, y: Double) {
+        self.x = x
+        self.y = y
+    }
+}
+
+/// Every tool carries its own pair; switching tools resets neither.
+public struct MarkupInk: Equatable, Codable, Sendable {
+    public var hex: String
+    public var width: Double
+
+    public init(hex: String, width: Double) {
+        self.hex = hex
+        self.width = width
+    }
+}
+
+public struct MarkupBlur: Equatable, Codable, Sendable {
+    /// `inside` hides what the region covers; `around` keeps it sharp.
+    public enum Mode: String, Codable, Sendable {
+        case inside
+        case around
+    }
+
+    public enum Shape: String, Codable, Sendable {
+        case rectangle
+        case oval
+        case lasso
+    }
+
+    public enum Style: String, Codable, Sendable {
+        case blur
+        case pixels
+    }
+
+    public var mode: Mode
+    public var shape: Shape
+    public var style: Style
+    /// 1...10, mapped to a radius by the renderer.
+    public var strength: Int
+    /// 0...10, `around` only.
+    public var dim: Int
+
+    public init(mode: Mode, shape: Shape, style: Style, strength: Int, dim: Int) {
+        self.mode = mode
+        self.shape = shape
+        self.style = style
+        self.strength = strength
+        self.dim = dim
+    }
+}
+
+public struct MarkupShape: Equatable, Codable, Identifiable, Sendable {
+    public let id: UUID
+    public var tool: MarkupTool
+    /// What the tool needs: two corners, a whole stroke, or one centre.
+    public var points: [MarkupPoint]
+    public var ink: MarkupInk
+    public var text: String?
+    public var step: Int?
+    public var blur: MarkupBlur?
+    /// Seconds since the surface opened; fading ink and step order read it.
+    public var createdAt: TimeInterval
+
+    public init(
+        id: UUID = UUID(),
+        tool: MarkupTool,
+        points: [MarkupPoint],
+        ink: MarkupInk,
+        text: String? = nil,
+        step: Int? = nil,
+        blur: MarkupBlur? = nil,
+        createdAt: TimeInterval
+    ) {
+        self.id = id
+        self.tool = tool
+        self.points = points
+        self.ink = ink
+        self.text = text
+        self.step = step
+        self.blur = blur
+        self.createdAt = createdAt
+    }
+}
