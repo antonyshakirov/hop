@@ -182,6 +182,11 @@ enum Snapshot {
             exit(text == nil ? 1 : 0)
         }
 
+        // `Hop --markup-selftest <out.png>` runs the export path end to end.
+        if let i = args.firstIndex(of: "--markup-selftest"), args.count > i + 1 {
+            exit(MarkupSelfTest.run(to: args[i + 1]))
+        }
+
         if args.contains("--l10n-check") {
             let missing = L10n.missingKeys()
             print(missing.isEmpty ? "l10n: all translations present" : "l10n missing:\n" + missing.joined(separator: "\n"))

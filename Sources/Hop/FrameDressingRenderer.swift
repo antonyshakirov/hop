@@ -19,7 +19,6 @@ enum FrameDressingRenderer {
 
         let frame = MarkupPoint(x: Double(base.width), y: Double(base.height))
         let size = FrameDressing.outputSize(frame: frame, dressing: dressing)
-        let origin = FrameDressing.frameOrigin(frame: frame, dressing: dressing)
         let bar = dressing.browserFrame ? FrameDressing.barHeight(frame: frame) : 0
         let radius = FrameDressing.cornerRadius(frame: frame, dressing: dressing)
         let shadow = FrameDressing.shadowRadius(frame: frame, dressing: dressing)
@@ -32,9 +31,10 @@ enum FrameDressingRenderer {
 
         paintBackground(dressing.background, in: context, size: size)
 
-        // The frame plus its bar, in Core Graphics' bottom-up coordinates.
-        let card = CGRect(x: origin.x, y: origin.y - bar,
-                          width: frame.x, height: frame.y + bar)
+        // Core Graphics counts up from the bottom, so the card sits on the
+        // padding and the bar goes ABOVE the picture, not below it.
+        let air = FrameDressing.inset(frame: frame, dressing: dressing)
+        let card = CGRect(x: air, y: air, width: frame.x, height: frame.y + bar)
         let rounded = CGPath(roundedRect: card, cornerWidth: radius, cornerHeight: radius, transform: nil)
 
         if shadow > 0 {
@@ -53,8 +53,7 @@ enum FrameDressingRenderer {
         if bar > 0 {
             drawBrowserBar(dressing, in: context, card: card, bar: bar)
         }
-        context.draw(base, in: CGRect(x: origin.x, y: origin.y - bar + bar,
-                                      width: frame.x, height: frame.y))
+        context.draw(base, in: CGRect(x: air, y: air, width: frame.x, height: frame.y))
         context.restoreGState()
 
         return context.makeImage()

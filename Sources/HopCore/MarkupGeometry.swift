@@ -21,7 +21,7 @@ public enum MarkupGeometry {
         guard length >= 4 else { return [] }
 
         let angle = atan2(dy, dx)
-        let reach = max(8, width * 3.2)
+        let reach = max(12, width * 4.6)
 
         func back(_ spread: Double, _ scale: Double) -> MarkupPoint {
             MarkupPoint(x: to.x - cos(angle - spread) * reach * scale,
@@ -32,8 +32,8 @@ public enum MarkupGeometry {
         case .thin:
             return [back(0.46, 1), back(-0.46, 1)]
         case .solid:
-            return [back(0.35, 1), MarkupPoint(x: to.x - cos(angle) * reach * 0.55,
-                                               y: to.y - sin(angle) * reach * 0.55), back(-0.35, 1)]
+            return [back(0.42, 1), MarkupPoint(x: to.x - cos(angle) * reach * 0.62,
+                                               y: to.y - sin(angle) * reach * 0.62), back(-0.42, 1)]
         case .freehand:
             return [back(0.52, 0.95), back(-0.38, 0.85)]
         }
