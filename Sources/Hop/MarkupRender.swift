@@ -1,0 +1,210 @@
+import AppKit
+import CoreImage
+import CoreImage.CIFilterBuiltins
+import HopCore
+
+/// Puts the marks onto the picture at the source's own resolution.
+///
+/// The editor draws with SwiftUI for the screen; the export draws with Core
+/// Graphics, because a picture scaled for a window and a picture saved to disk
+/// are not the same pixels.
+enum MarkupRender {
+    static func compose(base: CGImage, shapes: [MarkupShape], scale: Double) -> CGImage? {
+        let width = base.width
+        let height = base.height
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let context = CGContext(data: nil, width: width, height: height,
+                                      bitsPerComponent: 8, bytesPerRow: 0, space: space,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        else { return nil }
+
+        let blurred = smeared(base: base, shapes: shapes, scale: scale) ?? base
+        context.draw(blurred, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        // Core Graphics counts up from the bottom; the marks were placed on a
+        // view counting down from the top.
+        context.translateBy(x: 0, y: CGFloat(height))
+        context.scaleBy(x: 1, y: -1)
+        context.setLineCap(.round)
+        context.setLineJoin(.round)
+
+        for shape in shapes where shape.tool != .blur {
+            draw(shape, scale: scale, in: context)
+        }
+        return context.makeImage()
+    }
+
+    private static func smeared(base: CGImage, shapes: [MarkupShape], scale: Double) -> CGImage? {
+        let regions = shapes.filter { $0.tool == .blur && $0.blur != nil }
+        guard !regions.isEmpty else { return nil }
+
+        var picture = CIImage(cgImage: base)
+        let extent = picture.extent
+        let ciContext = CIContext()
+
+        for region in regions {
+            guard let settings = region.blur else { continue }
+            let box = pixelBox(region.points, scale: scale, height: extent.height)
+            guard box.width > 1, box.height > 1 else { continue }
+
+            let smudged: CIImage
+            if settings.style == .pixels {
+                let filter = CIFilter.pixellate()
+                filter.inputImage = picture
+                filter.scale = Float(max(4, Double(settings.strength) * 3 * scale))
+                filter.center = CGPoint(x: box.midX, y: box.midY)
+                smudged = filter.outputImage?.cropped(to: extent) ?? picture
+            } else {
+                let filter = CIFilter.gaussianBlur()
+                filter.inputImage = picture.clampedToExtent()
+                filter.radius = Float(Double(settings.strength) * 2.5 * scale)
+                smudged = filter.outputImage?.cropped(to: extent) ?? picture
+            }
+
+            let mask = maskImage(for: region, box: box, extent: extent, mode: settings.mode)
+            let blend = CIFilter.blendWithMask()
+            blend.inputImage = smudged
+            blend.backgroundImage = picture
+            blend.maskImage = mask
+            picture = blend.outputImage?.cropped(to: extent) ?? picture
+
+            if settings.mode == .around, settings.dim > 0 {
+                let shade = CIImage(color: CIColor(red: 0, green: 0, blue: 0,
+                                                   alpha: Double(settings.dim) / 20)).cropped(to: extent)
+                let overlay = CIFilter.blendWithMask()
+                overlay.inputImage = shade.composited(over: picture)
+                overlay.backgroundImage = picture
+                overlay.maskImage = mask
+                picture = overlay.outputImage?.cropped(to: extent) ?? picture
+            }
+        }
+        return ciContext.createCGImage(picture, from: extent)
+    }
+
+    private static func maskImage(
+        for region: MarkupShape, box: CGRect, extent: CGRect, mode: MarkupBlur.Mode
+    ) -> CIImage {
+        let inside = CIImage(color: .white).cropped(to: box)
+        let outside = CIImage(color: .black).cropped(to: extent)
+        let shaped = inside.composited(over: outside)
+        guard mode == .around else { return shaped }
+        let invert = CIFilter.colorInvert()
+        invert.inputImage = shaped
+        return invert.outputImage?.cropped(to: extent) ?? shaped
+    }
+
+    private static func pixelBox(_ points: [MarkupPoint], scale: Double, height: CGFloat) -> CGRect {
+        let box = MarkupGeometry.boundingBox(points)
+        let top = box.origin.y * scale
+        return CGRect(x: box.origin.x * scale,
+                      y: height - top - box.size.y * scale,
+                      width: box.size.x * scale,
+                      height: box.size.y * scale)
+    }
+
+    private static func draw(_ shape: MarkupShape, scale: Double, in context: CGContext) {
+        let colour = NSColor(hex: shape.ink.hex)
+        let points = shape.points.map { CGPoint(x: $0.x * scale, y: $0.y * scale) }
+        guard let first = points.first else { return }
+        context.setLineWidth(shape.ink.width * scale)
+        context.setStrokeColor(colour.cgColor)
+        context.setFillColor(colour.cgColor)
+
+        switch shape.tool {
+        case .pencil, .fadingInk:
+            context.beginPath()
+            context.move(to: first)
+            for point in points.dropFirst() { context.addLine(to: point) }
+            context.strokePath()
+
+        case .marker:
+            context.saveGState()
+            context.setBlendMode(.multiply)
+            context.setStrokeColor(colour.withAlphaComponent(0.45).cgColor)
+            context.beginPath()
+            context.move(to: first)
+            for point in points.dropFirst() { context.addLine(to: point) }
+            context.strokePath()
+            context.restoreGState()
+
+        case .line:
+            guard points.count > 1 else { return }
+            context.strokeLineSegments(between: [first, points[1]])
+
+        case .arrow:
+            guard points.count > 1 else { return }
+            context.strokeLineSegments(between: [first, points[1]])
+            let head = MarkupGeometry.arrowHead(from: shape.points[0], to: shape.points[1],
+                                                style: .solid, width: shape.ink.width)
+            guard head.count == 3 else { return }
+            context.beginPath()
+            context.move(to: CGPoint(x: head[0].x * scale, y: head[0].y * scale))
+            context.addLine(to: points[1])
+            context.addLine(to: CGPoint(x: head[2].x * scale, y: head[2].y * scale))
+            context.addLine(to: CGPoint(x: head[1].x * scale, y: head[1].y * scale))
+            context.closePath()
+            context.fillPath()
+
+        case .rectangle:
+            guard points.count > 1 else { return }
+            context.stroke(rect(first, points[1]))
+
+        case .oval:
+            guard points.count > 1 else { return }
+            context.strokeEllipse(in: rect(first, points[1]))
+
+        case .steps:
+            let radius = 17 * scale
+            let circle = CGRect(x: first.x - radius, y: first.y - radius,
+                                width: radius * 2, height: radius * 2)
+            context.fillEllipse(in: circle)
+            drawText("\(shape.step ?? 1)", at: CGPoint(x: circle.midX, y: circle.midY),
+                     size: 19 * scale, colour: .white, centred: true, in: context)
+
+        case .text:
+            drawText(shape.text ?? "", at: first, size: shape.ink.width * scale,
+                     colour: colour, centred: false, in: context)
+
+        case .blur, .magnifier, .crop, .eraser:
+            return
+        }
+    }
+
+    private static func drawText(
+        _ text: String, at point: CGPoint, size: CGFloat,
+        colour: NSColor, centred: Bool, in context: CGContext
+    ) {
+        guard !text.isEmpty else { return }
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: size, weight: .bold),
+            .foregroundColor: colour,
+        ]
+        let line = NSAttributedString(string: text, attributes: attributes)
+        let bounds = line.size()
+        let origin = centred
+            ? CGPoint(x: point.x - bounds.width / 2, y: point.y - bounds.height / 2)
+            : point
+
+        // The context is already flipped for the marks, so AppKit is told so:
+        // asked for an unflipped one it would draw the glyphs mirrored.
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(cgContext: context, flipped: true)
+        line.draw(at: origin)
+        NSGraphicsContext.restoreGraphicsState()
+    }
+
+    private static func rect(_ a: CGPoint, _ b: CGPoint) -> CGRect {
+        CGRect(x: min(a.x, b.x), y: min(a.y, b.y), width: abs(b.x - a.x), height: abs(b.y - a.y))
+    }
+}
+
+extension NSColor {
+    convenience init(hex: String) {
+        guard let parts = ColorFormatting.components(hex) else {
+            self.init(white: 1, alpha: 1)
+            return
+        }
+        self.init(srgbRed: CGFloat(parts.r) / 255, green: CGFloat(parts.g) / 255,
+                  blue: CGFloat(parts.b) / 255, alpha: 1)
+    }
+}
