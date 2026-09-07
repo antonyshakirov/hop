@@ -522,13 +522,12 @@ is on. The window zones also ship as one row rather than the grid
 (`windowsLayout` defaults to `row`); an install that already exists is written
 `grid` once at launch, so nobody's panel changes shape under them.
 
-**The fourth space carries `puzzlepiece`, not a tool** (Anton, 2026-09-06). Its
-three neighbours are one closed shape each — `house`, `display`, `clock` — and
-the crossed wrench-and-screwdriver it used to carry read as denser than all of
-them at the same size. It also promised a theme the space has not got: an
-uninstaller and an eyedropper are not what a wrench does. Only the DEFAULT
-moved. A panel already saved keeps the icon it has, and the icon picker is where
-anyone who wants the wrench back gets it.
+**The fourth space carries `tray`, not a tool** (Anton, 2026-09-07). Its three
+neighbours are one closed shape each — `house`, `display`, `clock` — and a tool
+glyph reads as denser than all of them at the same size. A tool also promises a
+theme the space has not got: an uninstaller and an eyedropper are not what a
+wrench does. Only the DEFAULT moved. A panel already saved keeps the icon it
+has, and the icon picker is where anyone who wants another one gets it.
 
 Older versions spelled hidden differently: the module was parked in an
 "inactive" bucket off the spaces. That bucket is still decoded and

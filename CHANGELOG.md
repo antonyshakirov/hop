@@ -10,6 +10,10 @@
   breathes around the pause button stands still while nobody is looking.
   Measured on a release build with the same timer running: 12.95% of a core
   before, 1.2% after.
+- The fourth space starts with a tray. Its three neighbours are one closed shape
+  each, and a tool glyph sat denser than all of them. Only the default moved: a
+  panel already arranged keeps the icon it has, and the icon picker holds the
+  rest.
 
 ## 2.0.1 - 2026-09-07
 

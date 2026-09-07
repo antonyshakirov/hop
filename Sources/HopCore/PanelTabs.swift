@@ -241,7 +241,7 @@ public struct PanelTabsModel: Codable, Equatable {
         }
         let tools = Self.toolModules.filter { !isPutAway($0) }
         if !tools.isEmpty {
-            canonical.append(PanelTab(icon: "puzzlepiece", moduleKeys: tools))
+            canonical.append(PanelTab(icon: "tray", moduleKeys: tools))
         }
 
         var result = self
@@ -264,7 +264,7 @@ public struct PanelTabsModel: Codable, Equatable {
         let primary = PanelTab(icon: "house", moduleKeys: moduleOrder.filter { !managed.contains($0) })
         let system = PanelTab(icon: "display", moduleKeys: reportingModules)
         let tracker = PanelTab(icon: "clock", moduleKeys: timeModules)
-        let tools = PanelTab(icon: "puzzlepiece", moduleKeys: toolModules)
+        let tools = PanelTab(icon: "tray", moduleKeys: toolModules)
         return PanelTabsModel(tabs: [primary, system, tracker, tools])
     }
 }
