@@ -149,7 +149,16 @@ struct MarkupToolbar: View {
         }
         .buttonStyle(.plain)
         .onHover { inside in hovered = inside ? tool : (hovered == tool ? nil : hovered) }
-        .help("\(L10n.t(MarkupToolbar.name(of: tool), lang)) · \(MarkupToolbar.letter(of: tool))")
+        .help(tip(for: tool))
+    }
+
+    /// SPEC: docs/spec.md — name and letter, what the tool does, and the second
+    /// press for tools that have settings.
+    private func tip(for tool: MarkupTool) -> String {
+        var lines = ["\(L10n.t(MarkupToolbar.name(of: tool), lang)) · \(MarkupToolbar.letter(of: tool))",
+                     L10n.t(MarkupToolbar.about(tool), lang)]
+        if settable(tool) { lines.append(L10n.t(.mkPressAgain, lang)) }
+        return lines.joined(separator: "\n")
     }
 
     /// Which tools have something to set. The select tool has whatever the mark
@@ -189,6 +198,25 @@ struct MarkupToolbar: View {
         case .blur: return .blur
         case .eraser: return .eraser
         case .crop: return .crop
+        }
+    }
+
+    static func about(_ tool: MarkupTool) -> L10nKey {
+        switch tool {
+        case .select: return .mkDoSelect
+        case .pencil: return .mkDoPencil
+        case .fadingInk: return .mkDoFading
+        case .marker: return .mkDoMarker
+        case .arrow: return .mkDoArrow
+        case .line: return .mkDoLine
+        case .rectangle: return .mkDoRect
+        case .oval: return .mkDoOval
+        case .steps: return .mkDoSteps
+        case .text: return .mkDoText
+        case .magnifier: return .mkDoMagnifier
+        case .blur: return .mkDoBlur
+        case .eraser: return .mkDoEraser
+        case .crop: return .mkDoCrop
         }
     }
 

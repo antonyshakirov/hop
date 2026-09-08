@@ -2907,7 +2907,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (Anton, 2026-09-08). At `.screenSaver` the layer was drawn over both, but the
   clicks still reached them: a press on the panel where it lay over the Dock
   pressed what was under it too. `CGShieldingWindowLevel()` is the level above
-  both, and the panel's own window sits one above that.
+  both, and the panel's own window sits one above that. **The Dock and the menu
+  bar are also SENT AWAY while the drawing has the screen** (`.hideDock`,
+  `.hideMenuBar`, Anton, 2026-09-08): a level above them stops the clicks but
+  not the hover, and Dock icons went on lighting up and naming themselves under
+  a pointer that was drawing. They come back the moment the clicks are handed
+  through again, and on the way out.
 - **The toolbar is a window of its own**, above the layer and always able to
   take a click. It has to be: `ignoresMouseEvents` belongs to a whole window, so
   a panel living inside the layer went unclickable together with it the moment
@@ -2947,7 +2952,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and the panel's own window over the live screen both hold the place the drag
   began.
 - Colour and width live in a popover above the panel, never in the panel itself.
-  Hovering a tool shows its name and its letter.
+  Hovering a tool shows three lines: its name and its letter, one line saying
+  what it does, and — for the tools that have settings — that a second press
+  opens them (Anton, 2026-09-08). A row of glyphs is not self-explanatory, and
+  the second press on the arrow, the caption and the blur was findable only by
+  accident. `MarkupToolbar.about` per tool, translated like everything else.
 - The drawing tools are one family of glyphs: each body is built upright and
   turned by the same 45°, and every silhouette is ONE closed outline — two
   shapes sharing an edge stroke it twice, and the joint swells at 19 pt (Anton,

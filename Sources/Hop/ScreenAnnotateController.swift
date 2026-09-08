@@ -46,6 +46,7 @@ final class ScreenAnnotateController: ObservableObject {
             ))
         }
         overlay.setPassesClicks(false)
+        takeTheScreen(true)
         showToolbar()
         // Picking a tool IS entering the drawing mode: the arrow at the head of
         // the row is what hands the screen back.
@@ -118,6 +119,19 @@ final class ScreenAnnotateController: ObservableObject {
     func setDrawing(_ drawing: Bool) {
         isDrawing = drawing
         overlay.setPassesClicks(!drawing)
+        takeTheScreen(drawing)
+    }
+
+    /// SPEC: docs/spec.md — the Dock lights its icons under a pointer that
+    /// never reaches it, so while the drawing has the screen it is not there.
+    private func takeTheScreen(_ whole: Bool) {
+        guard NSApp != nil else { return }
+        if whole {
+            NSApp.activate(ignoringOtherApps: true)
+            NSApp.presentationOptions = [.hideDock, .hideMenuBar]
+        } else if !NSApp.presentationOptions.isEmpty {
+            NSApp.presentationOptions = []
+        }
     }
 
     func clear() {
@@ -125,6 +139,7 @@ final class ScreenAnnotateController: ObservableObject {
     }
 
     func exit() {
+        takeTheScreen(false)
         toolWatch = nil
         surface.stop()
         surface.clear()
