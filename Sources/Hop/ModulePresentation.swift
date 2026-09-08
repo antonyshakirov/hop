@@ -67,6 +67,8 @@ enum ModulePresentation {
         case "torrent": return [.docTorrentFull]
         case "color": return [.docColorFull]
         case "ocr": return [.docOcrFull]
+        case "shot": return [.docShotFull]
+        case "annotate": return [.docAnnotateFull]
         case "archive": return [.docArchiveFull]
         case "keyboard": return [.docKeylockFull]
         case "vpn": return [.docVpnFull]
