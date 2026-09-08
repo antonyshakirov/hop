@@ -109,7 +109,7 @@ struct ScreenshotEditorView: View {
             stage
         }
         .background(Theme.panelBackground)
-        .frame(minWidth: 720, minHeight: 620)
+        .frame(minWidth: 720, minHeight: 380)
     }
 
     private var header: some View {
@@ -233,8 +233,8 @@ struct ScreenshotEditorView: View {
 
     /// The picture IS the window. SPEC: docs/spec.md
     private func shownSize(in canvas: CGSize) -> CGSize {
-        let available = CGSize(width: max(120, canvas.width - 64),
-                               height: max(90, canvas.height - 108))
+        let available = CGSize(width: max(120, canvas.width),
+                               height: max(90, canvas.height))
         let natural: CGSize
         if let preview = editor.dressedPreview {
             natural = CGSize(width: Double(preview.width) / editor.scale,

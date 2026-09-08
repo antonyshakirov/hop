@@ -25,44 +25,17 @@ struct ShotView: View {
 
             Spacer(minLength: 8)
 
-            if shot.lastRect != nil {
-                iconButton("arrow.counterclockwise", help: L10n.t(.shotRepeat, lang)) {
-                    shot.capture(.repeatLast)
-                }
-            }
-            HStack(spacing: 12) {
-                button(.shotArea) { shot.capture(.area) }
-                button(.shotWindow) { shot.capture(.window) }
-                button(.shotScreen) { shot.capture(.screen) }
+            HStack(spacing: 11) {
+                button("rectangle.dashed", .shotArea) { shot.capture(.area) }
+                button("macwindow", .shotWindow) { shot.capture(.window) }
+                button("display", .shotScreen) { shot.capture(.screen) }
             }
         }
     }
 
-    private func button(_ key: L10nKey, run: @escaping () -> Void) -> some View {
-        Button {
-            fire(run)
-        } label: {
-            HoverLabel(text: L10n.t(key, lang), color: Theme.textSecondary)
-                .lineLimit(1)
-                .frame(height: 22)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .fixedSize()
-    }
-
-    private func iconButton(_ symbol: String, help: String, run: @escaping () -> Void) -> some View {
-        Button {
-            fire(run)
-        } label: {
-            Image(systemName: symbol)
-                .font(.system(size: 11))
-                .foregroundStyle(Theme.textTertiary)
-                .frame(width: 20, height: 22)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .help(help)
+    private func button(_ symbol: String, _ key: L10nKey,
+                        run: @escaping () -> Void) -> some View {
+        ShotButton(symbol: symbol, title: L10n.t(key, lang)) { fire(run) }
     }
 
     private func fire(_ run: @escaping () -> Void) {
@@ -70,6 +43,35 @@ struct ShotView: View {
         // The panel is a popover: it must be gone before the frame goes up, or
         // it lands in the picture.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: run)
+    }
+}
+
+/// One way of taking a shot. The glyph carries the meaning — a dashed frame, a
+/// window, a display — and the word confirms it; the two light up together.
+private struct ShotButton: View {
+    let symbol: String
+    let title: String
+    var run: () -> Void
+
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: run) {
+            HStack(spacing: 5) {
+                Image(systemName: symbol)
+                    .font(.system(size: 10.5))
+                Text(title)
+                    .font(Theme.mono(11, weight: .medium))
+                    .lineLimit(1)
+            }
+            .foregroundStyle(hovering ? Theme.textPrimary : Theme.textSecondary)
+            .animation(.easeOut(duration: 0.12), value: hovering)
+            .frame(height: 22)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .fixedSize()
+        .onHover { hovering = $0 }
     }
 }
 

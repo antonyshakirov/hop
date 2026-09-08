@@ -14,13 +14,19 @@ struct MarkupToolbar: View {
 
         var isVertical: Bool { self == .leading || self == .trailing }
 
+        /// Standing on end the panel is about 660pt long; below that a side
+        /// would cut it off with no way to grab it back.
+        static let uprightLength: CGFloat = 700
+
         /// The edge a panel dropped at this point belongs to; the nearest one
         /// wins, and a tie goes to the horizontal, which fits more tools.
         static func nearest(to point: CGPoint, in size: CGSize) -> Edge {
-            let distances: [(Edge, CGFloat)] = [
+            var distances: [(Edge, CGFloat)] = [
                 (.top, point.y), (.bottom, size.height - point.y),
-                (.leading, point.x), (.trailing, size.width - point.x),
             ]
+            if size.height >= uprightLength {
+                distances += [(.leading, point.x), (.trailing, size.width - point.x)]
+            }
             return distances.min { $0.1 < $1.1 }?.0 ?? .bottom
         }
     }

@@ -2369,10 +2369,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Module `"shot"`, title `shotLabel` — "screenshot", guide letter `g`. The panel
   row carries three buttons — area, window, screen — on the SAME line as the
   name and pushed to its end, not stacked underneath it: the card is one row
-  tall, like every other module's. "Repeat area" joins them as an icon (↺) once a
-  rectangle has been framed at least once — spelled out it would not fit the row
-  in German. The name gives way before the buttons do. The panel closes before
-  the frame appears; a popover would land in the picture.
+  tall, like every other module's. The name gives way before the buttons do. The
+  panel closes before the frame appears; a popover would land in the picture.
+- **Each button carries a glyph beside its word**: a dashed frame, a window, a
+  display. Three words of one weight are three words; the silhouettes say which
+  is which before the word is read (Anton, 2026-09-08).
+- **"Repeat area" is NOT in the row.** A ↺ on its own said nothing about what it
+  repeated (Anton, 2026-09-08), and spelled out it does not fit the line. It
+  stays where it is understood: `r` inside the selection frame, and a hotkey of
+  its own in the hotkeys page.
 - **The three are bare words, not filled chips** (Anton, 2026-09-08): the panel
   sets its weight with the awake row's figures and the timer's presets, and a
   chip with a background beside them reads as a heavier control than anything
@@ -2397,9 +2402,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   The pointer is followed through a tracking area rather than a gesture: SwiftUI
   reports a moving mouse only once a button is down, and the crosshair has to be
   there before that.
-- **The frame is ONE line**, white, with a shadow under it for contrast. A second
-  darker rectangle drawn around the first gave it a visible double edge (Anton,
-  2026-09-08).
+- **The frame is ONE white line, drawn on the ring just OUTSIDE the chosen
+  pixels.** A second darker rectangle around it gave a visible double edge, and a
+  shadow falling inward left the reader unable to say whether the pixel under it
+  is in the shot or not (Anton, 2026-09-08). Contrast comes from the veil: dim
+  outside, clear inside.
 - **The first press draws.** Both overlays host their SwiftUI in a
   `FirstMouseHostingView`, which answers `acceptsFirstMouse` with true: a click
   on a window that is not key is otherwise spent making it key, and the
@@ -2411,10 +2418,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   click. The pointer is left out of the picture unless the setting asks for it.
 - **The editor opens on every capture, in a window of ITS OWN.** Two shots are
   two windows, either can go to the Dock, and they are marked up side by side
-  (Anton, 2026-09-08). The first opens where the last one was left
-  (`hop.shotEditor`); the rest cascade down and right from it, the way documents
-  do. The window's name is the file's name, kept in step with the field in the
-  header.
+  (Anton, 2026-09-08). The first is centred, the rest cascade down and right from
+  it, the way documents do. The window's name is the file's name, kept in step
+  with the field in the header.
+- **The window is the SHAPE of the shot** plus the header over it, scaled down to
+  fit the display and never blown up past its own pixels. It does NOT reopen at
+  the size it was left: a window remembering 16:9 for a tall shot is a window
+  with dead black space above and below the picture, which is what it had
+  (Anton, 2026-09-08). The floor is 720 × 380 — the toolbar lying flat is about
+  660pt wide — and a shot smaller than that is scaled up inside it instead. Below
+  700pt of height the toolbar refuses the left and right edges: standing on end
+  it would be cut off with no way to grab it back.
 - **"One window with tabs" is a setting** (`shotOneWindow`, off). On, the windows
   are folded together by macOS's OWN tabs — one `tabbingIdentifier`,
   `addTabbedWindow` — rather than a tab bar of Hop's making: the system's brings
@@ -2425,12 +2439,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   pressed, and unless more was drawn after that: what is on disk is then no
   longer what is on screen, and the question comes back. A shot with nothing
   drawn on it closes without a word.
-- **The picture IS the window** (Anton, 2026-09-08): nothing stands
-  beside it, the shot is fitted to whatever size the window is at — growing to
-  twice its own pixels at most, past which it is only a smear — and everything
-  else hangs off the floating toolbar over it. The window resizes, goes full
-  screen, and opens at the size and place it was left at (`hop.shotEditor`);
-  only a first run is centred.
+- **The picture IS the window** (Anton, 2026-09-08): nothing stands beside it and
+  no air is left around it — the shot is fitted edge to edge, growing to twice its
+  own pixels at most, past which it is only a smear. The toolbar floats OVER the
+  picture and is dragged within it; everything else hangs off that toolbar. The
+  window resizes and goes full screen.
 - The header is the name of the file and two buttons, copy and save. **The
   format is not asked in the window** (Anton, 2026-09-08): it is one line in the
   module's settings, and the window is for the picture.

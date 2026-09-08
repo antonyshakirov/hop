@@ -134,9 +134,9 @@ enum MarkupIcons {
 
         case .watermark:
             return [stroke { $0.addPath(rounded(2.5, 4, 19, 16, 2.6)) },
-                    stroke { $0.addPath(line(8.5, 15.5, 12, 8.5)) },
-                    stroke { $0.addPath(line(12, 8.5, 15.5, 15.5)) },
-                    stroke { $0.addPath(line(10.2, 13, 13.8, 13)) }]
+                    stroke { $0.addPath(line(6, 15.5, 9.5, 8.5)) },
+                    stroke { $0.addPath(line(10.5, 15.5, 14, 8.5)) },
+                    stroke { $0.addPath(line(15, 15.5, 18.5, 8.5)) }]
         }
     }
 

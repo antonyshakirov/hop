@@ -142,13 +142,12 @@ struct CaptureSelectionView: View {
             .allowsHitTesting(false)
     }
 
-    /// ONE line. Contrast on a white window comes from a shadow under it — a
-    /// second, darker rectangle around the first reads as a double frame.
+    /// The line lies on the ring just OUTSIDE the chosen pixels: a stroke over
+    /// them, or a shadow falling inside, leaves the edge a guess.
     private func border(_ frame: CGRect) -> some View {
         Rectangle()
             .strokeBorder(Color.white, lineWidth: 1)
-            .frame(width: frame.width, height: frame.height)
-            .shadow(color: .black.opacity(0.55), radius: 1.5)
+            .frame(width: frame.width + 2, height: frame.height + 2)
             .position(x: frame.midX, y: frame.midY)
             .allowsHitTesting(false)
     }

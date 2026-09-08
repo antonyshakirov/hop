@@ -8,7 +8,6 @@ import SwiftUI
 @MainActor
 final class ShotEditorWindows: NSObject, NSWindowDelegate {
     static let oneWindowKey = "shotOneWindow"
-    private static let frameName = "hop.shotEditor"
     private static let tabbingID = "hop.shot"
 
     private var editors: [ObjectIdentifier: ScreenshotEditor] = [:]
@@ -31,7 +30,7 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = false
         window.isReleasedWhenClosed = false
-        window.contentMinSize = NSSize(width: 720, height: 620)
+        window.contentMinSize = Self.minimum
         window.collectionBehavior.insert(.fullScreenPrimary)
         window.delegate = self
         window.title = editor.fileName
@@ -54,25 +53,25 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
         window.contentViewController = host
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
 
-        place(window)
+        place(window, shot: rect)
         order.append(window)
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
     }
 
-    private func place(_ window: NSWindow) {
+    private func place(_ window: NSWindow, shot: CaptureRect) {
+        window.setContentSize(Self.contentSize(for: shot, on: window.screen))
+
         guard let host = order.last else {
             window.tabbingMode = .disallowed
             window.titleVisibility = .hidden
-            if !window.setFrameUsingName(Self.frameName) { window.center() }
-            window.setFrameAutosaveName(Self.frameName)
+            window.center()
             return
         }
 
         guard foldsIntoTabs else {
             window.tabbingMode = .disallowed
             window.titleVisibility = .hidden
-            window.setFrame(host.frame, display: false)
             window.cascadeTopLeft(from: NSPoint(x: host.frame.minX, y: host.frame.maxY))
             return
         }
@@ -83,9 +82,27 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
         host.tabbingMode = .preferred
         host.tabbingIdentifier = Self.tabbingID
         host.titleVisibility = .visible
-        window.setFrame(host.frame, display: false)
         host.addTabbedWindow(window, ordered: .above)
     }
+
+    /// The window is the SHAPE of the shot plus the header over it, never
+    /// bigger than its own pixels and never bigger than the display. Below the
+    /// floor the toolbar would not fit, and there the picture is scaled up
+    /// instead.
+    private static func contentSize(for shot: CaptureRect, on screen: NSScreen?) -> NSSize {
+        let room = (screen ?? NSScreen.main)?.visibleFrame.size
+            ?? NSSize(width: 1440, height: 900)
+        let fit = min(room.width * 0.92 / max(shot.width, 1),
+                      (room.height * 0.92 - headerHeight) / max(shot.height, 1),
+                      1)
+        return NSSize(width: max(minimum.width, shot.width * fit),
+                      height: max(minimum.height, shot.height * fit + headerHeight))
+    }
+
+    private static let headerHeight: CGFloat = 47
+    /// Lying flat the toolbar is about 660pt wide; the height only has to hold
+    /// the picture, and a short window keeps the toolbar off its sides.
+    private static let minimum = NSSize(width: 720, height: 380)
 
     // MARK: - Closing
 
