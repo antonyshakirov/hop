@@ -2483,7 +2483,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   original (Anton, 2026-09-08). Each handle's gesture goes on BEFORE
   `.position()`: after it the view fills its parent and the gesture with it, so
   all eight answered for the whole picture and the last one drawn won every
-  drag. Their hit area is 2.4× what is drawn — a 13pt dot is not a target. Nothing is applied until it is asked for: while
+  drag. Their hit area is 2.4× what is drawn — a 13pt dot is not a target. Each
+  drag reads the pointer's PLACE in a named coordinate space, not a translation:
+  the handle moves as it is dragged, so a translation measured against it drifts
+  and shakes, and the edge no longer sat under the mouse (Anton, 2026-09-08). Nothing is applied until it is asked for: while
   the frame is up the keeping panel gives way to two answers, reset and apply.
   The canvas takes no hits meanwhile, so the crop frame cannot be drawn over.
   Applied, the window SHOWS the cut — the picture is offset inside a clipped box
@@ -2609,7 +2612,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   from come out bare. It sits TOP right by default: the bottom of the editor is
   where the toolbar floats, and a mark under it cannot be seen at all. An image chosen here is COPIED into
   `Application Support/Hop/`, so a file moved or deleted later cannot silently
-  empty the mark. Text is stamped in MID GREY, never white: the mark has to hold
+  empty the mark. **Switched on with nothing to say the mark shows nothing**, and
+  the size, opacity and place below it have nothing to act on, so it starts with
+  `© <the account's full name>` — one keystroke to replace, and the field's
+  placeholder is drawn in a colour that can be read (Anton, 2026-09-08).
+  Text is stamped in MID GREY, never white: the mark has to hold
   on a dark screenshot and on a white page, and white disappears on the second
   (Anton, 2026-09-08).
 - **They use the panel's own switch** (`Theme.MiniSwitch`, 30 × 18, the panel's

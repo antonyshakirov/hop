@@ -43,7 +43,7 @@ struct CropOverlay: View {
             Color.clear
                 .frame(width: box.width, height: box.height)
                 .contentShape(Rectangle())
-                .gesture(DragGesture()
+                .gesture(DragGesture(coordinateSpace: .named(Self.space))
                     .onChanged { value in move(by: value.translation) }
                     .onEnded { _ in start = nil })
                 .position(x: box.midX, y: box.midY)
@@ -56,14 +56,20 @@ struct CropOverlay: View {
                     .frame(width: handle, height: handle)
                     .frame(width: handle * 2.4, height: handle * 2.4)
                     .contentShape(Rectangle())
-                    .gesture(DragGesture()
-                        .onChanged { value in pull(grip, by: value.translation) }
+                    // The handle MOVES as it is dragged, so a translation
+                    // measured against it drifts and shakes. The pointer's
+                    // place in a space that stands still is exact.
+                    .gesture(DragGesture(coordinateSpace: .named(Self.space))
+                        .onChanged { value in pull(grip, to: value.location) }
                         .onEnded { _ in start = nil })
                     .position(spot(of: grip))
             }
         }
         .frame(width: bounds.width * scale, height: bounds.height * scale)
+        .coordinateSpace(name: Self.space)
     }
+
+    private static let space = "crop"
 
     @State private var start: CGRect?
 
@@ -112,26 +118,24 @@ struct CropOverlay: View {
         rect = moved
     }
 
-    private func pull(_ grip: Grip, by translation: CGSize) {
-        let from = start ?? rect
-        if start == nil { start = rect }
-        let dx = translation.width / scale
-        let dy = translation.height / scale
+    private func pull(_ grip: Grip, to point: CGPoint) {
+        let x = point.x / scale
+        let y = point.y / scale
 
-        var left = from.minX
-        var top = from.minY
-        var right = from.maxX
-        var bottom = from.maxY
+        var left = rect.minX
+        var top = rect.minY
+        var right = rect.maxX
+        var bottom = rect.maxY
 
         switch grip {
-        case .topLeft: left += dx; top += dy
-        case .top: top += dy
-        case .topRight: right += dx; top += dy
-        case .right: right += dx
-        case .bottomRight: right += dx; bottom += dy
-        case .bottom: bottom += dy
-        case .bottomLeft: left += dx; bottom += dy
-        case .left: left += dx
+        case .topLeft: left = x; top = y
+        case .top: top = y
+        case .topRight: right = x; top = y
+        case .right: right = x
+        case .bottomRight: right = x; bottom = y
+        case .bottom: bottom = y
+        case .bottomLeft: left = x; bottom = y
+        case .left: left = x
         }
 
         left = min(max(0, left), right - least)

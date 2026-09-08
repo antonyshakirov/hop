@@ -62,7 +62,12 @@ struct SteadyField: NSViewRepresentable {
             : NSFont.systemFont(ofSize: size, weight: weight)
         field.alignment = alignment
         field.textColor = colour.map { NSColor($0) } ?? .labelColor
-        field.placeholderString = placeholder
+        // The stock placeholder colour is faint enough to read as an empty
+        // field with nothing to say. This one asks for something.
+        field.placeholderAttributedString = NSAttributedString(
+            string: placeholder,
+            attributes: [.font: field.font ?? NSFont.systemFont(ofSize: size),
+                         .foregroundColor: NSColor.secondaryLabelColor])
     }
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }

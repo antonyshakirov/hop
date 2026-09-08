@@ -178,7 +178,17 @@ struct WatermarkPopover: View {
         MarkupPopoverBody {
             switchRow(L10n.t(.markLabel, lang), size: 12, isOn: Binding(
                 get: { editor.watermark.isOn },
-                set: { editor.watermark.isOn = $0; editor.refreshPreview() }
+                set: { on in
+                    editor.watermark.isOn = on
+                    // Switched on with nothing to say, the mark shows nothing,
+                    // and the size and place below it have nothing to act on.
+                    // A name to start from is one keystroke to replace.
+                    if on, editor.watermark.text.isEmpty,
+                       editor.watermark.imageName?.isEmpty ?? true {
+                        editor.watermark.text = Self.startingMark
+                    }
+                    editor.refreshPreview()
+                }
             ))
 
             Group {
@@ -241,6 +251,11 @@ struct WatermarkPopover: View {
                 .buttonStyle(.plain)
             }
         }
+    }
+
+    private static var startingMark: String {
+        let name = NSFullUserName().trimmingCharacters(in: .whitespaces)
+        return name.isEmpty ? "©" : "© \(name)"
     }
 
     private var spots: some View {
