@@ -391,7 +391,10 @@ struct PanelView: View {
     /// then; it retires itself once every module in it is in the panel
     /// (`retireSatisfiedAnnouncements`).
     /// SPEC: docs/spec.md - "What's-new card (module checklist)".
-    private static let featureAnnouncements: [FeatureAnnouncement] = []
+    private static let featureAnnouncements: [FeatureAnnouncement] = [
+        .init(id: "markup210", moduleKeys: ["shot", "annotate"],
+              title: .featureModulesTitle, body: .featureModulesBody, checklist: true),
+    ]
 
     /// An offer whose modules are all in the panel already has nothing to say.
     /// Marked seen at launch rather than merely hidden, so switching one of them
@@ -445,6 +448,7 @@ struct PanelView: View {
         // it never sees it again, and somebody still holding it gets these lines
         // instead of the ones written before the release went out.
         .init(id: "2.0", lines: [.news20Lighter, .news20Adds, .news20Ahead]),
+        .init(id: "2.1", lines: [.news21Shot, .news21Draw]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -2581,7 +2585,7 @@ struct PanelView: View {
     /// start hidden and are offered by the what's-new card, so nothing appears
     /// in the panel that was not ticked there. A fresh install has no
     /// expectations to violate, so only the `optInModules` above stay hidden.
-    private static let newInThisRelease = ["uninstall"]
+    private static let newInThisRelease = ["shot", "annotate"]
 
     private var moduleOrder: [String] {
         Self.normalizedOrder(moduleOrderRaw)
@@ -2647,6 +2651,7 @@ struct PanelView: View {
         UserDefaults.standard.set(true, forKey: SettingsKey.canonicalLayoutSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded170)
+        UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded210)
         return model
     }
 
@@ -2661,10 +2666,11 @@ struct PanelView: View {
     /// One-shot: hide this release's new modules once, so a later showing sticks.
     private static func seedOptInModules(_ model: inout PanelTabsModel) {
         let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: SettingsKey.optInModulesSeeded170) else { return }
+        guard !defaults.bool(forKey: SettingsKey.optInModulesSeeded210) else { return }
         for key in newInThisRelease { model.setHidden(key, hidden: true) }
         defaults.set(true, forKey: SettingsKey.optInModulesSeeded)
         defaults.set(true, forKey: SettingsKey.optInModulesSeeded170)
+        defaults.set(true, forKey: SettingsKey.optInModulesSeeded210)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 

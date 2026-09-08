@@ -79,6 +79,10 @@ enum SettingsKey {
     /// inactive bucket and would simply appear in everyone's panel — which is
     /// exactly what the sweep exists to prevent.
     static let optInModulesSeeded170 = "optInModulesSeeded170"
+    /// The same one-shot for the release that brought the two markup modules:
+    /// somebody updating gets them from the what's-new card, ticked by hand,
+    /// rather than finding two new rows in a panel they had arranged.
+    static let optInModulesSeeded210 = "optInModulesSeeded210"
     /// One-shot flag: decoded legacy models (and any state left mid-shuffled
     /// by the older per-module seeds this superseded) get their whole active
     /// layout rebuilt into the canonical three-tab shape exactly once. Set on

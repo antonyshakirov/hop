@@ -235,6 +235,7 @@ enum L10nKey: String, CaseIterable {
     case news191Signed, news191Permissions
     case news110Permissions, news110Settings, news110Lock
     case news20Lighter, news20Adds, news20Ahead
+    case news21Shot, news21Draw
     case permTab, permGranted, permNotGranted, permWhenUsed, permGrant
     case permRestartTitle, permRestartBody, permRestart, permRevoke
     case docGeneral, docTimerFull, docAwakeFull, docClipboardFull
@@ -933,6 +934,8 @@ enum L10n {
             .news20Lighter: "hop runs more efficiently and goes easier on the machine",
             .news20Adds: "the converter now takes html files and page addresses too, and the tracker can count the time of several tasks at once",
             .news20Ahead: "2.0 is a big step, and there is more coming: two new modules are already in the works",
+            .news21Shot: "screenshots with an editor of their own – an area, a window or the whole screen, then arrows, captions, blur, a loupe, a frame and a watermark before it is saved or copied",
+            .news21Draw: "drawing over the live screen – the marks are seen on the other side of a call, and one key hands the screen back to the apps underneath",
         ],
         .ru: [
             .shotLabel: "снимок экрана",
@@ -1575,6 +1578,8 @@ enum L10n {
             .news20Lighter: "приложение стало работать эффективнее и бережнее к ресурсам",
             .news20Adds: "конвертер теперь обрабатывает ещё html-файлы и адреса страниц, а в трекере можно считать время нескольких задач одновременно",
             .news20Ahead: "2.0 — большой шаг, и дальше больше: два новых модуля уже в работе",
+            .news21Shot: "снимки экрана со своим редактором — область, окно или весь экран, а потом стрелки, подписи, размытие, лупа, оформление и водяной знак, прежде чем сохранить или скопировать",
+            .news21Draw: "рисование поверх живого экрана — пометки видно на той стороне созвона, а одна клавиша отдаёт экран приложениям под ними",
         ],
         .de: [
             .shotLabel: "bildschirmfoto",
@@ -2217,6 +2222,8 @@ enum L10n {
             .news20Lighter: "hop arbeitet effizienter und geht schonender mit dem mac um",
             .news20Adds: "der konverter nimmt jetzt auch html-dateien und seitenadressen, und der tracker kann die zeit mehrerer aufgaben gleichzeitig zählen",
             .news20Ahead: "2.0 ist ein großer schritt, und es kommt mehr: zwei neue module sind schon in arbeit",
+            .news21Shot: "bildschirmfotos mit eigenem editor – ein bereich, ein fenster oder der ganze bildschirm, dann pfeile, beschriftungen, unschärfe, lupe, rahmen und wasserzeichen, bevor gesichert oder kopiert wird",
+            .news21Draw: "zeichnen über dem laufenden bildschirm – die markierungen sieht die gegenseite im gespräch, und eine taste gibt den bildschirm den apps darunter zurück",
         ],
         .es: [
             .shotLabel: "captura",
@@ -2859,6 +2866,8 @@ enum L10n {
             .news20Lighter: "hop funciona de forma más eficiente y trata mejor los recursos del mac",
             .news20Adds: "el conversor ahora también acepta archivos html y direcciones de páginas, y el registro puede contar el tiempo de varias tareas a la vez",
             .news20Ahead: "2.0 es un paso grande, y viene más: dos módulos nuevos ya están en marcha",
+            .news21Shot: "capturas de pantalla con su propio editor – un área, una ventana o toda la pantalla, y luego flechas, textos, desenfoque, lupa, marco y marca de agua antes de guardar o copiar",
+            .news21Draw: "dibujar sobre la pantalla en vivo – las marcas se ven al otro lado de una llamada, y una tecla devuelve la pantalla a las apps de debajo",
         ],
         .pt: [
             .shotLabel: "captura",
@@ -3501,6 +3510,8 @@ enum L10n {
             .news20Lighter: "o hop funciona de forma mais eficiente e poupa mais os recursos do mac",
             .news20Adds: "o conversor passa a aceitar também ficheiros html e endereços de páginas, e o registo pode contar o tempo de várias tarefas ao mesmo tempo",
             .news20Ahead: "2.0 é um passo grande, e vem mais: dois módulos novos já estão a caminho",
+            .news21Shot: "capturas de tela com editor próprio – uma área, uma janela ou a tela inteira, e depois setas, legendas, desfoque, lupa, moldura e marca d'água antes de salvar ou copiar",
+            .news21Draw: "desenhar sobre a tela ao vivo – as marcas aparecem do outro lado de uma chamada, e uma tecla devolve a tela aos apps de baixo",
         ],
         .fr: [
             .shotLabel: "capture d'écran",
@@ -4143,6 +4154,8 @@ enum L10n {
             .news20Lighter: "hop travaille plus efficacement et ménage davantage la machine",
             .news20Adds: "le convertisseur prend maintenant aussi les fichiers html et les adresses de pages, et le suivi peut compter le temps de plusieurs tâches à la fois",
             .news20Ahead: "2.0 est un grand pas, et la suite arrive : deux nouveaux modules sont déjà en chantier",
+            .news21Shot: "des captures d'écran avec leur propre éditeur – une zone, une fenêtre ou tout l'écran, puis flèches, légendes, flou, loupe, cadre et filigrane avant d'enregistrer ou de copier",
+            .news21Draw: "dessiner sur l'écran en direct – les marques se voient de l'autre côté d'un appel, et une touche rend l'écran aux applications en dessous",
         ],
         .it: [
             .shotLabel: "schermata",
@@ -4785,6 +4798,8 @@ enum L10n {
             .news20Lighter: "hop lavora in modo più efficiente e tratta meglio le risorse del mac",
             .news20Adds: "il convertitore ora prende anche file html e indirizzi di pagine, e il tracciamento può contare il tempo di più attività insieme",
             .news20Ahead: "2.0 è un passo grosso, e arriva altro: due moduli nuovi sono già in lavorazione",
+            .news21Shot: "screenshot con un editor tutto loro – un'area, una finestra o l'intero schermo, poi frecce, didascalie, sfocatura, lente, cornice e filigrana prima di salvare o copiare",
+            .news21Draw: "disegnare sopra lo schermo dal vivo – i segni si vedono dall'altra parte di una chiamata, e un tasto restituisce lo schermo alle app sotto",
         ],
         .zh: [
             .shotLabel: "截屏",
@@ -5420,6 +5435,8 @@ enum L10n {
             .news20Lighter: "hop 运行更高效，对机器也更省",
             .news20Adds: "转换器现在还能处理 html 文件和网页地址，跟踪器可以同时计算多个任务的时间",
             .news20Ahead: "2.0 是一大步，后面还有：两个新模块已在开发中",
+            .news21Shot: "截图有了自己的编辑器 – 区域、窗口或整屏，然后是箭头、文字、模糊、放大镜、外框和水印，再保存或复制",
+            .news21Draw: "在实时屏幕上作画 – 标记在通话的另一端也看得见，一个按键把屏幕交还给下面的应用",
         ],
         .ja: [
             .shotLabel: "スクリーンショット",
@@ -6059,6 +6076,8 @@ enum L10n {
             .news20Lighter: "hop の動きが効率よくなり、マシンへの負担も軽くなった",
             .news20Adds: "変換は html ファイルとページのアドレスも扱えるようになり、トラッカーは複数のタスクの時間を同時に数えられる",
             .news20Ahead: "2.0 は大きな一歩で、この先もある。新しいモジュールが二つ進行中",
+            .news21Shot: "自前のエディタつきスクリーンショット – 範囲、ウインドウ、画面全体。矢印、文字、ぼかし、ルーペ、装飾、透かしを入れてから保存かコピー",
+            .news21Draw: "画面の上に直接描く – 印は通話の相手にも見え、キーひとつで画面を下のアプリに返す",
         ],
         .nl: [
             .shotLabel: "schermafbeelding",
@@ -6717,6 +6736,8 @@ enum L10n {
             .news20Lighter: "hop werkt efficiënter en gaat zuiniger om met de mac",
             .news20Adds: "de converter neemt nu ook html-bestanden en pagina-adressen, en de tijdregistratie kan de tijd van meerdere taken tegelijk bijhouden",
             .news20Ahead: "2.0 is een grote stap, en er komt meer: twee nieuwe modules zijn al in de maak",
+            .news21Shot: "schermafbeeldingen met een eigen editor – een gebied, een venster of het hele scherm, daarna pijlen, bijschriften, vervaging, loep, kader en watermerk voordat het wordt bewaard of gekopieerd",
+            .news21Draw: "tekenen over het levende scherm – de markeringen zijn aan de andere kant van een gesprek te zien, en één toets geeft het scherm terug aan de apps eronder",
         ],
         .ko: [
             .shotLabel: "화면 캡처",
@@ -7356,6 +7377,8 @@ enum L10n {
             .news20Lighter: "hop이 더 효율적으로 돌아가고 기기에도 더 가볍다",
             .news20Adds: "변환기가 html 파일과 페이지 주소까지 다루고, 트래커는 여러 작업의 시간을 동시에 셀 수 있다",
             .news20Ahead: "2.0은 큰 걸음이고 앞으로 더 있다: 새 모듈 두 개가 이미 작업 중이다",
+            .news21Shot: "자체 편집기를 갖춘 화면 캡처 – 영역, 창, 전체 화면. 화살표, 설명, 흐림, 돋보기, 액자, 워터마크를 넣고 저장하거나 복사한다",
+            .news21Draw: "실시간 화면 위에 그리기 – 표시는 통화 상대에게도 보이고, 키 하나로 화면을 아래 앱에 돌려준다",
         ],
         .th: [
             .shotLabel: "ภาพหน้าจอ",
@@ -8014,6 +8037,8 @@ enum L10n {
             .news20Lighter: "hop ทำงานได้มีประสิทธิภาพขึ้นและกินทรัพยากรน้อยลง",
             .news20Adds: "ตัวแปลงรับไฟล์ html และที่อยู่หน้าเว็บได้ด้วย และตัวจับเวลานับเวลาหลายงานพร้อมกันได้",
             .news20Ahead: "2.0 เป็นก้าวใหญ่ และยังมีต่อ: โมดูลใหม่สองตัวกำลังทำอยู่",
+            .news21Shot: "ภาพหน้าจอที่มีตัวแก้ไขของตัวเอง – พื้นที่ หน้าต่าง หรือทั้งจอ แล้วใส่ลูกศร คำบรรยาย เบลอ แว่นขยาย กรอบ และลายน้ำ ก่อนบันทึกหรือคัดลอก",
+            .news21Draw: "วาดทับหน้าจอสด – รอยที่วาดมองเห็นได้จากอีกฝั่งของสาย และปุ่มเดียวคืนหน้าจอให้แอปที่อยู่ข้างใต้",
         ],
         .vi: [
             .shotLabel: "ảnh màn hình",
@@ -8672,6 +8697,8 @@ enum L10n {
             .news20Lighter: "hop chạy hiệu quả hơn và nhẹ tay hơn với máy",
             .news20Adds: "bộ chuyển đổi nay nhận thêm tệp html và địa chỉ trang, còn phần theo dõi đếm được thời gian của nhiều công việc cùng lúc",
             .news20Ahead: "2.0 là một bước lớn, và còn nữa: hai mô-đun mới đã đang được làm",
+            .news21Shot: "ảnh chụp màn hình có trình sửa riêng – một vùng, một cửa sổ hay cả màn hình, rồi mũi tên, chú thích, làm mờ, kính lúp, khung và hình mờ trước khi lưu hay sao chép",
+            .news21Draw: "vẽ đè lên màn hình đang chạy – nét vẽ hiện ra ở đầu bên kia cuộc gọi, và một phím trả màn hình lại cho các ứng dụng bên dưới",
         ],
         .hi: [
             .shotLabel: "स्क्रीनशॉट",
@@ -9330,6 +9357,8 @@ enum L10n {
             .news20Lighter: "hop अब ज़्यादा असरदार ढंग से चलता है और मशीन पर कम बोझ डालता है",
             .news20Adds: "कन्वर्टर अब html फ़ाइलें और पेज के पते भी संभालता है, और ट्रैकर कई कामों का समय एक साथ गिन सकता है",
             .news20Ahead: "2.0 बड़ा कदम है, और आगे और भी है: दो नए मॉड्यूल पहले से बन रहे हैं",
+            .news21Shot: "अपने संपादक के साथ स्क्रीनशॉट – एक क्षेत्र, एक विंडो या पूरी स्क्रीन, फिर तीर, कैप्शन, धुंधलापन, आवर्धक, फ़्रेम और वॉटरमार्क, और फिर सहेजना या कॉपी करना",
+            .news21Draw: "चलती स्क्रीन पर सीधे चित्र – निशान कॉल के दूसरी ओर भी दिखते हैं, और एक कुंजी स्क्रीन नीचे के ऐप्स को लौटा देती है",
         ],
         .id: [
             .shotLabel: "tangkapan layar",
@@ -9988,6 +10017,8 @@ enum L10n {
             .news20Lighter: "hop bekerja lebih efisien dan lebih hemat untuk mesinnya",
             .news20Adds: "pengonversi kini juga menerima berkas html dan alamat halaman, dan pelacak bisa menghitung waktu beberapa tugas sekaligus",
             .news20Ahead: "2.0 adalah langkah besar, dan masih ada lagi: dua modul baru sedang dikerjakan",
+            .news21Shot: "tangkapan layar dengan editor sendiri – sebuah area, jendela, atau seluruh layar, lalu panah, teks, blur, lup, bingkai, dan tanda air sebelum disimpan atau disalin",
+            .news21Draw: "menggambar di atas layar yang hidup – tandanya terlihat di seberang panggilan, dan satu tombol mengembalikan layar ke aplikasi di bawahnya",
         ],
         .tr: [
             .shotLabel: "ekran görüntüsü",
@@ -10642,6 +10673,8 @@ enum L10n {
             .news20Lighter: "hop daha verimli çalışıyor ve makineyi daha az yoruyor",
             .news20Adds: "dönüştürücü artık html dosyalarını ve sayfa adreslerini de alıyor, takip ise birkaç işin süresini aynı anda sayabiliyor",
             .news20Ahead: "2.0 büyük bir adım, dahası da geliyor: iki yeni modül şimdiden yapımda",
+            .news21Shot: "kendi düzenleyicisi olan ekran görüntüleri – bir alan, bir pencere ya da tüm ekran; sonra oklar, yazılar, bulanıklık, büyüteç, çerçeve ve filigran, ardından kaydet ya da kopyala",
+            .news21Draw: "canlı ekranın üzerine çizim – işaretler görüşmenin öbür ucundan da görünür, bir tuş ekranı altındaki uygulamalara geri verir",
             .convCanPages: "web sayfaları",
             .convCanLink: "bağlantı",
             .convPageRenderNote: "sayfa gerçekten yerleşiyor, bu yüzden işaret ettiği görselleri, yazı tiplerini ve stilleri de indiriyor",
@@ -11300,6 +11333,8 @@ enum L10n {
             .news20Lighter: "hop działa wydajniej i mniej obciąża maca",
             .news20Adds: "konwerter przyjmuje teraz także pliki html i adresy stron, a licznik czasu potrafi liczyć czas kilku zadań naraz",
             .news20Ahead: "2.0 to duży krok, a będzie więcej: dwa nowe moduły są już w robocie",
+            .news21Shot: "zrzuty ekranu z własnym edytorem – obszar, okno albo cały ekran, a potem strzałki, podpisy, rozmycie, lupa, ramka i znak wodny przed zapisaniem lub skopiowaniem",
+            .news21Draw: "rysowanie po żywym ekranie – ślady widać po drugiej stronie rozmowy, a jeden klawisz oddaje ekran aplikacjom pod spodem",
             .convCanPages: "strony internetowe",
             .convCanLink: "odnośnik",
             .convPageRenderNote: "strona jest naprawdę składana, więc pobiera obrazy, fonty i style, do których się odwołuje",
@@ -11411,6 +11446,8 @@ enum L10n {
             .news20Lighter: "يعمل hop بكفاءة أعلى وأخفّ على الجهاز",
             .news20Adds: "صار المحوّل يقبل ملفات html وعناوين الصفحات أيضاً، ويستطيع المتتبّع حساب وقت عدة مهام معاً",
             .news20Ahead: "الإصدار 2.0 خطوة كبيرة، والقادم أكثر: وحدتان جديدتان قيد العمل",
+            .news21Shot: "لقطات شاشة بمحرّر خاص بها – مساحة أو نافذة أو الشاشة كلها، ثم أسهم وتعليقات وتمويه وعدسة وإطار وعلامة مائية قبل الحفظ أو النسخ",
+            .news21Draw: "الرسم فوق الشاشة الحيّة – العلامات تُرى في الطرف الآخر من المكالمة، ومفتاح واحد يعيد الشاشة إلى التطبيقات تحتها",
             .memPressureNote: "الذاكرة: يلوّن الصف أيضًا إشارة ضغط الذاكرة في macOS، ويُعتمد الأسوأ منهما",
             .thSwap: "سواب % من الذاكرة",
             .windowsInDock: "إظهار أيقونة hop في الدوك",
@@ -12129,6 +12166,8 @@ enum L10n {
             .news20Lighter: "hop עובד ביעילות רבה יותר ומעמיס פחות על המחשב",
             .news20Adds: "הממיר מקבל עכשיו גם קובצי html וכתובות של דפים, והמעקב סופר זמן של כמה משימות בבת אחת",
             .news20Ahead: "2.0 היא צעד גדול, ויש עוד בדרך: שני מודולים חדשים כבר בעבודה",
+            .news21Shot: "צילומי מסך עם עורך משלהם – אזור, חלון או כל המסך, ואז חצים, כיתובים, טשטוש, זכוכית מגדלת, מסגרת וסימן מים לפני שמירה או העתקה",
+            .news21Draw: "ציור על המסך החי – הסימונים נראים בצד השני של שיחה, ומקש אחד מחזיר את המסך ליישומים שמתחת",
             .memPressureNote: "זיכרון: את השורה צובע גם אות לחץ הזיכרון של macOS, והחמור מבין השניים קובע",
             .thSwap: "swap % מה-ram",
             .windowsInDock: "הצגת האייקון של hop ב-dock",
@@ -12847,6 +12886,8 @@ enum L10n {
             .news20Lighter: "hop کاراتر کار می‌کند و بار کمتری بر دستگاه می‌گذارد",
             .news20Adds: "مبدل حالا فایل‌های html و نشانی صفحه‌ها را هم می‌گیرد، و ردیاب وقت چند کار را با هم می‌شمارد",
             .news20Ahead: "۲.۰ گام بزرگی است و باز هم در راه است: دو پیمانه تازه در دست کارند",
+            .news21Shot: "عکس‌های صفحه با ویرایشگر خودشان – یک ناحیه، یک پنجره یا تمام صفحه، بعد پیکان، نوشته، محو، ذره‌بین، قاب و نشان آبی پیش از ذخیره یا کپی",
+            .news21Draw: "کشیدن روی صفحهٔ زنده – نشانه‌ها در آن سوی تماس هم دیده می‌شوند و یک کلید صفحه را به برنامه‌های زیرش پس می‌دهد",
             .memPressureNote: "حافظه: نشانهٔ فشار حافظهٔ خود macOS هم این ردیف را رنگ می‌کند و بدترین از این دو اعمال می‌شود",
             .thSwap: "سواپ % از رم",
             .windowsInDock: "نمایش نماد hop در داک",
@@ -13565,6 +13606,8 @@ enum L10n {
             .news20Lighter: "hop زیادہ کارآمد چلتا ہے اور مشین پر کم بوجھ ڈالتا ہے",
             .news20Adds: "کنورٹر اب html فائلیں اور صفحات کے پتے بھی لیتا ہے، اور ٹریکر کئی کاموں کا وقت ایک ساتھ گنتا ہے",
             .news20Ahead: "2.0 ایک بڑا قدم ہے، اور آگے اور بھی ہے: دو نئے ماڈیول زیرِ کار ہیں",
+            .news21Shot: "اپنے ایڈیٹر کے ساتھ اسکرین شاٹ – ایک حصہ، ایک ونڈو یا پوری اسکرین، پھر تیر، عبارت، دھندلاہٹ، عدسہ، فریم اور واٹر مارک، اور پھر محفوظ یا نقل",
+            .news21Draw: "چلتی اسکرین پر لکیریں – نشان کال کی دوسری طرف بھی دکھتے ہیں، اور ایک کلید اسکرین نیچے کی ایپس کو واپس دے دیتی ہے",
             .memPressureNote: "میموری: اس قطار کو macOS کا اپنا memory pressure سگنل بھی رنگتا ہے، دونوں میں سے بدتر لاگو ہوتا ہے",
             .thSwap: "سواپ ram کا %",
             .windowsInDock: "ڈاک میں hop کا آئیکن دکھائیں",
@@ -14208,6 +14251,8 @@ enum L10n {
             .news20Lighter: "hop ради ефикасније и мање оптерећује машину",
             .news20Adds: "конвертер сада прима и html фајлове и адресе страница, а мерач може да броји време више задатака одједном",
             .news20Ahead: "2.0 је велики корак, а долази још: два нова модула су већ у изради",
+            .news21Shot: "снимци екрана са сопственим уређивачем – област, прозор или цео екран, па стрелице, натписи, замућење, лупа, оквир и водени жиг пре чувања или копирања",
+            .news21Draw: "цртање преко живог екрана – трагови се виде и с друге стране позива, а један тастер враћа екран апликацијама испод",
             .permTab: "дозволе програма",
             .permGranted: "дато",
             .permNotGranted: "није дато",

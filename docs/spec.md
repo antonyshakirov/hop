@@ -2969,6 +2969,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   when the WHOLE screen is shared. Sharing a single window composites that
   window alone, and Hop's layer is not part of it.
 
+### How the two markup modules reach the user
+
+- **A clean install gets both, switched on**, at the foot of the first space.
+- **An update gets neither until it is asked for** (Anton, 2026-09-08):
+  `newInThisRelease` sweeps them into the inactive bucket once, behind a
+  one-shot of this release's own (`optInModulesSeeded210` — the 1.7.0 key was
+  already claimed, and a spent key sweeps nothing). The what's-new card then
+  offers them as a checklist, a switch each, and only what is ticked is placed
+  in the panel. Somebody who arranged their panel by hand does not find two new
+  rows in it.
+- **And a release card says what they are**: `"2.1"` — one line for the
+  screenshot with its editor, one for the drawing layer. The checklist question
+  goes first and the news card waits for the next opening, the standing rule for
+  the two.
+
 ### Saying where the picture went
 
 - **A save that closes the window says nothing** (Anton, 2026-09-08): the
