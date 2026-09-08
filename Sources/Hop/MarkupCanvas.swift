@@ -241,7 +241,14 @@ struct MarkupCanvas: View {
             // direction, which is what a pencil does.
             context.drawLayer { layer in
                 layer.blendMode = .multiply
-                layer.fill(chisel(points, nib: width), with: .color(colour.opacity(0.45)))
+                let ink = GraphicsContext.Shading.color(colour.opacity(0.45))
+                layer.fill(chisel(points, nib: width), with: ink)
+                // The nib has thickness: swept ALONG its own axis a flat pen
+                // still leaves a line, and a band alone drew nothing at all
+                // for a stroke straight down the page.
+                layer.stroke(freehand(points), with: ink,
+                             style: StrokeStyle(lineWidth: max(width * 0.3, 1),
+                                                lineCap: .round, lineJoin: .round))
             }
 
         case .line:

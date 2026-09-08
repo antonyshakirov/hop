@@ -287,6 +287,13 @@ enum MarkupRender {
                                        width: max(half / 1.5, 1), height: half * 2))
             }
             context.fillPath()
+            // The nib has thickness: along its own axis it still leaves a line.
+            context.setStrokeColor(colour.withAlphaComponent(0.45).cgColor)
+            context.setLineWidth(max(shape.ink.width * scale * 0.3, 1))
+            context.beginPath()
+            context.move(to: first)
+            for point in points.dropFirst() { context.addLine(to: point) }
+            context.strokePath()
             context.restoreGState()
 
         case .line:
