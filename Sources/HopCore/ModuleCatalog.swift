@@ -85,14 +85,15 @@ public enum ModuleCatalog {
         ]),
         ModuleEntry(id: "clipboard", guideLetter: "c", actions: []),
         ModuleEntry(id: "convert", guideLetter: "f", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_convert", hotKeyID: 21),
+            ModuleAction(id: "open", storageKey: "hotkey_convert", hotKeyID: 21,
+                         defaultCombo: ModuleCombo(keyCode: 8, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "windows", guideLetter: "w", actions: zoneActions),
         ModuleEntry(id: "speedtest", guideLetter: "s", actions: []),
         ModuleEntry(id: "torrent", guideLetter: "d", actions: []),
         ModuleEntry(id: "color", hiddenOnFirstRun: true, guideLetter: "p", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_color", hotKeyID: 4,
-                         defaultCombo: ModuleCombo(keyCode: 8, modifiers: controlOption)),
+                         defaultCombo: ModuleCombo(keyCode: 31, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "ocr", hiddenOnFirstRun: true, guideLetter: "o", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_ocr", hotKeyID: 5,
@@ -110,7 +111,8 @@ public enum ModuleCatalog {
                          defaultCombo: ModuleCombo(keyCode: 2, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "archive", guideLetter: "z", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_archive", hotKeyID: 25),
+            ModuleAction(id: "open", storageKey: "hotkey_archive", hotKeyID: 25,
+                         defaultCombo: ModuleCombo(keyCode: 3, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "keyboard", guideLetter: "k", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_keyboardLock", hotKeyID: 6,
@@ -118,7 +120,8 @@ public enum ModuleCatalog {
         ]),
         ModuleEntry(id: "vpn", hiddenOnFirstRun: true, guideLetter: "n", actions: []),
         ModuleEntry(id: "uninstall", guideLetter: "u", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_uninstall", hotKeyID: 27),
+            ModuleAction(id: "open", storageKey: "hotkey_uninstall", hotKeyID: 27,
+                         defaultCombo: ModuleCombo(keyCode: 32, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "system", guideLetter: "m", actions: []),
         ModuleEntry(id: "tracker", guideLetter: "r", actions: []),
@@ -135,17 +138,17 @@ public enum ModuleCatalog {
         zone("bottomHalf", key: 125, hotKeyID: 104),
         zone("maximize", key: 36, hotKeyID: 105),
         zone("center", key: 18, hotKeyID: 106),
-        zone("topLeft", key: 32, hotKeyID: 107),
+        zone("topLeft", key: 19, hotKeyID: 107),
         zone("topRight", key: 34, hotKeyID: 108),
         zone("bottomLeft", key: 38, hotKeyID: 109),
-        zone("bottomRight", key: 19, hotKeyID: 110),
-        zone("leftThird", key: 20, hotKeyID: 111),
-        zone("centerThird", key: 3, hotKeyID: 112),
+        zone("bottomRight", key: 20, hotKeyID: 110),
+        zone("leftThird", key: 21, hotKeyID: 111),
+        zone("centerThird", key: 23, hotKeyID: 112),
         zone("rightThird", key: 5, hotKeyID: 113),
         zone("leftTwoThirds", key: 14, hotKeyID: 114),
-        zone("rightTwoThirds", key: 21, hotKeyID: 115),
-        zone("centerHalf", key: 23, hotKeyID: 116),
-        zone("topThird", key: 31, hotKeyID: 117),
+        zone("rightTwoThirds", key: 22, hotKeyID: 115),
+        zone("centerHalf", key: 26, hotKeyID: 116),
+        zone("topThird", key: 28, hotKeyID: 117),
         zone("bottomThird", key: 37, hotKeyID: 118),
     ]
 

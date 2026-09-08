@@ -53,16 +53,16 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertEqual(
             Set(withDefaults),
             ["hotkey_timer", "hotkey_awake", "hotkey_color", "hotkey_ocr", "hotkey_keyboardLock",
-             "hotkey_shot", "hotkey_annotate"]
+             "hotkey_shot", "hotkey_annotate", "hotkey_convert", "hotkey_archive",
+             "hotkey_uninstall"]
         )
         XCTAssertNotNil(ModuleCatalog.panelAction.defaultCombo)
     }
 
     /// Two actions shipping the SAME combination is a defect the user meets as
-    /// "shortcut is taken" on a fresh install, with one of the two silently dead:
-    /// the timer and the zone for the right two thirds once shipped the same
-    /// ⌃⌥T. The zones follow Rectangle's map, so a clash is settled by moving
-    /// the module.
+    /// "shortcut is taken" on a fresh install, with one of the two silently
+    /// dead. A clash is settled by moving the ZONE: the letter belongs to
+    /// whatever names itself with it. SPEC: docs/spec.md — hotkeys.
     func testNoTwoActionsShipTheSameCombination() {
         let combos = (ModuleCatalog.allActions).compactMap(\.defaultCombo)
         var seen: [ModuleCombo: String] = [:]
@@ -213,7 +213,10 @@ final class ModuleCatalogTests: XCTestCase {
             "hotkey_annotate": 2,       // draw on screen
             "hotkey_timer": 17,         // timer
             "hotkey_awake": 0,          // awake
-            "hotkey_color": 8,          // colour picker
+            "hotkey_convert": 8,        // convert and compress
+            "hotkey_color": 31,         // cOlour picker: C is the converter's
+            "hotkey_archive": 3,        // file archives
+            "hotkey_uninstall": 32,     // uninstall apps
             "hotkey_keyboardLock": 40,  // keyboard lock
             "hotkey_ocr": 15,           // text Recognition: T is the timer's
         ]

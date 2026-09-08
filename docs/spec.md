@@ -1241,11 +1241,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   modules" settings tab (moved out of "general" 2026-07-21; ON by default —
   Anton, 2026-07-15), a fixed ⌃⌥ scheme
   covering ALL 18 zones:
-  arrows — halves, ↩ — full screen, U/I/J — three quarters,
-  F/G — centre and right thirds, E — left two-thirds,
-  O/L — top/bottom thirds, and the five whose letters the modules name
-  themselves with on the number row: 1 — center, 2 — bottom-right quarter,
-  3 — left third, 4 — right two-thirds, 5 — center column. Registered via the shared HotkeyManager
+  arrows — halves, ↩ — full screen, I/J — top-right and bottom-left quarters,
+  G — right third, E — left two-thirds, L — bottom third, and the eight whose
+  letters the modules name themselves with on the number row, in the order the
+  settings grid draws them: 1 — center, 2 — top-left quarter, 3 — bottom-right
+  quarter, 4 — left third, 5 — center third, 6 — right two-thirds,
+  7 — center column, 8 — top third. Registered via the shared HotkeyManager
   (id 101+). The settings label reads "resize windows with hotkeys"
   (not the old "zone hotkeys").
 - The Accessibility permission is requested on the first action.
@@ -2225,7 +2226,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `ClipboardController.remember(external:)` / `remember(color:text:)`, which also
   stamp the pasteboard change counter, so Hop's own write never comes back a
   second later as a foreign copy and a duplicate row.
-- Hotkey `⌃⌥C` (the "open" action of the `color` module in `ModuleCatalog`). A
+- Hotkey `⌃⌥O` (the "open" action of the `color` module in `ModuleCatalog`). A
   combo is claimed ONLY while its module is switched on (`HotkeyActivation` +
   `refreshModuleHotkeys()`, called at launch and after every layout change):
   taking a global shortcut away from other apps for a module that is off would
@@ -3471,14 +3472,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and their on/off switch live here, where keys live.
 - **A function names its own key, and the zones move around IT** (Anton,
   2026-09-08). ⌃⌥ plus the first letter of what the thing is called: **S**
-  screenshot, **D** draw on screen, **T** timer, **A** awake, **C** colour
-  picker, **K** keyboard lock, **H** Hop's own panel. Text recognition keeps
-  **R** — the timer has T. This reverses the earlier call (2026-09-02) that the
-  zones keep every letter and the modules move around them: a shortcut nobody
-  can guess is a shortcut nobody uses, and the zones are a grid whose keys are
-  arbitrary either way. Five zones move to the number row for it — center ⌃⌥1,
-  bottom-right ⌃⌥2, left third ⌃⌥3, right two-thirds ⌃⌥4, center column ⌃⌥5 —
-  and the arrows, ↩ and the rest of Rectangle's map are untouched.
+  screenshot, **D** draw on screen, **T** timer, **A** awake, **C** convert and
+  compress, **F** file archives, **U** uninstall apps, **K** keyboard lock,
+  **H** Hop's own panel. Two take a later letter because the first is spoken
+  for: text recognition keeps **R**, and the colour picker takes the **O** of
+  cOlour — the converter is reached far more often than the picker, so it gets
+  the C (Anton, 2026-09-08). Every module that can be opened by a key now ships
+  with one; nothing is left blank in the list. This reverses the earlier call
+  (2026-09-02) that the zones keep every letter and the modules move around
+  them: a shortcut nobody can guess is a shortcut nobody uses, and the zones are
+  a grid whose keys are arbitrary either way. Eight zones move to the number row
+  for it, and the arrows, ↩ and the rest of Rectangle's map are untouched.
   `ModuleCatalogTests.testEveryDefaultIsTheFirstLetterOfWhatItDoes` holds the
   letters and `testNoTwoActionsShipTheSameCombination` fails if any two shipped
   combinations ever meet again. Reset means "forget the stored value", so
