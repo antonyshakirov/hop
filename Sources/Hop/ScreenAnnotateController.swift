@@ -26,7 +26,6 @@ final class ScreenAnnotateController: ObservableObject {
     private let overlay = MarkupOverlayController()
     private var toolbarWindow: MarkupToolbarWindow?
     private var toolWatch: AnyCancellable?
-    private var draggedFrom: NSPoint?
 
     func toggle() {
         isUp ? exit() : show()
@@ -81,19 +80,7 @@ final class ScreenAnnotateController: ObservableObject {
         window.setFrameOrigin(within(spot, size: size))
     }
 
-    /// WORKAROUND: the gesture reports the distance from where the drag STARTED,
-    /// so it is added to the frame the panel was PICKED UP at — added to the
-    /// frame it stands at now, it moves the panel again on every step.
-    func dragToolbar(by translation: CGSize) {
-        guard let window = toolbarWindow else { return }
-        let from = draggedFrom ?? window.frame.origin
-        draggedFrom = from
-        let moved = NSPoint(x: from.x + translation.width, y: from.y - translation.height)
-        window.setFrameOrigin(within(moved, size: window.frame.size))
-    }
-
     func settleToolbar() {
-        draggedFrom = nil
         guard let window = toolbarWindow,
               let screen = window.screen ?? NSScreen.main else { return }
         edge = window.frame.midY > screen.frame.midY ? .top : .bottom
@@ -277,11 +264,7 @@ struct ScreenAnnotateToolbar: View {
                       leading: AnyView(cursorButton))
             .padding(6)
             .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
-            .gesture(
-                DragGesture(minimumDistance: 6)
-                    .onChanged { value in controller.dragToolbar(by: value.translation) }
-                    .onEnded { _ in controller.settleToolbar() }
-            )
+            .background(WindowDragArea { controller.settleToolbar() })
     }
 
     private var actions: some View {

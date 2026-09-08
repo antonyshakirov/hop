@@ -3023,12 +3023,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   dragged past the surface leaves the panel standing at the margin rather than
   half outside. `top`/`bottom` survives as one thing only — which way the
   popovers open, taken from which half the panel is in.
-- **A drag is measured from where it STARTED.** The gesture reports the distance
-  from the point the panel was picked up at; added to the frame the panel is
-  standing at now, that distance is applied again on every step of the drag and
-  the panel bolts off the screen (Anton, 2026-09-08). The layer in the editor
-  and the panel's own window over the live screen both hold the place the drag
-  began.
+- **A drag is measured from where it STARTED, in a space that does not move**
+  (Anton, 2026-09-08, 2026-09-09). The gesture reports the distance from the
+  point the panel was picked up at; added to the frame the panel stands at NOW,
+  that distance is applied again on every step and the panel bolts off the
+  screen. Holding the place the drag began fixed that, but not the judder: the
+  distance was still reported from inside a view travelling with every step, so
+  each frame was measured against a point that had already moved. In the editor
+  the gesture now reads the pointer in the GLOBAL space and moves the panel by
+  the difference. Over the live screen the panel is a window of its own, so
+  AppKit drags it: `WindowDragArea` hands the press to `performDrag`, which
+  moves the window with the pointer itself, and the panel settles into its half
+  of the screen when the drag returns.
 - Colour and width live in a popover above the panel, never in the panel itself.
   Hovering a tool shows three lines: its name and its letter, one line saying
   what it does, and — for the tools that have settings — that a second press

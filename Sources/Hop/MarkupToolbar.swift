@@ -626,22 +626,29 @@ struct MarkupToolbarLayer: View {
             // BEFORE .position(): after it the view fills the whole surface,
             // and the gesture with it — every drag anywhere on the picture took
             // the panel for a walk instead of doing what it was aimed at.
+            // The distance is measured in a space that does NOT move: the panel
+            // travels with every step of the drag, and a translation reported
+            // from inside it is measured against a point that has already
+            // moved — the panel juddered along behind the pointer (Anton,
+            // 2026-09-09).
             .gesture(
-                DragGesture(minimumDistance: 6)
+                DragGesture(minimumDistance: 6, coordinateSpace: .global)
                     .onChanged { value in
                         let from = grabbedAt ?? place()
                         grabbedAt = from
-                        settle(at: CGPoint(x: from.x + value.translation.width,
-                                           y: from.y + value.translation.height))
+                        settle(at: moved(from, value))
                     }
                     .onEnded { value in
-                        let from = grabbedAt ?? place()
-                        settle(at: CGPoint(x: from.x + value.translation.width,
-                                           y: from.y + value.translation.height))
+                        settle(at: moved(grabbedAt ?? place(), value))
                         grabbedAt = nil
                     }
             )
             .position(place())
+    }
+
+    private func moved(_ from: CGPoint, _ value: DragGesture.Value) -> CGPoint {
+        CGPoint(x: from.x + value.location.x - value.startLocation.x,
+                y: from.y + value.location.y - value.startLocation.y)
     }
 
     private func settle(at point: CGPoint) {
