@@ -1043,6 +1043,13 @@ struct RowDeleteConfirm: View {
     }
 }
 
+/// SPEC: the marks at a row's tail — star, bell, note glyph — on one box and
+/// one optical size, so they line up with each other and with the time.
+enum RowMark {
+    static let box: CGFloat = 14
+    static let glyph: CGFloat = 10
+}
+
 /// Shared geometry for the leading circle of the row modules (the tracker's
 /// play/stop button and the to-do checkbox), so the two read as ONE control at
 /// ONE size on the shared left column. The visible circle is `diameter`; both

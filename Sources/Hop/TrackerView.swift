@@ -486,8 +486,8 @@ struct TrackerView: View {
                         Button { withAnimation(.easeInOut(duration: 0.22)) {
                             engine.setImportant(taskID: task.id, false)
                         } } label: {
-                            StarGlyph(color: Theme.textSecondary, box: 10)
-                                .frame(width: 14, height: 14)
+                            StarGlyph(color: Theme.textSecondary, box: RowMark.glyph)
+                                .frame(width: RowMark.box, height: RowMark.box)
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
@@ -500,6 +500,7 @@ struct TrackerView: View {
                         Image(systemName: "text.alignleft")
                             .font(.system(size: 9))
                             .foregroundStyle(Theme.textTertiary)
+                            .frame(width: RowMark.box, height: RowMark.box)
                     }
                     if run != nil {
                         RunCommitButton(action: { engine.commitRun(taskID: task.id) },

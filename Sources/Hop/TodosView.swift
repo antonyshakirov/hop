@@ -252,8 +252,8 @@ struct TodosView: View {
             // Pressing the star here UNMARKS; marking one is the card's job.
             if item.important {
                 Button { withAnimation(Self.sinkAnimation) { todos.setImportant(item.id, false) } } label: {
-                    StarGlyph(color: Theme.textSecondary, box: 10)
-                        .frame(width: 14, height: 14)
+                    StarGlyph(color: Theme.textSecondary, box: RowMark.glyph)
+                        .frame(width: RowMark.box, height: RowMark.box)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -266,12 +266,14 @@ struct TodosView: View {
                 Image(systemName: "text.alignleft")
                     .font(.system(size: 9))
                     .foregroundStyle(Theme.textTertiary)
+                    .frame(width: RowMark.box, height: RowMark.box)
                     .help(t(.tipHasNote))
             }
             if RemindSchedule.effectiveFiring(item) != nil {
                 Image(systemName: "bell.fill")
-                    .font(.system(size: 9))
-                    .foregroundStyle(Theme.textTertiary)
+                    .font(.system(size: RowMark.glyph))
+                    .foregroundStyle(Theme.textSecondary)
+                    .frame(width: RowMark.box, height: RowMark.box)
                     .help(t(.todoRemindLabel))
             }
             if let firing = RemindSchedule.effectiveFiring(item) {

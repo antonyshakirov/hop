@@ -1783,9 +1783,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   UNMARKS — marking one stays the card's job, so a row shows nothing new on
   hover; the card's star writes through to the store at once (`onImportant`)
   rather than waiting for the commit, because the row above the card would
-  otherwise show yesterday's answer. A to-do with a reminder shows a small
+  otherwise show yesterday's answer. A to-do with a reminder shows a
   `bell.fill` beside its time — FILLED, like the star next to it: an outline
-  read as "no reminder set" where the row only ever draws it when there is one. The hover ✕ is inserted AHEAD of the marks (right
+  read as "no reminder set" where the row only ever draws it when there is one.
+  Star, bell and the note hint share ONE geometry (`RowMark`: a 14pt box, a 10pt
+  glyph) and the marks share ONE ink (`textSecondary`; the note hint stays
+  tertiary with the time, being a hint rather than a mark) — sized and coloured
+  apart they read as two unrelated things sitting crookedly beside each other
+  (Anton, 2026-09-08). The hover ✕ is inserted AHEAD of the marks (right
   after the flexible spacer) in both modules: inserted after them it ate the
   spacer from the right and slid the star out from under the pointer, so a click
   meant for the star landed on delete.
