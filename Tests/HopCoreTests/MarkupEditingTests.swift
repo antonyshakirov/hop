@@ -78,3 +78,34 @@ extension MarkupEditingTests {
         XCTAssertFalse(MarkupEditing.grabbed(step, at: MarkupPoint(x: 90, y: 40), tolerance: 2))
     }
 }
+
+extension MarkupEditingTests {
+    private func lens(_ centre: (Double, Double), _ radius: Double) -> MarkupShape {
+        MarkupShape(tool: .magnifier,
+                    points: [MarkupPoint(x: centre.0 - radius, y: centre.1 - radius),
+                             MarkupPoint(x: centre.0 + radius, y: centre.1 + radius)],
+                    ink: MarkupInk(hex: "#FFFFFF", width: 5), createdAt: 0)
+    }
+
+    /// A round thing is held at its four bearings, ON the circle.
+    func testALensIsHeldAtItsFourBearings() {
+        let spots = MarkupEditing.handles(of: lens((100, 100), 40))
+        XCTAssertEqual(spots, [MarkupPoint(x: 100, y: 60), MarkupPoint(x: 140, y: 100),
+                               MarkupPoint(x: 100, y: 140), MarkupPoint(x: 60, y: 100)])
+    }
+
+    /// It grows about its own middle: there is no corner to anchor it by.
+    func testALensGrowsAboutItsMiddle() {
+        let pulled = MarkupEditing.pulled(lens((100, 100), 40), handle: 1,
+                                          to: MarkupPoint(x: 190, y: 100))
+        let after = MarkupEditing.lens(of: pulled)
+        XCTAssertEqual(after?.centre, MarkupPoint(x: 100, y: 100))
+        XCTAssertEqual(after?.radius ?? 0, 90, accuracy: 0.001)
+    }
+
+    func testALensNeverShrinksToNothing() {
+        let pulled = MarkupEditing.pulled(lens((100, 100), 40), handle: 0,
+                                          to: MarkupPoint(x: 100, y: 100))
+        XCTAssertEqual(MarkupEditing.lens(of: pulled)?.radius ?? 0, 12, accuracy: 0.001)
+    }
+}

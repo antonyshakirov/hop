@@ -48,6 +48,9 @@ final class MarkupSurface: ObservableObject {
         return living + [drafting]
     }
 
+    /// Something is under the hand: a mark being drawn, or one being moved.
+    var isDragging: Bool { drafting != nil || editing != nil }
+
     /// The mark the handles belong to, as it looks right now.
     var selected: MarkupShape? {
         guard let selection else { return nil }

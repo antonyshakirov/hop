@@ -11,7 +11,15 @@ public enum MarkupEditing {
         case .arrow, .line:
             guard shape.points.count > 1 else { return [] }
             return [shape.points[0], shape.points[1]]
-        case .rectangle, .oval, .blur, .magnifier, .crop:
+        case .magnifier:
+            // A round thing is held at its four bearings, ON the circle. Corners
+            // of a box it does not have are corners of nothing.
+            guard let lens = lens(of: shape) else { return [] }
+            return [MarkupPoint(x: lens.centre.x, y: lens.centre.y - lens.radius),
+                    MarkupPoint(x: lens.centre.x + lens.radius, y: lens.centre.y),
+                    MarkupPoint(x: lens.centre.x, y: lens.centre.y + lens.radius),
+                    MarkupPoint(x: lens.centre.x - lens.radius, y: lens.centre.y)]
+        case .rectangle, .oval, .blur, .crop:
             guard shape.points.count > 1 else { return [] }
             let box = boundingBox(shape.points)
             let left = box.origin.x, top = box.origin.y
@@ -71,13 +79,31 @@ public enum MarkupEditing {
         case .arrow, .line:
             guard pulled.points.count > 1 else { return shape }
             pulled.points[index] = point
-        case .rectangle, .oval, .blur, .magnifier, .crop:
+        case .magnifier:
+            // The lens grows about its own middle: it has no corner to anchor.
+            guard let lens = lens(of: shape) else { return shape }
+            let dx = point.x - lens.centre.x, dy = point.y - lens.centre.y
+            let radius = max(12, (dx * dx + dy * dy).squareRoot())
+            pulled.points = [MarkupPoint(x: lens.centre.x - radius, y: lens.centre.y - radius),
+                             MarkupPoint(x: lens.centre.x + radius, y: lens.centre.y + radius)]
+        case .rectangle, .oval, .blur, .crop:
             let opposite = spots[(index + 2) % 4]
             pulled.points = [opposite, point]
         default:
             return shape
         }
         return pulled
+    }
+
+    /// The circle a lens really is: the biggest that fits its box, on the same
+    /// middle.
+    public static func lens(of shape: MarkupShape) -> (centre: MarkupPoint, radius: Double)? {
+        guard shape.points.count > 1 else { return nil }
+        let box = MarkupGeometry.boundingBox(shape.points)
+        let radius = min(box.size.x, box.size.y) / 2
+        guard radius > 0 else { return nil }
+        return (MarkupPoint(x: box.origin.x + box.size.x / 2,
+                            y: box.origin.y + box.size.y / 2), radius)
     }
 
     private static func boundingBox(_ points: [MarkupPoint]) -> (origin: MarkupPoint, size: MarkupPoint) {

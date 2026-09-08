@@ -2483,6 +2483,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   strength, an arrow's head, a caption's size — and colour and width from the
   toolbar go on the mark in hand rather than only on the next one of its kind
   (Anton, 2026-09-08). A blur tuned before it is drawn is a blur tuned blind.
+- **A drag is continued while ANYTHING is under the hand**, not only while a
+  mark is being drawn: the select tool holds its mark in `editing`, and a canvas
+  that watched `drafting` alone started the pick over on every step of the drag,
+  so nothing ever moved (Anton, 2026-09-08).
 - The edit stands IN for the stored mark while the drag lasts (`editing`), and
   is written back once on release, so pulling a corner across the picture is one
   undo step rather than a hundred. A handle of the mark already in hand wins over
@@ -2503,7 +2507,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   across, already selected and with the select tool in hand — so it is dragged
   by its middle, resized by its corners and deleted with backspace the moment it
   appears. Pressing the tool again drops another, and a click on the picture
-  drops none: the loupe is never the tool in hand. **The tool is handed over a
+  drops none: the loupe is never the tool in hand. It is held at the four
+  BEARINGS of its circle, dots lying on the glass itself, and grows about its
+  own middle — a round thing has no corner to anchor it by, and a dashed box
+  round it says nothing (Anton, 2026-09-08). **The tool is handed over a
   tick later** — `@Published` fires BEFORE the assignment lands, so a tool set
   from inside that sink is overwritten by the one that triggered it, and the
   loupe stayed in hand while every click on the picture drew another lens

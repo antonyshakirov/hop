@@ -41,10 +41,13 @@ struct MarkupCanvas: View {
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
                     let point = MarkupPoint(x: value.location.x / scale, y: value.location.y / scale)
-                    if surface.drafting == nil {
-                        surface.begin(at: point)
-                    } else {
+                    // `drafting` alone is not enough: the select tool holds its
+                    // mark in `editing`, and the drag started the pick over on
+                    // every step instead of moving anything.
+                    if surface.isDragging {
                         surface.extend(to: point, modifiers: Self.heldKeys())
+                    } else {
+                        surface.begin(at: point)
                     }
                 }
                 .onEnded { _ in surface.finish() }
@@ -72,15 +75,20 @@ struct MarkupCanvas: View {
     @ViewBuilder
     private var held: some View {
         if let shape = surface.selected {
+            let round = shape.tool == .magnifier
             let box = MarkupGeometry.boundingBox(shape.points)
             let frame = CGRect(x: box.origin.x * scale - 5, y: box.origin.y * scale - 5,
                                width: box.size.x * scale + 10, height: box.size.y * scale + 10)
             ZStack(alignment: .topLeading) {
-                Rectangle()
-                    .strokeBorder(Color.white.opacity(0.9), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
-                    .frame(width: frame.width, height: frame.height)
-                    .shadow(color: .black.opacity(0.6), radius: 1)
-                    .position(x: frame.midX, y: frame.midY)
+                // A lens is its own outline; a box round it says nothing.
+                if !round {
+                    Rectangle()
+                        .strokeBorder(Color.white.opacity(0.9),
+                                      style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                        .frame(width: frame.width, height: frame.height)
+                        .shadow(color: .black.opacity(0.6), radius: 1)
+                        .position(x: frame.midX, y: frame.midY)
+                }
 
                 ForEach(Array(MarkupEditing.handles(of: shape).enumerated()), id: \.offset) { _, spot in
                     Circle()
