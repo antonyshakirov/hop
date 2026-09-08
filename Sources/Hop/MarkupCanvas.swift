@@ -76,19 +76,16 @@ struct MarkupCanvas: View {
         }
     }
 
-    /// What is in hand: a hairline round the mark, and a dot on every point it
-    /// can be pulled by. A scribble has none — it moves whole.
+    /// What is in hand: a dot on every point the mark can be pulled by, and a
+    /// hairline round it only when it has no such points to show.
     @ViewBuilder
     private var held: some View {
         if let shape = surface.selected {
-            // A shape that already shows its own edge needs no box round it.
-            let round = shape.tool == .magnifier || shape.tool == .oval || shape.tool == .blur
             let box = MarkupGeometry.boundingBox(shape.points)
             let frame = CGRect(x: box.origin.x * scale - 5, y: box.origin.y * scale - 5,
                                width: box.size.x * scale + 10, height: box.size.y * scale + 10)
             ZStack(alignment: .topLeading) {
-                // A lens is its own outline; a box round it says nothing.
-                if !round {
+                if MarkupEditing.boxed(shape) {
                     Rectangle()
                         .strokeBorder(Color.white.opacity(0.9),
                                       style: StrokeStyle(lineWidth: 1, dash: [4, 3]))

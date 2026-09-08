@@ -2502,11 +2502,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (Anton, 2026-09-08). The export reads `surface.lasting` regardless — marks
   alive by the clock rather than by the tick.
 - **A mark already made can be picked up again.** The select tool (`v`, the
-  arrow, first in the row) takes the topmost mark under the pointer: a dashed
-  hairline goes round it and a dot appears on every point it can be pulled by —
-  the two ends of a line or an arrow, the four corners of a box, a blur or the
-  loupe. A scribble and a numbered step have no handles and move whole. Delete
-  removes what is in hand (Anton, 2026-09-08).
+  arrow, first in the row) takes the topmost mark under the pointer: a dot
+  appears on every point it can be pulled by — the two ends of a line or an
+  arrow, the four corners of a box, a blur or the loupe. A scribble and a
+  numbered step have no handles and move whole. Delete removes what is in hand
+  (Anton, 2026-09-08).
+- **The corners ARE the sign that a mark is in hand**, so nothing that has
+  corners also gets a box round it (Anton, 2026-09-08): the dashed hairline
+  over a rectangle was a third outline — the mark's own edge, the hairline and
+  the shadow under it — round a shape that already showed where it was. The box
+  is left only where there are no handles to show: a scribble, a numbered step,
+  a caption. `MarkupEditing.boxed` with tests.
 - **A mark is picked up by its AREA, not by its outline** (Anton, 2026-09-08):
   anywhere inside a rectangle, an oval, a blur or the loupe, anywhere on a
   numbered step's circle, anywhere across a caption. Lines, arrows and scribbles

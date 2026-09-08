@@ -52,6 +52,28 @@ final class MarkupEditingTests: XCTestCase {
 }
 
 extension MarkupEditingTests {
+    /// Corners are what says a mark is in hand; a box round them is a third
+    /// outline over a shape that already has one. SPEC: docs/spec.md
+    func testOnlyAMarkWithoutHandlesGetsABoxRoundIt() {
+        let box = MarkupShape(tool: .rectangle,
+                              points: [MarkupPoint(x: 10, y: 10), MarkupPoint(x: 90, y: 60)],
+                              ink: MarkupInk(hex: "#FF453A", width: 4), createdAt: 0)
+        let arrow = MarkupShape(tool: .arrow,
+                                points: [MarkupPoint(x: 10, y: 10), MarkupPoint(x: 90, y: 60)],
+                                ink: MarkupInk(hex: "#FF453A", width: 4), createdAt: 0)
+        let scribble = MarkupShape(tool: .pencil,
+                                   points: [MarkupPoint(x: 10, y: 10), MarkupPoint(x: 20, y: 30),
+                                            MarkupPoint(x: 40, y: 25)],
+                                   ink: MarkupInk(hex: "#FF453A", width: 4), createdAt: 0)
+        let step = MarkupShape(tool: .steps, points: [MarkupPoint(x: 50, y: 50)],
+                               ink: MarkupInk(hex: "#FF453A", width: 2), createdAt: 0)
+        XCTAssertFalse(MarkupEditing.boxed(box))
+        XCTAssertFalse(MarkupEditing.boxed(arrow))
+        XCTAssertFalse(MarkupEditing.boxed(plainLens))
+        XCTAssertTrue(MarkupEditing.boxed(scribble))
+        XCTAssertTrue(MarkupEditing.boxed(step))
+    }
+
     /// A rectangle is picked up from ANYWHERE inside it: aiming a mouse at a
     /// one-point outline is not a thing anyone can do.
     func testABoxIsGrabbedFromInsideIt() {

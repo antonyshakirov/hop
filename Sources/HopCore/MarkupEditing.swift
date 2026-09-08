@@ -35,6 +35,12 @@ public enum MarkupEditing {
         }
     }
 
+    /// A mark with handles is shown to be in hand BY its handles; only one with
+    /// none needs a box round it.
+    public static func boxed(_ shape: MarkupShape) -> Bool {
+        handles(of: shape).isEmpty
+    }
+
     /// Picking a mark up is done by its AREA, not by its outline: nobody aims a
     /// mouse at a hairline. Strokes, lines and arrows keep proximity — their
     /// area IS the line.
