@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import HopCore
 import SwiftUI
 
@@ -16,6 +17,10 @@ final class ScreenshotEditor: ObservableObject {
     @Published var cropDraft: CGRect?
     @Published var edge: MarkupToolbar.Edge = .bottom
     @Published private(set) var dressedPreview: CGImage?
+    /// The picture with blur and the loupe already in it, under the marks.
+    @Published private(set) var backdrop: CGImage?
+
+    private var watches: Set<AnyCancellable> = []
 
     let base: CGImage
     let rect: CaptureRect
@@ -37,6 +42,23 @@ final class ScreenshotEditor: ObservableObject {
         fileName = ScreenshotNaming.fileName(at: Date(), calendar: .current, format: format)
         dressing = MarkupSettings.frameDressing()
         watermark = MarkupSettings.watermark()
+
+        // The view watches the EDITOR, not the surface: without these the tool
+        // could change and nothing here would hear it.
+        surface.$tool
+            .sink { [weak self] tool in
+                guard let self else { return }
+                if tool == .crop { self.beginCropping() } else { self.cropDraft = nil }
+            }
+            .store(in: &watches)
+
+        surface.$shapes
+            .sink { [weak self] shapes in
+                guard let self else { return }
+                self.backdrop = MarkupRender.effects(base: self.base, shapes: shapes, scale: self.scale)
+                self.refreshPreview()
+            }
+            .store(in: &watches)
     }
 
     /// The tools this surface offers: no fading ink on a picture that will be
@@ -150,7 +172,8 @@ struct ScreenshotEditorView: View {
                         .frame(width: seen.width * s, height: seen.height * s)
                         .overlay(alignment: .topLeading) {
                             MarkupCanvas(surface: editor.surface,
-                                         background: Image(decorative: editor.base, scale: 1),
+                                         background: Image(decorative: editor.backdrop ?? editor.base,
+                                                           scale: 1),
                                          scale: s)
                                 .frame(width: editor.full.width * s, height: editor.full.height * s)
                                 .allowsHitTesting(editor.cropDraft == nil)
@@ -178,9 +201,6 @@ struct ScreenshotEditorView: View {
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .background(MarkupKeys(surface: editor.surface, tools: ScreenshotEditor.tools))
-            .onChange(of: editor.surface.tool) { _, tool in
-                if tool == .crop { editor.beginCropping() } else { editor.cropDraft = nil }
-            }
         }
     }
 

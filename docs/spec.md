@@ -2468,6 +2468,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   2026-09-08) — the export reads `surface.lasting`, marks alive by the clock
   rather than by the tick, so ink that has faded off the screen cannot turn up
   in the file.
+- **The editor draws its marks over a picture the PIXEL tools have already
+  changed.** Blur and the loupe do not sit on the picture, they alter it, and on
+  screen both used to be a dashed outline and nothing else — the effect only
+  appeared in the exported file (Anton, 2026-09-08). `MarkupRender.effects`
+  builds that backdrop, the vector marks go over it, and the export is unchanged.
+- **The editor watches its SURFACE, not only itself.** `MarkupSurface` is an
+  object the editor merely holds, so a tool change or a new mark published
+  nothing the view could hear: crop mode never opened and the backdrop never
+  refreshed. Two sinks on `$tool` and `$shapes` are what connect them.
 - **Crop is a MODE, not a rectangle to draw.** Picking it shows the whole
   picture again with the last cut as a frame — eight handles, a dimmed outside,
   thirds across it — so a crop can be widened back to anything up to the

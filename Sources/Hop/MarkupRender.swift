@@ -17,6 +17,30 @@ enum MarkupRender {
         return CGPoint(x: to.x - dx / length * amount, y: to.y - dy / length * amount)
     }
 
+    /// What blur and the loupe do to the PIXELS, with no mark drawn on top.
+    /// The editor shows this under its own vector marks: those two tools change
+    /// the picture rather than sit on it, and a dashed outline is not what they
+    /// did.
+    static func effects(base: CGImage, shapes: [MarkupShape], scale: Double) -> CGImage? {
+        let lenses = shapes.filter { $0.tool == .magnifier }
+        let blurred = smeared(base: base, shapes: shapes, scale: scale)
+        guard blurred != nil || !lenses.isEmpty else { return nil }
+
+        let picture = blurred ?? base
+        guard !lenses.isEmpty else { return picture }
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let context = CGContext(data: nil, width: picture.width, height: picture.height,
+                                      bitsPerComponent: 8, bytesPerRow: 0, space: space,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        else { return picture }
+
+        context.draw(picture, in: CGRect(x: 0, y: 0, width: picture.width, height: picture.height))
+        context.translateBy(x: 0, y: CGFloat(picture.height))
+        context.scaleBy(x: 1, y: -1)
+        for lens in lenses { magnify(lens, base: picture, scale: scale, in: context) }
+        return context.makeImage() ?? picture
+    }
+
     static func compose(base: CGImage, shapes: [MarkupShape], scale: Double) -> CGImage? {
         let width = base.width
         let height = base.height
