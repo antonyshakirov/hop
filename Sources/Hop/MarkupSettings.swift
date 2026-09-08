@@ -13,6 +13,7 @@ enum MarkupSettings {
     static let shotEdgeKey = "shotToolbarEdge"
     static let annotateEdgeKey = "annotateToolbarEdge"
     static let arrowStyleKey = "markupArrowStyle"
+    static let inksKey = "markupInks"
 
     static func frameDressing() -> FrameDressing {
         decode(dressingKey) ?? .standard
@@ -26,6 +27,23 @@ enum MarkupSettings {
         guard let raw = UserDefaults.standard.string(forKey: arrowStyleKey),
               let style = ArrowStyle(rawValue: raw) else { return .solid }
         return style
+    }
+
+    /// Colour and width per tool. Each is its own setting and each outlives the
+    /// session: the fat yellow marker is not the thin red pencil.
+    static func inks() -> [MarkupTool: MarkupInk] {
+        let stored: [String: MarkupInk] = decode(inksKey) ?? [:]
+        return stored.reduce(into: [:]) { out, pair in
+            guard let tool = MarkupTool(rawValue: pair.key) else { return }
+            out[tool] = pair.value
+        }
+    }
+
+    static func store(inks: [MarkupTool: MarkupInk]) {
+        let plain = inks.reduce(into: [String: MarkupInk]()) { out, pair in
+            out[pair.key.rawValue] = pair.value
+        }
+        encode(plain, into: inksKey)
     }
 
     static func store(arrowStyle: ArrowStyle) {

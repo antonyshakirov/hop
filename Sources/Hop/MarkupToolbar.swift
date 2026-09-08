@@ -260,12 +260,20 @@ struct MarkupColourPopover: View {
 
             Rectangle().fill(Theme.divider).frame(width: 1, height: 22)
 
-            ColorPicker("", selection: Binding(
-                get: { Color(markupHex: current.hex) },
-                set: { picked in write { $0.hex = picked.markupHex } }
-            ), supportsOpacity: false)
-            .labelsHidden()
-            .frame(width: 24)
+            Button {
+                MarkupColourPanel.shared.show(startingAt: current.hex) { picked in
+                    write { $0.hex = picked.markupHex }
+                }
+            } label: {
+                Circle()
+                    .fill(AngularGradient(
+                        colors: [.red, .yellow, .green, .cyan, .blue, .purple, .red],
+                        center: .center))
+                    .frame(width: 22, height: 22)
+                    .overlay(Circle().strokeBorder(Theme.glyphInk.opacity(0.2), lineWidth: 1))
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
         }
         .padding(12)
         .background(Theme.background)
@@ -286,32 +294,54 @@ struct MarkupWidthPopover: View {
     @ObservedObject var surface: MarkupSurface
     var lang: AppLanguage
 
-    private let widths: [Double] = [2, 4, 9, 18]
+    private let presets: [Double] = [2, 4, 9, 18]
 
     var body: some View {
-        HStack(spacing: 10) {
-            Text(L10n.t(.mkWidth, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
-            ForEach(widths, id: \.self) { width in
-                Button {
-                    var ink = surface.ink(for: surface.tool)
-                    ink.width = width
-                    surface.setInk(ink, for: surface.tool)
-                } label: {
-                    Circle()
-                        .fill(Theme.glyphInk.opacity(surface.ink(for: surface.tool).width == width ? 0.92 : 0.5))
-                        .frame(width: width / 2 + 3, height: width / 2 + 3)
-                        .frame(width: 26, height: 26)
-                        .background(
-                            RoundedRectangle(cornerRadius: 6).fill(
-                                surface.ink(for: surface.tool).width == width ? Theme.chipBg : .clear)
-                        )
-                        .contentShape(Rectangle())
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(L10n.t(.mkWidth, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+                Spacer()
+                Text("\(Int(current.width.rounded()))")
+                    .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
+            }
+
+            // A slider as well as the four: a tool whose width is not one of
+            // them showed nothing chosen at all, which read as no width set.
+            Slider(value: Binding(
+                get: { current.width },
+                set: { value in write { $0.width = value.rounded() } }
+            ), in: 1...30)
+
+            HStack(spacing: 8) {
+                ForEach(presets, id: \.self) { width in
+                    Button {
+                        write { $0.width = width }
+                    } label: {
+                        Circle()
+                            .fill(Theme.glyphInk.opacity(current.width == width ? 0.92 : 0.5))
+                            .frame(width: width / 2 + 3, height: width / 2 + 3)
+                            .frame(width: 26, height: 26)
+                            .background(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(current.width == width ? Theme.chipBg : .clear)
+                            )
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
         .padding(12)
+        .frame(width: 210)
         .background(Theme.background)
+    }
+
+    private var current: MarkupInk { surface.ink(for: surface.tool) }
+
+    private func write(_ change: (inout MarkupInk) -> Void) {
+        var ink = current
+        change(&ink)
+        surface.setInk(ink, for: surface.tool)
     }
 }
 
@@ -516,5 +546,35 @@ struct MarkupKeys: NSViewRepresentable {
         deinit {
             if let monitor { NSEvent.removeMonitor(monitor) }
         }
+    }
+}
+
+
+/// The system colour picker, opened where it can be seen. Left to itself the
+/// panel comes back wherever it was last put — usually the bottom left of the
+/// screen, nowhere near the toolbar it was asked from.
+@MainActor
+final class MarkupColourPanel: NSObject {
+    static let shared = MarkupColourPanel()
+
+    private var onPick: ((Color) -> Void)?
+
+    func show(startingAt hex: String, onPick: @escaping (Color) -> Void) {
+        self.onPick = onPick
+        let panel = NSColorPanel.shared
+        panel.showsAlpha = false
+        panel.color = NSColor(Color(markupHex: hex))
+        panel.setTarget(self)
+        panel.setAction(#selector(picked(_:)))
+        if let screen = NSScreen.main ?? NSScreen.screens.first {
+            let size = panel.frame.size
+            panel.setFrameOrigin(NSPoint(x: screen.frame.midX - size.width / 2,
+                                         y: screen.frame.midY - size.height / 2 + 80))
+        }
+        panel.makeKeyAndOrderFront(nil)
+    }
+
+    @objc private func picked(_ sender: NSColorPanel) {
+        onPick?(Color(nsColor: sender.color))
     }
 }

@@ -141,6 +141,7 @@ struct ScreenshotEditorView: View {
     var onClose: () -> Void
 
     @State private var saved: URL?
+    @State private var copied = false
     @State private var showingDressing = false
     @State private var showingWatermark = false
 
@@ -235,6 +236,7 @@ struct ScreenshotEditorView: View {
             .buttonStyle(.plain)
             .help(L10n.t(.mkCrop, lang))
         }
+        .frame(height: 32)
     }
 
     /// Done TO the picture rather than drawn on it. SPEC: docs/spec.md
@@ -265,14 +267,23 @@ struct ScreenshotEditorView: View {
                 .textFieldStyle(.plain)
                 .font(Theme.mono(11))
                 .lineLimit(1)
+                // The focus ring grows the field, and the whole panel jumps
+                // with it the moment the name is clicked into.
+                .focusEffectDisabled()
                 .padding(.horizontal, 8)
                 .frame(width: 130, height: 26)
                 .background(RoundedRectangle(cornerRadius: 7).fill(Theme.fieldBg))
 
-            Button { editor.copyToClipboard() } label: {
-                MarkupIcon(glyph: .copy)
-                    .foregroundStyle(Theme.textSecondary)
+            Button {
+                editor.copyToClipboard()
+                copied = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) { copied = false }
+            } label: {
+                MarkupIcon(glyph: copied ? .done : .copy)
+                    .foregroundStyle(copied ? Theme.accentGreen : Theme.textSecondary)
                     .frame(width: 32, height: 32)
+                    .background(RoundedRectangle(cornerRadius: 7)
+                        .fill(copied ? Theme.chipBg : .clear))
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)

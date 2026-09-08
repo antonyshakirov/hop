@@ -2504,18 +2504,32 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   2026-09-08).
 - **Colour and width are two controls, not one.** Width belongs to every tool
   and was buried under a colour swatch, where nobody would look for it (Anton,
-  2026-09-08); it has its own button, three lines of rising weight. The colour
-  popover carries the eight presets AND the system picker, for a colour that is
-  not among them.
+  2026-09-08); it has its own button, three lines of rising weight. Its popover
+  is a SLIDER as well as four presets: a tool whose width is not one of the four
+  showed nothing chosen at all, which reads as no width set. **Colour and width
+  are kept per tool and outlive the session** (`markupInks`) — the fat yellow
+  marker is not the thin red pencil, and neither should have to be set again
+  tomorrow.
+- The colour popover carries the eight presets and a round rainbow swatch for
+  anything else. It opens `NSColorPanel` in the middle of the screen: left to
+  itself the panel comes back wherever it was last put, usually the bottom left,
+  nowhere near the toolbar it was asked from (Anton, 2026-09-08). SwiftUI's own
+  `ColorPicker` well is not used — a rectangle among round swatches.
+- **Copy says it copied**: the glyph becomes a tick for a second. A button that
+  answers nothing leaves the user pressing it again.
+- The name field has its focus effect off. The ring grows the field, and the
+  whole panel jumps the moment the name is clicked into.
 - **⌘Z and ⇧⌘Z work from the keyboard.** Hop is an accessory app with no Edit
   menu, so there is no key equivalent for them to travel on: the surface's own
   key monitor takes them, and only while its window is the KEY one — with
   several editors open, an undo must not reach into the ones behind.
-- **A two-point tool marks where it started**: a small white cross at the anchor
-  while the shape is being pulled out of it, and a crosshair pointer over the
-  picture while such a tool is in hand. The pointer's view takes no hits — an
-  overlay that answers SwiftUI's hit test swallows the drag under it, and
-  nothing draws at all. Which corner a rectangle grew from was
+- **A two-point tool shows where it will start and where it did**: guides across
+  the whole picture through the pointer before the drag, a cross at the anchor
+  during it, both drawn as a white line over a dark one so they hold on any
+  screenshot. The pointer's view takes no hits — an overlay that answers
+  SwiftUI's hit test swallows the drag under it, and nothing draws at all — and
+  it follows the mouse through a tracking area, since SwiftUI reports a moving
+  mouse only once a button is down. Which corner a rectangle grew from was
   otherwise invisible (Anton, 2026-09-08).
 - **Option draws from the centre, shift keeps it regular** — a square, a circle,
   a line on one of eight bearings. The rule is a pure function in

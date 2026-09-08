@@ -10,7 +10,7 @@ enum MarkupGlyph: String, CaseIterable {
     case crop, pencil, fadingInk, marker, arrow, line, rectangle, oval
     case steps, text, magnifier, blur, eraser
     case undo, redo, grip, cursor, clear, save, copy, close
-    case dressing, watermark, weight
+    case dressing, watermark, weight, done
 }
 
 struct MarkupStroke {
@@ -126,6 +126,11 @@ enum MarkupIcons {
         case .close:
             return [stroke { $0.addPath(line(6, 6, 18, 18)) },
                     stroke { $0.addPath(line(18, 6, 6, 18)) }]
+
+        case .done:
+            return [stroke(width: 1.8) {
+                $0.move(to: p(5.5, 12.6)); $0.addLine(to: p(10, 17)); $0.addLine(to: p(18.5, 7.4))
+            }]
 
         case .weight:
             return [stroke(width: 1) { $0.addPath(line(4, 7, 20, 7)) },

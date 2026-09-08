@@ -23,7 +23,7 @@ final class MarkupSurface: ObservableObject {
     @Published var typing: MarkupShape?
 
     private let document = MarkupDocument()
-    private var inks: [MarkupTool: MarkupInk] = [:]
+    private var inks: [MarkupTool: MarkupInk] = MarkupSettings.inks()
     private var origin: MarkupPoint?
     private var ticker: Timer?
     private let opened = Date()
@@ -50,6 +50,7 @@ final class MarkupSurface: ObservableObject {
 
     func setInk(_ ink: MarkupInk, for tool: MarkupTool) {
         inks[tool] = ink
+        MarkupSettings.store(inks: inks)
         objectWillChange.send()
     }
 
