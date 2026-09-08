@@ -2568,6 +2568,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   emphasis. The region is a rectangle, an oval or a freehand lasso, and there
   can be several. "Pixels" is offered beside "blur": a blur over small type can
   sometimes be read back, a mosaic cannot.
+- **Every shot opens clean.** The dressing and the mark start at their standard
+  values, not at the last shot's: a plain screenshot came up wearing whatever
+  the one before it was dressed in (Anton, 2026-09-08). What the mark SAYS is
+  the exception — the user's own words and their own image are remembered and
+  come back the moment the mark is switched on.
 - **Frame dressing** (a toolbar button, off by default): a background from
   twelve presets, a colour of the user's own from the system picker, or a
   PICTURE of their own — copied into Application Support like the watermark's,

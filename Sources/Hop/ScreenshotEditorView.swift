@@ -40,8 +40,17 @@ final class ScreenshotEditor: ObservableObject {
         let format = UserDefaults.standard.string(forKey: "shotFormat") ?? "png"
         self.format = format
         fileName = ScreenshotNaming.fileName(at: Date(), calendar: .current, format: format)
-        dressing = MarkupSettings.frameDressing()
-        watermark = MarkupSettings.watermark()
+        // Every shot starts clean. Carrying the last one's dressing and mark
+        // into the next meant a plain screenshot came up wearing whatever the
+        // one before it was dressed in (Anton, 2026-09-08). What the mark SAYS
+        // is remembered — those are the user's own words, not a setting — and
+        // comes back the moment the mark is switched on.
+        dressing = .standard
+        var mark = Watermark.standard
+        let remembered = MarkupSettings.watermark()
+        mark.text = remembered.text
+        mark.imageName = remembered.imageName
+        watermark = mark
 
         // The view watches the EDITOR, not the surface: without these the tool
         // could change and nothing here would hear it.
