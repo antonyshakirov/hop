@@ -2569,7 +2569,7 @@ struct PanelView: View {
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
     private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall"]
-    static let defaultModuleOrder = "timer,awake,clipboard,vpn,keyboard,ocr,convert,windows,speedtest,torrent,color,archive"
+    static let defaultModuleOrder = ModuleCatalog.defaultModuleOrder
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
     /// developers) and must be a deliberate opt-in: an ordinary user should not

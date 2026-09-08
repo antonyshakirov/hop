@@ -241,6 +241,27 @@ final class ModuleCatalogTests: XCTestCase {
         }
     }
 
+    /// SPEC: docs/spec.md — "Modules": the two markup modules sit at the foot of
+    /// the first space, with only the window zones below them.
+    func testTheMarkupModulesSitAtTheFootOfTheFirstSpace() {
+        let managed = Set(PanelTabsModel.reportingModules
+                          + PanelTabsModel.timeModules
+                          + PanelTabsModel.toolModules)
+        let firstSpace = ModuleCatalog.defaultModuleOrder
+            .split(separator: ",").map(String.init)
+            .filter { !managed.contains($0) }
+        XCTAssertEqual(firstSpace.suffix(3), ["shot", "annotate", "windows"])
+    }
+
+    /// Every module the order names is a module, and none is named twice.
+    func testTheDefaultOrderIsMadeOfRealModules() {
+        let order = ModuleCatalog.defaultModuleOrder.split(separator: ",").map(String.init)
+        XCTAssertEqual(Set(order).count, order.count, "a module is listed twice")
+        for id in order {
+            XCTAssertNotNil(ModuleCatalog.module(id), "\(id) is in the order and not in the catalog")
+        }
+    }
+
     func testBothMarkupModulesOwnSettings() {
         XCTAssertTrue(ModuleCatalog.hasSettings("shot"))
         XCTAssertTrue(ModuleCatalog.hasSettings("annotate"))

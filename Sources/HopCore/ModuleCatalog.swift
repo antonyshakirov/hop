@@ -172,6 +172,16 @@ public enum ModuleCatalog {
                      defaultCombo: ModuleCombo(keyCode: key, modifiers: controlOption))
     }
 
+    /// The order the panel's first space is built in on a clean install; the
+    /// managed spaces (the monitor, the clock, the tools) take their own
+    /// modules out of it. The two markup modules sit at the BOTTOM with only
+    /// the window zones under them (Anton, 2026-09-08): they are reached for
+    /// mid-call and mid-write, not while the panel is being read top to bottom,
+    /// and the zones are the one row that belongs lower still.
+    /// SPEC: docs/spec.md — "Modules".
+    public static let defaultModuleOrder =
+        "timer,awake,clipboard,vpn,keyboard,ocr,convert,shot,annotate,windows,speedtest,torrent,color,archive"
+
     /// Modules that own settings beyond the on/off switch.
     /// SPEC: docs/spec.md — "The module page (settings window)".
     public static let modulesWithSettings: Set<String> = [

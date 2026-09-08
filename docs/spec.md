@@ -2884,6 +2884,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Draw over the screen
 
+- **Both markup modules sit at the FOOT of the first space** on a clean
+  install, with only the window zones under them (Anton, 2026-09-08):
+  `ModuleCatalog.defaultModuleOrder`. They are reached for mid-call and
+  mid-write rather than read down the panel, and the zones are the one row that
+  belongs lower still.
 - Module `"annotate"`, title `annotateLabel` — "draw on screen", guide
   letter `i`, ⌃⌥D out of the box. The name and the button are both short on
   purpose: "draw over the screen · start drawing" said the same word twice in a
