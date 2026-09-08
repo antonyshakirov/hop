@@ -266,10 +266,16 @@ struct ClipboardView: View {
                     }
                 }
                 .opacity(isCopied ? 0 : 1)
-                Image(systemName: "checkmark")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(Theme.accentGreen)
-                    .opacity(isCopied ? 1 : 0)
+                // SPEC: docs/spec.md — "Saying where the picture went": a tick
+                // on its own is the one confirmation that says no word.
+                HStack(spacing: 4) {
+                    Text(L10n.t(.clipboardCopied, lang))
+                        .font(Theme.mono(9, weight: .semibold))
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 10, weight: .bold))
+                }
+                .foregroundStyle(Theme.accentGreen)
+                .opacity(isCopied ? 1 : 0)
             }
             .frame(height: 20)
         }
