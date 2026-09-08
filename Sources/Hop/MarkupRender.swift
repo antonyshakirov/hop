@@ -267,13 +267,26 @@ enum MarkupRender {
             context.strokePath()
 
         case .marker:
+            // The band a flat nib leaves, matching what the canvas drew.
+            let half = max(shape.ink.width * scale, 1) / 2
             context.saveGState()
             context.setBlendMode(.multiply)
-            context.setStrokeColor(colour.withAlphaComponent(0.45).cgColor)
+            context.setFillColor(colour.withAlphaComponent(0.45).cgColor)
             context.beginPath()
-            context.move(to: first)
-            for point in points.dropFirst() { context.addLine(to: point) }
-            context.strokePath()
+            if points.count > 1 {
+                context.move(to: CGPoint(x: first.x, y: first.y - half))
+                for point in points.dropFirst() {
+                    context.addLine(to: CGPoint(x: point.x, y: point.y - half))
+                }
+                for point in points.reversed() {
+                    context.addLine(to: CGPoint(x: point.x, y: point.y + half))
+                }
+                context.closePath()
+            } else {
+                context.addRect(CGRect(x: first.x - half / 3, y: first.y - half,
+                                       width: max(half / 1.5, 1), height: half * 2))
+            }
+            context.fillPath()
             context.restoreGState()
 
         case .line:

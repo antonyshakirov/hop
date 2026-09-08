@@ -235,9 +235,13 @@ struct MarkupCanvas: View {
             context.stroke(freehand(points), with: .color(colour), style: stroke)
 
         case .marker:
+            // A chisel, not a fat pen: the nib is an UPRIGHT bar swept along the
+            // path, so a stroke across the page is thick and one down it is
+            // thin. A round cap would lay down the same mark in every
+            // direction, which is what a pencil does.
             context.drawLayer { layer in
                 layer.blendMode = .multiply
-                layer.stroke(freehand(points), with: .color(colour.opacity(0.45)), style: stroke)
+                layer.fill(chisel(points, nib: width), with: .color(colour.opacity(0.45)))
             }
 
         case .line:
@@ -384,6 +388,28 @@ struct MarkupCanvas: View {
     private func round(_ rect: CGRect) -> CGRect {
         let side = min(rect.width, rect.height)
         return CGRect(x: rect.midX - side / 2, y: rect.midY - side / 2, width: side, height: side)
+    }
+
+    /// The band a flat nib leaves: the path offset up by half the nib on the
+    /// way out and down by half on the way back.
+    private func chisel(_ points: [CGPoint], nib: CGFloat) -> Path {
+        var path = Path()
+        let half = max(nib, 1) / 2
+        guard let first = points.first else { return path }
+        guard points.count > 1 else {
+            path.addRect(CGRect(x: first.x - half / 3, y: first.y - half,
+                                width: max(half / 1.5, 1), height: half * 2))
+            return path
+        }
+        path.move(to: CGPoint(x: first.x, y: first.y - half))
+        for point in points.dropFirst() {
+            path.addLine(to: CGPoint(x: point.x, y: point.y - half))
+        }
+        for point in points.reversed() {
+            path.addLine(to: CGPoint(x: point.x, y: point.y + half))
+        }
+        path.closeSubpath()
+        return path
     }
 
     private func freehand(_ points: [CGPoint]) -> Path {

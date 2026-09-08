@@ -2647,6 +2647,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   narrow and TALL, upright — the end of the nib seen straight on, a third of the
   stroke's width and its full height (Anton, 2026-09-08). Leaning it and laying
   it flat were both tried first.
+- **The marker DRAWS with that nib**, not with a round pen. The nib is an
+  upright bar swept along the path — a stroke across the page is thick, one down
+  it is thin — so the pointer is telling the truth: a round cap lays down the
+  same mark in every direction, which is what a pencil does (Anton,
+  2026-09-08). The canvas and the export build the same band.
   The blur's pointer is a crosshair with the tool's own glyph
   beside it — a bare crosshair says "draw something" and no more, and the blur
   is the one region drawn for a purpose of its own.
