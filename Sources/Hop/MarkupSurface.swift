@@ -38,6 +38,12 @@ final class MarkupSurface: ObservableObject {
         return living + [drafting]
     }
 
+    /// What is still on the surface right now, read off the clock rather than
+    /// the tick: ink that has faded from the screen must not turn up in a file.
+    var lasting: [MarkupShape] {
+        FadingInk.alive(shapes, now: Date().timeIntervalSince(opened))
+    }
+
     func ink(for tool: MarkupTool) -> MarkupInk {
         inks[tool] ?? Self.standardInk(for: tool)
     }
@@ -119,11 +125,6 @@ final class MarkupSurface: ObservableObject {
         guard let hit = shapes.last(where: { MarkupGeometry.hits(shape: $0, point: point, tolerance: 6) })
         else { return }
         document.apply { StepNumbering.renumbered($0.filter { $0.id != hit.id }) }
-        publish()
-    }
-
-    func dropCropFrames() {
-        document.apply { $0.filter { $0.tool != .crop } }
         publish()
     }
 

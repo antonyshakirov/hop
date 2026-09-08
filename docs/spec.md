@@ -2425,8 +2425,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   fit the display and never blown up past its own pixels. It does NOT reopen at
   the size it was left: a window remembering 16:9 for a tall shot is a window
   with dead black space above and below the picture, which is what it had
-  (Anton, 2026-09-08). The floor is 960 × 380 — the tools and the keeping panel
-  lying flat are about 930pt wide — and a shot smaller than that is scaled up inside it instead. Below
+  (Anton, 2026-09-08). The floor is 990 × 380 — the tools and the keeping panel
+  lying flat are about 930pt wide — and it is set AFTER the content view
+  controller: assigning one resets the window's minimum, which left the toolbar
+  hanging out of a window nobody could widen it back from — and a shot smaller than that is scaled up inside it instead. Below
   700pt of height the toolbar refuses the left and right edges: standing on end
   it would be cut off with no way to grab it back.
 - **"One window with tabs" is a setting** (`shotOneWindow`, off). On, the windows
@@ -2459,10 +2461,25 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the picture was meant to have (Anton, 2026-09-08). The window keeps an ordinary
   thin title bar, so the traffic lights do not sit on the shot. **The format is
   not asked in the window**: it is one line in the module's settings.
-- Tools: crop, pencil, marker, arrow, line, rectangle, oval, numbered
-  steps, text, magnifier, blur, eraser; undo ⌘Z and redo ⇧⌘Z. Every tool
-  remembers its own colour and width, so the fat yellow marker and the thin red
-  pencil live side by side.
+- Tools: crop, pencil, fading ink, marker, arrow, line, rectangle, oval,
+  numbered steps, text, magnifier, blur, eraser; undo ⌘Z and redo ⇧⌘Z. Every
+  tool remembers its own colour and width, so the fat yellow marker and the thin
+  red pencil live side by side. Fading ink is offered HERE too (Anton,
+  2026-09-08) — the export reads `surface.lasting`, marks alive by the clock
+  rather than by the tick, so ink that has faded off the screen cannot turn up
+  in the file.
+- **Crop is a MODE, not a rectangle to draw.** Picking it shows the whole
+  picture again with the last cut as a frame — eight handles, a dimmed outside,
+  thirds across it — so a crop can be widened back to anything up to the
+  original (Anton, 2026-09-08). Nothing is applied until it is asked for: while
+  the frame is up the keeping panel gives way to two answers, reset and apply.
+  The canvas takes no hits meanwhile, so the crop frame cannot be drawn over.
+  Applied, the window SHOWS the cut — the picture is offset inside a clipped box
+  rather than re-rendered, so every mark keeps the coordinates it was made in.
+- **The keyboard is read by key CODE, not by the letter it prints.** On a
+  non-Latin layout the letters a key produces are not the letters the shortcuts
+  are named after, and every one of them was dead (Anton, 2026-09-08). The
+  physical key does not move.
 - **The arrow has four heads** — open barbs, a plain triangle, a notched one,
   and one drawn as a hand would. They hang off the arrow TOOL, not off the
   colour: pressing the arrow when it is already in hand opens them, pressing it
@@ -2593,6 +2610,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   turned by the same 45°, and every silhouette is ONE closed outline — two
   shapes sharing an edge stroke it twice, and the joint swells at 19 pt (Anton,
   2026-09-07). Icons are checked by RENDERING them, not by reading the paths.
+  The marker is a narrow barrel flaring into a chisel: an even barrel with a
+  skirt read as a torch (Anton, 2026-09-08).
 - **Every glyph is outlined and filled ONCE**, never stroked piece by piece: at
   anything below full opacity the crossings of two strokes painted separately
   come out brighter than the lines themselves, which is how the panel's pencil

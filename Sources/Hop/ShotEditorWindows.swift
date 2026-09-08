@@ -36,7 +36,6 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = false
         window.isReleasedWhenClosed = false
-        window.contentMinSize = Self.minimum
         window.collectionBehavior.insert(.fullScreenPrimary)
         window.animationBehavior = .documentWindow
         window.delegate = self
@@ -58,6 +57,10 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
         )
         host.sizingOptions = []
         window.contentViewController = host
+        // AFTER the content view controller: assigning one resets the window's
+        // minimum, and the toolbar was left hanging out of a window nobody could
+        // widen it back from.
+        window.contentMinSize = Self.minimum
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
 
         place(window, shot: rect)
@@ -115,7 +118,7 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
     /// Lying flat the tools and the keeping panel are about 930pt wide; the
     /// height only has to hold the picture, and a short window keeps the
     /// toolbar off its sides.
-    private static let minimum = NSSize(width: 960, height: 380)
+    private static let minimum = NSSize(width: 990, height: 380)
 
     // MARK: - Closing
 

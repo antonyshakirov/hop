@@ -37,8 +37,7 @@ enum MarkupIcons {
 
         case .marker:
             return [stroke { $0.addPath(turned(markerBody())) },
-                    stroke { $0.addPath(turned(line(10.1, 13.3, 13.9, 13.3))) },
-                    stroke(width: 2.6) { $0.addPath(line(5.8, 20, 14.6, 20)) }]
+                    stroke(width: 2.8) { $0.addPath(line(5.6, 20.2, 15, 20.2)) }]
 
         case .eraser:
             return [stroke { $0.addPath(turned(rounded(8.3, 4.9, 7.4, 12.2, 1.8))) },
@@ -183,12 +182,14 @@ enum MarkupIcons {
 
     private static func markerBody() -> Path {
         var path = Path()
-        path.move(to: p(9.9, 5.1))
-        path.addLine(to: p(14.1, 5.1))
-        path.addLine(to: p(14.1, 13.3))
-        path.addLine(to: p(16, 15.8))
-        path.addLine(to: p(8, 15.8))
-        path.addLine(to: p(9.9, 13.3))
+        path.move(to: p(9.9, 4.6))
+        path.addLine(to: p(14.1, 4.6))
+        path.addLine(to: p(14.1, 11.6))
+        path.addLine(to: p(15.1, 11.6))
+        path.addLine(to: p(13.4, 16.4))
+        path.addLine(to: p(10.6, 16.4))
+        path.addLine(to: p(8.9, 11.6))
+        path.addLine(to: p(9.9, 11.6))
         path.closeSubpath()
         return path
     }

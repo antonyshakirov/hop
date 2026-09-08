@@ -216,6 +216,19 @@ struct MarkupToolbar: View {
     static func tool(forLetter letter: String) -> MarkupTool? {
         MarkupTool.allCases.first { self.letter(of: $0) == letter.lowercased() }
     }
+
+    /// The letter a key PRINTS depends on the layout, and on a non-Latin one
+    /// every shortcut here was dead. The physical key does not move.
+    static func letter(forKeyCode code: UInt16) -> String? {
+        Self.ansi[code]
+    }
+
+    static let zKeyCode: UInt16 = 6
+
+    private static let ansi: [UInt16: String] = [
+        0: "a", 3: "f", 6: "z", 8: "c", 11: "b", 14: "e", 15: "r",
+        17: "t", 31: "o", 35: "p", 37: "l", 45: "n", 46: "m",
+    ]
 }
 
 /// The colour of the tool in hand: eight to press, and the system picker for
@@ -486,13 +499,15 @@ struct MarkupKeys: NSViewRepresentable {
                 if event.modifierFlags.contains(.command) {
                     // With several editors open only the one in front may act.
                     guard self.window?.isKeyWindow == true,
-                          event.charactersIgnoringModifiers?.lowercased() == "z"
+                          event.keyCode == MarkupToolbar.zKeyCode
                     else { return event }
                     self.step?(event.modifierFlags.contains(.shift))
                     return nil
                 }
 
-                guard let letter = event.charactersIgnoringModifiers,
+                guard !event.modifierFlags.contains(.control),
+                      !event.modifierFlags.contains(.option),
+                      let letter = MarkupToolbar.letter(forKeyCode: event.keyCode),
                       self.pick?(letter) == true else { return event }
                 return nil
             }

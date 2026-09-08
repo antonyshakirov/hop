@@ -12,6 +12,8 @@ final class ScreenshotEditor: ObservableObject {
     @Published var fileName: String
     @Published var format: String
     @Published var crop: CaptureRect?
+    /// The frame being chosen, while the crop tool is in hand.
+    @Published var cropDraft: CGRect?
     @Published var edge: MarkupToolbar.Edge = .bottom
     @Published private(set) var dressedPreview: CGImage?
 
@@ -40,25 +42,43 @@ final class ScreenshotEditor: ObservableObject {
     /// The tools this surface offers: no fading ink on a picture that will be
     /// saved, and every tool that needs pixels under it lives only here.
     static let tools: [MarkupTool] = [
-        .crop, .pencil, .marker, .arrow, .line, .rectangle,
+        .crop, .pencil, .fadingInk, .marker, .arrow, .line, .rectangle,
         .oval, .steps, .text, .magnifier, .blur, .eraser,
     ]
 
     var scale: Double { rect.scale }
 
-    /// A frame drawn with the crop tool becomes the crop and leaves the
-    /// document: an outline that stayed would be exported as a red rectangle.
-    func applyCropIfDrawn() {
-        guard let frame = surface.shapes.last(where: { $0.tool == .crop }),
-              frame.points.count > 1 else { return }
-        let box = MarkupGeometry.boundingBox(frame.points)
-        let rect = CaptureRect(x: box.origin.x, y: box.origin.y,
-                               width: box.size.x, height: box.size.y,
-                               scale: scale, displayID: rect.displayID)
-        surface.dropCropFrames()
-        guard rect.isUsable else { return }
-        crop = rect
+    /// The whole picture, in points.
+    var full: CGSize { CGSize(width: rect.width, height: rect.height) }
+
+    /// What the window shows: the cut, unless the cut is being chosen.
+    var visible: CGRect {
+        if cropDraft != nil { return CGRect(origin: .zero, size: full) }
+        guard let crop, crop.isUsable else { return CGRect(origin: .zero, size: full) }
+        return CGRect(x: crop.x, y: crop.y, width: crop.width, height: crop.height)
+    }
+
+    func beginCropping() {
+        guard cropDraft == nil else { return }
+        if let crop, crop.isUsable {
+            cropDraft = CGRect(x: crop.x, y: crop.y, width: crop.width, height: crop.height)
+        } else {
+            cropDraft = CGRect(origin: .zero, size: full)
+        }
+    }
+
+    func applyCrop() {
+        defer { cropDraft = nil }
+        guard let frame = cropDraft else { return }
+        let cut = CaptureRect(x: frame.minX, y: frame.minY,
+                              width: frame.width, height: frame.height,
+                              scale: scale, displayID: rect.displayID)
+        crop = cut.isUsable && frame.size != full ? cut : nil
         refreshPreview()
+    }
+
+    func resetCrop() {
+        cropDraft = CGRect(origin: .zero, size: full)
     }
 
     func refreshPreview() {
@@ -67,13 +87,13 @@ final class ScreenshotEditor: ObservableObject {
             return
         }
         dressedPreview = MarkupExport.render(
-            base: base, shapes: surface.shapes, scale: scale,
+            base: base, shapes: surface.lasting, scale: scale,
             crop: crop, dressing: dressing, watermark: watermark
         )
     }
 
     func finished() -> CGImage? {
-        MarkupExport.render(base: base, shapes: surface.shapes, scale: scale,
+        MarkupExport.render(base: base, shapes: surface.lasting, scale: scale,
                             crop: crop, dressing: dressing, watermark: watermark)
     }
 
@@ -110,21 +130,41 @@ struct ScreenshotEditorView: View {
 
     private var stage: some View {
         GeometryReader { geometry in
-            let shown = shownSize(in: geometry.size)
+            let seen = editor.visible
+            let dressed = editor.cropDraft == nil ? editor.dressedPreview : nil
+            let natural = dressed.map {
+                CGSize(width: Double($0.width) / editor.scale, height: Double($0.height) / editor.scale)
+            } ?? seen.size
+            let s = fitScale(natural, in: geometry.size)
             ZStack {
                 Theme.background.opacity(0.4)
 
-                if let preview = editor.dressedPreview {
-                    Image(decorative: preview, scale: 1)
+                if let dressed {
+                    // The dressing widens the canvas, so what is shown is no
+                    // longer the shot's own shape and nothing has to be offset.
+                    Image(decorative: dressed, scale: 1)
                         .resizable().scaledToFit()
-                        .frame(width: shown.width, height: shown.height)
+                        .frame(width: natural.width * s, height: natural.height * s)
                 } else {
-                    MarkupCanvas(surface: editor.surface,
-                                 background: Image(decorative: editor.base, scale: 1),
-                                 scale: shown.width / editor.rect.width)
-                        .frame(width: shown.width, height: shown.height)
+                    Color.clear
+                        .frame(width: seen.width * s, height: seen.height * s)
+                        .overlay(alignment: .topLeading) {
+                            MarkupCanvas(surface: editor.surface,
+                                         background: Image(decorative: editor.base, scale: 1),
+                                         scale: s)
+                                .frame(width: editor.full.width * s, height: editor.full.height * s)
+                                .allowsHitTesting(editor.cropDraft == nil)
+                                .offset(x: -seen.minX * s, y: -seen.minY * s)
+                        }
                         .clipped()
-                        .onChange(of: editor.surface.shapes.count) { editor.applyCropIfDrawn() }
+                        .overlay(alignment: .topLeading) {
+                            if editor.cropDraft != nil {
+                                CropOverlay(rect: Binding(
+                                    get: { editor.cropDraft ?? .zero },
+                                    set: { editor.cropDraft = $0 }
+                                ), bounds: editor.full, scale: s)
+                            }
+                        }
                 }
 
                 MarkupToolbarLayer(surface: editor.surface,
@@ -134,10 +174,46 @@ struct ScreenshotEditorView: View {
                                    lang: lang,
                                    trailing: AnyView(undoRedo),
                                    leading: AnyView(picture),
-                                   companion: AnyView(keeping))
+                                   companion: AnyView(companion))
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .background(MarkupKeys(surface: editor.surface, tools: ScreenshotEditor.tools))
+            .onChange(of: editor.surface.tool) { _, tool in
+                if tool == .crop { editor.beginCropping() } else { editor.cropDraft = nil }
+            }
+        }
+    }
+
+    /// While a frame is being chosen the keeping panel gives way to the two
+    /// answers the frame needs.
+    @ViewBuilder
+    private var companion: some View {
+        if editor.cropDraft != nil { cropping } else { keeping }
+    }
+
+    private var cropping: some View {
+        HStack(spacing: 6) {
+            Button { editor.resetCrop() } label: {
+                MarkupIcon(glyph: .undo)
+                    .foregroundStyle(Theme.textSecondary)
+                    .frame(width: 32, height: 32)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(L10n.t(.resetDefaults, lang))
+
+            Button {
+                editor.applyCrop()
+                editor.surface.tool = .pencil
+            } label: {
+                MarkupIcon(glyph: .crop)
+                    .foregroundStyle(Theme.playFg)
+                    .frame(width: 32, height: 32)
+                    .background(RoundedRectangle(cornerRadius: 7).fill(Theme.playBg))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(L10n.t(.mkCrop, lang))
         }
     }
 
@@ -230,20 +306,10 @@ struct ScreenshotEditorView: View {
     }
 
     /// The picture IS the window. SPEC: docs/spec.md
-    private func shownSize(in canvas: CGSize) -> CGSize {
-        let available = CGSize(width: max(120, canvas.width),
-                               height: max(90, canvas.height))
-        let natural: CGSize
-        if let preview = editor.dressedPreview {
-            natural = CGSize(width: Double(preview.width) / editor.scale,
-                             height: Double(preview.height) / editor.scale)
-        } else {
-            natural = CGSize(width: editor.rect.width, height: editor.rect.height)
-        }
-        guard natural.width > 0, natural.height > 0 else { return CGSize(width: 80, height: 60) }
-        let fit = min(available.width / natural.width, available.height / natural.height)
-        let factor = min(fit, 2)
-        return CGSize(width: max(80, natural.width * factor),
-                      height: max(60, natural.height * factor))
+    private func fitScale(_ natural: CGSize, in canvas: CGSize) -> CGFloat {
+        guard natural.width > 0, natural.height > 0 else { return 1 }
+        let fit = min(max(120, canvas.width) / natural.width,
+                      max(90, canvas.height) / natural.height)
+        return min(fit, 2)
     }
 }
