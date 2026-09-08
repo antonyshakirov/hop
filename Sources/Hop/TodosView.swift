@@ -269,7 +269,7 @@ struct TodosView: View {
                     .help(t(.tipHasNote))
             }
             if RemindSchedule.effectiveFiring(item) != nil {
-                Image(systemName: "bell")
+                Image(systemName: "bell.fill")
                     .font(.system(size: 9))
                     .foregroundStyle(Theme.textTertiary)
                     .help(t(.todoRemindLabel))

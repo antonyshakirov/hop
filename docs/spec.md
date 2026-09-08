@@ -1784,7 +1784,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   hover; the card's star writes through to the store at once (`onImportant`)
   rather than waiting for the commit, because the row above the card would
   otherwise show yesterday's answer. A to-do with a reminder shows a small
-  `bell` beside its time. The hover ✕ is inserted AHEAD of the marks (right
+  `bell.fill` beside its time — FILLED, like the star next to it: an outline
+  read as "no reminder set" where the row only ever draws it when there is one. The hover ✕ is inserted AHEAD of the marks (right
   after the flexible spacer) in both modules: inserted after them it ate the
   spacer from the right and slid the star out from under the pointer, so a click
   meant for the star landed on delete.
