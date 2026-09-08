@@ -2522,10 +2522,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   marker is not the thin red pencil, and neither should have to be set again
   tomorrow.
 - The colour popover carries the eight presets and a round rainbow swatch for
-  anything else. It opens `NSColorPanel` in the middle of the screen: left to
-  itself the panel comes back wherever it was last put, usually the bottom left,
-  nowhere near the toolbar it was asked from (Anton, 2026-09-08). SwiftUI's own
-  `ColorPicker` well is not used — a rectangle among round swatches.
+  anything else. It opens `NSColorPanel` in the middle of the screen and in the
+  WHEEL mode: left to itself the panel comes back wherever and however it was
+  last left — the crayons, or a grey ramp — and the wheel is the one mode with
+  hue, saturation and brightness each on a control of its own (Anton,
+  2026-09-08). Opened on a near-black colour the whole wheel is drawn black, so
+  a dark or washed-out starting colour keeps its hue and has the other two
+  opened up. SwiftUI's own `ColorPicker` well is not used — a rectangle among
+  round swatches.
 - **Copy says it copied**: the glyph becomes a tick for a second. A button that
   answers nothing leaves the user pressing it again.
 - The name field has its focus effect off. The ring grows the field, and the
@@ -2564,7 +2568,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   filled to the ground rather than squashed, and blurred by a slider of its own
   so the shot on top of it still reads (Anton, 2026-09-08). Padding, corner
   radius and shadow are sliders; there is an optional browser bar with an
-  address the user types.
+  address the user types. The grounds sit in TWO rows and never a third — six
+  presets and the colour of one's own, six presets and the picture — and the
+  picture's button is a picture, not another frame (Anton, 2026-09-08).
 - **The sliders redraw as they move**, coalesced to one render every 50ms.
   Waiting for the slider to be let go meant nothing moved while it was being
   moved (Anton, 2026-09-08); a render per frame at the shot's full resolution is

@@ -691,7 +691,11 @@ final class MarkupColourPanel: NSObject {
         self.onPick = onPick
         let panel = NSColorPanel.shared
         panel.showsAlpha = false
-        panel.color = NSColor(Color(markupHex: hex))
+        // The wheel, always: it is the one mode with hue, saturation and
+        // brightness each on its own control, and the panel otherwise comes
+        // back in whatever mode it was last left in — crayons, or a grey ramp.
+        panel.mode = .wheel
+        panel.color = Self.lit(NSColor(Color(markupHex: hex)))
         panel.setTarget(self)
         panel.setAction(#selector(picked(_:)))
         if let screen = NSScreen.main ?? NSScreen.screens.first {
@@ -704,5 +708,17 @@ final class MarkupColourPanel: NSObject {
 
     @objc private func picked(_ sender: NSColorPanel) {
         onPick?(Color(nsColor: sender.color))
+    }
+
+    /// A wheel opened on near-black is a black wheel: every colour on it is
+    /// drawn at the current brightness. Starting from a dark or washed-out
+    /// colour, the hue is kept and the other two are opened up.
+    private static func lit(_ colour: NSColor) -> NSColor {
+        guard let srgb = colour.usingColorSpace(.sRGB) else { return colour }
+        var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
+        srgb.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+        guard brightness < 0.35 || saturation < 0.15 else { return srgb }
+        return NSColor(hue: hue, saturation: max(saturation, 0.85),
+                       brightness: 1, alpha: 1)
     }
 }

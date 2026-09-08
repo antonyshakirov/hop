@@ -66,46 +66,49 @@ struct FrameDressingPopover: View {
     private var backgrounds: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(L10n.t(.dressBackground, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
-            presetRow(0..<6)
-            presetRow(6..<FrameDressingRenderer.presets.count)
-
-            HStack(spacing: 8) {
-                Button {
-                    MarkupColourPanel.shared.show(startingAt: ownColour) { picked in
-                        editor.dressing.background = .colour(picked.markupHex)
-                        editor.refreshPreview()
-                    }
-                } label: {
-                    Circle()
-                        .fill(AngularGradient(colors: [.red, .yellow, .green, .cyan, .blue, .purple, .red],
-                                              center: .center))
-                        .frame(width: 24, height: 24)
-                        .overlay(Circle().strokeBorder(
-                            Theme.glyphInk.opacity(isOwnColour ? 0.9 : 0.2),
-                            lineWidth: isOwnColour ? 2 : 1))
-                        .contentShape(Circle())
-                }
-                .buttonStyle(.plain)
-
-                Button { pickBackground() } label: {
-                    MarkupIcon(glyph: .dressing, size: 15)
-                        .foregroundStyle(Theme.textSecondary)
-                        .frame(width: 24, height: 24)
-                        .background(RoundedRectangle(cornerRadius: 6).fill(Theme.rowBg))
-                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(
-                            Theme.glyphInk.opacity(isPicture ? 0.9 : 0.16),
-                            lineWidth: isPicture ? 2 : 1))
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .help(L10n.t(.markImage, lang))
-            }
+            // Two rows, never a third: the twelve grounds plus the two of
+            // one's own are seven and seven.
+            HStack(spacing: 7) { swatches(0..<6); ownColourButton }
+            HStack(spacing: 7) { swatches(6..<FrameDressingRenderer.presets.count); ownPicture }
         }
     }
 
-    private func presetRow(_ range: Range<Int>) -> some View {
-        HStack(spacing: 8) {
-            ForEach(range, id: \.self) { index in
+    private var ownColourButton: some View {
+        Button {
+            MarkupColourPanel.shared.show(startingAt: ownColour) { picked in
+                editor.dressing.background = .colour(picked.markupHex)
+                editor.refreshPreview()
+            }
+        } label: {
+            Circle()
+                .fill(AngularGradient(colors: [.red, .yellow, .green, .cyan, .blue, .purple, .red],
+                                      center: .center))
+                .frame(width: 24, height: 24)
+                .overlay(Circle().strokeBorder(
+                    Theme.glyphInk.opacity(isOwnColour ? 0.9 : 0.2),
+                    lineWidth: isOwnColour ? 2 : 1))
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder private var ownPicture: some View {
+        Button { pickBackground() } label: {
+            MarkupIcon(glyph: .picture, size: 15)
+                .foregroundStyle(Theme.textSecondary)
+                .frame(width: 24, height: 24)
+                .background(RoundedRectangle(cornerRadius: 6).fill(Theme.rowBg))
+                .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(
+                    Theme.glyphInk.opacity(isPicture ? 0.9 : 0.16),
+                    lineWidth: isPicture ? 2 : 1))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(L10n.t(.markImage, lang))
+    }
+
+    private func swatches(_ range: Range<Int>) -> some View {
+        ForEach(range, id: \.self) { index in
                 let pair = FrameDressingRenderer.presets[index]
                 Button {
                     editor.dressing.background = .preset(index)
@@ -120,9 +123,8 @@ struct FrameDressingPopover: View {
                                 .strokeBorder(Theme.glyphInk.opacity(chosen(index) ? 0.9 : 0.16),
                                               lineWidth: chosen(index) ? 2 : 1)
                         )
-                }
-                .buttonStyle(.plain)
             }
+            .buttonStyle(.plain)
         }
     }
 
