@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- The shortcuts now spell what they do: ⌃⌥S takes a screenshot, ⌃⌥D draws on
+  screen, ⌃⌥T is the timer, ⌃⌥A keeps the Mac awake, ⌃⌥C picks a colour, ⌃⌥K
+  locks the keyboard and ⌃⌥H opens Hop itself. Five window zones moved to the
+  number row to make room; every shortcut is still rebindable in settings.
 - A module no longer costs anything while the panel is shut. One torrent in the
   list held 4.2% of a core with nothing on screen, and none of that was the
   transfer - it was the panel being rebuilt for rows nobody could see. Every

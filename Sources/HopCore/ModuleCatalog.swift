@@ -71,22 +71,17 @@ public enum ModuleCatalog {
 
     public static let panelAction = ModuleAction(
         id: "panel", storageKey: "hotkey_panel", hotKeyID: 1,
-        defaultCombo: ModuleCombo(keyCode: 46, modifiers: controlOption)
+        defaultCombo: ModuleCombo(keyCode: 4, modifiers: controlOption)
     )
 
     public static let modules: [ModuleEntry] = [
         ModuleEntry(id: "timer", guideLetter: "t", actions: [
-            // ⌃⌥H, not the obvious ⌃⌥T: T belongs to the window zones, which
-            // follow Rectangle's map to the letter, and the two claimed the
-            // same keys — the zone row said "shortcut is taken" out of the box.
-            // The zones keep the convention people already have in their
-            // fingers and the modules move around them.
             ModuleAction(id: "open", storageKey: "hotkey_timer", hotKeyID: 2,
-                         defaultCombo: ModuleCombo(keyCode: 4, modifiers: controlOption)),
+                         defaultCombo: ModuleCombo(keyCode: 17, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "awake", guideLetter: "a", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_awake", hotKeyID: 3,
-                         defaultCombo: ModuleCombo(keyCode: 13, modifiers: controlOption)),
+                         defaultCombo: ModuleCombo(keyCode: 0, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "clipboard", guideLetter: "c", actions: []),
         ModuleEntry(id: "convert", guideLetter: "f", actions: [
@@ -97,31 +92,29 @@ public enum ModuleCatalog {
         ModuleEntry(id: "torrent", guideLetter: "d", actions: []),
         ModuleEntry(id: "color", hiddenOnFirstRun: true, guideLetter: "p", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_color", hotKeyID: 4,
-                         defaultCombo: ModuleCombo(keyCode: 35, modifiers: controlOption)),
+                         defaultCombo: ModuleCombo(keyCode: 8, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "ocr", hiddenOnFirstRun: true, guideLetter: "o", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_ocr", hotKeyID: 5,
                          defaultCombo: ModuleCombo(keyCode: 15, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "shot", guideLetter: "g", actions: [
-            // ⌃⌥A: S, C and G belong to the window zones, P to the picker and R
-            // to text recognition, so the obvious letters were all taken.
             ModuleAction(id: "open", storageKey: "hotkey_shot", hotKeyID: 30,
-                         defaultCombo: ModuleCombo(keyCode: 0, modifiers: controlOption)),
+                         defaultCombo: ModuleCombo(keyCode: 1, modifiers: controlOption)),
             ModuleAction(id: "window", storageKey: "hotkey_shot_window", hotKeyID: 31),
             ModuleAction(id: "screen", storageKey: "hotkey_shot_screen", hotKeyID: 32),
             ModuleAction(id: "repeat", storageKey: "hotkey_shot_repeat", hotKeyID: 33),
         ]),
         ModuleEntry(id: "annotate", guideLetter: "i", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_annotate", hotKeyID: 34,
-                         defaultCombo: ModuleCombo(keyCode: 11, modifiers: controlOption)),
+                         defaultCombo: ModuleCombo(keyCode: 2, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "archive", guideLetter: "z", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_archive", hotKeyID: 25),
         ]),
         ModuleEntry(id: "keyboard", guideLetter: "k", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_keyboardLock", hotKeyID: 6,
-                         defaultCombo: ModuleCombo(keyCode: 7, modifiers: controlOption)),
+                         defaultCombo: ModuleCombo(keyCode: 40, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "vpn", hiddenOnFirstRun: true, guideLetter: "n", actions: []),
         ModuleEntry(id: "uninstall", guideLetter: "u", actions: [
@@ -133,24 +126,25 @@ public enum ModuleCatalog {
     ]
 
     /// The window-manager's zones, in the order the settings grid draws them.
-    /// The ⌃⌥ defaults follow Rectangle's convention; every one is rebindable.
+    /// The ⌃⌥ defaults follow Rectangle's convention, except the five letters
+    /// the modules name themselves with. SPEC: docs/spec.md — hotkeys.
     public static let zoneActions: [ModuleAction] = [
         zone("leftHalf", key: 123, hotKeyID: 101),
         zone("rightHalf", key: 124, hotKeyID: 102),
         zone("topHalf", key: 126, hotKeyID: 103),
         zone("bottomHalf", key: 125, hotKeyID: 104),
         zone("maximize", key: 36, hotKeyID: 105),
-        zone("center", key: 8, hotKeyID: 106),
+        zone("center", key: 18, hotKeyID: 106),
         zone("topLeft", key: 32, hotKeyID: 107),
         zone("topRight", key: 34, hotKeyID: 108),
         zone("bottomLeft", key: 38, hotKeyID: 109),
-        zone("bottomRight", key: 40, hotKeyID: 110),
-        zone("leftThird", key: 2, hotKeyID: 111),
+        zone("bottomRight", key: 19, hotKeyID: 110),
+        zone("leftThird", key: 20, hotKeyID: 111),
         zone("centerThird", key: 3, hotKeyID: 112),
         zone("rightThird", key: 5, hotKeyID: 113),
         zone("leftTwoThirds", key: 14, hotKeyID: 114),
-        zone("rightTwoThirds", key: 17, hotKeyID: 115),
-        zone("centerHalf", key: 1, hotKeyID: 116),
+        zone("rightTwoThirds", key: 21, hotKeyID: 115),
+        zone("centerHalf", key: 23, hotKeyID: 116),
         zone("topThird", key: 31, hotKeyID: 117),
         zone("bottomThird", key: 37, hotKeyID: 118),
     ]

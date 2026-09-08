@@ -204,6 +204,27 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertEqual(Set(combos).count, combos.count, "two actions claim one combination")
     }
 
+    /// A function names its own key: screenshot on S, draw on screen on D.
+    /// SPEC: docs/spec.md — hotkeys.
+    func testEveryDefaultIsTheFirstLetterOfWhatItDoes() {
+        let wanted: [String: UInt32] = [
+            "hotkey_panel": 4,          // Hop
+            "hotkey_shot": 1,           // screenshot
+            "hotkey_annotate": 2,       // draw on screen
+            "hotkey_timer": 17,         // timer
+            "hotkey_awake": 0,          // awake
+            "hotkey_color": 8,          // colour picker
+            "hotkey_keyboardLock": 40,  // keyboard lock
+            "hotkey_ocr": 15,           // text Recognition: T is the timer's
+        ]
+        for (key, code) in wanted {
+            let action = ModuleCatalog.allActions.first { $0.storageKey == key }
+            XCTAssertEqual(action?.defaultCombo?.keyCode, code, "\(key) lost its letter")
+            XCTAssertEqual(action?.defaultCombo?.modifiers,
+                           ModuleCombo.control | ModuleCombo.option, "\(key) changed modifiers")
+        }
+    }
+
     func testBothMarkupModulesOwnSettings() {
         XCTAssertTrue(ModuleCatalog.hasSettings("shot"))
         XCTAssertTrue(ModuleCatalog.hasSettings("annotate"))

@@ -1241,9 +1241,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   modules" settings tab (moved out of "general" 2026-07-21; ON by default —
   Anton, 2026-07-15), a fixed ⌃⌥ scheme
   covering ALL 18 zones:
-  arrows — halves, ↩ — full screen, C — center, U/I/J/K — quarters,
-  D/F/G — vertical thirds, E/T — two-thirds, S — center column,
-  O/L — top/bottom thirds. Registered via the shared HotkeyManager
+  arrows — halves, ↩ — full screen, U/I/J — three quarters,
+  F/G — centre and right thirds, E — left two-thirds,
+  O/L — top/bottom thirds, and the five whose letters the modules name
+  themselves with on the number row: 1 — center, 2 — bottom-right quarter,
+  3 — left third, 4 — right two-thirds, 5 — center column. Registered via the shared HotkeyManager
   (id 101+). The settings label reads "resize windows with hotkeys"
   (not the old "zone hotkeys").
 - The Accessibility permission is requested on the first action.
@@ -2223,7 +2225,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `ClipboardController.remember(external:)` / `remember(color:text:)`, which also
   stamp the pasteboard change counter, so Hop's own write never comes back a
   second later as a foreign copy and a duplicate row.
-- Hotkey `⌃⌥P` (the "open" action of the `color` module in `ModuleCatalog`). A
+- Hotkey `⌃⌥C` (the "open" action of the `color` module in `ModuleCatalog`). A
   combo is claimed ONLY while its module is switched on (`HotkeyActivation` +
   `refreshModuleHotkeys()`, called at launch and after every layout change):
   taking a global shortcut away from other apps for a module that is off would
@@ -2403,7 +2405,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   else in the panel. Same `HoverLabel` they use — the label brightens under the
   pointer and that is the whole affordance. "Start"/"exit" on the drawing row
   follows, and turns to `Theme.editing` while the layer is up.
-- Hotkeys: ⌃⌥A takes an area out of the box. Window, screen and repeat ship with
+- Hotkeys: ⌃⌥S takes an area out of the box. Window, screen and repeat ship with
   NO combination and are assigned in the hotkeys page — the letters that would
   read best were already the window manager's.
 - **The selection frame is Hop's own, not `screencapture -i`.** The system tool
@@ -2879,7 +2881,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 ### Draw over the screen
 
 - Module `"annotate"`, title `annotateLabel` — "draw on screen", guide
-  letter `i`, ⌃⌥B out of the box. The name and the button are both short on
+  letter `i`, ⌃⌥D out of the box. The name and the button are both short on
   purpose: "draw over the screen · start drawing" said the same word twice in a
   row built for one line (Anton, 2026-09-08). A transparent layer on EVERY display, rebuilt
   when displays come and go.
@@ -3447,7 +3449,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Permission: **Accessibility**, asked with `AXIsProcessTrustedWithOptions`
   BEFORE the lock — without it the tap silently never fires and the cover would
   promise a lock that isn't there. The module then offers the deep link.
-- Hotkey `⌃⌥X`, module-gated like the other module hotkeys. The tap dies with
+- Hotkey `⌃⌥K`, module-gated like the other module hotkeys. The tap dies with
   the process, so a crash can never leave a locked keyboard behind.
 
 ### Hotkeys (settings window)
@@ -3467,14 +3469,20 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   change of default reaches everyone who never rebound.
 - The window-manager module's page keeps only its layout picker: the zone keys
   and their on/off switch live here, where keys live.
-- **The zones follow Rectangle's map and the modules move around them** (Anton,
-  2026-09-02). `⌃⌥T` shipped claimed by BOTH the timer and the right-two-thirds
-  zone — a collision older than this page, which registered one of the two and
-  said "shortcut is taken" on the other out of the box. The zone keeps ⌃⌥T,
-  because that is the combination people arrive with in their fingers, and the
-  timer moved to **⌃⌥H**. `ModuleCatalogTests.testNoTwoActionsShipTheSameCombination`
-  fails if any two shipped combinations ever meet again. Reset means "forget the
-  stored value", so everyone who never rebound the timer gets ⌃⌥H on update.
+- **A function names its own key, and the zones move around IT** (Anton,
+  2026-09-08). ⌃⌥ plus the first letter of what the thing is called: **S**
+  screenshot, **D** draw on screen, **T** timer, **A** awake, **C** colour
+  picker, **K** keyboard lock, **H** Hop's own panel. Text recognition keeps
+  **R** — the timer has T. This reverses the earlier call (2026-09-02) that the
+  zones keep every letter and the modules move around them: a shortcut nobody
+  can guess is a shortcut nobody uses, and the zones are a grid whose keys are
+  arbitrary either way. Five zones move to the number row for it — center ⌃⌥1,
+  bottom-right ⌃⌥2, left third ⌃⌥3, right two-thirds ⌃⌥4, center column ⌃⌥5 —
+  and the arrows, ↩ and the rest of Rectangle's map are untouched.
+  `ModuleCatalogTests.testEveryDefaultIsTheFirstLetterOfWhatItDoes` holds the
+  letters and `testNoTwoActionsShipTheSameCombination` fails if any two shipped
+  combinations ever meet again. Reset means "forget the stored value", so
+  anyone who never rebound a key gets the new one on update.
 - **One right edge down the page.** In a right-aligned row the combination chip
   comes LAST, with the ↺ and any "shortcut is taken" ahead of it: the ↺ slot is
   held whether or not it shows, and keeping it after the chip pushed every
