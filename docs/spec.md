@@ -2515,9 +2515,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   from inside that sink is overwritten by the one that triggered it, and the
   loupe stayed in hand while every click on the picture drew another lens
   (Anton, 2026-09-08).
-- **The rim is glass, not a drawn circle**: colourless, thin (3% of the lens,
-  never under 3pt — enough to say "lens" and no more), lit from the top left by
-  a gradient across it, with a hairline inside and out to hold its edge. A coloured hairline reads as a
+- **The rim is glass, not a drawn circle**: colourless, thin, and a FIXED width
+  in the picture's own points (4, never under 2 on screen) — a lens pulled
+  bigger is a bigger lens, not a thicker one (Anton, 2026-09-08). It is stroked
+  ON the circle rather than inside it, so the glass sits exactly in its rim and
+  the rim eats none of what is under it. Lit from the top left by a gradient
+  across it, with a hairline either side to hold its edge. A coloured hairline reads as a
   circle somebody drew (Anton, 2026-09-08). The canvas draws the lens rather
   than the backdrop, so what is under the glass follows the lens as it is moved.
   The export builds the same thing through Core Graphics.

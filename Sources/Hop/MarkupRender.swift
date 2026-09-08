@@ -103,15 +103,17 @@ enum MarkupRender {
 
         // Glass, not a drawn circle: a thick colourless rim, lit from the top
         // left, with a hairline inside and out to hold its edge.
-        let rim = max(3, side * 0.03)
+        // A fixed rim in the picture's own points: a lens pulled bigger is a
+        // bigger lens, not a thicker one.
+        let rim = max(2, 4 * scale)
         context.setLineWidth(rim)
         context.setStrokeColor(NSColor.white.withAlphaComponent(0.45).cgColor)
-        context.addPath(CGPath(ellipseIn: frame.insetBy(dx: rim / 2, dy: rim / 2), transform: nil))
+        context.addPath(CGPath(ellipseIn: frame, transform: nil))
         context.strokePath()
 
         context.saveGState()
         context.setLineWidth(rim * 0.55)
-        context.addPath(CGPath(ellipseIn: frame.insetBy(dx: rim / 2, dy: rim / 2), transform: nil))
+        context.addPath(CGPath(ellipseIn: frame, transform: nil))
         context.replacePathWithStrokedPath()
         context.clip()
         if let space = CGColorSpace(name: CGColorSpace.sRGB),
@@ -128,10 +130,10 @@ enum MarkupRender {
 
         context.setLineWidth(1)
         context.setStrokeColor(NSColor.black.withAlphaComponent(0.35).cgColor)
-        context.addPath(CGPath(ellipseIn: frame, transform: nil))
+        context.addPath(CGPath(ellipseIn: frame.insetBy(dx: -rim / 2, dy: -rim / 2), transform: nil))
         context.strokePath()
-        context.setStrokeColor(NSColor.black.withAlphaComponent(0.25).cgColor)
-        context.addPath(CGPath(ellipseIn: frame.insetBy(dx: rim, dy: rim), transform: nil))
+        context.setStrokeColor(NSColor.black.withAlphaComponent(0.2).cgColor)
+        context.addPath(CGPath(ellipseIn: frame.insetBy(dx: rim / 2, dy: rim / 2), transform: nil))
         context.strokePath()
     }
 
