@@ -404,7 +404,13 @@ struct TrackerView: View {
                                                                             important: task.important) },
                                                 set: { card = $0 }),
                                  lang: lang,
-                                 onCommit: { commitCard(task) })
+                                 onCommit: { commitCard(task) },
+                                 deletion: CardDeletion(
+                                     // A task that collected time is worth a
+                                     // question; an empty one is not.
+                                     needsConfirm: engine.total(taskID: task.id) > 0,
+                                     delete: { deleteFromCard(task) }),
+                                 onImportant: { engine.setImportant(taskID: task.id, $0) })
                         .background {
                             Color.clear.contentShape(Rectangle()).onTapGesture { }
                         }
@@ -469,10 +475,24 @@ struct TrackerView: View {
                     playStop(task, active: active)
                     taskName(task)
                     Spacer(minLength: 6)
-                    // A favourite, marked by the card's switch — neutral tokens,
-                    // no coloured frame.
+                    // The hover ✕ goes AHEAD of the marks: eating into the
+                    // spacer from the right, it slid the star out from under the
+                    // pointer and a click meant for the star landed on delete.
+                    if showsHoverX, hovered == task.id {
+                        HoverDeleteX { confirmingDeleteTask = task.id }
+                    }
+                    // Pressing the star here UNMARKS; marking one is the card's job.
                     if displayImportant(task) {
-                        StarGlyph(color: Theme.textSecondary, box: 10)
+                        Button { withAnimation(.easeInOut(duration: 0.22)) {
+                            engine.setImportant(taskID: task.id, false)
+                        } } label: {
+                            StarGlyph(color: Theme.textSecondary, box: 10)
+                                .frame(width: 14, height: 14)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .help(t(.todoImportantLabel))
+                        .hoverDim()
                     }
                     // "there is something inside" — the row's only hint that the
                     // card holds a comment. Inert: the row itself opens the card.
@@ -481,13 +501,6 @@ struct TrackerView: View {
                             .font(.system(size: 9))
                             .foregroundStyle(Theme.textTertiary)
                     }
-                    if showsHoverX, hovered == task.id {
-                        HoverDeleteX { confirmingDeleteTask = task.id }
-                    }
-                    // Closest to the figure it is about, and to the RIGHT of the
-                    // hover ✕ so that the pointer arriving on the row pushes the
-                    // ✕ in beside it rather than moving the ✓ out from under the
-                    // cursor.
                     if run != nil {
                         RunCommitButton(action: { engine.commitRun(taskID: task.id) },
                                         help: t(.tipCommitRun))
@@ -952,6 +965,11 @@ struct TrackerView: View {
     private func collapseCard() {
         expandedTask = nil
         card = nil
+    }
+
+    private func deleteFromCard(_ task: TrackerTask) {
+        collapseCard()
+        engine.deleteTask(task.id)
     }
 
     /// SPEC: docs/spec.md, "Leaving the card" — every exit but an explicit cancel.

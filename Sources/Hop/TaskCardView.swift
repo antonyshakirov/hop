@@ -8,10 +8,10 @@ struct ReminderDraft: Equatable {
     var repeatDays: [Int]
 }
 
-/// SPEC: the card's checkbox — nil for a module with no completed state.
-struct CardCompletion {
-    var done: Bool
-    var toggle: () -> Void
+/// SPEC: deleting from inside the card; `needsConfirm` asks first.
+struct CardDeletion {
+    var needsConfirm: Bool
+    var delete: () -> Void
 }
 
 /// Everything one task card edits. The card owns a DRAFT copy so a cancelled
@@ -37,17 +37,17 @@ struct TaskCardDraft: Equatable {
 ///
 /// Shaped like a note, not like a form: the title is simply the first line, a
 /// hairline separates it from the description, and both fields take Return for
-/// a new line. Everything else is small icons — a bell, a star, a chevron that
-/// folds the card up — and the checkbox at its head, the card's only tick.
-/// Nothing here saves or cancels: what is typed is kept whichever way the card
-/// is left.
+/// a new line. Everything else is small icons — a bell, a star, a trash can, a
+/// chevron — and nothing here saves or cancels: what is typed is simply kept.
 struct TaskCardView: View {
     @Binding var draft: TaskCardDraft
     let lang: AppLanguage
     let onCommit: () -> Void
-    var completion: CardCompletion? = nil
+    var deletion: CardDeletion? = nil
+    var onImportant: ((Bool) -> Void)? = nil
 
     @FocusState private var titleFocused: Bool
+    @State private var confirmingDelete = false
     /// Which day the weekday row starts on: the user's setting, or the system's
     /// regional answer while it is on auto.
     @AppStorage(SettingsKey.firstWeekday) private var firstWeekdaySetting = FirstWeekday.auto
@@ -56,13 +56,8 @@ struct TaskCardView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            // SPEC: the row's own gutter, kept even when there is no checkbox to
-            // put in it, so the card's text sits on the list's text column.
-            if let completion {
-                checkbox(completion)
-            } else {
-                Color.clear.frame(width: RowCircle.gutter, height: 1)
-            }
+            // SPEC: the row's gutter, empty, holding the list's text column.
+            Color.clear.frame(width: RowCircle.gutter, height: 1)
             VStack(alignment: .leading, spacing: 0) {
                 title
                 Rectangle()
@@ -83,28 +78,13 @@ struct TaskCardView: View {
         // WORKAROUND: `onExitCommand` never fires here — AppKit's field editor
         // eats Escape before the TextEditor's SwiftUI parent sees it.
         .background {
-            Button("", action: onCommit)
-                .keyboardShortcut(.cancelAction)
-                .opacity(0)
-                .frame(width: 0, height: 0)
+            if !confirmingDelete {
+                Button("", action: onCommit)
+                    .keyboardShortcut(.cancelAction)
+                    .opacity(0)
+                    .frame(width: 0, height: 0)
+            }
         }
-    }
-
-    private func checkbox(_ completion: CardCompletion) -> some View {
-        Button(action: completion.toggle) {
-            TransportCircle(systemName: completion.done ? "checkmark" : "",
-                            filled: completion.done,
-                            diameter: RowCircle.checkboxDiameter,
-                            iconSize: 10,
-                            fillColor: Theme.textTertiary,
-                            strokeColor: Theme.textSecondary,
-                            glyphColor: Theme.background)
-                .frame(width: RowCircle.gutter, height: 18, alignment: .leading)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .help(t(.todoDoneLabel))
-        .hoverDim()
     }
 
     // MARK: - Text
@@ -161,7 +141,22 @@ struct TaskCardView: View {
     /// under it), the favourite on the RIGHT, away from all of it. Sitting
     /// between the bell and the day chip, the star looked like part of the
     /// reminder.
-    private var controls: some View {
+    @ViewBuilder private var controls: some View {
+        if confirmingDelete, let deletion {
+            HStack(spacing: 8) {
+                Spacer(minLength: 0)
+                RowDeleteConfirm(lang: lang,
+                                 onDelete: deletion.delete,
+                                 onCancel: { confirmingDelete = false },
+                                 reserve: 0)
+            }
+            .padding(.top, 6)
+        } else {
+            iconRow
+        }
+    }
+
+    private var iconRow: some View {
         HStack(spacing: 8) {
             if draft.reminder != nil { bellButton }
             if draft.reminder?.date != nil {
@@ -173,6 +168,12 @@ struct TaskCardView: View {
                 clockField(minuteBinding, range: 0...59)
             }
             Spacer(minLength: 8)
+            if let deletion {
+                HoverIconButton(symbol: "trash",
+                                action: { deletion.needsConfirm ? (confirmingDelete = true)
+                                                               : deletion.delete() },
+                                help: t(.trackerDelete))
+            }
             starButton
             HoverIconButton(symbol: "chevron.up", action: onCommit, help: t(.tipCollapse))
             // Return belongs to the text, so the keyboard commit is ⌘Return.
@@ -216,7 +217,10 @@ struct TaskCardView: View {
     }
 
     private var starButton: some View {
-        Button { draft.important.toggle() } label: {
+        Button {
+            draft.important.toggle()
+            onImportant?(draft.important)
+        } label: {
             StarGlyph(color: draft.important ? Theme.textSecondary : Theme.textTertiary,
                       box: 10.5, filled: draft.important)
                 .frame(width: 18, height: 18)

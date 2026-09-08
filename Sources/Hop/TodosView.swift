@@ -174,18 +174,25 @@ struct TodosView: View {
 
     @ViewBuilder private func row(_ item: TodoItem) -> some View {
         if expanded == item.id, card != nil, !Snapshot.active {
-            TaskCardView(draft: Binding(get: { card ?? TaskCardDraft(text: item.text,
-                                                                    note: item.note,
-                                                                    important: item.important) },
-                                        set: { card = $0 }),
-                         lang: lang,
-                         onCommit: { commitCard(item) },
-                         completion: CardCompletion(done: item.done,
-                                                    toggle: { completeFromCard(item) }))
-                .background(rowFrameReader(item.id))
-                .background {
-                    Color.clear.contentShape(Rectangle()).onTapGesture { }
-                }
+            // The task's own row stays ON TOP of its open card, the way the
+            // tracker's does: the star and the bell answer for the task while it
+            // is being edited, and the checkbox never leaves the list.
+            VStack(alignment: .leading, spacing: 6) {
+                collapsedRow(item)
+                TaskCardView(draft: Binding(get: { card ?? TaskCardDraft(text: item.text,
+                                                                        note: item.note,
+                                                                        important: item.important) },
+                                            set: { card = $0 }),
+                             lang: lang,
+                             onCommit: { commitCard(item) },
+                             deletion: CardDeletion(needsConfirm: false,
+                                                    delete: { deleteFromCard(item) }),
+                             onImportant: { todos.setImportant(item.id, $0) })
+                    .background {
+                        Color.clear.contentShape(Rectangle()).onTapGesture { }
+                    }
+            }
+            .background(rowFrameReader(item.id))
         } else {
             collapsedRow(item)
         }
@@ -236,11 +243,22 @@ struct TodosView: View {
             // long already-truncated text yields room to the xmark instead of
             // running under it (a trailing overlay could not guarantee that).
             Spacer(minLength: 6)
-            // A favourite: the star is the mark, set by the card's switch.
-            // Drawn in neutral tokens — a coloured frame read as a warning
-            // rather than "this one matters".
+            // The hover ✕ goes AHEAD of the marks: eating into the spacer from
+            // the right, it slid the star out from under the pointer and a click
+            // meant for the star landed on delete.
+            if confirmingDelete != item.id, hovered == item.id {
+                HoverDeleteX { confirmingDelete = item.id }
+            }
+            // Pressing the star here UNMARKS; marking one is the card's job.
             if item.important {
-                StarGlyph(color: Theme.textSecondary, box: 10)
+                Button { withAnimation(Self.sinkAnimation) { todos.setImportant(item.id, false) } } label: {
+                    StarGlyph(color: Theme.textSecondary, box: 10)
+                        .frame(width: 14, height: 14)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(t(.todoImportantLabel))
+                .hoverDim()
             }
             // "there is something inside" — the collapsed row's only hint that
             // the card holds a comment. Inert: the whole row opens the card.
@@ -249,6 +267,12 @@ struct TodosView: View {
                     .font(.system(size: 9))
                     .foregroundStyle(Theme.textTertiary)
                     .help(t(.tipHasNote))
+            }
+            if RemindSchedule.effectiveFiring(item) != nil {
+                Image(systemName: "bell")
+                    .font(.system(size: 9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .help(t(.todoRemindLabel))
             }
             if let firing = RemindSchedule.effectiveFiring(item) {
                 // A time in the past means it already fired: struck through, so a
@@ -276,8 +300,6 @@ struct TodosView: View {
                                      confirmingDelete = nil
                                  },
                                  onCancel: { confirmingDelete = nil })
-            } else if hovered == item.id {
-                HoverDeleteX { confirmingDelete = item.id }
             }
         }
         .padding(.vertical, 2)
@@ -286,7 +308,7 @@ struct TodosView: View {
         // While the list scrolls (capped), the row gesture stands down
         // (`.subviews`) so the pan scrolls and the checkbox/xmark keep their taps.
         .contentShape(Rectangle())
-        .onTapGesture { expandCard(item) }
+        .onTapGesture { expanded == item.id ? commitOpenCard() : expandCard(item) }
         .gesture(dragGesture(item.id), including: capped ? .subviews : .all)
         .opacity(dragItem == item.id ? 0.4 : 1)
         .offset(dragItem == item.id ? dragTranslation : .zero)
@@ -479,9 +501,9 @@ struct TodosView: View {
         commitCard(item)
     }
 
-    private func completeFromCard(_ item: TodoItem) {
-        commitCard(item)
-        withAnimation(Self.sinkAnimation) { todos.toggle(item.id) }
+    private func deleteFromCard(_ item: TodoItem) {
+        collapseCard()
+        todos.delete(item.id)
     }
 
     /// Writes the draft back. Each field goes through its own mutator, so an

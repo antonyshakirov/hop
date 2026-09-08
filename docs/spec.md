@@ -1746,7 +1746,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   has nothing to continue, so there Return still commits and closes.
 - **Task card (expanded row):** clicking a row expands it into a card and
   collapses whatever was open — ONE card at a time, so the panel cannot grow
-  without bound. The card is shaped like a note rather than a form: the task text
+  without bound. **The row STAYS above its card in both modules (Anton,
+  2026-09-08)** — the to-do list used to swap the row out for the card, which
+  took the checkbox, the star and the reminder off the screen exactly while the
+  task was being edited; the tracker had always kept its row, and the two now
+  behave identically. Tapping the row again folds the card. The card is shaped like a note rather than a form: the task text
   is simply the first line (no caption — a line at the top of a card is its
   title), a hairline separates it from a `description` field below, and BOTH are
   `TextEditor`s rather than `TextField`s — a macOS field treats Return as submit
@@ -1755,8 +1759,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   own once the text outgrows the box, and the grey pill floating in the card was
   read as a control nobody had put there (Vanya, 2026-09-08).
 - **Leaving the card (2026-09-08):** the card carries a **checkbox at its head** —
-  the collapsed row's own `TransportCircle` in the same 22pt gutter, so expanding
-  a task moves its circle by the card's inset and nothing else. **One left line
+  the row's own gutter, empty, so the card's text lands on the list's text
+  column. **One left line
   (Anton, 2026-09-08):** the card's inset is 6pt on the leading edge (8 on the
   trailing), so `6 + 22` puts its title, description, bell and `repeat` on the
   SAME column as a collapsed row's text (`22pt gutter + 6pt spacing`); the
@@ -1766,12 +1770,24 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   of that line while the word `repeat` under it stood on it. The weekday squares
   are NOT columned under the day chip: the `repeat` caption is a word, and its
   width differs across the seventeen languages. Pressing it
-  saves, completes the task and folds the card in one move (`CardCompletion`,
-  nil for the tracker, whose tasks have no completed state and which therefore
-  shows no checkbox). The former ✓ in the bottom-right is now a `chevron.up`
+  The former ✓ in the bottom-right is a `chevron.up`
   (`tipCollapse`) that folds the card: a tick sitting next to a task was read as
-  "check this off", not as "save" (Vanya, 2026-09-08), and the card now
-  holds exactly one tick, the one that means it.
+  "check this off", not as "save" (Vanya, 2026-09-08). The card carries no tick
+  of its own at all — the row above it holds the checkbox.
+- **Deleting from the card (Anton, 2026-09-08):** a `trash` button sits left of
+  the star (`CardDeletion`). To-dos delete on the spot; a tracker task that has
+  collected time asks first, swapping the icon row for the shared
+  `RowDeleteConfirm` (a task at 00:00 goes without a question). While that
+  confirm is up it owns Escape, so the card's own `.cancelAction` stands down.
+- **The marks in a row (Anton, 2026-09-08):** the star is a BUTTON that
+  UNMARKS — marking one stays the card's job, so a row shows nothing new on
+  hover; the card's star writes through to the store at once (`onImportant`)
+  rather than waiting for the commit, because the row above the card would
+  otherwise show yesterday's answer. A to-do with a reminder shows a small
+  `bell` beside its time. The hover ✕ is inserted AHEAD of the marks (right
+  after the flexible spacer) in both modules: inserted after them it ate the
+  spacer from the right and slid the star out from under the pointer, so a click
+  meant for the star landed on delete.
 - **The card has NO cancel (Anton, 2026-09-08).** The ✕ is gone and there is no
   discard path at all: **every** way out writes the draft back — the chevron,
   ⌘Return, Escape, tapping another row, tapping the row's own line again,
