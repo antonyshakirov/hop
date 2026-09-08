@@ -1769,7 +1769,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   glyph is `.leading` in its own 20pt hit area — centred, it stood 4.5pt right
   of that line while the word `repeat` under it stood on it. The weekday squares
   are NOT columned under the day chip: the `repeat` caption is a word, and its
-  width differs across the seventeen languages. Pressing it
+  width differs across the twenty-two languages. Pressing it
   The former ✓ in the bottom-right is a `chevron.up`
   (`tipCollapse`) that folds the card: a tick sitting next to a task was read as
   "check this off", not as "save" (Vanya, 2026-09-08). The card carries no tick
@@ -2363,6 +2363,25 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   screen.
 - Hotkey `⌃⌥R`, module-gated exactly like the eyedropper's; ships hidden via
   `optInModules`. Snapshot flags: `--ocr`, or `--tools` for both new modules.
+
+### Languages
+
+- **Twenty-two.** English, Russian, German, Spanish, Portuguese, French, Italian,
+  Chinese, Japanese, Dutch, Korean, Thai, Vietnamese, Hindi, Indonesian,
+  Turkish, Polish, **Serbian, Arabic, Hebrew, Persian and Urdu** (Anton,
+  2026-09-08). The last five are ADDED, not restored: four of them shipped in
+  1.x and were dropped in "Ship with ten languages" because the tail was
+  drifting behind the strings, and Serbian has never been in the app at all.
+  Their tables are written against the CURRENT key set, not the one they left,
+  so nothing arrives already behind.
+- **Ukrainian is deliberately not among them** (Anton, 2026-09-08).
+- Arabic, Hebrew, Persian and Urdu are right to left, and `isRTL` drives
+  `hopLayoutDirection()` — Hop picks its language in-app rather than through the
+  system locale, so nothing else can tell SwiftUI which way a window runs.
+- **`--l10n-check` is the gate**: every key in every table, checked in
+  `scripts/checks.sh` before anything ships. A language cannot be half added.
+- What is NOT translated yet: the README has sixteen translations and the site
+  has its own set — both follow with the release.
 
 ### Screenshot (capture and mark up)
 
@@ -3952,7 +3971,7 @@ converter (Anton, 2026-07-28).
   mirrors the localized-README rule: Russian → https://web.tribute.tg/d/Nvp,
   every other locale → https://web.tribute.tg/d/Nvk. All strings are
   country/currency-neutral; the amount and any currency are Tribute's concern.
-  Keys `donateTitle` and `donateBody` are translated across all fifteen languages.
+  Keys `donateTitle` and `donateBody` are translated across all twenty-two languages.
 - Languages in pickers use the standard order, like system lists:
   alphabetical by NATIVE names, Latin → Cyrillic → CJK (pickerOrder,
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"
