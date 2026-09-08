@@ -9,6 +9,14 @@ import HopCore
 /// Graphics, because a picture scaled for a window and a picture saved to disk
 /// are not the same pixels.
 enum MarkupRender {
+    static func shortened(_ from: CGPoint, _ to: CGPoint, by amount: CGFloat) -> CGPoint {
+        let dx = to.x - from.x
+        let dy = to.y - from.y
+        let length = (dx * dx + dy * dy).squareRoot()
+        guard length > amount else { return to }
+        return CGPoint(x: to.x - dx / length * amount, y: to.y - dy / length * amount)
+    }
+
     static func compose(base: CGImage, shapes: [MarkupShape], scale: Double) -> CGImage? {
         let width = base.width
         let height = base.height
@@ -168,10 +176,15 @@ enum MarkupRender {
 
         case .arrow:
             guard points.count > 1 else { return }
-            context.strokeLineSegments(between: [first, points[1]])
             let head = MarkupGeometry.arrowHead(from: shape.points[0], to: shape.points[1],
                                                 style: shape.arrow ?? .solid, width: shape.ink.width)
             let barbs = head.map { CGPoint(x: $0.x * scale, y: $0.y * scale) }
+            // The shaft stops where the head begins: run it to the tip and its
+            // round cap sticks out past the point.
+            let stop = barbs.count == 3
+                ? barbs[1]
+                : Self.shortened(first, points[1], by: shape.ink.width * scale / 2)
+            context.strokeLineSegments(between: [first, stop])
             if barbs.count == 3 {
                 context.beginPath()
                 context.move(to: barbs[0])
@@ -181,8 +194,6 @@ enum MarkupRender {
                 context.closePath()
                 context.fillPath()
             } else if barbs.count == 2 {
-                // Open barbs: the shaft's own stroke, so the tip keeps one
-                // thickness.
                 context.strokeLineSegments(between: [barbs[0], points[1], barbs[1], points[1]])
             }
 

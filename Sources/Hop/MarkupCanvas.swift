@@ -1,3 +1,4 @@
+import AppKit
 import HopCore
 import SwiftUI
 
@@ -21,7 +22,9 @@ struct MarkupCanvas: View {
                 background.resizable().scaledToFit()
             }
         }
+        .overlay(alignment: .topLeading) { anchorMark }
         .overlay(alignment: .topLeading) { typingField }
+        .overlay { CrosshairArea(active: MarkupCanvas.aims(surface.tool)) }
         .contentShape(Rectangle())
         .gesture(
             DragGesture(minimumDistance: 0)
@@ -30,11 +33,45 @@ struct MarkupCanvas: View {
                     if surface.drafting == nil {
                         surface.begin(at: point)
                     } else {
-                        surface.extend(to: point)
+                        surface.extend(to: point, modifiers: Self.heldKeys())
                     }
                 }
                 .onEnded { _ in surface.finish() }
         )
+    }
+
+    /// A drag reads the modifier keys as they are RIGHT NOW: SwiftUI's gesture
+    /// value carries the place of the pointer and nothing about the keyboard.
+    private static func heldKeys() -> MarkupDrag.Modifiers {
+        let flags = NSEvent.modifierFlags
+        return MarkupDrag.Modifiers(fromCentre: flags.contains(.option),
+                                    regular: flags.contains(.shift))
+    }
+
+    /// Tools that begin at a point rather than follow the hand.
+    static func aims(_ tool: MarkupTool) -> Bool {
+        switch tool {
+        case .pencil, .fadingInk, .marker, .eraser, .text: return false
+        default: return true
+        }
+    }
+
+    /// The spot the shape is growing out of, so the corner or the centre it was
+    /// started from is never a guess.
+    @ViewBuilder
+    private var anchorMark: some View {
+        if let anchor = surface.anchor {
+            let spot = CGPoint(x: anchor.x * scale, y: anchor.y * scale)
+            Path { path in
+                path.move(to: CGPoint(x: spot.x - 6, y: spot.y))
+                path.addLine(to: CGPoint(x: spot.x + 6, y: spot.y))
+                path.move(to: CGPoint(x: spot.x, y: spot.y - 6))
+                path.addLine(to: CGPoint(x: spot.x, y: spot.y + 6))
+            }
+            .stroke(Color.white, lineWidth: 1)
+            .shadow(color: .black.opacity(0.7), radius: 1)
+            .allowsHitTesting(false)
+        }
     }
 
     @ViewBuilder
@@ -124,11 +161,15 @@ struct MarkupCanvas: View {
     ) {
         let tail = CGPoint(x: from.x * scale, y: from.y * scale)
         let tip = CGPoint(x: to.x * scale, y: to.y * scale)
-        context.stroke(segment(tail, tip), with: .color(colour), style: stroke)
 
         let style = shape.arrow ?? .solid
         let head = MarkupGeometry.arrowHead(from: from, to: to, style: style, width: shape.ink.width)
         let barbs = head.map { CGPoint(x: $0.x * scale, y: $0.y * scale) }
+
+        // The shaft stops where the head begins. Run to the tip and its round
+        // cap sticks out past the point, and the LINE becomes the tip.
+        let stop = barbs.count == 3 ? barbs[1] : shortened(tail, tip, by: shape.ink.width * scale / 2)
+        context.stroke(segment(tail, stop), with: .color(colour), style: stroke)
 
         if barbs.count == 3 {
             var triangle = Path()
@@ -150,6 +191,14 @@ struct MarkupCanvas: View {
         }
     }
 
+    private func shortened(_ from: CGPoint, _ to: CGPoint, by amount: CGFloat) -> CGPoint {
+        let dx = to.x - from.x
+        let dy = to.y - from.y
+        let length = (dx * dx + dy * dy).squareRoot()
+        guard length > amount else { return to }
+        return CGPoint(x: to.x - dx / length * amount, y: to.y - dy / length * amount)
+    }
+
     private func freehand(_ points: [CGPoint]) -> Path {
         var path = Path()
         guard let first = points.first else { return path }
@@ -167,5 +216,35 @@ struct MarkupCanvas: View {
 
     private func box(_ a: CGPoint, _ b: CGPoint) -> CGRect {
         CGRect(x: min(a.x, b.x), y: min(a.y, b.y), width: abs(b.x - a.x), height: abs(b.y - a.y))
+    }
+}
+
+
+/// A crosshair over the picture while a tool that starts at a point is in hand.
+private struct CrosshairArea: NSViewRepresentable {
+    let active: Bool
+
+    func makeNSView(context: Context) -> NSView {
+        let view = AimView()
+        view.active = active
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        guard let view = nsView as? AimView else { return }
+        view.active = active
+        view.window?.invalidateCursorRects(for: view)
+    }
+
+    final class AimView: NSView {
+        var active = false
+
+        override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+        override func resetCursorRects() {
+            super.resetCursorRects()
+            guard active else { return }
+            addCursorRect(bounds, cursor: .crosshair)
+        }
     }
 }

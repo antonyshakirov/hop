@@ -65,6 +65,11 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
         willShow?()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        // The name field is the only thing in the window that takes focus, so a
+        // window opening on it opens with the file name selected, ready to be
+        // typed over by the first keystroke.
+        window.initialFirstResponder = nil
+        DispatchQueue.main.async { [weak window] in window?.makeFirstResponder(nil) }
     }
 
     private func place(_ window: NSWindow, shot: CaptureRect) {

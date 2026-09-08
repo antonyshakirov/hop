@@ -128,10 +128,13 @@ struct ScreenshotEditorView: View {
                 .background(RoundedRectangle(cornerRadius: 7).fill(Theme.fieldBg))
                 .frame(maxWidth: 300)
 
+            // One height for both: a stroke and a fill measure differently once
+            // each is left to its own padding.
             Button(L10n.t(.copyLabel, lang)) { editor.copyToClipboard() }
                 .buttonStyle(.plain)
                 .font(Theme.mono(12))
-                .padding(.horizontal, 12).padding(.vertical, 7)
+                .padding(.horizontal, 14)
+                .frame(height: 30)
                 .background(RoundedRectangle(cornerRadius: 7).strokeBorder(Theme.controlStroke))
 
             Button(L10n.t(.featureSave, lang)) {
@@ -141,7 +144,8 @@ struct ScreenshotEditorView: View {
             .buttonStyle(.plain)
             .font(Theme.mono(12, weight: .semibold))
             .foregroundStyle(Theme.playFg)
-            .padding(.horizontal, 14).padding(.vertical, 7)
+            .padding(.horizontal, 14)
+            .frame(height: 30)
             .background(RoundedRectangle(cornerRadius: 7).fill(Theme.playBg))
         }
         .padding(.horizontal, 14)

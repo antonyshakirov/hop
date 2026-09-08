@@ -1,3 +1,4 @@
+import AppKit
 import HopCore
 import SwiftUI
 
@@ -73,15 +74,25 @@ final class MarkupSurface: ObservableObject {
         }
     }
 
-    func extend(to point: MarkupPoint) {
+    func extend(to point: MarkupPoint, modifiers: MarkupDrag.Modifiers = .none) {
         guard var shape = drafting else { return }
         switch shape.tool {
         case .pencil, .fadingInk, .marker:
             shape.points.append(point)
         default:
-            shape.points = [origin ?? point, point]
+            shape.points = MarkupDrag.points(tool: shape.tool, origin: origin ?? point,
+                                             current: point, modifiers: modifiers)
         }
         drafting = shape
+    }
+
+    /// Where the mark in hand began, while it is still being drawn.
+    var anchor: MarkupPoint? {
+        guard let drafting else { return nil }
+        switch drafting.tool {
+        case .pencil, .fadingInk, .marker, .eraser: return nil
+        default: return origin
+        }
     }
 
     func finish() {
@@ -172,6 +183,14 @@ final class MarkupSurface: ObservableObject {
 }
 
 extension Color {
+    /// The nearest sRGB hex, for a colour chosen in the system picker.
+    var markupHex: String {
+        guard let srgb = NSColor(self).usingColorSpace(.sRGB) else { return "#FF453A" }
+        return ColorFormatting.hex(r: Int((srgb.redComponent * 255).rounded()),
+                                   g: Int((srgb.greenComponent * 255).rounded()),
+                                   b: Int((srgb.blueComponent * 255).rounded()))
+    }
+
     init(markupHex: String) {
         guard let parts = ColorFormatting.components(markupHex) else {
             self = .red

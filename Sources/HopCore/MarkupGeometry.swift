@@ -3,8 +3,17 @@ import Foundation
 /// SPEC: .claude/specs/2026-09-07-markup-modules-design.md
 public enum ArrowStyle: String, Codable, CaseIterable, Sendable {
     case thin
+    case triangle
     case solid
     case freehand
+
+    /// Filled heads carry three points, open ones two.
+    public var isFilled: Bool {
+        switch self {
+        case .triangle, .solid: return true
+        case .thin, .freehand: return false
+        }
+    }
 }
 
 /// Shapes of the markup tools, and the hit-testing the eraser asks for.
@@ -31,6 +40,10 @@ public enum MarkupGeometry {
         switch style {
         case .thin:
             return [back(0.46, 1), back(-0.46, 1)]
+        case .triangle:
+            let base = reach * cos(0.42)
+            return [back(0.42, 1), MarkupPoint(x: to.x - cos(angle) * base,
+                                               y: to.y - sin(angle) * base), back(-0.42, 1)]
         case .solid:
             return [back(0.42, 1), MarkupPoint(x: to.x - cos(angle) * reach * 0.62,
                                                y: to.y - sin(angle) * reach * 0.62), back(-0.42, 1)]

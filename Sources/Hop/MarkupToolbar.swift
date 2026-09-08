@@ -41,7 +41,9 @@ struct MarkupToolbar: View {
     var trailing: AnyView?
     var leading: AnyView?
 
-    @State private var showingInk = false
+    @State private var showingColour = false
+    @State private var showingWidth = false
+    @State private var showingArrow = false
     @State private var hovered: MarkupTool?
 
     var body: some View {
@@ -60,9 +62,7 @@ struct MarkupToolbar: View {
                 .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.controlStroke.opacity(0.6)))
                 .shadow(color: .black.opacity(Theme.isDark ? 0.6 : 0.16), radius: 14, y: 6)
         )
-        .popover(isPresented: $showingInk, arrowEdge: edge == .top ? .bottom : .top) {
-            MarkupInkPopover(surface: surface, lang: lang)
-        }
+
     }
 
     @ViewBuilder
@@ -83,7 +83,21 @@ struct MarkupToolbar: View {
         divider
 
         Button {
-            showingInk.toggle()
+            showingWidth.toggle()
+        } label: {
+            MarkupIcon(glyph: .weight)
+                .foregroundStyle(Theme.textSecondary)
+                .frame(width: 32, height: 32)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(L10n.t(.mkWidth, lang))
+        .popover(isPresented: $showingWidth, arrowEdge: popoverEdge) {
+            MarkupWidthPopover(surface: surface, lang: lang)
+        }
+
+        Button {
+            showingColour.toggle()
         } label: {
             Circle()
                 .fill(Color(markupHex: surface.ink(for: surface.tool).hex))
@@ -93,6 +107,9 @@ struct MarkupToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .popover(isPresented: $showingColour, arrowEdge: popoverEdge) {
+            MarkupColourPopover(surface: surface)
+        }
 
         if let trailing {
             divider
@@ -106,10 +123,19 @@ struct MarkupToolbar: View {
             .frame(width: edge.isVertical ? 20 : 1, height: edge.isVertical ? 1 : 20)
     }
 
+    private var popoverEdge: SwiftUI.Edge { edge == .top ? .bottom : .top }
+
     private func button(for tool: MarkupTool) -> some View {
         let chosen = toolsActive && surface.tool == tool
         return Button {
-            surface.tool = tool
+            // The arrow's own shapes hang off its icon: pressing the tool a
+            // second time opens them, a third closes them again.
+            if tool == .arrow, chosen {
+                showingArrow.toggle()
+            } else {
+                surface.tool = tool
+                showingArrow = false
+            }
         } label: {
             MarkupIcon(glyph: MarkupToolbar.glyph(for: tool))
                 .foregroundStyle(chosen ? Theme.textPrimary : Theme.textSecondary)
@@ -123,6 +149,12 @@ struct MarkupToolbar: View {
         .buttonStyle(.plain)
         .onHover { inside in hovered = inside ? tool : (hovered == tool ? nil : hovered) }
         .help("\(L10n.t(MarkupToolbar.name(of: tool), lang)) · \(MarkupToolbar.letter(of: tool))")
+        .popover(isPresented: Binding(
+            get: { showingArrow && tool == .arrow },
+            set: { if !$0 { showingArrow = false } }
+        ), arrowEdge: popoverEdge) {
+            MarkupArrowPopover(surface: surface)
+        }
     }
 
     static func glyph(for tool: MarkupTool) -> MarkupGlyph {
@@ -186,82 +218,112 @@ struct MarkupToolbar: View {
     }
 }
 
-/// Colour and width for the tool in hand; each tool keeps its own pair.
-struct MarkupInkPopover: View {
+/// The colour of the tool in hand: eight to press, and the system picker for
+/// anything else. Each tool keeps its own.
+struct MarkupColourPopover: View {
     @ObservedObject var surface: MarkupSurface
-    var lang: AppLanguage
 
     private let palette = ["#FF453A", "#FF9F0A", "#FFD60A", "#32D74B",
                            "#0A84FF", "#BF5AF2", "#FFFFFF", "#1C1C1E"]
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(palette, id: \.self) { hex in
+                Button {
+                    write { $0.hex = hex }
+                } label: {
+                    Circle()
+                        .fill(Color(markupHex: hex))
+                        .frame(width: 22, height: 22)
+                        .overlay(
+                            Circle().strokeBorder(
+                                Theme.glyphInk.opacity(current.hex == hex ? 0.9 : 0.2),
+                                lineWidth: current.hex == hex ? 2 : 1
+                            )
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+
+            Rectangle().fill(Theme.divider).frame(width: 1, height: 22)
+
+            ColorPicker("", selection: Binding(
+                get: { Color(markupHex: current.hex) },
+                set: { picked in write { $0.hex = picked.markupHex } }
+            ), supportsOpacity: false)
+            .labelsHidden()
+            .frame(width: 24)
+        }
+        .padding(12)
+        .background(Theme.background)
+    }
+
+    private var current: MarkupInk { surface.ink(for: surface.tool) }
+
+    private func write(_ change: (inout MarkupInk) -> Void) {
+        var ink = current
+        change(&ink)
+        surface.setInk(ink, for: surface.tool)
+    }
+}
+
+/// How thick the tool in hand draws. Its own control: the width belongs to
+/// every tool, and burying it under the colour hid it.
+struct MarkupWidthPopover: View {
+    @ObservedObject var surface: MarkupSurface
+    var lang: AppLanguage
+
     private let widths: [Double] = [2, 4, 9, 18]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                ForEach(palette, id: \.self) { hex in
-                    Button {
-                        var ink = surface.ink(for: surface.tool)
-                        ink.hex = hex
-                        surface.setInk(ink, for: surface.tool)
-                    } label: {
-                        Circle()
-                            .fill(Color(markupHex: hex))
-                            .frame(width: 22, height: 22)
-                            .overlay(
-                                Circle().strokeBorder(
-                                    Theme.glyphInk.opacity(surface.ink(for: surface.tool).hex == hex ? 0.9 : 0.2),
-                                    lineWidth: surface.ink(for: surface.tool).hex == hex ? 2 : 1
-                                )
-                            )
-                    }
-                    .buttonStyle(.plain)
+        HStack(spacing: 10) {
+            Text(L10n.t(.mkWidth, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+            ForEach(widths, id: \.self) { width in
+                Button {
+                    var ink = surface.ink(for: surface.tool)
+                    ink.width = width
+                    surface.setInk(ink, for: surface.tool)
+                } label: {
+                    Circle()
+                        .fill(Theme.glyphInk.opacity(surface.ink(for: surface.tool).width == width ? 0.92 : 0.5))
+                        .frame(width: width / 2 + 3, height: width / 2 + 3)
+                        .frame(width: 26, height: 26)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6).fill(
+                                surface.ink(for: surface.tool).width == width ? Theme.chipBg : .clear)
+                        )
+                        .contentShape(Rectangle())
                 }
-            }
-
-            if surface.tool == .arrow {
-                Rectangle().fill(Theme.divider).frame(height: 1)
-
-                HStack(spacing: 8) {
-                    ForEach(ArrowStyle.allCases, id: \.self) { style in
-                        Button {
-                            surface.arrowStyle = style
-                        } label: {
-                            ArrowStylePreview(style: style)
-                                .frame(width: 62, height: 30)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 7)
-                                        .fill(surface.arrowStyle == style ? Theme.chipBg : Theme.rowBg)
-                                )
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .help(L10n.t(.mkArrow, lang))
-                    }
-                }
-            }
-
-            Rectangle().fill(Theme.divider).frame(height: 1)
-
-            HStack(spacing: 14) {
-                Text(L10n.t(.mkWidth, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
-                ForEach(widths, id: \.self) { width in
-                    Button {
-                        var ink = surface.ink(for: surface.tool)
-                        ink.width = width
-                        surface.setInk(ink, for: surface.tool)
-                    } label: {
-                        Circle()
-                            .fill(Theme.glyphInk.opacity(surface.ink(for: surface.tool).width == width ? 0.92 : 0.5))
-                            .frame(width: width / 2 + 3, height: width / 2 + 3)
-                            .frame(width: 22, height: 22)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                }
+                .buttonStyle(.plain)
             }
         }
         .padding(12)
-        .frame(width: 244)
+        .background(Theme.background)
+    }
+}
+
+/// The four heads the arrow can carry, drawn rather than named.
+struct MarkupArrowPopover: View {
+    @ObservedObject var surface: MarkupSurface
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(ArrowStyle.allCases, id: \.self) { style in
+                Button {
+                    surface.arrowStyle = style
+                } label: {
+                    ArrowStylePreview(style: style)
+                        .frame(width: 84, height: 44)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(surface.arrowStyle == style ? Theme.chipBg : Theme.rowBg)
+                        )
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(12)
         .background(Theme.background)
     }
 }
@@ -273,19 +335,21 @@ struct ArrowStylePreview: View {
 
     var body: some View {
         Canvas { context, size in
-            let width = 2.6
-            let tail = MarkupPoint(x: 10, y: size.height - 9)
-            let tip = MarkupPoint(x: size.width - 10, y: 9)
+            let width = 5.0
+            let tail = MarkupPoint(x: 12, y: size.height - 12)
+            let tip = MarkupPoint(x: size.width - 12, y: 12)
             let stroke = StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
             let ink = GraphicsContext.Shading.color(Theme.textPrimary)
 
-            var shaft = Path()
-            shaft.move(to: CGPoint(x: tail.x, y: tail.y))
-            shaft.addLine(to: CGPoint(x: tip.x, y: tip.y))
-            context.stroke(shaft, with: ink, style: stroke)
-
             let head = MarkupGeometry.arrowHead(from: tail, to: tip, style: style, width: width)
             let barbs = head.map { CGPoint(x: $0.x, y: $0.y) }
+            let stop = barbs.count == 3 ? barbs[1] : CGPoint(x: tip.x - 2, y: tip.y + 2)
+
+            var shaft = Path()
+            shaft.move(to: CGPoint(x: tail.x, y: tail.y))
+            shaft.addLine(to: stop)
+            context.stroke(shaft, with: ink, style: stroke)
+
             if barbs.count == 3 {
                 var triangle = Path()
                 triangle.move(to: barbs[0])
@@ -371,6 +435,9 @@ struct MarkupKeys: NSViewRepresentable {
             surface.tool = tool
             return true
         }
+        view.step = { forward in
+            if forward { surface.redo() } else { surface.undo() }
+        }
         return view
     }
 
@@ -378,6 +445,9 @@ struct MarkupKeys: NSViewRepresentable {
 
     final class KeyView: NSView {
         var pick: ((String) -> Bool)?
+        /// ⌘Z and ⇧⌘Z. Hop is an accessory app with no Edit menu, so there is no
+        /// key equivalent for them to travel on.
+        var step: ((Bool) -> Void)?
         private var monitor: Any?
 
         override func viewDidMoveToWindow() {
@@ -385,12 +455,21 @@ struct MarkupKeys: NSViewRepresentable {
             guard window != nil, monitor == nil else { return }
             monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
                 guard let self, self.window?.isVisible == true,
-                      !event.modifierFlags.contains(.command),
-                      // a field being typed into owns its letters
-                      !(self.window?.firstResponder is NSTextView),
-                      let letter = event.charactersIgnoringModifiers,
-                      self.pick?(letter) == true
+                      // a field being typed into owns its keys
+                      !(self.window?.firstResponder is NSTextView)
                 else { return event }
+
+                if event.modifierFlags.contains(.command) {
+                    // With several editors open only the one in front may act.
+                    guard self.window?.isKeyWindow == true,
+                          event.charactersIgnoringModifiers?.lowercased() == "z"
+                    else { return event }
+                    self.step?(event.modifierFlags.contains(.shift))
+                    return nil
+                }
+
+                guard let letter = event.charactersIgnoringModifiers,
+                      self.pick?(letter) == true else { return event }
                 return nil
             }
         }

@@ -2460,12 +2460,39 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   steps, text, magnifier, blur, eraser; undo ⌘Z and redo ⇧⌘Z. Every tool
   remembers its own colour and width, so the fat yellow marker and the thin red
   pencil live side by side.
-- **The arrow has three heads** — solid, thin barbs, freehand — chosen in the
-  same popover as its colour and width, and only while the arrow is in hand.
-  They are shown as three drawn arrows rather than three words: the choice is
-  about a shape. The head is stored ON the mark, so arrows already drawn keep
-  the head they were drawn with. Marks saved before the field existed decode
-  with none and are drawn solid.
+- **The arrow has four heads** — open barbs, a plain triangle, a notched one,
+  and one drawn as a hand would. They hang off the arrow TOOL, not off the
+  colour: pressing the arrow when it is already in hand opens them, pressing it
+  again closes them, and picking one leaves the arrow in hand to go on drawing
+  with (Anton, 2026-09-08). They are shown as four drawn arrows rather than four
+  words: the choice is about a shape, and they are drawn at the weight an arrow
+  actually carries — at a hairline all four looked alike. The head is stored ON
+  the mark, so arrows already drawn keep the head they were drawn with; marks
+  saved before the field existed decode with none and are drawn notched.
+- **The shaft stops where the head begins** — at the notch of a filled head, half
+  a line-width short of the tip of an open one. Run to the tip, its round cap
+  sticks out past the point and the LINE becomes the tip of the arrow (Anton,
+  2026-09-08).
+- **Colour and width are two controls, not one.** Width belongs to every tool
+  and was buried under a colour swatch, where nobody would look for it (Anton,
+  2026-09-08); it has its own button, three lines of rising weight. The colour
+  popover carries the eight presets AND the system picker, for a colour that is
+  not among them.
+- **⌘Z and ⇧⌘Z work from the keyboard.** Hop is an accessory app with no Edit
+  menu, so there is no key equivalent for them to travel on: the surface's own
+  key monitor takes them, and only while its window is the KEY one — with
+  several editors open, an undo must not reach into the ones behind.
+- **A two-point tool marks where it started**: a small white cross at the anchor
+  while the shape is being pulled out of it, and a crosshair pointer over the
+  picture while such a tool is in hand. Which corner a rectangle grew from was
+  otherwise invisible (Anton, 2026-09-08).
+- **Option draws from the centre, shift keeps it regular** — a square, a circle,
+  a line on one of eight bearings. The rule is a pure function in
+  `HopCore.MarkupDrag` with tests: a square is built on the LONGER side, or it
+  would shrink away from the pointer.
+- **The window does not open on the name field.** It is the only thing in the
+  window that takes focus, so it opened with the file name selected and the
+  first keystroke would have replaced it (Anton, 2026-09-08).
 - **Blur works in both directions.** "Inside the area" hides what the region
   covers; "around the area" keeps the region sharp and smears the rest, with a
   dimming slider on top of the strength one, because blur alone does not read as
