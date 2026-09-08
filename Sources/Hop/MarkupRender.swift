@@ -86,8 +86,10 @@ enum MarkupRender {
                            width: side, height: side)
         // `cropping` measures from the image's top left, which is the same
         // corner the flipped context counts from — no conversion needed.
-        let source = CGRect(x: frame.midX - frame.width / 4, y: frame.midY - frame.height / 4,
-                            width: frame.width / 2, height: frame.height / 2)
+        let zoom = MarkupEditing.Zoom.of(shape)
+        let source = CGRect(x: frame.midX - frame.width / (zoom * 2),
+                            y: frame.midY - frame.height / (zoom * 2),
+                            width: frame.width / zoom, height: frame.height / zoom)
         guard let piece = base.cropping(to: source) else { return }
 
         let round = CGPath(ellipseIn: frame, transform: nil)

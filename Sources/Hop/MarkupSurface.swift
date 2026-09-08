@@ -32,6 +32,7 @@ final class MarkupSurface: ObservableObject {
     private var origin: MarkupPoint?
     private var grip: Int?
     private var grabbed: MarkupPoint?
+    private var turningDial = false
     private var ticker: Timer?
     private let opened = Date()
 
@@ -82,9 +83,18 @@ final class MarkupSurface: ObservableObject {
     }
 
     private func pick(at point: MarkupPoint) {
-        // A handle of the mark already in hand wins over anything under it.
+        // The dial and the handles of the mark already in hand win over
+        // anything under them.
+        if let current = selected, current.tool == .magnifier,
+           let knob = MarkupEditing.Zoom.knob(of: current),
+           near(knob, point) {
+            turningDial = true
+            editing = current
+            return
+        }
         if let current = selected, let index = handle(of: current, near: point) {
             grip = index
+            turningDial = false
             editing = current
             return
         }
@@ -99,7 +109,13 @@ final class MarkupSurface: ObservableObject {
         selection = hit.id
         editing = hit
         grip = nil
+        turningDial = false
         grabbed = point
+    }
+
+    private func near(_ spot: MarkupPoint, _ point: MarkupPoint) -> Bool {
+        let dx = spot.x - point.x, dy = spot.y - point.y
+        return (dx * dx + dy * dy).squareRoot() <= Self.gripReach
     }
 
     /// What is still on the surface right now, read off the clock rather than
@@ -175,6 +191,11 @@ final class MarkupSurface: ObservableObject {
     func extend(to point: MarkupPoint, modifiers: MarkupDrag.Modifiers = .none) {
         if tool == .select {
             guard var held = editing else { return }
+            if turningDial, let lens = MarkupEditing.lens(of: held) {
+                held.magnification = MarkupEditing.Zoom.asked(at: point, lens: lens)
+                editing = held
+                return
+            }
             if let grip {
                 held = MarkupEditing.pulled(held, handle: grip, to: point)
             } else if let grabbed {
@@ -216,7 +237,7 @@ final class MarkupSurface: ObservableObject {
 
     func finish() {
         if tool == .select {
-            defer { grip = nil; grabbed = nil }
+            defer { grip = nil; grabbed = nil; turningDial = false }
             guard let held = editing else { return }
             editing = nil
             guard held != shapes.first(where: { $0.id == held.id }) else { return }

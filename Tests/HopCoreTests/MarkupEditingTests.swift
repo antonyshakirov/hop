@@ -109,3 +109,43 @@ extension MarkupEditingTests {
         XCTAssertEqual(MarkupEditing.lens(of: pulled)?.radius ?? 0, 12, accuracy: 0.001)
     }
 }
+
+extension MarkupEditingTests {
+    private var plainLens: MarkupShape {
+        MarkupShape(tool: .magnifier,
+                    points: [MarkupPoint(x: 60, y: 60), MarkupPoint(x: 140, y: 140)],
+                    ink: MarkupInk(hex: "#FFFFFF", width: 5), createdAt: 0)
+    }
+
+    func testALensPlacedBeforeTheDialExistedMagnifiesTwice() {
+        XCTAssertEqual(MarkupEditing.Zoom.of(plainLens), 2)
+    }
+
+    func testTheDialReadsTheEndsOfItsArcAsTheEndsOfItsRange() {
+        let lens = (centre: MarkupPoint(x: 100, y: 100), radius: 40.0)
+        let atStart = MarkupEditing.Zoom.spot(on: lens, degrees: MarkupEditing.Zoom.start)
+        let atEnd = MarkupEditing.Zoom.spot(on: lens, degrees: MarkupEditing.Zoom.end)
+        XCTAssertEqual(MarkupEditing.Zoom.asked(at: atStart, lens: lens),
+                       MarkupEditing.Zoom.least, accuracy: 0.001)
+        XCTAssertEqual(MarkupEditing.Zoom.asked(at: atEnd, lens: lens),
+                       MarkupEditing.Zoom.most, accuracy: 0.001)
+    }
+
+    /// Dragged past either end the dial stays at that end rather than jumping
+    /// to the other one.
+    func testTheDialDoesNotWrapRound() {
+        let lens = (centre: MarkupPoint(x: 100, y: 100), radius: 40.0)
+        let above = MarkupEditing.Zoom.spot(on: lens, degrees: -60)
+        let below = MarkupEditing.Zoom.spot(on: lens, degrees: 120)
+        XCTAssertEqual(MarkupEditing.Zoom.asked(at: above, lens: lens), MarkupEditing.Zoom.least)
+        XCTAssertEqual(MarkupEditing.Zoom.asked(at: below, lens: lens), MarkupEditing.Zoom.most)
+    }
+
+    func testTheKnobSitsOutsideTheGlass() {
+        guard let knob = MarkupEditing.Zoom.knob(of: plainLens),
+              let lens = MarkupEditing.lens(of: plainLens) else { return XCTFail("no knob") }
+        let dx = knob.x - lens.centre.x, dy = knob.y - lens.centre.y
+        XCTAssertEqual((dx * dx + dy * dy).squareRoot(),
+                       lens.radius + MarkupEditing.Zoom.gap, accuracy: 0.001)
+    }
+}

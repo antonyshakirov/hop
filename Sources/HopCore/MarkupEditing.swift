@@ -62,6 +62,44 @@ public enum MarkupEditing {
             && point.y >= box.origin.y - pad && point.y <= box.origin.y + box.size.y + pad
     }
 
+    /// The dial round a lens. SPEC: docs/spec.md
+    public enum Zoom {
+        /// Degrees clockwise from due east, y counting DOWN.
+        public static let start = 22.0
+        public static let end = 74.0
+        public static let least = 1.5
+        public static let most = 6.0
+        public static let gap = 11.0
+
+        public static func of(_ shape: MarkupShape) -> Double {
+            min(max(shape.magnification ?? 2, least), most)
+        }
+
+        public static func knob(of shape: MarkupShape) -> MarkupPoint? {
+            guard let lens = MarkupEditing.lens(of: shape) else { return nil }
+            let share = (of(shape) - least) / (most - least)
+            return spot(on: lens, degrees: start + (end - start) * share)
+        }
+
+        /// Off the ends of the arc, the ends.
+        public static func asked(
+            at point: MarkupPoint, lens: (centre: MarkupPoint, radius: Double)
+        ) -> Double {
+            let angle = atan2(point.y - lens.centre.y, point.x - lens.centre.x) * 180 / .pi
+            let share = (angle - start) / (end - start)
+            return least + (most - least) * min(max(share, 0), 1)
+        }
+
+        public static func spot(
+            on lens: (centre: MarkupPoint, radius: Double), degrees: Double
+        ) -> MarkupPoint {
+            let radians = degrees * .pi / 180
+            let reach = lens.radius + gap
+            return MarkupPoint(x: lens.centre.x + cos(radians) * reach,
+                               y: lens.centre.y + sin(radians) * reach)
+        }
+    }
+
     public static func moved(_ shape: MarkupShape, by delta: MarkupPoint) -> MarkupShape {
         var moved = shape
         moved.points = shape.points.map { MarkupPoint(x: $0.x + delta.x, y: $0.y + delta.y) }

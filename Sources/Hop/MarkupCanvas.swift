@@ -90,6 +90,8 @@ struct MarkupCanvas: View {
                         .position(x: frame.midX, y: frame.midY)
                 }
 
+                if round { dial(shape) }
+
                 ForEach(Array(MarkupEditing.handles(of: shape).enumerated()), id: \.offset) { _, spot in
                     Circle()
                         .fill(Color.white)
@@ -100,6 +102,30 @@ struct MarkupCanvas: View {
                 }
             }
             .allowsHitTesting(false)
+        }
+    }
+
+    /// The arc a lens is zoomed by: a short track off its lower right with a
+    /// knob on it. SPEC: docs/spec.md
+    @ViewBuilder
+    private func dial(_ shape: MarkupShape) -> some View {
+        if let lens = MarkupEditing.lens(of: shape),
+           let knob = MarkupEditing.Zoom.knob(of: shape) {
+            let reach = (lens.radius + MarkupEditing.Zoom.gap) * scale
+            let centre = CGPoint(x: lens.centre.x * scale, y: lens.centre.y * scale)
+            let track = Path { path in
+                path.addArc(center: centre, radius: reach,
+                            startAngle: .degrees(MarkupEditing.Zoom.start),
+                            endAngle: .degrees(MarkupEditing.Zoom.end), clockwise: false)
+            }
+            track.stroke(Color.black.opacity(0.35), style: StrokeStyle(lineWidth: 5, lineCap: .round))
+            track.stroke(Color.white.opacity(0.85), style: StrokeStyle(lineWidth: 3, lineCap: .round))
+            Circle()
+                .fill(Color.white)
+                .overlay(Circle().strokeBorder(Color.black.opacity(0.55), lineWidth: 1))
+                .shadow(color: .black.opacity(0.5), radius: 2)
+                .frame(width: 11, height: 11)
+                .position(x: knob.x * scale, y: knob.y * scale)
         }
     }
 
@@ -174,9 +200,11 @@ struct MarkupCanvas: View {
                 layer.clip(to: lens)
                 // Twice the size about the lens's own centre, so what is under
                 // the glass stays under it.
-                layer.draw(background, in: CGRect(x: -frame.midX, y: -frame.midY,
-                                                  width: canvas.width * 2,
-                                                  height: canvas.height * 2))
+                let zoom = MarkupEditing.Zoom.of(shape)
+                layer.draw(background, in: CGRect(x: frame.midX - frame.midX * zoom,
+                                                  y: frame.midY - frame.midY * zoom,
+                                                  width: canvas.width * zoom,
+                                                  height: canvas.height * zoom))
             }
             glass(frame, rim: max(2, 4 * scale), in: &context)
 
