@@ -38,13 +38,12 @@ struct FrameDressingPopover: View {
                     set: { editor.dressing.browserFrame = $0; editor.refreshPreview() }
                 ))
 
-                TextField(L10n.t(.dressAddress, lang), text: Binding(
+                SteadyField(text: Binding(
                     get: { editor.dressing.address },
-                    set: { editor.dressing.address = $0; editor.refreshPreview() }
-                ))
-                .textFieldStyle(.plain)
-                .font(Theme.mono(11))
-                .padding(.horizontal, 8).padding(.vertical, 6)
+                    set: { editor.dressing.address = $0; editor.scheduleRefresh() }
+                ), placeholder: L10n.t(.dressAddress, lang))
+                .padding(.horizontal, 8)
+                .frame(height: 26)
                 .background(RoundedRectangle(cornerRadius: 6).fill(Theme.fieldBg))
                 .disabled(!editor.dressing.browserFrame)
                 .opacity(editor.dressing.browserFrame ? 1 : 0.35)
@@ -183,13 +182,12 @@ struct WatermarkPopover: View {
             ))
 
             Group {
-                TextField(L10n.t(.markText, lang), text: Binding(
+                SteadyField(text: Binding(
                     get: { editor.watermark.text },
-                    set: { editor.watermark.text = $0; editor.refreshPreview() }
-                ))
-                .textFieldStyle(.plain)
-                .font(Theme.mono(11))
-                .padding(.horizontal, 8).padding(.vertical, 6)
+                    set: { editor.watermark.text = $0; editor.scheduleRefresh() }
+                ), placeholder: L10n.t(.markText, lang))
+                .padding(.horizontal, 8)
+                .frame(height: 26)
                 .background(RoundedRectangle(cornerRadius: 6).fill(Theme.fieldBg))
 
                 Button(L10n.t(.markImage, lang)) { pickImage() }

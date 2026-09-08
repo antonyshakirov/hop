@@ -2532,8 +2532,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   round swatches.
 - **Copy says it copied**: the glyph becomes a tick for a second. A button that
   answers nothing leaves the user pressing it again.
-- The name field has its focus effect off. The ring grows the field, and the
-  whole panel jumps the moment the name is clicked into.
+- **Every field in these two modules is a `SteadyField`.** AppKit draws a
+  placeholder through the CELL and the typed text through the window's field
+  editor, and the two disagree by about a point: the text hops the moment the
+  field is clicked into (Anton, 2026-09-08). One `NSTextFieldCell` subclass
+  hands the same rectangle to `drawingRect`, `edit` and `select`, so the
+  placeholder, the caret and the typed text all sit in one place. It also
+  carries `focusRingType = .none` — the ring grew the field and the whole panel
+  jumped with it.
 - **⌘Z and ⇧⌘Z work from the keyboard.** Hop is an accessory app with no Edit
   menu, so there is no key equivalent for them to travel on: the surface's own
   key monitor takes them, and only while its window is the KEY one — with
