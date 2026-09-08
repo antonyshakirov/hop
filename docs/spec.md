@@ -2461,13 +2461,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the picture was meant to have (Anton, 2026-09-08). The window keeps an ordinary
   thin title bar, so the traffic lights do not sit on the shot. **The format is
   not asked in the window**: it is one line in the module's settings.
-- Tools: crop, pencil, fading ink, marker, arrow, line, rectangle, oval,
-  numbered steps, text, magnifier, blur, eraser; undo ⌘Z and redo ⇧⌘Z. Every
-  tool remembers its own colour and width, so the fat yellow marker and the thin
-  red pencil live side by side. Fading ink is offered HERE too (Anton,
-  2026-09-08) — the export reads `surface.lasting`, marks alive by the clock
-  rather than by the tick, so ink that has faded off the screen cannot turn up
-  in the file.
+- Tools: crop, pencil, marker, arrow, line, rectangle, oval, numbered steps,
+  text, magnifier, blur, eraser; undo ⌘Z and redo ⇧⌘Z. Every tool remembers its
+  own colour and width, so the fat yellow marker and the thin red pencil live
+  side by side. **Fading ink is NOT among them**: ink that disappears is for
+  talking over a live screen, and a picture about to be saved has no use for it
+  (Anton, 2026-09-08). The export reads `surface.lasting` regardless — marks
+  alive by the clock rather than by the tick.
+- **A text mark gets a field of its own** (`.id(shape.id)`). One field carried
+  across two marks keeps the words of the first, and the text looks as though it
+  moved to wherever the second click landed.
 - **The editor draws its marks over a picture the PIXEL tools have already
   changed.** Blur and the loupe do not sit on the picture, they alter it, and on
   screen both used to be a dashed outline and nothing else — the effect only
@@ -2487,7 +2490,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   drag reads the pointer's PLACE in a named coordinate space, not a translation:
   the handle moves as it is dragged, so a translation measured against it drifts
   and shakes, and the edge no longer sat under the mouse (Anton, 2026-09-08). Nothing is applied until it is asked for: while
-  the frame is up the keeping panel gives way to two answers, reset and apply.
+  the frame is up the keeping panel gives way to the SAME three slots — the size
+  the cut will be, then cancel, then ok — so nothing shifts under the pointer
+  when the frame goes up (Anton, 2026-09-08). Return keeps the frame, escape
+  drops it: a crop that has to be aimed at a button is a crop nobody finishes.
+  A drag that misses the frame is swallowed rather than passed to the window
+  behind, which used to take the whole window for a walk, and every SIDE is a
+  target down its whole length rather than a dot at its middle.
   The canvas takes no hits meanwhile, so the crop frame cannot be drawn over.
   Applied, the window SHOWS the cut — the picture is offset inside a clipped box
   rather than re-rendered, so every mark keeps the coordinates it was made in.

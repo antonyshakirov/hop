@@ -16,6 +16,12 @@ struct CropOverlay: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
+            // Nothing falls through to the window: a drag that misses the frame
+            // used to reach the window behind and take it for a walk.
+            Color.clear
+                .contentShape(Rectangle())
+                .gesture(DragGesture().onChanged { _ in }.onEnded { _ in })
+
             Color.black.opacity(0.45)
                 .mask {
                     Rectangle()
@@ -48,13 +54,22 @@ struct CropOverlay: View {
                     .onEnded { _ in start = nil })
                 .position(x: box.midX, y: box.midY)
 
+            // The dots are decoration; the targets under them are far bigger
+            // than the dots, and every SIDE is a target along its whole length.
             ForEach(Grip.allCases, id: \.self) { grip in
                 Circle()
                     .fill(Color.white)
                     .overlay(Circle().strokeBorder(Color.black.opacity(0.55), lineWidth: 1))
                     .shadow(color: .black.opacity(0.5), radius: 2)
                     .frame(width: handle, height: handle)
-                    .frame(width: handle * 2.4, height: handle * 2.4)
+                    .position(spot(of: grip))
+                    .allowsHitTesting(false)
+            }
+
+            ForEach(Grip.allCases, id: \.self) { grip in
+                let target = reach(of: grip)
+                Color.clear
+                    .frame(width: target.width, height: target.height)
                     .contentShape(Rectangle())
                     // The handle MOVES as it is dragged, so a translation
                     // measured against it drifts and shakes. The pointer's
@@ -94,6 +109,21 @@ struct CropOverlay: View {
 
     enum Grip: CaseIterable {
         case topLeft, top, topRight, right, bottomRight, bottom, bottomLeft, left
+    }
+
+    /// How much of the frame each grip answers for: a corner is a square, a
+    /// side is a bar down its whole length.
+    private func reach(of grip: Grip) -> CGSize {
+        let corner = handle * 2.4
+        let bar = handle * 1.6
+        switch grip {
+        case .topLeft, .topRight, .bottomLeft, .bottomRight:
+            return CGSize(width: corner, height: corner)
+        case .top, .bottom:
+            return CGSize(width: max(0, box.width - corner), height: bar)
+        case .left, .right:
+            return CGSize(width: bar, height: max(0, box.height - corner))
+        }
     }
 
     private func spot(of grip: Grip) -> CGPoint {

@@ -25,7 +25,7 @@ enum MarkupSettings {
 
     static func arrowStyle() -> ArrowStyle {
         guard let raw = UserDefaults.standard.string(forKey: arrowStyleKey),
-              let style = ArrowStyle(rawValue: raw) else { return .solid }
+              let style = ArrowStyle(rawValue: raw) else { return ArrowStyle.allCases[0] }
         return style
     }
 

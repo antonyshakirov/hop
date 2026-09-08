@@ -73,7 +73,7 @@ final class ScreenshotEditor: ObservableObject {
     /// The tools this surface offers: no fading ink on a picture that will be
     /// saved, and every tool that needs pixels under it lives only here.
     static let tools: [MarkupTool] = [
-        .crop, .pencil, .fadingInk, .marker, .arrow, .line, .rectangle,
+        .crop, .pencil, .marker, .arrow, .line, .rectangle,
         .oval, .steps, .text, .magnifier, .blur, .eraser,
     ]
 
@@ -226,6 +226,17 @@ struct ScreenshotEditorView: View {
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .background(MarkupKeys(surface: editor.surface, tools: ScreenshotEditor.tools))
+            .background(CropKeys(
+                cropping: editor.cropDraft != nil,
+                onApply: {
+                    editor.applyCrop()
+                    editor.surface.tool = .pencil
+                },
+                onCancel: {
+                    editor.cropDraft = nil
+                    editor.surface.tool = .pencil
+                }
+            ))
         }
     }
 
@@ -236,31 +247,54 @@ struct ScreenshotEditorView: View {
         if editor.cropDraft != nil { cropping } else { keeping }
     }
 
+    /// The same three slots the keeping panel has, so nothing moves when the
+    /// frame goes up: what the cut will be, and the two answers to it.
     private var cropping: some View {
         HStack(spacing: 6) {
-            Button { editor.resetCrop() } label: {
-                MarkupIcon(glyph: .undo)
+            Text(cropSize)
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.textSecondary)
+                .lineLimit(1)
+                .padding(.horizontal, 8)
+                .frame(width: 130, height: 26, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: 7).fill(Theme.fieldBg))
+
+            Button {
+                editor.cropDraft = nil
+                editor.surface.tool = .pencil
+            } label: {
+                Text(L10n.t(.quitCancel, lang))
+                    .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
-                    .frame(width: 32, height: 32)
+                    .lineLimit(1)
+                    .padding(.horizontal, 10)
+                    .frame(height: 32)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(L10n.t(.resetDefaults, lang))
 
             Button {
                 editor.applyCrop()
                 editor.surface.tool = .pencil
             } label: {
-                MarkupIcon(glyph: .crop)
+                Text(L10n.t(.okLabel, lang))
+                    .font(Theme.mono(11, weight: .semibold))
                     .foregroundStyle(Theme.playFg)
-                    .frame(width: 32, height: 32)
+                    .lineLimit(1)
+                    .padding(.horizontal, 12)
+                    .frame(height: 32)
                     .background(RoundedRectangle(cornerRadius: 7).fill(Theme.playBg))
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(L10n.t(.mkCrop, lang))
         }
         .frame(height: 32)
+    }
+
+    private var cropSize: String {
+        guard let frame = editor.cropDraft else { return "" }
+        let scale = editor.scale
+        return "\(Int((frame.width * scale).rounded())) × \(Int((frame.height * scale).rounded()))"
     }
 
     /// Done TO the picture rather than drawn on it. SPEC: docs/spec.md
@@ -320,6 +354,7 @@ struct ScreenshotEditorView: View {
             .buttonStyle(.plain)
             .help(L10n.t(.featureSave, lang))
         }
+        .frame(height: 32)
     }
 
     private func toolbarButton(
@@ -370,5 +405,49 @@ struct ScreenshotEditorView: View {
         let fit = min(max(120, canvas.width) / natural.width,
                       max(90, canvas.height) / natural.height)
         return min(fit, 2)
+    }
+}
+
+
+/// Return keeps the frame, escape drops it. A crop that has to be aimed at a
+/// button is a crop nobody finishes.
+private struct CropKeys: NSViewRepresentable {
+    let cropping: Bool
+    let onApply: () -> Void
+    let onCancel: () -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = KeyView()
+        view.state = self
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        (nsView as? KeyView)?.state = self
+    }
+
+    final class KeyView: NSView {
+        var state: CropKeys?
+        private var monitor: Any?
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            guard window != nil, monitor == nil else { return }
+            monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+                guard let self, let state = self.state, state.cropping,
+                      self.window?.isKeyWindow == true,
+                      !(self.window?.firstResponder is NSTextView)
+                else { return event }
+                switch event.keyCode {
+                case 36, 76: state.onApply(); return nil
+                case 53: state.onCancel(); return nil
+                default: return event
+                }
+            }
+        }
+
+        deinit {
+            if let monitor { NSEvent.removeMonitor(monitor) }
+        }
     }
 }

@@ -72,6 +72,10 @@ struct MarkupCanvas: View {
             .padding(.horizontal, 6)
             .background(RoundedRectangle(cornerRadius: 5).fill(Theme.fieldBg))
             .offset(x: point.x * scale, y: point.y * scale)
+            // A field kept across two marks keeps the words of the first, and
+            // the text looks as though it moved to wherever the second click
+            // landed. One field per mark.
+            .id(shape.id)
             .onAppear { typing = true }
         }
     }
