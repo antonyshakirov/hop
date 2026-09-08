@@ -45,6 +45,8 @@ struct TaskCardView: View {
     let onCommit: () -> Void
     var deletion: CardDeletion? = nil
     var onImportant: ((Bool) -> Void)? = nil
+    /// SPEC: arming or clearing a reminder writes through at once, like the star.
+    var onReminderArmed: ((ReminderDraft?) -> Void)? = nil
 
     @FocusState private var titleFocused: Bool
     @State private var confirmingDelete = false
@@ -204,6 +206,7 @@ struct TaskCardView: View {
             } else {
                 setDay(offset: 0)
             }
+            onReminderArmed?(draft.reminder)
         } label: {
             Image(systemName: armed ? "bell.fill" : "bell")
                 .font(.system(size: 11))

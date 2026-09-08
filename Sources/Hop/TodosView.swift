@@ -187,7 +187,15 @@ struct TodosView: View {
                              onCommit: { commitCard(item) },
                              deletion: CardDeletion(needsConfirm: false,
                                                     delete: { deleteFromCard(item) }),
-                             onImportant: { todos.setImportant(item.id, $0) })
+                             onImportant: { todos.setImportant(item.id, $0) },
+                             onReminderArmed: { reminder in
+                                 if let date = reminder?.date {
+                                     todos.setReminder(item.id, at: date,
+                                                       repeatDays: reminder?.repeatDays ?? [])
+                                 } else {
+                                     todos.clearReminder(item.id)
+                                 }
+                             })
                     .background {
                         Color.clear.contentShape(Rectangle()).onTapGesture { }
                     }
