@@ -29,14 +29,6 @@ struct MarkupCanvas: View {
             }
         }
         .overlay(alignment: .topLeading) { held }
-        .overlay(alignment: .topLeading) { if chrome { blurBar } }
-        .overlay(alignment: .topLeading) { if chrome { typingField } }
-        .overlay {
-            if chrome {
-                ToolCursor(tool: surface.tool, width: surface.ink(for: surface.tool).width)
-                    .allowsHitTesting(false)
-            }
-        }
         .contentShape(Rectangle())
         .gesture(
             DragGesture(minimumDistance: 0)
@@ -53,6 +45,17 @@ struct MarkupCanvas: View {
                 }
                 .onEnded { _ in surface.finish() }
         )
+        // AFTER the gesture: `contentShape` hands the whole area to the drag,
+        // and a panel under it is a panel whose buttons never get the click —
+        // pressing one deselected the mark and took the panel with it.
+        .overlay(alignment: .topLeading) { if chrome { blurBar } }
+        .overlay(alignment: .topLeading) { if chrome { typingField } }
+        .overlay {
+            if chrome {
+                ToolCursor(tool: surface.tool, width: surface.ink(for: surface.tool).width)
+                    .allowsHitTesting(false)
+            }
+        }
     }
 
     /// A drag reads the modifier keys as they are RIGHT NOW: SwiftUI's gesture
@@ -92,7 +95,9 @@ struct MarkupCanvas: View {
                         .position(x: frame.midX, y: frame.midY)
                 }
 
-                if round { dial(shape) }
+                // The dial belongs to the loupe alone; the others have nothing
+                // to zoom.
+                if shape.tool == .magnifier { dial(shape) }
 
                 ForEach(Array(MarkupEditing.handles(of: shape).enumerated()), id: \.offset) { _, spot in
                     Circle()

@@ -2673,7 +2673,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the file.
 - **Nothing that shows its own edge gets a box round it**: a lens, an oval and a
   blur are their own outline, so the selection frame is drawn only for the marks
-  that have none (Anton, 2026-09-08). An oval one is
+  that have none (Anton, 2026-09-08). The DIAL belongs to the loupe alone — the
+  others have nothing to zoom.
+- **Any panel over the canvas is added AFTER the drag gesture.** `contentShape`
+  hands the whole area to that gesture, so a panel under it is a panel whose
+  buttons never get the click: pressing one deselected the mark and took the
+  panel down with it (Anton, 2026-09-08). An oval one is
   held at the four points ON the ellipse, and pulling one of them moves that
   edge alone. It starts at strength 5 of 10 — a blur that hides nothing reads as
   a blur that does not work.
