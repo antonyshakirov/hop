@@ -180,6 +180,8 @@ struct ScreenshotEditorView: View {
 
     @State private var saved: URL?
     @State private var copied = false
+    @State private var naming = false
+    @State private var overName = false
     @State private var showingDressing = false
     @State private var showingWatermark = false
 
@@ -340,10 +342,17 @@ struct ScreenshotEditorView: View {
     /// window is for the picture.
     private var keeping: some View {
         HStack(spacing: 6) {
-            SteadyField(text: $editor.fileName)
+            // A filled box round a name nobody is typing is a control shouting
+            // for attention it does not need. It appears under the pointer and
+            // stays while the name is being typed.
+            SteadyField(text: $editor.fileName, focus: $naming)
                 .padding(.horizontal, 8)
                 .frame(width: 130, height: 26)
-                .background(RoundedRectangle(cornerRadius: 7).fill(Theme.fieldBg))
+                .background(
+                    RoundedRectangle(cornerRadius: 7)
+                        .fill(naming ? Theme.fieldBg : (overName ? Theme.hoverBg : .clear))
+                )
+                .onHover { overName = $0 }
 
             Button {
                 editor.copyToClipboard()

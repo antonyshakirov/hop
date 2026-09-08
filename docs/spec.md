@@ -2455,6 +2455,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   a click on the tile brings back even a minimized one. They leave the list a
   tick after `windowWillClose`, because the delegate reads it from its own
   observer of that same notification.
+- **The name is a name, not a box.** Its field carries no fill while nobody is
+  typing into it: one appears under the pointer and stays while the name is
+  being edited (Anton, 2026-09-08). A filled box round a name at rest is a
+  control shouting for attention it does not need.
 - **There is no header.** The name of the file, a copy and a save live in a small
   panel of their OWN, beside the tools at the bottom and travelling with them —
   a bar across the top was a black plate with a rule under it, eating the height
