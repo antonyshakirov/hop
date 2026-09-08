@@ -2443,7 +2443,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   no air is left around it — the shot is fitted edge to edge, growing to twice its
   own pixels at most, past which it is only a smear. The toolbar floats OVER the
   picture and is dragged within it; everything else hangs off that toolbar. The
-  window resizes and goes full screen.
+  window resizes and goes full screen. Its SwiftUI root is `minWidth …
+  maxWidth: .infinity`, not a minimum on its own: a root that will not stretch
+  leaves AppKit and SwiftUI negotiating the size in steps, which is what the
+  window going to the Dock and back looked like (Anton, 2026-09-08).
+- **The editor windows earn Hop its Dock icon**, like the converter and the
+  archiver before them (`dockWindows`). A window with no Dock tile disappears
+  behind whatever is focused next and has to be hunted for (Anton, 2026-09-08);
+  a click on the tile brings back even a minimized one. They leave the list a
+  tick after `windowWillClose`, because the delegate reads it from its own
+  observer of that same notification.
 - The header is the name of the file and two buttons, copy and save. **The
   format is not asked in the window** (Anton, 2026-09-08): it is one line in the
   module's settings, and the window is for the picture.
@@ -2474,6 +2483,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   frame and a corner means nothing then. An image chosen here is COPIED into
   `Application Support/Hop/`, so a file moved or deleted later cannot silently
   empty the mark.
+- **Neither panel hides its controls behind its own switch.** An `NSPopover`
+  keeps the size it was first handed, so a panel that grew when the switch was
+  ticked stayed the size of the tick and showed nothing else (Anton,
+  2026-09-08). Everything is drawn from the start and dimmed to 0.35 while it is
+  off — which also says what the switch is about to turn on. Nothing inside them
+  scrolls, for the same reason.
 - Both live in the toolbar rather than in a column of their own: a permanent
   panel ate a third of the window for two switches that are off most of the
   time (Anton, 2026-09-08). Their button lights up while the thing it holds is

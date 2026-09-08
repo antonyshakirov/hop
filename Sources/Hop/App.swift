@@ -63,6 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     archiveWindow, uninstallWindow, screenTextWindow,
                     onboardingWindow].compactMap { $0 }
         list.append(contentsOf: finderArchiveWindows.values.map(\.window))
+        list.append(contentsOf: shotWindows.windows)
         return list
     }
 
@@ -309,6 +310,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openConverterWindow = { [weak self] in
             self?.showConverterWindow()
         }
+        shotWindows.willShow = { [weak self] in self?.enterDockMode() }
         model.openShotEditor = { [weak self] image, rect in
             self?.model.activity.note() // opening a window counts as active use
             self?.shotWindows.present(image: image, rect: rect, lang: L10n.current)

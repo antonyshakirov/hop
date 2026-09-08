@@ -17,6 +17,12 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
 
     private var foldsIntoTabs: Bool { UserDefaults.standard.bool(forKey: Self.oneWindowKey) }
 
+    /// The open editors, for the Dock-icon bookkeeping in the delegate.
+    var windows: [NSWindow] { order }
+
+    /// Called before a window is ordered in, so the policy switch happens first.
+    var willShow: (() -> Void)?
+
     func present(image: CGImage, rect: CaptureRect, lang: AppLanguage) {
         let editor = ScreenshotEditor(base: image, rect: rect)
         let window = NSWindow(
@@ -56,6 +62,7 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
 
         place(window, shot: rect)
         order.append(window)
+        willShow?()
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
     }
@@ -128,6 +135,12 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
         editors[key] = nil
         titleWatchers[key] = nil
         released.remove(key)
-        order.removeAll { $0 === window }
+        // The window leaves the list a tick later: the app delegate reads it
+        // from its own observer of the same notification, to decide whether the
+        // Dock icon still has a window behind it.
+        DispatchQueue.main.async { [weak self, weak window] in
+            guard let window else { return }
+            self?.order.removeAll { $0 === window }
+        }
     }
 }
