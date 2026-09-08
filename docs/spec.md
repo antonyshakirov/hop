@@ -2541,10 +2541,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   own middle — a round thing has no corner to anchor it by, and a dashed box
   round it says nothing (Anton, 2026-09-08).
 - **How much it magnifies is set on a DIAL round the lens**: a short arc off its
-  lower right, 22° to 74°, a knob on it dragged along the arc for 1.5× to 6×
-  (Anton, 2026-09-08). Dragged past either end it stays at that end rather than
-  jumping to the other. The amount is stored on the mark (`magnification`), so
-  two lenses on one picture can magnify differently; a lens saved before the
+  lower right, 22° to 74°, a knob on it dragged along the arc for 1.2× to 6×
+  (Anton, 2026-09-08). The gentle end was 1.5× and read as too strong for a
+  lens meant to point at something rather than blow it up (Anton, 2026-09-08);
+  1.2× still magnifies visibly, so the glass never looks like a plain circle.
+  Dragged past either end it stays at that end rather than jumping to the
+  other. The amount is stored on the mark (`magnification`), so two lenses on
+  one picture can magnify differently; a lens saved before the
   dial existed reads as 2×. `MarkupEditing.Zoom` with tests. **The tool is handed over a
   tick later** — `@Published` fires BEFORE the assignment lands, so a tool set
   from inside that sink is overwritten by the one that triggered it, and the

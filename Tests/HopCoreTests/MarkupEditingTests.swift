@@ -121,6 +121,15 @@ extension MarkupEditingTests {
         XCTAssertEqual(MarkupEditing.Zoom.of(plainLens), 2)
     }
 
+    /// The gentle end of the dial is 1.2×: a lens that points at something
+    /// without blowing it up. SPEC: docs/spec.md
+    func testTheDialGoesGentlerThanOneAndAHalf() {
+        XCTAssertEqual(MarkupEditing.Zoom.least, 1.2, accuracy: 0.001)
+        var soft = plainLens
+        soft.magnification = 1
+        XCTAssertEqual(MarkupEditing.Zoom.of(soft), 1.2, accuracy: 0.001)
+    }
+
     func testTheDialReadsTheEndsOfItsArcAsTheEndsOfItsRange() {
         let lens = (centre: MarkupPoint(x: 100, y: 100), radius: 40.0)
         let atStart = MarkupEditing.Zoom.spot(on: lens, degrees: MarkupEditing.Zoom.start)

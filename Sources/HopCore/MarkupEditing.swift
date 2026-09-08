@@ -71,7 +71,7 @@ public enum MarkupEditing {
         /// Degrees clockwise from due east, y counting DOWN.
         public static let start = 22.0
         public static let end = 74.0
-        public static let least = 1.5
+        public static let least = 1.2
         public static let most = 6.0
         public static let gap = 11.0
 
