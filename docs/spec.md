@@ -1756,7 +1756,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   read as a control nobody had put there (Vanya, 2026-09-08).
 - **Leaving the card (2026-09-08):** the card carries a **checkbox at its head** —
   the collapsed row's own `TransportCircle` in the same 22pt gutter, so expanding
-  a task moves its circle by the card's inset and nothing else. Pressing it
+  a task moves its circle by the card's inset and nothing else. **One left line
+  (Anton, 2026-09-08):** the card's inset is 6pt on the leading edge (8 on the
+  trailing), so `6 + 22` puts its title, description, bell and `repeat` on the
+  SAME column as a collapsed row's text (`22pt gutter + 6pt spacing`); the
+  gutter is kept even when there is no checkbox in it (the tracker), or the
+  tracker's card would sit 22pt to the left of the row above it. The bell's
+  glyph is `.leading` in its own 20pt hit area — centred, it stood 4.5pt right
+  of that line while the word `repeat` under it stood on it. The weekday squares
+  are NOT columned under the day chip: the `repeat` caption is a word, and its
+  width differs across the seventeen languages. Pressing it
   saves, completes the task and folds the card in one move (`CardCompletion`,
   nil for the tracker, whose tasks have no completed state and which therefore
   shows no checkbox). The former ✓ in the bottom-right is now a `chevron.up`

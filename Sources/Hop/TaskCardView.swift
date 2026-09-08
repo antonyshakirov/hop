@@ -56,7 +56,13 @@ struct TaskCardView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            if let completion { checkbox(completion) }
+            // SPEC: the row's own gutter, kept even when there is no checkbox to
+            // put in it, so the card's text sits on the list's text column.
+            if let completion {
+                checkbox(completion)
+            } else {
+                Color.clear.frame(width: RowCircle.gutter, height: 1)
+            }
             VStack(alignment: .leading, spacing: 0) {
                 title
                 Rectangle()
@@ -69,7 +75,8 @@ struct TaskCardView: View {
                 if draft.reminder?.date != nil { repeatRow.padding(.top, 5) }
             }
         }
-        .padding(.horizontal, 8)
+        .padding(.leading, 6)
+        .padding(.trailing, 8)
         .padding(.vertical, 7)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
         .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.divider, lineWidth: 1))
@@ -200,7 +207,7 @@ struct TaskCardView: View {
             Image(systemName: armed ? "bell.fill" : "bell")
                 .font(.system(size: 11))
                 .foregroundStyle(armed ? Theme.textSecondary : Theme.textTertiary)
-                .frame(width: 20, height: 20)
+                .frame(width: 20, height: 20, alignment: .leading)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
