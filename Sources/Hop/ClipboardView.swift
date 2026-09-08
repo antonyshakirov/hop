@@ -22,7 +22,7 @@ struct ClipboardView: View {
     @State private var copiedId: UUID?
     @State private var expanded = false
     @State private var query = ""
-    @FocusState private var searchFocused: Bool
+    @State private var searchFocused = false
 
     // collapsed — the user-chosen number of rows (1...10, default 3);
     // expanded — up to 20, BUT with a height ceiling:
@@ -116,11 +116,9 @@ struct ClipboardView: View {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 9))
                         .foregroundStyle(Theme.textTertiary)
-                    TextField(L10n.t(.searchLabel, lang), text: $query)
-                        .textFieldStyle(.plain)
-                        .focused($searchFocused)
-                        .font(Theme.mono(10))
-                        .foregroundStyle(Theme.textPrimary)
+                    SteadyField(text: $query, placeholder: L10n.t(.searchLabel, lang),
+                                size: 10, focus: $searchFocused)
+                        .frame(height: 18)
                     if !query.isEmpty {
                         Button {
                             query = ""

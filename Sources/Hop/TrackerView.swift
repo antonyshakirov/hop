@@ -735,17 +735,13 @@ struct TrackerView: View {
             }
             Spacer(minLength: 6)
             HStack(spacing: 4) {
-                TextField(Self.durationPlaceholder, text: $totalDraft)
-                    .textFieldStyle(.plain)
-                    .font(Theme.mono(10))
-                    .foregroundStyle(Theme.textPrimary)
-                    .monospacedDigit()
-                    .multilineTextAlignment(.trailing)
-                    .frame(width: 74)
-                    .focused($focused, equals: activeField)
+                SteadyField(text: $totalDraft, placeholder: Self.durationPlaceholder,
+                            size: 10, alignment: .right,
+                            focus: caret(on: activeField),
+                            onSubmit: { commitEntry(commit) },
+                            onCancel: { endEdit() })
+                    .frame(width: 74, height: 16)
                     .onAppear { focused = activeField }
-                    .onSubmit { commitEntry(commit) }
-                    .onExitCommand { endEdit() }
                 FieldCommitButtons(onCommit: { commitEntry(commit) }, onCancel: { endEdit() })
             }
             .padding(.horizontal, 5)
@@ -1061,18 +1057,14 @@ struct TrackerView: View {
 
     private func totalField(_ task: TrackerTask) -> some View {
         HStack(spacing: 4) {
-            TextField(Self.durationPlaceholder, text: $totalDraft)
-                .textFieldStyle(.plain)
-                .font(Theme.mono(11))
-                .foregroundStyle(Theme.textPrimary)
-                .monospacedDigit()
-                .multilineTextAlignment(.trailing)
-                // room for three-digit hours in the full h:mm:ss shape
-                .frame(width: 74)
-                .focused($focused, equals: .editTotal(task.id))
+            // room for three-digit hours in the full h:mm:ss shape
+            SteadyField(text: $totalDraft, placeholder: Self.durationPlaceholder,
+                        alignment: .right,
+                        focus: caret(on: .editTotal(task.id)),
+                        onSubmit: { commitTotal(task.id) },
+                        onCancel: { endEdit() })
+                .frame(width: 74, height: 18)
                 .onAppear { focused = .editTotal(task.id) }
-                .onSubmit { commitTotal(task.id) }
-                .onExitCommand { endEdit() }
             FieldCommitButtons(onCommit: { commitTotal(task.id) }, onCancel: { endEdit() })
         }
         .padding(.horizontal, 5)
@@ -1328,16 +1320,24 @@ struct TrackerView: View {
 
     // MARK: - Shared pieces
 
+    /// The view routes focus by an enum; a field only knows whether the caret
+    /// is in it. This is the same state seen from the field's end.
+    private func caret(on field: Field?) -> Binding<Bool> {
+        Binding(get: { field != nil && focused == field },
+                set: { holds in
+                    guard let field else { return }
+                    if holds { focused = field } else if focused == field { focused = nil }
+                })
+    }
+
     private func nameField(_ field: Field, placeholder: String) -> some View {
         HStack(spacing: 4) {
-            TextField(placeholder, text: $nameDraft)
-                .textFieldStyle(.plain)
-                .font(Theme.mono(12))
-                .foregroundStyle(Theme.textPrimary)
-                .focused($focused, equals: field)
+            SteadyField(text: $nameDraft, placeholder: placeholder, size: 12,
+                        focus: caret(on: field),
+                        onSubmit: { commitName(keepOpen: field.isAdding) },
+                        onCancel: { endEdit() })
+                .frame(height: 20)
                 .onAppear { focused = field }
-                .onSubmit { commitName(keepOpen: field.isAdding) }
-                .onExitCommand { endEdit() }
             Button("", action: { commitName(keepOpen: field.isAdding) })
                 .keyboardShortcut(.return, modifiers: .command)
                 .opacity(0)

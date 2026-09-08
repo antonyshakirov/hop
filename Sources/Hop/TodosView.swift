@@ -30,7 +30,7 @@ struct TodosView: View {
 
     @State private var adding = false
     @State private var draft = ""
-    @FocusState private var fieldFocused: Bool
+    @State private var fieldFocused = false
     // Which row's trailing xmark is revealed (hover-only).
     @State private var hovered: UUID?
     // Which row is in delete-confirm mode (single: a new confirm closes any other).
@@ -319,14 +319,12 @@ struct TodosView: View {
     @ViewBuilder private var addRow: some View {
         if adding, !Snapshot.active {
             HStack(spacing: 8) {
-                TextField(t(.todosNew), text: $draft)
-                    .textFieldStyle(.plain)
-                    .font(Theme.mono(12))
-                    .foregroundStyle(Theme.textPrimary)
-                    .focused($fieldFocused)
+                SteadyField(text: $draft, placeholder: t(.todosNew), size: 12,
+                            focus: $fieldFocused,
+                            onSubmit: { commitAndContinue() },
+                            onCancel: { endAdd() })
+                    .frame(height: 20)
                     .onAppear { fieldFocused = true }
-                    .onSubmit { commitAndContinue() }
-                    .onExitCommand { endAdd() }
                 Button("", action: commitAndContinue)
                     .keyboardShortcut(.return, modifiers: .command)
                     .opacity(0)

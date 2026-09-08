@@ -127,10 +127,9 @@ struct AppShelfView: View {
                     Image(systemName: "pencil")
                         .font(.system(size: 9, weight: .semibold))
                         .foregroundStyle(Theme.textTertiary)
-                    TextField(t(.appsNamePlaceholder), text: $draftTitle)
-                        .textFieldStyle(.plain)
-                        .font(Theme.mono(10, weight: .semibold))
-                        .foregroundStyle(Theme.textPrimary)
+                    SteadyField(text: $draftTitle, placeholder: t(.appsNamePlaceholder),
+                                size: 10, weight: .semibold)
+                        .frame(height: 16)
                         .onChange(of: draftTitle) { _, new in
                             shelves.setTitle(new, for: shelfID)
                         }

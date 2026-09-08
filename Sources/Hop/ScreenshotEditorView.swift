@@ -287,13 +287,7 @@ struct ScreenshotEditorView: View {
     /// window is for the picture.
     private var keeping: some View {
         HStack(spacing: 6) {
-            TextField("", text: $editor.fileName)
-                .textFieldStyle(.plain)
-                .font(Theme.mono(11))
-                .lineLimit(1)
-                // The focus ring grows the field, and the whole panel jumps
-                // with it the moment the name is clicked into.
-                .focusEffectDisabled()
+            SteadyField(text: $editor.fileName)
                 .padding(.horizontal, 8)
                 .frame(width: 130, height: 26)
                 .background(RoundedRectangle(cornerRadius: 7).fill(Theme.fieldBg))

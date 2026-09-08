@@ -11,7 +11,7 @@ struct MarkupCanvas: View {
     var background: Image?
     var scale: CGFloat = 1
 
-    @FocusState private var typing: Bool
+    @State private var typing = false
 
     var body: some View {
         Canvas { context, _ in
@@ -61,20 +61,18 @@ struct MarkupCanvas: View {
     @ViewBuilder
     private var typingField: some View {
         if let shape = surface.typing, let point = shape.points.first {
-            TextField("", text: Binding(
+            SteadyField(text: Binding(
                 get: { surface.typing?.text ?? "" },
                 set: { surface.typing?.text = $0 }
-            ))
-            .textFieldStyle(.plain)
-            .font(.system(size: shape.ink.width * scale, weight: .semibold))
-            .foregroundStyle(Color(markupHex: shape.ink.hex))
-            .frame(width: 240)
-            .padding(.horizontal, 6).padding(.vertical, 3)
+            ), size: shape.ink.width * scale, weight: .semibold, monospaced: false,
+               colour: Color(markupHex: shape.ink.hex),
+               focus: $typing,
+               onSubmit: { surface.commitTyping() })
+            .frame(width: 240, height: shape.ink.width * scale + 10)
+            .padding(.horizontal, 6)
             .background(RoundedRectangle(cornerRadius: 5).fill(Theme.fieldBg))
             .offset(x: point.x * scale, y: point.y * scale)
-            .focused($typing)
             .onAppear { typing = true }
-            .onSubmit { surface.commitTyping() }
         }
     }
 

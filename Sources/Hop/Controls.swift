@@ -27,7 +27,7 @@ struct NumericField: View {
     // of the stored value (e.g. a legacy 0 shown as the default), and committing
     // that on a bare blur would needlessly overwrite what is on disk.
     @State private var edited = false
-    @FocusState private var focused: Bool
+    @State private var focused = false
 
     var body: some View {
         // The chain below is long enough that the type-checker gives up when a
@@ -36,15 +36,8 @@ struct NumericField: View {
     }
 
     private var field: some View {
-        TextField("", text: $text)
-            .textFieldStyle(.plain)
-            .focused($focused)
-            .font(Theme.mono(11, weight: .semibold))
-            .foregroundStyle(color)
-            .multilineTextAlignment(.center)
-            // No focus nudge: the compensation for AppKit's old field-editor
-            // lift now IS the jump — clicking a field visibly dropped the
-            // digits.
+        SteadyField(text: $text, weight: .semibold, alignment: .center,
+                    colour: color, focus: $focused)
             .frame(width: 44, height: 24)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
             .onAppear { text = display(value) }
@@ -108,20 +101,13 @@ struct RateLimitField: View {
     var color: Color = Theme.textPrimary
 
     @State private var text = ""
-    @FocusState private var focused: Bool
+    @State private var focused = false
 
     var body: some View {
         // kb is kept in sync with the field live while typing, so 0 (empty or a
         // typed "0") dims the text the instant it becomes unlimited.
-        TextField("", text: $text)
-            .textFieldStyle(.plain)
-            .focused($focused)
-            .font(Theme.mono(11, weight: .semibold))
-            .foregroundStyle(kb == 0 ? Theme.textTertiary : color)
-            .multilineTextAlignment(.center)
-            // the AppKit field editor lifts the text ~1.5px on focus (matches
-            // NumericField) — compensate so the digit doesn't hop
-            .offset(y: focused ? 1.5 : 0)
+        SteadyField(text: $text, weight: .semibold, alignment: .center,
+                    colour: kb == 0 ? Theme.textTertiary : color, focus: $focused)
             .frame(width: 56, height: 24)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
             .onAppear { text = RateLimit.display(kb: kb, unit: unit) }

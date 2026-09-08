@@ -10,7 +10,15 @@ struct SteadyField: NSViewRepresentable {
     @Binding var text: String
     var placeholder: String = ""
     var size: CGFloat = 11
+    var weight: NSFont.Weight = .regular
+    var monospaced = true
+    var alignment: NSTextAlignment = .natural
+    var colour: Color?
+    /// Two-way: set it to put the caret in, and it comes back false when the
+    /// field gives the caret up.
+    var focus: Binding<Bool>?
     var onSubmit: () -> Void = {}
+    var onCancel: () -> Void = {}
 
     func makeNSView(context: Context) -> NSTextField {
         let field = NSTextField()
@@ -22,20 +30,34 @@ struct SteadyField: NSViewRepresentable {
         field.lineBreakMode = .byTruncatingTail
         field.cell?.isScrollable = true
         field.cell?.wraps = false
-        field.font = NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
-        field.textColor = .labelColor
-        field.placeholderString = placeholder
         field.stringValue = text
         field.delegate = context.coordinator
+        apply(to: field)
         return field
     }
 
     func updateNSView(_ field: NSTextField, context: Context) {
         context.coordinator.owner = self
-        field.placeholderString = placeholder
+        apply(to: field)
         if field.stringValue != text, field.currentEditor() == nil {
             field.stringValue = text
         }
+        guard let focus else { return }
+        let holds = field.currentEditor() != nil
+        if focus.wrappedValue, !holds {
+            DispatchQueue.main.async { field.window?.makeFirstResponder(field) }
+        } else if !focus.wrappedValue, holds {
+            DispatchQueue.main.async { field.window?.makeFirstResponder(nil) }
+        }
+    }
+
+    private func apply(to field: NSTextField) {
+        field.font = monospaced
+            ? NSFont.monospacedSystemFont(ofSize: size, weight: weight)
+            : NSFont.systemFont(ofSize: size, weight: weight)
+        field.alignment = alignment
+        field.textColor = colour.map { NSColor($0) } ?? .labelColor
+        field.placeholderString = placeholder
     }
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -50,17 +72,34 @@ struct SteadyField: NSViewRepresentable {
             owner.text = field.stringValue
         }
 
+        func controlTextDidBeginEditing(_ notification: Notification) {
+            guard let focus = owner.focus, !focus.wrappedValue else { return }
+            DispatchQueue.main.async { focus.wrappedValue = true }
+        }
+
+        func controlTextDidEndEditing(_ notification: Notification) {
+            guard let focus = owner.focus, focus.wrappedValue else { return }
+            DispatchQueue.main.async { focus.wrappedValue = false }
+        }
+
         func control(_ control: NSControl, textView: NSTextView,
                      doCommandBy selector: Selector) -> Bool {
-            guard selector == #selector(NSResponder.insertNewline(_:)) else { return false }
-            owner.onSubmit()
-            return true
+            switch selector {
+            case #selector(NSResponder.insertNewline(_:)):
+                owner.onSubmit()
+                return true
+            case #selector(NSResponder.cancelOperation(_:)):
+                owner.onCancel()
+                return true
+            default:
+                return false
+            }
         }
     }
 }
 
 /// One rectangle for the placeholder, the caret and the typed text.
-private final class SteadyCell: NSTextFieldCell {
+final class SteadyCell: NSTextFieldCell {
     private func steady(_ bounds: NSRect) -> NSRect {
         var rect = super.drawingRect(forBounds: bounds)
         let height = cellSize(forBounds: bounds).height

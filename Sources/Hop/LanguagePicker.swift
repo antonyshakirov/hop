@@ -51,12 +51,9 @@ struct LanguagePicker: View {
 
     private var panel: some View {
         VStack(spacing: 8) {
-            TextField(L10n.t(.searchLabel, current), text: $query)
-                .textFieldStyle(.plain)
-                .font(Theme.mono(11))
-                .foregroundStyle(Theme.textPrimary)
+            SteadyField(text: $query, placeholder: L10n.t(.searchLabel, current))
                 .padding(.horizontal, 8)
-                .padding(.vertical, 6)
+                .frame(height: 26)
                 .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 6))
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 1) {
