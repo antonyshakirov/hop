@@ -463,7 +463,7 @@ struct ScreenshotEditorView: View {
             Button { editor.surface.clear() } label: {
                 MarkupIcon(glyph: .clear)
                     .foregroundStyle(editor.surface.shapes.isEmpty
-                                     ? Theme.textTertiary : Theme.textSecondary)
+                                     ? Theme.textTertiary : Theme.textPrimary)
                     .frame(width: 32, height: 32)
                     .contentShape(Rectangle())
             }
@@ -472,14 +472,14 @@ struct ScreenshotEditorView: View {
 
             Button { editor.surface.undo() } label: {
                 MarkupIcon(glyph: .undo)
-                    .foregroundStyle(editor.surface.canUndo ? Theme.textSecondary : Theme.textTertiary)
+                    .foregroundStyle(editor.surface.canUndo ? Theme.textPrimary : Theme.textTertiary)
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
 
             Button { editor.surface.redo() } label: {
                 MarkupIcon(glyph: .redo)
-                    .foregroundStyle(editor.surface.canRedo ? Theme.textSecondary : Theme.textTertiary)
+                    .foregroundStyle(editor.surface.canRedo ? Theme.textPrimary : Theme.textTertiary)
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)

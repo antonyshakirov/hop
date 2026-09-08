@@ -95,23 +95,29 @@ enum MarkupIcons {
                 $0.closeSubpath()
             }]
 
+        // Lifted 2.4: the arc reaches to y=22 and the rest of the family stops
+        // at 20, so beside them these two sat visibly low in their box.
         case .undo:
-            return [stroke { $0.move(to: p(8.5, 6.5)); $0.addLine(to: p(4, 11)); $0.addLine(to: p(8.5, 15.5)) },
-                    stroke {
+            return [stroke { $0.addPath(lifted(Path {
+                        $0.move(to: p(8.5, 6.5)); $0.addLine(to: p(4, 11)); $0.addLine(to: p(8.5, 15.5))
+                    })) },
+                    stroke { $0.addPath(lifted(Path {
                         $0.move(to: p(4, 11)); $0.addLine(to: p(14, 11))
                         $0.addArc(center: p(14, 16.5), radius: 5.5, startAngle: .degrees(-90),
                                   endAngle: .degrees(90), clockwise: false)
                         $0.addLine(to: p(12, 22))
-                    }]
+                    })) }]
 
         case .redo:
-            return [stroke { $0.move(to: p(15.5, 6.5)); $0.addLine(to: p(20, 11)); $0.addLine(to: p(15.5, 15.5)) },
-                    stroke {
+            return [stroke { $0.addPath(lifted(Path {
+                        $0.move(to: p(15.5, 6.5)); $0.addLine(to: p(20, 11)); $0.addLine(to: p(15.5, 15.5))
+                    })) },
+                    stroke { $0.addPath(lifted(Path {
                         $0.move(to: p(20, 11)); $0.addLine(to: p(10, 11))
                         $0.addArc(center: p(10, 16.5), radius: 5.5, startAngle: .degrees(-90),
                                   endAngle: .degrees(90), clockwise: true)
                         $0.addLine(to: p(12, 22))
-                    }]
+                    })) }]
 
         case .grip:
             return [dot(9, 6, 1.1), dot(15, 6, 1.1), dot(9, 12, 1.1),
@@ -230,6 +236,10 @@ enum MarkupIcons {
         path.addLine(to: p(9.9, 11.6))
         path.closeSubpath()
         return path
+    }
+
+    private static func lifted(_ path: Path) -> Path {
+        path.applying(CGAffineTransform(translationX: 0, y: -2.4))
     }
 
     private static func turned(_ path: Path) -> Path {

@@ -2597,6 +2597,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   inside or around, rectangle, oval or lasso, blur or mosaic, strength and
   dimming — are finally reachable: the model has carried them since the module
   was written and nothing ever showed them.
+- **An action that can be taken says so.** Undo, redo and clear are drawn in the
+  primary ink while there is something to undo, redo or clear, and in the
+  tertiary while there is not (Anton, 2026-09-08). Undo and redo are also
+  lifted 2.4 in their box: their arc reaches to y=22 where the rest of the
+  family stops at 20, and beside the others they sat visibly low.
 - **Both modules can clear the canvas.** The drawing layer always could; the
   editor now has the same button beside undo and redo.
 - **The arrow has four heads** — open barbs, a plain triangle, a notched one,
@@ -2620,10 +2625,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   are kept per tool and outlive the session** (`markupInks`) — the fat yellow
   marker is not the thin red pencil, and neither should have to be set again
   tomorrow.
-- The colour popover carries the eight presets, a row of the colours MIXED BY
-  HAND (newest first, seven kept, shared by every tool — a colour chosen for the
-  circles is a colour the lines should reach without mixing it again; Anton,
-  2026-09-08), and a round rainbow swatch for anything else. It opens `NSColorPanel` in the middle of the screen and in the
+- The colour popover carries the eight presets on one row, and on the second the
+  colours MIXED BY HAND with the rainbow swatch always last: newest first, seven
+  kept, shared by every tool AND by the frame's own ground (Anton, 2026-09-08).
+  A colour taken from the presets or from the recents adds nothing — it is
+  already there; only a colour mixed in the picker joins the list, so the second
+  row is a record of what has actually been used. It opens `NSColorPanel` in the middle of the screen and in the
   WHEEL mode: left to itself the panel comes back wherever and however it was
   last left — the crayons, or a grey ramp — and the wheel is the one mode with
   hue, saturation and brightness each on a control of its own (Anton,

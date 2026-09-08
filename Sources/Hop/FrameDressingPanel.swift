@@ -75,7 +75,12 @@ struct FrameDressingPopover: View {
     private var ownColourButton: some View {
         Button {
             MarkupColourPanel.shared.show(startingAt: ownColour) { picked in
-                editor.dressing.background = .colour(picked.markupHex)
+                let hex = picked.markupHex
+                editor.dressing.background = .colour(hex)
+                // One list of mixed colours for the whole app: a ground chosen
+                // here is a colour the pencil should reach without mixing it
+                // again.
+                MarkupSettings.remember(colour: hex)
                 editor.refreshPreview()
             }
         } label: {
