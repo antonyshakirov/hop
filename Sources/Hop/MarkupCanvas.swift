@@ -29,6 +29,7 @@ struct MarkupCanvas: View {
             }
         }
         .overlay(alignment: .topLeading) { held }
+        .overlay(alignment: .topLeading) { if chrome { blurBar } }
         .overlay(alignment: .topLeading) { if chrome { typingField } }
         .overlay {
             if chrome {
@@ -103,6 +104,66 @@ struct MarkupCanvas: View {
             }
             .allowsHitTesting(false)
         }
+    }
+
+    /// What a blur does, under the blur itself: a mark is set where it is
+    /// looked at. SPEC: docs/spec.md
+    @ViewBuilder
+    private var blurBar: some View {
+        if let shape = surface.selected, shape.tool == .blur, let now = shape.blur {
+            let box = MarkupGeometry.boundingBox(shape.points)
+            HStack(spacing: 5) {
+                chip("in", on: now.mode == .inside) { write { $0.mode = .inside } }
+                chip("out", on: now.mode == .around) { write { $0.mode = .around } }
+                divider
+                chip("blur", on: now.style == .blur) { write { $0.style = .blur } }
+                chip("dots", on: now.style == .pixels) { write { $0.style = .pixels } }
+                divider
+                chip("▢", on: now.shape == .rectangle) { write { $0.shape = .rectangle } }
+                chip("◯", on: now.shape == .oval) { write { $0.shape = .oval } }
+                divider
+                Slider(value: Binding(
+                    get: { Double(now.strength) },
+                    set: { value in write { $0.strength = Int(value.rounded()) } }
+                ), in: 1...10)
+                .frame(width: 74)
+            }
+            .padding(.horizontal, 8)
+            .frame(height: 30)
+            .background(
+                RoundedRectangle(cornerRadius: 9)
+                    .fill(Theme.isDark ? Color(white: 0.1) : Color.white)
+                    .overlay(RoundedRectangle(cornerRadius: 9)
+                        .strokeBorder(Theme.controlStroke.opacity(0.6)))
+                    .shadow(color: .black.opacity(0.45), radius: 10, y: 4)
+            )
+            .fixedSize()
+            .offset(x: (box.origin.x + box.size.x / 2) * scale - 160,
+                    y: (box.origin.y + box.size.y) * scale + 12)
+        }
+    }
+
+    private var divider: some View {
+        Rectangle().fill(Theme.divider).frame(width: 1, height: 16)
+    }
+
+    private func chip(_ title: String, on: Bool, run: @escaping () -> Void) -> some View {
+        Button(action: run) {
+            Text(title)
+                .font(Theme.mono(10))
+                .foregroundStyle(on ? Theme.textPrimary : Theme.textSecondary)
+                .padding(.horizontal, 7)
+                .frame(height: 22)
+                .background(RoundedRectangle(cornerRadius: 6).fill(on ? Theme.chipBg : .clear))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func write(_ change: (inout MarkupBlur) -> Void) {
+        var next = surface.blurInHand
+        change(&next)
+        surface.blurInHand = next
     }
 
     /// The arc a lens is zoomed by: a short track off its lower right with a

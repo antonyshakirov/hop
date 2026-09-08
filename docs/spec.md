@@ -2647,6 +2647,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **The window does not open on the name field.** It is the only thing in the
   window that takes focus, so it opened with the file name selected and the
   first keystroke would have replaced it (Anton, 2026-09-08).
+- **A blur comes out of the drag already in hand**, selected and with the select
+  tool ready, and a bar of its own appears under it: inside or outside, blur or
+  mosaic, rectangle or oval, and how hard (Anton, 2026-09-08). What a mark does
+  is set where the mark is looked at, not in a panel across the window, and it
+  can be moved, resized and set again as often as needed. The tool's own popover
+  keeps the choice for the NEXT blur, the lasso among them — a lasso cannot be
+  put down whole.
+- **The mask honours the SHAPE.** It used to be a rectangle whatever was chosen,
+  so oval and lasso were dead controls: the mask is drawn now, an oval filled as
+  an oval and a lasso as its own outline (Anton, 2026-09-08).
 - **Blur works in both directions.** "Inside the area" hides what the region
   covers; "around the area" keeps the region sharp and smears the rest, with a
   dimming slider on top of the strength one, because blur alone does not read as

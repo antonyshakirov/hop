@@ -250,6 +250,12 @@ final class MarkupSurface: ObservableObject {
         drafting = nil
         guard shape.points.count > 1 else { return }
         document.add(shape)
+        // A blur is not finished when it is drawn: what it does is set on it
+        // afterwards, so it comes out of the drag already in hand.
+        if shape.tool == .blur {
+            selection = shape.id
+            tool = .select
+        }
         publish()
     }
 

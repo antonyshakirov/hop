@@ -166,7 +166,8 @@ enum MarkupRender {
                 smudged = filter.outputImage?.cropped(to: extent) ?? picture
             }
 
-            let mask = maskImage(for: region, box: box, extent: extent, mode: settings.mode)
+            let mask = maskImage(for: region, box: box, extent: extent,
+                                 scale: scale, mode: settings.mode)
             let blend = CIFilter.blendWithMask()
             blend.inputImage = smudged
             blend.backgroundImage = picture
@@ -186,12 +187,45 @@ enum MarkupRender {
         return ciContext.createCGImage(picture, from: extent)
     }
 
+    /// White where the blur bites, black where it does not. The SHAPE is
+    /// honoured here: a rectangle mask for an oval region is a rectangle, and
+    /// the choice in the toolbar did nothing at all.
     private static func maskImage(
-        for region: MarkupShape, box: CGRect, extent: CGRect, mode: MarkupBlur.Mode
+        for region: MarkupShape, box: CGRect, extent: CGRect,
+        scale: Double, mode: MarkupBlur.Mode
     ) -> CIImage {
-        let inside = CIImage(color: .white).cropped(to: box)
-        let outside = CIImage(color: .black).cropped(to: extent)
-        let shaped = inside.composited(over: outside)
+        let width = Int(extent.width), height = Int(extent.height)
+        guard width > 0, height > 0,
+              let context = CGContext(data: nil, width: width, height: height,
+                                      bitsPerComponent: 8, bytesPerRow: 0,
+                                      space: CGColorSpaceCreateDeviceGray(),
+                                      bitmapInfo: CGImageAlphaInfo.none.rawValue)
+        else { return CIImage(color: .black).cropped(to: extent) }
+
+        context.setFillColor(gray: 0, alpha: 1)
+        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        context.setFillColor(gray: 1, alpha: 1)
+
+        switch region.blur?.shape {
+        case .oval:
+            context.fillEllipse(in: box)
+        case .lasso where region.points.count > 2:
+            let path = CGMutablePath()
+            let spots = region.points.map { point -> CGPoint in
+                CGPoint(x: point.x * scale, y: extent.height - point.y * scale)
+            }
+            path.addLines(between: spots)
+            path.closeSubpath()
+            context.addPath(path)
+            context.fillPath()
+        default:
+            context.fill(box)
+        }
+
+        guard let drawn = context.makeImage() else {
+            return CIImage(color: .black).cropped(to: extent)
+        }
+        let shaped = CIImage(cgImage: drawn)
         guard mode == .around else { return shaped }
         let invert = CIFilter.colorInvert()
         invert.inputImage = shaped
