@@ -13,7 +13,7 @@ final class MarkupSurface: ObservableObject {
     @Published private(set) var shapes: [MarkupShape] = []
     @Published private(set) var drafting: MarkupShape?
     @Published var tool: MarkupTool = .pencil
-    @Published var blur = MarkupBlur(mode: .inside, shape: .rectangle, style: .blur, strength: 7, dim: 2)
+    @Published var blur = MarkupBlur(mode: .inside, shape: .rectangle, style: .blur, strength: 5, dim: 2)
     /// The head the arrow tool draws, remembered between sessions.
     @Published var arrowStyle: ArrowStyle = MarkupSettings.arrowStyle() {
         didSet { MarkupSettings.store(arrowStyle: arrowStyle) }

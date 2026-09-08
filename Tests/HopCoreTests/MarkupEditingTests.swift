@@ -149,3 +149,40 @@ extension MarkupEditingTests {
                        lens.radius + MarkupEditing.Zoom.gap, accuracy: 0.001)
     }
 }
+
+extension MarkupEditingTests {
+    private func oval(_ points: [MarkupPoint]) -> MarkupShape {
+        MarkupShape(tool: .oval, points: points,
+                    ink: MarkupInk(hex: "#FF453A", width: 4), createdAt: 0)
+    }
+
+    /// An ellipse is held at the four points ON it, not at the corners of a box
+    /// it never touches.
+    func testAnOvalIsHeldAtItsBearings() {
+        let spots = MarkupEditing.handles(of: oval([MarkupPoint(x: 20, y: 40),
+                                                    MarkupPoint(x: 120, y: 100)]))
+        XCTAssertEqual(spots, [MarkupPoint(x: 70, y: 40), MarkupPoint(x: 120, y: 70),
+                               MarkupPoint(x: 70, y: 100), MarkupPoint(x: 20, y: 70)])
+    }
+
+    func testPullingAnOvalsEdgeLeavesTheOtherThreeAlone() {
+        let pulled = MarkupEditing.pulled(oval([MarkupPoint(x: 20, y: 40),
+                                                MarkupPoint(x: 120, y: 100)]),
+                                          handle: 1, to: MarkupPoint(x: 200, y: 999))
+        let spots = MarkupEditing.handles(of: pulled)
+        XCTAssertEqual(spots[1].x, 200)
+        XCTAssertEqual(spots[0].y, 40, "the top edge must not have moved")
+        XCTAssertEqual(spots[2].y, 100, "nor the bottom")
+    }
+
+    /// A blur set to an oval is held the way an oval is.
+    func testAnOvalBlurIsHeldLikeAnOval() {
+        var region = MarkupShape(tool: .blur,
+                                 points: [MarkupPoint(x: 0, y: 0), MarkupPoint(x: 100, y: 50)],
+                                 ink: MarkupInk(hex: "#FF453A", width: 4), createdAt: 0)
+        region.blur = MarkupBlur(mode: .inside, shape: .oval, style: .blur, strength: 5, dim: 2)
+        XCTAssertEqual(MarkupEditing.handles(of: region).first, MarkupPoint(x: 50, y: 0))
+        region.blur = MarkupBlur(mode: .inside, shape: .rectangle, style: .blur, strength: 5, dim: 2)
+        XCTAssertEqual(MarkupEditing.handles(of: region).first, MarkupPoint(x: 0, y: 0))
+    }
+}

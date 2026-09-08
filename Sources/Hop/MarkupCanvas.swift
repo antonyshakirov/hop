@@ -271,8 +271,14 @@ struct MarkupCanvas: View {
 
         case .blur, .crop:
             guard points.count > 1 else { return }
-            context.stroke(Path(box(first, points[1])), with: .color(colour),
-                           style: StrokeStyle(lineWidth: max(1.5, width / 2), dash: [6, 4]))
+            // The region says what it is by being blurred. A red dashed box
+            // round it is a mark of its own, and it ends up in the file.
+            let area = box(first, points[1])
+            let outline: Path = shape.blur?.shape == .oval
+                ? Path(ellipseIn: area) : Path(roundedRect: area, cornerRadius: 3)
+            context.fill(outline, with: .color(.white.opacity(0.12)))
+            context.stroke(outline, with: .color(.white.opacity(0.55)),
+                           style: StrokeStyle(lineWidth: 1))
 
         case .steps:
             let radius = 17 * scale

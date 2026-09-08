@@ -19,7 +19,11 @@ public enum MarkupEditing {
                     MarkupPoint(x: lens.centre.x + lens.radius, y: lens.centre.y),
                     MarkupPoint(x: lens.centre.x, y: lens.centre.y + lens.radius),
                     MarkupPoint(x: lens.centre.x - lens.radius, y: lens.centre.y)]
-        case .rectangle, .oval, .blur, .crop:
+        case .oval:
+            return bearings(of: shape)
+        case .blur where shape.blur?.shape == .oval:
+            return bearings(of: shape)
+        case .rectangle, .blur, .crop:
             guard shape.points.count > 1 else { return [] }
             let box = boundingBox(shape.points)
             let left = box.origin.x, top = box.origin.y
@@ -124,7 +128,11 @@ public enum MarkupEditing {
             let radius = max(12, (dx * dx + dy * dy).squareRoot())
             pulled.points = [MarkupPoint(x: lens.centre.x - radius, y: lens.centre.y - radius),
                              MarkupPoint(x: lens.centre.x + radius, y: lens.centre.y + radius)]
-        case .rectangle, .oval, .blur, .crop:
+        case .oval:
+            pulled.points = pushedEdge(of: shape, index, to: point)
+        case .blur where shape.blur?.shape == .oval:
+            pulled.points = pushedEdge(of: shape, index, to: point)
+        case .rectangle, .blur, .crop:
             let opposite = spots[(index + 2) % 4]
             pulled.points = [opposite, point]
         default:
@@ -142,6 +150,34 @@ public enum MarkupEditing {
         guard radius > 0 else { return nil }
         return (MarkupPoint(x: box.origin.x + box.size.x / 2,
                             y: box.origin.y + box.size.y / 2), radius)
+    }
+
+    /// Top, right, bottom, left — the four points ON an ellipse rather than the
+    /// corners of a box it never touches.
+    private static func bearings(of shape: MarkupShape) -> [MarkupPoint] {
+        guard shape.points.count > 1 else { return [] }
+        let box = boundingBox(shape.points)
+        let left = box.origin.x, top = box.origin.y
+        let right = left + box.size.x, bottom = top + box.size.y
+        let middleX = (left + right) / 2, middleY = (top + bottom) / 2
+        return [MarkupPoint(x: middleX, y: top), MarkupPoint(x: right, y: middleY),
+                MarkupPoint(x: middleX, y: bottom), MarkupPoint(x: left, y: middleY)]
+    }
+
+    /// One edge moves, the other three stay.
+    private static func pushedEdge(
+        of shape: MarkupShape, _ index: Int, to point: MarkupPoint
+    ) -> [MarkupPoint] {
+        let box = boundingBox(shape.points)
+        var left = box.origin.x, top = box.origin.y
+        var right = left + box.size.x, bottom = top + box.size.y
+        switch index {
+        case 0: top = min(point.y, bottom - 8)
+        case 1: right = max(point.x, left + 8)
+        case 2: bottom = max(point.y, top + 8)
+        default: left = min(point.x, right - 8)
+        }
+        return [MarkupPoint(x: left, y: top), MarkupPoint(x: right, y: bottom)]
     }
 
     private static func boundingBox(_ points: [MarkupPoint]) -> (origin: MarkupPoint, size: MarkupPoint) {

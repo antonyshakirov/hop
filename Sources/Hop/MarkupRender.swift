@@ -195,16 +195,19 @@ enum MarkupRender {
         scale: Double, mode: MarkupBlur.Mode
     ) -> CIImage {
         let width = Int(extent.width), height = Int(extent.height)
+        // Opaque black and white in sRGB, not a grey bitmap: Core Image reads
+        // a one-channel mask as an empty picture and lays a black plate over
+        // everything.
         guard width > 0, height > 0,
+              let space = CGColorSpace(name: CGColorSpace.sRGB),
               let context = CGContext(data: nil, width: width, height: height,
-                                      bitsPerComponent: 8, bytesPerRow: 0,
-                                      space: CGColorSpaceCreateDeviceGray(),
-                                      bitmapInfo: CGImageAlphaInfo.none.rawValue)
+                                      bitsPerComponent: 8, bytesPerRow: 0, space: space,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
         else { return CIImage(color: .black).cropped(to: extent) }
 
-        context.setFillColor(gray: 0, alpha: 1)
+        context.setFillColor(red: 0, green: 0, blue: 0, alpha: 1)
         context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-        context.setFillColor(gray: 1, alpha: 1)
+        context.setFillColor(red: 1, green: 1, blue: 1, alpha: 1)
 
         switch region.blur?.shape {
         case .oval:
