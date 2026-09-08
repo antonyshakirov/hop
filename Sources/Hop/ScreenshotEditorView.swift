@@ -109,7 +109,7 @@ struct ScreenshotEditorView: View {
             stage
         }
         .background(Theme.panelBackground)
-        .frame(minWidth: 720, minHeight: 380)
+        .frame(minWidth: 720, maxWidth: .infinity, minHeight: 380, maxHeight: .infinity)
     }
 
     private var header: some View {

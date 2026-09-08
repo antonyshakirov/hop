@@ -32,6 +32,7 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
         window.isReleasedWhenClosed = false
         window.contentMinSize = Self.minimum
         window.collectionBehavior.insert(.fullScreenPrimary)
+        window.animationBehavior = .documentWindow
         window.delegate = self
         window.title = editor.fileName
         titleWatchers[key] = editor.$fileName

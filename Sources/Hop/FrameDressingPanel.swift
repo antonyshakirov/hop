@@ -19,7 +19,7 @@ struct FrameDressingPopover: View {
             }
             .toggleStyle(.switch)
 
-            if editor.dressing.isOn {
+            Group {
                 backgrounds
                 MarkupStepper(title: L10n.t(.dressPadding, lang), value: $editor.dressing.padding,
                               range: 0...20) { editor.refreshPreview() }
@@ -36,16 +36,16 @@ struct FrameDressingPopover: View {
                 }
                 .toggleStyle(.switch)
 
-                if editor.dressing.browserFrame {
-                    TextField(L10n.t(.dressAddress, lang), text: Binding(
-                        get: { editor.dressing.address },
-                        set: { editor.dressing.address = $0; editor.refreshPreview() }
-                    ))
-                    .textFieldStyle(.plain)
-                    .font(Theme.mono(11))
-                    .padding(.horizontal, 8).padding(.vertical, 6)
-                    .background(RoundedRectangle(cornerRadius: 6).fill(Theme.fieldBg))
-                }
+                TextField(L10n.t(.dressAddress, lang), text: Binding(
+                    get: { editor.dressing.address },
+                    set: { editor.dressing.address = $0; editor.refreshPreview() }
+                ))
+                .textFieldStyle(.plain)
+                .font(Theme.mono(11))
+                .padding(.horizontal, 8).padding(.vertical, 6)
+                .background(RoundedRectangle(cornerRadius: 6).fill(Theme.fieldBg))
+                .disabled(!editor.dressing.browserFrame)
+                .opacity(editor.dressing.browserFrame ? 1 : 0.35)
 
                 Button(L10n.t(.resetDefaults, lang)) {
                     editor.dressing = .standard
@@ -56,6 +56,8 @@ struct FrameDressingPopover: View {
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.textSecondary)
             }
+            .disabled(!editor.dressing.isOn)
+            .opacity(editor.dressing.isOn ? 1 : 0.35)
         }
     }
 
@@ -107,7 +109,7 @@ struct WatermarkPopover: View {
             }
             .toggleStyle(.switch)
 
-            if editor.watermark.isOn {
+            Group {
                 TextField(L10n.t(.markText, lang), text: Binding(
                     get: { editor.watermark.text },
                     set: { editor.watermark.text = $0; editor.refreshPreview() }
@@ -136,8 +138,12 @@ struct WatermarkPopover: View {
                 .toggleStyle(.switch)
 
                 // A tile covers the whole frame; a corner is meaningless then.
-                if !editor.watermark.tiled { spots }
+                spots
+                    .disabled(editor.watermark.tiled)
+                    .opacity(editor.watermark.tiled ? 0.35 : 1)
             }
+            .disabled(!editor.watermark.isOn)
+            .opacity(editor.watermark.isOn ? 1 : 0.35)
         }
     }
 
@@ -188,15 +194,14 @@ private struct MarkupPopoverBody<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                content
-            }
-            .padding(14)
-            .frame(width: 246, alignment: .leading)
+        // No ScrollView and nothing hidden behind a switch: an NSPopover keeps
+        // the size it was first given, so a panel that grows when something is
+        // ticked stays the size of the tick.
+        VStack(alignment: .leading, spacing: 14) {
+            content
         }
-        .frame(width: 246)
-        .frame(maxHeight: 430)
+        .padding(14)
+        .frame(width: 246, alignment: .leading)
         .background(Theme.background)
     }
 }
