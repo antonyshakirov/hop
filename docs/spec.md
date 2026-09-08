@@ -2502,11 +2502,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   tool drops a lens in the middle of the picture, a third of its shorter side
   across, already selected and with the select tool in hand — so it is dragged
   by its middle, resized by its corners and deleted with backspace the moment it
-  appears. Pressing the tool again drops another. Nothing is dragged out of
-  nothing, and no lens ever exists that cannot be moved.
-- **The rim is glass, not a drawn circle**: colourless, thick (7.5% of the lens,
-  never under 7pt), lit from the top left by a gradient across it, with a
-  hairline inside and out to hold its edge. A coloured hairline reads as a
+  appears. Pressing the tool again drops another, and a click on the picture
+  drops none: the loupe is never the tool in hand. **The tool is handed over a
+  tick later** — `@Published` fires BEFORE the assignment lands, so a tool set
+  from inside that sink is overwritten by the one that triggered it, and the
+  loupe stayed in hand while every click on the picture drew another lens
+  (Anton, 2026-09-08).
+- **The rim is glass, not a drawn circle**: colourless, thin (3% of the lens,
+  never under 3pt — enough to say "lens" and no more), lit from the top left by
+  a gradient across it, with a hairline inside and out to hold its edge. A coloured hairline reads as a
   circle somebody drew (Anton, 2026-09-08). The canvas draws the lens rather
   than the backdrop, so what is under the glass follows the lens as it is moved.
   The export builds the same thing through Core Graphics.

@@ -59,11 +59,18 @@ final class ScreenshotEditor: ObservableObject {
                 guard let self else { return }
                 if tool == .crop { self.beginCropping() } else { self.cropDraft = nil }
                 if tool == .magnifier {
-                    let frame = self.full
-                    self.surface.placeLens(
-                        centre: MarkupPoint(x: frame.width / 2, y: frame.height / 2),
-                        side: min(frame.width, frame.height) / 3
-                    )
+                    // A tick later: `$tool` fires BEFORE the assignment lands,
+                    // so a tool set from in here is overwritten by the one that
+                    // triggered it, and the loupe stayed in hand — every click
+                    // on the picture then drew another lens.
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self else { return }
+                        let frame = self.full
+                        self.surface.placeLens(
+                            centre: MarkupPoint(x: frame.width / 2, y: frame.height / 2),
+                            side: min(frame.width, frame.height) / 3
+                        )
+                    }
                 }
             }
             .store(in: &watches)

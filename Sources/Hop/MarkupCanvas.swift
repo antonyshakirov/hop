@@ -245,16 +245,16 @@ struct MarkupCanvas: View {
     /// The rim of a lens: thick, colourless and lit from above, the way a
     /// glass one is. A coloured hairline reads as a drawn circle, not as glass.
     private func glass(_ frame: CGRect, in context: inout GraphicsContext) {
-        let rim = max(7, min(frame.width, frame.height) * 0.075)
+        let rim = max(3, min(frame.width, frame.height) * 0.03)
         let middle = frame.insetBy(dx: rim / 2, dy: rim / 2)
 
-        context.stroke(Path(ellipseIn: middle), with: .color(.white.opacity(0.3)),
+        context.stroke(Path(ellipseIn: middle), with: .color(.white.opacity(0.45)),
                        style: StrokeStyle(lineWidth: rim))
         // A brighter arc across the top left, dimmer across the bottom right:
         // one light, above and to the side.
         context.stroke(Path(ellipseIn: middle),
                        with: .linearGradient(
-                        Gradient(colors: [.white.opacity(0.85), .white.opacity(0.05)]),
+                        Gradient(colors: [.white.opacity(0.95), .white.opacity(0.1)]),
                         startPoint: CGPoint(x: frame.minX, y: frame.minY),
                         endPoint: CGPoint(x: frame.maxX, y: frame.maxY)),
                        style: StrokeStyle(lineWidth: rim * 0.55))

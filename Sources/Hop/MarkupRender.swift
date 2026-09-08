@@ -103,9 +103,9 @@ enum MarkupRender {
 
         // Glass, not a drawn circle: a thick colourless rim, lit from the top
         // left, with a hairline inside and out to hold its edge.
-        let rim = max(7, side * 0.075)
+        let rim = max(3, side * 0.03)
         context.setLineWidth(rim)
-        context.setStrokeColor(NSColor.white.withAlphaComponent(0.3).cgColor)
+        context.setStrokeColor(NSColor.white.withAlphaComponent(0.45).cgColor)
         context.addPath(CGPath(ellipseIn: frame.insetBy(dx: rim / 2, dy: rim / 2), transform: nil))
         context.strokePath()
 
@@ -116,8 +116,8 @@ enum MarkupRender {
         context.clip()
         if let space = CGColorSpace(name: CGColorSpace.sRGB),
            let shine = CGGradient(colorsSpace: space,
-                                  colors: [NSColor.white.withAlphaComponent(0.85).cgColor,
-                                           NSColor.white.withAlphaComponent(0.05).cgColor] as CFArray,
+                                  colors: [NSColor.white.withAlphaComponent(0.95).cgColor,
+                                           NSColor.white.withAlphaComponent(0.1).cgColor] as CFArray,
                                   locations: [0, 1]) {
             context.drawLinearGradient(shine,
                                        start: CGPoint(x: frame.minX, y: frame.maxY),
