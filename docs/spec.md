@@ -2644,8 +2644,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the moment it is asked to. **Over a panel it stands down**: the toolbar and the
   blur's own bar say when the pointer is on them, and a nib drawn over a button
   is a nib nobody can press one with (Anton, 2026-09-08). The marker's nib is
-  narrow, long and LEANING at 45° — the nib itself as it is held, not the mark
-  it leaves (Anton, 2026-09-08).
+  narrow and TALL, upright — the end of the nib seen straight on, a third of the
+  stroke's width and its full height (Anton, 2026-09-08). Leaning it and laying
+  it flat were both tried first.
   The blur's pointer is a crosshair with the tool's own glyph
   beside it — a bare crosshair says "draw something" and no more, and the blur
   is the one region drawn for a purpose of its own.
