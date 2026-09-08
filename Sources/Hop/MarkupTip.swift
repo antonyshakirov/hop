@@ -146,6 +146,13 @@ extension View {
     func aboveTheDrawing() -> some View { background(MarkupWindowLift()) }
 }
 
+extension View {
+    /// Where this view is on screen, asked at the moment the answer is needed.
+    func markupAnchor(_ ready: @escaping (@escaping () -> CGRect) -> Void) -> some View {
+        background(MarkupTipAnchor(ready: ready))
+    }
+}
+
 private struct MarkupTipHover: ViewModifier {
     let text: String
     @State private var where_: (() -> CGRect)?

@@ -239,6 +239,8 @@ struct ScreenshotEditorView: View {
 
     @State private var saved: URL?
     @State private var copied = false
+    @State private var whereCopy: (() -> CGRect)?
+    @State private var whereSave: (() -> CGRect)?
     @State private var naming = false
     @State private var overName = false
     @State private var showingDressing = false
@@ -416,6 +418,7 @@ struct ScreenshotEditorView: View {
             Button {
                 editor.copyToClipboard()
                 copied = true
+                if let whereCopy { MarkupNote.show(L10n.t(.clipboardCopied, lang), over: whereCopy()) }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) { copied = false }
             } label: {
                 MarkupIcon(glyph: copied ? .done : .copy)
@@ -426,11 +429,19 @@ struct ScreenshotEditorView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .markupAnchor { whereCopy = $0 }
             .markupTip(L10n.t(.copyLabel, lang) + "\n" + L10n.t(.mkDoCopy, lang))
 
             Button {
+                let spot = whereSave?() ?? .zero
                 saved = editor.save()
-                if saved != nil { onClose() }
+                if let saved {
+                    MarkupNote.show(L10n.t(.mkSaved, lang) + " · " + saved.lastPathComponent,
+                                    detail: saved.deletingLastPathComponent().lastPathComponent
+                                        + " · " + L10n.t(.convReveal, lang),
+                                    file: saved, over: spot)
+                    onClose()
+                }
             } label: {
                 MarkupIcon(glyph: .save)
                     .foregroundStyle(Theme.playFg)
@@ -439,6 +450,7 @@ struct ScreenshotEditorView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .markupAnchor { whereSave = $0 }
             .markupTip(L10n.t(.featureSave, lang) + "\n" + L10n.t(.mkDoSave, lang))
         }
         .frame(height: 32)

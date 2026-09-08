@@ -193,11 +193,17 @@ final class ScreenAnnotateController: ObservableObject {
         }
     }
 
-    func save() {
+    /// SPEC: docs/spec.md — "Saying where the picture went".
+    func save(over spot: CGRect) {
         Task { [weak self] in
             guard let self, let picture = await self.picture() else { return }
             let format = UserDefaults.standard.string(forKey: MarkupSettings.formatKey) ?? "png"
-            _ = MarkupExport.save(picture, format: format)
+            guard let url = MarkupExport.save(picture, format: format) else { return }
+            let lang = L10n.current
+            MarkupNote.show(L10n.t(.mkSaved, lang) + " · " + url.lastPathComponent,
+                            detail: url.deletingLastPathComponent().lastPathComponent
+                                + " · " + L10n.t(.convReveal, lang),
+                            file: url, over: spot)
         }
     }
 
@@ -258,6 +264,8 @@ struct ScreenAnnotateToolbar: View {
     let lang: AppLanguage
 
     @State private var copied = false
+    @State private var whereCopy: (() -> CGRect)?
+    @State private var whereSave: (() -> CGRect)?
 
     var body: some View {
         MarkupToolbar(surface: surface,
@@ -318,6 +326,7 @@ struct ScreenAnnotateToolbar: View {
         Button {
             controller.copyToClipboard()
             copied = true
+            if let whereCopy { MarkupNote.show(L10n.t(.clipboardCopied, lang), over: whereCopy()) }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) { copied = false }
         } label: {
             MarkupIcon(glyph: copied ? .done : .copy)
@@ -327,9 +336,18 @@ struct ScreenAnnotateToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .markupAnchor { whereCopy = $0 }
         .markupTip(L10n.t(.copyLabel, lang) + "\n" + L10n.t(.mkDoCopy, lang))
 
-        action(.save, .featureSave, .mkDoSave) { controller.save() }
+        Button { controller.save(over: whereSave?() ?? .zero) } label: {
+            MarkupIcon(glyph: .save)
+                .foregroundStyle(Theme.textSecondary)
+                .frame(width: 32, height: 32)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .markupAnchor { whereSave = $0 }
+        .markupTip(L10n.t(.featureSave, lang) + "\n" + L10n.t(.mkDoSave, lang))
         action(.close, .annotateExit) { controller.exit() }
     }
 

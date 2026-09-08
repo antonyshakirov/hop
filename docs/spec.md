@@ -2964,6 +2964,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   when the WHOLE screen is shared. Sharing a single window composites that
   window alone, and Hop's layer is not part of it.
 
+### Saying where the picture went
+
+- **A save that closes the window says nothing** (Anton, 2026-09-08): the
+  editor's save button wrote the file and shut the window, and the picture
+  looked lost — the folder is `Pictures/Hop` unless it was changed, which is not
+  where a Mac user looks first. `MarkupNote` puts a small card OVER the button
+  that was pressed: the file's name, the folder it went to, and "reveal in
+  Finder". Clicking it opens Finder with the file selected. It holds four and a
+  half seconds, stays as long as the pointer is on it, and lives in a window of
+  its own — the editor's window is already gone by then, and the drawing layer
+  never had one.
+- The same card answers **copy**, with one word and no file to open, for a
+  second and a half. The tick inside the button stays: it is the button's own
+  state, and the card is the sentence.
+- Both markup modules use it, from the same button positions their hints come
+  from (`markupAnchor`).
+
 ### The markup toolbar (both modules)
 
 - One panel, both modules. Dragged by anything that is not a button, and it
