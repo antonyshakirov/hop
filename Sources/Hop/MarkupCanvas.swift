@@ -11,7 +11,7 @@ struct MarkupCanvas: View {
     var background: Image?
     var scale: CGFloat = 1
 
-    @State private var pointer: CGPoint?
+    @FocusState private var typing: Bool
 
     var body: some View {
         Canvas { context, _ in
@@ -24,14 +24,9 @@ struct MarkupCanvas: View {
                 background.resizable().scaledToFit()
             }
         }
-        .overlay(alignment: .topLeading) { aim }
         .overlay(alignment: .topLeading) { typingField }
-        .overlay {
-            CrosshairArea(active: MarkupCanvas.aims(surface.tool),
-                          onMove: { pointer = $0 },
-                          onLeave: { pointer = nil })
-                .allowsHitTesting(false)
-        }
+        .overlay { ToolCursor(tool: surface.tool, width: surface.ink(for: surface.tool).width)
+            .allowsHitTesting(false) }
         .contentShape(Rectangle())
         .gesture(
             DragGesture(minimumDistance: 0)
@@ -63,48 +58,6 @@ struct MarkupCanvas: View {
         }
     }
 
-    /// Before the drag, guides across the whole picture through the pointer;
-    /// during it, the spot the shape is growing out of. Either way the point a
-    /// shape starts from is never a guess.
-    @ViewBuilder
-    private var aim: some View {
-        if let anchor = surface.anchor {
-            cross(at: CGPoint(x: anchor.x * scale, y: anchor.y * scale), reach: 9)
-        } else if MarkupCanvas.aims(surface.tool), let pointer {
-            guides(at: pointer)
-        }
-    }
-
-    /// A dark line under the white one: on a white page a white hairline is not
-    /// there at all.
-    private func cross(at spot: CGPoint, reach: CGFloat) -> some View {
-        let path = Path { path in
-            path.move(to: CGPoint(x: spot.x - reach, y: spot.y))
-            path.addLine(to: CGPoint(x: spot.x + reach, y: spot.y))
-            path.move(to: CGPoint(x: spot.x, y: spot.y - reach))
-            path.addLine(to: CGPoint(x: spot.x, y: spot.y + reach))
-        }
-        return ZStack {
-            path.stroke(Color.black.opacity(0.55), lineWidth: 3.5)
-            path.stroke(Color.white, lineWidth: 1.5)
-        }
-        .allowsHitTesting(false)
-    }
-
-    private func guides(at point: CGPoint) -> some View {
-        let lines = Path { path in
-            path.move(to: CGPoint(x: 0, y: point.y))
-            path.addLine(to: CGPoint(x: 100_000, y: point.y))
-            path.move(to: CGPoint(x: point.x, y: 0))
-            path.addLine(to: CGPoint(x: point.x, y: 100_000))
-        }
-        return ZStack {
-            lines.stroke(Color.black.opacity(0.35), lineWidth: 3)
-            lines.stroke(Color.white.opacity(0.75), lineWidth: 1)
-        }
-        .allowsHitTesting(false)
-    }
-
     @ViewBuilder
     private var typingField: some View {
         if let shape = surface.typing, let point = shape.points.first {
@@ -119,6 +72,8 @@ struct MarkupCanvas: View {
             .padding(.horizontal, 6).padding(.vertical, 3)
             .background(RoundedRectangle(cornerRadius: 5).fill(Theme.fieldBg))
             .offset(x: point.x * scale, y: point.y * scale)
+            .focused($typing)
+            .onAppear { typing = true }
             .onSubmit { surface.commitTyping() }
         }
     }
@@ -252,68 +207,45 @@ struct MarkupCanvas: View {
 
 
 /// A crosshair over the picture while a tool that starts at a point is in hand.
-private struct CrosshairArea: NSViewRepresentable {
-    let active: Bool
-    let onMove: (CGPoint) -> Void
-    let onLeave: () -> Void
+/// The pointer says which tool is in hand: a pencil for the freehand ones, a
+/// crosshair for the ones that start at a point. An overlay that answers
+/// SwiftUI's hit test swallows the drag under it, so this one answers none.
+private struct ToolCursor: NSViewRepresentable {
+    let tool: MarkupTool
+    let width: Double
 
-    func makeNSView(context: Context) -> NSView {
-        let view = AimView()
-        view.active = active
-        view.onMove = onMove
-        view.onLeave = onLeave
-        return view
-    }
+    func makeNSView(context: Context) -> NSView { CursorView() }
 
     func updateNSView(_ nsView: NSView, context: Context) {
-        guard let view = nsView as? AimView else { return }
-        view.active = active
-        view.onMove = onMove
-        view.onLeave = onLeave
+        guard let view = nsView as? CursorView else { return }
+        view.cursor = MarkupCursors.cursor(for: tool, width: width)
         view.window?.invalidateCursorRects(for: view)
     }
 
-    /// SwiftUI reports a moving mouse only once a button is down, and the
-    /// guides have to be there before that.
-    final class AimView: NSView {
-        var active = false
-        var onMove: ((CGPoint) -> Void)?
-        var onLeave: (() -> Void)?
+    final class CursorView: NSView {
+        var cursor: NSCursor?
         private var area: NSTrackingArea?
-
-        override var isFlipped: Bool { true }
 
         override func hitTest(_ point: NSPoint) -> NSView? { nil }
 
         override func updateTrackingAreas() {
             super.updateTrackingAreas()
             if let area { removeTrackingArea(area) }
-            let fresh = NSTrackingArea(
-                rect: bounds,
-                options: [.mouseMoved, .mouseEnteredAndExited, .cursorUpdate, .activeInKeyWindow, .inVisibleRect],
-                owner: self
-            )
+            let fresh = NSTrackingArea(rect: bounds,
+                                       options: [.cursorUpdate, .activeInKeyWindow, .inVisibleRect],
+                                       owner: self)
             addTrackingArea(fresh)
             area = fresh
         }
 
-        override func mouseMoved(with event: NSEvent) {
-            guard active else { return }
-            onMove?(convert(event.locationInWindow, from: nil))
-        }
-
-        override func mouseExited(with event: NSEvent) {
-            onLeave?()
-        }
-
         override func cursorUpdate(with event: NSEvent) {
-            if active { NSCursor.crosshair.set() } else { super.cursorUpdate(with: event) }
+            if let cursor { cursor.set() } else { super.cursorUpdate(with: event) }
         }
 
         override func resetCursorRects() {
             super.resetCursorRects()
-            guard active else { return }
-            addCursorRect(bounds, cursor: .crosshair)
+            guard let cursor else { return }
+            addCursorRect(bounds, cursor: cursor)
         }
     }
 }

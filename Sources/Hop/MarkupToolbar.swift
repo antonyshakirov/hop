@@ -43,7 +43,7 @@ struct MarkupToolbar: View {
 
     @State private var showingColour = false
     @State private var showingWidth = false
-    @State private var showingArrow = false
+    @State private var options: MarkupTool?
     @State private var hovered: MarkupTool?
 
     var body: some View {
@@ -125,16 +125,32 @@ struct MarkupToolbar: View {
 
     private var popoverEdge: SwiftUI.Edge { edge == .top ? .bottom : .top }
 
+    /// Pressing a tool that is already in hand opens what it can be set to, and
+    /// closes it again. Only the tools that HAVE settings carry a popover: one
+    /// on every button broke clicks through the drawing layer's panel.
+    @ViewBuilder
     private func button(for tool: MarkupTool) -> some View {
+        if MarkupToolbar.settable(tool) {
+            plainButton(for: tool)
+                .popover(isPresented: Binding(
+                    get: { options == tool },
+                    set: { if !$0 { options = nil } }
+                ), arrowEdge: popoverEdge) {
+                    settings(for: tool)
+                }
+        } else {
+            plainButton(for: tool)
+        }
+    }
+
+    private func plainButton(for tool: MarkupTool) -> some View {
         let chosen = toolsActive && surface.tool == tool
         return Button {
-            // The arrow's own shapes hang off its icon: pressing the tool a
-            // second time opens them, a third closes them again.
-            if tool == .arrow, chosen {
-                showingArrow.toggle()
+            if MarkupToolbar.settable(tool), chosen {
+                options = options == tool ? nil : tool
             } else {
                 surface.tool = tool
-                showingArrow = false
+                options = nil
             }
         } label: {
             MarkupIcon(glyph: MarkupToolbar.glyph(for: tool))
@@ -149,11 +165,19 @@ struct MarkupToolbar: View {
         .buttonStyle(.plain)
         .onHover { inside in hovered = inside ? tool : (hovered == tool ? nil : hovered) }
         .help("\(L10n.t(MarkupToolbar.name(of: tool), lang)) · \(MarkupToolbar.letter(of: tool))")
-        .popover(isPresented: Binding(
-            get: { showingArrow && tool == .arrow },
-            set: { if !$0 { showingArrow = false } }
-        ), arrowEdge: popoverEdge) {
-            MarkupArrowPopover(surface: surface)
+    }
+
+    static func settable(_ tool: MarkupTool) -> Bool {
+        tool == .arrow || tool == .text || tool == .blur
+    }
+
+    @ViewBuilder
+    private func settings(for tool: MarkupTool) -> some View {
+        switch tool {
+        case .arrow: MarkupArrowPopover(surface: surface)
+        case .text: MarkupTextPopover(surface: surface, lang: lang)
+        case .blur: MarkupBlurPopover(surface: surface, lang: lang)
+        default: EmptyView()
         }
     }
 
@@ -342,6 +366,110 @@ struct MarkupWidthPopover: View {
         var ink = current
         change(&ink)
         surface.setInk(ink, for: surface.tool)
+    }
+}
+
+/// Three sizes of type. Not a font panel: a screenshot wants a caption fast.
+struct MarkupTextPopover: View {
+    @ObservedObject var surface: MarkupSurface
+    var lang: AppLanguage
+
+    private let sizes: [(Double, CGFloat)] = [(14, 11), (24, 15), (40, 21)]
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(sizes, id: \.0) { size, shown in
+                Button {
+                    var ink = surface.ink(for: .text)
+                    ink.width = size
+                    surface.setInk(ink, for: .text)
+                } label: {
+                    Text("A")
+                        .font(.system(size: shown, weight: .semibold))
+                        .foregroundStyle(surface.ink(for: .text).width == size
+                                         ? Theme.textPrimary : Theme.textSecondary)
+                        .frame(width: 40, height: 34)
+                        .background(RoundedRectangle(cornerRadius: 7)
+                            .fill(surface.ink(for: .text).width == size ? Theme.chipBg : Theme.rowBg))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(12)
+        .background(Theme.background)
+    }
+}
+
+/// What the blur does: which side of the frame it works on, what shape the
+/// frame is, and how hard.
+struct MarkupBlurPopover: View {
+    @ObservedObject var surface: MarkupSurface
+    var lang: AppLanguage
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            row([(L10n.t(.blurInside, lang), MarkupBlur.Mode.inside),
+                 (L10n.t(.blurAround, lang), .around)],
+                current: surface.blur.mode) { surface.blur.mode = $0 }
+
+            row([(L10n.t(.mkRect, lang), MarkupBlur.Shape.rectangle),
+                 (L10n.t(.mkOval, lang), .oval),
+                 (L10n.t(.shapeLasso, lang), .lasso)],
+                current: surface.blur.shape) { surface.blur.shape = $0 }
+
+            row([("blur", MarkupBlur.Style.blur),
+                 (L10n.t(.blurPixels, lang), .pixels)],
+                current: surface.blur.style) { surface.blur.style = $0 }
+
+            slider(L10n.t(.blurStrength, lang), value: surface.blur.strength, range: 1...10) {
+                surface.blur.strength = $0
+            }
+            if surface.blur.mode == .around {
+                slider(L10n.t(.blurDim, lang), value: surface.blur.dim, range: 0...10) {
+                    surface.blur.dim = $0
+                }
+            }
+        }
+        .padding(12)
+        .frame(width: 250)
+        .background(Theme.background)
+    }
+
+    private func row<Value: Equatable>(
+        _ items: [(String, Value)], current: Value, pick: @escaping (Value) -> Void
+    ) -> some View {
+        HStack(spacing: 6) {
+            ForEach(items.indices, id: \.self) { index in
+                let item = items[index]
+                Button { pick(item.1) } label: {
+                    Text(item.0)
+                        .font(Theme.mono(10))
+                        .lineLimit(1)
+                        .foregroundStyle(current == item.1 ? Theme.textPrimary : Theme.textSecondary)
+                        .padding(.horizontal, 8)
+                        .frame(height: 24)
+                        .background(RoundedRectangle(cornerRadius: 6)
+                            .fill(current == item.1 ? Theme.chipBg : Theme.rowBg))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private func slider(
+        _ title: String, value: Int, range: ClosedRange<Int>, set: @escaping (Int) -> Void
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(title).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+                Spacer()
+                Text("\(value)").font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
+            }
+            Slider(value: Binding(get: { Double(value) }, set: { set(Int($0.rounded())) }),
+                   in: Double(range.lowerBound)...Double(range.upperBound))
+        }
     }
 }
 

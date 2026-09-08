@@ -320,6 +320,16 @@ struct ScreenshotEditorView: View {
 
     private var undoRedo: some View {
         HStack(spacing: 4) {
+            Button { editor.surface.clear() } label: {
+                MarkupIcon(glyph: .clear)
+                    .foregroundStyle(editor.surface.shapes.isEmpty
+                                     ? Theme.textTertiary : Theme.textSecondary)
+                    .frame(width: 32, height: 32)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(L10n.t(.annotateClear, lang))
+
             Button { editor.surface.undo() } label: {
                 MarkupIcon(glyph: .undo)
                     .foregroundStyle(editor.surface.canUndo ? Theme.textSecondary : Theme.textTertiary)

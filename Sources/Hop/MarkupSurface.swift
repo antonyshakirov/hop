@@ -85,7 +85,16 @@ final class MarkupSurface: ObservableObject {
         guard var shape = drafting else { return }
         switch shape.tool {
         case .pencil, .fadingInk, .marker:
-            shape.points.append(point)
+            // A held shift turns the stroke into one straight run from where it
+            // began, on the nearest of eight bearings. Let go and it goes on
+            // following the hand from there.
+            if modifiers.regular, let origin {
+                shape.points = MarkupDrag.points(tool: .line, origin: origin,
+                                                 current: point,
+                                                 modifiers: .init(regular: true))
+            } else {
+                shape.points.append(point)
+            }
         default:
             shape.points = MarkupDrag.points(tool: shape.tool, origin: origin ?? point,
                                              current: point, modifiers: modifiers)

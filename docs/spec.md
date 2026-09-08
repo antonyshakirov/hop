@@ -2489,6 +2489,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   non-Latin layout the letters a key produces are not the letters the shortcuts
   are named after, and every one of them was dead (Anton, 2026-09-08). The
   physical key does not move.
+- **Pressing a tool that is already in hand opens what it can be set to.** Only
+  the tools that HAVE settings carry a popover — the arrow's heads, three sizes
+  of type, and what the blur does. A popover modifier on every button broke
+  clicks through the drawing layer's own panel, where the toolbar lives in a
+  window that never becomes key (Anton, 2026-09-08).
+- **Type is three sizes, not a font panel**, and the blur's own settings —
+  inside or around, rectangle, oval or lasso, blur or mosaic, strength and
+  dimming — are finally reachable: the model has carried them since the module
+  was written and nothing ever showed them.
+- **Both modules can clear the canvas.** The drawing layer always could; the
+  editor now has the same button beside undo and redo.
 - **The arrow has four heads** — open barbs, a plain triangle, a notched one,
   and one drawn as a hand would. They hang off the arrow TOOL, not off the
   colour: pressing the arrow when it is already in hand opens them, pressing it
@@ -2523,13 +2534,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   menu, so there is no key equivalent for them to travel on: the surface's own
   key monitor takes them, and only while its window is the KEY one — with
   several editors open, an undo must not reach into the ones behind.
-- **A two-point tool shows where it will start and where it did**: guides across
-  the whole picture through the pointer before the drag, a cross at the anchor
-  during it, both drawn as a white line over a dark one so they hold on any
-  screenshot. The pointer's view takes no hits — an overlay that answers
-  SwiftUI's hit test swallows the drag under it, and nothing draws at all — and
-  it follows the mouse through a tracking area, since SwiftUI reports a moving
-  mouse only once a button is down. Which corner a rectangle grew from was
+- **The POINTER says where a mark will start, and nothing else does.** Guides
+  across the picture and a cross at the anchor were both tried and both taken
+  out: over a screenshot they are more furniture than help (Anton, 2026-09-08).
+  The pointer carries the tool instead — the toolbar's own glyph in white over a
+  black outline, its hot spot on the drawing tip, and a crosshair for the tools
+  that start at a point. The cursor's view answers no hit test: an overlay that
+  does swallows the drag under it, and nothing draws at all.
+- **Shift straightens a freehand stroke** too, not only a line: held, the pencil
+  and the marker run straight from where they began, on the nearest of eight
+  bearings. Let go and the stroke follows the hand again from there. Which corner a rectangle grew from was
   otherwise invisible (Anton, 2026-09-08).
 - **Option draws from the centre, shift keeps it regular** — a square, a circle,
   a line on one of eight bearings. The rule is a pure function in
