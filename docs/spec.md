@@ -2444,12 +2444,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   fit the display and never blown up past its own pixels. It does NOT reopen at
   the size it was left: a window remembering 16:9 for a tall shot is a window
   with dead black space above and below the picture, which is what it had
-  (Anton, 2026-09-08). The floor is 990 × 380 — the tools and the keeping panel
-  lying flat are about 930pt wide — and it is set AFTER the content view
+  (Anton, 2026-09-08). The floor is 1060 × 380 — the tools and the keeping panel
+  lying flat are about 930pt wide, and the window leaves air either side of them
+  rather than fitting them exactly (Anton, 2026-09-08) — and it is set AFTER the content view
   controller: assigning one resets the window's minimum, which left the toolbar
-  hanging out of a window nobody could widen it back from — and a shot smaller than that is scaled up inside it instead. Below
-  700pt of height the toolbar refuses the left and right edges: standing on end
-  it would be cut off with no way to grab it back.
+  hanging out of a window nobody could widen it back from — and a shot smaller
+  than that is scaled up inside it instead.
 - **"One window with tabs" is a setting** (`shotOneWindow`, off). On, the windows
   are folded together by macOS's OWN tabs — one `tabbingIdentifier`,
   `addTabbedWindow` — rather than a tab bar of Hop's making: the system's brings
@@ -2903,12 +2903,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the screen edge and a tag reads "drawing on" — a layer silently eating clicks
   reads as a frozen Mac. With the arrow, the layer stops taking events, the
   border goes, and the marks stay where they are.
+- **The drawing layer covers the WHOLE screen, menu bar and Dock included**
+  (Anton, 2026-09-08). At `.screenSaver` the layer was drawn over both, but the
+  clicks still reached them: a press on the panel where it lay over the Dock
+  pressed what was under it too. `CGShieldingWindowLevel()` is the level above
+  both, and the panel's own window sits one above that.
 - **The toolbar is a window of its own**, above the layer and always able to
   take a click. It has to be: `ignoresMouseEvents` belongs to a whole window, so
   a panel living inside the layer went unclickable together with it the moment
   the clicks-through mode was switched on — the panel looked switched off with
   no way back (found by Anton on the first run, 2026-09-07). Dragging moves that
-  window; on release it takes the nearest edge and turns with it.
+  window, and it stays where it is dropped.
 - Both mode buttons carry their name as a tooltip: an arrow on its own says
   nothing about what pressing it will do.
 - Tools: pencil, fading ink, marker, arrow, line, rectangle, oval, steps, text,
@@ -2927,9 +2932,20 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### The markup toolbar (both modules)
 
-- One panel, both modules. Dragged by anything that is not a button; it snaps to
-  the nearest screen edge and turns with it — horizontal at the top and bottom,
-  vertical at the sides. The edge is remembered per module.
+- One panel, both modules. Dragged by anything that is not a button, and it
+  **stays exactly where it is put** — no snapping to an edge, no turning
+  (Anton, 2026-09-08): a panel that jumped to a side the moment it was let go,
+  and stood on end when it got there, was fighting the hand that moved it. It
+  is kept WHOLE and off the edges: a margin of 20pt all round, so a pointer
+  dragged past the surface leaves the panel standing at the margin rather than
+  half outside. `top`/`bottom` survives as one thing only — which way the
+  popovers open, taken from which half the panel is in.
+- **A drag is measured from where it STARTED.** The gesture reports the distance
+  from the point the panel was picked up at; added to the frame the panel is
+  standing at now, that distance is applied again on every step of the drag and
+  the panel bolts off the screen (Anton, 2026-09-08). The layer in the editor
+  and the panel's own window over the live screen both hold the place the drag
+  began.
 - Colour and width live in a popover above the panel, never in the panel itself.
   Hovering a tool shows its name and its letter.
 - The drawing tools are one family of glyphs: each body is built upright and

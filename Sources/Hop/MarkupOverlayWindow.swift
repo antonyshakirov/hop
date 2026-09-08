@@ -16,7 +16,10 @@ final class MarkupOverlayWindow: NSWindow {
         isOpaque = false
         backgroundColor = .clear
         hasShadow = false
-        level = .screenSaver
+        // The whole screen means the menu bar and the Dock too: at .screenSaver
+        // the layer was drawn over them but the clicks still went through to
+        // them. The shielding level is the one above both. SPEC: docs/spec.md
+        level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         isReleasedWhenClosed = false
         ignoresMouseEvents = false
@@ -105,7 +108,7 @@ final class MarkupToolbarWindow: NSPanel {
         isOpaque = false
         backgroundColor = .clear
         hasShadow = false
-        level = NSWindow.Level(rawValue: NSWindow.Level.screenSaver.rawValue + 1)
+        level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()) + 1)
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         isReleasedWhenClosed = false
         isMovableByWindowBackground = false

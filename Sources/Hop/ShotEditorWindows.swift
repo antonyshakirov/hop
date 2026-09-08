@@ -115,10 +115,10 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
                       height: max(minimum.height, shot.height * fit))
     }
 
-    /// Lying flat the tools and the keeping panel are about 930pt wide; the
-    /// height only has to hold the picture, and a short window keeps the
-    /// toolbar off its sides.
-    private static let minimum = NSSize(width: 990, height: 380)
+    /// Lying flat the tools and the keeping panel are about 930pt wide, and the
+    /// window leaves air either side of them rather than fitting them exactly
+    /// (Anton, 2026-09-08). The height only has to hold the picture.
+    private static let minimum = NSSize(width: 1060, height: 380)
 
     // MARK: - Closing
 

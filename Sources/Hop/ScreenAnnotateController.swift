@@ -26,6 +26,7 @@ final class ScreenAnnotateController: ObservableObject {
     private let overlay = MarkupOverlayController()
     private var toolbarWindow: MarkupToolbarWindow?
     private var toolWatch: AnyCancellable?
+    private var draggedFrom: NSPoint?
 
     func toggle() {
         isUp ? exit() : show()
@@ -66,47 +67,52 @@ final class ScreenAnnotateController: ObservableObject {
         window.orderFrontRegardless()
     }
 
-    /// Along its edge the panel keeps where it was left; across it, a fixed
-    /// distance from the border.
+    /// Where the panel starts out. SPEC: docs/spec.md — the markup toolbar.
     func place(_ window: NSWindow, on screen: NSScreen?) {
         guard let screen = screen ?? NSScreen.main else { return }
         let size = window.frame.size
         let inset: CGFloat = 28
         let frame = screen.frame
-        let spot: NSPoint
-        switch edge {
-        case .top:
-            spot = NSPoint(x: frame.midX - size.width / 2, y: frame.maxY - size.height - inset)
-        case .bottom:
-            spot = NSPoint(x: frame.midX - size.width / 2, y: frame.minY + inset)
-        case .leading:
-            spot = NSPoint(x: frame.minX + inset, y: frame.midY - size.height / 2)
-        case .trailing:
-            spot = NSPoint(x: frame.maxX - size.width - inset, y: frame.midY - size.height / 2)
-        }
-        window.setFrameOrigin(spot)
+        let spot = edge == .top
+            ? NSPoint(x: frame.midX - size.width / 2, y: frame.maxY - size.height - inset)
+            : NSPoint(x: frame.midX - size.width / 2, y: frame.minY + inset)
+        window.setFrameOrigin(within(spot, size: size))
     }
 
-    /// Dragging moves the window itself; on release it takes the nearest edge
-    /// and turns with it.
+    /// WORKAROUND: the gesture reports the distance from where the drag STARTED,
+    /// so it is added to the frame the panel was PICKED UP at — added to the
+    /// frame it stands at now, it moves the panel again on every step.
     func dragToolbar(by translation: CGSize) {
         guard let window = toolbarWindow else { return }
-        let origin = window.frame.origin
-        window.setFrameOrigin(NSPoint(x: origin.x + translation.width,
-                                      y: origin.y - translation.height))
+        let from = draggedFrom ?? window.frame.origin
+        draggedFrom = from
+        let moved = NSPoint(x: from.x + translation.width, y: from.y - translation.height)
+        window.setFrameOrigin(within(moved, size: window.frame.size))
     }
 
     func settleToolbar() {
+        draggedFrom = nil
         guard let window = toolbarWindow,
               let screen = window.screen ?? NSScreen.main else { return }
-        let centre = CGPoint(x: window.frame.midX - screen.frame.minX,
-                             y: screen.frame.maxY - window.frame.midY)
-        edge = MarkupToolbar.Edge.nearest(to: centre, in: screen.frame.size)
-        DispatchQueue.main.async { [weak self] in
-            guard let self, let window = self.toolbarWindow else { return }
-            window.setContentSize(window.contentView?.fittingSize ?? window.frame.size)
-            self.place(window, on: screen)
-        }
+        edge = window.frame.midY > screen.frame.midY ? .top : .bottom
+        window.setFrameOrigin(within(window.frame.origin, size: window.frame.size))
+    }
+
+    /// SPEC: docs/spec.md — whole, and off the edges of its screen.
+    private func within(_ origin: NSPoint, size: NSSize) -> NSPoint {
+        let centre = NSPoint(x: origin.x + size.width / 2, y: origin.y + size.height / 2)
+        let screen = NSScreen.screens.first { $0.frame.contains(centre) }
+            ?? toolbarWindow?.screen ?? NSScreen.main
+        guard let frame = screen?.frame else { return origin }
+        let margin: CGFloat = 20
+        return NSPoint(x: held(origin.x, span: size.width, from: frame.minX, to: frame.maxX, margin: margin),
+                       y: held(origin.y, span: size.height, from: frame.minY, to: frame.maxY, margin: margin))
+    }
+
+    private func held(_ value: CGFloat, span: CGFloat, from: CGFloat, to: CGFloat, margin: CGFloat) -> CGFloat {
+        let least = from + margin, most = to - span - margin
+        guard least <= most else { return from + (to - from - span) / 2 }
+        return min(max(value, least), most)
     }
 
     func setDrawing(_ drawing: Bool) {

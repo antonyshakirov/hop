@@ -13,22 +13,6 @@ struct MarkupToolbar: View {
         case top, bottom, leading, trailing
 
         var isVertical: Bool { self == .leading || self == .trailing }
-
-        /// Standing on end the panel is about 660pt long; below that a side
-        /// would cut it off with no way to grab it back.
-        static let uprightLength: CGFloat = 700
-
-        /// The edge a panel dropped at this point belongs to; the nearest one
-        /// wins, and a tie goes to the horizontal, which fits more tools.
-        static func nearest(to point: CGPoint, in size: CGSize) -> Edge {
-            var distances: [(Edge, CGFloat)] = [
-                (.top, point.y), (.bottom, size.height - point.y),
-            ]
-            if size.height >= uprightLength {
-                distances += [(.leading, point.x), (.trailing, size.width - point.x)]
-            }
-            return distances.min { $0.1 < $1.1 }?.0 ?? .bottom
-        }
     }
 
     @ObservedObject var surface: MarkupSurface
@@ -591,8 +575,9 @@ struct MarkupToolbarLayer: View {
     /// A panel of its own beside the toolbar, moving and turning with it.
     var companion: AnyView?
 
-    @State private var dragged: CGSize = .zero
     @State private var spot: CGPoint?
+    @State private var grabbedAt: CGPoint?
+    @State private var span: CGSize = .zero
 
     var body: some View {
         Group {
@@ -602,22 +587,41 @@ struct MarkupToolbarLayer: View {
                 HStack(spacing: 8) { panels }
             }
         }
+            .background(
+                GeometryReader { box in
+                    Color.clear
+                        .onAppear { span = box.size }
+                        .onChange(of: box.size) { _, fresh in span = fresh }
+                }
+            )
             // BEFORE .position(): after it the view fills the whole surface,
             // and the gesture with it — every drag anywhere on the picture took
             // the panel for a walk instead of doing what it was aimed at.
             .gesture(
                 DragGesture(minimumDistance: 6)
-                    .onChanged { value in dragged = value.translation }
+                    .onChanged { value in
+                        let from = grabbedAt ?? place()
+                        grabbedAt = from
+                        settle(at: CGPoint(x: from.x + value.translation.width,
+                                           y: from.y + value.translation.height))
+                    }
                     .onEnded { value in
-                        let dropped = CGPoint(x: place().x + value.translation.width,
-                                              y: place().y + value.translation.height)
-                        edge = MarkupToolbar.Edge.nearest(to: dropped, in: size)
-                        spot = clamp(dropped)
-                        dragged = .zero
+                        let from = grabbedAt ?? place()
+                        settle(at: CGPoint(x: from.x + value.translation.width,
+                                           y: from.y + value.translation.height))
+                        grabbedAt = nil
                     }
             )
-            .offset(dragged)
             .position(place())
+    }
+
+    private func settle(at point: CGPoint) {
+        let held = clamp(point)
+        spot = held
+        // The edge is no longer where the panel lives, only which way its
+        // popovers open. SPEC: docs/spec.md
+        let wanted: MarkupToolbar.Edge = held.y < size.height / 2 ? .top : .bottom
+        if edge != wanted { edge = wanted }
     }
 
     @ViewBuilder private var panels: some View {
@@ -637,22 +641,26 @@ struct MarkupToolbarLayer: View {
         }
     }
 
-    /// Along its edge the panel stays where it was dropped; across it, it sits
-    /// at a fixed distance, so it never drifts off the screen.
+    /// The panel stays where it was put, in both directions.
     private func place() -> CGPoint {
-        let inset: CGFloat = 60
-        let along = spot ?? CGPoint(x: size.width / 2, y: size.height / 2)
-        switch edge {
-        case .top: return CGPoint(x: along.x, y: inset)
-        case .bottom: return CGPoint(x: along.x, y: size.height - inset)
-        case .leading: return CGPoint(x: inset, y: along.y)
-        case .trailing: return CGPoint(x: size.width - inset, y: along.y)
-        }
+        clamp(spot ?? CGPoint(x: size.width / 2,
+                              y: edge == .top ? 60 : size.height - 60))
     }
 
+    /// Whole, and off the sides: the panel never hangs over an edge, and a
+    /// pointer dragged past the surface leaves it standing at the margin
+    /// instead of chasing a place that does not exist.
     private func clamp(_ point: CGPoint) -> CGPoint {
-        CGPoint(x: min(max(point.x, 120), size.width - 120),
-                y: min(max(point.y, 80), size.height - 80))
+        let margin: CGFloat = 20
+        let half = CGSize(width: max(span.width, 40) / 2, height: max(span.height, 24) / 2)
+        return CGPoint(x: held(point.x, half: half.width, of: size.width, margin: margin),
+                       y: held(point.y, half: half.height, of: size.height, margin: margin))
+    }
+
+    private func held(_ value: CGFloat, half: CGFloat, of whole: CGFloat, margin: CGFloat) -> CGFloat {
+        let least = margin + half, most = whole - margin - half
+        guard least <= most else { return whole / 2 }
+        return min(max(value, least), most)
     }
 }
 
