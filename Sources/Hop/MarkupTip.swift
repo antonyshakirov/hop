@@ -45,7 +45,7 @@ enum MarkupTips {
         panel.backgroundColor = .clear
         panel.hasShadow = false
         panel.ignoresMouseEvents = true
-        panel.level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()) + 2)
+        panel.level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()) + 3)
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         panel.isReleasedWhenClosed = false
         return panel
@@ -113,6 +113,37 @@ private struct MarkupTipAnchor: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: Probe, context: Context) {}
+}
+
+/// WORKAROUND: a popover opens in a window of its own at the ordinary pop-up
+/// level, which is UNDER the drawing layer: clicks meant for the colour wheel
+/// landed on the picture and drew another mark. SPEC: docs/spec.md
+struct MarkupWindowLift: NSViewRepresentable {
+    static let level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()) + 2)
+
+    final class Probe: NSView {
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            lift()
+        }
+
+        func lift() {
+            guard let window else { return }
+            window.level = MarkupWindowLift.level
+            window.collectionBehavior.insert(.canJoinAllSpaces)
+        }
+    }
+
+    func makeNSView(context: Context) -> Probe { Probe() }
+
+    func updateNSView(_ nsView: Probe, context: Context) {
+        DispatchQueue.main.async { nsView.lift() }
+    }
+}
+
+extension View {
+    /// For anything that opens in a window of its own over the drawing layer.
+    func aboveTheDrawing() -> some View { background(MarkupWindowLift()) }
 }
 
 private struct MarkupTipHover: ViewModifier {

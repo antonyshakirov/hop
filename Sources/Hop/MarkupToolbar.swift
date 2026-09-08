@@ -78,7 +78,7 @@ struct MarkupToolbar: View {
         .buttonStyle(.plain)
         .markupTip(L10n.t(.mkWidth, lang) + "\n" + L10n.t(.mkDoWidth, lang))
         .popover(isPresented: $showingWidth, arrowEdge: popoverEdge) {
-            MarkupWidthPopover(surface: surface, lang: lang)
+            MarkupWidthPopover(surface: surface, lang: lang).aboveTheDrawing()
         }
 
         Button {
@@ -94,7 +94,7 @@ struct MarkupToolbar: View {
         .buttonStyle(.plain)
         .markupTip(L10n.t(.mkDoColour, lang))
         .popover(isPresented: $showingColour, arrowEdge: popoverEdge) {
-            MarkupColourPopover(surface: surface)
+            MarkupColourPopover(surface: surface).aboveTheDrawing()
         }
 
         if let trailing {
@@ -122,7 +122,7 @@ struct MarkupToolbar: View {
                     get: { options == tool },
                     set: { if !$0 { options = nil } }
                 ), arrowEdge: popoverEdge) {
-                    settings(for: tool)
+                    settings(for: tool).aboveTheDrawing()
                 }
         } else {
             plainButton(for: tool)
@@ -800,6 +800,10 @@ final class MarkupColourPanel: NSObject, NSWindowDelegate {
                                          y: screen.frame.midY - size.height / 2 + 80))
         }
         panel.delegate = self
+        // Over the live screen the drawing layer is above every ordinary
+        // window, this panel included. SPEC: docs/spec.md
+        panel.level = MarkupWindowLift.level
+        panel.collectionBehavior.insert(.canJoinAllSpaces)
         panel.makeKeyAndOrderFront(nil)
     }
 
@@ -813,6 +817,7 @@ final class MarkupColourPanel: NSObject, NSWindowDelegate {
     /// on every step of a drag across the wheel, so recording each one filled
     /// the row with neighbouring shades of the one colour actually chosen.
     func windowWillClose(_ notification: Notification) {
+        NSColorPanel.shared.level = .floating
         if let settledHex { MarkupSettings.remember(colour: settledHex) }
         settledHex = nil
         onSettled?()

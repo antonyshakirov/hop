@@ -2970,6 +2970,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   **Every button in the panel has one too**: back, forward, clear, copy, save,
   close, the width, the colour and the button that hands the screen back — that
   last one saying it is the SCREEN it hands over, not the marks.
+- **Everything the panel opens stands ABOVE the drawing** (Anton, 2026-09-08):
+  its popovers and the system colour wheel. Both open in windows of their own at
+  ordinary levels, which is under the drawing layer — a click aimed at the
+  colour wheel landed on the picture and drew another mark there. They are
+  lifted to the shielding level plus two, one under the hint and one over the
+  panel; the colour panel drops back to floating when it closes, since outside
+  the live screen it has nothing to stand over.
 - **The hint is Hop's own, not the system tooltip** (Anton, 2026-09-08). A
   tooltip belongs to a key window, and the panel over the live screen is a
   non-activating one that never becomes key: nothing ever appeared there.
