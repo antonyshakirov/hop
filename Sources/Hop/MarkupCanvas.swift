@@ -76,7 +76,8 @@ struct MarkupCanvas: View {
     @ViewBuilder
     private var held: some View {
         if let shape = surface.selected {
-            let round = shape.tool == .magnifier
+            // A shape that already shows its own edge needs no box round it.
+            let round = shape.tool == .magnifier || shape.tool == .oval || shape.tool == .blur
             let box = MarkupGeometry.boundingBox(shape.points)
             let frame = CGRect(x: box.origin.x * scale - 5, y: box.origin.y * scale - 5,
                                width: box.size.x * scale + 10, height: box.size.y * scale + 10)
@@ -276,8 +277,11 @@ struct MarkupCanvas: View {
             let area = box(first, points[1])
             let outline: Path = shape.blur?.shape == .oval
                 ? Path(ellipseIn: area) : Path(roundedRect: area, cornerRadius: 3)
-            context.fill(outline, with: .color(.white.opacity(0.12)))
-            context.stroke(outline, with: .color(.white.opacity(0.55)),
+            // No wash: the region is blurred for real while it is drawn, and a
+            // white film over it would only lighten what is being hidden.
+            context.stroke(outline, with: .color(.black.opacity(0.35)),
+                           style: StrokeStyle(lineWidth: 2))
+            context.stroke(outline, with: .color(.white.opacity(0.8)),
                            style: StrokeStyle(lineWidth: 1))
 
         case .steps:

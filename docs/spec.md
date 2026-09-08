@@ -2663,9 +2663,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   an oval and a lasso as its own outline (Anton, 2026-09-08). It is drawn in
   opaque black and white in sRGB — Core Image reads a one-channel grey bitmap as
   an empty picture and lays a black plate over everything.
-- **The region shows itself.** A blur is a faint white wash inside a hairline,
-  round or square as its own shape says; the red dashed box it used to carry was
-  a mark of its own and ended up in the file (Anton, 2026-09-08). An oval one is
+- **The region is blurred WHILE it is drawn**, moved and resized, settings and
+  all — "around" included, which smears everything outside the frame under the
+  hand (Anton, 2026-09-08). The backdrop is rebuilt with the mark under the hand
+  standing in for its stored self, coalesced to one Core Image pass every 60ms:
+  a pass per drag step is a slideshow, and a white film standing in for the blur
+  says nothing about what will be hidden. The region carries a hairline and no
+  wash; the red dashed box it used to have was a mark of its own and ended up in
+  the file.
+- **Nothing that shows its own edge gets a box round it**: a lens, an oval and a
+  blur are their own outline, so the selection frame is drawn only for the marks
+  that have none (Anton, 2026-09-08). An oval one is
   held at the four points ON the ellipse, and pulling one of them moves that
   edge alone. It starts at strength 5 of 10 — a blur that hides nothing reads as
   a blur that does not work.

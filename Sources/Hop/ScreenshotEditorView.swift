@@ -78,9 +78,19 @@ final class ScreenshotEditor: ObservableObject {
         surface.$shapes
             .sink { [weak self] shapes in
                 guard let self else { return }
-                self.backdrop = MarkupRender.effects(base: self.base, shapes: shapes, scale: self.scale)
+                self.settled = shapes
+                self.rebuildBackdrop()
                 self.refreshPreview()
             }
+            .store(in: &watches)
+
+        // A region being pulled out or moved has to be blurred WHILE it is,
+        // settings and all: a white wash says nothing about what will be hidden.
+        surface.$drafting
+            .sink { [weak self] draft in self?.previewEffects(with: draft) }
+            .store(in: &watches)
+        surface.$editing
+            .sink { [weak self] held in self?.previewEffects(with: held) }
             .store(in: &watches)
     }
 
@@ -127,6 +137,40 @@ final class ScreenshotEditor: ObservableObject {
     }
 
     private var refreshPending = false
+    private var settled: [MarkupShape] = []
+    private var live: MarkupShape?
+    private var backdropPending = false
+
+    /// The marks the backdrop is built from: everything committed, plus the one
+    /// under the hand standing in for its stored self.
+    private var effectShapes: [MarkupShape] {
+        guard let live else { return settled }
+        if settled.contains(where: { $0.id == live.id }) {
+            return settled.map { $0.id == live.id ? live : $0 }
+        }
+        return settled + [live]
+    }
+
+    private func previewEffects(with shape: MarkupShape?) {
+        guard shape?.tool == .blur || live?.tool == .blur else { return }
+        live = shape?.tool == .blur ? shape : nil
+        scheduleBackdrop()
+    }
+
+    /// Coalesced: a full Core Image pass per drag step is a slideshow.
+    private func scheduleBackdrop() {
+        guard !backdropPending else { return }
+        backdropPending = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) { [weak self] in
+            guard let self else { return }
+            self.backdropPending = false
+            self.rebuildBackdrop()
+        }
+    }
+
+    private func rebuildBackdrop() {
+        backdrop = MarkupRender.effects(base: base, shapes: effectShapes, scale: scale)
+    }
 
     /// A slider dragged is a render per frame at the shot's full resolution, so
     /// the calls are coalesced. Waiting for the slider to be let go instead
