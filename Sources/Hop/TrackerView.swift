@@ -487,6 +487,7 @@ struct TrackerView: View {
                             engine.setImportant(taskID: task.id, false)
                         } } label: {
                             StarGlyph(color: Theme.textSecondary, box: RowMark.glyph)
+                                .offset(y: RowMark.starDrop)
                                 .frame(width: RowMark.box, height: RowMark.box)
                                 .contentShape(Rectangle())
                         }
@@ -498,8 +499,8 @@ struct TrackerView: View {
                     // card holds a comment. Inert: the row itself opens the card.
                     if !task.note.isEmpty {
                         Image(systemName: "text.alignleft")
-                            .font(.system(size: 9))
-                            .foregroundStyle(Theme.textTertiary)
+                            .font(.system(size: RowMark.glyph))
+                            .foregroundStyle(Theme.textSecondary)
                             .frame(width: RowMark.box, height: RowMark.box)
                     }
                     if run != nil {

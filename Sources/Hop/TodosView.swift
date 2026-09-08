@@ -253,6 +253,7 @@ struct TodosView: View {
             if item.important {
                 Button { withAnimation(Self.sinkAnimation) { todos.setImportant(item.id, false) } } label: {
                     StarGlyph(color: Theme.textSecondary, box: RowMark.glyph)
+                        .offset(y: RowMark.starDrop)
                         .frame(width: RowMark.box, height: RowMark.box)
                         .contentShape(Rectangle())
                 }
@@ -264,34 +265,21 @@ struct TodosView: View {
             // the card holds a comment. Inert: the whole row opens the card.
             if !item.note.isEmpty {
                 Image(systemName: "text.alignleft")
-                    .font(.system(size: 9))
-                    .foregroundStyle(Theme.textTertiary)
-                    .frame(width: RowMark.box, height: RowMark.box)
-                    .help(t(.tipHasNote))
-            }
-            if RemindSchedule.effectiveFiring(item) != nil {
-                Image(systemName: "bell.fill")
                     .font(.system(size: RowMark.glyph))
                     .foregroundStyle(Theme.textSecondary)
                     .frame(width: RowMark.box, height: RowMark.box)
-                    .help(t(.todoRemindLabel))
+                    .help(t(.tipHasNote))
             }
             if let firing = RemindSchedule.effectiveFiring(item) {
-                // A time in the past means it already fired: struck through, so a
-                // banner that went unseen still leaves a trace in the list.
-                //
-                // While it is still unacknowledged the time BLINKS BLUE — the same
-                // blue as the menu-bar dot that brought you here, so the panel
-                // answers "which task was it?" the moment you open it. The dot
-                // leaves with the blink and the struck-through time stays.
+                // SPEC: armed = filled, already rung = hollow; blinking while the
+                // firing is still unseen (docs/spec.md, "The marks in a row").
+                let fired = firing <= Date()
                 let lit = item.firedUnseen && blinkPhase
-                Text(Self.timeLabel.string(from: firing))
-                    .font(Theme.mono(11))
-                    .foregroundStyle(lit ? Theme.accentYellow : Theme.textTertiary)
-                    // The strike line keeps ONE colour through the blink:
-                    // changing it rebuilt the attributed text every phase and
-                    // the line visibly jumped.
-                    .strikethrough(firing <= Date(), color: Theme.textTertiary)
+                Image(systemName: fired ? "bell" : "bell.fill")
+                    .font(.system(size: RowMark.glyph))
+                    .foregroundStyle(lit ? Theme.accentYellow : Theme.textSecondary)
+                    .frame(width: RowMark.box, height: RowMark.box)
+                    .help(t(.todoRemindLabel))
             }
             if confirmingDelete == item.id {
                 // confirm swaps in for the ✕ only — the checkbox and text keep
@@ -319,13 +307,6 @@ struct TodosView: View {
             if inside { hovered = item.id } else if hovered == item.id { hovered = nil }
         }
     }
-
-    /// The row's reminder time, in the user's own clock format.
-    private static let timeLabel: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.setLocalizedDateFormatFromTemplate("j:mm")
-        return formatter
-    }()
 
     @ViewBuilder private var addRow: some View {
         if adding, !Snapshot.active {

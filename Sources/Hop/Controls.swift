@@ -1048,6 +1048,9 @@ struct RowDeleteConfirm: View {
 enum RowMark {
     static let box: CGFloat = 14
     static let glyph: CGFloat = 10
+    /// A star's optical centre sits above its box's — the two lower points are
+    /// longer than the upper ones. Dropped by this, it centres on the bell.
+    static let starDrop: CGFloat = 1
 }
 
 /// Shared geometry for the leading circle of the row modules (the tracker's

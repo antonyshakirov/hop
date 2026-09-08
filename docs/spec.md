@@ -1784,13 +1784,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   hover; the card's star writes through to the store at once (`onImportant`)
   rather than waiting for the commit, because the row above the card would
   otherwise show yesterday's answer. A to-do with a reminder shows a
-  `bell.fill` beside its time — FILLED, like the star next to it: an outline
-  read as "no reminder set" where the row only ever draws it when there is one.
-  Star, bell and the note hint share ONE geometry (`RowMark`: a 14pt box, a 10pt
-  glyph) and the marks share ONE ink (`textSecondary`; the note hint stays
-  tertiary with the time, being a hint rather than a mark) — sized and coloured
-  apart they read as two unrelated things sitting crookedly beside each other
-  (Anton, 2026-09-08). The hover ✕ is inserted AHEAD of the marks (right
+  BELL, and the row no longer prints the time (Anton, 2026-09-08) — the bell
+  says everything the digits did: `bell.fill` while the firing is still ahead,
+  a hollow `bell` once it has rung (what the struck-through time used to say),
+  and blinking `accentYellow` while the firing is unseen, which is what clears
+  the menu-bar mark. Star, bell and the note hint share ONE geometry
+  (`RowMark`: a 14pt box, a 10pt glyph) and ONE ink (`textSecondary`); the star
+  is dropped by `RowMark.starDrop` because a star's optical centre sits above
+  its box's — its two lower points are the longer pair — and undropped it rode
+  visibly high next to the bell. The hover ✕ is inserted AHEAD of the marks (right
   after the flexible spacer) in both modules: inserted after them it ate the
   spacer from the right and slid the star out from under the pointer, so a click
   meant for the star landed on delete.
