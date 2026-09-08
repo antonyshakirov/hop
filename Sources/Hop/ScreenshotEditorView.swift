@@ -182,7 +182,12 @@ struct ScreenshotEditorView: View {
             let natural = dressed.map {
                 CGSize(width: Double($0.width) / editor.scale, height: Double($0.height) / editor.scale)
             } ?? seen.size
-            let s = fitScale(natural, in: geometry.size)
+            // While the frame is up the picture stands off the window's edges,
+            // or the handles on its own edge have nowhere to be grabbed from.
+            let room = editor.cropDraft == nil
+                ? geometry.size
+                : CGSize(width: geometry.size.width - 72, height: geometry.size.height - 72)
+            let s = fitScale(natural, in: room)
             ZStack {
                 Theme.background.opacity(0.4)
 

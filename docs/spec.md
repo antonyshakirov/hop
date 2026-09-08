@@ -2507,9 +2507,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the cut will be, then cancel, then ok — so nothing shifts under the pointer
   when the frame goes up (Anton, 2026-09-08). Return keeps the frame, escape
   drops it: a crop that has to be aimed at a button is a crop nobody finishes.
-  A drag that misses the frame is swallowed rather than passed to the window
-  behind, which used to take the whole window for a walk, and every SIDE is a
-  target down its whole length rather than a dot at its middle.
+  A drag that misses the frame is swallowed rather than passed to whatever is
+  behind, and every SIDE is a target down its whole length rather than a dot at
+  its middle. While the frame is up the picture stands 36pt off the window's
+  edges, or the handles on its own edge have nowhere to be grabbed from (Anton,
+  2026-09-08).
+- **The toolbar's drag gesture goes on BEFORE `.position()`.** After it the
+  panel fills the whole surface and the gesture with it, so every drag anywhere
+  on the picture took the panel for a walk — which is what "the window drags
+  instead of the crop" was (Anton, 2026-09-08). The same mistake the crop
+  handles had; it is worth checking for wherever `.position` and `.gesture` meet.
   The canvas takes no hits meanwhile, so the crop frame cannot be drawn over.
   Applied, the window SHOWS the cut — the picture is offset inside a clipped box
   rather than re-rendered, so every mark keeps the coordinates it was made in.

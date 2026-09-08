@@ -569,8 +569,9 @@ struct MarkupToolbarLayer: View {
                 HStack(spacing: 8) { panels }
             }
         }
-            .position(place())
-            .offset(dragged)
+            // BEFORE .position(): after it the view fills the whole surface,
+            // and the gesture with it — every drag anywhere on the picture took
+            // the panel for a walk instead of doing what it was aimed at.
             .gesture(
                 DragGesture(minimumDistance: 6)
                     .onChanged { value in dragged = value.translation }
@@ -582,6 +583,8 @@ struct MarkupToolbarLayer: View {
                         dragged = .zero
                     }
             )
+            .offset(dragged)
+            .position(place())
     }
 
     @ViewBuilder private var panels: some View {
