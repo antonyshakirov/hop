@@ -2848,11 +2848,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   The marker is a narrow barrel flaring into a chisel: an even barrel with a
   skirt read as a torch (Anton, 2026-09-08). The pencil is drawn TALLER than it
   looks it needs: turning a shape by 45° costs it a third of its height, and
-  beside the upright glyphs it read as stubby. "Clear" is a scrubbing BRUSH from the side —
-  a bridge handle, a block, bristles under it: a bin reads as throwing the
-  picture out, and the slim rubber beside it clears one mark rather than all of
-  them (Anton, 2026-09-08). A broom, a swept frame and a board duster were all
-  tried first; the classic shape is the one that reads at 19pt.
+  beside the upright glyphs it read as stubby. **"Clear" is the ONE glyph taken from the
+  system** — `windshield.front.and.wiper`, a wiper across a windscreen, chosen
+  from twenty candidates (Anton, 2026-09-08). A bin reads as throwing the
+  picture out and the slim rubber beside it clears one mark rather than all of
+  them; a broom, a swept frame, a board duster and a scrubbing brush were all
+  drawn by hand first and none read at 19pt. The hand-drawn paths stay as a
+  fallback for a system that cannot draw the symbol. Being the only borrowed
+  glyph, it sits a shade heavier than the rest — that is the price of being
+  understood.
 - **Every glyph is outlined and filled ONCE**, never stroked piece by piece: at
   anything below full opacity the crossings of two strokes painted separately
   come out brighter than the lines themselves, which is how the panel's pencil

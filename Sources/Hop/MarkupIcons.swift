@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// The markup toolbar's glyphs, drawn on a 24×24 grid and scaled to the button.
@@ -20,6 +21,20 @@ struct MarkupStroke {
 }
 
 enum MarkupIcons {
+    /// The one glyph taken from the system rather than drawn here. Wiping the
+    /// canvas has a shape everyone already knows and none of the hand-drawn
+    /// tries — a broom, a swept frame, a duster, a brush — read at 19pt
+    /// (Anton, 2026-09-08). The paths below stay as a fallback for a system
+    /// that cannot draw it.
+    static func systemName(for glyph: MarkupGlyph) -> String? {
+        guard glyph == .clear else { return nil }
+        let name = "windshield.front.and.wiper"
+        guard NSImage(systemSymbolName: name, accessibilityDescription: nil) != nil else {
+            return nil
+        }
+        return name
+    }
+
     static func strokes(for glyph: MarkupGlyph) -> [MarkupStroke] {
         switch glyph {
         case .crop:
@@ -231,7 +246,18 @@ struct MarkupIcon: View {
     let glyph: MarkupGlyph
     var size: CGFloat = 19
 
+    @ViewBuilder
     var body: some View {
+        if let symbol = MarkupIcons.systemName(for: glyph) {
+            Image(systemName: symbol)
+                .font(.system(size: size * 0.82))
+                .frame(width: size, height: size)
+        } else {
+            drawn
+        }
+    }
+
+    private var drawn: some View {
         Canvas { context, canvasSize in
             let scale = min(canvasSize.width, canvasSize.height) / 24
             let transform = CGAffineTransform(scaleX: scale, y: scale)
