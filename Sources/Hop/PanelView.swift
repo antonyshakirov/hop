@@ -25,6 +25,9 @@ struct PanelView: View {
     @AppStorage(MarkupSettings.formatKey) private var shotFormat = "png"
     @AppStorage(MarkupSettings.delayKey) private var shotDelay = 0
     @AppStorage(MarkupSettings.pointerKey) private var shotPointer = false
+    /// One colour for every markup tool, or a colour each. Off: a red pencil
+    /// beside a yellow marker is what a hand reaches for.
+    @AppStorage(MarkupSettings.sharedColourKey) private var shotSharedColour = false
     @AppStorage(ShotEditorWindows.oneWindowKey) private var shotOneWindow = false
     @AppStorage("annotateStartsDrawing") private var annotateStartsDrawing = true
     @AppStorage(SettingsKey.trackerTimeInBar) private var trackerTimeInBar = false
@@ -4201,6 +4204,11 @@ struct PanelView: View {
                 Text(t(.shotOneWindow)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Theme.MiniSwitch(isOn: $shotOneWindow)
+            }
+            HStack {
+                Text(t(.shotSharedColour)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: $shotSharedColour)
             }
         }
     }

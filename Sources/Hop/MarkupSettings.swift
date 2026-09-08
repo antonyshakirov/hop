@@ -15,6 +15,8 @@ enum MarkupSettings {
     static let arrowStyleKey = "markupArrowStyle"
     static let inksKey = "markupInks"
     static let recentColoursKey = "markupRecentColours"
+    static let sharedColourKey = "markupSharedColour"
+    static let commonColourKey = "markupCommonColour"
 
     static func frameDressing() -> FrameDressing {
         decode(dressingKey) ?? .standard
@@ -37,6 +39,25 @@ enum MarkupSettings {
         return stored.reduce(into: [:]) { out, pair in
             guard let tool = MarkupTool(rawValue: pair.key) else { return }
             out[tool] = pair.value
+        }
+    }
+
+    /// One colour for every tool, or a colour per tool. Off unless the user
+    /// says otherwise — a red pencil beside a yellow marker is what a hand
+    /// reaches for.
+    static func sharedColour() -> Bool {
+        UserDefaults.standard.object(forKey: sharedColourKey) as? Bool ?? false
+    }
+
+    static func commonColour() -> String? {
+        UserDefaults.standard.string(forKey: commonColourKey)
+    }
+
+    static func store(commonColour hex: String?) {
+        if let hex {
+            UserDefaults.standard.set(hex, forKey: commonColourKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: commonColourKey)
         }
     }
 

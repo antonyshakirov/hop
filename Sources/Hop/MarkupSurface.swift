@@ -31,7 +31,9 @@ final class MarkupSurface: ObservableObject {
     @Published private(set) var editing: MarkupShape?
 
     private let document = MarkupDocument()
-    private var inks: [MarkupTool: MarkupInk] = MarkupSettings.inks()
+    private var book = MarkupInkBook(inks: MarkupSettings.inks(),
+                                     shared: MarkupSettings.sharedColour(),
+                                     common: MarkupSettings.commonColour())
     private var origin: MarkupPoint?
     private var grip: Int?
     private var grabbed: MarkupPoint?
@@ -41,6 +43,17 @@ final class MarkupSurface: ObservableObject {
     private var pressed = false
     private var ticker: Timer?
     private let opened = Date()
+
+    /// The setting lives in the settings window, the colours live here: the
+    /// switch is heard rather than read, so a colour shared while the editor is
+    /// open spreads at once.
+    init() {
+        NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.matchColourSetting() }
+        }
+    }
 
     var canUndo: Bool { document.canUndo }
     var canRedo: Bool { document.canRedo }
@@ -133,12 +146,12 @@ final class MarkupSurface: ObservableObject {
     }
 
     func ink(for tool: MarkupTool) -> MarkupInk {
-        inks[tool] ?? Self.standardInk(for: tool)
+        book.ink(for: tool, standard: Self.standardInk)
     }
 
     func setInk(_ ink: MarkupInk, for tool: MarkupTool) {
-        inks[tool] = ink
-        MarkupSettings.store(inks: inks)
+        book.set(ink, for: tool, standard: Self.standardInk)
+        rememberInks()
         // A mark in hand is what the user is looking at: colour and width go on
         // IT, not only on the next mark of that kind.
         if let held = selected, held.ink != ink {
@@ -148,6 +161,20 @@ final class MarkupSurface: ObservableObject {
             publish()
         }
         objectWillChange.send()
+    }
+
+    /// A switch thrown in the settings window while this surface is open.
+    private func matchColourSetting() {
+        let wanted = MarkupSettings.sharedColour()
+        guard wanted != book.shared else { return }
+        book.share(wanted, from: tool, standard: Self.standardInk)
+        rememberInks()
+        objectWillChange.send()
+    }
+
+    private func rememberInks() {
+        MarkupSettings.store(inks: book.stored)
+        MarkupSettings.store(commonColour: book.commonColour)
     }
 
     /// The blur being set right now: the selected blur mark's own settings, or

@@ -2487,7 +2487,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Tools: crop, pencil, marker, arrow, line, rectangle, oval, numbered steps,
   text, magnifier, blur, eraser; undo ⌘Z and redo ⇧⌘Z. Every tool remembers its
   own colour and width, so the fat yellow marker and the thin red pencil live
-  side by side. **Fading ink is NOT among them**: ink that disappears is for
+  side by side. **One colour for all tools is a setting**, off by default
+  (Anton, 2026-09-08): switched on, a colour picked for one tool is picked for
+  every tool, and the WIDTH stays each tool's own — for text it is the type
+  size, for the marker the width of the nib, and one number cannot be both.
+  Switching it on takes the colour in hand with it; switching it off leaves
+  every tool with the colour it was drawing in a moment ago rather than
+  snapping back to colours chosen long ago. `MarkupInkBook` holds that with
+  tests; the surface hears the switch through `UserDefaults.didChangeNotification`,
+  so the colours spread while the editor is open. It is one line in the
+  screenshot module's settings and covers the drawing layer too — the two share
+  one surface. **Fading ink is NOT among them**: ink that disappears is for
   talking over a live screen, and a picture about to be saved has no use for it
   (Anton, 2026-09-08). The export reads `surface.lasting` regardless — marks
   alive by the clock rather than by the tick.
