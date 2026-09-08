@@ -2912,7 +2912,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `.hideMenuBar`, Anton, 2026-09-08): a level above them stops the clicks but
   not the hover, and Dock icons went on lighting up and naming themselves under
   a pointer that was drawing. They come back the moment the clicks are handed
-  through again, and on the way out.
+  through again, and on the way out. Those options hold only while Hop is the
+  ACTIVE app, so the layer under the pointer is made key and the app activated
+  with it — an app whose windows all refuse to be main is not active, and the
+  Dock carried on regardless. The panel is also kept to the working area rather
+  than the whole screen, so it does not sit on the Dock in the first place.
+- **⌘Z, ⇧⌘Z and delete work in the panel over the live screen too** (Anton,
+  2026-09-08): they were gated on the window being key, which a non-activating
+  panel never is, so the bare letters picked tools while undo did nothing.
 - **The toolbar is a window of its own**, above the layer and always able to
   take a click. It has to be: `ignoresMouseEvents` belongs to a whole window, so
   a panel living inside the layer went unclickable together with it the moment
@@ -2957,6 +2964,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   opens them (Anton, 2026-09-08). A row of glyphs is not self-explanatory, and
   the second press on the arrow, the caption and the blur was findable only by
   accident. `MarkupToolbar.about` per tool, translated like everything else.
+  **Every button in the panel has one too**: back, forward, clear, copy, save,
+  close, the width, the colour and the button that hands the screen back — that
+  last one saying it is the SCREEN it hands over, not the marks.
+- **The hint is Hop's own, not the system tooltip** (Anton, 2026-09-08). A
+  tooltip belongs to a key window, and the panel over the live screen is a
+  non-activating one that never becomes key: nothing ever appeared there.
+  `MarkupTips` puts a small panel of its own beside the button — a quarter of a
+  second's wait, above the button when the panel is low and below it when the
+  panel is high, and never off the side of the screen. It takes no clicks.
 - The drawing tools are one family of glyphs: each body is built upright and
   turned by the same 45°, and every silhouette is ONE closed outline — two
   shapes sharing an edge stroke it twice, and the joint swells at 19 pt (Anton,

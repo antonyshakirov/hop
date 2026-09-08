@@ -426,7 +426,7 @@ struct ScreenshotEditorView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(L10n.t(.copyLabel, lang))
+            .markupTip(L10n.t(.copyLabel, lang) + "\n" + L10n.t(.mkDoCopy, lang))
 
             Button {
                 saved = editor.save()
@@ -439,7 +439,7 @@ struct ScreenshotEditorView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(L10n.t(.featureSave, lang))
+            .markupTip(L10n.t(.featureSave, lang) + "\n" + L10n.t(.mkDoSave, lang))
         }
         .frame(height: 32)
     }
@@ -455,7 +455,7 @@ struct ScreenshotEditorView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(help)
+        .markupTip(help)
     }
 
     private var undoRedo: some View {
@@ -468,7 +468,7 @@ struct ScreenshotEditorView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(L10n.t(.annotateClear, lang))
+            .markupTip(L10n.t(.annotateClear, lang) + "\n" + L10n.t(.mkDoClear, lang))
 
             Button { editor.surface.undo() } label: {
                 MarkupIcon(glyph: .undo)
@@ -476,6 +476,7 @@ struct ScreenshotEditorView: View {
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
+            .markupTip(L10n.t(.mkUndo, lang) + "\n" + L10n.t(.mkDoUndo, lang))
 
             Button { editor.surface.redo() } label: {
                 MarkupIcon(glyph: .redo)
@@ -483,6 +484,7 @@ struct ScreenshotEditorView: View {
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
+            .markupTip(L10n.t(.mkRedo, lang) + "\n" + L10n.t(.mkDoRedo, lang))
         }
     }
 

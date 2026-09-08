@@ -6,7 +6,9 @@ import SwiftUI
 /// SPEC: .claude/specs/2026-09-07-markup-modules-design.md
 final class MarkupOverlayWindow: NSWindow {
     override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { false }
+    /// SPEC: docs/spec.md — hiding the Dock only holds while Hop is the active
+    /// app, and an app with no main window is not one.
+    override var canBecomeMain: Bool { true }
 
     init(screen: NSScreen, content: NSView) {
         super.init(contentRect: screen.frame,
@@ -57,6 +59,11 @@ final class MarkupOverlayController {
         }
         windows.removeAll()
         make = nil
+    }
+
+    func makeKey(on screen: NSScreen?) {
+        let wanted = screen.flatMap { screen in windows.first { $0.screen == screen } }
+        (wanted ?? windows.first)?.makeKeyAndOrderFront(nil)
     }
 
     /// `true` hands every click to whatever is underneath; the toolbar lives in

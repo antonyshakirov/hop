@@ -76,7 +76,7 @@ struct MarkupToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(L10n.t(.mkWidth, lang))
+        .markupTip(L10n.t(.mkWidth, lang) + "\n" + L10n.t(.mkDoWidth, lang))
         .popover(isPresented: $showingWidth, arrowEdge: popoverEdge) {
             MarkupWidthPopover(surface: surface, lang: lang)
         }
@@ -92,6 +92,7 @@ struct MarkupToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .markupTip(L10n.t(.mkDoColour, lang))
         .popover(isPresented: $showingColour, arrowEdge: popoverEdge) {
             MarkupColourPopover(surface: surface)
         }
@@ -149,7 +150,7 @@ struct MarkupToolbar: View {
         }
         .buttonStyle(.plain)
         .onHover { inside in hovered = inside ? tool : (hovered == tool ? nil : hovered) }
-        .help(tip(for: tool))
+        .markupTip(tip(for: tool))
     }
 
     /// SPEC: docs/spec.md — name and letter, what the tool does, and the second
@@ -723,6 +724,13 @@ struct MarkupKeys: NSViewRepresentable {
         var drop: (() -> Bool)?
         private var monitor: Any?
 
+        /// WORKAROUND: the panel over the live screen is a non-activating one
+        /// and never becomes key, so ⌘Z and delete were dropped there while the
+        /// bare letters went through. SPEC: docs/spec.md
+        private var inCharge: Bool {
+            window is MarkupToolbarWindow || window?.isKeyWindow == true
+        }
+
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
             guard window != nil, monitor == nil else { return }
@@ -734,8 +742,7 @@ struct MarkupKeys: NSViewRepresentable {
 
                 if event.modifierFlags.contains(.command) {
                     // With several editors open only the one in front may act.
-                    guard self.window?.isKeyWindow == true,
-                          event.keyCode == MarkupToolbar.zKeyCode
+                    guard self.inCharge, event.keyCode == MarkupToolbar.zKeyCode
                     else { return event }
                     self.step?(event.modifierFlags.contains(.shift))
                     return nil
@@ -743,7 +750,7 @@ struct MarkupKeys: NSViewRepresentable {
 
                 // 51 backspace, 117 forward delete
                 if event.keyCode == 51 || event.keyCode == 117,
-                   self.window?.isKeyWindow == true, self.drop?() == true {
+                   self.inCharge, self.drop?() == true {
                     return nil
                 }
 

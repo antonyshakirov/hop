@@ -73,7 +73,7 @@ final class ScreenAnnotateController: ObservableObject {
         guard let screen = screen ?? NSScreen.main else { return }
         let size = window.frame.size
         let inset: CGFloat = 28
-        let frame = screen.frame
+        let frame = screen.visibleFrame
         let spot = edge == .top
             ? NSPoint(x: frame.midX - size.width / 2, y: frame.maxY - size.height - inset)
             : NSPoint(x: frame.midX - size.width / 2, y: frame.minY + inset)
@@ -104,7 +104,7 @@ final class ScreenAnnotateController: ObservableObject {
         let centre = NSPoint(x: origin.x + size.width / 2, y: origin.y + size.height / 2)
         let screen = NSScreen.screens.first { $0.frame.contains(centre) }
             ?? toolbarWindow?.screen ?? NSScreen.main
-        guard let frame = screen?.frame else { return origin }
+        guard let frame = screen?.visibleFrame else { return origin }
         let margin: CGFloat = 20
         return NSPoint(x: held(origin.x, span: size.width, from: frame.minX, to: frame.maxX, margin: margin),
                        y: held(origin.y, span: size.height, from: frame.minY, to: frame.maxY, margin: margin))
@@ -128,6 +128,7 @@ final class ScreenAnnotateController: ObservableObject {
         guard NSApp != nil else { return }
         if whole {
             NSApp.activate(ignoringOtherApps: true)
+            overlay.makeKey(on: CaptureController.screenUnderPointer())
             NSApp.presentationOptions = [.hideDock, .hideMenuBar]
         } else if !NSApp.presentationOptions.isEmpty {
             NSApp.presentationOptions = []
@@ -274,7 +275,7 @@ struct ScreenAnnotateToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(L10n.t(.mkUndo, lang))
+        .markupTip(L10n.t(.mkUndo, lang) + "\n" + L10n.t(.mkDoUndo, lang))
 
         Button { surface.redo() } label: {
             MarkupIcon(glyph: .redo)
@@ -283,7 +284,7 @@ struct ScreenAnnotateToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(L10n.t(.mkRedo, lang))
+        .markupTip(L10n.t(.mkRedo, lang) + "\n" + L10n.t(.mkDoRedo, lang))
 
         Button { surface.clear() } label: {
             MarkupIcon(glyph: .clear)
@@ -292,7 +293,7 @@ struct ScreenAnnotateToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(L10n.t(.annotateClear, lang))
+        .markupTip(L10n.t(.annotateClear, lang) + "\n" + L10n.t(.mkDoClear, lang))
 
         Button {
             controller.copyToClipboard()
@@ -306,9 +307,9 @@ struct ScreenAnnotateToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(L10n.t(.copyLabel, lang))
+        .markupTip(L10n.t(.copyLabel, lang) + "\n" + L10n.t(.mkDoCopy, lang))
 
-        action(.save, .featureSave) { controller.save() }
+        action(.save, .featureSave, .mkDoSave) { controller.save() }
         action(.close, .annotateExit) { controller.exit() }
     }
 
@@ -328,10 +329,11 @@ struct ScreenAnnotateToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(L10n.t(.annotateClickMode, lang))
+        .markupTip(L10n.t(.annotateClickMode, lang) + "\n" + L10n.t(.mkDoCursor, lang))
     }
 
-    private func action(_ glyph: MarkupGlyph, _ name: L10nKey, run: @escaping () -> Void) -> some View {
+    private func action(_ glyph: MarkupGlyph, _ name: L10nKey, _ about: L10nKey? = nil,
+                        run: @escaping () -> Void) -> some View {
         Button(action: run) {
             MarkupIcon(glyph: glyph)
                 .foregroundStyle(Theme.textSecondary)
@@ -339,6 +341,6 @@ struct ScreenAnnotateToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(L10n.t(name, lang))
+        .markupTip(L10n.t(name, lang) + (about.map { "\n" + L10n.t($0, lang) } ?? ""))
     }
 }
