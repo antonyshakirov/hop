@@ -24,7 +24,7 @@ struct MarkupCanvas: View {
         }
         .overlay(alignment: .topLeading) { anchorMark }
         .overlay(alignment: .topLeading) { typingField }
-        .overlay { CrosshairArea(active: MarkupCanvas.aims(surface.tool)) }
+        .overlay { CrosshairArea(active: MarkupCanvas.aims(surface.tool)).allowsHitTesting(false) }
         .contentShape(Rectangle())
         .gesture(
             DragGesture(minimumDistance: 0)

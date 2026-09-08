@@ -11,13 +11,10 @@ struct FrameDressingPopover: View {
 
     var body: some View {
         MarkupPopoverBody {
-            Toggle(isOn: Binding(
+            switchRow(L10n.t(.dressLabel, lang), size: 12, isOn: Binding(
                 get: { editor.dressing.isOn },
                 set: { editor.dressing.isOn = $0; editor.refreshPreview() }
-            )) {
-                Text(L10n.t(.dressLabel, lang)).font(Theme.mono(12))
-            }
-            .toggleStyle(.switch)
+            ))
 
             Group {
                 backgrounds
@@ -28,13 +25,10 @@ struct FrameDressingPopover: View {
                 MarkupStepper(title: L10n.t(.dressShadow, lang), value: $editor.dressing.shadow,
                               range: 0...20) { editor.refreshPreview() }
 
-                Toggle(isOn: Binding(
+                switchRow(L10n.t(.dressBrowser, lang), size: 11, isOn: Binding(
                     get: { editor.dressing.browserFrame },
                     set: { editor.dressing.browserFrame = $0; editor.refreshPreview() }
-                )) {
-                    Text(L10n.t(.dressBrowser, lang)).font(Theme.mono(11))
-                }
-                .toggleStyle(.switch)
+                ))
 
                 TextField(L10n.t(.dressAddress, lang), text: Binding(
                     get: { editor.dressing.address },
@@ -101,13 +95,10 @@ struct WatermarkPopover: View {
 
     var body: some View {
         MarkupPopoverBody {
-            Toggle(isOn: Binding(
+            switchRow(L10n.t(.markLabel, lang), size: 12, isOn: Binding(
                 get: { editor.watermark.isOn },
                 set: { editor.watermark.isOn = $0; editor.refreshPreview() }
-            )) {
-                Text(L10n.t(.markLabel, lang)).font(Theme.mono(12))
-            }
-            .toggleStyle(.switch)
+            ))
 
             Group {
                 TextField(L10n.t(.markText, lang), text: Binding(
@@ -129,13 +120,10 @@ struct WatermarkPopover: View {
                 MarkupStepper(title: L10n.t(.markSize, lang), value: $editor.watermark.size,
                               range: 1...20) { editor.refreshPreview() }
 
-                Toggle(isOn: Binding(
+                switchRow(L10n.t(.markTiled, lang), size: 11, isOn: Binding(
                     get: { editor.watermark.tiled },
                     set: { editor.watermark.tiled = $0; editor.refreshPreview() }
-                )) {
-                    Text(L10n.t(.markTiled, lang)).font(Theme.mono(11))
-                }
-                .toggleStyle(.switch)
+                ))
 
                 // A tile covers the whole frame; a corner is meaningless then.
                 spots
@@ -185,6 +173,16 @@ struct WatermarkPopover: View {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         editor.watermark.imageName = WatermarkRenderer.store(imageAt: url)
         editor.refreshPreview()
+    }
+}
+
+/// The panel's own switch, at the panel's own size and green. A stock
+/// `Toggle(.switch)` next to it is half again as tall.
+private func switchRow(_ title: String, size: CGFloat, isOn: Binding<Bool>) -> some View {
+    HStack {
+        Text(title).font(Theme.mono(size)).foregroundStyle(Theme.textPrimary)
+        Spacer(minLength: 8)
+        Theme.MiniSwitch(isOn: isOn)
     }
 }
 

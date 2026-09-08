@@ -83,7 +83,9 @@ enum WatermarkRenderer {
         guard !text.isEmpty else { return nil }
         let attributes: [NSAttributedString.Key: Any] = [
             .font: NSFont.systemFont(ofSize: height, weight: .semibold),
-            .foregroundColor: NSColor.white,
+            // Mid grey, not white: the mark has to hold on a dark screenshot
+            // and on a white page, and white disappears on the second.
+            .foregroundColor: NSColor(white: 0.5, alpha: 1),
         ]
         let line = NSAttributedString(string: text, attributes: attributes)
         let size = line.size()

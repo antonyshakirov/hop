@@ -103,53 +103,9 @@ struct ScreenshotEditorView: View {
     @State private var showingWatermark = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            stage
-        }
-        .background(Theme.panelBackground)
-        .frame(minWidth: 720, maxWidth: .infinity, minHeight: 380, maxHeight: .infinity)
-    }
-
-    private var header: some View {
-        HStack(spacing: 10) {
-            Text(L10n.t(.shotLabel, lang))
-                .font(Theme.mono(12))
-                .foregroundStyle(Theme.textTertiary)
-                .lineLimit(1)
-
-            Spacer(minLength: 12)
-
-            TextField("", text: $editor.fileName)
-                .textFieldStyle(.plain)
-                .font(Theme.mono(12))
-                .padding(.horizontal, 10).padding(.vertical, 7)
-                .background(RoundedRectangle(cornerRadius: 7).fill(Theme.fieldBg))
-                .frame(maxWidth: 300)
-
-            // One height for both: a stroke and a fill measure differently once
-            // each is left to its own padding.
-            Button(L10n.t(.copyLabel, lang)) { editor.copyToClipboard() }
-                .buttonStyle(.plain)
-                .font(Theme.mono(12))
-                .padding(.horizontal, 14)
-                .frame(height: 30)
-                .background(RoundedRectangle(cornerRadius: 7).strokeBorder(Theme.controlStroke))
-
-            Button(L10n.t(.featureSave, lang)) {
-                saved = editor.save()
-                if saved != nil { onClose() }
-            }
-            .buttonStyle(.plain)
-            .font(Theme.mono(12, weight: .semibold))
-            .foregroundStyle(Theme.playFg)
-            .padding(.horizontal, 14)
-            .frame(height: 30)
-            .background(RoundedRectangle(cornerRadius: 7).fill(Theme.playBg))
-        }
-        .padding(.horizontal, 14)
-        .frame(height: 46)
+        stage
+            .background(Theme.panelBackground)
+            .frame(minWidth: 960, maxWidth: .infinity, minHeight: 380, maxHeight: .infinity)
     }
 
     private var stage: some View {
@@ -177,7 +133,8 @@ struct ScreenshotEditorView: View {
                                    size: geometry.size,
                                    lang: lang,
                                    trailing: AnyView(undoRedo),
-                                   leading: AnyView(picture))
+                                   leading: AnyView(picture),
+                                   companion: AnyView(keeping))
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .background(MarkupKeys(surface: editor.surface, tools: ScreenshotEditor.tools))
@@ -200,6 +157,43 @@ struct ScreenshotEditorView: View {
                          arrowEdge: editor.edge == .top ? .bottom : .top) {
                     WatermarkPopover(editor: editor, lang: lang)
                 }
+        }
+    }
+
+    /// Where the picture goes when it is done: its name, a copy, a save. Its
+    /// own small panel beside the tools rather than a bar across the top — the
+    /// window is for the picture.
+    private var keeping: some View {
+        HStack(spacing: 6) {
+            TextField("", text: $editor.fileName)
+                .textFieldStyle(.plain)
+                .font(Theme.mono(11))
+                .lineLimit(1)
+                .padding(.horizontal, 8)
+                .frame(width: 130, height: 26)
+                .background(RoundedRectangle(cornerRadius: 7).fill(Theme.fieldBg))
+
+            Button { editor.copyToClipboard() } label: {
+                MarkupIcon(glyph: .copy)
+                    .foregroundStyle(Theme.textSecondary)
+                    .frame(width: 32, height: 32)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(L10n.t(.copyLabel, lang))
+
+            Button {
+                saved = editor.save()
+                if saved != nil { onClose() }
+            } label: {
+                MarkupIcon(glyph: .save)
+                    .foregroundStyle(Theme.playFg)
+                    .frame(width: 32, height: 32)
+                    .background(RoundedRectangle(cornerRadius: 7).fill(Theme.playBg))
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(L10n.t(.featureSave, lang))
         }
     }
 

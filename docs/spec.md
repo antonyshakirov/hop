@@ -2425,8 +2425,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   fit the display and never blown up past its own pixels. It does NOT reopen at
   the size it was left: a window remembering 16:9 for a tall shot is a window
   with dead black space above and below the picture, which is what it had
-  (Anton, 2026-09-08). The floor is 720 × 380 — the toolbar lying flat is about
-  660pt wide — and a shot smaller than that is scaled up inside it instead. Below
+  (Anton, 2026-09-08). The floor is 960 × 380 — the tools and the keeping panel
+  lying flat are about 930pt wide — and a shot smaller than that is scaled up inside it instead. Below
   700pt of height the toolbar refuses the left and right edges: standing on end
   it would be cut off with no way to grab it back.
 - **"One window with tabs" is a setting** (`shotOneWindow`, off). On, the windows
@@ -2453,9 +2453,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   a click on the tile brings back even a minimized one. They leave the list a
   tick after `windowWillClose`, because the delegate reads it from its own
   observer of that same notification.
-- The header is the name of the file and two buttons, copy and save. **The
-  format is not asked in the window** (Anton, 2026-09-08): it is one line in the
-  module's settings, and the window is for the picture.
+- **There is no header.** The name of the file, a copy and a save live in a small
+  panel of their OWN, beside the tools at the bottom and travelling with them —
+  a bar across the top was a black plate with a rule under it, eating the height
+  the picture was meant to have (Anton, 2026-09-08). The window keeps an ordinary
+  thin title bar, so the traffic lights do not sit on the shot. **The format is
+  not asked in the window**: it is one line in the module's settings.
 - Tools: crop, pencil, marker, arrow, line, rectangle, oval, numbered
   steps, text, magnifier, blur, eraser; undo ⌘Z and redo ⇧⌘Z. Every tool
   remembers its own colour and width, so the fat yellow marker and the thin red
@@ -2484,7 +2487,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   several editors open, an undo must not reach into the ones behind.
 - **A two-point tool marks where it started**: a small white cross at the anchor
   while the shape is being pulled out of it, and a crosshair pointer over the
-  picture while such a tool is in hand. Which corner a rectangle grew from was
+  picture while such a tool is in hand. The pointer's view takes no hits — an
+  overlay that answers SwiftUI's hit test swallows the drag under it, and
+  nothing draws at all. Which corner a rectangle grew from was
   otherwise invisible (Anton, 2026-09-08).
 - **Option draws from the centre, shift keeps it regular** — a square, a circle,
   a line on one of eight bearings. The rule is a pure function in
@@ -2509,7 +2514,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   switch. The five spots are hidden while it tiles — a tile covers the whole
   frame and a corner means nothing then. An image chosen here is COPIED into
   `Application Support/Hop/`, so a file moved or deleted later cannot silently
-  empty the mark.
+  empty the mark. Text is stamped in MID GREY, never white: the mark has to hold
+  on a dark screenshot and on a white page, and white disappears on the second
+  (Anton, 2026-09-08).
+- **They use the panel's own switch** (`Theme.MiniSwitch`, 30 × 18, the panel's
+  green), not a stock `Toggle(.switch)`: next to everything else Hop draws, the
+  system switch is half again as tall and a different colour (Anton, 2026-09-08).
 - **Neither panel hides its controls behind its own switch.** An `NSPopover`
   keeps the size it was first handed, so a panel that grew when the switch was
   ticked stayed the size of the tick and showed nothing else (Anton,

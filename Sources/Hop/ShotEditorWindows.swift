@@ -27,7 +27,7 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
         let editor = ScreenshotEditor(base: image, rect: rect)
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1180, height: 760),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered, defer: false
         )
         let key = ObjectIdentifier(window)
@@ -106,16 +106,16 @@ final class ShotEditorWindows: NSObject, NSWindowDelegate {
         let room = (screen ?? NSScreen.main)?.visibleFrame.size
             ?? NSSize(width: 1440, height: 900)
         let fit = min(room.width * 0.92 / max(shot.width, 1),
-                      (room.height * 0.92 - headerHeight) / max(shot.height, 1),
+                      room.height * 0.92 / max(shot.height, 1),
                       1)
         return NSSize(width: max(minimum.width, shot.width * fit),
-                      height: max(minimum.height, shot.height * fit + headerHeight))
+                      height: max(minimum.height, shot.height * fit))
     }
 
-    private static let headerHeight: CGFloat = 47
-    /// Lying flat the toolbar is about 660pt wide; the height only has to hold
-    /// the picture, and a short window keeps the toolbar off its sides.
-    private static let minimum = NSSize(width: 720, height: 380)
+    /// Lying flat the tools and the keeping panel are about 930pt wide; the
+    /// height only has to hold the picture, and a short window keeps the
+    /// toolbar off its sides.
+    private static let minimum = NSSize(width: 960, height: 380)
 
     // MARK: - Closing
 

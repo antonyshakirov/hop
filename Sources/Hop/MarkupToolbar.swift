@@ -381,13 +381,20 @@ struct MarkupToolbarLayer: View {
     var lang: AppLanguage
     var trailing: AnyView?
     var leading: AnyView?
+    /// A panel of its own beside the toolbar, moving and turning with it.
+    var companion: AnyView?
 
     @State private var dragged: CGSize = .zero
     @State private var spot: CGPoint?
 
     var body: some View {
-        MarkupToolbar(surface: surface, tools: tools, edge: $edge, lang: lang,
-                      trailing: trailing, leading: leading)
+        Group {
+            if edge.isVertical {
+                VStack(spacing: 8) { panels }
+            } else {
+                HStack(spacing: 8) { panels }
+            }
+        }
             .position(place())
             .offset(dragged)
             .gesture(
@@ -401,6 +408,23 @@ struct MarkupToolbarLayer: View {
                         dragged = .zero
                     }
             )
+    }
+
+    @ViewBuilder private var panels: some View {
+        MarkupToolbar(surface: surface, tools: tools, edge: $edge, lang: lang,
+                      trailing: trailing, leading: leading)
+        if let companion {
+            companion
+                .padding(edge.isVertical ? EdgeInsets(top: 8, leading: 7, bottom: 8, trailing: 7)
+                                         : EdgeInsets(top: 7, leading: 8, bottom: 7, trailing: 8))
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Theme.isDark ? Color(white: 0.086) : Color.white)
+                        .overlay(RoundedRectangle(cornerRadius: 14)
+                            .strokeBorder(Theme.controlStroke.opacity(0.6)))
+                        .shadow(color: .black.opacity(Theme.isDark ? 0.6 : 0.16), radius: 14, y: 6)
+                )
+        }
     }
 
     /// Along its edge the panel stays where it was dropped; across it, it sits
