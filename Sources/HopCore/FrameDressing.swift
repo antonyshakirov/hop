@@ -7,6 +7,8 @@ public struct FrameDressing: Equatable, Codable, Sendable {
         case preset(Int)
         case colour(String)
         case gradient(String, String)
+        /// A file copied into Application Support, and how far to blur it (0...20).
+        case picture(String, Int)
     }
 
     public var isOn: Bool

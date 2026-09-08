@@ -1,4 +1,6 @@
 import AppKit
+import CoreImage
+import CoreImage.CIFilterBuiltins
 import HopCore
 
 /// Draws the background, the air around the frame, its rounded corners, the
@@ -12,7 +14,48 @@ enum FrameDressingRenderer {
         (NSColor(hex: "#5CD98C"), NSColor(hex: "#1C6C4C")),
         (NSColor(hex: "#2C2C2E"), NSColor(hex: "#101012")),
         (NSColor(hex: "#F2F0EB"), NSColor(hex: "#D8D4CC")),
+        (NSColor(hex: "#FF9F0A"), NSColor(hex: "#B4430C")),
+        (NSColor(hex: "#FF453A"), NSColor(hex: "#8C1C2C")),
+        (NSColor(hex: "#BF5AF2"), NSColor(hex: "#5C2C8C")),
+        (NSColor(hex: "#40C8C0"), NSColor(hex: "#0C5C5C")),
+        (NSColor(hex: "#8E8E93"), NSColor(hex: "#3A3A3C")),
+        (NSColor(hex: "#FFFFFF"), NSColor(hex: "#E8E8ED")),
     ]
+
+    /// The picture fills the ground, cropped rather than squashed, and blurred
+    /// on the way in so the shot on top of it still reads.
+    private static func paint(picture name: String, blur: Int, in context: CGContext, bounds: CGRect) {
+        guard let url = WatermarkRenderer.storedImageURL(name),
+              let loaded = NSImage(contentsOf: url),
+              var image = loaded.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        else {
+            context.setFillColor(NSColor(hex: "#1C1C1E").cgColor)
+            context.fill(bounds)
+            return
+        }
+
+        if blur > 0 {
+            let radius = Double(blur) * max(bounds.width, bounds.height) / 400
+            let source = CIImage(cgImage: image).clampedToExtent()
+            let filter = CIFilter.gaussianBlur()
+            filter.inputImage = source
+            filter.radius = Float(radius)
+            let ciContext = CIContext()
+            if let blurred = filter.outputImage?.cropped(to: CIImage(cgImage: image).extent),
+               let made = ciContext.createCGImage(blurred, from: blurred.extent) {
+                image = made
+            }
+        }
+
+        let ratio = max(bounds.width / CGFloat(image.width), bounds.height / CGFloat(image.height))
+        let size = CGSize(width: CGFloat(image.width) * ratio, height: CGFloat(image.height) * ratio)
+        let box = CGRect(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2,
+                         width: size.width, height: size.height)
+        context.saveGState()
+        context.clip(to: bounds)
+        context.draw(image, in: box)
+        context.restoreGState()
+    }
 
     static func dress(_ base: CGImage, with dressing: FrameDressing) -> CGImage? {
         guard dressing.isOn else { return base }
@@ -72,6 +115,8 @@ enum FrameDressingRenderer {
             context.fill(bounds)
         case .gradient(let from, let to):
             gradient(from: NSColor(hex: from), to: NSColor(hex: to), in: context, bounds: bounds)
+        case .picture(let name, let blur):
+            paint(picture: name, blur: blur, in: context, bounds: bounds)
         }
     }
 

@@ -2558,15 +2558,27 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   emphasis. The region is a rectangle, an oval or a freehand lasso, and there
   can be several. "Pixels" is offered beside "blur": a blur over small type can
   sometimes be read back, a mosaic cannot.
-- **Frame dressing** (a toolbar button, off by default): a background from six
-  presets, a colour or a two-stop gradient of the user's own; padding, corner
-  radius and shadow as sliders; an optional browser bar with an address the user
-  types. Padding is a share of the frame's SHORTER side, so one setting reads
+- **Frame dressing** (a toolbar button, off by default): a background from
+  twelve presets, a colour of the user's own from the system picker, or a
+  PICTURE of their own — copied into Application Support like the watermark's,
+  filled to the ground rather than squashed, and blurred by a slider of its own
+  so the shot on top of it still reads (Anton, 2026-09-08). Padding, corner
+  radius and shadow are sliders; there is an optional browser bar with an
+  address the user types.
+- **The sliders redraw as they move**, coalesced to one render every 50ms.
+  Waiting for the slider to be let go meant nothing moved while it was being
+  moved (Anton, 2026-09-08); a render per frame at the shot's full resolution is
+  what the coalescing is for. Padding is a share of the frame's SHORTER side, so one setting reads
   the same on a wide shot and a narrow one. "Reset to defaults" is one button.
 - **Watermark** (the toolbar button beside it, off by default): the user's own
   text or an image, with opacity, size, one of five spots and a "tile it"
   switch. The five spots are hidden while it tiles — a tile covers the whole
-  frame and a corner means nothing then. An image chosen here is COPIED into
+  frame and a corner means nothing then — and tiling brings out **how often** it
+  repeats: size and count are separate wishes, and a big mark stamped rarely is a
+  real one (Anton, 2026-09-08). It can also **lean**, 45° either way, tiled or
+  not; a slanted tile starts outside the frame, or the corners it rotates away
+  from come out bare. It sits TOP right by default: the bottom of the editor is
+  where the toolbar floats, and a mark under it cannot be seen at all. An image chosen here is COPIED into
   `Application Support/Hop/`, so a file moved or deleted later cannot silently
   empty the mark. Text is stamped in MID GREY, never white: the mark has to hold
   on a dark screenshot and on a white page, and white disappears on the second

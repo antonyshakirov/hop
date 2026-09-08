@@ -35,9 +35,27 @@ final class WatermarkTests: XCTestCase {
 
     /// Stamps laid edge to edge read as a wall; the step leaves air between.
     func testTilingLeavesAirBetweenTheStamps() {
-        let step = Watermark.tileStep(of: mark)
+        let step = Watermark.tileStep(of: mark, spread: 80)
         XCTAssertGreaterThan(step.x, mark.x)
         XCTAssertGreaterThan(step.y, mark.y)
+    }
+
+    /// Size and count are separate wishes: a big mark repeated rarely is a
+    /// real one, and the spread is what says how rarely.
+    func testTheSpreadSetsHowOftenTheMarkRepeats() {
+        let mark = MarkupPoint(x: 100, y: 40)
+        let tight = Watermark.tileStep(of: mark, spread: 10)
+        let loose = Watermark.tileStep(of: mark, spread: 300)
+        XCTAssertGreaterThan(loose.x, tight.x)
+        XCTAssertGreaterThan(tight.x, mark.x, "stamps must never sit on each other")
+    }
+
+    func testAnAbsurdSpreadIsBroughtBackIntoRange() {
+        let mark = MarkupPoint(x: 10, y: 10)
+        XCTAssertEqual(Watermark.tileStep(of: mark, spread: -500),
+                       Watermark.tileStep(of: mark, spread: 10))
+        XCTAssertEqual(Watermark.tileStep(of: mark, spread: 5000),
+                       Watermark.tileStep(of: mark, spread: 300))
     }
 
     /// The mark is measured against the shorter side, so it does not swell to

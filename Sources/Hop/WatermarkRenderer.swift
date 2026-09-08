@@ -23,12 +23,16 @@ enum WatermarkRenderer {
         let inset = min(frame.x, frame.y) * 0.03
 
         if watermark.tiled {
-            let step = Watermark.tileStep(of: size)
-            var y = 0.0
-            while y < frame.y {
-                var x = 0.0
-                while x < frame.x {
-                    context.draw(mark, in: CGRect(x: x, y: y, width: size.x, height: size.y))
+            let step = Watermark.tileStep(of: size, spread: watermark.spread)
+            // A slanted tile has to start outside the frame, or the corners it
+            // rotates away from come out bare.
+            let reach = watermark.slant == 0 ? 0.0 : max(size.x, size.y) + max(frame.x, frame.y) * 0.2
+            var y = -reach
+            while y < frame.y + reach {
+                var x = -reach
+                while x < frame.x + reach {
+                    place(mark, at: CGRect(x: x, y: y, width: size.x, height: size.y),
+                          slant: watermark.slant, in: context)
                     x += step.x
                 }
                 y += step.y
@@ -36,15 +40,31 @@ enum WatermarkRenderer {
         } else {
             let spot = Watermark.origin(of: size, in: frame, spot: watermark.spot, inset: inset)
             // The spot is named from the top; Core Graphics counts from below.
-            context.draw(mark, in: CGRect(x: spot.x, y: frame.y - spot.y - size.y,
-                                          width: size.x, height: size.y))
+            place(mark, at: CGRect(x: spot.x, y: frame.y - spot.y - size.y,
+                                   width: size.x, height: size.y),
+                  slant: watermark.slant, in: context)
         }
         return context.makeImage()
     }
 
+    private static func place(
+        _ mark: CGImage, at box: CGRect, slant: Int, in context: CGContext
+    ) {
+        guard slant != 0 else {
+            context.draw(mark, in: box)
+            return
+        }
+        context.saveGState()
+        context.translateBy(x: box.midX, y: box.midY)
+        context.rotate(by: CGFloat(Double(slant) * .pi / 180))
+        context.draw(mark, in: CGRect(x: -box.width / 2, y: -box.height / 2,
+                                      width: box.width, height: box.height))
+        context.restoreGState()
+    }
+
     /// Where an image watermark is kept: a copy of its own, so a file moved or
     /// deleted later cannot silently empty the mark.
-    static func store(imageAt url: URL) -> String? {
+    static func store(imageAt url: URL, called stem: String = "watermark") -> String? {
         guard let support = try? FileManager.default.url(
             for: .applicationSupportDirectory, in: .userDomainMask,
             appropriateFor: nil, create: true
@@ -52,7 +72,7 @@ enum WatermarkRenderer {
 
         let folder = support.appendingPathComponent("Hop", isDirectory: true)
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        let name = "watermark.\(url.pathExtension.isEmpty ? "png" : url.pathExtension)"
+        let name = "\(stem).\(url.pathExtension.isEmpty ? "png" : url.pathExtension)"
         let destination = folder.appendingPathComponent(name)
         try? FileManager.default.removeItem(at: destination)
         do {

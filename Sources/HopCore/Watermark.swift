@@ -23,10 +23,15 @@ public struct Watermark: Equatable, Codable, Sendable {
     public var size: Int
     public var spot: Spot
     public var tiled: Bool
+    /// Air between tiles, 10...300 per cent of the mark's own size. Size and
+    /// count are separate wishes: a big mark repeated rarely is a real one.
+    public var spread: Int
+    /// -45, 0 or 45 degrees.
+    public var slant: Int
 
     public init(
         isOn: Bool, text: String, imageName: String?, opacity: Int,
-        size: Int, spot: Spot, tiled: Bool
+        size: Int, spot: Spot, tiled: Bool, spread: Int = 80, slant: Int = 0
     ) {
         self.isOn = isOn
         self.text = text
@@ -35,11 +40,15 @@ public struct Watermark: Equatable, Codable, Sendable {
         self.size = size
         self.spot = spot
         self.tiled = tiled
+        self.spread = spread
+        self.slant = slant
     }
 
+    /// Top right by default: the bottom of the editor is where the toolbar
+    /// floats, and a mark under it cannot be seen at all.
     public static let standard = Watermark(
         isOn: false, text: "", imageName: nil, opacity: 40,
-        size: 5, spot: .bottomTrailing, tiled: false
+        size: 5, spot: .topTrailing, tiled: false, spread: 80, slant: 0
     )
 
     public var hasSomethingToStamp: Bool {
@@ -69,7 +78,8 @@ public struct Watermark: Equatable, Codable, Sendable {
         }
     }
 
-    public static func tileStep(of mark: MarkupPoint) -> MarkupPoint {
-        MarkupPoint(x: mark.x * 1.8, y: mark.y * 1.8)
+    public static func tileStep(of mark: MarkupPoint, spread: Int) -> MarkupPoint {
+        let air = 1 + Double(max(10, min(300, spread))) / 100
+        return MarkupPoint(x: mark.x * air, y: mark.y * air)
     }
 }

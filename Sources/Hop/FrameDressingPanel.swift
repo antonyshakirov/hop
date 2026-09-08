@@ -19,11 +19,19 @@ struct FrameDressingPopover: View {
             Group {
                 backgrounds
                 MarkupStepper(title: L10n.t(.dressPadding, lang), value: $editor.dressing.padding,
-                              range: 0...20) { editor.refreshPreview() }
+                              range: 0...20) { editor.scheduleRefresh() }
                 MarkupStepper(title: L10n.t(.dressCorners, lang), value: $editor.dressing.corners,
-                              range: 0...20) { editor.refreshPreview() }
+                              range: 0...20) { editor.scheduleRefresh() }
                 MarkupStepper(title: L10n.t(.dressShadow, lang), value: $editor.dressing.shadow,
-                              range: 0...20) { editor.refreshPreview() }
+                              range: 0...20) { editor.scheduleRefresh() }
+                if case .picture = editor.dressing.background {
+                    MarkupStepper(title: L10n.t(.blurStrength, lang),
+                                  value: Binding(
+                                    get: { pictureBlur },
+                                    set: { setPictureBlur($0) }
+                                  ),
+                                  range: 0...20) { editor.scheduleRefresh() }
+                }
 
                 switchRow(L10n.t(.dressBrowser, lang), size: 11, isOn: Binding(
                     get: { editor.dressing.browserFrame },
@@ -58,27 +66,99 @@ struct FrameDressingPopover: View {
     private var backgrounds: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(L10n.t(.dressBackground, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+            presetRow(0..<6)
+            presetRow(6..<FrameDressingRenderer.presets.count)
+
             HStack(spacing: 8) {
-                ForEach(0..<FrameDressingRenderer.presets.count, id: \.self) { index in
-                    let pair = FrameDressingRenderer.presets[index]
-                    Button {
-                        editor.dressing.background = .preset(index)
+                Button {
+                    MarkupColourPanel.shared.show(startingAt: ownColour) { picked in
+                        editor.dressing.background = .colour(picked.markupHex)
                         editor.refreshPreview()
-                    } label: {
-                        LinearGradient(colors: [Color(nsColor: pair.0), Color(nsColor: pair.1)],
-                                       startPoint: .topLeading, endPoint: .bottomTrailing)
-                            .frame(width: 24, height: 24)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .strokeBorder(Theme.glyphInk.opacity(chosen(index) ? 0.9 : 0.16),
-                                                  lineWidth: chosen(index) ? 2 : 1)
-                            )
                     }
-                    .buttonStyle(.plain)
+                } label: {
+                    Circle()
+                        .fill(AngularGradient(colors: [.red, .yellow, .green, .cyan, .blue, .purple, .red],
+                                              center: .center))
+                        .frame(width: 24, height: 24)
+                        .overlay(Circle().strokeBorder(
+                            Theme.glyphInk.opacity(isOwnColour ? 0.9 : 0.2),
+                            lineWidth: isOwnColour ? 2 : 1))
+                        .contentShape(Circle())
                 }
+                .buttonStyle(.plain)
+
+                Button { pickBackground() } label: {
+                    MarkupIcon(glyph: .dressing, size: 15)
+                        .foregroundStyle(Theme.textSecondary)
+                        .frame(width: 24, height: 24)
+                        .background(RoundedRectangle(cornerRadius: 6).fill(Theme.rowBg))
+                        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(
+                            Theme.glyphInk.opacity(isPicture ? 0.9 : 0.16),
+                            lineWidth: isPicture ? 2 : 1))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(L10n.t(.markImage, lang))
             }
         }
+    }
+
+    private func presetRow(_ range: Range<Int>) -> some View {
+        HStack(spacing: 8) {
+            ForEach(range, id: \.self) { index in
+                let pair = FrameDressingRenderer.presets[index]
+                Button {
+                    editor.dressing.background = .preset(index)
+                    editor.refreshPreview()
+                } label: {
+                    LinearGradient(colors: [Color(nsColor: pair.0), Color(nsColor: pair.1)],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                        .frame(width: 24, height: 24)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .strokeBorder(Theme.glyphInk.opacity(chosen(index) ? 0.9 : 0.16),
+                                              lineWidth: chosen(index) ? 2 : 1)
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var isOwnColour: Bool {
+        if case .colour = editor.dressing.background { return true }
+        return false
+    }
+
+    private var isPicture: Bool {
+        if case .picture = editor.dressing.background { return true }
+        return false
+    }
+
+    private var ownColour: String {
+        if case .colour(let hex) = editor.dressing.background { return hex }
+        return "#1C1C1E"
+    }
+
+    private var pictureBlur: Int {
+        if case .picture(_, let blur) = editor.dressing.background { return blur }
+        return 0
+    }
+
+    private func setPictureBlur(_ blur: Int) {
+        guard case .picture(let name, _) = editor.dressing.background else { return }
+        editor.dressing.background = .picture(name, blur)
+    }
+
+    private func pickBackground() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.png, .jpeg, .tiff, .heic]
+        panel.allowsMultipleSelection = false
+        guard panel.runModal() == .OK, let url = panel.url,
+              let name = WatermarkRenderer.store(imageAt: url, called: "backdrop") else { return }
+        editor.dressing.background = .picture(name, pictureBlur)
+        editor.refreshPreview()
     }
 
     private func chosen(_ index: Int) -> Bool {
@@ -116,14 +196,20 @@ struct WatermarkPopover: View {
                     .foregroundStyle(Theme.textSecondary)
 
                 MarkupStepper(title: L10n.t(.markOpacity, lang), value: $editor.watermark.opacity,
-                              range: 5...100) { editor.refreshPreview() }
+                              range: 5...100) { editor.scheduleRefresh() }
                 MarkupStepper(title: L10n.t(.markSize, lang), value: $editor.watermark.size,
-                              range: 1...20) { editor.refreshPreview() }
+                              range: 1...20) { editor.scheduleRefresh() }
+                slants
 
                 switchRow(L10n.t(.markTiled, lang), size: 11, isOn: Binding(
                     get: { editor.watermark.tiled },
                     set: { editor.watermark.tiled = $0; editor.refreshPreview() }
                 ))
+
+                if editor.watermark.tiled {
+                    MarkupStepper(title: L10n.t(.markSpread, lang), value: $editor.watermark.spread,
+                                  range: 10...300) { editor.scheduleRefresh() }
+                }
 
                 // A tile covers the whole frame; a corner is meaningless then.
                 spots
@@ -132,6 +218,28 @@ struct WatermarkPopover: View {
             }
             .disabled(!editor.watermark.isOn)
             .opacity(editor.watermark.isOn ? 1 : 0.35)
+        }
+    }
+
+    private var slants: some View {
+        HStack(spacing: 6) {
+            Text(L10n.t(.markSlant, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+            Spacer(minLength: 6)
+            ForEach([-45, 0, 45], id: \.self) { angle in
+                Button {
+                    editor.watermark.slant = angle
+                    editor.refreshPreview()
+                } label: {
+                    Text("Aa")
+                        .font(Theme.mono(9))
+                        .rotationEffect(.degrees(Double(angle)))
+                        .frame(width: 34, height: 26)
+                        .background(RoundedRectangle(cornerRadius: 6)
+                            .fill(editor.watermark.slant == angle ? Theme.chipBg : Theme.rowBg))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 
@@ -221,10 +329,9 @@ private struct MarkupStepper: View {
             Slider(
                 value: Binding(
                     get: { Double(value) },
-                    set: { value = Int($0.rounded()) }
+                    set: { value = Int($0.rounded()); settled() }
                 ),
-                in: Double(range.lowerBound)...Double(range.upperBound),
-                onEditingChanged: { editing in if !editing { settled() } }
+                in: Double(range.lowerBound)...Double(range.upperBound)
             )
         }
     }

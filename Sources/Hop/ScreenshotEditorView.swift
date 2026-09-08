@@ -103,6 +103,21 @@ final class ScreenshotEditor: ObservableObject {
         cropDraft = CGRect(origin: .zero, size: full)
     }
 
+    private var refreshPending = false
+
+    /// A slider dragged is a render per frame at the shot's full resolution, so
+    /// the calls are coalesced. Waiting for the slider to be let go instead
+    /// meant nothing moved while it was being moved.
+    func scheduleRefresh() {
+        guard !refreshPending else { return }
+        refreshPending = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            guard let self else { return }
+            self.refreshPending = false
+            self.refreshPreview()
+        }
+    }
+
     func refreshPreview() {
         guard dressing.isOn || watermark.hasSomethingToStamp else {
             dressedPreview = nil
