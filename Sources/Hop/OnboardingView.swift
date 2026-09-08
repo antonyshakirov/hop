@@ -359,6 +359,10 @@ struct OnboardingView: View {
             ArchiveWindowView(preview: true).environmentObject(previewModel)
         case "ocr":
             ScreenTextArt(lang: lang)
+        case "shot":
+            ShotArt(lang: lang)
+        case "annotate":
+            AnnotateArt(lang: lang)
         case "keyboard":
             KeyboardLockArt(lang: lang)
         case "uninstall":

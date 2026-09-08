@@ -194,19 +194,28 @@ public enum ModuleCatalog {
         modulesWithSettings.contains(id)
     }
 
-    /// The onboarding's screens, one per theme: sixteen switches on a single
-    /// page said nothing about what any of them did. The view layer supplies
-    /// each group's title; the order here is the order the wizard walks. "apps"
-    /// is not a module until a grid exists, so it rides along as an id the
-    /// catalog does not carry. SPEC: docs/spec.md — "Onboarding".
-    public static let onboardingGroups: [[String]] = [
-        ["timer", "tracker", "todos"],
-        ["convert", "archive"],
-        ["clipboard", "color", "ocr"],
-        ["shot", "annotate"],
-        ["system", "awake", "keyboard"],
-        ["speedtest", "vpn", "torrent"],
-        ["windows", "apps", "uninstall"],
+    /// The onboarding's screens, each carrying the name of the string that
+    /// titles it. "apps" is not a module until a grid exists, so it rides along
+    /// as an id the catalog does not carry.
+    /// SPEC: docs/spec.md — "Onboarding".
+    public struct OnboardingGroup: Equatable, Sendable {
+        public let titleID: String
+        public let modules: [String]
+
+        public init(titleID: String, modules: [String]) {
+            self.titleID = titleID
+            self.modules = modules
+        }
+    }
+
+    public static let onboardingGroups: [OnboardingGroup] = [
+        OnboardingGroup(titleID: "onbGroupTime", modules: ["timer", "tracker", "todos"]),
+        OnboardingGroup(titleID: "onbGroupFiles", modules: ["convert", "archive"]),
+        OnboardingGroup(titleID: "onbGroupScreen", modules: ["clipboard", "color", "ocr"]),
+        OnboardingGroup(titleID: "onbGroupMarkup", modules: ["shot", "annotate"]),
+        OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard"]),
+        OnboardingGroup(titleID: "onbGroupNetwork", modules: ["speedtest", "vpn", "torrent"]),
+        OnboardingGroup(titleID: "onbGroupDesk", modules: ["windows", "apps", "uninstall"]),
     ]
 
     public static func module(_ id: String) -> ModuleEntry? {

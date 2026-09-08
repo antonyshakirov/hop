@@ -646,6 +646,12 @@ enum Snapshot {
             content = AnyView(TorrentAddSheet(source: .link("magnet:?xt=urn:btih:demo"), torrent: model.torrent) {})
         } else if args.contains("--onboarding") {
             // First-launch form (module choices incl. torrents) for design review.
+            // `--onboarding-step N` renders one screen of the wizard: the step is
+            // stored, so setting it before the view is built is all it takes.
+            if let i = args.firstIndex(of: "--onboarding-step"), args.count > i + 1,
+               let step = Int(args[i + 1]) {
+                UserDefaults.standard.set(step, forKey: SettingsKey.onboardingStep)
+            }
             content = AnyView(
                 OnboardingView(updater: model.updater, shelves: model.appShelves, finish: {})
                     .frame(width: 880, height: 700)

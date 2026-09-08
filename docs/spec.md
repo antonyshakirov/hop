@@ -402,7 +402,19 @@ Recognition and the keyboard lock get a DRAWN picture instead
 came off the screen, and a row of durations does not show a locked keyboard. So
 recognition is a picture with a marquee across part of it and the lines that came
 out of it beside it, and the lock is a keyboard of dimmed keys with a lock over
-them.
+them. **The two markup modules are drawn too** (Anton, 2026-09-08): the
+screenshot is a screen with a dashed frame over part of it and, beside it, the
+piece that came out with a red mark on it; the drawing layer is a screen inside
+the yellow border of the mode, with its tag and marks lying over what was
+already there. Their panel rows are a line of words apiece and say nothing about
+either.
+
+**A group carries the name of its own screen** (`ModuleCatalog.OnboardingGroup`,
+2026-09-08). The wizard's screens and their headings used to be two lists paired
+by position: a group added to one and not the other wore its neighbour's name,
+and the last group — the window zones, the app grids, the uninstaller — fell off
+the end of the pairing and was never shown at all. The title's key now travels
+with the group.
 
 **Every picture shows the module at work, never its empty plate** (Anton,
 2026-09-05): a drop zone, an add button or a row of durations says what you can

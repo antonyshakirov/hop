@@ -17,6 +17,8 @@ enum ModulePresentation {
         case "torrent": return .torrentLabel
         case "color": return .colorLabel
         case "ocr": return .ocrLabel
+        case "shot": return .shotLabel
+        case "annotate": return .annotateLabel
         case "archive": return .archiveLabel
         case "keyboard": return .keylockLabel
         case "vpn": return .vpnLabel
@@ -40,6 +42,8 @@ enum ModulePresentation {
         case "torrent": return .purposeTorrent
         case "color": return .purposeColor
         case "ocr": return .purposeOcr
+        case "shot": return .purposeShot
+        case "annotate": return .purposeAnnotate
         case "archive": return .purposeArchive
         case "keyboard": return .purposeKeyboard
         case "vpn": return .purposeVpn
@@ -86,6 +90,8 @@ enum ModulePresentation {
         case "torrent": return "arrow.down.circle"
         case "color": return "paintpalette"
         case "ocr": return "text.viewfinder"
+        case "shot": return "camera.viewfinder"
+        case "annotate": return "pencil.tip"
         case "archive": return "archivebox"
         case "keyboard": return "keyboard"
         case "vpn": return "lock.shield"

@@ -151,12 +151,12 @@ final class ModuleCatalogTests: XCTestCase {
     /// offered on a fresh install, and one listed twice would be asked about
     /// twice.
     func testTheOnboardingGroupsCoverEveryModuleExactlyOnce() {
-        let listed = ModuleCatalog.onboardingGroups.flatMap { $0 }
+        let listed = ModuleCatalog.onboardingGroups.flatMap(\.modules)
         XCTAssertEqual(Set(listed).count, listed.count, "a module is listed twice")
         // "apps" is not a module until a grid exists; everything else is.
         XCTAssertEqual(Set(listed).subtracting(["apps"]), Set(ModuleCatalog.allIDs))
         XCTAssertTrue(listed.contains("apps"))
-        XCTAssertTrue(ModuleCatalog.onboardingGroups.allSatisfy { !$0.isEmpty })
+        XCTAssertTrue(ModuleCatalog.onboardingGroups.allSatisfy { !$0.modules.isEmpty })
     }
 
     /// The module page reads this to decide whether a rule belongs under the
@@ -267,9 +267,21 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertTrue(ModuleCatalog.hasSettings("annotate"))
     }
 
+    /// A group whose title is missing is a screen the wizard drops on the floor:
+    /// the two lists used to be paired by position, and the pairing slipped.
+    func testEveryOnboardingGroupNamesItsTitle() {
+        let ids = ModuleCatalog.onboardingGroups.map(\.titleID)
+        XCTAssertEqual(Set(ids).count, ids.count, "two groups share a title")
+        for id in ids {
+            XCTAssertFalse(id.isEmpty, "a group with no title is a screen with no heading")
+        }
+        XCTAssertEqual(ModuleCatalog.onboardingGroups.first { $0.modules.contains("shot") }?.titleID,
+                       "onbGroupMarkup", "the markup pair has a screen of its own")
+    }
+
     /// A module left out of the groups is one nobody learns exists.
     func testTheWizardShowsEveryModule() {
-        let shown = Set(ModuleCatalog.onboardingGroups.flatMap { $0 })
+        let shown = Set(ModuleCatalog.onboardingGroups.flatMap(\.modules))
         for module in ModuleCatalog.modules {
             XCTAssertTrue(shown.contains(module.id), "\(module.id) is in no onboarding group")
         }
