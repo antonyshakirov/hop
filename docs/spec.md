@@ -2407,8 +2407,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   pointer and that is the whole affordance. "Start"/"exit" on the drawing row
   follows, and turns to `Theme.editing` while the layer is up.
 - Hotkeys: ⌃⌥S takes an area out of the box. Window, screen and repeat ship with
-  NO combination and are assigned in the hotkeys page — the letters that would
-  read best were already the window manager's.
+  NO combination — the letters that would read best were already the window
+  manager's — and are assigned in the hotkeys page, where they are LISTED under
+  the row that opens the module, there and on the module's own page
+  (2026-09-08): a key the spec said was assigned in the settings had no row to
+  assign it in.
 - **The selection frame is Hop's own, not `screencapture -i`.** The system tool
   never reports WHICH rectangle was chosen, so "repeat the last area" cannot be
   built on it. It is nonetheless built to READ like the system's: hairlines run
@@ -2902,10 +2905,26 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   is, so you can scroll, click and show something and then pick a pencil again.
   A separate mode switch was the first attempt and it was one entity too many:
   an arrow beside a pencil says nothing about what pressing it does.
+- **A key for the mode, ⌃⌥P out of the box** (Anton, 2026-09-08).
+  `ModuleCatalog.annotatePassAction` — one key, both ways: it hands the screen
+  over and takes it back, so windows can be moved and clicked and the drawing
+  picked up again without going to the panel. It has to be a global combination
+  and not a bare letter like the tools: in the mode that lets clicks through the
+  keyboard belongs to whatever is underneath, and a letter would land in its
+  fields. P because every module and every window zone had already taken its
+  own; it is the ONE non-opening action shipping with a combination, since a key
+  pressed while the layer is up is no use if it has to be found in the settings
+  first. **It is registered only while the layer is on screen**
+  (`HotkeyManager.setDrawingLayerUp`): a key that answers nothing holds no
+  combination away from other apps. The mode key follows its module like every
+  other, so a switched-off drawing module claims neither.
 - While a tool is in hand the layer takes the mouse, a yellow border runs around
   the screen edge and a tag reads "drawing on" — a layer silently eating clicks
   reads as a frozen Mac. With the arrow, the layer stops taking events, the
-  border goes, and the marks stay where they are.
+  border goes, and the marks stay where they are. **The tag carries the mode
+  key** — "drawing on · ⌃⌥P clicks through" — and so does the hint on the
+  button that hands the screen back: in the clicks-through mode nothing is left
+  on screen but the panel, so that is where the way back has to be written.
 - **The drawing layer covers the WHOLE screen, menu bar and Dock included**
   (Anton, 2026-09-08). At `.screenSaver` the layer was drawn over both, but the
   clicks still reached them: a press on the panel where it lay over the Dock
@@ -4670,7 +4689,9 @@ its own database of known apps may do better on real software than it did here.
   free for another module to take (Anton, 2026-09-05; this reverses the
   2026-09-02 rule under which a hidden module kept its key). The zones carry the
   extra `windowsHotkeysOn` question on top of their module's, silencing all
-  eighteen at once while the module is on. `HotkeyManager` claims
+  eighteen at once while the module is on. The drawing layer's mode key carries
+  a question of its own on top of its module's — whether the layer is on screen
+  (`drawingLayerUp`, 2026-09-08). `HotkeyManager` claims
   nothing for an action with no handler — a global shortcut that swallows the
   key and does nothing is worse than no shortcut. The hotkeys page lists only
   what a key can reach: a switched-off module's row is not drawn, and the whole

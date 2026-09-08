@@ -5,7 +5,7 @@ import XCTest
 final class HotkeyActivationTests: XCTestCase {
 
     func testEveryActionIsRegistrable() {
-        let actions = HotkeyActivation.registrable()
+        let actions = HotkeyActivation.registrable(drawingLayerUp: true)
         let expected = ModuleCatalog.modules.reduce(1) { $0 + $1.actions.count }
 
         XCTAssertEqual(actions.count, expected)
@@ -29,9 +29,26 @@ final class HotkeyActivationTests: XCTestCase {
         XCTAssertTrue(actions.contains { $0.storageKey == "hotkey_ocr" }, "another module keeps its key")
     }
 
+    /// SPEC: docs/spec.md — "Draw over the screen": the mode key belongs to a
+    /// layer that is on screen, and holds nothing away from other apps until it is.
+    func testTheDrawingModeKeyIsClaimedOnlyWhileTheLayerIsUp() {
+        let down = HotkeyActivation.registrable()
+        XCTAssertFalse(down.contains(ModuleCatalog.annotatePassAction))
+        XCTAssertTrue(down.contains { $0.storageKey == "hotkey_annotate" },
+                      "the layer is still opened by its own key")
+
+        let up = HotkeyActivation.registrable(drawingLayerUp: true)
+        XCTAssertTrue(up.contains(ModuleCatalog.annotatePassAction))
+    }
+
+    func testTheModeKeyGoesWithItsModule() {
+        let off = HotkeyActivation.registrable(inactiveModules: ["annotate"], drawingLayerUp: true)
+        XCTAssertFalse(off.contains(ModuleCatalog.annotatePassAction))
+    }
+
     func testThePanelKeepsItsKeyWhateverIsSwitchedOff() {
         let actions = HotkeyActivation.registrable(
-            inactiveModules: Set(ModuleCatalog.allIDs))
+            inactiveModules: Set(ModuleCatalog.allIDs), drawingLayerUp: true)
         XCTAssertEqual(actions, [ModuleCatalog.panelAction])
     }
 

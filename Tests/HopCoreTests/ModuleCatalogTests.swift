@@ -44,7 +44,9 @@ final class ModuleCatalogTests: XCTestCase {
     }
 
     /// Every other action ships without a combination and claims nothing on
-    /// anybody's behalf.
+    /// anybody's behalf. The drawing layer's mode key is the one non-opening
+    /// action with a default: it is pressed while the layer is up, and a key
+    /// that has to be assigned first would be found too late.
     func testOnlyTheOpeningActionsCarryADefaultCombo() {
         let withDefaults = ModuleCatalog.modules
             .flatMap(\.actions)
@@ -53,8 +55,8 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertEqual(
             Set(withDefaults),
             ["hotkey_timer", "hotkey_awake", "hotkey_color", "hotkey_ocr", "hotkey_keyboardLock",
-             "hotkey_shot", "hotkey_annotate", "hotkey_convert", "hotkey_archive",
-             "hotkey_uninstall"]
+             "hotkey_shot", "hotkey_annotate", "hotkey_annotate_pass", "hotkey_convert",
+             "hotkey_archive", "hotkey_uninstall"]
         )
         XCTAssertNotNil(ModuleCatalog.panelAction.defaultCombo)
     }
@@ -191,11 +193,22 @@ final class ModuleCatalogTests: XCTestCase {
                        ["open", "repeat", "screen", "window"])
     }
 
-    /// The rest stay free so they collide with nothing.
-    func testOnlyTheTwoOpenActionsClaimACombination() {
+    /// The rest stay free so they collide with nothing. The drawing layer's
+    /// mode key is the exception: it is asked for while the layer is on screen,
+    /// where a combination to look up in the settings is no use.
+    func testOnlyTheOpenActionsAndTheModeKeyClaimACombination() {
         let claimed = ["shot", "annotate"].compactMap { ModuleCatalog.module($0) }
             .flatMap(\.actions).filter { $0.defaultCombo != nil }.map(\.id)
-        XCTAssertEqual(claimed.sorted(), ["open", "open"])
+        XCTAssertEqual(claimed.sorted(), ["open", "open", "pass"])
+    }
+
+    /// SPEC: docs/spec.md — "Draw over the screen".
+    func testTheDrawingLayerHasAKeyForItsMode() {
+        let annotate = ModuleCatalog.module("annotate")
+        XCTAssertEqual(annotate?.actions.map(\.id), ["open", "pass"])
+        XCTAssertEqual(ModuleCatalog.annotatePassAction.defaultCombo,
+                       ModuleCombo(keyCode: 35, modifiers: ModuleCombo.control | ModuleCombo.option),
+                       "⌃⌥P: P for the way past the layer")
     }
 
     /// A combination spoken for twice is dead on a clean install.

@@ -282,6 +282,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
         }
+        hotkeys.setHandler(ModuleCatalog.annotatePassAction) { [weak self] in
+            self?.model.annotate.togglePassing()
+        }
         for action in ModuleCatalog.zoneActions {
             guard let name = action.zoneName,
                   let position = WindowSnapController.Position(rawValue: name) else { continue }

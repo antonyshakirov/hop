@@ -81,6 +81,10 @@ final class HotkeyManager: ObservableObject {
     /// The window-manager's zones, on by default (a missing key reads as ON).
     static let snapHotkeysKey = "windowsHotkeysOn"
 
+    /// Whether the drawing layer is on screen. Its mode key is registered only
+    /// while it is: SPEC: docs/spec.md — "Which combination may be claimed".
+    private var drawingLayerUp = false
+
     private var handlers: [UInt32: () -> Void] = [:]
     private var refs: [UInt32: EventHotKeyRef] = [:]
     private var claimed: [UInt32: Combo] = [:]
@@ -99,7 +103,7 @@ final class HotkeyManager: ObservableObject {
     @discardableResult
     func setCombo(_ combo: Combo, for action: ModuleAction) -> Bool {
         UserDefaults.standard.set(combo.storage, forKey: action.storageKey)
-        guard Self.registrableActions().contains(action) else { return true }
+        guard registrableActions().contains(action) else { return true }
         return register(action)
     }
 
@@ -116,9 +120,16 @@ final class HotkeyManager: ObservableObject {
     /// SPEC: docs/spec.md, "Which combination may be claimed".
     func refreshSnapHotkeys() { refreshModuleHotkeys() }
 
+    /// The drawing layer coming up or going away: its mode key follows.
+    func setDrawingLayerUp(_ up: Bool) {
+        guard drawingLayerUp != up else { return }
+        drawingLayerUp = up
+        refreshModuleHotkeys()
+    }
+
     func refreshModuleHotkeys() {
         installIfNeeded()
-        let allowed = Self.registrableActions()
+        let allowed = registrableActions()
         for action in ModuleCatalog.allActions {
             let claimable = allowed.contains(action)
                 && handlers[action.hotKeyID] != nil
@@ -131,10 +142,11 @@ final class HotkeyManager: ObservableObject {
         }
     }
 
-    private static func registrableActions() -> Set<ModuleAction> {
+    private func registrableActions() -> Set<ModuleAction> {
         Set(HotkeyActivation.registrable(
-            windowZones: UserDefaults.standard.object(forKey: snapHotkeysKey) as? Bool ?? true,
-            inactiveModules: ModuleActivation.inactiveModules()
+            windowZones: UserDefaults.standard.object(forKey: Self.snapHotkeysKey) as? Bool ?? true,
+            inactiveModules: ModuleActivation.inactiveModules(),
+            drawingLayerUp: drawingLayerUp
         ))
     }
 

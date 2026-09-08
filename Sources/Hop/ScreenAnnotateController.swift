@@ -48,6 +48,7 @@ final class ScreenAnnotateController: ObservableObject {
         overlay.setPassesClicks(false)
         takeTheScreen(true)
         showToolbar()
+        HotkeyManager.shared.setDrawingLayerUp(true)
         // Picking a tool IS entering the drawing mode: the arrow at the head of
         // the row is what hands the screen back.
         toolWatch = surface.$tool.dropFirst().sink { [weak self] _ in
@@ -122,6 +123,17 @@ final class ScreenAnnotateController: ObservableObject {
         takeTheScreen(drawing)
     }
 
+    /// SPEC: docs/spec.md — "Draw over the screen", the key for the mode.
+    func togglePassing() {
+        guard isUp else { return }
+        setDrawing(!isDrawing)
+    }
+
+    /// The mode key as it is written on screen; nil while none is set.
+    var passCombo: String? {
+        HotkeyManager.shared.combo(for: ModuleCatalog.annotatePassAction)?.display
+    }
+
     /// SPEC: docs/spec.md — the Dock lights its icons under a pointer that
     /// never reaches it, so while the drawing has the screen it is not there.
     private func takeTheScreen(_ whole: Bool) {
@@ -140,6 +152,7 @@ final class ScreenAnnotateController: ObservableObject {
     }
 
     func exit() {
+        HotkeyManager.shared.setDrawingLayerUp(false)
         takeTheScreen(false)
         toolWatch = nil
         surface.stop()
@@ -214,7 +227,7 @@ struct ScreenAnnotateView: View {
                     .frame(width: screenSize.width, height: screenSize.height)
                     .allowsHitTesting(false)
 
-                Text(L10n.t(.annotateDrawingOn, lang))
+                Text(tag)
                     .font(Theme.mono(11, weight: .semibold))
                     .foregroundStyle(Color.black.opacity(0.86))
                     .padding(.horizontal, 14).padding(.vertical, 5)
@@ -227,6 +240,13 @@ struct ScreenAnnotateView: View {
 
         }
         .frame(width: screenSize.width, height: screenSize.height)
+    }
+
+    /// SPEC: docs/spec.md — the tag carries the mode key.
+    private var tag: String {
+        let on = L10n.t(.annotateDrawingOn, lang)
+        guard let combo = controller.passCombo else { return on }
+        return "\(on) · \(combo) \(L10n.t(.annotateClickMode, lang))"
     }
 }
 
@@ -329,7 +349,14 @@ struct ScreenAnnotateToolbar: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .markupTip(L10n.t(.annotateClickMode, lang) + "\n" + L10n.t(.mkDoCursor, lang))
+        .markupTip(cursorTip)
+    }
+
+    /// SPEC: docs/spec.md — the hint carries the mode key too.
+    private var cursorTip: String {
+        let head = L10n.t(.annotateClickMode, lang) + "\n" + L10n.t(.mkDoCursor, lang)
+        guard let combo = controller.passCombo else { return head }
+        return head + "\n" + combo
     }
 
     private func action(_ glyph: MarkupGlyph, _ name: L10nKey, _ about: L10nKey? = nil,

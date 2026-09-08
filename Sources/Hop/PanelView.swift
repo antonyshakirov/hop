@@ -3735,11 +3735,15 @@ struct PanelView: View {
                 }
             }
 
-            if on, let action = ModuleCatalog.open(key), hotkeys.hasHandler(action) {
+            let keys = moduleHotkeyActions(key)
+            if on, !keys.isEmpty {
                 SettingsGroupLabel(title: t(.hotkeysLabel))
                     .padding(.top, 8)
                 SettingsCard {
-                    hotkeyRow(action, label: moduleTitle(key))
+                    ForEach(keys, id: \.self) { action in
+                        hotkeyRow(action,
+                                  label: action.id == "open" ? moduleTitle(key) : actionLabel(action))
+                    }
                 }
             }
 
@@ -4691,10 +4695,30 @@ struct PanelView: View {
         tabsModel.tabID(containing: key) != nil && !tabsModel.isHidden(key)
     }
 
+    /// Every key a module answers to, not only the one that opens it: the
+    /// screenshot's window/screen/repeat and the drawing layer's mode key ship
+    /// with no combination of their own and this page is where they are given
+    /// one. SPEC: docs/spec.md — hotkeys.
     @ViewBuilder
     private func moduleHotkeyRow(_ module: String, label: String) -> some View {
-        if let action = ModuleCatalog.open(module) {
-            hotkeyRow(action, label: label)
+        ForEach(moduleHotkeyActions(module), id: \.self) { action in
+            hotkeyRow(action, label: action.id == "open" ? label : actionLabel(action))
+        }
+    }
+
+    private func moduleHotkeyActions(_ module: String) -> [ModuleAction] {
+        (ModuleCatalog.module(module)?.actions ?? [])
+            .filter { !$0.isWindowZone && hotkeys.hasHandler($0) }
+    }
+
+    /// What a module's second key does, in its own words.
+    private func actionLabel(_ action: ModuleAction) -> String {
+        switch action.id {
+        case "window": return t(.shotWindow)
+        case "screen": return t(.shotScreen)
+        case "repeat": return t(.shotRepeat)
+        case "pass": return t(.annotateClickMode)
+        default: return action.id
         }
     }
 

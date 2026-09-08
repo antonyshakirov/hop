@@ -74,6 +74,18 @@ public enum ModuleCatalog {
         defaultCombo: ModuleCombo(keyCode: 4, modifiers: controlOption)
     )
 
+    /// The drawing layer's second key: it hands the screen back and takes it
+    /// again, so the windows underneath can be worked with without closing the
+    /// layer. ⌃⌥P out of the box — the letters of the modules and of the
+    /// window zones were all spoken for. It is claimed ONLY while the layer is
+    /// up: a key that does nothing on ninety-nine screens out of a hundred has
+    /// no business holding a combination away from every other app.
+    /// SPEC: docs/spec.md — "Draw over the screen".
+    public static let annotatePassAction = ModuleAction(
+        id: "pass", storageKey: "hotkey_annotate_pass", hotKeyID: 35,
+        defaultCombo: ModuleCombo(keyCode: 35, modifiers: controlOption)
+    )
+
     public static let modules: [ModuleEntry] = [
         ModuleEntry(id: "timer", guideLetter: "t", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_timer", hotKeyID: 2,
@@ -109,6 +121,7 @@ public enum ModuleCatalog {
         ModuleEntry(id: "annotate", guideLetter: "i", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_annotate", hotKeyID: 34,
                          defaultCombo: ModuleCombo(keyCode: 2, modifiers: controlOption)),
+            annotatePassAction,
         ]),
         ModuleEntry(id: "archive", guideLetter: "z", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_archive", hotKeyID: 25,
