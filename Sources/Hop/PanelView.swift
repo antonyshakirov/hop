@@ -2018,13 +2018,19 @@ struct PanelView: View {
     /// The tab's current icon is highlighted; a pick applies it and closes.
     private func iconPickerPopover(for tabID: UUID) -> some View {
         let current = tabsModel.tabs.first { $0.id == tabID }?.icon
-        let columns = Array(repeating: GridItem(.fixed(30), spacing: 6), count: 7)
+        // Plain rows, not a stack of lazy grids: several `LazyVGrid`s in one
+        // scroll view report a height each computes on its own, and the picker
+        // opened with a band of empty space and no icons in it.
         return ScrollView(showsIndicators: true) {
             VStack(alignment: .leading, spacing: 18) {
-                ForEach(Array(IconCatalog.groups.enumerated()), id: \.offset) { _, group in
-                    LazyVGrid(columns: columns, spacing: 6) {
-                        ForEach(group, id: \.self) { symbol in
-                            iconPickerCell(symbol, current: current, tabID: tabID)
+                ForEach(Array(IconCatalog.available.enumerated()), id: \.offset) { _, group in
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(Array(stride(from: 0, to: group.count, by: 7)), id: \.self) { start in
+                            HStack(spacing: 6) {
+                                ForEach(group[start..<min(start + 7, group.count)], id: \.self) { symbol in
+                                    iconPickerCell(symbol, current: current, tabID: tabID)
+                                }
+                            }
                         }
                     }
                 }

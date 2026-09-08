@@ -2644,7 +2644,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the moment it is asked to. **Over a panel it stands down**: the toolbar and the
   blur's own bar say when the pointer is on them, and a nib drawn over a button
   is a nib nobody can press one with (Anton, 2026-09-08). The marker's nib is
-  WIDE and shallow, the shape of the mark a chisel leaves, not a square.
+  narrow, long and LEANING at 45° — the nib itself as it is held, not the mark
+  it leaves (Anton, 2026-09-08).
   The blur's pointer is a crosshair with the tool's own glyph
   beside it — a bare crosshair says "draw something" and no more, and the blur
   is the one region drawn for a purpose of its own.
@@ -2841,11 +2842,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   The marker is a narrow barrel flaring into a chisel: an even barrel with a
   skirt read as a torch (Anton, 2026-09-08). The pencil is drawn TALLER than it
   looks it needs: turning a shape by 45° costs it a third of its height, and
-  beside the upright glyphs it read as stubby. "Clear" is a board DUSTER — a block with a
-  felt face and two strokes behind it: a bin reads as throwing the picture out,
-  and the slim rubber beside it is a tool for one mark, not for all of them
-  (Anton, 2026-09-08). A brush and a swept frame were both tried and neither
-  read at 19pt.
+  beside the upright glyphs it read as stubby. "Clear" is a scrubbing BRUSH from the side —
+  a bridge handle, a block, bristles under it: a bin reads as throwing the
+  picture out, and the slim rubber beside it clears one mark rather than all of
+  them (Anton, 2026-09-08). A broom, a swept frame and a board duster were all
+  tried first; the classic shape is the one that reads at 19pt.
 - **Every glyph is outlined and filled ONCE**, never stroked piece by piece: at
   anything below full opacity the crossings of two strokes painted separately
   come out brighter than the lines themselves, which is how the panel's pencil

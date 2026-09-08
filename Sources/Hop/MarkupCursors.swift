@@ -39,16 +39,19 @@ enum MarkupCursors {
         let key = "\(round ? "round" : "flat")-\(squat)-\(Int(thickness.rounded()))"
         if let ready = nibs[key] { return ready }
 
-        // A chisel lays down a broad, shallow mark: the nib is drawn the shape
-        // of what it leaves, not a square.
-        let tall = squat ? max(3, CGFloat(thickness) * 0.45) : CGFloat(thickness)
-        let side = CGFloat(thickness) + 6
+        // A chisel is narrow, long and held at an angle. Drawn as the nib
+        // itself rather than as the mark it leaves.
+        let broad = squat ? max(3, CGFloat(thickness) * 0.42) : CGFloat(thickness)
+        let long = CGFloat(thickness)
+        let side = ((broad * broad + long * long).squareRoot() + 8).rounded()
         let image = NSImage(size: NSSize(width: side, height: side), flipped: true) { _ in
             guard let context = NSGraphicsContext.current?.cgContext else { return false }
-            let box = CGRect(x: 3, y: (side - tall) / 2, width: CGFloat(thickness), height: tall)
+            let box = CGRect(x: -broad / 2, y: -long / 2, width: broad, height: long)
+            var lean = CGAffineTransform(rotationAngle: squat ? -.pi / 4 : 0)
+                .concatenating(CGAffineTransform(translationX: side / 2, y: side / 2))
             let path = round
-                ? CGPath(ellipseIn: box, transform: nil)
-                : CGPath(roundedRect: box, cornerWidth: 2, cornerHeight: 2, transform: nil)
+                ? CGPath(ellipseIn: box, transform: &lean)
+                : CGPath(roundedRect: box, cornerWidth: 1.5, cornerHeight: 1.5, transform: &lean)
             context.setLineWidth(2.4)
             context.setStrokeColor(NSColor.black.withAlphaComponent(0.65).cgColor)
             context.addPath(path)

@@ -4,7 +4,23 @@
 /// Symbols 4-or-earlier symbol, so it resolves on macOS 14, the deployment
 /// floor. Order is stable and cosmetic only: saved icons are stored by name, so
 /// regrouping never disturbs an existing choice.
+import AppKit
+
 enum IconCatalog {
+    /// Only the names this system can actually draw. A symbol that does not
+    /// resolve is not a missing icon but a HOLE: the cell keeps its place in
+    /// the grid and shows nothing at all.
+    static let available: [[String]] = groups.map { group in
+        group.filter { NSImage(systemSymbolName: $0, accessibilityDescription: nil) != nil }
+    }.filter { !$0.isEmpty }
+
+    /// The names this system cannot draw, for the check that keeps the list honest.
+    static func missing() -> [String] {
+        groups.flatMap { $0 }.filter {
+            NSImage(systemSymbolName: $0, accessibilityDescription: nil) == nil
+        }
+    }
+
     /// Thematic groups, rendered top-to-bottom in the picker with a gap between.
     static let groups: [[String]] = [
         // MARK: home & places

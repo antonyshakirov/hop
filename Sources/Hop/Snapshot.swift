@@ -194,6 +194,15 @@ enum Snapshot {
             exit(MarkupSelfTest.canvas(to: args[i + 1]))
         }
 
+        // `Hop --icons-check` names every tab symbol this system cannot draw.
+        if args.contains("--icons-check") {
+            let missing = IconCatalog.missing()
+            print(missing.isEmpty
+                  ? "icons: every tab symbol resolves"
+                  : "icons missing:\n" + missing.joined(separator: "\n"))
+            exit(missing.isEmpty ? 0 : 1)
+        }
+
         if args.contains("--l10n-check") {
             let missing = L10n.missingKeys()
             print(missing.isEmpty ? "l10n: all translations present" : "l10n missing:\n" + missing.joined(separator: "\n"))

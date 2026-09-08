@@ -110,25 +110,18 @@ enum MarkupIcons {
             }]
 
         case .clear:
-            // A board duster: a block with a felt face and two strokes behind
-            // it. A bin reads as throwing the picture out, and the slim rubber
-            // beside it is a tool for one mark, not for all of them.
+            // A scrubbing brush from the side: a bridge handle, a block, and
+            // bristles under it. A bin reads as throwing the picture out, and
+            // the slim rubber beside it clears one mark, not all of them.
             return [stroke {
-                        $0.move(to: p(7.6, 10.6))
-                        $0.addLine(to: p(17.2, 10.6))
-                        $0.addLine(to: p(14.4, 13.8))
-                        $0.addLine(to: p(4.8, 13.8))
-                        $0.closeSubpath()
+                        $0.move(to: p(7.6, 9.4))
+                        $0.addCurve(to: p(16.4, 9.4), control1: p(8.4, 4.4), control2: p(15.6, 4.4))
                     },
-                    stroke {
-                        $0.move(to: p(4.8, 13.8))
-                        $0.addLine(to: p(14.4, 13.8))
-                        $0.addLine(to: p(14.4, 17.8))
-                        $0.addLine(to: p(4.8, 17.8))
-                        $0.closeSubpath()
-                    },
-                    stroke { $0.addPath(line(5.4, 7.6, 11.2, 7.6)) },
-                    stroke { $0.addPath(line(8.2, 4.8, 14, 4.8)) }]
+                    stroke { $0.addPath(rounded(4.2, 9.4, 15.6, 4.4, 1.6)) },
+                    stroke { $0.addPath(line(6.6, 13.8, 6.6, 18.4)) },
+                    stroke { $0.addPath(line(9.8, 13.8, 9.8, 19)) },
+                    stroke { $0.addPath(line(13, 13.8, 13, 19)) },
+                    stroke { $0.addPath(line(16.2, 13.8, 16.2, 18.4)) }]
 
         case .save:
             return [stroke { $0.addPath(line(12, 4, 12, 14.5)) },
