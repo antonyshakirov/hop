@@ -2,7 +2,7 @@ import AppKit
 import HopCore
 import UniformTypeIdentifiers
 
-/// The finished picture: marks, crop, dressing and watermark, then a file or
+/// The finished picture: marks, crop, watermark and dressing, then a file or
 /// the clipboard.
 enum MarkupExport {
     static func render(
@@ -20,8 +20,11 @@ enum MarkupExport {
                              width: Double(crop.pixelWidth), height: Double(crop.pixelHeight))
             if let cut = picture.cropping(to: box) { picture = cut }
         }
-        if let dressed = FrameDressingRenderer.dress(picture, with: dressing) { picture = dressed }
+        // The mark goes on the PICTURE, before the dressing widens the canvas.
+        // Stamped afterwards it lands on the background poured around the shot,
+        // which is not what a watermark is for.
         if let stamped = WatermarkRenderer.stamp(watermark, on: picture) { picture = stamped }
+        if let dressed = FrameDressingRenderer.dress(picture, with: dressing) { picture = dressed }
         return picture
     }
 

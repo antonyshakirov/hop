@@ -126,15 +126,28 @@ struct MarkupCanvas: View {
         let tip = CGPoint(x: to.x * scale, y: to.y * scale)
         context.stroke(segment(tail, tip), with: .color(colour), style: stroke)
 
-        let head = MarkupGeometry.arrowHead(from: from, to: to, style: .solid, width: shape.ink.width)
-        guard head.count == 3 else { return }
-        var barb = Path()
-        barb.move(to: CGPoint(x: head[0].x * scale, y: head[0].y * scale))
-        barb.addLine(to: tip)
-        barb.addLine(to: CGPoint(x: head[2].x * scale, y: head[2].y * scale))
-        barb.addLine(to: CGPoint(x: head[1].x * scale, y: head[1].y * scale))
-        barb.closeSubpath()
-        context.fill(barb, with: .color(colour))
+        let style = shape.arrow ?? .solid
+        let head = MarkupGeometry.arrowHead(from: from, to: to, style: style, width: shape.ink.width)
+        let barbs = head.map { CGPoint(x: $0.x * scale, y: $0.y * scale) }
+
+        if barbs.count == 3 {
+            var triangle = Path()
+            triangle.move(to: barbs[0])
+            triangle.addLine(to: tip)
+            triangle.addLine(to: barbs[2])
+            triangle.addLine(to: barbs[1])
+            triangle.closeSubpath()
+            context.fill(triangle, with: .color(colour))
+        } else if barbs.count == 2 {
+            // Two open barbs rather than a filled head: they are drawn with the
+            // shaft's own stroke, so the tip keeps one thickness.
+            var open = Path()
+            for barb in barbs {
+                open.move(to: barb)
+                open.addLine(to: tip)
+            }
+            context.stroke(open, with: .color(colour), style: stroke)
+        }
     }
 
     private func freehand(_ points: [CGPoint]) -> Path {

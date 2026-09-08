@@ -212,6 +212,28 @@ struct MarkupInkPopover: View {
                 }
             }
 
+            if surface.tool == .arrow {
+                Rectangle().fill(Theme.divider).frame(height: 1)
+
+                HStack(spacing: 8) {
+                    ForEach(ArrowStyle.allCases, id: \.self) { style in
+                        Button {
+                            surface.arrowStyle = style
+                        } label: {
+                            ArrowStylePreview(style: style)
+                                .frame(width: 62, height: 30)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 7)
+                                        .fill(surface.arrowStyle == style ? Theme.chipBg : Theme.rowBg)
+                                )
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .help(L10n.t(.mkArrow, lang))
+                    }
+                }
+            }
+
             Rectangle().fill(Theme.divider).frame(height: 1)
 
             HStack(spacing: 14) {
@@ -238,6 +260,46 @@ struct MarkupInkPopover: View {
     }
 }
 
+/// Each arrow drawn the way the tool would draw it, so the choice is made on
+/// the shape itself rather than on a word for it.
+struct ArrowStylePreview: View {
+    let style: ArrowStyle
+
+    var body: some View {
+        Canvas { context, size in
+            let width = 2.6
+            let tail = MarkupPoint(x: 10, y: size.height - 9)
+            let tip = MarkupPoint(x: size.width - 10, y: 9)
+            let stroke = StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
+            let ink = GraphicsContext.Shading.color(Theme.textPrimary)
+
+            var shaft = Path()
+            shaft.move(to: CGPoint(x: tail.x, y: tail.y))
+            shaft.addLine(to: CGPoint(x: tip.x, y: tip.y))
+            context.stroke(shaft, with: ink, style: stroke)
+
+            let head = MarkupGeometry.arrowHead(from: tail, to: tip, style: style, width: width)
+            let barbs = head.map { CGPoint(x: $0.x, y: $0.y) }
+            if barbs.count == 3 {
+                var triangle = Path()
+                triangle.move(to: barbs[0])
+                triangle.addLine(to: CGPoint(x: tip.x, y: tip.y))
+                triangle.addLine(to: barbs[2])
+                triangle.addLine(to: barbs[1])
+                triangle.closeSubpath()
+                context.fill(triangle, with: ink)
+            } else if barbs.count == 2 {
+                var open = Path()
+                for barb in barbs {
+                    open.move(to: barb)
+                    open.addLine(to: CGPoint(x: tip.x, y: tip.y))
+                }
+                context.stroke(open, with: ink, style: stroke)
+            }
+        }
+    }
+}
+
 /// The toolbar as it actually lives on a surface: floating, dragged by any
 /// spot that is not a button, snapping to the nearest edge when released and
 /// turning with it.
@@ -248,12 +310,14 @@ struct MarkupToolbarLayer: View {
     let size: CGSize
     var lang: AppLanguage
     var trailing: AnyView?
+    var leading: AnyView?
 
     @State private var dragged: CGSize = .zero
     @State private var spot: CGPoint?
 
     var body: some View {
-        MarkupToolbar(surface: surface, tools: tools, edge: $edge, lang: lang, trailing: trailing)
+        MarkupToolbar(surface: surface, tools: tools, edge: $edge, lang: lang,
+                      trailing: trailing, leading: leading)
             .position(place())
             .offset(dragged)
             .gesture(

@@ -13,6 +13,10 @@ final class MarkupSurface: ObservableObject {
     @Published private(set) var drafting: MarkupShape?
     @Published var tool: MarkupTool = .pencil
     @Published var blur = MarkupBlur(mode: .inside, shape: .rectangle, style: .blur, strength: 7, dim: 2)
+    /// The head the arrow tool draws, remembered between sessions.
+    @Published var arrowStyle: ArrowStyle = MarkupSettings.arrowStyle() {
+        didSet { MarkupSettings.store(arrowStyle: arrowStyle) }
+    }
     @Published private(set) var now: TimeInterval = 0
     /// A text mark waiting for its words; the canvas shows a field over it.
     @Published var typing: MarkupShape?
@@ -64,6 +68,7 @@ final class MarkupSurface: ObservableObject {
             origin = point
             var shape = MarkupShape(tool: tool, points: [point], ink: ink(for: tool), createdAt: stamp)
             if tool == .blur { shape.blur = blur }
+            if tool == .arrow { shape.arrow = arrowStyle }
             drafting = shape
         }
     }

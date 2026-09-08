@@ -83,6 +83,8 @@ public struct MarkupShape: Equatable, Codable, Identifiable, Sendable {
     public var text: String?
     public var step: Int?
     public var blur: MarkupBlur?
+    /// The head an arrow was drawn with; nil for every other tool.
+    public var arrow: ArrowStyle?
     /// Seconds since the surface opened; fading ink and step order read it.
     public var createdAt: TimeInterval
 
@@ -94,6 +96,7 @@ public struct MarkupShape: Equatable, Codable, Identifiable, Sendable {
         text: String? = nil,
         step: Int? = nil,
         blur: MarkupBlur? = nil,
+        arrow: ArrowStyle? = nil,
         createdAt: TimeInterval
     ) {
         self.id = id
@@ -103,6 +106,7 @@ public struct MarkupShape: Equatable, Codable, Identifiable, Sendable {
         self.text = text
         self.step = step
         self.blur = blur
+        self.arrow = arrow
         self.createdAt = createdAt
     }
 }

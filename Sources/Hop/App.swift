@@ -755,7 +755,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.titleVisibility = .hidden
             window.isMovableByWindowBackground = false
             window.isReleasedWhenClosed = false
-            window.contentMinSize = NSSize(width: 980, height: 640)
+            // The floating toolbar is ~660pt long and turns with the edge it is
+            // snapped to, so neither side may go under it.
+            window.contentMinSize = NSSize(width: 720, height: 620)
+            // The picture is the window: it takes a full screen, and the size it
+            // was left at is the size it comes back at.
+            window.collectionBehavior.insert(.fullScreenPrimary)
+            // A window opened once at its own size is a window the user then
+            // resizes every time; the place it was left is remembered, and only
+            // a first run is centred.
+            if !window.setFrameUsingName("hop.shotEditor") { window.center() }
+            window.setFrameAutosaveName("hop.shotEditor")
             shotEditorWindow = window
         }
         guard let window = shotEditorWindow else { return }
@@ -771,7 +781,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         host.sizingOptions = []
         window.contentViewController = host
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
-        if !window.isVisible { window.center() }
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
     }

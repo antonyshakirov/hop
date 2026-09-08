@@ -87,20 +87,17 @@ struct ScreenshotEditorView: View {
     var onClose: () -> Void
 
     @State private var saved: URL?
+    @State private var showingDressing = false
+    @State private var showingWatermark = false
 
     var body: some View {
         VStack(spacing: 0) {
             header
             Rectangle().fill(Theme.divider).frame(height: 1)
-            HStack(spacing: 0) {
-                FrameDressingPanel(editor: editor, lang: lang)
-                    .frame(width: 240)
-                Rectangle().fill(Theme.divider).frame(width: 1)
-                stage
-            }
+            stage
         }
         .background(Theme.panelBackground)
-        .frame(minWidth: 980, minHeight: 640)
+        .frame(minWidth: 720, minHeight: 620)
     }
 
     private var header: some View {
@@ -108,22 +105,16 @@ struct ScreenshotEditorView: View {
             Text(L10n.t(.shotLabel, lang))
                 .font(Theme.mono(12))
                 .foregroundStyle(Theme.textTertiary)
+                .lineLimit(1)
 
-            Spacer()
+            Spacer(minLength: 12)
 
             TextField("", text: $editor.fileName)
                 .textFieldStyle(.plain)
                 .font(Theme.mono(12))
                 .padding(.horizontal, 10).padding(.vertical, 7)
                 .background(RoundedRectangle(cornerRadius: 7).fill(Theme.fieldBg))
-                .frame(width: 260)
-
-            Picker("", selection: $editor.format) {
-                Text("png").tag("png")
-                Text("jpg").tag("jpg")
-            }
-            .labelsHidden()
-            .frame(width: 84)
+                .frame(maxWidth: 300)
 
             Button(L10n.t(.copyLabel, lang)) { editor.copyToClipboard() }
                 .buttonStyle(.plain)
@@ -169,11 +160,45 @@ struct ScreenshotEditorView: View {
                                    edge: $editor.edge,
                                    size: geometry.size,
                                    lang: lang,
-                                   trailing: AnyView(undoRedo))
+                                   trailing: AnyView(undoRedo),
+                                   leading: AnyView(picture))
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .background(MarkupKeys(surface: editor.surface, tools: ScreenshotEditor.tools))
         }
+    }
+
+    /// Done TO the picture rather than drawn on it. SPEC: docs/spec.md
+    private var picture: some View {
+        HStack(spacing: 4) {
+            toolbarButton(glyph: .dressing, lit: editor.dressing.isOn,
+                          help: L10n.t(.dressLabel, lang)) { showingDressing.toggle() }
+                .popover(isPresented: $showingDressing,
+                         arrowEdge: editor.edge == .top ? .bottom : .top) {
+                    FrameDressingPopover(editor: editor, lang: lang)
+                }
+
+            toolbarButton(glyph: .watermark, lit: editor.watermark.hasSomethingToStamp,
+                          help: L10n.t(.markLabel, lang)) { showingWatermark.toggle() }
+                .popover(isPresented: $showingWatermark,
+                         arrowEdge: editor.edge == .top ? .bottom : .top) {
+                    WatermarkPopover(editor: editor, lang: lang)
+                }
+        }
+    }
+
+    private func toolbarButton(
+        glyph: MarkupGlyph, lit: Bool, help: String, run: @escaping () -> Void
+    ) -> some View {
+        Button(action: run) {
+            MarkupIcon(glyph: glyph)
+                .foregroundStyle(lit ? Theme.textPrimary : Theme.textSecondary)
+                .frame(width: 32, height: 32)
+                .background(RoundedRectangle(cornerRadius: 7).fill(lit ? Theme.chipBg : .clear))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(help)
     }
 
     private var undoRedo: some View {
@@ -194,15 +219,21 @@ struct ScreenshotEditorView: View {
         }
     }
 
+    /// The picture IS the window. SPEC: docs/spec.md
     private func shownSize(in canvas: CGSize) -> CGSize {
-        let available = CGSize(width: canvas.width - 80, height: canvas.height - 120)
-        let ratio = editor.rect.height / max(editor.rect.width, 1)
-        var width = min(available.width, editor.rect.width)
-        var height = width * ratio
-        if height > available.height {
-            height = available.height
-            width = height / max(ratio, 0.0001)
+        let available = CGSize(width: max(120, canvas.width - 64),
+                               height: max(90, canvas.height - 108))
+        let natural: CGSize
+        if let preview = editor.dressedPreview {
+            natural = CGSize(width: Double(preview.width) / editor.scale,
+                             height: Double(preview.height) / editor.scale)
+        } else {
+            natural = CGSize(width: editor.rect.width, height: editor.rect.height)
         }
-        return CGSize(width: max(80, width), height: max(60, height))
+        guard natural.width > 0, natural.height > 0 else { return CGSize(width: 80, height: 60) }
+        let fit = min(available.width / natural.width, available.height / natural.height)
+        let factor = min(fit, 2)
+        return CGSize(width: max(80, natural.width * factor),
+                      height: max(60, natural.height * factor))
     }
 }

@@ -12,6 +12,7 @@ enum MarkupSettings {
     static let watermarkKey = "shotWatermark"
     static let shotEdgeKey = "shotToolbarEdge"
     static let annotateEdgeKey = "annotateToolbarEdge"
+    static let arrowStyleKey = "markupArrowStyle"
 
     static func frameDressing() -> FrameDressing {
         decode(dressingKey) ?? .standard
@@ -19,6 +20,16 @@ enum MarkupSettings {
 
     static func watermark() -> Watermark {
         decode(watermarkKey) ?? .standard
+    }
+
+    static func arrowStyle() -> ArrowStyle {
+        guard let raw = UserDefaults.standard.string(forKey: arrowStyleKey),
+              let style = ArrowStyle(rawValue: raw) else { return .solid }
+        return style
+    }
+
+    static func store(arrowStyle: ArrowStyle) {
+        UserDefaults.standard.set(arrowStyle.rawValue, forKey: arrowStyleKey)
     }
 
     static func store(dressing: FrameDressing, watermark: Watermark) {

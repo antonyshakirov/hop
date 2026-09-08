@@ -2,98 +2,60 @@ import AppKit
 import HopCore
 import SwiftUI
 
-/// The editor's left column: the background the frame stands on, the air around
-/// it, and the watermark. Off by default, so a plain screenshot stays one
-/// keystroke away.
-struct FrameDressingPanel: View {
+/// The background the frame stands on and the air around it, in a popover hung
+/// off the toolbar. Off by default, so a plain screenshot stays one keystroke
+/// away.
+struct FrameDressingPopover: View {
     @ObservedObject var editor: ScreenshotEditor
     var lang: AppLanguage
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        MarkupPopoverBody {
+            Toggle(isOn: Binding(
+                get: { editor.dressing.isOn },
+                set: { editor.dressing.isOn = $0; editor.refreshPreview() }
+            )) {
+                Text(L10n.t(.dressLabel, lang)).font(Theme.mono(12))
+            }
+            .toggleStyle(.switch)
+
+            if editor.dressing.isOn {
+                backgrounds
+                MarkupStepper(title: L10n.t(.dressPadding, lang), value: $editor.dressing.padding,
+                              range: 0...20) { editor.refreshPreview() }
+                MarkupStepper(title: L10n.t(.dressCorners, lang), value: $editor.dressing.corners,
+                              range: 0...20) { editor.refreshPreview() }
+                MarkupStepper(title: L10n.t(.dressShadow, lang), value: $editor.dressing.shadow,
+                              range: 0...20) { editor.refreshPreview() }
+
                 Toggle(isOn: Binding(
-                    get: { editor.dressing.isOn },
-                    set: { editor.dressing.isOn = $0; editor.refreshPreview() }
+                    get: { editor.dressing.browserFrame },
+                    set: { editor.dressing.browserFrame = $0; editor.refreshPreview() }
                 )) {
-                    Text(L10n.t(.dressLabel, lang)).font(Theme.mono(12))
+                    Text(L10n.t(.dressBrowser, lang)).font(Theme.mono(11))
                 }
                 .toggleStyle(.switch)
 
-                if editor.dressing.isOn {
-                    backgrounds
-                    slider(.dressPadding, value: $editor.dressing.padding, range: 0...20)
-                    slider(.dressCorners, value: $editor.dressing.corners, range: 0...20)
-                    slider(.dressShadow, value: $editor.dressing.shadow, range: 0...20)
-
-                    Toggle(isOn: Binding(
-                        get: { editor.dressing.browserFrame },
-                        set: { editor.dressing.browserFrame = $0; editor.refreshPreview() }
-                    )) {
-                        Text(L10n.t(.dressBrowser, lang)).font(Theme.mono(11))
-                    }
-                    .toggleStyle(.switch)
-
-                    if editor.dressing.browserFrame {
-                        TextField(L10n.t(.dressAddress, lang), text: Binding(
-                            get: { editor.dressing.address },
-                            set: { editor.dressing.address = $0; editor.refreshPreview() }
-                        ))
-                        .textFieldStyle(.plain)
-                        .font(Theme.mono(11))
-                        .padding(.horizontal, 8).padding(.vertical, 6)
-                        .background(RoundedRectangle(cornerRadius: 6).fill(Theme.fieldBg))
-                    }
-
-                    Button(L10n.t(.resetDefaults, lang)) {
-                        editor.dressing = .standard
-                        editor.dressing.isOn = true
-                        editor.refreshPreview()
-                    }
-                    .buttonStyle(.plain)
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textSecondary)
-                }
-
-                Rectangle().fill(Theme.divider).frame(height: 1)
-
-                Toggle(isOn: Binding(
-                    get: { editor.watermark.isOn },
-                    set: { editor.watermark.isOn = $0; editor.refreshPreview() }
-                )) {
-                    Text(L10n.t(.markLabel, lang)).font(Theme.mono(12))
-                }
-                .toggleStyle(.switch)
-
-                if editor.watermark.isOn {
-                    TextField(L10n.t(.markText, lang), text: Binding(
-                        get: { editor.watermark.text },
-                        set: { editor.watermark.text = $0; editor.refreshPreview() }
+                if editor.dressing.browserFrame {
+                    TextField(L10n.t(.dressAddress, lang), text: Binding(
+                        get: { editor.dressing.address },
+                        set: { editor.dressing.address = $0; editor.refreshPreview() }
                     ))
                     .textFieldStyle(.plain)
                     .font(Theme.mono(11))
                     .padding(.horizontal, 8).padding(.vertical, 6)
                     .background(RoundedRectangle(cornerRadius: 6).fill(Theme.fieldBg))
-
-                    Button(L10n.t(.markImage, lang)) { pickImage() }
-                        .buttonStyle(.plain)
-                        .font(Theme.mono(11))
-                        .foregroundStyle(Theme.textSecondary)
-
-                    slider(.markOpacity, value: $editor.watermark.opacity, range: 5...100)
-                    slider(.markSize, value: $editor.watermark.size, range: 1...20)
-                    spots
-
-                    Toggle(isOn: Binding(
-                        get: { editor.watermark.tiled },
-                        set: { editor.watermark.tiled = $0; editor.refreshPreview() }
-                    )) {
-                        Text(L10n.t(.markTiled, lang)).font(Theme.mono(11))
-                    }
-                    .toggleStyle(.switch)
                 }
+
+                Button(L10n.t(.resetDefaults, lang)) {
+                    editor.dressing = .standard
+                    editor.dressing.isOn = true
+                    editor.refreshPreview()
+                }
+                .buttonStyle(.plain)
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.textSecondary)
             }
-            .padding(14)
         }
     }
 
@@ -123,6 +85,62 @@ struct FrameDressingPanel: View {
         }
     }
 
+    private func chosen(_ index: Int) -> Bool {
+        if case .preset(let current) = editor.dressing.background { return current == index }
+        return false
+    }
+}
+
+/// The mark stamped over the picture: where it sits, how big, how faint, and
+/// whether it repeats across the whole frame.
+struct WatermarkPopover: View {
+    @ObservedObject var editor: ScreenshotEditor
+    var lang: AppLanguage
+
+    var body: some View {
+        MarkupPopoverBody {
+            Toggle(isOn: Binding(
+                get: { editor.watermark.isOn },
+                set: { editor.watermark.isOn = $0; editor.refreshPreview() }
+            )) {
+                Text(L10n.t(.markLabel, lang)).font(Theme.mono(12))
+            }
+            .toggleStyle(.switch)
+
+            if editor.watermark.isOn {
+                TextField(L10n.t(.markText, lang), text: Binding(
+                    get: { editor.watermark.text },
+                    set: { editor.watermark.text = $0; editor.refreshPreview() }
+                ))
+                .textFieldStyle(.plain)
+                .font(Theme.mono(11))
+                .padding(.horizontal, 8).padding(.vertical, 6)
+                .background(RoundedRectangle(cornerRadius: 6).fill(Theme.fieldBg))
+
+                Button(L10n.t(.markImage, lang)) { pickImage() }
+                    .buttonStyle(.plain)
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+
+                MarkupStepper(title: L10n.t(.markOpacity, lang), value: $editor.watermark.opacity,
+                              range: 5...100) { editor.refreshPreview() }
+                MarkupStepper(title: L10n.t(.markSize, lang), value: $editor.watermark.size,
+                              range: 1...20) { editor.refreshPreview() }
+
+                Toggle(isOn: Binding(
+                    get: { editor.watermark.tiled },
+                    set: { editor.watermark.tiled = $0; editor.refreshPreview() }
+                )) {
+                    Text(L10n.t(.markTiled, lang)).font(Theme.mono(11))
+                }
+                .toggleStyle(.switch)
+
+                // A tile covers the whole frame; a corner is meaningless then.
+                if !editor.watermark.tiled { spots }
+            }
+        }
+    }
+
     private var spots: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(L10n.t(.markSpot, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
@@ -144,29 +162,6 @@ struct FrameDressingPanel: View {
         }
     }
 
-    private func slider(_ key: L10nKey, value: Binding<Int>, range: ClosedRange<Int>) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(L10n.t(key, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
-                Spacer()
-                Text("\(value.wrappedValue)").font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
-            }
-            Slider(
-                value: Binding(
-                    get: { Double(value.wrappedValue) },
-                    set: { value.wrappedValue = Int($0.rounded()) }
-                ),
-                in: Double(range.lowerBound)...Double(range.upperBound),
-                onEditingChanged: { editing in if !editing { editor.refreshPreview() } }
-            )
-        }
-    }
-
-    private func chosen(_ index: Int) -> Bool {
-        if case .preset(let current) = editor.dressing.background { return current == index }
-        return false
-    }
-
     private func spotMark(_ spot: Watermark.Spot) -> String {
         switch spot {
         case .topLeading: return "◤"
@@ -184,5 +179,50 @@ struct FrameDressingPanel: View {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         editor.watermark.imageName = WatermarkRenderer.store(imageAt: url)
         editor.refreshPreview()
+    }
+}
+
+/// The shell both popovers share: one width, one padding, and a ceiling on the
+/// height so a long panel scrolls instead of running off the screen.
+private struct MarkupPopoverBody<Content: View>: View {
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                content
+            }
+            .padding(14)
+            .frame(width: 246, alignment: .leading)
+        }
+        .frame(width: 246)
+        .frame(maxHeight: 430)
+        .background(Theme.background)
+    }
+}
+
+/// A slider that names what it changes and shows the number it is on.
+private struct MarkupStepper: View {
+    let title: String
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+    var settled: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(title).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+                Spacer()
+                Text("\(value)").font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
+            }
+            Slider(
+                value: Binding(
+                    get: { Double(value) },
+                    set: { value = Int($0.rounded()) }
+                ),
+                in: Double(range.lowerBound)...Double(range.upperBound),
+                onEditingChanged: { editing in if !editing { settled() } }
+            )
+        }
     }
 }

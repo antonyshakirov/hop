@@ -10,6 +10,7 @@ enum MarkupGlyph: String, CaseIterable {
     case crop, pencil, fadingInk, marker, arrow, line, rectangle, oval
     case steps, text, magnifier, blur, eraser
     case undo, redo, grip, cursor, clear, save, copy, close
+    case dressing, watermark
 }
 
 struct MarkupStroke {
@@ -44,7 +45,9 @@ enum MarkupIcons {
                     stroke { $0.addPath(turned(line(8.3, 12.1, 15.7, 12.1))) }]
 
         case .arrow:
-            return [stroke { $0.addPath(line(5, 19, 18.5, 5.5)) },
+            // The shaft stops short of the corner: a round cap ON the joint
+            // pokes out of it as a bead.
+            return [stroke { $0.addPath(line(5, 19, 17.6, 6.4)) },
                     stroke { $0.move(to: p(11.5, 5.5)); $0.addLine(to: p(18.5, 5.5)); $0.addLine(to: p(18.5, 12.5)) }]
 
         case .line:
@@ -124,6 +127,16 @@ enum MarkupIcons {
         case .close:
             return [stroke { $0.addPath(line(6, 6, 18, 18)) },
                     stroke { $0.addPath(line(18, 6, 6, 18)) }]
+
+        case .dressing:
+            return [stroke { $0.addPath(rounded(2.5, 4, 19, 16, 2.6)) },
+                    stroke { $0.addPath(rounded(6, 7.5, 12, 9, 1.6)) }]
+
+        case .watermark:
+            return [stroke { $0.addPath(rounded(2.5, 4, 19, 16, 2.6)) },
+                    stroke { $0.addPath(line(8.5, 15.5, 12, 8.5)) },
+                    stroke { $0.addPath(line(12, 8.5, 15.5, 15.5)) },
+                    stroke { $0.addPath(line(10.2, 13, 13.8, 13)) }]
         }
     }
 
@@ -193,16 +206,21 @@ struct MarkupIcon: View {
         Canvas { context, canvasSize in
             let scale = min(canvasSize.width, canvasSize.height) / 24
             let transform = CGAffineTransform(scaleX: scale, y: scale)
+            // Every stroke is outlined and the lot filled ONCE. Stroking them
+            // one by one paints the overlaps twice, and at anything below full
+            // opacity the crossings show up as brighter joints.
+            var silhouette = Path()
             for stroke in MarkupIcons.strokes(for: glyph) {
                 let path = stroke.path.applying(transform)
                 if stroke.filled {
-                    context.fill(path, with: .style(.foreground))
+                    silhouette.addPath(path)
                 } else {
-                    context.stroke(path, with: .style(.foreground),
-                                   style: StrokeStyle(lineWidth: stroke.width * scale,
-                                                      lineCap: .round, lineJoin: .round))
+                    silhouette.addPath(path.strokedPath(
+                        StrokeStyle(lineWidth: stroke.width * scale, lineCap: .round, lineJoin: .round)
+                    ))
                 }
             }
+            context.fill(silhouette, with: .style(.foreground))
         }
         .frame(width: size, height: size)
     }

@@ -2367,55 +2367,95 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 ### Screenshot (capture and mark up)
 
 - Module `"shot"`, title `shotLabel` — "screenshot", guide letter `g`. The panel
-  row carries three buttons — area, window, screen — and a fourth, "repeat
-  area", once a rectangle has been framed at least once. The panel closes before
+  row carries three buttons — area, window, screen — on the SAME line as the
+  name and pushed to its end, not stacked underneath it: the card is one row
+  tall, like every other module's. "Repeat area" joins them as an icon (↺) once a
+  rectangle has been framed at least once — spelled out it would not fit the row
+  in German. The name gives way before the buttons do. The panel closes before
   the frame appears; a popover would land in the picture.
 - Hotkeys: ⌃⌥A takes an area out of the box. Window, screen and repeat ship with
   NO combination and are assigned in the hotkeys page — the letters that would
   read best were already the window manager's.
 - **The selection frame is Hop's own, not `screencapture -i`.** The system tool
   never reports WHICH rectangle was chosen, so "repeat the last area" cannot be
-  built on it. The frame carries the size in pixels, a loupe over the pointer,
-  and three keys: space takes the window under the pointer, `r` the last
-  rectangle, escape cancels.
+  built on it. It is nonetheless built to READ like the system's: hairlines run
+  across the whole display through the pointer, so the row and column the drag
+  will start on are visible before the first pixel is drawn; the corner it began
+  in stays marked while the frame is stretched; a badge beside the pointer shows
+  the pointer's own place before the drag and the size in pixels during it, and
+  flips at the edges rather than leaving the display. The veil over the rest of
+  the screen is light (0.24) — at the 0.62 it started at, the very screen being
+  framed could not be read (Anton, 2026-09-08). The frame is a white hairline
+  over a dark one, so it survives a white window underneath. Three keys: space
+  takes the window under the pointer, `r` the last rectangle, escape cancels.
+  The pointer is followed through a tracking area rather than a gesture: SwiftUI
+  reports a moving mouse only once a button is down, and the crosshair has to be
+  there before that.
 - Capture runs through ScreenCaptureKit in the display's BACKING pixels, so a
   retina shot is saved at full size. Hop's own windows are excluded from the
   filter: the panel never appears in the frame.
 - Delay (off, 3, 5, 10 seconds) is a module setting, for a menu that closes on a
   click. The pointer is left out of the picture unless the setting asks for it.
 - **The editor opens on every capture**, in a window of its own like the
-  converter. Tools: crop, pencil, marker, arrow, line, rectangle, oval, numbered
+  converter. **The picture IS the window** (Anton, 2026-09-08): nothing stands
+  beside it, the shot is fitted to whatever size the window is at — growing to
+  twice its own pixels at most, past which it is only a smear — and everything
+  else hangs off the floating toolbar over it. The window resizes, goes full
+  screen, and opens at the size and place it was left at (`hop.shotEditor`);
+  only a first run is centred.
+- The header is the name of the file and two buttons, copy and save. **The
+  format is not asked in the window** (Anton, 2026-09-08): it is one line in the
+  module's settings, and the window is for the picture.
+- Tools: crop, pencil, marker, arrow, line, rectangle, oval, numbered
   steps, text, magnifier, blur, eraser; undo ⌘Z and redo ⇧⌘Z. Every tool
   remembers its own colour and width, so the fat yellow marker and the thin red
   pencil live side by side.
+- **The arrow has three heads** — solid, thin barbs, freehand — chosen in the
+  same popover as its colour and width, and only while the arrow is in hand.
+  They are shown as three drawn arrows rather than three words: the choice is
+  about a shape. The head is stored ON the mark, so arrows already drawn keep
+  the head they were drawn with. Marks saved before the field existed decode
+  with none and are drawn solid.
 - **Blur works in both directions.** "Inside the area" hides what the region
   covers; "around the area" keeps the region sharp and smears the rest, with a
   dimming slider on top of the strength one, because blur alone does not read as
   emphasis. The region is a rectangle, an oval or a freehand lasso, and there
   can be several. "Pixels" is offered beside "blur": a blur over small type can
   sometimes be read back, a mosaic cannot.
-- **Frame dressing** (left column, off by default): a background from six
+- **Frame dressing** (a toolbar button, off by default): a background from six
   presets, a colour or a two-stop gradient of the user's own; padding, corner
   radius and shadow as sliders; an optional browser bar with an address the user
   types. Padding is a share of the frame's SHORTER side, so one setting reads
   the same on a wide shot and a narrow one. "Reset to defaults" is one button.
-- **Watermark** (same column, off by default): the user's own text or an image,
-  with opacity, size, one of five spots and a "tile it" switch. An image chosen
-  here is COPIED into `Application Support/Hop/`, so a file moved or deleted
-  later cannot silently empty the mark.
+- **Watermark** (the toolbar button beside it, off by default): the user's own
+  text or an image, with opacity, size, one of five spots and a "tile it"
+  switch. The five spots are hidden while it tiles — a tile covers the whole
+  frame and a corner means nothing then. An image chosen here is COPIED into
+  `Application Support/Hop/`, so a file moved or deleted later cannot silently
+  empty the mark.
+- Both live in the toolbar rather than in a column of their own: a permanent
+  panel ate a third of the window for two switches that are off most of the
+  time (Anton, 2026-09-08). Their button lights up while the thing it holds is
+  on, so an unopened panel still says whether it is doing anything.
+- **The mark is stamped on the PICTURE, before the dressing widens the canvas.**
+  Stamped afterwards it landed on the background poured around the shot, which
+  is not what a watermark is for (Anton, 2026-09-08).
 - Export: "save" writes a file into the module's folder (Pictures/Hop by
   default), "copy" puts the picture on the clipboard. PNG and JPEG only — macOS
   ships no WebP encoder, so the list must not promise one. Names are
   `shot <date> at <time>.<ext>`, with ` 2`, ` 3`… appended rather than
   overwriting a shot taken in the same minute.
 - `Hop --markup-selftest <out.png>` runs the whole export path — marks, blur,
-  dressing, watermark — over a made-up frame and writes the result. It found the
-  browser bar drawn below the picture and an arrow head too thin to read.
+  watermark, dressing — over a made-up frame and writes the result. It found the
+  browser bar drawn below the picture, an arrow head too thin to read, and the
+  watermark sitting on the dressing instead of the shot.
 
 ### Draw over the screen
 
-- Module `"annotate"`, title `annotateLabel` — "draw over the screen", guide
-  letter `i`, ⌃⌥B out of the box. A transparent layer on EVERY display, rebuilt
+- Module `"annotate"`, title `annotateLabel` — "draw on screen", guide
+  letter `i`, ⌃⌥B out of the box. The name and the button are both short on
+  purpose: "draw over the screen · start drawing" said the same word twice in a
+  row built for one line (Anton, 2026-09-08). A transparent layer on EVERY display, rebuilt
   when displays come and go.
 - **The mode follows the tool** (Anton, 2026-09-07). Picking any tool means
   drawing over the screen; the arrow at the head of the row is a tool of its
@@ -2460,6 +2500,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   turned by the same 45°, and every silhouette is ONE closed outline — two
   shapes sharing an edge stroke it twice, and the joint swells at 19 pt (Anton,
   2026-09-07). Icons are checked by RENDERING them, not by reading the paths.
+- **Every glyph is outlined and filled ONCE**, never stroked piece by piece: at
+  anything below full opacity the crossings of two strokes painted separately
+  come out brighter than the lines themselves, which is how the panel's pencil
+  looked half drawn (Anton, 2026-09-08). The arrow's shaft stops SHORT of the
+  head's corner for the same class of reason — a round cap sitting on the joint
+  pokes out of it as a bead on the tip.
+- **The panel's own module rows do NOT use this family.** Their icons are SF
+  Symbols, like every other row in the panel (`camera.viewfinder`,
+  `pencil.tip`): the family belongs to the markup toolbar, and a hand-drawn
+  glyph beside fifteen system ones reads as a mistake, not as a signature.
 
 ### Archive (drag & drop)
 

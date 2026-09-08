@@ -170,15 +170,21 @@ enum MarkupRender {
             guard points.count > 1 else { return }
             context.strokeLineSegments(between: [first, points[1]])
             let head = MarkupGeometry.arrowHead(from: shape.points[0], to: shape.points[1],
-                                                style: .solid, width: shape.ink.width)
-            guard head.count == 3 else { return }
-            context.beginPath()
-            context.move(to: CGPoint(x: head[0].x * scale, y: head[0].y * scale))
-            context.addLine(to: points[1])
-            context.addLine(to: CGPoint(x: head[2].x * scale, y: head[2].y * scale))
-            context.addLine(to: CGPoint(x: head[1].x * scale, y: head[1].y * scale))
-            context.closePath()
-            context.fillPath()
+                                                style: shape.arrow ?? .solid, width: shape.ink.width)
+            let barbs = head.map { CGPoint(x: $0.x * scale, y: $0.y * scale) }
+            if barbs.count == 3 {
+                context.beginPath()
+                context.move(to: barbs[0])
+                context.addLine(to: points[1])
+                context.addLine(to: barbs[2])
+                context.addLine(to: barbs[1])
+                context.closePath()
+                context.fillPath()
+            } else if barbs.count == 2 {
+                // Open barbs: the shaft's own stroke, so the tip keeps one
+                // thickness.
+                context.strokeLineSegments(between: [barbs[0], points[1], barbs[1], points[1]])
+            }
 
         case .rectangle:
             guard points.count > 1 else { return }
