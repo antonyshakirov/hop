@@ -103,6 +103,22 @@ enum MarkupSelfTest {
             print("canvas: NO lens magnified anything")
             failures += 1
         }
+
+        // SPEC: docs/spec.md — another tool ends the edit in progress.
+        surface.tool = .select
+        surface.begin(at: MarkupPoint(x: 300, y: 190))
+        surface.finish()
+        if surface.selected == nil {
+            print("canvas: the select tool took nothing")
+            failures += 1
+        }
+        surface.tool = .rectangle
+        if surface.selected != nil {
+            print("canvas: a mark stayed in hand after another tool was taken")
+            failures += 1
+        } else {
+            print("canvas: taking a tool let the previous mark go")
+        }
         return failures == 0 ? 0 : 1
     }
 

@@ -12,7 +12,10 @@ import SwiftUI
 final class MarkupSurface: ObservableObject {
     @Published private(set) var shapes: [MarkupShape] = []
     @Published private(set) var drafting: MarkupShape?
-    @Published var tool: MarkupTool = .pencil
+    /// SPEC: docs/spec.md — another tool ends the edit in progress.
+    @Published var tool: MarkupTool = .pencil {
+        didSet { if tool != oldValue, tool != .select { letGo() } }
+    }
     /// The pointer is over a panel rather than over the picture. A nib drawn
     /// over the toolbar is a nib nobody can press a button with.
     @Published var pointerOverPanel = false
@@ -78,6 +81,23 @@ final class MarkupSurface: ObservableObject {
         guard let selection else { return nil }
         if let editing, editing.id == selection { return editing }
         return shapes.first { $0.id == selection }
+    }
+
+    private func letGo() {
+        commitTyping()
+        selection = nil
+        editing = nil
+        grip = nil
+        grabbed = nil
+        turningDial = false
+        dropTheKeyboard()
+    }
+
+    /// WORKAROUND: `NSApp` is implicitly unwrapped and nil in the headless
+    /// self-test, where nothing holds the keyboard anyway.
+    private func dropTheKeyboard() {
+        guard NSApp != nil else { return }
+        NSApp.keyWindow?.makeFirstResponder(nil)
     }
 
     @discardableResult
@@ -320,6 +340,9 @@ final class MarkupSurface: ObservableObject {
     func commitTyping() {
         guard var shape = typing else { return }
         typing = nil
+        // The field editor keeps the keyboard until it is told otherwise, and
+        // backspace over a selected mark went into a field nobody could see.
+        dropTheKeyboard()
         shape.text = shape.text?.trimmingCharacters(in: .whitespacesAndNewlines)
         let known = shapes.contains { $0.id == shape.id }
         guard let text = shape.text, !text.isEmpty else {

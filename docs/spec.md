@@ -2513,6 +2513,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the shadow under it — round a shape that already showed where it was. The box
   is left only where there are no handles to show: a scribble, a numbered step,
   a caption. `MarkupEditing.boxed` with tests.
+- **Taking another tool ends the edit in progress** (Anton, 2026-09-08): the
+  mark in hand is let go, a caption being typed is committed, and the field
+  editor gives the keyboard back — backspace over a selected mark was going
+  into a text field nobody could see, so nothing was deleted. Only the select
+  tool keeps what is in hand. `MarkupSurface.tool` does it on assignment, and
+  the canvas self-test checks it.
+- **A caption is stored as ONE point, so its box is the words themselves**
+  (Anton, 2026-09-08): measured in the font it is drawn in. The bounding box of
+  a single point is nothing, and the dashed frame round a selected caption was a
+  10pt square sitting off its corner like a badge. **The field is where the
+  words will be**: same font, same size, one line high, and shifted two points
+  left because a text field insets its own text — a caption used to jump the
+  moment it was committed.
 - **A mark is picked up by its AREA, not by its outline** (Anton, 2026-09-08):
   anywhere inside a rectangle, an oval, a blur or the loupe, anywhere on a
   numbered step's circle, anywhere across a caption. Lines, arrows and scribbles

@@ -60,6 +60,21 @@ struct MarkupCanvas: View {
         }
     }
 
+    /// The words as they will be drawn, and the height of one line of them.
+    static func span(of shape: MarkupShape, scale: CGFloat) -> CGSize {
+        let font = NSFont.systemFont(ofSize: shape.ink.width * scale, weight: .semibold)
+        let line = lineHeight(shape.ink.width * scale)
+        let words = shape.text ?? ""
+        guard !words.isEmpty else { return CGSize(width: 40, height: line) }
+        return CGSize(width: ceil((words as NSString).size(withAttributes: [.font: font]).width),
+                      height: line)
+    }
+
+    static func lineHeight(_ size: CGFloat) -> CGFloat {
+        let font = NSFont.systemFont(ofSize: size, weight: .semibold)
+        return ceil(font.ascender - font.descender + font.leading)
+    }
+
     /// A drag reads the modifier keys as they are RIGHT NOW: SwiftUI's gesture
     /// value carries the place of the pointer and nothing about the keyboard.
     private static func heldKeys() -> MarkupDrag.Modifiers {
@@ -82,8 +97,12 @@ struct MarkupCanvas: View {
     private var held: some View {
         if let shape = surface.selected {
             let box = MarkupGeometry.boundingBox(shape.points)
+            // A caption is stored as ONE point; its box is the words themselves.
+            let span = shape.tool == .text
+                ? Self.span(of: shape, scale: scale)
+                : CGSize(width: box.size.x * scale, height: box.size.y * scale)
             let frame = CGRect(x: box.origin.x * scale - 5, y: box.origin.y * scale - 5,
-                               width: box.size.x * scale + 10, height: box.size.y * scale + 10)
+                               width: span.width + 10, height: span.height + 10)
             ZStack(alignment: .topLeading) {
                 if MarkupEditing.boxed(shape) {
                     Rectangle()
@@ -206,10 +225,12 @@ struct MarkupCanvas: View {
                colour: Color(markupHex: shape.ink.hex),
                focus: $typing,
                onSubmit: { surface.commitTyping() })
-            .frame(width: 240, height: shape.ink.width * scale + 10)
-            .padding(.horizontal, 6)
+            .frame(width: 240, height: Self.lineHeight(shape.ink.width * scale))
             .background(RoundedRectangle(cornerRadius: 5).fill(Theme.fieldBg))
-            .offset(x: point.x * scale, y: point.y * scale)
+            // The caret has to stand where the caption will be drawn, or the
+            // words jump the moment they are committed. A text field insets its
+            // own text by two points; the canvas draws from the point itself.
+            .offset(x: point.x * scale - 2, y: point.y * scale)
             // A field kept across two marks keeps the words of the first, and
             // the text looks as though it moved to wherever the second click
             // landed. One field per mark.
