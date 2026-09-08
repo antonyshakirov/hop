@@ -142,19 +142,15 @@ struct CaptureSelectionView: View {
             .allowsHitTesting(false)
     }
 
-    /// A dark hairline under the white one: a white frame alone disappears on
-    /// a white window.
+    /// ONE line. Contrast on a white window comes from a shadow under it — a
+    /// second, darker rectangle around the first reads as a double frame.
     private func border(_ frame: CGRect) -> some View {
-        ZStack {
-            Rectangle()
-                .strokeBorder(Color.black.opacity(0.5), lineWidth: 3)
-                .frame(width: frame.width + 2, height: frame.height + 2)
-            Rectangle()
-                .strokeBorder(Color.white, lineWidth: 1)
-                .frame(width: frame.width, height: frame.height)
-        }
-        .position(x: frame.midX, y: frame.midY)
-        .allowsHitTesting(false)
+        Rectangle()
+            .strokeBorder(Color.white, lineWidth: 1)
+            .frame(width: frame.width, height: frame.height)
+            .shadow(color: .black.opacity(0.55), radius: 1.5)
+            .position(x: frame.midX, y: frame.midY)
+            .allowsHitTesting(false)
     }
 
     private var hints: some View {

@@ -25,6 +25,7 @@ struct PanelView: View {
     @AppStorage(MarkupSettings.formatKey) private var shotFormat = "png"
     @AppStorage(MarkupSettings.delayKey) private var shotDelay = 0
     @AppStorage(MarkupSettings.pointerKey) private var shotPointer = false
+    @AppStorage(ShotEditorWindows.oneWindowKey) private var shotOneWindow = false
     @AppStorage("annotateStartsDrawing") private var annotateStartsDrawing = true
     @AppStorage(SettingsKey.trackerTimeInBar) private var trackerTimeInBar = false
     @AppStorage(SettingsKey.alertMode) private var alertModeRaw = AlertMode.soundAndBanner.rawValue
@@ -4189,6 +4190,11 @@ struct PanelView: View {
                 Text(t(.shotPointerLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Theme.MiniSwitch(isOn: $shotPointer)
+            }
+            HStack {
+                Text(t(.shotOneWindow)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: $shotOneWindow)
             }
         }
     }

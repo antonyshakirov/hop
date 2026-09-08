@@ -25,8 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindow: NSWindow?
     private var settingsWindow: NSWindow?
     private var converterWindow: ConverterWindow?
-    private var shotEditorWindow: NSWindow?
-    private var shotEditor: ScreenshotEditor?
+    private let shotWindows = ShotEditorWindows()
     private var archiveWindow: ConverterWindow?
     private var uninstallWindow: NSWindow?
     private var uninstallUserResized = false
@@ -311,7 +310,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.showConverterWindow()
         }
         model.openShotEditor = { [weak self] image, rect in
-            self?.showShotEditorWindow(image: image, rect: rect)
+            self?.model.activity.note() // opening a window counts as active use
+            self?.shotWindows.present(image: image, rect: rect, lang: L10n.current)
         }
         model.openArchiveWindow = { [weak self] in
             self?.showArchiveWindow()
@@ -736,53 +736,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         frame.size.height = newHeight
         converterExpectedHeight = window.contentRect(forFrameRect: frame).height
         window.setFrame(frame, display: true)
-    }
-
-    /// The editor opens on every capture, in a window of its own like the
-    /// converter and the archiver. A second shot replaces what is in it.
-    private func showShotEditorWindow(image: CGImage, rect: CaptureRect) {
-        model.activity.note()
-        let editor = ScreenshotEditor(base: image, rect: rect)
-        shotEditor = editor
-
-        if shotEditorWindow == nil {
-            let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 1180, height: 760),
-                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-                backing: .buffered, defer: false
-            )
-            window.titlebarAppearsTransparent = true
-            window.titleVisibility = .hidden
-            window.isMovableByWindowBackground = false
-            window.isReleasedWhenClosed = false
-            // The floating toolbar is ~660pt long and turns with the edge it is
-            // snapped to, so neither side may go under it.
-            window.contentMinSize = NSSize(width: 720, height: 620)
-            // The picture is the window: it takes a full screen, and the size it
-            // was left at is the size it comes back at.
-            window.collectionBehavior.insert(.fullScreenPrimary)
-            // A window opened once at its own size is a window the user then
-            // resizes every time; the place it was left is remembered, and only
-            // a first run is centred.
-            if !window.setFrameUsingName("hop.shotEditor") { window.center() }
-            window.setFrameAutosaveName("hop.shotEditor")
-            shotEditorWindow = window
-        }
-        guard let window = shotEditorWindow else { return }
-
-        let host = NSHostingController(
-            rootView: ScreenshotEditorView(
-                editor: editor,
-                lang: L10n.current,
-                onClose: { [weak self] in self?.shotEditorWindow?.close() }
-            )
-            .hopLayoutDirection()
-        )
-        host.sizingOptions = []
-        window.contentViewController = host
-        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
-        NSApp.activate(ignoringOtherApps: true)
-        window.makeKeyAndOrderFront(nil)
     }
 
     private func showConverterWindow() {

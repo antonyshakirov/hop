@@ -63,7 +63,7 @@ final class CaptureController: ObservableObject {
     private func frameAnArea() {
         state = .framing
         overlay.show { [weak self] screen in
-            let host = NSHostingView(rootView: CaptureSelectionView(
+            let host = FirstMouseHostingView(rootView: CaptureSelectionView(
                 screenSize: screen.frame.size,
                 scale: screen.backingScaleFactor,
                 lang: L10n.current,

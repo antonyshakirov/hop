@@ -37,7 +37,7 @@ final class ScreenAnnotateController: ObservableObject {
         isDrawing = true
         overlay.show { [weak self] screen in
             guard let self else { return NSView() }
-            return NSHostingView(rootView: ScreenAnnotateView(
+            return FirstMouseHostingView(rootView: ScreenAnnotateView(
                 controller: self,
                 surface: self.surface,
                 screenSize: screen.frame.size,
@@ -57,7 +57,7 @@ final class ScreenAnnotateController: ObservableObject {
     /// through cannot take the panel with it.
     private func showToolbar() {
         guard toolbarWindow == nil else { return }
-        let host = NSHostingView(rootView: ScreenAnnotateToolbar(controller: self,
+        let host = FirstMouseHostingView(rootView: ScreenAnnotateToolbar(controller: self,
                                                                  surface: surface,
                                                                  lang: L10n.current))
         let window = MarkupToolbarWindow(content: host)

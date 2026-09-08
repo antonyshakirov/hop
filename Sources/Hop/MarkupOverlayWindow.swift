@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 /// Deliberately NOT excluded from screen capture: a drawing invisible in a
 /// shared screen would defeat the module.
@@ -22,6 +23,13 @@ final class MarkupOverlayWindow: NSWindow {
         contentView = content
         setFrame(screen.frame, display: false)
     }
+}
+
+/// A click on a window that is not key is normally spent making it key, and the
+/// press that should have started a selection draws nothing. The overlay has one
+/// gesture and no other purpose: the FIRST press must count.
+final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 }
 
 @MainActor

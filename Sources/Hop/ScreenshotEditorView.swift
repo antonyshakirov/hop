@@ -18,6 +18,15 @@ final class ScreenshotEditor: ObservableObject {
     let base: CGImage
     let rect: CaptureRect
 
+    /// How many marks there were when the picture was last saved or copied.
+    private var settledCount: Int?
+
+    /// Marks that have never left the window. Drawing more AFTER a save makes
+    /// it true again: the file on disk is no longer what is on screen.
+    var hasUnsavedMarks: Bool {
+        !surface.shapes.isEmpty && settledCount != surface.shapes.count
+    }
+
     init(base: CGImage, rect: CaptureRect) {
         self.base = base
         self.rect = rect
@@ -71,13 +80,16 @@ final class ScreenshotEditor: ObservableObject {
     func save() -> URL? {
         MarkupSettings.store(dressing: dressing, watermark: watermark)
         guard let picture = finished() else { return nil }
-        return MarkupExport.save(picture, format: format, name: fileName)
+        let url = MarkupExport.save(picture, format: format, name: fileName)
+        if url != nil { settledCount = surface.shapes.count }
+        return url
     }
 
     func copyToClipboard() {
         MarkupSettings.store(dressing: dressing, watermark: watermark)
         guard let picture = finished() else { return }
         MarkupExport.copy(picture)
+        settledCount = surface.shapes.count
     }
 }
 

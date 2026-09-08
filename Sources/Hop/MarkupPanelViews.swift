@@ -23,16 +23,18 @@ struct ShotView: View {
                 .minimumScaleFactor(0.75)
                 .truncationMode(.tail)
 
-            Spacer(minLength: 6)
+            Spacer(minLength: 8)
 
             if shot.lastRect != nil {
                 iconButton("arrow.counterclockwise", help: L10n.t(.shotRepeat, lang)) {
                     shot.capture(.repeatLast)
                 }
             }
-            button(.shotArea) { shot.capture(.area) }
-            button(.shotWindow) { shot.capture(.window) }
-            button(.shotScreen) { shot.capture(.screen) }
+            HStack(spacing: 12) {
+                button(.shotArea) { shot.capture(.area) }
+                button(.shotWindow) { shot.capture(.window) }
+                button(.shotScreen) { shot.capture(.screen) }
+            }
         }
     }
 
@@ -40,16 +42,13 @@ struct ShotView: View {
         Button {
             fire(run)
         } label: {
-            Text(L10n.t(key, lang))
-                .font(Theme.mono(11))
-                .foregroundStyle(Theme.textPrimary)
+            HoverLabel(text: L10n.t(key, lang), color: Theme.textSecondary)
                 .lineLimit(1)
-                .padding(.horizontal, 10).padding(.vertical, 6)
-                .background(RoundedRectangle(cornerRadius: 7).fill(Theme.chipBg))
+                .frame(height: 22)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .fixedSize()
-        .modifier(Theme.HoverHighlight(cornerRadius: 7))
     }
 
     private func iconButton(_ symbol: String, help: String, run: @escaping () -> Void) -> some View {
@@ -58,13 +57,11 @@ struct ShotView: View {
         } label: {
             Image(systemName: symbol)
                 .font(.system(size: 11))
-                .foregroundStyle(Theme.textPrimary)
-                .frame(width: 28, height: 26)
-                .background(RoundedRectangle(cornerRadius: 7).fill(Theme.chipBg))
+                .foregroundStyle(Theme.textTertiary)
+                .frame(width: 20, height: 22)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .modifier(Theme.HoverHighlight(cornerRadius: 7))
         .help(help)
     }
 
@@ -94,23 +91,21 @@ struct ScreenAnnotateRow: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
                 .truncationMode(.tail)
-            Spacer(minLength: 6)
+            Spacer(minLength: 8)
             Button {
                 closePanel()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                     annotate.toggle()
                 }
             } label: {
-                Text(L10n.t(annotate.isUp ? .annotateExit : .annotateStart, lang))
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textPrimary)
+                HoverLabel(text: L10n.t(annotate.isUp ? .annotateExit : .annotateStart, lang),
+                           color: annotate.isUp ? Theme.editing : Theme.textSecondary)
                     .lineLimit(1)
-                    .padding(.horizontal, 10).padding(.vertical, 6)
-                    .background(RoundedRectangle(cornerRadius: 7).fill(Theme.chipBg))
+                    .frame(height: 22)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .fixedSize()
-            .modifier(Theme.HoverHighlight(cornerRadius: 7))
         }
     }
 }

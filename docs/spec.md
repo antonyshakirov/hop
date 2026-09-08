@@ -2373,6 +2373,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   rectangle has been framed at least once — spelled out it would not fit the row
   in German. The name gives way before the buttons do. The panel closes before
   the frame appears; a popover would land in the picture.
+- **The three are bare words, not filled chips** (Anton, 2026-09-08): the panel
+  sets its weight with the awake row's figures and the timer's presets, and a
+  chip with a background beside them reads as a heavier control than anything
+  else in the panel. Same `HoverLabel` they use — the label brightens under the
+  pointer and that is the whole affordance. "Start"/"exit" on the drawing row
+  follows, and turns to `Theme.editing` while the layer is up.
 - Hotkeys: ⌃⌥A takes an area out of the box. Window, screen and repeat ship with
   NO combination and are assigned in the hotkeys page — the letters that would
   read best were already the window manager's.
@@ -2391,13 +2397,35 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   The pointer is followed through a tracking area rather than a gesture: SwiftUI
   reports a moving mouse only once a button is down, and the crosshair has to be
   there before that.
+- **The frame is ONE line**, white, with a shadow under it for contrast. A second
+  darker rectangle drawn around the first gave it a visible double edge (Anton,
+  2026-09-08).
+- **The first press draws.** Both overlays host their SwiftUI in a
+  `FirstMouseHostingView`, which answers `acceptsFirstMouse` with true: a click
+  on a window that is not key is otherwise spent making it key, and the
+  selection appeared to work only from the second attempt (Anton, 2026-09-08).
 - Capture runs through ScreenCaptureKit in the display's BACKING pixels, so a
   retina shot is saved at full size. Hop's own windows are excluded from the
   filter: the panel never appears in the frame.
 - Delay (off, 3, 5, 10 seconds) is a module setting, for a menu that closes on a
   click. The pointer is left out of the picture unless the setting asks for it.
-- **The editor opens on every capture**, in a window of its own like the
-  converter. **The picture IS the window** (Anton, 2026-09-08): nothing stands
+- **The editor opens on every capture, in a window of ITS OWN.** Two shots are
+  two windows, either can go to the Dock, and they are marked up side by side
+  (Anton, 2026-09-08). The first opens where the last one was left
+  (`hop.shotEditor`); the rest cascade down and right from it, the way documents
+  do. The window's name is the file's name, kept in step with the field in the
+  header.
+- **"One window with tabs" is a setting** (`shotOneWindow`, off). On, the windows
+  are folded together by macOS's OWN tabs — one `tabbingIdentifier`,
+  `addTabbedWindow` — rather than a tab bar of Hop's making: the system's brings
+  ⌘⇧[ and ⌘⇧], dragging a tab out into a window, and the tab overview for free.
+  The title comes back into the title bar while they are tabbed; a tab with no
+  name cannot be told from the next one.
+- **Closing a shot with marks on it asks first** — unless "copy" or "save" was
+  pressed, and unless more was drawn after that: what is on disk is then no
+  longer what is on screen, and the question comes back. A shot with nothing
+  drawn on it closes without a word.
+- **The picture IS the window** (Anton, 2026-09-08): nothing stands
   beside it, the shot is fitted to whatever size the window is at — growing to
   twice its own pixels at most, past which it is only a smear — and everything
   else hangs off the floating toolbar over it. The window resizes, goes full
