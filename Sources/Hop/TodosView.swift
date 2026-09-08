@@ -104,6 +104,13 @@ struct TodosView: View {
             addRow
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        // WORKAROUND: behind the content, not on the container — a container
+        // gesture takes the click the card's text editors need for the caret.
+        .background {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { commitOpenCard() }
+        }
         .coordinateSpace(name: Self.listSpace)
         .onPreferenceChange(RowFrameKey.self) { rowFrames = $0 }
         .overlay(alignment: .topLeading) { dropIndicatorOverlay }
@@ -123,10 +130,10 @@ struct TodosView: View {
         .onDisappear {
             // @State survives the popover hide/show — a left-open field, a pending
             // confirm or an open card would reappear on the next open, so clear
-            // all three here.
+            // all three here. The card is committed rather than dropped.
             endAdd()
             clearConfirms()
-            collapseCard()
+            commitOpenCard()
             resetDrag()
         }
     }
@@ -173,8 +180,13 @@ struct TodosView: View {
                                         set: { card = $0 }),
                          lang: lang,
                          onCommit: { commitCard(item) },
-                         onCancel: { collapseCard() })
+                         onCancel: { collapseCard() },
+                         completion: CardCompletion(done: item.done,
+                                                    toggle: { completeFromCard(item) }))
                 .background(rowFrameReader(item.id))
+                .background {
+                    Color.clear.contentShape(Rectangle()).onTapGesture { }
+                }
         } else {
             collapsedRow(item)
         }
@@ -200,7 +212,7 @@ struct TodosView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(t(.todosLabel))
+            .help(t(.todoDoneLabel))
             .hoverDim()
             Text(item.text)
                 .font(Theme.mono(12))
@@ -301,8 +313,12 @@ struct TodosView: View {
                     .foregroundStyle(Theme.textPrimary)
                     .focused($fieldFocused)
                     .onAppear { fieldFocused = true }
-                    .onSubmit { commit() }
+                    .onSubmit { commitAndContinue() }
                     .onExitCommand { endAdd() }
+                Button("", action: commitAndContinue)
+                    .keyboardShortcut(.return, modifiers: .command)
+                    .opacity(0)
+                    .frame(width: 0, height: 0)
                 FieldCommitButtons(onCommit: { commit() }, onCancel: { endAdd() })
             }
             .padding(.horizontal, 10)
@@ -442,6 +458,7 @@ struct TodosView: View {
     private func expandCard(_ item: TodoItem) {
         guard !Snapshot.active else { return }
         guard expanded != item.id else { return }
+        commitOpenCard()
         endAdd()
         clearConfirms()
         card = TaskCardDraft(text: item.text, note: item.note, important: item.important,
@@ -453,6 +470,19 @@ struct TodosView: View {
     private func collapseCard() {
         expanded = nil
         card = nil
+    }
+
+    /// SPEC: docs/spec.md, "Leaving the card" — every exit but an explicit cancel.
+    private func commitOpenCard() {
+        guard let id = expanded, let item = todos.list.items.first(where: { $0.id == id }) else {
+            return collapseCard()
+        }
+        commitCard(item)
+    }
+
+    private func completeFromCard(_ item: TodoItem) {
+        commitCard(item)
+        withAnimation(Self.sinkAnimation) { todos.toggle(item.id) }
     }
 
     /// Writes the draft back. Each field goes through its own mutator, so an
@@ -474,6 +504,14 @@ struct TodosView: View {
     private func commit() {
         todos.add(text: draft)   // empty input trims to nothing = no-op
         endAdd()
+    }
+
+    /// SPEC: docs/spec.md, "Adding" — append and stay; empty ends the run.
+    private func commitAndContinue() {
+        guard !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return endAdd() }
+        todos.add(text: draft)
+        draft = ""
+        fieldFocused = true
     }
 
     private func endAdd() {

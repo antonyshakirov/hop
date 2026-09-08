@@ -1736,15 +1736,41 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `RowCapTests` hold the cap/height math.
 - **Adding:** a `+ new task` footer row (placeholder `todosNew`, "new task")
   opens an inline field with the same ✓/✕ buttons and `Snapshot.active` gating as
-  the tracker; Return/✓ append, Escape/✕ cancel, empty = cancel.
+  the tracker. **Return appends and KEEPS the field open** — cleared and still
+  focused, so a list is typed in one run instead of reaching for the mouse
+  between two tasks (Vanya, 2026-09-08); ⌘Return does the same, for the
+  hands that reach for it. Return on an empty field ends the run and closes it.
+  ✓ appends and closes — the mouse says the run is over. Escape/✕ cancel, empty
+  = cancel. The tracker's `nameField` behaves identically on its ADD fields
+  (`newTask`, `newTaskIn`, `newProject` — `Field.isAdding`); renaming a project
+  has nothing to continue, so there Return still commits and closes.
 - **Task card (expanded row):** clicking a row expands it into a card and
   collapses whatever was open — ONE card at a time, so the panel cannot grow
   without bound. The card is shaped like a note rather than a form: the task text
   is simply the first line (no caption — a line at the top of a card is its
   title), a hairline separates it from a `description` field below, and BOTH are
   `TextEditor`s rather than `TextField`s — a macOS field treats Return as submit
-  no matter what, so the text refused to wrap. Return therefore adds a line, ✓ or
-  ⌘Return commits, Escape abandons.
+  no matter what, so the text refused to wrap. Return therefore adds a line, and
+  BOTH editors hide their scroll indicators: a `TextEditor` shows a knob of its
+  own once the text outgrows the box, and the grey pill floating in the card was
+  read as a control nobody had put there (Vanya, 2026-09-08).
+- **Leaving the card (2026-09-08):** the card carries a **checkbox at its head** —
+  the collapsed row's own `TransportCircle` in the same 22pt gutter, so expanding
+  a task moves its circle by the card's inset and nothing else. Pressing it
+  saves, completes the task and folds the card in one move (`CardCompletion`,
+  nil for the tracker, whose tasks have no completed state and which therefore
+  shows no checkbox). The former ✓ in the bottom-right is now a `chevron.up`
+  (`tipCollapse`) that saves and folds: a tick sitting next to a task was read as
+  "check this off", not as "save" (Vanya, 2026-09-08), and the card now
+  holds exactly one tick, the one that means it. ✕ still abandons.
+  ⌘Return commits. **Escape** hangs on a hidden `.cancelAction` button rather
+  than on `onExitCommand`, which never fired — the focus lives in a `TextEditor`
+  and AppKit's field editor eats the key first, which is why a card could not be
+  closed from the keyboard at all. Everything that is not an explicit cancel now
+  COMMITS instead of dropping the draft: tapping another row, tapping the
+  module's own background (a container-level `onTapGesture`; the card swallows
+  taps that land inside it), and closing the panel (`onDisappear`) — clicking
+  elsewhere never says "discard". Same in the tracker (`commitOpenCard`).
   Beneath them, the reminder group sits on the LEFT (bell, day chip, time, and
   the weekday row under it, captioned `repeat` in words — a glyph there read as
   one more button) and the favourite star on the RIGHT, next to ✓/✕: between the

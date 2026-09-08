@@ -8,6 +8,12 @@ struct ReminderDraft: Equatable {
     var repeatDays: [Int]
 }
 
+/// SPEC: the card's checkbox — nil for a module with no completed state.
+struct CardCompletion {
+    var done: Bool
+    var toggle: () -> Void
+}
+
 /// Everything one task card edits. The card owns a DRAFT copy so a cancelled
 /// edit never touches the store, and the list underneath keeps rendering stored
 /// values while the card is open.
@@ -31,13 +37,14 @@ struct TaskCardDraft: Equatable {
 ///
 /// Shaped like a note, not like a form: the title is simply the first line, a
 /// hairline separates it from the description, and both fields take Return for
-/// a new line. Everything else is two small icons — a bell for the reminder, a
-/// star for a favourite — so nothing needs a caption to explain what it is.
+/// a new line. Everything else is small icons — a bell, a star, a chevron that
+/// folds the card up — and the checkbox at its head, the card's only tick.
 struct TaskCardView: View {
     @Binding var draft: TaskCardDraft
     let lang: AppLanguage
     let onCommit: () -> Void
     let onCancel: () -> Void
+    var completion: CardCompletion? = nil
 
     @FocusState private var titleFocused: Bool
     /// Which day the weekday row starts on: the user's setting, or the system's
@@ -47,24 +54,49 @@ struct TaskCardView: View {
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            title
-            Rectangle()
-                .fill(Theme.divider)
-                .frame(height: 1)
-                .padding(.top, 6)
-                .padding(.bottom, 8)
-            description
-            controls
-            if draft.reminder?.date != nil { repeatRow.padding(.top, 5) }
+        HStack(alignment: .top, spacing: 0) {
+            if let completion { checkbox(completion) }
+            VStack(alignment: .leading, spacing: 0) {
+                title
+                Rectangle()
+                    .fill(Theme.divider)
+                    .frame(height: 1)
+                    .padding(.top, 6)
+                    .padding(.bottom, 8)
+                description
+                controls
+                if draft.reminder?.date != nil { repeatRow.padding(.top, 5) }
+            }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
         .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.divider, lineWidth: 1))
-        // Return belongs to the text now, so Escape is what abandons the edit —
-        // the same key that cancels every other inline field in the panel.
-        .onExitCommand(perform: onCancel)
+        // WORKAROUND: `onExitCommand` never fires here — AppKit's field editor
+        // eats Escape before the TextEditor's SwiftUI parent sees it.
+        .background {
+            Button("", action: onCancel)
+                .keyboardShortcut(.cancelAction)
+                .opacity(0)
+                .frame(width: 0, height: 0)
+        }
+    }
+
+    private func checkbox(_ completion: CardCompletion) -> some View {
+        Button(action: completion.toggle) {
+            TransportCircle(systemName: completion.done ? "checkmark" : "",
+                            filled: completion.done,
+                            diameter: RowCircle.checkboxDiameter,
+                            iconSize: 10,
+                            fillColor: Theme.textTertiary,
+                            strokeColor: Theme.textSecondary,
+                            glyphColor: Theme.background)
+                .frame(width: RowCircle.gutter, height: 18, alignment: .leading)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(t(.todoDoneLabel))
+        .hoverDim()
     }
 
     // MARK: - Text
@@ -105,6 +137,7 @@ struct TaskCardView: View {
             .font(font)
             .foregroundStyle(color)
             .scrollContentBackground(.hidden)
+            .scrollIndicators(.hidden)
             .background(.clear)
             .frame(minHeight: minHeight, maxHeight: maxHeight)
             .fixedSize(horizontal: false, vertical: true)
@@ -133,7 +166,8 @@ struct TaskCardView: View {
             }
             Spacer(minLength: 8)
             starButton
-            FieldCommitButtons(onCommit: onCommit, onCancel: onCancel)
+            HoverIconButton(symbol: "xmark", action: onCancel, help: t(.quitCancel))
+            HoverIconButton(symbol: "chevron.up", action: onCommit, help: t(.tipCollapse))
             // Return belongs to the text, so the keyboard commit is ⌘Return.
             Button("", action: onCommit)
                 .keyboardShortcut(.return, modifiers: .command)

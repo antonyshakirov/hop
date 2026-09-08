@@ -31,6 +31,14 @@ struct TrackerView: View {
         case editTotal(UUID)        // taskID
         case editEntry(UUID)        // one line of a task's history
         case newEntry(UUID)         // taskID — a session being added by hand
+
+        /// SPEC: fields that append, where Return hands the empty field back.
+        var isAdding: Bool {
+            switch self {
+            case .newTask, .newTaskIn, .newProject: return true
+            default: return false
+            }
+        }
     }
 
     /// The five parts of a logged moment, for the one open list at a time.
@@ -209,6 +217,13 @@ struct TrackerView: View {
             addRows
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        // WORKAROUND: behind the content, not on the container — a container
+        // gesture takes the click the card's text editors need for the caret.
+        .background {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { commitOpenCard() }
+        }
         .coordinateSpace(name: Self.listSpace)
         .onPreferenceChange(RowFrameKey.self) { rowFrames = $0 }
         .overlay(alignment: .topLeading) { dropIndicatorOverlay }
@@ -228,7 +243,7 @@ struct TrackerView: View {
             // it here, the same way PanelView drops its inline icon picker.
             endEdit()
             clearConfirms()
-            collapseCard()
+            commitOpenCard()
             resetScrub()
             resetDrag()
         }
@@ -391,6 +406,9 @@ struct TrackerView: View {
                                  lang: lang,
                                  onCommit: { commitCard(task) },
                                  onCancel: { collapseCard() })
+                        .background {
+                            Color.clear.contentShape(Rectangle()).onTapGesture { }
+                        }
                     history(task)
                 }
                     .background(rowFrameReader(task.id))
@@ -925,6 +943,7 @@ struct TrackerView: View {
 
     private func expandCard(_ task: TrackerTask) {
         guard !Snapshot.active, expandedTask != task.id else { return }
+        commitOpenCard()
         endEdit()
         clearConfirms()
         card = TaskCardDraft(text: task.name, note: task.note, important: task.important)
@@ -934,6 +953,13 @@ struct TrackerView: View {
     private func collapseCard() {
         expandedTask = nil
         card = nil
+    }
+
+    /// SPEC: docs/spec.md, "Leaving the card" — every exit but an explicit cancel.
+    private func commitOpenCard() {
+        guard let id = expandedTask,
+              let task = engine.data.tasks.first(where: { $0.id == id }) else { return collapseCard() }
+        commitCard(task)
     }
 
     /// Writes the draft back through the engine's own mutators, each of which
@@ -1291,8 +1317,12 @@ struct TrackerView: View {
                 .foregroundStyle(Theme.textPrimary)
                 .focused($focused, equals: field)
                 .onAppear { focused = field }
-                .onSubmit { commitName() }
+                .onSubmit { commitName(keepOpen: field.isAdding) }
                 .onExitCommand { endEdit() }
+            Button("", action: { commitName(keepOpen: field.isAdding) })
+                .keyboardShortcut(.return, modifiers: .command)
+                .opacity(0)
+                .frame(width: 0, height: 0)
             FieldCommitButtons(onCommit: { commitName() }, onCancel: { endEdit() })
         }
         .padding(.horizontal, 10)
@@ -1372,10 +1402,10 @@ struct TrackerView: View {
         activeField = .editTotal(task.id)
     }
 
-    private func commitName() {
-        defer { endEdit() }
+    /// SPEC: docs/spec.md, "Adding" — `keepOpen` appends and keeps the field.
+    private func commitName(keepOpen: Bool = false) {
         let name = nameDraft.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !name.isEmpty else { return }   // empty input = cancel
+        guard !name.isEmpty else { return endEdit() }
         switch activeField {
         case .newTask: engine.addTask(name: name)
         case .newTaskIn(let projectID): engine.addTask(name: name, projectID: projectID)
@@ -1383,6 +1413,9 @@ struct TrackerView: View {
         case .renameProject(let projectID): engine.renameProject(projectID, to: name)
         default: break
         }
+        guard keepOpen else { return endEdit() }
+        nameDraft = ""
+        focused = activeField
     }
 
     private func commitTotal(_ taskID: UUID) {
