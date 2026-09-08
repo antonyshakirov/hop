@@ -2493,11 +2493,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **A text mark gets a field of its own** (`.id(shape.id)`). One field carried
   across two marks keeps the words of the first, and the text looks as though it
   moved to wherever the second click landed.
-- **The editor draws its marks over a picture the PIXEL tools have already
-  changed.** Blur and the loupe do not sit on the picture, they alter it, and on
-  screen both used to be a dashed outline and nothing else — the effect only
-  appeared in the exported file (Anton, 2026-09-08). `MarkupRender.effects`
-  builds that backdrop, the vector marks go over it, and the export is unchanged.
+- **The editor draws its marks over a picture the BLUR has already changed.**
+  Blur does not sit on the picture, it alters it, and on screen it used to be a
+  dashed outline and nothing else — the effect only appeared in the exported
+  file (Anton, 2026-09-08). `MarkupRender.effects` builds that backdrop, the
+  vector marks go over it, and the export is unchanged.
+- **The loupe is drawn by the canvas itself**, not baked into that backdrop: it
+  has to be under the hand WHILE it is pulled out, not after (Anton,
+  2026-09-08). It is a circle — the biggest that fits the drag, on the same
+  centre — with a rim in the tool's own colour, and no outline of any other
+  kind. Another press of the tool adds another lens; the select tool moves one
+  by its middle and resizes it by its corners, like everything else.
 - **The editor watches its SURFACE, not only itself.** `MarkupSurface` is an
   object the editor merely holds, so a tool change or a new mark published
   nothing the view could hear: crop mode never opened and the backdrop never

@@ -22,7 +22,9 @@ enum MarkupRender {
     /// the picture rather than sit on it, and a dashed outline is not what they
     /// did.
     static func effects(base: CGImage, shapes: [MarkupShape], scale: Double) -> CGImage? {
-        let lenses = shapes.filter { $0.tool == .magnifier }
+        // The loupe is drawn by the canvas itself, live under the hand; only
+        // the blur has to be baked in behind the marks.
+        let lenses: [MarkupShape] = []
         let blurred = smeared(base: base, shapes: shapes, scale: scale)
         guard blurred != nil || !lenses.isEmpty else { return nil }
 
@@ -76,8 +78,12 @@ enum MarkupRender {
     ) {
         let box = MarkupGeometry.boundingBox(shape.points)
         guard box.size.x > 8, box.size.y > 8 else { return }
-        let frame = CGRect(x: box.origin.x * scale, y: box.origin.y * scale,
+        let drawn = CGRect(x: box.origin.x * scale, y: box.origin.y * scale,
                            width: box.size.x * scale, height: box.size.y * scale)
+        // A circle, whatever shape the drag was: the biggest that fits.
+        let side = min(drawn.width, drawn.height)
+        let frame = CGRect(x: drawn.midX - side / 2, y: drawn.midY - side / 2,
+                           width: side, height: side)
         // `cropping` measures from the image's top left, which is the same
         // corner the flipped context counts from — no conversion needed.
         let source = CGRect(x: frame.midX - frame.width / 4, y: frame.midY - frame.height / 4,

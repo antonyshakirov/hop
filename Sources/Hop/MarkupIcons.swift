@@ -63,8 +63,8 @@ enum MarkupIcons {
                     stroke { $0.move(to: p(10.5, 10.2)); $0.addLine(to: p(12, 8.7)); $0.addLine(to: p(12, 15.3)) }]
 
         case .text:
-            return [stroke { $0.addPath(line(5.6, 6.8, 18.4, 6.8)) },
-                    stroke { $0.addPath(line(12, 6.8, 12, 17.2)) }]
+            return [stroke { $0.addPath(line(6.8, 5.2, 17.2, 5.2)) },
+                    stroke { $0.addPath(line(12, 5.2, 12, 18.8)) }]
 
         case .magnifier:
             return [stroke { $0.addEllipse(in: CGRect(x: 4, y: 4, width: 13, height: 13)) },

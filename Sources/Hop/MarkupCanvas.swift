@@ -14,9 +14,9 @@ struct MarkupCanvas: View {
     @State private var typing = false
 
     var body: some View {
-        Canvas { context, _ in
+        Canvas { context, size in
             for shape in surface.visible {
-                draw(shape, in: &context)
+                draw(shape, canvas: size, in: &context)
             }
         }
         .background(alignment: .topLeading) {
@@ -109,7 +109,7 @@ struct MarkupCanvas: View {
         }
     }
 
-    private func draw(_ shape: MarkupShape, in context: inout GraphicsContext) {
+    private func draw(_ shape: MarkupShape, canvas: CGSize, in context: inout GraphicsContext) {
         let colour = Color(markupHex: shape.ink.hex).opacity(surface.opacity(of: shape))
         let width = shape.ink.width * scale
         let stroke = StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
@@ -142,11 +142,28 @@ struct MarkupCanvas: View {
             context.stroke(Path(roundedRect: box(first, points[1]), cornerRadius: 4 * scale),
                            with: .color(colour), style: stroke)
 
-        case .oval, .magnifier:
+        case .oval:
             guard points.count > 1 else { return }
             var path = Path()
             path.addEllipse(in: box(first, points[1]))
             context.stroke(path, with: .color(colour), style: stroke)
+
+        case .magnifier:
+            // Drawn HERE rather than baked into the backdrop, so the lens is
+            // under the hand while it is being pulled out, not after.
+            guard points.count > 1, let background else { return }
+            let frame = round(box(first, points[1]))
+            let lens = Path(ellipseIn: frame)
+            context.drawLayer { layer in
+                layer.clip(to: lens)
+                // Twice the size about the lens's own centre, so what is under
+                // the glass stays under it.
+                layer.draw(background, in: CGRect(x: -frame.midX, y: -frame.midY,
+                                                  width: canvas.width * 2,
+                                                  height: canvas.height * 2))
+            }
+            context.stroke(lens, with: .color(colour),
+                           style: StrokeStyle(lineWidth: max(2, width)))
 
         case .blur, .crop:
             guard points.count > 1 else { return }
@@ -216,6 +233,13 @@ struct MarkupCanvas: View {
         let length = (dx * dx + dy * dy).squareRoot()
         guard length > amount else { return to }
         return CGPoint(x: to.x - dx / length * amount, y: to.y - dy / length * amount)
+    }
+
+    /// The lens is a circle, whatever shape the drag was: the biggest one that
+    /// fits, on the same centre.
+    private func round(_ rect: CGRect) -> CGRect {
+        let side = min(rect.width, rect.height)
+        return CGRect(x: rect.midX - side / 2, y: rect.midY - side / 2, width: side, height: side)
     }
 
     private func freehand(_ points: [CGPoint]) -> Path {
