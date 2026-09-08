@@ -2480,7 +2480,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Crop is a MODE, not a rectangle to draw.** Picking it shows the whole
   picture again with the last cut as a frame — eight handles, a dimmed outside,
   thirds across it — so a crop can be widened back to anything up to the
-  original (Anton, 2026-09-08). Nothing is applied until it is asked for: while
+  original (Anton, 2026-09-08). Each handle's gesture goes on BEFORE
+  `.position()`: after it the view fills its parent and the gesture with it, so
+  all eight answered for the whole picture and the last one drawn won every
+  drag. Their hit area is 2.4× what is drawn — a 13pt dot is not a target. Nothing is applied until it is asked for: while
   the frame is up the keeping panel gives way to two answers, reset and apply.
   The canvas takes no hits meanwhile, so the crop frame cannot be drawn over.
   Applied, the window SHOWS the cut — the picture is offset inside a clipped box
@@ -2545,6 +2548,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   its digits 1.5pt on focus to cancel the hop out; the nudge is gone with the
   hop. The tracker routes focus by an enum, so its fields read that state
   through a `caret(on:)` binding rather than `@FocusState`.
+  **A hand-made cell comes back neither editable nor selectable**, whatever the
+  field it is put into was, so both are set again after the swap. Without that
+  every field in the app was read-only and looked like it simply ignored the
+  keyboard (Anton, 2026-09-08).
 - **⌘Z and ⇧⌘Z work from the keyboard.** Hop is an accessory app with no Edit
   menu, so there is no key equivalent for them to travel on: the surface's own
   key monitor takes them, and only while its window is the KEY one — with

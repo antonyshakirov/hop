@@ -23,6 +23,11 @@ struct SteadyField: NSViewRepresentable {
     func makeNSView(context: Context) -> NSTextField {
         let field = NSTextField()
         field.cell = SteadyCell(textCell: "")
+        // A hand-made cell comes back neither editable nor selectable, whatever
+        // the field it is put into was. Set AFTER the swap, or the field is
+        // read-only and looks like it simply ignores the keyboard.
+        field.isEditable = true
+        field.isSelectable = true
         field.isBordered = false
         field.drawsBackground = false
         field.focusRingType = .none

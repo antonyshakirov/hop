@@ -21,6 +21,8 @@ struct ClockField: NSViewRepresentable {
     func makeNSView(context: Context) -> NSTextField {
         let field = NSTextField(string: Self.formatted(value))
         field.cell = SteadyCell(textCell: Self.formatted(value))
+        field.isEditable = true
+        field.isSelectable = true
         field.isBordered = false
         field.drawsBackground = false
         field.alignment = .center

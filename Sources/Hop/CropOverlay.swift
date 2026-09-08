@@ -11,7 +11,7 @@ struct CropOverlay: View {
     let bounds: CGSize
     let scale: CGFloat
 
-    private let handle: CGFloat = 11
+    private let handle: CGFloat = 13
     private let least: CGFloat = 24
 
     var body: some View {
@@ -37,25 +37,29 @@ struct CropOverlay: View {
 
             thirds
 
-            // Inside the frame the whole thing moves.
+            // Inside the frame the whole thing moves. The gesture goes on
+            // BEFORE .position(): after it, the view fills its parent and the
+            // gesture with it, so every grip would answer for the whole picture.
             Color.clear
-                .contentShape(Rectangle())
                 .frame(width: box.width, height: box.height)
-                .position(x: box.midX, y: box.midY)
+                .contentShape(Rectangle())
                 .gesture(DragGesture()
                     .onChanged { value in move(by: value.translation) }
                     .onEnded { _ in start = nil })
+                .position(x: box.midX, y: box.midY)
 
             ForEach(Grip.allCases, id: \.self) { grip in
                 Circle()
                     .fill(Color.white)
-                    .overlay(Circle().strokeBorder(Color.black.opacity(0.35), lineWidth: 1))
+                    .overlay(Circle().strokeBorder(Color.black.opacity(0.55), lineWidth: 1))
+                    .shadow(color: .black.opacity(0.5), radius: 2)
                     .frame(width: handle, height: handle)
-                    .position(spot(of: grip))
-                    .contentShape(Rectangle().inset(by: -8))
+                    .frame(width: handle * 2.4, height: handle * 2.4)
+                    .contentShape(Rectangle())
                     .gesture(DragGesture()
                         .onChanged { value in pull(grip, by: value.translation) }
                         .onEnded { _ in start = nil })
+                    .position(spot(of: grip))
             }
         }
         .frame(width: bounds.width * scale, height: bounds.height * scale)
