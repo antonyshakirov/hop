@@ -270,47 +270,65 @@ struct MarkupToolbar: View {
 struct MarkupColourPopover: View {
     @ObservedObject var surface: MarkupSurface
 
+    @State private var mixed: [String] = MarkupSettings.recentColours()
+
     private let palette = ["#FF453A", "#FF9F0A", "#FFD60A", "#32D74B",
                            "#0A84FF", "#BF5AF2", "#FFFFFF", "#1C1C1E"]
 
     var body: some View {
-        HStack(spacing: 8) {
-            ForEach(palette, id: \.self) { hex in
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                ForEach(palette, id: \.self) { hex in
+                    swatch(hex)
+                }
+            }
+
+            HStack(spacing: 8) {
+                ForEach(mixed, id: \.self) { hex in
+                    swatch(hex)
+                }
+                if !mixed.isEmpty {
+                    Rectangle().fill(Theme.divider).frame(width: 1, height: 22)
+                }
                 Button {
-                    write { $0.hex = hex }
+                    MarkupColourPanel.shared.show(startingAt: current.hex) { picked in
+                        let hex = picked.markupHex
+                        write { $0.hex = hex }
+                        MarkupSettings.remember(colour: hex)
+                        mixed = MarkupSettings.recentColours()
+                    }
                 } label: {
                     Circle()
-                        .fill(Color(markupHex: hex))
+                        .fill(AngularGradient(
+                            colors: [.red, .yellow, .green, .cyan, .blue, .purple, .red],
+                            center: .center))
                         .frame(width: 22, height: 22)
-                        .overlay(
-                            Circle().strokeBorder(
-                                Theme.glyphInk.opacity(current.hex == hex ? 0.9 : 0.2),
-                                lineWidth: current.hex == hex ? 2 : 1
-                            )
-                        )
+                        .overlay(Circle().strokeBorder(Theme.glyphInk.opacity(0.2), lineWidth: 1))
+                        .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
+                Spacer(minLength: 0)
             }
-
-            Rectangle().fill(Theme.divider).frame(width: 1, height: 22)
-
-            Button {
-                MarkupColourPanel.shared.show(startingAt: current.hex) { picked in
-                    write { $0.hex = picked.markupHex }
-                }
-            } label: {
-                Circle()
-                    .fill(AngularGradient(
-                        colors: [.red, .yellow, .green, .cyan, .blue, .purple, .red],
-                        center: .center))
-                    .frame(width: 22, height: 22)
-                    .overlay(Circle().strokeBorder(Theme.glyphInk.opacity(0.2), lineWidth: 1))
-                    .contentShape(Circle())
-            }
-            .buttonStyle(.plain)
         }
         .padding(12)
         .background(Theme.background)
+    }
+
+    private func swatch(_ hex: String) -> some View {
+        Button {
+            write { $0.hex = hex }
+        } label: {
+            Circle()
+                .fill(Color(markupHex: hex))
+                .frame(width: 22, height: 22)
+                .overlay(
+                    Circle().strokeBorder(
+                        Theme.glyphInk.opacity(current.hex == hex ? 0.9 : 0.2),
+                        lineWidth: current.hex == hex ? 2 : 1
+                    )
+                )
+        }
+        .buttonStyle(.plain)
     }
 
     private var current: MarkupInk { surface.ink(for: surface.tool) }

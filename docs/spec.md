@@ -2601,8 +2601,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   are kept per tool and outlive the session** (`markupInks`) — the fat yellow
   marker is not the thin red pencil, and neither should have to be set again
   tomorrow.
-- The colour popover carries the eight presets and a round rainbow swatch for
-  anything else. It opens `NSColorPanel` in the middle of the screen and in the
+- The colour popover carries the eight presets, a row of the colours MIXED BY
+  HAND (newest first, seven kept, shared by every tool — a colour chosen for the
+  circles is a colour the lines should reach without mixing it again; Anton,
+  2026-09-08), and a round rainbow swatch for anything else. It opens `NSColorPanel` in the middle of the screen and in the
   WHEEL mode: left to itself the panel comes back wherever and however it was
   last left — the crayons, or a grey ramp — and the wheel is the one mode with
   hue, saturation and brightness each on a control of its own (Anton,
@@ -2633,6 +2635,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   menu, so there is no key equivalent for them to travel on: the surface's own
   key monitor takes them, and only while its window is the KEY one — with
   several editors open, an undo must not reach into the ones behind.
+- **The pointer is the NIB for the tools that draw by hand**: a circle for the
+  pens, a rounded square for the marker's chisel, drawn at the width the stroke
+  will actually be, so its weight is known before a line of it is made (Anton,
+  2026-09-08). The blur's pointer is a crosshair with the tool's own glyph
+  beside it — a bare crosshair says "draw something" and no more, and the blur
+  is the one region drawn for a purpose of its own.
+- **A tool that acts on the PRESS acts once.** The numbered circles and the
+  caption used to repeat for every step of a hand merely holding still, because
+  the canvas reads a press it has not finished as a press it has not started.
+  The rubber is the exception and goes on rubbing while it is held.
 - **The POINTER says where a mark will start, and nothing else does.** Guides
   across the picture and a cross at the anchor were both tried and both taken
   out: over a screenshot they are more furniture than help (Anton, 2026-09-08).
@@ -2820,7 +2832,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   shapes sharing an edge stroke it twice, and the joint swells at 19 pt (Anton,
   2026-09-07). Icons are checked by RENDERING them, not by reading the paths.
   The marker is a narrow barrel flaring into a chisel: an even barrel with a
-  skirt read as a torch (Anton, 2026-09-08).
+  skirt read as a torch (Anton, 2026-09-08). The pencil is drawn TALLER than it
+  looks it needs: turning a shape by 45° costs it a third of its height, and
+  beside the upright glyphs it read as stubby. "Clear" is a brush, not a bin —
+  a bin reads as throwing the picture away rather than wiping the marks off it.
 - **Every glyph is outlined and filled ONCE**, never stroked piece by piece: at
   anything below full opacity the crossings of two strokes painted separately
   come out brighter than the lines themselves, which is how the panel's pencil

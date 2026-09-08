@@ -52,7 +52,8 @@ struct MarkupCanvas: View {
         .overlay(alignment: .topLeading) { if chrome { typingField } }
         .overlay {
             if chrome {
-                ToolCursor(tool: surface.tool, width: surface.ink(for: surface.tool).width)
+                ToolCursor(tool: surface.tool,
+                           width: surface.ink(for: surface.tool).width * scale)
                     .allowsHitTesting(false)
             }
         }

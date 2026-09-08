@@ -33,6 +33,9 @@ final class MarkupSurface: ObservableObject {
     private var grip: Int?
     private var grabbed: MarkupPoint?
     private var turningDial = false
+    /// The button is down. A tool that acts on the PRESS rather than on a drag
+    /// must act once, not once per step of a hand that is merely holding still.
+    private var pressed = false
     private var ticker: Timer?
     private let opened = Date()
 
@@ -50,7 +53,7 @@ final class MarkupSurface: ObservableObject {
     }
 
     /// Something is under the hand: a mark being drawn, or one being moved.
-    var isDragging: Bool { drafting != nil || editing != nil }
+    var isDragging: Bool { pressed || drafting != nil || editing != nil }
 
     /// The mark the handles belong to, as it looks right now.
     var selected: MarkupShape? {
@@ -164,6 +167,7 @@ final class MarkupSurface: ObservableObject {
     }
 
     func begin(at point: MarkupPoint) {
+        pressed = true
         let stamp = Date().timeIntervalSince(opened)
         switch tool {
         case .select:
@@ -189,6 +193,12 @@ final class MarkupSurface: ObservableObject {
     }
 
     func extend(to point: MarkupPoint, modifiers: MarkupDrag.Modifiers = .none) {
+        // The rubber goes on rubbing for as long as it is held; the numbered
+        // circles and the caption are placed once per press.
+        if tool == .eraser {
+            erase(at: point)
+            return
+        }
         if tool == .select {
             guard var held = editing else { return }
             if turningDial, let lens = MarkupEditing.lens(of: held) {
@@ -236,6 +246,7 @@ final class MarkupSurface: ObservableObject {
     }
 
     func finish() {
+        pressed = false
         if tool == .select {
             defer { grip = nil; grabbed = nil; turningDial = false }
             guard let held = editing else { return }

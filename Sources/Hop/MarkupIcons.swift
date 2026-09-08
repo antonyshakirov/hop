@@ -28,12 +28,12 @@ enum MarkupIcons {
 
         case .pencil:
             return [stroke { $0.addPath(turned(pencilBody())) },
-                    stroke { $0.addPath(turned(line(10.1, 13.3, 13.9, 13.3))) }]
+                    stroke { $0.addPath(turned(line(10.1, 14.6, 13.9, 14.6))) }]
 
         case .fadingInk:
             return [stroke { $0.addPath(turned(pencilBody())) },
-                    stroke { $0.addPath(turned(line(10.1, 13.3, 13.9, 13.3))) },
-                    dot(6.7, 18.5, 1.15), dot(4.5, 19.9, 0.85), dot(2.7, 21.1, 0.6)]
+                    stroke { $0.addPath(turned(line(10.1, 14.6, 13.9, 14.6))) },
+                    dot(5.2, 18.7, 1.05), dot(3.4, 20, 0.8), dot(2, 21, 0.55)]
 
         case .marker:
             return [stroke { $0.addPath(turned(markerBody())) },
@@ -110,9 +110,13 @@ enum MarkupIcons {
             }]
 
         case .clear:
-            return [stroke { $0.addPath(line(5, 7, 19, 7)) },
-                    stroke { $0.move(to: p(9.5, 7)); $0.addLine(to: p(9.5, 4.5)); $0.addLine(to: p(14.5, 4.5)); $0.addLine(to: p(14.5, 7)) },
-                    stroke { $0.move(to: p(7, 7)); $0.addLine(to: p(8, 19.5)); $0.addLine(to: p(16, 19.5)); $0.addLine(to: p(17, 7)) }]
+            // A brush, not a bin: this wipes the marks off, and a bin reads as
+            // throwing the picture away.
+            return [stroke(width: 1.6) { $0.addPath(turned(line(12, 3.2, 12, 11.4))) },
+                    stroke { $0.addPath(turned(rounded(8.2, 11.4, 7.6, 3.4, 1))) },
+                    stroke { $0.addPath(turned(line(9.6, 14.8, 9, 18.8))) },
+                    stroke { $0.addPath(turned(line(12, 14.8, 12, 19.2))) },
+                    stroke { $0.addPath(turned(line(14.4, 14.8, 15, 18.8))) }]
 
         case .save:
             return [stroke { $0.addPath(line(12, 4, 12, 14.5)) },
@@ -181,13 +185,15 @@ enum MarkupIcons {
         Path(roundedRect: CGRect(x: x, y: y, width: w, height: h), cornerRadius: r)
     }
 
+    /// Built upright and turned by 45°, which costs a shape a third of its
+    /// height: a pencil as tall as a rectangle glyph has to be drawn taller.
     private static func pencilBody() -> Path {
         var path = Path()
-        path.move(to: p(9.9, 5.1))
-        path.addLine(to: p(14.1, 5.1))
-        path.addLine(to: p(14.1, 13.3))
-        path.addLine(to: p(12, 17.7))
-        path.addLine(to: p(9.9, 13.3))
+        path.move(to: p(9.9, 3.6))
+        path.addLine(to: p(14.1, 3.6))
+        path.addLine(to: p(14.1, 14.6))
+        path.addLine(to: p(12, 19.4))
+        path.addLine(to: p(9.9, 14.6))
         path.closeSubpath()
         return path
     }

@@ -14,6 +14,7 @@ enum MarkupSettings {
     static let annotateEdgeKey = "annotateToolbarEdge"
     static let arrowStyleKey = "markupArrowStyle"
     static let inksKey = "markupInks"
+    static let recentColoursKey = "markupRecentColours"
 
     static func frameDressing() -> FrameDressing {
         decode(dressingKey) ?? .standard
@@ -44,6 +45,18 @@ enum MarkupSettings {
             out[pair.key.rawValue] = pair.value
         }
         encode(plain, into: inksKey)
+    }
+
+    /// Colours mixed by hand, newest first. A colour chosen for one tool is a
+    /// colour the next tool should be able to reach without mixing it again.
+    static func recentColours() -> [String] {
+        UserDefaults.standard.stringArray(forKey: recentColoursKey) ?? []
+    }
+
+    static func remember(colour hex: String) {
+        var kept = recentColours().filter { $0.caseInsensitiveCompare(hex) != .orderedSame }
+        kept.insert(hex, at: 0)
+        UserDefaults.standard.set(Array(kept.prefix(7)), forKey: recentColoursKey)
     }
 
     static func store(arrowStyle: ArrowStyle) {
