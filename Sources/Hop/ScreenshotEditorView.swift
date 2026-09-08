@@ -58,6 +58,13 @@ final class ScreenshotEditor: ObservableObject {
             .sink { [weak self] tool in
                 guard let self else { return }
                 if tool == .crop { self.beginCropping() } else { self.cropDraft = nil }
+                if tool == .magnifier {
+                    let frame = self.full
+                    self.surface.placeLens(
+                        centre: MarkupPoint(x: frame.width / 2, y: frame.height / 2),
+                        side: min(frame.width, frame.height) / 3
+                    )
+                }
             }
             .store(in: &watches)
 

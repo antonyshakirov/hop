@@ -101,9 +101,37 @@ enum MarkupRender {
         context.draw(piece, in: CGRect(origin: .zero, size: frame.size))
         context.restoreGState()
 
-        context.addPath(round)
-        context.setStrokeColor(NSColor(hex: shape.ink.hex).cgColor)
-        context.setLineWidth(shape.ink.width * scale)
+        // Glass, not a drawn circle: a thick colourless rim, lit from the top
+        // left, with a hairline inside and out to hold its edge.
+        let rim = max(7, side * 0.075)
+        context.setLineWidth(rim)
+        context.setStrokeColor(NSColor.white.withAlphaComponent(0.3).cgColor)
+        context.addPath(CGPath(ellipseIn: frame.insetBy(dx: rim / 2, dy: rim / 2), transform: nil))
+        context.strokePath()
+
+        context.saveGState()
+        context.setLineWidth(rim * 0.55)
+        context.addPath(CGPath(ellipseIn: frame.insetBy(dx: rim / 2, dy: rim / 2), transform: nil))
+        context.replacePathWithStrokedPath()
+        context.clip()
+        if let space = CGColorSpace(name: CGColorSpace.sRGB),
+           let shine = CGGradient(colorsSpace: space,
+                                  colors: [NSColor.white.withAlphaComponent(0.85).cgColor,
+                                           NSColor.white.withAlphaComponent(0.05).cgColor] as CFArray,
+                                  locations: [0, 1]) {
+            context.drawLinearGradient(shine,
+                                       start: CGPoint(x: frame.minX, y: frame.maxY),
+                                       end: CGPoint(x: frame.maxX, y: frame.minY),
+                                       options: [])
+        }
+        context.restoreGState()
+
+        context.setLineWidth(1)
+        context.setStrokeColor(NSColor.black.withAlphaComponent(0.35).cgColor)
+        context.addPath(CGPath(ellipseIn: frame, transform: nil))
+        context.strokePath()
+        context.setStrokeColor(NSColor.black.withAlphaComponent(0.25).cgColor)
+        context.addPath(CGPath(ellipseIn: frame.insetBy(dx: rim, dy: rim), transform: nil))
         context.strokePath()
     }
 

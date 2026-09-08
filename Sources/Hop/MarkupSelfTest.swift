@@ -61,17 +61,19 @@ enum MarkupSelfTest {
         }
         var failures = 0
         var magnified = 0
-        let lenses: [(name: String, centre: (Int, Int), radius: Int, rim: (Int, Int, Int))] = [
-            ("red lens", (420, 590), 90, (255, 69, 58)),
-            ("blue lens", (260, 510), 80, (10, 132, 255)),
+        let lenses: [(name: String, centre: (Int, Int), radius: Int)] = [
+            ("first lens", (420, 590), 90),
+            ("second lens", (260, 510), 80),
         ]
         for lens in lenses {
+            // The rim is glass: no colour of its own, so it is looked for as a
+            // change against the plain frame along the radius.
             var best = (-999, -999, -999)
             var near = false
-            for step in -6...6 {
-                let probe = drawn.at(lens.centre.0 + lens.radius + step, lens.centre.1)
-                if abs(probe.0 - lens.rim.0) < 25 && abs(probe.1 - lens.rim.1) < 25
-                    && abs(probe.2 - lens.rim.2) < 25 {
+            for step in -8...2 {
+                let x = lens.centre.0 + lens.radius + step
+                let probe = drawn.at(x, lens.centre.1)
+                if probe != plainFrame.at(x, lens.centre.1) {
                     near = true
                     best = probe
                     break

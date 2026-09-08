@@ -2498,12 +2498,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   dashed outline and nothing else — the effect only appeared in the exported
   file (Anton, 2026-09-08). `MarkupRender.effects` builds that backdrop, the
   vector marks go over it, and the export is unchanged.
-- **The loupe is drawn by the canvas itself**, not baked into that backdrop: it
-  has to be under the hand WHILE it is pulled out, not after (Anton,
-  2026-09-08). It is a circle — the biggest that fits the drag, on the same
-  centre — with a rim in the tool's own colour, and no outline of any other
-  kind. Another press of the tool adds another lens; the select tool moves one
-  by its middle and resizes it by its corners, like everything else.
+- **The loupe is PUT DOWN, not drawn out** (Anton, 2026-09-08). Pressing the
+  tool drops a lens in the middle of the picture, a third of its shorter side
+  across, already selected and with the select tool in hand — so it is dragged
+  by its middle, resized by its corners and deleted with backspace the moment it
+  appears. Pressing the tool again drops another. Nothing is dragged out of
+  nothing, and no lens ever exists that cannot be moved.
+- **The rim is glass, not a drawn circle**: colourless, thick (7.5% of the lens,
+  never under 7pt), lit from the top left by a gradient across it, with a
+  hairline inside and out to hold its edge. A coloured hairline reads as a
+  circle somebody drew (Anton, 2026-09-08). The canvas draws the lens rather
+  than the backdrop, so what is under the glass follows the lens as it is moved.
+  The export builds the same thing through Core Graphics.
 - **The editor watches its SURFACE, not only itself.** `MarkupSurface` is an
   object the editor merely holds, so a tool change or a new mark published
   nothing the view could hear: crop mode never opened and the backdrop never

@@ -170,8 +170,7 @@ struct MarkupCanvas: View {
                                                   width: canvas.width * 2,
                                                   height: canvas.height * 2))
             }
-            context.stroke(lens, with: .color(colour),
-                           style: StrokeStyle(lineWidth: max(2, width)))
+            glass(frame, in: &context)
 
         case .blur, .crop:
             guard points.count > 1 else { return }
@@ -241,6 +240,29 @@ struct MarkupCanvas: View {
         let length = (dx * dx + dy * dy).squareRoot()
         guard length > amount else { return to }
         return CGPoint(x: to.x - dx / length * amount, y: to.y - dy / length * amount)
+    }
+
+    /// The rim of a lens: thick, colourless and lit from above, the way a
+    /// glass one is. A coloured hairline reads as a drawn circle, not as glass.
+    private func glass(_ frame: CGRect, in context: inout GraphicsContext) {
+        let rim = max(7, min(frame.width, frame.height) * 0.075)
+        let middle = frame.insetBy(dx: rim / 2, dy: rim / 2)
+
+        context.stroke(Path(ellipseIn: middle), with: .color(.white.opacity(0.3)),
+                       style: StrokeStyle(lineWidth: rim))
+        // A brighter arc across the top left, dimmer across the bottom right:
+        // one light, above and to the side.
+        context.stroke(Path(ellipseIn: middle),
+                       with: .linearGradient(
+                        Gradient(colors: [.white.opacity(0.85), .white.opacity(0.05)]),
+                        startPoint: CGPoint(x: frame.minX, y: frame.minY),
+                        endPoint: CGPoint(x: frame.maxX, y: frame.maxY)),
+                       style: StrokeStyle(lineWidth: rim * 0.55))
+        context.stroke(Path(ellipseIn: frame), with: .color(.black.opacity(0.35)),
+                       style: StrokeStyle(lineWidth: 1))
+        context.stroke(Path(ellipseIn: frame.insetBy(dx: rim, dy: rim)),
+                       with: .color(.black.opacity(0.25)),
+                       style: StrokeStyle(lineWidth: 1))
     }
 
     /// The lens is a circle, whatever shape the drag was: the biggest one that

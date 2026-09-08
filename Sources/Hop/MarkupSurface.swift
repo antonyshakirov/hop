@@ -247,6 +247,25 @@ final class MarkupSurface: ObservableObject {
         publish()
     }
 
+    /// A lens is PUT DOWN, not drawn out: it lands whole in the middle of the
+    /// picture and is moved, resized and deleted like any other mark.
+    /// SPEC: docs/spec.md
+    func placeLens(centre: MarkupPoint, side: Double) {
+        let half = side / 2
+        let lens = MarkupShape(
+            tool: .magnifier,
+            points: [MarkupPoint(x: centre.x - half, y: centre.y - half),
+                     MarkupPoint(x: centre.x + half, y: centre.y + half)],
+            ink: ink(for: .magnifier),
+            createdAt: Date().timeIntervalSince(opened)
+        )
+        document.add(lens)
+        selection = lens.id
+        editing = nil
+        tool = .select
+        publish()
+    }
+
     /// Marks put on the surface wholesale. SPEC: the canvas self-test.
     func load(_ marks: [MarkupShape]) {
         document.apply { _ in marks }
