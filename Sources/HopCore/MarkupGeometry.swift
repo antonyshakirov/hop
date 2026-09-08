@@ -52,6 +52,50 @@ public enum MarkupGeometry {
         }
     }
 
+    public struct Curve: Equatable, Sendable {
+        public var control1: MarkupPoint
+        public var control2: MarkupPoint
+        public var to: MarkupPoint
+
+        public init(control1: MarkupPoint, control2: MarkupPoint, to: MarkupPoint) {
+            self.control1 = control1
+            self.control2 = control2
+            self.to = to
+        }
+    }
+
+    /// Catmull-Rom through every point. SPEC: docs/spec.md
+    /// Tests: Tests/HopCoreTests/MarkupSmoothingTests.swift
+    public static func curves(through points: [MarkupPoint]) -> [Curve] {
+        guard points.count > 1 else { return [] }
+        var legs: [Curve] = []
+        legs.reserveCapacity(points.count - 1)
+
+        for index in 0..<(points.count - 1) {
+            let before = points[max(index - 1, 0)]
+            let start = points[index]
+            let end = points[index + 1]
+            let after = points[min(index + 2, points.count - 1)]
+
+            legs.append(Curve(
+                control1: MarkupPoint(x: start.x + (end.x - before.x) / 6,
+                                      y: start.y + (end.y - before.y) / 6),
+                control2: MarkupPoint(x: end.x - (after.x - start.x) / 6,
+                                      y: end.y - (after.y - start.y) / 6),
+                to: end
+            ))
+        }
+        return legs
+    }
+
+    /// Whether a freehand stroke should take this point at all.
+    public static func worthAdding(
+        _ point: MarkupPoint, after last: MarkupPoint, gap: Double = 1.6
+    ) -> Bool {
+        let dx = point.x - last.x, dy = point.y - last.y
+        return (dx * dx + dy * dy).squareRoot() >= gap
+    }
+
     public static func boundingBox(_ points: [MarkupPoint]) -> (origin: MarkupPoint, size: MarkupPoint) {
         guard let first = points.first else {
             return (MarkupPoint(x: 0, y: 0), MarkupPoint(x: 0, y: 0))

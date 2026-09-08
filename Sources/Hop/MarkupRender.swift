@@ -14,6 +14,16 @@ enum MarkupRender {
     /// region stutter under the hand.
     static let ciContext = CIContext()
 
+    /// The legs of a smoothed stroke, added to whatever path is open.
+    private static func curve(_ points: [CGPoint], in context: CGContext) {
+        let marks = points.map { MarkupPoint(x: $0.x, y: $0.y) }
+        for leg in MarkupGeometry.curves(through: marks) {
+            context.addCurve(to: CGPoint(x: leg.to.x, y: leg.to.y),
+                             control1: CGPoint(x: leg.control1.x, y: leg.control1.y),
+                             control2: CGPoint(x: leg.control2.x, y: leg.control2.y))
+        }
+    }
+
     static func shortened(_ from: CGPoint, _ to: CGPoint, by amount: CGFloat) -> CGPoint {
         let dx = to.x - from.x
         let dy = to.y - from.y
@@ -263,7 +273,7 @@ enum MarkupRender {
         case .pencil, .fadingInk:
             context.beginPath()
             context.move(to: first)
-            for point in points.dropFirst() { context.addLine(to: point) }
+            curve(points, in: context)
             context.strokePath()
 
         case .marker:
@@ -274,13 +284,12 @@ enum MarkupRender {
             context.setFillColor(colour.withAlphaComponent(0.45).cgColor)
             context.beginPath()
             if points.count > 1 {
-                context.move(to: CGPoint(x: first.x, y: first.y - half))
-                for point in points.dropFirst() {
-                    context.addLine(to: CGPoint(x: point.x, y: point.y - half))
-                }
-                for point in points.reversed() {
-                    context.addLine(to: CGPoint(x: point.x, y: point.y + half))
-                }
+                let top = points.map { CGPoint(x: $0.x, y: $0.y - half) }
+                let bottom = points.reversed().map { CGPoint(x: $0.x, y: $0.y + half) }
+                context.move(to: top[0])
+                curve(top, in: context)
+                context.addLine(to: bottom[0])
+                curve(bottom, in: context)
                 context.closePath()
             } else {
                 context.addRect(CGRect(x: first.x - half / 3, y: first.y - half,
@@ -292,7 +301,7 @@ enum MarkupRender {
             context.setLineWidth(max(shape.ink.width * scale * 0.3, 1))
             context.beginPath()
             context.move(to: first)
-            for point in points.dropFirst() { context.addLine(to: point) }
+            curve(points, in: context)
             context.strokePath()
             context.restoreGState()
 

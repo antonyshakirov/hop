@@ -229,7 +229,10 @@ final class MarkupSurface: ObservableObject {
                 shape.points = MarkupDrag.points(tool: .line, origin: origin,
                                                  current: point,
                                                  modifiers: .init(regular: true))
-            } else {
+            } else if let last = shape.points.last,
+                      MarkupGeometry.worthAdding(point, after: last) {
+                shape.points.append(point)
+            } else if shape.points.isEmpty {
                 shape.points.append(point)
             }
         default:

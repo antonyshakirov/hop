@@ -408,22 +408,39 @@ struct MarkupCanvas: View {
                                 width: max(half / 1.5, 1), height: half * 2))
             return path
         }
-        path.move(to: CGPoint(x: first.x, y: first.y - half))
-        for point in points.dropFirst() {
-            path.addLine(to: CGPoint(x: point.x, y: point.y - half))
-        }
-        for point in points.reversed() {
-            path.addLine(to: CGPoint(x: point.x, y: point.y + half))
-        }
+        // Both edges of the band are smoothed, or the band's outline is the
+        // chain of corners the stroke itself no longer has.
+        let top = points.map { CGPoint(x: $0.x, y: $0.y - half) }
+        let bottom = points.reversed().map { CGPoint(x: $0.x, y: $0.y + half) }
+        path.move(to: top[0])
+        add(top, to: &path)
+        path.addLine(to: bottom[0])
+        add(bottom, to: &path)
         path.closeSubpath()
         return path
     }
 
+    private func add(_ points: [CGPoint], to path: inout Path) {
+        let marks = points.map { MarkupPoint(x: $0.x, y: $0.y) }
+        for leg in MarkupGeometry.curves(through: marks) {
+            path.addCurve(to: CGPoint(x: leg.to.x, y: leg.to.y),
+                          control1: CGPoint(x: leg.control1.x, y: leg.control1.y),
+                          control2: CGPoint(x: leg.control2.x, y: leg.control2.y))
+        }
+    }
+
+    /// Curves through the points, not the corners between them: a mouse
+    /// reports a chain of straight bits and a hand does not draw one.
     private func freehand(_ points: [CGPoint]) -> Path {
         var path = Path()
         guard let first = points.first else { return path }
         path.move(to: first)
-        for point in points.dropFirst() { path.addLine(to: point) }
+        let marks = points.map { MarkupPoint(x: $0.x, y: $0.y) }
+        for leg in MarkupGeometry.curves(through: marks) {
+            path.addCurve(to: CGPoint(x: leg.to.x, y: leg.to.y),
+                          control1: CGPoint(x: leg.control1.x, y: leg.control1.y),
+                          control2: CGPoint(x: leg.control2.x, y: leg.control2.y))
+        }
         return path
     }
 

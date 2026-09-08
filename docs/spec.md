@@ -2647,6 +2647,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   narrow and TALL, upright — the end of the nib seen straight on, a third of the
   stroke's width and its full height (Anton, 2026-09-08). Leaning it and laying
   it flat were both tried first.
+- **A hand-drawn stroke is CURVES, not the corners a mouse reports.**
+  Catmull-Rom through every point, so the line still goes exactly where it was
+  drawn and only stops being a chain of straight bits (Anton, 2026-09-08).
+  Points closer than 1.6 apart are not taken at all: a slow hand leaves a
+  cluster in one place and the smoothing then fights noise it was handed. Both
+  edges of the marker's band are smoothed too, or its outline keeps the corners
+  the stroke has lost. `MarkupGeometry.curves(through:)` with tests; the canvas
+  and the export draw the same path.
 - **The marker DRAWS with that nib**, not with a round pen. The nib is an
   upright bar swept along the path — a stroke across the page is thick, one down
   it is thin — so the pointer is telling the truth: a round cap lays down the
