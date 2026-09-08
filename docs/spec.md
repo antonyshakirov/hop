@@ -2638,7 +2638,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **The pointer is the NIB for the tools that draw by hand**: a circle for the
   pens, a rounded square for the marker's chisel, drawn at the width the stroke
   will actually be, so its weight is known before a line of it is made (Anton,
-  2026-09-08). The blur's pointer is a crosshair with the tool's own glyph
+  2026-09-08). It is set on every MOVE of the mouse, not on entering: a cursor
+  rect belongs to the view the pointer hit, and this view is hit by nothing so
+  that it cannot swallow the drawing, so whatever is under it resets the arrow
+  the moment it is asked to. The blur's pointer is a crosshair with the tool's own glyph
   beside it — a bare crosshair says "draw something" and no more, and the blur
   is the one region drawn for a purpose of its own.
 - **A tool that acts on the PRESS acts once.** The numbered circles and the
@@ -2834,8 +2837,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   The marker is a narrow barrel flaring into a chisel: an even barrel with a
   skirt read as a torch (Anton, 2026-09-08). The pencil is drawn TALLER than it
   looks it needs: turning a shape by 45° costs it a third of its height, and
-  beside the upright glyphs it read as stubby. "Clear" is a brush, not a bin —
-  a bin reads as throwing the picture away rather than wiping the marks off it.
+  beside the upright glyphs it read as stubby. "Clear" is the picture's own frame with its right
+  side swept away in three strokes: a bin reads as throwing the picture out, and
+  a rubber is already the tool beside it — this is the SURFACE being wiped
+  (Anton, 2026-09-08).
 - **Every glyph is outlined and filled ONCE**, never stroked piece by piece: at
   anything below full opacity the crossings of two strokes painted separately
   come out brighter than the lines themselves, which is how the panel's pencil

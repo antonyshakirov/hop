@@ -418,33 +418,41 @@ private struct ToolCursor: NSViewRepresentable {
     func updateNSView(_ nsView: NSView, context: Context) {
         guard let view = nsView as? CursorView else { return }
         view.cursor = MarkupCursors.cursor(for: tool, width: width)
-        view.window?.invalidateCursorRects(for: view)
+        view.wear()
     }
 
     final class CursorView: NSView {
         var cursor: NSCursor?
         private var area: NSTrackingArea?
+        private var inside = false
 
         override func hitTest(_ point: NSPoint) -> NSView? { nil }
 
         override func updateTrackingAreas() {
             super.updateTrackingAreas()
             if let area { removeTrackingArea(area) }
-            let fresh = NSTrackingArea(rect: bounds,
-                                       options: [.cursorUpdate, .activeInKeyWindow, .inVisibleRect],
-                                       owner: self)
+            let fresh = NSTrackingArea(
+                rect: bounds,
+                options: [.mouseMoved, .mouseEnteredAndExited, .cursorUpdate,
+                          .activeInKeyWindow, .inVisibleRect],
+                owner: self
+            )
             addTrackingArea(fresh)
             area = fresh
         }
 
-        override func cursorUpdate(with event: NSEvent) {
-            if let cursor { cursor.set() } else { super.cursorUpdate(with: event) }
+        /// Set on every move, not only on entering. A cursor rect belongs to
+        /// the view the pointer HIT, and this one is hit by nothing so that it
+        /// cannot swallow the drawing; whatever is under it resets the arrow
+        /// the moment it is asked to.
+        func wear() {
+            guard inside, let cursor else { return }
+            cursor.set()
         }
 
-        override func resetCursorRects() {
-            super.resetCursorRects()
-            guard let cursor else { return }
-            addCursorRect(bounds, cursor: cursor)
-        }
+        override func mouseEntered(with event: NSEvent) { inside = true; wear() }
+        override func mouseMoved(with event: NSEvent) { inside = true; wear() }
+        override func mouseExited(with event: NSEvent) { inside = false }
+        override func cursorUpdate(with event: NSEvent) { inside = true; wear() }
     }
 }

@@ -110,13 +110,20 @@ enum MarkupIcons {
             }]
 
         case .clear:
-            // A brush, not a bin: this wipes the marks off, and a bin reads as
-            // throwing the picture away.
-            return [stroke(width: 1.6) { $0.addPath(turned(line(12, 3.2, 12, 11.4))) },
-                    stroke { $0.addPath(turned(rounded(8.2, 11.4, 7.6, 3.4, 1))) },
-                    stroke { $0.addPath(turned(line(9.6, 14.8, 9, 18.8))) },
-                    stroke { $0.addPath(turned(line(12, 14.8, 12, 19.2))) },
-                    stroke { $0.addPath(turned(line(14.4, 14.8, 15, 18.8))) }]
+            // The picture's own frame with its right side swept away. A bin
+            // reads as throwing the picture out, and a rubber is already the
+            // tool next to it; this is the SURFACE being wiped.
+            return [stroke {
+                        $0.move(to: p(12.6, 4.4))
+                        $0.addLine(to: p(5.6, 4.4))
+                        $0.addQuadCurve(to: p(3.6, 6.4), control: p(4.2, 4.4))
+                        $0.addLine(to: p(3.6, 17.6))
+                        $0.addQuadCurve(to: p(5.6, 19.6), control: p(4.2, 19.6))
+                        $0.addLine(to: p(12.6, 19.6))
+                    },
+                    stroke { $0.addPath(line(15.6, 8.4, 20.2, 8.4)) },
+                    stroke { $0.addPath(line(15.6, 12, 21.2, 12)) },
+                    stroke { $0.addPath(line(15.6, 15.6, 20.2, 15.6)) }]
 
         case .save:
             return [stroke { $0.addPath(line(12, 4, 12, 14.5)) },
