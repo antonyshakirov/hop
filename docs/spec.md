@@ -2517,6 +2517,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   inside its own shape. The geometry is a pure function in
   `HopCore.MarkupEditing` with tests: the corner ACROSS from the one being held
   is the one that must not move.
+- **A caption already there is EDITED, not written over.** The text tool
+  clicked on one opens it in its own field with its words in place; emptied, it
+  goes, since a caption with no words is an invisible mark nobody can select
+  again (Anton, 2026-09-08). While it is being typed the canvas does not draw
+  it — the field does — or it shows twice. Moving and deleting one is the select
+  tool's job, as with every other mark.
 - **A text mark gets a field of its own** (`.id(shape.id)`). One field carried
   across two marks keeps the words of the first, and the text looks as though it
   moved to wherever the second click landed.
@@ -2630,7 +2636,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   kept, shared by every tool AND by the frame's own ground (Anton, 2026-09-08).
   A colour taken from the presets or from the recents adds nothing — it is
   already there; only a colour mixed in the picker joins the list, so the second
-  row is a record of what has actually been used. It opens `NSColorPanel` in the middle of the screen and in the
+  row is a record of what has actually been used. **Only the colour the panel is
+  LEFT on is recorded**: it fires its action on every step of a drag across the
+  wheel, so recording each one filled the row with neighbouring shades of the
+  single colour actually chosen (Anton, 2026-09-08). It opens `NSColorPanel` in the middle of the screen and in the
   WHEEL mode: left to itself the panel comes back wherever and however it was
   last left — the crayons, or a grey ramp — and the wheel is the one mode with
   hue, saturation and brightness each on a control of its own (Anton,

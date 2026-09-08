@@ -292,12 +292,11 @@ struct MarkupColourPopover: View {
                     Rectangle().fill(Theme.divider).frame(width: 1, height: 22)
                 }
                 Button {
-                    MarkupColourPanel.shared.show(startingAt: current.hex) { picked in
-                        let hex = picked.markupHex
-                        write { $0.hex = hex }
-                        MarkupSettings.remember(colour: hex)
+                    MarkupColourPanel.shared.show(startingAt: current.hex, onPick: { picked in
+                        write { $0.hex = picked.markupHex }
+                    }, onSettled: {
                         mixed = MarkupSettings.recentColours()
-                    }
+                    })
                 } label: {
                     Circle()
                         .fill(AngularGradient(
@@ -731,13 +730,18 @@ struct MarkupKeys: NSViewRepresentable {
 /// panel comes back wherever it was last put — usually the bottom left of the
 /// screen, nowhere near the toolbar it was asked from.
 @MainActor
-final class MarkupColourPanel: NSObject {
+final class MarkupColourPanel: NSObject, NSWindowDelegate {
     static let shared = MarkupColourPanel()
 
     private var onPick: ((Color) -> Void)?
+    private var onSettled: (() -> Void)?
+    private var settledHex: String?
 
-    func show(startingAt hex: String, onPick: @escaping (Color) -> Void) {
+    func show(startingAt hex: String, onPick: @escaping (Color) -> Void,
+              onSettled: (() -> Void)? = nil) {
         self.onPick = onPick
+        self.onSettled = onSettled
+        settledHex = nil
         let panel = NSColorPanel.shared
         panel.showsAlpha = false
         // The wheel, always: it is the one mode with hue, saturation and
@@ -752,11 +756,24 @@ final class MarkupColourPanel: NSObject {
             panel.setFrameOrigin(NSPoint(x: screen.frame.midX - size.width / 2,
                                          y: screen.frame.midY - size.height / 2 + 80))
         }
+        panel.delegate = self
         panel.makeKeyAndOrderFront(nil)
     }
 
     @objc private func picked(_ sender: NSColorPanel) {
-        onPick?(Color(nsColor: sender.color))
+        let colour = Color(nsColor: sender.color)
+        settledHex = colour.markupHex
+        onPick?(colour)
+    }
+
+    /// Only the colour the panel was LEFT on is remembered. It fires its action
+    /// on every step of a drag across the wheel, so recording each one filled
+    /// the row with neighbouring shades of the one colour actually chosen.
+    func windowWillClose(_ notification: Notification) {
+        if let settledHex { MarkupSettings.remember(colour: settledHex) }
+        settledHex = nil
+        onSettled?()
+        onSettled = nil
     }
 
     /// A wheel opened on near-black is a black wheel: every colour on it is

@@ -47,7 +47,9 @@ final class MarkupSurface: ObservableObject {
 
     /// Marks that are still worth drawing at this instant.
     var visible: [MarkupShape] {
-        var living = FadingInk.alive(shapes, now: now)
+        // A caption being typed is drawn by its field, not by the canvas, or it
+        // shows twice.
+        var living = FadingInk.alive(shapes, now: now).filter { $0.id != typing?.id }
         if let editing {
             living = living.map { $0.id == editing.id ? editing : $0 }
         }
@@ -184,6 +186,16 @@ final class MarkupSurface: ObservableObject {
             publish()
         case .text:
             commitTyping()
+            // A caption already there is EDITED, not written over: clicking one
+            // to start a second on top of it is nobody's intention.
+            if let held = FadingInk.alive(shapes, now: now).last(where: {
+                $0.tool == .text && MarkupEditing.grabbed($0, at: point, tolerance: 8)
+            }) {
+                typing = held
+                selection = held.id
+                publish()
+                return
+            }
             typing = MarkupShape(tool: .text, points: [point], ink: ink(for: .text),
                                  text: "", createdAt: stamp)
         default:
@@ -282,8 +294,17 @@ final class MarkupSurface: ObservableObject {
         guard var shape = typing else { return }
         typing = nil
         shape.text = shape.text?.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let text = shape.text, !text.isEmpty else { return }
-        document.add(shape)
+        let known = shapes.contains { $0.id == shape.id }
+        guard let text = shape.text, !text.isEmpty else {
+            // Emptied, it goes: a caption with no words is an invisible mark
+            // nobody can select again.
+            if known {
+                document.apply { $0.filter { $0.id != shape.id } }
+                publish()
+            }
+            return
+        }
+        if known { document.update(shape) } else { document.add(shape) }
         publish()
     }
 
