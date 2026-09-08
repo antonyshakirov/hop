@@ -86,7 +86,7 @@ final class MarkupSurface: ObservableObject {
             return
         }
         guard let hit = FadingInk.alive(shapes, now: now)
-            .last(where: { MarkupGeometry.hits(shape: $0, point: point, tolerance: 8) })
+            .last(where: { MarkupEditing.grabbed($0, at: point, tolerance: 8) })
         else {
             selection = nil
             editing = nil
@@ -112,7 +112,32 @@ final class MarkupSurface: ObservableObject {
     func setInk(_ ink: MarkupInk, for tool: MarkupTool) {
         inks[tool] = ink
         MarkupSettings.store(inks: inks)
+        // A mark in hand is what the user is looking at: colour and width go on
+        // IT, not only on the next mark of that kind.
+        if let held = selected, held.ink != ink {
+            var edited = held
+            edited.ink = ink
+            document.update(edited)
+            publish()
+        }
         objectWillChange.send()
+    }
+
+    /// The blur being set right now: the selected blur mark's own settings, or
+    /// the template the next one will be drawn with.
+    var blurInHand: MarkupBlur {
+        get {
+            if let held = selected, held.tool == .blur, let its = held.blur { return its }
+            return blur
+        }
+        set {
+            blur = newValue
+            guard let held = selected, held.tool == .blur else { return }
+            var edited = held
+            edited.blur = newValue
+            document.update(edited)
+            publish()
+        }
     }
 
     func opacity(of shape: MarkupShape) -> Double {

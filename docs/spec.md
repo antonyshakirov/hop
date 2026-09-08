@@ -2474,6 +2474,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the two ends of a line or an arrow, the four corners of a box, a blur or the
   loupe. A scribble and a numbered step have no handles and move whole. Delete
   removes what is in hand (Anton, 2026-09-08).
+- **A mark is picked up by its AREA, not by its outline** (Anton, 2026-09-08):
+  anywhere inside a rectangle, an oval, a blur or the loupe, anywhere on a
+  numbered step's circle, anywhere across a caption. Lines, arrows and scribbles
+  keep proximity — their area IS the line. `MarkupEditing.grabbed` with tests.
+- **What a mark is set to is set ON that mark.** Pressing the select tool while
+  something is in hand opens ITS settings — the blur's own mode, shape and
+  strength, an arrow's head, a caption's size — and colour and width from the
+  toolbar go on the mark in hand rather than only on the next one of its kind
+  (Anton, 2026-09-08). A blur tuned before it is drawn is a blur tuned blind.
 - The edit stands IN for the stored mark while the drag lasts (`editing`), and
   is written back once on release, so pulling a corner across the picture is one
   undo step rather than a hundred. A handle of the mark already in hand wins over

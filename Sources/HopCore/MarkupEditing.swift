@@ -23,6 +23,37 @@ public enum MarkupEditing {
         }
     }
 
+    /// Picking a mark up is done by its AREA, not by its outline: nobody aims a
+    /// mouse at a hairline. Strokes, lines and arrows keep proximity — their
+    /// area IS the line.
+    public static func grabbed(_ shape: MarkupShape, at point: MarkupPoint, tolerance: Double) -> Bool {
+        switch shape.tool {
+        case .rectangle, .oval, .blur, .magnifier, .crop:
+            guard shape.points.count > 1 else { return false }
+            let box = MarkupGeometry.boundingBox(shape.points)
+            return inside(box, point, pad: tolerance)
+        case .steps:
+            guard let centre = shape.points.first else { return false }
+            let dx = centre.x - point.x, dy = centre.y - point.y
+            return (dx * dx + dy * dy).squareRoot() <= 17 + tolerance
+        case .text:
+            guard let origin = shape.points.first else { return false }
+            let height = shape.ink.width * 1.4
+            let width = max(40, Double(shape.text?.count ?? 0) * shape.ink.width * 0.62)
+            return inside((origin: origin, size: MarkupPoint(x: width, y: height)),
+                          point, pad: tolerance)
+        default:
+            return MarkupGeometry.hits(shape: shape, point: point, tolerance: tolerance)
+        }
+    }
+
+    private static func inside(
+        _ box: (origin: MarkupPoint, size: MarkupPoint), _ point: MarkupPoint, pad: Double
+    ) -> Bool {
+        point.x >= box.origin.x - pad && point.x <= box.origin.x + box.size.x + pad
+            && point.y >= box.origin.y - pad && point.y <= box.origin.y + box.size.y + pad
+    }
+
     public static func moved(_ shape: MarkupShape, by delta: MarkupPoint) -> MarkupShape {
         var moved = shape
         moved.points = shape.points.map { MarkupPoint(x: $0.x + delta.x, y: $0.y + delta.y) }

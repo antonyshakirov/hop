@@ -130,7 +130,7 @@ struct MarkupToolbar: View {
     /// on every button broke clicks through the drawing layer's panel.
     @ViewBuilder
     private func button(for tool: MarkupTool) -> some View {
-        if MarkupToolbar.settable(tool) {
+        if settable(tool) {
             plainButton(for: tool)
                 .popover(isPresented: Binding(
                     get: { options == tool },
@@ -146,7 +146,7 @@ struct MarkupToolbar: View {
     private func plainButton(for tool: MarkupTool) -> some View {
         let chosen = toolsActive && surface.tool == tool
         return Button {
-            if MarkupToolbar.settable(tool), chosen {
+            if settable(tool), chosen {
                 options = options == tool ? nil : tool
             } else {
                 surface.tool = tool
@@ -167,17 +167,24 @@ struct MarkupToolbar: View {
         .help("\(L10n.t(MarkupToolbar.name(of: tool), lang)) · \(MarkupToolbar.letter(of: tool))")
     }
 
-    static func settable(_ tool: MarkupTool) -> Bool {
-        tool == .arrow || tool == .text || tool == .blur
+    /// Which tools have something to set. The select tool has whatever the mark
+    /// in hand has: pressing it again opens THAT mark's settings, so a blur is
+    /// tuned on the blur that is already on the picture.
+    private func settable(_ tool: MarkupTool) -> Bool {
+        switch tool {
+        case .arrow, .text, .blur: return true
+        case .select: return surface.selected != nil
+        default: return false
+        }
     }
 
     @ViewBuilder
     private func settings(for tool: MarkupTool) -> some View {
-        switch tool {
+        switch tool == .select ? (surface.selected?.tool ?? .select) : tool {
         case .arrow: MarkupArrowPopover(surface: surface)
         case .text: MarkupTextPopover(surface: surface, lang: lang)
         case .blur: MarkupBlurPopover(surface: surface, lang: lang)
-        default: EmptyView()
+        default: MarkupColourPopover(surface: surface)
         }
     }
 
@@ -414,23 +421,29 @@ struct MarkupBlurPopover: View {
         VStack(alignment: .leading, spacing: 12) {
             row([(L10n.t(.blurInside, lang), MarkupBlur.Mode.inside),
                  (L10n.t(.blurAround, lang), .around)],
-                current: surface.blur.mode) { surface.blur.mode = $0 }
+                current: current.mode) { mode in
+                    var next = current; next.mode = mode; surface.blurInHand = next
+                }
 
             row([(L10n.t(.mkRect, lang), MarkupBlur.Shape.rectangle),
                  (L10n.t(.mkOval, lang), .oval),
                  (L10n.t(.shapeLasso, lang), .lasso)],
-                current: surface.blur.shape) { surface.blur.shape = $0 }
+                current: current.shape) { shape in
+                    var next = current; next.shape = shape; surface.blurInHand = next
+                }
 
             row([("blur", MarkupBlur.Style.blur),
                  (L10n.t(.blurPixels, lang), .pixels)],
-                current: surface.blur.style) { surface.blur.style = $0 }
+                current: current.style) { style in
+                    var next = current; next.style = style; surface.blurInHand = next
+                }
 
-            slider(L10n.t(.blurStrength, lang), value: surface.blur.strength, range: 1...10) {
-                surface.blur.strength = $0
+            slider(L10n.t(.blurStrength, lang), value: current.strength, range: 1...10) { value in
+                var next = current; next.strength = value; surface.blurInHand = next
             }
-            if surface.blur.mode == .around {
-                slider(L10n.t(.blurDim, lang), value: surface.blur.dim, range: 0...10) {
-                    surface.blur.dim = $0
+            if current.mode == .around {
+                slider(L10n.t(.blurDim, lang), value: current.dim, range: 0...10) { value in
+                    var next = current; next.dim = value; surface.blurInHand = next
                 }
             }
         }
@@ -438,6 +451,8 @@ struct MarkupBlurPopover: View {
         .frame(width: 250)
         .background(Theme.background)
     }
+
+    private var current: MarkupBlur { surface.blurInHand }
 
     private func row<Value: Equatable>(
         _ items: [(String, Value)], current: Value, pick: @escaping (Value) -> Void

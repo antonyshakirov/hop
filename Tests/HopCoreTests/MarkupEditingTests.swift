@@ -50,3 +50,31 @@ final class MarkupEditingTests: XCTestCase {
                        line.points)
     }
 }
+
+extension MarkupEditingTests {
+    /// A rectangle is picked up from ANYWHERE inside it: aiming a mouse at a
+    /// one-point outline is not a thing anyone can do.
+    func testABoxIsGrabbedFromInsideIt() {
+        let box = MarkupShape(tool: .rectangle,
+                              points: [MarkupPoint(x: 10, y: 10), MarkupPoint(x: 90, y: 60)],
+                              ink: MarkupInk(hex: "#FF453A", width: 4), createdAt: 0)
+        XCTAssertTrue(MarkupEditing.grabbed(box, at: MarkupPoint(x: 50, y: 35), tolerance: 8))
+        XCTAssertFalse(MarkupEditing.grabbed(box, at: MarkupPoint(x: 200, y: 35), tolerance: 8))
+    }
+
+    /// A line has no inside, so it is still taken by proximity.
+    func testALineIsGrabbedNearItAndNotAcrossTheGap() {
+        let line = MarkupShape(tool: .line,
+                               points: [MarkupPoint(x: 0, y: 0), MarkupPoint(x: 100, y: 0)],
+                               ink: MarkupInk(hex: "#FF453A", width: 4), createdAt: 0)
+        XCTAssertTrue(MarkupEditing.grabbed(line, at: MarkupPoint(x: 50, y: 3), tolerance: 8))
+        XCTAssertFalse(MarkupEditing.grabbed(line, at: MarkupPoint(x: 50, y: 60), tolerance: 8))
+    }
+
+    func testANumberedStepIsGrabbedByItsCircle() {
+        let step = MarkupShape(tool: .steps, points: [MarkupPoint(x: 40, y: 40)],
+                               ink: MarkupInk(hex: "#FF453A", width: 2), step: 1, createdAt: 0)
+        XCTAssertTrue(MarkupEditing.grabbed(step, at: MarkupPoint(x: 48, y: 45), tolerance: 2))
+        XCTAssertFalse(MarkupEditing.grabbed(step, at: MarkupPoint(x: 90, y: 40), tolerance: 2))
+    }
+}
