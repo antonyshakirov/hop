@@ -15,7 +15,7 @@ enum MarkupCursors {
         case .pencil, .fadingInk:
             return nib(width: width, round: true)
         case .marker:
-            return nib(width: width, round: false)
+            return nib(width: width, round: false, squat: true)
         case .eraser:
             return drawn(MarkupToolbar.glyph(for: tool))
         case .select:
@@ -34,15 +34,18 @@ enum MarkupCursors {
     /// The nib itself: the shape and the size of the mark about to be made, so
     /// its weight is known before a line of it is drawn. Round for the pens,
     /// square for the chisel of a marker.
-    private static func nib(width: Double, round: Bool) -> NSCursor? {
+    private static func nib(width: Double, round: Bool, squat: Bool = false) -> NSCursor? {
         let thickness = min(max(width, 3), 48)
-        let key = "\(round ? "round" : "flat")-\(Int(thickness.rounded()))"
+        let key = "\(round ? "round" : "flat")-\(squat)-\(Int(thickness.rounded()))"
         if let ready = nibs[key] { return ready }
 
+        // A chisel lays down a broad, shallow mark: the nib is drawn the shape
+        // of what it leaves, not a square.
+        let tall = squat ? max(3, CGFloat(thickness) * 0.45) : CGFloat(thickness)
         let side = CGFloat(thickness) + 6
         let image = NSImage(size: NSSize(width: side, height: side), flipped: true) { _ in
             guard let context = NSGraphicsContext.current?.cgContext else { return false }
-            let box = CGRect(x: 3, y: 3, width: CGFloat(thickness), height: CGFloat(thickness))
+            let box = CGRect(x: 3, y: (side - tall) / 2, width: CGFloat(thickness), height: tall)
             let path = round
                 ? CGPath(ellipseIn: box, transform: nil)
                 : CGPath(roundedRect: box, cornerWidth: 2, cornerHeight: 2, transform: nil)

@@ -53,7 +53,8 @@ struct MarkupCanvas: View {
         .overlay {
             if chrome {
                 ToolCursor(tool: surface.tool,
-                           width: surface.ink(for: surface.tool).width * scale)
+                           width: surface.ink(for: surface.tool).width * scale,
+                           active: !surface.pointerOverPanel)
                     .allowsHitTesting(false)
             }
         }
@@ -144,6 +145,7 @@ struct MarkupCanvas: View {
                         .strokeBorder(Theme.controlStroke.opacity(0.6)))
                     .shadow(color: .black.opacity(0.45), radius: 10, y: 4)
             )
+            .onHover { surface.pointerOverPanel = $0 }
             .fixedSize()
             .offset(x: (box.origin.x + box.size.x / 2) * scale - 160,
                     y: (box.origin.y + box.size.y) * scale + 12)
@@ -412,12 +414,13 @@ struct MarkupCanvas: View {
 private struct ToolCursor: NSViewRepresentable {
     let tool: MarkupTool
     let width: Double
+    var active = true
 
     func makeNSView(context: Context) -> NSView { CursorView() }
 
     func updateNSView(_ nsView: NSView, context: Context) {
         guard let view = nsView as? CursorView else { return }
-        view.cursor = MarkupCursors.cursor(for: tool, width: width)
+        view.cursor = active ? MarkupCursors.cursor(for: tool, width: width) : nil
         view.wear()
     }
 
@@ -446,8 +449,8 @@ private struct ToolCursor: NSViewRepresentable {
         /// cannot swallow the drawing; whatever is under it resets the arrow
         /// the moment it is asked to.
         func wear() {
-            guard inside, let cursor else { return }
-            cursor.set()
+            guard inside else { return }
+            (cursor ?? .arrow).set()
         }
 
         override func mouseEntered(with event: NSEvent) { inside = true; wear() }

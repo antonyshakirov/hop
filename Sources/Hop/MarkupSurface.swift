@@ -13,6 +13,9 @@ final class MarkupSurface: ObservableObject {
     @Published private(set) var shapes: [MarkupShape] = []
     @Published private(set) var drafting: MarkupShape?
     @Published var tool: MarkupTool = .pencil
+    /// The pointer is over a panel rather than over the picture. A nib drawn
+    /// over the toolbar is a nib nobody can press a button with.
+    @Published var pointerOverPanel = false
     @Published var blur = MarkupBlur(mode: .inside, shape: .rectangle, style: .blur, strength: 5, dim: 2)
     /// The head the arrow tool draws, remembered between sessions.
     @Published var arrowStyle: ArrowStyle = MarkupSettings.arrowStyle() {

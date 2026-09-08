@@ -110,20 +110,25 @@ enum MarkupIcons {
             }]
 
         case .clear:
-            // The picture's own frame with its right side swept away. A bin
-            // reads as throwing the picture out, and a rubber is already the
-            // tool next to it; this is the SURFACE being wiped.
+            // A board duster: a block with a felt face and two strokes behind
+            // it. A bin reads as throwing the picture out, and the slim rubber
+            // beside it is a tool for one mark, not for all of them.
             return [stroke {
-                        $0.move(to: p(12.6, 4.4))
-                        $0.addLine(to: p(5.6, 4.4))
-                        $0.addQuadCurve(to: p(3.6, 6.4), control: p(4.2, 4.4))
-                        $0.addLine(to: p(3.6, 17.6))
-                        $0.addQuadCurve(to: p(5.6, 19.6), control: p(4.2, 19.6))
-                        $0.addLine(to: p(12.6, 19.6))
+                        $0.move(to: p(7.6, 10.6))
+                        $0.addLine(to: p(17.2, 10.6))
+                        $0.addLine(to: p(14.4, 13.8))
+                        $0.addLine(to: p(4.8, 13.8))
+                        $0.closeSubpath()
                     },
-                    stroke { $0.addPath(line(15.6, 8.4, 20.2, 8.4)) },
-                    stroke { $0.addPath(line(15.6, 12, 21.2, 12)) },
-                    stroke { $0.addPath(line(15.6, 15.6, 20.2, 15.6)) }]
+                    stroke {
+                        $0.move(to: p(4.8, 13.8))
+                        $0.addLine(to: p(14.4, 13.8))
+                        $0.addLine(to: p(14.4, 17.8))
+                        $0.addLine(to: p(4.8, 17.8))
+                        $0.closeSubpath()
+                    },
+                    stroke { $0.addPath(line(5.4, 7.6, 11.2, 7.6)) },
+                    stroke { $0.addPath(line(8.2, 4.8, 14, 4.8)) }]
 
         case .save:
             return [stroke { $0.addPath(line(12, 4, 12, 14.5)) },

@@ -62,6 +62,7 @@ struct MarkupToolbar: View {
                 .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.controlStroke.opacity(0.6)))
                 .shadow(color: .black.opacity(Theme.isDark ? 0.6 : 0.16), radius: 14, y: 6)
         )
+        .onHover { surface.pointerOverPanel = $0 }
 
     }
 
