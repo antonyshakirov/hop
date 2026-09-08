@@ -247,6 +247,12 @@ final class MarkupSurface: ObservableObject {
         publish()
     }
 
+    /// Marks put on the surface wholesale. SPEC: the canvas self-test.
+    func load(_ marks: [MarkupShape]) {
+        document.apply { _ in marks }
+        publish()
+    }
+
     func undo() {
         document.undo()
         publish()

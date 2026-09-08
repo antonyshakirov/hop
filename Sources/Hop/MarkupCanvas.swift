@@ -10,6 +10,10 @@ struct MarkupCanvas: View {
     @ObservedObject var surface: MarkupSurface
     var background: Image?
     var scale: CGFloat = 1
+    /// The cursor and the typing field are AppKit views, and AppKit views come
+    /// out as a yellow block when the canvas is rendered outside a running
+    /// window. The self-test asks for the drawing alone.
+    var chrome = true
 
     @State private var typing = false
 
@@ -25,9 +29,13 @@ struct MarkupCanvas: View {
             }
         }
         .overlay(alignment: .topLeading) { held }
-        .overlay(alignment: .topLeading) { typingField }
-        .overlay { ToolCursor(tool: surface.tool, width: surface.ink(for: surface.tool).width)
-            .allowsHitTesting(false) }
+        .overlay(alignment: .topLeading) { if chrome { typingField } }
+        .overlay {
+            if chrome {
+                ToolCursor(tool: surface.tool, width: surface.ink(for: surface.tool).width)
+                    .allowsHitTesting(false)
+            }
+        }
         .contentShape(Rectangle())
         .gesture(
             DragGesture(minimumDistance: 0)

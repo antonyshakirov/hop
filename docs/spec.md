@@ -2684,6 +2684,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   ships no WebP encoder, so the list must not promise one. Names are
   `shot <date> at <time>.<ext>`, with ` 2`, ` 3`… appended rather than
   overwriting a shot taken in the same minute.
+- `Hop --canvas-selftest <out.png>` renders the EDITOR's canvas offscreen and
+  reads the pixels back: each lens's rim is found in the tool's own colour, and
+  the busiest lens has to have changed what it covers. The export path builds
+  the same picture by a different route, so a loupe that works in the file says
+  nothing about the one under the hand (Anton, 2026-09-08). The canvas is
+  rendered with `chrome: false` — the cursor and the typing field are AppKit
+  views, and AppKit views come out as a yellow block outside a running window,
+  which is how the first run of this test "passed" on nothing at all. It is step
+  3 of `scripts/checks.sh`.
 - `Hop --markup-selftest <out.png>` runs the whole export path — marks, blur,
   watermark, dressing — over a made-up frame and writes the result. It found the
   browser bar drawn below the picture, an arrow head too thin to read, and the

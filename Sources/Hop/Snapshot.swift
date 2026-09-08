@@ -187,6 +187,13 @@ enum Snapshot {
             exit(MarkupSelfTest.run(to: args[i + 1]))
         }
 
+        // `Hop --canvas-selftest <out.png>` renders the EDITOR's canvas, which
+        // the export path never touches: the loupe and the marks as they look
+        // under the hand rather than in the file.
+        if let i = args.firstIndex(of: "--canvas-selftest"), args.count > i + 1 {
+            exit(MarkupSelfTest.canvas(to: args[i + 1]))
+        }
+
         if args.contains("--l10n-check") {
             let missing = L10n.missingKeys()
             print(missing.isEmpty ? "l10n: all translations present" : "l10n missing:\n" + missing.joined(separator: "\n"))

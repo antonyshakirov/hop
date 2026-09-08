@@ -11,7 +11,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-echo "=== 1/3 build ==="
+echo "=== 1/4 build ==="
 # Warnings are failures here: the app ships with none, and a new one is a
 # regression that a green build would otherwise hide.
 if swift build 2>&1 | tee /tmp/hop-build.log | grep -E "^.*: (error|warning):" ; then
@@ -19,10 +19,18 @@ if swift build 2>&1 | tee /tmp/hop-build.log | grep -E "^.*: (error|warning):" ;
   exit 1
 fi
 
-echo "=== 2/3 tests ==="
+echo "=== 2/4 tests ==="
 swift test
 
-echo "=== 3/3 translations ==="
+echo "=== 3/4 canvas ==="
+# The editor's canvas is drawn by a path the export never touches: the loupe
+# under the hand is not the loupe in the file.
+if ! ./.build/debug/Hop --canvas-selftest /tmp/hop-canvas-selftest.png; then
+  echo "❌ the canvas self-test failed"
+  exit 1
+fi
+
+echo "=== 4/4 translations ==="
 ./.build/debug/Hop --l10n-check
 
 echo "✅ all checks passed"
