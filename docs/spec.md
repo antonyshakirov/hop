@@ -2851,6 +2851,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   purpose: "draw over the screen · start drawing" said the same word twice in a
   row built for one line (Anton, 2026-09-08). A transparent layer on EVERY display, rebuilt
   when displays come and go.
+- **The two markup modules share everything they can**: the same surface, the
+  same canvas, the same toolbar (Anton, 2026-09-08). So the drawing layer has
+  the select tool first in its row, undo and redo beside clear, the nib pointer,
+  captions edited where they stand, curves through freehand strokes, the chisel
+  marker, colours remembered across both, a tick on copy, and delete for what is
+  in hand. What it does NOT have is the three tools that need pixels underneath
+  — crop, blur and the loupe — because there is no picture under this layer,
+  only the live screen.
+- The arrow that hands the SCREEN back is not the select tool, and no longer
+  wears the same glyph: it is a pointer with the way past it open.
 - **The mode follows the tool** (Anton, 2026-09-07). Picking any tool means
   drawing over the screen; the arrow at the head of the row is a tool of its
   own — "no tool" — and it hands the screen back while the panel stays where it

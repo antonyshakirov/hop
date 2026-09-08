@@ -19,7 +19,7 @@ final class ScreenAnnotateController: ObservableObject {
     /// Fading ink and the marker belong here; crop, blur and the magnifier need
     /// pixels this layer does not have.
     static let tools: [MarkupTool] = [
-        .pencil, .fadingInk, .marker, .arrow, .line,
+        .select, .pencil, .fadingInk, .marker, .arrow, .line,
         .rectangle, .oval, .steps, .text, .eraser,
     ]
 
@@ -215,6 +215,8 @@ struct ScreenAnnotateToolbar: View {
     @ObservedObject var surface: MarkupSurface
     let lang: AppLanguage
 
+    @State private var copied = false
+
     var body: some View {
         MarkupToolbar(surface: surface,
                       tools: ScreenAnnotateController.tools,
@@ -244,19 +246,58 @@ struct ScreenAnnotateToolbar: View {
 
     @ViewBuilder
     private var buttons: some View {
-        action(.clear, .annotateClear) { surface.clear() }
-        action(.copy, .copyLabel) { controller.copyToClipboard() }
+        Button { surface.undo() } label: {
+            MarkupIcon(glyph: .undo)
+                .foregroundStyle(surface.canUndo ? Theme.textPrimary : Theme.textTertiary)
+                .frame(width: 32, height: 32)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(L10n.t(.mkUndo, lang))
+
+        Button { surface.redo() } label: {
+            MarkupIcon(glyph: .redo)
+                .foregroundStyle(surface.canRedo ? Theme.textPrimary : Theme.textTertiary)
+                .frame(width: 32, height: 32)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(L10n.t(.mkRedo, lang))
+
+        Button { surface.clear() } label: {
+            MarkupIcon(glyph: .clear)
+                .foregroundStyle(surface.shapes.isEmpty ? Theme.textTertiary : Theme.textPrimary)
+                .frame(width: 32, height: 32)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(L10n.t(.annotateClear, lang))
+
+        Button {
+            controller.copyToClipboard()
+            copied = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) { copied = false }
+        } label: {
+            MarkupIcon(glyph: copied ? .done : .copy)
+                .foregroundStyle(copied ? Theme.accentGreen : Theme.textSecondary)
+                .frame(width: 32, height: 32)
+                .background(RoundedRectangle(cornerRadius: 7).fill(copied ? Theme.chipBg : .clear))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(L10n.t(.copyLabel, lang))
+
         action(.save, .featureSave) { controller.save() }
         action(.close, .annotateExit) { controller.exit() }
     }
 
-    /// The arrow is not a mode switch but a tool of its own: "no tool", which
-    /// is what gives the screen back while the panel stays where it is.
+    /// Not the select tool: this hands the SCREEN back, and the panel stays
+    /// where it is. Its glyph says so — a pointer with the way past it open.
     private var cursorButton: some View {
         Button {
             controller.setDrawing(false)
         } label: {
-            MarkupIcon(glyph: .cursor)
+            MarkupIcon(glyph: .passThrough)
                 .foregroundStyle(controller.isDrawing ? Theme.textSecondary : Theme.textPrimary)
                 .frame(width: 32, height: 32)
                 .background(
