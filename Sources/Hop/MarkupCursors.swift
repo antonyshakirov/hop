@@ -13,6 +13,8 @@ enum MarkupCursors {
         switch tool {
         case .pencil, .fadingInk, .marker, .eraser:
             return drawn(MarkupToolbar.glyph(for: tool))
+        case .select:
+            return .arrow
         case .text:
             return .iBeam
         default:

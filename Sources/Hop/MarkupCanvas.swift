@@ -24,6 +24,7 @@ struct MarkupCanvas: View {
                 background.resizable().scaledToFit()
             }
         }
+        .overlay(alignment: .topLeading) { held }
         .overlay(alignment: .topLeading) { typingField }
         .overlay { ToolCursor(tool: surface.tool, width: surface.ink(for: surface.tool).width)
             .allowsHitTesting(false) }
@@ -58,6 +59,34 @@ struct MarkupCanvas: View {
         }
     }
 
+    /// What is in hand: a hairline round the mark, and a dot on every point it
+    /// can be pulled by. A scribble has none — it moves whole.
+    @ViewBuilder
+    private var held: some View {
+        if let shape = surface.selected {
+            let box = MarkupGeometry.boundingBox(shape.points)
+            let frame = CGRect(x: box.origin.x * scale - 5, y: box.origin.y * scale - 5,
+                               width: box.size.x * scale + 10, height: box.size.y * scale + 10)
+            ZStack(alignment: .topLeading) {
+                Rectangle()
+                    .strokeBorder(Color.white.opacity(0.9), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                    .frame(width: frame.width, height: frame.height)
+                    .shadow(color: .black.opacity(0.6), radius: 1)
+                    .position(x: frame.midX, y: frame.midY)
+
+                ForEach(Array(MarkupEditing.handles(of: shape).enumerated()), id: \.offset) { _, spot in
+                    Circle()
+                        .fill(Color.white)
+                        .overlay(Circle().strokeBorder(Color.black.opacity(0.55), lineWidth: 1))
+                        .shadow(color: .black.opacity(0.5), radius: 2)
+                        .frame(width: 11, height: 11)
+                        .position(x: spot.x * scale, y: spot.y * scale)
+                }
+            }
+            .allowsHitTesting(false)
+        }
+    }
+
     @ViewBuilder
     private var typingField: some View {
         if let shape = surface.typing, let point = shape.points.first {
@@ -88,6 +117,8 @@ struct MarkupCanvas: View {
         guard let first = points.first else { return }
 
         switch shape.tool {
+        case .select:
+            return
         case .pencil, .fadingInk:
             context.stroke(freehand(points), with: .color(colour), style: stroke)
 

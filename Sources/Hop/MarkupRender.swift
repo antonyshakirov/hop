@@ -178,6 +178,8 @@ enum MarkupRender {
         context.setFillColor(colour.cgColor)
 
         switch shape.tool {
+        case .select:
+            return
         case .pencil, .fadingInk:
             context.beginPath()
             context.move(to: first)

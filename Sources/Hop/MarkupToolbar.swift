@@ -183,6 +183,7 @@ struct MarkupToolbar: View {
 
     static func glyph(for tool: MarkupTool) -> MarkupGlyph {
         switch tool {
+        case .select: return .cursor
         case .pencil: return .pencil
         case .fadingInk: return .fadingInk
         case .marker: return .marker
@@ -201,6 +202,7 @@ struct MarkupToolbar: View {
 
     static func name(of tool: MarkupTool) -> L10nKey {
         switch tool {
+        case .select: return .mkSelect
         case .pencil: return .mkPencil
         case .fadingInk: return .mkFading
         case .marker: return .mkMarker
@@ -221,6 +223,7 @@ struct MarkupToolbar: View {
     /// markup surface has the keyboard.
     static func letter(of tool: MarkupTool) -> String {
         switch tool {
+        case .select: return "v"
         case .pencil: return "p"
         case .fadingInk: return "f"
         case .marker: return "m"
@@ -250,7 +253,7 @@ struct MarkupToolbar: View {
     static let zKeyCode: UInt16 = 6
 
     private static let ansi: [UInt16: String] = [
-        0: "a", 3: "f", 6: "z", 8: "c", 11: "b", 14: "e", 15: "r",
+        0: "a", 3: "f", 6: "z", 8: "c", 9: "v", 11: "b", 14: "e", 15: "r",
         17: "t", 31: "o", 35: "p", 37: "l", 45: "n", 46: "m",
     ]
 }
@@ -633,6 +636,7 @@ struct MarkupKeys: NSViewRepresentable {
         view.step = { forward in
             if forward { surface.redo() } else { surface.undo() }
         }
+        view.drop = { surface.deleteSelection() }
         return view
     }
 
@@ -643,6 +647,8 @@ struct MarkupKeys: NSViewRepresentable {
         /// ⌘Z and ⇧⌘Z. Hop is an accessory app with no Edit menu, so there is no
         /// key equivalent for them to travel on.
         var step: ((Bool) -> Void)?
+        /// Delete on a selected mark. Answers whether there was one.
+        var drop: (() -> Bool)?
         private var monitor: Any?
 
         override func viewDidMoveToWindow() {
@@ -660,6 +666,12 @@ struct MarkupKeys: NSViewRepresentable {
                           event.keyCode == MarkupToolbar.zKeyCode
                     else { return event }
                     self.step?(event.modifierFlags.contains(.shift))
+                    return nil
+                }
+
+                // 51 backspace, 117 forward delete
+                if event.keyCode == 51 || event.keyCode == 117,
+                   self.window?.isKeyWindow == true, self.drop?() == true {
                     return nil
                 }
 

@@ -2468,6 +2468,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   talking over a live screen, and a picture about to be saved has no use for it
   (Anton, 2026-09-08). The export reads `surface.lasting` regardless — marks
   alive by the clock rather than by the tick.
+- **A mark already made can be picked up again.** The select tool (`v`, the
+  arrow, first in the row) takes the topmost mark under the pointer: a dashed
+  hairline goes round it and a dot appears on every point it can be pulled by —
+  the two ends of a line or an arrow, the four corners of a box, a blur or the
+  loupe. A scribble and a numbered step have no handles and move whole. Delete
+  removes what is in hand (Anton, 2026-09-08).
+- The edit stands IN for the stored mark while the drag lasts (`editing`), and
+  is written back once on release, so pulling a corner across the picture is one
+  undo step rather than a hundred. A handle of the mark already in hand wins over
+  whatever else is under the pointer, or a corner could never be grabbed from
+  inside its own shape. The geometry is a pure function in
+  `HopCore.MarkupEditing` with tests: the corner ACROSS from the one being held
+  is the one that must not move.
 - **A text mark gets a field of its own** (`.id(shape.id)`). One field carried
   across two marks keeps the words of the first, and the text looks as though it
   moved to wherever the second click landed.

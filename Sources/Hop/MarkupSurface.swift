@@ -21,10 +21,17 @@ final class MarkupSurface: ObservableObject {
     @Published private(set) var now: TimeInterval = 0
     /// A text mark waiting for its words; the canvas shows a field over it.
     @Published var typing: MarkupShape?
+    /// The mark in hand, while the select tool has hold of it.
+    @Published private(set) var selection: UUID?
+    /// That mark as it is being moved or pulled about. It stands in for the
+    /// stored one until the drag ends, so the whole edit is ONE undo step.
+    @Published private(set) var editing: MarkupShape?
 
     private let document = MarkupDocument()
     private var inks: [MarkupTool: MarkupInk] = MarkupSettings.inks()
     private var origin: MarkupPoint?
+    private var grip: Int?
+    private var grabbed: MarkupPoint?
     private var ticker: Timer?
     private let opened = Date()
 
@@ -33,9 +40,63 @@ final class MarkupSurface: ObservableObject {
 
     /// Marks that are still worth drawing at this instant.
     var visible: [MarkupShape] {
-        let living = FadingInk.alive(shapes, now: now)
+        var living = FadingInk.alive(shapes, now: now)
+        if let editing {
+            living = living.map { $0.id == editing.id ? editing : $0 }
+        }
         guard let drafting else { return living }
         return living + [drafting]
+    }
+
+    /// The mark the handles belong to, as it looks right now.
+    var selected: MarkupShape? {
+        guard let selection else { return nil }
+        if let editing, editing.id == selection { return editing }
+        return shapes.first { $0.id == selection }
+    }
+
+    @discardableResult
+    func deleteSelection() -> Bool {
+        guard let selection else { return false }
+        document.apply { StepNumbering.renumbered($0.filter { $0.id != selection }) }
+        self.selection = nil
+        editing = nil
+        publish()
+        return true
+    }
+
+    /// How near the pointer has to be to take hold of a handle, in the picture's
+    /// own points.
+    static let gripReach: Double = 9
+
+    private func handle(of shape: MarkupShape, near point: MarkupPoint) -> Int? {
+        let spots = MarkupEditing.handles(of: shape)
+        for (index, spot) in spots.enumerated() {
+            let dx = spot.x - point.x, dy = spot.y - point.y
+            if (dx * dx + dy * dy).squareRoot() <= Self.gripReach { return index }
+        }
+        return nil
+    }
+
+    private func pick(at point: MarkupPoint) {
+        // A handle of the mark already in hand wins over anything under it.
+        if let current = selected, let index = handle(of: current, near: point) {
+            grip = index
+            editing = current
+            return
+        }
+        guard let hit = FadingInk.alive(shapes, now: now)
+            .last(where: { MarkupGeometry.hits(shape: $0, point: point, tolerance: 8) })
+        else {
+            selection = nil
+            editing = nil
+            grabbed = nil
+            return
+        }
+        selection = hit.id
+        editing = hit
+        grip = nil
+        grabbed = point
     }
 
     /// What is still on the surface right now, read off the clock rather than
@@ -61,6 +122,8 @@ final class MarkupSurface: ObservableObject {
     func begin(at point: MarkupPoint) {
         let stamp = Date().timeIntervalSince(opened)
         switch tool {
+        case .select:
+            pick(at: point)
         case .eraser:
             erase(at: point)
         case .steps:
@@ -82,6 +145,18 @@ final class MarkupSurface: ObservableObject {
     }
 
     func extend(to point: MarkupPoint, modifiers: MarkupDrag.Modifiers = .none) {
+        if tool == .select {
+            guard var held = editing else { return }
+            if let grip {
+                held = MarkupEditing.pulled(held, handle: grip, to: point)
+            } else if let grabbed {
+                held = MarkupEditing.moved(held, by: MarkupPoint(x: point.x - grabbed.x,
+                                                                 y: point.y - grabbed.y))
+                self.grabbed = point
+            }
+            editing = held
+            return
+        }
         guard var shape = drafting else { return }
         switch shape.tool {
         case .pencil, .fadingInk, .marker:
@@ -112,6 +187,15 @@ final class MarkupSurface: ObservableObject {
     }
 
     func finish() {
+        if tool == .select {
+            defer { grip = nil; grabbed = nil }
+            guard let held = editing else { return }
+            editing = nil
+            guard held != shapes.first(where: { $0.id == held.id }) else { return }
+            document.update(held)
+            publish()
+            return
+        }
         defer { origin = nil }
         guard let shape = drafting else { return }
         drafting = nil
@@ -188,6 +272,7 @@ final class MarkupSurface: ObservableObject {
         case .fadingInk: return MarkupInk(hex: "#FF453A", width: 5)
         case .text: return MarkupInk(hex: "#FF453A", width: 18)
         case .steps: return MarkupInk(hex: "#FF453A", width: 2)
+        case .select: return MarkupInk(hex: "#FF453A", width: 4)
         default: return MarkupInk(hex: "#FF453A", width: 4)
         }
     }

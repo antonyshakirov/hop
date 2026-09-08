@@ -73,7 +73,7 @@ final class ScreenshotEditor: ObservableObject {
     /// The tools this surface offers: no fading ink on a picture that will be
     /// saved, and every tool that needs pixels under it lives only here.
     static let tools: [MarkupTool] = [
-        .crop, .pencil, .marker, .arrow, .line, .rectangle,
+        .select, .crop, .pencil, .marker, .arrow, .line, .rectangle,
         .oval, .steps, .text, .magnifier, .blur, .eraser,
     ]
 

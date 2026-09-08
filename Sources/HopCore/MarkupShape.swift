@@ -2,6 +2,8 @@ import Foundation
 
 /// SPEC: .claude/specs/2026-09-07-markup-modules-design.md
 public enum MarkupTool: String, Codable, CaseIterable, Sendable {
+    /// Not a mark of its own: the one that picks up the marks already made.
+    case select
     case pencil
     case fadingInk
     case marker
