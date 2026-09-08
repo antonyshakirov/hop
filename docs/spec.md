@@ -1760,17 +1760,24 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   saves, completes the task and folds the card in one move (`CardCompletion`,
   nil for the tracker, whose tasks have no completed state and which therefore
   shows no checkbox). The former ✓ in the bottom-right is now a `chevron.up`
-  (`tipCollapse`) that saves and folds: a tick sitting next to a task was read as
+  (`tipCollapse`) that folds the card: a tick sitting next to a task was read as
   "check this off", not as "save" (Vanya, 2026-09-08), and the card now
-  holds exactly one tick, the one that means it. ✕ still abandons.
-  ⌘Return commits. **Escape** hangs on a hidden `.cancelAction` button rather
-  than on `onExitCommand`, which never fired — the focus lives in a `TextEditor`
-  and AppKit's field editor eats the key first, which is why a card could not be
-  closed from the keyboard at all. Everything that is not an explicit cancel now
-  COMMITS instead of dropping the draft: tapping another row, tapping the
-  module's own background (a container-level `onTapGesture`; the card swallows
-  taps that land inside it), and closing the panel (`onDisappear`) — clicking
-  elsewhere never says "discard". Same in the tracker (`commitOpenCard`).
+  holds exactly one tick, the one that means it.
+- **The card has NO cancel (Anton, 2026-09-08).** The ✕ is gone and there is no
+  discard path at all: **every** way out writes the draft back — the chevron,
+  ⌘Return, Escape, tapping another row, tapping the row's own line again,
+  starting a reorder drag, tapping the module's background, and closing the
+  panel (`onDisappear`). A card is a note being edited in place, and a button
+  that silently threw the text away was the wrong half of the pair to keep; the
+  price is that a typo cannot be undone by closing. `TaskCardView` therefore
+  takes no `onCancel`, and `commitOpenCard()` is the single exit in both modules.
+  **Escape** hangs on a hidden `.cancelAction` button rather than on
+  `onExitCommand`, which never fired — the focus lives in a `TextEditor` and
+  AppKit's field editor eats the key first, which is why a card could not be
+  closed from the keyboard at all. The module's background gesture sits on a
+  layer BEHIND the content (a container-level gesture takes the click the
+  editors need for the caret), and the card carries a background gesture of its
+  own so a tap inside it never reaches the module's.
   Beneath them, the reminder group sits on the LEFT (bell, day chip, time, and
   the weekday row under it, captioned `repeat` in words — a glyph there read as
   one more button) and the favourite star on the RIGHT, next to ✓/✕: between the

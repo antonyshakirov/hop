@@ -404,8 +404,7 @@ struct TrackerView: View {
                                                                             important: task.important) },
                                                 set: { card = $0 }),
                                  lang: lang,
-                                 onCommit: { commitCard(task) },
-                                 onCancel: { collapseCard() })
+                                 onCommit: { commitCard(task) })
                         .background {
                             Color.clear.contentShape(Rectangle()).onTapGesture { }
                         }
@@ -509,7 +508,7 @@ struct TrackerView: View {
         // (`.subviews`) so the pan scrolls and the total-scrub/taps keep working.
         .contentShape(Rectangle())
         .onTapGesture {
-            if expandedTask == task.id { collapseCard() } else { expandCard(task) }
+            if expandedTask == task.id { commitOpenCard() } else { expandCard(task) }
         }
         .gesture(dragGesture(task.id, isProject: false),
                  including: trackerCapped ? .subviews : .all)
@@ -1140,7 +1139,7 @@ struct TrackerView: View {
                     // an open card, whose own fields want the pointer
                     endEdit()
                     clearConfirms()
-                    collapseCard()
+                    commitOpenCard()
                 }
                 dragTranslation = value.translation
                 dropTarget = resolveDrop(id, isProject: isProject, at: value.location.y)

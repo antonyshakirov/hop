@@ -180,7 +180,6 @@ struct TodosView: View {
                                         set: { card = $0 }),
                          lang: lang,
                          onCommit: { commitCard(item) },
-                         onCancel: { collapseCard() },
                          completion: CardCompletion(done: item.done,
                                                     toggle: { completeFromCard(item) }))
                 .background(rowFrameReader(item.id))
@@ -368,7 +367,7 @@ struct TodosView: View {
                     dragItem = id
                     endAdd()         // a drag must not fight an open add field
                     clearConfirms()  // …or a pending delete confirm
-                    collapseCard()   // …or an open card, whose fields own the pointer
+                    commitOpenCard() // …or an open card, whose fields own the pointer
                 }
                 dragTranslation = value.translation
                 // clamp the insertion into the dragged item's group, so the

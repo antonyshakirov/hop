@@ -39,11 +39,12 @@ struct TaskCardDraft: Equatable {
 /// hairline separates it from the description, and both fields take Return for
 /// a new line. Everything else is small icons — a bell, a star, a chevron that
 /// folds the card up — and the checkbox at its head, the card's only tick.
+/// Nothing here saves or cancels: what is typed is kept whichever way the card
+/// is left.
 struct TaskCardView: View {
     @Binding var draft: TaskCardDraft
     let lang: AppLanguage
     let onCommit: () -> Void
-    let onCancel: () -> Void
     var completion: CardCompletion? = nil
 
     @FocusState private var titleFocused: Bool
@@ -75,7 +76,7 @@ struct TaskCardView: View {
         // WORKAROUND: `onExitCommand` never fires here — AppKit's field editor
         // eats Escape before the TextEditor's SwiftUI parent sees it.
         .background {
-            Button("", action: onCancel)
+            Button("", action: onCommit)
                 .keyboardShortcut(.cancelAction)
                 .opacity(0)
                 .frame(width: 0, height: 0)
@@ -166,7 +167,6 @@ struct TaskCardView: View {
             }
             Spacer(minLength: 8)
             starButton
-            HoverIconButton(symbol: "xmark", action: onCancel, help: t(.quitCancel))
             HoverIconButton(symbol: "chevron.up", action: onCommit, help: t(.tipCollapse))
             // Return belongs to the text, so the keyboard commit is ⌘Return.
             Button("", action: onCommit)
