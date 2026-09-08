@@ -2682,6 +2682,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   held at the four points ON the ellipse, and pulling one of them moves that
   edge alone. It starts at strength 5 of 10 — a blur that hides nothing reads as
   a blur that does not work.
+- **The strength scale bends.** On a straight one the lightest setting was
+  already too heavy to read through and everything past the middle looked the
+  same (Anton, 2026-09-08); the radius runs 0.5 to 15 points along a 1.7 power,
+  so the foot of the slider is gentle and the head is where the weight is. The
+  mosaic's tile follows the same curve, 3 to 34. `MarkupBlur.radius(forStrength:)`
+  with tests.
+- **The rebuild runs off the main thread**, newest answer only, and Core Image
+  keeps ONE context for the life of the app: building a `CIContext` is the
+  expensive part of a blur, and a fresh one per drag step is what made the region
+  stutter under the hand (Anton, 2026-09-08).
 - **Blur works in both directions.** "Inside the area" hides what the region
   covers; "around the area" keeps the region sharp and smears the rest, with a
   dimming slider on top of the strength one, because blur alone does not read as

@@ -9,6 +9,11 @@ import HopCore
 /// Graphics, because a picture scaled for a window and a picture saved to disk
 /// are not the same pixels.
 enum MarkupRender {
+    /// One context for the life of the app. Building a `CIContext` is the
+    /// expensive part of a blur, and a new one per drag step is what made the
+    /// region stutter under the hand.
+    static let ciContext = CIContext()
+
     static func shortened(_ from: CGPoint, _ to: CGPoint, by amount: CGFloat) -> CGPoint {
         let dx = to.x - from.x
         let dy = to.y - from.y
@@ -145,7 +150,7 @@ enum MarkupRender {
 
         var picture = CIImage(cgImage: base)
         let extent = picture.extent
-        let ciContext = CIContext()
+        let ciContext = Self.ciContext
 
         for region in regions {
             guard let settings = region.blur else { continue }
@@ -156,13 +161,13 @@ enum MarkupRender {
             if settings.style == .pixels {
                 let filter = CIFilter.pixellate()
                 filter.inputImage = picture
-                filter.scale = Float(max(4, Double(settings.strength) * 3 * scale))
+                filter.scale = Float(MarkupBlur.mosaic(forStrength: settings.strength) * scale)
                 filter.center = CGPoint(x: box.midX, y: box.midY)
                 smudged = filter.outputImage?.cropped(to: extent) ?? picture
             } else {
                 let filter = CIFilter.gaussianBlur()
                 filter.inputImage = picture.clampedToExtent()
-                filter.radius = Float(Double(settings.strength) * 2.5 * scale)
+                filter.radius = Float(MarkupBlur.radius(forStrength: settings.strength) * scale)
                 smudged = filter.outputImage?.cropped(to: extent) ?? picture
             }
 

@@ -67,6 +67,22 @@ public struct MarkupBlur: Equatable, Codable, Sendable {
     /// 0...10, `around` only.
     public var dim: Int
 
+    /// How far the gaussian reaches, in the picture's own points. The scale is
+    /// deliberately NOT straight: on a straight one the lightest setting was
+    /// already too much to read through, and everything past the middle looked
+    /// the same. SPEC: docs/spec.md
+    /// Tests: Tests/HopCoreTests/MarkupBlurTests.swift
+    public static func radius(forStrength strength: Int) -> Double {
+        let share = Double(min(max(strength, 1), 10) - 1) / 9
+        return 0.5 + pow(share, 1.7) * 14.5
+    }
+
+    /// The side of a mosaic tile, in the picture's own points.
+    public static func mosaic(forStrength strength: Int) -> Double {
+        let share = Double(min(max(strength, 1), 10) - 1) / 9
+        return 3 + pow(share, 1.7) * 31
+    }
+
     public init(mode: Mode, shape: Shape, style: Style, strength: Int, dim: Int) {
         self.mode = mode
         self.shape = shape

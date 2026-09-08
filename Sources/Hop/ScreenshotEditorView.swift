@@ -161,15 +161,30 @@ final class ScreenshotEditor: ObservableObject {
     private func scheduleBackdrop() {
         guard !backdropPending else { return }
         backdropPending = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) { [weak self] in
             guard let self else { return }
             self.backdropPending = false
             self.rebuildBackdrop()
         }
     }
 
+    private var backdropRun = 0
+
+    /// Off the main thread, and only the newest answer is kept: a Core Image
+    /// pass on the main one is a stutter the size of the picture.
     private func rebuildBackdrop() {
-        backdrop = MarkupRender.effects(base: base, shapes: effectShapes, scale: scale)
+        let marks = effectShapes
+        let frame = base
+        let pixels = scale
+        backdropRun += 1
+        let run = backdropRun
+        DispatchQueue.global(qos: .userInitiated).async {
+            let made = MarkupRender.effects(base: frame, shapes: marks, scale: pixels)
+            DispatchQueue.main.async { [weak self] in
+                guard let self, run == self.backdropRun else { return }
+                self.backdrop = made
+            }
+        }
     }
 
     /// A slider dragged is a render per frame at the shot's full resolution, so
