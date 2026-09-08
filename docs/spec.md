@@ -2655,6 +2655,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   edges of the marker's band are smoothed too, or its outline keeps the corners
   the stroke has lost. `MarkupGeometry.curves(through:)` with tests; the canvas
   and the export draw the same path.
+- **The marker's band and its spine are ONE path, filled once.** Painted
+  separately they overlap, and translucent ink laid down twice draws a second,
+  darker line along the middle of the stroke (Anton, 2026-09-08).
 - **The marker DRAWS with that nib**, not with a round pen. The nib is an
   upright bar swept along the path — a stroke across the page is thick, one down
   it is thin — so the pointer is telling the truth: a round cap lays down the

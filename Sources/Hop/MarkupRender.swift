@@ -24,6 +24,15 @@ enum MarkupRender {
         }
     }
 
+    private static func curve(_ points: [CGPoint], into path: CGMutablePath) {
+        let marks = points.map { MarkupPoint(x: $0.x, y: $0.y) }
+        for leg in MarkupGeometry.curves(through: marks) {
+            path.addCurve(to: CGPoint(x: leg.to.x, y: leg.to.y),
+                          control1: CGPoint(x: leg.control1.x, y: leg.control1.y),
+                          control2: CGPoint(x: leg.control2.x, y: leg.control2.y))
+        }
+    }
+
     static func shortened(_ from: CGPoint, _ to: CGPoint, by amount: CGFloat) -> CGPoint {
         let dx = to.x - from.x
         let dy = to.y - from.y
@@ -295,14 +304,15 @@ enum MarkupRender {
                 context.addRect(CGRect(x: first.x - half / 3, y: first.y - half,
                                        width: max(half / 1.5, 1), height: half * 2))
             }
+            // The line the nib's own thickness leaves, unioned into the same
+            // path: filled separately it would double the ink where the two
+            // overlap.
+            let spine = CGMutablePath()
+            spine.move(to: first)
+            curve(points, into: spine)
+            context.addPath(spine.copy(strokingWithWidth: max(shape.ink.width * scale * 0.3, 1),
+                                       lineCap: .round, lineJoin: .round, miterLimit: 10))
             context.fillPath()
-            // The nib has thickness: along its own axis it still leaves a line.
-            context.setStrokeColor(colour.withAlphaComponent(0.45).cgColor)
-            context.setLineWidth(max(shape.ink.width * scale * 0.3, 1))
-            context.beginPath()
-            context.move(to: first)
-            curve(points, in: context)
-            context.strokePath()
             context.restoreGState()
 
         case .line:

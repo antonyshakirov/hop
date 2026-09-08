@@ -239,16 +239,16 @@ struct MarkupCanvas: View {
             // path, so a stroke across the page is thick and one down it is
             // thin. A round cap would lay down the same mark in every
             // direction, which is what a pencil does.
+            // ONE path, filled once: the band and the line the nib's own
+            // thickness leaves, unioned. Painted separately they overlap, and
+            // translucent ink laid twice draws a second, darker line down the
+            // middle of the stroke.
+            var swept = chisel(points, nib: width)
+            swept.addPath(freehand(points).strokedPath(
+                StrokeStyle(lineWidth: max(width * 0.3, 1), lineCap: .round, lineJoin: .round)))
             context.drawLayer { layer in
                 layer.blendMode = .multiply
-                let ink = GraphicsContext.Shading.color(colour.opacity(0.45))
-                layer.fill(chisel(points, nib: width), with: ink)
-                // The nib has thickness: swept ALONG its own axis a flat pen
-                // still leaves a line, and a band alone drew nothing at all
-                // for a stroke straight down the page.
-                layer.stroke(freehand(points), with: ink,
-                             style: StrokeStyle(lineWidth: max(width * 0.3, 1),
-                                                lineCap: .round, lineJoin: .round))
+                layer.fill(swept, with: .color(colour.opacity(0.45)))
             }
 
         case .line:
