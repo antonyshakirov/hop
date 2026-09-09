@@ -2975,13 +2975,6 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the grip: both are about the panel itself rather than about the marks, and its
   glyph is the pair of arrows pulled inward that macOS uses for "smaller" —
   chevrons up and down said nothing about what would happen.
-- **The presenting pointer** (Anton, 2026-09-09): the layer can add a ring
-  round the pointer, a spotlight on it, a fading trail behind it and a ring at
-  every click, in a colour and a size of their own. `HopCore.PointerAids` holds
-  what is on and how strong, with tests; `PointerAidsController` watches the
-  mouse globally and locally, so it follows the pointer in the clicks-through
-  mode too, and it watches NOTHING while nothing is switched on. The marks are
-  drawn over the whole layer, under the panel, and take no clicks of their own.
 - **The toolbar is a window of its own**, above the layer and always able to
   take a click. It has to be: `ignoresMouseEvents` belongs to a whole window, so
   a panel living inside the layer went unclickable together with it the moment

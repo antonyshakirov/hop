@@ -28,7 +28,6 @@ final class ScreenAnnotateController: ObservableObject {
     ]
 
     let backdrop = LiveScreenBackdrop()
-    let pointer = PointerAidsController()
     private let overlay = MarkupOverlayController()
     private var backdropWatch: AnyCancellable?
     private var toolbarWindow: MarkupToolbarWindow?
@@ -50,7 +49,6 @@ final class ScreenAnnotateController: ObservableObject {
                 controller: self,
                 surface: self.surface,
                 backdrop: self.backdrop,
-                pointer: self.pointer,
                 screen: screen.frame,
                 lang: L10n.current
             ))
@@ -59,7 +57,6 @@ final class ScreenAnnotateController: ObservableObject {
         takeTheScreen(true)
         showToolbar()
         HotkeyManager.shared.setDrawingLayerUp(true)
-        pointer.start()
         // Picking a tool IS entering the drawing mode: the arrow at the head of
         // the row is what hands the screen back.
         toolWatch = surface.$tool.dropFirst().sink { [weak self] _ in
@@ -195,7 +192,6 @@ final class ScreenAnnotateController: ObservableObject {
     func exit() {
         backdropWatch = nil
         backdrop.stop()
-        pointer.stop()
         HotkeyManager.shared.setDrawingLayerUp(false)
         takeTheScreen(false)
         toolWatch = nil
@@ -265,7 +261,6 @@ struct ScreenAnnotateView: View {
     @ObservedObject var controller: ScreenAnnotateController
     @ObservedObject var surface: MarkupSurface
     @ObservedObject var backdrop: LiveScreenBackdrop
-    @ObservedObject var pointer: PointerAidsController
     let screen: NSRect
     let lang: AppLanguage
 
@@ -273,9 +268,6 @@ struct ScreenAnnotateView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            PointerAidsView(pointer: pointer, screen: screen)
-                .frame(width: screenSize.width, height: screenSize.height)
-
             MarkupCanvas(surface: surface, background: nil, source: live, scale: 1)
                 .frame(width: screenSize.width, height: screenSize.height)
                 .allowsHitTesting(controller.isDrawing)
@@ -323,7 +315,6 @@ struct ScreenAnnotateToolbar: View {
     let lang: AppLanguage
 
     @State private var copied = false
-    @State private var showingPointer = false
     @State private var whereCopy: (() -> CGRect)?
     @State private var whereSave: (() -> CGRect)?
 
@@ -439,20 +430,6 @@ struct ScreenAnnotateToolbar: View {
         .buttonStyle(.plain)
         .markupAnchor { whereSave = $0 }
         .markupTip(L10n.t(.featureSave, lang) + "\n" + L10n.t(.mkDoSave, lang))
-        Button { showingPointer.toggle() } label: {
-            MarkupIcon(glyph: .pointer)
-                .foregroundStyle(controller.pointer.aids.isOn ? Theme.textPrimary : Theme.textSecondary)
-                .frame(width: 32, height: 32)
-                .background(RoundedRectangle(cornerRadius: 7)
-                    .fill(controller.pointer.aids.isOn ? Theme.chipBg : .clear))
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .markupTip(L10n.t(.pointerAids, lang))
-        .popover(isPresented: $showingPointer, arrowEdge: controller.edge == .top ? .bottom : .top) {
-            PointerAidsPopover(pointer: controller.pointer, lang: lang).aboveTheDrawing()
-        }
-
         action(.close, .annotateExit) { controller.exit() }
     }
 

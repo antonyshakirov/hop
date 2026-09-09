@@ -11,7 +11,7 @@ enum MarkupGlyph: String, CaseIterable {
     case crop, pencil, fadingInk, marker, arrow, line, rectangle, oval
     case steps, text, magnifier, blur, eraser
     case undo, redo, grip, cursor, clear, save, copy, close
-    case dressing, watermark, weight, done, picture, passThrough, fold, pointer
+    case dressing, watermark, weight, done, picture, passThrough, fold
 }
 
 struct MarkupStroke {
@@ -140,16 +140,6 @@ enum MarkupIcons {
                         $0.move(to: p(12, 16.4)); $0.addLine(to: p(12, 12))
                         $0.addLine(to: p(16.4, 12))
                     }]
-
-        case .pointer:
-            // An arrow with a ring round its tip: the presenting pointer.
-            return [stroke {
-                        $0.move(to: p(4.5, 3.5)); $0.addLine(to: p(13.5, 8.6))
-                        $0.addLine(to: p(9.6, 9.6)); $0.addLine(to: p(8.2, 13.4))
-                        $0.closeSubpath()
-                    },
-                    stroke { $0.addEllipse(in: CGRect(x: p(12.5, 12.5).x, y: p(12.5, 12.5).y,
-                                                      width: 8, height: 8)) }]
 
         case .passThrough:
             return [stroke {
