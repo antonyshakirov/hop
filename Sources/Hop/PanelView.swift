@@ -391,10 +391,7 @@ struct PanelView: View {
     /// then; it retires itself once every module in it is in the panel
     /// (`retireSatisfiedAnnouncements`).
     /// SPEC: docs/spec.md - "What's-new card (module checklist)".
-    private static let featureAnnouncements: [FeatureAnnouncement] = [
-        .init(id: "markup210", moduleKeys: ["shot", "annotate"],
-              title: .featureModulesTitle, body: .featureModulesBody, checklist: true),
-    ]
+    private static let featureAnnouncements: [FeatureAnnouncement] = []
 
     /// An offer whose modules are all in the panel already has nothing to say.
     /// Marked seen at launch rather than merely hidden, so switching one of them
@@ -448,7 +445,7 @@ struct PanelView: View {
         // it never sees it again, and somebody still holding it gets these lines
         // instead of the ones written before the release went out.
         .init(id: "2.0", lines: [.news20Lighter, .news20Adds, .news20Ahead]),
-        .init(id: "2.1", lines: [.news21Shot, .news21Draw]),
+        .init(id: "2.1", lines: [.news21Shot, .news21Draw, .news21More]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -2581,11 +2578,12 @@ struct PanelView: View {
     /// is handled by its own toggle below.
     private static let optInModules = ["color", "ocr", "vpn"]
 
-    /// Modules INTRODUCED in this release. For someone updating, all of them
-    /// start hidden and are offered by the what's-new card, so nothing appears
-    /// in the panel that was not ticked there. A fresh install has no
-    /// expectations to violate, so only the `optInModules` above stay hidden.
-    private static let newInThisRelease = ["shot", "annotate"]
+    /// Modules INTRODUCED in this release that must NOT appear until they are
+    /// asked for. Empty for the markup pair by Anton's decision (2026-09-09):
+    /// they ship on, at the foot of the first space, and the what's-new card
+    /// tells everyone they are there rather than asking a question. Switching
+    /// one off is a click in the settings.
+    private static let newInThisRelease: [String] = []
 
     private var moduleOrder: [String] {
         Self.normalizedOrder(moduleOrderRaw)
@@ -2651,7 +2649,6 @@ struct PanelView: View {
         UserDefaults.standard.set(true, forKey: SettingsKey.canonicalLayoutSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded170)
-        UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded210)
         return model
     }
 
@@ -2666,11 +2663,10 @@ struct PanelView: View {
     /// One-shot: hide this release's new modules once, so a later showing sticks.
     private static func seedOptInModules(_ model: inout PanelTabsModel) {
         let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: SettingsKey.optInModulesSeeded210) else { return }
+        guard !defaults.bool(forKey: SettingsKey.optInModulesSeeded170) else { return }
         for key in newInThisRelease { model.setHidden(key, hidden: true) }
         defaults.set(true, forKey: SettingsKey.optInModulesSeeded)
         defaults.set(true, forKey: SettingsKey.optInModulesSeeded170)
-        defaults.set(true, forKey: SettingsKey.optInModulesSeeded210)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 

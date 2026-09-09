@@ -2984,17 +2984,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 ### How the two markup modules reach the user
 
 - **A clean install gets both, switched on**, at the foot of the first space.
-- **An update gets neither until it is asked for** (Anton, 2026-09-08):
-  `newInThisRelease` sweeps them into the inactive bucket once, behind a
-  one-shot of this release's own (`optInModulesSeeded210` — the 1.7.0 key was
-  already claimed, and a spent key sweeps nothing). The what's-new card then
-  offers them as a checklist, a switch each, and only what is ticked is placed
-  in the panel. Somebody who arranged their panel by hand does not find two new
-  rows in it.
-- **And a release card says what they are**: `"2.1"` — one line for the
-  screenshot with its editor, one for the drawing layer. The checklist question
-  goes first and the news card waits for the next opening, the standing rule for
-  the two.
+- **An update gets both as well, switched on** (Anton, 2026-09-09), at the foot
+  of its own first space — `ensure` appends a new module there. They are NOT
+  swept into the inactive bucket and NOT offered as a checklist: the first
+  version of this shipped them hidden behind a question, and a question about a
+  module nobody has seen yet is answered blind. `newInThisRelease` is therefore
+  empty; the machinery stays for a module that must not appear unasked.
+  Switching either off is one click on its settings page.
+- **The release card tells, and the full notes explain**: `"2.1"` carries three
+  lines — the screenshot with its editor, the drawing layer, and what else the
+  release brought — and its button opens the notes, where the release has a
+  section of its own in all twenty-two languages.
 
 ### Saying where the picture went
 
