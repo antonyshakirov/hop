@@ -2957,6 +2957,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **⌘Z, ⇧⌘Z and delete work in the panel over the live screen too** (Anton,
   2026-09-08): they were gated on the window being key, which a non-activating
   panel never is, so the bare letters picked tools while undo did nothing.
+- **The floating panel's shadow is the SYSTEM's** (`hasShadow`, Anton,
+  2026-09-09). Drawn inside the window it was clipped by the window's own edge,
+  and the cut read as a dark rectangle lying under the panel; padding the window
+  out only moved the cut further away. AppKit draws it outside the window, where
+  nothing cuts it, and a toolbar in its own window asks for none of its own
+  (`floating`).
+- **A blurred region is filtered on a layer of its OWN.** Filtered inside its
+  clip, the blur pulled in the transparency past the region's edge and the
+  region came out dark with a gradient into it (2026-09-09): the frame is
+  blurred whole on an inner layer, and the clip only decides how much shows.
 - **The toolbar is a window of its own**, above the layer and always able to
   take a click. It has to be: `ignoresMouseEvents` belongs to a whole window, so
   a panel living inside the layer went unclickable together with it the moment
@@ -3042,9 +3052,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   **stays exactly where it is put** — no snapping to an edge, no turning
   (Anton, 2026-09-08): a panel that jumped to a side the moment it was let go,
   and stood on end when it got there, was fighting the hand that moved it. It
-  is kept WHOLE and off the edges: a margin of 20pt all round, so a pointer
-  dragged past the surface leaves the panel standing at the margin rather than
-  half outside. `top`/`bottom` survives as one thing only — which way the
+  **It goes anywhere, corners included, and may hang off an edge** (Anton,
+  2026-09-09): it used to be kept WHOLE and 20pt inside the working area, so a
+  panel pushed into a corner sprang back and the foot of the screen was out of
+  reach. What is held now is 60pt of it on screen — enough to catch it again —
+  and the whole display counts, menu bar included. `top`/`bottom` survives as one thing only — which way the
   popovers open, taken from which half the panel is in.
 - **A drag is measured from where it STARTED, in a space that does not move**
   (Anton, 2026-09-08, 2026-09-09). The gesture reports the distance from the
