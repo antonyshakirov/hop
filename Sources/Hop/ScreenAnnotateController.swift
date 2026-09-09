@@ -242,8 +242,10 @@ final class ScreenAnnotateController: ObservableObject {
             let format = UserDefaults.standard.string(forKey: MarkupSettings.formatKey) ?? "png"
             guard let url = MarkupExport.save(picture, format: format) else { return }
             let lang = L10n.current
-            MarkupNote.show(L10n.t(.mkSaved, lang) + " · " + url.lastPathComponent,
-                            detail: url.deletingLastPathComponent().lastPathComponent
+            MarkupNote.show(L10n.t(.mkSaved, lang) + " · "
+                                + Substitutions.isolate(url.lastPathComponent),
+                            detail: Substitutions.isolate(
+                                url.deletingLastPathComponent().lastPathComponent)
                                 + " · " + L10n.t(.convReveal, lang),
                             file: url, over: spot)
         }

@@ -70,7 +70,7 @@ struct VPNView: View {
                 // Baseline alignment, not top: the smaller text sat high and
                 // read as a superscript.
                 HStack(alignment: .firstTextBaseline, spacing: 5) {
-                    Text(configuration.title)
+                    Text(Substitutions.isolate(configuration.title))
                         .font(Theme.mono(12))
                         .foregroundStyle(Theme.listText)
                         .lineLimit(1)
@@ -79,7 +79,7 @@ struct VPNView: View {
                     // what the configuration adds to the app's name — the country
                     // it was set to, or the protocol — in brackets and quieter
                     if let subtitle = configuration.subtitle {
-                        Text("(\(subtitle))")
+                        Text("(\(Substitutions.isolate(subtitle)))")
                             .font(Theme.mono(10))
                             .foregroundStyle(Theme.textTertiary)
                             .lineLimit(1)
@@ -100,7 +100,8 @@ struct VPNView: View {
             .opacity(busy ? 0.5 : 1)
             // Names the tunnel it flips: a row of identical switches says which
             // is which only on hover.
-            .help("\(t(configuration.state.isOn ? .vpnSwitchOff : .vpnSwitchOn)) — \(configuration.title)")
+            .help("\(t(configuration.state.isOn ? .vpnSwitchOff : .vpnSwitchOn)) — "
+                  + Substitutions.isolate(configuration.title))
         }
         .padding(.vertical, 2)
     }

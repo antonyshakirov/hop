@@ -30,12 +30,30 @@ public enum Substitutions {
         text.replacingOccurrences(of: "%@", with: isolate(value))
     }
 
-    /// `value` fenced in Unicode isolates, with the direction controls it
-    /// carries of its own taken out first.
+    /// `value` fenced in Unicode isolates, so it can only ever reorder itself.
     public static func isolate(_ value: String) -> String {
-        let plain = value.unicodeScalars.filter { !(0x2066...0x2069).contains($0.value)
-                                                  && !(0x202A...0x202E).contains($0.value) }
-        return "\u{2068}" + String(String.UnicodeScalarView(plain)) + "\u{2069}"
+        "\u{2068}" + plain(value) + "\u{2069}"
+    }
+
+    /// `value` fenced and trimmed, or `fallback` when nothing is left to read.
+    public static func isolate(_ value: String, or fallback: String) -> String {
+        var kept = Substring(plain(value))
+        while let first = kept.first, first.isWhitespace { kept = kept.dropFirst() }
+        while let last = kept.last, last.isWhitespace { kept = kept.dropLast() }
+        return kept.isEmpty ? fallback : "\u{2068}" + kept + "\u{2069}"
+    }
+
+    /// What `isolate` fences: `value` with its direction controls out and every
+    /// line break folded to a space. Why both: testTheFenceSurvivesALineTheValueBreaks.
+    public static func plain(_ value: String) -> String {
+        var out = ""
+        for character in value {
+            if character.isNewline { out.append(" "); continue }
+            out.unicodeScalars.append(contentsOf: character.unicodeScalars.filter {
+                !(0x2066...0x2069).contains($0.value) && !(0x202A...0x202E).contains($0.value)
+            })
+        }
+        return out
     }
 
     /// The substitutions `text` is written with, sorted, repeats kept: exactly

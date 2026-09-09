@@ -164,7 +164,7 @@ struct UninstallWindowView: View {
                                 Image(nsImage: app.icon)
                                     .resizable()
                                     .frame(width: 18, height: 18)
-                                Text(app.name)
+                                Text(Substitutions.isolate(app.name))
                                     .font(Theme.mono(10.5))
                                     .foregroundStyle(Theme.textPrimary)
                                     .lineLimit(1)
@@ -188,7 +188,7 @@ struct UninstallWindowView: View {
                                         .foregroundStyle(Theme.textTertiary)
                                         .monospacedDigit()
                                 } else {
-                                    Text(app.identifier)
+                                    Text(Substitutions.isolate(app.identifier))
                                         .font(Theme.mono(8))
                                         .foregroundStyle(Theme.textTertiary)
                                         .lineLimit(1)
@@ -284,7 +284,7 @@ struct UninstallWindowView: View {
                     .hoverDim()
                     // The section heading already says what these rows are; the
                     // same sentence under every one of them was noise.
-                    Text(owner.name)
+                    Text(Substitutions.isolate(owner.name))
                         .font(Theme.mono(10.5))
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(1)
@@ -374,7 +374,7 @@ struct UninstallWindowView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 ForEach(uninstall.heavyData) { owner in
                     HStack(spacing: 8) {
-                        Text(owner.name)
+                        Text(Substitutions.isolate(owner.name))
                             .font(Theme.mono(10.5))
                             .foregroundStyle(Theme.textSecondary)
                             .lineLimit(1)
@@ -432,7 +432,7 @@ struct UninstallWindowView: View {
                     .foregroundStyle(Theme.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
                 ForEach(uninstall.mixed) { trace in
-                    Text("• \(trace.name) · \(Self.sizeText(trace.bytes))")
+                    Text("• \(Substitutions.isolate(trace.name)) · \(Self.sizeText(trace.bytes))")
                         .font(Theme.mono(9))
                         .foregroundStyle(Theme.textTertiary)
                         .lineLimit(1)
@@ -474,7 +474,7 @@ struct UninstallWindowView: View {
                                 .help(t(.uninstallNoInstallers))
                                 .hoverDim()
                                 VStack(alignment: .leading, spacing: 1) {
-                                    Text(file.found.name)
+                                    Text(Substitutions.isolate(file.found.name))
                                         .font(Theme.mono(10.5))
                                         .foregroundStyle(Theme.textPrimary)
                                         .lineLimit(1)
@@ -576,10 +576,11 @@ struct UninstallWindowView: View {
                     .resizable()
                     .frame(width: 34, height: 34)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(target.name)
+                    Text(Substitutions.isolate(target.name))
                         .font(Theme.mono(12, weight: .semibold))
                         .foregroundStyle(Theme.textPrimary)
-                    Text(target.bundleIdentifier.isEmpty ? target.path : target.bundleIdentifier)
+                    Text(Substitutions.isolate(target.bundleIdentifier,
+                                               or: Substitutions.isolate(target.path)))
                         .font(Theme.mono(9))
                         .foregroundStyle(Theme.textTertiary)
                         .lineLimit(1)
@@ -625,13 +626,13 @@ struct UninstallWindowView: View {
             .help(t(.uninstallNothingFound))
             .hoverDim()
             VStack(alignment: .leading, spacing: 1) {
-                Text(trace.name)
+                Text(Substitutions.isolate(trace.name))
                     .font(Theme.mono(10.5))
                     .foregroundStyle(Theme.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 HStack(spacing: 6) {
-                    Text(trace.path)
+                    Text(Substitutions.isolate(trace.path))
                         .font(Theme.mono(8.5))
                         .foregroundStyle(Theme.textTertiary)
                         .lineLimit(1)
@@ -715,7 +716,7 @@ struct UninstallWindowView: View {
                         .font(Theme.mono(10))
                         .foregroundStyle(Theme.accentRed)
                     ForEach(report.failed, id: \.self) { path in
-                        Text(path)
+                        Text(Substitutions.isolate(path))
                             .font(Theme.mono(8.5))
                             .foregroundStyle(Theme.textTertiary)
                             .lineLimit(1)
@@ -733,7 +734,7 @@ struct UninstallWindowView: View {
                         .foregroundStyle(Theme.accentYellow)
                         .fixedSize(horizontal: false, vertical: true)
                     ForEach(report.needsFullDisk, id: \.self) { path in
-                        Text(path)
+                        Text(Substitutions.isolate(path))
                             .font(Theme.mono(8.5))
                             .foregroundStyle(Theme.textTertiary)
                             .lineLimit(1)

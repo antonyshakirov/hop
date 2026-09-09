@@ -633,7 +633,7 @@ struct TorrentView: View {
     /// Last path component, so a nested file shows its name, not the full path.
     private func shortName(_ name: String) -> String {
         let last = name.split(whereSeparator: { $0 == "/" }).last.map(String.init) ?? name
-        return last.isEmpty ? name : last
+        return Substitutions.isolate(last, or: Substitutions.isolate(name))
     }
 
     /// Decimal byte-rate (like the converter's sizes) with a localized unit —

@@ -321,7 +321,7 @@ struct TrackerView: View {
                 // Renaming lives on the NAME, not on the row: with the whole
                 // row taking the tap, the triangle's own click was being
                 // swallowed and folding a project started a rename instead.
-                Text(project.name)
+                Text(Substitutions.isolate(project.name))
                     .font(Theme.mono(12, weight: .semibold))
                     .foregroundStyle(Theme.listText)
                     .lineLimit(1)
@@ -927,7 +927,7 @@ struct TrackerView: View {
         // changes it in both places at once. With the row showing the stored
         // name instead, the two read as two different tasks — the row said one
         // thing while the field said another.
-        Text(displayName(task))
+        Text(Substitutions.isolate(displayName(task)))
             .font(Theme.mono(12))
             .foregroundStyle(Theme.listText)
             .lineLimit(1)

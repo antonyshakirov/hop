@@ -117,7 +117,7 @@ struct ArchiveWindowView: View {
                         .font(.system(size: 11))
                         .foregroundStyle(Theme.textTertiary)
                         .frame(width: 16)
-                    Text(url.lastPathComponent)
+                    Text(Substitutions.isolate(url.lastPathComponent))
                         .font(Theme.mono(10.5))
                         .foregroundStyle(Theme.listText)
                         .lineLimit(1)
@@ -161,7 +161,9 @@ struct ArchiveWindowView: View {
                 chooseFolder()
             } label: {
                 Text(destination == .custom && !customPath.isEmpty
-                     ? URL(fileURLWithPath: customPath).lastPathComponent : "…")
+                     ? Substitutions.isolate(URL(fileURLWithPath: customPath).lastPathComponent,
+                                             or: "…")
+                     : "…")
                     .font(Theme.mono(10))
                     .foregroundStyle(destination == .custom ? Theme.textPrimary : Theme.textTertiary)
                     .lineLimit(1)
@@ -279,7 +281,7 @@ struct ArchiveJobRow: View {
                 .font(.system(size: 11))
                 .foregroundStyle(Theme.textTertiary)
                 .frame(width: 16)
-            Text(job.name)
+            Text(Substitutions.isolate(job.name))
                 .font(Theme.mono(10.5))
                 .foregroundStyle(Theme.listText)
                 .lineLimit(1)

@@ -74,7 +74,7 @@ final class ReminderScheduler: NSObject, UNUserNotificationCenterDelegate {
 
         for (item, at) in due.prefix(Self.maxPending) {
             let content = UNMutableNotificationContent()
-            content.title = item.text.capitalizedFirst
+            content.title = Alerts.oneLine(Substitutions.isolate(item.text))
             // A task with no comment gets no body line — filler text would be noise.
             if !item.note.isEmpty { content.body = item.note }
             content.categoryIdentifier = Self.categoryID

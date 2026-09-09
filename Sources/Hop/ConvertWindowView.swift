@@ -228,10 +228,10 @@ struct ConvertWindowView: View {
 
     /// What a batch row is called: a filename, or a site and path.
     static func rowName(_ url: URL) -> String {
-        guard !url.isFileURL else { return url.lastPathComponent }
+        guard !url.isFileURL else { return Substitutions.isolate(url.lastPathComponent) }
         let host = url.host ?? url.absoluteString
         let path = url.path
-        return path.isEmpty || path == "/" ? host : host + path
+        return Substitutions.isolate(path.isEmpty || path == "/" ? host : host + path)
     }
 
     private func kindLabel(_ kind: FileConverter.MediaKind) -> String {
@@ -619,7 +619,7 @@ struct ConvertWindowView: View {
                 .font(Theme.mono(11, weight: .semibold))
                 .foregroundStyle(Theme.accentOrange)
             ForEach(files.prefix(6)) { file in
-                Text(file.url.lastPathComponent)
+                Text(Substitutions.isolate(file.url.lastPathComponent))
                     .font(Theme.mono(9.5))
                     .foregroundStyle(Theme.textTertiary)
                     .lineLimit(1)
@@ -669,7 +669,8 @@ struct ConvertWindowView: View {
                     HStack(spacing: 5) {
                         Image(systemName: "folder")
                             .font(.system(size: 10))
-                        Text(output.deletingLastPathComponent().lastPathComponent)
+                        Text(Substitutions.isolate(output.deletingLastPathComponent()
+                                                          .lastPathComponent, or: "…"))
                             .font(Theme.mono(10))
                             .lineLimit(1)
                     }

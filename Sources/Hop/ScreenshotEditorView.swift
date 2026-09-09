@@ -436,8 +436,10 @@ struct ScreenshotEditorView: View {
                 let spot = whereSave?() ?? .zero
                 saved = editor.save()
                 if let saved {
-                    MarkupNote.show(L10n.t(.mkSaved, lang) + " · " + saved.lastPathComponent,
-                                    detail: saved.deletingLastPathComponent().lastPathComponent
+                    MarkupNote.show(L10n.t(.mkSaved, lang) + " · "
+                                        + Substitutions.isolate(saved.lastPathComponent),
+                                    detail: Substitutions.isolate(
+                                        saved.deletingLastPathComponent().lastPathComponent)
                                         + " · " + L10n.t(.convReveal, lang),
                                     file: saved, over: spot)
                     onClose()

@@ -3023,9 +3023,8 @@ struct PanelView: View {
         case "vpn": return t(.vpnLabel)
         case Self.appsChoice: return t(.appsLabel)
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil:
-            let named = model.appShelves.shelf(withKey: key)?.title
-                .trimmingCharacters(in: .whitespaces) ?? ""
-            return named.isEmpty ? t(.appsLabel) : named
+            return Substitutions.isolate(model.appShelves.shelf(withKey: key)?.title ?? "",
+                                         or: t(.appsLabel))
         case "archive": return t(.archiveLabel)
         case "uninstall": return t(.uninstallLabel)
         case "keyboard": return t(.keylockLabel)
@@ -3404,7 +3403,8 @@ struct PanelView: View {
                     chooseDestinationFolder()
                 } label: {
                     Text(convDest == "custom" && !convDestPath.isEmpty
-                        ? URL(fileURLWithPath: convDestPath).lastPathComponent
+                        ? Substitutions.isolate(
+                            URL(fileURLWithPath: convDestPath).lastPathComponent, or: "…")
                         : "…")
                         .font(Theme.mono(10))
                         .foregroundStyle(convDest == "custom" ? Theme.textPrimary : Theme.textTertiary)
@@ -4174,7 +4174,9 @@ struct PanelView: View {
             HStack {
                 Text(t(.shotFolderLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
                 Spacer()
-                Button(MarkupExport.folder().lastPathComponent) { pickShotFolder() }
+                Button(Substitutions.isolate(MarkupExport.folder().lastPathComponent, or: "…")) {
+                    pickShotFolder()
+                }
                     .buttonStyle(.plain)
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
@@ -4275,7 +4277,8 @@ struct PanelView: View {
                 } label: {
                     Text(torrentDownloadDir.isEmpty
                         ? "…"
-                        : URL(fileURLWithPath: torrentDownloadDir).lastPathComponent)
+                        : Substitutions.isolate(
+                            URL(fileURLWithPath: torrentDownloadDir).lastPathComponent, or: "…"))
                         .font(Theme.mono(10))
                         .foregroundStyle(torrentDownloadDir.isEmpty ? Theme.textTertiary : Theme.textPrimary)
                         .lineLimit(1)

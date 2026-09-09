@@ -142,6 +142,35 @@ final class HTMLConversionTests: XCTestCase {
             "A-B testing")
     }
 
+    func testALineBreakInATitleIsStillOneSpace() {
+        for gap in ["\n", "\r\n", "\t", "\u{000B}", "\u{0085}", "\u{2028}", "\u{2029}"] {
+            XCTAssertEqual(
+                HTMLConversion.outputName(for: web("https://example.com/a"),
+                                          title: "one\(gap)two"),
+                "one two", gap.unicodeScalars.map(\.value).description)
+        }
+    }
+
+    func testAnAddressLeftWithNothingToReadStillNamesTheFile() {
+        XCTAssertEqual(
+            HTMLConversion.outputName(for: web("https://example.com/%E2%80%AE"), title: nil),
+            "example.com")
+        XCTAssertEqual(
+            HTMLConversion.outputName(for: web("https://example.com/a"), title: "\u{202E}"),
+            "a")
+    }
+
+    func testATitleCannotNameTheFileSomethingItDoesNotDrawAs() {
+        XCTAssertEqual(
+            HTMLConversion.outputName(for: web("https://example.com/a"),
+                                      title: "invoice\u{202E}fdp.exe"),
+            "invoicefdp.exe")
+        XCTAssertEqual(
+            HTMLConversion.outputName(for: web("https://example.com/a"),
+                                      title: "\u{2068}report\u{2069}"),
+            "report")
+    }
+
     func testAVeryLongTitleIsCutToSomethingAFilesystemAccepts() {
         let long = String(repeating: "a", count: 300)
         let name = HTMLConversion.outputName(for: web("https://example.com/a"), title: long)

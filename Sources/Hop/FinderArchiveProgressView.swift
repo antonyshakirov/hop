@@ -143,7 +143,7 @@ struct FinderArchiveProgressView: View {
                 .font(.system(size: 11))
                 .foregroundStyle(Theme.textTertiary)
                 .frame(width: 16)
-            Text(item.progress.fileName)
+            Text(Substitutions.isolate(item.progress.fileName))
                 .font(Theme.mono(10.5))
                 .foregroundStyle(Theme.listText)
                 .lineLimit(1)

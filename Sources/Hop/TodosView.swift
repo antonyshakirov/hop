@@ -228,7 +228,7 @@ struct TodosView: View {
             .buttonStyle(.plain)
             .help(t(.todoDoneLabel))
             .hoverDim()
-            Text(item.text)
+            Text(Substitutions.isolate(item.text))
                 .font(Theme.mono(12))
                 .foregroundStyle(item.done ? Theme.textTertiary : Theme.listText)
                 .lineLimit(1)

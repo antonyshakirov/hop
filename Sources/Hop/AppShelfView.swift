@@ -45,8 +45,7 @@ struct AppShelfView: View {
     private var showsLabels: Bool { shelf?.showsLabels ?? true }
 
     private var displayTitle: String {
-        let title = shelf?.title.trimmingCharacters(in: .whitespaces) ?? ""
-        return title.isEmpty ? t(.appsLabel) : title
+        Substitutions.isolate(shelf?.title ?? "", or: t(.appsLabel))
     }
 
     /// The gap between two icons, whatever their size. Nine icons of 32pt across
@@ -266,7 +265,7 @@ struct AppShelfView: View {
                 .frame(width: iconSize, height: iconSize)
                 .overlay(alignment: .topLeading) { deleteBadge(item) }
             if showsLabels {
-                Text(item.name)
+                Text(Substitutions.isolate(item.name))
                     .font(Theme.mono(8))
                     .foregroundStyle(Theme.textTertiary)
                     .lineLimit(1)
@@ -303,7 +302,7 @@ struct AppShelfView: View {
             shelves.launch(item, from: shelfID)
         }
         .gesture(dragGesture(item, at: index))
-        .help(item.name)
+        .help(Substitutions.isolate(item.name))
     }
 
     /// The ✕ that removes an icon. Muted on purpose: a bright badge on a moving

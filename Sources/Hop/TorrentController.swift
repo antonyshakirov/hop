@@ -457,7 +457,9 @@ final class TorrentController: ObservableObject {
         case .seedingFinished: key = .notifTorrentSeedingFinished
         }
         let body = L10n.fill(key, lang, size)
-        Alerts.fire(mode: AlertMode.current, title: name, body: body)
+        Alerts.fire(mode: AlertMode.current,
+                    title: Substitutions.isolate(name, or: L10n.t(.notifTitle, lang)),
+                    body: body)
     }
 
     // MARK: - Persistence

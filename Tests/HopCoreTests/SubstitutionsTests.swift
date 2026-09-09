@@ -77,6 +77,37 @@ final class SubstitutionsTests: XCTestCase {
         XCTAssertEqual(Substitutions.isolate("سلام hop.zip"), "\u{2068}سلام hop.zip\u{2069}")
     }
 
+    func testAValueStrippedOfItsControlsIsWhatTheFenceHolds() {
+        XCTAssertEqual(Substitutions.plain("invoice\u{202E}fdp.exe"), "invoicefdp.exe")
+        XCTAssertEqual(Substitutions.plain("\u{2066}\u{2069}"), "")
+        XCTAssertEqual(Substitutions.plain("hop.zip"), "hop.zip")
+        XCTAssertEqual(Substitutions.isolate("a\u{202E}b"),
+                       "\u{2068}" + Substitutions.plain("a\u{202E}b") + "\u{2069}")
+    }
+
+    func testTheFenceSurvivesALineTheValueBreaks() {
+        for end in ["\n", "\r", "\r\n", "\u{000B}", "\u{000C}", "\u{0085}",
+                    "\u{2028}", "\u{2029}"] {
+            XCTAssertEqual(Substitutions.plain("a\(end)b"), "a b",
+                           end.unicodeScalars.map(\.value).description)
+        }
+        XCTAssertEqual(Substitutions.isolate("a\u{2029}b"), "\u{2068}a b\u{2069}")
+    }
+
+    func testAValueLeftWithNothingToReadFallsBackToTheNameWeKnow() {
+        XCTAssertEqual(Substitutions.isolate("\u{202E}\u{2069}", or: "apps"), "apps")
+        XCTAssertEqual(Substitutions.isolate("   ", or: "apps"), "apps")
+        XCTAssertEqual(Substitutions.isolate("", or: "apps"), "apps")
+        XCTAssertEqual(Substitutions.isolate("  Games  ", or: "apps"),
+                       "\u{2068}Games\u{2069}")
+        XCTAssertEqual(Substitutions.isolate("a\u{202E}b", or: "apps"),
+                       "\u{2068}ab\u{2069}")
+    }
+
+    func testAValueKeepsTheSpacesItCameWith() {
+        XCTAssertEqual(Substitutions.plain(" 5.1 GB "), " 5.1 GB ")
+    }
+
     func testASentenceCarriesTheSubstitutionsItIsWrittenWith() {
         XCTAssertEqual(Substitutions.all("%1$@ of %2$@ · {n}"), ["%1$@", "%2$@", "{n}"])
         XCTAssertEqual(Substitutions.all("{sym:gear} settings %@"), ["%@", "{sym:gear}"])

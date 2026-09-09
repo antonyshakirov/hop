@@ -88,13 +88,19 @@ public enum HTMLConversion {
 
     /// The base name of the converted file: a file's own, or a page's title.
     public static func outputName(for url: URL, title: String?) -> String {
-        if url.isFileURL { return url.deletingPathExtension().lastPathComponent }
+        if url.isFileURL {
+            let own = Substitutions.plain(url.deletingPathExtension().lastPathComponent)
+            return own.isEmpty ? "page" : own
+        }
         if let title, case let cleaned = filenameSafe(title), !cleaned.isEmpty {
             return cleaned
         }
-        let last = url.deletingPathExtension().lastPathComponent
-        if !last.isEmpty, last != "/" { return filenameSafe(last) }
-        return filenameSafe(url.host ?? "page")
+        if case let cleaned = filenameSafe(url.deletingPathExtension().lastPathComponent),
+           !cleaned.isEmpty {
+            return cleaned
+        }
+        if case let cleaned = filenameSafe(url.host ?? ""), !cleaned.isEmpty { return cleaned }
+        return "page"
     }
 
     private static func filenameSafe(_ text: String) -> String {
@@ -104,7 +110,10 @@ public enum HTMLConversion {
             case "/", "\\": out.append("-")
             case ":", "*", "?", "\"", "<", ">", "|": continue
             default:
-                out.append(character.isNewline || character == "\t" ? " " : character)
+                if character.isNewline || character == "\t" { out.append(" "); continue }
+                out.unicodeScalars.append(contentsOf: character.unicodeScalars.filter {
+                    !CharacterSet.controlCharacters.contains($0)
+                })
             }
         }
         while out.contains("  ") { out = out.replacingOccurrences(of: "  ", with: " ") }

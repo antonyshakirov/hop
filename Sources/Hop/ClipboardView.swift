@@ -321,7 +321,7 @@ struct ClipboardView: View {
     }
 
     private func oneLine(_ item: ClipboardController.Item) -> String {
-        ClipPreviewCache.line(for: item)
+        Substitutions.isolate(ClipPreviewCache.line(for: item))
     }
 }
 

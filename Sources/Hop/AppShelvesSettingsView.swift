@@ -19,8 +19,7 @@ struct AppShelvesSettingsView: View {
         ForEach(shelves.shelves.shelves) { shelf in
             VStack(spacing: 8) {
                 HStack {
-                    Text(shelf.title.trimmingCharacters(in: .whitespaces).isEmpty
-                         ? t(.appsLabel) : shelf.title)
+                    Text(Substitutions.isolate(shelf.title, or: t(.appsLabel)))
                         .font(Theme.mono(12))
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(1)

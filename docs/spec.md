@@ -4523,9 +4523,76 @@ converter (Anton, 2026-07-28).
   reading the table and the code filling it, or to neither; and **a value has
   the direction controls taken out of it before it is fenced in**, because a
   value carrying U+2069 closes our own isolate and whatever override follows it
-  then reorders the sentence it was meant to sit inside — reachable today only
-  through the version string in the update feed, but the fence is there to hold
-  against exactly that.
+  then reorders the sentence it was meant to sit inside.
+- **A name that comes from outside is fenced before it is drawn** (2026-09-09).
+  A name written by somebody else may carry a right-to-left override:
+  `invoice\u{202E}fdp.exe` draws as `invoiceexe.pdf`, so the extension the
+  reader decides by is not the extension the file has. Measured through
+  CoreText, not argued: fenced, the same name draws as `invoicefdp.exe`. Every
+  such name goes through `Substitutions.isolate` where it is drawn — the
+  torrent name and the files inside it, the files dropped on the converter and
+  the archiver, the folder each of those writes into, a line of the clipboard,
+  an app on a shelf and the shelf's own name, a VPN profile named by whichever
+  app installed it, and every name, bundle identifier and path in the
+  uninstaller, which is the one window where a name that draws wrong sends a
+  file to the trash. `isolate` strips U+202A–U+202E and U+2066–U+2069 and
+  folds every line break in it to a space, and fences what is left, so a name
+  can only ever reorder itself. Each of the three carries weight. Stripping the
+  whole isolate range matters, not just the closing one: an initiator the name
+  leaves open eats our own closer and the fence runs to the end of the line.
+  Folding the line breaks matters because an isolate ends where a paragraph
+  does: measured through CoreText, `(⁨a\u{2029}אבג⁩)` paints our own closing
+  bracket to the *left* of the name, outside a fence the name walked out of.
+  A direction mark — U+200E, U+200F, U+061C — is left in, because inside the
+  fence it does no more than a Hebrew letter would.
+- Fencing happens on the way to the screen and nowhere else: what is stored,
+  compared, written to disk and used to pick a converter stays the name the
+  file actually has. The one place a name is cleaned earlier is a name **Hop
+  itself creates**: a page's `<title>` and a converted file's own name both
+  become a file the converter writes, so `HTMLConversion.outputName` takes the
+  direction controls out — from a title along with the characters a file name
+  cannot hold, from a file's own name and nothing else, since that name is
+  already the user's. Otherwise Hop would put a name on disk that draws as
+  another name. `ClipboardDocument.fileName` already dropped them with the
+  rest of the format characters.
+- A name of nothing but direction controls is left empty by the stripping, and
+  a caller that asked the raw name whether it was empty then drew a blank
+  where its own label belonged. Wherever a name has something to fall back to
+  — the shelf's label, the sheet's heading, the default notification title,
+  the whole path behind a missing bundle identifier, the `…` of a folder chip
+  — the fence is asked instead: `Substitutions.isolate(_:or:)` tests what it
+  is about to draw, not what it was handed, and trims it so the two answers
+  cannot differ. Where nothing can stand in — a file row, an app name, a trace
+  path — a name that empties itself draws empty, as it did before it was
+  fenced.
+- A notification title is one line: `Alerts.oneLine` folds its line breaks and
+  capitalizes the first letter the reader can actually see rather than the
+  fence in front of it. Every title goes through it, the reminder scheduler's
+  included — it posts its own notifications and had kept its own
+  capitalization. The body is left as it came: nothing of ours is drawn after
+  it, so a note keeps the shape it was written in.
+- **What an outside process writes counts as outside** (2026-09-09). A task's
+  text and a tracker project's name look typed in Hop, and mostly are, but
+  `agent-commands.json` and the registered `hop://` scheme both reach
+  `todo.add` and `tracker.start`, so a page can name a task. They are fenced
+  where they are drawn, the reminder's notification title included.
+- What an extractor names a file is left alone: `ArchiveController` moves an
+  entry out under the name the archive gave it, the way Archive Utility and
+  The Unarchiver do. The defence there is the fence in the archiver's own
+  window, not a rename the user did not ask for.
+- What is NOT held: this rule has no gate. Nothing fails a build when the next
+  view draws a name raw, and the sweep of 2026-09-09 missed six places on its
+  first pass — the file branch of the converter's row name, the torrent sheet's
+  own heading, the uninstaller entirely, three folder chips, the VPN rows and a
+  tooltip — each found by reading, not by a check. The second pass then found
+  a defect the first had introduced: five places testing one string and
+  drawing another, and three folder chips where the guard that had tested the
+  path for emptiness was folded into the fence — which never fired, because
+  `URL(fileURLWithPath: "")` resolves to the current directory and its last
+  component is a real folder name. The third pass then found the fence itself
+  escapable — every one of the sites above, through a character none of the
+  three earlier passes had thought to try. A rule kept by attention alone is
+  kept until it is not.
 - **A translation carries the same substitutions as the English it translates**
   (2026-09-09): a sixth condition of `--l10n-check`. A dropped `%2$@` prints
   nothing where a figure belongs, a renumbered one prints itself, and neither

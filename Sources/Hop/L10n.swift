@@ -15295,7 +15295,9 @@ extension String {
     /// For system surfaces (NSMenu, notifications): first letter uppercased,
     /// the rest kept as is. Inside the panel the signature lowercase stays.
     var capitalizedFirst: String {
-        guard let first = first else { return self }
-        return first.uppercased() + dropFirst()
+        guard let letter = firstIndex(where: { character in
+            !character.unicodeScalars.allSatisfy(\.properties.isDefaultIgnorableCodePoint)
+        }) else { return self }
+        return self[..<letter] + self[letter].uppercased() + self[index(after: letter)...]
     }
 }

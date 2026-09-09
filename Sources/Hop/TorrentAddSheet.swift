@@ -137,8 +137,7 @@ struct TorrentAddSheet: View {
     }
 
     private var headerTitle: String {
-        if let name = pending?.name, !name.isEmpty { return name }
-        return t(.torrentLabel)
+        Substitutions.isolate(pending?.name ?? "", or: t(.torrentLabel))
     }
 
     private var fetchingState: some View {
@@ -225,7 +224,8 @@ struct TorrentAddSheet: View {
             // "Downloads" chip's height instead of sitting a few points shorter.
             SettingChip(destPath == defaultDirPath
                 ? "…"
-                : URL(fileURLWithPath: destPath).lastPathComponent,
+                : Substitutions.isolate(
+                    URL(fileURLWithPath: destPath).lastPathComponent, or: "…"),
                 active: destPath != defaultDirPath) {
                 chooseFolder()
             }
@@ -332,6 +332,6 @@ struct TorrentAddSheet: View {
     /// Last path component, so a nested file shows its name, not the full path.
     private func shortName(_ name: String) -> String {
         let last = name.split(whereSeparator: { $0 == "/" }).last.map(String.init) ?? name
-        return last.isEmpty ? name : last
+        return Substitutions.isolate(last, or: Substitutions.isolate(name))
     }
 }
