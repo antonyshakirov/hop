@@ -2394,8 +2394,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `hopLayoutDirection()` — Hop picks its language in-app rather than through the
   system locale, so nothing else can tell SwiftUI which way a window runs.
 - **`--l10n-check` is the gate**: every key in every table, the hanging words
-  in each of them, the key chords, and the invisible characters, checked in
-  `scripts/checks.sh` before anything ships. A language cannot be half added.
+  in each of them, the key chords, the invisible characters, the direction each
+  right-to-left line opens in, and the substitutions each entry carries,
+  checked in `scripts/checks.sh` before anything ships. A language cannot be
+  half added.
 - What is NOT translated yet: the README has sixteen translations and the site
   has its own set — both follow with the release.
 
@@ -4391,12 +4393,13 @@ converter (Anton, 2026-07-28).
 - **An invisible mark has work to do** (2026-09-09): a zero-width non-joiner is
   how Persian is written and stays in the tables as itself, because writing the
   1421 of them — every one in the `fa` table — as escapes would make each
-  Persian string unreadable to the eye that has to proofread it. The 92
+  Persian string unreadable to the eye that has to proofread it. The 264
   direction marks are the other case: they steer a Latin fragment or a chord
   inside a right-to-left sentence, they are not orthography, and nothing in the
-  sentence shows they are there, so they are written as `\u{200E}` and
-  `\u{200F}` escapes. That leaves the non-joiner invisible, so `--l10n-check`
-  reads the built tables, where an escape and a raw character are the same
+  sentence shows they are there, or turn a whole line round, so they are
+  written as `\u{200E}` and `\u{200F}` escapes. That leaves the non-joiner
+  invisible, so `--l10n-check` reads the built tables, where an escape and a
+  raw character are the same
   thing, and starts from the language. **A line that runs left to right carries
   no invisible character at all**: nothing in English or Russian needs one, and
   a right-to-left mark dropped into an English string turns "5 + 9 = 14" into
@@ -4406,16 +4409,72 @@ converter (Anton, 2026-07-28).
   non-joiner wants a letter beside it and nothing invisible or spacing on
   either side, a direction mark wants a Latin fragment, a number, a
   substitution or a chord within reach on one side or the other, so that both
-  halves of a pair around a fragment count. Anything else fails, which is what
-  stops a bidirectional override, a zero-width space or a Hangul filler from
+  halves of a pair around a fragment count, or else it stands in front of
+  everything strong on its line and turns that line right to left. Beside a key
+  chord that is the whole of it, since what the mark holds together there is the
+  chord's own order. Everywhere else the line it stands on has to hold
+  right-to-left text at all: on a line of Latin and figures alone a mark turns
+  nothing worth turning and only reorders the words it stands before. Anything
+  else fails, which is what stops a bidirectional override, a zero-width space
+  or a Hangul filler from
   being pasted into a table where neither the eye nor a search for `\u{200E}`
   would find it. The failing line names the character and the place it stands
-  in, because nothing in the entry itself will show it. Two things the check
-  does NOT do: it reads only the characters that are there, so a sentence that
-  needs a mark and has none looks the same to it as one that needs none; and it
-  reads the tables, not the running text, where `L10n.fill` still wraps a
-  substituted value in its own isolates. It found one direction mark standing
-  before a Hebrew word, where it steered nothing, and it was removed.
+  in, because nothing in the entry itself will show it. It reads the tables,
+  not the running text, where `L10n.fill` still wraps a substituted value in
+  its own isolates. It found one direction mark standing before a Hebrew word,
+  where it steered nothing, and it was removed. Every one of the 264 that
+  stayed was measured by taking it out and drawing the line again: all 264
+  change what is drawn.
+- **A path keeps its opening slash** (measured 2026-09-09): a `/` is neutral,
+  and one standing between a right-to-left word and a Latin path takes the
+  paragraph's own direction rather than the path's (UAX#9 N2). In all four
+  tables `/var/db/receipts` therefore drew as "var/db/receipts/", turning an
+  absolute path into a relative one at the only place a reader would go looking
+  for it. A `\u{200E}` in front of the slash holds the path together. The whole
+  class was swept: every path and version island in ar, he, fa and ur was drawn
+  and read back, and these four entries were the only ones that came apart.
+- **A line takes its direction from its first strong letter** (measured
+  2026-09-09): `hopLayoutDirection()` turns the interface round, not the
+  paragraph. SwiftUI lays each line out from the first strong letter in it
+  (UAX#9 P2/P3), so a line opening on a Latin word reads left to right inside
+  an Arabic panel and the right-to-left words after it are pushed to the wrong
+  end. Rendering the tables through `ImageRenderer` and reading the glyph order
+  back through CoreText found lines like that all through ar, he, fa and ur,
+  opening on "vpn", "hop", "cpu", "zip · rar", "md ← pdf", "HEVC". Take the
+  marks out of the four tables today and the same rule counts 164 such lines,
+  in 122 entries, across 51 distinct keys. A `\u{200F}` in front of that first
+  word turns the line back; the same measurement then put a `\u{200E}` in front
+  of every Latin fragment the turned line pulls apart, and took out every mark
+  that changed nothing on screen. 92 marks became 264. So `--l10n-check` holds
+  a second opinion of its own: **every line that carries a right-to-left letter
+  opens right to left**, with `{n}`, `{sym:…}` and every printf token counted
+  as neutral — `%@` and `%1$@`, but `%%`, `%.1f` and `%2$04X` too, since
+  direction takes any of them as one piece whether or not the app ever fills
+  one, and what they stand for carries its own direction. A line with no
+  right-to-left letter in it — a unit like "Kbps", a folder named
+  "Downloads" — has nothing to turn and is left
+  alone; a mark there would print "cpu %" as "% cpu", and the check that looks
+  for stray marks refuses one, so the two halves of the gate ask for the same
+  thing. The version and date at the head of the release notes is such a line,
+  and carries no mark in any of the four, so all four print the version first.
+  The rule is plain Unicode, no CoreText, and was checked against CoreText on
+  all 4440 lines of the four tables (re-measured 2026-09-09): they agree on
+  every one. CoreText has to be asked about the line as it is drawn rather than
+  as it is written, though. Ask it about the raw table text and it disagrees on
+  69 lines, every one of them opening on a `{sym:…}`, whose letters it reads as
+  a Latin word — but a symbol is an image by the time anything is drawn, and
+  none of those 69 lines is wrong on screen. What the gate still cannot see is
+  the other half of the job, a Latin fragment torn apart inside a line, because
+  every cheap test
+  for it asks for marks nobody needs — in front of "tar.gz", say. That half is
+  measured, not gated. A substitution typed wrong is read as the characters it
+  is made of, by the code that fills it and by the check that reads the tables
+  alike, which is also what makes "50 % of" safe; the sixth condition below
+  catches one a translator dropped or renumbered, but not one the English entry
+  and its translations already share. Nor does anything compare an entry with
+  the call that fills it: put a `%3$@` into an English string that is called
+  with two values and every table will follow it, the gate will stay green, and
+  `%3$@` will print itself on screen.
 - **One form of address per language**, the one that already dominates its table
   (measured 2026-09-06): ru, es, pt and fr are polite; de, it and nl are
   familiar. A new string follows its language's form rather than the English
@@ -4447,7 +4506,40 @@ converter (Anton, 2026-07-28).
 - Values substituted into a translated sentence (a file name, "5.1 GB", a
   version number) go through `L10n.fill`, which wraps them in Unicode
   isolates. Without that the sentence drags neighbouring punctuation to the
-  wrong end of the value.
+  wrong end of the value. A sentence that takes more than one value — the
+  torrent sheet's "%1$@ needed · %2$@ free" — goes through the same call with
+  the values in the order the sentence numbers them, and a value glued on
+  outside a sentence through `L10n.isolate`. Substituting a value by hand is
+  what put "1.2 GB" at the head of that line in fa and ur and turned the whole
+  line round (found 2026-09-09). The mechanism itself lives in
+  `HopCore/Substitutions.swift` so that it can be tested — `L10n` sits in the
+  executable target, which has no tests — and `L10n.fill` is a call through to
+  it. Three rules hold there, each one a defect that was measured rather than
+  imagined: **a substitution written wrong prints itself**, since a parser that
+  reads a place number and then finds no `$@` must give back the figures it
+  read rather than swallow them, and "~%80" in the Turkish table is a per cent
+  sign, not a place number; **a place number is written in plain figures
+  only**, so that a `%\u{0661}$@` counts as a substitution to both the gate
+  reading the table and the code filling it, or to neither; and **a value has
+  the direction controls taken out of it before it is fenced in**, because a
+  value carrying U+2069 closes our own isolate and whatever override follows it
+  then reorders the sentence it was meant to sit inside — reachable today only
+  through the version string in the update feed, but the fence is there to hold
+  against exactly that.
+- **A translation carries the same substitutions as the English it translates**
+  (2026-09-09): a sixth condition of `--l10n-check`. A dropped `%2$@` prints
+  nothing where a figure belongs, a renumbered one prints itself, and neither
+  shows up in a build or a test — the sentence is only wrong on screen, in a
+  language the person shipping it does not read. So the gate lists the
+  substitutions in each English entry and asks the other twenty-one for the
+  same list, in any order, counting `%@`, `%1$@`, `{n}` and `{sym:…}`. Order is
+  free, count is not: a sentence that asks for a value twice and a translation
+  that gives it once are not the same sentence, so a repeat has to be matched
+  by a repeat. What counts as a substitution here is exactly what
+  `Substitutions.fill` puts a value into — `%1@` and `%0$@` are read as
+  characters by both — so the check and the code can never disagree about what
+  a table carries. All 732 keys across 22 languages pass today; the check is
+  there for the next translation.
 - The menu-bar icon is NOT mirrored: the bar itself stays in the system's
   direction, and the badge corners are documented positions, not text.
 

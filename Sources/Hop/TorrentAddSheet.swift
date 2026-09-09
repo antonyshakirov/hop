@@ -168,10 +168,8 @@ struct TorrentAddSheet: View {
     }
 
     private func filesSummary(_ pending: TorrentController.PendingAdd) -> String {
-        t(.torrentFilesSummary)
-            .replacingOccurrences(of: "%1$@", with: "\(selected.count)")
-            .replacingOccurrences(of: "%2$@", with: "\(pending.files.count)")
-            + " · " + SizeFormatting.sizeText(requiredBytes)
+        L10n.fill(.torrentFilesSummary, lang, ["\(selected.count)", "\(pending.files.count)"])
+            + " · " + L10n.isolate(SizeFormatting.sizeText(requiredBytes))
     }
 
     private func fileList(_ pending: TorrentController.PendingAdd) -> some View {
@@ -248,9 +246,8 @@ struct TorrentAddSheet: View {
     }
 
     private var freeSpaceText: String {
-        t(.torrentNeedsFree)
-            .replacingOccurrences(of: "%1$@", with: SizeFormatting.sizeText(requiredBytes))
-            .replacingOccurrences(of: "%2$@", with: SizeFormatting.sizeText(availableBytes))
+        L10n.fill(.torrentNeedsFree, lang,
+                  [SizeFormatting.sizeText(requiredBytes), SizeFormatting.sizeText(availableBytes)])
     }
 
     private var buttons: some View {

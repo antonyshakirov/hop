@@ -121,6 +121,109 @@ final class InvisibleMarksTests: XCTestCase {
         XCTAssertNil(InvisibleMarks.strayMark("باز Hop", rightToLeft: true))
     }
 
+    func testAMarkAtTheHeadOfALineTurnsTheWholeLineRound() {
+        XCTAssertFalse(stray("\(rlm)vpn מופעל"))
+        XCTAssertFalse(stray("\(rlm)zip · rar بایگانی"))
+    }
+
+    func testAMarkTurnsTheLineItStandsOnAndNoOther() {
+        XCTAssertFalse(stray("מנוע\n\(rlm)vpn פתוח"))
+        XCTAssertTrue(stray("vpn פתוח\n\(rlm)מנוע"))
+    }
+
+    func testAMarkStandingAfterTheFirstLetterTurnsNothing() {
+        XCTAssertTrue(stray("מנוע \(rlm) vpn"))
+    }
+
+    func testALineOpeningOnALatinWordIsFound() {
+        XCTAssertEqual(InvisibleMarks.openingLeftToRight("vpn מופעל"), "vpn מופעל")
+        XCTAssertEqual(InvisibleMarks.openingLeftToRight("מופעל\nmd ← pdf המרה"), "md ← pdf המרה")
+    }
+
+    func testALineTurnedRoundByAMarkOpensTheRightWay() {
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("\(rlm)vpn מופעל"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("מופעל vpn"))
+    }
+
+    func testALineWithNoRightToLeftLetterHasNothingToTurn() {
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("Kbps"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("cpu %"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("wi-fi: guest-4821"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("5.1 GB"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight(""))
+    }
+
+    func testAMarkOnALineWithNothingToTurnIsStray() {
+        XCTAssertTrue(stray("\(rlm)cpu %"))
+        XCTAssertTrue(stray("\(rlm)Downloads"))
+        XCTAssertTrue(stray("\(rlm)hop.tools 1.2.3"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("\(rlm)cpu %"))
+    }
+
+    func testEveryFormatLetterIsSteppedOver() {
+        for letter in ["@", "d", "s", "c", "f", "g", "x", "p", "e", "o"] {
+            XCTAssertNil(InvisibleMarks.openingLeftToRight("%\(letter) עברית"), letter)
+        }
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("%% עברית"))
+        XCTAssertNotNil(InvisibleMarks.openingLeftToRight("cpu עברית"))
+    }
+
+    func testAWidthAPrecisionAndAPlaceNumberAreStillOneSubstitution() {
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("%.1f עברית"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("%-5d עברית"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("%1$@ עברית"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("%2$04X עברית"))
+    }
+
+    func testWhatOpensNoSubstitutionIsReadAsItStands() {
+        XCTAssertNotNil(InvisibleMarks.openingLeftToRight("50% of עברית"))
+        XCTAssertNotNil(InvisibleMarks.openingLeftToRight("{beta עברית"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("עברית %"))
+    }
+
+    func testALineEndsAtEveryLineBreakTheSame() {
+        for end in ["\n", "\r", "\r\n", "\u{000B}", "\u{000C}", "\u{0085}", "\u{2028}", "\u{2029}"] {
+            XCTAssertEqual(InvisibleMarks.openingLeftToRight("עברית\(end)vpn עברית"), "vpn עברית",
+                           "a line ending in \(end.unicodeScalars.map { $0.escaped(asASCII: true) })")
+        }
+    }
+
+    func testAMarkThatWouldTurnALineTheWrongWayIsNoWork() {
+        XCTAssertNotNil(InvisibleMarks.openingLeftToRight("\(lrm)vpn עברית"))
+    }
+
+    func testAMarkBesideSomethingThatOnlyLooksLikeASubstitutionIsStray() {
+        XCTAssertTrue(stray("מונה \(lrm)% הושלם"))
+        XCTAssertTrue(stray("משהו \(lrm){לא סגור"))
+        XCTAssertFalse(stray("מונה \(lrm)%@ הושלם"))
+        XCTAssertFalse(stray("מונה \(lrm){n} הושלם"))
+        XCTAssertFalse(stray("מונה %@\(lrm) הושלם"))
+    }
+
+    /// A brace another opens before it closes is not a substitution, so it
+    /// cannot reach past the real one standing after it and take the line's
+    /// first strong letter with it.
+    func testABraceInsideABraceReachesNoFurtherThanItsOwn() {
+        XCTAssertEqual(InvisibleMarks.openingLeftToRight("{a{n} עברית"), "{a{n} עברית")
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("{n} עברית"))
+    }
+
+    func testAnIsolateLeftOpenIsCaughtAsAStrayMark() {
+        XCTAssertTrue(stray("\u{2067}vpn עברית"))
+    }
+
+    func testASubstitutionCarriesItsOwnDirectionAndCountsForNothing() {
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("%@ מופעל"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("%1$ld מתוך %2$ld"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("{sym:gear} הגדרות"))
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("{n} דקות"))
+        XCTAssertEqual(InvisibleMarks.openingLeftToRight("%@ vpn מופעל"), "%@ vpn מופעל")
+    }
+
+    func testWhatAnIsolateHoldsIsSteppedOverWhole() {
+        XCTAssertNil(InvisibleMarks.openingLeftToRight("\u{2068}Hop\u{2069} מופעל"))
+    }
+
     func testTextWithoutInvisibleCharactersIsLeftAlone() {
         XCTAssertFalse(stray("save it to the desktop", rightToLeft: false))
         XCTAssertFalse(stray("שמירה במחשב"))
