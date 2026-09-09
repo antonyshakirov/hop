@@ -95,7 +95,8 @@ final class ScreenshotEditor: ObservableObject {
     }
 
     /// The tools this surface offers: no fading ink on a picture that will be
-    /// saved, and every tool that needs pixels under it lives only here.
+    /// saved, and crop lives only here — over the live screen there is no file
+    /// to cut. The loupe and the blur are on both surfaces.
     static let tools: [MarkupTool] = [
         .select, .crop, .pencil, .marker, .arrow, .line, .rectangle,
         .oval, .steps, .text, .magnifier, .blur, .eraser,
