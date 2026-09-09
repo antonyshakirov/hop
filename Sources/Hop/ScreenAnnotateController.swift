@@ -13,6 +13,9 @@ import SwiftUI
 final class ScreenAnnotateController: ObservableObject {
     @Published private(set) var isUp = false
     @Published var isDrawing = true
+    /// The panel folded into a button, for the moments the screen matters more
+    /// than the tools. SPEC: docs/spec.md — the markup toolbar.
+    @Published private(set) var isFolded = false
     @Published var edge: MarkupToolbar.Edge = .bottom
     let surface = MarkupSurface()
 
@@ -25,9 +28,11 @@ final class ScreenAnnotateController: ObservableObject {
     ]
 
     let backdrop = LiveScreenBackdrop()
+    let pointer = PointerAidsController()
     private let overlay = MarkupOverlayController()
     private var backdropWatch: AnyCancellable?
     private var toolbarWindow: MarkupToolbarWindow?
+    private var toolbarHost: NSView?
     private var toolWatch: AnyCancellable?
     private var draggedFrom: (origin: NSPoint, pointer: NSPoint)?
 
@@ -45,7 +50,8 @@ final class ScreenAnnotateController: ObservableObject {
                 controller: self,
                 surface: self.surface,
                 backdrop: self.backdrop,
-                screenSize: screen.frame.size,
+                pointer: self.pointer,
+                screen: screen.frame,
                 lang: L10n.current
             ))
         }
@@ -53,6 +59,7 @@ final class ScreenAnnotateController: ObservableObject {
         takeTheScreen(true)
         showToolbar()
         HotkeyManager.shared.setDrawingLayerUp(true)
+        pointer.start()
         // Picking a tool IS entering the drawing mode: the arrow at the head of
         // the row is what hands the screen back.
         toolWatch = surface.$tool.dropFirst().sink { [weak self] _ in
@@ -86,6 +93,7 @@ final class ScreenAnnotateController: ObservableObject {
                                                                  lang: L10n.current))
         let window = MarkupToolbarWindow(content: host)
         toolbarWindow = window
+        toolbarHost = host
         place(window, on: CaptureController.screenUnderPointer())
         window.orderFrontRegardless()
     }
@@ -142,6 +150,20 @@ final class ScreenAnnotateController: ObservableObject {
         takeTheScreen(drawing)
     }
 
+    /// SPEC: docs/spec.md — the panel folds into a button.
+    func toggleFolded() {
+        isFolded.toggle()
+        guard let window = toolbarWindow, let host = toolbarHost else { return }
+        // The size follows the content, and the content has not been laid out
+        // again yet: the window is resized on the next turn of the loop.
+        DispatchQueue.main.async {
+            let corner = NSPoint(x: window.frame.minX, y: window.frame.maxY)
+            window.setContentSize(host.fittingSize)
+            window.setFrameOrigin(self.within(NSPoint(x: corner.x, y: corner.y - window.frame.height),
+                                              size: window.frame.size))
+        }
+    }
+
     /// SPEC: docs/spec.md — "Draw over the screen", the key for the mode.
     func togglePassing() {
         guard isUp else { return }
@@ -173,6 +195,7 @@ final class ScreenAnnotateController: ObservableObject {
     func exit() {
         backdropWatch = nil
         backdrop.stop()
+        pointer.stop()
         HotkeyManager.shared.setDrawingLayerUp(false)
         takeTheScreen(false)
         toolWatch = nil
@@ -182,6 +205,8 @@ final class ScreenAnnotateController: ObservableObject {
         toolbarWindow?.orderOut(nil)
         toolbarWindow?.contentView = nil
         toolbarWindow = nil
+        toolbarHost = nil
+        isFolded = false
         isUp = false
     }
 
@@ -240,11 +265,17 @@ struct ScreenAnnotateView: View {
     @ObservedObject var controller: ScreenAnnotateController
     @ObservedObject var surface: MarkupSurface
     @ObservedObject var backdrop: LiveScreenBackdrop
-    let screenSize: CGSize
+    @ObservedObject var pointer: PointerAidsController
+    let screen: NSRect
     let lang: AppLanguage
+
+    private var screenSize: CGSize { screen.size }
 
     var body: some View {
         ZStack(alignment: .top) {
+            PointerAidsView(pointer: pointer, screen: screen)
+                .frame(width: screenSize.width, height: screenSize.height)
+
             MarkupCanvas(surface: surface, background: nil, source: live, scale: 1)
                 .frame(width: screenSize.width, height: screenSize.height)
                 .allowsHitTesting(controller.isDrawing)
@@ -292,10 +323,41 @@ struct ScreenAnnotateToolbar: View {
     let lang: AppLanguage
 
     @State private var copied = false
+    @State private var showingPointer = false
     @State private var whereCopy: (() -> CGRect)?
     @State private var whereSave: (() -> CGRect)?
 
     var body: some View {
+        Group {
+            if controller.isFolded { folded } else { full }
+        }
+        .padding(6)
+        .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
+        .gesture(
+            DragGesture(minimumDistance: 5)
+                .onChanged { _ in controller.dragToolbarToPointer() }
+                .onEnded { _ in controller.settleToolbar() }
+        )
+    }
+
+    /// The panel as a button: the mark, and a click to open it again. Drawing
+    /// carries on with whatever tool was in hand.
+    private var folded: some View {
+        Button { controller.toggleFolded() } label: {
+            HopAsterisk(size: 22)
+                .frame(width: 46, height: 46)
+                .background(
+                    Circle()
+                        .fill(Theme.isDark ? Color(white: 0.086) : Color.white)
+                        .overlay(Circle().strokeBorder(Theme.controlStroke.opacity(0.6)))
+                )
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .markupTip(L10n.t(.mkUnfold, lang))
+    }
+
+    private var full: some View {
         MarkupToolbar(surface: surface,
                       tools: ScreenAnnotateController.tools,
                       edge: $controller.edge,
@@ -304,13 +366,6 @@ struct ScreenAnnotateToolbar: View {
                       floating: true,
                       trailing: AnyView(actions),
                       leading: AnyView(cursorButton))
-            .padding(6)
-            .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
-            .gesture(
-                DragGesture(minimumDistance: 5)
-                    .onChanged { _ in controller.dragToolbarToPointer() }
-                    .onEnded { _ in controller.settleToolbar() }
-            )
     }
 
     private var actions: some View {
@@ -383,6 +438,29 @@ struct ScreenAnnotateToolbar: View {
         .buttonStyle(.plain)
         .markupAnchor { whereSave = $0 }
         .markupTip(L10n.t(.featureSave, lang) + "\n" + L10n.t(.mkDoSave, lang))
+        Button { showingPointer.toggle() } label: {
+            MarkupIcon(glyph: .pointer)
+                .foregroundStyle(controller.pointer.aids.isOn ? Theme.textPrimary : Theme.textSecondary)
+                .frame(width: 32, height: 32)
+                .background(RoundedRectangle(cornerRadius: 7)
+                    .fill(controller.pointer.aids.isOn ? Theme.chipBg : .clear))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .markupTip(L10n.t(.pointerAids, lang))
+        .popover(isPresented: $showingPointer, arrowEdge: controller.edge == .top ? .bottom : .top) {
+            PointerAidsPopover(pointer: controller.pointer, lang: lang).aboveTheDrawing()
+        }
+
+        Button { controller.toggleFolded() } label: {
+            MarkupIcon(glyph: .fold)
+                .foregroundStyle(Theme.textSecondary)
+                .frame(width: 32, height: 32)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .markupTip(L10n.t(.mkFold, lang))
+
         action(.close, .annotateExit) { controller.exit() }
     }
 

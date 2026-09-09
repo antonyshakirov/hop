@@ -2967,6 +2967,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   clip, the blur pulled in the transparency past the region's edge and the
   region came out dark with a gradient into it (2026-09-09): the frame is
   blurred whole on an inner layer, and the clip only decides how much shows.
+- **The panel folds into a button** (Anton, 2026-09-09). A screen being
+  presented is worth more than a row of tools, so the panel closes into a circle
+  carrying Hop's mark, at the place it stood, draggable as before; a click opens
+  it again. Drawing carries on with whatever tool was in hand — folding hides
+  the tools, it does not put them down.
+- **The presenting pointer** (Anton, 2026-09-09): the layer can add a ring
+  round the pointer, a spotlight on it, a fading trail behind it and a ring at
+  every click, in a colour and a size of their own. `HopCore.PointerAids` holds
+  what is on and how strong, with tests; `PointerAidsController` watches the
+  mouse globally and locally, so it follows the pointer in the clicks-through
+  mode too, and it watches NOTHING while nothing is switched on. The marks are
+  drawn over the whole layer, under the panel, and take no clicks of their own.
 - **The toolbar is a window of its own**, above the layer and always able to
   take a click. It has to be: `ignoresMouseEvents` belongs to a whole window, so
   a panel living inside the layer went unclickable together with it the moment

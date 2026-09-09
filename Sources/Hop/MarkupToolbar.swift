@@ -8,6 +8,30 @@ import SwiftUI
 /// edge and turns with it: horizontal at the top and bottom, vertical at the
 /// sides. Colour and width live in a popover, so the panel stays a row of
 /// tools.
+/// Hop's mark, for the places that need it inside a view rather than as an app
+/// icon: the collapsed panel wears it.
+struct HopAsterisk: View {
+    var size: CGFloat = 20
+    var colour: Color = Theme.textPrimary
+
+    var body: some View {
+        Canvas { context, box in
+            let centre = CGPoint(x: box.width / 2, y: box.height / 2)
+            let radius = box.width * 0.38
+            for ray in 0..<8 {
+                let angle = CGFloat(ray) * .pi / 4 + .pi / 8
+                var path = Path()
+                path.move(to: centre)
+                path.addLine(to: CGPoint(x: centre.x + cos(angle) * radius,
+                                         y: centre.y + sin(angle) * radius))
+                context.stroke(path, with: .color(colour),
+                               style: StrokeStyle(lineWidth: box.width * 0.11, lineCap: .round))
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
 struct MarkupToolbar: View {
     enum Edge: String {
         case top, bottom, leading, trailing

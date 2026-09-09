@@ -17,6 +17,7 @@ enum MarkupSettings {
     static let recentColoursKey = "markupRecentColours"
     static let sharedColourKey = "markupSharedColour"
     static let commonColourKey = "markupCommonColour"
+    static let pointerAidsKey = "markupPointerAids"
 
     static func frameDressing() -> FrameDressing {
         decode(dressingKey) ?? .standard
@@ -87,6 +88,14 @@ enum MarkupSettings {
     static func store(dressing: FrameDressing, watermark: Watermark) {
         encode(dressing, into: dressingKey)
         encode(watermark, into: watermarkKey)
+    }
+
+    static func pointerAids() -> PointerAids {
+        decode(pointerAidsKey) ?? .standard
+    }
+
+    static func savePointerAids(_ aids: PointerAids) {
+        encode(aids, into: pointerAidsKey)
     }
 
     private static func decode<T: Decodable>(_ key: String) -> T? {

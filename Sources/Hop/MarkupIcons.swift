@@ -11,7 +11,7 @@ enum MarkupGlyph: String, CaseIterable {
     case crop, pencil, fadingInk, marker, arrow, line, rectangle, oval
     case steps, text, magnifier, blur, eraser
     case undo, redo, grip, cursor, clear, save, copy, close
-    case dressing, watermark, weight, done, picture, passThrough
+    case dressing, watermark, weight, done, picture, passThrough, fold, pointer
 }
 
 struct MarkupStroke {
@@ -122,6 +122,27 @@ enum MarkupIcons {
         case .grip:
             return [dot(9, 6, 1.1), dot(15, 6, 1.1), dot(9, 12, 1.1),
                     dot(15, 12, 1.1), dot(9, 18, 1.1), dot(15, 18, 1.1)]
+
+        case .fold:
+            // Two chevrons meeting: the panel folding in on itself.
+            return [stroke {
+                        $0.move(to: p(6, 8.5)); $0.addLine(to: p(11, 4.5))
+                        $0.addLine(to: p(16, 8.5))
+                    },
+                    stroke {
+                        $0.move(to: p(6, 13.5)); $0.addLine(to: p(11, 17.5))
+                        $0.addLine(to: p(16, 13.5))
+                    }]
+
+        case .pointer:
+            // An arrow with a ring round its tip: the presenting pointer.
+            return [stroke {
+                        $0.move(to: p(4.5, 3.5)); $0.addLine(to: p(13.5, 8.6))
+                        $0.addLine(to: p(9.6, 9.6)); $0.addLine(to: p(8.2, 13.4))
+                        $0.closeSubpath()
+                    },
+                    stroke { $0.addEllipse(in: CGRect(x: p(12.5, 12.5).x, y: p(12.5, 12.5).y,
+                                                      width: 8, height: 8)) }]
 
         case .passThrough:
             return [stroke {
