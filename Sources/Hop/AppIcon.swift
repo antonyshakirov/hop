@@ -47,7 +47,7 @@ enum AppIcon {
             bg.setFill()
             background.fill()
             MenuBarIcon.drawDial(
-                color: dark ? .white : NSColor(white: 0.05, alpha: 1),
+                color: dark ? .white : .black,
                 in: inset.insetBy(dx: 86, dy: 86)
             )
             // dev build: a "D" badge in the corner, so production and test
