@@ -271,7 +271,7 @@ A mesma área é capturada de novo com uma tecla — é o que costuma pedir uma 
 
 ### Desenhar sobre a tela
 
-Desenhe direto na tela durante uma chamada, uma gravação ou uma revisão: lápis, marcador largo que deixa o texto embaixo legível, setas, formas e passos numerados. A tinta que some desaparece sozinha alguns segundos depois que você levanta o cursor.
+Desenhe direto na tela durante uma chamada, uma gravação ou uma revisão: lápis, marcador largo que deixa o texto embaixo legível, setas, formas e passos numerados. A tinta que some desaparece sozinha alguns segundos depois que você levanta o cursor. A lupa e o desfoque também funcionam sobre a tela ao vivo: amplie um detalhe para todos na chamada verem, ou cubra um nome que não deveria estar ali.
 
 Um botão devolve os cliques aos apps de baixo enquanto as marcas continuam na tela. «Salvar» e «copiar» capturam a tela junto com o desenho. Os outros veem as marcas quando você compartilha a tela inteira; uma janela única o macOS compõe sozinho.
 
@@ -430,8 +430,9 @@ janela de informações lista todas com o estado atual:
   servidores da Apple
 - **acessibilidade** – colar no app de baixo, o gerenciador de janelas e o
   bloqueio do teclado
-- **gravação de tela** – só o reconhecimento de texto, e só ao enquadrar uma
-  área; o seletor de cor não precisa
+- **gravação de tela** – o reconhecimento de texto ao enquadrar uma área, as
+  capturas, a lupa e o desfoque da camada de desenho; o seletor de cor não
+  precisa
 - **notificações** – o aviso do timer e um torrent concluído
 - **senha de administrador** – uma vez, para o modo de tampa fechada (o pmset só
   roda como root)

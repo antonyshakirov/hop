@@ -270,7 +270,7 @@ Aynı alan tek tuşla yeniden alınır; aynı ekrandan bir dizi görüntü tam d
 
 ### Ekranın üzerine çizme
 
-Görüşme, kayıt veya inceleme sırasında doğrudan ekrana çizin: kalem, altındaki metni okunur bırakan geniş fosforlu kalem, oklar, şekiller ve numaralı adımlar. Kaybolan mürekkep, imleci kaldırdıktan birkaç saniye sonra kendiliğinden gider.
+Görüşme, kayıt veya inceleme sırasında doğrudan ekrana çizin: kalem, altındaki metni okunur bırakan geniş fosforlu kalem, oklar, şekiller ve numaralı adımlar. Kaybolan mürekkep, imleci kaldırdıktan birkaç saniye sonra kendiliğinden gider. Büyüteç ve bulanıklaştırma canlı ekranda da çalışır: bir ayrıntıyı büyütüp görüşmedeki herkese gösterin ya da orada olmaması gereken bir adı kapatın.
 
 Tek bir anahtar tıklamaları alttaki uygulamalara geri verirken işaretler ekranda kalır. «Kaydet» ve «kopyala» ekranı çizimle birlikte alır. Tüm ekranı paylaştığınızda karşı taraf işaretleri görür; tek bir paylaşılan pencereyi macOS kendi başına birleştirir.
 
@@ -425,8 +425,9 @@ uygulamanın ayarlar penceresi hepsini güncel durumlarıyla listeler:
   hız testi macOS'un networkQuality aracıyla Apple sunucularına yapılır
 - **erişilebilirlik** – alttaki uygulamaya yapıştırmak, pencere yöneticisi ve
   klavye kilidi
-- **ekran kaydı** – yalnızca metin tanıma modülü ve yalnızca bir alan seçerken;
-  renk damlalığının buna ihtiyacı yok
+- **ekran kaydı** – bir alan seçerken metin tanıma, ekran görüntüleri, ayrıca
+  çizim katmanındaki büyüteç ve bulanıklaştırma; renk damlalığının buna
+  ihtiyacı yok
 - **bildirimler** – zamanlayıcı uyarısı ve tamamlanan torrent
 - **yönetici parolası** – bir kez, kapak kapalı modu için (pmset yalnızca root)
 - **girişte aç** – sen açana kadar kapalı

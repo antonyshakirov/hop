@@ -277,7 +277,7 @@ La stessa area si riprende con un tasto, che è ciò che serve a una serie di sc
 
 ### Disegnare sullo schermo
 
-Disegna direttamente sullo schermo durante una chiamata, una registrazione o una revisione: matita, evidenziatore largo che lascia leggibile il testo sotto, frecce, forme e passaggi numerati. L'inchiostro che svanisce se ne va da solo un paio di secondi dopo aver sollevato il puntatore.
+Disegna direttamente sullo schermo durante una chiamata, una registrazione o una revisione: matita, evidenziatore largo che lascia leggibile il testo sotto, frecce, forme e passaggi numerati. L'inchiostro che svanisce se ne va da solo un paio di secondi dopo aver sollevato il puntatore. La lente e la sfocatura funzionano anche sullo schermo in diretta: ingrandisci un dettaglio perché lo vedano tutti in chiamata, oppure copri un nome che non doveva essere lì.
 
 Un interruttore restituisce i clic alle app sottostanti mentre i segni restano sullo schermo. «Salva» e «copia» catturano lo schermo insieme al disegno. Gli altri vedono i segni quando condividi l'intero schermo; una singola finestra condivisa la compone macOS da sé.
 
@@ -438,8 +438,9 @@ finestra delle impostazioni li elenca tutti con il loro stato attuale:
   torrent attivo; il test usa networkQuality di macOS verso i server di Apple
 - **accessibilità** – incollare nell'app sottostante, il gestore finestre e il
   blocco tastiera
-- **registrazione schermo** – solo il riconoscimento del testo, e solo quando
-  inquadra un'area; il selettore colore non ne ha bisogno
+- **registrazione schermo** – il riconoscimento del testo quando inquadra
+  un'area, le schermate, la lente e la sfocatura del livello di disegno; il
+  selettore colore non ne ha bisogno
 - **notifiche** – l'avviso del timer e un torrent completato
 - **password di amministratore** – una volta, per la modalità a coperchio chiuso
   (pmset gira solo come root)

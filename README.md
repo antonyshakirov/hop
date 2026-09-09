@@ -278,7 +278,9 @@ bar — and your own watermark, in text or as an image.
 Draw straight on the screen during a call, a recording or a review: a pencil, a
 wide marker that leaves the text under it readable, arrows, shapes and numbered
 steps. Ink that fades on its own disappears a couple of seconds after you lift
-the pointer, so nothing has to be cleaned up mid-sentence.
+the pointer, so nothing has to be cleaned up mid-sentence. The loupe and the
+blur work on the live screen too: magnify a detail so everyone on the call sees
+it, or cover a name that should not have been there.
 
 One switch hands the clicks back to the apps underneath while the marks stay on
 screen, so you can keep working with your notes in front of you. Save or copy
@@ -467,8 +469,9 @@ and the settings window lists them all with their current state:
   on; the speed test runs macOS's own networkQuality against Apple's servers
 - **accessibility** – pasting into the app underneath, the window manager and
   the keyboard lock
-- **screen recording** – the text recognition module only, and only when it
-  frames an area; the color picker does not need it
+- **screen recording** – text recognition while it frames an area, screenshots,
+  and the loupe and the blur on the drawing layer; the color picker does not
+  need it
 - **notifications** – the timer's alert and a finished torrent
 - **administrator password** – once, for the closed-lid mode (pmset is root-only)
 - **launch at login** – off unless you turn it on

@@ -275,7 +275,7 @@ Area yang sama diambil lagi dengan satu tombol, dan itulah yang dibutuhkan seran
 
 ### Menggambar di layar
 
-Gambarlah langsung di layar saat panggilan, perekaman, atau tinjauan: pensil, stabilo lebar yang membuat teks di bawahnya tetap terbaca, panah, bentuk, dan langkah bernomor. Tinta yang memudar hilang sendiri beberapa detik setelah penunjuk diangkat.
+Gambarlah langsung di layar saat panggilan, perekaman, atau tinjauan: pensil, stabilo lebar yang membuat teks di bawahnya tetap terbaca, panah, bentuk, dan langkah bernomor. Tinta yang memudar hilang sendiri beberapa detik setelah penunjuk diangkat. Lup dan pengaburan juga bekerja di layar yang sedang berjalan: perbesar satu detail agar semua peserta panggilan melihatnya, atau tutup nama yang seharusnya tidak ada di sana.
 
 Satu sakelar mengembalikan klik ke aplikasi di bawahnya sementara tanda tetap di layar. «Simpan» dan «salin» merekam layar bersama gambarnya. Orang lain melihat tanda saat Anda berbagi seluruh layar; satu jendela yang dibagikan disusun macOS sendiri.
 
@@ -434,8 +434,9 @@ jendela pengaturan aplikasi mendaftar semuanya beserta statusnya saat ini:
   torrent aktif; tesnya memakai networkQuality bawaan macOS ke server Apple
 - **aksesibilitas** – menempel ke aplikasi di bawah, pengatur jendela, dan kunci
   papan ketik
-- **rekam layar** – hanya modul pengenalan teks, dan hanya saat membingkai area;
-  pemilih warna tidak memerlukannya
+- **rekam layar** – pengenalan teks saat membingkai area, tangkapan layar,
+  serta lup dan pengaburan di lapisan gambar; pemilih warna tidak
+  memerlukannya
 - **notifikasi** – peringatan pengatur waktu dan torrent yang selesai
 - **kata sandi administrator** – sekali, untuk mode layar tertutup (pmset hanya
   jalan sebagai root)

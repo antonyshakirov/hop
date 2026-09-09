@@ -3671,8 +3671,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   2026-09-02). Network used to be three rows — updates, torrent traffic, the
   speed test — for what macOS treats as one thing; they are now a single row
   naming all three uses. Six rows in total: network, Accessibility
-  (paste-into-app, window manager, keyboard lock), Screen Recording (screen text
-  ONLY — the eyedropper explicitly does not need it), notifications (timer +
+  (paste-into-app, window manager, keyboard lock), Screen Recording (screen text,
+  screenshots, and the loupe and the blur on the drawing layer — the
+  eyedropper explicitly does not need it), notifications (timer +
   torrent done), administrator password (once, for closed-lid `pmset`), launch
   at login. Each body is one sentence: a paragraph per permission read as a
   wall, and the page is scanned rather than studied. A seventh row — `restart` —

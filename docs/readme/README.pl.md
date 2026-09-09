@@ -270,7 +270,7 @@ Ten sam obszar powtórzysz jednym klawiszem, a właśnie tego wymaga seria zrzut
 
 ### Rysowanie na ekranie
 
-Rysuj wprost na ekranie podczas rozmowy, nagrania albo przeglądu: ołówek, szeroki zakreślacz, pod którym tekst pozostaje czytelny, strzałki, figury i numerowane kroki. Znikający tusz gaśnie sam kilka sekund po uniesieniu wskaźnika.
+Rysuj wprost na ekranie podczas rozmowy, nagrania albo przeglądu: ołówek, szeroki zakreślacz, pod którym tekst pozostaje czytelny, strzałki, figury i numerowane kroki. Znikający tusz gaśnie sam kilka sekund po uniesieniu wskaźnika. Lupa i rozmycie działają także na żywym ekranie: powiększ szczegół, żeby zobaczyli go wszyscy w rozmowie, albo zasłoń nazwisko, którego tam być nie powinno.
 
 Jeden przełącznik oddaje kliknięcia aplikacjom pod spodem, a znaki zostają na ekranie. «Zapisz» i «kopiuj» rejestrują ekran razem z rysunkiem. Inni widzą znaki, gdy udostępniasz cały ekran; pojedyncze udostępnione okno macOS składa samodzielnie.
 
@@ -425,8 +425,9 @@ potrzebuje; okno ustawień wymienia je wszystkie z bieżącym stanem:
   module torrentów; test używa systemowego networkQuality wobec serwerów Apple
 - **dostępność** – wklejanie do aplikacji pod spodem, menedżer okien i blokada
   klawiatury
-- **nagrywanie ekranu** – tylko moduł rozpoznawania tekstu i tylko przy
-  zaznaczaniu obszaru; próbnik koloru go nie potrzebuje
+- **nagrywanie ekranu** – rozpoznawanie tekstu przy zaznaczaniu obszaru, zrzuty
+  ekranu oraz lupa i rozmycie na warstwie rysowania; próbnik koloru go nie
+  potrzebuje
 - **powiadomienia** – alarm minutnika i ukończony torrent
 - **hasło administratora** – raz, dla trybu zamkniętej klapy (pmset działa tylko
   jako root)

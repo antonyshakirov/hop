@@ -277,7 +277,7 @@ La misma área se repite con una tecla, que es lo que suele necesitar una serie 
 
 ### Dibujar sobre la pantalla
 
-Dibuje directamente en la pantalla durante una llamada, una grabación o una revisión: lápiz, marcador ancho que deja legible el texto debajo, flechas, formas y pasos numerados. La tinta que se desvanece desaparece sola un par de segundos después de levantar el cursor.
+Dibuje directamente en la pantalla durante una llamada, una grabación o una revisión: lápiz, marcador ancho que deja legible el texto debajo, flechas, formas y pasos numerados. La tinta que se desvanece desaparece sola un par de segundos después de levantar el cursor. La lupa y el desenfoque también funcionan sobre la pantalla en vivo: amplíe un detalle para que todos en la llamada lo vean, o tape un nombre que no debería estar ahí.
 
 Un interruptor devuelve los clics a las apps de debajo mientras las marcas siguen en pantalla. «Guardar» y «copiar» capturan la pantalla junto con el dibujo. Los demás ven las marcas cuando comparte la pantalla completa; una sola ventana compartida la compone macOS por su cuenta.
 
@@ -437,8 +437,9 @@ de información los enumera todos con su estado actual:
   de Apple
 - **accesibilidad** – pegar en la app de debajo, el gestor de ventanas y el
   bloqueo del teclado
-- **grabación de pantalla** – solo el reconocimiento de texto, y solo al
-  encuadrar un área; el selector de color no la necesita
+- **grabación de pantalla** – el reconocimiento de texto al encuadrar un área,
+  las capturas y la lupa y el desenfoque de la capa de dibujo; el selector de
+  color no la necesita
 - **notificaciones** – el aviso del temporizador y un torrent terminado
 - **contraseña de administrador** – una vez, para el modo con la tapa cerrada
   (pmset solo funciona como root)

@@ -274,7 +274,7 @@ Hetzelfde gebied neem je met één toets opnieuw, precies wat een reeks van hetz
 
 ### Over het scherm tekenen
 
-Teken tijdens een gesprek, een opname of een review rechtstreeks op het scherm: potlood, brede marker die de tekst eronder leesbaar laat, pijlen, vormen en genummerde stappen. Vervagende inkt verdwijnt vanzelf een paar seconden nadat je de aanwijzer optilt.
+Teken tijdens een gesprek, een opname of een review rechtstreeks op het scherm: potlood, brede marker die de tekst eronder leesbaar laat, pijlen, vormen en genummerde stappen. Vervagende inkt verdwijnt vanzelf een paar seconden nadat je de aanwijzer optilt. De loep en de vervaging werken ook op het levende scherm: vergroot een detail zodat iedereen in het gesprek het ziet, of dek een naam af die er niet had mogen staan.
 
 Eén schakelaar geeft de kliks terug aan de apps eronder terwijl de markeringen op het scherm blijven. «Bewaren» en «kopiëren» leggen het scherm samen met de tekening vast. Anderen zien de markeringen als je het hele scherm deelt; één gedeeld venster stelt macOS zelf samen.
 
@@ -434,8 +434,9 @@ gebruikt wordt; het instellingenvenster van de app somt ze allemaal op met hun s
   servers van Apple
 - **toegankelijkheid** – plakken in de app eronder, de vensterbeheerder en de
   toetsenbordvergrendeling
-- **schermopname** – alleen de tekstherkenning, en alleen bij het kaderen van
-  een gebied; de kleurenpipet heeft het niet nodig
+- **schermopname** – de tekstherkenning bij het kaderen van een gebied,
+  schermafbeeldingen, en de loep en de vervaging op de tekenlaag; de
+  kleurenpipet heeft het niet nodig
 - **berichtgeving** – het signaal van de timer en een afgeronde torrent
 - **beheerderswachtwoord** – één keer, voor de stand met gesloten klep (pmset
   draait alleen als root)

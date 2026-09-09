@@ -277,7 +277,7 @@ Derselbe Ausschnitt lässt sich mit einer Taste erneut aufnehmen — genau das b
 
 ### Über den Bildschirm zeichnen
 
-Zeichnen Sie während eines Anrufs, einer Aufnahme oder einer Durchsicht direkt auf den Bildschirm: Stift, breiter Marker, unter dem der Text lesbar bleibt, Pfeile, Formen und nummerierte Schritte. Verblassende Tinte verschwindet ein paar Sekunden nach dem Absetzen von selbst.
+Zeichnen Sie während eines Anrufs, einer Aufnahme oder einer Durchsicht direkt auf den Bildschirm: Stift, breiter Marker, unter dem der Text lesbar bleibt, Pfeile, Formen und nummerierte Schritte. Verblassende Tinte verschwindet ein paar Sekunden nach dem Absetzen von selbst. Die Lupe und die Weichzeichnung arbeiten auch auf dem laufenden Bildschirm: ein Detail vergrößern, damit es alle im Anruf sehen, oder einen Namen abdecken, der dort nicht hingehört.
 
 Ein Schalter gibt die Klicks an die Apps darunter zurück, während die Markierungen stehen bleiben. «Sichern» und «Kopieren» nehmen den Bildschirm samt Zeichnung auf. Andere sehen die Markierungen, wenn Sie den ganzen Bildschirm teilen; ein einzelnes geteiltes Fenster setzt macOS allein zusammen.
 
@@ -442,8 +442,9 @@ benutzt wird; das Einstellungsfenster listet alle mit ihrem aktuellen Stand auf:
   Apples Server
 - **Bedienungshilfen** – Einfügen in die App darunter, Fenstermanager und
   Tastatursperre
-- **Bildschirmaufnahme** – nur die Texterkennung, und nur beim Einrahmen eines
-  Bereichs; die Farbpipette braucht sie nicht
+- **Bildschirmaufnahme** – die Texterkennung beim Einrahmen eines Bereichs,
+  Bildschirmfotos sowie Lupe und Weichzeichnung auf der Zeichenebene; die
+  Farbpipette braucht sie nicht
 - **Mitteilungen** – der Timer-Hinweis und ein fertiger Torrent
 - **Administratorkennwort** – einmalig, für den Modus mit geschlossenem Deckel
   (pmset läuft nur als root)

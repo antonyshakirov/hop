@@ -281,7 +281,7 @@ La même zone se reprend d'une touche, ce dont a besoin une série de captures d
 
 ### Dessiner sur l'écran
 
-Dessinez directement sur l'écran pendant un appel, un enregistrement ou une relecture : crayon, surligneur large qui laisse le texte lisible, flèches, formes et étapes numérotées. L'encre qui s'efface disparaît d'elle-même deux secondes après avoir relevé le pointeur.
+Dessinez directement sur l'écran pendant un appel, un enregistrement ou une relecture : crayon, surligneur large qui laisse le texte lisible, flèches, formes et étapes numérotées. L'encre qui s'efface disparaît d'elle-même deux secondes après avoir relevé le pointeur. La loupe et le flou fonctionnent aussi sur l'écran en direct : agrandissez un détail pour que tout le monde le voie pendant l'appel, ou masquez un nom qui n'aurait pas dû être là.
 
 Un interrupteur rend les clics aux applications en dessous pendant que les annotations restent à l'écran. « Enregistrer » et « copier » capturent l'écran avec le dessin. Les autres voient les annotations quand vous partagez l'écran entier ; une fenêtre partagée seule est composée par macOS.
 
@@ -445,8 +445,9 @@ vraiment utilisée ; la fenêtre des réglages les liste toutes avec leur état 
   serveurs d'Apple
 - **accessibilité** – coller dans l'app en dessous, le gestionnaire de fenêtres
   et le verrou clavier
-- **enregistrement de l'écran** – uniquement la reconnaissance de texte, et
-  seulement au cadrage d'une zone ; la pipette n'en a pas besoin
+- **enregistrement de l'écran** – la reconnaissance de texte au cadrage d'une
+  zone, les captures, la loupe et le flou du calque de dessin ; la pipette n'en
+  a pas besoin
 - **notifications** – l'alerte du minuteur et un torrent terminé
 - **mot de passe administrateur** – une fois, pour le mode écran rabattu (pmset
   est réservé à root)

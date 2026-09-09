@@ -263,7 +263,7 @@ Cùng một vùng chụp lại chỉ bằng một phím — đúng thứ mà m�
 
 ### Vẽ trên màn hình
 
-Vẽ thẳng lên màn hình khi gọi, khi quay hoặc khi soi lại: bút chì, bút dạ quang bản rộng vẫn để đọc được chữ bên dưới, mũi tên, hình khối và các bước đánh số. Mực phai tự biến mất vài giây sau khi bạn nhấc con trỏ.
+Vẽ thẳng lên màn hình khi gọi, khi quay hoặc khi soi lại: bút chì, bút dạ quang bản rộng vẫn để đọc được chữ bên dưới, mũi tên, hình khối và các bước đánh số. Mực phai tự biến mất vài giây sau khi bạn nhấc con trỏ. Kính lúp và làm mờ cũng dùng được ngay trên màn hình đang chạy: phóng to một chi tiết cho mọi người trong cuộc gọi cùng thấy, hoặc che một cái tên lẽ ra không nên xuất hiện.
 
 Một công tắc trả cú nhấp về cho các ứng dụng bên dưới trong khi nét vẽ vẫn nằm trên màn hình. «Lưu» và «chép» chụp màn hình cùng với hình vẽ. Người khác thấy nét vẽ khi bạn chia sẻ toàn màn hình; một cửa sổ riêng lẻ do macOS tự ghép.
 
@@ -417,8 +417,8 @@ của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
 - **mạng – torrent, đo tốc độ** – lưu lượng tới các peer khác khi bật mô-đun
   torrent; phép đo dùng networkQuality của macOS tới máy chủ Apple
 - **trợ năng** – dán vào ứng dụng bên dưới, trình quản lý cửa sổ và khoá bàn phím
-- **ghi màn hình** – chỉ mô-đun nhận dạng văn bản, và chỉ khi khoanh vùng; ống
-  hút màu không cần
+- **ghi màn hình** – nhận dạng văn bản khi khoanh vùng, ảnh màn hình, cùng kính
+  lúp và làm mờ trên lớp vẽ; ống hút màu không cần
 - **thông báo** – báo hết giờ của bộ đếm và torrent đã xong
 - **mật khẩu quản trị** – một lần, cho chế độ gập màn hình (pmset chỉ chạy với root)
 - **mở khi đăng nhập** – tắt cho đến khi bạn tự bật
