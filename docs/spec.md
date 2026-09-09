@@ -2971,7 +2971,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   presented is worth more than a row of tools, so the panel closes into a circle
   carrying Hop's mark, at the place it stood, draggable as before; a click opens
   it again. Drawing carries on with whatever tool was in hand — folding hides
-  the tools, it does not put them down.
+  the tools, it does not put them down. The fold button sits at the LEFT, beside
+  the grip: both are about the panel itself rather than about the marks, and its
+  glyph is the pair of arrows pulled inward that macOS uses for "smaller" —
+  chevrons up and down said nothing about what would happen.
 - **The presenting pointer** (Anton, 2026-09-09): the layer can add a ring
   round the pointer, a spotlight on it, a fading trail behind it and a ring at
   every click, in a colour and a size of their own. `HopCore.PointerAids` holds

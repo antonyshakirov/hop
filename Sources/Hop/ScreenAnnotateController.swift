@@ -364,6 +364,7 @@ struct ScreenAnnotateToolbar: View {
                       lang: lang,
                       toolsActive: controller.isDrawing,
                       floating: true,
+                      fold: AnyView(foldButton),
                       trailing: AnyView(actions),
                       leading: AnyView(cursorButton))
     }
@@ -452,6 +453,10 @@ struct ScreenAnnotateToolbar: View {
             PointerAidsPopover(pointer: controller.pointer, lang: lang).aboveTheDrawing()
         }
 
+        action(.close, .annotateExit) { controller.exit() }
+    }
+
+    private var foldButton: some View {
         Button { controller.toggleFolded() } label: {
             MarkupIcon(glyph: .fold)
                 .foregroundStyle(Theme.textSecondary)
@@ -460,8 +465,6 @@ struct ScreenAnnotateToolbar: View {
         }
         .buttonStyle(.plain)
         .markupTip(L10n.t(.mkFold, lang))
-
-        action(.close, .annotateExit) { controller.exit() }
     }
 
     /// Not the select tool: this hands the SCREEN back, and the panel stays

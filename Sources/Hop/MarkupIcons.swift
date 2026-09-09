@@ -124,14 +124,21 @@ enum MarkupIcons {
                     dot(15, 12, 1.1), dot(9, 18, 1.1), dot(15, 18, 1.1)]
 
         case .fold:
-            // Two chevrons meeting: the panel folding in on itself.
+            // Two arrows pulled in towards each other, the way macOS says
+            // "smaller": a diagonal each, with its own head.
             return [stroke {
-                        $0.move(to: p(6, 8.5)); $0.addLine(to: p(11, 4.5))
-                        $0.addLine(to: p(16, 8.5))
+                        $0.move(to: p(4.5, 4.5)); $0.addLine(to: p(10, 10))
                     },
                     stroke {
-                        $0.move(to: p(6, 13.5)); $0.addLine(to: p(11, 17.5))
-                        $0.addLine(to: p(16, 13.5))
+                        $0.move(to: p(10, 5.6)); $0.addLine(to: p(10, 10))
+                        $0.addLine(to: p(5.6, 10))
+                    },
+                    stroke {
+                        $0.move(to: p(17.5, 17.5)); $0.addLine(to: p(12, 12))
+                    },
+                    stroke {
+                        $0.move(to: p(12, 16.4)); $0.addLine(to: p(12, 12))
+                        $0.addLine(to: p(16.4, 12))
                     }]
 
         case .pointer:

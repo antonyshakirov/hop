@@ -25,7 +25,7 @@ struct HopAsterisk: View {
                 path.addLine(to: CGPoint(x: centre.x + cos(angle) * radius,
                                          y: centre.y + sin(angle) * radius))
                 context.stroke(path, with: .color(colour),
-                               style: StrokeStyle(lineWidth: box.width * 0.11, lineCap: .round))
+                               style: StrokeStyle(lineWidth: box.width * 0.095, lineCap: .round))
             }
         }
         .frame(width: size, height: size)
@@ -49,6 +49,9 @@ struct MarkupToolbar: View {
     /// True when the panel is a window of its own: the system draws its shadow,
     /// so drawing a second one inside the window would clip against its edge.
     var floating = false
+    /// The fold button, beside the grip: both are about the panel itself
+    /// rather than about the marks. SPEC: docs/spec.md — the markup toolbar.
+    var fold: AnyView?
     var trailing: AnyView?
     var leading: AnyView?
 
@@ -83,6 +86,11 @@ struct MarkupToolbar: View {
         MarkupIcon(glyph: .grip, size: 16)
             .foregroundStyle(Theme.textTertiary)
             .rotationEffect(.degrees(edge.isVertical ? 90 : 0))
+
+        if let fold {
+            fold
+            divider
+        }
 
         if let leading {
             leading
