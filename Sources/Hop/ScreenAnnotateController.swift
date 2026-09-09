@@ -16,14 +16,17 @@ final class ScreenAnnotateController: ObservableObject {
     @Published var edge: MarkupToolbar.Edge = .bottom
     let surface = MarkupSurface()
 
-    /// Fading ink and the marker belong here; crop, blur and the magnifier need
-    /// pixels this layer does not have.
+    /// Crop is the one tool that stays out: there is no file to cut. The loupe
+    /// and the blur read the streamed screen instead of a captured frame.
+    /// SPEC: docs/spec.md — "Draw over the screen".
     static let tools: [MarkupTool] = [
         .select, .pencil, .fadingInk, .marker, .arrow, .line,
-        .rectangle, .oval, .steps, .text, .eraser,
+        .rectangle, .oval, .steps, .text, .magnifier, .blur, .eraser,
     ]
 
+    let backdrop = LiveScreenBackdrop()
     private let overlay = MarkupOverlayController()
+    private var backdropWatch: AnyCancellable?
     private var toolbarWindow: MarkupToolbarWindow?
     private var toolWatch: AnyCancellable?
     private var draggedFrom: (origin: NSPoint, pointer: NSPoint)?
@@ -41,6 +44,7 @@ final class ScreenAnnotateController: ObservableObject {
             return FirstMouseHostingView(rootView: ScreenAnnotateView(
                 controller: self,
                 surface: self.surface,
+                backdrop: self.backdrop,
                 screenSize: screen.frame.size,
                 lang: L10n.current
             ))
@@ -53,6 +57,23 @@ final class ScreenAnnotateController: ObservableObject {
         // the row is what hands the screen back.
         toolWatch = surface.$tool.dropFirst().sink { [weak self] _ in
             self?.setDrawing(true)
+        }
+        backdropWatch = surface.objectWillChange
+            .throttle(for: .milliseconds(200), scheduler: RunLoop.main, latest: true)
+            .sink { [weak self] _ in self?.refreshBackdrop() }
+        refreshBackdrop()
+    }
+
+    /// SPEC: docs/spec.md — the loupe and the blur over the live screen.
+    private func refreshBackdrop() {
+        guard isUp else { return backdrop.stop() }
+        let reading: Set<MarkupTool> = [.magnifier, .blur]
+        let wanted = reading.contains(surface.tool)
+            || surface.shapes.contains { reading.contains($0.tool) }
+        if wanted {
+            backdrop.start(on: CaptureController.screenUnderPointer())
+        } else {
+            backdrop.stop()
         }
     }
 
@@ -156,6 +177,8 @@ final class ScreenAnnotateController: ObservableObject {
     }
 
     func exit() {
+        backdropWatch = nil
+        backdrop.stop()
         HotkeyManager.shared.setDrawingLayerUp(false)
         takeTheScreen(false)
         toolWatch = nil
@@ -222,12 +245,13 @@ final class ScreenAnnotateController: ObservableObject {
 struct ScreenAnnotateView: View {
     @ObservedObject var controller: ScreenAnnotateController
     @ObservedObject var surface: MarkupSurface
+    @ObservedObject var backdrop: LiveScreenBackdrop
     let screenSize: CGSize
     let lang: AppLanguage
 
     var body: some View {
         ZStack(alignment: .top) {
-            MarkupCanvas(surface: surface, background: nil, scale: 1)
+            MarkupCanvas(surface: surface, background: nil, source: live, scale: 1)
                 .frame(width: screenSize.width, height: screenSize.height)
                 .allowsHitTesting(controller.isDrawing)
 
@@ -250,6 +274,12 @@ struct ScreenAnnotateView: View {
 
         }
         .frame(width: screenSize.width, height: screenSize.height)
+    }
+
+    /// The streamed screen, in the layer's own points.
+    private var live: Image? {
+        guard let frame = backdrop.frame else { return nil }
+        return Image(decorative: frame, scale: CGFloat(frame.width) / screenSize.width)
     }
 
     /// SPEC: docs/spec.md — the tag carries the mode key.

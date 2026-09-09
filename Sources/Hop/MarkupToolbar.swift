@@ -301,9 +301,6 @@ struct MarkupColourPopover: View {
                 ForEach(mixed, id: \.self) { hex in
                     swatch(hex)
                 }
-                if !mixed.isEmpty {
-                    Rectangle().fill(Theme.divider).frame(width: 1, height: 22)
-                }
                 Button {
                     MarkupColourPanel.shared.show(startingAt: current.hex, onPick: { picked in
                         write { $0.hex = picked.markupHex }

@@ -739,6 +739,8 @@ struct RowActionIcon: View {
 /// no background fill (presets, cycle templates).
 struct HoverLabel: View {
     let text: String
+    /// A symbol before the word, for a label that has to read as a button.
+    var glyph: String? = nil
     var size: CGFloat = 11
     var weight: Font.Weight = .medium
     var color: Color = Theme.textTertiary
@@ -746,12 +748,19 @@ struct HoverLabel: View {
     @State private var hovering = false
 
     var body: some View {
-        Text(text)
-            .font(Theme.mono(size, weight: weight))
-            .foregroundStyle(hovering ? Theme.textPrimary : color)
-            .frame(minWidth: minWidth)
-            .animation(.easeOut(duration: 0.12), value: hovering)
-            .onHover { hovering = $0 }
+        HStack(spacing: 5) {
+            if let glyph {
+                Image(systemName: glyph)
+                    .font(.system(size: size + 2, weight: .regular))
+            }
+            Text(text)
+                .font(Theme.mono(size, weight: weight))
+        }
+        .foregroundStyle(hovering ? Theme.textPrimary : color)
+        .frame(minWidth: minWidth)
+        .animation(.easeOut(duration: 0.12), value: hovering)
+        .onHover { hovering = $0 }
+        .handCursor()
     }
 }
 

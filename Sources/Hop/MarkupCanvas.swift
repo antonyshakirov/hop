@@ -9,6 +9,9 @@ import SwiftUI
 struct MarkupCanvas: View {
     @ObservedObject var surface: MarkupSurface
     var background: Image?
+    /// The pixels the loupe and the blur read when there is no background to
+    /// read them from: the live screen under the drawing layer.
+    var source: Image?
     var scale: CGFloat = 1
     /// The cursor and the typing field are AppKit views, and AppKit views come
     /// out as a yellow block when the canvas is rendered outside a running
@@ -292,7 +295,7 @@ struct MarkupCanvas: View {
         case .magnifier:
             // Drawn HERE rather than baked into the backdrop, so the lens is
             // under the hand while it is being pulled out, not after.
-            guard points.count > 1, let background else { return }
+            guard points.count > 1, let background = background ?? source else { return }
             let frame = round(box(first, points[1]))
             let lens = Path(ellipseIn: frame)
             context.drawLayer { layer in
@@ -309,6 +312,19 @@ struct MarkupCanvas: View {
 
         case .blur, .crop:
             guard points.count > 1 else { return }
+            // Over the live screen nothing under the mark is baked into a
+            // backdrop, so the blur is drawn here, from the streamed frame.
+            if shape.tool == .blur, background == nil, let source {
+                let area = box(first, points[1])
+                let mask: Path = shape.blur?.shape == .oval
+                    ? Path(ellipseIn: area) : Path(roundedRect: area, cornerRadius: 3)
+                context.drawLayer { layer in
+                    layer.clip(to: mask)
+                    let strength = shape.blur?.strength ?? 5
+                    layer.addFilter(.blur(radius: MarkupBlur.radius(forStrength: strength) * scale))
+                    layer.draw(source, in: CGRect(origin: .zero, size: canvas))
+                }
+            }
             // The region says what it is by being blurred. A red dashed box
             // round it is a mark of its own, and it ends up in the file.
             let area = box(first, points[1])

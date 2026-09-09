@@ -2911,9 +2911,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the select tool first in its row, undo and redo beside clear, the nib pointer,
   captions edited where they stand, curves through freehand strokes, the chisel
   marker, colours remembered across both, a tick on copy, and delete for what is
-  in hand. What it does NOT have is the three tools that need pixels underneath
-  — crop, blur and the loupe — because there is no picture under this layer,
-  only the live screen.
+  in hand. Crop is the only tool it does not have: there is no file to cut.
 - The arrow that hands the SCREEN back is not the select tool, and no longer
   wears the same glyph: it is a pointer with the way past it open.
 - **The mode follows the tool** (Anton, 2026-09-07). Picking any tool means
@@ -2968,8 +2966,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Both mode buttons carry their name as a tooltip: an arrow on its own says
   nothing about what pressing it will do.
 - Tools: pencil, fading ink, marker, arrow, line, rectangle, oval, steps, text,
-  eraser. No crop, blur or magnifier — the layer is transparent and there are no
-  pixels under it to work on.
+  the loupe, the blur and the eraser. Crop is the one that stays out: there is
+  no file here to cut.
+- **The loupe and the blur read a LIVE stream of the screen** (Anton,
+  2026-09-09). Both work on the pixels beneath them and the layer has none, so
+  `LiveScreenBackdrop` streams the display at 15 fps with Hop's own windows
+  excluded — the glass would otherwise show itself — and the newest frame is
+  what they magnify and smear. The stream is a cost, so it runs only while the
+  layer is up AND either tool is in hand or a mark of that kind is already on
+  the layer; it stops the moment neither is true, and on the way out.
+  Known limit: the stream follows the display the pointer was on when it
+  started, so a loupe pulled out on a second monitor shows the first one until
+  the tool is taken again there.
 - **Fading ink** disappears about two seconds after the pointer lifts, over half
   a second — and the count starts at the LIFT, not at the first point (Anton,
   2026-09-09): a long stroke was half gone by the time it was finished, because
@@ -3052,6 +3060,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   ends. Handing the press to AppKit's own `performDrag` was tried first and
   dropped: SwiftUI takes the press before a view behind it sees one, and the
   panel stopped moving altogether (2026-09-09).
+- **The colour popover is two rows of EIGHT**, and the wheel is the eighth of
+  the second (Anton, 2026-09-09): seven recent colours are kept, so the columns
+  line up under each other. The rule that used to stand before the wheel pushed
+  the whole row half a swatch out of true.
 - Colour and width live in a popover above the panel, never in the panel itself.
   Hovering a tool shows three lines: its name and its letter, one line saying
   what it does, and — for the tools that have settings — that a second press

@@ -101,6 +101,7 @@ struct ScreenAnnotateRow: View {
                 }
             } label: {
                 HoverLabel(text: L10n.t(annotate.isUp ? .annotateExit : .annotateStart, lang),
+                           glyph: annotate.isUp ? "xmark.circle" : "pencil.tip.crop.circle",
                            color: annotate.isUp ? Theme.editing : Theme.textSecondary)
                     .lineLimit(1)
                     .frame(height: 22)
