@@ -218,11 +218,14 @@ enum Snapshot {
             let hanging = L10n.hangingWords()
             print(missing.isEmpty ? "l10n: all translations present" : "l10n missing:\n" + missing.joined(separator: "\n"))
             let chords = L10n.brokenChords()
+            let strays = L10n.strayMarks()
             print(hanging.isEmpty ? "l10n: no word hangs at the end of a line"
                                   : "l10n hanging words:\n" + hanging.joined(separator: "\n"))
             print(chords.isEmpty ? "l10n: every key chord holds together"
                                  : "l10n broken chords:\n" + chords.joined(separator: "\n"))
-            exit(missing.isEmpty && hanging.isEmpty && chords.isEmpty ? 0 : 1)
+            print(strays.isEmpty ? "l10n: every invisible mark belongs and has work to do"
+                                 : "l10n stray marks:\n" + strays.joined(separator: "\n"))
+            exit(missing.isEmpty && hanging.isEmpty && chords.isEmpty && strays.isEmpty ? 0 : 1)
         }
 
         guard let i = args.firstIndex(of: "--snapshot"), args.count > i + 1 else { return }

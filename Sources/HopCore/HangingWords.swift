@@ -6,10 +6,10 @@ public enum HangingWords {
     /// than the hanging word it was meant to cure.
     public static let runLimit = 16
 
-    private static let modifiers: Set<Character> = ["⌘", "⌥", "⌃", "⇧", "⇪", "⎋", "⏎", "⌫"]
+    static let modifiers: Set<Character> = ["⌘", "⌥", "⌃", "⇧", "⇪", "⎋", "⏎", "⌫"]
 
     private static let breaks: Set<Character> = [" ", "\u{00A0}"]
-    private static let marks: Set<Unicode.Scalar> = ["\u{200E}", "\u{200F}", "\u{061C}"]
+    private static let marks = InvisibleMarks.directions
     private static let opening = "«„“\"'‘(["
     private static let punctuation: Set<Unicode.GeneralCategory> = [
         .connectorPunctuation, .dashPunctuation, .openPunctuation, .closePunctuation,

@@ -2393,9 +2393,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Arabic, Hebrew, Persian and Urdu are right to left, and `isRTL` drives
   `hopLayoutDirection()` — Hop picks its language in-app rather than through the
   system locale, so nothing else can tell SwiftUI which way a window runs.
-- **`--l10n-check` is the gate**: every key in every table, plus the hanging
-  words in each of them, checked in `scripts/checks.sh` before anything ships.
-  A language cannot be half added.
+- **`--l10n-check` is the gate**: every key in every table, the hanging words
+  in each of them, the key chords, and the invisible characters, checked in
+  `scripts/checks.sh` before anything ships. A language cannot be half added.
 - What is NOT translated yet: the README has sixteen translations and the site
   has its own set — both follow with the release.
 
@@ -2924,6 +2924,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   is, so you can scroll, click and show something and then pick a pencil again.
   A separate mode switch was the first attempt and it was one entity too many:
   an arrow beside a pencil says nothing about what pressing it does.
+- **The layer opens with a pencil already in hand**, and a setting says
+  otherwise (`annotateStartsDrawing`, on out of the box, `annotateDrawMode` —
+  "start in drawing mode"). The module is opened to draw, so making the first
+  stroke cost a second press was a step for nothing; whoever opens it to point
+  at something instead turns the setting off and gets the screen handed through
+  from the start.
 - **A key for the mode, ⌃⌥P out of the box** (Anton, 2026-09-08).
   `ModuleCatalog.annotatePassAction` — one key, both ways: it hands the screen
   over and takes it back, so windows can be moved and clicked and the drawing
@@ -4365,28 +4371,55 @@ converter (Anton, 2026-07-28).
   `{sym:…}` alike, which is how "%1$@ of %2$@ files" keeps its break. Holding a
   particle back is the one exception: the word it leans on stands to its left,
   and the particle brings its own length, so what stands to the right of the
-  join has no say in it. Neither is
-  a word welded to a token that is nothing but punctuation: the real next word
-  would still be free to start the line, so the join buys nothing. A number, an
-  arrow or a symbol is not punctuation and joins like a word, and the join
-  carries on through it, so an arrow between two words does not take the hang
-  over from the preposition in front of it. The carry ends where the phrase
-  does: a comma or a closing bracket stops it, and the word after the comma is
-  free to start a line. A word carrying a comma is none of the rule's business
-  in either direction, and a join made around one by hand stays — but taking
-  joins apart reaches one step wider than making them, so a join an earlier
-  reading of the rule left behind is still the rule's to remove. The rule is
-  stdlib alone, with no Foundation character sets underneath it, so it answers
-  the same on every build. - **The gate holds one opinion of its own**
-  (2026-09-09): asking only whether a table entry is already what the rule
-  would leave behind cannot see a join the rule does not own, and a chord
-  broken by such a join passes unnoticed. So
+  join has no say in it. Neither is a word welded to a token that is nothing but
+  punctuation: the real next word would still be free to start the line, so the
+  join buys nothing. A number, an arrow or a symbol is not punctuation and joins
+  like a word, and the join carries on through it, so an arrow between two words
+  does not take the hang over from the preposition in front of it. The carry
+  ends where the phrase does: a comma or a closing bracket stops it, and the
+  word after the comma is free to start a line. A word carrying a comma is none
+  of the rule's business in either direction, and a join made around one by hand
+  stays — but taking joins apart reaches one step wider than making them, so a
+  join an earlier reading of the rule left behind is still the rule's to remove.
+  The rule is stdlib alone, with no Foundation character sets underneath it, so
+  it answers the same on every build.
+- **The gate holds one opinion of its own** (2026-09-09): asking only whether a
+  table entry is already what the rule would leave behind cannot see a join the
+  rule does not own, and a chord broken by such a join passes unnoticed. So
   `--l10n-check` also reads the text directly and fails on any modifier standing
   in front of an ordinary space, whatever the rule thinks of the line.
+- **An invisible mark has work to do** (2026-09-09): a zero-width non-joiner is
+  how Persian is written and stays in the tables as itself, because writing the
+  1421 of them — every one in the `fa` table — as escapes would make each
+  Persian string unreadable to the eye that has to proofread it. The 92
+  direction marks are the other case: they steer a Latin fragment or a chord
+  inside a right-to-left sentence, they are not orthography, and nothing in the
+  sentence shows they are there, so they are written as `\u{200E}` and
+  `\u{200F}` escapes. That leaves the non-joiner invisible, so `--l10n-check`
+  reads the built tables, where an escape and a raw character are the same
+  thing, and starts from the language. **A line that runs left to right carries
+  no invisible character at all**: nothing in English or Russian needs one, and
+  a right-to-left mark dropped into an English string turns "5 + 9 = 14" into
+  "14 = 9 + 5" on screen while the source reads as it always did. A line that
+  runs the other way may carry four — the non-joiner, the two direction marks,
+  the Arabic letter mark — and each has to do something where it stands: a
+  non-joiner wants a letter beside it and nothing invisible or spacing on
+  either side, a direction mark wants a Latin fragment, a number, a
+  substitution or a chord within reach on one side or the other, so that both
+  halves of a pair around a fragment count. Anything else fails, which is what
+  stops a bidirectional override, a zero-width space or a Hangul filler from
+  being pasted into a table where neither the eye nor a search for `\u{200E}`
+  would find it. The failing line names the character and the place it stands
+  in, because nothing in the entry itself will show it. Two things the check
+  does NOT do: it reads only the characters that are there, so a sentence that
+  needs a mark and has none looks the same to it as one that needs none; and it
+  reads the tables, not the running text, where `L10n.fill` still wraps a
+  substituted value in its own isolates. It found one direction mark standing
+  before a Hebrew word, where it steered nothing, and it was removed.
 - **One form of address per language**, the one that already dominates its table
   (measured 2026-09-06): ru, es, pt and fr are polite; de, it and nl are
-  familiar. A new
-  string follows its language's form rather than the English original's.
+  familiar. A new string follows its language's form rather than the English
+  original's.
 
 ### Right to left
 
