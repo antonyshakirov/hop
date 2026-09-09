@@ -114,7 +114,10 @@ final class MarkupToolbarWindow: NSPanel {
                    backing: .buffered, defer: false)
         isOpaque = false
         backgroundColor = .clear
-        hasShadow = false
+        // The system draws the shadow, OUTSIDE the window: a shadow drawn
+        // inside it is clipped by the window's own edge, and the clipped edge
+        // reads as a dark rectangle under the panel. SPEC: docs/spec.md
+        hasShadow = true
         level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()) + 1)
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         isReleasedWhenClosed = false

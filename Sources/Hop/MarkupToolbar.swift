@@ -22,6 +22,9 @@ struct MarkupToolbar: View {
     /// False while the surface is handing clicks to whatever is underneath: no
     /// tool is in hand, so none is shown as chosen.
     var toolsActive = true
+    /// True when the panel is a window of its own: the system draws its shadow,
+    /// so drawing a second one inside the window would clip against its edge.
+    var floating = false
     var trailing: AnyView?
     var leading: AnyView?
 
@@ -44,7 +47,8 @@ struct MarkupToolbar: View {
             RoundedRectangle(cornerRadius: 14)
                 .fill(Theme.isDark ? Color(white: 0.086) : Color.white)
                 .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.controlStroke.opacity(0.6)))
-                .shadow(color: .black.opacity(Theme.isDark ? 0.6 : 0.16), radius: 14, y: 6)
+                .shadow(color: .black.opacity(floating ? 0 : (Theme.isDark ? 0.6 : 0.16)),
+                        radius: 14, y: 6)
         )
         .onHover { surface.pointerOverPanel = $0 }
 

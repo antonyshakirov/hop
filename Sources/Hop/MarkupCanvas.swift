@@ -318,11 +318,17 @@ struct MarkupCanvas: View {
                 let area = box(first, points[1])
                 let mask: Path = shape.blur?.shape == .oval
                     ? Path(ellipseIn: area) : Path(roundedRect: area, cornerRadius: 3)
-                context.drawLayer { layer in
-                    layer.clip(to: mask)
-                    let strength = shape.blur?.strength ?? 5
-                    layer.addFilter(.blur(radius: MarkupBlur.radius(forStrength: strength) * scale))
-                    layer.draw(source, in: CGRect(origin: .zero, size: canvas))
+                context.drawLayer { outer in
+                    outer.clip(to: mask)
+                    // The blur goes on a layer of its OWN, drawn whole: filtered
+                    // inside the clip it pulled in the transparency beyond the
+                    // edge and the region came out dark (Anton, 2026-09-09).
+                    outer.drawLayer { inner in
+                        let strength = shape.blur?.strength ?? 5
+                        inner.addFilter(.blur(radius: MarkupBlur.radius(forStrength: strength) * scale,
+                                              options: .dithersResult))
+                        inner.draw(source, in: CGRect(origin: .zero, size: canvas))
+                    }
                 }
             }
             // The region says what it is by being blurred. A red dashed box

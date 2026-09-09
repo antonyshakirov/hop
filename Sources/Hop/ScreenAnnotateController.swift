@@ -125,21 +125,15 @@ final class ScreenAnnotateController: ObservableObject {
         window.setFrameOrigin(within(window.frame.origin, size: window.frame.size))
     }
 
-    /// SPEC: docs/spec.md — whole, and off the edges of its screen.
+    /// SPEC: docs/spec.md — the panel goes anywhere, and stays catchable.
     private func within(_ origin: NSPoint, size: NSSize) -> NSPoint {
         let centre = NSPoint(x: origin.x + size.width / 2, y: origin.y + size.height / 2)
         let screen = NSScreen.screens.first { $0.frame.contains(centre) }
             ?? toolbarWindow?.screen ?? NSScreen.main
-        guard let frame = screen?.visibleFrame else { return origin }
-        let margin: CGFloat = 20
-        return NSPoint(x: held(origin.x, span: size.width, from: frame.minX, to: frame.maxX, margin: margin),
-                       y: held(origin.y, span: size.height, from: frame.minY, to: frame.maxY, margin: margin))
-    }
-
-    private func held(_ value: CGFloat, span: CGFloat, from: CGFloat, to: CGFloat, margin: CGFloat) -> CGFloat {
-        let least = from + margin, most = to - span - margin
-        guard least <= most else { return from + (to - from - span) / 2 }
-        return min(max(value, least), most)
+        guard let frame = screen?.frame else { return origin }
+        let caught: CGFloat = 60
+        return NSPoint(x: min(max(origin.x, frame.minX - size.width + caught), frame.maxX - caught),
+                       y: min(max(origin.y, frame.minY - size.height + caught), frame.maxY - caught))
     }
 
     func setDrawing(_ drawing: Bool) {
@@ -307,11 +301,10 @@ struct ScreenAnnotateToolbar: View {
                       edge: $controller.edge,
                       lang: lang,
                       toolsActive: controller.isDrawing,
+                      floating: true,
                       trailing: AnyView(actions),
                       leading: AnyView(cursorButton))
-            // WORKAROUND: a window cut to the panel's size clips its shadow,
-            // and the clipped edge reads as a rectangle. SPEC: docs/spec.md
-            .padding(20)
+            .padding(6)
             .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
             .gesture(
                 DragGesture(minimumDistance: 5)
