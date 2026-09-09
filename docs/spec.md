@@ -2393,8 +2393,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Arabic, Hebrew, Persian and Urdu are right to left, and `isRTL` drives
   `hopLayoutDirection()` — Hop picks its language in-app rather than through the
   system locale, so nothing else can tell SwiftUI which way a window runs.
-- **`--l10n-check` is the gate**: every key in every table, checked in
-  `scripts/checks.sh` before anything ships. A language cannot be half added.
+- **`--l10n-check` is the gate**: every key in every table, plus the hanging
+  words in each of them, checked in `scripts/checks.sh` before anything ships.
+  A language cannot be half added.
 - What is NOT translated yet: the README has sixteen translations and the site
   has its own set — both follow with the release.
 
@@ -4291,9 +4292,10 @@ converter (Anton, 2026-07-28).
 
 ## Localization
 
-- Languages: en ru de es pt fr it zh ja nl ko th vi hi id tr pl — in this order in
-  L10n.swift. A new UI string goes into every one of them at once;
-  `--l10n-check` must pass.
+- Languages: en ru de es pt fr it zh ja nl ko th vi hi id tr pl sr ar he fa ur —
+  in the order `AppLanguage` declares, which is the order the app offers them
+  in; the `tables` literal need not follow it. A new UI string goes into every
+  one of them at once; `--l10n-check` must pass.
   Check long languages (de, fr) for truncation.
 - **The number of languages is never printed anywhere.** Not in the app, not in
   a readme heading, not on the site, not in release notes. A count is a quantity
@@ -4301,21 +4303,86 @@ converter (Anton, 2026-07-28).
   languages arriving and leaving. The list of names says what is supported
   without inviting that reading.
 - The set shipped is the one the app is released with, not everything that
-  was ever translated: the wider set was cut back on 2026-09-06 (Anton) to
-  the ten with the largest macOS audiences. The right-to-left machinery
-  below stays in place — nothing about it is language-specific until a
-  right-to-left language is in the list again.
+  was ever translated. Serbian, Arabic, Hebrew, Persian and Urdu joined it
+  for 2.1, which is what the right-to-left machinery below is for.
 - Inside the panel — brand lowercase; system surfaces (NSMenu,
   notifications) — sentence case (.capitalizedFirst).
 - **No word is left hanging at the end of a line** (Anton, 2026-09-06): a short
   preposition or conjunction is joined to the word after it with a non-breaking
-  space, in the L10n tables and in the README translations alike. Russian takes
-  the full rule (every one- and two-letter preposition and conjunction, plus the
-  three-letter ones); the other alphabetic languages take their
-  single-letter words (en a/I, es a y o e u, pt a e o, it e a o è, fr à y).
-  German has no single-letter words and needs none; Chinese and Japanese do not
-  wrap on spaces. Key chords are joined the same way (⌃⌥M, ⌘V), which is what
-  keeps them from breaking across two lines.
+  space. The L10n tables carry the result and `--l10n-check` guards them; the
+  README translations are prose on GitHub, outside both. Russian takes
+  the full rule (every one- and two-letter preposition, conjunction and
+  particle, plus the three-letter ones); the other alphabetic languages take
+  their single-letter words (en a/I, es a y o e u, pt a e o à, it e a o i è,
+  fr à a y, vi ở, pl w z i o a u) and Persian, Arabic and Urdu take their
+  conjunction — و for the first two, and for Urdu both اور and the bare و, which
+  formal Urdu keeps for pairs written in the Persian manner. Serbian takes the
+  same shape as Russian and in the same script — its table is Cyrillic, so its
+  list is too. The ten empty lists each have a reason of their own: German,
+  Turkish and Indonesian write their short words onto the word they belong to;
+  Chinese, Japanese, Korean and Thai do not wrap on spaces;
+  Hebrew attaches its conjunction to the word itself; Hindi puts its short words
+  after the noun rather than in front of it, so none of them stands at the end
+  of a line waiting for the next word; and Dutch does not hold to the rule at
+  all. An empty list is a decision with a reason written down, never a language
+  that was passed over — the gate cannot tell the two apart on its own. Key
+  chords are joined the same way (⌃ ⌥ M, ⌘ V, and the same chord behind a
+  right-to-left direction mark), which is what keeps them from breaking across
+  two lines; they read alike in every language, so they are joined even
+  where the language has no short-word list. A language that writes without
+  spaces stands the chord right against the sentence ("パネルが開き、⌃ ⌥ M") — the
+  rule reads the modifiers a token ends on, and the chord starts a run of its
+  own there, since the line can still break in front of the modifier. The same
+  holds on the other side: the sentence past the chord's key wraps on its own,
+  so its length is no part of the piece the chord makes and does not spend the
+  chord's budget. The chord ends at its key, and the space after the key belongs
+  to the rule like any other — a join left standing there would weld the chord
+  to whatever sentence came next.
+- **A particle that leans back is joined backwards** (2026-09-09): the Russian
+  zhe, li, by, b, the Serbian li, bi and the Thai repetition mark hold on to the
+  word before them, so a line may not start with one either. Counted among the
+  short words they were glued the wrong way round, to the word after rather than
+  the word before, which moved the break instead of removing it. That is why
+  they are a list of their own, `L10n.trailingWords`. A particle asks only not
+  to start a line, so it costs its own length rather than the length of the word
+  it leans on — which is what lets it hold on to a long Thai word that has no
+  space to break at.
+- **The rule is code, and the check is the gate** (2026-09-09): the joining
+  lives in `HangingWords` (HopCore) and the words each language counts live in
+  `L10n.shortWords` and `L10n.trailingWords`, beside the tables that carry the
+  result — the rule is the same everywhere, the words are data. `--l10n-check`
+  fails on any table entry that `HangingWords.glued` would change, which covers
+  a missing join and a join the rule would not make alike: gluing starts by
+  taking apart the joins the rule owns, so a run left over from a looser reading
+  has to earn its place again. A join around a word no list carries was made by
+  hand and is left where it is, and a language whose lists are empty is passed
+  by rather than cleared. Written by hand the rule drifted — a couple of hundred
+  lines had gone back to ordinary spaces by the time it was measured. A joined
+  run stops at sixteen characters: past that the piece cannot break anywhere and
+  overflows a narrow column, which is worse than the hanging word it cured. A
+  value put in while the app runs is never joined to, since it brings a length
+  of its own — a printf conversion of any kind, the count `{n}` and the symbol
+  `{sym:…}` alike, which is how "%1$@ of %2$@ files" keeps its break. Holding a
+  particle back is the one exception: the word it leans on stands to its left,
+  and the particle brings its own length, so what stands to the right of the
+  join has no say in it. Neither is
+  a word welded to a token that is nothing but punctuation: the real next word
+  would still be free to start the line, so the join buys nothing. A number, an
+  arrow or a symbol is not punctuation and joins like a word, and the join
+  carries on through it, so an arrow between two words does not take the hang
+  over from the preposition in front of it. The carry ends where the phrase
+  does: a comma or a closing bracket stops it, and the word after the comma is
+  free to start a line. A word carrying a comma is none of the rule's business
+  in either direction, and a join made around one by hand stays — but taking
+  joins apart reaches one step wider than making them, so a join an earlier
+  reading of the rule left behind is still the rule's to remove. The rule is
+  stdlib alone, with no Foundation character sets underneath it, so it answers
+  the same on every build. - **The gate holds one opinion of its own**
+  (2026-09-09): asking only whether a table entry is already what the rule
+  would leave behind cannot see a join the rule does not own, and a chord
+  broken by such a join passes unnoticed. So
+  `--l10n-check` also reads the text directly and fails on any modifier standing
+  in front of an ordinary space, whatever the rule thinks of the line.
 - **One form of address per language**, the one that already dominates its table
   (measured 2026-09-06): ru, es, pt and fr are polite; de, it and nl are
   familiar. A new
