@@ -2996,6 +2996,18 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   release brought — and its button opens the notes, where the release has a
   section of its own in all twenty-two languages.
 
+### Photographing the two markup modules
+
+- **`--markup-shots <dir>`** writes the site's two pictures — a marked-up shot
+  in its dressing, and the drawing layer over a screen with its yellow border
+  and the mode key on the tag. WORKAROUND: everything else is rendered from the
+  real views by `ImageRenderer`, and these two cannot be — `MarkupCanvas` comes
+  out of a headless render as a "missing picture" glyph (2026-09-09), and
+  neither module has a window that holds still to be photographed anyway. The
+  shots are composed straight in Core Graphics from the SAME renderers the
+  export uses, so the marks on them are real marks. `make-screens.sh` runs it
+  per language: the tag and the caption are translated.
+
 ### Saying where the picture went
 
 - **A save that closes the window says nothing** (Anton, 2026-09-08): the

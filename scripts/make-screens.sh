@@ -129,6 +129,10 @@ for lang in "${LANGS[@]}"; do
     shot "$lang" vpn --only vpn --demo
     shot "$lang" apps --only apps --demo
 
+    # The two markup modules: composed in Core Graphics from the same renderers
+    # the export uses, since neither has a window to photograph.
+    "$BIN" --markup-shots "$OUT/$lang" --lang "$lang" >/dev/null
+
     # Windows of their own.
     shot "$lang" converter --window-converter \
         --convert-files "$SAMPLES/photo-4231.jpg,$SAMPLES/screenshot.png,$SAMPLES/brand-deck.pdf"

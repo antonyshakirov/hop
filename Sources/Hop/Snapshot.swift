@@ -203,6 +203,16 @@ enum Snapshot {
             exit(missing.isEmpty ? 0 : 1)
         }
 
+        // The two markup modules, composed in Core Graphics rather than
+        // rendered from their views: `--markup-shots <dir>`.
+        if let i = args.firstIndex(of: "--markup-shots"), args.count > i + 1 {
+            active = true
+            if let li = args.firstIndex(of: "--lang"), args.count > li + 1 {
+                UserDefaults.standard.set(args[li + 1], forKey: SettingsKey.appLanguage)
+            }
+            MarkupSiteShots.run(into: args[i + 1])
+        }
+
         if args.contains("--l10n-check") {
             let missing = L10n.missingKeys()
             print(missing.isEmpty ? "l10n: all translations present" : "l10n missing:\n" + missing.joined(separator: "\n"))
