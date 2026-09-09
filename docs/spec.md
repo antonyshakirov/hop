@@ -3028,9 +3028,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   empty; the machinery stays for a module that must not appear unasked.
   Switching either off is one click on its settings page.
 - **The release card tells, and the full notes explain**: `"2.1"` carries three
-  lines — the screenshot with its editor, the drawing layer, and what else the
-  release brought — and its button opens the notes, where the release has a
-  section of its own in all twenty-two languages.
+  lines — the screenshot with its editor, the drawing layer, and the languages
+  added — and its button opens the notes, where the release has a section of its
+  own in all twenty-two languages. Each line names the job and then what to do
+  with it ("screenshots with an editor: add captions and drawings…"), not the
+  inventory of tools (Anton, 2026-09-09): a list of features is read as a list
+  and answers nothing. Where the file lands is deliberately NOT on the card —
+  the desktop is where a picture goes anyway, and saying so spends a line on
+  what nobody wondered about. The handbook (`docShotFull`) opens on the same
+  job and does name the desktop, because that is the page a folder question is
+  taken to.
 
 ### Photographing the two markup modules
 
