@@ -2971,7 +2971,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   presented is worth more than a row of tools, so the panel closes into a circle
   carrying Hop's mark, at the place it stood, draggable as before; a click opens
   it again. Drawing carries on with whatever tool was in hand — folding hides
-  the tools, it does not put them down. The fold button sits at the LEFT, beside
+  the tools, it does not put them down. **The circle is dragged like the panel
+  it came from**, and one gesture decides which happened: a press that moved is
+  a drag, a press that did not is a click that opens it. A Button would have
+  taken the press before any drag behind it was seen, and the folded panel
+  could not be moved at all (Anton, 2026-09-09). The fold button sits at the LEFT, beside
   the grip: both are about the panel itself rather than about the marks, and its
   glyph is the pair of arrows pulled inward that macOS uses for "smaller" —
   chevrons up and down said nothing about what would happen.

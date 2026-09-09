@@ -315,6 +315,8 @@ struct ScreenAnnotateToolbar: View {
     let lang: AppLanguage
 
     @State private var copied = false
+    /// True once a press on the folded panel has turned into a drag.
+    @State private var carried = false
     @State private var whereCopy: (() -> CGRect)?
     @State private var whereSave: (() -> CGRect)?
 
@@ -324,28 +326,36 @@ struct ScreenAnnotateToolbar: View {
         }
         .padding(6)
         .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
-        .gesture(
-            DragGesture(minimumDistance: 5)
-                .onChanged { _ in controller.dragToolbarToPointer() }
-                .onEnded { _ in controller.settleToolbar() }
-        )
     }
 
-    /// The panel as a button: the mark, and a click to open it again. Drawing
-    /// carries on with whatever tool was in hand.
+    /// The panel as a button: the mark, a drag to move it, a click to open it
+    /// again. ONE gesture decides which of the two happened — a Button takes
+    /// the press before any drag behind it is seen, and the folded panel could
+    /// not be moved at all (Anton, 2026-09-09).
     private var folded: some View {
-        Button { controller.toggleFolded() } label: {
-            HopAsterisk(size: 22)
-                .frame(width: 46, height: 46)
-                .background(
-                    Circle()
-                        .fill(Theme.isDark ? Color(white: 0.086) : Color.white)
-                        .overlay(Circle().strokeBorder(Theme.controlStroke.opacity(0.6)))
-                )
-                .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .markupTip(L10n.t(.mkUnfold, lang))
+        HopAsterisk(size: 22)
+            .frame(width: 46, height: 46)
+            .background(
+                Circle()
+                    .fill(Theme.isDark ? Color(white: 0.086) : Color.white)
+                    .overlay(Circle().strokeBorder(Theme.controlStroke.opacity(0.6)))
+            )
+            .contentShape(Circle())
+            .markupTip(L10n.t(.mkUnfold, lang))
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        if abs(value.translation.width) > 3 || abs(value.translation.height) > 3 {
+                            carried = true
+                        }
+                        if carried { controller.dragToolbarToPointer() }
+                    }
+                    .onEnded { _ in
+                        controller.settleToolbar()
+                        if !carried { controller.toggleFolded() }
+                        carried = false
+                    }
+            )
     }
 
     private var full: some View {
@@ -358,6 +368,11 @@ struct ScreenAnnotateToolbar: View {
                       fold: AnyView(foldButton),
                       trailing: AnyView(actions),
                       leading: AnyView(cursorButton))
+            .gesture(
+                DragGesture(minimumDistance: 5)
+                    .onChanged { _ in controller.dragToolbarToPointer() }
+                    .onEnded { _ in controller.settleToolbar() }
+            )
     }
 
     private var actions: some View {
