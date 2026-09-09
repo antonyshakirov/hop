@@ -215,7 +215,10 @@ final class MarkupSurface: ObservableObject {
     }
 
     func opacity(of shape: MarkupShape) -> Double {
-        FadingInk.opacity(of: shape, now: now)
+        // A stroke still under the hand keeps its full strength: the countdown
+        // belongs to the lift, not to the first point.
+        guard shape.id != drafting?.id else { return 1 }
+        return FadingInk.opacity(of: shape, now: now)
     }
 
     func begin(at point: MarkupPoint) {
@@ -322,9 +325,15 @@ final class MarkupSurface: ObservableObject {
             return
         }
         defer { origin = nil }
-        guard let shape = drafting else { return }
+        guard var shape = drafting else { return }
         drafting = nil
         guard shape.points.count > 1 else { return }
+        // Fading ink counts from the moment the pointer LIFTS, not from the
+        // moment the stroke began: a long line was half gone before it was
+        // finished (Anton, 2026-09-09). SPEC: docs/spec.md — fading ink.
+        if shape.tool == .fadingInk {
+            shape.createdAt = Date().timeIntervalSince(opened)
+        }
         document.add(shape)
         // A blur is not finished when it is drawn: what it does is set on it
         // afterwards, so it comes out of the drag already in hand.
