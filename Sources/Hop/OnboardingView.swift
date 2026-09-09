@@ -360,7 +360,7 @@ struct OnboardingView: View {
         case "ocr":
             ScreenTextArt(lang: lang)
         case "shot":
-            ShotArt(lang: lang)
+            ShotArt()
         case "annotate":
             AnnotateArt(lang: lang)
         case "keyboard":

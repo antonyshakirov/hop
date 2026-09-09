@@ -402,12 +402,19 @@ Recognition and the keyboard lock get a DRAWN picture instead
 came off the screen, and a row of durations does not show a locked keyboard. So
 recognition is a picture with a marquee across part of it and the lines that came
 out of it beside it, and the lock is a keyboard of dimmed keys with a lock over
-them. **The two markup modules are drawn too** (Anton, 2026-09-08): the
-screenshot is a screen with a dashed frame over part of it and, beside it, the
-piece that came out with a red mark on it; the drawing layer is a screen inside
-the yellow border of the mode, with its tag and marks lying over what was
-already there. Their panel rows are a line of words apiece and say nothing about
-either.
+them. **The two markup modules are drawn too** (Anton, 2026-09-08): their
+panel rows are a line of words apiece and say nothing about either.
+
+What the two pictures draw is what the app itself puts on the screen, redrawn
+small (Anton, 2026-09-09; the first pass invented a dashed yellow frame the
+picker has never drawn). The screenshot is the capture overlay as it stands: the
+screen veiled outside the chosen pixels, a white hairline just beyond them, the
+anchor dot at the corner the drag started from, and the dark size readout below
+— then, beside it, what came out with four tools on it, one to a line, each in
+an ink the toolbar offers. The drawing layer is TWO displays, because
+`MarkupOverlayWindow` opens one window per screen and the line beside the picture
+promises every monitor: each carries the yellow border of the mode and its own
+tag, and the marks lie over what was already there, the loupe among them.
 
 **A group carries the name of its own screen** (`ModuleCatalog.OnboardingGroup`,
 2026-09-08). The wizard's screens and their headings used to be two lists paired
