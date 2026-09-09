@@ -256,17 +256,13 @@ struct MarkupCanvas: View {
             context.stroke(freehand(points), with: .color(colour), style: stroke)
 
         case .marker:
-            // A chisel, not a fat pen: the nib is an UPRIGHT bar swept along the
-            // path, so a stroke across the page is thick and one down it is
-            // thin. A round cap would lay down the same mark in every
-            // direction, which is what a pencil does.
-            // ONE path, filled once: the band and the line the nib's own
-            // thickness leaves, unioned. Painted separately they overlap, and
-            // translucent ink laid twice draws a second, darker line down the
-            // middle of the stroke.
-            var swept = chisel(points, nib: width)
-            swept.addPath(freehand(points).strokedPath(
-                StrokeStyle(lineWidth: max(width * 0.3, 1), lineCap: .round, lineJoin: .round)))
+            // ONE area, filled once: translucent ink stroked over itself lays a
+            // second, darker line down the middle of the stroke. The nib is
+            // SQUARE and the same in every direction — a chisel that thinned
+            // out along its own axis lost the middle of a horizontal stroke
+            // (Anton, 2026-09-09). SPEC: docs/spec.md — the marker.
+            let swept = freehand(points).strokedPath(
+                StrokeStyle(lineWidth: max(width, 1), lineCap: .square, lineJoin: .round))
             context.drawLayer { layer in
                 layer.blendMode = .multiply
                 layer.fill(swept, with: .color(colour.opacity(0.45)))
@@ -435,29 +431,6 @@ struct MarkupCanvas: View {
     private func round(_ rect: CGRect) -> CGRect {
         let side = min(rect.width, rect.height)
         return CGRect(x: rect.midX - side / 2, y: rect.midY - side / 2, width: side, height: side)
-    }
-
-    /// The band a flat nib leaves: the path offset up by half the nib on the
-    /// way out and down by half on the way back.
-    private func chisel(_ points: [CGPoint], nib: CGFloat) -> Path {
-        var path = Path()
-        let half = max(nib, 1) / 2
-        guard let first = points.first else { return path }
-        guard points.count > 1 else {
-            path.addRect(CGRect(x: first.x - half / 3, y: first.y - half,
-                                width: max(half / 1.5, 1), height: half * 2))
-            return path
-        }
-        // Both edges of the band are smoothed, or the band's outline is the
-        // chain of corners the stroke itself no longer has.
-        let top = points.map { CGPoint(x: $0.x, y: $0.y - half) }
-        let bottom = points.reversed().map { CGPoint(x: $0.x, y: $0.y + half) }
-        path.move(to: top[0])
-        add(top, to: &path)
-        path.addLine(to: bottom[0])
-        add(bottom, to: &path)
-        path.closeSubpath()
-        return path
     }
 
     private func add(_ points: [CGPoint], to path: inout Path) {

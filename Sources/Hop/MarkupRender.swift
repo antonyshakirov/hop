@@ -286,32 +286,25 @@ enum MarkupRender {
             context.strokePath()
 
         case .marker:
-            // The band a flat nib leaves, matching what the canvas drew.
+            // The same square nib the canvas draws, and the same single fill:
+            // translucent ink stroked over itself lays a darker line down the
+            // middle. SPEC: docs/spec.md — the marker.
             let half = max(shape.ink.width * scale, 1) / 2
             context.saveGState()
             context.setBlendMode(.multiply)
             context.setFillColor(colour.withAlphaComponent(0.45).cgColor)
             context.beginPath()
             if points.count > 1 {
-                let top = points.map { CGPoint(x: $0.x, y: $0.y - half) }
-                let bottom = points.reversed().map { CGPoint(x: $0.x, y: $0.y + half) }
-                context.move(to: top[0])
-                curve(top, in: context)
-                context.addLine(to: bottom[0])
-                curve(bottom, in: context)
-                context.closePath()
+                context.move(to: first)
+                curve(points, in: context)
+                context.setLineWidth(half * 2)
+                context.setLineCap(.square)
+                context.setLineJoin(.round)
+                context.replacePathWithStrokedPath()
             } else {
                 context.addRect(CGRect(x: first.x - half / 3, y: first.y - half,
                                        width: max(half / 1.5, 1), height: half * 2))
             }
-            // The line the nib's own thickness leaves, unioned into the same
-            // path: filled separately it would double the ink where the two
-            // overlap.
-            let spine = CGMutablePath()
-            spine.move(to: first)
-            curve(points, into: spine)
-            context.addPath(spine.copy(strokingWithWidth: max(shape.ink.width * scale * 0.3, 1),
-                                       lineCap: .round, lineJoin: .round, miterLimit: 10))
             context.fillPath()
             context.restoreGState()
 
