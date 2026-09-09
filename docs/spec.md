@@ -2971,7 +2971,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   eraser. No crop, blur or magnifier — the layer is transparent and there are no
   pixels under it to work on.
 - **Fading ink** disappears about two seconds after the pointer lifts, over half
-  a second. ONE timer serves the whole layer and stops the moment the last
+  a second — and the count starts at the LIFT, not at the first point (Anton,
+  2026-09-09): a long stroke was half gone by the time it was finished, because
+  it carried the stamp it was born with. A stroke still under the hand is drawn
+  at full strength, and its stamp is rewritten when the hand comes up. ONE timer serves the whole layer and stops the moment the last
   fading stroke is gone; a layer of ordinary marks keeps no schedule alive.
 - "Save" and "copy" capture the screen together with the drawing; the toolbar
   steps out of the shot first. "Clear" empties the layer, the cross closes it.
@@ -3042,11 +3045,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   screen. Holding the place the drag began fixed that, but not the judder: the
   distance was still reported from inside a view travelling with every step, so
   each frame was measured against a point that had already moved. In the editor
-  the gesture now reads the pointer in the GLOBAL space and moves the panel by
-  the difference. Over the live screen the panel is a window of its own, so
-  AppKit drags it: `WindowDragArea` hands the press to `performDrag`, which
-  moves the window with the pointer itself, and the panel settles into its half
-  of the screen when the drag returns.
+  the gesture reads the pointer in the GLOBAL space and moves the panel by the
+  difference. Over the live screen the panel is a window of its own and is moved
+  to `NSEvent.mouseLocation` — the pointer's place on SCREEN, which does not
+  travel with the window; it settles into its half of the screen when the drag
+  ends. Handing the press to AppKit's own `performDrag` was tried first and
+  dropped: SwiftUI takes the press before a view behind it sees one, and the
+  panel stopped moving altogether (2026-09-09).
 - Colour and width live in a popover above the panel, never in the panel itself.
   Hovering a tool shows three lines: its name and its letter, one line saying
   what it does, and — for the tools that have settings — that a second press
@@ -4766,6 +4771,12 @@ its own database of known apps may do better on real software than it did here.
 - Full cycle after EVERY change: `swift build` (0 warnings) →
   `swift test` → `--l10n-check` → `./scripts/build-app.sh --install`,
   check in both themes.
+- **The app icon is DRAWN at every size** (`make-icon.sh`, Anton, 2026-09-09).
+  The iconset used to be one 1024px render put through `sips`, and scaling
+  averaged the round-capped rays with the cream plate behind them: at 128pt the
+  asterisk came out soft and grey rather than black. Each size is now rendered
+  by `make-icon.swift <file> <size>` in its own right, and the mark is pure
+  black — the same black the in-app icon and the SVGs carry.
 - **Build times, measured 2026-07-26** (this tree, M-series, cold builds):
   debug 14s · release with `-O` **16m46s** · release with `-Osize` **37s**, and
   the binary is the same 11.6 MB either way. So the app target ships with

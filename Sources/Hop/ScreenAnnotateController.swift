@@ -26,6 +26,7 @@ final class ScreenAnnotateController: ObservableObject {
     private let overlay = MarkupOverlayController()
     private var toolbarWindow: MarkupToolbarWindow?
     private var toolWatch: AnyCancellable?
+    private var draggedFrom: (origin: NSPoint, pointer: NSPoint)?
 
     func toggle() {
         isUp ? exit() : show()
@@ -80,7 +81,23 @@ final class ScreenAnnotateController: ObservableObject {
         window.setFrameOrigin(within(spot, size: size))
     }
 
+    /// WORKAROUND: the gesture's distance comes from a view that travels with
+    /// the window; the pointer's place on SCREEN does not.
+    /// SPEC: docs/spec.md — the markup toolbar.
+    func dragToolbarToPointer() {
+        guard let window = toolbarWindow else { return }
+        let pointer = NSEvent.mouseLocation
+        guard let from = draggedFrom else {
+            draggedFrom = (window.frame.origin, pointer)
+            return
+        }
+        let moved = NSPoint(x: from.origin.x + pointer.x - from.pointer.x,
+                            y: from.origin.y + pointer.y - from.pointer.y)
+        window.setFrameOrigin(within(moved, size: window.frame.size))
+    }
+
     func settleToolbar() {
+        draggedFrom = nil
         guard let window = toolbarWindow,
               let screen = window.screen ?? NSScreen.main else { return }
         edge = window.frame.midY > screen.frame.midY ? .top : .bottom
@@ -262,9 +279,15 @@ struct ScreenAnnotateToolbar: View {
                       toolsActive: controller.isDrawing,
                       trailing: AnyView(actions),
                       leading: AnyView(cursorButton))
-            .padding(6)
+            // WORKAROUND: a window cut to the panel's size clips its shadow,
+            // and the clipped edge reads as a rectangle. SPEC: docs/spec.md
+            .padding(20)
             .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
-            .background(WindowDragArea { controller.settleToolbar() })
+            .gesture(
+                DragGesture(minimumDistance: 5)
+                    .onChanged { _ in controller.dragToolbarToPointer() }
+                    .onEnded { _ in controller.settleToolbar() }
+            )
     }
 
     private var actions: some View {
@@ -305,6 +328,12 @@ struct ScreenAnnotateToolbar: View {
         }
         .buttonStyle(.plain)
         .markupTip(L10n.t(.annotateClear, lang) + "\n" + L10n.t(.mkDoClear, lang))
+
+        // SPEC: docs/spec.md — the markup toolbar, the rule between the groups.
+        Rectangle()
+            .fill(Theme.divider)
+            .frame(width: controller.edge.isVertical ? 20 : 1,
+                   height: controller.edge.isVertical ? 1 : 20)
 
         Button {
             controller.copyToClipboard()
