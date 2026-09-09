@@ -2875,8 +2875,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **The mark is stamped on the PICTURE, before the dressing widens the canvas.**
   Stamped afterwards it landed on the background poured around the shot, which
   is not what a watermark is for (Anton, 2026-09-08).
-- Export: "save" writes a file into the module's folder (Pictures/Hop by
-  default), "copy" puts the picture on the clipboard. PNG and JPEG only — macOS
+- Export: "save" writes a file into the module's folder — the DESKTOP unless
+  a folder was chosen in the settings (Anton, 2026-09-09): that is where ⌘⇧4
+  puts a picture and where a hand goes looking for one, and a shot filed into
+  a folder of our own has to be explained before it can be found.
+  `ScreenshotNaming.folder`. "copy" puts the picture on the clipboard. PNG and JPEG only — macOS
   ships no WebP encoder, so the list must not promise one. Names are
   `shot <date> at <time>.<ext>`, with ` 2`, ` 3`… appended rather than
   overwriting a shot taken in the same minute.
@@ -3045,9 +3048,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 - **A save that closes the window says nothing** (Anton, 2026-09-08): the
   editor's save button wrote the file and shut the window, and the picture
-  looked lost — the folder is `Pictures/Hop` unless it was changed, which is not
-  where a Mac user looks first. `MarkupNote` puts a small card OVER the button
-  that was pressed: the file's name, the folder it went to, and "reveal in
+  looked lost. `MarkupNote` puts a small card OVER the button that was
+  pressed: the file's name, the folder it went to, and "reveal in
   Finder". Clicking it opens Finder with the file selected. It holds four and a
   half seconds, stays as long as the pointer is on it, and lives in a window of
   its own — the editor's window is already gone by then, and the drawing layer

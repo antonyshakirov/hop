@@ -1,9 +1,16 @@
 import Foundation
 
-/// Names for saved captures: readable, sortable, and never overwriting a shot
-/// taken a moment earlier.
+/// Where saved captures go and what they are called: readable, sortable, and
+/// never overwriting a shot taken a moment earlier.
 /// Tests: Tests/HopCoreTests/ScreenshotNamingTests.swift
 public enum ScreenshotNaming {
+    /// Where a shot is written: a chosen folder, else the desktop, else home.
+    /// SPEC: docs/spec.md — "Screenshot".
+    public static func folder(stored: String?, desktop: URL?, home: URL) -> URL {
+        if let stored, !stored.isEmpty { return URL(fileURLWithPath: stored) }
+        return desktop ?? home
+    }
+
     public static func fileName(at date: Date, calendar: Calendar, format: String) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")

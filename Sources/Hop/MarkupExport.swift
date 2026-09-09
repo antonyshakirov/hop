@@ -51,14 +51,11 @@ enum MarkupExport {
 
     /// Where shots go by default, and where the settings point once changed.
     static func folder() -> URL {
-        if let stored = UserDefaults.standard.string(forKey: "shotFolder"), !stored.isEmpty {
-            return URL(fileURLWithPath: stored)
-        }
-        let pictures = FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask).first
-            ?? FileManager.default.homeDirectoryForCurrentUser
-        let folder = pictures.appendingPathComponent("Hop", isDirectory: true)
-        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        return folder
+        let manager = FileManager.default
+        return ScreenshotNaming.folder(
+            stored: UserDefaults.standard.string(forKey: MarkupSettings.folderKey),
+            desktop: manager.urls(for: .desktopDirectory, in: .userDomainMask).first,
+            home: manager.homeDirectoryForCurrentUser)
     }
 
     static func save(_ image: CGImage, format: String, name: String? = nil) -> URL? {
