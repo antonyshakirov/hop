@@ -105,16 +105,22 @@ private struct MarkupNoteCard: View {
         )
         .padding(10)
         .contentShape(Rectangle())
-        .onHover { inside in
-            if inside { hold() } else { release() }
-            if open != nil {
-                inside ? NSCursor.pointingHand.push() : NSCursor.pop()
-            }
-        }
+        .modifier(HandCursorIf(on: open != nil))
+        .onHover { inside in inside ? hold() : release() }
         .onTapGesture {
             guard let open else { return }
             MarkupNote.hide()
             open()
         }
+    }
+}
+
+
+/// The card is only clickable when it has a file to open.
+private struct HandCursorIf: ViewModifier {
+    let on: Bool
+
+    func body(content: Content) -> some View {
+        on ? AnyView(content.handCursor()) : AnyView(content)
     }
 }

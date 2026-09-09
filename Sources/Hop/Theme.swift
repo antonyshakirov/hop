@@ -114,11 +114,8 @@ enum Theme {
                         .padding(.horizontal, -bleed)
                 )
                 .animation(.easeOut(duration: 0.12), value: hovering)
-                .onHover { inside in
-                    hovering = inside
-                    // anything clickable always signals it with the cursor
-                    if inside { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }
-                }
+                .onHover { inside in hovering = inside }
+                .handCursor()
         }
     }
 
@@ -175,6 +172,33 @@ extension View {
     }
 }
 
+/// WORKAROUND: `NSCursor.set()` holds only until the next cursor update, and a
+/// view rebuilt under a pointer that has not moved never gets another `onHover`
+/// — the hand was lost on every step of the onboarding (Anton, 2026-09-09). A
+/// cursor RECT belongs to AppKit and is restored after every rebuild.
+struct HandCursorArea: NSViewRepresentable {
+    final class Area: NSView {
+        override func resetCursorRects() {
+            addCursorRect(bounds, cursor: .pointingHand)
+        }
+
+        /// The clicks belong to the SwiftUI button this sits behind.
+        override func hitTest(_ point: NSPoint) -> NSView? { nil }
+    }
+
+    func makeNSView(context: Context) -> Area { Area() }
+
+    func updateNSView(_ nsView: Area, context: Context) {
+        nsView.window?.invalidateCursorRects(for: nsView)
+    }
+}
+
+extension View {
+    /// The pointer says the thing is clickable, and keeps saying it after a
+    /// rebuild. SPEC: docs/spec.md — "The pointer over a control".
+    func handCursor() -> some View { background(HandCursorArea()) }
+}
+
 extension Theme {
     struct HoverDim: ViewModifier {
         @State private var hovering = false
@@ -183,10 +207,8 @@ extension Theme {
             content
                 .opacity(hovering ? 0.65 : 1)
                 .animation(.easeOut(duration: 0.12), value: hovering)
-                .onHover { inside in
-                    hovering = inside
-                    if inside { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }
-                }
+                .onHover { inside in hovering = inside }
+                .handCursor()
         }
     }
 }

@@ -228,10 +228,8 @@ struct FooterLink: View {
         }
         .buttonStyle(.plain)
         .animation(.easeOut(duration: 0.12), value: hovering)
-        .onHover { inside in
-            hovering = inside
-            if inside { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }
-        }
+        .onHover { inside in hovering = inside }
+        .handCursor()
         .help(label)
     }
 }
@@ -921,10 +919,8 @@ struct HoverIconButton: View {
         }
         .buttonStyle(.plain)
         .animation(.easeOut(duration: 0.12), value: hovering)
-        .onHover { inside in
-            hovering = inside
-            if inside { NSCursor.pointingHand.set() } else { NSCursor.arrow.set() }
-        }
+        .onHover { inside in hovering = inside }
+        .handCursor()
         .helpIfAny(help)
     }
 }

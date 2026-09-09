@@ -176,33 +176,3 @@ extension View {
     /// screen never becomes key, and a tooltip in it never appeared.
     func markupTip(_ text: String) -> some View { modifier(MarkupTipHover(text: text)) }
 }
-
-/// Dragging a WINDOW by its content: AppKit moves it itself, frame by frame,
-/// with the pointer. A SwiftUI gesture reports the distance from where the drag
-/// began IN THE VIEW, and the view travels with the window it is moving — so
-/// every frame measured from a point that had already moved, and the panel
-/// juddered along behind the pointer (Anton, 2026-09-09).
-/// SPEC: docs/spec.md — the markup toolbar.
-struct WindowDragArea: NSViewRepresentable {
-    let settle: () -> Void
-
-    final class Area: NSView {
-        var settle: (() -> Void)?
-
-        override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-
-        override func mouseDown(with event: NSEvent) {
-            guard let window else { return super.mouseDown(with: event) }
-            window.performDrag(with: event) // returns when the drag is over
-            settle?()
-        }
-    }
-
-    func makeNSView(context: Context) -> Area {
-        let view = Area()
-        view.settle = settle
-        return view
-    }
-
-    func updateNSView(_ nsView: Area, context: Context) { nsView.settle = settle }
-}
