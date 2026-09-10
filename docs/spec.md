@@ -3242,7 +3242,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   written. The same card says "not saved" or "not copied", and the editor stays
   open with the picture in it. On the drawing layer the usual cause is a screen
   recording permission taken away, so the layer asks for it once before saying
-  so.
+  so. `Hop --snapshot <out.png> --note-cards` renders the failure cards beside
+  the copy card, in the language and theme asked for.
 
 ### The markup toolbar (both modules)
 

@@ -28,6 +28,11 @@ enum MarkupNote {
         fade(after: file == nil ? 1.8 : 4.5)
     }
 
+    /// The card alone, for `--snapshot --note-cards`.
+    static func card(_ text: String, detail: String? = nil) -> AnyView {
+        AnyView(MarkupNoteCard(text: text, detail: detail, open: nil, hold: {}, release: {}))
+    }
+
     static func hide() {
         fading?.cancel()
         fading = nil

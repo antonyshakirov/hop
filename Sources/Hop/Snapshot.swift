@@ -679,6 +679,15 @@ enum Snapshot {
                 // empty, the same trap the about window fell into.
                 .frame(width: args.contains("--window-clean") ? 620 : 560,
                        height: args.contains("--window-clean") ? 900 : 620))
+        } else if args.contains("--note-cards") {
+            let lang = L10n.current
+            content = AnyView(VStack(alignment: .leading, spacing: 0) {
+                MarkupNote.card(L10n.t(.mkSaveFailed, lang))
+                MarkupNote.card(L10n.t(.mkCopyFailed, lang))
+                MarkupNote.card(L10n.t(.clipboardCopied, lang))
+            }
+            .padding(14)
+            .background(Theme.panelBackground))
         } else if args.contains("--window-ocr") {
             content = AnyView(ScreenTextWindowView().environmentObject(model)
                 .frame(width: 560))
