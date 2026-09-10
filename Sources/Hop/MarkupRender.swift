@@ -101,7 +101,8 @@ enum MarkupRender {
 
         for shape in shapes where shape.tool != .blur {
             if shape.tool == .magnifier {
-                magnify(shape, base: blurred ?? base, scale: scale, in: context)
+                // SPEC: docs/spec.md — the loupe magnifies the marks laid before it.
+                magnify(shape, base: context.makeImage() ?? blurred ?? base, scale: scale, in: context)
                 continue
             }
             draw(shape, scale: scale, in: context)

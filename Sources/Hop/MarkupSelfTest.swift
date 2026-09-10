@@ -106,6 +106,27 @@ enum MarkupSelfTest {
             failures += 1
         }
 
+        func painted(_ marks: [MarkupShape]) -> Pixels? {
+            let held = MarkupSurface()
+            held.load(marks)
+            let renderer = ImageRenderer(content: MarkupCanvas(surface: held,
+                                                               background: Image(decorative: base, scale: 1),
+                                                               baked: true, scale: 1, chrome: false)
+                .frame(width: 1200, height: 750))
+            renderer.scale = 1
+            return renderer.cgImage.flatMap { Pixels($0) }
+        }
+        guard let marked = painted([stroke, lensOnStroke]), let clean = painted([lensOnStroke]) else {
+            print("canvas: the lens over a marker did not render")
+            return 1
+        }
+        let seen = marked.apart(from: clean, strokeUnderGlass, 16)
+        print("canvas: a marker under a lens changes its middle by \(seen)")
+        if seen < 3000 {
+            print("canvas: the lens does NOT show the marker under it")
+            failures += 1
+        }
+
         // SPEC: docs/spec.md — another tool ends the edit in progress.
         surface.tool = .select
         surface.begin(at: MarkupPoint(x: 300, y: 190))
@@ -202,6 +223,8 @@ enum MarkupSelfTest {
               let naked = shot([bald], "live-no-settings"),
               let nakedLens = shot([bald, lens], "live-no-settings-loupe"),
               let blindLens = shot([lens], "live-no-frame-loupe", blind: true),
+              let inked = shot([stroke, lensOnStroke], "live-marker-loupe"),
+              let uninked = shot([lensOnStroke], "live-loupe"),
               let bare = shot([], "live-bare") else {
             print("live: nothing rendered")
             return 1
@@ -275,6 +298,10 @@ enum MarkupSelfTest {
         expect(blindLens.opacity(covered, glass) > 14000,
                "a loupe with no frame to read draws NOTHING at all")
         expect(blindLens.brightness(covered, glass) < 40, "the empty lens is not BLACK")
+
+        let seen = inked.apart(from: uninked, strokeUnderGlass, 16)
+        print("live: a marker under a lens changes its middle by \(seen)")
+        expect(seen >= 3000, "the lens does NOT show the marker under it")
 
         return failures == 0 ? 0 : 1
     }
@@ -428,8 +455,31 @@ enum MarkupSelfTest {
         )
         print("markup: \(picture.width)×\(picture.height) written to \(path)")
         print("markup: dressing asked for \(Int(expected.x))×\(Int(expected.y))")
+        guard let marked = MarkupRender.compose(base: base, shapes: [stroke, lensOnStroke], scale: 1)
+                .flatMap({ Pixels($0) }),
+              let clean = MarkupRender.compose(base: base, shapes: [lensOnStroke], scale: 1)
+                .flatMap({ Pixels($0) })
+        else {
+            print("markup: the lens over a marker did not render")
+            return 1
+        }
+        let seen = marked.apart(from: clean, strokeUnderGlass, 16)
+        print("markup: a marker under a lens changes its middle by \(seen)")
+        guard seen >= 3000 else {
+            print("markup: the lens in the file does NOT show the marker under it")
+            return 1
+        }
         return picture.width == Int(expected.x) ? 0 : 1
     }
+
+    /// SPEC: docs/spec.md — the loupe magnifies the marks laid before it.
+    private static let stroke = MarkupShape(
+        tool: .marker, points: [MarkupPoint(x: 700, y: 180), MarkupPoint(x: 1000, y: 180)],
+        ink: MarkupInk(hex: "#FFD60A", width: 26), createdAt: 0)
+    private static let lensOnStroke = MarkupShape(
+        tool: .magnifier, points: [MarkupPoint(x: 780, y: 110), MarkupPoint(x: 920, y: 250)],
+        ink: MarkupInk(hex: "#FFFFFF", width: 5), createdAt: 1)
+    private static let strokeUnderGlass = (850, 180)
 
     /// A frame with something to hide and something to point at.
     private static func sampleFrame(width: Int, height: Int) -> CGImage? {

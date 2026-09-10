@@ -2927,12 +2927,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the loupe as well as flat. The no-frame case is read through the ALPHA: the layer is transparent, so a
   region under a black plate and a region left open read the same light, and a
   check on brightness alone could not fail. It is what settled that the loupe
-  was magnifying the raw stream past the blur (2026-09-09), and it is step 4 of
+  was magnifying the raw stream past the blur (2026-09-09), and it is step 5 of
   `scripts/checks.sh`, which renders into a directory of its own each run.
 - `Hop --markup-selftest <out.png>` runs the whole export path — marks, blur,
   watermark, dressing — over a made-up frame and writes the result. It found the
   browser bar drawn below the picture, an arrow head too thin to read, and the
-  watermark sitting on the dressing instead of the shot.
+  watermark sitting on the dressing instead of the shot. It also reads the middle
+  of a lens put down on a marker stroke, which has to carry the stroke. It is
+  step 4 of `scripts/checks.sh`.
 
 ### Draw over the screen
 
@@ -3106,6 +3108,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   magnify the raw stream straight past it — a name covered on a call came back
   readable under the lens. Every blur region is laid down again inside the
   lens, scaled about its centre by the same zoom.
+- **The loupe magnifies the marks laid before it** (found 2026-09-10). A lens
+  put down on a marker stroke showed the bare picture inside its rim, as if the
+  stroke stopped at the glass. Every mark earlier in the list, an earlier lens
+  included, is drawn again inside it, scaled about its centre by the same zoom;
+  marks laid after it lie over the glass. The file gets the same by magnifying
+  the picture as drawn so far. `MarkupEditing.beneath` (`MarkupEditingTests`);
+  the canvas, live and export self-tests read a lens's middle over a marker.
 - **Fading ink** disappears about two seconds after the pointer lifts, over half
   a second — and the count starts at the LIFT, not at the first point (Anton,
   2026-09-09): a long stroke was half gone by the time it was finished, because
@@ -5328,7 +5337,8 @@ its own database of known apps may do better on real software than it did here.
 ## Checks that run themselves
 
 `scripts/checks.sh` is the check cycle in one place — build (warnings count as
-failures), `swift test`, and `--l10n-check` — and THREE things call it, so they
+failures), `swift test`, the canvas, export and live-layer self-tests,
+`--l10n-check` and `--preparing-version` — and THREE things call it, so they
 cannot drift apart (Anton, 2026-08-29):
 
 - **CI** (`.github/workflows/ci.yml`) on every push and pull request to `main`

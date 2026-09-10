@@ -158,6 +158,12 @@ public enum MarkupEditing {
                             y: box.origin.y + box.size.y / 2), radius)
     }
 
+    /// The marks laid before a lens, in order; blur, crop and the eraser leave no ink of their own.
+    public static func beneath(_ lens: MarkupShape, in shapes: [MarkupShape]) -> [MarkupShape] {
+        let end = shapes.firstIndex { $0.id == lens.id } ?? shapes.endIndex
+        return shapes[..<end].filter { ![.select, .blur, .crop, .eraser].contains($0.tool) }
+    }
+
     /// Top, right, bottom, left — the four points ON an ellipse rather than the
     /// corners of a box it never touches.
     private static func bearings(of shape: MarkupShape) -> [MarkupPoint] {

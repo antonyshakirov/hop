@@ -324,9 +324,17 @@ struct MarkupCanvas: View {
                                              width: canvas.width * zoom,
                                              height: canvas.height * zoom))
                 // SPEC: docs/spec.md — the loupe magnifies what the blur left.
-                guard !baked else { return }
-                for hidden in surface.visible where hidden.tool == .blur {
-                    smear(hidden, canvas: canvas, zoom: zoom, about: eye, in: &layer)
+                if !baked {
+                    for hidden in surface.visible where hidden.tool == .blur {
+                        smear(hidden, canvas: canvas, zoom: zoom, about: eye, in: &layer)
+                    }
+                }
+                // SPEC: docs/spec.md — the loupe magnifies the marks laid before it.
+                layer.translateBy(x: eye.x, y: eye.y)
+                layer.scaleBy(x: zoom, y: zoom)
+                layer.translateBy(x: -eye.x, y: -eye.y)
+                for mark in MarkupEditing.beneath(shape, in: surface.visible) {
+                    draw(mark, canvas: canvas, in: &layer)
                 }
             }
             glass(frame, rim: max(2, 4 * scale), in: &context)

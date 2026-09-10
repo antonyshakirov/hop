@@ -216,4 +216,27 @@ extension MarkupEditingTests {
         region.blur = MarkupBlur(mode: .inside, shape: .rectangle, style: .blur, strength: 5, dim: 2)
         XCTAssertEqual(MarkupEditing.handles(of: region).first, MarkupPoint(x: 0, y: 0))
     }
+
+    /// SPEC: docs/spec.md — "The loupe magnifies the marks laid before it".
+    func testALensMagnifiesTheMarksLaidBeforeIt() {
+        let box = [MarkupPoint(x: 0, y: 0), MarkupPoint(x: 100, y: 100)]
+        let marker = shape(.marker, box)
+        let blur = shape(.blur, box)
+        let crop = shape(.crop, box)
+        let eraser = shape(.eraser, box)
+        let earlier = shape(.magnifier, box)
+        let lens = shape(.magnifier, box)
+        let arrow = shape(.arrow, box)
+        let marks = [marker, blur, crop, eraser, earlier, lens, arrow]
+        XCTAssertEqual(MarkupEditing.beneath(lens, in: marks).map(\.id), [marker.id, earlier.id])
+        XCTAssertEqual(MarkupEditing.beneath(earlier, in: marks).map(\.id), [marker.id])
+    }
+
+    /// A lens not yet in the list lands on top of it.
+    func testALensStillInHandMagnifiesEverything() {
+        let box = [MarkupPoint(x: 0, y: 0), MarkupPoint(x: 100, y: 100)]
+        let marks = [shape(.pencil, box), shape(.text, box)]
+        XCTAssertEqual(MarkupEditing.beneath(shape(.magnifier, box), in: marks).map(\.id),
+                       marks.map(\.id))
+    }
 }

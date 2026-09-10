@@ -1,5 +1,5 @@
 #!/bin/bash
-# The check cycle, in one place: build, tests, the two canvases, translations.
+# The check cycle, in one place: build, tests, the canvases, the export, translations.
 #
 # Called by three things, so they cannot drift apart — the CI workflow, the
 # local pre-push hook, and release.sh before it packages anything. A release
@@ -16,7 +16,7 @@ cd "$(dirname "$0")/.."
 run=$(mktemp -d "${TMPDIR:-/tmp}/hop-checks.XXXXXX")
 trap 'rm -rf "$run"' EXIT
 
-echo "=== 1/6 build ==="
+echo "=== 1/7 build ==="
 # Warnings are failures here: the app ships with none, and a new one is a
 # regression that a green build would otherwise hide.
 if ! swift build 2>&1 | tee "$run/build.log"; then
@@ -28,10 +28,10 @@ if grep -E "^.*: (error|warning):" "$run/build.log"; then
   exit 1
 fi
 
-echo "=== 2/6 tests ==="
+echo "=== 2/7 tests ==="
 swift test
 
-echo "=== 3/6 canvas ==="
+echo "=== 3/7 canvas ==="
 # The editor's canvas is drawn by a path the export never touches: the loupe
 # under the hand is not the loupe in the file.
 if ! ./.build/debug/Hop --canvas-selftest "$run/canvas-selftest.png"; then
@@ -39,7 +39,13 @@ if ! ./.build/debug/Hop --canvas-selftest "$run/canvas-selftest.png"; then
   exit 1
 fi
 
-echo "=== 4/6 live layer ==="
+echo "=== 4/7 export ==="
+if ! ./.build/debug/Hop --markup-selftest "$run/markup-selftest.png"; then
+  echo "❌ the export self-test failed"
+  exit 1
+fi
+
+echo "=== 5/7 live layer ==="
 # The drawing layer draws its own blur and its own loupe from a streamed frame.
 # What a blur hides has to stay hidden — under the glass as well.
 live_renders="$run/live"
@@ -49,10 +55,10 @@ if ! ./.build/debug/Hop --live-selftest "$live_renders"; then
   exit 1
 fi
 
-echo "=== 5/6 translations ==="
+echo "=== 6/7 translations ==="
 ./.build/debug/Hop --l10n-check
 
-echo "=== 6/6 version ==="
+echo "=== 7/7 version ==="
 # SPEC: docs/spec.md — "Versioning", the release a build is preparing.
 if ! ./.build/debug/Hop --preparing-version; then
   echo "❌ the release notes and the release cards disagree on the version"
