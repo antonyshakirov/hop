@@ -33,6 +33,14 @@ final class MarkupBlurTests: XCTestCase {
         XCTAssertLessThan(firstHalf / full, 0.3)
     }
 
+    /// SPEC: docs/spec.md — "Blur works in both directions", the dimming slider.
+    func testDimmingIsOfferedAroundTheAreaAndNowhereElse() {
+        var blur = MarkupBlur(mode: .around, shape: .rectangle, style: .blur, strength: 5, dim: 0)
+        XCTAssertTrue(blur.offersDim)
+        blur.mode = .inside
+        XCTAssertFalse(blur.offersDim)
+    }
+
     func testAnAbsurdStrengthIsBroughtBackIntoRange() {
         XCTAssertEqual(MarkupBlur.radius(forStrength: -4), MarkupBlur.radius(forStrength: 1))
         XCTAssertEqual(MarkupBlur.mosaic(forStrength: 99), MarkupBlur.mosaic(forStrength: 10))

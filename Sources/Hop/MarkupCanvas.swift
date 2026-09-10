@@ -157,6 +157,17 @@ struct MarkupCanvas: View {
                     set: { value in write { $0.strength = Int(value.rounded()) } }
                 ), in: 1...10)
                 .frame(width: 74)
+                if now.offersDim {
+                    divider
+                    Image(systemName: "circle.lefthalf.filled")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Theme.textSecondary)
+                    Slider(value: Binding(
+                        get: { Double(now.dim) },
+                        set: { value in write { $0.dim = Int(value.rounded()) } }
+                    ), in: 0...10)
+                    .frame(width: 74)
+                }
             }
             .padding(.horizontal, 8)
             .frame(height: 30)
@@ -169,7 +180,7 @@ struct MarkupCanvas: View {
             )
             .onHover { surface.pointerOverPanel = $0 }
             .fixedSize()
-            .offset(x: (box.origin.x + box.size.x / 2) * scale - 160,
+            .offset(x: (box.origin.x + box.size.x / 2) * scale - (now.offersDim ? 210 : 160),
                     y: (box.origin.y + box.size.y) * scale + 12)
         }
     }

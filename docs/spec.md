@@ -2843,7 +2843,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Blur works in both directions.** "Inside the area" hides what the region
   covers; "around the area" keeps the region sharp and smears the rest, with a
   dimming slider on top of the strength one, because blur alone does not read as
-  emphasis. The region is a rectangle, an oval or a freehand lasso, and there
+  emphasis. The slider is on the bar under a placed blur as well as in the
+  tool's popover, both asking `MarkupBlur.offersDim` (`MarkupBlurTests`): the bar
+  once had only the strength, and a blur already on the picture could not be
+  darkened (found 2026-09-10). The region is a rectangle, an oval or a freehand lasso, and there
   can be several. "Pixels" is offered beside "blur": a blur over small type can
   sometimes be read back, a mosaic cannot.
 - **Every shot opens clean.** The dressing and the mark start at their standard
@@ -3069,7 +3072,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **A stream that will not stop says so.** It is the one error on the way out,
   and discarded it leaves a capture running that nothing holds a handle to.
 - **The blur over the live screen obeys the bar drawn under it**: "in" and
-  "out", blur and dots, the shape and the strength. The bar advertised all six
+  "out", blur and dots, the shape, the strength and, around the area, the
+  dimming. The bar advertised the first six
   and the canvas read none of them, so "out" — hide everything EXCEPT this —
   did the exact opposite of what was asked, and "dots" drew a blur, which is
   the one thing a mosaic exists not to be. `GraphicsContext` cannot pixellate,

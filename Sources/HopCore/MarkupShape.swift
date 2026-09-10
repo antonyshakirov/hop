@@ -67,6 +67,9 @@ public struct MarkupBlur: Equatable, Codable, Sendable {
     /// 0...10, `around` only.
     public var dim: Int
 
+    /// SPEC: docs/spec.md — "Blur works in both directions", the dimming slider.
+    public var offersDim: Bool { mode == .around }
+
     /// How far the gaussian reaches, in the picture's own points. The scale is
     /// deliberately NOT straight: on a straight one the lightest setting was
     /// already too much to read through, and everything past the middle looked

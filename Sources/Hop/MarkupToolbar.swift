@@ -505,7 +505,7 @@ struct MarkupBlurPopover: View {
             slider(L10n.t(.blurStrength, lang), value: current.strength, range: 1...10) { value in
                 var next = current; next.strength = value; surface.blurInHand = next
             }
-            if current.mode == .around {
+            if current.offersDim {
                 slider(L10n.t(.blurDim, lang), value: current.dim, range: 0...10) { value in
                     var next = current; next.dim = value; surface.blurInHand = next
                 }
