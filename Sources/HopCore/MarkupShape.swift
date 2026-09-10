@@ -109,6 +109,8 @@ public struct MarkupShape: Equatable, Codable, Identifiable, Sendable {
     /// How much the loupe magnifies; nil for every other tool, and for lenses
     /// placed before the dial existed.
     public var magnification: Double?
+    /// The monitor a drawing-layer mark was made on; nil in the editor, where there is one picture.
+    public var display: UInt32?
     /// Seconds since the surface opened; fading ink and step order read it.
     public var createdAt: TimeInterval
 
@@ -122,6 +124,7 @@ public struct MarkupShape: Equatable, Codable, Identifiable, Sendable {
         blur: MarkupBlur? = nil,
         arrow: ArrowStyle? = nil,
         magnification: Double? = nil,
+        display: UInt32? = nil,
         createdAt: TimeInterval
     ) {
         self.id = id
@@ -133,6 +136,7 @@ public struct MarkupShape: Equatable, Codable, Identifiable, Sendable {
         self.blur = blur
         self.arrow = arrow
         self.magnification = magnification
+        self.display = display
         self.createdAt = createdAt
     }
 }

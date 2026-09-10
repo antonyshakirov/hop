@@ -16,6 +16,8 @@ struct MarkupCanvas: View {
     var source: Image?
     var mosaics: [Int: Image] = [:]
     var scale: CGFloat = 1
+    /// The monitor this canvas covers on the drawing layer; nil draws every mark.
+    var display: UInt32?
     /// The cursor and the typing field are AppKit views, and AppKit views come
     /// out as a yellow block when the canvas is rendered outside a running
     /// window. The self-test asks for the drawing alone.
@@ -25,7 +27,7 @@ struct MarkupCanvas: View {
 
     var body: some View {
         Canvas { context, size in
-            for shape in surface.visible {
+            for shape in surface.visible(on: display) {
                 draw(shape, canvas: size, in: &context)
             }
         }
@@ -46,7 +48,7 @@ struct MarkupCanvas: View {
                     if surface.isDragging {
                         surface.extend(to: point, modifiers: Self.heldKeys())
                     } else {
-                        surface.begin(at: point)
+                        surface.begin(at: point, on: display)
                     }
                 }
                 .onEnded { _ in surface.finish() }
@@ -101,7 +103,7 @@ struct MarkupCanvas: View {
     /// hairline round it only when it has no such points to show.
     @ViewBuilder
     private var held: some View {
-        if let shape = surface.selected {
+        if let shape = surface.selected, MarkupScreens.belongs(shape, to: display) {
             let box = MarkupGeometry.boundingBox(shape.points)
             // A caption is stored as ONE point; its box is the words themselves.
             let span = shape.tool == .text
@@ -140,7 +142,8 @@ struct MarkupCanvas: View {
     /// looked at. SPEC: docs/spec.md
     @ViewBuilder
     private var blurBar: some View {
-        if let shape = surface.selected, shape.tool == .blur, let now = shape.blur {
+        if let shape = surface.selected, MarkupScreens.belongs(shape, to: display),
+           shape.tool == .blur, let now = shape.blur {
             let box = MarkupGeometry.boundingBox(shape.points)
             HStack(spacing: 5) {
                 chip("in", on: now.mode == .inside) { write { $0.mode = .inside } }
@@ -234,7 +237,8 @@ struct MarkupCanvas: View {
 
     @ViewBuilder
     private var typingField: some View {
-        if let shape = surface.typing, let point = shape.points.first {
+        if let shape = surface.typing, MarkupScreens.belongs(shape, to: display),
+           let point = shape.points.first {
             SteadyField(text: Binding(
                 get: { surface.typing?.text ?? "" },
                 set: { surface.typing?.text = $0 }
@@ -325,7 +329,7 @@ struct MarkupCanvas: View {
                                              height: canvas.height * zoom))
                 // SPEC: docs/spec.md — the loupe magnifies what the blur left.
                 if !baked {
-                    for hidden in surface.visible where hidden.tool == .blur {
+                    for hidden in surface.visible(on: display) where hidden.tool == .blur {
                         smear(hidden, canvas: canvas, zoom: zoom, about: eye, in: &layer)
                     }
                 }
@@ -333,7 +337,7 @@ struct MarkupCanvas: View {
                 layer.translateBy(x: eye.x, y: eye.y)
                 layer.scaleBy(x: zoom, y: zoom)
                 layer.translateBy(x: -eye.x, y: -eye.y)
-                for mark in MarkupEditing.beneath(shape, in: surface.visible) {
+                for mark in MarkupEditing.beneath(shape, in: surface.visible(on: display)) {
                     draw(mark, canvas: canvas, in: &layer)
                 }
             }

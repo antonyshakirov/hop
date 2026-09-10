@@ -36,5 +36,14 @@ final class MarkupShapeTests: XCTestCase {
         """
         let shape = try JSONDecoder().decode(MarkupShape.self, from: Data(json.utf8))
         XCTAssertNil(shape.arrow)
+        XCTAssertNil(shape.display)
+    }
+
+    func testAShapeRemembersTheMonitorItWasDrawnOn() throws {
+        let shape = MarkupShape(tool: .pencil, points: [MarkupPoint(x: 0, y: 0)],
+                                ink: MarkupInk(hex: "#FF453A", width: 4),
+                                display: 7, createdAt: 0)
+        let back = try JSONDecoder().decode(MarkupShape.self, from: JSONEncoder().encode(shape))
+        XCTAssertEqual(back.display, 7)
     }
 }

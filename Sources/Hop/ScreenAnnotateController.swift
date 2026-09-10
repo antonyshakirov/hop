@@ -82,8 +82,8 @@ final class ScreenAnnotateController: ObservableObject {
             return
         }
         // Every display the layer covers is streamed, not just the one under
-        // the pointer: the same marks are drawn on all of them, and a canvas
-        // with no frame to read hides its regions behind a plate instead.
+        // the pointer: a blur can be put on any of them, and a canvas with no
+        // frame to read hides its regions behind a plate instead.
         backdrop.start(on: NSScreen.screens)
     }
 
@@ -283,7 +283,7 @@ struct ScreenAnnotateView: View {
     var body: some View {
         ZStack(alignment: .top) {
             MarkupCanvas(surface: surface, background: nil, source: live,
-                         mosaics: mosaics, scale: 1)
+                         mosaics: mosaics, scale: 1, display: display)
                 .frame(width: screenSize.width, height: screenSize.height)
                 .allowsHitTesting(controller.isDrawing)
 
@@ -318,7 +318,7 @@ struct ScreenAnnotateView: View {
         guard let frame, screenSize.width > 0 else { return [:] }
         let backing = CGFloat(frame.width) / screenSize.width
         var out: [Int: Image] = [:]
-        for shape in surface.visible where shape.tool == .blur {
+        for shape in surface.visible(on: display) where shape.tool == .blur {
             guard let blur = shape.blur, blur.style == .pixels,
                   out[blur.strength] == nil else { continue }
             let side = Int((MarkupBlur.mosaic(forStrength: blur.strength) * backing).rounded())

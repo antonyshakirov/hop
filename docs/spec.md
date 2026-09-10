@@ -2947,7 +2947,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   letter `i`, ⌃⌥D out of the box. The name and the button are both short on
   purpose: "draw over the screen · start drawing" said the same word twice in a
   row built for one line (Anton, 2026-09-08). A transparent layer on EVERY display, rebuilt
-  when displays come and go.
+  when displays come and go, each drawing only the marks made on it.
 - **The two markup modules share everything they can**: the same surface, the
   same canvas, the same toolbar (Anton, 2026-09-08). So the drawing layer has
   the select tool first in its row, undo and redo beside clear, the nib pointer,
@@ -3056,7 +3056,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   own must not be able to throw away a grant the user has already given; the
   reset stays behind the button in the settings, where the user asked for it.
 - **EVERY display the layer covers is streamed, and each canvas draws from its
-  own** (2026-09-09). The same marks are drawn on every monitor, so one stream
+  own** (2026-09-09). A blur or a loupe can go on any monitor, so one stream
   between them cannot work either way round: reading whichever display happened
   to be streamed smeared the FIRST monitor's pixels over a blur on the second,
   and treating the others as having no frame turned them into black plates —
@@ -3115,6 +3115,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   marks laid after it lie over the glass. The file gets the same by magnifying
   the picture as drawn so far. `MarkupEditing.beneath` (`MarkupEditingTests`);
   the canvas, live and export self-tests read a lens's middle over a marker.
+- **Each monitor keeps its own marks** (found 2026-09-10). The layer is one
+  surface under a canvas per display, and every canvas drew every mark in its
+  own coordinates: a circle drawn on the laptop turned up at the same spot on
+  the external monitor, and in a call sharing that monitor. A mark now carries
+  the display it was drawn on (`MarkupShape.display`). Each canvas draws, picks,
+  erases and reopens captions among its own marks only, and the handles, the
+  blur bar and the typing field show on that monitor alone. Undo, redo, clear
+  and delete stay one history for the whole layer. Step circles count per
+  monitor: Save and Copy take one display, and 3 and 4 without 1 and 2 read as a
+  broken count. A mark with no display, as in the editor, belongs everywhere.
+  `MarkupScreens` (`MarkupScreensTests`, `StepNumberingTests`); the canvas
+  self-test picks a mark from the other monitor, the live self-test draws a
+  stroke on the monitor it does not belong to.
 - **Fading ink** disappears about two seconds after the pointer lifts, over half
   a second — and the count starts at the LIFT, not at the first point (Anton,
   2026-09-09): a long stroke was half gone by the time it was finished, because

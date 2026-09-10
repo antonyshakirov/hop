@@ -38,6 +38,20 @@ final class StepNumberingTests: XCTestCase {
         XCTAssertEqual(StepNumbering.renumbered([late, early]).compactMap(\.step), [2, 1])
     }
 
+    /// A saved picture is one monitor: circles 3 and 4 without 1 and 2 read as
+    /// a broken count.
+    func testEachMonitorCountsItsOwnSteps() {
+        func on(_ display: UInt32, _ number: Int, at time: TimeInterval) -> MarkupShape {
+            var circle = step(number, x: 0, at: time)
+            circle.display = display
+            return circle
+        }
+        let marks = [on(1, 1, at: 1), on(2, 2, at: 2), on(1, 3, at: 3), on(2, 4, at: 4)]
+        XCTAssertEqual(StepNumbering.renumbered(marks).compactMap(\.step), [1, 1, 2, 2])
+        let left = StepNumbering.renumbered(Array(marks.dropFirst()))
+        XCTAssertEqual(left.compactMap(\.step), [1, 1, 2])
+    }
+
     func testOtherToolsAreLeftAlone() {
         let pencil = MarkupShape(tool: .pencil, points: [], ink: MarkupInk(hex: "#FFFFFF", width: 2), createdAt: 0)
         let numbered = StepNumbering.renumbered([pencil, step(5, x: 0)])

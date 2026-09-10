@@ -38,6 +38,8 @@ final class MarkupSurface: ObservableObject {
                                      shared: MarkupSettings.sharedColour(),
                                      common: MarkupSettings.commonColour())
     private var origin: MarkupPoint?
+    /// SPEC: docs/spec.md — each monitor keeps its own marks.
+    private var display: UInt32?
     private var grip: Int?
     private var grabbed: MarkupPoint?
     private var turningDial = false
@@ -71,6 +73,10 @@ final class MarkupSurface: ObservableObject {
         }
         guard let drafting else { return living }
         return living + [drafting]
+    }
+
+    func visible(on display: UInt32?) -> [MarkupShape] {
+        MarkupScreens.on(display, visible)
     }
 
     /// Something is under the hand: a mark being drawn, or one being moved.
@@ -126,20 +132,21 @@ final class MarkupSurface: ObservableObject {
     private func pick(at point: MarkupPoint) {
         // The dial and the handles of the mark already in hand win over
         // anything under them.
-        if let current = selected, current.tool == .magnifier,
+        let current = selected.flatMap { MarkupScreens.belongs($0, to: display) ? $0 : nil }
+        if let current, current.tool == .magnifier,
            let knob = MarkupEditing.Zoom.knob(of: current),
            near(knob, point) {
             turningDial = true
             editing = current
             return
         }
-        if let current = selected, let index = handle(of: current, near: point) {
+        if let current, let index = handle(of: current, near: point) {
             grip = index
             turningDial = false
             editing = current
             return
         }
-        guard let hit = FadingInk.alive(shapes, now: now)
+        guard let hit = MarkupScreens.on(display, FadingInk.alive(shapes, now: now))
             .last(where: { MarkupEditing.grabbed($0, at: point, tolerance: 8) })
         else {
             selection = nil
@@ -221,8 +228,9 @@ final class MarkupSurface: ObservableObject {
         return FadingInk.opacity(of: shape, now: now)
     }
 
-    func begin(at point: MarkupPoint) {
+    func begin(at point: MarkupPoint, on display: UInt32? = nil) {
         pressed = true
+        self.display = display
         let stamp = Date().timeIntervalSince(opened)
         switch tool {
         case .select:
@@ -231,14 +239,15 @@ final class MarkupSurface: ObservableObject {
             erase(at: point)
         case .steps:
             let circle = MarkupShape(tool: .steps, points: [point], ink: ink(for: .steps),
-                                     step: StepNumbering.next(in: shapes), createdAt: stamp)
+                                     step: StepNumbering.next(in: MarkupScreens.on(display, shapes)),
+                                     display: display, createdAt: stamp)
             document.add(circle)
             publish()
         case .text:
             commitTyping()
             // A caption already there is EDITED, not written over: clicking one
             // to start a second on top of it is nobody's intention.
-            if let held = FadingInk.alive(shapes, now: now).last(where: {
+            if let held = MarkupScreens.on(display, FadingInk.alive(shapes, now: now)).last(where: {
                 $0.tool == .text && MarkupEditing.grabbed($0, at: point, tolerance: 8)
             }) {
                 typing = held
@@ -247,10 +256,11 @@ final class MarkupSurface: ObservableObject {
                 return
             }
             typing = MarkupShape(tool: .text, points: [point], ink: ink(for: .text),
-                                 text: "", createdAt: stamp)
+                                 text: "", display: display, createdAt: stamp)
         default:
             origin = point
-            var shape = MarkupShape(tool: tool, points: [point], ink: ink(for: tool), createdAt: stamp)
+            var shape = MarkupShape(tool: tool, points: [point], ink: ink(for: tool),
+                                    display: display, createdAt: stamp)
             if tool == .blur { shape.blur = blur }
             if tool == .arrow { shape.arrow = arrowStyle }
             drafting = shape
@@ -368,7 +378,8 @@ final class MarkupSurface: ObservableObject {
     }
 
     func erase(at point: MarkupPoint) {
-        guard let hit = shapes.last(where: { MarkupGeometry.hits(shape: $0, point: point, tolerance: 6) })
+        guard let hit = MarkupScreens.on(display, shapes)
+            .last(where: { MarkupGeometry.hits(shape: $0, point: point, tolerance: 6) })
         else { return }
         document.apply { StepNumbering.renumbered($0.filter { $0.id != hit.id }) }
         publish()

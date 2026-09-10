@@ -15,7 +15,11 @@ public enum StepNumbering {
         guard !placed.isEmpty else { return shapes }
 
         var numbers: [Int: Int] = [:]
-        for (place, item) in placed.enumerated() { numbers[item.offset] = place + 1 }
+        var counted: [UInt32?: Int] = [:]
+        for item in placed {
+            counted[item.element.display, default: 0] += 1
+            numbers[item.offset] = counted[item.element.display]
+        }
 
         return shapes.enumerated().map { index, shape in
             guard let number = numbers[index] else { return shape }

@@ -142,6 +142,38 @@ enum MarkupSelfTest {
         } else {
             print("canvas: taking a tool let the previous mark go")
         }
+
+        // SPEC: docs/spec.md — each monitor keeps its own marks.
+        let screens = MarkupSurface()
+        screens.load([MarkupShape(tool: .rectangle,
+                                  points: [MarkupPoint(x: 100, y: 100), MarkupPoint(x: 300, y: 250)],
+                                  ink: MarkupInk(hex: "#FF453A", width: 4), display: 1, createdAt: 0)])
+        screens.tool = .select
+        screens.begin(at: MarkupPoint(x: 200, y: 175), on: 2)
+        screens.finish()
+        let across = screens.selected != nil
+        screens.begin(at: MarkupPoint(x: 200, y: 175), on: 1)
+        screens.finish()
+        let home = screens.selected != nil
+        screens.tool = .steps
+        for display in [UInt32(1), 2] {
+            screens.begin(at: MarkupPoint(x: 600, y: 400), on: display)
+            screens.finish()
+        }
+        let counts = screens.shapes.filter { $0.tool == .steps }.map { "\($0.display ?? 0):\($0.step ?? 0)" }
+        print("canvas: a mark on monitor 1 taken from monitor 2: \(across), from 1: \(home); steps \(counts)")
+        if across {
+            print("canvas: the select tool reaches a mark on ANOTHER monitor")
+            failures += 1
+        }
+        if !home {
+            print("canvas: the select tool took nothing on the mark's own monitor")
+            failures += 1
+        }
+        if counts != ["1:1", "2:1"] {
+            print("canvas: the monitors share ONE step count")
+            failures += 1
+        }
         return failures == 0 ? 0 : 1
     }
 
@@ -172,7 +204,8 @@ enum MarkupSelfTest {
                                ink: MarkupInk(hex: "#FFFFFF", width: 5),
                                magnification: 3, createdAt: 1)
 
-        func shot(_ shapes: [MarkupShape], _ name: String, blind: Bool = false) -> Pixels? {
+        func shot(_ shapes: [MarkupShape], _ name: String, blind: Bool = false,
+                  on display: UInt32? = nil) -> Pixels? {
             let surface = MarkupSurface()
             surface.load(shapes)
             var tiles: [Int: Image] = [:]
@@ -185,7 +218,7 @@ enum MarkupSelfTest {
             }
             let view = MarkupCanvas(surface: surface, background: nil,
                                     source: blind ? nil : source, mosaics: tiles,
-                                    scale: 1, chrome: false)
+                                    scale: 1, display: display, chrome: false)
                 .frame(width: 1200, height: 750)
             let renderer = ImageRenderer(content: view)
             renderer.scale = 1
@@ -209,6 +242,7 @@ enum MarkupSelfTest {
         var mosaic = smear; mosaic.style = .pixels
         var out = smear; out.mode = .around; out.dim = 4
         var round = out; round.shape = .oval
+        var strokeOnTwo = stroke; strokeOnTwo.display = 2
 
         guard let plain = Pixels(base),
               let blurred = shot([region(smear)], "live-blur"),
@@ -225,6 +259,8 @@ enum MarkupSelfTest {
               let blindLens = shot([lens], "live-no-frame-loupe", blind: true),
               let inked = shot([stroke, lensOnStroke], "live-marker-loupe"),
               let uninked = shot([lensOnStroke], "live-loupe"),
+              let away = shot([strokeOnTwo], "live-other-monitor", on: 1),
+              let own = shot([strokeOnTwo], "live-own-monitor", on: 2),
               let bare = shot([], "live-bare") else {
             print("live: nothing rendered")
             return 1
@@ -302,6 +338,12 @@ enum MarkupSelfTest {
         let seen = inked.apart(from: uninked, strokeUnderGlass, 16)
         print("live: a marker under a lens changes its middle by \(seen)")
         expect(seen >= 3000, "the lens does NOT show the marker under it")
+
+        let there = own.apart(from: bare, strokeUnderGlass, 16)
+        let elsewhere = away.apart(from: bare, strokeUnderGlass, 16)
+        print("live: a stroke on monitor 2 reads \(there) there, \(elsewhere) on monitor 1")
+        expect(there >= 3000, "a stroke is NOT drawn on its own monitor")
+        expect(elsewhere < 200, "a stroke on one monitor is drawn on ANOTHER")
 
         return failures == 0 ? 0 : 1
     }
