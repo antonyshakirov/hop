@@ -14,6 +14,10 @@
   module that lives only in the panel now waits until something is drawing it;
   the menu bar keeps up regardless, and windows of their own carry on as before.
   Measured with a torrent loaded, panel shut: 4.2% of a core before, 1.1% after.
+- The welcome wizard on a new Mac stays until it is finished. Quitting it, or
+  the restart that follows granting a permission, used to count as finishing it:
+  the next launch skipped the rest of the wizard and showed the what's-new card
+  meant for people updating. It now opens again on the step it was left on.
 
 ## 2.0.3 - 2026-09-07
 

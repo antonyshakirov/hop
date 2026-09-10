@@ -299,6 +299,16 @@ finding any of them, the launch writes `onboardingDone` itself and the wizard
 never opens. The domain is read at the TOP of
 `applicationDidFinishLaunching`, before this run leaves marks of its own.
 
+**A wizard left halfway is not an update.** The wizard leaves marks of its own the
+moment it appears: every module is seeded on, which writes the arrangement, and
+`onboardingSeededAllOn` is set. Read as an earlier version's marks, they finished
+the wizard on the next launch, so a new install that quit the wizard, or took the
+restart that follows granting a permission, lost it and met the release card
+instead (found 2026-09-10, present since 2.0.0). The launch therefore asks
+`FirstRun.needsWizard` (`FirstRunTests`): `onboardingDone` answers no; otherwise a
+fresh domain, a stored `onboardingStep` or `onboardingSeededAllOn` answers yes,
+and only a domain with none of the three is an update.
+
 A wizard, one thing per screen, in an 880×700 window that has no close button:
 onboarding is finished, not dismissed. It opens dead centre of the screen, and
 holds that position: `isRestorable` is off and the centring repeats on the next

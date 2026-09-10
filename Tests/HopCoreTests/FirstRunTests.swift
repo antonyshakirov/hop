@@ -33,4 +33,30 @@ final class FirstRunTests: XCTestCase {
             XCTAssertFalse(FirstRun.isFresh(domain: [mark: true]), mark)
         }
     }
+
+    func testANewMacGetsTheWizard() {
+        XCTAssertTrue(FirstRun.needsWizard(domain: [:]))
+    }
+
+    func testAnUpdateSkipsTheWizard() {
+        XCTAssertFalse(FirstRun.needsWizard(domain: ["panelTabs": "{}", "newsSeen.1.9": true]))
+    }
+
+    func testAWizardLeftHalfwayReopens() {
+        XCTAssertTrue(FirstRun.needsWizard(domain: [
+            "panelTabs": "{}", "onboardingSeededAllOn": true, "onboardingStep": 6,
+        ]))
+    }
+
+    func testAWizardQuitOnItsFirstScreenReopens() {
+        XCTAssertTrue(FirstRun.needsWizard(domain: [
+            "panelTabs": "{}", "onboardingSeededAllOn": true,
+        ]))
+    }
+
+    func testAFinishedWizardStaysFinished() {
+        XCTAssertFalse(FirstRun.needsWizard(domain: [
+            "onboardingDone": true, "onboardingSeededAllOn": true, "onboardingStep": 6,
+        ]))
+    }
 }

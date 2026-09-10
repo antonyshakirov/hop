@@ -190,7 +190,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // way to tell a fresh install from an update, and this launch is about
         // to leave marks of its own.
         // SPEC: docs/spec.md — "Onboarding", who the wizard is for.
-        let freshInstall = FirstRun.isFresh(
+        let wizardPending = FirstRun.needsWizard(
             domain: UserDefaults.standard.persistentDomain(forName: Bundle.storageIdentifier) ?? [:])
 
         // Agent without a Dock icon — including dev runs via `swift run`.
@@ -447,7 +447,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // An update is not a first run. Somebody who has been using Hop has an
         // arrangement, and the wizard would both stand in front of it with no
         // way out and switch every module back on.
-        if !freshInstall {
+        if !wizardPending {
             defaults.set(true, forKey: "onboardingDone")
         }
 

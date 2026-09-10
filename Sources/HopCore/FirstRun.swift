@@ -25,4 +25,11 @@ public enum FirstRun {
         }
         return true
     }
+
+    /// SPEC: docs/spec.md — "Onboarding", a wizard left halfway opens again.
+    public static func needsWizard(domain: [String: Any]) -> Bool {
+        if domain["onboardingDone"] as? Bool == true { return false }
+        if isFresh(domain: domain) { return true }
+        return domain["onboardingStep"] != nil || domain["onboardingSeededAllOn"] as? Bool == true
+    }
 }
