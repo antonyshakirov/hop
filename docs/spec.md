@@ -5514,7 +5514,19 @@ Anton's primary install must always remain fully functional.
 ## Versioning (approved 2026-07-13)
 
 Semver MAJOR.MINOR.PATCH, starting at 1.0.0. The version changes only at
-release time (on "publish"); dev builds don't touch the number.
+release time (on "publish"): `scripts/Info.plist` carries the number last
+released until `release.sh` stamps the new one.
+
+**A dev build carries the release it is preparing** (Anton, 2026-09-10). A dev
+build that read 2.0.3 from the plist showed the 2.0 card while 2.1 was being
+written, since a card waits for its version to be installed. `build-app.sh --dev`
+stamps the number `Hop --preparing-version` prints instead, read from the head of
+the English release notes (`docNews`, "2.1.0 – date"); the repository's plist is
+not touched. `ReleaseNews.preparing` (`ReleaseNewsTests`) refuses notes that do
+not open with three numbers, a release card newer than the notes, and a minor
+release without a card of its own. `checks.sh` fails on any of them, and
+`release.sh` refuses a number other than the one the notes name and a
+CHANGELOG.md that does not open with it.
 
 - PATCH (+0.0.1) — fixes with no new behavior: bugs, crashes, translations,
   cosmetics. Auto-update installs it silently.

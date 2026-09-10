@@ -16,7 +16,7 @@ cd "$(dirname "$0")/.."
 run=$(mktemp -d "${TMPDIR:-/tmp}/hop-checks.XXXXXX")
 trap 'rm -rf "$run"' EXIT
 
-echo "=== 1/5 build ==="
+echo "=== 1/6 build ==="
 # Warnings are failures here: the app ships with none, and a new one is a
 # regression that a green build would otherwise hide.
 if ! swift build 2>&1 | tee "$run/build.log"; then
@@ -28,10 +28,10 @@ if grep -E "^.*: (error|warning):" "$run/build.log"; then
   exit 1
 fi
 
-echo "=== 2/5 tests ==="
+echo "=== 2/6 tests ==="
 swift test
 
-echo "=== 3/5 canvas ==="
+echo "=== 3/6 canvas ==="
 # The editor's canvas is drawn by a path the export never touches: the loupe
 # under the hand is not the loupe in the file.
 if ! ./.build/debug/Hop --canvas-selftest "$run/canvas-selftest.png"; then
@@ -39,7 +39,7 @@ if ! ./.build/debug/Hop --canvas-selftest "$run/canvas-selftest.png"; then
   exit 1
 fi
 
-echo "=== 4/5 live layer ==="
+echo "=== 4/6 live layer ==="
 # The drawing layer draws its own blur and its own loupe from a streamed frame.
 # What a blur hides has to stay hidden — under the glass as well.
 live_renders="$run/live"
@@ -49,7 +49,14 @@ if ! ./.build/debug/Hop --live-selftest "$live_renders"; then
   exit 1
 fi
 
-echo "=== 5/5 translations ==="
+echo "=== 5/6 translations ==="
 ./.build/debug/Hop --l10n-check
+
+echo "=== 6/6 version ==="
+# SPEC: docs/spec.md — "Versioning", the release a build is preparing.
+if ! ./.build/debug/Hop --preparing-version; then
+  echo "❌ the release notes and the release cards disagree on the version"
+  exit 1
+fi
 
 echo "✅ all checks passed"

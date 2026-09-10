@@ -74,6 +74,18 @@ xcrun notarytool history --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
 # checks is not a release (2026-08-29).
 scripts/checks.sh
 
+# SPEC: docs/spec.md — "Versioning", the number released is the one the notes name.
+PREPARING="$(./.build/debug/Hop --preparing-version)"
+[[ "$PREPARING" == "$VERSION" ]] || {
+    echo "releasing $VERSION, but the notes in the app describe $PREPARING"
+    exit 1
+}
+CHANGELOG_HEAD="$(grep -m1 '^## ' CHANGELOG.md)"
+[[ "$CHANGELOG_HEAD" == "## $VERSION - "* ]] || {
+    echo "CHANGELOG.md opens with \"$CHANGELOG_HEAD\" rather than ## $VERSION"
+    exit 1
+}
+
 # the version is baked into Info.plist BEFORE the build
 plutil -replace CFBundleShortVersionString -string "$VERSION" scripts/Info.plist
 

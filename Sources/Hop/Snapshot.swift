@@ -219,6 +219,17 @@ enum Snapshot {
             MarkupSiteShots.run(into: args[i + 1])
         }
 
+        // SPEC: docs/spec.md — "Versioning", the release a build is preparing.
+        if args.contains("--preparing-version") {
+            guard let version = ReleaseNews.preparing(notes: L10n.t(.docNews, .en),
+                                                      cards: PanelView.releaseCardIDs) else {
+                print("version: the release notes and the release cards disagree")
+                exit(1)
+            }
+            print(version)
+            exit(0)
+        }
+
         if args.contains("--l10n-check") {
             let missing = L10n.missingKeys()
             let hanging = L10n.hangingWords()

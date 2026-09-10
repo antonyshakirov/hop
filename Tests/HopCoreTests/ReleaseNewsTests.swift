@@ -126,4 +126,32 @@ final class ReleaseNewsTests: XCTestCase {
     func testACardNeverDrawnHasNotStartedItsClock() {
         XCTAssertNotNil(ReleaseNews.visible([card19], installed: "1.9.1", now: now))
     }
+
+    // MARK: - The release a build is preparing
+
+    private let notes21 = "2.1.0 – 2026-09-09\n\n• screenshots with an editor."
+
+    func testTheNotesNameTheReleaseBeingPrepared() {
+        XCTAssertEqual(ReleaseNews.preparing(notes: notes21, cards: ["2.0", "2.1"]), "2.1.0")
+    }
+
+    /// The build carrying both would never show a card newer than itself.
+    func testACardNewerThanTheNotesIsRefused() {
+        XCTAssertNil(ReleaseNews.preparing(notes: notes21, cards: ["2.1", "2.2"]))
+    }
+
+    func testAMinorReleaseWithoutItsCardIsRefused() {
+        XCTAssertNil(ReleaseNews.preparing(notes: "2.2.0 – 2026-09-20\n\n• more", cards: ["2.1"]))
+    }
+
+    func testAFixWithoutACardOfItsOwnIsAllowed() {
+        XCTAssertEqual(ReleaseNews.preparing(notes: "2.1.1 – 2026-09-12\n\n• a fix", cards: ["2.1"]),
+                       "2.1.1")
+    }
+
+    func testNotesThatDoNotOpenWithThreeNumbersAreRefused() {
+        XCTAssertNil(ReleaseNews.preparing(notes: "• screenshots with an editor.", cards: ["2.1"]))
+        XCTAssertNil(ReleaseNews.preparing(notes: "2.1 – 2026-09-09", cards: ["2.1"]))
+        XCTAssertNil(ReleaseNews.preparing(notes: "2.1.x – 2026-09-09", cards: ["2.1"]))
+    }
 }

@@ -103,6 +103,23 @@ public struct ReleaseNews {
         return mine.dropLast().map(\.0).filter { !$0.seen }
     }
 
+    /// SPEC: docs/spec.md — "Versioning", the release a build is preparing.
+    public static func preparing(notes: String, cards: [String]) -> String? {
+        guard let head = notes.split(separator: " ", maxSplits: 1).first.map(String.init) else {
+            return nil
+        }
+        let parts = head.split(separator: ".", omittingEmptySubsequences: false)
+        guard parts.count == 3, parts.allSatisfy({ Int($0) != nil }),
+              let release = Version(head) else { return nil }
+        let placed = cards.compactMap(Version.init)
+        if placed.contains(where: { $0 > release }) { return nil }
+        if release.patch == 0,
+           !placed.contains(where: { $0.major == release.major && $0.minor == release.minor }) {
+            return nil
+        }
+        return head
+    }
+
     /// Whether a card still has a showing left in it.
     static func isAlive(_ card: Card, now: Date) -> Bool {
         if card.seen { return false }

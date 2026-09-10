@@ -91,6 +91,9 @@ if [[ $DEV == 1 ]]; then
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev" "$APP/Contents/Info.plist"
     plutil -replace CFBundleName -string "Hop Dev" "$APP/Contents/Info.plist"
     plutil -replace CFBundleDisplayName -string "Hop Dev" "$APP/Contents/Info.plist"
+    # SPEC: docs/spec.md — "Versioning", a dev build carries the release it is preparing.
+    PREPARING="$("$BINARY" --preparing-version)"
+    plutil -replace CFBundleShortVersionString -string "$PREPARING" "$APP/Contents/Info.plist"
 fi
 source scripts/signing.sh
 IDENTITY="$(hop_signing_identity)"
