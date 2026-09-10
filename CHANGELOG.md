@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- Hop takes screenshots and opens them in an editor. Frame an area, take the
+  window under the pointer or a whole screen, then mark the picture up with a
+  pencil, a marker, arrows, shapes, numbered steps and text, bring a loupe over
+  the detail that matters and blur what nobody else should read. A shot can be
+  dressed for a page with a background, rounded corners, a shadow, a browser
+  window bar and your own watermark, and goes to the clipboard or to a file. The
+  same rectangle is taken again with one key.
+- Hop draws over the live screen. The same tools work straight on top of
+  whatever is open, ink that fades lifts itself a couple of seconds after the
+  stroke, and the loupe and the blur work there too. One switch hands the clicks
+  back to the apps underneath while the marks stay, and save or copy captures
+  the screen together with the drawing. Other people see the marks when the whole
+  screen is shared; a single shared window is composited by macOS alone.
+- Serbian, Arabic, Hebrew, Persian and Urdu are in the app. The last four run
+  right to left, and the panel and every window lay out that way with them.
 - The shortcuts now spell what they do: ⌃⌥S takes a screenshot, ⌃⌥D draws on
   screen, ⌃⌥T is the timer, ⌃⌥A keeps the Mac awake, ⌃⌥C converts and
   compresses, ⌃⌥F opens file archives, ⌃⌥U uninstalls apps, ⌃⌥K locks the
