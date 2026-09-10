@@ -3203,8 +3203,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   it, so undo brought a stroke back from nowhere or spent a press on nothing
   to see. `MarkupDocument.forget` (`MarkupDocumentTests`); the canvas self-test
   fades a stroke and counts what undo has left.
-- "Save" and "copy" capture the screen together with the drawing; the toolbar
-  steps out of the shot first. "Clear" empties the layer, the cross closes it.
+- "Save" and "copy" capture the screen together with the drawing. "Clear"
+  empties the layer, the cross closes it.
+- **The panel stays on screen while the picture is taken** (Anton, 2026-09-10).
+  It used to step out of the shot and come back after it, and for the fraction
+  of a second a capture takes it blinked on every copy and save. The shot now
+  leaves out every window of Hop's except the drawing layer's — the panel, and
+  a note still hanging over a button — so nothing has to move. Only a panel the
+  window list does not have steps aside as before: a picture with the panel in
+  it is worse than a blink. `MarkupShotWindows` (`MarkupShotWindowsTests`).
 - **Closing the layer ends its session** (found 2026-09-10). The cross cleared
   the marks and kept the rest: undo on the next opening brought the last
   session's marks back, and a half-typed caption or a drag in progress came

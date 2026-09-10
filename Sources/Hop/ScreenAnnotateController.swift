@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import HopCore
+import OSLog
 import ScreenCaptureKit
 import SwiftUI
 
@@ -29,6 +30,7 @@ final class ScreenAnnotateController: ObservableObject {
 
     let backdrop = LiveScreenBackdrop()
     private let overlay = MarkupOverlayController()
+    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "Markup")
     private var backdropWatch: AnyCancellable?
     private var toolbarWindow: MarkupToolbarWindow?
     private var toolbarHost: NSView?
@@ -253,12 +255,9 @@ final class ScreenAnnotateController: ObservableObject {
 
     /// The screen with the drawing on it, minus the toolbar: the marks are
     /// already on screen, so they are captured with everything else.
+    /// SPEC: docs/spec.md — "The panel stays on screen while the picture is taken".
     func picture() async -> CGImage? {
         guard let screen = CaptureController.screenUnderPointer() else { return nil }
-        // The panel steps out of the shot; the marks stay, they are the point.
-        toolbarWindow?.orderOut(nil)
-        defer { toolbarWindow?.orderFrontRegardless() }
-
         do {
             let content = try await SCShareableContent.excludingDesktopWindows(
                 false, onScreenWindowsOnly: true
@@ -269,12 +268,25 @@ final class ScreenAnnotateController: ObservableObject {
             guard let display = content.displays.first(where: { $0.displayID == id })
             else { return nil }
 
+            let ours = content.windows.filter {
+                $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier
+            }
+            let shot = MarkupShotWindows(ours: ours.map(\.windowID),
+                                         layer: overlay.windowNumbers,
+                                         panel: toolbarWindow.map { UInt32($0.windowNumber) })
+            let leftOut = ours.filter { shot.leftOut.contains($0.windowID) }
+            if shot.panelStepsAside {
+                Self.log.error("the markup panel is not in the window list; it steps aside")
+                toolbarWindow?.orderOut(nil)
+            }
+            defer { if shot.panelStepsAside { toolbarWindow?.orderFrontRegardless() } }
+
             let configuration = SCStreamConfiguration()
             configuration.width = Int(Double(display.width) * screen.backingScaleFactor)
             configuration.height = Int(Double(display.height) * screen.backingScaleFactor)
             configuration.showsCursor = false
             return try await SCScreenshotManager.captureImage(
-                contentFilter: SCContentFilter(display: display, excludingWindows: []),
+                contentFilter: SCContentFilter(display: display, excludingWindows: leftOut),
                 configuration: configuration
             )
         } catch {

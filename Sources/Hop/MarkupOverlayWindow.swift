@@ -49,6 +49,8 @@ final class MarkupOverlayController {
 
     var isShowing: Bool { !windows.isEmpty }
 
+    var windowNumbers: Set<UInt32> { Set(windows.map { UInt32($0.windowNumber) }) }
+
     func show(content: @escaping (NSScreen) -> NSView) {
         make = content
         rebuild()
