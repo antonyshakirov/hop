@@ -20,6 +20,24 @@ public enum ScreenshotNaming {
         return "shot \(formatter.string(from: date)).\(format)"
     }
 
+    /// A name typed by hand, made into a file name inside the folder: nil when
+    /// nothing usable is left, so the caller falls back to the dated one.
+    /// SPEC: docs/spec.md — "Screenshot", the name field.
+    public static func cleaned(_ typed: String, format: String) -> String? {
+        let parts = typed.components(separatedBy: CharacterSet(charactersIn: "/:"))
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && !$0.allSatisfy { $0 == "." } }
+        var stem = parts.joined(separator: "-")
+        while stem.hasPrefix(".") { stem.removeFirst() }
+        stem = stem.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !stem.isEmpty else { return nil }
+
+        let wanted = format.lowercased()
+        let accepted: Set<String> = wanted == "jpg" || wanted == "jpeg" ? ["jpg", "jpeg"] : [wanted]
+        let ext = URL(fileURLWithPath: stem).pathExtension.lowercased()
+        return accepted.contains(ext) ? stem : "\(stem).\(format)"
+    }
+
     public static func unique(_ name: String, taken: Set<String>) -> String {
         guard taken.contains(name) else { return name }
 

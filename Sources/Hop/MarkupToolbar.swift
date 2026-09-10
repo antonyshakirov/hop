@@ -771,13 +771,19 @@ struct MarkupKeys: NSViewRepresentable {
             window is MarkupToolbarWindow || window?.isKeyWindow == true
         }
 
+        /// SPEC: docs/spec.md — a caption on the layer keeps its letters: the
+        /// field sits in the layer's window, not in the toolbar's.
+        static func aFieldHasTheKeys(_ windows: [NSWindow?]) -> Bool {
+            windows.contains { $0?.firstResponder is NSTextView }
+        }
+
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
             guard window != nil, monitor == nil else { return }
             monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
                 guard let self, self.window?.isVisible == true,
                       // a field being typed into owns its keys
-                      !(self.window?.firstResponder is NSTextView)
+                      !Self.aFieldHasTheKeys([self.window, event.window, NSApp.keyWindow])
                 else { return event }
 
                 if event.modifierFlags.contains(.command) {

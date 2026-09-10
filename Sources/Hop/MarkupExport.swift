@@ -13,7 +13,19 @@ enum MarkupExport {
         dressing: FrameDressing,
         watermark: Watermark
     ) -> CGImage? {
-        var picture = MarkupRender.compose(base: base, shapes: shapes, scale: scale) ?? base
+        finish(MarkupRender.compose(base: base, shapes: shapes, scale: scale),
+               scale: scale, crop: crop, dressing: dressing, watermark: watermark)
+    }
+
+    /// SPEC: docs/spec.md — an export that cannot hide what it was told to hide gives back nothing.
+    static func finish(
+        _ composed: CGImage?,
+        scale: Double,
+        crop: CaptureRect?,
+        dressing: FrameDressing,
+        watermark: Watermark
+    ) -> CGImage? {
+        guard var picture = composed else { return nil }
 
         if let crop, crop.isUsable {
             let box = CGRect(x: crop.x * scale, y: crop.y * scale,
@@ -42,11 +54,11 @@ enum MarkupExport {
         }
     }
 
-    static func copy(_ image: CGImage) {
+    /// SPEC: docs/spec.md — copy says it copied, and only when it did.
+    static func copy(_ image: CGImage, to pasteboard: NSPasteboard = .general) -> Bool {
         let picture = NSImage(cgImage: image, size: NSSize(width: image.width, height: image.height))
-        let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.writeObjects([picture])
+        return pasteboard.writeObjects([picture])
     }
 
     /// Where shots go by default, and where the settings point once changed.
@@ -58,10 +70,11 @@ enum MarkupExport {
             home: manager.homeDirectoryForCurrentUser)
     }
 
-    static func save(_ image: CGImage, format: String, name: String? = nil) -> URL? {
-        let folder = folder()
+    static func save(_ image: CGImage, format: String, name: String? = nil,
+                     into folder: URL = MarkupExport.folder()) -> URL? {
         let taken = Set((try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? [])
-        let wanted = name ?? ScreenshotNaming.fileName(at: Date(), calendar: .current, format: format)
+        let wanted = name.flatMap { ScreenshotNaming.cleaned($0, format: format) }
+            ?? ScreenshotNaming.fileName(at: Date(), calendar: .current, format: format)
         let unique = ScreenshotNaming.unique(wanted, taken: taken)
         let url = folder.appendingPathComponent(unique)
         do {

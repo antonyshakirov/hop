@@ -42,7 +42,9 @@ final class ScreenAnnotateController: ObservableObject {
     func show() {
         guard !isUp, !Snapshot.active else { return }
         isUp = true
-        isDrawing = true
+        let drawing = MarkupSettings.startsDrawing()
+        isDrawing = drawing
+        overlay.onRebuild = { [weak self] in self?.screensChanged() }
         overlay.show { [weak self] screen in
             guard let self else { return NSView() }
             return FirstMouseHostingView(rootView: ScreenAnnotateView(
@@ -54,8 +56,8 @@ final class ScreenAnnotateController: ObservableObject {
                 lang: L10n.current
             ))
         }
-        overlay.setPassesClicks(false)
-        takeTheScreen(true)
+        overlay.setPassesClicks(!drawing)
+        if drawing { takeTheScreen(true) }
         showToolbar()
         HotkeyManager.shared.setDrawingLayerUp(true)
         // Picking a tool IS entering the drawing mode: the arrow at the head of
@@ -85,6 +87,16 @@ final class ScreenAnnotateController: ObservableObject {
         // the pointer: a blur can be put on any of them, and a canvas with no
         // frame to read hides its regions behind a plate instead.
         backdrop.start(on: NSScreen.screens)
+    }
+
+    /// SPEC: docs/spec.md — a display plugged in or taken away while the layer is up.
+    private func screensChanged() {
+        guard isUp else { return }
+        refreshBackdrop()
+        if isDrawing { takeTheScreen(true) }
+        guard let window = toolbarWindow else { return }
+        window.setFrameOrigin(within(window.frame.origin, size: window.frame.size))
+        window.orderFrontRegardless()
     }
 
     /// The panel lives in a window of its own, so the mode that lets clicks
@@ -201,8 +213,8 @@ final class ScreenAnnotateController: ObservableObject {
         HotkeyManager.shared.setDrawingLayerUp(false)
         takeTheScreen(false)
         toolWatch = nil
-        surface.stop()
-        surface.clear()
+        surface.reset()
+        overlay.onRebuild = nil
         overlay.hide()
         toolbarWindow?.orderOut(nil)
         toolbarWindow?.contentView = nil
@@ -246,10 +258,15 @@ final class ScreenAnnotateController: ObservableObject {
     /// SPEC: docs/spec.md — "Saying where the picture went".
     func save(over spot: CGRect) {
         Task { [weak self] in
-            guard let self, let picture = await self.picture() else { return }
+            guard let self else { return }
+            guard let picture = await self.picture() else {
+                return self.failed(.mkSaveFailed, over: spot)
+            }
             let format = UserDefaults.standard.string(forKey: MarkupSettings.formatKey) ?? "png"
-            guard let url = MarkupExport.save(picture, format: format) else { return }
             let lang = L10n.current
+            guard let url = MarkupExport.save(picture, format: format) else {
+                return MarkupNote.show(L10n.t(.mkSaveFailed, lang), over: spot)
+            }
             MarkupNote.show(L10n.t(.mkSaved, lang) + " · "
                                 + Substitutions.isolate(url.lastPathComponent),
                             detail: Substitutions.isolate(
@@ -259,11 +276,24 @@ final class ScreenAnnotateController: ObservableObject {
         }
     }
 
-    func copyToClipboard() {
+    func copyToClipboard(over spot: CGRect, copied: @escaping @MainActor () -> Void) {
         Task { [weak self] in
-            guard let self, let picture = await self.picture() else { return }
-            MarkupExport.copy(picture)
+            guard let self else { return }
+            guard let picture = await self.picture() else {
+                return self.failed(.mkCopyFailed, over: spot)
+            }
+            guard MarkupExport.copy(picture) else {
+                return MarkupNote.show(L10n.t(.mkCopyFailed, L10n.current), over: spot)
+            }
+            copied()
+            MarkupNote.show(L10n.t(.clipboardCopied, L10n.current), over: spot)
         }
+    }
+
+    /// SPEC: docs/spec.md — "Saying where the picture went", a failure says so too.
+    private func failed(_ key: L10nKey, over spot: CGRect) {
+        if !CGPreflightScreenCaptureAccess() { PermissionRepair.askOnce(.screenCapture) }
+        MarkupNote.show(L10n.t(key, L10n.current), over: spot)
     }
 }
 
@@ -450,10 +480,10 @@ struct ScreenAnnotateToolbar: View {
                    height: controller.edge.isVertical ? 1 : 20)
 
         Button {
-            controller.copyToClipboard()
-            copied = true
-            if let whereCopy { MarkupNote.show(L10n.t(.clipboardCopied, lang), over: whereCopy()) }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) { copied = false }
+            controller.copyToClipboard(over: whereCopy?() ?? .zero) {
+                copied = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) { copied = false }
+            }
         } label: {
             MarkupIcon(glyph: copied ? .done : .copy)
                 .foregroundStyle(copied ? Theme.accentGreen : Theme.textSecondary)

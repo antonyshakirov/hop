@@ -2,7 +2,7 @@ import Foundation
 
 /// A mark stamped over the exported picture: the user's own text, or an image
 /// copied into Hop's support folder so a file moved later cannot empty it.
-/// SPEC: .claude/specs/2026-09-07-markup-modules-design.md
+/// SPEC: docs/spec.md — "Screenshot".
 /// Tests: Tests/HopCoreTests/WatermarkTests.swift
 public struct Watermark: Equatable, Codable, Sendable {
     public enum Spot: String, Codable, CaseIterable, Sendable {

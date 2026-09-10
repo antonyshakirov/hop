@@ -29,7 +29,7 @@ struct PanelView: View {
     /// beside a yellow marker is what a hand reaches for.
     @AppStorage(MarkupSettings.sharedColourKey) private var shotSharedColour = false
     @AppStorage(ShotEditorWindows.oneWindowKey) private var shotOneWindow = false
-    @AppStorage("annotateStartsDrawing") private var annotateStartsDrawing = true
+    @AppStorage(MarkupSettings.startsDrawingKey) private var annotateStartsDrawing = true
     @AppStorage(SettingsKey.trackerTimeInBar) private var trackerTimeInBar = false
     @AppStorage(SettingsKey.alertMode) private var alertModeRaw = AlertMode.soundAndBanner.rawValue
     @AppStorage(MediaPauser.settingKey) private var pauseMedia = false

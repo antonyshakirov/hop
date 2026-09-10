@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Deliberately NOT excluded from screen capture: a drawing invisible in a
 /// shared screen would defeat the module.
-/// SPEC: .claude/specs/2026-09-07-markup-modules-design.md
+/// SPEC: docs/spec.md — "Draw over the screen".
 final class MarkupOverlayWindow: NSWindow {
     override var canBecomeKey: Bool { true }
     /// SPEC: docs/spec.md — hiding the Dock only holds while Hop is the active
@@ -44,6 +44,8 @@ final class MarkupOverlayController {
     private var make: ((NSScreen) -> NSView)?
     private var passesClicks = false
     private var watching = false
+    /// SPEC: docs/spec.md — a display plugged in or taken away while the layer is up.
+    var onRebuild: (@MainActor () -> Void)?
 
     var isShowing: Bool { !windows.isEmpty }
 
@@ -98,6 +100,7 @@ final class MarkupOverlayController {
             MainActor.assumeIsolated {
                 guard let self, self.make != nil else { return }
                 self.rebuild()
+                self.onRebuild?()
             }
         }
     }

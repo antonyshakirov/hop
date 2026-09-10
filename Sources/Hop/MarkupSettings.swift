@@ -17,6 +17,12 @@ enum MarkupSettings {
     static let recentColoursKey = "markupRecentColours"
     static let sharedColourKey = "markupSharedColour"
     static let commonColourKey = "markupCommonColour"
+    static let startsDrawingKey = "annotateStartsDrawing"
+
+    /// SPEC: docs/spec.md — the layer opens with a pencil in hand, and a setting says otherwise.
+    static func startsDrawing(_ defaults: UserDefaults = .standard) -> Bool {
+        defaults.object(forKey: startsDrawingKey) as? Bool ?? true
+    }
 
     static func frameDressing() -> FrameDressing {
         decode(dressingKey) ?? .standard

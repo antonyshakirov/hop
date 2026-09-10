@@ -1,6 +1,6 @@
 import Foundation
 
-/// SPEC: .claude/specs/2026-09-07-markup-modules-design.md
+/// SPEC: docs/spec.md — "Screenshot".
 public enum ArrowStyle: String, Codable, CaseIterable, Sendable {
     case thin
     case triangle

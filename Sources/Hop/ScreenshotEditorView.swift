@@ -225,11 +225,11 @@ final class ScreenshotEditor: ObservableObject {
         return url
     }
 
-    func copyToClipboard() {
+    func copyToClipboard() -> Bool {
         MarkupSettings.store(dressing: dressing, watermark: watermark)
-        guard let picture = finished() else { return }
-        MarkupExport.copy(picture)
+        guard let picture = finished(), MarkupExport.copy(picture) else { return false }
         settledCount = surface.shapes.count
+        return true
     }
 }
 
@@ -418,9 +418,12 @@ struct ScreenshotEditorView: View {
                 .onHover { overName = $0 }
 
             Button {
-                editor.copyToClipboard()
+                let spot = whereCopy?() ?? .zero
+                guard editor.copyToClipboard() else {
+                    return MarkupNote.show(L10n.t(.mkCopyFailed, lang), over: spot)
+                }
                 copied = true
-                if let whereCopy { MarkupNote.show(L10n.t(.clipboardCopied, lang), over: whereCopy()) }
+                MarkupNote.show(L10n.t(.clipboardCopied, lang), over: spot)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) { copied = false }
             } label: {
                 MarkupIcon(glyph: copied ? .done : .copy)
@@ -445,6 +448,8 @@ struct ScreenshotEditorView: View {
                                         + " · " + L10n.t(.convReveal, lang),
                                     file: saved, over: spot)
                     onClose()
+                } else {
+                    MarkupNote.show(L10n.t(.mkSaveFailed, lang), over: spot)
                 }
             } label: {
                 MarkupIcon(glyph: .save)

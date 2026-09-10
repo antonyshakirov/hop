@@ -174,6 +174,37 @@ enum MarkupSelfTest {
             print("canvas: the monitors share ONE step count")
             failures += 1
         }
+
+        // SPEC: docs/spec.md — fading ink leaves the history once it is gone.
+        let fading = MarkupSurface()
+        let arrow = MarkupShape(tool: .arrow,
+                                points: [MarkupPoint(x: 10, y: 10), MarkupPoint(x: 90, y: 90)],
+                                ink: ink, createdAt: 0)
+        fading.load([arrow])
+        fading.load([arrow, MarkupShape(tool: .fadingInk,
+                                        points: [MarkupPoint(x: 10, y: 40), MarkupPoint(x: 90, y: 40)],
+                                        ink: ink, createdAt: -60)])
+        let kept = fading.shapes.count
+        fading.undo()
+        print("canvas: faded ink leaves \(kept) marks; after one undo more to undo: \(fading.canUndo)")
+        if kept != 1 || fading.canUndo {
+            print("canvas: faded ink stays in the history and comes back on undo")
+            failures += 1
+        }
+
+        // SPEC: docs/spec.md — closing the drawing layer ends its session.
+        let closing = MarkupSurface()
+        closing.load([arrow])
+        closing.tool = .text
+        closing.begin(at: MarkupPoint(x: 400, y: 400))
+        closing.typing?.text = "half"
+        closing.reset()
+        print("canvas: after a reset undo \(closing.canUndo), redo \(closing.canRedo), "
+              + "typing \(closing.typing != nil), marks \(closing.shapes.count)")
+        if closing.canUndo || closing.canRedo || closing.typing != nil || !closing.shapes.isEmpty {
+            print("canvas: a closed layer leaves something behind for the next session")
+            failures += 1
+        }
         return failures == 0 ? 0 : 1
     }
 
@@ -356,6 +387,32 @@ enum MarkupSelfTest {
         let panel = MarkupToolbarWindow(content: NSView())
         expect(panel.appearance?.name == themed, "the drawing layer's panel ignores Hop's theme")
 
+        // SPEC: docs/spec.md — a caption on the layer keeps its letters.
+        if let screen = NSScreen.screens.first {
+            let captioned = MarkupOverlayWindow(screen: screen, content: NSView())
+            let field = NSTextView(frame: NSRect(x: 0, y: 0, width: 120, height: 24))
+            captioned.contentView?.addSubview(field)
+            captioned.makeFirstResponder(field)
+            expect(captioned.firstResponder === field, "the caption field never took the keys")
+            expect(MarkupKeys.KeyView.aFieldHasTheKeys([panel, captioned]),
+                   "letters typed into a caption on the layer are taken as TOOLS")
+            expect(!MarkupKeys.KeyView.aFieldHasTheKeys([panel]),
+                   "a panel with no field in sight keeps the letters from the tools")
+        }
+
+        // SPEC: docs/spec.md — the layer opens with a pencil in hand, and a setting says otherwise.
+        let suite = "hop.selftest.layer"
+        if let defaults = UserDefaults(suiteName: suite) {
+            defaults.removePersistentDomain(forName: suite)
+            let fresh = MarkupSettings.startsDrawing(defaults)
+            defaults.set(false, forKey: MarkupSettings.startsDrawingKey)
+            let off = MarkupSettings.startsDrawing(defaults)
+            defaults.removePersistentDomain(forName: suite)
+            print("live: the layer starts drawing out of the box \(fresh), with the setting off \(off)")
+            expect(fresh, "the layer out of the box does NOT start drawing")
+            expect(!off, "the layer ignores the setting and starts drawing anyway")
+        }
+
         return failures == 0 ? 0 : 1
     }
 
@@ -520,6 +577,58 @@ enum MarkupSelfTest {
         print("markup: a marker under a lens changes its middle by \(seen)")
         guard seen >= 3000 else {
             print("markup: the lens in the file does NOT show the marker under it")
+            return 1
+        }
+
+        // SPEC: docs/spec.md — an export that cannot hide what it was told to hide gives back nothing.
+        if MarkupExport.finish(nil, scale: 1, crop: nil, dressing: dressing, watermark: watermark) != nil {
+            print("markup: a composition that never came is exported as the BARE picture")
+            return 1
+        }
+        guard MarkupExport.render(base: base, shapes: [], scale: 1, crop: nil,
+                                  dressing: dressing, watermark: watermark) != nil else {
+            print("markup: a shot with no marks exports nothing")
+            return 1
+        }
+
+        // SPEC: docs/spec.md — copy says it copied, and only when it did.
+        let board = NSPasteboard(name: NSPasteboard.Name("hop.selftest.\(UUID().uuidString)"))
+        let copied = MarkupExport.copy(picture, to: board)
+        let onBoard = board.canReadObject(forClasses: [NSImage.self], options: nil)
+        board.releaseGlobally()
+        print("markup: copy answers \(copied), the board holds a picture: \(onBoard)")
+        guard copied, onBoard else {
+            print("markup: copy does not say whether the picture reached the clipboard")
+            return 1
+        }
+
+        // SPEC: docs/spec.md — "Screenshot", a typed name stays inside the folder.
+        let manager = FileManager.default
+        let shelf = manager.temporaryDirectory.appendingPathComponent("hop-selftest-\(UUID().uuidString)")
+        defer { try? manager.removeItem(at: shelf) }
+        guard (try? manager.createDirectory(at: shelf, withIntermediateDirectories: true)) != nil else {
+            print("markup: could not make a folder to save into")
+            return 1
+        }
+        let escaping = MarkupExport.save(picture, format: "png", name: "../escape", into: shelf)
+        let blank = MarkupExport.save(picture, format: "png", name: "  ", into: shelf)
+        let nowhere = MarkupExport.save(picture, format: "png", name: nil,
+                                        into: shelf.appendingPathComponent("gone"))
+        print("markup: a name with a slash saved as \(escaping?.lastPathComponent ?? "nothing"), "
+              + "a blank one as \(blank?.lastPathComponent ?? "nothing"), "
+              + "into a missing folder \(nowhere?.path ?? "nothing")")
+        guard let escaping, escaping.deletingLastPathComponent().standardizedFileURL
+                == shelf.standardizedFileURL,
+              manager.fileExists(atPath: escaping.path) else {
+            print("markup: a typed name leads the file OUT of its folder")
+            return 1
+        }
+        guard let blank, blank.lastPathComponent.hasPrefix("shot ") else {
+            print("markup: a blank name does not fall back to the dated one")
+            return 1
+        }
+        guard nowhere == nil else {
+            print("markup: a save into a missing folder claims it worked")
             return 1
         }
         return picture.width == Int(expected.x) ? 0 : 1

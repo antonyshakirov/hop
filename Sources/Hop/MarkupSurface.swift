@@ -7,7 +7,7 @@ import SwiftUI
 ///
 /// The tick runs ONLY while something is fading — a layer of ordinary marks
 /// keeps no schedule alive.
-/// SPEC: .claude/specs/2026-09-07-markup-modules-design.md
+/// SPEC: docs/spec.md — "Screenshot" and "Draw over the screen".
 @MainActor
 final class MarkupSurface: ObservableObject {
     @Published private(set) var shapes: [MarkupShape] = []
@@ -425,9 +425,32 @@ final class MarkupSurface: ObservableObject {
         publish()
     }
 
+    /// SPEC: docs/spec.md — closing the drawing layer ends its session.
+    func reset() {
+        stop()
+        typing = nil
+        selection = nil
+        editing = nil
+        drafting = nil
+        origin = nil
+        grip = nil
+        grabbed = nil
+        turningDial = false
+        pressed = false
+        document.reset()
+        dropTheKeyboard()
+        publish()
+    }
+
     func stop() {
         ticker?.invalidate()
         ticker = nil
+    }
+
+    /// SPEC: docs/spec.md — fading ink leaves the history once it is gone.
+    private func bury() {
+        document.forget { $0.tool == .fadingInk && FadingInk.opacity(of: $0, now: now) == 0 }
+        shapes = document.shapes
     }
 
     private func publish() {
@@ -444,12 +467,13 @@ final class MarkupSurface: ObservableObject {
                     guard let self else { return }
                     self.now = Date().timeIntervalSince(self.opened)
                     if !FadingInk.needsTicking(self.shapes, now: self.now) {
-                        self.shapes = FadingInk.alive(self.shapes, now: self.now)
+                        self.bury()
                         self.stop()
                     }
                 }
             }
         } else if !needed {
+            bury()
             stop()
         }
     }

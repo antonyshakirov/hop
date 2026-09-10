@@ -2721,7 +2721,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   opened up. SwiftUI's own `ColorPicker` well is not used — a rectangle among
   round swatches.
 - **Copy says it copied**: the glyph becomes a tick for a second. A button that
-  answers nothing leaves the user pressing it again.
+  answers nothing leaves the user pressing it again. It says so only when it
+  did (found 2026-09-10): the tick used to come before the clipboard was even
+  written, and a copy that failed showed it all the same. A failed copy says
+  "not copied" instead. `MarkupExport.copy` answers whether the clipboard took
+  the picture; the export self-test copies into a clipboard of its own.
 - **Every field in the app is a `SteadyField`.** AppKit draws a
   placeholder through the CELL and the typed text through the window's field
   editor, and the two disagree by about a point: the text hops the moment the
@@ -2909,6 +2913,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   ships no WebP encoder, so the list must not promise one. Names are
   `shot <date> at <time>.<ext>`, with ` 2`, ` 3`… appended rather than
   overwriting a shot taken in the same minute.
+- **A name typed into the editor is cleaned before it becomes a file** (found
+  2026-09-10). It went into the path as typed, so `../` climbed out of the
+  folder and a leading dot made the file invisible. Slashes and colons become
+  dashes, leading dots go, the format's extension is added when missing, and a
+  name with nothing left in it gets the dated one. `ScreenshotNaming.cleaned`
+  (`ScreenshotNamingTests`); the export self-test saves `../escape` and a blank
+  name into a folder of its own, and into a folder that is not there.
 - `Hop --canvas-selftest <out.png>` renders the EDITOR's canvas offscreen and
   reads the pixels back: each lens's rim is found in the tool's own colour, and
   the busiest lens has to have changed what it covers. The export path builds
@@ -2967,7 +2978,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   "start in drawing mode"). The module is opened to draw, so making the first
   stroke cost a second press was a step for nothing; whoever opens it to point
   at something instead turns the setting off and gets the screen handed through
-  from the start.
+  from the start. The setting was stored and never read (found 2026-09-10): the
+  layer opened drawing either way. `MarkupSettings.startsDrawing`; the live
+  self-test reads it with nothing stored and with the setting off.
+- **A caption on the layer keeps its letters** (found 2026-09-10). Bare letters
+  pick tools, and the keys were only left alone when a field was typed into in
+  the TOOLBAR's window — the caption's field lives in the layer's, so typing
+  "hello" switched tools and wrote nothing. Letters go to a field in any of the
+  layer's windows. `MarkupKeys.KeyView.aFieldHasTheKeys`; the live self-test
+  puts a field in a layer window.
+- **A display plugged in or taken away while the layer is up** (found
+  2026-09-10). The layer's windows were rebuilt, and nothing else was: the
+  backdrop streams still watched the old set of displays, no window was key, the
+  Dock came back, and the panel could be left on a monitor that was gone. Now the
+  streams follow the new set, drawing takes the keyboard and the Dock again, and
+  the panel is brought back within reach.
 - **A key for the mode, ⌃⌥P out of the box** (Anton, 2026-09-08).
   `ModuleCatalog.annotatePassAction` — one key, both ways: it hands the screen
   over and takes it back, so windows can be moved and clicked and the drawing
@@ -3093,7 +3118,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the account number in the open and a red ring drawn helpfully round it. Every
   one of them now hides more than was asked for rather than less, a region the
   filters could not touch goes under flat black, and an export that cannot hide
-  what it was told to hide gives back nothing at all. The editor's preview
+  what it was told to hide gives back nothing at all. The last fallback, the
+  bare picture handed on when compositing gave up, was found 2026-09-10:
+  `MarkupExport.finish`, which the export self-test hands nothing. The editor's preview
   answers to the same rule: until its backdrop is built there is nothing baked
   in yet, so the canvas hides the regions itself instead of showing what is
   under them.
@@ -3101,7 +3128,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   not an empty drag. Drawing nothing at all read as a broken tool.
 - **Save and Copy take the display under the pointer, or nothing** (2026-09-09).
   Handed a display the system no longer lists, the capture fell back to whatever
-  display came first and wrote a picture of ANOTHER monitor to disk.
+  display came first and wrote a picture of ANOTHER monitor to disk. The
+  screenshot capture carried the same fallback (found 2026-09-10) and now fails
+  the same way.
 - **The loupe magnifies what the blur left, not the frame behind it**
   (measured 2026-09-09). In the editor the backdrop already carries the blur;
   over the live screen the canvas draws it, and glass laid on top used to
@@ -3142,8 +3171,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   it carried the stamp it was born with. A stroke still under the hand is drawn
   at full strength, and its stamp is rewritten when the hand comes up. ONE timer serves the whole layer and stops the moment the last
   fading stroke is gone; a layer of ordinary marks keeps no schedule alive.
+  A faded stroke leaves the history as well (found 2026-09-10): it stayed in
+  it, so undo brought a stroke back from nowhere or spent a press on nothing
+  to see. `MarkupDocument.forget` (`MarkupDocumentTests`); the canvas self-test
+  fades a stroke and counts what undo has left.
 - "Save" and "copy" capture the screen together with the drawing; the toolbar
   steps out of the shot first. "Clear" empties the layer, the cross closes it.
+- **Closing the layer ends its session** (found 2026-09-10). The cross cleared
+  the marks and kept the rest: undo on the next opening brought the last
+  session's marks back, and a half-typed caption or a drag in progress came
+  along with them. `MarkupSurface.reset`; the canvas self-test resets a surface
+  holding a mark and a caption.
 - **The layer is NOT excluded from screen capture** — that is the point: the
   marks have to be visible to the other side of a call and in a recording.
 - Known limit, said out loud in the docs: the drawing reaches other people only
@@ -3199,6 +3237,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   state, and the card is the sentence.
 - Both markup modules use it, from the same button positions their hints come
   from (`markupAnchor`).
+- **A failure says so too** (found 2026-09-10). A save or a copy that did not
+  happen used to end in silence, and the editor closed as if the file were
+  written. The same card says "not saved" or "not copied", and the editor stays
+  open with the picture in it. On the drawing layer the usual cause is a screen
+  recording permission taken away, so the layer asks for it once before saying
+  so.
 
 ### The markup toolbar (both modules)
 

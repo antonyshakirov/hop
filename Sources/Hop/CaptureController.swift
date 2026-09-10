@@ -8,7 +8,7 @@ import SwiftUI
 ///
 /// The frame is ours rather than the system's `screencapture -i`, which never
 /// says WHICH rectangle was chosen — without that "repeat the last area" cannot
-/// exist. SPEC: .claude/specs/2026-09-07-markup-modules-design.md
+/// exist. SPEC: docs/spec.md — "Screenshot".
 @MainActor
 final class CaptureController: ObservableObject {
     enum Mode {
@@ -162,7 +162,7 @@ final class CaptureController: ObservableObject {
                 false, onScreenWindowsOnly: true
             )
             guard let display = content.displays.first(where: { $0.displayID == rect.displayID })
-                    ?? content.displays.first else { return nil }
+            else { return nil }
 
             let ours = content.windows.filter {
                 $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier

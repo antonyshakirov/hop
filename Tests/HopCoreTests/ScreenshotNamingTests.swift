@@ -73,4 +73,31 @@ final class ScreenshotNamingTests: XCTestCase {
         let home = URL(fileURLWithPath: "/Users/x")
         XCTAssertEqual(ScreenshotNaming.folder(stored: nil, desktop: nil, home: home), home)
     }
+
+    // MARK: - A name typed by hand
+
+    /// SPEC: docs/spec.md — "Screenshot", the name field. A slash made the
+    /// name a path into a folder that does not exist, and the save failed.
+    func testASlashCannotLeadOutOfTheFolder() {
+        XCTAssertEqual(ScreenshotNaming.cleaned("../../etc/shot", format: "png"), "etc-shot.png")
+        XCTAssertEqual(ScreenshotNaming.cleaned("a/b:c", format: "png"), "a-b-c.png")
+    }
+
+    func testANameWithoutItsExtensionGetsOne() {
+        XCTAssertEqual(ScreenshotNaming.cleaned("report", format: "jpg"), "report.jpg")
+        XCTAssertEqual(ScreenshotNaming.cleaned("report.PNG", format: "png"), "report.PNG")
+        XCTAssertEqual(ScreenshotNaming.cleaned("report.jpeg", format: "jpg"), "report.jpeg")
+    }
+
+    /// The format decides what is written, so a name claiming another one
+    /// keeps its words and gets the true extension after them.
+    func testANameClaimingAnotherFormatGetsTheRealOne() {
+        XCTAssertEqual(ScreenshotNaming.cleaned("report.png", format: "jpg"), "report.png.jpg")
+    }
+
+    func testAHiddenOrEmptyNameIsNoName() {
+        XCTAssertNil(ScreenshotNaming.cleaned("   ", format: "png"))
+        XCTAssertNil(ScreenshotNaming.cleaned("..", format: "png"))
+        XCTAssertEqual(ScreenshotNaming.cleaned(".shot", format: "png"), "shot.png")
+    }
 }

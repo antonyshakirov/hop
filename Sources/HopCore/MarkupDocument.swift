@@ -2,7 +2,7 @@ import Foundation
 
 /// The only door into the marks on one surface; views read `shapes` and never
 /// edit them. A change that changes nothing pushes no history.
-/// SPEC: .claude/specs/2026-09-07-markup-modules-design.md
+/// SPEC: docs/spec.md — "Screenshot" and "Draw over the screen".
 /// Tests: Tests/HopCoreTests/MarkupDocumentTests.swift
 public final class MarkupDocument {
     public private(set) var shapes: [MarkupShape] = []
@@ -49,6 +49,27 @@ public final class MarkupDocument {
         guard let next = future.popLast() else { return }
         past.append(shapes)
         shapes = next
+    }
+
+    /// Takes marks out of every step of the history, not as a step of its own:
+    /// ink that has faded must not come back, even invisibly, on undo.
+    public func forget(where gone: (MarkupShape) -> Bool) {
+        let timeline = (past + [shapes] + future.reversed()).map { $0.filter { !gone($0) } }
+        var kept: [[MarkupShape]] = []
+        var here = 0
+        for (index, state) in timeline.enumerated() {
+            if kept.last != state { kept.append(state) }
+            if index == past.count { here = kept.count - 1 }
+        }
+        past = Array(kept[..<here])
+        shapes = kept[here]
+        future = Array(kept[(here + 1)...].reversed())
+    }
+
+    public func reset() {
+        shapes = []
+        past = []
+        future = []
     }
 
     private func commit(_ change: (inout [MarkupShape]) -> Void) {

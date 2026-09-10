@@ -114,4 +114,54 @@ final class MarkupDocumentTests: XCTestCase {
         doc.undo()
         XCTAssertEqual(doc.shapes.compactMap(\.step), [1, 2])
     }
+
+    // MARK: - Ink that has faded
+
+    /// SPEC: docs/spec.md — "Draw over the screen", fading ink. A faded stroke
+    /// kept in the history came back invisible on undo, one press per stroke.
+    func testForgottenMarksLeaveTheHistoryToo() {
+        let doc = MarkupDocument()
+        doc.add(stroke(.arrow))
+        doc.add(stroke(.fadingInk))
+        doc.add(stroke(.fadingInk))
+
+        doc.forget { $0.tool == .fadingInk }
+
+        XCTAssertEqual(doc.shapes.map(\.tool), [.arrow])
+        doc.undo()
+        XCTAssertTrue(doc.shapes.isEmpty)
+        XCTAssertFalse(doc.canUndo)
+    }
+
+    func testForgettingKeepsWhatIsStillToRedo() {
+        let doc = MarkupDocument()
+        doc.add(stroke(.fadingInk))
+        doc.add(stroke(.arrow))
+        doc.add(stroke(.oval))
+        doc.undo()
+
+        doc.forget { $0.tool == .fadingInk }
+
+        XCTAssertEqual(doc.shapes.map(\.tool), [.arrow])
+        doc.redo()
+        XCTAssertEqual(doc.shapes.map(\.tool), [.arrow, .oval])
+        doc.undo()
+        doc.undo()
+        XCTAssertTrue(doc.shapes.isEmpty)
+        XCTAssertFalse(doc.canUndo)
+    }
+
+    /// SPEC: docs/spec.md — closing the drawing layer ends its session.
+    func testAResetLeavesNothingToUndoOrRedo() {
+        let doc = MarkupDocument()
+        doc.add(stroke())
+        doc.add(stroke(.oval))
+        doc.undo()
+
+        doc.reset()
+
+        XCTAssertTrue(doc.shapes.isEmpty)
+        XCTAssertFalse(doc.canUndo)
+        XCTAssertFalse(doc.canRedo)
+    }
 }
