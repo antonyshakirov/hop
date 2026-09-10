@@ -74,6 +74,13 @@ final class ScreenAnnotateController: ObservableObject {
             .throttle(for: .milliseconds(200), scheduler: RunLoop.main, latest: true)
             .sink { [weak self] _ in self?.refreshBackdrop() }
         refreshBackdrop()
+        takeStills()
+    }
+
+    /// SPEC: docs/spec.md — "The first loupe or blur reads a still until the stream comes up".
+    private func takeStills() {
+        guard isUp, CGPreflightScreenCaptureAccess() else { return }
+        backdrop.takeStills(of: NSScreen.screens)
     }
 
     /// SPEC: docs/spec.md — the loupe and the blur over the live screen.
@@ -110,6 +117,7 @@ final class ScreenAnnotateController: ObservableObject {
     private func screensChanged() {
         guard isUp else { return }
         refreshBackdrop()
+        takeStills()
         if isDrawing { takeTheScreen(true) }
         guard let window = toolbarWindow else { return }
         window.setFrameOrigin(within(window.frame.origin, size: window.frame.size))
@@ -177,7 +185,9 @@ final class ScreenAnnotateController: ObservableObject {
     }
 
     func setDrawing(_ drawing: Bool) {
+        let takesTheScreenBack = drawing && !isDrawing
         isDrawing = drawing
+        if takesTheScreenBack { takeStills() }
         overlay.setPassesClicks(!drawing)
         takeTheScreen(drawing)
     }
@@ -226,7 +236,7 @@ final class ScreenAnnotateController: ObservableObject {
 
     func exit() {
         backdropWatch = nil
-        backdrop.stop()
+        backdrop.end()
         HotkeyManager.shared.setDrawingLayerUp(false)
         takeTheScreen(false)
         toolWatch = nil
@@ -319,7 +329,7 @@ struct ScreenAnnotateView: View {
     private var screenSize: CGSize { screen.size }
 
     /// SPEC: docs/spec.md — each display's layer draws from its own frame.
-    private var frame: CGImage? { backdrop.frames[display] }
+    private var frame: CGImage? { backdrop.pictures[display] }
 
     var body: some View {
         ZStack(alignment: .top) {

@@ -3087,13 +3087,30 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   list already holds a switched-off row for Hop, so the layer opened, the
   stream never arrived, the loupe and the blur went black and copy and save
   failed — and nothing on screen said why.
+- **The first loupe or blur reads a still until the stream comes up** (Anton,
+  2026-09-10). The stream starts when the tool is picked and takes about half a
+  second to send its first frame, and the first loupe sat black inside its rim
+  all that time; a second one did not, the stream being up by then. The layer
+  takes ONE still of every display when it opens, when the drawing takes the
+  screen back from pass-through, and when a display comes or goes. A loupe or a
+  blur reads that still until the display's first streamed frame replaces it.
+  A still that lands after the first frame is dropped; a display holds one
+  picture at a time; a stream stopped because neither tool is wanted leaves its
+  last frame behind as the still; a still taken before the layer closed is never
+  read after it. Nothing runs in the background for this: a still is one shot
+  per display at those three moments, and the screen recording indicator is not
+  held for the whole time the layer is up. Both the still and the stream leave
+  out Hop as an APPLICATION rather than a list of its windows: a list is taken
+  once, and the layer's own windows are still being ordered in while the still
+  is taken. `BackdropPictures` (`BackdropPicturesTests`).
 - **EVERY display the layer covers is streamed, and each canvas draws from its
   own** (2026-09-09). A blur or a loupe can go on any monitor, so one stream
   between them cannot work either way round: reading whichever display happened
   to be streamed smeared the FIRST monitor's pixels over a blur on the second,
   and treating the others as having no frame turned them into black plates —
   a whole second monitor black, in "out" mode. A display whose stream has not
-  come up yet still fails closed, but that is now a moment rather than a state.
+  come up yet reads its still, and fails closed only when there is no still
+  either.
 - **A stream that DIED is asked for again; one that never started is not**
   (2026-09-09). A display unplugged, woken, or a permission taken back reaches
   Hop through the stream's delegate: the last frame is dropped there and then,
@@ -3113,8 +3130,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the one thing a mosaic exists not to be. `GraphicsContext` cannot pixellate,
   so the mosaic is cut from the frame by Core Image (`MarkupRender.tiled`) at
   most once per frame per size and handed to the canvas as a picture.
-- **A blur with nothing to read fails CLOSED**: no permission, a stream still
-  coming up, or no settings on the mark at all, and the region is covered by a
+- **A blur with nothing to read fails CLOSED**: no permission, neither a still
+  nor a streamed frame yet, or no settings on the mark at all, and the region is covered by a
   solid plate — "out" covers everything but the region. A mark that says it
   hides a name while showing it is worse than one that hides too much. Dots
   asked for with no tiles cut go under the same plate rather than under a blur:
