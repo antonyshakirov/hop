@@ -1801,7 +1801,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   glyph is `.leading` in its own 20pt hit area — centred, it stood 4.5pt right
   of that line while the word `repeat` under it stood on it. The weekday squares
   are NOT columned under the day chip: the `repeat` caption is a word, and its
-  width differs across the twenty-two languages. Pressing it
+  width differs from one language to the next. Pressing it
   The former ✓ in the bottom-right is a `chevron.up`
   (`tipCollapse`) that folds the card: a tick sitting next to a task was read as
   "check this off", not as "save" (Vanya, 2026-09-08). The card carries no tick
@@ -2398,7 +2398,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Languages
 
-- **Twenty-two.** English, Russian, German, Spanish, Portuguese, French, Italian,
+- English, Russian, German, Spanish, Portuguese, French, Italian,
   Chinese, Japanese, Dutch, Korean, Thai, Vietnamese, Hindi, Indonesian,
   Turkish, Polish, **Serbian, Arabic, Hebrew, Persian and Urdu** (Anton,
   2026-09-08). The last five are ADDED, not restored: four of them shipped in
@@ -2407,6 +2407,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   Their tables are written against the CURRENT key set, not the one they left,
   so nothing arrives already behind.
 - **Ukrainian is deliberately not among them** (Anton, 2026-09-08).
+- **The number of languages is written nowhere** (Anton): not in the release
+  notes, the README, the site or this spec. The list names them; a count goes
+  stale with the next language added and is then simply wrong.
 - Arabic, Hebrew, Persian and Urdu are right to left, and `isRTL` drives
   `hopLayoutDirection()` — Hop picks its language in-app rather than through the
   system locale, so nothing else can tell SwiftUI which way a window runs.
@@ -3126,7 +3129,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **The release card tells, and the full notes explain**: `"2.1"` carries three
   lines — the screenshot with its editor, the drawing layer, and the languages
   added — and its button opens the notes, where the release has a section of its
-  own in all twenty-two languages. Each line names the job and then what to do
+  own in every language. Each line names the job and then what to do
   with it ("screenshots with an editor: add captions and drawings…"), not the
   inventory of tools (Anton, 2026-09-09): a list of features is read as a list
   and answers nothing. Where the file lands is deliberately NOT on the card —
@@ -4322,7 +4325,7 @@ converter (Anton, 2026-07-28).
   mirrors the localized-README rule: Russian → https://web.tribute.tg/d/Nvp,
   every other locale → https://web.tribute.tg/d/Nvk. All strings are
   country/currency-neutral; the amount and any currency are Tribute's concern.
-  Keys `donateTitle` and `donateBody` are translated across all twenty-two languages.
+  Keys `donateTitle` and `donateBody` are translated into every language.
 - Languages in pickers use the standard order, like system lists:
   alphabetical by NATIVE names, Latin → Cyrillic → CJK (pickerOrder,
   localizedCompare). FINAL per Anton 2026-07-13; the "by English names"
@@ -4693,7 +4696,7 @@ converter (Anton, 2026-07-28).
   by a repeat. What counts as a substitution here is exactly what
   `Substitutions.fill` puts a value into — `%1@` and `%0$@` are read as
   characters by both — so the check and the code can never disagree about what
-  a table carries. All 732 keys across 22 languages pass today; the check is
+  a table carries. All 732 keys pass in every language today; the check is
   there for the next translation.
 - The menu-bar icon is NOT mirrored: the bar itself stays in the system's
   direction, and the badge corners are documented positions, not text.

@@ -28,6 +28,6 @@ jobs:
 
       # The same script the pre-push hook and release.sh run, so CI cannot
       # pass on something either of them would reject: build (warnings are
-      # failures), tests, and every UI string present in all 22 languages.
+      # failures), tests, and every UI string present in every language.
       - name: Checks
         run: ./scripts/checks.sh
