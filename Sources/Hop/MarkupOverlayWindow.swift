@@ -25,6 +25,7 @@ final class MarkupOverlayWindow: NSWindow {
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         isReleasedWhenClosed = false
         ignoresMouseEvents = false
+        appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         contentView = content
         setFrame(screen.frame, display: false)
     }
@@ -123,6 +124,7 @@ final class MarkupToolbarWindow: NSPanel {
         isReleasedWhenClosed = false
         isMovableByWindowBackground = false
         hidesOnDeactivate = false
+        appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         contentView = content
         setContentSize(content.fittingSize)
     }

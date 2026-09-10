@@ -708,6 +708,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         screenTextWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         torrentAddWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         quitWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        shotWindows.windows.forEach { $0.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua) }
         model.themeVersion &+= 1 // redraw everything, including views with unchanged inputs
         guard refreshIcon else { return }
         // Debounced: clicking through the three chips would otherwise write the

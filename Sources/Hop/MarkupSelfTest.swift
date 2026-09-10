@@ -345,6 +345,17 @@ enum MarkupSelfTest {
         expect(there >= 3000, "a stroke is NOT drawn on its own monitor")
         expect(elsewhere < 200, "a stroke on one monitor is drawn on ANOTHER")
 
+        // SPEC: docs/spec.md — the drawing layer wears Hop's theme, not the system's.
+        let themed: NSAppearance.Name = Theme.isDark ? .darkAqua : .aqua
+        if let screen = NSScreen.screens.first {
+            let layer = MarkupOverlayWindow(screen: screen, content: NSView())
+            expect(layer.appearance?.name == themed, "the drawing layer ignores Hop's theme")
+        } else {
+            print("live: no screen to build the drawing layer on")
+        }
+        let panel = MarkupToolbarWindow(content: NSView())
+        expect(panel.appearance?.name == themed, "the drawing layer's panel ignores Hop's theme")
+
         return failures == 0 ? 0 : 1
     }
 

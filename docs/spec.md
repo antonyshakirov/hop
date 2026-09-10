@@ -3128,6 +3128,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `MarkupScreens` (`MarkupScreensTests`, `StepNumberingTests`); the canvas
   self-test picks a mark from the other monitor, the live self-test draws a
   stroke on the monitor it does not belong to.
+- **The drawing layer wears Hop's theme, not the system's** (found 2026-09-10).
+  The layer's windows and the panel's window were given no appearance, so they
+  took the system's, and so did every popover opened from them: with Hop set to
+  light on a dark Mac the sliders of the blur bar, the width and the blur
+  settings lost their tracks on a white plate. Both windows are made in Hop's
+  theme, like every other window of the app, and an open screenshot editor
+  follows a theme change the way the settings window does. The live self-test
+  builds both windows and checks what they wear.
 - **Fading ink** disappears about two seconds after the pointer lifts, over half
   a second — and the count starts at the LIFT, not at the first point (Anton,
   2026-09-09): a long stroke was half gone by the time it was finished, because
