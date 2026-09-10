@@ -2902,6 +2902,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   views, and AppKit views come out as a yellow block outside a running window,
   which is how the first run of this test "passed" on nothing at all. It is step
   3 of `scripts/checks.sh`.
+- `Hop --live-selftest <dir>` renders the DRAWING LAYER's canvas — no backdrop,
+  a made-up frame standing in for the stream — once per blur setting, and reads
+  the pixels back: how much there is left to read inside the region under a
+  blur, under a mosaic, under the loupe laid over it, outside it in "out" mode,
+  beside a region of the other style, with an oval cut instead of a rectangle,
+  with no settings on the mark, and with no frame at all — the last two under
+  the loupe as well as flat. The no-frame case is read through the ALPHA: the layer is transparent, so a
+  region under a black plate and a region left open read the same light, and a
+  check on brightness alone could not fail. It is what settled that the loupe
+  was magnifying the raw stream past the blur (2026-09-09), and it is step 4 of
+  `scripts/checks.sh`, which renders into a directory of its own each run.
 - `Hop --markup-selftest <out.png>` runs the whole export path — marks, blur,
   watermark, dressing — over a made-up frame and writes the result. It found the
   browser bar drawn below the picture, an arrow head too thin to read, and the
@@ -3015,10 +3026,69 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   excluded — the glass would otherwise show itself — and the newest frame is
   what they magnify and smear. The stream is a cost, so it runs only while the
   layer is up AND either tool is in hand or a mark of that kind is already on
-  the layer; it stops the moment neither is true, and on the way out.
-  Known limit: the stream follows the display the pointer was on when it
-  started, so a loupe pulled out on a second monitor shows the first one until
-  the tool is taken again there.
+  the layer; it stops the moment neither is true, and on the way out. The
+  screen recording permission is asked for BEFORE the first frame is needed:
+  with no permission the stream never arrives, and a tool that quietly covers
+  its region with a plate reads as broken rather than as unauthorised. The ask
+  is `PermissionRepair.askOnce` — once per run, and WITHOUT the `tccutil reset`
+  its neighbour `askAgain` runs first. It counts its asks apart from that
+  neighbour's: shared, an ask that reset nothing both blocked a later reset and
+  raised the settings screen's "restart Hop" row for a restart that changes
+  nothing. A tool reaching for a permission on its
+  own must not be able to throw away a grant the user has already given; the
+  reset stays behind the button in the settings, where the user asked for it.
+- **EVERY display the layer covers is streamed, and each canvas draws from its
+  own** (2026-09-09). The same marks are drawn on every monitor, so one stream
+  between them cannot work either way round: reading whichever display happened
+  to be streamed smeared the FIRST monitor's pixels over a blur on the second,
+  and treating the others as having no frame turned them into black plates —
+  a whole second monitor black, in "out" mode. A display whose stream has not
+  come up yet still fails closed, but that is now a moment rather than a state.
+- **A stream that DIED is asked for again; one that never started is not**
+  (2026-09-09). A display unplugged, woken, or a permission taken back reaches
+  Hop through the stream's delegate: the last frame is dropped there and then,
+  and the display goes back to being one nobody has asked about yet. Held as
+  "already asked", a monitor that slept once left the loupe and the blur black
+  for the rest of the session. A stream that refused to START is a different
+  answer and is not asked again: the canvas fails closed meanwhile, and a retry
+  behind every redraw would put a system call under the pointer, which
+  `rules/performance-budget.md` forbids.
+- **A stream that will not stop says so.** It is the one error on the way out,
+  and discarded it leaves a capture running that nothing holds a handle to.
+- **The blur over the live screen obeys the bar drawn under it**: "in" and
+  "out", blur and dots, the shape and the strength. The bar advertised all six
+  and the canvas read none of them, so "out" — hide everything EXCEPT this —
+  did the exact opposite of what was asked, and "dots" drew a blur, which is
+  the one thing a mosaic exists not to be. `GraphicsContext` cannot pixellate,
+  so the mosaic is cut from the frame by Core Image (`MarkupRender.tiled`) at
+  most once per frame per size and handed to the canvas as a picture.
+- **A blur with nothing to read fails CLOSED**: no permission, a stream still
+  coming up, or no settings on the mark at all, and the region is covered by a
+  solid plate — "out" covers everything but the region. A mark that says it
+  hides a name while showing it is worse than one that hides too much. Dots
+  asked for with no tiles cut go under the same plate rather than under a blur:
+  a gaussian standing in for a mosaic is a promise not kept.
+- **The same promise holds where a FILE comes out of it** (2026-09-09). The
+  export's blur ran through Core Image and, on any failure, four separate
+  fallbacks composited the marks over the UNBLURRED picture: a saved file with
+  the account number in the open and a red ring drawn helpfully round it. Every
+  one of them now hides more than was asked for rather than less, a region the
+  filters could not touch goes under flat black, and an export that cannot hide
+  what it was told to hide gives back nothing at all. The editor's preview
+  answers to the same rule: until its backdrop is built there is nothing baked
+  in yet, so the canvas hides the regions itself instead of showing what is
+  under them.
+- **A loupe with nothing to read fails closed too** — black glass in its rim,
+  not an empty drag. Drawing nothing at all read as a broken tool.
+- **Save and Copy take the display under the pointer, or nothing** (2026-09-09).
+  Handed a display the system no longer lists, the capture fell back to whatever
+  display came first and wrote a picture of ANOTHER monitor to disk.
+- **The loupe magnifies what the blur left, not the frame behind it**
+  (measured 2026-09-09). In the editor the backdrop already carries the blur;
+  over the live screen the canvas draws it, and glass laid on top used to
+  magnify the raw stream straight past it — a name covered on a call came back
+  readable under the lens. Every blur region is laid down again inside the
+  lens, scaled about its centre by the same zoom.
 - **Fading ink** disappears about two seconds after the pointer lifts, over half
   a second — and the count starts at the LIFT, not at the first point (Anton,
   2026-09-09): a long stroke was half gone by the time it was finished, because

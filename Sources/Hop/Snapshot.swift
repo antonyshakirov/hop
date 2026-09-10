@@ -194,6 +194,12 @@ enum Snapshot {
             exit(MarkupSelfTest.canvas(to: args[i + 1]))
         }
 
+        // `Hop --live-selftest <dir>` renders the DRAWING LAYER's canvas: no
+        // backdrop, the live stream underneath, the blur and the loupe over it.
+        if let i = args.firstIndex(of: "--live-selftest"), args.count > i + 1 {
+            exit(MarkupSelfTest.live(to: args[i + 1]))
+        }
+
         // `Hop --icons-check` names every tab symbol this system cannot draw.
         if args.contains("--icons-check") {
             let missing = IconCatalog.missing()

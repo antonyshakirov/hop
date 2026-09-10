@@ -50,6 +50,7 @@ final class ScreenAnnotateController: ObservableObject {
                 surface: self.surface,
                 backdrop: self.backdrop,
                 screen: screen.frame,
+                display: CaptureController.displayID(of: screen),
                 lang: L10n.current
             ))
         }
@@ -74,11 +75,16 @@ final class ScreenAnnotateController: ObservableObject {
         let reading: Set<MarkupTool> = [.magnifier, .blur]
         let wanted = reading.contains(surface.tool)
             || surface.shapes.contains { reading.contains($0.tool) }
-        if wanted {
-            backdrop.start(on: CaptureController.screenUnderPointer())
-        } else {
+        guard wanted else { return backdrop.stop() }
+        guard CGPreflightScreenCaptureAccess() else {
             backdrop.stop()
+            PermissionRepair.askOnce(.screenCapture)
+            return
         }
+        // Every display the layer covers is streamed, not just the one under
+        // the pointer: the same marks are drawn on all of them, and a canvas
+        // with no frame to read hides its regions behind a plate instead.
+        backdrop.start(on: NSScreen.screens)
     }
 
     /// The panel lives in a window of its own, so the mode that lets clicks
@@ -219,8 +225,10 @@ final class ScreenAnnotateController: ObservableObject {
                 false, onScreenWindowsOnly: true
             )
             let id = CaptureController.displayID(of: screen)
+            // No falling back to whatever display comes first: Save would
+            // write a picture of a screen nobody asked for.
             guard let display = content.displays.first(where: { $0.displayID == id })
-                    ?? content.displays.first else { return nil }
+            else { return nil }
 
             let configuration = SCStreamConfiguration()
             configuration.width = Int(Double(display.width) * screen.backingScaleFactor)
@@ -264,13 +272,18 @@ struct ScreenAnnotateView: View {
     @ObservedObject var surface: MarkupSurface
     @ObservedObject var backdrop: LiveScreenBackdrop
     let screen: NSRect
+    let display: UInt32
     let lang: AppLanguage
 
     private var screenSize: CGSize { screen.size }
 
+    /// SPEC: docs/spec.md — each display's layer draws from its own frame.
+    private var frame: CGImage? { backdrop.frames[display] }
+
     var body: some View {
         ZStack(alignment: .top) {
-            MarkupCanvas(surface: surface, background: nil, source: live, scale: 1)
+            MarkupCanvas(surface: surface, background: nil, source: live,
+                         mosaics: mosaics, scale: 1)
                 .frame(width: screenSize.width, height: screenSize.height)
                 .allowsHitTesting(controller.isDrawing)
 
@@ -295,10 +308,24 @@ struct ScreenAnnotateView: View {
         .frame(width: screenSize.width, height: screenSize.height)
     }
 
-    /// The streamed screen, in the layer's own points.
     private var live: Image? {
-        guard let frame = backdrop.frame else { return nil }
+        guard let frame, screenSize.width > 0 else { return nil }
         return Image(decorative: frame, scale: CGFloat(frame.width) / screenSize.width)
+    }
+
+    /// SPEC: docs/spec.md — the blur styles.
+    private var mosaics: [Int: Image] {
+        guard let frame, screenSize.width > 0 else { return [:] }
+        let backing = CGFloat(frame.width) / screenSize.width
+        var out: [Int: Image] = [:]
+        for shape in surface.visible where shape.tool == .blur {
+            guard let blur = shape.blur, blur.style == .pixels,
+                  out[blur.strength] == nil else { continue }
+            let side = Int((MarkupBlur.mosaic(forStrength: blur.strength) * backing).rounded())
+            guard let tiles = backdrop.tiled(display: display, side: side) else { continue }
+            out[blur.strength] = Image(decorative: tiles, scale: backing)
+        }
+        return out
     }
 
     /// SPEC: docs/spec.md — the tag carries the mode key.

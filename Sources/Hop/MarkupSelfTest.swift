@@ -1,4 +1,5 @@
 import AppKit
+import CoreImage
 import HopCore
 import SwiftUI
 
@@ -39,6 +40,7 @@ enum MarkupSelfTest {
 
         let view = MarkupCanvas(surface: surface,
                                 background: Image(decorative: base, scale: 1),
+                                baked: true,
                                 scale: 1,
                                 chrome: false)
             .frame(width: 1200, height: 750)
@@ -122,6 +124,161 @@ enum MarkupSelfTest {
         return failures == 0 ? 0 : 1
     }
 
+    /// The canvas as the DRAWING LAYER draws it, once per blur setting.
+    /// SPEC: docs/spec.md — the loupe and the blur over the live screen.
+    @MainActor
+    static func live(to directory: String) -> Int32 {
+        guard let base = sampleFrame(width: 1200, height: 750) else {
+            print("live: could not build the sample frame")
+            return 1
+        }
+        let source = Image(decorative: base, scale: 1)
+        let ink = MarkupInk(hex: "#FF453A", width: 4)
+
+        func region(_ settings: MarkupBlur, at rect: CGRect = CGRect(x: 110, y: 440,
+                                                                    width: 510, height: 160))
+        -> MarkupShape {
+            var shape = MarkupShape(tool: .blur,
+                                    points: [MarkupPoint(x: rect.minX, y: rect.minY),
+                                             MarkupPoint(x: rect.maxX, y: rect.maxY)],
+                                    ink: ink, createdAt: 0)
+            shape.blur = settings
+            return shape
+        }
+        let second = CGRect(x: 100, y: 55, width: 430, height: 90)
+        let lens = MarkupShape(tool: .magnifier,
+                               points: [MarkupPoint(x: 200, y: 460), MarkupPoint(x: 340, y: 600)],
+                               ink: MarkupInk(hex: "#FFFFFF", width: 5),
+                               magnification: 3, createdAt: 1)
+
+        func shot(_ shapes: [MarkupShape], _ name: String, blind: Bool = false) -> Pixels? {
+            let surface = MarkupSurface()
+            surface.load(shapes)
+            var tiles: [Int: Image] = [:]
+            for shape in shapes where shape.blur?.style == .pixels {
+                guard let strength = shape.blur?.strength,
+                      let cut = MarkupRender.tiled(CIImage(cgImage: base),
+                                                   side: MarkupBlur.mosaic(forStrength: strength))
+                else { continue }
+                tiles[strength] = Image(decorative: cut, scale: 1)
+            }
+            let view = MarkupCanvas(surface: surface, background: nil,
+                                    source: blind ? nil : source, mosaics: tiles,
+                                    scale: 1, chrome: false)
+                .frame(width: 1200, height: 750)
+            let renderer = ImageRenderer(content: view)
+            renderer.scale = 1
+            guard let picture = renderer.cgImage else { return nil }
+            do {
+                try MarkupExport.write(picture,
+                                       to: URL(fileURLWithPath: directory + "/" + name + ".png"),
+                                       format: "png")
+            } catch {
+                print("live: \(name).png did not write — \(error.localizedDescription)")
+                return nil
+            }
+            return Pixels(picture)
+        }
+
+        let bald = MarkupShape(tool: .blur,
+                               points: [MarkupPoint(x: 110, y: 440), MarkupPoint(x: 620, y: 600)],
+                               ink: ink, createdAt: 0)
+
+        let smear = MarkupBlur(mode: .inside, shape: .rectangle, style: .blur, strength: 9, dim: 0)
+        var mosaic = smear; mosaic.style = .pixels
+        var out = smear; out.mode = .around; out.dim = 4
+        var round = out; round.shape = .oval
+
+        guard let plain = Pixels(base),
+              let blurred = shot([region(smear)], "live-blur"),
+              let magnified = shot([region(smear), lens], "live-blur-loupe"),
+              let tiled = shot([region(mosaic)], "live-pixels"),
+              let around = shot([region(out)], "live-around"),
+              let blind = shot([region(smear)], "live-no-frame", blind: true),
+              let blindOut = shot([region(out)], "live-no-frame-out", blind: true),
+              let mixed = shot([region(smear), region(mosaic, at: second)], "live-mixed"),
+              let alike = shot([region(smear), region(smear, at: second)], "live-mixed-plain"),
+              let oval = shot([region(round)], "live-around-oval"),
+              let naked = shot([bald], "live-no-settings"),
+              let nakedLens = shot([bald, lens], "live-no-settings-loupe"),
+              let blindLens = shot([lens], "live-no-frame-loupe", blind: true),
+              let bare = shot([], "live-bare") else {
+            print("live: nothing rendered")
+            return 1
+        }
+
+        let covered = (270, 530), radius = 70
+        let glass = 55
+        let corner = (130, 455), nook = 16
+        let neighbour = (250, 100), span = 30
+        let outside = (230, 90), reach = 40
+
+        var failures = 0
+        func expect(_ ok: Bool, _ complaint: String) {
+            guard !ok else { return }
+            print("live: \(complaint)")
+            failures += 1
+        }
+
+        let clear = plain.detail(covered, radius)
+        print("live: the frame itself carries \(clear) detail where the blur goes")
+
+        let hidden = blurred.detail(covered, radius)
+        print("live: blur leaves \(hidden), under the loupe \(magnified.detail(covered, radius))")
+        expect(hidden * 3 < clear, "the blur does NOT hide what it covers")
+        expect(magnified.detail(covered, radius) < max(hidden, 20) * 2,
+               "the loupe SHOWS what the blur hides")
+
+        print("live: dots leave \(tiled.detail(covered, radius)), "
+              + "\(blurred.apart(from: tiled, covered, radius)) apart from blur")
+        expect(tiled.detail(covered, radius) * 2 < clear, "the mosaic does NOT hide what it covers")
+        expect(blurred.apart(from: tiled, covered, radius) > 200,
+               "dots and blur come out the SAME picture")
+
+        print("live: out touched the region by \(around.apart(from: bare, covered, radius)), "
+              + "leaves \(around.detail(outside, reach)) outside "
+              + "of \(plain.detail(outside, reach))")
+        expect(around.apart(from: bare, covered, radius) < 200,
+               "out smeared the region it should keep")
+        expect(around.detail(outside, reach) * 3 < plain.detail(outside, reach),
+               "out does NOT hide what lies beyond the region")
+        expect(around.opacity(outside, reach) > 24000,
+               "out left the canvas beyond the region UNPAINTED")
+        print("live: the oval cut leaves the box's corner "
+              + "\(oval.apart(from: bare, corner, nook)) from bare, the rectangle "
+              + "\(around.apart(from: bare, corner, nook))")
+        expect(oval.opacity(corner, nook) > 1200, "an OVAL region was cut as a rectangle")
+        expect(around.opacity(corner, nook) < 1200, "a RECTANGLE region was cut as an oval")
+
+        print("live: mixed styles differ by \(mixed.apart(from: alike, neighbour, span)) "
+              + "where they differ, \(mixed.apart(from: alike, covered, radius)) where they do not")
+        expect(mixed.apart(from: alike, neighbour, span) > 200,
+               "dots asked for beside a blur came out a BLUR")
+        expect(mixed.apart(from: alike, covered, radius) < 200,
+               "a blur beside dots came out DOTTED")
+
+        print("live: with no frame the region reads \(blind.opacity(covered, radius)) solid, "
+              + "\(blind.brightness(covered, radius)) light; out covers "
+              + "\(blindOut.opacity(outside, reach)) beyond it")
+        expect(blind.opacity(covered, radius) > 24000, "with no frame the blur hides NOTHING")
+        expect(blind.brightness(covered, radius) < 40, "the plate is not BLACK")
+        expect(blindOut.opacity(outside, reach) > 24000,
+               "with no frame out leaves the screen OPEN beyond the region")
+
+        print("live: with no settings the region reads \(naked.brightness(covered, radius)) light, "
+              + "under the loupe \(nakedLens.brightness(covered, radius)); "
+              + "a loupe with no frame reads \(blindLens.brightness(covered, glass))")
+        expect(naked.opacity(covered, radius) > 24000, "a blur with no settings hides NOTHING")
+        expect(naked.brightness(covered, radius) < 40, "the plate is not BLACK")
+        expect(nakedLens.brightness(covered, radius) < 40,
+               "the loupe SHOWS what a blur with no settings could not hide")
+        expect(blindLens.opacity(covered, glass) > 14000,
+               "a loupe with no frame to read draws NOTHING at all")
+        expect(blindLens.brightness(covered, glass) < 40, "the empty lens is not BLACK")
+
+        return failures == 0 ? 0 : 1
+    }
+
     /// Every pixel of an image, read once into a buffer of its own.
     /// WORKAROUND: sampling through `cropping` or a 1×1 context answers for the
     /// image as a whole, the same value wherever it is asked for.
@@ -151,10 +308,60 @@ enum MarkupSelfTest {
             bytes = buffer
         }
 
+        /// How much there is to read inside a circle: the average step in brightness between neighbours.
+        func detail(_ centre: (Int, Int), _ radius: Int) -> Int {
+            walk(centre, radius) { x, y in
+                let here = at(x, y), next = at(x + 1, y)
+                guard next.0 >= 0 else { return 0 }
+                return abs(here.0 - next.0) + abs(here.1 - next.1) + abs(here.2 - next.2)
+            }
+        }
+
+        /// How far apart two renders of the same scene are inside a circle.
+        func apart(from other: Pixels, _ centre: (Int, Int), _ radius: Int) -> Int {
+            walk(centre, radius) { x, y in
+                let here = at(x, y), there = other.at(x, y)
+                return abs(here.0 - there.0) + abs(here.1 - there.1) + abs(here.2 - there.2)
+            }
+        }
+
+        /// How solid a circle is: what tells a plate from an open region.
+        func opacity(_ centre: (Int, Int), _ radius: Int) -> Int {
+            walk(centre, radius) { x, y in alpha(x, y) }
+        }
+
+        /// How light a circle is: a solid plate over a pale frame reads near 0.
+        func brightness(_ centre: (Int, Int), _ radius: Int) -> Int {
+            walk(centre, radius) { x, y in
+                let here = at(x, y)
+                return (here.0 + here.1 + here.2) / 3
+            } / 100
+        }
+
+        private func walk(_ centre: (Int, Int), _ radius: Int,
+                          _ read: (Int, Int) -> Int) -> Int {
+            var sum = 0, counted = 0
+            for y in (centre.1 - radius)...(centre.1 + radius) {
+                for x in (centre.0 - radius)...(centre.0 + radius) {
+                    let dx = Double(x - centre.0), dy = Double(y - centre.1)
+                    guard (dx * dx + dy * dy).squareRoot() < Double(radius) - 10,
+                          at(x, y).0 >= 0 else { continue }
+                    sum += read(x, y)
+                    counted += 1
+                }
+            }
+            return counted == 0 ? 0 : sum * 100 / counted
+        }
+
         func at(_ x: Int, _ y: Int) -> (Int, Int, Int) {
             guard x >= 0, y >= 0, x < width, y < height else { return (-1, -1, -1) }
             let i = (y * width + x) * 4
             return (Int(bytes[i]), Int(bytes[i + 1]), Int(bytes[i + 2]))
+        }
+
+        func alpha(_ x: Int, _ y: Int) -> Int {
+            guard x >= 0, y >= 0, x < width, y < height else { return 0 }
+            return Int(bytes[(y * width + x) * 4 + 3])
         }
     }
 

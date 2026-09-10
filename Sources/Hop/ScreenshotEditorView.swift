@@ -282,6 +282,7 @@ struct ScreenshotEditorView: View {
                             MarkupCanvas(surface: editor.surface,
                                          background: Image(decorative: editor.backdrop ?? editor.base,
                                                            scale: 1),
+                                         baked: editor.backdrop != nil,
                                          scale: s)
                                 .frame(width: editor.full.width * s, height: editor.full.height * s)
                                 .allowsHitTesting(editor.cropDraft == nil)

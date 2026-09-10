@@ -1,5 +1,5 @@
 #!/bin/bash
-# The check cycle, in one place: build, tests, translations.
+# The check cycle, in one place: build, tests, the two canvases, translations.
 #
 # Called by three things, so they cannot drift apart — the CI workflow, the
 # local pre-push hook, and release.sh before it packages anything. A release
@@ -11,26 +11,45 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-echo "=== 1/4 build ==="
+# One directory per run, thrown away on the way out. A fixed path under /tmp is
+# one anybody on the machine can plant a symlink at before the output lands.
+run=$(mktemp -d "${TMPDIR:-/tmp}/hop-checks.XXXXXX")
+trap 'rm -rf "$run"' EXIT
+
+echo "=== 1/5 build ==="
 # Warnings are failures here: the app ships with none, and a new one is a
 # regression that a green build would otherwise hide.
-if swift build 2>&1 | tee /tmp/hop-build.log | grep -E "^.*: (error|warning):" ; then
-  echo "❌ build produced errors or warnings (see /tmp/hop-build.log)"
+if ! swift build 2>&1 | tee "$run/build.log"; then
+  echo "❌ build failed"
+  exit 1
+fi
+if grep -E "^.*: (error|warning):" "$run/build.log"; then
+  echo "❌ build produced errors or warnings"
   exit 1
 fi
 
-echo "=== 2/4 tests ==="
+echo "=== 2/5 tests ==="
 swift test
 
-echo "=== 3/4 canvas ==="
+echo "=== 3/5 canvas ==="
 # The editor's canvas is drawn by a path the export never touches: the loupe
 # under the hand is not the loupe in the file.
-if ! ./.build/debug/Hop --canvas-selftest /tmp/hop-canvas-selftest.png; then
+if ! ./.build/debug/Hop --canvas-selftest "$run/canvas-selftest.png"; then
   echo "❌ the canvas self-test failed"
   exit 1
 fi
 
-echo "=== 4/4 translations ==="
+echo "=== 4/5 live layer ==="
+# The drawing layer draws its own blur and its own loupe from a streamed frame.
+# What a blur hides has to stay hidden — under the glass as well.
+live_renders="$run/live"
+mkdir -p "$live_renders"
+if ! ./.build/debug/Hop --live-selftest "$live_renders"; then
+  echo "❌ the live layer self-test failed"
+  exit 1
+fi
+
+echo "=== 5/5 translations ==="
 ./.build/debug/Hop --l10n-check
 
 echo "✅ all checks passed"

@@ -34,6 +34,21 @@ enum PermissionRepair {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { request(service) }
     }
 
+    /// Asks WITHOUT clearing the system's answer first, once per run. A reset
+    /// throws away a grant the user has already given, and a tool reaching for
+    /// a permission on its own must not be able to revoke one.
+    /// SPEC: docs/spec.md — the permission the drawing layer asks for.
+    static func askOnce(_ service: Service) {
+        guard !askedPlainlyThisRun.contains(service) else { return }
+        askedPlainlyThisRun.insert(service)
+        request(service)
+    }
+
+    /// Kept apart from `askedThisRun`: that set gates the RESET, and it is what
+    /// raises the "restart Hop" row in the settings. An ask that reset nothing
+    /// must neither block a later reset nor send the user to relaunch the app.
+    private static var askedPlainlyThisRun: Set<Service> = []
+
     /// SPEC: docs/spec.md — "A permission that goes missing says so", the 1.10.0 reset.
     static func resetEverythingOnce() {
         guard !Snapshot.active, let bundleID = Bundle.main.bundleIdentifier else { return }

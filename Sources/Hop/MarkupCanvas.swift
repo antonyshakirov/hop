@@ -9,9 +9,12 @@ import SwiftUI
 struct MarkupCanvas: View {
     @ObservedObject var surface: MarkupSurface
     var background: Image?
+    /// Whether `background` already carries the blur baked into it.
+    var baked = false
     /// The pixels the loupe and the blur read when there is no background to
     /// read them from: the live screen under the drawing layer.
     var source: Image?
+    var mosaics: [Int: Image] = [:]
     var scale: CGFloat = 1
     /// The cursor and the typing field are AppKit views, and AppKit views come
     /// out as a yellow block when the canvas is rendered outside a running
@@ -291,52 +294,49 @@ struct MarkupCanvas: View {
         case .magnifier:
             // Drawn HERE rather than baked into the backdrop, so the lens is
             // under the hand while it is being pulled out, not after.
-            guard points.count > 1, let background = background ?? source else { return }
+            guard points.count > 1 else { return }
             let frame = round(box(first, points[1]))
             let lens = Path(ellipseIn: frame)
+            // SPEC: docs/spec.md — a loupe with nothing to read fails closed.
+            guard let under = background ?? source else {
+                context.fill(lens, with: .color(.black))
+                glass(frame, rim: max(2, 4 * scale), in: &context)
+                return
+            }
+            let zoom = MarkupEditing.Zoom.of(shape)
+            let eye = CGPoint(x: frame.midX, y: frame.midY)
             context.drawLayer { layer in
                 layer.clip(to: lens)
                 // Twice the size about the lens's own centre, so what is under
                 // the glass stays under it.
-                let zoom = MarkupEditing.Zoom.of(shape)
-                layer.draw(background, in: CGRect(x: frame.midX - frame.midX * zoom,
-                                                  y: frame.midY - frame.midY * zoom,
-                                                  width: canvas.width * zoom,
-                                                  height: canvas.height * zoom))
+                layer.draw(under, in: CGRect(x: eye.x - eye.x * zoom, y: eye.y - eye.y * zoom,
+                                             width: canvas.width * zoom,
+                                             height: canvas.height * zoom))
+                // SPEC: docs/spec.md — the loupe magnifies what the blur left.
+                guard !baked else { return }
+                for hidden in surface.visible where hidden.tool == .blur {
+                    smear(hidden, canvas: canvas, zoom: zoom, about: eye, in: &layer)
+                }
             }
             glass(frame, rim: max(2, 4 * scale), in: &context)
 
         case .blur, .crop:
             guard points.count > 1 else { return }
+            let area = box(first, points[1])
             // Over the live screen nothing under the mark is baked into a
             // backdrop, so the blur is drawn here, from the streamed frame.
-            if shape.tool == .blur, background == nil, let source {
-                let area = box(first, points[1])
-                let mask: Path = shape.blur?.shape == .oval
-                    ? Path(ellipseIn: area) : Path(roundedRect: area, cornerRadius: 3)
-                context.drawLayer { outer in
-                    outer.clip(to: mask)
-                    // The blur goes on a layer of its OWN, drawn whole: filtered
-                    // inside the clip it pulled in the transparency beyond the
-                    // edge and the region came out dark (Anton, 2026-09-09).
-                    outer.drawLayer { inner in
-                        let strength = shape.blur?.strength ?? 5
-                        inner.addFilter(.blur(radius: MarkupBlur.radius(forStrength: strength) * scale,
-                                              options: .dithersResult))
-                        inner.draw(source, in: CGRect(origin: .zero, size: canvas))
-                    }
-                }
+            if shape.tool == .blur, !baked {
+                smear(shape, canvas: canvas, zoom: 1,
+                      about: CGPoint(x: area.midX, y: area.midY), in: &context)
             }
             // The region says what it is by being blurred. A red dashed box
             // round it is a mark of its own, and it ends up in the file.
-            let area = box(first, points[1])
-            let outline: Path = shape.blur?.shape == .oval
-                ? Path(ellipseIn: area) : Path(roundedRect: area, cornerRadius: 3)
             // No wash: the region is blurred for real while it is drawn, and a
             // white film over it would only lighten what is being hidden.
-            context.stroke(outline, with: .color(.black.opacity(0.35)),
+            let ring = outline(of: shape, in: area)
+            context.stroke(ring, with: .color(.black.opacity(0.35)),
                            style: StrokeStyle(lineWidth: 2))
-            context.stroke(outline, with: .color(.white.opacity(0.8)),
+            context.stroke(ring, with: .color(.white.opacity(0.8)),
                            style: StrokeStyle(lineWidth: 1))
 
         case .steps:
@@ -357,6 +357,58 @@ struct MarkupCanvas: View {
 
         case .eraser:
             return
+        }
+    }
+
+    private func outline(of shape: MarkupShape, in area: CGRect) -> Path {
+        shape.blur?.shape == .oval ? Path(ellipseIn: area) : Path(roundedRect: area, cornerRadius: 3)
+    }
+
+    private func plate(_ shape: MarkupShape, area: CGRect, canvas: CGSize) -> (Path, FillStyle) {
+        let out = shape.blur?.mode == .around
+        var path = outline(of: shape, in: area)
+        guard out else { return (path, FillStyle()) }
+        var inverted = Path(CGRect(origin: .zero, size: canvas))
+        inverted.addPath(path)
+        path = inverted
+        return (path, FillStyle(eoFill: true))
+    }
+
+    /// SPEC: docs/spec.md — the blur over the live screen.
+    private func smear(_ shape: MarkupShape, canvas: CGSize, zoom: CGFloat, about eye: CGPoint,
+                       in context: inout GraphicsContext) {
+        guard shape.points.count > 1 else { return }
+        func zoomed(_ rect: CGRect) -> CGRect {
+            CGRect(x: eye.x + (rect.minX - eye.x) * zoom, y: eye.y + (rect.minY - eye.y) * zoom,
+                   width: rect.width * zoom, height: rect.height * zoom)
+        }
+        let area = box(CGPoint(x: shape.points[0].x * scale, y: shape.points[0].y * scale),
+                       CGPoint(x: shape.points[1].x * scale, y: shape.points[1].y * scale))
+        let whole = CGRect(origin: .zero, size: canvas)
+        let (bitten, style) = plate(shape, area: zoomed(area), canvas: canvas)
+        // SPEC: docs/spec.md — a blur with nothing to read fails closed.
+        guard let settings = shape.blur, let source else {
+            return context.fill(bitten, with: .color(.black), style: style)
+        }
+        context.drawLayer { outer in
+            outer.clip(to: bitten, style: style)
+            // WORKAROUND: filtered inside the clip the blur drags in transparency past the edge.
+            outer.drawLayer { inner in
+                switch settings.style {
+                case .pixels:
+                    guard let tiles = mosaics[settings.strength] else {
+                        return inner.fill(bitten, with: .color(.black), style: style)
+                    }
+                    inner.draw(tiles, in: zoomed(whole))
+                case .blur:
+                    inner.addFilter(.blur(radius: MarkupBlur.radius(forStrength: settings.strength)
+                                          * scale * zoom, options: .dithersResult))
+                    inner.draw(source, in: zoomed(whole))
+                }
+            }
+            if settings.mode == .around, settings.dim > 0 {
+                outer.fill(Path(whole), with: .color(.black.opacity(Double(settings.dim) / 20)))
+            }
         }
     }
 

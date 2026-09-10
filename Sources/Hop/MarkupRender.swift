@@ -14,6 +14,17 @@ enum MarkupRender {
     /// region stutter under the hand.
     static let ciContext = CIContext()
 
+    /// `picture` cut into tiles `side` pixels across.
+    static func tiled(_ picture: CIImage, side: Double) -> CGImage? {
+        guard side > 1 else { return nil }
+        let filter = CIFilter.pixellate()
+        filter.inputImage = picture
+        filter.scale = Float(side)
+        filter.center = CGPoint(x: picture.extent.midX, y: picture.extent.midY)
+        guard let output = filter.outputImage?.cropped(to: picture.extent) else { return nil }
+        return ciContext.createCGImage(output, from: picture.extent)
+    }
+
     /// The legs of a smoothed stroke, added to whatever path is open.
     private static func curve(_ points: [CGPoint], in context: CGContext) {
         let marks = points.map { MarkupPoint(x: $0.x, y: $0.y) }
@@ -49,7 +60,7 @@ enum MarkupRender {
         // The loupe is drawn by the canvas itself, live under the hand; only
         // the blur has to be baked in behind the marks.
         let lenses: [MarkupShape] = []
-        let blurred = smeared(base: base, shapes: shapes, scale: scale)
+        let blurred = hidden(base: base, shapes: shapes, scale: scale)
         guard blurred != nil || !lenses.isEmpty else { return nil }
 
         let picture = blurred ?? base
@@ -76,8 +87,10 @@ enum MarkupRender {
                                       bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
         else { return nil }
 
-        let blurred = smeared(base: base, shapes: shapes, scale: scale) ?? base
-        context.draw(blurred, in: CGRect(x: 0, y: 0, width: width, height: height))
+        // SPEC: docs/spec.md — a blur with nothing to read fails closed.
+        let blurred = hidden(base: base, shapes: shapes, scale: scale)
+        if blurred == nil, shapes.contains(where: { $0.tool == .blur }) { return nil }
+        context.draw(blurred ?? base, in: CGRect(x: 0, y: 0, width: width, height: height))
 
         // Core Graphics counts up from the bottom; the marks were placed on a
         // view counting down from the top.
@@ -88,7 +101,7 @@ enum MarkupRender {
 
         for shape in shapes where shape.tool != .blur {
             if shape.tool == .magnifier {
-                magnify(shape, base: blurred, scale: scale, in: context)
+                magnify(shape, base: blurred ?? base, scale: scale, in: context)
                 continue
             }
             draw(shape, scale: scale, in: context)
@@ -163,44 +176,47 @@ enum MarkupRender {
         context.strokePath()
     }
 
-    private static func smeared(base: CGImage, shapes: [MarkupShape], scale: Double) -> CGImage? {
-        let regions = shapes.filter { $0.tool == .blur && $0.blur != nil }
-        guard !regions.isEmpty else { return nil }
-
+    private static func smeared(base: CGImage, regions: [MarkupShape], scale: Double) -> CGImage? {
         var picture = CIImage(cgImage: base)
         let extent = picture.extent
         let ciContext = Self.ciContext
+        // SPEC: docs/spec.md — a blur with nothing to read fails closed.
+        let black = CIImage(color: .black).cropped(to: extent)
 
         for region in regions {
-            guard let settings = region.blur else { continue }
             let box = pixelBox(region.points, scale: scale, height: extent.height)
             guard box.width > 1, box.height > 1 else { continue }
+            let mode = region.blur?.mode ?? .inside
 
             let smudged: CIImage
-            if settings.style == .pixels {
+            switch region.blur?.style {
+            case .pixels:
                 let filter = CIFilter.pixellate()
                 filter.inputImage = picture
-                filter.scale = Float(MarkupBlur.mosaic(forStrength: settings.strength) * scale)
+                filter.scale = Float(MarkupBlur.mosaic(forStrength: region.blur?.strength ?? 10)
+                                     * scale)
                 filter.center = CGPoint(x: box.midX, y: box.midY)
-                smudged = filter.outputImage?.cropped(to: extent) ?? picture
-            } else {
+                smudged = filter.outputImage?.cropped(to: extent) ?? black
+            case .blur:
                 let filter = CIFilter.gaussianBlur()
                 filter.inputImage = picture.clampedToExtent()
-                filter.radius = Float(MarkupBlur.radius(forStrength: settings.strength) * scale)
-                smudged = filter.outputImage?.cropped(to: extent) ?? picture
+                filter.radius = Float(MarkupBlur.radius(forStrength: region.blur?.strength ?? 10)
+                                      * scale)
+                smudged = filter.outputImage?.cropped(to: extent) ?? black
+            case nil:
+                smudged = black
             }
 
-            let mask = maskImage(for: region, box: box, extent: extent,
-                                 scale: scale, mode: settings.mode)
+            let mask = maskImage(for: region, box: box, extent: extent, scale: scale, mode: mode)
             let blend = CIFilter.blendWithMask()
             blend.inputImage = smudged
             blend.backgroundImage = picture
             blend.maskImage = mask
-            picture = blend.outputImage?.cropped(to: extent) ?? picture
+            picture = blend.outputImage?.cropped(to: extent) ?? smudged
 
-            if settings.mode == .around, settings.dim > 0 {
+            if mode == .around, let dim = region.blur?.dim, dim > 0 {
                 let shade = CIImage(color: CIColor(red: 0, green: 0, blue: 0,
-                                                   alpha: Double(settings.dim) / 20)).cropped(to: extent)
+                                                   alpha: Double(dim) / 20)).cropped(to: extent)
                 let overlay = CIFilter.blendWithMask()
                 overlay.inputImage = shade.composited(over: picture)
                 overlay.backgroundImage = picture
@@ -209,6 +225,37 @@ enum MarkupRender {
             }
         }
         return ciContext.createCGImage(picture, from: extent)
+    }
+
+    private static func plated(base: CGImage, regions: [MarkupShape], scale: Double) -> CGImage? {
+        let extent = CGRect(x: 0, y: 0, width: base.width, height: base.height)
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let context = CGContext(data: nil, width: base.width, height: base.height,
+                                      bitsPerComponent: 8, bytesPerRow: 0, space: space,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        else { return nil }
+        context.draw(base, in: extent)
+        context.setFillColor(red: 0, green: 0, blue: 0, alpha: 1)
+        for region in regions {
+            let box = pixelBox(region.points, scale: scale, height: extent.height)
+            guard box.width > 1, box.height > 1 else { continue }
+            if region.blur?.mode == .around {
+                context.addRect(extent)
+                context.addRect(box)
+                context.fillPath(using: .evenOdd)
+            } else {
+                context.fill(box)
+            }
+        }
+        return context.makeImage()
+    }
+
+    /// The picture with every blur region hidden, or `nil` if there is no blur to bake in.
+    private static func hidden(base: CGImage, shapes: [MarkupShape], scale: Double) -> CGImage? {
+        let regions = shapes.filter { $0.tool == .blur }
+        guard !regions.isEmpty else { return nil }
+        return smeared(base: base, regions: regions, scale: scale)
+            ?? plated(base: base, regions: regions, scale: scale)
     }
 
     /// White where the blur bites, black where it does not. The SHAPE is
