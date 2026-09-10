@@ -310,6 +310,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openSettingsWindow = { [weak self] in
             self?.showSettingsWindow()
         }
+        // SPEC: docs/spec.md — "Screen recording is asked for before a module that
+        // reads the screen opens"; and "Onboarding", where the wizard is the only
+        // thing on screen.
+        PermissionRepair.openPermissionsPage = { [weak self] in
+            guard let self, UserDefaults.standard.bool(forKey: "onboardingDone") else { return }
+            self.model.settingsSectionRequest = SettingsSelection.permissions.id
+            self.showSettingsWindow()
+        }
         model.openConverterWindow = { [weak self] in
             self?.showConverterWindow()
         }

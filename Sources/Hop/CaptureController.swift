@@ -43,8 +43,9 @@ final class CaptureController: ObservableObject {
         case .idle, .denied, .failed: break
         }
         guard !Snapshot.active else { return }
+        // SPEC: docs/spec.md — "Screen recording is asked for before a module that reads the screen opens".
         guard CGPreflightScreenCaptureAccess() else {
-            PermissionRepair.askAgain(.screenCapture, force: true)
+            PermissionRepair.askForTheScreen()
             state = .denied
             return
         }

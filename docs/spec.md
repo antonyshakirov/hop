@@ -3899,13 +3899,15 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   green word; nothing to check → "asked when used". The System Settings link is
   gone from the rows: the button does what the link was there to lead to.
   Accessibility and Screen Recording ask
-  through `PermissionRepair.askAgain(_:force:)` (drop Hop's own row, then
-  request), which is the only thing that raises the real dialog when the row
-  already there grants nothing; notifications ask
+  through `PermissionRepair.askByHand` (drop Hop's own row, then request),
+  which is the only thing that raises the real dialog when the row already
+  there grants nothing — and, once the row has been dropped in this run, the
+  list in System Settings instead (see "Hop's own row is dropped at most once
+  per run"); notifications ask
   `UNUserNotificationCenter.requestAuthorization` and fall back to the
   notification pane once macOS answers from a refusal on file; launch at login
-  is `SMAppService.mainApp.register()`. `force` is what lets a button pressed by
-  hand ask more than once per run, unlike a feature's own automatic repair.
+  is `SMAppService.mainApp.register()`. A button asks as often as it is pressed,
+  unlike a feature's own automatic repair.
 - The same list, condensed, is a README section (every language) and a FAQ
   answer on the landing (all 8).
 - The page CLOSES with a statement, set larger and bolder than anything above
@@ -3979,36 +3981,55 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the popover carrying the explanation, so the whole thing read as Settings
   opening for no stated reason. The deep link stays as a button in the banner,
   pressed on purpose or not at all.
-- The repair asks ONCE per run per service, so a zone dragged five times does
-  not raise five dialogs. `.stale` never repairs itself: there the permission IS
-  granted,
+- A feature that is merely stopped asks ONCE per run per service
+  (`PermissionRepair.askAgain`), so a zone dragged five times does not raise
+  five dialogs. `.stale` never repairs itself: there the permission IS granted,
   the measurement can fail for reasons that are not the permission's fault, and
   throwing away a working grant on a guess is the worse trade. That one waits
   for the button.
 - **The line that says a permission is missing IS the button** (Anton,
   2026-09-03). The recognition row's yellow "needs screen recording" and the same
-  words in the recognition window are pressable and run the repair; the row's
-  crosshair does too, on every press rather than once per run (`force`), because
-  a press is somebody asking. Before the repair, `NSApp.activate` — Hop is an
-  accessory app, so the dialog macOS raises for it opens BEHIND whatever is in
-  front, which is what "I press it and nothing happens" was.
+  words in the recognition window are pressable and ask on every press
+  (`PermissionRepair.askByHand`), because a press is somebody asking. Before a
+  request, `NSApp.activate` — Hop is an accessory app, so the dialog macOS
+  raises for it opens BEHIND whatever is in front, which is what "I press it and
+  nothing happens" was.
 - Screen Recording gets the same repair on the FIRST refusal. The earlier
   two-step (a plain `CGRequestScreenCaptureAccess` first, the repair only on a
   second press) shows NOTHING when the list already holds a row that grants
   nothing, so the first press ended in "allow it in settings" pointing at a
   switch that was already on — which is exactly what Anton hit on 2026-09-02
-  pressing the recognition hotkey. `askAgain` still asks once per run.
-- **Screen recording is asked for before a module that reads the screen opens**
-  (Anton, 2026-09-10). Screen text, the screenshot and the drawing layer read
-  pixels (`ModuleCatalog.needsScreenRecording`; the colour picker samples
-  through the system and records nothing). Asked at the moment a tool needed a
-  frame, the ask landed in the middle of a job that was already broken. So:
-  - opening any of them without the permission opens nothing and runs the
-    repair on every press (`askAgain(force:)`), since a press is somebody asking;
-  - turning one on — the power button, the switch on its page, "turn on" on
-    the new-module card, or saving the module picker with it ticked — runs the
-    repair once per run, and not at all when the permission is already there;
-  - onboarding asks in its permissions step, as before.
+  pressing the recognition hotkey.
+- **Hop's own row is dropped at most once per run** (`PermissionAsk.plan`,
+  found 2026-09-10). Every press of "start" on the drawing layer used to run the
+  whole repair, `tccutil reset` included: two presses four seconds apart dropped
+  Hop Dev's Screen Recording row twice, no dialog came up either time, and the
+  layer never opened. The first drop in a run is the one that clears a row left
+  behind by an old signature. A row that appears after it is the user's own
+  answer — as often as not a switch turned on and still waiting for the
+  restart — and dropping it again throws that grant away. So after the first
+  drop a feature only requests, and a "grant access" button opens the list in
+  System Settings instead, with no request pulling Hop back in front of it.
+  `PermissionAskTests`.
+- **Screen recording is asked for before a module that reads the screen opens,
+  and asked again on every attempt** (Anton, 2026-09-10). Screen text, the
+  screenshot and the drawing layer read pixels
+  (`ModuleCatalog.needsScreenRecording`; the colour picker samples through the
+  system and records nothing). Asked at the moment a tool needed a frame, the
+  ask landed in the middle of a job that was already broken. So opening any of
+  them without the permission — the panel button, the hotkey — opens nothing,
+  and opening or turning one on — the power button, the switch on its page,
+  "turn on" on the new-module card, saving the module picker with it ticked —
+  asks EVERY time, round and round until the permission is there, never once
+  per run (`PermissionRepair.askForTheScreen`):
+  - the request goes to macOS, which shows its dialog where it still will;
+  - the settings window opens on the permissions page, because the dialog is
+    not guaranteed: on 2026-09-10 a press raised none, and a press that shows
+    nothing reads as a broken button. The page carries the Screen Recording
+    row and the `restart` row, and a switch turned on in System Settings only
+    reaches the running Hop through that restart;
+  - while the wizard is up the page does not open — onboarding asks in its
+    permissions step, as before.
   `ModuleCatalogTests.testOnlyModulesThatReadTheScreenNeedScreenRecording`.
 - **A refusal or a failed capture does not lock the module** (found
   2026-09-10). The screenshot capture kept `.denied` and `.failed` as states

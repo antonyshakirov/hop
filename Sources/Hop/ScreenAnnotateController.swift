@@ -43,7 +43,7 @@ final class ScreenAnnotateController: ObservableObject {
         guard !isUp, !Snapshot.active else { return }
         // SPEC: docs/spec.md — "Screen recording is asked for before a module that reads the screen opens".
         guard CGPreflightScreenCaptureAccess() else {
-            return PermissionRepair.askAgain(.screenCapture, force: true)
+            return PermissionRepair.askForTheScreen()
         }
         isUp = true
         let drawing = MarkupSettings.startsDrawing()

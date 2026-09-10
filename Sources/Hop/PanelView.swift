@@ -808,9 +808,9 @@ struct PanelView: View {
                 placeModule(shelfKey, onTab: destination)
             } else {
                 placeModule(key, onTab: destination)
-                askForTheScreenIfNeeded(key)
             }
         }
+        askForTheScreenIfNeeded(ann.moduleKeys.filter { bannerChoices[$0] == true })
         // Only ever CLAIM, and only what macOS does not open itself: an
         // untouched switch must not disturb an opener the user chose earlier.
         if bannerChoices[Self.archiveHandlerChoice] == true {
@@ -985,7 +985,7 @@ struct PanelView: View {
                 // Asks macOS, rather than sending the user to a pane where Hop's
                 // switch may already be on and change nothing when pressed.
                 Button {
-                    PermissionRepair.askAgain(.accessibility, force: true)
+                    PermissionRepair.askByHand(.accessibility)
                 } label: {
                     HoverLabel(text: t(.permGrant), size: 10,
                                color: Theme.accentYellow)
@@ -2945,14 +2945,14 @@ struct PanelView: View {
         HotkeyManager.shared.refreshModuleHotkeys()
         ModuleActivation.announceChange()
         if key == "torrent", !hidden { model.torrent.prefetchEngineIfNeeded() }
-        if !hidden { askForTheScreenIfNeeded(key) }
+        if !hidden { askForTheScreenIfNeeded([key]) }
     }
 
     /// SPEC: docs/spec.md — "Screen recording is asked for before a module that reads the screen opens".
-    private func askForTheScreenIfNeeded(_ key: String) {
-        guard ModuleCatalog.needsScreenRecording.contains(key), !Snapshot.active,
-              !CGPreflightScreenCaptureAccess() else { return }
-        PermissionRepair.askAgain(.screenCapture)
+    private func askForTheScreenIfNeeded(_ keys: [String]) {
+        guard keys.contains(where: { ModuleCatalog.needsScreenRecording.contains($0) }),
+              !Snapshot.active, !CGPreflightScreenCaptureAccess() else { return }
+        PermissionRepair.askForTheScreen()
     }
 
     private func deactivateModule(_ key: String) {

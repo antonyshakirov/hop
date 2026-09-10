@@ -92,7 +92,7 @@ struct ScreenTextWindowView: View {
             }
             if reader.state == .denied {
                 Button {
-                    PermissionRepair.askAgain(.screenCapture, force: true)
+                    PermissionRepair.askByHand(.screenCapture)
                 } label: {
                     Text(t(.permGrant))
                         .font(Theme.mono(10, weight: .semibold))

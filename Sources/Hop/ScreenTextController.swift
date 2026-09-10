@@ -78,13 +78,8 @@ final class ScreenTextController: ObservableObject {
         // Ask BEFORE the crosshair: without the permission the capture would come
         // back as a black rectangle, which reads as "the feature is broken".
         guard CGPreflightScreenCaptureAccess() else {
-            // Straight to the repair, not a plain request first: a plain
-            // `CGRequestScreenCaptureAccess` shows NOTHING when the list
-            // already holds a row for Hop that grants nothing (the signature
-            // changed under it), so the first press used to end in "allow it in
-            // settings" — pointing at a switch that was already on. `askAgain`
-            // drops that row and the dialog comes back, once per run.
-            PermissionRepair.askAgain(.screenCapture, force: true)
+            // SPEC: docs/spec.md — "Screen recording is asked for before a module that reads the screen opens".
+            PermissionRepair.askForTheScreen()
             state = .denied
             return
         }

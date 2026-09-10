@@ -23,7 +23,7 @@ struct ScreenTextView: View {
                 // The line said what was wrong and answered to nothing;
                 // pressing it now asks macOS for the permission.
                 Button {
-                    PermissionRepair.askAgain(.screenCapture, force: true)
+                    PermissionRepair.askByHand(.screenCapture)
                 } label: {
                     Text(L10n.t(.ocrNeedsPermission, lang))
                         .font(Theme.mono(9))
