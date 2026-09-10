@@ -23,6 +23,7 @@ struct PanelView: View {
     @Environment(\.layoutDirection) private var layoutDirection
     @AppStorage(SettingsKey.showMenuBarCountdown) private var showCountdown = true
     @AppStorage(MarkupSettings.formatKey) private var shotFormat = "png"
+    @AppStorage(MarkupSettings.folderKey) private var shotFolder = ""
     @AppStorage(MarkupSettings.delayKey) private var shotDelay = 0
     @AppStorage(MarkupSettings.pointerKey) private var shotPointer = false
     /// One colour for every markup tool, or a colour each. Off: a red pencil
@@ -807,6 +808,7 @@ struct PanelView: View {
                 placeModule(shelfKey, onTab: destination)
             } else {
                 placeModule(key, onTab: destination)
+                askForTheScreenIfNeeded(key)
             }
         }
         // Only ever CLAIM, and only what macOS does not open itself: an
@@ -2943,6 +2945,14 @@ struct PanelView: View {
         HotkeyManager.shared.refreshModuleHotkeys()
         ModuleActivation.announceChange()
         if key == "torrent", !hidden { model.torrent.prefetchEngineIfNeeded() }
+        if !hidden { askForTheScreenIfNeeded(key) }
+    }
+
+    /// SPEC: docs/spec.md — "Screen recording is asked for before a module that reads the screen opens".
+    private func askForTheScreenIfNeeded(_ key: String) {
+        guard ModuleCatalog.needsScreenRecording.contains(key), !Snapshot.active,
+              !CGPreflightScreenCaptureAccess() else { return }
+        PermissionRepair.askAgain(.screenCapture)
     }
 
     private func deactivateModule(_ key: String) {
@@ -4171,26 +4181,8 @@ struct PanelView: View {
     /// many rows to show before scrolling.
     private var shotSettings: some View {
         VStack(spacing: 14) {
-            HStack {
-                Text(t(.shotFolderLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
-                Spacer()
-                Button(Substitutions.isolate(MarkupExport.folder().lastPathComponent, or: "…")) {
-                    pickShotFolder()
-                }
-                    .buttonStyle(.plain)
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textSecondary)
-            }
-            HStack {
-                Text(t(.shotFormatLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
-                Spacer()
-                Picker("", selection: $shotFormat) {
-                    Text("png").tag("png")
-                    Text("jpg").tag("jpg")
-                }
-                .labelsHidden()
-                .frame(width: 90)
-            }
+            shotFolderRow
+            shotFormatRow
             HStack {
                 Text(t(.shotDelayLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
                 Spacer()
@@ -4221,6 +4213,7 @@ struct PanelView: View {
         }
     }
 
+    /// SPEC: docs/spec.md — both markup modules save into one folder, in one format.
     private var annotateSettings: some View {
         VStack(spacing: 14) {
             HStack {
@@ -4228,6 +4221,35 @@ struct PanelView: View {
                 Spacer()
                 Theme.MiniSwitch(isOn: $annotateStartsDrawing)
             }
+            shotFolderRow
+            shotFormatRow
+        }
+    }
+
+    private var shotFolderRow: some View {
+        HStack {
+            Text(t(.shotFolderLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+            Spacer()
+            Button(Substitutions.isolate(MarkupExport.folder().lastPathComponent, or: "…")) {
+                pickShotFolder()
+            }
+                .buttonStyle(.plain)
+                .font(Theme.mono(11))
+                .foregroundStyle(Theme.textSecondary)
+                .id(shotFolder)
+        }
+    }
+
+    private var shotFormatRow: some View {
+        HStack {
+            Text(t(.shotFormatLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+            Spacer()
+            Picker("", selection: $shotFormat) {
+                Text("png").tag("png")
+                Text("jpg").tag("jpg")
+            }
+            .labelsHidden()
+            .frame(width: 90)
         }
     }
 
@@ -4237,7 +4259,7 @@ struct PanelView: View {
         panel.canChooseFiles = false
         panel.allowsMultipleSelection = false
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        UserDefaults.standard.set(url.path, forKey: MarkupSettings.folderKey)
+        shotFolder = url.path
     }
 
     private var colorSettings: some View {

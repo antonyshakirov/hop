@@ -41,6 +41,10 @@ final class ScreenAnnotateController: ObservableObject {
 
     func show() {
         guard !isUp, !Snapshot.active else { return }
+        // SPEC: docs/spec.md — "Screen recording is asked for before a module that reads the screen opens".
+        guard CGPreflightScreenCaptureAccess() else {
+            return PermissionRepair.askAgain(.screenCapture, force: true)
+        }
         isUp = true
         let drawing = MarkupSettings.startsDrawing()
         isDrawing = drawing
@@ -62,8 +66,9 @@ final class ScreenAnnotateController: ObservableObject {
         HotkeyManager.shared.setDrawingLayerUp(true)
         // Picking a tool IS entering the drawing mode: the arrow at the head of
         // the row is what hands the screen back.
-        toolWatch = surface.$tool.dropFirst().sink { [weak self] _ in
+        toolWatch = surface.$tool.dropFirst().sink { [weak self] tool in
             self?.setDrawing(true)
+            if tool == .magnifier { self?.putLensDown() }
         }
         backdropWatch = surface.objectWillChange
             .throttle(for: .milliseconds(200), scheduler: RunLoop.main, latest: true)
@@ -78,15 +83,27 @@ final class ScreenAnnotateController: ObservableObject {
         let wanted = reading.contains(surface.tool)
             || surface.shapes.contains { reading.contains($0.tool) }
         guard wanted else { return backdrop.stop() }
-        guard CGPreflightScreenCaptureAccess() else {
-            backdrop.stop()
-            PermissionRepair.askOnce(.screenCapture)
-            return
-        }
+        guard CGPreflightScreenCaptureAccess() else { return backdrop.stop() }
         // Every display the layer covers is streamed, not just the one under
         // the pointer: a blur can be put on any of them, and a canvas with no
         // frame to read hides its regions behind a plate instead.
         backdrop.start(on: NSScreen.screens)
+    }
+
+    /// SPEC: docs/spec.md — the loupe is PUT DOWN on the layer too, in the middle
+    /// of the display under the pointer.
+    private func putLensDown() {
+        // WORKAROUND: `$tool` fires before the assignment lands, so the select
+        // tool handed over from inside the sink is overwritten by the loupe.
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.isUp, let screen = CaptureController.screenUnderPointer() else {
+                return
+            }
+            let size = screen.frame.size
+            self.surface.placeLens(centre: MarkupPoint(x: size.width / 2, y: size.height / 2),
+                                   side: min(size.width, size.height) / 3,
+                                   display: CaptureController.displayID(of: screen))
+        }
     }
 
     /// SPEC: docs/spec.md — a display plugged in or taken away while the layer is up.
@@ -260,7 +277,7 @@ final class ScreenAnnotateController: ObservableObject {
         Task { [weak self] in
             guard let self else { return }
             guard let picture = await self.picture() else {
-                return self.failed(.mkSaveFailed, over: spot)
+                return MarkupNote.show(L10n.t(.mkSaveFailed, L10n.current), over: spot)
             }
             let format = UserDefaults.standard.string(forKey: MarkupSettings.formatKey) ?? "png"
             let lang = L10n.current
@@ -280,7 +297,7 @@ final class ScreenAnnotateController: ObservableObject {
         Task { [weak self] in
             guard let self else { return }
             guard let picture = await self.picture() else {
-                return self.failed(.mkCopyFailed, over: spot)
+                return MarkupNote.show(L10n.t(.mkCopyFailed, L10n.current), over: spot)
             }
             guard MarkupExport.copy(picture) else {
                 return MarkupNote.show(L10n.t(.mkCopyFailed, L10n.current), over: spot)
@@ -288,12 +305,6 @@ final class ScreenAnnotateController: ObservableObject {
             copied()
             MarkupNote.show(L10n.t(.clipboardCopied, L10n.current), over: spot)
         }
-    }
-
-    /// SPEC: docs/spec.md — "Saying where the picture went", a failure says so too.
-    private func failed(_ key: L10nKey, over spot: CGRect) {
-        if !CGPreflightScreenCaptureAccess() { PermissionRepair.askOnce(.screenCapture) }
-        MarkupNote.show(L10n.t(key, L10n.current), over: spot)
     }
 }
 
@@ -322,16 +333,6 @@ struct ScreenAnnotateView: View {
                     .strokeBorder(Theme.accentYellow.opacity(0.72), lineWidth: 3)
                     .frame(width: screenSize.width, height: screenSize.height)
                     .allowsHitTesting(false)
-
-                Text(tag)
-                    .font(Theme.mono(11, weight: .semibold))
-                    .foregroundStyle(Color.black.opacity(0.86))
-                    .padding(.horizontal, 14).padding(.vertical, 5)
-                    .background(
-                        UnevenRoundedRectangle(bottomLeadingRadius: 9, bottomTrailingRadius: 9)
-                            .fill(Theme.accentYellow.opacity(0.94))
-                    )
-                    .allowsHitTesting(false)
             }
 
         }
@@ -356,13 +357,6 @@ struct ScreenAnnotateView: View {
             out[blur.strength] = Image(decorative: tiles, scale: backing)
         }
         return out
-    }
-
-    /// SPEC: docs/spec.md — the tag carries the mode key.
-    private var tag: String {
-        let on = L10n.t(.annotateDrawingOn, lang)
-        guard let combo = controller.passCombo else { return on }
-        return "\(on) · \(combo) \(L10n.t(.annotateClickMode, lang))"
     }
 }
 

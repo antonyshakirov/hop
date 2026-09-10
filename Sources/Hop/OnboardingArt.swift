@@ -332,18 +332,6 @@ struct AnnotateArt: View {
                                         @ViewBuilder content: () -> Content) -> some View {
         ZStack(alignment: .topLeading) {
             content()
-            Text(L10n.t(.annotateDrawingOn, lang))
-                .font(Theme.mono(6.5, weight: .semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .foregroundStyle(Color.black.opacity(0.86))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 3)
-                .background(
-                    UnevenRoundedRectangle(bottomLeadingRadius: 5, bottomTrailingRadius: 5)
-                        .fill(Theme.accentYellow.opacity(0.94))
-                )
-                .frame(width: width, alignment: .center)
         }
         .frame(width: width, height: height, alignment: .topLeading)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))

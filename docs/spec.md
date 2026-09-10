@@ -2609,7 +2609,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   drops none: the loupe is never the tool in hand. It is held at the four
   BEARINGS of its circle, dots lying on the glass itself, and grows about its
   own middle — a round thing has no corner to anchor it by, and a dashed box
-  round it says nothing (Anton, 2026-09-08).
+  round it says nothing (Anton, 2026-09-08). **The drawing layer puts it down
+  the same way** (Anton, 2026-09-10): in the middle of the display under the
+  pointer, and on that display only. Drawn out by a drag there, it was a second
+  loupe that behaved like no other. `ScreenAnnotateController.putLensDown`; the
+  canvas self-test puts one on the second monitor.
 - **How much it magnifies is set on a DIAL round the lens**: a short arc off its
   lower right, 22° to 74°, a knob on it dragged along the arc for 1.2× to 6×
   (Anton, 2026-09-08). The gentle end was 1.5× and read as too strong for a
@@ -2981,6 +2985,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   from the start. The setting was stored and never read (found 2026-09-10): the
   layer opened drawing either way. `MarkupSettings.startsDrawing`; the live
   self-test reads it with nothing stored and with the setting off.
+- **The layer's settings hold the folder and the format too** (Anton,
+  2026-09-10). Its save button writes a file like the editor's does, and the
+  place to change where that file goes was only on the screenshot module's
+  page. Both pages show the same two rows over the same two stored values
+  (`MarkupSettings.folderKey`, `MarkupSettings.formatKey`).
 - **A caption on the layer keeps its letters** (found 2026-09-10). Bare letters
   pick tools, and the keys were only left alone when a field was typed into in
   the TOOLBAR's window — the caption's field lives in the layer's, so typing
@@ -3006,11 +3015,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`HotkeyManager.setDrawingLayerUp`): a key that answers nothing holds no
   combination away from other apps. The mode key follows its module like every
   other, so a switched-off drawing module claims neither.
-- While a tool is in hand the layer takes the mouse, a yellow border runs around
-  the screen edge and a tag reads "drawing on" — a layer silently eating clicks
-  reads as a frozen Mac. With the arrow, the layer stops taking events, the
-  border goes, and the marks stay where they are. **The tag carries the mode
-  key** — "drawing on · ⌃⌥P clicks through" — and so does the hint on the
+- While a tool is in hand the layer takes the mouse and a yellow border runs
+  around the screen edge — a layer silently eating clicks reads as a frozen Mac.
+  With the arrow, the layer stops taking events, the border goes, and the marks
+  stay where they are. **There is no tag at the top** (Anton, 2026-09-10): the
+  notch cut it in half, and the border together with the panel at the bottom
+  already says whose layer it is. The mode key is written in the hint on the
   button that hands the screen back: in the clicks-through mode nothing is left
   on screen but the panel, so that is where the way back has to be written.
 - **The drawing layer covers the WHOLE screen, menu bar and Dock included**
@@ -3069,17 +3079,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   excluded — the glass would otherwise show itself — and the newest frame is
   what they magnify and smear. The stream is a cost, so it runs only while the
   layer is up AND either tool is in hand or a mark of that kind is already on
-  the layer; it stops the moment neither is true, and on the way out. The
-  screen recording permission is asked for BEFORE the first frame is needed:
-  with no permission the stream never arrives, and a tool that quietly covers
-  its region with a plate reads as broken rather than as unauthorised. The ask
-  is `PermissionRepair.askOnce` — once per run, and WITHOUT the `tccutil reset`
-  its neighbour `askAgain` runs first. It counts its asks apart from that
-  neighbour's: shared, an ask that reset nothing both blocked a later reset and
-  raised the settings screen's "restart Hop" row for a restart that changes
-  nothing. A tool reaching for a permission on its
-  own must not be able to throw away a grant the user has already given; the
-  reset stays behind the button in the settings, where the user asked for it.
+  the layer; it stops the moment neither is true, and on the way out. **The
+  layer does not open without the screen recording permission** — see "Screen
+  recording is asked for before a module that reads the screen opens". Asking
+  when the loupe or the blur was picked came too late (Anton, 2026-09-10): the
+  ask was a plain `CGRequestScreenCaptureAccess`, which shows nothing when the
+  list already holds a switched-off row for Hop, so the layer opened, the
+  stream never arrived, the loupe and the blur went black and copy and save
+  failed — and nothing on screen said why.
 - **EVERY display the layer covers is streamed, and each canvas draws from its
   own** (2026-09-09). A blur or a loupe can go on any monitor, so one stream
   between them cannot work either way round: reading whichever display happened
@@ -3123,7 +3130,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `MarkupExport.finish`, which the export self-test hands nothing. The editor's preview
   answers to the same rule: until its backdrop is built there is nothing baked
   in yet, so the canvas hides the regions itself instead of showing what is
-  under them.
+  under them. It hides them with the editor's OWN picture — the shot as the
+  source to smear and the dots cut from it, once per strength — because a
+  canvas handed no source can only plate the region, and the preview flashed a
+  black box over every new blur until the backdrop caught up (found
+  2026-09-10). `ScreenshotEditor.mosaics`.
 - **A loupe with nothing to read fails closed too** — black glass in its rim,
   not an empty drag. Drawing nothing at all read as a broken tool.
 - **Save and Copy take the display under the pointer, or nothing** (2026-09-09).
@@ -3213,14 +3224,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 ### Photographing the two markup modules
 
 - **`--markup-shots <dir>`** writes the site's two pictures — a marked-up shot
-  in its dressing, and the drawing layer over a screen with its yellow border
-  and the mode key on the tag. WORKAROUND: everything else is rendered from the
+  in its dressing, and the drawing layer over a screen with its yellow border.
+  WORKAROUND: everything else is rendered from the
   real views by `ImageRenderer`, and these two cannot be — `MarkupCanvas` comes
   out of a headless render as a "missing picture" glyph (2026-09-09), and
   neither module has a window that holds still to be photographed anyway. The
   shots are composed straight in Core Graphics from the SAME renderers the
   export uses, so the marks on them are real marks. `make-screens.sh` runs it
-  per language: the tag and the caption are translated.
+  per language: the caption is translated.
 
 ### Saying where the picture went
 
@@ -3240,9 +3251,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **A failure says so too** (found 2026-09-10). A save or a copy that did not
   happen used to end in silence, and the editor closed as if the file were
   written. The same card says "not saved" or "not copied", and the editor stays
-  open with the picture in it. On the drawing layer the usual cause is a screen
-  recording permission taken away, so the layer asks for it once before saying
-  so. `Hop --snapshot <out.png> --note-cards` renders the failure cards beside
+  open with the picture in it. The drawing layer does not open without the
+  screen recording permission, so on it the usual cause is a permission taken
+  away while the layer was up. `Hop --snapshot <out.png> --note-cards` renders the failure cards beside
   the copy card, in the language and theme asked for.
 
 ### The markup toolbar (both modules)
@@ -3987,6 +3998,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   nothing, so the first press ended in "allow it in settings" pointing at a
   switch that was already on — which is exactly what Anton hit on 2026-09-02
   pressing the recognition hotkey. `askAgain` still asks once per run.
+- **Screen recording is asked for before a module that reads the screen opens**
+  (Anton, 2026-09-10). Screen text, the screenshot and the drawing layer read
+  pixels (`ModuleCatalog.needsScreenRecording`; the colour picker samples
+  through the system and records nothing). Asked at the moment a tool needed a
+  frame, the ask landed in the middle of a job that was already broken. So:
+  - opening any of them without the permission opens nothing and runs the
+    repair on every press (`askAgain(force:)`), since a press is somebody asking;
+  - turning one on — the power button, the switch on its page, "turn on" on
+    the new-module card, or saving the module picker with it ticked — runs the
+    repair once per run, and not at all when the permission is already there;
+  - onboarding asks in its permissions step, as before.
+  `ModuleCatalogTests.testOnlyModulesThatReadTheScreenNeedScreenRecording`.
+- **A refusal or a failed capture does not lock the module** (found
+  2026-09-10). The screenshot capture kept `.denied` and `.failed` as states
+  that refused every later press, so granting the permission afterwards still
+  left the hotkey dead until Hop restarted. Only a capture in progress refuses
+  a press; the other states are left behind by the next one.
 - **Every permission is cleared once, on the first run of 1.10.0**
   (`PermissionRepair.resetEverythingOnce`, `tccutil reset All <bundle id>`, flag
   `permissionsReset.1.10.0`): 1.9.1 changed the signature, so a Mac that had

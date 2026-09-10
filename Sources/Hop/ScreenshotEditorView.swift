@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import CoreImage
 import HopCore
 import SwiftUI
 
@@ -170,6 +171,23 @@ final class ScreenshotEditor: ObservableObject {
     }
 
     private var backdropRun = 0
+    private var cutMosaics: [Int: Image] = [:]
+
+    /// SPEC: docs/spec.md — until its backdrop is built the editor's canvas
+    /// hides the regions itself. Cut once per strength and kept: the picture
+    /// under them never changes.
+    func mosaics() -> [Int: Image] {
+        guard backdrop == nil else { return [:] }
+        for shape in surface.visible where shape.tool == .blur {
+            guard let blur = shape.blur, blur.style == .pixels, cutMosaics[blur.strength] == nil,
+                  let tiles = MarkupRender.tiled(CIImage(cgImage: base),
+                                                 side: MarkupBlur.mosaic(forStrength: blur.strength)
+                                                     * scale)
+            else { continue }
+            cutMosaics[blur.strength] = Image(decorative: tiles, scale: 1)
+        }
+        return cutMosaics
+    }
 
     /// Off the main thread, and only the newest answer is kept: a Core Image
     /// pass on the main one is a stutter the size of the picture.
@@ -283,6 +301,8 @@ struct ScreenshotEditorView: View {
                                          background: Image(decorative: editor.backdrop ?? editor.base,
                                                            scale: 1),
                                          baked: editor.backdrop != nil,
+                                         source: Image(decorative: editor.base, scale: 1),
+                                         mosaics: editor.mosaics(),
                                          scale: s)
                                 .frame(width: editor.full.width * s, height: editor.full.height * s)
                                 .allowsHitTesting(editor.cropDraft == nil)

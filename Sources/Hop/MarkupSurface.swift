@@ -388,15 +388,17 @@ final class MarkupSurface: ObservableObject {
     /// A lens is PUT DOWN, not drawn out: it lands whole in the middle of the
     /// picture and is moved, resized and deleted like any other mark.
     /// SPEC: docs/spec.md
-    func placeLens(centre: MarkupPoint, side: Double) {
+    func placeLens(centre: MarkupPoint, side: Double, display: UInt32? = nil) {
         let half = side / 2
         let lens = MarkupShape(
             tool: .magnifier,
             points: [MarkupPoint(x: centre.x - half, y: centre.y - half),
                      MarkupPoint(x: centre.x + half, y: centre.y + half)],
             ink: ink(for: .magnifier),
+            display: display,
             createdAt: Date().timeIntervalSince(opened)
         )
+        self.display = display
         document.add(lens)
         selection = lens.id
         editing = nil

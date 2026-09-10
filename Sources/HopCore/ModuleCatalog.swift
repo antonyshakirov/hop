@@ -194,6 +194,10 @@ public enum ModuleCatalog {
         modulesWithSettings.contains(id)
     }
 
+    /// Modules that read the pixels of the screen.
+    /// SPEC: docs/spec.md — "Screen recording is asked for before a module that reads the screen opens".
+    public static let needsScreenRecording: Set<String> = ["ocr", "shot", "annotate"]
+
     /// The onboarding's screens, each carrying the name of the string that
     /// titles it. "apps" is not a module until a grid exists, so it rides along
     /// as an id the catalog does not carry.

@@ -37,7 +37,12 @@ final class CaptureController: ObservableObject {
     private var showsPointer: Bool { UserDefaults.standard.bool(forKey: "shotPointer") }
 
     func capture(_ mode: Mode) {
-        guard state == .idle, !Snapshot.active else { return }
+        // SPEC: docs/spec.md — a refusal or a failed capture does not lock the module.
+        switch state {
+        case .framing, .counting: return
+        case .idle, .denied, .failed: break
+        }
+        guard !Snapshot.active else { return }
         guard CGPreflightScreenCaptureAccess() else {
             PermissionRepair.askAgain(.screenCapture, force: true)
             state = .denied

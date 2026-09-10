@@ -175,6 +175,17 @@ enum MarkupSelfTest {
             failures += 1
         }
 
+        // SPEC: docs/spec.md — the drawing layer puts the loupe down on one display only.
+        let lens = MarkupSurface()
+        lens.placeLens(centre: MarkupPoint(x: 400, y: 300), side: 200, display: 2)
+        let lensHome = lens.visible(on: 2).contains { $0.tool == .magnifier }
+        let lensAway = lens.visible(on: 1).contains { $0.tool == .magnifier }
+        print("canvas: a loupe put down on monitor 2 shows there: \(lensHome), on monitor 1: \(lensAway)")
+        if !lensHome || lensAway {
+            print("canvas: the loupe put down on the layer is not on its own monitor")
+            failures += 1
+        }
+
         // SPEC: docs/spec.md — fading ink leaves the history once it is gone.
         let fading = MarkupSurface()
         let arrow = MarkupShape(tool: .arrow,

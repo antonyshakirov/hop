@@ -1,6 +1,5 @@
 import AppKit
 import CoreGraphics
-import CoreText
 import HopCore
 
 /// WORKAROUND: `MarkupCanvas` comes out of a headless render as a "missing
@@ -97,23 +96,6 @@ enum MarkupSiteShots {
         context.setStrokeColor(red: yellow.0, green: yellow.1, blue: yellow.2, alpha: 0.72)
         context.setLineWidth(6)
         context.stroke(CGRect(x: 3, y: 3, width: w - 6, height: h - 6))
-
-        let lang = L10n.current
-        let tag = L10n.t(.annotateDrawingOn, lang) + " · ⌃ ⌥ P " + L10n.t(.annotateClickMode, lang)
-        let font = CTFontCreateWithName("Menlo-Bold" as CFString, 19, nil)
-        let line = CTLineCreateWithAttributedString(NSAttributedString(
-            string: tag,
-            attributes: [.font: font, .foregroundColor: NSColor.black.withAlphaComponent(0.86)]
-        ))
-        let text = CTLineGetImageBounds(line, context)
-        let plate = CGRect(x: (w - text.width) / 2 - 18, y: h - 42, width: text.width + 36, height: 42)
-        context.setFillColor(red: yellow.0, green: yellow.1, blue: yellow.2, alpha: 0.94)
-        context.addPath(CGPath(roundedRect: plate, cornerWidth: 10, cornerHeight: 10, transform: nil))
-        context.fillPath()
-        context.fill(CGRect(x: plate.minX, y: h - 12, width: plate.width, height: 12))
-
-        context.textPosition = CGPoint(x: plate.midX - text.width / 2, y: h - 30)
-        CTLineDraw(line, context)
         return context.makeImage() ?? base
     }
 

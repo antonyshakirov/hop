@@ -262,6 +262,16 @@ final class ModuleCatalogTests: XCTestCase {
         }
     }
 
+    /// SPEC: docs/spec.md — "Screen recording is asked for before a module that reads the screen opens".
+    func testOnlyModulesThatReadTheScreenNeedScreenRecording() {
+        XCTAssertEqual(ModuleCatalog.needsScreenRecording, ["ocr", "shot", "annotate"])
+        XCTAssertFalse(ModuleCatalog.needsScreenRecording.contains("color"),
+                       "the eyedropper samples through the system and records nothing")
+        for id in ModuleCatalog.needsScreenRecording {
+            XCTAssertNotNil(ModuleCatalog.module(id), "\(id) is not a module")
+        }
+    }
+
     func testBothMarkupModulesOwnSettings() {
         XCTAssertTrue(ModuleCatalog.hasSettings("shot"))
         XCTAssertTrue(ModuleCatalog.hasSettings("annotate"))
