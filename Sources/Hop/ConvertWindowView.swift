@@ -119,16 +119,23 @@ struct ConvertWindowView: View {
     // MARK: - Drop zone
 
     private var dropZone: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "arrow.down.doc")
-                .font(.system(size: 20))
-                .foregroundStyle(targeted ? Theme.editing : Theme.textTertiary)
-            Text(t(.convDrop))
-                .font(Theme.mono(11))
-                .foregroundStyle(targeted ? Theme.editing : Theme.textTertiary)
+        // Also a browse button: the same batch entry point as a Finder drag
+        // or ⌘V, reached with a click for anyone who'd rather pick files from
+        // an Open panel than drag them.
+        Button(action: openFilePicker) {
+            VStack(spacing: 8) {
+                Image(systemName: "arrow.down.doc")
+                    .font(.system(size: 20))
+                    .foregroundStyle(targeted ? Theme.editing : Theme.textTertiary)
+                Text(t(.convDrop))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(targeted ? Theme.editing : Theme.textTertiary)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 160)
+            .contentShape(Rectangle())
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: 160)
+        .buttonStyle(.plain)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
         .overlay(
             RoundedRectangle(cornerRadius: 10)
@@ -137,6 +144,7 @@ struct ConvertWindowView: View {
                     style: StrokeStyle(lineWidth: 1, dash: [5, 4])
                 )
         )
+        .hoverHighlight(10)
         .snapshotAwareDrop(of: [.fileURL], isTargeted: $targeted) { providers in
             Task {
                 var urls: [URL] = []
@@ -149,6 +157,17 @@ struct ConvertWindowView: View {
             }
             return true
         }
+    }
+
+    /// Same picker shape as a Finder drag: files or whole folders (expanded by
+    /// `addToBatch`, exactly like a dropped folder), any number of them.
+    private func openFilePicker() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = true
+        guard panel.runModal() == .OK else { return }
+        model.converter.addToBatch(panel.urls)
     }
 
     private func loadFileURL(_ provider: NSItemProvider) async -> URL? {
