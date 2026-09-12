@@ -280,6 +280,10 @@ struct MiniSlider: View {
                         onSubmit: commit, onCancel: { text = "\(value)" })
                 .frame(width: 26, height: 14)
                 .onAppear { text = "\(value)" }
+                .onChange(of: text) { _, new in
+                    let filtered = MiniSliderInput.filterDigits(new, range: range)
+                    if filtered != new { text = filtered }
+                }
                 .onChange(of: value) { _, v in if !focused { text = "\(v)" } }
                 .onChange(of: focused) { _, isFocused in if !isFocused { commit() } }
         }
