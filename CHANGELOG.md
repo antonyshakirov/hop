@@ -29,6 +29,12 @@
   module that lives only in the panel now waits until something is drawing it;
   the menu bar keeps up regardless, and windows of their own carry on as before.
   Measured with a torrent loaded, panel shut: 4.2% of a core before, 1.1% after.
+- The converter's drop plate opens a file picker when you click it. Dropping
+  files on it and pasting them in still work; a click is simply the third way,
+  and it takes whole folders as readily as files.
+- The quality number beside a converter dial can be typed. Drag the dial for a
+  rough setting or click the figure and enter the exact one; Escape puts back
+  what was there. Thanks to Roman Timchenko for both.
 - The welcome wizard on a new Mac stays until it is finished. Quitting it, or
   the restart that follows granting a permission, used to count as finishing it:
   the next launch skipped the rest of the wizard and showed the what's-new card

@@ -789,7 +789,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                       ConverterPaste.shouldIngest(
                         windowVisible: window.isVisible,
                         windowIsKey: window.isKeyWindow,
-                        hasKeyWindow: NSApp.keyWindow != nil)
+                        hasKeyWindow: NSApp.keyWindow != nil,
+                        // the caret is in the quality dial: ⌘V is the field's
+                        fieldEditing: window.firstResponder is NSTextView)
                 else { return event }
                 self.model.converter.addFromPasteboard()
                 return nil // consumed — never double-fires with performKeyEquivalent
@@ -1415,10 +1417,9 @@ final class ConverterWindow: NSWindow {
     var onPaste: (() -> Void)?
 
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
-        // Give the responder chain first refusal (a focused text field, a future
-        // editable subview): only fall back to the window-level paste when nothing
-        // else claimed ⌘V. With no such field today, super returns false and the
-        // behavior is unchanged — but this can never silently steal paste later.
+        // Give the responder chain first refusal: with the caret in the quality
+        // dial the field claims ⌘V, and only an unclaimed one falls back to the
+        // window-level paste.
         if super.performKeyEquivalent(with: event) { return true }
         // Match the PHYSICAL V key (keyCode 9), not the produced character: a
         // non-Latin layout maps ⌘V to a different character (Cyrillic on a

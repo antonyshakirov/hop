@@ -22,12 +22,14 @@ public enum ConverterPaste {
     /// background — the state in which the plain key-equivalent route drops the
     /// paste). When another window owns key, ⌘V belongs to that window (e.g. a
     /// text field there) and must NOT be stolen.
+    /// `fieldEditing`: the caret is inside the window, so the paste is the field's.
     public static func shouldIngest(
         windowVisible: Bool,
         windowIsKey: Bool,
-        hasKeyWindow: Bool
+        hasKeyWindow: Bool,
+        fieldEditing: Bool
     ) -> Bool {
-        guard windowVisible else { return false }
+        guard windowVisible, !fieldEditing else { return false }
         return windowIsKey || !hasKeyWindow
     }
 }

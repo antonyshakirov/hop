@@ -196,7 +196,11 @@ struct HandCursorArea: NSViewRepresentable {
 extension View {
     /// The pointer says the thing is clickable, and keeps saying it after a
     /// rebuild. SPEC: docs/spec.md — "The pointer over a control".
-    func handCursor() -> some View { background(HandCursorArea()) }
+    /// Nothing hovers in a picture, and ImageRenderer paints a yellow 🚫 where
+    /// it cannot draw the cursor rect's NSView.
+    @ViewBuilder func handCursor() -> some View {
+        if Snapshot.active { self } else { background(HandCursorArea()) }
+    }
 }
 
 extension Theme {

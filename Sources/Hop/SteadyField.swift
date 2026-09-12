@@ -17,6 +17,9 @@ struct SteadyField: NSViewRepresentable {
     /// Two-way: set it to put the caret in, and it comes back false when the
     /// field gives the caret up.
     var focus: Binding<Bool>?
+    /// Applied to every keystroke, before the text reaches the binding: what
+    /// it returns is what the field shows and what the binding gets.
+    var filter: ((String) -> String)?
     var onSubmit: () -> Void = {}
     var onCancel: () -> Void = {}
 
@@ -79,7 +82,18 @@ struct SteadyField: NSViewRepresentable {
 
         func controlTextDidChange(_ notification: Notification) {
             guard let field = notification.object as? NSTextField else { return }
-            owner.text = field.stringValue
+            var typed = field.stringValue
+            // Written straight into the field: `updateNSView` leaves the text
+            // alone while the caret is in it, so a filtered binding alone would
+            // change the value and leave the rejected characters on screen.
+            if let filter = owner.filter {
+                let kept = filter(typed)
+                if kept != typed {
+                    field.stringValue = kept
+                    typed = kept
+                }
+            }
+            owner.text = typed
         }
 
         func controlTextDidBeginEditing(_ notification: Notification) {

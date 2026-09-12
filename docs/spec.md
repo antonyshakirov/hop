@@ -984,6 +984,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   converter row in the panel reopens the window (↗). Dropping onto the
   panel row also adds files and opens the window. Folders are expanded
   (up to 500 files), duplicates are skipped.
+- **The drop plate is also a button.** A click on it opens an Open panel —
+  files, whole folders, any number of both — handed to the same `addToBatch` a
+  drag and ⌘V reach, so folders expand, duplicates drop out and an unsupported
+  file lands in its group exactly as a dropped one does. The panel filters
+  nothing by type: what the converter accepts is decided in one place. The plate
+  carries the hover highlight and the pointing hand every other button has, and
+  it is the only drop plate in the app that takes a click — the archive,
+  recognition, uninstaller and torrent plates still take a drag alone.
 - Paste feeds the clipboard into the converter exactly like a drop, ingesting
   EVERYTHING it supports at once: every file URL on the pasteboard
   (`readObjects(forClasses: [NSURL.self])` returns all items, so a multi-file
@@ -1013,9 +1021,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   tested `ConverterPaste.shouldIngest`). `ConverterWindow.performKeyEquivalent`
   (which calls `super` first) is retained as a harmless fallback, but the monitor
   is the actual route: it fires first and consumes ⌘V, so nothing double-adds
-  (and `addToBatch` dedups by path regardless). The converter window has no
-  editable field, so the monitor claiming every ⌘V while the window is the target
-  is safe. An empty or text-only clipboard is a silent no-op; an unsupported file
+  (and `addToBatch` dedups by path regardless). The window has ONE editable
+  field — the number beside the quality dial — so the monitor asks whether a
+  field editor holds first responder before it consumes ⌘V, the same rule the
+  panel applies to a focused tracker or to-do field: with the caret in the dial
+  the paste is the field's, anywhere else in the window it feeds the queue. The
+  question is part of `ConverterPaste.shouldIngest`, so the rule cannot drift
+  away from its test. An empty or text-only clipboard is a silent no-op; an unsupported file
   lands in the "unsupported" group, same as a dropped file of that type.
 - Groups: images / PDF / video / audio / unsupported. Each file gets:
   a thumbnail (QuickLook), name, its own size "current → ~estimated";
@@ -1029,7 +1041,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   The AVIF chip is shown based on actual system support.
 - Scale ×0.25/0.5/0.75/1 (default ×1, scale applies to images only).
   Quality: images and PDF have INDEPENDENT sliders (convQuality /
-  convPdfQuality, default 55).
+  convPdfQuality, default 55); the number beside either dial is typed as
+  readily as it is dragged — see "Shared components".
 - PDF: page recompression (~150 dpi), text stops being selectable.
 - Video: MP4/MOV/M4V/AVI/MPG → MP4/MOV. Audio: → M4A. MP3/MKV/WebM output is
   not supported by the system; we don't embed ffmpeg.
@@ -1103,7 +1116,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   which is what it becomes. Changing the container does nothing for size — "resolution: original / 4K / 1080p / 720p /
   540p", "frame" + "fit" (see the reframing entry below), and "compression" —
   a toggle (HEVC instead of H.264, ON by default) plus, when it is on, a
-  1…100 slider (`convVideoQualityLevel`, default 55) saying HOW HARD to squeeze.
+  1…100 slider (`convVideoQualityLevel`, default 55) saying HOW HARD to squeeze;
+  its number is typed as readily as it is dragged, like every other dial.
   The legacy single "quality" value migrates into the pair on first launch
   ("hevc" → original + compress).
 - **One label column for every group** (Anton, 2026-08-28): images, PDF, video,
@@ -4266,6 +4280,29 @@ taught anything.
   row's trailing fixed content (the tracker's time; nothing follows it in
   to-dos) — it lives inside the row's flexible spacer, so a non-hovered row
   reserves no width and the trailing content never moves or gets covered.
+- **MiniSlider's number is a FIELD, not a label** (Anton, 2026-09-12): the dial
+  is dragged for a rough value and typed for an exact one, so its figure is a
+  `SteadyField` like every other field in the app. Four rules make the two ways
+  of setting it one control. A drag drops the caret first — a dial that moves
+  under a field still holding focus commits the typed digits over the dragged
+  ones on the way out. A keystroke is filtered INTO the field
+  (`NumericInput.filterDigits`, ASCII digits only, no more of them than the
+  range's widest number holds), because `updateNSView` leaves the text alone
+  while the caret is in it: filtering the binding alone would drop the character
+  from the value and leave it on the screen. The value follows the field only
+  while the caret is in it and only inside the range, so a half-typed "1" on the
+  way to "15" cannot jump a 10…20 dial; what falls outside is clamped on commit,
+  and only if the person actually typed (an `edited` flag), so opening a field
+  and leaving it cannot rewrite the value. Escape puts the number back and
+  releases the caret. `NumericField` and `RateLimitField` take the same filter —
+  the rejected character used to stay on screen in all three.
+- **A snapshot draws the number as TEXT.** `ImageRenderer` cannot draw an
+  `NSViewRepresentable` at all — it paints a yellow fill with a 🚫 where the
+  view should be — so under `Snapshot.active` the dial swaps its field for a
+  `Text` of the same font and width. The same reason takes the pointing hand out
+  of a picture: `Theme.handCursor()` adds nothing under `Snapshot.active`,
+  and until it did, every hover control in the app — chips, plates, clear
+  buttons — carried that yellow 🚫 through all 22 product screenshots.
 
 ## Dock presence
 

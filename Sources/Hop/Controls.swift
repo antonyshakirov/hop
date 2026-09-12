@@ -15,6 +15,15 @@ struct NumericField: View {
     /// hours and minutes read as `09` rather than `9` — "22 : 0" is not a time.
     var padTo: Int = 0
 
+    /// A zero-padded display never fits in fewer digits than its padding.
+    private var digitCap: Int { max(String(range.upperBound).count, padTo) }
+
+    private func commit() {
+        if edited, let v = Int(text) { value = NumericInput.clamp(v, into: range) }
+        text = display(value)
+        edited = false
+    }
+
     private func display(_ value: Int) -> String {
         let digits = "\(value)"
         guard digits.count < padTo else { return digits }
@@ -37,37 +46,26 @@ struct NumericField: View {
 
     private var field: some View {
         SteadyField(text: $text, weight: .semibold, alignment: .center,
-                    colour: color, focus: $focused)
+                    colour: color, focus: $focused,
+                    filter: { NumericInput.filterDigits($0, maxDigits: digitCap) })
             .frame(width: 44, height: 24)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
             .onAppear { text = display(value) }
             .onChange(of: text) { _, new in
-                let digits = String(new.filter(\.isNumber).prefix(3))
-                if digits != new { text = digits; return }
                 // only a live edit (focused) owns the value; programmatic
                 // reformats (onAppear, value/preview sync) must not parse back.
                 guard focused else { return }
                 edited = true
-                if let v = Int(digits), range.contains(v) { value = v }
+                if let v = Int(new), range.contains(v) { value = v }
             }
             .onChange(of: value) { _, v in
                 if !focused { text = display(v) }
             }
             .onChange(of: focused) { _, isFocused in
                 if isFocused { edited = false; return }
-                if edited, let v = Int(text) {
-                    value = min(max(v, range.lowerBound), range.upperBound)
-                }
-                text = display(value)
-                edited = false
+                commit()
             }
-            .onSubmit {
-                if edited, let v = Int(text) {
-                    value = min(max(v, range.lowerBound), range.upperBound)
-                }
-                text = display(value)
-                edited = false
-            }
+            .onSubmit(commit)
     }
 }
 
@@ -107,7 +105,8 @@ struct RateLimitField: View {
         // kb is kept in sync with the field live while typing, so 0 (empty or a
         // typed "0") dims the text the instant it becomes unlimited.
         SteadyField(text: $text, weight: .semibold, alignment: .center,
-                    colour: kb == 0 ? Theme.textTertiary : color, focus: $focused)
+                    colour: kb == 0 ? Theme.textTertiary : color, focus: $focused,
+                    filter: { Self.filter($0, unit: unit) })
             .frame(width: 56, height: 24)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
             .onAppear { text = RateLimit.display(kb: kb, unit: unit) }
@@ -120,9 +119,7 @@ struct RateLimitField: View {
                 // reformats below (unit / kb changes) also fire this handler, so the
                 // focus guard keeps them display-only and never parses back into kb.
                 guard focused else { return }
-                let filtered = Self.filter(new, unit: unit)
-                if filtered != new { text = filtered; return }
-                if let v = RateLimit.parse(filtered, unit: unit) { kb = v }
+                if let v = RateLimit.parse(new, unit: unit) { kb = v }
             }
             .onChange(of: kb) { _, v in
                 if !focused { text = RateLimit.display(kb: v, unit: unit) }
@@ -244,6 +241,7 @@ struct MiniSlider: View {
     var width: CGFloat = 110
 
     @State private var text = ""
+    @State private var edited = false
     @State private var focused = false
 
     var body: some View {
@@ -269,29 +267,57 @@ struct MiniSlider: View {
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { gesture in
+                            if focused { edited = false; focused = false }
                             let f = min(1, max(0, gesture.location.x / geo.size.width))
                             value = range.lowerBound + Int((f * span).rounded())
                         }
                 )
             }
             .frame(width: width, height: 14)
+            number
+        }
+    }
+
+    // ImageRenderer draws no NSViewRepresentable — it paints a yellow 🚫 in its
+    // place — and this dial is hand-drawn precisely to survive a snapshot.
+    @ViewBuilder private var number: some View {
+        if Snapshot.active {
+            Text("\(value)")
+                .font(Theme.mono(10, weight: .semibold))
+                .foregroundStyle(Theme.textPrimary)
+                .frame(width: 26, alignment: .trailing)
+        } else {
             SteadyField(text: $text, size: 10, weight: .semibold, alignment: .right,
                         colour: Theme.textPrimary, focus: $focused,
-                        onSubmit: commit, onCancel: { text = "\(value)" })
+                        filter: { NumericInput.filterDigits($0, range: range) },
+                        onSubmit: commit, onCancel: cancel)
                 .frame(width: 26, height: 14)
                 .onAppear { text = "\(value)" }
                 .onChange(of: text) { _, new in
-                    let filtered = MiniSliderInput.filterDigits(new, range: range)
-                    if filtered != new { text = filtered }
+                    // only a live edit owns the value; programmatic reformats
+                    // must not parse back
+                    guard focused else { return }
+                    edited = true
+                    if let typed = Int(new), range.contains(typed) { value = typed }
                 }
                 .onChange(of: value) { _, v in if !focused { text = "\(v)" } }
-                .onChange(of: focused) { _, isFocused in if !isFocused { commit() } }
+                .onChange(of: focused) { _, isFocused in
+                    if isFocused { edited = false; return }
+                    commit()
+                }
         }
     }
 
     private func commit() {
-        value = MiniSliderInput.commit(text, range: range, fallback: value)
+        if edited { value = NumericInput.commit(text, range: range, fallback: value) }
         text = "\(value)"
+        edited = false
+    }
+
+    private func cancel() {
+        edited = false
+        text = "\(value)"
+        focused = false
     }
 }
 
