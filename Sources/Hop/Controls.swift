@@ -243,6 +243,13 @@ struct MiniSlider: View {
     let range: ClosedRange<Int>
     var width: CGFloat = 110
 
+    // The number beside the track used to be a bare Text: dragging was the
+    // only way in, and a 55→60 nudge meant hunting for the exact pixel.
+    // Backed by SteadyField now, so it also takes a typed value — the drag
+    // gesture above still owns the track itself.
+    @State private var text = ""
+    @State private var focused = false
+
     var body: some View {
         HStack(spacing: 8) {
             GeometryReader { geo in
@@ -272,11 +279,30 @@ struct MiniSlider: View {
                 )
             }
             .frame(width: width, height: 14)
-            Text("\(value)")
-                .font(Theme.mono(10, weight: .semibold))
-                .foregroundStyle(Theme.textPrimary)
-                .frame(width: 24, alignment: .trailing)
+            SteadyField(text: $text, size: 10, weight: .semibold, alignment: .right,
+                        colour: Theme.textPrimary, focus: $focused,
+                        onSubmit: commit, onCancel: { text = "\(value)" })
+                .frame(width: 26, height: 14)
+                .onAppear { text = "\(value)" }
+                // digits only, as they're typed — "1sdcv" never gets to sit
+                // there waiting for Return to reject it
+                .onChange(of: text) { _, new in
+                    let filtered = MiniSliderInput.filterDigits(new, range: range)
+                    if filtered != new { text = filtered }
+                }
+                // the drag gesture (or a caller setting `value` directly, e.g.
+                // a video preset button) writes `value` straight through —
+                // mirror it here UNLESS a typed edit is what's live right now
+                .onChange(of: value) { _, v in if !focused { text = "\(v)" } }
+                .onChange(of: focused) { _, isFocused in if !isFocused { commit() } }
         }
+    }
+
+    /// Parses and clamps in one place (`MiniSliderInput`, tested in
+    /// isolation) so Return and losing focus land on the exact same number.
+    private func commit() {
+        value = MiniSliderInput.commit(text, range: range, fallback: value)
+        text = "\(value)"
     }
 }
 
