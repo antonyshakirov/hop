@@ -284,6 +284,12 @@ struct MiniSlider: View {
                         onSubmit: commit, onCancel: { text = "\(value)" })
                 .frame(width: 26, height: 14)
                 .onAppear { text = "\(value)" }
+                // digits only, as they're typed — "1sdcv" never gets to sit
+                // there waiting for Return to reject it
+                .onChange(of: text) { _, new in
+                    let filtered = MiniSliderInput.filterDigits(new, range: range)
+                    if filtered != new { text = filtered }
+                }
                 // the drag gesture (or a caller setting `value` directly, e.g.
                 // a video preset button) writes `value` straight through —
                 // mirror it here UNLESS a typed edit is what's live right now
