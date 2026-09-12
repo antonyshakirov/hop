@@ -243,6 +243,9 @@ struct MiniSlider: View {
     let range: ClosedRange<Int>
     var width: CGFloat = 110
 
+    @State private var text = ""
+    @State private var focused = false
+
     var body: some View {
         HStack(spacing: 8) {
             GeometryReader { geo in
@@ -272,11 +275,19 @@ struct MiniSlider: View {
                 )
             }
             .frame(width: width, height: 14)
-            Text("\(value)")
-                .font(Theme.mono(10, weight: .semibold))
-                .foregroundStyle(Theme.textPrimary)
-                .frame(width: 24, alignment: .trailing)
+            SteadyField(text: $text, size: 10, weight: .semibold, alignment: .right,
+                        colour: Theme.textPrimary, focus: $focused,
+                        onSubmit: commit, onCancel: { text = "\(value)" })
+                .frame(width: 26, height: 14)
+                .onAppear { text = "\(value)" }
+                .onChange(of: value) { _, v in if !focused { text = "\(v)" } }
+                .onChange(of: focused) { _, isFocused in if !isFocused { commit() } }
         }
+    }
+
+    private func commit() {
+        value = MiniSliderInput.commit(text, range: range, fallback: value)
+        text = "\(value)"
     }
 }
 
