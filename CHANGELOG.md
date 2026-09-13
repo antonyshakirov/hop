@@ -33,6 +33,10 @@
   windows open a file picker when you click them, and say so on hover. Dropping
   files on them and pasting still work; a click is simply one more way, and the
   converter and archive pickers take whole folders as readily as files.
+- An app, a rich-text bundle or a bundle-format Pages document dropped on the
+  converter arrives as one item. It used to be opened like a folder and fill the
+  list with its insides, and one sitting inside a dropped folder went missing.
+  A large folder no longer freezes the window while it is read.
 - The quality number beside a converter dial can be typed. Drag the dial for a
   rough setting or click the figure and enter the exact one; Escape puts back
   what was there. Thanks to Roman Timchenko for both.

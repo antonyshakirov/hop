@@ -208,6 +208,7 @@ final class FileConverter: ObservableObject {
     /// value that often never finishes a move, so it looked stuck a few percent
     /// in while the percentage beside it ran to a hundred.
     private var lastProgressAt = Date.distantPast
+    private var admitting: Task<Void, Never>?
 
     /// The file the last conversion produced — what the reveal button opens.
     /// Kept as a URL rather than a folder so Finder can select it: "where did
@@ -505,34 +506,20 @@ final class FileConverter: ObservableObject {
         batchFraction = batch
     }
 
-    /// Folders expand into their contents (up to 500 files); duplicates are skipped.
+    /// Adds in arrival order once folders are walked off the main thread;
+    /// duplicates are skipped. SPEC: docs/spec.md, "Converter".
     func addToBatch(_ urls: [URL]) {
-        var incoming: [URL] = []
-        for url in urls {
-            guard url.isFileURL else {
-                incoming.append(url)
-                continue
-            }
-            var isDirectory: ObjCBool = false
-            guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory)
-            else { continue }
-            if isDirectory.boolValue {
-                let enumerator = FileManager.default.enumerator(
-                    at: url, includingPropertiesForKeys: [.isRegularFileKey],
-                    options: [.skipsHiddenFiles, .skipsPackageDescendants]
-                )
-                var taken = 0
-                while taken < 500, let item = enumerator?.nextObject() as? URL {
-                    let values = try? item.resourceValues(forKeys: [.isRegularFileKey])
-                    if values?.isRegularFile == true {
-                        incoming.append(item)
-                        taken += 1
-                    }
-                }
-            } else {
-                incoming.append(url)
-            }
+        let previous = admitting
+        admitting = Task {
+            let incoming = await Task.detached(priority: .userInitiated) {
+                DropExpansion.expand(urls)
+            }.value
+            await previous?.value
+            admit(incoming)
         }
+    }
+
+    private func admit(_ incoming: [URL]) {
         // by the whole address: by path, two sites' /post rows would collide
         var seen = Set(batch.all.map { HTMLConversion.batchKey($0.url) })
         loadResolutions(incoming)

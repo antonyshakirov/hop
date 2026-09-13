@@ -983,7 +983,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   The queue lives in the model: closing the window does NOT lose it; the
   converter row in the panel reopens the window (↗). Dropping onto the
   panel row also adds files and opens the window. Folders are expanded
-  (up to 500 files), duplicates are skipped.
+  (up to 500 files each, hidden files skipped), duplicates are skipped.
+- **A package is one item, never a folder** (`HopCore.DropExpansion`, found
+  2026-09-13). An app, an `.rtfd`, a bundle-format Pages document is a folder on
+  disk, and the walk used to go inside a dropped one — an `.app` arrived as up to
+  500 rows of its own plists and binaries — while a package INSIDE a dropped
+  folder was not a regular file and vanished without a word. Both now arrive as
+  the single item Finder shows, and land in their group (or in "can't convert")
+  like any file.
+- **The walk runs off the main thread.** A folder of thousands of files used to
+  stall the window for as long as the walk took; now the rows appear when it
+  ends, and drops made in a row still arrive in the order they were made.
 - **The drop plate is also a button.** A click on it opens an Open panel —
   files, whole folders, any number of both — handed to the same `addToBatch` a
   drag and ⌘V reach, so folders expand, duplicates drop out and an unsupported
