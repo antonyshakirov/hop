@@ -96,15 +96,9 @@ final class AppShelvesController: ObservableObject {
     /// awkward drop target and nothing on screen said so — this is the path that
     /// can be found by looking at the module.
     func promptToAdd(to shelfID: UUID) {
-        guard !Snapshot.active, !demo else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = true
-        panel.allowedContentTypes = [.application]
-        panel.directoryURL = URL(fileURLWithPath: "/Applications")
-        guard panel.runModal() == .OK else { return }
-        for url in panel.urls { add(path: url.path, to: shelfID) }
+        guard !demo else { return }
+        for url in FilePicker.open(multiple: true, types: [.application],
+                                   startIn: URL(fileURLWithPath: "/Applications")) { add(path: url.path, to: shelfID) }
     }
 
     func shelf(withKey key: String) -> AppShelf? {

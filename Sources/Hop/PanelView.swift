@@ -3457,14 +3457,9 @@ struct PanelView: View {
     }
 
     private func chooseDestinationFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-        if panel.runModal() == .OK, let url = panel.url {
-            convDestPath = url.path
-            convDest = "custom"
-        }
+        guard let url = FilePicker.open(.folders).first else { return }
+        convDestPath = url.path
+        convDest = "custom"
     }
 
     // MARK: - Keep awake
@@ -4254,11 +4249,7 @@ struct PanelView: View {
     }
 
     private func pickShotFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard let url = FilePicker.open(.folders).first else { return }
         shotFolder = url.path
     }
 
@@ -4407,13 +4398,7 @@ struct PanelView: View {
     }
 
     private func chooseTorrentFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-        if panel.runModal() == .OK, let url = panel.url {
-            torrentDownloadDir = url.path
-        }
+        if let url = FilePicker.open(.folders).first { torrentDownloadDir = url.path }
     }
 
     /// SPEC: docs/spec.md — a section heading inside a page.

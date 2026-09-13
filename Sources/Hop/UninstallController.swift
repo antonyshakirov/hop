@@ -200,14 +200,8 @@ final class UninstallController: ObservableObject {
     }
 
     func promptToChoose() {
-        guard !Snapshot.active else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
-        panel.allowedContentTypes = [.application]
-        panel.directoryURL = URL(fileURLWithPath: "/Applications")
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard let url = FilePicker.open(types: [.application],
+                                        startIn: URL(fileURLWithPath: "/Applications")).first else { return }
         choose(path: url.path)
     }
 

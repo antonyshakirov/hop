@@ -305,11 +305,9 @@ final class ClipboardController: ObservableObject {
 
         let target: URL
         if askForLocation {
-            let panel = NSSavePanel()
-            panel.nameFieldStringValue = "\(base).\(format.fileExtension)"
-            panel.directoryURL = desktop
-            if let type = Self.contentType(for: format) { panel.allowedContentTypes = [type] }
-            guard panel.runModal() == .OK, let chosen = panel.url else { return nil }
+            guard let chosen = FilePicker.save(name: "\(base).\(format.fileExtension)",
+                                               types: Self.contentType(for: format).map { [$0] } ?? [],
+                                               startIn: desktop) else { return nil }
             target = chosen
         } else {
             // Finder's own rule for a name already taken: " 2", " 3"… — saving the

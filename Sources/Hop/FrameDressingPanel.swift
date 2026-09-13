@@ -155,10 +155,7 @@ struct FrameDressingPopover: View {
     }
 
     private func pickBackground() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.png, .jpeg, .tiff, .heic]
-        panel.allowsMultipleSelection = false
-        guard panel.runModal() == .OK, let url = panel.url,
+        guard let url = FilePicker.open(types: [.png, .jpeg, .tiff, .heic]).first,
               let name = WatermarkRenderer.store(imageAt: url, called: "backdrop") else { return }
         editor.dressing.background = .picture(name, pictureBlur)
         editor.refreshPreview()
@@ -292,10 +289,7 @@ struct WatermarkPopover: View {
     }
 
     private func pickImage() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.png, .jpeg, .tiff]
-        panel.allowsMultipleSelection = false
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard let url = FilePicker.open(types: [.png, .jpeg, .tiff]).first else { return }
         editor.watermark.imageName = WatermarkRenderer.store(imageAt: url)
         editor.refreshPreview()
     }

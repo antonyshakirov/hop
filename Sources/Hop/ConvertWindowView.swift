@@ -159,18 +159,9 @@ struct ConvertWindowView: View {
         }
     }
 
-    /// Same picker shape as a Finder drag: files or whole folders (expanded by
-    /// `addToBatch`, exactly like a dropped folder), any number of them.
     private func openFilePicker() {
-        // A modal panel would hang an automated snapshot run and has no place
-        // in the onboarding picture.
-        guard !Snapshot.active, !preview else { return }
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = true
-        guard panel.runModal() == .OK else { return }
-        model.converter.addToBatch(panel.urls)
+        guard !preview else { return }
+        model.converter.addToBatch(FilePicker.open(.filesAndFolders, multiple: true))
     }
 
     private func loadFileURL(_ provider: NSItemProvider) async -> URL? {

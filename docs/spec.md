@@ -4303,6 +4303,14 @@ taught anything.
   of a picture: `Theme.handCursor()` adds nothing under `Snapshot.active`,
   and until it did, every hover control in the app — chips, plates, clear
   buttons — carried that yellow 🚫 through all 22 product screenshots.
+- **FilePicker (FilePicker.swift) is the ONLY Open and Save panel** (found
+  2026-09-13): twelve places built their own `NSOpenPanel` or `NSSavePanel`, and
+  ten of them had no `Snapshot.active` guard — a modal panel reached during a
+  render hangs the run with nobody there to close it. The guard lives inside the
+  picker now, so a new call site cannot forget it: under `Snapshot.active` an
+  Open answers nothing and a Save answers nil. A view's own staging flag (the
+  converter's onboarding `preview`, the app shelf's `demo`) is still the
+  caller's to check.
 
 ## Dock presence
 

@@ -311,13 +311,7 @@ struct TorrentAddSheet: View {
     }
 
     private func chooseFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-        if panel.runModal() == .OK, let url = panel.url {
-            destPath = url.path
-        }
+        if let url = FilePicker.open(.folders).first { destPath = url.path }
     }
 
     private func binding(_ index: Int) -> Binding<Bool> {

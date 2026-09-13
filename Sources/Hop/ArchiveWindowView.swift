@@ -212,11 +212,7 @@ struct ArchiveWindowView: View {
     }
 
     private func chooseFolder() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.allowsMultipleSelection = false
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard let url = FilePicker.open(.folders).first else { return }
         customPath = url.path
         destinationRaw = ArchiveController.Destination.custom.rawValue
     }

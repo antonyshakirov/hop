@@ -556,17 +556,11 @@ struct TorrentView: View {
     /// and hand its bytes to the add sheet. The primary add path, since the
     /// popover can't reliably host a Finder drag.
     private func openTorrentPicker() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
         // Start in Downloads (where browsers save .torrent files); the sidebar
         // still lets the user browse anywhere.
-        panel.directoryURL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
-        if let torrentType = UTType(filenameExtension: "torrent") {
-            panel.allowedContentTypes = [torrentType]
-        }
-        guard panel.runModal() == .OK, let url = panel.url,
+        let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+        guard let url = FilePicker.open(types: UTType(filenameExtension: "torrent").map { [$0] } ?? [],
+                                        startIn: downloads).first,
               let data = try? Data(contentsOf: url) else { return }
         add(source: .file(data))
     }
