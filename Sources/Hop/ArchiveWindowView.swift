@@ -218,39 +218,33 @@ struct ArchiveWindowView: View {
     }
 
     private var dropZone: some View {
-        VStack(spacing: 6) {
-            Image(systemName: "archivebox")
-                .font(.system(size: 22, weight: .light))
-                .foregroundStyle(targeted ? Theme.editing : Theme.textTertiary)
-            Text(t(.archiveDrop))
-                .font(Theme.mono(11))
-                .foregroundStyle(targeted ? Theme.editing : Theme.textSecondary)
-                .multilineTextAlignment(.center)
-            Text(t(.archiveDropHint))
-                .font(Theme.mono(9.5))
-                .foregroundStyle(Theme.textTertiary)
-                .multilineTextAlignment(.center)
-            Text(t(.archivePasteHint))
-                .font(Theme.mono(9))
-                .foregroundStyle(Theme.textTertiary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 2)
-            // the formats live here, where there is room for all of them
-            Text(ArchiveView.formats)
-                .font(Theme.mono(8.5))
-                .foregroundStyle(Theme.textTertiary)
-                .multilineTextAlignment(.center)
-                .padding(.top, 6)
+        DropPlate(targeted: targeted, help: t(.tipBrowseArchive), browse: browse) {
+            VStack(spacing: 6) {
+                Image(systemName: "archivebox")
+                    .font(.system(size: 22, weight: .light))
+                    .foregroundStyle(targeted ? Theme.editing : Theme.textTertiary)
+                Text(t(.archiveDrop))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(targeted ? Theme.editing : Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                Text(t(.archiveDropHint))
+                    .font(Theme.mono(9.5))
+                    .foregroundStyle(Theme.textTertiary)
+                    .multilineTextAlignment(.center)
+                Text(t(.archivePasteHint))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 2)
+                // the formats live here, where there is room for all of them
+                Text(ArchiveView.formats)
+                    .font(Theme.mono(8.5))
+                    .foregroundStyle(Theme.textTertiary)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 6)
+            }
+            .padding(.vertical, 34)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 34)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(targeted ? Theme.editing : Theme.divider,
-                              style: StrokeStyle(lineWidth: 1, dash: targeted ? [] : [5, 4]))
-        )
-        .contentShape(Rectangle())
         .snapshotAwareDrop(of: [.fileURL], isTargeted: $targeted) { providers in
             Task {
                 var urls: [URL] = []
@@ -261,6 +255,11 @@ struct ArchiveWindowView: View {
             }
             return true
         }
+    }
+
+    private func browse() {
+        let urls = FilePicker.open(.filesAndFolders, multiple: true)
+        if !urls.isEmpty { model.archive.handleDrop(urls) }
     }
 }
 

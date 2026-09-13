@@ -546,27 +546,22 @@ struct UninstallWindowView: View {
     }
 
     private var dropPlate: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "trash")
-                .font(.system(size: 22))
-                .foregroundStyle(targeted ? Theme.editing : Theme.textTertiary)
-            Text(t(.uninstallDrop))
-                .font(Theme.mono(11))
-                .foregroundStyle(Theme.textSecondary)
-                .multilineTextAlignment(.center)
-            Text(t(.uninstallTrashNote))
-                .font(Theme.mono(9))
-                .foregroundStyle(Theme.textTertiary)
-                .multilineTextAlignment(.center)
+        DropPlate(targeted: targeted, help: t(.uninstallPick), browse: uninstall.promptToChoose) {
+            VStack(spacing: 8) {
+                Image(systemName: "trash")
+                    .font(.system(size: 22))
+                    .foregroundStyle(targeted ? Theme.editing : Theme.textTertiary)
+                Text(t(.uninstallDrop))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                Text(t(.uninstallTrashNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.vertical, 34)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 34)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(targeted ? Theme.editing : Theme.divider,
-                        style: StrokeStyle(lineWidth: 1, dash: targeted ? [] : [4, 4]))
-        )
     }
 
     @ViewBuilder private var appHeader: some View {

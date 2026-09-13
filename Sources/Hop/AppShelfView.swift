@@ -214,7 +214,6 @@ struct AppShelfView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(t(.appsEmpty))
         .hoverDim()
         .disabled(!AppShelf.columnRange.contains(target))
         .opacity(AppShelf.columnRange.contains(target) ? 1 : 0.35)

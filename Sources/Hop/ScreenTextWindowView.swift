@@ -50,79 +50,72 @@ struct ScreenTextWindowView: View {
     /// Both feeds in one place: the crosshair for the screen, the zone for a
     /// picture that already exists.
     private var dropZone: some View {
-        VStack(spacing: 8) {
-            Text(t(.ocrWindowDrop))
-                .font(Theme.mono(11))
-                .foregroundStyle(targeted ? Theme.editing : Theme.textSecondary)
-                .multilineTextAlignment(.center)
-            HStack(spacing: 12) {
-                Button {
-                    reader.capture()
-                } label: {
-                    Label(t(.ocrRead), systemImage: "square.dashed")
-                        .font(Theme.mono(10, weight: .bold))
-                        .lineLimit(1)
-                        .fixedSize()
-                        .foregroundStyle(Theme.playFg)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 6)
-                        .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
-                        .contentShape(Rectangle())
+        DropPlate(targeted: targeted, help: t(.tipBrowseImage), browse: browse) {
+            VStack(spacing: 8) {
+                Text(t(.ocrWindowDrop))
+                    .font(Theme.mono(11))
+                    .foregroundStyle(targeted ? Theme.editing : Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+                HStack(spacing: 12) {
+                    Button {
+                        reader.capture()
+                    } label: {
+                        Label(t(.ocrRead), systemImage: "square.dashed")
+                            .font(Theme.mono(10, weight: .bold))
+                            .lineLimit(1)
+                            .fixedSize()
+                            .foregroundStyle(Theme.playFg)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 6)
+                            .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverDim()
+                    .disabled(reader.isBusy)
+                    Button {
+                        reader.recognizeFromPasteboard()
+                    } label: {
+                        Label(t(.ocrPaste), systemImage: "doc.on.clipboard")
+                            .font(Theme.mono(10))
+                            .lineLimit(1)
+                            .fixedSize()
+                            .foregroundStyle(Theme.textSecondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 7))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverDim()
+                    .disabled(reader.isBusy)
                 }
-                .buttonStyle(.plain)
-                .help(t(.ocrWindowDrop))
-                .hoverDim()
-                .disabled(reader.isBusy)
-                Button {
-                    reader.recognizeFromPasteboard()
-                } label: {
-                    Label(t(.ocrPaste), systemImage: "doc.on.clipboard")
-                        .font(Theme.mono(10))
-                        .lineLimit(1)
-                        .fixedSize()
-                        .foregroundStyle(Theme.textSecondary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 7))
-                        .contentShape(Rectangle())
+                if reader.state == .denied {
+                    Button {
+                        PermissionRepair.askByHand(.screenCapture)
+                    } label: {
+                        Text(t(.permGrant))
+                            .font(Theme.mono(10, weight: .semibold))
+                            .foregroundStyle(Theme.textPrimary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 5)
+                            .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .hoverDim()
+                    .help(t(.permGrant))
+                    Text(t(.ocrNeedsPermission))
+                        .font(Theme.mono(9))
+                        .foregroundStyle(Theme.accentYellow)
+                } else if let status {
+                    Text(status)
+                        .font(Theme.mono(9))
+                        .foregroundStyle(Theme.textTertiary)
                 }
-                .buttonStyle(.plain)
-                .hoverDim()
-                .disabled(reader.isBusy)
             }
-            if reader.state == .denied {
-                Button {
-                    PermissionRepair.askByHand(.screenCapture)
-                } label: {
-                    Text(t(.permGrant))
-                        .font(Theme.mono(10, weight: .semibold))
-                        .foregroundStyle(Theme.textPrimary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 5)
-                        .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .hoverDim()
-                .help(t(.permGrant))
-                Text(t(.ocrNeedsPermission))
-                    .font(Theme.mono(9))
-                    .foregroundStyle(Theme.accentYellow)
-            } else if let status {
-                Text(status)
-                    .font(Theme.mono(9))
-                    .foregroundStyle(Theme.textTertiary)
-            }
+            .padding(.vertical, 48)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 48)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(targeted ? Theme.editing : Theme.divider,
-                              style: StrokeStyle(lineWidth: 1, dash: targeted ? [] : [5, 4]))
-        )
-        .contentShape(Rectangle())
         .snapshotAwareDrop(of: [.fileURL, .image], isTargeted: $targeted) { providers in
             Task {
                 for provider in providers {
@@ -134,6 +127,10 @@ struct ScreenTextWindowView: View {
             }
             return true
         }
+    }
+
+    private func browse() {
+        if let url = FilePicker.open(types: [.image]).first { reader.recognize(imageAt: url) }
     }
 
     /// The text itself, selectable and editable — copy a line or fix a stray

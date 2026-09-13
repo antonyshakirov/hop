@@ -989,9 +989,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   drag and ⌘V reach, so folders expand, duplicates drop out and an unsupported
   file lands in its group exactly as a dropped one does. The panel filters
   nothing by type: what the converter accepts is decided in one place. The plate
-  carries the hover highlight and the pointing hand every other button has, and
-  it is the only drop plate in the app that takes a click — the archive,
-  recognition, uninstaller and torrent plates still take a drag alone.
+  is the shared `DropPlate`, so it looks, hovers and answers a click the way the
+  archive, recognition and uninstaller plates do.
 - Paste feeds the clipboard into the converter exactly like a drop, ingesting
   EVERYTHING it supports at once: every file URL on the pasteboard
   (`readObjects(forClasses: [NSURL.self])` returns all items, so a multi-file
@@ -4311,6 +4310,21 @@ taught anything.
   Open answers nothing and a Save answers nil. A view's own staging flag (the
   converter's onboarding `preview`, the app shelf's `demo`) is still the
   caller's to check.
+- **DropPlate (Controls.swift) is the ONLY drop plate in a window** (Anton,
+  2026-09-13): the converter, archive, recognition and uninstaller windows. Each
+  had drawn its own dashed rectangle, and only the converter's took a click, so
+  three plates that read as "put files here" did nothing when pressed. The plate
+  is a button now: a click opens `FilePicker` with what that window takes —
+  files and folders for the converter and the archive, one picture for
+  recognition, one app from /Applications for the uninstaller — and hands the
+  result to the same path a drop reaches. It carries the hover highlight, the
+  pointing hand, a dashed border that turns solid in the accent while a drag is
+  over it, and a tooltip naming the click (`tipBrowse*`, or `uninstallPick`):
+  the visible text says "drop", so the tooltip is the only place the second way
+  is written. Buttons inside a plate (recognition's capture and paste) keep their
+  own clicks. The panel rows that take a drop (converter, archive, torrent) were
+  buttons already and keep their row style; the torrent row gained its tooltip
+  (`torrentAddHint`) the same day.
 
 ## Dock presence
 

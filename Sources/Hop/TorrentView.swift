@@ -199,6 +199,7 @@ struct TorrentView: View {
                 .stroke(dropTargeted ? Theme.editing : .clear, lineWidth: 1)
         )
         .hoverHighlight(7)
+        .help(t(.torrentAddHint))
         .snapshotAwareDrop(of: [.fileURL], isTargeted: $dropTargeted) { providers in
             Task {
                 for provider in providers {

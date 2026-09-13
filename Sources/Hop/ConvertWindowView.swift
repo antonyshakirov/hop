@@ -119,10 +119,7 @@ struct ConvertWindowView: View {
     // MARK: - Drop zone
 
     private var dropZone: some View {
-        // Also a browse button: the same batch entry point as a Finder drag
-        // or ⌘V, reached with a click for anyone who'd rather pick files from
-        // an Open panel than drag them.
-        Button(action: openFilePicker) {
+        DropPlate(targeted: targeted, help: t(.tipBrowseConvert), browse: openFilePicker) {
             VStack(spacing: 8) {
                 Image(systemName: "arrow.down.doc")
                     .font(.system(size: 20))
@@ -131,20 +128,8 @@ struct ConvertWindowView: View {
                     .font(Theme.mono(11))
                     .foregroundStyle(targeted ? Theme.editing : Theme.textTertiary)
             }
-            .frame(maxWidth: .infinity)
             .frame(height: 160)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(
-                    targeted ? Theme.editing : Theme.divider,
-                    style: StrokeStyle(lineWidth: 1, dash: [5, 4])
-                )
-        )
-        .hoverHighlight(10)
         .snapshotAwareDrop(of: [.fileURL], isTargeted: $targeted) { providers in
             Task {
                 var urls: [URL] = []

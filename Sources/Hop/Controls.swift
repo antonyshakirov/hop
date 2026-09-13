@@ -718,6 +718,32 @@ struct DefaultHandlerCard: View {
 /// and `archivebox` a squat box, so at the same point size the converter card
 /// came out 1.5pt taller than the archive one right next to it. Colour stays
 /// with the caller — a module marks its own state.
+/// A window's drop plate: files are dragged onto it, or it is clicked to pick
+/// them. SPEC: docs/spec.md, "Shared components".
+struct DropPlate<Content: View>: View {
+    let targeted: Bool
+    let help: String
+    let browse: () -> Void
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        Button(action: browse) {
+            content
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(targeted ? Theme.editing : Theme.divider,
+                              style: StrokeStyle(lineWidth: 1, dash: targeted ? [] : [5, 4]))
+        )
+        .hoverHighlight(10)
+        .help(help)
+    }
+}
+
 struct ModuleMarkIcon: View {
     let symbol: String
     var color: Color = Theme.textSecondary
