@@ -33,7 +33,8 @@ guard let binary = FileManager.default.contents(atPath: binaryPath) else {
     fputs("file not found: \(binaryPath)\n", stderr); exit(1)
 }
 
-guard CommandLine.arguments.count > 2, !CommandLine.arguments[2].isEmpty else {
+guard CommandLine.arguments.count > 2,
+      CommandLine.arguments[2].range(of: #"^\d+(\.\d+)*$"#, options: .regularExpression) != nil else {
     fputs("usage: sign-tool.swift <binary> <version> [download-url]\n", stderr); exit(1)
 }
 let version = CommandLine.arguments[2]

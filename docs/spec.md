@@ -3547,7 +3547,8 @@ came back the moment it was removed and added again.
   keeps showing its torrents until an actual download begins. The new binary is
   staged beside the old one, made executable, and swapped in with one rename;
   the version file is written only after the swap, and a failed write fails the
-  install (the next start simply updates again). `scripts/sign-tool.swift` takes
+  install (the next update attempt, an hour later or after a relaunch, installs it
+  again). `scripts/sign-tool.swift` takes
   the version as its second argument so the printed manifest is complete.
 - **Stall recovery.** `HopCore.TorrentStallWatch` reads each poll. A torrent is
   stalled when it is live, unfinished, unpaused, and has neither a live peer nor
@@ -3568,13 +3569,19 @@ came back the moment it was removed and added again.
   1.5 s poll.
 - **A failed restart is retried, not counted.** If no engine comes up,
   `recoverEngine` reports it; the attempt is not counted as fruitless, and
-  polling tries again every 15 s while torrents exist. If the restarted engine
-  lists nothing yet, the re-map is retried on later polls.
+  polling tries again every 15 s while torrents exist. Any engine start after the
+  first one in a session, including one triggered by a user action, re-maps rows
+  on the next polls until the engine lists its torrents. A re-map drops only rows
+  that existed before the list was requested, so a torrent added meanwhile
+  stays. A stopped engine (the module switched off, the last torrent removed) is
+  never restarted by recovery or by an action; only an add or restore starts it.
 - **Torrents are addressed by info hash.** rqbit accepts a 40-hex info hash
   anywhere it accepts a session id (`TorrentIdOrHash`, 8.1.1 and 9.0.1). Stats
   and every user action (pause, resume, file selection, remove) use the hash, so
   an action taken while the engine is restarting lands on the right torrent once
-  the new session is up; actions made during a start wait for it.
+  the new session is up. An action that finds the engine down but still wanted
+  starts it and waits, so a removal or a file selection is never silently
+  dropped. A duplicate add is matched to its row by info hash alone.
 - **Recovery keeps rows.** `recoverEngine` waits for the restarted engine to
   surface its session (the same ~3 s retry `restore()` uses) and leaves the rows
   alone if the list is still empty. Before, a restart that listed too early

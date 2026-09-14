@@ -10,7 +10,7 @@
 # Usage: scripts/build-remuxer.sh [work-dir]
 # Output: <work-dir>/hop-remuxer/ffmpeg  (universal: arm64 + x86_64)
 #
-# Then: swift scripts/sign-tool.swift <that binary> <download url>
+# Then: swift scripts/sign-tool.swift <that binary> <version> <download url>
 # and put the binary, its .sig and the printed manifest on the site under
 # /downloads/hop/remuxer/.
 set -euo pipefail
@@ -85,4 +85,4 @@ echo "universal helper: ${WORK}/${OUT}/ffmpeg ($(du -h "${OUT}/ffmpeg" | cut -f1
 lipo -archs "${OUT}/ffmpeg"
 echo "sha256: $(shasum -a 256 "${OUT}/ffmpeg" | cut -d' ' -f1)"
 echo
-echo "next: swift scripts/sign-tool.swift ${WORK}/${OUT}/ffmpeg <download-url>"
+echo "next: swift scripts/sign-tool.swift ${WORK}/${OUT}/ffmpeg <version> <download-url>"

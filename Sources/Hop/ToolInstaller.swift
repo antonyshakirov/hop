@@ -159,10 +159,11 @@ class ToolInstaller: ObservableObject {
             throw CocoaError(.fileWriteNoPermission)
         }
         if fm.fileExists(atPath: binaryURL.path) {
-            _ = try fm.replaceItemAt(binaryURL, withItemAt: staged)
+            _ = try fm.replaceItemAt(binaryURL, withItemAt: staged, options: .usingNewMetadataOnly)
         } else {
             try fm.moveItem(at: staged, to: binaryURL)
         }
+        guard fm.isExecutableFile(atPath: binaryURL.path) else { throw CocoaError(.fileWriteNoPermission) }
         try version.write(to: versionURL, atomically: true, encoding: .utf8)
     }
 

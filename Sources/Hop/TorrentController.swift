@@ -15,6 +15,9 @@ final class TorrentController: ObservableObject {
     private var recoveryPending = false
     private var lastRecoveryAttempt: TimeInterval = 0
     private var remapPending = false
+    private var sessionStarted = false
+    /// False once the engine was stopped on purpose; nothing but a new add or restore may start it.
+    private var engineWanted = false
     /// Stops while the Mac sleeps, so a night asleep never reads as a stall.
     private var uptime: TimeInterval { ProcessInfo.processInfo.systemUptime }
 
@@ -132,6 +135,11 @@ final class TorrentController: ObservableObject {
     // MARK: - Engine lifecycle
     private var engineStartTask: Task<Void, Error>?
     func ensureEngine(binaryOverride: URL? = nil) async throws {
+        engineWanted = true
+        try await joinEngineStart(binaryOverride: binaryOverride)
+    }
+
+    private func joinEngineStart(binaryOverride: URL? = nil) async throws {
         if client != nil, process.isRunning { return }
         // Serialize starts: a cold .torrent open can call this while launch restore()
         // is already starting the engine. Two starts on the SHARED process kill each
@@ -173,6 +181,10 @@ final class TorrentController: ObservableObject {
                                                    persistenceDir: persistenceDir,
                                                    rateDownBps: rateDownBps, rateUpBps: rateUpBps)
         client = TorrentEngineClient(baseURL: base, basicAuth: auth, transport: URLSessionTransport())
+        // SPEC: "A failed restart is retried" — any start after the first one hands out fresh ids.
+        if sessionStarted, !torrents.isEmpty { remapPending = true }
+        sessionStarted = true
+        recoveryPending = false
     }
 
     func stopEngine() {
@@ -180,6 +192,8 @@ final class TorrentController: ObservableObject {
         pathMonitor?.cancel(); pathMonitor = nil
         process.stop()
         client = nil
+        engineWanted = false
+        recoveryPending = false
     }
 
     /// Restart the engine after it died and re-map rows to the new session's ids
@@ -191,33 +205,36 @@ final class TorrentController: ObservableObject {
         recoveryPending = true
         lastRecoveryAttempt = uptime
         client = nil                       // force ensureEngine to start a fresh process
-        try? await ensureEngine()
-        if Task.isCancelled, pollTask == nil {
+        try? await joinEngineStart()
+        if !engineWanted {
             process.stop(); client = nil
             recoveryPending = false
             return false
         }
         guard let client else { return false }
-        recoveryPending = false
         remapPending = true
-        await remap(await listOnceLoaded(client))
+        let known = Set(torrents.map(\.infoHash))
+        remap(await listOnceLoaded(client), known: known)
         return true
     }
 
     /// SPEC: "Recovery keeps rows" — an empty early list would also erase torrents.json.
-    private func remap(_ listed: [ListedTorrent]) async {
+    /// Only rows in `known` (present before the list was requested) may be dropped.
+    private func remap(_ listed: [ListedTorrent], known: Set<String>) {
         guard !listed.isEmpty else { return }
         remapPending = false
         torrents = torrents.compactMap { row in
-            guard let current = listed.first(where: { $0.infoHash == row.infoHash }) else { return nil }
+            guard let current = listed.first(where: { $0.infoHash == row.infoHash }) else {
+                return known.contains(row.infoHash) ? nil : row
+            }
             var r = row; r.id = current.id; r.stats = nil; return r
         }
         persist()
     }
 
-    /// The client once any engine start already under way has finished.
+    /// A running engine for a user action, started if it is down but still wanted.
     private func readyClient() async -> TorrentEngineClient? {
-        if client == nil, let inFlight = engineStartTask { _ = try? await inFlight.value }
+        if engineWanted, client == nil || !process.isRunning { try? await joinEngineStart() }
         return client
     }
 
@@ -260,7 +277,7 @@ final class TorrentController: ObservableObject {
         // Dedup: rqbit returns the EXISTING id for a duplicate add (overwrite=true),
         // so update that row in place instead of appending a second row with the same
         // Identifiable id (which breaks ForEach + double-counts speeds/notifications).
-        if let idx = torrents.firstIndex(where: { $0.id == id || $0.infoHash == added.infoHash }) {
+        if let idx = torrents.firstIndex(where: { $0.infoHash == added.infoHash }) {
             torrents[idx] = item
         } else {
             torrents.append(item)
@@ -443,7 +460,10 @@ final class TorrentController: ObservableObject {
             await recoverEngine()
         }
         guard let client else { return }
-        if remapPending { await remap((try? await client.list()) ?? []) }
+        if remapPending {
+            let known = Set(torrents.map(\.infoHash))
+            remap((try? await client.list()) ?? [], known: known)
+        }
         for i in torrents.indices where i < torrents.count {
             let id = torrents[i].infoHash
             guard let stats = try? await client.stats(id: id) else { continue }
@@ -488,6 +508,7 @@ final class TorrentController: ObservableObject {
                 torrents[i].optimisticPaused = true   // reflect the pause in the UI at once
                 persist()
                 try? await client.pause(id: id)
+                guard i < torrents.count, torrents[i].infoHash == id else { continue }
             }
             if !torrents[i].pausedByPolicy, !torrents[i].seedPolicyOverridden,
                SeedPolicy.shouldPause(stats: stats, stopAtRatio1: stopAtRatio1) {
