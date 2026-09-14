@@ -2,6 +2,7 @@ import Combine
 import Foundation
 import HopCore
 import AppKit
+import Network
 
 @MainActor
 final class TorrentController: ObservableObject {
@@ -9,6 +10,8 @@ final class TorrentController: ObservableObject {
     private let process = TorrentEngineProcess()
     private var client: TorrentEngineClient?
     private var pollTask: Task<Void, Never>?
+    private var stallWatch = TorrentStallWatch()
+    private var pathMonitor: NWPathMonitor?
 
     @Published private(set) var torrents: [TorrentItem] = []
 
@@ -154,8 +157,11 @@ final class TorrentController: ObservableObject {
     private func startEngine(binaryOverride: URL?) async throws {
         let binary: URL
         if let binaryOverride { binary = binaryOverride }
-        else if let installed = installer.installedBinaryURL() { binary = installed }
-        else { throw EngineUnavailable() }
+        else {
+            await installer.updateIfNeeded()
+            guard let installed = installer.installedBinaryURL() else { throw EngineUnavailable() }
+            binary = installed
+        }
         try FileManager.default.createDirectory(at: downloadFolder, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: persistenceDir, withIntermediateDirectories: true)
         let (base, auth) = try await process.start(binary: binary, downloadFolder: downloadFolder,
@@ -166,6 +172,7 @@ final class TorrentController: ObservableObject {
 
     func stopEngine() {
         pollTask?.cancel(); pollTask = nil
+        pathMonitor?.cancel(); pathMonitor = nil
         process.stop()
         client = nil
     }
@@ -178,7 +185,9 @@ final class TorrentController: ObservableObject {
         client = nil                       // force ensureEngine to start a fresh process
         try? await ensureEngine()
         guard let client else { return }
-        let listed = (try? await client.list()) ?? []
+        let listed = await listOnceLoaded(client)
+        // SPEC: "Recovery keeps rows" — an empty early list would also erase torrents.json.
+        guard !listed.isEmpty else { return }
         torrents = torrents.compactMap { row in
             guard let current = listed.first(where: { $0.infoHash == row.infoHash }) else { return nil }
             var r = row; r.id = current.id; r.stats = nil; return r
@@ -366,6 +375,14 @@ final class TorrentController: ObservableObject {
     // MARK: - Polling
     private func startPolling() {
         guard pollTask == nil else { return }
+        stallWatch = TorrentStallWatch()
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
+            guard path.status == .satisfied else { return }
+            Task { @MainActor in self?.stallWatch.networkChanged() }
+        }
+        monitor.start(queue: .global(qos: .utility))
+        pathMonitor = monitor
         pollTask = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
@@ -438,6 +455,14 @@ final class TorrentController: ObservableObject {
                 try? await client.pause(id: id)
             }
         }
+        // SPEC: "Stall recovery" in the torrent engine section.
+        let signal = TorrentStallWatch.assess(torrents.map { row in
+            (row.stats, row.filesMissing
+                || (row.optimisticPaused ?? (row.pausedByPolicy || row.stats?.state == .paused)))
+        })
+        if stallWatch.observe(stalled: signal.stalled, flowing: signal.flowing, now: Date()) {
+            await recoverEngine()
+        }
     }
 
     /// One banner per torrent event, respecting the app's alert setting.
@@ -483,6 +508,18 @@ final class TorrentController: ObservableObject {
         try? JSONEncoder().encode(rows).write(to: persistFile)
     }
 
+    /// Right after start the engine may list nothing while loading its session; retries ~3 s.
+    private func listOnceLoaded(_ client: TorrentEngineClient) async -> [ListedTorrent] {
+        var listed = (try? await client.list()) ?? []
+        var tries = 0
+        while listed.isEmpty, tries < 15 {
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            listed = (try? await client.list()) ?? []
+            tries += 1
+        }
+        return listed
+    }
+
     func restore() async {
         let saved = (try? Data(contentsOf: persistFile))
             .flatMap { try? JSONDecoder().decode([Persisted].self, from: $0) } ?? []
@@ -490,17 +527,7 @@ final class TorrentController: ObservableObject {
         do {
             try await ensureEngine()
             guard let client else { return }
-            // The engine may still be loading its persisted session right after
-            // start, so list() can briefly come back empty — retry (~3s) until the
-            // torrents surface, instead of restoring nothing and leaving the panel
-            // blank while the engine quietly resumes them.
-            var listed = (try? await client.list()) ?? []
-            var tries = 0
-            while listed.isEmpty, tries < 15 {
-                try? await Task.sleep(nanoseconds: 200_000_000)
-                listed = (try? await client.list()) ?? []
-                tries += 1
-            }
+            let listed = await listOnceLoaded(client)
             // The engine is the source of truth for what's actually downloading:
             // show every torrent it holds, enriched with saved file/selection detail
             // when we have it. A torrent in the engine but missing from torrents.json

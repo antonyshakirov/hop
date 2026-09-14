@@ -445,6 +445,15 @@ struct TorrentView: View {
                     .foregroundStyle(Theme.accentRed)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
+            } else if stats?.state == .initializing, let stats, stats.checkedBytes > 0 {
+                // Re-checking the payload on disk after a start. rqbit's byte count
+                // here is how much it has hashed, not how much is downloaded.
+                Text("\(t(.torrentVerifying)) · \(Int(stats.checkingFraction * 100))%")
+                    .font(Theme.mono(9.5))
+                    .foregroundStyle(Theme.textSecondary)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             } else if finished {
                 Text("100%")
                     .font(Theme.mono(9.5, weight: .semibold))

@@ -32,4 +32,35 @@ final class RqbitStatsDecodingTests: XCTestCase {
         XCTAssertEqual(s.peersSeen, 0)
         XCTAssertNil(s.etaSeconds)
     }
+
+    func testRqbit9LiveStatsDecode() throws {
+        let s = try RqbitDecoding.stats(from: fixture("rqbit9-stats"))
+        XCTAssertEqual(s.state, .live)
+        XCTAssertEqual(s.progressBytes, 156838388)
+        XCTAssertEqual(s.totalBytes, 9128454644)
+        XCTAssertEqual(s.peersLive, 2)
+        XCTAssertEqual(s.peersSeen, 97)
+        XCTAssertEqual(s.etaSeconds, 5762)
+        XCTAssertGreaterThan(s.downloadBps, 1_500_000)
+        XCTAssertEqual(s.checkedBytes, 0)
+    }
+
+    func testRqbit9PausedStatsDecode() throws {
+        let s = try RqbitDecoding.stats(from: fixture("rqbit9-stats-paused"))
+        XCTAssertEqual(s.state, .paused)
+        XCTAssertEqual(s.progressBytes, 156838388)
+        XCTAssertEqual(s.peersLive, 0)
+    }
+
+    /// While a torrent is initializing rqbit reports how much of the payload it
+    /// has hashed in `progress_bytes`, measured against the whole torrent. Read as
+    /// downloaded bytes it once showed "27 GB" for a torrent 9% done.
+    func testInitializingProgressIsCheckingNotDownloaded() throws {
+        let s = try RqbitDecoding.stats(from: fixture("rqbit9-stats-initializing"))
+        XCTAssertEqual(s.state, .initializing)
+        XCTAssertEqual(s.progressBytes, 0)
+        XCTAssertEqual(s.fraction, 0)
+        XCTAssertEqual(s.checkedBytes, 27_000_000_000)
+        XCTAssertEqual(s.checkingFraction, 0.9, accuracy: 0.0001)
+    }
 }

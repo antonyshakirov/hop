@@ -3517,6 +3517,55 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the 7-Zip helper is a second instance. Hop ships no third-party binaries: each
   is fetched only when its module actually needs it.
 
+### Torrent engine: version floor and stall recovery (2.1.0)
+
+Found on 2026-09-14 from a Korean home network: a torrent that had been
+downloading sat at zero speed and zero peers after the Mac moved networks, and
+came back the moment it was removed and added again.
+
+- **Why.** rqbit 8.1.1 announces to HTTP trackers with no User-Agent, and
+  trackers behind Cloudflare (Rutracker's `bt*.t-ru.org`) answer that with 403, so
+  such torrents found peers through DHT alone. A long-running engine whose DHT
+  stopped finding peers after the network change had nothing else to fall back
+  on. Removing the last torrent stops the engine and adding it back starts a
+  fresh one, which is why that "fixed" it. rqbit 9.0.1 sends `rqbit 9.0.1` as its
+  User-Agent; the CLI flags, API endpoints, JSON fields and session persistence
+  Hop uses are unchanged (checked against the 9.0.1 source and a live 9.0.1
+  process; `rqbit9-*` fixtures).
+- **Version floor.** `ToolInstaller` records the manifest version beside the
+  binary (`<binary>.version`) on every install. A tool may name a
+  `minimumVersion` (`HopCore.ToolVersion.isBelow`, numeric per component); the
+  engine's is 9.0.1, the 7-Zip helper and the remuxer name none and behave as
+  before. An install with no recorded version counts as older than any floor.
+  `TorrentController.startEngine` calls `updateIfNeeded()` before launching, so
+  the engine is replaced while it is not running. If the update cannot be
+  fetched or verified, the old binary stays and the engine starts with it. A
+  manifest still naming a version below the floor (a stale cache) is ignored
+  when a binary is already installed, instead of reinstalling the same old one
+  on every start.
+- **Stall recovery.** `HopCore.TorrentStallWatch` reads each poll. A torrent is
+  stalled when it is live, unfinished, unpaused, and has neither a live peer nor
+  incoming bytes; anything unpaused with a live peer or traffic counts as
+  flowing. When every active download has been stalled for 180 s and nothing is
+  flowing, the controller restarts the engine through `recoverEngine` (the path
+  already used when the engine dies) and re-maps rows by info hash. Restarts are
+  at least 600 s apart, and after 3 in a row that bring no traffic back the watch
+  stops: each restart re-checks the payload on disk, and at that point the swarm
+  rather than the engine is the problem. Traffic, or a network change reported
+  by `NWPathMonitor` (alive only while polling), re-arms it. The check adds no
+  timer; it rides the existing 1.5 s poll.
+- **Recovery keeps rows.** `recoverEngine` waits for the restarted engine to
+  surface its session (the same ~3 s retry `restore()` uses) and leaves the rows
+  alone if the list is still empty. Before, a restart that listed too early
+  dropped every row and wrote the empty list to `torrents.json`.
+- **Re-checking is not downloading.** While a torrent initializes, rqbit's
+  `progress_bytes` is the amount hashed so far, measured against the whole
+  torrent. Hop showed it as downloaded ("27 GB" on a torrent 9% done), then fell
+  back once the torrent went live. `RqbitDecoding` now puts it in
+  `TorrentStats.checkedBytes` with `progressBytes` 0, and the row reads
+  "verifying · 45%" (`torrentVerifying`) until the torrent is live. Snapshot:
+  `--torrents-states`, which now also opens the space holding the torrent module.
+
 ### Converter: documents (1.5.0)
 
 - A new `MediaKind.document` group in the SAME converter window and batch

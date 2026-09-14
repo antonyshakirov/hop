@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Torrents recover on their own after the Mac changes networks. A download could
+  sit at zero speed with no peers until it was removed and added back; Hop now
+  notices and restarts the engine for you. The engine is updated to a newer
+  version on first use, which reaches trackers that turned the old one away. While
+  a torrent re-checks its files after a start, its row says so instead of
+  counting the checked bytes as downloaded.
 - Hop takes screenshots and opens them in an editor. Frame an area, take the
   window under the pointer or a whole screen, then mark the picture up with a
   pencil, a marker, arrows, shapes, numbered steps and text, bring a loupe over

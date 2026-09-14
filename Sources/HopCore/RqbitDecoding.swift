@@ -1,7 +1,8 @@
 import Foundation
 
 /// Decoders for rqbit's HTTP API JSON into HopCore's pure types.
-/// Field names mirror rqbit v8.1.1 responses (see Tests/.../Fixtures).
+/// Field names mirror rqbit responses; fixtures for v8.1.1 (`rqbit-*`) and
+/// v9.0.1 (`rqbit9-*`) live in Tests/HopCoreTests/Fixtures.
 public enum RqbitDecoding {
     public static func stats(from data: Data) throws -> TorrentStats {
         let raw = try JSONDecoder().decode(RawStats.self, from: data)
@@ -11,9 +12,11 @@ public enum RqbitDecoding {
             guard let mbps else { return 0 }
             return Int64((mbps * 1_048_576).rounded())
         }
+        // SPEC: "Re-checking is not downloading" — while initializing, progress_bytes is hashed bytes.
+        let checking = state == .initializing
         return TorrentStats(
             state: state,
-            progressBytes: raw.progress_bytes,
+            progressBytes: checking ? 0 : raw.progress_bytes,
             totalBytes: raw.total_bytes,
             uploadedBytes: raw.uploaded_bytes,
             downloadBps: bytesPerSec(live?.download_speed.mbps),
@@ -22,7 +25,8 @@ public enum RqbitDecoding {
             peersSeen: live?.snapshot.peer_stats.seen ?? 0,
             etaSeconds: live?.time_remaining?.duration.secs,
             finished: raw.finished,
-            fileProgressBytes: raw.file_progress
+            fileProgressBytes: raw.file_progress,
+            checkedBytes: checking ? raw.progress_bytes : 0
         )
     }
 

@@ -33,4 +33,23 @@ final class RqbitListDecodingTests: XCTestCase {
         XCTAssertEqual(items[0].infoHash, expectedInfoHash)
         XCTAssertEqual(items[0].name, torrentName)
     }
+
+    // rqbit 9.0.1 adds total_pieces, per-file components/attributes and drops the
+    // trailing slash on a listed output_folder; the fields Hop reads are unchanged.
+    func testRqbit9ListOnlyDecodes() throws {
+        let r = try RqbitDecoding.addResult(from: fixture("rqbit9-add-list-only"))
+        XCTAssertNil(r.id)
+        XCTAssertEqual(r.infoHash, "8a6007286dfea5b2a5bbda15a6a774434eb03ed7")
+        XCTAssertEqual(r.name, "hns-stan.mkv")
+        XCTAssertEqual(r.files.count, 1)
+        XCTAssertEqual(r.files[0].lengthBytes, 9128454644)
+        XCTAssertTrue(r.files[0].selected)
+    }
+    func testRqbit9ListDecodes() throws {
+        let items = try RqbitDecoding.list(from: fixture("rqbit9-list"))
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items[0].id, "0")
+        XCTAssertEqual(items[0].infoHash, "8a6007286dfea5b2a5bbda15a6a774434eb03ed7")
+        XCTAssertEqual(items[0].outputFolder, "/tmp/hop-tests/out")
+    }
 }

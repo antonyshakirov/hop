@@ -426,7 +426,7 @@ enum Snapshot {
         // renders on its own. Variants: --torrents-collapsed folds the list to the
         // header, --torrents-empty renders the empty add-card (no rows injected),
         // --torrents-firstrun forces the one-time default-handler banner back on,
-        // --torrents-states adds the files-removed row (design review; the plain
+        // --torrents-states adds the files-removed and re-checking rows (design review; the plain
         // --torrents render stays clean for the landing screenshots).
         let wantsTorrents = args.contains("--torrents")
             || args.contains("--torrents-collapsed")
@@ -646,6 +646,9 @@ enum Snapshot {
         if args.contains("--tasks") {
             initial = .spaceContaining("tracker")
         }
+        if wantsTorrents {
+            initial = .spaceContaining("torrent")
+        }
         // standalone windows: settings/converter
         let content: AnyView
         if args.contains("--window-settings") || args.contains("--settings")
@@ -849,7 +852,17 @@ enum Snapshot {
         missing.filesMissing = true
         missing.optimisticPaused = true   // the probe pauses it the instant it fires
 
-        return includeMissing ? [downloading, paused, done, missing] : [downloading, paused, done]
+        let checking = TorrentController.TorrentItem(
+            id: "5", infoHash: "ee55", name: "archlinux-2026.09.01-x86_64.iso",
+            files: [TorrentFile(index: 0, name: "archlinux-2026.09.01-x86_64.iso", lengthBytes: 1_300_000_000, selected: true)],
+            outputFolder: "/tmp",
+            stats: TorrentStats(
+                state: .initializing, progressBytes: 0, totalBytes: 1_300_000_000,
+                uploadedBytes: 0, downloadBps: 0, uploadBps: 0,
+                peersLive: 0, peersSeen: 0, etaSeconds: nil, finished: false,
+                fileProgressBytes: [], checkedBytes: 585_000_000))
+
+        return includeMissing ? [downloading, paused, done, missing, checking] : [downloading, paused, done]
     }
 
     /// Demo file list for the `--torrent-addsheet` snapshot: a multi-file

@@ -35,6 +35,8 @@ public struct TorrentStats: Equatable {
     public let etaSeconds: Int?
     public let finished: Bool
     public let fileProgressBytes: [Int64]
+    /// Bytes hashed so far by the on-disk re-check; zero outside `.initializing`.
+    public let checkedBytes: Int64
 
     public init(
         state: TorrentState,
@@ -47,7 +49,8 @@ public struct TorrentStats: Equatable {
         peersSeen: Int,
         etaSeconds: Int?,
         finished: Bool,
-        fileProgressBytes: [Int64]
+        fileProgressBytes: [Int64],
+        checkedBytes: Int64 = 0
     ) {
         self.state = state
         self.progressBytes = progressBytes
@@ -60,12 +63,17 @@ public struct TorrentStats: Equatable {
         self.etaSeconds = etaSeconds
         self.finished = finished
         self.fileProgressBytes = fileProgressBytes
+        self.checkedBytes = checkedBytes
     }
 
     /// Download progress as a 0...1 fraction; 0 while the total size is
     /// still unknown (e.g. during metadata fetch) rather than dividing by zero.
     public var fraction: Double {
         totalBytes > 0 ? min(1, max(0, Double(progressBytes) / Double(totalBytes))) : 0
+    }
+
+    public var checkingFraction: Double {
+        totalBytes > 0 ? min(1, max(0, Double(checkedBytes) / Double(totalBytes))) : 0
     }
 
     /// Upload-to-download ratio. Uses bytes downloaded so far (not the

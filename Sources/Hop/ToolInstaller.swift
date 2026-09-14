@@ -33,6 +33,7 @@ class ToolInstaller: ObservableObject {
     @Published private(set) var sizeBytes: Int64 = 0
 
     let manifestURL: String
+    let minimumVersion: String?
     private let publicKeyBase64: String
     private let folderName: String
     private let binaryName: String
@@ -40,8 +41,10 @@ class ToolInstaller: ObservableObject {
     init(manifestURL: String,
          folderName: String,
          binaryName: String,
+         minimumVersion: String? = nil,
          publicKeyBase64: String = ToolInstaller.toolPublicKeyBase64) {
         self.manifestURL = manifestURL
+        self.minimumVersion = minimumVersion
         self.folderName = folderName
         self.binaryName = binaryName
         self.publicKeyBase64 = publicKeyBase64
@@ -66,6 +69,28 @@ class ToolInstaller: ObservableObject {
 
     var isInstalled: Bool { installedBinaryURL() != nil }
 
+    private var versionURL: URL { installDir.appendingPathComponent("\(binaryName).version") }
+
+    var installedVersion: String? {
+        (try? String(contentsOf: versionURL, encoding: .utf8))?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var needsUpdate: Bool {
+        installedBinaryURL() != nil && ToolVersion.isBelow(installedVersion, minimum: minimumVersion)
+    }
+
+    /// Replaces a binary older than `minimumVersion`; on failure the old one stays usable.
+    func updateIfNeeded() async {
+        guard needsUpdate else { return }
+        switch state {
+        case .downloading, .verifying: return
+        default: break
+        }
+        await install()
+        if case .failed = state, let old = installedBinaryURL() { state = .installed(old) }
+    }
+
     /// Download, verify, install. Fails closed on any error or a missing key.
     func install() async {
         guard !publicKeyBase64.isEmpty, let manifestURL = URL(string: manifestURL) else {
@@ -76,6 +101,11 @@ class ToolInstaller: ObservableObject {
             let answer = try await MirrorFetch.data(from: manifestURL)
             let manifest = try JSONDecoder().decode(EngineManifest.self, from: answer.data)
             let served = answer.url.host ?? ""
+            // SPEC: "Torrent engine: version floor" — a stale manifest never reinstalls an old binary.
+            if ToolVersion.isBelow(manifest.version, minimum: minimumVersion),
+               let installed = installedBinaryURL() {
+                state = .installed(installed); return
+            }
             // Require https on both URLs: a tampered manifest must not coerce a
             // file:// read or a plaintext-http fetch. (The Ed25519 gate still prevents
             // installing a foreign binary; this closes the scheme-downgrade angle.)
@@ -97,7 +127,7 @@ class ToolInstaller: ObservableObject {
                                           publicKeyBase64: publicKeyBase64)
             else { state = .failed; return }
 
-            try installVerified(from: tmpBin)
+            try installVerified(from: tmpBin, version: manifest.version)
             state = .installed(binaryURL)
         } catch {
             state = .failed
@@ -107,10 +137,12 @@ class ToolInstaller: ObservableObject {
     /// Copy the verified binary into place, clear quarantine (authenticity is
     /// already proven by our key — Gatekeeper would otherwise block an ad-hoc
     /// binary), and mark it executable.
-    private func installVerified(from tmp: URL) throws {
+    private func installVerified(from tmp: URL, version: String) throws {
         try FileManager.default.createDirectory(at: installDir, withIntermediateDirectories: true)
         try? FileManager.default.removeItem(at: binaryURL)
+        try? FileManager.default.removeItem(at: versionURL)
         try FileManager.default.copyItem(at: tmp, to: binaryURL)
+        try? version.write(to: versionURL, atomically: true, encoding: .utf8)
         _ = try? runTool("/usr/bin/xattr", ["-d", "com.apple.quarantine", binaryURL.path])
         _ = try? runTool("/bin/chmod", ["+x", binaryURL.path])
     }
