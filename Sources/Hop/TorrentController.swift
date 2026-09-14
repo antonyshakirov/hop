@@ -12,6 +12,11 @@ final class TorrentController: ObservableObject {
     private var pollTask: Task<Void, Never>?
     private var stallWatch = TorrentStallWatch()
     private var pathMonitor: NWPathMonitor?
+    private var recoveryPending = false
+    private var lastRecoveryAttempt: TimeInterval = 0
+    private var remapPending = false
+    /// Stops while the Mac sleeps, so a night asleep never reads as a stall.
+    private var uptime: TimeInterval { ProcessInfo.processInfo.systemUptime }
 
     @Published private(set) var torrents: [TorrentItem] = []
 
@@ -179,20 +184,46 @@ final class TorrentController: ObservableObject {
 
     /// Restart the engine after it died and re-map rows to the new session's ids
     /// (the new engine reloads the same persistence dir but assigns fresh ids). Rows
-    /// the engine no longer holds are dropped. Best-effort — a failed restart just
-    /// leaves `client` nil and the next poll tries again.
-    private func recoverEngine() async {
+    /// the engine no longer holds are dropped. Returns false when no engine came up;
+    /// polling then retries on its own.
+    @discardableResult
+    private func recoverEngine() async -> Bool {
+        recoveryPending = true
+        lastRecoveryAttempt = uptime
         client = nil                       // force ensureEngine to start a fresh process
         try? await ensureEngine()
-        guard let client else { return }
-        let listed = await listOnceLoaded(client)
-        // SPEC: "Recovery keeps rows" — an empty early list would also erase torrents.json.
+        if Task.isCancelled, pollTask == nil {
+            process.stop(); client = nil
+            recoveryPending = false
+            return false
+        }
+        guard let client else { return false }
+        recoveryPending = false
+        remapPending = true
+        await remap(await listOnceLoaded(client))
+        return true
+    }
+
+    /// SPEC: "Recovery keeps rows" — an empty early list would also erase torrents.json.
+    private func remap(_ listed: [ListedTorrent]) async {
         guard !listed.isEmpty else { return }
+        remapPending = false
         torrents = torrents.compactMap { row in
             guard let current = listed.first(where: { $0.infoHash == row.infoHash }) else { return nil }
             var r = row; r.id = current.id; r.stats = nil; return r
         }
         persist()
+    }
+
+    /// The client once any engine start already under way has finished.
+    private func readyClient() async -> TorrentEngineClient? {
+        if client == nil, let inFlight = engineStartTask { _ = try? await inFlight.value }
+        return client
+    }
+
+    /// The engine addresses a torrent by id or info hash alike; the hash survives a restart.
+    private func engineKey(_ id: String) -> String {
+        torrents.first(where: { $0.id == id })?.infoHash ?? id
     }
 
     // MARK: - Add flow
@@ -250,9 +281,12 @@ final class TorrentController: ObservableObject {
         if let i = torrents.firstIndex(where: { $0.id == id }) {
             torrents[i].optimisticPaused = true   // flip the button now, settle on poll
         }
+        let key = engineKey(id)
         Task {
-            do { try await client?.pause(id: id) }
-            catch { clearOptimisticPause(id) }    // engine refused — drop the guess, trust truth
+            do {
+                guard let c = await readyClient() else { throw EngineUnavailable() }
+                try await c.pause(id: key)
+            } catch { clearOptimisticPause(key) }    // engine refused — drop the guess, trust truth
         }
     }
     func resume(id: String) {
@@ -264,15 +298,18 @@ final class TorrentController: ObservableObject {
             // payload, and the next poll re-runs the deletion probe from scratch.
             torrents[i].filesMissing = false
         }
+        let key = engineKey(id)
         Task {
-            do { try await client?.resume(id: id) }
-            catch { clearOptimisticPause(id) }
+            do {
+                guard let c = await readyClient() else { throw EngineUnavailable() }
+                try await c.resume(id: key)
+            } catch { clearOptimisticPause(key) }
         }
     }
     /// Drop the optimistic pause guess back to nil so the next poll adopts engine
     /// truth — otherwise a failed pause/resume call leaves the button lying forever.
-    private func clearOptimisticPause(_ id: String) {
-        if let i = torrents.firstIndex(where: { $0.id == id }) { torrents[i].optimisticPaused = nil }
+    private func clearOptimisticPause(_ infoHash: String) {
+        if let i = torrents.firstIndex(where: { $0.infoHash == infoHash }) { torrents[i].optimisticPaused = nil }
     }
     /// Include/exclude one file after the torrent was added. rqbit re-selects live
     /// (`update_only_files`), so switching a file on resumes downloading it and off
@@ -286,7 +323,8 @@ final class TorrentController: ObservableObject {
         torrents[ti].files[fi].selected = on
         let indices = torrents[ti].files.filter { $0.selected }.map { $0.index }.sorted()
         persist()
-        Task { try? await client?.setSelectedFiles(id: id, indices: indices) }
+        let key = engineKey(id)
+        Task { try? await readyClient()?.setSelectedFiles(id: key, indices: indices) }
     }
     /// Select or deselect every file at once — the expanded list's "all / none".
     func setAllFilesSelected(id: String, selected: Bool) {
@@ -295,15 +333,17 @@ final class TorrentController: ObservableObject {
         for i in torrents[ti].files.indices { torrents[ti].files[i].selected = selected }
         let indices = torrents[ti].files.filter { $0.selected }.map { $0.index }.sorted()
         persist()
-        Task { try? await client?.setSelectedFiles(id: id, indices: indices) }
+        let key = engineKey(id)
+        Task { try? await readyClient()?.setSelectedFiles(id: key, indices: indices) }
     }
     func remove(id: String, deleteFiles: Bool) {
+        let key = engineKey(id)
         torrents.removeAll { $0.id == id }   // optimistic UI update
         expandedIds.remove(id)
         persist()
-        let c = client
         Task {
-            if deleteFiles { try? await c?.delete(id: id) } else { try? await c?.forget(id: id) }
+            let c = await readyClient()
+            if deleteFiles { try? await c?.delete(id: key) } else { try? await c?.forget(id: key) }
             // Re-check emptiness AFTER the await: during the round-trip the user may
             // have added a new torrent that reused the still-running engine — stopping
             // it here would kill that fresh download. Only stop if still empty.
@@ -378,8 +418,9 @@ final class TorrentController: ObservableObject {
         stallWatch = TorrentStallWatch()
         let monitor = NWPathMonitor()
         monitor.pathUpdateHandler = { [weak self] path in
-            guard path.status == .satisfied else { return }
-            Task { @MainActor in self?.stallWatch.networkChanged() }
+            let online = path.status == .satisfied
+            let interfaces = path.availableInterfaces.map(\.name)
+            Task { @MainActor in self?.stallWatch.pathUpdated(online: online, interfaces: interfaces) }
         }
         monitor.start(queue: .global(qos: .utility))
         pathMonitor = monitor
@@ -396,14 +437,17 @@ final class TorrentController: ObservableObject {
         // The engine died (crash / OOM / external kill) but we still hold a client:
         // every stats call would fail silently and rows would freeze at stale numbers
         // forever. Restart it and re-map rows to the new session's ids.
-        if client != nil, !process.isRunning, !torrents.isEmpty {
+        if !torrents.isEmpty,
+           (client != nil && !process.isRunning)
+            || (client == nil && recoveryPending && uptime - lastRecoveryAttempt >= 15) {
             await recoverEngine()
         }
         guard let client else { return }
+        if remapPending { await remap((try? await client.list()) ?? []) }
         for i in torrents.indices where i < torrents.count {
-            let id = torrents[i].id
+            let id = torrents[i].infoHash
             guard let stats = try? await client.stats(id: id) else { continue }
-            guard i < torrents.count, torrents[i].id == id else { continue }
+            guard i < torrents.count, torrents[i].infoHash == id else { continue }
             torrents[i].stats = stats
             // Optimistic pause settled: once the engine's own state matches what
             // the button already shows, drop the override and trust engine truth.
@@ -460,8 +504,9 @@ final class TorrentController: ObservableObject {
             (row.stats, row.filesMissing
                 || (row.optimisticPaused ?? (row.pausedByPolicy || row.stats?.state == .paused)))
         })
-        if stallWatch.observe(stalled: signal.stalled, flowing: signal.flowing, now: Date()) {
-            await recoverEngine()
+        if stallWatch.observe(signal, now: Date(timeIntervalSinceReferenceDate: uptime)),
+           !(await recoverEngine()) {
+            stallWatch.restartFailed()
         }
     }
 

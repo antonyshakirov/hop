@@ -37,6 +37,8 @@ class ToolInstaller: ObservableObject {
     private let publicKeyBase64: String
     private let folderName: String
     private let binaryName: String
+    private var lastUpdateAttempt: TimeInterval?
+    private static let updateRetrySpacing: TimeInterval = 3600
 
     init(manifestURL: String,
          folderName: String,
@@ -87,6 +89,10 @@ class ToolInstaller: ObservableObject {
         case .downloading, .verifying: return
         default: break
         }
+        // SPEC: "Torrent engine: version floor" — an unreachable manifest must not slow every engine start.
+        let now = ProcessInfo.processInfo.systemUptime
+        if let last = lastUpdateAttempt, now - last < Self.updateRetrySpacing { return }
+        lastUpdateAttempt = now
         await install()
         if case .failed = state, let old = installedBinaryURL() { state = .installed(old) }
     }
@@ -96,8 +102,9 @@ class ToolInstaller: ObservableObject {
         guard !publicKeyBase64.isEmpty, let manifestURL = URL(string: manifestURL) else {
             state = .failed; return
         }
+        let updating = installedBinaryURL() != nil
         do {
-            state = .downloading(0)
+            if !updating { state = .downloading(0) }
             let answer = try await MirrorFetch.data(from: manifestURL)
             let manifest = try JSONDecoder().decode(EngineManifest.self, from: answer.data)
             let served = answer.url.host ?? ""
@@ -114,10 +121,12 @@ class ToolInstaller: ObservableObject {
                 state = .failed; return
             }
             sizeBytes = manifest.size ?? 0
+            state = .downloading(0)
             // Both files follow the host that served the manifest.
             let tmpBin = try await MirrorFetch.attempt(
                 DownloadMirrors.moving(binURL, to: served), DownloadMirrors.hosts
             ) { try await self.downloadWithProgress(from: $0) }.0
+            defer { try? FileManager.default.removeItem(at: tmpBin) }
             let signature = try await MirrorFetch.data(
                 from: DownloadMirrors.moving(sigURL, to: served)).data
 
@@ -134,17 +143,27 @@ class ToolInstaller: ObservableObject {
         }
     }
 
-    /// Copy the verified binary into place, clear quarantine (authenticity is
+    /// Stage the verified binary next to the old one, clear quarantine (authenticity is
     /// already proven by our key — Gatekeeper would otherwise block an ad-hoc
-    /// binary), and mark it executable.
+    /// binary), mark it executable, then swap it in with one rename so a failure
+    /// anywhere before the swap leaves the working binary untouched.
     private func installVerified(from tmp: URL, version: String) throws {
-        try FileManager.default.createDirectory(at: installDir, withIntermediateDirectories: true)
-        try? FileManager.default.removeItem(at: binaryURL)
-        try? FileManager.default.removeItem(at: versionURL)
-        try FileManager.default.copyItem(at: tmp, to: binaryURL)
-        try? version.write(to: versionURL, atomically: true, encoding: .utf8)
-        _ = try? runTool("/usr/bin/xattr", ["-d", "com.apple.quarantine", binaryURL.path])
-        _ = try? runTool("/bin/chmod", ["+x", binaryURL.path])
+        let fm = FileManager.default
+        try fm.createDirectory(at: installDir, withIntermediateDirectories: true)
+        let staged = installDir.appendingPathComponent(".\(binaryName).staged")
+        try? fm.removeItem(at: staged)
+        try fm.copyItem(at: tmp, to: staged)
+        _ = try? runTool("/usr/bin/xattr", ["-d", "com.apple.quarantine", staged.path])
+        guard try runTool("/bin/chmod", ["+x", staged.path]) == 0 else {
+            try? fm.removeItem(at: staged)
+            throw CocoaError(.fileWriteNoPermission)
+        }
+        if fm.fileExists(atPath: binaryURL.path) {
+            _ = try fm.replaceItemAt(binaryURL, withItemAt: staged)
+        } else {
+            try fm.moveItem(at: staged, to: binaryURL)
+        }
+        try version.write(to: versionURL, atomically: true, encoding: .utf8)
     }
 
     @discardableResult

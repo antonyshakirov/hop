@@ -3542,18 +3542,39 @@ came back the moment it was removed and added again.
   fetched or verified, the old binary stays and the engine starts with it. A
   manifest still naming a version below the floor (a stale cache) is ignored
   when a binary is already installed, instead of reinstalling the same old one
-  on every start.
+  on every start. An update is attempted at most once an hour, so a network that
+  cannot reach the manifest does not slow every engine start, and the module
+  keeps showing its torrents until an actual download begins. The new binary is
+  staged beside the old one, made executable, and swapped in with one rename;
+  the version file is written only after the swap, and a failed write fails the
+  install (the next start simply updates again). `scripts/sign-tool.swift` takes
+  the version as its second argument so the printed manifest is complete.
 - **Stall recovery.** `HopCore.TorrentStallWatch` reads each poll. A torrent is
   stalled when it is live, unfinished, unpaused, and has neither a live peer nor
   incoming bytes; anything unpaused with a live peer or traffic counts as
-  flowing. When every active download has been stalled for 180 s and nothing is
-  flowing, the controller restarts the engine through `recoverEngine` (the path
+  flowing, and an unpaused torrent still initializing counts as checking. When
+  every active download has been stalled for 180 s, nothing is flowing, nothing
+  is checking (a restart would throw away a long re-check) and the Mac is
+  online, the controller restarts the engine through `recoverEngine` (the path
   already used when the engine dies) and re-maps rows by info hash. Restarts are
   at least 600 s apart, and after 3 in a row that bring no traffic back the watch
   stops: each restart re-checks the payload on disk, and at that point the swarm
-  rather than the engine is the problem. Traffic, or a network change reported
-  by `NWPathMonitor` (alive only while polling), re-arms it. The check adds no
-  timer; it rides the existing 1.5 s poll.
+  rather than the engine is the problem. Traffic re-arms it, and so does a real
+  network change from `NWPathMonitor` (alive only while polling): coming back
+  online or a different set of interfaces. Repeated reports of the same path,
+  as VPNs produce, do not. Going offline clears the stall timer. The clock is
+  `systemUptime`, which stops while the Mac sleeps, so waking up is never read
+  as three minutes of stall. The check adds no timer; it rides the existing
+  1.5 s poll.
+- **A failed restart is retried, not counted.** If no engine comes up,
+  `recoverEngine` reports it; the attempt is not counted as fruitless, and
+  polling tries again every 15 s while torrents exist. If the restarted engine
+  lists nothing yet, the re-map is retried on later polls.
+- **Torrents are addressed by info hash.** rqbit accepts a 40-hex info hash
+  anywhere it accepts a session id (`TorrentIdOrHash`, 8.1.1 and 9.0.1). Stats
+  and every user action (pause, resume, file selection, remove) use the hash, so
+  an action taken while the engine is restarting lands on the right torrent once
+  the new session is up; actions made during a start wait for it.
 - **Recovery keeps rows.** `recoverEngine` waits for the restarted engine to
   surface its session (the same ~3 s retry `restore()` uses) and leaves the rows
   alone if the list is still empty. Before, a restart that listed too early

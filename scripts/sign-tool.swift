@@ -1,4 +1,4 @@
-// Helper-tool signing: swift scripts/sign-tool.swift <binary> [download-url]
+// Helper-tool signing: swift scripts/sign-tool.swift <binary> <version> [download-url]
 //
 // Downloadable helpers (the rqbit torrent engine, the 7-Zip archiver) are
 // installed ONLY after an Ed25519 signature by our key checks out, so this
@@ -33,6 +33,11 @@ guard let binary = FileManager.default.contents(atPath: binaryPath) else {
     fputs("file not found: \(binaryPath)\n", stderr); exit(1)
 }
 
+guard CommandLine.arguments.count > 2, !CommandLine.arguments[2].isEmpty else {
+    fputs("usage: sign-tool.swift <binary> <version> [download-url]\n", stderr); exit(1)
+}
+let version = CommandLine.arguments[2]
+
 let signature = try! key.signature(for: binary)
 try! signature.write(to: URL(fileURLWithPath: binaryPath + ".sig"))
 print("signature: \(binaryPath).sig")
@@ -40,15 +45,15 @@ print("signature: \(binaryPath).sig")
 // The manifest the installer fetches. The URL is passed in because the binary
 // is served from the CDN, not from where it was signed.
 let name = (binaryPath as NSString).lastPathComponent
-let url = CommandLine.arguments.count > 2
-    ? CommandLine.arguments[2]
+let url = CommandLine.arguments.count > 3
+    ? CommandLine.arguments[3]
     : "https://hop-dl.b-cdn.net/downloads/hop/tools/\(name)"
 let digest = SHA256.hash(data: binary).map { String(format: "%02x", $0) }.joined()
 print("""
 
 manifest:
 {
-  "version": "",
+  "version": "\(version)",
   "url": "\(url)",
   "sig": "\(url).sig",
   "size": \(binary.count),
