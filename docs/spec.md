@@ -3535,7 +3535,8 @@ eight hours, and came back the moment it was removed and added again.
   long sleep: its clock stops while the Mac sleeps, so the nodes that answered
   before still count as good, lookups keep asking the same eight of them without
   marking the silence, and the routing table is seeded from the bootstrap routers
-  only when the process starts. A network change empties the table the same way.
+  only when the process starts. Whether a network change alone does the same
+  was not checked; the recovery below does not depend on the cause.
   With every node gone the engine had nothing else to fall back on. Removing the last torrent stops the engine and adding it back starts a
   fresh one, which is why that "fixed" it. rqbit 9.0.1 sends `rqbit 9.0.1` as its
   User-Agent; the CLI flags, API endpoints, JSON fields and session persistence
