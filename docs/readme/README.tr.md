@@ -6,7 +6,8 @@
 
 **macOS menü çubuğu için minik bir yol arkadaşı: zamanlayıcı, zaman takibi,
 yapılacaklar, uyku engelleme, sistem monitörü, pano geçmişi, dosya
-dönüştürücü, pencere yöneticisi ve hafif bir torrent istemcisi.
+dönüştürücü, pencere yöneticisi, hafif bir torrent istemcisi, ekran
+görüntüleri, ekranın üzerine çizme, metin tanıma ve daha fazlası.
 İhtiyacınız olanları açar, simgedeki en fazla dört sekmeye dağıtırsınız.
 Tek tık – ihtiyacınız olan her şey elinizin altında.**
 
@@ -19,7 +20,7 @@ Tek tık – ihtiyacınız olan her şey elinizin altında.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · **Türkçe** · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · **Türkçe** · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop paneli – nokta matrisli ekran, hazır ayarlar ve çalışma-mola döngüleriyle menü çubuğu zamanlayıcısı">
 
@@ -81,6 +82,9 @@ toplamı verir. Biri fazla uzun sürerse, sekiz saatin sonunda bir bant
 hatırlatır. Yanında ayrı bir yapılacaklar listesi durur; biten işler dibe
 iner.
 
+Birden çok iş aynı anda ilerleyebilir ve menü çubuğunda en son başlatılan saat
+görünür.
+
 Bir göreve tıklayın, satır açılsın: ilk satırda tam metin, altında açıklama,
 favoriler için bir yıldız. Bir yapılacak öğesi hatırlatma da taşıyabilir – gün,
 saat ve tekrarlanacak günler – ve zamanı gelince Hop haber verir: «ertele» ve
@@ -88,14 +92,12 @@ saat ve tekrarlanacak günler – ve zamanı gelince Hop haber verir: «ertele»
 açılır.
 
 **Görevleri kendi yapay zekâ ajanınız da ekleyebilir.** Liste sıradan bir JSON
-dosyasıdır ve Hop, çalışırken değişiklikleri alır. Hop ayrıca bir dosyadaki
-komutları yürütür ve `hop://` bağlantılarını anlar: aynı ajan ya da o
-bağlantılardan biriyle kurulmuş bir kısayol, bir sayaç başlatabilir, hatırlatmalı
-bir görev ekleyebilir veya neyin çalıştığını okuyabilir. Bkz.
-[docs/automation.md](../automation.md).
-
-Birden çok iş aynı anda ilerleyebilir ve menü çubuğunda en son başlatılan saat
-görünür.
+dosyasıdır ve Hop, çalışırken değişiklikleri alır; böylece bir ajan – ya da bir
+betik, ya da metin düzenleyicide siz – bir görev ekleyip onun belirdiğini
+görebilir. Hop ayrıca bir dosyadaki komutları yürütür ve `hop://` bağlantılarını
+anlar: aynı ajan ya da o bağlantılardan biriyle kurulmuş bir kısayol, bir sayaç
+başlatabilir, hatırlatmalı bir görev ekleyebilir veya neyin çalıştığını
+okuyabilir. Bkz. [docs/automation.md](../automation.md).
 
 <div align="center">
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – Zaman takibi ve görevler">
@@ -209,7 +211,7 @@ ve 7z için ilk karşılaşmada imzası doğrulanan küçük bir yardımcı (~6 
 Hop rar açar ama asla oluşturmaz – format tescillidir. Ayarlardaki «arşivler için varsayılan Hop»,
 bir Apple uygulaması ilgilenmiyorsa yalnızca rar'ı sunar ve rar'ı üçüncü taraf
 uygulamalardan geri alabilir; zip, 7z ve yerel biçimler Arşiv Yardımcısı'nda kalır.
-Modül gizliyken de çalışır ve kart gerçek durumu gösterir. Finder'da bir arşive çift tıklamak onu dosyanın hemen yanında açar, kendi küçük ilerleme penceresinde, ve başarısız bir iş arkasında gizli hiçbir şey bırakmaz. Hop'un açtığı dosyalar üzerinde biçimi yazan kendi simgesini taşır, böylece bir klasör bir bakışta okunur.
+Modül gizliyken de çalışır ve kart gerçek durumu gösterir, böylece Finder'ın çoktan başka bir uygulamaya verdiği bir varsayılanı asla sahiplenmez. Finder'da bir arşive çift tıklamak onu dosyanın hemen yanında açar, kendi küçük ilerleme penceresinde, ve başarısız bir iş arkasında gizli hiçbir şey bırakmaz. Hop'un açtığı dosyalar üzerinde biçimi yazan kendi simgesini taşır, böylece bir klasör bir bakışta okunur.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – Dosya arşivleri">
@@ -232,7 +234,7 @@ Sistem büyüteciyle ekrandaki her rengi alın: renk bir listede kalır, her sat
 hex, rgb ve hsl'i kendi sütununda taşır ve tıkladığınız gösterim kopyalanır.
 Sıra imlecin altında hiç değişmez, kaç renk saklanacağı ve kaç satır
 görüneceği ayarlardadır, ekran kaydı izni de gerekmez: büyüteç tek bir renk
-döndürür.
+döndürür, başka hiçbir şey değil.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – Renk damlalığı">
@@ -245,7 +247,7 @@ döndürür.
 Ekranda bir alan seçin ya da pencereye bir görsel bırakın, ⌘V ile yapıştırın:
 içindeki metin ve QR kodlar okunabilen, düzeltilebilen, kopyalanabilen bir
 pencerede çıkar ve aynı anda pano geçmişine girer. Satır sonları korunur, tablo
-okunur kalır. Tanıma Apple'ın Vision'ıdır, tamamen bu Mac'te çalışır.
+ya da kod parçası okunur kalır. Tanıma Apple'ın Vision'ıdır, tamamen bu Mac'te çalışır.
 
 Sonuçta bir web adresi varsa «bağlantıyı aç» düğmesi çıkar: faturadaki QR
 kodun bağlantısı telefona uzanmadan doğrudan tarayıcıda açılır. Yalnızca web
@@ -266,13 +268,21 @@ Bir alanı çerçeveleyin, imlecin altındaki pencereyi ya da tüm ekranı alın
 
 Aynı alan tek tuşla yeniden alınır; aynı ekrandan bir dizi görüntü tam da bunu ister. Görüntü bir sayfa için giydirilebilir: arka plan, çevresinde boşluk, yuvarlak köşeler, gölge, tarayıcı çerçevesi ve metin ya da görsel olarak kendi filigranınız.
 
+<div align="center">
+<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – Ekran görüntüsü düzenleyici">
+</div>
+
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
 
 ### Ekranın üzerine çizme
 
-Görüşme, kayıt veya inceleme sırasında doğrudan ekrana çizin: kalem, altındaki metni okunur bırakan geniş fosforlu kalem, oklar, şekiller ve numaralı adımlar. Kaybolan mürekkep, imleci kaldırdıktan birkaç saniye sonra kendiliğinden gider. Büyüteç ve bulanıklaştırma canlı ekranda da çalışır: bir ayrıntıyı büyütüp görüşmedeki herkese gösterin ya da orada olmaması gereken bir adı kapatın.
+Görüşme, kayıt veya inceleme sırasında doğrudan ekrana çizin: kalem, altındaki metni okunur bırakan geniş fosforlu kalem, oklar, şekiller ve numaralı adımlar. Kaybolan mürekkep, imleci kaldırdıktan birkaç saniye sonra kendiliğinden gider, cümlenin ortasında bir şey temizlemek gerekmez. Büyüteç ve bulanıklaştırma canlı ekranda da çalışır: bir ayrıntıyı büyütüp görüşmedeki herkese gösterin ya da orada olmaması gereken bir adı kapatın.
 
-Tek bir anahtar tıklamaları alttaki uygulamalara geri verirken işaretler ekranda kalır. «Kaydet» ve «kopyala» ekranı çizimle birlikte alır. Tüm ekranı paylaştığınızda karşı taraf işaretleri görür; tek bir paylaşılan pencereyi macOS kendi başına birleştirir.
+Tek bir anahtar tıklamaları alttaki uygulamalara geri verirken işaretler ekranda kalır, böylece notlarınız gözünüzün önündeyken çalışmaya devam edersiniz. «Kaydet» ve «kopyala» ekranı çizimle birlikte alır. Tüm ekranı paylaştığınızda karşı taraf işaretleri görür; tek bir paylaşılan pencereyi macOS kendi başına birleştirir ve hiçbir katman ona katılamaz.
+
+<div align="center">
+<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – Ekranın üzerine çizme">
+</div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
 
@@ -325,16 +335,20 @@ kendiliğinden görünür, kaldırdığınız kaybolur. Burada eklenecek bir şe
 belirli bir firma için destek beklemek de gerekmiyor.
 
 Hiçbir şey açmadan bağlanın ve kesin. Bir tünel ayaktayken menü çubuğu simgesinin
-köşesinde küçük bir nokta yanar, diğer göstergelerin yanında: bir şeyler geçtiği
-sürece yeşil, tünel açık olduğu hâlde geri hiçbir şey gelmiyorsa turuncu. Sessizce
-ölmüş bir bağlantı böylece sağlam görünmez, hangi satır olduğunu da panel gösterir.
-Ada tıklayınca o VPN'in kendi penceresi açılır; kapattığınızda Hop uygulamayı kapatır.
-Bağlantı kalır: tüneli uygulama değil sistem tutar.
+köşesinde, diğer göstergelerin yanında küçük bir nokta yanar, böylece panel kapalıyken
+de görünür: bir şeyler geçtiği sürece yeşil, tünel açık olduğu hâlde geri hiçbir şey
+gelmiyorsa turuncu. Sessizce ölmüş bir bağlantı böylece sağlam görünmez, hangi satır
+olduğunu da panel gösterir. Ada tıklayınca, gerektiği anlar için – bir ülke seçmek ya
+da bir ayarı değiştirmek için – o VPN'in kendi penceresi açılır; pencereyi
+kapattığınızda Hop uygulamayı yeniden kapatır, böylece haftada iki kez dokunduğunuz
+bir anahtar yüzünden Dock'ta ve menü çubuğunda oturmaz. Bağlantı kalır: tüneli
+uygulama değil sistem tutar.
 
 Satırda istemcinin kendi bildirdiği şey görünür: adı ve parantez içinde
 yapılandırmanın eklediği, genelde ülke. Hop ülkeyi sunucu adresinden tahmin etmez:
 adres kaydı aralığın nerede kayıtlı olduğunu söyler, makinenin nerede durduğunu
-değil.
+değil. Kendinden emin bir tavırla söylenen yanlış bir ülke, hiç ülke yazmamaktan
+daha kötüdür.
 
 Nokta ayarlardan kapatılabilir; modül de anahtarları da onsuz çalışmaya devam eder.
 
@@ -386,7 +400,7 @@ Aynı modül hiçbir şeyi kaldırmadan toparlar da: önbellek tutan her uygulam
 
 ## Diller
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – uygulama kurulumdan itibaren sistem
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – uygulama kurulumdan itibaren sistem
 dilinize uyar.
 
 ## Projeye destek olun
@@ -413,6 +427,14 @@ bir kez indirmek ve torrent trafiğinin kendisini taşımak için çıkar.
 Güncelleme denetimi yalnızca kullandığınız sürümü gönderir; sizi ya da
 Mac'inizi tanımlayan hiçbir şey göndermez. Güncellemeler ve torrent motoru
 imzalı arşivler olarak gelir ve kurulmadan önce Ed25519 imzasıyla doğrulanır.
+
+Üstteki `downloads` rozeti kişiyi değil, tıklamayı sayar. İndirme düğmesi ve
+Homebrew formülü hop.tools üzerinden geçer; site isteği, her sitenin bir sayfa
+görüntülemesini kaydettiği gibi web sunucusu günlüğüne yazar ve GitHub
+sürümündeki dosyaya yönlendirir. Günlükte adresin tuzlanmış bir hash'i kalır;
+böylece aynı makineden gelen iki tıklama bir kez sayılır ve adresin kendisi hiçbir
+zaman saklanmaz. Bunun uygulamayla bir ilgisi yok: ölçüm Hop kurulmadan önce
+yapılır ve hiç güncelleme sormayan bir kopya da aynı şekilde sayılır.
 
 ## İzinler
 

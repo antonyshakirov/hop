@@ -6,7 +6,8 @@
 
 **Một trợ thủ nhỏ gọn trên thanh menu của macOS: hẹn giờ, theo dõi thời
 gian, việc cần làm, chống ngủ, giám sát hệ thống, lịch sử clipboard,
-chuyển đổi tệp, quản lý cửa sổ và trình torrent gọn nhẹ. Bạn bật những
+chuyển đổi tệp, quản lý cửa sổ, trình torrent gọn nhẹ, ảnh màn hình, vẽ
+trên màn hình, nhận dạng văn bản và nhiều thứ khác. Bạn bật những
 thứ mình cần và trải chúng trên tối đa bốn tab ở biểu tượng. Một cú nhấp –
 mọi thứ bạn cần đều ở ngay đó.**
 
@@ -19,7 +20,7 @@ mọi thứ bạn cần đều ở ngay đó.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · **Tiếng Việt** · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · **Tiếng Việt** · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Bảng điều khiển Hop – đồng hồ hẹn giờ trên thanh menu với màn hình ma trận điểm, các mức cài sẵn và chu kỳ làm việc-nghỉ ngơi">
 
@@ -79,18 +80,20 @@ cùng danh sách, nên các dòng cộng đúng bằng tổng phía trên. Nếu
 quá lâu, sau tám giờ sẽ có một dải nhắc bạn. Bên cạnh là một danh sách việc
 cần làm riêng, nơi việc đã xong chìm xuống dưới.
 
+Nhiều công việc có thể chạy cùng lúc, và thanh menu hiện đồng hồ bắt đầu sau cùng.
+
 Nhấn vào một công việc và dòng đó mở ra: toàn bộ nội dung ở dòng đầu, mô tả bên
 dưới, một ngôi sao cho mục yêu thích. Một việc cần làm còn có thể mang lời nhắc –
 ngày, giờ và những thứ trong tuần bạn muốn lặp lại – và Hop sẽ báo khi đến giờ:
 biểu ngữ có «hoãn» và «xong», âm thanh, dấu trên thanh menu; mỗi thứ bật riêng.
 
 **Trợ lý AI của bạn cũng có thể thêm công việc.** Danh sách là một tệp JSON bình
-thường, và Hop đọc thay đổi ngay khi đang chạy. Hop cũng thực thi lệnh từ một tệp
+thường, và Hop đọc thay đổi ngay khi đang chạy, nên một trợ lý – hay một đoạn
+script, hay chính bạn trong trình soạn thảo văn bản – có thể thêm một công việc
+và thấy nó hiện ra. Hop cũng thực thi lệnh từ một tệp
 và hiểu liên kết `hop://`: chính trợ lý đó, hoặc một Phím tắt dựng quanh liên kết
 ấy, có thể bắt đầu hẹn giờ, thêm việc kèm lời nhắc, hoặc đọc xem cái gì đang
 chạy. Xem [docs/automation.md](../automation.md).
-
-Nhiều công việc có thể chạy cùng lúc, và thanh menu hiện đồng hồ bắt đầu sau cùng.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – Theo dõi thời gian & việc cần làm">
@@ -203,7 +206,7 @@ Hỗ trợ zip, rar, 7z, tar, tar.gz, tar.bz2, tar.xz và gz; với rar và 7z, 
 gặp sẽ tải một trợ thủ nhỏ (~6 MB) có kiểm tra chữ ký. Hop bung được rar nhưng
 không bao giờ tạo – đó là định dạng độc quyền. «Hop làm mặc định cho kho nén» trong cài đặt chỉ đề xuất rar
 khi không có ứng dụng Apple xử lý, và có thể giành lại rar từ ứng dụng bên thứ ba; zip, 7z
-và các định dạng gốc vẫn thuộc Archive Utility. Nó chạy cả khi mô-đun bị ẩn, và thẻ hiện trạng thái thật. Nhấp đúp vào một tệp nén trong Finder sẽ giải nén ngay cạnh tệp đó, trong một cửa sổ tiến trình nhỏ riêng, và khi thất bại cũng không để lại thứ gì ẩn phía sau. Những tệp Hop mở đều mang biểu tượng riêng có ghi định dạng, nên cả thư mục đọc được chỉ trong một cái liếc.
+và các định dạng gốc vẫn thuộc Archive Utility. Nó chạy cả khi mô-đun bị ẩn, và thẻ hiện trạng thái thật, nên không bao giờ tự nhận là mặc định khi Finder đã trao quyền đó cho ứng dụng khác. Nhấp đúp vào một tệp nén trong Finder sẽ giải nén ngay cạnh tệp đó, trong một cửa sổ tiến trình nhỏ riêng, và khi thất bại cũng không để lại thứ gì ẩn phía sau. Những tệp Hop mở đều mang biểu tượng riêng có ghi định dạng, nên cả thư mục đọc được chỉ trong một cái liếc.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – Kho nén tệp">
@@ -237,8 +240,8 @@ chọn, và không cần quyền ghi màn hình: kính lúp chỉ trả về m�
 
 Khoanh một vùng màn hình, hoặc thả ảnh vào cửa sổ và dán bằng ⌘V: chữ và mã QR
 bên trong hiện ra trong một cửa sổ để đọc, sửa và sao chép, đồng thời vào lịch
-sử clipboard. Ngắt dòng được giữ nên bảng vẫn đọc được. Nhận dạng bằng Vision
-của Apple, hoàn toàn trên chiếc Mac này.
+sử clipboard. Ngắt dòng được giữ nên bảng hay một đoạn mã vẫn đọc được.
+Nhận dạng bằng Vision của Apple, hoàn toàn trên chiếc Mac này.
 
 Nếu kết quả có địa chỉ web, nút «mở liên kết» sẽ xuất hiện: liên kết trong mã
 QR trên hoá đơn mở thẳng trong trình duyệt, không cần đến điện thoại. Chỉ địa
@@ -259,13 +262,21 @@ Khoanh một vùng, chụp cửa sổ dưới con trỏ hoặc cả màn hình �
 
 Cùng một vùng chụp lại chỉ bằng một phím — đúng thứ mà một loạt ảnh của cùng màn hình cần. Ảnh có thể được khoác áo cho trang web: nền, khoảng thở quanh khung, bo góc, bóng đổ, khung trình duyệt và hình mờ của riêng bạn, bằng chữ hoặc bằng ảnh.
 
+<div align="center">
+<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – Trình sửa ảnh màn hình">
+</div>
+
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
 
 ### Vẽ trên màn hình
 
-Vẽ thẳng lên màn hình khi gọi, khi quay hoặc khi soi lại: bút chì, bút dạ quang bản rộng vẫn để đọc được chữ bên dưới, mũi tên, hình khối và các bước đánh số. Mực phai tự biến mất vài giây sau khi bạn nhấc con trỏ. Kính lúp và làm mờ cũng dùng được ngay trên màn hình đang chạy: phóng to một chi tiết cho mọi người trong cuộc gọi cùng thấy, hoặc che một cái tên lẽ ra không nên xuất hiện.
+Vẽ thẳng lên màn hình khi gọi, khi quay hoặc khi soi lại: bút chì, bút dạ quang bản rộng vẫn để đọc được chữ bên dưới, mũi tên, hình khối và các bước đánh số. Mực phai tự biến mất vài giây sau khi bạn nhấc con trỏ, nên chẳng phải dừng giữa câu để xoá. Kính lúp và làm mờ cũng dùng được ngay trên màn hình đang chạy: phóng to một chi tiết cho mọi người trong cuộc gọi cùng thấy, hoặc che một cái tên lẽ ra không nên xuất hiện.
 
-Một công tắc trả cú nhấp về cho các ứng dụng bên dưới trong khi nét vẽ vẫn nằm trên màn hình. «Lưu» và «chép» chụp màn hình cùng với hình vẽ. Người khác thấy nét vẽ khi bạn chia sẻ toàn màn hình; một cửa sổ riêng lẻ do macOS tự ghép.
+Một công tắc trả cú nhấp về cho các ứng dụng bên dưới trong khi nét vẽ vẫn nằm trên màn hình, nên bạn vẫn làm việc tiếp được với ghi chú ngay trước mắt. «Lưu» và «chép» chụp màn hình cùng với hình vẽ. Người khác thấy nét vẽ khi bạn chia sẻ toàn màn hình; một cửa sổ được chia sẻ riêng lẻ do macOS tự ghép, và không lớp nào chen vào được.
+
+<div align="center">
+<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – Vẽ trên màn hình">
+</div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
 
@@ -314,19 +325,22 @@ Chủ đề tối và sáng với kết cấu hạt phim, phím tắt toàn cụ
 
 Mọi VPN mà máy Mac của bạn biết, mỗi cái một công tắc, của hãng nào cũng vậy. Hop
 đọc danh sách thẳng từ cài đặt hệ thống: ứng dụng cài hôm qua tự xuất hiện, cái đã
-gỡ thì biến mất. Ở đây không phải thêm hay cấu hình gì cả.
+gỡ thì biến mất. Ở đây không phải thêm hay cấu hình gì cả, cũng chẳng phải chờ
+ai hỗ trợ riêng cho từng hãng.
 
 Bật tắt đường hầm mà không phải mở thứ gì. Khi một đường hầm đang chạy, một chấm nhỏ
-sáng ở góc biểu tượng trên thanh menu, cạnh các đèn báo khác: xanh khi còn có gì đi
-qua, cam khi đường hầm đang bật nhưng không có gì quay lại. Một kết nối chết lặng lẽ
-không còn trông như đang chạy, và bảng cho biết đó là dòng nào. Bấm vào tên thì cửa sổ
-của chính VPN đó mở ra; đóng cửa sổ, Hop tắt luôn ứng dụng. Kết nối vẫn còn: đường hầm
-do hệ thống giữ, không phải ứng dụng.
+sáng ở góc biểu tượng trên thanh menu, cạnh các đèn báo khác, nên bạn thấy được cả khi
+bảng đang đóng: xanh khi còn có gì đi qua, cam khi đường hầm đang bật nhưng không có gì
+quay lại. Một kết nối chết lặng lẽ không còn trông như đang chạy, và bảng cho biết đó là
+dòng nào. Bấm vào tên thì cửa sổ của chính VPN đó mở ra cho những lúc bạn cần – để chọn
+quốc gia hay đổi một thiết lập; đóng cửa sổ, Hop tắt luôn ứng dụng, nên nó không nằm mãi
+trong Dock và trên thanh menu chỉ vì một công tắc bạn chạm hai lần mỗi tuần. Kết nối vẫn
+còn: đường hầm do hệ thống giữ, không phải ứng dụng.
 
 Dòng hiển thị đúng những gì ứng dụng tự khai báo: tên của nó, và trong ngoặc là
 phần cấu hình thêm vào, thường là quốc gia. Hop không đoán quốc gia từ địa chỉ máy
 chủ: sổ đăng ký địa chỉ cho biết dải số đăng ký ở đâu, chứ không phải máy đặt ở
-đâu.
+đâu, và một quốc gia sai mà nói chắc nịch còn tệ hơn không nói gì.
 
 Chấm này có thể tắt trong cài đặt; mô-đun và các công tắc vẫn hoạt động như thường.
 
@@ -378,7 +392,7 @@ Cũng mô-đun ấy dọn dẹp mà không gỡ gì: mọi ứng dụng đang gi
 
 ## Ngôn ngữ
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – ứng dụng tự động theo ngôn ngữ hệ thống của
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – ứng dụng tự động theo ngôn ngữ hệ thống của
 bạn ngay từ đầu.
 
 ## Ủng hộ dự án
@@ -406,6 +420,14 @@ một lần duy nhất và truyền chính lưu lượng torrent. Việc kiểm 
 gửi đi phiên bản bạn đang dùng, và không có gì nhận dạng bạn hay chiếc Mac
 của bạn. Các bản cập nhật và engine torrent được phân phối dưới dạng tệp nén
 có chữ ký và được xác minh bằng chữ ký Ed25519 trước khi cài đặt.
+
+Huy hiệu `downloads` ở đầu trang đếm lượt nhấp, không đếm người. Nút tải về và
+công thức Homebrew đều đi qua hop.tools: máy chủ web ghi yêu cầu vào nhật ký như
+mọi trang web ghi một lượt xem trang, rồi chuyển hướng tới tệp trong bản phát
+hành trên GitHub. Nhật ký chỉ giữ một hàm băm có muối của địa chỉ, nên hai lượt
+nhấp từ cùng một máy chỉ tính một lần và bản thân địa chỉ không bao giờ được
+lưu. Ứng dụng không dính gì đến việc này: con số được đo trước khi Hop được cài,
+và một bản không bao giờ hỏi cập nhật vẫn được tính như thường.
 
 ## Quyền
 

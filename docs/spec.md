@@ -2453,8 +2453,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   right-to-left line opens in, and the substitutions each entry carries,
   checked in `scripts/checks.sh` before anything ships. A language cannot be
   half added.
-- What is NOT translated yet: the README has sixteen translations and the site
-  has its own set — both follow with the release.
+- The README carries a translation for every app language. The site has its
+  own, smaller set of languages and grows on its own schedule.
 
 ### Screenshot (capture and mark up)
 

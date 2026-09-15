@@ -5,7 +5,8 @@
 # Hop
 
 **macOS 菜单栏里的小巧全能助手：计时器、时间跟踪、待办、防休眠、
-系统监控、剪贴板历史、文件转换器、窗口管理器和轻量 BT 客户端。
+系统监控、剪贴板历史、文件转换器、窗口管理器、轻量 BT 客户端、
+截屏、屏幕绘制、文字识别等等。
 你只打开需要的，再分布到图标上多达四个标签里。轻轻一点––你需要的一切都在眼前。**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
@@ -17,7 +18,7 @@
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/zh/overview.webp" width="360" alt="Hop 面板 – 菜单栏计时器，点阵显示屏、预设与工作-休息循环">
 
@@ -74,7 +75,8 @@ Ed25519 验证。需要 macOS 14 或更高版本。
 选择日期、时间，以及任意重复的星期几––到点时 Hop 会提示你：带「稍后提醒」和「完成」的横幅、
 声音、菜单栏标记，三者可分别开关。
 
-**你的 AI 助手也能添加任务。** 列表就是一个普通的 JSON 文件，Hop 在运行时会实时读取它的改动。
+**你的 AI 助手也能添加任务。** 列表就是一个普通的 JSON 文件，Hop 在运行时会实时读取它的改动，
+所以助手、脚本，或者打开文本编辑器的你，都可以往里加一个任务，看着它出现。
 Hop 还会执行命令文件并支持 `hop://` 链接：同一个助手，或者围绕这些链接做的快捷指令，
 都可以启动计时器、添加带提醒的任务，或读取当前运行状态。详见
 [docs/automation.md](../automation.md)。
@@ -174,7 +176,7 @@ Markdown、RTF 或纯文本。
 原件旁边或任何你选择的文件夹。支持 zip、rar、7z、tar、tar.gz、tar.bz2、tar.xz 和 gz；遇到 rar 和 7z
 时会在第一次下载一个约 6 MB 的小助手，并校验签名。Hop 能解 rar，但从不创建它 –– 这个格式是专有的。
 设置里的「Hop 作为压缩包的默认程序」只会在没有 Apple 应用接管时提供 rar，并可从第三方应用手里收回 rar；
-zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同样有效，卡片显示的是真实状态。 在访达里双击压缩包，会就地在文件旁边解压，并单独弹出一个小的进度窗口；即使失败也不会留下任何隐藏的东西。由 Hop 打开的文件都带有自己的图标，上面写着格式，一整个文件夹一眼就能看清。
+zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同样有效，卡片显示的是真实状态，所以绝不会把访达已经交给别的应用的默认设置说成还归自己。 在访达里双击压缩包，会就地在文件旁边解压，并单独弹出一个小的进度窗口；即使失败也不会留下任何隐藏的东西。由 Hop 打开的文件都带有自己的图标，上面写着格式，一整个文件夹一眼就能看清。
 
 <div align="center">
 <img src="https://hop.tools/screens/zh/archives.webp" width="480" alt="Hop – 文件压缩包">
@@ -205,7 +207,7 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 ### 文字识别
 
 框选屏幕上的一块区域，或者把图片拖进窗口、用 ⌘V 粘贴：其中的文字和二维码会出现在一个可阅读、可
-编辑、可复制的窗口里，同时进入剪贴板历史。换行会保留，表格依然可读。识别用的是 Apple 的 Vision，
+编辑、可复制的窗口里，同时进入剪贴板历史。换行会保留，表格或代码片段依然可读。识别用的是 Apple 的 Vision，
 全部在这台 Mac 上完成。
 
 如果识别结果里有网址，会出现「打开链接」按钮：账单二维码里的链接直接在浏览器中打开，不用再掏手机
@@ -225,13 +227,21 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 
 同一块区域可以按一个键再拍一次，这正是同屏系列截图所需要的。画面还能为页面打扮：背景、四周留白、圆角、阴影、浏览器窗框，以及你自己的水印，文字或图片皆可。
 
+<div align="center">
+<img src="https://hop.tools/screens/zh/shot.webp" width="480" alt="Hop – 截屏编辑器">
+</div>
+
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
 
 ### 在屏幕上绘制
 
 在通话、录制或评审时直接在屏幕上画：铅笔、不遮挡下方文字的宽荧光笔、箭头、图形和编号步骤。会消失的墨迹在你抬起指针几秒后自行淡去，不必在讲话中途擦除。放大镜和模糊在实时画面上同样可用：把细节放大给通话里的所有人看，或者遮住不该出现的名字。
 
-一个开关把点击交还给下面的应用，而标注仍留在屏幕上。「保存」和「复制」会把屏幕连同绘制一起拍下。共享整块屏幕时对方能看到标注；只共享单个窗口时由 macOS 自行合成，图层无法加入。
+一个开关把点击交还给下面的应用，而标注仍留在屏幕上，你可以对着自己的笔记继续工作。「保存」和「复制」会把屏幕连同绘制一起拍下。共享整块屏幕时对方能看到标注；只共享单个窗口时由 macOS 自行合成，图层无法加入。
+
+<div align="center">
+<img src="https://hop.tools/screens/zh/annotate.webp" width="480" alt="Hop – 在屏幕上绘制">
+</div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
 
@@ -274,11 +284,12 @@ zip、7z 和原生格式仍留给「归档实用工具」。模块隐藏时同�
 你的 Mac 知道的所有 VPN，每个一个开关，不论出自哪家。Hop 直接从系统设置读取这份列表：
 昨天装的客户端会自动出现，卸载的会消失。这里没有什么要添加，也不用等待对某一家的适配。
 
-不用打开任何窗口就能连上或断开。只要有一条隧道在跑，菜单栏图标一角就会亮起一个小圆点，和其他指示灯并排，面板关着也看得见。有东西在通时是绿色；隧道开着却什么也回不来时变成橙色，悄悄断掉的连接不再看着像正常的，面板还会标出是哪一行。点一下名称，就会打开那个 VPN 自己的窗口，用完关掉，
-Hop 会把它退出。连接不会断––隧道由系统维持，而不是应用。
+不用打开任何窗口就能连上或断开。只要有一条隧道在跑，菜单栏图标一角就会亮起一个小圆点，和其他指示灯并排，面板关着也看得见。有东西在通时是绿色；隧道开着却什么也回不来时变成橙色，悄悄断掉的连接不再看着像正常的，面板还会标出是哪一行。点一下名称，就会打开那个 VPN 自己的窗口，供你需要时用––选个国家、改个设置；
+窗口一关，Hop 就再把它退出，所以它不会为了一个你一周才碰两次的开关一直待在程序坞和菜单栏里。
+连接不会断––隧道由系统维持，而不是应用。
 
 这一行显示的是客户端自己报告的内容：它的名字，以及括号里配置附加的信息，通常是国家。
-Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段在哪里注册，而不是机器在哪里。
+Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段在哪里注册，而不是机器在哪里；言之凿凿地报错国家，比什么都不报更糟。
 
 这个绿点可以在设置里关掉，模块和开关照常工作。
 
@@ -292,9 +303,9 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 
 一整天都在开的程序摆成网格，一键可达，不必再去应用程序文件夹。按 + 挑选，或从访达拖进来；每行九个，最多八行。
 
-拖动图标即可挪位：黄色竖线显示它将插入到哪两个图标之间，其余图标自动让位，就像主屏幕一样。编辑按钮启动轻轻摇摆，每个图标带一个 ✕，网格也可以自己命名；如果您本来就认得这些应用，还可以在那里关掉图标下方的名称。网格想要几个就有几个––工作放一个空间，其余放另一个，各有各的应用。
+拖动图标即可挪位：黄色竖线显示它将插入到哪两个图标之间，其余图标自动让位，就像主屏幕一样。编辑按钮启动轻轻摇摆，每个图标带一个 ✕，网格也可以自己命名；如果你本来就认得这些应用，还可以在那里关掉图标下方的名称。网格想要几个就有几个––工作放一个空间，其余放另一个，各有各的应用。
 
-网格在您排列模块的地方创建和删除：设置里，或者模块表格本身––表格里网格方块上的 ✕ 会把它彻底删掉。新网格一开始是空的，在您填满之前会这样写着。
+网格在你排列模块的地方创建和删除：设置里，或者模块表格本身––表格里网格方块上的 ✕ 会把它彻底删掉。新网格一开始是空的，在你填满之前会这样写着。
 
 <div align="center">
 <img src="https://hop.tools/screens/zh/apps.webp" width="420" alt="Hop – 应用格子">
@@ -312,7 +323,7 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 <img src="https://hop.tools/screens/zh/uninstall.webp" width="480" alt="Hop – 连同应用留下的一切一起卸载">
 </div>
 
-同一个模块也能只整理、不卸载：所有占着缓存的应用，大的在前；留在下载、桌面和文稿里的安装包；多年前删掉的应用留下的数据；还有废纸篓和它的大小。一个勾选拿走一整节。它有意不碰的东西也列在那里––缓存和数据挤在同一个文件夹里的容器，比如某个即时通讯的二十多 GB：哪一半可以丢，只有那个应用自己知道。
+同一个模块也能只整理、不卸载：所有占着缓存的应用，大的在前；留在下载、桌面和文稿里的安装包；多年前删掉的应用留下的数据；还有废纸篓和它的大小。一个勾选拿走一整节。它有意不碰的东西也列在那里––缓存和数据挤在同一个文件夹里的容器，比如某个即时通讯的二十多 GB：哪一半可以丢，只有那个应用自己的清理功能知道。
 
 <div align="center">
 <img src="https://hop.tools/screens/zh/clean.webp" width="480" alt="Hop – 清理缓存、安装包、残留和废纸篓">
@@ -322,7 +333,7 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 
 ## 语言
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – 应用开箱即用，自动跟随系统语言。
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – 应用开箱即用，自动跟随系统语言。
 
 ## 支持这个项目
 
@@ -344,6 +355,12 @@ Hop 是免费的，而且会一直免费。如果它在你的菜单栏里挣到�
 和传输 BT 流量本身时才会访问网络。检查更新时只会发送你正在使用的
 版本，不包含任何能识别你或你的 Mac 的信息。更新和 BT 引擎均以签名
 压缩包形式分发，安装前会用 Ed25519 签名进行校验。
+
+顶部的 `downloads` 徽章统计的是点击，而不是人。下载按钮和 Homebrew formula
+都经过 hop.tools：它像任何网站记录一次页面浏览那样，把请求写进 Web 服务器日志，
+再重定向到 GitHub release 里的文件。日志保留的是来源地址加盐后的哈希，所以同一台
+机器点两次只算一次，地址本身从不存储。这一切都与应用无关：统计发生在安装 Hop 之前，
+一份从不检查更新的副本也照样计入。
 
 ## 权限
 

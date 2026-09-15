@@ -6,8 +6,9 @@
 
 **Un petit compagnon pour la barre de menus de macOS : minuteur, suivi du
 temps, liste de tâches, anti-veille, moniteur système, historique du
-presse-papiers, convertisseur de fichiers, gestionnaire de fenêtres et
-client torrent léger. Vous activez ceux dont vous avez besoin et vous les
+presse-papiers, convertisseur de fichiers, gestionnaire de fenêtres, client
+torrent léger, captures d'écran, dessin sur l'écran, reconnaissance de texte et
+plus encore. Vous activez ceux dont vous avez besoin et vous les
 répartissez sur jusqu'à quatre onglets de l'icône. Un clic – et tout ce
 qu'il vous faut est là.**
 
@@ -20,7 +21,7 @@ qu'il vous faut est là.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · **Français** · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · **Français** · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/fr/overview.webp" width="360" alt="Panneau Hop – minuteur dans la barre de menus avec affichage à matrice de points, préréglages et cycles travail-pause">
 
@@ -95,11 +96,12 @@ Hop vous prévient : une bannière avec « reporter » et « terminé », un son
 marque dans la barre des menus, chacun activable séparément.
 
 **Votre agent IA peut aussi ajouter des tâches.** La liste est un simple fichier
-JSON et Hop en suit les modifications en direct. Hop exécute également des
-commandes depuis un fichier et comprend les liens `hop://` : ce même agent, ou un
-raccourci bâti autour d'un de ces liens, peut lancer un minuteur, ajouter une
-tâche avec rappel ou lire ce qui tourne. Voir
-[docs/automation.md](../automation.md).
+JSON et Hop en suit les modifications en direct, si bien qu'un agent – ou un
+script, ou vous-même dans un éditeur de texte – peut y ajouter une tâche et la
+voir apparaître. Hop exécute également des commandes depuis un fichier et
+comprend les liens `hop://` : ce même agent, ou un raccourci bâti autour d'un de
+ces liens, peut lancer un minuteur, ajouter une tâche avec rappel ou lire ce qui
+tourne. Voir [docs/automation.md](../automation.md).
 
 <div align="center">
 <img src="https://hop.tools/screens/fr/tracker.webp" width="420" alt="Hop – Suivi du temps et tâches">
@@ -208,16 +210,22 @@ défaut pour les fichiers .torrent et les liens magnet.
 ### Archives de fichiers
 
 La ligne du module ouvre une fenêtre, et c'est là qu'on dépose – ⌘V marche
-aussi, plusieurs fichiers à la fois. Ce que tu ajoutes attend dans une liste
-jusqu'à ce que tu appuies sur le bouton : les archives sont extraites, tout le
+aussi, plusieurs fichiers à la fois. Ce que vous ajoutez attend dans une liste
+jusqu'à ce que vous appuyiez sur le bouton : les archives sont extraites, tout le
 reste part dans une seule archive. Le résultat va sur le bureau par défaut, ou à
-côté de l'original, ou dans le dossier de ton choix. Sont pris en charge zip,
+côté de l'original, ou dans le dossier de votre choix. Sont pris en charge zip,
 rar, 7z, tar, tar.gz, tar.bz2, tar.xz et gz ; pour rar et 7z, un petit outil
 (~6 Mo) à la signature vérifiée se télécharge la première fois. Hop extrait le
 rar mais ne le crée jamais : le format est propriétaire. « Hop par défaut pour les archives »
 dans les réglages ne propose que rar lorsqu’aucune app Apple ne le prend en charge,
 et peut le reprendre aux apps tierces ; zip, 7z et les formats natifs restent à
-Utilitaire d'archive. Ça marche avec le module masqué, et la carte affiche l'état réel. Un double-clic sur une archive dans le Finder l'extrait juste à côté du fichier, dans sa propre petite fenêtre de progression, et un échec ne laisse rien de caché derrière lui. Les fichiers qu'ouvre Hop portent sa propre icône avec le format inscrit dessus : un dossier se lit d'un coup d'œil.
+Utilitaire d'archive. Ça marche avec le module masqué, et la carte affiche l'état
+réel : elle ne prétend jamais que Hop ouvre un format par défaut quand le Finder
+a déjà cédé ce rôle à une autre app. Un double-clic sur une archive dans le
+Finder l'extrait juste à côté du fichier, dans sa propre petite fenêtre de
+progression, et un échec ne laisse rien de caché derrière lui. Les fichiers
+qu'ouvre Hop portent sa propre icône avec le format inscrit dessus : un dossier
+se lit d'un coup d'œil.
 
 <div align="center">
 <img src="https://hop.tools/screens/fr/archives.webp" width="480" alt="Hop – Archives de fichiers">
@@ -236,7 +244,7 @@ ligne, sans suite bureautique embarquée ni téléchargement.
 
 ### Pipette à couleurs
 
-Prélève n'importe quelle couleur de l'écran avec la loupe du système : elle
+Prélevez n'importe quelle couleur de l'écran avec la loupe du système : elle
 reste dans une liste, chaque ligne portant hex, rgb et hsl dans sa propre
 colonne – un clic copie cette notation-là. L'ordre ne change jamais sous le
 curseur, le nombre de couleurs gardées et de lignes visibles se règle, et
@@ -251,11 +259,11 @@ une seule couleur.
 
 ### Reconnaissance de texte
 
-Cadre une zone de l'écran, ou dépose une image dans la fenêtre et colle-en une
+Cadrez une zone de l'écran, ou déposez une image dans la fenêtre et collez-en une
 avec ⌘V : le texte et les codes QR sortent dans une fenêtre qu'on peut lire,
 corriger et copier, et rejoignent en même temps l'historique du presse-papiers.
-Les retours à la ligne sont gardés, un tableau reste donc lisible. La
-reconnaissance, c'est Vision d'Apple, entièrement sur ce Mac.
+Les retours à la ligne sont gardés, un tableau ou un bout de code reste donc
+lisible. La reconnaissance, c'est Vision d'Apple, entièrement sur ce Mac.
 
 Quand le résultat contient une adresse web, un bouton « ouvrir le lien »
 apparaît : le lien d'un QR code sur une facture s'ouvre directement dans le
@@ -273,23 +281,48 @@ ou une carte de visite restent du texte.
 
 ### Captures d'écran
 
-Cadrez une zone, prenez la fenêtre sous le pointeur ou tout l'écran : l'éditeur s'ouvre avec l'image déjà dedans. Annotez au crayon, au surligneur, avec des flèches, des formes, des étapes numérotées et du texte, masquez le confidentiel derrière un flou ou une mosaïque, ou floutez tout SAUF ce que vous montrez. Puis enregistrez le fichier ou copiez-le dans le presse-papiers.
+Cadrez une zone, prenez la fenêtre sous le pointeur ou tout l'écran : l'éditeur
+s'ouvre avec l'image déjà dedans. Annotez au crayon, au surligneur, avec des
+flèches, des formes, des étapes numérotées et du texte, masquez ce que personne
+n'a besoin de voir derrière un flou ou une mosaïque – ou floutez tout SAUF ce que
+vous montrez. Puis enregistrez le fichier ou copiez-le dans le presse-papiers.
 
-La même zone se reprend d'une touche, ce dont a besoin une série de captures d'un même écran. Une capture peut être habillée pour une page : fond, air autour, coins arrondis, ombre, cadre de navigateur et votre filigrane, en texte ou en image.
+La même zone se reprend d'une touche, ce dont a généralement besoin une série de
+captures d'un même écran. Une capture peut être habillée pour une page : fond,
+air autour du cadre, coins arrondis, ombre, cadre du navigateur – et votre
+propre filigrane, en texte ou en image.
+
+<div align="center">
+<img src="https://hop.tools/screens/fr/shot.webp" width="480" alt="Hop – Éditeur de captures d'écran">
+</div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
 
 ### Dessiner sur l'écran
 
-Dessinez directement sur l'écran pendant un appel, un enregistrement ou une relecture : crayon, surligneur large qui laisse le texte lisible, flèches, formes et étapes numérotées. L'encre qui s'efface disparaît d'elle-même deux secondes après avoir relevé le pointeur. La loupe et le flou fonctionnent aussi sur l'écran en direct : agrandissez un détail pour que tout le monde le voie pendant l'appel, ou masquez un nom qui n'aurait pas dû être là.
+Dessinez directement sur l'écran pendant un appel, un enregistrement ou une
+relecture : crayon, surligneur large qui laisse le texte lisible, flèches, formes
+et étapes numérotées. L'encre qui s'efface disparaît d'elle-même quelques
+secondes après que vous avez relevé le pointeur, sans rien à nettoyer au milieu
+d'une phrase. La loupe et le flou fonctionnent aussi sur l'écran en direct :
+agrandissez un détail pour que tout le monde le voie pendant l'appel, ou masquez
+un nom qui n'aurait pas dû être là.
 
-Un interrupteur rend les clics aux applications en dessous pendant que les annotations restent à l'écran. « Enregistrer » et « copier » capturent l'écran avec le dessin. Les autres voient les annotations quand vous partagez l'écran entier ; une fenêtre partagée seule est composée par macOS.
+Un interrupteur rend les clics aux applications en dessous pendant que les
+annotations restent à l'écran : vous continuez à travailler avec vos notes sous
+les yeux. « Enregistrer » et « copier » capturent l'écran avec le dessin. Les
+autres voient les annotations quand vous partagez l'écran entier ; une fenêtre
+partagée seule est composée par macOS, et aucun calque ne peut s'y joindre.
+
+<div align="center">
+<img src="https://hop.tools/screens/fr/annotate.webp" width="480" alt="Hop – Dessiner sur l'écran">
+</div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
 
 ### Verrou clavier
 
-Appuie sur 1, 5 ou 15 minutes – ou ∞ – et tout le clavier cesse de répondre,
+Appuyez sur 1, 5 ou 15 minutes – ou ∞ – et tout le clavier cesse de répondre,
 pour l'essuyer sans éteindre le Mac ni rabattre l'écran. Un cache explique ce
 qui se passe et l'icône de la barre des menus devient un clavier. Quatre
 sorties : le bouton du cache, le bouton du panneau, l'ouverture du panneau, ou
@@ -335,20 +368,23 @@ Thèmes sombre et clair avec une texture de grain argentique, raccourcis globaux
 Tous les VPN que votre Mac connaît, chacun avec son interrupteur, quel que soit
 l'éditeur. Hop lit la liste directement dans les réglages système : un client
 installé hier apparaît tout seul, un client supprimé disparaît. Rien à ajouter ni
-à configurer ici.
+à configurer ici, et pas de prise en charge éditeur par éditeur à attendre.
 
 Connectez et déconnectez sans rien ouvrir. Tant qu'un tunnel tient, un petit point
 s'allume dans le coin de l'icône de la barre des menus, à côté des autres voyants :
 vert tant que quelque chose passe, orange quand le tunnel est actif mais que rien ne
 revient par lui. Une connexion morte en silence cesse ainsi d'avoir l'air saine, et le
 panneau indique la ligne concernée. Cliquez sur le nom et la fenêtre du VPN s'ouvre
-quand vous en avez besoin ; refermez-la et Hop quitte l'app. La connexion reste : le
-tunnel est tenu par le système, pas par l'app.
+quand vous en avez besoin, pour choisir un pays ou changer un réglage ; refermez-la
+et Hop quitte de nouveau l'app, qui ne traîne donc jamais dans le Dock et la barre
+des menus pour un interrupteur qu'on touche deux fois par semaine. La connexion
+reste : le tunnel est tenu par le système, pas par l'app.
 
 La ligne montre ce que le client rapporte lui-même : son nom et, entre
 parenthèses, ce que la configuration ajoute, le plus souvent le pays. Hop ne
 devine jamais le pays d'après l'adresse du serveur : le registre indique où la
-plage est enregistrée, pas où se trouve la machine.
+plage est enregistrée, pas où se trouve la machine, et un mauvais pays affiché
+avec aplomb est pire que pas de pays du tout.
 
 Le point peut être désactivé dans les réglages : le module et ses interrupteurs fonctionnent très bien sans lui.
 
@@ -403,12 +439,12 @@ Le même module fait le ménage sans rien supprimer : chaque app qui garde un ca
 
 ## Langues
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – l'app suit la langue de votre système dès
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – l'app suit la langue de votre système dès
 l'installation.
 
 ## Soutenir le projet
 
-Hop est gratuit et le restera. S'il mérite sa place dans ta barre des menus, une
+Hop est gratuit et le restera. S'il mérite sa place dans votre barre des menus, une
 contribution volontaire aide à sortir de nouvelles fonctions et à peaufiner
 celles qui existent : elle paie le temps que ça prend, rien d'autre.
 
@@ -420,9 +456,9 @@ celles qui existent : elle paie le temps que ça prend, rien d'autre.
 d'analytique, pas de télémétrie, pas de comptes, pas de rapports de plantage.
 Chaque autorisation ci-dessous est demandée par macOS uniquement quand la
 fonction qui en a besoin est utilisée, et elle sert exactement à ça – rien n'est
-collecté au passage. Tu n'as pas à me croire sur parole : l'app est open source,
-le code qui collecterait n'existe tout simplement pas. Cherche un SDK de tracking
-ou un appel d'analytique dans ce dépôt : tu n'en trouveras aucun.
+collecté au passage. Vous n'avez pas à me croire sur parole : l'app est open
+source, le code qui collecterait n'existe tout simplement pas. Cherchez un SDK de
+tracking ou un appel d'analytique dans ce dépôt : vous n'en trouverez aucun.
 
 Tout tourne en local : pas de serveur, pas d'analytics, pas de compte. L'app
 ne touche au réseau que pour vérifier les mises à jour, quand vous lancez le
@@ -432,6 +468,15 @@ Cette vérification des mises à jour envoie la version que vous utilisez, et
 rien qui vous identifie, vous ou votre Mac. Les mises à jour et le moteur
 torrent sont livrés sous forme d'archives signées et vérifiés avec une
 signature Ed25519 avant l'installation.
+
+Le badge `downloads` en haut compte les clics, pas les personnes. Le bouton de
+téléchargement et la formule Homebrew passent par hop.tools, qui inscrit la
+requête dans le journal de son serveur web, comme n'importe quel site note une
+page vue, puis redirige vers le fichier publié sur GitHub. Le journal ne garde
+qu'un hachage salé de l'adresse : deux clics depuis une même machine comptent
+une seule fois, et l'adresse elle-même n'est jamais stockée. L'app n'y est pour
+rien : la mesure a lieu avant l'installation de Hop, et une copie qui ne demande
+jamais de mise à jour compte tout autant.
 
 ## Autorisations
 
@@ -451,19 +496,19 @@ vraiment utilisée ; la fenêtre des réglages les liste toutes avec leur état 
 - **notifications** – l'alerte du minuteur et un torrent terminé
 - **mot de passe administrateur** – une fois, pour le mode écran rabattu (pmset
   est réservé à root)
-- **ouvrir à la session** – désactivé tant que tu ne l'actives pas
+- **ouvrir à la session** – désactivé tant que vous ne l'activez pas
 
-Rien n'est demandé au lancement, et rien n'est demandé pour un module que tu n'as
+Rien n'est demandé au lancement, et rien n'est demandé pour un module que vous n'avez
 pas activé. Pas d'analytique, pas de télémétrie, pas de compte, pas de rapport de
 plantage : hop.tools n'est contacté que pour demander s'il existe une
 version plus récente – et pour la télécharger, ou l'un des deux outils
-optionnels, si tu acceptes. Tout le reste reste sur ce Mac : l'historique du
+optionnels, si vous acceptez. Tout le reste reste sur ce Mac : l'historique du
 presse-papiers, le temps suivi, la liste de tâches, le texte reconnu, les
 couleurs prélevées.
 
 Chaque autorisation ci-dessus sert à faire fonctionner une fonction – et à rien
-d'autre. Tu n'as pas à me croire sur parole : Hop est open source, le code qui
-collecterait n'existe tout simplement pas – lis-le dans ce dépôt. La fenêtre
+d'autre. Vous n'avez pas à me croire sur parole : Hop est open source, le code qui
+collecterait n'existe tout simplement pas – lisez-le dans ce dépôt. La fenêtre
 des réglages de l'app a une page « autorisations de l'app » avec la même
 liste et l'état actuel de chacune.
 

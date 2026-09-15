@@ -6,7 +6,8 @@
 
 **Malutki towarzysz na pasku menu macOS: timer, śledzenie czasu, lista
 zadań, blokada uśpienia, monitor systemu, historia schowka, konwerter
-plików, menedżer okien i lekki klient torrentów. Włączasz te, których
+plików, menedżer okien, lekki klient torrentów, zrzuty ekranu, rysowanie
+na ekranie, rozpoznawanie tekstu i nie tylko. Włączasz te, których
 potrzebujesz, i rozkładasz je na maksymalnie czterech kartach na ikonie.
 Jedno kliknięcie – i wszystko, czego potrzebujesz, jest pod ręką.**
 
@@ -19,7 +20,7 @@ Jedno kliknięcie – i wszystko, czego potrzebujesz, jest pod ręką.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · **Polski** · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · **Polski** · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Panel Hop – timer na pasku menu z wyświetlaczem matrycowym, presetami i cyklami pracy i odpoczynku">
 
@@ -80,6 +81,9 @@ samej liście, więc wiersze sumują się do liczby nad nimi. Jeśli któreś dz
 za długo, po ośmiu godzinach przypomni o tym baner. Obok jest osobna lista
 rzeczy do zrobienia, w której ukończone spada na dół.
 
+Kilka zadań może iść równocześnie, a na pasku menu widać zegar uruchomiony
+jako ostatni.
+
 Kliknij zadanie, a wiersz się rozwinie: pełny tekst w pierwszej linii, opis
 poniżej, gwiazdka dla ulubionych. Zadanie może mieć przypomnienie – dzień,
 godzinę i dowolne dni tygodnia do powtarzania – a Hop da znać, gdy przyjdzie
@@ -87,13 +91,11 @@ pora: baner z «odłóż» i «gotowe», dźwięk, znak na pasku menu; każde w�
 osobno.
 
 **Zadania może dodawać także twój agent AI.** Lista to zwykły plik JSON, a Hop
-odczytuje zmiany na bieżąco. Hop wykonuje też polecenia z pliku i rozumie linki
-`hop://`: ten sam agent albo skrót zbudowany wokół takiego odnośnika może
-uruchomić minutnik, dodać zadanie z przypomnieniem lub sprawdzić, co jest
-uruchomione. Zobacz [docs/automation.md](../automation.md).
-
-Kilka zadań może iść równocześnie, a na pasku menu widać zegar uruchomiony
-jako ostatni.
+odczytuje zmiany na bieżąco, więc agent – albo skrypt, albo ty w edytorze
+tekstu – może dopisać zadanie i zobaczyć, jak się pojawia. Hop wykonuje też
+polecenia z pliku i rozumie linki `hop://`: ten sam agent albo skrót zbudowany
+wokół takiego odnośnika może uruchomić minutnik, dodać zadanie z przypomnieniem
+lub sprawdzić, co jest uruchomione. Zobacz [docs/automation.md](../automation.md).
 
 <div align="center">
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – Śledzenie czasu i zadania">
@@ -208,7 +210,7 @@ sprawdzonym podpisem. Hop rozpakowuje rar, ale nigdy go nie tworzy – format je
 zastrzeżony. «Hop domyślnie dla archiwów» w ustawieniach oferuje tylko rar, gdy
 nie obsługuje go aplikacja Apple, i może odebrać rar aplikacjom innych firm;
 zip, 7z i formaty natywne zostają przy Narzędziu archiwizacji. Działa też przy
-ukrytym module, a karta pokazuje prawdziwy stan. Podwójne kliknięcie archiwum w Finderze rozpakowuje je tuż obok pliku, we własnym niewielkim oknie postępu, a nieudana próba nie zostawia niczego ukrytego. Pliki, które otwiera Hop, mają własną ikonę z nazwą formatu, więc folder czyta się jednym spojrzeniem.
+ukrytym module, a karta pokazuje prawdziwy stan, więc nigdy nie ogłosi się domyślną, gdy Finder oddał już tę rolę innej aplikacji. Podwójne kliknięcie archiwum w Finderze rozpakowuje je tuż obok pliku, we własnym niewielkim oknie postępu, a nieudana próba nie zostawia niczego ukrytego. Pliki, które otwiera Hop, mają własną ikonę z nazwą formatu, więc folder czyta się jednym spojrzeniem.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – Archiwa plików">
@@ -243,9 +245,9 @@ ekranu nie jest potrzebne: lupa zwraca jeden kolor i nic więcej.
 
 Zaznacz obszar ekranu albo upuść obraz w oknie i wklej go przez ⌘V: tekst i
 kody QR z niego pojawią się w oknie, w którym można je przeczytać, poprawić i
-skopiować, a jednocześnie trafią do historii schowka. Złamania linii zostają,
-więc tabela pozostaje czytelna. Rozpoznaje Vision od Apple, w całości na tym
-Macu.
+skopiować, a jednocześnie trafią do historii schowka. Podziały wierszy zostają,
+więc tabela czy fragment kodu pozostają czytelne. Rozpoznaje Vision od Apple,
+w całości na tym Macu.
 
 Jeśli w odczycie jest adres internetowy, pojawia się przycisk «otwórz link»:
 link z kodu QR na rachunku otwiera się wprost w przeglądarce, bez sięgania po
@@ -266,13 +268,21 @@ Zaznacz obszar, zrób zdjęcie okna pod wskaźnikiem albo całego ekranu — edy
 
 Ten sam obszar powtórzysz jednym klawiszem, a właśnie tego wymaga seria zrzutów z jednego ekranu. Obraz można ubrać na stronę: tło, powietrze dookoła, zaokrąglone rogi, cień, ramka przeglądarki i własny znak wodny, tekstem lub obrazkiem.
 
+<div align="center">
+<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – Edytor zrzutów ekranu">
+</div>
+
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
 
 ### Rysowanie na ekranie
 
-Rysuj wprost na ekranie podczas rozmowy, nagrania albo przeglądu: ołówek, szeroki zakreślacz, pod którym tekst pozostaje czytelny, strzałki, figury i numerowane kroki. Znikający tusz gaśnie sam kilka sekund po uniesieniu wskaźnika. Lupa i rozmycie działają także na żywym ekranie: powiększ szczegół, żeby zobaczyli go wszyscy w rozmowie, albo zasłoń nazwisko, którego tam być nie powinno.
+Rysuj wprost na ekranie podczas rozmowy, nagrania albo przeglądu: ołówek, szeroki zakreślacz, pod którym tekst pozostaje czytelny, strzałki, figury i numerowane kroki. Znikający tusz gaśnie sam kilka sekund po uniesieniu wskaźnika, więc nie trzeba niczego sprzątać w pół zdania. Lupa i rozmycie działają także na żywym ekranie: powiększ szczegół, żeby zobaczyli go wszyscy w rozmowie, albo zasłoń nazwisko, którego tam być nie powinno.
 
-Jeden przełącznik oddaje kliknięcia aplikacjom pod spodem, a znaki zostają na ekranie. «Zapisz» i «kopiuj» rejestrują ekran razem z rysunkiem. Inni widzą znaki, gdy udostępniasz cały ekran; pojedyncze udostępnione okno macOS składa samodzielnie.
+Jeden przełącznik oddaje kliknięcia aplikacjom pod spodem, a znaki zostają na ekranie, więc możesz dalej pracować z notatkami przed oczami. «Zapisz» i «kopiuj» rejestrują ekran razem z rysunkiem. Inni widzą znaki, gdy udostępniasz cały ekran; pojedyncze udostępnione okno macOS składa samodzielnie i żadna warstwa nie może się do niego dołączyć.
+
+<div align="center">
+<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – Rysowanie na ekranie">
+</div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
 
@@ -321,18 +331,23 @@ Ciemny i jasny motyw z fakturą ziarna filmowego, skróty globalne, uruchamianie
 
 Wszystkie VPN, które zna twój Mac, każdy z własnym przełącznikiem, czyjkolwiek by
 był. Hop czyta listę prosto z ustawień systemowych: klient zainstalowany wczoraj
-pojawia się sam, usunięty znika. Nie ma tu nic do dodawania ani konfigurowania.
+pojawia się sam, usunięty znika. Nie ma tu nic do dodawania ani konfigurowania
+i nie trzeba czekać, aż ktoś doda obsługę konkretnego dostawcy.
 
 Włączaj i wyłączaj tunel, nie otwierając niczego. Dopóki stoi, w rogu ikony na pasku
-menu świeci mała kropka, obok pozostałych wskaźników: zielona, dopóki coś przechodzi,
-pomarańczowa, gdy tunel jest włączony, ale nic przez niego nie wraca. Cicho zmarłe
-połączenie przestaje wyglądać na sprawne, a panel pokazuje, o który wiersz chodzi.
-Kliknij nazwę, a otworzy się okno samego VPN; gdy je zamkniesz, Hop zamknie aplikację.
-Połączenie zostaje: tunel trzyma system, nie aplikacja.
+menu świeci mała kropka, obok pozostałych wskaźników, więc widać ją przy zamkniętym
+panelu: zielona, dopóki coś przechodzi, pomarańczowa, gdy tunel jest włączony, ale nic
+przez niego nie wraca. Cicho zmarłe połączenie przestaje wyglądać na sprawne, a panel
+pokazuje, o który wiersz chodzi. Kliknij nazwę, a otworzy się okno samego VPN na te
+chwile, kiedy jest potrzebne – żeby wybrać kraj albo zmienić ustawienie – a gdy je
+zamkniesz, Hop znów zamknie aplikację. Nie wisi więc w Docku i na pasku menu dla
+przełącznika, którego dotykasz dwa razy w tygodniu. Połączenie zostaje: tunel trzyma
+system, nie aplikacja.
 
 W wierszu widać to, co zgłasza sam klient: nazwę i w nawiasie to, co dodaje
 konfiguracja, zwykle kraj. Hop nie zgaduje kraju z adresu serwera: rejestr mówi,
-gdzie zakres jest zarejestrowany, a nie gdzie stoi maszyna.
+gdzie zakres jest zarejestrowany, a nie gdzie stoi maszyna. Błędny kraj podany
+z pełnym przekonaniem jest gorszy niż żaden.
 
 Kropkę można wyłączyć w ustawieniach – moduł i jego przełączniki działają i bez niej.
 
@@ -385,7 +400,7 @@ Ten sam moduł sprząta, nic nie usuwając: każda aplikacja z pamięcią podrę
 
 ## Języki
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – aplikacja od razu podąża za językiem
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – aplikacja od razu podąża za językiem
 Twojego systemu.
 
 ## Wesprzyj projekt
@@ -413,6 +428,14 @@ torrentów – by raz pobrać silnik i przesyłać sam ruch torrentowy.
 Sprawdzanie aktualizacji wysyła używaną wersję i nic, co identyfikowałoby
 Ciebie lub Twojego Maca. Aktualizacje i silnik torrentowy są dostarczane
 jako podpisane archiwa i przed instalacją weryfikowane podpisem Ed25519.
+
+Licznik `downloads` na górze liczy kliknięcia, a nie ludzi. Przycisk pobierania
+i formuła Homebrew przechodzą przez hop.tools, który zapisuje żądanie w logu
+serwera WWW, tak jak każda strona odnotowuje odsłonę, i przekierowuje do pliku
+w wydaniu na GitHubie. W logu zostaje solony hash adresu, więc dwa kliknięcia
+z jednej maszyny liczą się raz, a sam adres nigdy nie jest zapisywany. Aplikacja
+nie ma z tym nic wspólnego: pomiar odbywa się, zanim Hop zostanie zainstalowany,
+a kopia, która nigdy nie pyta o aktualizację, liczy się tak samo.
 
 ## Uprawnienia
 

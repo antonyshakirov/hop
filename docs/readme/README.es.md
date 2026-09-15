@@ -7,7 +7,8 @@
 **Un pequeño compañero de barra de menús para macOS: temporizador,
 seguimiento de tiempo, tareas pendientes, modo antisueño, monitor del
 sistema, historial del portapapeles, conversor de archivos, gestor de
-ventanas y un cliente de torrents ligero. Activas los que necesitas y los
+ventanas, un cliente de torrents ligero, capturas de pantalla, dibujo sobre la
+pantalla, reconocimiento de texto y más. Activas los que necesitas y los
 repartes en hasta cuatro pestañas del icono. Un clic – y todo lo que
 necesitas está ahí.**
 
@@ -20,7 +21,7 @@ necesitas está ahí.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · **Español** · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · **Español** · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/es/overview.webp" width="360" alt="Panel de Hop – temporizador en la barra de menús con pantalla de matriz de puntos, preajustes y ciclos de trabajo y descanso">
 
@@ -94,11 +95,12 @@ avisa: un aviso con «posponer» y «hecho», un sonido, una marca en la barra 
 menús; cada uno se activa por separado.
 
 **Tu propio agente de IA también puede añadir tareas.** La lista es un archivo
-JSON normal y Hop recoge los cambios mientras funciona. Hop también ejecuta
-órdenes desde un archivo y entiende enlaces `hop://`: ese mismo agente, o un
-atajo construido sobre uno de esos enlaces, puede iniciar un temporizador, añadir
-una tarea con recordatorio o consultar qué está en marcha. Ver
-[docs/automation.md](../automation.md).
+JSON normal y Hop recoge los cambios mientras funciona, así que un agente – o un
+script, o tú en un editor de texto – puede añadir una tarea y verla aparecer. Hop
+también ejecuta órdenes desde un archivo y entiende enlaces `hop://`: ese mismo
+agente, o un atajo construido sobre uno de esos enlaces, puede iniciar un
+temporizador, añadir una tarea con recordatorio o consultar qué está en marcha.
+Ver [docs/automation.md](../automation.md).
 
 <div align="center">
 <img src="https://hop.tools/screens/es/tracker.webp" width="420" alt="Hop – Seguimiento de tiempo y tareas">
@@ -165,8 +167,8 @@ reempaquetan primero a MP4 (macOS no abre ninguno) mediante un pequeño
 ayudante que se descarga una vez. Los documentos de Pages, Numbers y Keynote
 los exportan por lotes las propias apps: a PDF, o a docx, xlsx y pptx.
 
-Las páginas web también se convierten: pegue una dirección o suelte una página
-guardada, y sale como PDF, docx, Markdown, RTF o texto plano.
+Las páginas web también se convierten: pega una dirección o suelta una página
+guardada, y sale como PDF, docx, Markdown, RTF o texto plano.
 
 <div align="center">
 <img src="https://hop.tools/screens/es/converter.webp" width="480" alt="Hop – Conversor de archivos">
@@ -214,7 +216,12 @@ ayudante (~6 MB) con la firma verificada. Hop extrae rar pero nunca lo crea: el
 formato es propietario. «Hop por defecto para archivos comprimidos» en los ajustes
 solo ofrece rar cuando ninguna app de Apple lo abre, y puede quitárselo a apps de
 terceros; zip, 7z y los formatos nativos se quedan con Utilidad de Archivo.
-Funciona con el módulo oculto, y la tarjeta muestra el estado real. Un doble clic en un comprimido desde Finder lo abre justo al lado del archivo, en su propia ventana de progreso, y un fallo no deja nada oculto detrás. Los archivos que abre Hop llevan su propio icono con el formato escrito encima, así una carpeta se lee de un vistazo.
+Funciona con el módulo oculto, y la tarjeta muestra el estado real, así que
+nunca se atribuye un formato que Finder ya ha cedido a otra app. Un doble clic en
+un comprimido desde Finder lo extrae justo al lado del archivo, en su propia
+ventana de progreso, y un fallo no deja nada oculto detrás. Los archivos que abre
+Hop llevan su propio icono con el formato escrito encima, así una carpeta se lee
+de un vistazo.
 
 <div align="center">
 <img src="https://hop.tools/screens/es/archives.webp" width="480" alt="Hop – Archivos comprimidos">
@@ -250,8 +257,8 @@ de pantalla: la lupa devuelve un color y nada más.
 Encuadra un área de la pantalla, o suelta una imagen en la ventana y pega otra
 con ⌘V: el texto y los códigos QR salen en una ventana que puedes leer, editar
 y copiar, y llegan a la vez al historial del portapapeles. Los saltos de línea
-se conservan, así que una tabla sigue legible. El reconocimiento es Vision, de
-Apple, todo en este Mac.
+se conservan, así que una tabla o un fragmento de código siguen legibles. El
+reconocimiento es Vision, de Apple, todo en este Mac.
 
 Si el resultado contiene una dirección web aparece el botón «abrir enlace»: el
 enlace de un código QR de una factura se abre directamente en el navegador,
@@ -269,17 +276,42 @@ siguen siendo texto normal.
 
 ### Capturas de pantalla
 
-Encuadre un área, capture la ventana bajo el cursor o toda la pantalla: el editor se abre con la imagen ya dentro. Marque con lápiz, marcador, flechas, formas, pasos numerados y texto, oculte lo privado tras un desenfoque o un mosaico, o desenfoque todo EXCEPTO aquello que señala. Después guarde el archivo o cópielo al portapapeles.
+Encuadra un área, captura la ventana bajo el cursor o toda la pantalla, y el
+editor se abre con la imagen ya dentro. Márcala con lápiz, marcador, flechas,
+formas, pasos numerados y texto, oculta lo que nadie necesita ver tras un
+desenfoque o un mosaico – o desenfoca todo EXCEPTO aquello que señalas. Después
+guarda el archivo o cópialo al portapapeles.
 
-La misma área se repite con una tecla, que es lo que suele necesitar una serie de capturas de una pantalla. La imagen puede vestirse para una página: fondo, aire alrededor, esquinas redondeadas, sombra, marco de navegador y su propia marca de agua, en texto o imagen.
+La misma área se repite con una tecla, que es lo que suele necesitar una serie
+de capturas de una pantalla. La imagen puede vestirse para una página: fondo,
+aire alrededor, esquinas redondeadas, sombra, marco del navegador – y tu propia
+marca de agua, en texto o como imagen.
+
+<div align="center">
+<img src="https://hop.tools/screens/es/shot.webp" width="480" alt="Hop – Editor de capturas">
+</div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
 
 ### Dibujar sobre la pantalla
 
-Dibuje directamente en la pantalla durante una llamada, una grabación o una revisión: lápiz, marcador ancho que deja legible el texto debajo, flechas, formas y pasos numerados. La tinta que se desvanece desaparece sola un par de segundos después de levantar el cursor. La lupa y el desenfoque también funcionan sobre la pantalla en vivo: amplíe un detalle para que todos en la llamada lo vean, o tape un nombre que no debería estar ahí.
+Dibuja directamente en la pantalla durante una llamada, una grabación o una
+revisión: lápiz, marcador ancho que deja legible el texto debajo, flechas, formas
+y pasos numerados. La tinta que se desvanece desaparece sola un par de segundos
+después de levantar el cursor, así que no hay que borrar nada a mitad de frase.
+La lupa y el desenfoque también funcionan sobre la pantalla en vivo: amplía un
+detalle para que todos en la llamada lo vean, o tapa un nombre que no debería
+estar ahí.
 
-Un interruptor devuelve los clics a las apps de debajo mientras las marcas siguen en pantalla. «Guardar» y «copiar» capturan la pantalla junto con el dibujo. Los demás ven las marcas cuando comparte la pantalla completa; una sola ventana compartida la compone macOS por su cuenta.
+Un interruptor devuelve los clics a las apps de debajo mientras las marcas siguen
+en pantalla, así que puedes seguir trabajando con tus notas delante. «Guardar» y
+«copiar» capturan la pantalla junto con el dibujo. Los demás ven las marcas
+cuando compartes la pantalla completa; una sola ventana compartida la compone
+macOS por su cuenta y ninguna capa puede sumarse a ella.
+
+<div align="center">
+<img src="https://hop.tools/screens/es/annotate.webp" width="480" alt="Hop – Dibujar sobre la pantalla">
+</div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
 
@@ -330,20 +362,23 @@ Temas oscuro y claro con textura de grano de película, atajos globales, arranq
 Todas las VPN que conoce tu Mac, cada una con su interruptor, sea del proveedor
 que sea. Hop lee la lista directamente de los ajustes del sistema: un cliente que
 instalaste ayer aparece solo, y uno que quitaste desaparece. Aquí no hay nada que
-añadir ni que configurar.
+añadir ni que configurar, ni hay que esperar a que cada proveedor tenga soporte.
 
 Conecta y desconecta sin abrir nada. Mientras un túnel está activo, un pequeño punto
 se enciende en la esquina del icono de la barra de menús, junto a los demás
 indicadores: verde mientras pasa algo, naranja cuando el túnel está activo pero no
 vuelve nada por él. Una conexión que murió en silencio deja de parecer sana, y el
 panel señala la fila de la que se trata. Pulsa el nombre y se abre la ventana de esa
-VPN para cuando la necesites; al cerrarla, Hop cierra la app. La conexión se mantiene:
-el túnel lo sostiene el sistema, no la app.
+VPN para cuando la necesites – para elegir un país o cambiar un ajuste –, y al
+cerrarla Hop vuelve a cerrar la app, así que nunca se queda en el Dock ni en la
+barra de menús por un interruptor que tocas dos veces por semana. La conexión se
+mantiene: el túnel lo sostiene el sistema, no la app.
 
 La fila muestra lo que informa el propio cliente: su nombre y, entre paréntesis,
 lo que añade la configuración, normalmente el país. Hop nunca deduce el país de
 la dirección del servidor: el registro dice dónde está registrado el rango, no
-dónde está la máquina.
+dónde está la máquina, y un país equivocado dicho con total seguridad es peor
+que ninguno.
 
 El punto se puede apagar en los ajustes: el módulo y sus interruptores siguen funcionando sin él.
 
@@ -396,7 +431,7 @@ El mismo módulo limpia sin eliminar nada: cada app que guarda caché, las mayor
 
 ## Idiomas
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – la app sigue el idioma de tu sistema desde el
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – la app sigue el idioma de tu sistema desde el
 primer momento.
 
 ## Apoya el proyecto
@@ -425,10 +460,19 @@ de actualizaciones envía la versión que usas, y nada que te identifique a ti
 ni a tu Mac. Las actualizaciones y el motor de torrents se entregan como
 archivos firmados y se verifican con una firma Ed25519 antes de instalarse.
 
+La insignia `downloads` de arriba cuenta clics, no personas. El botón de
+descarga y la fórmula de Homebrew pasan por hop.tools, que anota la petición en
+el registro de su servidor web igual que cualquier sitio registra una visita, y
+redirige al archivo publicado en GitHub. Lo que guarda el registro es un hash
+con sal de la dirección, así que dos clics desde la misma máquina cuentan una
+sola vez y la dirección en sí nunca se almacena. La app no interviene en nada de
+esto: se mide antes de instalar Hop, y una copia que nunca pide actualizaciones
+cuenta igual.
+
 ## Permisos
 
 Hop pide un permiso solo cuando usas la función que lo necesita, y la ventana
-de información los enumera todos con su estado actual:
+de ajustes los enumera todos con su estado actual:
 
 - **red – hop.tools** – buscar y descargar actualizaciones, más los dos
   ayudantes opcionales (motor de torrents y archivador 7-Zip)

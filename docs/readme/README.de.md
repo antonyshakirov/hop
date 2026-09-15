@@ -6,9 +6,10 @@
 
 **Ein winziger Menüleisten-Begleiter für macOS: Timer, Zeiterfassung,
 Aufgabenliste, Wachhalten, Systemmonitor, Zwischenablage-Verlauf,
-Dateikonverter, Fenstermanager und ein leichter Torrent-Client. Du
-schaltest ein, was du brauchst, und verteilst es auf bis zu vier Tabs am
-Symbol. Ein Klick – und alles, was du brauchst, ist sofort zur Hand.**
+Dateikonverter, Fenstermanager, ein leichter Torrent-Client, Bildschirmfotos,
+Zeichnen auf dem Bildschirm, Texterkennung und mehr. Du schaltest ein, was du
+brauchst, und verteilst es auf bis zu vier Tabs am Symbol. Ein Klick – und
+alles, was du brauchst, ist sofort zur Hand.**
 
 [![Latest release](https://img.shields.io/github/v/release/antonyshakirov/hop)](https://github.com/antonyshakirov/hop/releases/latest)
 [![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fhop.tools%2Fapi%2Fhop%2Fdownloads&color=ffd60a)](https://hop.tools/api/hop/downloads)
@@ -19,7 +20,7 @@ Symbol. Ein Klick – und alles, was du brauchst, ist sofort zur Hand.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · **Deutsch** · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · **Deutsch** · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/de/overview.webp" width="360" alt="Hop-Panel – Menüleisten-Timer mit Punktmatrix-Anzeige, Presets und Arbeits-Pausen-Zyklen">
 
@@ -85,18 +86,19 @@ eigene To-do-Liste, in der Erledigtes nach unten wandert.
 Mehrere Aufgaben können gleichzeitig laufen, und in der Menüleiste steht die
 zuletzt gestartete Uhr.
 
-Klicken Sie eine Aufgabe an, und die Zeile klappt auf: der ganze Text in der
+Klick eine Aufgabe an, und die Zeile klappt auf: der ganze Text in der
 ersten Zeile, darunter eine Beschreibung, ein Stern für Favoriten. Ein To-do
 kann eine Erinnerung tragen – Tag, Uhrzeit und beliebige Wochentage zum
 Wiederholen –, und Hop meldet sich: Banner mit „später“ und „erledigt“, Ton,
 Zeichen in der Menüleiste, jedes einzeln abschaltbar.
 
-**Auch Ihr KI-Agent kann Aufgaben anlegen.** Die Liste ist eine schlichte
-JSON-Datei, und Hop übernimmt Änderungen im laufenden Betrieb. Hop führt zudem
-Befehle aus einer Datei aus und versteht `hop://`-Links – derselbe Agent oder ein
-Kurzbefehl um so einen Link herum kann einen Timer starten, eine Aufgabe mit
-Erinnerung anlegen oder abfragen, was gerade läuft. Siehe
-[docs/automation.md](../automation.md).
+**Auch dein KI-Agent kann Aufgaben anlegen.** Die Liste ist eine schlichte
+JSON-Datei, und Hop übernimmt Änderungen im laufenden Betrieb – so kann ein
+Agent, ein Skript oder du selbst im Texteditor eine Aufgabe anhängen und
+zusehen, wie sie erscheint. Hop führt zudem Befehle aus einer Datei aus und
+versteht `hop://`-Links – derselbe Agent oder ein Kurzbefehl um so einen Link
+herum kann einen Timer starten, eine Aufgabe mit Erinnerung anlegen oder
+abfragen, was gerade läuft. Siehe [docs/automation.md](../automation.md).
 
 <div align="center">
 <img src="https://hop.tools/screens/de/tracker.webp" width="420" alt="Hop – Zeiterfassung & To-dos">
@@ -122,8 +124,8 @@ CPU- und GPU-Last samt Temperatur, Speicher und Swap, Netzwerk, Festplatte,
 Batteriezustand und Leistungsaufnahme – Live-Werte mit Sparkline-Diagrammen,
 Farbschwellen, die du selbst festlegst, °C/°F und einer Uptime-Zeile. Die
 Messwerte kommen direkt von macOS und aktualisieren sich nur, solange der Tab
-geöffnet ist. Die speicherzeile warnt auch, wenn viel speicher auf der platte
-gelandet ist, und nicht erst, wenn macOS selbst knappheit meldet.
+geöffnet ist. Die Speicherzeile warnt auch, wenn viel Speicher auf der Platte
+gelandet ist, und nicht erst, wenn macOS selbst Knappheit meldet.
 
 <div align="center">
 <img src="https://hop.tools/screens/de/system.webp" width="420" alt="Hop – Systemmonitor">
@@ -214,7 +216,12 @@ Format ist proprietär. «Hop als Standard für Archive» in den Einstellungen
 bietet nur rar an, solange keine Apple-App zuständig ist, und kann rar von
 Fremd-Apps zurückholen; zip, 7z und die nativen Formate bleiben beim
 Archivierungsprogramm. Es funktioniert auch mit verstecktem Modul, und die Karte
-zeigt den echten Stand. Ein Doppelklick auf ein Archiv im Finder entpackt es direkt neben der Datei, in einem eigenen kleinen Fortschrittsfenster, und ein fehlgeschlagener Lauf lässt nichts Verstecktes zurück. Dateien, die Hop öffnet, tragen ein eigenes Symbol mit dem Format darauf, sodass ein Ordner davon auf einen Blick lesbar ist.
+zeigt den echten Stand, behauptet also nie eine Zuständigkeit, die der Finder
+längst weitergegeben hat. Ein Doppelklick auf ein Archiv im Finder entpackt es
+direkt neben der Datei, in einem eigenen kleinen Fortschrittsfenster, und ein
+fehlgeschlagener Lauf lässt nichts Verstecktes zurück. Dateien, die Hop öffnet,
+tragen ein eigenes Symbol mit dem Format darauf, sodass ein Ordner davon auf
+einen Blick lesbar ist.
 
 <div align="center">
 <img src="https://hop.tools/screens/de/archives.webp" width="480" alt="Hop – Dateiarchive">
@@ -250,8 +257,9 @@ Bildschirmaufnahmen braucht es nicht: die Lupe liefert genau eine Farbe.
 Rahme einen Bereich des Bildschirms ein oder zieh ein Bild ins Fenster und füge
 eines mit ⌘V ein: Text und QR-Codes darin erscheinen in einem Fenster, das man
 lesen, bearbeiten und daraus kopieren kann, und landen zugleich im Verlauf der
-Zwischenablage. Zeilenumbrüche bleiben, eine Tabelle bleibt lesbar. Erkannt
-wird mit Apples Vision, komplett auf diesem Mac.
+Zwischenablage. Zeilenumbrüche bleiben erhalten, sodass eine Tabelle oder ein
+Code-Schnipsel lesbar bleibt. Erkannt wird mit Apples Vision, komplett auf
+diesem Mac.
 
 Enthält ein Ergebnis eine Web-Adresse, erscheint die Schaltfläche «Link
 öffnen»: der Link aus einem QR-Code auf einer Rechnung öffnet sich direkt im
@@ -269,17 +277,44 @@ einfacher Text.
 
 ### Bildschirmfotos
 
-Rahmen Sie einen Bereich ein, nehmen Sie das Fenster unter dem Zeiger oder den ganzen Bildschirm auf — der Editor öffnet sich mit dem fertigen Bild. Markieren Sie mit Stift, Marker, Pfeilen, Formen, nummerierten Schritten und Text, verbergen Sie Vertrauliches hinter Weichzeichner oder Mosaik — oder zeichnen Sie alles weich AUSSER der Stelle, auf die Sie zeigen. Dann als Datei sichern oder in die Zwischenablage kopieren.
+Rahme einen Bereich ein, nimm das Fenster unter dem Zeiger oder den ganzen
+Bildschirm auf – der Editor öffnet sich mit dem fertigen Bild. Markiere es mit
+Stift, Marker, Pfeilen, Formen, nummerierten Schritten und Text, verbirg, was
+niemand sehen muss, hinter Weichzeichner oder Mosaik – oder zeichne alles weich
+AUSSER der Stelle, auf die du zeigst. Dann sicherst du die Datei oder kopierst
+sie in die Zwischenablage.
 
-Derselbe Ausschnitt lässt sich mit einer Taste erneut aufnehmen — genau das braucht eine Serie vom selben Bildschirm. Ein Bild lässt sich für eine Seite einkleiden: Hintergrund, Luft ringsum, runde Ecken, Schatten, Browserleiste und ein eigenes Wasserzeichen als Text oder Bild.
+Derselbe Ausschnitt lässt sich mit einer Taste erneut aufnehmen – genau das
+braucht eine Serie vom selben Bildschirm meistens. Ein Bild lässt sich für eine
+Seite einkleiden: Hintergrund, Luft ringsum, runde Ecken, Schatten, eine
+Browserleiste – und ein eigenes Wasserzeichen, als Text oder Bild.
+
+<div align="center">
+<img src="https://hop.tools/screens/de/shot.webp" width="480" alt="Hop – Bildschirmfoto-Editor">
+</div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
 
 ### Über den Bildschirm zeichnen
 
-Zeichnen Sie während eines Anrufs, einer Aufnahme oder einer Durchsicht direkt auf den Bildschirm: Stift, breiter Marker, unter dem der Text lesbar bleibt, Pfeile, Formen und nummerierte Schritte. Verblassende Tinte verschwindet ein paar Sekunden nach dem Absetzen von selbst. Die Lupe und die Weichzeichnung arbeiten auch auf dem laufenden Bildschirm: ein Detail vergrößern, damit es alle im Anruf sehen, oder einen Namen abdecken, der dort nicht hingehört.
+Zeichne während eines Anrufs, einer Aufnahme oder einer Durchsicht direkt auf
+den Bildschirm: Stift, breiter Marker, unter dem der Text lesbar bleibt, Pfeile,
+Formen und nummerierte Schritte. Verblassende Tinte verschwindet ein paar
+Sekunden nach dem Absetzen von selbst, du musst also nicht mitten im Satz
+aufräumen. Die Lupe und die Weichzeichnung arbeiten auch auf dem laufenden
+Bildschirm: ein Detail vergrößern, damit es alle im Anruf sehen, oder einen
+Namen abdecken, der dort nicht hingehört.
 
-Ein Schalter gibt die Klicks an die Apps darunter zurück, während die Markierungen stehen bleiben. «Sichern» und «Kopieren» nehmen den Bildschirm samt Zeichnung auf. Andere sehen die Markierungen, wenn Sie den ganzen Bildschirm teilen; ein einzelnes geteiltes Fenster setzt macOS allein zusammen.
+Ein Schalter gibt die Klicks an die Apps darunter zurück, während die
+Markierungen stehen bleiben – so arbeitest du weiter und hast deine Notizen vor
+Augen. «Sichern» und «Kopieren» nehmen den Bildschirm samt Zeichnung auf.
+Andere sehen die Markierungen, wenn du den ganzen Bildschirm teilst; ein
+einzelnes geteiltes Fenster setzt macOS allein zusammen, und keine Ebene kann
+sich dazugesellen.
+
+<div align="center">
+<img src="https://hop.tools/screens/de/annotate.webp" width="480" alt="Hop – Zeichnen auf dem Bildschirm">
+</div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
 
@@ -328,25 +363,28 @@ Dunkles und helles Theme mit Filmkorn-Textur, globale Kurzbefehle, Start bei der
 
 ### VPN
 
-Jedes VPN, das Ihr Mac kennt, mit je einem Schalter – von welchem Anbieter auch
+Jedes VPN, das dein Mac kennt, mit je einem Schalter – von welchem Anbieter auch
 immer. Hop liest die Liste direkt aus den Systemeinstellungen: ein gestern
 installierter Client erscheint von selbst, ein entfernter verschwindet. Hier gibt
-es nichts hinzuzufügen und auf Unterstützung für einen bestimmten Anbieter muss
-niemand warten.
+es nichts hinzuzufügen oder einzurichten, und auf Unterstützung für einen
+bestimmten Anbieter muss niemand warten.
 
-Schalten Sie einen Tunnel ein und aus, ohne etwas zu öffnen. Solange einer steht,
+Schalte einen Tunnel ein und aus, ohne etwas zu öffnen. Solange einer steht,
 sitzt ein kleiner Punkt in der Ecke des Menüleisten-Symbols, neben den übrigen
 Anzeigen – sichtbar auch bei geschlossenem Panel: grün, solange etwas durchgeht,
 orange, wenn der Tunnel an ist, aber nichts zurückkommt. Eine still gestorbene
 Verbindung sieht damit nicht mehr nach einer funktionierenden aus, und das Panel
 zeigt, welche Zeile gemeint ist. Ein Klick auf den Namen öffnet das Fenster des VPN
-selbst, wenn Sie es brauchen; schließen Sie es, beendet Hop die App wieder. Die
-Verbindung bleibt: den Tunnel hält das System, nicht die App.
+selbst, wenn du es brauchst – um ein Land zu wählen oder eine Einstellung zu
+ändern –, und sobald du es schließt, beendet Hop die App wieder. So sitzt sie nie
+im Dock und in der Menüleiste herum, nur für einen Schalter, den du zweimal pro
+Woche anfasst. Die Verbindung bleibt: den Tunnel hält das System, nicht die App.
 
 In der Zeile steht, was der Client selbst meldet – sein Name und in Klammern, was
 die Konfiguration hinzufügt, meist das Land. Aus der Serveradresse rät Hop das
 Land nicht: das Adressregister sagt, wo ein Bereich registriert ist, nicht wo die
-Maschine steht.
+Maschine steht, und ein selbstsicher genanntes falsches Land ist schlimmer als
+gar keins.
 
 Der Punkt lässt sich in den Einstellungen abschalten – das Modul und seine Schalter arbeiten auch ohne ihn.
 
@@ -358,21 +396,21 @@ Der Punkt lässt sich in den Einstellungen abschalten – das Modul und seine Sc
 
 ### Programme
 
-Ein Raster mit den Apps, die Sie den ganzen Tag öffnen – einen Klick entfernt,
+Ein Raster mit den Apps, die du den ganzen Tag öffnest – einen Klick entfernt,
 ohne Umweg über den Programme-Ordner. Auf + drücken und auswählen oder aus dem
 Finder hineinziehen; neun passen nebeneinander, bis zu acht Reihen.
 
-Ziehen Sie ein Symbol, um es zu verschieben: eine gelbe Linie zeigt, zwischen
+Zieh ein Symbol, um es zu verschieben: eine gelbe Linie zeigt, zwischen
 welche Symbole es rutscht, die übrigen rücken auf wie auf einem Home-Bildschirm.
 Die Bearbeiten-Taste startet das Wackeln, jedes Symbol bekommt ein ✕, und das
 Raster kann einen eigenen Namen bekommen; dort lassen sich auch die Namen unter
-den Symbolen abschalten, wenn Sie Ihre Apps ohnehin erkennen. Sie können
+den Symbolen abschalten, wenn du deine Apps ohnehin erkennst. Du kannst
 beliebig viele Raster anlegen – Arbeit auf einer Fläche, alles andere auf einer
 zweiten – jedes mit eigenen Apps.
 
-Raster entstehen und verschwinden dort, wo Sie die Module anordnen: in den
+Raster entstehen und verschwinden dort, wo du die Module anordnest: in den
 Einstellungen oder in der Modultabelle selbst, wo das ✕ am Chip eines Rasters es
-endgültig löscht. Ein neues Raster ist leer und sagt das auch, bis Sie es
+endgültig löscht. Ein neues Raster ist leer und sagt das auch, bis du es
 füllen.
 
 <div align="center">
@@ -401,7 +439,7 @@ Dasselbe Modul räumt auf, ohne etwas zu entfernen: jede App mit Cache, die grö
 
 ## Sprachen
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – die App folgt von Haus aus deiner Systemsprache.
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – die App folgt von Haus aus deiner Systemsprache.
 
 ## Unterstütze das Projekt
 
@@ -429,6 +467,15 @@ Update-Abfrage sendet die Version, die du nutzt – und nichts, was dich oder
 deinen Mac identifiziert. Updates und die Torrent-Engine werden als signierte
 Archive ausgeliefert und vor der Installation mit einer Ed25519-Signatur
 verifiziert.
+
+Das `downloads`-Badge oben zählt Klicks, nicht Menschen. Der Download-Knopf und
+die Homebrew-Formel laufen über hop.tools, das die Anfrage in sein
+Webserver-Log schreibt, so wie jede Website einen Seitenaufruf protokolliert,
+und dann auf die Datei im GitHub-Release weiterleitet. Im Log bleibt nur ein
+gesalzener Hash der Adresse, sodass zwei Klicks vom selben Rechner einmal zählen
+und die Adresse selbst nie gespeichert wird. Die App hat damit nichts zu tun:
+gezählt wird, bevor Hop installiert ist, und eine Kopie, die nie nach Updates
+fragt, zählt genauso.
 
 ## Berechtigungen
 

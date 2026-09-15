@@ -6,7 +6,8 @@
 
 **Pendamping mungil di menu bar macOS: timer, pelacak waktu, daftar tugas,
 anti-tidur, monitor sistem, riwayat clipboard, konverter file, pengelola
-jendela, dan klien torrent ringan. Kamu menyalakan yang kamu butuhkan dan
+jendela, klien torrent ringan, tangkapan layar, menggambar di layar,
+pengenalan teks, dan lainnya. Kamu menyalakan yang kamu butuhkan dan
 menyebarnya di hingga empat tab pada ikon. Sekali klik – semua yang kamu
 butuhkan langsung ada.**
 
@@ -19,7 +20,7 @@ butuhkan langsung ada.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-**Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+**Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Panel Hop – timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
 
@@ -82,6 +83,9 @@ Kalau satu berjalan terlalu lama, sebuah spanduk mengingatkan setelah delapan
 jam. Di sebelahnya ada daftar tugas terpisah, tempat yang selesai turun ke
 bawah.
 
+Beberapa tugas bisa berjalan sekaligus, dan bilah menu menampilkan jam yang
+terakhir dimulai.
+
 Klik sebuah tugas dan barisnya terbuka: teks lengkap di baris pertama,
 deskripsi di bawahnya, bintang untuk favorit. Sebuah to-do juga bisa membawa
 pengingat – hari, jam, dan hari-hari dalam seminggu untuk mengulanginya – dan Hop
@@ -89,14 +93,12 @@ memberi tahu saat waktunya: spanduk dengan «tunda» dan «selesai», suara, tan
 bilah menu; masing-masing dinyalakan terpisah.
 
 **Agen AI Anda juga bisa menambah tugas.** Daftarnya berupa berkas JSON biasa,
-dan Hop membaca perubahannya saat berjalan. Hop juga menjalankan perintah dari
-sebuah berkas dan memahami tautan `hop://`: agen yang sama, atau sebuah Pintasan
-yang dibuat dari tautan itu, bisa memulai pengatur waktu, menambah tugas
-berpengingat, atau membaca apa yang sedang berjalan. Lihat
+dan Hop membaca perubahannya saat berjalan, jadi agen – atau skrip, atau Anda
+sendiri di editor teks – bisa menambahkan tugas dan melihatnya muncul. Hop juga
+menjalankan perintah dari sebuah berkas dan memahami tautan `hop://`: agen yang
+sama, atau sebuah Pintasan yang dibuat dari tautan itu, bisa memulai pengatur
+waktu, menambah tugas berpengingat, atau membaca apa yang sedang berjalan. Lihat
 [docs/automation.md](../automation.md).
-
-Beberapa tugas bisa berjalan sekaligus, dan bilah menu menampilkan jam yang
-terakhir dimulai.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – Pelacak waktu & tugas">
@@ -213,7 +215,7 @@ kecil (~6 MB) yang tanda tangannya diperiksa. Hop membuka rar tetapi tidak
 pernah membuatnya – formatnya berpemilik. «Hop sebagai bawaan untuk arsip» di pengaturan hanya
 menawarkan rar saat tidak ada aplikasi Apple yang menanganinya, dan dapat merebut rar
 kembali dari aplikasi pihak ketiga; zip, 7z, dan format bawaan tetap di Utilitas Arsip. Ini
-bekerja walau modulnya disembunyikan, dan kartunya menunjukkan keadaan asli. Klik ganda pada arsip di Finder membukanya tepat di sebelah berkasnya, dalam jendela progres kecil tersendiri, dan kegagalan tidak meninggalkan apa pun yang tersembunyi. Berkas yang dibuka Hop membawa ikonnya sendiri dengan nama formatnya, jadi satu folder terbaca sekali lihat.
+bekerja walau modulnya disembunyikan, dan kartunya menunjukkan keadaan asli, jadi ia tak pernah mengaku sebagai bawaan yang sudah diserahkan Finder ke aplikasi lain. Klik ganda pada arsip di Finder membukanya tepat di sebelah berkasnya, dalam jendela progres kecil tersendiri, dan kegagalan tidak meninggalkan apa pun yang tersembunyi. Berkas yang dibuka Hop membawa ikonnya sendiri dengan nama formatnya, jadi satu folder terbaca sekali lihat.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – Arsip berkas">
@@ -236,7 +238,7 @@ Ambil warna apa pun di layar dengan lup sistem: warnanya tinggal di daftar,
 tiap baris membawa hex, rgb, dan hsl di kolomnya sendiri – klik salah satu dan
 notasi itulah yang tersalin. Urutannya tak pernah berubah di bawah kursor,
 berapa warna disimpan dan berapa baris tampil adalah pengaturan, dan izin rekam
-layar tidak diperlukan: lup hanya mengembalikan satu warna.
+layar tidak diperlukan: lup hanya mengembalikan satu warna, tidak lebih.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – Pemilih warna">
@@ -249,7 +251,7 @@ layar tidak diperlukan: lup hanya mengembalikan satu warna.
 Bingkai sebuah area layar, atau jatuhkan gambar ke jendela dan tempel satu
 dengan ⌘V: teks dan kode QR di dalamnya keluar di jendela yang bisa dibaca,
 disunting, dan disalin, sekaligus masuk ke riwayat papan klip. Pemenggalan
-baris dipertahankan, jadi tabel tetap terbaca. Pengenalannya memakai Vision
+baris dipertahankan, jadi tabel atau potongan kode tetap terbaca. Pengenalannya memakai Vision
 milik Apple, sepenuhnya di Mac ini.
 
 Kalau hasilnya memuat alamat web, tombol «buka tautan» muncul: tautan dari
@@ -271,13 +273,21 @@ Bingkai sebuah area, ambil jendela di bawah penunjuk atau seluruh layar — peny
 
 Area yang sama diambil lagi dengan satu tombol, dan itulah yang dibutuhkan serangkaian tangkapan dari layar yang sama. Gambar bisa didandani untuk sebuah halaman: latar, ruang di sekelilingnya, sudut membulat, bayangan, bingkai peramban, dan tanda air Anda sendiri, berupa teks atau gambar.
 
+<div align="center">
+<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – Penyunting tangkapan layar">
+</div>
+
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
 
 ### Menggambar di layar
 
-Gambarlah langsung di layar saat panggilan, perekaman, atau tinjauan: pensil, stabilo lebar yang membuat teks di bawahnya tetap terbaca, panah, bentuk, dan langkah bernomor. Tinta yang memudar hilang sendiri beberapa detik setelah penunjuk diangkat. Lup dan pengaburan juga bekerja di layar yang sedang berjalan: perbesar satu detail agar semua peserta panggilan melihatnya, atau tutup nama yang seharusnya tidak ada di sana.
+Gambarlah langsung di layar saat panggilan, perekaman, atau tinjauan: pensil, stabilo lebar yang membuat teks di bawahnya tetap terbaca, panah, bentuk, dan langkah bernomor. Tinta yang memudar hilang sendiri beberapa detik setelah penunjuk diangkat, jadi tak ada yang perlu dibersihkan di tengah kalimat. Lup dan pengaburan juga bekerja di layar yang sedang berjalan: perbesar satu detail agar semua peserta panggilan melihatnya, atau tutup nama yang seharusnya tidak ada di sana.
 
-Satu sakelar mengembalikan klik ke aplikasi di bawahnya sementara tanda tetap di layar. «Simpan» dan «salin» merekam layar bersama gambarnya. Orang lain melihat tanda saat Anda berbagi seluruh layar; satu jendela yang dibagikan disusun macOS sendiri.
+Satu sakelar mengembalikan klik ke aplikasi di bawahnya sementara tanda tetap di layar, jadi Anda bisa terus bekerja dengan catatan di depan mata. «Simpan» dan «salin» merekam layar bersama gambarnya. Orang lain melihat tanda saat Anda berbagi seluruh layar; satu jendela yang dibagikan disusun macOS sendiri, dan tidak ada lapisan yang bisa ikut masuk ke sana.
+
+<div align="center">
+<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – Menggambar di layar">
+</div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
 
@@ -327,19 +337,23 @@ Tema gelap dan terang dengan tekstur butiran film, pintasan global, jalan saat m
 Semua VPN yang dikenal Mac Anda, masing-masing dengan sakelarnya, dari vendor mana
 pun. Hop membaca daftarnya langsung dari pengaturan sistem: klien yang dipasang
 kemarin muncul sendiri, yang dihapus menghilang. Tidak ada yang perlu ditambahkan
-atau diatur di sini.
+atau diatur di sini, dan tidak perlu menunggu dukungan untuk vendor tertentu.
 
 Sambung dan putus tanpa membuka apa pun. Selama sebuah terowongan berdiri, titik kecil
-menyala di sudut ikon bilah menu, di samping indikator lain: hijau selama ada yang
-lewat, jingga ketika terowongan menyala tetapi tidak ada yang kembali lewat sana.
-Sambungan yang mati diam-diam tidak lagi tampak sehat, dan panel menandai baris yang
-dimaksud. Klik namanya dan jendela VPN itu terbuka; setelah Anda menutupnya, Hop
-menutup aplikasinya. Sambungan tetap ada: terowongan dipegang sistem, bukan aplikasi.
+menyala di sudut ikon bilah menu, di samping indikator lain, jadi terlihat walau panel
+tertutup: hijau selama ada yang lewat, jingga ketika terowongan menyala tetapi tidak
+ada yang kembali lewat sana. Sambungan yang mati diam-diam tidak lagi tampak sehat,
+dan panel menandai baris yang dimaksud. Klik namanya dan jendela VPN itu terbuka
+untuk saat-saat Anda membutuhkannya – memilih negara atau mengubah pengaturan – dan
+setelah Anda menutupnya, Hop menutup aplikasinya lagi, jadi aplikasi itu tidak diam
+di Dock dan bilah menu demi sakelar yang Anda sentuh dua kali seminggu. Sambungan
+tetap ada: terowongan dipegang sistem, bukan aplikasi.
 
 Barisnya menunjukkan apa yang dilaporkan klien itu sendiri: namanya dan, dalam
 kurung, tambahan dari konfigurasi – biasanya negara. Hop tidak pernah menebak
 negara dari alamat server: daftar alamat menyebut di mana rentang itu terdaftar,
-bukan di mana mesinnya berada.
+bukan di mana mesinnya berada, dan negara yang salah tetapi disebut dengan yakin
+lebih buruk daripada tidak menyebut negara sama sekali.
 
 Titik itu bisa dimatikan di pengaturan; modul dan sakelarnya tetap bekerja.
 
@@ -391,7 +405,7 @@ Modul yang sama merapikan tanpa menghapus apa pun: setiap aplikasi yang menyimpa
 
 ## Bahasa
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – aplikasi langsung mengikuti bahasa sistem
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – aplikasi langsung mengikuti bahasa sistem
 kamu.
 
 ## Dukung proyek ini
@@ -422,6 +436,14 @@ jalankan, dan tidak ada yang mengidentifikasi kamu atau Mac-mu. Pembaruan
 dan mesin torrent dikirim sebagai arsip bertanda tangan dan diverifikasi
 dengan tanda tangan Ed25519 sebelum
 dipasang.
+
+Lencana `downloads` di bagian atas menghitung klik, bukan orang. Tombol unduh
+dan formula Homebrew lewat hop.tools, yang menulis permintaan itu ke log server
+web-nya seperti situs mana pun mencatat kunjungan halaman, lalu mengarahkan ke
+berkas di rilis GitHub. Yang disimpan log adalah hash bergaram dari alamatnya,
+jadi dua klik dari satu mesin dihitung sekali dan alamat itu sendiri tidak pernah
+disimpan. Aplikasinya sama sekali tidak terlibat: pengukurannya terjadi sebelum
+Hop dipasang, dan salinan yang tak pernah meminta pembaruan tetap ikut terhitung.
 
 ## Izin
 

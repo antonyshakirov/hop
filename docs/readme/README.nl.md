@@ -6,7 +6,8 @@
 
 **Een piepklein menubalk-hulpje voor macOS: timer, tijdregistratie,
 takenlijst, slaapblokkering, systeemmonitor, klembordgeschiedenis,
-bestandsconverter, vensterbeheer en een lichte torrentclient. Je zet aan
+bestandsconverter, vensterbeheer, een lichte torrentclient,
+schermafbeeldingen, tekenen over het scherm, tekstherkenning en meer. Je zet aan
 wat je nodig hebt en verdeelt het over tot vier tabbladen op het icoon.
 Eén klik – en alles wat je nodig hebt staat meteen klaar.**
 
@@ -19,7 +20,7 @@ Eén klik – en alles wat je nodig hebt staat meteen klaar.**
 [![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
 
-[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · **Nederlands** · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
+[Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · **Nederlands** · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
 <img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop-paneel – menubalktimer met dot-matrixdisplay, presets en werk-rustcycli">
 
@@ -91,7 +92,9 @@ het weten: een banner met «uitstellen» en «klaar», geluid, een teken in de
 menubalk; elk apart aan te zetten.
 
 **Ook je eigen AI-agent kan taken toevoegen.** De lijst is een gewoon
-JSON-bestand en Hop pikt wijzigingen tijdens het draaien op. Hop voert ook
+JSON-bestand en Hop pikt wijzigingen tijdens het draaien op, zodat een agent –
+of een script, of jij in een teksteditor – een taak kan toevoegen en hem ziet
+verschijnen. Hop voert ook
 opdrachten uit een bestand uit en begrijpt `hop://`-links: diezelfde agent, of een
 Opdracht rond zo'n link, kan een timer starten, een taak met herinnering
 toevoegen of lezen wat er draait. Zie
@@ -211,7 +214,7 @@ gecontroleerde helper (~6 MB) opgehaald. Hop pakt rar uit maar maakt het nooit �
 het formaat is propriëtair. «Hop als standaard voor archieven» bij de instellingen biedt
 alleen rar aan wanneer geen Apple-app het beheert, en kan rar terugpakken van
 apps van derden; zip, 7z en de native formaten blijven bij Archiefhulpprogramma. Het
-werkt ook met een verborgen module, en de kaart toont de echte stand. Dubbelklikken op een archief in Finder pakt het uit vlak naast het bestand, in een eigen klein voortgangsvenster, en een mislukte poging laat niets verborgens achter. Bestanden die Hop opent dragen een eigen pictogram met het formaat erop, zodat een map in één oogopslag leesbaar is.
+werkt ook met een verborgen module, en de kaart toont de echte stand, zodat hij nooit een standaard claimt die Finder al aan een andere app heeft gegeven. Dubbelklikken op een archief in Finder pakt het uit vlak naast het bestand, in een eigen klein voortgangsvenster, en een mislukte poging laat niets verborgens achter. Bestanden die Hop opent dragen een eigen pictogram met het formaat erop, zodat een map in één oogopslag leesbaar is.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – Bestandsarchieven">
@@ -234,7 +237,7 @@ Pak met de systeemloep elke kleur van je scherm: hij blijft in een lijst staan,
 elke rij met hex, rgb en hsl in een eigen kolom – klik er een en precies die
 notatie wordt gekopieerd. De volgorde verandert nooit onder je cursor, hoeveel
 kleuren je bewaart en hoeveel rijen je ziet zijn instellingen, en toestemming
-voor schermopname is niet nodig: de loep geeft één kleur terug.
+voor schermopname is niet nodig: de loep geeft één kleur terug en verder niets.
 
 <div align="center">
 <img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – Kleurenpipet">
@@ -247,7 +250,8 @@ voor schermopname is niet nodig: de loep geeft één kleur terug.
 Kader een deel van je scherm, of sleep een afbeelding in het venster en plak er
 een met ⌘V: de tekst en eventuele QR-codes komen in een venster dat je kunt
 lezen, bijwerken en waaruit je kunt kopiëren, en gaan tegelijk naar de
-klembordgeschiedenis. Regeleindes blijven staan, dus een tabel blijft leesbaar.
+klembordgeschiedenis. Regeleindes blijven staan, dus een tabel of een stukje code
+blijft leesbaar.
 De herkenning is Vision van Apple, volledig op deze Mac.
 
 Staat er een webadres in het resultaat, dan verschijnt de knop «link openen»:
@@ -270,13 +274,21 @@ Kader een gebied in, neem het venster onder de aanwijzer of het hele scherm: de 
 
 Hetzelfde gebied neem je met één toets opnieuw, precies wat een reeks van hetzelfde scherm nodig heeft. Een opname kan voor een pagina worden aangekleed: achtergrond, lucht eromheen, ronde hoeken, schaduw, browserkader en je eigen watermerk, in tekst of als afbeelding.
 
+<div align="center">
+<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – Editor voor schermafbeeldingen">
+</div>
+
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
 
 ### Over het scherm tekenen
 
-Teken tijdens een gesprek, een opname of een review rechtstreeks op het scherm: potlood, brede marker die de tekst eronder leesbaar laat, pijlen, vormen en genummerde stappen. Vervagende inkt verdwijnt vanzelf een paar seconden nadat je de aanwijzer optilt. De loep en de vervaging werken ook op het levende scherm: vergroot een detail zodat iedereen in het gesprek het ziet, of dek een naam af die er niet had mogen staan.
+Teken tijdens een gesprek, een opname of een review rechtstreeks op het scherm: potlood, brede marker die de tekst eronder leesbaar laat, pijlen, vormen en genummerde stappen. Vervagende inkt verdwijnt vanzelf een paar seconden nadat je de aanwijzer optilt, dus midden in een zin hoef je niets op te ruimen. De loep en de vervaging werken ook op het levende scherm: vergroot een detail zodat iedereen in het gesprek het ziet, of dek een naam af die er niet had mogen staan.
 
-Eén schakelaar geeft de kliks terug aan de apps eronder terwijl de markeringen op het scherm blijven. «Bewaren» en «kopiëren» leggen het scherm samen met de tekening vast. Anderen zien de markeringen als je het hele scherm deelt; één gedeeld venster stelt macOS zelf samen.
+Eén schakelaar geeft de kliks terug aan de apps eronder terwijl de markeringen op het scherm blijven, zodat je gewoon doorwerkt met je aantekeningen voor je neus. «Bewaren» en «kopiëren» leggen het scherm samen met de tekening vast. Anderen zien de markeringen als je het hele scherm deelt; één gedeeld venster stelt macOS helemaal zelf samen, en daar kan geen enkele laag bij.
+
+<div align="center">
+<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – Over het scherm tekenen">
+</div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
 
@@ -328,20 +340,24 @@ Donker en licht thema met filmkorrel-textuur, globale sneltoetsen, starten bij i
 Elke VPN die je Mac kent, elk met een eigen schakelaar, van welke aanbieder ook.
 Hop leest de lijst rechtstreeks uit systeeminstellingen: een client die je gisteren
 installeerde verschijnt vanzelf, een verwijderde verdwijnt. Hier valt niets toe te
-voegen of in te stellen.
+voegen of in te stellen, en je hoeft niet te wachten tot iemand jouw aanbieder
+ondersteunt.
 
 Verbind en verbreek zonder iets te openen. Zolang een tunnel staat, brandt een klein
-puntje in de hoek van het menubalkicoon, naast de andere indicatoren: groen zolang er
-iets doorheen gaat, oranje wanneer de tunnel aanstaat maar er niets terugkomt. Een
-stilletjes gestorven verbinding ziet er zo niet langer gezond uit, en het paneel wijst
-de rij aan. Klik op de naam en het venster van die VPN gaat open; sluit je het, dan
-sluit Hop de app. De verbinding blijft: de tunnel wordt door het systeem vastgehouden,
-niet door de app.
+puntje in de hoek van het menubalkicoon, naast de andere indicatoren, zodat je het
+ook met gesloten paneel ziet: groen zolang er iets doorheen gaat, oranje wanneer de
+tunnel aanstaat maar er niets terugkomt. Een stilletjes gestorven verbinding ziet er
+zo niet langer gezond uit, en het paneel wijst de rij aan. Klik op de naam en het
+venster van die VPN gaat open voor de keren dat je het nodig hebt – om een land te
+kiezen of een instelling te wijzigen – en zodra je het sluit, sluit Hop de app weer.
+Zo blijft die niet in het Dock en de menubalk hangen voor een schakelaar die je twee
+keer per week aanraakt. De verbinding blijft: de tunnel wordt door het systeem
+vastgehouden, niet door de app.
 
 De regel toont wat de client zelf meldt: zijn naam en tussen haakjes wat de
 configuratie toevoegt, meestal het land. Hop raadt het land nooit uit het
 serveradres: het register zegt waar een reeks geregistreerd staat, niet waar de
-machine staat.
+machine staat, en een verkeerd land dat stellig wordt gemeld is erger dan geen.
 
 De stip kun je in de instellingen uitzetten – de module en de schakelaars werken gewoon door.
 
@@ -394,7 +410,7 @@ Dezelfde module ruimt op zonder iets te verwijderen: elke app die een cache aanh
 
 ## Talen
 
-Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, हिन्दी, ไทย, 한국어, 中文, 日本語 – de app volgt standaard je systeemtaal.
+Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – de app volgt standaard je systeemtaal.
 
 ## Steun het project
 
@@ -421,6 +437,15 @@ de engine eenmalig op te halen en het torrentverkeer zelf te verplaatsen. Die
 updatecontrole stuurt de versie die je draait, en niets wat jou of je Mac
 identificeert. Updates en de torrent-engine worden geleverd als ondertekende
 archieven en vóór installatie geverifieerd met een Ed25519-handtekening.
+
+De `downloads`-badge bovenaan telt de klik, niet de persoon. De downloadknop en
+de Homebrew-formule lopen via hop.tools, dat het verzoek in zijn webserverlog
+schrijft zoals elke site een paginabezoek logt, en doorverwijst naar het bestand
+in de GitHub-release. Het log bewaart een gezouten hash van het adres, zodat twee
+klikken vanaf één machine één keer tellen en het adres zelf nooit wordt
+opgeslagen. De app komt hier niet aan te pas: er wordt gemeten voordat Hop
+geïnstalleerd is, en een exemplaar dat nooit om een update vraagt telt net zo
+goed mee.
 
 ## Toestemmingen
 
