@@ -8,13 +8,14 @@
 #
 #   ./scripts/make-screens.sh [out-dir] [lang ...]
 #
-# Default out-dir is the website repo's public folder, so a run lands where the
-# pages already look for the files. Pass languages to render a subset.
+# Default out-dir is the site repo's source folder: its `npm run screens` turns
+# these PNGs into the webp files the pages and the READMEs load. Pass languages
+# to render a subset.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-OUT=${1:-"../antonshakirov-com/development/public/products/hop/screens"}
+OUT=${1:-"../hop-website/assets/screens"}
 shift || true
 LANGS=("$@")
 if [ ${#LANGS[@]} -eq 0 ]; then
