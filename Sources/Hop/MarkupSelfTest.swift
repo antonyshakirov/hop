@@ -409,6 +409,14 @@ enum MarkupSelfTest {
                    "letters typed into a caption on the layer are taken as TOOLS")
             expect(!MarkupKeys.KeyView.aFieldHasTheKeys([panel]),
                    "a panel with no field in sight keeps the letters from the tools")
+
+            // SPEC: docs/spec.md — "Escape closes the drawing layer", and only from its windows.
+            expect(MarkupKeys.KeyView.escapeIsTheLayers(captioned)
+                   && MarkupKeys.KeyView.escapeIsTheLayers(panel),
+                   "Escape on the layer or its panel does not close the layer")
+            expect(!MarkupKeys.KeyView.escapeIsTheLayers(NSWindow())
+                   && !MarkupKeys.KeyView.escapeIsTheLayers(nil),
+                   "Escape in another Hop window closes the drawing layer")
         }
 
         // SPEC: docs/spec.md — the layer opens with a pencil in hand, and a setting says otherwise.

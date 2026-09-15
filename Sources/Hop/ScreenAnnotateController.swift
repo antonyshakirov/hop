@@ -400,7 +400,8 @@ struct ScreenAnnotateToolbar: View {
             if controller.isFolded { folded } else { full }
         }
         .padding(6)
-        .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools))
+        .background(MarkupKeys(surface: surface, tools: ScreenAnnotateController.tools,
+                               escape: { [controller] in controller.exit() }))
     }
 
     /// The panel as a button: the mark, a drag to move it, a click to open it

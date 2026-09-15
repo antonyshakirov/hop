@@ -3072,6 +3072,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   with it — an app whose windows all refuse to be main is not active, and the
   Dock carried on regardless. The panel is also kept to the working area rather
   than the whole screen, so it does not sit on the Dock in the first place.
+- **Escape closes the drawing layer** (Anton, 2026-09-15), the same as ⌃⌥D or
+  the close button, marks and all. It is heard while a tool is in hand, when the
+  layer holds the keyboard; in the clicks-through mode the keyboard belongs to
+  the app underneath and Escape is its. A caption being typed keeps Escape to itself, and Escape pressed in
+  another Hop window (settings, the colour picker) does not reach the layer.
+  The screenshot editor has no such key: closing it is closing a window.
 - **⌘Z, ⇧⌘Z and delete work in the panel over the live screen too** (Anton,
   2026-09-08): they were gated on the window being key, which a non-activating
   panel never is, so the bare letters picked tools while undo did nothing.

@@ -738,9 +738,12 @@ struct MarkupToolbarLayer: View {
 struct MarkupKeys: NSViewRepresentable {
     @ObservedObject var surface: MarkupSurface
     let tools: [MarkupTool]
+    /// SPEC: docs/spec.md — "Escape closes the drawing layer". The editor has none.
+    var escape: (() -> Void)?
 
     func makeNSView(context: Context) -> NSView {
         let view = KeyView()
+        view.escape = escape
         view.pick = { letter in
             guard let tool = MarkupToolbar.tool(forLetter: letter), tools.contains(tool) else { return false }
             surface.tool = tool
@@ -762,6 +765,7 @@ struct MarkupKeys: NSViewRepresentable {
         var step: ((Bool) -> Void)?
         /// Delete on a selected mark. Answers whether there was one.
         var drop: (() -> Bool)?
+        var escape: (() -> Void)?
         private var monitor: Any?
 
         /// WORKAROUND: the panel over the live screen is a non-activating one
@@ -775,6 +779,11 @@ struct MarkupKeys: NSViewRepresentable {
         /// field sits in the layer's window, not in the toolbar's.
         static func aFieldHasTheKeys(_ windows: [NSWindow?]) -> Bool {
             windows.contains { $0?.firstResponder is NSTextView }
+        }
+
+        /// SPEC: docs/spec.md — "Escape closes the drawing layer", and only from its windows.
+        static func escapeIsTheLayers(_ window: NSWindow?) -> Bool {
+            window is MarkupOverlayWindow || window is MarkupToolbarWindow
         }
 
         override func viewDidMoveToWindow() {
@@ -791,6 +800,12 @@ struct MarkupKeys: NSViewRepresentable {
                     guard self.inCharge, event.keyCode == MarkupToolbar.zKeyCode
                     else { return event }
                     self.step?(event.modifierFlags.contains(.shift))
+                    return nil
+                }
+
+                if event.keyCode == 53, let escape = self.escape, Self.escapeIsTheLayers(event.window) {
+                    // closing takes this view and its monitor away; not from inside the monitor
+                    DispatchQueue.main.async { escape() }
                     return nil
                 }
 

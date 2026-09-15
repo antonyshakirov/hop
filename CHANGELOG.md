@@ -19,8 +19,9 @@
   whatever is open, ink that fades lifts itself a couple of seconds after the
   stroke, and the loupe and the blur work there too. One switch hands the clicks
   back to the apps underneath while the marks stay, and save or copy captures
-  the screen together with the drawing. Other people see the marks when the whole
-  screen is shared; a single shared window is composited by macOS alone.
+  the screen together with the drawing, and Escape puts the layer away. Other
+  people see the marks when the whole screen is shared; a single shared window is
+  composited by macOS alone.
 - Serbian, Arabic, Hebrew, Persian and Urdu are in the app. The last four run
   right to left, and the panel and every window lay out that way with them.
 - The shortcuts now spell what they do: ⌃⌥S takes a screenshot, ⌃⌥D draws on
