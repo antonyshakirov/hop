@@ -3584,8 +3584,13 @@ eight hours, and came back the moment it was removed and added again.
   as three minutes of stall. The check adds no timer; it rides the existing
   1.5 s poll.
 - **A failed restart is retried, not counted.** If no engine comes up,
-  `recoverEngine` reports it; the attempt is not counted as fruitless, and
-  polling tries again every 15 s while torrents exist. Any engine start after the
+  `recoverEngine` reports it and writes the error to the log; the attempt is
+  not counted as fruitless, and polling tries again while torrents exist. The
+  wait before the next try (`EngineRetry`) is 15 s, then doubles with every
+  start in a row that fails, up to 10 minutes: an engine that can never start
+  (a binary gone, a folder that cannot be written) used to be launched every
+  15 s for as long as Hop ran (2026-09-15). Any engine that comes up, and a stop
+  on purpose, set the wait back to 15 s. Any engine start after the
   first one in a session, including one triggered by a user action, re-maps rows
   on the next polls until the engine lists its torrents. A re-map drops only rows
   that existed before the list was requested, so a torrent added meanwhile

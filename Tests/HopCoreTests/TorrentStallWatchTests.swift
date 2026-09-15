@@ -171,4 +171,19 @@ final class TorrentStallWatchTests: XCTestCase {
             $0.pathUpdated(online: true, interfaces: ["en0"])
         })
     }
+
+    // MARK: - engine retry
+
+    func testRetryStartsAtFifteenSecondsAndDoubles() {
+        XCTAssertEqual(EngineRetry.delay(afterFailures: 0), 15)
+        XCTAssertEqual(EngineRetry.delay(afterFailures: 1), 15)
+        XCTAssertEqual(EngineRetry.delay(afterFailures: 2), 30)
+        XCTAssertEqual(EngineRetry.delay(afterFailures: 3), 60)
+        XCTAssertEqual(EngineRetry.delay(afterFailures: 6), 480)
+    }
+
+    func testRetryStopsGrowingAtTenMinutes() {
+        XCTAssertEqual(EngineRetry.delay(afterFailures: 7), 600)
+        XCTAssertEqual(EngineRetry.delay(afterFailures: 1_000), 600)
+    }
 }

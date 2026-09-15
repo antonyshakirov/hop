@@ -70,3 +70,16 @@ public struct TorrentStallWatch {
         if !online || previous != current { fruitlessRestarts = 0 }
     }
 }
+
+/// SPEC: docs/spec.md "A failed restart is retried, not counted". Tests: TorrentStallWatchTests.
+public enum EngineRetry {
+    public static let first: TimeInterval = 15
+    public static let ceiling: TimeInterval = 600
+
+    /// The wait before the next start after `failures` starts in a row came to nothing.
+    public static func delay(afterFailures failures: Int) -> TimeInterval {
+        guard failures > 1 else { return first }
+        let doublings = min(failures - 1, 16)
+        return min(ceiling, first * pow(2, Double(doublings)))
+    }
+}

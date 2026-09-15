@@ -3,6 +3,7 @@ import Foundation
 import HopCore
 import AppKit
 import Network
+import OSLog
 
 @MainActor
 final class TorrentController: ObservableObject {
@@ -14,6 +15,9 @@ final class TorrentController: ObservableObject {
     private var pathMonitor: NWPathMonitor?
     private var recoveryPending = false
     private var lastRecoveryAttempt: TimeInterval = 0
+    /// Starts in a row that brought no engine up; spaces the next one out.
+    private var recoveryFailures = 0
+    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "Torrents")
     private var remapPending = false
     private var sessionStarted = false
     /// False once the engine was stopped on purpose; nothing but a new add or restore may start it.
@@ -185,6 +189,7 @@ final class TorrentController: ObservableObject {
         if sessionStarted, !torrents.isEmpty { remapPending = true }
         sessionStarted = true
         recoveryPending = false
+        recoveryFailures = 0
     }
 
     func stopEngine() {
@@ -194,6 +199,7 @@ final class TorrentController: ObservableObject {
         client = nil
         engineWanted = false
         recoveryPending = false
+        recoveryFailures = 0
     }
 
     /// Restart the engine after it died and re-map rows to the new session's ids
@@ -205,13 +211,19 @@ final class TorrentController: ObservableObject {
         recoveryPending = true
         lastRecoveryAttempt = uptime
         client = nil                       // force ensureEngine to start a fresh process
-        try? await joinEngineStart()
+        var failure: Error?
+        do { try await joinEngineStart() } catch { failure = error }
         if !engineWanted {
             process.stop(); client = nil
             recoveryPending = false
             return false
         }
-        guard let client else { return false }
+        guard let client else {
+            recoveryFailures += 1
+            let wait = Int(EngineRetry.delay(afterFailures: recoveryFailures))
+            Self.log.error("the torrent engine did not start (\(String(describing: failure), privacy: .public)); next try in \(wait) s")
+            return false
+        }
         remapPending = true
         let known = Set(torrents.map(\.infoHash))
         remap(await listOnceLoaded(client), known: known)
@@ -456,7 +468,8 @@ final class TorrentController: ObservableObject {
         // forever. Restart it and re-map rows to the new session's ids.
         if !torrents.isEmpty,
            (client != nil && !process.isRunning)
-            || (client == nil && recoveryPending && uptime - lastRecoveryAttempt >= 15) {
+            || (client == nil && recoveryPending
+                && uptime - lastRecoveryAttempt >= EngineRetry.delay(afterFailures: recoveryFailures)) {
             await recoverEngine()
         }
         guard let client else { return }
