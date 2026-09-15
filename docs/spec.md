@@ -4389,6 +4389,14 @@ taught anything.
   of a picture: `Theme.handCursor()` adds nothing under `Snapshot.active`,
   and until it did, every hover control in the app — chips, plates, clear
   buttons — carried that yellow 🚫 through all 22 product screenshots.
+- **The pointer over a control is a hand, and stays one.** `Theme.handCursor()`
+  (every `hoverHighlight` and `hoverDim` goes through it) sets the hand on each
+  pointer move over the control, and again when the control is rebuilt or moved
+  under a pointer that has not moved. An AppKit cursor rect was tried
+  (2026-09-09) and never showed the hand: a rect counts only for the view the
+  pointer hits, and the view behind the button answers no hit so the click
+  reaches the button (Anton, 2026-09-15). Leaving the control puts the arrow
+  back.
 - **FilePicker (FilePicker.swift) is the ONLY Open and Save panel** (found
   2026-09-13): twelve places built their own `NSOpenPanel` or `NSSavePanel`, and
   ten of them had no `Snapshot.active` guard — a modal panel reached during a

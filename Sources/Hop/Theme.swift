@@ -172,24 +172,64 @@ extension View {
     }
 }
 
-/// WORKAROUND: `NSCursor.set()` holds only until the next cursor update, and a
-/// view rebuilt under a pointer that has not moved never gets another `onHover`
-/// — the hand was lost on every step of the onboarding (Anton, 2026-09-09). A
-/// cursor RECT belongs to AppKit and is restored after every rebuild.
+/// WORKAROUND: a cursor rect counts only for the view the pointer hits, and this
+/// one is hit by nothing so the clicks reach the button — the rect never showed
+/// the hand and the hosting view kept the arrow (Anton, 2026-09-15). So the hand
+/// is set on every move, as `ToolCursor` does, and again whenever the view is
+/// rebuilt or moved under a pointer that has not moved, which gets no `onHover`
+/// (the onboarding lost the hand that way, 2026-09-09).
 struct HandCursorArea: NSViewRepresentable {
     final class Area: NSView {
-        override func resetCursorRects() {
-            addCursorRect(bounds, cursor: .pointingHand)
-        }
+        private var area: NSTrackingArea?
+        private var inside = false
 
         /// The clicks belong to the SwiftUI button this sits behind.
         override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+        override func updateTrackingAreas() {
+            super.updateTrackingAreas()
+            if let area { removeTrackingArea(area) }
+            let fresh = NSTrackingArea(
+                rect: bounds,
+                options: [.mouseMoved, .mouseEnteredAndExited, .cursorUpdate,
+                          .activeAlways, .inVisibleRect],
+                owner: self
+            )
+            addTrackingArea(fresh)
+            area = fresh
+            recheck()
+        }
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            recheck()
+        }
+
+        func recheck() {
+            guard let window, !isHiddenOrHasHiddenAncestor else { inside = false; return }
+            let point = convert(window.mouseLocationOutsideOfEventStream, from: nil)
+            inside = visibleRect.contains(point)
+            wear()
+        }
+
+        private func wear() {
+            if inside { NSCursor.pointingHand.set() }
+        }
+
+        override func mouseEntered(with event: NSEvent) { inside = true; wear() }
+        override func mouseMoved(with event: NSEvent) { inside = true; wear() }
+        override func cursorUpdate(with event: NSEvent) { inside = true; wear() }
+
+        override func mouseExited(with event: NSEvent) {
+            inside = false
+            NSCursor.arrow.set()
+        }
     }
 
     func makeNSView(context: Context) -> Area { Area() }
 
     func updateNSView(_ nsView: Area, context: Context) {
-        nsView.window?.invalidateCursorRects(for: nsView)
+        nsView.recheck()
     }
 }
 
