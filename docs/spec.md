@@ -2008,7 +2008,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   in the opposite corner. When the torrent arrows share that corner THEY keep it,
   nudged 0.6pt further left, and the dot steps to their right: moving the arrows
   inward instead put them under the star's rays, where they stop reading as
-  arrows. One value (`VPNMark`), not two flags, so "up AND stalled" cannot be
+  arrows. The dot stands on the arrows' right edge and overlaps it by 1.6pt: a
+  fixed 6.5pt step sat on the star's lower-left ray, and the dot over the arrows
+  reads better than the dot over the star (Anton, 2026-09-15). One value (`VPNMark`), not two flags, so "up AND stalled" cannot be
   expressed; in monochrome the stalled one becomes a ring at the same outer size,
   since there is no colour left to carry the difference.
   It can be switched off (`vpnMenuBarMark`, VPN settings,

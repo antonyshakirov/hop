@@ -165,13 +165,11 @@ enum MenuBarIcon {
         // Green like the running-time wedges — the same "something of yours is
         // live" family, and the corner is otherwise almost always empty.
         if let vpn = c.vpn {
-            // The mirror of the awake dot above it — except when the torrent
-            // arrows share this corner. Then the ARROWS keep it (nudged a
-            // little further left) and the dot steps to their right: moving the
-            // arrows inward instead put them under the star's rays, where they
-            // read as part of the glyph rather than as two arrows.
+            // SPEC: docs/spec.md — "Menu-bar light", the dot beside the torrent arrows.
             var box = dotBox(-1, -1)
-            if c.torrent != nil { box.origin.x += 6.5 }
+            if let torrent = c.torrent {
+                box.origin.x = torrentRightEdge(torrent, shift: torrentShiftBesideVPN) - 1.6
+            }
             drawVPNDot(vpn, box: box, colored: c.colored, glyph: glyph)
         }
 
@@ -235,7 +233,7 @@ enum MenuBarIcon {
         // themes), the one bottom badge that is not green.
         if let torrent = c.torrent {
             // pushed a touch further into the corner when the VPN dot joins them
-            drawTorrent(torrent, glyph: glyph, shift: c.vpn != nil ? -0.6 : 0)
+            drawTorrent(torrent, glyph: glyph, shift: c.vpn != nil ? torrentShiftBesideVPN : 0)
         }
     }
 
@@ -357,6 +355,16 @@ enum MenuBarIcon {
 
     /// Torrent arrows in the bottom-left: ↓ downloading, ↑ seeding, both side by
     /// side when both are happening. Unified thin stroke, the star's glyph colour.
+    private static let torrentShiftBesideVPN: CGFloat = -0.6
+
+    /// Where the arrows' ink ends on the right, stroke included.
+    private static func torrentRightEdge(_ dir: TorrentArrows, shift: CGFloat) -> CGFloat {
+        switch dir {
+        case .down, .up: return 3.0 + shift + 1.7 * 0.75 + stroke / 2
+        case .both: return 5.0 + shift + 1.4 * 0.75 + stroke / 2
+        }
+    }
+
     private static func drawTorrent(_ dir: TorrentArrows, glyph: NSColor, shift: CGFloat = 0) {
         switch dir {
         case .down: drawArrow(down: true, cx: 3.0 + shift, glyph: glyph, full: true)
