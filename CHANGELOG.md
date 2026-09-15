@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-- Torrents recover on their own after the Mac changes networks. A download could
-  sit at zero speed with no peers until it was removed and added back; Hop now
-  notices and restarts the engine for you. The engine is updated to a newer
+- Torrents recover on their own after a long sleep or a change of network. A
+  download could sit at zero speed with no peers until it was removed and added
+  back; Hop now notices and restarts the engine for you. The engine is updated to a newer
   version on first use, which reaches trackers that turned the old one away. While
   a torrent re-checks its files after a start, its row says so instead of
   counting the checked bytes as downloaded.
@@ -46,6 +46,9 @@
   converter arrives as one item. It used to be opened like a folder and fill the
   list with its insides, and one sitting inside a dropped folder went missing.
   A large folder no longer freezes the window while it is read.
+- A web page that the Mac runs out of memory on fails in the converter with a
+  message instead of spinning for ever, and a page too long to picture is
+  refused rather than growing until the Mac starts swapping.
 - The quality number beside a converter dial can be typed. Drag the dial for a
   rough setting or click the figure and enter the exact one; Escape puts back
   what was there. Thanks to Roman Timchenko for both.

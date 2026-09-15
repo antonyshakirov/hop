@@ -3526,14 +3526,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 ### Torrent engine: version floor and stall recovery (2.1.0)
 
 Found on 2026-09-14 from a Korean home network: a torrent that had been
-downloading sat at zero speed and zero peers after the Mac moved networks, and
-came back the moment it was removed and added again.
+downloading sat at zero speed and zero peers after the lid had been closed for
+eight hours, and came back the moment it was removed and added again.
 
 - **Why.** rqbit 8.1.1 announces to HTTP trackers with no User-Agent, and
   trackers behind Cloudflare (Rutracker's `bt*.t-ru.org`) answer that with 403, so
-  such torrents found peers through DHT alone. A long-running engine whose DHT
-  stopped finding peers after the network change had nothing else to fall back
-  on. Removing the last torrent stops the engine and adding it back starts a
+  such torrents found peers through DHT alone. And rqbit's DHT does not survive a
+  long sleep: its clock stops while the Mac sleeps, so the nodes that answered
+  before still count as good, lookups keep asking the same eight of them without
+  marking the silence, and the routing table is seeded from the bootstrap routers
+  only when the process starts. A network change empties the table the same way.
+  With every node gone the engine had nothing else to fall back on. Removing the last torrent stops the engine and adding it back starts a
   fresh one, which is why that "fixed" it. rqbit 9.0.1 sends `rqbit 9.0.1` as its
   User-Agent; the CLI flags, API endpoints, JSON fields and session persistence
   Hop uses are unchanged (checked against the 9.0.1 source and a live 9.0.1
