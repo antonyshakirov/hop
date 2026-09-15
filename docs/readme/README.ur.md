@@ -21,7 +21,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · **اردو** · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop کا پینل – ڈاٹ میٹرکس ڈسپلے والا مینو بار ٹائمر، تیار اوقات اور کام اور آرام کے سائیکل">
+<img src="https://hop.tools/screens/ur/overview.webp" width="360" alt="Hop کا پینل – ڈاٹ میٹرکس ڈسپلے والا مینو بار ٹائمر، تیار اوقات اور کام اور آرام کے سائیکل">
 
 </div>
 
@@ -64,7 +64,7 @@
 تک آپ ٹائمر صفر نہ کریں۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – ٹائمر اور سائیکل">
+<img src="https://hop.tools/screens/ur/timer.webp" width="420" alt="Hop – ٹائمر اور سائیکل">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -99,7 +99,7 @@
 [docs/automation.md](../automation.md) میں۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – وقت کا حساب اور کام">
+<img src="https://hop.tools/screens/ur/tracker.webp" width="420" alt="Hop – وقت کا حساب اور کام">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
@@ -111,7 +111,7 @@
 اور بیرونی ڈسپلے کے لیے کام کی چیز)۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – بیداری">
+<img src="https://hop.tools/screens/ur/awake.webp" width="420" alt="Hop – بیداری">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -125,7 +125,7 @@
 میموری ڈسک پر جا چکی ہو، صرف تب نہیں جب خود macOS کمی کی اطلاع دے۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – سسٹم مانیٹر">
+<img src="https://hop.tools/screens/ur/system.webp" width="420" alt="Hop – سسٹم مانیٹر">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -138,7 +138,7 @@
 اصل فائل واپس آتی ہے۔ پاس ورڈ اور دوسرا چھپایا گیا اندراج کبھی محفوظ نہیں ہوتا۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – کلپ بورڈ کی تاریخ">
+<img src="https://hop.tools/screens/ur/clipboard.webp" width="420" alt="Hop – کلپ بورڈ کی تاریخ">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -163,7 +163,7 @@ youtube – اور فریم، ریزولیوشن اور دباؤ اس حساب �
 docx، Markdown، RTF یا سادہ متن بن کر نکلتا ہے۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – فائل کنورٹر">
+<img src="https://hop.tools/screens/ur/converter.webp" width="480" alt="Hop – فائل کنورٹر">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -174,7 +174,7 @@ docx، Markdown، RTF یا سادہ متن بن کر نکلتا ہے۔
 جمائیں – کسی اضافی ایپ کی ضرورت نہیں۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – ونڈو منیجر">
+<img src="https://hop.tools/screens/ur/windows.webp" width="420" alt="Hop – ونڈو منیجر">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -190,7 +190,7 @@ Hop سے بات کرتا ہے۔ Hop کو ‎.torrent فائلوں اور magnet 
 بنایا جا سکتا ہے۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop میں ٹورنٹ – مینو بار پینل میں ہلکا BitTorrent کلائنٹ">
+<img src="https://hop.tools/screens/ur/torrents.webp" width="420" alt="Hop میں ٹورنٹ – مینو بار پینل میں ہلکا BitTorrent کلائنٹ">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -214,7 +214,7 @@ zip، rar، 7z، tar، tar.gz، tar.bz2، tar.xz اور gz سب شامل ہیں�
 نظر میں پڑھا جاتا ہے۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – آرکائیو">
+<img src="https://hop.tools/screens/ur/archives.webp" width="480" alt="Hop – آرکائیو">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -237,7 +237,7 @@ zip، rar، 7z، tar، tar.gz، tar.bz2، tar.xz اور gz سب شامل ہیں�
 لوٹاتا ہے اور بس۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – رنگ چننے والا">
+<img src="https://hop.tools/screens/ur/colors.webp" width="420" alt="Hop – رنگ چننے والا">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -255,7 +255,7 @@ Vision کرتا ہے، مکمل طور پر اسی Mac پر۔
 اعتبار اندراج ہے، اس لیے فون نمبر، Wi-Fi پاس ورڈ یا رابطہ کارڈ سادہ متن ہی رہتا ہے۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – متن کی شناخت">
+<img src="https://hop.tools/screens/ur/recognition.webp" width="480" alt="Hop – متن کی شناخت">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -276,7 +276,7 @@ Vision کرتا ہے، مکمل طور پر اسی Mac پر۔
 تصویر کی صورت۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – اسکرین شاٹ ایڈیٹر">
+<img src="https://hop.tools/screens/ur/shot.webp" width="480" alt="Hop – اسکرین شاٹ ایڈیٹر">
 </div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
@@ -295,7 +295,7 @@ Vision کرتا ہے، مکمل طور پر اسی Mac پر۔
 گئی ونڈو کو صرف macOS خود جوڑتا ہے اور کوئی تہہ اس میں شامل نہیں ہو سکتی۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – اسکرین پر بنانا">
+<img src="https://hop.tools/screens/ur/annotate.webp" width="480" alt="Hop – اسکرین پر بنانا">
 </div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
@@ -310,7 +310,7 @@ Vision کرتا ہے، مکمل طور پر اسی Mac پر۔
 ہارڈ ویئر میں ہوتا ہے۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – کی بورڈ لاک">
+<img src="https://hop.tools/screens/ur/keyboard.webp" width="480" alt="Hop – کی بورڈ لاک">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -321,7 +321,7 @@ Vision کرتا ہے، مکمل طور پر اسی Mac پر۔
 ڈاؤن لوڈ، اپ لوڈ اور ردِعمل، اور آخری نتیجہ قطار میں محفوظ رہتا ہے۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – رفتار کی جانچ">
+<img src="https://hop.tools/screens/ur/speed.webp" width="420" alt="Hop – رفتار کی جانچ">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -341,7 +341,7 @@ Vision کرتا ہے، مکمل طور پر اسی Mac پر۔
 ترتیبات کی ایک ہی ونڈو میں۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – ترتیبات">
+<img src="https://hop.tools/screens/ur/settings.webp" width="480" alt="Hop – ترتیبات">
 </div>
 
 ### وی پی این سوئچ
@@ -370,7 +370,7 @@ Vision کرتا ہے، مکمل طور پر اسی Mac پر۔
 رہتے ہیں۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – VPN سوئچ">
+<img src="https://hop.tools/screens/ur/vpn.webp" width="420" alt="Hop – VPN سوئچ">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -392,7 +392,7 @@ Vision کرتا ہے، مکمل طور پر اسی Mac پر۔
 اور بھرنے تک یہی بتاتی ہے۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – ایپس کی گرڈ">
+<img src="https://hop.tools/screens/ur/apps.webp" width="420" alt="Hop – ایپس کی گرڈ">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -411,7 +411,7 @@ launch agents، پلگ اِن، تنصیب کی رسیدیں اور باقی س�
 بلکہ وجہ سمیت درج ہوتا ہے۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – ایپ کو اس کی چھوڑی ہر چیز سمیت ہٹانا">
+<img src="https://hop.tools/screens/ur/uninstall.webp" width="480" alt="Hop – ایپ کو اس کی چھوڑی ہر چیز سمیت ہٹانا">
 </div>
 
 یہی ماڈیول کچھ ہٹائے بغیر صفائی بھی کرتا ہے: کیش رکھنے والی ہر ایپ، بڑی پہلے؛ ڈاؤن لوڈز،
@@ -422,7 +422,7 @@ launch agents، پلگ اِن، تنصیب کی رسیدیں اور باقی س�
 جانتی ہے۔
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – کیش، انسٹالر، باقیات اور ردی کی ٹوکری کی صفائی">
+<img src="https://hop.tools/screens/ur/clean.webp" width="480" alt="Hop – کیش، انسٹالر، باقیات اور ردی کی ٹوکری کی صفائی">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)

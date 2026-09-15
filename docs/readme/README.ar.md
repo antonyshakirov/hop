@@ -21,7 +21,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · **العربية** · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="لوحة Hop – مؤقّت في شريط القوائم بشاشة مصفوفة نقطية وأوقات جاهزة ودورات عمل وراحة">
+<img src="https://hop.tools/screens/ar/overview.webp" width="360" alt="لوحة Hop – مؤقّت في شريط القوائم بشاشة مصفوفة نقطية وأوقات جاهزة ودورات عمل وراحة">
 
 </div>
 
@@ -62,7 +62,7 @@ caffeinate، ومراقب للنظام، ومدير للحافظة، ومحوّ�
 ينتهي العدّ يصدر صوتًا واحدًا، وتنبض الأرقام إلى أن تعيد ضبط المؤقّت.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – المؤقّت والدورات">
+<img src="https://hop.tools/screens/ar/timer.webp" width="420" alt="Hop – المؤقّت والدورات">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -94,7 +94,7 @@ caffeinate، ومراقب للنظام، ومدير للحافظة، ومحوّ�
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – متتبّع الوقت والمهام">
+<img src="https://hop.tools/screens/ar/tracker.webp" width="420" alt="Hop – متتبّع الوقت والمهام">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
@@ -106,7 +106,7 @@ caffeinate، ومراقب للنظام، ومدير للحافظة، ومحوّ�
 للتنزيلات وعمليات البناء الطويلة والشاشات الخارجية).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – اليقظة">
+<img src="https://hop.tools/screens/ar/awake.webp" width="420" alt="Hop – اليقظة">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -120,7 +120,7 @@ caffeinate، ومراقب للنظام، ومدير للحافظة، ومحوّ�
 القرص، وليس فقط عندما يعلن macOS نفسه أنها لا تكفي.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – مراقب النظام">
+<img src="https://hop.tools/screens/ar/system.webp" width="420" alt="Hop – مراقب النظام">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -133,7 +133,7 @@ caffeinate، ومراقب للنظام، ومدير للحافظة، ومحوّ�
 المدخلات المخفية لا تُحفظ أبدًا.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – سجل الحافظة">
+<img src="https://hop.tools/screens/ar/clipboard.webp" width="420" alt="Hop – سجل الحافظة">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -158,7 +158,7 @@ caffeinate، ومراقب للنظام، ومدير للحافظة، ومحوّ�
 docx أو Markdown أو RTF أو نص عادي.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – محوّل الملفات">
+<img src="https://hop.tools/screens/ar/converter.webp" width="480" alt="Hop – محوّل الملفات">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -169,7 +169,7 @@ docx أو Markdown أو RTF أو نص عادي.
 ⌃⌥ – دون الحاجة إلى تطبيق إضافي.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – مدير النوافذ">
+<img src="https://hop.tools/screens/ar/windows.webp" width="420" alt="Hop – مدير النوافذ">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -184,7 +184,7 @@ docx أو Markdown أو RTF أو نص عادي.
 لملفات ‎.torrent وروابط magnet.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="التورنت في Hop – عميل BitTorrent خفيف في لوحة شريط القوائم">
+<img src="https://hop.tools/screens/ar/torrents.webp" width="420" alt="التورنت في Hop – عميل BitTorrent خفيف في لوحة شريط القوائم">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -207,7 +207,7 @@ docx أو Markdown أو RTF أو نص عادي.
 مليئًا بها من نظرة.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – الأرشيفات">
+<img src="https://hop.tools/screens/ar/archives.webp" width="480" alt="Hop – الأرشيفات">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -229,7 +229,7 @@ docx أو Markdown أو RTF أو نص عادي.
 إذن تسجيل الشاشة: العدسة تعيد لونًا واحدًا ولا شيء غيره.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – منتقي الألوان">
+<img src="https://hop.tools/screens/ar/colors.webp" width="420" alt="Hop – منتقي الألوان">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -247,7 +247,7 @@ docx أو Markdown أو RTF أو نص عادي.
 الاتصال نصًّا عاديًا.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – التعرّف على النص">
+<img src="https://hop.tools/screens/ar/recognition.webp" width="480" alt="Hop – التعرّف على النص">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -266,7 +266,7 @@ docx أو Markdown أو RTF أو نص عادي.
 وظل، وشريط نافذة متصفح – وعلامتك المائية الخاصة، نصًّا أو صورة.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – محرّر لقطات الشاشة">
+<img src="https://hop.tools/screens/ar/shot.webp" width="480" alt="Hop – محرّر لقطات الشاشة">
 </div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
@@ -285,7 +285,7 @@ docx أو Markdown أو RTF أو نص عادي.
 وحده ولا يمكن لأي طبقة أن تنضم إليها.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – الرسم على الشاشة">
+<img src="https://hop.tools/screens/ar/annotate.webp" width="480" alt="Hop – الرسم على الشاشة">
 </div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
@@ -300,7 +300,7 @@ docx أو Markdown أو RTF أو نص عادي.
 ذلك يتم على مستوى العتاد.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – قفل لوحة المفاتيح">
+<img src="https://hop.tools/screens/ar/keyboard.webp" width="480" alt="Hop – قفل لوحة المفاتيح">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -311,7 +311,7 @@ docx أو Markdown أو RTF أو نص عادي.
 – التنزيل والرفع والاستجابة، مع بقاء آخر نتيجة في السطر.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – اختبار السرعة">
+<img src="https://hop.tools/screens/ar/speed.webp" width="420" alt="Hop – اختبار السرعة">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -329,7 +329,7 @@ VPN متصلًا (برتقالية إن توقف عن تمرير أي شيء)، 
 ووضع آمن يُخرج التطبيق من حلقة الأعطال المتكررة – وكل ذلك في نافذة إعدادات واحدة.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – الإعدادات">
+<img src="https://hop.tools/screens/ar/settings.webp" width="480" alt="Hop – الإعدادات">
 </div>
 
 ### مفاتيح VPN
@@ -354,7 +354,7 @@ VPN متصلًا (برتقالية إن توقف عن تمرير أي شيء)، 
 يمكن إطفاء النقطة من الإعدادات – وتواصل الوحدة ومفاتيحها العمل من دونها.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – مفاتيح VPN">
+<img src="https://hop.tools/screens/ar/vpn.webp" width="420" alt="Hop – مفاتيح VPN">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -375,7 +375,7 @@ VPN متصلًا (برتقالية إن توقف عن تمرير أي شيء)، 
 وتقول ذلك إلى أن تملأها.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – شبكة التطبيقات">
+<img src="https://hop.tools/screens/ar/apps.webp" width="420" alt="Hop – شبكة التطبيقات">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -393,7 +393,7 @@ VPN متصلًا (برتقالية إن توقف عن تمرير أي شيء)، 
 يرفض macOS تسليمه يُذكر مع السبب بدل أن يُتخطّى بصمت.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – إزالة تطبيق مع كل ما تركه خلفه">
+<img src="https://hop.tools/screens/ar/uninstall.webp" width="480" alt="Hop – إزالة تطبيق مع كل ما تركه خلفه">
 </div>
 
 والوحدة نفسها تنظّف دون إزالة أي شيء: كل تطبيق يحتفظ بذاكرة مؤقتة، الأكبر أولًا؛
@@ -404,7 +404,7 @@ VPN متصلًا (برتقالية إن توقف عن تمرير أي شيء)، 
 النصفين يمكن التخلص منه.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – تنظيف الذاكرة المؤقتة وملفات التثبيت والبقايا وسلة المهملات">
+<img src="https://hop.tools/screens/ar/clean.webp" width="480" alt="Hop – تنظيف الذاكرة المؤقتة وملفات التثبيت والبقايا وسلة المهملات">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)

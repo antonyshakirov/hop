@@ -5572,9 +5572,9 @@ its own database of known apps may do better on real software than it did here.
   showed that it also keeps a link, a file and a piece of text (Anton,
   2026-07-30).
 - `scripts/make-screens.sh [out-dir] [lang …]` renders the WHOLE product set —
-  every README and product-page image, for the eight languages with their own
-  folder — into the website repo by default. Every other README points at the
-  English folder. The recipes used to live nowhere and each shot was taken by
+  every README and product-page image, for every `AppLanguage` — into the
+  website repo by default. Each README loads the shots in its own language from
+  `hop.tools/screens/<lang>/`, the same files the site shows. The recipes used to live nowhere and each shot was taken by
   hand, so the set drifted out of date module by module and a section about the
   timer carried a picture of the entire app (Anton, 2026-07-28). A section that
   describes one module gets a shot of that module: `--only`. Sample files for

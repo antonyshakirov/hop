@@ -22,7 +22,7 @@ Tek tık – ihtiyacınız olan her şey elinizin altında.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · **Türkçe** · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop paneli – nokta matrisli ekran, hazır ayarlar ve çalışma-mola döngüleriyle menü çubuğu zamanlayıcısı">
+<img src="https://hop.tools/screens/tr/overview.webp" width="360" alt="Hop paneli – nokta matrisli ekran, hazır ayarlar ve çalışma-mola döngüleriyle menü çubuğu zamanlayıcısı">
 
 </div>
 
@@ -65,7 +65,7 @@ saklayan bir cep ve medyanızı da duraklatabilen bitiş uyarısı. Geri sayım
 bitince tek bir ses çalar ve sıfırlayana kadar rakamlar yanıp söner.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – Zamanlayıcı ve döngüler">
+<img src="https://hop.tools/screens/tr/timer.webp" width="420" alt="Hop – Zamanlayıcı ve döngüler">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -100,7 +100,7 @@ başlatabilir, hatırlatmalı bir görev ekleyebilir veya neyin çalıştığın
 okuyabilir. Bkz. [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – Zaman takibi ve görevler">
+<img src="https://hop.tools/screens/tr/tracker.webp" width="420" alt="Hop – Zaman takibi ve görevler">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
@@ -112,7 +112,7 @@ yok. İsterseniz ekranı açık tutun ya da kapak kapalıyken çalışmaya devam
 edin (indirmeler, uzun derlemeler ve harici ekranlar için birebir).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – Uyku engelleme">
+<img src="https://hop.tools/screens/tr/awake.webp" width="420" alt="Hop – Uyku engelleme">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -126,7 +126,7 @@ yalnızca sekme açıkken güncellenir. Bellek satırı, yalnızca macOS sıkı�
 bildirdiğinde değil, belleğin çoğu diske indiğinde de uyarır.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – Sistem monitörü">
+<img src="https://hop.tools/screens/tr/system.webp" width="420" alt="Hop – Sistem monitörü">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -140,7 +140,7 @@ ve yapıştırınca dosyanın kendisi geri gelir. Parolalar ve diğer gizli
 girişler asla saklanmaz.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – Pano geçmişi">
+<img src="https://hop.tools/screens/tr/clipboard.webp" width="420" alt="Hop – Pano geçmişi">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -165,7 +165,7 @@ Web sayfaları da dönüşüyor: bir adres yapıştır ya da kayıtlı bir sayfa
 PDF, docx, Markdown, RTF veya düz metin olarak çıksın.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – Dosya dönüştürücü">
+<img src="https://hop.tools/screens/tr/converter.webp" width="480" alt="Hop – Dosya dönüştürücü">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -177,7 +177,7 @@ bölge simgesine tek tık ya da ⌃⌥ kısayolu yeter; ek bir uygulamaya gerek
 yok.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – Pencere yöneticisi">
+<img src="https://hop.tools/screens/tr/windows.webp" width="420" alt="Hop – Pencere yöneticisi">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -195,7 +195,7 @@ doğrulanmış) olarak alınır. Hop ayrıca .torrent dosyaları ve magnet
 bağlantıları için varsayılan uygulama olabilir.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop torrentleri – menü çubuğu panelinde hafif BitTorrent istemcisi">
+<img src="https://hop.tools/screens/tr/torrents.webp" width="420" alt="Hop torrentleri – menü çubuğu panelinde hafif BitTorrent istemcisi">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -214,7 +214,7 @@ uygulamalardan geri alabilir; zip, 7z ve yerel biçimler Arşiv Yardımcısı'nd
 Modül gizliyken de çalışır ve kart gerçek durumu gösterir, böylece Finder'ın çoktan başka bir uygulamaya verdiği bir varsayılanı asla sahiplenmez. Finder'da bir arşive çift tıklamak onu dosyanın hemen yanında açar, kendi küçük ilerleme penceresinde, ve başarısız bir iş arkasında gizli hiçbir şey bırakmaz. Hop'un açtığı dosyalar üzerinde biçimi yazan kendi simgesini taşır, böylece bir klasör bir bakışta okunur.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – Dosya arşivleri">
+<img src="https://hop.tools/screens/tr/archives.webp" width="480" alt="Hop – Dosya arşivleri">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -237,7 +237,7 @@ görüneceği ayarlardadır, ekran kaydı izni de gerekmez: büyüteç tek bir r
 döndürür, başka hiçbir şey değil.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – Renk damlalığı">
+<img src="https://hop.tools/screens/tr/colors.webp" width="420" alt="Hop – Renk damlalığı">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -255,7 +255,7 @@ adresleri: taranan kod dışarıdan gelen bir girdidir, bu yüzden telefon
 numarası, Wi-Fi parolası ya da kartvizit düz metin olarak kalır.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – Metin tanıma">
+<img src="https://hop.tools/screens/tr/recognition.webp" width="480" alt="Hop – Metin tanıma">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -269,7 +269,7 @@ Bir alanı çerçeveleyin, imlecin altındaki pencereyi ya da tüm ekranı alın
 Aynı alan tek tuşla yeniden alınır; aynı ekrandan bir dizi görüntü tam da bunu ister. Görüntü bir sayfa için giydirilebilir: arka plan, çevresinde boşluk, yuvarlak köşeler, gölge, tarayıcı çerçevesi ve metin ya da görsel olarak kendi filigranınız.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – Ekran görüntüsü düzenleyici">
+<img src="https://hop.tools/screens/tr/shot.webp" width="480" alt="Hop – Ekran görüntüsü düzenleyici">
 </div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
@@ -281,7 +281,7 @@ Görüşme, kayıt veya inceleme sırasında doğrudan ekrana çizin: kalem, alt
 Tek bir anahtar tıklamaları alttaki uygulamalara geri verirken işaretler ekranda kalır, böylece notlarınız gözünüzün önündeyken çalışmaya devam edersiniz. «Kaydet» ve «kopyala» ekranı çizimle birlikte alır. Tüm ekranı paylaştığınızda karşı taraf işaretleri görür; tek bir paylaşılan pencereyi macOS kendi başına birleştirir ve hiçbir katman ona katılamaz.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – Ekranın üzerine çizme">
+<img src="https://hop.tools/screens/tr/annotate.webp" width="480" alt="Hop – Ekranın üzerine çizme">
 </div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
@@ -296,7 +296,7 @@ tutmak. Güç tuşuna kısa basış da yutulur; basılı tutmak Mac'i yine de
 kapatır, çünkü onu donanım yapar.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – Klavye kilidi">
+<img src="https://hop.tools/screens/tr/keyboard.webp" width="480" alt="Hop – Klavye kilidi">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -306,7 +306,7 @@ kapatır, çünkü onu donanım yapar.
 Tek dokunuş, bağlantıyı macOS'un kendi networkQuality'siyle Apple sunucularına karşı ölçer – indirme, yükleme ve yanıt süresi; son sonuç satırda kalır.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – Hız testi">
+<img src="https://hop.tools/screens/tr/speed.webp" width="420" alt="Hop – Hız testi">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -324,7 +324,7 @@ de gider.
 Film grenli dokuya sahip koyu ve açık temalar, genel kısayollar, oturum açılışında başlatma ve uygulamayı çökme döngüsünden çıkaran bir güvenli mod – hepsi tek bir ayarlar penceresinde.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – Ayarlar">
+<img src="https://hop.tools/screens/tr/settings.webp" width="480" alt="Hop – Ayarlar">
 </div>
 
 ### VPN
@@ -353,7 +353,7 @@ daha kötüdür.
 Nokta ayarlardan kapatılabilir; modül de anahtarları da onsuz çalışmaya devam eder.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – VPN anahtarları">
+<img src="https://hop.tools/screens/tr/vpn.webp" width="420" alt="Hop – VPN anahtarları">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -375,7 +375,7 @@ tablosunun kendisinde, oradaki etiketin ✕ işareti bir ızgarayı temelli sile
 Yeni bir ızgara boş başlar ve siz doldurana kadar bunu söyler.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – Uygulama ızgarası">
+<img src="https://hop.tools/screens/tr/apps.webp" width="420" alt="Hop – Uygulama ızgarası">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -387,13 +387,13 @@ Bir uygulamayı satırın üstüne bırakın ya da kurulu olan her şeyin listes
 Hiçbir şey silinmez. Her şey çöp kutusuna gider, yani bir hata bir dosyaya değil bir geri almaya mal olur; macOS'un vermediği şeyler sessizce atlanmaz, nedeniyle birlikte söylenir.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – Bir uygulamayı bıraktığı her şeyle kaldırma">
+<img src="https://hop.tools/screens/tr/uninstall.webp" width="480" alt="Hop – Bir uygulamayı bıraktığı her şeyle kaldırma">
 </div>
 
 Aynı modül hiçbir şeyi kaldırmadan toparlar da: önbellek tutan her uygulama, büyükler önce; İndirilenler'de, Masaüstü'nde ve Belgeler'de kalan kurulum dosyaları; yıllar önce silinmiş uygulamaların verileri; ve boyutuyla birlikte çöp kutusu. Tek kutucuk koca bir bölümü alır. Bilerek dokunmadığı şeyler de listelenir – önbellekle verinin aynı klasörde durduğu bir container, bir mesajlaşma uygulamasının yirmi gigabaytı gibi: hangi yarısının atılabileceğini yalnızca o uygulama bilir.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – Önbellek, kurulum dosyaları, artıklar ve çöp kutusu">
+<img src="https://hop.tools/screens/tr/clean.webp" width="480" alt="Hop – Önbellek, kurulum dosyaları, artıklar ve çöp kutusu">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)

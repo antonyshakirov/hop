@@ -21,7 +21,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · **עברית** · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="הפאנל של Hop – טיימר בשורת התפריטים עם תצוגת מטריצת נקודות, זמנים מוכנים ומחזורי עבודה ומנוחה">
+<img src="https://hop.tools/screens/he/overview.webp" width="360" alt="הפאנל של Hop – טיימר בשורת התפריטים עם תצוגת מטריצת נקודות, זמנים מוכנים ומחזורי עבודה ומנוחה">
 
 </div>
 
@@ -62,7 +62,7 @@
 אחד, והספרות מהבהבות עד שמאפסים את הטיימר.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – טיימר ומחזורים">
+<img src="https://hop.tools/screens/he/timer.webp" width="420" alt="Hop – טיימר ומחזורים">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -93,7 +93,7 @@
 ב-[docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – מעקב זמן ומשימות">
+<img src="https://hop.tools/screens/he/tracker.webp" width="420" alt="Hop – מעקב זמן ומשימות">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
@@ -105,7 +105,7 @@
 לבניות ארוכות ולמסכים חיצוניים).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – ערנות">
+<img src="https://hop.tools/screens/he/awake.webp" width="420" alt="Hop – ערנות">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -119,7 +119,7 @@
 כש-macOS עצמו מדווח על מחסור.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – מוניטור מערכת">
+<img src="https://hop.tools/screens/he/system.webp" width="420" alt="Hop – מוניטור מערכת">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -132,7 +132,7 @@
 סיסמאות וקלט מוסתר אחר לעולם לא נשמרים.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – היסטוריית לוח ההעתקה">
+<img src="https://hop.tools/screens/he/clipboard.webp" width="420" alt="Hop – היסטוריית לוח ההעתקה">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -155,7 +155,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 ‏docx, Markdown, ‏RTF או טקסט פשוט.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – ממיר קבצים">
+<img src="https://hop.tools/screens/he/converter.webp" width="480" alt="Hop – ממיר קבצים">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -166,7 +166,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 ‏⌃⌥ – בלי אפליקציה נוספת.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – מנהל חלונות">
+<img src="https://hop.tools/screens/he/windows.webp" width="420" alt="Hop – מנהל חלונות">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -181,7 +181,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 לקובצי ‎.torrent ולקישורי magnet.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="טורנטים ב-Hop – לקוח BitTorrent קל בפאנל שבשורת התפריטים">
+<img src="https://hop.tools/screens/he/torrents.webp" width="420" alt="טורנטים ב-Hop – לקוח BitTorrent קל בפאנל שבשורת התפריטים">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -203,7 +203,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 נושאים את הסמל שלו עם שם הפורמט כתוב עליו, כך שתיקייה מלאה בהם מובנת במבט.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – ארכיונים">
+<img src="https://hop.tools/screens/he/archives.webp" width="480" alt="Hop – ארכיונים">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -225,7 +225,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 בהגדרות, ולא נדרשת הרשאת הקלטת מסך: הזכוכית המגדלת מחזירה צבע אחד ותו לא.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – בוחר צבעים">
+<img src="https://hop.tools/screens/he/colors.webp" width="420" alt="Hop – בוחר צבעים">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -243,7 +243,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 פשוט.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – זיהוי טקסט">
+<img src="https://hop.tools/screens/he/recognition.webp" width="480" alt="Hop – זיהוי טקסט">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -262,7 +262,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 מעוגלות, צל, סרגל של חלון דפדפן – וסימן מים משלכם, כטקסט או כתמונה.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – עורך צילומי מסך">
+<img src="https://hop.tools/screens/he/shot.webp" width="480" alt="Hop – עורך צילומי מסך">
 </div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
@@ -281,7 +281,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 בודד ששותף מורכב על ידי macOS לבדו, ושום שכבה לא יכולה להצטרף אליו.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – ציור על המסך">
+<img src="https://hop.tools/screens/he/annotate.webp" width="480" alt="Hop – ציור על המסך">
 </div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
@@ -296,7 +296,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 בחומרה.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – נעילת מקלדת">
+<img src="https://hop.tools/screens/he/keyboard.webp" width="480" alt="Hop – נעילת מקלדת">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -307,7 +307,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 השרתים של Apple – הורדה, העלאה והיענות, והתוצאה האחרונה נשמרת בשורה.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – בדיקת מהירות">
+<img src="https://hop.tools/screens/he/speed.webp" width="420" alt="Hop – בדיקת מהירות">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -327,7 +327,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 הגדרות אחד.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – הגדרות">
+<img src="https://hop.tools/screens/he/settings.webp" width="480" alt="Hop – הגדרות">
 </div>
 
 ### מתגי VPN
@@ -354,7 +354,7 @@ HEIC, AVIF ו-WebP; דחיסת PDF; כיווץ וידאו ל-HEVC עם הערכ�
 את הנקודה אפשר לכבות בהגדרות – המודול והמתגים שלו ממשיכים לעבוד גם בלעדיה.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – מתגי VPN">
+<img src="https://hop.tools/screens/he/vpn.webp" width="420" alt="Hop – מתגי VPN">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -376,7 +376,7 @@ Applications. לחצו + ובחרו אותן, או גררו אותן מ-Finder; 
 ריקה ואומרת זאת עד שממלאים אותה.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – רשת אפליקציות">
+<img src="https://hop.tools/screens/he/apps.webp" width="420" alt="Hop – רשת אפליקציות">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -393,7 +393,7 @@ Applications. לחצו + ובחרו אותן, או גררו אותן מ-Finder; 
 מסרב למסור מצוין בשמו יחד עם הסיבה במקום להידלג בשקט.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – הסרת אפליקציה עם כל מה שהשאירה אחריה">
+<img src="https://hop.tools/screens/he/uninstall.webp" width="480" alt="Hop – הסרת אפליקציה עם כל מה שהשאירה אחריה">
 </div>
 
 אותו מודול גם מנקה בלי להסיר שום דבר: כל אפליקציה שמחזיקה מטמון, הגדולות
@@ -404,7 +404,7 @@ Applications. לחצו + ובחרו אותן, או גררו אותן מ-Finder; 
 האפליקציה עצמה יודע איזה חצי אפשר לזרוק.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – ניקוי מטמון, קובצי התקנה, שאריות והאשפה">
+<img src="https://hop.tools/screens/he/clean.webp" width="480" alt="Hop – ניקוי מטמון, קובצי התקנה, שאריות והאשפה">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)

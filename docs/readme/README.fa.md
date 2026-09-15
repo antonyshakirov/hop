@@ -21,7 +21,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · **فارسی** · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="پنل Hop – تایمر نوار منو با نمایشگر ماتریس نقطه‌ای، زمان‌های آماده و چرخه‌های کار و استراحت">
+<img src="https://hop.tools/screens/fa/overview.webp" width="360" alt="پنل Hop – تایمر نوار منو با نمایشگر ماتریس نقطه‌ای، زمان‌های آماده و چرخه‌های کار و استراحت">
 
 </div>
 
@@ -64,7 +64,7 @@ caffeinate، پایشگر سیستم، مدیر کلیپ‌بورد، مبدل �
 می‌شود و رقم‌ها تا وقتی تایمر را صفر نکنید می‌تپند.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – تایمر و چرخه‌ها">
+<img src="https://hop.tools/screens/fa/timer.webp" width="420" alt="Hop – تایمر و چرخه‌ها">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -99,7 +99,7 @@ Hop در حین اجرا تغییرات آن را می‌گیرد، پس یک ع
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – ردیاب زمان و کارها">
+<img src="https://hop.tools/screens/fa/tracker.webp" width="420" alt="Hop – ردیاب زمان و کارها">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
@@ -111,7 +111,7 @@ Hop در حین اجرا تغییرات آن را می‌گیرد، پس یک ع
 (به کار دانلودها، ساخت‌های طولانی و نمایشگرهای بیرونی می‌آید).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – بیداری">
+<img src="https://hop.tools/screens/fa/awake.webp" width="420" alt="Hop – بیداری">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -125,7 +125,7 @@ Hop در حین اجرا تغییرات آن را می‌گیرد، پس یک ع
 حافظه به دیسک رفته باشد هم هشدار می‌دهد، نه فقط وقتی خود macOS کمبود گزارش کند.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – پایشگر سیستم">
+<img src="https://hop.tools/screens/fa/system.webp" width="420" alt="Hop – پایشگر سیستم">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -139,7 +139,7 @@ Hop در حین اجرا تغییرات آن را می‌گیرد، پس یک ع
 نمی‌شوند.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – تاریخچهٔ کلیپ‌بورد">
+<img src="https://hop.tools/screens/fa/clipboard.webp" width="420" alt="Hop – تاریخچهٔ کلیپ‌بورد">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -165,7 +165,7 @@ PDF، یا به docx، xlsx و pptx.
 تا به شکل PDF، docx، Markdown، RTF یا متن ساده دربیاید.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – مبدل پرونده">
+<img src="https://hop.tools/screens/fa/converter.webp" width="480" alt="Hop – مبدل پرونده">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -176,7 +176,7 @@ PDF، یا به docx، xlsx و pptx.
 یک‌سوم‌ها و مرکز بچسبانید – بی‌نیاز از برنامهٔ اضافه.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – مدیر پنجره">
+<img src="https://hop.tools/screens/fa/windows.webp" width="420" alt="Hop – مدیر پنجره">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -192,7 +192,7 @@ PDF، یا به docx، xlsx و pptx.
 پیوندهای magnet شود.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="تورنت در Hop – کلاینت سبک BitTorrent در پنل نوار منو">
+<img src="https://hop.tools/screens/fa/torrents.webp" width="420" alt="تورنت در Hop – کلاینت سبک BitTorrent در پنل نوار منو">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -216,7 +216,7 @@ PDF، یا به docx، xlsx و pptx.
 که نام قالب رویش نوشته شده، پس پوشه‌ای پر از آن‌ها در یک نگاه خوانده می‌شود.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – بایگانی‌ها">
+<img src="https://hop.tools/screens/fa/archives.webp" width="480" alt="Hop – بایگانی‌ها">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -239,7 +239,7 @@ rgb و hsl را هر کدام در ستونی جدا دارد – روی یکی 
 برمی‌گرداند و بس.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – انتخابگر رنگ">
+<img src="https://hop.tools/screens/fa/colors.webp" width="420" alt="Hop – انتخابگر رنگ">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -258,7 +258,7 @@ rgb و hsl را هر کدام در ستونی جدا دارد – روی یکی 
 متن ساده می‌ماند.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – شناسایی متن">
+<img src="https://hop.tools/screens/fa/recognition.webp" width="480" alt="Hop – شناسایی متن">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -279,7 +279,7 @@ rgb و hsl را هر کدام در ستونی جدا دارد – روی یکی 
 متن یا تصویر.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – ویرایشگر عکس صفحه">
+<img src="https://hop.tools/screens/fa/shot.webp" width="480" alt="Hop – ویرایشگر عکس صفحه">
 </div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
@@ -299,7 +299,7 @@ rgb و hsl را هر کدام در ستونی جدا دارد – روی یکی 
 نمی‌تواند به آن بپیوندد.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – کشیدن روی صفحه">
+<img src="https://hop.tools/screens/fa/annotate.webp" width="480" alt="Hop – کشیدن روی صفحه">
 </div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
@@ -314,7 +314,7 @@ rgb و hsl را هر کدام در ستونی جدا دارد – روی یکی 
 سخت‌افزار انجام می‌شود.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – قفل صفحه‌کلید">
+<img src="https://hop.tools/screens/fa/keyboard.webp" width="480" alt="Hop – قفل صفحه‌کلید">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -325,7 +325,7 @@ rgb و hsl را هر کدام در ستونی جدا دارد – روی یکی 
 دانلود، آپلود و پاسخ‌دهی، و آخرین نتیجه در ردیف می‌ماند.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – آزمون سرعت">
+<img src="https://hop.tools/screens/fa/speed.webp" width="420" alt="Hop – آزمون سرعت">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -345,7 +345,7 @@ rgb و hsl را هر کدام در ستونی جدا دارد – روی یکی 
 تنظیمات.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – تنظیمات">
+<img src="https://hop.tools/screens/fa/settings.webp" width="480" alt="Hop – تنظیمات">
 </div>
 
 ### کلیدهای VPN
@@ -373,7 +373,7 @@ rgb و hsl را هر کدام در ستونی جدا دارد – روی یکی 
 نقطه را می‌توان در تنظیمات خاموش کرد – ماژول و کلیدهایش بدون آن هم کار می‌کنند.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – کلیدهای VPN">
+<img src="https://hop.tools/screens/fa/vpn.webp" width="420" alt="Hop – کلیدهای VPN">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -396,7 +396,7 @@ Applications. دکمهٔ + را بزنید و آن‌ها را انتخاب کن
 شروع می‌شود و تا پرش نکنید همین را می‌گوید.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – شبکهٔ برنامه‌ها">
+<img src="https://hop.tools/screens/fa/apps.webp" width="420" alt="Hop – شبکهٔ برنامه‌ها">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -415,7 +415,7 @@ Applications. دکمهٔ + را بزنید و آن‌ها را انتخاب کن
 بی‌صدا نادیده گرفته شود.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – حذف برنامه با هرچه از خود به جا گذاشته">
+<img src="https://hop.tools/screens/fa/uninstall.webp" width="480" alt="Hop – حذف برنامه با هرچه از خود به جا گذاشته">
 </div>
 
 همین ماژول بدون حذف چیزی پاک‌سازی هم می‌کند: هر برنامه‌ای که حافظهٔ موقت نگه داشته،
@@ -426,7 +426,7 @@ Applications. دکمهٔ + را بزنید و آن‌ها را انتخاب کن
 پاک‌سازی خود آن برنامه می‌داند کدام نیمه دورریختنی است.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – پاک‌سازی حافظهٔ موقت، نصب‌کننده‌ها، باقی‌مانده‌ها و سطل زباله">
+<img src="https://hop.tools/screens/fa/clean.webp" width="480" alt="Hop – پاک‌سازی حافظهٔ موقت، نصب‌کننده‌ها، باقی‌مانده‌ها و سطل زباله">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)

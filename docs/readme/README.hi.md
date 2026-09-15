@@ -21,7 +21,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · **हिन्दी** · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Hop पैनल – डॉट-मैट्रिक्स डिस्प्ले, प्रीसेट और काम-आराम चक्रों वाला मेनू बार टाइमर">
+<img src="https://hop.tools/screens/hi/overview.webp" width="360" alt="Hop पैनल – डॉट-मैट्रिक्स डिस्प्ले, प्रीसेट और काम-आराम चक्रों वाला मेनू बार टाइमर">
 
 </div>
 
@@ -62,7 +62,7 @@ Hop को Apple Developer ID से साइन किया गया है 
 आवाज़ बजती है और रीसेट करने तक अंक टिमटिमाते रहते हैं।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – टाइमर और चक्र">
+<img src="https://hop.tools/screens/hi/timer.webp" width="420" alt="Hop – टाइमर और चक्र">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -93,7 +93,7 @@ Hop को Apple Developer ID से साइन किया गया है 
 [docs/automation.md](../automation.md) देखें।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – टाइम ट्रैकर और कार्यसूची">
+<img src="https://hop.tools/screens/hi/tracker.webp" width="420" alt="Hop – टाइम ट्रैकर और कार्यसूची">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
@@ -105,7 +105,7 @@ Mac को 15 मिनट, 8 घंटे या हमेशा के लि�
 रखें (डाउनलोड, लंबे बिल्ड और बाहरी डिस्प्ले के लिए बेहद काम का)।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – नो स्लीप">
+<img src="https://hop.tools/screens/hi/awake.webp" width="420" alt="Hop – नो स्लीप">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -119,7 +119,7 @@ CPU और GPU का लोड व तापमान, मेमोरी औ�
 जब बहुत सी मेमोरी डिस्क पर चली गई हो, सिर्फ़ तब नहीं जब macOS खुद तंगी बताए।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – सिस्टम मॉनिटर">
+<img src="https://hop.tools/screens/hi/system.webp" width="420" alt="Hop – सिस्टम मॉनिटर">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -132,7 +132,7 @@ CPU और GPU का लोड व तापमान, मेमोरी औ�
 फ़ाइल खुद वापस आ जाती है। पासवर्ड और दूसरे छिपाए गए इनपुट कभी सेव नहीं होते।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – क्लिपबोर्ड हिस्ट्री">
+<img src="https://hop.tools/screens/hi/clipboard.webp" width="420" alt="Hop – क्लिपबोर्ड हिस्ट्री">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -158,7 +158,7 @@ WebM पहले MP4 में दोबारा पैक होते है
 docx, Markdown, RTF या सादे टेक्स्ट में निकलता है।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – फ़ाइल कन्वर्टर">
+<img src="https://hop.tools/screens/hi/converter.webp" width="480" alt="Hop – फ़ाइल कन्वर्टर">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -169,7 +169,7 @@ docx, Markdown, RTF या सादे टेक्स्ट में नि�
 हिस्सों में या बीचोंबीच स्नैप करें – किसी अतिरिक्त ऐप की ज़रूरत नहीं।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – विंडो मैनेजर">
+<img src="https://hop.tools/screens/hi/windows.webp" width="420" alt="Hop – विंडो मैनेजर">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -186,7 +186,7 @@ magnet लिंक पेस्ट करें, ठीक-ठीक चुन�
 magnet लिंक के लिए डिफ़ॉल्ट ऐप भी बन सकता है।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Hop टॉरेंट – मेनू बार पैनल में हल्का BitTorrent क्लाइंट">
+<img src="https://hop.tools/screens/hi/torrents.webp" width="420" alt="Hop टॉरेंट – मेनू बार पैनल में हल्का BitTorrent क्लाइंट">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -203,7 +203,7 @@ magnet लिंक के लिए डिफ़ॉल्ट ऐप भी ब�
 रहते हैं। यह छिपे मॉड्यूल के साथ भी काम करता है, और कार्ड असली स्थिति दिखाता है, इसलिए वह कभी ऐसा डिफ़ॉल्ट होने का दावा नहीं करता जो Finder किसी और को दे चुका हो। Finder में किसी संग्रह पर डबल-क्लिक करने से वह फ़ाइल के ठीक बगल में खुल जाता है, अपनी एक छोटी प्रगति विंडो के साथ, और विफल होने पर कुछ भी छिपा हुआ पीछे नहीं छूटता। Hop जो फ़ाइलें खोलता है उन पर उसका अपना आइकॉन होता है जिस पर प्रारूप लिखा रहता है, इसलिए पूरा फ़ोल्डर एक नज़र में पढ़ा जाता है।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – फ़ाइल आर्काइव">
+<img src="https://hop.tools/screens/hi/archives.webp" width="480" alt="Hop – फ़ाइल आर्काइव">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -225,7 +225,7 @@ hsl अपने-अपने कॉलम में होते हैं: ज
 सिर्फ़ एक रंग लौटाता है।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – रंग पिकर">
+<img src="https://hop.tools/screens/hi/colors.webp" width="420" alt="Hop – रंग पिकर">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -243,7 +243,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 कार्ड सादा टेक्स्ट ही रहते हैं।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – टेक्स्ट पहचान">
+<img src="https://hop.tools/screens/hi/recognition.webp" width="480" alt="Hop – टेक्स्ट पहचान">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -257,7 +257,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 वही क्षेत्र एक कुंजी से दोबारा लिया जा सकता है, और एक ही स्क्रीन की शृंखला को यही चाहिए। तस्वीर को पेज के लिए सजाया जा सकता है: पृष्ठभूमि, चारों ओर जगह, गोल कोने, छाया, ब्राउज़र फ़्रेम और आपका अपना वॉटरमार्क, पाठ या छवि में।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – स्क्रीनशॉट संपादक">
+<img src="https://hop.tools/screens/hi/shot.webp" width="480" alt="Hop – स्क्रीनशॉट संपादक">
 </div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
@@ -269,7 +269,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 एक स्विच नीचे के ऐप्स को क्लिक लौटा देता है जबकि निशान स्क्रीन पर बने रहते हैं, ताकि आप अपने नोट्स सामने रखकर काम करते रहें। «सहेजें» और «कॉपी» स्क्रीन को चित्र सहित लेते हैं। पूरी स्क्रीन साझा करने पर दूसरों को निशान दिखते हैं; अकेली साझा की गई विंडो को macOS स्वयं जोड़ता है, और उसमें कोई परत नहीं जुड़ सकती।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – स्क्रीन पर चित्र बनाना">
+<img src="https://hop.tools/screens/hi/annotate.webp" width="480" alt="Hop – स्क्रीन पर चित्र बनाना">
 </div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
@@ -283,7 +283,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 ज़बरन बंद होता है, क्योंकि वह हार्डवेयर करता है।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – कीबोर्ड लॉक">
+<img src="https://hop.tools/screens/hi/keyboard.webp" width="480" alt="Hop – कीबोर्ड लॉक">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -293,7 +293,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 एक टैप में macOS का अपना networkQuality, Apple के सर्वरों के सामने कनेक्शन नापता है – डाउनलोड, अपलोड और प्रतिक्रिया, और आख़िरी नतीजा पंक्ति में रह जाता है।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – स्पीड टेस्ट">
+<img src="https://hop.tools/screens/hi/speed.webp" width="420" alt="Hop – स्पीड टेस्ट">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -307,7 +307,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 फ़िल्म-ग्रेन बनावट वाली गहरी और हल्की थीम, ग्लोबल हॉटकी, लॉगिन पर शुरुआत, और एक सुरक्षित मोड जो ऐप को क्रैश के चक्र से बाहर निकालता है – सब एक ही सेटिंग्स विंडो में।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – सेटिंग्स">
+<img src="https://hop.tools/screens/hi/settings.webp" width="480" alt="Hop – सेटिंग्स">
 </div>
 
 ### VPN
@@ -329,7 +329,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 इस बिंदु को सेटिंग्स में बंद किया जा सकता है – मॉड्यूल और स्विच उसके बिना भी काम करते हैं।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – VPN स्विच">
+<img src="https://hop.tools/screens/hi/vpn.webp" width="420" alt="Hop – VPN स्विच">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -350,7 +350,7 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 खाली शुरू होती है और भरने तक यही लिखती है।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – ऐप ग्रिड">
+<img src="https://hop.tools/screens/hi/apps.webp" width="420" alt="Hop – ऐप ग्रिड">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -362,13 +362,13 @@ QR कोड का लिंक फ़ोन उठाए बिना सी�
 कुछ भी मिटाया नहीं जाता। सब ट्रैश में जाता है, इसलिए ग़लती की क़ीमत एक रीस्टोर है, फ़ाइल नहीं; और जो macOS नहीं देता, उसका नाम कारण सहित लिखा जाता है, चुपचाप छोड़ा नहीं जाता।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – ऐप को उसके छोड़े हुए सब कुछ के साथ हटाना">
+<img src="https://hop.tools/screens/hi/uninstall.webp" width="480" alt="Hop – ऐप को उसके छोड़े हुए सब कुछ के साथ हटाना">
 </div>
 
 वही मॉड्यूल बिना कुछ हटाए सफ़ाई भी करता है: कैश रखने वाला हर ऐप, बड़े पहले; डाउनलोड, डेस्कटॉप और डॉक्युमेंट्स में पड़े इंस्टॉलर; सालों पहले हटाए ऐप्स का डेटा; और ट्रैश अपने आकार के साथ। एक टिक पूरा सेक्शन ले लेता है। जिसे वह जानबूझकर नहीं छूता, वह भी सूची में है – वह कंटेनर जहाँ कैश और डेटा एक ही फ़ोल्डर में हैं, किसी मैसेंजर के बीस गीगाबाइट समेत: कौन-सा आधा फेंका जा सकता है, यह केवल वही ऐप जानता है।
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – कैश, इंस्टॉलर, बचे हुए डेटा और ट्रैश की सफ़ाई">
+<img src="https://hop.tools/screens/hi/clean.webp" width="480" alt="Hop – कैश, इंस्टॉलर, बचे हुए डेटा और ट्रैश की सफ़ाई">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)

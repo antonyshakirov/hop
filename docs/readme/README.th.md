@@ -22,7 +22,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · **ไทย** · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="แผงควบคุม Hop – ตัวจับเวลาบนแถบเมนูพร้อมจอแสดงผลแบบดอตแมทริกซ์ พรีเซ็ต และรอบทำงาน-พัก">
+<img src="https://hop.tools/screens/th/overview.webp" width="360" alt="แผงควบคุม Hop – ตัวจับเวลาบนแถบเมนูพร้อมจอแสดงผลแบบดอตแมทริกซ์ พรีเซ็ต และรอบทำงาน-พัก">
 
 </div>
 
@@ -61,7 +61,7 @@ Hop เซ็นด้วย Apple Developer ID และผ่านการ�
 จบ จะมีเสียงดังหนึ่งครั้ง และตัวเลขจะกะพริบจนกว่าคุณจะรีเซ็ต
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – ตัวจับเวลาและรอบทำงาน">
+<img src="https://hop.tools/screens/th/timer.webp" width="420" alt="Hop – ตัวจับเวลาและรอบทำงาน">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -91,7 +91,7 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 [docs/automation.md](../automation.md)
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – ติดตามเวลาและสิ่งที่ต้องทำ">
+<img src="https://hop.tools/screens/th/tracker.webp" width="420" alt="Hop – ติดตามเวลาและสิ่งที่ต้องทำ">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
@@ -103,7 +103,7 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 ก็ได้ (เหมาะกับการดาวน์โหลด งานบิลด์ยาว ๆ และจอภายนอก)
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – กันเครื่องหลับ">
+<img src="https://hop.tools/screens/th/awake.webp" width="420" alt="Hop – กันเครื่องหลับ">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -116,7 +116,7 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 เมื่อหน่วยความจำถูกย้ายลงดิสก์เป็นจำนวนมากด้วย ไม่ใช่เฉพาะตอนที่ macOS บอกเองว่าตึงตัว
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – มอนิเตอร์ระบบ">
+<img src="https://hop.tools/screens/th/system.webp" width="420" alt="Hop – มอนิเตอร์ระบบ">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -130,7 +130,7 @@ Hop ยังรันคำสั่งจากไฟล์และเข้�
 จะไม่ถูกเก็บไว้เด็ดขาด
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – ประวัติคลิปบอร์ด">
+<img src="https://hop.tools/screens/th/clipboard.webp" width="420" alt="Hop – ประวัติคลิปบอร์ด">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -155,7 +155,7 @@ xlsx และ pptx
 Markdown, RTF หรือข้อความล้วน
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – ตัวแปลงไฟล์">
+<img src="https://hop.tools/screens/th/converter.webp" width="480" alt="Hop – ตัวแปลงไฟล์">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -166,7 +166,7 @@ Markdown, RTF หรือข้อความล้วน
 ด้วยการคลิกที่สัญลักษณ์โซนหรือกดปุ่มลัด ⌃⌥ – ไม่ต้องติดตั้งแอปเพิ่ม
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – ตัวจัดการหน้าต่าง">
+<img src="https://hop.tools/screens/th/windows.webp" width="420" alt="Hop – ตัวจัดการหน้าต่าง">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -183,7 +183,7 @@ Markdown, RTF หรือข้อความล้วน
 และ Hop ยังตั้งเป็นแอปเริ่มต้นสำหรับไฟล์ .torrent และลิงก์ magnet ได้ด้วย
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="ทอร์เรนต์ของ Hop – ไคลเอนต์ BitTorrent ตัวเบาในแผงบนแถบเมนู">
+<img src="https://hop.tools/screens/th/torrents.webp" width="420" alt="ทอร์เรนต์ของ Hop – ไคลเอนต์ BitTorrent ตัวเบาในแผงบนแถบเมนู">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -199,7 +199,7 @@ Markdown, RTF หรือข้อความล้วน
 และการ์ดแสดงสถานะจริง จึงไม่มีทางอ้างว่าเป็นค่าเริ่มต้นในเมื่อ Finder ยกให้แอปอื่นไปแล้ว ดับเบิลคลิกไฟล์บีบอัดใน Finder จะแตกไฟล์ไว้ข้าง ๆ ไฟล์นั้นเลย พร้อมหน้าต่างแสดงความคืบหน้าเล็ก ๆ ของตัวเอง และหากล้มเหลวก็ไม่เหลืออะไรซ่อนไว้ ไฟล์ที่ Hop เปิดจะมีไอคอนของตัวเองที่เขียนชื่อรูปแบบไว้ ทำให้ดูทั้งโฟลเดอร์ออกในพริบตา
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – ไฟล์บีบอัด">
+<img src="https://hop.tools/screens/th/archives.webp" width="480" alt="Hop – ไฟล์บีบอัด">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -220,7 +220,7 @@ Markdown, RTF หรือข้อความล้วน
 สิทธิ์บันทึกหน้าจอ เพราะแว่นขยายส่งคืนแค่สีเดียว
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – หลอดดูดสี">
+<img src="https://hop.tools/screens/th/colors.webp" width="420" alt="Hop – หลอดดูดสี">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -236,7 +236,7 @@ Markdown, RTF หรือข้อความล้วน
 เบอร์โทร รหัส Wi-Fi หรือนามบัตรจึงยังเป็นข้อความธรรมดา
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – การอ่านข้อความ">
+<img src="https://hop.tools/screens/th/recognition.webp" width="480" alt="Hop – การอ่านข้อความ">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -250,7 +250,7 @@ Markdown, RTF หรือข้อความล้วน
 พื้นที่เดิมถ่ายซ้ำได้ด้วยปุ่มเดียว ซึ่งเป็นสิ่งที่ภาพชุดจากหน้าจอเดียวกันต้องการ ภาพยังแต่งสำหรับหน้าเว็บได้: พื้นหลัง ระยะขอบ มุมโค้ง เงา กรอบเบราว์เซอร์ และลายน้ำของคุณเอง ทั้งข้อความและรูปภาพ
 
 <div align="center">
-<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – ตัวแก้ไขภาพหน้าจอ">
+<img src="https://hop.tools/screens/th/shot.webp" width="480" alt="Hop – ตัวแก้ไขภาพหน้าจอ">
 </div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
@@ -262,7 +262,7 @@ Markdown, RTF หรือข้อความล้วน
 สวิตช์เดียวคืนการคลิกให้แอปด้านล่างขณะที่รอยยังอยู่บนหน้าจอ คุณจึงทำงานต่อได้โดยมีโน้ตอยู่ตรงหน้า «บันทึก» และ «คัดลอก» จับภาพหน้าจอพร้อมกับภาพวาด คนอื่นเห็นรอยเมื่อคุณแชร์ทั้งหน้าจอ ส่วนการแชร์หน้าต่างเดียว macOS ประกอบขึ้นเอง และไม่มีชั้นใดแทรกเข้าไปได้
 
 <div align="center">
-<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – การวาดบนหน้าจอ">
+<img src="https://hop.tools/screens/th/annotate.webp" width="480" alt="Hop – การวาดบนหน้าจอ">
 </div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
@@ -275,7 +275,7 @@ Markdown, RTF หรือข้อความล้วน
 แต่การกดค้างยังบังคับปิดเครื่องได้ เพราะนั่นเป็นเรื่องของฮาร์ดแวร์
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – ล็อกคีย์บอร์ด">
+<img src="https://hop.tools/screens/th/keyboard.webp" width="480" alt="Hop – ล็อกคีย์บอร์ด">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -285,7 +285,7 @@ Markdown, RTF หรือข้อความล้วน
 แตะครั้งเดียวก็วัดการเชื่อมต่อด้วย networkQuality ของ macOS เองกับเซิร์ฟเวอร์ของ Apple – ดาวน์โหลด อัปโหลด และการตอบสนอง โดยผลล่าสุดค้างอยู่ในแถว
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – ทดสอบความเร็ว">
+<img src="https://hop.tools/screens/th/speed.webp" width="420" alt="Hop – ทดสอบความเร็ว">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -299,7 +299,7 @@ Markdown, RTF หรือข้อความล้วน
 ธีมมืดและสว่างพร้อมพื้นผิวเกรนฟิล์ม คีย์ลัดทั่วระบบ เปิดตอนล็อกอิน และเซฟโหมดที่ดึงแอปออกจากวงจรแครช – ทั้งหมดอยู่ในหน้าต่างตั้งค่าเดียว
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – ตั้งค่า">
+<img src="https://hop.tools/screens/th/settings.webp" width="480" alt="Hop – ตั้งค่า">
 </div>
 
 ### VPN
@@ -317,7 +317,7 @@ Hop จะไม่เดาประเทศจากที่อยู่เ�
 จุดนี้ปิดได้ในตั้งค่า โมดูลและสวิตช์ยังทำงานเหมือนเดิม
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – สวิตช์ VPN">
+<img src="https://hop.tools/screens/th/vpn.webp" width="420" alt="Hop – สวิตช์ VPN">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -331,7 +331,7 @@ Hop จะไม่เดาประเทศจากที่อยู่เ�
 ตารางเกิดและหายไปในที่เดียวกับที่คุณจัดวางโมดูล: ในตั้งค่า หรือในตารางโมดูลเอง ซึ่ง ✕ บนป้ายของตารางจะลบมันถาวร ตารางใหม่เริ่มต้นว่างเปล่าและบอกไว้แบบนั้นจนกว่าคุณจะเติมมัน
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – ตารางแอป">
+<img src="https://hop.tools/screens/th/apps.webp" width="420" alt="Hop – ตารางแอป">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -343,13 +343,13 @@ Hop จะไม่เดาประเทศจากที่อยู่เ�
 ไม่มีอะไรถูกลบทิ้งทันที ทุกอย่างย้ายไปถังขยะ ความผิดพลาดจึงมีราคาเท่ากับการกู้คืน ไม่ใช่ไฟล์ที่หายไป ส่วนที่ macOS ไม่ยอมให้ เราจะบอกชื่อพร้อมเหตุผล ไม่ข้ามเงียบ ๆ
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – ลบแอปพร้อมทุกอย่างที่มันทิ้งไว้">
+<img src="https://hop.tools/screens/th/uninstall.webp" width="480" alt="Hop – ลบแอปพร้อมทุกอย่างที่มันทิ้งไว้">
 </div>
 
 โมดูลเดียวกันยังจัดให้เรียบร้อยโดยไม่ลบอะไรเลย: ทุกแอปที่กองแคชไว้ ใหญ่ก่อน; ตัวติดตั้งที่ค้างในดาวน์โหลด เดสก์ท็อป และเอกสาร; ข้อมูลของแอปที่ลบไปนานแล้ว; และถังขยะพร้อมขนาดของมัน ติ๊กเดียวได้ทั้งหมวด สิ่งที่ตั้งใจไม่แตะก็อยู่ในรายการด้วย – คอนเทนเนอร์ที่แคชกับข้อมูลอยู่โฟลเดอร์เดียวกัน เช่นยี่สิบกว่ากิกะไบต์ของแอปแชท เพราะมีแต่แอปนั้นเองที่รู้ว่าครึ่งไหนทิ้งได้
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – ล้างแคช ตัวติดตั้ง ของตกค้าง และถังขยะ">
+<img src="https://hop.tools/screens/th/clean.webp" width="480" alt="Hop – ล้างแคช ตัวติดตั้ง ของตกค้าง และถังขยะ">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)

@@ -22,7 +22,7 @@ Jedno kliknięcie – i wszystko, czego potrzebujesz, jest pod ręką.**
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · **Polski** · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Panel Hop – timer na pasku menu z wyświetlaczem matrycowym, presetami i cyklami pracy i odpoczynku">
+<img src="https://hop.tools/screens/pl/overview.webp" width="360" alt="Panel Hop – timer na pasku menu z wyświetlaczem matrycowym, presetami i cyklami pracy i odpoczynku">
 
 </div>
 
@@ -65,7 +65,7 @@ media. Gdy odliczanie się kończy, rozlega się jeden dźwięk, a cyfry migają
 aż je wyzerujesz.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – Timer i cykle">
+<img src="https://hop.tools/screens/pl/timer.webp" width="420" alt="Hop – Timer i cykle">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -98,7 +98,7 @@ wokół takiego odnośnika może uruchomić minutnik, dodać zadanie z przypomni
 lub sprawdzić, co jest uruchomione. Zobacz [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – Śledzenie czasu i zadania">
+<img src="https://hop.tools/screens/pl/tracker.webp" width="420" alt="Hop – Śledzenie czasu i zadania">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
@@ -111,7 +111,7 @@ pracuj dalej z zamkniętą pokrywą (przydatne przy pobieraniu, długich
 buildach i zewnętrznych monitorach).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – Blokada uśpienia">
+<img src="https://hop.tools/screens/pl/awake.webp" width="420" alt="Hop – Blokada uśpienia">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -126,7 +126,7 @@ pamięci ostrzega także wtedy, gdy dużo pamięci trafiło na dysk, a nie tylko
 gdy sam macOS zgłasza ciasnotę.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – Monitor systemu">
+<img src="https://hop.tools/screens/pl/system.webp" width="420" alt="Hop – Monitor systemu">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -140,7 +140,7 @@ się jako „nazwa +N"), a wklejenie przywraca sam plik. Hasła i inne ukryte
 dane wejściowe nigdy nie są zapisywane.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – Historia schowka">
+<img src="https://hop.tools/screens/pl/clipboard.webp" width="420" alt="Hop – Historia schowka">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -165,7 +165,7 @@ Strony internetowe też się konwertują: wklej adres albo upuść zapisaną str
 a wyjdzie PDF, docx, Markdown, RTF lub czysty tekst.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – Konwerter plików">
+<img src="https://hop.tools/screens/pl/converter.webp" width="480" alt="Hop – Konwerter plików">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -176,7 +176,7 @@ Przyciągaj okna do połówek, ćwiartek, jednej trzeciej ekranu i na środek
 kliknięciem w glif strefy albo skrótem ⌃⌥ – bez dodatkowej aplikacji.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – Menedżer okien">
+<img src="https://hop.tools/screens/pl/windows.webp" width="420" alt="Hop – Menedżer okien">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -193,7 +193,7 @@ Hopem wyłącznie przez lokalny port. Hop może też zostać domyślną
 aplikacją dla plików .torrent i linków magnet.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Torrenty Hop – lekki klient BitTorrent w panelu na pasku menu">
+<img src="https://hop.tools/screens/pl/torrents.webp" width="420" alt="Torrenty Hop – lekki klient BitTorrent w panelu na pasku menu">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -213,7 +213,7 @@ zip, 7z i formaty natywne zostają przy Narzędziu archiwizacji. Działa też pr
 ukrytym module, a karta pokazuje prawdziwy stan, więc nigdy nie ogłosi się domyślną, gdy Finder oddał już tę rolę innej aplikacji. Podwójne kliknięcie archiwum w Finderze rozpakowuje je tuż obok pliku, we własnym niewielkim oknie postępu, a nieudana próba nie zostawia niczego ukrytego. Pliki, które otwiera Hop, mają własną ikonę z nazwą formatu, więc folder czyta się jednym spojrzeniem.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – Archiwa plików">
+<img src="https://hop.tools/screens/pl/archives.webp" width="480" alt="Hop – Archiwa plików">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -236,7 +236,7 @@ ile wierszy pokazywać ustawisz w ustawieniach, a uprawnienie do nagrywania
 ekranu nie jest potrzebne: lupa zwraca jeden kolor i nic więcej.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – Próbnik koloru">
+<img src="https://hop.tools/screens/pl/colors.webp" width="420" alt="Hop – Próbnik koloru">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -255,7 +255,7 @@ telefon. Tylko adresy internetowe: zeskanowany kod to obce wejście, więc numer
 telefonu, hasło Wi-Fi albo wizytówka zostają zwykłym tekstem.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – Rozpoznawanie tekstu">
+<img src="https://hop.tools/screens/pl/recognition.webp" width="480" alt="Hop – Rozpoznawanie tekstu">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -269,7 +269,7 @@ Zaznacz obszar, zrób zdjęcie okna pod wskaźnikiem albo całego ekranu — edy
 Ten sam obszar powtórzysz jednym klawiszem, a właśnie tego wymaga seria zrzutów z jednego ekranu. Obraz można ubrać na stronę: tło, powietrze dookoła, zaokrąglone rogi, cień, ramka przeglądarki i własny znak wodny, tekstem lub obrazkiem.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – Edytor zrzutów ekranu">
+<img src="https://hop.tools/screens/pl/shot.webp" width="480" alt="Hop – Edytor zrzutów ekranu">
 </div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
@@ -281,7 +281,7 @@ Rysuj wprost na ekranie podczas rozmowy, nagrania albo przeglądu: ołówek, sze
 Jeden przełącznik oddaje kliknięcia aplikacjom pod spodem, a znaki zostają na ekranie, więc możesz dalej pracować z notatkami przed oczami. «Zapisz» i «kopiuj» rejestrują ekran razem z rysunkiem. Inni widzą znaki, gdy udostępniasz cały ekran; pojedyncze udostępnione okno macOS składa samodzielnie i żadna warstwa nie może się do niego dołączyć.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – Rysowanie na ekranie">
+<img src="https://hop.tools/screens/pl/annotate.webp" width="480" alt="Hop – Rysowanie na ekranie">
 </div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
@@ -296,7 +296,7 @@ przytrzymanie esc + shift przez pięć sekund. Krótkie naciśnięcie przycisku 
 też jest połykane; przytrzymanie nadal wyłącza Maca, bo robi to sprzęt.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – Blokada klawiatury">
+<img src="https://hop.tools/screens/pl/keyboard.webp" width="480" alt="Hop – Blokada klawiatury">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -306,7 +306,7 @@ też jest połykane; przytrzymanie nadal wyłącza Maca, bo robi to sprzęt.
 Jedno dotknięcie mierzy łącze narzędziem samego macOS (networkQuality, serwery Apple) – pobieranie, wysyłanie i responsywność, a ostatni wynik zostaje w wierszu.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – Test prędkości">
+<img src="https://hop.tools/screens/pl/speed.webp" width="420" alt="Hop – Test prędkości">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -324,7 +324,7 @@ kliknięcie przywraca okno zamiast otwierać panel, a z ostatnim oknem znika te�
 Ciemny i jasny motyw z fakturą ziarna filmowego, skróty globalne, uruchamianie przy logowaniu i tryb awaryjny, który wyciąga aplikację z pętli awarii – wszystko w jednym oknie ustawień.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – Ustawienia">
+<img src="https://hop.tools/screens/pl/settings.webp" width="480" alt="Hop – Ustawienia">
 </div>
 
 ### VPN
@@ -352,7 +352,7 @@ z pełnym przekonaniem jest gorszy niż żaden.
 Kropkę można wyłączyć w ustawieniach – moduł i jego przełączniki działają i bez niej.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – Przełączniki VPN">
+<img src="https://hop.tools/screens/pl/vpn.webp" width="420" alt="Hop – Przełączniki VPN">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -375,7 +375,7 @@ samej tabeli modułów, gdzie ✕ na chipie siatki usuwa ją na dobre. Nowa siat
 zaczyna pusta i tak o sobie pisze, dopóki jej nie wypełnisz.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – Siatka aplikacji">
+<img src="https://hop.tools/screens/pl/apps.webp" width="420" alt="Hop – Siatka aplikacji">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -387,13 +387,13 @@ Upuść aplikację na wiersz albo wybierz ją z listy wszystkiego, co zainstalow
 Nic nie jest kasowane. Wszystko trafia do kosza, więc pomyłka kosztuje przywrócenie, a nie plik, a czego macOS nie oddaje, jest nazwane z powodem, a nie po cichu pominięte.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – Usunięcie aplikacji ze wszystkim, co zostawiła">
+<img src="https://hop.tools/screens/pl/uninstall.webp" width="480" alt="Hop – Usunięcie aplikacji ze wszystkim, co zostawiła">
 </div>
 
 Ten sam moduł sprząta, nic nie usuwając: każda aplikacja z pamięcią podręczną, największe na górze; instalatory w Pobranych, na Biurku i w Dokumentach; dane aplikacji usuniętych lata temu; i kosz wraz z rozmiarem. Jeden ptaszek bierze całą sekcję. Czego celowo nie rusza, też jest wypisane – kontener, w którym cache leży razem z danymi, choćby dwadzieścia gigabajtów komunikatora: co z tego można wyrzucić, wie tylko sama aplikacja.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – Czyszczenie cache, instalatorów, pozostałości i kosza">
+<img src="https://hop.tools/screens/pl/clean.webp" width="480" alt="Hop – Czyszczenie cache, instalatorów, pozostałości i kosza">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)

@@ -22,7 +22,7 @@ butuhkan langsung ada.**
 
 **Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Panel Hop – timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
+<img src="https://hop.tools/screens/id/overview.webp" width="360" alt="Panel Hop – timer di menu bar dengan tampilan dot-matrix, preset, dan siklus kerja-istirahat">
 
 </div>
 
@@ -65,7 +65,7 @@ Saat hitung mundur selesai, terdengar satu bunyi dan angkanya berkedip
 sampai kamu mereset.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – Timer & siklus">
+<img src="https://hop.tools/screens/id/timer.webp" width="420" alt="Hop – Timer & siklus">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -101,7 +101,7 @@ waktu, menambah tugas berpengingat, atau membaca apa yang sedang berjalan. Lihat
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – Pelacak waktu & tugas">
+<img src="https://hop.tools/screens/id/tracker.webp" width="420" alt="Hop – Pelacak waktu & tugas">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
@@ -114,7 +114,7 @@ bekerja dengan penutup tertutup (praktis untuk unduhan, build panjang, dan
 layar eksternal).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – Anti-tidur">
+<img src="https://hop.tools/screens/id/awake.webp" width="420" alt="Hop – Anti-tidur">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -129,7 +129,7 @@ juga memperingatkan saat banyak memori pindah ke disk, bukan hanya saat macOS
 sendiri bilang sedang sesak.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – Monitor sistem">
+<img src="https://hop.tools/screens/id/system.webp" width="420" alt="Hop – Monitor sistem">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -143,7 +143,7 @@ tampil sebagai «nama +N»), dan menempel akan mengembalikan file itu sendiri.
 Kata sandi dan input tersembunyi lainnya tidak pernah disimpan.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – Riwayat clipboard">
+<img src="https://hop.tools/screens/id/clipboard.webp" width="420" alt="Hop – Riwayat clipboard">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -170,7 +170,7 @@ Halaman web juga bisa: tempel sebuah alamat atau jatuhkan halaman tersimpan, dan
 hasilnya keluar sebagai PDF, docx, Markdown, RTF, atau teks polos.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – Konverter file">
+<img src="https://hop.tools/screens/id/converter.webp" width="480" alt="Hop – Konverter file">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -181,7 +181,7 @@ Tata jendela ke setengah, seperempat, sepertiga, dan tengah layar dengan
 sekali klik pada glyph zona atau pintasan ⌃⌥ – tanpa aplikasi tambahan.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – Pengelola jendela">
+<img src="https://hop.tools/screens/id/windows.webp" width="420" alt="Hop – Pengelola jendela">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -198,7 +198,7 @@ Hop lewat port lokal. Hop juga bisa menjadi aplikasi bawaan untuk file
 .torrent dan tautan magnet.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Torrent Hop – klien BitTorrent ringan di panel menu bar">
+<img src="https://hop.tools/screens/id/torrents.webp" width="420" alt="Torrent Hop – klien BitTorrent ringan di panel menu bar">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -218,7 +218,7 @@ kembali dari aplikasi pihak ketiga; zip, 7z, dan format bawaan tetap di Utilitas
 bekerja walau modulnya disembunyikan, dan kartunya menunjukkan keadaan asli, jadi ia tak pernah mengaku sebagai bawaan yang sudah diserahkan Finder ke aplikasi lain. Klik ganda pada arsip di Finder membukanya tepat di sebelah berkasnya, dalam jendela progres kecil tersendiri, dan kegagalan tidak meninggalkan apa pun yang tersembunyi. Berkas yang dibuka Hop membawa ikonnya sendiri dengan nama formatnya, jadi satu folder terbaca sekali lihat.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – Arsip berkas">
+<img src="https://hop.tools/screens/id/archives.webp" width="480" alt="Hop – Arsip berkas">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -241,7 +241,7 @@ berapa warna disimpan dan berapa baris tampil adalah pengaturan, dan izin rekam
 layar tidak diperlukan: lup hanya mengembalikan satu warna, tidak lebih.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – Pemilih warna">
+<img src="https://hop.tools/screens/id/colors.webp" width="420" alt="Hop – Pemilih warna">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -260,7 +260,7 @@ alamat web: kode yang dipindai adalah masukan dari luar, jadi nomor telepon,
 kata sandi Wi-Fi atau kartu kontak tetap teks biasa.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – Pengenalan teks">
+<img src="https://hop.tools/screens/id/recognition.webp" width="480" alt="Hop – Pengenalan teks">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -274,7 +274,7 @@ Bingkai sebuah area, ambil jendela di bawah penunjuk atau seluruh layar — peny
 Area yang sama diambil lagi dengan satu tombol, dan itulah yang dibutuhkan serangkaian tangkapan dari layar yang sama. Gambar bisa didandani untuk sebuah halaman: latar, ruang di sekelilingnya, sudut membulat, bayangan, bingkai peramban, dan tanda air Anda sendiri, berupa teks atau gambar.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – Penyunting tangkapan layar">
+<img src="https://hop.tools/screens/id/shot.webp" width="480" alt="Hop – Penyunting tangkapan layar">
 </div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
@@ -286,7 +286,7 @@ Gambarlah langsung di layar saat panggilan, perekaman, atau tinjauan: pensil, st
 Satu sakelar mengembalikan klik ke aplikasi di bawahnya sementara tanda tetap di layar, jadi Anda bisa terus bekerja dengan catatan di depan mata. «Simpan» dan «salin» merekam layar bersama gambarnya. Orang lain melihat tanda saat Anda berbagi seluruh layar; satu jendela yang dibagikan disusun macOS sendiri, dan tidak ada lapisan yang bisa ikut masuk ke sana.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – Menggambar di layar">
+<img src="https://hop.tools/screens/id/annotate.webp" width="480" alt="Hop – Menggambar di layar">
 </div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
@@ -301,7 +301,7 @@ menahan esc + shift lima detik. Tekanan singkat tombol daya juga ditelan; menaha
 tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – Kunci papan ketik">
+<img src="https://hop.tools/screens/id/keyboard.webp" width="480" alt="Hop – Kunci papan ketik">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -311,7 +311,7 @@ tetap mematikan Mac secara paksa, karena itu urusan perangkat keras.
 Sekali ketuk, koneksi diukur lewat networkQuality bawaan macOS terhadap server Apple – unduh, unggah, dan responsivitas, dengan hasil terakhir tersimpan di barisnya.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – Tes kecepatan">
+<img src="https://hop.tools/screens/id/speed.webp" width="420" alt="Hop – Tes kecepatan">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -329,7 +329,7 @@ alih-alih membuka panel, dan ikonnya pergi bersama jendela terakhir.
 Tema gelap dan terang dengan tekstur butiran film, pintasan global, jalan saat masuk, dan mode aman yang mengeluarkan aplikasi dari putaran kegagalan – semuanya di satu jendela pengaturan.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – Pengaturan">
+<img src="https://hop.tools/screens/id/settings.webp" width="480" alt="Hop – Pengaturan">
 </div>
 
 ### VPN
@@ -358,7 +358,7 @@ lebih buruk daripada tidak menyebut negara sama sekali.
 Titik itu bisa dimatikan di pengaturan; modul dan sakelarnya tetap bekerja.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – Sakelar VPN">
+<img src="https://hop.tools/screens/id/vpn.webp" width="420" alt="Hop – Sakelar VPN">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -380,7 +380,7 @@ tabel modul itu sendiri, di mana ✕ pada cip sebuah kisi menghapusnya untuk
 selamanya. Kisi baru mulai kosong dan mengatakannya sampai Anda mengisinya.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – Kisi aplikasi">
+<img src="https://hop.tools/screens/id/apps.webp" width="420" alt="Hop – Kisi aplikasi">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -392,13 +392,13 @@ Jatuhkan aplikasi ke baris ini, atau pilih dari daftar semua yang terpasang, dan
 Tidak ada yang dihapus permanen. Semuanya pindah ke tempat sampah, jadi kesalahan berharga satu pemulihan, bukan sebuah berkas; dan yang tidak diserahkan macOS disebutkan beserta alasannya, bukan dilewati diam-diam.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – Menghapus aplikasi beserta semua yang ditinggalkannya">
+<img src="https://hop.tools/screens/id/uninstall.webp" width="480" alt="Hop – Menghapus aplikasi beserta semua yang ditinggalkannya">
 </div>
 
 Modul yang sama merapikan tanpa menghapus apa pun: setiap aplikasi yang menyimpan cache, terbesar dulu; pemasang yang tertinggal di Unduhan, Meja, dan Dokumen; data aplikasi yang dihapus bertahun lalu; dan tempat sampah beserta ukurannya. Satu centang mengambil satu bagian penuh. Yang sengaja tidak disentuh juga didaftar – container tempat cache dan data berbagi satu folder, termasuk dua puluh gigabyte sebuah aplikasi pesan: hanya aplikasi itu yang tahu bagian mana yang bisa dibuang.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – Membersihkan cache, pemasang, sisa, dan tempat sampah">
+<img src="https://hop.tools/screens/id/clean.webp" width="480" alt="Hop – Membersihkan cache, pemasang, sisa, dan tempat sampah">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)

@@ -22,7 +22,7 @@
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · **Српски** · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
 
-<img src="https://hop.tools/screens/en/overview.webp" width="360" alt="Панел Hop – тајмер у траци менија са тачкастим дисплејом, шаблонима времена и циклусима рада и одмора">
+<img src="https://hop.tools/screens/sr/overview.webp" width="360" alt="Панел Hop – тајмер у траци менија са тачкастим дисплејом, шаблонима времена и циклусима рада и одмора">
 
 </div>
 
@@ -64,7 +64,7 @@ macOS 14 или новији.
 пулсирају док тајмер не ресетујете.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/timer.webp" width="420" alt="Hop – Тајмер и циклуси">
+<img src="https://hop.tools/screens/sr/timer.webp" width="420" alt="Hop – Тајмер и циклуси">
 </div>
 
 → [Pomodoro timer for Mac](https://hop.tools/features/pomodoro-timer/)
@@ -100,7 +100,7 @@ macOS 14 или новији.
 [docs/automation.md](../automation.md).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – Мерач времена и задаци">
+<img src="https://hop.tools/screens/sr/tracker.webp" width="420" alt="Hop – Мерач времена и задаци">
 </div>
 
 → [Time tracker for Mac](https://hop.tools/features/time-tracker/)
@@ -112,7 +112,7 @@ macOS 14 или новији.
 поклопцем (згодно за преузимања, дуге компилације и спољне екране).
 
 <div align="center">
-<img src="https://hop.tools/screens/en/awake.webp" width="420" alt="Hop – Без спавања">
+<img src="https://hop.tools/screens/sr/awake.webp" width="420" alt="Hop – Без спавања">
 </div>
 
 → [Keep your Mac awake](https://hop.tools/features/keep-mac-awake/)
@@ -127,7 +127,7 @@ macOS 14 или новији.
 на диск, а не само када сам macOS пријави да је нема довољно.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/system.webp" width="420" alt="Hop – Монитор система">
+<img src="https://hop.tools/screens/sr/system.webp" width="420" alt="Hop – Монитор система">
 </div>
 
 → [System monitor for Mac](https://hop.tools/features/system-monitor/)
@@ -141,7 +141,7 @@ macOS 14 или новији.
 не чувају.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clipboard.webp" width="420" alt="Hop – Историја оставе">
+<img src="https://hop.tools/screens/sr/clipboard.webp" width="420" alt="Hop – Историја оставе">
 </div>
 
 → [Clipboard history for Mac](https://hop.tools/features/clipboard-history/)
@@ -167,7 +167,7 @@ youtube – и задаје кадар, резолуцију и сажимање
 добијате PDF, docx, Markdown, RTF или обичан текст.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/converter.webp" width="480" alt="Hop – Конвертер фајлова">
+<img src="https://hop.tools/screens/sr/converter.webp" width="480" alt="Hop – Конвертер фајлова">
 </div>
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
@@ -178,7 +178,7 @@ youtube – и задаје кадар, резолуцију и сажимање
 сличицу зоне или пречицом ⌃⌥ – без додатног програма.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/windows.webp" width="420" alt="Hop – Менаџер прозора">
+<img src="https://hop.tools/screens/sr/windows.webp" width="420" alt="Hop – Менаџер прозора">
 </div>
 
 → [Window manager for Mac](https://hop.tools/features/window-manager/)
@@ -194,7 +194,7 @@ youtube – и задаје кадар, резолуцију и сажимање
 подразумевани програм за .torrent фајлове и магнет линкове.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/torrents.webp" width="420" alt="Торенти у Hop-у – лагани BitTorrent клијент у панелу траке менија">
+<img src="https://hop.tools/screens/sr/torrents.webp" width="420" alt="Торенти у Hop-у – лагани BitTorrent клијент у панелу траке менија">
 </div>
 
 → [Lightweight torrent client for Mac](https://hop.tools/features/torrent-client/)
@@ -219,7 +219,7 @@ Finder-у распакује је одмах поред фајла, у засе�
 први поглед.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/archives.webp" width="480" alt="Hop – Архиве">
+<img src="https://hop.tools/screens/sr/archives.webp" width="480" alt="Hop – Архиве">
 </div>
 
 → [Unzip rar, 7z and zip on your Mac](https://hop.tools/features/archive-manager/)
@@ -242,7 +242,7 @@ markdown – скенирану страницу чита Apple Vision. Изво
 није потребна: лупа враћа једну боју и ништа више.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/colors.webp" width="420" alt="Hop – Бирач боја">
+<img src="https://hop.tools/screens/sr/colors.webp" width="420" alt="Hop – Бирач боја">
 </div>
 
 → [Color picker for Mac](https://hop.tools/features/color-picker/)
@@ -261,7 +261,7 @@ markdown – скенирану страницу чита Apple Vision. Изво
 лозинка или визит карта остају обичан текст.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/recognition.webp" width="480" alt="Hop – Препознавање текста">
+<img src="https://hop.tools/screens/sr/recognition.webp" width="480" alt="Hop – Препознавање текста">
 </div>
 
 → [Text recognition for Mac](https://hop.tools/features/text-recognition/)
@@ -282,7 +282,7 @@ markdown – скенирану страницу чита Apple Vision. Изво
 и ваш водени жиг, као текст или као слика.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/shot.webp" width="480" alt="Hop – Уређивач снимака екрана">
+<img src="https://hop.tools/screens/sr/shot.webp" width="480" alt="Hop – Уређивач снимака екрана">
 </div>
 
 → [Screenshots on Mac](https://hop.tools/features/screenshots/)
@@ -302,7 +302,7 @@ markdown – скенирану страницу чита Apple Vision. Изво
 дељени прозор macOS сам слаже и ниједан слој не може да му се придружи.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/annotate.webp" width="480" alt="Hop – Цртање по екрану">
+<img src="https://hop.tools/screens/sr/annotate.webp" width="480" alt="Hop – Цртање по екрану">
 </div>
 
 → [Draw on your screen](https://hop.tools/features/draw-on-screen/)
@@ -317,7 +317,7 @@ markdown – скенирану страницу чита Apple Vision. Изво
 гута; ако га држите, Mac се и даље принудно гаси, јер то решава хардвер.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/keyboard.webp" width="480" alt="Hop – Закључавање тастатуре">
+<img src="https://hop.tools/screens/sr/keyboard.webp" width="480" alt="Hop – Закључавање тастатуре">
 </div>
 
 → [Lock your Mac keyboard](https://hop.tools/features/keyboard-lock/)
@@ -329,7 +329,7 @@ Apple-овим серверима – преузимање, слање и одз
 у реду.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/speed.webp" width="420" alt="Hop – Тест брзине">
+<img src="https://hop.tools/screens/sr/speed.webp" width="420" alt="Hop – Тест брзине">
 </div>
 
 → [Internet speed test for Mac](https://hop.tools/features/internet-speed-test/)
@@ -350,7 +350,7 @@ Apple-овим серверима – преузимање, слање и одз
 у једном прозору подешавања.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/settings.webp" width="480" alt="Hop – Подешавања">
+<img src="https://hop.tools/screens/sr/settings.webp" width="480" alt="Hop – Подешавања">
 </div>
 
 ### VPN
@@ -381,7 +381,7 @@ Apple-овим серверима – преузимање, слање и одз
 без ње.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/vpn.webp" width="420" alt="Hop – VPN прекидачи">
+<img src="https://hop.tools/screens/sr/vpn.webp" width="420" alt="Hop – VPN прекидачи">
 </div>
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
@@ -404,7 +404,7 @@ Finder-а; у ред стаје девет, а редова може бити д
 празна и то пише све док је не попуните.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/apps.webp" width="420" alt="Hop – Мрежа програма">
+<img src="https://hop.tools/screens/sr/apps.webp" width="420" alt="Hop – Мрежа програма">
 </div>
 
 → [App launcher for Mac](https://hop.tools/features/app-launcher/)
@@ -424,7 +424,7 @@ Finder-а; у ред стаје девет, а редова може бити д
 прескочи.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/uninstall.webp" width="480" alt="Hop – Уклањање програма са свим што је оставио за собом">
+<img src="https://hop.tools/screens/sr/uninstall.webp" width="480" alt="Hop – Уклањање програма са свим што је оставио за собом">
 </div>
 
 Исти модул и чисти, без уклањања ичега: сваки програм који држи кеш, од
@@ -435,7 +435,7 @@ Finder-а; у ред стаје девет, а редова може бити д
 месинџера, јер само чишћење унутар тог програма зна која половина сме да оде.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/clean.webp" width="480" alt="Hop – Чишћење кешева, инсталера, остатака и смећа">
+<img src="https://hop.tools/screens/sr/clean.webp" width="480" alt="Hop – Чишћење кешева, инсталера, остатака и смећа">
 </div>
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)

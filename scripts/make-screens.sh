@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Renders every product screenshot, for every language that has its own folder.
+# Renders every product screenshot, for every language the app ships.
 #
 # These recipes used to live nowhere: each shot was taken by hand with whatever
 # flags the moment called for, so nobody could reproduce one a month later and
@@ -19,8 +19,8 @@ OUT=${1:-"../hop-website/assets/screens"}
 shift || true
 LANGS=("$@")
 if [ ${#LANGS[@]} -eq 0 ]; then
-    # only the languages with their own folder; every other README points at en
-    LANGS=(en ru de es fr pt ja zh)
+    # every AppLanguage case: each README and each page of the site shows its own language
+    LANGS=(en ru de es pt fr it zh ja nl ko th vi hi id tr pl sr ar he fa ur)
 fi
 
 BIN=.build/debug/Hop
