@@ -2,12 +2,12 @@
 
 ## Unreleased
 
-- Torrents recover on their own after a long sleep or a change of network. A
-  download could sit at zero speed with no peers until it was removed and added
-  back; Hop now notices and restarts the engine for you. The engine is updated to a newer
-  version on first use, which reaches trackers that turned the old one away. While
-  a torrent re-checks its files after a start, its row says so instead of
-  counting the checked bytes as downloaded.
+- Torrents that stop finding peers, as they could after a long sleep, recover on
+  their own. A download could sit at zero speed with no peers until it was
+  removed and added back; Hop now notices and restarts the engine for you. The
+  engine is updated to a newer version on first use, which reaches trackers that
+  turned the old one away. While a torrent re-checks its files after a start,
+  its row says so instead of counting the checked bytes as downloaded.
 - Hop takes screenshots and opens them in an editor. Frame an area, take the
   window under the pointer or a whole screen, then mark the picture up with a
   pencil, a marker, arrows, shapes, numbered steps and text, bring a loupe over
@@ -37,8 +37,13 @@
   Measured with a torrent loaded, panel shut: 4.2% of a core before, 1.1% after.
 - The drop plates in the converter, archive, text recognition and uninstaller
   windows open a file picker when you click them, and say so on hover. Dropping
-  files on them and pasting still work; a click is simply one more way, and the
-  converter and archive pickers take whole folders as readily as files.
+  files still works everywhere, and so does pasting where a window took it; a
+  click is simply one more way, and the converter and archive pickers take whole
+  folders as readily as files.
+- Text recognition without the screen recording permission asks for it every
+  time you try: the hotkey or the button asks macOS and opens Hop's permissions
+  page. Once Hop has reset its entry since it started, "grant access" opens the
+  list in System Settings instead of asking again.
 - The text recognition window gets out of the way while you frame an area on
   screen and comes back with the text once it is read, so it no longer covers
   what you are trying to select.

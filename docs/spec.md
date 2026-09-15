@@ -2411,11 +2411,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   noise cannot interleave one visual line, with the index as the final tiebreak
   (a valid strict ordering for any input).
 - Permission: **Screen Recording**, checked with `CGPreflightScreenCaptureAccess()`
-  BEFORE the crosshair and requested with `CGRequestScreenCaptureAccess()` —
-  without it the capture would come back as a black rectangle, which reads as a
-  broken feature. The denied state shows a line plus a button that deep-links to
-  System Settings → Privacy → Screen Recording. Hop reads only the rectangle the
-  user draws, only when asked.
+  BEFORE the crosshair — without it the capture would come back as a black
+  rectangle, which reads as a broken feature. Without it the crosshair does not
+  come up, and the ask follows "Screen recording is asked for before a module
+  that reads the screen opens" (`PermissionRepair.askForTheScreen`). The denied
+  line is itself the button (`askByHand`), under "Hop's own row is dropped at
+  most once per run". Hop reads only the rectangle the user draws, only when
+  asked.
 - States (`ScreenTextController.State`): idle → selecting → reading → done(count)
   / empty / denied / failed. A receipt or complaint clears itself after three
   seconds — nothing here is worth a dialog.
@@ -3601,8 +3603,10 @@ eight hours, and came back the moment it was removed and added again.
   torrent. Hop showed it as downloaded ("27 GB" on a torrent 9% done), then fell
   back once the torrent went live. `RqbitDecoding` now puts it in
   `TorrentStats.checkedBytes` with `progressBytes` 0, and the row reads
-  "verifying · 45%" (`torrentVerifying`) until the torrent is live. Snapshot:
-  `--torrents-states`, which now also opens the space holding the torrent module.
+  "verifying · 45%" (`torrentVerifying`) from the first hashed byte until the
+  torrent is live; before the first byte the row shows its usual progress.
+  Snapshot: `--torrents-states`. Every `--torrents*` render now also opens the
+  space holding the torrent module.
 
 ### Converter: documents (1.5.0)
 
@@ -4127,11 +4131,13 @@ eight hours, and came back the moment it was removed and added again.
 - **macOS does the asking, and Hop opens nothing on top of it** (Anton,
   2026-09-02). A refused feature runs that repair itself — the trust check is
   the plain `AXIsProcessTrusted()`, so the one dialog comes from the repair
-  rather than two from both. Hop no longer opens System Settings for the user:
-  it took the focus, hid the very dialog that grants the permission, and closed
-  the popover carrying the explanation, so the whole thing read as Settings
-  opening for no stated reason. The deep link stays as a button in the banner,
-  pressed on purpose or not at all.
+  rather than two from both. A feature that stops does not open System Settings
+  on its own: it took the focus, hid the very dialog that grants the permission,
+  and closed the popover carrying the explanation, so the whole thing read as
+  Settings opening for no stated reason. Two later rules open a window on
+  purpose, both below: a module that reads the screen opens Hop's permissions
+  page on every attempt, and a "grant access" press after Hop's row was already
+  dropped in this run opens the list in System Settings.
 - A feature that is merely stopped asks ONCE per run per service
   (`PermissionRepair.askAgain`), so a zone dragged five times does not raise
   five dialogs. `.stale` never repairs itself: there the permission IS granted,
