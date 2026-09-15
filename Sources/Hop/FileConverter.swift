@@ -209,6 +209,8 @@ final class FileConverter: ObservableObject {
     /// in while the percentage beside it ran to a hundred.
     private var lastProgressAt = Date.distantPast
     private var admitting: Task<Void, Never>?
+    /// SPEC: docs/spec.md — "The walk runs off the main thread", Clear during a walk.
+    private var batchGeneration = 0
 
     /// The file the last conversion produced — what the reveal button opens.
     /// Kept as a URL rather than a folder so Finder can select it: "where did
@@ -510,11 +512,13 @@ final class FileConverter: ObservableObject {
     /// duplicates are skipped. SPEC: docs/spec.md, "Converter".
     func addToBatch(_ urls: [URL]) {
         let previous = admitting
+        let generation = batchGeneration
         admitting = Task {
             let incoming = await Task.detached(priority: .userInitiated) {
                 DropExpansion.expand(urls)
             }.value
             await previous?.value
+            guard generation == batchGeneration else { return }
             admit(incoming)
         }
     }
@@ -599,6 +603,7 @@ final class FileConverter: ObservableObject {
     }
 
     func clearBatch() {
+        batchGeneration += 1
         batch = Batch()
         fileEstimates = [:]
         lastResult = nil

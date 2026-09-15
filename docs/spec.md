@@ -993,7 +993,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   like any file.
 - **The walk runs off the main thread.** A folder of thousands of files used to
   stall the window for as long as the walk took; now the rows appear when it
-  ends, and drops made in a row still arrive in the order they were made.
+  ends, and drops made in a row still arrive in the order they were made. Clear
+  pressed while a walk is still running drops that walk too: its files do not
+  come back into the emptied list when it ends.
 - **The drop plate is also a button.** A click on it opens an Open panel —
   files, whole folders, any number of both — handed to the same `addToBatch` a
   drag and ⌘V reach, so folders expand, duplicates drop out and an unsupported
