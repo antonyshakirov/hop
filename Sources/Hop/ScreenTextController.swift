@@ -34,6 +34,8 @@ final class ScreenTextController: ObservableObject {
     @Published var recognized: String = ""
     /// Ask the app to bring the recognition window forward (wired in AppModel).
     var onResult: (() -> Void)?
+    /// true when the crosshair comes up, false once the frame is read or given up.
+    var onSelection: ((Bool) -> Void)?
 
     private let clipboard: ClipboardController
     /// Screen Recording is what macOS calls the permission; the settings pane
@@ -84,14 +86,17 @@ final class ScreenTextController: ObservableObject {
             return
         }
         state = .selecting
+        onSelection?(true)
         Task {
             guard let file = await Self.selectArea() else {
+                onSelection?(false)
                 state = .idle
                 return
             }
             state = .reading
             let text = await Self.read(file)
             try? FileManager.default.removeItem(at: file)
+            onSelection?(false)
             guard let text else {
                 settle(.empty)
                 return

@@ -33,6 +33,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var uninstallHeightSink: AnyCancellable?
     private var finderArchiveWindows: [UUID: FinderArchiveProgressWindowController] = [:]
     private var screenTextWindow: ConverterWindow?
+    /// Taken off the screen for the crosshair, to come back when the frame is read.
+    private var screenTextWindowAside = false
     private var torrentAddWindow: NSWindow?
     private var quitWindow: NSWindow?
     private var converterUserResized = false
@@ -334,6 +336,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         model.openScreenTextWindow = { [weak self] in
             self?.showScreenTextWindow()
+        }
+        model.screenText.onSelection = { [weak self] selecting in
+            self?.setScreenTextWindowAside(selecting)
         }
         model.openTorrentAddSheet = { [weak self] source in
             self?.showTorrentAddWindow(source)
@@ -1017,6 +1022,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
         adjustScreenTextHeight()
+    }
+
+    /// The recognition window would cover what the crosshair frames. It goes
+    /// without the Dock animation, which would still be on screen when the
+    /// crosshair comes up, and returns where it was before the result lands.
+    /// SPEC: docs/spec.md, "Text recognition".
+    private func setScreenTextWindowAside(_ aside: Bool) {
+        guard let window = screenTextWindow else { return }
+        if aside {
+            guard window.isVisible else { return }
+            screenTextWindowAside = true
+            window.orderOut(nil)
+        } else if screenTextWindowAside {
+            screenTextWindowAside = false
+            NSApp.activate(ignoringOtherApps: true)
+            window.makeKeyAndOrderFront(nil)
+        }
     }
 
     /// Height of the recognition window from its content, like the converter's

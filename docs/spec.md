@@ -2296,6 +2296,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and barcodes become ONE clipboard-history entry, already on the pasteboard.
   Escape cancels and writes nothing. The panel closes before the crosshair
   appears (a popover would cover what the user is framing).
+- **The recognition window steps aside for the crosshair** (Anton, 2026-09-15).
+  Whichever button starts a selection, an open recognition window leaves the
+  screen at once and comes back where it was, key, as soon as the frame is
+  read, with the result, or when the selection is cancelled. It is ordered
+  out rather than minimized: the Dock animation would still be on screen when
+  the crosshair comes up. Ordering out closes nothing, so the Dock icon stays.
 - The action's glyph is `square.dashed` — a marquee, the shape the user drags
   across the screen, in the same dashed family as the Screen Recording
   permission's mark. A bare `viewfinder` read as "enter full screen" and

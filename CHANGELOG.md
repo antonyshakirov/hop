@@ -39,6 +39,9 @@
   windows open a file picker when you click them, and say so on hover. Dropping
   files on them and pasting still work; a click is simply one more way, and the
   converter and archive pickers take whole folders as readily as files.
+- The text recognition window gets out of the way while you frame an area on
+  screen and comes back with the text once it is read, so it no longer covers
+  what you are trying to select.
 - An app, a rich-text bundle or a bundle-format Pages document dropped on the
   converter arrives as one item. It used to be opened like a folder and fill the
   list with its insides, and one sitting inside a dropped folder went missing.
