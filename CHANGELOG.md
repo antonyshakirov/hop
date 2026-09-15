@@ -1,6 +1,6 @@
 # Hop - version history
 
-## Unreleased
+## 2.1.0 - 2026-09-15
 
 - Torrents that stop finding peers, as they could after a long sleep, recover on
   their own. A download could sit at zero speed with no peers until it was
