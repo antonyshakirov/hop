@@ -326,15 +326,19 @@ one card saying the app is free, has no paid tier and lives on donations) → th
 
 **The layout screen** (Anton, 2026-09-16). Right after the modules are chosen,
 one screen shows the panel's tabs as columns and lets them be arranged at once:
-a module dragged onto another tab, a column dragged to move the tab itself, the
-power button to switch a module off. It is the table of settings → modules and
+a module dragged onto another tab, a column dragged to move the tab itself. It is the table of settings → modules and
 tabs itself (`PanelView(layoutTableOnly:)`), not a picture of it, so what is
 learned here is what settings show later; the grids of apps, their options and
 the one-row switch stay on the settings page. The heading says it can be done
 now or later, in settings. Tabs emptied by the module screens are dropped when
 the step opens (`dropEmptyOnboardingSpaces`), so no blank column stands in it;
 the same cleanup still runs at the end. A grid of apps chosen in the wizard is
-created at the end, so it is not on this screen yet.
+created at the end, so it is not on this screen yet. **The wizard's table only
+moves things** (Anton, 2026-09-17): no power button and no ✕ on a grid of apps.
+Which modules are on was decided on the screens just before, and switching
+one on here would also ask for permissions ahead of their own step; the power
+button stays in settings, where arranging and switching go together. A module
+switched off earlier stands dimmed in its column and can still be placed.
 
 - The groups are `ModuleCatalog.onboardingGroups`, tested to cover every module
   exactly once: time (timer, tracker, to-dos) · files (converter, archives) ·

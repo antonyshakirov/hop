@@ -1717,7 +1717,7 @@ struct PanelView: View {
             // reserved whether or not the chip is hovered: the eye then keeps
             // the same trailing position on every chip, deletable or not, and
             // the chip never resizes under the pointer.
-            if let shelf {
+            if let shelf, !layoutTableOnly {
                 ZStack {
                     if hoveredChip == key, dragChip == nil {
                         Button { confirmDeleteShelf = shelf } label: {
@@ -1733,19 +1733,21 @@ struct PanelView: View {
                 }
                 .frame(width: 12, height: 13)
             }
-            // SPEC: docs/spec.md — the power button on a chip.
-            Button {
-                if hidden { setModuleHidden(key, false) } else { requestModuleOff(key) }
-            } label: {
-                Image(systemName: "power")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(hidden ? Theme.textTertiary : Theme.accentGreen)
-                    .frame(width: 14, height: 13)
-                    .contentShape(Rectangle())
+            // SPEC: docs/spec.md — the power button on a chip; "Onboarding", the layout screen has none.
+            if !layoutTableOnly {
+                Button {
+                    if hidden { setModuleHidden(key, false) } else { requestModuleOff(key) }
+                } label: {
+                    Image(systemName: "power")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(hidden ? Theme.textTertiary : Theme.accentGreen)
+                        .frame(width: 14, height: 13)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverDim()
+                .help(t(hidden ? .moduleEnable : .moduleDisable))
             }
-            .buttonStyle(.plain)
-            .hoverDim()
-            .help(t(hidden ? .moduleEnable : .moduleDisable))
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
