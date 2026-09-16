@@ -334,12 +334,7 @@ the one-row switch stay on the settings page. The heading says it can be done
 now or later, in settings. Tabs emptied by the module screens are dropped when
 the step opens (`dropEmptyOnboardingSpaces`), so no blank column stands in it;
 the same cleanup still runs at the end. A grid of apps chosen in the wizard is
-created at the end, so it is not on this screen yet. In the wizard the power
-button switches a module off at once, with no "something is still running"
-confirmation (the wizard's picture model always has a demo download and a demo
-sleep block running), and switching one on asks for no permission there: the
-wizard has a step for that, and the engine for torrents is fetched when the
-wizard finishes.
+created at the end, so it is not on this screen yet.
 
 - The groups are `ModuleCatalog.onboardingGroups`, tested to cover every module
   exactly once: time (timer, tracker, to-dos) · files (converter, archives) ·
