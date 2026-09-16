@@ -141,11 +141,21 @@ final class HoldInkView: NSView {
     }
 }
 
-@_silgen_name("_CGSDefaultConnection")
-private func cgsDefaultConnection() -> Int32
+/// Resolved at run time, so a macOS without them loses only the background cursor, not the app.
+private enum BackgroundCursor {
+    private typealias DefaultConnectionFn = @convention(c) () -> Int32
+    private typealias SetPropertyFn = @convention(c) (Int32, Int32, CFString, CFTypeRef) -> Int32
 
-@_silgen_name("CGSSetConnectionProperty")
-private func cgsSetConnectionProperty(_ connection: Int32, _ target: Int32, _ key: CFString, _ value: CFTypeRef) -> Int32
+    /// nil when the symbols are gone; otherwise the status the window server answered.
+    static func allow() -> Int32? {
+        guard let handle = dlopen(nil, RTLD_NOW),
+              let connectionSymbol = dlsym(handle, "_CGSDefaultConnection"),
+              let setSymbol = dlsym(handle, "CGSSetConnectionProperty") else { return nil }
+        let connection = unsafeBitCast(connectionSymbol, to: DefaultConnectionFn.self)()
+        let set = unsafeBitCast(setSymbol, to: SetPropertyFn.self)
+        return set(connection, connection, "SetsCursorInBackground" as CFString, kCFBooleanTrue)
+    }
+}
 
 /// SPEC: docs/spec.md — "Ink while a key is held".
 @MainActor
@@ -170,11 +180,10 @@ final class HoldInkLayer {
         generation += 1
         if !cursorUnlocked {
             // WORKAROUND: the window server ignores NSCursor.set from an app that is not frontmost, and Hop never becomes frontmost here.
-            let connection = cgsDefaultConnection()
-            let status = cgsSetConnectionProperty(connection, connection, "SetsCursorInBackground" as CFString, kCFBooleanTrue)
+            let status = BackgroundCursor.allow()
             if status != 0 {
                 Logger(subsystem: "com.antonshakirov.hop", category: "Markup")
-                    .error("hold ink: background cursor refused, status \(status)")
+                    .error("hold ink: background cursor refused, status \(status.map(String.init) ?? "no symbol")")
             }
             cursorUnlocked = true
         }

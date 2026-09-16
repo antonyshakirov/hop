@@ -94,10 +94,11 @@ public struct HoldChord: Equatable, Sendable {
         (.leftCommand, "leftCommand", "⌘"), (.rightCommand, "rightCommand", "R⌘"),
     ]
 
-    /// Modifiers only: at least two keys (fn counts). With a key: at least one modifier, and the key is not a modifier key.
+    /// Modifiers only: at least two keys (fn counts). With a key: a modifier other than shift alone, and the key is not a modifier key.
     public var isValid: Bool {
         if let keyCode {
-            return !modifiers.isEmpty && !HoldModifiers.isModifierKey(keyCode)
+            let shiftOnly = modifiers.isSubset(of: [.leftShift, .rightShift])
+            return !modifiers.isEmpty && !shiftOnly && !HoldModifiers.isModifierKey(keyCode)
         }
         return modifiers.count >= 2
     }

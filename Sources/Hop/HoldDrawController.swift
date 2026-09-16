@@ -22,6 +22,7 @@ final class HoldDrawController {
     private var lastInputs: Inputs?
     private var observers: [NSObjectProtocol] = []
     private var alertWatch: AnyCancellable?
+    private var heldWatch: Timer?
 
     private struct Inputs: Equatable {
         var holdOn: Bool
@@ -82,6 +83,7 @@ final class HoldDrawController {
         let wanted = !Snapshot.active && inputs.moduleOn && inputs.holdOn && inputs.trusted
             && chord.isValid && !inputs.suspended && !inputs.fullLayerUp && !inputs.locked
         guard wanted else {
+            stopWatchingHeld()
             tap?.remove()
             tap = nil
             tapFailed = false
@@ -116,11 +118,56 @@ final class HoldDrawController {
         case .begin:
             guard !isFullLayerUp(), !isKeyboardLocked() else { return }
             layer.show(ink: MarkupSettings.holdInk())
+            watchHeld()
         case .release:
+            stopWatchingHeld()
             if layer.isShowing { layer.fadeAway() }
         case .cancel:
+            stopWatchingHeld()
             layer.dismiss()
         }
+    }
+
+    /// SPEC: docs/spec.md — "Ink while a key is held": a lost key-up must not leave the layer taking clicks.
+    private func watchHeld() {
+        stopWatchingHeld()
+        let timer = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.checkHeld() }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        heldWatch = timer
+    }
+
+    private func stopWatchingHeld() {
+        heldWatch?.invalidate()
+        heldWatch = nil
+    }
+
+    private func checkHeld() {
+        guard layer.isShowing, let tap else { return stopWatchingHeld() }
+        guard !Self.isHeld(MarkupSettings.holdChord()) else { return }
+        apply(tap.feed(.chordNotHeld))
+    }
+
+    /// Either source saying a key is down counts: flags and key state disagree on some keyboards.
+    private static func isHeld(_ chord: HoldChord) -> Bool {
+        let flags = CGEventSource.flagsState(.combinedSessionState)
+        func down(_ codes: CGKeyCode...) -> Bool {
+            codes.contains { CGEventSource.keyState(.hidSystemState, key: $0) }
+        }
+        let modifiers = chord.modifiers
+        let groups: [(HoldModifiers, CGEventFlags, [CGKeyCode])] = [
+            ([.fn], .maskSecondaryFn, [63]),
+            ([.leftControl, .rightControl], .maskControl, [59, 62]),
+            ([.leftOption, .rightOption], .maskAlternate, [58, 61]),
+            ([.leftShift, .rightShift], .maskShift, [56, 60]),
+            ([.leftCommand, .rightCommand], .maskCommand, [55, 54]),
+        ]
+        for (members, flag, codes) in groups where !modifiers.isDisjoint(with: members) {
+            guard flags.contains(flag) || codes.contains(where: { down($0) }) else { return false }
+        }
+        if let key = chord.keyCode, !down(CGKeyCode(key)) { return false }
+        return true
     }
 }
 
@@ -206,6 +253,14 @@ private final class HoldTap: @unchecked Sendable {
         }
         if let runLoop {
             CFRunLoopStop(runLoop)
+        }
+    }
+
+    func feed(_ input: HoldGesture.Input) -> HoldGesture.Effect {
+        shared.withLock { shared -> HoldGesture.Effect in
+            let step = HoldGesture.step(shared.state, chord: shared.chord, input: input)
+            shared.state = step.state
+            return step.effect
         }
     }
 

@@ -105,4 +105,10 @@ final class HoldChordTests: XCTestCase {
         let chord = HoldChord(modifiers: [.leftCommand, .leftShift], keyCode: 40)
         XCTAssertEqual(chord.carbonModifiers, 0x300)
     }
+
+    func testShiftAloneWithAKeyIsNotAChord() {
+        XCTAssertFalse(HoldChord(modifiers: [.leftShift], keyCode: 0).isValid)
+        XCTAssertFalse(HoldChord(modifiers: [.leftShift, .rightShift], keyCode: 0).isValid)
+        XCTAssertTrue(HoldChord(modifiers: [.leftShift, .leftControl], keyCode: 0).isValid)
+    }
 }

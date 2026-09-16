@@ -3344,7 +3344,17 @@ recording, or a person sitting next to you.
   0 %, drawing stays under 5 %.
 - **Cursor.** The window server ignores a cursor set by an app that is not in
   front, so the layer turns on `SetsCursorInBackground` for Hop's connection
-  once, on first show (`WORKAROUND` in `HoldInkLayer`).
+  once, on first show (`WORKAROUND` in `HoldInkLayer`). Both private symbols are
+  looked up at run time (`dlsym`), like every other private API in Hop: a macOS
+  without them loses the pencil cursor, not the whole app at launch.
+- **A lost key-up does not strand the layer** (security review, 2026-09-17). An
+  event can go missing, for example when Secure Event Input starts while the
+  chord is held, and the layer would stay over every screen taking clicks. While
+  it shows, the controller checks twice a second whether the chord is still down
+  (a modifier counts as down if either the event flags or its key state say so)
+  and releases the layer if not. A pending chord key is swallowed only as a
+  repeat; a fresh press means its key-up was lost and passes through.
+- **Shift alone with a key is not a chord**: it would eat every capital letter.
 
 Tests: `HoldChordTests`, `HoldGestureTests`.
 

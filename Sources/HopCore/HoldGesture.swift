@@ -14,6 +14,8 @@ public enum HoldGesture {
         case flagsChanged(keyCode: UInt16, flags: UInt64)
         case keyDown(UInt16, isRepeat: Bool)
         case keyUp(UInt16)
+        /// A check outside the event stream found the chord not held: an event was lost.
+        case chordNotHeld
     }
 
     public enum Effect: Equatable, Sendable {
@@ -60,9 +62,13 @@ public enum HoldGesture {
                 return Step(state: next, effect: .none, swallow: false)
             }
             if keyCode == chord.keyCode, state.swallowsChordKey {
-                return Step(state: next, effect: .none, swallow: true)
+                if isRepeat {
+                    return Step(state: next, effect: .none, swallow: true)
+                }
+                // SPEC: docs/spec.md — "Ink while a key is held": a fresh press means its key-up was lost.
+                next.swallowsChordKey = false
             }
-            switch state.phase {
+            switch next.phase {
             case .idle:
                 if keyCode == chord.keyCode, !isRepeat, next.modifiers == chord.modifiers {
                     next.phase = .held
@@ -76,6 +82,9 @@ public enum HoldGesture {
             case .spent:
                 return Step(state: next, effect: .none, swallow: false)
             }
+
+        case .chordNotHeld:
+            return Step(state: State(), effect: state.phase == .held ? .release : .none, swallow: false)
 
         case let .keyUp(keyCode):
             guard keyCode == chord.keyCode, state.swallowsChordKey else {

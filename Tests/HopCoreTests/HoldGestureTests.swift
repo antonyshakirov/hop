@@ -240,4 +240,28 @@ final class HoldGestureTests: XCTestCase {
         XCTAssertEqual(recorder.keyDown(40), .waiting)
         XCTAssertEqual(recorder.flagsChanged(keyCode: 55, flags: 0), .waiting)
     }
+
+    func testAPendingChordKeyIsSwallowedOnlyWithTheChordModifiersStillHeld() {
+        var run = Run(chord: keyedChord)
+        _ = run.flags(59, leftControlBit)
+        _ = run.flags(58, leftControlBit | leftOptionBit)
+        _ = run.send(.keyDown(6, isRepeat: false))
+        _ = run.flags(58, leftControlBit)
+        _ = run.flags(59, 0)
+        let bare = run.send(.keyDown(6, isRepeat: false))
+        XCTAssertFalse(bare.swallow)
+        XCTAssertFalse(bare.state.swallowsChordKey)
+    }
+
+    func testHeldLayerIsReleasedWhenTheChordIsFoundNotHeld() {
+        var run = holdingStandard()
+        let step = run.send(.chordNotHeld)
+        XCTAssertEqual(step.effect, .release)
+        XCTAssertEqual(step.state, HoldGesture.State())
+    }
+
+    func testChordNotHeldWhileIdleDoesNothing() {
+        var run = Run(chord: .standard)
+        XCTAssertEqual(run.send(.chordNotHeld).effect, .none)
+    }
 }
