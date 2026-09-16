@@ -1,6 +1,6 @@
 # Hop - version history
 
-## 2.1.1 - 2026-09-16
+## 2.1.1 - 2026-09-17
 
 - Hold fn and control to draw on the screen without opening anything. The
   pointer turns into a pencil, you draw on every display, and when you let go
