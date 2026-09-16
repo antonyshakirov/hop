@@ -2992,6 +2992,8 @@ struct PanelView: View {
         mutateTabs { $0.setHidden(key, hidden: hidden) }
         HotkeyManager.shared.refreshModuleHotkeys()
         ModuleActivation.announceChange()
+        // SPEC: docs/spec.md — "Onboarding", the layout screen: the wizard asks for permissions on its own step.
+        guard !layoutTableOnly else { return }
         if key == "torrent", !hidden { model.torrent.prefetchEngineIfNeeded() }
         if !hidden { askForTheScreenIfNeeded([key]) }
     }
@@ -3027,7 +3029,8 @@ struct PanelView: View {
     }
 
     private func requestModuleOff(_ key: String) {
-        if ModuleShutdown.needsConfirmation(module: key, activity: moduleActivity) {
+        // SPEC: docs/spec.md — "Onboarding", the layout screen: a fresh install has nothing running to stop.
+        if !layoutTableOnly, ModuleShutdown.needsConfirmation(module: key, activity: moduleActivity) {
             confirmModuleOff = key
         } else {
             setModuleHidden(key, true)
