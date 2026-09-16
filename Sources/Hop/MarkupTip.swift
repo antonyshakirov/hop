@@ -103,7 +103,7 @@ private struct MarkupTipAnchor: NSViewRepresentable {
 
     func makeNSView(context: Context) -> Probe {
         let view = Probe()
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak view] in
             ready { [weak view] in
                 guard let view, let window = view.window else { return .zero }
                 return window.convertToScreen(view.convert(view.bounds, to: nil))

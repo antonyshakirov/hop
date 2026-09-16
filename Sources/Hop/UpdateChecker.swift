@@ -119,7 +119,7 @@ final class UpdateChecker: ObservableObject {
             try? await Task.sleep(for: .seconds(15))
             await self?.autoCheck(canInstall: canInstall)
         }
-        let check = Timer(timeInterval: Self.checkInterval, repeats: true) { _ in
+        let check = Timer(timeInterval: Self.checkInterval, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 await self?.autoCheck(canInstall: canInstall)
             }
@@ -127,7 +127,7 @@ final class UpdateChecker: ObservableObject {
         RunLoop.main.add(check, forMode: .common)
         // A release found while the user was busy installs the moment they go
         // idle, not a whole poll cycle later: this timer only re-tests the gate.
-        let install = Timer(timeInterval: Self.installRetryInterval, repeats: true) { _ in
+        let install = Timer(timeInterval: Self.installRetryInterval, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 await self?.installPendingIfPossible(canInstall: canInstall)
             }

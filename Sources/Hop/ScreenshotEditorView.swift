@@ -197,7 +197,7 @@ final class ScreenshotEditor: ObservableObject {
         let pixels = scale
         backdropRun += 1
         let run = backdropRun
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let made = MarkupRender.effects(base: frame, shapes: marks, scale: pixels)
             DispatchQueue.main.async { [weak self] in
                 guard let self, run == self.backdropRun else { return }
