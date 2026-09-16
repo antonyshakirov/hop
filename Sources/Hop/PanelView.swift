@@ -230,13 +230,18 @@ struct PanelView: View {
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
     private let previewModules: [String]
 
+    /// Only the table of tabs and modules, for the onboarding's layout screen.
+    /// SPEC: docs/spec.md — "Onboarding", the layout screen.
+    private let layoutTableOnly: Bool
+
     init(initial: InitialScreen = .restore, standaloneSettings: Bool = false,
-         previewModules: [String] = []) {
+         previewModules: [String] = [], layoutTableOnly: Bool = false) {
         // The panel content view is built once at launch, so this resolves the
         // restored space from UserDefaults directly.
         _screen = State(initialValue: Self.resolve(initial))
         self.standaloneSettings = standaloneSettings
         self.previewModules = previewModules
+        self.layoutTableOnly = layoutTableOnly
     }
 
     private var cycleTemplates: [(work: Int, rest: Int, rounds: Int)] {
@@ -277,6 +282,10 @@ struct PanelView: View {
                 .background(Theme.panelBackground)
                 .allowsHitTesting(false)   // a picture, not a control
                 .id(model.themeVersion)
+        } else if layoutTableOnly {
+            modulesTable
+                .id(model.themeVersion)
+                .onDisappear { resetLayoutDrag() }
         } else if standaloneSettings {
             settingsScreen
                 // a theme change must rebuild ALL child views: LanguagePicker
@@ -3986,6 +3995,32 @@ struct PanelView: View {
     /// the table explains inactive and the drag affordances. The icon picker opens
     /// in a popover under each header; the delete confirmation floats over the
     /// table as a scrim + card (neither reflows the columns).
+    private var modulesTable: some View {
+        HStack(alignment: .top, spacing: 10) {
+            ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
+                tabColumn(tab, number: index + 1)
+            }
+            if tabsModel.tabs.count < PanelTabsModel.maxTabs {
+                addColumnStub
+            }
+        }
+        .coordinateSpace(name: Self.tableCoordinateSpace)
+        .onPreferenceChange(ColumnFrameKey.self) { columnFrames = $0 }
+        .onPreferenceChange(ChipFrameKey.self) { chipFrames = $0 }
+        .onPreferenceChange(ChipAreaKey.self) { chipAreaFrames = $0 }
+        .overlay { dragIndicators.allowsHitTesting(false) }
+        .overlay {
+            if let id = confirmDeleteTab {
+                deleteTabConfirmOverlay(id)
+            }
+        }
+        .overlay {
+            if let id = confirmDeleteShelf {
+                deleteShelfConfirmOverlay(id)
+            }
+        }
+    }
+
     private var layoutSettings: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -3994,35 +4029,7 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textTertiary)
                 Spacer()
             }
-            // Inactive is the FIRST column, then the spaces in order, then the "+"
-            // add-tab tile.
-            HStack(alignment: .top, spacing: 10) {
-                ForEach(Array(tabsModel.tabs.enumerated()), id: \.element.id) { index, tab in
-                    tabColumn(tab, number: index + 1)
-                }
-                if tabsModel.tabs.count < PanelTabsModel.maxTabs {
-                    addColumnStub
-                }
-            }
-            .coordinateSpace(name: Self.tableCoordinateSpace)
-            .onPreferenceChange(ColumnFrameKey.self) { columnFrames = $0 }
-            .onPreferenceChange(ChipFrameKey.self) { chipFrames = $0 }
-            .onPreferenceChange(ChipAreaKey.self) { chipAreaFrames = $0 }
-            // Insertion indicators ride above the columns but never intercept
-            // the drag; the delete confirmation floats over the table (dimmed
-            // scrim + card) so the columns never reflow; the icon picker is a
-            // popover on each header. All draw on top of the table, not beneath.
-            .overlay { dragIndicators.allowsHitTesting(false) }
-            .overlay {
-                if let id = confirmDeleteTab {
-                    deleteTabConfirmOverlay(id)
-                }
-            }
-            .overlay {
-                if let id = confirmDeleteShelf {
-                    deleteShelfConfirmOverlay(id)
-                }
-            }
+            modulesTable
             // Chips can only move what exists, and grids of apps are the one
             // module that comes in copies, so the table itself has to be able to
             // make another one. ABOVE the caption and drawn as a real button:
@@ -4059,24 +4066,20 @@ struct PanelView: View {
             }
             .padding(.top, 8)
         }
-        .onDisappear {
-            // @State survives the settings window's hide/show, so a window
-            // closed mid-drag would reopen with a ghost chip frozen at the drag
-            // point. Clear the chip and header drag state here — mirrors
-            // TrackerView's resetDrag() and the gesture `onEnded` handlers.
-            dragChip = nil
-            dragChipTranslation = .zero
-            dragLocation = nil
-            dropColumn = nil
-            hoveredChip = nil
-            confirmDeleteShelf = nil
-            dragHeaderTab = nil
-            dragHeaderTranslation = 0
-            // a still-open picker popover or delete confirmation would otherwise
-            // reappear when the layout section is shown again
-            iconPickerTabID = nil
-            confirmDeleteTab = nil
-        }
+        .onDisappear { resetLayoutDrag() }
+    }
+
+    private func resetLayoutDrag() {
+        dragChip = nil
+        dragChipTranslation = .zero
+        dragLocation = nil
+        dropColumn = nil
+        hoveredChip = nil
+        confirmDeleteShelf = nil
+        dragHeaderTab = nil
+        dragHeaderTranslation = 0
+        iconPickerTabID = nil
+        confirmDeleteTab = nil
     }
 
     private var timerSettings: some View {

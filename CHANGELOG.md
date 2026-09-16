@@ -8,6 +8,9 @@
   takes the focus, and any other key cancels the gesture and does its usual
   job. The chord, the colour and the width are set on the draw on screen page,
   and any chord can be recorded there.
+- A new install arranges its panel in the setup wizard. One screen shows the
+  tabs as columns: drag a module onto another tab or a column to reorder the
+  tabs, the same table as in settings, where it can be changed later.
 
 ## 2.1.0 - 2026-09-15
 

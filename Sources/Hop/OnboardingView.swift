@@ -107,6 +107,7 @@ struct OnboardingView: View {
         case .welcome: welcomeStep
         case .setup: setupStep
         case .privacy: privacyStep
+        case .layout: layoutStep
         case .permissions: permissionsStep
         case .done: doneStep
         default:
@@ -374,6 +375,17 @@ struct OnboardingView: View {
         }
     }
 
+    /// The settings page's own table, so what is learned here is what settings show later.
+    /// SPEC: docs/spec.md — "Onboarding", the layout screen.
+    private var layoutStep: some View {
+        VStack(spacing: 16) {
+            stepHeading(t(.onbLayoutTitle), subtitle: t(.onbLayoutBody))
+            PanelView(layoutTableOnly: true)
+                .environmentObject(previewModel)
+                .id(moduleRevision)
+        }
+    }
+
     private var permissionsStep: some View {
         VStack(spacing: 16) {
             stepHeading(t(.permTab), subtitle: t(.onbPermBody))
@@ -499,6 +511,10 @@ struct OnboardingView: View {
         let all = OnboardStep.ordered
         guard stepIndex + 1 < all.count else { return finishOnboarding() }
         stepIndex += 1
+        if all[stepIndex] == .layout {
+            PanelView.dropEmptyOnboardingSpaces()
+            moduleRevision += 1
+        }
         if all[stepIndex] == .done { checkForUpdate() }
     }
 

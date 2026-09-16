@@ -11,13 +11,14 @@ enum OnboardStep: Equatable {
     case setup
     case privacy
     case modules(Int)
+    case layout
     case permissions
     case done
 
     static var ordered: [OnboardStep] {
         [.welcome, .setup, .privacy]
             + (0..<ModuleGroup.all.count).map { OnboardStep.modules($0) }
-            + [.permissions, .done]
+            + [.layout, .permissions, .done]
     }
 
     var groupIndex: Int? {

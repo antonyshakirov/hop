@@ -321,8 +321,20 @@ and the wizard comes back where it was.
 
 The order (`OnboardStep.ordered`): **hop** (language, theme, launch at login) →
 **nothing leaves this Mac** (the same pledge the permissions page carries, plus
-one card saying the app is free, has no paid tier and lives on donations) → six
-**module groups** → **permissions** → **done**.
+one card saying the app is free, has no paid tier and lives on donations) → the
+**module groups** → **layout** → **permissions** → **done**.
+
+**The layout screen** (Anton, 2026-09-16). Right after the modules are chosen,
+one screen shows the panel's tabs as columns and lets them be arranged at once:
+a module dragged onto another tab, a column dragged to move the tab itself, the
+power button to switch a module off. It is the table of settings → modules and
+tabs itself (`PanelView(layoutTableOnly:)`), not a picture of it, so what is
+learned here is what settings show later; the grids of apps, their options and
+the one-row switch stay on the settings page. The heading says it can be done
+now or later, in settings. Tabs emptied by the module screens are dropped when
+the step opens (`dropEmptyOnboardingSpaces`), so no blank column stands in it;
+the same cleanup still runs at the end. A grid of apps chosen in the wizard is
+created at the end, so it is not on this screen yet.
 
 - The groups are `ModuleCatalog.onboardingGroups`, tested to cover every module
   exactly once: time (timer, tracker, to-dos) · files (converter, archives) ·
