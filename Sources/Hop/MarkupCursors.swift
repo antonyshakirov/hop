@@ -31,6 +31,11 @@ enum MarkupCursors {
         }
     }
 
+    /// The pencil glyph, tip on the pointer: ink while a key is held has no toolbar to say what the click will do.
+    static func pencil() -> NSCursor? {
+        drawn(.pencil)
+    }
+
     /// The nib itself: the shape and the size of the mark about to be made, so
     /// its weight is known before a line of it is drawn. Round for the pens,
     /// square for the chisel of a marker.

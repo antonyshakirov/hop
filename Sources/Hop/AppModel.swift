@@ -24,6 +24,8 @@ final class AppModel: ObservableObject {
     let screenText: ScreenTextController
     let shot = CaptureController()
     let annotate = ScreenAnnotateController()
+    /// Built for the live model only: a preview's second tap would draw twice.
+    let holdDraw: HoldDrawController?
     let archive = ArchiveController()
     let keyboardLock = KeyboardLockController()
     let vpn: VPNController
@@ -121,6 +123,9 @@ final class AppModel: ObservableObject {
         appShelves = AppShelvesController(demo: preview)
         colorPicker = ColorPickerController(clipboard: clipboard)
         screenText = ScreenTextController(clipboard: clipboard)
+        holdDraw = preview ? nil : HoldDrawController(
+            isFullLayerUp: { [annotate] in annotate.isUp },
+            isKeyboardLocked: { [keyboardLock] in keyboardLock.isLocked })
         if preview {
             // Staged rows for the pictures: an empty tracker and an empty list
             // show a heading and nothing else. The sample names are translated
@@ -187,6 +192,12 @@ final class AppModel: ObservableObject {
         })
         forwarders.append(shot.objectWillChange.sink { [weak self] in self?.objectWillChange.send() })
         forwarders.append(annotate.objectWillChange.sink { [weak self] in self?.objectWillChange.send() })
+        forwarders.append(annotate.$isUp.dropFirst().receive(on: DispatchQueue.main).sink { [weak self] _ in
+            self?.holdDraw?.reconcile()
+        })
+        forwarders.append(keyboardLock.$isLocked.dropFirst().receive(on: DispatchQueue.main).sink { [weak self] _ in
+            self?.holdDraw?.reconcile()
+        })
         forwarders.append(screenText.objectWillChange.sink { [weak self] in
             self?.windowModuleChanged()
         })

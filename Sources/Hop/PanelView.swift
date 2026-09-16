@@ -31,6 +31,8 @@ struct PanelView: View {
     @AppStorage(MarkupSettings.sharedColourKey) private var shotSharedColour = false
     @AppStorage(ShotEditorWindows.oneWindowKey) private var shotOneWindow = false
     @AppStorage(MarkupSettings.startsDrawingKey) private var annotateStartsDrawing = true
+    @AppStorage(MarkupSettings.holdOnKey) private var holdDrawOn = true
+    @AppStorage(MarkupSettings.holdChordKey) private var holdChordStored = ""
     @AppStorage(SettingsKey.trackerTimeInBar) private var trackerTimeInBar = false
     @AppStorage(SettingsKey.alertMode) private var alertModeRaw = AlertMode.soundAndBanner.rawValue
     @AppStorage(MediaPauser.settingKey) private var pauseMedia = false
@@ -196,6 +198,13 @@ struct PanelView: View {
     @State private var chosenPreset: Int?
     @State private var recordingHotkey: ModuleAction?
     @State private var hotkeyMonitor: Any?
+    @State private var holdInk = MarkupSettings.holdInk()
+    @State private var showingHoldColour = false
+    @State private var showingHoldWidth = false
+    @State private var recordingHoldChord = false
+    @State private var holdChordRefused = false
+    @State private var holdRecorder = HoldRecorder()
+    @State private var holdChordMonitor: Any?
     @ObservedObject private var hotkeys = HotkeyManager.shared
     @AppStorage(Sounds.enabledKey) private var appSoundsOn = true
 
@@ -4216,8 +4225,149 @@ struct PanelView: View {
                 Spacer()
                 Theme.MiniSwitch(isOn: $annotateStartsDrawing)
             }
+            holdDrawRows
             shotFolderRow
             shotFormatRow
+        }
+    }
+
+    /// SPEC: docs/spec.md — "Ink while a key is held", the settings.
+    @ViewBuilder
+    private var holdDrawRows: some View {
+        HStack(spacing: 6) {
+            Text(t(.holdDrawLabel)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+            Spacer()
+            if holdChordRefused {
+                Text(t(.hkTaken))
+                    .font(Theme.mono(8))
+                    .foregroundStyle(Theme.accentRed)
+                    .lineLimit(1)
+            }
+            comboResetButton(isDefault: holdChordIsStandard) { MarkupSettings.store(holdChord: nil) }
+            comboChip(recordingHoldChord ? t(.hkRecord) : holdChordText, recording: recordingHoldChord) {
+                recordingHoldChord ? stopRecordingHoldChord() : startRecordingHoldChord()
+            }
+            Theme.MiniSwitch(isOn: $holdDrawOn)
+        }
+        .onDisappear { stopRecordingHoldChord() }
+
+        if holdDrawOn {
+            HStack {
+                Text(t(.holdDrawColour)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Button { showingHoldColour.toggle() } label: {
+                    Circle()
+                        .fill(Color(markupHex: holdInk.hex))
+                        .frame(width: 16, height: 16)
+                        .overlay(Circle().strokeBorder(Theme.glyphInk.opacity(0.2), lineWidth: 1))
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .popover(isPresented: $showingHoldColour) {
+                    MarkupColourPopover(ink: holdInkBinding)
+                }
+            }
+            HStack {
+                Text(t(.mkWidth)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Button { showingHoldWidth.toggle() } label: {
+                    Text("\(Int(holdInk.width.rounded()))")
+                        .font(Theme.mono(11, weight: .semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                        .frame(minWidth: 32)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(5)
+                .popover(isPresented: $showingHoldWidth) {
+                    MarkupWidthPopover(ink: holdInkBinding, lang: lang)
+                }
+            }
+            if !AXIsProcessTrusted() || model.holdDraw?.tapFailed == true {
+                HStack(spacing: 6) {
+                    Text(t(.permNoAccess))
+                        .font(Theme.mono(10))
+                        .foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 8)
+                    Button {
+                        PermissionRepair.askByHand(.accessibility)
+                    } label: {
+                        HoverLabel(text: t(.permGrant), size: 10, color: Theme.accentYellow)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .help(t(.permGrant))
+                }
+            }
+        }
+    }
+
+    private var holdChord: HoldChord {
+        HoldChord(storage: holdChordStored) ?? .standard
+    }
+
+    private var holdChordIsStandard: Bool { holdChord == .standard }
+
+    private var holdChordText: String {
+        holdChord.display(keyName: { HotkeyManager.Combo.keyName(UInt32($0)) })
+    }
+
+    private var holdInkBinding: Binding<MarkupInk> {
+        Binding(
+            get: { holdInk },
+            set: { ink in
+                holdInk = ink
+                MarkupSettings.store(holdInk: ink)
+            }
+        )
+    }
+
+    private func startRecordingHoldChord() {
+        stopRecordingHoldChord()
+        holdChordRefused = false
+        holdRecorder = HoldRecorder()
+        recordingHoldChord = true
+        model.holdDraw?.suspended = true
+        holdChordMonitor = NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .keyDown]) { event in
+            let outcome = event.type == .flagsChanged
+                ? holdRecorder.flagsChanged(keyCode: event.keyCode, flags: UInt64(event.modifierFlags.rawValue))
+                : holdRecorder.keyDown(event.keyCode)
+            switch outcome {
+            case .waiting:
+                break
+            case .cancelled:
+                stopRecordingHoldChord()
+            case let .recorded(chord):
+                if holdChordClashes(chord) {
+                    holdChordRefused = true
+                } else {
+                    MarkupSettings.store(holdChord: chord == .standard ? nil : chord)
+                }
+                stopRecordingHoldChord()
+            }
+            return nil
+        }
+    }
+
+    private func stopRecordingHoldChord() {
+        if let monitor = holdChordMonitor {
+            NSEvent.removeMonitor(monitor)
+            holdChordMonitor = nil
+        }
+        guard recordingHoldChord else { return }
+        recordingHoldChord = false
+        model.holdDraw?.suspended = false
+    }
+
+    private func holdChordClashes(_ chord: HoldChord) -> Bool {
+        guard let carbon = chord.carbonModifiers, let key = chord.keyCode else { return false }
+        return ModuleCatalog.allActions.contains { action in
+            guard let combo = hotkeys.combo(for: action) else { return false }
+            return combo.keyCode == UInt32(key) && combo.modifiers == carbon
         }
     }
 
@@ -4768,12 +4918,22 @@ struct PanelView: View {
     }
 
     private func hotkeyCombo(_ action: ModuleAction) -> some View {
-        Button {
+        comboChip(recordingHotkey == action ? t(.hkRecord) : (hotkeys.combo(for: action)?.display ?? "—"),
+                  recording: recordingHotkey == action) {
             startRecording(action)
-        } label: {
-            Text(recordingHotkey == action ? t(.hkRecord) : (hotkeys.combo(for: action)?.display ?? "—"))
+        }
+        .help(t(.hotkeysLabel))
+    }
+
+    private func hotkeyReset(_ action: ModuleAction) -> some View {
+        comboResetButton(isDefault: hotkeys.isDefault(action)) { hotkeys.reset(action) }
+    }
+
+    private func comboChip(_ text: String, recording: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(text)
                 .font(Theme.mono(11, weight: .semibold))
-                .foregroundStyle(recordingHotkey == action ? Theme.editing : Theme.textPrimary)
+                .foregroundStyle(recording ? Theme.editing : Theme.textPrimary)
                 .frame(minWidth: 64)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -4781,12 +4941,11 @@ struct PanelView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(t(.hotkeysLabel))
         .hoverHighlight(5)
     }
 
-    private func hotkeyReset(_ action: ModuleAction) -> some View {
-        Button { hotkeys.reset(action) } label: {
+    private func comboResetButton(isDefault: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             Image(systemName: "arrow.counterclockwise")
                 .font(.system(size: 9))
                 .foregroundStyle(Theme.textTertiary)
@@ -4796,8 +4955,8 @@ struct PanelView: View {
         .buttonStyle(.plain)
         .help(t(.resetDefaults))
         .hoverDim()
-        .opacity(hotkeys.isDefault(action) ? 0 : 1)
-        .allowsHitTesting(!hotkeys.isDefault(action))
+        .opacity(isDefault ? 0 : 1)
+        .allowsHitTesting(!isDefault)
     }
 
     @ViewBuilder

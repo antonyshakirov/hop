@@ -3264,6 +3264,68 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   when the WHOLE screen is shared. Sharing a single window composites that
   window alone, and Hop's layer is not part of it.
 
+### Ink while a key is held
+
+Show something on screen in a second: hold a chord, circle it, let go, and the
+drawing melts away. No panel opens, no yellow border appears and Hop never
+comes to the front (Anton, 2026-09-16). It is for a call with a shared screen, a
+recording, or a person sitting next to you.
+
+- **The gesture.** While the chord is held, ink can be drawn with the mouse or
+  the trackpad on every display, as many strokes as wanted. The pointer is the
+  pencil glyph. Releasing any key of the chord hands clicks straight back to the
+  apps underneath, and the strokes fade over 0.3 s. There is no delay before
+  the layer shows.
+- **Default chord: fn + LEFT control** (Anton, 2026-09-16). First it was
+  fn + left option; Anton moved it the same evening because fn + control is far
+  easier to press. The known cost: fn + control is Wispr Flow's command mode and
+  the start of macOS window tiling (fn + control + arrow). Tiling keeps working
+  because any other key cancels the gesture and passes through. The right side
+  never matches the left: right option and right control are common dictation
+  keys.
+- **Any other key cancels.** An arrow, a letter or one more modifier while the
+  chord is held removes the layer at once, without the fade, and the key press
+  reaches the frontmost app as usual. A chord of modifiers is the prefix of many
+  other apps' shortcuts, and those must keep working.
+- **No activation.** The layer is non-activating panels that never become key:
+  keyboard focus, the menu bar and the Dock stay with the app that was in front.
+  The first click draws.
+- **Settings** live on the "draw on screen" module page, not on the hotkeys
+  page: a switch (on by default), the chord with record and reset, colour and
+  width. Any chord can be recorded: modifiers alone (fn, control, option, shift,
+  command; at least two keys, fn counts) or modifiers with one ordinary key (at
+  least one modifier). The side of each modifier is kept as pressed. A keyed
+  chord equal to one of Hop's hotkeys is refused with "taken". The colour and
+  width choosers are the toolbar's own, with the shared row of mixed colours;
+  the ink is its own (`#FF453A`, width 4 by default), apart from the panel's
+  pencil. Keys: `annotateHoldOn`, `annotateHoldChord`, `annotateHoldInk`.
+- **Not in it:** saving, undo, copying, a tool choice, straight lines, a row on
+  the hotkeys page, a what's-new card (the module is not new).
+- **Accessibility.** Without it the gesture does nothing, and the module page
+  shows "no access yet" with a grant button under the switch. No system dialog
+  opens on its own. Trust is re-read when the Accessibility list changes
+  (`com.apple.accessibility.api`), because the alert Hop watches does not move
+  on a first grant.
+- **The tap is removed, not muted,** while a chord is being recorded, while the
+  full drawing layer (control option D) is up and while the keyboard is locked.
+  A present tap swallows a keyed chord's key and sits ahead of the keyboard
+  lock's own tap. The chord does nothing while the full layer is up.
+- **fn** reaches macOS only from Apple keyboards; whoever has no fn records
+  another chord. Fn state is read only from a flagsChanged event with key code
+  63: arrows carry the fn flag without fn being pressed.
+- **Secure Event Input** (password fields) keeps keys away from every tap, so a
+  key does not cancel there; releasing the chord still works.
+- **Cost.** The tap lives on its own thread with its own run loop, filters only
+  keyDown, keyUp and flagsChanged, and decides under a lock without allocating;
+  only an effect hops to the main thread. A tap on Hop's main run loop would
+  delay typing system-wide whenever the main thread is busy. Idle CPU is about
+  0 %, drawing stays under 5 %.
+- **Cursor.** The window server ignores a cursor set by an app that is not in
+  front, so the layer turns on `SetsCursorInBackground` for Hop's connection
+  once, on first show (`WORKAROUND` in `HoldInkLayer`).
+
+Tests: `HoldChordTests`, `HoldGestureTests`.
+
 ### How the two markup modules reach the user
 
 - **A clean install gets both, switched on**, at the foot of the first space.
@@ -4014,7 +4076,7 @@ eight hours, and came back the moment it was removed and added again.
   2026-09-02). Network used to be three rows — updates, torrent traffic, the
   speed test — for what macOS treats as one thing; they are now a single row
   naming all three uses. Six rows in total: network, Accessibility
-  (paste-into-app, window manager, keyboard lock), Screen Recording (screen text,
+  (paste-into-app, window manager, keyboard lock, drawing while a key is held), Screen Recording (screen text,
   screenshots, and the loupe and the blur on the drawing layer — the
   eyedropper explicitly does not need it), notifications (timer +
   torrent done), administrator password (once, for closed-lid `pmset`), launch

@@ -114,7 +114,7 @@ struct MarkupToolbar: View {
         .buttonStyle(.plain)
         .markupTip(L10n.t(.mkWidth, lang) + "\n" + L10n.t(.mkDoWidth, lang))
         .popover(isPresented: $showingWidth, arrowEdge: popoverEdge) {
-            MarkupWidthPopover(surface: surface, lang: lang).aboveTheDrawing()
+            MarkupWidthPopover(ink: inkInHand, lang: lang).aboveTheDrawing()
         }
 
         Button {
@@ -130,7 +130,7 @@ struct MarkupToolbar: View {
         .buttonStyle(.plain)
         .markupTip(L10n.t(.mkDoColour, lang))
         .popover(isPresented: $showingColour, arrowEdge: popoverEdge) {
-            MarkupColourPopover(surface: surface).aboveTheDrawing()
+            MarkupColourPopover(ink: inkInHand).aboveTheDrawing()
         }
 
         if let trailing {
@@ -209,13 +209,20 @@ struct MarkupToolbar: View {
         }
     }
 
+    private var inkInHand: Binding<MarkupInk> {
+        Binding(
+            get: { surface.ink(for: surface.tool) },
+            set: { surface.setInk($0, for: surface.tool) }
+        )
+    }
+
     @ViewBuilder
     private func settings(for tool: MarkupTool) -> some View {
         switch tool == .select ? (surface.selected?.tool ?? .select) : tool {
         case .arrow: MarkupArrowPopover(surface: surface)
         case .text: MarkupTextPopover(surface: surface, lang: lang)
         case .blur: MarkupBlurPopover(surface: surface, lang: lang)
-        default: MarkupColourPopover(surface: surface)
+        default: MarkupColourPopover(ink: inkInHand)
         }
     }
 
@@ -315,12 +322,18 @@ struct MarkupToolbar: View {
     ]
 }
 
-/// The colour of the tool in hand: eight to press, and the system picker for
-/// anything else. Each tool keeps its own.
+/// A colour: eight to press, the hand-mixed ones, and the system picker for
+/// anything else. The toolbar binds it to the tool in hand, the hold-to-draw
+/// settings to their own ink.
 struct MarkupColourPopover: View {
-    @ObservedObject var surface: MarkupSurface
-
+    @Binding private var ink: MarkupInk
+    @State private var shown: MarkupInk
     @State private var mixed: [String] = MarkupSettings.recentColours()
+
+    init(ink: Binding<MarkupInk>) {
+        _ink = ink
+        _shown = State(initialValue: ink.wrappedValue)
+    }
 
     private let palette = ["#FF453A", "#FF9F0A", "#FFD60A", "#32D74B",
                            "#0A84FF", "#BF5AF2", "#FFFFFF", "#1C1C1E"]
@@ -377,20 +390,28 @@ struct MarkupColourPopover: View {
         .buttonStyle(.plain)
     }
 
-    private var current: MarkupInk { surface.ink(for: surface.tool) }
+    private var current: MarkupInk { shown }
 
     private func write(_ change: (inout MarkupInk) -> Void) {
-        var ink = current
-        change(&ink)
-        surface.setInk(ink, for: surface.tool)
+        var next = ink
+        change(&next)
+        ink = next
+        shown = ink
     }
 }
 
-/// How thick the tool in hand draws. Its own control: the width belongs to
-/// every tool, and burying it under the colour hid it.
+/// How thick a line is. Its own control: the width belongs to every tool, and
+/// burying it under the colour hid it.
 struct MarkupWidthPopover: View {
-    @ObservedObject var surface: MarkupSurface
-    var lang: AppLanguage
+    @Binding private var ink: MarkupInk
+    @State private var shown: MarkupInk
+    private let lang: AppLanguage
+
+    init(ink: Binding<MarkupInk>, lang: AppLanguage) {
+        _ink = ink
+        _shown = State(initialValue: ink.wrappedValue)
+        self.lang = lang
+    }
 
     private let presets: [Double] = [2, 4, 9, 18]
 
@@ -434,12 +455,13 @@ struct MarkupWidthPopover: View {
         .background(Theme.background)
     }
 
-    private var current: MarkupInk { surface.ink(for: surface.tool) }
+    private var current: MarkupInk { shown }
 
     private func write(_ change: (inout MarkupInk) -> Void) {
-        var ink = current
-        change(&ink)
-        surface.setInk(ink, for: surface.tool)
+        var next = ink
+        change(&next)
+        ink = next
+        shown = ink
     }
 }
 

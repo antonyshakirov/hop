@@ -18,10 +18,41 @@ enum MarkupSettings {
     static let sharedColourKey = "markupSharedColour"
     static let commonColourKey = "markupCommonColour"
     static let startsDrawingKey = "annotateStartsDrawing"
+    static let holdOnKey = "annotateHoldOn"
+    static let holdChordKey = "annotateHoldChord"
+    static let holdInkKey = "annotateHoldInk"
+
+    static let standardHoldInk = MarkupInk(hex: "#FF453A", width: 4)
 
     /// SPEC: docs/spec.md — the layer opens with a pencil in hand, and a setting says otherwise.
     static func startsDrawing(_ defaults: UserDefaults = .standard) -> Bool {
         defaults.object(forKey: startsDrawingKey) as? Bool ?? true
+    }
+
+    /// SPEC: docs/spec.md — "Ink while a key is held": on unless switched off.
+    static func holdOn(_ defaults: UserDefaults = .standard) -> Bool {
+        defaults.object(forKey: holdOnKey) as? Bool ?? true
+    }
+
+    static func holdChord(_ defaults: UserDefaults = .standard) -> HoldChord {
+        defaults.string(forKey: holdChordKey).flatMap(HoldChord.init(storage:)) ?? .standard
+    }
+
+    /// nil puts the standard chord back.
+    static func store(holdChord: HoldChord?) {
+        if let holdChord {
+            UserDefaults.standard.set(holdChord.storage, forKey: holdChordKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: holdChordKey)
+        }
+    }
+
+    static func holdInk() -> MarkupInk {
+        decode(holdInkKey) ?? standardHoldInk
+    }
+
+    static func store(holdInk: MarkupInk) {
+        encode(holdInk, into: holdInkKey)
     }
 
     static func frameDressing() -> FrameDressing {

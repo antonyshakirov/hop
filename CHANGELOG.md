@@ -1,5 +1,14 @@
 # Hop - version history
 
+## Unreleased
+
+- Hold fn and control to draw on the screen without opening anything. The
+  pointer turns into a pencil, you draw on every display, and when you let go
+  the drawing fades away and clicks go back to the app underneath. Hop never
+  takes the focus, and any other key cancels the gesture and does its usual
+  job. The chord, the colour and the width are set on the draw on screen page,
+  and any chord can be recorded there.
+
 ## 2.1.0 - 2026-09-15
 
 - Torrents that stop finding peers, as they could after a long sleep, recover on
