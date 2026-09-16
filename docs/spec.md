@@ -3317,7 +3317,7 @@ recording, or a person sitting next to you.
   pencil. Keys: `annotateHoldOn`, `annotateHoldChord`, `annotateHoldInk`.
 - **Not in it:** saving, undo, copying, a tool choice, straight lines, a row on
   the hotkeys page.
-- **It ships as 2.1.1 with a card** (Anton, 2026-09-16). A new gesture is a minor
+- **It ships as 2.1.1 with a card (the card is id 2.1.2: the 2.1.1 build shipped stale, see "Versioning")** (Anton, 2026-09-16). A new gesture is a minor
   change by the versioning rule, but alone it is too small for 2.2. The 2.1.1
   card says it in one line to people already on 2.1; people arriving from an
   older release get the 2.1 lines first (see "Versioning", a fix card that
@@ -5988,6 +5988,20 @@ the new lines. The answer is stored under `newsCatchUp.<id>` on the first
 showing, because that showing marks the older card seen and the lines must not
 change under the reader. `ReleaseNews.needsCatchUp` (`ReleaseNewsTests`).
 Snapshot: `--news-banner --news-catch-up`.
+
+**A released number is never reissued** (2026-09-17). 2.1.1 shipped the 2.1.0
+binary: Swift 6.4 moved the universal build to `.build/out/Products`, and
+`build-app.sh` copied from the old folder. The number, the signature,
+notarisation and `verify-release.sh` were all right, the code was not. An update
+compares numbers, so a Mac on the broken 2.1.1 would never take a fixed 2.1.1;
+the fix went out as 2.1.2. `build-app.sh` now takes the path from
+`swift build --show-bin-path` and refuses a binary older than any source file.
+
+**Release notes headings.** "X.Y.Z – date" opens a version: 26pt above it, 9pt
+below, so a date reads with its own items and not with the release before
+(Anton, 2026-09-17; the heading test expected an em dash while the notes carry
+an en dash, so every gap was the same 17pt). Every date in one language's notes
+is written the way its newest one is.
 
 - PATCH (+0.0.1) — fixes with no new behavior: bugs, crashes, translations,
   cosmetics. Auto-update installs it silently.

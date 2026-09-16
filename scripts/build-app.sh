@@ -49,12 +49,17 @@ fi
 # translates the other way), and both bundled helpers — the torrent engine and
 # the 7-Zip archiver — have been universal all along.
 if [[ $DEV == 1 ]]; then
-    swift build -c "$CONFIGURATION"
-    BINARY=".build/$CONFIGURATION/Hop"
+    BUILD_ARGS=(-c "$CONFIGURATION")
 else
-    swift build -c "$CONFIGURATION" --arch arm64 --arch x86_64
-    # SwiftPM writes the universal binary under a capitalised configuration name
-    BINARY=".build/apple/Products/$(echo "$CONFIGURATION" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')/Hop"
+    BUILD_ARGS=(-c "$CONFIGURATION" --arch arm64 --arch x86_64)
+fi
+swift build "${BUILD_ARGS[@]}"
+# WORKAROUND: the bin path is asked of SwiftPM, never spelled out — Swift 6.4 moved it and 2.1.1 shipped a stale binary.
+BINARY="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)/Hop"
+STALE="$(find Sources -name '*.swift' -newer "$BINARY" | head -1)"
+if [[ ! -f "$BINARY" || -n "$STALE" ]]; then
+    echo "❌ $BINARY is missing or older than $STALE — refusing to package a stale build"
+    exit 1
 fi
 
 if [[ ! -f assets/AppIcon.icns ]]; then

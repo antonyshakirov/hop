@@ -569,13 +569,14 @@ struct DocView: View {
     private func gap(before index: Int, in blocks: [String]) -> CGFloat {
         guard index > 0 else { return 0 }
         if isVersionHeading(blocks[index]) { return 26 }
+        if isVersionHeading(blocks[index - 1]) { return 9 }
         let isList = blocks[index].hasPrefix("• ")
         let afterList = blocks[index - 1].hasPrefix("• ")
         return isList && afterList ? 9 : 17
     }
 
     private func isVersionHeading(_ paragraph: String) -> Bool {
-        paragraph.range(of: #"^\d+\.\d+(\.\d+)? — "#, options: .regularExpression) != nil
+        paragraph.range(of: #"^\d+\.\d+(\.\d+)? [–—] "#, options: .regularExpression) != nil
     }
 
     @ViewBuilder

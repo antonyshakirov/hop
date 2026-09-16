@@ -467,7 +467,7 @@ struct PanelView: View {
         // instead of the ones written before the release went out.
         .init(id: "2.0", lines: [.news20Lighter, .news20Adds, .news20Ahead]),
         .init(id: "2.1", lines: [.news21Shot, .news21Draw, .news21More]),
-        .init(id: "2.1.1", lines: [.news211Hold], catchUp: "2.1"),
+        .init(id: "2.1.2", lines: [.news211Hold], catchUp: "2.1"),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
