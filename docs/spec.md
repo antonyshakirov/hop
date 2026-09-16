@@ -3300,7 +3300,13 @@ recording, or a person sitting next to you.
   the ink is its own (`#FF453A`, width 4 by default), apart from the panel's
   pencil. Keys: `annotateHoldOn`, `annotateHoldChord`, `annotateHoldInk`.
 - **Not in it:** saving, undo, copying, a tool choice, straight lines, a row on
-  the hotkeys page, a what's-new card (the module is not new).
+  the hotkeys page.
+- **It ships as 2.1.1 with a card** (Anton, 2026-09-16). A new gesture is a minor
+  change by the versioning rule, but alone it is too small for 2.2. The 2.1.1
+  card says it in one line to people already on 2.1; people arriving from an
+  older release get the 2.1 lines first (see "Versioning", a fix card that
+  catches up). A fresh install learns it from the module's "how it works",
+  which ends with the same line.
 - **Accessibility.** Without it the gesture does nothing, and the module page
   shows "no access yet" with a grant button under the switch. No system dialog
   opens on its own. Trust is re-read when the Accessibility list changes
@@ -5947,6 +5953,15 @@ not open with three numbers, a release card newer than the notes, and a minor
 release without a card of its own. `checks.sh` fails on any of them, and
 `release.sh` refuses a number other than the one the notes name and a
 CHANGELOG.md that does not open with it.
+
+**A fix card that catches up** (Anton, 2026-09-16). A card may name the release
+card it follows (`catchUp`). Somebody who never had that card drawn — no press,
+no showing, no clock started — came from an older release, and the fix card
+opens with the older card's lines before its own; somebody who saw it gets only
+the new lines. The answer is stored under `newsCatchUp.<id>` on the first
+showing, because that showing marks the older card seen and the lines must not
+change under the reader. `ReleaseNews.needsCatchUp` (`ReleaseNewsTests`).
+Snapshot: `--news-banner --news-catch-up`.
 
 - PATCH (+0.0.1) — fixes with no new behavior: bugs, crashes, translations,
   cosmetics. Auto-update installs it silently.

@@ -120,6 +120,12 @@ public struct ReleaseNews {
         return head
     }
 
+    /// Whether a fix card should carry the release card before it: true when that card was never drawn,
+    /// so the user arrived from an older release. SPEC: docs/spec.md — "Versioning", a fix card that catches up.
+    public static func needsCatchUp(previous: Card) -> Bool {
+        !previous.seen && previous.shownCount == 0 && previous.firstShownAt == nil
+    }
+
     /// Whether a card still has a showing left in it.
     static func isAlive(_ card: Card, now: Date) -> Bool {
         if card.seen { return false }

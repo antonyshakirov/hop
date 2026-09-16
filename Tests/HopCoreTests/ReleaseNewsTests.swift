@@ -154,4 +154,15 @@ final class ReleaseNewsTests: XCTestCase {
         XCTAssertNil(ReleaseNews.preparing(notes: "2.1 – 2026-09-09", cards: ["2.1"]))
         XCTAssertNil(ReleaseNews.preparing(notes: "2.1.x – 2026-09-09", cards: ["2.1"]))
     }
+
+    func testSomebodyWhoNeverSawThePreviousCardIsCaughtUp() {
+        let previous = ReleaseNews.Card(id: "2.1")
+        XCTAssertTrue(ReleaseNews.needsCatchUp(previous: previous))
+    }
+
+    func testSomebodyWhoWasShownThePreviousCardIsNotCaughtUp() {
+        XCTAssertFalse(ReleaseNews.needsCatchUp(previous: ReleaseNews.Card(id: "2.1", seen: true)))
+        XCTAssertFalse(ReleaseNews.needsCatchUp(previous: ReleaseNews.Card(id: "2.1", shownCount: 1)))
+        XCTAssertFalse(ReleaseNews.needsCatchUp(previous: ReleaseNews.Card(id: "2.1", firstShownAt: Date())))
+    }
 }

@@ -440,10 +440,12 @@ struct PanelView: View {
         /// The release it speaks for, "1.9"; its state lives at `newsSeen.<id>`,
         /// `newsShown.<id>` and `newsFirstShown.<id>`.
         let id: String
-        let lines: [L10nKey]
+        var lines: [L10nKey]
         /// Where the card's main button leads, and what it says.
         var destination: SettingsSelection = .updates
         var action: L10nKey = .newsMore
+        /// The release card this one follows; its lines come first for somebody who never saw it.
+        var catchUp: String?
     }
     private static let releaseCards: [ReleaseCard] = [
         .init(id: "1.9", lines: [.news19Tracker, .news19Presets, .news19Remux,
@@ -456,6 +458,7 @@ struct PanelView: View {
         // instead of the ones written before the release went out.
         .init(id: "2.0", lines: [.news20Lighter, .news20Adds, .news20Ahead]),
         .init(id: "2.1", lines: [.news21Shot, .news21Draw, .news21More]),
+        .init(id: "2.1.1", lines: [.news211Hold], catchUp: "2.1"),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -471,13 +474,36 @@ struct PanelView: View {
     static func newsSeenKey(_ id: String) -> String { "newsSeen.\(id)" }
     private static func newsShownKey(_ id: String) -> String { "newsShown.\(id)" }
     private static func newsFirstShownKey(_ id: String) -> String { "newsFirstShown.\(id)" }
+    private static func newsCatchUpKey(_ id: String) -> String { "newsCatchUp.\(id)" }
+
+    /// The card with the lines of the release it follows put first, when the user never saw that one.
+    /// The answer is stored on first showing: the showing itself marks the older card seen.
+    private static func withCatchUp(_ card: ReleaseCard, _ defaults: UserDefaults) -> ReleaseCard {
+        guard let previousID = card.catchUp,
+              let previous = releaseCards.first(where: { $0.id == previousID }) else { return card }
+        let stored = defaults.object(forKey: newsCatchUpKey(card.id)) as? Bool
+        let catchUp = stored ?? ReleaseNews.needsCatchUp(previous: ReleaseNews.Card(
+            id: previousID,
+            seen: defaults.bool(forKey: newsSeenKey(previousID)),
+            shownCount: defaults.integer(forKey: newsShownKey(previousID)),
+            firstShownAt: defaults.object(forKey: newsFirstShownKey(previousID)) as? Date))
+        guard catchUp else { return card }
+        var joined = card
+        joined.lines = previous.lines + card.lines
+        return joined
+    }
 
     /// The release card owed right now, or nil. Never at the same time as a
     /// module announcement: that one asks a question and this one only tells, so
     /// the question goes first and the news waits for the next open.
     private var pendingRelease: ReleaseCard? {
         if Snapshot.active {
-            return CommandLine.arguments.contains("--news-banner") ? Self.releaseCards.last : nil
+            guard CommandLine.arguments.contains("--news-banner"), let last = Self.releaseCards.last else { return nil }
+            guard CommandLine.arguments.contains("--news-catch-up"), let previousID = last.catchUp,
+                  let previous = Self.releaseCards.first(where: { $0.id == previousID }) else { return last }
+            var joined = last
+            joined.lines = previous.lines + last.lines
+            return joined
         }
         _ = news19Seen   // read so SwiftUI re-renders when it flips
         _ = news191Seen
@@ -494,7 +520,7 @@ struct PanelView: View {
         }
         guard let owed = ReleaseNews.visible(state, installed: model.updater.currentVersion,
                                              now: Date()) else { return nil }
-        return Self.releaseCards.first { $0.id == owed.id }
+        return Self.releaseCards.first { $0.id == owed.id }.map { Self.withCatchUp($0, defaults) }
     }
 
     /// The card, on the same surface as the announcement above it: what the
@@ -579,6 +605,10 @@ struct PanelView: View {
         let defaults = UserDefaults.standard
         if defaults.object(forKey: Self.newsFirstShownKey(card.id)) == nil {
             defaults.set(Date(), forKey: Self.newsFirstShownKey(card.id))
+        }
+        if card.catchUp != nil, defaults.object(forKey: Self.newsCatchUpKey(card.id)) == nil {
+            let base = Self.releaseCards.first { $0.id == card.id }
+            defaults.set(card.lines.count != base?.lines.count, forKey: Self.newsCatchUpKey(card.id))
         }
         let state = Self.releaseCards.map {
             ReleaseNews.Card(id: $0.id, seen: defaults.bool(forKey: Self.newsSeenKey($0.id)))
