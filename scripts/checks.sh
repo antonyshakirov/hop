@@ -28,19 +28,21 @@ if grep -E "^.*: (error|warning):" "$run/build.log"; then
   exit 1
 fi
 
+HOP="$(swift build --show-bin-path)/Hop"
+
 echo "=== 2/7 tests ==="
 swift test
 
 echo "=== 3/7 canvas ==="
 # The editor's canvas is drawn by a path the export never touches: the loupe
 # under the hand is not the loupe in the file.
-if ! ./.build/debug/Hop --canvas-selftest "$run/canvas-selftest.png"; then
+if ! "$HOP" --canvas-selftest "$run/canvas-selftest.png"; then
   echo "❌ the canvas self-test failed"
   exit 1
 fi
 
 echo "=== 4/7 export ==="
-if ! ./.build/debug/Hop --markup-selftest "$run/markup-selftest.png"; then
+if ! "$HOP" --markup-selftest "$run/markup-selftest.png"; then
   echo "❌ the export self-test failed"
   exit 1
 fi
@@ -50,17 +52,17 @@ echo "=== 5/7 live layer ==="
 # What a blur hides has to stay hidden — under the glass as well.
 live_renders="$run/live"
 mkdir -p "$live_renders"
-if ! ./.build/debug/Hop --live-selftest "$live_renders"; then
+if ! "$HOP" --live-selftest "$live_renders"; then
   echo "❌ the live layer self-test failed"
   exit 1
 fi
 
 echo "=== 6/7 translations ==="
-./.build/debug/Hop --l10n-check
+"$HOP" --l10n-check
 
 echo "=== 7/7 version ==="
 # SPEC: docs/spec.md — "Versioning", the release a build is preparing.
-if ! ./.build/debug/Hop --preparing-version; then
+if ! "$HOP" --preparing-version; then
   echo "❌ the release notes and the release cards disagree on the version"
   exit 1
 fi

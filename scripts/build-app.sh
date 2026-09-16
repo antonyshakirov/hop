@@ -56,10 +56,21 @@ fi
 swift build "${BUILD_ARGS[@]}"
 # WORKAROUND: the bin path is asked of SwiftPM, never spelled out — Swift 6.4 moved it and 2.1.1 shipped a stale binary.
 BINARY="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)/Hop"
-STALE="$(find Sources -name '*.swift' -newer "$BINARY" | head -1)"
-if [[ ! -f "$BINARY" || -n "$STALE" ]]; then
-    echo "❌ $BINARY is missing or older than $STALE — refusing to package a stale build"
+if [[ ! -f "$BINARY" ]]; then
+    echo "❌ swift build did not produce $BINARY"
     exit 1
+fi
+STALE="$(find Sources Package.swift -newer "$BINARY" -type f | head -1 || true)"
+if [[ -n "$STALE" ]]; then
+    echo "❌ $BINARY is older than $STALE — refusing to package a stale build"
+    exit 1
+fi
+if [[ $DEV != 1 ]]; then
+    ARCHS="$(lipo -archs "$BINARY")"
+    if [[ "$ARCHS" != *arm64* || "$ARCHS" != *x86_64* ]]; then
+        echo "❌ $BINARY is not universal ($ARCHS)"
+        exit 1
+    fi
 fi
 
 if [[ ! -f assets/AppIcon.icns ]]; then

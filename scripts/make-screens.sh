@@ -23,9 +23,9 @@ if [ ${#LANGS[@]} -eq 0 ]; then
     LANGS=(en ru de es pt fr it zh ja nl ko th vi hi id tr pl sr ar he fa ur)
 fi
 
-BIN=.build/debug/Hop
 echo "building…"
 swift build >/dev/null
+BIN="$(swift build --show-bin-path)/Hop"
 
 # Sample files for the converter window: real images and a real PDF, so the
 # rows carry genuine thumbnails and size estimates rather than placeholders.

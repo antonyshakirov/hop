@@ -75,7 +75,7 @@ xcrun notarytool history --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
 scripts/checks.sh
 
 # SPEC: docs/spec.md — "Versioning", the number released is the one the notes name.
-PREPARING="$(./.build/debug/Hop --preparing-version)"
+PREPARING="$("$(swift build --show-bin-path)/Hop" --preparing-version)"
 [[ "$PREPARING" == "$VERSION" ]] || {
     echo "releasing $VERSION, but the notes in the app describe $PREPARING"
     exit 1
@@ -266,12 +266,17 @@ fi
 BUNNY_KEY="${BUNNY_API_KEY:-}"
 if [[ -z "$BUNNY_KEY" ]]; then
     ESS_ENV="$HOME/Development Projects/Products Platform/projects/essentone/development/website/.env"
-    [[ -f "$ESS_ENV" ]] && BUNNY_KEY="$(grep -E '^BUNNY_API_KEY=' "$ESS_ENV" | cut -d= -f2- | tr -d '"')"
+    if [[ -f "$ESS_ENV" ]]; then
+        BUNNY_KEY="$(grep -E '^BUNNY_API_KEY=' "$ESS_ENV" | cut -d= -f2- | tr -d '"' || true)"
+    fi
 fi
 if [[ -n "$BUNNY_KEY" ]]; then
-    curl -s -X POST "https://api.bunny.net/pullzone/6152002/purgeCache" \
-        -H "AccessKey: $BUNNY_KEY" -H "Content-Length: 0" > /dev/null \
-        && echo "CDN hop-dl: cache purged"
+    if curl -sf -X POST "https://api.bunny.net/pullzone/6152002/purgeCache" \
+            -H "AccessKey: $BUNNY_KEY" -H "Content-Length: 0" > /dev/null; then
+        echo "CDN hop-dl: cache purged"
+    else
+        echo "⚠ CDN hop-dl purge refused — purge the zone cache manually in the Bunny panel"
+    fi
 else
     echo "⚠ BUNNY_API_KEY not found — purge the hop-dl zone cache manually in the Bunny panel"
 fi
