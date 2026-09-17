@@ -3756,8 +3756,13 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   removed" row without files deletes those placeholders
   (`TorrentLayout.emptyPlaceholders`: regular files exactly the length the
   torrent gives, with zero blocks; an evicted iCloud file or a network share can
-  report zero blocks too, so the length must match) and an empty wrapper
-  folder; a file with any data in it is never touched. The folder and the file
+  report zero blocks too, so the length must match, and a file flagged
+  `SF_DATALESS` or `UF_COMPRESSED` is skipped). Files go with `unlink`, then the
+  folders they leave empty up to the output folder with `rmdir`, which refuses a
+  folder with anything in it; a file with any data in it is never touched.
+  Pending removals keep only 40- or 64-hex info hashes, so a damaged file cannot
+  put another string into the engine's URL path. Paths and hashes are logged
+  private. The folder and the file
   list travel with the pending removal, so a removal that settles at a later
   engine start still clears them. The task that sends a removal stops the engine
   only when no add is waiting on it.

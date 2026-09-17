@@ -212,7 +212,7 @@ final class TorrentController: ObservableObject {
                 if removal.deleteFiles { try await client.delete(id: removal.infoHash) }
                 else { try await client.forget(id: removal.infoHash) }
             } catch {
-                Self.log.error("removing torrent \(removal.infoHash, privacy: .public) failed: \(String(describing: error), privacy: .public)")
+                Self.log.error("removing torrent \(removal.infoHash, privacy: .private) failed: \(String(describing: error), privacy: .public)")
             }
         }
         let after: [ListedTorrent]
@@ -231,7 +231,7 @@ final class TorrentController: ObservableObject {
         persistRemovals()
         if !removals.isEmpty {
             let held = removals.pending.map(\.infoHash).joined(separator: ", ")
-            Self.log.error("the torrent engine still holds removed torrents \(held, privacy: .public); retrying at the next engine start")
+            Self.log.error("the torrent engine still holds removed torrents \(held, privacy: .private); retrying at the next engine start")
         }
     }
 
@@ -443,27 +443,26 @@ final class TorrentController: ObservableObject {
     }
 
     private func removePlaceholders(outputFolder: String, files: [PendingTorrentRemoval.Placeholder]) {
-        let fm = FileManager.default
         let placeholders = TorrentLayout.emptyPlaceholders(
             outputFolder: outputFolder, files: files.map { (name: $0.name, lengthBytes: $0.lengthBytes) },
             stat: { path in
                 var st = Darwin.stat()
                 guard lstat(path, &st) == 0, (st.st_mode & S_IFMT) == S_IFREG else { return nil }
-                return (size: Int64(st.st_size), blocks: Int64(st.st_blocks))
+                let dataless = st.st_flags & (UInt32(SF_DATALESS) | UInt32(UF_COMPRESSED)) != 0
+                return (size: Int64(st.st_size), blocks: Int64(st.st_blocks), dataless: dataless)
             })
+        var removed: [String] = []
         for path in placeholders {
-            do {
-                try fm.removeItem(atPath: path)
-                Self.log.info("removed the engine's empty placeholder \(path, privacy: .public)")
-            } catch {
-                Self.log.error("could not remove the placeholder \(path, privacy: .public): \(String(describing: error), privacy: .public)")
+            // unlink, not removeItem: it never follows a symlink or removes a folder swapped in after lstat.
+            if unlink(path) == 0 {
+                removed.append(path)
+                Self.log.info("removed the engine's empty placeholder \(path, privacy: .private)")
+            } else {
+                Self.log.error("could not remove a placeholder \(path, privacy: .private): errno \(errno, privacy: .public)")
             }
         }
-        guard files.count > 1, !placeholders.isEmpty else { return }
-        let wrapper = URL(fileURLWithPath: outputFolder, isDirectory: true)
-        let leftovers = fm.enumerator(at: wrapper, includingPropertiesForKeys: [.isDirectoryKey])?
-            .contains { (($0 as? URL).flatMap { try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory }) != true } ?? true
-        if !leftovers { try? fm.removeItem(at: wrapper) }
+        // rmdir refuses a folder with anything in it, so nothing but empty folders can go.
+        for folder in TorrentLayout.emptiedFolders(outputFolder: outputFolder, removed: removed) { rmdir(folder) }
     }
     /// Reveal the download in Finder, gracefully. rqbit writes a single-file
     /// torrent as `outputFolder/<file name>` and a multi-file one as

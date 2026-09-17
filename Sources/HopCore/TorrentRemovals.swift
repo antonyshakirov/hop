@@ -26,7 +26,19 @@ public struct TorrentRemovals: Codable, Equatable {
     public private(set) var pending: [PendingTorrentRemoval]
 
     public init(pending: [PendingTorrentRemoval] = []) {
-        self.pending = pending
+        self.pending = pending.filter { Self.isInfoHash($0.infoHash) }
+    }
+
+    private enum CodingKeys: String, CodingKey { case pending }
+
+    /// A damaged file must not put an arbitrary string into the engine's URL path.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(pending: try c.decode([PendingTorrentRemoval].self, forKey: .pending))
+    }
+
+    public static func isInfoHash(_ s: String) -> Bool {
+        (s.count == 40 || s.count == 64) && s.allSatisfy(\.isHexDigit)
     }
 
     public var isEmpty: Bool { pending.isEmpty }
@@ -38,6 +50,7 @@ public struct TorrentRemovals: Codable, Equatable {
     public mutating func add(infoHash: String, deleteFiles: Bool,
                              outputFolder: String? = nil,
                              placeholders: [PendingTorrentRemoval.Placeholder]? = nil) {
+        guard Self.isInfoHash(infoHash) else { return }
         if let i = pending.firstIndex(where: { Self.same($0.infoHash, infoHash) }) {
             let old = pending[i]
             pending[i] = PendingTorrentRemoval(infoHash: old.infoHash,

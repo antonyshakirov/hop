@@ -65,13 +65,29 @@ public enum TorrentLayout {
 
     /// SPEC: docs/spec.md "The engine's placeholders leave with the torrent". Tests: TorrentLayoutTests.
     public static func emptyPlaceholders(outputFolder: String, files: [(name: String, lengthBytes: Int64)],
-                                         stat: (String) -> (size: Int64, blocks: Int64)?) -> [String] {
+                                         stat: (String) -> (size: Int64, blocks: Int64, dataless: Bool)?) -> [String] {
         guard !hasUnsafePath(files.map(\.name)) else { return [] }
         return files.compactMap { file in
             let path = (outputFolder as NSString).appendingPathComponent(file.name)
-            guard file.lengthBytes > 0, let s = stat(path), s.size == file.lengthBytes, s.blocks == 0 else { return nil }
+            guard file.lengthBytes > 0, let s = stat(path), s.size == file.lengthBytes,
+                  s.blocks == 0, !s.dataless else { return nil }
             return path
         }
+    }
+
+    /// Folders between each removed file and `outputFolder` (inclusive), deepest first, for a non-recursive rmdir.
+    public static func emptiedFolders(outputFolder: String, removed: [String]) -> [String] {
+        let root = (outputFolder as NSString).standardizingPath
+        var folders = Set<String>()
+        for path in removed {
+            var dir = ((path as NSString).standardizingPath as NSString).deletingLastPathComponent
+            while dir == root || dir.hasPrefix(root + "/") {
+                folders.insert(dir)
+                if dir == root { break }
+                dir = (dir as NSString).deletingLastPathComponent
+            }
+        }
+        return folders.sorted { $0.count > $1.count }
     }
 
     /// Reduce a torrent name to a safe single path component: path separators and

@@ -66,6 +66,15 @@ final class TorrentRemovalsTests: XCTestCase {
         XCTAssertEqual(r.pending, [PendingTorrentRemoval(infoHash: a, deleteFiles: true)])
     }
 
+    func testSomethingThatIsNotAnInfoHashIsNeverKept() throws {
+        var r = TorrentRemovals()
+        r.add(infoHash: "../torrents x", deleteFiles: true)
+        XCTAssertTrue(r.isEmpty)
+        let json = #"{"pending":[{"infoHash":"a b%","deleteFiles":true},{"infoHash":"\#(b)","deleteFiles":false}]}"#
+        let decoded = try JSONDecoder().decode(TorrentRemovals.self, from: Data(json.utf8))
+        XCTAssertEqual(decoded.pending.map(\.infoHash), [b])
+    }
+
     func testRoundTripsThroughJSON() throws {
         var r = TorrentRemovals()
         r.add(infoHash: a, deleteFiles: true)
