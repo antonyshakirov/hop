@@ -26,6 +26,8 @@ final class TorrentController: ObservableObject {
     private var uptime: TimeInterval { ProcessInfo.processInfo.systemUptime }
 
     @Published private(set) var torrents: [TorrentItem] = []
+    private var removals = TorrentRemovals()
+    private var addsInFlight = 0
 
     /// Which torrents are unfolded into their per-file list. Lives here, NOT in
     /// TorrentView's @State, because the panel tags TorrentView with
@@ -42,6 +44,8 @@ final class TorrentController: ObservableObject {
     /// otherwise "enable torrents" runs but the UI never updates.
     private var forwarders: [AnyCancellable] = []
     init() {
+        removals = (try? Data(contentsOf: removalsFile))
+            .flatMap { try? JSONDecoder().decode(TorrentRemovals.self, from: $0) } ?? TorrentRemovals()
         forwarders.append(installer.objectWillChange.sink { [weak self] in
             self?.objectWillChange.send()
         })
@@ -86,7 +90,7 @@ final class TorrentController: ObservableObject {
         /// torrent was still downloading. Set by the poll's deletion probe, which
         /// also pauses the torrent so the engine stops writing into nothing. The
         /// row shows a "files removed" state; resume re-downloads, clearing this.
-        /// Not persisted — rqbit remembers its own paused state across restarts.
+        /// SPEC: docs/spec.md "A seeding torrent whose file is gone is paused" — persisted.
         var filesMissing: Bool = false
     }
 
@@ -135,6 +139,7 @@ final class TorrentController: ObservableObject {
     }
     private var persistenceDir: URL { supportDir.appendingPathComponent("torrent-session", isDirectory: true) }
     private var persistFile: URL { supportDir.appendingPathComponent("torrents.json") }
+    private var removalsFile: URL { supportDir.appendingPathComponent("torrent-removals.json") }
 
     // MARK: - Engine lifecycle
     private var engineStartTask: Task<Void, Error>?
@@ -190,6 +195,44 @@ final class TorrentController: ObservableObject {
         sessionStarted = true
         recoveryPending = false
         recoveryFailures = 0
+        await applyRemovals()
+    }
+
+    /// SPEC: docs/spec.md "A removal holds until the engine lets go".
+    private func applyRemovals() async {
+        guard !removals.isEmpty, let client else { return }
+        guard let before = await listLoaded(client) else {
+            Self.log.error("the torrent engine did not list its torrents; \(self.removals.pending.count, privacy: .public) removal(s) stay pending")
+            return
+        }
+        for removal in removals.pending
+        where removals.contains(removal.infoHash)
+            && before.contains(where: { $0.infoHash.caseInsensitiveCompare(removal.infoHash) == .orderedSame }) {
+            do {
+                if removal.deleteFiles { try await client.delete(id: removal.infoHash) }
+                else { try await client.forget(id: removal.infoHash) }
+            } catch {
+                Self.log.error("removing torrent \(removal.infoHash, privacy: .public) failed: \(String(describing: error), privacy: .public)")
+            }
+        }
+        let after: [ListedTorrent]
+        if before.isEmpty { after = [] }
+        else {
+            do { after = try await client.list() } catch {
+                Self.log.error("the torrent engine did not list its torrents after removing: \(String(describing: error), privacy: .public)")
+                return
+            }
+        }
+        for done in removals.settle(listed: after.map(\.infoHash)) where !done.deleteFiles {
+            if let folder = done.outputFolder, let files = done.placeholders {
+                removePlaceholders(outputFolder: folder, files: files)
+            }
+        }
+        persistRemovals()
+        if !removals.isEmpty {
+            let held = removals.pending.map(\.infoHash).joined(separator: ", ")
+            Self.log.error("the torrent engine still holds removed torrents \(held, privacy: .public); retrying at the next engine start")
+        }
     }
 
     func stopEngine() {
@@ -257,6 +300,8 @@ final class TorrentController: ObservableObject {
 
     // MARK: - Add flow
     func fetchFiles(source: AddSource, binaryOverride: URL? = nil) async throws -> PendingAdd {
+        addsInFlight += 1
+        defer { addsInFlight -= 1 }
         try await ensureEngine(binaryOverride: binaryOverride)
         guard let client else { throw EngineUnavailable() }
         let r = try await client.addListOnly(body: source.body)
@@ -267,6 +312,8 @@ final class TorrentController: ObservableObject {
     }
 
     func confirmAdd(_ pending: PendingAdd, selectedIndices: Set<Int>, outputFolder: URL? = nil) async throws {
+        addsInFlight += 1
+        defer { addsInFlight -= 1 }
         try await ensureEngine()
         guard let client else { throw EngineUnavailable() }
         // Multi-file torrents are nested under a folder named after the torrent so
@@ -277,6 +324,10 @@ final class TorrentController: ObservableObject {
         let folder = TorrentLayout.subfolder(torrentName: pending.name, fileCount: pending.files.count)
             .map { base.appendingPathComponent($0, isDirectory: true) } ?? base
         let added = try await client.add(body: pending.source.body, outputFolder: folder.path)
+        if removals.contains(added.infoHash) {   // added back: the old removal must not forget it
+            removals.cancel(infoHash: added.infoHash)
+            persistRemovals()
+        }
         guard let id = added.id else { throw EngineUnavailable() }
         var files = pending.files
         for i in files.indices { files[i].selected = selectedIndices.contains(files[i].index) }
@@ -326,6 +377,7 @@ final class TorrentController: ObservableObject {
             // Clear the "files removed" flag: resuming re-downloads the missing
             // payload, and the next poll re-runs the deletion probe from scratch.
             torrents[i].filesMissing = false
+            persist()
         }
         let key = engineKey(id)
         Task {
@@ -365,19 +417,53 @@ final class TorrentController: ObservableObject {
         let key = engineKey(id)
         Task { try? await readyClient()?.setSelectedFiles(id: key, indices: indices) }
     }
+    /// SPEC: docs/spec.md "A removal holds until the engine lets go".
     func remove(id: String, deleteFiles: Bool) {
-        let key = engineKey(id)
+        guard let row = torrents.first(where: { $0.id == id }) else { return }
         torrents.removeAll { $0.id == id }   // optimistic UI update
         expandedIds.remove(id)
+        removals.add(infoHash: row.infoHash, deleteFiles: deleteFiles,
+                     outputFolder: row.filesMissing ? row.outputFolder : nil,
+                     placeholders: row.filesMissing
+                        ? row.files.map { PendingTorrentRemoval.Placeholder(name: $0.name, lengthBytes: $0.lengthBytes) }
+                        : nil)
+        persistRemovals()
         persist()
         Task {
-            let c = await readyClient()
-            if deleteFiles { try? await c?.delete(id: key) } else { try? await c?.forget(id: key) }
-            // Re-check emptiness AFTER the await: during the round-trip the user may
-            // have added a new torrent that reused the still-running engine — stopping
-            // it here would kill that fresh download. Only stop if still empty.
-            if torrents.isEmpty { stopEngine() }
+            if client == nil || !process.isRunning {
+                do { try await joinEngineStart() } catch {
+                    Self.log.error("the torrent engine did not start for a removal (\(String(describing: error), privacy: .public)); it stays pending")
+                }
+            }
+            await applyRemovals()
+            // Re-check AFTER the awaits: the user may have added a torrent meanwhile,
+            // and stopping the engine would kill that fresh download.
+            if addsInFlight == 0, torrents.isEmpty || !engineWanted { stopEngine() }
         }
+    }
+
+    private func removePlaceholders(outputFolder: String, files: [PendingTorrentRemoval.Placeholder]) {
+        let fm = FileManager.default
+        let placeholders = TorrentLayout.emptyPlaceholders(
+            outputFolder: outputFolder, files: files.map { (name: $0.name, lengthBytes: $0.lengthBytes) },
+            stat: { path in
+                var st = Darwin.stat()
+                guard lstat(path, &st) == 0, (st.st_mode & S_IFMT) == S_IFREG else { return nil }
+                return (size: Int64(st.st_size), blocks: Int64(st.st_blocks))
+            })
+        for path in placeholders {
+            do {
+                try fm.removeItem(atPath: path)
+                Self.log.info("removed the engine's empty placeholder \(path, privacy: .public)")
+            } catch {
+                Self.log.error("could not remove the placeholder \(path, privacy: .public): \(String(describing: error), privacy: .public)")
+            }
+        }
+        guard files.count > 1, !placeholders.isEmpty else { return }
+        let wrapper = URL(fileURLWithPath: outputFolder, isDirectory: true)
+        let leftovers = fm.enumerator(at: wrapper, includingPropertiesForKeys: [.isDirectoryKey])?
+            .contains { (($0 as? URL).flatMap { try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory }) != true } ?? true
+        if !leftovers { try? fm.removeItem(at: wrapper) }
     }
     /// Reveal the download in Finder, gracefully. rqbit writes a single-file
     /// torrent as `outputFolder/<file name>` and a multi-file one as
@@ -500,19 +586,11 @@ final class TorrentController: ObservableObject {
                 notify(.finished(stats: stats, seeding: seeding), name: torrents[i].name)
                 persist()   // persist so a finished torrent isn't re-notified next launch
             }
-            // The user deleted the payload out from under an active download (via
-            // Finder, not via Hop): rqbit then keeps writing into an orphaned inode
-            // or errors out, while the row shows steady progress into nothing. Detect
-            // the vanished payload, pause the torrent, and flag the row so the user
-            // can resume (re-download) or remove. Guard on progressBytes > 0 so we
-            // never mistake "rqbit hasn't written the first byte yet" for deletion,
-            // and only for a live, non-finished, non-paused row.
-            if !torrents[i].filesMissing,
-               !stats.finished,
-               stats.state == .live,
-               torrents[i].optimisticPaused != true,
-               !torrents[i].pausedByPolicy,
-               stats.progressBytes > 0,
+            // SPEC: docs/spec.md "A seeding torrent whose file is gone is paused".
+            if TorrentLayout.watchesPayload(
+                   state: stats.state, progressBytes: stats.progressBytes,
+                   flagged: torrents[i].filesMissing,
+                   paused: torrents[i].optimisticPaused == true || torrents[i].pausedByPolicy),
                TorrentLayout.payloadMissing(
                    outputFolder: torrents[i].outputFolder,
                    fileNames: torrents[i].files.map { $0.name },
@@ -575,25 +653,40 @@ final class TorrentController: ObservableObject {
         let fromMagnet: Bool?    // optional: older torrents.json files predate these fields
         let notifiedDone: Bool?  // so a finished torrent doesn't re-fire its notification every launch
         let seedPolicyOverridden: Bool?  // so a "keep seeding" override survives restarts
+        let filesMissing: Bool?
     }
     private func persist() {
         let rows = torrents.map { t in
             Persisted(infoHash: t.infoHash, name: t.name, outputFolder: t.outputFolder,
                       files: t.files.map { PersistedFile(index: $0.index, name: $0.name, lengthBytes: $0.lengthBytes, selected: $0.selected) },
                       fromMagnet: t.fromMagnet, notifiedDone: t.notifiedDone,
-                      seedPolicyOverridden: t.seedPolicyOverridden)
+                      seedPolicyOverridden: t.seedPolicyOverridden, filesMissing: t.filesMissing)
         }
         try? FileManager.default.createDirectory(at: supportDir, withIntermediateDirectories: true)
         try? JSONEncoder().encode(rows).write(to: persistFile)
     }
+    private func persistRemovals() {
+        try? FileManager.default.createDirectory(at: supportDir, withIntermediateDirectories: true)
+        do { try JSONEncoder().encode(removals).write(to: removalsFile) } catch {
+            Self.log.error("torrent-removals.json was not written: \(String(describing: error), privacy: .public)")
+        }
+    }
+    private var sessionHoldsTorrents: Bool {
+        ((try? FileManager.default.contentsOfDirectory(atPath: persistenceDir.path)) ?? [])
+            .contains { $0.hasSuffix(".torrent") }
+    }
 
     /// Right after start the engine may list nothing while loading its session; retries ~3 s.
     private func listOnceLoaded(_ client: TorrentEngineClient) async -> [ListedTorrent] {
-        var listed = (try? await client.list()) ?? []
+        await listLoaded(client) ?? []
+    }
+
+    private func listLoaded(_ client: TorrentEngineClient) async -> [ListedTorrent]? {
+        var listed = try? await client.list()
         var tries = 0
-        while listed.isEmpty, tries < 15 {
+        while listed?.isEmpty ?? true, tries < 15 {
             try? await Task.sleep(nanoseconds: 200_000_000)
-            listed = (try? await client.list()) ?? []
+            if let answer = try? await client.list() { listed = answer }
             tries += 1
         }
         return listed
@@ -602,11 +695,17 @@ final class TorrentController: ObservableObject {
     func restore() async {
         let saved = (try? Data(contentsOf: persistFile))
             .flatMap { try? JSONDecoder().decode([Persisted].self, from: $0) } ?? []
-        guard !saved.isEmpty else { return }
+        guard !saved.isEmpty || !removals.isEmpty || sessionHoldsTorrents else { return }
+        let vanished = Set(saved.filter { s in
+            s.filesMissing ?? false
+                || ((s.notifiedDone ?? false) && TorrentLayout.payloadMissing(
+                    outputFolder: s.outputFolder, fileNames: s.files.map(\.name),
+                    exists: { FileManager.default.fileExists(atPath: $0) }))
+        }.map(\.infoHash))
         do {
             try await ensureEngine()
             guard let client else { return }
-            let listed = await listOnceLoaded(client)
+            let listed = removals.visible(await listOnceLoaded(client), infoHash: \.infoHash)
             // The engine is the source of truth for what's actually downloading:
             // show every torrent it holds, enriched with saved file/selection detail
             // when we have it. A torrent in the engine but missing from torrents.json
@@ -625,11 +724,18 @@ final class TorrentController: ObservableObject {
                     var item = TorrentItem(id: current.id, infoHash: s.infoHash, name: s.name, files: files, outputFolder: s.outputFolder, fromMagnet: s.fromMagnet ?? false)
                     item.notifiedDone = s.notifiedDone ?? false             // don't re-notify a finished torrent every launch
                     item.seedPolicyOverridden = s.seedPolicyOverridden ?? false  // keep a "keep seeding" override
+                    item.filesMissing = vanished.contains(s.infoHash)
                     return item
                 }
                 return TorrentItem(id: current.id, infoHash: current.infoHash, name: current.name, files: [], outputFolder: current.outputFolder)
             }
-            if !torrents.isEmpty { persist(); startPolling() }
+            guard !torrents.isEmpty else {
+                if addsInFlight == 0 { stopEngine() }
+                return
+            }
+            persist()
+            startPolling()
+            for row in torrents where row.filesMissing { try? await client.pause(id: row.infoHash) }
         } catch {}
     }
 }

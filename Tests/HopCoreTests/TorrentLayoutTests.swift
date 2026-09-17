@@ -110,4 +110,56 @@ final class TorrentLayoutTests: XCTestCase {
             outputFolder: "/dl", fileNames: [], exists: { _ in false })
         XCTAssertFalse(missing)
     }
+    // MARK: - Which rows the probe watches
+
+    func testProbeWatchesALiveDownloadWithBytesOnDisk() {
+        XCTAssertTrue(TorrentLayout.watchesPayload(state: .live, progressBytes: 10, flagged: false, paused: false))
+    }
+
+    func testProbeWatchesAFinishedSeedingTorrent() {
+        XCTAssertTrue(TorrentLayout.watchesPayload(state: .live, progressBytes: 9_128_454_644, flagged: false, paused: false))
+    }
+
+    func testProbeSkipsRowsItCannotJudge() {
+        XCTAssertFalse(TorrentLayout.watchesPayload(state: .live, progressBytes: 0, flagged: false, paused: false))
+        XCTAssertFalse(TorrentLayout.watchesPayload(state: .paused, progressBytes: 10, flagged: false, paused: false))
+        XCTAssertFalse(TorrentLayout.watchesPayload(state: .initializing, progressBytes: 10, flagged: false, paused: false))
+        XCTAssertFalse(TorrentLayout.watchesPayload(state: .live, progressBytes: 10, flagged: true, paused: false))
+        XCTAssertFalse(TorrentLayout.watchesPayload(state: .live, progressBytes: 10, flagged: false, paused: true))
+    }
+
+    // MARK: - Placeholders the engine re-creates for a vanished payload
+
+    func testOnlyFullLengthFilesWithoutBlocksArePlaceholders() {
+        let disk: [String: (size: Int64, blocks: Int64)] = [
+            "/dl/show/a.mkv": (size: 100, blocks: 0),
+            "/dl/show/b.mkv": (size: 100, blocks: 8),
+        ]
+        XCTAssertEqual(
+            TorrentLayout.emptyPlaceholders(outputFolder: "/dl/show",
+                                            files: [("a.mkv", 100), ("b.mkv", 100), ("c.mkv", 100)],
+                                            stat: { disk[$0] }),
+            ["/dl/show/a.mkv"])
+    }
+
+    func testABlocklessFileOfAnotherLengthIsNotAPlaceholder() {
+        XCTAssertEqual(
+            TorrentLayout.emptyPlaceholders(outputFolder: "/dl", files: [("movie.mkv", 100)],
+                                            stat: { _ in (size: 99, blocks: 0) }),
+            [])
+    }
+
+    func testAnEmptyFileIsNotAPlaceholder() {
+        XCTAssertEqual(
+            TorrentLayout.emptyPlaceholders(outputFolder: "/dl", files: [("movie.mkv", 0)],
+                                            stat: { _ in (size: 0, blocks: 0) }),
+            [])
+    }
+
+    func testPlaceholderNamesThatEscapeTheFolderAreIgnored() {
+        XCTAssertEqual(
+            TorrentLayout.emptyPlaceholders(outputFolder: "/dl", files: [("../etc/x", 10)],
+                                            stat: { _ in (size: 10, blocks: 0) }),
+            [])
+    }
 }

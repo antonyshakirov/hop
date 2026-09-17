@@ -3695,7 +3695,8 @@ eight hours, and came back the moment it was removed and added again.
   on the next polls until the engine lists its torrents. A re-map drops only rows
   that existed before the list was requested, so a torrent added meanwhile
   stays. A stopped engine (the module switched off, the last torrent removed) is
-  never restarted by recovery or by an action; only an add or restore starts it.
+  never restarted by recovery or by an action; only an add, restore or a
+  removal starts it, and a removal stops it again once no row needs it.
 - **Torrents are addressed by info hash.** rqbit accepts a 40-hex info hash
   anywhere it accepts a session id (`TorrentIdOrHash`, 8.1.1 and 9.0.1). Stats
   and every user action (pause, resume, file selection, remove) use the hash, so
@@ -3716,6 +3717,53 @@ eight hours, and came back the moment it was removed and added again.
   torrent is live; before the first byte the row shows its usual progress.
   Snapshot: `--torrents-states`. Every `--torrents*` render now also opens the
   space holding the torrent module.
+
+### Torrent removal and moved payloads (2.1.3)
+
+Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
+✕ kept coming back to Downloads as a 9 GB file.
+
+- **A removal holds until the engine lets go.** ✕ used to drop the row, write
+  `torrents.json` and send `forget`/`delete` without looking at the answer. With
+  the engine stopped (the module switched off and on, a restart that failed)
+  nothing was sent at all, and the torrent stayed in rqbit's own session: the
+  next engine start resumed it with no row to show for it. Now the removal goes
+  to `torrent-removals.json` (`HopCore.TorrentRemovals`) before anything else,
+  the engine is started for it if it is down, and it is settled only by a list
+  from the engine without that info hash. rqbit answers 500 "no such torrent" to
+  a removal it already applied, so the answer itself proves nothing, and a list
+  request that never answered is not an empty session: the removal then stays
+  pending. Every failed step is logged under `com.antonshakirov.hop` / Torrents
+  with the info hash. Every
+  engine start sends the removals still pending; restore never shows their rows;
+  adding the same torrent back cancels its removal. Deleting with files wins
+  over an earlier plain removal of the same torrent.
+- **Rows the session holds are shown.** Restore starts the engine when the
+  session folder holds any `.torrent`, even with an empty `torrents.json`, so a
+  torrent an older Hop failed to remove appears and can be removed. A restore
+  that ends with no rows stops the engine unless an add is waiting on it.
+- **A seeding torrent whose file is gone is paused.** The deletion probe used to
+  skip finished torrents. rqbit keeps seeding from the file it already opened,
+  so a payload moved away went unnoticed until the next engine start, which
+  re-created every missing file at full length and downloaded it again. The
+  probe (`TorrentLayout.watchesPayload`) now judges any live row with bytes on
+  disk, finished or not. The "files removed" flag is persisted, and restore
+  flags a finished torrent whose payload is missing before the engine starts,
+  then pauses it.
+- **The engine's placeholders leave with the torrent.** rqbit opens every
+  payload file when it loads a torrent, paused or not, so a missing file comes
+  back as a full-length file with no blocks behind it. Removing a "files
+  removed" row without files deletes those placeholders
+  (`TorrentLayout.emptyPlaceholders`: regular files exactly the length the
+  torrent gives, with zero blocks; an evicted iCloud file or a network share can
+  report zero blocks too, so the length must match) and an empty wrapper
+  folder; a file with any data in it is never touched. The folder and the file
+  list travel with the pending removal, so a removal that settles at a later
+  engine start still clears them. The task that sends a removal stops the engine
+  only when no add is waiting on it.
+- Dev entry point: `Hop --torrent-removal-selftest <torrent> <folder>` walks
+  finish, move away, restart, module off, ✕ against a real engine in the `.cli`
+  storage.
 
 ### Converter: documents (1.5.0)
 

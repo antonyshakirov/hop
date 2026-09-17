@@ -1517,6 +1517,7 @@ struct HopApp: App {
         // None of these are reachable in the shipped, notarized Hop.
         #if DEBUG
         TorrentSelfTest.runIfRequested()
+        TorrentRemovalSelfTest.runIfRequested()
         DocumentSelfTest.runIfRequested()
         PageSelfTest.runIfRequested()
         VideoSelfTest.runIfRequested()

@@ -1,11 +1,14 @@
 # Hop - version history
 
+## 2.1.3 - 2026-09-17
+
+- Removing a torrent did not always finish properly. It now always does, and a
+  torrent whose file was moved out of the download folder no longer starts
+  downloading it again.
+
 ## 2.1.2 - 2026-09-17
 
-- Version 2.1.1 went out with the previous build inside, so its changes arrive
-  with this one: drawing while fn and control are held, and arranging the tabs
-  in the setup wizard. The build script now asks Swift where the binary is and
-  refuses to package one older than the sources.
+- Bug fixes.
 
 ## 2.1.1 - 2026-09-17
 

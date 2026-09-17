@@ -57,6 +57,23 @@ public enum TorrentLayout {
         return !probes.contains(where: exists)
     }
 
+    /// SPEC: docs/spec.md "A seeding torrent whose file is gone is paused". Tests: TorrentLayoutTests.
+    public static func watchesPayload(state: TorrentState, progressBytes: Int64,
+                                      flagged: Bool, paused: Bool) -> Bool {
+        state == .live && progressBytes > 0 && !flagged && !paused
+    }
+
+    /// SPEC: docs/spec.md "The engine's placeholders leave with the torrent". Tests: TorrentLayoutTests.
+    public static func emptyPlaceholders(outputFolder: String, files: [(name: String, lengthBytes: Int64)],
+                                         stat: (String) -> (size: Int64, blocks: Int64)?) -> [String] {
+        guard !hasUnsafePath(files.map(\.name)) else { return [] }
+        return files.compactMap { file in
+            let path = (outputFolder as NSString).appendingPathComponent(file.name)
+            guard file.lengthBytes > 0, let s = stat(path), s.size == file.lengthBytes, s.blocks == 0 else { return nil }
+            return path
+        }
+    }
+
     /// Reduce a torrent name to a safe single path component: path separators and
     /// NUL become "-", surrounding whitespace is trimmed, and a name that resolves
     /// to the current/parent directory ("."/"..") is rejected.
