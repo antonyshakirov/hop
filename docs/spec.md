@@ -4872,6 +4872,23 @@ converter (Anton, 2026-07-28).
   sidebar uses for that page — `guideTab` and `aboutTitle` — so one screen has
   one name wherever it is reached from. They sit under Settings because all three
   open the same window.
+- **No empty "Hop Settings" window, and the app menu opens Hop's own windows**
+  (Anton, 2026-09-17). SwiftUI demands a scene. A `Settings` placeholder is
+  SHOWN by SwiftUI at every launch as an empty window titled "Hop Settings"
+  (behind other apps, since Hop does not activate — it surfaces when those move
+  away), and it also takes over the application menu: About, Settings (⌘,) and
+  Quit (⌘Q) went to a system About card, that same empty window, and a quit
+  without confirmation. The formal scene is therefore a menu bar extra that is
+  never inserted — nothing to show, no second status item. The application menu
+  is reachable whenever Hop is frontmost (the Dock-mode menu bar, or ⌘, / ⌘Q
+  while the panel or any Hop window has focus), so its three items are replaced:
+  About and Settings open the settings window (About on its own page), Quit goes
+  through the same confirmation as the right-click menu. The labels are the
+  right-click menu's strings, read at launch: a language switched while Hop runs
+  reaches this menu with the next launch (SwiftUI does not rebuild it on a
+  settings change; the system items beside them are not translated at all). In
+  safe mode no model exists, so About and Settings
+  do nothing and Quit quits.
 - Launch at login — SMAppService.mainApp.
 
 ## Window zones

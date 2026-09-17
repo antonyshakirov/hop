@@ -609,6 +609,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
     }
 
+    func appMenuOpenSettings(at section: SettingsSelection? = nil) {
+        guard safeUpdater == nil else { return }
+        if let section { model.settingsSectionRequest = section.id }
+        showSettingsWindow()
+    }
+
+    func appMenuQuit() {
+        guard safeUpdater == nil else { return NSApp.terminate(nil) }
+        requestQuit()
+    }
+
     /// Quit: with a running timer or active no sleep (keep-awake) — a branded
     /// confirmation centered on screen instead of silently killing the work.
     private func requestQuit() {
@@ -1528,9 +1539,32 @@ struct HopApp: App {
 
     var body: some Scene {
         // the entire UI lives in NSStatusItem + NSPopover (StatusItemController);
-        // SwiftUI just formally requires an empty scene
-        Settings {
+        // SwiftUI just formally requires a scene.
+        // WORKAROUND: a `Settings` placeholder is shown by SwiftUI itself at
+        // launch as an empty "Hop Settings" window; a never-inserted menu bar
+        // extra is a scene with nothing to show.
+        MenuBarExtra("Hop", isInserted: .constant(false)) {
             EmptyView()
+        }
+        // SPEC: docs/spec.md — "The app menu opens Hop's own windows".
+        .commands {
+            CommandGroup(replacing: .appInfo) {
+                Button(L10n.t(.aboutTitle, L10n.current).capitalizedFirst) {
+                    appDelegate.appMenuOpenSettings(at: .about)
+                }
+            }
+            CommandGroup(replacing: .appSettings) {
+                Button(L10n.t(.settingsTitle, L10n.current).capitalizedFirst) {
+                    appDelegate.appMenuOpenSettings()
+                }
+                .keyboardShortcut(",")
+            }
+            CommandGroup(replacing: .appTermination) {
+                Button(L10n.t(.menuQuit, L10n.current).capitalizedFirst) {
+                    appDelegate.appMenuQuit()
+                }
+                .keyboardShortcut("q")
+            }
         }
     }
 }

@@ -1,5 +1,9 @@
 # Hop - version history
 
+## 2.1.4 - 2026-09-17
+
+- An empty settings window no longer opens on its own.
+
 ## 2.1.3 - 2026-09-17
 
 - Removing a torrent did not always finish properly. It now always does, and a
