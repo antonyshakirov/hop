@@ -1741,6 +1741,21 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   reorders (clamped; `from` out of range is a no-op) — the order persists through
   the store. `TodosController.reorder(dragging:toDisplayInsertion:)` saves like
   every other mutation.
+- **Completed items leave the next day (Vanya, 2026-09-19):** ticking stamps
+  `doneAt` (unticking clears it), and `reconcile` — at launch, on wake, on the
+  tick and when the panel opens — sweeps every completed item whose `doneAt`
+  is before the start of today (`TodoList.sweepCompleted(before:now:)`, pure
+  HopCore, tested): so today's pile stays in view all day and yesterday's is
+  gone the first time the list is looked at. Nothing is thrown away — the
+  swept items are APPENDED to `todos-archive.json` beside `todos.json`
+  (`TodosStore.archive`, same shape, atomic write, an unusable archive goes to
+  its own `.bak` first), and nothing leaves the list until the archive write
+  has succeeded. A completed item from a build that kept no date is stamped
+  with the day it is first seen rather than swept on sight, so an update never
+  empties anyone's completed pile. The `clear completed the next day` switch
+  on the to-do settings page (`todoArchiveCompleted`, ON by default) turns the
+  sweep off and the pile stays as it always did. Snapshots and demo never
+  sweep.
 - **Completed items sink to the bottom (8.20):** the list DISPLAYS as active
   items (in stored order) first, then completed items (in stored order) —
   `TodoDisplay.order` (pure HopCore, tested). Completing an item animates it DOWN

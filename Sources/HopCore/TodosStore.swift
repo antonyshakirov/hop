@@ -8,6 +8,11 @@ import os
 public enum TodosStore {
     private static let fileName = "todos.json"
     private static let backupFileName = "todos.json.bak"
+    /// Where completed items go when the list lets them go: the same shape as
+    /// `todos.json`, appended to, never read back by the app — it is there so
+    /// nothing ticked off is lost, and so a script can look things up.
+    private static let archiveFileName = "todos-archive.json"
+    private static let archiveBackupFileName = "todos-archive.json.bak"
     private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "TodosStore")
 
     /// Loads `todos.json` from `dir`. A missing file loads as `.empty` with no
@@ -39,17 +44,42 @@ public enum TodosStore {
         try encoded.write(to: fileURL, options: .atomic)
     }
 
+    /// Appends `items` to `todos-archive.json` in `dir`. The archive is read,
+    /// extended and written back atomically; one that exists but cannot be read
+    /// or decoded is moved aside to its own `.bak` first, the way the list is,
+    /// so a bad file costs a backup rather than what was about to be archived.
+    public static func archive(_ items: [TodoItem], to dir: URL) throws {
+        guard !items.isEmpty else { return }
+        let fileURL = dir.appendingPathComponent(archiveFileName)
+        var archived = TodoList.empty
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            if let raw = try? Data(contentsOf: fileURL) {
+                if let decoded = try? JSONDecoder().decode(TodoList.self, from: raw) {
+                    archived = decoded
+                } else {
+                    backUp(fileURL, in: dir, reason: "undecodable", as: archiveBackupFileName)
+                }
+            } else {
+                backUp(fileURL, in: dir, reason: "unreadable", as: archiveBackupFileName)
+            }
+        }
+        archived.items.append(contentsOf: items)
+        let encoded = try JSONEncoder().encode(archived)
+        try encoded.write(to: fileURL, options: .atomic)
+    }
+
     /// Move an unusable file aside to the `.bak` slot, replacing any older
     /// backup. One log line per failure — no spam.
-    private static func backUp(_ fileURL: URL, in dir: URL, reason: String) {
+    private static func backUp(_ fileURL: URL, in dir: URL, reason: String,
+                               as backupFileName: String = backupFileName) {
         let backupURL = dir.appendingPathComponent(backupFileName)
         if (try? FileManager.default.moveItem(at: fileURL, to: backupURL)) == nil {
             try? FileManager.default.removeItem(at: backupURL)
             if (try? FileManager.default.moveItem(at: fileURL, to: backupURL)) == nil {
-                log.error("todos.json (\(reason, privacy: .public)) could not be backed up")
+                log.error("\(fileURL.lastPathComponent, privacy: .public) (\(reason, privacy: .public)) could not be backed up")
                 return
             }
         }
-        log.notice("todos.json (\(reason, privacy: .public)) moved to \(backupFileName, privacy: .public)")
+        log.notice("\(fileURL.lastPathComponent, privacy: .public) (\(reason, privacy: .public)) moved to \(backupFileName, privacy: .public)")
     }
 }
