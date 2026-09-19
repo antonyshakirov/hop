@@ -1764,7 +1764,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `cancel` leading, `delete` trailing, ~12pt gap, then the ✕-wide dead slot,
   Escape cancels via
   `.cancelAction`); the checkbox and text stay put and only the ✕ swaps for the
-  two buttons, so the row keeps its silhouette and height. Starting a drag,
+  two buttons, so the row keeps its silhouette and height. **A ⌘-click on the ✕
+  deletes at once** (Vanya, 2026-09-19): the modifier is the confirmation, so a
+  hand that already knows what it wants is not asked twice — `HoverDeleteX`
+  takes an optional `commandAction`, reads `NSEvent.modifierFlags` at click time,
+  and the to-do list alone passes its delete there (the tracker's ✕, whose
+  delete takes a history with it, keeps the two-step confirm). The ✕'s tooltip
+  (`todoDeleteHint`) is where the gesture is told. Starting a drag,
   opening the add field, or closing the panel clears the confirm
   (`clearConfirms`); a new confirm on another row closes the previous one (single
   `confirmingDelete`). It works for done and active items alike. Rows sit
