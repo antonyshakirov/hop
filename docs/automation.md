@@ -135,7 +135,13 @@ it. Append an item and it appears in the panel within a second:
 }
 ```
 
-`id` must be a UUID and unique. `remindAt`, `firedAt` and `snoozedUntil` are
+`id` must be a UUID and unique. `remindAt`, `firedAt`, `snoozedUntil` and
+`doneAt` (when the item was ticked off) are
 stored the way Foundation encodes a `Date` — seconds since 2001-01-01 UTC — so
 `todo.add` through the command file is the easier route when a reminder is
 involved.
+
+Completed items leave `todos.json` the day after they were ticked off (a
+setting can keep them) and are appended to `todos-archive.json` in the same
+folder, in the same shape — read it for what has been done, and leave the
+writing to Hop.
