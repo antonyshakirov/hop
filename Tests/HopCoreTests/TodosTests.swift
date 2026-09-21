@@ -170,6 +170,23 @@ final class TodosTests: XCTestCase {
         XCTAssertTrue(list.items.isEmpty)
     }
 
+    func testSweepKeepsARepeatingTaskTickedOff() {
+        // A task that repeats is not finished because this week's instance was
+        // ticked: the reminder rolls it back to active on its next weekday.
+        // Sweeping it would take the repeat with it, and `reconcile` sweeps
+        // BEFORE it rolls reminders forward — so the task would be gone for good.
+        var list = TodoList.empty
+        let id = list.add(text: "bins out")!
+        let dayStart = Date(timeIntervalSince1970: 10 * day)
+        list.setReminder(id, at: dayStart + 5 * day, repeatDays: [2])
+        list.toggle(id, now: dayStart - 3_600)
+
+        let swept = list.sweepCompleted(before: dayStart, now: dayStart)
+
+        XCTAssertTrue(swept.isEmpty)
+        XCTAssertEqual(list.items.map(\.id), [id])
+    }
+
     func testSweepOfNothingReturnsEmptyAndChangesNothing() {
         var list = TodoList.empty
         list.add(text: "a")
