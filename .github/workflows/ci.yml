@@ -31,3 +31,42 @@ jobs:
       # failures), tests, and every UI string present in every language.
       - name: Checks
         run: ./scripts/checks.sh
+
+  commit-hygiene:
+    name: Commit messages
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # House style for a public, English-only history: a commit message is
+      # English prose that stands on its own, with no trailers under it. This
+      # reads the incoming commits rather than the tip, because a merge brings
+      # in whatever the branch was written with and a message is settled long
+      # before it is merged.
+      - name: Message style
+        run: |
+          set -uo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            range="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          elif git cat-file -e "${{ github.event.before }}^{commit}" 2>/dev/null; then
+            range="${{ github.event.before }}..${{ github.sha }}"
+          else
+            range="-n 1 ${{ github.sha }}"
+          fi
+          bad=0
+          for sha in $(git rev-list $range); do
+            what=$(git log -1 --format='%h %s' "$sha")
+            msg=$(git log -1 --format='%B' "$sha")
+            if printf '%s' "$msg" | grep -qiE '^[[:space:]]*co-authored-by:|generated with'; then
+              echo "::error::$what — this history carries no trailers under the message"
+              bad=1
+            fi
+            if printf '%s' "$msg" | grep -qP '[\x{0400}-\x{04FF}]'; then
+              echo "::error::$what — non-English message; this repository is English-only"
+              bad=1
+            fi
+          done
+          exit $bad
