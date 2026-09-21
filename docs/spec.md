@@ -248,6 +248,22 @@ after a panel has been opened and closed at least once.
   same of anything holding a `TimelineView`, a `Timer.publish` or an animation
   that outlives the event that started it.
 
+- **The menu-bar button is written only when its look changes** (Anton,
+  2026-09-21). Writing an image or a title into the status item's button makes
+  AppKit re-resolve the button's `effectiveAppearance`, and the observer that
+  keeps a decorated icon readable when the bar changes colour under it answers
+  that with another refresh. On its own the handover settles; under a menu-bar
+  manager that re-parents the item (Ice) it did not, and a user reported Hop
+  holding 95% of a core with a profile pointing at `NSStatusItem`, AppKit and
+  CoreGraphics — no work of ours in it at all. `StatusItemController.Look` is
+  everything the button is actually given (the badge composition, the base
+  glyph, the bar's light/dark verdict, the title, its glyph and its opacity);
+  an identical look is not written. `setNeedsRefresh()` collapses a burst of
+  observers — the model's `objectWillChange`, `barChanged`, the stats tick, a
+  defaults change, the appearance observer — into ONE refresh on the next turn
+  of the run loop. `applyTheme` follows the same rule: the popover is handed an
+  appearance only when it differs from the one it has.
+
 - **The panel hears a second only when the second is not all that changed.**
   `AppModel` funnels every controller into one `objectWillChange` and `PanelView`
   is a single view, so one tick rebuilt every module on the panel to move two

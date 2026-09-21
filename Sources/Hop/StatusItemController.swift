@@ -66,26 +66,26 @@ final class StatusItemController: NSObject {
             // the other appearance, or the system flipping at sunset.
             appearanceObserver = button.observe(\.effectiveAppearance, options: [.new]) {
                 [weak self] _, _ in
-                Task { @MainActor in self?.refreshButton() }
+                Task { @MainActor in self?.setNeedsRefresh() }
             }
         }
 
         cancellable = model.objectWillChange
             .receive(on: RunLoop.main)
-            .sink { [weak self] in self?.refreshButton() }
+            .sink { [weak self] in self?.setNeedsRefresh() }
         // SPEC: docs/spec.md — "What a running clock costs", the bar's own stream.
         clockCancellable = model.barChanged
             .receive(on: RunLoop.main)
-            .sink { [weak self] in self?.refreshButton() }
+            .sink { [weak self] in self?.setNeedsRefresh() }
         // the monitor's red zone is refreshed by the background stats tick
         statsCancellable = model.stats.objectWillChange
             .receive(on: RunLoop.main)
-            .sink { [weak self] in self?.refreshButton() }
+            .sink { [weak self] in self?.setNeedsRefresh() }
         NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification, object: nil, queue: .main
         ) { [weak self] _ in
             Task { @MainActor in
-                self?.refreshButton()
+                self?.setNeedsRefresh()
                 self?.applyTheme()
             }
         }
@@ -320,7 +320,9 @@ final class StatusItemController: NSObject {
 
     /// The popover theme follows the settings / system choice.
     func applyTheme() {
-        popover.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        let wanted: NSAppearance.Name = Theme.isDark ? .darkAqua : .aqua
+        guard popover.appearance?.name != wanted else { return }
+        popover.appearance = NSAppearance(named: wanted)
     }
 
     // MARK: - Clicks
@@ -470,6 +472,31 @@ final class StatusItemController: NSObject {
 
     // MARK: - Label
 
+    /// SPEC: docs/spec.md — "What a running clock costs", the menu-bar button.
+    private func setNeedsRefresh() {
+        guard !refreshScheduled else { return }
+        refreshScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.refreshScheduled = false
+            self.refreshButton()
+        }
+    }
+
+    private var refreshScheduled = false
+
+    /// SPEC: docs/spec.md — "What a running clock costs", the menu-bar button.
+    private struct Look: Equatable {
+        let composition: IconComposition
+        let base: MenuBarIcon.Base?
+        let dark: Bool
+        let title: String
+        let glyph: String?
+        let opacity: Double
+    }
+
+    private var lastLook: Look?
+
     func refreshButton() {
         guard let button = statusItem.button else { return }
         // SPEC: docs/spec.md — "A module that is off is off everywhere".
@@ -578,18 +605,16 @@ final class StatusItemController: NSObject {
         let barIsDark = button.effectiveAppearance
             .bestMatch(from: [.darkAqua, .aqua]) != .aqua
         // template fast path ONLY when the calm star carries no decoration at all
+        let base: MenuBarIcon.Base?
         if keyboardLocked {
-            button.image = MenuBarIcon.compose(composition, base: .symbol("keyboard.fill"),
-                                               dark: barIsDark)
+            base = .symbol("keyboard.fill")
         } else if !composition.isEmpty {
-            button.image = MenuBarIcon.compose(composition, base: finished ? .symbol(bell) : .dial,
-                                               dark: barIsDark)
+            base = finished ? .symbol(bell) : .dial
         } else if finished {
-            button.image = MenuBarIcon.compose(composition, base: .symbol(bell), dark: barIsDark)
+            base = .symbol(bell)
         } else {
-            button.image = MenuBarIcon.dialTemplate
+            base = nil
         }
-        button.imagePosition = .imageLeft
 
         // Every clock that has something to say. The engine's countdown and the
         // tracked task's running total used to compete for the one slot, and
@@ -645,6 +670,20 @@ final class StatusItemController: NSObject {
                 title += String(repeating: " ", count: frozen - total)
             }
         }
+        // WORKAROUND: writing the button's image or title makes AppKit re-resolve
+        // its appearance, which our own observer answers with another refresh.
+        // Under a menu-bar manager that re-parents the item (Ice) that never
+        // settled. SPEC: docs/spec.md — "What a running clock costs".
+        let look = Look(composition: composition, base: base, dark: barIsDark,
+                        title: title, glyph: glyph, opacity: opacity)
+        guard look != lastLook || button.image == nil else { return }
+        lastLook = look
+
+        button.image = base.map {
+            MenuBarIcon.compose(composition, base: $0, dark: barIsDark)
+        } ?? MenuBarIcon.dialTemplate
+        button.imagePosition = .imageLeft
+
         let mono = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
         if title.isEmpty {
             button.title = ""
