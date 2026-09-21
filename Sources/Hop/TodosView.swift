@@ -7,7 +7,8 @@ import HopCore
 /// at the bottom. Deletion is a hover xmark that switches the row into an in-row
 /// confirm (delete/cancel) rather than deleting on the spot — the checkbox and
 /// text stay put, only the trailing ✕ swaps for the two buttons, so the row keeps
-/// its silhouette. A `to-dos` subheader names the module above
+/// its silhouette; a ⌘-click on the ✕ skips the confirm and deletes at once.
+/// A `to-dos` subheader names the module above
 /// the list. Rows use a tight rhythm (spacing 3, vertical padding 2) that the
 /// tracker now matches exactly, so the near-twin modules read identically;
 /// reorder is a whole-row vertical drag. Theme tokens only.
@@ -255,7 +256,11 @@ struct TodosView: View {
             // the right, it slid the star out from under the pointer and a click
             // meant for the star landed on delete.
             if confirmingDelete != item.id, hovered == item.id {
-                HoverDeleteX { confirmingDelete = item.id }
+                // A plain click asks (the in-row confirm below); a ⌘-click
+                // deletes on the spot — one gesture for the hand that is sure.
+                HoverDeleteX(action: { confirmingDelete = item.id },
+                             commandAction: { deleteNow(item) },
+                             help: t(.todoDeleteHint))
             }
             // Pressing the star here UNMARKS; marking one is the card's job.
             if item.important {
@@ -493,6 +498,15 @@ struct TodosView: View {
     private func deleteFromCard(_ item: TodoItem) {
         collapseCard()
         todos.delete(item.id)
+    }
+
+    /// The ⌘-click delete: no confirm, and nothing else left half-open — the
+    /// row that vanishes may be the one whose card or confirm was showing.
+    private func deleteNow(_ item: TodoItem) {
+        if expanded == item.id { collapseCard() }
+        if confirmingDelete == item.id { confirmingDelete = nil }
+        hovered = nil
+        withAnimation(Self.sinkAnimation) { todos.delete(item.id) }
     }
 
     /// Writes the draft back. Each field goes through its own mutator, so an

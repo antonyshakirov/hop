@@ -1027,6 +1027,11 @@ struct FieldCommitButtons: View {
 /// never intercept a click meant for the time label beside it.
 struct HoverDeleteX: View {
     let action: () -> Void
+    /// What a ⌘-click does instead of `action`. The to-do list passes its
+    /// delete here, so a hand that already knows what it wants skips the
+    /// in-row confirm — the modifier IS the confirmation. nil = ⌘ changes
+    /// nothing, and the row keeps its two-step delete.
+    var commandAction: (() -> Void)? = nil
     var help: String?
     /// The button's box. 22pt matches a task row, whose leading circle already
     /// makes the row that tall; a shorter row (a line of a task's history) asks
@@ -1035,7 +1040,16 @@ struct HoverDeleteX: View {
     var size: CGFloat = 22
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            // The flags are read at click time rather than tracked: the button
+            // has no event of its own to look at, and the modifier is held
+            // for exactly as long as the click.
+            if let commandAction, NSEvent.modifierFlags.contains(.command) {
+                commandAction()
+            } else {
+                action()
+            }
+        } label: {
             Image(systemName: "xmark")
                 .font(.system(size: size * 0.5, weight: .semibold))
                 .foregroundStyle(Theme.textSecondary)
