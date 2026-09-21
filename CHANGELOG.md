@@ -1,6 +1,6 @@
 # Hop - version history
 
-## Unreleased
+## 2.1.5 - 2026-09-21
 
 - The clipboard keeps a long copy whole. A book, a log or a page of source used
   to come back as its first twenty thousand characters; now it comes back as
