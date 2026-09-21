@@ -17,7 +17,7 @@ final class ClipboardPreviewTests: XCTestCase {
     /// The point of the whole function: a copied book is not folded in full on
     /// every redraw.
     func testALongEntryStopsAtTheRowWidth() {
-        let book = String(repeating: "a", count: ClipboardRules.maxItemLength)
+        let book = String(repeating: "a", count: ClipboardRules.inlineLength)
         XCTAssertEqual(ClipboardRules.previewLine(book).count, ClipboardRules.previewLength)
     }
 

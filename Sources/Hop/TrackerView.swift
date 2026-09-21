@@ -1338,7 +1338,9 @@ struct TrackerView: View {
                         onCancel: { endEdit() })
                 .frame(height: 20)
                 .onAppear { focused = field }
-            Button("", action: { commitName(keepOpen: field.isAdding) })
+            // ⌘Return commits and CLOSES on every field, the add ones included —
+            // Return is what keeps an add run going (see commitName).
+            Button("", action: { commitName() })
                 .keyboardShortcut(.return, modifiers: .command)
                 .opacity(0)
                 .frame(width: 0, height: 0)

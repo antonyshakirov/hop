@@ -1,6 +1,8 @@
 import AppKit
+import CryptoKit
 import Foundation
 import HopCore
+import OSLog
 import UniformTypeIdentifiers
 
 /// Clipboard history: once a second we compare the NSPasteboard changeCount
@@ -12,6 +14,8 @@ import UniformTypeIdentifiers
 final class ClipboardController: ObservableObject {
     typealias Item = ClipboardItem
 
+    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "Clipboard")
+
     @Published private(set) var items: [Item] = []
 
     static let defaultMaxItems = 100
@@ -20,6 +24,9 @@ final class ClipboardController: ObservableObject {
     static let maxImageItems = 20
     /// A pathological clipboard image (a poster-size TIFF) is skipped, not stored.
     nonisolated static let maxImageBytes = 25_000_000
+    /// SPEC: docs/spec.md — Clipboard, a long body kept whole.
+    nonisolated static let maxTextBytes = 64 * 1024 * 1024
+    nonisolated static let maxTextBudget = 512 * 1024 * 1024
     /// how many rows the collapsed clipboard shows (1...10, default 3)
     static let visibleRowsKey = "clipboardVisibleRows"
     /// Picked colours have their own cap and their own visible-row count: the
@@ -146,6 +153,26 @@ final class ClipboardController: ObservableObject {
             .appendingPathComponent("clipboard-images")
     }
 
+    /// Per bundle id, for the same reason `imagesDir` is.
+    nonisolated static var textsDir: URL {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+        return base
+            .appendingPathComponent(Bundle.storageIdentifier)
+            .appendingPathComponent("clipboard-texts")
+    }
+
+    /// The whole body: the file when there is one, the carried head otherwise.
+    func body(of item: Item) -> String {
+        guard let file = item.textFile else { return item.text }
+        guard let text = try? String(contentsOf: Self.textsDir.appendingPathComponent(file),
+                                     encoding: .utf8) else {
+            Self.log.error("clipboard body \(file, privacy: .public) could not be read")
+            return item.text
+        }
+        return text
+    }
+
     private func rememberImage(_ data: Data, label: String) {
         // the same image copied twice in a row stays a single entry
         if let first = items.first, let file = first.imageFile,
@@ -161,16 +188,16 @@ final class ClipboardController: ObservableObject {
         } catch {
             return // no file — no entry; a dead row would be worse
         }
-        items.insert(Item(id: id, text: label, imageFile: fileName), at: 0)
-        pruneOverflow()
-        save()
+        var updated = items
+        updated.insert(Item(id: id, text: label, imageFile: fileName), at: 0)
+        apply(updated)
     }
 
     /// Enforce both caps and delete the files of everything that falls off.
     private func pruneOverflow() {
         let (kept, removed) = ClipboardRules.pruned(
             items, maxItems: maxItems, maxImageItems: Self.maxImageItems,
-            maxColorItems: maxColors)
+            maxColorItems: maxColors, maxTextBytes: Self.maxTextBudget)
         items = kept
         deleteFiles(of: removed)
     }
@@ -180,11 +207,51 @@ final class ClipboardController: ObservableObject {
             if let file = item.imageFile {
                 try? FileManager.default.removeItem(at: Self.imagesDir.appendingPathComponent(file))
             }
+            if let file = item.textFile {
+                try? FileManager.default.removeItem(at: Self.textsDir.appendingPathComponent(file))
+            }
         }
     }
 
     private func remember(_ raw: String) {
-        guard let updated = ClipboardRules.remembering(raw, in: items) else { return }
+        let body = Self.capped(raw.trimmingCharacters(in: .whitespacesAndNewlines))
+        guard body.count > ClipboardRules.inlineLength else {
+            guard let updated = ClipboardRules.remembering(body, in: items) else { return }
+            apply(updated)
+            return
+        }
+        let data = Data(body.utf8)
+        let digest = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        guard var updated = ClipboardRules.remembering(body, digest: digest, in: items) else { return }
+        if updated[0].textDigest == digest, updated[0].textFile == nil {
+            let file = "\(updated[0].id.uuidString).txt"
+            do {
+                try FileManager.default.createDirectory(at: Self.textsDir, withIntermediateDirectories: true)
+                try data.write(to: Self.textsDir.appendingPathComponent(file), options: .atomic)
+            } catch {
+                // no file, no entry: a row pasting its first page only is worse
+                Self.log.error("clipboard body not stored: \(error.localizedDescription, privacy: .public)")
+                return
+            }
+            updated[0].textFile = file
+            updated[0].textBytes = data.count
+        }
+        apply(updated)
+    }
+
+    /// Cut to `maxTextBytes` on a character boundary.
+    nonisolated private static func capped(_ text: String) -> String {
+        var data = Data(text.utf8)
+        guard data.count > maxTextBytes else { return text }
+        data = data.prefix(maxTextBytes)
+        while !data.isEmpty, String(data: data, encoding: .utf8) == nil { data = data.dropLast() }
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+
+    /// The list, with the files of everything that left it deleted.
+    private func apply(_ updated: [Item]) {
+        let staying = Set(updated.map(\.id))
+        deleteFiles(of: items.filter { !staying.contains($0.id) })
         items = updated
         pruneOverflow()
         save()
@@ -195,10 +262,11 @@ final class ClipboardController: ObservableObject {
     /// pruning them off the history never deletes anything on disk.
     private func rememberFiles(_ paths: [String]) {
         guard let updated = ClipboardRules.remembering(files: paths, in: items) else { return }
-        items = updated
-        pruneOverflow()
-        save()
+        apply(updated)
     }
+
+    /// SPEC: docs/spec.md — the clipboard self-test (`--clipboard-selftest`).
+    func rememberForSelfTest(_ raw: String) { remember(raw) }
 
     /// Content Hop PRODUCED itself — a picked color, text read off the screen —
     /// enters the history here. Modules can't call `remember` directly (the rules
@@ -217,9 +285,7 @@ final class ClipboardController: ObservableObject {
     /// picked twice) — the point of picking is having it ready to paste.
     func remember(color hex: String, text: String) {
         if let updated = ClipboardRules.remembering(color: hex, text: text, in: items) {
-            items = updated
-            pruneOverflow()
-            save()
+            apply(updated)
         }
         place(text)
     }
@@ -267,7 +333,8 @@ final class ClipboardController: ObservableObject {
             changeCount = pasteboard.changeCount
             return
         }
-        if item.text.hasPrefix("/") || item.text.hasPrefix("~"),
+        if item.textFile == nil,
+           item.text.hasPrefix("/") || item.text.hasPrefix("~"),
            case let path = NSString(string: item.text).expandingTildeInPath,
            FileManager.default.fileExists(atPath: path) {
             let url = URL(fileURLWithPath: path)
@@ -276,7 +343,7 @@ final class ClipboardController: ObservableObject {
             // still receive something meaningful
             pasteboard.setString(item.text, forType: .string)
         } else {
-            pasteboard.setString(item.text, forType: .string)
+            pasteboard.setString(body(of: item), forType: .string)
         }
         changeCount = pasteboard.changeCount
     }
@@ -318,7 +385,7 @@ final class ClipboardController: ObservableObject {
             target = desktop.appendingPathComponent(name)
         }
 
-        return Self.write(item.text, as: format, to: target) ? target : nil
+        return Self.write(body(of: item), as: format, to: target) ? target : nil
     }
 
     /// Text goes to disk as it is; pdf and docx are RENDERED from it through the
@@ -402,15 +469,26 @@ final class ClipboardController: ObservableObject {
         // entries whose file vanished are dropped; orphan files (a crash
         // between write and save) are swept
         items = stored.filter { item in
-            guard let file = item.imageFile else { return true }
-            return FileManager.default.fileExists(
-                atPath: Self.imagesDir.appendingPathComponent(file).path)
-        }
-        let referenced = Set(items.compactMap(\.imageFile))
-        if let onDisk = try? FileManager.default.contentsOfDirectory(atPath: Self.imagesDir.path) {
-            for file in onDisk where !referenced.contains(file) {
-                try? FileManager.default.removeItem(at: Self.imagesDir.appendingPathComponent(file))
+            if let file = item.imageFile,
+               !FileManager.default.fileExists(
+                   atPath: Self.imagesDir.appendingPathComponent(file).path) {
+                return false
             }
+            if let file = item.textFile,
+               !FileManager.default.fileExists(
+                   atPath: Self.textsDir.appendingPathComponent(file).path) {
+                return false
+            }
+            return true
+        }
+        sweep(Self.imagesDir, keeping: Set(items.compactMap(\.imageFile)))
+        sweep(Self.textsDir, keeping: Set(items.compactMap(\.textFile)))
+    }
+
+    private func sweep(_ dir: URL, keeping referenced: Set<String>) {
+        guard let onDisk = try? FileManager.default.contentsOfDirectory(atPath: dir.path) else { return }
+        for file in onDisk where !referenced.contains(file) {
+            try? FileManager.default.removeItem(at: dir.appendingPathComponent(file))
         }
     }
 }

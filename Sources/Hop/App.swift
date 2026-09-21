@@ -223,6 +223,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // crash-loop guard — BEFORE any modules: three unfinished launches in a row =
         // safe mode, where only the updater lives. Even a bug that crashes
         // startup cannot cut off the path to an update carrying the fix
+        SoleInstance.claim()
+
         let crashLoop = LaunchGuard.registerLaunch()
         DispatchQueue.main.asyncAfter(deadline: .now() + LaunchGuard.stableAfter) {
             LaunchGuard.markStable()
@@ -1382,6 +1384,62 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
+/// Headless self-test for the clipboard's long bodies:
+/// `Hop --clipboard-selftest <file>` copies the file's text, then reads the
+/// entry back the way a click on its row does and compares. The menu bar app is
+/// never launched, and the history it writes is the dev build's own.
+@MainActor
+enum ClipboardSelfTest {
+    static func runIfRequested() {
+        let args = CommandLine.arguments
+        guard let i = args.firstIndex(of: "--clipboard-selftest"), args.count > i + 1 else { return }
+        guard let body = try? String(contentsOf: URL(fileURLWithPath: args[i + 1]), encoding: .utf8) else {
+            print("SELFTEST FAIL: cannot read \(args[i + 1])")
+            exit(1)
+        }
+        let wanted = body.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        Task { @MainActor in
+            let clipboard = ClipboardController()
+            let before = clipboard.items.count
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(wanted, forType: .string)
+            // the module's own second-long tick is not running here: ask directly
+            clipboard.rememberForSelfTest(wanted)
+
+            guard let entry = clipboard.items.first, clipboard.items.count == before + 1 else {
+                print("SELFTEST FAIL: the copy did not become an entry")
+                exit(1)
+            }
+            let spilled = entry.textFile != nil
+            print("entry head=\(entry.text.count) chars, file=\(entry.textFile ?? "-"), "
+                + "bytes=\(entry.textBytes.map(String.init) ?? "-")")
+
+            // what a click on the row puts on the clipboard
+            NSPasteboard.general.clearContents()
+            clipboard.copy(entry)
+            let back = NSPasteboard.general.string(forType: .string) ?? ""
+            guard back == wanted else {
+                print("SELFTEST FAIL: pasted back \(back.count) of \(wanted.count) characters")
+                exit(1)
+            }
+            print("pasted back \(back.count) characters, whole")
+
+            // and the file goes when the entry does
+            let file = entry.textFile
+            clipboard.clear()
+            if let file, FileManager.default.fileExists(
+                atPath: ClipboardController.textsDir.appendingPathComponent(file).path) {
+                print("SELFTEST FAIL: the body outlived its entry")
+                exit(1)
+            }
+            print("SELFTEST OK\(spilled ? "" : " (body short enough to be carried in the history)")")
+            exit(0)
+        }
+        RunLoop.main.run()
+    }
+}
+
 /// Headless self-test for the torrent hub, mirroring `Snapshot.runIfRequested()`:
 /// `Hop --torrent-selftest <binaryPath> <source>` spins up a real engine against
 /// a local rqbit binary, adds a torrent, polls progress, and exits — the menu bar
@@ -1533,6 +1591,7 @@ struct HopApp: App {
         PageSelfTest.runIfRequested()
         VideoSelfTest.runIfRequested()
         IWorkSelfTest.runIfRequested()
+        ClipboardSelfTest.runIfRequested()
         Snapshot.runIfRequested()
         #endif
     }

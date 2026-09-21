@@ -24,11 +24,16 @@ public struct TodoItem: Codable, Equatable, Identifiable {
     public var firedUnseen: Bool
     /// The importance mark. Whether it also sorts the list is a setting.
     public var important: Bool
+    /// When the item was ticked off. nil while it is open — and on a completed
+    /// item from a build that did not keep the date, which the sweep stamps
+    /// with the day it first sees it rather than clearing on sight.
+    public var doneAt: Date?
 
     public init(id: UUID = UUID(), text: String, done: Bool = false,
                 note: String = "", remindAt: Date? = nil, repeatDays: [Int] = [],
                 snoozedUntil: Date? = nil, firedAt: Date? = nil,
-                firedUnseen: Bool = false, important: Bool = false) {
+                firedUnseen: Bool = false, important: Bool = false,
+                doneAt: Date? = nil) {
         self.id = id
         self.text = text
         self.done = done
@@ -39,6 +44,7 @@ public struct TodoItem: Codable, Equatable, Identifiable {
         self.firedAt = firedAt
         self.firedUnseen = firedUnseen
         self.important = important
+        self.doneAt = doneAt
     }
 
     /// Weekdays sorted, de-duplicated and range-checked, so a hand-edited or
@@ -49,7 +55,7 @@ public struct TodoItem: Codable, Equatable, Identifiable {
 
     private enum CodingKeys: String, CodingKey {
         case id, text, done, note, remindAt, repeatDays, snoozedUntil,
-             firedAt, firedUnseen, important
+             firedAt, firedUnseen, important, doneAt
     }
 
     /// Every field added after the checklist shipped decodes leniently: an older
@@ -68,6 +74,7 @@ public struct TodoItem: Codable, Equatable, Identifiable {
         firedAt = try container.decodeIfPresent(Date.self, forKey: .firedAt)
         firedUnseen = try container.decodeIfPresent(Bool.self, forKey: .firedUnseen) ?? false
         important = try container.decodeIfPresent(Bool.self, forKey: .important) ?? false
+        doneAt = try container.decodeIfPresent(Date.self, forKey: .doneAt)
     }
 }
 
@@ -106,9 +113,36 @@ public struct TodoList: Codable, Equatable {
 
     /// Flips the item's `done` flag in place — its position is preserved, so a
     /// completed item never jumps around the list. No-op for an unknown id.
-    public mutating func toggle(_ id: UUID) {
+    /// Ticking stamps `doneAt` with `now`; unticking clears it, so an item put
+    /// back to work is not swept for a day it was once finished on.
+    public mutating func toggle(_ id: UUID, now: Date = Date()) {
         guard let index = items.firstIndex(where: { $0.id == id }) else { return }
         items[index].done.toggle()
+        items[index].doneAt = items[index].done ? now : nil
+    }
+
+    /// Lifts out every item finished before `dayStart` — the start of today, so
+    /// what was ticked off yesterday leaves the list and what was ticked off
+    /// today stays in its completed pile until tomorrow. The lifted items are
+    /// returned in list order for the caller to archive; the list keeps its
+    /// order otherwise. A completed item without a date (saved by a build that
+    /// kept none) is stamped `now` and kept: nothing is swept on sight, and it
+    /// goes the day after, like anything finished today. A REPEATING item is
+    /// never swept: `RemindSchedule.fired` puts it back to active on its next
+    /// weekday, and the sweep runs before that — archiving it would take the
+    /// repeat with it.
+    @discardableResult
+    public mutating func sweepCompleted(before dayStart: Date, now: Date) -> [TodoItem] {
+        for index in items.indices where items[index].done && items[index].doneAt == nil {
+            items[index].doneAt = now
+        }
+        let swept = items.filter {
+            $0.done && $0.repeatDays.isEmpty && ($0.doneAt ?? now) < dayStart
+        }
+        guard !swept.isEmpty else { return [] }
+        let gone = Set(swept.map(\.id))
+        items.removeAll { gone.contains($0.id) }
+        return swept
     }
 
     /// Removes the item. No-op for an unknown id.

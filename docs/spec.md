@@ -208,8 +208,8 @@ made it, and each is a rule now.
   keeps the tick for accuracy and publishes once a second - twice a second only
   in the finished state, where the alarm blink and the calm pulse after it are
   drawn at 2 Hz.
-- **A row's text is folded once, not per redraw.** A clipboard entry holds up to
-  20 000 characters, and the row label folded all of them into one line on every
+- **A row's text is folded once, not per redraw.** A clipboard entry carries up
+  to 20 000 characters, and the row label folded all of them into one line on every
   render of every visible row. `ClipboardRules.previewLine`
   (`ClipboardPreviewTests`) stops at the width a row can show, and
   `ClipPreviewCache` keeps the result per entry.
@@ -247,6 +247,36 @@ after a panel has been opened and closed at least once.
   `--snapshot` as a yellow block, which took the pause button with it. Ask the
   same of anything holding a `TimelineView`, a `Timer.publish` or an animation
   that outlives the event that started it.
+
+- **The menu-bar button is written only when its look changes** (Anton,
+  2026-09-21). Writing an image or a title into the status item's button makes
+  AppKit re-resolve the button's `effectiveAppearance`, and the observer that
+  keeps a decorated icon readable when the bar changes colour under it answers
+  that with another refresh. On its own the handover settles; under a menu-bar
+  manager that re-parents the item (Ice) it did not, and a user reported Hop
+  holding 95% of a core with a profile pointing at `NSStatusItem`, AppKit and
+  CoreGraphics — no work of ours in it at all. `StatusItemController.Look` is
+  everything the button is actually given (the badge composition, the base
+  glyph, the bar's light/dark verdict, the title, its glyph and its opacity);
+  an identical look is not written. `setNeedsRefresh()` collapses a burst of
+  observers — the model's `objectWillChange`, `barChanged`, the stats tick, a
+  defaults change, the appearance observer — into ONE refresh on the next turn
+  of the run loop. `applyTheme` follows the same rule: the popover is handed an
+  appearance only when it differs from the one it has. Past a rate no real
+  change of the bar's colour reaches — eight firings in two seconds — the
+  appearance observer goes quiet for a minute and says so in the log
+  (`BurstGuard`, HopCore, `BurstGuardTests`): the colour is a property AppKit
+  re-resolves when the button is written to, so there is no way to watch it that
+  an environment cannot turn back on us, and the cap is what makes the loop
+  impossible rather than unlikely. The colour is picked up by the next refresh
+  the model asks for.
+
+- **The GPU reading asks for one property, not the whole driver.** The
+  utilisation figure sits in `PerformanceStatistics` on the `IOAccelerator`
+  entry, and copying that entry's ENTIRE property dictionary to read one integer
+  cost 0.947 ms a call against 0.019 ms for the one property (measured on this
+  Mac, 2026-09-21) — fifty times the price, every five seconds, all day, and on
+  an Intel Mac the wide copy also reaches the discrete GPU.
 
 - **The panel hears a second only when the second is not all that changed.**
   `AppModel` funnels every controller into one `objectWillChange` and `PanelView`
@@ -947,8 +977,28 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   pruned are deleted; entries whose file vanished are dropped at launch and
   orphan files are swept. Images over 25 MB are skipped. Image entries
   never take part in text dedup.
+- **A long body is kept WHOLE, in a file of its own** (Anton, 2026-09-21).
+  Until now every entry was cut to 20 000 characters, so a copied book pasted
+  back as its first page. The history file itself still carries no more than
+  that — it lives in `UserDefaults` and is read and rewritten on every copy, and
+  a hundred entries of ten megabytes each would be a gigabyte of it — so a body
+  past `ClipboardRules.inlineLength` goes to `clipboard-texts/<id>.txt` beside
+  the images, and the entry carries its HEAD, the file name, the file's size and
+  the body's SHA-256 (`textFile` / `textBytes` / `textDigest`). Clicking the row
+  and saving the entry to a document both read the file, so what comes back is
+  what was copied. The digest is the entry's identity: two books with the same
+  first page are two entries, the same book copied twice is one, and the
+  dictation rule that substitutes a growing line never reaches a body the
+  history does not carry. One body is kept up to 64 MB (past that the tail is
+  dropped, on a character boundary) and all of them up to 512 MB together — over
+  budget the oldest go first, ahead of their turn (`ClipboardRules.pruned`,
+  `maxTextBytes`). A file goes when its entry does; an entry whose file vanished
+  is dropped at launch and orphan files are swept, the way images are.
+  `Hop --clipboard-selftest <file>` copies a file's text, reads the entry back
+  the way a click does, compares it and checks that the body dies with the entry.
 - Search: the search field appears when expanded (case-insensitive
-  substring filter, clear button; collapsing resets the query).
+  substring filter, clear button; collapsing resets the query). It reads the
+  entry's head, which is all the history carries of a long body.
 - Collapsed — a user-chosen number of rows (settings, 1...10, default 3),
   expanded — up to 20, but that is only the HEIGHT of
   the list window: the full history is reachable via internal scrolling in
@@ -1283,7 +1333,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Speed test
 
-- networkQuality (Apple servers), live numbers during the run.
+- networkQuality (Apple servers), live numbers during the run: one direction
+  at a time, so the download fills first and the upload after it.
 - Result in a row: "↓ 834 Mbps · ↑ 112 Mbps · 1,450 RPM" — every value
   carries its OWN unit (a bare number is ambiguous, and download/upload
   can differ: Kbit/s vs Mbit/s), separators use thin spaces and
@@ -1741,6 +1792,24 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   reorders (clamped; `from` out of range is a no-op) — the order persists through
   the store. `TodosController.reorder(dragging:toDisplayInsertion:)` saves like
   every other mutation.
+- **Completed items leave the next day (Vanya, 2026-09-19):** ticking stamps
+  `doneAt` (unticking clears it), and `reconcile` — at launch, on wake, on the
+  tick and when the panel opens — sweeps every completed item whose `doneAt`
+  is before the start of today (`TodoList.sweepCompleted(before:now:)`, pure
+  HopCore, tested): so today's pile stays in view all day and yesterday's is
+  gone the first time the list is looked at. Nothing is thrown away — the
+  swept items are APPENDED to `todos-archive.json` beside `todos.json`
+  (`TodosStore.archive`, same shape, atomic write, an unusable archive goes to
+  its own `.bak` first), and nothing leaves the list until the archive write
+  has succeeded. A completed item from a build that kept no date is stamped
+  with the day it is first seen rather than swept on sight, so an update never
+  empties anyone's completed pile. **A REPEATING item is never swept** (Anton,
+  2026-09-21): `RemindSchedule.fired` puts it back to active on its next
+  weekday, and the sweep runs BEFORE reminders roll forward, so archiving a
+  repeating task ticked off yesterday took the repeat with it for good. The `clear completed the next day` switch
+  on the to-do settings page (`todoArchiveCompleted`, ON by default) turns the
+  sweep off and the pile stays as it always did. Snapshots and demo never
+  sweep.
 - **Completed items sink to the bottom (8.20):** the list DISPLAYS as active
   items (in stored order) first, then completed items (in stored order) —
   `TodoDisplay.order` (pure HopCore, tested). Completing an item animates it DOWN
@@ -1764,7 +1833,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   `cancel` leading, `delete` trailing, ~12pt gap, then the ✕-wide dead slot,
   Escape cancels via
   `.cancelAction`); the checkbox and text stay put and only the ✕ swaps for the
-  two buttons, so the row keeps its silhouette and height. Starting a drag,
+  two buttons, so the row keeps its silhouette and height. **A ⌘-click on the ✕
+  deletes at once** (Vanya, 2026-09-19): the modifier is the confirmation, so a
+  hand that already knows what it wants is not asked twice — `HoverDeleteX`
+  takes an optional `commandAction`, reads `NSEvent.modifierFlags` at click time,
+  and the to-do list alone passes its delete there (the tracker's ✕, whose
+  delete takes a history with it, keeps the two-step confirm). The ✕'s tooltip
+  (`todoDeleteHint`) is where the gesture is told. Starting a drag,
   opening the add field, or closing the panel clears the confirm
   (`clearConfirms`); a new confirm on another row closes the previous one (single
   `confirmingDelete`). It works for done and active items alike. Rows sit
@@ -1811,12 +1886,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   opens an inline field with the same ✓/✕ buttons and `Snapshot.active` gating as
   the tracker. **Return appends and KEEPS the field open** — cleared and still
   focused, so a list is typed in one run instead of reaching for the mouse
-  between two tasks (Vanya, 2026-09-08); ⌘Return does the same, for the
-  hands that reach for it. Return on an empty field ends the run and closes it.
-  ✓ appends and closes — the mouse says the run is over. Escape/✕ cancel, empty
+  between two tasks (Vanya, 2026-09-08). Return on an empty field ends the run
+  and closes it. **⌘Return appends and CLOSES** (Vanya, 2026-09-19) — the
+  keyboard's own full stop, so the last task of a run does not need the mouse;
+  ✓ does the same for the mouse. Clearing the draft after Return has to reach
+  the field while the caret is still in it: `SteadyField.updateNSView` leaves
+  an edited field's text alone as a rule (the keyboard owns it), and takes a
+  value the coordinator never saw typed (`Coordinator.typed`) as the one
+  exception — before that, the appended task's text stayed on screen in front
+  of the next one. Escape/✕ cancel, empty
   = cancel. The tracker's `nameField` behaves identically on its ADD fields
-  (`newTask`, `newTaskIn`, `newProject` — `Field.isAdding`); renaming a project
-  has nothing to continue, so there Return still commits and closes.
+  (`newTask`, `newTaskIn`, `newProject` — `Field.isAdding`), ⌘Return included;
+  renaming a project has nothing to continue, so there Return still commits
+  and closes.
 - **Task card (expanded row):** clicking a row expands it into a card and
   collapses whatever was open — ONE card at a time, so the panel cannot grow
   without bound. **The row STAYS above its card in both modules (Anton,
@@ -5882,8 +5964,20 @@ system language. Order — alphabetical by native names.
 
 ## Speed test
 A main-panel module (hideable/reorderable like the rest). The "test"
-button → the system `/usr/bin/networkQuality -c` (Apple CDN servers,
-~15–20 s) → a "↓ N · ↑ M Mbit/s · RPM" row. Repeat via the ↻ icon. No
+button → the system `/usr/bin/networkQuality -s` (Apple CDN servers, ~20 s)
+→ a "↓ N · ↑ M Mbit/s · RPM" row. **The directions are measured APART**
+(Anton, 2026-09-21). Without `-s` the tool saturates both at once, which is
+what it is for — it is measuring responsiveness under working conditions —
+and on an asymmetric line the upload is what gets squeezed: measured on the
+same connection minutes apart, 478 ↓ / 77.5 ↑ both at once against 476 ↓ /
+223 ↑ one at a time. The download agreed, the upload was out by a factor of
+three, and three times low is what a person sees when they compare the row
+with speedtest.net — which, like every consumer test, measures one direction
+at a time. Sequentially the tool prints TWO responsiveness scores instead of
+one; the row shows the WORSE of them, which is the one that describes the
+call that stutters (`SpeedSummary`, HopCore, `SpeedSummaryTests`). A
+direction that has not started reads 0.000, and the row keeps its
+placeholder rather than showing it. Repeat via the ↻ icon. No
 custom servers and no third-party services. A fresh result is drawn in the
 primary ink, like the module's own name: it is the answer the row exists for,
 and in secondary grey it read as a caption (Anton, 2026-09-05). A stale one
@@ -6096,6 +6190,16 @@ is written the way its newest one is.
 
 ## Update channel (production path, since 1.0.0)
 
+- **One Hop at a time** (Anton, 2026-09-21). The updater quits itself and a
+  detached shell opens the fresh bundle once the old process is gone, so an
+  automatic update never leaves two copies behind. An update installed BY HAND —
+  the bundle dragged out of the DMG over a running copy — does: the old process
+  goes on running out of a bundle that is no longer on disk, and whatever that
+  version was doing it keeps doing, which is how a user could read release notes
+  about a fix while the copy in their menu bar still held a core. A fresh launch
+  asks every other running copy of the same bundle id to quit and ends the ones
+  that do not within two seconds (`SoleInstance`). Hop Dev carries its own bundle
+  id, so it and the production app never touch each other.
 - Manifest: `https://hop.tools/downloads/hop/latest.json` (version, zip,
   sig, critical, date, mirrors); the archive and signature sit next to it.
   The old address `https://www.antonshakirov.com/downloads/hop/latest.json`,

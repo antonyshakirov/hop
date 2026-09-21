@@ -1,5 +1,23 @@
 # Hop - version history
 
+## 2.1.5 - 2026-09-21
+
+- The clipboard keeps a long copy whole. A book, a log or a page of source used
+  to come back as its first twenty thousand characters; now it comes back as
+  what was copied, up to 64 MB an entry.
+- Hop no longer holds a processor core when a menu bar manager such as Ice is
+  running. The icon was being redrawn without pause. Starting Hop now also ends
+  any older copy of it still running, so an update installed by hand leaves
+  nothing behind.
+- The speed test measures the download and the upload one after the other, the
+  way speedtest.net and every other consumer test does. Measured together, as
+  the system tool does by default, the upload of a normal home line comes out
+  about three times low. Its help page says so.
+- To-dos: hold command and click the ✕ to delete a task without being asked
+  twice. Command and return adds the task and closes the field.
+- To-dos: a task ticked off leaves the list the next day, into a file beside it.
+  There is a switch on the to-do settings page.
+
 ## 2.1.4 - 2026-09-17
 
 - An empty settings window no longer opens on its own.

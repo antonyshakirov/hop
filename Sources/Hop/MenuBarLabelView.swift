@@ -11,7 +11,7 @@ import HopCore
 /// they read identically on every user's bar.
 @MainActor
 enum MenuBarIcon {
-    enum Base {
+    enum Base: Equatable {
         case dial
         case symbol(String)
     }

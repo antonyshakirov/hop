@@ -19,14 +19,25 @@ public struct ClipboardItem: Identifiable, Equatable, Codable {
     /// survives a format change. A color needs no file on disk: pruning one
     /// deletes nothing.
     public var colorHex: String?
+    /// The file holding the whole body; `text` is then its head only.
+    public var textFile: String?
+    /// That file's size in bytes.
+    public var textBytes: Int?
+    /// SHA-256 of the whole body — the entry's identity when `textFile` is set.
+    public var textDigest: String?
 
     public init(id: UUID = UUID(), text: String, imageFile: String? = nil,
-                filePaths: [String]? = nil, colorHex: String? = nil) {
+                filePaths: [String]? = nil, colorHex: String? = nil,
+                textFile: String? = nil, textBytes: Int? = nil,
+                textDigest: String? = nil) {
         self.id = id
         self.text = text
         self.imageFile = imageFile
         self.filePaths = filePaths
         self.colorHex = colorHex
+        self.textFile = textFile
+        self.textBytes = textBytes
+        self.textDigest = textDigest
     }
 
     /// A plain-text entry — not an image, a file or a color. Only these take part
@@ -49,16 +60,15 @@ public enum ClipboardCapture: Equatable {
 /// Pure history rules: what a fresh copy does to the list and how the
 /// caps trim it. No pasteboard, no files — those stay in the controller.
 public enum ClipboardRules {
-    /// Protection against "accidentally copied a book": every entry is
-    /// truncated, so even a full history weighs next to nothing.
-    public static let maxItemLength = 20_000
+    /// How much of a body the history carries. SPEC: docs/spec.md — Clipboard.
+    public static let inlineLength = 20_000
 
     /// How much of an entry a one-line row can possibly show. A row is one line
     /// of a 340pt panel; the rest is laid out only to be clipped.
     public static let previewLength = 160
 
     /// The row's label: one line, trimmed, and no longer than a row can show.
-    /// An entry holds up to `maxItemLength` characters, and folding all of them
+    /// An entry's head holds up to `inlineLength` characters, and folding them
     /// on every redraw is what a redraw of the panel used to cost most.
     public static func previewLine(_ text: String) -> String {
         var line = ""
@@ -104,34 +114,36 @@ public enum ClipboardRules {
         return names.count > 1 ? "\(first) +\(names.count - 1)" : first
     }
 
-    /// A fresh text copy folded into the history. Returns nil when the
-    /// list should not change (empty text, exact repeat of the top entry).
-    public static func remembering(_ raw: String, in items: [ClipboardItem]) -> [ClipboardItem]? {
+    /// A fresh text copy folded in; nil when nothing changes. `digest` is nil
+    /// when `raw` is the whole body; the caller writes a new entry's file.
+    public static func remembering(_ raw: String, digest: String? = nil,
+                                   in items: [ClipboardItem]) -> [ClipboardItem]? {
         // normalization: trailing spaces/newlines used to create "duplicates"
-        let text = String(raw.prefix(maxItemLength))
+        let text = String(raw.prefix(inlineLength))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return nil }
         // case-insensitive comparison: dictation changes capitalization
         // retroactively. Image and file entries never take part in text dedup —
         // their label ("1280 × 800", a file name) may collide with copied text
         let key = text.lowercased()
-        if let first = items.first, first.isPlainText {
+        if let first = items.first, first.isPlainText, first.textDigest == digest {
             if first.text.lowercased() == key {
                 guard first.text != text else { return nil }
                 var out = items
                 out[0].text = text // update capitalization in place
                 return out
             }
-            // dictation writes growing text: substitute the new version
             let firstKey = first.text.lowercased()
-            if key.hasPrefix(firstKey) || firstKey.hasPrefix(key) {
+            if digest == nil, key.hasPrefix(firstKey) || firstKey.hasPrefix(key) {
                 var out = items
                 out[0].text = text
                 return out
             }
         }
-        var out = items.filter { !($0.isPlainText && $0.text.lowercased() == key) }
-        out.insert(ClipboardItem(text: text), at: 0)
+        var out = items.filter {
+            !($0.isPlainText && $0.text.lowercased() == key && $0.textDigest == digest)
+        }
+        out.insert(ClipboardItem(text: text, textDigest: digest), at: 0)
         return out
     }
 
@@ -172,7 +184,8 @@ public enum ClipboardRules {
     /// removed entries. Images have their own cap — they are far heavier
     /// than text, and the oldest ones fall off first.
     public static func pruned(
-        _ items: [ClipboardItem], maxItems: Int, maxImageItems: Int, maxColorItems: Int = .max
+        _ items: [ClipboardItem], maxItems: Int, maxImageItems: Int, maxColorItems: Int = .max,
+        maxTextBytes: Int = .max
     ) -> (kept: [ClipboardItem], removed: [ClipboardItem]) {
         var kept = items
         var removed: [ClipboardItem] = []
@@ -190,11 +203,25 @@ public enum ClipboardRules {
             kept.removeAll { excess.contains($0.id) }
         }
 
+        func trimBytes(to budget: Int) {
+            guard budget < .max else { return }
+            var total = kept.reduce(0) { $0 + ($1.textBytes ?? 0) }
+            guard total > budget else { return }
+            for item in kept.reversed() where item.textBytes != nil {
+                guard total > budget else { break }
+                total -= item.textBytes ?? 0
+                removed.append(item)
+            }
+            let gone = Set(removed.map(\.id))
+            kept.removeAll { gone.contains($0.id) }
+        }
+
         trim({ $0.imageFile != nil }, to: maxImageItems)
         // The eyedropper's own list is these entries, so it carries its own
         // limit — otherwise a day of picking colors would push everything else
         // out of a history the user keeps for text.
         trim({ $0.colorHex != nil }, to: maxColorItems)
+        trimBytes(to: maxTextBytes)
         return (kept, removed)
     }
 }
