@@ -1752,7 +1752,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   its own `.bak` first), and nothing leaves the list until the archive write
   has succeeded. A completed item from a build that kept no date is stamped
   with the day it is first seen rather than swept on sight, so an update never
-  empties anyone's completed pile. The `clear completed the next day` switch
+  empties anyone's completed pile. **A REPEATING item is never swept** (Anton,
+  2026-09-21): `RemindSchedule.fired` puts it back to active on its next
+  weekday, and the sweep runs BEFORE reminders roll forward, so archiving a
+  repeating task ticked off yesterday took the repeat with it for good. The `clear completed the next day` switch
   on the to-do settings page (`todoArchiveCompleted`, ON by default) turns the
   sweep off and the pile stays as it always did. Snapshots and demo never
   sweep.

@@ -127,13 +127,18 @@ public struct TodoList: Codable, Equatable {
     /// returned in list order for the caller to archive; the list keeps its
     /// order otherwise. A completed item without a date (saved by a build that
     /// kept none) is stamped `now` and kept: nothing is swept on sight, and it
-    /// goes the day after, like anything finished today.
+    /// goes the day after, like anything finished today. A REPEATING item is
+    /// never swept: `RemindSchedule.fired` puts it back to active on its next
+    /// weekday, and the sweep runs before that — archiving it would take the
+    /// repeat with it.
     @discardableResult
     public mutating func sweepCompleted(before dayStart: Date, now: Date) -> [TodoItem] {
         for index in items.indices where items[index].done && items[index].doneAt == nil {
             items[index].doneAt = now
         }
-        let swept = items.filter { $0.done && ($0.doneAt ?? now) < dayStart }
+        let swept = items.filter {
+            $0.done && $0.repeatDays.isEmpty && ($0.doneAt ?? now) < dayStart
+        }
         guard !swept.isEmpty else { return [] }
         let gone = Set(swept.map(\.id))
         items.removeAll { gone.contains($0.id) }
