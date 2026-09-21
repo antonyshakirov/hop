@@ -330,7 +330,9 @@ struct TodosView: View {
                             onCancel: { endAdd() })
                     .frame(height: 20)
                     .onAppear { fieldFocused = true }
-                Button("", action: commitAndContinue)
+                // Return keeps the run going (`commitAndContinue`); ⌘Return
+                // is the run's full stop — add this one and put the field away.
+                Button("", action: commit)
                     .keyboardShortcut(.return, modifiers: .command)
                     .opacity(0)
                     .frame(width: 0, height: 0)
@@ -530,7 +532,8 @@ struct TodosView: View {
         endAdd()
     }
 
-    /// SPEC: docs/spec.md, "Adding" — append and stay; empty ends the run.
+    /// SPEC: docs/spec.md, "Adding" — Return appends and stays; empty ends the
+    /// run. ⌘Return and ✓ go through `commit`, which appends and closes.
     private func commitAndContinue() {
         guard !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return endAdd() }
         todos.add(text: draft)

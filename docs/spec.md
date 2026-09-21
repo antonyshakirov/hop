@@ -1832,12 +1832,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   opens an inline field with the same ✓/✕ buttons and `Snapshot.active` gating as
   the tracker. **Return appends and KEEPS the field open** — cleared and still
   focused, so a list is typed in one run instead of reaching for the mouse
-  between two tasks (Vanya, 2026-09-08); ⌘Return does the same, for the
-  hands that reach for it. Return on an empty field ends the run and closes it.
-  ✓ appends and closes — the mouse says the run is over. Escape/✕ cancel, empty
+  between two tasks (Vanya, 2026-09-08). Return on an empty field ends the run
+  and closes it. **⌘Return appends and CLOSES** (Vanya, 2026-09-19) — the
+  keyboard's own full stop, so the last task of a run does not need the mouse;
+  ✓ does the same for the mouse. Clearing the draft after Return has to reach
+  the field while the caret is still in it: `SteadyField.updateNSView` leaves
+  an edited field's text alone as a rule (the keyboard owns it), and takes a
+  value the coordinator never saw typed (`Coordinator.typed`) as the one
+  exception — before that, the appended task's text stayed on screen in front
+  of the next one. Escape/✕ cancel, empty
   = cancel. The tracker's `nameField` behaves identically on its ADD fields
-  (`newTask`, `newTaskIn`, `newProject` — `Field.isAdding`); renaming a project
-  has nothing to continue, so there Return still commits and closes.
+  (`newTask`, `newTaskIn`, `newProject` — `Field.isAdding`), ⌘Return included;
+  renaming a project has nothing to continue, so there Return still commits
+  and closes.
 - **Task card (expanded row):** clicking a row expands it into a card and
   collapses whatever was open — ONE card at a time, so the panel cannot grow
   without bound. **The row STAYS above its card in both modules (Anton,

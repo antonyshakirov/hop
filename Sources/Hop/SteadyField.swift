@@ -47,8 +47,15 @@ struct SteadyField: NSViewRepresentable {
     func updateNSView(_ field: NSTextField, context: Context) {
         context.coordinator.owner = self
         apply(to: field)
-        if field.stringValue != text, field.currentEditor() == nil {
+        // While the caret is in the field the text on screen is the user's own
+        // and is left alone — except when the binding was changed from OUTSIDE
+        // the keyboard: a value the coordinator never saw typed (the add row
+        // clearing its draft after Return) has to reach the field even mid-edit,
+        // or the appended task's text stays put in front of the next one.
+        if field.stringValue != text,
+           field.currentEditor() == nil || text != context.coordinator.typed {
             field.stringValue = text
+            context.coordinator.typed = text
         }
         guard let focus else { return }
         let holds = field.currentEditor() != nil
@@ -77,8 +84,15 @@ struct SteadyField: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextFieldDelegate {
         var owner: SteadyField
+        /// The last value the KEYBOARD put into the binding, so `updateNSView`
+        /// can tell a round trip of the user's own typing from a change made
+        /// elsewhere.
+        var typed: String
 
-        init(_ owner: SteadyField) { self.owner = owner }
+        init(_ owner: SteadyField) {
+            self.owner = owner
+            typed = owner.text
+        }
 
         func controlTextDidChange(_ notification: Notification) {
             guard let field = notification.object as? NSTextField else { return }
@@ -93,6 +107,7 @@ struct SteadyField: NSViewRepresentable {
                     typed = kept
                 }
             }
+            self.typed = typed
             owner.text = typed
         }
 
