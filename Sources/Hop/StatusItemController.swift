@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import OSLog
 import SwiftUI
 import HopCore
 
@@ -66,7 +67,7 @@ final class StatusItemController: NSObject {
             // the other appearance, or the system flipping at sunset.
             appearanceObserver = button.observe(\.effectiveAppearance, options: [.new]) {
                 [weak self] _, _ in
-                Task { @MainActor in self?.setNeedsRefresh() }
+                Task { @MainActor in self?.appearanceChanged() }
             }
         }
 
@@ -471,6 +472,27 @@ final class StatusItemController: NSObject {
     @objc private func menuDisableAwake() { model.keepAwake.deactivate() }
 
     // MARK: - Label
+
+    /// WORKAROUND: the bar's colour is only observable through a property that
+    /// AppKit re-resolves when the button is written to, so a hostile
+    /// environment can make this observer answer itself. Past a rate no real
+    /// appearance change reaches, it goes quiet for a minute; the colour is
+    /// picked up by the next refresh the model asks for.
+    /// SPEC: docs/spec.md — "What a running clock costs", the menu-bar button.
+    private func appearanceChanged() {
+        let (allowed, muted) = appearanceBurst.allowsAndReportsMuting(
+            at: ProcessInfo.processInfo.systemUptime)
+        if muted {
+            Self.log.error("the menu bar appearance observer fired in a burst; quiet for a minute")
+        }
+        guard allowed else { return }
+        setNeedsRefresh()
+    }
+
+    /// Eight in two seconds is far above any real change of the bar's colour.
+    private var appearanceBurst = BurstGuard(limit: 8, window: 2, cooldown: 60)
+
+    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "MenuBar")
 
     /// SPEC: docs/spec.md — "What a running clock costs", the menu-bar button.
     private func setNeedsRefresh() {

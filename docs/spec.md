@@ -262,7 +262,14 @@ after a panel has been opened and closed at least once.
   observers — the model's `objectWillChange`, `barChanged`, the stats tick, a
   defaults change, the appearance observer — into ONE refresh on the next turn
   of the run loop. `applyTheme` follows the same rule: the popover is handed an
-  appearance only when it differs from the one it has.
+  appearance only when it differs from the one it has. Past a rate no real
+  change of the bar's colour reaches — eight firings in two seconds — the
+  appearance observer goes quiet for a minute and says so in the log
+  (`BurstGuard`, HopCore, `BurstGuardTests`): the colour is a property AppKit
+  re-resolves when the button is written to, so there is no way to watch it that
+  an environment cannot turn back on us, and the cap is what makes the loop
+  impossible rather than unlikely. The colour is picked up by the next refresh
+  the model asks for.
 
 - **The GPU reading asks for one property, not the whole driver.** The
   utilisation figure sits in `PerformanceStatistics` on the `IOAccelerator`
@@ -6183,6 +6190,16 @@ is written the way its newest one is.
 
 ## Update channel (production path, since 1.0.0)
 
+- **One Hop at a time** (Anton, 2026-09-21). The updater quits itself and a
+  detached shell opens the fresh bundle once the old process is gone, so an
+  automatic update never leaves two copies behind. An update installed BY HAND —
+  the bundle dragged out of the DMG over a running copy — does: the old process
+  goes on running out of a bundle that is no longer on disk, and whatever that
+  version was doing it keeps doing, which is how a user could read release notes
+  about a fix while the copy in their menu bar still held a core. A fresh launch
+  asks every other running copy of the same bundle id to quit and ends the ones
+  that do not within two seconds (`SoleInstance`). Hop Dev carries its own bundle
+  id, so it and the production app never touch each other.
 - Manifest: `https://hop.tools/downloads/hop/latest.json` (version, zip,
   sig, critical, date, mirrors); the archive and signature sit next to it.
   The old address `https://www.antonshakirov.com/downloads/hop/latest.json`,

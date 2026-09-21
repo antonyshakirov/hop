@@ -223,6 +223,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // crash-loop guard — BEFORE any modules: three unfinished launches in a row =
         // safe mode, where only the updater lives. Even a bug that crashes
         // startup cannot cut off the path to an update carrying the fix
+        SoleInstance.claim()
+
         let crashLoop = LaunchGuard.registerLaunch()
         DispatchQueue.main.asyncAfter(deadline: .now() + LaunchGuard.stableAfter) {
             LaunchGuard.markStable()
