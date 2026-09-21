@@ -302,13 +302,11 @@ final class SystemStatsController: ObservableObject {
         var entry = IOIteratorNext(iterator)
         while entry != 0 {
             defer { IOObjectRelease(entry); entry = IOIteratorNext(iterator) }
-            var props: Unmanaged<CFMutableDictionary>?
-            if IORegistryEntryCreateCFProperties(entry, &props, kCFAllocatorDefault, 0) == KERN_SUCCESS,
-               let dict = props?.takeRetainedValue() as? [String: Any],
-               let perf = dict["PerformanceStatistics"] as? [String: Any],
-               let util = perf["Device Utilization %"] as? Int {
-                return Double(util) / 100
-            }
+            guard let stats = IORegistryEntryCreateCFProperty(
+                entry, "PerformanceStatistics" as CFString, kCFAllocatorDefault, 0
+            )?.takeRetainedValue() as? [String: Any],
+                let util = stats["Device Utilization %"] as? Int else { continue }
+            return Double(util) / 100
         }
         return nil
     }

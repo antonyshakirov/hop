@@ -264,6 +264,13 @@ after a panel has been opened and closed at least once.
   of the run loop. `applyTheme` follows the same rule: the popover is handed an
   appearance only when it differs from the one it has.
 
+- **The GPU reading asks for one property, not the whole driver.** The
+  utilisation figure sits in `PerformanceStatistics` on the `IOAccelerator`
+  entry, and copying that entry's ENTIRE property dictionary to read one integer
+  cost 0.947 ms a call against 0.019 ms for the one property (measured on this
+  Mac, 2026-09-21) — fifty times the price, every five seconds, all day, and on
+  an Intel Mac the wide copy also reaches the discrete GPU.
+
 - **The panel hears a second only when the second is not all that changed.**
   `AppModel` funnels every controller into one `objectWillChange` and `PanelView`
   is a single view, so one tick rebuilt every module on the panel to move two
