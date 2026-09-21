@@ -1,5 +1,17 @@
 # Hop - version history
 
+## Unreleased
+
+- The clipboard keeps a long copy whole. A book, a log or a page of source used
+  to come back as its first twenty thousand characters; now it comes back as
+  what was copied, up to 64 MB an entry.
+- Hop no longer holds a processor core when a menu bar manager such as Ice is
+  running. The icon was being redrawn without pause.
+- To-dos: hold command and click the ✕ to delete a task without being asked
+  twice. Command and return adds the task and closes the field.
+- To-dos: a task ticked off leaves the list the next day, into a file beside it.
+  There is a switch on the to-do settings page.
+
 ## 2.1.4 - 2026-09-17
 
 - An empty settings window no longer opens on its own.

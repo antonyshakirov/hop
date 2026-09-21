@@ -208,8 +208,8 @@ made it, and each is a rule now.
   keeps the tick for accuracy and publishes once a second - twice a second only
   in the finished state, where the alarm blink and the calm pulse after it are
   drawn at 2 Hz.
-- **A row's text is folded once, not per redraw.** A clipboard entry holds up to
-  20 000 characters, and the row label folded all of them into one line on every
+- **A row's text is folded once, not per redraw.** A clipboard entry carries up
+  to 20 000 characters, and the row label folded all of them into one line on every
   render of every visible row. `ClipboardRules.previewLine`
   (`ClipboardPreviewTests`) stops at the width a row can show, and
   `ClipPreviewCache` keeps the result per entry.
@@ -970,8 +970,28 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   pruned are deleted; entries whose file vanished are dropped at launch and
   orphan files are swept. Images over 25 MB are skipped. Image entries
   never take part in text dedup.
+- **A long body is kept WHOLE, in a file of its own** (Anton, 2026-09-21).
+  Until now every entry was cut to 20 000 characters, so a copied book pasted
+  back as its first page. The history file itself still carries no more than
+  that — it lives in `UserDefaults` and is read and rewritten on every copy, and
+  a hundred entries of ten megabytes each would be a gigabyte of it — so a body
+  past `ClipboardRules.inlineLength` goes to `clipboard-texts/<id>.txt` beside
+  the images, and the entry carries its HEAD, the file name, the file's size and
+  the body's SHA-256 (`textFile` / `textBytes` / `textDigest`). Clicking the row
+  and saving the entry to a document both read the file, so what comes back is
+  what was copied. The digest is the entry's identity: two books with the same
+  first page are two entries, the same book copied twice is one, and the
+  dictation rule that substitutes a growing line never reaches a body the
+  history does not carry. One body is kept up to 64 MB (past that the tail is
+  dropped, on a character boundary) and all of them up to 512 MB together — over
+  budget the oldest go first, ahead of their turn (`ClipboardRules.pruned`,
+  `maxTextBytes`). A file goes when its entry does; an entry whose file vanished
+  is dropped at launch and orphan files are swept, the way images are.
+  `Hop --clipboard-selftest <file>` copies a file's text, reads the entry back
+  the way a click does, compares it and checks that the body dies with the entry.
 - Search: the search field appears when expanded (case-insensitive
-  substring filter, clear button; collapsing resets the query).
+  substring filter, clear button; collapsing resets the query). It reads the
+  entry's head, which is all the history carries of a long body.
 - Collapsed — a user-chosen number of rows (settings, 1...10, default 3),
   expanded — up to 20, but that is only the HEIGHT of
   the list window: the full history is reachable via internal scrolling in

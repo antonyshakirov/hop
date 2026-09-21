@@ -6,6 +6,11 @@ final class ClipboardRulesTests: XCTestCase {
         ClipboardItem(text: text, imageFile: image)
     }
 
+    /// A long entry as the history carries it: a head, a file and a weight.
+    private func bodyItem(_ head: String, digest: String, bytes: Int) -> ClipboardItem {
+        ClipboardItem(text: head, textFile: "\(digest).txt", textBytes: bytes, textDigest: digest)
+    }
+
     // MARK: - remembering
 
     func testEmptyAndWhitespaceTextIsIgnored() {
@@ -18,13 +23,47 @@ final class ClipboardRulesTests: XCTestCase {
         XCTAssertEqual(out?.map(\.text), ["hello"])
     }
 
-    func testTextIsTrimmedAndTruncated() {
+    func testTextIsTrimmedAndOnlyItsHeadIsCarried() {
         let out = ClipboardRules.remembering("  hello \n", in: [])
         XCTAssertEqual(out?.first?.text, "hello")
 
-        let book = String(repeating: "a", count: ClipboardRules.maxItemLength + 500)
-        let truncated = ClipboardRules.remembering(book, in: [])
-        XCTAssertEqual(truncated?.first?.text.count, ClipboardRules.maxItemLength)
+        let book = String(repeating: "a", count: ClipboardRules.inlineLength + 500)
+        let carried = ClipboardRules.remembering(book, in: [])
+        XCTAssertEqual(carried?.first?.text.count, ClipboardRules.inlineLength)
+    }
+
+    func testALongBodyKeepsItsDigestAndWaitsForItsFile() {
+        // The rules never touch the disk: a new long entry comes back carrying
+        // the digest it was given and no file, which the caller then writes.
+        let head = String(repeating: "a", count: ClipboardRules.inlineLength)
+        let out = ClipboardRules.remembering(head, digest: "abc", in: [])
+        XCTAssertEqual(out?.first?.textDigest, "abc")
+        XCTAssertNil(out?.first?.textFile)
+    }
+
+    func testTwoBodiesWithTheSameHeadAreTwoEntries() {
+        // Two books whose first page is identical are not one entry.
+        let head = String(repeating: "a", count: ClipboardRules.inlineLength)
+        let first = bodyItem(head, digest: "one", bytes: 10)
+        let out = ClipboardRules.remembering(head, digest: "two", in: [first])
+        XCTAssertEqual(out?.count, 2)
+        XCTAssertEqual(out?.map(\.textDigest), ["two", "one"])
+    }
+
+    func testTheSameBodyCopiedAgainChangesNothing() {
+        let head = String(repeating: "a", count: ClipboardRules.inlineLength)
+        let first = bodyItem(head, digest: "one", bytes: 10)
+        XCTAssertNil(ClipboardRules.remembering(head, digest: "one", in: [first]))
+    }
+
+    func testDictationGrowthNeverSwallowsALongBody() {
+        // The growth rule substitutes a dictated line as it grows. The head of a
+        // book is not a longer draft of the head of another one, and swallowing
+        // it would leave its file behind with nothing pointing at it.
+        let head = String(repeating: "a", count: ClipboardRules.inlineLength)
+        let first = bodyItem(head, digest: "one", bytes: 10)
+        let out = ClipboardRules.remembering(head + "bb", digest: "two", in: [first])
+        XCTAssertEqual(out?.count, 2)
     }
 
     func testExactRepeatOfTopEntryChangesNothing() {
@@ -177,6 +216,28 @@ final class ClipboardRulesTests: XCTestCase {
         let items = (0..<3).map { item("i\($0)", image: "\($0).png") }
         let (_, removed) = ClipboardRules.pruned(items, maxItems: 100, maxImageItems: 1)
         XCTAssertEqual(removed.compactMap(\.imageFile), ["1.png", "2.png"])
+    }
+
+    func testPrunedEnforcesTheTextByteBudgetOldestFirst() {
+        let head = "book"
+        let items = [
+            bodyItem(head, digest: "new", bytes: 60),
+            item("plain"),
+            bodyItem(head, digest: "mid", bytes: 60),
+            bodyItem(head, digest: "old", bytes: 60),
+        ]
+        let (kept, removed) = ClipboardRules.pruned(items, maxItems: 100, maxImageItems: 20,
+                                                    maxTextBytes: 150)
+        XCTAssertEqual(removed.map(\.textDigest), ["old"])
+        XCTAssertEqual(kept.map(\.textDigest), ["new", nil, "mid"])
+    }
+
+    func testOneBodyOverTheWholeBudgetGoes() {
+        let items = [bodyItem("book", digest: "huge", bytes: 900)]
+        let (kept, removed) = ClipboardRules.pruned(items, maxItems: 100, maxImageItems: 20,
+                                                    maxTextBytes: 150)
+        XCTAssertTrue(kept.isEmpty)
+        XCTAssertEqual(removed.map(\.textDigest), ["huge"])
     }
 
     func testWithinCapsNothingChanges() {
