@@ -1,10 +1,12 @@
 import CoreWLAN
 import Darwin
 import Foundation
+import HopCore
 
 /// Speed test via the macOS system utility `networkQuality` (Apple CDN).
 /// The utility streams live numbers only to a terminal, so we attach it
 /// to a pseudo-TTY and read Downlink/Uplink updates during the measurement.
+/// SPEC: docs/spec.md — "Speed test", why the directions are measured apart.
 @MainActor
 final class SpeedTestController: ObservableObject {
     struct Result: Equatable {
@@ -116,6 +118,7 @@ final class SpeedTestController: ObservableObject {
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/networkQuality")
+        process.arguments = ["-s"]
         process.standardOutput = slaveHandle
         process.standardError = slaveHandle
 
@@ -125,8 +128,14 @@ final class SpeedTestController: ObservableObject {
             guard !data.isEmpty, let chunk = String(data: data, encoding: .utf8) else { return }
             buffer.append(chunk)
             // live lines are redrawn via \r: take the latest values
-            if let down = lastNumber(in: chunk, after: "Downlink:") { live(down, nil) }
-            if let up = lastNumber(in: chunk, after: "Uplink:") { live(nil, up) }
+            // A direction that has not started yet reads 0.000 for as long as the
+            // other one runs; the row keeps its placeholder instead of showing it.
+            if let down = SpeedSummary.lastNumber(in: chunk, after: "Downlink:"), down > 0 {
+                live(down, nil)
+            }
+            if let up = SpeedSummary.lastNumber(in: chunk, after: "Uplink:"), up > 0 {
+                live(nil, up)
+            }
         }
 
         do {
@@ -156,33 +165,10 @@ final class SpeedTestController: ObservableObject {
         }
         masterHandle.readabilityHandler = nil
 
-        let text = buffer.value
         guard process.terminationStatus == 0,
-              let down = lastNumber(in: text, after: "Downlink capacity:"),
-              let up = lastNumber(in: text, after: "Uplink capacity:")
+              let summary = SpeedSummary.parse(buffer.value)
         else { return nil }
-        var rpm = 0
-        if let range = text.range(of: "Responsiveness:"),
-           let match = text[range.upperBound...].range(
-               of: #"(\d+) RPM"#, options: .regularExpression
-           ) {
-            rpm = Int(text[match].dropLast(4)) ?? 0
-        }
-        return Result(down: down, up: up, rpm: rpm)
-    }
-
-    /// Last number after the marker (lines are redrawn many times).
-    nonisolated private static func lastNumber(in text: String, after marker: String) -> Double? {
-        var result: Double?
-        var search = text.startIndex
-        while let found = text.range(of: marker, range: search..<text.endIndex) {
-            let tail = text[found.upperBound...].prefix(24)
-            let cleaned = tail.trimmingCharacters(in: .whitespaces)
-            let numeric = cleaned.prefix { "0123456789.".contains($0) }
-            if let value = Double(numeric) { result = value }
-            search = found.upperBound
-        }
-        return result
+        return Result(down: summary.down, up: summary.up, rpm: summary.rpm)
     }
 }
 

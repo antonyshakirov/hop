@@ -1326,7 +1326,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Speed test
 
-- networkQuality (Apple servers), live numbers during the run.
+- networkQuality (Apple servers), live numbers during the run: one direction
+  at a time, so the download fills first and the upload after it.
 - Result in a row: "↓ 834 Mbps · ↑ 112 Mbps · 1,450 RPM" — every value
   carries its OWN unit (a bare number is ambiguous, and download/upload
   can differ: Kbit/s vs Mbit/s), separators use thin spaces and
@@ -5956,8 +5957,20 @@ system language. Order — alphabetical by native names.
 
 ## Speed test
 A main-panel module (hideable/reorderable like the rest). The "test"
-button → the system `/usr/bin/networkQuality -c` (Apple CDN servers,
-~15–20 s) → a "↓ N · ↑ M Mbit/s · RPM" row. Repeat via the ↻ icon. No
+button → the system `/usr/bin/networkQuality -s` (Apple CDN servers, ~20 s)
+→ a "↓ N · ↑ M Mbit/s · RPM" row. **The directions are measured APART**
+(Anton, 2026-09-21). Without `-s` the tool saturates both at once, which is
+what it is for — it is measuring responsiveness under working conditions —
+and on an asymmetric line the upload is what gets squeezed: measured on the
+same connection minutes apart, 478 ↓ / 77.5 ↑ both at once against 476 ↓ /
+223 ↑ one at a time. The download agreed, the upload was out by a factor of
+three, and three times low is what a person sees when they compare the row
+with speedtest.net — which, like every consumer test, measures one direction
+at a time. Sequentially the tool prints TWO responsiveness scores instead of
+one; the row shows the WORSE of them, which is the one that describes the
+call that stutters (`SpeedSummary`, HopCore, `SpeedSummaryTests`). A
+direction that has not started reads 0.000, and the row keeps its
+placeholder rather than showing it. Repeat via the ↻ icon. No
 custom servers and no third-party services. A fresh result is drawn in the
 primary ink, like the module's own name: it is the answer the row exists for,
 and in secondary grey it read as a caption (Anton, 2026-09-05). A stale one

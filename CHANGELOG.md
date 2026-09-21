@@ -7,6 +7,10 @@
   what was copied, up to 64 MB an entry.
 - Hop no longer holds a processor core when a menu bar manager such as Ice is
   running. The icon was being redrawn without pause.
+- The speed test measures the download and the upload one after the other, the
+  way speedtest.net and every other consumer test does. Measured together, as
+  the system tool does by default, the upload of a normal home line comes out
+  about three times low.
 - To-dos: hold command and click the ✕ to delete a task without being asked
   twice. Command and return adds the task and closes the field.
 - To-dos: a task ticked off leaves the list the next day, into a file beside it.
