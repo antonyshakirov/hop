@@ -110,6 +110,111 @@ final class TodosTests: XCTestCase {
         XCTAssertEqual(list.items.map(\.text), ["a", "b"])
     }
 
+    // MARK: - Completed items and the next day
+
+    private let day = 86_400.0
+
+    func testToggleStampsDoneAtAndUntoggleClearsIt() {
+        var list = TodoList.empty
+        let id = list.add(text: "a")!
+        let ticked = Date(timeIntervalSince1970: 1_000)
+
+        list.toggle(id, now: ticked)
+        XCTAssertEqual(list.items[0].doneAt, ticked)
+
+        list.toggle(id, now: ticked + 10)
+        XCTAssertNil(list.items[0].doneAt)
+    }
+
+    func testSweepLiftsYesterdaysCompletedAndKeepsTodays() {
+        var list = TodoList.empty
+        let open = list.add(text: "open")!
+        let yesterday = list.add(text: "yesterday")!
+        let today = list.add(text: "today")!
+        let dayStart = Date(timeIntervalSince1970: 10 * day)
+        list.toggle(yesterday, now: dayStart - 3_600)
+        list.toggle(today, now: dayStart + 3_600)
+
+        let swept = list.sweepCompleted(before: dayStart, now: dayStart + 7_200)
+
+        XCTAssertEqual(swept.map(\.id), [yesterday])
+        XCTAssertEqual(list.items.map(\.id), [open, today])
+    }
+
+    func testSweepKeepsListOrderOfTheRest() {
+        var list = TodoList.empty
+        let a = list.add(text: "a")!
+        let b = list.add(text: "b")!
+        let c = list.add(text: "c")!
+        let dayStart = Date(timeIntervalSince1970: 10 * day)
+        list.toggle(a, now: dayStart - 1)
+        list.toggle(c, now: dayStart - 1)
+
+        list.sweepCompleted(before: dayStart, now: dayStart)
+
+        XCTAssertEqual(list.items.map(\.id), [b])
+    }
+
+    func testSweepStampsUndatedCompletedItemsInsteadOfLiftingThem() {
+        // A completed item saved by a build that kept no date: it is not
+        // swept on sight but dated now, and goes the day after like any other.
+        var list = TodoList(items: [TodoItem(text: "old", done: true)])
+        let dayStart = Date(timeIntervalSince1970: 10 * day)
+        let now = dayStart + 60
+
+        let swept = list.sweepCompleted(before: dayStart, now: now)
+
+        XCTAssertTrue(swept.isEmpty)
+        XCTAssertEqual(list.items[0].doneAt, now)
+        XCTAssertEqual(list.sweepCompleted(before: dayStart + day, now: now + day).map(\.text), ["old"])
+        XCTAssertTrue(list.items.isEmpty)
+    }
+
+    func testSweepOfNothingReturnsEmptyAndChangesNothing() {
+        var list = TodoList.empty
+        list.add(text: "a")
+        let before = list
+        XCTAssertTrue(list.sweepCompleted(before: Date(), now: Date()).isEmpty)
+        XCTAssertEqual(list, before)
+    }
+
+    func testDoneAtRoundTripsAndDecodesWhenMissing() throws {
+        var list = TodoList.empty
+        let id = list.add(text: "a")!
+        list.toggle(id, now: Date(timeIntervalSince1970: 1_000))
+        let data = try JSONEncoder().encode(list)
+        XCTAssertEqual(try JSONDecoder().decode(TodoList.self, from: data), list)
+
+        let legacy = Data(#"{"items":[{"id":"11111111-2222-4333-8444-555555555555","text":"x","done":true}]}"#.utf8)
+        let decoded = try JSONDecoder().decode(TodoList.self, from: legacy)
+        XCTAssertEqual(decoded.items[0].done, true)
+        XCTAssertNil(decoded.items[0].doneAt)
+    }
+
+    func testArchiveAppendsAcrossCalls() throws {
+        let first = TodoItem(text: "first", done: true)
+        let second = TodoItem(text: "second", done: true)
+        try TodosStore.archive([first], to: dir)
+        try TodosStore.archive([second], to: dir)
+        try TodosStore.archive([], to: dir)   // nothing to add writes nothing
+
+        let raw = try Data(contentsOf: dir.appendingPathComponent("todos-archive.json"))
+        let archived = try JSONDecoder().decode(TodoList.self, from: raw)
+        XCTAssertEqual(archived.items, [first, second])
+    }
+
+    func testArchiveMovesAnUndecodableArchiveAsideAndStartsOver() throws {
+        let fileURL = dir.appendingPathComponent("todos-archive.json")
+        try Data([0xFF, 0x00]).write(to: fileURL)
+        let item = TodoItem(text: "kept", done: true)
+
+        try TodosStore.archive([item], to: dir)
+
+        XCTAssertTrue(FileManager.default.fileExists(atPath: dir.appendingPathComponent("todos-archive.json.bak").path))
+        let archived = try JSONDecoder().decode(TodoList.self, from: try Data(contentsOf: fileURL))
+        XCTAssertEqual(archived.items, [item])
+    }
+
     func testReorderedListPersistsThroughTheStore() throws {
         var list = TodoList.empty
         list.add(text: "a")

@@ -113,6 +113,7 @@ final class TodosController: ObservableObject {
     /// by the notification, so it works with banners switched off and can never
     /// double up with one.
     func reconcile(now: Date = Date()) {
+        sweepCompleted(now: now)
         let before = Set(list.items.filter(\.firedUnseen).map(\.id))
         guard list.reconcileReminders(now: now) else {
             scheduleNextFiring()
@@ -126,6 +127,30 @@ final class TodosController: ObservableObject {
            ModuleActivation.isOn("todos") {
             Sounds.alarm()
         }
+    }
+
+    /// Lets yesterday's completed items go: they leave the list and land in
+    /// `todos-archive.json`, and nothing leaves until it has landed — an archive
+    /// that cannot be written keeps the list as it is. Runs with `reconcile`, so
+    /// the panel opening on a new day is what clears the pile, and a completed
+    /// item never disappears while it is being looked at on the day it was
+    /// ticked. Off by setting = the pile stays, as it always did.
+    func sweepCompleted(now: Date = Date()) {
+        guard !Snapshot.active, !demo,
+              UserDefaults.standard.bool(forKey: SettingsKey.todoArchiveCompleted) else { return }
+        var swept = list
+        let archived = swept.sweepCompleted(before: Calendar.current.startOfDay(for: now), now: now)
+        guard swept != list else { return }
+        if !archived.isEmpty {
+            do {
+                try TodosStore.archive(archived, to: storeDir)
+            } catch {
+                Self.log.error("todos archive failed: \(error.localizedDescription, privacy: .public)")
+                return
+            }
+        }
+        list = swept
+        save()
     }
 
     /// The panel was opened and the rows blinked — the firings have been seen.
