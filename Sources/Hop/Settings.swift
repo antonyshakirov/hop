@@ -94,6 +94,10 @@ enum SettingsKey {
     /// Important tasks rise to the top of their list. OFF by default: with it off,
     /// marking a task changes nothing about where it sits.
     static let todoImportantOnTop = "todoImportantOnTop"
+    /// Completed to-dos leave the list the day after they were ticked, into
+    /// `todos-archive.json`. ON by default: a list is for what is still to do,
+    /// and yesterday's pile only pushes today's tasks down.
+    static let todoArchiveCompleted = "todoArchiveCompleted"
     static let trackerImportantOnTop = "trackerImportantOnTop"
     /// Saving a clipboard entry to a file: an extra icon in every text row.
     /// OFF by default — most people never need it, and an icon that does nothing
@@ -126,6 +130,7 @@ enum SettingsKey {
         todoRemindBanner: true,
         todoRemindSound: true,
         todoRemindMark: true,
+        todoArchiveCompleted: true,
         vpnMenuBarMark: true,
     ]
 }

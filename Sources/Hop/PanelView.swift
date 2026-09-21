@@ -59,6 +59,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.todoRemindSound) private var todoRemindSound = true
     @AppStorage(SettingsKey.todoRemindMark) private var todoRemindMark = true
     @AppStorage(SettingsKey.todoImportantOnTop) private var todoImportantOnTop = false
+    @AppStorage(SettingsKey.todoArchiveCompleted) private var todoArchiveCompleted = true
     @AppStorage(SettingsKey.trackerImportantOnTop) private var trackerImportantOnTop = true
     @AppStorage(SettingsKey.firstWeekday) private var firstWeekday = FirstWeekday.auto
     @AppStorage(VPNController.visibleRowsKey) private var vpnVisibleRows = VPNController.defaultVisibleRows
@@ -4170,6 +4171,7 @@ struct PanelView: View {
         VStack(spacing: 14) {
             visibleRowsSetting(stored: $todosVisibleRows)
             switchSetting(t(.settingsImportantOnTop), isOn: $todoImportantOnTop)
+            switchSetting(t(.settingsArchiveCompleted), isOn: $todoArchiveCompleted)
             switchSetting(t(.settingsRemindBanner), isOn: $todoRemindBanner)
             switchSetting(t(.settingsRemindSound), isOn: $todoRemindSound)
             switchSetting(t(.settingsRemindMark), isOn: $todoRemindMark)
