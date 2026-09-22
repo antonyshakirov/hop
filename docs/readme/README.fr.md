@@ -469,14 +469,16 @@ rien qui vous identifie, vous ou votre Mac. Les mises à jour et le moteur
 torrent sont livrés sous forme d'archives signées et vérifiés avec une
 signature Ed25519 avant l'installation.
 
-Le badge `downloads` en haut compte les clics, pas les personnes. Le bouton de
-téléchargement et la formule Homebrew passent par hop.tools, qui inscrit la
-requête dans le journal de son serveur web, comme n'importe quel site note une
-page vue, puis redirige vers le fichier publié sur GitHub. Le journal ne garde
-qu'un hachage salé de l'adresse : deux clics depuis une même machine comptent
-une seule fois, et l'adresse elle-même n'est jamais stockée. L'app n'y est pour
-rien : la mesure a lieu avant l'installation de Hop, et une copie qui ne demande
-jamais de mise à jour compte tout autant.
+Le badge `downloads` en haut additionne chaque téléchargement de chaque fichier
+de version — les images disque Apple Silicon et Intel ainsi que les archives
+zip. Chaque téléchargement compte : un Mac sur lequel cinq versions ont été
+téléchargées à la main en vaut cinq, l'application y est arrivée cinq fois. Les
+mises à jour automatiques n'y figurent pas, car le programme de mise à jour les
+récupère sur hop.tools sans jamais toucher aux fichiers de version ; les
+fichiers de signature qui accompagnent une archive zip non plus. Le comptage
+est celui de GitHub, fichier par fichier, si bien que rien de vous n'est mesuré
+pour l'obtenir : l'application n'envoie aucun identifiant et aucun journal de
+ce site n'entre dans le chiffre.
 
 ## Autorisations
 

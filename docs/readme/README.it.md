@@ -443,14 +443,15 @@ identifichi te o il tuo Mac. Gli aggiornamenti e il motore torrent arrivano
 come archivi firmati e vengono verificati con una firma Ed25519 prima
 dell'installazione.
 
-Il badge `downloads` in alto conta il clic, non la persona. Il pulsante di
-download e la formula Homebrew passano da hop.tools, che scrive la richiesta nel
-log del suo server web come qualsiasi sito registra la visita a una pagina, e
-reindirizza al file nella release di GitHub. Il log conserva un hash con sale
-dell'indirizzo, così due clic dalla stessa macchina contano una volta e
-l'indirizzo in sé non viene mai salvato. L'app non c'entra: il conteggio avviene
-prima che Hop sia installato, e una copia che non chiede mai un aggiornamento
-conta allo stesso modo.
+Il badge `downloads` in alto somma ogni download di ogni file di rilascio: le
+immagini disco per Apple Silicon e Intel insieme alle build in zip. Conta ogni
+download, quindi un Mac su cui sono state scaricate a mano cinque versioni vale
+cinque: l'app ci è arrivata cinque volte. Gli aggiornamenti automatici non
+rientrano nella cifra, perché l'updater li prende da hop.tools e non tocca mai
+i file di rilascio; non rientrano nemmeno i file di firma che accompagnano uno
+zip. Il conteggio è quello di GitHub, tenuto file per file, perciò per
+ottenerlo non si misura nulla di te: l'app non invia alcun identificativo e
+nessun log di questo sito finisce nel numero.
 
 ## Permessi
 

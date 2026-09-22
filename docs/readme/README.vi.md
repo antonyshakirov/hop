@@ -421,13 +421,14 @@ gửi đi phiên bản bạn đang dùng, và không có gì nhận dạng bạn
 của bạn. Các bản cập nhật và engine torrent được phân phối dưới dạng tệp nén
 có chữ ký và được xác minh bằng chữ ký Ed25519 trước khi cài đặt.
 
-Huy hiệu `downloads` ở đầu trang đếm lượt nhấp, không đếm người. Nút tải về và
-công thức Homebrew đều đi qua hop.tools: máy chủ web ghi yêu cầu vào nhật ký như
-mọi trang web ghi một lượt xem trang, rồi chuyển hướng tới tệp trong bản phát
-hành trên GitHub. Nhật ký chỉ giữ một hàm băm có muối của địa chỉ, nên hai lượt
-nhấp từ cùng một máy chỉ tính một lần và bản thân địa chỉ không bao giờ được
-lưu. Ứng dụng không dính gì đến việc này: con số được đo trước khi Hop được cài,
-và một bản không bao giờ hỏi cập nhật vẫn được tính như thường.
+Huy hiệu `downloads` ở trên cộng mọi lượt tải của mọi tệp bản phát hành — ảnh
+đĩa cho Apple Silicon và Intel cùng với các bản dựng zip. Mỗi lượt tải đều được
+tính, nên một máy Mac tải tay năm phiên bản sẽ là năm: ứng dụng đã đến đó năm
+lần. Cập nhật tự động không nằm trong con số này, vì trình cập nhật lấy chúng
+từ hop.tools và không bao giờ chạm vào tệp bản phát hành; các tệp chữ ký đi kèm
+zip cũng vậy. Việc đếm là của chính GitHub, theo từng tệp, nên để có con số đó
+không có gì về bạn được đo: ứng dụng không gửi bất kỳ định danh nào và không
+nhật ký nào của trang này lọt vào con số.
 
 ## Quyền
 

@@ -437,13 +437,16 @@ dan mesin torrent dikirim sebagai arsip bertanda tangan dan diverifikasi
 dengan tanda tangan Ed25519 sebelum
 dipasang.
 
-Lencana `downloads` di bagian atas menghitung klik, bukan orang. Tombol unduh
-dan formula Homebrew lewat hop.tools, yang menulis permintaan itu ke log server
-web-nya seperti situs mana pun mencatat kunjungan halaman, lalu mengarahkan ke
-berkas di rilis GitHub. Yang disimpan log adalah hash bergaram dari alamatnya,
-jadi dua klik dari satu mesin dihitung sekali dan alamat itu sendiri tidak pernah
-disimpan. Aplikasinya sama sekali tidak terlibat: pengukurannya terjadi sebelum
-Hop dipasang, dan salinan yang tak pernah meminta pembaruan tetap ikut terhitung.
+Lencana `downloads` di atas menjumlahkan setiap unduhan dari setiap berkas
+rilis — image disk untuk Apple Silicon dan Intel bersama build zip. Setiap
+unduhan dihitung, jadi satu Mac yang mengunduh lima versi secara manual
+bernilai lima: aplikasinya sampai di sana lima kali. Pembaruan otomatis tidak
+masuk ke angka itu, karena pembaru mengambilnya dari hop.tools dan tidak pernah
+menyentuh berkas rilis; berkas tanda tangan yang menyertai zip juga tidak.
+Penghitungannya milik GitHub sendiri, per berkas, sehingga untuk
+menghasilkannya tidak ada apa pun tentang kamu yang diukur: aplikasi tidak
+mengirim pengenal apa pun dan tidak ada log situs ini yang masuk ke angka
+tersebut.
 
 ## Izin
 

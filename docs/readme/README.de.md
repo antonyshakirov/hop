@@ -468,14 +468,15 @@ deinen Mac identifiziert. Updates und die Torrent-Engine werden als signierte
 Archive ausgeliefert und vor der Installation mit einer Ed25519-Signatur
 verifiziert.
 
-Das `downloads`-Badge oben zählt Klicks, nicht Menschen. Der Download-Knopf und
-die Homebrew-Formel laufen über hop.tools, das die Anfrage in sein
-Webserver-Log schreibt, so wie jede Website einen Seitenaufruf protokolliert,
-und dann auf die Datei im GitHub-Release weiterleitet. Im Log bleibt nur ein
-gesalzener Hash der Adresse, sodass zwei Klicks vom selben Rechner einmal zählen
-und die Adresse selbst nie gespeichert wird. Die App hat damit nichts zu tun:
-gezählt wird, bevor Hop installiert ist, und eine Kopie, die nie nach Updates
-fragt, zählt genauso.
+Das `downloads`-Badge oben zählt jeden Download jeder Release-Datei zusammen —
+die Disk-Images für Apple Silicon und Intel samt den Zip-Builds. Jeder Download
+zählt, ein Mac, auf den jemand fünf Versionen von Hand geladen hat, steht also
+für fünf: Die App kam dort fünfmal an. Automatische Updates stecken nicht
+darin, denn der Updater holt sie von hop.tools und rührt die Release-Dateien
+nie an; die Signaturdateien, die einem Zip beiliegen, ebenso wenig. Gezählt
+wird bei GitHub selbst, Datei für Datei, für diese Zahl wird also nichts über
+dich gemessen — die App sendet keine Kennung, und kein Log dieser Seite fließt
+hinein.
 
 ## Berechtigungen
 

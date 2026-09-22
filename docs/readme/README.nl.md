@@ -438,14 +438,15 @@ updatecontrole stuurt de versie die je draait, en niets wat jou of je Mac
 identificeert. Updates en de torrent-engine worden geleverd als ondertekende
 archieven en vóór installatie geverifieerd met een Ed25519-handtekening.
 
-De `downloads`-badge bovenaan telt de klik, niet de persoon. De downloadknop en
-de Homebrew-formule lopen via hop.tools, dat het verzoek in zijn webserverlog
-schrijft zoals elke site een paginabezoek logt, en doorverwijst naar het bestand
-in de GitHub-release. Het log bewaart een gezouten hash van het adres, zodat twee
-klikken vanaf één machine één keer tellen en het adres zelf nooit wordt
-opgeslagen. De app komt hier niet aan te pas: er wordt gemeten voordat Hop
-geïnstalleerd is, en een exemplaar dat nooit om een update vraagt telt net zo
-goed mee.
+De `downloads`-badge bovenaan telt elke download van elk releasebestand bij
+elkaar op — de schijfkopieën voor Apple Silicon en Intel samen met de
+zip-builds. Elke download telt, dus een Mac waarop iemand vijf versies met de
+hand heeft opgehaald staat voor vijf: de app kwam daar vijf keer aan.
+Automatische updates zitten er niet in, want de updater haalt die van hop.tools
+en raakt de releasebestanden nooit aan; de handtekeningbestanden die met een
+zip meekomen evenmin. Het tellen doet GitHub zelf, per bestand, dus voor dit
+getal wordt niets over jou gemeten: de app stuurt geen enkele identificatie en
+geen logboek van deze site komt erin terecht.
 
 ## Toestemmingen
 

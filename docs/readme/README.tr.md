@@ -428,13 +428,14 @@ Güncelleme denetimi yalnızca kullandığınız sürümü gönderir; sizi ya da
 Mac'inizi tanımlayan hiçbir şey göndermez. Güncellemeler ve torrent motoru
 imzalı arşivler olarak gelir ve kurulmadan önce Ed25519 imzasıyla doğrulanır.
 
-Üstteki `downloads` rozeti kişiyi değil, tıklamayı sayar. İndirme düğmesi ve
-Homebrew formülü hop.tools üzerinden geçer; site isteği, her sitenin bir sayfa
-görüntülemesini kaydettiği gibi web sunucusu günlüğüne yazar ve GitHub
-sürümündeki dosyaya yönlendirir. Günlükte adresin tuzlanmış bir hash'i kalır;
-böylece aynı makineden gelen iki tıklama bir kez sayılır ve adresin kendisi hiçbir
-zaman saklanmaz. Bunun uygulamayla bir ilgisi yok: ölçüm Hop kurulmadan önce
-yapılır ve hiç güncelleme sormayan bir kopya da aynı şekilde sayılır.
+Yukarıdaki `downloads` rozeti, her sürüm dosyasının her indirilişini toplar —
+Apple Silicon ve Intel disk imajları ile zip yapılarını birlikte. Her indirme
+sayılır; beş sürümü elle indirmiş bir Mac beş eder, çünkü uygulama oraya beş
+kez ulaşmıştır. Otomatik güncellemeler bu sayıya girmez, çünkü güncelleyici
+onları hop.tools'tan alır ve sürüm dosyalarına hiç dokunmaz; zip'in yanında
+gelen imza dosyaları da girmez. Sayımı GitHub'ın kendisi dosya dosya tutar;
+yani bu sayı için senin hakkında hiçbir şey ölçülmez: uygulama hiçbir kimlik
+göndermez ve bu sitenin hiçbir kaydı sayıya karışmaz.
 
 ## İzinler
 

@@ -459,13 +459,14 @@ running, and nothing that identifies you or your Mac. Updates and the
 torrent engine are delivered as signed archives and verified with an Ed25519
 signature before installing.
 
-The `downloads` badge at the top counts the click, not the person. The download
-button and the Homebrew formula go through hop.tools, which writes the
-request to its web server log the way any site logs a page view and redirects to
-the file in the GitHub release. What the log keeps is a salted hash of the
-address, so two clicks from one machine count once and the address itself is
-never stored. None of this involves the app: it is measured before Hop is
-installed, and a copy that never asks for an update counts all the same.
+The `downloads` badge at the top adds up every download of every release file —
+the Apple Silicon and Intel disk images together with the zip builds. Each
+download counts, so a Mac that took five versions by hand stands for five: the
+app arrived there five times. Automatic updates are not in the figure, because
+the updater fetches them from hop.tools and never touches the release files;
+neither are the signature files that come along with a zip. The count is
+GitHub's own, kept per file, so producing it measures nothing about you — the
+app sends no identifier, and no log of this site goes into the number.
 
 ## Permissions
 

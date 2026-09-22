@@ -433,13 +433,15 @@ identifique você ou o seu Mac. As atualizações e o motor de torrents chega
 como arquivos assinados e são verificados com uma assinatura Ed25519 antes
 da instalação.
 
-O selo `downloads` no topo conta o clique, não a pessoa. O botão de download e
-a fórmula do Homebrew passam pelo hop.tools, que registra a requisição no log do
-servidor web, como qualquer site registra a visita a uma página, e redireciona
-para o arquivo na release do GitHub. O que o log guarda é um hash com salt do
-endereço, então dois cliques da mesma máquina contam uma vez e o endereço em si
-nunca é armazenado. Nada disso envolve o app: a contagem acontece antes de o Hop
-ser instalado, e uma cópia que nunca pede atualização conta do mesmo jeito.
+O selo `downloads` no topo soma todos os downloads de todos os arquivos de cada
+versão — as imagens de disco para Apple Silicon e Intel junto com as builds em
+zip. Cada download conta, então um Mac em que alguém baixou cinco versões à mão
+vale cinco: o app chegou lá cinco vezes. As atualizações automáticas não entram
+no número, porque o atualizador as busca em hop.tools e nunca toca nos arquivos
+da versão; os arquivos de assinatura que acompanham um zip também não. A
+contagem é do próprio GitHub, feita arquivo por arquivo, de modo que nada sobre
+você é medido para produzi-la: o app não envia identificador algum e nenhum log
+deste site entra na conta.
 
 ## Permissões
 

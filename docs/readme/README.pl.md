@@ -429,13 +429,14 @@ Sprawdzanie aktualizacji wysyła używaną wersję i nic, co identyfikowałoby
 Ciebie lub Twojego Maca. Aktualizacje i silnik torrentowy są dostarczane
 jako podpisane archiwa i przed instalacją weryfikowane podpisem Ed25519.
 
-Licznik `downloads` na górze liczy kliknięcia, a nie ludzi. Przycisk pobierania
-i formuła Homebrew przechodzą przez hop.tools, który zapisuje żądanie w logu
-serwera WWW, tak jak każda strona odnotowuje odsłonę, i przekierowuje do pliku
-w wydaniu na GitHubie. W logu zostaje solony hash adresu, więc dwa kliknięcia
-z jednej maszyny liczą się raz, a sam adres nigdy nie jest zapisywany. Aplikacja
-nie ma z tym nic wspólnego: pomiar odbywa się, zanim Hop zostanie zainstalowany,
-a kopia, która nigdy nie pyta o aktualizację, liczy się tak samo.
+Plakietka `downloads` na górze sumuje każde pobranie każdego pliku wydania —
+obrazy dysku dla Apple Silicon i Intela razem z buildami zip. Liczy się każde
+pobranie, więc Mac, na który ktoś ręcznie ściągnął pięć wersji, znaczy pięć:
+aplikacja trafiła tam pięć razy. Aktualizacji automatycznych w tej liczbie nie
+ma, bo updater bierze je z hop.tools i nigdy nie dotyka plików wydania; nie ma
+też plików podpisu, które idą razem z zipem. Liczy sam GitHub, plik po pliku,
+więc do uzyskania tej liczby nic o tobie nie jest mierzone: aplikacja nie
+wysyła żadnego identyfikatora, a żaden log tej strony do niej nie wchodzi.
 
 ## Uprawnienia
 
