@@ -14171,7 +14171,7 @@ enum L10n {
             .donateTitle: "از hop پشتیبانی کنید",
             .donateBody: "پشتیبانی شما به عرضهٔ قابلیت‌های تازه و\u{00A0}بهتر شدن hop کمک می‌کند",
             .menuShareHop: "اشتراک‌گذاری hop…",
-            .shareTitle: "اشتרاک‌گذاری hop",
+            .shareTitle: "اشتراک‌گذاری hop",
             .shareBody: "\u{200F}hop را برای کسی بفرستید که به کارش می‌آید",
             .shareButton: "اشتراک‌گذاری",
             .shareCopyLink: "کپی پیوند",

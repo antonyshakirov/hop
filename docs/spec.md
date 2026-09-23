@@ -6144,8 +6144,11 @@ Hop" marks on screenshots, recognised text or converted files (Anton,
      The start button stays the only filled button on that screen.
 - **Hop never asks on its own.** No card after N days, no prompt after an
   update (Anton, 2026-09-23). The three places above are the whole feature.
-- **"share" opens `NSSharingServicePicker`** anchored to what was clicked: the
-  status item's button for the menu entry, the button itself elsewhere. The
+- **"share" opens `NSSharingServicePicker`** next to where it was asked for: under
+  the status item's button for the menu entry, under the link on the onboarding
+  step, and under the whole card on the about page. The card's chips are laid
+  out twice by `ViewThatFits` (one row, or a column in long languages), and an
+  anchor inside them could land on the copy that is not on screen. The
   picker receives the sentence and the URL as two items, so Messages and Mail
   get text with a link and AirDrop gets the page.
 - **The star button shows no count.** A live number would mean the app talking
