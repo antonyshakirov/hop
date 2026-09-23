@@ -6114,6 +6114,46 @@ Anton's primary install must always remain fully functional.
   tertiary) stays what it is: the caption ABOVE a card, not a heading inside a
   page.
 
+## Sharing Hop (approved 2026-09-23)
+
+Somebody who likes Hop should be able to send it to a friend in two clicks.
+What travels is **a link to Hop**, never the user's own content: no "made with
+Hop" marks on screenshots, recognised text or converted files (Anton,
+2026-09-23).
+
+- **What is sent.** One sentence in the app's language plus the product page in
+  the same language (`shareMessage`, ×22). English:
+  "Hop is a free menu bar app for Mac: timer, clipboard history, system monitor
+  and 15 more tools in one icon." The link is `https://hop.tools/` for English
+  and `https://hop.tools/<code>/` for every other language, because the site
+  publishes all 22. The link carries **no marker** (`?ref=` or similar): the
+  app promises no analytics, and a counted link would be the first exception.
+- **One function builds the link** (`HopCore.ProductLink.page(for:)`), and the
+  footer's "product page" uses it too. Until now that footer knew seven landing
+  languages and sent the other fifteen to the English page, although the site
+  has had all of them since 2026-09-21.
+- **Where it is offered, and nowhere else:**
+  1. the right-click menu on the icon: "Share Hop…" between the handbook and
+     "about";
+  2. the about page: a card right after the donation card, in the same shape.
+     Title "share hop", one line of body, three buttons: "share" (the system
+     picker), "copy link" (the bare URL; the button reads "copied" for 1.5 s)
+     and "★ star on GitHub" (opens the repository);
+  3. the onboarding's last step: a quiet text link "share hop" under the body.
+     The start button stays the only filled button on that screen.
+- **Hop never asks on its own.** No card after N days, no prompt after an
+  update (Anton, 2026-09-23). The three places above are the whole feature.
+- **"share" opens `NSSharingServicePicker`** anchored to what was clicked: the
+  status item's button for the menu entry, the button itself elsewhere. The
+  picker receives the sentence and the URL as two items, so Messages and Mail
+  get text with a link and AirDrop gets the page.
+- **The star button shows no count.** A live number would mean the app talking
+  to GitHub, and nothing leaves this Mac apart from the update check. The goal
+  and the live count live in the README and on the site.
+- Strings: `menuShareHop`, `shareTitle`, `shareBody`, `shareButton`,
+  `shareCopyLink`, `shareCopied`, `shareStar`, `shareMessage`, ×22, with the
+  usual `HangingWords` treatment and RTL order for ar, he, fa, ur.
+
 ## The handbook page (settings window)
 
 - Sixth in the sidebar, between updates and about: `docGeneral` (what Hop is,
