@@ -6123,8 +6123,9 @@ Hop" marks on screenshots, recognised text or converted files (Anton,
 
 - **What is sent.** One sentence in the app's language plus the product page in
   the same language (`shareMessage`, ×22). English:
-  "Hop is a free menu bar app for Mac: timer, clipboard history, system monitor
-  and 15 more tools in one icon." The link is `https://hop.tools/` for English
+  "Hop is a free menu bar app for Mac with a timer, clipboard history, a system
+  monitor, a file converter and many more small tools in one icon." It names no
+  count of tools, so it does not go stale when a module is added. The link is `https://hop.tools/` for English
   and `https://hop.tools/<code>/` for every other language, because the site
   publishes all 22. The link carries **no marker** (`?ref=` or similar): the
   app promises no analytics, and a counted link would be the first exception.

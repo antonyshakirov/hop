@@ -441,6 +441,7 @@ final class StatusItemController: NSObject {
         menu.addItem(item(L10n.t(.settingsTitle, lang).capitalizedFirst, #selector(menuOpenSettings)))
         // the same words the sidebar uses for those two pages: one screen, one name
         menu.addItem(item(L10n.t(.guideTab, lang).capitalizedFirst, #selector(menuOpenGuide)))
+        menu.addItem(item(L10n.t(.menuShareHop, lang).capitalizedFirst, #selector(menuShareHop)))
         menu.addItem(item(L10n.t(.aboutTitle, lang).capitalizedFirst, #selector(menuOpenAbout)))
         menu.addItem(.separator())
         menu.addItem(item(L10n.t(.menuQuit, lang).capitalizedFirst, #selector(menuQuit)))
@@ -462,6 +463,12 @@ final class StatusItemController: NSObject {
     @objc private func menuOpenSettings() { model.openSettingsWindow?() }
     @objc private func menuOpenGuide() { openSettings(at: .guide) }
     @objc private func menuOpenAbout() { openSettings(at: .about) }
+
+    /// The picker opens under the icon the menu came from. SPEC: docs/spec.md — "Sharing Hop".
+    @objc private func menuShareHop() {
+        guard let button = statusItem.button else { return }
+        HopShare.present(from: button, L10n.current)
+    }
 
     private func openSettings(at section: SettingsSelection) {
         model.settingsSectionRequest = section.id
