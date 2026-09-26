@@ -71,6 +71,7 @@ struct PanelView: View {
     @AppStorage("monitorWindowMin") private var monitorWindowMin = 5
     @AppStorage(HotkeyManager.snapHotkeysKey) private var windowsHotkeysOn = true
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
+    @AppStorage(SettingsKey.menuBarRedAlertBattery) private var menuBarRedAlertBattery = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
     @AppStorage(SettingsKey.vpnHoldOff) private var vpnHoldOff = true
@@ -5305,6 +5306,17 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Theme.MiniSwitch(isOn: $menuBarRedAlert)
+            }
+            if menuBarRedAlert {
+                // opt-in: macOS already shows the charge and warns about it
+                HStack {
+                    Text(t(.redAlertBatteryLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textSecondary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $menuBarRedAlertBattery)
+                }
+                .padding(.leading, 12)
             }
 
             HStack {

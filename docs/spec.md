@@ -948,9 +948,17 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
    temperature: an empty chart is worse than no chart.
 - An orange "!" (top-left of the menu bar icon, steady) during a red zone (same
   thresholds that color the values, and for heat the system's own critical
-  state; a charging battery doesn't count). OFF by
+  state). OFF by
   default, toggle in monitor settings. It shares the top-left "!" with the
   tracker's 8-hour blink — see "Menu bar icon — corner badges".
+- **Low battery does not light the "!" unless asked** (Anton, 2026-09-26).
+  macOS already shows the charge in its own menu bar item and warns about a low
+  battery itself, so a second alarm next to it is noise. A second switch under
+  the badge toggle, "count low battery" (`menuBarRedAlertBattery`), OFF by
+  default and shown only while the badge toggle is on, puts the battery back:
+  then a charge at or below the red battery threshold lights the "!", and a
+  charging battery still doesn't count. The battery row on the tab keeps its
+  colours either way; only the menu bar badge is affected.
 
 ### Clipboard
 
