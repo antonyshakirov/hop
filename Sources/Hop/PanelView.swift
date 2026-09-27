@@ -1507,9 +1507,8 @@ struct PanelView: View {
         .help(help)
     }
 
-    // Tab button geometry. At maxTabs (4): 4×56 + inner gaps + the 3-icon
-    // service trio still fit the 340pt header content.
-    private static let tabButtonWidth: CGFloat = 56
+    // At maxTabs (4): 4×56 + inner gaps + the 3-icon service trio still fit
+    // the 340pt header content.
     private static let tabSpacing: CGFloat = 2
 
     // an icon row of the user's spaces, chip-highlighting the active one. Pure
@@ -1526,20 +1525,9 @@ struct PanelView: View {
     }
 
     private func spaceTabButton(_ tab: PanelTab) -> some View {
-        // compare against the LIVE current space (same derivation the content
-        // uses), so the highlight never lands on a deleted id or on nothing
-        let active = currentSpaceID == tab.id
-        return Image(systemName: tab.icon)
-            .font(.system(size: 15))
-            .foregroundStyle(active ? Theme.textPrimary : Theme.textTertiary)
-            .frame(width: Self.tabButtonWidth, height: 28)
-            .background(
-                active ? Theme.chipBg : .clear,
-                in: RoundedRectangle(cornerRadius: 6)
-            )
-            .contentShape(Rectangle())
-            .hoverHighlight(6)
-            .onTapGesture { switchToSpace(tab.id) }
+        SpaceTabButton(icon: tab.icon, active: currentSpaceID == tab.id) {
+            switchToSpace(tab.id)
+        }
     }
 
     /// First catalog icon no tab already uses (fallback: the first entry), so a

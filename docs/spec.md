@@ -88,8 +88,10 @@ signing would break).
 6. popover.animates = false; the popover theme follows the setting/system.
 7. A click inside the panel, including a space tab, keeps the popover open even
    if AppKit requests a transient close while keyboard focus returns to the
-   previous app. An outside click closes it; an explicit action or Escape can
-   close it while the pointer is inside (`PanelDismissalTests`).
+   previous app. A tab switches on that first click even when the panel window
+   is inactive: its hosting view accepts the first mouse event. An outside click
+   closes it; an explicit action or Escape can close it while the pointer is
+   inside (`PanelDismissalTests`, `SpaceTabButtonTests`).
 
 ## Menu bar icon — corner badges
 
