@@ -5,6 +5,9 @@ import XCTest
 
 @MainActor
 final class SteadyFieldTests: XCTestCase {
+    // WORKAROUND: XCTest crashes while releasing this AppKit fixture on macOS 27.
+    private static var retainedFixtures: [AnyObject] = []
+
     private final class Draft: ObservableObject {
         @Published var text = ""
         @Published var focused = false
@@ -25,7 +28,7 @@ final class SteadyFieldTests: XCTestCase {
                               styleMask: [.titled], backing: .buffered, defer: false)
         window.contentView = host
         window.makeKeyAndOrderFront(nil)
-        defer { window.close() }
+        Self.retainedFixtures.append(contentsOf: [draft as AnyObject, host, window])
         host.layoutSubtreeIfNeeded()
 
         draft.focused = true

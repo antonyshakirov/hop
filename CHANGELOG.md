@@ -1,5 +1,12 @@
 # Hop - version history
 
+## 2.1.7 - 2026-09-28
+
+- On macOS 27, panel actions respond to the first click even while another app
+  has keyboard focus. This includes switching spaces and opening task rows.
+- The macOS 27 build has been checked against the recent panel dismissal,
+  project-name focus and low-battery alert fixes.
+
 ## 2.1.6 - 2026-09-27
 
 - The panel stays open when switching Hop tabs.

@@ -47,6 +47,10 @@ macOS la abre como cualquier otra app. El código fuente es público y las
 actualizaciones integradas se verifican con Ed25519. Requiere macOS 14 o
 posterior.
 
+### 2.1.7
+
+- macOS 27: las acciones del panel responden al primer clic
+
 ### 2.1.6
 
 - Al cambiar de pestaña, el panel sigue abierto y el nombre de un proyecto nuevo conserva el foco al escribir.

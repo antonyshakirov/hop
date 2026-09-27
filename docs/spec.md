@@ -88,10 +88,10 @@ signing would break).
 6. popover.animates = false; the popover theme follows the setting/system.
 7. A click inside the panel, including a space tab, keeps the popover open even
    if AppKit requests a transient close while keyboard focus returns to the
-   previous app. A tab switches on that first click even when the panel window
-   is inactive: its hosting view accepts the first mouse event. An outside click
-   closes it; an explicit action or Escape can close it while the pointer is
-   inside (`PanelDismissalTests`, `SpaceTabButtonTests`).
+   previous app. Interactive panel content accepts the first mouse event while
+   the panel window is inactive, including space tabs, task rows and app icons.
+   An outside click closes it; an explicit action or Escape can close it while
+   the pointer is inside (`PanelDismissalTests`, `SpaceTabButtonTests`).
 
 ## Menu bar icon — corner badges
 
@@ -6206,6 +6206,9 @@ CHANGELOG.md that does not open with it.
 
 **Hotfix 2.1.6** (Anton, 2026-09-27): release notes name the fixes, and the
 panel gets no new "what's new" card. `HotfixReleaseTests` holds the absent card.
+**Hotfix 2.1.7** (Anton, 2026-09-28): macOS 27 panel click-through fixes have
+release notes and no new panel card. The earlier focus and low-battery fixes
+remain covered by regression tests.
 
 **A fix card that catches up** (Anton, 2026-09-16). A card may name the release
 card it follows (`catchUp`). Somebody who never had that card drawn — no press,
