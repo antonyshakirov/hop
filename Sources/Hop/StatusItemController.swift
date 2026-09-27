@@ -8,7 +8,16 @@ import HopCore
 /// heights otherwise land the popover frame on a half pixel and the whole
 /// panel (most visibly the header icons) jiggles 1px between tabs.
 @MainActor
-private final class IntegralSizeHostingController: NSHostingController<AnyView> {
+private final class FirstMousePanelView: NSHostingView<AnyView> {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+}
+
+@MainActor
+final class IntegralSizeHostingController: NSHostingController<AnyView> {
+    func enableFirstMouse() {
+        view = FirstMousePanelView(rootView: rootView)
+    }
+
     override var preferredContentSize: NSSize {
         get { super.preferredContentSize }
         set {
@@ -54,6 +63,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // preferredContentSize: the popover tracks the SwiftUI content size
         // without animating the first recalculation (fixes the shifted first click on monitor)
         host.sizingOptions = .preferredContentSize
+        host.enableFirstMouse()
         // no size animation: switching tabs doesn't "slide" from bottom to top
         popover.animates = false
         host.view.layoutSubtreeIfNeeded()

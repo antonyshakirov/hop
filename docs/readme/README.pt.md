@@ -53,6 +53,10 @@ macOS abre como qualquer outro app. O código-fonte é público e as
 atualizações integradas são verificadas com Ed25519. Requer macOS 14 ou mais
 recente.
 
+### 2.1.7
+
+- macOS 27: as ações do painel respondem ao primeiro clique
+
 ### 2.1.6
 
 - Ao mudar de aba, o painel permanece aberto e o nome de um novo projeto mantém o foco durante a digitação.

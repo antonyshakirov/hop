@@ -51,6 +51,10 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.1.7
+
+- macOS 27: Aktionen im Panel reagieren auf den ersten Klick
+
 ### 2.1.6
 
 - Beim Tabwechsel bleibt das Panel offen, und das Namensfeld eines neuen Projekts behält beim Tippen den Fokus.
