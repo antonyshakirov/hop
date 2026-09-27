@@ -266,8 +266,7 @@ final class SystemStatsController: ObservableObject {
     }
 
     /// Red zone — the same thresholds that color the values on the tab.
-    private static func isRedZone(_ s: StatsSample) -> Bool {
-        let d = UserDefaults.standard
+    static func isRedZone(_ s: StatsSample, defaults d: UserDefaults = .standard) -> Bool {
         func value(_ key: String, _ def: Int) -> Double {
             Double((d.object(forKey: key) as? Int) ?? def)
         }

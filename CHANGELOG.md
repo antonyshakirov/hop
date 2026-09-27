@@ -1,5 +1,12 @@
 # Hop - version history
 
+## 2.1.6 - 2026-09-27
+
+- The panel stays open when switching spaces.
+- Typing a project name keeps the caret in the field.
+- A low battery lights the menu bar alert only when the new "count low battery" switch is on.
+- Share Hop from the menu bar icon's menu, the About page or the last onboarding step.
+
 ## 2.1.5 - 2026-09-21
 
 - The clipboard keeps a long copy whole. A book, a log or a page of source used

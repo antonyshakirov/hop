@@ -86,6 +86,10 @@ signing would break).
    — the header cannot bob, nor be dragged by a leftover scroll offset (each
    space/overlay gets a fresh scroll identity that starts at offset 0).
 6. popover.animates = false; the popover theme follows the setting/system.
+7. A click inside the panel, including a space tab, keeps the popover open even
+   if AppKit requests a transient close while keyboard focus returns to the
+   previous app. An outside click closes it; an explicit action or Escape can
+   close it while the pointer is inside (`PanelDismissalTests`).
 
 ## Menu bar icon — corner badges
 
@@ -1906,7 +1910,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   = cancel. The tracker's `nameField` behaves identically on its ADD fields
   (`newTask`, `newTaskIn`, `newProject` — `Field.isAdding`), ⌘Return included;
   renaming a project has nothing to continue, so there Return still commits
-  and closes.
+  and closes. A queued AppKit focus change checks the current binding again
+  before moving the first responder, so a stale request cannot remove the
+  caret between letters (`SteadyFieldTests`).
 - **Task card (expanded row):** clicking a row expands it into a card and
   collapses whatever was open — ONE card at a time, so the panel cannot grow
   without bound. **The row STAYS above its card in both modules (Anton,
@@ -6195,6 +6201,9 @@ not open with three numbers, a release card newer than the notes, and a minor
 release without a card of its own. `checks.sh` fails on any of them, and
 `release.sh` refuses a number other than the one the notes name and a
 CHANGELOG.md that does not open with it.
+
+**Hotfix 2.1.6** (Anton, 2026-09-27): release notes name the fixes, and the
+panel gets no new "what's new" card. `HotfixReleaseTests` holds the absent card.
 
 **A fix card that catches up** (Anton, 2026-09-16). A card may name the release
 card it follows (`catchUp`). Somebody who never had that card drawn — no press,
