@@ -47,6 +47,11 @@ macOS la abre como cualquier otra app. El código fuente es público y las
 actualizaciones integradas se verifican con Ed25519. Requiere macOS 14 o
 posterior.
 
+### 2.1.6
+
+- Al cambiar de pestaña, el panel sigue abierto y el nombre de un proyecto nuevo conserva el foco al escribir.
+- El aviso de batería baja es opcional; puedes compartir Hop desde el menú, la página Acerca de y la configuración inicial.
+
 ## Funciones
 
 ### Espacios

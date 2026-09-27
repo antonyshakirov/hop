@@ -46,6 +46,11 @@ la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
 aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
 successivo.
 
+### 2.1.6
+
+- Il pannello resta aperto quando cambi scheda e il nome di un nuovo progetto mantiene il focus durante la digitazione.
+- L’avviso di batteria scarica è facoltativo; puoi condividere Hop dal menu, dalla pagina Informazioni e dalla configurazione iniziale.
+
 ## Funzionalità
 
 ### Spazi

@@ -45,6 +45,11 @@ dus macOS opent het als elke andere app. De broncode is openbaar en
 ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
+### 2.1.6
+
+- Bij het wisselen van tabblad blijft het paneel open en houdt de naam van een nieuw project de toetsenbordfocus.
+- De melding voor een bijna lege batterij is optioneel; Hop delen kan via het menu, de infopagina en de eerste configuratie.
+
 ## Functies
 
 ### Ruimtes
