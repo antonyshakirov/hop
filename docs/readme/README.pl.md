@@ -51,6 +51,11 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
+### 2.1.6
+
+- Przy zmianie karty panel pozostaje otwarty, a pole nazwy nowego projektu nie traci fokusu podczas pisania.
+- Alert niskiego poziomu baterii jest opcjonalny; Hop można udostępnić z menu, strony O aplikacji i konfiguracji początkowej.
+
 ## Funkcje
 
 ### Przestrzenie

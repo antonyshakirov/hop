@@ -50,6 +50,11 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.1.6
+
+- Khi chuyển tab, bảng vẫn mở và ô tên dự án mới không mất tiêu điểm lúc nhập.
+- Cảnh báo pin yếu có thể bật riêng; bạn có thể chia sẻ Hop từ menu, trang Giới thiệu và phần thiết lập ban đầu.
+
 ## Tính năng
 
 ### Không gian

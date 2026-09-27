@@ -50,6 +50,11 @@ Hop is signed with an Apple Developer ID and notarized by Apple, so macOS
 opens it like any other app. The source is public, and built-in updates are
 verified with Ed25519. Requires macOS 14 or newer.
 
+### 2.1.6
+
+- Switching tabs keeps the panel open, and typing a new project name keeps keyboard focus.
+- The low-battery menu bar alert is optional; you can share Hop from its menu, About page or setup.
+
 ## Features
 
 ### Spaces

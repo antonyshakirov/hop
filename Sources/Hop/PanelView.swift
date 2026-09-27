@@ -71,6 +71,7 @@ struct PanelView: View {
     @AppStorage("monitorWindowMin") private var monitorWindowMin = 5
     @AppStorage(HotkeyManager.snapHotkeysKey) private var windowsHotkeysOn = true
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
+    @AppStorage(SettingsKey.menuBarRedAlertBattery) private var menuBarRedAlertBattery = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
     @AppStorage(SettingsKey.vpnHoldOff) private var vpnHoldOff = true
@@ -260,12 +261,7 @@ struct PanelView: View {
 
     /// Product landing in the app's language when it exists (8 languages),
     /// English for everyone else.
-    private var productPageURL: String {
-        let landing: Set<String> = ["ru", "de", "es", "pt", "fr", "zh", "ja"]
-        return landing.contains(lang.rawValue)
-            ? "https://hop.tools/\(lang.rawValue)/"
-            : "https://hop.tools/"
-    }
+    private var productPageURL: String { ProductLink.page(for: lang.rawValue) }
 
     var body: some View {
         if !previewModules.isEmpty {
@@ -5311,6 +5307,17 @@ struct PanelView: View {
                 Spacer()
                 Theme.MiniSwitch(isOn: $menuBarRedAlert)
             }
+            if menuBarRedAlert {
+                // opt-in: macOS already shows the charge and warns about it
+                HStack {
+                    Text(t(.redAlertBatteryLabel))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textSecondary)
+                    Spacer()
+                    Theme.MiniSwitch(isOn: $menuBarRedAlertBattery)
+                }
+                .padding(.leading, 12)
+            }
 
             HStack {
                 Text(t(.tempUnitLabel))
@@ -5432,6 +5439,7 @@ struct PanelView: View {
     private var aboutPage: some View {
         VStack(alignment: .leading, spacing: 18) {
             donateCard
+            ShareHopCard(lang: lang)
             supportCard
 
             VStack(alignment: .leading, spacing: 10) {

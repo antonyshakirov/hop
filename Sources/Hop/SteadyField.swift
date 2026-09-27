@@ -60,9 +60,15 @@ struct SteadyField: NSViewRepresentable {
         guard let focus else { return }
         let holds = field.currentEditor() != nil
         if focus.wrappedValue, !holds {
-            DispatchQueue.main.async { field.window?.makeFirstResponder(field) }
+            DispatchQueue.main.async {
+                guard focus.wrappedValue, field.currentEditor() == nil else { return }
+                field.window?.makeFirstResponder(field)
+            }
         } else if !focus.wrappedValue, holds {
-            DispatchQueue.main.async { field.window?.makeFirstResponder(nil) }
+            DispatchQueue.main.async {
+                guard !focus.wrappedValue, field.currentEditor() != nil else { return }
+                field.window?.makeFirstResponder(nil)
+            }
         }
     }
 

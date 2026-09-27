@@ -51,6 +51,11 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.1.6
+
+- Saat berpindah tab, panel tetap terbuka dan kolom nama proyek baru tetap fokus saat diketik.
+- Peringatan baterai lemah bersifat opsional; Hop dapat dibagikan dari menu, halaman Tentang, dan pengaturan awal.
+
 ## Fitur
 
 ### Ruang

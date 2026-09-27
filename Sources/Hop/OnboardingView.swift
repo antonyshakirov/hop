@@ -73,6 +73,7 @@ struct OnboardingView: View {
     }
 
     private var step: OnboardStep { OnboardStep.stored(stepIndex) }
+    @State private var shareAnchor = ShareAnchor()
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
@@ -406,6 +407,22 @@ struct OnboardingView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: 420)
+            Button {
+                if let view = shareAnchor.view { HopShare.present(from: view, lang) }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Theme.textTertiary)
+                    Text(t(.shareTitle))
+                        .font(Theme.mono(11))
+                        .foregroundStyle(Theme.textSecondary)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverDim()
+            .shareAnchor(shareAnchor)
             if case .offer(let info) = phase {
                 VStack(spacing: 10) {
                     Text(L10n.fill(.updateAvailable, lang, info.version))

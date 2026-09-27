@@ -23,5 +23,6 @@ let package = Package(
             swiftSettings: [.unsafeFlags(["-Osize"], .when(configuration: .release))]
         ),
         .testTarget(name: "HopCoreTests", dependencies: ["HopCore"], resources: [.copy("Fixtures")]),
+        .testTarget(name: "HopUITests", dependencies: ["Hop"]),
     ]
 )

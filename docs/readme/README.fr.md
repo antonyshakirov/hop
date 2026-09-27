@@ -53,6 +53,11 @@ l'ouvre comme n'importe quelle autre app. Le code source est public et les
 mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
 plus récent.
 
+### 2.1.6
+
+- Le panneau reste ouvert quand on change d’onglet, et le nom d’un nouveau projet garde le focus pendant la saisie.
+- L’alerte de batterie faible est facultative ; Hop peut être partagé depuis le menu, la page À propos et la configuration initiale.
+
 ## Fonctionnalités
 
 ### Espaces

@@ -51,6 +51,11 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.1.6
+
+- Beim Tabwechsel bleibt das Panel offen, und das Namensfeld eines neuen Projekts behält beim Tippen den Fokus.
+- Der Hinweis bei niedrigem Akkustand ist optional; Hop lässt sich über das Menü, die Infoseite und die Ersteinrichtung teilen.
+
 ## Funktionen
 
 ### Bereiche

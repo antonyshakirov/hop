@@ -23,10 +23,11 @@ private final class IntegralSizeHostingController: NSHostingController<AnyView> 
 /// Native status item: left click shows the popover with the panel,
 /// right click shows the context menu (open / about / settings / quit).
 @MainActor
-final class StatusItemController: NSObject {
+final class StatusItemController: NSObject, NSPopoverDelegate {
     private let model: AppModel
     private let statusItem: NSStatusItem
     private let popover = NSPopover()
+    private var explicitPopoverClose = false
     private var cancellable: AnyCancellable?
     private var clockCancellable: AnyCancellable?
     /// Redraws the icon when the menu bar's appearance changes under it.
@@ -41,6 +42,7 @@ final class StatusItemController: NSObject {
         super.init()
 
         popover.behavior = .transient
+        popover.delegate = self
         popover.animates = false
         // top alignment: with the height rounded up, the sub-point leftover
         // goes to the bottom edge instead of re-centering the content
@@ -90,7 +92,7 @@ final class StatusItemController: NSObject {
                 self?.applyTheme()
             }
         }
-        model.closePanel = { [weak self] in self?.popover.close() }
+        model.closePanel = { [weak self] in self?.closePopover() }
         model.reopenPanel = { [weak self] screen in
             guard let self, !self.popover.isShown else { return }
             self.togglePopover(opening: screen)
@@ -121,7 +123,7 @@ final class StatusItemController: NSObject {
                     // kept.
                     let panelWindow = self.popover.contentViewController?.view.window
                     if let key = NSApp.keyWindow, key !== panelWindow {
-                        self.popover.close()
+                        self.closePopover()
                         return
                     }
                     self.maybeReturnFocus()
@@ -341,6 +343,24 @@ final class StatusItemController: NSObject {
         togglePopover()
     }
 
+    static func shouldClosePopover(pointer: NSPoint, panelFrame: NSRect?, explicit: Bool,
+                                   keyboardEvent: Bool = false) -> Bool {
+        explicit || keyboardEvent || !(panelFrame?.contains(pointer) ?? false)
+    }
+
+    func popoverShouldClose(_ popover: NSPopover) -> Bool {
+        Self.shouldClosePopover(pointer: NSEvent.mouseLocation,
+                                panelFrame: popover.contentViewController?.view.window?.frame,
+                                explicit: explicitPopoverClose,
+                                keyboardEvent: NSApp.currentEvent?.type == .keyDown)
+    }
+
+    private func closePopover() {
+        explicitPopoverClose = true
+        defer { explicitPopoverClose = false }
+        popover.close()
+    }
+
     private func togglePopover(opening screen: PanelView.InitialScreen? = nil) {
         // Reaching for Hop while the keyboard is locked IS the way out: the
         // mark in the menu bar says why the keys do nothing, and opening the
@@ -352,7 +372,7 @@ final class StatusItemController: NSObject {
             model.openTab = screen
         }
         if popover.isShown {
-            if screen == nil { popover.close() }
+            if screen == nil { closePopover() }
             return
         }
         guard let button = statusItem.button else { return }
@@ -441,6 +461,7 @@ final class StatusItemController: NSObject {
         menu.addItem(item(L10n.t(.settingsTitle, lang).capitalizedFirst, #selector(menuOpenSettings)))
         // the same words the sidebar uses for those two pages: one screen, one name
         menu.addItem(item(L10n.t(.guideTab, lang).capitalizedFirst, #selector(menuOpenGuide)))
+        menu.addItem(item(L10n.t(.menuShareHop, lang).capitalizedFirst, #selector(menuShareHop)))
         menu.addItem(item(L10n.t(.aboutTitle, lang).capitalizedFirst, #selector(menuOpenAbout)))
         menu.addItem(.separator())
         menu.addItem(item(L10n.t(.menuQuit, lang).capitalizedFirst, #selector(menuQuit)))
@@ -462,6 +483,12 @@ final class StatusItemController: NSObject {
     @objc private func menuOpenSettings() { model.openSettingsWindow?() }
     @objc private func menuOpenGuide() { openSettings(at: .guide) }
     @objc private func menuOpenAbout() { openSettings(at: .about) }
+
+    /// The picker opens under the icon the menu came from. SPEC: docs/spec.md — "Sharing Hop".
+    @objc private func menuShareHop() {
+        guard let button = statusItem.button else { return }
+        HopShare.present(from: button, L10n.current)
+    }
 
     private func openSettings(at section: SettingsSelection) {
         model.settingsSectionRequest = section.id

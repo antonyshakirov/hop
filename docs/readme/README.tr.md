@@ -51,6 +51,11 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
+### 2.1.6
+
+- Sekme değiştirirken panel açık kalır; yeni proje adı yazarken alan odağı kaybetmez.
+- Düşük pil uyarısı isteğe bağlıdır; Hop menüden, Hakkında sayfasından ve ilk kurulumdan paylaşılabilir.
+
 ## Özellikler
 
 ### Alanlar

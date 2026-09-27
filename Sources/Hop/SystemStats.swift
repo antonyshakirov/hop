@@ -266,8 +266,7 @@ final class SystemStatsController: ObservableObject {
     }
 
     /// Red zone — the same thresholds that color the values on the tab.
-    private static func isRedZone(_ s: StatsSample) -> Bool {
-        let d = UserDefaults.standard
+    static func isRedZone(_ s: StatsSample, defaults d: UserDefaults = .standard) -> Bool {
         func value(_ key: String, _ def: Int) -> Double {
             Double((d.object(forKey: key) as? Int) ?? def)
         }
@@ -284,8 +283,10 @@ final class SystemStatsController: ObservableObject {
         if let load = s.cpuLoad, load * 100 >= loadRed { return true }
         if let free = s.diskFree, let total = s.diskTotal, total > 0,
            (1 - free / total) * 100 >= diskRed { return true }
-        // battery: lower than the threshold is worse; don't alarm while charging
-        if let percent = s.battery?.percent, let charging = s.battery?.isCharging,
+        // battery: opt-in (macOS already warns about a low charge); lower than
+        // the threshold is worse; don't alarm while charging
+        if d.bool(forKey: SettingsKey.menuBarRedAlertBattery),
+           let percent = s.battery?.percent, let charging = s.battery?.isCharging,
            !charging, Double(percent) <= battRed { return true }
         return false
     }
