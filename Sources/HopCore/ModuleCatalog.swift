@@ -132,6 +132,7 @@ public enum ModuleCatalog {
                          defaultCombo: ModuleCombo(keyCode: 40, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "vpn", hiddenOnFirstRun: true, guideLetter: "n", actions: []),
+        ModuleEntry(id: "network", hiddenOnFirstRun: true, guideLetter: "e", actions: []),
         ModuleEntry(id: "uninstall", guideLetter: "u", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_uninstall", hotKeyID: 27,
                          defaultCombo: ModuleCombo(keyCode: 32, modifiers: controlOption)),
@@ -217,7 +218,7 @@ public enum ModuleCatalog {
         OnboardingGroup(titleID: "onbGroupFiles", modules: ["convert", "archive"]),
         OnboardingGroup(titleID: "onbGroupScreen", modules: ["clipboard", "color", "ocr"]),
         OnboardingGroup(titleID: "onbGroupMarkup", modules: ["shot", "annotate"]),
-        OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard"]),
+        OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard", "network"]),
         OnboardingGroup(titleID: "onbGroupNetwork", modules: ["speedtest", "vpn", "torrent"]),
         OnboardingGroup(titleID: "onbGroupDesk", modules: ["windows", "apps", "uninstall"]),
     ]

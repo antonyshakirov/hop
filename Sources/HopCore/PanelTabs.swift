@@ -141,7 +141,14 @@ public struct PanelTabsModel: Codable, Equatable {
             known.insert(key)
             return true
         }
-        tabs[0].moduleKeys.append(contentsOf: missing)
+        // SPEC: docs/spec.md — "Network access": a new reporting module joins the
+        // space the monitor already lives on, not the first one.
+        for key in missing {
+            let home = Self.reportingModules.contains(key)
+                ? tabs.firstIndex { $0.moduleKeys.contains(where: Self.reportingModules.contains) } ?? 0
+                : 0
+            tabs[home].moduleKeys.append(key)
+        }
     }
 
     /// Applies a settings-table drop of `module` onto `tabID` at `index`: the
@@ -209,7 +216,7 @@ public struct PanelTabsModel: Codable, Equatable {
     /// The second space is everything that REPORTS: the monitor, the speed test
     /// and the torrents. The first space was carrying all
     /// three plus every tool, which is more than one panel should say at once.
-    public static let reportingModules = ["system", "speedtest", "torrent"]
+    public static let reportingModules = ["system", "speedtest", "torrent", "network"]
     public static let timeModules = ["tracker", "todos"]
     /// The fourth space: what works ON files rather than reporting about the
     /// Mac.

@@ -367,6 +367,8 @@ struct OnboardingView: View {
             AnnotateArt(lang: lang)
         case "keyboard":
             KeyboardLockArt(lang: lang)
+        case "network":
+            NetworkWindowView(network: previewModel.networkFilter, lang: lang, preview: true)
         case "uninstall":
             UninstallWindowView(uninstall: previewModel.uninstall, lang: lang, preview: true)
                 .environmentObject(previewModel)

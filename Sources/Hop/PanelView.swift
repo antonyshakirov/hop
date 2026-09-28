@@ -2694,14 +2694,14 @@ struct PanelView: View {
     // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall"]
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall", "network"]
     static let defaultModuleOrder = ModuleCatalog.defaultModuleOrder
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
     /// developers) and must be a deliberate opt-in: an ordinary user should not
     /// find them cluttering the panel after an update. Torrent is not here, it
     /// is handled by its own toggle below.
-    private static let optInModules = ["color", "ocr", "vpn"]
+    private static let optInModules = ["color", "ocr", "vpn", "network"]
 
     /// Modules INTRODUCED in this release that must NOT appear until they are
     /// asked for. Empty for the markup pair by Anton's decision (2026-09-09):
@@ -3157,6 +3157,7 @@ struct PanelView: View {
         case "shot": return t(.shotLabel)
         case "annotate": return t(.annotateLabel)
         case "vpn": return t(.vpnLabel)
+        case "network": return t(.networkLabel)
         case Self.appsChoice: return t(.appsLabel)
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil:
             return Substitutions.isolate(model.appShelves.shelf(withKey: key)?.title ?? "",
@@ -3201,6 +3202,10 @@ struct PanelView: View {
                 .id(model.themeVersion)
         case "vpn":
             VPNView(vpn: model.vpn, lang: lang)
+                .id(model.themeVersion)
+        case "network":
+            NetworkView(network: model.networkFilter, lang: lang,
+                        openWindow: { model.openNetworkWindow?() })
                 .id(model.themeVersion)
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil:
             // Shelves are the one module that exists in several copies, so the
@@ -4975,6 +4980,7 @@ struct PanelView: View {
         case "shot": return "camera.viewfinder"
         case "annotate": return "pencil.tip"
         case "vpn": return "lock.shield"
+        case "network": return "network.badge.shield.half.filled"
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil: return "square.grid.3x3"
         case "torrent": return "arrow.down.circle"
         default: return "square.grid.2x2"

@@ -9,7 +9,7 @@ final class ModuleCatalogTests: XCTestCase {
     func testIdentifiersAreUniqueAndMatchThePanelDefaults() {
         let ids = ModuleCatalog.modules.map(\.id)
         XCTAssertEqual(Set(ids).count, ids.count)
-        XCTAssertEqual(ids.count, 18)
+        XCTAssertEqual(ids.count, 19)
         XCTAssertTrue(ids.contains("timer"))
         XCTAssertTrue(ids.contains("todos"))
         XCTAssertTrue(ids.contains("uninstall"))
@@ -93,7 +93,7 @@ final class ModuleCatalogTests: XCTestCase {
 
     func testModulesThatShipHiddenAreTheOptInOnes() {
         let hidden = ModuleCatalog.modules.filter(\.hiddenOnFirstRun).map(\.id)
-        XCTAssertEqual(Set(hidden), ["color", "ocr", "vpn"])
+        XCTAssertEqual(Set(hidden), ["color", "ocr", "vpn", "network"])
     }
 
     func testStorageKeysAreUniqueSoTwoActionsCannotShareASavedCombo() {

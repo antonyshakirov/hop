@@ -1,0 +1,106 @@
+import Foundation
+
+/// SPEC: docs/spec.md — "Network access". One program reaching one destination,
+/// however many times: what the window lists under that program.
+public struct NetworkSighting: Codable, Hashable, Sendable {
+    public var app: String
+    /// The program's executable, for its name and icon.
+    public var path: String?
+    public var host: String?
+    public var address: String
+    public var port: String
+    public var verdict: NetworkRule.Action
+    public var count: Int
+    public var last: Date
+
+    public init(app: String, path: String?, host: String?, address: String, port: String,
+                verdict: NetworkRule.Action, count: Int = 1, last: Date) {
+        self.app = app
+        self.path = path
+        self.host = host
+        self.address = address
+        self.port = port
+        self.verdict = verdict
+        self.count = count
+        self.last = last
+    }
+
+    /// The name a rule would use: the host when the connection came with one.
+    public var destination: String { host ?? address }
+}
+
+/// What the filter has seen, capped so it cannot grow for ever.
+public struct NetworkSightings: Sendable {
+    public static let capacity = 3000
+    public private(set) var byKey: [String: NetworkSighting] = [:]
+
+    public init() {}
+
+    public mutating func record(app: String, path: String?, host: String?, address: String, port: String,
+                                verdict: NetworkRule.Action, at date: Date) {
+        let key = app + "\u{1F}" + (host ?? address)
+        if var known = byKey[key] {
+            known.count += 1
+            known.last = date
+            known.verdict = verdict
+            known.address = address
+            known.port = port
+            if known.path == nil { known.path = path }
+            byKey[key] = known
+        } else {
+            byKey[key] = NetworkSighting(app: app, path: path, host: host, address: address, port: port,
+                                         verdict: verdict, last: date)
+        }
+        guard byKey.count > Self.capacity else { return }
+        let oldest = byKey.values.sorted { $0.last < $1.last }.prefix(byKey.count - Self.capacity * 9 / 10)
+        for sighting in oldest { byKey.removeValue(forKey: sighting.app + "\u{1F}" + sighting.destination) }
+    }
+
+    public var all: [NetworkSighting] { byKey.values.sorted { $0.last > $1.last } }
+
+    public static func encode(_ sightings: [NetworkSighting]) -> Data {
+        (try? JSONEncoder().encode(sightings)) ?? Data("[]".utf8)
+    }
+
+    public static func decode(_ data: Data?) -> [NetworkSighting] {
+        guard let data, let list = try? JSONDecoder().decode([NetworkSighting].self, from: data) else { return [] }
+        return list
+    }
+}
+
+/// One program in the window: its destinations and whether it may connect at all.
+public struct NetworkProgram: Equatable, Sendable {
+    public var app: String
+    public var path: String?
+    public var destinations: [NetworkSighting]
+    public var last: Date?
+    public var blocked: Bool
+
+    /// Programs seen, plus those that only have rules so far, newest first.
+    public static func group(_ sightings: [NetworkSighting], rules: [NetworkRule]) -> [NetworkProgram] {
+        var programs: [String: NetworkProgram] = [:]
+        for sighting in sightings {
+            var program = programs[sighting.app]
+                ?? NetworkProgram(app: sighting.app, path: sighting.path, destinations: [], last: nil, blocked: false)
+            program.destinations.append(sighting)
+            program.last = max(program.last ?? sighting.last, sighting.last)
+            if program.path == nil { program.path = sighting.path }
+            programs[sighting.app] = program
+        }
+        for rule in rules where programs[rule.app] == nil {
+            programs[rule.app] = NetworkProgram(app: rule.app, path: nil, destinations: [], last: nil, blocked: false)
+        }
+        for key in programs.keys {
+            programs[key]?.blocked = rules.contains { $0.app == key && $0.host == nil && $0.action == .deny }
+            programs[key]?.destinations.sort { $0.last > $1.last }
+        }
+        return programs.values.sorted {
+            switch ($0.last, $1.last) {
+            case let (a?, b?): return a > b
+            case (nil, _?): return false
+            case (_?, nil): return true
+            default: return $0.app < $1.app
+            }
+        }
+    }
+}

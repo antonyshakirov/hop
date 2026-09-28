@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let shotWindows = ShotEditorWindows()
     private var archiveWindow: ConverterWindow?
     private var uninstallWindow: NSWindow?
+    private var networkWindow: NSWindow?
     private var uninstallUserResized = false
     private var uninstallExpectedHeight: CGFloat = 0
     private var uninstallHeightSink: AnyCancellable?
@@ -336,6 +337,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openUninstallWindow = { [weak self] in
             self?.showUninstallWindow()
         }
+        model.openNetworkWindow = { [weak self] in
+            self?.showNetworkWindow()
+        }
         model.openScreenTextWindow = { [weak self] in
             self?.showScreenTextWindow()
         }
@@ -343,6 +347,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.setScreenTextWindowAside(selecting)
         }
         model.screenText.watchWarmUp()
+        #if DEBUG
+        // `Hop --netfilter-selftest` (a dev build from /Applications): installs the
+        // filter with one rule, curl → example.com denied, to check the path end to end.
+        if CommandLine.arguments.contains("--netfilter-selftest") {
+            model.networkFilter.setRules([NetworkRule(app: "com.apple.curl", host: "example.com", action: .deny)])
+            model.networkFilter.switchOn()
+        }
+        if CommandLine.arguments.contains("--netfilter-off") {
+            model.networkFilter.switchOff()
+        }
+        #endif
         model.openTorrentAddSheet = { [weak self] source in
             self?.showTorrentAddWindow(source)
         }
@@ -927,6 +942,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// left behind comes out as a list with sizes, and what the user ticks moves
     /// to the trash. A plain window — no paste handling, since an app is not
     /// something anybody copies to the clipboard.
+    /// SPEC: docs/spec.md — "Network access", the window.
+    private func showNetworkWindow() {
+        model.activity.note()
+        if networkWindow == nil {
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 640, height: 560),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered, defer: false
+            )
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.isReleasedWhenClosed = false
+            let host = NSHostingController(
+                rootView: NetworkWindowView(network: model.networkFilter, lang: L10n.current)
+                    .environmentObject(model)
+                    .hopLayoutDirection()
+            )
+            host.sizingOptions = []
+            window.contentViewController = host
+            window.contentMinSize = NSSize(width: 560, height: 360)
+            NotificationCenter.default.addObserver(
+                forName: NSWindow.willCloseNotification, object: window, queue: .main
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.model.networkFilter.unwatch() }
+            }
+            networkWindow = window
+        }
+        guard let window = networkWindow else { return }
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        if !window.isVisible {
+            window.setContentSize(NSSize(width: 640, height: 560))
+            window.center()
+        }
+        model.networkFilter.watch()
+        enterDockMode()
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
     private func showUninstallWindow() {
         model.activity.note()
         if uninstallWindow == nil {

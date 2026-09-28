@@ -581,7 +581,7 @@ enum Snapshot {
             || onlyModule != nil || wantsOverview {
             var keep: Set<String> = []
             if wantsOverview {
-                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall"]
+                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network"]
             }
             if wantsColors { keep.insert("color") }
             if wantsOcr { keep.insert("ocr") }
@@ -590,7 +590,7 @@ enum Snapshot {
             // no-op unless --only names one of these four; the rest are hidden
             // through their legacy keys above
             if let onlyModule { keep.insert(onlyModule) }
-            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall"] {
+            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network"] {
                 if keep.contains(key) {
                     PanelView.activateStoredModule(key)
                 } else {
@@ -713,6 +713,10 @@ enum Snapshot {
             }
             .padding(14)
             .background(Theme.panelBackground))
+        } else if args.contains("--window-network") {
+            content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
+                .environmentObject(model)
+                .frame(width: 640, height: 560))
         } else if args.contains("--window-ocr") {
             content = AnyView(ScreenTextWindowView().environmentObject(model)
                 .frame(width: 560))
