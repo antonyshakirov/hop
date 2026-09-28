@@ -155,7 +155,10 @@ final class PanelFirstMouseTests: XCTestCase {
         window.contentView = anchor
         window.orderFront(nil)
         let popover = NSPopover()
-        popover.behavior = .transient
+        // Sizing only: a transient popover closes when the app is deactivated on a
+        // CI runner, and a closed popover reports no height. PanelDismissalTests
+        // cover closing.
+        popover.behavior = .applicationDefined
         popover.animates = false
         popover.contentViewController = controller
         model.panelContentSizeChanged = { [weak popover] size in
