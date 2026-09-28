@@ -139,6 +139,12 @@ final class NetworkFilterController: NSObject, ObservableObject {
         if manager.isEnabled, manager.providerConfiguration?.filterDataProviderBundleIdentifier == extensionID {
             state = .on
             syncAsking()
+            // SPEC: docs/spec.md — "Network access": an updated Hop brings its filter
+            // along without a question; the rules follow once it is in place.
+            let request = OSSystemExtensionRequest.activationRequest(forExtensionWithIdentifier: extensionID,
+                                                                     queue: .main)
+            request.delegate = self
+            OSSystemExtensionManager.shared.submitRequest(request)
         }
     }
 

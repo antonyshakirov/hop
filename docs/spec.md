@@ -2287,7 +2287,12 @@ group.
   rules in `vendorConfiguration`. macOS asks twice, once, and no app can skip
   it (only a Mac managed through MDM can be approved ahead): the extension in
   System Settings → General → Login Items & Extensions → Network Extensions,
-  then the filter itself. Hop makes it one switch and one button (Anton,
+  then the filter itself. On every launch with the filter on, Hop asks for
+  its extension again: the same version is a no-op, a newer one (after an
+  update) replaces the old without a question, and either way Hop then sends
+  its rules, so a rule set before the filter's state was known still reaches
+  it. Each build of the extension carries a build number that only grows,
+  since macOS replaces an extension only with one of another version. Hop makes it one switch and one button (Anton,
   2026-09-29): the extension carries the app's own name in that list ("Hop",
   "Hop Dev"), the settings open by themselves straight on the list of network
   extensions the moment macOS waits, a sticky card says which switch to turn
@@ -2312,6 +2317,13 @@ group.
   hosts the filter looks up itself every minute — those of one program's
   rules and allows for every program, at most 200; a block list for every
   program is matched by name and never looked up.
+- **Name lookups always pass** (found live, 2026-09-29): macOS makes a
+  program's DNS query through mDNSResponder and charges the flow to that
+  program, so a blocked program could not even learn the address of a host
+  it is allowed to reach, and its connections timed out instead of failing
+  at once. Flows of mDNSResponder and to ports 53 and 853 are let through
+  and not listed (`NetworkRules.isNameLookup`), as LuLu does; the block is
+  decided at the connection itself.
 - **A program names its own host** (security review, 2026-09-29): a blocked
   program could name an allowed host and connect anywhere. A block by name
   holds as named; an allow by name holds only for an address the filter

@@ -51,6 +51,7 @@ final class FilterDataProvider: NEFilterDataProvider {
               let endpoint = socket.remoteEndpoint as? NWHostEndpoint else { return .allow() }
         let owner = Self.signing(flow.sourceAppAuditToken)
         let process = Self.signing(socket.sourceProcessAuditToken)
+        if NetworkRules.isNameLookup(process: process.id, port: endpoint.port) { return .allow() }
         let apps = [owner.id, process.id].compactMap { $0 }
         let current = NetworkFlow(apps: apps, hostname: socket.remoteHostname, address: endpoint.hostname)
         refreshRules()

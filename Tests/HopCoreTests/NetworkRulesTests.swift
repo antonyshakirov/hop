@@ -105,3 +105,12 @@ final class NetworkQuestionTests: XCTestCase {
         XCTAssertEqual(NetworkRules.ruled(flow, rules: [NetworkRule(app: "*", host: "x.com", action: .deny)]), .deny)
     }
 }
+
+final class NetworkNameLookupTests: XCTestCase {
+    func testALookupMadeForAProgramIsNeverBlocked() {
+        XCTAssertTrue(NetworkRules.isNameLookup(process: "com.apple.mDNSResponder", port: "443"))
+        XCTAssertTrue(NetworkRules.isNameLookup(process: "com.example.app", port: "53"))
+        XCTAssertTrue(NetworkRules.isNameLookup(process: nil, port: "853"))
+        XCTAssertFalse(NetworkRules.isNameLookup(process: "com.apple.curl", port: "443"))
+    }
+}

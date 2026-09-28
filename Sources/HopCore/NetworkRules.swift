@@ -66,6 +66,13 @@ public enum NetworkRules {
         return Set(hosts)
     }
 
+    /// A name lookup made for a program, which macOS charges to that program:
+    /// always let through and not listed, or a blocked program could not even
+    /// learn the address of a host it is allowed to reach.
+    public static func isNameLookup(process: String?, port: String) -> Bool {
+        process == "com.apple.mDNSResponder" || port == "53" || port == "853"
+    }
+
     public static func encode(_ rules: [NetworkRule]) -> Data {
         (try? JSONEncoder().encode(rules)) ?? Data("[]".utf8)
     }

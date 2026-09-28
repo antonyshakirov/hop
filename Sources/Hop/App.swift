@@ -357,6 +357,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if CommandLine.arguments.contains("--netfilter-off") {
             model.networkFilter.switchOff()
         }
+        // `Hop --netfilter-set-rules <file>` replaces the rules, to test them end to end.
+        if let i = CommandLine.arguments.firstIndex(of: "--netfilter-set-rules"),
+           CommandLine.arguments.count > i + 1,
+           let text = try? String(contentsOfFile: CommandLine.arguments[i + 1], encoding: .utf8) {
+            model.networkFilter.setRules(NetworkRuleFile.parse(text))
+        }
         #endif
         model.openTorrentAddSheet = { [weak self] source in
             self?.showTorrentAddWindow(source)
