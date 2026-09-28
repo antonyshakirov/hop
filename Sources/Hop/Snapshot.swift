@@ -724,7 +724,7 @@ enum Snapshot {
             }
             content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
                 .environmentObject(model)
-                .frame(width: 640, height: model.networkFilter.state == .on ? 980 : 420))
+                .frame(width: 740, height: model.networkFilter.state == .on ? 980 : 420))
         } else if args.contains("--window-ocr") {
             content = AnyView(ScreenTextWindowView().environmentObject(model)
                 .frame(width: 560))

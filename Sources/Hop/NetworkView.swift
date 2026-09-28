@@ -108,7 +108,7 @@ struct NetworkWindowView: View {
         .padding(.horizontal, 24)
         .padding(.top, 40)
         .padding(.bottom, 20)
-        .frame(minWidth: 560, minHeight: 440, alignment: .top)
+        .frame(minWidth: 660, minHeight: 440, alignment: .top)
         .background(Theme.background)
         .onAppear { if !preview { network.watch() } }
         .onDisappear { if !preview { network.unwatch() } }
@@ -565,24 +565,15 @@ struct NetworkWindowView: View {
                 }
             }
             Spacer(minLength: 6)
-            if own != nil && program.app != NetworkRule.anyProgram {
+            if own != nil {
+                let anyProgram = program.app == NetworkRule.anyProgram
                 Button { network.setDestination(program.app, host, action: nil) } label: {
-                    Image(systemName: "arrow.uturn.backward")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Theme.textTertiary)
+                    HoverLabel(text: t(anyProgram ? .networkRemoveRule : .networkFollowShort), size: 10,
+                               color: Theme.textTertiary)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .hoverDim()
-                .help(t(.networkFollowProgram))
-            }
-            if program.app == NetworkRule.anyProgram {
-                Button { network.setDestination(program.app, host, action: nil) } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Theme.textTertiary)
-                }
-                .buttonStyle(.plain)
-                .hoverDim()
+                .help(anyProgram ? t(.networkRemoveRule) : t(.networkFollowProgram))
             }
             VerdictPill(allowed: allowed, lang: lang, small: true) {
                 network.setDestination(program.app, host, action: allowed ? .deny : .allow)

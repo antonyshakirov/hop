@@ -953,7 +953,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.activity.note()
         if networkWindow == nil {
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 640, height: 560),
+                contentRect: NSRect(x: 0, y: 0, width: 740, height: 600),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
                 backing: .buffered, defer: false
             )
@@ -967,7 +967,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             )
             host.sizingOptions = []
             window.contentViewController = host
-            window.contentMinSize = NSSize(width: 560, height: 360)
+            window.contentMinSize = NSSize(width: 660, height: 360)
             NotificationCenter.default.addObserver(
                 forName: NSWindow.willCloseNotification, object: window, queue: .main
             ) { [weak self] _ in
@@ -978,7 +978,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let window = networkWindow else { return }
         window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         if !window.isVisible {
-            window.setContentSize(NSSize(width: 640, height: 560))
+            window.setContentSize(NSSize(width: 740, height: 600))
             window.center()
         }
         model.networkFilter.watch()
