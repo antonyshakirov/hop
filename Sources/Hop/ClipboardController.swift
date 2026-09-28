@@ -414,7 +414,7 @@ final class ClipboardController: ObservableObject {
         }
     }
 
-    func copyAndPaste(_ item: Item, closePanel: @escaping () -> Void) {
+    func copyAndPaste(_ item: Item, deliverPaste: @escaping () -> Void) {
         copy(item)
         guard AXIsProcessTrusted() else {
             // The copy went through: only the keystroke failed, and the panel
@@ -423,16 +423,7 @@ final class ClipboardController: ObservableObject {
             PermissionRepair.askAgain(.accessibility)
             return
         }
-        closePanel()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            let source = CGEventSource(stateID: .combinedSessionState)
-            let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true) // V
-            keyDown?.flags = .maskCommand
-            let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false)
-            keyUp?.flags = .maskCommand
-            keyDown?.post(tap: .cghidEventTap)
-            keyUp?.post(tap: .cghidEventTap)
-        }
+        deliverPaste()
     }
 
     func clear() {

@@ -53,6 +53,10 @@ macOS la abre como cualquier otra app. El código fuente es público y las
 actualizaciones integradas se verifican con Ed25519. Requiere macOS 14 o
 posterior.
 
+### 2.1.8
+
+- corrección de errores
+
 ### 2.1.7
 
 - macOS 27: las acciones del panel responden al primer clic

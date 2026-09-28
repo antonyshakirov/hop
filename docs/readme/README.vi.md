@@ -50,6 +50,10 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.1.8
+
+- sửa lỗi
+
 ### 2.1.7
 
 - macOS 27: các thao tác trong bảng điều khiển phản hồi ngay lần nhấp đầu tiên

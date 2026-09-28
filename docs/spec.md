@@ -80,18 +80,41 @@ signing would break).
    own ceil'd window, and that per-space leftover surfaced as a persistent 1px
    vertical shift of the fixed chrome (the header sat a point lower on taller
    spaces). Feeding whole-point heights makes chrome + content equal the window
-   exactly — no leftover to place. Switching to a taller/shorter space changes
-   the content height instantly and the measurement trails by one runloop, but
-   the header is out of the scroll, so only the scroll region's bottom edge moves
-   — the header cannot bob, nor be dragged by a leftover scroll offset (each
+   exactly — no leftover to place. Hop keeps each space's most recent measured
+   content height. Returning to a space resizes the popover in the same click
+   without building another panel; the first visit uses the real content reader
+   after layout. On macOS 27 an unseen space first nudges the popover by one point
+   to make inactive-window layout run, then restores its exact measured height.
+   Later measurements follow changes inside that space. Expanding a clipboard,
+   tracker or to-do card invalidates that space's cached height. An expanded
+   height is never cached; closing the card waits for a fresh collapsed
+   measurement before the height can be reused. The header is out of the
+   scroll, so only the scroll region's bottom edge moves — the header cannot
+   bob, nor be dragged by a leftover scroll offset (each
    space/overlay gets a fresh scroll identity that starts at offset 0).
+   The visible popover receives each measured chrome + content height through
+   `contentSize`. On macOS 27 its hosting controller does not publish an
+   independent ideal size constraint: that constraint can restore the previous
+   tab's window height immediately after the explicit resize. Earlier macOS
+   versions keep their original preferred-content-size behaviour.
 6. popover.animates = false; the popover theme follows the setting/system.
 7. A click inside the panel, including a space tab, keeps the popover open even
    if AppKit requests a transient close while keyboard focus returns to the
    previous app. Interactive panel content accepts the first mouse event while
    the panel window is inactive, including space tabs, task rows and app icons.
+   On macOS 27 a nearly transparent nonactivating NSPanel covers only the measured tab
+   strip and forwards tab selections to the existing panel. A tab click then
+   leaves the app underneath active; text fields and the other controls stay in
+   the normal popover with their existing keyboard behaviour. The overlay
+   aligns exactly with the visible tab strip: its hover highlight must sit on
+   the tab, with no second rectangle below or beside it.
    An outside click closes it; an explicit action or Escape can close it while
    the pointer is inside (`PanelDismissalTests`, `SpaceTabButtonTests`).
+8. Switching spaces resizes the visible panel to the new content, including
+   shrinking after a tall space; no empty panel background remains below the
+   shorter space. A single click in another app outside the main panel closes
+   that panel, even though Hop has returned keyboard focus to the other app.
+   Clicking inside the panel still completes the action on the first click.
 
 ## Menu bar icon — corner badges
 
@@ -983,6 +1006,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   managers) is not stored, and everything lives only on this Mac. Pruning a file
   entry off the history never deletes the file on disk. The entry limit is in
   settings.
+  Paste captures the app that was active before Hop opened, closes the panel,
+  returns activation to that app, and sends ⌘V only after macOS reports that it
+  became active. If another app becomes active first, the keystroke is not sent.
+  The copy action does not need Accessibility access; paste does.
 - Images: raw clipboard image data (a screenshot copied straight to the
   clipboard via ⌃⇧⌘4, "copy image" in a browser) is stored as a PNG in
   Application Support (per bundle id); the row shows a small thumbnail and

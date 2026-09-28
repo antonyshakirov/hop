@@ -19,6 +19,7 @@ struct TrackerView: View {
     /// panel can hold the keyboard while typing — otherwise Return in a task
     /// field reaches the panel's global key handler and starts the timer.
     var onEditingChanged: ((Bool) -> Void)? = nil
+    var onCardExpandedChanged: ((Bool) -> Void)? = nil
 
     /// The single field currently accepting text: a new-task entry, a rename,
     /// or a total-time edit. Only one is ever open, so one draft per kind
@@ -958,11 +959,14 @@ struct TrackerView: View {
         clearConfirms()
         card = TaskCardDraft(text: task.name, note: task.note, important: task.important)
         expandedTask = task.id
+        onCardExpandedChanged?(true)
     }
 
     private func collapseCard() {
+        let wasExpanded = expandedTask != nil
         expandedTask = nil
         card = nil
+        if wasExpanded { onCardExpandedChanged?(false) }
     }
 
     private func deleteFromCard(_ task: TrackerTask) {

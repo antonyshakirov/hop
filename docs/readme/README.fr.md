@@ -53,6 +53,10 @@ l'ouvre comme n'importe quelle autre app. Le code source est public et les
 mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
 plus récent.
 
+### 2.1.8
+
+- corrections de bugs
+
 ### 2.1.7
 
 - macOS 27 : les actions du panneau répondent dès le premier clic
