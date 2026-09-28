@@ -102,7 +102,9 @@ signing would break).
    On macOS 27 a nearly transparent nonactivating NSPanel covers only the measured tab
    strip and forwards tab selections to the existing panel. A tab click then
    leaves the app underneath active; text fields and the other controls stay in
-   the normal popover with their existing keyboard behaviour.
+   the normal popover with their existing keyboard behaviour. The overlay
+   aligns exactly with the visible tab strip: its hover highlight must sit on
+   the tab, with no second rectangle below or beside it.
    An outside click closes it; an explicit action or Escape can close it while
    the pointer is inside (`PanelDismissalTests`, `SpaceTabButtonTests`).
 8. Switching spaces resizes the visible panel to the new content, including

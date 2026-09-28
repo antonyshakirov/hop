@@ -107,6 +107,15 @@ final class PanelFirstMouseTests: XCTestCase {
         Self.retainedFixtures.append(contentsOf: [content as AnyObject, controller, anchorWindow, popover])
     }
 
+    func testTabOverlayUsesWindowCoordinatesWithoutAddingContentInsetAgain() {
+        let windowFrame = NSRect(x: 833, y: 82, width: 394, height: 849)
+        let measuredTabRect = CGRect(x: 27, y: 32, width: 234, height: 32)
+        let overlayFrame = StatusItemController.tabPanelFrame(
+            in: windowFrame, for: measuredTabRect)
+
+        XCTAssertEqual(overlayFrame, NSRect(x: 860, y: 867, width: 234, height: 32))
+    }
+
     func testPanelPrefersShorterHeightAfterSwitchingFromLongSpace() {
         let defaults = UserDefaults.standard
         let keys = [SettingsKey.panelTabs, "activeSpaceID", "debugPanelFrameLog",

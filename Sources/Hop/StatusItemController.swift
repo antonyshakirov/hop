@@ -706,7 +706,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
               rect.minX >= 0, rect.minY >= 0,
               rect.maxX <= host.bounds.maxX,
               rect.maxY <= host.bounds.maxY else { return }
-        let frame = window.convertToScreen(host.convert(rect, to: nil))
+        let frame = Self.tabPanelFrame(in: window.frame, for: rect)
         if tabPanel == nil {
             let panel = NonactivatingTabPanel(
                 contentRect: frame, styleMask: [.borderless, .nonactivatingPanel],
@@ -733,6 +733,12 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         if tabPanel.frame != frame { tabPanel.setFrame(frame, display: false) }
         if !tabPanel.isVisible { tabPanel.orderFrontRegardless() }
         PanelFrameLog.write("tabPanel", "frame=\(frame) active=\(NSApp.isActive)")
+    }
+
+    static func tabPanelFrame(in windowFrame: NSRect, for tabRect: CGRect) -> NSRect {
+        NSRect(x: windowFrame.minX + tabRect.minX,
+               y: windowFrame.maxY - tabRect.maxY,
+               width: tabRect.width, height: tabRect.height)
     }
 
     private func tabButton(at localPoint: NSPoint) -> (UUID, NSRect)? {
