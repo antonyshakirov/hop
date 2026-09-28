@@ -47,6 +47,37 @@ final class ScreenTextController: ObservableObject {
         self.clipboard = clipboard
     }
 
+    private var warming = false
+
+    /// SPEC: docs/spec.md — "The first reading after an update is not the slow one".
+    func watchWarmUp() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + LaunchGuard.stableAfter + 5) { [weak self] in
+            self?.warmUpIfDue()
+        }
+        NotificationCenter.default.addObserver(
+            forName: ModuleActivation.didChange, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.warmUpIfDue() }
+        }
+    }
+
+    private func warmUpIfDue() {
+        guard !Snapshot.active, !warming, let executable = Bundle.main.executableURL,
+              let attributes = try? FileManager.default.attributesOfItem(atPath: executable.path),
+              let size = attributes[.size] as? Int,
+              let modified = attributes[.modificationDate] as? Date else { return }
+        let key = RecognitionWarmUp.key(size: size, modified: modified)
+        let defaults = UserDefaults.standard
+        guard RecognitionWarmUp.isDue(warmedFor: defaults.string(forKey: SettingsKey.ocrWarmedFor),
+                                      current: key, moduleOn: ModuleActivation.isOn("ocr")) else { return }
+        warming = true
+        Task {
+            await Self.warmUp()
+            defaults.set(key, forKey: SettingsKey.ocrWarmedFor)
+            warming = false
+        }
+    }
+
     var isBusy: Bool { state == .selecting || state == .reading }
 
     /// The web address in what was just read, if there is one — the reason to
@@ -175,7 +206,7 @@ final class ScreenTextController: ObservableObject {
     private func store(_ text: String) {
         recognized = text
         clipboard.remember(external: text)
-        onResult?()
+        if UserDefaults.standard.bool(forKey: SettingsKey.ocrShowsWindow) { onResult?() }
     }
 
     /// Clear a receipt (or a complaint) after a moment, so the module returns to
@@ -236,6 +267,99 @@ final class ScreenTextController: ObservableObject {
         return result
     }
 
+    /// SPEC: docs/spec.md — "The first reading after an update is not the slow one".
+    nonisolated static func warmUp() async {
+        let interfaceScript = script(of: L10n.current)
+        await Task.detached(priority: .utility) {
+            let supported = (try? VNRecognizeTextRequest().supportedRecognitionLanguages()) ?? []
+            for (index, shape) in RecognitionWarmUp.shapes.enumerated() {
+                for dense in [false, true] {
+                    guard let image = warmUpPage(width: shape.width, height: shape.height, dense: dense)
+                    else { continue }
+                    let handler = VNImageRequestHandler(cgImage: image, options: [:])
+                    try? handler.perform([firstPassRequest(), VNDetectBarcodesRequest()])
+                    guard index == 0, !dense else { continue }
+                    for tags in RecognitionWarmUp.helperTagSets(interface: interfaceScript,
+                                                                supported: supported) {
+                        try? handler.perform([helperPassRequest(tags)])
+                    }
+                }
+            }
+        }.value
+    }
+
+    private nonisolated static func warmUpPage(width: Int, height: Int, dense: Bool) -> CGImage? {
+        guard let rep = NSBitmapImageRep(
+            bitmapDataPlanes: nil, pixelsWide: width, pixelsHigh: height,
+            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+            colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0),
+            let context = NSGraphicsContext(bitmapImageRep: rep) else { return nil }
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = context
+        NSColor.white.setFill()
+        NSRect(x: 0, y: 0, width: width, height: height).fill()
+        let scripts = TextScript.allCases
+        let lengths = [1, 2, 3, 5, 8]
+        let columns = dense && width >= 400 ? 2 : 1
+        var y = 8.0
+        var row = 0
+        while row == 0 || y < Double(height) - 16 {
+            let size = dense ? 11.0 + Double(row % 3) : (row % 7 == 6 ? 44.0 : 18.0 + Double(row % 3 * 3))
+            for column in 0..<columns {
+                let index = row * columns + column
+                let words = warmUpSample(scripts[index % scripts.count]).split(separator: " ")
+                let text = words.prefix(lengths[(index / scripts.count) % lengths.count])
+                    .joined(separator: " ")
+                (text as NSString).draw(
+                    at: NSPoint(x: 16 + Double(column * width / columns), y: y),
+                    withAttributes: [.font: NSFont.systemFont(ofSize: size),
+                                     .foregroundColor: NSColor.black])
+            }
+            y += size * (dense ? 1.5 : 1.6)
+            row += 1
+        }
+        NSGraphicsContext.restoreGraphicsState()
+        return rep.cgImage
+    }
+
+    private nonisolated static func warmUpSample(_ script: TextScript) -> String {
+        let language: AppLanguage
+        switch script {
+        case .latin: language = .en
+        case .cyrillic: language = .ru
+        case .cjk: language = .ja
+        case .hangul: language = .ko
+        case .arabic: language = .ar
+        case .thai: language = .th
+        }
+        let words = L10n.t(.docOcrFull, language).split(whereSeparator: \.isWhitespace)
+            .filter { word in script == .latin || !word.contains { $0.isASCII && $0.isLetter } }
+            .flatMap { word -> [String] in
+                guard script == .cjk || script == .thai else { return [String(word)] }
+                return stride(from: 0, to: word.count, by: 6).map { start in
+                    String(word.dropFirst(start).prefix(6))
+                }
+            }
+        return words.prefix(12).joined(separator: " ")
+    }
+
+    /// SPEC: docs/spec.md — "Languages: Vision detects the script itself".
+    private nonisolated static func firstPassRequest() -> VNRecognizeTextRequest {
+        let request = VNRecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.usesLanguageCorrection = true
+        request.automaticallyDetectsLanguage = true
+        return request
+    }
+
+    private nonisolated static func helperPassRequest(_ tags: [String]) -> VNRecognizeTextRequest {
+        let request = VNRecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.usesLanguageCorrection = true
+        request.recognitionLanguages = tags
+        return request
+    }
+
     private nonisolated static func read(_ file: URL) async -> String? {
         let interfaceScript = script(of: L10n.current)
         return await Task.detached(priority: .userInitiated) {
@@ -243,15 +367,7 @@ final class ScreenTextController: ObservableObject {
                   let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { return nil }
             let handler = VNImageRequestHandler(cgImage: image, options: [:])
 
-            // Pass one: Vision picks the script itself. Measured on a six-script
-            // image, detection returned ALL SIX, while naming those same six
-            // languages explicitly lost the Russian, Arabic and Thai lines. There
-            // is deliberately NO language setting: nobody would find it, and
-            // naming languages makes recognition worse, not better.
-            let textRequest = VNRecognizeTextRequest()
-            textRequest.recognitionLevel = .accurate
-            textRequest.usesLanguageCorrection = true
-            textRequest.automaticallyDetectsLanguage = true
+            let textRequest = firstPassRequest()
             let codeRequest = VNDetectBarcodesRequest()
             do {
                 try handler.perform([textRequest, codeRequest])
@@ -285,10 +401,7 @@ final class ScreenTextController: ObservableObject {
                     supported: supported)
                 if diagnostics { print("  helper tags: \(helperTags)") }
                 if !helperTags.isEmpty {
-                    let second = VNRecognizeTextRequest()
-                    second.recognitionLevel = .accurate
-                    second.usesLanguageCorrection = true
-                    second.recognitionLanguages = helperTags
+                    let second = helperPassRequest(helperTags)
                     if (try? handler.perform([second])) != nil {
                         let secondObservations = second.results ?? []
                         let secondOrder = ScreenTextRules.readingOrder(

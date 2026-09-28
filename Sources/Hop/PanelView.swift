@@ -76,6 +76,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.menuBarRedAlertBattery) private var menuBarRedAlertBattery = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
+    @AppStorage(SettingsKey.ocrShowsWindow) private var ocrShowsWindow = true
     @AppStorage(SettingsKey.vpnHoldOff) private var vpnHoldOff = true
     @AppStorage(SettingsKey.toolsOneRow) private var toolsOneRow = false
     @AppStorage(SettingsKey.clipboardToFile) private var clipboardToFile = false
@@ -3849,6 +3850,7 @@ struct PanelView: View {
         case "windows": windowsSettings
         case "shot": shotSettings
         case "annotate": annotateSettings
+        case "ocr": ocrSettings
         default: EmptyView()
         }
     }
@@ -4278,6 +4280,12 @@ struct PanelView: View {
                 .font(Theme.mono(8))
                 .foregroundStyle(Theme.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var ocrSettings: some View {
+        VStack(spacing: 14) {
+            switchSetting(t(.settingsOcrWindow), isOn: $ocrShowsWindow)
         }
     }
 
