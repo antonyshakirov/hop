@@ -174,6 +174,9 @@ final class PanelFirstMouseTests: XCTestCase {
         model.isPanelOpen = { true }
         var immediateHeight: CGFloat?
         model.panelContentSizeWillChange = { [weak popover] size in
+            // a space measured before is resized from its cached height at once,
+            // and then no later measurement differs: either report counts
+            measuredSizes.append(size)
             popover?.contentSize = size
             immediateHeight = popover?.contentSize.height
         }
