@@ -155,10 +155,7 @@ final class PanelFirstMouseTests: XCTestCase {
         window.contentView = anchor
         window.orderFront(nil)
         let popover = NSPopover()
-        // Sizing only: a transient popover closes when the app is deactivated on a
-        // CI runner, and a closed popover reports no height. PanelDismissalTests
-        // cover closing.
-        popover.behavior = .applicationDefined
+        popover.behavior = .transient
         popover.animates = false
         popover.contentViewController = controller
         model.panelContentSizeChanged = { [weak popover] size in
@@ -191,7 +188,9 @@ final class PanelFirstMouseTests: XCTestCase {
         }
         controller.view.layoutSubtreeIfNeeded()
         let shortHeight = popover.contentSize.height
-        print("PANEL TEST tall=\(tallHeight) short=\(shortHeight)")
+        print("PANEL TEST tall=\(tallHeight) short=\(shortHeight) shown=\(popover.isShown) "
+              + "window=\(controller.view.window?.frame.height ?? -1) view=\(controller.view.frame.height) "
+              + "reported=\(measuredSizes.map(\.height)) immediate=\(immediateHeight ?? -1)")
         XCTAssertLessThan(shortHeight, tallHeight - 100,
                           "panel should not leave an empty background below a shorter tab")
         XCTAssertLessThan(measuredSizes.last?.height ?? .infinity, tallHeight - 100,
