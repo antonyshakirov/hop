@@ -298,7 +298,7 @@ final class ScreenTextController: ObservableObject {
         NSGraphicsContext.current = context
         NSColor.white.setFill()
         NSRect(x: 0, y: 0, width: width, height: height).fill()
-        let scripts = TextScript.allCases
+        let languages = warmUpLanguages
         let lengths = [1, 2, 3, 5, 8]
         let columns = dense && width >= 400 ? 2 : 1
         var y = 8.0
@@ -307,8 +307,8 @@ final class ScreenTextController: ObservableObject {
             let size = dense ? 11.0 + Double(row % 3) : (row % 7 == 6 ? 44.0 : 18.0 + Double(row % 3 * 3))
             for column in 0..<columns {
                 let index = row * columns + column
-                let words = warmUpSample(scripts[index % scripts.count]).split(separator: " ")
-                let text = words.prefix(lengths[(index / scripts.count) % lengths.count])
+                let words = warmUpSample(languages[index % languages.count]).split(separator: " ")
+                let text = words.prefix(lengths[(index / languages.count) % lengths.count])
                     .joined(separator: " ")
                 (text as NSString).draw(
                     at: NSPoint(x: 16 + Double(column * width / columns), y: y),
@@ -322,23 +322,23 @@ final class ScreenTextController: ObservableObject {
         return rep.cgImage
     }
 
-    private nonisolated static func warmUpSample(_ script: TextScript) -> String {
-        let language: AppLanguage
-        switch script {
-        case .latin: language = .en
-        case .cyrillic: language = .ru
-        case .cjk: language = .ja
-        case .hangul: language = .ko
-        case .arabic: language = .ar
-        case .thai: language = .th
-        }
+    private nonisolated static let warmUpLanguages: [AppLanguage] = [.en, .ru, .zh, .ja, .ko, .ar, .th]
+
+    private nonisolated static func warmUpSample(_ language: AppLanguage) -> String {
+        let unspaced: Set<AppLanguage> = [.zh, .ja, .th]
         let words = L10n.t(.docOcrFull, language).split(whereSeparator: \.isWhitespace)
-            .filter { word in script == .latin || !word.contains { $0.isASCII && $0.isLetter } }
+            .filter { word in language == .en || !word.contains { $0.isASCII && $0.isLetter } }
             .flatMap { word -> [String] in
-                guard script == .cjk || script == .thai else { return [String(word)] }
-                return stride(from: 0, to: word.count, by: 6).map { start in
-                    String(word.dropFirst(start).prefix(6))
+                guard unspaced.contains(language) else { return [String(word)] }
+                let sizes = [1, 2, 3, 4, 6, 8]
+                var pieces: [String] = []
+                var rest = Substring(word)
+                while !rest.isEmpty {
+                    let size = sizes[pieces.count % sizes.count]
+                    pieces.append(String(rest.prefix(size)))
+                    rest = rest.dropFirst(size)
                 }
+                return pieces
             }
         return words.prefix(12).joined(separator: " ")
     }

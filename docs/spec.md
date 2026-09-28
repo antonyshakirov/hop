@@ -2582,21 +2582,29 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   one waited for the compile — measured 12 to 60 s, with nothing on screen,
   which reads as a hotkey that did not work. Every later reading takes 0.05 to
   0.3 s. Hop now pays the compile itself: 35 s after launch, or when the module
-  is switched on, it reads pages it draws — every script it tells apart, lines
-  short and long, a screen, a wide block, a square and a single line — through
-  both passes (the second with the language sets `ScriptMerge.helperLanguages`
-  picks for Latin plus the interface script). Utility priority, about a minute
-  of the system's model compiler, once per executable (`RecognitionWarmUp`,
-  keyed by the executable's size and date; `ocrWarmedFor`). The sample lines
-  are Hop's own "how it works" text for recognition in English, Russian,
-  Japanese, Korean, Arabic and Thai, so the code carries no foreign text of
-  its own. Nothing is stored: no history entry, no pasteboard, no window.
-  Measured after it: most real captures read in 0.04 to 0.3 s on first sight;
-  some frames still compile one more model once, ~12 s — a chat list with
-  round logos, a picture that sends Arabic through the second pass — and
-  drawing those features into the warm-up pages (logos, light on dark, large
-  and dense text, every script alone in the second pass) did not reach them.
-  Running on the CPU instead does not avoid the compile (154 s cold).
+  is switched on, it reads pages it draws — English, Russian, Chinese,
+  Japanese, Korean, Arabic and Thai lines, short and long, on a screen, a wide
+  block, a square and a single line, sparse and dense — through both passes
+  (the second with the language sets `ScriptMerge.helperLanguages` picks for
+  Latin plus the interface script). Utility priority, 75 to 95 s of the
+  system's model compiler, once per executable (`RecognitionWarmUp`, keyed by
+  the executable's size and date; `ocrWarmedFor`). The sample lines are Hop's
+  own "how it works" text for recognition in those languages, so the code
+  carries no foreign text of its own. Nothing is stored: no history entry, no
+  pasteboard, no window.
+  - Why the Chinese and Japanese lines come in pieces of one to eight
+    characters: most of Vision's line readers ship precompiled, but the one
+    for Chinese and Japanese (`cr_tr_model_cj_v3`) is compiled on the spot for
+    each WIDTH of line it meets, 14 to 22 s each. A Latin or Cyrillic screen
+    reaches it too — a round logo or an icon is read as a character — and
+    those are one or two characters wide. Warmed with long lines only, a chat
+    list with logos still waited 12 s; found by `log stream` on the process
+    (`E5BundleCache Lookup … exists=0` before `MILCompilerForE5`).
+  - Measured after it on a fresh executable (2026-09-28): 30 pictures —
+    real captures of every size, Chinese and Japanese pages with short and
+    long lines, Korean, Arabic, Thai and Hindi — 0.02 to 0.36 s each, in a
+    Russian and in an English interface. Running on the CPU instead does not
+    avoid the compile (154 s cold).
   `Hop --ocr-warmup [--ocr-selftest <image>…]` times it.
 
 ### Languages
