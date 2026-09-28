@@ -12,7 +12,6 @@ final class NetworkFilterController: NSObject, ObservableObject {
     enum State: Equatable {
         case off
         case installing
-        /// macOS is waiting for the user in System Settings.
         case needsApproval
         case on
         case failed(String)
@@ -21,17 +20,13 @@ final class NetworkFilterController: NSObject, ObservableObject {
     @Published private(set) var state: State = .off
     @Published private(set) var rules: [NetworkRule] = []
     @Published private(set) var sightings: [NetworkSighting] = []
-    /// Every app in the Applications folders, so any of them can be ruled on
-    /// before it ever connects. Read when the window opens.
     @Published private(set) var installed: [(id: String, name: String)] = []
 
     var programs: [NetworkProgram] { NetworkProgram.group(sightings, rules: rules) }
     private var connection: NSXPCConnection?
     private var watcher: Timer?
 
-    /// Connections waiting for an answer, oldest first.
     @Published private(set) var questions: [NetworkSighting] = []
-    /// The filter process went away while on: traffic flows unchecked until it is back.
     @Published private(set) var stopped = false
     private var replies: [String: (String) -> Void] = [:]
     private let receiver = AskReceiver()
@@ -114,7 +109,6 @@ final class NetworkFilterController: NSObject, ObservableObject {
         state = .on
     }
 
-    /// The system remembers a filter across launches; the row should too.
     private func readSystemState() async {
         let manager = NEFilterManager.shared()
         guard (try? await manager.loadFromPreferences()) != nil else { return }
@@ -132,7 +126,6 @@ final class NetworkFilterController: NSObject, ObservableObject {
         setRules(next)
     }
 
-    /// nil takes the destination's own rule away, so it follows the program again.
     func setDestination(_ app: String, _ host: String, action: NetworkRule.Action?) {
         let normalized = NetworkRule(app: app, host: host, action: .allow).host
         var next = rules.filter { !($0.app == app && $0.host == normalized) }
@@ -144,14 +137,12 @@ final class NetworkFilterController: NSObject, ObservableObject {
         setRules(rules.filter { $0 != rule })
     }
 
-    /// What a connection from `app` to `host` gets right now.
     func verdict(_ app: String, _ host: String) -> NetworkRule.Action {
         NetworkRules.verdict(for: NetworkFlow(apps: [app], hostname: host, address: host), rules: rules)
     }
 
     // MARK: what the filter saw
 
-    /// Asked only while the window is open: nothing polls in the background.
     func watch() {
         loadInstalled()
         guard watcher == nil, !Snapshot.active else { return }
@@ -183,7 +174,6 @@ final class NetworkFilterController: NSObject, ObservableObject {
         }
     }
 
-    /// Rules from a file, merged over the current ones; how many it brought.
     func importRules(from url: URL) -> Int? {
         guard let text = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         let incoming = NetworkRuleFile.parse(text)
@@ -204,8 +194,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
         connection = nil
     }
 
-    /// SPEC: docs/spec.md — "Network access", a stopped filter. Said once,
-    /// then the row carries it until the filter answers again.
+    /// SPEC: docs/spec.md — "Network access", a stopped filter.
     private func filterStopped() {
         guard state == .on else { return }
         if !stopped {
@@ -234,7 +223,6 @@ final class NetworkFilterController: NSObject, ObservableObject {
 
     // MARK: questions
 
-    /// The filter asks only while this app says it will answer.
     func syncAsking() {
         guard !Snapshot.active else { return }
         if state == .on {
@@ -265,7 +253,6 @@ final class NetworkFilterController: NSObject, ObservableObject {
 
     static func key(_ sighting: NetworkSighting) -> String { sighting.app + " " + sighting.destination }
 
-    /// The answer becomes a rule, so the question is not asked again.
     func answer(_ sighting: NetworkSighting, _ action: NetworkRule.Action, wholeProgram: Bool) {
         if wholeProgram {
             setProgram(sighting.app, allowed: action == .allow)
@@ -412,7 +399,6 @@ extension NetworkFilterController: OSSystemExtensionRequestDelegate {
     }
 }
 
-/// Receives the filter's questions on the XPC queue and hands them to the app.
 private final class AskReceiver: NSObject, NetworkFilterAskerXPC, @unchecked Sendable {
     var onAsk: ((Data, @escaping (String) -> Void) -> Void)?
 

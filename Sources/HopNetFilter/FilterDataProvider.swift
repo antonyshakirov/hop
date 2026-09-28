@@ -4,8 +4,7 @@ import NetworkExtension
 import Security
 import os.log
 
-/// SPEC: docs/spec.md — "Network access". Decides every outgoing connection at
-/// its first packet and never looks inside it.
+/// SPEC: docs/spec.md — "Network access".
 final class FilterDataProvider: NEFilterDataProvider {
     private let log = Logger(subsystem: "com.antonshakirov.minimo.netfilter", category: "filter")
     private let queue = DispatchQueue(label: "netfilter.resolve")
@@ -43,8 +42,7 @@ final class FilterDataProvider: NEFilterDataProvider {
         let apps = [owner.id, process.id].compactMap { $0 }
         let current = NetworkFlow(apps: apps, hostname: socket.remoteHostname, address: endpoint.hostname)
         #if DEBUG
-        // SPEC: docs/spec.md — "Network access": a dev build falls over on a
-        // connection to TEST-NET-1, to check what a stopped filter does.
+        // SPEC: docs/spec.md — "Network access", a stopped filter (dev builds only).
         if current.address == "192.0.2.1" { exit(3) }
         #endif
         let addresses = queue.sync { resolved }

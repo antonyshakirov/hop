@@ -8,8 +8,7 @@ import Foundation
     func setAsking(_ on: Bool)
 }
 
-/// What the filter may ask the app: a JSON `NetworkSighting` in, and the
-/// answer back — "allow", "deny", or "" for no answer.
+/// A JSON `NetworkSighting` in; "allow", "deny", or "" for no answer back.
 @objc public protocol NetworkFilterAskerXPC {
     func ask(_ sighting: Data, reply: @escaping (String) -> Void)
 }

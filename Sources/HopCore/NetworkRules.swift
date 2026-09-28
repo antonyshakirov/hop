@@ -38,8 +38,7 @@ public struct NetworkFlow: Sendable {
 public enum NetworkRules {
     public static let configurationKey = "rules"
 
-    /// A rule for a destination beats a rule for the whole program; between
-    /// equals, deny wins. With no rule the connection goes through.
+    /// Destination rules beat the program's switch; deny wins between equals.
     public static func verdict(for flow: NetworkFlow, rules: [NetworkRule],
                                addresses: [String: Set<String>] = [:]) -> NetworkRule.Action {
         ruled(flow, rules: rules, addresses: addresses) ?? .allow
@@ -62,8 +61,7 @@ public enum NetworkRules {
         return whole.contains { $0.action == .deny } ? .deny : .allow
     }
 
-    /// Hosts the filter has to resolve itself: a program that looks an address
-    /// up on its own reaches the filter with the address and no name.
+    /// Rule hosts to resolve: a connection may arrive as a bare address.
     public static func hostsToResolve(_ rules: [NetworkRule]) -> Set<String> {
         Set(rules.compactMap(\.host).filter { !isAddress($0) })
     }
@@ -96,9 +94,6 @@ public enum NetworkRules {
 
 /// SPEC: docs/spec.md — "Network access", rules from a file.
 public enum NetworkRuleFile {
-    /// JSON as Hop saves it, or text: one address per line (blocked for every
-    /// program), a hosts file, or `program address [allow|block]` lines where
-    /// `*` as the address stands for the whole program.
     public static func parse(_ text: String) -> [NetworkRule] {
         if let data = text.data(using: .utf8),
            let rules = try? JSONDecoder().decode([NetworkRule].self, from: data) {
@@ -119,7 +114,6 @@ public enum NetworkRuleFile {
                 words.removeFirst()
             }
             if NetworkRules.isAddress(words[0]) {
-                // a hosts file: the address it points names at, then the names
                 for name in words.dropFirst() where name != "localhost" && !name.hasSuffix(".localdomain") {
                     rules.append(NetworkRule(app: NetworkRule.anyProgram, host: name, action: .deny))
                 }

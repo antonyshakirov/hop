@@ -2,8 +2,7 @@ import AppKit
 import HopCore
 import SwiftUI
 
-/// SPEC: docs/spec.md — "Network access", questions. A card at the top right
-/// that asks about one connection at a time and never takes the focus.
+/// SPEC: docs/spec.md — "Network access", questions.
 @MainActor
 enum NetworkQuestionPanel {
     private static var panel: NSPanel?

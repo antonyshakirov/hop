@@ -1,7 +1,6 @@
 import Foundation
 
-/// SPEC: docs/spec.md — "Network access". One program reaching one destination,
-/// however many times: what the window lists under that program.
+/// SPEC: docs/spec.md — "Network access". One program reaching one destination.
 public struct NetworkSighting: Codable, Hashable, Sendable {
     public var app: String
     /// The program's executable, for its name and icon.

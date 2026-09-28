@@ -3,9 +3,7 @@ import HopCore
 import NetworkExtension
 import Security
 
-/// SPEC: docs/spec.md — "Network access". Keeps what the filter saw and hands it
-/// to the app over the extension's Mach service — only to code signed by the
-/// same team.
+/// SPEC: docs/spec.md — "Network access", who may talk to the filter.
 final class FilterService: NSObject, NSXPCListenerDelegate, NetworkFilterXPC {
     static let shared = FilterService()
 
@@ -49,7 +47,6 @@ final class FilterService: NSObject, NSXPCListenerDelegate, NetworkFilterXPC {
         queue.async { self.asker = on ? connection : nil }
     }
 
-    /// An answer given a moment ago still stands while its rule is on its way.
     func recentAnswer(_ key: String) -> NetworkRule.Action? {
         queue.sync {
             guard let (action, at) = answered[key], Date().timeIntervalSince(at) < 60 else { return nil }
@@ -57,7 +54,6 @@ final class FilterService: NSObject, NSXPCListenerDelegate, NetworkFilterXPC {
         }
     }
 
-    /// Holds the flow; the first flow of a key asks, the rest wait with it.
     func ask(key: String, sighting: NetworkSighting, flow: NEFilterFlow) {
         queue.async {
             if self.waiting[key] != nil {
@@ -76,7 +72,7 @@ final class FilterService: NSObject, NSXPCListenerDelegate, NetworkFilterXPC {
         }
     }
 
-    /// No answer lets the connection through: a question must never hang the Mac.
+    // SPEC: docs/spec.md — "Network access", questions: no answer lets it through.
     private func resolve(_ key: String, _ answer: NetworkRule.Action?) {
         queue.async {
             guard let flows = self.waiting.removeValue(forKey: key) else { return }

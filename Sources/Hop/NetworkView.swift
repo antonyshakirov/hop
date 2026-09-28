@@ -2,8 +2,7 @@ import AppKit
 import HopCore
 import SwiftUI
 
-/// SPEC: docs/spec.md — "Network access". The module's row in the panel: the
-/// name opens the window, the switch turns the filter on and off.
+/// SPEC: docs/spec.md — "Network access", the row in the panel.
 struct NetworkView: View {
     @ObservedObject var network: NetworkFilterController
     let lang: AppLanguage
@@ -92,8 +91,7 @@ struct NetworkWindowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             header
-            // SPEC: docs/spec.md — "Network access": nothing to set up until the
-            // filter runs, or the switches would look as if they worked.
+            // SPEC: docs/spec.md — "Network access", nothing to set up until the filter runs.
             if network.state == .on {
                 toolbar
                 if let note {
@@ -416,7 +414,7 @@ struct NetworkWindowView: View {
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
         } else if staged {
-            // A ScrollView renders empty in a snapshot: renders get the sections bare.
+            // WORKAROUND: a ScrollView renders empty in a snapshot.
             sections(seen: seen, any: any, others: others)
             Spacer(minLength: 0)
         } else {
@@ -457,7 +455,6 @@ struct NetworkWindowView: View {
         }
     }
 
-    /// Destinations seen, then those with a rule made ahead of time.
     private func destinations(_ program: NetworkProgram) -> [String] {
         var hosts = program.destinations.map(\.destination)
         for rule in network.rules where rule.app == program.app {
@@ -593,8 +590,7 @@ struct NetworkWindowView: View {
     }
 }
 
-/// "allowed" in green or "blocked" in red: a switch alone did not say which
-/// way it was set. A click turns it over.
+/// SPEC: docs/spec.md — "Network access", the allowed / blocked label.
 struct VerdictPill: View {
     let allowed: Bool
     let lang: AppLanguage
@@ -617,7 +613,6 @@ struct VerdictPill: View {
     }
 }
 
-/// A program's name and icon from its signing identifier and executable path.
 @MainActor
 enum NetworkProgramLook {
     private static var cache: [String: (name: String, icon: NSImage)] = [:]
@@ -625,8 +620,7 @@ enum NetworkProgramLook {
     static func name(_ app: String, _ path: String?) -> String { look(app, path).name }
     static func icon(_ app: String, _ path: String?) -> NSImage { look(app, path).icon }
 
-    /// A plain bitmap: the system's layered icon renders as a grey veil over the
-    /// whole snapshot, and a flat picture is cheaper to redraw in a long list.
+    // WORKAROUND: the system's layered icon renders as a grey veil over a snapshot.
     private static func flattened(_ icon: NSImage) -> NSImage {
         guard let rep = NSBitmapImageRep(
             bitmapDataPlanes: nil, pixelsWide: 72, pixelsHigh: 72, bitsPerSample: 8, samplesPerPixel: 4,
