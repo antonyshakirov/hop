@@ -714,9 +714,12 @@ enum Snapshot {
             .padding(14)
             .background(Theme.panelBackground))
         } else if args.contains("--window-network") {
+            if let i = args.firstIndex(of: "--network-state"), args.count > i + 1 {
+                model.networkFilter.stageForSnapshot(args[i + 1])
+            }
             content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
                 .environmentObject(model)
-                .frame(width: 640, height: 560))
+                .frame(width: 640, height: model.networkFilter.state == .on ? 980 : 420))
         } else if args.contains("--window-ocr") {
             content = AnyView(ScreenTextWindowView().environmentObject(model)
                 .frame(width: 560))

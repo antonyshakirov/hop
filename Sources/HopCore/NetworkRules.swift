@@ -6,6 +6,9 @@ public struct NetworkRule: Codable, Hashable, Sendable {
         case allow, deny
     }
 
+    /// Stands for every program in a rule about one address.
+    public static let anyProgram = "*"
+
     /// The code-signing identifier of the program, e.g. `com.apple.curl`.
     public var app: String
     /// nil covers every destination of the program.
@@ -39,14 +42,16 @@ public enum NetworkRules {
     /// equals, deny wins. With no rule the connection goes through.
     public static func verdict(for flow: NetworkFlow, rules: [NetworkRule],
                                addresses: [String: Set<String>] = [:]) -> NetworkRule.Action {
-        let mine = rules.filter { flow.apps.contains($0.app) }
-        let forHost = mine.filter { rule in
-            guard let host = rule.host else { return false }
+        let forHost = rules.filter { rule in
+            guard let host = rule.host, rule.app == NetworkRule.anyProgram || flow.apps.contains(rule.app)
+            else { return false }
             return covers(host, flow.hostname) || addresses[host]?.contains(flow.address) == true
                 || host == flow.address
         }
-        if !forHost.isEmpty { return forHost.contains { $0.action == .deny } ? .deny : .allow }
-        let whole = mine.filter { $0.host == nil }
+        let own = forHost.filter { $0.app != NetworkRule.anyProgram }
+        let deciding = own.isEmpty ? forHost : own
+        if !deciding.isEmpty { return deciding.contains { $0.action == .deny } ? .deny : .allow }
+        let whole = rules.filter { $0.host == nil && flow.apps.contains($0.app) }
         return whole.contains { $0.action == .deny } ? .deny : .allow
     }
 
@@ -79,5 +84,63 @@ public enum NetworkRules {
         var value = host.lowercased().trimmingCharacters(in: .whitespaces)
         while value.hasSuffix(".") { value.removeLast() }
         return value
+    }
+}
+
+/// SPEC: docs/spec.md — "Network access", rules from a file.
+public enum NetworkRuleFile {
+    /// JSON as Hop saves it, or text: one address per line (blocked for every
+    /// program), a hosts file, or `program address [allow|block]` lines where
+    /// `*` as the address stands for the whole program.
+    public static func parse(_ text: String) -> [NetworkRule] {
+        if let data = text.data(using: .utf8),
+           let rules = try? JSONDecoder().decode([NetworkRule].self, from: data) {
+            return rules
+        }
+        var rules: [NetworkRule] = []
+        for raw in text.split(whereSeparator: \.isNewline) {
+            let line = raw.split(separator: "#", maxSplits: 1, omittingEmptySubsequences: false).first ?? ""
+            var words = line.split(whereSeparator: \.isWhitespace).map(String.init)
+            guard !words.isEmpty else { continue }
+            var action = NetworkRule.Action.deny
+            if let last = words.last?.lowercased(), ["allow", "block", "deny"].contains(last), words.count > 1 {
+                action = last == "allow" ? .allow : .deny
+                words.removeLast()
+            }
+            if let first = words.first?.lowercased(), ["allow", "block", "deny"].contains(first), words.count > 1 {
+                action = first == "allow" ? .allow : .deny
+                words.removeFirst()
+            }
+            if NetworkRules.isAddress(words[0]) {
+                // a hosts file: the address it points names at, then the names
+                for name in words.dropFirst() where name != "localhost" && !name.hasSuffix(".localdomain") {
+                    rules.append(NetworkRule(app: NetworkRule.anyProgram, host: name, action: .deny))
+                }
+                continue
+            }
+            switch words.count {
+            case 1 where words[0] != "*":
+                rules.append(NetworkRule(app: NetworkRule.anyProgram, host: words[0], action: action))
+            case 2... where words[1] == "*":
+                rules.append(NetworkRule(app: words[0], action: action))
+            case 2...:
+                rules.append(NetworkRule(app: words[0], host: words[1], action: action))
+            default:
+                break
+            }
+        }
+        return rules
+    }
+
+    public static func text(_ rules: [NetworkRule]) -> String {
+        rules.map { rule in
+            "\(rule.app) \(rule.host ?? "*") \(rule.action == .allow ? "allow" : "block")"
+        }.joined(separator: "\n") + "\n"
+    }
+
+    /// The file wins where it names the same program and address.
+    public static func merge(_ current: [NetworkRule], _ incoming: [NetworkRule]) -> [NetworkRule] {
+        let replaced = Set(incoming.map { "\($0.app) \($0.host ?? "")" })
+        return current.filter { !replaced.contains("\($0.app) \($0.host ?? "")") } + incoming
     }
 }

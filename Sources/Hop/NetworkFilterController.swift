@@ -21,6 +21,9 @@ final class NetworkFilterController: NSObject, ObservableObject {
     @Published private(set) var state: State = .off
     @Published private(set) var rules: [NetworkRule] = []
     @Published private(set) var sightings: [NetworkSighting] = []
+    /// Every app in the Applications folders, so any of them can be ruled on
+    /// before it ever connects. Read when the window opens.
+    @Published private(set) var installed: [(id: String, name: String)] = []
 
     var programs: [NetworkProgram] { NetworkProgram.group(sightings, rules: rules) }
     private var connection: NSXPCConnection?
@@ -51,6 +54,16 @@ final class NetworkFilterController: NSObject, ObservableObject {
         NSWorkspace.shared.open(url)
     }
 
+    /// `--network-state off|approval|failed` for the renders of the setup card.
+    func stageForSnapshot(_ name: String) {
+        switch name {
+        case "off": state = .off
+        case "approval": state = .needsApproval
+        case "failed": state = .failed("")
+        default: break
+        }
+    }
+
     /// Staged programs for the design and marketing renders.
     private func loadDemo() {
         let now = Date()
@@ -72,7 +85,11 @@ final class NetworkFilterController: NSObject, ObservableObject {
             seen("com.apple.curl", "/usr/bin/curl", "example.com", "80", 2, 55),
         ]
         rules = [NetworkRule(app: "com.apple.Music", host: "license.example.com", action: .deny),
-                 NetworkRule(app: "com.apple.Notes", action: .deny)]
+                 NetworkRule(app: "com.apple.Notes", action: .deny),
+                 NetworkRule(app: NetworkRule.anyProgram, host: "tracker.example.com", action: .deny)]
+        installed = [("com.apple.Maps", "Maps"), ("com.apple.Music", "Music"), ("com.apple.Notes", "Notes"),
+                     ("com.apple.Photos", "Photos"), ("com.apple.Safari", "Safari"),
+                     ("com.apple.TextEdit", "TextEdit")]
         state = .on
     }
 
@@ -114,11 +131,47 @@ final class NetworkFilterController: NSObject, ObservableObject {
 
     /// Asked only while the window is open: nothing polls in the background.
     func watch() {
+        loadInstalled()
         guard watcher == nil, !Snapshot.active else { return }
         fetch()
         watcher = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.fetch() }
         }
+    }
+
+    private func loadInstalled() {
+        guard installed.isEmpty else { return }
+        Task.detached(priority: .utility) {
+            let home = FileManager.default.homeDirectoryForCurrentUser.path
+            let folders = ["/Applications", "/Applications/Utilities", "/System/Applications",
+                           "/System/Applications/Utilities", home + "/Applications"]
+            var seen = Set<String>()
+            var apps: [(id: String, name: String)] = []
+            for folder in folders {
+                let names = (try? FileManager.default.contentsOfDirectory(atPath: folder)) ?? []
+                for name in names where name.hasSuffix(".app") {
+                    guard let id = Bundle(path: folder + "/" + name)?.bundleIdentifier,
+                          seen.insert(id).inserted else { continue }
+                    apps.append((id, String(name.dropLast(4))))
+                }
+            }
+            apps.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            let found = apps
+            await MainActor.run { self.installed = found }
+        }
+    }
+
+    /// Rules from a file, merged over the current ones; how many it brought.
+    func importRules(from url: URL) -> Int? {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        let incoming = NetworkRuleFile.parse(text)
+        guard !incoming.isEmpty else { return 0 }
+        setRules(NetworkRuleFile.merge(rules, incoming))
+        return incoming.count
+    }
+
+    func exportRules(to url: URL) -> Bool {
+        (try? NetworkRuleFile.text(rules).write(to: url, atomically: true, encoding: .utf8)) != nil
     }
 
     func unwatch() {
