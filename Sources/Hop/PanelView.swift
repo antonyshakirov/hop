@@ -5583,6 +5583,18 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textSecondary)
                 FooterLink(url: productPageURL, label: t(.aboutProductPage))
             }
+            let social = HopSocial.links(forLanguage: lang.rawValue)
+            if !social.isEmpty {
+                HStack(spacing: 6) {
+                    ForEach(Array(social.enumerated()), id: \.offset) { index, link in
+                        if index > 0 {
+                            Text("·")
+                                .foregroundStyle(Theme.textSecondary)
+                        }
+                        FooterLink(url: link.url, label: link.label)
+                    }
+                }
+            }
         }
         .font(Theme.mono(11))
     }
