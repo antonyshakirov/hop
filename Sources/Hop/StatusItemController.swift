@@ -13,9 +13,78 @@ private final class FirstMousePanelView: NSHostingView<AnyView> {
 }
 
 @MainActor
+private final class NonactivatingTabView: NSView {
+    var buttonAtPoint: ((NSPoint) -> (UUID, NSRect)?)?
+    var onClick: ((UUID) -> Void)?
+    private var pressedButton: UUID?
+    private var hoveredRect: NSRect?
+    private var trackingArea: NSTrackingArea?
+
+    override var isFlipped: Bool { true }
+    override var needsPanelToBecomeKey: Bool { false }
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let trackingArea { removeTrackingArea(trackingArea) }
+        let area = NSTrackingArea(
+            rect: bounds,
+            options: [.mouseEnteredAndExited, .mouseMoved, .activeAlways, .inVisibleRect],
+            owner: self, userInfo: nil)
+        addTrackingArea(area)
+        trackingArea = area
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        guard let hoveredRect else { return }
+        NSColor(Theme.hoverBg).setFill()
+        NSBezierPath(roundedRect: hoveredRect, xRadius: 6, yRadius: 6).fill()
+    }
+
+    override func mouseMoved(with event: NSEvent) {
+        let point = convert(event.locationInWindow, from: nil)
+        let rect = buttonAtPoint?(point)?.1
+        if hoveredRect != rect {
+            hoveredRect = rect
+            needsDisplay = true
+        }
+        (rect == nil ? NSCursor.arrow : NSCursor.pointingHand).set()
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        hoveredRect = nil
+        pressedButton = nil
+        needsDisplay = true
+        NSCursor.arrow.set()
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        pressedButton = buttonAtPoint?(convert(event.locationInWindow, from: nil))?.0
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        defer { pressedButton = nil }
+        let releasedButton = buttonAtPoint?(convert(event.locationInWindow, from: nil))?.0
+        if releasedButton == pressedButton, let releasedButton {
+            onClick?(releasedButton)
+        }
+    }
+}
+
+@MainActor
+private final class NonactivatingTabPanel: NSPanel {
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
+}
+
+@MainActor
 final class IntegralSizeHostingController: NSHostingController<AnyView> {
     func enableFirstMouse() {
         view = FirstMousePanelView(rootView: rootView)
+    }
+
+    func enableExplicitPopoverSizing() {
+        sizingOptions = []
     }
 
     override var preferredContentSize: NSSize {
@@ -29,6 +98,22 @@ final class IntegralSizeHostingController: NSHostingController<AnyView> {
     }
 }
 
+@MainActor
+final class PasteActivationGate {
+    let targetPID: pid_t
+    private(set) var pending = true
+
+    init(targetPID: pid_t) { self.targetPID = targetPID }
+
+    func consume(activatedPID: pid_t) -> Bool {
+        guard pending, activatedPID == targetPID else { return false }
+        pending = false
+        return true
+    }
+
+    func cancel() { pending = false }
+}
+
 /// Native status item: left click shows the popover with the panel,
 /// right click shows the context menu (open / about / settings / quit).
 @MainActor
@@ -37,6 +122,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let statusItem: NSStatusItem
     private let popover = NSPopover()
     private var explicitPopoverClose = false
+    private var outsideClickProbe: Any?
+    private var pasteActivationObserver: NSObjectProtocol?
+    private var pasteActivationGate: PasteActivationGate?
+    private var popoverResizeScheduled = false
+    private var pendingPanelSize: NSSize?
+    private var lastResizedPreferred: NSSize?
+    private var focusYieldPending = false
+    private var tabPanel: NonactivatingTabPanel?
     private var cancellable: AnyCancellable?
     private var clockCancellable: AnyCancellable?
     /// Redraws the icon when the menu bar's appearance changes under it.
@@ -60,9 +153,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .hopLayoutDirection()
         ))
-        // preferredContentSize: the popover tracks the SwiftUI content size
-        // without animating the first recalculation (fixes the shifted first click on monitor)
-        host.sizingOptions = .preferredContentSize
+        // SPEC: docs/spec.md, panel height is driven by the measured chrome and content.
+        // macOS 27 can restore the old height after an explicit popover resize if
+        // the hosting controller still publishes its own ideal-size constraint.
+        if #available(macOS 27.0, *) {
+            host.enableExplicitPopoverSizing()
+        } else {
+            host.sizingOptions = .preferredContentSize
+        }
         host.enableFirstMouse()
         // no size animation: switching tabs doesn't "slide" from bottom to top
         popover.animates = false
@@ -103,6 +201,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             }
         }
         model.closePanel = { [weak self] in self?.closePopover() }
+        model.pasteIntoPreviousApp = { [weak self] in self?.pasteIntoPreviousApp() }
         model.reopenPanel = { [weak self] screen in
             guard let self, !self.popover.isShown else { return }
             self.togglePopover(opening: screen)
@@ -110,6 +209,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // the updater treats an open panel as active use and won't relaunch under it
         model.isPanelOpen = { [weak self] in self?.popover.isShown ?? false }
         model.panelFocusChanged = { [weak self] in self?.maybeReturnFocus() }
+        model.panelContentSizeChanged = { [weak self] size in self?.schedulePopoverResize(to: size) }
+        model.panelContentSizeWillChange = { [weak self] size in self?.resizePopoverNow(to: size) }
+        model.panelTabGeometryChanged = { [weak self] in self?.syncTabPanelFrame() }
         // belt and suspenders: click pings cover most paths, but ANY way Hop
         // becomes the active app while the panel is open (tab switches,
         // scrolls, AppKit quirks) must also hand the keyboard back — voice
@@ -119,6 +221,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         ) { [weak self] _ in
             Task { @MainActor in
                 guard let self, self.popover.isShown else { return }
+                self.focusYieldPending = false
+                PanelFrameLog.write("becameActive", "keyPanel=\(NSApp.keyWindow === self.popover.contentViewController?.view.window)")
                 // let the click that activated us finish first: focus fields
                 // and editUnit update on the same runloop turn
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
@@ -140,11 +244,25 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 }
             }
         }
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didResignActiveNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                guard self?.popover.isShown == true else { return }
+                self?.focusYieldPending = false
+                PanelFrameLog.write("resignedActive", "panelShown=true")
+            }
+        }
         // once the panel closes, put the countdown back into the menu bar
         NotificationCenter.default.addObserver(
             forName: NSPopover.willCloseNotification, object: popover, queue: .main
         ) { [weak self] _ in
             Task { @MainActor in
+                if let outsideClickProbe = self?.outsideClickProbe {
+                    NSEvent.removeMonitor(outsideClickProbe)
+                    self?.outsideClickProbe = nil
+                }
+                PanelFrameLog.write("willClose", "active=\(NSApp.isActive)")
                 // closing the panel starts the idle countdown for the updater
                 self?.model.activity.note()
                 self?.frozenTitleLength = nil
@@ -154,6 +272,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 self?.hiddenAnchorWindow = nil
                 self?.previousApp = nil
                 self?.model.panelKeyboardCaptured = false
+                self?.model.panelTabHitRect = nil
+                self?.model.panelTabButtonRects.removeAll()
+                self?.tabPanel?.orderOut(nil)
                 self?.model.setPanelVisible(false, surface: "popover")
                 self?.refreshButton()
             }
@@ -190,6 +311,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 } else {
                     self.panelOriginX = x
                 }
+                self.syncTabPanelFrame()
             }
         }
         // dev-only: raw frame diagnostics for the panel-hop investigation
@@ -204,6 +326,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                       let panelWindow = self.popover.contentViewController?.view.window,
                       (note.object as? NSWindow) === panelWindow else { return }
                 self.debugLogPanelFrame("move", frame: panelWindow.frame)
+                self.syncTabPanelFrame()
             }
         }
         NotificationCenter.default.addObserver(
@@ -257,6 +380,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     /// has legitimately moved to another Hop window (settings, converter).
     func maybeReturnFocus() {
         guard popover.isShown else { return }
+        PanelFrameLog.write("focusPing", "active=\(NSApp.isActive) captured=\(model.panelKeyboardCaptured)")
+        guard NSApp.isActive, !focusYieldPending else { return }
         guard !model.panelKeyboardCaptured else { return }
         let panelWindow = popover.contentViewController?.view.window
         if let key = NSApp.keyWindow, key !== panelWindow { return }
@@ -265,8 +390,81 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         guard let previousApp, !previousApp.isTerminated,
               previousApp.processIdentifier != ProcessInfo.processInfo.processIdentifier
         else { return }
+        PanelFrameLog.write("focusYield", "active=\(NSApp.isActive)")
+        focusYieldPending = true
         NSApp.yieldActivation(to: previousApp)
         previousApp.activate()
+    }
+
+    private func pasteIntoPreviousApp() {
+        guard let target = previousApp, !target.isTerminated,
+              target.processIdentifier != ProcessInfo.processInfo.processIdentifier else {
+            PanelFrameLog.write("paste", "missing previous app")
+            return
+        }
+        cancelPendingPaste()
+        let gate = PasteActivationGate(targetPID: target.processIdentifier)
+        pasteActivationGate = gate
+        closePopover()
+        PanelFrameLog.write("paste", "waiting for app pid=\(target.processIdentifier) active=\(target.isActive)")
+
+        if target.isActive {
+            DispatchQueue.main.async { [weak self] in
+                self?.finishPasteActivation(pid: target.processIdentifier)
+            }
+            return
+        }
+        pasteActivationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
+        ) { [weak self] note in
+            guard let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+            else { return }
+            Task { @MainActor in
+                guard let self, self.pasteActivationGate === gate else { return }
+                if app.processIdentifier == gate.targetPID {
+                    self.finishPasteActivation(pid: app.processIdentifier)
+                } else {
+                    PanelFrameLog.write("paste", "another app activated; cancelled")
+                    self.cancelPendingPaste()
+                }
+            }
+        }
+        NSApp.yieldActivation(to: target)
+        if !target.activate() && !target.isActive {
+            PanelFrameLog.write("paste", "activation refused pid=\(target.processIdentifier)")
+            cancelPendingPaste()
+        } else if target.isActive {
+            DispatchQueue.main.async { [weak self] in
+                self?.finishPasteActivation(pid: target.processIdentifier)
+            }
+        }
+    }
+
+    private func finishPasteActivation(pid: pid_t) {
+        guard let gate = pasteActivationGate, gate.consume(activatedPID: pid) else { return }
+        guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else {
+            PanelFrameLog.write("paste", "target lost focus pid=\(pid)")
+            cancelPendingPaste()
+            return
+        }
+        cancelPendingPaste()
+        let source = CGEventSource(stateID: .combinedSessionState)
+        let down = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: true)
+        let up = CGEvent(keyboardEventSource: source, virtualKey: 9, keyDown: false)
+        down?.flags = .maskCommand
+        up?.flags = .maskCommand
+        down?.post(tap: .cghidEventTap)
+        up?.post(tap: .cghidEventTap)
+        PanelFrameLog.write("paste", "posted pid=\(pid) down=\(down != nil) up=\(up != nil)")
+    }
+
+    private func cancelPendingPaste() {
+        pasteActivationGate?.cancel()
+        pasteActivationGate = nil
+        if let pasteActivationObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(pasteActivationObserver)
+            self.pasteActivationObserver = nil
+        }
     }
 
     /// Re-anchor to the current geometry: NSPopover ignores an identical
@@ -359,10 +557,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     }
 
     func popoverShouldClose(_ popover: NSPopover) -> Bool {
-        Self.shouldClosePopover(pointer: NSEvent.mouseLocation,
-                                panelFrame: popover.contentViewController?.view.window?.frame,
-                                explicit: explicitPopoverClose,
-                                keyboardEvent: NSApp.currentEvent?.type == .keyDown)
+        let pointer = NSEvent.mouseLocation
+        let frame = popover.contentViewController?.view.window?.frame
+        let keyboardEvent = NSApp.currentEvent?.type == .keyDown
+        let result = Self.shouldClosePopover(pointer: pointer, panelFrame: frame,
+                                             explicit: explicitPopoverClose,
+                                             keyboardEvent: keyboardEvent)
+        PanelFrameLog.write("shouldClose", "pointer=\(pointer) frame=\(String(describing: frame)) explicit=\(explicitPopoverClose) key=\(keyboardEvent) active=\(NSApp.isActive) result=\(result)")
+        return result
     }
 
     private func closePopover() {
@@ -405,6 +607,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     private func presentPopover() {
         guard !popover.isShown, let button = statusItem.button else { return }
+        lastResizedPreferred = nil
         model.setPanelVisible(true, surface: "popover") // before the size is measured
         model.activity.note() // opening the panel is active use
         // opening the panel acknowledges a finished timer: the bar bell and the
@@ -432,6 +635,22 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         if let panelWindow = popover.contentViewController?.view.window {
             debugLogPanelFrame("shown", frame: panelWindow.frame)
         }
+        syncTabPanelFrame()
+        if outsideClickProbe == nil {
+            outsideClickProbe = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+                let pointer = NSEvent.mouseLocation
+                Task { @MainActor in
+                    guard let self else { return }
+                    PanelFrameLog.write("globalClick", "type=\(event.type.rawValue) pointer=\(pointer) frame=\(String(describing: self.popover.contentViewController?.view.window?.frame)) shown=\(self.popover.isShown) active=\(NSApp.isActive)")
+                    guard self.popover.isShown,
+                          Self.shouldClosePopover(pointer: pointer,
+                                                  panelFrame: self.popover.contentViewController?.view.window?.frame,
+                                                  explicit: false) else { return }
+                    self.closePopover()
+                }
+            }
+            PanelFrameLog.write("globalMonitor", "installed=\(outsideClickProbe != nil)")
+        }
         // return focus to the previous app: the panel stays visible
         // (transient doesn't close on programmatic activation), and the keyboard
         // is back with that app. Clicking inside the panel refocuses it — digit input still works
@@ -444,6 +663,90 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // flowing into the app underneath. The panel becomes key on its own
         // when the user clicks its input field/display
         panelOriginX = popover.contentViewController?.view.window?.frame.origin.x
+    }
+
+    private func schedulePopoverResize(to size: NSSize) {
+        guard popover.isShown else { return }
+        pendingPanelSize = Self.integral(size)
+        guard !popoverResizeScheduled else { return }
+        popoverResizeScheduled = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.popoverResizeScheduled = false
+            guard self.popover.isShown, let desired = self.pendingPanelSize else { return }
+            self.pendingPanelSize = nil
+            let previous = self.popover.contentSize
+            PanelFrameLog.write("resizePreferred", "desired=\(desired) previous=\(previous) frame=\(String(describing: self.popover.contentViewController?.view.window?.frame))")
+            guard desired.width > 0, desired.height > 0,
+                  desired != self.lastResizedPreferred else { return }
+            self.lastResizedPreferred = desired
+            self.popover.contentSize = desired
+            PanelFrameLog.write("resizeApplied", "content=\(self.popover.contentSize) frame=\(String(describing: self.popover.contentViewController?.view.window?.frame))")
+        }
+    }
+
+    private func resizePopoverNow(to size: NSSize) {
+        guard popover.isShown else { return }
+        let desired = Self.integral(size)
+        guard desired.width > 0, desired.height > 0 else { return }
+        pendingPanelSize = nil
+        lastResizedPreferred = desired
+        popover.contentSize = desired
+        PanelFrameLog.write("preResize", "content=\(popover.contentSize) frame=\(String(describing: popover.contentViewController?.view.window?.frame))")
+    }
+
+    // WORKAROUND: macOS 27 activates an NSPopover on tab clicks even when its
+    // window declines key status; a nonactivating panel handles only the tabs.
+    private func syncTabPanelFrame() {
+        guard #available(macOS 27.0, *), popover.isShown,
+              let host = popover.contentViewController?.view,
+              let window = host.window,
+              let rect = model.panelTabHitRect,
+              rect.width > 0, rect.height > 0,
+              rect.minX >= 0, rect.minY >= 0,
+              rect.maxX <= host.bounds.maxX,
+              rect.maxY <= host.bounds.maxY else { return }
+        let frame = window.convertToScreen(host.convert(rect, to: nil))
+        if tabPanel == nil {
+            let panel = NonactivatingTabPanel(
+                contentRect: frame, styleMask: [.borderless, .nonactivatingPanel],
+                backing: .buffered, defer: false)
+            panel.isOpaque = false
+            // WORKAROUND: WindowServer passes clicks through a fully transparent
+            // window; a one-percent tint receives them without a visible overlay.
+            panel.backgroundColor = NSColor.black.withAlphaComponent(0.01)
+            panel.ignoresMouseEvents = false
+            panel.hasShadow = false
+            panel.hidesOnDeactivate = false
+            panel.becomesKeyOnlyIfNeeded = true
+            panel.isReleasedWhenClosed = false
+            let view = NonactivatingTabView(frame: NSRect(origin: .zero, size: frame.size))
+            view.buttonAtPoint = { [weak self] point in self?.tabButton(at: point) }
+            view.onClick = { [weak self] id in self?.handleTabPanelClick(id) }
+            panel.contentView = view
+            panel.acceptsMouseMovedEvents = true
+            tabPanel = panel
+        }
+        guard let tabPanel else { return }
+        tabPanel.level = NSWindow.Level(rawValue: window.level.rawValue + 1)
+        tabPanel.collectionBehavior = window.collectionBehavior
+        if tabPanel.frame != frame { tabPanel.setFrame(frame, display: false) }
+        if !tabPanel.isVisible { tabPanel.orderFrontRegardless() }
+        PanelFrameLog.write("tabPanel", "frame=\(frame) active=\(NSApp.isActive)")
+    }
+
+    private func tabButton(at localPoint: NSPoint) -> (UUID, NSRect)? {
+        guard let strip = model.panelTabHitRect else { return nil }
+        let point = NSPoint(x: strip.minX + localPoint.x, y: strip.minY + localPoint.y)
+        guard let button = model.panelTabButtonRects.first(where: { $0.value.contains(point) }) else { return nil }
+        let rect = button.value.offsetBy(dx: -strip.minX, dy: -strip.minY)
+        return (button.key, rect)
+    }
+
+    private func handleTabPanelClick(_ id: UUID) {
+        PanelFrameLog.write("tabPanelClick", "space=\(id.uuidString) active=\(NSApp.isActive)")
+        model.activity.note()
+        model.openTab = .space(id)
     }
 
     private func showContextMenu() {

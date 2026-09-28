@@ -1,5 +1,11 @@
 # Hop - version history
 
+## 2.1.8 - 2026-09-28
+
+- On macOS 27, the panel fits the selected tab instead of leaving empty space below it.
+- The main panel closes when you click outside it while another app has keyboard focus.
+- Pasting a clipboard item into another app waits until that app is active.
+
 ## 2.1.7 - 2026-09-28
 
 - On macOS 27, panel actions respond to the first click even while another app

@@ -66,15 +66,23 @@ final class AppModel: ObservableObject {
     @Published var openTab: PanelView.InitialScreen?
     /// Close the popover (for "copy and paste").
     var closePanel: (() -> Void)?
+    var pasteIntoPreviousApp: (() -> Void)?
     /// Bring the panel back on a module's own terms — the eyedropper closes it
     /// to get out of the way of the loupe and owes the user the result.
     var reopenPanel: ((PanelView.InitialScreen?) -> Void)?
     /// The panel needs the keyboard right now (digit entry into the display).
     /// Everything else is mouse-only: keystrokes belong to the app underneath.
     var panelKeyboardCaptured = false
+    /// The tab strip in hosting-view coordinates; mouse-only tab clicks should
+    /// leave the key window in the app underneath the popover.
+    var panelTabHitRect: CGRect?
+    var panelTabButtonRects: [UUID: CGRect] = [:]
+    var panelTabGeometryChanged: (() -> Void)?
     /// Ping after panel clicks / edit-state changes: the status item controller
     /// decides whether to hand focus back to the app under the panel.
     var panelFocusChanged: (() -> Void)?
+    var panelContentSizeChanged: ((CGSize) -> Void)?
+    var panelContentSizeWillChange: ((CGSize) -> Void)?
     /// Open the standalone settings window.
     var openSettingsWindow: (() -> Void)?
     /// Open the standalone converter window.

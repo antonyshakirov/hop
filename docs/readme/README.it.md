@@ -52,6 +52,10 @@ la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
 aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
 successivo.
 
+### 2.1.8
+
+- correzioni di bug
+
 ### 2.1.7
 
 - macOS 27: le azioni nel pannello rispondono al primo clic

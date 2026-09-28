@@ -12,12 +12,13 @@ struct ClipboardView: View {
     @State private var savedId: UUID?
     @ObservedObject var clipboard: ClipboardController
     let lang: AppLanguage
-    var closePanel: () -> Void = {}
+    var pasteIntoPreviousApp: () -> Void = {}
     /// Fired when the search field gains (true) / loses (false) focus, so the
     /// panel holds the keyboard while typing a query — otherwise the panel's
     /// global ⌘V would feed the converter and digits could drive the timer,
     /// same reason the tracker/to-do fields surface their editing state.
     var onSearchFocusChanged: ((Bool) -> Void)? = nil
+    var onExpandedChanged: ((Bool) -> Void)? = nil
 
     @State private var copiedId: UUID?
     @State private var expanded = false
@@ -71,7 +72,9 @@ struct ClipboardView: View {
                 if canExpand {
                     // expand — on the left, next to the title; clear — on the opposite edge
                     Button {
-                        expanded.toggle() // the panel grows downward without intermediate jumps
+                        let next = !expanded
+                        onExpandedChanged?(next)
+                        expanded = next // the panel grows downward without intermediate jumps
                     } label: {
                         // swap via opacity ONLY; geometryGroup detaches the icon
                         // from the layout animation — without it the panel height
@@ -168,6 +171,7 @@ struct ClipboardView: View {
             if count <= visibleCount { expanded = false }
         }
         .onChange(of: expanded) { _, isExpanded in
+            onExpandedChanged?(isExpanded)
             if !isExpanded {
                 query = ""
                 searchFocused = false
@@ -182,7 +186,10 @@ struct ClipboardView: View {
         // @State survives the popover hide/show and this view is torn down on a
         // space switch — report "not focused" so a stale focus can't linger in
         // the panel's editing gate after the clipboard leaves the space.
-        .onDisappear { onSearchFocusChanged?(false) }
+        .onDisappear {
+            onSearchFocusChanged?(false)
+            onExpandedChanged?(false)
+        }
     }
 
     private func itemRow(_ item: ClipboardController.Item) -> some View {
@@ -262,7 +269,7 @@ struct ClipboardView: View {
                     }
                     rowIcon("text.insert", help: L10n.t(.tipPasteInto, lang)) {
                         markCopied(item)
-                        clipboard.copyAndPaste(item, closePanel: closePanel)
+                        clipboard.copyAndPaste(item, deliverPaste: pasteIntoPreviousApp)
                     }
                 }
                 .opacity(isCopied ? 0 : 1)

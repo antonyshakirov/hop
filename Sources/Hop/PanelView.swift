@@ -1,4 +1,5 @@
 import Carbon.HIToolbox
+import AppKit
 import CoreServices
 import ServiceManagement
 import SwiftUI
@@ -17,6 +18,7 @@ struct PanelView: View {
         case restore
         case firstSpace
         case spaceContaining(String)
+        case space(UUID)
     }
 
     @EnvironmentObject private var model: AppModel
@@ -193,6 +195,9 @@ struct PanelView: View {
     // scroll frame — the chrome never moves.
     @State private var chromeHeight: CGFloat = 0
     @State private var contentHeight: CGFloat = 0
+    @State private var measuredSpaceHeights: [UUID: CGFloat] = [:]
+    @State private var expandedClipboardSpaces: Set<UUID> = []
+    @State private var awaitingUncachedSpaceHeight: UUID?
     @State private var newCycleWork = 25
     @State private var newCycleRest = 5
     @State private var newCycleRounds = 4
@@ -352,6 +357,7 @@ struct PanelView: View {
         .onChange(of: trackerEditing) { _, _ in syncKeyboardCapture() }
         .onChange(of: todosEditing) { _, _ in syncKeyboardCapture() }
         .onChange(of: clipboardSearching) { _, _ in syncKeyboardCapture() }
+        .onChange(of: panelTabsRaw) { _, _ in measuredSpaceHeights.removeAll() }
         .onDisappear {
             model.panelKeyboardCaptured = false
             // A normal left-click / hotkey reopen does not fire the openTab
@@ -364,8 +370,7 @@ struct PanelView: View {
             guard let target else { return }
             iconPickerTabID = nil
             let resolved = Self.resolve(target)
-            screen = resolved
-            if case .space(let id) = resolved { activeSpaceRaw = id.uuidString }
+            if case .space(let id) = resolved { switchToSpace(id) }
             model.openTab = nil
         }
     }
@@ -1444,13 +1449,37 @@ struct PanelView: View {
     private func updateChromeHeight(_ height: CGFloat) {
         let rounded = height.rounded(.up)
         guard abs(rounded - chromeHeight) >= 1 else { return }
-        DispatchQueue.main.async { chromeHeight = rounded }
+        let measuredSpace = scrollResetKey
+        DispatchQueue.main.async {
+            guard scrollResetKey == measuredSpace else { return }
+            chromeHeight = rounded
+            model.panelContentSizeChanged?(CGSize(
+                width: 368, height: min(maxPanelHeight, rounded + contentHeight)))
+        }
     }
 
     private func updateContentHeight(_ height: CGFloat) {
         let rounded = height.rounded(.up)
-        guard abs(rounded - contentHeight) >= 1 else { return }
-        DispatchQueue.main.async { contentHeight = rounded }
+        PanelFrameLog.write("measure", "space=\(scrollResetKey) measured=\(height) stored=\(contentHeight)")
+        let measuredSpace = scrollResetKey
+        let measuredID = currentSpaceID
+        DispatchQueue.main.async {
+            guard scrollResetKey == measuredSpace else { return }
+            if let measuredID, !expandedClipboardSpaces.contains(measuredID),
+               measuredSpaceHeights[measuredID] != rounded {
+                measuredSpaceHeights[measuredID] = rounded
+            }
+            let restoreNudge = awaitingUncachedSpaceHeight == measuredID
+            if restoreNudge { awaitingUncachedSpaceHeight = nil }
+            let changed = abs(rounded - contentHeight) >= 1
+            guard changed || restoreNudge else { return }
+            if changed {
+                PanelFrameLog.write("height", "space=\(scrollResetKey) old=\(contentHeight) new=\(rounded)")
+                contentHeight = rounded
+            }
+            model.panelContentSizeChanged?(CGSize(
+                width: 368, height: min(maxPanelHeight, chromeHeight + rounded)))
+        }
     }
 
     private func updateDisplayWidth(_ width: CGFloat) {
@@ -1522,11 +1551,39 @@ struct PanelView: View {
         }
         .padding(2)
         .overlay(RoundedRectangle(cornerRadius: 7).stroke(Theme.divider, lineWidth: 1))
+        .background(GeometryReader { geo in
+            Color.clear
+                .onAppear { reportTabHitRect(geo.frame(in: .global)) }
+                .onChange(of: geo.frame(in: .global)) { _, rect in reportTabHitRect(rect) }
+        })
+    }
+
+    private func reportTabHitRect(_ rect: CGRect) {
+        DispatchQueue.main.async {
+            guard model.panelTabHitRect != rect else { return }
+            model.panelTabHitRect = rect
+            PanelFrameLog.write("tabRect", "rect=\(rect)")
+            model.panelTabGeometryChanged?()
+        }
     }
 
     private func spaceTabButton(_ tab: PanelTab) -> some View {
         SpaceTabButton(icon: tab.icon, active: currentSpaceID == tab.id) {
             switchToSpace(tab.id)
+        }
+        .background(GeometryReader { geo in
+            Color.clear
+                .onAppear { reportTabButtonRect(geo.frame(in: .global), id: tab.id) }
+                .onChange(of: geo.frame(in: .global)) { _, rect in
+                    reportTabButtonRect(rect, id: tab.id)
+                }
+        })
+    }
+
+    private func reportTabButtonRect(_ rect: CGRect, id: UUID) {
+        DispatchQueue.main.async {
+            guard model.panelTabButtonRects[id] != rect else { return }
+            model.panelTabButtonRects[id] = rect
         }
     }
 
@@ -1554,8 +1611,39 @@ struct PanelView: View {
     }
 
     private func switchToSpace(_ id: UUID) {
+        PanelFrameLog.write("switch", "from=\(scrollResetKey) to=\(id.uuidString) contentHeight=\(contentHeight)")
+        guard screen != .space(id) else { return }
+        editUnit = nil
+        let cachedHeight = measuredSpaceHeights[id]
+        let currentHeight = min(chromeHeight + contentHeight, maxPanelHeight)
+        let preferredHeight: CGFloat
+        if let cachedHeight {
+            preferredHeight = min(chromeHeight + cachedHeight, maxPanelHeight)
+            contentHeight = cachedHeight
+            awaitingUncachedSpaceHeight = nil
+        } else {
+            awaitingUncachedSpaceHeight = id
+            // macOS 27 needs a real size change to lay out a newly selected
+            // tab while the popover is inactive. Older systems need no nudge.
+            if #available(macOS 27.0, *) {
+                preferredHeight = max(1, currentHeight - 1)
+            } else {
+                preferredHeight = currentHeight
+            }
+        }
+        // A measured space can be sized in the click handler without building
+        // another complete PanelView. An unseen space is measured by its real
+        // content reader on the next layout pass.
         screen = .space(id)
+        PanelFrameLog.write("screenSet", "space=\(id.uuidString)")
         activeSpaceRaw = id.uuidString
+        PanelFrameLog.write("spacePersisted", "space=\(id.uuidString)")
+        // macOS 27 does not lay out a changed SwiftUI tab in an inactive
+        // popover until AppKit sees a window-size change. A one-point nudge
+        // starts the first visit's measurement; its actual height replaces it.
+        PanelFrameLog.write("resizeStart", "space=\(id.uuidString) height=\(preferredHeight)")
+        model.panelContentSizeWillChange?(CGSize(width: 368, height: preferredHeight))
+        PanelFrameLog.write("switchEnd", "space=\(id.uuidString) cached=\(cachedHeight != nil)")
     }
 
     // MARK: - Settings module table (columns = tabs)
@@ -2882,6 +2970,9 @@ struct PanelView: View {
         case .spaceContaining(let module):
             let model = storedTabsModel()
             return .space(model.tabID(containing: module) ?? model.tabs[0].id)
+        case .space(let id):
+            let model = storedTabsModel()
+            return .space(model.tabs.contains(where: { $0.id == id }) ? id : model.tabs[0].id)
         case .restore:
             let model = storedTabsModel()
             let saved = UserDefaults.standard.string(forKey: "activeSpaceID") ?? ""
@@ -3086,8 +3177,13 @@ struct PanelView: View {
         case "timer": timerModule
         case "awake": keepAwakeSection
         case "clipboard":
-            ClipboardView(clipboard: model.clipboard, lang: lang, closePanel: { model.closePanel?() },
-                          onSearchFocusChanged: { clipboardSearching = $0 })
+            ClipboardView(clipboard: model.clipboard, lang: lang,
+                          pasteIntoPreviousApp: { model.pasteIntoPreviousApp?() },
+                          onSearchFocusChanged: { clipboardSearching = $0 },
+                          onExpandedChanged: { expanded in
+                              if expanded { expandedClipboardSpaces.insert(spaceID) }
+                              else { expandedClipboardSpaces.remove(spaceID) }
+                          })
                 .id(model.themeVersion)
         case "convert": convertZone
         case "windows": windowSnapRow

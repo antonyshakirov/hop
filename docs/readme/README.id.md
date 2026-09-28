@@ -51,6 +51,10 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.1.8
+
+- perbaikan bug
+
 ### 2.1.7
 
 - macOS 27: tindakan di panel merespons klik pertama

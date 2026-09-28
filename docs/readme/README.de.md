@@ -51,6 +51,10 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.1.8
+
+- fehlerbehebungen
+
 ### 2.1.7
 
 - macOS 27: Aktionen im Panel reagieren auf den ersten Klick

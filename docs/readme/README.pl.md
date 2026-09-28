@@ -51,6 +51,10 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
+### 2.1.8
+
+- poprawki błędów
+
 ### 2.1.7
 
 - macOS 27: działania w panelu reagują na pierwsze kliknięcie
