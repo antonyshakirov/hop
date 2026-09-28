@@ -2,14 +2,24 @@ import Foundation
 import HopCore
 import NetworkExtension
 import Security
+import os
 import os.log
 
 /// SPEC: docs/spec.md — "Network access".
 final class FilterDataProvider: NEFilterDataProvider {
+    private struct State {
+        var data: Data?
+        var rules: [NetworkRule] = []
+        var index = NetworkRuleIndex([])
+        var resolved: [String: Set<String>] = [:]
+        var pending: Set<String> = []
+        var debugExit = false
+    }
+
     private let log = Logger(subsystem: "com.antonshakirov.minimo.netfilter", category: "filter")
-    private let queue = DispatchQueue(label: "netfilter.resolve")
-    private var resolved: [String: Set<String>] = [:]
-    private var cachedRules: (data: Data?, rules: [NetworkRule]) = (nil, [])
+    // SPEC: docs/spec.md — "Network access": a connection never waits on a lookup.
+    private let state = OSAllocatedUnfairLock(initialState: State())
+    private let lookups = DispatchQueue(label: "netfilter.lookups", qos: .utility)
     private var timer: DispatchSourceTimer?
 
     override func startFilter(completionHandler: @escaping (Error?) -> Void) {
@@ -21,9 +31,9 @@ final class FilterDataProvider: NEFilterDataProvider {
             log.info("filter started, error: \(String(describing: error), privacy: .public)")
             completionHandler(error)
         }
-        let timer = DispatchSource.makeTimerSource(queue: queue)
+        let timer = DispatchSource.makeTimerSource(queue: lookups)
         timer.schedule(deadline: .now(), repeating: 60)
-        timer.setEventHandler { [weak self] in self?.refreshAddresses() }
+        timer.setEventHandler { [weak self] in self?.lookUpRuleHosts() }
         timer.resume()
         self.timer = timer
     }
@@ -41,50 +51,82 @@ final class FilterDataProvider: NEFilterDataProvider {
         let process = Self.signing(socket.sourceProcessAuditToken)
         let apps = [owner.id, process.id].compactMap { $0 }
         let current = NetworkFlow(apps: apps, hostname: socket.remoteHostname, address: endpoint.hostname)
+        refreshRules()
+        let (index, resolved, debugExit) = state.withLock { ($0.index, $0.resolved, $0.debugExit) }
         #if DEBUG
-        // SPEC: docs/spec.md — "Network access", a stopped filter (dev builds only).
-        if current.address == "192.0.2.1" { exit(3) }
+        // SPEC: docs/spec.md — "Network access", a stopped filter (dev builds, on request).
+        if debugExit && current.address == "192.0.2.1" { exit(3) }
         #endif
-        let addresses = queue.sync { resolved }
-        let ruled = NetworkRules.ruled(current, rules: rules(), addresses: addresses)
+        let result = index.ruled(current, resolved: resolved)
+        if let name = result.lookUp { lookUp(name) }
+        let path = owner.path ?? process.path
         let service = FilterService.shared
-        if ruled == nil, let app = apps.first, socket.socketProtocol == IPPROTO_TCP, service.asking {
+        if result.action == nil, let app = apps.first, socket.socketProtocol == IPPROTO_TCP, service.asking {
             let key = app + " " + (current.hostname ?? current.address)
             if let answer = service.recentAnswer(key) { return answer == .deny ? .drop() : .allow() }
             service.provider = self
             service.ask(key: key, sighting: NetworkSighting(
-                app: app, path: owner.path ?? process.path, host: current.hostname, address: current.address,
+                app: app, path: path, host: current.hostname, address: current.address,
                 port: endpoint.port, verdict: .allow, last: Date()), flow: flow)
-            service.record(app: app, path: owner.path ?? process.path, host: current.hostname,
-                           address: current.address, port: endpoint.port, verdict: .allow)
+            service.record(app: app, path: path, host: current.hostname, address: current.address,
+                           port: endpoint.port, verdict: .allow)
             return .pause()
         }
-        let verdict = ruled ?? .allow
+        let verdict = result.action ?? .allow
         log.debug("""
             \(apps.joined(separator: ","), privacy: .public) → \(current.hostname ?? "-", privacy: .public) \
             \(current.address, privacy: .public):\(endpoint.port, privacy: .public) \(verdict.rawValue, privacy: .public)
             """)
         if let app = apps.first {
-            FilterService.shared.record(app: app, path: owner.path ?? process.path, host: current.hostname,
-                                        address: current.address, port: endpoint.port, verdict: verdict)
+            service.record(app: app, path: path, host: current.hostname, address: current.address,
+                           port: endpoint.port, verdict: verdict)
         }
         return verdict == .deny ? .drop() : .allow()
     }
 
-    private func rules() -> [NetworkRule] {
-        let data = filterConfiguration.vendorConfiguration?[NetworkRules.configurationKey] as? Data
-        if data != cachedRules.data {
-            cachedRules = (data, NetworkRules.decode(data))
-            queue.async { [weak self] in self?.refreshAddresses() }
+    private func refreshRules() {
+        let configuration = filterConfiguration.vendorConfiguration
+        let data = configuration?[NetworkRules.configurationKey] as? Data
+        guard state.withLock({ $0.data != data }) else { return }
+        let rules = NetworkRules.decode(data)
+        let index = NetworkRuleIndex(rules)
+        let debugExit = configuration?["debugExit"] as? Bool ?? false
+        state.withLock {
+            $0.data = data
+            $0.rules = rules
+            $0.index = index
+            $0.debugExit = debugExit
         }
-        return cachedRules.rules
+        lookups.async { [weak self] in self?.lookUpRuleHosts() }
     }
 
-    private func refreshAddresses() {
-        let hosts = NetworkRules.hostsToResolve(cachedRules.rules)
-        var next: [String: Set<String>] = [:]
-        for host in hosts { next[host] = Self.addresses(of: host) }
-        resolved = next
+    private func lookUp(_ name: String) {
+        let fresh = state.withLock { state -> Bool in
+            guard state.pending.count < 100, state.resolved[name] == nil else { return false }
+            return state.pending.insert(name).inserted
+        }
+        guard fresh else { return }
+        lookups.async { [weak self] in
+            let found = Self.addresses(of: name)
+            self?.state.withLock {
+                $0.pending.remove(name)
+                $0.resolved[name] = found
+            }
+        }
+    }
+
+    private func lookUpRuleHosts() {
+        let (rules, asked) = state.withLock { ($0.rules, Set($0.resolved.keys)) }
+        var found: [String: Set<String>] = [:]
+        for host in NetworkRules.hostsToResolve(rules) { found[host] = Self.addresses(of: host) }
+        let fresh = found
+        state.withLock { state in
+            var merged = fresh
+            for name in asked where merged[name] == nil && merged.count < 400 {
+                merged[name] = state.resolved[name]
+            }
+            state.resolved = merged
+        }
     }
 
     private static func signing(_ token: Data?) -> (id: String?, path: String?) {

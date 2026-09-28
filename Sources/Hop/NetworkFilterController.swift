@@ -137,8 +137,10 @@ final class NetworkFilterController: NSObject, ObservableObject {
         setRules(rules.filter { $0 != rule })
     }
 
+    /// What the rules say for the window: a name counts as its own address here.
     func verdict(_ app: String, _ host: String) -> NetworkRule.Action {
-        NetworkRules.verdict(for: NetworkFlow(apps: [app], hostname: host, address: host), rules: rules)
+        NetworkRules.verdict(for: NetworkFlow(apps: [app], hostname: host, address: host), rules: rules,
+                             addresses: [host: [host]])
     }
 
     // MARK: what the filter saw
@@ -174,9 +176,13 @@ final class NetworkFilterController: NSObject, ObservableObject {
         }
     }
 
+    static let fileLimit = 5_000_000
+    static let ruleLimit = 100_000
+
     func importRules(from url: URL) -> Int? {
-        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return nil }
-        let incoming = NetworkRuleFile.parse(text)
+        let size = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+        guard size <= Self.fileLimit, let text = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        let incoming = Array(NetworkRuleFile.parse(text).prefix(Self.ruleLimit))
         guard !incoming.isEmpty else { return 0 }
         setRules(NetworkRuleFile.merge(rules, incoming))
         return incoming.count
@@ -206,11 +212,18 @@ final class NetworkFilterController: NSObject, ObservableObject {
                                 lasting: 8)
             }
         }
+        guard !probing else { return }
+        probing = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.probe() }
     }
 
+    private var probing = false
+
     private func probe() {
-        guard state == .on, stopped else { return }
+        guard state == .on, stopped else {
+            probing = false
+            return
+        }
         service()?.sightings { [weak self] _ in
             Task { @MainActor in
                 guard let self, self.stopped else { return }
@@ -354,7 +367,11 @@ final class NetworkFilterController: NSObject, ObservableObject {
             configuration.filterSockets = true
             configuration.filterPackets = false
             configuration.filterDataProviderBundleIdentifier = extensionID
-            configuration.vendorConfiguration = [NetworkRules.configurationKey: NetworkRules.encode(rules)]
+            var vendor: [String: Any] = [NetworkRules.configurationKey: NetworkRules.encode(rules)]
+            #if DEBUG
+            if CommandLine.arguments.contains("--netfilter-crash-probe") { vendor["debugExit"] = true }
+            #endif
+            configuration.vendorConfiguration = vendor
             manager.providerConfiguration = configuration
             manager.localizedDescription = "Hop"
             manager.isEnabled = enabled

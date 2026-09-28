@@ -42,9 +42,16 @@ final class FilterService: NSObject, NSXPCListenerDelegate, NetworkFilterXPC {
 
     var asking: Bool { queue.sync { asker != nil } }
 
+    /// Only the connection that asks may stop asking; nobody takes over a live one.
     func setAsking(_ on: Bool) {
-        let connection = NSXPCConnection.current()
-        queue.async { self.asker = on ? connection : nil }
+        guard let connection = NSXPCConnection.current() else { return }
+        queue.async {
+            if on, self.asker == nil || self.asker === connection {
+                self.asker = connection
+            } else if !on, self.asker === connection {
+                self.asker = nil
+            }
+        }
     }
 
     func recentAnswer(_ key: String) -> NetworkRule.Action? {
@@ -86,8 +93,14 @@ final class FilterService: NSObject, NSXPCListenerDelegate, NetworkFilterXPC {
     }
 
     func listener(_ listener: NSXPCListener, shouldAcceptNewConnection connection: NSXPCConnection) -> Bool {
-        guard let team = Self.ownTeam else { return false }
-        connection.setCodeSigningRequirement("anchor apple generic and certificate leaf[subject.OU] = \"\(team)\"")
+        // SPEC: docs/spec.md — "Network access": Hop itself, as shipped with Developer ID.
+        guard let team = Self.ownTeam, let own = Bundle.main.bundleIdentifier,
+              own.hasSuffix(".netfilter") else { return false }
+        let app = String(own.dropLast(".netfilter".count))
+        connection.setCodeSigningRequirement("""
+            identifier "\(app)" and anchor apple generic \
+            and certificate leaf[field.1.2.840.113635.100.6.1.13] and certificate leaf[subject.OU] = "\(team)"
+            """)
         connection.exportedInterface = NSXPCInterface(with: NetworkFilterXPC.self)
         connection.remoteObjectInterface = NSXPCInterface(with: NetworkFilterAskerXPC.self)
         connection.exportedObject = self

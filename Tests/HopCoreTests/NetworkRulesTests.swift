@@ -22,7 +22,8 @@ final class NetworkRulesTests: XCTestCase {
     func testADestinationRuleBeatsTheWholeProgram() {
         let rules = [NetworkRule(app: curl, action: .deny),
                      NetworkRule(app: curl, host: "updates.example.com", action: .allow)]
-        XCTAssertEqual(NetworkRules.verdict(for: flow("updates.example.com"), rules: rules), .allow)
+        let resolved = ["updates.example.com": Set(["93.184.216.34"])]
+        XCTAssertEqual(NetworkRules.verdict(for: flow("updates.example.com"), rules: rules, addresses: resolved), .allow)
         XCTAssertEqual(NetworkRules.verdict(for: flow("example.com"), rules: rules), .deny)
     }
 

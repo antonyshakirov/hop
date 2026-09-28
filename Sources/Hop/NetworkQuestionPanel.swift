@@ -72,7 +72,8 @@ struct NetworkQuestionCard: View {
                         .font(Theme.mono(12, weight: .semibold))
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(1)
-                    Text("→ \(question.destination):\(question.port)")
+                    Text(question.host.map { "→ \($0) · \(question.address):\(question.port)" }
+                         ?? "→ \(question.address):\(question.port)")
                         .font(Theme.mono(11))
                         .foregroundStyle(Theme.textSecondary)
                         .lineLimit(1)

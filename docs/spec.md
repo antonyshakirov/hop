@@ -2300,8 +2300,21 @@ group.
   only ever with a host. Precedence: a rule for this program's destination,
   then a rule for that destination for every program, then the program's own
   switch; between equals deny wins; no rule, the connection goes through.
+  The rules are indexed by host and its parent domains (`NetworkRuleIndex`):
+  100 000 rules decide a connection in well under a millisecond.
   A connection that arrives as a bare address is matched through the rule
-  hosts the filter resolves itself every minute.
+  hosts the filter looks up itself every minute — those of one program's
+  rules and allows for every program, at most 200; a block list for every
+  program is matched by name and never looked up.
+- **A program names its own host** (security review, 2026-09-29): a blocked
+  program could name an allowed host and connect anywhere. A block by name
+  holds as named; an allow by name holds only for an address the filter
+  found for that name itself. An unconfirmed name is looked up in the
+  background (at most 100 at a time), so the first connection of a new
+  subdomain may meet the program's block once. Lookups never sit on a
+  connection's path: the state is swapped under a lock and the lookups run
+  on their own queue, so a long or broken block list cannot hang the Mac.
+  The window shows what the rules say, taking each name at its word.
 - **Nothing to set up until the filter runs** (Anton, 2026-09-28): while it
   is off, installing, waiting for approval or failed, the window shows a card
   with what to do — numbered steps for the approval — and one button. The
@@ -2324,8 +2337,13 @@ group.
 - **Rules from a file** (`NetworkRuleFile`, tested): Hop's own JSON, a plain
   list of addresses (blocked for every program), a hosts file, or
   `program address [allow|block]` lines where `*` as the address means the
-  whole program; `#` starts a comment. A loaded file wins where it names the
-  same program and address. Saving writes the same text form.
+  whole program; `#` starts a comment. A bare address blocks that address.
+  Names a block list must never carry are dropped: single labels (`com`),
+  `local`, `localhost`, `localdomain`, `broadcasthost`, `ip6-*`, and an
+  address in a hosts file's name column — a stock hosts file's header must
+  not cut the Mac off its own network. At most 5 MB and 100 000 rules per
+  file. A loaded file wins where it names the same program and address.
+  Saving writes the same text form.
 - **Questions about new connections** (Anton, 2026-09-28: like LuLu and
   Little Snitch, but not in the way): the setting "ask about new
   connections" (`networkAsk`) is OFF by default. On, a TCP connection no
@@ -2334,16 +2352,22 @@ group.
   the program and the address, with block / allow and "for every address of
   this program". The answer becomes a rule and resumes the paused flows —
   every flow to the same program and address waits on the one question.
+  The card shows the address next to the name, since the program names
+  its own host. Only the connection that asked may stop asking, and no
+  other connection can take the questions over.
   No answer in 30 s, or no Hop to ask, lets the connection through: a
   question must never hang the Mac.
 - **A stopped filter** (Anton, 2026-09-28): the internet keeps working and
   the rules are off until the filter is back. While the filter is on, Hop
   keeps an idle XPC connection to it; when that breaks, the row turns orange
   ("the network filter stopped") and a card says so once, for 8 s; Hop tries
-  again every 5 s and the row clears when the filter answers. A dev build of
-  the extension exits on a connection to 192.0.2.1, to check exactly this.
-- **Who may talk to the filter**: its Mach service accepts only code signed
-  by the same team (`setCodeSigningRequirement`); what it hands out is the
+  again every 5 s — one retry loop, however often the connection breaks —
+  and the row clears when the filter answers. A dev build started with
+  `--netfilter-crash-probe` makes its filter exit on a connection to
+  192.0.2.1, to check exactly this; without the flag nothing can stop it.
+- **Who may talk to the filter**: its Mach service accepts only the app that
+  carries it — its bundle identifier, Developer ID, the same team
+  (`setCodeSigningRequirement`), so a debug build of anything else is out; what it hands out is the
   log of connections it saw (at most 3000 program-and-destination pairs, the
   oldest forgotten first — `NetworkSightings`).
 

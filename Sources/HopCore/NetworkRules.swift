@@ -37,6 +37,8 @@ public struct NetworkFlow: Sendable {
 
 public enum NetworkRules {
     public static let configurationKey = "rules"
+    /// At most this many rule hosts are looked up by the filter itself.
+    public static let resolveLimit = 200
 
     /// Destination rules beat the program's switch; deny wins between equals.
     public static func verdict(for flow: NetworkFlow, rules: [NetworkRule],
@@ -47,23 +49,21 @@ public enum NetworkRules {
     /// nil when no rule speaks about this connection: the one to ask about.
     public static func ruled(_ flow: NetworkFlow, rules: [NetworkRule],
                              addresses: [String: Set<String>] = [:]) -> NetworkRule.Action? {
-        let forHost = rules.filter { rule in
-            guard let host = rule.host, rule.app == NetworkRule.anyProgram || flow.apps.contains(rule.app)
-            else { return false }
-            return covers(host, flow.hostname) || addresses[host]?.contains(flow.address) == true
-                || host == flow.address
-        }
-        let own = forHost.filter { $0.app != NetworkRule.anyProgram }
-        let deciding = own.isEmpty ? forHost : own
-        if !deciding.isEmpty { return deciding.contains { $0.action == .deny } ? .deny : .allow }
-        let whole = rules.filter { $0.host == nil && flow.apps.contains($0.app) }
-        guard !whole.isEmpty else { return nil }
-        return whole.contains { $0.action == .deny } ? .deny : .allow
+        NetworkRuleIndex(rules).ruled(flow, resolved: addresses).action
     }
 
-    /// Rule hosts to resolve: a connection may arrive as a bare address.
+    /// Rule hosts the filter looks up itself: one program's, and allows for every
+    /// program. A block list for every program is matched by name, never looked up.
     public static func hostsToResolve(_ rules: [NetworkRule]) -> Set<String> {
-        Set(rules.compactMap(\.host).filter { !isAddress($0) })
+        var hosts: [String] = []
+        var seen = Set<String>()
+        let allowsFirst = rules.filter { $0.action == .allow } + rules.filter { $0.action == .deny }
+        for rule in allowsFirst where rule.app != NetworkRule.anyProgram || rule.action == .allow {
+            guard let host = rule.host, !isAddress(host), seen.insert(host).inserted else { continue }
+            hosts.append(host)
+            if hosts.count == resolveLimit { break }
+        }
+        return Set(hosts)
     }
 
     public static func encode(_ rules: [NetworkRule]) -> Data {
@@ -75,20 +75,73 @@ public enum NetworkRules {
         return rules
     }
 
-    static func covers(_ ruleHost: String, _ hostname: String?) -> Bool {
-        guard let hostname else { return false }
-        return hostname == ruleHost || hostname.hasSuffix("." + ruleHost)
-    }
-
     static func isAddress(_ host: String) -> Bool {
         var v4 = in_addr(), v6 = in6_addr()
-        return inet_pton(AF_INET, host, &v4) == 1 || inet_pton(AF_INET6, host, &v6) == 1
+        let bare = host.split(separator: "%").first.map(String.init) ?? host
+        return inet_pton(AF_INET, bare, &v4) == 1 || inet_pton(AF_INET6, bare, &v6) == 1
     }
 
     static func normalized(_ host: String) -> String {
         var value = host.lowercased().trimmingCharacters(in: .whitespaces)
         while value.hasSuffix(".") { value.removeLast() }
         return value
+    }
+}
+
+/// Rules looked up by host and by program: a connection costs a few dictionary
+/// reads however many rules a block list brought.
+public struct NetworkRuleIndex: Sendable {
+    private var byHost: [String: [NetworkRule]] = [:]
+    private var whole: [String: [NetworkRule]] = [:]
+
+    public init(_ rules: [NetworkRule]) {
+        for rule in rules {
+            if let host = rule.host {
+                byHost[host, default: []].append(rule)
+            } else if rule.app != NetworkRule.anyProgram {
+                whole[rule.app, default: []].append(rule)
+            }
+        }
+    }
+
+    /// A program names its own host, so an allow by name holds only for an address
+    /// the filter found for that name itself; `lookUp` is the name to find.
+    public func ruled(_ flow: NetworkFlow, resolved: [String: Set<String>])
+        -> (action: NetworkRule.Action?, lookUp: String?) {
+        var byName: [NetworkRule] = []
+        var matched: [NetworkRule] = []
+        if let name = flow.hostname {
+            var labels = name.split(separator: ".")
+            while !labels.isEmpty {
+                byName += byHost[labels.joined(separator: "."), default: []]
+                labels.removeFirst()
+            }
+        }
+        matched += byHost[flow.address, default: []]
+        for (host, addresses) in resolved where addresses.contains(flow.address) {
+            matched += byHost[host, default: []]
+        }
+        let mine: (NetworkRule) -> Bool = { $0.app == NetworkRule.anyProgram || flow.apps.contains($0.app) }
+        matched = matched.filter(mine)
+        var lookUp: String?
+        let confirmed = flow.hostname.map { resolved[$0]?.contains(flow.address) == true } ?? false
+        for rule in byName where mine(rule) {
+            let sure = confirmed || rule.host.flatMap { resolved[$0] }?.contains(flow.address) == true
+            if rule.action == .deny || sure {
+                matched.append(rule)
+            } else {
+                lookUp = flow.hostname
+            }
+        }
+        let own = matched.filter { $0.app != NetworkRule.anyProgram }
+        let deciding = own.isEmpty ? matched : own
+        if !deciding.isEmpty {
+            let deny = deciding.contains { $0.action == .deny }
+            return (deny ? .deny : .allow, deny ? lookUp : nil)
+        }
+        let programs = flow.apps.flatMap { whole[$0, default: []] }
+        guard !programs.isEmpty else { return (nil, lookUp) }
+        return (programs.contains { $0.action == .deny } ? .deny : .allow, lookUp)
     }
 }
 
@@ -114,23 +167,38 @@ public enum NetworkRuleFile {
                 words.removeFirst()
             }
             if NetworkRules.isAddress(words[0]) {
-                for name in words.dropFirst() where name != "localhost" && !name.hasSuffix(".localdomain") {
+                guard words.count > 1 else {
+                    rules.append(NetworkRule(app: NetworkRule.anyProgram, host: words[0], action: action))
+                    continue
+                }
+                for name in words.dropFirst() where blockable(name) {
                     rules.append(NetworkRule(app: NetworkRule.anyProgram, host: name, action: .deny))
                 }
                 continue
             }
             switch words.count {
-            case 1 where words[0] != "*":
+            case 1 where blockable(words[0]):
                 rules.append(NetworkRule(app: NetworkRule.anyProgram, host: words[0], action: action))
+            case 1:
+                break
             case 2... where words[1] == "*":
                 rules.append(NetworkRule(app: words[0], action: action))
-            case 2...:
+            case 2... where blockable(words[1]) || NetworkRules.isAddress(words[1]):
                 rules.append(NetworkRule(app: words[0], host: words[1], action: action))
             default:
                 break
             }
         }
         return rules
+    }
+
+    /// A real host: never the local network's own names nor a whole top-level domain.
+    static func blockable(_ name: String) -> Bool {
+        let host = NetworkRules.normalized(name)
+        guard host.contains("."), !NetworkRules.isAddress(host) else { return false }
+        let reserved = ["localhost", "localdomain", "local", "broadcasthost"]
+        if reserved.contains(where: { host == $0 || host.hasSuffix("." + $0) }) { return false }
+        return !host.hasPrefix("ip6-")
     }
 
     public static func text(_ rules: [NetworkRule]) -> String {

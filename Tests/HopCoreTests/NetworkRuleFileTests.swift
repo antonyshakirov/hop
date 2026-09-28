@@ -16,7 +16,8 @@ final class NetworkRuleFileTests: XCTestCase {
     func testAProgramsOwnRuleBeatsTheOneForEveryProgram() {
         let rules = [NetworkRule(app: NetworkRule.anyProgram, host: "tracker.com", action: .deny),
                      NetworkRule(app: "com.a", host: "tracker.com", action: .allow)]
-        XCTAssertEqual(NetworkRules.verdict(for: flow("tracker.com"), rules: rules), .allow)
+        let resolved = ["tracker.com": Set(["1.2.3.4"])]
+        XCTAssertEqual(NetworkRules.verdict(for: flow("tracker.com"), rules: rules, addresses: resolved), .allow)
         XCTAssertEqual(NetworkRules.verdict(for: flow("tracker.com", app: "com.b"), rules: rules), .deny)
     }
 
@@ -67,5 +68,79 @@ final class NetworkRuleFileTests: XCTestCase {
         let old = [NetworkRule(app: "com.a", host: "x.com", action: .allow)]
         let new = [NetworkRule(app: "com.a", host: "x.com", action: .deny), NetworkRule(app: "com.b", action: .deny)]
         XCTAssertEqual(NetworkRuleFile.merge(old, new), new)
+    }
+}
+
+final class NetworkRuleSafetyTests: XCTestCase {
+    func testABareAddressLineBlocksThatAddress() {
+        XCTAssertEqual(NetworkRuleFile.parse("1.2.3.4\ntracker.com\n"), [
+            NetworkRule(app: NetworkRule.anyProgram, host: "1.2.3.4", action: .deny),
+            NetworkRule(app: NetworkRule.anyProgram, host: "tracker.com", action: .deny),
+        ])
+    }
+
+    func testAHostsFileHeaderDoesNotBreakTheLocalNetwork() {
+        let header = """
+        127.0.0.1 localhost
+        127.0.0.1 localhost.localdomain
+        127.0.0.1 local
+        255.255.255.255 broadcasthost
+        ::1 localhost
+        ::1 ip6-localhost ip6-loopback
+        fe80::1%lo0 localhost
+        ff00::0 ip6-localnet
+        0.0.0.0 0.0.0.0
+        0.0.0.0 ads.example.com
+        com
+        """
+        XCTAssertEqual(NetworkRuleFile.parse(header).map(\.host), ["ads.example.com"])
+    }
+
+    func testAnAllowByNameCountsOnlyForAnAddressTheNameReallyHas() {
+        let rules = [NetworkRule(app: "evil", action: .deny),
+                     NetworkRule(app: "evil", host: "github.com", action: .allow)]
+        let spoofed = NetworkFlow(apps: ["evil"], hostname: "github.com", address: "6.6.6.6")
+        let honest = NetworkFlow(apps: ["evil"], hostname: "github.com", address: "140.82.121.4")
+        let resolved = ["github.com": Set(["140.82.121.4"])]
+        XCTAssertEqual(NetworkRules.verdict(for: spoofed, rules: rules, addresses: resolved), .deny)
+        XCTAssertEqual(NetworkRules.verdict(for: honest, rules: rules, addresses: resolved), .allow)
+    }
+
+    func testAnUnconfirmedNameAsksToBeLookedUp() {
+        let index = NetworkRuleIndex([NetworkRule(app: "a", action: .deny),
+                                      NetworkRule(app: "a", host: "example.com", action: .allow)])
+        let flow = NetworkFlow(apps: ["a"], hostname: "api.example.com", address: "1.1.1.1")
+        let result = index.ruled(flow, resolved: [:])
+        XCTAssertEqual(result.action, .deny)
+        XCTAssertEqual(result.lookUp, "api.example.com")
+        let later = index.ruled(flow, resolved: ["api.example.com": ["1.1.1.1"]])
+        XCTAssertEqual(later.action, .allow)
+        XCTAssertNil(later.lookUp)
+    }
+
+    func testABlockByNameNeedsNoConfirmation() {
+        let rules = [NetworkRule(app: "a", host: "license.example.com", action: .deny)]
+        let flow = NetworkFlow(apps: ["a"], hostname: "license.example.com", address: "9.9.9.9")
+        XCTAssertEqual(NetworkRules.verdict(for: flow, rules: rules), .deny)
+    }
+
+    func testOnlyProgramRulesAndAllowsAreResolvedAndNotTooMany() {
+        var rules = (0..<500).map { NetworkRule(app: NetworkRule.anyProgram, host: "ad\($0).com", action: .deny) }
+        rules += (0..<300).map { NetworkRule(app: "a", host: "h\($0).com", action: .deny) }
+        rules.append(NetworkRule(app: NetworkRule.anyProgram, host: "ok.com", action: .allow))
+        let hosts = NetworkRules.hostsToResolve(rules)
+        XCTAssertEqual(hosts.count, NetworkRules.resolveLimit)
+        XCTAssertFalse(hosts.contains("ad1.com"))
+        XCTAssertTrue(hosts.contains("ok.com"))
+    }
+
+    func testAHundredThousandRulesStillDecideQuickly() {
+        let rules = (0..<100_000).map { NetworkRule(app: NetworkRule.anyProgram, host: "ad\($0).example.com", action: .deny) }
+        let index = NetworkRuleIndex(rules)
+        let flow = NetworkFlow(apps: ["a"], hostname: "cdn.ad99999.example.com", address: "1.1.1.1")
+        let started = Date()
+        for _ in 0..<1000 { _ = index.ruled(flow, resolved: [:]) }
+        XCTAssertLessThan(Date().timeIntervalSince(started), 0.5)
+        XCTAssertEqual(index.ruled(flow, resolved: [:]).action, .deny)
     }
 }
