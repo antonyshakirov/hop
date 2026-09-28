@@ -24,6 +24,8 @@ Eén klik – en alles wat je nodig hebt staat meteen klaar.**
 
 ⭐ Hop heeft 225 sterren nodig om in de officiële Homebrew-catalogus te komen, en elke ster brengt dat dichterbij.
 
+📣 Volg Hop op [Instagram](https://www.instagram.com/hop.tools/) en [X](https://x.com/hoptools).
+
 [![Support the project](https://img.shields.io/badge/support%20the%20project-555?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGNDUzQSI%2BPHBhdGggZD0iTTEyIDIxLjM1bC0xLjQ1LTEuMzJDNS40IDE1LjM2IDIgMTIuMjggMiA4LjUgMiA1LjQyIDQuNDIgMyA3LjUgM2MxLjc0IDAgMy40MS44MSA0LjUgMi4wOUMxMy4wOSAzLjgxIDE0Ljc2IDMgMTYuNSAzIDE5LjU4IDMgMjIgNS40MiAyMiA4LjVjMCAzLjc4LTMuNCA2Ljg2LTguNTUgMTEuNTRMMTIgMjEuMzV6Ii8%2BPC9zdmc%2B)](https://web.tribute.tg/d/Nvk)
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · **Nederlands** · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)

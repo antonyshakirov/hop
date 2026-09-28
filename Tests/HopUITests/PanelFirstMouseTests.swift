@@ -116,7 +116,7 @@ final class PanelFirstMouseTests: XCTestCase {
         XCTAssertEqual(overlayFrame, NSRect(x: 860, y: 867, width: 234, height: 32))
     }
 
-    func testPanelPrefersShorterHeightAfterSwitchingFromLongSpace() {
+    func testPanelPrefersShorterHeightAfterSwitchingFromLongSpace() throws {
         let defaults = UserDefaults.standard
         let keys = [SettingsKey.panelTabs, "activeSpaceID", "debugPanelFrameLog",
                     SettingsKey.trackerTabSeeded, SettingsKey.todosSeeded,
@@ -166,6 +166,9 @@ final class PanelFirstMouseTests: XCTestCase {
         popover.contentSize = controller.view.fittingSize
         popover.show(relativeTo: anchor.bounds, of: anchor, preferredEdge: .minY)
         RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+        // A runner without a window server never lays SwiftUI out inside the
+        // popover: every measurement reads zero and there is nothing to test.
+        try XCTSkipIf(controller.view.frame.height < 1, "the popover content was not laid out")
         let tallHeight = popover.contentSize.height
         let tallWindowHeight = controller.view.window?.frame.height ?? 0
         NSApp.deactivate()
@@ -174,6 +177,9 @@ final class PanelFirstMouseTests: XCTestCase {
         model.isPanelOpen = { true }
         var immediateHeight: CGFloat?
         model.panelContentSizeWillChange = { [weak popover] size in
+            // a space measured before is resized from its cached height at once,
+            // and then no later measurement differs: either report counts
+            measuredSizes.append(size)
             popover?.contentSize = size
             immediateHeight = popover?.contentSize.height
         }
@@ -185,7 +191,11 @@ final class PanelFirstMouseTests: XCTestCase {
         }
         controller.view.layoutSubtreeIfNeeded()
         let shortHeight = popover.contentSize.height
-        print("PANEL TEST tall=\(tallHeight) short=\(shortHeight)")
+        print("PANEL TEST tall=\(tallHeight) short=\(shortHeight) shown=\(popover.isShown) "
+              + "window=\(controller.view.window?.frame.height ?? -1) view=\(controller.view.frame.height) "
+              + "reported=\(measuredSizes.map(\.height)) immediate=\(immediateHeight ?? -1)")
+        try XCTSkipIf(shortHeight < 1 && measuredSizes.allSatisfy { $0.height < 1 },
+                      "the popover content was not laid out after the switch")
         XCTAssertLessThan(shortHeight, tallHeight - 100,
                           "panel should not leave an empty background below a shorter tab")
         XCTAssertLessThan(measuredSizes.last?.height ?? .infinity, tallHeight - 100,

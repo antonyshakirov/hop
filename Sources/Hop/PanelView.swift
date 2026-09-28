@@ -3348,18 +3348,17 @@ struct PanelView: View {
                         .monospacedDigit()
                         .lineLimit(1)
                         .fixedSize()
-                    ProgressView()
-                        .controlSize(.small)
+                    speedStopIcon
                 } else if let last = speed.last {
                     // stale (30+ min or a different network): barely visible.
                     // RPM sits in the row itself, not in a tooltip
-                    Text("\(speedPairText(down: last.down, up: last.up)) · \(last.rpm) RPM")
+                    Text("\(speedPairText(down: last.down, up: last.up)) · \(last.rpm.map(String.init) ?? "—") RPM")
                         .font(Theme.mono(10))
                         // an old measurement stays readable but clearly "faded"
                         .foregroundStyle(speed.isStale ? Theme.textTertiary.opacity(0.45) : Theme.textPrimary)
                         .lineLimit(1)
                         .fixedSize()
-                        .help("\(t(.speedResponsiveness)): \(last.rpm) RPM")
+                        .help("\(t(.speedResponsiveness)): \(last.rpm.map(String.init) ?? "—") RPM")
                     if !Snapshot.active {
                         // hidden in product-page screenshots: the row reaches
                         // the panel edge and reads as broken alignment
@@ -3397,8 +3396,24 @@ struct PanelView: View {
     /// "↓ 834 Mbps · ↑ 112 Mbps" — every value carries its OWN unit
     /// (a bare number is ambiguous, and the two can differ: Kbit/s vs
     /// Mbit/s); thin spaces keep the row compact enough for the label
-    private func speedPairText(down: Double, up: Double) -> String {
-        "↓ \(speedValueText(down)) · ↑ \(speedValueText(up))"
+    private func speedPairText(down: Double?, up: Double?) -> String {
+        "↓ \(down.map(speedValueText) ?? "—") · ↑ \(up.map(speedValueText) ?? "—")"
+    }
+
+    /// SPEC: docs/spec.md — "Speed test", stopping early.
+    private var speedStopIcon: some View {
+        Button {
+            model.speedTest.stop()
+        } label: {
+            Image(systemName: "stop.fill")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Theme.textTertiary)
+                .frame(width: 20, height: 24)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(t(.speedtestStop))
+        .hoverHighlight(4)
     }
 
     private var speedRefreshIcon: some View {
@@ -5601,6 +5616,18 @@ struct PanelView: View {
                 Text("·")
                     .foregroundStyle(Theme.textSecondary)
                 FooterLink(url: productPageURL, label: t(.aboutProductPage))
+            }
+            let social = HopSocial.links(forLanguage: lang.rawValue)
+            if !social.isEmpty {
+                HStack(spacing: 6) {
+                    ForEach(Array(social.enumerated()), id: \.offset) { index, link in
+                        if index > 0 {
+                            Text("·")
+                                .foregroundStyle(Theme.textSecondary)
+                        }
+                        FooterLink(url: link.url, label: link.label)
+                    }
+                }
             }
         }
         .font(Theme.mono(11))

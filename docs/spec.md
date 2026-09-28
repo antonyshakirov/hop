@@ -6209,7 +6209,14 @@ at a time. Sequentially the tool prints TWO responsiveness scores instead of
 one; the row shows the WORSE of them, which is the one that describes the
 call that stutters (`SpeedSummary`, HopCore, `SpeedSummaryTests`). A
 direction that has not started reads 0.000, and the row keeps its
-placeholder rather than showing it. Repeat via the ↻ icon. No
+placeholder rather than showing it. Repeat via the ↻ icon.
+**Stopping early** (Anton, 2026-09-29): while a run is going, a ■ sits where
+the spinner was. It ends the run as if it had finished: the row keeps the
+numbers on screen at that moment — the tool's current estimate, not an
+average of the ramp-up, which would drop the figure under the click — and a
+direction not measured yet, and the responsiveness, which the tool reports
+only at the very end, read "—". Then ↻ is back. Stopped before any number,
+the result from before stays (`SpeedSummary.stopped`, `SpeedStopTests`). No
 custom servers and no third-party services. A fresh result is drawn in the
 primary ink, like the module's own name: it is the answer the row exists for,
 and in secondary grey it read as a caption (Anton, 2026-09-05). A stale one
@@ -6320,6 +6327,10 @@ Anton's primary install must always remain fully functional.
   panel is built of modules sitting on spaces, that each module has a page here
   and a key of its own, and that nothing leaves the Mac. The footer keeps
   version, source, the author's site and the product page.
+- **Hop's Instagram and X** (Anton, 2026-09-28) are the footer's third line,
+  `Instagram · X`, brand names that need no translation. Not in Russian: no
+  line at all when the interface is Russian, the same rule as the Russian
+  README and the Russian pages of the site (`HopSocial`, tested).
 - **Release notes belong to the updates page**, with the auto-update switch, the
   check button and the version: the whole history of what shipped is what
   somebody on that page came for, and "about" was carrying it for no reason.
