@@ -25,4 +25,26 @@ public enum RecognitionWarmUp {
         }
         return sets
     }
+
+    /// Tags of the reader Vision compiles on the spot, per line width, instead of
+    /// shipping it precompiled.
+    public static let compiledOnTheSpot: Set<String> = ["ja-JP", "zh-Hans", "zh-Hant"]
+
+    /// The first pass before the warm-up has run: the reader's own language and
+    /// English, named, so nothing is compiled while the user waits. A reader
+    /// whose own script needs the slow model keeps it.
+    public static func quickLanguages(interface: TextScript, supported: [String]) -> [String] {
+        var tags: [String] = []
+        for tag in [interface.recognitionTag, TextScript.latin.recognitionTag]
+        where supported.contains(tag) && !tags.contains(tag) {
+            tags.append(tag)
+        }
+        return tags
+    }
+
+    /// The second pass before the warm-up has run keeps away from the slow model
+    /// unless the reader's own script needs it.
+    public static func quickHelpers(_ tags: [String], interface: TextScript) -> [String] {
+        tags.filter { !compiledOnTheSpot.contains($0) || $0 == interface.recognitionTag }
+    }
 }

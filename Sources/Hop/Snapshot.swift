@@ -189,6 +189,7 @@ enum Snapshot {
         // dragging pictures around, and how the cost of a first reading is timed.
         if let i = args.firstIndex(of: "--ocr-selftest"), args.count > i + 1 {
             ScreenTextController.diagnostics = args.contains("--verbose")
+            ScreenTextController.forceCold = args.contains("--ocr-cold")
             let files = args[(i + 1)...].prefix { !$0.hasPrefix("--") }
             var missed = false
             for path in files {
@@ -708,6 +709,7 @@ enum Snapshot {
                 MarkupNote.card(L10n.t(.mkSaveFailed, lang))
                 MarkupNote.card(L10n.t(.mkCopyFailed, lang))
                 MarkupNote.card(L10n.t(.clipboardCopied, lang))
+                MarkupNote.card(L10n.t(.ocrPreparing, lang), detail: L10n.t(.ocrPreparingDetail, lang))
             }
             .padding(14)
             .background(Theme.panelBackground))

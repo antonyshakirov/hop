@@ -49,9 +49,52 @@ final class ScreenTextController: ObservableObject {
 
     private var warming = false
 
+    /// SPEC: docs/spec.md — "Before the warm-up has run". A reading that is
+    /// still compiling models after a moment says so where the pointer is.
+    private func noteTheWait() -> DispatchWorkItem {
+        let work = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self, self.state == .reading else { return }
+                self.noting = true
+                let pointer = NSEvent.mouseLocation
+                MarkupNote.show(L10n.t(.ocrPreparing, L10n.current), detail: L10n.t(.ocrPreparingDetail, L10n.current),
+                                over: CGRect(x: pointer.x - 1, y: pointer.y - 1, width: 2, height: 2),
+                                sticky: true)
+            }
+        }
+        if !Self.languagesWarm { DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: work) }
+        return work
+    }
+
+    private var noting = false
+
+    private func endTheWait(_ wait: DispatchWorkItem) {
+        wait.cancel()
+        guard noting else { return }
+        noting = false
+        MarkupNote.hide()
+    }
+
+    /// Set by `--ocr-cold`: reads as if the warm-up had not run yet.
+    nonisolated(unsafe) static var forceCold = false
+
+    private nonisolated static let executableKey: String? = {
+        guard let executable = Bundle.main.executableURL,
+              let attributes = try? FileManager.default.attributesOfItem(atPath: executable.path),
+              let size = attributes[.size] as? Int,
+              let modified = attributes[.modificationDate] as? Date else { return nil }
+        return RecognitionWarmUp.key(size: size, modified: modified)
+    }()
+
+    /// SPEC: docs/spec.md — "Before the warm-up has run".
+    nonisolated static var languagesWarm: Bool {
+        guard !forceCold, let key = executableKey else { return false }
+        return UserDefaults.standard.string(forKey: SettingsKey.ocrWarmedFor) == key
+    }
+
     /// SPEC: docs/spec.md — "The first reading after an update is not the slow one".
     func watchWarmUp() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + LaunchGuard.stableAfter + 5) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
             self?.warmUpIfDue()
         }
         NotificationCenter.default.addObserver(
@@ -62,11 +105,7 @@ final class ScreenTextController: ObservableObject {
     }
 
     private func warmUpIfDue() {
-        guard !Snapshot.active, !warming, let executable = Bundle.main.executableURL,
-              let attributes = try? FileManager.default.attributesOfItem(atPath: executable.path),
-              let size = attributes[.size] as? Int,
-              let modified = attributes[.modificationDate] as? Date else { return }
-        let key = RecognitionWarmUp.key(size: size, modified: modified)
+        guard !Snapshot.active, !warming, let key = Self.executableKey else { return }
         let defaults = UserDefaults.standard
         guard RecognitionWarmUp.isDue(warmedFor: defaults.string(forKey: SettingsKey.ocrWarmedFor),
                                       current: key, moduleOn: ModuleActivation.isOn("ocr")) else { return }
@@ -125,7 +164,9 @@ final class ScreenTextController: ObservableObject {
                 return
             }
             state = .reading
+            let wait = noteTheWait()
             let text = await Self.read(file)
+            endTheWait(wait)
             try? FileManager.default.removeItem(at: file)
             onSelection?(false)
             guard let text else {
@@ -144,7 +185,9 @@ final class ScreenTextController: ObservableObject {
         guard !isBusy, !Snapshot.active else { return }
         state = .reading
         Task {
+            let wait = noteTheWait()
             let text = await Self.read(url)
+            endTheWait(wait)
             guard let text else {
                 settle(.empty)
                 return
@@ -362,12 +405,16 @@ final class ScreenTextController: ObservableObject {
 
     private nonisolated static func read(_ file: URL) async -> String? {
         let interfaceScript = script(of: L10n.current)
+        let warm = languagesWarm
         return await Task.detached(priority: .userInitiated) {
             guard let source = CGImageSourceCreateWithURL(file as CFURL, nil),
                   let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { return nil }
             let handler = VNImageRequestHandler(cgImage: image, options: [:])
+            let supported = (try? VNRecognizeTextRequest().supportedRecognitionLanguages()) ?? []
 
-            let textRequest = firstPassRequest()
+            let textRequest = warm ? firstPassRequest()
+                : helperPassRequest(RecognitionWarmUp.quickLanguages(interface: interfaceScript,
+                                                                     supported: supported))
             let codeRequest = VNDetectBarcodesRequest()
             do {
                 try handler.perform([textRequest, codeRequest])
@@ -393,12 +440,13 @@ final class ScreenTextController: ObservableObject {
                 print("  interface: \(L10n.current.rawValue) -> \(interfaceScript.rawValue)")
             }
             if !ScriptMerge.garbledLines(primary).isEmpty {
-                let supported = (try? VNRecognizeTextRequest().supportedRecognitionLanguages()) ?? []
-                let helperTags = ScriptMerge.helperLanguages(
+                let allHelpers = ScriptMerge.helperLanguages(
                     seen: ScriptMerge.competence(of: primary),
                     dominant: ScriptMerge.dominant(of: primary),
                     interface: interfaceScript,
                     supported: supported)
+                let helperTags = warm ? allHelpers
+                    : RecognitionWarmUp.quickHelpers(allHelpers, interface: interfaceScript)
                 if diagnostics { print("  helper tags: \(helperTags)") }
                 if !helperTags.isEmpty {
                     let second = helperPassRequest(helperTags)

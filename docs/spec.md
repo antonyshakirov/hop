@@ -2581,7 +2581,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and keeps them; an update is a new executable, so the first reading after
   one waited for the compile — measured 12 to 60 s, with nothing on screen,
   which reads as a hotkey that did not work. Every later reading takes 0.05 to
-  0.3 s. Hop now pays the compile itself: 35 s after launch, or when the module
+  0.3 s. Hop now pays the compile itself: 5 s after launch, or when the module
   is switched on, it reads pages it draws — English, Russian, Chinese,
   Japanese, Korean, Arabic and Thai lines, short and long, on a screen, a wide
   block, a square and a single line, sparse and dense — through both passes
@@ -2606,6 +2606,23 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     Russian and in an English interface. Running on the CPU instead does not
     avoid the compile (154 s cold).
   `Hop --ocr-warmup [--ocr-selftest <image>…]` times it.
+- **Before the warm-up has run** (Anton, 2026-09-28). The models cannot come
+  with the update: macOS builds them on the Mac, for the executable in its
+  place, and a copy of the same program at another path starts from nothing.
+  So the warm-up starts 5 s after launch; an automatic update is installed
+  after 20 idle minutes and relaunches Hop, so it is done before the user is
+  back. Until it is done (`ocrWarmedFor` differs from the executable):
+  - the first pass NAMES the reader's language and English
+    (`RecognitionWarmUp.quickLanguages`) instead of detecting the script, and
+    the second pass leaves out Chinese and Japanese unless the reader's own
+    language needs them (`quickHelpers`). Measured on a cold executable: the
+    detector and the Latin-Cyrillic reader still compile, ~26 s, but the
+    Chinese-Japanese reader and its minute of compiles are skipped;
+  - a reading still running after 1.5 s puts a card at the pointer —
+    "loading the recognition languages", "the first time after an update
+    this takes up to half a minute" (`MarkupNote`, sticky) — and takes it
+    away when the text is ready. Only its own card: another module's receipt
+    is left alone. `--note-cards` renders it; `--ocr-cold` reads in this mode.
 
 ### Languages
 
