@@ -143,4 +143,10 @@ final class NetworkRuleSafetyTests: XCTestCase {
         XCTAssertLessThan(Date().timeIntervalSince(started), 0.5)
         XCTAssertEqual(index.ruled(flow, resolved: [:]).action, .deny)
     }
+
+    func testAJSONFileMeetsTheSameNameRules() {
+        let json = #"[{"app":"*","host":"com","action":"deny"},{"app":"*","host":"local","action":"deny"},"#
+            + #"{"app":"*","action":"deny"},{"app":"a","host":"x.com","action":"deny"}]"#
+        XCTAssertEqual(NetworkRuleFile.parse(json), [NetworkRule(app: "a", host: "x.com", action: .deny)])
+    }
 }

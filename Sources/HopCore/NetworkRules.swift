@@ -150,7 +150,10 @@ public enum NetworkRuleFile {
     public static func parse(_ text: String) -> [NetworkRule] {
         if let data = text.data(using: .utf8),
            let rules = try? JSONDecoder().decode([NetworkRule].self, from: data) {
-            return rules
+            return rules.filter { rule in
+                guard let host = rule.host else { return rule.app != NetworkRule.anyProgram }
+                return blockable(host) || NetworkRules.isAddress(host)
+            }
         }
         var rules: [NetworkRule] = []
         for raw in text.split(whereSeparator: \.isNewline) {

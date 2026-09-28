@@ -13,6 +13,8 @@ final class FilterDataProvider: NEFilterDataProvider {
         var index = NetworkRuleIndex([])
         var resolved: [String: Set<String>] = [:]
         var pending: Set<String> = []
+        /// When each name asked for by a connection was last looked up.
+        var tried: [String: Date] = [:]
         var debugExit = false
     }
 
@@ -100,29 +102,41 @@ final class FilterDataProvider: NEFilterDataProvider {
         lookups.async { [weak self] in self?.lookUpRuleHosts() }
     }
 
+    /// A name found is asked again after a minute, one that was not after 30 s:
+    /// sites move, and a lookup made offline must not stand for ever.
     private func lookUp(_ name: String) {
+        let now = Date()
         let fresh = state.withLock { state -> Bool in
-            guard state.pending.count < 100, state.resolved[name] == nil else { return false }
-            return state.pending.insert(name).inserted
+            let wait: TimeInterval = state.resolved[name] == nil ? 30 : 60
+            guard state.pending.count < 100, !state.pending.contains(name),
+                  now.timeIntervalSince(state.tried[name] ?? .distantPast) > wait else { return false }
+            state.pending.insert(name)
+            state.tried[name] = now
+            return true
         }
         guard fresh else { return }
         lookups.async { [weak self] in
             let found = Self.addresses(of: name)
             self?.state.withLock {
                 $0.pending.remove(name)
-                $0.resolved[name] = found
+                $0.resolved[name] = found.isEmpty ? nil : found
             }
         }
     }
 
     private func lookUpRuleHosts() {
-        let (rules, asked) = state.withLock { ($0.rules, Set($0.resolved.keys)) }
+        let rules = state.withLock { $0.rules }
         var found: [String: Set<String>] = [:]
-        for host in NetworkRules.hostsToResolve(rules) { found[host] = Self.addresses(of: host) }
+        for host in NetworkRules.hostsToResolve(rules) {
+            let addresses = Self.addresses(of: host)
+            if !addresses.isEmpty { found[host] = addresses }
+        }
         let fresh = found
+        let hourAgo = Date().addingTimeInterval(-3600)
         state.withLock { state in
+            state.tried = state.tried.filter { $0.value > hourAgo }
             var merged = fresh
-            for name in asked where merged[name] == nil && merged.count < 400 {
+            for name in state.tried.keys where merged[name] == nil {
                 merged[name] = state.resolved[name]
             }
             state.resolved = merged

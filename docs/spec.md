@@ -2311,7 +2311,10 @@ group.
   holds as named; an allow by name holds only for an address the filter
   found for that name itself. An unconfirmed name is looked up in the
   background (at most 100 at a time), so the first connection of a new
-  subdomain may meet the program's block once. Lookups never sit on a
+  subdomain may meet the program's block once. A name found is looked up
+  again after a minute, one not found after 30 s (nothing is kept from a
+  lookup made offline), and names no connection asked for in an hour are
+  forgotten. A file in Hop's JSON meets the same name rules as text. Lookups never sit on a
   connection's path: the state is swapped under a lock and the lookups run
   on their own queue, so a long or broken block list cannot hang the Mac.
   The window shows what the rules say, taking each name at its word.
