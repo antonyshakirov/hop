@@ -19,6 +19,7 @@ struct TodosView: View {
     /// hold the keyboard while typing — otherwise keystrokes leak to the app
     /// underneath and digits could drive the timer if it shares this space.
     var onEditingChanged: ((Bool) -> Void)? = nil
+    var onCardExpandedChanged: ((Bool) -> Void)? = nil
 
     private struct RowFrameKey: PreferenceKey {
         static let defaultValue: [UUID: CGRect] = [:]
@@ -482,11 +483,14 @@ struct TodosView: View {
                              reminder: ReminderDraft(date: item.remindAt,
                                                      repeatDays: item.repeatDays))
         expanded = item.id
+        onCardExpandedChanged?(true)
     }
 
     private func collapseCard() {
+        let wasExpanded = expanded != nil
         expanded = nil
         card = nil
+        if wasExpanded { onCardExpandedChanged?(false) }
     }
 
     /// SPEC: docs/spec.md, "Leaving the card" — every exit but an explicit cancel.

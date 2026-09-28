@@ -85,7 +85,10 @@ signing would break).
    without building another panel; the first visit uses the real content reader
    after layout. On macOS 27 an unseen space first nudges the popover by one point
    to make inactive-window layout run, then restores its exact measured height.
-   Later measurements follow changes inside that space. The header is out of the
+   Later measurements follow changes inside that space. Expanding a clipboard,
+   tracker or to-do card invalidates that space's cached height. An expanded
+   height is never cached; closing the card waits for a fresh collapsed
+   measurement before the height can be reused. The header is out of the
    scroll, so only the scroll region's bottom edge moves — the header cannot
    bob, nor be dragged by a leftover scroll offset (each
    space/overlay gets a fresh scroll identity that starts at offset 0).

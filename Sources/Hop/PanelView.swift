@@ -195,8 +195,7 @@ struct PanelView: View {
     // scroll frame — the chrome never moves.
     @State private var chromeHeight: CGFloat = 0
     @State private var contentHeight: CGFloat = 0
-    @State private var measuredSpaceHeights: [UUID: CGFloat] = [:]
-    @State private var expandedClipboardSpaces: Set<UUID> = []
+    @State private var spaceHeightCache = PanelSpaceHeightCache()
     @State private var awaitingUncachedSpaceHeight: UUID?
     @State private var newCycleWork = 25
     @State private var newCycleRest = 5
@@ -357,7 +356,7 @@ struct PanelView: View {
         .onChange(of: trackerEditing) { _, _ in syncKeyboardCapture() }
         .onChange(of: todosEditing) { _, _ in syncKeyboardCapture() }
         .onChange(of: clipboardSearching) { _, _ in syncKeyboardCapture() }
-        .onChange(of: panelTabsRaw) { _, _ in measuredSpaceHeights.removeAll() }
+        .onChange(of: panelTabsRaw) { _, _ in spaceHeightCache.clear() }
         .onDisappear {
             model.panelKeyboardCaptured = false
             // A normal left-click / hotkey reopen does not fire the openTab
@@ -1463,11 +1462,11 @@ struct PanelView: View {
         PanelFrameLog.write("measure", "space=\(scrollResetKey) measured=\(height) stored=\(contentHeight)")
         let measuredSpace = scrollResetKey
         let measuredID = currentSpaceID
+        let revision = measuredID.map { spaceHeightCache.revision(for: $0) }
         DispatchQueue.main.async {
             guard scrollResetKey == measuredSpace else { return }
-            if let measuredID, !expandedClipboardSpaces.contains(measuredID),
-               measuredSpaceHeights[measuredID] != rounded {
-                measuredSpaceHeights[measuredID] = rounded
+            if let measuredID, let revision {
+                spaceHeightCache.store(rounded, for: measuredID, revision: revision)
             }
             let restoreNudge = awaitingUncachedSpaceHeight == measuredID
             if restoreNudge { awaitingUncachedSpaceHeight = nil }
@@ -1614,7 +1613,7 @@ struct PanelView: View {
         PanelFrameLog.write("switch", "from=\(scrollResetKey) to=\(id.uuidString) contentHeight=\(contentHeight)")
         guard screen != .space(id) else { return }
         editUnit = nil
-        let cachedHeight = measuredSpaceHeights[id]
+        let cachedHeight = spaceHeightCache.height(for: id)
         let currentHeight = min(chromeHeight + contentHeight, maxPanelHeight)
         let preferredHeight: CGFloat
         if let cachedHeight {
@@ -3181,8 +3180,7 @@ struct PanelView: View {
                           pasteIntoPreviousApp: { model.pasteIntoPreviousApp?() },
                           onSearchFocusChanged: { clipboardSearching = $0 },
                           onExpandedChanged: { expanded in
-                              if expanded { expandedClipboardSpaces.insert(spaceID) }
-                              else { expandedClipboardSpaces.remove(spaceID) }
+                              spaceHeightCache.setExpanded(expanded, module: "clipboard", in: spaceID)
                           })
                 .id(model.themeVersion)
         case "convert": convertZone
@@ -3248,11 +3246,17 @@ struct PanelView: View {
                 .id(model.themeVersion)
         case "tracker":
             TrackerView(tracker: model.tracker, lang: lang,
-                        onEditingChanged: { trackerEditing = $0 })
+                        onEditingChanged: { trackerEditing = $0 },
+                        onCardExpandedChanged: { expanded in
+                            spaceHeightCache.setExpanded(expanded, module: "tracker", in: spaceID)
+                        })
                 .id(model.themeVersion)
         case "todos":
             TodosView(todos: model.todos, lang: lang,
-                      onEditingChanged: { todosEditing = $0 })
+                      onEditingChanged: { todosEditing = $0 },
+                      onCardExpandedChanged: { expanded in
+                          spaceHeightCache.setExpanded(expanded, module: "todos", in: spaceID)
+                      })
                 .id(model.themeVersion)
         default: EmptyView()
         }
