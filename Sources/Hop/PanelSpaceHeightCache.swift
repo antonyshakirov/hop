@@ -9,7 +9,9 @@ struct PanelSpaceHeightCache {
     func revision(for space: UUID) -> Int { revisions[space, default: 0] }
 
     mutating func store(_ height: CGFloat, for space: UUID, revision: Int) {
-        guard revision == self.revision(for: space),
+        // A space measured before it was laid out reads as nothing; caching that
+        // would size the panel to nothing on the next visit. Test in PanelSpaceHeightCacheTests.
+        guard height >= 1, revision == self.revision(for: space),
               expandedModules[space]?.isEmpty != false,
               heights[space] != height else { return }
         heights[space] = height
