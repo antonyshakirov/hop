@@ -342,6 +342,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.screenText.onSelection = { [weak self] selecting in
             self?.setScreenTextWindowAside(selecting)
         }
+        model.screenText.watchWarmUp()
         model.openTorrentAddSheet = { [weak self] source in
             self?.showTorrentAddWindow(source)
         }

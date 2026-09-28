@@ -168,18 +168,38 @@ enum Snapshot {
             exit(0)
         }
 
-        // `Hop --ocr-selftest <image>` prints what recognition makes of a file
-        // and exits. The reference set for the two-pass merge lives in the specs;
-        // this is how it is re-checked without a human dragging pictures around.
-        if let i = args.firstIndex(of: "--ocr-selftest"), args.count > i + 1 {
-            let url = URL(fileURLWithPath: args[i + 1])
-            ScreenTextController.diagnostics = args.contains("--verbose")
+        // `Hop --ocr-warmup` runs the warm-up alone and prints how long it took;
+        // with `--ocr-selftest` in the same call it shows whether the first real
+        // reading in that process got cheap.
+        if args.contains("--ocr-warmup") {
             let started = Date()
-            let text = ScreenTextController.recognizeForSelfTest(url)
-            let ms = Int(Date().timeIntervalSince(started) * 1000)
-            print("[\(ms) ms]")
-            print(text ?? "(nothing recognized)")
-            exit(text == nil ? 1 : 0)
+            let semaphore = DispatchSemaphore(value: 0)
+            Task.detached {
+                await ScreenTextController.warmUp()
+                semaphore.signal()
+            }
+            semaphore.wait()
+            print("[warm-up \(Int(Date().timeIntervalSince(started) * 1000)) ms]")
+            if !args.contains("--ocr-selftest") { exit(0) }
+        }
+
+        // `Hop --ocr-selftest <image>…` prints what recognition makes of each
+        // file, in one process, and exits. The reference set for the two-pass
+        // merge lives in the specs; this is how it is re-checked without a human
+        // dragging pictures around, and how the cost of a first reading is timed.
+        if let i = args.firstIndex(of: "--ocr-selftest"), args.count > i + 1 {
+            ScreenTextController.diagnostics = args.contains("--verbose")
+            let files = args[(i + 1)...].prefix { !$0.hasPrefix("--") }
+            var missed = false
+            for path in files {
+                let started = Date()
+                let text = ScreenTextController.recognizeForSelfTest(URL(fileURLWithPath: path))
+                let ms = Int(Date().timeIntervalSince(started) * 1000)
+                print("[\(ms) ms] \((path as NSString).lastPathComponent)")
+                print(text ?? "(nothing recognized)")
+                missed = missed || text == nil
+            }
+            exit(missed ? 1 : 0)
         }
 
         // `Hop --markup-selftest <out.png>` runs the export path end to end.

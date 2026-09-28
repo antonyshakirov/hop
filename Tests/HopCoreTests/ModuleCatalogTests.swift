@@ -168,7 +168,8 @@ final class ModuleCatalogTests: XCTestCase {
             XCTAssertTrue(ids.contains(id), "no module answers to \(id)")
         }
         XCTAssertTrue(ModuleCatalog.hasSettings("timer"))
-        for bare in ["speedtest", "ocr", "keyboard", "uninstall"] {
+        XCTAssertTrue(ModuleCatalog.hasSettings("ocr"), "the window after a reading is a setting")
+        for bare in ["speedtest", "keyboard", "uninstall"] {
             XCTAssertFalse(ModuleCatalog.hasSettings(bare), "\(bare) carries the switch alone")
         }
         XCTAssertFalse(ModuleCatalog.hasSettings("nothing-of-the-sort"))

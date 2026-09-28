@@ -715,8 +715,8 @@ nobody can act on, and leaving them in place was what made the switch read as
 switch, "how it works" and the link to the guide — the page still says what the
 module would do for somebody deciding whether to bring it back. The rule under
 the switch is drawn only for modules that own settings at all
-(`ModuleCatalog.modulesWithSettings`, tested): the speed test, recognition, the
-keyboard lock and the uninstaller carry the switch alone, and used to draw a
+(`ModuleCatalog.modulesWithSettings`, tested): the speed test, the keyboard
+lock and the uninstaller carry the switch alone, and used to draw a
 hairline over empty space.
 
 Two settings stayed off
@@ -2501,7 +2501,7 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     matching words by the box Vision reports for the substring. Word ORDER always
     comes from the first pass, never from the x coordinate — sorting by x
     reversed an Arabic line.
-  - Verified end to end through `Hop --ocr-selftest <image> [--verbose]`, which
+  - Verified end to end through `Hop --ocr-selftest <image>… [--verbose]`, which
     prints the passes and the merge for the reference pictures.
 - **A reading that holds a web address can be FOLLOWED** (Anton, 2026-07-27):
   the window shows an "open link" button that hands the address to the default
@@ -2530,6 +2530,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   and the paste monitor stands down while it is key — a picture pasted there is
   input for recognition, not a clipboard entry. The drop plate is generously
   sized (padding 48) and the window sizes to it.
+- **The window is a setting** (Anton, 2026-09-28): "open a window with the
+  copied text" (`ocrShowsWindow`, the module's settings page, ON by default).
+  Off, a reading goes to the pasteboard and the history and nothing opens. A
+  window the user already had open still steps aside for the crosshair and
+  comes back, as below: the setting decides whether a reading OPENS one.
 - **The reason this module exists**: the result is a HISTORY entry, searchable
   next to everything else copied. Live Text and the standalone grabbers hand the
   text over once and forget it — without the clipboard link this would be a clone
@@ -2571,6 +2576,36 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   screen.
 - Hotkey `⌃⌥R`, module-gated exactly like the eyedropper's; ships hidden via
   `optInModules`. Snapshot flags: `--ocr`, or `--tools` for both new modules.
+- **The first reading after an update is not the slow one** (Anton,
+  2026-09-28). macOS compiles Vision's recognition models for each executable
+  and keeps them; an update is a new executable, so the first reading after
+  one waited for the compile — measured 12 to 60 s, with nothing on screen,
+  which reads as a hotkey that did not work. Every later reading takes 0.05 to
+  0.3 s. Hop now pays the compile itself: 35 s after launch, or when the module
+  is switched on, it reads pages it draws — English, Russian, Chinese,
+  Japanese, Korean, Arabic and Thai lines, short and long, on a screen, a wide
+  block, a square and a single line, sparse and dense — through both passes
+  (the second with the language sets `ScriptMerge.helperLanguages` picks for
+  Latin plus the interface script). Utility priority, 75 to 95 s of the
+  system's model compiler, once per executable (`RecognitionWarmUp`, keyed by
+  the executable's size and date; `ocrWarmedFor`). The sample lines are Hop's
+  own "how it works" text for recognition in those languages, so the code
+  carries no foreign text of its own. Nothing is stored: no history entry, no
+  pasteboard, no window.
+  - Why the Chinese and Japanese lines come in pieces of one to eight
+    characters: most of Vision's line readers ship precompiled, but the one
+    for Chinese and Japanese (`cr_tr_model_cj_v3`) is compiled on the spot for
+    each WIDTH of line it meets, 14 to 22 s each. A Latin or Cyrillic screen
+    reaches it too — a round logo or an icon is read as a character — and
+    those are one or two characters wide. Warmed with long lines only, a chat
+    list with logos still waited 12 s; found by `log stream` on the process
+    (`E5BundleCache Lookup … exists=0` before `MILCompilerForE5`).
+  - Measured after it on a fresh executable (2026-09-28): 30 pictures —
+    real captures of every size, Chinese and Japanese pages with short and
+    long lines, Korean, Arabic, Thai and Hindi — 0.02 to 0.36 s each, in a
+    Russian and in an English interface. Running on the CPU instead does not
+    avoid the compile (154 s cold).
+  `Hop --ocr-warmup [--ocr-selftest <image>…]` times it.
 
 ### Languages
 
