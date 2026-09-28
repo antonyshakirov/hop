@@ -53,3 +53,41 @@ final class NetworkSightingsTests: XCTestCase {
         XCTAssertEqual(NetworkSightings.decode(NetworkSightings.encode(list)), list)
     }
 }
+
+final class NetworkProgramOrderTests: XCTestCase {
+    private let t0 = Date(timeIntervalSince1970: 1_790_000_000)
+
+    private func program(_ app: String, _ minutes: Double?) -> NetworkProgram {
+        NetworkProgram(app: app, path: nil, destinations: [], last: minutes.map { t0.addingTimeInterval($0 * 60) },
+                       blocked: false)
+    }
+
+    func testTheFirstOrderIsNewestFirst() {
+        XCTAssertEqual(NetworkProgramOrder.update([], with: [program("a", 1), program("b", 5), program("c", nil)]),
+                       ["b", "a", "c"])
+    }
+
+    func testAProgramKeepsItsPlaceWhateverHappensToIt() {
+        let order = ["a", "b", "c"]
+        let later = [program("c", 90), program("b", nil), program("a", 10)]
+        XCTAssertEqual(NetworkProgramOrder.update(order, with: later), ["a", "b", "c"])
+    }
+
+    func testNewProgramsComeAfterTheOnesAlreadyShown() {
+        XCTAssertEqual(NetworkProgramOrder.update(["a"], with: [program("a", 1), program("d", 3), program("e", 9)]),
+                       ["a", "e", "d"])
+    }
+
+    func testARestartedFilterDoesNotEmptyTheList() {
+        let before = NetworkSighting(app: "a", path: "/p", host: "x.com", address: "1", port: "443",
+                                     verdict: .allow, count: 40, last: t0)
+        let after = NetworkSighting(app: "a", path: nil, host: "x.com", address: "2", port: "443",
+                                    verdict: .deny, count: 1, last: t0.addingTimeInterval(60))
+        let merged = NetworkProgramOrder.merge(["a\u{1F}x.com": before], [after])
+        XCTAssertEqual(merged.count, 1)
+        XCTAssertEqual(merged["a\u{1F}x.com"]?.count, 40)
+        XCTAssertEqual(merged["a\u{1F}x.com"]?.verdict, .deny)
+        XCTAssertEqual(merged["a\u{1F}x.com"]?.path, "/p")
+        XCTAssertEqual(NetworkProgramOrder.merge(merged, []).count, 1)
+    }
+}

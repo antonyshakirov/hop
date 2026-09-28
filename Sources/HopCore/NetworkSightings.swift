@@ -103,3 +103,40 @@ public struct NetworkProgram: Equatable, Sendable {
         }
     }
 }
+
+/// SPEC: docs/spec.md — "Network access", a list that stays put.
+public enum NetworkProgramOrder {
+    /// Keeps every program where it already stands and adds new ones after them,
+    /// newest first among themselves.
+    public static func update(_ order: [String], with programs: [NetworkProgram]) -> [String] {
+        let known = Set(order)
+        let fresh = programs.filter { !known.contains($0.app) }
+            .sorted { ($0.last ?? .distantPast) > ($1.last ?? .distantPast) }
+            .map(\.app)
+        return order + fresh
+    }
+
+    /// Merges what the filter reports into what was seen before, so a restarted
+    /// filter, whose log starts empty, does not empty the list.
+    public static func merge(_ known: [String: NetworkSighting], _ fetched: [NetworkSighting])
+        -> [String: NetworkSighting] {
+        var result = known
+        for sighting in fetched {
+            let key = sighting.app + "\u{1F}" + sighting.destination
+            if var old = result[key] {
+                old.count = max(old.count, sighting.count)
+                if sighting.last >= old.last {
+                    old.last = sighting.last
+                    old.verdict = sighting.verdict
+                    old.address = sighting.address
+                    old.port = sighting.port
+                }
+                if old.path == nil { old.path = sighting.path }
+                result[key] = old
+            } else {
+                result[key] = sighting
+            }
+        }
+        return result
+    }
+}

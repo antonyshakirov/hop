@@ -2340,8 +2340,14 @@ group.
   (every app in the Applications folders, so any can be blocked ahead). Each
   program and address carries a label, "allowed" in green or "blocked" in
   red, that turns over on a click: a bare switch did not say which way it was
-  set. An address with a rule of its own has a way back to following the
-  program's label. The list is fetched over XPC every 2 s while the window is
+  set. **The list stays put** (Anton, 2026-09-29): the order is set when the
+  window opens, newest first, and then only grows — a program keeps its row
+  whatever its label becomes, new ones come after (`NetworkProgramOrder`,
+  tested); a row that jumped away under the pointer invited the next click
+  on the wrong one. Hop keeps the connections it was shown, so a filter
+  restarted by a rule change does not empty the list. A helper inside an app
+  shows that app's icon. An address with a rule of its own has a way back to
+  following the program's label. The list is fetched over XPC every 2 s while the window is
   open; nothing polls when it is closed.
 - **Rules from a file** (`NetworkRuleFile`, tested): Hop's own JSON, a plain
   list of addresses (blocked for every program), a hosts file, or

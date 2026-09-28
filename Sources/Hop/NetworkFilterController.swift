@@ -20,6 +20,9 @@ final class NetworkFilterController: NSObject, ObservableObject {
     @Published private(set) var state: State = .off
     @Published private(set) var rules: [NetworkRule] = []
     @Published private(set) var sightings: [NetworkSighting] = []
+    /// The order the window shows programs in: set when it opens, then only grows.
+    @Published private(set) var order: [String] = []
+    private var known: [String: NetworkSighting] = [:]
     @Published private(set) var installed: [(id: String, name: String)] = []
 
     var programs: [NetworkProgram] { NetworkProgram.group(sightings, rules: rules) }
@@ -168,6 +171,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
 
     func watch() {
         loadInstalled()
+        order = NetworkProgramOrder.update([], with: programs)
         guard watcher == nil, !Snapshot.active else { return }
         fetch()
         watcher = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
@@ -320,7 +324,12 @@ final class NetworkFilterController: NSObject, ObservableObject {
         guard state == .on, let service = service() else { return }
         service.sightings { [weak self] data in
             let list = NetworkSightings.decode(data)
-            Task { @MainActor in self?.sightings = list }
+            Task { @MainActor in
+                guard let self else { return }
+                self.known = NetworkProgramOrder.merge(self.known, list)
+                self.sightings = Array(self.known.values)
+                self.order = NetworkProgramOrder.update(self.order, with: self.programs)
+            }
         }
     }
 
@@ -374,6 +383,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
 
     func setRules(_ next: [NetworkRule]) {
         rules = next
+        if !order.isEmpty { order = NetworkProgramOrder.update(order, with: programs) }
         guard !Snapshot.active else { return }
         UserDefaults.standard.set(NetworkRules.encode(next), forKey: Self.rulesKey)
         guard state == .on else { return }

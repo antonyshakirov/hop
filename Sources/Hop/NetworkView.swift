@@ -376,9 +376,13 @@ struct NetworkWindowView: View {
             || hosts.contains { $0.lowercased().contains(needle) }
     }
 
+    // SPEC: docs/spec.md — "Network access": a row stays where it is when its label turns.
     private var seen: [NetworkProgram] {
         let hourAgo = Date().addingTimeInterval(-3600)
-        return network.programs.filter { program in
+        let place = Dictionary(network.order.enumerated().map { ($1, $0) }, uniquingKeysWith: { first, _ in first })
+        return network.programs.sorted {
+            (place[$0.app] ?? Int.max, $0.app) < (place[$1.app] ?? Int.max, $1.app)
+        }.filter { program in
             guard program.app != NetworkRule.anyProgram else { return false }
             switch filter {
             case .all: break
@@ -638,8 +642,12 @@ enum NetworkProgramLook {
     private static func look(_ app: String, _ path: String?) -> (name: String, icon: NSImage) {
         if let known = cache[app] { return known }
         var bundlePath: String?
-        if let path, let range = path.range(of: ".app/", options: .backwards) {
-            bundlePath = String(path[..<range.lowerBound]) + ".app"
+        var outerPath: String?
+        if let path, let inner = path.range(of: ".app/", options: .backwards),
+           let outer = path.range(of: ".app/") {
+            bundlePath = String(path[..<inner.lowerBound]) + ".app"
+            // a helper deep inside an app shows that app's icon, not a blank one
+            outerPath = String(path[..<outer.lowerBound]) + ".app"
         } else if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: app) {
             bundlePath = url.path
         }
@@ -647,7 +655,7 @@ enum NetworkProgramLook {
         if let bundlePath {
             let name = FileManager.default.displayName(atPath: bundlePath)
                 .replacingOccurrences(of: ".app", with: "")
-            result = (name, NSWorkspace.shared.icon(forFile: bundlePath))
+            result = (name, NSWorkspace.shared.icon(forFile: outerPath ?? bundlePath))
         } else {
             let name = path.map { ($0 as NSString).lastPathComponent } ?? app
             result = (name, NSWorkspace.shared.icon(for: .unixExecutable))
