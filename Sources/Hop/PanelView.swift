@@ -77,6 +77,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
     @AppStorage(SettingsKey.ocrShowsWindow) private var ocrShowsWindow = true
+    @AppStorage(SettingsKey.networkAsk) private var networkAsk = false
     @AppStorage(SettingsKey.vpnHoldOff) private var vpnHoldOff = true
     @AppStorage(SettingsKey.toolsOneRow) private var toolsOneRow = false
     @AppStorage(SettingsKey.clipboardToFile) private var clipboardToFile = false
@@ -3856,6 +3857,7 @@ struct PanelView: View {
         case "shot": shotSettings
         case "annotate": annotateSettings
         case "ocr": ocrSettings
+        case "network": networkSettings
         default: EmptyView()
         }
     }
@@ -4286,6 +4288,17 @@ struct PanelView: View {
                 .foregroundStyle(Theme.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
+    }
+
+    private var networkSettings: some View {
+        VStack(spacing: 14) {
+            switchSetting(t(.settingsNetworkAsk), isOn: $networkAsk)
+            Text(t(.settingsNetworkAskNote))
+                .font(Theme.mono(8))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .onChange(of: networkAsk) { _, _ in model.networkFilter.syncAsking() }
     }
 
     private var ocrSettings: some View {

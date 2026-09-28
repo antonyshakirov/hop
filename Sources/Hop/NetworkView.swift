@@ -52,6 +52,7 @@ enum NetworkStatusText {
         case .needsApproval: return (L10n.t(.networkNeedsApproval, lang), true)
         case .failed: return (L10n.t(.networkFailed, lang), true)
         case .on:
+            if network.stopped { return (L10n.t(.networkStopped, lang), true) }
             let blocked = network.rules.filter { $0.action == .deny }.count
             return blocked == 0 ? nil
                 : (L10n.t(.networkRulesCount, lang).replacingOccurrences(of: "%d", with: "\(blocked)"), false)

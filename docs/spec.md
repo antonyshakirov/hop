@@ -2261,6 +2261,92 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the eyedropper and recognition: a Mac with no VPN configured would otherwise
   get an empty section it never asked for.
 
+### Network access
+
+In development (Anton, 2026-09-28): built into Hop Dev only; a release is
+built without the filter until the module ships. Module key `network`, title
+`networkLabel` ("network access"), off by default, placed on the second space
+next to the monitor, the speed test and the torrents (`reportingModules`; a
+new install or an update puts it there through `PanelTabsModel.ensure`, and on
+the first space when there is no such space), and in the onboarding's "Mac"
+group.
+
+- **What it is**: per-program network control in the manner of LuLu and
+  Little Snitch. Every program that goes online shows up with the addresses it
+  reached; a program can be cut off entirely, one address of a program can be
+  blocked or allowed (a licence check, say, while the rest goes through), and
+  a rule can be made before the program ever connects.
+- **The limit, said in the module's own text**: the filter decides at the
+  first packet of a connection and never looks inside it. A whole server is
+  blocked, never one page on it: inside an encrypted connection nothing is
+  visible, and Hop decrypts nothing (no local certificate authority, ever).
+- **How**: a content-filter system extension (`NEFilterDataProvider`,
+  target `HopNetFilter`, bundle `<app id>.netfilter`) inside
+  `Contents/Library/SystemExtensions`, installed with `OSSystemExtensionRequest`
+  when the row is switched on, then enabled through `NEFilterManager` with the
+  rules in `vendorConfiguration`. macOS asks twice, once: the extension in
+  System Settings → General → Login Items & Extensions → Network Extensions,
+  then the filter itself. A Developer ID system extension is refused unless it
+  is notarised (`-67050`, measured on macOS 27.0 without Developer Mode), so a
+  dev build that must run the filter is built with
+  `HOP_NOTARIZE=1 ./scripts/build-app.sh --install --dev`. The profiles come
+  from Xcode (Developer ID, Network Extensions) and live in
+  `~/.minimo-signing/profiles/`; `hop_embed_network_filter` in `signing.sh`
+  wraps and signs the extension inside out.
+- **Rules** (`NetworkRules`, HopCore, tested): a rule is a program's code
+  signing identifier, an optional host (nil = every destination of the
+  program) and allow or deny. A host rule covers its subdomains; an address
+  rule matches the address. `*` as the program stands for every program and
+  only ever with a host. Precedence: a rule for this program's destination,
+  then a rule for that destination for every program, then the program's own
+  switch; between equals deny wins; no rule, the connection goes through.
+  A connection that arrives as a bare address is matched through the rule
+  hosts the filter resolves itself every minute.
+- **Nothing to set up until the filter runs** (Anton, 2026-09-28): while it
+  is off, installing, waiting for approval or failed, the window shows a card
+  with what to do — numbered steps for the approval — and one button. The
+  list, the search and the rules appear once it runs; switches that did
+  nothing before approval looked as if they worked without it.
+- **The window** (Anton, 2026-09-28: clear, not technical): a header like a
+  settings page; search, a segmented all / blocked / last hour, a ⋯ menu for
+  rule files and "+ add a rule", which opens a small form with labelled
+  fields — program (every program, the ones seen, everything installed, or
+  one picked in Finder), address (empty = the whole program) and what to do.
+  Sections with a caption over a card each: "went online" (programs with
+  their icons, newest first, each opening onto its addresses), "every
+  program" (rules for one address across all programs) and "other programs"
+  (every app in the Applications folders, so any can be blocked ahead). Each
+  program and address carries a label, "allowed" in green or "blocked" in
+  red, that turns over on a click: a bare switch did not say which way it was
+  set. An address with a rule of its own has a way back to following the
+  program's label. The list is fetched over XPC every 2 s while the window is
+  open; nothing polls when it is closed.
+- **Rules from a file** (`NetworkRuleFile`, tested): Hop's own JSON, a plain
+  list of addresses (blocked for every program), a hosts file, or
+  `program address [allow|block]` lines where `*` as the address means the
+  whole program; `#` starts a comment. A loaded file wins where it names the
+  same program and address. Saving writes the same text form.
+- **Questions about new connections** (Anton, 2026-09-28: like LuLu and
+  Little Snitch, but not in the way): the setting "ask about new
+  connections" (`networkAsk`) is OFF by default. On, a TCP connection no
+  rule speaks about (`NetworkRules.ruled` is nil) is paused and Hop is asked
+  over the same XPC connection; a card at the top right of the screen names
+  the program and the address, with block / allow and "for every address of
+  this program". The answer becomes a rule and resumes the paused flows —
+  every flow to the same program and address waits on the one question.
+  No answer in 30 s, or no Hop to ask, lets the connection through: a
+  question must never hang the Mac.
+- **A stopped filter** (Anton, 2026-09-28): the internet keeps working and
+  the rules are off until the filter is back. While the filter is on, Hop
+  keeps an idle XPC connection to it; when that breaks, the row turns orange
+  ("the network filter stopped") and a card says so once, for 8 s; Hop tries
+  again every 5 s and the row clears when the filter answers. A dev build of
+  the extension exits on a connection to 192.0.2.1, to check exactly this.
+- **Who may talk to the filter**: its Mach service accepts only code signed
+  by the same team (`setCodeSigningRequirement`); what it hands out is the
+  log of connections it saw (at most 3000 program-and-destination pairs, the
+  oldest forgotten first — `NetworkSightings`).
+
 ### Apps (launcher)
 
 - Grids of apps kept at hand: NINE across, up to eight rows (72 icons), 32pt

@@ -42,6 +42,12 @@ public enum NetworkRules {
     /// equals, deny wins. With no rule the connection goes through.
     public static func verdict(for flow: NetworkFlow, rules: [NetworkRule],
                                addresses: [String: Set<String>] = [:]) -> NetworkRule.Action {
+        ruled(flow, rules: rules, addresses: addresses) ?? .allow
+    }
+
+    /// nil when no rule speaks about this connection: the one to ask about.
+    public static func ruled(_ flow: NetworkFlow, rules: [NetworkRule],
+                             addresses: [String: Set<String>] = [:]) -> NetworkRule.Action? {
         let forHost = rules.filter { rule in
             guard let host = rule.host, rule.app == NetworkRule.anyProgram || flow.apps.contains(rule.app)
             else { return false }
@@ -52,6 +58,7 @@ public enum NetworkRules {
         let deciding = own.isEmpty ? forHost : own
         if !deciding.isEmpty { return deciding.contains { $0.action == .deny } ? .deny : .allow }
         let whole = rules.filter { $0.host == nil && flow.apps.contains($0.app) }
+        guard !whole.isEmpty else { return nil }
         return whole.contains { $0.action == .deny } ? .deny : .allow
     }
 

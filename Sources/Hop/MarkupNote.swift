@@ -11,7 +11,7 @@ enum MarkupNote {
 
     /// `sticky` keeps the card up until `hide()`: for a wait, not a receipt.
     static func show(_ text: String, detail: String? = nil, file: URL? = nil,
-                     over anchor: CGRect, sticky: Bool = false) {
+                     over anchor: CGRect, sticky: Bool = false, lasting: Double? = nil) {
         guard anchor != .zero else { return }
         let card = MarkupNoteCard(
             text: text, detail: detail,
@@ -26,7 +26,7 @@ enum MarkupNote {
         panel.setContentSize(size)
         panel.setFrameOrigin(spot(for: size, over: anchor))
         panel.orderFrontRegardless()
-        if sticky { hold() } else { fade(after: file == nil ? 1.8 : 4.5) }
+        if sticky { hold() } else { fade(after: lasting ?? (file == nil ? 1.8 : 4.5)) }
     }
 
     /// The card alone, for `--snapshot --note-cards`.

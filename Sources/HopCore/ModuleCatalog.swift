@@ -188,7 +188,7 @@ public enum ModuleCatalog {
     public static let modulesWithSettings: Set<String> = [
         "timer", "system", "awake", "clipboard", "color", "tracker",
         "todos", "vpn", "convert", "archive", "torrent", "windows",
-        "shot", "annotate", "ocr",
+        "shot", "annotate", "ocr", "network",
     ]
 
     public static func hasSettings(_ id: String) -> Bool {

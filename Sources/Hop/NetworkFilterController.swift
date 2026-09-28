@@ -29,6 +29,15 @@ final class NetworkFilterController: NSObject, ObservableObject {
     private var connection: NSXPCConnection?
     private var watcher: Timer?
 
+    /// Connections waiting for an answer, oldest first.
+    @Published private(set) var questions: [NetworkSighting] = []
+    /// The filter process went away while on: traffic flows unchecked until it is back.
+    @Published private(set) var stopped = false
+    private var replies: [String: (String) -> Void] = [:]
+    private let receiver = AskReceiver()
+
+    private var asks: Bool { UserDefaults.standard.bool(forKey: SettingsKey.networkAsk) }
+
     static let rulesKey = "networkRules"
     private let log = Logger(subsystem: "com.antonshakirov.minimo", category: "network")
     private var extensionID: String { (Bundle.main.bundleIdentifier ?? "com.antonshakirov.minimo") + ".netfilter" }
@@ -37,6 +46,9 @@ final class NetworkFilterController: NSObject, ObservableObject {
         super.init()
         rules = NetworkRules.decode(UserDefaults.standard.data(forKey: Self.rulesKey))
         guard !Snapshot.active else { loadDemo(); return }
+        receiver.onAsk = { [weak self] data, reply in
+            Task { @MainActor in self?.receive(data, reply: reply) }
+        }
         Task { await readSystemState() }
         // SPEC: docs/spec.md — "A module that is off is off everywhere".
         NotificationCenter.default.addObserver(
@@ -62,6 +74,15 @@ final class NetworkFilterController: NSObject, ObservableObject {
         case "failed": state = .failed("")
         default: break
         }
+    }
+
+    func stageQuestionForSnapshot() {
+        questions = [NetworkSighting(app: "com.apple.Music", path: "/System/Applications/Music.app/Contents/MacOS/Music",
+                                     host: "license.example.com", address: "203.0.113.7", port: "443",
+                                     verdict: .allow, last: Date()),
+                     NetworkSighting(app: "com.apple.Safari", path: "/Applications/Safari.app/Contents/MacOS/Safari",
+                                     host: "github.com", address: "140.82.121.4", port: "443",
+                                     verdict: .allow, last: Date())]
     }
 
     /// Staged programs for the design and marketing renders.
@@ -99,6 +120,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
         guard (try? await manager.loadFromPreferences()) != nil else { return }
         if manager.isEnabled, manager.providerConfiguration?.filterDataProviderBundleIdentifier == extensionID {
             state = .on
+            syncAsking()
         }
     }
 
@@ -177,9 +199,101 @@ final class NetworkFilterController: NSObject, ObservableObject {
     func unwatch() {
         watcher?.invalidate()
         watcher = nil
+        guard state != .on else { return }
         connection?.invalidate()
         connection = nil
     }
+
+    /// SPEC: docs/spec.md — "Network access", a stopped filter. Said once,
+    /// then the row carries it until the filter answers again.
+    private func filterStopped() {
+        guard state == .on else { return }
+        if !stopped {
+            stopped = true
+            if let screen = NSScreen.main?.visibleFrame {
+                MarkupNote.show(L10n.t(.networkStopped, L10n.current),
+                                detail: L10n.t(.networkStoppedDetail, L10n.current),
+                                over: CGRect(x: screen.maxX - 200, y: screen.maxY - 2, width: 2, height: 2),
+                                lasting: 8)
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.probe() }
+    }
+
+    private func probe() {
+        guard state == .on, stopped else { return }
+        service()?.sightings { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.stopped else { return }
+                self.stopped = false
+                self.syncAsking()
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in self?.probe() }
+    }
+
+    // MARK: questions
+
+    /// The filter asks only while this app says it will answer.
+    func syncAsking() {
+        guard !Snapshot.active else { return }
+        if state == .on {
+            service()?.setAsking(asks)
+            if !asks { dropQuestions() }
+        } else if let connection {
+            (connection.remoteObjectProxy as? NetworkFilterXPC)?.setAsking(false)
+            if watcher == nil {
+                connection.invalidate()
+                self.connection = nil
+            }
+            dropQuestions()
+        }
+    }
+
+    private func receive(_ data: Data, reply: @escaping (String) -> Void) {
+        guard let sighting = NetworkSightings.decode(data).first, !Snapshot.active else { return reply("") }
+        let key = Self.key(sighting)
+        replies[key] = reply
+        questions.append(sighting)
+        NetworkQuestionPanel.show(self)
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.answerWait) { [weak self] in
+            self?.expire(key)
+        }
+    }
+
+    static let answerWait: TimeInterval = 30
+
+    static func key(_ sighting: NetworkSighting) -> String { sighting.app + " " + sighting.destination }
+
+    /// The answer becomes a rule, so the question is not asked again.
+    func answer(_ sighting: NetworkSighting, _ action: NetworkRule.Action, wholeProgram: Bool) {
+        if wholeProgram {
+            setProgram(sighting.app, allowed: action == .allow)
+        } else {
+            setDestination(sighting.app, sighting.destination, action: action)
+        }
+        let answered = questions.filter { Self.key($0) == Self.key(sighting) || (wholeProgram && $0.app == sighting.app) }
+        for question in answered {
+            replies.removeValue(forKey: Self.key(question))?(action.rawValue)
+        }
+        questions.removeAll { question in answered.contains { Self.key($0) == Self.key(question) } }
+        if questions.isEmpty { NetworkQuestionPanel.hide() }
+    }
+
+    private func expire(_ key: String) {
+        guard let reply = replies.removeValue(forKey: key) else { return }
+        reply("")
+        questions.removeAll { Self.key($0) == key }
+        if questions.isEmpty { NetworkQuestionPanel.hide() }
+    }
+
+    private func dropQuestions() {
+        for reply in replies.values { reply("") }
+        replies = [:]
+        questions = []
+        NetworkQuestionPanel.hide()
+    }
+
 
     private func fetch() {
         guard state == .on, let service = service() else { return }
@@ -200,8 +314,22 @@ final class NetworkFilterController: NSObject, ObservableObject {
         if connection == nil, let name = machServiceName {
             let connection = NSXPCConnection(machServiceName: name, options: .privileged)
             connection.remoteObjectInterface = NSXPCInterface(with: NetworkFilterXPC.self)
+            connection.exportedInterface = NSXPCInterface(with: NetworkFilterAskerXPC.self)
+            connection.exportedObject = receiver
+            connection.interruptionHandler = { [weak self] in
+                Task { @MainActor in
+                    self?.dropQuestions()
+                    self?.filterStopped()
+                }
+            }
             connection.invalidationHandler = { [weak self] in
-                Task { @MainActor in self?.connection = nil }
+                Task { @MainActor in
+                    guard let self else { return }
+                    self.connection = nil
+                    self.dropQuestions()
+                    guard self.state == .on else { return }
+                    self.filterStopped()
+                }
             }
             connection.resume()
             self.connection = connection
@@ -245,6 +373,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
             manager.isEnabled = enabled
             try await manager.saveToPreferences()
             state = enabled ? .on : .off
+            syncAsking()
             log.info("filter \(enabled ? "on" : "off", privacy: .public), \(self.rules.count) rules")
         } catch {
             state = .failed(error.localizedDescription)
@@ -280,5 +409,15 @@ extension NetworkFilterController: OSSystemExtensionRequestDelegate {
             state = .failed(error.localizedDescription)
             log.error("extension request failed: \(error.localizedDescription, privacy: .public)")
         }
+    }
+}
+
+/// Receives the filter's questions on the XPC queue and hands them to the app.
+private final class AskReceiver: NSObject, NetworkFilterAskerXPC, @unchecked Sendable {
+    var onAsk: ((Data, @escaping (String) -> Void) -> Void)?
+
+    func ask(_ sighting: Data, reply: @escaping (String) -> Void) {
+        guard let onAsk else { return reply("") }
+        onAsk(sighting, reply)
     }
 }

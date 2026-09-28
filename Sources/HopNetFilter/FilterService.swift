@@ -1,5 +1,6 @@
 import Foundation
 import HopCore
+import NetworkExtension
 import Security
 
 /// SPEC: docs/spec.md — "Network access". Keeps what the filter saw and hands it
@@ -33,11 +34,70 @@ final class FilterService: NSObject, NSXPCListenerDelegate, NetworkFilterXPC {
         queue.async { reply(NetworkSightings.encode(self.log.all)) }
     }
 
+    // MARK: questions about new connections
+
+    static let answerWait: TimeInterval = 30
+    private var asker: NSXPCConnection?
+    private var waiting: [String: [NEFilterFlow]] = [:]
+    private var answered: [String: (NetworkRule.Action, Date)] = [:]
+    weak var provider: NEFilterDataProvider?
+
+    var asking: Bool { queue.sync { asker != nil } }
+
+    func setAsking(_ on: Bool) {
+        let connection = NSXPCConnection.current()
+        queue.async { self.asker = on ? connection : nil }
+    }
+
+    /// An answer given a moment ago still stands while its rule is on its way.
+    func recentAnswer(_ key: String) -> NetworkRule.Action? {
+        queue.sync {
+            guard let (action, at) = answered[key], Date().timeIntervalSince(at) < 60 else { return nil }
+            return action
+        }
+    }
+
+    /// Holds the flow; the first flow of a key asks, the rest wait with it.
+    func ask(key: String, sighting: NetworkSighting, flow: NEFilterFlow) {
+        queue.async {
+            if self.waiting[key] != nil {
+                self.waiting[key]?.append(flow)
+                return
+            }
+            self.waiting[key] = [flow]
+            guard let proxy = self.asker?.remoteObjectProxyWithErrorHandler({ _ in
+                self.resolve(key, nil)
+            }) as? NetworkFilterAskerXPC else { return self.resolve(key, nil) }
+            let data = NetworkSightings.encode([sighting])
+            proxy.ask(data) { answer in
+                self.resolve(key, NetworkRule.Action(rawValue: answer))
+            }
+            self.queue.asyncAfter(deadline: .now() + Self.answerWait) { self.resolve(key, nil) }
+        }
+    }
+
+    /// No answer lets the connection through: a question must never hang the Mac.
+    private func resolve(_ key: String, _ answer: NetworkRule.Action?) {
+        queue.async {
+            guard let flows = self.waiting.removeValue(forKey: key) else { return }
+            let action = answer ?? .allow
+            if let answer { self.answered[key] = (answer, Date()) }
+            for flow in flows {
+                self.provider?.resumeFlow(flow, with: action == .deny ? NEFilterNewFlowVerdict.drop()
+                                                                      : NEFilterNewFlowVerdict.allow())
+            }
+        }
+    }
+
     func listener(_ listener: NSXPCListener, shouldAcceptNewConnection connection: NSXPCConnection) -> Bool {
         guard let team = Self.ownTeam else { return false }
         connection.setCodeSigningRequirement("anchor apple generic and certificate leaf[subject.OU] = \"\(team)\"")
         connection.exportedInterface = NSXPCInterface(with: NetworkFilterXPC.self)
+        connection.remoteObjectInterface = NSXPCInterface(with: NetworkFilterAskerXPC.self)
         connection.exportedObject = self
+        connection.invalidationHandler = { [weak self, weak connection] in
+            self?.queue.async { if self?.asker === connection { self?.asker = nil } }
+        }
         connection.resume()
         return true
     }

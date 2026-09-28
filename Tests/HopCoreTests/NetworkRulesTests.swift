@@ -94,3 +94,13 @@ final class NetworkModulePlacementTests: XCTestCase {
         XCTAssertTrue(ModuleCatalog.onboardingGroups.contains { $0.modules.contains("network") })
     }
 }
+
+final class NetworkQuestionTests: XCTestCase {
+    func testOnlyAConnectionNoRuleSpeaksAboutIsAskedAbout() {
+        let flow = NetworkFlow(apps: ["com.a"], hostname: "x.com", address: "1.1.1.1")
+        XCTAssertNil(NetworkRules.ruled(flow, rules: []))
+        XCTAssertNil(NetworkRules.ruled(flow, rules: [NetworkRule(app: "com.b", action: .deny)]))
+        XCTAssertEqual(NetworkRules.ruled(flow, rules: [NetworkRule(app: "com.a", action: .allow)]), .allow)
+        XCTAssertEqual(NetworkRules.ruled(flow, rules: [NetworkRule(app: "*", host: "x.com", action: .deny)]), .deny)
+    }
+}

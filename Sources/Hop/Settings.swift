@@ -124,6 +124,10 @@ enum SettingsKey {
     /// The executable the recognition models were last warmed up for.
     /// SPEC: docs/spec.md — "The first reading after an update is not the slow one".
     static let ocrWarmedFor = "ocrWarmedFor"
+    /// Whether the network filter asks about a connection no rule covers. OFF by
+    /// default: the module must not get in the way until somebody wants it to.
+    /// SPEC: docs/spec.md — "Network access", questions.
+    static let networkAsk = "networkAsk"
     /// Whether switching a VPN off also takes it out of the network set, so its
     /// own on-demand rules cannot bring it back. ON by default: a switch that
     /// does not switch anything off is not a switch.

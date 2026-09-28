@@ -713,6 +713,11 @@ enum Snapshot {
             }
             .padding(14)
             .background(Theme.panelBackground))
+        } else if args.contains("--network-question") {
+            model.networkFilter.stageQuestionForSnapshot()
+            content = AnyView(NetworkQuestionCard(network: model.networkFilter, lang: L10n.current)
+                .padding(20)
+                .background(Theme.panelBackground))
         } else if args.contains("--window-network") {
             if let i = args.firstIndex(of: "--network-state"), args.count > i + 1 {
                 model.networkFilter.stageForSnapshot(args[i + 1])
