@@ -70,7 +70,14 @@ hop_embed_network_filter() {
     local version
     version=$(plutil -extract CFBundleShortVersionString raw "$app/Contents/Info.plist")
     plutil -replace CFBundleShortVersionString -string "$version" "$ext/Contents/Info.plist"
-    plutil -replace CFBundleVersion -string "$version" "$ext/Contents/Info.plist"
+    # a build number that only grows: macOS replaces a waiting extension only
+    # with one of another version, and a rebuild keeps the app's version
+    plutil -replace CFBundleVersion -string "$(date +%s)" "$ext/Contents/Info.plist"
+    # SPEC: docs/spec.md — "Network access": the list in System Settings names the app.
+    local name
+    name=$(plutil -extract CFBundleName raw "$app/Contents/Info.plist")
+    plutil -replace CFBundleName -string "$name" "$ext/Contents/Info.plist"
+    plutil -replace CFBundleDisplayName -string "$name" "$ext/Contents/Info.plist"
     cp "$profiles/$ext_id.provisionprofile" "$ext/Contents/embedded.provisionprofile"
 
     local work

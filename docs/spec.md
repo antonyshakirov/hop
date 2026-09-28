@@ -2284,9 +2284,15 @@ group.
   target `HopNetFilter`, bundle `<app id>.netfilter`) inside
   `Contents/Library/SystemExtensions`, installed with `OSSystemExtensionRequest`
   when the row is switched on, then enabled through `NEFilterManager` with the
-  rules in `vendorConfiguration`. macOS asks twice, once: the extension in
+  rules in `vendorConfiguration`. macOS asks twice, once, and no app can skip
+  it (only a Mac managed through MDM can be approved ahead): the extension in
   System Settings → General → Login Items & Extensions → Network Extensions,
-  then the filter itself. A Developer ID system extension is refused unless it
+  then the filter itself. Hop makes it one switch and one button (Anton,
+  2026-09-29): the extension carries the app's own name in that list ("Hop",
+  "Hop Dev"), the settings open by themselves straight on the list of network
+  extensions the moment macOS waits, a sticky card says which switch to turn
+  on and goes away when it is on, and the filter's own question follows at
+  once. A Developer ID system extension is refused unless it
   is notarised (`-67050`, measured on macOS 27.0 without Developer Mode), so a
   dev build that must run the filter is built with
   `HOP_NOTARIZE=1 ./scripts/build-app.sh --install --dev`. The profiles come

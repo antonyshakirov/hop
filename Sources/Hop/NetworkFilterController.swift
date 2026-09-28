@@ -56,9 +56,30 @@ final class NetworkFilterController: NSObject, ObservableObject {
         }
     }
 
+    /// Straight to the list of network extensions, where the one switch is.
     static func openSystemSettings() {
-        guard let url = URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension") else { return }
-        NSWorkspace.shared.open(url)
+        let links = ["x-apple.systempreferences:com.apple.ExtensionsPreferences?extensionPointIdentifier="
+                     + "com.apple.system_extension.network_extension.extension-point",
+                     "x-apple.systempreferences:com.apple.LoginItems-Settings.extension"]
+        for link in links {
+            if let url = URL(string: link), NSWorkspace.shared.open(url) { return }
+        }
+    }
+
+    /// The name the extension carries in System Settings: the app's own.
+    static var listedName: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Hop"
+    }
+
+    /// SPEC: docs/spec.md — "Network access", approval: settings open by themselves.
+    private func guideApproval() {
+        Self.openSystemSettings()
+        if let screen = NSScreen.main?.visibleFrame {
+            MarkupNote.show(L10n.t(.networkSetupTitle, L10n.current),
+                            detail: L10n.fill(.networkStepAllow, L10n.current, Self.listedName),
+                            over: CGRect(x: screen.maxX - 200, y: screen.maxY - 2, width: 2, height: 2),
+                            sticky: true)
+        }
     }
 
     /// `--network-state off|approval|failed` for the renders of the setup card.
@@ -397,6 +418,7 @@ extension NetworkFilterController: OSSystemExtensionRequestDelegate {
         Task { @MainActor in
             state = .needsApproval
             log.info("extension waits for approval in System Settings")
+            guideApproval()
         }
     }
 
@@ -404,12 +426,14 @@ extension NetworkFilterController: OSSystemExtensionRequestDelegate {
                              didFinishWithResult result: OSSystemExtensionRequest.Result) {
         Task { @MainActor in
             log.info("extension request finished: \(result.rawValue, privacy: .public)")
+            MarkupNote.hide()
             await configure(enabled: true)
         }
     }
 
     nonisolated func request(_ request: OSSystemExtensionRequest, didFailWithError error: Error) {
         Task { @MainActor in
+            MarkupNote.hide()
             state = .failed(error.localizedDescription)
             log.error("extension request failed: \(error.localizedDescription, privacy: .public)")
         }

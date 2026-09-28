@@ -143,7 +143,7 @@ struct NetworkWindowView: View {
                     .foregroundStyle(Theme.textPrimary)
                 step(1, t(.networkStepOpen))
                 step(2, t(.networkStepPath))
-                step(3, t(.networkStepAllow))
+                step(3, L10n.fill(.networkStepAllow, lang, NetworkFilterController.listedName))
                 primary(t(.networkOpenSettings)) { NetworkFilterController.openSystemSettings() }
                     .padding(.top, 4)
             case .installing:
