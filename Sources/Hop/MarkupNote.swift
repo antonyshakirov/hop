@@ -9,13 +9,14 @@ enum MarkupNote {
     private static var panel: NSPanel?
     private static var fading: DispatchWorkItem?
 
+    /// `sticky` keeps the card up until `hide()`: for a wait, not a receipt.
     static func show(_ text: String, detail: String? = nil, file: URL? = nil,
-                     over anchor: CGRect) {
+                     over anchor: CGRect, sticky: Bool = false) {
         guard anchor != .zero else { return }
         let card = MarkupNoteCard(
             text: text, detail: detail,
             open: file.map { url in { NSWorkspace.shared.activateFileViewerSelecting([url]) } },
-            hold: { hold() }, release: { fade(after: 1.6) }
+            hold: { hold() }, release: { if !sticky { fade(after: 1.6) } }
         )
         let host = NSHostingView(rootView: card)
         let panel = panel ?? make()
@@ -25,7 +26,7 @@ enum MarkupNote {
         panel.setContentSize(size)
         panel.setFrameOrigin(spot(for: size, over: anchor))
         panel.orderFrontRegardless()
-        fade(after: file == nil ? 1.8 : 4.5)
+        if sticky { hold() } else { fade(after: file == nil ? 1.8 : 4.5) }
     }
 
     /// The card alone, for `--snapshot --note-cards`.

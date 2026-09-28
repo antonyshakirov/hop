@@ -32,4 +32,18 @@ final class RecognitionWarmUpTests: XCTestCase {
         XCTAssertEqual(RecognitionWarmUp.helperTagSets(interface: .cyrillic, supported: ["en-US"]),
                        [["en-US"]])
     }
+
+    func testBeforeTheWarmUpTheFirstPassNamesTheReadersLanguageAndEnglish() {
+        let supported = TextScript.allCases.map(\.recognitionTag)
+        XCTAssertEqual(RecognitionWarmUp.quickLanguages(interface: .cyrillic, supported: supported),
+                       ["ru-RU", "en-US"])
+        XCTAssertEqual(RecognitionWarmUp.quickLanguages(interface: .latin, supported: supported), ["en-US"])
+        XCTAssertEqual(RecognitionWarmUp.quickLanguages(interface: .cjk, supported: supported),
+                       ["ja-JP", "en-US"])
+    }
+
+    func testBeforeTheWarmUpTheSecondPassSkipsTheSlowReader() {
+        XCTAssertEqual(RecognitionWarmUp.quickHelpers(["ru-RU", "ja-JP"], interface: .cyrillic), ["ru-RU"])
+        XCTAssertEqual(RecognitionWarmUp.quickHelpers(["ja-JP", "en-US"], interface: .cjk), ["ja-JP", "en-US"])
+    }
 }
