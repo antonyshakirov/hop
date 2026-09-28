@@ -38,6 +38,16 @@ public enum SpeedSummary {
         return Int(text[match].dropLast(4))
     }
 
+    /// What a run stopped early leaves: the numbers on screen at that moment, a
+    /// direction not measured yet as nil; nil when neither had a number, and the
+    /// result before it stays. SPEC: docs/spec.md — "Speed test", stopping early.
+    public static func stopped(down: Double?, up: Double?) -> (down: Double?, up: Double?)? {
+        let down = down.flatMap { $0 > 0 ? $0 : nil }
+        let up = up.flatMap { $0 > 0 ? $0 : nil }
+        guard down != nil || up != nil else { return nil }
+        return (down, up)
+    }
+
     /// Last number after `marker` — the live lines are redrawn over themselves.
     public static func lastNumber(in text: String, after marker: String) -> Double? {
         var result: Double?

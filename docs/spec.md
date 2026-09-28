@@ -6072,7 +6072,14 @@ at a time. Sequentially the tool prints TWO responsiveness scores instead of
 one; the row shows the WORSE of them, which is the one that describes the
 call that stutters (`SpeedSummary`, HopCore, `SpeedSummaryTests`). A
 direction that has not started reads 0.000, and the row keeps its
-placeholder rather than showing it. Repeat via the ↻ icon. No
+placeholder rather than showing it. Repeat via the ↻ icon.
+**Stopping early** (Anton, 2026-09-29): while a run is going, a ■ sits where
+the spinner was. It ends the run as if it had finished: the row keeps the
+numbers on screen at that moment — the tool's current estimate, not an
+average of the ramp-up, which would drop the figure under the click — and a
+direction not measured yet, and the responsiveness, which the tool reports
+only at the very end, read "—". Then ↻ is back. Stopped before any number,
+the result from before stays (`SpeedSummary.stopped`, `SpeedStopTests`). No
 custom servers and no third-party services. A fresh result is drawn in the
 primary ink, like the module's own name: it is the answer the row exists for,
 and in secondary grey it read as a caption (Anton, 2026-09-05). A stale one
