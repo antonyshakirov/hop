@@ -137,6 +137,9 @@ if [[ "$IDENTITY" != "-" ]]; then
     else
         echo "⚠ network filter: not embedded (no profiles in ~/.minimo-signing/profiles or no binary)"
     fi
+elif [[ $DEV == 0 ]]; then
+    echo "❌ network filter: a release needs the Developer ID identity to embed it"
+    exit 1
 fi
 hop_sign_app "$APP" "$IDENTITY" "$TIMESTAMP" "$APP_ENTITLEMENTS"
 
