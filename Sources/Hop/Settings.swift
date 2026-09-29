@@ -117,6 +117,22 @@ enum SettingsKey {
     /// somebody else's app owns, and whether it is worth a mark is the user's
     /// call, not ours.
     static let vpnMenuBarMark = "vpnMenuBarMark"
+    /// Whether a reading opens the recognition window. ON by default; off, the
+    /// text only lands on the pasteboard and in the history.
+    /// SPEC: docs/spec.md — "Text recognition (OCR + QR)".
+    static let ocrShowsWindow = "ocrShowsWindow"
+    /// The executable the recognition models were last warmed up for.
+    /// SPEC: docs/spec.md — "The first reading after an update is not the slow one".
+    static let ocrWarmedFor = "ocrWarmedFor"
+    /// Whether the network filter asks about a connection no rule covers. OFF by
+    /// default: the module must not get in the way until somebody wants it to.
+    /// SPEC: docs/spec.md — "Network access", questions.
+    static let networkAsk = "networkAsk"
+    /// SPEC: docs/spec.md — "Network access", on by default.
+    static let networkStarted = "networkStarted"
+    /// SPEC: docs/spec.md — "Network access", the window's order.
+    static let networkOrder = "networkOrder"
+    static let networkSort = "networkSort"
     /// Whether switching a VPN off also takes it out of the network set, so its
     /// own on-demand rules cannot bring it back. ON by default: a switch that
     /// does not switch anything off is not a switch.
@@ -135,6 +151,7 @@ enum SettingsKey {
         todoRemindMark: true,
         todoArchiveCompleted: true,
         vpnMenuBarMark: true,
+        ocrShowsWindow: true,
     ]
 }
 

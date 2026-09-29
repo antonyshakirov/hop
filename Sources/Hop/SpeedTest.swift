@@ -9,10 +9,17 @@ import HopCore
 /// SPEC: docs/spec.md — "Speed test", why the directions are measured apart.
 @MainActor
 final class SpeedTestController: ObservableObject {
+    /// nil for what a run stopped early did not get to (Mbit/s, RPM).
     struct Result: Equatable {
-        let down: Double // Mbit/s
-        let up: Double
-        let rpm: Int
+        let down: Double?
+        let up: Double?
+        let rpm: Int?
+    }
+
+    private enum Outcome {
+        case done(Result)
+        case stopped(down: Double?, up: Double?)
+        case failed
     }
 
     @Published private(set) var isRunning = false
@@ -23,6 +30,7 @@ final class SpeedTestController: ObservableObject {
     @Published private(set) var last: Result?
 
     private var ticker: Timer?
+    private var stopFlag: StopFlag?
     private static let downKey = "speedLastDown"
     private static let upKey = "speedLastUp"
     private static let rpmKey = "speedLastRpm"
@@ -38,9 +46,10 @@ final class SpeedTestController: ObservableObject {
 
     init() {
         let defaults = UserDefaults.standard
-        if let down = defaults.object(forKey: Self.downKey) as? Double,
-           let up = defaults.object(forKey: Self.upKey) as? Double {
-            last = Result(down: down, up: up, rpm: defaults.integer(forKey: Self.rpmKey))
+        let down = defaults.object(forKey: Self.downKey) as? Double
+        let up = defaults.object(forKey: Self.upKey) as? Double
+        if down != nil || up != nil {
+            last = Result(down: down, up: up, rpm: defaults.object(forKey: Self.rpmKey) as? Int)
             lastAt = defaults.object(forKey: Self.atKey) as? Date
             lastNetwork = defaults.string(forKey: Self.netKey)
         }
@@ -75,6 +84,8 @@ final class SpeedTestController: ObservableObject {
         }
         RunLoop.main.add(timer, forMode: .common)
         ticker = timer
+        let flag = StopFlag()
+        stopFlag = flag
 
         let onLive: @Sendable (Double?, Double?) -> Void = { [weak self] down, up in
             Task { @MainActor in
@@ -83,36 +94,52 @@ final class SpeedTestController: ObservableObject {
             }
         }
         Task.detached(priority: .userInitiated) { [weak self] in
-            let result = SpeedTestController.measure(live: onLive)
+            let outcome = SpeedTestController.measure(live: onLive, stop: flag)
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.ticker?.invalidate()
                 self.ticker = nil
+                self.stopFlag = nil
                 self.isRunning = false
-                if let result {
-                    self.last = result
-                    let defaults = UserDefaults.standard
-                    defaults.set(result.down, forKey: Self.downKey)
-                    defaults.set(result.up, forKey: Self.upKey)
-                    defaults.set(result.rpm, forKey: Self.rpmKey)
-                    self.lastAt = Date()
-                    defaults.set(self.lastAt, forKey: Self.atKey)
-                    self.lastNetwork = Self.currentNetwork
-                    defaults.set(self.lastNetwork, forKey: Self.netKey)
-                } else {
+                switch outcome {
+                case .done(let result):
+                    self.keep(result)
+                case .stopped(let down, let up):
+                    if let partial = SpeedSummary.stopped(down: down, up: up) {
+                        self.keep(Result(down: partial.down, up: partial.up, rpm: nil))
+                    }
+                case .failed:
                     self.failed = true
                 }
             }
         }
     }
 
+    /// SPEC: docs/spec.md — "Speed test", stopping early: the run ends as if done.
+    func stop() {
+        stopFlag?.raise()
+    }
+
+    private func keep(_ result: Result) {
+        last = result
+        let defaults = UserDefaults.standard
+        let values: [(String, Any?)] = [(Self.downKey, result.down), (Self.upKey, result.up), (Self.rpmKey, result.rpm)]
+        for (key, value) in values {
+            if let value { defaults.set(value, forKey: key) } else { defaults.removeObject(forKey: key) }
+        }
+        lastAt = Date()
+        defaults.set(lastAt, forKey: Self.atKey)
+        lastNetwork = Self.currentNetwork
+        defaults.set(lastNetwork, forKey: Self.netKey)
+    }
+
     /// Run through a pty: without a terminal the utility stays silent until the final SUMMARY.
     nonisolated private static func measure(
-        live: @escaping @Sendable (Double?, Double?) -> Void
-    ) -> Result? {
+        live: @escaping @Sendable (Double?, Double?) -> Void, stop: StopFlag
+    ) -> Outcome {
         var master: Int32 = 0
         var slave: Int32 = 0
-        guard openpty(&master, &slave, nil, nil, nil) == 0 else { return nil }
+        guard openpty(&master, &slave, nil, nil, nil) == 0 else { return .failed }
         let masterHandle = FileHandle(fileDescriptor: master, closeOnDealloc: true)
         let slaveHandle = FileHandle(fileDescriptor: slave, closeOnDealloc: true)
 
@@ -131,9 +158,11 @@ final class SpeedTestController: ObservableObject {
             // A direction that has not started yet reads 0.000 for as long as the
             // other one runs; the row keeps its placeholder instead of showing it.
             if let down = SpeedSummary.lastNumber(in: chunk, after: "Downlink:"), down > 0 {
+                stop.seen(down: down)
                 live(down, nil)
             }
             if let up = SpeedSummary.lastNumber(in: chunk, after: "Uplink:"), up > 0 {
+                stop.seen(up: up)
                 live(nil, up)
             }
         }
@@ -142,7 +171,7 @@ final class SpeedTestController: ObservableObject {
             try process.run()
         } catch {
             masterHandle.readabilityHandler = nil
-            return nil
+            return .failed
         }
         // CRITICAL: close OUR end of the slave right after launch — the child
         // has its own copy. Otherwise master never gets EOF, the final read
@@ -151,13 +180,18 @@ final class SpeedTestController: ObservableObject {
 
         // watchdog: networkQuality usually finishes within ~20s
         let deadline = Date().addingTimeInterval(90)
-        while process.isRunning && Date() < deadline {
+        while process.isRunning && Date() < deadline && !stop.raised {
             usleep(200_000)
+        }
+        if stop.raised {
+            process.terminate()
+            masterHandle.readabilityHandler = nil
+            return .stopped(down: stop.down, up: stop.up)
         }
         if process.isRunning {
             process.terminate()
             masterHandle.readabilityHandler = nil
-            return nil
+            return .failed
         }
         // collect the tail that may not have made it into readabilityHandler
         if let tail = String(data: masterHandle.availableData, encoding: .utf8), !tail.isEmpty {
@@ -167,9 +201,24 @@ final class SpeedTestController: ObservableObject {
 
         guard process.terminationStatus == 0,
               let summary = SpeedSummary.parse(buffer.value)
-        else { return nil }
-        return Result(down: summary.down, up: summary.up, rpm: summary.rpm)
+        else { return .failed }
+        return .done(Result(down: summary.down, up: summary.up, rpm: summary.rpm))
     }
+}
+
+/// The stop button's signal, and the last live numbers a stopped run keeps.
+final class StopFlag: @unchecked Sendable {
+    private let lock = NSLock()
+    private var isRaised = false
+    private var lastDown: Double?
+    private var lastUp: Double?
+
+    func raise() { lock.withLock { isRaised = true } }
+    var raised: Bool { lock.withLock { isRaised } }
+    func seen(down: Double) { lock.withLock { lastDown = down } }
+    func seen(up: Double) { lock.withLock { lastUp = up } }
+    var down: Double? { lock.withLock { lastDown } }
+    var up: Double? { lock.withLock { lastUp } }
 }
 
 /// Thread-safe accumulator for pty output.

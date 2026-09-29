@@ -24,6 +24,8 @@ Eén klik – en alles wat je nodig hebt staat meteen klaar.**
 
 ⭐ Hop heeft 225 sterren nodig om in de officiële Homebrew-catalogus te komen, en elke ster brengt dat dichterbij.
 
+📣 Volg Hop op [Instagram](https://www.instagram.com/hop.tools/) en [X](https://x.com/hoptools).
+
 [![Support the project](https://img.shields.io/badge/support%20the%20project-555?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGNDUzQSI%2BPHBhdGggZD0iTTEyIDIxLjM1bC0xLjQ1LTEuMzJDNS40IDE1LjM2IDIgMTIuMjggMiA4LjUgMiA1LjQyIDQuNDIgMyA3LjUgM2MxLjc0IDAgMy40MS44MSA0LjUgMi4wOUMxMy4wOSAzLjgxIDE0Ljc2IDMgMTYuNSAzIDE5LjU4IDMgMjIgNS40MiAyMiA4LjVjMCAzLjc4LTMuNCA2Ljg2LTguNTUgMTEuNTRMMTIgMjEuMzV6Ii8%2BPC9zdmc%2B)](https://web.tribute.tg/d/Nvk)
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · **Nederlands** · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
@@ -35,8 +37,7 @@ Eén klik – en alles wat je nodig hebt staat meteen klaar.**
 Hop woont in de menubalk van je Mac en vervangt een handvol kleine
 hulpprogramma's: een timer in Pomodoro-stijl, een tijdregistratie met
 takenlijst, een slaapblokkering à la caffeinate, een systeemmonitor, een
-klembordbeheerder, een drag-and-drop-bestandsconverter, een venster-snapper
-en een lichte torrentclient – één lichtgewicht native app, met de modules
+klembordbeheerder, een drag-and-drop-bestandsconverter, een venster-snapper, een app-firewall en een lichte torrentclient – één lichtgewicht native app, met de modules
 die je gebruikt verdeeld over tot vier tabbladen op het icoon.
 
 ## Downloaden
@@ -51,6 +52,13 @@ dus macOS opent het als elke andere app. De broncode is openbaar en
 ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
+### 2.2.0
+
+- Nieuwe module ‘netwerktoegang’: zie welke programma's online gaan en waarheen, en blokkeer met één klik een heel programma of maar één adres ervan.
+- Hop is aangepast aan macOS 27.
+- Tekstherkenning: de eerste lezing na een update gaat meteen, en een instelling bepaalt of het venster opent.
+- De snelheidstest kan eerder worden gestopt.
+
 ### 2.1.8
 
 - foutoplossingen
@@ -58,11 +66,6 @@ nieuwer.
 ### 2.1.7
 
 - macOS 27: acties in het paneel reageren op de eerste klik
-
-### 2.1.6
-
-- Bij het wisselen van tabblad blijft het paneel open en houdt de naam van een nieuw project de toetsenbordfocus.
-- De melding voor een bijna lege batterij is optioneel; Hop delen kan via het menu, de infopagina en de eerste configuratie.
 
 ## Functies
 
@@ -386,6 +389,20 @@ De stip kun je in de instellingen uitzetten – de module en de schakelaars werk
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
+### Netwerktoegang
+
+Zie welke programma's op je Mac online gaan, en waarheen – en blokkeer elk daarvan. Elk programma dat verbinding maakt, verschijnt met de adressen die het bereikte. Een klik op het label sluit het hele programma af van het netwerk; open het, en één adres kan apart geblokkeerd worden – een licentiecontrole bijvoorbeeld, terwijl de rest van het verkeer doorgaat. Een regel kan al worden ingesteld voordat een programma ooit verbinding maakt: elke geïnstalleerde app staat in de lijst, en een lijst met adressen geladen uit een bestand (één per regel, of een hosts-bestand) wordt voor alle programma's tegelijk geblokkeerd. De rij in het paneel telt de blokkades; het venster erachter bevat de rest, en een rij blijft op zijn plek als je hem wijzigt.
+
+Hop doet dit met het netwerkfilter dat macOS precies hiervoor biedt, hetzelfde soort dat LuLu en Little Snitch gebruiken. De eerste keer vraagt macOS je dit toe te staan in systeeminstellingen. Het filter beslist bij het eerste pakket van een verbinding en kijkt er nooit in: het blokkeert een hele server, nooit één pagina erop, en Hop ontsleutelt niets. Stopt het filter ooit, dan blijft internet werken – er wordt niets geblokkeerd tot het terug is –, en de module uitzetten stopt jouw blokkades, niet het internet.
+
+De module staat standaard aan en blijft stil: zonder regels gaat alles door. Vragen bij nieuwe verbindingen is een instelling – aangezet vraagt een kaart rechtsboven naar een verbinding die geen regel dekt, voor dat adres of het hele programma.
+
+<div align="center">
+<img src="https://hop.tools/screens/nl/network.webp" width="560" alt="Hop – netwerktoegang: programma's, hun adressen, toegestaan en geblokkeerd">
+</div>
+
+→ [App firewall for Mac](https://hop.tools/features/app-firewall/)
+
 ### Apps
 
 Een raster met de programma's die je de hele dag opent – één klik weg, zonder
@@ -483,12 +500,12 @@ gebruikt wordt; het instellingenvenster van de app somt ze allemaal op met hun s
   schermafbeeldingen, en de loep en de vervaging op de tekenlaag; de
   kleurenpipet heeft het niet nodig
 - **berichtgeving** – het signaal van de timer en een afgeronde torrent
+- **netwerkfilter** – één keer, voor netwerktoegang: macOS vraagt je het filter van Hop toe te staan in systeeminstellingen; wat het ziet blijft op deze Mac
 - **beheerderswachtwoord** – één keer, voor de stand met gesloten klep (pmset
   draait alleen als root)
 - **openen bij inloggen** – uit tot je het zelf aanzet
 
-Bij het starten wordt niets gevraagd, en niets wordt gevraagd voor een module die
-je niet hebt aangezet. Geen analytics, geen telemetrie, geen account, geen
+Niets wordt gevraagd voor een module die je niet hebt aangezet. Het enige verzoek dat bij het starten kan komen is het netwerkfilter, één keer, na de update die netwerktoegang brengt: die module staat standaard aan. Geen analytics, geen telemetrie, geen account, geen
 crashrapporten: hop.tools wordt alleen benaderd om te vragen of er een
 nieuwere versie is – en om die, of een van de twee optionele helpers, te
 downloaden als jij ja zegt. Al het andere blijft op deze Mac: de

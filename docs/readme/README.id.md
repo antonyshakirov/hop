@@ -24,6 +24,8 @@ butuhkan langsung ada.**
 
 ⭐ Hop membutuhkan 225 bintang untuk masuk ke katalog resmi Homebrew, dan setiap bintang membuatnya semakin dekat.
 
+📣 Ikuti Hop di [Instagram](https://www.instagram.com/hop.tools/) dan [X](https://x.com/hoptools).
+
 [![Support the project](https://img.shields.io/badge/support%20the%20project-555?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGNDUzQSI%2BPHBhdGggZD0iTTEyIDIxLjM1bC0xLjQ1LTEuMzJDNS40IDE1LjM2IDIgMTIuMjggMiA4LjUgMiA1LjQyIDQuNDIgMyA3LjUgM2MxLjc0IDAgMy40MS44MSA0LjUgMi4wOUMxMy4wOSAzLjgxIDE0Ljc2IDMgMTYuNSAzIDE5LjU4IDMgMjIgNS40MiAyMiA4LjVjMCAzLjc4LTMuNCA2Ljg2LTguNTUgMTEuNTRMMTIgMjEuMzV6Ii8%2BPC9zdmc%2B)](https://web.tribute.tg/d/Nvk)
 
 **Bahasa Indonesia** · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
@@ -35,7 +37,7 @@ butuhkan langsung ada.**
 Hop tinggal di menu bar Mac kamu dan menggantikan segenggam utilitas
 kecil: timer ala Pomodoro, pelacak waktu dengan daftar tugas, pencegah
 tidur ala caffeinate, monitor sistem, pengelola clipboard, konverter file
-drag-and-drop, penata jendela, dan klien torrent ringan – satu aplikasi
+drag-and-drop, penata jendela, firewall aplikasi, dan klien torrent ringan – satu aplikasi
 native yang ringan, dengan modul yang kamu pakai tersebar di hingga empat
 tab pada ikon.
 
@@ -51,6 +53,13 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.2.0
+
+- Modul baru “akses jaringan”: lihat program mana yang online dan ke mana, lalu blokir satu klik seluruh program atau hanya satu alamatnya.
+- Hop disesuaikan untuk macOS 27.
+- Pengenalan teks: pembacaan pertama setelah pembaruan langsung cepat, dan satu pengaturan menentukan apakah jendela hasil dibuka.
+- Tes kecepatan bisa dihentikan lebih awal.
+
 ### 2.1.8
 
 - perbaikan bug
@@ -58,11 +67,6 @@ lebih baru.
 ### 2.1.7
 
 - macOS 27: tindakan di panel merespons klik pertama
-
-### 2.1.6
-
-- Saat berpindah tab, panel tetap terbuka dan kolom nama proyek baru tetap fokus saat diketik.
-- Peringatan baterai lemah bersifat opsional; Hop dapat dibagikan dari menu, halaman Tentang, dan pengaturan awal.
 
 ## Fitur
 
@@ -382,6 +386,20 @@ Titik itu bisa dimatikan di pengaturan; modul dan sakelarnya tetap bekerja.
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
+### Akses jaringan
+
+Lihat program mana di Mac Anda yang online, dan ke mana – lalu blokir salah satunya. Setiap program yang terhubung muncul bersama alamat yang dijangkaunya. Satu klik pada labelnya memutus seluruh program dari jaringan; buka programnya, dan satu alamat bisa diblokir sendiri – misalnya pemeriksaan lisensi, sementara sisa lalu lintasnya tetap jalan. Aturan bisa dipasang bahkan sebelum sebuah program pernah terhubung: setiap aplikasi yang terpasang tercantum di daftar, dan daftar alamat yang dimuat dari sebuah file (satu per baris, atau file hosts) diblokir untuk semua program sekaligus. Baris di panel menghitung blokir; jendela di baliknya menyimpan sisanya, dan sebuah baris tetap di tempatnya saat Anda mengubahnya.
+
+Hop melakukan ini dengan filter jaringan yang disediakan macOS khusus untuk tugas ini, jenis yang sama dipakai LuLu dan Little Snitch. Pertama kali, macOS akan meminta Anda mengizinkannya di pengaturan sistem. Filter memutuskan pada paket pertama sebuah koneksi dan tidak pernah melihat isinya: filter memblokir seluruh server, bukan satu halaman di dalamnya, dan Hop tidak mendekripsi apa pun. Jika filter pernah berhenti, internet tetap berjalan – tidak ada yang diblokir sampai filter kembali – dan mematikan modul ini hanya menghentikan blokir Anda, bukan internet.
+
+Modul ini aktif secara default dan tetap diam: tanpa aturan, semuanya lewat. Bertanya soal koneksi baru adalah sebuah pengaturan – saat aktif, sebuah kartu di kanan atas bertanya soal koneksi yang tidak tercakup aturan apa pun, untuk alamat itu saja atau seluruh program.
+
+<div align="center">
+<img src="https://hop.tools/screens/id/network.webp" width="560" alt="Hop – akses jaringan: program, alamatnya, diizinkan dan diblokir">
+</div>
+
+→ [App firewall for Mac](https://hop.tools/features/app-firewall/)
+
 ### Aplikasi
 
 Kisi berisi program yang Anda buka sepanjang hari, sekali klik tanpa mampir ke
@@ -482,12 +500,12 @@ jendela pengaturan aplikasi mendaftar semuanya beserta statusnya saat ini:
   serta lup dan pengaburan di lapisan gambar; pemilih warna tidak
   memerlukannya
 - **notifikasi** – peringatan pengatur waktu dan torrent yang selesai
+- **filter jaringan** – sekali, untuk akses jaringan: macOS meminta Anda mengizinkan filter Hop di pengaturan sistem; apa yang dilihatnya tetap di Mac ini
 - **kata sandi administrator** – sekali, untuk mode layar tertutup (pmset hanya
   jalan sebagai root)
 - **buka saat masuk** – mati sampai kamu menyalakannya
 
-Saat dibuka tidak ada yang diminta, dan tidak ada yang ditanyakan untuk modul yang
-belum kamu nyalakan. Tanpa analitik, tanpa telemetri, tanpa akun, tanpa laporan
+Tidak ada yang ditanyakan untuk modul yang belum kamu nyalakan. Satu-satunya permintaan yang bisa muncul saat dibuka adalah filter jaringan, sekali, setelah pembaruan yang membawa akses jaringan: modul itu aktif secara default. Tanpa analitik, tanpa telemetri, tanpa akun, tanpa laporan
 crash: hop.tools dihubungi hanya untuk menanyakan apakah ada versi lebih
 baru – dan mengunduhnya, atau salah satu dari dua pembantu opsional, kalau kamu
 setuju. Sisanya tetap di Mac ini: riwayat papan klip, waktu yang tercatat, daftar

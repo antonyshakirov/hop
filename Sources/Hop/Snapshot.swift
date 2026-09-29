@@ -168,18 +168,39 @@ enum Snapshot {
             exit(0)
         }
 
-        // `Hop --ocr-selftest <image>` prints what recognition makes of a file
-        // and exits. The reference set for the two-pass merge lives in the specs;
-        // this is how it is re-checked without a human dragging pictures around.
-        if let i = args.firstIndex(of: "--ocr-selftest"), args.count > i + 1 {
-            let url = URL(fileURLWithPath: args[i + 1])
-            ScreenTextController.diagnostics = args.contains("--verbose")
+        // `Hop --ocr-warmup` runs the warm-up alone and prints how long it took;
+        // with `--ocr-selftest` in the same call it shows whether the first real
+        // reading in that process got cheap.
+        if args.contains("--ocr-warmup") {
             let started = Date()
-            let text = ScreenTextController.recognizeForSelfTest(url)
-            let ms = Int(Date().timeIntervalSince(started) * 1000)
-            print("[\(ms) ms]")
-            print(text ?? "(nothing recognized)")
-            exit(text == nil ? 1 : 0)
+            let semaphore = DispatchSemaphore(value: 0)
+            Task.detached {
+                await ScreenTextController.warmUp()
+                semaphore.signal()
+            }
+            semaphore.wait()
+            print("[warm-up \(Int(Date().timeIntervalSince(started) * 1000)) ms]")
+            if !args.contains("--ocr-selftest") { exit(0) }
+        }
+
+        // `Hop --ocr-selftest <image>…` prints what recognition makes of each
+        // file, in one process, and exits. The reference set for the two-pass
+        // merge lives in the specs; this is how it is re-checked without a human
+        // dragging pictures around, and how the cost of a first reading is timed.
+        if let i = args.firstIndex(of: "--ocr-selftest"), args.count > i + 1 {
+            ScreenTextController.diagnostics = args.contains("--verbose")
+            ScreenTextController.forceCold = args.contains("--ocr-cold")
+            let files = args[(i + 1)...].prefix { !$0.hasPrefix("--") }
+            var missed = false
+            for path in files {
+                let started = Date()
+                let text = ScreenTextController.recognizeForSelfTest(URL(fileURLWithPath: path))
+                let ms = Int(Date().timeIntervalSince(started) * 1000)
+                print("[\(ms) ms] \((path as NSString).lastPathComponent)")
+                print(text ?? "(nothing recognized)")
+                missed = missed || text == nil
+            }
+            exit(missed ? 1 : 0)
         }
 
         // `Hop --markup-selftest <out.png>` runs the export path end to end.
@@ -450,6 +471,9 @@ enum Snapshot {
         }
 
         let model = AppModel()
+        if let i = args.firstIndex(of: "--network-state"), args.count > i + 1 {
+            model.networkFilter.stageForSnapshot(args[i + 1])
+        }
         if wantsTorrents, !args.contains("--torrents-empty") {
             model.torrent.loadDemo(demoTorrents(includeMissing: args.contains("--torrents-states")))
         }
@@ -560,7 +584,7 @@ enum Snapshot {
             || onlyModule != nil || wantsOverview {
             var keep: Set<String> = []
             if wantsOverview {
-                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall"]
+                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network"]
             }
             if wantsColors { keep.insert("color") }
             if wantsOcr { keep.insert("ocr") }
@@ -569,7 +593,7 @@ enum Snapshot {
             // no-op unless --only names one of these four; the rest are hidden
             // through their legacy keys above
             if let onlyModule { keep.insert(onlyModule) }
-            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall"] {
+            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network"] {
                 if keep.contains(key) {
                     PanelView.activateStoredModule(key)
                 } else {
@@ -688,9 +712,19 @@ enum Snapshot {
                 MarkupNote.card(L10n.t(.mkSaveFailed, lang))
                 MarkupNote.card(L10n.t(.mkCopyFailed, lang))
                 MarkupNote.card(L10n.t(.clipboardCopied, lang))
+                MarkupNote.card(L10n.t(.ocrPreparing, lang), detail: L10n.t(.ocrPreparingDetail, lang))
             }
             .padding(14)
             .background(Theme.panelBackground))
+        } else if args.contains("--network-question") {
+            model.networkFilter.stageQuestionForSnapshot()
+            content = AnyView(NetworkQuestionCard(network: model.networkFilter, lang: L10n.current)
+                .padding(20)
+                .background(Theme.panelBackground))
+        } else if args.contains("--window-network") {
+            content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
+                .environmentObject(model)
+                .frame(width: 740, height: model.networkFilter.state == .on ? 980 : 420))
         } else if args.contains("--window-ocr") {
             content = AnyView(ScreenTextWindowView().environmentObject(model)
                 .frame(width: 560))

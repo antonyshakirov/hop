@@ -24,6 +24,8 @@ mọi thứ bạn cần đều ở ngay đó.**
 
 ⭐ Hop cần 225 sao để được đưa vào danh mục chính thức của Homebrew, và mỗi ngôi sao đều giúp Hop đến gần hơn.
 
+📣 Theo dõi Hop trên [Instagram](https://www.instagram.com/hop.tools/) và [X](https://x.com/hoptools).
+
 [![Support the project](https://img.shields.io/badge/support%20the%20project-555?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGNDUzQSI%2BPHBhdGggZD0iTTEyIDIxLjM1bC0xLjQ1LTEuMzJDNS40IDE1LjM2IDIgMTIuMjggMiA4LjUgMiA1LjQyIDQuNDIgMyA3LjUgM2MxLjc0IDAgMy40MS44MSA0LjUgMi4wOUMxMy4wOSAzLjgxIDE0Ljc2IDMgMTYuNSAzIDE5LjU4IDMgMjIgNS40MiAyMiA4LjVjMCAzLjc4LTMuNCA2Ljg2LTguNTUgMTEuNTRMMTIgMjEuMzV6Ii8%2BPC9zdmc%2B)](https://web.tribute.tg/d/Nvk)
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · **Tiếng Việt** · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
@@ -35,8 +37,7 @@ mọi thứ bạn cần đều ở ngay đó.**
 Hop nằm trên thanh menu của máy Mac và thay thế cả một nắm tiện ích nhỏ:
 đồng hồ hẹn giờ kiểu Pomodoro, trình theo dõi thời gian kèm danh sách việc
 cần làm, trình chặn ngủ kiểu caffeinate, trình giám sát hệ thống, trình
-quản lý clipboard, trình chuyển đổi tệp kéo-thả, công cụ sắp xếp cửa sổ và
-trình torrent gọn nhẹ – một ứng dụng native nhẹ nhàng, với các mô-đun bạn
+quản lý clipboard, trình chuyển đổi tệp kéo-thả, công cụ sắp xếp cửa sổ, một tường lửa ứng dụng và trình torrent gọn nhẹ – một ứng dụng native nhẹ nhàng, với các mô-đun bạn
 dùng được trải trên tối đa bốn tab ở biểu tượng.
 
 ## Tải về
@@ -50,6 +51,13 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.2.0
+
+- Mô-đun mới “truy cập mạng”: xem chương trình nào lên mạng và đi đâu, chặn cả một chương trình hoặc chỉ một địa chỉ của nó chỉ với một cú nhấp.
+- Hop đã được điều chỉnh cho macOS 27.
+- Nhận dạng văn bản: lần đọc đầu tiên sau khi cập nhật diễn ra ngay, và một cài đặt quyết định có mở cửa sổ kết quả hay không.
+- Có thể dừng kiểm tra tốc độ sớm.
+
 ### 2.1.8
 
 - sửa lỗi
@@ -57,11 +65,6 @@ tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 ### 2.1.7
 
 - macOS 27: các thao tác trong bảng điều khiển phản hồi ngay lần nhấp đầu tiên
-
-### 2.1.6
-
-- Khi chuyển tab, bảng vẫn mở và ô tên dự án mới không mất tiêu điểm lúc nhập.
-- Cảnh báo pin yếu có thể bật riêng; bạn có thể chia sẻ Hop từ menu, trang Giới thiệu và phần thiết lập ban đầu.
 
 ## Tính năng
 
@@ -369,6 +372,20 @@ Chấm này có thể tắt trong cài đặt; mô-đun và các công tắc v�
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
+### Truy cập mạng
+
+Xem chương trình nào trên Mac của bạn lên mạng, và đi đến đâu – rồi chặn bất kỳ chương trình nào trong số đó. Mỗi chương trình kết nối sẽ hiện ra cùng các địa chỉ nó đã tới. Một cú nhấp vào nhãn của nó cắt toàn bộ chương trình khỏi mạng; mở nó ra, và một địa chỉ riêng lẻ có thể bị chặn – chẳng hạn kiểm tra giấy phép, trong khi phần còn lại của lưu lượng vẫn đi qua. Một quy tắc có thể được đặt trước khi chương trình từng kết nối: mọi ứng dụng đã cài đều có trong danh sách, và danh sách địa chỉ nạp từ một tệp (mỗi dòng một địa chỉ, hoặc tệp hosts) bị chặn cho mọi chương trình cùng lúc. Dòng trong bảng đếm số lần chặn; cửa sổ phía sau giữ phần còn lại, và một dòng vẫn ở nguyên vị trí khi bạn thay đổi nó.
+
+Hop làm điều này bằng bộ lọc mạng mà macOS cung cấp đúng cho công việc này, cùng loại mà LuLu và Little Snitch dùng. Lần đầu, macOS sẽ hỏi bạn cho phép nó trong cài đặt hệ thống. Bộ lọc quyết định ở gói tin đầu tiên của một kết nối và không bao giờ nhìn vào bên trong: nó chặn cả một máy chủ, không bao giờ chặn một trang trên đó, và Hop không giải mã gì cả. Nếu bộ lọc từng dừng lại, internet vẫn hoạt động – không có gì bị chặn cho đến khi nó quay lại – và tắt mô-đun chỉ dừng các lệnh chặn của bạn, không phải internet.
+
+Mô-đun bật theo mặc định và luôn im lặng: không có quy tắc thì mọi thứ đi qua. Hỏi về kết nối mới là một cài đặt – khi bật, một thẻ ở góc trên bên phải sẽ hỏi về kết nối chưa có quy tắc nào bao phủ, cho địa chỉ đó hoặc cả chương trình.
+
+<div align="center">
+<img src="https://hop.tools/screens/vi/network.webp" width="560" alt="Hop – truy cập mạng: chương trình, địa chỉ của chúng, cho phép và chặn">
+</div>
+
+→ [App firewall for Mac](https://hop.tools/features/app-firewall/)
+
 ### Ứng dụng
 
 Một lưới các chương trình bạn mở suốt ngày, chỉ một cú nhấp mà không phải vào
@@ -462,10 +479,11 @@ của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
 - **ghi màn hình** – nhận dạng văn bản khi khoanh vùng, ảnh màn hình, cùng kính
   lúp và làm mờ trên lớp vẽ; ống hút màu không cần
 - **thông báo** – báo hết giờ của bộ đếm và torrent đã xong
+- **bộ lọc mạng** – một lần, cho truy cập mạng: macOS sẽ hỏi bạn cho phép bộ lọc của Hop trong cài đặt hệ thống; những gì nó thấy ở lại trên chiếc Mac này
 - **mật khẩu quản trị** – một lần, cho chế độ gập màn hình (pmset chỉ chạy với root)
 - **mở khi đăng nhập** – tắt cho đến khi bạn tự bật
 
-Lúc khởi động không xin gì cả, và không xin gì cho một mô-đun bạn chưa bật.
+Không xin gì cho một mô-đun bạn chưa bật. Yêu cầu duy nhất có thể xuất hiện lúc khởi động là bộ lọc mạng, một lần, sau bản cập nhật mang lại truy cập mạng: mô-đun đó bật theo mặc định.
 Không phân tích, không đo lường từ xa, không tài khoản, không báo cáo sự cố:
 hop.tools chỉ được liên hệ để hỏi xem có phiên bản mới hay không – và để
 tải nó, hoặc một trong hai trợ thủ tuỳ chọn, nếu bạn đồng ý. Mọi thứ còn lại ở

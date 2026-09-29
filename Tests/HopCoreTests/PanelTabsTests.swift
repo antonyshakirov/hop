@@ -12,7 +12,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(model.tabs[0].icon, "house")
         XCTAssertEqual(model.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
         XCTAssertEqual(model.tabs[1].icon, "display")
-        XCTAssertEqual(model.tabs[1].moduleKeys, ["system", "speedtest", "torrent"],
+        XCTAssertEqual(model.tabs[1].moduleKeys, ["system", "speedtest", "torrent", "network"],
                        "everything that reports shares the second space")
         XCTAssertEqual(model.tabs[2].icon, "clock")
         XCTAssertEqual(model.tabs[2].moduleKeys, ["tracker", "todos"])
@@ -491,7 +491,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(c.tabs[0].icon, "house")
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
         XCTAssertEqual(c.tabs[1].icon, "display")
-        XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent", "network"])
         XCTAssertEqual(c.tabs[2].icon, "clock")
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
         XCTAssertEqual(c.tabs[3].icon, "tray")
@@ -514,7 +514,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertFalse(c.tabs.contains { $0.moduleKeys.contains("system") }, "no monitor row is created")
         // The reporting space still exists for the speed test and the torrents.
         XCTAssertEqual(c.tabs.count, 4)
-        XCTAssertEqual(c.tabs[1].moduleKeys, ["speedtest", "torrent"])
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["speedtest", "torrent", "network"])
         XCTAssertEqual(c.tabs[2].icon, "clock")
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"], "the new modules are visible together")
         XCTAssertEqual(c.tabs.last?.icon, "tray")
@@ -548,7 +548,7 @@ final class PanelTabsTests: XCTestCase {
         XCTAssertEqual(c.tabs.count, 4)
         XCTAssertEqual(c.tabs[0].icon, "house")
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer", "awake", "clipboard"])
-        XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent", "network"])
         XCTAssertEqual(c.tabs[2].moduleKeys, ["tracker", "todos"])
         XCTAssertEqual(c.tabs[3].moduleKeys, ["archive", "uninstall", "color"])
     }
@@ -565,7 +565,7 @@ final class PanelTabsTests: XCTestCase {
 
         XCTAssertEqual(c.tabs.count, 3)
         XCTAssertEqual(c.tabs[0].moduleKeys, ["timer"])
-        XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent"])
+        XCTAssertEqual(c.tabs[1].moduleKeys, ["system", "speedtest", "torrent", "network"])
         XCTAssertEqual(c.tabs[2].moduleKeys, ["archive", "uninstall", "color"])
         XCTAssertFalse(c.tabs.contains { $0.moduleKeys.contains("tracker") || $0.moduleKeys.contains("todos") })
         XCTAssertEqual(c.inactive, ["tracker", "todos"])

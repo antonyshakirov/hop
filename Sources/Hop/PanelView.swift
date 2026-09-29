@@ -76,6 +76,8 @@ struct PanelView: View {
     @AppStorage(SettingsKey.menuBarRedAlertBattery) private var menuBarRedAlertBattery = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
+    @AppStorage(SettingsKey.ocrShowsWindow) private var ocrShowsWindow = true
+    @AppStorage(SettingsKey.networkAsk) private var networkAsk = false
     @AppStorage(SettingsKey.vpnHoldOff) private var vpnHoldOff = true
     @AppStorage(SettingsKey.toolsOneRow) private var toolsOneRow = false
     @AppStorage(SettingsKey.clipboardToFile) private var clipboardToFile = false
@@ -456,6 +458,9 @@ struct PanelView: View {
         var action: L10nKey = .newsMore
         /// The release card this one follows; its lines come first for somebody who never saw it.
         var catchUp: String?
+        /// A module the release brought: the card's main button switches it on and
+        /// starts it, and says "got it" instead once the module is already on.
+        var enables: String?
     }
     private static let releaseCards: [ReleaseCard] = [
         .init(id: "1.9", lines: [.news19Tracker, .news19Presets, .news19Remux,
@@ -469,6 +474,7 @@ struct PanelView: View {
         .init(id: "2.0", lines: [.news20Lighter, .news20Adds, .news20Ahead]),
         .init(id: "2.1", lines: [.news21Shot, .news21Draw, .news21More]),
         .init(id: "2.1.2", lines: [.news211Hold], catchUp: "2.1"),
+        .init(id: "2.2", lines: [.news22Network, .news22Mac27, .news22More], enables: "network"),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -578,6 +584,18 @@ struct PanelView: View {
                     }
                     .buttonStyle(.plain)
                     .help(t(card.action))
+                    if let module = card.enables, !moduleRuns(module) {
+                        quietCardButton(t(.newsNotNow)) { markReleaseSeen(card) }
+                        filledCardButton(t(.newsEnableNetwork)) { enableFromCard(module, card) }
+                    } else if let module = card.enables {
+                        // SPEC: docs/spec.md — "Network access", the release card that brings it.
+                        quietCardButton(t(.newsDisableNetwork)) { disableFromCard(module, card) }
+                        if model.networkFilter.state == .needsApproval {
+                            filledCardButton(t(.networkAllow)) { model.networkFilter.guideApproval() }
+                        } else {
+                            filledCardButton(t(.newsGotIt)) { markReleaseSeen(card) }
+                        }
+                    } else {
                     // Reading the card IS the whole ask, so "got it" is the
                     // filled one and sits on the trailing edge, where the house
                     // keeps the action a card is about. The full notes are the
@@ -595,6 +613,7 @@ struct PanelView: View {
                     }
                     .buttonStyle(.plain)
                     .help(t(.newsGotIt))
+                    }
                 }
                 .padding(.top, 10)
             }
@@ -606,6 +625,47 @@ struct PanelView: View {
             .onAppear { releaseCardAppeared(card) }
             .onDisappear { releaseCardDisappeared(card) }
         }
+    }
+
+    /// SPEC: docs/spec.md — "Network access": one button switches the module on
+    /// and starts the filter, whose approval opens System Settings by itself.
+    private func enableFromCard(_ module: String, _ card: ReleaseCard) {
+        setModuleHidden(module, false)
+        if module == "network" { model.networkFilter.switchOn() }
+        markReleaseSeen(card)
+    }
+
+    private func disableFromCard(_ module: String, _ card: ReleaseCard) {
+        setModuleHidden(module, true)
+        markReleaseSeen(card)
+    }
+
+    private func moduleRuns(_ module: String) -> Bool {
+        let shown = Snapshot.active || moduleIsActive(module)
+        return shown && (module != "network" || model.networkFilter.state.wantsOn)
+    }
+
+    private func quietCardButton(_ title: String, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HoverLabel(text: title, size: 10, color: Theme.textTertiary)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(title)
+    }
+
+    private func filledCardButton(_ title: String, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(Theme.mono(10, weight: .bold))
+                .foregroundStyle(Theme.playFg)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(title)
     }
 
     /// Starts the card's two-day clock on the opening that actually drew it, and
@@ -2693,7 +2753,7 @@ struct PanelView: View {
     // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall"]
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall", "network"]
     static let defaultModuleOrder = ModuleCatalog.defaultModuleOrder
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
@@ -3156,6 +3216,7 @@ struct PanelView: View {
         case "shot": return t(.shotLabel)
         case "annotate": return t(.annotateLabel)
         case "vpn": return t(.vpnLabel)
+        case "network": return t(.networkLabel)
         case Self.appsChoice: return t(.appsLabel)
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil:
             return Substitutions.isolate(model.appShelves.shelf(withKey: key)?.title ?? "",
@@ -3200,6 +3261,10 @@ struct PanelView: View {
                 .id(model.themeVersion)
         case "vpn":
             VPNView(vpn: model.vpn, lang: lang)
+                .id(model.themeVersion)
+        case "network":
+            NetworkView(network: model.networkFilter, lang: lang,
+                        openWindow: { model.openNetworkWindow?() })
                 .id(model.themeVersion)
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil:
             // Shelves are the one module that exists in several copies, so the
@@ -3341,18 +3406,17 @@ struct PanelView: View {
                         .monospacedDigit()
                         .lineLimit(1)
                         .fixedSize()
-                    ProgressView()
-                        .controlSize(.small)
+                    speedStopIcon
                 } else if let last = speed.last {
                     // stale (30+ min or a different network): barely visible.
                     // RPM sits in the row itself, not in a tooltip
-                    Text("\(speedPairText(down: last.down, up: last.up)) · \(last.rpm) RPM")
+                    Text("\(speedPairText(down: last.down, up: last.up)) · \(last.rpm.map(String.init) ?? "—") RPM")
                         .font(Theme.mono(10))
                         // an old measurement stays readable but clearly "faded"
                         .foregroundStyle(speed.isStale ? Theme.textTertiary.opacity(0.45) : Theme.textPrimary)
                         .lineLimit(1)
                         .fixedSize()
-                        .help("\(t(.speedResponsiveness)): \(last.rpm) RPM")
+                        .help("\(t(.speedResponsiveness)): \(last.rpm.map(String.init) ?? "—") RPM")
                     if !Snapshot.active {
                         // hidden in product-page screenshots: the row reaches
                         // the panel edge and reads as broken alignment
@@ -3390,8 +3454,24 @@ struct PanelView: View {
     /// "↓ 834 Mbps · ↑ 112 Mbps" — every value carries its OWN unit
     /// (a bare number is ambiguous, and the two can differ: Kbit/s vs
     /// Mbit/s); thin spaces keep the row compact enough for the label
-    private func speedPairText(down: Double, up: Double) -> String {
-        "↓ \(speedValueText(down)) · ↑ \(speedValueText(up))"
+    private func speedPairText(down: Double?, up: Double?) -> String {
+        "↓ \(down.map(speedValueText) ?? "—") · ↑ \(up.map(speedValueText) ?? "—")"
+    }
+
+    /// SPEC: docs/spec.md — "Speed test", stopping early.
+    private var speedStopIcon: some View {
+        Button {
+            model.speedTest.stop()
+        } label: {
+            Image(systemName: "stop.fill")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Theme.textTertiary)
+                .frame(width: 20, height: 24)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(t(.speedtestStop))
+        .hoverHighlight(4)
     }
 
     private var speedRefreshIcon: some View {
@@ -3849,6 +3929,8 @@ struct PanelView: View {
         case "windows": windowsSettings
         case "shot": shotSettings
         case "annotate": annotateSettings
+        case "ocr": ocrSettings
+        case "network": networkSettings
         default: EmptyView()
         }
     }
@@ -4278,6 +4360,23 @@ struct PanelView: View {
                 .font(Theme.mono(8))
                 .foregroundStyle(Theme.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var networkSettings: some View {
+        VStack(spacing: 14) {
+            switchSetting(t(.settingsNetworkAsk), isOn: $networkAsk)
+            Text(t(.settingsNetworkAskNote))
+                .font(Theme.mono(8))
+                .foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .onChange(of: networkAsk) { _, _ in model.networkFilter.syncAsking() }
+    }
+
+    private var ocrSettings: some View {
+        VStack(spacing: 14) {
+            switchSetting(t(.settingsOcrWindow), isOn: $ocrShowsWindow)
         }
     }
 
@@ -4967,6 +5066,7 @@ struct PanelView: View {
         case "shot": return "camera.viewfinder"
         case "annotate": return "pencil.tip"
         case "vpn": return "lock.shield"
+        case "network": return "network.badge.shield.half.filled"
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil: return "square.grid.3x3"
         case "torrent": return "arrow.down.circle"
         default: return "square.grid.2x2"
@@ -5529,6 +5629,7 @@ struct PanelView: View {
             donateCard
             ShareHopCard(lang: lang)
             supportCard
+            socialCard
 
             VStack(alignment: .leading, spacing: 10) {
                 settingsSectionHeader(t(.aboutHowTitle))
@@ -5553,6 +5654,36 @@ struct PanelView: View {
                 FooterLink(url: "https://t.me/HopSupportBot", label: "telegram-\(t(.supportBotWord))")
             }
             .font(Theme.mono(11))
+        }
+    }
+
+    /// SPEC: docs/spec.md — "The about page", Hop's Instagram and X; none in Russian.
+    @ViewBuilder private var socialCard: some View {
+        let social = HopSocial.links(forLanguage: lang.rawValue)
+        if !social.isEmpty {
+            SettingsCard(spacing: 8) {
+                Text(t(.aboutSocial))
+                    .font(Theme.mono(12, weight: .semibold))
+                    .foregroundStyle(Theme.textPrimary)
+                HStack(spacing: 18) {
+                    ForEach(social, id: \.url) { link in
+                        if let url = URL(string: link.url) {
+                            Link(destination: url) {
+                                HStack(spacing: 7) {
+                                    SocialGlyph(label: link.label)
+                                    Text(link.label)
+                                        .font(Theme.mono(11))
+                                        .foregroundStyle(Theme.textSecondary)
+                                }
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .hoverDim()
+                            .handCursor()
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -5773,4 +5904,26 @@ struct PanelView: View {
         }
     }
 
+}
+
+/// The two marks, drawn rather than shipped: no brand glyph is in SF Symbols.
+private struct SocialGlyph: View {
+    let label: String
+
+    var body: some View {
+        if label == "Instagram" {
+            ZStack {
+                RoundedRectangle(cornerRadius: 4.5).stroke(lineWidth: 1.5)
+                Circle().stroke(lineWidth: 1.5).frame(width: 6.5, height: 6.5)
+                Circle().frame(width: 2, height: 2).offset(x: 3.8, y: -3.8)
+            }
+            .frame(width: 15, height: 15)
+            .foregroundStyle(Theme.textSecondary)
+        } else {
+            Text("𝕏")
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(Theme.textSecondary)
+                .frame(width: 15, height: 15)
+        }
+    }
 }

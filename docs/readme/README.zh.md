@@ -22,6 +22,8 @@
 
 ⭐ Hop 需要 225 颗星才能进入 Homebrew 官方目录，每一颗星都让它离目标更近一步。
 
+📣 在 [Instagram](https://www.instagram.com/hop.tools/) 和 [X](https://x.com/hoptools) 上关注 Hop。
+
 [![Support the project](https://img.shields.io/badge/support%20the%20project-555?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGNDUzQSI%2BPHBhdGggZD0iTTEyIDIxLjM1bC0xLjQ1LTEuMzJDNS40IDE1LjM2IDIgMTIuMjggMiA4LjUgMiA1LjQyIDQuNDIgMyA3LjUgM2MxLjc0IDAgMy40MS44MSA0LjUgMi4wOUMxMy4wOSAzLjgxIDE0Ljc2IDMgMTYuNSAzIDE5LjU4IDMgMjIgNS40MiAyMiA4LjVjMCAzLjc4LTMuNCA2Ljg2LTguNTUgMTEuNTRMMTIgMjEuMzV6Ii8%2BPC9zdmc%2B)](https://web.tribute.tg/d/Nvk)
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · **中文** · [日本語](README.ja.md)
@@ -32,7 +34,7 @@
 
 Hop 常驻在 Mac 的菜单栏中，一个应用顶替一把小工具：
 番茄钟式计时器、带待办清单的时间跟踪、caffeinate 式防休眠、系统监控、
-剪贴板管理器、拖放式文件转换器、窗口吸附和轻量 BT 客户端––
+剪贴板管理器、拖放式文件转换器、窗口吸附、应用防火墙和轻量 BT 客户端––
 一个轻量的原生应用，把你常用的模块分布在图标上多达四个标签里。
 
 ## 下载
@@ -45,6 +47,13 @@ Hop 常驻在 Mac 的菜单栏中，一个应用顶替一把小工具：
 Hop 使用 Apple Developer ID 签名并通过 Apple 公证，macOS 会像打开任何其他应用一样打开它。源代码公开，内置更新使用
 Ed25519 验证。需要 macOS 14 或更高版本。
 
+### 2.2.0
+
+- 新模块“网络访问”：看清哪些程序在联网、连到哪里，一键就能拦截整个程序，也能只拦截它的某一个地址。
+- Hop 已适配 macOS 27。
+- 文字识别：更新后的第一次识别也很快，并可设置识别后是否打开窗口。
+- 网速测试可以提前停止。
+
 ### 2.1.8
 
 - 问题修复
@@ -52,11 +61,6 @@ Ed25519 验证。需要 macOS 14 或更高版本。
 ### 2.1.7
 
 - macOS 27：面板操作现在只需点击一次
-
-### 2.1.6
-
-- 切换标签时面板会保持打开，输入新项目名称时输入框也不会失去焦点。
-- 低电量菜单栏提醒可单独开启；你可以从菜单、关于页面或初始设置分享 Hop。
 
 ## 功能
 
@@ -318,6 +322,20 @@ Hop 从不根据服务器地址猜测国家：地址注册表说明的是号段�
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
+### 网络访问
+
+查看你 Mac 上哪些程序联网，联到了哪里——并拦截其中任何一个。每个联网的程序都会连同它连过的地址一起出现。点一下它的名称就能切断整个程序的网络；打开它，还能单独拦截一个地址——比如一次许可证验证，其余流量照常通过。规则可以在程序第一次联网之前就设好：所有已安装的应用都列在其中，而从文件载入的地址列表（每行一个，或 hosts 文件）会一次性对所有程序生效。面板中的这一行会统计拦截数；背后的窗口保存其余内容，行的位置在你改动时保持不变。
+
+Hop 借助 macOS 专为这项工作提供的网络过滤器来做到这一点，与 LuLu 和 Little Snitch 用的是同一类技术。第一次使用时，macOS 会请你在系统设置里允许它。过滤器在连接的第一个数据包就做出判断，从不查看内容：它拦截的是整台服务器，而不是其中一页，Hop 也不解密任何内容。如果过滤器停止运行，网络仍然可用——在它恢复之前不会拦截任何东西——关闭这个模块只会停止你设的拦截，不会影响网络本身。
+
+模块默认开启，并且保持安静：没有规则时，一切照常通过。询问新连接是一项设置——开启后，屏幕右上角的卡片会为没有规则覆盖的连接询问你，可以选择只针对该地址还是整个程序。
+
+<div align="center">
+<img src="https://hop.tools/screens/zh/network.webp" width="560" alt="Hop – 网络访问：程序、它们的地址、已允许与已拦截">
+</div>
+
+→ [App firewall for Mac](https://hop.tools/features/app-firewall/)
+
 ### 应用
 
 一整天都在开的程序摆成网格，一键可达，不必再去应用程序文件夹。按 + 挑选，或从访达拖进来；每行九个，最多八行。
@@ -393,10 +411,11 @@ Mac 就记五次：应用在那台机器上出现了五回。自动更新不在�
 - **辅助功能** – 粘贴到下面那个应用、窗口管理器和键盘锁定
 - **录屏** – 框选区域时的文字识别、屏幕截图，以及绘制图层上的放大镜和模糊；颜色取色器不需要
 - **通知** – 计时结束提醒和 torrent 完成提示
+- **网络过滤器** – 一次，用于网络访问：macOS 会请你在系统设置中允许 Hop 的过滤器；它看到的内容留在这台 Mac 上
 - **管理员密码** – 一次，用于合盖模式（pmset 需要 root）
 - **登录时启动** – 默认关闭，你可以自行打开
 
-启动时不申请任何权限，也不会为你没有打开的模块申请权限。没有分析统计、没有遥测、没有账号、不上报崩溃：
+不会为你没有打开的模块申请权限。启动时唯一可能出现的请求是网络过滤器，只有一次，出现在带来网络访问的更新之后：这个模块默认开启。没有分析统计、没有遥测、没有账号、不上报崩溃：
 访问 hop.tools 只是为了询问是否有新版本 –– 以及在你同意时下载它，或下载两个可选小助手之一。
 其余一切都留在这台 Mac 上：剪贴板历史、记录的时间、待办清单、识别出的文字和取到的颜色。
 

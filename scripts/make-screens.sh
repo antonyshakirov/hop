@@ -128,6 +128,7 @@ for lang in "${LANGS[@]}"; do
     shot "$lang" colors --colors --demo
     shot "$lang" keyboard --keyboard --demo
     shot "$lang" vpn --only vpn --demo
+    shot "$lang" network --window-network --demo
     shot "$lang" apps --only apps --demo
 
     # The two markup modules: composed in Core Graphics from the same renderers

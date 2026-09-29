@@ -25,6 +25,8 @@ qu'il vous faut est là.**
 
 ⭐ Hop a besoin de 225 étoiles pour entrer dans le catalogue officiel de Homebrew, et chaque étoile l'en rapproche.
 
+📣 Suivez Hop sur [Instagram](https://www.instagram.com/hop.tools/) et [X](https://x.com/hoptools).
+
 [![Support the project](https://img.shields.io/badge/support%20the%20project-555?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGNDUzQSI%2BPHBhdGggZD0iTTEyIDIxLjM1bC0xLjQ1LTEuMzJDNS40IDE1LjM2IDIgMTIuMjggMiA4LjUgMiA1LjQyIDQuNDIgMyA3LjUgM2MxLjc0IDAgMy40MS44MSA0LjUgMi4wOUMxMy4wOSAzLjgxIDE0Ljc2IDMgMTYuNSAzIDE5LjU4IDMgMjIgNS40MiAyMiA4LjVjMCAzLjc4LTMuNCA2Ljg2LTguNTUgMTEuNTRMMTIgMjEuMzV6Ii8%2BPC9zdmc%2B)](https://web.tribute.tg/d/Nvk)
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · **Français** · [Italiano](README.it.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
@@ -37,7 +39,7 @@ Hop vit dans la barre de menus de votre Mac et remplace une poignée de petits
 utilitaires : un minuteur façon Pomodoro, un suivi du temps avec liste de
 tâches, un bloqueur de veille façon caffeinate, un moniteur système, un
 gestionnaire de presse-papiers, un convertisseur de fichiers par
-glisser-déposer, un outil d'ancrage de fenêtres et un client torrent léger –
+glisser-déposer, un outil d'ancrage de fenêtres, un pare-feu applicatif et un client torrent léger –
 une seule app native et légère, dont les modules se répartissent sur jusqu'à
 quatre onglets de l'icône.
 
@@ -53,6 +55,13 @@ l'ouvre comme n'importe quelle autre app. Le code source est public et les
 mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
 plus récent.
 
+### 2.2.0
+
+- Nouveau module « accès réseau » : voyez quels programmes vont sur internet et où, et bloquez d'un clic tout un programme ou une seule de ses adresses.
+- Hop est adapté à macOS 27.
+- Reconnaissance de texte : la première lecture après une mise à jour est immédiate, et un réglage décide si la fenêtre s'ouvre.
+- Le test de débit peut être arrêté avant la fin.
+
 ### 2.1.8
 
 - corrections de bugs
@@ -60,11 +69,6 @@ plus récent.
 ### 2.1.7
 
 - macOS 27 : les actions du panneau répondent dès le premier clic
-
-### 2.1.6
-
-- Le panneau reste ouvert quand on change d’onglet, et le nom d’un nouveau projet garde le focus pendant la saisie.
-- L’alerte de batterie faible est facultative ; Hop peut être partagé depuis le menu, la page À propos et la configuration initiale.
 
 ## Fonctionnalités
 
@@ -413,6 +417,20 @@ Le point peut être désactivé dans les réglages : le module et ses interrupte
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
+### Accès réseau
+
+Voyez quels programmes de votre Mac vont sur internet, et où – et bloquez n'importe lequel d'entre eux. Chaque programme qui se connecte apparaît avec les adresses qu'il a jointes. Un clic sur son nom coupe tout le programme du réseau ; ouvrez-le, et une seule adresse peut être bloquée à part – une vérification de licence, par exemple, pendant que le reste de son trafic passe. Une règle peut être fixée avant même qu'un programme se connecte : chaque application installée figure dans la liste, et une liste d'adresses chargée depuis un fichier (une par ligne, ou un fichier hosts) est bloquée pour tous les programmes à la fois. La ligne du panneau compte les blocages ; la fenêtre derrière garde le reste, et une ligne reste à sa place quand vous la changez.
+
+Hop fait cela avec le filtre réseau que macOS fournit exactement pour ce travail, le même genre que LuLu et Little Snitch utilisent. La première fois, macOS vous demande de l'autoriser dans les réglages système. Le filtre décide au premier paquet d'une connexion et ne regarde jamais à l'intérieur : il bloque un serveur entier, jamais une seule page dessus, et Hop ne déchiffre rien. Si le filtre s'arrête un jour, internet continue de fonctionner – rien n'est bloqué avant son retour –, et désactiver le module arrête vos blocages, pas internet.
+
+Le module est activé par défaut et reste discret : sans règle, tout passe. Demander pour les nouvelles connexions est un réglage – activé, une carte en haut à droite demande pour une connexion qu'aucune règle ne couvre, pour cette adresse ou tout le programme.
+
+<div align="center">
+<img src="https://hop.tools/screens/fr/network.webp" width="560" alt="Hop – accès réseau : programmes, leurs adresses, autorisé et bloqué">
+</div>
+
+→ [App firewall for Mac](https://hop.tools/features/app-firewall/)
+
 ### Apps
 
 Une grille avec les programmes que vous ouvrez toute la journée, à un clic et
@@ -515,12 +533,12 @@ vraiment utilisée ; la fenêtre des réglages les liste toutes avec leur état 
   zone, les captures, la loupe et le flou du calque de dessin ; la pipette n'en
   a pas besoin
 - **notifications** – l'alerte du minuteur et un torrent terminé
+- **filtre réseau** – une fois, pour l'accès réseau : macOS vous demande d'autoriser le filtre de Hop dans les réglages système ; ce qu'il voit reste sur ce Mac
 - **mot de passe administrateur** – une fois, pour le mode écran rabattu (pmset
   est réservé à root)
 - **ouvrir à la session** – désactivé tant que vous ne l'activez pas
 
-Rien n'est demandé au lancement, et rien n'est demandé pour un module que vous n'avez
-pas activé. Pas d'analytique, pas de télémétrie, pas de compte, pas de rapport de
+Rien n'est demandé pour un module que vous n'avez pas activé. La seule demande qui peut apparaître au lancement est le filtre réseau, une fois, après la mise à jour qui apporte l'accès réseau : ce module est activé par défaut. Pas d'analytique, pas de télémétrie, pas de compte, pas de rapport de
 plantage : hop.tools n'est contacté que pour demander s'il existe une
 version plus récente – et pour la télécharger, ou l'un des deux outils
 optionnels, si vous acceptez. Tout le reste reste sur ce Mac : l'historique du

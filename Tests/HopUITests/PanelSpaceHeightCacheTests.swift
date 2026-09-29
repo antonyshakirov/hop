@@ -49,4 +49,14 @@ final class PanelSpaceHeightCacheTests: XCTestCase {
         cache.store(320, for: space, revision: beforeChange)
         XCTAssertNil(cache.height(for: space))
     }
+
+    func testANothingMeasurementIsNotRemembered() {
+        var cache = PanelSpaceHeightCache()
+        let space = UUID()
+        cache.store(0, for: space, revision: 0)
+        XCTAssertNil(cache.height(for: space))
+        cache.store(420, for: space, revision: 0)
+        cache.store(0, for: space, revision: 0)
+        XCTAssertEqual(cache.height(for: space), 420)
+    }
 }

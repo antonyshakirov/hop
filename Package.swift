@@ -22,6 +22,13 @@ let package = Package(
             dependencies: ["HopCore"],
             swiftSettings: [.unsafeFlags(["-Osize"], .when(configuration: .release))]
         ),
+        // SPEC: docs/spec.md — "Network access". The content filter, shipped
+        // inside the app as a system extension; build-app.sh wraps it.
+        .executableTarget(
+            name: "HopNetFilter",
+            dependencies: ["HopCore"],
+            swiftSettings: [.unsafeFlags(["-Osize"], .when(configuration: .release))]
+        ),
         .testTarget(name: "HopCoreTests", dependencies: ["HopCore"], resources: [.copy("Fixtures")]),
         .testTarget(name: "HopUITests", dependencies: ["Hop"]),
     ]

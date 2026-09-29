@@ -22,6 +22,7 @@ final class AppModel: ObservableObject {
     /// controller, so they are built in `init` after it exists.
     let colorPicker: ColorPickerController
     let screenText: ScreenTextController
+    let networkFilter = NetworkFilterController()
     let shot = CaptureController()
     let annotate = ScreenAnnotateController()
     /// Built for the live model only: a preview's second tap would draw twice.
@@ -93,6 +94,7 @@ final class AppModel: ObservableObject {
     /// Open the uninstaller window: an app is dropped there, and the window is
     /// the only drop target that survives a drag.
     var openUninstallWindow: (() -> Void)?
+    var openNetworkWindow: (() -> Void)?
     /// Open the recognition window: where a picture is dropped or pasted, and
     /// where the recognized text is shown.
     var openScreenTextWindow: (() -> Void)?

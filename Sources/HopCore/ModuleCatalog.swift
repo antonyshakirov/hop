@@ -132,6 +132,7 @@ public enum ModuleCatalog {
                          defaultCombo: ModuleCombo(keyCode: 40, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "vpn", hiddenOnFirstRun: true, guideLetter: "n", actions: []),
+        ModuleEntry(id: "network", guideLetter: "x", actions: []),
         ModuleEntry(id: "uninstall", guideLetter: "u", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_uninstall", hotKeyID: 27,
                          defaultCombo: ModuleCombo(keyCode: 32, modifiers: controlOption)),
@@ -187,7 +188,7 @@ public enum ModuleCatalog {
     public static let modulesWithSettings: Set<String> = [
         "timer", "system", "awake", "clipboard", "color", "tracker",
         "todos", "vpn", "convert", "archive", "torrent", "windows",
-        "shot", "annotate",
+        "shot", "annotate", "ocr", "network",
     ]
 
     public static func hasSettings(_ id: String) -> Bool {
@@ -218,7 +219,7 @@ public enum ModuleCatalog {
         OnboardingGroup(titleID: "onbGroupScreen", modules: ["clipboard", "color", "ocr"]),
         OnboardingGroup(titleID: "onbGroupMarkup", modules: ["shot", "annotate"]),
         OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard"]),
-        OnboardingGroup(titleID: "onbGroupNetwork", modules: ["speedtest", "vpn", "torrent"]),
+        OnboardingGroup(titleID: "onbGroupNetwork", modules: ["speedtest", "vpn", "torrent", "network"]),
         OnboardingGroup(titleID: "onbGroupDesk", modules: ["windows", "apps", "uninstall"]),
     ]
 

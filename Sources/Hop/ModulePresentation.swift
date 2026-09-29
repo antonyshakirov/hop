@@ -22,6 +22,7 @@ enum ModulePresentation {
         case "archive": return .archiveLabel
         case "keyboard": return .keylockLabel
         case "vpn": return .vpnLabel
+        case "network": return .networkLabel
         case "uninstall": return .uninstallLabel
         case "system": return .tabSystem
         case "tracker": return .trackerLabel
@@ -47,6 +48,7 @@ enum ModulePresentation {
         case "archive": return .purposeArchive
         case "keyboard": return .purposeKeyboard
         case "vpn": return .purposeVpn
+        case "network": return .purposeNetwork
         case "uninstall": return .purposeUninstall
         case "system": return .purposeSystem
         case "tracker": return .purposeTracker
@@ -72,6 +74,7 @@ enum ModulePresentation {
         case "archive": return [.docArchiveFull]
         case "keyboard": return [.docKeylockFull]
         case "vpn": return [.docVpnFull]
+        case "network": return [.docNetworkFull]
         case "uninstall": return [.docUninstallFull]
         case "system": return [.docMonitorRows, .docMonitorRows2, .docMonitorColors]
         case "tracker": return [.docTrackerFull]
@@ -97,6 +100,7 @@ enum ModulePresentation {
         case "archive": return "archivebox"
         case "keyboard": return "keyboard"
         case "vpn": return "lock.shield"
+        case "network": return "network.badge.shield.half.filled"
         case "uninstall": return "trash"
         case "system": return "cpu"
         case "tracker": return "stopwatch"

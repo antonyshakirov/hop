@@ -24,6 +24,8 @@ schede dell'icona. Un clic – e tutto ciò che ti serve è lì.**
 
 ⭐ A Hop servono 225 stelle per entrare nel catalogo ufficiale di Homebrew, e ogni stella lo avvicina all'obiettivo.
 
+📣 Segui Hop su [Instagram](https://www.instagram.com/hop.tools/) e [X](https://x.com/hoptools).
+
 [![Support the project](https://img.shields.io/badge/support%20the%20project-555?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0ZGNDUzQSI%2BPHBhdGggZD0iTTEyIDIxLjM1bC0xLjQ1LTEuMzJDNS40IDE1LjM2IDIgMTIuMjggMiA4LjUgMiA1LjQyIDQuNDIgMyA3LjUgM2MxLjc0IDAgMy40MS44MSA0LjUgMi4wOUMxMy4wOSAzLjgxIDE0Ljc2IDMgMTYuNSAzIDE5LjU4IDMgMjIgNS40MiAyMiA4LjVjMCAzLjc4LTMuNCA2Ljg2LTguNTUgMTEuNTRMMTIgMjEuMzV6Ii8%2BPC9zdmc%2B)](https://web.tribute.tg/d/Nvk)
 
 [Bahasa Indonesia](README.id.md) · [Deutsch](README.de.md) · [English](../../README.md) · [Español](README.es.md) · [Français](README.fr.md) · **Italiano** · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Português](README.pt.md) · [Türkçe](README.tr.md) · [Tiếng Việt](README.vi.md) · [Русский](README.ru.md) · [Српски](README.sr.md) · [עברית](README.he.md) · [العربية](README.ar.md) · [فارسی](README.fa.md) · [اردو](README.ur.md) · [हिन्दी](README.hi.md) · [ไทย](README.th.md) · [한국어](README.ko.md) · [中文](README.zh.md) · [日本語](README.ja.md)
@@ -35,8 +37,7 @@ schede dell'icona. Un clic – e tutto ciò che ti serve è lì.**
 Hop vive nella barra dei menu del tuo Mac e sostituisce una manciata di
 piccole utility: un timer in stile Pomodoro, un monitoraggio del tempo con
 lista di cose da fare, un blocca-riposo in stile caffeinate, un monitor di
-sistema, un gestore degli appunti, un convertitore di file drag-and-drop, uno
-strumento per agganciare le finestre e un client torrent leggero – una sola
+sistema, un gestore degli appunti, un convertitore di file drag-and-drop, uno strumento per agganciare le finestre, un firewall per le app e un client torrent leggero – una sola
 app nativa e leggera, con i moduli che usi distribuiti su fino a quattro
 schede dell'icona.
 
@@ -52,6 +53,13 @@ la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
 aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
 successivo.
 
+### 2.2.0
+
+- Nuovo modulo «accesso alla rete»: vedi quali programmi vanno in rete e dove, e blocca con un clic un intero programma o un solo suo indirizzo.
+- Hop è adattato a macOS 27.
+- Riconoscimento del testo: la prima lettura dopo un aggiornamento è immediata, e un'impostazione decide se si apre la finestra.
+- Il test di velocità si può fermare prima.
+
 ### 2.1.8
 
 - correzioni di bug
@@ -59,11 +67,6 @@ successivo.
 ### 2.1.7
 
 - macOS 27: le azioni nel pannello rispondono al primo clic
-
-### 2.1.6
-
-- Il pannello resta aperto quando cambi scheda e il nome di un nuovo progetto mantiene il focus durante la digitazione.
-- L’avviso di batteria scarica è facoltativo; puoi condividere Hop dal menu, dalla pagina Informazioni e dalla configurazione iniziale.
 
 ## Funzionalità
 
@@ -388,6 +391,20 @@ Il punto si può spegnere nelle impostazioni: il modulo e i suoi interruttori f
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
+### Accesso alla rete
+
+Guarda quali programmi sul tuo Mac vanno in rete, e dove – e blocca uno qualsiasi di essi. Ogni programma che si collega compare con gli indirizzi che ha raggiunto. Un clic sulla sua etichetta taglia dalla rete l'intero programma; aprilo, e un singolo indirizzo può essere bloccato da solo – un controllo di licenza, per esempio, mentre il resto del suo traffico passa. Una regola può essere impostata prima ancora che un programma si colleghi: ogni app installata compare nell'elenco, e un elenco di indirizzi caricato da un file (uno per riga, o un file hosts) viene bloccato per tutti i programmi in una volta. La riga nel pannello conta i blocchi; la finestra dietro contiene il resto, e una riga resta dove sta quando la cambi.
+
+Hop fa questo con il filtro di rete che macOS offre proprio per questo compito, lo stesso tipo usato da LuLu e Little Snitch. La prima volta, macOS ti chiede di consentirlo nelle impostazioni di sistema. Il filtro decide al primo pacchetto di una connessione e non guarda mai dentro: blocca un server intero, mai una sua pagina, e Hop non decifra nulla. Se il filtro si ferma, internet continua a funzionare – nulla viene bloccato finché non torna –, e disattivare il modulo ferma i tuoi blocchi, non internet.
+
+Il modulo è attivo di default e resta discreto: senza regole, passa tutto. Chiedere per le nuove connessioni è un'impostazione – attivata, una scheda in alto a destra chiede per una connessione che nessuna regola copre, per quell'indirizzo o per tutto il programma.
+
+<div align="center">
+<img src="https://hop.tools/screens/it/network.webp" width="560" alt="Hop – accesso alla rete: programmi, i loro indirizzi, consentito e bloccato">
+</div>
+
+→ [App firewall for Mac](https://hop.tools/features/app-firewall/)
+
 ### App
 
 Una griglia con i programmi che apri tutto il giorno, a un clic e senza passare
@@ -487,12 +504,12 @@ finestra delle impostazioni li elenca tutti con il loro stato attuale:
   un'area, le schermate, la lente e la sfocatura del livello di disegno; il
   selettore colore non ne ha bisogno
 - **notifiche** – l'avviso del timer e un torrent completato
+- **filtro di rete** – una volta, per l'accesso alla rete: macOS ti chiede di consentire il filtro di Hop nelle impostazioni di sistema; quello che vede resta su questo Mac
 - **password di amministratore** – una volta, per la modalità a coperchio chiuso
   (pmset gira solo come root)
 - **apri all'accesso** – spento finché non lo accendi
 
-All'avvio non viene chiesto nulla, e nulla viene chiesto per un modulo che non hai
-attivato. Nessuna analytics, nessuna telemetria, nessun account, nessun report di
+Nulla viene chiesto per un modulo che non hai attivato. L'unica richiesta che può arrivare all'avvio è il filtro di rete, una volta, dopo l'aggiornamento che porta l'accesso alla rete: quel modulo è attivo di default. Nessuna analytics, nessuna telemetria, nessun account, nessun report di
 crash: hop.tools viene contattato solo per chiedere se esiste una
 versione più recente – e per scaricarla, o uno dei due aiutanti opzionali, se
 acconsenti. Tutto il resto resta su questo Mac: la cronologia degli appunti, il
