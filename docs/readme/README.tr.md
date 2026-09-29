@@ -37,8 +37,7 @@ Tek tık – ihtiyacınız olan her şey elinizin altında.**
 Hop, Mac'inizin menü çubuğunda yaşar ve bir avuç küçük aracın yerini
 alır: Pomodoro tarzı bir zamanlayıcı, yapılacaklar listeli bir zaman
 takibi, caffeinate benzeri bir uyku engelleyici, sistem monitörü, pano
-yöneticisi, sürükle-bırak dosya dönüştürücü, pencere yerleştirici ve
-hafif bir torrent istemcisi – tek bir hafif, yerel uygulama; kullandığınız
+yöneticisi, sürükle-bırak dosya dönüştürücü, pencere yerleştirici, bir uygulama güvenlik duvarı ve hafif bir torrent istemcisi – tek bir hafif, yerel uygulama; kullandığınız
 modüller simgedeki en fazla dört sekmeye dağılmış.
 
 ## İndir
@@ -53,6 +52,13 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
+### 2.2.0
+
+- Yeni modül “ağ erişimi”: hangi programların internete çıktığını ve nereye gittiğini gör, tek tıkla bir programın tamamını ya da yalnızca bir adresini engelle.
+- Hop, macOS 27'ye uyarlandı.
+- Metin tanıma: güncellemeden sonraki ilk okuma da hemen olur, sonuç penceresinin açılıp açılmayacağını bir ayar belirler.
+- Hız testi erken durdurulabilir.
+
 ### 2.1.8
 
 - hata düzeltmeleri
@@ -60,11 +66,6 @@ veya üzeri gerekir.
 ### 2.1.7
 
 - macOS 27: panel işlemleri ilk tıklamada yanıt veriyor
-
-### 2.1.6
-
-- Sekme değiştirirken panel açık kalır; yeni proje adı yazarken alan odağı kaybetmez.
-- Düşük pil uyarısı isteğe bağlıdır; Hop menüden, Hakkında sayfasından ve ilk kurulumdan paylaşılabilir.
 
 ## Özellikler
 
@@ -379,6 +380,20 @@ Nokta ayarlardan kapatılabilir; modül de anahtarları da onsuz çalışmaya de
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
+### Ağ erişimi
+
+Mac'inizdeki hangi programların internete çıktığını, ve nereye çıktığını görün – ve hangisini isterseniz engelleyin. Bağlanan her program, ulaştığı adreslerle birlikte görünür. Etiketine tek bir tıklama, programın tamamını ağdan keser; onu açın, tek bir adres de kendi başına engellenebilir – örneğin bir lisans denetimi, geri kalan trafiği geçerken. Bir kural, program hiç bağlanmadan önce bile ayarlanabilir: kurulu her uygulama listede yer alır, ve bir dosyadan yüklenen adres listesi (satır başına bir adres, ya da hosts dosyası) tüm programlar için birden engellenir. Paneldeki satır engelleri sayar; arkasındaki pencere gerisini tutar, ve bir satır değiştirdiğinizde yerinde kalır.
+
+Hop bunu, macOS'un tam da bu iş için sağladığı ağ filtresiyle yapar – LuLu ve Little Snitch'in kullandığı türden. İlk seferinde macOS, sistem ayarlarında ona izin vermenizi ister. Filtre bir bağlantının ilk paketinde karar verir ve içine asla bakmaz: bir sunucunun tamamını engeller, hiçbir zaman üzerindeki tek bir sayfayı değil, ve Hop hiçbir şeyin şifresini çözmez. Filtre bir gün dursa, internet çalışmaya devam eder – filtre dönene kadar hiçbir şey engellenmez – ve modülü kapatmak yalnızca sizin engellerinizi durdurur, interneti değil.
+
+Modül varsayılan olarak açıktır ve sessiz kalır: kural yoksa her şey geçer. Yeni bağlantılar için sormak bir ayardır – açıkken, sağ üstteki bir kart, hiçbir kuralın kapsamadığı bir bağlantı için sorar – o adres için mi, yoksa tüm program için mi.
+
+<div align="center">
+<img src="https://hop.tools/screens/tr/network.webp" width="560" alt="Hop – ağ erişimi: programlar, adresleri, izin verilen ve engellenen">
+</div>
+
+→ [App firewall for Mac](https://hop.tools/features/app-firewall/)
+
 ### Uygulamalar
 
 Gün boyu açtığınız programlar bir ızgarada, Uygulamalar klasörüne uğramadan tek
@@ -473,10 +488,11 @@ uygulamanın ayarlar penceresi hepsini güncel durumlarıyla listeler:
   çizim katmanındaki büyüteç ve bulanıklaştırma; renk damlalığının buna
   ihtiyacı yok
 - **bildirimler** – zamanlayıcı uyarısı ve tamamlanan torrent
+- **ağ filtresi** – bir kez, ağ erişimi için: macOS, Hop'un filtresine sistem ayarlarında izin vermeni ister; gördüğü şey bu Mac'te kalır
 - **yönetici parolası** – bir kez, kapak kapalı modu için (pmset yalnızca root)
 - **girişte aç** – sen açana kadar kapalı
 
-Açılışta hiçbir şey istenmez ve açmadığın bir modül için hiçbir şey sorulmaz.
+Açmadığın bir modül için hiçbir şey sorulmaz. Açılışta gelebilecek tek istek ağ filtresidir, bir kez, ağ erişimini getiren güncellemeden sonra: o modül varsayılan olarak açıktır.
 Analiz yok, telemetri yok, hesap yok, çökme raporu yok: hop.tools'a
 yalnızca daha yeni bir sürüm olup olmadığını sormak için bağlanılır – ve kabul
 edersen onu ya da iki isteğe bağlı yardımcıdan birini indirmek için. Geri kalan

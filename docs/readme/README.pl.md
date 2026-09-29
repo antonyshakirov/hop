@@ -37,8 +37,7 @@ Jedno kliknięcie – i wszystko, czego potrzebujesz, jest pod ręką.**
 Hop mieszka na pasku menu Twojego Maca i zastępuje garść drobnych
 narzędzi: timer w stylu Pomodoro, śledzenie czasu z listą zadań, blokadę
 uśpienia w duchu caffeinate, monitor systemu, menedżer schowka, konwerter
-plików „przeciągnij i upuść", przyciąganie okien oraz lekki klient
-torrentów – jedna lekka, natywna aplikacja, w której używane moduły
+plików „przeciągnij i upuść", przyciąganie okien, zaporę aplikacji oraz lekki klient torrentów – jedna lekka, natywna aplikacja, w której używane moduły
 rozkładasz na maksymalnie czterech kartach na ikonie.
 
 ## Pobierz
@@ -53,6 +52,13 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
+### 2.2.0
+
+- Nowy moduł „dostęp do sieci”: zobacz, które programy wychodzą do sieci i dokąd, i jednym kliknięciem zablokuj cały program albo tylko jeden jego adres.
+- Hop jest dostosowany do macOS 27.
+- Rozpoznawanie tekstu: pierwsze odczytanie po aktualizacji działa od razu, a ustawienie decyduje, czy otwiera się okno.
+- Test prędkości można przerwać wcześniej.
+
 ### 2.1.8
 
 - poprawki błędów
@@ -60,11 +66,6 @@ nowszego.
 ### 2.1.7
 
 - macOS 27: działania w panelu reagują na pierwsze kliknięcie
-
-### 2.1.6
-
-- Przy zmianie karty panel pozostaje otwarty, a pole nazwy nowego projektu nie traci fokusu podczas pisania.
-- Alert niskiego poziomu baterii jest opcjonalny; Hop można udostępnić z menu, strony O aplikacji i konfiguracji początkowej.
 
 ## Funkcje
 
@@ -378,6 +379,20 @@ Kropkę można wyłączyć w ustawieniach – moduł i jego przełączniki dzia�
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
+### Dostęp do sieci
+
+Zobacz, które programy na twoim Macu łączą się z siecią i dokąd – i zablokuj którykolwiek z nich. Każdy program, który się połączy, pojawia się razem z adresami, do których dotarł. Jedno kliknięcie w jego etykietę odcina cały program od sieci; otwórz go, a jeden adres można zablokować osobno – na przykład sprawdzanie licencji, podczas gdy reszta ruchu idzie dalej. Regułę można ustawić, zanim program w ogóle się połączy: każda zainstalowana aplikacja jest na liście, a lista adresów wczytana z pliku (jeden w wierszu albo plik hosts) jest blokowana dla wszystkich programów naraz. Wiersz w panelu liczy blokady; okno za nim przechowuje resztę, a wiersz zostaje na swoim miejscu, gdy go zmieniasz.
+
+Hop robi to za pomocą filtra sieciowego, który macOS udostępnia właśnie do tego zadania – tego samego rodzaju, którego używają LuLu i Little Snitch. Za pierwszym razem macOS prosi o zgodę na niego w ustawieniach systemowych. Filtr decyduje przy pierwszym pakiecie połączenia i nigdy nie zagląda do środka: blokuje cały serwer, nigdy jedną stronę na nim, a Hop niczego nie odszyfrowuje. Jeśli filtr kiedyś się zatrzyma, internet nadal działa – nic nie jest blokowane, dopóki nie wróci – a wyłączenie modułu zatrzymuje twoje blokady, nie internet.
+
+Moduł jest domyślnie włączony i zachowuje się cicho: bez reguł wszystko przechodzi. Pytanie o nowe połączenia to ustawienie – włączone, karta w prawym górnym rogu pyta o połączenie, którego nie obejmuje żadna reguła, dla tego adresu albo całego programu.
+
+<div align="center">
+<img src="https://hop.tools/screens/pl/network.webp" width="560" alt="Hop – dostęp do sieci: programy, ich adresy, dozwolone i zablokowane">
+</div>
+
+→ [App firewall for Mac](https://hop.tools/features/app-firewall/)
+
 ### Aplikacje
 
 Siatka programów, które otwierasz przez cały dzień – jednym kliknięciem, bez
@@ -474,12 +489,12 @@ potrzebuje; okno ustawień wymienia je wszystkie z bieżącym stanem:
   ekranu oraz lupa i rozmycie na warstwie rysowania; próbnik koloru go nie
   potrzebuje
 - **powiadomienia** – alarm minutnika i ukończony torrent
+- **filtr sieciowy** – raz, dla dostępu do sieci: macOS prosi cię o zgodę na filtr Hopa w ustawieniach systemowych; to, co widzi, zostaje na tym Macu
 - **hasło administratora** – raz, dla trybu zamkniętej klapy (pmset działa tylko
   jako root)
 - **otwieraj przy logowaniu** – wyłączone, dopóki sam nie włączysz
 
-Przy starcie nie jest proszone o nic, i nic nie jest proszone dla modułu, którego
-nie włączyłeś. Bez analityki, bez telemetrii, bez kont, bez raportów awarii: z
+Nic nie jest proszone dla modułu, którego nie włączyłeś. Jedyna prośba, jaka może pojawić się przy starcie, to filtr sieciowy, raz, po aktualizacji, która przynosi dostęp do sieci: ten moduł jest domyślnie włączony. Bez analityki, bez telemetrii, bez kont, bez raportów awarii: z
 hop.tools aplikacja łączy się tylko po to, by zapytać, czy jest nowsza
 wersja – i pobrać ją albo jednego z dwóch opcjonalnych pomocników, jeśli się
 zgodzisz. Cała reszta zostaje na tym Macu: historia schowka, zmierzony czas,
