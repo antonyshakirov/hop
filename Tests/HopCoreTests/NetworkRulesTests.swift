@@ -115,3 +115,32 @@ final class NetworkNameLookupTests: XCTestCase {
         XCTAssertFalse(NetworkRules.isNameLookup(process: "com.apple.curl", port: "443"))
     }
 }
+
+final class NetworkStartTests: XCTestCase {
+    private func due(on: Bool = true, wasOn: Bool = true, started: Bool = false,
+                     done: Bool = true, off: Bool = true) -> Bool {
+        NetworkStart.isDue(moduleOn: on, moduleWasOn: wasOn, startedBefore: started,
+                           onboardingDone: done, filterOff: off)
+    }
+
+    func testTheFirstLaunchWithTheModuleOnStartsTheFilter() {
+        XCTAssertTrue(due())
+    }
+
+    func testAFilterSwitchedOffByHandStaysOff() {
+        XCTAssertFalse(due(started: true))
+    }
+
+    func testSwitchingTheModuleBackOnStartsTheFilterAgain() {
+        XCTAssertTrue(due(wasOn: false, started: true))
+    }
+
+    func testNothingStartsDuringTheOnboardingOrForAModuleThatIsOff() {
+        XCTAssertFalse(due(done: false))
+        XCTAssertFalse(due(on: false))
+    }
+
+    func testARunningFilterIsNotStartedTwice() {
+        XCTAssertFalse(due(off: false))
+    }
+}

@@ -93,7 +93,7 @@ final class ModuleCatalogTests: XCTestCase {
 
     func testModulesThatShipHiddenAreTheOptInOnes() {
         let hidden = ModuleCatalog.modules.filter(\.hiddenOnFirstRun).map(\.id)
-        XCTAssertEqual(Set(hidden), ["color", "ocr", "vpn", "network"])
+        XCTAssertEqual(Set(hidden), ["color", "ocr", "vpn"])
     }
 
     func testStorageKeysAreUniqueSoTwoActionsCannotShareASavedCombo() {

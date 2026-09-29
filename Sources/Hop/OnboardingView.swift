@@ -532,6 +532,7 @@ struct OnboardingView: View {
         stepIndex += 1
         if all[stepIndex] == .layout {
             PanelView.dropEmptyOnboardingSpaces()
+        ModuleActivation.announceChange()
             moduleRevision += 1
         }
         if all[stepIndex] == .done { checkForUpdate() }

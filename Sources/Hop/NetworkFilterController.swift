@@ -47,16 +47,42 @@ final class NetworkFilterController: NSObject, ObservableObject {
         receiver.onAsk = { [weak self] data, reply in
             Task { @MainActor in self?.receive(data, reply: reply) }
         }
+        moduleWasOn = ModuleActivation.isOn("network")
         Task { await readSystemState() }
-        // SPEC: docs/spec.md — "A module that is off is off everywhere".
+        // SPEC: docs/spec.md — "A module that is off is off everywhere"; "Network access", on by default.
         NotificationCenter.default.addObserver(
             forName: ModuleActivation.didChange, object: nil, queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                guard let self, self.state.wantsOn, !ModuleActivation.isOn("network") else { return }
-                self.switchOff()
-            }
+            MainActor.assumeIsolated { self?.followModule() }
         }
+    }
+
+    private var moduleWasOn = false
+    private var guidesApproval = true
+
+    private func followModule() {
+        let isOn = ModuleActivation.isOn("network")
+        defer { moduleWasOn = isOn }
+        if !isOn {
+            if state.wantsOn { switchOff() }
+            return
+        }
+        let defaults = UserDefaults.standard
+        guard NetworkStart.isDue(moduleOn: true, moduleWasOn: moduleWasOn,
+                                 startedBefore: defaults.bool(forKey: SettingsKey.networkStarted),
+                                 onboardingDone: defaults.bool(forKey: "onboardingDone"),
+                                 filterOff: state == .off) else { return }
+        switchOn()
+    }
+
+    /// SPEC: docs/spec.md — "Network access", on by default.
+    private func startIfDue() {
+        let defaults = UserDefaults.standard
+        guard NetworkStart.isDue(moduleOn: ModuleActivation.isOn("network"), moduleWasOn: true,
+                                 startedBefore: defaults.bool(forKey: SettingsKey.networkStarted),
+                                 onboardingDone: defaults.bool(forKey: "onboardingDone"),
+                                 filterOff: state == .off) else { return }
+        switchOn(guided: false)
     }
 
     /// Straight to the list of network extensions, where the one switch is.
@@ -75,7 +101,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
     }
 
     /// SPEC: docs/spec.md — "Network access", approval: settings open by themselves.
-    private func guideApproval() {
+    func guideApproval() {
         Self.openSystemSettings()
         if let screen = NSScreen.main?.visibleFrame {
             MarkupNote.show(L10n.t(.networkSetupTitle, L10n.current),
@@ -85,10 +111,11 @@ final class NetworkFilterController: NSObject, ObservableObject {
         }
     }
 
-    /// `--network-state off|approval|failed` for the renders of the setup card.
+    /// `--network-state off|on|approval|failed` for the renders of the setup card.
     func stageForSnapshot(_ name: String) {
         switch name {
         case "off": state = .off
+        case "on": state = .on
         case "approval": state = .needsApproval
         case "failed": state = .failed("")
         default: break
@@ -136,16 +163,18 @@ final class NetworkFilterController: NSObject, ObservableObject {
     private func readSystemState() async {
         let manager = NEFilterManager.shared()
         guard (try? await manager.loadFromPreferences()) != nil else { return }
-        if manager.isEnabled, manager.providerConfiguration?.filterDataProviderBundleIdentifier == extensionID {
-            state = .on
-            syncAsking()
-            // SPEC: docs/spec.md — "Network access": an updated Hop brings its filter
-            // along without a question; the rules follow once it is in place.
-            let request = OSSystemExtensionRequest.activationRequest(forExtensionWithIdentifier: extensionID,
-                                                                     queue: .main)
-            request.delegate = self
-            OSSystemExtensionManager.shared.submitRequest(request)
+        guard manager.isEnabled, manager.providerConfiguration?.filterDataProviderBundleIdentifier == extensionID else {
+            return startIfDue()
         }
+        UserDefaults.standard.set(true, forKey: SettingsKey.networkStarted)
+        state = .on
+        syncAsking()
+        // SPEC: docs/spec.md — "Network access": an updated Hop brings its filter
+        // along without a question; the rules follow once it is in place.
+        let request = OSSystemExtensionRequest.activationRequest(forExtensionWithIdentifier: extensionID,
+                                                                 queue: .main)
+        request.delegate = self
+        OSSystemExtensionManager.shared.submitRequest(request)
     }
 
     // MARK: rules
@@ -375,8 +404,10 @@ final class NetworkFilterController: NSObject, ObservableObject {
         } as? NetworkFilterXPC
     }
 
-    func switchOn() {
+    func switchOn(guided: Bool = true) {
         guard !Snapshot.active, state != .installing else { return }
+        UserDefaults.standard.set(true, forKey: SettingsKey.networkStarted)
+        guidesApproval = guided
         state = .installing
         let request = OSSystemExtensionRequest.activationRequest(forExtensionWithIdentifier: extensionID, queue: .main)
         request.delegate = self
@@ -384,6 +415,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
     }
 
     func switchOff() {
+        UserDefaults.standard.set(true, forKey: SettingsKey.networkStarted)
         Task { await configure(enabled: false) }
     }
 
@@ -434,7 +466,7 @@ extension NetworkFilterController: OSSystemExtensionRequestDelegate {
         Task { @MainActor in
             state = .needsApproval
             log.info("extension waits for approval in System Settings")
-            guideApproval()
+            if guidesApproval { guideApproval() }
         }
     }
 

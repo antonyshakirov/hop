@@ -2265,12 +2265,31 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 In development (Anton, 2026-09-28): built into Hop Dev only; a release is
 built without the filter until the module ships. Module key `network`, title
-`networkLabel` ("network access"), off by default, placed on the second space
+`networkLabel` ("network access"), on by default, placed on the second space
 next to the monitor, the speed test and the torrents (`reportingModules`; a
 new install or an update puts it there through `PanelTabsModel.ensure`, and on
 the first space when there is no such space), and in the onboarding's "Network"
 group beside the speed test, the VPN and the torrents, where its preview is a
 drawn list of programs with their verdicts rather than the window itself.
+
+- **On by default** (Anton, 2026-09-29): the module is on unless it is turned
+  off, on a fresh install (its switch in the onboarding stands on) and after
+  the update that brings it. The filter starts by itself once: at the first
+  launch after the update, or when the onboarding finishes with the module on
+  (`networkStarted` records that it happened, and any switching on or off by
+  hand records it too, so Hop never starts it again on its own). Started by
+  the update, it does not open System Settings — macOS shows its own notice
+  and the row says it waits; started from the onboarding, the settings open
+  as they do for any switching on. The filter has no rules at first, so it
+  lets everything through until somebody makes one. Turning the module off
+  anywhere switches the filter off; turning it back on in the settings
+  switches the filter on again.
+- **The release card that brings it** (`"2.2"`, `enables: "network"`): with
+  the module on it says so by its buttons — "what's new", "switch off" (hides
+  the module, which stops the filter) and "got it"; while macOS waits for the
+  approval "got it" gives way to "allow", which opens the settings with the
+  sticky hint. With the module or its filter off the card offers "not now"
+  and "switch on" instead.
 
 - **What it is**: per-program network control in the manner of LuLu and
   Little Snitch. Every program that goes online shows up with the addresses it

@@ -584,28 +584,17 @@ struct PanelView: View {
                     }
                     .buttonStyle(.plain)
                     .help(t(card.action))
-                    if let module = card.enables, Snapshot.active || !moduleIsActive(module) {
-                        Button {
-                            markReleaseSeen(card)
-                        } label: {
-                            HoverLabel(text: t(.newsNotNow), size: 10, color: Theme.textTertiary)
-                                .contentShape(Rectangle())
+                    if let module = card.enables, !moduleRuns(module) {
+                        quietCardButton(t(.newsNotNow)) { markReleaseSeen(card) }
+                        filledCardButton(t(.newsEnableNetwork)) { enableFromCard(module, card) }
+                    } else if let module = card.enables {
+                        // SPEC: docs/spec.md — "Network access", the release card that brings it.
+                        quietCardButton(t(.newsDisableNetwork)) { disableFromCard(module, card) }
+                        if model.networkFilter.state == .needsApproval {
+                            filledCardButton(t(.networkAllow)) { model.networkFilter.guideApproval() }
+                        } else {
+                            filledCardButton(t(.newsGotIt)) { markReleaseSeen(card) }
                         }
-                        .buttonStyle(.plain)
-                        .help(t(.newsNotNow))
-                        Button {
-                            enableFromCard(module, card)
-                        } label: {
-                            Text(t(.newsEnableNetwork))
-                                .font(Theme.mono(10, weight: .bold))
-                                .foregroundStyle(Theme.playFg)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 6)
-                                .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .help(t(.newsEnableNetwork))
                     } else {
                     // Reading the card IS the whole ask, so "got it" is the
                     // filled one and sits on the trailing edge, where the house
@@ -644,6 +633,39 @@ struct PanelView: View {
         setModuleHidden(module, false)
         if module == "network" { model.networkFilter.switchOn() }
         markReleaseSeen(card)
+    }
+
+    private func disableFromCard(_ module: String, _ card: ReleaseCard) {
+        setModuleHidden(module, true)
+        markReleaseSeen(card)
+    }
+
+    private func moduleRuns(_ module: String) -> Bool {
+        let shown = Snapshot.active || moduleIsActive(module)
+        return shown && (module != "network" || model.networkFilter.state.wantsOn)
+    }
+
+    private func quietCardButton(_ title: String, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HoverLabel(text: title, size: 10, color: Theme.textTertiary)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(title)
+    }
+
+    private func filledCardButton(_ title: String, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(Theme.mono(10, weight: .bold))
+                .foregroundStyle(Theme.playFg)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(title)
     }
 
     /// Starts the card's two-day clock on the opening that actually drew it, and
@@ -2738,7 +2760,7 @@ struct PanelView: View {
     /// developers) and must be a deliberate opt-in: an ordinary user should not
     /// find them cluttering the panel after an update. Torrent is not here, it
     /// is handled by its own toggle below.
-    private static let optInModules = ["color", "ocr", "vpn", "network"]
+    private static let optInModules = ["color", "ocr", "vpn"]
 
     /// Modules INTRODUCED in this release that must NOT appear until they are
     /// asked for. Empty for the markup pair by Anton's decision (2026-09-09):

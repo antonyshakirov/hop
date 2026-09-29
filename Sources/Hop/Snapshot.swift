@@ -471,6 +471,9 @@ enum Snapshot {
         }
 
         let model = AppModel()
+        if let i = args.firstIndex(of: "--network-state"), args.count > i + 1 {
+            model.networkFilter.stageForSnapshot(args[i + 1])
+        }
         if wantsTorrents, !args.contains("--torrents-empty") {
             model.torrent.loadDemo(demoTorrents(includeMissing: args.contains("--torrents-states")))
         }
@@ -719,9 +722,6 @@ enum Snapshot {
                 .padding(20)
                 .background(Theme.panelBackground))
         } else if args.contains("--window-network") {
-            if let i = args.firstIndex(of: "--network-state"), args.count > i + 1 {
-                model.networkFilter.stageForSnapshot(args[i + 1])
-            }
             content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
                 .environmentObject(model)
                 .frame(width: 740, height: model.networkFilter.state == .on ? 980 : 420))

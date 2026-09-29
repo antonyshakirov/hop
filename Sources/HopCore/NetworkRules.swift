@@ -223,3 +223,13 @@ public enum NetworkRuleFile {
         return current.filter { !replaced.contains("\($0.app) \($0.host ?? "")") } + incoming
     }
 }
+
+/// When Hop switches the filter on without being asked: once, for a module
+/// that is on, and again only when the module itself is switched back on.
+/// SPEC: docs/spec.md — "Network access", on by default.
+public enum NetworkStart {
+    public static func isDue(moduleOn: Bool, moduleWasOn: Bool, startedBefore: Bool,
+                             onboardingDone: Bool, filterOff: Bool) -> Bool {
+        moduleOn && filterOff && onboardingDone && (!moduleWasOn || !startedBefore)
+    }
+}

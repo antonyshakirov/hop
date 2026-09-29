@@ -128,6 +128,8 @@ enum SettingsKey {
     /// default: the module must not get in the way until somebody wants it to.
     /// SPEC: docs/spec.md — "Network access", questions.
     static let networkAsk = "networkAsk"
+    /// SPEC: docs/spec.md — "Network access", on by default.
+    static let networkStarted = "networkStarted"
     /// Whether switching a VPN off also takes it out of the network set, so its
     /// own on-demand rules cannot bring it back. ON by default: a switch that
     /// does not switch anything off is not a switch.
