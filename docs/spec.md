@@ -2303,7 +2303,7 @@ drawn list of programs with their verdicts rather than the window itself.
 - **How**: a content-filter system extension (`NEFilterDataProvider`,
   target `HopNetFilter`, bundle `<app id>.netfilter`) inside
   `Contents/Library/SystemExtensions`, installed with `OSSystemExtensionRequest`
-  when the row is switched on, then enabled through `NEFilterManager` with the
+  when the filter is started, then enabled through `NEFilterManager` with the
   rules in `vendorConfiguration`. macOS asks twice, once, and no app can skip
   it (only a Mac managed through MDM can be approved ahead): the extension in
   System Settings → General → Login Items & Extensions → Network Extensions,
@@ -2361,7 +2361,16 @@ drawn list of programs with their verdicts rather than the window itself.
   with what to do — numbered steps for the approval — and one button. The
   list, the search and the rules appear once it runs; switches that did
   nothing before approval looked as if they worked without it.
-- **The window** (Anton, 2026-09-28: clear, not technical): a header like a
+- **The row in the panel** (Anton, 2026-09-29): no switch — a switch there
+  read as "internet on / off", while turning the module off only stops the
+  blocks. The whole row opens the window, with a settings glyph
+  (`slider.horizontal.3`) on the right, and says in one short line either
+  "blocks: N" — every rule that blocks counts one, a whole program and a
+  single address alike — or what stands in the way ("filter off", "waiting
+  for approval", "not working"). The module itself is turned off in the
+  settings, like any other.
+- **The window** (Anton, 2026-09-28: clear, not technical): its header sits
+  as high as in the other module windows (18 pt under the title bar); a header like a
   settings page; search, a segmented all / blocked / last hour, a ⋯ menu for
   rule files and "+ add a rule", which opens a small form with labelled
   fields — program (every program, the ones seen, everything installed, or

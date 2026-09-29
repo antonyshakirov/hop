@@ -11,34 +11,29 @@ struct NetworkView: View {
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
     var body: some View {
-        HStack(spacing: 6) {
-            Button(action: openWindow) {
-                HStack(alignment: .firstTextBaseline, spacing: 5) {
-                    Text(t(.networkLabel))
-                        .font(Theme.mono(12))
-                        .foregroundStyle(Theme.listText)
+        Button(action: openWindow) {
+            HStack(alignment: .firstTextBaseline, spacing: 5) {
+                Text(t(.networkLabel))
+                    .font(Theme.mono(12))
+                    .foregroundStyle(Theme.listText)
+                    .lineLimit(1)
+                if let status = NetworkStatusText.line(network, lang) {
+                    Text(status.text)
+                        .font(Theme.mono(10))
+                        .foregroundStyle(status.warning ? Theme.accentOrange : Theme.textTertiary)
                         .lineLimit(1)
-                    if let status = NetworkStatusText.line(network, lang) {
-                        Text(status.text)
-                            .font(Theme.mono(10))
-                            .foregroundStyle(status.warning ? Theme.accentOrange : Theme.textTertiary)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                    }
+                        .truncationMode(.tail)
                 }
-                .contentShape(Rectangle())
+                Spacer(minLength: 6)
+                RowActionIcon(symbol: "slider.horizontal.3", compact: true)
+                    .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 4 }
             }
-            .buttonStyle(.plain)
-            .hoverDim()
-            .help(t(.networkOpenWindow))
-            Spacer(minLength: 6)
-            Theme.MiniSwitch(isOn: Binding(
-                get: { network.state.wantsOn },
-                set: { $0 ? network.switchOn() : network.switchOff() }
-            ))
-            .help(t(network.state.wantsOn ? .networkSwitchOff : .networkSwitchOn))
+            .padding(.vertical, 2)
+            .contentShape(Rectangle())
         }
-        .padding(.vertical, 2)
+        .buttonStyle(.plain)
+        .hoverDim()
+        .help(t(.networkOpenWindow))
     }
 }
 
@@ -46,15 +41,14 @@ struct NetworkView: View {
 enum NetworkStatusText {
     static func line(_ network: NetworkFilterController, _ lang: AppLanguage) -> (text: String, warning: Bool)? {
         switch network.state {
-        case .off: return nil
+        case .off: return (L10n.t(.networkFilterIsOff, lang), true)
         case .installing: return (L10n.t(.networkInstalling, lang), false)
         case .needsApproval: return (L10n.t(.networkNeedsApproval, lang), true)
         case .failed: return (L10n.t(.networkFailed, lang), true)
         case .on:
             if network.stopped { return (L10n.t(.networkStopped, lang), true) }
             let blocked = network.rules.filter { $0.action == .deny }.count
-            return blocked == 0 ? nil
-                : (L10n.t(.networkRulesCount, lang).replacingOccurrences(of: "%d", with: "\(blocked)"), false)
+            return (L10n.t(.networkRulesCount, lang).replacingOccurrences(of: "%d", with: "\(blocked)"), false)
         }
     }
 }
@@ -106,7 +100,7 @@ struct NetworkWindowView: View {
             }
         }
         .padding(.horizontal, 24)
-        .padding(.top, 40)
+        .padding(.top, 18)
         .padding(.bottom, 20)
         .frame(minWidth: 660, minHeight: 440, alignment: .top)
         .background(Theme.background)
