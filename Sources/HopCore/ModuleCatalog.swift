@@ -132,7 +132,7 @@ public enum ModuleCatalog {
                          defaultCombo: ModuleCombo(keyCode: 40, modifiers: controlOption)),
         ]),
         ModuleEntry(id: "vpn", hiddenOnFirstRun: true, guideLetter: "n", actions: []),
-        ModuleEntry(id: "network", guideLetter: "e", actions: []),
+        ModuleEntry(id: "network", guideLetter: "x", actions: []),
         ModuleEntry(id: "uninstall", guideLetter: "u", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_uninstall", hotKeyID: 27,
                          defaultCombo: ModuleCombo(keyCode: 32, modifiers: controlOption)),

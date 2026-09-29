@@ -209,35 +209,53 @@ struct NetworkWindowView: View {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 11))
                     .foregroundStyle(Theme.textTertiary)
-                TextField(t(.networkSearch), text: $query)
-                    .textFieldStyle(.plain)
-                    .font(Theme.mono(12))
+                // WORKAROUND: a TextField renders as a yellow block in a snapshot.
+                if staged {
+                    Text(t(.networkSearch))
+                        .font(Theme.mono(12))
+                        .foregroundStyle(Theme.textTertiary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    TextField(t(.networkSearch), text: $query)
+                        .textFieldStyle(.plain)
+                        .font(Theme.mono(12))
+                }
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
             segments
-            Menu {
-                Picker(t(.networkSortTitle), selection: $network.sort) {
-                    Text(t(.networkSortAppearance)).tag(NetworkSort.appearance)
-                    Text(t(.networkSortName)).tag(NetworkSort.name)
-                    Text(t(.networkSortRecent)).tag(NetworkSort.recent)
-                }
-                .pickerStyle(.inline)
-                Divider()
-                Button(t(.networkImport)) { importRules() }
-                Button(t(.networkExport)) { exportRules() }
-            } label: {
+            if staged {
                 Image(systemName: "ellipsis")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(Theme.textSecondary)
+            } else {
+                moreMenu
             }
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
-            .fixedSize()
             primary("+ " + t(.networkAddRule)) { adding = true }
                 .popover(isPresented: $adding, arrowEdge: .bottom) { addForm }
         }
+    }
+
+    private var moreMenu: some View {
+        Menu {
+            Picker(t(.networkSortTitle), selection: $network.sort) {
+                Text(t(.networkSortAppearance)).tag(NetworkSort.appearance)
+                Text(t(.networkSortName)).tag(NetworkSort.name)
+                Text(t(.networkSortRecent)).tag(NetworkSort.recent)
+            }
+            .pickerStyle(.inline)
+            Divider()
+            Button(t(.networkImport)) { importRules() }
+            Button(t(.networkExport)) { exportRules() }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Theme.textSecondary)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
     }
 
     private var segments: some View {

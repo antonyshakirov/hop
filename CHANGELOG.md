@@ -1,5 +1,21 @@
 # Hop - version history
 
+## 2.2.0 - 2026-09-29
+
+- New module "network access": every program that goes online shows up with the
+  addresses it reached, and a program or a single address of it can be blocked with
+  one click. Rules can be set before a program connects, loaded from a file of
+  addresses or a hosts file, and saved to one. It works through the network filter
+  macOS provides, asked for once in System Settings; if the filter stops, the
+  internet keeps working. The module is on by default and blocks nothing until you
+  make a rule.
+- Hop is adapted to macOS 27.
+- Text recognition: the first reading after an update is instant, and a setting
+  decides whether a reading opens its window or only copies the text.
+- The speed test can be stopped early; it keeps what it measured.
+- Switching back to a space with a long clipboard history is faster.
+- The About page links to Hop on Instagram and X.
+
 ## 2.1.8 - 2026-09-28
 
 - On macOS 27, the panel fits the selected tab instead of leaving empty space below it.
