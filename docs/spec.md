@@ -1043,7 +1043,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Collapsed — a user-chosen number of rows (settings, 1...10, default 3),
   expanded — up to 20, but that is only the HEIGHT of
   the list window: the full history is reachable via internal scrolling in
-  both views. The height ceiling is DYNAMIC:
+  both views. The list is built as it scrolls (`LazyVStack`, measured
+  2026-09-29): a plain stack built and measured every entry each time the
+  space came up, and switching back to the space took a visible beat. The
+  height ceiling is DYNAMIC:
   min(430, screen height − 560), then internal scrolling (invariant #1!).
   A constant ceiling has already broken twice — once when removed and once
   when the module count grew. The proper final fix is clamping the height

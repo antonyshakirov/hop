@@ -155,10 +155,8 @@ struct ClipboardView: View {
                 .frame(maxHeight: .infinity, alignment: .top)
             } else {
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 4) {
-                        // render the FULL history: scrolling to old entries
-                        // works even when collapsed — expanding merely
-                        // shows more rows at once
+                    // SPEC: docs/spec.md — "Clipboard", the list is built as it scrolls.
+                    LazyVStack(spacing: 4) {
                         ForEach(filteredItems) { item in
                             itemRow(item)
                         }
