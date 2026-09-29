@@ -119,18 +119,21 @@ if [[ -z "$IDENTITY" ]]; then
     echo "  and every permission it is granted dies with it."
     IDENTITY="-"
 fi
-# SPEC: docs/spec.md — "Network access": in development, so only Hop Dev carries
-# the filter; a release is built without it until the module ships.
+# SPEC: docs/spec.md — "Network access": every build carries the filter.
 # macOS refuses a Developer ID system extension that is not notarised, so a dev
-# build that has to run the filter is built with HOP_NOTARIZE=1 (a few minutes).
+# build that has to run the filter is built with HOP_NOTARIZE=1 (a few minutes);
+# notarisation also wants a secure timestamp on the nested code of a release.
 TIMESTAMP=no-timestamp
-[[ "${HOP_NOTARIZE:-}" == "1" ]] && TIMESTAMP=timestamp
+[[ "${HOP_NOTARIZE:-}" == "1" || $DEV == 0 ]] && TIMESTAMP=timestamp
 APP_ENTITLEMENTS="$HOP_ENTITLEMENTS"
-if [[ $DEV == 1 && "$IDENTITY" != "-" ]]; then
+if [[ "$IDENTITY" != "-" ]]; then
     FILTER_BINARY="$(dirname "$BINARY")/HopNetFilter"
     if [[ -f "$FILTER_BINARY" ]] && hop_embed_network_filter "$APP" "$FILTER_BINARY" "$IDENTITY" "$TIMESTAMP"; then
         APP_ENTITLEMENTS="$HOP_NETWORK_ENTITLEMENTS"
         echo "network filter: embedded"
+    elif [[ $DEV == 0 ]]; then
+        echo "❌ network filter: not embedded — a release must carry it (profiles in ~/.minimo-signing/profiles, HopNetFilter built)"
+        exit 1
     else
         echo "⚠ network filter: not embedded (no profiles in ~/.minimo-signing/profiles or no binary)"
     fi

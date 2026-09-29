@@ -2266,8 +2266,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Network access
 
-In development (Anton, 2026-09-28): built into Hop Dev only; a release is
-built without the filter until the module ships. Module key `network`, title
+Shipped in 2.2.0 (Anton, 2026-09-29): every build carries the filter —
+`build-app.sh` embeds it and a release fails without it, `release.sh` thins it
+with the app for each architecture and signs it again, and `verify-release.sh`
+checks the served copy holds it, signed, with the app's entitlement to install
+it. Guide letter `x` (the site's `e` is the apps grids). Module key `network`, title
 `networkLabel` ("network access"), on by default, placed on the second space
 next to the monitor, the speed test and the torrents (`reportingModules`; a
 new install or an update puts it there through `PanelTabsModel.ensure`, and on

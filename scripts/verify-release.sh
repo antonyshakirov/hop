@@ -55,6 +55,13 @@ VERDICT="$(spctl -a -vvv -t exec "$TMP/x/Hop.app" 2>&1 || true)"
     || fail "the served app is not notarised — Gatekeeper says: $VERDICT"
 xcrun stapler validate "$TMP/x/Hop.app" >/dev/null 2>&1 \
     || fail "the served app carries no stapled ticket — a first launch offline would be blocked"
+# SPEC: docs/spec.md — "Network access": the filter ships inside, signed, and the
+# app holds the entitlement to install it.
+FILTER_EXT="$(find "$TMP/x/Hop.app/Contents/Library/SystemExtensions" -maxdepth 1 -name "*.netfilter.systemextension" 2>/dev/null | head -1)"
+[[ -n "$FILTER_EXT" ]] || fail "the served app carries no network filter"
+codesign --verify --strict "$FILTER_EXT" 2>/dev/null || fail "the network filter's signature is broken"
+codesign -d --entitlements - "$TMP/x/Hop.app" 2>/dev/null | grep -q "system-extension.install" \
+    || fail "the served app lacks the entitlement to install its network filter"
 
 curl -fsS --max-time 120 "$DMG_URL" -o "$TMP/Hop.dmg" || fail "served DMG is unreachable"
 xcrun stapler validate "$TMP/Hop.dmg" >/dev/null 2>&1 \
