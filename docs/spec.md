@@ -6327,8 +6327,9 @@ Anton's primary install must always remain fully functional.
   panel is built of modules sitting on spaces, that each module has a page here
   and a key of its own, and that nothing leaves the Mac. The footer keeps
   version, source, the author's site and the product page.
-- **Hop's Instagram and X** (Anton, 2026-09-28) are the footer's third line,
-  `Instagram · X`, brand names that need no translation. Not in Russian: no
+- **Hop's Instagram and X** (Anton, 2026-09-28; moved up 2026-09-29) are a
+  card of their own right after the support card, "follow hop", each link with
+  its mark — drawn in SwiftUI, since SF Symbols carry no brand glyphs. Not in Russian: no
   line at all when the interface is Russian, the same rule as the Russian
   README and the Russian pages of the site (`HopSocial`, tested).
 - **Release notes belong to the updates page**, with the auto-update switch, the
