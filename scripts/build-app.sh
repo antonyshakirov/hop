@@ -119,7 +119,52 @@ if [[ -z "$IDENTITY" ]]; then
     echo "  and every permission it is granted dies with it."
     IDENTITY="-"
 fi
-hop_sign_app "$APP" "$IDENTITY" no-timestamp
+# SPEC: docs/spec.md — "Network access": every build carries the filter.
+# macOS refuses a Developer ID system extension that is not notarised, so a dev
+# build that has to run the filter is built with HOP_NOTARIZE=1 (a few minutes);
+# notarisation also wants a secure timestamp on the nested code of a release.
+TIMESTAMP=no-timestamp
+[[ "${HOP_NOTARIZE:-}" == "1" || $DEV == 0 ]] && TIMESTAMP=timestamp
+APP_ENTITLEMENTS="$HOP_ENTITLEMENTS"
+if [[ "$IDENTITY" != "-" ]]; then
+    FILTER_BINARY="$(dirname "$BINARY")/HopNetFilter"
+    if [[ -f "$FILTER_BINARY" ]] && hop_embed_network_filter "$APP" "$FILTER_BINARY" "$IDENTITY" "$TIMESTAMP"; then
+        APP_ENTITLEMENTS="$HOP_NETWORK_ENTITLEMENTS"
+        echo "network filter: embedded"
+    elif [[ $DEV == 0 ]]; then
+        echo "❌ network filter: not embedded — a release must carry it (profiles in ~/.minimo-signing/profiles, HopNetFilter built)"
+        exit 1
+    else
+        echo "⚠ network filter: not embedded (no profiles in ~/.minimo-signing/profiles or no binary)"
+    fi
+fi
+hop_sign_app "$APP" "$IDENTITY" "$TIMESTAMP" "$APP_ENTITLEMENTS"
+
+if [[ "${HOP_NOTARIZE:-}" == "1" ]]; then
+    [[ -f .env ]] || { echo "❌ HOP_NOTARIZE=1 needs .env with the notary credentials"; exit 1; }
+    eval "$(python3 - <<'PYENV'
+import re, shlex
+for line in open(".env"):
+    match = re.match(r"^(APPLE_[A-Z_]+)=(.*)$", line.strip())
+    if match:
+        print(f"export {match.group(1)}={shlex.quote(match.group(2))}")
+PYENV
+)"
+    ZIP="dist/$APP_NAME-notarize.zip"
+    rm -f "$ZIP"
+    ditto -c -k --keepParent "$APP" "$ZIP"
+    RESULT=$(xcrun notarytool submit "$ZIP" --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
+        --password "$APPLE_APP_PASSWORD" --wait 2>&1)
+    rm -f "$ZIP"
+    # WORKAROUND: notarytool exits zero on a rejected submission; read the status.
+    if [[ "$RESULT" != *"status: Accepted"* ]]; then
+        echo "$RESULT" | tail -5
+        echo "❌ notarisation failed"
+        exit 1
+    fi
+    xcrun stapler staple -q "$APP"
+    echo "notarised and stapled"
+fi
 
 echo "done: $APP ($CONFIGURATION)"
 

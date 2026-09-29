@@ -9,7 +9,7 @@ final class ModuleCatalogTests: XCTestCase {
     func testIdentifiersAreUniqueAndMatchThePanelDefaults() {
         let ids = ModuleCatalog.modules.map(\.id)
         XCTAssertEqual(Set(ids).count, ids.count)
-        XCTAssertEqual(ids.count, 18)
+        XCTAssertEqual(ids.count, 19)
         XCTAssertTrue(ids.contains("timer"))
         XCTAssertTrue(ids.contains("todos"))
         XCTAssertTrue(ids.contains("uninstall"))
@@ -131,6 +131,8 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertEqual(letters["torrent"], "d")
         XCTAssertEqual(letters["color"], "p")
         XCTAssertEqual(letters["todos"], "l", "free letter; the site skips one it does not know")
+        XCTAssertEqual(letters["network"], "x", "the site's apps grids hold \"e\"")
+        XCTAssertFalse(letters.values.contains("e"))
         XCTAssertEqual(Set(letters.values).count, letters.count)
     }
 

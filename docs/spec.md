@@ -1043,7 +1043,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Collapsed — a user-chosen number of rows (settings, 1...10, default 3),
   expanded — up to 20, but that is only the HEIGHT of
   the list window: the full history is reachable via internal scrolling in
-  both views. The height ceiling is DYNAMIC:
+  both views. The list is built as it scrolls (`LazyVStack`, measured
+  2026-09-29): a plain stack built and measured every entry each time the
+  space came up, and switching back to the space took a visible beat. The
+  height ceiling is DYNAMIC:
   min(430, screen height − 560), then internal scrolling (invariant #1!).
   A constant ceiling has already broken twice — once when removed and once
   when the module count grew. The proper final fix is clamping the height
@@ -2260,6 +2263,183 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Opt-in module (key `"vpn"`, title `vpnLabel`), hidden on a fresh install like
   the eyedropper and recognition: a Mac with no VPN configured would otherwise
   get an empty section it never asked for.
+
+### Network access
+
+Shipped in 2.2.0 (Anton, 2026-09-29): every build carries the filter —
+`build-app.sh` embeds it and a release fails without it, `release.sh` thins it
+with the app for each architecture and signs it again, and `verify-release.sh`
+checks the served copy holds it, signed, with the app's entitlement to install
+it. Guide letter `x` (the site's `e` is the apps grids). Module key `network`, title
+`networkLabel` ("network access"), on by default, placed on the second space
+next to the monitor, the speed test and the torrents (`reportingModules`; a
+new install or an update puts it there through `PanelTabsModel.ensure`, and on
+the first space when there is no such space), and in the onboarding's "Network"
+group beside the speed test, the VPN and the torrents, where its preview is a
+drawn list of programs with their verdicts rather than the window itself.
+
+- **On by default** (Anton, 2026-09-29): the module is on unless it is turned
+  off, on a fresh install (its switch in the onboarding stands on) and after
+  the update that brings it. The filter starts by itself once: at the first
+  launch after the update, or when the onboarding finishes with the module on
+  (`networkStarted` records that it happened, and any switching on or off by
+  hand records it too, so Hop never starts it again on its own). Started by
+  the update, it does not open System Settings — macOS shows its own notice
+  and the row says it waits; started from the onboarding, the settings open
+  as they do for any switching on. The filter has no rules at first, so it
+  lets everything through until somebody makes one. Turning the module off
+  anywhere switches the filter off; turning it back on in the settings
+  switches the filter on again.
+- **The release card that brings it** (`"2.2"`, `enables: "network"`): with
+  the module on it says so by its buttons — "what's new", "switch off" (hides
+  the module, which stops the filter) and "got it"; while macOS waits for the
+  approval "got it" gives way to "allow", which opens the settings with the
+  sticky hint. With the module or its filter off the card offers "not now"
+  and "switch on" instead.
+
+- **What it is**: per-program network control in the manner of LuLu and
+  Little Snitch. Every program that goes online shows up with the addresses it
+  reached; a program can be cut off entirely, one address of a program can be
+  blocked or allowed (a licence check, say, while the rest goes through), and
+  a rule can be made before the program ever connects.
+- **The limit, said in the module's own text**: the filter decides at the
+  first packet of a connection and never looks inside it. A whole server is
+  blocked, never one page on it: inside an encrypted connection nothing is
+  visible, and Hop decrypts nothing (no local certificate authority, ever).
+- **How**: a content-filter system extension (`NEFilterDataProvider`,
+  target `HopNetFilter`, bundle `<app id>.netfilter`) inside
+  `Contents/Library/SystemExtensions`, installed with `OSSystemExtensionRequest`
+  when the filter is started, then enabled through `NEFilterManager` with the
+  rules in `vendorConfiguration`. macOS asks twice, once, and no app can skip
+  it (only a Mac managed through MDM can be approved ahead): the extension in
+  System Settings → General → Login Items & Extensions → Network Extensions,
+  then the filter itself. On every launch with the filter on, Hop asks for
+  its extension again: the same version is a no-op, a newer one (after an
+  update) replaces the old without a question, and either way Hop then sends
+  its rules, so a rule set before the filter's state was known still reaches
+  it. Each build of the extension carries a build number that only grows,
+  since macOS replaces an extension only with one of another version. Hop makes it one switch and one button (Anton,
+  2026-09-29): the extension carries the app's own name in that list ("Hop",
+  "Hop Dev"), the settings open by themselves straight on the list of network
+  extensions the moment macOS waits, a sticky card says which switch to turn
+  on and goes away when it is on, and the filter's own question follows at
+  once. A Developer ID system extension is refused unless it
+  is notarised (`-67050`, measured on macOS 27.0 without Developer Mode), so a
+  dev build that must run the filter is built with
+  `HOP_NOTARIZE=1 ./scripts/build-app.sh --install --dev`. The profiles come
+  from Xcode (Developer ID, Network Extensions) and live in
+  `~/.minimo-signing/profiles/`; `hop_embed_network_filter` in `signing.sh`
+  wraps and signs the extension inside out.
+- **Rules** (`NetworkRules`, HopCore, tested): a rule is a program's code
+  signing identifier, an optional host (nil = every destination of the
+  program) and allow or deny. A host rule covers its subdomains; an address
+  rule matches the address. `*` as the program stands for every program and
+  only ever with a host. Precedence: a rule for this program's destination,
+  then a rule for that destination for every program, then the program's own
+  switch; between equals deny wins; no rule, the connection goes through.
+  The rules are indexed by host and its parent domains (`NetworkRuleIndex`):
+  100 000 rules decide a connection in well under a millisecond.
+  A connection that arrives as a bare address is matched through the rule
+  hosts the filter looks up itself every minute — those of one program's
+  rules and allows for every program, at most 200; a block list for every
+  program is matched by name and never looked up.
+- **Name lookups always pass** (found live, 2026-09-29): macOS makes a
+  program's DNS query through mDNSResponder and charges the flow to that
+  program, so a blocked program could not even learn the address of a host
+  it is allowed to reach, and its connections timed out instead of failing
+  at once. Flows of mDNSResponder and to ports 53 and 853 are let through
+  and not listed (`NetworkRules.isNameLookup`), as LuLu does; the block is
+  decided at the connection itself.
+- **A program names its own host** (security review, 2026-09-29): a blocked
+  program could name an allowed host and connect anywhere. A block by name
+  holds as named; an allow by name holds only for an address the filter
+  found for that name itself. An unconfirmed name is looked up in the
+  background (at most 100 at a time), so the first connection of a new
+  subdomain may meet the program's block once. A name found is looked up
+  again after a minute, one not found after 30 s (nothing is kept from a
+  lookup made offline), and names no connection asked for in an hour are
+  forgotten. A file in Hop's JSON meets the same name rules as text. Lookups never sit on a
+  connection's path: the state is swapped under a lock and the lookups run
+  on their own queue, so a long or broken block list cannot hang the Mac.
+  The window shows what the rules say, taking each name at its word.
+- **Nothing to set up until the filter runs** (Anton, 2026-09-28): while it
+  is off, installing, waiting for approval or failed, the window shows a card
+  with what to do — numbered steps for the approval — and one button. The
+  list, the search and the rules appear once it runs; switches that did
+  nothing before approval looked as if they worked without it.
+- **The row in the panel** (Anton, 2026-09-29): no switch — a switch there
+  read as "internet on / off", while turning the module off only stops the
+  blocks. The whole row opens the window, with a settings glyph
+  (`slider.horizontal.3`) on the right, and says, right-aligned beside the
+  glyph the way the speed test sets its figures apart from its name, either
+  "blocks: N" — every rule that blocks counts one, a whole program and a
+  single address alike — or what stands in the way ("filter off", "waiting
+  for approval", "not working"). The module itself is turned off in the
+  settings, like any other.
+- **The window** (Anton, 2026-09-28: clear, not technical): its header sits
+  as high as in the other module windows (18 pt under the title bar); a header like a
+  settings page; search, a segmented all / blocked / last hour, a ⋯ menu for
+  rule files and "+ add a rule", which opens a small form with labelled
+  fields — program (every program, the ones seen, everything installed, or
+  one picked in Finder), address (empty = the whole program) and what to do.
+  Sections with a caption over a card each: "went online" (programs with
+  their icons, newest first, each opening onto its addresses), "every
+  program" (rules for one address across all programs) and "other programs"
+  (every app in the Applications folders, so any can be blocked ahead). Each
+  program and address carries a label, "allowed" in green or "blocked" in
+  red, that turns over on a click: a bare switch did not say which way it was
+  set. **The list stays put** (Anton, 2026-09-29): a program keeps its row
+  whatever its label becomes, and ones that go online later come in at the
+  bottom (`NetworkProgramOrder`, tested); a row that jumped away under the
+  pointer invited the next click on the wrong one. The order is kept between
+  openings of the window and launches of Hop (`networkOrder`), so programs do
+  not rise to the top each time it opens. A program that has not gone online
+  stays in "not connected yet", sorted by name, when a rule is made for it —
+  blocking one there used to move it into the list above, out of sight. The
+  ⋯ menu sorts the programs that went online (`networkSort`): in the order
+  they appeared (the default), by name, or recent first — taken when chosen
+  or when the window opens, then kept like the others, new ones at the
+  bottom. Hop keeps the connections it was shown, so a filter
+  restarted by a rule change does not empty the list. A helper inside an app
+  shows that app's icon. An address with a rule of its own has a way back to
+  following the program's label. The list is fetched over XPC every 2 s while the window is
+  open; nothing polls when it is closed.
+- **Rules from a file** (`NetworkRuleFile`, tested): Hop's own JSON, a plain
+  list of addresses (blocked for every program), a hosts file, or
+  `program address [allow|block]` lines where `*` as the address means the
+  whole program; `#` starts a comment. A bare address blocks that address.
+  Names a block list must never carry are dropped: single labels (`com`),
+  `local`, `localhost`, `localdomain`, `broadcasthost`, `ip6-*`, and an
+  address in a hosts file's name column — a stock hosts file's header must
+  not cut the Mac off its own network. At most 5 MB and 100 000 rules per
+  file. A loaded file wins where it names the same program and address.
+  Saving writes the same text form.
+- **Questions about new connections** (Anton, 2026-09-28: like LuLu and
+  Little Snitch, but not in the way): the setting "ask about new
+  connections" (`networkAsk`) is OFF by default. On, a TCP connection no
+  rule speaks about (`NetworkRules.ruled` is nil) is paused and Hop is asked
+  over the same XPC connection; a card at the top right of the screen names
+  the program and the address, with block / allow and "for every address of
+  this program". The answer becomes a rule and resumes the paused flows —
+  every flow to the same program and address waits on the one question.
+  The card shows the address next to the name, since the program names
+  its own host. Only the connection that asked may stop asking, and no
+  other connection can take the questions over.
+  No answer in 30 s, or no Hop to ask, lets the connection through: a
+  question must never hang the Mac.
+- **A stopped filter** (Anton, 2026-09-28): the internet keeps working and
+  the rules are off until the filter is back. While the filter is on, Hop
+  keeps an idle XPC connection to it; when that breaks, the row turns orange
+  ("the network filter stopped") and a card says so once, for 8 s; Hop tries
+  again every 5 s — one retry loop, however often the connection breaks —
+  and the row clears when the filter answers. A dev build started with
+  `--netfilter-crash-probe` makes its filter exit on a connection to
+  192.0.2.1, to check exactly this; without the flag nothing can stop it.
+- **Who may talk to the filter**: its Mach service accepts only the app that
+  carries it — its bundle identifier, Developer ID, the same team
+  (`setCodeSigningRequirement`), so a debug build of anything else is out; what it hands out is the
+  log of connections it saw (at most 3000 program-and-destination pairs, the
+  oldest forgotten first — `NetworkSightings`).
 
 ### Apps (launcher)
 
@@ -6190,8 +6370,9 @@ Anton's primary install must always remain fully functional.
   panel is built of modules sitting on spaces, that each module has a page here
   and a key of its own, and that nothing leaves the Mac. The footer keeps
   version, source, the author's site and the product page.
-- **Hop's Instagram and X** (Anton, 2026-09-28) are the footer's third line,
-  `Instagram · X`, brand names that need no translation. Not in Russian: no
+- **Hop's Instagram and X** (Anton, 2026-09-28; moved up 2026-09-29) are a
+  card of their own right after the support card, "follow hop", each link with
+  its mark — drawn in SwiftUI, since SF Symbols carry no brand glyphs. Not in Russian: no
   line at all when the interface is Russian, the same rule as the Russian
   README and the Russian pages of the site (`HopSocial`, tested).
 - **Release notes belong to the updates page**, with the auto-update switch, the

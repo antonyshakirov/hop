@@ -471,6 +471,9 @@ enum Snapshot {
         }
 
         let model = AppModel()
+        if let i = args.firstIndex(of: "--network-state"), args.count > i + 1 {
+            model.networkFilter.stageForSnapshot(args[i + 1])
+        }
         if wantsTorrents, !args.contains("--torrents-empty") {
             model.torrent.loadDemo(demoTorrents(includeMissing: args.contains("--torrents-states")))
         }
@@ -581,7 +584,7 @@ enum Snapshot {
             || onlyModule != nil || wantsOverview {
             var keep: Set<String> = []
             if wantsOverview {
-                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall"]
+                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network"]
             }
             if wantsColors { keep.insert("color") }
             if wantsOcr { keep.insert("ocr") }
@@ -590,7 +593,7 @@ enum Snapshot {
             // no-op unless --only names one of these four; the rest are hidden
             // through their legacy keys above
             if let onlyModule { keep.insert(onlyModule) }
-            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall"] {
+            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network"] {
                 if keep.contains(key) {
                     PanelView.activateStoredModule(key)
                 } else {
@@ -713,6 +716,15 @@ enum Snapshot {
             }
             .padding(14)
             .background(Theme.panelBackground))
+        } else if args.contains("--network-question") {
+            model.networkFilter.stageQuestionForSnapshot()
+            content = AnyView(NetworkQuestionCard(network: model.networkFilter, lang: L10n.current)
+                .padding(20)
+                .background(Theme.panelBackground))
+        } else if args.contains("--window-network") {
+            content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
+                .environmentObject(model)
+                .frame(width: 740, height: model.networkFilter.state == .on ? 980 : 420))
         } else if args.contains("--window-ocr") {
             content = AnyView(ScreenTextWindowView().environmentObject(model)
                 .frame(width: 560))

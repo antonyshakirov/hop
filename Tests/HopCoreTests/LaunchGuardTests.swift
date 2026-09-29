@@ -12,6 +12,8 @@ final class LaunchGuardTests: XCTestCase {
 
     override func tearDown() {
         defaults.removePersistentDomain(forName: "LaunchGuardTests")
+        try? FileManager.default.removeItem(at: FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Preferences/LaunchGuardTests.plist"))
         super.tearDown()
     }
 

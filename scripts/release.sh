@@ -125,8 +125,18 @@ build_slice() {
     mkdir -p "$dir"
     cp -R dist/Hop.app "$dir/Hop.app"
     lipo "$dir/Hop.app/Contents/MacOS/Hop" -thin "$arch" -output "$dir/Hop.app/Contents/MacOS/Hop"
+    # SPEC: docs/spec.md — "Network access": the filter is thinned too, then wrapped
+    # and signed again with its profile, and the app keeps the entitlements to install it.
+    local filter
+    filter=$(find "$dir/Hop.app/Contents/Library/SystemExtensions" -path "*/Contents/MacOS/*" -type f | head -1)
+    [[ -n "$filter" ]] || { echo "no network filter in the $arch build"; exit 1 }
+    lipo "$filter" -thin "$arch" -output "$dir/HopNetFilter"
+    hop_embed_network_filter "$dir/Hop.app" "$dir/HopNetFilter" "$IDENTITY" timestamp || {
+        echo "network filter: could not be embedded in the $arch build"; exit 1
+    }
+    rm -f "$dir/HopNetFilter"
     # thinning invalidates the signature — sign the bundle again, as build-app.sh does
-    hop_sign_app "$dir/Hop.app" "$IDENTITY"
+    hop_sign_app "$dir/Hop.app" "$IDENTITY" timestamp "$HOP_NETWORK_ENTITLEMENTS"
     hop_verify_signature "$dir/Hop.app" "$IDENTITY" || {
         echo "wrong or broken signature in $arch build"; exit 1
     }

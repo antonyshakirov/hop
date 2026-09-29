@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Pictures for the two modules whose panel row shows nothing worth looking at:
+/// Pictures for the modules whose panel row shows nothing worth looking at:
 /// a field of text you have to read, and a line of durations.
 /// SPEC: docs/spec.md — "Onboarding", the module preview.
 
@@ -394,5 +394,58 @@ private struct MarkupArtArrow: Shape {
         path.move(to: tip)
         path.addLine(to: CGPoint(x: tip.x + rect.width * 0.10, y: tip.y - rect.height * 0.34))
         return path
+    }
+}
+
+/// Network access: two programs that went online, one let through and one cut
+/// off, and a single address of the first one blocked on its own.
+struct NetworkArt: View {
+    let lang: AppLanguage
+
+    var body: some View {
+        VStack(spacing: 5) {
+            program(symbol: "globe", name: 62, host: 88, allowed: true)
+            address(width: 74, allowed: false)
+            program(symbol: "terminal", name: 48, host: 70, allowed: false)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity)
+        .background(Theme.panelBackground)
+    }
+
+    private func program(symbol: String, name: CGFloat, host: CGFloat, allowed: Bool) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Theme.textSecondary)
+                .frame(width: 20, height: 20)
+                .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
+            VStack(alignment: .leading, spacing: 5) {
+                bar(width: name, strong: true)
+                bar(width: host)
+            }
+            Spacer(minLength: 8)
+            VerdictPill(allowed: allowed, lang: lang, small: true) {}
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.divider, lineWidth: 1))
+    }
+
+    private func address(width: CGFloat, allowed: Bool) -> some View {
+        HStack(spacing: 8) {
+            bar(width: width)
+            Spacer(minLength: 8)
+            VerdictPill(allowed: allowed, lang: lang, small: true) {}
+        }
+        .padding(.leading, 40)
+        .padding(.trailing, 10)
+    }
+
+    private func bar(width: CGFloat, strong: Bool = false) -> some View {
+        Capsule()
+            .fill(Theme.glyphInk.opacity(strong ? 0.3 : 0.14))
+            .frame(width: width, height: 4)
     }
 }

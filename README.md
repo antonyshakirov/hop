@@ -37,7 +37,7 @@ you need is right there.**
 Hop lives in your Mac's menu bar and replaces a handful of small utilities:
 a Pomodoro-style timer, a time tracker with a to-do list, a caffeinate-style
 sleep blocker, a system monitor, a clipboard manager, a drag-and-drop file
-converter, a window snapper and a lite torrent client – one lightweight
+converter, a window snapper, an app firewall and a lite torrent client – one lightweight
 native app, with the modules you use arranged across up to four tabs on the
 icon.
 
@@ -52,6 +52,13 @@ Hop is signed with an Apple Developer ID and notarized by Apple, so macOS
 opens it like any other app. The source is public, and built-in updates are
 verified with Ed25519. Requires macOS 14 or newer.
 
+### 2.2.0
+
+- New module "network access": see which programs go online and where, and block a program or a single address of it with one click.
+- Hop is adapted to macOS 27.
+- Text recognition: the first reading after an update is instant, and a setting decides whether a reading opens its window.
+- The speed test can be stopped early.
+
 ### 2.1.8
 
 - On macOS 27, the panel fits the selected tab and closes when you click outside it.
@@ -59,11 +66,6 @@ verified with Ed25519. Requires macOS 14 or newer.
 ### 2.1.7
 
 - macOS 27: panel actions respond to the first click
-
-### 2.1.6
-
-- Switching tabs keeps the panel open, and typing a new project name keeps keyboard focus.
-- The low-battery menu bar alert is optional; you can share Hop from its menu, About page or setup.
 
 ## Features
 
@@ -397,6 +399,35 @@ The dot can be switched off in settings – the module and its switches go on wo
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
+### Network access
+
+See which programs on your Mac go online, and where – and block any of them.
+Every program that connects shows up with the addresses it reached. One click on
+its label cuts the whole program off the network; open it, and one address can be
+blocked on its own – a license check, say, while the rest of its traffic goes
+through. A rule can be set before a program ever connects: every installed app is
+listed, and a list of addresses loaded from a file (one per line, or a hosts file)
+is blocked for every program at once. The panel row counts the blocks; the window
+behind it holds the rest, and a row stays where it is when you change it.
+
+Hop does this with the network filter macOS provides for exactly this job, the
+kind LuLu and Little Snitch use. The first time, macOS asks you to allow it in
+System Settings. The filter decides at the first packet of a connection and never
+looks inside: it blocks a whole server, never one page on it, and Hop decrypts
+nothing. If the filter ever stops, the internet keeps working – nothing is blocked
+until it is back – and turning the module off stops your blocks, not the internet.
+
+The module is on by default and stays quiet: with no rules, everything goes
+through. Asking about new connections is a setting – switched on, a card at the
+top right asks about a connection no rule covers, for that address or the whole
+program.
+
+<div align="center">
+<img src="https://hop.tools/screens/en/network.webp" width="560" alt="Hop – network access: programs, their addresses, allowed and blocked">
+</div>
+
+→ [App firewall for Mac](https://hop.tools/features/app-firewall/)
+
 ### Apps
 
 A grid of the programs you open all day, one click away without a trip to the
@@ -504,11 +535,14 @@ and the settings window lists them all with their current state:
   and the loupe and the blur on the drawing layer; the color picker does not
   need it
 - **notifications** – the timer's alert and a finished torrent
+- **network filter** – once, for network access: macOS asks you to allow Hop's
+  filter in System Settings; what it sees stays on this Mac
 - **administrator password** – once, for the closed-lid mode (pmset is root-only)
 - **launch at login** – off unless you turn it on
 
-Nothing is requested at launch, and nothing is asked for a module you have not
-turned on. There is no analytics, no telemetry, no account and no crash
+Nothing is asked for a module you have not turned on. The one request that can
+come at launch is the network filter, once, after the update that brings network
+access: that module is on by default. There is no analytics, no telemetry, no account and no crash
 reporting: hop.tools is contacted only to ask whether a newer version
 exists – and to download it, or one of the two optional helpers, if you say yes.
 Everything else stays on this Mac: the clipboard history, tracked time, the

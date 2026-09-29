@@ -367,6 +367,8 @@ struct OnboardingView: View {
             AnnotateArt(lang: lang)
         case "keyboard":
             KeyboardLockArt(lang: lang)
+        case "network":
+            NetworkArt(lang: lang)
         case "uninstall":
             UninstallWindowView(uninstall: previewModel.uninstall, lang: lang, preview: true)
                 .environmentObject(previewModel)
@@ -530,6 +532,7 @@ struct OnboardingView: View {
         stepIndex += 1
         if all[stepIndex] == .layout {
             PanelView.dropEmptyOnboardingSpaces()
+        ModuleActivation.announceChange()
             moduleRevision += 1
         }
         if all[stepIndex] == .done { checkForUpdate() }
