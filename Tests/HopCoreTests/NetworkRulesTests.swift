@@ -91,8 +91,9 @@ final class NetworkModulePlacementTests: XCTestCase {
         XCTAssertEqual(model.tabs[0].moduleKeys, ["timer", "network"])
     }
 
-    func testTheNetworkModuleIsInTheMacGroupOfTheOnboarding() {
-        XCTAssertTrue(ModuleCatalog.onboardingGroups.contains { $0.modules.contains("network") })
+    func testTheNetworkModuleIsInTheNetworkGroupOfTheOnboarding() {
+        let group = ModuleCatalog.onboardingGroups.first { $0.modules.contains("network") }
+        XCTAssertEqual(group?.titleID, "onbGroupNetwork")
     }
 }
 

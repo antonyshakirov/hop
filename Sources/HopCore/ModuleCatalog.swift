@@ -218,8 +218,8 @@ public enum ModuleCatalog {
         OnboardingGroup(titleID: "onbGroupFiles", modules: ["convert", "archive"]),
         OnboardingGroup(titleID: "onbGroupScreen", modules: ["clipboard", "color", "ocr"]),
         OnboardingGroup(titleID: "onbGroupMarkup", modules: ["shot", "annotate"]),
-        OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard", "network"]),
-        OnboardingGroup(titleID: "onbGroupNetwork", modules: ["speedtest", "vpn", "torrent"]),
+        OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard"]),
+        OnboardingGroup(titleID: "onbGroupNetwork", modules: ["speedtest", "vpn", "torrent", "network"]),
         OnboardingGroup(titleID: "onbGroupDesk", modules: ["windows", "apps", "uninstall"]),
     ]
 

@@ -2268,8 +2268,9 @@ built without the filter until the module ships. Module key `network`, title
 `networkLabel` ("network access"), off by default, placed on the second space
 next to the monitor, the speed test and the torrents (`reportingModules`; a
 new install or an update puts it there through `PanelTabsModel.ensure`, and on
-the first space when there is no such space), and in the onboarding's "Mac"
-group.
+the first space when there is no such space), and in the onboarding's "Network"
+group beside the speed test, the VPN and the torrents, where its preview is a
+drawn list of programs with their verdicts rather than the window itself.
 
 - **What it is**: per-program network control in the manner of LuLu and
   Little Snitch. Every program that goes online shows up with the addresses it
