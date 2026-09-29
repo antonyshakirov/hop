@@ -12,11 +12,13 @@ struct NetworkView: View {
 
     var body: some View {
         Button(action: openWindow) {
-            HStack(alignment: .firstTextBaseline, spacing: 5) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(t(.networkLabel))
                     .font(Theme.mono(12))
                     .foregroundStyle(Theme.listText)
                     .lineLimit(1)
+                    .layoutPriority(1)
+                Spacer(minLength: 12)
                 if let status = NetworkStatusText.line(network, lang) {
                     Text(status.text)
                         .font(Theme.mono(10))
@@ -24,7 +26,6 @@ struct NetworkView: View {
                         .lineLimit(1)
                         .truncationMode(.tail)
                 }
-                Spacer(minLength: 6)
                 RowActionIcon(symbol: "slider.horizontal.3", compact: true)
                     .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 4 }
             }
@@ -217,6 +218,13 @@ struct NetworkWindowView: View {
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 8))
             segments
             Menu {
+                Picker(t(.networkSortTitle), selection: $network.sort) {
+                    Text(t(.networkSortAppearance)).tag(NetworkSort.appearance)
+                    Text(t(.networkSortName)).tag(NetworkSort.name)
+                    Text(t(.networkSortRecent)).tag(NetworkSort.recent)
+                }
+                .pickerStyle(.inline)
+                Divider()
                 Button(t(.networkImport)) { importRules() }
                 Button(t(.networkExport)) { exportRules() }
             } label: {
@@ -373,11 +381,18 @@ struct NetworkWindowView: View {
     // SPEC: docs/spec.md — "Network access": a row stays where it is when its label turns.
     private var seen: [NetworkProgram] {
         let hourAgo = Date().addingTimeInterval(-3600)
-        let place = Dictionary(network.order.enumerated().map { ($1, $0) }, uniquingKeysWith: { first, _ in first })
-        return network.programs.sorted {
-            (place[$0.app] ?? Int.max, $0.app) < (place[$1.app] ?? Int.max, $1.app)
-        }.filter { program in
-            guard program.app != NetworkRule.anyProgram else { return false }
+        let online = NetworkProgramOrder.online(network.programs)
+        let sorted: [NetworkProgram]
+        if network.sort == .name {
+            sorted = online.sorted {
+                programName($0.app, $0.path).localizedStandardCompare(programName($1.app, $1.path)) == .orderedAscending
+            }
+        } else {
+            let order = network.sort == .recent ? network.recentOrder : network.order
+            let place = Dictionary(order.enumerated().map { ($1, $0) }, uniquingKeysWith: { first, _ in first })
+            sorted = online.sorted { (place[$0.app] ?? Int.max, $0.app) < (place[$1.app] ?? Int.max, $1.app) }
+        }
+        return sorted.filter { program in
             switch filter {
             case .all: break
             case .blocked:
@@ -397,10 +412,18 @@ struct NetworkWindowView: View {
         return program
     }
 
-    private var others: [(id: String, name: String)] {
-        guard filter == .all else { return [] }
-        let listed = Set(network.programs.map(\.app))
-        return network.installed.filter { !listed.contains($0.id) && matches($0.id, nil, hosts: []) }
+    private var others: [String] {
+        guard filter != .recent else { return [] }
+        let byID = Dictionary(network.programs.map { ($0.app, $0) }, uniquingKeysWith: { first, _ in first })
+        let names = Dictionary(network.installed.map { ($0.id, $0.name) }, uniquingKeysWith: { first, _ in first })
+        return NetworkProgramOrder.waiting(network.programs, installed: network.installed) {
+            names[$0] ?? programName($0, nil)
+        }.filter { app in
+            let hosts = byID[app].map(destinations) ?? []
+            if filter == .blocked,
+               !network.rules.contains(where: { $0.app == app && $0.action == .deny }) { return false }
+            return matches(app, nil, hosts: hosts)
+        }
     }
 
     @ViewBuilder private var content: some View {
@@ -421,7 +444,7 @@ struct NetworkWindowView: View {
     }
 
     private func sections(seen: [NetworkProgram], any: NetworkProgram?,
-                          others: [(id: String, name: String)]) -> some View {
+                          others: [String]) -> some View {
         LazyVStack(alignment: .leading, spacing: 8) {
             if !seen.isEmpty {
                 SettingsGroupLabel(title: t(.networkSectionSeen))
@@ -444,9 +467,14 @@ struct NetworkWindowView: View {
             if !others.isEmpty {
                 SettingsGroupLabel(title: t(.networkSectionOthers)).padding(.top, 10)
                 SettingsCard(spacing: 0) {
-                    ForEach(Array(others.enumerated()), id: \.element.id) { index, app in
+                    ForEach(Array(others.enumerated()), id: \.element) { index, app in
                         if index > 0 { SettingsRule().padding(.vertical, 2) }
-                        otherRow(app.id)
+                        if let program = network.programs.first(where: { $0.app == app }),
+                           network.rules.contains(where: { $0.app == app && $0.host != nil }) {
+                            programRow(program)
+                        } else {
+                            otherRow(app)
+                        }
                     }
                 }
             }

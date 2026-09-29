@@ -2364,7 +2364,8 @@ drawn list of programs with their verdicts rather than the window itself.
 - **The row in the panel** (Anton, 2026-09-29): no switch — a switch there
   read as "internet on / off", while turning the module off only stops the
   blocks. The whole row opens the window, with a settings glyph
-  (`slider.horizontal.3`) on the right, and says in one short line either
+  (`slider.horizontal.3`) on the right, and says, right-aligned beside the
+  glyph the way the speed test sets its figures apart from its name, either
   "blocks: N" — every rule that blocks counts one, a whole program and a
   single address alike — or what stands in the way ("filter off", "waiting
   for approval", "not working"). The module itself is turned off in the
@@ -2381,11 +2382,18 @@ drawn list of programs with their verdicts rather than the window itself.
   (every app in the Applications folders, so any can be blocked ahead). Each
   program and address carries a label, "allowed" in green or "blocked" in
   red, that turns over on a click: a bare switch did not say which way it was
-  set. **The list stays put** (Anton, 2026-09-29): the order is set when the
-  window opens, newest first, and then only grows — a program keeps its row
-  whatever its label becomes, new ones come after (`NetworkProgramOrder`,
-  tested); a row that jumped away under the pointer invited the next click
-  on the wrong one. Hop keeps the connections it was shown, so a filter
+  set. **The list stays put** (Anton, 2026-09-29): a program keeps its row
+  whatever its label becomes, and ones that go online later come in at the
+  bottom (`NetworkProgramOrder`, tested); a row that jumped away under the
+  pointer invited the next click on the wrong one. The order is kept between
+  openings of the window and launches of Hop (`networkOrder`), so programs do
+  not rise to the top each time it opens. A program that has not gone online
+  stays in "not connected yet", sorted by name, when a rule is made for it —
+  blocking one there used to move it into the list above, out of sight. The
+  ⋯ menu sorts the programs that went online (`networkSort`): in the order
+  they appeared (the default), by name, or recent first — taken when chosen
+  or when the window opens, then kept like the others, new ones at the
+  bottom. Hop keeps the connections it was shown, so a filter
   restarted by a rule change does not empty the list. A helper inside an app
   shows that app's icon. An address with a rule of its own has a way back to
   following the program's label. The list is fetched over XPC every 2 s while the window is

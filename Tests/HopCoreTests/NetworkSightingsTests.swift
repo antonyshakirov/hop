@@ -58,13 +58,40 @@ final class NetworkProgramOrderTests: XCTestCase {
     private let t0 = Date(timeIntervalSince1970: 1_790_000_000)
 
     private func program(_ app: String, _ minutes: Double?) -> NetworkProgram {
-        NetworkProgram(app: app, path: nil, destinations: [], last: minutes.map { t0.addingTimeInterval($0 * 60) },
-                       blocked: false)
+        let last = minutes.map { t0.addingTimeInterval($0 * 60) }
+        let seen = last.map { [NetworkSighting(app: app, path: nil, host: "x.com", address: "1", port: "443",
+                                               verdict: .allow, last: $0)] } ?? []
+        return NetworkProgram(app: app, path: nil, destinations: seen, last: last, blocked: false)
     }
 
-    func testTheFirstOrderIsNewestFirst() {
+    func testTheFirstOrderIsTheOrderProgramsWentOnline() {
         XCTAssertEqual(NetworkProgramOrder.update([], with: [program("a", 1), program("b", 5), program("c", nil)]),
-                       ["b", "a", "c"])
+                       ["a", "b"])
+    }
+
+    func testRecentFirstIsTakenOnceNewestFirst() {
+        XCTAssertEqual(NetworkProgramOrder.recent([program("a", 1), program("b", 5)]), ["b", "a"])
+    }
+
+    func testAProgramThatNeverWentOnlineStaysPutWhenItIsBlocked() {
+        let installed = [(id: "com.b", name: "Beta"), (id: "com.a", name: "alpha")]
+        let before = NetworkProgramOrder.waiting([], installed: installed) { id in
+            installed.first { $0.id == id }?.name ?? id
+        }
+        let blocked = NetworkProgram.group([], rules: [NetworkRule(app: "com.b", action: .deny)])
+        let after = NetworkProgramOrder.waiting(blocked, installed: installed) { id in
+            installed.first { $0.id == id }?.name ?? id
+        }
+        XCTAssertEqual(before, ["com.a", "com.b"])
+        XCTAssertEqual(after, before)
+        XCTAssertTrue(NetworkProgramOrder.update([], with: blocked).isEmpty)
+    }
+
+    func testAProgramWithOnlyRulesWaitsUntilItGoesOnline() {
+        let rules = NetworkProgram.group([], rules: [NetworkRule(app: "com.gone", host: "x.com", action: .deny),
+                                                     NetworkRule(app: NetworkRule.anyProgram, host: "y.com",
+                                                                 action: .deny)])
+        XCTAssertEqual(NetworkProgramOrder.waiting(rules, installed: []) { $0 }, ["com.gone"])
     }
 
     func testAProgramKeepsItsPlaceWhateverHappensToIt() {
@@ -74,8 +101,8 @@ final class NetworkProgramOrderTests: XCTestCase {
     }
 
     func testNewProgramsComeAfterTheOnesAlreadyShown() {
-        XCTAssertEqual(NetworkProgramOrder.update(["a"], with: [program("a", 1), program("d", 3), program("e", 9)]),
-                       ["a", "e", "d"])
+        XCTAssertEqual(NetworkProgramOrder.update(["a"], with: [program("a", 1), program("e", 9), program("d", 3)]),
+                       ["a", "d", "e"])
     }
 
     func testARestartedFilterDoesNotEmptyTheList() {

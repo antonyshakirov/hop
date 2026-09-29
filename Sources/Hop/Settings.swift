@@ -130,6 +130,9 @@ enum SettingsKey {
     static let networkAsk = "networkAsk"
     /// SPEC: docs/spec.md — "Network access", on by default.
     static let networkStarted = "networkStarted"
+    /// SPEC: docs/spec.md — "Network access", the window's order.
+    static let networkOrder = "networkOrder"
+    static let networkSort = "networkSort"
     /// Whether switching a VPN off also takes it out of the network set, so its
     /// own on-demand rules cannot bring it back. ON by default: a switch that
     /// does not switch anything off is not a switch.

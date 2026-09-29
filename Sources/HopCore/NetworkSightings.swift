@@ -104,16 +104,46 @@ public struct NetworkProgram: Equatable, Sendable {
     }
 }
 
+/// SPEC: docs/spec.md — "Network access", the window's order.
+public enum NetworkSort: String, CaseIterable, Sendable {
+    case appearance, name, recent
+}
+
 /// SPEC: docs/spec.md — "Network access", a list that stays put.
 public enum NetworkProgramOrder {
-    /// Keeps every program where it already stands and adds new ones after them,
-    /// newest first among themselves.
+    /// Keeps every program where it already stands and adds the ones that went
+    /// online since at the bottom, in the order they did.
     public static func update(_ order: [String], with programs: [NetworkProgram]) -> [String] {
         let known = Set(order)
-        let fresh = programs.filter { !known.contains($0.app) }
-            .sorted { ($0.last ?? .distantPast) > ($1.last ?? .distantPast) }
+        let fresh = online(programs).filter { !known.contains($0.app) }
+            .sorted { ($0.last ?? .distantPast, $0.app) < ($1.last ?? .distantPast, $1.app) }
             .map(\.app)
         return order + fresh
+    }
+
+    /// Newest first, taken once and then kept like any other order.
+    public static func recent(_ programs: [NetworkProgram]) -> [String] {
+        online(programs).sorted { ($0.last ?? .distantPast) > ($1.last ?? .distantPast) }.map(\.app)
+    }
+
+    /// Went online: the programs the filter has seen, never the rule for every program.
+    public static func online(_ programs: [NetworkProgram]) -> [NetworkProgram] {
+        programs.filter { !$0.destinations.isEmpty && $0.app != NetworkRule.anyProgram }
+    }
+
+    /// Not online yet: installed programs and programs that only have rules, by
+    /// name, so a rule made for one leaves it where it was.
+    public static func waiting(_ programs: [NetworkProgram], installed: [(id: String, name: String)],
+                               name: (String) -> String) -> [String] {
+        let seen = Set(online(programs).map(\.app))
+        var ids = installed.map(\.id).filter { !seen.contains($0) }
+        let listed = Set(ids)
+        ids += programs.map(\.app).filter {
+            !seen.contains($0) && !listed.contains($0) && $0 != NetworkRule.anyProgram
+        }
+        return ids.map { ($0, name($0)) }
+            .sorted { $0.1.localizedStandardCompare($1.1) == .orderedAscending }
+            .map(\.0)
     }
 
     /// Merges what the filter reports into what was seen before, so a restarted

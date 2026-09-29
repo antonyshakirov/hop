@@ -20,8 +20,20 @@ final class NetworkFilterController: NSObject, ObservableObject {
     @Published private(set) var state: State = .off
     @Published private(set) var rules: [NetworkRule] = []
     @Published private(set) var sightings: [NetworkSighting] = []
-    /// The order the window shows programs in: set when it opens, then only grows.
-    @Published private(set) var order: [String] = []
+    @Published private(set) var order: [String] = [] {
+        didSet {
+            guard order != oldValue, !Snapshot.active else { return }
+            UserDefaults.standard.set(order, forKey: SettingsKey.networkOrder)
+        }
+    }
+    @Published private(set) var recentOrder: [String] = []
+    @Published var sort: NetworkSort = .appearance {
+        didSet {
+            guard sort != oldValue else { return }
+            if !Snapshot.active { UserDefaults.standard.set(sort.rawValue, forKey: SettingsKey.networkSort) }
+            if sort == .recent { recentOrder = NetworkProgramOrder.recent(programs) }
+        }
+    }
     private var known: [String: NetworkSighting] = [:]
     @Published private(set) var installed: [(id: String, name: String)] = []
 
@@ -44,6 +56,8 @@ final class NetworkFilterController: NSObject, ObservableObject {
         super.init()
         rules = NetworkRules.decode(UserDefaults.standard.data(forKey: Self.rulesKey))
         guard !Snapshot.active else { loadDemo(); return }
+        order = UserDefaults.standard.stringArray(forKey: SettingsKey.networkOrder) ?? []
+        sort = NetworkSort(rawValue: UserDefaults.standard.string(forKey: SettingsKey.networkSort) ?? "") ?? .appearance
         receiver.onAsk = { [weak self] data, reply in
             Task { @MainActor in self?.receive(data, reply: reply) }
         }
@@ -157,6 +171,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
         installed = [("com.apple.Maps", "Maps"), ("com.apple.Music", "Music"), ("com.apple.Notes", "Notes"),
                      ("com.apple.Photos", "Photos"), ("com.apple.Safari", "Safari"),
                      ("com.apple.TextEdit", "TextEdit")]
+        followOrder()
         state = .on
     }
 
@@ -206,12 +221,18 @@ final class NetworkFilterController: NSObject, ObservableObject {
 
     func watch() {
         loadInstalled()
-        order = NetworkProgramOrder.update([], with: programs)
+        followOrder()
+        recentOrder = NetworkProgramOrder.recent(programs)
         guard watcher == nil, !Snapshot.active else { return }
         fetch()
         watcher = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.fetch() }
         }
+    }
+
+    private func followOrder() {
+        order = NetworkProgramOrder.update(order, with: programs)
+        recentOrder = NetworkProgramOrder.update(recentOrder, with: programs)
     }
 
     private func loadInstalled() {
@@ -363,7 +384,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
                 guard let self else { return }
                 self.known = NetworkProgramOrder.merge(self.known, list)
                 self.sightings = Array(self.known.values)
-                self.order = NetworkProgramOrder.update(self.order, with: self.programs)
+                self.followOrder()
             }
         }
     }
@@ -421,7 +442,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
 
     func setRules(_ next: [NetworkRule]) {
         rules = next
-        if !order.isEmpty { order = NetworkProgramOrder.update(order, with: programs) }
+        followOrder()
         guard !Snapshot.active else { return }
         UserDefaults.standard.set(NetworkRules.encode(next), forKey: Self.rulesKey)
         guard state == .on else { return }
