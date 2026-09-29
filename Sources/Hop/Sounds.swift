@@ -6,8 +6,12 @@ import AppKit
 enum Sounds {
     static let enabledKey = "appSoundsEnabled" // enabled by default
 
+    /// SPEC: docs/spec.md — "File converter": the checks convert real files, and a
+    /// test run must not ping through the speakers of the Mac it runs on.
+    static let underTest = NSClassFromString("XCTestCase") != nil
+
     static var enabled: Bool {
-        UserDefaults.standard.object(forKey: enabledKey) as? Bool ?? true
+        !underTest && (UserDefaults.standard.object(forKey: enabledKey) as? Bool ?? true)
     }
 
     private static var lastTick = Date.distantPast

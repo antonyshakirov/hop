@@ -5,6 +5,11 @@ import XCTest
 
 @MainActor
 final class ConverterRuntimeTests: XCTestCase {
+    func testAppSoundsAreSilentUnderTest() {
+        XCTAssertTrue(Sounds.underTest)
+        XCTAssertFalse(Sounds.enabled)
+    }
+
     func testImageAndPDFBatchConversionOnCurrentMac() throws {
         let defaults = UserDefaults.standard
         let keys = [FileConverter.destKey, FileConverter.destPathKey,

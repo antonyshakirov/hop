@@ -1353,6 +1353,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - A finished batch plays its own sound (`Sounds.converted()`, "Ping"), not the
   timer's alarm: "your time is up" and "your files are ready" are different
   messages. It obeys the single app-sounds switch like every other cue.
+  Under XCTest every app sound is silent (`Sounds.underTest`, found
+  2026-09-29): the converter's runtime test converts real files, and each run of
+  the checks pinged through the speakers of whatever Mac ran them.
 - **Where it landed is one click away**: once anything has been converted the
   footer carries a folder button naming the destination folder, which reveals
   the last output IN Finder with the file selected (`activateFileViewerSelecting`).
