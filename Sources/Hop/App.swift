@@ -2,9 +2,17 @@ import AppKit
 import Combine
 import SwiftUI
 import HopCore
+import OSLog
+
+/// What asked Hop to quit, for the line `applicationShouldTerminate` logs.
+@MainActor
+enum QuitCause {
+    static var current = "not from Hop"
+}
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    private static let launchLog = Logger(subsystem: "com.antonshakirov.hop", category: "Launch")
     // lazy: model initialization must not run before the crash-loop check —
     // in safe mode the model (and everything that could crash) is never created at all
     lazy var model = AppModel()
@@ -64,7 +72,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var dockWindows: [NSWindow] {
         var list = [settingsWindow, torrentAddWindow, converterWindow,
                     archiveWindow, uninstallWindow, screenTextWindow,
-                    onboardingWindow].compactMap { $0 }
+                    networkWindow, onboardingWindow].compactMap { $0 }
         list.append(contentsOf: finderArchiveWindows.values.map(\.window))
         list.append(contentsOf: shotWindows.windows)
         return list
@@ -639,9 +647,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         showSettingsWindow()
     }
 
+    /// ⌘Q from the app menu. SPEC: docs/spec.md — "Dock presence", ⌘Q with a window open.
+    func appMenuCloseWindows() {
+        guard safeUpdater == nil else { return NSApp.terminate(nil) }
+        let open = dockWindows.filter { $0.isVisible || $0.isMiniaturized }
+        guard !open.isEmpty else { return requestQuit() }
+        open.forEach { $0.performClose(nil) }
+    }
+
     func appMenuQuit() {
         guard safeUpdater == nil else { return NSApp.terminate(nil) }
         requestQuit()
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+
+    /// SPEC: docs/spec.md — "Dock presence", every quit says why in the system log.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        let event = NSAppleEventManager.shared().currentAppleEvent
+        let sender = event?.attributeDescriptor(forKeyword: keySenderPIDAttr)?.int32Value ?? 0
+        let senderName = NSRunningApplication(processIdentifier: sender)?.localizedName ?? "-"
+        let reason = event?.attributeDescriptor(forKeyword: kAEQuitReason)?.typeCodeValue ?? 0
+        Self.launchLog.notice("""
+            quitting: \(QuitCause.current, privacy: .public), apple event from \(senderName, privacy: .public) \
+            (pid \(sender, privacy: .public)), reason \(reason, privacy: .public), windows open \
+            \(self.dockWindows.filter(\.isVisible).count, privacy: .public)
+            """)
+        return .terminateNow
     }
 
     /// Quit: with a running timer or active no sleep (keep-awake) — a branded
@@ -652,6 +684,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             || model.keepAwake.isActive
             || model.keepAwake.lidApplied
         guard busy else {
+            QuitCause.current = "quit in Hop"
             NSApp.terminate(nil)
             return
         }
@@ -666,7 +699,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.isReleasedWhenClosed = false
             let host = NSHostingController(
                 rootView: QuitConfirmView(
-                    onQuit: { NSApp.terminate(nil) },
+                    onQuit: {
+                        QuitCause.current = "quit in Hop, confirmed"
+                        NSApp.terminate(nil)
+                    },
                     onCancel: { [weak self] in self?.quitWindow?.close() }
                 )
                 .hopLayoutDirection()
@@ -1441,6 +1477,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func safeModeQuit() {
+        QuitCause.current = "safe mode quit"
         NSApp.terminate(nil)
     }
 }
@@ -1680,10 +1717,13 @@ struct HopApp: App {
                 .keyboardShortcut(",")
             }
             CommandGroup(replacing: .appTermination) {
+                Button(L10n.t(.menuCloseWindows, L10n.current).capitalizedFirst) {
+                    appDelegate.appMenuCloseWindows()
+                }
+                .keyboardShortcut("q")
                 Button(L10n.t(.menuQuit, L10n.current).capitalizedFirst) {
                     appDelegate.appMenuQuit()
                 }
-                .keyboardShortcut("q")
             }
         }
     }

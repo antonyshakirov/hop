@@ -22,6 +22,7 @@ enum AppRelaunch {
         relauncher.arguments = ["-c",
             "while /bin/kill -0 \(pid) 2>/dev/null; do /bin/sleep 0.2; done; /usr/bin/open \"\(bundle)\""]
         try? relauncher.run()
+        QuitCause.current = "restart for a permission"
         NSApp.terminate(nil)
     }
 

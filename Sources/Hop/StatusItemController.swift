@@ -390,10 +390,27 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         guard let previousApp, !previousApp.isTerminated,
               previousApp.processIdentifier != ProcessInfo.processInfo.processIdentifier
         else { return }
-        PanelFrameLog.write("focusYield", "active=\(NSApp.isActive)")
+        PanelFrameLog.write("focusYield", "active=\(NSApp.isActive) prevents=\(panelPreventsActivation)")
         focusYieldPending = true
+        if panelPreventsActivation {
+            NSApp.deactivate()
+            return
+        }
         NSApp.yieldActivation(to: previousApp)
         previousApp.activate()
+    }
+
+    private var panelPreventsActivation = false
+
+    // WORKAROUND: macOS 27 activates Hop on any popover click, and NSPopover drops
+    // the nonactivating flag. SPEC: docs/spec.md — "Hard invariants of the panel".
+    static func preventActivation(of window: NSWindow) -> Bool {
+        guard #available(macOS 27.0, *) else { return false }
+        let selector = Selector(("_setPreventsActivation:"))
+        guard window.responds(to: selector) else { return false }
+        typealias Setter = @convention(c) (AnyObject, Selector, Bool) -> Void
+        unsafeBitCast(window.method(for: selector), to: Setter.self)(window, selector, true)
+        return true
     }
 
     private func pasteIntoPreviousApp() {
@@ -634,6 +651,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         }
         if let panelWindow = popover.contentViewController?.view.window {
             debugLogPanelFrame("shown", frame: panelWindow.frame)
+            panelPreventsActivation = Self.preventActivation(of: panelWindow)
         }
         syncTabPanelFrame()
         if outsideClickProbe == nil {

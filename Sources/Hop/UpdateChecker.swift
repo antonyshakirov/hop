@@ -313,6 +313,7 @@ final class UpdateChecker: ObservableObject {
             relauncher.arguments = ["-c",
                 "while /bin/kill -0 \(pid) 2>/dev/null; do /bin/sleep 0.2; done; /usr/bin/open \"\(target)\""]
             try relauncher.run() // deliberately not waited on — it must outlive us
+            QuitCause.current = "update installed"
             NSApp.terminate(nil)
         } catch {
             status = .failed

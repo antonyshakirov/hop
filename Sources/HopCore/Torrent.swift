@@ -12,12 +12,15 @@ public struct TorrentFile: Equatable {
     public let name: String
     public let lengthBytes: Int64
     public var selected: Bool
+    /// Taken out of the torrent by hand: never downloaded again and not listed.
+    public var removed: Bool
 
-    public init(index: Int, name: String, lengthBytes: Int64, selected: Bool) {
+    public init(index: Int, name: String, lengthBytes: Int64, selected: Bool, removed: Bool = false) {
         self.index = index
         self.name = name
         self.lengthBytes = lengthBytes
         self.selected = selected
+        self.removed = removed
     }
 }
 

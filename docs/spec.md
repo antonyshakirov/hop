@@ -50,6 +50,18 @@ signing would break).
 4. **No repeatForever animations** — they trigger NSHostingController
    size recalculation. Icon changes are an opacity crossfade in a
    fixed-size ZStack.
+4a. **A click in the panel never makes Hop the active app** (macOS 27, Anton,
+   2026-10-01). macOS 27 activates an NSPopover's app on any click in it, and
+   Hop then handed activation back to the app below: two switches of the front
+   app on every play, stop or first tab click, and each one redrew the windows
+   under the panel — they visibly flickered. The panel window is told not to
+   activate (`_setPreventsActivation:`, what a nonactivating panel does; NSPopover
+   strips the style flag itself), so the app below stays in front. The panel
+   still takes the keyboard for its own fields, and gives it back with
+   `NSApp.deactivate()` instead of re-activating the app below. Measured with
+   NSWorkspace notifications: before, `+Hop −app +app −Hop` per click; after,
+   none. Older systems keep the old path. The tabs' own nonactivating strip
+   stays as it was.
 5. **Hover highlights bleed outward, they do not inset the content.** A
    full-width row (the "new task" footers) starts on the panel's own inset, so a
    highlight drawn on the row's exact bounds lands on the first glyph and on the
@@ -920,6 +932,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Monitor
 
+- The Russian title reads "system monitoring" (Anton, 2026-10-01), in the panel, the
+  settings and the help.
 - Polling: while the tab is open — every 2 s; the rest of the time a light
   background tick every 5 s (feeds chart history and the red indicator).
   History is timestamped points, ~31-minute buffer, accumulating since launch.
@@ -1056,7 +1070,10 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Clipboard: an entry as a file (1.7.0)
 
-- OFF by default (`clipboardToFile`). When on, every TEXT row grows one more
+- OFF by default (`clipboardToFile`). The setting reads "show the save-as-file
+  option" (Anton, 2026-10-01): the old
+  "save an entry as a file" read as if every entry were written to disk. When
+  on, every TEXT row grows one more
   icon, LEFT of copy and paste: it acts on the entry rather than on the
   pasteboard, so it comes first. An image, a copied file or a colour has no
   document in it and shows no icon.
@@ -1380,6 +1397,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Speed test
 
+- Title `speedtestLabel` "internet speed" in the
+  settings, the module lists and the help; plain "internet" did not say what
+  the module measures (Anton, 2026-10-01). The panel row keeps the short word
+  (`speedtestRowLabel`, "internet"): beside the figures it is plain what is
+  measured, and the long title was cut to an ellipsis by the figures on the
+  same line.
 - networkQuality (Apple servers), live numbers during the run: one direction
   at a time, so the download fills first and the upload after it.
 - Result in a row: "↓ 834 Mbps · ↑ 112 Mbps · 1,450 RPM" — every value
@@ -1396,6 +1419,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Window manager
 
+- Title `windowsLabel` "window layout"; plain "windows"
+  did not say what the module does (Anton, 2026-10-01).
 - Lays out the active window of the last "regular" app via the
   Accessibility API (our own popup is excluded from the count). 18 zones.
   Layouts APPROVED by Anton 2026-07-13: short — ONE row of 8
@@ -2274,7 +2299,8 @@ Shipped in 2.2.0 (Anton, 2026-09-29): every build carries the filter —
 with the app for each architecture and signs it again, and `verify-release.sh`
 checks the served copy holds it, signed, with the app's entitlement to install
 it. Guide letter `x` (the site's `e` is the apps grids). Module key `network`, title
-`networkLabel` ("network access"), on by default, placed on the second space
+`networkLabel` ("traffic blocking"; "network access"
+until 2026-10-01 — it said nothing about blocking, Anton), on by default, placed on the second space
 next to the monitor, the speed test and the torrents (`reportingModules`; a
 new install or an update puts it there through `PanelTabsModel.ensure`, and on
 the first space when there is no such space), and in the onboarding's "Network"
@@ -2366,7 +2392,7 @@ drawn list of programs with their verdicts rather than the window itself.
   on their own queue, so a long or broken block list cannot hang the Mac.
   The window shows what the rules say, taking each name at its word.
 - **Nothing to set up until the filter runs** (Anton, 2026-09-28): while it
-  is off, installing, waiting for approval or failed, the window shows a card
+  is installing, waiting for approval or failed, the window shows a card
   with what to do — numbered steps for the approval — and one button. The
   list, the search and the rules appear once it runs; switches that did
   nothing before approval looked as if they worked without it.
@@ -2377,8 +2403,20 @@ drawn list of programs with their verdicts rather than the window itself.
   glyph the way the speed test sets its figures apart from its name, either
   "blocks: N" — every rule that blocks counts one, a whole program and a
   single address alike — or what stands in the way ("filter off", "waiting
-  for approval", "not working"). The module itself is turned off in the
-  settings, like any other.
+  for approval", "not working"). **Off and waiting are grey** (Anton,
+  2026-10-01): an orange "filter off" read as a fault on every Mac where
+  nobody had switched the filter on yet. Orange is kept for a filter that
+  failed or stopped. The module itself is turned off in the settings, like
+  any other.
+- **The filter's own switch** (Anton, 2026-10-01): the window's header carries
+  "filter" with a switch, right-aligned. On, the rules apply; off, every
+  connection goes through and the rules wait — the filter is disabled in
+  `NEFilterManager`, the rules stay in Hop. Switched off, the window keeps the
+  lists and the rules in view and editable under one line saying they do not
+  apply now; the setup card with numbered steps is only for installing, the
+  approval and a failure. Turning the switch on from off goes the usual way
+  (`switchOn`, the system approval if it was never given). Hiding the module
+  still switches the filter off as well.
 - **The window** (Anton, 2026-09-28: clear, not technical): its header sits
   as high as in the other module windows (18 pt under the title bar); a header like a
   settings page; search, a segmented all / blocked / last hour, a ⋯ menu for
@@ -3383,6 +3421,9 @@ drawn list of programs with their verdicts rather than the window itself.
   `ModuleCatalog.defaultModuleOrder`. They are reached for mid-call and
   mid-write rather than read down the panel, and the zones are the one row that
   belongs lower still.
+- The Russian title reads "drawing on the screen", the same everywhere the module
+  is named in Russian — row, settings, help, release notes (Anton, 2026-10-01:
+  the old "draw over" did not say over what).
 - Module `"annotate"`, title `annotateLabel` — "draw on screen", guide
   letter `i`, ⌃⌥D out of the box. The name and the button are both short on
   purpose: "draw over the screen · start drawing" said the same word twice in a
@@ -4099,6 +4140,38 @@ eight hours, and came back the moment it was removed and added again.
   Snapshot: `--torrents-states`. Every `--torrents*` render now also opens the
   space holding the torrent module.
 
+### Removing a torrent: what each choice deletes (Anton, 2026-10-01)
+
+"delete torrent" beside "delete with files" left the question open whether
+"files" were the download or the `.torrent` file itself. The choices now name
+what goes: **"delete with downloads"** removes the
+torrent and deletes what it downloaded, **"remove from list"** removes the torrent and leaves the downloaded files on the disk. A
+`.torrent` file of the user's own is never touched by either. Each carries a
+tooltip in a full sentence. A magnet no longer has its own wording: both
+labels fit it as they are. The row keeps macOS's three-button order: the
+harsher choice on the leading edge, then "cancel", then the plain removal, and
+a dead slot the width of the ✕ at the end, so a reflexive second click on the
+same spot hits nothing. The labels shrink a little rather than cut off in a
+long language.
+
+### Removing one file of a torrent (Anton, 2026-10-01)
+
+- Every file of an expanded multi-file torrent has a small ✕ at the end of its
+  row. It opens the same two choices, in the file's own row: "remove from
+  list" stops downloading the file and takes it off the list, what was
+  downloaded stays on the disk; "delete with downloads" does that and moves
+  what was downloaded to the Trash (the Trash, not an unlink: one file picked
+  out of many is the case where a wrong click is likeliest).
+- A removed file is deselected in the engine (`update_only_files`) and stored as
+  `removed` in `torrents.json`; "all" never picks it again and the count above
+  the list leaves it out. The torrent itself goes on with its other files.
+- rqbit opens every file of a torrent when it loads it, so a removed file may
+  come back as an empty file of its full length. Restore deletes those
+  placeholders for removed files only, by the same rule as a torrent's removal
+  (exact length, no blocks on disk; anything with data in it is never touched).
+- The payload probe of a multi-file torrent looks at its folder, not at each
+  file, so a file taken out by hand never reads as "files removed".
+
 ### Torrent removal and moved payloads (2.1.3)
 
 Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
@@ -4498,8 +4571,17 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   everything else and sat below the fold besides (Anton, 2026-09-02). Reset means
   "forget the stored value", so the default is not copied anywhere and a later
   change of default reaches everyone who never rebound.
-- The window-manager module's page keeps only its layout picker: the zone keys
-  and their on/off switch live here, where keys live.
+- **The zones on both pages** (Anton, 2026-10-01): the window-layout module's
+  page carries the same card as this page — the "resize windows with hotkeys"
+  switch, the eighteen zones and their reset — under its own "hotkeys" label,
+  so the keys can be switched on and rebound where the module is set up. One
+  view (`windowZonesSection`), one stored switch, so the two never disagree.
+- **A module's second keys say what they do** (Anton, 2026-10-01): "window",
+  "screen" and "repeat area" under the screenshot row read as three words with
+  no subject. The hotkey rows name the action in full — "screenshot of a
+  window", "screenshot of the whole screen", "screenshot of the same area as
+  last time", "drawing: pass clicks to the apps below" (`hkShot*`,
+  `hkAnnotatePass`); the panel's own buttons keep their short words.
 - **A function names its own key, and the zones move around IT** (Anton,
   2026-09-08). ⌃⌥ plus the first letter of what the thing is called: **S**
   screenshot, **D** draw on screen, **T** timer, **A** awake, **C** convert and
@@ -5015,7 +5097,9 @@ converter (Anton, 2026-07-28).
   is on screen makes the app blink out of focus and the window drop behind
   whatever was in front.
 - Counted windows: settings, the torrent add sheet, converter, archive,
-  recognition, onboarding and each Finder archive-progress window. NOT the
+  recognition, the network window, onboarding and each Finder archive-progress
+  window. The network window was missing from the list until 2026-10-01, so the
+  Dock icon outlived it. NOT the
   panel — it hangs off the status item and closes on any outside click, so it
   belongs to the menu bar rather than the Dock. NOT the quit confirmation: it
   lives for a second and asks one question.
@@ -5026,6 +5110,21 @@ converter (Anton, 2026-07-28).
   row reads "show hop in the dock" over the note that already explains WHEN the
   icon appears; the old title, "windows in the dock", named the windows rather
   than the icon and read as if it were about hiding windows (Anton, 2026-09-02).
+- **⌘Q with a window open closes Hop's windows, not Hop** (Anton, 2026-10-01:
+  "I close a window and the whole app goes"). While a window is open the app
+  menu is live, and ⌘Q there took the timer, the no-sleep and every module down
+  with the window. The app menu now carries "close windows" on ⌘Q — every Hop
+  window closes (the screenshot editor still asks about unsaved marks) and Hop
+  stays in the menu bar — and "quit" below it with no shortcut. With no window
+  open ⌘Q quits as before, through the same confirmation as the panel's ⏻.
+  Not proven to be the only way it happened: none of Hop's windows quits it when
+  closed (checked one by one on macOS 27), and there was no crash report.
+- **Every quit says why in the system log** (`com.antonshakirov.hop` /
+  Launch, notice level, so it is kept): what in Hop asked (the panel's quit, an
+  installed update, a restart for a permission, safe mode), or the Apple event
+  and the app that sent it (the Dock's "Quit", a logout), and how many windows
+  were open. `applicationShouldTerminateAfterLastWindowClosed` answers false
+  outright rather than leaving it to SwiftUI.
 - Side effect worth knowing: in `.regular` SwiftUI supplies a real menu bar
   (Apple · Hop · Edit · View · Window · Help — verified 2026-07-28), so ⌘V in a
   window goes through the system Edit menu while one is open. The

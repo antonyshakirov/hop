@@ -454,6 +454,7 @@ enum Snapshot {
             || args.contains("--torrents-empty")
             || args.contains("--torrents-firstrun")
             || args.contains("--torrents-states")
+            || args.contains("--torrents-remove")
         if wantsTorrents {
             for key in ["showTimerModule", "showAwakeModule", "showClipboardModule",
                         "showConvertModule", "showWindowsModule", "showSpeedtestModule"] {
@@ -476,6 +477,10 @@ enum Snapshot {
         }
         if wantsTorrents, !args.contains("--torrents-empty") {
             model.torrent.loadDemo(demoTorrents(includeMissing: args.contains("--torrents-states")))
+            if args.contains("--torrents-remove") {
+                TorrentView.stagedRemove = ("1", "2#1")
+                model.torrent.toggleExpanded("2")
+            }
         }
         // --tasks: seed the tracker + to-do modules and open the space that
         // stacks them, so a snapshot shows both flat lists (subheaders, flush
@@ -724,7 +729,7 @@ enum Snapshot {
         } else if args.contains("--window-network") {
             content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
                 .environmentObject(model)
-                .frame(width: 740, height: model.networkFilter.state == .on ? 980 : 420))
+                .frame(width: 740, height: [.on, .off].contains(model.networkFilter.state) ? 980 : 420))
         } else if args.contains("--window-ocr") {
             content = AnyView(ScreenTextWindowView().environmentObject(model)
                 .frame(width: 560))

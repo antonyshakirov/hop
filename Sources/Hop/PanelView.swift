@@ -3390,7 +3390,8 @@ struct PanelView: View {
             Image(systemName: "speedometer")
                 .font(.system(size: 12))
                 .foregroundStyle(Theme.textSecondary)
-            Text(t(.speedtestLabel))
+            // SPEC: docs/spec.md — "Speed test": the row keeps the short word beside its figures.
+            Text(t(.speedtestRowLabel))
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.textSecondary)
                 .lineLimit(1)
@@ -3957,6 +3958,10 @@ struct PanelView: View {
                     if switchable { SettingsRule() }
                     moduleSettings(key)
                 }
+            }
+
+            if on, key == "windows" {
+                windowZonesSection(title: t(.hotkeysLabel))
             }
 
             let keys = moduleHotkeyActions(key)
@@ -4959,29 +4964,37 @@ struct PanelView: View {
 
             // the zones are the windows module's keys and go with it
             if moduleIsActive("windows") {
-                SettingsGroupLabel(title: t(.windowsLabel))
-                    .padding(.top, 8)
-                SettingsCard {
-                    switchSetting(t(.windowsHotkeysLabel), isOn: $windowsHotkeysOn)
-                    if windowsHotkeysOn {
-                        SettingsRule()
-                        // eighteen zones in one column is a page of scrolling; two
-                        // columns keep the whole set in view
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .leading),
-                                                 count: 2),
-                                  alignment: .leading, spacing: 10) {
-                            ForEach(ModuleCatalog.zoneActions, id: \.self) { action in
-                                zoneHotkeyRow(action)
-                            }
-                        }
+                windowZonesSection(title: t(.windowsLabel))
+            }
+        }
+    }
+
+    /// The zone keys with their switch — on the hotkeys page and, the same
+    /// card, on the window module's own page.
+    /// SPEC: docs/spec.md — "Hotkeys (settings window)", the zones on both pages.
+    @ViewBuilder
+    private func windowZonesSection(title: String) -> some View {
+        SettingsGroupLabel(title: title)
+            .padding(.top, 8)
+        SettingsCard {
+            switchSetting(t(.windowsHotkeysLabel), isOn: $windowsHotkeysOn)
+            if windowsHotkeysOn {
+                SettingsRule()
+                // eighteen zones in one column is a page of scrolling; two
+                // columns keep the whole set in view
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .leading),
+                                         count: 2),
+                          alignment: .leading, spacing: 10) {
+                    ForEach(ModuleCatalog.zoneActions, id: \.self) { action in
+                        zoneHotkeyRow(action)
                     }
                 }
-                resetGroupButton(ModuleCatalog.zoneActions)
             }
         }
         .onChange(of: windowsHotkeysOn) { _, _ in
             HotkeyManager.shared.refreshModuleHotkeys()
         }
+        resetGroupButton(ModuleCatalog.zoneActions)
     }
 
     /// SPEC: docs/spec.md — "Hotkeys (settings window)", the per-group reset.
@@ -5097,10 +5110,10 @@ struct PanelView: View {
     /// What a module's second key does, in its own words.
     private func actionLabel(_ action: ModuleAction) -> String {
         switch action.id {
-        case "window": return t(.shotWindow)
-        case "screen": return t(.shotScreen)
-        case "repeat": return t(.shotRepeat)
-        case "pass": return t(.annotateClickMode)
+        case "window": return t(.hkShotWindow)
+        case "screen": return t(.hkShotScreen)
+        case "repeat": return t(.hkShotRepeat)
+        case "pass": return t(.hkAnnotatePass)
         default: return action.id
         }
     }
