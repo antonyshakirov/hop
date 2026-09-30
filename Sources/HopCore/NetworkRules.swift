@@ -224,6 +224,24 @@ public enum NetworkRuleFile {
     }
 }
 
+/// What Hop does when the system's word on its filter differs from Hop's own.
+/// The filter can be switched off without Hop: in System Settings, or by macOS
+/// itself. Hop follows the system either way and never switches it back on.
+/// A filter being installed or waiting for approval is left alone.
+/// SPEC: docs/spec.md — "Network access", a filter switched off outside Hop.
+public enum NetworkFilterFollow {
+    public enum Known: Sendable { case off, busy, on, failed }
+    public enum Move: Equatable, Sendable { case none, becameOff, becameOn }
+
+    public static func move(known: Known, systemOn: Bool) -> Move {
+        switch (known, systemOn) {
+        case (.on, false): return .becameOff
+        case (.off, true), (.failed, true): return .becameOn
+        default: return .none
+        }
+    }
+}
+
 /// When Hop switches the filter on without being asked: once, for a module
 /// that is on, and again only when the module itself is switched back on.
 /// SPEC: docs/spec.md — "Network access", on by default.

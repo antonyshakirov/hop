@@ -55,6 +55,15 @@ enum NetworkStatusText {
 }
 
 extension NetworkFilterController.State {
+    var known: NetworkFilterFollow.Known {
+        switch self {
+        case .off: return .off
+        case .installing, .needsApproval: return .busy
+        case .on: return .on
+        case .failed: return .failed
+        }
+    }
+
     var wantsOn: Bool {
         switch self {
         case .on, .installing, .needsApproval: return true

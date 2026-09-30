@@ -63,6 +63,11 @@ final class NetworkFilterController: NSObject, ObservableObject {
         }
         moduleWasOn = ModuleActivation.isOn("network")
         Task { await readSystemState() }
+        NotificationCenter.default.addObserver(
+            forName: .NEFilterConfigurationDidChange, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.followSystem() }
+        }
         // SPEC: docs/spec.md — "A module that is off is off everywhere"; "Network access", on by default.
         NotificationCenter.default.addObserver(
             forName: ModuleActivation.didChange, object: nil, queue: .main
@@ -297,6 +302,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
             probing = false
             return
         }
+        followSystem()
         service()?.sightings { [weak self] _ in
             Task { @MainActor in
                 guard let self, self.stopped else { return }
@@ -305,6 +311,31 @@ final class NetworkFilterController: NSObject, ObservableObject {
             }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in self?.probe() }
+    }
+
+    /// SPEC: docs/spec.md — "Network access", a filter switched off outside Hop.
+    private func followSystem() {
+        guard !Snapshot.active else { return }
+        Task {
+            let manager = NEFilterManager.shared()
+            guard (try? await manager.loadFromPreferences()) != nil else { return }
+            let systemOn = manager.isEnabled
+                && manager.providerConfiguration?.filterDataProviderBundleIdentifier == extensionID
+            switch NetworkFilterFollow.move(known: state.known, systemOn: systemOn) {
+            case .none:
+                break
+            case .becameOff:
+                log.info("filter switched off outside Hop")
+                state = .off
+                stopped = false
+                syncAsking()
+            case .becameOn:
+                log.info("filter switched on outside Hop")
+                state = .on
+                stopped = false
+                syncAsking()
+            }
+        }
     }
 
     // MARK: questions
@@ -455,7 +486,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
             #endif
             configuration.vendorConfiguration = vendor
             manager.providerConfiguration = configuration
-            manager.localizedDescription = "Hop"
+            manager.localizedDescription = Self.listedName
             manager.isEnabled = enabled
             try await manager.saveToPreferences()
             state = enabled ? .on : .off

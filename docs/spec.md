@@ -2440,6 +2440,18 @@ drawn list of programs with their verdicts rather than the window itself.
   No card or notification says so (Anton, 2026-09-30): the connection also
   breaks when macOS swaps the filter on an update, so everyone saw it for
   nothing; the row in the panel is the only place the state shows.
+- **A filter switched off outside Hop** (Anton, 2026-09-30): in System
+  Settings, or by macOS itself (on a Mac with two copies of Hop, starting one
+  filter switched the other one off). Hop listens for the system's
+  configuration change (`NEFilterConfigurationDidChange`) and, while the row
+  says "stopped", asks the system on every retry whether the filter is still
+  switched on. Off there, Hop's state becomes off: the row says the filter is
+  off, the retries end, and the window offers "switch on". Hop does not switch
+  it back on by itself, since someone or something chose to switch it off.
+  Switched back on in System Settings, the row follows. A filter being
+  installed or waiting for approval is left alone (`NetworkFilterFollow`,
+  tested). The configuration carries the app's own name ("Hop", "Hop Dev"), so
+  the two copies can be told apart in System Settings.
 - **Who may talk to the filter**: its Mach service accepts only the app that
   carries it — its bundle identifier, Developer ID, the same team
   (`setCodeSigningRequirement`), so a debug build of anything else is out; what it hands out is the
