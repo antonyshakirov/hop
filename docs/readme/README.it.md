@@ -53,6 +53,10 @@ la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
 aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
 successivo.
 
+### 2.2.1
+
+- Il modulo «accesso alla rete» non mostra più un avviso quando il filtro si riavvia.
+
 ### 2.2.0
 
 - Nuovo modulo «accesso alla rete»: vedi quali programmi vanno in rete e dove, e blocca con un clic un intero programma o un solo suo indirizzo.

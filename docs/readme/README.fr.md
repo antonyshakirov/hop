@@ -55,6 +55,10 @@ l'ouvre comme n'importe quelle autre app. Le code source est public et les
 mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
 plus récent.
 
+### 2.2.1
+
+- Le module « accès réseau » n'affiche plus d'avis quand son filtre redémarre.
+
 ### 2.2.0
 
 - Nouveau module « accès réseau » : voyez quels programmes vont sur internet et où, et bloquez d'un clic tout un programme ou une seule de ses adresses.
