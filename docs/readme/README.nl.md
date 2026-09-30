@@ -52,6 +52,10 @@ dus macOS opent het als elke andere app. De broncode is openbaar en
 ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
+### 2.2.1
+
+- De module ‘netwerktoegang’ toont geen melding meer als het filter opnieuw start.
+
 ### 2.2.0
 
 - Nieuwe module ‘netwerktoegang’: zie welke programma's online gaan en waarheen, en blokkeer met één klik een heel programma of maar één adres ervan.

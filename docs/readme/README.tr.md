@@ -52,6 +52,10 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
+### 2.2.1
+
+- “Ağ erişimi” modülü, filtre yeniden başladığında artık bildirim göstermiyor.
+
 ### 2.2.0
 
 - Yeni modül “ağ erişimi”: hangi programların internete çıktığını ve nereye gittiğini gör, tek tıkla bir programın tamamını ya da yalnızca bir adresini engelle.

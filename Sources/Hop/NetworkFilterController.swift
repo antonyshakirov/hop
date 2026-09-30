@@ -284,15 +284,7 @@ final class NetworkFilterController: NSObject, ObservableObject {
     /// SPEC: docs/spec.md — "Network access", a stopped filter.
     private func filterStopped() {
         guard state == .on else { return }
-        if !stopped {
-            stopped = true
-            if let screen = NSScreen.main?.visibleFrame {
-                MarkupNote.show(L10n.t(.networkStopped, L10n.current),
-                                detail: L10n.t(.networkStoppedDetail, L10n.current),
-                                over: CGRect(x: screen.maxX - 200, y: screen.maxY - 2, width: 2, height: 2),
-                                lasting: 8)
-            }
-        }
+        stopped = true
         guard !probing else { return }
         probing = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.probe() }

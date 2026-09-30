@@ -53,6 +53,10 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.2.1
+
+- Modul “akses jaringan” tidak lagi menampilkan pemberitahuan saat filternya dimulai ulang.
+
 ### 2.2.0
 
 - Modul baru “akses jaringan”: lihat program mana yang online dan ke mana, lalu blokir satu klik seluruh program atau hanya satu alamatnya.

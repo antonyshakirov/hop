@@ -52,6 +52,10 @@ Hop is signed with an Apple Developer ID and notarized by Apple, so macOS
 opens it like any other app. The source is public, and built-in updates are
 verified with Ed25519. Requires macOS 14 or newer.
 
+### 2.2.1
+
+- The "network access" module no longer shows a pop-up when its filter restarts.
+
 ### 2.2.0
 
 - New module "network access": see which programs go online and where, and block a program or a single address of it with one click.

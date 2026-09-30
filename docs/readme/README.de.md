@@ -53,6 +53,10 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.2.1
+
+- Das Modul „Netzwerkzugriff“ zeigt beim Neustart des Filters kein Fenster mehr an.
+
 ### 2.2.0
 
 - Neues Modul „Netzwerkzugriff“: sieh, welche Programme wohin ins Netz gehen, und sperre mit einem Klick ein ganzes Programm oder nur eine seiner Adressen.

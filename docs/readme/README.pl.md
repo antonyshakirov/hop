@@ -52,6 +52,10 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
+### 2.2.1
+
+- Moduł „dostęp do sieci” nie pokazuje już komunikatu przy ponownym uruchomieniu filtra.
+
 ### 2.2.0
 
 - Nowy moduł „dostęp do sieci”: zobacz, które programy wychodzą do sieci i dokąd, i jednym kliknięciem zablokuj cały program albo tylko jeden jego adres.

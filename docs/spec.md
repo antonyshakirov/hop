@@ -1353,6 +1353,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - A finished batch plays its own sound (`Sounds.converted()`, "Ping"), not the
   timer's alarm: "your time is up" and "your files are ready" are different
   messages. It obeys the single app-sounds switch like every other cue.
+  Under XCTest every app sound is silent (`Sounds.underTest`, found
+  2026-09-29): the converter's runtime test converts real files, and each run of
+  the checks pinged through the speakers of whatever Mac ran them.
 - **Where it landed is one click away**: once anything has been converted the
   footer carries a folder button naming the destination folder, which reveals
   the last output IN Finder with the file selected (`activateFileViewerSelecting`).
@@ -2430,11 +2433,13 @@ drawn list of programs with their verdicts rather than the window itself.
 - **A stopped filter** (Anton, 2026-09-28): the internet keeps working and
   the rules are off until the filter is back. While the filter is on, Hop
   keeps an idle XPC connection to it; when that breaks, the row turns orange
-  ("the network filter stopped") and a card says so once, for 8 s; Hop tries
-  again every 5 s — one retry loop, however often the connection breaks —
+  ("the network filter stopped"); Hop tries again every 5 s — one retry loop, however often the connection breaks —
   and the row clears when the filter answers. A dev build started with
   `--netfilter-crash-probe` makes its filter exit on a connection to
   192.0.2.1, to check exactly this; without the flag nothing can stop it.
+  No card or notification says so (Anton, 2026-09-30): the connection also
+  breaks when macOS swaps the filter on an update, so everyone saw it for
+  nothing; the row in the panel is the only place the state shows.
 - **Who may talk to the filter**: its Mach service accepts only the app that
   carries it — its bundle identifier, Developer ID, the same team
   (`setCodeSigningRequirement`), so a debug build of anything else is out; what it hands out is the
@@ -3771,6 +3776,13 @@ Tests: `HoldChordTests`, `HoldGestureTests`.
   screen recording permission, so on it the usual cause is a permission taken
   away while the layer was up. `Hop --snapshot <out.png> --note-cards` renders the failure cards beside
   the copy card, in the language and theme asked for.
+- **A floating card's shadow fades out inside its window** (Anton,
+  2026-09-30): the note, the markup hint and the network question each live in
+  a borderless window with no shadow of its own, and the card draws one. With
+  10pt of window around a 12–14pt shadow, the shadow was cut off by the
+  window's edge and showed as a grey square. The window keeps
+  `Theme.floatingShadowRoom` (28pt) around the card, and placement subtracts
+  it, so the card stands where it did.
 
 ### The markup toolbar (both modules)
 

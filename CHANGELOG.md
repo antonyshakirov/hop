@@ -1,5 +1,10 @@
 # Hop - version history
 
+## 2.2.1 - 2026-09-30
+
+- The "network access" module no longer shows a pop-up when its filter restarts,
+  for example after an update. The module row in the panel still shows it.
+
 ## 2.2.0 - 2026-09-29
 
 - New module "network access": every program that goes online shows up with the

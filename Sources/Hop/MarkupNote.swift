@@ -70,7 +70,7 @@ enum MarkupNote {
     private static func spot(for size: NSSize, over anchor: CGRect) -> NSPoint {
         let screen = NSScreen.screens.first { $0.frame.intersects(anchor) } ?? NSScreen.main
         let bounds = screen?.visibleFrame ?? anchor
-        let gap: CGFloat = 8
+        let gap: CGFloat = 18 - Theme.floatingShadowRoom
         let above = anchor.maxY + gap
         let below = anchor.minY - size.height - gap
         let y = above + size.height <= bounds.maxY ? above : max(below, bounds.minY + gap)
@@ -118,6 +118,7 @@ private struct MarkupNoteCard: View {
             MarkupNote.hide()
             open()
         }
+        .padding(Theme.floatingShadowRoom - 10)
     }
 }
 

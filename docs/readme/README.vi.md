@@ -51,6 +51,10 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.2.1
+
+- Mô-đun “truy cập mạng” không còn hiện thông báo khi bộ lọc khởi động lại.
+
 ### 2.2.0
 
 - Mô-đun mới “truy cập mạng”: xem chương trình nào lên mạng và đi đâu, chặn cả một chương trình hoặc chỉ một địa chỉ của nó chỉ với một cú nhấp.

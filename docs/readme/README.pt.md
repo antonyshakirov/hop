@@ -55,6 +55,10 @@ macOS abre como qualquer outro app. O código-fonte é público e as
 atualizações integradas são verificadas com Ed25519. Requer macOS 14 ou mais
 recente.
 
+### 2.2.1
+
+- O módulo “acesso à rede” não mostra mais um aviso quando o filtro reinicia.
+
 ### 2.2.0
 
 - Novo módulo “acesso à rede”: veja quais programas vão à internet e para onde, e bloqueie com um clique um programa inteiro ou só um dos seus endereços.
