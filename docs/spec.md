@@ -2433,11 +2433,13 @@ drawn list of programs with their verdicts rather than the window itself.
 - **A stopped filter** (Anton, 2026-09-28): the internet keeps working and
   the rules are off until the filter is back. While the filter is on, Hop
   keeps an idle XPC connection to it; when that breaks, the row turns orange
-  ("the network filter stopped") and a card says so once, for 8 s; Hop tries
-  again every 5 s — one retry loop, however often the connection breaks —
+  ("the network filter stopped"); Hop tries again every 5 s — one retry loop, however often the connection breaks —
   and the row clears when the filter answers. A dev build started with
   `--netfilter-crash-probe` makes its filter exit on a connection to
   192.0.2.1, to check exactly this; without the flag nothing can stop it.
+  No card or notification says so (Anton, 2026-09-30): the connection also
+  breaks when macOS swaps the filter on an update, so everyone saw it for
+  nothing; the row in the panel is the only place the state shows.
 - **Who may talk to the filter**: its Mach service accepts only the app that
   carries it — its bundle identifier, Developer ID, the same team
   (`setCodeSigningRequirement`), so a debug build of anything else is out; what it hands out is the
