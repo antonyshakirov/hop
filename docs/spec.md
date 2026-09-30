@@ -3776,6 +3776,13 @@ Tests: `HoldChordTests`, `HoldGestureTests`.
   screen recording permission, so on it the usual cause is a permission taken
   away while the layer was up. `Hop --snapshot <out.png> --note-cards` renders the failure cards beside
   the copy card, in the language and theme asked for.
+- **A floating card's shadow fades out inside its window** (Anton,
+  2026-09-30): the note, the markup hint and the network question each live in
+  a borderless window with no shadow of its own, and the card draws one. With
+  10pt of window around a 12–14pt shadow, the shadow was cut off by the
+  window's edge and showed as a grey square. The window keeps
+  `Theme.floatingShadowRoom` (28pt) around the card, and placement subtracts
+  it, so the card stands where it did.
 
 ### The markup toolbar (both modules)
 

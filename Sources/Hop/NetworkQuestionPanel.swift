@@ -39,7 +39,8 @@ enum NetworkQuestionPanel {
         guard let screen = NSScreen.main?.visibleFrame, let content = panel.contentView else { return }
         let size = content.fittingSize
         panel.setContentSize(size)
-        panel.setFrameOrigin(NSPoint(x: screen.maxX - size.width - 8, y: screen.maxY - size.height - 8))
+        let inset = 18 - Theme.floatingShadowRoom
+        panel.setFrameOrigin(NSPoint(x: screen.maxX - size.width - inset, y: screen.maxY - size.height - inset))
     }
 }
 
@@ -58,7 +59,7 @@ struct NetworkQuestionCard: View {
                 Color.clear.frame(width: 1, height: 1)
             }
         }
-        .padding(10)
+        .padding(Theme.floatingShadowRoom)
     }
 
     private func card(_ question: NetworkSighting) -> some View {

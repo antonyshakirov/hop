@@ -2,6 +2,9 @@ import SwiftUI
 
 enum Theme {
     static let themeKey = "appTheme" // auto | dark | light
+    /// Transparent margin a floating card's window keeps around it, so its
+    /// shadow fades out inside the window instead of ending on a straight edge.
+    static let floatingShadowRoom: CGFloat = 28
     /// Kept up to date by the system theme change observer.
     static var systemDark = true
 
