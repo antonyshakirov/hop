@@ -52,6 +52,10 @@ dus macOS opent het als elke andere app. De broncode is openbaar en
 ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
+### 2.3.1
+
+- Met twee beeldschermen blijft het paneel bij de menubalk wanneer de inhoud hoger is dan het scherm.
+
 ### 2.3.0
 
 - Hop vindt en verwijdert de resten van apps die niet helemaal zijn verwijderd.

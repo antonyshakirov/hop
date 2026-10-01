@@ -52,6 +52,10 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
+### 2.3.1
+
+- Przy dwóch ekranach panel zostaje przy pasku menu, gdy jego zawartość jest wyższa niż ekran.
+
 ### 2.3.0
 
 - Hop znajduje i usuwa pozostałości aplikacji, które nie zostały usunięte do końca.

@@ -55,6 +55,10 @@ macOS abre como qualquer outro app. O código-fonte é público e as
 atualizações integradas são verificadas com Ed25519. Requer macOS 14 ou mais
 recente.
 
+### 2.3.1
+
+- Com dois monitores, o painel fica junto à barra de menus quando o conteúdo é mais alto que a tela.
+
 ### 2.3.0
 
 - Hop encontra e remove os restos de apps que não foram apagados por completo.

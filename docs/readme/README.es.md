@@ -54,6 +54,10 @@ macOS la abre como cualquier otra app. El código fuente es público y las
 actualizaciones integradas se verifican con Ed25519. Requiere macOS 14 o
 posterior.
 
+### 2.3.1
+
+- Con dos pantallas, el panel se queda junto a la barra de menús cuando su contenido es más alto que la pantalla.
+
 ### 2.3.0
 
 - Hop encuentra y elimina los restos de apps que no se borraron del todo.

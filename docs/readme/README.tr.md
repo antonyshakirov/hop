@@ -52,6 +52,10 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
+### 2.3.1
+
+- Iki ekranla, içeriği ekrandan uzun olduğunda panel menü çubuğunda kalır.
+
 ### 2.3.0
 
 - Hop, tam silinmemiş uygulamaların kalıntılarını bulup temizler.

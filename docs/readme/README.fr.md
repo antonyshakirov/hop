@@ -55,6 +55,10 @@ l'ouvre comme n'importe quelle autre app. Le code source est public et les
 mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
 plus récent.
 
+### 2.3.1
+
+- Avec deux écrans, le panneau reste sous la barre des menus quand son contenu est plus haut que l'écran.
+
 ### 2.3.0
 
 - Hop trouve et supprime les restes des apps qui n'ont pas été supprimées entièrement.
