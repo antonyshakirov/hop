@@ -875,6 +875,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the zeroed digits keep a subtle pulse (`isFinishSettled`) as a "reset me" cue
   until a reset or a new start ends the finished state. Play from finished
   restarts the same duration.
+- **A preset or a cycle template clicked while a countdown is live does not
+  apply** — an accidental click must not throw a timer away — and the button
+  that frees the timer blinks twice instead: the pause ring while it runs, the
+  RESET button while it is paused (Anton, 2026-10-01: on pause the start ring
+  blinked, and pressing start is the opposite of what lets a template in).
 - Stopwatch: ⏱ icon to the right of the presets, counts up. In the menu bar it
   shares the engine's green wedge with the timer (see "Menu bar icon — corner
   badges") — no separate stopwatch glyph. Mode switching is allowed from idle/finished/PAUSED

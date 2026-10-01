@@ -187,6 +187,7 @@ struct PanelView: View {
     @State private var dropTargeted = false
     /// Pause ring flash: click on the locked button while a countdown is running.
     @State private var stopHintPulse = false
+    @State private var resetHintPulse = false
     // actual width of the time display: scrub and digit-group click zones
     // derive from it, not from the dot font — scrubbing is uniform across styles
     @State private var displayMeasuredWidth: CGFloat = 0
@@ -2279,20 +2280,17 @@ struct PanelView: View {
         }
     }
 
+    /// SPEC: docs/spec.md — "Timer", the hint points at the button that frees the timer.
     private func nudgeStopFirst() {
-        // exactly TWO stroke pulses, opacity only (no scaling).
-        // The value animates back to false — no third
-        // "fast" blink from a hard reset at the end.
-        let pulse = Animation.easeInOut(duration: 0.18)
-        withAnimation(pulse) { stopHintPulse = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
-            withAnimation(pulse) { stopHintPulse = false }
+        let onReset = model.engine.state == .paused
+        func set(_ on: Bool) {
+            withAnimation(.easeInOut(duration: 0.18)) {
+                if onReset { resetHintPulse = on } else { stopHintPulse = on }
+            }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) {
-            withAnimation(pulse) { stopHintPulse = true }
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.58) {
-            withAnimation(pulse) { stopHintPulse = false }
+        set(true)
+        for (delay, on) in [(0.18, false), (0.40, true), (0.58, false)] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { set(on) }
         }
     }
 
@@ -2425,6 +2423,11 @@ struct PanelView: View {
                         .font(.system(size: digitsLarge ? 11 : 9, weight: .semibold))
                         .foregroundStyle(Theme.textSecondary)
                         .frame(width: digitsLarge ? 26 : 21, height: digitsLarge ? 26 : 21)
+                        .overlay {
+                            Circle()
+                                .stroke(Theme.textPrimary, lineWidth: 1.5)
+                                .opacity(resetHintPulse ? 0.9 : 0)
+                        }
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -2548,6 +2551,15 @@ struct PanelView: View {
                     .font(Theme.mono(9))
             }
             .foregroundStyle(Theme.textSecondary)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+            .overlay {
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(Theme.textPrimary, lineWidth: 1.5)
+                    .opacity(resetHintPulse ? 0.9 : 0)
+            }
+            .padding(.horizontal, -4)
+            .padding(.vertical, -2)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
