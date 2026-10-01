@@ -4,7 +4,7 @@ import Foundation
 import HopCore
 
 /// Updates via hop.tools (latest.json + zip + signature):
-/// silent auto-update and manual check. The site is polled hourly; a found
+/// silent auto-update and manual check. The site is polled every half hour; a found
 /// release installs at the first idle moment (see UpdateInstallPolicy) rather
 /// than waiting for the next poll — so it lands within a minute of the user
 /// stepping away. A release with critical=true skips the idle wait.
@@ -47,10 +47,10 @@ final class UpdateChecker: ObservableObject {
 
     /// How often the site is polled for a new release. Only the tiny latest.json
     /// is fetched; the zip downloads solely when a newer version is found.
-    static let checkInterval: TimeInterval = 3600
+    static let checkInterval: TimeInterval = 1800
     /// How often a release that was found but couldn't install yet re-tests the
     /// gate. No network — just the idle check — so a deferred update installs
-    /// within a minute of the user going idle instead of at the next hourly poll.
+    /// within a minute of the user going idle instead of at the next poll.
     static let installRetryInterval: TimeInterval = 60
 
     /// A newer release found but not installable at that moment (timer running,
@@ -185,7 +185,7 @@ final class UpdateChecker: ObservableObject {
         guard status != .downloading, status != .installing else { return }
         guard canInstall(info.critical) else { return }
         // Clear before installing: a failed attempt then waits for the next
-        // hourly check to rediscover, instead of hammering the download.
+        // check to rediscover, instead of hammering the download.
         pendingRelease = nil
         await install(info)
     }

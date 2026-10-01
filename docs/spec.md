@@ -6410,12 +6410,12 @@ its own database of known apps may do better on real software than it did here.
   (a plain `open` before terminate only activates the still-running old
   instance — nothing would start the new one, and two live instances
   racing NSWorkspace.setIcon corrupted the Finder icon into a folder).
-- Auto-check cadence: 15 s after launch, every hour, and 30 s after
+- Auto-check cadence: 15 s after launch, every 30 minutes, and 30 s after
   wake from sleep (the quietest moment — the user is just coming back
   and doesn't rely on the app yet). Only the tiny latest.json is fetched
   on each check; the zip downloads only when a newer version is found.
 - Install timing: a found release installs at the first moment the user
-  isn't actively using Hop, not at the next hourly check. If the check
+  isn't actively using Hop, not at the next check. If the check
   finds a release but the moment is busy, it's remembered and a 60 s
   retry (gate-only, no network) installs it the instant the user goes
   idle. "Not in use" = no interaction for 20 minutes AND no running/paused
@@ -6450,7 +6450,7 @@ its own database of known apps may do better on real software than it did here.
   notarisation, and why permissions must survive an update".
 - Updater: watches the GitHub Release (the repo will be antonshakirov/hop),
   the Ed25519 signature is mandatory, disabled until the public key is
-  embedded; a silent hourly check, installs at the first moment the user
+  embedded; a silent check every 30 minutes, installs at the first moment the user
   isn't actively using Hop (see the install-timing rule above).
 
 ## Planned (approved by Anton, not done yet)
