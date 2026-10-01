@@ -313,7 +313,7 @@ struct PanelView: View {
     /// and, if it is taller than the screen, enable a shared fixed-height scroll —
     /// protection against any future module growth, not per-module caps.
     private var maxPanelHeight: CGFloat {
-        ((NSScreen.main?.visibleFrame.height) ?? 800) - 24
+        (model.panelScreenVisibleHeight ?? NSScreen.main?.visibleFrame.height ?? 800) - 24
     }
 
     private var panelBody: some View {
