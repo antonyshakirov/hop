@@ -1078,6 +1078,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Clipboard: an entry as a file (1.7.0)
 
+- **Right click on an entry** (Anton, 2026-10-01): copy, paste into the window
+  below, and — for a text entry — "save as a file…". From the menu the save
+  ALWAYS opens the system's save panel, on the Desktop with the generated name
+  filled in, whatever `clipboardToFileAsk` says, and it is offered whether or
+  not the row's save icon is switched on. The format is the setting's.
+
 - OFF by default (`clipboardToFile`). The setting reads "show the save-as-file
   option" (Anton, 2026-10-01): the old
   "save an entry as a file" read as if every entry were written to disk. When
@@ -4161,6 +4167,16 @@ harsher choice on the leading edge, then "cancel", then the plain removal, and
 a dead slot the width of the ✕ at the end, so a reflexive second click on the
 same spot hits nothing. The labels shrink a little rather than cut off in a
 long language.
+
+### Torrents: the row's right-click menu (Anton, 2026-10-01)
+
+A right click on a torrent offers what its icons do, in words: pause or resume,
+"open the folder" once it is finished, expand or collapse for a torrent of
+several files, and under a divider the two removals — "remove from list" and
+"delete with downloads". Chosen from the menu, a removal runs at once: the two
+items already say what each one deletes, which is what the inline confirmation
+is for. A file's row offers the same two removals for that file. The menu is a
+system surface, so its items are capitalised.
 
 ### Removing one file of a torrent (Anton, 2026-10-01)
 

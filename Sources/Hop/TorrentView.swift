@@ -361,6 +361,31 @@ struct TorrentView: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
+        .contentShape(Rectangle())
+        // SPEC: docs/spec.md — "Torrents: the row's right-click menu".
+        .contextMenu {
+            Button(t(paused ? .torrentResume : .torrentPause).capitalizedFirst) {
+                paused ? torrent.resume(id: item.id) : torrent.pause(id: item.id)
+            }
+            if finished {
+                Button(t(.tipOpenFolder).capitalizedFirst) {
+                    model.closePanel?()
+                    torrent.revealInFinder(id: item.id)
+                }
+            }
+            if item.files.count > 1 {
+                Button(t(torrent.expandedIds.contains(item.id) ? .tipCollapse : .tipExpand).capitalizedFirst) {
+                    torrent.toggleExpanded(item.id)
+                }
+            }
+            Divider()
+            Button(t(.torrentRemoveTorrent).capitalizedFirst) {
+                torrent.remove(id: item.id, deleteFiles: false)
+            }
+            Button(t(.torrentRemoveDelete).capitalizedFirst) {
+                torrent.remove(id: item.id, deleteFiles: true)
+            }
+        }
     }
 
     /// Per-file rows under an expanded torrent: a switch to include/exclude each
@@ -454,6 +479,15 @@ struct TorrentView: View {
             .help(t(.torrentFileRemoveHelp))
         }
         .padding(.leading, 4)
+        .contentShape(Rectangle())
+        .contextMenu {
+            Button(t(.torrentRemoveTorrent).capitalizedFirst) {
+                torrent.removeFile(id: item.id, fileIndex: file.index, deleteData: false)
+            }
+            Button(t(.torrentRemoveDelete).capitalizedFirst) {
+                torrent.removeFile(id: item.id, fileIndex: file.index, deleteData: true)
+            }
+        }
     }
 
     @ViewBuilder
