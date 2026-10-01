@@ -124,6 +124,7 @@ final class UpdateChecker: ObservableObject {
                 await self?.autoCheck(canInstall: canInstall)
             }
         }
+        check.tolerance = 60
         RunLoop.main.add(check, forMode: .common)
         // A release found while the user was busy installs the moment they go
         // idle, not a whole poll cycle later: this timer only re-tests the gate.
@@ -132,6 +133,7 @@ final class UpdateChecker: ObservableObject {
                 await self?.installPendingIfPossible(canInstall: canInstall)
             }
         }
+        install.tolerance = 10
         RunLoop.main.add(install, forMode: .common)
         // wake from sleep is a quiet moment too: the user is just coming
         // back and doesn't rely on the app yet — a found release installs

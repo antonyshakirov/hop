@@ -476,6 +476,7 @@ struct PanelView: View {
         .init(id: "2.1", lines: [.news21Shot, .news21Draw, .news21More]),
         .init(id: "2.1.2", lines: [.news211Hold], catchUp: "2.1"),
         .init(id: "2.2", lines: [.news22Network, .news22Mac27, .news22More], enables: "network"),
+        ReleaseCard(id: "2.3", lines: [.news23Leftovers, .news23Torrents, .news23Flicker]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason

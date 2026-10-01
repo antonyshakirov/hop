@@ -438,6 +438,12 @@ final class TorrentController: ObservableObject {
                 try FileManager.default.trashItem(at: url, resultingItemURL: nil)
             } catch {
                 Self.log.error("could not move a torrent file to the Trash: \(error.localizedDescription, privacy: .public)")
+                // SPEC: "Removing one file of a torrent" — a file that stayed on the disk stays in the list.
+                if let ti = self.torrents.firstIndex(where: { $0.infoHash == row.infoHash }),
+                   let fi = self.torrents[ti].files.firstIndex(where: { $0.index == fileIndex }) {
+                    self.torrents[ti].files[fi].removed = false
+                    self.persist()
+                }
             }
         }
     }

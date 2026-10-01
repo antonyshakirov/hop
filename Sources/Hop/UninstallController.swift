@@ -42,6 +42,20 @@ final class UninstallController: ObservableObject {
 
         var id: String { identifier }
         var chosenPaths: [String] { paths.filter { !skipped.contains($0) } }
+
+        /// SPEC: docs/spec.md — "Leftovers, by name and by file". Tests: LeftoverTickTests.
+        mutating func toggle(path: String) {
+            guard ticked else {
+                skipped = Set(paths).subtracting([path])
+                ticked = true
+                return
+            }
+            if skipped.remove(path) == nil { skipped.insert(path) }
+            if chosenPaths.isEmpty {
+                ticked = false
+                skipped = []
+            }
+        }
         var chosenBytes: Int64 {
             sizes.isEmpty ? bytes : chosenPaths.reduce(0) { $0 + (sizes[$1] ?? 0) }
         }
@@ -654,13 +668,7 @@ final class UninstallController: ObservableObject {
     /// SPEC: docs/spec.md — "Leftovers, by name and by file".
     func toggleLeftoverPath(_ identifier: String, _ path: String) {
         guard let index = leftovers.firstIndex(where: { $0.identifier == identifier }) else { return }
-        if leftovers[index].skipped.remove(path) == nil { leftovers[index].skipped.insert(path) }
-        if leftovers[index].chosenPaths.isEmpty {
-            leftovers[index].ticked = false
-            leftovers[index].skipped = []
-        } else {
-            leftovers[index].ticked = true
-        }
+        leftovers[index].toggle(path: path)
     }
 
     /// SPEC: docs/spec.md — "Leftovers, by name and by file", the list under the apps.
@@ -682,26 +690,48 @@ final class UninstallController: ObservableObject {
         }
     }
 
-    private nonisolated static func output(of tool: String, _ arguments: [String]) -> String {
+    /// nil when the tool did not run or failed: an answer that never came is not an empty answer.
+    private nonisolated static func output(of tool: String, _ arguments: [String]) -> String? {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: tool)
         process.arguments = arguments
         let pipe = Pipe()
         process.standardOutput = pipe
         process.standardError = FileHandle.nullDevice
-        guard (try? process.run()) != nil else { return "" }
+        guard (try? process.run()) != nil else { return nil }
+        // a tool that hangs must not hold the scan: it is stopped and counts as no answer
+        let watchdog = DispatchWorkItem { if process.isRunning { process.terminate() } }
+        DispatchQueue.global().asyncAfter(deadline: .now() + 8, execute: watchdog)
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         process.waitUntilExit()
-        return String(data: data, encoding: .utf8) ?? ""
+        watchdog.cancel()
+        guard process.terminationStatus == 0 else { return nil }
+        return String(data: data, encoding: .utf8)
     }
 
     /// SPEC: docs/spec.md — "Removed apps, by their installer records".
     nonisolated static func rawRemovedApps() -> [RemovedApp] {
         let manager = FileManager.default
         let folder = "/var/db/receipts"
+        // SPEC: "Removed apps, by their installer records" — Spotlight must be seen to work
+        // before its silence counts: with indexing off, nothing found means nothing known.
+        guard let probe = output(of: "/usr/bin/mdfind", ["kMDItemFSName == 'Finder.app'"]),
+              probe.contains("Finder.app") else {
+            Logger(subsystem: "com.antonshakirov.hop", category: "Uninstall")
+                .notice("removed apps are not offered: Spotlight does not answer")
+            return []
+        }
         var installedNames = Set<String>()
-        for root in ["/Applications", "/Applications/Utilities", "/System/Applications",
-                     "\(NSHomeDirectory())/Applications"] {
+        var roots = ["/Applications", "/Applications/Utilities", "/System/Applications",
+                     "\(NSHomeDirectory())/Applications"]
+        for volume in (try? manager.contentsOfDirectory(atPath: "/Volumes")) ?? [] {
+            roots += ["/Volumes/\(volume)", "/Volumes/\(volume)/Applications"]
+        }
+        // an app that is running is not removed, wherever it was launched from
+        for app in NSWorkspace.shared.runningApplications {
+            if let name = app.bundleURL?.lastPathComponent { installedNames.insert(name) }
+        }
+        for root in roots {
             for path in AppUninstall.appBundlePaths(inside: root, manager: manager) {
                 installedNames.insert((path as NSString).lastPathComponent)
             }
@@ -713,8 +743,9 @@ final class UninstallController: ObservableObject {
             guard PackageReceipts.isOffered(receipt: receipt),
                   let info = NSDictionary(contentsOfFile: "\(folder)/\(entry)") else { continue }
             let prefix = info["InstallPrefixPath"] as? String ?? "/"
-            let dirs = output(of: "/usr/sbin/pkgutil", ["--only-dirs", "--files", receipt])
-                .split(separator: "\n").map(String.init)
+            guard let listing = output(of: "/usr/sbin/pkgutil", ["--only-dirs", "--files", receipt])
+            else { continue }
+            let dirs = listing.split(separator: "\n").map(String.init)
             guard let apps = PackageReceipts.removedApps(
                 files: dirs, prefix: prefix,
                 exists: { manager.fileExists(atPath: $0) },
@@ -722,8 +753,9 @@ final class UninstallController: ObservableObject {
             // Spotlight knows an app that was moved off the usual folders, to another disk included.
             let moved = apps.contains { app in
                 let name = (app as NSString).lastPathComponent.replacingOccurrences(of: "'", with: "\\'")
-                return output(of: "/usr/bin/mdfind", ["kMDItemFSName == '\(name)'"])
-                    .split(separator: "\n").contains { !$0.contains("/.Trash/") }
+                guard let hits = output(of: "/usr/bin/mdfind", ["kMDItemFSName == '\(name)'"])
+                else { return true }
+                return hits.split(separator: "\n").contains { !$0.contains("/.Trash/") }
             }
             guard !moved else { continue }
             out.append(RemovedApp(receipt: receipt, appPaths: apps))
@@ -745,9 +777,14 @@ final class UninstallController: ObservableObject {
         report = nil
         blockedByRunning = false
         state = .scanning
-        traces = Self.removedTraces(app)
+        traces = []
         mixed = []
-        state = traces.isEmpty ? .empty : .found
+        Task { [weak self] in
+            let found = await Task.detached(priority: .userInitiated) { Self.removedTraces(app) }.value
+            guard let self, self.target?.path == first else { return }
+            self.traces = found
+            self.state = found.isEmpty ? .empty : .found
+        }
     }
 
     nonisolated static func removedTraces(_ app: RemovedApp) -> [Trace] {
@@ -772,18 +809,20 @@ final class UninstallController: ObservableObject {
     func removeTickedRemovedApps() {
         let chosen = removedApps.filter(\.ticked)
         guard !chosen.isEmpty, state != .working else { return }
-        scanning = true
+        let anchor = chosen[0].appPaths[0]
+        target = Target(path: anchor, name: chosen.flatMap(\.names).joined(separator: ", "),
+                        bundleIdentifier: "", icon: NSWorkspace.shared.icon(for: .application))
+        traces = []
+        report = nil
+        state = .scanning
         Task { [weak self] in
             let found = await Task.detached(priority: .userInitiated) {
                 chosen.flatMap { Self.removedTraces($0) }
             }.value
-            guard let self else { return }
-            self.scanning = false
+            // the screen was left while the traces were gathered: nothing is removed behind it
+            guard let self, self.target?.path == anchor, self.state == .scanning else { return }
             var unique: [Trace] = []
             for trace in found where !unique.contains(where: { $0.path == trace.path }) { unique.append(trace) }
-            self.target = Target(path: chosen[0].appPaths[0],
-                                 name: chosen.flatMap(\.names).joined(separator: ", "),
-                                 bundleIdentifier: "", icon: NSWorkspace.shared.icon(for: .application))
             self.traces = unique
             self.mixed = []
             self.state = .found

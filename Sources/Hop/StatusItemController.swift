@@ -314,10 +314,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 self.syncTabPanelFrame()
             }
         }
-        // dev-only: raw frame diagnostics for the panel-hop investigation
-        // (debugPanelFrameLog flag, see debugLogPanelFrame below) — catches
-        // every geometry change AppKit reports for the panel window, on top
-        // of whatever the handlers above choose to act on
+        // WORKAROUND: on macOS 27 this move observer is what keeps the tab strip's
+        // panel on the popover; the frame log beside it is the diagnostic part.
         NotificationCenter.default.addObserver(
             forName: NSWindow.didMoveNotification, object: nil, queue: .main
         ) { [weak self] note in
@@ -1065,12 +1063,17 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         let look = Look(composition: composition, base: base, dark: barIsDark,
                         title: title, glyph: glyph, opacity: opacity)
         guard look != lastLook || button.image == nil else { return }
+        // SPEC: docs/spec.md — "What a running clock costs": a tick changes the digits, not the icon.
+        let iconChanged = button.image == nil || look.composition != lastLook?.composition
+            || look.base != lastLook?.base || look.dark != lastLook?.dark
         lastLook = look
 
-        button.image = base.map {
-            MenuBarIcon.compose(composition, base: $0, dark: barIsDark)
-        } ?? MenuBarIcon.dialTemplate
-        button.imagePosition = .imageLeft
+        if iconChanged {
+            button.image = base.map {
+                MenuBarIcon.compose(composition, base: $0, dark: barIsDark)
+            } ?? MenuBarIcon.dialTemplate
+            button.imagePosition = .imageLeft
+        }
 
         let mono = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
         if title.isEmpty {

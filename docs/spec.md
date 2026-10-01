@@ -355,6 +355,13 @@ reads 1.2% on a quiet machine and 2.4% under load. A comparison is two builds
 measured side by side in one window, which is what `ps -o time=` deltas on both
 pids give.
 
+- **A tick rewrites the digits, not the icon** (audit, 2026-10-01). The bar's
+  look was compared whole, so one changed digit recomposed the icon bitmap and
+  wrote `button.image` again — once a second with a clock in the bar, and on
+  every frame of a handover. The image is written only when the icon itself
+  changed (its composition, base or the bar's appearance); the title carries
+  the digits.
+
 ## Onboarding
 
 **Only a fresh install sees it.** An update is not a first run: somebody who has
@@ -4201,6 +4208,8 @@ on a raised level, and the picker used to come up under it.
   downloaded stays on the disk; "delete with downloads" does that and moves
   what was downloaded to the Trash (the Trash, not an unlink: one file picked
   out of many is the case where a wrong click is likeliest).
+- A file that could not be moved to the Trash comes back into the list,
+  deselected: the row must not say it is gone while it sits on the disk.
 - A removed file is deselected in the engine (`update_only_files`) and stored as
   `removed` in `torrents.json`; "all" never picks it again and the count above
   the list leaves it out. The torrent itself goes on with its other files.
@@ -5428,6 +5437,12 @@ converter (Anton, 2026-07-28).
 
 ## Localization
 
+- One table per language (`enTable` … `srTable`), each with its type written
+  out, looked up through `table(_:)` (audit, 2026-10-01). As one nested literal
+  the file took close to four minutes to type-check and grew with every key;
+  split, it takes about a quarter of that, and a launch builds the current
+  language and English rather than all of them.
+
 - Languages: en ru de es pt fr it zh ja nl ko th vi hi id tr pl sr ar he fa ur —
   in the order `AppLanguage` declares, which is the order the app offers them
   in; the `tables` literal need not follow it. A new UI string goes into every
@@ -6073,6 +6088,9 @@ which app it was.
   the rest goes. Unticking the last one unticks the program; the size on the
   row is the size of what is ticked. "all" and "remove the leftovers" act on
   the ticked programs; a program with files kept stays in the list with those.
+- A file ticked inside a program that is NOT ticked takes that one file only
+  (review, 2026-10-01): it used to arm every other file of the program, none
+  of which had been chosen (`CacheOwner.toggle`, `LeftoverTickTests`).
 - The guards that keep a live app out (30 quiet days among them) are unchanged.
 - **macOS's question is announced** (Anton, 2026-10-01, after its notice about
   Hop reaching into other apps' data arrived with no explanation): while the
@@ -6097,6 +6115,16 @@ Outlook and OneNote the same way).
   another disk is not removed) — is a removed app (`PackageReceipts`, tested).
   Apple's own records are never offered. No quiet month and no vendor guard
   apply: the record says what was installed and the disk says it is gone.
+- **Silence is not an answer** (review, 2026-10-01). A tool that did not run or
+  failed returns nothing, and nothing is never read as "not found": a record
+  whose `pkgutil` listing failed is skipped, an app whose Spotlight query
+  failed counts as still there, and with Spotlight not answering at all
+  (indexing off: the probe for `Finder.app` finds nothing) no removed app is
+  offered. Mounted volumes are looked through by name as well, since a volume
+  may be left out of the index.
+- An app that is running counts as there whatever folder it was started from.
+  The removal run shows its own screen while the traces are gathered, and
+  leaving that screen cancels it: nothing is removed behind another screen.
 - **Where**: the "remove the app" screen, a section above the leftovers, one
   row per record with the names of its apps and the record's identifier in
   small print. Found on that Mac: the two Blackmagic apps, Outlook, OneNote,

@@ -198,6 +198,7 @@ enum L10nKey: String, CaseIterable {
     case settingsVpnMark, settingsVpnHoldOff, settingsVpnHoldOffNote
     case settingsOcrWindow, ocrPreparing, ocrPreparingDetail
     case aboutSocial
+    case news23Leftovers, news23Torrents, news23Flicker
     case news22Network, news22Mac27, news22More, newsEnableNetwork, newsDisableNetwork, newsNotNow
     case networkFollowShort, networkRemoveRule
     case networkStopped
@@ -286,7 +287,7 @@ enum L10n {
     static func missingKeys() -> [String] {
         var out: [String] = []
         for lang in AppLanguage.allCases {
-            for key in L10nKey.allCases where tables[lang]?[key] == nil {
+            for key in L10nKey.allCases where table(lang)[key] == nil {
                 out.append("\(lang.rawValue).\(key.rawValue)")
             }
         }
@@ -351,7 +352,7 @@ enum L10n {
         var out: [String] = []
         for lang in AppLanguage.allCases {
             for key in L10nKey.allCases {
-                guard let text = tables[lang]?[key],
+                guard let text = table(lang)[key],
                       let mark = InvisibleMarks.strayMark(text, rightToLeft: lang.isRTL)
                 else { continue }
                 out.append(String(format: "%@.%@ — U+%04X at %d",
@@ -370,7 +371,7 @@ enum L10n {
         var out: [String] = []
         for lang in AppLanguage.allCases where lang.isRTL {
             for key in L10nKey.allCases {
-                guard let text = tables[lang]?[key],
+                guard let text = table(lang)[key],
                       let line = InvisibleMarks.openingLeftToRight(text) else { continue }
                 out.append("\(lang.rawValue).\(key.rawValue) — \(line.prefix(48))")
             }
@@ -388,10 +389,10 @@ enum L10n {
     static func mismatchedSubstitutions() -> [String] {
         var out: [String] = []
         for key in L10nKey.allCases {
-            guard let english = tables[.en]?[key] else { continue }
+            guard let english = enTable[key] else { continue }
             let wanted = Substitutions.all(english)
             for lang in AppLanguage.allCases where lang != .en {
-                guard let text = tables[lang]?[key] else { continue }
+                guard let text = table(lang)[key] else { continue }
                 let has = Substitutions.all(text)
                 guard has != wanted else { continue }
                 out.append("\(lang.rawValue).\(key.rawValue) — en has "
@@ -409,7 +410,7 @@ enum L10n {
         var out: [String] = []
         for lang in AppLanguage.allCases {
             for key in L10nKey.allCases {
-                guard let text = tables[lang]?[key],
+                guard let text = table(lang)[key],
                       HangingWords.chordBreaks(text) else { continue }
                 out.append("\(lang.rawValue).\(key.rawValue)")
             }
@@ -427,7 +428,7 @@ enum L10n {
             let words = shortWords(lang)
             let trailing = trailingWords(lang)
             for key in L10nKey.allCases {
-                guard let text = tables[lang]?[key] else { continue }
+                guard let text = table(lang)[key] else { continue }
                 let fixed = HangingWords.glued(text, shortWords: words, trailing: trailing)
                 guard fixed != text else { continue }
                 out.append("\(lang.rawValue).\(key.rawValue) — \(firstDifference(text, fixed))")
@@ -469,11 +470,41 @@ enum L10n {
     }
 
     static func t(_ key: L10nKey, _ lang: AppLanguage) -> String {
-        tables[lang]?[key] ?? tables[.en]?[key] ?? key.rawValue
+        table(lang)[key] ?? enTable[key] ?? key.rawValue
     }
 
-    private static let tables: [AppLanguage: [L10nKey: String]] = [
-        .en: [
+    /// One language's table; a static is built on first use, so only the languages asked for are.
+    private static func table(_ lang: AppLanguage) -> [L10nKey: String] {
+        switch lang {
+        case .en: return enTable
+        case .ru: return ruTable
+        case .de: return deTable
+        case .es: return esTable
+        case .pt: return ptTable
+        case .fr: return frTable
+        case .it: return itTable
+        case .zh: return zhTable
+        case .ja: return jaTable
+        case .nl: return nlTable
+        case .ko: return koTable
+        case .th: return thTable
+        case .vi: return viTable
+        case .hi: return hiTable
+        case .id: return idTable
+        case .tr: return trTable
+        case .pl: return plTable
+        case .ar: return arTable
+        case .he: return heTable
+        case .fa: return faTable
+        case .ur: return urTable
+        case .sr: return srTable
+        }
+    }
+
+    private static let enTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "click to copy, right-click for more",
             .torrentPause: "pause",
             .torrentResume: "resume",
@@ -600,7 +631,7 @@ enum L10n {
             .windowsInDockNote: "the icon appears while a\u{00A0}window is open and brings it back on a\u{00A0}click. without it hop only leaves the dock: the menu bar icon, the hotkeys and everything running in the background stay as they were.",
             .thermalNote: "temperature: the color follows macOS's own thermal state, not a\u{00A0}fixed number",
             .aboutTabNews: "what's new", .newsAllReleases: "all releases",
-            .docNews: "2.2.1 – 2026-09-30\n\n• the “traffic blocking” module no longer shows a\u{00A0}pop-up when its filter restarts\n\n2.2.0 – 2026-09-29\n\n• new module “traffic blocking”: see which programs go online and where, and cut any of them off with one click\n\n• hop is adapted to macOS 27\n\n• text recognition: the first reading after an update is instant, and a\u{00A0}setting decides whether a\u{00A0}reading opens its window\n\n• the speed test can be stopped early\n\n2.1.8 – 2026-09-28\n\n• bug fixes\n\n2.1.7 – 2026-09-28\n\n• macOS 27: panel actions respond to the first click\n\n2.1.6 – 2026-09-27\n\n• bug fixes\n\n2.1.5 – 2026-09-21\n\n• hop no longer holds a\u{00A0}processor core next to a\u{00A0}menu bar manager like ice. starting hop also ends an older copy of it left running, so an update installed by hand leaves nothing behind\n\n• the clipboard keeps a\u{00A0}long copy whole: a\u{00A0}book, a\u{00A0}log or a\u{00A0}page of source comes back in full, up to 64 mb an entry\n\n• the speed test measures the download and the upload one after the other, the way speedtest.net does. measured together the upload of a\u{00A0}home line comes out about three times low, and the help page says why\n\n• to-dos: hold command and click a\u{00A0}task's ✕ to delete it at once, ⌘\u{00A0}return adds a\u{00A0}task and closes the field, and a\u{00A0}task ticked off leaves the list the next day, into a\u{00A0}file beside it\n\n2.1.4 – 2026-09-17\n\n• an empty settings window no longer opens on its own\n\n2.1.3 – 2026-09-17\n\n• fixed removing torrents, which did not always finish properly\n\n2.1.2 – 2026-09-17\n\n• bug fixes\n\n2.1.1 – 2026-09-17\n\n• hold fn\u{00A0}⌃\u{00A0}and draw straight on the screen, let go and it fades. the keys, the colour and the width are in the settings\n\n2.1.0 – 2026-09-15\n\n• screenshots with an editor. grab an area, a\u{00A0}window or the whole screen, then leave captions and drawings on it, bring a\u{00A0}loupe over the detail that matters, blur what nobody else should read and put your watermark on top. copy the result into a\u{00A0}chat or save it\n\n• drawing over the screen. explaining goes faster when you can point at things: draw straight over what is on screen, the other side sees every mark, and one key hands the screen back to the apps underneath and takes it again\n\n• new languages: serbian, arabic, hebrew, persian and urdu\n\n2.0.3 – 2026-09-07\n\n• a\u{00A0}running timer with the panel open is a\u{00A0}third of the load it was – to move two figures the panel used to redraw itself whole, every second\n\n• a\u{00A0}mac left unable to sleep gets it back – if hop was killed while the lid mode was on, the next start hands sleep back\n\n2.0.2 – 2026-09-07\n\n• a\u{00A0}running timer costs a\u{00A0}tenth of what it did – with the panel closed hop was redrawing the whole panel every second for a\u{00A0}clock nobody could see\n\n2.0.0 – 2026-09-06\n\n• the first run sets hop up – a\u{00A0}screen per group of modules showing each one at work, the modules you pick switched on, and every permission asked for on one page. nothing opens over it, and quitting halfway brings it back on the same step\n\n• four spaces by default – a\u{00A0}new install starts with the panel laid out where each module reads best, and the tools that work on files get a\u{00A0}space of their own. a\u{00A0}panel you have already arranged is left exactly as it is, and the settings list now follows the panel's own order\n\n• web pages in the converter – paste an address or drop a\u{00A0}saved page, and it comes out as pdf, docx, markdown, rtf or plain text\n\n• more than one clock – several tracked tasks run at the same time, and the menu bar shows the one started last. in the monitor, memory and swap each answer for themselves, with a\u{00A0}colour of their own\n\n• updates from a\u{00A0}second server – a\u{00A0}download asks hop.tools first and ru.hop.tools after it, so a\u{00A0}copy that cannot reach one of them still gets its update. the signature checked before anything is installed is the same either way\n\n1.10.0 – 2026-09-03\n\n• settings are a\u{00A0}window – a\u{00A0}sidebar instead of tabs inside the panel, a\u{00A0}page per module saying in two sentences what it does, every hotkey in one place, and about, what's new and the handbook alongside them\n\n• the handbook is back in the app – the full instructions for every module, no longer only a\u{00A0}page on the site\n\n• permissions on one page – what is granted, what is not, and a\u{00A0}button that asks for it right there instead of sending you to a\u{00A0}switch that is already on. updating to this version clears every permission once and asks again: a\u{00A0}permission belongs to a\u{00A0}signature, and hop's changed when apple signed it. from here on they survive an update\n\n• the keyboard lock proves itself – the cover goes up only once the keys have actually gone quiet, a\u{00A0}check repeats every second for as long as the lock stands, the countdown bar tells the truth, and the dock no longer floats over a\u{00A0}locked screen\n\n• nothing fails in silence – a\u{00A0}feature stopped by a\u{00A0}missing permission says so in one line, and that line is the button that asks for it\n\n• the icon's menu – a\u{00A0}right click opens the handbook and about, not only settings\n\n1.9.1 – 2026-08-31\n\n• signed by apple – hop now carries an apple developer id and apple's notarisation, so macos opens it without the warning a\u{00A0}first install used to show. the signature is new, which makes hop a\u{00A0}new app to macos: the permissions you had granted are gone, and hop asks for each one again when it needs it\n\n• vpn, faster – a\u{00A0}tunnel's state is taken from the system the moment it changes, so the dot in the menu bar follows a\u{00A0}connection going up or down without a\u{00A0}wait. it holds for clients that leave their interface standing after the session itself is gone\n\n• what a\u{00A0}release brought – a\u{00A0}card at the top of the panel names what a\u{00A0}new version added, with the full notes one button away. it arrives with the update, keeps to a\u{00A0}couple of showings and leaves on its own\n\n1.9.0 – 2026-08-29\n\n• projects and history in the tracker – tasks can be grouped into projects, each with its own sum, and one switch above the list shows today, this week or all of it. open a\u{00A0}task and every stretch of time it collected is listed: change how long one ran or when it happened, add a\u{00A0}session nobody pressed play for, or throw one away. a\u{00A0}star now lifts a\u{00A0}task to the top of its own list. the row counts the run you are in, from zero, and the ✓ beside it closes the run – the period's sum comes back and the next start begins at zero\n\n• one button for where the video goes – reels, feed, tiktok, shorts or youtube sets the frame, the resolution and how hard to squeeze, from what the platform itself recommends. the dial says the bitrate it means, in megabits, so what you are trading is visible\n\n• mkv and webm at last – macOS opens neither, so hop repacks them into mp4 first, copying the picture across untouched, and everything else works as usual. a\u{00A0}small helper downloads once, the first time you convert one\n\n• pages, numbers and keynote – drop a\u{00A0}pile of them in and they come out as pdf, or as docx, xlsx and pptx. the documents are exported by the apps themselves, so the result is what «export to…» gives, formulas included\n\n• smaller things – an image asked for in the format it already is, at full quality, is copied instead of re-encoded (it used to come back several times heavier); durations are always written in full, h:mm:ss; and the converter's settings line up in one column\n\n1.8.0 – 2026-08-04\n\n• video for where it is going – a\u{00A0}clip can be reframed as it converts: 9:16 for reels and stories, 4:5 or square for a\u{00A0}feed, 16:9 for everything else. a\u{00A0}picture of another shape is cropped to fill, padded, or laid over a\u{00A0}blurred copy of itself – your choice, and nothing is ever stretched\n\n• compression that compresses – the switch used to change almost nothing, because the system's own settings re-encode a\u{00A0}video back to about the size it started at. hop now encodes it itself, with a\u{00A0}level you set, and the size it promises is the size you get. the container stays what it was: an mp4 comes out an mp4\n\n• two clocks in the menu bar – a\u{00A0}timer and a\u{00A0}tracked task share the one spot now, five seconds each, with a\u{00A0}small mark in front of the digits saying which is speaking. a\u{00A0}clock stopped while the panel is open keeps its place instead of leaving a\u{00A0}gap\n\n• pdf into markdown, faster – the same text and the same headings in a\u{00A0}fraction of the time, up to eight times quicker on documents whose fonts macOS has to work at\n\n• after converting – the bar moves with the work rather than in jumps, a\u{00A0}sound says the batch is done, and a\u{00A0}button opens the folder the files went to with one already selected. anything macOS cannot open at all (mkv, webm) is named as such the moment you drop it, not after you press convert",
+            .docNews: "2.3.0 – 2026-10-01\n\n• removing apps: hop finds the apps you already deleted by hand and clears what they left behind. leftovers carry the program's name and open onto their files, so some can be kept\n\n• torrents: remove a\u{00A0}single file of a\u{00A0}torrent, keeping or deleting what was downloaded. the removal buttons say what they delete\n\n• right click: a\u{00A0}clipboard entry and a\u{00A0}torrent each have a\u{00A0}menu, and saving an entry as a\u{00A0}file asks where\n\n• traffic blocking: a\u{00A0}filter switch in its window. switched off, everything goes through and the rules wait\n\n• macOS 27: windows under the panel no longer flicker when you click in it\n\n• ⌘Q with a\u{00A0}hop window open closes the window and keeps hop in the menu bar\n\n• clearer names in the settings, a\u{00A0}hint on every module and a\u{00A0}10-minute timer preset\n\n2.2.1 – 2026-09-30\n\n• the “traffic blocking” module no longer shows a\u{00A0}pop-up when its filter restarts\n\n2.2.0 – 2026-09-29\n\n• new module “traffic blocking”: see which programs go online and where, and cut any of them off with one click\n\n• hop is adapted to macOS 27\n\n• text recognition: the first reading after an update is instant, and a\u{00A0}setting decides whether a\u{00A0}reading opens its window\n\n• the speed test can be stopped early\n\n2.1.8 – 2026-09-28\n\n• bug fixes\n\n2.1.7 – 2026-09-28\n\n• macOS 27: panel actions respond to the first click\n\n2.1.6 – 2026-09-27\n\n• bug fixes\n\n2.1.5 – 2026-09-21\n\n• hop no longer holds a\u{00A0}processor core next to a\u{00A0}menu bar manager like ice. starting hop also ends an older copy of it left running, so an update installed by hand leaves nothing behind\n\n• the clipboard keeps a\u{00A0}long copy whole: a\u{00A0}book, a\u{00A0}log or a\u{00A0}page of source comes back in full, up to 64 mb an entry\n\n• the speed test measures the download and the upload one after the other, the way speedtest.net does. measured together the upload of a\u{00A0}home line comes out about three times low, and the help page says why\n\n• to-dos: hold command and click a\u{00A0}task's ✕ to delete it at once, ⌘\u{00A0}return adds a\u{00A0}task and closes the field, and a\u{00A0}task ticked off leaves the list the next day, into a\u{00A0}file beside it\n\n2.1.4 – 2026-09-17\n\n• an empty settings window no longer opens on its own\n\n2.1.3 – 2026-09-17\n\n• fixed removing torrents, which did not always finish properly\n\n2.1.2 – 2026-09-17\n\n• bug fixes\n\n2.1.1 – 2026-09-17\n\n• hold fn\u{00A0}⌃\u{00A0}and draw straight on the screen, let go and it fades. the keys, the colour and the width are in the settings\n\n2.1.0 – 2026-09-15\n\n• screenshots with an editor. grab an area, a\u{00A0}window or the whole screen, then leave captions and drawings on it, bring a\u{00A0}loupe over the detail that matters, blur what nobody else should read and put your watermark on top. copy the result into a\u{00A0}chat or save it\n\n• drawing over the screen. explaining goes faster when you can point at things: draw straight over what is on screen, the other side sees every mark, and one key hands the screen back to the apps underneath and takes it again\n\n• new languages: serbian, arabic, hebrew, persian and urdu\n\n2.0.3 – 2026-09-07\n\n• a\u{00A0}running timer with the panel open is a\u{00A0}third of the load it was – to move two figures the panel used to redraw itself whole, every second\n\n• a\u{00A0}mac left unable to sleep gets it back – if hop was killed while the lid mode was on, the next start hands sleep back\n\n2.0.2 – 2026-09-07\n\n• a\u{00A0}running timer costs a\u{00A0}tenth of what it did – with the panel closed hop was redrawing the whole panel every second for a\u{00A0}clock nobody could see\n\n2.0.0 – 2026-09-06\n\n• the first run sets hop up – a\u{00A0}screen per group of modules showing each one at work, the modules you pick switched on, and every permission asked for on one page. nothing opens over it, and quitting halfway brings it back on the same step\n\n• four spaces by default – a\u{00A0}new install starts with the panel laid out where each module reads best, and the tools that work on files get a\u{00A0}space of their own. a\u{00A0}panel you have already arranged is left exactly as it is, and the settings list now follows the panel's own order\n\n• web pages in the converter – paste an address or drop a\u{00A0}saved page, and it comes out as pdf, docx, markdown, rtf or plain text\n\n• more than one clock – several tracked tasks run at the same time, and the menu bar shows the one started last. in the monitor, memory and swap each answer for themselves, with a\u{00A0}colour of their own\n\n• updates from a\u{00A0}second server – a\u{00A0}download asks hop.tools first and ru.hop.tools after it, so a\u{00A0}copy that cannot reach one of them still gets its update. the signature checked before anything is installed is the same either way\n\n1.10.0 – 2026-09-03\n\n• settings are a\u{00A0}window – a\u{00A0}sidebar instead of tabs inside the panel, a\u{00A0}page per module saying in two sentences what it does, every hotkey in one place, and about, what's new and the handbook alongside them\n\n• the handbook is back in the app – the full instructions for every module, no longer only a\u{00A0}page on the site\n\n• permissions on one page – what is granted, what is not, and a\u{00A0}button that asks for it right there instead of sending you to a\u{00A0}switch that is already on. updating to this version clears every permission once and asks again: a\u{00A0}permission belongs to a\u{00A0}signature, and hop's changed when apple signed it. from here on they survive an update\n\n• the keyboard lock proves itself – the cover goes up only once the keys have actually gone quiet, a\u{00A0}check repeats every second for as long as the lock stands, the countdown bar tells the truth, and the dock no longer floats over a\u{00A0}locked screen\n\n• nothing fails in silence – a\u{00A0}feature stopped by a\u{00A0}missing permission says so in one line, and that line is the button that asks for it\n\n• the icon's menu – a\u{00A0}right click opens the handbook and about, not only settings\n\n1.9.1 – 2026-08-31\n\n• signed by apple – hop now carries an apple developer id and apple's notarisation, so macos opens it without the warning a\u{00A0}first install used to show. the signature is new, which makes hop a\u{00A0}new app to macos: the permissions you had granted are gone, and hop asks for each one again when it needs it\n\n• vpn, faster – a\u{00A0}tunnel's state is taken from the system the moment it changes, so the dot in the menu bar follows a\u{00A0}connection going up or down without a\u{00A0}wait. it holds for clients that leave their interface standing after the session itself is gone\n\n• what a\u{00A0}release brought – a\u{00A0}card at the top of the panel names what a\u{00A0}new version added, with the full notes one button away. it arrives with the update, keeps to a\u{00A0}couple of showings and leaves on its own\n\n1.9.0 – 2026-08-29\n\n• projects and history in the tracker – tasks can be grouped into projects, each with its own sum, and one switch above the list shows today, this week or all of it. open a\u{00A0}task and every stretch of time it collected is listed: change how long one ran or when it happened, add a\u{00A0}session nobody pressed play for, or throw one away. a\u{00A0}star now lifts a\u{00A0}task to the top of its own list. the row counts the run you are in, from zero, and the ✓ beside it closes the run – the period's sum comes back and the next start begins at zero\n\n• one button for where the video goes – reels, feed, tiktok, shorts or youtube sets the frame, the resolution and how hard to squeeze, from what the platform itself recommends. the dial says the bitrate it means, in megabits, so what you are trading is visible\n\n• mkv and webm at last – macOS opens neither, so hop repacks them into mp4 first, copying the picture across untouched, and everything else works as usual. a\u{00A0}small helper downloads once, the first time you convert one\n\n• pages, numbers and keynote – drop a\u{00A0}pile of them in and they come out as pdf, or as docx, xlsx and pptx. the documents are exported by the apps themselves, so the result is what «export to…» gives, formulas included\n\n• smaller things – an image asked for in the format it already is, at full quality, is copied instead of re-encoded (it used to come back several times heavier); durations are always written in full, h:mm:ss; and the converter's settings line up in one column\n\n1.8.0 – 2026-08-04\n\n• video for where it is going – a\u{00A0}clip can be reframed as it converts: 9:16 for reels and stories, 4:5 or square for a\u{00A0}feed, 16:9 for everything else. a\u{00A0}picture of another shape is cropped to fill, padded, or laid over a\u{00A0}blurred copy of itself – your choice, and nothing is ever stretched\n\n• compression that compresses – the switch used to change almost nothing, because the system's own settings re-encode a\u{00A0}video back to about the size it started at. hop now encodes it itself, with a\u{00A0}level you set, and the size it promises is the size you get. the container stays what it was: an mp4 comes out an mp4\n\n• two clocks in the menu bar – a\u{00A0}timer and a\u{00A0}tracked task share the one spot now, five seconds each, with a\u{00A0}small mark in front of the digits saying which is speaking. a\u{00A0}clock stopped while the panel is open keeps its place instead of leaving a\u{00A0}gap\n\n• pdf into markdown, faster – the same text and the same headings in a\u{00A0}fraction of the time, up to eight times quicker on documents whose fonts macOS has to work at\n\n• after converting – the bar moves with the work rather than in jumps, a\u{00A0}sound says the batch is done, and a\u{00A0}button opens the folder the files went to with one already selected. anything macOS cannot open at all (mkv, webm) is named as such the moment you drop it, not after you press convert",
             .tabTimer: "main", .tabSystem: "system monitor", .back: "back",
             .tabEmptyHint: "empty space – move modules here",
             .tabChangeIcon: "change icon", .tabDelete: "delete tab", .tabNew: "new tab", .moduleMoveTo: "move the module to tab",
@@ -1233,8 +1264,12 @@ enum L10n {
             .news21Shot: "screenshots with an editor: add captions and drawings, bring in a\u{00A0}loupe, put on a\u{00A0}watermark, then copy or save",
             .news21Draw: "drawing over the screen: explain things to the people you are talking to and point at everything right on the live screen",
             .news21More: "new languages: serbian, arabic, hebrew, persian and urdu", .news211Hold: "hold fn\u{00A0}⌃\u{00A0}and draw straight on the screen, let go and it fades. the keys, the colour and the width are in the settings",
-        ],
-        .ru: [
+            ]
+
+    private static let ruTable: [L10nKey: String] = [
+            .news23Leftovers: "программы, которые вы уже удалили руками: hop находит их остатки и\u{00A0}убирает разом",
+            .news23Torrents: "торренты: можно убрать отдельный файл, а\u{00A0}правый клик по\u{00A0}строке открывает меню",
+            .news23Flicker: "macOS 27: окна под\u{00A0}панелью больше не\u{00A0}мигают, когда вы нажимаете в\u{00A0}ней",
             .clipRowHint: "нажмите, чтобы скопировать, правый клик открывает меню",
             .torrentPause: "приостановить",
             .torrentResume: "продолжить",
@@ -1361,7 +1396,7 @@ enum L10n {
             .windowsInDockNote: "иконка появляется, пока открыто окно, и\u{00A0}по\u{00A0}клику возвращает его. без\u{00A0}неё hop лишь уходит из\u{00A0}дока: значок в\u{00A0}строке меню, горячие клавиши и\u{00A0}всё, что\u{00A0}работает в\u{00A0}фоне, остаются на\u{00A0}месте.",
             .thermalNote: "температура: цвет – по\u{00A0}системной оценке нагрева macOS, а\u{00A0}не\u{00A0}по фиксированному числу",
             .aboutTabNews: "что\u{00A0}нового", .newsAllReleases: "все релизы",
-            .docNews: "2.2.1 – 30.09.2026\n\n• модуль «блокировка трафика» больше не\u{00A0}показывает плашку, когда фильтр перезапускается\n\n2.2.0 – 29.09.2026\n\n• новый модуль «блокировка трафика»: видно, какие программы выходят в\u{00A0}сеть и\u{00A0}куда, и\u{00A0}любую можно закрыть одним нажатием\n\n• hop адаптирован под\u{00A0}macOS 27\n\n• распознавание текста: первое распознавание после обновления сразу быстрое, а\u{00A0}настройка решает, открывать\u{00A0}ли окно с\u{00A0}результатом\n\n• замер скорости можно остановить раньше\n\n2.1.8 – 28.09.2026\n\n• исправление ошибок\n\n2.1.7 – 28.09.2026\n\n• macOS 27: действия в\u{00A0}панели работают с\u{00A0}первого нажатия\n\n2.1.6 – 27.09.2026\n\n• исправление ошибок\n\n2.1.5 – 21.09.2026\n\n• hop больше не\u{00A0}занимает ядро процессора рядом с\u{00A0}менеджером строки меню вроде ice. запуск hop заодно закрывает оставшуюся работать старую копию, поэтому обновление, поставленное руками, ничего не\u{00A0}оставляет позади\n\n• буфер обмена хранит длинную запись целиком: книга, лог или\u{00A0}страница кода возвращаются полностью, до\u{00A0}64\u{00A0}мб на\u{00A0}запись\n\n• замер скорости считает загрузку и\u{00A0}отгрузку по\u{00A0}очереди, как\u{00A0}это делает speedtest.net. вместе отгрузка домашней линии выходит примерно втрое ниже, и\u{00A0}справка говорит почему\n\n• задачи: зажмите command и\u{00A0}нажмите ✕ у\u{00A0}задачи, чтобы удалить сразу, ⌘\u{00A0}return добавляет задачу и\u{00A0}закрывает поле, а\u{00A0}отмеченная задача назавтра уходит из\u{00A0}списка в\u{00A0}файл рядом\n\n2.1.4 – 17.09.2026\n\n• пустое окно настроек больше не\u{00A0}открывается само по\u{00A0}себе\n\n2.1.3 – 17.09.2026\n\n• подправили удаление торрентов, которое не\u{00A0}всегда завершалось корректно\n\n2.1.2 – 17.09.2026\n\n• исправление ошибок\n\n2.1.1 – 17.09.2026\n\n• зажмите fn\u{00A0}⌃\u{00A0}и\u{00A0}рисуйте прямо на\u{00A0}экране, отпустите – рисунок растает. клавиши, цвет и\u{00A0}толщина меняются в\u{00A0}настройках\n\n2.1.0 – 15.09.2026\n\n• скриншоты с\u{00A0}редактором. снимите область, окно или\u{00A0}весь экран, а\u{00A0}потом оставьте подписи и\u{00A0}рисунки, наведите лупу на\u{00A0}важную деталь, размойте то, что\u{00A0}читать посторонним не\u{00A0}нужно, и\u{00A0}поставьте водяной знак. готовое копируйте в\u{00A0}переписку или\u{00A0}сохраняйте\n\n• рисование на\u{00A0}экране. объяснять проще, когда можно показать пальцем: рисуйте прямо поверх того, что\u{00A0}на\u{00A0}экране, собеседник видит каждую пометку, а\u{00A0}одна клавиша отдаёт экран приложениям под\u{00A0}слоем и\u{00A0}забирает обратно\n\n• новые языки: сербский, арабский, иврит, фарси и\u{00A0}урду\n\n2.0.3 – 07.09.2026\n\n• идущий таймер при\u{00A0}открытой панели стоит втрое меньше – раньше, чтобы сдвинуть две цифры, панель каждую секунду перерисовывалась целиком\n\n• mac, оставшийся без\u{00A0}сна, получает его обратно – если hop убили при\u{00A0}включённом режиме крышки, следующий запуск возвращает сон\n\n2.0.2 – 07.09.2026\n\n• идущий таймер стоит в\u{00A0}десять раз меньше – при\u{00A0}закрытой панели hop каждую секунду перерисовывал её целиком ради часов, которых никто не\u{00A0}видит\n\n2.0.0 – 06.09.2026\n\n• первый запуск настраивает hop – экран на\u{00A0}каждую группу модулей, где модуль показан в\u{00A0}работе, выбранные включаются сразу, а\u{00A0}все разрешения спрашиваются на\u{00A0}одной странице. поверх ничего не\u{00A0}открывается, а\u{00A0}выход на\u{00A0}середине возвращает на\u{00A0}тот\u{00A0}же шаг\n\n• четыре вкладки по\u{00A0}умолчанию – новая установка начинается с\u{00A0}раскладки, где каждый модуль стоит там, где читается лучше, а\u{00A0}инструменты для\u{00A0}файлов получают свою вкладку. уже собранная вами панель остаётся ровно такой, какой была, а\u{00A0}список в\u{00A0}настройках теперь идёт в\u{00A0}порядке самой панели\n\n• веб-страницы в\u{00A0}конвертере – вставьте адрес или\u{00A0}бросьте сохранённую страницу, и\u{00A0}она выйдет в\u{00A0}pdf, docx, markdown, rtf или\u{00A0}простым текстом\n\n• больше одних часов – несколько задач в\u{00A0}трекере идут одновременно, а\u{00A0}в\u{00A0}меню-баре видна запущенная последней. в\u{00A0}мониторе память и\u{00A0}своп отвечают каждый за\u{00A0}себя, своим цветом\n\n• обновления со\u{00A0}второго сервера – загрузка сначала спрашивает hop.tools, затем ru.hop.tools, поэтому копия, которой не\u{00A0}виден один из\u{00A0}них, всё равно получает обновление. подпись, которую приложение проверяет перед установкой, в\u{00A0}обоих случаях одна\n\n1.10.0 – 03.09.2026\n\n• настройки стали окном – боковое меню вместо вкладок внутри панели, у\u{00A0}каждого модуля своя страница с\u{00A0}двумя предложениями о\u{00A0}том, что\u{00A0}он делает, все горячие клавиши в\u{00A0}одном месте, рядом «о\u{00A0}приложении», «что\u{00A0}нового» и\u{00A0}памятка\n\n• памятка вернулась в\u{00A0}приложение – полная инструкция по\u{00A0}каждому модулю, а\u{00A0}не\u{00A0}только страница на\u{00A0}сайте\n\n• разрешения на\u{00A0}одной странице – что\u{00A0}выдано, что\u{00A0}нет, и\u{00A0}кнопка, которая просит доступ прямо здесь, а\u{00A0}не\u{00A0}отправляет к\u{00A0}тумблеру, который и\u{00A0}так включён. при\u{00A0}обновлении на\u{00A0}эту версию все разрешения сбрасываются один раз и\u{00A0}запрашиваются заново: разрешение привязано к\u{00A0}подписи, а\u{00A0}подпись сменилась, когда hop подписала apple. дальше они переживают обновления\n\n• блокировка клавиатуры проверяет себя – шторка поднимается, только когда клавиши правда замолчали, проверка повторяется раз в\u{00A0}секунду всё время блокировки, полоса отсчёта не\u{00A0}врёт, а\u{00A0}dock больше не\u{00A0}лежит поверх закрытого экрана\n\n• ничего не\u{00A0}отказывает молча – функция, которой не\u{00A0}хватает разрешения, говорит об\u{00A0}этом одной строкой, и\u{00A0}эта строка сама просит доступ\n\n• меню по\u{00A0}правому клику – открывает памятку и\u{00A0}«о приложении», а\u{00A0}не\u{00A0}только настройки\n\n1.9.1 – 31.08.2026\n\n• подпись apple – у\u{00A0}hop теперь apple developer id и\u{00A0}заверение apple, поэтому macos открывает его без предупреждения, которое раньше появлялось при\u{00A0}первой установке. подпись новая, а\u{00A0}значит для\u{00A0}macos это другое приложение: выданные разрешения сброшены, и\u{00A0}hop попросит каждое заново, когда оно понадобится\n\n• vpn, быстрее – состояние туннеля берётся у\u{00A0}системы в\u{00A0}момент изменения, поэтому точка в\u{00A0}строке меню следует за\u{00A0}подключением и\u{00A0}отключением без\u{00A0}задержки. это работает и\u{00A0}с\u{00A0}клиентами, которые оставляют свой интерфейс поднятым после закрытия сессии\n\n• что\u{00A0}принёс релиз – карточка вверху панели называет, что\u{00A0}появилось в\u{00A0}новой версии, а\u{00A0}полный текст открывается одной кнопкой. она приходит с\u{00A0}обновлением, держится пару показов и\u{00A0}уходит сама\n\n1.9.0 – 29.08.2026\n\n• проекты и\u{00A0}история в\u{00A0}трекере – задачи можно собрать в\u{00A0}проекты, у\u{00A0}каждого своя сумма, а\u{00A0}переключатель над\u{00A0}списком показывает сегодня, неделю или\u{00A0}всё время. раскройте задачу – и\u{00A0}увидите все её отрезки: поправить длительность или\u{00A0}момент, добавить сеанс, который никто не\u{00A0}засёк, удалить лишнее. звёздочка теперь поднимает задачу наверх её собственного списка. в\u{00A0}строке идёт текущий заход, с\u{00A0}нуля, а\u{00A0}галочка рядом закрывает его – возвращается сумма за\u{00A0}период, и\u{00A0}следующий старт снова считает с\u{00A0}нуля\n\n• одна кнопка под\u{00A0}то, куда идёт видео – reels, feed, tiktok, shorts или\u{00A0}youtube ставят кадр, разрешение и\u{00A0}силу сжатия из\u{00A0}того, что\u{00A0}рекомендует сама площадка. рядом с\u{00A0}ползунком стоит битрейт в\u{00A0}мегабитах, поэтому видно, чем\u{00A0}именно вы платите\n\n• наконец mkv и\u{00A0}webm – macOS их не\u{00A0}открывает, поэтому hop сначала перекладывает их в\u{00A0}mp4, копируя картинку как\u{00A0}есть, а\u{00A0}дальше всё работает как\u{00A0}обычно. небольшой помощник докачивается один раз, при\u{00A0}первой такой конвертации\n\n• pages, numbers и\u{00A0}keynote – киньте пачку, и\u{00A0}она выйдет в\u{00A0}pdf либо в\u{00A0}docx, xlsx и\u{00A0}pptx. документы экспортируют сами приложения, поэтому результат – ровно то, что\u{00A0}даёт «экспортировать в…», вместе с\u{00A0}формулами\n\n• по\u{00A0}мелочи – картинка, у\u{00A0}которой просят её\u{00A0}же формат и\u{00A0}полное качество, копируется, а\u{00A0}не пережимается (раньше она возвращалась в\u{00A0}разы тяжелее); длительности всегда пишутся полностью, ч:мм:сс; настройки конвертера выстроены в\u{00A0}одну колонку\n\n1.8.0 – 04.08.2026\n\n• видео под\u{00A0}то, куда оно идёт – ролик можно переформатировать прямо при\u{00A0}конвертации: 9:16 для\u{00A0}рилсов и\u{00A0}историй, 4:5 или\u{00A0}квадрат для\u{00A0}ленты, 16:9 для\u{00A0}всего остального. кадр другой формы обрезается по\u{00A0}центру, вписывается с\u{00A0}полями или\u{00A0}ложится поверх размытой копии себя – на\u{00A0}выбор, и\u{00A0}ничего не\u{00A0}растягивается\n\n• сжатие, которое сжимает – раньше переключатель почти ничего не\u{00A0}менял: системные настройки перекодируют видео обратно примерно в\u{00A0}тот\u{00A0}же вес. теперь hop кодирует сам, с\u{00A0}уровнем, который вы задаёте, и\u{00A0}обещанный размер совпадает с\u{00A0}полученным. контейнер остаётся прежним: mp4 остаётся mp4\n\n• двое часов в\u{00A0}строке меню – таймер и\u{00A0}трекаемая задача делят одно место по\u{00A0}пять секунд, а\u{00A0}перед цифрами стоит значок, который говорит, чьё это время. часы, остановленные при\u{00A0}открытой панели, остаются на\u{00A0}месте и\u{00A0}не\u{00A0}оставляют пустоту\n\n• pdf в\u{00A0}markdown, быстрее – тот\u{00A0}же текст и\u{00A0}те\u{00A0}же заголовки за\u{00A0}долю прежнего времени, до\u{00A0}восьми раз быстрее на\u{00A0}документах со\u{00A0}шрифтами, которые macOS подбирает сама\n\n• после конвертации – шкала идёт вместе с\u{00A0}работой, а\u{00A0}не\u{00A0}рывками, звук говорит, что\u{00A0}пачка готова, кнопка открывает папку с\u{00A0}уже выделенным файлом. то, что\u{00A0}macOS не\u{00A0}открывает вовсе (mkv, webm), помечается сразу при\u{00A0}добавлении, а\u{00A0}не\u{00A0}после нажатия",
+            .docNews: "2.3.0 – 01.10.2026\n\n• удаление программ: hop находит программы, которые вы уже удалили руками, и\u{00A0}убирает их остатки. у\u{00A0}остатков видно имя программы и\u{00A0}список файлов, часть можно оставить\n\n• торренты: можно убрать отдельный файл раздачи, оставив или\u{00A0}удалив скачанное. кнопки удаления говорят, что\u{00A0}именно удалится\n\n• правый клик: у\u{00A0}записи буфера обмена и\u{00A0}у\u{00A0}торрента есть меню, а\u{00A0}сохранение записи в\u{00A0}файл спрашивает, куда\n\n• блокировка трафика: в\u{00A0}окне появился выключатель фильтра. выключен – всё проходит, правила ждут\n\n• macOS 27: окна под\u{00A0}панелью больше не\u{00A0}мигают, когда вы нажимаете в\u{00A0}ней\n\n• ⌘Q при\u{00A0}открытом окне hop закрывает окно, а\u{00A0}hop остаётся в\u{00A0}строке меню\n\n• понятные названия в\u{00A0}настройках, подсказка у\u{00A0}каждого модуля и\u{00A0}пресет таймера на\u{00A0}10\u{00A0}минут\n\n2.2.1 – 30.09.2026\n\n• модуль «блокировка трафика» больше не\u{00A0}показывает плашку, когда фильтр перезапускается\n\n2.2.0 – 29.09.2026\n\n• новый модуль «блокировка трафика»: видно, какие программы выходят в\u{00A0}сеть и\u{00A0}куда, и\u{00A0}любую можно закрыть одним нажатием\n\n• hop адаптирован под\u{00A0}macOS 27\n\n• распознавание текста: первое распознавание после обновления сразу быстрое, а\u{00A0}настройка решает, открывать\u{00A0}ли окно с\u{00A0}результатом\n\n• замер скорости можно остановить раньше\n\n2.1.8 – 28.09.2026\n\n• исправление ошибок\n\n2.1.7 – 28.09.2026\n\n• macOS 27: действия в\u{00A0}панели работают с\u{00A0}первого нажатия\n\n2.1.6 – 27.09.2026\n\n• исправление ошибок\n\n2.1.5 – 21.09.2026\n\n• hop больше не\u{00A0}занимает ядро процессора рядом с\u{00A0}менеджером строки меню вроде ice. запуск hop заодно закрывает оставшуюся работать старую копию, поэтому обновление, поставленное руками, ничего не\u{00A0}оставляет позади\n\n• буфер обмена хранит длинную запись целиком: книга, лог или\u{00A0}страница кода возвращаются полностью, до\u{00A0}64\u{00A0}мб на\u{00A0}запись\n\n• замер скорости считает загрузку и\u{00A0}отгрузку по\u{00A0}очереди, как\u{00A0}это делает speedtest.net. вместе отгрузка домашней линии выходит примерно втрое ниже, и\u{00A0}справка говорит почему\n\n• задачи: зажмите command и\u{00A0}нажмите ✕ у\u{00A0}задачи, чтобы удалить сразу, ⌘\u{00A0}return добавляет задачу и\u{00A0}закрывает поле, а\u{00A0}отмеченная задача назавтра уходит из\u{00A0}списка в\u{00A0}файл рядом\n\n2.1.4 – 17.09.2026\n\n• пустое окно настроек больше не\u{00A0}открывается само по\u{00A0}себе\n\n2.1.3 – 17.09.2026\n\n• подправили удаление торрентов, которое не\u{00A0}всегда завершалось корректно\n\n2.1.2 – 17.09.2026\n\n• исправление ошибок\n\n2.1.1 – 17.09.2026\n\n• зажмите fn\u{00A0}⌃\u{00A0}и\u{00A0}рисуйте прямо на\u{00A0}экране, отпустите – рисунок растает. клавиши, цвет и\u{00A0}толщина меняются в\u{00A0}настройках\n\n2.1.0 – 15.09.2026\n\n• скриншоты с\u{00A0}редактором. снимите область, окно или\u{00A0}весь экран, а\u{00A0}потом оставьте подписи и\u{00A0}рисунки, наведите лупу на\u{00A0}важную деталь, размойте то, что\u{00A0}читать посторонним не\u{00A0}нужно, и\u{00A0}поставьте водяной знак. готовое копируйте в\u{00A0}переписку или\u{00A0}сохраняйте\n\n• рисование на\u{00A0}экране. объяснять проще, когда можно показать пальцем: рисуйте прямо поверх того, что\u{00A0}на\u{00A0}экране, собеседник видит каждую пометку, а\u{00A0}одна клавиша отдаёт экран приложениям под\u{00A0}слоем и\u{00A0}забирает обратно\n\n• новые языки: сербский, арабский, иврит, фарси и\u{00A0}урду\n\n2.0.3 – 07.09.2026\n\n• идущий таймер при\u{00A0}открытой панели стоит втрое меньше – раньше, чтобы сдвинуть две цифры, панель каждую секунду перерисовывалась целиком\n\n• mac, оставшийся без\u{00A0}сна, получает его обратно – если hop убили при\u{00A0}включённом режиме крышки, следующий запуск возвращает сон\n\n2.0.2 – 07.09.2026\n\n• идущий таймер стоит в\u{00A0}десять раз меньше – при\u{00A0}закрытой панели hop каждую секунду перерисовывал её целиком ради часов, которых никто не\u{00A0}видит\n\n2.0.0 – 06.09.2026\n\n• первый запуск настраивает hop – экран на\u{00A0}каждую группу модулей, где модуль показан в\u{00A0}работе, выбранные включаются сразу, а\u{00A0}все разрешения спрашиваются на\u{00A0}одной странице. поверх ничего не\u{00A0}открывается, а\u{00A0}выход на\u{00A0}середине возвращает на\u{00A0}тот\u{00A0}же шаг\n\n• четыре вкладки по\u{00A0}умолчанию – новая установка начинается с\u{00A0}раскладки, где каждый модуль стоит там, где читается лучше, а\u{00A0}инструменты для\u{00A0}файлов получают свою вкладку. уже собранная вами панель остаётся ровно такой, какой была, а\u{00A0}список в\u{00A0}настройках теперь идёт в\u{00A0}порядке самой панели\n\n• веб-страницы в\u{00A0}конвертере – вставьте адрес или\u{00A0}бросьте сохранённую страницу, и\u{00A0}она выйдет в\u{00A0}pdf, docx, markdown, rtf или\u{00A0}простым текстом\n\n• больше одних часов – несколько задач в\u{00A0}трекере идут одновременно, а\u{00A0}в\u{00A0}меню-баре видна запущенная последней. в\u{00A0}мониторе память и\u{00A0}своп отвечают каждый за\u{00A0}себя, своим цветом\n\n• обновления со\u{00A0}второго сервера – загрузка сначала спрашивает hop.tools, затем ru.hop.tools, поэтому копия, которой не\u{00A0}виден один из\u{00A0}них, всё равно получает обновление. подпись, которую приложение проверяет перед установкой, в\u{00A0}обоих случаях одна\n\n1.10.0 – 03.09.2026\n\n• настройки стали окном – боковое меню вместо вкладок внутри панели, у\u{00A0}каждого модуля своя страница с\u{00A0}двумя предложениями о\u{00A0}том, что\u{00A0}он делает, все горячие клавиши в\u{00A0}одном месте, рядом «о\u{00A0}приложении», «что\u{00A0}нового» и\u{00A0}памятка\n\n• памятка вернулась в\u{00A0}приложение – полная инструкция по\u{00A0}каждому модулю, а\u{00A0}не\u{00A0}только страница на\u{00A0}сайте\n\n• разрешения на\u{00A0}одной странице – что\u{00A0}выдано, что\u{00A0}нет, и\u{00A0}кнопка, которая просит доступ прямо здесь, а\u{00A0}не\u{00A0}отправляет к\u{00A0}тумблеру, который и\u{00A0}так включён. при\u{00A0}обновлении на\u{00A0}эту версию все разрешения сбрасываются один раз и\u{00A0}запрашиваются заново: разрешение привязано к\u{00A0}подписи, а\u{00A0}подпись сменилась, когда hop подписала apple. дальше они переживают обновления\n\n• блокировка клавиатуры проверяет себя – шторка поднимается, только когда клавиши правда замолчали, проверка повторяется раз в\u{00A0}секунду всё время блокировки, полоса отсчёта не\u{00A0}врёт, а\u{00A0}dock больше не\u{00A0}лежит поверх закрытого экрана\n\n• ничего не\u{00A0}отказывает молча – функция, которой не\u{00A0}хватает разрешения, говорит об\u{00A0}этом одной строкой, и\u{00A0}эта строка сама просит доступ\n\n• меню по\u{00A0}правому клику – открывает памятку и\u{00A0}«о приложении», а\u{00A0}не\u{00A0}только настройки\n\n1.9.1 – 31.08.2026\n\n• подпись apple – у\u{00A0}hop теперь apple developer id и\u{00A0}заверение apple, поэтому macos открывает его без предупреждения, которое раньше появлялось при\u{00A0}первой установке. подпись новая, а\u{00A0}значит для\u{00A0}macos это другое приложение: выданные разрешения сброшены, и\u{00A0}hop попросит каждое заново, когда оно понадобится\n\n• vpn, быстрее – состояние туннеля берётся у\u{00A0}системы в\u{00A0}момент изменения, поэтому точка в\u{00A0}строке меню следует за\u{00A0}подключением и\u{00A0}отключением без\u{00A0}задержки. это работает и\u{00A0}с\u{00A0}клиентами, которые оставляют свой интерфейс поднятым после закрытия сессии\n\n• что\u{00A0}принёс релиз – карточка вверху панели называет, что\u{00A0}появилось в\u{00A0}новой версии, а\u{00A0}полный текст открывается одной кнопкой. она приходит с\u{00A0}обновлением, держится пару показов и\u{00A0}уходит сама\n\n1.9.0 – 29.08.2026\n\n• проекты и\u{00A0}история в\u{00A0}трекере – задачи можно собрать в\u{00A0}проекты, у\u{00A0}каждого своя сумма, а\u{00A0}переключатель над\u{00A0}списком показывает сегодня, неделю или\u{00A0}всё время. раскройте задачу – и\u{00A0}увидите все её отрезки: поправить длительность или\u{00A0}момент, добавить сеанс, который никто не\u{00A0}засёк, удалить лишнее. звёздочка теперь поднимает задачу наверх её собственного списка. в\u{00A0}строке идёт текущий заход, с\u{00A0}нуля, а\u{00A0}галочка рядом закрывает его – возвращается сумма за\u{00A0}период, и\u{00A0}следующий старт снова считает с\u{00A0}нуля\n\n• одна кнопка под\u{00A0}то, куда идёт видео – reels, feed, tiktok, shorts или\u{00A0}youtube ставят кадр, разрешение и\u{00A0}силу сжатия из\u{00A0}того, что\u{00A0}рекомендует сама площадка. рядом с\u{00A0}ползунком стоит битрейт в\u{00A0}мегабитах, поэтому видно, чем\u{00A0}именно вы платите\n\n• наконец mkv и\u{00A0}webm – macOS их не\u{00A0}открывает, поэтому hop сначала перекладывает их в\u{00A0}mp4, копируя картинку как\u{00A0}есть, а\u{00A0}дальше всё работает как\u{00A0}обычно. небольшой помощник докачивается один раз, при\u{00A0}первой такой конвертации\n\n• pages, numbers и\u{00A0}keynote – киньте пачку, и\u{00A0}она выйдет в\u{00A0}pdf либо в\u{00A0}docx, xlsx и\u{00A0}pptx. документы экспортируют сами приложения, поэтому результат – ровно то, что\u{00A0}даёт «экспортировать в…», вместе с\u{00A0}формулами\n\n• по\u{00A0}мелочи – картинка, у\u{00A0}которой просят её\u{00A0}же формат и\u{00A0}полное качество, копируется, а\u{00A0}не пережимается (раньше она возвращалась в\u{00A0}разы тяжелее); длительности всегда пишутся полностью, ч:мм:сс; настройки конвертера выстроены в\u{00A0}одну колонку\n\n1.8.0 – 04.08.2026\n\n• видео под\u{00A0}то, куда оно идёт – ролик можно переформатировать прямо при\u{00A0}конвертации: 9:16 для\u{00A0}рилсов и\u{00A0}историй, 4:5 или\u{00A0}квадрат для\u{00A0}ленты, 16:9 для\u{00A0}всего остального. кадр другой формы обрезается по\u{00A0}центру, вписывается с\u{00A0}полями или\u{00A0}ложится поверх размытой копии себя – на\u{00A0}выбор, и\u{00A0}ничего не\u{00A0}растягивается\n\n• сжатие, которое сжимает – раньше переключатель почти ничего не\u{00A0}менял: системные настройки перекодируют видео обратно примерно в\u{00A0}тот\u{00A0}же вес. теперь hop кодирует сам, с\u{00A0}уровнем, который вы задаёте, и\u{00A0}обещанный размер совпадает с\u{00A0}полученным. контейнер остаётся прежним: mp4 остаётся mp4\n\n• двое часов в\u{00A0}строке меню – таймер и\u{00A0}трекаемая задача делят одно место по\u{00A0}пять секунд, а\u{00A0}перед цифрами стоит значок, который говорит, чьё это время. часы, остановленные при\u{00A0}открытой панели, остаются на\u{00A0}месте и\u{00A0}не\u{00A0}оставляют пустоту\n\n• pdf в\u{00A0}markdown, быстрее – тот\u{00A0}же текст и\u{00A0}те\u{00A0}же заголовки за\u{00A0}долю прежнего времени, до\u{00A0}восьми раз быстрее на\u{00A0}документах со\u{00A0}шрифтами, которые macOS подбирает сама\n\n• после конвертации – шкала идёт вместе с\u{00A0}работой, а\u{00A0}не\u{00A0}рывками, звук говорит, что\u{00A0}пачка готова, кнопка открывает папку с\u{00A0}уже выделенным файлом. то, что\u{00A0}macOS не\u{00A0}открывает вовсе (mkv, webm), помечается сразу при\u{00A0}добавлении, а\u{00A0}не\u{00A0}после нажатия",
             .tabTimer: "главная", .tabSystem: "мониторинг системы", .back: "назад",
             .tabEmptyHint: "пустое пространство – перенесите модули сюда",
             .tabChangeIcon: "сменить значок", .tabDelete: "удалить вкладку", .tabNew: "новая вкладка", .moduleMoveTo: "перенести модуль на\u{00A0}вкладку",
@@ -1994,8 +2029,12 @@ enum L10n {
             .news21Shot: "скриншоты с\u{00A0}редактором: оставляйте подписи и\u{00A0}рисунки, наводите лупу, ставьте водяной знак, а\u{00A0}потом копируйте или\u{00A0}сохраняйте",
             .news21Draw: "рисование на\u{00A0}экране: объясняйте собеседникам и\u{00A0}показывайте всё прямо на\u{00A0}живом экране",
             .news21More: "новые языки: сербский, арабский, иврит, фарси и\u{00A0}урду", .news211Hold: "зажмите fn\u{00A0}⌃\u{00A0}и\u{00A0}рисуйте прямо на\u{00A0}экране, отпустите – рисунок растает. клавиши, цвет и\u{00A0}толщина меняются в\u{00A0}настройках",
-        ],
-        .de: [
+            ]
+
+    private static let deTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "klicken zum kopieren, rechtsklick für mehr",
             .torrentPause: "pausieren",
             .torrentResume: "fortsetzen",
@@ -2755,8 +2794,12 @@ enum L10n {
             .news21Shot: "screenshots mit editor: setz beschriftungen und zeichnungen, zieh eine lupe auf, leg ein wasserzeichen darüber und kopiere oder sichere danach",
             .news21Draw: "zeichnen über dem bildschirm: erklär es deinen gesprächspartnern und zeig alles direkt auf dem laufenden bildschirm",
             .news21More: "neue sprachen: serbisch, arabisch, hebräisch, persisch und urdu", .news211Hold: "fn\u{00A0}⌃\u{00A0}halten und direkt auf dem bildschirm zeichnen, loslassen und es verblasst. tasten, farbe und stärke stehen in den einstellungen",
-        ],
-        .es: [
+            ]
+
+    private static let esTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "clic para copiar, clic derecho para más",
             .torrentPause: "pausar",
             .torrentResume: "reanudar",
@@ -3516,8 +3559,12 @@ enum L10n {
             .news21Shot: "capturas con editor: pon rótulos y\u{00A0}dibujos, acerca una lupa, añade una marca de agua y\u{00A0}luego copia o\u{00A0}guarda",
             .news21Draw: "dibujar sobre la pantalla: explica a\u{00A0}quien te escucha y\u{00A0}señala todo sobre la pantalla en vivo",
             .news21More: "nuevos idiomas: serbio, árabe, hebreo, persa y\u{00A0}urdu", .news211Hold: "mantén fn\u{00A0}⌃\u{00A0}y\u{00A0}dibuja directamente en la pantalla, suelta y\u{00A0}se desvanece. las teclas, el color y\u{00A0}el grosor se cambian en los ajustes",
-        ],
-        .pt: [
+            ]
+
+    private static let ptTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "clique para copiar, clique direito para mais",
             .torrentPause: "pausar",
             .torrentResume: "retomar",
@@ -4277,8 +4324,12 @@ enum L10n {
             .news21Shot: "capturas com editor: escreva legendas e\u{00A0}desenhos, aproxime uma lupa, ponha uma marca d'água e\u{00A0}depois copie ou salve",
             .news21Draw: "desenhar sobre a\u{00A0}tela: explique a\u{00A0}quem está do outro lado e\u{00A0}aponte tudo na própria tela ao vivo",
             .news21More: "novos idiomas: sérvio, árabe, hebraico, persa e\u{00A0}urdu", .news211Hold: "segure fn\u{00A0}⌃\u{00A0}e\u{00A0}desenhe direto na tela, solte e\u{00A0}o\u{00A0}desenho some. as teclas, a\u{00A0}cor e\u{00A0}a\u{00A0}espessura mudam nos ajustes",
-        ],
-        .fr: [
+            ]
+
+    private static let frTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "cliquez pour copier, clic droit pour plus",
             .torrentPause: "mettre en pause",
             .torrentResume: "reprendre",
@@ -5038,8 +5089,12 @@ enum L10n {
             .news21Shot: "captures avec éditeur : ajoutez des légendes et des dessins, posez une loupe, mettez un filigrane, puis copiez ou enregistrez",
             .news21Draw: "dessiner par-dessus l'écran : expliquez à\u{00A0}vos interlocuteurs et montrez tout directement sur l'écran en direct",
             .news21More: "nouvelles langues : serbe, arabe, hébreu, persan et ourdou", .news211Hold: "maintenez fn\u{00A0}⌃\u{00A0}et dessinez directement sur l'écran, relâchez et le dessin s'efface. touches, couleur et épaisseur se changent dans les réglages",
-        ],
-        .it: [
+            ]
+
+    private static let itTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "clic per copiare, clic destro per altro",
             .torrentPause: "metti in pausa",
             .torrentResume: "riprendi",
@@ -5799,8 +5854,12 @@ enum L10n {
             .news21Shot: "schermate con editor: aggiungi didascalie e\u{00A0}disegni, punta una lente, metti una filigrana e\u{00A0}poi copia o\u{00A0}salva",
             .news21Draw: "disegnare sopra lo schermo: spiega a\u{00A0}chi ti ascolta e\u{00A0}indica tutto direttamente sullo schermo dal vivo",
             .news21More: "nuove lingue: serbo, arabo, ebraico, persiano e\u{00A0}urdu", .news211Hold: "tieni premuto fn\u{00A0}⌃\u{00A0}e\u{00A0}disegna direttamente sullo schermo, lascia e\u{00A0}il disegno svanisce. tasti, colore e\u{00A0}spessore si cambiano nelle impostazioni",
-        ],
-        .zh: [
+            ]
+
+    private static let zhTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "点击复制，右键查看更多",
             .torrentPause: "暂停",
             .torrentResume: "继续",
@@ -6551,8 +6610,12 @@ enum L10n {
             .news21Shot: "带编辑器的截图：写标注、画图形、加放大镜、盖水印，然后复制或保存",
             .news21Draw: "在屏幕上直接作画：一边讲给对面听，一边在实时画面上指出每一处",
             .news21More: "新增语言：塞尔维亚语、阿拉伯语、希伯来语、波斯语和乌尔都语", .news211Hold: "按住 fn\u{00A0}⌃即可直接在屏幕上绘图，松开后笔迹淡出。按键、颜色和粗细可在设置中更改",
-        ],
-        .ja: [
+            ]
+
+    private static let jaTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "クリックでコピー、右クリックでその他",
             .torrentPause: "一時停止",
             .torrentResume: "再開",
@@ -7309,8 +7372,12 @@ enum L10n {
             .news21Shot: "編集できるスクリーンショット：注釈や手描きを入れ、ルーペを当て、透かしを載せて、そのままコピーか保存",
             .news21Draw: "画面の上に描く：相手に説明しながら、動いている画面のうえで直接指し示せる",
             .news21More: "追加された言語：セルビア語、アラビア語、ヘブライ語、ペルシア語、ウルドゥー語", .news211Hold: "fn\u{00A0}⌃を押している間は画面に直接描けて、離すと消えます。キー、色、太さは設定で変更できます",
-        ],
-        .nl: [
+            ]
+
+    private static let nlTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "klik om te kopiëren, rechtsklik voor meer",
             .torrentPause: "pauzeren",
             .torrentResume: "hervatten",
@@ -8086,8 +8153,12 @@ enum L10n {
             .news21Shot: "schermafbeeldingen met editor: zet bijschriften en tekeningen, richt een loep, leg er een watermerk op en kopieer of bewaar daarna",
             .news21Draw: "tekenen over het scherm: leg het je gesprekspartners uit en wijs alles aan op het levende scherm",
             .news21More: "nieuwe talen: servisch, arabisch, hebreeuws, perzisch en urdu", .news211Hold: "houd fn\u{00A0}⌃\u{00A0}ingedrukt en teken direct op het scherm, laat los en het vervaagt. toetsen, kleur en dikte stel je in bij de instellingen",
-        ],
-        .ko: [
+            ]
+
+    private static let koTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "클릭하면 복사, 우클릭하면 더 보기",
             .torrentPause: "일시정지",
             .torrentResume: "계속",
@@ -8844,8 +8915,12 @@ enum L10n {
             .news21Shot: "편집기가 있는 화면 캡처: 설명과 그림을 넣고 돋보기를 대고 워터마크를 얹은 뒤 복사하거나 저장한다",
             .news21Draw: "화면 위에 그리기: 상대에게 설명하면서 살아 있는 화면 위에 바로 짚어 보여준다",
             .news21More: "새 언어: 세르비아어, 아랍어, 히브리어, 페르시아어, 우르두어", .news211Hold: "fn\u{00A0}⌃를 누른 채 화면에 바로 그리고, 떼면 사라집니다. 키, 색상, 굵기는 설정에서 바꿀 수 있습니다",
-        ],
-        .th: [
+            ]
+
+    private static let thTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "คลิกเพื่อคัดลอก คลิกขวาเพื่อดูเพิ่ม",
             .torrentPause: "หยุดชั่วคราว",
             .torrentResume: "ทำต่อ",
@@ -9621,8 +9696,12 @@ enum L10n {
             .news21Shot: "ภาพหน้าจอพร้อมตัวแก้ไข: ใส่คำบรรยายและลายเส้น วางแว่นขยาย ติดลายน้ำ แล้วคัดลอกหรือบันทึก",
             .news21Draw: "วาดทับหน้าจอ: อธิบายให้คู่สนทนาฟังและชี้ทุกอย่างบนหน้าจอจริง",
             .news21More: "ภาษาใหม่: เซอร์เบีย อาหรับ ฮีบรู เปอร์เซีย และอูรดู", .news211Hold: "กด fn\u{00A0}⌃ค้างไว้แล้ววาดบนหน้าจอได้ทันที ปล่อยแล้วภาพจะจางหายไป เปลี่ยนปุ่ม สี และความหนาได้ในการตั้งค่า",
-        ],
-        .vi: [
+            ]
+
+    private static let viTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "nhấp để sao chép, nhấp phải để xem thêm",
             .torrentPause: "tạm dừng",
             .torrentResume: "tiếp tục",
@@ -10398,8 +10477,12 @@ enum L10n {
             .news21Shot: "ảnh chụp màn hình có trình sửa: thêm chú thích và nét vẽ, đặt kính lúp, dán hình mờ rồi sao chép hoặc lưu",
             .news21Draw: "vẽ đè lên màn hình: giải thích cho người đang nghe và chỉ mọi thứ ngay trên màn hình đang chạy",
             .news21More: "ngôn ngữ mới: serbia, ả rập, do thái, ba tư và urdu", .news211Hold: "giữ fn\u{00A0}⌃\u{00A0}để vẽ ngay trên màn hình, thả ra thì nét vẽ mờ dần. phím, màu và độ dày đổi trong phần cài đặt",
-        ],
-        .hi: [
+            ]
+
+    private static let hiTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "कॉपी के लिए क्लिक करें, और विकल्पों के लिए राइट-क्लिक",
             .torrentPause: "रोकें",
             .torrentResume: "जारी रखें",
@@ -11175,8 +11258,12 @@ enum L10n {
             .news21Shot: "एडिटर वाले स्क्रीनशॉट: कैप्शन और चित्र जोड़ें, आवर्धक लगाएँ, वॉटरमार्क चढ़ाएँ, फिर कॉपी करें या सहेजें",
             .news21Draw: "स्क्रीन के ऊपर चित्र: सामने वाले को समझाइए और सब कुछ चलती स्क्रीन पर ही दिखाइए",
             .news21More: "नई भाषाएँ: सर्बियाई, अरबी, हिब्रू, फ़ारसी और उर्दू", .news211Hold: "fn\u{00A0}⌃\u{00A0}दबाए रखें और सीधे स्क्रीन पर खींचें, छोड़ते ही चित्र मिट जाता है। कुंजियाँ, रंग और मोटाई सेटिंग्स में बदलें",
-        ],
-        .id: [
+            ]
+
+    private static let idTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "klik untuk menyalin, klik kanan untuk lainnya",
             .torrentPause: "jeda",
             .torrentResume: "lanjutkan",
@@ -11952,8 +12039,12 @@ enum L10n {
             .news21Shot: "tangkapan layar dengan editor: tulis keterangan dan coretan, arahkan lup, pasang tanda air, lalu salin atau simpan",
             .news21Draw: "menggambar di atas layar: jelaskan kepada lawan bicara dan tunjuk semuanya langsung di layar yang sedang berjalan",
             .news21More: "bahasa baru: serbia, arab, ibrani, persia, dan urdu", .news211Hold: "tahan fn\u{00A0}⌃\u{00A0}dan gambar langsung di layar, lepaskan dan gambarnya memudar. tombol, warna, dan ketebalan diatur di pengaturan",
-        ],
-        .tr: [
+            ]
+
+    private static let trTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "kopyalamak için tıkla, daha fazlası için sağ tıkla",
             .torrentPause: "duraklat",
             .torrentResume: "sürdür",
@@ -12729,8 +12820,12 @@ enum L10n {
             .convCanLink: "bağlantı",
             .convPageRenderNote: "sayfa gerçekten yerleşiyor, bu yüzden işaret ettiği görselleri, yazı tiplerini ve stilleri de indiriyor",
             .convPageTextNote: "metin ve yapı geçiyor; yerleşim, sütunlar ve görseller geçmiyor",
-        ],
-        .pl: [
+            ]
+
+    private static let plTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "kliknij, aby skopiować, prawy przycisk pokazuje więcej",
             .torrentPause: "wstrzymaj",
             .torrentResume: "wznów",
@@ -13506,8 +13601,12 @@ enum L10n {
             .convCanLink: "odnośnik",
             .convPageRenderNote: "strona jest naprawdę składana, więc pobiera obrazy, fonty i\u{00A0}style, do których się odwołuje",
             .convPageTextNote: "tekst i\u{00A0}struktura przechodzą; układ, kolumny i\u{00A0}obrazy nie",
-        ],
-        .ar: [
+            ]
+
+    private static let arTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "انقر للنسخ، وانقر بالزر الأيمن للمزيد",
             .torrentPause: "إيقاف مؤقت",
             .torrentResume: "استئناف",
@@ -14342,8 +14441,12 @@ enum L10n {
             .settingsTabLayout: "الوحدات والتبويبات",
             .tabDeleteConfirm: "حذف هذا التبويب؟ وحداته تنتقل إلى نهاية التبويب الذي على يمينه",
             .modulesTableHint: "زر التشغيل يوقف الوحدة: تبقى في مكانها، وتتوقف عن العمل وتختفي من اللوحة. اسحب الأعمدة لإعادة ترتيب علامات التبويب، واسحب الوحدات بين الأعمدة أو داخل العمود.",
-        ],
-        .he: [
+            ]
+
+    private static let heTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "לחיצה להעתקה, לחיצה ימנית לעוד",
             .torrentPause: "השהיה",
             .torrentResume: "המשך",
@@ -15178,8 +15281,12 @@ enum L10n {
             .settingsTabLayout: "מודולים ולשוניות",
             .tabDeleteConfirm: "למחוק את הלשונית? המודולים שלה יעברו לסוף הלשונית שמימינה",
             .modulesTableHint: "כפתור ההפעלה מכבה מודול: הוא נשאר במקומו, מפסיק לפעול ונעלם מהפאנל. גררו עמודות כדי לסדר לשוניות, ומודולים בין עמודות או בתוך עמודה.",
-        ],
-        .fa: [
+            ]
+
+    private static let faTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "برای کپی کلیک کنید، برای بیشتر راست‌کلیک کنید",
             .torrentPause: "مکث",
             .torrentResume: "ادامه",
@@ -16014,8 +16121,12 @@ enum L10n {
             .settingsTabLayout: "ماژول‌ها و\u{00A0}زبانه‌ها",
             .tabDeleteConfirm: "این زبانه حذف شود؟ ماژول‌هایش به انتهای زبانهٔ سمت راستش می‌روند",
             .modulesTableHint: "دکمهٔ روشن‌وخاموش ماژول را خاموش می‌کند: جای خود را نگه می‌دارد، از کار می‌ایستد و\u{00A0}از پنل ناپدید می‌شود. ستون‌ها را بکشید تا ترتیب زبانه‌ها عوض شود و\u{00A0}ماژول‌ها را میان ستون‌ها یا درون یک ستون بکشید.",
-        ],
-        .ur: [
+            ]
+
+    private static let urTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "کاپی کے لیے کلک کریں، مزید کے لیے رائٹ کلک",
             .torrentPause: "روکیں",
             .torrentResume: "جاری رکھیں",
@@ -16850,8 +16961,12 @@ enum L10n {
             .settingsTabLayout: "ماڈیول اور\u{00A0}ٹیب",
             .tabDeleteConfirm: "یہ ٹیب حذف کریں؟ اس کے ماڈیول ساتھ والے ٹیب کے آخر میں چلے جائیں گے",
             .modulesTableHint: "پاور بٹن ماڈیول کو بند کرتا ہے: وہ اپنی جگہ پر رہتا ہے، کام کرنا چھوڑ دیتا ہے اور\u{00A0}پینل سے غائب ہو جاتا ہے۔ ٹیبز کی ترتیب بدلنے کے لیے کالم گھسیٹیں، اور\u{00A0}ماڈیول کالموں کے درمیان یا ایک کالم کے اندر گھسیٹیں۔",
-        ],
-        .sr: [
+            ]
+
+    private static let srTable: [L10nKey: String] = [
+            .news23Leftovers: "apps you already deleted by hand: hop finds what they left behind and clears it in one go",
+            .news23Torrents: "torrents: remove a\u{00A0}single file, and a\u{00A0}right click on a\u{00A0}row opens a\u{00A0}menu",
+            .news23Flicker: "macOS 27: windows under the panel no longer flicker when you click in it",
             .clipRowHint: "кликните да\u{00A0}копирате, десни клик за\u{00A0}више",
             .torrentPause: "паузирај",
             .torrentResume: "настави",
@@ -17692,9 +17807,7 @@ enum L10n {
             .speedtestRun: "измери",
             .speedtestStop: "заустави мерење",
             .speedtestFail: "мерење није успело",
-        ],
-
-    ]
+            ]
 }
 extension String {
     /// For system surfaces (NSMenu, notifications): first letter uppercased,
