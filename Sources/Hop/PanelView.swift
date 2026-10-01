@@ -219,7 +219,7 @@ struct PanelView: View {
 
 
     // defaults: breaks/pomodoro/academic hour/hour/ultradian cycle
-    static let defaultPresets = "5,15,25,45,60,90"
+    static let defaultPresets = "5,10,15,25,45,60,90"
     @AppStorage("timerPresets") private var presetsRaw = PanelView.defaultPresets
     @AppStorage(UpdateChecker.autoUpdateKey) private var autoUpdateOn = true
     @State private var newPresetMinutes = 20

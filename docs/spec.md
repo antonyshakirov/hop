@@ -824,6 +824,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Counts toward a target date (`Date`), not by decrementing: it doesn't
   drift and survives Mac sleep. The panel can be closed — the countdown
   continues (ticker in TimerEngine).
+- Default presets are 5, 10, 15, 25, 45, 60 and 90 minutes (10 added by Anton,
+  2026-10-01: the timer itself opens on 10). The default is not stored, so
+  anyone who never edited the list gets the new one with the update.
 - Presets: user-defined, edited in settings ("N ×" chips). In idle a preset
   sets the duration; during a countdown it puts the active timer into the
   stash, and the ↩ button restores and resumes it. There is one stash slot
