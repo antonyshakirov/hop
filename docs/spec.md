@@ -6224,9 +6224,18 @@ its own database of known apps may do better on real software than it did here.
   zones by name, keep-awake durations, the speed test's rerun, a colour row's
   three notations, the torrent rows (fold, folder, pause, remove), a grid icon's
   ✕ and the archive queue's ✕.
-- Controls that already carry a VISIBLE label do not get one. A tooltip
-  repeating the word under the cursor is noise, and it trains people to ignore
-  the ones that say something.
+- Controls that already carry a VISIBLE label do not get a tooltip that
+  repeats the label. A tooltip repeating the word under the cursor is noise,
+  and it trains people to ignore the ones that say something.
+- **A module says what it is for wherever it is hovered** (Anton, 2026-10-01:
+  "I hover the clipboard and nothing comes up"). Any spot of a module without
+  a tooltip of its own shows the module's name and its one-line purpose — the
+  same `purpose*` line the onboarding and the settings page use, so it exists
+  in every language (`moduleHint`). A control's own tooltip still wins over it.
+  A clipboard entry says "click to copy, right-click for more".
+- The panel window allows tooltips while Hop is not the active app
+  (`allowsToolTipsWhenApplicationIsInactive`): on macOS 27 a click in the
+  panel no longer activates Hop, so it is hovered from the background.
 - Zone names live in L10n like any other string (`tipSnap*`), so the window
   layouts finally have names in all fifteen languages instead of being glyphs only.
 

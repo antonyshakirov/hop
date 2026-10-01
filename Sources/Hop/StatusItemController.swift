@@ -652,6 +652,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         if let panelWindow = popover.contentViewController?.view.window {
             debugLogPanelFrame("shown", frame: panelWindow.frame)
             panelPreventsActivation = Self.preventActivation(of: panelWindow)
+            // SPEC: docs/spec.md — "Tooltips": the panel is hovered while another app is in front.
+            panelWindow.allowsToolTipsWhenApplicationIsInactive = true
         }
         syncTabPanelFrame()
         if outsideClickProbe == nil {

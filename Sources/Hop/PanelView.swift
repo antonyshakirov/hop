@@ -3214,6 +3214,13 @@ struct PanelView: View {
         }
     }
 
+    /// SPEC: docs/spec.md — "Tooltips", a module says what it is for wherever it is hovered.
+    private func moduleHint(_ key: String) -> String {
+        if AppShelves.shelfID(fromModuleKey: key) != nil { return t(.purposeApps) }
+        guard let purpose = ModulePresentation.purposeKey(key) else { return "" }
+        return "\(moduleTitle(key)): \(t(purpose))"
+    }
+
     private func moduleTitle(_ key: String) -> String {
         switch key {
         case "timer": return t(.aboutTabTimer)
@@ -3342,6 +3349,7 @@ struct PanelView: View {
     @ViewBuilder private func moduleBlock(_ key: String, in tabID: UUID) -> some View {
         let others = tabsModel.tabs.enumerated().filter { $0.element.id != tabID }
         moduleContent(key, in: tabID)
+            .help(moduleHint(key))
             // The collapsed tools row stands for three modules at once, so the
             // "move to / hide" menu would be lying about what it moves.
             .contextMenu {

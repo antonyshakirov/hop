@@ -231,6 +231,7 @@ struct ClipboardView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(ClipboardRowStyle(isCopied: isCopied))
+            .help(L10n.t(.clipRowHint, lang))
 
             // swap without changing geometry: the icons and the "copied" mark live
             // in one fixed-height layer — the row doesn't twitch
