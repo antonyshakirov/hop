@@ -6020,6 +6020,32 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   on; a third of a second fires while the pointer is only passing through, which
   reads as twitchy — Anton tried both (2026-07-30).
 
+### Leftovers, by name and by file (Anton, 2026-10-01)
+
+Asked for in the manner of CleanMyMac: an app dragged to the Trash by hand
+leaves its data, and Hop should offer to finish the job without being told
+which app it was.
+
+- **The leftovers are on both screens.** They were only under "clear the cache";
+  the same section now stands in "remove the app", between the drop plate and
+  the list of apps, since that is where somebody looks for what an uninstall
+  left. One scan fills it on each screen, when the window opens.
+- **A row is a program, not an identifier**: the name is what the identifier
+  ends with (`org.gimp.gimp` → "Gimp", `com.figma.Desktop` → "Figma";
+  `AppUninstall.leftoverName`, tested), with the identifier in small print
+  under it.
+- **A row opens onto its files.** A chevron shows every place found under that
+  identifier with its own size and its own tick, so one file can be kept while
+  the rest goes. Unticking the last one unticks the program; the size on the
+  row is the size of what is ticked. "all" and "remove the leftovers" act on
+  the ticked programs; a program with files kept stays in the list with those.
+- The guards that keep a live app out (30 quiet days among them) are unchanged.
+- **macOS's question is announced** (Anton, 2026-10-01, after its notice about
+  Hop reaching into other apps' data arrived with no explanation): while the
+  disk is being read, a line under "looking through the disk…" says that macOS
+  may ask to let Hop see other apps' data and that this is how leftovers are
+  found. It leaves with the scan.
+
 ### Uninstaller: the other two modes
 
 - **Clear the cache, keep the app.** Only folders macOS itself calls a cache —

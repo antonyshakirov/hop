@@ -698,6 +698,11 @@ enum Snapshot {
             progress.receive(.failed(.tool), for: second)
             content = AnyView(
                 FinderArchiveProgressView(model: progress, lang: L10n.current))
+        } else if args.contains("--window-uninstall-list") {
+            model.uninstall.stagePickerDemo()
+            content = AnyView(UninstallWindowView(uninstall: model.uninstall, lang: L10n.current)
+                .environmentObject(model)
+                .frame(width: 560, height: 620))
         } else if args.contains("--window-uninstall") || args.contains("--window-clean") {
             // The uninstaller's two jobs. Staged rather than scanned: the real
             // lists are this Mac's own apps and this Mac's own disk, and a

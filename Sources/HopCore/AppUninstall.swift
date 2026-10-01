@@ -343,6 +343,17 @@ public enum AppUninstall {
         now.timeIntervalSince(modified) > Double(days) * 86_400
     }
 
+    /// SPEC: docs/spec.md — "Leftovers, by name and by file". Tests: AppUninstallTests.
+    public static func leftoverName(identifier: String) -> String {
+        let generic: Set<String> = ["app", "mac", "macos", "osx", "ios", "desktop", "client", "helper"]
+        let parts = identifier.split(separator: ".").map(String.init)
+        guard parts.count >= 2,
+              let pick = parts.dropFirst().reversed().first(where: {
+                  $0.count > 1 && !generic.contains($0.lowercased())
+              }) else { return identifier }
+        return pick.prefix(1).uppercased() + pick.dropFirst()
+    }
+
     /// One folder found under one identifier, before the places it was found in
     /// are added up.
     public struct LeftoverPath: Sendable {

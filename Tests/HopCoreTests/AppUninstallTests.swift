@@ -397,4 +397,12 @@ final class AppUninstallTests: XCTestCase {
         XCTAssertEqual(found, ["Inside.app", "Plain.app"],
                        "Adobe and DaVinci put their apps one folder deep")
     }
+
+    func testLeftoverIsNamedAfterWhatItsIdentifierEndsWith() {
+        XCTAssertEqual(AppUninstall.leftoverName(identifier: "org.gimp.gimp"), "Gimp")
+        XCTAssertEqual(AppUninstall.leftoverName(identifier: "ru.keepcoder.Telegram"), "Telegram")
+        XCTAssertEqual(AppUninstall.leftoverName(identifier: "com.figma.Desktop"), "Figma")
+        XCTAssertEqual(AppUninstall.leftoverName(identifier: "com.acme.notes.app"), "Notes")
+        XCTAssertEqual(AppUninstall.leftoverName(identifier: "single"), "single")
+    }
 }

@@ -36,8 +36,15 @@ final class UninstallController: ObservableObject {
         let paths: [String]
         let bytes: Int64
         var ticked: Bool
+        /// Leftovers only: each path's size, and the paths taken out of the removal.
+        var sizes: [String: Int64] = [:]
+        var skipped: Set<String> = []
 
         var id: String { identifier }
+        var chosenPaths: [String] { paths.filter { !skipped.contains($0) } }
+        var chosenBytes: Int64 {
+            sizes.isEmpty ? bytes : chosenPaths.reduce(0) { $0 + (sizes[$1] ?? 0) }
+        }
     }
 
     /// One app the window offers to remove.
@@ -364,11 +371,14 @@ final class UninstallController: ObservableObject {
                     bytes: Self.size(of: path), modified: modified))
             }
         }
+        let sizes = Dictionary(found.map { ($0.path, $0.bytes) }, uniquingKeysWith: { first, _ in first })
         return AppUninstall.quietGroups(from: found).compactMap { group -> CacheOwner? in
             guard group.bytes > 1_000_000 else { return nil }
             // the caches section lists installed apps only, so nothing appears twice
-            return CacheOwner(identifier: group.identifier, name: group.identifier, appPath: nil,
-                              paths: group.paths, bytes: group.bytes, ticked: false)
+            return CacheOwner(identifier: group.identifier,
+                              name: AppUninstall.leftoverName(identifier: group.identifier),
+                              appPath: nil, paths: group.paths.sorted(), bytes: group.bytes, ticked: false,
+                              sizes: sizes.filter { group.paths.contains($0.key) })
         }
     }
 
@@ -603,8 +613,42 @@ final class UninstallController: ObservableObject {
     /// Moves the ticked leftovers to the trash — everything of an app that is gone.
     func removeTickedLeftovers() {
         let chosen = leftovers.filter(\.ticked)
-        trash(paths: chosen.flatMap(\.paths))
-        leftovers.removeAll { owner in chosen.contains { $0.id == owner.id } }
+        trash(paths: chosen.flatMap(\.chosenPaths))
+        leftovers = leftovers.compactMap { owner in
+            guard owner.ticked else { return owner }
+            let kept = owner.paths.filter { owner.skipped.contains($0) }
+            guard !kept.isEmpty else { return nil }
+            return CacheOwner(identifier: owner.identifier, name: owner.name, appPath: nil, paths: kept,
+                              bytes: kept.reduce(0) { $0 + (owner.sizes[$1] ?? 0) }, ticked: false,
+                              sizes: owner.sizes.filter { kept.contains($0.key) })
+        }
+    }
+
+    /// SPEC: docs/spec.md — "Leftovers, by name and by file".
+    func toggleLeftoverPath(_ identifier: String, _ path: String) {
+        guard let index = leftovers.firstIndex(where: { $0.identifier == identifier }) else { return }
+        if leftovers[index].skipped.remove(path) == nil { leftovers[index].skipped.insert(path) }
+        if leftovers[index].chosenPaths.isEmpty {
+            leftovers[index].ticked = false
+            leftovers[index].skipped = []
+        } else {
+            leftovers[index].ticked = true
+        }
+    }
+
+    /// SPEC: docs/spec.md — "Leftovers, by name and by file", the list under the apps.
+    private func scanLeftoversForPicker() {
+        cleanTask?.cancel()
+        leftovers = []
+        scanning = true
+        cleanTask = Task { [weak self] in
+            let orphans = await Task.detached(priority: .utility) {
+                Self.rawLeftovers(installed: Set(Self.installedIdentifiers()))
+            }.value
+            guard !Task.isCancelled, let self else { return }
+            self.leftovers = orphans
+            self.scanning = false
+        }
     }
 
     /// Clears the caches of every ticked owner. Nothing else of theirs is touched.
@@ -644,6 +688,37 @@ final class UninstallController: ObservableObject {
     /// nothing about a module whose whole point is what it FINDS, and the real
     /// lists are this Mac's own — somebody's apps, somebody's disk. Only ever
     /// called from a snapshot render.
+    private static func demoLeftover(_ identifier: String, ticked: Bool,
+                                     _ places: [(String, Int64)]) -> CacheOwner {
+        let paths = places.map { "\(NSHomeDirectory())/Library/\($0.0)" }
+        return CacheOwner(identifier: identifier, name: AppUninstall.leftoverName(identifier: identifier),
+                          appPath: nil, paths: paths, bytes: places.reduce(0) { $0 + $1.1 }, ticked: ticked,
+                          sizes: Dictionary(uniqueKeysWithValues: zip(paths, places.map(\.1))))
+    }
+
+    /// `--window-uninstall-list`: the list of apps with the leftovers above it.
+    func stagePickerDemo() {
+        mode = .uninstall
+        target = nil
+        report = nil
+        scanning = true
+        let generic = NSWorkspace.shared.icon(for: .application)
+        installedApps = [("Blender", 1_200_000_000, 240_000_000), ("Firefox", 380_000_000, 3_400_000_000),
+                         ("Inkscape", 420_000_000, 214_000_000), ("VLC", 140_000_000, 642_000_000)].map {
+            InstalledApp(path: "/Applications/\($0.0).app", name: $0.0, identifier: "", icon: generic,
+                         appBytes: $0.1, traceBytes: $0.2)
+        }
+        leftovers = [
+            Self.demoLeftover("org.gimp.gimp", ticked: true,
+                              [("Application Support/org.gimp.gimp", 81_000_000),
+                               ("Caches/org.gimp.gimp", 14_600_000),
+                               ("Preferences/org.gimp.gimp.plist", 400_000)]),
+            Self.demoLeftover("net.sourceforge.audacity", ticked: false,
+                              [("Application Support/net.sourceforge.audacity", 42_000_000)]),
+        ]
+        state = .found
+    }
+
     func stageDemo(_ job: Mode) {
         mode = job
         report = nil
@@ -679,10 +754,12 @@ final class UninstallController: ObservableObject {
                 owner("com.obsproject.obs-studio", "OBS Studio", 88_000_000),
             ]
             leftovers = [
-                CacheOwner(identifier: "org.gimp.gimp", name: "org.gimp.gimp", appPath: nil,
-                           paths: [], bytes: 96_000_000, ticked: false),
-                CacheOwner(identifier: "net.sourceforge.audacity", name: "net.sourceforge.audacity",
-                           appPath: nil, paths: [], bytes: 42_000_000, ticked: false),
+                Self.demoLeftover("org.gimp.gimp", ticked: true,
+                                  [("Application Support/org.gimp.gimp", 81_000_000),
+                                   ("Caches/org.gimp.gimp", 14_600_000),
+                                   ("Preferences/org.gimp.gimp.plist", 400_000)]),
+                Self.demoLeftover("net.sourceforge.audacity", ticked: false,
+                                  [("Application Support/net.sourceforge.audacity", 42_000_000)]),
             ]
             installers = [
                 InstallerFile(found: InstallerFiles.Found(
@@ -729,6 +806,7 @@ final class UninstallController: ObservableObject {
         installedApps = Self.sorted(apps, by: appSort)
         state = installedApps.isEmpty ? .empty : .found
         weighInstalledApps()
+        scanLeftoversForPicker()
     }
 
     static func sorted(_ apps: [InstalledApp], by order: AppSort) -> [InstalledApp] {
