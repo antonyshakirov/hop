@@ -4168,15 +4168,30 @@ a dead slot the width of the ✕ at the end, so a reflexive second click on the
 same spot hits nothing. The labels shrink a little rather than cut off in a
 long language.
 
+### A right-click menu marks its row (Anton, 2026-10-01)
+
+A menu opens beside the pointer and says nothing about which row it belongs
+to. While it is open, the row it was opened on carries a thin outline
+(`menuTargetOutline`): the row under the pointer when a menu begins tracking is
+the target, and the outline goes when tracking ends. Clipboard entries,
+torrents and a torrent's files have it.
+
 ### Torrents: the row's right-click menu (Anton, 2026-10-01)
 
 A right click on a torrent offers what its icons do, in words: pause or resume,
 "open the folder" once it is finished, expand or collapse for a torrent of
-several files, and under a divider the two removals — "remove from list" and
-"delete with downloads". Chosen from the menu, a removal runs at once: the two
-items already say what each one deletes, which is what the inline confirmation
-is for. A file's row offers the same two removals for that file. The menu is a
-system surface, so its items are capitalised.
+several files, and under a divider one "remove the torrent…". It deletes nothing by itself: it opens the same
+confirmation in the row that the ✕ does, with the two removals and "cancel",
+so a slip of the pointer in a menu costs nothing (Anton, 2026-10-01). A file's
+row offers "remove this file…" the same way. The menu is a system surface, so
+its items are capitalised.
+
+The module's own menu reads "move the module to tab" rather than "move to"
+(Anton, 2026-10-01): next to a row's menu the short form did not say what moves.
+
+A file picker — the save panel of a clipboard entry, any open panel — opens
+ABOVE Hop's panel and takes the keyboard (`FilePicker.raise`): the panel floats
+on a raised level, and the picker used to come up under it.
 
 ### Removing one file of a torrent (Anton, 2026-10-01)
 

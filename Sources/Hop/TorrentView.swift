@@ -362,6 +362,7 @@ struct TorrentView: View {
         .padding(.vertical, 8)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
         .contentShape(Rectangle())
+        .menuTargetOutline(7)
         // SPEC: docs/spec.md — "Torrents: the row's right-click menu".
         .contextMenu {
             Button(t(paused ? .torrentResume : .torrentPause).capitalizedFirst) {
@@ -379,11 +380,8 @@ struct TorrentView: View {
                 }
             }
             Divider()
-            Button(t(.torrentRemoveTorrent).capitalizedFirst) {
-                torrent.remove(id: item.id, deleteFiles: false)
-            }
-            Button(t(.torrentRemoveDelete).capitalizedFirst) {
-                torrent.remove(id: item.id, deleteFiles: true)
+            Button(t(.torrentRemoveHelp).capitalizedFirst + "…") {
+                confirmingRemove = item.id
             }
         }
     }
@@ -480,12 +478,10 @@ struct TorrentView: View {
         }
         .padding(.leading, 4)
         .contentShape(Rectangle())
+        .menuTargetOutline(4, depth: 1)
         .contextMenu {
-            Button(t(.torrentRemoveTorrent).capitalizedFirst) {
-                torrent.removeFile(id: item.id, fileIndex: file.index, deleteData: false)
-            }
-            Button(t(.torrentRemoveDelete).capitalizedFirst) {
-                torrent.removeFile(id: item.id, fileIndex: file.index, deleteData: true)
+            Button(t(.torrentFileRemoveHelp).capitalizedFirst + "…") {
+                confirmingFileRemove = "\(item.id)#\(file.index)"
             }
         }
     }

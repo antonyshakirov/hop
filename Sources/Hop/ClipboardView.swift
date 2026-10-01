@@ -288,6 +288,7 @@ struct ClipboardView: View {
         .padding(.vertical, 6)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 5))
         .contentShape(Rectangle())
+        .menuTargetOutline(5)
         // SPEC: docs/spec.md — "Clipboard", the row's right-click menu.
         .contextMenu {
             Button(L10n.t(.tipCopy, lang).capitalizedFirst) {
