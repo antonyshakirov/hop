@@ -6046,6 +6046,37 @@ which app it was.
   may ask to let Hop see other apps' data and that this is how leftovers are
   found. It leaves with the scan.
 
+### Removed apps, by their installer records (Anton, 2026-10-01)
+
+Found on Anton's Mac: Blackmagic RAW Player and Speed Test were deleted by hand,
+all 81 of their files gone, and CleanMyMac kept naming them as half-removed
+while Hop showed nothing. Two reasons — the leftovers scan reads only
+`~/Library`, and its "same vendor" guard hides everything of a vendor that
+still has an app installed (DaVinci Resolve here; Word and VS Code hid a removed
+Outlook and OneNote the same way).
+
+- **A package's record is proof, not a guess.** Every record in
+  `/var/db/receipts` names the files its installer put down
+  (`pkgutil --only-dirs --files`). A record that names app bundles, none of
+  which exists — at its recorded path, by name in the Applications folders one
+  level deep, or anywhere Spotlight knows outside the Trash (an app moved to
+  another disk is not removed) — is a removed app (`PackageReceipts`, tested).
+  Apple's own records are never offered. No quiet month and no vendor guard
+  apply: the record says what was installed and the disk says it is gone.
+- **Where**: the "remove the app" screen, a section above the leftovers, one
+  row per record with the names of its apps and the record's identifier in
+  small print. Found on that Mac: the two Blackmagic apps, Outlook, OneNote,
+  AutoUpdate and the Office setup assistant; the installed Word, Excel and
+  PowerPoint stayed out. About four seconds, off the main thread.
+- **A click opens the ordinary removal screen** for the app that is gone: every
+  trace found by its name (the identifier is recovered from the traces
+  themselves, as for an app already in the Trash), with the usual grades and
+  ticks, plus the record's own `.bom` and `.plist`. Removal goes the usual way —
+  the Trash, one admin prompt for system paths, the report.
+- Coming back from a removal reads the records again, so a removed row is gone.
+- Dev: `Hop --uninstall-removed` prints what the records call removed; it reads
+  no other app's data.
+
 ### Uninstaller: the other two modes
 
 - **Clear the cache, keep the app.** Only folders macOS itself calls a cache —

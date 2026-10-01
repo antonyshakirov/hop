@@ -109,7 +109,7 @@ enum L10nKey: String, CaseIterable {
     case unitKbps, menuStopTimer, menuStopStopwatch, menuDisableAwake
     case convClearDone, convAutoClearLabel, speedResponsiveness
     case speedtestRowLabel
-    case uninstallAccessNote
+    case uninstallAccessNote, uninstallRemovedApps
     case speedtestLabel, speedtestRun, speedtestFail, unitMbps, showSpeedtestLabel
     case speedtestStop
     case themeAuto, appIconLabel, searchLabel
@@ -473,6 +473,7 @@ enum L10n {
 
     private static let tables: [AppLanguage: [L10nKey: String]] = [
         .en: [
+            .uninstallRemovedApps: "removed apps whose installer records and data are still here",
             .uninstallAccessNote: "macOS may ask to let hop see other apps' data: that is how their leftovers are found",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "close windows",
@@ -1229,6 +1230,7 @@ enum L10n {
             .news21More: "new languages: serbian, arabic, hebrew, persian and urdu", .news211Hold: "hold fn\u{00A0}⌃\u{00A0}and draw straight on the screen, let go and it fades. the keys, the colour and the width are in the settings",
         ],
         .ru: [
+            .uninstallRemovedApps: "программы удалены, а\u{00A0}записи установщика и\u{00A0}данные остались",
             .uninstallAccessNote: "macOS может спросить доступ к\u{00A0}данным других программ: он нужен, чтобы найти их остатки",
             .speedtestRowLabel: "интернет",
             .menuCloseWindows: "закрыть окна",
@@ -1985,6 +1987,7 @@ enum L10n {
             .news21More: "новые языки: сербский, арабский, иврит, фарси и\u{00A0}урду", .news211Hold: "зажмите fn\u{00A0}⌃\u{00A0}и\u{00A0}рисуйте прямо на\u{00A0}экране, отпустите – рисунок растает. клавиши, цвет и\u{00A0}толщина меняются в\u{00A0}настройках",
         ],
         .de: [
+            .uninstallRemovedApps: "entfernte apps, deren installationseinträge und daten noch da sind",
             .uninstallAccessNote: "macOS fragt vielleicht, ob hop daten anderer apps sehen darf: so werden ihre reste gefunden",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "fenster schließen",
@@ -2741,6 +2744,7 @@ enum L10n {
             .news21More: "neue sprachen: serbisch, arabisch, hebräisch, persisch und urdu", .news211Hold: "fn\u{00A0}⌃\u{00A0}halten und direkt auf dem bildschirm zeichnen, loslassen und es verblasst. tasten, farbe und stärke stehen in den einstellungen",
         ],
         .es: [
+            .uninstallRemovedApps: "apps eliminadas cuyos registros de instalación y\u{00A0}datos siguen aquí",
             .uninstallAccessNote: "macOS puede pedir acceso a\u{00A0}los datos de otras apps: hace falta para encontrar sus restos",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "cerrar ventanas",
@@ -3497,6 +3501,7 @@ enum L10n {
             .news21More: "nuevos idiomas: serbio, árabe, hebreo, persa y\u{00A0}urdu", .news211Hold: "mantén fn\u{00A0}⌃\u{00A0}y\u{00A0}dibuja directamente en la pantalla, suelta y\u{00A0}se desvanece. las teclas, el color y\u{00A0}el grosor se cambian en los ajustes",
         ],
         .pt: [
+            .uninstallRemovedApps: "apps removidos cujos registros de instalação e\u{00A0}dados continuam aqui",
             .uninstallAccessNote: "o\u{00A0}macOS pode pedir acesso aos dados de outros apps: é\u{00A0}assim que os restos são encontrados",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "fechar janelas",
@@ -4253,6 +4258,7 @@ enum L10n {
             .news21More: "novos idiomas: sérvio, árabe, hebraico, persa e\u{00A0}urdu", .news211Hold: "segure fn\u{00A0}⌃\u{00A0}e\u{00A0}desenhe direto na tela, solte e\u{00A0}o\u{00A0}desenho some. as teclas, a\u{00A0}cor e\u{00A0}a\u{00A0}espessura mudam nos ajustes",
         ],
         .fr: [
+            .uninstallRemovedApps: "apps supprimées dont les traces d'installation et les données sont encore là",
             .uninstallAccessNote: "macOS peut demander l'accès aux données d'autres apps : il sert à\u{00A0}trouver leurs restes",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "fermer les fenêtres",
@@ -5009,6 +5015,7 @@ enum L10n {
             .news21More: "nouvelles langues : serbe, arabe, hébreu, persan et ourdou", .news211Hold: "maintenez fn\u{00A0}⌃\u{00A0}et dessinez directement sur l'écran, relâchez et le dessin s'efface. touches, couleur et épaisseur se changent dans les réglages",
         ],
         .it: [
+            .uninstallRemovedApps: "app rimosse i\u{00A0}cui registri di installazione e\u{00A0}dati sono ancora qui",
             .uninstallAccessNote: "macOS può chiedere l'accesso ai dati di altre app: serve a\u{00A0}trovare i\u{00A0}loro resti",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "chiudi finestre",
@@ -5765,6 +5772,7 @@ enum L10n {
             .news21More: "nuove lingue: serbo, arabo, ebraico, persiano e\u{00A0}urdu", .news211Hold: "tieni premuto fn\u{00A0}⌃\u{00A0}e\u{00A0}disegna direttamente sullo schermo, lascia e\u{00A0}il disegno svanisce. tasti, colore e\u{00A0}spessore si cambiano nelle impostazioni",
         ],
         .zh: [
+            .uninstallRemovedApps: "应用已删除，但安装记录和数据还在",
             .uninstallAccessNote: "macOS 可能会询问是否允许访问其他应用的数据：这是为了找到它们的残留",
             .speedtestRowLabel: "网络",
             .menuCloseWindows: "关闭窗口",
@@ -6512,6 +6520,7 @@ enum L10n {
             .news21More: "新增语言：塞尔维亚语、阿拉伯语、希伯来语、波斯语和乌尔都语", .news211Hold: "按住 fn\u{00A0}⌃即可直接在屏幕上绘图，松开后笔迹淡出。按键、颜色和粗细可在设置中更改",
         ],
         .ja: [
+            .uninstallRemovedApps: "削除済みのアプリ。インストール記録とデータが残っています",
             .uninstallAccessNote: "macOS がほかのアプリのデータへのアクセスを確認することがあります。残ったファイルを探すために必要です",
             .speedtestRowLabel: "ネット",
             .menuCloseWindows: "ウィンドウを閉じる",
@@ -7265,6 +7274,7 @@ enum L10n {
             .news21More: "追加された言語：セルビア語、アラビア語、ヘブライ語、ペルシア語、ウルドゥー語", .news211Hold: "fn\u{00A0}⌃を押している間は画面に直接描けて、離すと消えます。キー、色、太さは設定で変更できます",
         ],
         .nl: [
+            .uninstallRemovedApps: "verwijderde apps waarvan installatiegegevens en data er nog staan",
             .uninstallAccessNote: "macOS kan vragen of hop gegevens van andere apps mag zien: zo worden hun resten gevonden",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "vensters sluiten",
@@ -8037,6 +8047,7 @@ enum L10n {
             .news21More: "nieuwe talen: servisch, arabisch, hebreeuws, perzisch en urdu", .news211Hold: "houd fn\u{00A0}⌃\u{00A0}ingedrukt en teken direct op het scherm, laat los en het vervaagt. toetsen, kleur en dikte stel je in bij de instellingen",
         ],
         .ko: [
+            .uninstallRemovedApps: "앱은 삭제됐지만 설치 기록과 데이터가 남아 있습니다",
             .uninstallAccessNote: "macOS가 다른 앱의 데이터 접근을 물을 수 있습니다. 남은 파일을 찾는 데 필요합니다",
             .speedtestRowLabel: "인터넷",
             .menuCloseWindows: "창 닫기",
@@ -8790,6 +8801,7 @@ enum L10n {
             .news21More: "새 언어: 세르비아어, 아랍어, 히브리어, 페르시아어, 우르두어", .news211Hold: "fn\u{00A0}⌃를 누른 채 화면에 바로 그리고, 떼면 사라집니다. 키, 색상, 굵기는 설정에서 바꿀 수 있습니다",
         ],
         .th: [
+            .uninstallRemovedApps: "แอปถูกลบแล้ว แต่บันทึกการติดตั้งและข้อมูลยังอยู่",
             .uninstallAccessNote: "macOS อาจถามขอสิทธิ์เข้าถึงข้อมูลของแอปอื่น จำเป็นสำหรับการหาไฟล์ที่เหลือค้าง",
             .speedtestRowLabel: "อินเทอร์เน็ต",
             .menuCloseWindows: "ปิดหน้าต่าง",
@@ -9562,6 +9574,7 @@ enum L10n {
             .news21More: "ภาษาใหม่: เซอร์เบีย อาหรับ ฮีบรู เปอร์เซีย และอูรดู", .news211Hold: "กด fn\u{00A0}⌃ค้างไว้แล้ววาดบนหน้าจอได้ทันที ปล่อยแล้วภาพจะจางหายไป เปลี่ยนปุ่ม สี และความหนาได้ในการตั้งค่า",
         ],
         .vi: [
+            .uninstallRemovedApps: "ứng dụng đã xóa nhưng bản ghi cài đặt và dữ liệu vẫn còn",
             .uninstallAccessNote: "macOS có thể hỏi quyền truy cập dữ liệu của ứng dụng khác: cần để tìm phần còn sót lại",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "đóng cửa sổ",
@@ -10334,6 +10347,7 @@ enum L10n {
             .news21More: "ngôn ngữ mới: serbia, ả rập, do thái, ba tư và urdu", .news211Hold: "giữ fn\u{00A0}⌃\u{00A0}để vẽ ngay trên màn hình, thả ra thì nét vẽ mờ dần. phím, màu và độ dày đổi trong phần cài đặt",
         ],
         .hi: [
+            .uninstallRemovedApps: "ऐप हट चुके हैं, पर इंस्टॉलर के रिकॉर्ड और डेटा अब भी यहाँ हैं",
             .uninstallAccessNote: "macOS दूसरे ऐप्स के डेटा की अनुमति माँग सकता है: बचे हुए हिस्से खोजने के लिए यह ज़रूरी है",
             .speedtestRowLabel: "इंटरनेट",
             .menuCloseWindows: "विंडो बंद करें",
@@ -11106,6 +11120,7 @@ enum L10n {
             .news21More: "नई भाषाएँ: सर्बियाई, अरबी, हिब्रू, फ़ारसी और उर्दू", .news211Hold: "fn\u{00A0}⌃\u{00A0}दबाए रखें और सीधे स्क्रीन पर खींचें, छोड़ते ही चित्र मिट जाता है। कुंजियाँ, रंग और मोटाई सेटिंग्स में बदलें",
         ],
         .id: [
+            .uninstallRemovedApps: "aplikasi sudah dihapus, tetapi catatan pemasang dan datanya masih ada",
             .uninstallAccessNote: "macOS mungkin meminta akses ke data aplikasi lain: diperlukan untuk menemukan sisa-sisanya",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "tutup jendela",
@@ -11878,6 +11893,7 @@ enum L10n {
             .news21More: "bahasa baru: serbia, arab, ibrani, persia, dan urdu", .news211Hold: "tahan fn\u{00A0}⌃\u{00A0}dan gambar langsung di layar, lepaskan dan gambarnya memudar. tombol, warna, dan ketebalan diatur di pengaturan",
         ],
         .tr: [
+            .uninstallRemovedApps: "uygulamalar silinmiş, kurulum kayıtları ve verileri duruyor",
             .uninstallAccessNote: "macOS diğer uygulamaların verilerine erişim isteyebilir: kalıntılarını bulmak için gerekir",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "pencereleri kapat",
@@ -12650,6 +12666,7 @@ enum L10n {
             .convPageTextNote: "metin ve yapı geçiyor; yerleşim, sütunlar ve görseller geçmiyor",
         ],
         .pl: [
+            .uninstallRemovedApps: "usunięte aplikacje, po których zostały wpisy instalatora i\u{00A0}dane",
             .uninstallAccessNote: "macOS może zapytać o\u{00A0}dostęp do danych innych aplikacji: jest potrzebny, by znaleźć ich pozostałości",
             .speedtestRowLabel: "internet",
             .menuCloseWindows: "zamknij okna",
@@ -13422,6 +13439,7 @@ enum L10n {
             .convPageTextNote: "tekst i\u{00A0}struktura przechodzą; układ, kolumny i\u{00A0}obrazy nie",
         ],
         .ar: [
+            .uninstallRemovedApps: "تطبيقات حُذفت وبقيت سجلات تثبيتها وبياناتها",
             .uninstallAccessNote: "قد يطلب macOS السماح بالوصول إلى بيانات التطبيقات الأخرى: هذا لازم للعثور على مخلّفاتها",
             .speedtestRowLabel: "الإنترنت",
             .menuCloseWindows: "إغلاق النوافذ",
@@ -14253,6 +14271,7 @@ enum L10n {
             .modulesTableHint: "زر التشغيل يوقف الوحدة: تبقى في مكانها، وتتوقف عن العمل وتختفي من اللوحة. اسحب الأعمدة لإعادة ترتيب علامات التبويب، واسحب الوحدات بين الأعمدة أو داخل العمود.",
         ],
         .he: [
+            .uninstallRemovedApps: "אפליקציות שהוסרו, ורשומות ההתקנה והנתונים שלהן נשארו",
             .uninstallAccessNote: "\u{200F}macOS עשוי לבקש גישה לנתונים של אפליקציות אחרות: זה נדרש כדי למצוא את השאריות שלהן",
             .speedtestRowLabel: "אינטרנט",
             .menuCloseWindows: "סגירת חלונות",
@@ -15084,6 +15103,7 @@ enum L10n {
             .modulesTableHint: "כפתור ההפעלה מכבה מודול: הוא נשאר במקומו, מפסיק לפעול ונעלם מהפאנל. גררו עמודות כדי לסדר לשוניות, ומודולים בין עמודות או בתוך עמודה.",
         ],
         .fa: [
+            .uninstallRemovedApps: "برنامه‌هایی که حذف شده‌اند و\u{00A0}سوابق نصب و\u{00A0}داده‌هایشان مانده است",
             .uninstallAccessNote: "ممکن است macOS اجازهٔ دسترسی به داده‌های برنامه‌های دیگر را بپرسد: برای یافتن باقی‌مانده‌هایشان لازم است",
             .speedtestRowLabel: "اینترنت",
             .menuCloseWindows: "بستن پنجره‌ها",
@@ -15915,6 +15935,7 @@ enum L10n {
             .modulesTableHint: "دکمهٔ روشن‌وخاموش ماژول را خاموش می‌کند: جای خود را نگه می‌دارد، از کار می‌ایستد و\u{00A0}از پنل ناپدید می‌شود. ستون‌ها را بکشید تا ترتیب زبانه‌ها عوض شود و\u{00A0}ماژول‌ها را میان ستون‌ها یا درون یک ستون بکشید.",
         ],
         .ur: [
+            .uninstallRemovedApps: "ایپس ہٹ چکی ہیں، مگر انسٹالر کے ریکارڈ اور\u{00A0}ڈیٹا اب بھی موجود ہیں",
             .uninstallAccessNote: "\u{200F}macOS دوسری ایپس کے ڈیٹا تک رسائی مانگ سکتا ہے: ان کی باقیات ڈھونڈنے کے لیے یہ ضروری ہے",
             .speedtestRowLabel: "انٹرنیٹ",
             .menuCloseWindows: "ونڈوز بند کریں",
@@ -16746,6 +16767,7 @@ enum L10n {
             .modulesTableHint: "پاور بٹن ماڈیول کو بند کرتا ہے: وہ اپنی جگہ پر رہتا ہے، کام کرنا چھوڑ دیتا ہے اور\u{00A0}پینل سے غائب ہو جاتا ہے۔ ٹیبز کی ترتیب بدلنے کے لیے کالم گھسیٹیں، اور\u{00A0}ماڈیول کالموں کے درمیان یا ایک کالم کے اندر گھسیٹیں۔",
         ],
         .sr: [
+            .uninstallRemovedApps: "програми су уклоњени, а\u{00A0}записи инсталатера и\u{00A0}подаци су остали",
             .uninstallAccessNote: "macOS може да\u{00A0}затражи приступ подацима других програма: потребан је да\u{00A0}се пронађу њихови остаци",
             .speedtestRowLabel: "интернет",
             .menuCloseWindows: "затвори прозоре",

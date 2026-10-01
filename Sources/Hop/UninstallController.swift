@@ -163,6 +163,18 @@ final class UninstallController: ObservableObject {
     }
     /// Data of apps that are not on this Mac any more.
     @Published var leftovers: [CacheOwner] = []
+    /// SPEC: docs/spec.md — "Removed apps, by their installer records".
+    @Published var removedApps: [RemovedApp] = []
+
+    struct RemovedApp: Identifiable {
+        let receipt: String
+        let appPaths: [String]
+
+        var id: String { receipt }
+        var names: [String] {
+            appPaths.map { (($0 as NSString).lastPathComponent as NSString).deletingPathExtension }
+        }
+    }
     /// Big app data that only the app itself can clear safely.
     @Published var heavyData: [CacheOwner] = []
     @Published private(set) var trashBytes: Int64 = 0
@@ -225,7 +237,9 @@ final class UninstallController: ObservableObject {
     /// there again, filled if it never was.
     func back() {
         reset()
-        if mode == .uninstall, installedApps.isEmpty { listInstalledApps() }
+        if mode == .uninstall {
+            if installedApps.isEmpty { listInstalledApps() } else { scanLeftoversForPicker() }
+        }
     }
 
     func reset() {
@@ -640,15 +654,95 @@ final class UninstallController: ObservableObject {
     private func scanLeftoversForPicker() {
         cleanTask?.cancel()
         leftovers = []
+        removedApps = []
         scanning = true
         cleanTask = Task { [weak self] in
+            let removed = await Task.detached(priority: .utility) { Self.rawRemovedApps() }.value
+            guard !Task.isCancelled, let self else { return }
+            self.removedApps = removed
             let orphans = await Task.detached(priority: .utility) {
                 Self.rawLeftovers(installed: Set(Self.installedIdentifiers()))
             }.value
-            guard !Task.isCancelled, let self else { return }
+            guard !Task.isCancelled else { return }
             self.leftovers = orphans
             self.scanning = false
         }
+    }
+
+    private nonisolated static func output(of tool: String, _ arguments: [String]) -> String {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: tool)
+        process.arguments = arguments
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = FileHandle.nullDevice
+        guard (try? process.run()) != nil else { return "" }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+
+    /// SPEC: docs/spec.md — "Removed apps, by their installer records".
+    nonisolated static func rawRemovedApps() -> [RemovedApp] {
+        let manager = FileManager.default
+        let folder = "/var/db/receipts"
+        var installedNames = Set<String>()
+        for root in ["/Applications", "/Applications/Utilities", "/System/Applications",
+                     "\(NSHomeDirectory())/Applications"] {
+            for path in AppUninstall.appBundlePaths(inside: root, manager: manager) {
+                installedNames.insert((path as NSString).lastPathComponent)
+            }
+        }
+        var out: [RemovedApp] = []
+        for entry in ((try? manager.contentsOfDirectory(atPath: folder)) ?? []).sorted()
+        where entry.hasSuffix(".plist") {
+            let receipt = String(entry.dropLast(6))
+            guard PackageReceipts.isOffered(receipt: receipt),
+                  let info = NSDictionary(contentsOfFile: "\(folder)/\(entry)") else { continue }
+            let prefix = info["InstallPrefixPath"] as? String ?? "/"
+            let dirs = output(of: "/usr/sbin/pkgutil", ["--only-dirs", "--files", receipt])
+                .split(separator: "\n").map(String.init)
+            guard let apps = PackageReceipts.removedApps(
+                files: dirs, prefix: prefix,
+                exists: { manager.fileExists(atPath: $0) },
+                installedNames: installedNames) else { continue }
+            // Spotlight knows an app that was moved off the usual folders, to another disk included.
+            let moved = apps.contains { app in
+                let name = (app as NSString).lastPathComponent.replacingOccurrences(of: "'", with: "\\'")
+                return output(of: "/usr/bin/mdfind", ["kMDItemFSName == '\(name)'"])
+                    .split(separator: "\n").contains { !$0.contains("/.Trash/") }
+            }
+            guard !moved else { continue }
+            out.append(RemovedApp(receipt: receipt, appPaths: apps))
+        }
+        return out
+    }
+
+    /// SPEC: docs/spec.md — "Removed apps, by their installer records", the same screen as a removal.
+    func choose(removed app: RemovedApp) {
+        guard let first = app.appPaths.first else { return }
+        target = Target(path: first, name: app.names.joined(separator: ", "), bundleIdentifier: "",
+                        icon: NSWorkspace.shared.icon(for: .application))
+        report = nil
+        blockedByRunning = false
+        state = .scanning
+        var found: [Trace] = []
+        for (path, name) in zip(app.appPaths, app.names) {
+            for trace in Self.scanTraces(identifier: "", name: name, appPath: path)
+            where !found.contains(where: { $0.path == trace.path }) {
+                found.append(trace)
+            }
+        }
+        for file in ["\(app.receipt).bom", "\(app.receipt).plist"] {
+            let path = "/var/db/receipts/\(file)"
+            guard FileManager.default.fileExists(atPath: path),
+                  !found.contains(where: { $0.path == path }) else { continue }
+            found.append(Trace(candidate: AppUninstall.Candidate(path: path, kind: .receipt, match: .identifier),
+                               bytes: Self.size(of: path), ticked: true))
+        }
+        traces = found
+        mixed = []
+        state = traces.isEmpty ? .empty : .found
     }
 
     /// Clears the caches of every ticked owner. Nothing else of theirs is touched.
@@ -708,6 +802,9 @@ final class UninstallController: ObservableObject {
             InstalledApp(path: "/Applications/\($0.0).app", name: $0.0, identifier: "", icon: generic,
                          appBytes: $0.1, traceBytes: $0.2)
         }
+        removedApps = [RemovedApp(receipt: "org.kde.krita.pkg", appPaths: ["/Applications/Krita.app"]),
+                       RemovedApp(receipt: "org.handbrake.pkg",
+                                  appPaths: ["/Applications/HandBrake.app", "/Applications/HandBrake Queue.app"])]
         leftovers = [
             Self.demoLeftover("org.gimp.gimp", ticked: true,
                               [("Application Support/org.gimp.gimp", 81_000_000),

@@ -57,6 +57,14 @@ enum Snapshot {
             exit(0)
         }
 
+        // `Hop --uninstall-removed` prints the apps the installer records call removed.
+        if args.contains("--uninstall-removed") {
+            for app in UninstallController.rawRemovedApps() {
+                print("\(app.receipt)  →  \(app.names.joined(separator: ", "))")
+            }
+            exit(0)
+        }
+
         // `Hop --uninstall-remove <app>` performs the same removal the window does,
         // from the terminal: quit, boot out the agents, move every ticked trace to
         // the TRASH. Dev-only like the other self-tests, and the way a comparison

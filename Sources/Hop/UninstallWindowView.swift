@@ -139,6 +139,7 @@ struct UninstallWindowView: View {
                 dropPlate.padding(.horizontal, Self.inset)
                 Group {
                     scanningNote
+                    removedSection.padding(.bottom, 14)
                     leftoverSection.padding(.bottom, 14)
                 }
                 .padding(.horizontal, Self.inset)
@@ -262,6 +263,46 @@ struct UninstallWindowView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.bottom, 2)
+        }
+    }
+
+    /// SPEC: docs/spec.md — "Removed apps, by their installer records".
+    @ViewBuilder private var removedSection: some View {
+        if !uninstall.removedApps.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(t(.uninstallRemovedApps))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                ForEach(uninstall.removedApps) { app in
+                    Button { uninstall.choose(removed: app) } label: {
+                        HStack(spacing: 8) {
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(Substitutions.isolate(app.names.joined(separator: ", ")))
+                                    .font(Theme.mono(10.5))
+                                    .foregroundStyle(Theme.textPrimary)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                                Text(Substitutions.isolate(app.receipt))
+                                    .font(Theme.mono(8))
+                                    .foregroundStyle(Theme.textTertiary)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                            }
+                            Spacer(minLength: 8)
+                            Image(systemName: "chevron.forward")
+                                .font(.system(size: 9, weight: .semibold))
+                                .foregroundStyle(Theme.textSecondary)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
+                    .hoverHighlight(6)
+                }
+            }
         }
     }
 
