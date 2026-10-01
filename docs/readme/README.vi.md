@@ -51,13 +51,22 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.3.0
+
+- Hop tìm và dọn phần còn sót của các ứng dụng chưa được xóa hết.
+- macOS 27: cải thiện khả năng tương thích.
+- Bảng nhớ tạm: nhấp phải vào một mục để lưu thành tệp.
+- Torrent: có thể bỏ riêng một tệp của torrent, và nhấp phải vào một dòng sẽ mở menu.
+- Chặn lưu lượng: có công tắc bộ lọc trong cửa sổ.
+- Các bản sửa lỗi và cải tiến khác.
+
 ### 2.2.1
 
-- Mô-đun “truy cập mạng” không còn hiện thông báo khi bộ lọc khởi động lại.
+- Mô-đun “chặn lưu lượng” không còn hiện thông báo khi bộ lọc khởi động lại.
 
 ### 2.2.0
 
-- Mô-đun mới “truy cập mạng”: xem chương trình nào lên mạng và đi đâu, chặn cả một chương trình hoặc chỉ một địa chỉ của nó chỉ với một cú nhấp.
+- Mô-đun mới “chặn lưu lượng”: xem chương trình nào lên mạng và đi đâu, chặn cả một chương trình hoặc chỉ một địa chỉ của nó chỉ với một cú nhấp.
 - Hop đã được điều chỉnh cho macOS 27.
 - Nhận dạng văn bản: lần đọc đầu tiên sau khi cập nhật diễn ra ngay, và một cài đặt quyết định có mở cửa sổ kết quả hay không.
 - Có thể dừng kiểm tra tốc độ sớm.
@@ -65,10 +74,6 @@ tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 ### 2.1.8
 
 - sửa lỗi
-
-### 2.1.7
-
-- macOS 27: các thao tác trong bảng điều khiển phản hồi ngay lần nhấp đầu tiên
 
 ## Tính năng
 
@@ -376,7 +381,7 @@ Chấm này có thể tắt trong cài đặt; mô-đun và các công tắc v�
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
-### Truy cập mạng
+### Chặn lưu lượng
 
 Xem chương trình nào trên Mac của bạn lên mạng, và đi đến đâu – rồi chặn bất kỳ chương trình nào trong số đó. Mỗi chương trình kết nối sẽ hiện ra cùng các địa chỉ nó đã tới. Một cú nhấp vào nhãn của nó cắt toàn bộ chương trình khỏi mạng; mở nó ra, và một địa chỉ riêng lẻ có thể bị chặn – chẳng hạn kiểm tra giấy phép, trong khi phần còn lại của lưu lượng vẫn đi qua. Một quy tắc có thể được đặt trước khi chương trình từng kết nối: mọi ứng dụng đã cài đều có trong danh sách, và danh sách địa chỉ nạp từ một tệp (mỗi dòng một địa chỉ, hoặc tệp hosts) bị chặn cho mọi chương trình cùng lúc. Dòng trong bảng đếm số lần chặn; cửa sổ phía sau giữ phần còn lại, và một dòng vẫn ở nguyên vị trí khi bạn thay đổi nó.
 
@@ -385,7 +390,7 @@ Hop làm điều này bằng bộ lọc mạng mà macOS cung cấp đúng cho c
 Mô-đun bật theo mặc định và luôn im lặng: không có quy tắc thì mọi thứ đi qua. Hỏi về kết nối mới là một cài đặt – khi bật, một thẻ ở góc trên bên phải sẽ hỏi về kết nối chưa có quy tắc nào bao phủ, cho địa chỉ đó hoặc cả chương trình.
 
 <div align="center">
-<img src="https://hop.tools/screens/vi/network.webp" width="560" alt="Hop – truy cập mạng: chương trình, địa chỉ của chúng, cho phép và chặn">
+<img src="https://hop.tools/screens/vi/network.webp" width="560" alt="Hop – chặn lưu lượng: chương trình, địa chỉ của chúng, cho phép và chặn">
 </div>
 
 → [App firewall for Mac](https://hop.tools/features/app-firewall/)
@@ -483,11 +488,11 @@ của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
 - **ghi màn hình** – nhận dạng văn bản khi khoanh vùng, ảnh màn hình, cùng kính
   lúp và làm mờ trên lớp vẽ; ống hút màu không cần
 - **thông báo** – báo hết giờ của bộ đếm và torrent đã xong
-- **bộ lọc mạng** – một lần, cho truy cập mạng: macOS sẽ hỏi bạn cho phép bộ lọc của Hop trong cài đặt hệ thống; những gì nó thấy ở lại trên chiếc Mac này
+- **bộ lọc mạng** – một lần, cho chặn lưu lượng: macOS sẽ hỏi bạn cho phép bộ lọc của Hop trong cài đặt hệ thống; những gì nó thấy ở lại trên chiếc Mac này
 - **mật khẩu quản trị** – một lần, cho chế độ gập màn hình (pmset chỉ chạy với root)
 - **mở khi đăng nhập** – tắt cho đến khi bạn tự bật
 
-Không xin gì cho một mô-đun bạn chưa bật. Yêu cầu duy nhất có thể xuất hiện lúc khởi động là bộ lọc mạng, một lần, sau bản cập nhật mang lại truy cập mạng: mô-đun đó bật theo mặc định.
+Không xin gì cho một mô-đun bạn chưa bật. Yêu cầu duy nhất có thể xuất hiện lúc khởi động là bộ lọc mạng, một lần, sau bản cập nhật mang lại chặn lưu lượng: mô-đun đó bật theo mặc định.
 Không phân tích, không đo lường từ xa, không tài khoản, không báo cáo sự cố:
 hop.tools chỉ được liên hệ để hỏi xem có phiên bản mới hay không – và để
 tải nó, hoặc một trong hai trợ thủ tuỳ chọn, nếu bạn đồng ý. Mọi thứ còn lại ở

@@ -1,5 +1,26 @@
 # Hop - version history
 
+## 2.3.0 - 2026-10-01
+
+- Removing apps: Hop finds apps that were not removed completely - by the records
+  their installers left - and clears what remains, several at once. Leftovers carry
+  the program's name and open onto their files, so some can be kept. While the disk
+  is read, a line says why macOS may ask about other apps' data.
+- macOS 27: clicking in the panel no longer makes the windows under it flicker,
+  tooltips show while another app is in front, and file pickers open above the panel.
+- Clipboard: a right click on an entry offers copy, paste into the window below and
+  save as a file, which asks where.
+- Torrents: a single file of a torrent can be removed, keeping or trashing what was
+  downloaded; the removal choices say what they delete; a right click on a row opens
+  a menu.
+- "Network access" is now "traffic blocking", with a filter switch in its window:
+  switched off, everything goes through and the rules wait. Off reads grey in the panel.
+- Cmd-Q with a Hop window open closes the window and keeps Hop in the menu bar.
+- Clearer names in the settings (window layout, internet speed), a hint on every
+  module, the window-zone hotkeys on the module's own page, a 10-minute timer preset,
+  and a paused timer points at reset when a template is clicked.
+- A running clock in the menu bar costs less: the icon is redrawn only when it changes.
+
 ## 2.2.1 - 2026-09-30
 
 - The "network access" module no longer shows a pop-up when its filter restarts,

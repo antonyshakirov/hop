@@ -53,13 +53,22 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.3.0
+
+- Hop findet und entfernt die reste von apps, die nicht vollständig gelöscht wurden.
+- macOS 27: bessere kompatibilität.
+- Zwischenablage: per rechtsklick lässt sich ein eintrag als datei sichern.
+- Torrents: einzelne datei eines torrents entfernen, und ein rechtsklick auf eine zeile öffnet ein menü.
+- Traffic-sperre: ein filterschalter im fenster.
+- Weitere fehlerbehebungen und verbesserungen.
+
 ### 2.2.1
 
-- Das Modul „Netzwerkzugriff“ zeigt beim Neustart des Filters kein Fenster mehr an.
+- Das Modul „Traffic-sperre“ zeigt beim Neustart des Filters kein Fenster mehr an.
 
 ### 2.2.0
 
-- Neues Modul „Netzwerkzugriff“: sieh, welche Programme wohin ins Netz gehen, und sperre mit einem Klick ein ganzes Programm oder nur eine seiner Adressen.
+- Neues Modul „Traffic-sperre“: sieh, welche Programme wohin ins Netz gehen, und sperre mit einem Klick ein ganzes Programm oder nur eine seiner Adressen.
 - Hop ist an macOS 27 angepasst.
 - Texterkennung: Das erste Lesen nach einem Update geht sofort, und eine Einstellung entscheidet, ob danach ein Fenster aufgeht.
 - Der Geschwindigkeitstest lässt sich vorzeitig beenden.
@@ -67,10 +76,6 @@ neuer.
 ### 2.1.8
 
 - fehlerbehebungen
-
-### 2.1.7
-
-- macOS 27: Aktionen im Panel reagieren auf den ersten Klick
 
 ## Funktionen
 
@@ -421,7 +426,7 @@ Der Punkt lässt sich in den Einstellungen abschalten – das Modul und seine Sc
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
-### Netzwerkzugriff
+### Traffic-sperre
 
 Sieh, welche Programme auf deinem Mac online gehen, und wohin – und blockiere jedes davon. Jedes Programm, das sich verbindet, erscheint mit den Adressen, die es erreicht hat. Ein Klick auf seine Bezeichnung trennt das ganze Programm vom Netz; öffne es, und eine einzelne Adresse lässt sich für sich blockieren – eine Lizenzprüfung zum Beispiel, während der Rest seines Datenverkehrs durchgeht. Eine Regel lässt sich schon festlegen, bevor ein Programm sich je verbindet: jede installierte App steht in der Liste, und eine Liste von Adressen aus einer Datei geladen (eine pro Zeile, oder eine Hosts-Datei) wird für alle Programme auf einmal blockiert. Die Zeile im Panel zählt die Blockaden; das Fenster dahinter hält den Rest, und eine Zeile bleibt an ihrem Platz, wenn du sie änderst.
 
@@ -430,7 +435,7 @@ Hop macht das mit dem Netzwerkfilter, den macOS genau für diese Aufgabe bereits
 Das Modul ist standardmäßig an und bleibt still: ohne Regeln geht alles durch. Bei neuen Verbindungen nachzufragen ist eine Einstellung – eingeschaltet, fragt eine Karte oben rechts nach einer Verbindung, die keine Regel abdeckt, für diese Adresse oder das ganze Programm.
 
 <div align="center">
-<img src="https://hop.tools/screens/de/network.webp" width="560" alt="Hop – Netzwerkzugriff: Programme, ihre Adressen, erlaubt und gesperrt">
+<img src="https://hop.tools/screens/de/network.webp" width="560" alt="Hop – Traffic-sperre: Programme, ihre Adressen, erlaubt und gesperrt">
 </div>
 
 → [App firewall for Mac](https://hop.tools/features/app-firewall/)
@@ -535,12 +540,12 @@ benutzt wird; das Einstellungsfenster listet alle mit ihrem aktuellen Stand auf:
   Bildschirmfotos sowie Lupe und Weichzeichnung auf der Zeichenebene; die
   Farbpipette braucht sie nicht
 - **Mitteilungen** – der Timer-Hinweis und ein fertiger Torrent
-- **Netzwerkfilter** – einmalig, für den Netzwerkzugriff: macOS bittet dich, Hops Filter in den Systemeinstellungen zu erlauben; was er sieht, bleibt auf diesem Mac
+- **Netzwerkfilter** – einmalig, für den Traffic-sperre: macOS bittet dich, Hops Filter in den Systemeinstellungen zu erlauben; was er sieht, bleibt auf diesem Mac
 - **Administratorkennwort** – einmalig, für den Modus mit geschlossenem Deckel
   (pmset läuft nur als root)
 - **Beim Anmelden öffnen** – aus, bis du es einschaltest
 
-Nichts wird für ein Modul verlangt, das du nicht eingeschaltet hast. Die einzige Anfrage, die beim Start kommen kann, ist der Netzwerkfilter, einmalig, nach dem Update, das den Netzwerkzugriff bringt: dieses Modul ist standardmäßig an. Keine Analytics, keine Telemetrie, kein Account, keine
+Nichts wird für ein Modul verlangt, das du nicht eingeschaltet hast. Die einzige Anfrage, die beim Start kommen kann, ist der Netzwerkfilter, einmalig, nach dem Update, das den Traffic-sperre bringt: dieses Modul ist standardmäßig an. Keine Analytics, keine Telemetrie, kein Account, keine
 Crash-Reports: hop.tools wird nur kontaktiert, um zu fragen, ob es eine
 neuere Version gibt – und um sie oder einen der zwei optionalen Helfer zu laden,
 wenn du zustimmst. Alles andere bleibt auf diesem Mac: der Verlauf der

@@ -53,13 +53,22 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.3.0
+
+- Hop menemukan dan menghapus sisa aplikasi yang tidak terhapus sepenuhnya.
+- macOS 27: kompatibilitas ditingkatkan.
+- Papan klip: klik kanan pada entri untuk menyimpannya sebagai file.
+- Torrent: satu file dari torrent bisa dihapus, dan klik kanan pada baris membuka menu.
+- Blokir lalu lintas: sakelar filter di jendelanya.
+- Perbaikan bug dan peningkatan lainnya.
+
 ### 2.2.1
 
-- Modul “akses jaringan” tidak lagi menampilkan pemberitahuan saat filternya dimulai ulang.
+- Modul “blokir lalu lintas” tidak lagi menampilkan pemberitahuan saat filternya dimulai ulang.
 
 ### 2.2.0
 
-- Modul baru “akses jaringan”: lihat program mana yang online dan ke mana, lalu blokir satu klik seluruh program atau hanya satu alamatnya.
+- Modul baru “blokir lalu lintas”: lihat program mana yang online dan ke mana, lalu blokir satu klik seluruh program atau hanya satu alamatnya.
 - Hop disesuaikan untuk macOS 27.
 - Pengenalan teks: pembacaan pertama setelah pembaruan langsung cepat, dan satu pengaturan menentukan apakah jendela hasil dibuka.
 - Tes kecepatan bisa dihentikan lebih awal.
@@ -67,10 +76,6 @@ lebih baru.
 ### 2.1.8
 
 - perbaikan bug
-
-### 2.1.7
-
-- macOS 27: tindakan di panel merespons klik pertama
 
 ## Fitur
 
@@ -390,7 +395,7 @@ Titik itu bisa dimatikan di pengaturan; modul dan sakelarnya tetap bekerja.
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
-### Akses jaringan
+### Blokir lalu lintas
 
 Lihat program mana di Mac Anda yang online, dan ke mana – lalu blokir salah satunya. Setiap program yang terhubung muncul bersama alamat yang dijangkaunya. Satu klik pada labelnya memutus seluruh program dari jaringan; buka programnya, dan satu alamat bisa diblokir sendiri – misalnya pemeriksaan lisensi, sementara sisa lalu lintasnya tetap jalan. Aturan bisa dipasang bahkan sebelum sebuah program pernah terhubung: setiap aplikasi yang terpasang tercantum di daftar, dan daftar alamat yang dimuat dari sebuah file (satu per baris, atau file hosts) diblokir untuk semua program sekaligus. Baris di panel menghitung blokir; jendela di baliknya menyimpan sisanya, dan sebuah baris tetap di tempatnya saat Anda mengubahnya.
 
@@ -399,7 +404,7 @@ Hop melakukan ini dengan filter jaringan yang disediakan macOS khusus untuk tuga
 Modul ini aktif secara default dan tetap diam: tanpa aturan, semuanya lewat. Bertanya soal koneksi baru adalah sebuah pengaturan – saat aktif, sebuah kartu di kanan atas bertanya soal koneksi yang tidak tercakup aturan apa pun, untuk alamat itu saja atau seluruh program.
 
 <div align="center">
-<img src="https://hop.tools/screens/id/network.webp" width="560" alt="Hop – akses jaringan: program, alamatnya, diizinkan dan diblokir">
+<img src="https://hop.tools/screens/id/network.webp" width="560" alt="Hop – blokir lalu lintas: program, alamatnya, diizinkan dan diblokir">
 </div>
 
 → [App firewall for Mac](https://hop.tools/features/app-firewall/)
@@ -504,12 +509,12 @@ jendela pengaturan aplikasi mendaftar semuanya beserta statusnya saat ini:
   serta lup dan pengaburan di lapisan gambar; pemilih warna tidak
   memerlukannya
 - **notifikasi** – peringatan pengatur waktu dan torrent yang selesai
-- **filter jaringan** – sekali, untuk akses jaringan: macOS meminta Anda mengizinkan filter Hop di pengaturan sistem; apa yang dilihatnya tetap di Mac ini
+- **filter jaringan** – sekali, untuk blokir lalu lintas: macOS meminta Anda mengizinkan filter Hop di pengaturan sistem; apa yang dilihatnya tetap di Mac ini
 - **kata sandi administrator** – sekali, untuk mode layar tertutup (pmset hanya
   jalan sebagai root)
 - **buka saat masuk** – mati sampai kamu menyalakannya
 
-Tidak ada yang ditanyakan untuk modul yang belum kamu nyalakan. Satu-satunya permintaan yang bisa muncul saat dibuka adalah filter jaringan, sekali, setelah pembaruan yang membawa akses jaringan: modul itu aktif secara default. Tanpa analitik, tanpa telemetri, tanpa akun, tanpa laporan
+Tidak ada yang ditanyakan untuk modul yang belum kamu nyalakan. Satu-satunya permintaan yang bisa muncul saat dibuka adalah filter jaringan, sekali, setelah pembaruan yang membawa blokir lalu lintas: modul itu aktif secara default. Tanpa analitik, tanpa telemetri, tanpa akun, tanpa laporan
 crash: hop.tools dihubungi hanya untuk menanyakan apakah ada versi lebih
 baru – dan mengunduhnya, atau salah satu dari dua pembantu opsional, kalau kamu
 setuju. Sisanya tetap di Mac ini: riwayat papan klip, waktu yang tercatat, daftar
