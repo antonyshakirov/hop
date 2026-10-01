@@ -53,6 +53,10 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.3.1
+
+- Mit zwei bildschirmen bleibt das panel an der menüleiste, wenn sein inhalt höher als der bildschirm ist.
+
 ### 2.3.0
 
 - Hop findet und entfernt die reste von apps, die nicht vollständig gelöscht wurden.

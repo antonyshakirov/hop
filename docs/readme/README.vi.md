@@ -51,6 +51,10 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.3.1
+
+- Với hai màn hình, bảng vẫn nằm sát thanh menu khi nội dung cao hơn màn hình.
+
 ### 2.3.0
 
 - Hop tìm và dọn phần còn sót của các ứng dụng chưa được xóa hết.

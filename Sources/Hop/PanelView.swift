@@ -313,7 +313,8 @@ struct PanelView: View {
     /// and, if it is taller than the screen, enable a shared fixed-height scroll —
     /// protection against any future module growth, not per-module caps.
     private var maxPanelHeight: CGFloat {
-        ((NSScreen.main?.visibleFrame.height) ?? 800) - 24
+        PanelHeightLimit.ceiling(
+            screenVisibleHeight: model.panelScreenVisibleHeight ?? NSScreen.main?.visibleFrame.height)
     }
 
     private var panelBody: some View {
@@ -3258,6 +3259,7 @@ struct PanelView: View {
         case "awake": keepAwakeSection
         case "clipboard":
             ClipboardView(clipboard: model.clipboard, lang: lang,
+                          screenVisibleHeight: model.panelScreenVisibleHeight,
                           pasteIntoPreviousApp: { model.pasteIntoPreviousApp?() },
                           onSearchFocusChanged: { clipboardSearching = $0 },
                           onExpandedChanged: { expanded in

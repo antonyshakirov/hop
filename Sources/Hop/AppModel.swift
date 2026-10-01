@@ -83,6 +83,8 @@ final class AppModel: ObservableObject {
     /// decides whether to hand focus back to the app under the panel.
     var panelFocusChanged: (() -> Void)?
     var panelContentSizeChanged: ((CGSize) -> Void)?
+    // SPEC: docs/spec.md — invariant #1, the screen the panel opens on.
+    var panelScreenVisibleHeight: CGFloat?
     var panelContentSizeWillChange: ((CGSize) -> Void)?
     /// Open the standalone settings window.
     var openSettingsWindow: (() -> Void)?

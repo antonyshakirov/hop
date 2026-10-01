@@ -1,5 +1,11 @@
 # Hop - version history
 
+## 2.3.1 - 2026-10-01
+
+- With two displays, the panel stays at the menu bar when its content is taller
+  than the screen, and the rest scrolls inside. The expanded clipboard list
+  measures its height against the same screen.
+
 ## 2.3.0 - 2026-10-01
 
 - Removing apps: Hop finds apps that were not removed completely - by the records

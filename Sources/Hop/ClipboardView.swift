@@ -12,6 +12,7 @@ struct ClipboardView: View {
     @State private var savedId: UUID?
     @ObservedObject var clipboard: ClipboardController
     let lang: AppLanguage
+    var screenVisibleHeight: CGFloat?
     var pasteIntoPreviousApp: () -> Void = {}
     /// Fired when the search field gains (true) / loses (false) focus, so the
     /// panel holds the keyboard while typing a query — otherwise the panel's
@@ -48,9 +49,8 @@ struct ClipboardView: View {
         expanded ? min(filteredItems.count, 20) : min(filteredItems.count, max(1, min(visibleRows, 10)))
     }
     private var expandedCeiling: CGFloat {
-        let screen = NSScreen.main?.visibleFrame.height ?? 800
-        // 560 — conservative headroom for the header and the other visible modules
-        return max(208, min(430, screen - 560))
+        PanelHeightLimit.clipboardCeiling(
+            screenVisibleHeight: screenVisibleHeight ?? NSScreen.main?.visibleFrame.height)
     }
     private var height: CGFloat {
         let searchRow: CGFloat = expanded ? 40 : 0 // 32 field + spacing
