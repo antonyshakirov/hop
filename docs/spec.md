@@ -25,7 +25,11 @@ signing would break).
 1. **The panel always fits on screen.** Any expandable content has
    a height ceiling + internal scrolling (clipboard: ≤430pt). If the panel
    grows taller than the screen, NSPopover relocates to the edge — that is
-   the "panel on the right" bug.
+   the "panel on the right" bug. The ceiling is the visible height of the
+   screen the panel opens on (the status button's screen), never
+   `NSScreen.main`: with two displays that is the screen of the key window,
+   and a taller one let a long to-do list push the panel off the menu bar
+   (2026-10-01).
 2. **The panel does not jump.** The popover anchor is the icon zone
    (`iconAnchor` — the exact image frame from the button cell, so the
    arrow is dead-center on the star). If a menu bar manager (Ice,

@@ -268,6 +268,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 self?.frozenTitleLength = nil
                 self?.frozenSlots = nil
                 self?.panelOriginX = nil
+                self?.model.panelScreenVisibleHeight = nil
                 self?.hiddenAnchorWindow?.orderOut(nil)
                 self?.hiddenAnchorWindow = nil
                 self?.previousApp = nil
@@ -364,6 +365,13 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     /// frame on a half pixel and the panel content jiggles 1px between tabs.
     private static func integral(_ size: NSSize) -> NSSize {
         NSSize(width: size.width.rounded(.up), height: size.height.rounded(.up))
+    }
+
+    /// A popover taller than the room below the menu bar is slid down off
+    /// the bar by AppKit, so no size request may outgrow the panel's screen.
+    private func clampedToPanelScreen(_ size: NSSize) -> NSSize {
+        guard let screen = model.panelScreenVisibleHeight else { return size }
+        return NSSize(width: size.width, height: min(size.height, screen - 24))
     }
 
     /// Reference X of the panel window: a change during resize = lost anchor.
@@ -623,6 +631,11 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private func presentPopover() {
         guard !popover.isShown, let button = statusItem.button else { return }
         lastResizedPreferred = nil
+        // the panel's own screen caps its height, not NSScreen.main: with two
+        // displays that is the one with the key window, maybe the taller one
+        let panelScreen = Self.buttonIsVisible(button) ? button.window?.screen : NSScreen.screens.first
+        model.panelScreenVisibleHeight = panelScreen?.visibleFrame.height
+        PanelFrameLog.write("screen", "panel=\(String(describing: panelScreen?.visibleFrame)) main=\(String(describing: NSScreen.main?.visibleFrame))")
         model.setPanelVisible(true, surface: "popover") // before the size is measured
         model.activity.note() // opening the panel is active use
         // opening the panel acknowledges a finished timer: the bar bell and the
@@ -636,7 +649,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // after appearing, it re-centers itself — the panel jerks sideways
         if let view = popover.contentViewController?.view {
             view.layoutSubtreeIfNeeded()
-            popover.contentSize = Self.integral(view.fittingSize)
+            popover.contentSize = clampedToPanelScreen(Self.integral(view.fittingSize))
         }
         // anchor to the ICON zone, not the whole button: when the countdown
         // appears the button grows, and a full-bounds popover drifted away from the star.
@@ -685,7 +698,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     private func schedulePopoverResize(to size: NSSize) {
         guard popover.isShown else { return }
-        pendingPanelSize = Self.integral(size)
+        pendingPanelSize = clampedToPanelScreen(Self.integral(size))
         guard !popoverResizeScheduled else { return }
         popoverResizeScheduled = true
         DispatchQueue.main.async { [weak self] in
@@ -705,7 +718,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     private func resizePopoverNow(to size: NSSize) {
         guard popover.isShown else { return }
-        let desired = Self.integral(size)
+        let desired = clampedToPanelScreen(Self.integral(size))
         guard desired.width > 0, desired.height > 0 else { return }
         pendingPanelSize = nil
         lastResizedPreferred = desired
