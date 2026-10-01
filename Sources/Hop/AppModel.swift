@@ -83,10 +83,7 @@ final class AppModel: ObservableObject {
     /// decides whether to hand focus back to the app under the panel.
     var panelFocusChanged: (() -> Void)?
     var panelContentSizeChanged: ((CGSize) -> Void)?
-    /// Visible height of the screen the panel opens on, set before it is
-    /// measured. `NSScreen.main` follows the key window, which with two
-    /// displays can be the other one: a taller screen's limit let a long
-    /// panel outgrow its own, and macOS slid it down off the menu bar.
+    // SPEC: docs/spec.md — invariant #1, the screen the panel opens on.
     var panelScreenVisibleHeight: CGFloat?
     var panelContentSizeWillChange: ((CGSize) -> Void)?
     /// Open the standalone settings window.

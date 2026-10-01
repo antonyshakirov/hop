@@ -367,11 +367,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         NSSize(width: size.width.rounded(.up), height: size.height.rounded(.up))
     }
 
-    /// A popover taller than the room below the menu bar is slid down off
-    /// the bar by AppKit, so no size request may outgrow the panel's screen.
     private func clampedToPanelScreen(_ size: NSSize) -> NSSize {
-        guard let screen = model.panelScreenVisibleHeight else { return size }
-        return NSSize(width: size.width, height: min(size.height, screen - 24))
+        PanelHeightLimit.clamp(size, screenVisibleHeight: model.panelScreenVisibleHeight)
     }
 
     /// Reference X of the panel window: a change during resize = lost anchor.
@@ -631,8 +628,6 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private func presentPopover() {
         guard !popover.isShown, let button = statusItem.button else { return }
         lastResizedPreferred = nil
-        // the panel's own screen caps its height, not NSScreen.main: with two
-        // displays that is the one with the key window, maybe the taller one
         let panelScreen = Self.buttonIsVisible(button) ? button.window?.screen : NSScreen.screens.first
         model.panelScreenVisibleHeight = panelScreen?.visibleFrame.height
         PanelFrameLog.write("screen", "panel=\(String(describing: panelScreen?.visibleFrame)) main=\(String(describing: NSScreen.main?.visibleFrame))")
