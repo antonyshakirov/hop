@@ -160,6 +160,8 @@ enum SettingsKey {
 enum Thresholds {
     static let loadYellowKey = "thLoadYellow"
     static let loadRedKey = "thLoadRed"
+    static let gpuYellowKey = "thGpuYellow"
+    static let gpuRedKey = "thGpuRed"
     static let diskYellowKey = "thDiskYellow"
     static let diskRedKey = "thDiskRed"
     static let battYellowKey = "thBattYellow"
@@ -176,6 +178,8 @@ enum Thresholds {
     // Silicon runs at 90-100 C under load, so any number here would be invented.
     static let loadYellowDefault = 80
     static let loadRedDefault = 95
+    static let gpuYellowDefault = 80
+    static let gpuRedDefault = 95
     // memory: how much of a RAM's worth is allowed to sit in swap before the
     // row speaks up. macOS's own pressure signal still colours the row and is
     // never overridden — this only catches what that signal is blind to, a
@@ -190,7 +194,7 @@ enum Thresholds {
     /// The removed temperature keys are swept too, so a machine that upgrades
     /// from a version with a 70/90 setting does not keep dead defaults on disk.
     static let allKeys = [
-        loadYellowKey, loadRedKey,
+        loadYellowKey, loadRedKey, gpuYellowKey, gpuRedKey,
         diskYellowKey, diskRedKey, battYellowKey, battRedKey,
         swapYellowKey, swapRedKey,
         // dead keys from versions that had them, swept so an upgrade does not
