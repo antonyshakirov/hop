@@ -235,6 +235,7 @@ struct UninstallWindowView: View {
                 } run: {
                     uninstall.clearTickedCaches()
                 }
+                removedSection
                 leftoverSection
                 installersBody
                 heavySection
@@ -275,32 +276,62 @@ struct UninstallWindowView: View {
                     .foregroundStyle(Theme.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
                 ForEach(uninstall.removedApps) { app in
-                    Button { uninstall.choose(removed: app) } label: {
-                        HStack(spacing: 8) {
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text(Substitutions.isolate(app.names.joined(separator: ", ")))
-                                    .font(Theme.mono(10.5))
-                                    .foregroundStyle(Theme.textPrimary)
-                                    .lineLimit(1)
-                                    .truncationMode(.middle)
-                                Text(Substitutions.isolate(app.receipt))
-                                    .font(Theme.mono(8))
-                                    .foregroundStyle(Theme.textTertiary)
-                                    .lineLimit(1)
-                                    .truncationMode(.middle)
-                            }
-                            Spacer(minLength: 8)
+                    HStack(spacing: 8) {
+                        tick(app.ticked) {
+                            guard let index = uninstall.removedApps.firstIndex(where: { $0.id == app.id })
+                            else { return }
+                            uninstall.removedApps[index].ticked.toggle()
+                        }
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(Substitutions.isolate(app.names.joined(separator: ", ")))
+                                .font(Theme.mono(10.5))
+                                .foregroundStyle(Theme.textPrimary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Text(Substitutions.isolate(app.receipt))
+                                .font(Theme.mono(8))
+                                .foregroundStyle(Theme.textTertiary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
+                        Spacer(minLength: 8)
+                        badge(t(.uninstallGoneBadge), color: Theme.accentOrange)
+                        Button { uninstall.choose(removed: app) } label: {
                             Image(systemName: "chevron.forward")
                                 .font(.system(size: 9, weight: .semibold))
                                 .foregroundStyle(Theme.textSecondary)
+                                .frame(width: 20, height: 18)
+                                .contentShape(Rectangle())
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
-                        .contentShape(Rectangle())
+                        .buttonStyle(.plain)
+                        .hoverHighlight(4)
+                        .help(t(.tipExpand))
                     }
-                    .buttonStyle(.plain)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
                     .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
-                    .hoverHighlight(6)
+                }
+                if !preview {
+                    HStack {
+                        selectAll(uninstall.removedApps.allSatisfy(\.ticked), enabled: true) { on in
+                            for index in uninstall.removedApps.indices {
+                                uninstall.removedApps[index].ticked = on
+                            }
+                        }
+                        Spacer()
+                        Button { uninstall.removeTickedRemovedApps() } label: {
+                            Text(t(.uninstallRemoveLeftovers))
+                                .font(Theme.mono(10, weight: .bold))
+                                .foregroundStyle(Theme.playFg)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 6)
+                                .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .hoverDim()
+                        .disabled(!uninstall.removedApps.contains(where: \.ticked))
+                    }
                 }
             }
         }

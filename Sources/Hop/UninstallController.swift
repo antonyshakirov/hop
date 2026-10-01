@@ -169,6 +169,7 @@ final class UninstallController: ObservableObject {
     struct RemovedApp: Identifiable {
         let receipt: String
         let appPaths: [String]
+        var ticked = false
 
         var id: String { receipt }
         var names: [String] {
@@ -237,8 +238,15 @@ final class UninstallController: ObservableObject {
     /// there again, filled if it never was.
     func back() {
         reset()
+        if returnsToClean {
+            returnsToClean = false
+            mode = .clean
+            return
+        }
         if mode == .uninstall {
             if installedApps.isEmpty { listInstalledApps() } else { scanLeftoversForPicker() }
+        } else {
+            rescanForMode()
         }
     }
 
@@ -310,6 +318,7 @@ final class UninstallController: ObservableObject {
         installers = []
         cacheOwners = []
         leftovers = []
+        removedApps = []
         heavyData = []
         trashBytes = 0
         trashItems = 0
@@ -333,6 +342,10 @@ final class UninstallController: ObservableObject {
             guard !Task.isCancelled else { return }
             self.trashBytes = trash.bytes
             self.trashItems = trash.items
+
+            let removed = await Task.detached(priority: .utility) { Self.rawRemovedApps() }.value
+            guard !Task.isCancelled else { return }
+            self.removedApps = removed
 
             let orphans = await Task.detached(priority: .utility) {
                 Self.rawLeftovers(installed: installed)
@@ -718,17 +731,29 @@ final class UninstallController: ObservableObject {
         return out
     }
 
+    private var returnsToClean = false
+
     /// SPEC: docs/spec.md — "Removed apps, by their installer records", the same screen as a removal.
     func choose(removed app: RemovedApp) {
         guard let first = app.appPaths.first else { return }
+        if mode == .clean {
+            returnsToClean = true
+            mode = .uninstall
+        }
         target = Target(path: first, name: app.names.joined(separator: ", "), bundleIdentifier: "",
                         icon: NSWorkspace.shared.icon(for: .application))
         report = nil
         blockedByRunning = false
         state = .scanning
+        traces = Self.removedTraces(app)
+        mixed = []
+        state = traces.isEmpty ? .empty : .found
+    }
+
+    nonisolated static func removedTraces(_ app: RemovedApp) -> [Trace] {
         var found: [Trace] = []
         for (path, name) in zip(app.appPaths, app.names) {
-            for trace in Self.scanTraces(identifier: "", name: name, appPath: path)
+            for trace in scanTraces(identifier: "", name: name, appPath: path)
             where !found.contains(where: { $0.path == trace.path }) {
                 found.append(trace)
             }
@@ -738,11 +763,32 @@ final class UninstallController: ObservableObject {
             guard FileManager.default.fileExists(atPath: path),
                   !found.contains(where: { $0.path == path }) else { continue }
             found.append(Trace(candidate: AppUninstall.Candidate(path: path, kind: .receipt, match: .identifier),
-                               bytes: Self.size(of: path), ticked: true))
+                               bytes: size(of: path), ticked: true))
         }
-        traces = found
-        mixed = []
-        state = traces.isEmpty ? .empty : .found
+        return found
+    }
+
+    /// SPEC: docs/spec.md — "Removed apps, by their installer records", ticks and one button.
+    func removeTickedRemovedApps() {
+        let chosen = removedApps.filter(\.ticked)
+        guard !chosen.isEmpty, state != .working else { return }
+        scanning = true
+        Task { [weak self] in
+            let found = await Task.detached(priority: .userInitiated) {
+                chosen.flatMap { Self.removedTraces($0) }
+            }.value
+            guard let self else { return }
+            self.scanning = false
+            var unique: [Trace] = []
+            for trace in found where !unique.contains(where: { $0.path == trace.path }) { unique.append(trace) }
+            self.target = Target(path: chosen[0].appPaths[0],
+                                 name: chosen.flatMap(\.names).joined(separator: ", "),
+                                 bundleIdentifier: "", icon: NSWorkspace.shared.icon(for: .application))
+            self.traces = unique
+            self.mixed = []
+            self.state = .found
+            await self.removeTicked()
+        }
     }
 
     /// Clears the caches of every ticked owner. Nothing else of theirs is touched.
@@ -850,6 +896,7 @@ final class UninstallController: ObservableObject {
                 owner("org.inkscape.Inkscape", "Inkscape", 214_000_000),
                 owner("com.obsproject.obs-studio", "OBS Studio", 88_000_000),
             ]
+            removedApps = [RemovedApp(receipt: "org.kde.krita.pkg", appPaths: ["/Applications/Krita.app"])]
             leftovers = [
                 Self.demoLeftover("org.gimp.gimp", ticked: true,
                                   [("Application Support/org.gimp.gimp", 81_000_000),

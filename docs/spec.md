@@ -6068,7 +6068,18 @@ Outlook and OneNote the same way).
   small print. Found on that Mac: the two Blackmagic apps, Outlook, OneNote,
   AutoUpdate and the Office setup assistant; the installed Word, Excel and
   PowerPoint stayed out. About four seconds, off the main thread.
-- **A click opens the ordinary removal screen** for the app that is gone: every
+- The same section stands under "clear the cache", above the leftovers (Anton,
+  2026-10-01: it must be findable from either job), and each row carries an
+  orange "app is gone" mark so it reads as something to clean up rather than
+  an app. From "clear the cache" the removal screen opens and the back arrow
+  returns there.
+- **Ticks and one button** (Anton, 2026-10-01: "I should not have to go into
+  each one"): every row has a tick, the section has "all" and "remove the
+  leftovers". The button gathers the traces of every ticked app with their
+  default ticks plus the records, and removes them in ONE run — one admin
+  prompt for all of them — ending on the usual report. The chevron at the end
+  of a row still opens that one app's removal screen, to see or untick files.
+- **The chevron opens the ordinary removal screen** for the app that is gone: every
   trace found by its name (the identifier is recovered from the traces
   themselves, as for an app already in the Trash), with the usual grades and
   ticks, plus the record's own `.bom` and `.plist`. Removal goes the usual way —
