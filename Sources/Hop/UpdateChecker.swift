@@ -58,6 +58,8 @@ final class UpdateChecker: ObservableObject {
     /// it the instant the gate opens, without re-fetching.
     private var pendingRelease: ReleaseInfo?
 
+    var willRelaunch: (() -> Void)?
+
     private var autoUpdateEnabled: Bool {
         UserDefaults.standard.object(forKey: Self.autoUpdateKey) as? Bool ?? true
     }
@@ -315,6 +317,7 @@ final class UpdateChecker: ObservableObject {
             relauncher.arguments = ["-c",
                 "while /bin/kill -0 \(pid) 2>/dev/null; do /bin/sleep 0.2; done; /usr/bin/open \"\(target)\""]
             try relauncher.run() // deliberately not waited on — it must outlive us
+            willRelaunch?()
             QuitCause.current = "update installed"
             NSApp.terminate(nil)
         } catch {

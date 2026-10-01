@@ -942,6 +942,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`disablesleep 0`); switching duration options keeps lid mode. Lid mode
   never outlives the awake session — without it a closed lid would block
   sleep forever.
+- **Keep awake survives an update** (Anton, 2026-10-01). An update relaunches
+  Hop, and a critical one or a manual one does so while keep-awake is on. Just
+  before the relaunch the session is written down (`awakeResumeAfterUpdate`:
+  on or off, its end, lid mode), lid mode is left applied, and no cue plays.
+  The new copy reads the record once and deletes it: an endless session comes
+  back endless, a timed one keeps its original end, lid mode stays, all
+  without a sound. A record older than ten minutes is ignored, and so is a
+  session whose time ran out meanwhile. Quitting by hand still ends the session.
 - While lid mode is active, closing the lid blanks the built-in panel:
   `disablesleep` keeps the backlight powered, so LidDimmer polls the
   clamshell state (1 s) and sets the built-in display's brightness to 0
