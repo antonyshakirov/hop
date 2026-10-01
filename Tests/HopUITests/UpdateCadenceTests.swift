@@ -3,8 +3,8 @@ import XCTest
 
 @MainActor
 final class UpdateCadenceTests: XCTestCase {
-    func testTheSiteIsAskedForANewReleaseEveryHalfHour() {
-        XCTAssertEqual(UpdateChecker.checkInterval, 30 * 60)
+    func testTheSiteIsAskedForANewReleaseEveryHour() {
+        XCTAssertEqual(UpdateChecker.checkInterval, 60 * 60)
     }
 
     func testAFoundReleaseRetriesItsInstallEveryMinute() {

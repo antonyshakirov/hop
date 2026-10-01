@@ -6,7 +6,7 @@ import Foundation
 ///
 /// This is the only signal a copy of Hop emits at all. Release downloads are
 /// counted by GitHub alone, so a build handed over directly (AirDrop, a zip in
-/// a chat, a USB stick) is invisible everywhere else, while its update
+/// a chat, a USB stick) is invisible everywhere else, while its hourly update
 /// check still arrives. Version is deliberately the whole payload: no
 /// identifier, no fingerprint, nothing that outlives the request beyond a line
 /// in an access log.

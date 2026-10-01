@@ -73,7 +73,7 @@ can start a second production instance. Local app verification uses only
 Hop's saved preferences and Application Support data.
 
 Auto-update watches `antonshakirov.com/downloads/hop/latest.json`
-(silently, every 30 minutes — `UpdateChecker.checkInterval`; installs only when
+(silently, once an hour — `UpdateChecker.checkInterval`; installs only when
 the timer and awake are inactive;
 can be disabled in settings, or trigger an update manually with the button).
 Installation is possible only with a valid Ed25519 signature of the archive.
