@@ -31,6 +31,8 @@ signing would break).
    and a taller one let a long to-do list push the panel off the menu bar
    (2026-10-01). The panel stops 24pt short of that height, and every
    size the popover is given is cut to the same limit (`PanelHeightLimit`).
+   The height is recorded on every open and kept after the panel closes: a
+   reset on close ran late and could erase the value of a panel reopened at once.
 2. **The panel does not jump.** The popover anchor is the icon zone
    (`iconAnchor` — the exact image frame from the button cell, so the
    arrow is dead-center on the star). If a menu bar manager (Ice,

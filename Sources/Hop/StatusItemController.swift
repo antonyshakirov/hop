@@ -268,7 +268,6 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 self?.frozenTitleLength = nil
                 self?.frozenSlots = nil
                 self?.panelOriginX = nil
-                self?.model.panelScreenVisibleHeight = nil
                 self?.hiddenAnchorWindow?.orderOut(nil)
                 self?.hiddenAnchorWindow = nil
                 self?.previousApp = nil
@@ -628,9 +627,11 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private func presentPopover() {
         guard !popover.isShown, let button = statusItem.button else { return }
         lastResizedPreferred = nil
-        let panelScreen = Self.buttonIsVisible(button) ? button.window?.screen : NSScreen.screens.first
-        model.panelScreenVisibleHeight = panelScreen?.visibleFrame.height
-        PanelFrameLog.write("screen", "panel=\(String(describing: panelScreen?.visibleFrame)) main=\(String(describing: NSScreen.main?.visibleFrame))")
+        model.panelScreenVisibleHeight = PanelHeightLimit.screenVisibleHeight(
+            iconVisible: Self.buttonIsVisible(button),
+            iconScreen: button.window?.screen?.visibleFrame.height,
+            primaryScreen: NSScreen.screens.first?.visibleFrame.height)
+        PanelFrameLog.write("screen", "panel=\(String(describing: model.panelScreenVisibleHeight)) main=\(String(describing: NSScreen.main?.visibleFrame.height))")
         model.setPanelVisible(true, surface: "popover") // before the size is measured
         model.activity.note() // opening the panel is active use
         // opening the panel acknowledges a finished timer: the bar bell and the

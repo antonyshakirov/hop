@@ -2,6 +2,21 @@ import XCTest
 @testable import Hop
 
 final class PanelHeightLimitTests: XCTestCase {
+    func testPanelIsMeasuredAgainstTheScreenOfItsIcon() {
+        XCTAssertEqual(PanelHeightLimit.screenVisibleHeight(
+            iconVisible: true, iconScreen: 847, primaryScreen: 1410), 847)
+    }
+
+    func testHiddenIconOpensThePanelOnThePrimaryScreen() {
+        XCTAssertEqual(PanelHeightLimit.screenVisibleHeight(
+            iconVisible: false, iconScreen: 847, primaryScreen: 1410), 1410)
+    }
+
+    func testIconWithoutAScreenFallsBackToThePrimaryOne() {
+        XCTAssertEqual(PanelHeightLimit.screenVisibleHeight(
+            iconVisible: true, iconScreen: nil, primaryScreen: 1410), 1410)
+    }
+
     func testCeilingLeavesTheMarginBelowTheMenuBar() {
         XCTAssertEqual(PanelHeightLimit.ceiling(screenVisibleHeight: 1410), 1386)
     }

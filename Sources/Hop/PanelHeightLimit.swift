@@ -6,6 +6,11 @@ enum PanelHeightLimit {
     static let margin: CGFloat = 24
     static let fallbackScreenHeight: CGFloat = 800
 
+    static func screenVisibleHeight(iconVisible: Bool, iconScreen: CGFloat?,
+                                    primaryScreen: CGFloat?) -> CGFloat? {
+        iconVisible ? (iconScreen ?? primaryScreen) : primaryScreen
+    }
+
     static func ceiling(screenVisibleHeight: CGFloat?) -> CGFloat {
         (screenVisibleHeight ?? fallbackScreenHeight) - margin
     }
