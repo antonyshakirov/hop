@@ -1370,3 +1370,39 @@ struct FitGlyph: View {
         .frame(width: Self.box.width, height: Self.box.height)
     }
 }
+
+/// SPEC: docs/spec.md — "A right-click menu marks its row".
+private struct MenuTargetOutline: ViewModifier {
+    let radius: CGFloat
+    /// A row inside a row (a torrent's file) outranks the row around it.
+    let depth: Int
+    @State private var hovered = false
+    @State private var target = false
+    @MainActor private static var deepest = -1
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                RoundedRectangle(cornerRadius: radius)
+                    .stroke(Theme.textPrimary.opacity(0.55), lineWidth: 1)
+                    .opacity(target ? 1 : 0)
+                    .allowsHitTesting(false)
+            }
+            .onHover { hovered = $0 }
+            .onReceive(NotificationCenter.default.publisher(for: NSMenu.didBeginTrackingNotification)) { _ in
+                guard hovered else { return }
+                Self.deepest = max(Self.deepest, depth)
+                DispatchQueue.main.async { target = hovered && depth == Self.deepest }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSMenu.didEndTrackingNotification)) { _ in
+                Self.deepest = -1
+                target = false
+            }
+    }
+}
+
+extension View {
+    func menuTargetOutline(_ radius: CGFloat, depth: Int = 0) -> some View {
+        modifier(MenuTargetOutline(radius: radius, depth: depth))
+    }
+}

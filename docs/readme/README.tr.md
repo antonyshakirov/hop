@@ -52,13 +52,22 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
+### 2.3.0
+
+- Hop, tam silinmemiş uygulamaların kalıntılarını bulup temizler.
+- macOS 27: uyumluluk iyileştirildi.
+- Pano: sağ tıklayarak bir kaydı dosya olarak kaydedebilirsiniz.
+- Torrentler: bir torrentin tek dosyası kaldırılabilir, satıra sağ tıklamak menü açar.
+- Trafik engelleme: pencerede filtre anahtarı.
+- Diğer hata düzeltmeleri ve iyileştirmeler.
+
 ### 2.2.1
 
-- “Ağ erişimi” modülü, filtre yeniden başladığında artık bildirim göstermiyor.
+- “Trafik engelleme” modülü, filtre yeniden başladığında artık bildirim göstermiyor.
 
 ### 2.2.0
 
-- Yeni modül “ağ erişimi”: hangi programların internete çıktığını ve nereye gittiğini gör, tek tıkla bir programın tamamını ya da yalnızca bir adresini engelle.
+- Yeni modül “trafik engelleme”: hangi programların internete çıktığını ve nereye gittiğini gör, tek tıkla bir programın tamamını ya da yalnızca bir adresini engelle.
 - Hop, macOS 27'ye uyarlandı.
 - Metin tanıma: güncellemeden sonraki ilk okuma da hemen olur, sonuç penceresinin açılıp açılmayacağını bir ayar belirler.
 - Hız testi erken durdurulabilir.
@@ -66,10 +75,6 @@ veya üzeri gerekir.
 ### 2.1.8
 
 - hata düzeltmeleri
-
-### 2.1.7
-
-- macOS 27: panel işlemleri ilk tıklamada yanıt veriyor
 
 ## Özellikler
 
@@ -384,7 +389,7 @@ Nokta ayarlardan kapatılabilir; modül de anahtarları da onsuz çalışmaya de
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
-### Ağ erişimi
+### Trafik engelleme
 
 Mac'inizdeki hangi programların internete çıktığını, ve nereye çıktığını görün – ve hangisini isterseniz engelleyin. Bağlanan her program, ulaştığı adreslerle birlikte görünür. Etiketine tek bir tıklama, programın tamamını ağdan keser; onu açın, tek bir adres de kendi başına engellenebilir – örneğin bir lisans denetimi, geri kalan trafiği geçerken. Bir kural, program hiç bağlanmadan önce bile ayarlanabilir: kurulu her uygulama listede yer alır, ve bir dosyadan yüklenen adres listesi (satır başına bir adres, ya da hosts dosyası) tüm programlar için birden engellenir. Paneldeki satır engelleri sayar; arkasındaki pencere gerisini tutar, ve bir satır değiştirdiğinizde yerinde kalır.
 
@@ -393,7 +398,7 @@ Hop bunu, macOS'un tam da bu iş için sağladığı ağ filtresiyle yapar – L
 Modül varsayılan olarak açıktır ve sessiz kalır: kural yoksa her şey geçer. Yeni bağlantılar için sormak bir ayardır – açıkken, sağ üstteki bir kart, hiçbir kuralın kapsamadığı bir bağlantı için sorar – o adres için mi, yoksa tüm program için mi.
 
 <div align="center">
-<img src="https://hop.tools/screens/tr/network.webp" width="560" alt="Hop – ağ erişimi: programlar, adresleri, izin verilen ve engellenen">
+<img src="https://hop.tools/screens/tr/network.webp" width="560" alt="Hop – trafik engelleme: programlar, adresleri, izin verilen ve engellenen">
 </div>
 
 → [App firewall for Mac](https://hop.tools/features/app-firewall/)
@@ -492,11 +497,11 @@ uygulamanın ayarlar penceresi hepsini güncel durumlarıyla listeler:
   çizim katmanındaki büyüteç ve bulanıklaştırma; renk damlalığının buna
   ihtiyacı yok
 - **bildirimler** – zamanlayıcı uyarısı ve tamamlanan torrent
-- **ağ filtresi** – bir kez, ağ erişimi için: macOS, Hop'un filtresine sistem ayarlarında izin vermeni ister; gördüğü şey bu Mac'te kalır
+- **ağ filtresi** – bir kez, trafik engelleme için: macOS, Hop'un filtresine sistem ayarlarında izin vermeni ister; gördüğü şey bu Mac'te kalır
 - **yönetici parolası** – bir kez, kapak kapalı modu için (pmset yalnızca root)
 - **girişte aç** – sen açana kadar kapalı
 
-Açmadığın bir modül için hiçbir şey sorulmaz. Açılışta gelebilecek tek istek ağ filtresidir, bir kez, ağ erişimini getiren güncellemeden sonra: o modül varsayılan olarak açıktır.
+Açmadığın bir modül için hiçbir şey sorulmaz. Açılışta gelebilecek tek istek ağ filtresidir, bir kez, trafik engellemeni getiren güncellemeden sonra: o modül varsayılan olarak açıktır.
 Analiz yok, telemetri yok, hesap yok, çökme raporu yok: hop.tools'a
 yalnızca daha yeni bir sürüm olup olmadığını sormak için bağlanılır – ve kabul
 edersen onu ya da iki isteğe bağlı yardımcıdan birini indirmek için. Geri kalan

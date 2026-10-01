@@ -314,10 +314,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 self.syncTabPanelFrame()
             }
         }
-        // dev-only: raw frame diagnostics for the panel-hop investigation
-        // (debugPanelFrameLog flag, see debugLogPanelFrame below) — catches
-        // every geometry change AppKit reports for the panel window, on top
-        // of whatever the handlers above choose to act on
+        // WORKAROUND: on macOS 27 this move observer is what keeps the tab strip's
+        // panel on the popover; the frame log beside it is the diagnostic part.
         NotificationCenter.default.addObserver(
             forName: NSWindow.didMoveNotification, object: nil, queue: .main
         ) { [weak self] note in
@@ -390,10 +388,27 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         guard let previousApp, !previousApp.isTerminated,
               previousApp.processIdentifier != ProcessInfo.processInfo.processIdentifier
         else { return }
-        PanelFrameLog.write("focusYield", "active=\(NSApp.isActive)")
+        PanelFrameLog.write("focusYield", "active=\(NSApp.isActive) prevents=\(panelPreventsActivation)")
         focusYieldPending = true
+        if panelPreventsActivation {
+            NSApp.deactivate()
+            return
+        }
         NSApp.yieldActivation(to: previousApp)
         previousApp.activate()
+    }
+
+    private var panelPreventsActivation = false
+
+    // WORKAROUND: macOS 27 activates Hop on any popover click, and NSPopover drops
+    // the nonactivating flag. SPEC: docs/spec.md — "Hard invariants of the panel".
+    static func preventActivation(of window: NSWindow) -> Bool {
+        guard #available(macOS 27.0, *) else { return false }
+        let selector = Selector(("_setPreventsActivation:"))
+        guard window.responds(to: selector) else { return false }
+        typealias Setter = @convention(c) (AnyObject, Selector, Bool) -> Void
+        unsafeBitCast(window.method(for: selector), to: Setter.self)(window, selector, true)
+        return true
     }
 
     private func pasteIntoPreviousApp() {
@@ -634,6 +649,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         }
         if let panelWindow = popover.contentViewController?.view.window {
             debugLogPanelFrame("shown", frame: panelWindow.frame)
+            panelPreventsActivation = Self.preventActivation(of: panelWindow)
+            // SPEC: docs/spec.md — "Tooltips": the panel is hovered while another app is in front.
+            panelWindow.allowsToolTipsWhenApplicationIsInactive = true
         }
         syncTabPanelFrame()
         if outsideClickProbe == nil {
@@ -1045,12 +1063,17 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         let look = Look(composition: composition, base: base, dark: barIsDark,
                         title: title, glyph: glyph, opacity: opacity)
         guard look != lastLook || button.image == nil else { return }
+        // SPEC: docs/spec.md — "What a running clock costs": a tick changes the digits, not the icon.
+        let iconChanged = button.image == nil || look.composition != lastLook?.composition
+            || look.base != lastLook?.base || look.dark != lastLook?.dark
         lastLook = look
 
-        button.image = base.map {
-            MenuBarIcon.compose(composition, base: $0, dark: barIsDark)
-        } ?? MenuBarIcon.dialTemplate
-        button.imagePosition = .imageLeft
+        if iconChanged {
+            button.image = base.map {
+                MenuBarIcon.compose(composition, base: $0, dark: barIsDark)
+            } ?? MenuBarIcon.dialTemplate
+            button.imagePosition = .imageLeft
+        }
 
         let mono = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
         if title.isEmpty {

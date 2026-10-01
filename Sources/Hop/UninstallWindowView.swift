@@ -20,6 +20,7 @@ struct UninstallWindowView: View {
     @State private var targeted = false
 
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
+    @State private var expandedLeftovers: Set<String> = []
 
     /// The window's inset. Applied to each part rather than to the window, so a
     /// scrolling list can carry it INSIDE itself: with the inset on the
@@ -136,6 +137,12 @@ struct UninstallWindowView: View {
         SnapshotAwareScroll {
             VStack(alignment: .leading, spacing: 10) {
                 dropPlate.padding(.horizontal, Self.inset)
+                Group {
+                    scanningNote
+                    removedSection.padding(.bottom, 14)
+                    leftoverSection.padding(.bottom, 14)
+                }
+                .padding(.horizontal, Self.inset)
                 HStack(spacing: 8) {
                     Text(t(.uninstallPickApp))
                         .font(Theme.mono(9))
@@ -217,17 +224,7 @@ struct UninstallWindowView: View {
             // 28 rather than 16: a section ends in a button and the next one
             // opens with a tick, and at 16 those two lines read as one row.
             VStack(alignment: .leading, spacing: 28) {
-                if uninstall.scanning {
-                    HStack(spacing: 7) {
-                        ProgressView()
-                            .controlSize(.small)
-                            .frame(width: 11, height: 11)
-                        Text(t(.uninstallScanning))
-                            .font(Theme.mono(9.5))
-                            .foregroundStyle(Theme.textTertiary)
-                    }
-                    .padding(.bottom, 2)
-                }
+                scanningNote
                 ownerSection(title: t(.uninstallAllCaches), owners: uninstall.cacheOwners,
                              action: t(.uninstallClearCache)) { index in
                     uninstall.cacheOwners[index].ticked.toggle()
@@ -238,18 +235,8 @@ struct UninstallWindowView: View {
                 } run: {
                     uninstall.clearTickedCaches()
                 }
-                if !uninstall.leftovers.isEmpty {
-                    ownerSection(title: t(.uninstallLeftovers), owners: uninstall.leftovers,
-                                 action: t(.uninstallRemoveLeftovers)) { index in
-                        uninstall.leftovers[index].ticked.toggle()
-                    } toggleAll: { on in
-                        for index in uninstall.leftovers.indices {
-                            uninstall.leftovers[index].ticked = on
-                        }
-                    } run: {
-                        uninstall.removeTickedLeftovers()
-                    }
-                }
+                removedSection
+                leftoverSection
                 installersBody
                 heavySection
                 trashSection
@@ -257,6 +244,209 @@ struct UninstallWindowView: View {
             .padding(.horizontal, Self.inset)
             .padding(.bottom, 4)
         }
+    }
+
+    /// SPEC: docs/spec.md — "Leftovers, by name and by file", the line that explains macOS's question.
+    @ViewBuilder private var scanningNote: some View {
+        if uninstall.scanning {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 7) {
+                    ProgressView()
+                        .controlSize(.small)
+                        .frame(width: 11, height: 11)
+                    Text(t(.uninstallScanning))
+                        .font(Theme.mono(9.5))
+                        .foregroundStyle(Theme.textTertiary)
+                }
+                Text(t(.uninstallAccessNote))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.bottom, 2)
+        }
+    }
+
+    /// SPEC: docs/spec.md — "Removed apps, by their installer records".
+    @ViewBuilder private var removedSection: some View {
+        if !uninstall.removedApps.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(t(.uninstallRemovedApps))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                ForEach(uninstall.removedApps) { app in
+                    HStack(spacing: 8) {
+                        tick(app.ticked) {
+                            guard let index = uninstall.removedApps.firstIndex(where: { $0.id == app.id })
+                            else { return }
+                            uninstall.removedApps[index].ticked.toggle()
+                        }
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(Substitutions.isolate(app.names.joined(separator: ", ")))
+                                .font(Theme.mono(10.5))
+                                .foregroundStyle(Theme.textPrimary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Text(Substitutions.isolate(app.receipt))
+                                .font(Theme.mono(8))
+                                .foregroundStyle(Theme.textTertiary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
+                        Spacer(minLength: 8)
+                        badge(t(.uninstallGoneBadge), color: Theme.accentOrange)
+                        Button { uninstall.choose(removed: app) } label: {
+                            Image(systemName: "chevron.forward")
+                                .font(.system(size: 9, weight: .semibold))
+                                .foregroundStyle(Theme.textSecondary)
+                                .frame(width: 20, height: 18)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .hoverHighlight(4)
+                        .help(t(.tipExpand))
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
+                }
+                if !preview {
+                    HStack {
+                        selectAll(uninstall.removedApps.allSatisfy(\.ticked), enabled: true) { on in
+                            for index in uninstall.removedApps.indices {
+                                uninstall.removedApps[index].ticked = on
+                            }
+                        }
+                        Spacer()
+                        Button { uninstall.removeTickedRemovedApps() } label: {
+                            Text(t(.uninstallRemoveLeftovers))
+                                .font(Theme.mono(10, weight: .bold))
+                                .foregroundStyle(Theme.playFg)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 6)
+                                .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .hoverDim()
+                        .disabled(!uninstall.removedApps.contains(where: \.ticked))
+                    }
+                }
+            }
+        }
+    }
+
+    /// SPEC: docs/spec.md — "Leftovers, by name and by file".
+    @ViewBuilder private var leftoverSection: some View {
+        if !uninstall.leftovers.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(t(.uninstallLeftovers))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+                ForEach(uninstall.leftovers) { owner in
+                    leftoverRow(owner)
+                }
+                if !preview {
+                    HStack {
+                        selectAll(uninstall.leftovers.allSatisfy(\.ticked), enabled: true) { on in
+                            for index in uninstall.leftovers.indices {
+                                uninstall.leftovers[index].ticked = on
+                            }
+                        }
+                        Spacer()
+                        Button { uninstall.removeTickedLeftovers() } label: {
+                            Text(t(.uninstallRemoveLeftovers))
+                                .font(Theme.mono(10, weight: .bold))
+                                .foregroundStyle(Theme.playFg)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 6)
+                                .background(Theme.playBg, in: RoundedRectangle(cornerRadius: 7))
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .hoverDim()
+                        .disabled(!uninstall.leftovers.contains(where: \.ticked))
+                    }
+                }
+            }
+        }
+    }
+
+    private func tick(_ on: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: on ? "checkmark.square.fill" : "square")
+                .font(.system(size: 12))
+                .foregroundStyle(on ? Theme.textPrimary : Theme.textTertiary)
+                .frame(width: 18, height: 18)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
+    }
+
+    private func leftoverRow(_ owner: UninstallController.CacheOwner) -> some View {
+        let open = expandedLeftovers.contains(owner.id) || (Snapshot.active && owner.ticked)
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+                tick(owner.ticked) {
+                    guard let index = uninstall.leftovers.firstIndex(where: { $0.id == owner.id }) else { return }
+                    uninstall.leftovers[index].ticked.toggle()
+                }
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(Substitutions.isolate(owner.name))
+                        .font(Theme.mono(10.5))
+                        .foregroundStyle(Theme.textPrimary)
+                        .lineLimit(1)
+                    Text(Substitutions.isolate(owner.identifier))
+                        .font(Theme.mono(8))
+                        .foregroundStyle(Theme.textTertiary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                Spacer(minLength: 8)
+                Text(Self.sizeText(owner.chosenBytes))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .monospacedDigit()
+                Button {
+                    if expandedLeftovers.remove(owner.id) == nil { expandedLeftovers.insert(owner.id) }
+                } label: {
+                    Image(systemName: open ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(Theme.textSecondary)
+                        .frame(width: 20, height: 18)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(4)
+                .help(t(open ? .tipCollapse : .tipExpand))
+            }
+            if open {
+                ForEach(owner.paths, id: \.self) { path in
+                    HStack(spacing: 8) {
+                        tick(owner.ticked && !owner.skipped.contains(path)) {
+                            uninstall.toggleLeftoverPath(owner.identifier, path)
+                        }
+                        Text(Substitutions.isolate((path as NSString).abbreviatingWithTildeInPath))
+                            .font(Theme.mono(8.5))
+                            .foregroundStyle(Theme.textSecondary)
+                            .lineLimit(1)
+                            .truncationMode(.head)
+                        Spacer(minLength: 8)
+                        Text(Self.sizeText(owner.sizes[path] ?? 0))
+                            .font(Theme.mono(8.5))
+                            .foregroundStyle(Theme.textTertiary)
+                            .monospacedDigit()
+                    }
+                    .padding(.leading, 18)
+                }
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
     }
 
     /// A list of apps (or identifiers) with a size each and one button.

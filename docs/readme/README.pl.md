@@ -52,13 +52,22 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
+### 2.3.0
+
+- Hop znajduje i usuwa pozostałości aplikacji, które nie zostały usunięte do końca.
+- macOS 27: lepsza zgodność.
+- Schowek: prawym przyciskiem można zapisać wpis do pliku.
+- Torrenty: można usunąć pojedynczy plik torrenta, a prawy przycisk na wierszu otwiera menu.
+- Blokowanie ruchu: przełącznik filtra w oknie.
+- Inne poprawki błędów i ulepszenia.
+
 ### 2.2.1
 
-- Moduł „dostęp do sieci” nie pokazuje już komunikatu przy ponownym uruchomieniu filtra.
+- Moduł „blokowanie ruchu” nie pokazuje już komunikatu przy ponownym uruchomieniu filtra.
 
 ### 2.2.0
 
-- Nowy moduł „dostęp do sieci”: zobacz, które programy wychodzą do sieci i dokąd, i jednym kliknięciem zablokuj cały program albo tylko jeden jego adres.
+- Nowy moduł „blokowanie ruchu”: zobacz, które programy wychodzą do sieci i dokąd, i jednym kliknięciem zablokuj cały program albo tylko jeden jego adres.
 - Hop jest dostosowany do macOS 27.
 - Rozpoznawanie tekstu: pierwsze odczytanie po aktualizacji działa od razu, a ustawienie decyduje, czy otwiera się okno.
 - Test prędkości można przerwać wcześniej.
@@ -66,10 +75,6 @@ nowszego.
 ### 2.1.8
 
 - poprawki błędów
-
-### 2.1.7
-
-- macOS 27: działania w panelu reagują na pierwsze kliknięcie
 
 ## Funkcje
 
@@ -383,7 +388,7 @@ Kropkę można wyłączyć w ustawieniach – moduł i jego przełączniki dzia�
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
-### Dostęp do sieci
+### Blokowanie ruchu
 
 Zobacz, które programy na twoim Macu łączą się z siecią i dokąd – i zablokuj którykolwiek z nich. Każdy program, który się połączy, pojawia się razem z adresami, do których dotarł. Jedno kliknięcie w jego etykietę odcina cały program od sieci; otwórz go, a jeden adres można zablokować osobno – na przykład sprawdzanie licencji, podczas gdy reszta ruchu idzie dalej. Regułę można ustawić, zanim program w ogóle się połączy: każda zainstalowana aplikacja jest na liście, a lista adresów wczytana z pliku (jeden w wierszu albo plik hosts) jest blokowana dla wszystkich programów naraz. Wiersz w panelu liczy blokady; okno za nim przechowuje resztę, a wiersz zostaje na swoim miejscu, gdy go zmieniasz.
 
@@ -392,7 +397,7 @@ Hop robi to za pomocą filtra sieciowego, który macOS udostępnia właśnie do 
 Moduł jest domyślnie włączony i zachowuje się cicho: bez reguł wszystko przechodzi. Pytanie o nowe połączenia to ustawienie – włączone, karta w prawym górnym rogu pyta o połączenie, którego nie obejmuje żadna reguła, dla tego adresu albo całego programu.
 
 <div align="center">
-<img src="https://hop.tools/screens/pl/network.webp" width="560" alt="Hop – dostęp do sieci: programy, ich adresy, dozwolone i zablokowane">
+<img src="https://hop.tools/screens/pl/network.webp" width="560" alt="Hop – blokowanie ruchu: programy, ich adresy, dozwolone i zablokowane">
 </div>
 
 → [App firewall for Mac](https://hop.tools/features/app-firewall/)
@@ -498,7 +503,7 @@ potrzebuje; okno ustawień wymienia je wszystkie z bieżącym stanem:
   jako root)
 - **otwieraj przy logowaniu** – wyłączone, dopóki sam nie włączysz
 
-Nic nie jest proszone dla modułu, którego nie włączyłeś. Jedyna prośba, jaka może pojawić się przy starcie, to filtr sieciowy, raz, po aktualizacji, która przynosi dostęp do sieci: ten moduł jest domyślnie włączony. Bez analityki, bez telemetrii, bez kont, bez raportów awarii: z
+Nic nie jest proszone dla modułu, którego nie włączyłeś. Jedyna prośba, jaka może pojawić się przy starcie, to filtr sieciowy, raz, po aktualizacji, która przynosi blokowanie ruchu: ten moduł jest domyślnie włączony. Bez analityki, bez telemetrii, bez kont, bez raportów awarii: z
 hop.tools aplikacja łączy się tylko po to, by zapytać, czy jest nowsza
 wersja – i pobrać ją albo jednego z dwóch opcjonalnych pomocników, jeśli się
 zgodzisz. Cała reszta zostaje na tym Macu: historia schowka, zmierzony czas,

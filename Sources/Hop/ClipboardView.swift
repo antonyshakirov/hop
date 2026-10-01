@@ -231,6 +231,7 @@ struct ClipboardView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(ClipboardRowStyle(isCopied: isCopied))
+            .help(L10n.t(.clipRowHint, lang))
 
             // swap without changing geometry: the icons and the "copied" mark live
             // in one fixed-height layer — the row doesn't twitch
@@ -288,6 +289,26 @@ struct ClipboardView: View {
         .padding(.vertical, 6)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 5))
         .contentShape(Rectangle())
+        .menuTargetOutline(5)
+        // SPEC: docs/spec.md — "Clipboard", the row's right-click menu.
+        .contextMenu {
+            Button(L10n.t(.tipCopy, lang).capitalizedFirst) {
+                clipboard.copy(item)
+                markCopied(item)
+            }
+            Button(L10n.t(.tipPasteInto, lang).capitalizedFirst) {
+                markCopied(item)
+                clipboard.copyAndPaste(item, deliverPaste: pasteIntoPreviousApp)
+            }
+            if item.imageFile == nil, item.filePaths == nil {
+                Button(L10n.t(.clipSaveToFile, lang).capitalizedFirst + "…") {
+                    let saved = clipboard.saveAsDocument(
+                        item, askForLocation: true,
+                        format: ClipboardDocument.Format.named(saveToFileFormat))
+                    if saved != nil { markSaved(item) }
+                }
+            }
+        }
         .animation(.easeOut(duration: 0.12), value: isCopied)
         .animation(.easeOut(duration: 0.12), value: savedId == item.id)
     }

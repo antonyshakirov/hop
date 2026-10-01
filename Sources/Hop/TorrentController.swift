@@ -83,8 +83,7 @@ final class TorrentController: ObservableObject {
         /// button flips without the ~1.5s poll lag. Cleared back to nil once a poll
         /// confirms the engine reached the same state (`nil` = trust engine truth).
         var optimisticPaused: Bool?
-        /// Added from a magnet link (vs a .torrent file) — drives the remove label
-        /// ("delete magnet" vs "delete torrent").
+        /// Added from a magnet link (vs a .torrent file).
         var fromMagnet: Bool = false
         /// The payload was deleted from disk (via Finder, not via Hop) while the
         /// torrent was still downloading. Set by the poll's deletion probe, which
@@ -411,12 +410,44 @@ final class TorrentController: ObservableObject {
     func setAllFilesSelected(id: String, selected: Bool) {
         guard let ti = torrents.firstIndex(where: { $0.id == id }),
               !torrents[ti].files.isEmpty else { return }
-        for i in torrents[ti].files.indices { torrents[ti].files[i].selected = selected }
+        for i in torrents[ti].files.indices where !torrents[ti].files[i].removed {
+            torrents[ti].files[i].selected = selected
+        }
         let indices = torrents[ti].files.filter { $0.selected }.map { $0.index }.sorted()
         persist()
         let key = engineKey(id)
         Task { try? await readyClient()?.setSelectedFiles(id: key, indices: indices) }
     }
+    /// SPEC: docs/spec.md "Removing one file of a torrent".
+    func removeFile(id: String, fileIndex: Int, deleteData: Bool) {
+        guard let ti = torrents.firstIndex(where: { $0.id == id }),
+              let fi = torrents[ti].files.firstIndex(where: { $0.index == fileIndex }) else { return }
+        torrents[ti].files[fi].selected = false
+        torrents[ti].files[fi].removed = true
+        let row = torrents[ti]
+        let file = row.files[fi]
+        let indices = row.files.filter { $0.selected }.map { $0.index }.sorted()
+        persist()
+        let key = engineKey(id)
+        Task {
+            try? await readyClient()?.setSelectedFiles(id: key, indices: indices)
+            guard deleteData, !TorrentLayout.hasUnsafePath([file.name]) else { return }
+            let url = URL(fileURLWithPath: row.outputFolder).appendingPathComponent(file.name)
+            guard FileManager.default.fileExists(atPath: url.path) else { return }
+            do {
+                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+            } catch {
+                Self.log.error("could not move a torrent file to the Trash: \(error.localizedDescription, privacy: .public)")
+                // SPEC: "Removing one file of a torrent" — a file that stayed on the disk stays in the list.
+                if let ti = self.torrents.firstIndex(where: { $0.infoHash == row.infoHash }),
+                   let fi = self.torrents[ti].files.firstIndex(where: { $0.index == fileIndex }) {
+                    self.torrents[ti].files[fi].removed = false
+                    self.persist()
+                }
+            }
+        }
+    }
+
     /// SPEC: docs/spec.md "A removal holds until the engine lets go".
     func remove(id: String, deleteFiles: Bool) {
         guard let row = torrents.first(where: { $0.id == id }) else { return }
@@ -646,6 +677,7 @@ final class TorrentController: ObservableObject {
     // MARK: - Persistence
     private struct PersistedFile: Codable {
         let index: Int; let name: String; let lengthBytes: Int64; let selected: Bool
+        let removed: Bool?
     }
     private struct Persisted: Codable {
         let infoHash: String; let name: String; let outputFolder: String; let files: [PersistedFile]
@@ -657,7 +689,8 @@ final class TorrentController: ObservableObject {
     private func persist() {
         let rows = torrents.map { t in
             Persisted(infoHash: t.infoHash, name: t.name, outputFolder: t.outputFolder,
-                      files: t.files.map { PersistedFile(index: $0.index, name: $0.name, lengthBytes: $0.lengthBytes, selected: $0.selected) },
+                      files: t.files.map { PersistedFile(index: $0.index, name: $0.name, lengthBytes: $0.lengthBytes, selected: $0.selected,
+                                                         removed: $0.removed ? true : nil) },
                       fromMagnet: t.fromMagnet, notifiedDone: t.notifiedDone,
                       seedPolicyOverridden: t.seedPolicyOverridden, filesMissing: t.filesMissing)
         }
@@ -719,7 +752,8 @@ final class TorrentController: ObservableObject {
                     return existing   // keep the live row (accurate id/files/source/flags)
                 }
                 if let s = saved.first(where: { $0.infoHash == current.infoHash }) {
-                    let files = s.files.map { TorrentFile(index: $0.index, name: $0.name, lengthBytes: $0.lengthBytes, selected: $0.selected) }
+                    let files = s.files.map { TorrentFile(index: $0.index, name: $0.name, lengthBytes: $0.lengthBytes,
+                                                          selected: $0.selected, removed: $0.removed ?? false) }
                     var item = TorrentItem(id: current.id, infoHash: s.infoHash, name: s.name, files: files, outputFolder: s.outputFolder, fromMagnet: s.fromMagnet ?? false)
                     item.notifiedDone = s.notifiedDone ?? false             // don't re-notify a finished torrent every launch
                     item.seedPolicyOverridden = s.seedPolicyOverridden ?? false  // keep a "keep seeding" override
@@ -735,6 +769,13 @@ final class TorrentController: ObservableObject {
             persist()
             startPolling()
             for row in torrents where row.filesMissing { try? await client.pause(id: row.infoHash) }
+            // SPEC: docs/spec.md "Removing one file of a torrent" — the engine re-creates it empty.
+            for row in torrents {
+                let gone = row.files.filter(\.removed)
+                guard !gone.isEmpty else { continue }
+                removePlaceholders(outputFolder: row.outputFolder,
+                                   files: gone.map { PendingTorrentRemoval.Placeholder(name: $0.name, lengthBytes: $0.lengthBytes) })
+            }
         } catch {}
     }
 }

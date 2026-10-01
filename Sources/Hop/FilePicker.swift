@@ -16,8 +16,16 @@ enum FilePicker {
         panel.allowsMultipleSelection = multiple
         if !types.isEmpty { panel.allowedContentTypes = types }
         panel.directoryURL = directory
+        raise(panel)
         guard panel.runModal() == .OK else { return [] }
         return panel.urls
+    }
+
+    /// SPEC: docs/spec.md, "Shared components": a picker opens above whatever of Hop's is on screen.
+    private static func raise(_ panel: NSSavePanel) {
+        let top = NSApp.windows.filter(\.isVisible).map(\.level.rawValue).max() ?? 0
+        panel.level = NSWindow.Level(rawValue: max(top + 1, NSWindow.Level.modalPanel.rawValue))
+        NSApp.activate(ignoringOtherApps: true)
     }
 
     /// The chosen destination; nil when cancelled or under `Snapshot.active`.
@@ -27,6 +35,7 @@ enum FilePicker {
         panel.nameFieldStringValue = name
         if !types.isEmpty { panel.allowedContentTypes = types }
         panel.directoryURL = directory
+        raise(panel)
         guard panel.runModal() == .OK else { return nil }
         return panel.url
     }

@@ -23,7 +23,9 @@ struct TorrentView: View {
     /// banner, the same offer stays reachable from settings (torrentMakeDefault).
     @AppStorage("torrentDefaultHandlerPrompted") private var defaultHandlerPrompted = false
 
-    @State private var confirmingRemove: String?
+    static var stagedRemove: (torrent: String?, file: String?) = (nil, nil)
+    @State private var confirmingRemove: String? = TorrentView.stagedRemove.torrent
+    @State private var confirmingFileRemove: String? = TorrentView.stagedRemove.file
     @State private var dropTargeted = false
 
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -341,7 +343,7 @@ struct TorrentView: View {
                                 torrent.revealInFinder(id: item.id)
                             }
                         }
-                        rowIcon("xmark", help: t(.torrentRemoveTorrent)) {
+                        rowIcon("xmark", help: t(.torrentRemoveHelp)) {
                             confirmingRemove = item.id
                         }
                     }
@@ -359,6 +361,29 @@ struct TorrentView: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
+        .contentShape(Rectangle())
+        .menuTargetOutline(7)
+        // SPEC: docs/spec.md — "Torrents: the row's right-click menu".
+        .contextMenu {
+            Button(t(paused ? .torrentResume : .torrentPause).capitalizedFirst) {
+                paused ? torrent.resume(id: item.id) : torrent.pause(id: item.id)
+            }
+            if finished {
+                Button(t(.tipOpenFolder).capitalizedFirst) {
+                    model.closePanel?()
+                    torrent.revealInFinder(id: item.id)
+                }
+            }
+            if item.files.count > 1 {
+                Button(t(torrent.expandedIds.contains(item.id) ? .tipCollapse : .tipExpand).capitalizedFirst) {
+                    torrent.toggleExpanded(item.id)
+                }
+            }
+            Divider()
+            Button(t(.torrentRemoveHelp).capitalizedFirst + "…") {
+                confirmingRemove = item.id
+            }
+        }
     }
 
     /// Per-file rows under an expanded torrent: a switch to include/exclude each
@@ -367,12 +392,13 @@ struct TorrentView: View {
     /// when excluded. No inner scroll — the whole panel is the single scroll.
     private func fileList(_ item: TorrentController.TorrentItem) -> some View {
         let progress = item.stats?.fileProgressBytes ?? []
-        let selectedCount = item.files.filter { $0.selected }.count
+        let listed = item.files.filter { !$0.removed }
+        let selectedCount = listed.filter { $0.selected }.count
         return VStack(spacing: 3) {
             Rectangle().fill(Theme.divider).frame(height: 1).padding(.vertical, 2)
             // Bulk toggle: select / deselect every file at once, with a live count.
             HStack(spacing: 12) {
-                Text("\(selectedCount)/\(item.files.count)")
+                Text("\(selectedCount)/\(listed.count)")
                     .font(Theme.mono(9)).foregroundStyle(Theme.textTertiary).monospacedDigit()
                 Spacer(minLength: 0)
                 Button { torrent.setAllFilesSelected(id: item.id, selected: true) } label: {
@@ -390,8 +416,17 @@ struct TorrentView: View {
             }
             .padding(.horizontal, 4)
             .padding(.bottom, 1)
-            ForEach(item.files, id: \.index) { file in
-                fileRow(item, file, progress: progress)
+            ForEach(listed, id: \.index) { file in
+                if confirmingFileRemove == "\(item.id)#\(file.index)" {
+                    removeChoice(deleteHelp: t(.torrentFileDeleteHelp), keepHelp: t(.torrentFileKeepHelp),
+                                 size: 9, onCancel: { confirmingFileRemove = nil }) { deleteData in
+                        confirmingFileRemove = nil
+                        torrent.removeFile(id: item.id, fileIndex: file.index, deleteData: deleteData)
+                    }
+                    .padding(.leading, 4)
+                } else {
+                    fileRow(item, file, progress: progress)
+                }
             }
         }
         .padding(.top, 2)
@@ -430,8 +465,25 @@ struct TorrentView: View {
             }
             .font(Theme.mono(10))
             .fixedSize()
+            Button { confirmingFileRemove = "\(item.id)#\(file.index)" } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 8, weight: .semibold))
+                    .foregroundStyle(Theme.textTertiary)
+                    .frame(width: 16, height: 16)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .hoverHighlight(4)
+            .help(t(.torrentFileRemoveHelp))
         }
         .padding(.leading, 4)
+        .contentShape(Rectangle())
+        .menuTargetOutline(4, depth: 1)
+        .contextMenu {
+            Button(t(.torrentFileRemoveHelp).capitalizedFirst + "…") {
+                confirmingFileRemove = "\(item.id)#\(file.index)"
+            }
+        }
     }
 
     @ViewBuilder
@@ -509,43 +561,49 @@ struct TorrentView: View {
         return "· " + parts.joined(separator: " · ")
     }
 
+    /// SPEC: docs/spec.md "Removing a torrent: what each choice deletes".
     private func removeConfirm(_ item: TorrentController.TorrentItem) -> some View {
-        // macOS three-button order, the app's order everywhere: the harsher
-        // alternative ("delete with files", which erases the download too) is
-        // pushed to the leading edge, away from the pair; then "cancel", then the
-        // action the ✕ was about ("delete torrent" — drops it, files stay). The
-        // 22pt dead slot at the trailing end is the ✕'s own width, so a reflexive
-        // repeat click at the same spot hits nothing.
-        HStack(spacing: 16) {
-            Button {
-                confirmingRemove = nil
-                torrent.remove(id: item.id, deleteFiles: true)
-            } label: {
-                HoverLabel(text: t(.torrentRemoveDelete), size: 10, color: Theme.accentRed)
+        removeChoice(deleteHelp: t(.torrentRemoveDeleteHelp), keepHelp: t(.torrentRemoveKeepHelp),
+                     size: 10, onCancel: { confirmingRemove = nil }) { deleteFiles in
+            confirmingRemove = nil
+            torrent.remove(id: item.id, deleteFiles: deleteFiles)
+        }
+    }
+
+    /// SPEC: docs/spec.md "Removing a torrent: what each choice deletes".
+    private func removeChoice(deleteHelp: String, keepHelp: String, size: CGFloat,
+                              onCancel: @escaping () -> Void,
+                              choose: @escaping (_ deleteData: Bool) -> Void) -> some View {
+        HStack(spacing: 10) {
+            Button { choose(true) } label: {
+                HoverLabel(text: t(.torrentRemoveDelete), size: size, color: Theme.accentRed)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(t(.torrentRemoveDelete))
-            Spacer(minLength: 8)
-            Button {
-                confirmingRemove = nil
-            } label: {
-                HoverLabel(text: t(.quitCancel), size: 10, color: Theme.textTertiary)
+            .help(deleteHelp)
+            .layoutPriority(1)
+            Spacer(minLength: 4)
+            Button(action: onCancel) {
+                HoverLabel(text: t(.quitCancel), size: size, color: Theme.textTertiary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .help(t(.quitCancel))
-            Button {
-                confirmingRemove = nil
-                torrent.remove(id: item.id, deleteFiles: false)
-            } label: {
-                HoverLabel(text: t(item.fromMagnet ? .torrentRemoveMagnet : .torrentRemoveTorrent),
-                           size: 10, color: Theme.accentRed)
+            .layoutPriority(1)
+            Button { choose(false) } label: {
+                HoverLabel(text: t(.torrentRemoveTorrent), size: size, color: Theme.accentRed)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .help(t(.torrentFilesRemoved))
-            Color.clear.frame(width: 22, height: 1)
+            .help(keepHelp)
+            .layoutPriority(1)
+            Color.clear.frame(width: size > 9 ? 22 : 16, height: 1)
         }
     }
 

@@ -50,6 +50,18 @@ signing would break).
 4. **No repeatForever animations** — they trigger NSHostingController
    size recalculation. Icon changes are an opacity crossfade in a
    fixed-size ZStack.
+4a. **A click in the panel never makes Hop the active app** (macOS 27, Anton,
+   2026-10-01). macOS 27 activates an NSPopover's app on any click in it, and
+   Hop then handed activation back to the app below: two switches of the front
+   app on every play, stop or first tab click, and each one redrew the windows
+   under the panel — they visibly flickered. The panel window is told not to
+   activate (`_setPreventsActivation:`, what a nonactivating panel does; NSPopover
+   strips the style flag itself), so the app below stays in front. The panel
+   still takes the keyboard for its own fields, and gives it back with
+   `NSApp.deactivate()` instead of re-activating the app below. Measured with
+   NSWorkspace notifications: before, `+Hop −app +app −Hop` per click; after,
+   none. Older systems keep the old path. The tabs' own nonactivating strip
+   stays as it was.
 5. **Hover highlights bleed outward, they do not inset the content.** A
    full-width row (the "new task" footers) starts on the panel's own inset, so a
    highlight drawn on the row's exact bounds lands on the first glyph and on the
@@ -342,6 +354,13 @@ went. Figures taken in different sittings are not comparable - the same build
 reads 1.2% on a quiet machine and 2.4% under load. A comparison is two builds
 measured side by side in one window, which is what `ps -o time=` deltas on both
 pids give.
+
+- **A tick rewrites the digits, not the icon** (audit, 2026-10-01). The bar's
+  look was compared whole, so one changed digit recomposed the icon bitmap and
+  wrote `button.image` again — once a second with a clock in the bar, and on
+  every frame of a handover. The image is written only when the icon itself
+  changed (its composition, base or the bar's appearance); the title carries
+  the digits.
 
 ## Onboarding
 
@@ -812,6 +831,9 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Counts toward a target date (`Date`), not by decrementing: it doesn't
   drift and survives Mac sleep. The panel can be closed — the countdown
   continues (ticker in TimerEngine).
+- Default presets are 5, 10, 15, 25, 45, 60 and 90 minutes (10 added by Anton,
+  2026-10-01: the timer itself opens on 10). The default is not stored, so
+  anyone who never edited the list gets the new one with the update.
 - Presets: user-defined, edited in settings ("N ×" chips). In idle a preset
   sets the duration; during a countdown it puts the active timer into the
   stash, and the ↩ button restores and resumes it. There is one stash slot
@@ -863,6 +885,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   the zeroed digits keep a subtle pulse (`isFinishSettled`) as a "reset me" cue
   until a reset or a new start ends the finished state. Play from finished
   restarts the same duration.
+- **A preset or a cycle template clicked while a countdown is live does not
+  apply** — an accidental click must not throw a timer away — and the button
+  that frees the timer blinks twice instead: the pause ring while it runs, the
+  RESET button while it is paused (Anton, 2026-10-01: on pause the start ring
+  blinked, and pressing start is the opposite of what lets a template in).
 - Stopwatch: ⏱ icon to the right of the presets, counts up. In the menu bar it
   shares the engine's green wedge with the timer (see "Menu bar icon — corner
   badges") — no separate stopwatch glyph. Mode switching is allowed from idle/finished/PAUSED
@@ -920,6 +947,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Monitor
 
+- The Russian title reads "system monitoring" (Anton, 2026-10-01), in the panel, the
+  settings and the help.
 - Polling: while the tab is open — every 2 s; the rest of the time a light
   background tick every 5 s (feeds chart history and the red indicator).
   History is timestamped points, ~31-minute buffer, accumulating since launch.
@@ -1056,7 +1085,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Clipboard: an entry as a file (1.7.0)
 
-- OFF by default (`clipboardToFile`). When on, every TEXT row grows one more
+- **Right click on an entry** (Anton, 2026-10-01): copy, paste into the window
+  below, and — for a text entry — "save as a file…". From the menu the save
+  ALWAYS opens the system's save panel, on the Desktop with the generated name
+  filled in, whatever `clipboardToFileAsk` says, and it is offered whether or
+  not the row's save icon is switched on. The format is the setting's.
+
+- OFF by default (`clipboardToFile`). The setting reads "show the save-as-file
+  option" (Anton, 2026-10-01): the old
+  "save an entry as a file" read as if every entry were written to disk. When
+  on, every TEXT row grows one more
   icon, LEFT of copy and paste: it acts on the entry rather than on the
   pasteboard, so it comes first. An image, a copied file or a colour has no
   document in it and shows no icon.
@@ -1380,6 +1418,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Speed test
 
+- Title `speedtestLabel` "internet speed" in the
+  settings, the module lists and the help; plain "internet" did not say what
+  the module measures (Anton, 2026-10-01). The panel row keeps the short word
+  (`speedtestRowLabel`, "internet"): beside the figures it is plain what is
+  measured, and the long title was cut to an ellipsis by the figures on the
+  same line.
 - networkQuality (Apple servers), live numbers during the run: one direction
   at a time, so the download fills first and the upload after it.
 - Result in a row: "↓ 834 Mbps · ↑ 112 Mbps · 1,450 RPM" — every value
@@ -1396,6 +1440,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 
 ### Window manager
 
+- Title `windowsLabel` "window layout"; plain "windows"
+  did not say what the module does (Anton, 2026-10-01).
 - Lays out the active window of the last "regular" app via the
   Accessibility API (our own popup is excluded from the count). 18 zones.
   Layouts APPROVED by Anton 2026-07-13: short — ONE row of 8
@@ -2274,7 +2320,8 @@ Shipped in 2.2.0 (Anton, 2026-09-29): every build carries the filter —
 with the app for each architecture and signs it again, and `verify-release.sh`
 checks the served copy holds it, signed, with the app's entitlement to install
 it. Guide letter `x` (the site's `e` is the apps grids). Module key `network`, title
-`networkLabel` ("network access"), on by default, placed on the second space
+`networkLabel` ("traffic blocking"; "network access"
+until 2026-10-01 — it said nothing about blocking, Anton), on by default, placed on the second space
 next to the monitor, the speed test and the torrents (`reportingModules`; a
 new install or an update puts it there through `PanelTabsModel.ensure`, and on
 the first space when there is no such space), and in the onboarding's "Network"
@@ -2366,7 +2413,7 @@ drawn list of programs with their verdicts rather than the window itself.
   on their own queue, so a long or broken block list cannot hang the Mac.
   The window shows what the rules say, taking each name at its word.
 - **Nothing to set up until the filter runs** (Anton, 2026-09-28): while it
-  is off, installing, waiting for approval or failed, the window shows a card
+  is installing, waiting for approval or failed, the window shows a card
   with what to do — numbered steps for the approval — and one button. The
   list, the search and the rules appear once it runs; switches that did
   nothing before approval looked as if they worked without it.
@@ -2377,8 +2424,20 @@ drawn list of programs with their verdicts rather than the window itself.
   glyph the way the speed test sets its figures apart from its name, either
   "blocks: N" — every rule that blocks counts one, a whole program and a
   single address alike — or what stands in the way ("filter off", "waiting
-  for approval", "not working"). The module itself is turned off in the
-  settings, like any other.
+  for approval", "not working"). **Off and waiting are grey** (Anton,
+  2026-10-01): an orange "filter off" read as a fault on every Mac where
+  nobody had switched the filter on yet. Orange is kept for a filter that
+  failed or stopped. The module itself is turned off in the settings, like
+  any other.
+- **The filter's own switch** (Anton, 2026-10-01): the window's header carries
+  "filter" with a switch, right-aligned. On, the rules apply; off, every
+  connection goes through and the rules wait — the filter is disabled in
+  `NEFilterManager`, the rules stay in Hop. Switched off, the window keeps the
+  lists and the rules in view and editable under one line saying they do not
+  apply now; the setup card with numbered steps is only for installing, the
+  approval and a failure. Turning the switch on from off goes the usual way
+  (`switchOn`, the system approval if it was never given). Hiding the module
+  still switches the filter off as well.
 - **The window** (Anton, 2026-09-28: clear, not technical): its header sits
   as high as in the other module windows (18 pt under the title bar); a header like a
   settings page; search, a segmented all / blocked / last hour, a ⋯ menu for
@@ -2440,6 +2499,18 @@ drawn list of programs with their verdicts rather than the window itself.
   No card or notification says so (Anton, 2026-09-30): the connection also
   breaks when macOS swaps the filter on an update, so everyone saw it for
   nothing; the row in the panel is the only place the state shows.
+- **A filter switched off outside Hop** (Anton, 2026-09-30): in System
+  Settings, or by macOS itself (on a Mac with two copies of Hop, starting one
+  filter switched the other one off). Hop listens for the system's
+  configuration change (`NEFilterConfigurationDidChange`) and, while the row
+  says "stopped", asks the system on every retry whether the filter is still
+  switched on. Off there, Hop's state becomes off: the row says the filter is
+  off, the retries end, and the window offers "switch on". Hop does not switch
+  it back on by itself, since someone or something chose to switch it off.
+  Switched back on in System Settings, the row follows. A filter being
+  installed or waiting for approval is left alone (`NetworkFilterFollow`,
+  tested). The configuration carries the app's own name ("Hop", "Hop Dev"), so
+  the two copies can be told apart in System Settings.
 - **Who may talk to the filter**: its Mach service accepts only the app that
   carries it — its bundle identifier, Developer ID, the same team
   (`setCodeSigningRequirement`), so a debug build of anything else is out; what it hands out is the
@@ -3371,6 +3442,9 @@ drawn list of programs with their verdicts rather than the window itself.
   `ModuleCatalog.defaultModuleOrder`. They are reached for mid-call and
   mid-write rather than read down the panel, and the zones are the one row that
   belongs lower still.
+- The Russian title reads "drawing on the screen", the same everywhere the module
+  is named in Russian — row, settings, help, release notes (Anton, 2026-10-01:
+  the old "draw over" did not say over what).
 - Module `"annotate"`, title `annotateLabel` — "draw on screen", guide
   letter `i`, ⌃⌥D out of the box. The name and the button are both short on
   purpose: "draw over the screen · start drawing" said the same word twice in a
@@ -4087,6 +4161,65 @@ eight hours, and came back the moment it was removed and added again.
   Snapshot: `--torrents-states`. Every `--torrents*` render now also opens the
   space holding the torrent module.
 
+### Removing a torrent: what each choice deletes (Anton, 2026-10-01)
+
+"delete torrent" beside "delete with files" left the question open whether
+"files" were the download or the `.torrent` file itself. The choices now name
+what goes: **"delete with downloads"** removes the
+torrent and deletes what it downloaded, **"remove from list"** removes the torrent and leaves the downloaded files on the disk. A
+`.torrent` file of the user's own is never touched by either. Each carries a
+tooltip in a full sentence. A magnet no longer has its own wording: both
+labels fit it as they are. The row keeps macOS's three-button order: the
+harsher choice on the leading edge, then "cancel", then the plain removal, and
+a dead slot the width of the ✕ at the end, so a reflexive second click on the
+same spot hits nothing. The labels shrink a little rather than cut off in a
+long language.
+
+### A right-click menu marks its row (Anton, 2026-10-01)
+
+A menu opens beside the pointer and says nothing about which row it belongs
+to. While it is open, the row it was opened on carries a thin outline
+(`menuTargetOutline`): the row under the pointer when a menu begins tracking is
+the target, and the outline goes when tracking ends. Clipboard entries,
+torrents and a torrent's files have it.
+
+### Torrents: the row's right-click menu (Anton, 2026-10-01)
+
+A right click on a torrent offers what its icons do, in words: pause or resume,
+"open the folder" once it is finished, expand or collapse for a torrent of
+several files, and under a divider one "remove the torrent…". It deletes nothing by itself: it opens the same
+confirmation in the row that the ✕ does, with the two removals and "cancel",
+so a slip of the pointer in a menu costs nothing (Anton, 2026-10-01). A file's
+row offers "remove this file…" the same way. The menu is a system surface, so
+its items are capitalised.
+
+The module's own menu reads "move the module to tab" rather than "move to"
+(Anton, 2026-10-01): next to a row's menu the short form did not say what moves.
+
+A file picker — the save panel of a clipboard entry, any open panel — opens
+ABOVE Hop's panel and takes the keyboard (`FilePicker.raise`): the panel floats
+on a raised level, and the picker used to come up under it.
+
+### Removing one file of a torrent (Anton, 2026-10-01)
+
+- Every file of an expanded multi-file torrent has a small ✕ at the end of its
+  row. It opens the same two choices, in the file's own row: "remove from
+  list" stops downloading the file and takes it off the list, what was
+  downloaded stays on the disk; "delete with downloads" does that and moves
+  what was downloaded to the Trash (the Trash, not an unlink: one file picked
+  out of many is the case where a wrong click is likeliest).
+- A file that could not be moved to the Trash comes back into the list,
+  deselected: the row must not say it is gone while it sits on the disk.
+- A removed file is deselected in the engine (`update_only_files`) and stored as
+  `removed` in `torrents.json`; "all" never picks it again and the count above
+  the list leaves it out. The torrent itself goes on with its other files.
+- rqbit opens every file of a torrent when it loads it, so a removed file may
+  come back as an empty file of its full length. Restore deletes those
+  placeholders for removed files only, by the same rule as a torrent's removal
+  (exact length, no blocks on disk; anything with data in it is never touched).
+- The payload probe of a multi-file torrent looks at its folder, not at each
+  file, so a file taken out by hand never reads as "files removed".
+
 ### Torrent removal and moved payloads (2.1.3)
 
 Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
@@ -4486,8 +4619,17 @@ Found on 2026-09-17: a film downloaded, moved out of Downloads and removed with
   everything else and sat below the fold besides (Anton, 2026-09-02). Reset means
   "forget the stored value", so the default is not copied anywhere and a later
   change of default reaches everyone who never rebound.
-- The window-manager module's page keeps only its layout picker: the zone keys
-  and their on/off switch live here, where keys live.
+- **The zones on both pages** (Anton, 2026-10-01): the window-layout module's
+  page carries the same card as this page — the "resize windows with hotkeys"
+  switch, the eighteen zones and their reset — under its own "hotkeys" label,
+  so the keys can be switched on and rebound where the module is set up. One
+  view (`windowZonesSection`), one stored switch, so the two never disagree.
+- **A module's second keys say what they do** (Anton, 2026-10-01): "window",
+  "screen" and "repeat area" under the screenshot row read as three words with
+  no subject. The hotkey rows name the action in full — "screenshot of a
+  window", "screenshot of the whole screen", "screenshot of the same area as
+  last time", "drawing: pass clicks to the apps below" (`hkShot*`,
+  `hkAnnotatePass`); the panel's own buttons keep their short words.
 - **A function names its own key, and the zones move around IT** (Anton,
   2026-09-08). ⌃⌥ plus the first letter of what the thing is called: **S**
   screenshot, **D** draw on screen, **T** timer, **A** awake, **C** convert and
@@ -5003,7 +5145,9 @@ converter (Anton, 2026-07-28).
   is on screen makes the app blink out of focus and the window drop behind
   whatever was in front.
 - Counted windows: settings, the torrent add sheet, converter, archive,
-  recognition, onboarding and each Finder archive-progress window. NOT the
+  recognition, the network window, onboarding and each Finder archive-progress
+  window. The network window was missing from the list until 2026-10-01, so the
+  Dock icon outlived it. NOT the
   panel — it hangs off the status item and closes on any outside click, so it
   belongs to the menu bar rather than the Dock. NOT the quit confirmation: it
   lives for a second and asks one question.
@@ -5014,6 +5158,21 @@ converter (Anton, 2026-07-28).
   row reads "show hop in the dock" over the note that already explains WHEN the
   icon appears; the old title, "windows in the dock", named the windows rather
   than the icon and read as if it were about hiding windows (Anton, 2026-09-02).
+- **⌘Q with a window open closes Hop's windows, not Hop** (Anton, 2026-10-01:
+  "I close a window and the whole app goes"). While a window is open the app
+  menu is live, and ⌘Q there took the timer, the no-sleep and every module down
+  with the window. The app menu now carries "close windows" on ⌘Q — every Hop
+  window closes (the screenshot editor still asks about unsaved marks) and Hop
+  stays in the menu bar — and "quit" below it with no shortcut. With no window
+  open ⌘Q quits as before, through the same confirmation as the panel's ⏻.
+  Not proven to be the only way it happened: none of Hop's windows quits it when
+  closed (checked one by one on macOS 27), and there was no crash report.
+- **Every quit says why in the system log** (`com.antonshakirov.hop` /
+  Launch, notice level, so it is kept): what in Hop asked (the panel's quit, an
+  installed update, a restart for a permission, safe mode), or the Apple event
+  and the app that sent it (the Dock's "Quit", a logout), and how many windows
+  were open. `applicationShouldTerminateAfterLastWindowClosed` answers false
+  outright rather than leaving it to SwiftUI.
 - Side effect worth knowing: in `.regular` SwiftUI supplies a real menu bar
   (Apple · Hop · Edit · View · Window · Help — verified 2026-07-28), so ⌘V in a
   window goes through the system Edit menu while one is open. The
@@ -5277,6 +5436,12 @@ converter (Anton, 2026-07-28).
   the arrangement does not mention keeps its registry position at the tail.
 
 ## Localization
+
+- One table per language (`enTable` … `srTable`), each with its type written
+  out, looked up through `table(_:)` (audit, 2026-10-01). As one nested literal
+  the file took close to four minutes to type-check and grew with every key;
+  split, it takes about a quarter of that, and a launch builds the current
+  language and English rather than all of them.
 
 - Languages: en ru de es pt fr it zh ja nl ko th vi hi id tr pl sr ar he fa ur —
   in the order `AppLanguage` declares, which is the order the app offers them
@@ -5904,6 +6069,87 @@ nothing about what would be cleaned, and the caches are why anybody opens it
   on; a third of a second fires while the pointer is only passing through, which
   reads as twitchy — Anton tried both (2026-07-30).
 
+### Leftovers, by name and by file (Anton, 2026-10-01)
+
+Asked for in the manner of CleanMyMac: an app dragged to the Trash by hand
+leaves its data, and Hop should offer to finish the job without being told
+which app it was.
+
+- **The leftovers are on both screens.** They were only under "clear the cache";
+  the same section now stands in "remove the app", between the drop plate and
+  the list of apps, since that is where somebody looks for what an uninstall
+  left. One scan fills it on each screen, when the window opens.
+- **A row is a program, not an identifier**: the name is what the identifier
+  ends with (`org.gimp.gimp` → "Gimp", `com.figma.Desktop` → "Figma";
+  `AppUninstall.leftoverName`, tested), with the identifier in small print
+  under it.
+- **A row opens onto its files.** A chevron shows every place found under that
+  identifier with its own size and its own tick, so one file can be kept while
+  the rest goes. Unticking the last one unticks the program; the size on the
+  row is the size of what is ticked. "all" and "remove the leftovers" act on
+  the ticked programs; a program with files kept stays in the list with those.
+- A file ticked inside a program that is NOT ticked takes that one file only
+  (review, 2026-10-01): it used to arm every other file of the program, none
+  of which had been chosen (`CacheOwner.toggle`, `LeftoverTickTests`).
+- The guards that keep a live app out (30 quiet days among them) are unchanged.
+- **macOS's question is announced** (Anton, 2026-10-01, after its notice about
+  Hop reaching into other apps' data arrived with no explanation): while the
+  disk is being read, a line under "looking through the disk…" says that macOS
+  may ask to let Hop see other apps' data and that this is how leftovers are
+  found. It leaves with the scan.
+
+### Removed apps, by their installer records (Anton, 2026-10-01)
+
+Found on Anton's Mac: Blackmagic RAW Player and Speed Test were deleted by hand,
+all 81 of their files gone, and CleanMyMac kept naming them as half-removed
+while Hop showed nothing. Two reasons — the leftovers scan reads only
+`~/Library`, and its "same vendor" guard hides everything of a vendor that
+still has an app installed (DaVinci Resolve here; Word and VS Code hid a removed
+Outlook and OneNote the same way).
+
+- **A package's record is proof, not a guess.** Every record in
+  `/var/db/receipts` names the files its installer put down
+  (`pkgutil --only-dirs --files`). A record that names app bundles, none of
+  which exists — at its recorded path, by name in the Applications folders one
+  level deep, or anywhere Spotlight knows outside the Trash (an app moved to
+  another disk is not removed) — is a removed app (`PackageReceipts`, tested).
+  Apple's own records are never offered. No quiet month and no vendor guard
+  apply: the record says what was installed and the disk says it is gone.
+- **Silence is not an answer** (review, 2026-10-01). A tool that did not run or
+  failed returns nothing, and nothing is never read as "not found": a record
+  whose `pkgutil` listing failed is skipped, an app whose Spotlight query
+  failed counts as still there, and with Spotlight not answering at all
+  (indexing off: the probe for `Finder.app` finds nothing) no removed app is
+  offered. Mounted volumes are looked through by name as well, since a volume
+  may be left out of the index.
+- An app that is running counts as there whatever folder it was started from.
+  The removal run shows its own screen while the traces are gathered, and
+  leaving that screen cancels it: nothing is removed behind another screen.
+- **Where**: the "remove the app" screen, a section above the leftovers, one
+  row per record with the names of its apps and the record's identifier in
+  small print. Found on that Mac: the two Blackmagic apps, Outlook, OneNote,
+  AutoUpdate and the Office setup assistant; the installed Word, Excel and
+  PowerPoint stayed out. About four seconds, off the main thread.
+- The same section stands under "clear the cache", above the leftovers (Anton,
+  2026-10-01: it must be findable from either job), and each row carries an
+  orange "app is gone" mark so it reads as something to clean up rather than
+  an app. From "clear the cache" the removal screen opens and the back arrow
+  returns there.
+- **Ticks and one button** (Anton, 2026-10-01: "I should not have to go into
+  each one"): every row has a tick, the section has "all" and "remove the
+  leftovers". The button gathers the traces of every ticked app with their
+  default ticks plus the records, and removes them in ONE run — one admin
+  prompt for all of them — ending on the usual report. The chevron at the end
+  of a row still opens that one app's removal screen, to see or untick files.
+- **The chevron opens the ordinary removal screen** for the app that is gone: every
+  trace found by its name (the identifier is recovered from the traces
+  themselves, as for an app already in the Trash), with the usual grades and
+  ticks, plus the record's own `.bom` and `.plist`. Removal goes the usual way —
+  the Trash, one admin prompt for system paths, the report.
+- Coming back from a removal reads the records again, so a removed row is gone.
+- Dev: `Hop --uninstall-removed` prints what the records call removed; it reads
+  no other app's data.
+
 ### Uninstaller: the other two modes
 
 - **Clear the cache, keep the app.** Only folders macOS itself calls a cache —
@@ -6006,9 +6252,18 @@ its own database of known apps may do better on real software than it did here.
   zones by name, keep-awake durations, the speed test's rerun, a colour row's
   three notations, the torrent rows (fold, folder, pause, remove), a grid icon's
   ✕ and the archive queue's ✕.
-- Controls that already carry a VISIBLE label do not get one. A tooltip
-  repeating the word under the cursor is noise, and it trains people to ignore
-  the ones that say something.
+- Controls that already carry a VISIBLE label do not get a tooltip that
+  repeats the label. A tooltip repeating the word under the cursor is noise,
+  and it trains people to ignore the ones that say something.
+- **A module says what it is for wherever it is hovered** (Anton, 2026-10-01:
+  "I hover the clipboard and nothing comes up"). Any spot of a module without
+  a tooltip of its own shows the module's name and its one-line purpose — the
+  same `purpose*` line the onboarding and the settings page use, so it exists
+  in every language (`moduleHint`). A control's own tooltip still wins over it.
+  A clipboard entry says "click to copy, right-click for more".
+- The panel window allows tooltips while Hop is not the active app
+  (`allowsToolTipsWhenApplicationIsInactive`): on macOS 27 a click in the
+  panel no longer activates Hop, so it is hovered from the background.
 - Zone names live in L10n like any other string (`tipSnap*`), so the window
   layouts finally have names in all fifteen languages instead of being glyphs only.
 

@@ -116,6 +116,28 @@ final class NetworkNameLookupTests: XCTestCase {
     }
 }
 
+final class NetworkFilterFollowTests: XCTestCase {
+    func testAFilterSwitchedOffOutsideHopTurnsTheRowOff() {
+        XCTAssertEqual(NetworkFilterFollow.move(known: .on, systemOn: false), .becameOff)
+    }
+
+    func testAFilterSwitchedOnInSystemSettingsIsShownOn() {
+        XCTAssertEqual(NetworkFilterFollow.move(known: .off, systemOn: true), .becameOn)
+        XCTAssertEqual(NetworkFilterFollow.move(known: .failed, systemOn: true), .becameOn)
+    }
+
+    func testAnInstallInFlightIsLeftAlone() {
+        XCTAssertEqual(NetworkFilterFollow.move(known: .busy, systemOn: false), .none)
+        XCTAssertEqual(NetworkFilterFollow.move(known: .busy, systemOn: true), .none)
+    }
+
+    func testAgreementMovesNothing() {
+        XCTAssertEqual(NetworkFilterFollow.move(known: .on, systemOn: true), .none)
+        XCTAssertEqual(NetworkFilterFollow.move(known: .off, systemOn: false), .none)
+        XCTAssertEqual(NetworkFilterFollow.move(known: .failed, systemOn: false), .none)
+    }
+}
+
 final class NetworkStartTests: XCTestCase {
     private func due(on: Bool = true, wasOn: Bool = true, started: Bool = false,
                      done: Bool = true, off: Bool = true) -> Bool {

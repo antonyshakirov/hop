@@ -52,13 +52,22 @@ dus macOS opent het als elke andere app. De broncode is openbaar en
 ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
+### 2.3.0
+
+- Hop vindt en verwijdert de resten van apps die niet helemaal zijn verwijderd.
+- macOS 27: betere compatibiliteit.
+- Klembord: met rechtsklik kun je een item als bestand opslaan.
+- Torrents: één bestand van een torrent verwijderen, en rechtsklik op een rij opent een menu.
+- Verkeer blokkeren: een filterschakelaar in het venster.
+- Overige bugfixes en verbeteringen.
+
 ### 2.2.1
 
-- De module ‘netwerktoegang’ toont geen melding meer als het filter opnieuw start.
+- De module ‘verkeer blokkeren’ toont geen melding meer als het filter opnieuw start.
 
 ### 2.2.0
 
-- Nieuwe module ‘netwerktoegang’: zie welke programma's online gaan en waarheen, en blokkeer met één klik een heel programma of maar één adres ervan.
+- Nieuwe module ‘verkeer blokkeren’: zie welke programma's online gaan en waarheen, en blokkeer met één klik een heel programma of maar één adres ervan.
 - Hop is aangepast aan macOS 27.
 - Tekstherkenning: de eerste lezing na een update gaat meteen, en een instelling bepaalt of het venster opent.
 - De snelheidstest kan eerder worden gestopt.
@@ -66,10 +75,6 @@ nieuwer.
 ### 2.1.8
 
 - foutoplossingen
-
-### 2.1.7
-
-- macOS 27: acties in het paneel reageren op de eerste klik
 
 ## Functies
 
@@ -393,7 +398,7 @@ De stip kun je in de instellingen uitzetten – de module en de schakelaars werk
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
-### Netwerktoegang
+### Verkeer blokkeren
 
 Zie welke programma's op je Mac online gaan, en waarheen – en blokkeer elk daarvan. Elk programma dat verbinding maakt, verschijnt met de adressen die het bereikte. Een klik op het label sluit het hele programma af van het netwerk; open het, en één adres kan apart geblokkeerd worden – een licentiecontrole bijvoorbeeld, terwijl de rest van het verkeer doorgaat. Een regel kan al worden ingesteld voordat een programma ooit verbinding maakt: elke geïnstalleerde app staat in de lijst, en een lijst met adressen geladen uit een bestand (één per regel, of een hosts-bestand) wordt voor alle programma's tegelijk geblokkeerd. De rij in het paneel telt de blokkades; het venster erachter bevat de rest, en een rij blijft op zijn plek als je hem wijzigt.
 
@@ -402,7 +407,7 @@ Hop doet dit met het netwerkfilter dat macOS precies hiervoor biedt, hetzelfde s
 De module staat standaard aan en blijft stil: zonder regels gaat alles door. Vragen bij nieuwe verbindingen is een instelling – aangezet vraagt een kaart rechtsboven naar een verbinding die geen regel dekt, voor dat adres of het hele programma.
 
 <div align="center">
-<img src="https://hop.tools/screens/nl/network.webp" width="560" alt="Hop – netwerktoegang: programma's, hun adressen, toegestaan en geblokkeerd">
+<img src="https://hop.tools/screens/nl/network.webp" width="560" alt="Hop – verkeer blokkeren: programma's, hun adressen, toegestaan en geblokkeerd">
 </div>
 
 → [App firewall for Mac](https://hop.tools/features/app-firewall/)
@@ -504,12 +509,12 @@ gebruikt wordt; het instellingenvenster van de app somt ze allemaal op met hun s
   schermafbeeldingen, en de loep en de vervaging op de tekenlaag; de
   kleurenpipet heeft het niet nodig
 - **berichtgeving** – het signaal van de timer en een afgeronde torrent
-- **netwerkfilter** – één keer, voor netwerktoegang: macOS vraagt je het filter van Hop toe te staan in systeeminstellingen; wat het ziet blijft op deze Mac
+- **netwerkfilter** – één keer, voor verkeer blokkeren: macOS vraagt je het filter van Hop toe te staan in systeeminstellingen; wat het ziet blijft op deze Mac
 - **beheerderswachtwoord** – één keer, voor de stand met gesloten klep (pmset
   draait alleen als root)
 - **openen bij inloggen** – uit tot je het zelf aanzet
 
-Niets wordt gevraagd voor een module die je niet hebt aangezet. Het enige verzoek dat bij het starten kan komen is het netwerkfilter, één keer, na de update die netwerktoegang brengt: die module staat standaard aan. Geen analytics, geen telemetrie, geen account, geen
+Niets wordt gevraagd voor een module die je niet hebt aangezet. Het enige verzoek dat bij het starten kan komen is het netwerkfilter, één keer, na de update die verkeer blokkeren brengt: die module staat standaard aan. Geen analytics, geen telemetrie, geen account, geen
 crashrapporten: hop.tools wordt alleen benaderd om te vragen of er een
 nieuwere versie is – en om die, of een van de twee optionele helpers, te
 downloaden als jij ja zegt. Al het andere blijft op deze Mac: de

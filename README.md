@@ -52,13 +52,22 @@ Hop is signed with an Apple Developer ID and notarized by Apple, so macOS
 opens it like any other app. The source is public, and built-in updates are
 verified with Ed25519. Requires macOS 14 or newer.
 
+### 2.3.0
+
+- Hop finds and clears the leftovers of apps that were not removed completely.
+- macOS 27: improved compatibility.
+- Clipboard: a right click on an entry can save it as a file.
+- Torrents: remove a single file of a torrent, and a right click on a row opens a menu.
+- Traffic blocking: a filter switch in its window.
+- Other bug fixes and improvements.
+
 ### 2.2.1
 
-- The "network access" module no longer shows a pop-up when its filter restarts.
+- The "traffic blocking" module no longer shows a pop-up when its filter restarts.
 
 ### 2.2.0
 
-- New module "network access": see which programs go online and where, and block a program or a single address of it with one click.
+- New module "traffic blocking": see which programs go online and where, and block a program or a single address of it with one click.
 - Hop is adapted to macOS 27.
 - Text recognition: the first reading after an update is instant, and a setting decides whether a reading opens its window.
 - The speed test can be stopped early.
@@ -66,10 +75,6 @@ verified with Ed25519. Requires macOS 14 or newer.
 ### 2.1.8
 
 - On macOS 27, the panel fits the selected tab and closes when you click outside it.
-
-### 2.1.7
-
-- macOS 27: panel actions respond to the first click
 
 ## Features
 
@@ -403,7 +408,7 @@ The dot can be switched off in settings – the module and its switches go on wo
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
-### Network access
+### Traffic blocking
 
 See which programs on your Mac go online, and where – and block any of them.
 Every program that connects shows up with the addresses it reached. One click on
@@ -427,7 +432,7 @@ top right asks about a connection no rule covers, for that address or the whole
 program.
 
 <div align="center">
-<img src="https://hop.tools/screens/en/network.webp" width="560" alt="Hop – network access: programs, their addresses, allowed and blocked">
+<img src="https://hop.tools/screens/en/network.webp" width="560" alt="Hop – traffic blocking: programs, their addresses, allowed and blocked">
 </div>
 
 → [App firewall for Mac](https://hop.tools/features/app-firewall/)
@@ -539,7 +544,7 @@ and the settings window lists them all with their current state:
   and the loupe and the blur on the drawing layer; the color picker does not
   need it
 - **notifications** – the timer's alert and a finished torrent
-- **network filter** – once, for network access: macOS asks you to allow Hop's
+- **network filter** – once, for traffic blocking: macOS asks you to allow Hop's
   filter in System Settings; what it sees stays on this Mac
 - **administrator password** – once, for the closed-lid mode (pmset is root-only)
 - **launch at login** – off unless you turn it on

@@ -41,10 +41,11 @@ struct NetworkView: View {
 @MainActor
 enum NetworkStatusText {
     static func line(_ network: NetworkFilterController, _ lang: AppLanguage) -> (text: String, warning: Bool)? {
+        // SPEC: docs/spec.md — "Network access", the row: off and waiting are grey, only a fault is orange.
         switch network.state {
-        case .off: return (L10n.t(.networkFilterIsOff, lang), true)
+        case .off: return (L10n.t(.networkFilterIsOff, lang), false)
         case .installing: return (L10n.t(.networkInstalling, lang), false)
-        case .needsApproval: return (L10n.t(.networkNeedsApproval, lang), true)
+        case .needsApproval: return (L10n.t(.networkNeedsApproval, lang), false)
         case .failed: return (L10n.t(.networkFailed, lang), true)
         case .on:
             if network.stopped { return (L10n.t(.networkStopped, lang), true) }
@@ -55,6 +56,15 @@ enum NetworkStatusText {
 }
 
 extension NetworkFilterController.State {
+    var known: NetworkFilterFollow.Known {
+        switch self {
+        case .off: return .off
+        case .installing, .needsApproval: return .busy
+        case .on: return .on
+        case .failed: return .failed
+        }
+    }
+
     var wantsOn: Bool {
         switch self {
         case .on, .installing, .needsApproval: return true
@@ -86,9 +96,16 @@ struct NetworkWindowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             header
-            // SPEC: docs/spec.md — "Network access", nothing to set up until the filter runs.
-            if network.state == .on {
+            // SPEC: docs/spec.md — "Network access", nothing to set up until the filter runs;
+            // switched off, the rules stay in view and wait.
+            if network.state == .on || network.state == .off {
                 toolbar
+                if network.state == .off {
+                    Text(t(.networkOffAllowsAll))
+                        .font(Theme.mono(11))
+                        .foregroundStyle(Theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 if let note {
                     Text(note)
                         .font(Theme.mono(11))
@@ -124,7 +141,25 @@ struct NetworkWindowView: View {
                     .font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary)
             }
+            Spacer(minLength: 12)
+            filterSwitch
         }
+    }
+
+    /// SPEC: docs/spec.md — "Network access", the filter's own switch.
+    private var filterSwitch: some View {
+        HStack(spacing: 8) {
+            Text(t(.networkFilterSwitch))
+                .font(Theme.mono(12))
+                .foregroundStyle(Theme.textPrimary)
+            Theme.MiniSwitch(isOn: Binding(
+                get: { network.state.wantsOn },
+                set: { on in
+                    guard !staged else { return }
+                    on ? network.switchOn() : network.switchOff()
+                }))
+        }
+        .help(t(.networkFilterHelp))
     }
 
     // MARK: before the filter runs
@@ -160,15 +195,7 @@ struct NetworkWindowView: View {
                 }
                 primary(t(.networkSwitchOn)) { network.switchOn() }
             case .off, .on:
-                Text(t(.networkOffTitle))
-                    .font(Theme.mono(13, weight: .semibold))
-                    .foregroundStyle(Theme.textPrimary)
-                Text(t(.networkOffNote))
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                primary(t(.networkSwitchOn)) { network.switchOn() }
-                    .padding(.top, 4)
+                EmptyView()
             }
         }
     }

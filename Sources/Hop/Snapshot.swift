@@ -57,6 +57,14 @@ enum Snapshot {
             exit(0)
         }
 
+        // `Hop --uninstall-removed` prints the apps the installer records call removed.
+        if args.contains("--uninstall-removed") {
+            for app in UninstallController.rawRemovedApps() {
+                print("\(app.receipt)  →  \(app.names.joined(separator: ", "))")
+            }
+            exit(0)
+        }
+
         // `Hop --uninstall-remove <app>` performs the same removal the window does,
         // from the terminal: quit, boot out the agents, move every ticked trace to
         // the TRASH. Dev-only like the other self-tests, and the way a comparison
@@ -454,6 +462,7 @@ enum Snapshot {
             || args.contains("--torrents-empty")
             || args.contains("--torrents-firstrun")
             || args.contains("--torrents-states")
+            || args.contains("--torrents-remove")
         if wantsTorrents {
             for key in ["showTimerModule", "showAwakeModule", "showClipboardModule",
                         "showConvertModule", "showWindowsModule", "showSpeedtestModule"] {
@@ -476,6 +485,10 @@ enum Snapshot {
         }
         if wantsTorrents, !args.contains("--torrents-empty") {
             model.torrent.loadDemo(demoTorrents(includeMissing: args.contains("--torrents-states")))
+            if args.contains("--torrents-remove") {
+                TorrentView.stagedRemove = ("1", "2#1")
+                model.torrent.toggleExpanded("2")
+            }
         }
         // --tasks: seed the tracker + to-do modules and open the space that
         // stacks them, so a snapshot shows both flat lists (subheaders, flush
@@ -693,6 +706,11 @@ enum Snapshot {
             progress.receive(.failed(.tool), for: second)
             content = AnyView(
                 FinderArchiveProgressView(model: progress, lang: L10n.current))
+        } else if args.contains("--window-uninstall-list") {
+            model.uninstall.stagePickerDemo()
+            content = AnyView(UninstallWindowView(uninstall: model.uninstall, lang: L10n.current)
+                .environmentObject(model)
+                .frame(width: 560, height: 620))
         } else if args.contains("--window-uninstall") || args.contains("--window-clean") {
             // The uninstaller's two jobs. Staged rather than scanned: the real
             // lists are this Mac's own apps and this Mac's own disk, and a
@@ -724,7 +742,7 @@ enum Snapshot {
         } else if args.contains("--window-network") {
             content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
                 .environmentObject(model)
-                .frame(width: 740, height: model.networkFilter.state == .on ? 980 : 420))
+                .frame(width: 740, height: [.on, .off].contains(model.networkFilter.state) ? 980 : 420))
         } else if args.contains("--window-ocr") {
             content = AnyView(ScreenTextWindowView().environmentObject(model)
                 .frame(width: 560))

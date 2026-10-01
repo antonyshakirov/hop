@@ -187,6 +187,7 @@ struct PanelView: View {
     @State private var dropTargeted = false
     /// Pause ring flash: click on the locked button while a countdown is running.
     @State private var stopHintPulse = false
+    @State private var resetHintPulse = false
     // actual width of the time display: scrub and digit-group click zones
     // derive from it, not from the dot font — scrubbing is uniform across styles
     @State private var displayMeasuredWidth: CGFloat = 0
@@ -218,7 +219,7 @@ struct PanelView: View {
 
 
     // defaults: breaks/pomodoro/academic hour/hour/ultradian cycle
-    static let defaultPresets = "5,15,25,45,60,90"
+    static let defaultPresets = "5,10,15,25,45,60,90"
     @AppStorage("timerPresets") private var presetsRaw = PanelView.defaultPresets
     @AppStorage(UpdateChecker.autoUpdateKey) private var autoUpdateOn = true
     @State private var newPresetMinutes = 20
@@ -475,6 +476,7 @@ struct PanelView: View {
         .init(id: "2.1", lines: [.news21Shot, .news21Draw, .news21More]),
         .init(id: "2.1.2", lines: [.news211Hold], catchUp: "2.1"),
         .init(id: "2.2", lines: [.news22Network, .news22Mac27, .news22More], enables: "network"),
+        ReleaseCard(id: "2.3", lines: [.news23Leftovers, .news23Mac, .news23Clipboard, .news23More]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -2279,20 +2281,17 @@ struct PanelView: View {
         }
     }
 
+    /// SPEC: docs/spec.md — "Timer", the hint points at the button that frees the timer.
     private func nudgeStopFirst() {
-        // exactly TWO stroke pulses, opacity only (no scaling).
-        // The value animates back to false — no third
-        // "fast" blink from a hard reset at the end.
-        let pulse = Animation.easeInOut(duration: 0.18)
-        withAnimation(pulse) { stopHintPulse = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
-            withAnimation(pulse) { stopHintPulse = false }
+        let onReset = model.engine.state == .paused
+        func set(_ on: Bool) {
+            withAnimation(.easeInOut(duration: 0.18)) {
+                if onReset { resetHintPulse = on } else { stopHintPulse = on }
+            }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) {
-            withAnimation(pulse) { stopHintPulse = true }
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.58) {
-            withAnimation(pulse) { stopHintPulse = false }
+        set(true)
+        for (delay, on) in [(0.18, false), (0.40, true), (0.58, false)] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { set(on) }
         }
     }
 
@@ -2425,6 +2424,11 @@ struct PanelView: View {
                         .font(.system(size: digitsLarge ? 11 : 9, weight: .semibold))
                         .foregroundStyle(Theme.textSecondary)
                         .frame(width: digitsLarge ? 26 : 21, height: digitsLarge ? 26 : 21)
+                        .overlay {
+                            Circle()
+                                .stroke(Theme.textPrimary, lineWidth: 1.5)
+                                .opacity(resetHintPulse ? 0.9 : 0)
+                        }
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -2548,6 +2552,15 @@ struct PanelView: View {
                     .font(Theme.mono(9))
             }
             .foregroundStyle(Theme.textSecondary)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+            .overlay {
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(Theme.textPrimary, lineWidth: 1.5)
+                    .opacity(resetHintPulse ? 0.9 : 0)
+            }
+            .padding(.horizontal, -4)
+            .padding(.vertical, -2)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -3202,6 +3215,13 @@ struct PanelView: View {
         }
     }
 
+    /// SPEC: docs/spec.md — "Tooltips", a module says what it is for wherever it is hovered.
+    private func moduleHint(_ key: String) -> String {
+        if AppShelves.shelfID(fromModuleKey: key) != nil { return t(.purposeApps) }
+        guard let purpose = ModulePresentation.purposeKey(key) else { return "" }
+        return "\(moduleTitle(key)): \(t(purpose))"
+    }
+
     private func moduleTitle(_ key: String) -> String {
         switch key {
         case "timer": return t(.aboutTabTimer)
@@ -3330,6 +3350,7 @@ struct PanelView: View {
     @ViewBuilder private func moduleBlock(_ key: String, in tabID: UUID) -> some View {
         let others = tabsModel.tabs.enumerated().filter { $0.element.id != tabID }
         moduleContent(key, in: tabID)
+            .help(moduleHint(key))
             // The collapsed tools row stands for three modules at once, so the
             // "move to / hide" menu would be lying about what it moves.
             .contextMenu {
@@ -3390,7 +3411,8 @@ struct PanelView: View {
             Image(systemName: "speedometer")
                 .font(.system(size: 12))
                 .foregroundStyle(Theme.textSecondary)
-            Text(t(.speedtestLabel))
+            // SPEC: docs/spec.md — "Speed test": the row keeps the short word beside its figures.
+            Text(t(.speedtestRowLabel))
                 .font(Theme.mono(11))
                 .foregroundStyle(Theme.textSecondary)
                 .lineLimit(1)
@@ -3957,6 +3979,10 @@ struct PanelView: View {
                     if switchable { SettingsRule() }
                     moduleSettings(key)
                 }
+            }
+
+            if on, key == "windows" {
+                windowZonesSection(title: t(.hotkeysLabel))
             }
 
             let keys = moduleHotkeyActions(key)
@@ -4959,29 +4985,37 @@ struct PanelView: View {
 
             // the zones are the windows module's keys and go with it
             if moduleIsActive("windows") {
-                SettingsGroupLabel(title: t(.windowsLabel))
-                    .padding(.top, 8)
-                SettingsCard {
-                    switchSetting(t(.windowsHotkeysLabel), isOn: $windowsHotkeysOn)
-                    if windowsHotkeysOn {
-                        SettingsRule()
-                        // eighteen zones in one column is a page of scrolling; two
-                        // columns keep the whole set in view
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .leading),
-                                                 count: 2),
-                                  alignment: .leading, spacing: 10) {
-                            ForEach(ModuleCatalog.zoneActions, id: \.self) { action in
-                                zoneHotkeyRow(action)
-                            }
-                        }
+                windowZonesSection(title: t(.windowsLabel))
+            }
+        }
+    }
+
+    /// The zone keys with their switch — on the hotkeys page and, the same
+    /// card, on the window module's own page.
+    /// SPEC: docs/spec.md — "Hotkeys (settings window)", the zones on both pages.
+    @ViewBuilder
+    private func windowZonesSection(title: String) -> some View {
+        SettingsGroupLabel(title: title)
+            .padding(.top, 8)
+        SettingsCard {
+            switchSetting(t(.windowsHotkeysLabel), isOn: $windowsHotkeysOn)
+            if windowsHotkeysOn {
+                SettingsRule()
+                // eighteen zones in one column is a page of scrolling; two
+                // columns keep the whole set in view
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20, alignment: .leading),
+                                         count: 2),
+                          alignment: .leading, spacing: 10) {
+                    ForEach(ModuleCatalog.zoneActions, id: \.self) { action in
+                        zoneHotkeyRow(action)
                     }
                 }
-                resetGroupButton(ModuleCatalog.zoneActions)
             }
         }
         .onChange(of: windowsHotkeysOn) { _, _ in
             HotkeyManager.shared.refreshModuleHotkeys()
         }
+        resetGroupButton(ModuleCatalog.zoneActions)
     }
 
     /// SPEC: docs/spec.md — "Hotkeys (settings window)", the per-group reset.
@@ -5097,10 +5131,10 @@ struct PanelView: View {
     /// What a module's second key does, in its own words.
     private func actionLabel(_ action: ModuleAction) -> String {
         switch action.id {
-        case "window": return t(.shotWindow)
-        case "screen": return t(.shotScreen)
-        case "repeat": return t(.shotRepeat)
-        case "pass": return t(.annotateClickMode)
+        case "window": return t(.hkShotWindow)
+        case "screen": return t(.hkShotScreen)
+        case "repeat": return t(.hkShotRepeat)
+        case "pass": return t(.hkAnnotatePass)
         default: return action.id
         }
     }

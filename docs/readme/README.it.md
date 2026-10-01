@@ -53,13 +53,22 @@ la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
 aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
 successivo.
 
+### 2.3.0
+
+- Hop trova e rimuove i resti delle app che non sono state eliminate del tutto.
+- macOS 27: compatibilità migliorata.
+- Appunti: con il clic destro si può salvare una voce come file.
+- Torrent: si può togliere un singolo file di un torrent, e il clic destro su una riga apre un menu.
+- Blocco del traffico: un interruttore del filtro nella finestra.
+- Altre correzioni di bug e miglioramenti.
+
 ### 2.2.1
 
-- Il modulo «accesso alla rete» non mostra più un avviso quando il filtro si riavvia.
+- Il modulo «blocco del traffico» non mostra più un avviso quando il filtro si riavvia.
 
 ### 2.2.0
 
-- Nuovo modulo «accesso alla rete»: vedi quali programmi vanno in rete e dove, e blocca con un clic un intero programma o un solo suo indirizzo.
+- Nuovo modulo «blocco del traffico»: vedi quali programmi vanno in rete e dove, e blocca con un clic un intero programma o un solo suo indirizzo.
 - Hop è adattato a macOS 27.
 - Riconoscimento del testo: la prima lettura dopo un aggiornamento è immediata, e un'impostazione decide se si apre la finestra.
 - Il test di velocità si può fermare prima.
@@ -67,10 +76,6 @@ successivo.
 ### 2.1.8
 
 - correzioni di bug
-
-### 2.1.7
-
-- macOS 27: le azioni nel pannello rispondono al primo clic
 
 ## Funzionalità
 
@@ -395,7 +400,7 @@ Il punto si può spegnere nelle impostazioni: il modulo e i suoi interruttori f
 
 → [VPN switcher for Mac](https://hop.tools/features/vpn-switcher/)
 
-### Accesso alla rete
+### Blocco del traffico
 
 Guarda quali programmi sul tuo Mac vanno in rete, e dove – e blocca uno qualsiasi di essi. Ogni programma che si collega compare con gli indirizzi che ha raggiunto. Un clic sulla sua etichetta taglia dalla rete l'intero programma; aprilo, e un singolo indirizzo può essere bloccato da solo – un controllo di licenza, per esempio, mentre il resto del suo traffico passa. Una regola può essere impostata prima ancora che un programma si colleghi: ogni app installata compare nell'elenco, e un elenco di indirizzi caricato da un file (uno per riga, o un file hosts) viene bloccato per tutti i programmi in una volta. La riga nel pannello conta i blocchi; la finestra dietro contiene il resto, e una riga resta dove sta quando la cambi.
 
@@ -404,7 +409,7 @@ Hop fa questo con il filtro di rete che macOS offre proprio per questo compito, 
 Il modulo è attivo di default e resta discreto: senza regole, passa tutto. Chiedere per le nuove connessioni è un'impostazione – attivata, una scheda in alto a destra chiede per una connessione che nessuna regola copre, per quell'indirizzo o per tutto il programma.
 
 <div align="center">
-<img src="https://hop.tools/screens/it/network.webp" width="560" alt="Hop – accesso alla rete: programmi, i loro indirizzi, consentito e bloccato">
+<img src="https://hop.tools/screens/it/network.webp" width="560" alt="Hop – blocco del traffico: programmi, i loro indirizzi, consentito e bloccato">
 </div>
 
 → [App firewall for Mac](https://hop.tools/features/app-firewall/)
@@ -508,12 +513,12 @@ finestra delle impostazioni li elenca tutti con il loro stato attuale:
   un'area, le schermate, la lente e la sfocatura del livello di disegno; il
   selettore colore non ne ha bisogno
 - **notifiche** – l'avviso del timer e un torrent completato
-- **filtro di rete** – una volta, per l'accesso alla rete: macOS ti chiede di consentire il filtro di Hop nelle impostazioni di sistema; quello che vede resta su questo Mac
+- **filtro di rete** – una volta, per l'blocco del traffico: macOS ti chiede di consentire il filtro di Hop nelle impostazioni di sistema; quello che vede resta su questo Mac
 - **password di amministratore** – una volta, per la modalità a coperchio chiuso
   (pmset gira solo come root)
 - **apri all'accesso** – spento finché non lo accendi
 
-Nulla viene chiesto per un modulo che non hai attivato. L'unica richiesta che può arrivare all'avvio è il filtro di rete, una volta, dopo l'aggiornamento che porta l'accesso alla rete: quel modulo è attivo di default. Nessuna analytics, nessuna telemetria, nessun account, nessun report di
+Nulla viene chiesto per un modulo che non hai attivato. L'unica richiesta che può arrivare all'avvio è il filtro di rete, una volta, dopo l'aggiornamento che porta l'blocco del traffico: quel modulo è attivo di default. Nessuna analytics, nessuna telemetria, nessun account, nessun report di
 crash: hop.tools viene contattato solo per chiedere se esiste una
 versione più recente – e per scaricarla, o uno dei due aiutanti opzionali, se
 acconsenti. Tutto il resto resta su questo Mac: la cronologia degli appunti, il
