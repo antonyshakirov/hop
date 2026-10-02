@@ -942,6 +942,14 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`disablesleep 0`); switching duration options keeps lid mode. Lid mode
   never outlives the awake session — without it a closed lid would block
   sleep forever.
+- **Keep awake survives an update** (Anton, 2026-10-01). An update relaunches
+  Hop, and a critical one or a manual one does so while keep-awake is on. Just
+  before the relaunch the session is written down (`awakeResumeAfterUpdate`:
+  on or off, its end, lid mode), lid mode is left applied, and no cue plays.
+  The new copy reads the record once and deletes it: an endless session comes
+  back endless, a timed one keeps its original end, and lid mode stays only
+  together with a session that came back, all without a sound. A record older than ten minutes is ignored, and so is a
+  session whose time ran out meanwhile. Quitting by hand still ends the session.
 - While lid mode is active, closing the lid blanks the built-in panel:
   `disablesleep` keeps the backlight powered, so LidDimmer polls the
   clamshell state (1 s) and sets the built-in display's brightness to 0
@@ -1011,9 +1019,19 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
    added 2026-07-29, it was the one metric with a number and no trend — and
    the card is drawn ONLY when this Mac reports a GPU load or a GPU
    temperature: an empty chart is worse than no chart.
+- **The graphics row always carries a temperature when the chip has one**
+  (Anton, 2026-10-01). A Mac whose sensors name no graphics sensor of their
+  own has the graphics cores on the same chip as the processor, so the row
+  shows the chip's temperature, the figure the processor row shows. Heat has
+  no threshold of its own for graphics either: macOS's critical verdict lights
+  the "!" for the whole machine.
 - An orange "!" (top-left of the menu bar icon, steady) during a red zone (same
   thresholds that color the values, and for heat the system's own critical
-  state). OFF by
+  state). The red zone is any of: processor load, graphics load, disk used and
+  memory past their red thresholds, critical heat, and the battery when asked.
+  Graphics load has its own pair of thresholds (`thGpuYellow` / `thGpuRed`,
+  80 / 95, the row "gpu %" in the monitor settings) and no longer borrows the
+  processor's (Anton, 2026-10-01). OFF by
   default, toggle in monitor settings. It shares the top-left "!" with the
   tracker's 8-hour blink — see "Menu bar icon — corner badges".
 - **Low battery does not light the "!" unless asked** (Anton, 2026-09-26).
@@ -6593,9 +6611,11 @@ as if swap were on top of the shown figure and lied about pressure. Now:
   no physical meaning. The keys `thMemYellow` / `thMemRed` are swept, and the
   new ones are named apart so an inherited 110 cannot become "warn when swap
   passes 110% of RAM", which is silence.
-- Memory is deliberately NOT part of the menu-bar icon's red zone, as it has
-  never been: swap fills over hours rather than spiking, so a badge for it
-  would sit there all day and stop meaning anything.
+- Memory IS part of the menu-bar icon's red zone (Anton, 2026-10-01): the "!"
+  lights when the row is red, which is swap past its red threshold or macOS
+  reporting critical pressure. Swap fills over hours, so on a machine that
+  lives in swap the mark stays lit until something is closed or the threshold
+  is raised in the monitor settings.
 
 ## Safe mode (crash loop)
 

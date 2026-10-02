@@ -240,14 +240,14 @@ final class SystemStatsController: ObservableObject {
 
         let temps = sensors.read()
         s.cpuTemp = temps.cpu
-        s.gpuTemp = temps.gpu
+        s.gpuTemp = Self.gpuTemperature(sensor: temps.gpu, chip: temps.cpu)
         s.ssdTemp = temps.ssd
         sample = s
 
         Self.push(&history.cpuLoad, s.cpuLoad)
         Self.push(&history.cpuTemp, temps.cpu)
         Self.push(&history.gpuLoad, s.gpuLoad)
-        Self.push(&history.gpuTemp, temps.gpu)
+        Self.push(&history.gpuTemp, s.gpuTemp)
         if let used = s.memUsed, let total = s.memTotal, total > 0 {
             Self.push(&history.memShare, used / total)
         }
@@ -265,22 +265,30 @@ final class SystemStatsController: ObservableObject {
         }
     }
 
+    // SPEC: docs/spec.md — "Monitor", the graphics temperature. Test in RedZoneTests.
+    static func gpuTemperature(sensor: Double?, chip: Double?) -> Double? {
+        sensor ?? chip
+    }
+
     /// Red zone — the same thresholds that color the values on the tab.
     static func isRedZone(_ s: StatsSample, defaults d: UserDefaults = .standard) -> Bool {
         func value(_ key: String, _ def: Int) -> Double {
             Double((d.object(forKey: key) as? Int) ?? def)
         }
         let loadRed = value(Thresholds.loadRedKey, Thresholds.loadRedDefault)
+        let gpuRed = value(Thresholds.gpuRedKey, Thresholds.gpuRedDefault)
         let diskRed = value(Thresholds.diskRedKey, Thresholds.diskRedDefault)
         let battRed = value(Thresholds.battRedKey, Thresholds.battRedDefault)
 
-        // Heat has no user threshold: macOS's own verdict decides.
-        // Memory is deliberately absent, as it has been since 1.0: it colours
-        // the row on the tab but never badges the menu-bar icon. Swap fills up
-        // over hours rather than spiking, so a badge for it would sit there all
-        // day and stop meaning anything.
+        // SPEC: docs/spec.md — "Monitor", what lights the "!". Test in RedZoneTests.
         if s.thermal == .critical { return true }
         if let load = s.cpuLoad, load * 100 >= loadRed { return true }
+        if let load = s.gpuLoad, load * 100 >= gpuRed { return true }
+        if MemoryStrain.level(
+            pressure: s.memPressure, swapBytes: s.swapUsed, physicalBytes: s.memTotal,
+            yellowPercent: Int(value(Thresholds.swapYellowKey, Thresholds.swapYellowDefault)),
+            redPercent: Int(value(Thresholds.swapRedKey, Thresholds.swapRedDefault))
+        ) == .critical { return true }
         if let free = s.diskFree, let total = s.diskTotal, total > 0,
            (1 - free / total) * 100 >= diskRed { return true }
         // battery: opt-in (macOS already warns about a low charge); lower than

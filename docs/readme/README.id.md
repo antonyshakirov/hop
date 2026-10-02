@@ -53,6 +53,11 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.3.2
+
+- Monitor sistem: memori dan beban grafis menyalakan penanda masalah di bilah menu, dan beban grafis punya ambang sendiri.
+- Tetap bangun: sesi dan mode penutup tertutup kembali setelah pembaruan.
+
 ### 2.3.1
 
 - Dengan dua layar, panel tetap di bilah menu saat isinya lebih tinggi dari layar.

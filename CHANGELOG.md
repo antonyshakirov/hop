@@ -1,5 +1,14 @@
 # Hop - version history
 
+## 2.3.2 - 2026-10-02
+
+- System monitor: memory and graphics load light the problem badge in the menu bar.
+  Memory counts when swap passes its red threshold or macOS reports critical pressure;
+  graphics load has its own thresholds, the "gpu %" row in the monitor settings.
+  On a Mac without a graphics sensor of its own, the graphics row shows the temperature
+  of the chip it shares with the processor.
+- Keep-awake and running with the lid closed come back after an update relaunches Hop.
+
 ## 2.3.1 - 2026-10-01
 
 - With two displays, the panel stays at the menu bar when its content is taller

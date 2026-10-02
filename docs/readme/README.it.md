@@ -53,6 +53,11 @@ la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
 aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
 successivo.
 
+### 2.3.2
+
+- Monitor di sistema: la memoria e il carico grafico accendono l'avviso problemi nella barra, e il carico grafico ha soglie proprie.
+- Sveglio: la sessione e la modalità con coperchio chiuso tornano dopo un aggiornamento.
+
 ### 2.3.1
 
 - Con due schermi, il pannello resta sotto la barra dei menu quando il contenuto è più alto dello schermo.

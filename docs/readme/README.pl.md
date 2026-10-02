@@ -52,6 +52,11 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
+### 2.3.2
+
+- Monitor systemu: pamięć i obciążenie grafiki zapalają wskaźnik problemów na pasku menu, a obciążenie grafiki ma własne progi.
+- Nie usypiaj: sesja i praca z zamkniętą pokrywą wracają po aktualizacji.
+
 ### 2.3.1
 
 - Przy dwóch ekranach panel zostaje przy pasku menu, gdy jego zawartość jest wyższa niż ekran.

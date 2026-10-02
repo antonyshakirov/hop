@@ -42,6 +42,8 @@ struct PanelView: View {
 
     @AppStorage(Thresholds.loadYellowKey) private var loadYellow = Thresholds.loadYellowDefault
     @AppStorage(Thresholds.loadRedKey) private var loadRed = Thresholds.loadRedDefault
+    @AppStorage(Thresholds.gpuYellowKey) private var gpuYellow = Thresholds.gpuYellowDefault
+    @AppStorage(Thresholds.gpuRedKey) private var gpuRed = Thresholds.gpuRedDefault
     @AppStorage(Thresholds.diskYellowKey) private var diskYellow = Thresholds.diskYellowDefault
     @AppStorage(Thresholds.diskRedKey) private var diskRed = Thresholds.diskRedDefault
     @AppStorage(Thresholds.battYellowKey) private var battYellow = Thresholds.battYellowDefault
@@ -5562,6 +5564,7 @@ struct PanelView: View {
             }
             .padding(.top, 2)
             ThresholdRow(label: t(.thLoad), yellow: $loadYellow, red: $loadRed, maxValue: 100)
+            ThresholdRow(label: t(.thGpu), yellow: $gpuYellow, red: $gpuRed, maxValue: 100)
             ThresholdRow(label: t(.thDisk), yellow: $diskYellow, red: $diskRed, maxValue: 100)
             VStack(alignment: .leading, spacing: 3) {
                 // battery is inverted: lower = worse, hence red < yellow
@@ -5597,6 +5600,8 @@ struct PanelView: View {
                 Button {
                     loadYellow = Thresholds.loadYellowDefault
                     loadRed = Thresholds.loadRedDefault
+                    gpuYellow = Thresholds.gpuYellowDefault
+                    gpuRed = Thresholds.gpuRedDefault
                     diskYellow = Thresholds.diskYellowDefault
                     diskRed = Thresholds.diskRedDefault
                     battYellow = Thresholds.battYellowDefault

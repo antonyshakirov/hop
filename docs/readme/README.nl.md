@@ -52,6 +52,11 @@ dus macOS opent het als elke andere app. De broncode is openbaar en
 ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
+### 2.3.2
+
+- Systeemmonitor: geheugen en grafische belasting laten het probleemteken in de menubalk oplichten, en grafische belasting heeft eigen drempels.
+- Wakker blijven: de sessie en werken met gesloten klep komen terug na een update.
+
 ### 2.3.1
 
 - Met twee beeldschermen blijft het paneel bij de menubalk wanneer de inhoud hoger is dan het scherm.

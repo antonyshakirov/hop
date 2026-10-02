@@ -22,6 +22,8 @@ struct StatsView: View {
 
     @AppStorage(Thresholds.loadYellowKey) private var loadYellow = Thresholds.loadYellowDefault
     @AppStorage(Thresholds.loadRedKey) private var loadRed = Thresholds.loadRedDefault
+    @AppStorage(Thresholds.gpuYellowKey) private var gpuYellow = Thresholds.gpuYellowDefault
+    @AppStorage(Thresholds.gpuRedKey) private var gpuRed = Thresholds.gpuRedDefault
     @AppStorage(Thresholds.diskYellowKey) private var diskYellow = Thresholds.diskYellowDefault
     @AppStorage(Thresholds.diskRedKey) private var diskRed = Thresholds.diskRedDefault
     @AppStorage(Thresholds.battYellowKey) private var battYellow = Thresholds.battYellowDefault
@@ -182,10 +184,10 @@ struct StatsView: View {
 
     // Color logic: green/gray-white — all fine, yellow — borderline, red — a problem.
     // Thresholds are configurable in system settings.
-    private func loadColor(_ v: Double?) -> Color {
+    private func loadColor(_ v: Double?, gpu: Bool = false) -> Color {
         guard let v else { return Theme.textTertiary }
-        if v * 100 >= Double(loadRed) { return Theme.accentRed }
-        if v * 100 >= Double(loadYellow) { return Theme.accentYellow }
+        if v * 100 >= Double(gpu ? gpuRed : loadRed) { return Theme.accentRed }
+        if v * 100 >= Double(gpu ? gpuYellow : loadYellow) { return Theme.accentYellow }
         return Theme.textSecondary
     }
 
@@ -207,8 +209,8 @@ struct StatsView: View {
 
     // MARK: - Values
 
-    private func loadAndTemp(_ load: Double?, _ temp: Double?) -> Text {
-        Text(StatsFormatting.percent(load)).foregroundColor(loadColor(load))
+    private func loadAndTemp(_ load: Double?, _ temp: Double?, gpu: Bool = false) -> Text {
+        Text(StatsFormatting.percent(load)).foregroundColor(loadColor(load, gpu: gpu))
             + dot
             + Text(tempText(temp)).foregroundColor(tempColor(temp))
     }
@@ -217,9 +219,9 @@ struct StatsView: View {
         // PMU chips have no dedicated GPU sensor — don't show a dash
         guard s.gpuTemp != nil else {
             return Text(StatsFormatting.percent(s.gpuLoad))
-                .foregroundColor(loadColor(s.gpuLoad))
+                .foregroundColor(loadColor(s.gpuLoad, gpu: true))
         }
-        return loadAndTemp(s.gpuLoad, s.gpuTemp)
+        return loadAndTemp(s.gpuLoad, s.gpuTemp, gpu: true)
     }
 
     /// Memory: the figure is RAM used, swap alongside — they no longer

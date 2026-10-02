@@ -55,6 +55,11 @@ l'ouvre comme n'importe quelle autre app. Le code source est public et les
 mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
 plus récent.
 
+### 2.3.2
+
+- Moniteur système : la mémoire et la charge graphique déclenchent l'alerte problème dans la barre, et la charge graphique a ses propres seuils.
+- Éveil : la session et le mode capot fermé reviennent après une mise à jour.
+
 ### 2.3.1
 
 - Avec deux écrans, le panneau reste sous la barre des menus quand son contenu est plus haut que l'écran.

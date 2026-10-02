@@ -25,6 +25,8 @@ final class KeepAwakeController: ObservableObject {
 
     static let keepDisplayKey = "awakeKeepDisplay"
     static let lidKey = "awakeLidStay"
+    static let resumeKey = "awakeResumeAfterUpdate"
+    private var relaunching = false
 
     @Published private(set) var isActive = false
     @Published private(set) var selected: Option?
@@ -54,15 +56,42 @@ final class KeepAwakeController: ObservableObject {
 
     init() {
         LidDimmer.restorePendingAtLaunch()
-        revertLidIfPending()
+        let resume = Self.takeResume()
+        let now = Date()
+        let session = resume?.session(now: now) ?? .none
+        if session != .none,
+           resume?.keepsLid(now: now) == true,
+           UserDefaults.standard.bool(forKey: "lidSleepAppliedPending"),
+           sleepDisabledStateMatches(true) {
+            lidApplied = true
+            updateLidDimmer()
+        } else {
+            revertLidIfPending()
+        }
+        switch session {
+        case .endless:
+            begin(Self.option(seconds: nil), until: nil, cue: false)
+        case .until(let end):
+            begin(Self.option(seconds: resume?.optionSeconds), until: end, cue: false)
+        case .none:
+            break
+        }
+        if lidApplied && !isActive {
+            revertLidIfPending()
+        }
         // safety net: on app exit, release the assertion and restore lid sleep
         terminateObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.willTerminateNotification,
             object: nil, queue: .main
         ) { _ in
             MainActor.assumeIsolated {
-                AppModel.sharedKeepAwake?.deactivate()
-                AppModel.sharedKeepAwake?.releaseLidForShutdown()
+                guard let awake = AppModel.sharedKeepAwake else { return }
+                if awake.relaunching {
+                    awake.deactivate(silent: true)
+                } else {
+                    awake.deactivate()
+                    awake.releaseLidForShutdown()
+                }
             }
         }
     }
@@ -84,13 +113,16 @@ final class KeepAwakeController: ObservableObject {
         // silently drop the previous option — there must be exactly one activation
         // sound, the same for any switch, not an "off+on" pair
         deactivate(silent: true)
+        begin(option, until: option.seconds.map { Date().addingTimeInterval($0) }, cue: true)
+    }
 
+    private func begin(_ option: Option, until end: Date?, cue: Bool) {
         guard createAssertion() else { return }
 
         isActive = true
         selected = option
-        Sounds.awakeCue(on: true)
-        until = option.seconds.map { Date().addingTimeInterval($0) }
+        if cue { Sounds.awakeCue(on: true) }
+        until = end
         shownMinutes = until.map { AwakeCountdown.minutes(remaining: $0.timeIntervalSinceNow) }
 
         let t = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
@@ -122,6 +154,27 @@ final class KeepAwakeController: ObservableObject {
         if !silent && lidApplied {
             applyLidSleepDisabled(false, playCue: false) // the off cue already played
         }
+    }
+
+    // SPEC: docs/spec.md — "Keep awake survives an update".
+    func stashForRelaunch() {
+        guard isActive || lidApplied else { return }
+        let record = AwakeResume(active: isActive, until: until, optionSeconds: selected?.seconds,
+                                 lid: lidApplied, savedAt: Date())
+        guard let data = try? JSONEncoder().encode(record) else { return }
+        UserDefaults.standard.set(data, forKey: Self.resumeKey)
+        relaunching = true
+    }
+
+    private static func takeResume() -> AwakeResume? {
+        guard !Snapshot.active,
+              let data = UserDefaults.standard.data(forKey: resumeKey) else { return nil }
+        UserDefaults.standard.removeObject(forKey: resumeKey)
+        return try? JSONDecoder().decode(AwakeResume.self, from: data)
+    }
+
+    private static func option(seconds: TimeInterval?) -> Option {
+        options.first { $0.seconds == seconds } ?? options[options.count - 1]
     }
 
     /// Mandatory cleanup on exit: without it the Mac would be left

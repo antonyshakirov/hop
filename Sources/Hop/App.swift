@@ -305,6 +305,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let model = self.model
+        model.updater.willRelaunch = { model.keepAwake.stashForRelaunch() }
         model.updater.startAutoChecks { critical in
             // a set timer (running or paused) is never interrupted; otherwise a
             // release installs only when the user isn't actively using Hop —
