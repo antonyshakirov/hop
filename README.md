@@ -52,6 +52,11 @@ Hop is signed with an Apple Developer ID and notarized by Apple, so macOS
 opens it like any other app. The source is public, and built-in updates are
 verified with Ed25519. Requires macOS 14 or newer.
 
+### 2.3.2
+
+- System monitor: memory and graphics load light the problem badge in the menu bar, and graphics load has its own thresholds.
+- Awake: the session and running with the lid closed come back after an update.
+
 ### 2.3.1
 
 - With two displays, the panel stays at the menu bar when its content is taller than the screen.

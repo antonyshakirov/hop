@@ -55,6 +55,11 @@ macOS abre como qualquer outro app. O código-fonte é público e as
 atualizações integradas são verificadas com Ed25519. Requer macOS 14 ou mais
 recente.
 
+### 2.3.2
+
+- Monitor do sistema: a memória e a carga gráfica acendem o aviso de problemas na barra, e a carga gráfica tem limites próprios.
+- Acordado: a sessão e o modo com a tampa fechada voltam depois de uma atualização.
+
 ### 2.3.1
 
 - Com dois monitores, o painel fica junto à barra de menus quando o conteúdo é mais alto que a tela.

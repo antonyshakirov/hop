@@ -53,6 +53,11 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.3.2
+
+- Systemmonitor: speicher und grafiklast lösen den problem-hinweis in der menüleiste aus, die grafiklast hat eigene schwellen.
+- Wach: die sitzung und der betrieb mit geschlossenem deckel kommen nach einem update zurück.
+
 ### 2.3.1
 
 - Mit zwei bildschirmen bleibt das panel an der menüleiste, wenn sein inhalt höher als der bildschirm ist.

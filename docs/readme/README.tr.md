@@ -52,6 +52,11 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
+### 2.3.2
+
+- Sistem izleme: bellek ve grafik yükü menü çubuğundaki sorun uyarısını yakar, grafik yükünün kendi eşikleri var.
+- Uyuma: oturum ve kapak kapalı çalışma güncellemeden sonra geri gelir.
+
 ### 2.3.1
 
 - Iki ekranla, içeriği ekrandan uzun olduğunda panel menü çubuğunda kalır.

@@ -51,6 +51,11 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.3.2
+
+- Theo dõi hệ thống: bộ nhớ và tải đồ họa bật dấu cảnh báo trên thanh menu, tải đồ họa có ngưỡng riêng.
+- Không ngủ: phiên và chế độ chạy khi gập nắp trở lại sau khi cập nhật.
+
 ### 2.3.1
 
 - Với hai màn hình, bảng vẫn nằm sát thanh menu khi nội dung cao hơn màn hình.
