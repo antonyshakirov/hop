@@ -57,7 +57,10 @@ final class KeepAwakeController: ObservableObject {
     init() {
         LidDimmer.restorePendingAtLaunch()
         let resume = Self.takeResume()
-        if resume?.keepsLid(now: Date()) == true,
+        let now = Date()
+        let session = resume?.session(now: now) ?? .none
+        if session != .none,
+           resume?.keepsLid(now: now) == true,
            UserDefaults.standard.bool(forKey: "lidSleepAppliedPending"),
            sleepDisabledStateMatches(true) {
             lidApplied = true
@@ -65,13 +68,16 @@ final class KeepAwakeController: ObservableObject {
         } else {
             revertLidIfPending()
         }
-        switch resume?.session(now: Date()) {
-        case .endless?:
+        switch session {
+        case .endless:
             begin(Self.option(seconds: nil), until: nil, cue: false)
-        case .until(let end)?:
+        case .until(let end):
             begin(Self.option(seconds: resume?.optionSeconds), until: end, cue: false)
-        case .some(.none), nil:
+        case .none:
             break
+        }
+        if lidApplied && !isActive {
+            revertLidIfPending()
         }
         // safety net: on app exit, release the assertion and restore lid sleep
         terminateObserver = NotificationCenter.default.addObserver(

@@ -38,9 +38,12 @@ final class AwakeResumeTests: XCTestCase {
         XCTAssertEqual(resume().session(now: saved.addingTimeInterval(-60)), AwakeResume.Session.none)
     }
 
-    func testLidModeComesBackOnItsOwn() {
-        XCTAssertTrue(resume(active: false, lid: true).keepsLid(now: saved.addingTimeInterval(5)))
-        XCTAssertFalse(resume(active: true, lid: false).keepsLid(now: saved.addingTimeInterval(5)))
+    func testLidModeComesBackOnlyWithItsSession() {
+        let soon = saved.addingTimeInterval(5)
+        XCTAssertTrue(resume(lid: true).keepsLid(now: soon))
+        XCTAssertFalse(resume(lid: false).keepsLid(now: soon))
+        XCTAssertFalse(resume(active: false, lid: true).keepsLid(now: soon))
+        XCTAssertFalse(resume(until: saved.addingTimeInterval(3), lid: true).keepsLid(now: soon))
     }
 
     func testRecordSurvivesStorage() throws {

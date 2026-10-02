@@ -947,8 +947,8 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   before the relaunch the session is written down (`awakeResumeAfterUpdate`:
   on or off, its end, lid mode), lid mode is left applied, and no cue plays.
   The new copy reads the record once and deletes it: an endless session comes
-  back endless, a timed one keeps its original end, lid mode stays, all
-  without a sound. A record older than ten minutes is ignored, and so is a
+  back endless, a timed one keeps its original end, and lid mode stays only
+  together with a session that came back, all without a sound. A record older than ten minutes is ignored, and so is a
   session whose time ran out meanwhile. Quitting by hand still ends the session.
 - While lid mode is active, closing the lid blanks the built-in panel:
   `disablesleep` keeps the backlight powered, so LidDimmer polls the

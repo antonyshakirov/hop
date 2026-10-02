@@ -36,6 +36,6 @@ public struct AwakeResume: Codable, Equatable, Sendable {
     }
 
     public func keepsLid(now: Date) -> Bool {
-        lid && isFresh(now: now)
+        lid && session(now: now) != .none
     }
 }
