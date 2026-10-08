@@ -33,6 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var onboardingWindow: NSWindow?
     private var settingsWindow: NSWindow?
     private var converterWindow: ConverterWindow?
+    private var mediaWindow: ConverterWindow?
     private let shotWindows = ShotEditorWindows()
     private var archiveWindow: ConverterWindow?
     private var uninstallWindow: NSWindow?
@@ -70,7 +71,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// someone would look for in the Dock. The quit confirmation is absent for
     /// the same reason — it lives for a second and answers one question.
     private var dockWindows: [NSWindow] {
-        var list = [settingsWindow, torrentAddWindow, converterWindow,
+        var list = [settingsWindow, torrentAddWindow, converterWindow, mediaWindow,
                     archiveWindow, uninstallWindow, screenTextWindow,
                     networkWindow, onboardingWindow].compactMap { $0 }
         list.append(contentsOf: finderArchiveWindows.values.map(\.window))
@@ -316,7 +317,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 timerBusy: timerBusy,
                 keepAwakeActive: model.keepAwake.isActive,
                 panelOpen: model.isPanelOpen?() ?? false,
-                converterBusy: model.converter.busy,
+                converterBusy: model.converter.busy || model.media.locked,
                 secondsSinceInteraction: model.activity.secondsSinceInteraction()
             )
         }
@@ -335,6 +336,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.openConverterWindow = { [weak self] in
             self?.showConverterWindow()
         }
+        model.closeMediaWindow = { [weak self] in self?.mediaWindow?.close() }
+        model.openMediaWindow = { [weak self] urls in self?.showMediaWindow(urls) }
         shotWindows.willShow = { [weak self] in self?.enterDockMode() }
         model.openShotEditor = { [weak self] image, rect in
             self?.model.activity.note() // opening a window counts as active use
@@ -386,7 +389,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // orderFrontRegardless: plain orderFront only reorders within the
             // app's own layer while another app is active — the window came
             // back UNDER the frontmost app instead of on top with the panel.
-            let ours = Set([converterWindow, settingsWindow, torrentAddWindow,
+            let ours = Set([converterWindow, mediaWindow, settingsWindow, torrentAddWindow,
                             archiveWindow, uninstallWindow,
                             screenTextWindow].compactMap { $0 }
                 + finderArchiveWindows.values.map(\.presentedWindow))
@@ -474,6 +477,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // release app, which is compiled -c release like the dev app, so #if DEBUG
         // would not tell them apart.
         if Bundle.isDevBuild {
+            if CommandLine.arguments.contains("--open-media") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                    self?.showMediaWindow([])
+                }
+            }
             if CommandLine.arguments.contains("--open-converter") {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     self?.showConverterWindow()
@@ -579,6 +587,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.model.activity.note()
                 self?.model.keyboardLock.lock()
             },
+            "media": { [weak self] in self?.showMediaWindow([]) },
             "convert": { [weak self] in self?.showConverterWindow() },
             "archive": { [weak self] in self?.showArchiveWindow() },
             "uninstall": { [weak self] in self?.showUninstallWindow() },
@@ -788,6 +797,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         onboardingWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         onboardingWindow?.backgroundColor = NSColor(Theme.background)
         converterWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        mediaWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         archiveWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         finderArchiveWindows.values.forEach { $0.applyTheme() }
         screenTextWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
@@ -827,6 +837,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         frame.size.height = newHeight
         converterExpectedHeight = window.contentRect(forFrameRect: frame).height
         window.setFrame(frame, display: true)
+    }
+
+    private func showMediaWindow(_ urls: [URL]) {
+        model.media.add(urls)
+        if mediaWindow == nil {
+            let window = ConverterWindow(contentRect: NSRect(x: 0, y: 0, width: 700, height: 640),
+                styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+            window.title = L10n.t(.mediaTitle, L10n.current).capitalizedFirst
+            window.isReleasedWhenClosed = false
+            let host = NSHostingController(rootView: MediaWindowView(controller: model.media).environmentObject(model))
+            host.sizingOptions = []
+            window.contentViewController = host
+            window.contentMinSize = NSSize(width: 700, height: 200)
+            window.contentMaxSize = NSSize(width: 700, height: 100_000)
+            window.onPaste = { [weak self] in self?.model.media.paste() }
+            mediaWindow = window
+        }
+        guard let window = mediaWindow else { return }
+        window.title = L10n.t(.mediaTitle, L10n.current).capitalizedFirst
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        if !window.isVisible {
+            let available = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
+            window.setContentSize(NSSize(width: 700, height: min(640, available * 0.85)))
+            window.center()
+        }
+        enterDockMode()
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
     }
 
     private func showConverterWindow() {
@@ -1833,4 +1871,3 @@ enum VideoSelfTest {
     }
 }
 #endif
-

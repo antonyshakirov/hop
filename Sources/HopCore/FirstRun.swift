@@ -8,7 +8,7 @@ public enum FirstRun {
     public static let marks = [
         "panelTabs", "activeSpaceID", "canonicalLayoutSeeded", "trackerTabSeeded",
         "todosSeeded", "moduleVisibilityMigrated", "optInModulesSeeded",
-        "optInModulesSeeded170", "onboardingStep",
+        "optInModulesSeeded170", "mediaModuleSeeded240", "onboardingStep",
     ]
 
     /// Prefixes of the per-release flags every version writes as it announces

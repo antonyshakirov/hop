@@ -11,6 +11,7 @@ public enum ModuleShutdown {
         case openStretchFiled
         case downloadsPause
         case jobFinishesInItsWindow
+        case mediaProcessingStops
         case remindersGoQuiet
     }
 
@@ -22,6 +23,7 @@ public enum ModuleShutdown {
         public var trackerRunning: Bool
         public var activeDownloads: Int
         public var converterBusy: Bool
+        public var mediaBusy: Bool
         public var archiveRunning: Bool
         public var armedReminders: Int
 
@@ -30,6 +32,7 @@ public enum ModuleShutdown {
                     trackerRunning: Bool = false,
                     activeDownloads: Int = 0,
                     converterBusy: Bool = false,
+                    mediaBusy: Bool = false,
                     archiveRunning: Bool = false,
                     armedReminders: Int = 0) {
             self.timerRunning = timerRunning
@@ -37,6 +40,7 @@ public enum ModuleShutdown {
             self.trackerRunning = trackerRunning
             self.activeDownloads = activeDownloads
             self.converterBusy = converterBusy
+            self.mediaBusy = mediaBusy
             self.archiveRunning = archiveRunning
             self.armedReminders = armedReminders
         }
@@ -50,6 +54,7 @@ public enum ModuleShutdown {
         case "tracker": return activity.trackerRunning ? .openStretchFiled : nil
         case "torrent": return activity.activeDownloads > 0 ? .downloadsPause : nil
         case "convert": return activity.converterBusy ? .jobFinishesInItsWindow : nil
+        case "media": return activity.mediaBusy ? .mediaProcessingStops : nil
         case "archive": return activity.archiveRunning ? .jobFinishesInItsWindow : nil
         case "todos": return activity.armedReminders > 0 ? .remindersGoQuiet : nil
         default: return nil

@@ -216,6 +216,10 @@ hasilnya keluar sebagai PDF, docx, Markdown, RTF, atau teks polos.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
+### Media
+
+konverter: hapus latar dan perbesar foto serta video hingga 8K. perbesaran memerlukan macOS 15. 2,3 MB · diunduh sekali. perbesaran video: eksperimental.
+
 ### Pengelola jendela
 
 Tata jendela ke setengah, seperempat, sepertiga, dan tengah layar dengan

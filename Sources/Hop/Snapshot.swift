@@ -308,7 +308,7 @@ enum Snapshot {
         for key in [SettingsKey.panelTabs, SettingsKey.moduleVisibilityMigrated,
                     SettingsKey.trackerTabSeeded, SettingsKey.todosSeeded,
                     SettingsKey.canonicalLayoutSeeded, SettingsKey.optInModulesSeeded,
-                    SettingsKey.optInModulesSeeded170,
+                    SettingsKey.optInModulesSeeded170, SettingsKey.mediaModuleSeeded,
                     "moduleOrder",
                     "showTimerModule", "showAwakeModule", "showClipboardModule",
                     "showConvertModule", "showWindowsModule", "showSpeedtestModule",
@@ -691,6 +691,22 @@ enum Snapshot {
         if args.contains("--window-settings") || args.contains("--settings")
             || args.contains("--about") || args.contains("--permissions") {
             content = AnyView(PanelView(standaloneSettings: true).environmentObject(model))
+        } else if args.contains("--window-media") {
+            if args.contains("--media-upscale") { model.media.operation = .upscale }
+            if let i = args.firstIndex(of: "--media-file"), args.count > i + 1,
+               let image = try? MediaImageEngine.read(URL(fileURLWithPath: args[i + 1])) {
+                var item = MediaController.Item(url: URL(fileURLWithPath: args[i + 1]), video: false,
+                    size: MediaSize(width: image.width, height: image.height), duration: 0,
+                    original: NSImage(cgImage: image, size: .zero))
+                if let j = args.firstIndex(of: "--media-result"), args.count > j + 1,
+                   let result = try? MediaImageEngine.read(URL(fileURLWithPath: args[j + 1])) {
+                    item.result = NSImage(cgImage: result, size: .zero)
+                }
+                item.resolution = item.size.choices.first ?? .eightK
+                model.media.items = [item]
+                model.media.selected = item.id
+            }
+            content = AnyView(MediaWindowView(controller: model.media).environmentObject(model))
         } else if args.contains("--window-converter") {
             content = AnyView(ConvertWindowView().environmentObject(model))
         } else if args.contains("--window-archive") {

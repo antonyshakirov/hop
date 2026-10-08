@@ -1,5 +1,13 @@
 # Hop - version history
 
+## 2.4.0 - Unreleased
+
+- Standalone Media module with its own window, on/off switch and position in panel tabs: local background removal for photos and people in videos, with
+  transparent PNG/MOV or replacement backgrounds. Preview subjects and batch export.
+- Real-ESRGAN super-resolution for images and experimental video, ×2/×4 or
+  Full HD/QHD/4K/8K. Aspect ratio, video timestamps and audio are preserved.
+  Upscaling requires macOS 15 and a one-time, verified 2.3 MB model download.
+
 ## 2.3.2 - 2026-10-02
 
 - System monitor: memory and graphics load light the problem badge in the menu bar.

@@ -216,6 +216,10 @@ Text.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
+### Medien
+
+Konverter: Hintergründe entfernen und Fotos und Videos bis 8K vergrößern. hochskalieren benötigt macOS 15. 2,3 MB · einmaliger download. video-hochskalierung: experimentell.
+
 ### Fenstermanager
 
 Fenster mit einem Klick auf ein Zonensymbol oder per ⌃⌥-Hotkey auf Hälften,

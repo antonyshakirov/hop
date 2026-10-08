@@ -14,6 +14,7 @@ final class AppModel: ObservableObject {
     let clipboard: ClipboardController
     let updater = UpdateChecker()
     let converter = FileConverter()
+    let media = MediaController()
     let speedTest: SpeedTestController
     let torrent = TorrentController()
     let tracker: TrackerController
@@ -90,6 +91,8 @@ final class AppModel: ObservableObject {
     var openSettingsWindow: (() -> Void)?
     /// Open the standalone converter window.
     var openConverterWindow: (() -> Void)?
+    var closeMediaWindow: (() -> Void)?
+    var openMediaWindow: (([URL]) -> Void)?
     /// Open the standalone archive window — a drop target that survives a drag,
     /// which the panel's popover cannot be.
     var openArchiveWindow: (() -> Void)?

@@ -216,6 +216,10 @@ guardada, y sale como PDF, docx, Markdown, RTF o texto plano.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
+### Medios
+
+conversor: elimina fondos y amplía fotos y vídeos hasta 8K. ampliar requiere macOS 15. 2,3 MB · descarga única. ampliación de vídeo: experimental.
+
 ### Gestor de ventanas
 
 Ajusta las ventanas a mitades, cuartos, tercios y al centro con un clic en

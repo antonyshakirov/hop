@@ -121,7 +121,7 @@ final class PanelFirstMouseTests: XCTestCase {
         let keys = [SettingsKey.panelTabs, "activeSpaceID", "debugPanelFrameLog",
                     SettingsKey.trackerTabSeeded, SettingsKey.todosSeeded,
                     SettingsKey.moduleVisibilityMigrated, SettingsKey.canonicalLayoutSeeded,
-                    SettingsKey.optInModulesSeeded, SettingsKey.optInModulesSeeded170]
+                    SettingsKey.optInModulesSeeded, SettingsKey.optInModulesSeeded170, SettingsKey.mediaModuleSeeded]
         let saved = Dictionary(uniqueKeysWithValues: keys.map { ($0, defaults.object(forKey: $0)) })
         defer {
             for (key, value) in saved {

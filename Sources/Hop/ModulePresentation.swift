@@ -11,6 +11,7 @@ enum ModulePresentation {
         case "timer": return .aboutTabTimer
         case "awake": return .awakeOff
         case "clipboard": return .tabClipboard
+        case "media": return .mediaTitle
         case "convert": return .convertLabel
         case "windows": return .windowsLabel
         case "speedtest": return .speedtestLabel
@@ -37,6 +38,7 @@ enum ModulePresentation {
         case "timer": return .purposeTimer
         case "awake": return .purposeAwake
         case "clipboard": return .purposeClipboard
+        case "media": return .mediaPurpose
         case "convert": return .purposeConvert
         case "windows": return .purposeWindows
         case "speedtest": return .purposeSpeedtest
@@ -63,6 +65,7 @@ enum ModulePresentation {
         case "timer": return [.docTimerFull]
         case "awake": return [.docAwakeFull]
         case "clipboard": return [.docClipboardFull]
+        case "media": return [.news24Media, .mediaLocal, .mediaPeopleOnly, .mediaVideoExperimental, .mediaRequires15, .mediaModelDownload]
         case "convert": return [.docConverterFull, .docConverterDocs]
         case "windows": return [.docWindowsFull]
         case "speedtest": return [.docSpeedFull]
@@ -89,6 +92,7 @@ enum ModulePresentation {
         case "timer": return "timer"
         case "awake": return "moon"
         case "clipboard": return "doc.on.clipboard"
+        case "media": return "photo.on.rectangle.angled"
         case "convert": return "arrow.2.squarepath"
         case "windows": return "macwindow"
         case "speedtest": return "speedometer"

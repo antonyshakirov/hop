@@ -209,6 +209,13 @@ out as PDF, docx, Markdown, RTF or plain text.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
+### Media
+
+Photos and videos can have their backgrounds removed or be upscaled to 8K.
+Choose transparent output, a colour or an image background, preview the result,
+and export a batch. Video background removal supports people. AI upscaling
+requires macOS 15 and a one-time 2.3 MB model download; video upscaling is experimental.
+
 ### Window manager
 
 Snap windows to halves, quarters, thirds and center with a click on a zone

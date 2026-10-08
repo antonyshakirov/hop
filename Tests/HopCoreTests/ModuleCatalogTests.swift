@@ -9,7 +9,7 @@ final class ModuleCatalogTests: XCTestCase {
     func testIdentifiersAreUniqueAndMatchThePanelDefaults() {
         let ids = ModuleCatalog.modules.map(\.id)
         XCTAssertEqual(Set(ids).count, ids.count)
-        XCTAssertEqual(ids.count, 19)
+        XCTAssertEqual(ids.count, 20)
         XCTAssertTrue(ids.contains("timer"))
         XCTAssertTrue(ids.contains("todos"))
         XCTAssertTrue(ids.contains("uninstall"))
@@ -23,7 +23,7 @@ final class ModuleCatalogTests: XCTestCase {
         let withActions = ModuleCatalog.modules.filter { !$0.actions.isEmpty }.map(\.id)
         XCTAssertEqual(
             Set(withActions),
-            ["timer", "awake", "color", "ocr", "keyboard", "convert", "archive", "uninstall", "windows",
+            ["timer", "awake", "color", "ocr", "keyboard", "convert", "media", "archive", "uninstall", "windows",
              "shot", "annotate"]
         )
         for module in ModuleCatalog.modules where !module.actions.isEmpty && module.id != "windows" {
@@ -93,7 +93,7 @@ final class ModuleCatalogTests: XCTestCase {
 
     func testModulesThatShipHiddenAreTheOptInOnes() {
         let hidden = ModuleCatalog.modules.filter(\.hiddenOnFirstRun).map(\.id)
-        XCTAssertEqual(Set(hidden), ["color", "ocr", "vpn"])
+        XCTAssertEqual(Set(hidden), ["color", "ocr", "vpn", "media"])
     }
 
     func testStorageKeysAreUniqueSoTwoActionsCannotShareASavedCombo() {
@@ -299,4 +299,23 @@ final class ModuleCatalogTests: XCTestCase {
             XCTAssertTrue(shown.contains(module.id), "\(module.id) is in no onboarding group")
         }
     }
+    func testMediaIsIndependentOfTheConverter() throws {
+        let media = try XCTUnwrap(ModuleCatalog.module("media"))
+        XCTAssertEqual(media.guideLetter, "b")
+        XCTAssertEqual(media.openAction?.storageKey, "hotkey_media")
+        XCTAssertNotEqual(media.openAction?.hotKeyID, ModuleCatalog.open("convert")?.hotKeyID)
+        XCTAssertNil(media.openAction?.defaultCombo)
+        XCTAssertTrue(ModuleCatalog.hasSettings("media"))
+        XCTAssertFalse(ModuleCatalog.needsScreenRecording.contains("media"))
+        var layout = PanelTabsModel.migrate(moduleOrder: ["convert", "media"])
+        let target = layout.tabs[1].id
+        layout.setHidden("media", hidden: true)
+        layout.move(module: "media", toTab: target)
+        layout.setHidden("media", hidden: false)
+        let restored = try XCTUnwrap(PanelTabsModel.decode(layout.encoded()))
+        XCTAssertEqual(restored.tabID(containing: "media"), target)
+        XCTAssertNotEqual(restored.tabID(containing: "convert"), target)
+        XCTAssertFalse(restored.isHidden("convert"))
+    }
+
 }

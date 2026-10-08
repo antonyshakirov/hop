@@ -98,6 +98,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BINARY" "$APP/Contents/MacOS/Hop"
 cp scripts/Info.plist "$APP/Contents/Info.plist"
 cp assets/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+cp docs/licenses/Real-ESRGAN.txt "$APP/Contents/Resources/Real-ESRGAN.txt"
 for icon in "${DOC_ICONS[@]}"; do
     cp "assets/$icon.icns" "$APP/Contents/Resources/$icon.icns"
 done
