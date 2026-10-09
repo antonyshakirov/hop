@@ -37,6 +37,13 @@ final class MediaRuntimeTests: XCTestCase {
     }
     @MainActor
     func testMixedQueueExportsSelectedThenAllAtBothQualityLevels() async throws {
+        let defaults = UserDefaults.standard
+        let saved = defaults.object(forKey: SettingsKey.mediaRemoveCompleted)
+        defer {
+            if let saved { defaults.set(saved, forKey: SettingsKey.mediaRemoveCompleted) }
+            else { defaults.removeObject(forKey: SettingsKey.mediaRemoveCompleted) }
+        }
+        defaults.set(false, forKey: SettingsKey.mediaRemoveCompleted)
         guard ProcessInfo.processInfo.environment["HOP_MEDIA_INSTALL"] == "1",
               let imagePath = ProcessInfo.processInfo.environment["HOP_MEDIA_IMAGE"],
               let videoPath = ProcessInfo.processInfo.environment["HOP_MEDIA_VIDEO"] else {
@@ -55,13 +62,15 @@ final class MediaRuntimeTests: XCTestCase {
         XCTAssertEqual(controller.items.count, 2)
         XCTAssertEqual(controller.items.map(\.video), [false, true])
         XCTAssertEqual(controller.items.map(\.sourceBytes), originals.map { Int64($0.count) })
-        controller.toggleSelection(controller.items[0].id)
+        XCTAssertTrue(controller.allFilesSelected)
+        controller.toggleSelection(controller.items[1].id)
         controller.export(quality: .compressed(70), background: .transparent)
         try await waitForController(controller, timeout: 90)
         let jpeg = try XCTUnwrap(controller.items[0].exported)
         XCTAssertEqual(jpeg.pathExtension, "jpg")
         XCTAssertEqual(controller.items[0].outputBytes, Int64(try Data(contentsOf: jpeg).count))
         XCTAssertNil(controller.items[1].outputBytes)
+        XCTAssertTrue(controller.selection.isEmpty)
         XCTAssertNil(controller.items[1].exported)
         XCTAssertEqual(try MediaImageEngine.read(jpeg).width, controller.items[0].size.width * 2)
         controller.selectAllFiles()
@@ -110,6 +119,54 @@ final class MediaRuntimeTests: XCTestCase {
         }
         XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: root.path).count, 4)
         for (url, original) in zip(sources, originals) { XCTAssertEqual(try Data(contentsOf: url), original) }
+    }
+
+    @MainActor
+    func testSuccessfulExportCleanupAndNewImportsDoNotRepeatCompletedFiles() async throws {
+        guard let path = ProcessInfo.processInfo.environment["HOP_MEDIA_IMAGE"] else {
+            throw XCTSkip("Provide a portrait fixture for real queue cleanup acceptance")
+        }
+        let defaults = UserDefaults.standard
+        let saved = defaults.object(forKey: SettingsKey.mediaRemoveCompleted)
+        defer {
+            if let saved { defaults.set(saved, forKey: SettingsKey.mediaRemoveCompleted) }
+            else { defaults.removeObject(forKey: SettingsKey.mediaRemoveCompleted) }
+        }
+        defaults.removeObject(forKey: SettingsKey.mediaRemoveCompleted)
+        XCTAssertTrue(MediaController.removesCompleted)
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let source = URL(fileURLWithPath: path)
+        let original = try Data(contentsOf: source)
+        let controller = MediaController(operation: .background)
+        controller.destination = folder
+        controller.add([source, folder.appendingPathComponent("missing.png")])
+        try await waitForController(controller)
+        XCTAssertTrue(controller.allFilesSelected)
+        controller.export(quality: .full, background: .transparent)
+        try await waitForController(controller)
+        XCTAssertEqual(controller.items.count, 1, "Only a successfully exported row is removed")
+        XCTAssertNotNil(controller.items[0].error)
+        XCTAssertEqual(controller.scopedItems.count, 1, "Failed files stay selected for review")
+        let first = try FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)
+        XCTAssertEqual(first.count, 1)
+        defaults.set(false, forKey: SettingsKey.mediaRemoveCompleted)
+        controller.add([source])
+        try await waitForController(controller)
+        controller.export(quality: .full, background: .transparent)
+        try await waitForController(controller)
+        let kept = try XCTUnwrap(controller.items.first { $0.url == source })
+        XCTAssertNotNil(kept.exported)
+        XCTAssertFalse(controller.selection.contains(kept.id))
+        let another = folder.appendingPathComponent("another.jpg")
+        try original.write(to: another)
+        controller.add([another])
+        try await waitForController(controller)
+        XCTAssertFalse(controller.scopedItems.contains { $0.id == kept.id }, "New imports must not select completed rows")
+        XCTAssertTrue(controller.scopedItems.contains { $0.url == another })
+        XCTAssertTrue(FileManager.default.fileExists(atPath: first[0].path))
+        XCTAssertEqual(try Data(contentsOf: source), original)
     }
 
     func testResizePreservesTransparencyAndDimensions() throws {

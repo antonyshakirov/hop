@@ -36,7 +36,11 @@ final class MediaController: ObservableObject {
     @Published var items: [Item] = []
     @Published var selected: UUID?
     @Published var selection: Set<UUID> = []
-    var scopedItems: [Item] { selection.isEmpty ? items : items.filter { selection.contains($0.id) } }
+    var scopedItems: [Item] { items.filter { selection.contains($0.id) } }
+    var allFilesSelected: Bool { !items.isEmpty && items.allSatisfy { selection.contains($0.id) } }
+    static var removesCompleted: Bool {
+        UserDefaults.standard.object(forKey: SettingsKey.mediaRemoveCompleted) as? Bool ?? true
+    }
     private var defaultResolution: MediaResolution = .double
     var commonResolutions: [MediaResolution] {
         let eligible = scopedItems.filter { !$0.size.choices.isEmpty }
@@ -48,10 +52,10 @@ final class MediaController: ObservableObject {
         guard !locked, items.contains(where: { $0.id == id }) else { return }
         if selection.contains(id) { selection.remove(id) } else { selection.insert(id) }
     }
-    func selectAllFiles() { guard !locked else { return }; selection = [] }
+    func selectAllFiles() { guard !locked else { return }; selection = Set(items.map(\.id)) }
     func applyResolution(_ choice: MediaResolution) {
         guard !locked, commonResolutions.contains(choice) else { return }
-        if selection.isEmpty { defaultResolution = choice }
+        if allFilesSelected { defaultResolution = choice }
         for item in scopedItems where item.size.output(for: choice) != nil { setResolution(choice, for: item.id) }
     }
     let operation: MediaOperation
@@ -107,12 +111,14 @@ final class MediaController: ObservableObject {
                     item.hasTransparency = !video && MediaImageEngine.hasTransparency(image)
                     item.sourceBytes = Self.fileBytes(url)
                     items.append(item)
+                    selection.insert(item.id)
                     if selected == nil { selected = item.id }
                 } catch is CancellationError { break }
                 catch {
                     let failed = Item(url: url, video: video, size: MediaSize(width: 0, height: 0), duration: 0,
                                       original: nil, error: failureKey(error))
                     items.append(failed)
+                    selection.insert(failed.id)
                     if selected == nil { selected = failed.id }
                 }
             }
@@ -181,11 +187,13 @@ final class MediaController: ObservableObject {
     }
 
     func export(quality: MediaExportQuality, background: MediaBackground) {
-        run(preview: false, background: background, quality: quality, ids: Set(scopedItems.map(\.id)), reexport: true)
+        run(preview: false, background: background, quality: quality, ids: Set(scopedItems.map(\.id)),
+            reexport: true, completeSelection: true, removeCompleted: Self.removesCompleted)
     }
 
     func run(preview: Bool, background: MediaBackground, quality: MediaExportQuality = .full,
-             ids: Set<UUID>? = nil, reexport: Bool = false) {
+             ids: Set<UUID>? = nil, reexport: Bool = false,
+             completeSelection: Bool = false, removeCompleted: Bool = false) {
         guard !locked else { return }
         let jobs = preview ? items.filter { $0.id == selected } : items.filter {
             (ids == nil || ids!.contains($0.id)) && (reexport || $0.exported == nil)
@@ -264,6 +272,13 @@ final class MediaController: ObservableObject {
                         items[i].outputBytes = Self.fileBytes(exported)
                     }
                     items[i].progress = 1
+                    if completeSelection, result.exported != nil {
+                        selection.remove(job.id)
+                        if removeCompleted {
+                            items.remove(at: i)
+                            if selected == job.id { selected = items.first?.id }
+                        }
+                    }
                     if operation == .upscale, preview {
                         let count = max(1, job.size.inferenceTiles(to: output ?? job.size))
                         secondsPerTile = Date().timeIntervalSince(started) / Double(count)

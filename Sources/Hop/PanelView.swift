@@ -36,6 +36,7 @@ struct PanelView: View {
     @AppStorage(MarkupSettings.holdOnKey) private var holdDrawOn = true
     @AppStorage(MarkupSettings.holdChordKey) private var holdChordStored = ""
     @AppStorage(SettingsKey.trackerTimeInBar) private var trackerTimeInBar = false
+    @AppStorage(SettingsKey.mediaRemoveCompleted) private var mediaRemoveCompleted = true
     @AppStorage(SettingsKey.alertMode) private var alertModeRaw = AlertMode.soundAndBanner.rawValue
     @AppStorage(MediaPauser.settingKey) private var pauseMedia = false
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
@@ -3707,10 +3708,19 @@ struct PanelView: View {
     }
 
     private var mediaSettings: some View {
-        HStack(spacing: 8) {
-            mediaToolButton(.upscale)
-            mediaToolButton(.background)
-            Spacer()
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
+                mediaToolButton(.upscale)
+                mediaToolButton(.background)
+                Spacer()
+            }
+            HStack {
+                Text(t(.mediaRemoveCompleted)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Theme.MiniSwitch(isOn: $mediaRemoveCompleted)
+            }
+            Text(t(.mediaRemoveCompletedHelp)).font(Theme.mono(9)).foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

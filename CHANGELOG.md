@@ -2,6 +2,10 @@
 
 ## 2.4.0 - Unreleased
 
+- New media files start checked; only checked rows export. With no selection,
+  export is disabled. Media settings can keep completed rows instead of removing
+  them (the default); kept rows are unchecked to prevent accidental re-export.
+
 - Standalone Media module with two buttons opening independent upscale and background removal windows, a shared on/off switch and position in panel tabs: local background removal for photos and people in videos, with
   transparent PNG/MOV or replacement backgrounds and mixed photo/video batch export.
 - Media windows use the converter's 160-point drop area and fit their content:

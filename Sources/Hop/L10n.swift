@@ -91,6 +91,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 enum L10nKey: String, CaseIterable {
     case mediaPurpose, mediaOpen, mediaOff
     case mediaDrop
+    case mediaRemoveCompleted, mediaRemoveCompletedHelp
     case mediaFullQuality, mediaCompression, mediaExportMode
     case mediaBatchHelp, mediaAllFiles, mediaSelectedFiles, mediaIndividualSizes, mediaExportFull, mediaExportCompressed, mediaTransparencyKept
     case news24Media
@@ -508,6 +509,8 @@ enum L10n {
     }
 
     private static let enTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "remove completed files from the list",
+            .mediaRemoveCompletedHelp: "after a\u{00A0}successful export. saved files stay on disk. when off, completed rows stay but are unchecked.",
             .mediaExportMode: "export",
             .mediaFullQuality: "full quality",
             .mediaCompression: "compressed",
@@ -541,7 +544,7 @@ enum L10n {
             .mediaModelError: "model unavailable; retry download",
             .mediaOutputError: "export failed; check folder and format",
             .mediaEstimate: "uncompressed size",
-            .mediaBatchHelp: "add one file or mix photos and videos. select rows to change their sizes or export only those files; all files applies to the whole list. full quality or compression at 70%, adjustable. transparent photos keep PNG.",
+            .mediaBatchHelp: "new files are selected automatically. uncheck files to skip them; select all restores the whole list. no selection disables export.",
             .mediaAllFiles: "all files",
             .mediaSelectedFiles: "selected ({count})",
             .mediaIndividualSizes: "individual sizes",
@@ -1316,6 +1319,8 @@ enum L10n {
             ]
 
     private static let ruTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "убирать готовые файлы из\u{00A0}списка",
+            .mediaRemoveCompletedHelp: "после успешного экспорта. сохранённые файлы остаются на\u{00A0}диске. если выключено, готовые строки остаются без\u{00A0}галочек.",
             .mediaExportMode: "экспорт",
             .mediaFullQuality: "полное качество",
             .mediaCompression: "сжатие",
@@ -1349,7 +1354,7 @@ enum L10n {
             .mediaModelError: "модель недоступна; повторите загрузку",
             .mediaOutputError: "не\u{00A0}удалось сохранить; проверьте папку и\u{00A0}формат",
             .mediaEstimate: "несжатый размер",
-            .mediaBatchHelp: "добавьте один файл или\u{00A0}смешанный набор фото и\u{00A0}видео. отметьте строки, чтобы изменить размеры или экспортировать только выбранное; «все файлы» применяет настройки ко\u{00A0}всему списку. полное качество или\u{00A0}сжатие: по\u{00A0}умолчанию 70%, уровень можно изменить. прозрачные фото сохраняют PNG.",
+            .mediaBatchHelp: "новые файлы сразу отмечены. снимите галочки, чтобы пропустить файлы; «выбрать все» отмечает весь список. без\u{00A0}выбора экспорт недоступен.",
             .mediaAllFiles: "все файлы",
             .mediaSelectedFiles: "выбрано ({count})",
             .mediaIndividualSizes: "размер каждого файла",
@@ -2124,6 +2129,8 @@ enum L10n {
             ]
 
     private static let deTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "fertige Dateien aus der Liste entfernen",
+            .mediaRemoveCompletedHelp: "nach erfolgreichem Export. Gespeicherte Dateien bleiben auf der Festplatte. Ausgeschaltet bleiben fertige Zeilen ohne Auswahl.",
             .mediaExportMode: "Export",
             .mediaFullQuality: "volle Qualität",
             .mediaCompression: "komprimiert",
@@ -2157,7 +2164,7 @@ enum L10n {
             .mediaModelError: "modell fehlt; download wiederholen",
             .mediaOutputError: "export fehlgeschlagen; ordner und format prüfen",
             .mediaEstimate: "unkomprimierte größe",
-            .mediaBatchHelp: "einzelne Dateien oder Fotos und Videos gemischt hinzufügen. Zeilen auswählen, um nur diese Dateien zu skalieren oder zu exportieren; alle Dateien gilt für die ganze Liste. Volle Qualität oder einstellbare Komprimierung, standardmäßig 70%. Transparente Fotos bleiben PNG.",
+            .mediaBatchHelp: "Neue Dateien sind automatisch ausgewählt. Abwählen überspringt Dateien; alles auswählen markiert die ganze Liste. Ohne Auswahl ist kein Export möglich.",
             .mediaAllFiles: "alle Dateien",
             .mediaSelectedFiles: "ausgewählt ({count})",
             .mediaIndividualSizes: "individuelle Größen",
@@ -2932,6 +2939,8 @@ enum L10n {
             ]
 
     private static let esTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "quitar archivos terminados de la lista",
+            .mediaRemoveCompletedHelp: "tras exportar correctamente. los archivos guardados siguen en el disco. desactivado, las filas terminadas quedan sin marcar.",
             .mediaExportMode: "exportación",
             .mediaFullQuality: "calidad máxima",
             .mediaCompression: "comprimido",
@@ -2965,7 +2974,7 @@ enum L10n {
             .mediaModelError: "modelo no disponible; repite la descarga",
             .mediaOutputError: "falló la exportación; revisa carpeta y\u{00A0}formato",
             .mediaEstimate: "tamaño sin comprimir",
-            .mediaBatchHelp: "añade un archivo o\u{00A0}mezcla fotos y\u{00A0}vídeos. selecciona filas para cambiar tamaños o\u{00A0}exportar solo esas; todos los archivos aplica a\u{00A0}la lista completa. calidad máxima o\u{00A0}compresión ajustable, 70% por defecto. las fotos transparentes conservan PNG.",
+            .mediaBatchHelp: "los archivos nuevos se seleccionan automáticamente. desmarca para omitir; seleccionar todo marca la lista. sin selección no se exporta.",
             .mediaAllFiles: "todos los archivos",
             .mediaSelectedFiles: "seleccionados ({count})",
             .mediaIndividualSizes: "tamaños individuales",
@@ -3740,6 +3749,8 @@ enum L10n {
             ]
 
     private static let ptTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "remover arquivos concluídos da lista",
+            .mediaRemoveCompletedHelp: "após exportar com sucesso. arquivos salvos permanecem no disco. desativado, linhas concluídas ficam sem seleção.",
             .mediaExportMode: "exportação",
             .mediaFullQuality: "qualidade máxima",
             .mediaCompression: "comprimido",
@@ -3773,7 +3784,7 @@ enum L10n {
             .mediaModelError: "modelo indisponível; repita o\u{00A0}download",
             .mediaOutputError: "exportação falhou; confira pasta e\u{00A0}formato",
             .mediaEstimate: "tamanho sem compressão",
-            .mediaBatchHelp: "adicione um arquivo ou misture fotos e\u{00A0}vídeos. selecione linhas para mudar tamanhos ou exportar só essas; todos os arquivos aplica à\u{00A0}lista inteira. qualidade máxima ou compressão ajustável, 70% por padrão. fotos transparentes mantêm PNG.",
+            .mediaBatchHelp: "novos arquivos são selecionados automaticamente. desmarque para ignorar; selecionar tudo marca a\u{00A0}lista. sem seleção não há exportação.",
             .mediaAllFiles: "todos os arquivos",
             .mediaSelectedFiles: "selecionados ({count})",
             .mediaIndividualSizes: "tamanhos individuais",
@@ -4548,6 +4559,8 @@ enum L10n {
             ]
 
     private static let frTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "retirer les fichiers terminés de la liste",
+            .mediaRemoveCompletedHelp: "après un export réussi. les fichiers enregistrés restent sur le disque. désactivé, les lignes terminées restent décochées.",
             .mediaExportMode: "export",
             .mediaFullQuality: "qualité maximale",
             .mediaCompression: "compressé",
@@ -4581,7 +4594,7 @@ enum L10n {
             .mediaModelError: "modèle indisponible ; réessayer le téléchargement",
             .mediaOutputError: "échec de l’export ; vérifier dossier et format",
             .mediaEstimate: "taille non compressée",
-            .mediaBatchHelp: "ajoutez un fichier ou mélangez photos et vidéos. sélectionnez des lignes pour modifier leurs dimensions ou exporter ces fichiers ; tous les fichiers concerne toute la liste. qualité maximale ou compression réglable, 70 % par défaut. les photos transparentes restent PNG.",
+            .mediaBatchHelp: "les nouveaux fichiers sont cochés automatiquement. décochez pour ignorer ; tout sélectionner coche la liste. sans sélection, aucun export.",
             .mediaAllFiles: "tous les fichiers",
             .mediaSelectedFiles: "sélectionnés ({count})",
             .mediaIndividualSizes: "dimensions individuelles",
@@ -5356,6 +5369,8 @@ enum L10n {
             ]
 
     private static let itTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "rimuovi file completati dalla lista",
+            .mediaRemoveCompletedHelp: "dopo una corretta esportazione. i\u{00A0}file salvati restano sul disco. se disattivo, le righe completate restano senza selezione.",
             .mediaExportMode: "esportazione",
             .mediaFullQuality: "qualità massima",
             .mediaCompression: "compresso",
@@ -5389,7 +5404,7 @@ enum L10n {
             .mediaModelError: "modello non disponibile; riprova il download",
             .mediaOutputError: "esportazione fallita; verifica cartella e\u{00A0}formato",
             .mediaEstimate: "dimensione non compressa",
-            .mediaBatchHelp: "aggiungi un file o\u{00A0}mescola foto e\u{00A0}video. seleziona righe per modificarne le dimensioni o\u{00A0}esportare solo quelle; tutti i\u{00A0}file applica all’intero elenco. qualità massima o\u{00A0}compressione regolabile, 70% predefinito. le foto trasparenti restano PNG.",
+            .mediaBatchHelp: "i\u{00A0}nuovi file sono selezionati automaticamente. deseleziona per saltarli; seleziona tutto marca la lista. senza selezione non si esporta.",
             .mediaAllFiles: "tutti i\u{00A0}file",
             .mediaSelectedFiles: "selezionati ({count})",
             .mediaIndividualSizes: "dimensioni individuali",
@@ -6164,6 +6179,8 @@ enum L10n {
             ]
 
     private static let zhTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "从列表移除已完成的文件",
+            .mediaRemoveCompletedHelp: "成功导出后移除。已保存的文件保留在磁盘上。关闭时，已完成的行保留但取消选择。",
             .mediaExportMode: "导出",
             .mediaFullQuality: "完整质量",
             .mediaCompression: "压缩",
@@ -6197,7 +6214,7 @@ enum L10n {
             .mediaModelError: "模型不可用，请重新下载",
             .mediaOutputError: "导出失败，请检查文件夹和格式",
             .mediaEstimate: "未压缩大小",
-            .mediaBatchHelp: "添加单个文件，或混合照片和视频。勾选行可仅调整或导出所选文件；所有文件应用于整个列表。完整画质或可调压缩，默认 70%。透明照片保留 PNG。",
+            .mediaBatchHelp: "新文件会自动选中。取消勾选可跳过文件；全选会选中整个列表。未选择文件时无法导出。",
             .mediaAllFiles: "所有文件",
             .mediaSelectedFiles: "已选（{count}）",
             .mediaIndividualSizes: "各文件尺寸",
@@ -6963,6 +6980,8 @@ enum L10n {
             ]
 
     private static let jaTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "完了したファイルを一覧から除く",
+            .mediaRemoveCompletedHelp: "書き出し成功後に除きます。保存済みファイルはディスクに残ります。オフの場合、完了した行は選択解除して残します。",
             .mediaExportMode: "書き出し",
             .mediaFullQuality: "最高品質",
             .mediaCompression: "圧縮",
@@ -6996,7 +7015,7 @@ enum L10n {
             .mediaModelError: "モデルを再ダウンロードしてください",
             .mediaOutputError: "出力失敗。フォルダと形式を確認",
             .mediaEstimate: "非圧縮サイズ",
-            .mediaBatchHelp: "1 ファイル、または写真と動画をまとめて追加。行を選択すると、そのファイルだけサイズ変更・書き出しできます。「すべてのファイル」で一覧全体に適用。最高画質か圧縮を選択。圧縮は初期値 70%、変更可能。透明な写真は PNG を保持。",
+            .mediaBatchHelp: "新しいファイルは自動で選択されます。チェックを外すと対象外になります。「すべて選択」で一覧全体を選択します。未選択では書き出せません。",
             .mediaAllFiles: "すべてのファイル",
             .mediaSelectedFiles: "選択中（{count}）",
             .mediaIndividualSizes: "ファイルごとのサイズ",
@@ -7768,6 +7787,8 @@ enum L10n {
             ]
 
     private static let nlTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "voltooide bestanden uit de lijst halen",
+            .mediaRemoveCompletedHelp: "na geslaagde export. opgeslagen bestanden blijven op schijf. uitgeschakeld blijven voltooide regels zonder vinkje staan.",
             .mediaExportMode: "export",
             .mediaFullQuality: "volledige kwaliteit",
             .mediaCompression: "gecomprimeerd",
@@ -7801,7 +7822,7 @@ enum L10n {
             .mediaModelError: "model niet beschikbaar; download opnieuw",
             .mediaOutputError: "export mislukt; controleer map en formaat",
             .mediaEstimate: "ongecomprimeerde grootte",
-            .mediaBatchHelp: "voeg één bestand toe of meng foto’s en video’s. selecteer rijen om alleen die bestanden te vergroten of te exporteren; alle bestanden geldt voor de hele lijst. volledige kwaliteit of instelbare compressie, standaard 70%. transparante foto’s blijven PNG.",
+            .mediaBatchHelp: "nieuwe bestanden zijn automatisch geselecteerd. vink uit om over te slaan; alles selecteren vinkt de hele lijst aan. zonder selectie geen export.",
             .mediaAllFiles: "alle bestanden",
             .mediaSelectedFiles: "geselecteerd ({count})",
             .mediaIndividualSizes: "afzonderlijke afmetingen",
@@ -8592,6 +8613,8 @@ enum L10n {
             ]
 
     private static let koTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "완료된 파일을 목록에서 제거",
+            .mediaRemoveCompletedHelp: "내보내기에 성공한 후 제거합니다. 저장된 파일은 디스크에 남습니다. 끄면 완료된 행은 선택 해제되어 남습니다.",
             .mediaExportMode: "내보내기",
             .mediaFullQuality: "최고 품질",
             .mediaCompression: "압축",
@@ -8625,7 +8648,7 @@ enum L10n {
             .mediaModelError: "모델을 다시 다운로드하세요",
             .mediaOutputError: "내보내기 실패; 폴더와 형식 확인",
             .mediaEstimate: "비압축 크기",
-            .mediaBatchHelp: "파일 하나 또는 사진과 동영상을 함께 추가하세요. 행을 선택하면 해당 파일만 크기를 바꾸거나 내보냅니다. 모든 파일은 전체 목록에 적용됩니다. 최고 품질 또는 압축을 선택하세요. 압축 기본값은 70%이며 조절할 수 있습니다. 투명 사진은 PNG를 유지합니다.",
+            .mediaBatchHelp: "새 파일은 자동 선택됩니다. 체크를 해제하면 제외됩니다. 전체 선택은 목록 전체를 선택합니다. 선택한 파일이 없으면 내보낼 수 없습니다.",
             .mediaAllFiles: "모든 파일",
             .mediaSelectedFiles: "선택됨 ({count})",
             .mediaIndividualSizes: "파일별 크기",
@@ -9397,6 +9420,8 @@ enum L10n {
             ]
 
     private static let thTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "นำไฟล์ที่เสร็จแล้วออกจากรายการ",
+            .mediaRemoveCompletedHelp: "หลังส่งออกสำเร็จ ไฟล์ที่บันทึกยังอยู่บนดิสก์ หากปิด แถวที่เสร็จแล้วจะคงอยู่แต่ไม่ถูกเลือก",
             .mediaExportMode: "ส่งออก",
             .mediaFullQuality: "คุณภาพเต็ม",
             .mediaCompression: "บีบอัด",
@@ -9430,7 +9455,7 @@ enum L10n {
             .mediaModelError: "โมเดลไม่พร้อม ลองดาวน์โหลดอีกครั้ง",
             .mediaOutputError: "ส่งออกไม่สำเร็จ ตรวจโฟลเดอร์และรูปแบบ",
             .mediaEstimate: "ขนาดไม่บีบอัด",
-            .mediaBatchHelp: "เพิ่มไฟล์เดียวหรือรวมภาพและวิดีโอ เลือกแถวเพื่อปรับขนาดหรือส่งออกเฉพาะไฟล์ที่เลือก ไฟล์ทั้งหมดใช้กับทั้งรายการ เลือกคุณภาพเต็มหรือการบีบอัดที่ปรับได้ ค่าเริ่มต้น 70% ภาพโปร่งใสยังใช้ PNG",
+            .mediaBatchHelp: "ไฟล์ใหม่จะถูกเลือกอัตโนมัติ ยกเลิกการเลือกเพื่อข้าม เลือกทั้งหมดจะเลือกรายการทั้งหมด หากไม่ได้เลือกจะส่งออกไม่ได้",
             .mediaAllFiles: "ไฟล์ทั้งหมด",
             .mediaSelectedFiles: "ที่เลือก ({count})",
             .mediaIndividualSizes: "ขนาดแต่ละไฟล์",
@@ -10221,6 +10246,8 @@ enum L10n {
             ]
 
     private static let viTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "bỏ tệp hoàn tất khỏi danh sách",
+            .mediaRemoveCompletedHelp: "sau khi xuất thành công. tệp đã lưu vẫn nằm trên đĩa. khi tắt, hàng hoàn tất vẫn còn nhưng bỏ chọn.",
             .mediaExportMode: "xuất",
             .mediaFullQuality: "chất lượng tối đa",
             .mediaCompression: "nén",
@@ -10254,7 +10281,7 @@ enum L10n {
             .mediaModelError: "mô hình không sẵn; tải lại",
             .mediaOutputError: "xuất thất bại; kiểm tra thư mục và định dạng",
             .mediaEstimate: "kích thước chưa nén",
-            .mediaBatchHelp: "thêm một tệp hoặc trộn ảnh và video. chọn dòng để đổi kích thước hoặc chỉ xuất tệp đã chọn; tất cả tệp áp dụng cho toàn bộ danh sách. chất lượng đầy đủ hoặc nén tùy chỉnh, mặc định 70%. ảnh trong suốt giữ PNG.",
+            .mediaBatchHelp: "tệp mới được chọn tự động. bỏ chọn để bỏ qua; chọn tất cả đánh dấu cả danh sách. không chọn thì không xuất.",
             .mediaAllFiles: "tất cả tệp",
             .mediaSelectedFiles: "đã chọn ({count})",
             .mediaIndividualSizes: "kích thước riêng",
@@ -11045,6 +11072,8 @@ enum L10n {
             ]
 
     private static let hiTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "पूरी हुई फ़ाइलें सूची से हटाएँ",
+            .mediaRemoveCompletedHelp: "सफल निर्यात के बाद। सहेजी गई फ़ाइलें डिस्क पर रहेंगी। बंद होने पर पूरी हुई पंक्तियाँ बिना चयन के रहेंगी।",
             .mediaExportMode: "निर्यात",
             .mediaFullQuality: "पूर्ण गुणवत्ता",
             .mediaCompression: "संपीड़ित",
@@ -11078,7 +11107,7 @@ enum L10n {
             .mediaModelError: "मॉडल उपलब्ध नहीं; फिर डाउनलोड करें",
             .mediaOutputError: "निर्यात विफल; फ़ोल्डर और प्रारूप जाँचें",
             .mediaEstimate: "असंपीड़ित आकार",
-            .mediaBatchHelp: "एक फ़ाइल जोड़ें या फ़ोटो और वीडियो मिलाएँ। चुनी गई पंक्तियों का आकार बदलें या केवल उन्हें निर्यात करें; सभी फ़ाइलें पूरी सूची पर लागू होता है। पूरी गुणवत्ता या समायोज्य संपीड़न, डिफ़ॉल्ट 70%। पारदर्शी फ़ोटो PNG में रहेंगी।",
+            .mediaBatchHelp: "नई फ़ाइलें अपने आप चुनी जाती हैं। छोड़ने के लिए चयन हटाएँ; सभी चुनें पूरी सूची चुनता है। बिना चयन निर्यात बंद है।",
             .mediaAllFiles: "सभी फ़ाइलें",
             .mediaSelectedFiles: "चुनी गई ({count})",
             .mediaIndividualSizes: "हर फ़ाइल का आकार",
@@ -11869,6 +11898,8 @@ enum L10n {
             ]
 
     private static let idTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "hapus file selesai dari daftar",
+            .mediaRemoveCompletedHelp: "setelah ekspor berhasil. file tersimpan tetap di disk. jika mati, baris selesai tetap ada tanpa dipilih.",
             .mediaExportMode: "ekspor",
             .mediaFullQuality: "kualitas penuh",
             .mediaCompression: "terkompresi",
@@ -11902,7 +11933,7 @@ enum L10n {
             .mediaModelError: "model tidak tersedia; unduh ulang",
             .mediaOutputError: "ekspor gagal; periksa folder dan format",
             .mediaEstimate: "ukuran tanpa kompresi",
-            .mediaBatchHelp: "tambahkan satu berkas atau campur foto dan video. pilih baris untuk mengubah ukuran atau mengekspor hanya berkas tersebut; semua berkas berlaku untuk seluruh daftar. kualitas penuh atau kompresi yang bisa diatur, bawaan 70%. foto transparan tetap PNG.",
+            .mediaBatchHelp: "file baru dipilih otomatis. hapus centang untuk melewati; pilih semua menandai seluruh daftar. tanpa pilihan, ekspor nonaktif.",
             .mediaAllFiles: "semua berkas",
             .mediaSelectedFiles: "dipilih ({count})",
             .mediaIndividualSizes: "ukuran tiap berkas",
@@ -12693,6 +12724,8 @@ enum L10n {
             ]
 
     private static let trTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "tamamlanan dosyaları listeden kaldır",
+            .mediaRemoveCompletedHelp: "başarılı dışa aktarmadan sonra. kaydedilen dosyalar diskte kalır. kapalıyken tamamlanan satırların seçimi kaldırılır.",
             .mediaExportMode: "dışa aktarma",
             .mediaFullQuality: "tam kalite",
             .mediaCompression: "sıkıştırılmış",
@@ -12726,7 +12759,7 @@ enum L10n {
             .mediaModelError: "model kullanılamıyor; yeniden indirin",
             .mediaOutputError: "dışa aktarma başarısız; klasör ve biçimi kontrol edin",
             .mediaEstimate: "sıkıştırılmamış boyut",
-            .mediaBatchHelp: "tek dosya ekleyin veya fotoğraf ve videoları karıştırın. yalnızca seçilenlerin boyutunu değiştirmek veya dışa aktarmak için satırları seçin; tüm dosyalar bütün listeye uygulanır. tam kalite veya ayarlanabilir sıkıştırma, varsayılan %70. saydam fotoğraflar PNG kalır.",
+            .mediaBatchHelp: "yeni dosyalar otomatik seçilir. atlamak için seçimi kaldırın; tümünü seç listeyi seçer. seçim yoksa dışa aktarma kapalıdır.",
             .mediaAllFiles: "tüm dosyalar",
             .mediaSelectedFiles: "seçili ({count})",
             .mediaIndividualSizes: "dosyaya özel boyutlar",
@@ -13517,6 +13550,8 @@ enum L10n {
             ]
 
     private static let plTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "usuń ukończone pliki z\u{00A0}listy",
+            .mediaRemoveCompletedHelp: "po udanym eksporcie. zapisane pliki pozostają na dysku. po wyłączeniu ukończone wiersze pozostają bez zaznaczenia.",
             .mediaExportMode: "eksport",
             .mediaFullQuality: "pełna jakość",
             .mediaCompression: "skompresowane",
@@ -13550,7 +13585,7 @@ enum L10n {
             .mediaModelError: "model niedostępny; pobierz ponownie",
             .mediaOutputError: "eksport nieudany; sprawdź folder i\u{00A0}format",
             .mediaEstimate: "rozmiar bez kompresji",
-            .mediaBatchHelp: "dodaj jeden plik lub razem zdjęcia i\u{00A0}wideo. zaznacz wiersze, aby zmienić rozmiary lub eksportować tylko wybrane; wszystkie pliki obejmuje całą listę. pełna jakość lub regulowana kompresja, domyślnie 70%. przezroczyste zdjęcia pozostają PNG.",
+            .mediaBatchHelp: "nowe pliki są automatycznie zaznaczone. odznacz, aby pominąć; zaznacz wszystko wybiera całą listę. bez zaznaczenia eksport jest niedostępny.",
             .mediaAllFiles: "wszystkie pliki",
             .mediaSelectedFiles: "wybrane ({count})",
             .mediaIndividualSizes: "rozmiary poszczególnych plików",
@@ -14341,6 +14376,8 @@ enum L10n {
             ]
 
     private static let arTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "إزالة الملفات المكتملة من القائمة",
+            .mediaRemoveCompletedHelp: "بعد تصدير ناجح. تبقى الملفات المحفوظة على القرص. عند التعطيل تبقى الصفوف المكتملة دون تحديد.",
             .mediaExportMode: "التصدير",
             .mediaFullQuality: "جودة كاملة",
             .mediaCompression: "مضغوط",
@@ -14374,7 +14411,7 @@ enum L10n {
             .mediaModelError: "النموذج غير متاح؛ أعد التنزيل",
             .mediaOutputError: "فشل التصدير؛ تحقق من المجلد والتنسيق",
             .mediaEstimate: "الحجم دون ضغط",
-            .mediaBatchHelp: "أضف ملفًا واحدًا أو صورًا وفيديوهات معًا. حدد الصفوف لتغيير أبعادها أو تصدير المحدد فقط؛ كل الملفات يشمل القائمة كاملة. جودة كاملة أو ضغط قابل للتعديل، 70% افتراضيًا. الصور الشفافة تبقى PNG.",
+            .mediaBatchHelp: "تُحدد الملفات الجديدة تلقائياً. ألغِ التحديد لتجاوزها؛ تحديد الكل يحدد القائمة كاملة. لا يمكن التصدير دون تحديد.",
             .mediaAllFiles: "كل الملفات",
             .mediaSelectedFiles: "المحددة ({count})",
             .mediaIndividualSizes: "أبعاد لكل ملف",
@@ -15224,6 +15261,8 @@ enum L10n {
             ]
 
     private static let heTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "הסר קבצים שהושלמו מהרשימה",
+            .mediaRemoveCompletedHelp: "לאחר ייצוא מוצלח. הקבצים שנשמרו נשארים בדיסק. כשהאפשרות כבויה השורות שהושלמו נשארות ללא סימון.",
             .mediaExportMode: "ייצוא",
             .mediaFullQuality: "איכות מלאה",
             .mediaCompression: "דחוס",
@@ -15257,7 +15296,7 @@ enum L10n {
             .mediaModelError: "המודל לא זמין; הורד שוב",
             .mediaOutputError: "הייצוא נכשל; בדוק תיקייה ופורמט",
             .mediaEstimate: "גודל לא דחוס",
-            .mediaBatchHelp: "הוסיפו קובץ אחד או ערבבו תמונות וסרטונים. בחרו שורות כדי לשנות מידות או לייצא רק אותן; כל הקבצים חל על כל הרשימה. איכות מלאה או דחיסה מתכווננת, 70% כברירת מחדל. תמונות שקופות נשמרות כ־PNG.",
+            .mediaBatchHelp: "קבצים חדשים נבחרים אוטומטית. בטלו סימון כדי לדלג; בחר הכול מסמן את כל הרשימה. ללא בחירה אין ייצוא.",
             .mediaAllFiles: "כל הקבצים",
             .mediaSelectedFiles: "נבחרו ({count})",
             .mediaIndividualSizes: "מידות לכל קובץ",
@@ -16107,6 +16146,8 @@ enum L10n {
             ]
 
     private static let faTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "حذف فایل‌های تکمیل‌شده از فهرست",
+            .mediaRemoveCompletedHelp: "پس از خروجی موفق. فایل‌های ذخیره‌شده روی دیسک می‌مانند. در حالت خاموش ردیف‌های تکمیل‌شده بدون انتخاب می‌مانند.",
             .mediaExportMode: "خروجی",
             .mediaFullQuality: "کیفیت کامل",
             .mediaCompression: "فشرده",
@@ -16140,7 +16181,7 @@ enum L10n {
             .mediaModelError: "مدل در دسترس نیست؛ دوباره دانلود کنید",
             .mediaOutputError: "صدور ناموفق؛ پوشه و\u{00A0}قالب را بررسی کنید",
             .mediaEstimate: "اندازه بدون فشرده‌سازی",
-            .mediaBatchHelp: "یک فایل یا ترکیبی از عکس و\u{00A0}ویدیو اضافه کنید. سطرها را برای تغییر اندازه یا خروجی فقط از انتخاب‌ها برگزینید؛ همهٔ فایل‌ها شامل کل فهرست است. کیفیت کامل یا فشرده‌سازی قابل تنظیم، پیش‌فرض 70%. عکس‌های شفاف PNG می‌مانند.",
+            .mediaBatchHelp: "فایل‌های جدید خودکار انتخاب می‌شوند. برای رد کردن انتخاب را بردارید؛ انتخاب همه کل فهرست را انتخاب می‌کند. بدون انتخاب خروجی غیرفعال است.",
             .mediaAllFiles: "همهٔ فایل‌ها",
             .mediaSelectedFiles: "انتخاب‌شده ({count})",
             .mediaIndividualSizes: "اندازهٔ هر فایل",
@@ -16990,6 +17031,8 @@ enum L10n {
             ]
 
     private static let urTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "مکمل فائلیں فہرست سے ہٹائیں",
+            .mediaRemoveCompletedHelp: "کامیاب برآمد کے بعد۔ محفوظ فائلیں ڈسک پر رہیں گی۔ بند ہونے پر مکمل قطاریں بغیر انتخاب رہیں گی۔",
             .mediaExportMode: "برآمد",
             .mediaFullQuality: "مکمل معیار",
             .mediaCompression: "کمپریسڈ",
@@ -17023,7 +17066,7 @@ enum L10n {
             .mediaModelError: "ماڈل دستیاب نہیں؛ دوبارہ ڈاؤن لوڈ کریں",
             .mediaOutputError: "برآمد ناکام؛ فولڈر اور\u{00A0}فارمیٹ دیکھیں",
             .mediaEstimate: "غیر فشردہ حجم",
-            .mediaBatchHelp: "ایک فائل شامل کریں یا تصاویر اور\u{00A0}ویڈیوز ملا دیں۔ منتخب قطاروں کا سائز بدلیں یا صرف انہیں برآمد کریں؛ تمام فائلیں پوری فہرست پر لاگو ہوتا ہے۔ مکمل معیار یا قابلِ ترتیب کمپریشن، پہلے سے 70%۔ شفاف تصاویر PNG رہیں گی۔",
+            .mediaBatchHelp: "نئی فائلیں خود منتخب ہوتی ہیں۔ چھوڑنے کے لیے انتخاب ہٹائیں؛ سب منتخب پوری فہرست منتخب کرتا ہے۔ بغیر انتخاب برآمد بند ہے۔",
             .mediaAllFiles: "تمام فائلیں",
             .mediaSelectedFiles: "منتخب ({count})",
             .mediaIndividualSizes: "ہر فائل کا سائز",
@@ -17873,6 +17916,8 @@ enum L10n {
             ]
 
     private static let srTable: [L10nKey: String] = [
+            .mediaRemoveCompleted: "уклони завршене фајлове из\u{00A0}списка",
+            .mediaRemoveCompletedHelp: "после успешног извоза. сачувани фајлови остају на\u{00A0}диску. када је искључено, завршени редови остају без\u{00A0}избора.",
             .mediaExportMode: "извоз",
             .mediaFullQuality: "пун квалитет",
             .mediaCompression: "компримовано",
@@ -17906,7 +17951,7 @@ enum L10n {
             .mediaModelError: "модел није доступан; преузми поново",
             .mediaOutputError: "извоз није успео; провери фасциклу и\u{00A0}формат",
             .mediaEstimate: "некомпримована величина",
-            .mediaBatchHelp: "додајте једну датотеку или\u{00A0}помешајте фотографије и\u{00A0}видео. означите редове за\u{00A0}промену димензија или\u{00A0}извоз само изабраних; све датотеке важи за\u{00A0}цео списак. пун квалитет или\u{00A0}подесиво компримовање, подразумевано 70%. провидне слике остају PNG.",
+            .mediaBatchHelp: "нови фајлови су аутоматски изабрани. одзначите за\u{00A0}прескакање; изабери све означава цео списак. без\u{00A0}избора нема извоза.",
             .mediaAllFiles: "све датотеке",
             .mediaSelectedFiles: "изабрано ({count})",
             .mediaIndividualSizes: "појединачне димензије",

@@ -1181,9 +1181,10 @@ bytes → actual exported bytes and inline progress/error. Before export, the
 output weight is unknown (a dash); do not present raw pixel memory as file size.
 Selection changes only the checkbox, with no row highlight or changed insets.
 Do not show separate original/result previews or file cards.
-Shared controls above the scrolling list apply to selected rows, or all rows
-when none are selected; an explicit all-files button restores the whole-queue
-scope. Size choices must be valid for the scoped files and preserve each file's
+New files are checked automatically. Shared controls and export apply only to
+checked rows. With no checked rows, export is disabled and settings change no
+files. Select all visibly checks the whole list. Size choices must be valid for
+the scoped files and preserve each file's
 aspect ratio. Files already at the maximum report that they cannot grow.
 Each file retains its own target after the selection changes.
 Choose full quality (the default) or compression above the list. Show the quality
@@ -1195,6 +1196,11 @@ one file at a time and stops on cancel or when the Media module is disabled.
 Originals are never overwritten. Cancel/error removes partial outputs; an
 earlier successfully exported file remains. Unsupported/corrupt inputs report
 an error and do not prevent processing other queued files.
+The Media setting "remove completed files from the list" defaults on. Remove
+only successfully exported rows, retaining all files on disk and any failed,
+cancelled or unselected rows. If disabled, retain completed rows with their
+actual output weight and reveal action, but uncheck them. New imports select
+only the new rows, so completed files do not export again without explicit selection.
 
 Image foreground selection uses all Apple Vision foreground instance masks.
 Video background removal uses

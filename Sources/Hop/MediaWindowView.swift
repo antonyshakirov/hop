@@ -21,11 +21,10 @@ struct MediaWindowView: View {
         return .transparent
     }
     private var canExport: Bool {
-        !controller.items.isEmpty && !controller.locked && (controller.operation != .upscale || controller.modelReady)
+        !controller.scopedItems.isEmpty && !controller.locked && (controller.operation != .upscale || controller.modelReady)
     }
     private var scopeLabel: String {
-        controller.selection.isEmpty ? t(.mediaAllFiles) :
-            t(.mediaSelectedFiles).replacingOccurrences(of: "{count}", with: String(controller.selection.count))
+        t(.mediaSelectedFiles).replacingOccurrences(of: "{count}", with: String(controller.scopedItems.count))
     }
 
     var body: some View {
@@ -48,10 +47,8 @@ struct MediaWindowView: View {
             dropPlate
             if !controller.items.isEmpty {
                 HStack(spacing: 8) {
-                    chip(t(.mediaAllFiles), controller.selection.isEmpty) { controller.selectAllFiles() }
-                    if !controller.selection.isEmpty {
-                        Text(scopeLabel).foregroundStyle(Theme.editing)
-                    }
+                    chip(t(.uninstallSelectAll), controller.allFilesSelected) { controller.selectAllFiles() }
+                    Text(scopeLabel).foregroundStyle(controller.selection.isEmpty ? Theme.textTertiary : Theme.editing)
                     Spacer()
                     Text(t(.mediaIndividualSizes)).foregroundStyle(Theme.textTertiary)
                 }.font(Theme.mono(10)).disabled(controller.locked)
@@ -113,7 +110,7 @@ struct MediaWindowView: View {
                         controller.applyResolution(choice)
                     }
                 }
-                if controller.commonResolutions.isEmpty { note(t(.mediaAtMaximum)) }
+                if controller.commonResolutions.isEmpty, !controller.scopedItems.isEmpty { note(t(.mediaAtMaximum)) }
                 Spacer(minLength: 0)
             }
             HStack(spacing: 6) {

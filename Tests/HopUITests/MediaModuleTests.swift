@@ -78,8 +78,9 @@ final class MediaModuleTests: XCTestCase {
         let video = MediaController.Item(url: URL(fileURLWithPath: "/video.mov"), video: true,
                                         size: .init(width: 3840, height: 2160), duration: 1)
         controller.items = [photo, video]
+        controller.selectAllFiles()
         XCTAssertEqual(controller.commonResolutions, [.double, .eightK])
-        controller.toggleSelection(photo.id)
+        controller.toggleSelection(video.id)
         XCTAssertTrue(controller.commonResolutions.contains(.quadruple))
         controller.applyResolution(.quadruple)
         XCTAssertEqual(controller.items[0].resolution, .quadruple)
@@ -94,11 +95,29 @@ final class MediaModuleTests: XCTestCase {
         controller.busy = true
         controller.toggleSelection(photo.id)
         controller.applyResolution(.double)
-        XCTAssertTrue(controller.selection.isEmpty)
+        XCTAssertTrue(controller.allFilesSelected)
         XCTAssertEqual(controller.items.map(\.resolution), [.eightK, .eightK])
         controller.busy = false
         controller.clear()
         XCTAssertTrue(controller.selection.isEmpty)
+    }
+
+    func testNoSelectionDoesNotApplySettingsOrExportAnyFiles() {
+        let controller = MediaController(operation: .upscale)
+        let photo = MediaController.Item(url: URL(fileURLWithPath: "/photo.png"), video: false,
+                                        size: .init(width: 600, height: 400), duration: 0)
+        controller.items = [photo]
+        controller.selectAllFiles()
+        controller.toggleSelection(photo.id)
+        XCTAssertTrue(controller.scopedItems.isEmpty)
+        XCTAssertFalse(controller.allFilesSelected)
+        controller.applyResolution(.quadruple)
+        controller.export(quality: .full, background: .transparent)
+        XCTAssertEqual(controller.items[0].resolution, .double)
+        XCTAssertFalse(controller.busy)
+        XCTAssertNil(controller.error)
+        controller.selectAllFiles()
+        XCTAssertEqual(controller.scopedItems.map(\.id), [photo.id])
     }
 
     func testMediaContentHeightGrowsAndShrinksIndependently() {

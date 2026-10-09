@@ -82,6 +82,7 @@ enum SettingsKey {
     /// inactive bucket and would simply appear in everyone's panel — which is
     /// exactly what the sweep exists to prevent.
     static let mediaModuleSeeded = "mediaModuleSeeded240"
+    static let mediaRemoveCompleted = "mediaRemoveCompleted"
     static let optInModulesSeeded170 = "optInModulesSeeded170"
     /// One-shot flag: decoded legacy models (and any state left mid-shuffled
     /// by the older per-module seeds this superseded) get their whole active

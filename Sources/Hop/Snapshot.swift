@@ -712,6 +712,7 @@ enum Snapshot {
                 item.resolution = item.size.choices.first ?? .eightK
                 controller.items = [item]
                 controller.selected = item.id
+                controller.selection = [item.id]
                 if args.contains("--media-demo-batch") {
                     for n in 1...5 {
                         var sample = MediaController.Item(url: URL(fileURLWithPath: n.isMultiple(of: 2) ?
