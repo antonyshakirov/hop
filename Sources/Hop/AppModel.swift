@@ -18,6 +18,9 @@ final class AppModel: ObservableObject {
     let torrent = TorrentController()
     let tracker: TrackerController
     let todos: TodosController
+    let soundStatus: SoundMuteStatus
+    let sound: SoundController
+    let soundMixer: SoundMixerController
     /// Modules that PRODUCE clipboard entries; they take the clipboard
     /// controller, so they are built in `init` after it exists.
     let colorPicker: ColorPickerController
@@ -88,6 +91,7 @@ final class AppModel: ObservableObject {
     var panelContentSizeWillChange: ((CGSize) -> Void)?
     /// Open the standalone settings window.
     var openSettingsWindow: (() -> Void)?
+    var openSoundWindow: (() -> Void)?
     /// Open the standalone converter window.
     var openConverterWindow: (() -> Void)?
     /// Open the standalone archive window — a drop target that survives a drag,
@@ -133,6 +137,10 @@ final class AppModel: ObservableObject {
         vpn = VPNController(demo: preview)
         speedTest = preview ? SpeedTestController(demo: true) : SpeedTestController()
         appShelves = AppShelvesController(demo: preview)
+        soundStatus = SoundMuteStatus()
+        sound = SoundController(enabled: { preview || ModuleActivation.isOn("sound") }, status: soundStatus)
+        soundMixer = SoundMixerController(enabled: { !preview && ModuleActivation.isOn("sound") })
+        if preview { sound.stageDemo(); soundMixer.stageDemo() }
         colorPicker = ColorPickerController(clipboard: clipboard)
         screenText = ScreenTextController(clipboard: clipboard)
         holdDraw = preview ? nil : HoldDrawController(

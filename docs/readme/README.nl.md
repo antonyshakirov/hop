@@ -462,6 +462,14 @@ Dezelfde module ruimt op zonder iets te verwijderen: elke app die een cache aanh
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
+### Geluid
+
+Geluidsapparaten kiezen en hun volume regelen. Alleen deze microfoon wordt gedempt; apps met een andere microfoon blijven werken
+
+Neemt tot 10 seconden op. Stop en luister. De opname blijft in het geheugen tot dit venster sluit. Systeemstandaard volgt de apparaten die in macOS zijn gekozen.
+
+Start de mixer om elke app apart te regelen. elke invoer heeft versterking tot 200%, ruisonderdrukking en bas. kies Hop Input in je app voor de bewerkte mix. de mixer blijft actief na het sluiten van het venster; stop om de invoer vrij te geven.
+
 ## Talen
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – de app volgt standaard je systeemtaal.
@@ -506,6 +514,8 @@ geen logboek van deze site komt erin terecht.
 
 Hop vraagt pas om een toestemming wanneer de functie die haar nodig heeft echt
 gebruikt wordt; het instellingenvenster van de app somt ze allemaal op met hun stand:
+
+- **microfoon** – sta microfoontoegang toe in macOS-instellingen om het niveau te testen
 
 - **netwerk – hop.tools** – controleren op updates en ze downloaden, plus
   de twee optionele hulpjes (de torrent-engine en de 7-Zip-archiveerder)

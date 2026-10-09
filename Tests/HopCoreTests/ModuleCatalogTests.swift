@@ -9,7 +9,7 @@ final class ModuleCatalogTests: XCTestCase {
     func testIdentifiersAreUniqueAndMatchThePanelDefaults() {
         let ids = ModuleCatalog.modules.map(\.id)
         XCTAssertEqual(Set(ids).count, ids.count)
-        XCTAssertEqual(ids.count, 19)
+        XCTAssertEqual(ids.count, 20)
         XCTAssertTrue(ids.contains("timer"))
         XCTAssertTrue(ids.contains("todos"))
         XCTAssertTrue(ids.contains("uninstall"))
@@ -24,7 +24,7 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertEqual(
             Set(withActions),
             ["timer", "awake", "color", "ocr", "keyboard", "convert", "archive", "uninstall", "windows",
-             "shot", "annotate"]
+             "shot", "annotate", "sound"]
         )
         for module in ModuleCatalog.modules where !module.actions.isEmpty && module.id != "windows" {
             XCTAssertEqual(module.actions.filter { $0.id == "open" }.count, 1, "module \(module.id)")

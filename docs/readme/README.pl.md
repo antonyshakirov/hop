@@ -452,6 +452,14 @@ Ten sam moduł sprząta, nic nie usuwając: każda aplikacja z pamięcią podrę
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
+### Dźwięk
+
+Wybiera urządzenia audio i reguluje ich głośność. Wyciszany jest tylko ten mikrofon; aplikacje z innym mikrofonem działają bez zmian
+
+Nagrywa do 10 sekund. Zatrzymaj i odsłuchaj. Próbka pozostaje w pamięci do zamknięcia tego okna. Domyślne używa urządzeń wybranych w macOS.
+
+Włącz mikser, aby sterować każdą aplikacją osobno. każde wejście ma wzmocnienie do 200%, redukcję szumu i bas. wybierz Hop Input w aplikacji, aby użyć przetworzonego dźwięku. mikser działa po zamknięciu okna; wyłącz go, aby zwolnić wejścia.
+
 ## Języki
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – aplikacja od razu podąża za językiem
@@ -496,6 +504,8 @@ wysyła żadnego identyfikatora, a żaden log tej strony do niej nie wchodzi.
 
 Hop prosi o uprawnienie dopiero wtedy, gdy naprawdę używasz funkcji, która go
 potrzebuje; okno ustawień wymienia je wszystkie z bieżącym stanem:
+
+- **mikrofon** – zezwól na dostęp do mikrofonu w ustawieniach macOS, aby sprawdzić poziom
 
 - **sieć – hop.tools** – sprawdzanie i pobieranie aktualizacji oraz dwa
   opcjonalne pomocniki (silnik torrentów i archiwizator 7-Zip)

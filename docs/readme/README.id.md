@@ -458,6 +458,14 @@ Modul yang sama merapikan tanpa menghapus apa pun: setiap aplikasi yang menyimpa
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
+### Suara
+
+Pilih perangkat audio dan atur volumenya. Hanya mikrofon ini yang dibisukan; aplikasi dengan mikrofon lain tidak terpengaruh
+
+Merekam hingga 10 detik. Hentikan lalu dengarkan. Rekaman tetap di memori sampai jendela ini ditutup. Default mengikuti perangkat yang dipilih di macOS.
+
+Mulai mixer untuk mengatur setiap aplikasi secara terpisah. tiap input memiliki penguatan hingga 200%, peredam bising dan bas. pilih Hop Input di aplikasi untuk memakai campuran yang diproses. mixer tetap aktif setelah jendela ditutup; hentikan untuk melepas input.
+
 ## Bahasa
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – aplikasi langsung mengikuti bahasa sistem
@@ -507,6 +515,8 @@ tersebut.
 
 Hop meminta izin hanya ketika fitur yang membutuhkannya benar-benar dipakai, dan
 jendela pengaturan aplikasi mendaftar semuanya beserta statusnya saat ini:
+
+- **mikrofon** – izinkan akses mikrofon di pengaturan macOS untuk menguji levelnya
 
 - **jaringan – hop.tools** – memeriksa dan mengunduh pembaruan, plus dua
   pembantu opsional (mesin torrent dan pengarsip 7-Zip)

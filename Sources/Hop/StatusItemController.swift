@@ -135,6 +135,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     /// Redraws the icon when the menu bar's appearance changes under it.
     private var appearanceObserver: NSKeyValueObservation?
     private var statsCancellable: AnyCancellable?
+    private var soundCancellable: AnyCancellable?
+    private var soundMuteItem: NSStatusItem?
+    private var lastSoundMutes: [String] = []
     /// Runs only across a handover between two clocks sharing the bar.
     private var fadeTicker: Timer?
 
@@ -188,6 +191,10 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         clockCancellable = model.barChanged
             .receive(on: RunLoop.main)
             .sink { [weak self] in self?.setNeedsRefresh() }
+        soundCancellable = model.soundStatus.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.refreshSoundMute() }
+        refreshSoundMute()
         // the monitor's red zone is refreshed by the background stats tick
         statsCancellable = model.stats.objectWillChange
             .receive(on: RunLoop.main)
@@ -340,6 +347,43 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         applyTheme()
         refreshButton()
     }
+
+    /// SPEC: docs/spec.md — "Sound": a separate mute icon stays visible across app/window changes.
+    private func refreshSoundMute() {
+        var symbols: [String] = []
+        if model.soundStatus.outputMuted { symbols.append("speaker.slash.fill") }
+        if model.soundStatus.inputMuted { symbols.append("mic.slash.fill") }
+        guard symbols != lastSoundMutes else { return }
+        lastSoundMutes = symbols
+        guard !symbols.isEmpty else {
+            if let soundMuteItem { NSStatusBar.system.removeStatusItem(soundMuteItem) }
+            soundMuteItem = nil
+            return
+        }
+        let item = soundMuteItem ?? NSStatusBar.system.statusItem(withLength: CGFloat(symbols.count * 20))
+        soundMuteItem = item
+        item.length = CGFloat(symbols.count * 20)
+        let image = NSImage(size: NSSize(width: symbols.count * 18, height: 18))
+        image.lockFocus()
+        for (index, symbol) in symbols.enumerated() {
+            NSImage(systemSymbolName: symbol, accessibilityDescription: nil)?
+                .withSymbolConfiguration(.init(pointSize: 14, weight: .medium))?
+                .draw(in: NSRect(x: index * 18, y: 1, width: 16, height: 16))
+        }
+        image.unlockFocus()
+        image.isTemplate = true
+        item.button?.image = image
+        item.button?.target = self
+        item.button?.action = #selector(openSound)
+        let lang = L10n.current
+        var labels: [String] = []
+        if model.soundStatus.outputMuted { labels.append(L10n.t(.soundOutput, lang) + ": " + L10n.t(.soundMuted, lang)) }
+        if model.soundStatus.inputMuted { labels.append(L10n.t(.soundInput, lang) + ": " + L10n.t(.soundMuted, lang)) }
+        item.button?.toolTip = labels.joined(separator: " · ")
+        item.button?.setAccessibilityLabel(labels.joined(separator: ", "))
+    }
+
+    @objc private func openSound() { model.openSoundWindow?() }
 
     /// Menu bar title length, frozen while the panel is open
     /// (nil — panel closed, width is free to change).

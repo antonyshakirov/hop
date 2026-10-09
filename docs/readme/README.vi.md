@@ -444,6 +444,14 @@ Cũng mô-đun ấy dọn dẹp mà không gỡ gì: mọi ứng dụng đang gi
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
+### Âm thanh
+
+Chọn thiết bị âm thanh và điều chỉnh âm lượng. Chỉ tắt tiếng micrô này; ứng dụng dùng micrô khác không bị ảnh hưởng
+
+Ghi tối đa 10 giây. Dừng rồi nghe. Bản ghi ở trong bộ nhớ cho đến khi đóng cửa sổ này. Mặc định dùng các thiết bị đã chọn trong macOS.
+
+Bật bộ trộn để điều chỉnh riêng từng ứng dụng. mỗi đầu vào có khuếch đại đến 200%, khử nhiễu và âm trầm. chọn Hop Input trong ứng dụng để dùng âm thanh đã xử lý. bộ trộn vẫn chạy khi đóng cửa sổ; tắt để giải phóng đầu vào.
+
 ## Ngôn ngữ
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – ứng dụng tự động theo ngôn ngữ hệ thống của
@@ -488,6 +496,8 @@ nhật ký nào của trang này lọt vào con số.
 
 Hop chỉ xin quyền khi bạn thật sự dùng tính năng cần đến nó, và cửa sổ cài đặt
 của ứng dụng liệt kê tất cả kèm trạng thái hiện tại:
+
+- **micrô** – cho phép truy cập micrô trong cài đặt macOS để kiểm tra mức âm thanh
 
 - **mạng – hop.tools** – kiểm tra và tải bản cập nhật, cùng hai trình hỗ
   trợ tuỳ chọn (engine torrent và trình nén 7-Zip)

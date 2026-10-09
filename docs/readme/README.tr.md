@@ -452,6 +452,14 @@ Aynı modül hiçbir şeyi kaldırmadan toparlar da: önbellek tutan her uygulam
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
+### Ses
+
+Ses aygıtlarını seçer ve ses düzeyini ayarlar. Yalnızca bu mikrofon sessize alınır; başka mikrofon kullanan uygulamalar etkilenmez
+
+En fazla 10 saniye kaydeder. Durdurup dinleyin. Kayıt, pencere kapanana kadar bellekte kalır. Varsayılan, macOS’te seçilen aygıtları kullanır.
+
+Her uygulamayı ayrı kontrol etmek için mikseri başlatın. her girişte %200’e kadar kazanç, gürültü giderme ve bas vardır. işlenmiş karışım için uygulamada Hop Input seçin. pencere kapandıktan sonra mikser çalışmaya devam eder; girişleri serbest bırakmak için durdurun.
+
 ## Diller
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – uygulama kurulumdan itibaren sistem
@@ -495,6 +503,8 @@ göndermez ve bu sitenin hiçbir kaydı sayıya karışmaz.
 
 Hop bir izni ancak onu gerektiren özelliği gerçekten kullandığında ister;
 uygulamanın ayarlar penceresi hepsini güncel durumlarıyla listeler:
+
+- **mikrofon** – düzeyi test etmek için macOS ayarlarından mikrofon erişimine izin verin
 
 - **ağ – hop.tools** – güncelleme aramak ve indirmek, ayrıca iki isteğe
   bağlı yardımcı (torrent motoru ve 7-Zip arşivleyici)

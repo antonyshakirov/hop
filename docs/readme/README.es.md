@@ -483,6 +483,14 @@ El mismo módulo limpia sin eliminar nada: cada app que guarda caché, las mayor
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
+### Sonido
+
+Elige dispositivos de sonido y controla su volumen. Solo se silencia este micrófono; las apps con otro micrófono no se ven afectadas
+
+Graba hasta 10 segundos. Detén y escucha. La muestra queda en memoria hasta cerrar esta ventana. El predeterminado sigue los dispositivos elegidos en macOS.
+
+Inicia el mezclador para controlar cada app por separado. cada entrada tiene ganancia hasta el 200%, reducción de ruido y graves. elige Hop Input en tu app para usar la mezcla procesada. el mezclador sigue funcionando al cerrar la ventana; detenlo para liberar las entradas.
+
 ## Idiomas
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – la app sigue el idioma de tu sistema desde el
@@ -529,6 +537,8 @@ en el número.
 
 Hop pide un permiso solo cuando usas la función que lo necesita, y la ventana
 de ajustes los enumera todos con su estado actual:
+
+- **micrófono** – permite el acceso al micrófono en los ajustes de macOS para medir su nivel
 
 - **red – hop.tools** – buscar y descargar actualizaciones, más los dos
   ayudantes opcionales (motor de torrents y archivador 7-Zip)

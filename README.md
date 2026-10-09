@@ -498,6 +498,14 @@ that app's own cleanup knows which half is disposable.
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
+### Sound
+
+Choose sound devices and control their volume. Microphone mute affects this device only; apps using another microphone are unaffected.
+
+Records up to 10 seconds; stop, then listen. The sample stays in memory until this window closes. System default follows the devices selected in macOS.
+
+Start mixer to control each app separately. each input has gain up to 200%, denoise and bass. choose Hop Input in your app to use the processed mix. the mixer keeps working after the window closes; stop it to release the inputs.
+
 ## Languages
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – the app follows your system language out of
@@ -542,6 +550,8 @@ app sends no identifier, and no log of this site goes into the number.
 
 Hop asks for a permission only when the feature that needs it is actually used,
 and the settings window lists them all with their current state:
+
+- **microphone** – allow microphone access in macOS settings to check its level
 
 - **network – hop.tools** – update checks and downloads, plus the two
   optional helpers (the torrent engine and the 7-Zip archiver)

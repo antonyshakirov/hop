@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+    <key>CFBundleExecutable</key><string>HopAudioWorker</string>
+    <key>CFBundleIdentifier</key><string>com.antonshakirov.minimo.audio-worker</string>
+    <key>CFBundleName</key><string>Hop Audio Input</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>LSUIElement</key><true/>
+    <key>LSMinimumSystemVersion</key><string>14.0</string>
+    <key>NSMicrophoneUsageDescription</key><string>Hop processes enabled input channels locally when you start the mixer. It does not save or upload audio.</string>
+</dict></plist>

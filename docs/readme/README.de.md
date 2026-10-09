@@ -492,6 +492,14 @@ Dasselbe Modul räumt auf, ohne etwas zu entfernen: jede App mit Cache, die grö
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
+### Klang
+
+Audiogeräte wählen und ihre lautstärke regeln. Nur dieses mikrofon wird stummgeschaltet; apps mit einem anderen mikrofon sind nicht betroffen
+
+Nimmt bis zu 10 sekunden auf. Stoppen, dann anhören. Die aufnahme bleibt bis zum schließen im speicher. Systemstandard folgt den in macOS gewählten geräten.
+
+Mixer starten, um jede app getrennt zu regeln. jeder eingang bietet bis zu 200% verstärkung, entrauschen und bass. Hop Input in der app wählen, um den bearbeiteten mix zu nutzen. der mixer läuft nach dem schließen des fensters weiter; stoppen beendet die eingänge.
+
 ## Sprachen
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – die App folgt von Haus aus deiner Systemsprache.
@@ -537,6 +545,8 @@ hinein.
 
 Hop fragt eine Berechtigung erst dann ab, wenn die zugehörige Funktion wirklich
 benutzt wird; das Einstellungsfenster listet alle mit ihrem aktuellen Stand auf:
+
+- **mikrofon** – für die pegelprüfung mikrofonzugriff in den macOS-einstellungen erlauben
 
 - **Netzwerk – hop.tools** – Updates suchen und laden, dazu die zwei
   optionalen Helfer (Torrent-Engine und 7-Zip-Archivierer)

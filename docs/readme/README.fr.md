@@ -492,6 +492,14 @@ Le même module fait le ménage sans rien supprimer : chaque app qui garde un ca
 
 → [Uninstall apps on your Mac](https://hop.tools/features/app-uninstaller/)
 
+### Son
+
+Choisit les appareils audio et règle leur volume. Seul ce microphone est coupé; les apps utilisant un autre microphone ne sont pas affectées
+
+Enregistre jusqu’à 10 secondes. Arrêtez puis écoutez. L’extrait reste en mémoire jusqu’à la fermeture de cette fenêtre. Le choix par défaut suit les appareils sélectionnés dans macOS.
+
+Démarrez le mixeur pour régler chaque app séparément. chaque entrée offre un gain jusqu’à 200%, une réduction du bruit et des graves. choisissez Hop Input dans votre app pour utiliser le mix traité. le mixeur reste actif après la fermeture de la fenêtre ; arrêtez-le pour libérer les entrées.
+
 ## Langues
 
 Bahasa Indonesia, Deutsch, English, Español, Français, Italiano, Nederlands, Polski, Português, Türkçe, Tiếng Việt, Русский, Српски, עברית, العربية, فارسی, اردو, हिन्दी, ไทย, 한국어, 中文, 日本語 – l'app suit la langue de votre système dès
@@ -539,6 +547,8 @@ ce site n'entre dans le chiffre.
 
 Hop ne demande une autorisation qu'au moment où la fonction concernée est
 vraiment utilisée ; la fenêtre des réglages les liste toutes avec leur état :
+
+- **microphone** – autorisez le microphone dans les réglages macOS pour mesurer son niveau
 
 - **réseau – hop.tools** – chercher et télécharger les mises à jour,
   plus les deux outils optionnels (moteur torrent et archiveur 7-Zip)

@@ -248,17 +248,6 @@ enum Snapshot {
             MarkupSiteShots.run(into: args[i + 1])
         }
 
-        // SPEC: docs/spec.md — "Versioning", the release a build is preparing.
-        if args.contains("--preparing-version") {
-            guard let version = ReleaseNews.preparing(notes: L10n.t(.docNews, .en),
-                                                      cards: PanelView.releaseCardIDs) else {
-                print("version: the release notes and the release cards disagree")
-                exit(1)
-            }
-            print(version)
-            exit(0)
-        }
-
         if args.contains("--l10n-check") {
             let missing = L10n.missingKeys()
             let hanging = L10n.hangingWords()
@@ -597,7 +586,7 @@ enum Snapshot {
             || onlyModule != nil || wantsOverview {
             var keep: Set<String> = []
             if wantsOverview {
-                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network"]
+                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network", "sound"]
             }
             if wantsColors { keep.insert("color") }
             if wantsOcr { keep.insert("ocr") }
@@ -606,7 +595,7 @@ enum Snapshot {
             // no-op unless --only names one of these four; the rest are hidden
             // through their legacy keys above
             if let onlyModule { keep.insert(onlyModule) }
-            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network"] {
+            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network", "sound"] {
                 if keep.contains(key) {
                     PanelView.activateStoredModule(key)
                 } else {
@@ -739,6 +728,12 @@ enum Snapshot {
             content = AnyView(NetworkQuestionCard(network: model.networkFilter, lang: L10n.current)
                 .padding(20)
                 .background(Theme.panelBackground))
+        } else if args.contains("--window-sound") {
+            let state = args.firstIndex(of: "--sound-state").flatMap { i in args.count > i + 1 ? args[i + 1] : nil }
+            model.sound.stageDemo(state ?? "idle")
+            model.soundMixer.stageDemo()
+            content = AnyView(SoundWindowView(sound: model.sound).environmentObject(model)
+                .frame(width: 520).fixedSize(horizontal: false, vertical: true))
         } else if args.contains("--window-network") {
             content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
                 .environmentObject(model)

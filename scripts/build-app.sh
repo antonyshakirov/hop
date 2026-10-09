@@ -13,10 +13,12 @@ cd "$(dirname "$0")/.."
 DEV=0
 INSTALL=0
 PROD=0
+OPEN_SOUND=0
 for arg in "$@"; do
     [[ "$arg" == "--dev" ]] && DEV=1
     [[ "$arg" == "--install" ]] && INSTALL=1
     [[ "$arg" == "--prod" ]] && PROD=1
+    [[ "$arg" == "--open-sound" ]] && OPEN_SOUND=1
 done
 
 # the production Hop.app is updated ONLY via releases (latest.json on the site)
@@ -56,21 +58,31 @@ fi
 swift build "${BUILD_ARGS[@]}"
 # WORKAROUND: the bin path is asked of SwiftPM, never spelled out — Swift 6.4 moved it and 2.1.1 shipped a stale binary.
 BINARY="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)/Hop"
-if [[ ! -f "$BINARY" ]]; then
-    echo "❌ swift build did not produce $BINARY"
-    exit 1
-fi
-STALE="$(find Sources Package.swift -newer "$BINARY" -type f | head -1 || true)"
+WORKER_BINARY="${BINARY%/Hop}/HopAudioWorker"
+for EXECUTABLE in "$BINARY" "$WORKER_BINARY"; do
+    if [[ ! -f "$EXECUTABLE" ]]; then
+        echo "❌ swift build did not produce $EXECUTABLE"
+        exit 1
+    fi
+done
+STALE="$(find Sources Package.swift -type f \( -name '*.swift' -o -name '*.c' -o -name '*.h' -o -name Package.swift \) -newer "$BINARY" | head -1 || true)"
 if [[ -n "$STALE" ]]; then
     echo "❌ $BINARY is older than $STALE — refusing to package a stale build"
     exit 1
 fi
+STALE="$(find Sources/HopAudioWorker Sources/HopAudioEngine Sources/HopAudioDSP Sources/HopCore Package.swift -type f \( -name '*.swift' -o -name '*.c' -o -name '*.h' -o -name Package.swift \) -newer "$WORKER_BINARY" | head -1 || true)"
+if [[ -n "$STALE" ]]; then
+    echo "❌ $WORKER_BINARY is older than $STALE — refusing to package a stale worker"
+    exit 1
+fi
 if [[ $DEV != 1 ]]; then
-    ARCHS="$(lipo -archs "$BINARY")"
-    if [[ "$ARCHS" != *arm64* || "$ARCHS" != *x86_64* ]]; then
-        echo "❌ $BINARY is not universal ($ARCHS)"
-        exit 1
-    fi
+    for EXECUTABLE in "$BINARY" "$WORKER_BINARY"; do
+        ARCHS="$(lipo -archs "$EXECUTABLE")"
+        if [[ "$ARCHS" != *arm64* || "$ARCHS" != *x86_64* ]]; then
+            echo "❌ $EXECUTABLE is not universal ($ARCHS)"
+            exit 1
+        fi
+    done
 fi
 
 if [[ ! -f assets/AppIcon.icns ]]; then
@@ -98,6 +110,11 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BINARY" "$APP/Contents/MacOS/Hop"
 cp scripts/Info.plist "$APP/Contents/Info.plist"
 cp assets/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+cp Sources/HopAudioDSP/COPYING "$APP/Contents/Resources/RNNoise-LICENSE.txt"
+WORKER_APP="$APP/Contents/Helpers/HopAudioWorker.app"
+mkdir -p "$WORKER_APP/Contents/MacOS"
+cp "$WORKER_BINARY" "$WORKER_APP/Contents/MacOS/HopAudioWorker"
+cp scripts/HopAudioWorker-Info.plist "$WORKER_APP/Contents/Info.plist"
 for icon in "${DOC_ICONS[@]}"; do
     cp "assets/$icon.icns" "$APP/Contents/Resources/$icon.icns"
 done
@@ -107,6 +124,7 @@ if [[ $DEV == 1 ]]; then
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev" "$APP/Contents/Info.plist"
     plutil -replace CFBundleName -string "Hop Dev" "$APP/Contents/Info.plist"
     plutil -replace CFBundleDisplayName -string "Hop Dev" "$APP/Contents/Info.plist"
+    plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev.audio-worker" "$WORKER_APP/Contents/Info.plist"
     # SPEC: docs/spec.md — "Versioning", a dev build carries the release it is preparing.
     PREPARING="$("$BINARY" --preparing-version)"
     plutil -replace CFBundleShortVersionString -string "$PREPARING" "$APP/Contents/Info.plist"
@@ -141,6 +159,7 @@ elif [[ $DEV == 0 ]]; then
     echo "❌ network filter: a release needs the Developer ID identity to embed it"
     exit 1
 fi
+hop_sign_app "$WORKER_APP" "$IDENTITY" "$TIMESTAMP" scripts/HopAudioWorker.entitlements
 hop_sign_app "$APP" "$IDENTITY" "$TIMESTAMP" "$APP_ENTITLEMENTS"
 
 if [[ "${HOP_NOTARIZE:-}" == "1" ]]; then
@@ -182,6 +201,10 @@ if [[ $INSTALL == 1 ]]; then
     fi
     rm -rf "$TARGET"
     cp -R "$APP" "$TARGET"
-    open "$TARGET"
+    if [[ $DEV == 1 && $OPEN_SOUND == 1 ]]; then
+        open "$TARGET" --args --open-sound
+    else
+        open "$TARGET"
+    fi
     echo "installed and launched: $TARGET"
 fi

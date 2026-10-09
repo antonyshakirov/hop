@@ -25,6 +25,12 @@ final class SigningTests: XCTestCase {
         return try XCTUnwrap(parsed)
     }
 
+    func testMicrophoneCheckHasTheRuntimeEntitlementAndUsageDescription() throws {
+        XCTAssertEqual(try plist("scripts/Hop.entitlements")["com.apple.security.device.audio-input"] as? Bool, true)
+        XCTAssertFalse((try plist("scripts/Info.plist")["NSMicrophoneUsageDescription"] as? String ?? "").isEmpty)
+        XCTAssertFalse((try plist("scripts/Info.plist")["NSAudioCaptureUsageDescription"] as? String ?? "").isEmpty)
+    }
+
     func testAppleEventsAreEntitledUnderTheHardenedRuntime() throws {
         let entitlements = try plist("scripts/Hop.entitlements")
         XCTAssertEqual(

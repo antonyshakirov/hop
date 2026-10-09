@@ -1,4 +1,5 @@
 import AppKit
+import AVFoundation
 import CoreGraphics
 import ServiceManagement
 import SwiftUI
@@ -116,6 +117,14 @@ struct PermissionsView: View {
         }
     }
 
+    private var microphoneGranted: Bool? {
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .authorized: return true
+        case .notDetermined: return nil
+        default: return false
+        }
+    }
+
     private var items: [Item] {
         _ = poll
         return [
@@ -131,6 +140,13 @@ struct PermissionsView: View {
                  granted: Snapshot.active ? false : CGPreflightScreenCaptureAccess(),
                  settingsURL: ScreenTextController.privacySettingsURL,
                  grant: { PermissionRepair.askByHand(.screenCapture) }),
+            Item(id: "microphone", symbol: "mic", title: .soundInput,
+                 body: .soundPermission,
+                 granted: Snapshot.active ? false : microphoneGranted,
+                 settingsURL: MicrophoneLevelMeter.privacySettingsURL,
+                 grant: {
+                     if let url = URL(string: MicrophoneLevelMeter.privacySettingsURL) { NSWorkspace.shared.open(url) }
+                 }),
             Item(id: "notify", symbol: "bell", title: .permNotifyTitle, body: .permNotifyBody,
                  granted: Snapshot.active ? true : notificationsGranted,
                  settingsURL: "x-apple.systempreferences:com.apple.preference.notifications",

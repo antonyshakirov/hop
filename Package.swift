@@ -5,6 +5,10 @@ let package = Package(
     name: "Hop",
     platforms: [.macOS(.v14)],
     targets: [
+        .target(name: "HopAudioDSP", exclude: ["COPYING", "README.md"],
+                publicHeadersPath: "include", cSettings: [.headerSearchPath("rnnoise"), .unsafeFlags(["-Wno-shorten-64-to-32"])]),
+        .target(name: "HopAudioEngine", dependencies: ["HopCore", "HopAudioDSP"]),
+        .executableTarget(name: "HopAudioWorker", dependencies: ["HopCore", "HopAudioDSP", "HopAudioEngine"]),
         // HopCore keeps the full optimizer: the timer maths, the parsing rules and
         // everything else with tests behind it lives here, and it costs seconds.
         .target(name: "HopCore"),
@@ -19,7 +23,7 @@ let package = Package(
         // optimization level ("Optimize for size" in Xcode), not a debug setting.
         .executableTarget(
             name: "Hop",
-            dependencies: ["HopCore"],
+            dependencies: ["HopCore", "HopAudioDSP", "HopAudioEngine"],
             swiftSettings: [.unsafeFlags(["-Osize"], .when(configuration: .release))]
         ),
         // SPEC: docs/spec.md — "Network access". The content filter, shipped
@@ -30,6 +34,6 @@ let package = Package(
             swiftSettings: [.unsafeFlags(["-Osize"], .when(configuration: .release))]
         ),
         .testTarget(name: "HopCoreTests", dependencies: ["HopCore"], resources: [.copy("Fixtures")]),
-        .testTarget(name: "HopUITests", dependencies: ["Hop"]),
+        .testTarget(name: "HopUITests", dependencies: ["Hop", "HopAudioDSP"]),
     ]
 )

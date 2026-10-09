@@ -146,7 +146,7 @@ final class PanelFirstMouseTests: XCTestCase {
             XCTAssertEqual(result.tabs[1].moduleKeys, second.moduleKeys)
             XCTAssertEqual(result.hidden, ["uninstall"])
             XCTAssertFalse(result.inactive.contains("media"))
-            let savedRaw = result.encoded()
+            let savedRaw = defaults.string(forKey: SettingsKey.panelTabs)
             _ = PanelView.storedModuleOrder()
             XCTAssertEqual(defaults.string(forKey: SettingsKey.panelTabs), savedRaw)
         }

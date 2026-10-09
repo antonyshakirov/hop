@@ -2769,7 +2769,7 @@ struct PanelView: View {
     // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall", "network"]
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "sound", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall", "network"]
     static let defaultModuleOrder = ModuleCatalog.defaultModuleOrder
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
@@ -3236,6 +3236,7 @@ struct PanelView: View {
         case "timer": return t(.aboutTabTimer)
         case "awake": return t(.awakeOff)
         case "clipboard": return t(.tabClipboard)
+        case "sound": return t(.soundLabel)
         case "convert": return t(.convertLabel)
         case "windows": return t(.windowsLabel)
         case "speedtest": return t(.speedtestLabel)
@@ -3273,6 +3274,9 @@ struct PanelView: View {
                           onExpandedChanged: { expanded in
                               spaceHeightCache.setExpanded(expanded, module: "clipboard", in: spaceID)
                           })
+                .id(model.themeVersion)
+        case "sound":
+            SoundRow(lang: lang, status: model.soundStatus, open: { model.openSoundWindow?() })
                 .id(model.themeVersion)
         case "convert": convertZone
         case "windows": windowSnapRow
@@ -3955,6 +3959,11 @@ struct PanelView: View {
         case "tracker": trackerSettings
         case "todos": todosSettings
         case "vpn": vpnSettings
+        case "sound":
+            Button { model.openSoundWindow?() } label: {
+                Label(t(.soundOpen), systemImage: "slider.horizontal.3")
+                    .font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+            }.buttonStyle(.plain).hoverDim()
         case "convert": converterSettings
         case "archive": archiveSettings
         case "torrent": torrentSettings
@@ -5144,6 +5153,7 @@ struct PanelView: View {
         case "window": return t(.hkShotWindow)
         case "screen": return t(.hkShotScreen)
         case "repeat": return t(.hkShotRepeat)
+        case "muteMic": return t(.soundMicMuteKey)
         case "pass": return t(.hkAnnotatePass)
         default: return action.id
         }

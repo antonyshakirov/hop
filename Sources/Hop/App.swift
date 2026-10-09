@@ -37,6 +37,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var archiveWindow: ConverterWindow?
     private var uninstallWindow: NSWindow?
     private var networkWindow: NSWindow?
+    private var soundWindow: NSWindow?
+    private var soundContentHeight: CGFloat = 0
+    private var soundExpectedHeight: CGFloat = 320
+    private var soundUserResized = false
+    private var soundActivationObserver: NSObjectProtocol?
     private var uninstallUserResized = false
     private var uninstallExpectedHeight: CGFloat = 0
     private var uninstallHeightSink: AnyCancellable?
@@ -72,7 +77,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var dockWindows: [NSWindow] {
         var list = [settingsWindow, torrentAddWindow, converterWindow,
                     archiveWindow, uninstallWindow, screenTextWindow,
-                    networkWindow, onboardingWindow].compactMap { $0 }
+                    networkWindow, soundWindow, onboardingWindow].compactMap { $0 }
         list.append(contentsOf: finderArchiveWindows.values.map(\.window))
         list.append(contentsOf: shotWindows.windows)
         return list
@@ -112,6 +117,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let window = dockWindows.first(where: \.isMiniaturized)
                 ?? dockWindows.first(where: \.isVisible)
                 ?? dockWindows.first else { return false }
+        if window === soundWindow {
+            window.deminiaturize(nil)
+            showSoundWindow()
+            return false
+        }
         window.deminiaturize(nil)
         enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
@@ -283,6 +293,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard let action = ModuleCatalog.open(module) else { continue }
             hotkeys.setHandler(action, handler)
         }
+        if let action = ModuleCatalog.module("sound")?.actions.first(where: { $0.id == "muteMic" }) {
+            hotkeys.setHandler(action) { [weak self] in
+                guard let self else { return }
+                self.model.activity.note()
+                self.model.sound.toggleMute(.input)
+                if self.model.sound.failure != nil { self.showSoundWindow() }
+            }
+        }
         if let shot = ModuleCatalog.module("shot") {
             let modes: [String: CaptureController.Mode] = [
                 "window": .window, "screen": .screen, "repeat": .repeatLast,
@@ -331,6 +349,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard let self, UserDefaults.standard.bool(forKey: "onboardingDone") else { return }
             self.model.settingsSectionRequest = SettingsSelection.permissions.id
             self.showSettingsWindow()
+        }
+        model.openSoundWindow = { [weak self] in self?.showSoundWindow() }
+        model.soundStatus.setEnabled(ModuleActivation.isOn("sound"))
+        soundActivationObserver = NotificationCenter.default.addObserver(
+            forName: ModuleActivation.didChange, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                let enabled = ModuleActivation.isOn("sound")
+                self.model.soundStatus.setEnabled(enabled)
+                guard !enabled else { return }
+                self.model.sound.close()
+                self.model.soundMixer.stop(); self.model.soundMixer.close()
+                self.soundWindow?.close()
+            }
         }
         model.openConverterWindow = { [weak self] in
             self?.showConverterWindow()
@@ -446,6 +479,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     if abs(height - self.uninstallExpectedHeight) > 1 {
                         self.uninstallUserResized = true
                     }
+                } else if resized === self.soundWindow {
+                    let height = resized.contentRect(forFrameRect: resized.frame).height
+                    if resized.inLiveResize, abs(height - self.soundExpectedHeight) > 1 { self.soundUserResized = true }
                 } else if resized === self.screenTextWindow {
                     let height = resized.contentRect(forFrameRect: resized.frame).height
                     if abs(height - self.screenTextExpectedHeight) > 1 {
@@ -463,6 +499,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 if closing === self.converterWindow { self.converterUserResized = false }
                 if closing === self.archiveWindow { self.archiveUserResized = false }
                 if closing === self.uninstallWindow { self.uninstallUserResized = false }
+                if closing === self.soundWindow { self.soundUserResized = false }
                 if closing === self.screenTextWindow { self.screenTextUserResized = false }
             }
         }
@@ -474,6 +511,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // release app, which is compiled -c release like the dev app, so #if DEBUG
         // would not tell them apart.
         if Bundle.isDevBuild {
+            if CommandLine.arguments.contains("--open-sound") {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.showSoundWindow() }
+            }
             if CommandLine.arguments.contains("--open-converter") {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     self?.showConverterWindow()
@@ -579,6 +619,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.model.activity.note()
                 self?.model.keyboardLock.lock()
             },
+            "sound": { [weak self] in self?.showSoundWindow() },
             "convert": { [weak self] in self?.showConverterWindow() },
             "archive": { [weak self] in self?.showArchiveWindow() },
             "uninstall": { [weak self] in self?.showUninstallWindow() },
@@ -981,10 +1022,64 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         adjustArchiveHeight()
     }
 
-    /// The uninstaller window: an app goes in (dropped or picked), everything it
-    /// left behind comes out as a list with sizes, and what the user ticks moves
-    /// to the trash. A plain window — no paste handling, since an app is not
-    /// something anybody copies to the clipboard.
+    /// SPEC: docs/spec.md — "Sound": closing discards the sample; an explicitly started mixer keeps running.
+    private func showSoundWindow() {
+        guard ModuleActivation.isOn("sound") else { return }
+        model.activity.note()
+        if soundWindow == nil {
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 320),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+            window.title = L10n.t(.soundLabel, L10n.current).capitalizedFirst
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.isReleasedWhenClosed = false
+            window.isMovableByWindowBackground = false
+            let host = NSHostingController(rootView: SoundWindowView(sound: model.sound, onHeightChange: { [weak self] height in
+                self?.soundContentHeight = height
+                self?.adjustSoundHeight()
+            })
+                .environmentObject(model).hopLayoutDirection())
+            host.sizingOptions = []
+            window.contentViewController = host
+            window.contentMinSize = NSSize(width: 480, height: 240)
+            window.setContentSize(NSSize(width: 520, height: 320))
+            NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification,
+                object: window, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.model.sound.close(); self?.model.soundMixer.close() }
+            }
+            soundWindow = window
+        }
+        guard let window = soundWindow else { return }
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        window.backgroundColor = NSColor(Theme.background)
+        model.sound.open()
+        model.soundMixer.open()
+        if !window.isVisible {
+            window.contentViewController?.view.layoutSubtreeIfNeeded()
+            window.center()
+        }
+        enterDockMode()
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        adjustSoundHeight()
+    }
+
+    /// SPEC: docs/spec.md — "Sound": fit content until a manual resize; keep the top edge steady.
+    private func adjustSoundHeight() {
+        guard let window = soundWindow, window.isVisible, !soundUserResized, soundContentHeight > 80 else { return }
+        let screenHeight = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
+        let topInset = window.contentView?.safeAreaInsets.top ?? 0
+        let target = max(240, min(soundContentHeight + topInset, screenHeight * 0.8))
+        var frame = window.frame
+        let current = window.contentRect(forFrameRect: frame).height
+        guard abs(target - current) > 2 else { return }
+        frame.origin.y -= target - current
+        frame.size.height += target - current
+        if let screen = window.screen ?? NSScreen.main { frame.origin.y = max(screen.visibleFrame.minY, frame.origin.y) }
+        soundExpectedHeight = target
+        window.setFrame(frame, display: true)
+    }
+
     /// SPEC: docs/spec.md — "Network access", the window.
     private func showNetworkWindow() {
         model.activity.note()
@@ -1024,6 +1119,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
     }
 
+    /// The uninstaller window: an app goes in (dropped or picked), everything it
+    /// left behind comes out as a list with sizes, and what the user ticks moves
+    /// to the trash. A plain window — no paste handling, since an app is not
+    /// something anybody copies to the clipboard.
     private func showUninstallWindow() {
         model.activity.note()
         if uninstallWindow == nil {
@@ -1126,7 +1225,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // leaves a gap under the plate, so the real content height decides and
         // adjustScreenTextHeight takes it from here.
         if !window.isVisible {
-            window.setContentSize(NSSize(width: 560, height: 240))
+            window.setContentSize(NSSize(width: 480, height: 240))
             window.center()
         }
         enterDockMode()
@@ -1252,7 +1351,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Guard on statusController (set only on a normal launch) so we never
         // force-create the lazy model in safe mode. A crash/SIGKILL still orphans
         // the engine — TorrentEngineProcess reaps those on the next start.
-        if statusController != nil { model.torrent.stopEngine() }
+        if statusController != nil { model.soundStatus.setEnabled(false); model.sound.close(); model.soundMixer.stop(); model.torrent.stopEngine() }
     }
 
     // MARK: - Opening archives, .torrent files and magnet: links (Launch Services)
@@ -1677,6 +1776,16 @@ struct HopApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     init() {
+        // SPEC: docs/spec.md — "Versioning": packaging reads metadata without launching the app.
+        if CommandLine.arguments.contains("--preparing-version") {
+            guard let version = ReleaseNews.preparing(notes: L10n.t(.docNews, .en),
+                                                      cards: PanelView.releaseCardIDs) else {
+                print("version: the release notes and the release cards disagree")
+                exit(1)
+            }
+            print(version)
+            exit(0)
+        }
         // Dev-only entry points, gated out of release:
         //  • --torrent-selftest runs an ARBITRARY binary path (skipping the engine
         //    signature check) — a launch-arbitrary-binary gadget if shipped.

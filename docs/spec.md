@@ -615,6 +615,102 @@ a vendor's app or runs a timer. Writing demo data into the real stores and
 clearing it afterwards was the alternative, and it leaves fake rows behind the
 moment somebody quits mid-wizard.
 
+## Sound
+
+A standalone `sound` module has its own window, panel row, settings page and
+assignable open/microphone-mute shortcuts. There are no shipped key combinations.
+The optional `build-app.sh --install --dev --open-sound` diagnostic starts the
+Sound window in the installed Dev bundle; production ignores this flag.
+The device button is right-aligned with a custom popover; volume and mute share
+one compact line. Muted volume retains its gain value and dims the yellow track.
+The volume line fills the available width, with percentage and mute at its edge.
+The percentage is keyboard-editable: Return or focus loss commits a changed,
+valid value, Escape cancels, and invalid input restores the current value.
+Decimal commas and localized digits are accepted; hardware values clamp to
+0–100%. Focusing an unchanged field never rounds the hardware gain. The device
+section is labelled Input, encompassing microphones and other audio devices.
+Record/listen share one line. The window fits content while preserving its top
+edge, caps height at 80% of the screen and scrolls if needed. Manual resizing
+suspends fitting until the window closes; the next open fits again.
+
+- Custom device menus begin with System Default. This mode follows the current
+  macOS input/output and shows the actual device name. Choosing a named device
+  explicitly changes the corresponding macOS default. Choosing System Default
+  does not change it. An external route switch returns that menu to System
+  Default; Hop never restores an old device or volume at launch.
+- Volume uses a local drag value so the thumb follows the pointer immediately.
+  Hardware writes are coalesced and serialized per direction, off the main
+  thread. Pending values never target a new default after a route switch and
+  cannot start after close/off. The final acknowledged value replaces the local
+  value after dragging. Stereo balance survives a write and partial failures
+  roll back. Unsupported volume/mute controls are clearly marked; gain zero
+  is never substituted for mute.
+- Mute is visible beside the window action, in the panel row, and in a separate
+  native menu-bar indicator (speaker, microphone, or both). It reflects the
+  actual hardware mute state, including changes made outside Hop. The indicator
+  opens the Sound window. Mute-only event listeners run while Sound is enabled,
+  with no polling; off releases them and removes the indicator. Volume/device
+  window listeners are separate and end when the window closes. Muting the
+  current microphone affects that device; apps using another are unaffected.
+- Check Microphone explicitly requests permission and records up to ten seconds
+  into a bounded in-memory PCM buffer. Its segmented dBFS meter has a peak mark,
+  green/yellow/red zones and no draggable thumb. Realtime readings update only
+  the meter and elapsed label, not device controls. It shows signal level, not
+  recording-quality certification or a hardware-gain percentage. Stop ends
+  capture and presents Listen; playback starts only on that button, through the
+  current macOS output. Playback can be stopped or repeated. No file or network
+  data is created.
+- Closing the window, switching Sound off, changing input, losing permission
+  or an input interruption stops capture/playback and discards the sample.
+  Starting another check replaces the previous sample. Output changes stop
+  playback; replay uses the new output. Late permission/engine/player callbacks
+  cannot restart capture or stop a newer session. The buffer cap is ten seconds
+  even if a main-thread timer is delayed. No capture starts just by opening.
+
+On macOS 14.2 and later, Start Mixer enables per-application output volume and
+independent input channels. Stop Mixer restores app output and removes Hop Input.
+Closing the window keeps an explicitly started mixer running; switching the
+module off or quitting stops it. No capture begins merely by opening the window.
+
+- App audio clients are grouped by their owning application, including browser
+  helpers. Channels use Core Audio process taps and private tap-only aggregates.
+  Original output is muted only while Hop reads the tap and is restored on stop
+  or route failure. Apps from Hop itself and its input helper are excluded.
+  Separate tabs/players inside the same audio process share one channel.
+- Software gain is independent of the hardware master: 0–200%, with editable
+  percentage, per-channel mute and a soft limiter. Mute gates every output sample
+  immediately, including a persisted-muted channel at startup. Gain/unmute use
+  a short ramp. Unchanged channels survive other apps joining/leaving the mixer.
+- Each enabled physical or third-party input is captured by its device UID in
+  an owned helper, without changing the macOS default. Input audio is converted
+  to 48 kHz, with independent bounded queues and adaptive clock compensation.
+  A format change rebuilds that capture and converter, preserving Hop Input.
+- The Sound window opens at 520 pt width (minimum 480 pt), fits its content
+  vertically and scrolls when needed.
+- The input-channels header has one Denoise switch for all sources, including
+  newly enabled inputs. It applies RNNoise once per source before summing;
+  per-channel denoise remains selected and disabled while the global switch is
+  on. Turning it off restores each saved channel choice. The global choice
+  persists independently. Private system aggregates are hidden from selectors.
+- Each input has independent RNNoise speech denoise and a 6 dB low-frequency
+  shelf. Denoise is speech-oriented and optional; it is not an echo canceller.
+  The bundled RNNoise 0.2 default model runs locally; its BSD notices ship in
+  Resources/RNNoise-LICENSE.txt. No download or training runs at build/runtime.
+- A public tap-only aggregate exposes the helper's processed mix as Hop Input.
+  The helper's speaker output is always muted before inputs start. Other apps
+  must explicitly select Hop Input to receive the processed channels; apps
+  reading a physical microphone directly do not receive these effects. No HAL
+  driver is installed. Hop Input retains its identity during output changes.
+  Teardown waits for the owned helper to exit before releasing its muted tap.
+- Settings persist by app bundle ID/input UID. Live meters update leaf views
+  only while the window is open. Device/process notifications drive discovery,
+  with no idle polling. Off removes subscriptions, engines, taps and devices.
+
+The module uses Apple's audio frameworks plus the bundled RNNoise inference
+library. No audio files or network data are created by the mixer. The signed app has `com.apple.security.device.audio-input` and a truthful
+`NSMicrophoneUsageDescription`. Its permission status and System Settings link
+are available in the permissions page and, on denial, in the device window.
+
 ## Modules
 
 The Media prototype is withdrawn from the development build (2026-10-09).
@@ -6770,6 +6866,8 @@ released until `release.sh` stamps the new one.
 build that read 2.0.3 from the plist showed the 2.0 card while 2.1 was being
 written, since a card waits for its version to be installed. `build-app.sh --dev`
 stamps the number `Hop --preparing-version` prints instead, read from the head of
+the notes in both debug and optimized builds. This metadata command exits before
+application startup, without opening windows or changing launch state. It reads
 the English release notes (`docNews`, "2.1.0 – date"); the repository's plist is
 not touched. `ReleaseNews.preparing` (`ReleaseNewsTests`) refuses notes that do
 not open with three numbers, a release card newer than the notes, and a minor

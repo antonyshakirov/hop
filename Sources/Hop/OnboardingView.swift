@@ -355,6 +355,8 @@ struct OnboardingView: View {
     @ViewBuilder
     private func previewBody(_ key: String?) -> some View {
         switch key {
+        case "sound":
+            SoundWindowView(sound: previewModel.sound).environmentObject(previewModel)
         case "convert":
             ConvertWindowView(preview: true).environmentObject(previewModel)
         case "archive":
