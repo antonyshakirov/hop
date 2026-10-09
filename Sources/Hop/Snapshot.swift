@@ -597,7 +597,7 @@ enum Snapshot {
             || onlyModule != nil || wantsOverview {
             var keep: Set<String> = []
             if wantsOverview {
-                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network"]
+                keep = ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network", "media"]
             }
             if wantsColors { keep.insert("color") }
             if wantsOcr { keep.insert("ocr") }
@@ -606,13 +606,18 @@ enum Snapshot {
             // no-op unless --only names one of these four; the rest are hidden
             // through their legacy keys above
             if let onlyModule { keep.insert(onlyModule) }
-            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network"] {
+            for key in ["color", "ocr", "keyboard", "archive", "vpn", "uninstall", "network", "media"] {
                 if keep.contains(key) {
                     PanelView.activateStoredModule(key)
                 } else {
                     PanelView.deactivateStoredModule(key)
                 }
             }
+        }
+
+        if onlyModule == "media" {
+            PanelView.deactivateStoredModule("shot")
+            PanelView.deactivateStoredModule("annotate")
         }
 
         // A grid of apps has no fixed key — it carries the demo shelf's id, minted
@@ -692,21 +697,34 @@ enum Snapshot {
             || args.contains("--about") || args.contains("--permissions") {
             content = AnyView(PanelView(standaloneSettings: true).environmentObject(model))
         } else if args.contains("--window-media") {
-            if args.contains("--media-upscale") { model.media.operation = .upscale }
+            let controller = model.media.controller(for: args.contains("--media-upscale") ? .upscale : .background)
             if let i = args.firstIndex(of: "--media-file"), args.count > i + 1,
                let image = try? MediaImageEngine.read(URL(fileURLWithPath: args[i + 1])) {
                 var item = MediaController.Item(url: URL(fileURLWithPath: args[i + 1]), video: false,
                     size: MediaSize(width: image.width, height: image.height), duration: 0,
                     original: NSImage(cgImage: image, size: .zero))
+                item.sourceBytes = (try? item.url.resourceValues(forKeys: [.fileSizeKey]).fileSize).map(Int64.init)
                 if let j = args.firstIndex(of: "--media-result"), args.count > j + 1,
                    let result = try? MediaImageEngine.read(URL(fileURLWithPath: args[j + 1])) {
                     item.result = NSImage(cgImage: result, size: .zero)
+                    item.outputBytes = (try? URL(fileURLWithPath: args[j + 1]).resourceValues(forKeys: [.fileSizeKey]).fileSize).map(Int64.init)
                 }
                 item.resolution = item.size.choices.first ?? .eightK
-                model.media.items = [item]
-                model.media.selected = item.id
+                controller.items = [item]
+                controller.selected = item.id
+                if args.contains("--media-demo-batch") {
+                    for n in 1...5 {
+                        var sample = MediaController.Item(url: URL(fileURLWithPath: n.isMultiple(of: 2) ?
+                            "/sample/photo-\(n).jpg" : "/sample/video-\(n).mov"), video: !n.isMultiple(of: 2),
+                            size: n.isMultiple(of: 2) ? item.size : MediaSize(width: 1920, height: 1080),
+                            duration: n.isMultiple(of: 2) ? 0 : 12, original: item.original)
+                        sample.resolution = .double
+                        controller.items.append(sample)
+                    }
+                    controller.selection = Set(controller.items.prefix(2).map(\.id))
+                }
             }
-            content = AnyView(MediaWindowView(controller: model.media).environmentObject(model))
+            content = AnyView(MediaWindowView(controller: controller).environmentObject(model))
         } else if args.contains("--window-converter") {
             content = AnyView(ConvertWindowView().environmentObject(model))
         } else if args.contains("--window-archive") {

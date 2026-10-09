@@ -40,6 +40,7 @@ enum MediaVideoEngine {
 
     static func export(_ url: URL, to folder: URL, operation: MediaOperation, output: MediaSize?,
                        subject: Int, background: MediaBackground, upscaler: MediaUpscaler?,
+                       quality: MediaExportQuality = .full,
                        progress: @escaping (Double) -> Void) async throws -> URL {
         try Task.checkCancellation()
         let asset = AVURLAsset(url: url)
@@ -51,7 +52,8 @@ enum MediaVideoEngine {
               size.width <= 7680, size.height <= 7680 else { throw MediaFailure.tooLarge }
         let transparent: Bool
         if operation == .background, case .transparent = background { transparent = true } else { transparent = false }
-        let ext = transparent ? "mov" : "mp4"
+        let fullUpscale = operation == .upscale && quality == .full
+        let ext = transparent || fullUpscale ? "mov" : "mp4"
         let stage = folder.appendingPathComponent(".hop-media-\(UUID().uuidString).\(ext)")
         defer { try? FileManager.default.removeItem(at: stage) }
         let reader = try AVAssetReader(asset: asset)
@@ -59,11 +61,17 @@ enum MediaVideoEngine {
         videoReader.alwaysCopiesSampleData = false
         guard reader.canAdd(videoReader) else { throw MediaFailure.input }
         reader.add(videoReader)
-        let writer = try AVAssetWriter(outputURL: stage, fileType: transparent ? .mov : .mp4)
-        let codec: AVVideoCodecType = transparent ? .hevcWithAlpha : (max(size.width, size.height) > 4096 ? .hevc : .h264)
+        let writer = try AVAssetWriter(outputURL: stage, fileType: ext == "mov" ? .mov : .mp4)
+        let codec: AVVideoCodecType = transparent ? .hevcWithAlpha : (fullUpscale ? .proRes422HQ : (max(size.width, size.height) > 4096 ? .hevc : .h264))
+        var compression: [String: Any] = fullUpscale ? [:] : [AVVideoAllowFrameReorderingKey: false]
+        if case .compressed = quality, !transparent {
+            compression[AVVideoAverageBitRateKey] = VideoBitrate.bitsPerSecond(
+                width: Double(size.width), height: Double(size.height), fps: metadata.framesPerSecond,
+                codec: codec == .hevc ? .hevc : .h264, quality: quality.fraction)
+        }
         let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: [
             AVVideoCodecKey: codec, AVVideoWidthKey: size.width, AVVideoHeightKey: size.height,
-            AVVideoCompressionPropertiesKey: [AVVideoAllowFrameReorderingKey: false],
+            AVVideoCompressionPropertiesKey: compression,
             AVVideoColorPropertiesKey: [AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
                                        AVVideoTransferFunctionKey: AVVideoTransferFunction_ITU_R_709_2,
                                        AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2]
@@ -82,10 +90,16 @@ enum MediaVideoEngine {
             guard let format = formats.first, let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(format)?.pointee
             else { throw MediaFailure.input }
             let audioReader = AVAssetReaderTrackOutput(track: track, outputSettings: [AVFormatIDKey: kAudioFormatLinearPCM])
-            let audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: [
+            let audioSettings: [String: Any] = fullUpscale ? [
+                AVFormatIDKey: kAudioFormatLinearPCM, AVSampleRateKey: asbd.mSampleRate,
+                AVNumberOfChannelsKey: Int(asbd.mChannelsPerFrame), AVLinearPCMBitDepthKey: 16,
+                AVLinearPCMIsFloatKey: false, AVLinearPCMIsBigEndianKey: false,
+                AVLinearPCMIsNonInterleaved: false
+            ] : [
                 AVFormatIDKey: kAudioFormatMPEG4AAC, AVSampleRateKey: asbd.mSampleRate,
                 AVNumberOfChannelsKey: Int(asbd.mChannelsPerFrame), AVEncoderBitRateKey: 192_000
-            ])
+            ]
+            let audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
             guard reader.canAdd(audioReader), writer.canAdd(audioWriter) else { throw MediaFailure.codec }
             reader.add(audioReader); writer.add(audioWriter)
             audioReaders.append(audioReader); audioWriters.append(audioWriter)

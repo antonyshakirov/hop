@@ -206,7 +206,6 @@ struct TorrentAddSheet: View {
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
             }
         }
     }

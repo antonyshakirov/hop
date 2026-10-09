@@ -304,6 +304,8 @@ final class ModuleCatalogTests: XCTestCase {
         XCTAssertEqual(media.guideLetter, "b")
         XCTAssertEqual(media.openAction?.storageKey, "hotkey_media")
         XCTAssertNotEqual(media.openAction?.hotKeyID, ModuleCatalog.open("convert")?.hotKeyID)
+        XCTAssertEqual(media.actions.map(\.id), ["open", "upscale"])
+        XCTAssertTrue(media.actions.allSatisfy { $0.defaultCombo == nil })
         XCTAssertNil(media.openAction?.defaultCombo)
         XCTAssertTrue(ModuleCatalog.hasSettings("media"))
         XCTAssertFalse(ModuleCatalog.needsScreenRecording.contains("media"))

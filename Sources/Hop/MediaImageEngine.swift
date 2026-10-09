@@ -5,7 +5,7 @@ import ImageIO
 import UniformTypeIdentifiers
 import Vision
 
-enum MediaOperation: String, CaseIterable { case background, upscale }
+enum MediaOperation: String, CaseIterable, Hashable { case background, upscale }
 enum MediaFailure: Error, Equatable { case input, tooLarge, noSubject, model, download, output, codec }
 enum MediaBackground: @unchecked Sendable {
     case transparent
@@ -95,6 +95,40 @@ enum MediaImageEngine {
         guard let result = context.createCGImage(combined, from: front.extent, format: .RGBA8, colorSpace: colorSpace)
         else { throw MediaFailure.output }
         return result
+    }
+
+    static func hasTransparency(_ image: CGImage) -> Bool {
+        switch image.alphaInfo {
+        case .none, .noneSkipFirst, .noneSkipLast: return false
+        default: break
+        }
+        guard image.bitsPerComponent == 8, image.bitsPerPixel == 32,
+              !image.bitmapInfo.contains(.byteOrder32Little),
+              let data = image.dataProvider?.data, CFDataGetLength(data) >= image.bytesPerRow * image.height,
+              let bytes = CFDataGetBytePtr(data) else { return true }
+        let alphaOffset: Int
+        switch image.alphaInfo {
+        case .first, .premultipliedFirst: alphaOffset = 0
+        case .last, .premultipliedLast: alphaOffset = 3
+        default: return true
+        }
+        for y in 0..<image.height {
+            for x in 0..<image.width where bytes[y * image.bytesPerRow + x * 4 + alphaOffset] != 255 { return true }
+        }
+        return false
+    }
+
+    static func fileExtension(_ image: CGImage, quality: MediaExportQuality) -> String {
+        quality == .full || hasTransparency(image) ? "png" : "jpg"
+    }
+
+    static func write(_ image: CGImage, to url: URL, quality: MediaExportQuality) throws {
+        if fileExtension(image, quality: quality) == "png" { try writePNG(image, to: url); return }
+        try Task.checkCancellation()
+        guard let dest = CGImageDestinationCreateWithURL(url as CFURL, UTType.jpeg.identifier as CFString, 1, nil)
+        else { throw MediaFailure.output }
+        CGImageDestinationAddImage(dest, image, [kCGImageDestinationLossyCompressionQuality: quality.fraction] as CFDictionary)
+        guard CGImageDestinationFinalize(dest) else { throw MediaFailure.output }
     }
 
     static func writePNG(_ image: CGImage, to url: URL) throws {

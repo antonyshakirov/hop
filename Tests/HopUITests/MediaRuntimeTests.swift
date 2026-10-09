@@ -4,9 +4,114 @@ import CoreImage
 import Vision
 import HopCore
 import XCTest
+import ImageIO
+import UniformTypeIdentifiers
 @testable import Hop
 
 final class MediaRuntimeTests: XCTestCase {
+    func testCompressedImageIsJPEGButTransparencyStaysPNG() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let context = try XCTUnwrap(MediaImageEngine.bitmap(.init(width: 256, height: 128)))
+        context.setFillColor(CGColor(red: 0.2, green: 0.5, blue: 0.8, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: 256, height: 128))
+        let image = try XCTUnwrap(context.makeImage())
+        let full = root.appendingPathComponent("full.png")
+        let compressed = root.appendingPathComponent("compressed.jpg")
+        XCTAssertEqual(MediaImageEngine.fileExtension(image, quality: .full), "png")
+        XCTAssertEqual(MediaImageEngine.fileExtension(image, quality: .compressed(70)), "jpg")
+        try MediaImageEngine.write(image, to: full, quality: .full)
+        try MediaImageEngine.write(image, to: compressed, quality: .compressed(70))
+        let source = try XCTUnwrap(CGImageSourceCreateWithURL(compressed as CFURL, nil))
+        XCTAssertEqual(CGImageSourceGetType(source) as String?, UTType.jpeg.identifier)
+        XCTAssertEqual(try MediaImageEngine.read(compressed).width, 256)
+        context.clear(CGRect(x: 128, y: 0, width: 128, height: 128))
+        let alpha = try XCTUnwrap(context.makeImage())
+        XCTAssertEqual(MediaImageEngine.fileExtension(alpha, quality: .compressed(70)), "png")
+        let transparent = root.appendingPathComponent("alpha.png")
+        try MediaImageEngine.write(alpha, to: transparent, quality: .compressed(70))
+        let bytes = try MediaImageEngine.pixels(MediaImageEngine.read(transparent))
+        XCTAssertEqual(bytes[255 * 4 + 3], 0)
+        XCTAssertEqual(bytes[3], 255)
+    }
+    @MainActor
+    func testMixedQueueExportsSelectedThenAllAtBothQualityLevels() async throws {
+        guard ProcessInfo.processInfo.environment["HOP_MEDIA_INSTALL"] == "1",
+              let imagePath = ProcessInfo.processInfo.environment["HOP_MEDIA_IMAGE"],
+              let videoPath = ProcessInfo.processInfo.environment["HOP_MEDIA_VIDEO"] else {
+            throw XCTSkip("Provide explicit model installation and mixed media fixtures")
+        }
+        if !MediaModelStore.ready { try await MediaModelStore.install() }
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let sources = [URL(fileURLWithPath: imagePath), URL(fileURLWithPath: videoPath)]
+        let originals = try sources.map { try Data(contentsOf: $0) }
+        let controller = MediaController(operation: .upscale)
+        controller.destination = root
+        controller.add(sources)
+        try await waitForController(controller, timeout: 90)
+        XCTAssertEqual(controller.items.count, 2)
+        XCTAssertEqual(controller.items.map(\.video), [false, true])
+        XCTAssertEqual(controller.items.map(\.sourceBytes), originals.map { Int64($0.count) })
+        controller.toggleSelection(controller.items[0].id)
+        controller.export(quality: .compressed(70), background: .transparent)
+        try await waitForController(controller, timeout: 90)
+        let jpeg = try XCTUnwrap(controller.items[0].exported)
+        XCTAssertEqual(jpeg.pathExtension, "jpg")
+        XCTAssertEqual(controller.items[0].outputBytes, Int64(try Data(contentsOf: jpeg).count))
+        XCTAssertNil(controller.items[1].outputBytes)
+        XCTAssertNil(controller.items[1].exported)
+        XCTAssertEqual(try MediaImageEngine.read(jpeg).width, controller.items[0].size.width * 2)
+        controller.selectAllFiles()
+        controller.export(quality: .full, background: .transparent)
+        try await waitForController(controller, timeout: 90)
+        let png = try XCTUnwrap(controller.items[0].exported)
+        let mov = try XCTUnwrap(controller.items[1].exported)
+        XCTAssertEqual(png.pathExtension, "png")
+        XCTAssertEqual(mov.pathExtension, "mov")
+        XCTAssertEqual(controller.items[0].outputBytes, Int64(try Data(contentsOf: png).count))
+        XCTAssertEqual(controller.items[1].outputBytes, Int64(try Data(contentsOf: mov).count))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: jpeg.path), "Re-export must preserve an earlier output")
+        let fullAsset = AVURLAsset(url: mov)
+        let fullTrack = try await fullAsset.loadTracks(withMediaType: .video)[0]
+        let formats = try await fullTrack.load(.formatDescriptions)
+        XCTAssertEqual(CMFormatDescriptionGetMediaSubType(formats[0]), kCMVideoCodecType_AppleProRes422HQ)
+        controller.toggleSelection(controller.items[1].id)
+        controller.export(quality: .compressed(70), background: .transparent)
+        try await waitForController(controller, timeout: 90)
+        let mp4 = try XCTUnwrap(controller.items[1].exported)
+        XCTAssertEqual(mp4.pathExtension, "mp4")
+        XCTAssertEqual(controller.items[1].outputBytes, Int64(try Data(contentsOf: mp4).count))
+        XCTAssertEqual(controller.items[0].exported, png, "Exporting selected video must leave the photo alone")
+        XCTAssertLessThan(try Data(contentsOf: mp4).count, try Data(contentsOf: mov).count)
+        for output in [mov, mp4] {
+            let asset = AVURLAsset(url: output)
+            let info = try await MediaVideoEngine.info(output)
+            XCTAssertEqual(info.size.width, controller.items[1].size.width * 2)
+            XCTAssertEqual(info.duration, controller.items[1].duration, accuracy: 0.02)
+            let audio = try await asset.loadTracks(withMediaType: .audio)
+            let originalAudio = try await AVURLAsset(url: sources[1]).loadTracks(withMediaType: .audio)
+            XCTAssertEqual(audio.count, 2)
+            for (track, before) in zip(audio, originalAudio) {
+                let description = try await track.load(.formatDescriptions)[0]
+                let originalDescription = try await before.load(.formatDescriptions)[0]
+                let asbd = try XCTUnwrap(CMAudioFormatDescriptionGetStreamBasicDescription(description)).pointee
+                let originalASBD = try XCTUnwrap(CMAudioFormatDescriptionGetStreamBasicDescription(originalDescription)).pointee
+                XCTAssertEqual(asbd.mChannelsPerFrame, originalASBD.mChannelsPerFrame)
+                XCTAssertEqual(asbd.mSampleRate, originalASBD.mSampleRate)
+                XCTAssertEqual(asbd.mFormatID, output == mov ? kAudioFormatLinearPCM : kAudioFormatMPEG4AAC)
+                let range = try await track.load(.timeRange)
+                let originalRange = try await before.load(.timeRange)
+                XCTAssertEqual(range.start.seconds, originalRange.start.seconds, accuracy: 0.025)
+                XCTAssertEqual(range.duration.seconds, originalRange.duration.seconds, accuracy: 0.05)
+            }
+        }
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: root.path).count, 4)
+        for (url, original) in zip(sources, originals) { XCTAssertEqual(try Data(contentsOf: url), original) }
+    }
+
     func testResizePreservesTransparencyAndDimensions() throws {
         let context = CGContext(data: nil, width: 16, height: 8, bitsPerComponent: 8,
                                 bytesPerRow: 64, space: CGColorSpaceCreateDeviceRGB(),
@@ -70,12 +175,12 @@ final class MediaRuntimeTests: XCTestCase {
               let imagePath = ProcessInfo.processInfo.environment["HOP_MEDIA_IMAGE"] else {
             throw XCTSkip("Explicit model installation acceptance needs HOP_MEDIA_INSTALL=1")
         }
-        try await MediaModelStore.install()
+        if !MediaModelStore.ready { try await MediaModelStore.install() }
         XCTAssertTrue(MediaModelStore.ready)
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
-        let controller = MediaController()
+        var controller = MediaController()
         controller.destination = root
         controller.add([URL(fileURLWithPath: "/missing-image.png"), URL(fileURLWithPath: imagePath)])
         try await waitForController(controller)
@@ -92,7 +197,12 @@ final class MediaRuntimeTests: XCTestCase {
         controller.run(preview: true, background: .transparent)
         try await waitForController(controller)
         XCTAssertEqual(controller.selectedItem?.exported, firstExport)
-        controller.operation = .upscale
+        let backgroundController = controller
+        controller = MediaController(operation: .upscale)
+        controller.destination = root
+        controller.add([URL(fileURLWithPath: imagePath)])
+        try await waitForController(controller)
+        XCTAssertEqual(backgroundController.selectedItem?.exported, firstExport)
         controller.run(preview: true, background: .transparent)
         try await waitForController(controller)
         XCTAssertNotNil(controller.selectedItem?.result)
@@ -241,11 +351,10 @@ final class MediaRuntimeTests: XCTestCase {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
-        let controller = MediaController()
+        let controller = MediaController(operation: .upscale)
         controller.destination = root
         controller.add([URL(fileURLWithPath: path)])
         try await waitForController(controller)
-        controller.operation = .upscale
         controller.items[0].resolution = .eightK
         controller.run(preview: false, background: .transparent)
         let deadline = Date().addingTimeInterval(20)
@@ -264,8 +373,8 @@ final class MediaRuntimeTests: XCTestCase {
     }
 
     @MainActor
-    private func waitForController(_ controller: MediaController) async throws {
-        let deadline = Date().addingTimeInterval(30)
+    private func waitForController(_ controller: MediaController, timeout: TimeInterval = 30) async throws {
+        let deadline = Date().addingTimeInterval(timeout)
         while controller.locked {
             guard Date() < deadline else { controller.cancel(); throw MediaFailure.output }
             try await Task.sleep(nanoseconds: 10_000_000)

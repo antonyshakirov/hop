@@ -23,6 +23,9 @@ final class MediaController: ObservableObject {
         var exported: URL?
         var error: L10nKey?
         var progress = 0.0
+        var hasTransparency = false
+        var sourceBytes: Int64?
+        var outputBytes: Int64?
     }
     private struct Result: @unchecked Sendable {
         var image: CGImage?
@@ -32,7 +35,26 @@ final class MediaController: ObservableObject {
     }
     @Published var items: [Item] = []
     @Published var selected: UUID?
-    @Published var operation: MediaOperation = .background { didSet { invalidate() } }
+    @Published var selection: Set<UUID> = []
+    var scopedItems: [Item] { selection.isEmpty ? items : items.filter { selection.contains($0.id) } }
+    private var defaultResolution: MediaResolution = .double
+    var commonResolutions: [MediaResolution] {
+        let eligible = scopedItems.filter { !$0.size.choices.isEmpty }
+        return eligible.isEmpty ? [] : MediaResolution.allCases.filter { choice in
+            eligible.allSatisfy { $0.size.output(for: choice) != nil }
+        }
+    }
+    func toggleSelection(_ id: UUID) {
+        guard !locked, items.contains(where: { $0.id == id }) else { return }
+        if selection.contains(id) { selection.remove(id) } else { selection.insert(id) }
+    }
+    func selectAllFiles() { guard !locked else { return }; selection = [] }
+    func applyResolution(_ choice: MediaResolution) {
+        guard !locked, commonResolutions.contains(choice) else { return }
+        if selection.isEmpty { defaultResolution = choice }
+        for item in scopedItems where item.size.output(for: choice) != nil { setResolution(choice, for: item.id) }
+    }
+    let operation: MediaOperation
     @Published var busy = false
     @Published var importing = false
     @Published var installing = false
@@ -47,6 +69,10 @@ final class MediaController: ObservableObject {
     @Published private(set) var secondsPerTile = 0.1
     var selectedItem: Item? { items.first { $0.id == selected } }
     var locked: Bool { busy || importing || installing }
+
+    init(operation: MediaOperation = .background) {
+        self.operation = operation
+    }
 
     func add(_ urls: [URL]) {
         guard !locked else { return }
@@ -77,7 +103,9 @@ final class MediaController: ObservableObject {
                     var item = Item(url: url, video: video, size: size, duration: duration,
                                     original: NSImage(cgImage: thumbnail, size: .zero))
                     item.framesPerSecond = fps
-                    item.resolution = size.choices.first ?? .eightK
+                    item.resolution = size.output(for: defaultResolution) != nil ? defaultResolution : (size.choices.first ?? .eightK)
+                    item.hasTransparency = !video && MediaImageEngine.hasTransparency(image)
+                    item.sourceBytes = Self.fileBytes(url)
                     items.append(item)
                     if selected == nil { selected = item.id }
                 } catch is CancellationError { break }
@@ -107,7 +135,7 @@ final class MediaController: ObservableObject {
 
     func clear() {
         guard !locked else { return }
-        items = []; selected = nil; error = nil
+        items = []; selected = nil; selection = []; error = nil
         temporaryInputs.forEach { try? FileManager.default.removeItem(at: $0) }
         temporaryInputs = []
     }
@@ -127,17 +155,23 @@ final class MediaController: ObservableObject {
 
     func setResolution(_ choice: MediaResolution, for id: UUID) {
         guard let i = items.firstIndex(where: { $0.id == id }), !locked else { return }
+        guard items[i].resolution != choice else { return }
         items[i].resolution = choice; items[i].result = nil; items[i].exported = nil; items[i].error = nil
+        items[i].outputBytes = nil
+        items[i].progress = 0
     }
 
     func setSubject(_ subject: Int, for id: UUID) {
         guard let i = items.firstIndex(where: { $0.id == id }), !locked else { return }
         items[i].subject = subject; items[i].result = nil; items[i].exported = nil
+        items[i].outputBytes = nil
     }
 
     func invalidate() {
         guard !locked else { return }
-        for i in items.indices { items[i].result = nil; items[i].exported = nil; items[i].progress = 0 }
+        for i in items.indices {
+            items[i].result = nil; items[i].exported = nil; items[i].outputBytes = nil; items[i].progress = 0
+        }
         error = nil
     }
 
@@ -146,9 +180,16 @@ final class MediaController: ObservableObject {
         items[index].result = nil
     }
 
-    func run(preview: Bool, background: MediaBackground) {
+    func export(quality: MediaExportQuality, background: MediaBackground) {
+        run(preview: false, background: background, quality: quality, ids: Set(scopedItems.map(\.id)), reexport: true)
+    }
+
+    func run(preview: Bool, background: MediaBackground, quality: MediaExportQuality = .full,
+             ids: Set<UUID>? = nil, reexport: Bool = false) {
         guard !locked else { return }
-        let jobs = preview ? items.filter { $0.id == selected } : items.filter { $0.exported == nil }
+        let jobs = preview ? items.filter { $0.id == selected } : items.filter {
+            (ids == nil || ids!.contains($0.id)) && (reexport || $0.exported == nil)
+        }
         guard !jobs.isEmpty else { return }
         let operation = operation, folder = destination, previewSecond = previewSecond
         if operation == .upscale, !modelReady { error = .mediaModelError; return }
@@ -175,7 +216,7 @@ final class MediaController: ObservableObject {
                     if job.video, !preview {
                         return Result(exported: try await MediaVideoEngine.export(job.url, to: folder,
                             operation: operation, output: output, subject: job.subject,
-                            background: background, upscaler: upscaler, progress: progress))
+                            background: background, upscaler: upscaler, quality: quality, progress: progress))
                     }
                     let original = job.video ? try await MediaVideoEngine.frame(job.url, at: min(previewSecond, max(0, job.duration - 0.05)))
                                              : try MediaImageEngine.read(job.url)
@@ -202,11 +243,12 @@ final class MediaController: ObservableObject {
                     let thumbnail = try MediaImageEngine.resize(result, to: thumbSize)
                     let before = try MediaImageEngine.resize(original, to: thumbSize)
                     if preview { return Result(image: thumbnail, original: before, subjects: subjects) }
-                    let stage = folder.appendingPathComponent(".hop-media-\(UUID().uuidString).png")
+                    let ext = MediaImageEngine.fileExtension(result, quality: quality)
+                    let stage = folder.appendingPathComponent(".hop-media-\(UUID().uuidString).\(ext)")
                     defer { try? FileManager.default.removeItem(at: stage) }
-                    try MediaImageEngine.writePNG(result, to: stage)
+                    try MediaImageEngine.write(result, to: stage, quality: quality)
                     try Task.checkCancellation()
-                    let url = folder.appendingPathComponent("\(job.url.deletingPathExtension().lastPathComponent)-\(operation.rawValue)-\(UUID().uuidString.prefix(8)).png")
+                    let url = folder.appendingPathComponent("\(job.url.deletingPathExtension().lastPathComponent)-\(operation.rawValue)-\(UUID().uuidString.prefix(8)).\(ext)")
                     try FileManager.default.moveItem(at: stage, to: url)
                     return Result(image: thumbnail, subjects: subjects, exported: url)
                 }
@@ -217,7 +259,10 @@ final class MediaController: ObservableObject {
                     if let image = result.image { items[i].result = NSImage(cgImage: image, size: .zero) }
                     if let image = result.original { items[i].original = NSImage(cgImage: image, size: .zero) }
                     items[i].subjects = result.subjects
-                    if let exported = result.exported { items[i].exported = exported }
+                    if let exported = result.exported {
+                        items[i].exported = exported
+                        items[i].outputBytes = Self.fileBytes(exported)
+                    }
                     items[i].progress = 1
                     if operation == .upscale, preview {
                         let count = max(1, job.size.inferenceTiles(to: output ?? job.size))
@@ -238,6 +283,10 @@ final class MediaController: ObservableObject {
             }
             worker = nil; busy = false; task = nil
         }
+    }
+
+    private static func fileBytes(_ url: URL) -> Int64? {
+        (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize).map(Int64.init)
     }
 
     private func failureKey(_ error: Error) -> L10nKey {

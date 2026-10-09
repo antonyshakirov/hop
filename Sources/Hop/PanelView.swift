@@ -187,7 +187,7 @@ struct PanelView: View {
     @AppStorage("windowsLayout") private var windowsLayout = "row" // grid | row
 
     @AppStorage("monitorColorful") private var monitorColorful = false
-    @State private var mediaDropTargeted = false
+    @State private var mediaDropTargeted: Set<MediaOperation> = []
     @State private var dropTargeted = false
     /// Pause ring flash: click on the locked button while a countdown is running.
     @State private var stopHintPulse = false
@@ -2766,41 +2766,53 @@ struct PanelView: View {
     }
 
     private var mediaZone: some View {
-        Button {
-            model.openMediaWindow?([])
-        } label: {
-            HStack(spacing: 6) {
-                ModuleMarkIcon(symbol: "photo.on.rectangle.angled",
-                               color: mediaDropTargeted ? Theme.editing : Theme.textSecondary)
-                Text(t(.mediaTitle))
-                    .font(Theme.mono(11))
-                    .foregroundStyle(Theme.textSecondary)
-                    .lineLimit(1)
-                Spacer()
-                RowActionIcon(symbol: "arrow.up.forward.app", compact: true)
+        HStack(spacing: 5) {
+            ModuleMarkIcon(symbol: "photo.on.rectangle.angled", color: Theme.textSecondary)
+            Text(t(.mediaTitle)).font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
+            Spacer(minLength: 0)
+            ViewThatFits(in: .horizontal) {
+                mediaToolButtons(labelSize: 10)
+                mediaToolButtons(labelSize: 8.5)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 9)
-            .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, 10).padding(.vertical, 5)
+        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
+    }
+
+    private func mediaToolButtons(labelSize: CGFloat) -> some View {
+        HStack(spacing: 5) {
+            mediaToolButton(.upscale, labelSize: labelSize)
+            mediaToolButton(.background, labelSize: labelSize)
+        }.fixedSize(horizontal: true, vertical: false)
+    }
+
+    private func mediaToolButton(_ operation: MediaOperation, labelSize: CGFloat = 10) -> some View {
+        let targeted = mediaDropTargeted.contains(operation)
+        return Button {
+            model.openMediaWindow?(operation, [])
+        } label: {
+            HStack(spacing: 5) {
+                RowActionIcon(symbol: operation == .upscale ? "arrow.up.left.and.arrow.down.right" : "person.crop.rectangle",
+                              active: targeted, compact: true)
+                Text(t(operation.titleKey))
+                    .font(Theme.mono(labelSize)).foregroundStyle(targeted ? Theme.editing : Theme.textPrimary)
+                    .lineLimit(1).fixedSize(horizontal: true, vertical: false)
+            }
+            .padding(.horizontal, 5).padding(.vertical, 5)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .help(t(.mediaTitle))
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
-        .overlay(
-            RoundedRectangle(cornerRadius: 7)
-                .stroke(mediaDropTargeted ? Theme.editing : .clear, lineWidth: 1)
-        )
-        .hoverHighlight(7)
-        .snapshotAwareDrop(of: [.fileURL], isTargeted: $mediaDropTargeted) { providers in
+        .buttonStyle(.plain).help(t(operation.titleKey))
+        .background(targeted ? Theme.hoverBg : .clear, in: RoundedRectangle(cornerRadius: 5))
+        .hoverHighlight(5)
+        .snapshotAwareDrop(of: [.fileURL], isTargeted: Binding(
+            get: { mediaDropTargeted.contains(operation) },
+            set: { if $0 { mediaDropTargeted.insert(operation) } else { mediaDropTargeted.remove(operation) } })) { providers in
             Task {
                 var urls: [URL] = []
                 for provider in providers {
-                    if let url = await loadFileURL(provider) {
-                        urls.append(url)
-                    }
+                    if let url = await loadFileURL(provider) { urls.append(url) }
                 }
-                model.openMediaWindow?(urls)
+                model.openMediaWindow?(operation, urls)
             }
             return true
         }
@@ -3695,13 +3707,11 @@ struct PanelView: View {
     }
 
     private var mediaSettings: some View {
-        Button { model.openMediaWindow?([]) } label: {
-            HStack {
-                Text(t(.mediaOpen)).font(Theme.mono(12))
-                Spacer()
-                RowActionIcon(symbol: "arrow.up.forward.app", compact: true)
-            }.foregroundStyle(Theme.textPrimary).contentShape(Rectangle())
-        }.buttonStyle(.plain)
+        HStack(spacing: 8) {
+            mediaToolButton(.upscale)
+            mediaToolButton(.background)
+            Spacer()
+        }
     }
 
     private var converterSettings: some View {
@@ -5197,7 +5207,9 @@ struct PanelView: View {
     @ViewBuilder
     private func moduleHotkeyRow(_ module: String, label: String) -> some View {
         ForEach(moduleHotkeyActions(module), id: \.self) { action in
-            hotkeyRow(action, label: action.id == "open" ? label : actionLabel(action))
+            hotkeyRow(action, label: module == "media"
+                ? t(action.id == "upscale" ? .mediaUpscale : .mediaRemove)
+                : (action.id == "open" ? label : actionLabel(action)))
         }
     }
 

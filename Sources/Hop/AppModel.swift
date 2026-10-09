@@ -14,7 +14,7 @@ final class AppModel: ObservableObject {
     let clipboard: ClipboardController
     let updater = UpdateChecker()
     let converter = FileConverter()
-    let media = MediaController()
+    let media = MediaWorkspaces()
     let speedTest: SpeedTestController
     let torrent = TorrentController()
     let tracker: TrackerController
@@ -55,6 +55,9 @@ final class AppModel: ObservableObject {
     /// Desired content height of the converter window (from the view's PreferenceKey).
     @Published var converterContentHeight: CGFloat = 0
 
+    /// Each media window fits its own measured content without affecting the other tool.
+    @Published var mediaContentHeights: [MediaOperation: CGFloat] = [:]
+
     /// Desired content height of the archive window — it opens as tall as the
     /// drop plate and grows only when there are jobs to show.
     @Published var archiveContentHeight: CGFloat = 0
@@ -92,7 +95,7 @@ final class AppModel: ObservableObject {
     /// Open the standalone converter window.
     var openConverterWindow: (() -> Void)?
     var closeMediaWindow: (() -> Void)?
-    var openMediaWindow: (([URL]) -> Void)?
+    var openMediaWindow: ((MediaOperation, [URL]) -> Void)?
     /// Open the standalone archive window — a drop target that survives a drag,
     /// which the panel's popover cannot be.
     var openArchiveWindow: (() -> Void)?

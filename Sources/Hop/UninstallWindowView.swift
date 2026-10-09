@@ -309,7 +309,6 @@ struct UninstallWindowView: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
-                    .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
                 }
                 if !preview {
                     HStack {
@@ -446,7 +445,6 @@ struct UninstallWindowView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
     }
 
     /// A list of apps (or identifiers) with a size each and one button.
@@ -498,7 +496,6 @@ struct UninstallWindowView: View {
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 5)
-                .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
             }
             // "all" sits at the BOTTOM LEFT, its box in the same column as
             // every other box in the list and its line level with the button it
@@ -681,7 +678,6 @@ struct UninstallWindowView: View {
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 5)
-                            .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
                         }
                     }
                 }
@@ -841,7 +837,6 @@ struct UninstallWindowView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 6))
     }
 
     private func badge(_ text: String, color: Color) -> some View {

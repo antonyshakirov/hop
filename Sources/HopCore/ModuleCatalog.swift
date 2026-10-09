@@ -102,6 +102,7 @@ public enum ModuleCatalog {
         ]),
         ModuleEntry(id: "media", hiddenOnFirstRun: true, guideLetter: "b", actions: [
             ModuleAction(id: "open", storageKey: "hotkey_media", hotKeyID: 36),
+            ModuleAction(id: "upscale", storageKey: "hotkey_media_upscale", hotKeyID: 37),
         ]),
         ModuleEntry(id: "windows", guideLetter: "w", actions: zoneActions),
         ModuleEntry(id: "speedtest", guideLetter: "s", actions: []),

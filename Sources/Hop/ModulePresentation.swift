@@ -65,7 +65,7 @@ enum ModulePresentation {
         case "timer": return [.docTimerFull]
         case "awake": return [.docAwakeFull]
         case "clipboard": return [.docClipboardFull]
-        case "media": return [.news24Media, .mediaLocal, .mediaPeopleOnly, .mediaVideoExperimental, .mediaRequires15, .mediaModelDownload]
+        case "media": return [.news24Media, .mediaBatchHelp, .mediaLocal, .mediaPeopleOnly, .mediaVideoExperimental, .mediaRequires15, .mediaModelDownload]
         case "convert": return [.docConverterFull, .docConverterDocs]
         case "windows": return [.docWindowsFull]
         case "speedtest": return [.docSpeedFull]

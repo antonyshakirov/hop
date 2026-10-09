@@ -1160,24 +1160,44 @@ Keep aspect ratio, never crop or stretch, hide equal/smaller targets and factors
 that exceed the box. Show actual dimensions. A small source can target 8K
 directly; a 4K source can target 8K. No 64x mode.
 
-The standalone `media` module owns a separate window and queue. It appears in
+The standalone `media` module occupies one panel row with two buttons: upscale
+and remove background. Each opens a distinct retained window with a fixed purpose
+and an independent queue, destination, settings and processing state.
+Both windows can be open together. Dropping files on a button routes them only
+to that tool. Each window uses the converter's 160-point drop plate and fits its
+measured content, growing after import and shrinking after clear. Height is
+capped at 75% of the available screen, with scrolling for longer queues. There
+is no fixed empty area below the controls. There is no mode switch inside either window. The module appears in
 the module catalog, onboarding and tab layout, has its own on/off switch, and
 can be moved independently of the converter. New users choose it in onboarding;
 existing users receive a one-time opt-in announcement. Turning it off cancels
-its work and closes its window, preserving completed outputs. The converter
-does not expose media enhancement controls. Its optional hotkey has no default
+both tools and closes both windows, preserving completed outputs. The converter
+does not expose media enhancement controls. Each tool has an optional shortcut with no default
 combination. The model downloads only on an explicit request inside Media.
-Each file has its own enlargement setting, because valid choices depend on the
-source. Files can also be opened, dropped or pasted into the workspace. Show
-original/result previews, export location, queue status and progress. Closing
+The workspace accepts one file or a mixed batch of photos and videos (up to
+200 files). Show one compact row per file: selection checkbox, a small original
+thumbnail, name, source dimensions → actual output dimensions, source file
+bytes → actual exported bytes and inline progress/error. Before export, the
+output weight is unknown (a dash); do not present raw pixel memory as file size.
+Selection changes only the checkbox, with no row highlight or changed insets.
+Do not show separate original/result previews or file cards.
+Shared controls above the scrolling list apply to selected rows, or all rows
+when none are selected; an explicit all-files button restores the whole-queue
+scope. Size choices must be valid for the scoped files and preserve each file's
+aspect ratio. Files already at the maximum report that they cannot grow.
+Each file retains its own target after the selection changes.
+Choose full quality (the default) or compression above the list. Show the quality
+percentage only for compression, initially 70%, and use one export button.
+Place the background colour well in its own row below the mode buttons.
+Files can be opened, dropped or pasted into the workspace. Show the export location. Closing
 the window preserves the queue. Work starts only when requested, processes
-one file at a time and stops on cancel or when the converter is disabled.
+one file at a time and stops on cancel or when the Media module is disabled.
 Originals are never overwritten. Cancel/error removes partial outputs; an
 earlier successfully exported file remains. Unsupported/corrupt inputs report
 an error and do not prevent processing other queued files.
 
-Image foreground selection uses Apple Vision's instance masks, including a
-choice of individual subjects or all subjects. Video background removal uses
+Image foreground selection uses all Apple Vision foreground instance masks.
+Video background removal uses
 stateful person segmentation; arbitrary video objects are not advertised.
 Transparency exports PNG or HEVC-alpha MOV. An optional replacement image or
 solid colour exports PNG or H.264 MP4 (HEVC for dimensions above 4096).
@@ -1188,10 +1208,15 @@ from a pinned HTTPS resource verified with SHA-256 before compilation. Media
 files stay on the Mac. No model is fetched at launch. The downloaded conversion
 requires macOS 15; background removal remains available on macOS 14. Tiled
 inference uses bounded tiles with overlapping context and preserves alpha.
-The workspace shows uncompressed frame memory, an approximate video output size
-and processing time. Time uses measured tile speed after a preview; estimates
-are approximate and depend on content, codec and hardware. Very small or
-distorted people may not yield a useful Vision mask; review the preview first.
+Upscale export has two actions for the current scope: full quality (lossless
+PNG for images, high-quality ProRes 422 HQ MOV with PCM audio for video), or
+compressed output (JPEG for opaque images, H.264 MP4 up to 4096 pixels and
+HEVC MP4 above it, with AAC audio). Compression quality defaults to 70% and
+is adjustable from 1–100; it controls image quality and video bitrate. Photos
+with actual transparency retain PNG even in the compressed mode. Re-exporting
+creates a fresh output without overwriting earlier results. Compression is
+lossy and does not promise the original file size or lossless video. Very small
+or distorted people may not yield a useful Vision mask; inspect the output.
 Outputs above 4x use successive model passes followed by proportional resizing
 to the chosen dimensions. Per-frame video enhancement is experimental until
 motion/flicker acceptance is complete; it does not imply a temporal model.

@@ -91,6 +91,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
 enum L10nKey: String, CaseIterable {
     case mediaPurpose, mediaOpen, mediaOff
     case mediaDrop
+    case mediaFullQuality, mediaCompression, mediaExportMode
+    case mediaBatchHelp, mediaAllFiles, mediaSelectedFiles, mediaIndividualSizes, mediaExportFull, mediaExportCompressed, mediaTransparencyKept
     case news24Media
     case mediaTitle, mediaRemove, mediaUpscale, mediaModelReady, mediaInstallModel, mediaModelDownload, mediaRequires15, mediaPeopleOnly, mediaVideoExperimental, mediaOriginal, mediaResult, mediaPreview, mediaBackground, mediaTransparent, mediaColor, mediaPicture, mediaAllSubjects, mediaExport, mediaLocal, mediaAtMaximum, mediaNoSubject, mediaTooLarge, mediaModelError, mediaOutputError, mediaEstimate, mediaFrame
     case tabTimer, tabSystem, tabEmptyHint, tabChangeIcon, tabDelete, tabNew, moduleMoveTo, back, settingsTitle, systemSettingsTitle
@@ -506,6 +508,9 @@ enum L10n {
     }
 
     private static let enTable: [L10nKey: String] = [
+            .mediaExportMode: "export",
+            .mediaFullQuality: "full quality",
+            .mediaCompression: "compressed",
             .mediaPurpose: "remove background · upscale",
             .mediaOpen: "open media",
             .mediaOff: "processing will stop; completed files stay saved",
@@ -528,7 +533,7 @@ enum L10n {
             .mediaColor: "colour",
             .mediaPicture: "image",
             .mediaAllSubjects: "all subjects",
-            .mediaExport: "export queue",
+            .mediaExport: "export",
             .mediaLocal: "processed on this Mac",
             .mediaAtMaximum: "no enlargement fits within 8K",
             .mediaNoSubject: "no subject found; try another image",
@@ -536,6 +541,13 @@ enum L10n {
             .mediaModelError: "model unavailable; retry download",
             .mediaOutputError: "export failed; check folder and format",
             .mediaEstimate: "uncompressed size",
+            .mediaBatchHelp: "add one file or mix photos and videos. select rows to change their sizes or export only those files; all files applies to the whole list. full quality or compression at 70%, adjustable. transparent photos keep PNG.",
+            .mediaAllFiles: "all files",
+            .mediaSelectedFiles: "selected ({count})",
+            .mediaIndividualSizes: "individual sizes",
+            .mediaExportFull: "export · full quality",
+            .mediaExportCompressed: "export · compressed",
+            .mediaTransparencyKept: "transparent photos keep PNG",
             .mediaFrame: "frame",
 
             .news23Leftovers: "hop finds and clears the leftovers of apps that were not removed completely",
@@ -1304,6 +1316,9 @@ enum L10n {
             ]
 
     private static let ruTable: [L10nKey: String] = [
+            .mediaExportMode: "экспорт",
+            .mediaFullQuality: "полное качество",
+            .mediaCompression: "сжатие",
             .mediaPurpose: "удалить фон · апскейл",
             .mediaOpen: "открыть медиа",
             .mediaOff: "обработка остановится; готовые файлы сохранятся",
@@ -1326,7 +1341,7 @@ enum L10n {
             .mediaColor: "цвет",
             .mediaPicture: "картинка",
             .mediaAllSubjects: "все объекты",
-            .mediaExport: "экспортировать очередь",
+            .mediaExport: "экспортировать",
             .mediaLocal: "обработка на\u{00A0}этом Mac",
             .mediaAtMaximum: "увеличение в\u{00A0}пределах 8K недоступно",
             .mediaNoSubject: "объект не\u{00A0}найден; выберите другое фото",
@@ -1334,6 +1349,13 @@ enum L10n {
             .mediaModelError: "модель недоступна; повторите загрузку",
             .mediaOutputError: "не\u{00A0}удалось сохранить; проверьте папку и\u{00A0}формат",
             .mediaEstimate: "несжатый размер",
+            .mediaBatchHelp: "добавьте один файл или\u{00A0}смешанный набор фото и\u{00A0}видео. отметьте строки, чтобы изменить размеры или экспортировать только выбранное; «все файлы» применяет настройки ко\u{00A0}всему списку. полное качество или\u{00A0}сжатие: по\u{00A0}умолчанию 70%, уровень можно изменить. прозрачные фото сохраняют PNG.",
+            .mediaAllFiles: "все файлы",
+            .mediaSelectedFiles: "выбрано ({count})",
+            .mediaIndividualSizes: "размер каждого файла",
+            .mediaExportFull: "экспорт · полное качество",
+            .mediaExportCompressed: "экспорт · с\u{00A0}сжатием",
+            .mediaTransparencyKept: "прозрачные фото сохраняют PNG",
             .mediaFrame: "кадр",
 
             .news23Leftovers: "hop находит и\u{00A0}убирает остатки программ, которые удалились не\u{00A0}полностью",
@@ -2102,6 +2124,9 @@ enum L10n {
             ]
 
     private static let deTable: [L10nKey: String] = [
+            .mediaExportMode: "Export",
+            .mediaFullQuality: "volle Qualität",
+            .mediaCompression: "komprimiert",
             .mediaPurpose: "hintergrund entfernen · hochskalieren",
             .mediaOpen: "Medien öffnen",
             .mediaOff: "Die Verarbeitung stoppt; fertige Dateien bleiben gespeichert",
@@ -2124,7 +2149,7 @@ enum L10n {
             .mediaColor: "farbe",
             .mediaPicture: "bild",
             .mediaAllSubjects: "alle motive",
-            .mediaExport: "warteschlange exportieren",
+            .mediaExport: "exportieren",
             .mediaLocal: "auf diesem Mac verarbeitet",
             .mediaAtMaximum: "keine vergrößerung innerhalb von 8K",
             .mediaNoSubject: "kein motiv erkannt; anderes bild wählen",
@@ -2132,6 +2157,13 @@ enum L10n {
             .mediaModelError: "modell fehlt; download wiederholen",
             .mediaOutputError: "export fehlgeschlagen; ordner und format prüfen",
             .mediaEstimate: "unkomprimierte größe",
+            .mediaBatchHelp: "einzelne Dateien oder Fotos und Videos gemischt hinzufügen. Zeilen auswählen, um nur diese Dateien zu skalieren oder zu exportieren; alle Dateien gilt für die ganze Liste. Volle Qualität oder einstellbare Komprimierung, standardmäßig 70%. Transparente Fotos bleiben PNG.",
+            .mediaAllFiles: "alle Dateien",
+            .mediaSelectedFiles: "ausgewählt ({count})",
+            .mediaIndividualSizes: "individuelle Größen",
+            .mediaExportFull: "exportieren · volle Qualität",
+            .mediaExportCompressed: "exportieren · komprimiert",
+            .mediaTransparencyKept: "transparente Bilder bleiben PNG",
             .mediaFrame: "bild",
 
             .news23Leftovers: "hop findet und entfernt die reste von apps, die nicht vollständig gelöscht wurden",
@@ -2900,6 +2932,9 @@ enum L10n {
             ]
 
     private static let esTable: [L10nKey: String] = [
+            .mediaExportMode: "exportación",
+            .mediaFullQuality: "calidad máxima",
+            .mediaCompression: "comprimido",
             .mediaPurpose: "quitar fondo · ampliar",
             .mediaOpen: "abrir medios",
             .mediaOff: "el procesamiento se detendrá; los archivos terminados se conservarán",
@@ -2922,7 +2957,7 @@ enum L10n {
             .mediaColor: "color",
             .mediaPicture: "imagen",
             .mediaAllSubjects: "todos los sujetos",
-            .mediaExport: "exportar cola",
+            .mediaExport: "exportar",
             .mediaLocal: "procesado en este Mac",
             .mediaAtMaximum: "no cabe una ampliación dentro de 8K",
             .mediaNoSubject: "sin sujeto; prueba otra imagen",
@@ -2930,6 +2965,13 @@ enum L10n {
             .mediaModelError: "modelo no disponible; repite la descarga",
             .mediaOutputError: "falló la exportación; revisa carpeta y\u{00A0}formato",
             .mediaEstimate: "tamaño sin comprimir",
+            .mediaBatchHelp: "añade un archivo o\u{00A0}mezcla fotos y\u{00A0}vídeos. selecciona filas para cambiar tamaños o\u{00A0}exportar solo esas; todos los archivos aplica a\u{00A0}la lista completa. calidad máxima o\u{00A0}compresión ajustable, 70% por defecto. las fotos transparentes conservan PNG.",
+            .mediaAllFiles: "todos los archivos",
+            .mediaSelectedFiles: "seleccionados ({count})",
+            .mediaIndividualSizes: "tamaños individuales",
+            .mediaExportFull: "exportar · calidad máxima",
+            .mediaExportCompressed: "exportar · comprimido",
+            .mediaTransparencyKept: "las fotos transparentes conservan PNG",
             .mediaFrame: "fotograma",
 
             .news23Leftovers: "hop encuentra y\u{00A0}elimina los restos de apps que no se borraron del todo",
@@ -3698,6 +3740,9 @@ enum L10n {
             ]
 
     private static let ptTable: [L10nKey: String] = [
+            .mediaExportMode: "exportação",
+            .mediaFullQuality: "qualidade máxima",
+            .mediaCompression: "comprimido",
             .mediaPurpose: "remover fundo · ampliar",
             .mediaOpen: "abrir mídia",
             .mediaOff: "o\u{00A0}processamento será interrompido; os arquivos concluídos serão mantidos",
@@ -3720,7 +3765,7 @@ enum L10n {
             .mediaColor: "cor",
             .mediaPicture: "imagem",
             .mediaAllSubjects: "todos os objetos",
-            .mediaExport: "exportar fila",
+            .mediaExport: "exportar",
             .mediaLocal: "processado neste Mac",
             .mediaAtMaximum: "nenhuma ampliação cabe em 8K",
             .mediaNoSubject: "objeto não encontrado; tente outra imagem",
@@ -3728,6 +3773,13 @@ enum L10n {
             .mediaModelError: "modelo indisponível; repita o\u{00A0}download",
             .mediaOutputError: "exportação falhou; confira pasta e\u{00A0}formato",
             .mediaEstimate: "tamanho sem compressão",
+            .mediaBatchHelp: "adicione um arquivo ou misture fotos e\u{00A0}vídeos. selecione linhas para mudar tamanhos ou exportar só essas; todos os arquivos aplica à\u{00A0}lista inteira. qualidade máxima ou compressão ajustável, 70% por padrão. fotos transparentes mantêm PNG.",
+            .mediaAllFiles: "todos os arquivos",
+            .mediaSelectedFiles: "selecionados ({count})",
+            .mediaIndividualSizes: "tamanhos individuais",
+            .mediaExportFull: "exportar · qualidade máxima",
+            .mediaExportCompressed: "exportar · comprimido",
+            .mediaTransparencyKept: "fotos transparentes mantêm PNG",
             .mediaFrame: "quadro",
 
             .news23Leftovers: "hop encontra e\u{00A0}remove os restos de apps que não foram apagados por completo",
@@ -4496,6 +4548,9 @@ enum L10n {
             ]
 
     private static let frTable: [L10nKey: String] = [
+            .mediaExportMode: "export",
+            .mediaFullQuality: "qualité maximale",
+            .mediaCompression: "compressé",
             .mediaPurpose: "retirer le fond · agrandir",
             .mediaOpen: "ouvrir les médias",
             .mediaOff: "le traitement s’arrête ; les fichiers terminés restent enregistrés",
@@ -4518,7 +4573,7 @@ enum L10n {
             .mediaColor: "couleur",
             .mediaPicture: "image",
             .mediaAllSubjects: "tous les sujets",
-            .mediaExport: "exporter la file",
+            .mediaExport: "exporter",
             .mediaLocal: "traité sur ce Mac",
             .mediaAtMaximum: "aucun agrandissement dans la limite 8K",
             .mediaNoSubject: "aucun sujet ; choisir une autre image",
@@ -4526,6 +4581,13 @@ enum L10n {
             .mediaModelError: "modèle indisponible ; réessayer le téléchargement",
             .mediaOutputError: "échec de l’export ; vérifier dossier et format",
             .mediaEstimate: "taille non compressée",
+            .mediaBatchHelp: "ajoutez un fichier ou mélangez photos et vidéos. sélectionnez des lignes pour modifier leurs dimensions ou exporter ces fichiers ; tous les fichiers concerne toute la liste. qualité maximale ou compression réglable, 70 % par défaut. les photos transparentes restent PNG.",
+            .mediaAllFiles: "tous les fichiers",
+            .mediaSelectedFiles: "sélectionnés ({count})",
+            .mediaIndividualSizes: "dimensions individuelles",
+            .mediaExportFull: "exporter · qualité maximale",
+            .mediaExportCompressed: "exporter · compressé",
+            .mediaTransparencyKept: "les photos transparentes restent PNG",
             .mediaFrame: "image",
 
             .news23Leftovers: "hop trouve et supprime les restes des apps qui n'ont pas été supprimées entièrement",
@@ -5294,6 +5356,9 @@ enum L10n {
             ]
 
     private static let itTable: [L10nKey: String] = [
+            .mediaExportMode: "esportazione",
+            .mediaFullQuality: "qualità massima",
+            .mediaCompression: "compresso",
             .mediaPurpose: "rimuovi sfondo · ingrandisci",
             .mediaOpen: "apri media",
             .mediaOff: "l’elaborazione si interromperà; i\u{00A0}file completati resteranno salvati",
@@ -5316,7 +5381,7 @@ enum L10n {
             .mediaColor: "colore",
             .mediaPicture: "immagine",
             .mediaAllSubjects: "tutti i\u{00A0}soggetti",
-            .mediaExport: "esporta coda",
+            .mediaExport: "esporta",
             .mediaLocal: "elaborato su questo Mac",
             .mediaAtMaximum: "nessun ingrandimento entro 8K",
             .mediaNoSubject: "nessun soggetto; prova un’altra immagine",
@@ -5324,6 +5389,13 @@ enum L10n {
             .mediaModelError: "modello non disponibile; riprova il download",
             .mediaOutputError: "esportazione fallita; verifica cartella e\u{00A0}formato",
             .mediaEstimate: "dimensione non compressa",
+            .mediaBatchHelp: "aggiungi un file o\u{00A0}mescola foto e\u{00A0}video. seleziona righe per modificarne le dimensioni o\u{00A0}esportare solo quelle; tutti i\u{00A0}file applica all’intero elenco. qualità massima o\u{00A0}compressione regolabile, 70% predefinito. le foto trasparenti restano PNG.",
+            .mediaAllFiles: "tutti i\u{00A0}file",
+            .mediaSelectedFiles: "selezionati ({count})",
+            .mediaIndividualSizes: "dimensioni individuali",
+            .mediaExportFull: "esporta · qualità massima",
+            .mediaExportCompressed: "esporta · compresso",
+            .mediaTransparencyKept: "le foto trasparenti restano PNG",
             .mediaFrame: "fotogramma",
 
             .news23Leftovers: "hop trova e\u{00A0}rimuove i\u{00A0}resti delle app che non sono state eliminate del tutto",
@@ -6092,6 +6164,9 @@ enum L10n {
             ]
 
     private static let zhTable: [L10nKey: String] = [
+            .mediaExportMode: "导出",
+            .mediaFullQuality: "完整质量",
+            .mediaCompression: "压缩",
             .mediaPurpose: "移除背景 · 放大",
             .mediaOpen: "打开媒体",
             .mediaOff: "处理将停止；已完成的文件会保留",
@@ -6114,7 +6189,7 @@ enum L10n {
             .mediaColor: "颜色",
             .mediaPicture: "图片",
             .mediaAllSubjects: "所有主体",
-            .mediaExport: "导出队列",
+            .mediaExport: "导出",
             .mediaLocal: "在此 Mac 上处理",
             .mediaAtMaximum: "无法在 8K 上限内放大",
             .mediaNoSubject: "未找到主体，请换一张图片",
@@ -6122,6 +6197,13 @@ enum L10n {
             .mediaModelError: "模型不可用，请重新下载",
             .mediaOutputError: "导出失败，请检查文件夹和格式",
             .mediaEstimate: "未压缩大小",
+            .mediaBatchHelp: "添加单个文件，或混合照片和视频。勾选行可仅调整或导出所选文件；所有文件应用于整个列表。完整画质或可调压缩，默认 70%。透明照片保留 PNG。",
+            .mediaAllFiles: "所有文件",
+            .mediaSelectedFiles: "已选（{count}）",
+            .mediaIndividualSizes: "各文件尺寸",
+            .mediaExportFull: "导出 · 完整画质",
+            .mediaExportCompressed: "导出 · 压缩",
+            .mediaTransparencyKept: "透明照片保留 PNG",
             .mediaFrame: "帧",
 
             .news23Leftovers: "hop 会找到并清除未完全删除的应用留下的残留",
@@ -6881,6 +6963,9 @@ enum L10n {
             ]
 
     private static let jaTable: [L10nKey: String] = [
+            .mediaExportMode: "書き出し",
+            .mediaFullQuality: "最高品質",
+            .mediaCompression: "圧縮",
             .mediaPurpose: "背景を削除 · 拡大",
             .mediaOpen: "メディアを開く",
             .mediaOff: "処理を停止します。保存済みのファイルは残ります",
@@ -6903,7 +6988,7 @@ enum L10n {
             .mediaColor: "色",
             .mediaPicture: "画像",
             .mediaAllSubjects: "すべての被写体",
-            .mediaExport: "キューを出力",
+            .mediaExport: "書き出す",
             .mediaLocal: "この Mac で処理",
             .mediaAtMaximum: "8K 以内で拡大できません",
             .mediaNoSubject: "被写体が見つかりません。別の画像を選択",
@@ -6911,6 +6996,13 @@ enum L10n {
             .mediaModelError: "モデルを再ダウンロードしてください",
             .mediaOutputError: "出力失敗。フォルダと形式を確認",
             .mediaEstimate: "非圧縮サイズ",
+            .mediaBatchHelp: "1 ファイル、または写真と動画をまとめて追加。行を選択すると、そのファイルだけサイズ変更・書き出しできます。「すべてのファイル」で一覧全体に適用。最高画質か圧縮を選択。圧縮は初期値 70%、変更可能。透明な写真は PNG を保持。",
+            .mediaAllFiles: "すべてのファイル",
+            .mediaSelectedFiles: "選択中（{count}）",
+            .mediaIndividualSizes: "ファイルごとのサイズ",
+            .mediaExportFull: "書き出し · 最高画質",
+            .mediaExportCompressed: "書き出し · 圧縮",
+            .mediaTransparencyKept: "透明な写真は PNG を保持",
             .mediaFrame: "フレーム",
 
             .news23Leftovers: "hop は完全に削除されなかったアプリの残りを見つけて消します",
@@ -7676,6 +7768,9 @@ enum L10n {
             ]
 
     private static let nlTable: [L10nKey: String] = [
+            .mediaExportMode: "export",
+            .mediaFullQuality: "volledige kwaliteit",
+            .mediaCompression: "gecomprimeerd",
             .mediaPurpose: "achtergrond verwijderen · vergroten",
             .mediaOpen: "media openen",
             .mediaOff: "de verwerking stopt; voltooide bestanden blijven bewaard",
@@ -7698,7 +7793,7 @@ enum L10n {
             .mediaColor: "kleur",
             .mediaPicture: "afbeelding",
             .mediaAllSubjects: "alle onderwerpen",
-            .mediaExport: "wachtrij exporteren",
+            .mediaExport: "exporteren",
             .mediaLocal: "verwerkt op deze Mac",
             .mediaAtMaximum: "geen vergroting binnen 8K mogelijk",
             .mediaNoSubject: "geen onderwerp; kies een andere afbeelding",
@@ -7706,6 +7801,13 @@ enum L10n {
             .mediaModelError: "model niet beschikbaar; download opnieuw",
             .mediaOutputError: "export mislukt; controleer map en formaat",
             .mediaEstimate: "ongecomprimeerde grootte",
+            .mediaBatchHelp: "voeg één bestand toe of meng foto’s en video’s. selecteer rijen om alleen die bestanden te vergroten of te exporteren; alle bestanden geldt voor de hele lijst. volledige kwaliteit of instelbare compressie, standaard 70%. transparante foto’s blijven PNG.",
+            .mediaAllFiles: "alle bestanden",
+            .mediaSelectedFiles: "geselecteerd ({count})",
+            .mediaIndividualSizes: "afzonderlijke afmetingen",
+            .mediaExportFull: "exporteren · volledige kwaliteit",
+            .mediaExportCompressed: "exporteren · gecomprimeerd",
+            .mediaTransparencyKept: "transparante foto’s blijven PNG",
             .mediaFrame: "frame",
 
             .news23Leftovers: "hop vindt en verwijdert de resten van apps die niet helemaal zijn verwijderd",
@@ -8490,6 +8592,9 @@ enum L10n {
             ]
 
     private static let koTable: [L10nKey: String] = [
+            .mediaExportMode: "내보내기",
+            .mediaFullQuality: "최고 품질",
+            .mediaCompression: "압축",
             .mediaPurpose: "배경 제거 · 확대",
             .mediaOpen: "미디어 열기",
             .mediaOff: "처리가 중지됩니다. 완료된 파일은 유지됩니다",
@@ -8512,7 +8617,7 @@ enum L10n {
             .mediaColor: "색상",
             .mediaPicture: "이미지",
             .mediaAllSubjects: "모든 대상",
-            .mediaExport: "대기열 내보내기",
+            .mediaExport: "내보내기",
             .mediaLocal: "이 Mac에서 처리",
             .mediaAtMaximum: "8K 이내에서 확대할 수 없음",
             .mediaNoSubject: "대상이 없음; 다른 이미지 선택",
@@ -8520,6 +8625,13 @@ enum L10n {
             .mediaModelError: "모델을 다시 다운로드하세요",
             .mediaOutputError: "내보내기 실패; 폴더와 형식 확인",
             .mediaEstimate: "비압축 크기",
+            .mediaBatchHelp: "파일 하나 또는 사진과 동영상을 함께 추가하세요. 행을 선택하면 해당 파일만 크기를 바꾸거나 내보냅니다. 모든 파일은 전체 목록에 적용됩니다. 최고 품질 또는 압축을 선택하세요. 압축 기본값은 70%이며 조절할 수 있습니다. 투명 사진은 PNG를 유지합니다.",
+            .mediaAllFiles: "모든 파일",
+            .mediaSelectedFiles: "선택됨 ({count})",
+            .mediaIndividualSizes: "파일별 크기",
+            .mediaExportFull: "내보내기 · 최고 품질",
+            .mediaExportCompressed: "내보내기 · 압축",
+            .mediaTransparencyKept: "투명 사진은 PNG 유지",
             .mediaFrame: "프레임",
 
             .news23Leftovers: "hop이 완전히 삭제되지 않은 앱의 남은 파일을 찾아 지웁니다",
@@ -9285,6 +9397,9 @@ enum L10n {
             ]
 
     private static let thTable: [L10nKey: String] = [
+            .mediaExportMode: "ส่งออก",
+            .mediaFullQuality: "คุณภาพเต็ม",
+            .mediaCompression: "บีบอัด",
             .mediaPurpose: "ลบพื้นหลัง · ขยาย",
             .mediaOpen: "เปิดสื่อ",
             .mediaOff: "การประมวลผลจะหยุด ไฟล์ที่เสร็จแล้วจะยังคงอยู่",
@@ -9307,7 +9422,7 @@ enum L10n {
             .mediaColor: "สี",
             .mediaPicture: "ภาพ",
             .mediaAllSubjects: "ทุกวัตถุ",
-            .mediaExport: "ส่งออกคิว",
+            .mediaExport: "ส่งออก",
             .mediaLocal: "ประมวลผลบน Mac เครื่องนี้",
             .mediaAtMaximum: "ไม่สามารถขยายภายในขีดจำกัด 8K",
             .mediaNoSubject: "ไม่พบวัตถุ ลองเลือกภาพอื่น",
@@ -9315,6 +9430,13 @@ enum L10n {
             .mediaModelError: "โมเดลไม่พร้อม ลองดาวน์โหลดอีกครั้ง",
             .mediaOutputError: "ส่งออกไม่สำเร็จ ตรวจโฟลเดอร์และรูปแบบ",
             .mediaEstimate: "ขนาดไม่บีบอัด",
+            .mediaBatchHelp: "เพิ่มไฟล์เดียวหรือรวมภาพและวิดีโอ เลือกแถวเพื่อปรับขนาดหรือส่งออกเฉพาะไฟล์ที่เลือก ไฟล์ทั้งหมดใช้กับทั้งรายการ เลือกคุณภาพเต็มหรือการบีบอัดที่ปรับได้ ค่าเริ่มต้น 70% ภาพโปร่งใสยังใช้ PNG",
+            .mediaAllFiles: "ไฟล์ทั้งหมด",
+            .mediaSelectedFiles: "ที่เลือก ({count})",
+            .mediaIndividualSizes: "ขนาดแต่ละไฟล์",
+            .mediaExportFull: "ส่งออก · คุณภาพเต็ม",
+            .mediaExportCompressed: "ส่งออก · บีบอัด",
+            .mediaTransparencyKept: "ภาพโปร่งใสยังใช้ PNG",
             .mediaFrame: "เฟรม",
 
             .news23Leftovers: "hop ค้นหาและลบไฟล์ที่เหลือของแอปที่ลบไม่หมด",
@@ -10099,6 +10221,9 @@ enum L10n {
             ]
 
     private static let viTable: [L10nKey: String] = [
+            .mediaExportMode: "xuất",
+            .mediaFullQuality: "chất lượng tối đa",
+            .mediaCompression: "nén",
             .mediaPurpose: "xóa nền · phóng lớn",
             .mediaOpen: "mở phương tiện",
             .mediaOff: "quá trình xử lý sẽ dừng; các tệp hoàn tất vẫn được lưu",
@@ -10121,7 +10246,7 @@ enum L10n {
             .mediaColor: "màu",
             .mediaPicture: "ảnh",
             .mediaAllSubjects: "mọi đối tượng",
-            .mediaExport: "xuất hàng đợi",
+            .mediaExport: "xuất",
             .mediaLocal: "xử lý trên Mac này",
             .mediaAtMaximum: "không thể phóng lớn trong giới hạn 8K",
             .mediaNoSubject: "không tìm thấy đối tượng; chọn ảnh khác",
@@ -10129,6 +10254,13 @@ enum L10n {
             .mediaModelError: "mô hình không sẵn; tải lại",
             .mediaOutputError: "xuất thất bại; kiểm tra thư mục và định dạng",
             .mediaEstimate: "kích thước chưa nén",
+            .mediaBatchHelp: "thêm một tệp hoặc trộn ảnh và video. chọn dòng để đổi kích thước hoặc chỉ xuất tệp đã chọn; tất cả tệp áp dụng cho toàn bộ danh sách. chất lượng đầy đủ hoặc nén tùy chỉnh, mặc định 70%. ảnh trong suốt giữ PNG.",
+            .mediaAllFiles: "tất cả tệp",
+            .mediaSelectedFiles: "đã chọn ({count})",
+            .mediaIndividualSizes: "kích thước riêng",
+            .mediaExportFull: "xuất · chất lượng đầy đủ",
+            .mediaExportCompressed: "xuất · nén",
+            .mediaTransparencyKept: "ảnh trong suốt giữ định dạng PNG",
             .mediaFrame: "khung hình",
 
             .news23Leftovers: "hop tìm và dọn phần còn sót của các ứng dụng chưa được xóa hết",
@@ -10913,6 +11045,9 @@ enum L10n {
             ]
 
     private static let hiTable: [L10nKey: String] = [
+            .mediaExportMode: "निर्यात",
+            .mediaFullQuality: "पूर्ण गुणवत्ता",
+            .mediaCompression: "संपीड़ित",
             .mediaPurpose: "पृष्ठभूमि हटाएँ · आकार बढ़ाएँ",
             .mediaOpen: "मीडिया खोलें",
             .mediaOff: "प्रोसेसिंग रुक जाएगी; पूरी हुई फ़ाइलें सुरक्षित रहेंगी",
@@ -10935,7 +11070,7 @@ enum L10n {
             .mediaColor: "रंग",
             .mediaPicture: "चित्र",
             .mediaAllSubjects: "सभी विषय",
-            .mediaExport: "कतार निर्यात करें",
+            .mediaExport: "निर्यात करें",
             .mediaLocal: "इसी Mac पर संसाधित",
             .mediaAtMaximum: "8K सीमा में आकार नहीं बढ़ सकता",
             .mediaNoSubject: "विषय नहीं मिला; दूसरा चित्र चुनें",
@@ -10943,6 +11078,13 @@ enum L10n {
             .mediaModelError: "मॉडल उपलब्ध नहीं; फिर डाउनलोड करें",
             .mediaOutputError: "निर्यात विफल; फ़ोल्डर और प्रारूप जाँचें",
             .mediaEstimate: "असंपीड़ित आकार",
+            .mediaBatchHelp: "एक फ़ाइल जोड़ें या फ़ोटो और वीडियो मिलाएँ। चुनी गई पंक्तियों का आकार बदलें या केवल उन्हें निर्यात करें; सभी फ़ाइलें पूरी सूची पर लागू होता है। पूरी गुणवत्ता या समायोज्य संपीड़न, डिफ़ॉल्ट 70%। पारदर्शी फ़ोटो PNG में रहेंगी।",
+            .mediaAllFiles: "सभी फ़ाइलें",
+            .mediaSelectedFiles: "चुनी गई ({count})",
+            .mediaIndividualSizes: "हर फ़ाइल का आकार",
+            .mediaExportFull: "निर्यात · पूरी गुणवत्ता",
+            .mediaExportCompressed: "निर्यात · संपीड़ित",
+            .mediaTransparencyKept: "पारदर्शी फ़ोटो PNG में रहेंगी",
             .mediaFrame: "फ़्रेम",
 
             .news23Leftovers: "hop उन ऐप्स के बचे हुए हिस्से ढूँढकर हटाता है जो पूरी तरह नहीं हटे",
@@ -11727,6 +11869,9 @@ enum L10n {
             ]
 
     private static let idTable: [L10nKey: String] = [
+            .mediaExportMode: "ekspor",
+            .mediaFullQuality: "kualitas penuh",
+            .mediaCompression: "terkompresi",
             .mediaPurpose: "hapus latar · perbesar",
             .mediaOpen: "buka media",
             .mediaOff: "pemrosesan akan berhenti; file yang selesai tetap tersimpan",
@@ -11749,7 +11894,7 @@ enum L10n {
             .mediaColor: "warna",
             .mediaPicture: "gambar",
             .mediaAllSubjects: "semua subjek",
-            .mediaExport: "ekspor antrean",
+            .mediaExport: "ekspor",
             .mediaLocal: "diproses di Mac ini",
             .mediaAtMaximum: "tidak dapat diperbesar dalam batas 8K",
             .mediaNoSubject: "subjek tidak ditemukan; pilih gambar lain",
@@ -11757,6 +11902,13 @@ enum L10n {
             .mediaModelError: "model tidak tersedia; unduh ulang",
             .mediaOutputError: "ekspor gagal; periksa folder dan format",
             .mediaEstimate: "ukuran tanpa kompresi",
+            .mediaBatchHelp: "tambahkan satu berkas atau campur foto dan video. pilih baris untuk mengubah ukuran atau mengekspor hanya berkas tersebut; semua berkas berlaku untuk seluruh daftar. kualitas penuh atau kompresi yang bisa diatur, bawaan 70%. foto transparan tetap PNG.",
+            .mediaAllFiles: "semua berkas",
+            .mediaSelectedFiles: "dipilih ({count})",
+            .mediaIndividualSizes: "ukuran tiap berkas",
+            .mediaExportFull: "ekspor · kualitas penuh",
+            .mediaExportCompressed: "ekspor · terkompresi",
+            .mediaTransparencyKept: "foto transparan tetap PNG",
             .mediaFrame: "bingkai",
 
             .news23Leftovers: "hop menemukan dan menghapus sisa aplikasi yang tidak terhapus sepenuhnya",
@@ -12541,6 +12693,9 @@ enum L10n {
             ]
 
     private static let trTable: [L10nKey: String] = [
+            .mediaExportMode: "dışa aktarma",
+            .mediaFullQuality: "tam kalite",
+            .mediaCompression: "sıkıştırılmış",
             .mediaPurpose: "arka planı kaldır · büyüt",
             .mediaOpen: "medyayı aç",
             .mediaOff: "işlem duracak; tamamlanan dosyalar korunacak",
@@ -12563,7 +12718,7 @@ enum L10n {
             .mediaColor: "renk",
             .mediaPicture: "resim",
             .mediaAllSubjects: "tüm nesneler",
-            .mediaExport: "kuyruğu dışa aktar",
+            .mediaExport: "dışa aktar",
             .mediaLocal: "bu Mac’te işlenir",
             .mediaAtMaximum: "8K sınırında büyütülemez",
             .mediaNoSubject: "nesne bulunamadı; başka resim seçin",
@@ -12571,6 +12726,13 @@ enum L10n {
             .mediaModelError: "model kullanılamıyor; yeniden indirin",
             .mediaOutputError: "dışa aktarma başarısız; klasör ve biçimi kontrol edin",
             .mediaEstimate: "sıkıştırılmamış boyut",
+            .mediaBatchHelp: "tek dosya ekleyin veya fotoğraf ve videoları karıştırın. yalnızca seçilenlerin boyutunu değiştirmek veya dışa aktarmak için satırları seçin; tüm dosyalar bütün listeye uygulanır. tam kalite veya ayarlanabilir sıkıştırma, varsayılan %70. saydam fotoğraflar PNG kalır.",
+            .mediaAllFiles: "tüm dosyalar",
+            .mediaSelectedFiles: "seçili ({count})",
+            .mediaIndividualSizes: "dosyaya özel boyutlar",
+            .mediaExportFull: "dışa aktar · tam kalite",
+            .mediaExportCompressed: "dışa aktar · sıkıştırılmış",
+            .mediaTransparencyKept: "saydam fotoğraflar PNG olarak kalır",
             .mediaFrame: "kare",
 
             .news23Leftovers: "hop, tam silinmemiş uygulamaların kalıntılarını bulup temizler",
@@ -13355,6 +13517,9 @@ enum L10n {
             ]
 
     private static let plTable: [L10nKey: String] = [
+            .mediaExportMode: "eksport",
+            .mediaFullQuality: "pełna jakość",
+            .mediaCompression: "skompresowane",
             .mediaPurpose: "usuń tło · powiększ",
             .mediaOpen: "otwórz multimedia",
             .mediaOff: "przetwarzanie zostanie zatrzymane; gotowe pliki zostaną zachowane",
@@ -13377,7 +13542,7 @@ enum L10n {
             .mediaColor: "kolor",
             .mediaPicture: "obraz",
             .mediaAllSubjects: "wszystkie obiekty",
-            .mediaExport: "eksportuj kolejkę",
+            .mediaExport: "eksportuj",
             .mediaLocal: "przetwarzane na tym Macu",
             .mediaAtMaximum: "brak powiększenia w\u{00A0}granicach 8K",
             .mediaNoSubject: "nie znaleziono obiektu; wybierz inny obraz",
@@ -13385,6 +13550,13 @@ enum L10n {
             .mediaModelError: "model niedostępny; pobierz ponownie",
             .mediaOutputError: "eksport nieudany; sprawdź folder i\u{00A0}format",
             .mediaEstimate: "rozmiar bez kompresji",
+            .mediaBatchHelp: "dodaj jeden plik lub razem zdjęcia i\u{00A0}wideo. zaznacz wiersze, aby zmienić rozmiary lub eksportować tylko wybrane; wszystkie pliki obejmuje całą listę. pełna jakość lub regulowana kompresja, domyślnie 70%. przezroczyste zdjęcia pozostają PNG.",
+            .mediaAllFiles: "wszystkie pliki",
+            .mediaSelectedFiles: "wybrane ({count})",
+            .mediaIndividualSizes: "rozmiary poszczególnych plików",
+            .mediaExportFull: "eksport · pełna jakość",
+            .mediaExportCompressed: "eksport · skompresowany",
+            .mediaTransparencyKept: "przezroczyste zdjęcia pozostają PNG",
             .mediaFrame: "klatka",
 
             .news23Leftovers: "hop znajduje i\u{00A0}usuwa pozostałości aplikacji, które nie zostały usunięte do końca",
@@ -14169,6 +14341,9 @@ enum L10n {
             ]
 
     private static let arTable: [L10nKey: String] = [
+            .mediaExportMode: "التصدير",
+            .mediaFullQuality: "جودة كاملة",
+            .mediaCompression: "مضغوط",
             .mediaPurpose: "إزالة الخلفية · تكبير",
             .mediaOpen: "فتح الوسائط",
             .mediaOff: "ستتوقف المعالجة؛ ستبقى الملفات المكتملة محفوظة",
@@ -14191,7 +14366,7 @@ enum L10n {
             .mediaColor: "لون",
             .mediaPicture: "صورة",
             .mediaAllSubjects: "كل العناصر",
-            .mediaExport: "تصدير قائمة الانتظار",
+            .mediaExport: "تصدير",
             .mediaLocal: "المعالجة على هذا Mac",
             .mediaAtMaximum: "لا يمكن التكبير ضمن حد 8K",
             .mediaNoSubject: "لم يُعثر على عنصر؛ اختر صورة أخرى",
@@ -14199,6 +14374,13 @@ enum L10n {
             .mediaModelError: "النموذج غير متاح؛ أعد التنزيل",
             .mediaOutputError: "فشل التصدير؛ تحقق من المجلد والتنسيق",
             .mediaEstimate: "الحجم دون ضغط",
+            .mediaBatchHelp: "أضف ملفًا واحدًا أو صورًا وفيديوهات معًا. حدد الصفوف لتغيير أبعادها أو تصدير المحدد فقط؛ كل الملفات يشمل القائمة كاملة. جودة كاملة أو ضغط قابل للتعديل، 70% افتراضيًا. الصور الشفافة تبقى PNG.",
+            .mediaAllFiles: "كل الملفات",
+            .mediaSelectedFiles: "المحددة ({count})",
+            .mediaIndividualSizes: "أبعاد لكل ملف",
+            .mediaExportFull: "تصدير · جودة كاملة",
+            .mediaExportCompressed: "تصدير · مضغوط",
+            .mediaTransparencyKept: "الصور الشفافة تبقى PNG",
             .mediaFrame: "إطار",
 
             .news23Leftovers: "\u{200F}hop يجد ويزيل مخلّفات التطبيقات التي لم تُحذف بالكامل",
@@ -15042,6 +15224,9 @@ enum L10n {
             ]
 
     private static let heTable: [L10nKey: String] = [
+            .mediaExportMode: "ייצוא",
+            .mediaFullQuality: "איכות מלאה",
+            .mediaCompression: "דחוס",
             .mediaPurpose: "הסר רקע · הגדל",
             .mediaOpen: "פתיחת מדיה",
             .mediaOff: "העיבוד ייעצר; הקבצים שהושלמו יישארו שמורים",
@@ -15064,7 +15249,7 @@ enum L10n {
             .mediaColor: "צבע",
             .mediaPicture: "תמונה",
             .mediaAllSubjects: "כל האובייקטים",
-            .mediaExport: "ייצא תור",
+            .mediaExport: "ייצא",
             .mediaLocal: "מעובד ב־Mac הזה",
             .mediaAtMaximum: "אין הגדלה בגבולות 8K",
             .mediaNoSubject: "לא נמצא אובייקט; בחר תמונה אחרת",
@@ -15072,6 +15257,13 @@ enum L10n {
             .mediaModelError: "המודל לא זמין; הורד שוב",
             .mediaOutputError: "הייצוא נכשל; בדוק תיקייה ופורמט",
             .mediaEstimate: "גודל לא דחוס",
+            .mediaBatchHelp: "הוסיפו קובץ אחד או ערבבו תמונות וסרטונים. בחרו שורות כדי לשנות מידות או לייצא רק אותן; כל הקבצים חל על כל הרשימה. איכות מלאה או דחיסה מתכווננת, 70% כברירת מחדל. תמונות שקופות נשמרות כ־PNG.",
+            .mediaAllFiles: "כל הקבצים",
+            .mediaSelectedFiles: "נבחרו ({count})",
+            .mediaIndividualSizes: "מידות לכל קובץ",
+            .mediaExportFull: "ייצוא · איכות מלאה",
+            .mediaExportCompressed: "ייצוא · דחוס",
+            .mediaTransparencyKept: "תמונות שקופות נשמרות כ־PNG",
             .mediaFrame: "פריים",
 
             .news23Leftovers: "\u{200F}hop מוצא ומסיר שאריות של אפליקציות שלא הוסרו לגמרי",
@@ -15915,6 +16107,9 @@ enum L10n {
             ]
 
     private static let faTable: [L10nKey: String] = [
+            .mediaExportMode: "خروجی",
+            .mediaFullQuality: "کیفیت کامل",
+            .mediaCompression: "فشرده",
             .mediaPurpose: "حذف پس‌زمینه · بزرگ‌کردن",
             .mediaOpen: "باز کردن رسانه",
             .mediaOff: "پردازش متوقف می‌شود؛ فایل‌های تکمیل‌شده ذخیره می‌مانند",
@@ -15937,7 +16132,7 @@ enum L10n {
             .mediaColor: "رنگ",
             .mediaPicture: "تصویر",
             .mediaAllSubjects: "همه سوژه‌ها",
-            .mediaExport: "صدور صف",
+            .mediaExport: "خروجی گرفتن",
             .mediaLocal: "پردازش در همین Mac",
             .mediaAtMaximum: "بزرگ‌کردن در محدوده 8K ممکن نیست",
             .mediaNoSubject: "سوژه پیدا نشد؛ تصویر دیگری انتخاب کنید",
@@ -15945,6 +16140,13 @@ enum L10n {
             .mediaModelError: "مدل در دسترس نیست؛ دوباره دانلود کنید",
             .mediaOutputError: "صدور ناموفق؛ پوشه و\u{00A0}قالب را بررسی کنید",
             .mediaEstimate: "اندازه بدون فشرده‌سازی",
+            .mediaBatchHelp: "یک فایل یا ترکیبی از عکس و\u{00A0}ویدیو اضافه کنید. سطرها را برای تغییر اندازه یا خروجی فقط از انتخاب‌ها برگزینید؛ همهٔ فایل‌ها شامل کل فهرست است. کیفیت کامل یا فشرده‌سازی قابل تنظیم، پیش‌فرض 70%. عکس‌های شفاف PNG می‌مانند.",
+            .mediaAllFiles: "همهٔ فایل‌ها",
+            .mediaSelectedFiles: "انتخاب‌شده ({count})",
+            .mediaIndividualSizes: "اندازهٔ هر فایل",
+            .mediaExportFull: "خروجی · کیفیت کامل",
+            .mediaExportCompressed: "خروجی · فشرده",
+            .mediaTransparencyKept: "عکس‌های شفاف PNG می‌مانند",
             .mediaFrame: "فریم",
 
             .news23Leftovers: "\u{200F}hop باقی‌ماندهٔ برنامه‌هایی را که کامل حذف نشده‌اند پیدا و\u{00A0}پاک می‌کند",
@@ -16788,6 +16990,9 @@ enum L10n {
             ]
 
     private static let urTable: [L10nKey: String] = [
+            .mediaExportMode: "برآمد",
+            .mediaFullQuality: "مکمل معیار",
+            .mediaCompression: "کمپریسڈ",
             .mediaPurpose: "پس منظر ہٹائیں · بڑا کریں",
             .mediaOpen: "میڈیا کھولیں",
             .mediaOff: "پروسیسنگ رک جائے گی؛ مکمل فائلیں محفوظ رہیں گی",
@@ -16810,7 +17015,7 @@ enum L10n {
             .mediaColor: "رنگ",
             .mediaPicture: "تصویر",
             .mediaAllSubjects: "تمام اشیاء",
-            .mediaExport: "قطار برآمد کریں",
+            .mediaExport: "برآمد کریں",
             .mediaLocal: "اسی Mac پر کارروائی",
             .mediaAtMaximum: "\u{200F}8K حد کے اندر بڑا نہیں ہو سکتا",
             .mediaNoSubject: "شے نہیں ملی؛ دوسری تصویر منتخب کریں",
@@ -16818,6 +17023,13 @@ enum L10n {
             .mediaModelError: "ماڈل دستیاب نہیں؛ دوبارہ ڈاؤن لوڈ کریں",
             .mediaOutputError: "برآمد ناکام؛ فولڈر اور\u{00A0}فارمیٹ دیکھیں",
             .mediaEstimate: "غیر فشردہ حجم",
+            .mediaBatchHelp: "ایک فائل شامل کریں یا تصاویر اور\u{00A0}ویڈیوز ملا دیں۔ منتخب قطاروں کا سائز بدلیں یا صرف انہیں برآمد کریں؛ تمام فائلیں پوری فہرست پر لاگو ہوتا ہے۔ مکمل معیار یا قابلِ ترتیب کمپریشن، پہلے سے 70%۔ شفاف تصاویر PNG رہیں گی۔",
+            .mediaAllFiles: "تمام فائلیں",
+            .mediaSelectedFiles: "منتخب ({count})",
+            .mediaIndividualSizes: "ہر فائل کا سائز",
+            .mediaExportFull: "برآمد · مکمل معیار",
+            .mediaExportCompressed: "برآمد · کمپریسڈ",
+            .mediaTransparencyKept: "شفاف تصاویر PNG رہیں گی",
             .mediaFrame: "فریم",
 
             .news23Leftovers: "\u{200F}hop ان ایپس کی باقیات ڈھونڈ کر ہٹاتا ہے جو پوری طرح نہیں ہٹیں",
@@ -17661,6 +17873,9 @@ enum L10n {
             ]
 
     private static let srTable: [L10nKey: String] = [
+            .mediaExportMode: "извоз",
+            .mediaFullQuality: "пун квалитет",
+            .mediaCompression: "компримовано",
             .mediaPurpose: "уклони позадину · увећај",
             .mediaOpen: "отвори медије",
             .mediaOff: "обрада ће стати; завршене датотеке остају сачуване",
@@ -17683,7 +17898,7 @@ enum L10n {
             .mediaColor: "боја",
             .mediaPicture: "слика",
             .mediaAllSubjects: "сви објекти",
-            .mediaExport: "извези ред",
+            .mediaExport: "извези",
             .mediaLocal: "обрада на\u{00A0}овом Mac-у",
             .mediaAtMaximum: "нема увећања у\u{00A0}границама 8K",
             .mediaNoSubject: "објекат није нађен; изабери другу слику",
@@ -17691,6 +17906,13 @@ enum L10n {
             .mediaModelError: "модел није доступан; преузми поново",
             .mediaOutputError: "извоз није успео; провери фасциклу и\u{00A0}формат",
             .mediaEstimate: "некомпримована величина",
+            .mediaBatchHelp: "додајте једну датотеку или\u{00A0}помешајте фотографије и\u{00A0}видео. означите редове за\u{00A0}промену димензија или\u{00A0}извоз само изабраних; све датотеке важи за\u{00A0}цео списак. пун квалитет или\u{00A0}подесиво компримовање, подразумевано 70%. провидне слике остају PNG.",
+            .mediaAllFiles: "све датотеке",
+            .mediaSelectedFiles: "изабрано ({count})",
+            .mediaIndividualSizes: "појединачне димензије",
+            .mediaExportFull: "извоз · пун квалитет",
+            .mediaExportCompressed: "извоз · компримовано",
+            .mediaTransparencyKept: "провидне слике остају PNG",
             .mediaFrame: "кадар",
 
             .news23Leftovers: "hop проналази и\u{00A0}уклања остатке програма који нису потпуно уклоњени",
