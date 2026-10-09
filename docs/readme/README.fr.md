@@ -220,10 +220,6 @@ enregistrée, elle ressort en PDF, docx, Markdown, RTF ou texte brut.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
-### Médias
-
-convertisseur : suppression du fond et agrandissement des photos et vidéos jusqu’à 8K. agrandissement : macOS 15 requis. 2,3 Mo · téléchargement unique. agrandissement vidéo : expérimental.
-
 ### Gestionnaire de fenêtres
 
 Ancrez les fenêtres en moitiés, quarts, tiers et au centre d'un clic sur un

@@ -217,10 +217,6 @@ pagina salvata, ed esce in PDF, docx, Markdown, RTF o testo semplice.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
-### Media
-
-convertitore: rimuovi sfondi e ingrandisci foto e video fino a 8K. ingrandimento richiede macOS 15. 2,3 MB · scaricato una volta. ingrandimento video: sperimentale.
-
 ### Gestore delle finestre
 
 Aggancia le finestre a metà, quarti, terzi e al centro con un clic su un

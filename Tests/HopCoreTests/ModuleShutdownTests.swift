@@ -62,11 +62,4 @@ final class ModuleShutdownTests: XCTestCase {
         XCTAssertNil(ModuleShutdown.consequence(module: "torrent",
                                                 activity: .init(activeDownloads: 0)))
     }
-    func testDisablingMediaCancelsOnlyItsOwnProcessing() {
-        XCTAssertEqual(ModuleShutdown.consequence(module: "media", activity: .init(mediaBusy: true)),
-                       .mediaProcessingStops)
-        XCTAssertNil(ModuleShutdown.consequence(module: "convert", activity: .init(mediaBusy: true)))
-        XCTAssertNil(ModuleShutdown.consequence(module: "media", activity: .init(converterBusy: true)))
-    }
-
 }

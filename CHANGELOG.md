@@ -1,24 +1,5 @@
 # Hop - version history
 
-## 2.4.0 - Unreleased
-
-- New media files start checked; only checked rows export. With no selection,
-  export is disabled. Media settings can keep completed rows instead of removing
-  them (the default); kept rows are unchecked to prevent accidental re-export.
-
-- Standalone Media module with two buttons opening independent upscale and background removal windows, a shared on/off switch and position in panel tabs: local background removal for photos and people in videos, with
-  transparent PNG/MOV or replacement backgrounds and mixed photo/video batch export.
-- Media windows use the converter's 160-point drop area and fit their content:
-  compact when empty, growing for the file list and shrinking again when cleared.
-- One row per media file with a thumbnail and source → output dimensions, shared
-  size controls for selected files or the whole queue, and full/compressed
-  upscale export. Full quality is the default; compression starts at 70%.
-  File weights show the source and actual exported size. Selection uses only a
-  checkbox, including cleanup and torrent file lists. Transparent images retain PNG.
-- Real-ESRGAN super-resolution for images and experimental video, ×2/×4 or
-  Full HD/QHD/4K/8K. Aspect ratio, video timestamps and audio are preserved.
-  Upscaling requires macOS 15 and a one-time, verified 2.3 MB model download.
-
 ## 2.3.2 - 2026-10-02
 
 - System monitor: memory and graphics load light the problem badge in the menu bar.

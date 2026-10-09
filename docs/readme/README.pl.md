@@ -210,10 +210,6 @@ a wyjdzie PDF, docx, Markdown, RTF lub czysty tekst.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
-### Media
-
-konwerter: usuń tło i powiększ zdjęcia oraz wideo do 8K. powiększanie wymaga macOS 15. 2,3 MB · pobierany raz. powiększanie wideo: eksperymentalne.
-
 ### Menedżer okien
 
 Przyciągaj okna do połówek, ćwiartek, jednej trzeciej ekranu i na środek

@@ -213,10 +213,6 @@ salva, e sai em PDF, docx, Markdown, RTF ou texto simples.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
-### Mídia
-
-conversor: remova fundos e amplie fotos e vídeos até 8K. ampliação exige macOS 15. 2,3 MB · download único. ampliação de vídeo: experimental.
-
 ### Gerenciador de janelas
 
 Encaixe janelas em metades, quartos, terços e no centro com um clique em um

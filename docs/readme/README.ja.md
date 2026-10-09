@@ -200,10 +200,6 @@ PDF・docx・Markdown・RTF・テキストになります。
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
-### メディア
-
-コンバーター：背景の除去と写真・動画の最大8K拡大. 拡大には macOS 15 が必要です. 2.3 MB · 初回のみ. 動画の拡大：試験機能.
-
 ### ウィンドウ管理
 
 ゾーングリフをクリックするか ⌃⌥ ホットキーを押すだけで、ウィンドウを

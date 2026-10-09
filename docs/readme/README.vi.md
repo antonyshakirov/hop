@@ -207,10 +207,6 @@ lại PDF, docx, Markdown, RTF hoặc văn bản thuần.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
-### Phương tiện
-
-bộ chuyển đổi: xóa nền và phóng to ảnh, video lên đến 8K. phóng lớn cần macOS 15. 2,3 MB · tải một lần. phóng lớn video: thử nghiệm.
-
 ### Quản lý cửa sổ
 
 Sắp cửa sổ vào nửa màn hình, một phần tư, một phần ba và chính giữa bằng

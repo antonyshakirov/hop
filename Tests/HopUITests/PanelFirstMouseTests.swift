@@ -116,12 +116,48 @@ final class PanelFirstMouseTests: XCTestCase {
         XCTAssertEqual(overlayFrame, NSRect(x: 860, y: 867, width: 234, height: 32))
     }
 
+    func testWithdrawnMediaIsRemovedFromSavedLayoutWithoutResettingOtherModules() throws {
+        let defaults = UserDefaults.standard
+        let keys = [SettingsKey.panelTabs, SettingsKey.moduleVisibilityMigrated,
+                    SettingsKey.canonicalLayoutSeeded, SettingsKey.optInModulesSeeded170]
+        let saved = Dictionary(uniqueKeysWithValues: keys.map { ($0, defaults.object(forKey: $0)) })
+        defer {
+            for (key, value) in saved {
+                if let value { defaults.set(value, forKey: key) }
+                else { defaults.removeObject(forKey: key) }
+            }
+        }
+        for key in keys.dropFirst() { defaults.set(true, forKey: key) }
+        let first = PanelTab(icon: "house", moduleKeys: ["convert", "media", "timer"])
+        let second = PanelTab(icon: "tray", moduleKeys: ["archive", "uninstall"])
+        for legacyInactive in [false, true] {
+            var original = PanelTabsModel(tabs: [first, second], hidden: ["media", "uninstall"])
+            if legacyInactive {
+                original.tabs[0].moduleKeys.removeAll { $0 == "media" }
+                original.inactive = ["media"]
+                original.hidden.remove("media")
+            }
+            defaults.set(original.encoded(), forKey: SettingsKey.panelTabs)
+            XCTAssertFalse(PanelView.storedModuleOrder().contains("media"))
+            let result = try XCTUnwrap(PanelTabsModel.decode(
+                defaults.string(forKey: SettingsKey.panelTabs) ?? ""))
+            XCTAssertEqual(result.tabs.map(\.id), original.tabs.map(\.id))
+            XCTAssertEqual(result.tabs[0].moduleKeys, ["convert", "timer"])
+            XCTAssertEqual(result.tabs[1].moduleKeys, second.moduleKeys)
+            XCTAssertEqual(result.hidden, ["uninstall"])
+            XCTAssertFalse(result.inactive.contains("media"))
+            let savedRaw = result.encoded()
+            _ = PanelView.storedModuleOrder()
+            XCTAssertEqual(defaults.string(forKey: SettingsKey.panelTabs), savedRaw)
+        }
+    }
+
     func testPanelPrefersShorterHeightAfterSwitchingFromLongSpace() throws {
         let defaults = UserDefaults.standard
         let keys = [SettingsKey.panelTabs, "activeSpaceID", "debugPanelFrameLog",
                     SettingsKey.trackerTabSeeded, SettingsKey.todosSeeded,
                     SettingsKey.moduleVisibilityMigrated, SettingsKey.canonicalLayoutSeeded,
-                    SettingsKey.optInModulesSeeded, SettingsKey.optInModulesSeeded170, SettingsKey.mediaModuleSeeded]
+                    SettingsKey.optInModulesSeeded, SettingsKey.optInModulesSeeded170]
         let saved = Dictionary(uniqueKeysWithValues: keys.map { ($0, defaults.object(forKey: $0)) })
         defer {
             for (key, value) in saved {

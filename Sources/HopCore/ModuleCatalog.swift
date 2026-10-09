@@ -100,10 +100,6 @@ public enum ModuleCatalog {
             ModuleAction(id: "open", storageKey: "hotkey_convert", hotKeyID: 21,
                          defaultCombo: ModuleCombo(keyCode: 8, modifiers: controlOption)),
         ]),
-        ModuleEntry(id: "media", hiddenOnFirstRun: true, guideLetter: "b", actions: [
-            ModuleAction(id: "open", storageKey: "hotkey_media", hotKeyID: 36),
-            ModuleAction(id: "upscale", storageKey: "hotkey_media_upscale", hotKeyID: 37),
-        ]),
         ModuleEntry(id: "windows", guideLetter: "w", actions: zoneActions),
         ModuleEntry(id: "speedtest", guideLetter: "s", actions: []),
         ModuleEntry(id: "torrent", guideLetter: "d", actions: []),
@@ -185,13 +181,13 @@ public enum ModuleCatalog {
     /// and the zones are the one row that belongs lower still.
     /// SPEC: docs/spec.md — "Modules".
     public static let defaultModuleOrder =
-        "timer,awake,clipboard,vpn,keyboard,ocr,convert,media,shot,annotate,windows,speedtest,torrent,color,archive"
+        "timer,awake,clipboard,vpn,keyboard,ocr,convert,shot,annotate,windows,speedtest,torrent,color,archive"
 
     /// Modules that own settings beyond the on/off switch.
     /// SPEC: docs/spec.md — "The module page (settings window)".
     public static let modulesWithSettings: Set<String> = [
         "timer", "system", "awake", "clipboard", "color", "tracker",
-        "todos", "vpn", "convert", "media", "archive", "torrent", "windows",
+        "todos", "vpn", "convert", "archive", "torrent", "windows",
         "shot", "annotate", "ocr", "network",
     ]
 
@@ -219,7 +215,7 @@ public enum ModuleCatalog {
 
     public static let onboardingGroups: [OnboardingGroup] = [
         OnboardingGroup(titleID: "onbGroupTime", modules: ["timer", "tracker", "todos"]),
-        OnboardingGroup(titleID: "onbGroupFiles", modules: ["convert", "media", "archive"]),
+        OnboardingGroup(titleID: "onbGroupFiles", modules: ["convert", "archive"]),
         OnboardingGroup(titleID: "onbGroupScreen", modules: ["clipboard", "color", "ocr"]),
         OnboardingGroup(titleID: "onbGroupMarkup", modules: ["shot", "annotate"]),
         OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard"]),

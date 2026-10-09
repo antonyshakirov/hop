@@ -187,10 +187,6 @@ Markdown, RTF 또는 일반 텍스트로 나옵니다.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
-### 미디어
-
-변환기: 배경 제거 및 사진·동영상 최대 8K 확대. 확대에는 macOS 15 필요. 2.3 MB · 한 번만 다운로드. 동영상 확대: 실험 기능.
-
 ### 창 관리자
 
 존 글리프를 클릭하거나 ⌃⌥ 단축키를 누르면 창을 절반, 4분의 1, 3분의 1,

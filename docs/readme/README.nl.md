@@ -214,10 +214,6 @@ vallen, en er komt PDF, docx, Markdown, RTF of platte tekst uit.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
-### Media
-
-converter: verwijder achtergronden en vergroot foto’s en video’s tot 8K. vergroten vereist macOS 15. 2,3 MB · eenmalige download. video vergroten: experimenteel.
-
 ### Vensterbeheer
 
 Klik vensters vast op helften, kwarten, derden en het midden via een

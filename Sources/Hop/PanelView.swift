@@ -36,7 +36,6 @@ struct PanelView: View {
     @AppStorage(MarkupSettings.holdOnKey) private var holdDrawOn = true
     @AppStorage(MarkupSettings.holdChordKey) private var holdChordStored = ""
     @AppStorage(SettingsKey.trackerTimeInBar) private var trackerTimeInBar = false
-    @AppStorage(SettingsKey.mediaRemoveCompleted) private var mediaRemoveCompleted = true
     @AppStorage(SettingsKey.alertMode) private var alertModeRaw = AlertMode.soundAndBanner.rawValue
     @AppStorage(MediaPauser.settingKey) private var pauseMedia = false
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
@@ -154,7 +153,6 @@ struct PanelView: View {
     @AppStorage(TorrentController.rateUnitKey) private var torrentRateUnitRaw = RateUnit.kb.rawValue
     @AppStorage(TorrentController.showWhenEmptyKey) private var torrentShowWhenEmpty = true
     /// "What's new" banner: dismissed once the user saves their choice.
-    @AppStorage("featureSeen.media240") private var mediaFeatureSeen = false
     @AppStorage("featureSeen.torrent") private var torrentFeatureSeen = false
     @AppStorage("featureSeen.tools150") private var toolsFeatureSeen = false
     @AppStorage("featureSeen.modules160") private var modulesFeatureSeen = false
@@ -188,7 +186,6 @@ struct PanelView: View {
     @AppStorage("windowsLayout") private var windowsLayout = "row" // grid | row
 
     @AppStorage("monitorColorful") private var monitorColorful = false
-    @State private var mediaDropTargeted: Set<MediaOperation> = []
     @State private var dropTargeted = false
     /// Pause ring flash: click on the locked button while a countdown is running.
     @State private var stopHintPulse = false
@@ -405,7 +402,7 @@ struct PanelView: View {
     }
     // New features are appended here as the app gains them; each shows a one-time
     // top-of-panel banner to users who updated into it.
-    /// Announcements for modules introduced in this release.
+    /// Announcements, and there are none.
     ///
     /// A card offering to switch a module on has exactly one honest reader: a
     /// person who was using Hop before that module existed. Everybody else has
@@ -420,9 +417,7 @@ struct PanelView: View {
     /// then; it retires itself once every module in it is in the panel
     /// (`retireSatisfiedAnnouncements`).
     /// SPEC: docs/spec.md - "What's-new card (module checklist)".
-    private static let featureAnnouncements: [FeatureAnnouncement] = [
-        .init(id: "media240", moduleKeys: ["media"], title: .mediaTitle, body: .mediaPurpose),
-    ]
+    private static let featureAnnouncements: [FeatureAnnouncement] = []
 
     /// An offer whose modules are all in the panel already has nothing to say.
     /// Marked seen at launch rather than merely hidden, so switching one of them
@@ -485,7 +480,6 @@ struct PanelView: View {
         .init(id: "2.1.2", lines: [.news211Hold], catchUp: "2.1"),
         .init(id: "2.2", lines: [.news22Network, .news22Mac27, .news22More], enables: "network"),
         ReleaseCard(id: "2.3", lines: [.news23Leftovers, .news23Mac, .news23Clipboard, .news23More]),
-        ReleaseCard(id: "2.4", lines: [.news24Media]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason
@@ -758,7 +752,7 @@ struct PanelView: View {
         guard UserDefaults.standard.bool(forKey: "onboardingDone") else { return nil }
         // The @AppStorage flags are read here so SwiftUI re-renders when one
         // flips; the lookup itself goes through UserDefaults by id.
-        _ = (mediaFeatureSeen, torrentFeatureSeen, toolsFeatureSeen, modulesFeatureSeen)
+        _ = (torrentFeatureSeen, toolsFeatureSeen, modulesFeatureSeen)
         return Self.featureAnnouncements.first {
             !UserDefaults.standard.bool(forKey: "featureSeen.\($0.id)")
                 && FeatureOffer.worthShowing($0.moduleKeys, active: activeOfferKeys)
@@ -945,7 +939,6 @@ struct PanelView: View {
     /// re-render the panel without it.
     private func markSeen(_ ann: FeatureAnnouncement) {
         UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
-        mediaFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.media240")
         torrentFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.torrent")
         toolsFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.tools150")
         modulesFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.modules160")
@@ -970,7 +963,11 @@ struct PanelView: View {
         HStack(spacing: 14) {
             Spacer(minLength: 0)
             Button {
-                markSeen(ann)
+                UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
+                // mirror into the @AppStorage flags so the banner disappears now
+                torrentFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.torrent")
+                toolsFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.tools150")
+                modulesFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.modules160")
             } label: {
                 HoverLabel(text: t(.featureHide), size: 10, color: Theme.textTertiary)
                     .contentShape(Rectangle())
@@ -990,7 +987,8 @@ struct PanelView: View {
                 if ann.hasFollowUp {
                     bannerEnabled = true    // same card swaps to follow-up settings
                 } else {
-                    markSeen(ann)
+                    UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
+                    toolsFeatureSeen = true
                 }
             } label: {
                 Text(t(.featureEnable))
@@ -1077,7 +1075,6 @@ struct PanelView: View {
         UserDefaults.standard.set(true, forKey: "featureSeen.\(ann.id)")
         // re-render: the banner drops away (and the next unseen one, if any,
         // appears on the following panel open)
-        mediaFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.media240")
         torrentFeatureSeen = UserDefaults.standard.bool(forKey: "featureSeen.torrent")
         bannerEnabled = false
     }
@@ -2766,73 +2763,20 @@ struct PanelView: View {
         }
     }
 
-    private var mediaZone: some View {
-        HStack(spacing: 5) {
-            ModuleMarkIcon(symbol: "photo.on.rectangle.angled", color: Theme.textSecondary)
-            Text(t(.mediaTitle)).font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
-            Spacer(minLength: 0)
-            ViewThatFits(in: .horizontal) {
-                mediaToolButtons(labelSize: 10)
-                mediaToolButtons(labelSize: 8.5)
-            }
-        }
-        .padding(.horizontal, 10).padding(.vertical, 5)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
-    }
-
-    private func mediaToolButtons(labelSize: CGFloat) -> some View {
-        HStack(spacing: 5) {
-            mediaToolButton(.upscale, labelSize: labelSize)
-            mediaToolButton(.background, labelSize: labelSize)
-        }.fixedSize(horizontal: true, vertical: false)
-    }
-
-    private func mediaToolButton(_ operation: MediaOperation, labelSize: CGFloat = 10) -> some View {
-        let targeted = mediaDropTargeted.contains(operation)
-        return Button {
-            model.openMediaWindow?(operation, [])
-        } label: {
-            HStack(spacing: 5) {
-                RowActionIcon(symbol: operation == .upscale ? "arrow.up.left.and.arrow.down.right" : "person.crop.rectangle",
-                              active: targeted, compact: true)
-                Text(t(operation.titleKey))
-                    .font(Theme.mono(labelSize)).foregroundStyle(targeted ? Theme.editing : Theme.textPrimary)
-                    .lineLimit(1).fixedSize(horizontal: true, vertical: false)
-            }
-            .padding(.horizontal, 5).padding(.vertical, 5)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain).help(t(operation.titleKey))
-        .background(targeted ? Theme.hoverBg : .clear, in: RoundedRectangle(cornerRadius: 5))
-        .hoverHighlight(5)
-        .snapshotAwareDrop(of: [.fileURL], isTargeted: Binding(
-            get: { mediaDropTargeted.contains(operation) },
-            set: { if $0 { mediaDropTargeted.insert(operation) } else { mediaDropTargeted.remove(operation) } })) { providers in
-            Task {
-                var urls: [URL] = []
-                for provider in providers {
-                    if let url = await loadFileURL(provider) { urls.append(url) }
-                }
-                model.openMediaWindow?(operation, urls)
-            }
-            return true
-        }
-    }
-
     // MARK: - Main screen modules
 
     // "system"/"tracker"/"todos" are deliberately NOT here: they live only in
     // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "media", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall", "network"]
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall", "network"]
     static let defaultModuleOrder = ModuleCatalog.defaultModuleOrder
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
     /// developers) and must be a deliberate opt-in: an ordinary user should not
     /// find them cluttering the panel after an update. Torrent is not here, it
     /// is handled by its own toggle below.
-    private static let optInModules = ["color", "ocr", "vpn", "media"]
+    private static let optInModules = ["color", "ocr", "vpn"]
 
     /// Modules INTRODUCED in this release that must NOT appear until they are
     /// asked for. Empty for the markup pair by Anton's decision (2026-09-09):
@@ -2870,6 +2814,12 @@ struct PanelView: View {
     private static func loadTabs(panelTabsRaw: String, moduleOrder: [String]) -> PanelTabsModel {
         if let decoded = PanelTabsModel.decode(panelTabsRaw) {
             var model = decoded
+            // SPEC: docs/spec.md — "Modules": withdraw the Media prototype
+            // without resetting the user's spaces or other module positions.
+            model.remove(module: "media")
+            if model != decoded {
+                UserDefaults.standard.set(model.encoded(), forKey: SettingsKey.panelTabs)
+            }
             model.liftInactiveIntoHidden()
             model.ensure(modules: allModules + ["system", "tracker", "todos"])
             // Migrate legacy visibility BEFORE seeding: a legacy
@@ -2882,7 +2832,6 @@ struct PanelView: View {
             // rebuild would carry it onto space 1 for good.
             seedOptInModules(&model)
             seedCanonicalLayout(&model)
-            seedMediaModule(&model)
             return model
         }
         var model = PanelTabsModel.migrate(moduleOrder: moduleOrder)
@@ -2906,7 +2855,6 @@ struct PanelView: View {
         UserDefaults.standard.set(true, forKey: SettingsKey.canonicalLayoutSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded)
         UserDefaults.standard.set(true, forKey: SettingsKey.optInModulesSeeded170)
-        UserDefaults.standard.set(true, forKey: SettingsKey.mediaModuleSeeded)
         return model
     }
 
@@ -2925,15 +2873,6 @@ struct PanelView: View {
         for key in newInThisRelease { model.setHidden(key, hidden: true) }
         defaults.set(true, forKey: SettingsKey.optInModulesSeeded)
         defaults.set(true, forKey: SettingsKey.optInModulesSeeded170)
-        defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
-    }
-
-    /// A new module is offered once without changing the existing panel layout.
-    private static func seedMediaModule(_ model: inout PanelTabsModel) {
-        let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: SettingsKey.mediaModuleSeeded) else { return }
-        model.setHidden("media", hidden: true)
-        defaults.set(true, forKey: SettingsKey.mediaModuleSeeded)
         defaults.set(model.encoded(), forKey: SettingsKey.panelTabs)
     }
 
@@ -3089,7 +3028,7 @@ struct PanelView: View {
 
     /// The tabs model read straight from UserDefaults, usable from `init` before
     /// the @AppStorage wrappers are readable.
-    static func storedTabsModel() -> PanelTabsModel {
+    private static func storedTabsModel() -> PanelTabsModel {
         let defaults = UserDefaults.standard
         let raw = defaults.string(forKey: SettingsKey.panelTabs) ?? ""
         let orderRaw = defaults.string(forKey: "moduleOrder") ?? defaultModuleOrder
@@ -3212,10 +3151,6 @@ struct PanelView: View {
         mutateTabs { $0.setHidden(key, hidden: hidden) }
         HotkeyManager.shared.refreshModuleHotkeys()
         ModuleActivation.announceChange()
-        if key == "media", hidden {
-            model.media.cancel()
-            model.closeMediaWindow?()
-        }
         if key == "torrent", !hidden { model.torrent.prefetchEngineIfNeeded() }
         if !hidden { askForTheScreenIfNeeded([key]) }
     }
@@ -3244,7 +3179,6 @@ struct PanelView: View {
             trackerRunning: model.tracker.isTracking,
             activeDownloads: downloading.count,
             converterBusy: model.converter.busy,
-            mediaBusy: model.media.locked,
             archiveRunning: model.archive.jobs.contains { $0.state == .running },
             armedReminders: model.todos.list.items.filter {
                 (RemindSchedule.effectiveFiring($0).map { $0 > now }) ?? false
@@ -3268,7 +3202,6 @@ struct PanelView: View {
     /// SPEC: docs/spec.md — "Switching a module off", the table of stops.
     private func stopModuleWork(_ key: String) {
         switch key {
-        case "media": model.media.cancel()
         case "timer": model.engine.reset()
         case "awake": model.keepAwake.deactivate()
         case "tracker": model.tracker.engine.stopActive()
@@ -3286,7 +3219,6 @@ struct PanelView: View {
         case .openStretchFiled: return t(.moduleOffTracker)
         case .downloadsPause: return t(.moduleOffTorrent)
         case .jobFinishesInItsWindow: return t(.moduleOffJob)
-        case .mediaProcessingStops: return t(.mediaOff)
         case .remindersGoQuiet: return t(.moduleOffReminders)
         case nil: return nil
         }
@@ -3304,7 +3236,6 @@ struct PanelView: View {
         case "timer": return t(.aboutTabTimer)
         case "awake": return t(.awakeOff)
         case "clipboard": return t(.tabClipboard)
-        case "media": return t(.mediaTitle)
         case "convert": return t(.convertLabel)
         case "windows": return t(.windowsLabel)
         case "speedtest": return t(.speedtestLabel)
@@ -3343,7 +3274,6 @@ struct PanelView: View {
                               spaceHeightCache.setExpanded(expanded, module: "clipboard", in: spaceID)
                           })
                 .id(model.themeVersion)
-        case "media": mediaZone
         case "convert": convertZone
         case "windows": windowSnapRow
         case "speedtest": speedtestRow
@@ -3707,23 +3637,6 @@ struct PanelView: View {
         }
     }
 
-    private var mediaSettings: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 8) {
-                mediaToolButton(.upscale)
-                mediaToolButton(.background)
-                Spacer()
-            }
-            HStack {
-                Text(t(.mediaRemoveCompleted)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
-                Spacer()
-                Theme.MiniSwitch(isOn: $mediaRemoveCompleted)
-            }
-            Text(t(.mediaRemoveCompletedHelp)).font(Theme.mono(9)).foregroundStyle(Theme.textTertiary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-
     private var converterSettings: some View {
         VStack(spacing: 14) {
             HStack {
@@ -4042,7 +3955,6 @@ struct PanelView: View {
         case "tracker": trackerSettings
         case "todos": todosSettings
         case "vpn": vpnSettings
-        case "media": mediaSettings
         case "convert": converterSettings
         case "archive": archiveSettings
         case "torrent": torrentSettings
@@ -5217,9 +5129,7 @@ struct PanelView: View {
     @ViewBuilder
     private func moduleHotkeyRow(_ module: String, label: String) -> some View {
         ForEach(moduleHotkeyActions(module), id: \.self) { action in
-            hotkeyRow(action, label: module == "media"
-                ? t(action.id == "upscale" ? .mediaUpscale : .mediaRemove)
-                : (action.id == "open" ? label : actionLabel(action)))
+            hotkeyRow(action, label: action.id == "open" ? label : actionLabel(action))
         }
     }
 

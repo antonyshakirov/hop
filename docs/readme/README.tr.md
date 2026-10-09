@@ -210,10 +210,6 @@ PDF, docx, Markdown, RTF veya düz metin olarak çıksın.
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
-### Medya
-
-dönüştürücü: arka planları kaldırın, fotoğraf ve videoları 8K’ya kadar büyütün. büyütme için macOS 15 gerekir. 2,3 MB · bir kez indirilir. video büyütme: deneysel.
-
 ### Pencere yöneticisi
 
 Pencereleri yarımlara, çeyreklere, üçte birlere ve ortaya yerleştirin –

@@ -184,10 +184,6 @@ Markdown、RTF 或纯文本。
 
 → [File converter for Mac](https://hop.tools/features/file-converter/)
 
-### 媒体
-
-转换器：移除背景并将照片和视频放大至 8K. 放大需要 macOS 15. 2.3 MB · 仅下载一次. 视频放大：实验功能.
-
 ### 窗口管理器
 
 点击区域图标或按 ⌃⌥ 快捷键，即可把窗口吸附到二分之一、四分之一、
