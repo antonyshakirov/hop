@@ -694,8 +694,14 @@ module off or quitting stops it. No capture begins merely by opening the window.
   persists independently. Private system aggregates are hidden from selectors.
 - Enabling global or per-input Denoise starts the mixer through the same
   permission flow as Start Mixer. An already running/starting mixer is reused.
-  Disabling Denoise keeps the mixer running. Opening a window with a saved
-  Denoise choice does not start capture; changing gain/mute does not start it.
+  Disabling Denoise stops the mixer when there is no remaining processing:
+  per-input denoise/bass, active channel gain/mute, or multiple enabled inputs
+  that need mixing. Inactive input settings do not keep it running. Returning
+  the last software control to its neutral value also stops an idle mixer.
+  Stop cancels any pending startup/permission callback and releases the helper,
+  taps and Hop Input. Hardware master volume/mute do not require the mixer.
+  Opening a window with a saved Denoise choice does not start capture;
+  changing gain/mute does not start it.
 - Each input has independent RNNoise speech denoise and a 6 dB low-frequency
   shelf. Denoise is speech-oriented and optional; it is not an echo canceller.
   The bundled RNNoise 0.2 default model runs locally; its BSD notices ship in

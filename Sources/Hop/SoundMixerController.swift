@@ -70,7 +70,7 @@ final class SoundMixerController: ObservableObject {
         denoiseAll.toggle()
         defaults.set(denoiseAll, forKey: "soundMixerDenoiseAll")
         session?.inputs(inputs, visible: visible, denoiseAll: denoiseAll)
-        if denoiseAll { start() }
+        if denoiseAll { start() } else { stopIfIdle() }
     }
     func update(_ channel: SoundMixerChannel, _ edit: (inout SoundChannelSettings) -> Void) {
         let wasDenoising = channel.settings.denoise
@@ -81,6 +81,12 @@ final class SoundMixerController: ObservableObject {
         session?.configure(channel)
         if channel.input { session?.inputs(inputs, visible: visible, denoiseAll: denoiseAll) }
         if channel.input, channel.settings.denoise, !wasDenoising { start() }
+        stopIfIdle()
+    }
+    private func stopIfIdle() {
+        guard running || starting,
+              !SoundMixerActivity.requiresProcessing(apps: apps.map(\.settings), inputs: inputs.map(\.settings), denoiseAll: denoiseAll) else { return }
+        stop()
     }
     func start() {
         guard enabled(), available, !running, !starting else { return }
