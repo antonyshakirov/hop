@@ -702,6 +702,9 @@ module off or quitting stops it. No capture begins merely by opening the window.
   taps and Hop Input. Hardware master volume/mute do not require the mixer.
   Opening a window with a saved Denoise choice does not start capture;
   changing gain/mute does not start it.
+- Hardware device observers reuse their listeners while the public device list
+  is unchanged. Private mixer aggregates do not trigger listener rebuilding;
+  initial device notifications must not create an add/remove feedback loop.
 - Each input has independent RNNoise speech denoise and a 6 dB low-frequency
   shelf. Denoise is speech-oriented and optional; it is not an echo canceller.
   The bundled RNNoise 0.2 default model runs locally; its BSD notices ship in

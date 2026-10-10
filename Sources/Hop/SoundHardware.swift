@@ -42,6 +42,7 @@ private final class SoundPropertyObservation {
 @MainActor
 final class CoreSoundHardware: SoundHardware {
     private var observations: [SoundPropertyObservation] = []
+    private var observedDeviceIDs: [AudioObjectID]?
     private var includeVolume = true
     private var changed: (() -> Void)?
 
@@ -223,6 +224,9 @@ final class CoreSoundHardware: SoundHardware {
     }
 
     private func installListeners() {
+        let ids = deviceIDs().filter { !isPrivateAggregate($0) }.sorted()
+        guard observedDeviceIDs != ids else { return }
+        observedDeviceIDs = ids
         observations.removeAll()
         func observe(_ id: AudioObjectID, _ a: AudioObjectPropertyAddress, rebuild: Bool = false) {
             if let token = SoundPropertyObservation(object: id, address: a, block: { [weak self] _, _ in
@@ -237,7 +241,7 @@ final class CoreSoundHardware: SoundHardware {
         observe(system, address(kAudioHardwarePropertyDevices), rebuild: true)
         observe(system, address(kAudioHardwarePropertyDefaultOutputDevice))
         observe(system, address(kAudioHardwarePropertyDefaultInputDevice))
-        for id in deviceIDs() {
+        for id in ids {
             observe(id, address(kAudioDevicePropertyDeviceIsAlive), rebuild: true)
             for direction in SoundDirection.allCases {
                 for selector in (includeVolume ? [kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyMute] : [kAudioDevicePropertyMute]) {
@@ -247,5 +251,5 @@ final class CoreSoundHardware: SoundHardware {
         }
     }
 
-    func unwatch() { changed = nil; observations.removeAll() }
+    func unwatch() { changed = nil; observations.removeAll(); observedDeviceIDs = nil }
 }
