@@ -70,14 +70,17 @@ final class SoundMixerController: ObservableObject {
         denoiseAll.toggle()
         defaults.set(denoiseAll, forKey: "soundMixerDenoiseAll")
         session?.inputs(inputs, visible: visible, denoiseAll: denoiseAll)
+        if denoiseAll { start() }
     }
     func update(_ channel: SoundMixerChannel, _ edit: (inout SoundChannelSettings) -> Void) {
+        let wasDenoising = channel.settings.denoise
         edit(&channel.settings)
         channel.settings.gain = channel.settings.safeGain
         saved[(channel.input ? "input:" : "app:") + channel.id] = channel.settings
         if let data = try? JSONEncoder().encode(saved) { defaults.set(data, forKey: "soundMixerChannels") }
         session?.configure(channel)
         if channel.input { session?.inputs(inputs, visible: visible, denoiseAll: denoiseAll) }
+        if channel.input, channel.settings.denoise, !wasDenoising { start() }
     }
     func start() {
         guard enabled(), available, !running, !starting else { return }

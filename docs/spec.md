@@ -692,6 +692,10 @@ module off or quitting stops it. No capture begins merely by opening the window.
   per-channel denoise remains selected and disabled while the global switch is
   on. Turning it off restores each saved channel choice. The global choice
   persists independently. Private system aggregates are hidden from selectors.
+- Enabling global or per-input Denoise starts the mixer through the same
+  permission flow as Start Mixer. An already running/starting mixer is reused.
+  Disabling Denoise keeps the mixer running. Opening a window with a saved
+  Denoise choice does not start capture; changing gain/mute does not start it.
 - Each input has independent RNNoise speech denoise and a 6 dB low-frequency
   shelf. Denoise is speech-oriented and optional; it is not an echo canceller.
   The bundled RNNoise 0.2 default model runs locally; its BSD notices ship in
