@@ -28,7 +28,7 @@
         "scripts/own-ci/codeql-sdk-tree.test.mjs"
       ],
       "timeoutMs": 180000,
-      "tapMinimum": 60
+      "tapMinimum": 61
     },
     {
       "id": "sdk-setup-self-tests",

@@ -20,6 +20,21 @@ if mode == "files" {
     try "owned".write(toFile: home + "/allowed.txt", atomically: false, encoding: .utf8)
     need(denied == 2, 7)
     print("outside read/write denied; owned write allowed")
+} else if mode == "parents" {
+    for path in args.dropFirst(4) {
+        let fd = open(path, O_RDONLY | O_DIRECTORY)
+        need(fd >= 0, 20)
+        close(fd)
+    }
+    let sibling = open(outside, O_RDONLY | O_DIRECTORY)
+    need(sibling == -1 && [EPERM, EACCES].contains(errno), 21)
+    let alias = home + "/sibling-alias/canary.txt"
+    let forbidden = open(alias, O_RDONLY)
+    need(forbidden == -1 && [EPERM, EACCES].contains(errno), 22)
+    let parent = URL(fileURLWithPath: home).deletingLastPathComponent().deletingLastPathComponent().path
+    let write = open(parent + "/parent-write-canary", O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR)
+    need(write == -1 && [EPERM, EACCES].contains(errno), 23)
+    print("canonical parent handles allowed; sibling reads and parent writes denied")
 } else if mode == "atomic" {
     do {
         let expectedTemporary = URL(fileURLWithPath: ProcessInfo.processInfo.environment["TMPDIR"]!).resolvingSymlinksInPath().path
@@ -107,6 +122,15 @@ test('native Swift cannot read or change a synthetic sibling', async t => {
   assert.equal(await readFile(join(context.home, 'allowed.txt'), 'utf8'), 'owned');
   assert.equal(await readFile(join(context.outside, 'canary.txt'), 'utf8'), 'synthetic only');
   await assert.rejects(readFile(join(context.outside, 'forbidden.txt')), { code: 'ENOENT' });
+});
+
+test('canonical parent directory handles do not grant sibling access or parent writes', async t => {
+  const context = await setup(t);
+  await symlink(context.outside, join(context.home, 'sibling-alias'));
+  await probe(context, 'parents', ['/private', '/private/tmp', dirname(context.run)]);
+  await probe(context, 'files');
+  assert.equal(await readFile(join(context.outside, 'canary.txt'), 'utf8'), 'synthetic only');
+  await assert.rejects(readFile(join(dirname(context.run), 'parent-write-canary')), { code: 'ENOENT' });
 });
 
 test('Foundation preferences use the synthetic home and deny preferences services', async t => {

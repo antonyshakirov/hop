@@ -7,7 +7,7 @@ import { basename, dirname, join } from 'node:path';
 export function sandboxProfile({ run, node, tools = [], namedPasteboard = false }) {
   const path = value => JSON.stringify(value);
   const reads = ['/System', '/usr/bin', '/usr/sbin', '/usr/lib', '/usr/libexec', '/usr/share', '/usr/standalone', '/bin', '/sbin', '/Library/Apple', '/Library/Developer', '/Applications/Xcode.app', '/private/etc', '/etc', '/private/var/db/dyld', '/private/var/db/timezone', '/var/db/dyld', '/var/db/timezone', '/dev', run, node, ...tools];
-  const literals = ['/', '/Library', '/Library/Preferences', '/Library/Preferences/com.apple.dt.Xcode.plist', '/Library/Preferences/com.apple.dt.CommandLineTools.plist', '/var', '/var/db', '/var/db/xcode_select_link', '/private/var/db/xcode_select_link'];
+  const literals = ['/', '/private', '/private/tmp', dirname(run), '/Library', '/Library/Preferences', '/Library/Preferences/com.apple.dt.Xcode.plist', '/Library/Preferences/com.apple.dt.CommandLineTools.plist', '/var', '/var/db', '/var/db/xcode_select_link', '/private/var/db/xcode_select_link'];
   return `(version 1)
 (allow default)
 (deny file-read-data file-map-executable (require-not (require-any ${literals.map(value => `(literal ${path(value)})`).join(' ')} ${reads.map(value => `(subpath ${path(value)})`).join(' ')})))
