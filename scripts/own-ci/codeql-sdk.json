@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "version": "2.27.2",
+  "sdkTreeSha256": "e70edd5ac09c6ae477782efd3e5842a8f301e20b4951037d9df3ab329a0da9d5",
+  "extractorSwiftVersion": "6.3.3",
+  "queryPack": "codeql/swift-queries",
+  "queryPackVersion": "1.3.12",
+  "libraryPackVersion": "6.8.5",
+  "suite": "codeql-suites/swift-code-scanning.qls",
+  "bundle": {
+    "url": "https://github.com/github/codeql-action/releases/download/codeql-bundle-v2.27.2/codeql-bundle-swift-osx64.tar.zst",
+    "sha256": "25a08dfd23997ccf6374b5a70d9aa27a510e027f1b5aed60e1a653f8a3596375"
+  },
+  "queries": [
+    {
+      "path": "queries/Security/CWE-116/BadTagFilter.ql",
+      "id": "swift/bad-tag-filter",
+      "kind": "problem"
+    },
+    {
+      "path": "queries/Security/CWE-312/CleartextLogging.ql",
+      "id": "swift/cleartext-logging",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-311/CleartextStorageDatabase.ql",
+      "id": "swift/cleartext-storage-database",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-312/CleartextStoragePreferences.ql",
+      "id": "swift/cleartext-storage-preferences",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-311/CleartextTransmission.ql",
+      "id": "swift/cleartext-transmission",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-078/CommandInjection.ql",
+      "id": "swift/command-line-injection",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-760/ConstantSalt.ql",
+      "id": "swift/constant-salt",
+      "kind": "path-problem"
+    },
+    {
+      "path": "diagnostics/internal/AstNodes.ql",
+      "id": "swift/diagnostics/ast-nodes",
+      "kind": "metric"
+    },
+    {
+      "path": "diagnostics/internal/ExtractionErrors.ql",
+      "id": "swift/diagnostics/extraction-errors",
+      "kind": "diagnostic"
+    },
+    {
+      "path": "diagnostics/ExtractedFiles.ql",
+      "id": "swift/diagnostics/successfully-extracted-files",
+      "kind": "diagnostic"
+    },
+    {
+      "path": "diagnostics/SuccessfullyExtractedLines.ql",
+      "id": "swift/diagnostics/successfully-extracted-lines",
+      "kind": "metric"
+    },
+    {
+      "path": "diagnostics/internal/UnresolvedAstNodes.ql",
+      "id": "swift/diagnostics/unresolved-ast-nodes",
+      "kind": "metric"
+    },
+    {
+      "path": "queries/Security/CWE-327/ECBEncryption.ql",
+      "id": "swift/ecb-encryption",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-020/IncompleteHostnameRegex.ql",
+      "id": "swift/incomplete-hostname-regexp",
+      "kind": "problem"
+    },
+    {
+      "path": "queries/Security/CWE-757/InsecureTLS.ql",
+      "id": "swift/insecure-tls",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-916/InsufficientHashIterations.ql",
+      "id": "swift/insufficient-hash-iterations",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-020/MissingRegexAnchor.ql",
+      "id": "swift/missing-regexp-anchor",
+      "kind": "problem"
+    },
+    {
+      "path": "queries/Security/CWE-022/PathInjection.ql",
+      "id": "swift/path-injection",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-943/PredicateInjection.ql",
+      "id": "swift/predicate-injection",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-1333/ReDoS.ql",
+      "id": "swift/redos",
+      "kind": "problem"
+    },
+    {
+      "path": "queries/Security/CWE-730/RegexInjection.ql",
+      "id": "swift/regex-injection",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-089/SqlInjection.ql",
+      "id": "swift/sql-injection",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-1204/StaticInitializationVector.ql",
+      "id": "swift/static-initialization-vector",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-135/StringLengthConflation.ql",
+      "id": "swift/string-length-conflation",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-134/UncontrolledFormatString.ql",
+      "id": "swift/uncontrolled-format-string",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-079/UnsafeWebViewFetch.ql",
+      "id": "swift/unsafe-webview-fetch",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-328/WeakPasswordHashing.ql",
+      "id": "swift/weak-password-hashing",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-328/WeakSensitiveDataHashing.ql",
+      "id": "swift/weak-sensitive-data-hashing",
+      "kind": "path-problem"
+    },
+    {
+      "path": "queries/Security/CWE-611/XXE.ql",
+      "id": "swift/xxe",
+      "kind": "path-problem"
+    }
+  ]
+}
