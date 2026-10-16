@@ -6,7 +6,7 @@ import { isolatedRun, nativeEnvironment, sandboxProfile, prepareNativeTemporary,
 import { verifyCodeqlTree } from './codeql-sdk-tree.mjs';
 import { prepareCodeqlBuild } from './codeql-build.mjs';
 import { runCodeql } from './codeql.mjs';
-import { summarizeTests, validateMessages } from './hop-report.mjs';
+import { summarizeTests, validateMessages, parsePreparingVersion } from './hop-report.mjs';
 
 const mode = process.argv[2];
 if (process.platform !== 'darwin' || process.argv.length !== 3 || !['toolchain', 'messages', 'build', 'tests', 'canvas', 'export', 'live', 'translations', 'version', 'codeql'].includes(mode)) throw new Error('Usage on macOS: hop-step.mjs toolchain|messages|build|tests|canvas|export|live|translations|version|codeql');
@@ -24,9 +24,9 @@ if (mode === 'codeql') {
     try { const candidate = await realpath(join(directory, 'codeql')); tools.push(dirname(candidate)); break; }
     catch (error) { if (!['ENOENT', 'ENOTDIR'].includes(error.code)) throw error; }
   }
-  if (!tools.length) throw new Error('Official CodeQL 2.27.2 must be available on PATH');
+  if (!tools.length) throw new Error('Pinned CodeQL 2.27.2 must be available on PATH');
   const sdkReceipt = await verifyCodeqlTree(tools[0]);
-  console.log('Authenticated official CodeQL SDK: ' + JSON.stringify(sdkReceipt));
+  console.log('Authenticated pinned CodeQL SDK: ' + JSON.stringify(sdkReceipt));
   const privateSdk = join(run, 'codeql-sdk');
   await cp(tools[0], privateSdk, { recursive: true, force: false, errorOnExist: true, verbatimSymlinks: true, mode: constants.COPYFILE_FICLONE });
   await chmod(join(privateSdk, 'codeql'), (await lstat(join(privateSdk, 'codeql'))).mode & 0o555);
@@ -85,5 +85,6 @@ if (mode === 'messages') {
   const binary = join(process.cwd(), '.build/debug/Hop');
   const args = { canvas: ['--canvas-selftest', join(run, 'canvas-selftest.png')], export: ['--markup-selftest', join(run, 'markup-selftest.png')], live: ['--live-selftest', join(run, 'live')], translations: ['--l10n-check'], version: ['--preparing-version'] }[mode];
   if (mode === 'live') await mkdir(join(run, 'live'));
-  await command(binary, args);
+  const result = await command(binary, args);
+  if (mode === 'version') await writeFile('hop-preparing-version.json', JSON.stringify({ version: parsePreparingVersion(result.stdout) }) + '\n', { flag: 'wx', mode: 0o600 });
 }

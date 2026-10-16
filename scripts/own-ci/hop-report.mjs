@@ -31,3 +31,9 @@ export function validateSarif(report) {
   }
   return { runs: report.runs.length, rules, results };
 }
+
+
+export function parsePreparingVersion(output) {
+  if (typeof output !== 'string' || !/^\d+\.\d+\.\d+\s*$/.test(output)) throw new Error('Invalid preparing-version result');
+  return output.trim();
+}

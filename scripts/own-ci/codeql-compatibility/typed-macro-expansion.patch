@@ -1,0 +1,27 @@
+--- a/swift/extractor/infra/SwiftDispatcher.h
++++ b/swift/extractor/infra/SwiftDispatcher.h
+@@ -2,6 +2,7 @@
+ 
+ #include <filesystem>
+ 
++#include <swift/AST/Expr.h>
+ #include <swift/AST/SourceFile.h>
+ #include <swift/Basic/SourceManager.h>
+ #include <swift/Parse/Token.h>
+@@ -139,6 +140,16 @@
+       // this will be treated on emission
+       return undefined_label;
+     }
++    if constexpr (std::same_as<E, swift::Expr>) {
++      std::unordered_set<const swift::Expr*> expanded;
++      while (auto macro = llvm::dyn_cast<const swift::MacroExpansionExpr>(e)) {
++        CODEQL_ASSERT(expanded.insert(e).second, "detected cyclic macro expansion");
++        const auto* rewritten = macro->getRewritten();
++        CODEQL_ASSERT(rewritten && rewritten->getType(),
++                      "macro expansion has no typed rewritten expression");
++        e = rewritten;
++      }
++    }
+     if constexpr (std::derived_from<swift::VarDecl, E>) {
+       // canonicalize all VarDecls. For details, see doc of getCanonicalVarDecl
+       if (auto var = llvm::dyn_cast<const swift::VarDecl>(e)) {

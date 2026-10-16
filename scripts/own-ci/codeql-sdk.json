@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "version": "2.27.2",
-  "sdkTreeSha256": "e70edd5ac09c6ae477782efd3e5842a8f301e20b4951037d9df3ab329a0da9d5",
+  "sdkTreeSha256": "ba07e649b607a7a5e9778a365765828dd5e64adbfa115f9396ac6811a6fe761b",
   "extractorSwiftVersion": "6.3.3",
   "queryPack": "codeql/swift-queries",
   "queryPackVersion": "1.3.12",
@@ -157,5 +157,24 @@
       "id": "swift/xxe",
       "kind": "path-problem"
     }
-  ]
+  ],
+  "upstreamSdkTreeSha256": "e70edd5ac09c6ae477782efd3e5842a8f301e20b4951037d9df3ab329a0da9d5",
+  "compatibility": {
+    "schema": 1,
+    "extractorSha256": "ef2d1d6cac140587b425ca64f71416bad00ba5f8682d51b4d8417af43cbd5bb5",
+    "extractorSize": 174520624,
+    "codeqlSourceCommit": "a7057b836bf29767461026718b14d20790b9085f",
+    "swiftSourceCommit": "064859e41d68596f486c5d724401cb370f260409",
+    "patches": [
+      {
+        "path": "scripts/own-ci/codeql-compatibility/typed-macro-expansion.patch",
+        "sha256": "de0f8050d578f5193f11bf0e2af2b3bb1e9991e2c7f958e2860d356e12c09bb1"
+      },
+      {
+        "path": "scripts/own-ci/codeql-compatibility/ordinary-value-lookup.patch",
+        "sha256": "d825d2152898b41737341e6f9d6d08f5d1dcfc935910d20dc7cc09ab9ed25160"
+      }
+    ],
+    "recipe": "docs/local-verification/codeql-compatibility.md"
+  }
 }

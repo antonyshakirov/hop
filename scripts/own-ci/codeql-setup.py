@@ -252,16 +252,66 @@ def prepare_sdk(archive_path, destination, archive_sha256, tree_sha256=None):
             raise
 
 
+
+def prepare_compatible_sdk(archive_path, destination, manifest, extractor_path):
+    for pin in [manifest.get('upstreamSdkTreeSha256'), manifest.get('sdkTreeSha256'), manifest.get('compatibility', {}).get('extractorSha256')]:
+        if not isinstance(pin, str) or len(pin) != 64 or any(ch not in '0123456789abcdef' for ch in pin):
+            raise ValueError('Missing reviewed compatibility SHA-256')
+    descriptor = os.open(extractor_path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(descriptor, 'rb') as source:
+        before = os.fstat(source.fileno())
+        if not stat.S_ISREG(before.st_mode):
+            raise ValueError('Compatibility extractor must be a regular file')
+        data = source.read(512 * 1024 ** 2 + 1)
+        after, current = os.fstat(source.fileno()), os.lstat(extractor_path)
+        if not data or len(data) > 512 * 1024 ** 2 or len(data) != before.st_size or (after.st_size, after.st_mtime_ns, after.st_ctime_ns) != (before.st_size, before.st_mtime_ns, before.st_ctime_ns) or (current.st_dev, current.st_ino) != (before.st_dev, before.st_ino):
+            raise ValueError('Compatibility extractor changed while reading')
+        if hashlib.sha256(data).hexdigest() != manifest['compatibility']['extractorSha256']:
+            raise ValueError('Compatibility extractor authentication failed')
+    result = prepare_sdk(archive_path, destination, manifest['bundle']['sha256'], manifest['upstreamSdkTreeSha256'])
+    root = Path(result['root'])
+    owned = root.parent
+    metadata = owned.lstat()
+    identity = metadata.st_dev, metadata.st_ino
+    try:
+        target = root / 'swift/tools/osx64/extractor.real'
+        if target.resolve(strict=True) != target or not stat.S_ISREG(target.lstat().st_mode):
+            raise ValueError('Compatibility destination is not a canonical regular file')
+        temporary = target.with_name('extractor.compatibility-new')
+        with temporary.open('xb') as output:
+            output.write(data)
+            output.flush()
+            os.fsync(output.fileno())
+        temporary.chmod(0o711)
+        os.replace(temporary, target)
+        actual = hash_tree(root)
+        if actual['sha256'] != manifest['sdkTreeSha256'] or actual['entries'] != result['entries']:
+            raise ValueError('Derived CodeQL SDK tree authentication failed')
+        return dict(result, **actual, upstreamSdkTreeSha256=result['sha256'], extractorSha256=manifest['compatibility']['extractorSha256'])
+    except BaseException:
+        remove_owned(owned, identity)
+        raise
+
+
 def main():
-    parser = argparse.ArgumentParser(description='Authenticate and extract an offline official CodeQL SDK')
+    parser = argparse.ArgumentParser(description='Authenticate and prepare the pinned offline CodeQL SDK')
     parser.add_argument('--archive', required=True)
     parser.add_argument('--destination', required=True)
+    parser.add_argument('--extractor', help='Reviewed source-built compatibility extractor')
     args = parser.parse_args()
     manifest = json.loads(Path(__file__).with_name('codeql-sdk.json').read_text())
     tree = manifest.get('sdkTreeSha256')
     if not isinstance(tree, str) or len(tree) != 64:
         raise ValueError('Missing reviewed CodeQL SDK tree pin')
-    print(json.dumps(prepare_sdk(args.archive, args.destination, manifest['bundle']['sha256'], tree)))
+    if manifest.get('compatibility'):
+        if not args.extractor:
+            parser.error('--extractor is required for the pinned compatibility SDK')
+        result = prepare_compatible_sdk(args.archive, args.destination, manifest, args.extractor)
+    else:
+        if args.extractor:
+            parser.error('--extractor requires a reviewed compatibility manifest')
+        result = prepare_sdk(args.archive, args.destination, manifest['bundle']['sha256'], tree)
+    print(json.dumps(result))
 
 
 if __name__ == '__main__':

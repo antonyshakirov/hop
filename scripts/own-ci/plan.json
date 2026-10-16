@@ -28,7 +28,7 @@
         "scripts/own-ci/codeql-sdk-tree.test.mjs"
       ],
       "timeoutMs": 180000,
-      "tapMinimum": 61
+      "tapMinimum": 74
     },
     {
       "id": "sdk-setup-self-tests",
@@ -166,6 +166,10 @@
     },
     {
       "path": "hop-codeql-summary.json",
+      "type": "json"
+    },
+    {
+      "path": "hop-preparing-version.json",
       "type": "json"
     }
   ],

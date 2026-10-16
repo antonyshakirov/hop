@@ -28,7 +28,7 @@ test('allows dangling links only when their complete traversal stays inside', as
 test('Python and Node encode identical tree records including non-ASCII paths', async t => {
  ready(); const { root } = await fixture(t);await writeFile(join(root,'😀'), 'astral');await writeFile(join(root,'\ue000'), 'private-use');
  const script = new URL('./codeql-setup.py',import.meta.url).pathname; const program = 'import importlib.util,json,sys; s=importlib.util.spec_from_file_location("setup",sys.argv[1]); m=importlib.util.module_from_spec(s);s.loader.exec_module(m);print(json.dumps(m.hash_tree(sys.argv[2])))';
- const result=spawnSync('python3',['-c',program,script,root],{encoding:'utf8'});assert.equal(result.status,0,result.stderr);assert.deepEqual(JSON.parse(result.stdout),await api.hashCodeqlTree(root));
+ const result=spawnSync('python3',['-B','-I','-c',program,script,root],{encoding:'utf8'});assert.equal(result.status,0,result.stderr);assert.deepEqual(JSON.parse(result.stdout),await api.hashCodeqlTree(root));
 });
 test('fixed-source verifier rejects a well-formed synthetic substitute SDK', async t => { ready();assert.equal(typeof api.verifyCodeqlTree,'function');const {root}=await fixture(t);await assert.rejects(api.verifyCodeqlTree(root)); });
 test('verifier accepts its exact colocated pin and rejects every changed tree', async t => {

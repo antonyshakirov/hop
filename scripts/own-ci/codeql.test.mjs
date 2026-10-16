@@ -97,3 +97,24 @@ test('refuses a tracing environment that overrides HOME', async t => {
  await assert.rejects(execute(f), /tracing environment/);
  assert.ok(!f.calls.some(c => c.args[0] === 'build'));
 });
+
+
+const baselineMetadata = () => ({ descriptor: { id: 'swift/baseline/expected-extracted-files' }, level: 'none', message: { text: '' }, locations: [{ physicalLocation: { artifactLocation: { uri: 'Sources/Example.swift' } } }] });
+const telemetryMetadata = (id, attributes) => ({ descriptor: { id }, level: 'none', message: { text: '' }, properties: { attributes, visibility: { telemetry: true, statusPage: false } } });
+function withMetadata(items) {
+  return mutate(run => { run.invocations[0].toolExecutionNotifications = items; });
+}
+test('accepts official empty baseline and CLI telemetry records without hiding them', () => {
+  const items = [baselineMetadata(), telemetryMetadata('cli/file-coverage-baseline', { durationMilliseconds: 12 }), telemetryMetadata('cli/platform', { arch: 'aarch64', name: 'Mac OS X', version: '27.0.1' }), telemetryMetadata('cli/sip-enablement', { isEnabled: true })];
+  assert.equal(validate(withMetadata(items)).notifications, 4);
+});
+for (const [name, item] of [
+  ['unknown blank notification', { descriptor: { id: 'cli/unreviewed' }, level: 'none', message: { text: '' } }],
+  ['blank warning', { ...baselineMetadata(), level: 'warning' }],
+  ['blank error', { ...baselineMetadata(), level: 'error' }],
+  ['fatal property on metadata', { ...baselineMetadata(), properties: { severity: 'fatal' } }],
+  ['blank extraction failure', { ...baselineMetadata(), descriptor: { id: 'swift/diagnostics/extraction-errors' } }],
+  ['baseline missing locations', { ...baselineMetadata(), locations: [] }],
+  ['telemetry missing visibility', { ...telemetryMetadata('cli/sip-enablement', { isEnabled: true }), properties: { attributes: { isEnabled: true } } }],
+  ['telemetry missing attributes', telemetryMetadata('cli/platform', {})],
+]) test('still rejects ' + name, () => assert.throws(() => validate(withMetadata([item]))));

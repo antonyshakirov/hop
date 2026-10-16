@@ -9,6 +9,25 @@ const levels = new Set(['none', 'note', 'warning', 'error']);
 const inside = (parent, child) => child === parent || child.startsWith(parent + sep);
 const messagePresent = item => typeof item?.message?.text === 'string' && item.message.text.trim() || typeof item?.message?.markdown === 'string' && item.message.markdown.trim();
 
+
+// The official CLI emits these non-finding metadata records with empty text.
+// Keep them in the report; errors and extraction diagnostics still fail below.
+function emptyMetadata(item, id, level) {
+  if (level !== 'none' || item?.message?.text !== '' || item.message.markdown) return false;
+  if (id === 'swift/baseline/expected-extracted-files') {
+    return Array.isArray(item.locations) && item.locations.length > 0 && item.locations.every(location => {
+      const uri = location?.physicalLocation?.artifactLocation?.uri;
+      return typeof uri === 'string' && uri.trim().length > 0;
+    });
+  }
+  const attributes = item.properties?.attributes;
+  if (item.properties?.visibility?.telemetry !== true || item.properties.visibility.statusPage !== false || !attributes || typeof attributes !== 'object' || Array.isArray(attributes)) return false;
+  if (id === 'cli/file-coverage-baseline') return Number.isSafeInteger(attributes.durationMilliseconds) && attributes.durationMilliseconds >= 0;
+  if (id === 'cli/platform') return ['arch', 'name', 'version'].every(key => typeof attributes[key] === 'string' && attributes[key].trim().length > 0);
+  if (id === 'cli/sip-enablement') return typeof attributes.isEnabled === 'boolean';
+  return false;
+}
+
 export function validateCodeqlSarif(report) {
   if (report?.version !== '2.1.0' || !Array.isArray(report.runs) || report.runs.length !== 1) throw new Error('Expected one complete Swift CodeQL SARIF run');
   const run = report.runs[0], driver = run?.tool?.driver;
@@ -35,7 +54,7 @@ export function validateCodeqlSarif(report) {
         if (reference?.index !== undefined && (!Number.isInteger(reference.index) || reference.index < 0 || !indexed || reference.id !== undefined && reference.id !== indexed.id)) throw new Error('Invalid CodeQL notification descriptor index');
         const descriptor = indexed ?? descriptors.find(entry => entry.id === reference?.id);
         const level = item?.level ?? descriptor?.defaultConfiguration?.level ?? 'warning';
-        if (!levels.has(level) || level === 'error' || item?.properties?.severity?.toLowerCase() === 'fatal' || (descriptor?.id ?? reference?.id) === 'swift/diagnostics/extraction-errors' || !messagePresent(item)) throw new Error('CodeQL reported an extraction or analysis failure');
+        if (!levels.has(level) || level === 'error' || item?.properties?.severity?.toLowerCase() === 'fatal' || (descriptor?.id ?? reference?.id) === 'swift/diagnostics/extraction-errors' || (!messagePresent(item) && !emptyMetadata(item, descriptor?.id ?? reference?.id, level))) throw new Error('CodeQL reported an extraction or analysis failure');
         notifications++;
       }
     }

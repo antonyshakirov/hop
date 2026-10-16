@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { summarizeTests, validateMessages, validateSarif } from './hop-report.mjs';
+import { summarizeTests, validateMessages, validateSarif, parsePreparingVersion } from './hop-report.mjs';
 
 const list = 'HopCoreTests.TimerTests/testOne\nHopUITests.ViewTests/testTwo\n';
 const passed = `Test Case '-[HopCoreTests.TimerTests testOne]' started.
@@ -23,4 +23,12 @@ test('SARIF requires actual successful CodeQL analysis with rules', () => {
   const report = { version: '2.1.0', runs: [{ tool: { driver: { name: 'CodeQL', rules: [{ id: 'swift/test' }] } }, invocations: [{ executionSuccessful: true }], results: [] }] };
   assert.equal(validateSarif(report).results, 0);
   for (const bad of [{ ...report, runs: [] }, { ...report, runs: [{ ...report.runs[0], invocations: [] }] }, { ...report, runs: [{ ...report.runs[0], invocations: [{ executionSuccessful: false }] }] }, { ...report, runs: [{ ...report.runs[0], tool: { driver: { name: 'CodeQL', rules: [] } } }] }]) assert.throws(() => validateSarif(bad));
+});
+
+
+test('preparing version accepts only the isolated command result', () => {
+  assert.equal(parsePreparingVersion('2.4.1\n'), '2.4.1');
+});
+for (const output of ['', 'version: notes disagree\n', '2.4.1\n2.4.2\n']) test('preparing version rejects ambiguous output ' + JSON.stringify(output), () => {
+  assert.throws(() => parsePreparingVersion(output));
 });
