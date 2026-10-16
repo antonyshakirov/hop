@@ -70,12 +70,12 @@ xcrun notarytool history --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
 }
 
 # Nothing is packaged from a red tree: build, tests and translations first —
-# the same script CI and the pre-push hook run. A release that fails its own
+# the same gate the pre-push hook runs. A release that fails its own
 # checks is not a release (2026-08-29).
 scripts/checks.sh
 
 # SPEC: docs/spec.md — "Versioning", the number released is the one the notes name.
-PREPARING="$("$(swift build --show-bin-path)/Hop" --preparing-version)"
+PREPARING="$(env TMPDIR=/private/tmp node scripts/own-ci/preparing-version.mjs)"
 [[ "$PREPARING" == "$VERSION" ]] || {
     echo "releasing $VERSION, but the notes in the app describe $PREPARING"
     exit 1

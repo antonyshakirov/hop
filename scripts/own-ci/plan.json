@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "project": "hop",
+  "steps": [
+    {
+      "id": "core-self-tests",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "--test",
+        "--test-reporter=tap",
+        "scripts/own-ci/engine.test.mjs"
+      ],
+      "timeoutMs": 120000,
+      "tapMinimum": 26
+    },
+    {
+      "id": "adapter-self-tests",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "--test",
+        "--test-reporter=tap",
+        "scripts/own-ci/native.test.mjs",
+        "scripts/own-ci/hop-report.test.mjs",
+        "scripts/own-ci/codeql.test.mjs",
+        "scripts/own-ci/codeql-coverage.test.mjs",
+        "scripts/own-ci/codeql-sdk-tree.test.mjs"
+      ],
+      "timeoutMs": 180000,
+      "tapMinimum": 74
+    },
+    {
+      "id": "sdk-setup-self-tests",
+      "cwd": ".",
+      "command": "/usr/bin/python3",
+      "args": [
+        "-B",
+        "-I",
+        "scripts/own-ci/codeql-setup.test.py"
+      ],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "hop-toolchain",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/hop-step.mjs",
+        "toolchain"
+      ],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "hop-messages",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/hop-step.mjs",
+        "messages"
+      ],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "hop-build",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/hop-step.mjs",
+        "build"
+      ],
+      "timeoutMs": 900000
+    },
+    {
+      "id": "hop-tests",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/hop-step.mjs",
+        "tests"
+      ],
+      "timeoutMs": 900000,
+      "tapMinimum": 1720
+    },
+    {
+      "id": "hop-canvas",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/hop-step.mjs",
+        "canvas"
+      ],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "hop-export",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/hop-step.mjs",
+        "export"
+      ],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "hop-live",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/hop-step.mjs",
+        "live"
+      ],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "hop-translations",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/hop-step.mjs",
+        "translations"
+      ],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "hop-version",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/hop-step.mjs",
+        "version"
+      ],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "hop-codeql",
+      "cwd": ".",
+      "command": "{{node}}",
+      "args": [
+        "scripts/own-ci/hop-step.mjs",
+        "codeql"
+      ],
+      "timeoutMs": 3600000
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "hop-toolchain.json",
+      "type": "json"
+    },
+    {
+      "path": "hop-test-discovery.txt",
+      "type": "file"
+    },
+    {
+      "path": "hop-test-output.txt",
+      "type": "file"
+    },
+    {
+      "path": "hop-test-summary.json",
+      "type": "json"
+    },
+    {
+      "path": "hop-codeql.sarif",
+      "type": "file"
+    },
+    {
+      "path": "hop-codeql-summary.json",
+      "type": "json"
+    },
+    {
+      "path": "hop-preparing-version.json",
+      "type": "json"
+    }
+  ],
+  "ports": []
+}

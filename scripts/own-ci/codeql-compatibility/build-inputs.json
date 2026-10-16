@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "codeqlSource": {
+    "repository": "https://github.com/github/codeql",
+    "commit": "a7057b836bf29767461026718b14d20790b9085f",
+    "tree": "bf7344e8f82d6f0579aad152c821687ff6bae67d"
+  },
+  "swiftSource": {
+    "repository": "https://github.com/swiftlang/swift",
+    "commit": "064859e41d68596f486c5d724401cb370f260409"
+  },
+  "publicAssets": [
+    {
+      "name": "bazel-9.0.0-darwin-arm64",
+      "url": "https://releases.bazel.build/9.0.0/release/bazel-9.0.0-darwin-arm64",
+      "size": 60358731,
+      "sha256": "2c3cce548a4b6a97a2a5267712187b784b52714c4a2b0613e7386b15669d783c",
+      "verified": true
+    },
+    {
+      "name": "swift-prebuilt-macos.tar.zst",
+      "url": "https://media.githubusercontent.com/media/github/codeql/a7057b836bf29767461026718b14d20790b9085f/swift/third_party/resources/swift-prebuilt-macos.tar.zst",
+      "size": 125119625,
+      "sha256": "f5fddabc442a5c7664be4f022f09889177f420477060c1199eb714394987ad93",
+      "verified": true
+    }
+  ],
+  "originalFrontendArchiveSha256": "cf0becfae1cdb1c4f6315da2ac1ecdc1e06a91fa6cc5bd63d9f0e06ef587d2b9",
+  "rebuiltBaselineObjectSha256": "c3387f97041a5f95896a9c4f86358b9200a5570b484fbcd0b69229b68abdfb34",
+  "patchedImporterObjectSha256": "7358a60454097fed1854267bf7114014327483cafc0d714c6fb9ea9972f266c6",
+  "patchedFrontendArchiveSha256": "84c97183d0a87a42098750dd123893d8c12a87b421a157ee1012def4d8f097a1",
+  "unchangedObjectPayloads": 4637,
+  "hostCompiler": {
+    "version": "Apple clang 21.0.0 (clang-2100.3.34.2)",
+    "sha256": "1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9",
+    "sdkSettingsSha256": "7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb"
+  },
+  "extractor": {
+    "size": 174520624,
+    "sha256": "ef2d1d6cac140587b425ca64f71416bad00ba5f8682d51b4d8417af43cbd5bb5"
+  },
+  "patches": [
+    {
+      "path": "scripts/own-ci/codeql-compatibility/typed-macro-expansion.patch",
+      "sha256": "de0f8050d578f5193f11bf0e2af2b3bb1e9991e2c7f958e2860d356e12c09bb1"
+    },
+    {
+      "path": "scripts/own-ci/codeql-compatibility/ordinary-value-lookup.patch",
+      "sha256": "d825d2152898b41737341e6f9d6d08f5d1dcfc935910d20dc7cc09ab9ed25160"
+    }
+  ]
+}

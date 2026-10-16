@@ -15,8 +15,7 @@
 ![Platform](https://img.shields.io/badge/macOS-14%2B-black)
 [![Stars](https://img.shields.io/github/stars/antonyshakirov/hop?style=social)](https://github.com/antonyshakirov/hop/stargazers)
 
-[![CI](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml/badge.svg)](https://github.com/antonyshakirov/hop/actions/workflows/codeql.yml)
+[Local verification](../local-verification/README.md)
 
 <a href="https://trendshift.io/repositories/213776"><img src="https://trendshift.io/api/badge/trendshift/repositories/213776/daily?language=Swift" alt="Trendshift: Swift repository of the day" width="250" height="55"></a>
 

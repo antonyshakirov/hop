@@ -1,0 +1,2 @@
+# Unified patch context retains its blank-line space marker.
+scripts/own-ci/codeql-compatibility/*.patch whitespace=-blank-at-eol
