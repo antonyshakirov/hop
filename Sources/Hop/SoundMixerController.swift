@@ -147,16 +147,16 @@ final class SoundMixerController: ObservableObject {
             for id in processIDs {
                 guard SoundHAL.value(id, kAudioProcessPropertyIsRunningOutput, UInt32(0)) == 1,
                       let pid = SoundHAL.value(id, kAudioProcessPropertyPID, pid_t(0)),
-                      pid != ProcessInfo.processInfo.processIdentifier,
-                      let app = NSRunningApplication(processIdentifier: pid),
-                      let rawID = app.bundleIdentifier ?? SoundHAL.string(id, kAudioProcessPropertyBundleID),
+                      pid != ProcessInfo.processInfo.processIdentifier else { continue }
+                let app = NSRunningApplication(processIdentifier: pid)
+                guard let rawID = app?.bundleIdentifier ?? SoundHAL.string(id, kAudioProcessPropertyBundleID),
                       !rawID.hasPrefix("com.antonshakirov.minimo"), !rawID.hasPrefix("com.antonshakirov.hop") else { continue }
                 let owner = runningApps.filter { other in
                     guard let bundle = other.bundleIdentifier, !bundle.isEmpty else { return false }
                     return rawID == bundle || rawID.hasPrefix(bundle + ".")
                 }.min { ($0.bundleIdentifier?.count ?? 0) < ($1.bundleIdentifier?.count ?? 0) } ?? app
-                let key = owner.bundleIdentifier ?? rawID
-                let name = owner.localizedName ?? app.localizedName ?? key
+                let key = owner?.bundleIdentifier ?? rawID
+                let name = owner?.localizedName ?? app?.localizedName ?? key
                 var group = groups[key] ?? (name, [])
                 group.1.append(id); groups[key] = group
             }

@@ -692,6 +692,10 @@ module off or quitting stops it. No capture begins merely by opening the window.
 
 - App audio clients are grouped by their owning application, including browser
   helpers. Channels use Core Audio process taps and private tap-only aggregates.
+  A helper without NSRunningApplication metadata remains discoverable by its
+  Core Audio bundle ID and is grouped under the running parent browser. In the
+  live Chrome regression, a helper with HAL bundle ID com.google.Chrome.helper
+  and no NSRunningApplication must still produce a Chrome channel.
   Original output is muted only while Hop reads the tap and is restored on stop
   or route failure. Apps from Hop itself and its input helper are excluded.
   Separate tabs/players inside the same audio process share one channel.
