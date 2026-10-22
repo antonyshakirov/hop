@@ -158,11 +158,6 @@ private struct SoundDeviceMenu: View {
     }
 }
 
-private struct SoundContentHeight: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
-}
-
 private struct SoundElapsed: View {
     @ObservedObject var readings: SoundLiveReadings
     let lang: AppLanguage
@@ -260,8 +255,11 @@ struct SoundWindowView: View {
                 }
             }
         }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
-            .background(GeometryReader { proxy in Color.clear.preference(key: SoundContentHeight.self, value: proxy.size.height) })
-            .onPreferenceChange(SoundContentHeight.self, perform: onHeightChange)
+            .background(GeometryReader { proxy in
+                Color.clear
+                    .onAppear { onHeightChange(proxy.size.height) }
+                    .onChange(of: proxy.size.height) { _, height in onHeightChange(height) }
+            })
     }
 
     private func failureText(_ failure: SoundFailure) -> String {
@@ -329,8 +327,7 @@ struct SoundWindowView: View {
 
     private func deviceMuteButton(_ device: SoundDevice, direction: SoundDirection, muted: Bool) -> some View {
         Button { sound.toggleMute(direction, expectedUID: device.uid) } label: {
-            Label(t(muted ? .soundUnmute : .soundMute),
-                  systemImage: direction == .input ? "mic.slash.fill" : "speaker.slash.fill")
+            SoundMuteLabel(muted: muted, input: direction == .input, lang: lang)
                 .font(Theme.mono(11))
                 .foregroundStyle(muted ? Theme.accentYellow : Theme.textSecondary)
                 .padding(.horizontal, 10).padding(.vertical, 7)
@@ -348,5 +345,19 @@ struct SoundWindowView: View {
                 .padding(.horizontal, 10).padding(.vertical, 7)
                 .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
         }.buttonStyle(.plain).hoverDim()
+    }
+}
+
+struct SoundMuteLabel: View {
+    let muted: Bool
+    let input: Bool
+    let lang: AppLanguage
+    private var icon: String { input ? "mic.slash.fill" : "speaker.slash.fill" }
+    var body: some View {
+        ZStack {
+            Label(L10n.t(.soundMute, lang), systemImage: icon).hidden()
+            Label(L10n.t(.soundUnmute, lang), systemImage: icon).hidden()
+            Label(L10n.t(muted ? .soundUnmute : .soundMute, lang), systemImage: icon)
+        }
     }
 }

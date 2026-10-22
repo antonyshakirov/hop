@@ -6,8 +6,13 @@ struct SoundMixerSwitch: View {
     let lang: AppLanguage
     var body: some View {
         Button { if mixer.running || mixer.starting { mixer.stop() } else { mixer.start() } } label: {
-            Label(L10n.t(mixer.starting ? .soundMixerStarting : mixer.running ? .soundMixerStop : .soundMixerStart, lang),
-                  systemImage: mixer.running || mixer.starting ? "stop.circle" : "slider.horizontal.3")
+            ZStack {
+                Label(L10n.t(.soundMixerStart, lang), systemImage: "slider.horizontal.3").hidden()
+                Label(L10n.t(.soundMixerStop, lang), systemImage: "stop.circle").hidden()
+                Label(L10n.t(.soundMixerStarting, lang), systemImage: "stop.circle").hidden()
+                Label(L10n.t(mixer.starting ? .soundMixerStarting : mixer.running ? .soundMixerStop : .soundMixerStart, lang),
+                      systemImage: mixer.running || mixer.starting ? "stop.circle" : "slider.horizontal.3")
+            }
                 .font(Theme.mono(11)).foregroundStyle(mixer.running ? Theme.accentYellow : Theme.textPrimary)
                 .padding(.horizontal, 10).padding(.vertical, 7)
                 .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
@@ -89,8 +94,7 @@ private struct SoundMixerChannelRow: View {
                     mixer.update(channel) { $0.gain = value }
                 }
                 Button { mixer.update(channel) { $0.muted.toggle() } } label: {
-                    Label(L10n.t(channel.settings.muted ? .soundUnmute : .soundMute, lang),
-                          systemImage: channel.input ? "mic.slash.fill" : "speaker.slash.fill")
+                    SoundMuteLabel(muted: channel.settings.muted, input: channel.input, lang: lang)
                         .font(Theme.mono(11))
                         .foregroundStyle(channel.settings.muted ? Theme.accentYellow : Theme.textSecondary)
                         .padding(.horizontal, 10).padding(.vertical, 7)
@@ -99,6 +103,8 @@ private struct SoundMixerChannelRow: View {
                     .accessibilityLabel(channel.name + ": " + L10n.t(channel.settings.muted ? .soundUnmute : .soundMute, lang))
                     .accessibilityValue(channel.settings.muted ? "1" : "0")
             }
+            .disabled(!channel.input && !mixer.running)
+            .opacity(!channel.input && !mixer.running ? 0.5 : 1)
             if channel.input {
                 HStack(spacing: 8) {
                     effect(.soundMixerBass, icon: "waveform", selected: channel.settings.bass) {

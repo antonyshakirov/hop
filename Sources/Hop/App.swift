@@ -41,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var soundContentHeight: CGFloat = 0
     private var soundExpectedHeight: CGFloat = 320
     private var soundUserResized = false
+    private var soundNeedsCenter = true
     private var soundActivationObserver: NSObjectProtocol?
     private var uninstallUserResized = false
     private var uninstallExpectedHeight: CGFloat = 0
@@ -1075,8 +1076,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.sound.open()
         model.soundMixer.open()
         if !window.isVisible {
+            soundNeedsCenter = true
             window.contentViewController?.view.layoutSubtreeIfNeeded()
-            window.center()
         }
         enterDockMode()
         NSApp.activate(ignoringOtherApps: true)
@@ -1084,20 +1085,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         adjustSoundHeight()
     }
 
-    /// SPEC: docs/spec.md — "Sound": fit content until a manual resize; keep the top edge steady.
     private func adjustSoundHeight() {
-        guard let window = soundWindow, window.isVisible, !soundUserResized, soundContentHeight > 80 else { return }
-        let screenHeight = (window.screen ?? NSScreen.main)?.visibleFrame.height ?? 800
+        guard let window = soundWindow, !soundUserResized, soundContentHeight > 80,
+              let visible = (window.screen ?? NSScreen.main)?.visibleFrame else { return }
+        let current = window.frame
+        let content = window.contentRect(forFrameRect: current)
         let topInset = window.contentView?.safeAreaInsets.top ?? 0
-        let target = max(240, min(soundContentHeight + topInset, screenHeight * 0.8))
-        var frame = window.frame
-        let current = window.contentRect(forFrameRect: frame).height
-        guard abs(target - current) > 2 else { return }
-        frame.origin.y -= target - current
-        frame.size.height += target - current
-        if let screen = window.screen ?? NSScreen.main { frame.origin.y = max(screen.visibleFrame.minY, frame.origin.y) }
-        soundExpectedHeight = target
-        window.setFrame(frame, display: true)
+        let frame = SoundWindowLayout.frame(current: current, contentHeight: soundContentHeight + topInset,
+                                           chromeHeight: current.height - content.height,
+                                           visible: visible, centered: soundNeedsCenter)
+        soundNeedsCenter = false
+        soundExpectedHeight = window.contentRect(forFrameRect: frame).height
+        if abs(frame.height - current.height) > 2 || frame.origin != current.origin {
+            window.setFrame(frame, display: true)
+        }
     }
 
     /// SPEC: docs/spec.md — "Network access", the window.

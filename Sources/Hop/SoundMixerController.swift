@@ -72,12 +72,6 @@ final class SoundMixerController: ObservableObject {
         if let data = try? JSONEncoder().encode(saved) { defaults.set(data, forKey: "soundMixerChannels") }
         session?.configure(channel)
         if channel.input { session?.inputs(inputs, visible: visible) }
-        stopIfIdle()
-    }
-    private func stopIfIdle() {
-        guard running || starting,
-              !SoundMixerActivity.requiresProcessing(apps: apps.map(\.settings), inputs: inputs.map(\.settings)) else { return }
-        stop()
     }
     func start() {
         guard enabled(), available, !running, !starting else { return }

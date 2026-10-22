@@ -645,8 +645,12 @@ valid value, Escape cancels, and invalid input restores the current value.
 Decimal commas and localized digits are accepted; hardware values clamp to
 0–100%. Focusing an unchanged field never rounds the hardware gain. The device
 section is labelled Input, encompassing microphones and other audio devices.
-Record/listen share one line. The window fits content while preserving its top
-edge, caps height at 80% of the screen and scrolls if needed. Manual resizing
+Record/listen share one line. The window measures scroll content directly,
+opens with its final size centered on the visible screen, and leaves a 16 pt
+margin at the screen edges. Later content changes preserve the top edge and
+scroll only when content exceeds the available height. Device and application
+mute buttons reserve the wider of their two localized labels, so toggling mute
+never shifts the volume controls. Manual resizing
 suspends fitting until the window closes; the next open fits again.
 
 - Custom device menus begin with System Default. This mode follows the current
@@ -717,14 +721,14 @@ module off or quitting stops it. No capture begins merely by opening the window.
   off, legacy settings must leave every quiet input sample unchanged.
   Private system aggregates are hidden from selectors.
 - Start Mixer uses the microphone permission flow and reuses a running/starting
-  mixer. Returning controls to neutral stops the mixer when there is no remaining
-  processing: per-input bass, active channel gain/mute, or multiple enabled inputs
-  that need mixing. Inactive input settings do not keep it running. Returning
-  the last software control to its neutral value also stops an idle mixer.
-  Stop cancels any pending startup/permission callback and releases the helper,
-  taps and Hop Input. Hardware master volume/mute do not require the mixer.
-  Opening a window with any saved channel choice does not start capture;
-  changing gain/mute does not start it.
+  mixer. An explicitly started mixer remains running at unity gain until Stop,
+  module disable or quit. Returning Chrome to 100% must not silently stop
+  processing and leave the next slider change unapplied. Application gain/mute
+  controls are disabled until the mixer is running. Input selection can still be
+  configured before starting. Stop cancels any pending startup/permission callback
+  and releases the helper, taps and Hop Input. Hardware master volume/mute do not
+  require the mixer. Opening a window with saved channel choices does not
+  start capture; changing gain/mute does not start it.
 - Hardware device observers reuse their listeners while the public device list
   is unchanged. Private mixer aggregates do not trigger listener rebuilding;
   initial device notifications must not create an add/remove feedback loop.
