@@ -742,6 +742,50 @@ retains a bounded sample in memory. The signed app's microphone entitlement and
 usage description remain for that check. Permission status and repair links
 remain in the permissions page and Sound window.
 
+### Call mix prototype (owner, 2026-10-23)
+
+Enabled only in the local review build with `--zoom-mix-prototype`, default off.
+This temporary prototype flag must be removed or promoted by an explicit product
+release decision; owner is Anton. It is not enabled by existing mixer preferences.
+The same Sound window provides a separate explicit Start/Stop mix, selected
+physical microphone and explicitly checked apps, each with independent0–100%
+send gain and mute. Source selection is fixed while running; stop before changing
+sources. Zoom/Hop/helper/own virtual sources are excluded; browser capture covers
+the whole browser, so this prototype targets the native Zoom app, not Zoom Web.
+At most four app sources;48kHz stereo is the first tested app-capture format.
+
+Local app volume and hardware master do not control the call send. Passive
+unmuted source taps read original application output; the prototype deliberately
+uses separate bounded captures alongside the existing listening mixer. It does
+not capture the already attenuated Hop listening output. No monitoring of the
+microphone through physical speakers, no denoise/gate/boost and no file storage.
+
+The helper begins with zeros only. The host creates and starts a public muted
+process-tap input before sending a command to activate any microphone or app.
+Hop Mix is selected explicitly in Zoom. Closing the sole Sound window, module
+disable or Stop releases physical mic/app captures, discards short test samples
+and leaves only a zero producer and input endpoint until app termination, avoiding
+an intentional device removal while Zoom is reading. Reopening stays stopped;
+no microphone auto-start at launch. Existing app-volume routing stays running.
+A transport error, invalid event or missing stop ACK reaps the helper before
+reporting failure. Its input endpoint is retained; restarting that failed session
+requires relaunching Hop. Normal quit releases the helper and virtual device; Zoom fallback on quit/crash
+is not guaranteed safe and must be reported, not advertised as global mic mute.
+
+The standalone signed development prototype may set Info.plist
+HopZoomMixPrototype=true to expose the call-mix UI on later launches without
+command-line arguments. Normal bundles omit it; production bundles ignore it.
+This never starts capture. The worker validates each selected HAL process bundle
+against the selected app before creating its tap, refusing stale/reused identities.
+
+Verification before calling the prototype successful: actual native Zoom receives
+voice and app audio through Hop Mix without an auxiliary HAL consumer; mic
+send mute removes voice while app remains, app send gain/mute changes its signal
+independently, local gain does not change send; close stops physical mic and
+produces zero input while the selected Zoom device remains Hop Mix. Reopen does
+not restart. Short sample cannot replay. Restore prior Zoom input/audio settings
+and user playback/gains after testing. No meeting invitations or publication.
+
 ## Modules
 
 The main screen shows the modules of the selected space (tab) as a stack,
@@ -7193,3 +7237,15 @@ opened" dialog and the Privacy & Security override.
   hangs on and the stapled ticket.
 
 ### Release
+
+## Quit apps
+
+The quitApps module opens a scrollable list of regular GUI apps. Opening or
+closing its window never quits anything. Finder and Hop variants are excluded.
+Pins persist by bundle identifier and block individual as well as bulk quit.
+A row requests normal termination; Quit all requests it for current unpinned
+apps. Each app handles its own save/cancel prompts. Never force terminate or
+auto-answer prompts. A successful send is labelled request sent, not closed;
+rows disappear only on actual termination. Revalidate launch identity before
+every request. Snapshot/onboarding models cannot quit apps or write pins.
+See app-quit-prototype.md for the backend and test contract.

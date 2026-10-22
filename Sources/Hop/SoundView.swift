@@ -248,6 +248,9 @@ struct SoundWindowView: View {
                 Text(t(.soundCurrentMicOnly)).font(Theme.mono(10))
                     .foregroundStyle(Theme.textTertiary).fixedSize(horizontal: false, vertical: true)
             }
+            if model.soundCallMix.enabled {
+                SoundCallMixView(call: model.soundCallMix, sound: sound, mixer: model.soundMixer, lang: lang)
+            }
             if let failure = sound.failure {
                 Text(failureText(failure)).font(Theme.mono(11))
                     .foregroundStyle(Theme.accentOrange).fixedSize(horizontal: false, vertical: true)
@@ -309,7 +312,7 @@ struct SoundWindowView: View {
                            icon: sound.checking || sound.requestingAccess ? "stop.circle" : "mic.circle") {
                         if sound.checking || sound.requestingAccess { sound.stopCheck() }
                         else { sound.startCheck() }
-                    }.disabled(current == nil)
+                    }.disabled(current == nil || model.soundCallMix.running || model.soundCallMix.starting)
                     if sound.hasRecording {
                         action(sound.playing ? .soundStopPlayback : .soundListen, icon: sound.playing ? "stop.fill" : "play.fill") {
                             if sound.playing { sound.stopPlayback() } else { sound.playRecording() }

@@ -11,7 +11,13 @@ final class SoundDocumentationLayoutTests: XCTestCase {
                 (.docSoundFull, 12, [432, 472, 620]),
                 (.soundMixerBackground, 10, [240, 280, 360]),
                 (.soundMixerPermission, 10, [432, 440, 480]),
-                (.soundMicrophone, 20, [300, 440])
+                (.soundMicrophone, 20, [300, 440]),
+                (.soundCallMix, 12, [200, 240]),
+                (.soundCallStart, 11, [180, 220]),
+                (.soundCallStop, 11, [180, 220]),
+                (.soundCallHint, 10, [432, 480, 620]),
+                (.quitAppsNotice, 10, [432, 480, 620]),
+                (.docQuitAppsFull, 12, [432, 472, 620])
             ]
             for (key, size, widths) in cases {
             let paragraph = L10n.t(key, lang).components(separatedBy: "\n\n").last!

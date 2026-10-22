@@ -20,7 +20,9 @@ final class AppModel: ObservableObject {
     let todos: TodosController
     let soundStatus: SoundMuteStatus
     let sound: SoundController
+    let soundCallMix = SoundCallMixController()
     let soundMixer: SoundMixerController
+    let appQuit: AppQuitController
     /// Modules that PRODUCE clipboard entries; they take the clipboard
     /// controller, so they are built in `init` after it exists.
     let colorPicker: ColorPickerController
@@ -92,6 +94,7 @@ final class AppModel: ObservableObject {
     /// Open the standalone settings window.
     var openSettingsWindow: (() -> Void)?
     var openSoundWindow: (() -> Void)?
+    var openQuitAppsWindow: (() -> Void)?
     /// Open the standalone converter window.
     var openConverterWindow: (() -> Void)?
     /// Open the standalone archive window — a drop target that survives a drag,
@@ -140,6 +143,7 @@ final class AppModel: ObservableObject {
         soundStatus = SoundMuteStatus()
         sound = SoundController(enabled: { preview || ModuleActivation.isOn("sound") }, status: soundStatus)
         soundMixer = SoundMixerController(enabled: { !preview && ModuleActivation.isOn("sound") })
+        appQuit = AppQuitController(preview: preview || Snapshot.active)
         if preview { sound.stageDemo(); soundMixer.stageDemo() }
         colorPicker = ColorPickerController(clipboard: clipboard)
         screenText = ScreenTextController(clipboard: clipboard)

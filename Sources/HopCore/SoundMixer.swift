@@ -21,7 +21,31 @@ public struct SoundWorkerCommand: Codable, Sendable {
     public var start: Bool
     public var meters: Bool
     public var inputs: [SoundInputConfiguration]
-    public init(start: Bool = false, meters: Bool = false, inputs: [SoundInputConfiguration] = []) {
+    public var apps: [SoundApplicationConfiguration]?
+    public var requestID: UInt64?
+    public init(start: Bool = false, meters: Bool = false, inputs: [SoundInputConfiguration] = [],
+                apps: [SoundApplicationConfiguration] = [], requestID: UInt64? = nil) {
         self.start = start; self.meters = meters; self.inputs = inputs
+        self.apps = apps; self.requestID = requestID
+    }
+}
+
+public struct SoundApplicationConfiguration: Codable, Sendable {
+    public var id: String
+    public var processes: [UInt32]
+    public var settings: SoundChannelSettings
+    public init(id: String, processes: [UInt32], settings: SoundChannelSettings) {
+        self.id = id; self.processes = processes; self.settings = settings
+    }
+}
+
+public enum SoundCallMixPolicy {
+    public static func ownsProcess(_ processBundle: String, selectedBundle: String) -> Bool {
+        allows(selectedBundle) && (processBundle == selectedBundle || processBundle.hasPrefix(selectedBundle + "."))
+    }
+
+    public static func allows(_ bundleID: String) -> Bool {
+        !bundleID.isEmpty && !["us.zoom", "com.antonshakirov.minimo", "com.antonshakirov.hop"]
+            .contains { bundleID.hasPrefix($0) }
     }
 }

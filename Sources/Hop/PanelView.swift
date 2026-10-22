@@ -2774,7 +2774,7 @@ struct PanelView: View {
     // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "sound", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall", "network"]
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "sound", "quitApps", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall", "network"]
     static let defaultModuleOrder = ModuleCatalog.defaultModuleOrder
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
@@ -3242,6 +3242,7 @@ struct PanelView: View {
         case "awake": return t(.awakeOff)
         case "clipboard": return t(.tabClipboard)
         case "sound": return t(.soundLabel)
+        case "quitApps": return t(.quitAppsTitle)
         case "convert": return t(.convertLabel)
         case "windows": return t(.windowsLabel)
         case "speedtest": return t(.speedtestLabel)
@@ -3282,6 +3283,9 @@ struct PanelView: View {
                 .id(model.themeVersion)
         case "sound":
             SoundRow(lang: lang, status: model.soundStatus, open: { model.openSoundWindow?() })
+                .id(model.themeVersion)
+        case "quitApps":
+            AppQuitRow(lang: lang, open: { model.openQuitAppsWindow?() })
                 .id(model.themeVersion)
         case "convert": convertZone
         case "windows": windowSnapRow
@@ -3967,6 +3971,11 @@ struct PanelView: View {
         case "sound":
             Button { model.openSoundWindow?() } label: {
                 Label(t(.soundOpen), systemImage: "slider.horizontal.3")
+                    .font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+            }.buttonStyle(.plain).hoverDim()
+        case "quitApps":
+            Button { model.openQuitAppsWindow?() } label: {
+                Label(t(.menuOpen), systemImage: "arrow.up.forward.app")
                     .font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
             }.buttonStyle(.plain).hoverDim()
         case "convert": converterSettings
@@ -5129,6 +5138,7 @@ struct PanelView: View {
         case "annotate": return "pencil.tip"
         case "vpn": return "lock.shield"
         case "network": return "network.badge.shield.half.filled"
+        case "quitApps": return "xmark.app"
         case let key where AppShelves.shelfID(fromModuleKey: key) != nil: return "square.grid.3x3"
         case "torrent": return "arrow.down.circle"
         default: return "square.grid.2x2"

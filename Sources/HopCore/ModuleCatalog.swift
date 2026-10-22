@@ -104,6 +104,9 @@ public enum ModuleCatalog {
             ModuleAction(id: "open", storageKey: "hotkey_sound", hotKeyID: 60),
             ModuleAction(id: "muteMic", storageKey: "hotkey_sound_micMute", hotKeyID: 61),
         ]),
+        ModuleEntry(id: "quitApps", guideLetter: "q", actions: [
+            ModuleAction(id: "open", storageKey: "hotkey_quitApps", hotKeyID: 62),
+        ]),
         ModuleEntry(id: "windows", guideLetter: "w", actions: zoneActions),
         ModuleEntry(id: "speedtest", guideLetter: "s", actions: []),
         ModuleEntry(id: "torrent", guideLetter: "d", actions: []),
@@ -185,14 +188,14 @@ public enum ModuleCatalog {
     /// and the zones are the one row that belongs lower still.
     /// SPEC: docs/spec.md — "Modules".
     public static let defaultModuleOrder =
-        "timer,awake,clipboard,vpn,keyboard,ocr,convert,sound,shot,annotate,windows,speedtest,torrent,color,archive"
+        "timer,awake,clipboard,vpn,keyboard,ocr,convert,sound,quitApps,shot,annotate,windows,speedtest,torrent,color,archive"
 
     /// Modules that own settings beyond the on/off switch.
     /// SPEC: docs/spec.md — "The module page (settings window)".
     public static let modulesWithSettings: Set<String> = [
         "timer", "system", "awake", "clipboard", "color", "tracker",
         "todos", "vpn", "convert", "archive", "torrent", "windows",
-        "shot", "annotate", "ocr", "network", "sound",
+        "shot", "annotate", "ocr", "network", "sound", "quitApps",
     ]
 
     public static func hasSettings(_ id: String) -> Bool {
@@ -222,7 +225,7 @@ public enum ModuleCatalog {
         OnboardingGroup(titleID: "onbGroupFiles", modules: ["convert", "archive"]),
         OnboardingGroup(titleID: "onbGroupScreen", modules: ["clipboard", "color", "ocr"]),
         OnboardingGroup(titleID: "onbGroupMarkup", modules: ["shot", "annotate"]),
-        OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard", "sound"]),
+        OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard", "sound", "quitApps"]),
         OnboardingGroup(titleID: "onbGroupNetwork", modules: ["speedtest", "vpn", "torrent", "network"]),
         OnboardingGroup(titleID: "onbGroupDesk", modules: ["windows", "apps", "uninstall"]),
     ]
