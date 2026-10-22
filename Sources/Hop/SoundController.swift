@@ -176,13 +176,16 @@ final class SoundController: ObservableObject {
         hardware.watch { [weak self] in self?.refresh() }
     }
 
+    func closeControls(_ direction: SoundDirection) {
+        if direction == .input { stopCheck(); discardRecording() }
+        volumeTasks.removeValue(forKey: direction)?.cancel()
+        volumeRequests.removeValue(forKey: direction)
+        volumeGenerations[direction, default: 0] += 1
+    }
+
     func close() {
         windowOpen = false
-        stopCheck()
-        discardRecording()
-        for task in volumeTasks.values { task.cancel() }
-        volumeTasks.removeAll()
-        volumeRequests.removeAll()
+        for direction in SoundDirection.allCases { closeControls(direction) }
         hardware.unwatch()
         failure = nil
     }

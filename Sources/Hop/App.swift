@@ -38,6 +38,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var uninstallWindow: NSWindow?
     private var networkWindow: NSWindow?
     private var soundWindow: NSWindow?
+    private var microphoneWindow: NSWindow?
+    private var microphoneContentHeight: CGFloat = 0
+    private var microphoneUserResized = false
+    private var microphoneNeedsCenter = true
     private var soundContentHeight: CGFloat = 0
     private var soundExpectedHeight: CGFloat = 320
     private var soundUserResized = false
@@ -78,7 +82,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var dockWindows: [NSWindow] {
         var list = [settingsWindow, torrentAddWindow, converterWindow,
                     archiveWindow, uninstallWindow, screenTextWindow,
-                    networkWindow, soundWindow, onboardingWindow].compactMap { $0 }
+                    networkWindow, soundWindow, microphoneWindow, onboardingWindow].compactMap { $0 }
         list.append(contentsOf: finderArchiveWindows.values.map(\.window))
         list.append(contentsOf: shotWindows.windows)
         return list
@@ -118,6 +122,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let window = dockWindows.first(where: \.isMiniaturized)
                 ?? dockWindows.first(where: \.isVisible)
                 ?? dockWindows.first else { return false }
+        if window === microphoneWindow {
+            window.deminiaturize(nil)
+            showMicrophoneWindow()
+            return false
+        }
         if window === soundWindow {
             window.deminiaturize(nil)
             showSoundWindow()
@@ -299,7 +308,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let self else { return }
                 self.model.activity.note()
                 self.model.sound.toggleMute(.input)
-                if self.model.sound.failure != nil { self.showSoundWindow() }
+                if self.model.sound.failure != nil { self.showMicrophoneWindow() }
             }
         }
         if let shot = ModuleCatalog.module("shot") {
@@ -352,6 +361,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self.showSettingsWindow()
         }
         model.openSoundWindow = { [weak self] in self?.showSoundWindow() }
+        model.openMicrophoneWindow = { [weak self] in self?.showMicrophoneWindow() }
+        model.soundMixer.resumeIfEnabled()
         model.soundStatus.setEnabled(ModuleActivation.isOn("sound"))
         soundActivationObserver = NotificationCenter.default.addObserver(
             forName: ModuleActivation.didChange, object: nil, queue: .main
@@ -360,10 +371,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let self else { return }
                 let enabled = ModuleActivation.isOn("sound")
                 self.model.soundStatus.setEnabled(enabled)
-                guard !enabled else { return }
+                if enabled { self.model.soundMixer.resumeIfEnabled(); return }
                 self.model.sound.close()
-                self.model.soundMixer.stop(); self.model.soundMixer.close()
+                self.model.soundMixer.suspend(); self.model.soundMixer.close()
                 self.soundWindow?.close()
+                self.microphoneWindow?.close()
             }
         }
         model.openConverterWindow = { [weak self] in
@@ -480,6 +492,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     if abs(height - self.uninstallExpectedHeight) > 1 {
                         self.uninstallUserResized = true
                     }
+                } else if resized === self.microphoneWindow {
+                    if resized.inLiveResize { self.microphoneUserResized = true }
                 } else if resized === self.soundWindow {
                     let height = resized.contentRect(forFrameRect: resized.frame).height
                     if resized.inLiveResize, abs(height - self.soundExpectedHeight) > 1 { self.soundUserResized = true }
@@ -501,6 +515,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 if closing === self.archiveWindow { self.archiveUserResized = false }
                 if closing === self.uninstallWindow { self.uninstallUserResized = false }
                 if closing === self.soundWindow { self.soundUserResized = false }
+                if closing === self.microphoneWindow { self.microphoneUserResized = false }
                 if closing === self.screenTextWindow { self.screenTextUserResized = false }
             }
         }
@@ -847,6 +862,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applyAppTheme(refreshIcon: Bool = true) {
         statusController?.applyTheme()
         settingsWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        for window in [soundWindow, microphoneWindow].compactMap({ $0 }) {
+            window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+            window.backgroundColor = NSColor(Theme.background)
+        }
         onboardingWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
         onboardingWindow?.backgroundColor = NSColor(Theme.background)
         converterWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
@@ -1043,7 +1062,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         adjustArchiveHeight()
     }
 
-    /// SPEC: docs/spec.md — "Sound": closing discards the sample; an explicitly started mixer keeps running.
+    /// SPEC: docs/spec.md — "Sound", independent windows and persistent app routing.
     private func showSoundWindow() {
         guard ModuleActivation.isOn("sound") else { return }
         model.activity.note()
@@ -1066,7 +1085,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.setContentSize(NSSize(width: 520, height: 320))
             NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification,
                 object: window, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { self?.model.sound.close(); self?.model.soundMixer.close() }
+                MainActor.assumeIsolated {
+                    guard let self else { return }
+                    self.model.soundMixer.close()
+                    self.model.sound.closeControls(.output)
+                    if self.microphoneWindow?.isVisible != true, self.microphoneWindow?.isMiniaturized != true {
+                        self.model.sound.close()
+                    }
+                }
             }
             soundWindow = window
         }
@@ -1099,6 +1125,60 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if abs(frame.height - current.height) > 2 || frame.origin != current.origin {
             window.setFrame(frame, display: true)
         }
+    }
+
+    private func showMicrophoneWindow() {
+        guard ModuleActivation.isOn("sound") else { return }
+        model.activity.note()
+        if microphoneWindow == nil {
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 320),
+                                  styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+            window.title = L10n.t(.soundMicrophone, L10n.current).capitalizedFirst
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.isReleasedWhenClosed = false
+            let host = NSHostingController(rootView: SoundWindowView(sound: model.sound, microphone: true,
+                onHeightChange: { [weak self] height in
+                    self?.microphoneContentHeight = height
+                    self?.adjustMicrophoneHeight()
+                }).environmentObject(model).hopLayoutDirection())
+            host.sizingOptions = []
+            window.contentViewController = host
+            window.contentMinSize = NSSize(width: 480, height: 240)
+            window.setContentSize(NSSize(width: 520, height: 320))
+            NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification,
+                object: window, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    guard let self else { return }
+                    self.model.sound.closeControls(.input)
+                    if self.soundWindow?.isVisible != true, self.soundWindow?.isMiniaturized != true {
+                        self.model.sound.close()
+                    }
+                }
+            }
+            microphoneWindow = window
+        }
+        guard let window = microphoneWindow else { return }
+        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
+        window.backgroundColor = NSColor(Theme.background)
+        model.sound.open()
+        if !window.isVisible { microphoneNeedsCenter = true; window.contentView?.layoutSubtreeIfNeeded() }
+        enterDockMode()
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        adjustMicrophoneHeight()
+    }
+
+    private func adjustMicrophoneHeight() {
+        guard let window = microphoneWindow, !microphoneUserResized, microphoneContentHeight > 80,
+              let visible = (window.screen ?? NSScreen.main)?.visibleFrame else { return }
+        let current = window.frame
+        let content = window.contentRect(forFrameRect: current)
+        let frame = SoundWindowLayout.frame(current: current, contentHeight: microphoneContentHeight,
+                                           chromeHeight: current.height - content.height,
+                                           visible: visible, centered: microphoneNeedsCenter)
+        microphoneNeedsCenter = false
+        if abs(frame.height - current.height) > 2 || frame.origin != current.origin { window.setFrame(frame, display: true) }
     }
 
     /// SPEC: docs/spec.md — "Network access", the window.
@@ -1372,7 +1452,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Guard on statusController (set only on a normal launch) so we never
         // force-create the lazy model in safe mode. A crash/SIGKILL still orphans
         // the engine — TorrentEngineProcess reaps those on the next start.
-        if statusController != nil { model.soundStatus.setEnabled(false); model.sound.close(); model.soundMixer.stop(); model.torrent.stopEngine() }
+        if statusController != nil { model.soundStatus.setEnabled(false); model.sound.close(); model.soundMixer.suspend(); model.torrent.stopEngine() }
     }
 
     // MARK: - Opening archives, .torrent files and magnet: links (Launch Services)

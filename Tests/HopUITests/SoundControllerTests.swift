@@ -256,6 +256,35 @@ final class SoundControllerTests: XCTestCase {
         c.close()
     }
 
+    func testClosingMicrophoneLeavesQueuedOutputChangeIntact() async throws {
+        let h = Hardware(), m = Meter()
+        let c = SoundController(hardware: h, meter: m, enabled: { true })
+        c.open()
+        c.setVolume(0.3, direction: .output, expectedUID: "o")
+        c.closeControls(.input)
+        try await Task.sleep(for: .milliseconds(100))
+        XCTAssertEqual(h.writes, ["volume:o"])
+        XCTAssertEqual(h.outputs[0].volume, 0.3)
+        c.close()
+    }
+
+    func testClosingMicrophoneCancelsInputWritesAndLatePermissionWithoutClosingOutputControls() async throws {
+        let h = Hardware(), m = Meter()
+        let c = SoundController(hardware: h, meter: m, enabled: { true })
+        c.open(); c.startCheck()
+        let pending = m.completion
+        c.setVolume(0.3, direction: .input, expectedUID: "a")
+        c.closeControls(.input)
+        pending?(true)
+        try await Task.sleep(for: .milliseconds(80))
+        XCTAssertTrue(c.windowOpen)
+        XCTAssertFalse(c.hasRecording)
+        XCTAssertFalse(c.checking)
+        XCTAssertEqual(m.starts, 0)
+        XCTAssertTrue(h.writes.isEmpty)
+        c.close()
+    }
+
     func testClosingOrRouteSwitchCancelsQueuedVolumeWrite() async throws {
         let h = Hardware(), m = Meter()
         let c = SoundController(hardware: h, meter: m, enabled: { true })

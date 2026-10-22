@@ -32,6 +32,14 @@ final class SoundWindowLayoutTests: XCTestCase {
         }
     }
 
+    func testMainSoundWindowIsCompactWithoutInputChannels() {
+        let model = AppModel(preview: true)
+        let host = NSHostingView(rootView: SoundWindowView(sound: model.sound).environmentObject(model))
+        host.frame.size = NSSize(width: 520, height: 320)
+        host.layoutSubtreeIfNeeded()
+        XCTAssertLessThanOrEqual(host.fittingSize.height, 400)
+    }
+
     func testScrollableSoundContentReportsItsFullHeight() {
         let model = AppModel(preview: true)
         var measured: CGFloat = 0
@@ -46,10 +54,10 @@ final class SoundWindowLayoutTests: XCTestCase {
         window.orderFront(nil)
         defer { window.close() }
         let deadline = Date().addingTimeInterval(1)
-        while measured < 400 && Date() < deadline {
+        while measured < 200 && Date() < deadline {
             window.contentView?.layoutSubtreeIfNeeded()
             RunLoop.main.run(until: Date().addingTimeInterval(0.02))
         }
-        XCTAssertGreaterThan(measured, 400, "Scrollable content must report its full height, rather than zero or the viewport")
+        XCTAssertGreaterThan(measured, 200, "Scrollable content must report its full height, rather than zero or the viewport")
     }
 }

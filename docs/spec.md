@@ -631,7 +631,8 @@ moment somebody quits mid-wizard.
 
 ## Sound
 
-A standalone `sound` module has its own window, panel row, settings page and
+A standalone `sound` module has a compact app/output window, a separate
+microphone window, panel row, settings page and
 assignable open/microphone-mute shortcuts. There are no shipped key combinations.
 The optional `build-app.sh --install --dev --open-sound` diagnostic starts the
 Sound window in the installed Dev bundle; production ignores this flag.
@@ -682,76 +683,60 @@ suspends fitting until the window closes; the next open fits again.
   capture and presents Listen; playback starts only on that button, through the
   current macOS output. Playback can be stopped or repeated. No file or network
   data is created.
-- Closing the window, switching Sound off, changing input, losing permission
+- Closing the microphone window, switching Sound off, changing input, losing permission
   or an input interruption stops capture/playback and discards the sample.
   Starting another check replaces the previous sample. Output changes stop
   playback; replay uses the new output. Late permission/engine/player callbacks
   cannot restart capture or stop a newer session. The buffer cap is ten seconds
   even if a main-thread timer is delayed. No capture starts just by opening.
 
-On macOS 14.2 and later, Start Mixer enables per-application output volume and
-independent input channels. Stop Mixer restores app output and removes Hop Input.
-Closing the window keeps an explicitly started mixer running; switching the
-module off or quitting stops it. No capture begins merely by opening the window.
+On macOS14.2 and later, Start Mixer enables per-application output volume and
+mute only. It records `soundMixerEnabled=true`. Closing either window keeps
+output routing active. Normal quit suspends routing without clearing the choice;
+the next ordinary launch resumes it. Explicit Stop records false. Module disable
+suspends routing and closes both windows; re-enable resumes a retained choice.
+A fresh install does not start routing. No login item is added by this setting.
 
-- App audio clients are grouped by their owning application, including browser
-  helpers. Channels use Core Audio process taps and private tap-only aggregates.
-  A helper without NSRunningApplication metadata remains discoverable by its
-  Core Audio bundle ID and is grouped under the running parent browser. In the
-  live Chrome regression, a helper with HAL bundle ID com.google.Chrome.helper
-  and no NSRunningApplication must still produce a Chrome channel.
-  Original output is muted only while Hop reads the tap and is restored on stop
-  or route failure. Apps from Hop itself and its input helper are excluded.
-  Separate tabs/players inside the same audio process share one channel.
-- Software gain is independent of the hardware master: 0–200%, with editable
-  percentage, per-channel mute and a soft limiter. Mute gates every output sample
-  immediately, including a persisted-muted channel at startup. Gain/unmute use
-  a short ramp. Unchanged channels survive other apps joining/leaving the mixer.
-- Each enabled physical or third-party input is captured by its device UID in
-  an owned helper, without changing the macOS default. Input audio is converted
-  to 48 kHz, with independent bounded queues and adaptive clock compensation.
-  A format change rebuilds that capture and converter, preserving Hop Input.
-- The Sound window opens at 520 pt width (minimum 480 pt), fits its content
-  vertically and scrolls when needed.
-- Speech noise suppression is withdrawn from this release after the listening
-  comparison removed words from the user's speech. Global/per-input controls,
-  processing and the inference library are absent. Legacy saved denoise fields
-  are ignored while gain, mute, bass and active choices are preserved; loading
-  and re-encoding them drops the retired fields. At unity gain with other effects
-  off, legacy settings must leave every quiet input sample unchanged.
-  Private system aggregates are hidden from selectors.
-- Start Mixer uses the microphone permission flow and reuses a running/starting
-  mixer. An explicitly started mixer remains running at unity gain until Stop,
-  module disable or quit. Returning Chrome to 100% must not silently stop
-  processing and leave the next slider change unapplied. Application gain/mute
-  controls are disabled until the mixer is running. Input selection can still be
-  configured before starting. Stop cancels any pending startup/permission callback
-  and releases the helper, taps and Hop Input. Hardware master volume/mute do not
-  require the mixer. Opening a window with saved channel choices does not
-  start capture; changing gain/mute does not start it.
-- Hardware device observers reuse their listeners while the public device list
-  is unchanged. Private mixer aggregates do not trigger listener rebuilding;
-  initial device notifications must not create an add/remove feedback loop.
-- Each input retains an optional 6 dB low-frequency shelf. There is no speech
-  classifier, noise gate or replacement noise-suppression algorithm.
-- A public tap-only aggregate exposes the helper's processed mix as Hop Input.
-  Its owner keeps an input IOProc running until teardown: an AVAudioEngine
-  consumer alone may not start a tap-only aggregate. The callback only drives
-  the device clock; it does not record or retain samples. A start failure
-  removes the IOProc, aggregate and tap before reporting failure.
-  The helper's speaker output is always muted before inputs start. Other apps
-  must explicitly select Hop Input to receive the processed channels; apps
-  reading a physical microphone directly do not receive these effects. No HAL
-  driver is installed. Hop Input retains its identity during output changes.
-  Teardown waits for the owned helper to exit before releasing its muted tap.
-- Settings persist by app bundle ID/input UID. Live meters update leaf views
-  only while the window is open. Device/process notifications drive discovery,
-  with no idle polling. Off removes subscriptions, engines, taps and devices.
+- The main window has output-device controls, one compact row per app and a
+  Microphone button opening the separate window. Each app row has name, volume
+  slider, editable percentage and a fixed-size mute icon. Software volume is
+  0–100%;100% preserves the source level. Legacy boosts clamp to100%; mute is
+  preserved. App volume does not modify the hardware master. Returning to100%
+  does not stop routing. Controls are disabled while routing is off.
+- App clients are grouped by their owning app, including browser helpers without
+  NSRunningApplication metadata, resolved through the HAL bundle ID. Chrome's
+  row controls the whole browser, not individual YouTube tabs. Apps that stop
+  output temporarily remain connected while their process exists, preventing
+  discovery/tap-muting feedback loops. Newly sounding apps join in background.
+- CoreAudio process taps and private aggregates read output only. Direct app
+  output is muted only while the corresponding Hop stream is reading, and is
+  restored on stop or failure. Runtime failure releases the session, exposes an
+  error and retains the explicit choice for retry or the next launch. Old
+  asynchronous failures cannot stop a newer session. No gain control starts
+  routing without the explicit persistent choice.
+- App routing never queries microphone permission, captures physical inputs,
+  launches the input worker or creates Hop Input. Legacy saved input/bass choices
+  cannot activate those paths. Input mixing, bass and virtual-input controls are
+  absent from these windows. No noise suppression is offered.
+- The separate microphone window controls only the selected hardware input:
+  device selection, supported volume/mute and explicit Check/Listen. Closing it
+  stops capture/playback and clears the in-memory sample even if Sound remains
+  open. Closing Sound leaves an open microphone check alone and leaves app
+  routing running. Mute does not claim to disable other devices.
+- Both windows open centered and fit their content within the visible screen,
+  minimum width480pt. The main window has no input channel list. Manual resize
+  suspends fitting until close. Device mute labels and app mute icons retain
+  stable dimensions across states. Snapshot mode has separate Sound/Microphone
+  variants and never starts capture.
+- App settings persist by bundle ID. Process/device notifications drive
+  discovery in background with no periodic audio metering. Module suspension
+  releases subscriptions, engines and taps. All sample processing is local.
 
-The module uses Apple's audio frameworks. No audio files or network data are
-created by the mixer. The signed app has `com.apple.security.device.audio-input` and a truthful
-`NSMicrophoneUsageDescription`. Its permission status and System Settings link
-are available in the permissions page and, on denial, in the device window.
+The module uses Apple's audio frameworks. App mixing creates no audio files or
+network data. Only the explicit microphone check requests microphone access and
+retains a bounded sample in memory. The signed app's microphone entitlement and
+usage description remain for that check. Permission status and repair links
+remain in the permissions page and microphone window.
 
 ## Modules
 

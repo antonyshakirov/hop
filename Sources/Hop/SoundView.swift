@@ -35,14 +35,15 @@ struct SoundVolumeControl: View {
     var set: (Double) -> Void
     let maximum: Double
     let label: L10nKey
+    let showLabel: Bool
     @State private var volumeEditing: SoundVolumeEditing
     @State private var editing = false
     @FocusState private var enteringPercentage: Bool
 
     init(device: SoundDevice, direction: SoundDirection, lang: AppLanguage,
-         maximum: Double = 1, label: L10nKey = .soundVolume, set: @escaping (Double) -> Void) {
+         maximum: Double = 1, label: L10nKey = .soundVolume, showLabel: Bool = true, set: @escaping (Double) -> Void) {
         self.device = device; self.direction = direction; self.lang = lang; self.set = set
-        self.maximum = maximum; self.label = label
+        self.maximum = maximum; self.label = label; self.showLabel = showLabel
         _volumeEditing = State(initialValue: SoundVolumeEditing(value: device.volume ?? 0))
     }
 
@@ -52,7 +53,7 @@ struct SoundVolumeControl: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Text(L10n.t(label, lang)).font(Theme.mono(11)).foregroundStyle(Theme.textTertiary)
+            if showLabel { Text(L10n.t(label, lang)).font(Theme.mono(11)).foregroundStyle(Theme.textTertiary) }
             if Snapshot.active {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
@@ -213,6 +214,7 @@ struct SoundInputMeter: View {
 
 struct SoundWindowView: View {
     @ObservedObject var sound: SoundController
+    var microphone = false
     var onHeightChange: (CGFloat) -> Void = { _ in }
     @EnvironmentObject var model: AppModel
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
@@ -232,18 +234,26 @@ struct SoundWindowView: View {
     private var content: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text(t(.soundLabel)).font(Theme.mono(20)).foregroundStyle(Theme.textPrimary)
+                Text(t(microphone ? .soundMicrophone : .soundLabel)).font(Theme.mono(20)).foregroundStyle(Theme.textPrimary)
                 Spacer()
-                SoundMixerSwitch(mixer: model.soundMixer, lang: lang)
+                if !microphone { SoundMixerSwitch(mixer: model.soundMixer, lang: lang) }
             }
-            section(.output)
-            SoundMixerChannels(mixer: model.soundMixer, input: false, lang: lang)
-            Rectangle().fill(Theme.divider).frame(height: 1)
-            section(.input)
-            SoundMixerChannels(mixer: model.soundMixer, input: true, lang: lang)
-            if sound.device(.input)?.muted == true {
-                Text(t(.soundCurrentMicOnly)).font(Theme.mono(10))
-                    .foregroundStyle(Theme.textTertiary).fixedSize(horizontal: false, vertical: true)
+            if microphone {
+                section(.input)
+                if sound.device(.input)?.muted == true {
+                    Text(t(.soundCurrentMicOnly)).font(Theme.mono(10))
+                        .foregroundStyle(Theme.textTertiary).fixedSize(horizontal: false, vertical: true)
+                }
+            } else {
+                section(.output)
+                SoundMixerChannels(mixer: model.soundMixer, lang: lang)
+                HStack {
+                    if model.soundMixer.running {
+                        Text(t(.soundMixerBackground)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+                    }
+                    Spacer()
+                    action(.soundMicrophone, icon: "mic") { model.openMicrophoneWindow?() }
+                }
             }
             if let failure = sound.failure {
                 Text(failureText(failure)).font(Theme.mono(11))

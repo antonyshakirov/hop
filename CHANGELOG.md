@@ -2,9 +2,10 @@
 
 ## 2.4.0 - 2026-10-22
 
-- New Sound module: control the selected output and input device, adjust app volume, and
-  process microphone audio locally with the mixer. Muting applies to the named
-  device; Hop does not offer a global microphone block.
+- New Sound module: compact per-app volume and mute. Enable once to keep it working
+  in the background and resume on the next launch. Microphone controls open separately;
+  app mixing never captures the physical microphone or creates Hop Input.
+  Microphone mute applies only to the selected device.
 - Sound: dragging the volume slider also updates a focused percentage field.
 - Settings: keep only the Hop icon in the menu bar, without corner indicators
   or countdowns.

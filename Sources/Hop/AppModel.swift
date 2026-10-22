@@ -92,6 +92,7 @@ final class AppModel: ObservableObject {
     /// Open the standalone settings window.
     var openSettingsWindow: (() -> Void)?
     var openSoundWindow: (() -> Void)?
+    var openMicrophoneWindow: (() -> Void)?
     /// Open the standalone converter window.
     var openConverterWindow: (() -> Void)?
     /// Open the standalone archive window — a drop target that survives a drag,

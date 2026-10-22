@@ -728,11 +728,11 @@ enum Snapshot {
             content = AnyView(NetworkQuestionCard(network: model.networkFilter, lang: L10n.current)
                 .padding(20)
                 .background(Theme.panelBackground))
-        } else if args.contains("--window-sound") {
+        } else if args.contains("--window-sound") || args.contains("--window-microphone") {
             let state = args.firstIndex(of: "--sound-state").flatMap { i in args.count > i + 1 ? args[i + 1] : nil }
             model.sound.stageDemo(state ?? "idle")
             model.soundMixer.stageDemo()
-            content = AnyView(SoundWindowView(sound: model.sound).environmentObject(model)
+            content = AnyView(SoundWindowView(sound: model.sound, microphone: args.contains("--window-microphone")).environmentObject(model)
                 .frame(width: 520).fixedSize(horizontal: false, vertical: true))
         } else if args.contains("--window-network") {
             content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
