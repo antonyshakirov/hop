@@ -12,7 +12,6 @@ enum ModulePresentation {
         case "awake": return .awakeOff
         case "clipboard": return .tabClipboard
         case "sound": return .soundLabel
-        case "quitApps": return .quitAppsTitle
         case "convert": return .convertLabel
         case "windows": return .windowsLabel
         case "speedtest": return .speedtestLabel
@@ -40,7 +39,6 @@ enum ModulePresentation {
         case "awake": return .purposeAwake
         case "clipboard": return .purposeClipboard
         case "sound": return .purposeSound
-        case "quitApps": return .purposeQuitApps
         case "convert": return .purposeConvert
         case "windows": return .purposeWindows
         case "speedtest": return .purposeSpeedtest
@@ -68,7 +66,6 @@ enum ModulePresentation {
         case "awake": return [.docAwakeFull]
         case "clipboard": return [.docClipboardFull]
         case "sound": return [.docSoundFull]
-        case "quitApps": return [.docQuitAppsFull]
         case "convert": return [.docConverterFull, .docConverterDocs]
         case "windows": return [.docWindowsFull]
         case "speedtest": return [.docSpeedFull]
@@ -96,7 +93,6 @@ enum ModulePresentation {
         case "awake": return "moon"
         case "clipboard": return "doc.on.clipboard"
         case "sound": return "speaker.wave.2"
-        case "quitApps": return "xmark.app"
         case "convert": return "arrow.2.squarepath"
         case "windows": return "macwindow"
         case "speedtest": return "speedometer"

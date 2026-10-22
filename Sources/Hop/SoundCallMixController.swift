@@ -175,7 +175,10 @@ private final class NativeSoundCallSession: SoundCallSession {
             let line = buffer.prefix(upTo: newline); buffer.removeSubrange(...newline)
             guard let message = (try? JSONSerialization.jsonObject(with: line)) as? [String: Any] else { fail(); return }
             if message["ready"] as? Bool == true { publish() }
-            if message["failed"] as? Bool == true { fail(); return }
+            if message["failed"] as? Bool == true {
+                print("HOP CALL MIX failed: \(String((message["reason"] as? String ?? "worker failure").prefix(256)))"); fflush(stdout)
+                fail(); return
+            }
             if let applied = message["applied"] as? UInt64, applied == awaiting {
                 awaiting = nil
                 acknowledgement?.cancel(); acknowledgement = nil

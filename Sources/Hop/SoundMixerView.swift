@@ -13,7 +13,7 @@ struct SoundMixerSwitch: View {
                 Label(L10n.t(mixer.starting ? .soundMixerStarting : mixer.requested ? .soundMixerStop : .soundMixerStart, lang),
                       systemImage: mixer.requested ? "stop.circle" : "slider.horizontal.3")
             }
-                .font(Theme.mono(11)).foregroundStyle(mixer.running ? Theme.accentYellow : Theme.textPrimary)
+                .font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
                 .padding(.horizontal, 10).padding(.vertical, 7)
                 .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
         }.buttonStyle(.plain).hoverDim().disabled(!mixer.available || Snapshot.active)
@@ -30,8 +30,12 @@ struct SoundMixerChannels: View {
                 Text(L10n.t(.soundMixerRequirement, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
+                HStack {
+                    Text(L10n.t(.soundMixerApps, lang)).font(Theme.mono(14)).foregroundStyle(Theme.textPrimary)
+                    Spacer(minLength: 8)
+                    SoundMixerSwitch(mixer: mixer, lang: lang)
+                }
                 if !mixer.apps.isEmpty {
-                    Text(L10n.t(.soundMixerApps, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
                     ForEach(mixer.apps) { channel in
                         SoundMixerChannelRow(channel: channel, mixer: mixer, lang: lang)
                     }
@@ -41,7 +45,7 @@ struct SoundMixerChannels: View {
                 }
                 if let failure = mixer.failure {
                     Text(L10n.t(failure == .permission ? .soundMixerPermission : .soundFailed, lang))
-                        .font(Theme.mono(10)).foregroundStyle(Theme.accentOrange).fixedSize(horizontal: false, vertical: true)
+                        .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary).fixedSize(horizontal: false, vertical: true)
                     Button(L10n.t(.soundMixerStart, lang)) { mixer.start() }.buttonStyle(.plain).hoverDim()
                 }
             }
@@ -66,7 +70,7 @@ struct SoundMixerChannelRow: View {
             Button { mixer.update(channel) { $0.muted.toggle() } } label: {
                 Image(systemName: channel.settings.muted ? "speaker.slash.fill" : "speaker.wave.2")
                     .font(.system(size: 13))
-                    .foregroundStyle(channel.settings.muted ? Theme.accentYellow : Theme.textSecondary)
+                    .foregroundStyle(channel.settings.muted ? Theme.textPrimary : Theme.textSecondary)
                     .frame(width: 30, height: 28)
                     .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
             }.buttonStyle(.plain).hoverDim()

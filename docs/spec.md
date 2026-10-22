@@ -7238,14 +7238,15 @@ opened" dialog and the Privacy & Security override.
 
 ### Release
 
-## Quit apps
-
-The quitApps module opens a scrollable list of regular GUI apps. Opening or
-closing its window never quits anything. Finder and Hop variants are excluded.
-Pins persist by bundle identifier and block individual as well as bulk quit.
-A row requests normal termination; Quit all requests it for current unpinned
-apps. Each app handles its own save/cancel prompts. Never force terminate or
-auto-answer prompts. A successful send is labelled request sent, not closed;
-rows disappear only on actual termination. Revalidate launch identity before
-every request. Snapshot/onboarding models cannot quit apps or write pins.
-See app-quit-prototype.md for the backend and test contract.
+Sound uses two tabs in one window, with Apple’s localized Input/Output names.
+Output contains system/app listening volume. Input contains the selected physical
+microphone, a temporary check, and the optional Hop Mix mixer that combines
+selected microphone/app sources as a virtual microphone for another app. Input/Output headings are prominent. Mixer shows
+an explicit enabled/disabled status and enable/disable actions; its destination is
+a normal virtual microphone selected by the calling/recording app, not Zoom-only.
+Switching tabs does not stop the virtual mixer; input-device change is observed
+by the common window even when its Input tab is hidden. Leaving Input stops a
+running short check; its RAM sample is still deleted when the window closes.
+The default viewport reserves the same minimum height for all tabs. Sound controls
+use neutral colors and Hop's plain square checks. Disabled volume readouts render
+number and percent as one styled text, so both dim equally.

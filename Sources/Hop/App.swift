@@ -38,7 +38,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var uninstallWindow: NSWindow?
     private var networkWindow: NSWindow?
     private var soundWindow: NSWindow?
-    private var quitAppsWindow: NSWindow?
     private var soundContentHeight: CGFloat = 0
     private var soundExpectedHeight: CGFloat = 320
     private var soundUserResized = false
@@ -79,7 +78,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var dockWindows: [NSWindow] {
         var list = [settingsWindow, torrentAddWindow, converterWindow,
                     archiveWindow, uninstallWindow, screenTextWindow,
-                    networkWindow, soundWindow, quitAppsWindow, onboardingWindow].compactMap { $0 }
+                    networkWindow, soundWindow, onboardingWindow].compactMap { $0 }
         list.append(contentsOf: finderArchiveWindows.values.map(\.window))
         list.append(contentsOf: shotWindows.windows)
         return list
@@ -353,7 +352,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self.showSettingsWindow()
         }
         model.openSoundWindow = { [weak self] in self?.showSoundWindow() }
-        model.openQuitAppsWindow = { [weak self] in self?.showQuitAppsWindow() }
         model.soundMixer.resumeIfEnabled()
         model.soundStatus.setEnabled(ModuleActivation.isOn("sound"))
         soundActivationObserver = NotificationCenter.default.addObserver(
@@ -361,7 +359,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self else { return }
-                if !ModuleActivation.isOn("quitApps") { self.quitAppsWindow?.close() }
                 let enabled = ModuleActivation.isOn("sound")
                 self.model.soundStatus.setEnabled(enabled)
                 if enabled { self.model.soundMixer.resumeIfEnabled(); return }
@@ -520,9 +517,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if CommandLine.arguments.contains("--open-sound") {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.showSoundWindow() }
             }
-            if CommandLine.arguments.contains("--open-quit-apps") {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.showQuitAppsWindow() }
-            }
             if CommandLine.arguments.contains("--open-converter") {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     self?.showConverterWindow()
@@ -629,7 +623,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.model.keyboardLock.lock()
             },
             "sound": { [weak self] in self?.showSoundWindow() },
-            "quitApps": { [weak self] in self?.showQuitAppsWindow() },
             "convert": { [weak self] in self?.showConverterWindow() },
             "archive": { [weak self] in self?.showArchiveWindow() },
             "uninstall": { [weak self] in self?.showUninstallWindow() },
@@ -856,7 +849,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applyAppTheme(refreshIcon: Bool = true) {
         statusController?.applyTheme()
         settingsWindow?.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
-        for window in [soundWindow, quitAppsWindow].compactMap({ $0 }) {
+        for window in [soundWindow].compactMap({ $0 }) {
             window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
             window.backgroundColor = NSColor(Theme.background)
         }
@@ -1122,37 +1115,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showMicrophoneWindow() {
         showSoundWindow()
-    }
-
-    private func showQuitAppsWindow() {
-        guard ModuleActivation.isOn("quitApps") else { return }
-        model.activity.note()
-        if quitAppsWindow == nil {
-            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 520),
-                styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
-            window.titlebarAppearsTransparent = true
-            window.titleVisibility = .hidden
-            window.isReleasedWhenClosed = false
-            window.isMovableByWindowBackground = false
-            let host = NSHostingController(rootView: AppQuitWindowView()
-                .environmentObject(model).hopLayoutDirection())
-            host.sizingOptions = []
-            window.contentViewController = host
-            window.contentMinSize = NSSize(width: 420, height: 280)
-            quitAppsWindow = window
-        }
-        guard let window = quitAppsWindow else { return }
-        window.title = L10n.t(.quitAppsTitle, L10n.current).capitalizedFirst
-        window.appearance = NSAppearance(named: Theme.isDark ? .darkAqua : .aqua)
-        window.backgroundColor = NSColor(Theme.background)
-        if !window.isVisible {
-            window.setContentSize(NSSize(width: 560, height: 520))
-            window.center()
-        }
-        model.appQuit.refresh()
-        enterDockMode()
-        NSApp.activate(ignoringOtherApps: true)
-        window.makeKeyAndOrderFront(nil)
     }
 
     /// SPEC: docs/spec.md — "Network access", the window.

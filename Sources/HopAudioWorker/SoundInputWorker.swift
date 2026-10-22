@@ -118,7 +118,7 @@ private final class SoundWorkerEngine {
                 guard let self else { return }
                 self.silence()
                 do { try self.engine.start() } catch {}
-                self.send(["failed": true])
+                self.send(["failed": true, "reason": "output-configuration-changed"])
             }
         }
         send(["ready": true])
@@ -161,7 +161,7 @@ private final class SoundWorkerEngine {
             gate.replace(selected.compactMap { inputs[$0.uid]?.channel } + applications.compactMap { apps[$0.id]?.channel })
             if !engine.isRunning { try engine.start() }
             if let id = command.requestID { send(["applied": id, "captureCount": inputs.count + apps.count]) }
-        } catch { silence(); send(["failed": true]) }
+        } catch { silence(); send(["failed": true, "reason": String(describing: error)]) }
     }
     func silence() {
         gate.replace([])

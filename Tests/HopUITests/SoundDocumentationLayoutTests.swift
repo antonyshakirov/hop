@@ -16,8 +16,8 @@ final class SoundDocumentationLayoutTests: XCTestCase {
                 (.soundCallStart, 11, [180, 220]),
                 (.soundCallStop, 11, [180, 220]),
                 (.soundCallHint, 10, [432, 480, 620]),
-                (.quitAppsNotice, 10, [432, 480, 620]),
-                (.docQuitAppsFull, 12, [432, 472, 620])
+                (.soundCallCloseHint, 10, [432, 480, 620]),
+                (.soundCallFailed, 10, [432, 480, 620]),
             ]
             for (key, size, widths) in cases {
             let paragraph = L10n.t(key, lang).components(separatedBy: "\n\n").last!

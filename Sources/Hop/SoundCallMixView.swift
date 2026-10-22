@@ -8,9 +8,8 @@ struct SoundCallMixView: View {
     let lang: AppLanguage
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Divider()
             HStack {
-                Text(L10n.t(.soundCallMix, lang)).font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+                Text(L10n.t(.soundCallMix, lang)).font(Theme.mono(16)).foregroundStyle(Theme.textPrimary)
                 Spacer()
                 Button {
                     if call.running || call.starting { call.stop() }
@@ -20,27 +19,30 @@ struct SoundCallMixView: View {
                         Text(L10n.t(.soundCallStart, lang)).hidden()
                         Text(L10n.t(.soundCallStop, lang)).hidden()
                         Text(L10n.t(call.running || call.starting ? .soundCallStop : .soundCallStart, lang))
-                    }.font(Theme.mono(11)).foregroundStyle(call.running ? Theme.accentYellow : Theme.textPrimary)
+                    }.font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
                         .padding(8).background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
                 }.buttonStyle(.plain).hoverDim()
             }
+            Text(SoundCallMixController.deviceName + " · " + L10n.t(call.starting ? .soundMixerStarting : call.running ? .soundEnabled : .soundDisabled, lang))
+                .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
             Text(L10n.t(.soundCallHint, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
             source(L10n.t(.soundMicrophone, lang), settings: call.microphone, edit: call.editMicrophone)
             ForEach(mixer.apps.filter { SoundCallMixPolicy.allows($0.id) }) { app in
                 source(app.name, settings: call.settings(app.id)) { edit in call.editApplication(app.id, edit) }
             }
-            if call.starting { Text(L10n.t(.soundMixerStarting, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary) }
+            Text(L10n.t(.soundCallCloseHint, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
             if let failure = call.failure {
-                Text(L10n.t(failure == .permission ? .soundPermission : .soundFailed, lang))
-                    .font(Theme.mono(10)).foregroundStyle(Theme.accentOrange).fixedSize(horizontal: false, vertical: true)
+                Text(L10n.t(failure == .permission ? .soundPermission : failure == .inputChanged ? .soundInputChanged : .soundCallFailed, lang))
+                    .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary).fixedSize(horizontal: false, vertical: true)
             }
-        }.onChange(of: sound.inputUID) { _, uid in call.inputChanged(uid) }
+        }
     }
     private func source(_ name: String, settings: SoundChannelSettings,
                         edit: @escaping ((inout SoundChannelSettings) -> Void) -> Void) -> some View {
         HStack(spacing: 10) {
             Toggle(name, isOn: Binding(get: { settings.active }, set: { value in edit { $0.active = value } }))
-                .toggleStyle(.checkbox).font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
+                .toggleStyle(SoundSourceToggleStyle()).font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
                 .frame(width: 135, alignment: .leading).disabled(call.running || call.starting)
             SoundVolumeControl(device: SoundDevice(uid: name, name: name + " · " + SoundCallMixController.deviceName, volume: settings.gain,
                                                    muted: settings.muted, canChangeVolume: true, canMute: true),
@@ -48,10 +50,26 @@ struct SoundCallMixView: View {
                 .disabled(!settings.active || call.starting)
             Button { edit { $0.muted.toggle() } } label: {
                 Image(systemName: settings.muted ? "speaker.slash.fill" : "speaker.wave.2")
-                    .foregroundStyle(settings.muted ? Theme.accentYellow : Theme.textSecondary)
+                    .foregroundStyle(settings.muted ? Theme.textPrimary : Theme.textSecondary)
                     .frame(width: 30, height: 28).background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
             }.buttonStyle(.plain).disabled(!settings.active || call.starting)
                 .accessibilityLabel(name + " · " + SoundCallMixController.deviceName + ": " + L10n.t(settings.muted ? .soundUnmute : .soundMute, lang))
         }
+    }
+}
+
+/// Matches Hop's plain square/check selection controls; no system-blue tint.
+private struct SoundSourceToggleStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        Button { configuration.isOn.toggle() } label: {
+            HStack(spacing: 7) {
+                Image(systemName: configuration.isOn ? "checkmark.square.fill" : "square")
+                    .font(.system(size: 12))
+                    .foregroundStyle(configuration.isOn ? Theme.textPrimary : Theme.textTertiary)
+                    .frame(width: 18, height: 18)
+                configuration.label
+            }.contentShape(Rectangle())
+        }.buttonStyle(.plain).hoverDim()
+            .accessibilityValue(configuration.isOn ? "1" : "0")
     }
 }

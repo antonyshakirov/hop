@@ -39,6 +39,7 @@ struct SoundVolumeControl: View {
     @State private var volumeEditing: SoundVolumeEditing
     @State private var editing = false
     @FocusState private var enteringPercentage: Bool
+    @Environment(\.isEnabled) private var controlsEnabled
 
     init(device: SoundDevice, direction: SoundDirection, lang: AppLanguage,
          maximum: Double = 1, label: L10nKey = .soundVolume, showLabel: Bool = true, set: @escaping (Double) -> Void) {
@@ -58,7 +59,7 @@ struct SoundVolumeControl: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         Capsule().fill(Theme.chipBg)
-                        Capsule().fill(device.muted == true ? Theme.textTertiary : Theme.accentYellow)
+                        Capsule().fill(device.muted == true ? Theme.textTertiary : Theme.textPrimary)
                             .frame(width: geometry.size.width * volumeEditing.value / maximum)
                     }.frame(height: 4).frame(maxHeight: .infinity)
                 }.frame(height: 18)
@@ -69,17 +70,19 @@ struct SoundVolumeControl: View {
                     set($0)
                 }), in: 0...maximum,
                        onEditingChanged: { editing = $0 })
-                    .tint(device.muted == true ? Theme.textTertiary : Theme.accentYellow)
+                    .tint(device.muted == true ? Theme.textTertiary : Theme.textPrimary)
                     .opacity(device.muted == true ? 0.45 : 1)
                     .accessibilityLabel(controlName + " " + L10n.t(label, lang))
             }
-            if Snapshot.active {
+            if Snapshot.active || !controlsEnabled {
                 Text("\(Int((volumeEditing.value * 100).rounded()))%")
                     .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
                     .fixedSize().frame(width: 42, alignment: .trailing)
+                    .opacity(controlsEnabled ? 1 : 0.45)
             } else {
                 HStack(spacing: 2) {
                     TextField("", text: $volumeEditing.text).textFieldStyle(.plain)
+                        .foregroundStyle(Theme.textSecondary)
                         .multilineTextAlignment(.trailing).frame(width: 34)
                         .focused($enteringPercentage)
                         .accessibilityLabel(controlName + " %")
@@ -150,7 +153,7 @@ private struct SoundDeviceMenu: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: selected ? "checkmark" : "circle")
-                    .foregroundStyle(selected ? Theme.accentYellow : Theme.textTertiary)
+                    .foregroundStyle(selected ? Theme.textPrimary : Theme.textTertiary)
                 Text(title).foregroundStyle(Theme.textPrimary).lineLimit(2)
                 Spacer(minLength: 0)
             }.font(Theme.mono(11)).padding(8).frame(maxWidth: .infinity, alignment: .leading)
@@ -216,6 +219,11 @@ struct SoundWindowView: View {
     @ObservedObject var sound: SoundController
     var onHeightChange: (CGFloat) -> Void = { _ in }
     @EnvironmentObject var model: AppModel
+    private enum Page: CaseIterable {
+        case output, input
+        var key: L10nKey { switch self { case .output: .soundOutput; case .input: .soundInput } }
+    }
+    @State private var page: Page = .output
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -228,32 +236,54 @@ struct SoundWindowView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Theme.panelBackground)
         .id(model.themeVersion)
+        .onChange(of: sound.inputUID) { _, uid in model.soundCallMix.inputChanged(uid) }
+        .onChange(of: page) { old, _ in if old == .input { sound.stopCheck() } }
     }
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text(t(.soundLabel)).font(Theme.mono(20)).foregroundStyle(Theme.textPrimary)
-                Spacer()
-                SoundMixerSwitch(mixer: model.soundMixer, lang: lang)
+            Text(t(.soundLabel)).font(Theme.mono(20)).foregroundStyle(Theme.textPrimary)
+            HStack(spacing: 4) {
+                ForEach(Page.allCases, id: \.self) { candidate in
+                    Button { page = candidate } label: {
+                        Text(t(candidate.key)).font(Theme.mono(12))
+                            .foregroundStyle(page == candidate ? Theme.textPrimary : Theme.textTertiary)
+                            .frame(maxWidth: .infinity).padding(.vertical, 9)
+                            .background(page == candidate ? Theme.chipBg : .clear, in: RoundedRectangle(cornerRadius: 6))
+                            .contentShape(Rectangle())
+                    }.buttonStyle(.plain).hoverDim()
+                        .accessibilityIdentifier("sound.tab." + String(describing: candidate))
+                        .accessibilityValue(page == candidate ? "1" : "0")
+                }
             }
-            section(.output)
-            SoundMixerChannels(mixer: model.soundMixer, lang: lang)
-            if model.soundMixer.running {
-                Text(t(.soundMixerBackground)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
-            }
-            Divider()
-            section(.input)
-            if sound.device(.input)?.muted == true {
-                Text(t(.soundCurrentMicOnly)).font(Theme.mono(10))
-                    .foregroundStyle(Theme.textTertiary).fixedSize(horizontal: false, vertical: true)
-            }
-            if model.soundCallMix.enabled {
-                SoundCallMixView(call: model.soundCallMix, sound: sound, mixer: model.soundMixer, lang: lang)
-            }
+            Group {
+                switch page {
+                case .output:
+                    VStack(alignment: .leading, spacing: 20) {
+                        section(.output)
+                        Divider()
+                        SoundMixerChannels(mixer: model.soundMixer, lang: lang)
+                        if model.soundMixer.running {
+                            Text(t(.soundMixerBackground)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+                        }
+                    }
+                case .input:
+                    VStack(alignment: .leading, spacing: 16) {
+                        section(.input)
+                        if sound.device(.input)?.muted == true {
+                            Text(t(.soundCurrentMicOnly)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        if model.soundCallMix.enabled {
+                            Divider()
+                            SoundCallMixView(call: model.soundCallMix, sound: sound, mixer: model.soundMixer, lang: lang)
+                        }
+                    }
+                }
+            }.frame(maxWidth: .infinity, minHeight: 340, alignment: .topLeading)
             if let failure = sound.failure {
                 Text(failureText(failure)).font(Theme.mono(11))
-                    .foregroundStyle(Theme.accentOrange).fixedSize(horizontal: false, vertical: true)
+                    .foregroundStyle(Theme.textSecondary).fixedSize(horizontal: false, vertical: true)
                 if failure == .permission {
                     action(.permGrant, icon: "gearshape") {
                         if let url = URL(string: MicrophoneLevelMeter.privacySettingsURL) { NSWorkspace.shared.open(url) }
@@ -284,7 +314,7 @@ struct SoundWindowView: View {
             HStack(spacing: 12) {
                 Label(t(direction == .output ? .soundOutput : .soundInput),
                       systemImage: direction == .output ? "speaker.wave.2" : "mic")
-                    .font(Theme.mono(12)).foregroundStyle(Theme.textSecondary)
+                    .font(Theme.mono(16)).foregroundStyle(Theme.textPrimary)
                 Spacer(minLength: 8)
                 SoundDeviceMenu(direction: direction, lang: lang, sound: sound)
             }
@@ -335,7 +365,7 @@ struct SoundWindowView: View {
         Button { sound.toggleMute(direction, expectedUID: device.uid) } label: {
             SoundMuteLabel(muted: muted, input: direction == .input, lang: lang)
                 .font(Theme.mono(11))
-                .foregroundStyle(muted ? Theme.accentYellow : Theme.textSecondary)
+                .foregroundStyle(muted ? Theme.textPrimary : Theme.textSecondary)
                 .padding(.horizontal, 10).padding(.vertical, 7)
                 .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
         }
