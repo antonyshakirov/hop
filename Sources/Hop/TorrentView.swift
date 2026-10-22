@@ -208,7 +208,7 @@ struct TorrentView: View {
                     guard let url = await loadFileURL(provider),
                           url.pathExtension.lowercased() == "torrent",
                           let data = try? Data(contentsOf: url) else { continue }
-                    add(source: .file(data))
+                    add(source: .file(data, url: url))
                 }
             }
             return true
@@ -563,10 +563,62 @@ struct TorrentView: View {
 
     /// SPEC: docs/spec.md "Removing a torrent: what each choice deletes".
     private func removeConfirm(_ item: TorrentController.TorrentItem) -> some View {
-        removeChoice(deleteHelp: t(.torrentRemoveDeleteHelp), keepHelp: t(.torrentRemoveKeepHelp),
-                     size: 10, onCancel: { confirmingRemove = nil }) { deleteFiles in
+        VStack(alignment: .leading, spacing: 6) {
+            removalButton(t(.torrentRemoveTorrent), symbol: "list.bullet") {
+                remove(item, choice: .list)
+            }
+            removalButton(t(.torrentRemoveSource), symbol: "doc") {
+                remove(item, choice: .sourceFile)
+            }
+            .disabled(item.sourceFile == nil)
+            .opacity(item.sourceFile == nil ? 0.45 : 1)
+            if item.sourceFile == nil {
+                Text(t(.torrentSourceUnavailable))
+                    .font(Theme.mono(9))
+                    .foregroundStyle(Theme.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            removalButton(t(.torrentRemoveAll), symbol: "trash", color: Theme.accentRed) {
+                remove(item, choice: .all)
+            }
+            Button { confirmingRemove = nil } label: {
+                HoverLabel(text: t(.quitCancel), size: 10, color: Theme.textSecondary)
+                    .padding(.vertical, 6)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+    }
+
+    private func removalButton(_ title: String, symbol: String,
+                               color: Color = Theme.textPrimary,
+                               action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: symbol).frame(width: 16)
+                Text(title).fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 0)
+            }
+            .font(Theme.mono(11))
+            .foregroundStyle(color)
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .hoverDim()
+    }
+
+    private func remove(_ item: TorrentController.TorrentItem, choice: TorrentController.RemovalChoice) {
+        do {
+            try torrent.remove(id: item.id, choice: choice)
             confirmingRemove = nil
-            torrent.remove(id: item.id, deleteFiles: deleteFiles)
+        } catch {
+            let alert = NSAlert()
+            alert.messageText = t(.torrentSourceDeleteFailed).capitalizedFirst
+            alert.informativeText = error.localizedDescription
+            alert.alertStyle = .warning
+            alert.runModal()
         }
     }
 
@@ -630,7 +682,7 @@ struct TorrentView: View {
         guard let url = FilePicker.open(types: UTType(filenameExtension: "torrent").map { [$0] } ?? [],
                                         startIn: downloads).first,
               let data = try? Data(contentsOf: url) else { return }
-        add(source: .file(data))
+        add(source: .file(data, url: url))
     }
 
     /// Open the add sheet immediately; it fetches the file list inside itself and

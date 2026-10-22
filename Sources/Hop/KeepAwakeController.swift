@@ -41,7 +41,7 @@ final class KeepAwakeController: ObservableObject {
     /// Lid mode — visible to the UI: laptop icon in the module row.
     @Published private(set) var lidApplied = false
     /// Blanks the built-in panel while the lid is closed in lid mode.
-    private let lidDimmer = LidDimmer()
+    private let lidDimmer = LidDisplayController()
     private var ticker: Timer?
     private var terminateObserver: NSObjectProtocol?
 

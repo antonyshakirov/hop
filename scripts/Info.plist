@@ -198,6 +198,10 @@
 	<string>14.0</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>Hop captures selected app audio to apply separate volume controls and provides processed inputs as Hop Input. Audio is processed locally and is not saved or uploaded.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Hop uses enabled audio inputs when you start the mixer, and records a short in-memory sample when you choose to check an input. Audio is processed locally and is not uploaded.</string>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Hop asks Pages, Numbers and Keynote to export the documents you convert.</string>
 	<key>NSDesktopFolderUsageDescription</key>

@@ -138,9 +138,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     /// Runs only across a handover between two clocks sharing the bar.
     private var fadeTicker: Timer?
 
-    init(model: AppModel) {
+    init(model: AppModel, statusItem injectedItem: NSStatusItem? = nil) {
         self.model = model
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        statusItem = injectedItem ?? NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         super.init()
 
         popover.behavior = .transient
@@ -894,6 +894,13 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     func refreshButton() {
         guard let button = statusItem.button else { return }
+        if UserDefaults.standard.bool(forKey: SettingsKey.menuBarIconOnly) {
+            fadeTicker?.invalidate()
+            fadeTicker = nil
+            apply(Look(composition: IconComposition(), base: nil, dark: false,
+                       title: "", glyph: nil, opacity: 1), to: button)
+            return
+        }
         // SPEC: docs/spec.md — "A module that is off is off everywhere".
         let off = ModuleActivation.inactiveModules()
         let timerOn = !off.contains("timer")
@@ -1065,12 +1072,15 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 title += String(repeating: " ", count: frozen - total)
             }
         }
+        apply(Look(composition: composition, base: base, dark: barIsDark,
+                   title: title, glyph: glyph, opacity: opacity), to: button)
+    }
+
+    private func apply(_ look: Look, to button: NSStatusBarButton) {
         // WORKAROUND: writing the button's image or title makes AppKit re-resolve
         // its appearance, which our own observer answers with another refresh.
         // Under a menu-bar manager that re-parents the item (Ice) that never
         // settled. SPEC: docs/spec.md — "What a running clock costs".
-        let look = Look(composition: composition, base: base, dark: barIsDark,
-                        title: title, glyph: glyph, opacity: opacity)
         guard look != lastLook || button.image == nil else { return }
         // SPEC: docs/spec.md — "What a running clock costs": a tick changes the digits, not the icon.
         let iconChanged = button.image == nil || look.composition != lastLook?.composition
@@ -1078,18 +1088,18 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         lastLook = look
 
         if iconChanged {
-            button.image = base.map {
-                MenuBarIcon.compose(composition, base: $0, dark: barIsDark)
+            button.image = look.base.map {
+                MenuBarIcon.compose(look.composition, base: $0, dark: look.dark)
             } ?? MenuBarIcon.dialTemplate
             button.imagePosition = .imageLeft
         }
 
         let mono = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
-        if title.isEmpty {
+        if look.title.isEmpty {
             button.title = ""
         } else {
             button.attributedTitle = Self.barLabel(
-                title, glyph: glyph, opacity: opacity,
+                look.title, glyph: look.glyph, opacity: look.opacity,
                 appearance: button.effectiveAppearance, font: mono)
         }
 

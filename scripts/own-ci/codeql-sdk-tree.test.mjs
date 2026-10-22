@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { chmod, copyFile, mkdir, mkdtemp, readFile, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import test from 'node:test';
 const api = await import('./codeql-sdk-tree.mjs').catch(error => { if (error.code === 'ERR_MODULE_NOT_FOUND') return {}; throw error; });
 const ready = () => assert.equal(typeof api.hashCodeqlTree, 'function', 'SDK tree hashing is not implemented');
@@ -27,7 +27,7 @@ for (const [name, target] of [['external relative link','../outside'],['absolute
 test('allows dangling links only when their complete traversal stays inside', async t => { ready();const { root }=await fixture(t);await symlink('missing/../data',join(root,'dangling'));assert.equal((await api.hashCodeqlTree(root)).entries,6); });
 test('Python and Node encode identical tree records including non-ASCII paths', async t => {
  ready(); const { root } = await fixture(t);await writeFile(join(root,'😀'), 'astral');await writeFile(join(root,'\ue000'), 'private-use');
- const script = new URL('./codeql-setup.py',import.meta.url).pathname; const program = 'import importlib.util,json,sys; s=importlib.util.spec_from_file_location("setup",sys.argv[1]); m=importlib.util.module_from_spec(s);s.loader.exec_module(m);print(json.dumps(m.hash_tree(sys.argv[2])))';
+ const script = fileURLToPath(new URL('./codeql-setup.py',import.meta.url)); const program = 'import importlib.util,json,sys; s=importlib.util.spec_from_file_location("setup",sys.argv[1]); m=importlib.util.module_from_spec(s);s.loader.exec_module(m);print(json.dumps(m.hash_tree(sys.argv[2])))';
  const result=spawnSync('python3',['-B','-I','-c',program,script,root],{encoding:'utf8'});assert.equal(result.status,0,result.stderr);assert.deepEqual(JSON.parse(result.stdout),await api.hashCodeqlTree(root));
 });
 test('fixed-source verifier rejects a well-formed synthetic substitute SDK', async t => { ready();assert.equal(typeof api.verifyCodeqlTree,'function');const {root}=await fixture(t);await assert.rejects(api.verifyCodeqlTree(root)); });

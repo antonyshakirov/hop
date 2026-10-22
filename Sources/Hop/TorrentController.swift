@@ -85,6 +85,7 @@ final class TorrentController: ObservableObject {
         var optimisticPaused: Bool?
         /// Added from a magnet link (vs a .torrent file).
         var fromMagnet: Bool = false
+        var sourceFile: TorrentSourceFile?
         /// The payload was deleted from disk (via Finder, not via Hop) while the
         /// torrent was still downloading. Set by the poll's deletion probe, which
         /// also pauses the torrent so the engine stops writing into nothing. The
@@ -98,8 +99,12 @@ final class TorrentController: ObservableObject {
     /// body verbatim — rqbit sniffs the content, so bytes must not be re-encoded.
     enum AddSource: Equatable {
         case link(String)   // magnet or http(s) URL to a .torrent
-        case file(Data)     // raw .torrent bytes
-        var body: Data { switch self { case .link(let s): return Data(s.utf8); case .file(let d): return d } }
+        case file(Data, url: URL? = nil)     // raw .torrent bytes
+        var body: Data { switch self { case .link(let s): return Data(s.utf8); case .file(let d, _): return d } }
+        var sourceFile: TorrentSourceFile? {
+            guard case .file(let data, let url?) = self else { return nil }
+            return TorrentSourceFile(url: url, data: data)
+        }
     }
 
     struct PendingAdd: Equatable {
@@ -334,8 +339,10 @@ final class TorrentController: ObservableObject {
             if case .link(let s) = pending.source { return s.lowercased().hasPrefix("magnet:") }
             return false
         }()
-        let item = TorrentItem(id: id, infoHash: added.infoHash, name: added.name,
+        var item = TorrentItem(id: id, infoHash: added.infoHash, name: added.name,
                                files: files, outputFolder: folder.path, fromMagnet: fromMagnet)
+        item.sourceFile = pending.source.sourceFile
+            ?? torrents.first(where: { $0.infoHash == added.infoHash })?.sourceFile
         // Dedup: rqbit returns the EXISTING id for a duplicate add (overwrite=true),
         // so update that row in place instead of appending a second row with the same
         // Identifiable id (which breaks ForEach + double-counts speeds/notifications).
@@ -446,6 +453,17 @@ final class TorrentController: ObservableObject {
                 }
             }
         }
+    }
+
+    enum RemovalChoice { case list, sourceFile, all }
+
+    func remove(id: String, choice: RemovalChoice) throws {
+        guard let row = torrents.first(where: { $0.id == id }) else { return }
+        if choice != .list {
+            if let source = row.sourceFile { try source.trash() }
+            else if choice == .sourceFile { throw CocoaError(.fileReadNoSuchFile) }
+        }
+        remove(id: id, deleteFiles: choice == .all)
     }
 
     /// SPEC: docs/spec.md "A removal holds until the engine lets go".
@@ -685,6 +703,7 @@ final class TorrentController: ObservableObject {
         let notifiedDone: Bool?  // so a finished torrent doesn't re-fire its notification every launch
         let seedPolicyOverridden: Bool?  // so a "keep seeding" override survives restarts
         let filesMissing: Bool?
+        let sourceFile: TorrentSourceFile?
     }
     private func persist() {
         let rows = torrents.map { t in
@@ -692,7 +711,7 @@ final class TorrentController: ObservableObject {
                       files: t.files.map { PersistedFile(index: $0.index, name: $0.name, lengthBytes: $0.lengthBytes, selected: $0.selected,
                                                          removed: $0.removed ? true : nil) },
                       fromMagnet: t.fromMagnet, notifiedDone: t.notifiedDone,
-                      seedPolicyOverridden: t.seedPolicyOverridden, filesMissing: t.filesMissing)
+                      seedPolicyOverridden: t.seedPolicyOverridden, filesMissing: t.filesMissing, sourceFile: t.sourceFile)
         }
         try? FileManager.default.createDirectory(at: supportDir, withIntermediateDirectories: true)
         try? JSONEncoder().encode(rows).write(to: persistFile)
@@ -755,6 +774,7 @@ final class TorrentController: ObservableObject {
                     let files = s.files.map { TorrentFile(index: $0.index, name: $0.name, lengthBytes: $0.lengthBytes,
                                                           selected: $0.selected, removed: $0.removed ?? false) }
                     var item = TorrentItem(id: current.id, infoHash: s.infoHash, name: s.name, files: files, outputFolder: s.outputFolder, fromMagnet: s.fromMagnet ?? false)
+                    item.sourceFile = s.sourceFile
                     item.notifiedDone = s.notifiedDone ?? false             // don't re-notify a finished torrent every launch
                     item.seedPolicyOverridden = s.seedPolicyOverridden ?? false  // keep a "keep seeding" override
                     item.filesMissing = vanished.contains(s.infoHash)

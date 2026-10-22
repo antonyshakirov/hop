@@ -100,6 +100,10 @@ public enum ModuleCatalog {
             ModuleAction(id: "open", storageKey: "hotkey_convert", hotKeyID: 21,
                          defaultCombo: ModuleCombo(keyCode: 8, modifiers: controlOption)),
         ]),
+        ModuleEntry(id: "sound", guideLetter: "b", actions: [
+            ModuleAction(id: "open", storageKey: "hotkey_sound", hotKeyID: 60),
+            ModuleAction(id: "muteMic", storageKey: "hotkey_sound_micMute", hotKeyID: 61),
+        ]),
         ModuleEntry(id: "windows", guideLetter: "w", actions: zoneActions),
         ModuleEntry(id: "speedtest", guideLetter: "s", actions: []),
         ModuleEntry(id: "torrent", guideLetter: "d", actions: []),
@@ -181,14 +185,14 @@ public enum ModuleCatalog {
     /// and the zones are the one row that belongs lower still.
     /// SPEC: docs/spec.md — "Modules".
     public static let defaultModuleOrder =
-        "timer,awake,clipboard,vpn,keyboard,ocr,convert,shot,annotate,windows,speedtest,torrent,color,archive"
+        "timer,awake,clipboard,vpn,keyboard,ocr,convert,sound,shot,annotate,windows,speedtest,torrent,color,archive"
 
     /// Modules that own settings beyond the on/off switch.
     /// SPEC: docs/spec.md — "The module page (settings window)".
     public static let modulesWithSettings: Set<String> = [
         "timer", "system", "awake", "clipboard", "color", "tracker",
         "todos", "vpn", "convert", "archive", "torrent", "windows",
-        "shot", "annotate", "ocr", "network",
+        "shot", "annotate", "ocr", "network", "sound",
     ]
 
     public static func hasSettings(_ id: String) -> Bool {
@@ -218,7 +222,7 @@ public enum ModuleCatalog {
         OnboardingGroup(titleID: "onbGroupFiles", modules: ["convert", "archive"]),
         OnboardingGroup(titleID: "onbGroupScreen", modules: ["clipboard", "color", "ocr"]),
         OnboardingGroup(titleID: "onbGroupMarkup", modules: ["shot", "annotate"]),
-        OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard"]),
+        OnboardingGroup(titleID: "onbGroupMac", modules: ["system", "awake", "keyboard", "sound"]),
         OnboardingGroup(titleID: "onbGroupNetwork", modules: ["speedtest", "vpn", "torrent", "network"]),
         OnboardingGroup(titleID: "onbGroupDesk", modules: ["windows", "apps", "uninstall"]),
     ]

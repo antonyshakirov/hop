@@ -47,7 +47,8 @@ final class LidDimmer {
     }
 
     private func tick() {
-        let closed = Self.clamshellClosed()
+        guard poll != nil else { return }
+        let closed = Self.clamshellClosed() == true
         if closed && !dimmed {
             dim()
         } else if !closed && dimmed {
@@ -76,15 +77,15 @@ final class LidDimmer {
 
     // MARK: - System plumbing
 
-    private static func clamshellClosed() -> Bool {
+    static func clamshellClosed() -> Bool? {
         let service = IOServiceGetMatchingService(
             kIOMainPortDefault, IOServiceMatching("IOPMrootDomain")
         )
-        guard service != 0 else { return false }
+        guard service != 0 else { return nil }
         defer { IOObjectRelease(service) }
         guard let value = IORegistryEntryCreateCFProperty(
             service, "AppleClamshellState" as CFString, kCFAllocatorDefault, 0
-        )?.takeRetainedValue() as? Bool else { return false }
+        )?.takeRetainedValue() as? Bool else { return nil }
         return value
     }
 

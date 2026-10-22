@@ -76,6 +76,7 @@ struct PanelView: View {
     @AppStorage(HotkeyManager.snapHotkeysKey) private var windowsHotkeysOn = true
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
     @AppStorage(SettingsKey.menuBarRedAlertBattery) private var menuBarRedAlertBattery = false
+    @AppStorage(SettingsKey.menuBarIconOnly) private var menuBarIconOnly = false
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
     @AppStorage(SettingsKey.ocrShowsWindow) private var ocrShowsWindow = true
@@ -2769,7 +2770,7 @@ struct PanelView: View {
     // the tabs model (the monitor tab and the tracker+todos tab from `migrate`).
     // Adding one here would make `moduleOrder` append it AND `migrate` place it
     // in its own tab — a duplicate key the tabs model rejects.
-    private static let allModules = ["timer", "awake", "clipboard", "convert", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall", "network"]
+    private static let allModules = ["timer", "awake", "clipboard", "convert", "sound", "windows", "speedtest", "torrent", "color", "ocr", "shot", "annotate", "archive", "keyboard", "vpn", "uninstall", "network"]
     static let defaultModuleOrder = ModuleCatalog.defaultModuleOrder
 
     /// Modules that ship HIDDEN. They serve a narrower audience (designers,
@@ -2814,6 +2815,12 @@ struct PanelView: View {
     private static func loadTabs(panelTabsRaw: String, moduleOrder: [String]) -> PanelTabsModel {
         if let decoded = PanelTabsModel.decode(panelTabsRaw) {
             var model = decoded
+            // SPEC: docs/spec.md — "Modules": withdraw the Media prototype
+            // without resetting the user's spaces or other module positions.
+            model.remove(module: "media")
+            if model != decoded {
+                UserDefaults.standard.set(model.encoded(), forKey: SettingsKey.panelTabs)
+            }
             model.liftInactiveIntoHidden()
             model.ensure(modules: allModules + ["system", "tracker", "todos"])
             // Migrate legacy visibility BEFORE seeding: a legacy
@@ -3230,6 +3237,7 @@ struct PanelView: View {
         case "timer": return t(.aboutTabTimer)
         case "awake": return t(.awakeOff)
         case "clipboard": return t(.tabClipboard)
+        case "sound": return t(.soundLabel)
         case "convert": return t(.convertLabel)
         case "windows": return t(.windowsLabel)
         case "speedtest": return t(.speedtestLabel)
@@ -3267,6 +3275,9 @@ struct PanelView: View {
                           onExpandedChanged: { expanded in
                               spaceHeightCache.setExpanded(expanded, module: "clipboard", in: spaceID)
                           })
+                .id(model.themeVersion)
+        case "sound":
+            SoundRow(lang: lang, status: model.soundStatus, open: { model.openSoundWindow?() })
                 .id(model.themeVersion)
         case "convert": convertZone
         case "windows": windowSnapRow
@@ -3949,6 +3960,11 @@ struct PanelView: View {
         case "tracker": trackerSettings
         case "todos": todosSettings
         case "vpn": vpnSettings
+        case "sound":
+            Button { model.openSoundWindow?() } label: {
+                Label(t(.soundOpen), systemImage: "slider.horizontal.3")
+                    .font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)
+            }.buttonStyle(.plain).hoverDim()
         case "convert": converterSettings
         case "archive": archiveSettings
         case "torrent": torrentSettings
@@ -4133,6 +4149,8 @@ struct PanelView: View {
             }
 
             SettingsRule()
+            switchSetting(t(.menuBarIconOnly), isOn: $menuBarIconOnly)
+            SettingsRule()
             // colour the menu-bar icon's corner badges; off = monochrome, shape
             // tells the same-corner pairs apart. The title says "indicators"
             // and names nothing to point at, so the row carries a note like the
@@ -4150,6 +4168,8 @@ struct PanelView: View {
                     .foregroundStyle(Theme.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            .disabled(menuBarIconOnly)
+            .opacity(menuBarIconOnly ? 0.45 : 1)
 
             SettingsRule()
             // a Dock icon while one of Hop's own windows is open, so the window
@@ -5138,6 +5158,7 @@ struct PanelView: View {
         case "window": return t(.hkShotWindow)
         case "screen": return t(.hkShotScreen)
         case "repeat": return t(.hkShotRepeat)
+        case "muteMic": return t(.soundMicMuteKey)
         case "pass": return t(.hkAnnotatePass)
         default: return action.id
         }

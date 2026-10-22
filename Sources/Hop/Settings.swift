@@ -48,6 +48,8 @@ enum SettingsKey {
     /// Let a low battery light that "!" too; off by default — macOS already
     /// shows the charge and warns about it on its own.
     static let menuBarRedAlertBattery = "menuBarRedAlertBattery"
+    /// Keep only Hop's icon in the menu bar, without status marks or countdowns.
+    static let menuBarIconOnly = "menuBarIconOnly"
     /// Colour the menu-bar icon's corner badges (green/yellow/orange/red). ON by
     /// default; OFF renders every badge monochrome, telling same-corner pairs
     /// apart by shape (filled vs outline).

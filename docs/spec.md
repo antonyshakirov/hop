@@ -214,6 +214,20 @@ identically on every user's bar.
   bottom badge that is not green. `TorrentController.menuBarTransfer` supplies the
   two independent booleans. This REPLACES the old ↓/↑ glyph that lived in the
   title (which no longer carries transfer, so it can never shift the panel).
+- **Icon only (owner request, 2026-10-22).** General settings → Appearance
+  has an "only the Hop icon" switch (`menuBarIconOnly`, OFF by default).
+  When ON, the menu bar shows the plain Hop star: no corner marks, torrent
+  arrows, clock digits or rotating clock glyphs, finish bell or locked-keyboard
+  replacement. Switching it OFF restores the current readings and indicators.
+  It persists across launches, takes effect without restarting, and does not
+  stop any module or change its individual indicator or notification settings.
+  The colour option stays visible but disabled while icon-only mode is ON.
+  This global display preference overrides the per-badge rules below.
+  Verification: with active timer/tracker/VPN/awake and an attention mark,
+  enable the switch → the star alone; module state and preferences unchanged;
+  disable → current marks and clocks return; finish the timer → icon-only
+  remains the star; restart → preference retained. Existing installs keep
+  their current appearance until the switch is enabled.
 - **Colour vs monochrome.** The setting (general, default ON) reads "colored
   marks on the menu-bar icon" and carries a note saying the corner marks follow
   the state in colour and that off tells them apart by shape — "colored
@@ -615,6 +629,122 @@ a vendor's app or runs a timer. Writing demo data into the real stores and
 clearing it afterwards was the alternative, and it leaves fake rows behind the
 moment somebody quits mid-wizard.
 
+## Sound
+
+A standalone `sound` module has its own window, panel row, settings page and
+assignable open/microphone-mute shortcuts. There are no shipped key combinations.
+The optional `build-app.sh --install --dev --open-sound` diagnostic starts the
+Sound window in the installed Dev bundle; production ignores this flag.
+The device button is right-aligned with a custom popover; volume and mute share
+one compact line. Muted volume retains its gain value and dims the yellow track.
+The volume line fills the available width, with percentage and mute at its edge.
+Dragging replaces any focused percentage edit and updates the number immediately;
+losing focus after a drag cannot replay the old number.
+The percentage is keyboard-editable: Return or focus loss commits a changed,
+valid value, Escape cancels, and invalid input restores the current value.
+Decimal commas and localized digits are accepted; hardware values clamp to
+0–100%. Focusing an unchanged field never rounds the hardware gain. The device
+section is labelled Input, encompassing microphones and other audio devices.
+Record/listen share one line. The window fits content while preserving its top
+edge, caps height at 80% of the screen and scrolls if needed. Manual resizing
+suspends fitting until the window closes; the next open fits again.
+
+- Custom device menus begin with System Default. This mode follows the current
+  macOS input/output and shows the actual device name. Choosing a named device
+  explicitly changes the corresponding macOS default. Choosing System Default
+  does not change it. An external route switch returns that menu to System
+  Default; Hop never restores an old device or volume at launch.
+- Volume uses a local drag value so the thumb follows the pointer immediately.
+  Hardware writes are coalesced and serialized per direction, off the main
+  thread. Pending values never target a new default after a route switch and
+  cannot start after close/off. The final acknowledged value replaces the local
+  value after dragging. Stereo balance survives a write and partial failures
+  roll back. Unsupported volume/mute controls are clearly marked; gain zero
+  is never substituted for mute.
+- Device mute (owner, 2026-10-22): mute controls apply only to the named
+  selected input or output. Yellow means that device is muted; clicking again
+  unmutes it. The device name is visible in the selection and accessible label.
+  Unsupported controls are explicitly unavailable; zero gain is not mute.
+  There is no global microphone-disable control or claim that all microphones
+  are blocked. Apps using another input remain unaffected. No extra Sound
+  menu-bar icon is created. The panel row opens the Sound window.
+  Verification: selecting/muting one device does not change a second device;
+  external mute changes update the selected device's state and colour.
+- Check Microphone explicitly requests permission and records up to ten seconds
+  into a bounded in-memory PCM buffer. Its segmented dBFS meter has a peak mark,
+  green/yellow/red zones and no draggable thumb. Realtime readings update only
+  the meter and elapsed label, not device controls. It shows signal level, not
+  recording-quality certification or a hardware-gain percentage. Stop ends
+  capture and presents Listen; playback starts only on that button, through the
+  current macOS output. Playback can be stopped or repeated. No file or network
+  data is created.
+- Closing the window, switching Sound off, changing input, losing permission
+  or an input interruption stops capture/playback and discards the sample.
+  Starting another check replaces the previous sample. Output changes stop
+  playback; replay uses the new output. Late permission/engine/player callbacks
+  cannot restart capture or stop a newer session. The buffer cap is ten seconds
+  even if a main-thread timer is delayed. No capture starts just by opening.
+
+On macOS 14.2 and later, Start Mixer enables per-application output volume and
+independent input channels. Stop Mixer restores app output and removes Hop Input.
+Closing the window keeps an explicitly started mixer running; switching the
+module off or quitting stops it. No capture begins merely by opening the window.
+
+- App audio clients are grouped by their owning application, including browser
+  helpers. Channels use Core Audio process taps and private tap-only aggregates.
+  Original output is muted only while Hop reads the tap and is restored on stop
+  or route failure. Apps from Hop itself and its input helper are excluded.
+  Separate tabs/players inside the same audio process share one channel.
+- Software gain is independent of the hardware master: 0–200%, with editable
+  percentage, per-channel mute and a soft limiter. Mute gates every output sample
+  immediately, including a persisted-muted channel at startup. Gain/unmute use
+  a short ramp. Unchanged channels survive other apps joining/leaving the mixer.
+- Each enabled physical or third-party input is captured by its device UID in
+  an owned helper, without changing the macOS default. Input audio is converted
+  to 48 kHz, with independent bounded queues and adaptive clock compensation.
+  A format change rebuilds that capture and converter, preserving Hop Input.
+- The Sound window opens at 520 pt width (minimum 480 pt), fits its content
+  vertically and scrolls when needed.
+- Speech noise suppression is withdrawn from this release after the listening
+  comparison removed words from the user's speech. Global/per-input controls,
+  processing and the inference library are absent. Legacy saved denoise fields
+  are ignored while gain, mute, bass and active choices are preserved; loading
+  and re-encoding them drops the retired fields. At unity gain with other effects
+  off, legacy settings must leave every quiet input sample unchanged.
+  Private system aggregates are hidden from selectors.
+- Start Mixer uses the microphone permission flow and reuses a running/starting
+  mixer. Returning controls to neutral stops the mixer when there is no remaining
+  processing: per-input bass, active channel gain/mute, or multiple enabled inputs
+  that need mixing. Inactive input settings do not keep it running. Returning
+  the last software control to its neutral value also stops an idle mixer.
+  Stop cancels any pending startup/permission callback and releases the helper,
+  taps and Hop Input. Hardware master volume/mute do not require the mixer.
+  Opening a window with any saved channel choice does not start capture;
+  changing gain/mute does not start it.
+- Hardware device observers reuse their listeners while the public device list
+  is unchanged. Private mixer aggregates do not trigger listener rebuilding;
+  initial device notifications must not create an add/remove feedback loop.
+- Each input retains an optional 6 dB low-frequency shelf. There is no speech
+  classifier, noise gate or replacement noise-suppression algorithm.
+- A public tap-only aggregate exposes the helper's processed mix as Hop Input.
+  Its owner keeps an input IOProc running until teardown: an AVAudioEngine
+  consumer alone may not start a tap-only aggregate. The callback only drives
+  the device clock; it does not record or retain samples. A start failure
+  removes the IOProc, aggregate and tap before reporting failure.
+  The helper's speaker output is always muted before inputs start. Other apps
+  must explicitly select Hop Input to receive the processed channels; apps
+  reading a physical microphone directly do not receive these effects. No HAL
+  driver is installed. Hop Input retains its identity during output changes.
+  Teardown waits for the owned helper to exit before releasing its muted tap.
+- Settings persist by app bundle ID/input UID. Live meters update leaf views
+  only while the window is open. Device/process notifications drive discovery,
+  with no idle polling. Off removes subscriptions, engines, taps and devices.
+
+The module uses Apple's audio frameworks. No audio files or network data are
+created by the mixer. The signed app has `com.apple.security.device.audio-input` and a truthful
+`NSMicrophoneUsageDescription`. Its permission status and System Settings link
+are available in the permissions page and, on denial, in the device window.
+
 ## Modules
 
 The main screen shows the modules of the selected space (tab) as a stack,
@@ -950,12 +1080,31 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   back endless, a timed one keeps its original end, and lid mode stays only
   together with a session that came back, all without a sound. A record older than ten minutes is ignored, and so is a
   session whose time ran out meanwhile. Quitting by hand still ends the session.
-- While lid mode is active, closing the lid blanks the built-in panel:
-  `disablesleep` keeps the backlight powered, so LidDimmer polls the
-  clamshell state (1 s) and sets the built-in display's brightness to 0
-  on close, restoring the saved value on open (persisted in defaults so
-  a crash while dimmed is undone at next launch). External displays are
-  untouched; the Mac keeps running unlocked.
+- **Closed-lid display sleep — agreement with Anton, 2026-10-14.** While
+  lid mode is active, closing the lid without an external display requests
+  system display sleep (`pmset displaysleepnow`); `disablesleep 1` and the
+  keep-awake session remain in place. Opening the lid requests display wake
+  (`IOPMAssertionDeclareUserActivity`); "display stays on" continues to apply
+  while the lid is open. Screen locking follows macOS settings.
+- With an external display connected, only the built-in panel is dimmed to
+  zero by LidDimmer; external displays are untouched. Display sleep is global,
+  so Hop never requests it when an external display is connected or the
+  display inventory is unavailable. A display connected while the panel is
+  sleeping is woken before switching to built-in dimming; disconnecting the
+  last external display with the lid closed switches to display sleep.
+- The lid and display inventory are polled once per second only while lid
+  mode is active. Each sleep request happens once per transition, including
+  activation with the lid already closed. Failure falls back to built-in
+  dimming until the lid opens or the topology changes. Unknown lid or display
+  state does not trigger a sleep or wake request. Stopping the mode restores
+  dimming and wakes a display Hop put to sleep only if the lid is open.
+  Saved brightness is restored on open and after a crash at next launch.
+- Verification before release: closed/open lid on battery and AC with a
+  background heartbeat; verify display-off/on and absence of system sleep
+  in the macOS power log. Repeat with an external monitor, then connect and
+  disconnect it while closed. Test timed expiry and quitting while closed.
+  Automated tests cover transitions, command failures and unknown state;
+  hardware power savings are not inferred from those tests.
 - The module's localized display name has changed several times —
   check L10n for the current one; in new copy convey the meaning
   ("your Mac won't sleep") rather than the module name.
@@ -4188,19 +4337,32 @@ eight hours, and came back the moment it was removed and added again.
   Snapshot: `--torrents-states`. Every `--torrents*` render now also opens the
   space holding the torrent module.
 
-### Removing a torrent: what each choice deletes (Anton, 2026-10-01)
+### Removing a torrent: what each choice deletes (Anton, 2026-10-22)
 
-"delete torrent" beside "delete with files" left the question open whether
-"files" were the download or the `.torrent` file itself. The choices now name
-what goes: **"delete with downloads"** removes the
-torrent and deletes what it downloaded, **"remove from list"** removes the torrent and leaves the downloaded files on the disk. A
-`.torrent` file of the user's own is never touched by either. Each carries a
-tooltip in a full sentence. A magnet no longer has its own wording: both
-labels fit it as they are. The row keeps macOS's three-button order: the
-harsher choice on the leading edge, then "cancel", then the plain removal, and
-a dead slot the width of the ✕ at the end, so a reflexive second click on the
-same spot hits nothing. The labels shrink a little rather than cut off in a
-long language.
+The torrent's remove control opens three labelled actions with SF Symbols and
+an explicit Cancel button. Use a vertical list so long translations remain
+readable in the narrow panel:
+
+- Remove from list: forget the transfer, keep the original `.torrent` and downloads.
+- Delete torrent file: forget the transfer and move the original `.torrent` to
+  the Trash, keeping downloaded files.
+- Delete everything, including downloads: forget the transfer, remove downloaded
+  files through the existing persistent engine-removal queue, and move the
+  known original `.torrent` to the Trash.
+
+Picker, drop, and Finder-open additions retain the source path and SHA-256 of
+its imported bytes, persisted across restarts. Only a regular, non-symlink
+`.torrent` whose contents still match can be moved. An already missing source
+is harmless. A changed or inaccessible source reports an error and leaves the
+transfer and downloads intact. No guessed paths or searches for old sources.
+Magnet/HTTP and legacy rows have no local source: the middle action is disabled
+with a visible explanation; the other two remain available. A duplicate add
+without a source retains an already known source. Removing a payload file
+inside a torrent keeps the existing two-choice flow.
+
+Verification: each action's filesystem effects, persisted source round-trip,
+changed/missing/symlink source, old rows, magnets, duplicate additions, and both
+UI entry points (remove button and context menu).
 
 ### A right-click menu marks its row (Anton, 2026-10-01)
 
@@ -4215,7 +4377,7 @@ torrents and a torrent's files have it.
 A right click on a torrent offers what its icons do, in words: pause or resume,
 "open the folder" once it is finished, expand or collapse for a torrent of
 several files, and under a divider one "remove the torrent…". It deletes nothing by itself: it opens the same
-confirmation in the row that the ✕ does, with the two removals and "cancel",
+confirmation in the row that the ✕ does, with the three removals and "cancel",
 so a slip of the pointer in a menu costs nothing (Anton, 2026-10-01). A file's
 row offers "remove this file…" the same way. The menu is a system surface, so
 its items are capitalised.
@@ -5194,6 +5356,12 @@ converter (Anton, 2026-07-28).
   open ⌘Q quits as before, through the same confirmation as the panel's ⏻.
   Not proven to be the only way it happened: none of Hop's windows quits it when
   closed (checked one by one on macOS 27), and there was no crash report.
+- **Closing from the Dock keeps Hop running** (Anton, 2026-10-16). The Dock's
+  ordinary Quit request closes Hop's own windows and is cancelled as an app
+  termination request, including when the last window has already disappeared.
+  Screenshot editors still ask about unsaved marks. Explicit Quit inside Hop,
+  update and permission relaunches, safe mode, and system logout, restart or
+  shutdown retain their normal termination behavior. Regression: `DockQuitTests`.
 - **Every quit says why in the system log** (`com.antonshakirov.hop` /
   Launch, notice level, so it is kept): what in Hop asked (the panel's quit, an
   installed update, a restart for a permission, safe mode), or the Apple event
@@ -6764,6 +6932,8 @@ released until `release.sh` stamps the new one.
 build that read 2.0.3 from the plist showed the 2.0 card while 2.1 was being
 written, since a card waits for its version to be installed. `build-app.sh --dev`
 stamps the number `Hop --preparing-version` prints instead, read from the head of
+the notes in both debug and optimized builds. This metadata command exits before
+application startup, without opening windows or changing launch state. It reads
 the English release notes (`docNews`, "2.1.0 – date"); the repository's plist is
 not touched. `ReleaseNews.preparing` (`ReleaseNewsTests`) refuses notes that do
 not open with three numbers, a release card newer than the notes, and a minor

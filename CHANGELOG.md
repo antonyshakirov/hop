@@ -1,5 +1,20 @@
 # Hop - version history
 
+## Unreleased
+
+- Sound: control the selected output and input device, adjust app volume, and
+  process microphone audio locally with the mixer. Muting applies to the named
+  device; Hop does not offer a global microphone block.
+- Sound: dragging the volume slider also updates a focused percentage field.
+- Settings: keep only the Hop icon in the menu bar, without corner indicators
+  or countdowns.
+- Torrents: choose to remove the list entry, also trash its original .torrent
+  file, or delete everything including downloaded files.
+- Closing Hop's windows through the Dock leaves the menu-bar app running.
+- With no external monitor, closing the lid puts the display to sleep while
+  the Mac keeps working. Opening the lid wakes the display. With an external
+  monitor, Hop dims only the built-in screen.
+
 ## 2.3.2 - 2026-10-02
 
 - System monitor: memory and graphics load light the problem badge in the menu bar.
