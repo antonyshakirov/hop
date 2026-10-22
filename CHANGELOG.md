@@ -1,8 +1,8 @@
 # Hop - version history
 
-## Unreleased
+## 2.4.0 - 2026-10-22
 
-- Sound: control the selected output and input device, adjust app volume, and
+- New Sound module: control the selected output and input device, adjust app volume, and
   process microphone audio locally with the mixer. Muting applies to the named
   device; Hop does not offer a global microphone block.
 - Sound: dragging the volume slider also updates a focused percentage field.

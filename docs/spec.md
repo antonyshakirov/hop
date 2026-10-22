@@ -6945,6 +6945,12 @@ release without a card of its own. `checks.sh` fails on any of them, and
 `release.sh` refuses a number other than the one the notes name and a
 CHANGELOG.md that does not open with it.
 
+The next minor release is 2.4.0. Its card opens with the new Sound module and
+per-application audio mixer, followed by icon-only menu-bar display, the three
+torrent-removal choices and closing windows through the Dock. The same items
+open the localized release notes. Historical 2.3 cards/notes and the published
+plist version remain unchanged. Noise suppression is not included or advertised.
+
 **Hotfix 2.1.6** (Anton, 2026-09-27): release notes name the fixes, and the
 panel gets no new "what's new" card. `HotfixReleaseTests` holds the absent card.
 **Hotfix 2.1.7** (Anton, 2026-09-28): macOS 27 panel click-through fixes have
