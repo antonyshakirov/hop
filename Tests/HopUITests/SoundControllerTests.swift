@@ -336,6 +336,34 @@ final class SoundControllerTests: XCTestCase {
         XCTAssertFalse(m.hasRecording)
     }
 
+    func testCloseDiscardsSampleInEveryCheckStateAndReopeningCannotReplay() {
+        for state in ["checking", "recorded", "playing"] {
+            let hardware = Hardware(), meter = Meter()
+            let controller = SoundController(hardware: hardware, meter: meter, enabled: { true })
+            controller.open(); controller.startCheck(); meter.completion?(true)
+            if state != "checking" { controller.stopCheck() }
+            if state == "playing" { controller.playRecording() }
+            let oldCompletion = meter.playbackCompletion
+            controller.close()
+            XCTAssertFalse(controller.checking, state)
+            XCTAssertFalse(controller.requestingAccess, state)
+            XCTAssertFalse(controller.playing, state)
+            XCTAssertFalse(controller.hasRecording, state)
+            XCTAssertFalse(meter.hasRecording, state)
+            XCTAssertEqual(controller.duration, 0, state)
+            XCTAssertEqual(controller.level, 0, state)
+            XCTAssertEqual(controller.peak, 0, state)
+            controller.open()
+            oldCompletion?()
+            controller.playRecording()
+            XCTAssertFalse(controller.hasRecording, state)
+            XCTAssertFalse(controller.playing, state)
+            XCTAssertEqual(meter.plays, state == "playing" ? 1 : 0, state)
+            XCTAssertEqual(meter.starts, 1, state)
+            controller.close()
+        }
+    }
+
     func testNewRecordingAndInputChangeDiscardOldSample() {
         let h = Hardware(), m = Meter()
         let c = SoundController(hardware: h, meter: m, enabled: { true })

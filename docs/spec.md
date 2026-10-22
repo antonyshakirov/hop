@@ -631,8 +631,8 @@ moment somebody quits mid-wizard.
 
 ## Sound
 
-A standalone `sound` module has a compact app/output window, a separate
-microphone window, panel row, settings page and
+A standalone `sound` module has one window for app/output and microphone
+controls, a panel row, settings page and
 assignable open/microphone-mute shortcuts. There are no shipped key combinations.
 The optional `build-app.sh --install --dev --open-sound` diagnostic starts the
 Sound window in the installed Dev bundle; production ignores this flag.
@@ -683,7 +683,7 @@ suspends fitting until the window closes; the next open fits again.
   capture and presents Listen; playback starts only on that button, through the
   current macOS output. Playback can be stopped or repeated. No file or network
   data is created.
-- Closing the microphone window, switching Sound off, changing input, losing permission
+- Closing the Sound window, switching Sound off, changing input, losing permission
   or an input interruption stops capture/playback and discards the sample.
   Starting another check replaces the previous sample. Output changes stop
   playback; replay uses the new output. Late permission/engine/player callbacks
@@ -691,14 +691,14 @@ suspends fitting until the window closes; the next open fits again.
   even if a main-thread timer is delayed. No capture starts just by opening.
 
 On macOS14.2 and later, Start Mixer enables per-application output volume and
-mute only. It records `soundMixerEnabled=true`. Closing either window keeps
+mute only. It records `soundMixerEnabled=true`. Closing the Sound window keeps
 output routing active. Normal quit suspends routing without clearing the choice;
 the next ordinary launch resumes it. Explicit Stop records false. Module disable
-suspends routing and closes both windows; re-enable resumes a retained choice.
+suspends routing and closes the window; re-enable resumes a retained choice.
 A fresh install does not start routing. No login item is added by this setting.
 
-- The main window has output-device controls, one compact row per app and a
-  Microphone button opening the separate window. Each app row has name, volume
+- The Sound window has output-device controls, one compact row per app and
+  selected-device microphone controls below a divider, all in the same window. Each app row has name, volume
   slider, editable percentage and a fixed-size mute icon. Software volume is
   0–100%;100% preserves the source level. Legacy boosts clamp to100%; mute is
   preserved. App volume does not modify the hardware master. Returning to100%
@@ -718,16 +718,20 @@ A fresh install does not start routing. No login item is added by this setting.
   launches the input worker or creates Hop Input. Legacy saved input/bass choices
   cannot activate those paths. Input mixing, bass and virtual-input controls are
   absent from these windows. No noise suppression is offered.
-- The separate microphone window controls only the selected hardware input:
-  device selection, supported volume/mute and explicit Check/Listen. Closing it
-  stops capture/playback and clears the in-memory sample even if Sound remains
-  open. Closing Sound leaves an open microphone check alone and leaves app
-  routing running. Mute does not claim to disable other devices.
-- Both windows open centered and fit their content within the visible screen,
-  minimum width480pt. The main window has no input channel list. Manual resize
-  suspends fitting until close. Device mute labels and app mute icons retain
-  stable dimensions across states. Snapshot mode has separate Sound/Microphone
-  variants and never starts capture.
+- Microphone controls apply only to the selected hardware input: device selection,
+  supported system volume/mute and explicit Check/Listen. System volume ranges
+  from0–100%;100% is the maximum device setting, not software gain. No200%
+  processing or virtual microphone is introduced. Subsequent user/system volume
+  changes remain authoritative; opening a window does not reset them.
+- Closing Sound stops both capture and playback, discards its in-memory sample
+  and resets elapsed/level/peak/Listen state. Reopening begins without a sample
+  and cannot replay the old one. Pending permission and player callbacks cannot
+  restore a discarded recording. App output routing continues in background.
+  Mute does not claim to disable other devices. No recording files are created.
+- The window opens centered and fits its content within the visible screen,
+  minimum width480pt. Manual resize suspends fitting until close. Device mute
+  labels and app mute icons retain stable dimensions across states. Snapshot
+  mode never starts capture.
 - App settings persist by bundle ID. Process/device notifications drive
   discovery in background with no periodic audio metering. Module suspension
   releases subscriptions, engines and taps. All sample processing is local.
@@ -736,7 +740,7 @@ The module uses Apple's audio frameworks. App mixing creates no audio files or
 network data. Only the explicit microphone check requests microphone access and
 retains a bounded sample in memory. The signed app's microphone entitlement and
 usage description remain for that check. Permission status and repair links
-remain in the permissions page and microphone window.
+remain in the permissions page and Sound window.
 
 ## Modules
 

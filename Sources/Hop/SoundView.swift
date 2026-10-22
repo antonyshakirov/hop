@@ -214,7 +214,6 @@ struct SoundInputMeter: View {
 
 struct SoundWindowView: View {
     @ObservedObject var sound: SoundController
-    var microphone = false
     var onHeightChange: (CGFloat) -> Void = { _ in }
     @EnvironmentObject var model: AppModel
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
@@ -234,26 +233,20 @@ struct SoundWindowView: View {
     private var content: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text(t(microphone ? .soundMicrophone : .soundLabel)).font(Theme.mono(20)).foregroundStyle(Theme.textPrimary)
+                Text(t(.soundLabel)).font(Theme.mono(20)).foregroundStyle(Theme.textPrimary)
                 Spacer()
-                if !microphone { SoundMixerSwitch(mixer: model.soundMixer, lang: lang) }
+                SoundMixerSwitch(mixer: model.soundMixer, lang: lang)
             }
-            if microphone {
-                section(.input)
-                if sound.device(.input)?.muted == true {
-                    Text(t(.soundCurrentMicOnly)).font(Theme.mono(10))
-                        .foregroundStyle(Theme.textTertiary).fixedSize(horizontal: false, vertical: true)
-                }
-            } else {
-                section(.output)
-                SoundMixerChannels(mixer: model.soundMixer, lang: lang)
-                HStack {
-                    if model.soundMixer.running {
-                        Text(t(.soundMixerBackground)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
-                    }
-                    Spacer()
-                    action(.soundMicrophone, icon: "mic") { model.openMicrophoneWindow?() }
-                }
+            section(.output)
+            SoundMixerChannels(mixer: model.soundMixer, lang: lang)
+            if model.soundMixer.running {
+                Text(t(.soundMixerBackground)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
+            }
+            Divider()
+            section(.input)
+            if sound.device(.input)?.muted == true {
+                Text(t(.soundCurrentMicOnly)).font(Theme.mono(10))
+                    .foregroundStyle(Theme.textTertiary).fixedSize(horizontal: false, vertical: true)
             }
             if let failure = sound.failure {
                 Text(failureText(failure)).font(Theme.mono(11))
