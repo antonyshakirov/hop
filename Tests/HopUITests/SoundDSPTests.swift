@@ -105,4 +105,21 @@ final class SoundDSPTests: XCTestCase {
             hop_audio_destroy(channel)
         }
     }
+    func testAccessoryMuteZerosMicrophoneWithoutMutingApplicationAudio() throws {
+        let microphone = try SoundAudioChannel(rate: 48000), application = try SoundAudioChannel(rate: 48000)
+        var microphoneSettings = SoundChannelSettings()
+        microphone.configure(microphoneSettings); application.configure(.init())
+        let gate = SoundAccessoryMuteGate()
+        gate.bind(UUID(), muted: false, apply: { value in
+            microphoneSettings.muted = value; microphone.configure(microphoneSettings); return true
+        }, changed: { _ in })
+        let voice = Array(repeating: Float(0.2), count: 4096), music = Array(repeating: Float(0.1), count: 4096)
+        XCTAssertEqual(render(microphone.pointer, voice).last!, 0.2, accuracy: 0.0001)
+        XCTAssertTrue(gate.request(true))
+        XCTAssertTrue(render(microphone.pointer, voice).allSatisfy { $0 == 0 })
+        XCTAssertTrue(render(application.pointer, music).allSatisfy { abs($0 - 0.1) < 0.0001 })
+        XCTAssertTrue(gate.request(false))
+        XCTAssertEqual(render(microphone.pointer, voice).last!, 0.2, accuracy: 0.0001)
+    }
+
 }
