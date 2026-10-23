@@ -22,9 +22,10 @@ struct SteadyField: NSViewRepresentable {
     var filter: ((String) -> String)?
     var onSubmit: () -> Void = {}
     var onCancel: () -> Void = {}
+    var onPointerExit: (() -> Void)? = nil
 
     func makeNSView(context: Context) -> NSTextField {
-        let field = NSTextField()
+        let field = PointerExitField()
         field.cell = SteadyCell(textCell: "")
         // A hand-made cell comes back neither editable nor selectable, whatever
         // the field it is put into was. Set AFTER the swap, or the field is
@@ -73,6 +74,11 @@ struct SteadyField: NSViewRepresentable {
     }
 
     private func apply(to field: NSTextField) {
+        if let field = field as? PointerExitField {
+            let changed = (field.onPointerExit == nil) != (onPointerExit == nil)
+            field.onPointerExit = onPointerExit
+            if changed { field.updateTrackingAreas() }
+        }
         field.font = monospaced
             ? NSFont.monospacedSystemFont(ofSize: size, weight: weight)
             : NSFont.systemFont(ofSize: size, weight: weight)
@@ -166,4 +172,18 @@ final class SteadyCell: NSTextFieldCell {
         super.edit(withFrame: steady(rect), in: controlView, editor: textObj,
                    delegate: delegate, event: event)
     }
+}
+
+private final class PointerExitField: NSTextField {
+    var onPointerExit: (() -> Void)?
+    private var pointerArea: NSTrackingArea?
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let pointerArea { removeTrackingArea(pointerArea); self.pointerArea = nil }
+        guard onPointerExit != nil else { return }
+        let area = NSTrackingArea(rect: bounds, options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect], owner: self)
+        addTrackingArea(area); pointerArea = area
+    }
+    override func mouseExited(with event: NSEvent) { onPointerExit?() }
 }

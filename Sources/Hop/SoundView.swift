@@ -39,7 +39,7 @@ struct SoundVolumeControl: View {
     @State private var volumeEditing: SoundVolumeEditing
     @State private var editing = false
     @State private var percentageEditing = false
-    @FocusState private var enteringPercentage: Bool
+    @State private var enteringPercentage = false
     @Environment(\.isEnabled) private var controlsEnabled
 
     init(device: SoundDevice, direction: SoundDirection, lang: AppLanguage,
@@ -78,14 +78,14 @@ struct SoundVolumeControl: View {
                             .opacity(controlsEnabled ? 1 : 0.45)
                     }
                 } else {
-                    TextField("", text: $volumeEditing.text).textFieldStyle(.plain)
-                        .foregroundStyle(Theme.textSecondary)
-                        .multilineTextAlignment(.trailing).frame(width: 34)
-                        .focused($enteringPercentage)
+                    SteadyField(text: $volumeEditing.text, size: 11, weight: .medium,
+                                alignment: .right, colour: Theme.textSecondary, focus: $enteringPercentage,
+                                onSubmit: { percentageEditing = false },
+                                onCancel: { volumeEditing.cancel(); percentageEditing = false },
+                                onPointerExit: { percentageEditing = false })
+                        .frame(width: 34, height: 14)
                         .accessibilityLabel(controlName + " %")
                         .onAppear { enteringPercentage = true }
-                        .onSubmit { percentageEditing = false }
-                        .onExitCommand { volumeEditing.cancel(); percentageEditing = false }
                     Text("%")
                 }
             }
