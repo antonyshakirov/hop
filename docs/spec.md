@@ -7264,3 +7264,18 @@ for starting/on/off text so these transitions do not change section height.
 Volume percentages render as plain readouts until explicitly clicked. Editing
 ends on Return, focus loss or pointer exit; Escape cancels it. Opening a window
 never creates a focused percentage field.
+
+## AirPods microphone button
+
+AirPods Press to Mute controls only the microphone audio currently captured by
+Hop: a short microphone check or the microphone source in Hop Mix. It does not
+mute application audio, change hardware gain, affect other recording apps, or
+start a capture. Hop's mute control and the accessory gesture share confirmed
+state. Closing the window invalidates the target before stopping capture; a late
+accessory callback cannot reopen it or unmute a newer capture.
+
+The process doing audio I/O registers AVAudioApplication's input-mute handler.
+It returns success only after its microphone gate is applied. Worker commands
+carry a capture token; stale tokens are rejected. Hop emits no banner, sound,
+retry timer or repeated mute request. macOS may display its own gesture status;
+its public API does not expose a per-app banner suppression option.

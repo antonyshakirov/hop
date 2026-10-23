@@ -23,10 +23,11 @@ public struct SoundWorkerCommand: Codable, Sendable {
     public var inputs: [SoundInputConfiguration]
     public var apps: [SoundApplicationConfiguration]?
     public var requestID: UInt64?
+    public var captureToken: String?
     public init(start: Bool = false, meters: Bool = false, inputs: [SoundInputConfiguration] = [],
-                apps: [SoundApplicationConfiguration] = [], requestID: UInt64? = nil) {
+                apps: [SoundApplicationConfiguration] = [], requestID: UInt64? = nil, captureToken: String? = nil) {
         self.start = start; self.meters = meters; self.inputs = inputs
-        self.apps = apps; self.requestID = requestID
+        self.apps = apps; self.requestID = requestID; self.captureToken = captureToken
     }
 }
 

@@ -6,6 +6,8 @@ import XCTest
 @MainActor
 final class SoundWindowLayoutTests: XCTestCase {
     private final class MixSession: SoundCallSession {
+        var microphoneMuteChanged: ((Bool) -> Void)?
+        func setMicrophoneMuted(_ value: Bool) -> Bool { true }
         var complete: ((Result<Void, SoundFailure>) -> Void)?
         func start(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) { complete = completed }
         func update(_ configuration: SoundCallConfiguration) {}

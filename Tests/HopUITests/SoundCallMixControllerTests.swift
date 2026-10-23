@@ -5,6 +5,10 @@ import HopCore
 @MainActor
 final class SoundCallMixControllerTests: XCTestCase {
     private final class Session: SoundCallSession {
+        var microphoneMuteChanged: ((Bool) -> Void)?
+        var mutes: [Bool] = []
+        var muteAccepted = true
+        func setMicrophoneMuted(_ value: Bool) -> Bool { mutes.append(value); return muteAccepted }
         var starts: [SoundCallConfiguration] = []
         var updates: [SoundCallConfiguration] = []
         var stops = 0
@@ -120,6 +124,36 @@ final class SoundCallMixControllerTests: XCTestCase {
         mix.editMicrophone { $0.active = true }
         XCTAssertFalse(mix.microphone.active); XCTAssertEqual(mix.failure, .permission)
         XCTAssertTrue(mix.running); XCTAssertTrue(session.updates.isEmpty)
+    }
+
+    func testAccessoryMuteUpdatesOnlyActiveMicrophoneAndUIRequiresAcceptance() {
+        let session = Session()
+        let mix = SoundCallMixController(enabled: true, session: session, access: { $0(true) })
+        let app = SoundMixerChannel(id: "com.google.Chrome", name: "Chrome", input: false, settings: .init())
+        mix.open(); mix.start(inputUID: "mic", apps: [app]); session.callback?(.success(()))
+        mix.editMicrophone { $0.active = true }
+        mix.editApplication(app.id) { $0.active = true; $0.gain = 0.25 }
+        let updates = session.updates.count
+        session.microphoneMuteChanged?(true)
+        XCTAssertTrue(mix.microphone.muted); XCTAssertEqual(session.updates.count, updates)
+        XCTAssertEqual(mix.settings(app.id).gain, 0.25); XCTAssertFalse(mix.settings(app.id).muted)
+        session.muteAccepted = false
+        mix.editMicrophone { $0.muted = false }; XCTAssertTrue(mix.microphone.muted)
+        session.muteAccepted = true
+        mix.editMicrophone { $0.muted = false }; XCTAssertFalse(mix.microphone.muted)
+        mix.close(); session.microphoneMuteChanged?(true)
+        XCTAssertFalse(mix.microphone.active); XCTAssertFalse(mix.microphone.muted)
+    }
+
+    func testConfirmedAccessoryStateDuringStartupIsNotLost() {
+        let session = Session()
+        let mix = SoundCallMixController(enabled: true, session: session, access: { $0(true) })
+        mix.editMicrophone { $0.active = true }
+        mix.open(); mix.start(inputUID: "mic", apps: [])
+        XCTAssertTrue(mix.starting)
+        session.microphoneMuteChanged?(true)
+        session.callback?(.success(()))
+        XCTAssertTrue(mix.running); XCTAssertTrue(mix.microphone.muted)
     }
 
 }

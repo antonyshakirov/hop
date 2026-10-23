@@ -3,6 +3,7 @@ import Combine
 import CoreAudio
 import HopCore
 import HopAudioEngine
+import HopAudioEngine
 
 @MainActor
 final class SoundMixerChannel: ObservableObject, Identifiable {
@@ -187,7 +188,7 @@ private final class SoundRoutingSession: SoundMixingSession {
     private var build: Task<[(String, SoundOutputStream)], Error>?
     private var generation = 0
     private let failed: (SoundFailure) -> Void
-    init(failed: @escaping (SoundFailure) -> Void) { self.failed = failed }
+    init(failed: @escaping (SoundFailure) -> Void) { self.failed = failed; try? SoundAccessoryMute.shared.install() }
     func outputs(_ channels: [SoundMixerChannel]) {
         generation += 1; build?.cancel(); build = nil
         let desired = Dictionary(uniqueKeysWithValues: channels.map { ($0.id, $0.processes) })

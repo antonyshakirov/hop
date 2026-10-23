@@ -6,6 +6,7 @@ final class SoundSampleBuffer: @unchecked Sendable {
     static let maximumDuration = 10.0
     private let lock = NSLock()
     private let buffer: AVAudioPCMBuffer
+    private var muted = false
     private var rms = 0.0
     private var peak = 0.0
     private var updated = ProcessInfo.processInfo.systemUptime
@@ -22,6 +23,12 @@ final class SoundSampleBuffer: @unchecked Sendable {
         self.buffer = buffer
     }
 
+    func setMuted(_ value: Bool) {
+        lock.lock(); defer { lock.unlock() }
+        muted = value
+        if value { rms = 0; peak = 0 }
+    }
+
     func append(_ source: AVAudioPCMBuffer) {
         lock.lock(); defer { lock.unlock() }
         guard source.format.sampleRate == buffer.format.sampleRate,
@@ -35,7 +42,7 @@ final class SoundSampleBuffer: @unchecked Sendable {
         for channel in 0..<channels {
             for frame in 0..<frames {
                 let value = source.format.isInterleaved ? input[0][frame * channels + channel] : input[channel][frame]
-                let sample = value.isFinite ? value : 0
+                let sample = !muted && value.isFinite ? value : 0
                 sum += Double(sample) * Double(sample)
                 maximum = max(maximum, abs(Double(sample)))
                 if frame < copyCount { output[channel][offset + frame] = sample }

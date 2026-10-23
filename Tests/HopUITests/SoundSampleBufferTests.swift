@@ -30,4 +30,17 @@ final class SoundSampleBufferTests: XCTestCase {
         XCTAssertEqual(sample.readings.level, 0)
         XCTAssertEqual(sample.recorded()?.floatChannelData?[0][0], 0)
     }
+    func testMuteZerosNewSamplesAndUnmuteRestoresThemWithoutEditingSource() throws {
+        let format = try XCTUnwrap(AVAudioFormat(standardFormatWithSampleRate: 8000, channels: 1))
+        let sample = try SoundSampleBuffer(format: format)
+        let chunk = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 1))
+        chunk.frameLength = 1; chunk.floatChannelData?[0][0] = 0.4
+        sample.append(chunk); sample.setMuted(true); sample.append(chunk)
+        XCTAssertEqual(sample.readings.level, 0)
+        sample.setMuted(false); sample.append(chunk)
+        let values = try XCTUnwrap(sample.recorded()?.floatChannelData?[0])
+        XCTAssertEqual(values[0], 0.4); XCTAssertEqual(values[1], 0); XCTAssertEqual(values[2], 0.4)
+        XCTAssertEqual(chunk.floatChannelData?[0][0], 0.4)
+    }
+
 }

@@ -11,6 +11,8 @@ struct SoundCallConfiguration {
 
 @MainActor
 protocol SoundCallSession: AnyObject {
+    var microphoneMuteChanged: ((Bool) -> Void)? { get set }
+    func setMicrophoneMuted(_ value: Bool) -> Bool
     func start(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void)
     func update(_ configuration: SoundCallConfiguration)
     func stop()
@@ -45,6 +47,10 @@ final class SoundCallMixController: ObservableObject {
             if AVCaptureDevice.authorizationStatus(for: .audio) == .authorized { completion(true) }
             else { AVCaptureDevice.requestAccess(for: .audio) { allowed in DispatchQueue.main.async { completion(allowed) } } }
         }
+        self.session.microphoneMuteChanged = { [weak self] value in
+            guard let self, (self.running || self.starting), self.microphone.active else { return }
+            self.microphone.muted = value
+        }
     }
     func open() { windowOpen = true }
     func close() { windowOpen = false; stop() }
@@ -66,7 +72,11 @@ final class SoundCallMixController: ObservableObject {
                 guard allowed else { self.failure = .permission; return }
                 self.failure = nil; self.microphone = value; self.sendUpdate()
             }
-        } else { microphone = value; sendUpdate() }
+        } else {
+            if running, microphone.active, value.active, value.muted != microphone.muted,
+               !session.setMicrophoneMuted(value.muted) { failure = .system(-1); return }
+            microphone = value; sendUpdate()
+        }
     }
     func editApplication(_ id: String, _ edit: (inout SoundChannelSettings) -> Void) {
         guard SoundCallMixPolicy.allows(id), !starting else { return }
@@ -123,6 +133,34 @@ final class SoundCallMixController: ObservableObject {
 @available(macOS 14.2, *)
 @MainActor
 private final class NativeSoundCallSession: SoundCallSession {
+    var microphoneMuteChanged: ((Bool) -> Void)?
+    private var muteRelay: SoundAccessoryMuteRelay?
+    private var captureToken: UUID?
+    private var routeToken: UUID?
+    private var microphoneUID: String?
+    private var microphoneMuted = false
+    func setMicrophoneMuted(_ value: Bool) -> Bool {
+        guard captureToken != nil, routeToken == captureToken else { return false }
+        return SoundAccessoryMute.shared.setMuted(value)
+    }
+    private func retireMuteRoute() {
+        muteRelay?.select(nil)
+        if let token = routeToken { SoundAccessoryMute.shared.unbind(token) }
+        routeToken = nil; captureToken = nil; microphoneUID = nil
+    }
+    private func bindMuteRoute() throws {
+        guard let token = captureToken, routeToken != token, let relay = muteRelay else { return }
+        try SoundAccessoryMute.shared.bind(token, muted: microphoneMuted, apply: { value in
+            relay.request(value, token: token.uuidString)
+        }, changed: { [weak self] value in
+            Task { @MainActor in
+                guard let self, self.captureToken == token else { return }
+                let current = SoundAccessoryMute.shared.gate.muted
+                self.microphoneMuted = current; self.microphoneMuteChanged?(current)
+            }
+        })
+        routeToken = token
+    }
     private var process: Process?
     private var input: FileHandle?
     private var output: FileHandle?
@@ -139,6 +177,7 @@ private final class NativeSoundCallSession: SoundCallSession {
 
     func start(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) {
         guard !unavailable else { completed(.failure(.system(-1))); return }
+        do { try SoundAccessoryMute.shared.install() } catch { completed(.failure(.system(-1))); return }
         pending = configuration; self.completed = completed
         if ready { send(configuration); return }
         if process != nil { fail(); return }
@@ -148,8 +187,11 @@ private final class NativeSoundCallSession: SoundCallSession {
         process.executableURL = url; process.standardInput = commands; process.standardOutput = events
         process.standardError = FileHandle.nullDevice
         self.process = process; input = commands.fileHandleForWriting; output = events.fileHandleForReading
+        let relay = SoundAccessoryMuteRelay { try commands.fileHandleForWriting.write(contentsOf: $0) }
+        muteRelay = relay
         output?.readabilityHandler = { [weak self] file in
             let data = file.availableData
+            if data.isEmpty { relay.select(nil) } else { relay.consume(data) }
             Task { @MainActor in self?.read(data) }
         }
         process.terminationHandler = { [weak self] _ in Task { @MainActor in self?.fail() } }
@@ -162,6 +204,7 @@ private final class NativeSoundCallSession: SoundCallSession {
     }
     func update(_ configuration: SoundCallConfiguration) { if ready { send(configuration) } }
     func stop() {
+        retireMuteRoute()
         pending = nil; completed = nil; awaiting = nil
         if ready { send(SoundCallConfiguration(input: nil, apps: []), stopping: true) }
     }
@@ -170,6 +213,7 @@ private final class NativeSoundCallSession: SoundCallSession {
         export?.stop(); export = nil
     }
     private func stopProducer() {
+        retireMuteRoute()
         ready = false
         timeout?.cancel(); timeout = nil
         acknowledgement?.cancel(); acknowledgement = nil
@@ -183,7 +227,7 @@ private final class NativeSoundCallSession: SoundCallSession {
             if process.isRunning { kill(process.processIdentifier, SIGKILL) }
             process.waitUntilExit()
         }
-        process = nil; output = nil
+        process = nil; output = nil; muteRelay = nil
         buffer.removeAll()
     }
     private func read(_ data: Data) {
@@ -198,7 +242,14 @@ private final class NativeSoundCallSession: SoundCallSession {
                 print("HOP CALL MIX failed: \(String((message["reason"] as? String ?? "worker failure").prefix(256)))"); fflush(stdout)
                 fail(); return
             }
+            if let muted = message["microphoneMuted"] as? Bool,
+               let token = captureToken, message["captureToken"] as? String == token.uuidString {
+                SoundAccessoryMute.shared.gate.confirm(token, muted: muted)
+                try? SoundAccessoryMute.shared.publish(muted)
+                microphoneMuted = muted; microphoneMuteChanged?(muted)
+            }
             if let applied = message["applied"] as? UInt64, applied == awaiting {
+                do { try bindMuteRoute() } catch { fail(); return }
                 awaiting = nil
                 acknowledgement?.cancel(); acknowledgement = nil
                 print("HOP CALL MIX applied=\(applied) captures=\(message["captureCount"] ?? "?")"); fflush(stdout)
@@ -217,12 +268,20 @@ private final class NativeSoundCallSession: SoundCallSession {
         } catch { fail() }
     }
     private func send(_ configuration: SoundCallConfiguration, stopping: Bool = false) {
-        guard ready, process?.isRunning == true, let input else { fail(); return }
+        guard ready, process?.isRunning == true, input != nil else { fail(); return }
         request += 1; awaiting = request
-        let command = SoundWorkerCommand(start: true, inputs: configuration.input.map { [$0] } ?? [], apps: configuration.apps, requestID: request)
+        if configuration.input?.uid != microphoneUID {
+            retireMuteRoute()
+            microphoneUID = configuration.input?.uid
+            captureToken = configuration.input.map { _ in UUID() }
+            microphoneMuted = configuration.input?.settings.muted ?? false
+            muteRelay?.select(captureToken?.uuidString)
+        }
+        let command = SoundWorkerCommand(start: true, inputs: configuration.input.map { [$0] } ?? [], apps: configuration.apps, requestID: request, captureToken: captureToken?.uuidString)
         do {
             var data = try JSONEncoder().encode(command); data.append(10)
-            try input.write(contentsOf: data)
+            guard let muteRelay else { fail(); return }
+            try muteRelay.send(data)
             acknowledgement?.cancel()
             let token = request
             acknowledgement = Task { [weak self] in
@@ -245,6 +304,8 @@ private final class NativeSoundCallSession: SoundCallSession {
 
 @MainActor
 private final class UnavailableSoundCallSession: SoundCallSession {
+    var microphoneMuteChanged: ((Bool) -> Void)?
+    func setMicrophoneMuted(_ value: Bool) -> Bool { false }
     func start(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) { completed(.failure(.unsupported)) }
     func update(_ configuration: SoundCallConfiguration) {}
     func stop() {}

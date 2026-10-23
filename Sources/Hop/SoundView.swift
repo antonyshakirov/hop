@@ -346,6 +346,15 @@ struct SoundWindowView: View {
                         if sound.checking || sound.requestingAccess { sound.stopCheck() }
                         else { sound.startCheck() }
                     }.disabled(current == nil || model.soundCallMix.running || model.soundCallMix.starting)
+                    if sound.checking {
+                        SettingChip(active: sound.checkMuted, action: sound.toggleCheckMute) {
+                            HStack(spacing: 6) {
+                                Text("Hop")
+                                SoundMuteLabel(muted: sound.checkMuted, input: true, lang: lang)
+                            }.font(Theme.mono(10))
+                        }.accessibilityLabel("Hop: " + t(sound.checkMuted ? .soundUnmute : .soundMute))
+                            .accessibilityValue(sound.checkMuted ? "1" : "0")
+                    }
                     if sound.hasRecording {
                         action(sound.playing ? .soundStopPlayback : .soundListen, icon: sound.playing ? "stop.fill" : "play.fill") {
                             if sound.playing { sound.stopPlayback() } else { sound.playRecording() }

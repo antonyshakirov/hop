@@ -2,9 +2,13 @@ import AVFoundation
 import Combine
 import Foundation
 import HopCore
+import HopAudioEngine
 
 @MainActor
 protocol SoundMeter: AnyObject {
+    var muted: Bool { get }
+    var muteChanged: ((Bool) -> Void)? { get set }
+    func setMuted(_ value: Bool) -> Bool
     var level: Double { get }
     var permitted: Bool { get }
     var peak: Double { get }
@@ -19,6 +23,9 @@ protocol SoundMeter: AnyObject {
 }
 
 extension SoundMeter {
+    var muted: Bool { false }
+    var muteChanged: ((Bool) -> Void)? { get { nil } set {} }
+    func setMuted(_ value: Bool) -> Bool { false }
     var peak: Double { level }
     var duration: Double { 0 }
     var hasRecording: Bool { false }
@@ -30,6 +37,13 @@ extension SoundMeter {
 @MainActor
 final class MicrophoneLevelMeter: SoundMeter {
     static let privacySettingsURL = "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"
+    private var muteToken: UUID?
+    var muteChanged: ((Bool) -> Void)?
+    var muted: Bool { SoundAccessoryMute.shared.gate.muted }
+    func setMuted(_ value: Bool) -> Bool {
+        guard engine != nil else { return false }
+        return SoundAccessoryMute.shared.setMuted(value)
+    }
     private var engine: AVAudioEngine?
     private var observation: NSObjectProtocol?
     private var samples: SoundSampleBuffer?
@@ -65,9 +79,17 @@ final class MicrophoneLevelMeter: SoundMeter {
         guard format.sampleRate > 0, format.channelCount > 0 else { throw SoundFailure.missingDevice }
         let samples = try SoundSampleBuffer(format: format)
         self.samples = samples
+        let token = UUID()
+        try SoundAccessoryMute.shared.bind(token, muted: false, apply: { value in samples.setMuted(value); return true }, changed: { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.muteToken == token else { return }
+                self.muteChanged?(SoundAccessoryMute.shared.gate.muted)
+            }
+        })
+        muteToken = token
         input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in samples.append(buffer) }
         do { try engine.start() }
-        catch { input.removeTap(onBus: 0); engine.stop(); throw error }
+        catch { input.removeTap(onBus: 0); engine.stop(); SoundAccessoryMute.shared.unbind(token); muteToken = nil; throw error }
         self.engine = engine
         observation = NotificationCenter.default.addObserver(
             forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
@@ -79,6 +101,8 @@ final class MicrophoneLevelMeter: SoundMeter {
     }
 
     func stop() {
+        if let muteToken { SoundAccessoryMute.shared.unbind(muteToken) }
+        muteToken = nil
         if let observation { NotificationCenter.default.removeObserver(observation) }
         observation = nil
         engine?.inputNode.removeTap(onBus: 0)
@@ -133,6 +157,7 @@ final class SoundController: ObservableObject {
     @Published private(set) var inputs: [SoundDevice] = []
     @Published private(set) var outputUID: String?
     @Published private(set) var inputUID: String?
+    @Published private(set) var checkMuted = false
     @Published private(set) var checking = false
     @Published private(set) var requestingAccess = false
     let readings = SoundLiveReadings()
@@ -162,6 +187,7 @@ final class SoundController: ObservableObject {
         self.hardware = hardware ?? CoreSoundHardware()
         self.meter = meter ?? MicrophoneLevelMeter()
         self.enabled = enabled ?? { ModuleActivation.isOn("sound") }
+        self.meter.muteChanged = { [weak self] value in self?.checkMuted = value }
     }
 
     func device(_ direction: SoundDirection) -> SoundDevice? {
@@ -326,12 +352,19 @@ final class SoundController: ObservableObject {
         }
     }
 
+    func toggleCheckMute() {
+        guard checking, windowOpen, enabled() else { return }
+        if !meter.setMuted(!checkMuted) { failure = .unsupported }
+        checkMuted = meter.muted
+    }
+
     func stopCheck() {
         generation += 1
         ticker?.invalidate()
         ticker = nil
         meter.stop()
         checking = false
+        checkMuted = false
         requestingAccess = false
         level = 0
         peak = 0
