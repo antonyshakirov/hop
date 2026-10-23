@@ -38,6 +38,7 @@ struct SoundVolumeControl: View {
     let showLabel: Bool
     @State private var volumeEditing: SoundVolumeEditing
     @State private var editing = false
+    @State private var percentageEditing = false
     @FocusState private var enteringPercentage: Bool
     @Environment(\.isEnabled) private var controlsEnabled
 
@@ -65,9 +66,9 @@ struct SoundVolumeControl: View {
                        onEditingChanged: { editing = $0 })
                 .opacity(device.muted == true ? 0.45 : 1)
             HStack(spacing: 2) {
-                if Snapshot.active || !controlsEnabled || !enteringPercentage {
+                if Snapshot.active || !controlsEnabled || !percentageEditing {
                     if controlsEnabled && !Snapshot.active {
-                        Button { enteringPercentage = true } label: {
+                        Button { volumeEditing.begin(); percentageEditing = true } label: {
                             Text("\(Int((volumeEditing.value * 100).rounded()))%")
                                 .contentShape(Rectangle())
                         }.buttonStyle(.plain)
@@ -82,23 +83,28 @@ struct SoundVolumeControl: View {
                         .multilineTextAlignment(.trailing).frame(width: 34)
                         .focused($enteringPercentage)
                         .accessibilityLabel(controlName + " %")
-                        .onSubmit { enteringPercentage = false }
-                        .onExitCommand { volumeEditing.cancel(); enteringPercentage = false }
+                        .onAppear { enteringPercentage = true }
+                        .onSubmit { percentageEditing = false }
+                        .onExitCommand { volumeEditing.cancel(); percentageEditing = false }
                     Text("%")
                 }
             }
             .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
             .frame(width: 44, alignment: .trailing)
-            .onHover { hovering in if !hovering { enteringPercentage = false } }
-            .onChange(of: enteringPercentage) { _, focused in
-                if focused { volumeEditing.begin() }
-                else if let value = volumeEditing.commit(maximum: maximum) { set(value) }
+            .onHover { hovering in if !hovering { percentageEditing = false } }
+            .onChange(of: enteringPercentage) { _, focused in if !focused { percentageEditing = false } }
+            .onChange(of: percentageEditing) { _, editing in
+                if !editing {
+                    enteringPercentage = false
+                    if let value = volumeEditing.commit(maximum: maximum) { set(value) }
+                }
             }
-            .onChange(of: controlsEnabled) { _, enabled in if !enabled { enteringPercentage = false } }
+            .onChange(of: controlsEnabled) { _, enabled in if !enabled { percentageEditing = false } }
+            .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { _ in percentageEditing = false }
         }
 
         .onChange(of: device.volume) { _, volume in
-            if !editing, !enteringPercentage, let volume {
+            if !editing, !percentageEditing, let volume {
                 volumeEditing.reflect(volume)
             }
         }
