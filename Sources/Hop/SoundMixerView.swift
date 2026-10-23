@@ -5,7 +5,8 @@ struct SoundMixerSwitch: View {
     @ObservedObject var mixer: SoundMixerController
     let lang: AppLanguage
     var body: some View {
-        Button { if mixer.requested { mixer.stop() } else { mixer.start() } } label: {
+        SettingChip(active: mixer.requested, enabled: mixer.available && !Snapshot.active,
+                    action: { if mixer.requested { mixer.stop() } else { mixer.start() } }) {
             ZStack {
                 Label(L10n.t(.soundMixerStart, lang), systemImage: "slider.horizontal.3").hidden()
                 Label(L10n.t(.soundMixerStop, lang), systemImage: "stop.circle").hidden()
@@ -13,10 +14,8 @@ struct SoundMixerSwitch: View {
                 Label(L10n.t(mixer.starting ? .soundMixerStarting : mixer.requested ? .soundMixerStop : .soundMixerStart, lang),
                       systemImage: mixer.requested ? "stop.circle" : "slider.horizontal.3")
             }
-                .font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
-                .padding(.horizontal, 10).padding(.vertical, 7)
-                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
-        }.buttonStyle(.plain).hoverDim().disabled(!mixer.available || Snapshot.active)
+                .font(Theme.mono(10))
+        }
             .help(L10n.t(.soundMixerHint, lang))
     }
 }
@@ -31,7 +30,7 @@ struct SoundMixerChannels: View {
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 HStack {
-                    Text(L10n.t(.soundMixerApps, lang)).font(Theme.mono(14)).foregroundStyle(Theme.textPrimary)
+                    Text(L10n.t(.soundMixerApps, lang)).font(Theme.mono(11, weight: .semibold)).foregroundStyle(Theme.textPrimary)
                     Spacer(minLength: 8)
                     SoundMixerSwitch(mixer: mixer, lang: lang)
                 }

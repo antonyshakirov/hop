@@ -15,21 +15,20 @@ struct SoundCallMixView: View {
                     }
                     Text(L10n.t(.soundCallMix, lang) + " · " + L10n.t(call.starting ? .soundMixerStarting : call.running ? .soundEnabled : .soundDisabled, lang))
                 }
-                .font(Theme.mono(16)).foregroundStyle(Theme.textPrimary)
+                .font(Theme.mono(11, weight: .semibold)).foregroundStyle(Theme.textPrimary)
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(L10n.t(.soundCallMix, lang) + " · " + L10n.t(call.starting ? .soundMixerStarting : call.running ? .soundEnabled : .soundDisabled, lang))
                 Spacer()
-                Button {
+                SettingChip(active: call.running || call.starting, action: {
                     if call.running || call.starting { call.stop() }
                     else { sound.stopCheck(); sound.discardRecording(); call.start(inputUID: sound.inputUID, apps: mixer.apps) }
-                } label: {
+                }) {
                     ZStack {
                         Text(L10n.t(.soundCallStart, lang)).hidden()
                         Text(L10n.t(.soundCallStop, lang)).hidden()
                         Text(L10n.t(call.running || call.starting ? .soundCallStop : .soundCallStart, lang))
-                    }.font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
-                        .padding(8).background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
-                }.buttonStyle(.plain).hoverDim()
+                    }.font(Theme.mono(10))
+                }
             }
             Text(L10n.t(.soundCallHint, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)

@@ -7251,11 +7251,12 @@ The default viewport reserves the same minimum height for all tabs. Sound contro
 use neutral colors and Hop's plain square checks. Disabled volume readouts render
 number and percent as one styled text, so both dim equally.
 
-The Sound tab selector sits next to its title with a compact gap and a shared
-visible outline; both segments remain recognizable when unselected. Hop Mix
-explicitly states whether it transmits audio. Enabling starts with no sources selected on a fresh launch. Source checkboxes,
-gain and mute are available only while enabled; microphone and app sources can
-be added or removed live. Adding the microphone requires permission and cannot
-survive closing/stopping the window or changing input during that request. No
-capture occurs when stopped. Its status reserves space
-for starting/on/off text so these transitions do not change the section height.
+Sound reuses SettingChip for its tabs, device picker and labeled actions, and
+MiniSlider for gain controls. It uses the same 13pt window title, 11pt section
+labels and 28pt controls as the other utility windows; there is no separate
+large segmented style. Both tab chips remain visible when unselected.
+Hop Mix enables with no sources; source checkboxes, gain and mute are available
+only while enabled, with live source selection. Stop clears selected sources.
+Adding the microphone requires permission and cannot survive closing/stopping
+the window or changing input during that request. Its status reserves space
+for starting/on/off text so these transitions do not change section height.

@@ -238,7 +238,11 @@ struct FooterLink: View {
 struct MiniSlider: View {
     @Binding var value: Int
     let range: ClosedRange<Int>
-    var width: CGFloat = 110
+    var width: CGFloat? = 110
+    var showsNumber = true
+    var accessibilityName: String? = nil
+    var onEditingChanged: (Bool) -> Void = { _ in }
+    @Environment(\.isEnabled) private var controlsEnabled
 
     @State private var text = ""
     @State private var edited = false
@@ -267,14 +271,29 @@ struct MiniSlider: View {
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { gesture in
+                            guard controlsEnabled else { return }
+                            onEditingChanged(true)
                             if focused { edited = false; focused = false }
                             let f = min(1, max(0, gesture.location.x / geo.size.width))
                             value = range.lowerBound + Int((f * span).rounded())
                         }
+                        .onEnded { _ in onEditingChanged(false) }
                 )
             }
             .frame(width: width, height: 14)
-            number
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilityName ?? "")
+            .accessibilityValue("\(value)")
+            .accessibilityHidden(accessibilityName == nil)
+            .accessibilityAdjustableAction { direction in
+                guard controlsEnabled else { return }
+                switch direction {
+                case .increment: value = min(range.upperBound, value + 1)
+                case .decrement: value = max(range.lowerBound, value - 1)
+                @unknown default: break
+                }
+            }
+            if showsNumber { number }
         }
     }
 

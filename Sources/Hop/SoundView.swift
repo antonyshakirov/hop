@@ -55,25 +55,15 @@ struct SoundVolumeControl: View {
     var body: some View {
         HStack(spacing: 12) {
             if showLabel { Text(L10n.t(label, lang)).font(Theme.mono(11)).foregroundStyle(Theme.textTertiary) }
-            if Snapshot.active {
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        Capsule().fill(Theme.chipBg)
-                        Capsule().fill(device.muted == true ? Theme.textTertiary : Theme.textPrimary)
-                            .frame(width: geometry.size.width * volumeEditing.value / maximum)
-                    }.frame(height: 4).frame(maxHeight: .infinity)
-                }.frame(height: 18)
-            } else {
-                Slider(value: Binding(get: { volumeEditing.value }, set: {
-                    volumeEditing.drag(to: $0)
-                    enteringPercentage = false
-                    set($0)
-                }), in: 0...maximum,
+            MiniSlider(value: Binding(get: { Int((volumeEditing.value * 100).rounded()) }, set: {
+                let value = Double($0) / 100
+                volumeEditing.drag(to: value)
+                enteringPercentage = false
+                set(value)
+            }), range: 0...Int(maximum * 100), width: nil, showsNumber: false,
+                       accessibilityName: controlName + " " + L10n.t(label, lang),
                        onEditingChanged: { editing = $0 })
-                    .tint(device.muted == true ? Theme.textTertiary : Theme.textPrimary)
-                    .opacity(device.muted == true ? 0.45 : 1)
-                    .accessibilityLabel(controlName + " " + L10n.t(label, lang))
-            }
+                .opacity(device.muted == true ? 0.45 : 1)
             if Snapshot.active || !controlsEnabled {
                 Text("\(Int((volumeEditing.value * 100).rounded()))%")
                     .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
@@ -119,14 +109,12 @@ private struct SoundDeviceMenu: View {
     }
 
     var body: some View {
-        Button { presented.toggle() } label: {
+        SettingChip(active: presented, action: { presented.toggle() }) {
             HStack(spacing: 7) {
                 Text(title).lineLimit(1).truncationMode(.middle)
                 Image(systemName: "chevron.down").font(Theme.mono(9))
-            }.font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
-                .padding(.horizontal, 10).padding(.vertical, 7)
-                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
-        }.buttonStyle(.plain).hoverDim()
+            }.font(Theme.mono(10))
+        }
             .accessibilityLabel(L10n.t(direction == .input ? .soundInput : .soundOutput, lang))
             .accessibilityValue(title)
             .help(L10n.t(.soundDefaultHint, lang))
@@ -243,26 +231,16 @@ struct SoundWindowView: View {
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(t(.soundLabel)).font(Theme.mono(20)).foregroundStyle(Theme.textPrimary)
+            HStack(spacing: 12) {
+                Text(t(.soundLabel)).font(Theme.mono(13, weight: .bold)).foregroundStyle(Theme.textPrimary)
+                Spacer(minLength: 8)
                 HStack(spacing: 4) {
                     ForEach(Page.allCases, id: \.self) { candidate in
-                        Button { page = candidate } label: {
-                            Text(t(candidate.key)).font(Theme.mono(12))
-                                .foregroundStyle(page == candidate ? Theme.textPrimary : Theme.textSecondary)
-                                .frame(maxWidth: .infinity).padding(.vertical, 7)
-                                .background(page == candidate ? Theme.chipBg : .clear, in: RoundedRectangle(cornerRadius: 6))
-                                .overlay(RoundedRectangle(cornerRadius: 6)
-                                    .strokeBorder(page == candidate ? Theme.textTertiary : .clear, lineWidth: 1))
-                                .contentShape(Rectangle())
-                        }.buttonStyle(.plain).hoverDim()
+                        SettingChip(t(candidate.key), active: page == candidate) { page = candidate }
                             .accessibilityIdentifier("sound.tab." + String(describing: candidate))
                             .accessibilityValue(page == candidate ? "1" : "0")
                     }
                 }
-                .padding(4)
-                .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 9))
-                .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(Theme.textTertiary.opacity(0.5), lineWidth: 1))
             }
             Group {
                 switch page {
@@ -322,7 +300,7 @@ struct SoundWindowView: View {
             HStack(spacing: 12) {
                 Label(t(direction == .output ? .soundOutput : .soundInput),
                       systemImage: direction == .output ? "speaker.wave.2" : "mic")
-                    .font(Theme.mono(16)).foregroundStyle(Theme.textPrimary)
+                    .font(Theme.mono(11, weight: .semibold)).foregroundStyle(Theme.textPrimary)
                 Spacer(minLength: 8)
                 SoundDeviceMenu(direction: direction, lang: lang, sound: sound)
             }
@@ -370,25 +348,19 @@ struct SoundWindowView: View {
     }
 
     private func deviceMuteButton(_ device: SoundDevice, direction: SoundDirection, muted: Bool) -> some View {
-        Button { sound.toggleMute(direction, expectedUID: device.uid) } label: {
+        SettingChip(active: muted, action: { sound.toggleMute(direction, expectedUID: device.uid) }) {
             SoundMuteLabel(muted: muted, input: direction == .input, lang: lang)
-                .font(Theme.mono(11))
-                .foregroundStyle(muted ? Theme.textPrimary : Theme.textSecondary)
-                .padding(.horizontal, 10).padding(.vertical, 7)
-                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
+                .font(Theme.mono(10))
         }
-        .buttonStyle(.plain).hoverDim()
         .help(device.name + ": " + t(muted ? .soundUnmute : .soundMute))
         .accessibilityLabel(device.name + ": " + t(muted ? .soundUnmute : .soundMute))
         .accessibilityValue(muted ? "1" : "0")
     }
 
     private func action(_ key: L10nKey, icon: String, perform: @escaping () -> Void) -> some View {
-        Button(action: perform) {
-            Label(t(key), systemImage: icon).font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
-                .padding(.horizontal, 10).padding(.vertical, 7)
-                .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
-        }.buttonStyle(.plain).hoverDim()
+        SettingChip(active: key == .soundStopMic || key == .soundStopPlayback, action: perform) {
+            Label(t(key), systemImage: icon).font(Theme.mono(10))
+        }
     }
 }
 
