@@ -7260,3 +7260,6 @@ only while enabled, with live source selection. Stop clears selected sources.
 Adding the microphone requires permission and cannot survive closing/stopping
 the window or changing input during that request. Its status reserves space
 for starting/on/off text so these transitions do not change section height.
+Volume percentages render as plain readouts until explicitly clicked. Editing
+ends on Return, focus loss or pointer exit; Escape cancels it. Opening a window
+never creates a focused percentage field.

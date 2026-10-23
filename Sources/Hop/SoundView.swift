@@ -64,13 +64,19 @@ struct SoundVolumeControl: View {
                        accessibilityName: controlName + " " + L10n.t(label, lang),
                        onEditingChanged: { editing = $0 })
                 .opacity(device.muted == true ? 0.45 : 1)
-            if Snapshot.active || !controlsEnabled {
-                Text("\(Int((volumeEditing.value * 100).rounded()))%")
-                    .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
-                    .fixedSize().frame(width: 42, alignment: .trailing)
-                    .opacity(controlsEnabled ? 1 : 0.45)
-            } else {
-                HStack(spacing: 2) {
+            HStack(spacing: 2) {
+                if Snapshot.active || !controlsEnabled || !enteringPercentage {
+                    if controlsEnabled && !Snapshot.active {
+                        Button { enteringPercentage = true } label: {
+                            Text("\(Int((volumeEditing.value * 100).rounded()))%")
+                                .contentShape(Rectangle())
+                        }.buttonStyle(.plain)
+                            .accessibilityLabel(controlName + " %")
+                    } else {
+                        Text("\(Int((volumeEditing.value * 100).rounded()))%")
+                            .opacity(controlsEnabled ? 1 : 0.45)
+                    }
+                } else {
                     TextField("", text: $volumeEditing.text).textFieldStyle(.plain)
                         .foregroundStyle(Theme.textSecondary)
                         .multilineTextAlignment(.trailing).frame(width: 34)
@@ -79,13 +85,18 @@ struct SoundVolumeControl: View {
                         .onSubmit { enteringPercentage = false }
                         .onExitCommand { volumeEditing.cancel(); enteringPercentage = false }
                     Text("%")
-                }.font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
-                    .onChange(of: enteringPercentage) { _, focused in
-                        if focused { volumeEditing.begin() }
-                        else if let value = volumeEditing.commit(maximum: maximum) { set(value) }
-                    }
+                }
             }
+            .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
+            .frame(width: 44, alignment: .trailing)
+            .onHover { hovering in if !hovering { enteringPercentage = false } }
+            .onChange(of: enteringPercentage) { _, focused in
+                if focused { volumeEditing.begin() }
+                else if let value = volumeEditing.commit(maximum: maximum) { set(value) }
+            }
+            .onChange(of: controlsEnabled) { _, enabled in if !enabled { enteringPercentage = false } }
         }
+
         .onChange(of: device.volume) { _, volume in
             if !editing, !enteringPercentage, let volume {
                 volumeEditing.reflect(volume)
