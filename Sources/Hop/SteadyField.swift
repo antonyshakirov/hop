@@ -22,10 +22,10 @@ struct SteadyField: NSViewRepresentable {
     var filter: ((String) -> String)?
     var onSubmit: () -> Void = {}
     var onCancel: () -> Void = {}
-    var onPointerExit: (() -> Void)? = nil
+    var onOutsideInteraction: (() -> Void)? = nil
 
     func makeNSView(context: Context) -> NSTextField {
-        let field = PointerExitField()
+        let field: NSTextField = onOutsideInteraction == nil ? NSTextField() : PointerExitField()
         field.cell = SteadyCell(textCell: "")
         // A hand-made cell comes back neither editable nor selectable, whatever
         // the field it is put into was. Set AFTER the swap, or the field is
@@ -75,8 +75,8 @@ struct SteadyField: NSViewRepresentable {
 
     private func apply(to field: NSTextField) {
         if let field = field as? PointerExitField {
-            let changed = (field.onPointerExit == nil) != (onPointerExit == nil)
-            field.onPointerExit = onPointerExit
+            let changed = (field.onOutsideInteraction == nil) != (onOutsideInteraction == nil)
+            field.onOutsideInteraction = onOutsideInteraction
             if changed { field.updateTrackingAreas() }
         }
         field.font = monospaced
@@ -175,15 +175,40 @@ final class SteadyCell: NSTextFieldCell {
 }
 
 private final class PointerExitField: NSTextField {
-    var onPointerExit: (() -> Void)?
+    var onOutsideInteraction: (() -> Void)?
     private var pointerArea: NSTrackingArea?
+    private var clickMonitor: Any?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if let clickMonitor { NSEvent.removeMonitor(clickMonitor); self.clickMonitor = nil }
+        updateTrackingAreas()
+    }
+    deinit { if let clickMonitor { NSEvent.removeMonitor(clickMonitor) } }
 
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
         if let pointerArea { removeTrackingArea(pointerArea); self.pointerArea = nil }
-        guard onPointerExit != nil else { return }
+        guard onOutsideInteraction != nil else {
+            if let clickMonitor { NSEvent.removeMonitor(clickMonitor); self.clickMonitor = nil }
+            return
+        }
         let area = NSTrackingArea(rect: bounds, options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect], owner: self)
         addTrackingArea(area); pointerArea = area
+        if clickMonitor == nil, window != nil {
+            clickMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { [weak self] event in
+                guard let self, let window = self.window, event.window === window,
+                      !self.bounds.contains(self.convert(event.locationInWindow, from: nil)) else { return event }
+                self.dismiss()
+                return event
+            }
+        }
     }
-    override func mouseExited(with event: NSEvent) { onPointerExit?() }
+    private func dismiss() {
+        window?.makeFirstResponder(nil)
+        onOutsideInteraction?()
+    }
+    override func mouseExited(with event: NSEvent) {
+        if onOutsideInteraction != nil { dismiss() } else { super.mouseExited(with: event) }
+    }
 }

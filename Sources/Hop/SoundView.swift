@@ -82,7 +82,7 @@ struct SoundVolumeControl: View {
                                 alignment: .right, colour: Theme.textSecondary, focus: $enteringPercentage,
                                 onSubmit: { percentageEditing = false },
                                 onCancel: { volumeEditing.cancel(); percentageEditing = false },
-                                onPointerExit: { percentageEditing = false })
+                                onOutsideInteraction: { percentageEditing = false })
                         .frame(width: 34, height: 14)
                         .accessibilityLabel(controlName + " %")
                         .onAppear { enteringPercentage = true }
