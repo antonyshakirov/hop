@@ -24,7 +24,8 @@ final class SoundCallMixController: ObservableObject {
     @Published private(set) var running = false
     @Published private(set) var starting = false
     @Published private(set) var failure: SoundFailure?
-    @Published private(set) var microphone = SoundChannelSettings()
+    @Published private(set) var microphone: SoundChannelSettings = { var value = SoundChannelSettings(); value.active = false; return value }()
+    @Published private(set) var requestingMicrophone = false
     @Published private(set) var applications: [String: SoundChannelSettings] = [:]
     private var windowOpen = false
     private var generation = 0
@@ -52,24 +53,37 @@ final class SoundCallMixController: ObservableObject {
         var settings = SoundChannelSettings(); settings.active = false; return settings
     }
     func editMicrophone(_ edit: (inout SoundChannelSettings) -> Void) {
+        guard !starting, !requestingMicrophone else { return }
         var value = microphone; edit(&value)
-        guard !running && !starting || value.active == microphone.active else { return }
         value.gain = min(1, value.safeGain); value.bass = false
-        microphone = value; sendUpdate()
+        if running, value.active, !microphone.active {
+            guard let inputUID else { failure = .missingDevice; return }
+            let token = generation
+            requestingMicrophone = true
+            access { [weak self] allowed in
+                guard let self, self.generation == token, self.windowOpen, self.running, self.inputUID == inputUID else { return }
+                self.requestingMicrophone = false
+                guard allowed else { self.failure = .permission; return }
+                self.failure = nil; self.microphone = value; self.sendUpdate()
+            }
+        } else { microphone = value; sendUpdate() }
     }
     func editApplication(_ id: String, _ edit: (inout SoundChannelSettings) -> Void) {
-        guard SoundCallMixPolicy.allows(id) else { return }
-        let old = settings(id); var value = old; edit(&value)
-        guard !running && !starting || value.active == old.active else { return }
+        guard SoundCallMixPolicy.allows(id), !starting else { return }
+        var value = settings(id); edit(&value)
+        guard !value.active || sources.filter({ $0.id != id && settings($0.id).active }).count < 4 else { return }
         value.gain = min(1, value.safeGain); value.bass = false
         applications[id] = value; sendUpdate()
+    }
+    func sourcesChanged(_ apps: [SoundMixerChannel]) {
+        sources = apps.filter { SoundCallMixPolicy.allows($0.id) }
+        sendUpdate()
     }
     func start(inputUID: String?, apps: [SoundMixerChannel]) {
         guard enabled, windowOpen, !running, !starting else { return }
         let selected = apps.filter { SoundCallMixPolicy.allows($0.id) && settings($0.id).active }
-        guard selected.count <= 4, !microphone.active || inputUID != nil,
-              microphone.active || !selected.isEmpty else { failure = .missingDevice; return }
-        self.inputUID = inputUID; sources = selected
+        guard selected.count <= 4, !microphone.active || inputUID != nil else { failure = .missingDevice; return }
+        self.inputUID = inputUID; sources = apps.filter { SoundCallMixPolicy.allows($0.id) }
         generation += 1; let token = generation
         failure = nil; starting = true
         let activate: (Bool) -> Void = { [weak self] allowed in
@@ -87,16 +101,21 @@ final class SoundCallMixController: ObservableObject {
         if microphone.active { access(activate) } else { activate(true) }
     }
     func inputChanged(_ uid: String?) {
-        if running || starting, microphone.active, uid != inputUID { stop(); failure = .inputChanged }
+        if running || starting {
+            if (microphone.active || requestingMicrophone), uid != inputUID { stop(); failure = .inputChanged }
+            else { inputUID = uid }
+        }
     }
     func stop() {
-        generation += 1; running = false; starting = false
+        generation += 1; running = false; starting = false; requestingMicrophone = false
         session.stop(); inputUID = nil; sources = []
+        microphone.active = false
+        applications = applications.mapValues { old in var value = old; value.active = false; return value }
     }
     func shutdown() { close(); session.shutdown() }
     private func configuration() -> SoundCallConfiguration {
         SoundCallConfiguration(input: microphone.active ? inputUID.map { SoundInputConfiguration(uid: $0, settings: microphone) } : nil,
-            apps: sources.map { SoundApplicationConfiguration(id: $0.id, processes: $0.processes, settings: settings($0.id)) })
+            apps: sources.filter { settings($0.id).active }.map { SoundApplicationConfiguration(id: $0.id, processes: $0.processes, settings: settings($0.id)) })
     }
     private func sendUpdate() { if running { session.update(configuration()) } }
 }

@@ -237,24 +237,32 @@ struct SoundWindowView: View {
         .background(Theme.panelBackground)
         .id(model.themeVersion)
         .onChange(of: sound.inputUID) { _, uid in model.soundCallMix.inputChanged(uid) }
+        .onReceive(model.soundMixer.$apps) { model.soundCallMix.sourcesChanged($0) }
         .onChange(of: page) { old, _ in if old == .input { sound.stopCheck() } }
     }
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(t(.soundLabel)).font(Theme.mono(20)).foregroundStyle(Theme.textPrimary)
-            HStack(spacing: 4) {
-                ForEach(Page.allCases, id: \.self) { candidate in
-                    Button { page = candidate } label: {
-                        Text(t(candidate.key)).font(Theme.mono(12))
-                            .foregroundStyle(page == candidate ? Theme.textPrimary : Theme.textTertiary)
-                            .frame(maxWidth: .infinity).padding(.vertical, 9)
-                            .background(page == candidate ? Theme.chipBg : .clear, in: RoundedRectangle(cornerRadius: 6))
-                            .contentShape(Rectangle())
-                    }.buttonStyle(.plain).hoverDim()
-                        .accessibilityIdentifier("sound.tab." + String(describing: candidate))
-                        .accessibilityValue(page == candidate ? "1" : "0")
+            VStack(alignment: .leading, spacing: 8) {
+                Text(t(.soundLabel)).font(Theme.mono(20)).foregroundStyle(Theme.textPrimary)
+                HStack(spacing: 4) {
+                    ForEach(Page.allCases, id: \.self) { candidate in
+                        Button { page = candidate } label: {
+                            Text(t(candidate.key)).font(Theme.mono(12))
+                                .foregroundStyle(page == candidate ? Theme.textPrimary : Theme.textSecondary)
+                                .frame(maxWidth: .infinity).padding(.vertical, 7)
+                                .background(page == candidate ? Theme.chipBg : .clear, in: RoundedRectangle(cornerRadius: 6))
+                                .overlay(RoundedRectangle(cornerRadius: 6)
+                                    .strokeBorder(page == candidate ? Theme.textTertiary : .clear, lineWidth: 1))
+                                .contentShape(Rectangle())
+                        }.buttonStyle(.plain).hoverDim()
+                            .accessibilityIdentifier("sound.tab." + String(describing: candidate))
+                            .accessibilityValue(page == candidate ? "1" : "0")
+                    }
                 }
+                .padding(4)
+                .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 9))
+                .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(Theme.textTertiary.opacity(0.5), lineWidth: 1))
             }
             Group {
                 switch page {

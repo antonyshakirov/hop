@@ -9,7 +9,15 @@ struct SoundCallMixView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text(L10n.t(.soundCallMix, lang)).font(Theme.mono(16)).foregroundStyle(Theme.textPrimary)
+                ZStack(alignment: .leading) {
+                    ForEach([L10nKey.soundMixerStarting, .soundEnabled, .soundDisabled], id: \.self) { key in
+                        Text(L10n.t(.soundCallMix, lang) + " · " + L10n.t(key, lang)).hidden()
+                    }
+                    Text(L10n.t(.soundCallMix, lang) + " · " + L10n.t(call.starting ? .soundMixerStarting : call.running ? .soundEnabled : .soundDisabled, lang))
+                }
+                .font(Theme.mono(16)).foregroundStyle(Theme.textPrimary)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(L10n.t(.soundCallMix, lang) + " · " + L10n.t(call.starting ? .soundMixerStarting : call.running ? .soundEnabled : .soundDisabled, lang))
                 Spacer()
                 Button {
                     if call.running || call.starting { call.stop() }
@@ -23,27 +31,27 @@ struct SoundCallMixView: View {
                         .padding(8).background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
                 }.buttonStyle(.plain).hoverDim()
             }
-            Text(SoundCallMixController.deviceName + " · " + L10n.t(call.starting ? .soundMixerStarting : call.running ? .soundEnabled : .soundDisabled, lang))
-                .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
             Text(L10n.t(.soundCallHint, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
-            source(L10n.t(.soundMicrophone, lang), settings: call.microphone, edit: call.editMicrophone)
-            ForEach(mixer.apps.filter { SoundCallMixPolicy.allows($0.id) }) { app in
-                source(app.name, settings: call.settings(app.id)) { edit in call.editApplication(app.id, edit) }
-            }
-            Text(L10n.t(.soundCallCloseHint, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
+            VStack(spacing: 12) {
+                source(L10n.t(.soundMicrophone, lang), settings: call.microphone, edit: call.editMicrophone)
+                ForEach(mixer.apps.filter { SoundCallMixPolicy.allows($0.id) }) { app in
+                    source(app.name, settings: call.settings(app.id)) { edit in call.editApplication(app.id, edit) }
+                }
+            }.disabled(!call.running || call.starting || call.requestingMicrophone)
             if let failure = call.failure {
                 Text(L10n.t(failure == .permission ? .soundPermission : failure == .inputChanged ? .soundInputChanged : .soundCallFailed, lang))
                     .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary).fixedSize(horizontal: false, vertical: true)
             }
         }
+        .help(L10n.t(.soundCallCloseHint, lang))
     }
     private func source(_ name: String, settings: SoundChannelSettings,
                         edit: @escaping ((inout SoundChannelSettings) -> Void) -> Void) -> some View {
         HStack(spacing: 10) {
             Toggle(name, isOn: Binding(get: { settings.active }, set: { value in edit { $0.active = value } }))
                 .toggleStyle(SoundSourceToggleStyle()).font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
-                .frame(width: 135, alignment: .leading).disabled(call.running || call.starting)
+                .frame(width: 135, alignment: .leading)
             SoundVolumeControl(device: SoundDevice(uid: name, name: name + " · " + SoundCallMixController.deviceName, volume: settings.gain,
                                                    muted: settings.muted, canChangeVolume: true, canMute: true),
                                direction: .input, lang: lang, maximum: 1, label: .soundMixerGain, showLabel: false) { value in edit { $0.gain = value } }

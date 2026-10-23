@@ -5,6 +5,37 @@ import XCTest
 
 @MainActor
 final class SoundWindowLayoutTests: XCTestCase {
+    private final class MixSession: SoundCallSession {
+        var complete: ((Result<Void, SoundFailure>) -> Void)?
+        func start(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) { complete = completed }
+        func update(_ configuration: SoundCallConfiguration) {}
+        func stop() {}
+        func shutdown() {}
+    }
+
+    func testMixerHeightStaysFixedAcrossStoppedStartingAndRunning() {
+        let model = AppModel(preview: true)
+        for language in AppLanguage.allCases {
+            for width: CGFloat in [360, 480] {
+                let session = MixSession()
+                let call = SoundCallMixController(enabled: true, session: session, access: { $0(true) })
+                let host = NSHostingView(rootView: SoundCallMixView(call: call, sound: model.sound, mixer: model.soundMixer, lang: language).frame(width: width))
+                func height() -> CGFloat {
+                    host.layoutSubtreeIfNeeded()
+                    RunLoop.main.run(until: Date().addingTimeInterval(0.02))
+                    return host.fittingSize.height
+                }
+                let stopped = height()
+                call.open(); call.start(inputUID: "fixture-mic", apps: [])
+                XCTAssertEqual(height(), stopped, accuracy: 1, "Starting: \(language.rawValue), \(width)")
+                session.complete?(.success(()))
+                XCTAssertEqual(height(), stopped, accuracy: 1, "Running: \(language.rawValue), \(width)")
+                call.close()
+                XCTAssertEqual(height(), stopped, accuracy: 1, "Stopped again: \(language.rawValue), \(width)")
+            }
+        }
+    }
+
     func testOpeningCentersFinalSizeAndUsesAvailableHeight() {
         let visible = CGRect(x: 1470, y: 50, width: 1470, height: 800)
         let current = CGRect(x: 100, y: 100, width: 520, height: 348)
