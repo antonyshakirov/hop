@@ -6983,8 +6983,9 @@ release without a card of its own. `checks.sh` fails on any of them, and
 CHANGELOG.md that does not open with it.
 
 The next minor release is 2.4.0. Its card opens with the new Sound module and
-per-application audio mixer, followed by icon-only menu-bar display, the three
-torrent-removal choices and closing windows through the Dock. The same items
+per-application audio mixer with separate volume and mute, followed by icon-only
+menu-bar display, the three torrent-removal choices and closing windows through
+the Dock. The same items
 open the localized release notes. Historical 2.3 cards/notes and the published
 plist version remain unchanged. Noise suppression is not included or advertised.
 

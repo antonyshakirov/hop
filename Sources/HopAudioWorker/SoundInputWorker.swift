@@ -146,12 +146,10 @@ private final class SoundWorkerEngine {
                         MainActor.assumeIsolated { self?.silence(); self?.send(["failed": true]) }
                     }
                 }
-                if #available(macOS 14.2, *) {
-                    for configuration in applications {
-                        apps[configuration.id] = try SoundCapturedApplication(configuration)
-                        appProcesses[configuration.id] = configuration.processes
-                    }
-                } else if !applications.isEmpty { throw SoundFailure.unsupported }
+                for configuration in applications {
+                    apps[configuration.id] = try SoundCapturedApplication(configuration)
+                    appProcesses[configuration.id] = configuration.processes
+                }
             }
             func settings(_ value: SoundChannelSettings) -> SoundChannelSettings {
                 var value = value; value.gain = min(1, value.safeGain); value.bass = false; return value

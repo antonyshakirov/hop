@@ -24,6 +24,13 @@ final class HotfixReleaseTests: XCTestCase {
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.3"))
     }
 
+    func testEveryLanguageOpensTheReleaseWithTheMixerCardCopy() {
+        for lang in AppLanguage.allCases {
+            let firstItem = L10n.t(.docNews, lang).components(separatedBy: "\n\n")[1]
+            XCTAssertEqual(firstItem, "• " + L10n.t(.news24Mixer, lang), lang.rawValue)
+        }
+    }
+
     func testTheNetworkReleaseHasItsCard() {
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.2.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.2"))

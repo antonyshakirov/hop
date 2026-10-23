@@ -2,19 +2,17 @@
 
 ## 2.4.0 - 2026-10-22
 
-- New Sound module: compact per-app volume and mute. Enable once to keep it working
-  in the background and resume on the next launch. Microphone controls open separately;
-  app mixing never captures the physical microphone or creates Hop Input.
-  Microphone mute applies only to the selected device.
-- Sound: dragging the volume slider also updates a focused percentage field.
+- New Sound module: per-app volume and mute. Enable once; app levels remain active
+  after the Sound window closes and resume on the next launch.
+- Sound: Output and Input tabs share one window. Microphone controls affect only
+  the selected device; short microphone checks stay in memory until the window closes.
+- Sound: percentage editing starts on click and ends when focus leaves the field;
+  the number and percent sign share the same colour.
 - Settings: keep only the Hop icon in the menu bar, without corner indicators
   or countdowns.
 - Torrents: choose to remove the list entry, also trash its original .torrent
   file, or delete everything including downloaded files.
 - Closing Hop's windows through the Dock leaves the menu-bar app running.
-- With no external monitor, closing the lid puts the display to sleep while
-  the Mac keeps working. Opening the lid wakes the display. With an external
-  monitor, Hop dims only the built-in screen.
 
 ## 2.3.2 - 2026-10-02
 
