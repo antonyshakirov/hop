@@ -7413,3 +7413,7 @@ A neutral ring on the main star reports active custom application gain, mute or
 output assignments while AppVolume is running. Stopping AppVolume, disabling
 the Sound module or choosing icon-only mode removes the ring. It does not report
 microphone capture or the optional Hop Mix virtual input.
+
+### Sound quick mixer controls
+
+The main Sound row exposes separate Output and Input mixer controls, each with a visible localized off/starting/on state in the shared neutral chip style. State changes reserve the same label width. Output temporarily bypasses app listening while retaining the saved profile. Input stops running or pending Hop Mix immediately; enabling opens Sound on Input before starting the existing explicit microphone permission path. Opening Sound alone never starts capture. Closing Sound stops Input and deletes its check recording; Output remains independent.

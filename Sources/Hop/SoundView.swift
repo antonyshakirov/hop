@@ -223,6 +223,11 @@ struct SoundWindowView: View {
         .onReceive(model.soundMixer.$apps) { model.soundCallMix.sourcesChanged($0) }
         .onChange(of: model.soundMixer.sourceRevision) { _, _ in model.soundCallMix.sourcesChanged(model.soundMixer.apps) }
         .onChange(of: page) { old, _ in if old == .input { sound.stopCheck() } }
+        .onChange(of: model.soundPageRequest, initial: true) { _, request in
+            guard let request else { return }
+            page = request == .input ? .input : .output
+            model.soundPageRequest = nil
+        }
     }
 
     private var content: some View {
