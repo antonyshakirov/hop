@@ -36,6 +36,7 @@ struct SoundCallMixView: View {
                 source(L10n.t(.soundMicrophone, lang), settings: call.microphone, edit: call.editMicrophone)
                 ForEach(mixer.apps.filter { SoundCallMixPolicy.allows($0.id) }) { app in
                     source(app.name, settings: call.settings(app.id)) { edit in call.editApplication(app.id, edit) }
+                        .disabled(app.processes.isEmpty)
                 }
             }.disabled(!call.running || call.starting || call.requestingMicrophone)
             if let failure = call.failure {

@@ -18,6 +18,20 @@ final class SoundCallMixControllerTests: XCTestCase {
         func stop() { stops += 1 }
         func shutdown() { stop() }
     }
+    func testOfflinePinnedSourceIsOmittedAndRejoinsWithoutChangingSendSettings() {
+        let session = Session()
+        let mix = SoundCallMixController(enabled: true, session: session, access: { _ in XCTFail("No mic permission") })
+        let app = SoundMixerChannel(id: "com.google.Chrome", name: "Chrome", input: false, settings: .init())
+        mix.editApplication(app.id) { $0.active = true; $0.gain = 0.25 }
+        mix.open(); mix.start(inputUID: nil, apps: [app]); session.callback?(.success(()))
+        XCTAssertTrue(session.starts[0].apps.isEmpty)
+        app.processes = [123]; mix.sourcesChanged([app])
+        XCTAssertEqual(session.updates.last?.apps.first?.settings.gain, 0.25)
+        app.processes = []; mix.sourcesChanged([app])
+        XCTAssertTrue(session.updates.last!.apps.isEmpty)
+        XCTAssertTrue(mix.running); XCTAssertTrue(mix.settings(app.id).active)
+        mix.close()
+    }
     func testDisabledPrototypeCannotAskForMicrophoneOrStart() {
         let session = Session(); var asked = false
         let mix = SoundCallMixController(enabled: false, session: session, access: { _ in asked = true })
@@ -98,6 +112,7 @@ final class SoundCallMixControllerTests: XCTestCase {
         let mix = SoundCallMixController(enabled: true, session: session, access: { $0(true) })
         mix.open(); mix.start(inputUID: nil, apps: []); session.callback?(.success(()))
         let app = SoundMixerChannel(id: "com.google.Chrome", name: "Chrome", input: false, settings: .init())
+        app.processes = [123]
         mix.sourcesChanged([app]); mix.editApplication(app.id) { $0.active = true }
         XCTAssertEqual(session.updates.last?.apps.map(\.id), [app.id])
         mix.sourcesChanged([])

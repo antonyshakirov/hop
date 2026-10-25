@@ -30,14 +30,14 @@ final class SoundProcessTap {
     private var io: AudioDeviceIOProcID?
     private var channel: SoundAudioChannel?
 
-    init(processes: [AudioObjectID], name: String, publicInput: Bool = false) throws {
+    init(processes: [AudioObjectID], name: String, publicInput: Bool = false, holdSourceMuted: Bool = false) throws {
         guard !processes.isEmpty else { throw SoundFailure.missingDevice }
         self.publicInput = publicInput
         uid = publicInput ? Self.virtualUID : "com.antonshakirov.hop.audio." + UUID().uuidString
         let description = CATapDescription(stereoMixdownOfProcesses: processes)
         description.name = name; description.isPrivate = !publicInput
         tapUID = description.uuid.uuidString
-        description.muteBehavior = publicInput ? .muted : .mutedWhenTapped
+        description.muteBehavior = publicInput || holdSourceMuted ? .muted : .mutedWhenTapped
         var tap = AudioObjectID(0)
         guard AudioHardwareCreateProcessTap(description, &tap) == noErr else { throw SoundFailure.system(-1) }
         self.tap = tap
@@ -123,38 +123,4 @@ final class SoundProcessTap {
         }
         UserDefaults.standard.removeObject(forKey: resourceKey)
     }
-}
-
-@available(macOS 14.2, *)
-final class SoundOutputStream {
-    let tap: SoundProcessTap
-    let channel: SoundAudioChannel
-    let engine = AVAudioEngine()
-    private var node: AVAudioSourceNode?
-    private var observation: NSObjectProtocol?
-    init(processes: [AudioObjectID], settings: SoundChannelSettings, failed: @escaping () -> Void) throws {
-        tap = try SoundProcessTap(processes: processes, name: "Hop App Output")
-        channel = try SoundAudioChannel(rate: tap.format.sampleRate)
-        channel.configure(settings)
-        let channel = channel
-        let format = AVAudioFormat(standardFormatWithSampleRate: channel.sampleRate, channels: 2)!
-        let source = AVAudioSourceNode(format: format) { _, _, frames, output in
-            hop_audio_render(channel.pointer, output, frames, false); return noErr
-        }
-        node = source; engine.attach(source); engine.connect(source, to: engine.mainMixerNode, format: format)
-        try Task.checkCancellation()
-        try engine.start()
-        do { try tap.start(channel) } catch { engine.stop(); throw error }
-        observation = NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak self] _ in
-            guard let self, !self.engine.isRunning else { return }
-            self.tap.stop()
-            do { try self.engine.start(); try self.tap.start(self.channel) }
-            catch { self.stop(); failed() }
-        }
-    }
-    func stop() {
-        if let observation { NotificationCenter.default.removeObserver(observation) }; observation = nil
-        tap.stop(); engine.stop()
-    }
-    deinit { stop() }
 }

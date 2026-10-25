@@ -405,6 +405,7 @@ final class SoundController: ObservableObject {
         inputs = [SoundDevice(uid: "mic", name: "Mac microphone", volume: 0.75, muted: false, canChangeVolume: true, canMute: false)]
         outputUID = "speakers"
         inputUID = "mic"
+        if state == "empty-input" { inputs = []; inputUID = nil }
         if state == "checking" { checking = true; level = 0.7; peak = 0.86; duration = 3.2 }
         if state == "recorded" { hasRecording = true; duration = 4.5 }
         if state == "muted" { outputs[0].muted = true; inputs[0].muted = true; inputs[0].canMute = true }

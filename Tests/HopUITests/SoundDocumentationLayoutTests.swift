@@ -18,6 +18,15 @@ final class SoundDocumentationLayoutTests: XCTestCase {
                 (.soundCallHint, 10, [432, 480, 620]),
                 (.soundCallCloseHint, 10, [432, 480, 620]),
                 (.soundCallFailed, 10, [432, 480, 620]),
+                (.soundAppPlaying, 11, [280, 432, 680]),
+                (.soundAppIdle, 11, [280, 432, 680]),
+                (.soundAppNotRunning, 11, [280, 432, 680]),
+                (.soundAppWaiting, 10, [268, 432, 680]),
+                (.soundAppRouteFailed, 11, [280, 432, 680]),
+                (.soundAppPin, 11, [240, 280, 432]),
+                (.soundAppUnpin, 11, [240, 280, 432]),
+                (.soundAppMoveUp, 11, [240, 280, 432]),
+                (.soundAppMoveDown, 11, [240, 280, 432]),
             ]
             for (key, size, widths) in cases {
             let paragraph = L10n.t(key, lang).components(separatedBy: "\n\n").last!

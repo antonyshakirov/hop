@@ -230,6 +230,10 @@ struct SoundWindowView: View {
     }
     @State private var page: Page = .output
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
+    init(sound: SoundController, initialInput: Bool = false, onHeightChange: @escaping (CGFloat) -> Void = { _ in }) {
+        self.sound = sound; self.onHeightChange = onHeightChange
+        _page = State(initialValue: initialInput ? .input : .output)
+    }
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
@@ -243,6 +247,7 @@ struct SoundWindowView: View {
         .id(model.themeVersion)
         .onChange(of: sound.inputUID) { _, uid in model.soundCallMix.inputChanged(uid) }
         .onReceive(model.soundMixer.$apps) { model.soundCallMix.sourcesChanged($0) }
+        .onChange(of: model.soundMixer.sourceRevision) { _, _ in model.soundCallMix.sourcesChanged(model.soundMixer.apps) }
         .onChange(of: page) { old, _ in if old == .input { sound.stopCheck() } }
     }
 
@@ -283,7 +288,7 @@ struct SoundWindowView: View {
                         }
                     }
                 }
-            }.frame(maxWidth: .infinity, minHeight: 340, alignment: .topLeading)
+            }.frame(maxWidth: .infinity, alignment: .topLeading)
             if let failure = sound.failure {
                 Text(failureText(failure)).font(Theme.mono(11))
                     .foregroundStyle(Theme.textSecondary).fixedSize(horizontal: false, vertical: true)

@@ -3,17 +3,32 @@ import Combine
 import CoreAudio
 import HopCore
 import HopAudioEngine
-import HopAudioEngine
 
 @MainActor
 final class SoundMixerChannel: ObservableObject, Identifiable {
     let id: String
-    let name: String
     let input: Bool
+    @Published var name: String
     @Published var settings: SoundChannelSettings
+    @Published var preference: SoundAppPreference
+    @Published var routeState: SoundAppRouteState = .stopped
+    @Published var appRunning = true
+    @Published var hasAudio = false
+    @Published private(set) var icon: NSImage?
+    var sourceRunning = false
     var processes: [AudioObjectID] = []
+    var lastSignal: TimeInterval = 0
+    private var iconURL: URL?
     init(id: String, name: String, input: Bool, settings: SoundChannelSettings) {
         self.id = id; self.name = name; self.input = input; self.settings = settings
+        preference = SoundAppPreference(name: name)
+        updateIcon(nil)
+    }
+    func updateIcon(_ url: URL?) {
+        let resolved = (url ?? NSWorkspace.shared.urlForApplication(withBundleIdentifier: id))?.resolvingSymlinksInPath()
+        guard resolved != iconURL else { return }
+        iconURL = resolved
+        icon = resolved.map { NSWorkspace.shared.icon(forFile: $0.path) }
     }
 }
 
@@ -22,12 +37,17 @@ protocol SoundMixingSession: AnyObject {
     func outputs(_ channels: [SoundMixerChannel])
     func configure(_ channel: SoundMixerChannel)
     func stop()
+    func sourceLevel(_ id: String) -> Float
 }
+extension SoundMixingSession { func sourceLevel(_ id: String) -> Float { 0 } }
 
 @MainActor
 final class SoundMixerController: ObservableObject {
-    @Published private(set) var apps: [SoundMixerChannel] = []
     static let enabledKey = "soundMixerEnabled"
+    static let preferencesKey = "soundMixerAppPreferences"
+    @Published private(set) var apps: [SoundMixerChannel] = []
+    @Published private(set) var sourceRevision = 0
+    @Published private(set) var outputDevices: [SoundDevice] = []
     @Published private(set) var requested: Bool
     @Published private(set) var running = false
     @Published private(set) var starting = false
@@ -40,46 +60,87 @@ final class SoundMixerController: ObservableObject {
     private let enabled: () -> Bool
     private let defaults: UserDefaults
     private let makeSession: (@escaping (SoundFailure) -> Void) -> SoundMixingSession
+    private let discover: () -> [SoundMixerAppSnapshot]
+    private let outputs: () -> [SoundDevice]
+    private let observeHardware: Bool
     private var saved: [String: SoundChannelSettings]
+    private var preferences: [String: SoundAppPreference]
     private var refreshTask: Task<Void, Never>?
+    private var activityTimer: Timer?
 
     init(enabled: @escaping () -> Bool = { true }, defaults: UserDefaults = .standard,
-         makeSession: ((@escaping (SoundFailure) -> Void) -> SoundMixingSession)? = nil) {
+         makeSession: ((@escaping (SoundFailure) -> Void) -> SoundMixingSession)? = nil,
+         discover: (() -> [SoundMixerAppSnapshot])? = nil, outputs: (() -> [SoundDevice])? = nil) {
         self.enabled = enabled; self.defaults = defaults
         requested = defaults.bool(forKey: Self.enabledKey)
         self.makeSession = makeSession ?? { failed in
             if #available(macOS 14.2, *) { return SoundRoutingSession(failed: failed) }
             preconditionFailure("Mixer requires macOS14.2")
         }
+        self.discover = discover ?? { SoundMixerDiscovery.applications() }
+        let hardware = CoreSoundHardware()
+        self.outputs = outputs ?? { hardware.devices(.output) }
+        observeHardware = discover == nil
         defaults.removeObject(forKey: "soundMixerDenoiseAll")
         saved = defaults.data(forKey: "soundMixerChannels").flatMap { try? JSONDecoder().decode([String: SoundChannelSettings].self, from: $0) } ?? [:]
+        preferences = defaults.data(forKey: Self.preferencesKey).flatMap { try? JSONDecoder().decode([String: SoundAppPreference].self, from: $0) } ?? [:]
     }
     func open() {
         guard enabled(), available else { return }
         if #available(macOS 14.2, *), !running, !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
-        visible = true; refresh(); watch()
+        visible = true; refresh(); watch(); updateActivityTimer()
     }
     func close() {
-        visible = false
+        visible = false; updateActivityTimer()
         if !running, !starting { observations.removeAll(); refreshTask?.cancel(); refreshTask = nil }
     }
     func update(_ channel: SoundMixerChannel, _ edit: (inout SoundChannelSettings) -> Void) {
         guard !channel.input else { return }
         edit(&channel.settings)
         channel.settings.gain = min(1, channel.settings.safeGain)
-        channel.settings.active = true
-        saved[(channel.input ? "input:" : "app:") + channel.id] = channel.settings
+        channel.settings.active = true; channel.settings.bass = false
+        saved["app:" + channel.id] = channel.settings
         if let data = try? JSONEncoder().encode(saved) { defaults.set(data, forKey: "soundMixerChannels") }
         session?.configure(channel)
     }
-    func resumeIfEnabled() {
-        guard requested else { return }
-        start()
+    func selectOutput(_ channel: SoundMixerChannel, uid: String?) {
+        guard !channel.input else { return }
+        var value = preferences[channel.id] ?? SoundAppPreference(name: channel.name)
+        value.outputUID = uid
+        value.outputName = uid.flatMap { selected in outputDevices.first { $0.uid == selected }?.name ?? value.outputName ?? selected }
+        preferences[channel.id] = value; channel.preference = value; persistPreferences()
+        session?.configure(channel)
     }
+    func togglePin(_ channel: SoundMixerChannel) {
+        var value = preferences[channel.id] ?? SoundAppPreference(name: channel.name)
+        value.pinned.toggle()
+        value.order = (preferences.values.compactMap(\.order).max() ?? 0) + 1
+        preferences[channel.id] = value; channel.preference = value
+        persistPreferences(); sortApps()
+    }
+    func canMove(_ channel: SoundMixerChannel, by offset: Int) -> Bool {
+        guard let from = apps.firstIndex(where: { $0.id == channel.id }), abs(offset) == 1 else { return false }
+        let to = from + offset
+        return apps.indices.contains(to) && apps[to].preference.pinned == channel.preference.pinned
+    }
+    func move(_ channel: SoundMixerChannel, by offset: Int) {
+        preferences = SoundApplicationList.moving(channel.id, by: offset, ids: apps.map(\.id),
+            names: Dictionary(uniqueKeysWithValues: apps.map { ($0.id, $0.name) }), preferences: preferences)
+        for app in apps { app.preference = preferences[app.id] ?? app.preference }
+        persistPreferences(); sortApps()
+    }
+    private func persistPreferences() {
+        if let data = try? JSONEncoder().encode(preferences) { defaults.set(data, forKey: Self.preferencesKey) }
+    }
+    private func sortApps() {
+        let map = Dictionary(uniqueKeysWithValues: apps.map { ($0.id, $0) })
+        let order = SoundApplicationList.ordered(apps.map(\.id), names: map.mapValues(\.name), preferences: preferences)
+        if order != apps.map(\.id) { apps = order.compactMap { map[$0] } }
+    }
+    func resumeIfEnabled() { if requested { start() } }
     func start() {
         guard enabled(), available, !running, !starting else { return }
-        requested = true
-        defaults.set(true, forKey: Self.enabledKey)
+        requested = true; defaults.set(true, forKey: Self.enabledKey)
         if #available(macOS 14.2, *), !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
         refresh(); failure = nil; starting = true; generation += 1
         let token = generation
@@ -88,22 +149,22 @@ final class SoundMixerController: ObservableObject {
             self.suspend(); self.failure = failure
         }
         self.session = session
-        running = true; starting = false; watch()
+        running = true; starting = false; watch(); updateActivityTimer()
         session.outputs(apps)
     }
     func stop() {
-        requested = false
-        defaults.set(false, forKey: Self.enabledKey)
-        suspend()
-        failure = nil
+        requested = false; defaults.set(false, forKey: Self.enabledKey)
+        suspend(); failure = nil
     }
     func suspend() {
         generation += 1; starting = false; running = false
-        session?.stop(); session = nil
+        session?.stop(); session = nil; updateActivityTimer()
+        apps.forEach { $0.hasAudio = false; $0.routeState = .stopped }
         if !visible { observations.removeAll(); refreshTask?.cancel(); refreshTask = nil }
     }
     private func watch() {
         observations.removeAll()
+        guard observeHardware, !Snapshot.active else { return }
         let system = AudioObjectID(kAudioObjectSystemObject)
         let changed: () -> Void = { [weak self] in
             MainActor.assumeIsolated {
@@ -116,122 +177,69 @@ final class SoundMixerController: ObservableObject {
                 }
             }
         }
-        for selector in [kAudioHardwarePropertyProcessObjectList, kAudioHardwarePropertyDevices] {
+        for selector in [kAudioHardwarePropertyProcessObjectList, kAudioHardwarePropertyDevices, kAudioHardwarePropertyDefaultOutputDevice] {
             if let observation = SoundHALObservation(system, selector, changed: changed) { observations.append(observation) }
         }
-        if let observation = SoundHALObservation(system, kAudioHardwarePropertyDefaultOutputDevice, changed: { [weak self] in
-            MainActor.assumeIsolated {
-                guard let self, self.running else { return }
-                self.session?.outputs([]); self.session?.outputs(self.apps)
-            }
-        }) { observations.append(observation) }
         for id in SoundHAL.ids(system, kAudioHardwarePropertyProcessObjectList) {
             if let observation = SoundHALObservation(id, kAudioProcessPropertyIsRunningOutput, changed: changed) { observations.append(observation) }
         }
     }
     private func refresh() {
-        let runningApps = NSWorkspace.shared.runningApplications
-        var groups: [String: (String, [AudioObjectID])] = [:]
-        let oldApps = Dictionary(uniqueKeysWithValues: apps.map { ($0.id, $0) })
-        let processIDs = SoundHAL.ids(AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyProcessObjectList)
-        if #available(macOS 14.2, *) {
-            for id in processIDs {
-                guard SoundHAL.value(id, kAudioProcessPropertyIsRunningOutput, UInt32(0)) == 1,
-                      let pid = SoundHAL.value(id, kAudioProcessPropertyPID, pid_t(0)),
-                      pid != ProcessInfo.processInfo.processIdentifier else { continue }
-                let app = NSRunningApplication(processIdentifier: pid)
-                guard let rawID = app?.bundleIdentifier ?? SoundHAL.string(id, kAudioProcessPropertyBundleID),
-                      !rawID.hasPrefix("com.antonshakirov.minimo"), !rawID.hasPrefix("com.antonshakirov.hop") else { continue }
-                let owner = runningApps.filter { other in
-                    guard let bundle = other.bundleIdentifier, !bundle.isEmpty else { return false }
-                    return rawID == bundle || rawID.hasPrefix(bundle + ".")
-                }.min { ($0.bundleIdentifier?.count ?? 0) < ($1.bundleIdentifier?.count ?? 0) } ?? app
-                let key = owner?.bundleIdentifier ?? rawID
-                let name = owner?.localizedName ?? app?.localizedName ?? key
-                var group = groups[key] ?? (name, [])
-                group.1.append(id); groups[key] = group
-            }
+        outputDevices = outputs().filter { SoundAppOutput.allows($0.uid) }
+        let old = Dictionary(uniqueKeysWithValues: apps.map { ($0.id, $0) })
+        var groups = Dictionary(uniqueKeysWithValues: discover().filter {
+            $0.sourceRunning || old[$0.id] != nil || preferences[$0.id]?.pinned == true
+        }.map { ($0.id, $0) })
+        for (id, value) in preferences where value.pinned && groups[id] == nil {
+            groups[id] = SoundMixerAppSnapshot(id: id, name: value.name, processes: [], appRunning: false, sourceRunning: false)
         }
-        if running {
-            for (key, channel) in oldApps {
-                let connected = channel.processes.filter { processIDs.contains($0) }
-                if !connected.isEmpty {
-                    let existing = groups[key]?.1 ?? []
-                    groups[key] = (channel.name, Array(Set(connected + existing)))
-                }
-            }
+        var metadataChanged = false
+        var sourcesChanged = false
+        var next: [SoundMixerChannel] = []
+        for (id, info) in groups {
+            let channel = old[id] ?? SoundMixerChannel(id: id, name: info.name, input: false, settings: saved["app:" + id] ?? .init())
+            channel.name = info.name; channel.appRunning = info.appRunning; channel.sourceRunning = info.sourceRunning
+            channel.updateIcon(info.iconURL)
+            channel.settings.gain = min(1, channel.settings.safeGain); channel.settings.active = true; channel.settings.bass = false
+            let connected = info.sourceRunning ? info.processes : channel.processes.filter { info.processes.contains($0) }
+            if channel.processes != connected.sorted() { sourcesChanged = true }
+            channel.processes = connected.sorted()
+            var preference = preferences[id] ?? SoundAppPreference(name: info.name)
+            preference.name = info.name
+            if let uid = preference.outputUID, let device = outputDevices.first(where: { $0.uid == uid }) { preference.outputName = device.name }
+            if preferences[id] != preference { preferences[id] = preference; metadataChanged = true }
+            channel.preference = preference
+            next.append(channel)
         }
-        var outputsChanged = Set(groups.keys) != Set(oldApps.keys)
-        let nextApps = groups.map { key, value -> SoundMixerChannel in
-            let channel = oldApps[key] ?? SoundMixerChannel(id: key, name: value.0, input: false, settings: saved["app:" + key] ?? .init())
-            channel.settings.gain = min(1, channel.settings.safeGain)
-            channel.settings.active = true
-            let ids = value.1.sorted()
-            if channel.processes != ids { outputsChanged = true; channel.processes = ids }
-            return channel
-        }.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-        if outputsChanged { apps = nextApps; session?.outputs(apps) }
+        let map = Dictionary(uniqueKeysWithValues: next.map { ($0.id, $0) })
+        let order = SoundApplicationList.ordered(Array(map.keys), names: map.mapValues(\.name), preferences: preferences)
+        if order != apps.map(\.id) { apps = order.compactMap { map[$0] } }
+        if sourcesChanged { sourceRevision += 1 }
+        if metadataChanged { persistPreferences() }
+        session?.outputs(apps); sampleActivity()
+    }
+    private func updateActivityTimer() {
+        activityTimer?.invalidate(); activityTimer = nil
+        guard visible, running, !Snapshot.active else { return }
+        activityTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.sampleActivity() }
+        }
+    }
+    private func sampleActivity() {
+        guard visible else { return }
+        let now = ProcessInfo.processInfo.systemUptime
+        for app in apps {
+            if running, app.sourceRunning, (session?.sourceLevel(app.id) ?? 0) > 0.0001 { app.lastSignal = now }
+            let active = running && app.sourceRunning && now - app.lastSignal < 0.5
+            if active != app.hasAudio { app.hasAudio = active }
+        }
     }
     func stageDemo() {
         if Snapshot.active { requested = true; running = true }
-        apps = [SoundMixerChannel(id: "browser", name: "Safari", input: false, settings: .init()),
-                SoundMixerChannel(id: "music", name: "Music", input: false, settings: .init())]
-        apps[0].settings.gain = 0.65; apps[1].settings.gain = 0.3
-    }
-}
-
-@available(macOS 14.2, *)
-@MainActor
-private final class SoundRoutingSession: SoundMixingSession {
-    private var streams: [String: SoundOutputStream] = [:]
-    private var processIDs: [String: [AudioObjectID]] = [:]
-    private var build: Task<[(String, SoundOutputStream)], Error>?
-    private var generation = 0
-    private let failed: (SoundFailure) -> Void
-    init(failed: @escaping (SoundFailure) -> Void) { self.failed = failed; try? SoundAccessoryMute.shared.install() }
-    func outputs(_ channels: [SoundMixerChannel]) {
-        generation += 1; build?.cancel(); build = nil
-        let desired = Dictionary(uniqueKeysWithValues: channels.map { ($0.id, $0.processes) })
-        for id in Array(streams.keys) where desired[id] != processIDs[id] {
-            streams.removeValue(forKey: id)?.stop(); processIDs.removeValue(forKey: id)
-        }
-        for channel in channels { configure(channel) }
-        let missing = channels.filter { streams[$0.id] == nil }
-        guard !missing.isEmpty else { return }
-        let token = generation
-        let descriptions = missing.map { ($0.id, $0.processes, $0.settings) }
-        let streamFailed: () -> Void = { [weak self] in
-            DispatchQueue.main.async { self?.failed(.system(-1)) }
-        }
-        let task = Task.detached(priority: .userInitiated) {
-            var built: [(String, SoundOutputStream)] = []
-            do {
-                for (id, processes, settings) in descriptions {
-                    try Task.checkCancellation()
-                    built.append((id, try SoundOutputStream(processes: processes, settings: settings, failed: streamFailed)))
-                }
-                try Task.checkCancellation(); return built
-            } catch { built.forEach { $0.1.stop() }; throw error }
-        }
-        build = task
-        Task { [weak self] in
-            do {
-                let built = try await task.value
-                guard let self, self.generation == token else { built.forEach { $0.1.stop() }; return }
-                for (id, stream) in built { self.streams[id] = stream; self.processIDs[id] = desired[id] }
-                self.build = nil
-                for channel in channels { self.configure(channel) }
-            } catch is CancellationError {} catch {
-                guard let self, self.generation == token else { return }
-                self.build = nil; self.failed(error as? SoundFailure ?? .system(-1))
-            }
-        }
-    }
-    func configure(_ channel: SoundMixerChannel) {
-        if !channel.input { streams[channel.id]?.channel.configure(channel.settings) }
-    }
-    func stop() {
-        generation += 1; build?.cancel(); build = nil
-        streams.values.forEach { $0.stop() }; streams.removeAll(); processIDs.removeAll()
+        apps = [SoundMixerChannel(id: "com.apple.Safari", name: "Safari", input: false, settings: .init()),
+                SoundMixerChannel(id: "com.apple.Music", name: "Music", input: false, settings: .init())]
+        apps[0].settings.gain = 0.65; apps[0].hasAudio = true; apps[0].processes = [1]
+        apps[0].preference.pinned = true; apps[0].routeState = .playing("demo")
+        apps[1].settings.gain = 0.3; apps[1].processes = [2]; apps[1].routeState = .playing("demo")
     }
 }

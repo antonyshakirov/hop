@@ -51,31 +51,3 @@ struct SoundMixerChannels: View {
         }
     }
 }
-
-struct SoundMixerChannelRow: View {
-    @ObservedObject var channel: SoundMixerChannel
-    @ObservedObject var mixer: SoundMixerController
-    let lang: AppLanguage
-    var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "app.dashed").foregroundStyle(Theme.textTertiary).frame(width: 16)
-            Text(channel.name).font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
-                .lineLimit(1).truncationMode(.middle).frame(width: 110, alignment: .leading)
-            SoundVolumeControl(device: SoundDevice(uid: channel.id, name: channel.name, volume: channel.settings.gain,
-                                                  muted: channel.settings.muted, canChangeVolume: true, canMute: true),
-                               direction: .output, lang: lang, maximum: 1, label: .soundMixerGain, showLabel: false) { value in
-                mixer.update(channel) { $0.gain = value }
-            }
-            Button { mixer.update(channel) { $0.muted.toggle() } } label: {
-                Image(systemName: channel.settings.muted ? "speaker.slash.fill" : "speaker.wave.2")
-                    .font(.system(size: 13))
-                    .foregroundStyle(channel.settings.muted ? Theme.textPrimary : Theme.textSecondary)
-                    .frame(width: 30, height: 28)
-                    .background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
-            }.buttonStyle(.plain).hoverDim()
-                .help(channel.name + ": " + L10n.t(channel.settings.muted ? .soundUnmute : .soundMute, lang))
-                .accessibilityLabel(channel.name + ": " + L10n.t(channel.settings.muted ? .soundUnmute : .soundMute, lang))
-                .accessibilityValue(channel.settings.muted ? "1" : "0")
-        }.disabled(!mixer.running).opacity(mixer.running ? 1 : 0.5)
-    }
-}

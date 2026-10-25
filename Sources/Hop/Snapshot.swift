@@ -732,8 +732,10 @@ enum Snapshot {
             let state = args.firstIndex(of: "--sound-state").flatMap { i in args.count > i + 1 ? args[i + 1] : nil }
             model.sound.stageDemo(state ?? "idle")
             model.soundMixer.stageDemo()
-            content = AnyView(SoundWindowView(sound: model.sound).environmentObject(model)
-                .frame(width: 520).fixedSize(horizontal: false, vertical: true))
+            if args.contains("--sound-mix-on") { model.soundCallMix.stageDemo(model.soundMixer.apps) }
+            let width = args.firstIndex(of: "--sound-width").flatMap { i in args.count > i + 1 ? Double(args[i + 1]) : nil } ?? 520
+            content = AnyView(SoundWindowView(sound: model.sound, initialInput: args.contains("--window-microphone")).environmentObject(model)
+                .frame(width: min(720, max(480, width))).fixedSize(horizontal: false, vertical: true))
         } else if args.contains("--window-network") {
             content = AnyView(NetworkWindowView(network: model.networkFilter, lang: L10n.current, preview: true)
                 .environmentObject(model)

@@ -65,13 +65,13 @@ final class SoundWindowLayoutTests: XCTestCase {
         }
     }
 
-    func testSoundWindowFitsOutputAppsAndSelectedInputTogether() {
+    func testSoundOutputDoesNotReserveHiddenInputHeight() {
         let model = AppModel(preview: true)
         let host = NSHostingView(rootView: SoundWindowView(sound: model.sound).environmentObject(model))
         host.frame.size = NSSize(width: 520, height: 320)
         host.layoutSubtreeIfNeeded()
-        XCTAssertGreaterThan(host.fittingSize.height, 400)
-        XCTAssertLessThanOrEqual(host.fittingSize.height, 700)
+        XCTAssertGreaterThan(host.fittingSize.height, 200)
+        XCTAssertLessThanOrEqual(host.fittingSize.height, 400)
     }
 
     func testScrollableSoundContentReportsItsFullHeight() {

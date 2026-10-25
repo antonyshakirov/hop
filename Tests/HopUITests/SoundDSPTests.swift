@@ -16,6 +16,39 @@ final class SoundDSPTests: XCTestCase {
         let encoded = try JSONSerialization.jsonObject(with: JSONEncoder().encode(settings)) as! [String: Any]
         XCTAssertNil(encoded["denoise"])
     }
+    func testApplicationActivityIsMeasuredBeforeListeningMuteAndGain() throws {
+        let channel = try SoundAudioChannel(rate: 48000)
+        var settings = SoundChannelSettings(); settings.gain = 0; settings.muted = true
+        channel.configure(settings)
+        XCTAssertTrue(render(channel.pointer, Array(repeating: 0.3, count: 1024)).allSatisfy { $0 == 0 })
+        XCTAssertEqual(hop_audio_source_peak(channel.pointer), 0.3, accuracy: 0.0001)
+        _ = render(channel.pointer, Array(repeating: 0, count: 1024))
+        XCTAssertEqual(hop_audio_source_peak(channel.pointer), 0)
+    }
+    func testSourceActivityRefreshesWhenPlaybackPausedAndRingFull() throws {
+        let channel = try SoundAudioChannel(rate: 48000)
+        let full = buffer(Array(repeating: 0.2, count: 8192))
+        XCTAssertEqual(hop_audio_push(channel.pointer, full.audioBufferList, full.frameLength), 8192)
+        let silence = buffer(Array(repeating: 0, count: 32))
+        XCTAssertEqual(hop_audio_push(channel.pointer, silence.audioBufferList, silence.frameLength), 0)
+        XCTAssertEqual(hop_audio_source_peak(channel.pointer), 0)
+    }
+    func testRerouteDiscardsAudioQueuedForPreviousOutput() throws {
+        let channel = try SoundAudioChannel(rate: 48000)
+        let old = buffer(Array(repeating: 0.2, count: 1024))
+        _ = hop_audio_push(channel.pointer, old.audioBufferList, old.frameLength)
+        hop_audio_discard_queued(channel.pointer)
+        XCTAssertEqual(hop_audio_queued(channel.pointer), 0)
+        let fresh = render(channel.pointer, Array(repeating: 0.4, count: 1024))
+        XCTAssertEqual(fresh.first!, 0.4, accuracy: 0.0001)
+    }
+    func testRerouteClearsFilterTailBeforeSilentDestination() throws {
+        let channel = try SoundAudioChannel(rate: 48000)
+        hop_audio_configure(channel.pointer, 1, false, true)
+        _ = render(channel.pointer, Array(repeating: 0.3, count: 1024))
+        hop_audio_discard_queued(channel.pointer)
+        XCTAssertTrue(render(channel.pointer, Array(repeating: 0, count: 1024)).allSatisfy { $0 == 0 })
+    }
     private func buffer(_ samples: [Float]) -> AVAudioPCMBuffer {
         let format = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 2)!
         let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(samples.count))!

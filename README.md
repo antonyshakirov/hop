@@ -503,7 +503,16 @@ Choose sound devices and control their volume. Microphone mute affects this devi
 
 Records up to 10 seconds; stop, then listen. The sample stays in memory until this window closes. System default follows the devices selected in macOS.
 
-Start mixer to control each app separately. each input has gain up to 200% and bass. choose Hop Input in your app to use the processed mix. the mixer keeps working after the window closes; stop it to release the inputs.
+In Output, enable app volume to control each app's listening level and mute,
+pin apps, arrange them and select an output for each. Settings survive closing
+the window and restarting Hop. An unavailable assigned output pauses listening
+until that device returns; it never falls back to the Mac speakers.
+
+Input contains the selected microphone's system controls and a temporary check.
+Optional Hop Mix combines selected microphone and app sources, with independent
+send levels, into one virtual microphone for another app. Choose Hop Mix there.
+Closing Sound stops Hop Mix and deletes the check recording from memory; app
+listening continues in the background. No noise suppression or voice boost is applied.
 
 ## Languages
 

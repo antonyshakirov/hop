@@ -123,9 +123,14 @@ final class SoundCallMixController: ObservableObject {
         applications = applications.mapValues { old in var value = old; value.active = false; return value }
     }
     func shutdown() { close(); session.shutdown() }
+    func stageDemo(_ apps: [SoundMixerChannel]) {
+        guard Snapshot.active else { return }
+        running = true; sources = apps
+        if let app = apps.first { var value = SoundChannelSettings(); value.active = true; value.gain = 0.35; applications[app.id] = value }
+    }
     private func configuration() -> SoundCallConfiguration {
         SoundCallConfiguration(input: microphone.active ? inputUID.map { SoundInputConfiguration(uid: $0, settings: microphone) } : nil,
-            apps: sources.filter { settings($0.id).active }.map { SoundApplicationConfiguration(id: $0.id, processes: $0.processes, settings: settings($0.id)) })
+            apps: sources.filter { settings($0.id).active && !$0.processes.isEmpty }.map { SoundApplicationConfiguration(id: $0.id, processes: $0.processes, settings: settings($0.id)) })
     }
     private func sendUpdate() { if running { session.update(configuration()) } }
 }

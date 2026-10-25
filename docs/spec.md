@@ -7248,7 +7248,8 @@ a normal virtual microphone selected by the calling/recording app, not Zoom-only
 Switching tabs does not stop the virtual mixer; input-device change is observed
 by the common window even when its Input tab is hidden. Leaving Input stops a
 running short check; its RAM sample is still deleted when the window closes.
-The default viewport reserves the same minimum height for all tabs. Sound controls
+The window follows the measured content height of the current tab, with its top
+edge held fixed after opening; short or empty states reserve no unused page area. Sound controls
 use neutral colors and Hop's plain square checks. Disabled volume readouts render
 number and percent as one styled text, so both dim equally.
 
@@ -7279,3 +7280,32 @@ It returns success only after its microphone gate is applied. Worker commands
 carry a capture token; stale tokens are rejected. Hop emits no banner, sound,
 retry timer or repeated mute request. macOS may display its own gesture status;
 its public API does not expose a per-app banner suppression option.
+
+## Application listening routes and persistent list (2.4 development)
+
+Approved25Oct2026: each app in Output has its own listening destination. System
+default follows the current macOS output. An explicit device is stored by UID,
+with its last name for a disconnected-device label. If it disappears, the app's
+listening audio pauses until the same device returns; never fall back to speakers.
+The saved choice and confirmed routing state are distinct. Changing a route,
+volume or mute does not change any system default/device gain or Hop Mix send.
+A stable process-muting tap stays owned while playback is stopped or rebuilt,
+including device loss and route error. Stop/disable/Quit deliberately releases
+that tap and restores ordinary application audio. Stale builds/configuration
+callbacks cannot restore an older output or restart after Stop.
+
+Use real application icons with a neutral fallback, short truthful activity,
+pin/unpin and manual order from a row menu. Persist by app identity, not PID/name.
+Pinned closed apps remain visible, disabled for audio, and keep their settings.
+Activity never resorts rows. Meter sampling is bounded and only while the Sound
+window is visible; it uses existing application capture, never a physical mic.
+Device selection belongs to the listening row; it is independent of whether the
+app is selected for Hop Mix. Input gain/mute refer only to the selected supported
+hardware device; Hop microphone-capture mute remains explicitly scoped.
+
+Sound's viewport follows content instead of reserving a fixed empty340pt body.
+Preserve the top edge when content changes and scroll only for screen limits.
+Hop Mix requires explicit Start and explicit sources. Capture remains off after
+close/reopen/relaunch. It stays independent of background app listening routes.
+No denoise, automatic voice boost, global-all-mic mute or browser-tab isolation
+is introduced in this change.
