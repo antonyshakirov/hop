@@ -205,6 +205,9 @@ final class AppModel: ObservableObject {
         forwarders.append(soundMixer.objectWillChange.sink { [weak self] in
             self?.panelModuleChanged()
         })
+        forwarders.append(soundCallMix.objectWillChange.sink { [weak self] in
+            self?.windowModuleChanged()
+        })
         forwarders.append(updater.objectWillChange.sink { [weak self] in
             self?.panelModuleChanged()
         })

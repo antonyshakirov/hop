@@ -3377,10 +3377,18 @@ struct PanelView: View {
         }
     }
 
+    @ViewBuilder private func moduleContentWithHint(_ key: String, in tabID: UUID) -> some View {
+        if key == "sound" {
+            // Sound has independent quick controls; the module-wide help would override their actions.
+            moduleContent(key, in: tabID)
+        } else {
+            moduleContent(key, in: tabID).help(moduleHint(key))
+        }
+    }
+
     @ViewBuilder private func moduleBlock(_ key: String, in tabID: UUID) -> some View {
         let others = tabsModel.tabs.enumerated().filter { $0.element.id != tabID }
-        moduleContent(key, in: tabID)
-            .help(moduleHint(key))
+        moduleContentWithHint(key, in: tabID)
             // The collapsed tools row stands for three modules at once, so the
             // "move to / hide" menu would be lying about what it moves.
             .contextMenu {

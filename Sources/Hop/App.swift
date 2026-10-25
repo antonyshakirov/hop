@@ -521,7 +521,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // release app, which is compiled -c release like the dev app, so #if DEBUG
         // would not tell them apart.
         if Bundle.isDevBuild {
-            if CommandLine.arguments.contains("--open-sound") {
+            if CommandLine.arguments.contains("--open-sound")
+                || (Bundle.main.object(forInfoDictionaryKey: "HopOpenSoundAtLaunch") as? Bool == true) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in self?.showSoundWindow() }
             }
             if CommandLine.arguments.contains("--open-converter") {

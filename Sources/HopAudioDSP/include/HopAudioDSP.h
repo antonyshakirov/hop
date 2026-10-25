@@ -16,5 +16,7 @@ float hop_audio_source_peak(HopAudioChannel *channel);
 /* Call only after stopping the playback consumer. The capture producer may run. */
 void hop_audio_discard_queued(HopAudioChannel *channel);
 uint32_t hop_audio_queued(HopAudioChannel *channel);
+void hop_audio_set_playback_enabled(HopAudioChannel *channel, bool enabled);
+bool hop_audio_playback_ready(HopAudioChannel *channel);
 void hop_audio_limit(AudioBufferList *output, uint32_t frames);
 #endif

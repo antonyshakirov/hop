@@ -23,6 +23,7 @@ final class SoundProcessTap {
     private static let resourceKey = "soundMixerVirtualResource"
     private let publicInput: Bool
     private let tapUID: String
+    private let description: CATapDescription
     private(set) var tap: AudioObjectID = 0
     private(set) var aggregate: AudioObjectID = 0
     let uid: String
@@ -30,14 +31,15 @@ final class SoundProcessTap {
     private var io: AudioDeviceIOProcID?
     private var channel: SoundAudioChannel?
 
-    init(processes: [AudioObjectID], name: String, publicInput: Bool = false, holdSourceMuted: Bool = false) throws {
+    init(processes: [AudioObjectID], name: String, publicInput: Bool = false, holdSourceMuted: Bool = false, warmupUnmuted: Bool = false) throws {
         guard !processes.isEmpty else { throw SoundFailure.missingDevice }
         self.publicInput = publicInput
         uid = publicInput ? Self.virtualUID : "com.antonshakirov.hop.audio." + UUID().uuidString
         let description = CATapDescription(stereoMixdownOfProcesses: processes)
+        self.description = description
         description.name = name; description.isPrivate = !publicInput
         tapUID = description.uuid.uuidString
-        description.muteBehavior = publicInput || holdSourceMuted ? .muted : .mutedWhenTapped
+        description.muteBehavior = publicInput || holdSourceMuted ? .muted : warmupUnmuted ? .unmuted : .mutedWhenTapped
         var tap = AudioObjectID(0)
         guard AudioHardwareCreateProcessTap(description, &tap) == noErr else { throw SoundFailure.system(-1) }
         self.tap = tap
@@ -95,18 +97,30 @@ final class SoundProcessTap {
         if Task.isCancelled { stop(); throw CancellationError() }
         guard AudioDeviceStart(aggregate, io) == noErr else { stop(); throw SoundFailure.permission }
     }
+    func setSourceMuted(_ muted: Bool) throws {
+        let behavior: CATapMuteBehavior = muted ? .muted : .unmuted
+        guard description.muteBehavior != behavior else { return }
+        let previous = description.muteBehavior
+        description.muteBehavior = behavior
+        var value = description, address = SoundHAL.address(kAudioTapPropertyDescription)
+        let status = withUnsafePointer(to: &value) {
+            AudioObjectSetPropertyData(tap, &address, 0, nil, UInt32(MemoryLayout<CATapDescription>.size), $0)
+        }
+        guard status == noErr else { description.muteBehavior = previous; throw SoundFailure.system(status) }
+    }
     func stop() {
         if let io { AudioDeviceStop(aggregate, io); AudioDeviceDestroyIOProcID(aggregate, io) }
         io = nil; channel = nil
     }
-    deinit {
+    func release() {
         stop()
-        if aggregate != 0 { AudioHardwareDestroyAggregateDevice(aggregate) }
-        if tap != 0 { AudioHardwareDestroyProcessTap(tap) }
+        if aggregate != 0 { AudioHardwareDestroyAggregateDevice(aggregate); aggregate = 0 }
+        if tap != 0 { AudioHardwareDestroyProcessTap(tap); tap = 0 }
         if publicInput, let resource = UserDefaults.standard.dictionary(forKey: Self.resourceKey), resource["tap"] as? String == tapUID {
             UserDefaults.standard.removeObject(forKey: Self.resourceKey)
         }
     }
+    deinit { release() }
     static func cleanStaleVirtualInput() {
         guard let resource = UserDefaults.standard.dictionary(forKey: resourceKey),
               resource["uid"] as? String == virtualUID, let owner = resource["owner"] as? Int,

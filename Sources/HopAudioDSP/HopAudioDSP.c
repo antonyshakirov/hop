@@ -10,9 +10,10 @@ struct HopAudioChannel {
     float ring[CAPACITY * 2];
     atomic_uint_fast64_t write, read;
     atomic_uint flags;
+    atomic_bool playback_enabled, playback_ready;
     _Atomic(float) target, peak, source_peak;
     float gain, smooth, b[3], a[2], z[2][2];
-    bool drift, primed;
+    bool drift, primed, rendered;
     double fraction, rate;
 };
 
@@ -23,6 +24,7 @@ HopAudioChannel *hop_audio_create(double rate) {
     atomic_init(&s->write, 0); atomic_init(&s->read, 0);
     atomic_init(&s->flags, 0); atomic_init(&s->target, 1); atomic_init(&s->peak, 0);
     atomic_init(&s->source_peak, 0);
+    atomic_init(&s->playback_enabled, true); atomic_init(&s->playback_ready, false);
     s->gain = 1; s->rate = 1; s->smooth = (float)(1 - exp(-1 / (rate * .005)));
     const double A = pow(10, 6.0 / 40), w = 2 * M_PI * 180 / rate;
     const double c = cos(w), alpha = sin(w) / 2 * sqrt(2), beta = 2 * sqrt(A) * alpha;
@@ -105,6 +107,7 @@ static void store(AudioBufferList *abl, uint32_t frame, const float values[2], b
 
 void hop_audio_render(HopAudioChannel *s, AudioBufferList *output, uint32_t frames, bool add) {
     if (!s || !output) return;
+    const bool enabled = atomic_load_explicit(&s->playback_enabled, memory_order_acquire);
     const unsigned flags = atomic_load_explicit(&s->flags, memory_order_acquire);
     const float target = flags & 1 ? 0 : atomic_load_explicit(&s->target, memory_order_relaxed);
     uint64_t read = atomic_load_explicit(&s->read, memory_order_relaxed);
@@ -119,6 +122,7 @@ void hop_audio_render(HopAudioChannel *s, AudioBufferList *output, uint32_t fram
     for (uint32_t f = 0; f < frames; ++f) {
         float values[2] = {0, 0};
         if (read < write && (!s->drift || s->primed)) {
+            if (!s->rendered) { s->gain = target; s->rendered = true; }
             const unsigned index = (unsigned)(read & (CAPACITY - 1)) * 2;
             values[0] = s->ring[index]; values[1] = s->ring[index + 1];
             if (s->drift) {
@@ -141,13 +145,22 @@ void hop_audio_render(HopAudioChannel *s, AudioBufferList *output, uint32_t fram
                 values[c] = filtered;
             }
             values[c] = limit(values[c] * s->gain);
-            if (flags & 1) values[c] = 0;
+            if ((flags & 1) || !enabled) values[c] = 0;
             peak = fmaxf(peak, fabsf(values[c]));
         }
         store(output, f, values, add);
     }
+    if (!enabled) s->rendered = false;
     atomic_store_explicit(&s->read, read, memory_order_release);
     atomic_store_explicit(&s->peak, peak, memory_order_relaxed);
+    atomic_store_explicit(&s->playback_ready, frames && (!s->drift || s->primed), memory_order_release);
+}
+
+void hop_audio_set_playback_enabled(HopAudioChannel *s, bool enabled) {
+    if (s) atomic_store_explicit(&s->playback_enabled, enabled, memory_order_release);
+}
+bool hop_audio_playback_ready(HopAudioChannel *s) {
+    return s && atomic_load_explicit(&s->playback_ready, memory_order_acquire);
 }
 
 float hop_audio_peak(HopAudioChannel *s) { return s ? atomic_load_explicit(&s->peak, memory_order_relaxed) : 0; }
@@ -176,6 +189,7 @@ void hop_audio_discard_queued(HopAudioChannel *s) {
     const uint64_t write = atomic_load_explicit(&s->write, memory_order_acquire);
     atomic_store_explicit(&s->read, write, memory_order_release);
     s->fraction = 0; s->rate = 1; s->primed = false;
+    atomic_store_explicit(&s->playback_ready, false, memory_order_release);
     memset(s->z, 0, sizeof(s->z));
     atomic_store_explicit(&s->peak, 0, memory_order_relaxed);
 }

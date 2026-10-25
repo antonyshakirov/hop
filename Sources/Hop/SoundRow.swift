@@ -17,7 +17,7 @@ struct SoundRow: View {
                         .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
                 }
                 .contentShape(Rectangle())
-            }.buttonStyle(.plain).hoverHighlight(5)
+            }.buttonStyle(.plain).hoverHighlight(5).help(L10n.t(.soundOpen, lang))
             Spacer(minLength: 8)
             SoundRowMixerControls(mixer: model.soundMixer, call: model.soundCallMix, lang: lang, startInput: {
                 model.soundPageRequest = .input
@@ -40,24 +40,34 @@ struct SoundRowMixerControls: View {
     let lang: AppLanguage
     var startInput: () -> Void
 
+    private var outputState: L10nKey { mixer.starting ? .soundMixerStarting : mixer.running ? .soundEnabled : .soundDisabled }
+    private var inputState: L10nKey { call.starting ? .soundMixerStarting : call.running ? .soundEnabled : .soundDisabled }
+    private var outputHelp: String {
+        let action: L10nKey = mixer.failure == .permission ? .soundMixerPermission : mixer.requested ? .soundMixerStop : .soundMixerStart
+        return L10n.t(.soundOutput, lang) + " · " + L10n.t(.soundMixerApps, lang) + ": " + L10n.t(action, lang)
+    }
+    private var inputHelp: String {
+        SoundCallMixController.deviceName + ": " + L10n.t(call.running || call.starting ? .soundCallStop : .soundCallStart, lang)
+    }
+
     var body: some View {
         HStack(spacing: 4) {
             SettingChip(active: mixer.running, enabled: mixer.available && !Snapshot.active,
                         action: { if mixer.requested { mixer.stop() } else { mixer.start() } }) {
                 SoundQuickMixerLabel(direction: .soundOutput, starting: mixer.starting, running: mixer.running, lang: lang)
             }
-            .help(L10n.t(mixer.failure == .permission ? .soundMixerPermission : mixer.requested ? .soundMixerStop : .soundMixerStart, lang))
+            .help(outputHelp)
             .accessibilityLabel(L10n.t(.soundOutput, lang))
-            .accessibilityValue(L10n.t(mixer.starting ? .soundMixerStarting : mixer.running ? .soundEnabled : .soundDisabled, lang))
+            .accessibilityValue(L10n.t(outputState, lang))
             .accessibilityIdentifier("sound.quick.output")
             if call.enabled {
                 SettingChip(active: call.running, enabled: !Snapshot.active,
                             action: { if call.running || call.starting { call.stop() } else { startInput() } }) {
                     SoundQuickMixerLabel(direction: .soundInput, starting: call.starting, running: call.running, lang: lang)
                 }
-                .help(L10n.t(.soundCallHint, lang))
+                .help(inputHelp)
                 .accessibilityLabel(L10n.t(.soundInput, lang) + " · " + SoundCallMixController.deviceName)
-                .accessibilityValue(L10n.t(call.starting ? .soundMixerStarting : call.running ? .soundEnabled : .soundDisabled, lang))
+                .accessibilityValue(L10n.t(inputState, lang))
                 .accessibilityIdentifier("sound.quick.input")
             }
         }
@@ -70,16 +80,21 @@ struct SoundQuickMixerLabel: View {
     let running: Bool
     let lang: AppLanguage
 
+    private var state: L10nKey { starting ? .soundQuickMixStarting : running ? .soundQuickMixOn : .soundQuickMixOff }
+    private var symbol: String {
+        if direction == .soundInput { return running ? "mic.fill" : "mic" }
+        return running ? "speaker.wave.2.fill" : "speaker.wave.2"
+    }
     var body: some View {
-        VStack(spacing: 2) {
-            Label(L10n.t(direction, lang), systemImage: starting ? "ellipsis.circle" : running ? "power.circle.fill" : "power.circle")
-                .font(Theme.mono(10))
+        HStack(spacing: 5) {
+            Image(systemName: symbol)
+                .frame(width: 13)
             ZStack {
-                ForEach([L10nKey.soundMixerStarting, .soundEnabled, .soundDisabled], id: \.self) { key in
+                ForEach([L10nKey.soundQuickMixStarting, .soundQuickMixOn, .soundQuickMixOff], id: \.self) { key in
                     Text(L10n.t(key, lang)).hidden()
                 }
-                Text(L10n.t(starting ? .soundMixerStarting : running ? .soundEnabled : .soundDisabled, lang))
-            }.font(Theme.mono(9)).foregroundStyle(Theme.textSecondary)
-        }.lineLimit(1).fixedSize()
+                Text(L10n.t(state, lang))
+            }
+        }.font(Theme.mono(9)).lineLimit(1).fixedSize()
     }
 }

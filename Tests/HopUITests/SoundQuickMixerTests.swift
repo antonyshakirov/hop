@@ -8,13 +8,19 @@ import HopCore
 final class SoundQuickMixerTests: XCTestCase {
     func testQuickLabelsFitBesideSoundAndSettingsWithoutChangingSize() {
         for language in AppLanguage.allCases {
+            let model = AppModel(preview: true)
+            let call = SoundCallMixController(enabled: true)
+            let controls = NSHostingView(rootView: SoundRowMixerControls(mixer: model.soundMixer, call: call, lang: language, startInput: {})).fittingSize
+            let title = NSHostingView(rootView: Text(L10n.t(.soundLabel, language)).font(Theme.mono(11))).fittingSize.width
+            XCTAssertLessThanOrEqual(controls.width + title + 94, 368, "Full Sound row: " + language.rawValue)
             for direction: L10nKey in [.soundOutput, .soundInput] {
                 func size(_ starting: Bool, _ running: Bool) -> NSSize {
                     NSHostingView(rootView: SoundQuickMixerLabel(direction: direction, starting: starting,
                                                                  running: running, lang: language)).fittingSize
                 }
                 let off = size(false, false)
-                XCTAssertLessThan(off.width, 120, language.rawValue)
+                XCTAssertLessThan(off.width, 130, language.rawValue)
+                XCTAssertLessThanOrEqual(off.height, 18, "Single line: " + language.rawValue)
                 XCTAssertEqual(off.width, size(true, false).width, accuracy: 1, language.rawValue)
                 XCTAssertEqual(off.width, size(false, true).width, accuracy: 1, language.rawValue)
                 XCTAssertEqual(off.height, size(true, false).height, accuracy: 1, language.rawValue)

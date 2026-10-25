@@ -212,6 +212,7 @@ enum L10nKey: String, CaseIterable {
     case soundEnabled, soundDisabled, soundCallCloseHint
     case soundMicrophone, soundMixerBackground, soundMixerPermission
     case soundAddApplication, soundResetApplications
+    case soundQuickMixOn, soundQuickMixOff, soundQuickMixStarting
     case soundAppPlaying, soundAppIdle, soundAppNotRunning, soundAppWaiting, soundAppRouteFailed, soundAppPin, soundAppUnpin, soundAppMoveUp, soundAppMoveDown
     case soundMixerStart, soundMixerStop, soundMixerStarting, soundMixerApps, soundMixerInputs, soundMixerGain, soundMixerBass, soundMixerEmpty, soundMixerVirtualHint, soundMixerHint, soundMixerRequirement
     case soundLabel, soundOutput, soundInput, soundOpen, soundMute, soundUnmute, soundVolume, soundNoDevice, soundVolumeUnavailable, soundMuteUnavailable, soundCheckMic, soundStopMic, soundLevel, soundPermission, soundFailed, soundCurrentMicOnly, soundMuted, soundMicMuteKey, soundInputChanged, purposeSound, docSoundFull
@@ -514,6 +515,10 @@ enum L10n {
     }
 
     private static let enTable: [L10nKey: String] = [
+            .soundQuickMixOn: "mix: on",
+            .soundQuickMixOff: "mix: off",
+            .soundQuickMixStarting: "mix: …",
+
             .soundEnabled: "enabled",
             .soundDisabled: "disabled",
             .soundCallCloseHint: "closing this window disables the\u{00A0}mixer and stops microphone capture.",
@@ -1349,6 +1354,10 @@ enum L10n {
             ]
 
     private static let ruTable: [L10nKey: String] = [
+            .soundQuickMixOn: "микшер: вкл",
+            .soundQuickMixOff: "микшер: выкл",
+            .soundQuickMixStarting: "микшер: …",
+
             .soundEnabled: "включён",
             .soundDisabled: "выключен",
             .soundCallCloseHint: "закрытие окна выключает микшер и\u{00A0}останавливает захват микрофона.",
@@ -2184,6 +2193,10 @@ enum L10n {
             ]
 
     private static let deTable: [L10nKey: String] = [
+            .soundQuickMixOn: "mix: an",
+            .soundQuickMixOff: "mix: aus",
+            .soundQuickMixStarting: "mix: …",
+
             .soundEnabled: "eingeschaltet",
             .soundDisabled: "ausgeschaltet",
             .soundCallCloseHint: "das schließen dieses fensters schaltet den mixer aus und beendet die mikrofonaufnahme.",
@@ -3019,6 +3032,10 @@ enum L10n {
             ]
 
     private static let esTable: [L10nKey: String] = [
+            .soundQuickMixOn: "mix: activo",
+            .soundQuickMixOff: "mix: inactivo",
+            .soundQuickMixStarting: "mix: …",
+
             .soundEnabled: "activado",
             .soundDisabled: "desactivado",
             .soundCallCloseHint: "cerrar esta ventana desactiva el mezclador y\u{00A0}detiene la captura del micrófono.",
@@ -3854,6 +3871,10 @@ enum L10n {
             ]
 
     private static let ptTable: [L10nKey: String] = [
+            .soundQuickMixOn: "mix: ligado",
+            .soundQuickMixOff: "mix: desligado",
+            .soundQuickMixStarting: "mix: …",
+
             .soundEnabled: "ativado",
             .soundDisabled: "desativado",
             .soundCallCloseHint: "fechar esta janela desativa o\u{00A0}mixer e\u{00A0}interrompe a\u{00A0}captura do microfone.",
@@ -4689,6 +4710,10 @@ enum L10n {
             ]
 
     private static let frTable: [L10nKey: String] = [
+            .soundQuickMixOn: "mix: actif",
+            .soundQuickMixOff: "mix: inactif",
+            .soundQuickMixStarting: "mix: …",
+
             .soundEnabled: "activé",
             .soundDisabled: "désactivé",
             .soundCallCloseHint: "fermer cette fenêtre désactive le mixeur et arrête la capture du microphone.",
@@ -5524,6 +5549,10 @@ enum L10n {
             ]
 
     private static let itTable: [L10nKey: String] = [
+            .soundQuickMixOn: "mix: attivo",
+            .soundQuickMixOff: "mix: spento",
+            .soundQuickMixStarting: "mix: …",
+
             .soundEnabled: "attivato",
             .soundDisabled: "disattivato",
             .soundCallCloseHint: "chiudere questa finestra disattiva il mixer e\u{00A0}interrompe l’acquisizione del microfono.",
@@ -6359,6 +6388,10 @@ enum L10n {
             ]
 
     private static let zhTable: [L10nKey: String] = [
+            .soundQuickMixOn: "混音：开",
+            .soundQuickMixOff: "混音：关",
+            .soundQuickMixStarting: "混音：…",
+
             .soundEnabled: "已开启",
             .soundDisabled: "已关闭",
             .soundCallCloseHint: "关闭此窗口会关闭混音器并停止采集麦克风音频。",
@@ -7185,6 +7218,10 @@ enum L10n {
             ]
 
     private static let jaTable: [L10nKey: String] = [
+            .soundQuickMixOn: "ミックス：オン",
+            .soundQuickMixOff: "ミックス：オフ",
+            .soundQuickMixStarting: "ミックス：…",
+
             .soundEnabled: "有効",
             .soundDisabled: "無効",
             .soundCallCloseHint: "このウィンドウを閉じると、ミキサーが無効になり、マイク音声の取り込みが停止します。",
@@ -8017,6 +8054,10 @@ enum L10n {
             ]
 
     private static let nlTable: [L10nKey: String] = [
+            .soundQuickMixOn: "mix: aan",
+            .soundQuickMixOff: "mix: uit",
+            .soundQuickMixStarting: "mix: …",
+
             .soundEnabled: "ingeschakeld",
             .soundDisabled: "uitgeschakeld",
             .soundCallCloseHint: "dit venster sluiten schakelt de mixer uit en stopt de microfoonopname.",
@@ -8868,6 +8909,10 @@ enum L10n {
             ]
 
     private static let koTable: [L10nKey: String] = [
+            .soundQuickMixOn: "믹서: 켬",
+            .soundQuickMixOff: "믹서: 끔",
+            .soundQuickMixStarting: "믹서: …",
+
             .soundEnabled: "켜짐",
             .soundDisabled: "꺼짐",
             .soundCallCloseHint: "이 창을 닫으면 믹서가 꺼지고 마이크 캡처가 중지됩니다.",
@@ -9700,6 +9745,10 @@ enum L10n {
             ]
 
     private static let thTable: [L10nKey: String] = [
+            .soundQuickMixOn: "มิกซ์: เปิด",
+            .soundQuickMixOff: "มิกซ์: ปิด",
+            .soundQuickMixStarting: "มิกซ์: …",
+
             .soundEnabled: "เปิดอยู่",
             .soundDisabled: "ปิดอยู่",
             .soundCallCloseHint: "การปิดหน้าต่างนี้จะปิดมิกเซอร์และหยุดรับเสียงจากไมโครโฟน",
@@ -10551,6 +10600,10 @@ enum L10n {
             ]
 
     private static let viTable: [L10nKey: String] = [
+            .soundQuickMixOn: "mix: bật",
+            .soundQuickMixOff: "mix: tắt",
+            .soundQuickMixStarting: "mix: …",
+
             .soundEnabled: "đã bật",
             .soundDisabled: "đã tắt",
             .soundCallCloseHint: "đóng cửa sổ này sẽ tắt bộ trộn và dừng thu âm từ micrô.",
@@ -11402,6 +11455,10 @@ enum L10n {
             ]
 
     private static let hiTable: [L10nKey: String] = [
+            .soundQuickMixOn: "मिक्स: चालू",
+            .soundQuickMixOff: "मिक्स: बंद",
+            .soundQuickMixStarting: "मिक्स: …",
+
             .soundEnabled: "चालू",
             .soundDisabled: "बंद",
             .soundCallCloseHint: "यह विंडो बंद करने से मिक्सर बंद हो जाता है और माइक्रोफ़ोन से ऑडियो लेना रुक जाता है।",
@@ -12253,6 +12310,10 @@ enum L10n {
             ]
 
     private static let idTable: [L10nKey: String] = [
+            .soundQuickMixOn: "mix: aktif",
+            .soundQuickMixOff: "mix: nonaktif",
+            .soundQuickMixStarting: "mix: …",
+
             .soundEnabled: "aktif",
             .soundDisabled: "nonaktif",
             .soundCallCloseHint: "menutup jendela ini menonaktifkan mixer dan menghentikan pengambilan audio mikrofon.",
@@ -13104,6 +13165,10 @@ enum L10n {
             ]
 
     private static let trTable: [L10nKey: String] = [
+            .soundQuickMixOn: "miks: açık",
+            .soundQuickMixOff: "miks: kapalı",
+            .soundQuickMixStarting: "miks: …",
+
             .soundEnabled: "etkin",
             .soundDisabled: "devre dışı",
             .soundCallCloseHint: "bu pencereyi kapatmak mikseri devre dışı bırakır ve mikrofon yakalamayı durdurur.",
@@ -13955,6 +14020,10 @@ enum L10n {
             ]
 
     private static let plTable: [L10nKey: String] = [
+            .soundQuickMixOn: "miks: wł.",
+            .soundQuickMixOff: "miks: wył.",
+            .soundQuickMixStarting: "miks: …",
+
             .soundEnabled: "włączony",
             .soundDisabled: "wyłączony",
             .soundCallCloseHint: "zamknięcie tego okna wyłącza mikser i\u{00A0}zatrzymuje przechwytywanie mikrofonu.",
@@ -14806,6 +14875,10 @@ enum L10n {
             ]
 
     private static let arTable: [L10nKey: String] = [
+            .soundQuickMixOn: "مزج: يعمل",
+            .soundQuickMixOff: "مزج: متوقف",
+            .soundQuickMixStarting: "مزج: …",
+
             .soundEnabled: "مفعّل",
             .soundDisabled: "معطّل",
             .soundCallCloseHint: "إغلاق هذه النافذة يعطّل مازج الصوت ويوقف التقاط صوت الميكروفون.",
@@ -15716,6 +15789,10 @@ enum L10n {
             ]
 
     private static let heTable: [L10nKey: String] = [
+            .soundQuickMixOn: "מיקס: פועל",
+            .soundQuickMixOff: "מיקס: כבוי",
+            .soundQuickMixStarting: "מיקס: …",
+
             .soundEnabled: "פעיל",
             .soundDisabled: "כבוי",
             .soundCallCloseHint: "סגירת חלון זה מכבה את המערבל ומפסיקה את לכידת המיקרופון.",
@@ -16626,6 +16703,10 @@ enum L10n {
             ]
 
     private static let faTable: [L10nKey: String] = [
+            .soundQuickMixOn: "میکس: فعال",
+            .soundQuickMixOff: "میکس: خاموش",
+            .soundQuickMixStarting: "میکس: …",
+
             .soundEnabled: "فعال",
             .soundDisabled: "غیرفعال",
             .soundCallCloseHint: "بستن این پنجره میکسر را غیرفعال می‌کند و\u{00A0}دریافت صدای میکروفون را متوقف می‌کند.",
@@ -17536,6 +17617,10 @@ enum L10n {
             ]
 
     private static let urTable: [L10nKey: String] = [
+            .soundQuickMixOn: "مکس: چالو",
+            .soundQuickMixOff: "مکس: بند",
+            .soundQuickMixStarting: "مکس: …",
+
             .soundEnabled: "چالو",
             .soundDisabled: "بند",
             .soundCallCloseHint: "یہ ونڈو بند کرنے سے مکسر بند ہو جاتا ہے اور\u{00A0}مائیکروفون سے آواز لینا رک جاتا ہے۔",
@@ -18446,6 +18531,10 @@ enum L10n {
             ]
 
     private static let srTable: [L10nKey: String] = [
+            .soundQuickMixOn: "микс: укљ.",
+            .soundQuickMixOff: "микс: искљ.",
+            .soundQuickMixStarting: "микс: …",
+
             .soundEnabled: "укључен",
             .soundDisabled: "искључен",
             .soundCallCloseHint: "затварање овог прозора искључује миксер и\u{00A0}зауставља снимање микрофона.",
