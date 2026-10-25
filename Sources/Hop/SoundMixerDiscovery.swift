@@ -35,6 +35,27 @@ enum SoundMixerDiscovery {
             app.sourceRunning = app.sourceRunning || SoundHAL.value(object, kAudioProcessPropertyIsRunningOutput, UInt32(0)) == 1
             groups[id] = app
         }
+        let running = applications.compactMap { application -> SoundMixerAppSnapshot? in
+            guard let id = application.bundleIdentifier, !application.isTerminated else { return nil }
+            return SoundMixerAppSnapshot(id: id, name: application.localizedName ?? id, processes: [],
+                appRunning: true, sourceRunning: false, iconURL: application.bundleURL)
+        }
+        return merging(audio: Array(groups.values), running: running)
+    }
+    static func merging(audio: [SoundMixerAppSnapshot], running: [SoundMixerAppSnapshot]) -> [SoundMixerAppSnapshot] {
+        var groups = Dictionary(uniqueKeysWithValues: audio.map { ($0.id, $0) })
+        for application in running where application.appRunning && !application.id.isEmpty
+            && !application.id.hasPrefix("com.antonshakirov.minimo") && !application.id.hasPrefix("com.antonshakirov.hop") {
+            if var existing = groups[application.id] {
+                existing.appRunning = true
+                if existing.iconURL == nil { existing.iconURL = application.iconURL }
+                groups[application.id] = existing
+            } else {
+                var app = application
+                app.processes = []; app.sourceRunning = false
+                groups[app.id] = app
+            }
+        }
         return Array(groups.values)
     }
 }
