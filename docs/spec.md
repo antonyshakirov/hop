@@ -7383,3 +7383,33 @@ space receives the existing one-point layout nudge even when its ID is unchanged
 the next valid measurement restores its exact height. Removing the tab switcher
 leaves only the actual service header and its padding. Panel content keeps its
 natural measured height and its existing screen ceiling and scrolling behavior.
+
+
+## Application audio presets and quick control (2.4 development)
+
+Add Application opens an application picker in /Applications. Choosing an app
+pins a row by bundle ID without launching the app or enabling AppVolume.
+Its output can be selected before the app starts or produces audio. App names,
+pins, order, listening gain, mute and destination persist across launches.
+Gain and mute can be edited for an offline app while AppVolume is enabled.
+A selected output that disconnects pauses that app until the output returns;
+Hop never substitutes another output.
+
+Reset Applications restores every saved application's listening gain to 100%,
+unmutes it and selects System Default. This includes offline apps and saved
+apps that are absent from the current list. Names, pins and row order remain.
+Reset applies to a running listening session and does not enable AppVolume.
+
+The main panel Sound row includes an AppVolume control. Disabling it releases
+listening routing and restores ordinary app playback through macOS. Enabling it
+restores the saved app settings. The settings button opens the Sound window.
+Listening reset and bypass do not change physical device settings, system
+output selection, microphone capture or HopMix configuration.
+
+Sound uses shared highlighting hover: dark-theme buttons become lighter rather
+than fading. Muted and disabled slider thumbs use opaque gray ink so their track
+does not show through. The ambiguous background-running footer is removed.
+A neutral ring on the main star reports active custom application gain, mute or
+output assignments while AppVolume is running. Stopping AppVolume, disabling
+the Sound module or choosing icon-only mode removes the ring. It does not report
+microphone capture or the optional Hop Mix virtual input.

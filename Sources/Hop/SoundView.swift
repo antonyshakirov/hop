@@ -2,31 +2,6 @@ import AppKit
 import HopCore
 import SwiftUI
 
-struct SoundRow: View {
-    let lang: AppLanguage
-    @ObservedObject var status: SoundMuteStatus
-    var open: () -> Void
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Button(action: open) {
-                HStack(spacing: 8) {
-                    ModuleMarkIcon(symbol: "speaker.wave.2", color: Theme.textSecondary)
-                    Text(L10n.t(.soundLabel, lang))
-                        .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
-                }
-                .contentShape(Rectangle())
-            }.buttonStyle(.plain).hoverDim()
-            Spacer(minLength: 8)
-            Button(action: open) {
-                RowActionIcon(symbol: "slider.horizontal.3", compact: true)
-            }.buttonStyle(.plain).hoverDim().help(L10n.t(.soundOpen, lang))
-        }
-        .padding(.horizontal, 10).padding(.vertical, 9)
-        .background(Theme.rowBg, in: RoundedRectangle(cornerRadius: 7))
-    }
-}
-
 /// SPEC: docs/spec.md — "Sound": the thumb follows the pointer, independent of hardware acknowledgement.
 struct SoundVolumeControl: View {
     let device: SoundDevice
@@ -63,8 +38,7 @@ struct SoundVolumeControl: View {
                 set(value)
             }), range: 0...Int(maximum * 100), width: nil, showsNumber: false,
                        accessibilityName: controlName + " " + L10n.t(label, lang),
-                       onEditingChanged: { editing = $0 })
-                .opacity(device.muted == true ? 0.45 : 1)
+                       subdued: device.muted == true, onEditingChanged: { editing = $0 })
             HStack(spacing: 2) {
                 if Snapshot.active || !controlsEnabled || !percentageEditing {
                     if controlsEnabled && !Snapshot.active {
@@ -271,9 +245,6 @@ struct SoundWindowView: View {
                         section(.output)
                         Divider()
                         SoundMixerChannels(mixer: model.soundMixer, lang: lang)
-                        if model.soundMixer.running {
-                            Text(t(.soundMixerBackground)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
-                        }
                     }
                 case .input:
                     VStack(alignment: .leading, spacing: 16) {

@@ -1,5 +1,6 @@
-import SwiftUI
+import AppKit
 import HopCore
+import SwiftUI
 
 struct SoundMixerSwitch: View {
     @ObservedObject var mixer: SoundMixerController
@@ -16,7 +17,7 @@ struct SoundMixerSwitch: View {
             }
                 .font(Theme.mono(10))
         }
-            .help(L10n.t(.soundMixerHint, lang))
+            .help(L10n.t(mixer.requested ? .soundMixerStop : .soundMixerStart, lang))
     }
 }
 
@@ -34,6 +35,15 @@ struct SoundMixerChannels: View {
                     Spacer(minLength: 8)
                     SoundMixerSwitch(mixer: mixer, lang: lang)
                 }
+                HStack(spacing: 8) {
+                    SettingChip(active: false, enabled: !Snapshot.active, action: chooseApplication) {
+                        Label(L10n.t(.soundAddApplication, lang), systemImage: "plus").font(Theme.mono(10))
+                    }
+                    SettingChip(active: false, enabled: mixer.hasCustomApplicationAudio && !Snapshot.active,
+                                action: mixer.resetApplicationAudio) {
+                        Label(L10n.t(.soundResetApplications, lang), systemImage: "arrow.counterclockwise").font(Theme.mono(10))
+                    }
+                }
                 if !mixer.apps.isEmpty {
                     ForEach(mixer.apps) { channel in
                         SoundMixerChannelRow(channel: channel, mixer: mixer, lang: lang)
@@ -45,9 +55,21 @@ struct SoundMixerChannels: View {
                 if let failure = mixer.failure {
                     Text(L10n.t(failure == .permission ? .soundMixerPermission : .soundFailed, lang))
                         .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary).fixedSize(horizontal: false, vertical: true)
-                    Button(L10n.t(.soundMixerStart, lang)) { mixer.start() }.buttonStyle(.plain).hoverDim()
+                    Button(L10n.t(.soundMixerStart, lang)) { mixer.start() }.buttonStyle(.plain).hoverHighlight(4)
                 }
             }
         }
+    }
+    private func chooseApplication() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.application]
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        guard panel.runModal() == .OK, let url = panel.url,
+              let bundle = Bundle(url: url), let id = bundle.bundleIdentifier,
+              !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let name = bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
+            ?? bundle.object(forInfoDictionaryKey: "CFBundleName") as? String
+            ?? url.deletingPathExtension().lastPathComponent
+        mixer.addApplication(id: id, name: name)
     }
 }

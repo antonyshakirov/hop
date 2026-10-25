@@ -6,7 +6,7 @@ struct SoundMixerChannelRow: View {
     @ObservedObject var mixer: SoundMixerController
     let lang: AppLanguage
     @State private var choosingOutput = false
-    private var editable: Bool { mixer.running && channel.appRunning && !channel.processes.isEmpty }
+    private var editable: Bool { mixer.running && !Snapshot.active }
     private var destination: String {
         guard let uid = channel.preference.outputUID else { return L10n.t(.soundSystemDefault, lang) }
         return mixer.outputDevices.first { $0.uid == uid }?.name ?? channel.preference.outputName ?? uid
@@ -56,7 +56,7 @@ struct SoundMixerChannelRow: View {
                             .font(.system(size: 8))
                     }.font(Theme.mono(9)).foregroundStyle(Theme.textTertiary)
                         .contentShape(Rectangle())
-                }.buttonStyle(.plain).hoverDim().disabled(!mixer.running)
+                }.buttonStyle(.plain).hoverHighlight(4).disabled(Snapshot.active)
                     .help(destination + " · " + status)
                     .accessibilityLabel(channel.name + ": " + L10n.t(.soundOutput, lang))
                     .accessibilityValue(destination + " · " + status)
@@ -71,7 +71,7 @@ struct SoundMixerChannelRow: View {
                 Image(systemName: channel.settings.muted ? "speaker.slash.fill" : "speaker.wave.2")
                     .font(.system(size: 13)).foregroundStyle(channel.settings.muted ? Theme.textPrimary : Theme.textSecondary)
                     .frame(width: 30, height: 28).background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
-            }.buttonStyle(.plain).hoverDim().disabled(!editable)
+            }.buttonStyle(.plain).hoverHighlight(6).disabled(!editable)
                 .help(channel.name + ": " + L10n.t(channel.settings.muted ? .soundUnmute : .soundMute, lang))
                 .accessibilityLabel(channel.name + ": " + L10n.t(channel.settings.muted ? .soundUnmute : .soundMute, lang))
                 .accessibilityValue(channel.settings.muted ? "1" : "0")

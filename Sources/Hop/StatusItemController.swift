@@ -1004,6 +1004,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             alertBlinking: alertBlinking,
             blinkOn: blinkOn,
             reminderUnseen: reminderUnseen,
+            appAudio: model.soundMixer.running && model.soundMixer.hasCustomApplicationAudio && !off.contains("sound"),
             vpn: vpnMark ? model.vpn.mark : nil,
             torrentDown: transfer.down,
             torrentUp: transfer.up,

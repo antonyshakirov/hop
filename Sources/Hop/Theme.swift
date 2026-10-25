@@ -28,6 +28,9 @@ enum Theme {
     /// List text (clipboard): gray rows are hard to read in the light theme.
     static var listText: Color { isDark ? Color.white.opacity(0.62) : Color.black.opacity(0.78) }
     static var textTertiary: Color { isDark ? Color.white.opacity(0.44) : Color.black.opacity(0.52) }
+    static func sliderThumb(dimmed: Bool) -> Color {
+        Color(white: isDark ? (dimmed ? 0.42 : 0.96) : (dimmed ? 0.58 : 0.20))
+    }
     static var controlStroke: Color { isDark ? Color.white.opacity(0.2) : Color.black.opacity(0.28) }
     static var divider: Color { isDark ? Color.white.opacity(0.08) : Color.black.opacity(0.1) }
 
@@ -100,6 +103,7 @@ enum Theme {
 
     // Hover highlight — applied to every clickable element
     struct HoverHighlight: ViewModifier {
+        @Environment(\.isEnabled) private var controlsEnabled
         var cornerRadius: CGFloat = 6
         /// How far the highlight bleeds OUTWARD past the content, sideways
         /// only. A full-width row starts on the panel's own inset, so without
@@ -113,7 +117,7 @@ enum Theme {
             content
                 .background(
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(hovering ? Theme.hoverBg : .clear)
+                        .fill(hovering && controlsEnabled ? Theme.hoverBg : .clear)
                         .padding(.horizontal, -bleed)
                 )
                 .animation(.easeOut(duration: 0.12), value: hovering)

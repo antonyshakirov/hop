@@ -253,4 +253,16 @@ final class IconBadgesTests: XCTestCase {
         XCTAssertFalse(c.alert)
         XCTAssertTrue(c.reminder)
     }
+    func testCustomAppAudioHasAnIndependentNeutralRing() {
+        let composition = IconBadges.compose(IconState(appAudio: true, vpn: .up, torrentDown: true))
+        XCTAssertTrue(composition.appAudio)
+        XCTAssertTrue(composition.badges.contains(.appAudio))
+        XCTAssertEqual(composition.vpn, .up)
+        XCTAssertEqual(composition.torrent, .down)
+        XCTAssertFalse(composition.isEmpty)
+        XCTAssertFalse(IconBadge.appAudio.monoFilled)
+        XCTAssertFalse(IconBadges.compose(IconState()).appAudio)
+        XCTAssertTrue(IconBadges.compose(IconState()).isEmpty)
+    }
+
 }

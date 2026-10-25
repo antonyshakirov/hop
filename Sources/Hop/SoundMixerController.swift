@@ -53,6 +53,10 @@ final class SoundMixerController: ObservableObject {
     @Published private(set) var starting = false
     @Published private(set) var failure: SoundFailure?
     var available: Bool { if #available(macOS 14.2, *) { true } else { false } }
+    var hasCustomApplicationAudio: Bool {
+        saved.contains { $0.key.hasPrefix("app:") && (min(1, $0.value.safeGain) != 1 || $0.value.muted) }
+            || preferences.values.contains { $0.outputUID != nil }
+    }
     private var visible = false
     private var observations: [SoundHALObservation] = []
     private var session: SoundMixingSession?
@@ -87,7 +91,7 @@ final class SoundMixerController: ObservableObject {
     }
     func open() {
         guard enabled(), available else { return }
-        if #available(macOS 14.2, *), !running, !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
+        if #available(macOS 14.2, *), observeHardware, !running, !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
         visible = true; refresh(); watch(); updateActivityTimer()
     }
     func close() {
@@ -96,6 +100,7 @@ final class SoundMixerController: ObservableObject {
     }
     func update(_ channel: SoundMixerChannel, _ edit: (inout SoundChannelSettings) -> Void) {
         guard !channel.input else { return }
+        objectWillChange.send()
         edit(&channel.settings)
         channel.settings.gain = min(1, channel.settings.safeGain)
         channel.settings.active = true; channel.settings.bass = false
@@ -105,11 +110,30 @@ final class SoundMixerController: ObservableObject {
     }
     func selectOutput(_ channel: SoundMixerChannel, uid: String?) {
         guard !channel.input else { return }
+        objectWillChange.send()
         var value = preferences[channel.id] ?? SoundAppPreference(name: channel.name)
         value.outputUID = uid
         value.outputName = uid.flatMap { selected in outputDevices.first { $0.uid == selected }?.name ?? value.outputName ?? selected }
         preferences[channel.id] = value; channel.preference = value; persistPreferences()
         session?.configure(channel)
+    }
+    func addApplication(id: String, name: String) {
+        guard !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        var value = preferences[id] ?? SoundAppPreference(name: name)
+        value.name = name; value.pinned = true
+        if value.order == nil { value.order = (preferences.values.compactMap(\.order).max() ?? 0) + 1 }
+        preferences[id] = value
+        persistPreferences(); refresh()
+    }
+    func resetApplicationAudio() {
+        objectWillChange.send()
+        for id in saved.keys where id.hasPrefix("app:") { saved[id] = .init() }
+        for id in preferences.keys {
+            preferences[id]?.outputUID = nil; preferences[id]?.outputName = nil
+        }
+        for app in apps { app.settings = .init() }
+        if let data = try? JSONEncoder().encode(saved) { defaults.set(data, forKey: "soundMixerChannels") }
+        persistPreferences(); refresh()
     }
     func togglePin(_ channel: SoundMixerChannel) {
         var value = preferences[channel.id] ?? SoundAppPreference(name: channel.name)
@@ -141,7 +165,7 @@ final class SoundMixerController: ObservableObject {
     func start() {
         guard enabled(), available, !running, !starting else { return }
         requested = true; defaults.set(true, forKey: Self.enabledKey)
-        if #available(macOS 14.2, *), !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
+        if #available(macOS 14.2, *), observeHardware, !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
         refresh(); failure = nil; starting = true; generation += 1
         let token = generation
         let session = makeSession { [weak self] failure in

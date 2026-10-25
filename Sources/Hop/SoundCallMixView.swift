@@ -77,7 +77,7 @@ private struct SoundSourceToggleStyle: ToggleStyle {
                     .frame(width: 18, height: 18)
                 configuration.label
             }.contentShape(Rectangle())
-        }.buttonStyle(.plain).hoverDim()
+        }.buttonStyle(.plain).hoverHighlight(5)
             .accessibilityValue(configuration.isOn ? "1" : "0")
     }
 }

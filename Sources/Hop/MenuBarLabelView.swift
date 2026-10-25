@@ -161,6 +161,13 @@ enum MenuBarIcon {
             drawReminderDot(box: box, colored: c.colored, glyph: glyph)
         }
 
+        if c.appAudio {
+            glyph.setStroke()
+            let ring = NSBezierPath(ovalIn: NSRect(x: 0.5, y: 6.5, width: 4.5, height: 4.5))
+            ring.lineWidth = stroke
+            ring.stroke()
+        }
+
         // bottom-left: the VPN light, beside the torrent arrows when both are on.
         // Green like the running-time wedges — the same "something of yours is
         // live" family, and the corner is otherwise almost always empty.

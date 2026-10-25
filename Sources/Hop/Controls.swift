@@ -241,6 +241,7 @@ struct MiniSlider: View {
     var width: CGFloat? = 110
     var showsNumber = true
     var accessibilityName: String? = nil
+    var subdued = false
     var onEditingChanged: (Bool) -> Void = { _ in }
     @Environment(\.isEnabled) private var controlsEnabled
 
@@ -261,7 +262,7 @@ struct MiniSlider: View {
                         .fill(Theme.textSecondary)
                         .frame(width: max(0, fraction * geo.size.width), height: 3)
                     Circle()
-                        .fill(.white)
+                        .fill(Theme.sliderThumb(dimmed: subdued || !controlsEnabled))
                         .frame(width: 11, height: 11)
                         .shadow(color: .black.opacity(0.3), radius: 1, y: 0.5)
                         .offset(x: fraction * (geo.size.width - 11))
@@ -484,9 +485,9 @@ struct SettingChip<Content: View>: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(!enabled)
         .opacity(enabled ? 1 : 0.35)
-        .hoverDim()
+        .hoverHighlight(5)
+        .disabled(!enabled)
     }
 }
 
