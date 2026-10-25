@@ -484,7 +484,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                 } else if resized === self.soundWindow {
                     let height = resized.contentRect(forFrameRect: resized.frame).height
-                    if resized.inLiveResize, abs(height - self.soundExpectedHeight) > 1 { self.soundUserResized = true }
+                    if SoundWindowLayout.isUserResize(contentHeight: height, expectedHeight: self.soundExpectedHeight) {
+                        self.soundUserResized = true
+                    }
                 } else if resized === self.screenTextWindow {
                     let height = resized.contentRect(forFrameRect: resized.frame).height
                     if abs(height - self.screenTextExpectedHeight) > 1 {

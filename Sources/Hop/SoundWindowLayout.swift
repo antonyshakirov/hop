@@ -1,6 +1,10 @@
 import CoreGraphics
 
 enum SoundWindowLayout {
+    static func isUserResize(contentHeight: CGFloat, expectedHeight: CGFloat) -> Bool {
+        abs(contentHeight - expectedHeight) > 1
+    }
+
     static func frame(current: CGRect, contentHeight: CGFloat, chromeHeight: CGFloat,
                       visible: CGRect, centered: Bool) -> CGRect {
         let available = visible.insetBy(dx: 16, dy: 16)

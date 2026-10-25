@@ -38,6 +38,23 @@ final class SoundWindowLayoutTests: XCTestCase {
         }
     }
 
+    func testStandardZoomIsAUserSizeWithoutLiveDragging() {
+        let window = NSWindow(contentRect: NSRect(x: 400, y: 200, width: 520, height: 300),
+            styleMask: [.titled, .closable, .resizable, .miniaturizable], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        let expected = window.contentRect(forFrameRect: window.frame).height
+        window.orderFront(nil)
+        defer { window.close() }
+        window.zoom(nil)
+        let expanded = window.contentRect(forFrameRect: window.frame).height
+        XCTAssertGreaterThan(expanded, expected)
+        XCTAssertFalse(window.inLiveResize)
+        XCTAssertTrue(SoundWindowLayout.isUserResize(contentHeight: expanded, expectedHeight: expected),
+            "Standard Zoom must disable content fitting even outside a drag")
+        XCTAssertFalse(SoundWindowLayout.isUserResize(contentHeight: expected, expectedHeight: expected),
+            "An acknowledged automatic resize must leave fitting enabled")
+    }
+
     func testOpeningCentersFinalSizeAndUsesAvailableHeight() {
         let visible = CGRect(x: 1470, y: 50, width: 1470, height: 800)
         let current = CGRect(x: 100, y: 100, width: 520, height: 348)

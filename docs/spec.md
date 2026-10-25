@@ -7249,7 +7249,12 @@ Switching tabs does not stop the virtual mixer; input-device change is observed
 by the common window even when its Input tab is hidden. Leaving Input stops a
 running short check; its RAM sample is still deleted when the window closes.
 The window follows the measured content height of the current tab, with its top
-edge held fixed after opening; short or empty states reserve no unused page area. Sound controls
+edge held fixed after opening; short or empty states reserve no unused page area.
+Manual resize, standard Zoom and full-screen take precedence over automatic
+height fitting. Switching tabs must not shrink a user-expanded window. Closing
+and reopening Sound returns to automatic content sizing and centers it again.
+Minimizing leaves both listening and an explicitly enabled Hop Mix running;
+only closing Sound stops Hop Mix and deletes the temporary check. Sound controls
 use neutral colors and Hop's plain square checks. Disabled volume readouts render
 number and percent as one styled text, so both dim equally.
 
