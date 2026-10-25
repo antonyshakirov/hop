@@ -95,20 +95,27 @@ final class SoundCallMixController: ObservableObject {
         guard selected.count <= 4, !microphone.active || inputUID != nil else { failure = .missingDevice; return }
         self.inputUID = inputUID; sources = apps.filter { SoundCallMixPolicy.allows($0.id) }
         generation += 1; let token = generation
-        failure = nil; starting = true
+        let includeMicrophone = inputUID != nil
+        failure = nil; starting = true; requestingMicrophone = includeMicrophone
         let activate: (Bool) -> Void = { [weak self] allowed in
             guard let self, self.generation == token, self.windowOpen, self.starting else { return }
-            guard allowed else { self.starting = false; self.failure = .permission; return }
+            self.requestingMicrophone = false
+            guard allowed else {
+                self.starting = false; self.microphone.active = false; self.failure = .permission
+                return
+            }
+            if includeMicrophone { self.microphone.active = true }
             self.session.start(self.configuration()) { [weak self] result in
                 guard let self, self.generation == token, self.windowOpen else { return }
                 self.starting = false
                 switch result {
                 case .success: self.running = true
-                case .failure(let error): self.running = false; self.failure = error; self.session.stop()
+                case .failure(let error):
+                    self.running = false; self.microphone.active = false; self.failure = error; self.session.stop()
                 }
             }
         }
-        if microphone.active { access(activate) } else { activate(true) }
+        if includeMicrophone { access(activate) } else { activate(true) }
     }
     func inputChanged(_ uid: String?) {
         if running || starting {

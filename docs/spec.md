@@ -7265,10 +7265,15 @@ Sound reuses SettingChip for its tabs, device picker and labeled actions, and
 MiniSlider for gain controls. It uses the same 13pt window title, 11pt section
 labels and 28pt controls as the other utility windows; there is no separate
 large segmented style. Both tab chips remain visible when unselected.
-Hop Mix enables with no sources; source checkboxes, gain and mute are available
-only while enabled, with live source selection. Stop clears selected sources.
-Adding the microphone requires permission and cannot survive closing/stopping
-the window or changing input during that request. Its status reserves space
+Explicitly enabling Hop Mix includes the currently selected physical microphone,
+after microphone permission is confirmed. It retains the microphone source's gain
+and mute; it does not unmute hardware, change system gain or choose an OS/receiver
+default. With no input device, app-only mixing remains available. App sources
+require selection; source checkboxes, gain and mute are available only while
+enabled, with live source selection. Stop clears selected sources. The next
+explicit Start includes the then-selected microphone again. Opening/reopening
+the window alone never captures. Permission denial never starts the worker;
+closing/stopping or changing input during the request cancels a late response. Its status reserves space
 for starting/on/off text so these transitions do not change section height.
 Volume percentages render as plain readouts until explicitly clicked. Editing
 ends on Return, focus loss or pointer exit; Escape cancels it. Opening a window
@@ -7313,7 +7318,8 @@ hardware device; Hop microphone-capture mute remains explicitly scoped.
 
 Sound's viewport follows content instead of reserving a fixed empty340pt body.
 Preserve the top edge when content changes and scroll only for screen limits.
-Hop Mix requires explicit Start and explicit sources. Capture remains off after
+Hop Mix requires explicit Start, which includes the selected microphone; app sources
+remain explicit. Capture remains off after
 close/reopen/relaunch. It stays independent of background app listening routes.
 No denoise, automatic voice boost, global-all-mic mute or browser-tab isolation
 is introduced in this change.
