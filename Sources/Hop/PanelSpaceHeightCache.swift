@@ -4,9 +4,10 @@ struct PanelSpaceHeightCache {
     private var heights: [UUID: CGFloat] = [:]
     private var expandedModules: [UUID: Set<String>] = [:]
     private var revisions: [UUID: Int] = [:]
+    private var generation = 0
 
     func height(for space: UUID) -> CGFloat? { heights[space] }
-    func revision(for space: UUID) -> Int { revisions[space, default: 0] }
+    func revision(for space: UUID) -> Int { generation + revisions[space, default: 0] }
 
     mutating func store(_ height: CGFloat, for space: UUID, revision: Int) {
         // A space measured before it was laid out reads as nothing; caching that
@@ -33,8 +34,7 @@ struct PanelSpaceHeightCache {
     }
 
     mutating func clear() {
-        let spaces = Set(heights.keys).union(expandedModules.keys).union(revisions.keys)
         heights.removeAll()
-        for space in spaces { revisions[space, default: 0] += 1 }
+        generation += 1
     }
 }

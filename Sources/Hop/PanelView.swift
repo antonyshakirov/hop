@@ -364,7 +364,7 @@ struct PanelView: View {
         .onChange(of: trackerEditing) { _, _ in syncKeyboardCapture() }
         .onChange(of: todosEditing) { _, _ in syncKeyboardCapture() }
         .onChange(of: clipboardSearching) { _, _ in syncKeyboardCapture() }
-        .onChange(of: panelTabsRaw) { _, _ in spaceHeightCache.clear() }
+        .onChange(of: panelTabsRaw) { _, _ in panelConfigurationChanged() }
         .onDisappear {
             model.panelKeyboardCaptured = false
             // A normal left-click / hotkey reopen does not fire the openTab
@@ -1322,6 +1322,7 @@ struct PanelView: View {
                 .onAppear { updateContentHeight(geo.size.height) }
                 .onChange(of: geo.size.height) { _, h in updateContentHeight(h) }
         }
+        .id(currentSpaceID.map { spaceHeightCache.revision(for: $0) })
     }
 
     /// Every keyboard-capture source in one place: the timer digit editor
@@ -1536,6 +1537,7 @@ struct PanelView: View {
         DispatchQueue.main.async {
             guard scrollResetKey == measuredSpace else { return }
             if let measuredID, let revision {
+                guard revision == spaceHeightCache.revision(for: measuredID) else { return }
                 spaceHeightCache.store(rounded, for: measuredID, revision: revision)
             }
             let restoreNudge = awaitingUncachedSpaceHeight == measuredID
@@ -1677,6 +1679,15 @@ struct PanelView: View {
         // a stale picker / confirmation for the gone tab would dangle open
         if iconPickerTabID == id { iconPickerTabID = nil }
         if confirmDeleteTab == id { confirmDeleteTab = nil }
+    }
+
+    private func panelConfigurationChanged() {
+        spaceHeightCache.clear()
+        awaitingUncachedSpaceHeight = currentSpaceID
+        if #available(macOS 27.0, *) {
+            let height = min(chromeHeight + contentHeight, maxPanelHeight)
+            model.panelContentSizeWillChange?(CGSize(width: 368, height: max(1, height - 1)))
+        }
     }
 
     private func switchToSpace(_ id: UUID) {

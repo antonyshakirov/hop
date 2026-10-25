@@ -7361,3 +7361,25 @@ Its locator is cleared only after adoption or a successful cancellation signal.
 Automated checks inject assertion acquisition/release and use private temporary fixtures;
 they do not change system sleep/lid settings or install an update. A physical update with
 awake/lid enabled still requires separate acceptance testing before release.
+
+
+## Compact panel sizing (2.4 development)
+
+The popover retains its opening top edge while content grows or shrinks,
+including changes to the active space's module list. A move or resize corrects
+vertical drift only when it exceeds half a point. The corrected top remains
+inside the current status icon screen's visible frame; a hidden icon uses the
+hidden anchor's screen. Horizontal anchor repair preserves this saved top edge.
+A real status button move records the new anchor position.
+
+A repeated measured size is compared with the popover's actual content size.
+If AppKit has restored an older, taller size, the same compact measurement
+resizes it again. A remembered request cannot suppress this correction.
+
+Changing the tab or module configuration invalidates pending measurements,
+including the first measurement of a space that has no cached height yet.
+The measurement reader restarts for the new revision. On macOS 27 the active
+space receives the existing one-point layout nudge even when its ID is unchanged;
+the next valid measurement restores its exact height. Removing the tab switcher
+leaves only the actual service header and its padding. Panel content keeps its
+natural measured height and its existing screen ceiling and scrolling behavior.

@@ -127,7 +127,6 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private var pasteActivationGate: PasteActivationGate?
     private var popoverResizeScheduled = false
     private var pendingPanelSize: NSSize?
-    private var lastResizedPreferred: NSSize?
     private var focusYieldPending = false
     private var tabPanel: NonactivatingTabPanel?
     private var cancellable: AnyCancellable?
@@ -311,6 +310,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 } else {
                     self.panelOriginX = x
                 }
+                self.restorePopoverTop()
                 self.syncTabPanelFrame()
             }
         }
@@ -323,6 +323,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 guard let self,
                       let panelWindow = self.popover.contentViewController?.view.window,
                       (note.object as? NSWindow) === panelWindow else { return }
+                self.restorePopoverTop()
                 self.debugLogPanelFrame("move", frame: panelWindow.frame)
                 self.syncTabPanelFrame()
             }
@@ -372,6 +373,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     /// Reference X of the panel window: a change during resize = lost anchor.
     private var panelOriginX: CGFloat?
+    private var panelTopY: CGFloat?
 
     /// The app that was frontmost when the panel opened: the panel is
     /// keyboard-transparent, so focus keeps going back to that app.
@@ -503,6 +505,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         nudge.size.width += 0.5
         popover.positioningRect = nudge
         popover.positioningRect = Self.iconAnchor(button)
+        if reason != "realign-h" {
+            panelTopY = popover.contentViewController?.view.window?.frame.maxY
+        }
     }
 
     /// Icon zone within the status item button: the popover arrow always points at the star.
@@ -626,7 +631,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     private func presentPopover() {
         guard !popover.isShown, let button = statusItem.button else { return }
-        lastResizedPreferred = nil
+        panelTopY = nil
         model.panelScreenVisibleHeight = PanelHeightLimit.screenVisibleHeight(
             iconVisible: Self.buttonIsVisible(button),
             iconScreen: button.window?.screen?.visibleFrame.height,
@@ -690,6 +695,21 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // flowing into the app underneath. The panel becomes key on its own
         // when the user clicks its input field/display
         panelOriginX = popover.contentViewController?.view.window?.frame.origin.x
+        panelTopY = popover.contentViewController?.view.window?.frame.maxY
+        restorePopoverTop()
+    }
+
+    private func restorePopoverTop() {
+        guard popover.isShown, let top = panelTopY,
+              let window = popover.contentViewController?.view.window,
+              let button = statusItem.button else { return }
+        let screen = Self.buttonIsVisible(button)
+            ? button.window?.screen : hiddenAnchorWindow?.screen
+        guard let visibleFrame = (screen ?? NSScreen.screens.first)?.visibleFrame else { return }
+        let corrected = PanelPopoverGeometry.anchoredFrame(window.frame, top: top,
+                                                           visibleFrame: visibleFrame)
+        guard abs(corrected.origin.y - window.frame.origin.y) > 0.5 else { return }
+        window.setFrameOrigin(corrected.origin)
     }
 
     private func schedulePopoverResize(to size: NSSize) {
@@ -705,9 +725,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             let previous = self.popover.contentSize
             PanelFrameLog.write("resizePreferred", "desired=\(desired) previous=\(previous) frame=\(String(describing: self.popover.contentViewController?.view.window?.frame))")
             guard desired.width > 0, desired.height > 0,
-                  desired != self.lastResizedPreferred else { return }
-            self.lastResizedPreferred = desired
-            self.popover.contentSize = desired
+                  PanelPopoverSizing.apply(desired, to: self.popover) else { return }
+            self.restorePopoverTop()
             PanelFrameLog.write("resizeApplied", "content=\(self.popover.contentSize) frame=\(String(describing: self.popover.contentViewController?.view.window?.frame))")
         }
     }
@@ -717,8 +736,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         let desired = clampedToPanelScreen(Self.integral(size))
         guard desired.width > 0, desired.height > 0 else { return }
         pendingPanelSize = nil
-        lastResizedPreferred = desired
-        popover.contentSize = desired
+        PanelPopoverSizing.apply(desired, to: popover)
+        restorePopoverTop()
         PanelFrameLog.write("preResize", "content=\(popover.contentSize) frame=\(String(describing: popover.contentViewController?.view.window?.frame))")
     }
 
