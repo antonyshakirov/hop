@@ -7423,3 +7423,22 @@ The main Sound row exposes separate Output and Input mixer controls, each on a s
 For a following-system-default audible route, prepare the output engine and capture buffer with playback gated before guarding the original source and activating the prepared stream. Muted, zero-gain, explicit-destination and missing-device routes acquire the source guard immediately. An explicit destination never warms through the system default, even when both currently name the same device. Pending settings/device changes reconcile before readiness; stale or cancelled streams cannot activate. Replacing a process retains the previous stream/guard until the new stream can activate. Stop gates playback, explicitly releases capture/muting, then destroys playback; DSP reset follows consumer shutdown. Saved gain applies from the first consumed frame, including after empty preroll; later gain changes retain smoothing. This reduces avoidable setup gaps and initial gain bursts; separate HAL clocks still require real audible acceptance and do not promise sample-aligned handoff.
 
 A dev-only Info.plist flag `HopOpenSoundAtLaunch` follows the existing `--open-sound` diagnostic path so separate local review bundles can open Sound without manipulating a hidden status item. It does not enable capture and is ignored by production builds.
+
+### Physical device volume dispatch
+
+The top Output volume controls the selected physical system output. An app
+assigned to a different output retains that separate route; changing the top
+slider does not change its destination or listening gain.
+
+Dispatch the first device-volume request without an artificial debounce. While
+a hardware write is in flight, retain only the latest pending request per
+direction. Input and Output remain independent. Device changes and window
+closure invalidate queued requests; an earlier asynchronous write must not
+overlap a new writer after close/reopen or target a replacement device.
+
+The displayed target survives intermediate hardware notifications. After the
+last command, accept acknowledgement or a changed actual value; expire an
+unchanged stale readback within a bounded interval. Volume-only notification
+bursts coalesce instead of rebuilding both device catalogues for every event.
+Hardware/Bluetooth latency remains subject to real listening acceptance;
+software checks do not establish zero audible latency.

@@ -12,13 +12,20 @@ protocol SoundHardware: AnyObject {
     func defaultUID(_ direction: SoundDirection) -> String?
     func select(_ uid: String, direction: SoundDirection) throws
     func setVolume(_ volume: Double, uid: String, direction: SoundDirection) throws
+    func setVolumeAsync(_ volume: Double, uid: String, direction: SoundDirection) async throws
     func setMute(_ muted: Bool, uid: String, direction: SoundDirection) throws
     func watchMute(_ changed: @escaping () -> Void)
     func watch(_ changed: @escaping () -> Void)
+    func watch(_ changed: @escaping () -> Void, outputVolumeChanged: @escaping () -> Void)
     func unwatch()
 }
 
 extension SoundHardware {
+    func setVolumeAsync(_ volume: Double, uid: String, direction: SoundDirection) async throws {
+        try Task.checkCancellation()
+        try setVolume(volume, uid: uid, direction: direction)
+    }
+    func watch(_ changed: @escaping () -> Void, outputVolumeChanged: @escaping () -> Void) { watch(changed) }
     func watchMute(_ changed: @escaping () -> Void) { watch(changed) }
 }
 
@@ -45,6 +52,7 @@ final class CoreSoundHardware: SoundHardware {
     private var observedDeviceIDs: [AudioObjectID]?
     private var includeVolume = true
     private var changed: (() -> Void)?
+    private var outputVolumeChanged: (() -> Void)?
 
     nonisolated private func address(_ selector: AudioObjectPropertySelector,
                          _ direction: SoundDirection? = nil,
@@ -183,6 +191,10 @@ final class CoreSoundHardware: SoundHardware {
     }
 
     nonisolated func setVolume(_ volume: Double, uid: String, direction: SoundDirection) throws {
+        try setVolume(volume, uid: uid, direction: direction, validate: {})
+    }
+    nonisolated private func setVolume(_ volume: Double, uid: String, direction: SoundDirection,
+                                      validate: () throws -> Void) throws {
         let id = try resolve(uid, direction)
         let addresses = controls(id, direction, selector: kAudioDevicePropertyVolumeScalar, writable: true)
         let original = addresses.compactMap { read(id, $0, initial: Float32(0)) }
@@ -190,6 +202,7 @@ final class CoreSoundHardware: SoundHardware {
               let adjusted = SoundGain.adjusted(original.map(Double.init), target: volume) else {
             throw SoundFailure.unsupported
         }
+        try validate()
         try transaction(adjusted.map(Float32.init), originals: original, object: id, addresses: addresses)
     }
 
@@ -202,9 +215,10 @@ final class CoreSoundHardware: SoundHardware {
                         object: id, addresses: addresses)
     }
 
-    func watch(_ changed: @escaping () -> Void) {
+    func watch(_ changed: @escaping () -> Void) { watch(changed, outputVolumeChanged: changed) }
+    func watch(_ changed: @escaping () -> Void, outputVolumeChanged: @escaping () -> Void) {
         unwatch()
-        self.changed = changed
+        self.changed = changed; self.outputVolumeChanged = outputVolumeChanged
         includeVolume = true
         installListeners()
     }
@@ -217,10 +231,15 @@ final class CoreSoundHardware: SoundHardware {
     }
 
     func setVolumeAsync(_ volume: Double, uid: String, direction: SoundDirection) async throws {
-        try await Task.detached {
+        let write = Task.detached(priority: .userInitiated) {
+            try Task.checkCancellation()
             guard self.defaultUID(direction) == uid else { throw SoundFailure.missingDevice }
-            try self.setVolume(volume, uid: uid, direction: direction)
-        }.value
+            try self.setVolume(volume, uid: uid, direction: direction) {
+                try Task.checkCancellation()
+                guard self.defaultUID(direction) == uid else { throw SoundFailure.missingDevice }
+            }
+        }
+        try await withTaskCancellationHandler { try await write.value } onCancel: { write.cancel() }
     }
 
     private func installListeners() {
@@ -228,12 +247,14 @@ final class CoreSoundHardware: SoundHardware {
         guard observedDeviceIDs != ids else { return }
         observedDeviceIDs = ids
         observations.removeAll()
-        func observe(_ id: AudioObjectID, _ a: AudioObjectPropertyAddress, rebuild: Bool = false) {
+        func observe(_ id: AudioObjectID, _ a: AudioObjectPropertyAddress, rebuild: Bool = false,
+                     outputVolume: Bool = false) {
             if let token = SoundPropertyObservation(object: id, address: a, block: { [weak self] _, _ in
                 MainActor.assumeIsolated {
                     guard let self, self.changed != nil else { return }
                     if rebuild { self.installListeners() }
-                    self.changed?()
+                    if outputVolume { (self.outputVolumeChanged ?? self.changed)?() }
+                    else { self.changed?() }
                 }
             }) { observations.append(token) }
         }
@@ -245,11 +266,13 @@ final class CoreSoundHardware: SoundHardware {
             observe(id, address(kAudioDevicePropertyDeviceIsAlive), rebuild: true)
             for direction in SoundDirection.allCases {
                 for selector in (includeVolume ? [kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyMute] : [kAudioDevicePropertyMute]) {
-                    for a in controls(id, direction, selector: selector, writable: false) { observe(id, a) }
+                    for a in controls(id, direction, selector: selector, writable: false) {
+                        observe(id, a, outputVolume: direction == .output && selector == kAudioDevicePropertyVolumeScalar)
+                    }
                 }
             }
         }
     }
 
-    func unwatch() { changed = nil; observations.removeAll(); observedDeviceIDs = nil }
+    func unwatch() { changed = nil; outputVolumeChanged = nil; observations.removeAll(); observedDeviceIDs = nil }
 }

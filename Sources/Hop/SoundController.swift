@@ -177,7 +177,26 @@ final class SoundController: ObservableObject {
     private var generation = 0
     private var volumeTasks: [SoundDirection: Task<Void, Never>] = [:]
     private var volumeGenerations: [SoundDirection: Int] = [:]
-    private var volumeRequests: [SoundDirection: (value: Double, uid: String)] = [:]
+    private struct VolumeRequest {
+        var value: Double
+        var uid: String
+        var generation: Int
+    }
+    private struct VolumeAcknowledgement {
+        var request: VolumeRequest
+        var baseline: Double?
+    }
+    private static let volumeAcknowledgementTimeout: Duration = .milliseconds(500)
+    private static let maximumVolumeAcknowledgementHistory = 128
+    private var volumeRequests: [SoundDirection: VolumeRequest] = [:]
+    private var volumeInFlight: [SoundDirection: VolumeRequest] = [:]
+    private var volumeWorkerIDs: [SoundDirection: UUID] = [:]
+    private var volumeAcknowledgements: [SoundDirection: VolumeAcknowledgement] = [:]
+    private var volumeAcknowledgementHistory: [SoundDirection: [VolumeRequest]] = [:]
+    private var volumeAcknowledgementTasks: [SoundDirection: Task<Void, Never>] = [:]
+    private var observedVolumes: [SoundDirection: (uid: String, value: Double?)] = [:]
+    private var outputRefreshTask: Task<Void, Never>?
+    private var outputRefreshID: UUID?
     private var playbackGeneration = 0
     private let status: SoundMuteStatus?
 
@@ -199,18 +218,40 @@ final class SoundController: ObservableObject {
         guard enabled(), !windowOpen else { return }
         windowOpen = true
         refresh()
-        hardware.watch { [weak self] in self?.refresh() }
+        hardware.watch({ [weak self] in self?.refresh() },
+                       outputVolumeChanged: { [weak self] in self?.scheduleOutputRefresh() })
     }
 
     func closeControls(_ direction: SoundDirection) {
         if direction == .input { stopCheck(); discardRecording() }
-        volumeTasks.removeValue(forKey: direction)?.cancel()
-        volumeRequests.removeValue(forKey: direction)
+        cancelVolume(direction)
+    }
+    private func cancelAcknowledgement(_ direction: SoundDirection, clearHistory: Bool = true) {
+        volumeAcknowledgements[direction] = nil
+        if clearHistory { volumeAcknowledgementHistory[direction] = nil }
+        volumeAcknowledgementTasks.removeValue(forKey: direction)?.cancel()
+    }
+    // SPEC: docs/spec.md — "Physical device volume dispatch": retain writer ownership until its physical operation returns.
+    private func cancelVolume(_ direction: SoundDirection) {
+        volumeTasks[direction]?.cancel()
+        volumeRequests[direction] = nil; volumeInFlight[direction] = nil
         volumeGenerations[direction, default: 0] += 1
+        cancelAcknowledgement(direction)
+    }
+    private func scheduleOutputRefresh() {
+        guard windowOpen, outputRefreshTask == nil else { return }
+        let id = UUID(); outputRefreshID = id
+        outputRefreshTask = Task { [weak self] in
+            await Task.yield()
+            guard let self, !Task.isCancelled, self.windowOpen, self.outputRefreshID == id else { return }
+            self.outputRefreshTask = nil; self.outputRefreshID = nil
+            self.refresh()
+        }
     }
 
     func close() {
         windowOpen = false
+        outputRefreshTask?.cancel(); outputRefreshTask = nil; outputRefreshID = nil
         for direction in SoundDirection.allCases { closeControls(direction) }
         hardware.unwatch()
         failure = nil
@@ -219,10 +260,13 @@ final class SoundController: ObservableObject {
     func refresh() {
         guard enabled() else { close(); return }
         let previousInput = inputUID, previousOutput = outputUID
-        outputs = hardware.devices(.output)
-        inputs = hardware.devices(.input)
+        let nextOutputs = hardware.devices(.output), nextInputs = hardware.devices(.input)
         outputUID = hardware.defaultUID(.output)
         inputUID = hardware.defaultUID(.input)
+        if previousOutput != nil, previousOutput != outputUID { cancelVolume(.output) }
+        if previousInput != nil, previousInput != inputUID { cancelVolume(.input) }
+        outputs = reflectingVolume(nextOutputs, direction: .output, uid: outputUID)
+        inputs = reflectingVolume(nextInputs, direction: .input, uid: inputUID)
         if previousOutput != nil, previousOutput != outputUID { outputFollowsSystem = true; stopPlayback() }
         if previousInput != nil, previousInput != inputUID { inputFollowsSystem = true; discardRecording() }
         if (checking || requestingAccess), previousInput != inputUID || device(.input) == nil {
@@ -253,8 +297,28 @@ final class SoundController: ObservableObject {
         }
     }
 
+    private func reflectingVolume(_ devices: [SoundDevice], direction: SoundDirection, uid: String?) -> [SoundDevice] {
+        guard let uid, let index = devices.firstIndex(where: { $0.uid == uid }) else {
+            observedVolumes[direction] = nil
+            return devices
+        }
+        let actual = devices[index].volume
+        observedVolumes[direction] = (uid, actual)
+        if let acknowledgement = volumeAcknowledgements[direction], let actual {
+            let matchesTarget = abs(actual - acknowledgement.request.value) < 0.0001
+            let changed = acknowledgement.baseline.map { abs(actual - $0) >= 0.0001 } ?? true
+            let superseded = volumeAcknowledgementHistory[direction]?.contains {
+                $0.uid == uid && $0.generation < acknowledgement.request.generation && abs(actual - $0.value) < 0.0001
+            } == true
+            if matchesTarget || (changed && !superseded) { cancelAcknowledgement(direction) }
+        }
+        let request = volumeRequests[direction] ?? volumeInFlight[direction] ?? volumeAcknowledgements[direction]?.request
+        guard let request, request.uid == uid, request.generation == volumeGenerations[direction] else { return devices }
+        var result = devices; result[index].volume = request.value
+        return result
+    }
     func setVolume(_ value: Double, direction: SoundDirection, expectedUID: String? = nil) {
-        guard enabled(), value.isFinite else { return }
+        guard enabled(), windowOpen, value.isFinite else { return }
         guard let device = device(direction), device.canChangeVolume,
               (expectedUID == nil || device.uid == expectedUID), hardware.defaultUID(direction) == device.uid else {
             failure = direction == .input ? .inputChanged : .system(-1)
@@ -263,34 +327,73 @@ final class SoundController: ObservableObject {
         let target = min(1, max(0, value))
         if direction == .input, let i = inputs.firstIndex(where: { $0.uid == device.uid }) { inputs[i].volume = target }
         if direction == .output, let i = outputs.firstIndex(where: { $0.uid == device.uid }) { outputs[i].volume = target }
-        failure = nil
-        volumeRequests[direction] = (target, device.uid)
-        guard volumeTasks[direction] == nil else { return }
-        let token = (volumeGenerations[direction] ?? 0) + 1
-        volumeGenerations[direction] = token
+        failure = nil; cancelAcknowledgement(direction, clearHistory: false)
+        let volumeGeneration = (volumeGenerations[direction] ?? 0) + 1
+        volumeGenerations[direction] = volumeGeneration
+        volumeRequests[direction] = VolumeRequest(value: target, uid: device.uid, generation: volumeGeneration)
+        sendVolumeRequests(direction)
+    }
+    // SPEC: docs/spec.md — "Physical device volume dispatch": superseded readbacks cannot rewind the latest target.
+    private func recordVolumeWrite(_ request: VolumeRequest, direction: SoundDirection) {
+        var history = volumeAcknowledgementHistory[direction] ?? []
+        history.append(request)
+        if history.count > Self.maximumVolumeAcknowledgementHistory {
+            history.removeFirst(history.count - Self.maximumVolumeAcknowledgementHistory)
+        }
+        volumeAcknowledgementHistory[direction] = history
+    }
+    private func awaitVolumeAcknowledgement(_ request: VolumeRequest, direction: SoundDirection) {
+        cancelAcknowledgement(direction, clearHistory: false)
+        let baseline = observedVolumes[direction].flatMap { $0.uid == request.uid ? $0.value : nil }
+        volumeAcknowledgements[direction] = VolumeAcknowledgement(request: request, baseline: baseline)
+        volumeAcknowledgementTasks[direction] = Task { [weak self] in
+            do { try await Task.sleep(for: Self.volumeAcknowledgementTimeout) } catch { return }
+            guard let self, !Task.isCancelled, self.windowOpen,
+                  self.volumeAcknowledgements[direction]?.request.generation == request.generation else { return }
+            self.volumeAcknowledgements[direction] = nil; self.volumeAcknowledgementTasks[direction] = nil
+            self.volumeAcknowledgementHistory[direction] = nil
+            self.refresh()
+        }
+    }
+    // SPEC: docs/spec.md — "Physical device volume dispatch": immediate dispatch with one latest pending value per direction.
+    private func sendVolumeRequests(_ direction: SoundDirection) {
+        guard volumeTasks[direction] == nil, volumeRequests[direction] != nil else { return }
+        let workerID = UUID(); volumeWorkerIDs[direction] = workerID
         volumeTasks[direction] = Task { [weak self] in
-            while !Task.isCancelled {
-                do { try await Task.sleep(for: .milliseconds(40)) } catch { break }
-                guard let self, self.enabled(), self.windowOpen,
-                      let request = self.volumeRequests.removeValue(forKey: direction) else { break }
-                guard self.hardware.defaultUID(direction) == request.uid else {
-                    self.failure = direction == .input ? .inputChanged : .system(-1)
-                    self.refresh()
-                    break
+            guard let self else { return }
+            defer {
+                if self.volumeWorkerIDs[direction] == workerID {
+                    self.volumeWorkerIDs[direction] = nil; self.volumeTasks[direction] = nil
+                    if self.enabled(), self.windowOpen { self.sendVolumeRequests(direction) }
                 }
+            }
+            while !Task.isCancelled {
+                guard self.enabled(), self.windowOpen,
+                      let request = self.volumeRequests.removeValue(forKey: direction) else { break }
+                guard request.generation == self.volumeGenerations[direction],
+                      self.hardware.defaultUID(direction) == request.uid else {
+                    self.failure = direction == .input ? .inputChanged : .system(-1)
+                    self.refresh(); break
+                }
+                self.volumeInFlight[direction] = request
                 do {
-                    if let core = self.hardware as? CoreSoundHardware {
-                        try await core.setVolumeAsync(request.value, uid: request.uid, direction: direction)
-                    } else {
-                        try self.hardware.setVolume(request.value, uid: request.uid, direction: direction)
+                    try await self.hardware.setVolumeAsync(request.value, uid: request.uid, direction: direction)
+                    if !Task.isCancelled, self.windowOpen, self.enabled() {
+                        self.recordVolumeWrite(request, direction: direction)
+                        if request.generation == self.volumeGenerations[direction] {
+                            self.awaitVolumeAcknowledgement(request, direction: direction)
+                        }
                     }
                 } catch {
-                    if self.volumeGenerations[direction] == token { self.failure = (error as? SoundFailure) ?? .system(-1) }
+                    if !Task.isCancelled, request.generation == self.volumeGenerations[direction] {
+                        self.cancelAcknowledgement(direction)
+                        self.failure = (error as? SoundFailure) ?? .system(-1)
+                    }
                 }
-                guard self.volumeGenerations[direction] == token, !Task.isCancelled else { return }
+                self.volumeInFlight[direction] = nil
+                guard !Task.isCancelled else { break }
                 if self.volumeRequests[direction] == nil { self.refresh(); break }
             }
-            if let self, self.volumeGenerations[direction] == token { self.volumeTasks[direction] = nil }
         }
     }
 
