@@ -37,6 +37,20 @@ final class AppModel: ObservableObject {
     let uninstall = UninstallController()
     let appShelves: AppShelvesController
 
+    var hasActiveUpdateWork: Bool {
+        let timerBusy = engine.state != .idle && engine.state != .finished
+        let archiveBusy = archive.operationsInFlight > 0
+        let captureBusy: Bool
+        switch shot.state { case .framing, .counting: captureBusy = true; default: captureBusy = false }
+        let uninstallBusy = uninstall.state == .scanning || uninstall.state == .working
+        return timerBusy || (keepAwake.isActive && keepAwake.until != nil) || tracker.isTracking || converter.busy || archiveBusy
+            || speedTest.isRunning || screenText.isBusy || captureBusy || annotate.isUp || keyboardLock.isLocked
+            || uninstallBusy || torrent.busyForUpdate
+            || sound.checking || sound.requestingAccess || sound.playing || sound.hasRecording
+            || soundCallMix.running || soundCallMix.starting || soundCallMix.requestingMicrophone
+            || (soundMixer.running && soundMixer.apps.contains { $0.sourceRunning })
+    }
+
     /// Last time the user actively touched Hop. The updater installs a found
     /// release only after a long enough quiet gap (see UpdateInstallPolicy),
     /// so we stamp it on panel opens, hotkeys, window opens and conversions.

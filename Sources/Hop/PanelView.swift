@@ -5493,7 +5493,7 @@ struct PanelView: View {
                     .font(Theme.mono(10))
                     .foregroundStyle(Theme.textSecondary)
                 Spacer()
-                Text(updateStatusText)
+                Text(updateStatusText).help(updateStatusText)
                     .font(Theme.mono(9))
                     .foregroundStyle(Theme.textTertiary)
                     .lineLimit(1)
@@ -5509,6 +5509,7 @@ struct PanelView: View {
         case .downloading: return t(.updDownloading)
         case .installing: return t(.updInstalling)
         case .failed: return t(.updFailed)
+        case .deferred: return t(.updDeferred)
         }
     }
 

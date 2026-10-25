@@ -324,7 +324,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let model = self.model
-        model.updater.willRelaunch = { model.keepAwake.stashForRelaunch() }
+        model.updater.installationAllowed = { !model.hasActiveUpdateWork }
+        model.updater.prepareRelaunch = { try model.keepAwake.stashForRelaunch() }
+        model.updater.cancelRelaunch = { model.keepAwake.cancelRelaunch() }
+        model.updater.relaunchReady = { model.keepAwake.validateRelaunch() }
         model.updater.startAutoChecks { critical in
             // a set timer (running or paused) is never interrupted; otherwise a
             // release installs only when the user isn't actively using Hop —
@@ -336,7 +339,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 keepAwakeActive: model.keepAwake.isActive,
                 panelOpen: model.isPanelOpen?() ?? false,
                 converterBusy: model.converter.busy,
-                secondsSinceInteraction: model.activity.secondsSinceInteraction()
+                secondsSinceInteraction: model.activity.secondsSinceInteraction(),
+                operationsBusy: model.hasActiveUpdateWork,
+                keepAwakeEndless: model.keepAwake.isActive && model.keepAwake.until == nil
             )
         }
 
@@ -1598,6 +1603,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case .downloading: key = .updDownloading
                 case .installing: key = .updInstalling
                 case .failed: key = .updFailed
+                case .deferred: key = .updDeferred
                 }
                 status?.isHidden = (key == nil)
                 status?.title = key.map { L10n.t($0, L10n.current).capitalizedFirst } ?? ""
@@ -1816,6 +1822,7 @@ struct HopApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     init() {
+        AwakeUpdateHandoff.runIfRequested()
         // SPEC: docs/spec.md — "Versioning": packaging reads metadata without launching the app.
         if CommandLine.arguments.contains("--preparing-version") {
             guard let version = ReleaseNews.preparing(notes: L10n.t(.docNews, .en),

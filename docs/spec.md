@@ -1113,14 +1113,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   (`disablesleep 0`); switching duration options keeps lid mode. Lid mode
   never outlives the awake session — without it a closed lid would block
   sleep forever.
-- **Keep awake survives an update** (Anton, 2026-10-01). An update relaunches
-  Hop, and a critical one or a manual one does so while keep-awake is on. Just
-  before the relaunch the session is written down (`awakeResumeAfterUpdate`:
-  on or off, its end, lid mode), lid mode is left applied, and no cue plays.
-  The new copy reads the record once and deletes it: an endless session comes
-  back endless, a timed one keeps its original end, and lid mode stays only
-  together with a session that came back, all without a sound. A record older than ten minutes is ignored, and so is a
-  session whose time ran out meanwhile. Quitting by hand still ends the session.
+- **Keep awake survives an update** (Anton, 2026-10-01; revised 2026-10-25).
+  A timed awake session defers installation, just like a running or paused timer.
+  Endless awake can update during an idle moment. A guard assertion overlaps
+  the old and new processes; its UUID is saved before it starts. The new copy
+  releases the guard only after acquiring its own assertion, retaining actual
+  lid mode without a cue. Failed acquisition leaves an active, controllable
+  endless guard rather than dropping sleep protection. Legacy resume records
+  retain the ten-minute freshness limit and original deadline. See
+  "Updates during active work (2.4 development)" for the lifecycle and tests.
+  Quitting by hand still ends the session.
 - **Closed-lid display sleep — agreement with Anton, 2026-10-14.** While
   lid mode is active, closing the lid without an external display requests
   system display sleep (`pmset displaysleepnow`); `disablesleep 1` and the
@@ -6646,11 +6648,12 @@ its own database of known apps may do better on real software than it did here.
   finds a release but the moment is busy, it's remembered and a 60 s
   retry (gate-only, no network) installs it the instant the user goes
   idle. "Not in use" = no interaction for 20 minutes AND no running/paused
-  timer, sleep-prevention, open panel, or in-progress conversion.
+  timer, timed sleep-prevention, open panel, or other in-progress work.
+  Endless sleep-prevention uses a continuous assertion handoff.
   Interactions that reset the 20-minute window: opening the panel,
   timer/awake hotkeys, opening a window, running a conversion. A
-  critical release skips the 20-minute wait and the awake/panel/converter
-  checks — but still never interrupts a set timer. The rule lives in
+  critical release skips the 20-minute wait and the open-panel check, but
+  never interrupts a set timer, timed awake or other active work. The rule lives in
   HopCore's UpdateInstallPolicy (unit-tested).
 - Public copy (mirror README, release notes, landing page) — ENGLISH
   ONLY: the project is international.
@@ -6840,8 +6843,8 @@ update containing the fix.
   AppKit menu: the title "Hop — safe mode", a hint, the check status,
   "check & update", "quit".
 - On entering safe mode, an update is checked for and installed
-  automatically (the manual UpdateChecker path, bypassing the timer
-  restrictions).
+  automatically through UpdateChecker. No timer or other module is running
+  in safe mode; a persisted live awake handoff continues independently.
 - If safe mode crashes too, the counter keeps growing — the next launch
   is safe mode again.
 - The counter logic is `LaunchGuard`, covered by tests.
@@ -7314,3 +7317,41 @@ Hop Mix requires explicit Start and explicit sources. Capture remains off after
 close/reopen/relaunch. It stays independent of background app listening routes.
 No denoise, automatic voice boost, global-all-mic mute or browser-tab isolation
 is introduced in this change.
+
+
+## Updates during active work (2.4 development)
+
+Manual checks, onboarding installation and automatic updates share a live installation gate.
+A set or paused timer, timed keep-awake, time tracking, conversion, packing/extraction
+(including Finder jobs), active torrent download/upload or pending deletion, capture,
+microphone check/recording, Hop Mix and currently playing per-app routes defer installation,
+even for critical releases. The gate is checked again after download/staging and just before
+replacing the bundle. Known deferred releases retry without fetching the feed again;
+explicit manual requests remain queued when automatic updates are disabled.
+A failed feed request or malformed response preserves a known pending release;
+only a successful check confirming no newer release clears it.
+
+Endless keep-awake may update once the ordinary automatic idle policy permits it. Before
+replacing the bundle, the running Hop starts an early mode of its own signed executable.
+The guard acquires a matching system/display power assertion and acknowledges readiness
+through a private UUID directory and live advisory lock. The durable resume record is
+saved before launching the guard. Preparation failure cancels installation. Readiness is
+checked again before terminating the old instance. The guard is excluded from the ordinary
+single-instance cleanup only while its live lock and persisted UUID agree.
+
+The old assertion overlaps the guard; the new instance acknowledges the guard only after
+its own assertion is acquired. Lid sleep prevention stays applied throughout a successful
+update and is adopted from actual system state. A live endless guard survives wall-clock
+changes; legacy resume records still use the ten-minute freshness limit and preserve any
+original timed deadline. If the new instance cannot acquire its assertion, it adopts the
+live guard as its active endless session, retains the locator and lets the user turn it off.
+A one-second monitor retries assertion acquisition; success adopts the session and
+releases the guard, while loss of both protections turns awake off and attempts the
+existing quiet lid recovery. A later update reuses that guard. Cancelled installation preserves any guard that is the
+session's only protection. Normal off/quit cancels it; a successful update exit retains it.
+The guard has no automatic expiry: it belongs to the user's explicitly endless session.
+Its locator is cleared only after adoption or a successful cancellation signal.
+
+Automated checks inject assertion acquisition/release and use private temporary fixtures;
+they do not change system sleep/lid settings or install an update. A physical update with
+awake/lid enabled still requires separate acceptance testing before release.

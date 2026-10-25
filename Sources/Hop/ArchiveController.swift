@@ -65,6 +65,7 @@ final class ArchiveController: ObservableObject {
     /// Several Finder-opened rar/7z files can arrive in one event. They all await
     /// one helper installation instead of racing several downloads and writes.
     private var helperInstallTask: Task<Bool, Never>?
+    private(set) var operationsInFlight = 0
 
     init() {
         let sessionID = extractionSessionID
@@ -340,7 +341,9 @@ final class ArchiveController: ObservableObject {
         if recordsManualJob {
             append(job)
         }
+        operationsInFlight += 1
         Task {
+            defer { operationsInFlight -= 1 }
             if !format.isNative, !helper.isInstalled {
                 if recordsManualJob {
                     update(job.id, .waitingForHelper)
@@ -517,7 +520,9 @@ final class ArchiveController: ObservableObject {
 
         let job = Job(kind: .pack, name: name, state: .running)
         append(job)
+        operationsInFlight += 1
         Task {
+            defer { operationsInFlight -= 1 }
             if !format.isNative, !helper.isInstalled {
                 update(job.id, .waitingForHelper)
                 guard await ensureHelperInstalled() else {

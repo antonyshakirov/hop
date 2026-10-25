@@ -15,13 +15,15 @@ public struct AwakeResume: Codable, Equatable, Sendable {
     public var optionSeconds: TimeInterval?
     public var lid: Bool
     public var savedAt: Date
+    public var handoffID: UUID?
 
-    public init(active: Bool, until: Date?, optionSeconds: TimeInterval?, lid: Bool, savedAt: Date) {
+    public init(active: Bool, until: Date?, optionSeconds: TimeInterval?, lid: Bool, savedAt: Date, handoffID: UUID? = nil) {
         self.active = active
         self.until = until
         self.optionSeconds = optionSeconds
         self.lid = lid
         self.savedAt = savedAt
+        self.handoffID = handoffID
     }
 
     public func isFresh(now: Date) -> Bool {
@@ -29,13 +31,14 @@ public struct AwakeResume: Codable, Equatable, Sendable {
         return age >= 0 && age <= Self.relaunchWindow
     }
 
-    public func session(now: Date) -> Session {
+    public func session(now: Date, liveHandoff: Bool = false) -> Session {
+        if active && until == nil && handoffID != nil && liveHandoff { return .endless }
         guard active, isFresh(now: now) else { return .none }
         guard let until else { return .endless }
         return until > now ? .until(until) : .none
     }
 
-    public func keepsLid(now: Date) -> Bool {
-        lid && session(now: now) != .none
+    public func keepsLid(now: Date, liveHandoff: Bool = false) -> Bool {
+        lid && session(now: now, liveHandoff: liveHandoff) != .none
     }
 }

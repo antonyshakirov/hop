@@ -38,6 +38,7 @@ final class UpdateChecker: ObservableObject {
         case downloading
         case installing
         case failed
+        case deferred
     }
 
     @Published private(set) var status: Status = .idle
@@ -56,15 +57,25 @@ final class UpdateChecker: ObservableObject {
     /// A newer release found but not installable at that moment (timer running,
     /// panel open, recently used…). Kept so installPendingIfPossible can install
     /// it the instant the gate opens, without re-fetching.
-    private var pendingRelease: ReleaseInfo?
+    struct PendingRelease {
+        let info: ReleaseInfo
+        let manual: Bool
+    }
+    private(set) var pendingRelease: PendingRelease?
 
-    var willRelaunch: (() -> Void)?
+    var installationAllowed: @MainActor () -> Bool = { true }
+    var automaticInstallationAllowed: @MainActor (Bool) -> Bool = { _ in true }
+    private let findRelease: (() async throws -> ReleaseInfo?)?
+    var prepareRelaunch: (() throws -> Void)?
+    var cancelRelaunch: (() -> Void)?
+    var relaunchReady: () -> Bool = { true }
 
     private var autoUpdateEnabled: Bool {
         UserDefaults.standard.object(forKey: Self.autoUpdateKey) as? Bool ?? true
     }
 
-    init() {
+    init(findRelease: (() async throws -> ReleaseInfo?)? = nil) {
+        self.findRelease = findRelease
         Self.cleanupStagingLeftovers()
     }
 
@@ -117,6 +128,7 @@ final class UpdateChecker: ObservableObject {
     /// canInstall(critical) decides whether installing is OK right now: critical
     /// releases bypass the soft restrictions, but a running timer is never interrupted.
     func startAutoChecks(canInstall: @escaping @MainActor (_ critical: Bool) -> Bool) {
+        automaticInstallationAllowed = canInstall
         Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(15))
             await self?.autoCheck(canInstall: canInstall)
@@ -157,14 +169,15 @@ final class UpdateChecker: ObservableObject {
     static var isDevBuild: Bool { Bundle.isDevBuild }
 
     private func autoCheck(canInstall: @MainActor (Bool) -> Bool) async {
-        guard !Self.isDevBuild, autoUpdateEnabled else { return }
-        guard let info = await fetchNewerRelease() else {
-            // nothing newer (or the release was pulled / already installed):
-            // drop any stale pending so we don't keep trying to install it
-            pendingRelease = nil
+        guard !Self.isDevBuild, autoUpdateEnabled, pendingRelease?.manual != true else { return }
+        do {
+            let found = try await fetchNewerRelease()
+            guard pendingRelease?.manual != true else { return }
+            guard let info = found else { pendingRelease = nil; return }
+            await installOrDefer(info, canInstall: canInstall)
+        } catch {
             return
         }
-        await installOrDefer(info, canInstall: canInstall)
     }
 
     /// Install a found release now if the moment allows, otherwise remember it so
@@ -173,40 +186,48 @@ final class UpdateChecker: ObservableObject {
         guard status != .downloading, status != .installing else { return }
         if canInstall(info.critical) {
             pendingRelease = nil
-            await install(info)
+            await install(info, manual: false)
         } else {
-            pendingRelease = info
+            pendingRelease = PendingRelease(info: info, manual: false)
+            status = .deferred
         }
     }
 
     /// Called every installRetryInterval: installs a previously found release the
     /// moment the gate opens (user went idle, stopped the timer, closed the panel).
-    private func installPendingIfPossible(canInstall: @MainActor (Bool) -> Bool) async {
-        guard let info = pendingRelease else { return }
-        guard !Self.isDevBuild, autoUpdateEnabled else { pendingRelease = nil; return }
+    func installPendingIfPossible(canInstall: @MainActor (Bool) -> Bool) async {
+        guard let pending = pendingRelease else { return }
+        if !pending.manual {
+            guard !Self.isDevBuild, autoUpdateEnabled else { pendingRelease = nil; return }
+            guard canInstall(pending.info.critical) else { return }
+        }
         guard status != .downloading, status != .installing else { return }
-        guard canInstall(info.critical) else { return }
-        // Clear before installing: a failed attempt then waits for the next
-        // hourly check to rediscover, instead of hammering the download.
+        guard installationAllowed() else { return }
         pendingRelease = nil
-        await install(info)
+        await install(pending.info, manual: pending.manual)
     }
 
     /// A manual check downloads and installs any found update right away.
     func check(manual: Bool) async {
         guard status != .downloading, status != .installing else { return }
         status = .checking
-        guard let info = await fetchNewerRelease() else {
-            status = manual ? .upToDate : .idle
-            if status == .upToDate { scheduleStatusExpiry() }
-            return
+        do {
+            guard let info = try await fetchNewerRelease() else {
+                pendingRelease = nil
+                status = manual ? .upToDate : .idle
+                if status == .upToDate { scheduleStatusExpiry() }
+                return
+            }
+            await install(info, manual: manual)
+        } catch {
+            status = pendingRelease == nil ? .failed : .deferred
+            if status == .failed { scheduleStatusExpiry() }
         }
-        await install(info)
     }
 
     /// For onboarding: only find out whether an update exists (no install).
     func newerReleaseIfAny() async -> ReleaseInfo? {
-        await fetchNewerRelease()
+        try? await fetchNewerRelease()
     }
 
     // MARK: - Mechanics
@@ -222,14 +243,14 @@ final class UpdateChecker: ObservableObject {
         #endif
     }
 
-    private func fetchNewerRelease() async -> ReleaseInfo? {
-        guard releaseKey != nil else { return nil } // updater is disabled without a key
+    private func fetchNewerRelease() async throws -> ReleaseInfo? {
+        if let findRelease { return try await findRelease() }
+        guard releaseKey != nil else { throw URLError(.cannotDecodeRawData) }
         guard let url = UpdateFeed.checkURL(feed: Self.feedURL, version: currentVersion)
-        else { return nil }
+        else { throw URLError(.badURL) }
         // the manifest is tiny and must be fresh — bypass caches
-        guard let answer = try? await MirrorFetch.data(
-                from: url, cachePolicy: .reloadIgnoringLocalCacheData),
-              let json = try? JSONSerialization.jsonObject(with: answer.data) as? [String: Any],
+        let answer = try await MirrorFetch.data(from: url, cachePolicy: .reloadIgnoringLocalCacheData)
+        guard let json = try? JSONSerialization.jsonObject(with: answer.data) as? [String: Any],
               let version = json["version"] as? String,
               // Per-architecture builds: an Intel Mac takes `zipIntel`, everything
               // else takes `zip`. Downloading the slice this Mac can run keeps the
@@ -242,7 +263,7 @@ final class UpdateChecker: ObservableObject {
               // the signature is mandatory: a release without .sig is never installed
               let signatureURL = (json[Self.archKey("sig")] as? String
                                   ?? json["sig"] as? String).flatMap(URL.init)
-        else { return nil }
+        else { throw URLError(.cannotParseResponse) }
 
         guard UpdateFeed.isNewer(version, than: currentVersion) else { return nil }
         // The build comes from the host that just answered: a client reaching
@@ -261,7 +282,15 @@ final class UpdateChecker: ObservableObject {
         )
     }
 
-    func install(_ info: ReleaseInfo) async {
+    private func deferIfBusy(_ info: ReleaseInfo, manual: Bool) -> Bool {
+        let allowed = installationAllowed() && (manual || automaticInstallationAllowed(info.critical))
+        guard !allowed else { return false }
+        pendingRelease = PendingRelease(info: info, manual: manual); status = .deferred
+        return true
+    }
+
+    func install(_ info: ReleaseInfo, manual: Bool = true) async {
+        guard !deferIfBusy(info, manual: manual) else { return }
         do {
             status = .downloading
             let build = try await MirrorFetch.download(from: info.zipURL, hosts: info.hosts)
@@ -299,6 +328,16 @@ final class UpdateChecker: ObservableObject {
             // would simply block the ad-hoc build otherwise
             _ = try? run("/usr/bin/xattr", ["-dr", "com.apple.quarantine", newApp.path])
 
+            guard !deferIfBusy(info, manual: manual) else {
+                try? FileManager.default.removeItem(at: staging)
+                return
+            }
+            try prepareRelaunch?()
+            guard !deferIfBusy(info, manual: manual) else {
+                cancelRelaunch?()
+                try? FileManager.default.removeItem(at: staging)
+                return
+            }
             let target = "/Applications/\(appName)"
             try? FileManager.default.removeItem(atPath: target)
             // ditto rather than copyItem: it is the tool that carries a bundle
@@ -316,11 +355,12 @@ final class UpdateChecker: ObservableObject {
             relauncher.executableURL = URL(fileURLWithPath: "/bin/sh")
             relauncher.arguments = ["-c",
                 "while /bin/kill -0 \(pid) 2>/dev/null; do /bin/sleep 0.2; done; /usr/bin/open \"\(target)\""]
+            guard relaunchReady() else { throw CocoaError(.executableNotLoadable) }
             try relauncher.run() // deliberately not waited on — it must outlive us
-            willRelaunch?()
             QuitCause.current = "update installed"
             NSApp.terminate(nil)
         } catch {
+            cancelRelaunch?()
             status = .failed
             scheduleStatusExpiry()
         }

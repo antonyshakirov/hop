@@ -51,4 +51,29 @@ final class AwakeResumeTests: XCTestCase {
         let data = try JSONEncoder().encode(original)
         XCTAssertEqual(try JSONDecoder().decode(AwakeResume.self, from: data), original)
     }
+    func testLiveEndlessHandoffSurvivesClockChanges() {
+        var record = resume(lid: true)
+        record.handoffID = UUID()
+        for now in [saved.addingTimeInterval(-3600), saved.addingTimeInterval(86400)] {
+            XCTAssertEqual(record.session(now: now, liveHandoff: true), .endless)
+            XCTAssertTrue(record.keepsLid(now: now, liveHandoff: true))
+            XCTAssertEqual(record.session(now: now, liveHandoff: false), .none)
+        }
+        record.active = false
+        XCTAssertEqual(record.session(now: saved, liveHandoff: true), .none)
+    }
+
+    func testLegacyRecordDecodesWithoutHandoff() throws {
+        let data = try JSONEncoder().encode(resume(lid: true))
+        let decoded = try JSONDecoder().decode(AwakeResume.self, from: data)
+        XCTAssertNil(decoded.handoffID)
+        XCTAssertEqual(decoded.session(now: saved), .endless)
+    }
+
+    func testHandoffIDSurvivesStorage() throws {
+        var record = resume(lid: true)
+        record.handoffID = UUID()
+        XCTAssertEqual(try JSONDecoder().decode(AwakeResume.self, from: JSONEncoder().encode(record)), record)
+    }
+
 }

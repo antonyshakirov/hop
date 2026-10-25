@@ -65,14 +65,23 @@ final class UpdatePolicyTests: XCTestCase {
 
     // MARK: - critical bypasses the soft blockers
 
-    func testCriticalIgnoresRecentUseAwakePanelConverter() {
+    func testCriticalIgnoresRecentUseAndPanel() {
         XCTAssertTrue(canInstall(
             critical: true,
-            keepAwakeActive: true,
+            keepAwakeActive: false,
             panelOpen: true,
-            converterBusy: true,
+            converterBusy: false,
             secondsSinceInteraction: 0
         ))
+    }
+
+    func testCriticalCannotInterruptConversionOrOtherActiveWork() {
+        XCTAssertFalse(canInstall(critical: true, converterBusy: true))
+        for critical in [true, false] {
+            XCTAssertFalse(UpdateInstallPolicy.canInstall(critical: critical, timerBusy: false,
+                keepAwakeActive: false, panelOpen: false, converterBusy: false,
+                secondsSinceInteraction: 100000, operationsBusy: true))
+        }
     }
 
     // MARK: - ActivityTracker
@@ -99,4 +108,15 @@ final class UpdatePolicyTests: XCTestCase {
         // still measured from the later stamp, not the earlier one
         XCTAssertEqual(t.secondsSinceInteraction(now: later), 0, accuracy: 0.001)
     }
+    func testTimedAwakeAlwaysDefersButEndlessCanUpdate() {
+        for critical in [true, false] {
+            XCTAssertFalse(UpdateInstallPolicy.canInstall(critical: critical, timerBusy: false,
+                keepAwakeActive: true, panelOpen: false, converterBusy: false,
+                secondsSinceInteraction: 100000))
+            XCTAssertTrue(UpdateInstallPolicy.canInstall(critical: critical, timerBusy: false,
+                keepAwakeActive: true, panelOpen: false, converterBusy: false,
+                secondsSinceInteraction: 100000, keepAwakeEndless: true))
+        }
+    }
+
 }

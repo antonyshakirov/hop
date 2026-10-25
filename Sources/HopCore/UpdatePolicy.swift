@@ -34,6 +34,7 @@ public enum UpdateInstallPolicy {
     ///   - critical: a crash/security release (from the manifest's `critical`).
     ///   - timerBusy: a timer is set — running or paused (never idle/finished).
     ///   - keepAwakeActive: sleep prevention is on.
+    ///   - keepAwakeEndless: the active session has no deadline and supports handoff.
     ///   - panelOpen: the menu-bar panel popover is showing right now.
     ///   - converterBusy: a file conversion is in progress right now.
     ///   - secondsSinceInteraction: age of the last user interaction.
@@ -44,20 +45,13 @@ public enum UpdateInstallPolicy {
         panelOpen: Bool,
         converterBusy: Bool,
         secondsSinceInteraction: TimeInterval,
-        idleThreshold: TimeInterval = idleThreshold
+        idleThreshold: TimeInterval = idleThreshold,
+        operationsBusy: Bool = false,
+        keepAwakeEndless: Bool = false
     ) -> Bool {
-        // A set or running timer is sacred: never relaunch out from under it,
-        // not even for a critical release.
-        if timerBusy { return false }
-        // Crash/security fixes shouldn't wait for a quiet gap. They still yield
-        // to a running timer above and install at the first moment without one.
+        if timerBusy || converterBusy || operationsBusy || (keepAwakeActive && !keepAwakeEndless) { return false }
         if critical { return true }
-        // The user is deliberately keeping the Mac awake (a talk, a long
-        // download) — don't disrupt that with a relaunch.
-        if keepAwakeActive { return false }
-        // In active use this very second.
-        if panelOpen || converterBusy { return false }
-        // Otherwise install only after a long enough quiet gap.
+        if panelOpen { return false }
         return secondsSinceInteraction >= idleThreshold
     }
 }

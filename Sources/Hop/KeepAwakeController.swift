@@ -27,6 +27,8 @@ final class KeepAwakeController: ObservableObject {
     static let lidKey = "awakeLidStay"
     static let resumeKey = "awakeResumeAfterUpdate"
     private var relaunching = false
+    private var updateLease: AwakeUpdateHandoff.Lease?
+    private var inheritedHandoffID: UUID?
 
     @Published private(set) var isActive = false
     @Published private(set) var selected: Option?
@@ -58,9 +60,11 @@ final class KeepAwakeController: ObservableObject {
         LidDimmer.restorePendingAtLaunch()
         let resume = Self.takeResume()
         let now = Date()
-        let session = resume?.session(now: now) ?? .none
+        let liveHandoff = resume?.handoffID.map { AwakeUpdateHandoff.isLive(id: $0) } ?? false
+        let session = resume?.session(now: now, liveHandoff: liveHandoff) ?? .none
+        inheritedHandoffID = liveHandoff ? resume?.handoffID : nil
         if session != .none,
-           resume?.keepsLid(now: now) == true,
+           resume?.keepsLid(now: now, liveHandoff: liveHandoff) == true,
            UserDefaults.standard.bool(forKey: "lidSleepAppliedPending"),
            sleepDisabledStateMatches(true) {
             lidApplied = true
@@ -75,6 +79,20 @@ final class KeepAwakeController: ObservableObject {
             begin(Self.option(seconds: resume?.optionSeconds), until: end, cue: false)
         case .none:
             break
+        }
+        if !Snapshot.active, liveHandoff && session == .endless && !isActive {
+            isActive = true
+            selected = Self.option(seconds: nil)
+            startTicker()
+        } else if !Snapshot.active && (isActive || session == .none) {
+            if let id = resume?.handoffID {
+                if AwakeUpdateHandoff.finish(id: id) {
+                    inheritedHandoffID = nil
+                    UserDefaults.standard.removeObject(forKey: Self.resumeKey)
+                }
+            } else {
+                UserDefaults.standard.removeObject(forKey: Self.resumeKey)
+            }
         }
         if lidApplied && !isActive {
             revertLidIfPending()
@@ -125,6 +143,11 @@ final class KeepAwakeController: ObservableObject {
         until = end
         shownMinutes = until.map { AwakeCountdown.minutes(remaining: $0.timeIntervalSinceNow) }
 
+        startTicker()
+    }
+
+    private func startTicker() {
+        ticker?.invalidate()
         let t = Timer(timeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.tick() }
         }
@@ -134,6 +157,7 @@ final class KeepAwakeController: ObservableObject {
     }
 
     func deactivate(silent: Bool = false) {
+        if !relaunching && !cancelRelaunch(releaseActiveHandoff: true) { return }
         if isActive && !silent {
             Sounds.awakeCue(on: false)
         }
@@ -157,19 +181,55 @@ final class KeepAwakeController: ObservableObject {
     }
 
     // SPEC: docs/spec.md — "Keep awake survives an update".
-    func stashForRelaunch() {
+    func stashForRelaunch() throws {
         guard isActive || lidApplied else { return }
+        guard until == nil else { throw CocoaError(.userCancelled) }
+        if inheritedHandoffID == nil {
+            updateLease = try AwakeUpdateHandoff.start(
+                keepDisplay: UserDefaults.standard.bool(forKey: Self.keepDisplayKey),
+                willStart: { try self.saveResume(handoffID: $0) })
+        }
+        let id = updateLease?.id ?? inheritedHandoffID
+        guard let id, AwakeUpdateHandoff.isLive(id: id) else {
+            cancelRelaunch(); throw CocoaError(.executableNotLoadable)
+        }
+        do {
+            try saveResume(handoffID: id)
+            relaunching = true
+        } catch {
+            cancelRelaunch(); throw error
+        }
+    }
+
+    private func saveResume(handoffID: UUID) throws {
         let record = AwakeResume(active: isActive, until: until, optionSeconds: selected?.seconds,
-                                 lid: lidApplied, savedAt: Date())
-        guard let data = try? JSONEncoder().encode(record) else { return }
+                                 lid: lidApplied, savedAt: Date(), handoffID: handoffID)
+        let data = try JSONEncoder().encode(record)
         UserDefaults.standard.set(data, forKey: Self.resumeKey)
-        relaunching = true
+        guard UserDefaults.standard.synchronize() else { throw CocoaError(.fileWriteUnknown) }
+    }
+
+    func validateRelaunch() -> Bool {
+        guard isActive || relaunching else { return true }
+        guard until == nil, let id = updateLease?.id ?? inheritedHandoffID else { return false }
+        return updateLease?.isReady ?? AwakeUpdateHandoff.isLive(id: id)
+    }
+
+    @discardableResult
+    func cancelRelaunch(releaseActiveHandoff: Bool = false) -> Bool {
+        relaunching = false
+        if !releaseActiveHandoff && !hasAssertion && isActive { return true }
+        if let id = updateLease?.id ?? inheritedHandoffID,
+           !AwakeUpdateHandoff.finish(id: id) { return false }
+        updateLease = nil
+        inheritedHandoffID = nil
+        UserDefaults.standard.removeObject(forKey: Self.resumeKey)
+        return true
     }
 
     private static func takeResume() -> AwakeResume? {
         guard !Snapshot.active,
               let data = UserDefaults.standard.data(forKey: resumeKey) else { return nil }
-        UserDefaults.standard.removeObject(forKey: resumeKey)
         return try? JSONDecoder().decode(AwakeResume.self, from: data)
     }
 
@@ -192,7 +252,9 @@ final class KeepAwakeController: ObservableObject {
             IOPMAssertionRelease(assertionID)
             hasAssertion = false
         }
-        _ = createAssertion()
+        if createAssertion(), cancelRelaunch() {
+            inheritedHandoffID = nil
+        }
     }
 
     /// Lid mode is enabled EXPLICITLY, via a button while keep-awake is active:
@@ -376,6 +438,18 @@ final class KeepAwakeController: ObservableObject {
     }
 
     private func tick() {
+        if isActive, !hasAssertion, let id = inheritedHandoffID {
+            switch AwakeUpdateHandoff.recover(id: id, acquire: createAssertion) {
+            case .owned:
+                _ = cancelRelaunch()
+            case .guarded:
+                break
+            case .lost:
+                deactivate(silent: true)
+                revertLidIfPending()
+                return
+            }
+        }
         guard let until else { return }
         if until.timeIntervalSinceNow <= 0 {
             deactivate()

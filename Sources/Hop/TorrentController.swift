@@ -34,6 +34,18 @@ final class TorrentController: ObservableObject {
     /// `.id(themeVersion)` and bumps themeVersion on every app activation — the
     /// keyboard-transparent panel deactivates/reactivates the app on each click,
     /// so @State would reset and the freshly-expanded list would collapse at once.
+    var busyForUpdate: Bool {
+        Self.blocksUpdate(adds: addsInFlight, removalsPending: !removals.isEmpty, torrents: torrents)
+    }
+
+    static func blocksUpdate(adds: Int, removalsPending: Bool, torrents: [TorrentItem]) -> Bool {
+        adds > 0 || removalsPending || torrents.contains { item in
+            guard let stats = item.stats else { return !item.pausedByPolicy }
+            return stats.state == .initializing
+                || (stats.state == .live && (!stats.finished || stats.uploadBps > 0))
+        }
+    }
+
     @Published var expandedIds: Set<String> = []
     func toggleExpanded(_ id: String) {
         if expandedIds.contains(id) { expandedIds.remove(id) } else { expandedIds.insert(id) }
