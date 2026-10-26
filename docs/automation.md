@@ -43,7 +43,7 @@ never invent a new ID to work around it. The durable journal prevents a retry fr
 repeating an effect across app restarts. Terminal receipts are retained for at least
 30 days; expired requests cannot execute as new operations.
 
-Starting a timer replaces the current timer. `tracker.stop` ends **all active
+Starting a timer replaces the current timer or stopwatch and clears its progress. `tracker.stop` ends **all active
 tracking sessions**. Complete/delete tasks by the exact UUID from state. These
 scopes must be included in the customer's approval. Other actions retain their
 legacy behavior below. Emptying the legacy command file is not a per-command
@@ -189,3 +189,5 @@ Completed items leave `todos.json` the day after they were ticked off (a
 setting can keep them) and are appended to `todos-archive.json` in the same
 folder, in the same shape — read it for what has been done, and leave the
 writing to Hop.
+
+Protocol-2 clock commands respect the reported mode. Timer pause/reset reject stopwatch mode; stopwatch stop rejects countdown mode. Stopwatch start resumes a paused stopwatch, leaves a running stopwatch unchanged and rejects a running or paused countdown. The customer can approve timer.reset before switching from a paused countdown. State includes stopwatch elapsedSeconds.

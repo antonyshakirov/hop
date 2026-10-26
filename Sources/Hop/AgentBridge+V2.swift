@@ -36,8 +36,35 @@ extension AgentBridge {
                 if ids.isEmpty { return .noChange() }
                 perform(command, on: model)
                 return .applied(ids: ids)
-            case .timerPause, .timerReset, .timerStart, .stopwatchStart, .stopwatchStop:
-                perform(command, on: model)
+            case .timerStart(let seconds):
+                model.engine.reset()
+                model.engine.setStopwatch(false)
+                model.engine.setDuration(TimeInterval(seconds))
+                model.engine.start()
+                return .applied()
+            case .timerPause:
+                guard !model.engine.isStopwatch else { return .rejected("timer_mode_required") }
+                guard model.engine.state == .running else { return .noChange() }
+                model.engine.pause()
+                return .applied()
+            case .timerReset:
+                guard !model.engine.isStopwatch else { return .rejected("timer_mode_required") }
+                model.engine.reset()
+                return .applied()
+            case .stopwatchStart:
+                if model.engine.isStopwatch {
+                    if model.engine.state == .running { return .noChange() }
+                    if model.engine.state == .paused { model.engine.resume(); return .applied() }
+                } else if model.engine.state == .running || model.engine.state == .paused {
+                    return .rejected("timer_in_progress")
+                }
+                model.engine.setStopwatch(true)
+                model.engine.start()
+                return .applied()
+            case .stopwatchStop:
+                guard model.engine.isStopwatch else { return .rejected("stopwatch_mode_required") }
+                guard model.engine.state == .running else { return .noChange() }
+                model.engine.pause()
                 return .applied()
             default: return .rejected("unsupported_command")
             }

@@ -230,6 +230,7 @@ final class AgentBridge {
                 "state": "\(timer.state)",
                 "remainingSeconds": Int(timer.remaining),
                 "durationSeconds": Int(timer.duration),
+                "elapsedSeconds": Int(timer.elapsed),
             ],
             "keepAwake": model.keepAwake.isActive,
             "lidMode": model.keepAwake.lidApplied,

@@ -14,6 +14,17 @@ public enum AgentCapabilitiesV2 {
             case "tracker.stop": item["scope"] = "all_active_tracking_sessions"
             default: item["input"] = [String: String]()
             }
+            let effects = [
+                "timer.start": "Replaces the current timer or stopwatch and clears its progress",
+                "timer.pause": "Pauses countdown mode only; rejects stopwatch mode",
+                "timer.reset": "Clears countdown progress and work-rest cycle; rejects stopwatch mode",
+                "stopwatch.start": "Starts or resumes the stopwatch; running stopwatch is unchanged; rejects a running or paused countdown",
+                "stopwatch.stop": "Pauses stopwatch mode only; rejects countdown mode",
+                "tracker.stop": "Ends all active tracking sessions",
+                "todo.complete": "Completes the exact task UUID from state",
+                "todo.delete": "Deletes the exact task UUID from state",
+            ]
+            if let effect = effects[name] { item["effect"] = effect }
             return item
         }
         let commandSchemas: [[String: Any]] = actions.map { action in

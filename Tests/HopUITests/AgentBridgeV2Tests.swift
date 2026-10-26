@@ -73,4 +73,40 @@ final class AgentBridgeV2Tests: XCTestCase {
         XCTAssertEqual(todos.filter { $0["text"] as? String == "Synthetic watched task" }.count, 1)
     }
 
+    func testClockCommandsRespectModeAndPreserveAnExistingStopwatch() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let model = AppModel(preview: true), bridge = AgentBridge(directory: root), now = Date()
+        func send(_ value: [String: Any]) throws -> AgentResultV2 {
+            bridge.performConfirmed(try AgentRequestV2.parse(request(value, now: now), now: now), on: model)
+        }
+        model.engine.reset()
+        model.engine.setStopwatch(true)
+        model.engine.start()
+        XCTAssertEqual(try send(["do": "timer.pause"]).status, "rejected")
+        XCTAssertEqual(try send(["do": "timer.reset"]).status, "rejected")
+        XCTAssertEqual(model.engine.state, .running)
+        XCTAssertEqual(try send(["do": "stopwatch.start"]).status, "no_change")
+        XCTAssertEqual(try send(["do": "timer.start", "seconds": 90]).status, "applied")
+        XCTAssertFalse(model.engine.isStopwatch)
+        XCTAssertEqual(model.engine.duration, 90)
+        XCTAssertEqual(model.engine.state, .running)
+        XCTAssertEqual(try send(["do": "stopwatch.stop"]).status, "rejected")
+        XCTAssertEqual(try send(["do": "stopwatch.start"]).status, "rejected")
+        XCTAssertEqual(model.engine.state, .running)
+        model.engine.pause()
+        XCTAssertEqual(try send(["do": "stopwatch.start"]).status, "rejected")
+        model.engine.reset()
+        XCTAssertEqual(try send(["do": "stopwatch.start"]).status, "applied")
+        XCTAssertTrue(model.engine.isStopwatch)
+        try await Task.sleep(nanoseconds: 50_000_000)
+        XCTAssertEqual(try send(["do": "stopwatch.stop"]).status, "applied")
+        let heldElapsed = model.engine.elapsed
+        XCTAssertGreaterThan(heldElapsed, 0)
+        XCTAssertEqual(try send(["do": "stopwatch.start"]).status, "applied")
+        XCTAssertGreaterThanOrEqual(model.engine.elapsed, heldElapsed)
+        XCTAssertEqual(model.engine.state, .running)
+        model.engine.pause()
+    }
+
 }
