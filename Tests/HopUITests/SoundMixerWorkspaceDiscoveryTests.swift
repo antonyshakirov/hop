@@ -38,6 +38,37 @@ final class SoundMixerWorkspaceDiscoveryTests: XCTestCase {
         XCTAssertTrue(SoundMixerDiscovery.merging(audio: [], running: running).isEmpty)
     }
 
+    func testSystemSoundDaemonIsNotAnAppButAppleAppsAndSimilarNamesRemain() {
+        let daemonIDs = ["systemsoundserverd", "com.apple.systemsoundserverd"]
+        let daemons = daemonIDs.map {
+            SoundMixerAppSnapshot(id: $0, name: "systemsoundserverd", processes: [70], appRunning: true, sourceRunning: true)
+        }
+        let music = SoundMixerAppSnapshot(id: "com.apple.Music", name: "Music", processes: [71], appRunning: true, sourceRunning: true)
+        let namedLikeDaemon = SoundMixerAppSnapshot(id: "org.example.sound", name: "systemsoundserverd", processes: [72], appRunning: true, sourceRunning: true)
+        let result = SoundMixerDiscovery.merging(audio: daemons + [music, namedLikeDaemon], running: daemons)
+        XCTAssertEqual(Set(result.map(\.id)), [music.id, namedLikeDaemon.id])
+        XCTAssertEqual(result.first { $0.id == music.id }?.processes, [71])
+    }
+
+    func testLegacyPinnedSystemSoundDaemonDoesNotReturnOrKeepCustomAudioActive() throws {
+        let suite = "HopTests.WorkspaceDaemon." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        var settings = SoundChannelSettings(); settings.gain = 0.25; settings.muted = true
+        var preference = SoundAppPreference(name: "systemsoundserverd")
+        preference.pinned = true; preference.outputUID = "headphones"
+        defaults.set(try JSONEncoder().encode(["app:systemsoundserverd": settings]), forKey: "soundMixerChannels")
+        defaults.set(try JSONEncoder().encode(["systemsoundserverd": preference]), forKey: SoundMixerController.preferencesKey)
+        let mixer = SoundMixerController(defaults: defaults, makeSession: { _ in Session() }, discover: {
+            [.init(id: "systemsoundserverd", name: "systemsoundserverd", processes: [70], appRunning: false, sourceRunning: true)]
+        }, outputs: { [] })
+        mixer.open(); defer { mixer.close() }
+        XCTAssertTrue(mixer.apps.isEmpty)
+        XCTAssertFalse(mixer.hasCustomApplicationAudio)
+        mixer.addApplication(id: "com.apple.systemsoundserverd", name: "systemsoundserverd")
+        XCTAssertTrue(mixer.apps.isEmpty)
+    }
+
     func testPinnedSilentAppReflectsRunningStateWithoutLosingPresetOrAddingUnpinnedApps() throws {
         let suite = "HopTests.WorkspaceDiscovery." + UUID().uuidString
         let defaults = UserDefaults(suiteName: suite)!

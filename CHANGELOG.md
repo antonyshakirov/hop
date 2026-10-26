@@ -8,6 +8,8 @@
   the selected device; short microphone checks stay in memory until the window closes.
 - Sound: percentage editing starts on click and ends when focus leaves the field;
   the number and percent sign share the same colour.
+- AI: timers, stopwatch, to-dos and time tracking with confirmation of the exact
+  action; results are saved.
 - Settings: keep only the Hop icon in the menu bar, without corner indicators
   or countdowns.
 - Torrents: choose to remove the list entry, also trash its original .torrent

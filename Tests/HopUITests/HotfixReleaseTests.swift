@@ -31,6 +31,15 @@ final class HotfixReleaseTests: XCTestCase {
         }
     }
 
+    func testEveryLanguageIncludesTheAIItemInTheUpcomingRelease() {
+        for lang in AppLanguage.allCases {
+            let items = L10n.t(.docNews, lang).components(separatedBy: "\n\n")
+            XCTAssertEqual(items[2], "• " + L10n.t(.news24AI, lang), lang.rawValue)
+            XCTAssertFalse(L10n.t(.news24AI, lang).isEmpty, lang.rawValue)
+            XCTAssertNotEqual(L10n.t(.news24AI, lang), L10nKey.news24AI.rawValue, lang.rawValue)
+        }
+    }
+
     func testTheNetworkReleaseHasItsCard() {
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.2.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.2"))

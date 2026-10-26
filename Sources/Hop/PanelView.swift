@@ -482,7 +482,7 @@ struct PanelView: View {
         .init(id: "2.1.2", lines: [.news211Hold], catchUp: "2.1"),
         .init(id: "2.2", lines: [.news22Network, .news22Mac27, .news22More], enables: "network"),
         ReleaseCard(id: "2.3", lines: [.news23Leftovers, .news23Mac, .news23Clipboard, .news23More]),
-        ReleaseCard(id: "2.4", lines: [.news24Mixer, .news24Icon, .news24Torrents, .news24Windows]),
+        ReleaseCard(id: "2.4", lines: [.news24Mixer, .news24AI, .news24Icon, .news24Torrents, .news24Windows]),
     ]
 
     /// Every release card's id — onboarding marks them seen for the same reason

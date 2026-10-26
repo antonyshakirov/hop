@@ -13,6 +13,11 @@ struct SoundMixerAppSnapshot {
 
 @MainActor
 enum SoundMixerDiscovery {
+    static func allowsApplication(_ id: String) -> Bool {
+        !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !id.hasPrefix("com.antonshakirov.minimo") && !id.hasPrefix("com.antonshakirov.hop")
+            && id != "systemsoundserverd" && id != "com.apple.systemsoundserverd"
+    }
     static func applications() -> [SoundMixerAppSnapshot] {
         guard #available(macOS 14.2, *) else { return [] }
         let applications = NSWorkspace.shared.runningApplications
@@ -43,9 +48,8 @@ enum SoundMixerDiscovery {
         return merging(audio: Array(groups.values), running: running)
     }
     static func merging(audio: [SoundMixerAppSnapshot], running: [SoundMixerAppSnapshot]) -> [SoundMixerAppSnapshot] {
-        var groups = Dictionary(uniqueKeysWithValues: audio.map { ($0.id, $0) })
-        for application in running where application.appRunning && !application.id.isEmpty
-            && !application.id.hasPrefix("com.antonshakirov.minimo") && !application.id.hasPrefix("com.antonshakirov.hop") {
+        var groups = Dictionary(uniqueKeysWithValues: audio.filter { allowsApplication($0.id) }.map { ($0.id, $0) })
+        for application in running where application.appRunning && allowsApplication(application.id) {
             if var existing = groups[application.id] {
                 existing.appRunning = true
                 if existing.iconURL == nil { existing.iconURL = application.iconURL }

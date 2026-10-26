@@ -54,8 +54,9 @@ final class SoundMixerController: ObservableObject {
     @Published private(set) var failure: SoundFailure?
     var available: Bool { if #available(macOS 14.2, *) { true } else { false } }
     var hasCustomApplicationAudio: Bool {
-        saved.contains { $0.key.hasPrefix("app:") && (min(1, $0.value.safeGain) != 1 || $0.value.muted) }
-            || preferences.values.contains { $0.outputUID != nil }
+        saved.contains { $0.key.hasPrefix("app:") && SoundMixerDiscovery.allowsApplication(String($0.key.dropFirst(4)))
+            && (min(1, $0.value.safeGain) != 1 || $0.value.muted) }
+            || preferences.contains { SoundMixerDiscovery.allowsApplication($0.key) && $0.value.outputUID != nil }
     }
     private var visible = false
     private var observations: [SoundHALObservation] = []
@@ -118,7 +119,7 @@ final class SoundMixerController: ObservableObject {
         session?.configure(channel)
     }
     func addApplication(id: String, name: String) {
-        guard !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        guard SoundMixerDiscovery.allowsApplication(id) else { return }
         var value = preferences[id] ?? SoundAppPreference(name: name)
         value.name = name; value.pinned = true
         if value.order == nil { value.order = (preferences.values.compactMap(\.order).max() ?? 0) + 1 }
@@ -212,9 +213,10 @@ final class SoundMixerController: ObservableObject {
         outputDevices = outputs().filter { SoundAppOutput.allows($0.uid) }
         let old = Dictionary(uniqueKeysWithValues: apps.map { ($0.id, $0) })
         var groups = Dictionary(uniqueKeysWithValues: discover().filter {
-            $0.sourceRunning || old[$0.id] != nil || preferences[$0.id]?.pinned == true
+            SoundMixerDiscovery.allowsApplication($0.id)
+                && ($0.sourceRunning || old[$0.id] != nil || preferences[$0.id]?.pinned == true)
         }.map { ($0.id, $0) })
-        for (id, value) in preferences where value.pinned && groups[id] == nil {
+        for (id, value) in preferences where value.pinned && groups[id] == nil && SoundMixerDiscovery.allowsApplication(id) {
             groups[id] = SoundMixerAppSnapshot(id: id, name: value.name, processes: [], appRunning: false, sourceRunning: false)
         }
         var metadataChanged = false

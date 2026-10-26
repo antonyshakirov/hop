@@ -7491,6 +7491,13 @@ The canonical Dev identity preserves its own preferences and permissions.
 A local candidate may set the existing dev-only open-Sound diagnostic flag for
 review; the production gate ignores it. Source and installed executable hashes
 are recorded in the handoff receipt.
+## Sound application discovery (26 October 2026)
+
+The Sound application list excludes the macOS `systemsoundserverd` service,
+including its legacy pinned presets. These presets are preserved on disk but
+do not keep custom application audio active. Real applications, including
+Apple applications and applications with similar display names, remain eligible.
+
 ## Confirmed local agent operations (26 October 2026)
 
 The owner approved making Hop and hop.tools usable by customer agents. Protocol 2
