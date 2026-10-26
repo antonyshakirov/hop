@@ -17,6 +17,7 @@ protocol SoundAppOutputStream: AnyObject, Sendable {
     func setOutput(_ uid: String?, followsSystem: Bool) throws
     func waitUntilOutputReady() async throws
     func activateOutput() throws
+    func update(_ settings: SoundChannelSettings, outputUID: String?, followsSystem: Bool, masterUID: String?) throws
 }
 extension SoundAppOutputStream {
     var sourceGuarded: Bool { true }
@@ -25,6 +26,11 @@ extension SoundAppOutputStream {
     func setOutput(_ uid: String?, followsSystem: Bool) throws { try setOutput(uid) }
     func waitUntilOutputReady() async throws {}
     func activateOutput() throws {}
+    func update(_ settings: SoundChannelSettings, outputUID: String?, followsSystem: Bool, masterUID: String?) throws {
+        if let current = self.outputUID, current != outputUID { try setOutput(nil, followsSystem: false) }
+        configure(settings)
+        try setOutput(outputUID, followsSystem: followsSystem)
+    }
 }
 
 @available(macOS 14.2, *)
@@ -40,6 +46,7 @@ final class SoundOutputStream: SoundAppOutputStream, @unchecked Sendable {
     private var followsSystem = false
     private var settings: SoundChannelSettings
     private var activated = false
+    private let configuration = SoundOutputConfigurationBoundary()
     private lazy var handoff = SoundOutputHandoff(setSourceMuted: { [unowned self] in try self.tap.setSourceMuted($0) },
         setPlaybackEnabled: { [unowned self] in hop_audio_set_playback_enabled(self.channel.pointer, $0) },
         releaseSource: { [unowned self] in
@@ -76,6 +83,19 @@ final class SoundOutputStream: SoundAppOutputStream, @unchecked Sendable {
         lock.withLock { requestedUID == nil || (playback?.isValid == true && hop_audio_playback_ready(channel.pointer)) }
     }
     var sourcePeak: Float { hop_audio_source_peak(channel.pointer) }
+    func update(_ settings: SoundChannelSettings, outputUID: String?, followsSystem: Bool, masterUID: String?) throws {
+        try lock.withLock {
+            guard !stopped else { throw CancellationError() }
+            do {
+                try configuration.transition(outputUID: outputUID, masterUID: masterUID,
+                    playback: { (self.playback.map(ObjectIdentifier.init), requestedUID, activated) },
+                    gate: { hop_audio_set_playback_enabled(channel.pointer, false) }) {
+                    self.settings = settings; channel.configure(settings)
+                    try setOutput(outputUID, followsSystem: followsSystem)
+                } activate: { try activateOutput() }
+            } catch { activated = false; try? handoff.fail(); throw error }
+        }
+    }
     func configure(_ settings: SoundChannelSettings) {
         lock.withLock {
             self.settings = settings; channel.configure(settings)

@@ -66,7 +66,7 @@ struct SoundMixerChannelRow: View {
                 muted: channel.settings.muted, canChangeVolume: true, canMute: true),
                 direction: .output, lang: lang, maximum: 1, label: .soundMixerGain, showLabel: false) { value in
                 mixer.update(channel) { $0.gain = value }
-            }.disabled(!editable)
+            }.disabled(!editable).help(L10n.t(.soundAppVolumeHint, lang))
             Button { mixer.update(channel) { $0.muted.toggle() } } label: {
                 Image(systemName: channel.settings.muted ? "speaker.slash.fill" : "speaker.wave.2")
                     .font(.system(size: 13)).foregroundStyle(channel.settings.muted ? Theme.textPrimary : Theme.textSecondary)

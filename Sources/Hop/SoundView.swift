@@ -305,7 +305,8 @@ struct SoundWindowView: View {
             if let current {
                 HStack(spacing: 12) {
                     if current.volume != nil, current.canChangeVolume {
-                        SoundVolumeControl(device: current, direction: direction, lang: lang) {
+                        SoundVolumeControl(device: current, direction: direction, lang: lang,
+                            label: direction == .output ? .soundMacVolume : .soundVolume) {
                             sound.setVolume($0, direction: direction, expectedUID: current.uid)
                         }.id(current.uid).frame(maxWidth: .infinity)
                     } else {

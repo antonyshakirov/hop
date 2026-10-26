@@ -7426,9 +7426,12 @@ A dev-only Info.plist flag `HopOpenSoundAtLaunch` follows the existing `--open-s
 
 ### Physical device volume dispatch
 
-The top Output volume controls the selected physical system output. An app
-assigned to a different output retains that separate route; changing the top
-slider does not change its destination or listening gain.
+The top Output volume remains the actual macOS default-output volume and follows
+changes made with the Mac volume keys. While the listening mixer is enabled,
+this common level also affects applications assigned to other outputs. Their
+destinations and saved per-app percentages remain unchanged. A 100% application
+setting is neutral; 50% is additional attenuation of the current common level.
+Do not introduce a separate independent Hop master-volume setting.
 
 Dispatch the first device-volume request without an artificial debounce. While
 a hardware write is in flight, retain only the latest pending request per
@@ -7442,3 +7445,25 @@ unchanged stale readback within a bounded interval. Volume-only notification
 bursts coalesce instead of rebuilding both device catalogues for every event.
 Hardware/Bluetooth latency remains subject to real listening acceptance;
 software checks do not establish zero audible latency.
+
+### Mac volume across listening destinations
+
+The listening session tracks the current macOS output device, its volume and
+mute while running in the background. Closing Sound does not stop that tracking.
+For an app routed to that same device, hardware already applies Mac volume:
+the listening DSP must not apply it a second time. For an app routed elsewhere,
+the session applies the common level in its listening DSP without changing the
+other device's physical volume. Global output mute suppresses all listening
+destinations. App gain, mute, pin/order and routing presets are not rewritten.
+Use the device's dB mapping, normalized to its maximum, for the common listening
+attenuation where available; a hardware scalar is not itself an amplitude gain.
+A finite clamped scalar is the fallback for an unavailable mapping. Zero stays
+zero and missing metadata falls back to neutral processing without amplification.
+
+Master changes configure existing streams without recreating taps or output
+engines. A destination change gates the old playback before applying gain for
+the new destination. Pending and newly audible streams adopt the latest master state before
+activation; missing explicit devices remain paused. Stopping the listening mixer
+releases this processing and its observers. Hop Mix sending and physical
+microphone settings remain independent. Real multi-output listening acceptance
+is required before claiming this behavior works on hardware.

@@ -50,6 +50,7 @@ private final class SoundPropertyObservation {
 final class CoreSoundHardware: SoundHardware {
     private var observations: [SoundPropertyObservation] = []
     private var observedDeviceIDs: [AudioObjectID]?
+    private var listeningOnly = false
     private var includeVolume = true
     private var changed: (() -> Void)?
     private var outputVolumeChanged: (() -> Void)?
@@ -169,6 +170,47 @@ final class CoreSoundHardware: SoundHardware {
             .flatMap(uid)
     }
 
+    nonisolated func listeningMaster() -> SoundListeningMasterSnapshot {
+        let system = AudioObjectID(kAudioObjectSystemObject)
+        let defaultAddress = address(kAudioHardwarePropertyDefaultOutputDevice)
+        for _ in 0..<2 {
+            guard let id = read(system, defaultAddress, initial: AudioObjectID(0)), let uid = uid(id) else { break }
+            let scalarAddresses = controls(id, .output, selector: kAudioDevicePropertyVolumeScalar, writable: false)
+            let scalars = scalarAddresses.compactMap { read(id, $0, initial: Float32(0)).map(Double.init) }
+            let scalar = !scalars.isEmpty && scalars.count == scalarAddresses.count && scalars.allSatisfy { $0.isFinite }
+                ? scalars.reduce(0, +) / Double(scalars.count) : nil
+            let dbAddresses = controls(id, .output, selector: kAudioDevicePropertyVolumeDecibels, writable: false)
+            let amplitudes: [Double] = dbAddresses.compactMap { a in
+                guard let db = read(id, a, initial: Float32(0)), db.isFinite else { return nil }
+                var rangeAddress = a; rangeAddress.mSelector = kAudioDevicePropertyVolumeRangeDecibels
+                guard let range = read(id, rangeAddress, initial: AudioValueRange(mMinimum: 0, mMaximum: 0)),
+                      range.mMinimum.isFinite, range.mMaximum.isFinite, range.mMinimum < range.mMaximum,
+                      Double(db) >= range.mMinimum, Double(db) <= range.mMaximum else { return nil }
+                return SoundListeningMasterSnapshot(uid: uid, scalar: nil, muted: nil,
+                    decibels: Double(db), maximumDB: range.mMaximum).attenuation
+            }
+            let mapped: [Double] = zip(scalarAddresses, scalars).compactMap { a, scalar in
+                var conversion = a; conversion.mSelector = kAudioDevicePropertyVolumeScalarToDecibels
+                guard let current = read(id, conversion, initial: Float32(scalar)),
+                      let maximum = read(id, conversion, initial: Float32(1)),
+                      current.isFinite, maximum.isFinite else { return nil }
+                return SoundListeningMasterSnapshot(uid: uid, scalar: scalar, muted: nil,
+                    decibels: Double(current), maximumDB: Double(maximum)).attenuation
+            }
+            let dbLevel = !amplitudes.isEmpty && amplitudes.count == dbAddresses.count
+                ? amplitudes.reduce(0, +) / Double(amplitudes.count) : nil
+            let mappedLevel = !mapped.isEmpty && mapped.count == scalarAddresses.count
+                ? mapped.reduce(0, +) / Double(mapped.count) : nil
+            let attenuation = scalar == 0 ? 0 : (dbLevel ?? mappedLevel ?? scalar)
+            let muteAddresses = controls(id, .output, selector: kAudioDevicePropertyMute, writable: false)
+            let mutes = muteAddresses.compactMap { read(id, $0, initial: UInt32(0)) }
+            let muted = !mutes.isEmpty && mutes.count == muteAddresses.count ? mutes.allSatisfy { $0 != 0 } : nil
+            guard read(system, defaultAddress, initial: AudioObjectID(0)) == id else { continue }
+            return SoundListeningMasterSnapshot(uid: uid, scalar: attenuation, muted: muted)
+        }
+        return SoundListeningMasterSnapshot(uid: nil, scalar: nil, muted: nil)
+    }
+
     nonisolated func select(_ uid: String, direction: SoundDirection) throws {
         let id = try resolve(uid, direction)
         try write(id, object: AudioObjectID(kAudioObjectSystemObject), address: address(defaultSelector(direction)))
@@ -219,14 +261,20 @@ final class CoreSoundHardware: SoundHardware {
     func watch(_ changed: @escaping () -> Void, outputVolumeChanged: @escaping () -> Void) {
         unwatch()
         self.changed = changed; self.outputVolumeChanged = outputVolumeChanged
-        includeVolume = true
+        includeVolume = true; listeningOnly = false
+        installListeners()
+    }
+
+    func watchListeningMaster(_ changed: @escaping () -> Void) {
+        unwatch(); self.changed = changed; outputVolumeChanged = changed
+        includeVolume = true; listeningOnly = true
         installListeners()
     }
 
     func watchMute(_ changed: @escaping () -> Void) {
         unwatch()
         self.changed = changed
-        includeVolume = false
+        includeVolume = false; listeningOnly = false
         installListeners()
     }
 
@@ -261,11 +309,13 @@ final class CoreSoundHardware: SoundHardware {
         let system = AudioObjectID(kAudioObjectSystemObject)
         observe(system, address(kAudioHardwarePropertyDevices), rebuild: true)
         observe(system, address(kAudioHardwarePropertyDefaultOutputDevice))
-        observe(system, address(kAudioHardwarePropertyDefaultInputDevice))
+        if !listeningOnly { observe(system, address(kAudioHardwarePropertyDefaultInputDevice)) }
         for id in ids {
             observe(id, address(kAudioDevicePropertyDeviceIsAlive), rebuild: true)
-            for direction in SoundDirection.allCases {
-                for selector in (includeVolume ? [kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyMute] : [kAudioDevicePropertyMute]) {
+            for direction in (listeningOnly ? [.output] : SoundDirection.allCases) {
+                let selectors = listeningOnly ? [kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyVolumeDecibels,
+                    kAudioDevicePropertyMute] : (includeVolume ? [kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyMute] : [kAudioDevicePropertyMute])
+                for selector in selectors {
                     for a in controls(id, direction, selector: selector, writable: false) {
                         observe(id, a, outputVolume: direction == .output && selector == kAudioDevicePropertyVolumeScalar)
                     }
