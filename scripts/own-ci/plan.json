@@ -25,10 +25,11 @@
         "scripts/own-ci/hop-report.test.mjs",
         "scripts/own-ci/codeql.test.mjs",
         "scripts/own-ci/codeql-coverage.test.mjs",
-        "scripts/own-ci/codeql-sdk-tree.test.mjs"
+        "scripts/own-ci/codeql-sdk-tree.test.mjs",
+        "scripts/own-ci/verify-release.test.mjs"
       ],
       "timeoutMs": 180000,
-      "tapMinimum": 74
+      "tapMinimum": 110
     },
     {
       "id": "sdk-setup-self-tests",

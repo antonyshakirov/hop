@@ -29,8 +29,10 @@ signing would break).
    screen the panel opens on (the status button's screen), never
    `NSScreen.main`: with two displays that is the screen of the key window,
    and a taller one let a long to-do list push the panel off the menu bar
-   (2026-10-01). The panel stops 24pt short of that height, and every
-   size the popover is given is cut to the same limit (`PanelHeightLimit`).
+   (2026-10-01). The content budget reserves 32pt of that height for native
+   popover chrome and a small gap. AppKit adds 26pt outside the content on
+   macOS 27; the former 24pt budget let the actual window overflow by 2pt.
+   Every size the popover is given uses the same limit (`PanelHeightLimit`).
    The height is recorded on every open and kept after the panel closes: a
    reset on close ran late and could erase the value of a panel reopened at once.
 2. **The panel does not jump.** The popover anchor is the icon zone
@@ -7232,10 +7234,19 @@ opened" dialog and the Privacy & Security override.
 - Notary credentials live in a git-ignored `.env` (`APPLE_ID`, `APPLE_TEAM_ID`,
   `APPLE_APP_PASSWORD` — an app-specific password from appleid.apple.com, never
   the account password). `.env.example` is the template.
-- `verify-release.sh` re-checks the SERVED copy: it downloads what `latest.json`
-  points to, runs `spctl` over it and validates the stapled ticket, on the app
-  and on the landing DMG. A build that is signed but not notarised passes every
-  other check and is still blocked on a first install.
+- `verify-release.sh` checks both served ARM and Intel archives. Manifest archive
+  and signature URLs must use the exact flat `hop.tools/downloads/hop` paths
+  written by `release.sh`, with no nested paths or query strings. Both Ed25519
+  signatures must verify against the canonical public key in `UpdateChecker.swift`
+  before either archive is unpacked. The main executable and network filter must
+  have the expected single architecture; the audio worker must include it and may
+  remain universal. Bundle identifiers, versions, nested signatures and signing
+  teams are checked; development identities and the open-Sound diagnostic flag
+  are rejected. Both apps pass Gatekeeper and stapled-ticket validation, and both
+  DMGs need valid stapled tickets. Every mirror must serve the same manifest and
+  identical bytes for both archives, signatures and DMGs. Offline fixture tests
+  use disposable keys and local command substitutes; they do not prove Apple trust
+  or availability of a published release.
 - The updater installs with `ditto`, not `copyItem`: it carries a bundle across
   whole, and a bundle that arrives intact keeps both the signature the permission
   hangs on and the stapled ticket.
@@ -7275,6 +7286,11 @@ explicit Start includes the then-selected microphone again. Opening/reopening
 the window alone never captures. Permission denial never starts the worker;
 closing/stopping or changing input during the request cancels a late response. Its status reserves space
 for starting/on/off text so these transitions do not change section height.
+An output-engine configuration notification preserves selected captures when
+the producer engine restarts successfully. A failed restart silences capture
+and retires that producer generation; queued notifications after stop or from
+an older generation cannot restart it. HopMix diagnostic logs contain only
+startup phases and error domain/code, without samples or device/application names.
 Volume percentages render as plain readouts until explicitly clicked. Editing
 ends on Return, focus loss or pointer exit; Escape cancels it. Opening a window
 never creates a focused percentage field.
@@ -7485,11 +7501,13 @@ before and after launch, without cleaning signature-breaking metadata afterward.
 The installed working development application is `/Applications/Hop Dev.app`,
 bundle identifier `com.antonshakirov.minimo.dev`. A request to update that working
 copy does not authorize publishing a stable release, changing the public manifest
-or replacing `/Applications/Hop.app`. Dev packaging exposes Hop Mix through the
-existing dev-only `HopZoomMixPrototype` key; it does not start microphone capture.
+or replacing `/Applications/Hop.app`. Hop Mix is available in both Dev and release
+builds on macOS 14.2 and later; it no longer depends on a development prototype
+key or launch argument. Availability and opening Sound never start microphone
+capture. The user must explicitly start Input and grant microphone access.
 The canonical Dev identity preserves its own preferences and permissions.
 A local candidate may set the existing dev-only open-Sound diagnostic flag for
-review; the production gate ignores it. Source and installed executable hashes
+review; public release packages must omit it. Source and installed executable hashes
 are recorded in the handoff receipt.
 ## Sound application discovery (26 October 2026)
 

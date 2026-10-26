@@ -3,6 +3,7 @@ import AVFoundation
 import Combine
 import HopCore
 import HopAudioEngine
+import OSLog
 
 struct SoundCallConfiguration {
     var input: SoundInputConfiguration?
@@ -36,10 +37,11 @@ final class SoundCallMixController: ObservableObject {
     private let session: SoundCallSession
     private let access: (@escaping (Bool) -> Void) -> Void
 
-    init(enabled: Bool = CommandLine.arguments.contains("--zoom-mix-prototype")
-            || (Bundle.isDevBuild && Bundle.main.object(forInfoDictionaryKey: "HopZoomMixPrototype") as? Bool == true), session: SoundCallSession? = nil,
+    init(enabled: Bool? = nil, session: SoundCallSession? = nil,
          access: ((@escaping (Bool) -> Void) -> Void)? = nil) {
-        self.enabled = enabled
+        if let enabled { self.enabled = enabled }
+        else if #available(macOS 14.2, *) { self.enabled = true }
+        else { self.enabled = false }
         if let session { self.session = session }
         else if #available(macOS 14.2, *) { self.session = NativeSoundCallSession() }
         else { self.session = UnavailableSoundCallSession() }
@@ -145,6 +147,7 @@ final class SoundCallMixController: ObservableObject {
 @available(macOS 14.2, *)
 @MainActor
 private final class NativeSoundCallSession: SoundCallSession {
+    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "HopMix")
     var microphoneMuteChanged: ((Bool) -> Void)?
     private var muteRelay: SoundAccessoryMuteRelay?
     private var captureToken: UUID?
@@ -188,13 +191,20 @@ private final class NativeSoundCallSession: SoundCallSession {
     private var acknowledgement: Task<Void, Never>?
 
     func start(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) {
-        guard !unavailable else { completed(.failure(.system(-1))); return }
-        do { try SoundAccessoryMute.shared.install() } catch { completed(.failure(.system(-1))); return }
+        Self.log.notice("start-requested")
+        guard !unavailable else {
+            Self.log.error("start-blocked-after-failure")
+            completed(.failure(.system(-1))); return
+        }
+        do { try SoundAccessoryMute.shared.install() } catch {
+            logError("accessory-registration", error)
+            completed(.failure(.system(-1))); return
+        }
         pending = configuration; self.completed = completed
         if ready { send(configuration); return }
-        if process != nil { fail(); return }
+        if process != nil { fail("producer-already-starting"); return }
         let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/HopAudioWorker.app/Contents/MacOS/HopAudioWorker")
-        guard FileManager.default.isExecutableFile(atPath: url.path) else { fail(); return }
+        guard FileManager.default.isExecutableFile(atPath: url.path) else { fail("missing-producer"); return }
         let process = Process(), commands = Pipe(), events = Pipe()
         process.executableURL = url; process.standardInput = commands; process.standardOutput = events
         process.standardError = FileHandle.nullDevice
@@ -206,12 +216,12 @@ private final class NativeSoundCallSession: SoundCallSession {
             if data.isEmpty { relay.select(nil) } else { relay.consume(data) }
             Task { @MainActor in self?.read(data) }
         }
-        process.terminationHandler = { [weak self] _ in Task { @MainActor in self?.fail() } }
-        do { try process.run() } catch { fail(); return }
+        process.terminationHandler = { [weak self] _ in Task { @MainActor in self?.fail("producer-exited") } }
+        do { try process.run() } catch { logError("producer-launch", error); fail("producer-launch"); return }
         timeout = Task { [weak self] in
             try? await Task.sleep(for: .seconds(8))
             guard !Task.isCancelled, let self, !self.ready else { return }
-            self.fail()
+            self.fail("producer-ready-timeout")
         }
     }
     func update(_ configuration: SoundCallConfiguration) { if ready { send(configuration) } }
@@ -244,15 +254,21 @@ private final class NativeSoundCallSession: SoundCallSession {
     }
     private func read(_ data: Data) {
         guard !unavailable else { return }
-        guard !data.isEmpty, buffer.count + data.count < 65536 else { fail(); return }
+        guard !data.isEmpty, buffer.count + data.count < 65536 else { fail("producer-stream-closed"); return }
         buffer.append(data)
         while let newline = buffer.firstIndex(of: 10) {
             let line = buffer.prefix(upTo: newline); buffer.removeSubrange(...newline)
-            guard let message = (try? JSONSerialization.jsonObject(with: line)) as? [String: Any] else { fail(); return }
+            guard let message = (try? JSONSerialization.jsonObject(with: line)) as? [String: Any] else { fail("invalid-producer-message"); return }
             if message["ready"] as? Bool == true { publish() }
             if message["failed"] as? Bool == true {
+                if message["reason"] as? String == "output-configuration-changed" {
+                    Self.log.error("producer-output-configuration-changed")
+                }
+                if let domain = message["errorDomain"] as? String, let code = message["errorCode"] as? Int {
+                    Self.log.error("producer-error domain=\(domain, privacy: .public) code=\(code)")
+                }
                 print("HOP CALL MIX failed: \(String((message["reason"] as? String ?? "worker failure").prefix(256)))"); fflush(stdout)
-                fail(); return
+                fail("producer-reported-failure"); return
             }
             if let muted = message["microphoneMuted"] as? Bool,
                let token = captureToken, message["captureToken"] as? String == token.uuidString {
@@ -261,26 +277,28 @@ private final class NativeSoundCallSession: SoundCallSession {
                 microphoneMuted = muted; microphoneMuteChanged?(muted)
             }
             if let applied = message["applied"] as? UInt64, applied == awaiting {
-                do { try bindMuteRoute() } catch { fail(); return }
+                do { try bindMuteRoute() } catch { logError("accessory-route", error); fail("accessory-route"); return }
                 awaiting = nil
                 acknowledgement?.cancel(); acknowledgement = nil
                 print("HOP CALL MIX applied=\(applied) captures=\(message["captureCount"] ?? "?")"); fflush(stdout)
+                Self.log.notice("configuration-applied")
                 completed?(.success(()))
             }
         }
     }
     private func publish() {
-        guard !unavailable, !ready, let process, process.isRunning else { fail(); return }
-        guard let source = SoundHAL.process(process.processIdentifier) else { fail(); return }
+        guard !unavailable, !ready, let process, process.isRunning else { fail("producer-not-running"); return }
+        guard let source = SoundHAL.process(process.processIdentifier) else { fail("producer-not-in-audio-catalogue"); return }
         do {
             export = try SoundProcessTap(processes: [source], name: SoundCallMixController.deviceName, publicInput: true)
             ready = true; timeout?.cancel(); timeout = nil
             print("HOP CALL MIX ready helper=\(process.processIdentifier)"); fflush(stdout)
+            Self.log.notice("virtual-input-ready")
             if let pending { self.pending = nil; send(pending) }
-        } catch { fail() }
+        } catch { logError("virtual-input-creation", error); fail("virtual-input-creation") }
     }
     private func send(_ configuration: SoundCallConfiguration, stopping: Bool = false) {
-        guard ready, process?.isRunning == true, input != nil else { fail(); return }
+        guard ready, process?.isRunning == true, input != nil else { fail("producer-not-ready"); return }
         request += 1; awaiting = request
         if configuration.input?.uid != microphoneUID {
             retireMuteRoute()
@@ -292,19 +310,28 @@ private final class NativeSoundCallSession: SoundCallSession {
         let command = SoundWorkerCommand(start: true, inputs: configuration.input.map { [$0] } ?? [], apps: configuration.apps, requestID: request, captureToken: captureToken?.uuidString)
         do {
             var data = try JSONEncoder().encode(command); data.append(10)
-            guard let muteRelay else { fail(); return }
+            guard let muteRelay else { fail("missing-command-relay"); return }
             try muteRelay.send(data)
             acknowledgement?.cancel()
             let token = request
             acknowledgement = Task { [weak self] in
                 try? await Task.sleep(for: .seconds(stopping ? 1 : 8))
                 guard !Task.isCancelled, let self, self.awaiting == token else { return }
-                self.fail()
+                self.fail("configuration-acknowledgement-timeout")
                 print("HOP CALL MIX producer terminated: missing acknowledgement"); fflush(stdout)
             }
-        } catch { fail() }
+        } catch { logError("producer-command", error); fail("producer-command") }
     }
-    private func fail() {
+    private func logError(_ stage: String, _ error: Error) {
+        if let failure = error as? SoundFailure, case .system(let status) = failure {
+            Self.log.error("stage=\(stage, privacy: .public) OSStatus=\(status)")
+            return
+        }
+        let error = error as NSError
+        Self.log.error("stage=\(stage, privacy: .public) domain=\(error.domain, privacy: .public) code=\(error.code)")
+    }
+    private func fail(_ reason: String) {
+        Self.log.error("failed phase=\(reason, privacy: .public)")
         pending = nil; awaiting = nil; unavailable = true
         let callback = completed; completed = nil
         // A failed command cannot leave a previous capture running. Keep the

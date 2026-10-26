@@ -3,7 +3,9 @@ import Foundation
 // SPEC: docs/spec.md — invariant #1, "The panel always fits on screen".
 // Test in PanelHeightLimitTests.
 enum PanelHeightLimit {
-    static let margin: CGFloat = 24
+    // The budget includes AppKit's popover chrome, which adds 26pt on macOS 27.
+    // Keep a small gap after that padding; content alone must not fill the screen.
+    static let margin: CGFloat = 32
     static let fallbackScreenHeight: CGFloat = 800
 
     static func screenVisibleHeight(iconVisible: Bool, iconScreen: CGFloat?,

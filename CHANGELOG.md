@@ -2,8 +2,11 @@
 
 ## 2.4.0 - 2026-10-22
 
-- New Sound module: per-app volume and mute. Enable once; app levels remain active
+- New Sound module: per-app volume, mute and output-device selection. Enable once; app levels remain active
   after the Sound window closes and resume on the next launch.
+- Hop Mix combines the selected microphone and app audio into one virtual input
+  for calls and recording, with separate source levels. Enable it explicitly and
+  choose Hop Mix in the receiving app; closing Sound stops its captures.
 - Sound: Output and Input tabs share one window. Microphone controls affect only
   the selected device; short microphone checks stay in memory until the window closes.
 - Sound: percentage editing starts on click and ends when focus leaves the field;

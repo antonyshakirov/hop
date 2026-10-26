@@ -18,17 +18,17 @@ final class PanelHeightLimitTests: XCTestCase {
     }
 
     func testCeilingLeavesTheMarginBelowTheMenuBar() {
-        XCTAssertEqual(PanelHeightLimit.ceiling(screenVisibleHeight: 1410), 1386)
+        XCTAssertEqual(PanelHeightLimit.ceiling(screenVisibleHeight: 1410), 1378)
     }
 
     func testCeilingWithoutAScreenFallsBackToASmallOne() {
-        XCTAssertEqual(PanelHeightLimit.ceiling(screenVisibleHeight: nil), 776)
+        XCTAssertEqual(PanelHeightLimit.ceiling(screenVisibleHeight: nil), 768)
     }
 
     func testPanelTallerThanItsScreenIsCutToTheCeiling() {
         let asked = CGSize(width: 368, height: 2174)
         let clamped = PanelHeightLimit.clamp(asked, screenVisibleHeight: 1410)
-        XCTAssertEqual(clamped, CGSize(width: 368, height: 1386))
+        XCTAssertEqual(clamped, CGSize(width: 368, height: 1378))
     }
 
     func testPanelThatFitsKeepsItsSize() {

@@ -14,83 +14,140 @@
 set -euo pipefail
 
 VERSION="${1:?usage: verify-release.sh <version>}"
+SCRIPT_DIR="${0:A:h}"
 BASE="https://hop.tools/downloads/hop"
-DMG_URL="https://hop.tools/downloads/hop/Hop.dmg"
 
 fail() { echo "❌ $1"; exit 1 }
-
+[[ "$VERSION" =~ '^[0-9]+\.[0-9]+\.[0-9]+$' ]] || fail "expected a release version in X.Y.Z form"
 TMP="$(mktemp -d -t hop-verify)"
 trap 'rm -rf "$TMP"' EXIT
 
-curl -fsS --max-time 30 "$BASE/latest.json" -o "$TMP/latest.json" \
-    || fail "latest.json is unreachable"
+fetch() {
+    curl -fsS --max-time 120 "$1" -o "$2" || fail "could not fetch $1"
+}
+sha() { shasum -a 256 "$1" | cut -d' ' -f1; }
+manifest_value() {
+    python3 -c 'import json,sys
+value=json.load(open(sys.argv[1])).get(sys.argv[2])
+if not isinstance(value,str) or not value or any(c.isspace() for c in value):
+    raise SystemExit("missing or invalid manifest field: "+sys.argv[2])
+print(value)' "$1" "$2"
+}
+plist_value() {
+    plutil -extract "$2" raw "$1" 2>/dev/null || fail "missing $2 in $1"
+}
 
-LIVE_VERSION="$(python3 -c "import json;print(json.load(open('$TMP/latest.json'))['version'])")"
-[[ "$LIVE_VERSION" == "$VERSION" ]] \
-    || fail "live latest.json says '$LIVE_VERSION', expected '$VERSION' — deploy the site first"
+fetch "$BASE/latest.json" "$TMP/latest.json"
+LIVE_VERSION="$(manifest_value "$TMP/latest.json" version)" || fail "invalid release manifest"
+[[ "$LIVE_VERSION" == "$VERSION" ]] || fail "live manifest says $LIVE_VERSION, expected $VERSION"
+EXPECTED_ID="$(plist_value "$SCRIPT_DIR/Info.plist" CFBundleIdentifier)"
+WORKER_ID="$(plist_value "$SCRIPT_DIR/HopAudioWorker-Info.plist" CFBundleIdentifier)"
+typeset -a ARCHS ZIP_URLS SIG_URLS EXPECTED_ZIP_URLS
+ARCHS=(arm64 x86_64)
+ZIP_URLS=("$(manifest_value "$TMP/latest.json" zip)" "$(manifest_value "$TMP/latest.json" zipIntel)")
+SIG_URLS=("$(manifest_value "$TMP/latest.json" sig)" "$(manifest_value "$TMP/latest.json" sigIntel)")
+EXPECTED_ZIP_URLS=("$BASE/Hop-$VERSION.zip" "$BASE/Hop-$VERSION-intel.zip")
+for index in 1 2; do
+    arch="${ARCHS[$index]}"
+    zip_url="${ZIP_URLS[$index]}"
+    sig_url="${SIG_URLS[$index]}"
+    [[ "$zip_url" == "${EXPECTED_ZIP_URLS[$index]}" && "$sig_url" == "${EXPECTED_ZIP_URLS[$index]}.sig" ]] \
+        || fail "noncanonical release URLs for $arch"
+    fetch "$zip_url" "$TMP/$arch.zip"
+    fetch "$sig_url" "$TMP/$arch.sig"
+    (( $(stat -f%z "$TMP/$arch.zip") > 1000000 )) || fail "$arch archive is suspiciously small"
+    node "$SCRIPT_DIR/verify-release-signature.mjs" "$TMP/$arch.zip" "$TMP/$arch.sig" \
+        || fail "$arch archive failed Ed25519 verification"
+done
 
-ZIP_URL="$(python3 -c "import json;print(json.load(open('$TMP/latest.json'))['zip'])")"
-SIG_URL="$(python3 -c "import json;print(json.load(open('$TMP/latest.json'))['sig'])")"
+check_identity() {
+    local app="$1" identifier="$2" executable="$3" info="$1/Contents/Info.plist"
+    [[ -f "$info" ]] || fail "missing bundle metadata: $app"
+    [[ "$(plist_value "$info" CFBundleIdentifier)" == "$identifier" ]] || fail "unexpected bundle identifier: $app"
+    [[ "$(plist_value "$info" CFBundleExecutable)" == "$executable" ]] || fail "unexpected bundle executable: $app"
+    [[ -f "$app/Contents/MacOS/$executable" && -x "$app/Contents/MacOS/$executable" ]] \
+        || fail "missing bundle executable: $app"
+}
+check_thin_arch() {
+    local actual
+    actual="$(lipo -archs "$1")" || fail "could not inspect architecture: $1"
+    [[ "$actual" == "$2" ]] || fail "expected only $2, found $actual: $1"
+}
+team() {
+    local metadata
+    metadata="$(codesign -dv --verbose=4 "$1" 2>&1)" || fail "could not inspect signing team: $1"
+    echo "$metadata" | awk -F= '/^TeamIdentifier=/{value=$2;count++} END{if(count!=1 || value=="" || value=="not set")exit 1;print value}'
+}
 
-curl -fsS --max-time 120 "$ZIP_URL" -o "$TMP/release.zip" \
-    || fail "the zip the manifest points to is NOT being served: $ZIP_URL"
-curl -fsS --max-time 30 "$SIG_URL" -o "$TMP/release.sig" \
-    || fail "the signature is NOT being served: $SIG_URL"
-
-ZIP_SIZE="$(stat -f%z "$TMP/release.zip")"
-(( ZIP_SIZE > 1000000 )) || fail "zip is suspiciously small ($ZIP_SIZE bytes)"
-SIG_SIZE="$(stat -f%z "$TMP/release.sig")"
-(( SIG_SIZE == 64 )) || fail "signature is $SIG_SIZE bytes, expected 64 (raw Ed25519)"
-
-ditto -x -k "$TMP/release.zip" "$TMP/x" || fail "the served zip does not unpack"
-BUNDLE_VERSION="$(plutil -extract CFBundleShortVersionString raw "$TMP/x/Hop.app/Contents/Info.plist")"
-[[ "$BUNDLE_VERSION" == "$VERSION" ]] \
-    || fail "the served zip contains Hop $BUNDLE_VERSION, expected $VERSION"
-
+for arch in $ARCHS; do
+    ditto -x -k "$TMP/$arch.zip" "$TMP/$arch" || fail "$arch archive does not unpack"
+    app="$TMP/$arch/Hop.app"
+    filter="$app/Contents/Library/SystemExtensions/$EXPECTED_ID.netfilter.systemextension"
+    worker="$app/Contents/Helpers/HopAudioWorker.app"
+    check_identity "$app" "$EXPECTED_ID" Hop
+# SPEC: docs/spec.md — "Network access": the filter ships inside, signed, and the
+# app holds the entitlement to install it.
+    check_identity "$filter" "$EXPECTED_ID.netfilter" "$EXPECTED_ID.netfilter"
+    check_identity "$worker" "$WORKER_ID" HopAudioWorker
+    for bundle in "$app" "$filter"; do
+        [[ "$(plist_value "$bundle/Contents/Info.plist" CFBundleShortVersionString)" == "$VERSION" ]] \
+            || fail "$arch bundle version does not match $VERSION: $bundle"
+    done
+    diagnostic="$(plutil -extract HopOpenSoundAtLaunch raw "$app/Contents/Info.plist" 2>/dev/null || true)"
+    [[ -z "$diagnostic" || "$diagnostic" == false || "$diagnostic" == 0 ]] \
+        || fail "$arch release carries the open-Sound diagnostic flag"
+    check_thin_arch "$app/Contents/MacOS/Hop" "$arch"
+    check_thin_arch "$filter/Contents/MacOS/$EXPECTED_ID.netfilter" "$arch"
+    lipo -verify_arch "$arch" "$worker/Contents/MacOS/HopAudioWorker" \
+        || fail "$arch audio worker lacks the required architecture"
+    codesign --verify --strict --deep "$app" || fail "$arch app signature is broken"
+    app_team="$(team "$app")" || fail "$arch app has no signing team"
+    for nested in "$filter" "$worker"; do
+        codesign --verify --strict "$nested" || fail "$arch nested signature is broken: $nested"
+        nested_team="$(team "$nested")" || fail "$arch nested bundle has no signing team: $nested"
+        [[ "$nested_team" == "$app_team" ]] || fail "$arch nested signing team differs: $nested"
+    done
 # What the user's Mac will decide about this exact download. A build that is
 # signed but not notarised passes every check above and is still blocked on a
 # first install, which is the one thing the served copy has to prove.
-VERDICT="$(spctl -a -vvv -t exec "$TMP/x/Hop.app" 2>&1 || true)"
-[[ "$VERDICT" == *"source=Notarized Developer ID"* ]] \
-    || fail "the served app is not notarised — Gatekeeper says: $VERDICT"
-xcrun stapler validate "$TMP/x/Hop.app" >/dev/null 2>&1 \
-    || fail "the served app carries no stapled ticket — a first launch offline would be blocked"
-# SPEC: docs/spec.md — "Network access": the filter ships inside, signed, and the
-# app holds the entitlement to install it.
-FILTER_EXT="$(find "$TMP/x/Hop.app/Contents/Library/SystemExtensions" -maxdepth 1 -name "*.netfilter.systemextension" 2>/dev/null | head -1)"
-[[ -n "$FILTER_EXT" ]] || fail "the served app carries no network filter"
-codesign --verify --strict "$FILTER_EXT" 2>/dev/null || fail "the network filter's signature is broken"
-codesign -d --entitlements - "$TMP/x/Hop.app" 2>/dev/null | grep -q "system-extension.install" \
-    || fail "the served app lacks the entitlement to install its network filter"
+    verdict="$(spctl -a -vvv -t exec "$app" 2>&1)" || fail "$arch app was refused by Gatekeeper"
+    [[ "$verdict" == *"source=Notarized Developer ID"* ]] || fail "$arch app is not notarised"
+    xcrun stapler validate "$app" >/dev/null 2>&1 || fail "$arch app has no valid stapled ticket"
+    entitlements="$(codesign -d --entitlements - "$app" 2>/dev/null)" || fail "$arch app has no readable entitlements"
+    python3 -c 'import plistlib,sys
+if plistlib.loads(sys.stdin.buffer.read()).get("com.apple.developer.system-extension.install") is not True:
+    raise SystemExit(1)' <<< "$entitlements" || fail "$arch app cannot install its network filter"
+done
 
-curl -fsS --max-time 120 "$DMG_URL" -o "$TMP/Hop.dmg" || fail "served DMG is unreachable"
-xcrun stapler validate "$TMP/Hop.dmg" >/dev/null 2>&1 \
-    || fail "the served DMG carries no stapled ticket"
+for dmg in Hop.dmg Hop-intel.dmg; do
+    fetch "$BASE/$dmg" "$TMP/$dmg"
+    xcrun stapler validate "$TMP/$dmg" >/dev/null 2>&1 || fail "$dmg has no valid stapled ticket"
+done
 
 # Every mirror, byte for byte: a mirror that lags tells the copies reaching it
 # that there is nothing new.
-ZIP_SHA="$(shasum -a 256 "$TMP/release.zip" | cut -d' ' -f1)"
-SIG_SHA="$(shasum -a 256 "$TMP/release.sig" | cut -d' ' -f1)"
+check_mirror_payload() {
+    local base="$1" name="$2" original="$3"
+    fetch "$base/$name" "$TMP/mirror-payload"
+    [[ "$(sha "$TMP/mirror-payload")" == "$(sha "$original")" ]] || fail "mirror serves different bytes: $base/$name"
+}
 typeset -a MIRRORS
 MIRRORS=(${HOP_MIRROR_HOSTS:-ru.hop.tools})
 for host in $MIRRORS; do
     base="https://$host/downloads/hop"
-    curl -fsS --max-time 30 "$base/latest.json" -o "$TMP/mirror.json" \
-        || fail "mirror $host does not serve latest.json"
-    mirror_version="$(python3 -c "import json;print(json.load(open('$TMP/mirror.json'))['version'])")"
-    [[ "$mirror_version" == "$VERSION" ]] \
-        || fail "mirror $host says '$mirror_version', expected '$VERSION'"
-    curl -fsS --max-time 120 "$base/$(basename "$ZIP_URL")" -o "$TMP/mirror.zip" \
-        || fail "mirror $host does not serve the zip"
-    curl -fsS --max-time 30 "$base/$(basename "$SIG_URL")" -o "$TMP/mirror.sig" \
-        || fail "mirror $host does not serve the signature"
-    [[ "$(shasum -a 256 "$TMP/mirror.zip" | cut -d' ' -f1)" == "$ZIP_SHA" ]] \
-        || fail "mirror $host serves a DIFFERENT zip"
-    [[ "$(shasum -a 256 "$TMP/mirror.sig" | cut -d' ' -f1)" == "$SIG_SHA" ]] \
-        || fail "mirror $host serves a different signature"
-    curl -fsS --max-time 120 "$base/Hop.dmg" -o /dev/null \
-        || fail "mirror $host does not serve the DMG"
-    echo "✓ mirror $host serves $VERSION, identical zip and signature"
+    fetch "$base/latest.json" "$TMP/mirror.json"
+    [[ "$(sha "$TMP/mirror.json")" == "$(sha "$TMP/latest.json")" ]] || fail "mirror $host serves a different manifest"
+    for index in 1 2; do
+        arch="${ARCHS[$index]}"
+        zip_url="${ZIP_URLS[$index]}"
+        sig_url="${SIG_URLS[$index]}"
+        check_mirror_payload "$base" "${zip_url:t}" "$TMP/$arch.zip"
+        check_mirror_payload "$base" "${sig_url:t}" "$TMP/$arch.sig"
+    done
+    for dmg in Hop.dmg Hop-intel.dmg; do
+        check_mirror_payload "$base" "$dmg" "$TMP/$dmg"
+    done
+    echo "✓ mirror $host serves identical ARM and Intel release files"
 done
 
-echo "✓ release $VERSION is live and correct: latest.json → zip (bundle $BUNDLE_VERSION, $ZIP_SIZE bytes, notarised) + 64-byte sig + notarised DMG, on every mirror"
+echo "✓ release $VERSION is live and correct: ARM and Intel archives, Ed25519 signatures, bundles, helpers and notarised DMGs match on every mirror"

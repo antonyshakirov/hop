@@ -88,7 +88,12 @@ private final class SoundMixGate: @unchecked Sendable {
 enum SoundInputWorker {
     static func run() -> Never {
         let worker = SoundWorkerEngine()
-        do { try worker.prepare() } catch { exit(1) }
+        do { try worker.prepare() }
+        catch {
+            let error = error as NSError
+            worker.send(["failed": true, "reason": "prepare-failed", "errorDomain": error.domain, "errorCode": error.code])
+            exit(1)
+        }
         DispatchQueue(label: "Hop.Sound.Commands").async {
             while let line = readLine() {
                 if line.utf8.count < 32768, let data = line.data(using: .utf8),
@@ -116,6 +121,7 @@ enum SoundInputWorker {
 @MainActor
 private final class SoundWorkerEngine {
     private let engine = AVAudioEngine()
+    private let lifecycle = SoundInputWorkerLifecycle()
     private let gate = SoundMixGate()
     private var source: AVAudioSourceNode?
     private var inputs: [String: SoundCapturedInput] = [:]
@@ -139,12 +145,15 @@ private final class SoundWorkerEngine {
         }
         self.source = source; engine.attach(source); engine.connect(source, to: engine.mainMixerNode, format: format)
         try engine.start()
+        let generation = lifecycle.begin()
         observation = NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self else { return }
-                self.silence()
-                do { try self.engine.start() } catch {}
-                self.send(["failed": true, "reason": "output-configuration-changed"])
+                self.lifecycle.configurationChanged(generation: generation, restart: {
+                    try self.engine.start()
+                }, silence: self.silence, failed: {
+                    self.send(["failed": true, "reason": "output-configuration-changed"])
+                })
             }
         }
         send(["ready": true])
@@ -225,6 +234,7 @@ private final class SoundWorkerEngine {
         apps.values.forEach { $0.stop() }; apps.removeAll(); appProcesses.removeAll()
     }
     func stop() {
+        lifecycle.stop()
         silence()
         if let observation { NotificationCenter.default.removeObserver(observation) }; observation = nil
         engine.stop()

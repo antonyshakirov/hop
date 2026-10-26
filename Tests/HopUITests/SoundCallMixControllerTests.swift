@@ -18,6 +18,17 @@ final class SoundCallMixControllerTests: XCTestCase {
         func stop() { stops += 1 }
         func shutdown() { stop() }
     }
+    func testDefaultReleaseMixIsAvailableButOpeningDoesNotCaptureMicrophone() {
+        let session = Session(); var requests = 0
+        let mix = SoundCallMixController(session: session, access: { _ in requests += 1 })
+        if #available(macOS 14.2, *) { XCTAssertTrue(mix.enabled) }
+        else { XCTAssertFalse(mix.enabled) }
+        mix.open()
+        XCTAssertFalse(mix.running); XCTAssertFalse(mix.starting)
+        XCTAssertFalse(mix.microphone.active); XCTAssertFalse(mix.requestingMicrophone)
+        XCTAssertTrue(session.starts.isEmpty); XCTAssertEqual(requests, 0)
+        mix.close()
+    }
     func testOfflinePinnedSourceIsOmittedAndRejoinsWithoutChangingSendSettings() {
         let session = Session()
         let mix = SoundCallMixController(enabled: true, session: session, access: { _ in XCTFail("No mic permission") })
