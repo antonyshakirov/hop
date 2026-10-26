@@ -323,6 +323,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 guard let self,
                       let panelWindow = self.popover.contentViewController?.view.window,
                       (note.object as? NSWindow) === panelWindow else { return }
+                self.debugLogPanelAnchor("move-before-restore")
                 self.restorePopoverTop()
                 self.debugLogPanelFrame("move", frame: panelWindow.frame)
                 self.syncTabPanelFrame()
@@ -494,6 +495,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     ///   (status button moved) or "realign-h" (panel drifted horizontally on
     ///   resize) — used only to tag the debugPanelFrameLog line below.
     private func realignPopover(reason: String) {
+        debugLogPanelAnchor("realign-before-\(reason)")
         if let panelWindow = popover.contentViewController?.view.window {
             debugLogPanelFrame(reason, frame: panelWindow.frame)
         }
@@ -508,6 +510,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         if reason != "realign-h" {
             panelTopY = popover.contentViewController?.view.window?.frame.maxY
         }
+        debugLogPanelAnchor("realign-after-\(reason)")
     }
 
     /// Icon zone within the status item button: the popover arrow always points at the star.
@@ -1270,6 +1273,26 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             format: "x=%.2f y=%.2f w=%.2f h=%.2f top=%.2f",
             frame.origin.x, frame.origin.y, frame.width, frame.height, topEdge
         ))
+    }
+
+    private func debugLogPanelAnchor(_ tag: String) {
+        guard PanelFrameLog.enabled else { return }
+        let button = statusItem.button
+        let buttonWindow = button?.window
+        let screen = buttonWindow?.screen
+        let anchor: NSRect? = button.flatMap { button in
+            button.window.map { $0.convertToScreen(button.convert(Self.iconAnchor(button), to: nil)) }
+        }
+        PanelFrameLog.write(tag,
+            "panel=\(String(describing: popover.contentViewController?.view.window?.frame)) " +
+            "buttonWindow=\(String(describing: buttonWindow?.frame)) " +
+            "windowVisible=\(String(describing: buttonWindow?.isVisible)) " +
+            "buttonVisible=\(button.map(Self.buttonIsVisible) ?? false) " +
+            "screen=\(String(describing: screen?.frame)) " +
+            "visibleScreen=\(String(describing: screen?.visibleFrame)) " +
+            "iconScreen=\(String(describing: anchor)) " +
+            "savedX=\(String(describing: panelOriginX)) savedTop=\(String(describing: panelTopY)) " +
+            "detached=\(hiddenAnchorWindow != nil)")
     }
 }
 
