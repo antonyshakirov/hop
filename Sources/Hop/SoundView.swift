@@ -212,13 +212,19 @@ struct SoundWindowView: View {
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
     var body: some View {
-        Group {
-            if Snapshot.active { content }
-            else { ScrollView { content } }
+        VStack(spacing: 0) {
+            navigation
+            Group {
+                if Snapshot.active { content }
+                else { ScrollView { content } }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Theme.panelBackground)
         .id(model.themeVersion)
+        .onPreferenceChange(SoundWindowHeightPreference.self) { height in
+            if height.navigation > 0, height.content > 0 { onHeightChange(height.navigation + height.content) }
+        }
         .onChange(of: page) { old, _ in if old == .input { sound.stopCheck() } }
         .onChange(of: model.soundPageRequest, initial: true) { _, request in
             guard let request else { return }
@@ -227,19 +233,30 @@ struct SoundWindowView: View {
         }
     }
 
-    private var content: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 12) {
+    private var navigation: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(t(.soundLabel)).font(Theme.mono(13, weight: .bold)).foregroundStyle(Theme.textPrimary)
-                Spacer(minLength: 8)
-                HStack(spacing: 4) {
+                HStack(spacing: 2) {
                     ForEach(Page.allCases, id: \.self) { candidate in
-                        SettingChip(t(candidate.key), active: page == candidate) { page = candidate }
+                        SpaceTabButton(icon: candidate == .output ? "speaker.wave.2" : "mic",
+                                       title: t(candidate.key), active: page == candidate) { page = candidate }
                             .accessibilityIdentifier("sound.tab." + String(describing: candidate))
                             .accessibilityValue(page == candidate ? "1" : "0")
                     }
                 }
-            }
+                .padding(2)
+                .overlay(RoundedRectangle(cornerRadius: 7).stroke(Theme.divider, lineWidth: 1))
+            }.padding(.horizontal, 20).padding(.top, 12)
+            Divider()
+        }
+        .background(GeometryReader { proxy in
+            Color.clear.preference(key: SoundWindowHeightPreference.self, value: .init(navigation: proxy.size.height))
+        })
+    }
+
+    private var content: some View {
+        VStack(alignment: .leading, spacing: 16) {
             Group {
                 switch page {
                 case .output:
@@ -273,9 +290,7 @@ struct SoundWindowView: View {
             }
         }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
             .background(GeometryReader { proxy in
-                Color.clear
-                    .onAppear { onHeightChange(proxy.size.height) }
-                    .onChange(of: proxy.size.height) { _, height in onHeightChange(height) }
+                Color.clear.preference(key: SoundWindowHeightPreference.self, value: .init(content: proxy.size.height))
             })
     }
 
@@ -366,6 +381,20 @@ struct SoundWindowView: View {
         SettingChip(active: key == .soundStopMic || key == .soundStopPlayback, action: perform) {
             Label(t(key), systemImage: icon).font(Theme.mono(10))
         }
+    }
+}
+
+private struct SoundWindowMeasuredHeight: Equatable {
+    var navigation: CGFloat = 0
+    var content: CGFloat = 0
+}
+
+private struct SoundWindowHeightPreference: PreferenceKey {
+    static var defaultValue = SoundWindowMeasuredHeight()
+    static func reduce(value: inout SoundWindowMeasuredHeight, nextValue: () -> SoundWindowMeasuredHeight) {
+        let next = nextValue()
+        value.navigation = max(value.navigation, next.navigation)
+        value.content = max(value.content, next.content)
     }
 }
 

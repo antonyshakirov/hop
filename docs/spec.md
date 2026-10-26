@@ -7272,10 +7272,15 @@ only closing Sound stops Hop Mix and deletes the temporary check. Sound controls
 use neutral colors and Hop's plain square checks. Disabled volume readouts render
 number and percent as one styled text, so both dim equally.
 
-Sound reuses SettingChip for its tabs, device picker and labeled actions, and
+Sound places its Input/Output navigation in one full-width, grouped tab bar below
+the window title, separated from the page controls. The title and tab bar stay
+visible while the page scrolls. Tabs reuse the main panel's SpaceTabButton with
+an icon and localized text; selecting the current tab again leaves it selected.
+Switching pages does not enable or disable either mixer. Natural window height
+includes both the fixed navigation and the complete current page.
+Sound reuses SettingChip for the device picker and labeled actions, and
 MiniSlider for gain controls. It uses the same 13pt window title, 11pt section
-labels and 28pt controls as the other utility windows; there is no separate
-large segmented style. Both tab chips remain visible when unselected.
+labels and 28pt controls as the other utility windows.
 Explicitly enabling Hop Mix includes the currently selected physical microphone,
 after microphone permission is confirmed. It retains the microphone source's gain
 and mute; it does not unmute hardware, change system gain or choose an OS/receiver
