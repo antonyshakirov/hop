@@ -123,6 +123,7 @@ if [[ $DEV == 1 ]]; then
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev" "$APP/Contents/Info.plist"
     plutil -replace CFBundleName -string "Hop Dev" "$APP/Contents/Info.plist"
     plutil -replace CFBundleDisplayName -string "Hop Dev" "$APP/Contents/Info.plist"
+    plutil -insert HopZoomMixPrototype -bool true "$APP/Contents/Info.plist"
     plutil -replace CFBundleIdentifier -string "com.antonshakirov.minimo.dev.audio-worker" "$WORKER_APP/Contents/Info.plist"
     # SPEC: docs/spec.md — "Versioning", a dev build carries the release it is preparing.
     PREPARING="$("$BINARY" --preparing-version)"

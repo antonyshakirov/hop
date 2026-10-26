@@ -7478,3 +7478,16 @@ The appearance setting names the Dock so it does not promise a Finder change.
 Existing saved style and the monochrome menu-bar icon are preserved.
 Verify both styles at runtime and verify the exact signed app and extracted ZIP
 before and after launch, without cleaning signature-breaking metadata afterward.
+
+
+## Canonical Hop Dev review handoff (2.4)
+
+The installed working development application is `/Applications/Hop Dev.app`,
+bundle identifier `com.antonshakirov.minimo.dev`. A request to update that working
+copy does not authorize publishing a stable release, changing the public manifest
+or replacing `/Applications/Hop.app`. Dev packaging exposes Hop Mix through the
+existing dev-only `HopZoomMixPrototype` key; it does not start microphone capture.
+The canonical Dev identity preserves its own preferences and permissions.
+A local candidate may set the existing dev-only open-Sound diagnostic flag for
+review; the production gate ignores it. Source and installed executable hashes
+are recorded in the handoff receipt.
