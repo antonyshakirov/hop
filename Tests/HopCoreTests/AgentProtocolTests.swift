@@ -211,4 +211,27 @@ final class AgentProtocolTests: XCTestCase {
         XCTAssertEqual(effects, 1)
     }
 
+    func testPublishedSchemaConstructsAcceptedRequestsForEveryAction() throws {
+        let capabilities = try JSONSerialization.jsonObject(with: AgentCapabilitiesV2.data()) as! [String: Any]
+        let schema = capabilities["requestSchema"] as! [String: Any]
+        let properties = schema["properties"] as! [String: Any]
+        let commands = (properties["command"] as! [String: Any])["oneOf"] as! [[String: Any]]
+        var names = Set<String>()
+        for command in commands {
+            let fields = command["properties"] as! [String: [String: Any]]
+            let name = fields["do"]!["const"] as! String
+            names.insert(name)
+            var value: [String: Any] = ["do": name]
+            for key in command["required"] as! [String] where key != "do" {
+                if fields[key]!["type"] as? String == "integer" { value[key] = fields[key]!["minimum"] }
+                else if fields[key]!["format"] as? String == "uuid" { value[key] = UUID().uuidString }
+                else { value[key] = "Synthetic schema task" }
+            }
+            XCTAssertNoThrow(try AgentRequestV2.parse(request(changes: ["command": value]), now: now), name)
+            value["undeclared"] = true
+            XCTAssertThrowsError(try AgentRequestV2.parse(request(changes: ["command": value]), now: now), name)
+        }
+        XCTAssertEqual(names, Set(AgentCapabilitiesV2.actionNames))
+    }
+
 }
