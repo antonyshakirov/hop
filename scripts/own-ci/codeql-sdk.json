@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "version": "2.27.2",
-  "sdkTreeSha256": "ba07e649b607a7a5e9778a365765828dd5e64adbfa115f9396ac6811a6fe761b",
+  "sdkTreeSha256": "9c8e21655746d647fed83e8bb28bac6ab59345e2a68d2236b5f07903c3e6a7cf",
   "extractorSwiftVersion": "6.3.3",
   "queryPack": "codeql/swift-queries",
   "queryPackVersion": "1.3.12",
@@ -161,8 +161,8 @@
   "upstreamSdkTreeSha256": "e70edd5ac09c6ae477782efd3e5842a8f301e20b4951037d9df3ab329a0da9d5",
   "compatibility": {
     "schema": 1,
-    "extractorSha256": "ef2d1d6cac140587b425ca64f71416bad00ba5f8682d51b4d8417af43cbd5bb5",
-    "extractorSize": 174520624,
+    "extractorSha256": "1deb941ab2e04c9989e7599fdbdce4cad870d1d7eef774eee1c28c4dfbbc1781",
+    "extractorSize": 174520544,
     "codeqlSourceCommit": "a7057b836bf29767461026718b14d20790b9085f",
     "swiftSourceCommit": "064859e41d68596f486c5d724401cb370f260409",
     "patches": [

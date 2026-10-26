@@ -7491,3 +7491,17 @@ The canonical Dev identity preserves its own preferences and permissions.
 A local candidate may set the existing dev-only open-Sound diagnostic flag for
 review; the production gate ignores it. Source and installed executable hashes
 are recorded in the handoff receipt.
+## Confirmed local agent operations (26 October 2026)
+
+The owner approved making Hop and hop.tools usable by customer agents. Protocol 2
+adds one immutable request per action, exact customer approval attestation, a
+private durable journal and identifiable results for tasks, timers, stopwatch and
+time tracking. The existing protocol 1 and URL automation remain compatible.
+Installed capabilities plus state determine availability. Public web documentation
+cannot grant local file permission or establish that Hop has been upgraded.
+
+The contract, trust boundary, effect scopes, crash/retry behavior and verification
+requirements are in [agent-protocol-v2.md](agent-protocol-v2.md). Core regression
+coverage includes strict envelopes, retry/restart, conflicting bytes, storage
+failures and unsafe paths; app integration uses synthetic data and the watched
+inbox. Publication and installation are separate from preparing this change.

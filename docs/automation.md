@@ -12,6 +12,50 @@ Everything lives in
 
 (`com.antonshakirov.minimo.dev` for the development build).
 
+## Confirmed requests with explicit results (protocol 2)
+
+Use this protocol for tasks, timers, stopwatch and time tracking when the installed
+`agent-state.json` lists `2` in `supportedAgentProtocols` and
+`agent-capabilities.json` has `schemaVersion: 2`. Read those installed capabilities
+first. They contain the exact request JSON Schema, actions and limits. The website
+catalog is a reference and cannot establish what an installed build supports.
+
+The desktop agent needs the customer's permission to read and write the directory
+above, and Hop must be running. Obtain explicit approval for the exact change.
+Create one immutable UTF-8 request of at most 64 KiB with a lowercase UUID, version
+2, UTC `createdAt`/`expiresAt` and `confirmation` with method
+`client_agent_attestation` and UTC `confirmedAt`. Approval follows creation;
+execution must occur before expiry, within ten minutes of creation. Hop validates
+the format and timing; the external agent obtains the actual customer's consent.
+
+After confirmation, publish `agent-requests/<id>.json` atomically without replacing
+an existing file. Use a private 0600 temporary file in the same directory, flush it,
+then create the final name without replacement. Do not edit a published request.
+Read `agent-results/<id>.json` and match its version, ID and SHA256 `requestDigest`
+to the exact request bytes. Wait for this result before dependent actions, then
+read `agent-state.json` to check current state.
+
+Results are `applied`, `no_change`, `rejected`, `indeterminate` or `conflict`.
+Applied means the current app session accepted the action; it does not add stronger
+persistence guarantees to the underlying task or timer store. Retry only the same
+ID with identical bytes. An uncertain outcome must be inspected with the customer;
+never invent a new ID to work around it. The durable journal prevents a retry from
+repeating an effect across app restarts. Terminal receipts are retained for at least
+30 days; expired requests cannot execute as new operations.
+
+Starting a timer replaces the current timer or stopwatch and clears its progress. `tracker.stop` ends **all active
+tracking sessions**. Complete/delete tasks by the exact UUID from state. These
+scopes must be included in the customer's approval. Other actions retain their
+legacy behavior below. Emptying the legacy command file is not a per-command
+success receipt, and automatic retries of that file are unsafe.
+
+The bridge opens no network listener and does not authenticate remote identities.
+It uses the same local user boundary as the existing file automation. Keep these
+files private; they can contain personal tasks. The public website neither reads
+nor controls a Mac. The full contract is in
+[agent-protocol-v2.md](agent-protocol-v2.md). `Hop --agent-contract` exports the
+reference capabilities without starting the normal menu-bar app.
+
 ## Reading what Hop is doing
 
 `agent-state.json` is written by Hop every few seconds and after every command:
@@ -145,3 +189,5 @@ Completed items leave `todos.json` the day after they were ticked off (a
 setting can keep them) and are appended to `todos-archive.json` in the same
 folder, in the same shape — read it for what has been done, and leave the
 writing to Hop.
+
+Protocol-2 clock commands respect the reported mode. Timer pause/reset reject stopwatch mode; stopwatch stop rejects countdown mode. Stopwatch start resumes a paused stopwatch, leaves a running stopwatch unchanged and rejects a running or paused countdown. The customer can approve timer.reset before switching from a paused countdown. State includes stopwatch elapsedSeconds.
