@@ -27,6 +27,8 @@ final class AgentBridge {
     var onOpenPanel: (() -> Void)?
     private var commandWatcher: FileWatcher?
     private var stateTicker: Timer?
+    private var operationStore: AgentOperationStore?
+    private var requestWatcher: FileWatcher?
 
     var commandsURL: URL { directory.appendingPathComponent(Self.commandsFileName) }
     var stateURL: URL { directory.appendingPathComponent(Self.stateFileName) }
@@ -47,6 +49,16 @@ final class AgentBridge {
             // and so the watcher has a descriptor to hold from the start
             write(Data("{\"commands\": []}\n".utf8), to: commandsURL)
         }
+        do {
+            let store = try AgentOperationStore(directory: directory)
+            operationStore = store
+            try store.publishDiscoveryFile(AgentCapabilitiesV2.data(), name: "agent-capabilities.json")
+            let requests = FileWatcher(url: store.requestsURL) { [weak self] in self?.runConfirmedCommands() }
+            requests.start()
+            requestWatcher = requests
+        } catch {
+            Self.log.error("confirmed agent bridge unavailable: \(error.localizedDescription, privacy: .public)")
+        }
         publishState()
 
         let watcher = FileWatcher(url: commandsURL) { [weak self] in self?.runCommands() }
@@ -56,13 +68,24 @@ final class AgentBridge {
         // The state snapshot is a courtesy, not a live feed: a 5s refresh keeps
         // "what is running right now" honest without writing a file every tick.
         let ticker = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-            Task { @MainActor in self.publishState() }
+            Task { @MainActor in self.runConfirmedCommands(); self.publishState() }
         }
         ticker.tolerance = 2
         stateTicker = ticker
 
         // Catch anything written while Hop was not running.
         runCommands()
+        runConfirmedCommands()
+    }
+
+    private func runConfirmedCommands() {
+        guard let model, let operationStore else { return }
+        do {
+            try operationStore.drain(now: Date()) { [self] request in performConfirmed(request, on: model) }
+            publishState()
+        } catch {
+            Self.log.error("confirmed agent request failed: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     // MARK: - Commands
@@ -90,7 +113,7 @@ final class AgentBridge {
         publishState()
     }
 
-    private func perform(_ command: AgentCommand, on model: AppModel) {
+    func perform(_ command: AgentCommand, on model: AppModel) {
         switch command {
         case .timerStart(let seconds):
             model.engine.setStopwatch(false)
@@ -222,6 +245,10 @@ final class AgentBridge {
            let task = engine.data.tasks.first(where: { $0.id == activeID }) {
             state["tracking"] = ["task": task.name, "todaySeconds": Int(engine.today(taskID: activeID))]
         }
+        state["trackingSessions"] = engine.data.tasks.filter { engine.activeTaskIDs.contains($0.id) }.map {
+            ["id": $0.id.uuidString.lowercased(), "task": $0.name]
+        }
+        state["supportedAgentProtocols"] = operationStore == nil ? [1] : [1, 2]
         state["todos"] = model.todos.list.items.map { item -> [String: Any] in
             var out: [String: Any] = ["id": item.id.uuidString, "text": item.text, "done": item.done]
             if !item.note.isEmpty { out["note"] = item.note }
@@ -243,7 +270,11 @@ final class AgentBridge {
 
     private func write(_ data: Data, to url: URL) {
         do {
-            try data.write(to: url, options: .atomic)
+            if let operationStore {
+                try operationStore.publishDiscoveryFile(data, name: url.lastPathComponent)
+            } else {
+                try data.write(to: url, options: .atomic)
+            }
         } catch {
             // One line per failure, no per-write spam — same rule the stores follow.
             Self.log.error("agent file write failed: \(error.localizedDescription, privacy: .public)")

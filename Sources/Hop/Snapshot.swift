@@ -24,6 +24,10 @@ enum Snapshot {
 
     static func runIfRequested() {
         let args = CommandLine.arguments
+        if args.contains("--agent-contract") {
+            do { FileHandle.standardOutput.write(try AgentCapabilitiesV2.data()); exit(0) }
+            catch { exit(1) }
+        }
 
         // `Hop --uninstall-scan /Applications/Foo.app` prints what the uninstaller
         // would find, with sizes and flags, and exits. This is how the module is

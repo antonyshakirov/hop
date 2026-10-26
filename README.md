@@ -135,7 +135,9 @@ picks up changes to it while it runs, so an agent – or a script, or you in a�
 editor – can append a task and watch it appear. Hop also performs commands from a
 file and answers `hop://` links, so that same agent – or a Shortcut you build
 around one – can start a timer, add a task with a reminder, or read what is
-running. See [docs/automation.md](docs/automation.md).
+running. Confirmed protocol-2 requests add explicit results and safe retries for
+tasks, timers and time tracking; the installed capability file determines support.
+See [docs/automation.md](docs/automation.md).
 
 <div align="center">
 <img src="https://hop.tools/screens/en/tracker.webp" width="420" alt="Hop – Time tracker & to-dos">
