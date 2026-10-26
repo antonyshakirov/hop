@@ -36,8 +36,8 @@
     "sdkSettingsSha256": "7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb"
   },
   "extractor": {
-    "size": 174520624,
-    "sha256": "ef2d1d6cac140587b425ca64f71416bad00ba5f8682d51b4d8417af43cbd5bb5"
+    "size": 174520544,
+    "sha256": "1deb941ab2e04c9989e7599fdbdce4cad870d1d7eef774eee1c28c4dfbbc1781"
   },
   "patches": [
     {
