@@ -170,6 +170,7 @@ final class SoundController: ObservableObject {
     @Published private(set) var inputFollowsSystem = true
     @Published private(set) var failure: SoundFailure?
     private(set) var windowOpen = false
+    private var observingInput = false
     private let hardware: SoundHardware
     private let meter: SoundMeter
     private let enabled: @MainActor () -> Bool
@@ -218,6 +219,22 @@ final class SoundController: ObservableObject {
         guard enabled(), !windowOpen else { return }
         windowOpen = true
         refresh()
+        watchHardware()
+    }
+
+    func beginInputObservation() {
+        guard enabled(), !observingInput else { return }
+        observingInput = true
+        refresh()
+        watchHardware()
+    }
+
+    func endInputObservation() {
+        observingInput = false
+        if !windowOpen { hardware.unwatch() }
+    }
+
+    private func watchHardware() {
         hardware.watch({ [weak self] in self?.refresh() },
                        outputVolumeChanged: { [weak self] in self?.scheduleOutputRefresh() })
     }
@@ -253,7 +270,7 @@ final class SoundController: ObservableObject {
         windowOpen = false
         outputRefreshTask?.cancel(); outputRefreshTask = nil; outputRefreshID = nil
         for direction in SoundDirection.allCases { closeControls(direction) }
-        hardware.unwatch()
+        if !observingInput { hardware.unwatch() }
         failure = nil
     }
 

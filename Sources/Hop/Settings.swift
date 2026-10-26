@@ -50,6 +50,7 @@ enum SettingsKey {
     static let menuBarRedAlertBattery = "menuBarRedAlertBattery"
     /// Keep only Hop's icon in the menu bar, without status marks or countdowns.
     static let menuBarIconOnly = "menuBarIconOnly"
+    static let soundMenuBarMark = "soundMenuBarMark"
     /// Colour the menu-bar icon's corner badges (green/yellow/orange/red). ON by
     /// default; OFF renders every badge monochrome, telling same-corner pairs
     /// apart by shape (filled vs outline).
@@ -153,6 +154,7 @@ enum SettingsKey {
         todoRemindMark: true,
         todoArchiveCompleted: true,
         vpnMenuBarMark: true,
+        soundMenuBarMark: true,
         ocrShowsWindow: true,
     ]
 }

@@ -77,6 +77,7 @@ struct PanelView: View {
     @AppStorage(SettingsKey.menuBarRedAlert) private var menuBarRedAlert = false
     @AppStorage(SettingsKey.menuBarRedAlertBattery) private var menuBarRedAlertBattery = false
     @AppStorage(SettingsKey.menuBarIconOnly) private var menuBarIconOnly = false
+    @AppStorage(SettingsKey.soundMenuBarMark) private var soundMenuBarMark = true
     @AppStorage(SettingsKey.coloredIndicators) private var coloredIndicators = true
     @AppStorage(SettingsKey.vpnMenuBarMark) private var vpnMenuBarMark = true
     @AppStorage(SettingsKey.ocrShowsWindow) private var ocrShowsWindow = true
@@ -3984,6 +3985,9 @@ struct PanelView: View {
         case "todos": todosSettings
         case "vpn": vpnSettings
         case "sound":
+            switchSetting(t(.soundMenuBarMark), isOn: $soundMenuBarMark)
+                .disabled(menuBarIconOnly)
+                .accessibilityIdentifier("sound.settings.menuBarMark")
             Button { model.openSoundWindow?() } label: {
                 Label(t(.soundOpen), systemImage: "slider.horizontal.3")
                     .font(Theme.mono(12)).foregroundStyle(Theme.textPrimary)

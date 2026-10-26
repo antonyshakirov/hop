@@ -7432,7 +7432,16 @@ microphone capture or the optional Hop Mix virtual input.
 
 ### Sound quick mixer controls
 
-The main Sound row exposes separate Output and Input mixer controls, each on a single line with a speaker or microphone icon and a compact localized current-state label with an explicit Mix prefix and colon (for example, “mix: on” or “mix: off”) in the shared neutral chip style. Tooltips describe the click action separately from the current state. State changes keep the same label width. Output temporarily bypasses app listening while retaining the saved profile. Input stops running or pending Hop Mix immediately; enabling opens Sound on Input before starting the existing explicit microphone permission path. Opening Sound alone never starts capture. Closing Sound stops Input and deletes its check recording; Output remains independent.
+Sound has its own menu-bar indicator switch, independent of audio settings. Turning
+it off hides only the custom-audio mark. The global icon-only setting takes priority
+and removes every decoration and countdown, including the Dev identity mark.
+The audio ring is centered in its left column and separated from the Dev mark.
+
+The main Sound row exposes separate Output and Input mixer controls, each on a single line with a speaker or microphone icon and a compact localized current-state label with an explicit Mix prefix and colon (for example, “mix: on” or “mix: off”) in the shared neutral chip style. Tooltips describe the click action separately from the current state. State changes keep the same label width. Output temporarily bypasses app listening while retaining the saved profile. Input stops running or pending Hop Mix immediately; enabling starts it directly without opening Sound or switching its tab. This explicit quick action may keep Input running in the background. Device and source observation belongs to the model, including before any Sound window exists, and never starts Output. Device loss, module disable, stop and shutdown cancel pending permission/start callbacks and release background observation. Opening Sound alone never starts capture. If Sound is later opened and closed, closing still stops Input and deletes its check recording; Output remains independent.
+
+Input startup refreshes the source catalog before committing the configuration.
+Controls share one ready-state gate; they do not become editable source by source.
+Actual signal activity remains independent for each application.
 
 ### Output mixer handoff
 

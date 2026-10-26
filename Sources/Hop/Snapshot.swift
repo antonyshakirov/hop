@@ -115,6 +115,9 @@ enum Snapshot {
             active = true // suppress the dev "D" so the badges are seen clean
             let variants: [(String, IconState)] = [
                 ("idle", IconState()),
+                ("app-audio", IconState(appAudio: true)),
+                ("app-audio+vpn", IconState(appAudio: true, vpn: .up)),
+                ("app-audio+torrent", IconState(appAudio: true, torrentDown: true)),
                 ("engine", IconState(engine: .running)),
                 ("task", IconState(tracking: true)),
                 ("engine+task", IconState(engine: .running, tracking: true)),

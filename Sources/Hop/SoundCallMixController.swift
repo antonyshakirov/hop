@@ -30,7 +30,11 @@ final class SoundCallMixController: ObservableObject {
     @Published private(set) var microphone: SoundChannelSettings = { var value = SoundChannelSettings(); value.active = false; return value }()
     @Published private(set) var requestingMicrophone = false
     @Published private(set) var applications: [String: SoundChannelSettings] = [:]
+    var prepareInputSources: ((String?) -> Result<[SoundMixerChannel], SoundFailure>)?
+    var finishInputPreparation: (() -> Void)?
     private var windowOpen = false
+    private var quickInput = false
+    private var captureAllowed: Bool { windowOpen || quickInput }
     private var generation = 0
     private var inputUID: String?
     private var sources: [SoundMixerChannel] = []
@@ -69,7 +73,7 @@ final class SoundCallMixController: ObservableObject {
             let token = generation
             requestingMicrophone = true
             access { [weak self] allowed in
-                guard let self, self.generation == token, self.windowOpen, self.running, self.inputUID == inputUID else { return }
+                guard let self, self.generation == token, self.captureAllowed, self.running, self.inputUID == inputUID else { return }
                 self.requestingMicrophone = false
                 guard allowed else { self.failure = .permission; return }
                 self.failure = nil; self.microphone = value; self.sendUpdate()
@@ -91,8 +95,23 @@ final class SoundCallMixController: ObservableObject {
         sources = apps.filter { SoundCallMixPolicy.allows($0.id) }
         sendUpdate()
     }
-    func start(inputUID: String?, apps: [SoundMixerChannel]) {
-        guard enabled, windowOpen, !running, !starting else { return }
+    func startQuick(inputUID: String?, apps: [SoundMixerChannel]) {
+        guard enabled, !running, !starting else { return }
+        guard inputUID != nil else { failure = .missingDevice; return }
+        quickInput = true
+        start(inputUID: inputUID, apps: apps)
+        if !running, !starting { quickInput = false }
+    }
+    func start(inputUID: String?, apps initialApps: [SoundMixerChannel]) {
+        guard enabled, captureAllowed, !running, !starting else { return }
+        defer { finishInputPreparation?() }
+        let apps: [SoundMixerChannel]
+        if let prepareInputSources {
+            switch prepareInputSources(inputUID) {
+            case .success(let fresh): apps = fresh
+            case .failure(let error): failure = error; return
+            }
+        } else { apps = initialApps }
         let selected = apps.filter { SoundCallMixPolicy.allows($0.id) && settings($0.id).active }
         guard selected.count <= 4, !microphone.active || inputUID != nil else { failure = .missingDevice; return }
         self.inputUID = inputUID; sources = apps.filter { SoundCallMixPolicy.allows($0.id) }
@@ -100,19 +119,20 @@ final class SoundCallMixController: ObservableObject {
         let includeMicrophone = inputUID != nil
         failure = nil; starting = true; requestingMicrophone = includeMicrophone
         let activate: (Bool) -> Void = { [weak self] allowed in
-            guard let self, self.generation == token, self.windowOpen, self.starting else { return }
+            guard let self, self.generation == token, self.captureAllowed, self.starting else { return }
             self.requestingMicrophone = false
             guard allowed else {
+                self.quickInput = false
                 self.starting = false; self.microphone.active = false; self.failure = .permission
                 return
             }
             if includeMicrophone { self.microphone.active = true }
             self.session.start(self.configuration()) { [weak self] result in
-                guard let self, self.generation == token, self.windowOpen else { return }
-                self.starting = false
+                guard let self, self.generation == token, self.captureAllowed else { return }
                 switch result {
-                case .success: self.running = true
+                case .success: self.running = true; self.starting = false
                 case .failure(let error):
+                    self.starting = false; self.quickInput = false
                     self.running = false; self.microphone.active = false; self.failure = error; self.session.stop()
                 }
             }
@@ -126,6 +146,7 @@ final class SoundCallMixController: ObservableObject {
         }
     }
     func stop() {
+        quickInput = false
         generation += 1; running = false; starting = false; requestingMicrophone = false
         session.stop(); inputUID = nil; sources = []
         microphone.active = false

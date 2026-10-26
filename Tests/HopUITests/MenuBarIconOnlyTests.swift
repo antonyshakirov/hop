@@ -33,8 +33,14 @@ final class MenuBarIconOnlyTests: XCTestCase {
 
         defaults.set(true, forKey: "menuBarIconOnly")
         controller.refreshButton()
-        XCTAssertTrue(button.image === MenuBarIcon.dialTemplate)
+        XCTAssertTrue(button.image === MenuBarIcon.plainDialTemplate)
         XCTAssertEqual(button.title, "")
+        let bitmap = try XCTUnwrap(NSBitmapImageRep(data: try XCTUnwrap(button.image?.tiffRepresentation)))
+        let leftBand = Int(CGFloat(bitmap.pixelsWide) * 4 / MenuBarIcon.canvasSize.width)
+        let hasLeftDecoration = (0..<leftBand).contains { x in
+            (0..<bitmap.pixelsHigh).contains { y in (bitmap.colorAt(x: x, y: y)?.alphaComponent ?? 0) > 0.05 }
+        }
+        XCTAssertFalse(hasLeftDecoration, "Icon-only mode must remove the Dev mark as well as module marks")
         XCTAssertEqual(model.engine.state, .running)
         XCTAssertTrue(defaults.bool(forKey: SettingsKey.showMenuBarCountdown))
         XCTAssertTrue(defaults.bool(forKey: SettingsKey.vpnMenuBarMark))
@@ -52,7 +58,7 @@ final class MenuBarIconOnlyTests: XCTestCase {
         model.engine.start()
         XCTAssertEqual(model.engine.state, .finished)
         controller.refreshButton()
-        XCTAssertTrue(button.image === MenuBarIcon.dialTemplate)
+        XCTAssertTrue(button.image === MenuBarIcon.plainDialTemplate)
         XCTAssertEqual(button.title, "")
         defaults.set(false, forKey: "menuBarIconOnly")
         controller.refreshButton()

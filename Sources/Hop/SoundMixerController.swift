@@ -59,6 +59,7 @@ final class SoundMixerController: ObservableObject {
             || preferences.contains { SoundMixerDiscovery.allowsApplication($0.key) && $0.value.outputUID != nil }
     }
     private var visible = false
+    private var observingInput = false
     private var observations: [SoundHALObservation] = []
     private var session: SoundMixingSession?
     private var generation = 0
@@ -92,12 +93,20 @@ final class SoundMixerController: ObservableObject {
     }
     func open() {
         guard enabled(), available else { return }
-        if #available(macOS 14.2, *), observeHardware, !running, !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
+        if #available(macOS 14.2, *), observeHardware, !running, !observingInput, !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
         visible = true; refresh(); watch(); updateActivityTimer()
     }
     func close() {
         visible = false; updateActivityTimer()
-        if !running, !starting { observations.removeAll(); refreshTask?.cancel(); refreshTask = nil }
+        if !running, !starting, !observingInput { observations.removeAll(); refreshTask?.cancel(); refreshTask = nil }
+    }
+    func beginInputObservation() {
+        guard enabled(), available, !observingInput else { return }
+        observingInput = true; refresh(); watch()
+    }
+    func endInputObservation() {
+        observingInput = false
+        if !visible, !running, !starting { observations.removeAll(); refreshTask?.cancel(); refreshTask = nil }
     }
     func update(_ channel: SoundMixerChannel, _ edit: (inout SoundChannelSettings) -> Void) {
         guard !channel.input else { return }
@@ -166,7 +175,7 @@ final class SoundMixerController: ObservableObject {
     func start() {
         guard enabled(), available, !running, !starting else { return }
         requested = true; defaults.set(true, forKey: Self.enabledKey)
-        if #available(macOS 14.2, *), observeHardware, !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
+        if #available(macOS 14.2, *), observeHardware, !observingInput, !Snapshot.active { SoundProcessTap.cleanStaleVirtualInput() }
         refresh(); failure = nil; starting = true; generation += 1
         let token = generation
         let session = makeSession { [weak self] failure in
@@ -185,7 +194,7 @@ final class SoundMixerController: ObservableObject {
         generation += 1; starting = false; running = false
         session?.stop(); session = nil; updateActivityTimer()
         apps.forEach { $0.hasAudio = false; $0.routeState = .stopped }
-        if !visible { observations.removeAll(); refreshTask?.cancel(); refreshTask = nil }
+        if !visible, !observingInput { observations.removeAll(); refreshTask?.cancel(); refreshTask = nil }
     }
     private func watch() {
         observations.removeAll()
@@ -193,7 +202,7 @@ final class SoundMixerController: ObservableObject {
         let system = AudioObjectID(kAudioObjectSystemObject)
         let changed: () -> Void = { [weak self] in
             MainActor.assumeIsolated {
-                guard let self, self.enabled(), self.visible || self.running else { return }
+                guard let self, self.enabled(), self.visible || self.running || self.observingInput else { return }
                 self.refreshTask?.cancel()
                 self.refreshTask = Task { [weak self] in
                     try? await Task.sleep(for: .milliseconds(150))

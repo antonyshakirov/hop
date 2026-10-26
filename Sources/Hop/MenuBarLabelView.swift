@@ -62,8 +62,11 @@ enum MenuBarIcon {
     /// in the bottom-left corner, monochrome.
     static var isDevBuild: Bool { Bundle.isDevBuild }
 
+    static let devMarkFrame = NSRect(x: 0.9, y: 0.5, width: 3.4, height: 4.4)
+    static let appAudioFrame = NSRect(x: 0.75, y: 6.25, width: 4.5, height: 4.5)
+
     private static func drawDevMark(color: NSColor) {
-        let r = NSRect(x: 0.9, y: 0.9, width: 3.4, height: 5.6)
+        let r = devMarkFrame
         let path = NSBezierPath()
         path.lineWidth = 1.1
         path.lineCapStyle = .round
@@ -77,15 +80,18 @@ enum MenuBarIcon {
     }
 
     /// Template version for the calm state — macOS tints it to match the bar.
-    static let dialTemplate: NSImage = {
+    static let plainDialTemplate = template(markDev: false)
+    static let dialTemplate = template(markDev: isDevBuild)
+
+    private static func template(markDev: Bool) -> NSImage {
         let image = NSImage(size: canvasSize)
         image.lockFocus()
         drawDial(color: .black, in: dialRect)
-        if isDevBuild { drawDevMark(color: .black) }
+        if markDev { drawDevMark(color: .black) }
         image.unlockFocus()
         image.isTemplate = true
         return image
-    }()
+    }
 
     /// The monochrome glyph colour matching the current menu-bar lightness.
     private static func glyphColor(dark: Bool) -> NSColor {
@@ -163,7 +169,7 @@ enum MenuBarIcon {
 
         if c.appAudio {
             glyph.setStroke()
-            let ring = NSBezierPath(ovalIn: NSRect(x: 0.5, y: 6.5, width: 4.5, height: 4.5))
+            let ring = NSBezierPath(ovalIn: appAudioFrame)
             ring.lineWidth = stroke
             ring.stroke()
         }

@@ -19,12 +19,8 @@ struct SoundRow: View {
                 .contentShape(Rectangle())
             }.buttonStyle(.plain).hoverHighlight(5).help(L10n.t(.soundOpen, lang))
             Spacer(minLength: 8)
-            SoundRowMixerControls(mixer: model.soundMixer, call: model.soundCallMix, lang: lang, startInput: {
-                model.soundPageRequest = .input
-                model.openSoundWindow?()
-                model.sound.stopCheck(); model.sound.discardRecording()
-                model.soundCallMix.start(inputUID: model.sound.inputUID, apps: model.soundMixer.apps)
-            })
+            SoundRowMixerControls(mixer: model.soundMixer, call: model.soundCallMix, lang: lang,
+                                  startInput: model.startQuickInput)
             Button(action: open) {
                 RowActionIcon(symbol: "slider.horizontal.3", compact: true)
             }.buttonStyle(.plain).hoverHighlight(5).help(L10n.t(.soundOpen, lang))

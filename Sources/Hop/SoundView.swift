@@ -219,9 +219,6 @@ struct SoundWindowView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Theme.panelBackground)
         .id(model.themeVersion)
-        .onChange(of: sound.inputUID) { _, uid in model.soundCallMix.inputChanged(uid) }
-        .onReceive(model.soundMixer.$apps) { model.soundCallMix.sourcesChanged($0) }
-        .onChange(of: model.soundMixer.sourceRevision) { _, _ in model.soundCallMix.sourcesChanged(model.soundMixer.apps) }
         .onChange(of: page) { old, _ in if old == .input { sound.stopCheck() } }
         .onChange(of: model.soundPageRequest, initial: true) { _, request in
             guard let request else { return }

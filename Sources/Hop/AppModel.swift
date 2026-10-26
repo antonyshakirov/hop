@@ -20,8 +20,9 @@ final class AppModel: ObservableObject {
     let todos: TodosController
     let soundStatus: SoundMuteStatus
     let sound: SoundController
-    let soundCallMix = SoundCallMixController()
+    let soundCallMix: SoundCallMixController
     let soundMixer: SoundMixerController
+    let soundInput: SoundInputCoordinator
     /// Modules that PRODUCE clipboard entries; they take the clipboard
     /// controller, so they are built in `init` after it exists.
     let colorPicker: ColorPickerController
@@ -141,10 +142,16 @@ final class AppModel: ObservableObject {
 
     private var forwarders: [AnyCancellable] = []
 
+    func startQuickInput() {
+        soundInput.startQuickInput()
+    }
+
     /// A preview model feeds the onboarding's live module pictures: the same
     /// controllers, with staged data, reading and writing nothing of the user's.
     /// SPEC: docs/spec.md — "Onboarding", the module preview.
-    init(preview: Bool = false) {
+    init(preview: Bool = false, soundController: SoundController? = nil,
+         mixerController: SoundMixerController? = nil, callController: SoundCallMixController? = nil,
+         soundEnabled: (() -> Bool)? = nil) {
         keepAwake = preview ? KeepAwakeController(demo: true) : KeepAwakeController()
         stats = SystemStatsController(demo: preview)
         clipboard = ClipboardController(demo: preview)
@@ -154,9 +161,15 @@ final class AppModel: ObservableObject {
         speedTest = preview ? SpeedTestController(demo: true) : SpeedTestController()
         appShelves = AppShelvesController(demo: preview)
         soundStatus = SoundMuteStatus()
-        sound = SoundController(enabled: { preview || ModuleActivation.isOn("sound") }, status: soundStatus)
-        soundMixer = SoundMixerController(enabled: { !preview && ModuleActivation.isOn("sound") })
-        if preview { sound.stageDemo(); soundMixer.stageDemo() }
+        sound = soundController ?? SoundController(enabled: { preview || ModuleActivation.isOn("sound") }, status: soundStatus)
+        soundMixer = mixerController ?? SoundMixerController(enabled: { !preview && ModuleActivation.isOn("sound") })
+        soundCallMix = callController ?? SoundCallMixController()
+        soundInput = SoundInputCoordinator(sound: sound, mixer: soundMixer, call: soundCallMix,
+            enabled: soundEnabled ?? { !preview && ModuleActivation.isOn("sound") })
+        if preview {
+            if soundController == nil { sound.stageDemo() }
+            if mixerController == nil { soundMixer.stageDemo() }
+        }
         colorPicker = ColorPickerController(clipboard: clipboard)
         screenText = ScreenTextController(clipboard: clipboard)
         holdDraw = preview ? nil : HoldDrawController(

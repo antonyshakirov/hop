@@ -904,6 +904,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     /// SPEC: docs/spec.md — "What a running clock costs", the menu-bar button.
     private struct Look: Equatable {
+        let iconOnly: Bool
         let composition: IconComposition
         let base: MenuBarIcon.Base?
         let dark: Bool
@@ -919,7 +920,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         if UserDefaults.standard.bool(forKey: SettingsKey.menuBarIconOnly) {
             fadeTicker?.invalidate()
             fadeTicker = nil
-            apply(Look(composition: IconComposition(), base: nil, dark: false,
+            apply(Look(iconOnly: true, composition: IconComposition(), base: nil, dark: false,
                        title: "", glyph: nil, opacity: 1), to: button)
             return
         }
@@ -1007,7 +1008,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             alertBlinking: alertBlinking,
             blinkOn: blinkOn,
             reminderUnseen: reminderUnseen,
-            appAudio: model.soundMixer.running && model.soundMixer.hasCustomApplicationAudio && !off.contains("sound"),
+            appAudio: SoundMenuBarIndicator.isVisible(running: model.soundMixer.running,
+                customized: model.soundMixer.hasCustomApplicationAudio, moduleActive: !off.contains("sound")),
             vpn: vpnMark ? model.vpn.mark : nil,
             torrentDown: transfer.down,
             torrentUp: transfer.up,
@@ -1095,7 +1097,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 title += String(repeating: " ", count: frozen - total)
             }
         }
-        apply(Look(composition: composition, base: base, dark: barIsDark,
+        apply(Look(iconOnly: false, composition: composition, base: base, dark: barIsDark,
                    title: title, glyph: glyph, opacity: opacity), to: button)
     }
 
@@ -1107,11 +1109,11 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         guard look != lastLook || button.image == nil else { return }
         // SPEC: docs/spec.md — "What a running clock costs": a tick changes the digits, not the icon.
         let iconChanged = button.image == nil || look.composition != lastLook?.composition
-            || look.base != lastLook?.base || look.dark != lastLook?.dark
+            || look.base != lastLook?.base || look.dark != lastLook?.dark || look.iconOnly != lastLook?.iconOnly
         lastLook = look
 
         if iconChanged {
-            button.image = look.base.map {
+            button.image = look.iconOnly ? MenuBarIcon.plainDialTemplate : look.base.map {
                 MenuBarIcon.compose(look.composition, base: $0, dark: look.dark)
             } ?? MenuBarIcon.dialTemplate
             button.imagePosition = .imageLeft
