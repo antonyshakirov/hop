@@ -21,6 +21,30 @@ final class SoundAppOutputRoutingTests: XCTestCase {
         func configure(_ settings: SoundChannelSettings) { self.settings = settings }
         func stop() { stopped = true; outputUID = nil }
     }
+    private final class GuardedStream: SoundAppOutputStream, @unchecked Sendable {
+        var outputUID: String?
+        var sourcePeak: Float = 0
+        var events: [String] = []
+        private var requestedUID: String?
+        private var initialized = false
+        private var settings = SoundChannelSettings()
+        private lazy var handoff = SoundOutputHandoff(setSourceMuted: { [unowned self] in
+            events.append($0 ? "guard" : "direct")
+        }, setPlaybackEnabled: { [unowned self] in events.append($0 ? "play" : "gate") },
+        releaseSource: { [unowned self] in events.append("release") }, stopPlayback: {}, discardQueued: {})
+        var sourceGuarded: Bool { handoff.sourceGuarded }
+        var preparingOutput: Bool { requestedUID != outputUID }
+        func configure(_ settings: SoundChannelSettings) { self.settings = settings }
+        func setOutput(_ uid: String?) throws {
+            guard !initialized || requestedUID != uid else { return }
+            try handoff.prepare(outputUID: uid, followsSystem: false, settings: settings)
+            initialized = true; requestedUID = uid; outputUID = nil
+        }
+        func activateOutput() throws {
+            if let uid = requestedUID, try handoff.ready(for: uid) { outputUID = uid }
+        }
+        func stop() { handoff.stop(); outputUID = nil }
+    }
     private func settle() async { for _ in 0..<20 { await Task.yield() } }
     private func app(_ uid: String? = nil, processes: [AudioObjectID] = [1]) -> SoundMixerChannel {
         let channel = SoundMixerChannel(id: "browser", name: "Browser", input: false, settings: .init())
@@ -117,6 +141,35 @@ final class SoundAppOutputRoutingTests: XCTestCase {
         complete?.resume(returning: next); await settle()
         XCTAssertTrue(old.stopped); XCTAssertFalse(next.stopped); XCTAssertNil(next.outputUID)
         session.stop(); XCTAssertTrue(next.stopped)
+    }
+
+    func testExplicitDeviceLossDrivesRealHandoffGateUntilSameUIDReturns() async {
+        let stream = GuardedStream(), channel = app("headphones")
+        var devices = [SoundDevice(uid: "speakers", name: "Speakers"), SoundDevice(uid: "headphones", name: "Headphones")]
+        var defaultUID = "speakers", builds = 0
+        let session = SoundRoutingSession(failed: { _ in XCTFail() }, devices: { devices },
+            systemUID: { defaultUID }, makeStream: { _, _, _ in builds += 1; return stream })
+        session.outputs([channel]); await settle()
+        XCTAssertEqual(stream.outputUID, "headphones"); XCTAssertTrue(stream.sourceGuarded)
+        stream.events = []
+        devices.removeAll { $0.uid == "headphones" }; session.outputs([channel])
+        XCTAssertEqual(stream.events.first, "gate")
+        XCTAssertNil(stream.outputUID); XCTAssertTrue(stream.sourceGuarded)
+        XCTAssertEqual(channel.routeState, .waiting)
+        devices.append(SoundDevice(uid: "usb", name: "USB")); defaultUID = "usb"
+        session.outputs([channel]); await settle()
+        XCTAssertNil(stream.outputUID)
+        XCTAssertFalse(stream.events.contains("play"))
+        XCTAssertFalse(stream.events.contains("direct"))
+        XCTAssertFalse(stream.events.contains("release"))
+        XCTAssertEqual(channel.preference.outputUID, "headphones")
+        devices.append(SoundDevice(uid: "headphones", name: "Headphones"))
+        session.outputs([channel]); await settle()
+        XCTAssertEqual(stream.outputUID, "headphones")
+        XCTAssertEqual(channel.routeState, .playing("headphones"))
+        XCTAssertEqual(stream.events.last, "play")
+        XCTAssertEqual(builds, 1)
+        session.stop()
     }
 
 }

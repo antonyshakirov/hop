@@ -98,4 +98,42 @@ final class SoundMixerPresetsTests: XCTestCase {
         XCTAssertEqual(sessions[1].configurations[app.id]?.muted, true)
         XCTAssertEqual(sessions[1].destinations[app.id], "headphones")
     }
+
+    func testFreshControllerAndSessionRestoreAudioPinsAndReorderedOfflineList() throws {
+        let suite = "HopTests.MixerPresets." + UUID().uuidString
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        var sessions: [Session] = []
+        let make = { SoundMixerController(defaults: defaults, makeSession: { _ in
+            let session = Session(); sessions.append(session); return session
+        }, discover: { [] }, outputs: { [SoundDevice(uid: "headphones", name: "Headphones")] }) }
+        let first = make()
+        first.addApplication(id: "music", name: "Music")
+        first.addApplication(id: "telegram", name: "Telegram")
+        let telegram = try XCTUnwrap(first.apps.first { $0.id == "telegram" })
+        first.update(telegram) { $0.gain = 0.3; $0.muted = true }
+        first.selectOutput(telegram, uid: "headphones")
+        XCTAssertTrue(first.canMove(telegram, by: -1))
+        first.move(telegram, by: -1)
+        XCTAssertEqual(first.apps.map(\.id), ["telegram", "music"])
+        let preferences = first.apps.map(\.preference)
+        let settings = first.apps.map(\.settings)
+        first.start(); first.suspend(); first.close()
+        XCTAssertEqual(sessions.count, 1); XCTAssertEqual(sessions[0].stops, 1)
+        let restored = make()
+        restored.resumeIfEnabled()
+        defer { restored.stop(); restored.close() }
+        XCTAssertEqual(sessions.count, 2)
+        XCTAssertFalse(sessions[0] === sessions[1])
+        XCTAssertTrue(restored.running)
+        XCTAssertEqual(restored.apps.map(\.id), ["telegram", "music"])
+        XCTAssertEqual(restored.apps.map(\.preference), preferences)
+        XCTAssertEqual(restored.apps.map(\.settings), settings)
+        XCTAssertTrue(restored.apps.allSatisfy { $0.preference.pinned && !$0.appRunning && $0.processes.isEmpty })
+        XCTAssertEqual(sessions[1].configurations["telegram"]?.gain, 0.3)
+        XCTAssertEqual(sessions[1].configurations["telegram"]?.muted, true)
+        XCTAssertEqual(sessions[1].destinations["telegram"], "headphones")
+        XCTAssertEqual(sessions[1].configurations["music"], .init())
+        XCTAssertNil(sessions[1].destinations["music"])
+    }
 }

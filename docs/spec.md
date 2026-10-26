@@ -7467,3 +7467,14 @@ activation; missing explicit devices remain paused. Stopping the listening mixer
 releases this processing and its observers. Hop Mix sending and physical
 microphone settings remain independent. Real multi-output listening acceptance
 is required before claiming this behavior works on hardware.
+
+## Signed application icon integrity (2.4 correction)
+
+Startup and appearance changes must leave the signed application bundle untouched.
+The saved light/dark icon choice applies through NSApplication.applicationIconImage
+for the running application's Dock icon. Finder/Applications uses the packaged icon;
+Hop never writes a custom Finder icon or icon metadata into its own bundle.
+The appearance setting names the Dock so it does not promise a Finder change.
+Existing saved style and the monochrome menu-bar icon are preserved.
+Verify both styles at runtime and verify the exact signed app and extracted ZIP
+before and after launch, without cleaning signature-breaking metadata afterward.

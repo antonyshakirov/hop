@@ -12,14 +12,7 @@ enum AppIcon {
     }
 
     static func apply() {
-        let path = Bundle.main.bundlePath
-        guard path.hasSuffix(".app") else { return } // dev run without a bundle
-        let ok = NSWorkspace.shared.setIcon(image(dark: isDark), forFile: path, options: [])
-        if !ok {
-            // a half-written custom icon leaves the Finder flag without a
-            // resource and the app renders as a FOLDER; roll the flag back
-            NSWorkspace.shared.setIcon(nil, forFile: path, options: [])
-        }
+        NSApplication.shared.applicationIconImage = image(dark: isDark)
     }
 
     /// Small previews for the settings chips — the real icons, not words.
