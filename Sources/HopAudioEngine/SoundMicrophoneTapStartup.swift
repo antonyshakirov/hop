@@ -7,6 +7,7 @@ public enum SoundMicrophoneTapStartup {
 
     public static func start(readFormat: () -> AVAudioFormat, installTap: () -> Void,
                              removeTap: () -> Void, stop: () -> Void,
+                             rebuild: () throws -> Void,
                              start: () throws -> Void) throws {
         let initial = readFormat()
         guard valid(initial) else {
@@ -21,9 +22,12 @@ public enum SoundMicrophoneTapStartup {
             guard failure.code == -10868,
                   [NSOSStatusErrorDomain, "com.apple.coreaudio.avfaudio"].contains(failure.domain)
             else { throw error }
+            // The failed node can report its cached format even after the
+            // hardware has changed. Replacing only its tap preserves that cache.
+            try rebuild()
             let negotiated = readFormat()
-            guard valid(negotiated), !initial.isEqual(negotiated) else { throw error }
-            log.notice("microphone-format-negotiated oldRate=\(initial.sampleRate, privacy: .public) newRate=\(negotiated.sampleRate, privacy: .public); reinstalling-tap")
+            guard valid(negotiated) else { stop(); throw error }
+            log.notice("microphone-engine-rebuilt oldRate=\(initial.sampleRate, privacy: .public) newRate=\(negotiated.sampleRate, privacy: .public)")
             // Keep format:nil at the call site: an explicit cached format can
             // raise an Objective-C exception if the hardware changes again.
             installTap()

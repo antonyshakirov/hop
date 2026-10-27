@@ -10,7 +10,7 @@ private enum SoundFailure: Error { case missingDevice, unsupported, system(Int32
 private final class SoundCapturedInput {
     let uid: String
     let channel: SoundAudioChannel
-    private let engine = AVAudioEngine()
+    private var engine = AVAudioEngine()
     private var observation: NSObjectProtocol?
     private var stopped = false
     private let settingsLock = NSLock()
@@ -22,7 +22,8 @@ private final class SoundCapturedInput {
         channel = try SoundAudioChannel(rate: 48000)
         hop_audio_compensate_clock(channel.pointer)
         channel.configure(configuration.settings)
-        let input = engine.inputNode
+        var engine = self.engine
+        var input = engine.inputNode
         if input.auAudioUnit.deviceID != device { try input.auAudioUnit.setDeviceID(device) }
         let hardwareFormat = input.inputFormat(forBus: 0)
         guard hardwareFormat.sampleRate >= 8000, hardwareFormat.channelCount > 0 else { throw SoundFailure.unsupported }
@@ -31,7 +32,6 @@ private final class SoundCapturedInput {
         let channel = channel
         // Bluetooth can renegotiate between querying the node and installing
         // the tap. Let the hardware choose and convert each delivered PCM format.
-        let engine = self.engine
         try SoundMicrophoneTapStartup.start(readFormat: { input.inputFormat(forBus: 0) }, installTap: {
             input.installTap(onBus: 0, bufferSize: 512, format: nil) { pcm, _ in
                 if let buffer = converter.convert(pcm) {
@@ -39,7 +39,13 @@ private final class SoundCapturedInput {
                     _ = hop_audio_push(channel.pointer, buffer.audioBufferList, buffer.frameLength)
                 }
             }
-        }, removeTap: { input.removeTap(onBus: 0) }, stop: { engine.stop() }, start: { try engine.start() })
+        }, removeTap: { input.removeTap(onBus: 0) }, stop: { engine.stop() }, rebuild: {
+            guard let device = SoundHAL.device(configuration.uid) else { throw SoundFailure.missingDevice }
+            let fresh = AVAudioEngine(), freshInput = fresh.inputNode
+            if freshInput.auAudioUnit.deviceID != device { try freshInput.auAudioUnit.setDeviceID(device) }
+            engine = fresh; input = freshInput
+        }, start: { try engine.start() })
+        self.engine = engine
         observation = NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak engine] _ in
             if engine?.isRunning == false { failed() }
         }

@@ -71,8 +71,8 @@ final class MicrophoneLevelMeter: SoundMeter {
         stop()
         clearRecording()
         guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else { throw SoundFailure.permission }
-        let engine = AVAudioEngine()
-        let input = engine.inputNode
+        var engine = AVAudioEngine()
+        var input = engine.inputNode
         let deviceID = try CoreSoundHardware().objectID(uid, direction: .input)
         if input.auAudioUnit.deviceID != deviceID { try input.auAudioUnit.setDeviceID(deviceID) }
         let hardwareFormat = input.inputFormat(forBus: 0)
@@ -93,7 +93,12 @@ final class MicrophoneLevelMeter: SoundMeter {
                 input.installTap(onBus: 0, bufferSize: 1024, format: nil) { buffer, _ in
                     if let converted = converter.convert(buffer) { samples.append(converted) }
                 }
-            }, removeTap: { input.removeTap(onBus: 0) }, stop: { engine.stop() }, start: { try engine.start() })
+            }, removeTap: { input.removeTap(onBus: 0) }, stop: { engine.stop() }, rebuild: {
+                let deviceID = try CoreSoundHardware().objectID(uid, direction: .input)
+                let fresh = AVAudioEngine(), freshInput = fresh.inputNode
+                if freshInput.auAudioUnit.deviceID != deviceID { try freshInput.auAudioUnit.setDeviceID(deviceID) }
+                engine = fresh; input = freshInput
+            }, start: { try engine.start() })
         } catch { SoundAccessoryMute.shared.unbind(token); muteToken = nil; throw error }
         self.engine = engine
         observation = NotificationCenter.default.addObserver(

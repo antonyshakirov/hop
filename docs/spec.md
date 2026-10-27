@@ -7625,11 +7625,14 @@ Mixer menu indicators — approved v8 integration (27 Oct): the owner accepted t
 An observed AirPods startup changed input hardware from 48 kHz to 24 kHz
 between tap installation and engine start. AVAudioEngine rejected the cached
 tap with format-not-supported (-10868). Both Hop Mix capture and the short
-microphone check may reinstall their automatic-format tap once, within the same
-explicit start request, only after that error and a valid changed hardware
-format. The failed tap and engine are stopped before reinstalling; a second
-failure is cleaned up and returned. Other errors and unchanged/invalid formats
-fail immediately. No delayed retry, device substitution, recording export or
+microphone check may rebuild their capture engine and automatic-format tap once,
+within the same explicit start request, only after that error. A physical trial
+showed that the failed node can retain its old format even after hardware
+negotiation, so an unchanged reported format cannot rule out this mismatch.
+The failed tap and engine are stopped before replacing the engine; the fresh
+engine resolves the same device UID and must report a valid format. A second
+failure is cleaned up and returned. Other errors fail immediately. No delayed
+retry, device substitution, recording export or
 capture after Stop/close is introduced. Conversion still uses each delivered
 buffer's actual format. Physical AirPods acceptance remains required.
 

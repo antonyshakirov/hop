@@ -15,20 +15,20 @@ final class SoundMicrophoneTapStartupTests: XCTestCase {
             self.format(starts == 0 ? 48000 : 24000)
         }, installTap: { events.append("install") }, removeTap: {
             events.append("remove")
-        }, stop: { events.append("stop") }, start: {
+        }, stop: { events.append("stop") }, rebuild: { events.append("rebuild") }, start: {
             starts += 1; events.append("start")
             if starts == 1 { throw self.mismatch }
         })
-        XCTAssertEqual(events, ["install", "start", "remove", "stop", "install", "start"])
+        XCTAssertEqual(events, ["install", "start", "remove", "stop", "rebuild", "install", "start"])
     }
 
-    func testAnUnchangedFormatDoesNotRetry() {
+    func testAStaleReportedFormatStillRebuildsTheEngineOnce() {
         var starts = 0, removed = 0, stopped = 0
         XCTAssertThrowsError(try SoundMicrophoneTapStartup.start(readFormat: { self.format(48000) },
-            installTap: {}, removeTap: { removed += 1 }, stop: { stopped += 1 }, start: {
+            installTap: {}, removeTap: { removed += 1 }, stop: { stopped += 1 }, rebuild: {}, start: {
                 starts += 1; throw self.mismatch
             }))
-        XCTAssertEqual(starts, 1); XCTAssertEqual(removed, 1); XCTAssertEqual(stopped, 1)
+        XCTAssertEqual(starts, 2); XCTAssertEqual(removed, 2); XCTAssertEqual(stopped, 2)
     }
 
     func testAnUnrelatedFailureDoesNotRetryEvenIfTheFormatChanged() {
@@ -36,7 +36,7 @@ final class SoundMicrophoneTapStartupTests: XCTestCase {
         let error = NSError(domain: "com.apple.coreaudio.avfaudio", code: -50)
         XCTAssertThrowsError(try SoundMicrophoneTapStartup.start(readFormat: {
             self.format(starts == 0 ? 48000 : 24000)
-        }, installTap: {}, removeTap: {}, stop: {}, start: {
+        }, installTap: {}, removeTap: {}, stop: {}, rebuild: { XCTFail("Unrelated errors cannot rebuild capture") }, start: {
             starts += 1; throw error
         })) { XCTAssertEqual(($0 as NSError).code, -50) }
         XCTAssertEqual(starts, 1)
@@ -46,7 +46,7 @@ final class SoundMicrophoneTapStartupTests: XCTestCase {
         var starts = 0, removed = 0, stopped = 0
         XCTAssertThrowsError(try SoundMicrophoneTapStartup.start(readFormat: {
             self.format(starts == 0 ? 48000 : 24000)
-        }, installTap: {}, removeTap: { removed += 1 }, stop: { stopped += 1 }, start: {
+        }, installTap: {}, removeTap: { removed += 1 }, stop: { stopped += 1 }, rebuild: {}, start: {
             starts += 1; throw self.mismatch
         }))
         XCTAssertEqual(starts, 2); XCTAssertEqual(removed, 2); XCTAssertEqual(stopped, 2)
@@ -55,9 +55,21 @@ final class SoundMicrophoneTapStartupTests: XCTestCase {
     func testAStableSuccessfulStartKeepsItsTapAndDoesNotStop() throws {
         var starts = 0, installed = 0, removed = 0, stopped = 0
         try SoundMicrophoneTapStartup.start(readFormat: { self.format(24000) },
-            installTap: { installed += 1 }, removeTap: { removed += 1 }, stop: { stopped += 1 },
+            installTap: { installed += 1 }, removeTap: { removed += 1 }, stop: { stopped += 1 }, rebuild: { XCTFail("A successful engine cannot be replaced") },
             start: { starts += 1 })
         XCTAssertEqual(starts, 1); XCTAssertEqual(installed, 1)
         XCTAssertEqual(removed, 0); XCTAssertEqual(stopped, 0)
     }
+
+    func testRebuildFailureDoesNotInstallAnotherTapOrRestart() {
+        var starts = 0, installs = 0, removed = 0, stopped = 0
+        XCTAssertThrowsError(try SoundMicrophoneTapStartup.start(readFormat: { self.format(48000) },
+            installTap: { installs += 1 }, removeTap: { removed += 1 }, stop: { stopped += 1 },
+            rebuild: { throw NSError(domain: "test", code: -50) }, start: {
+                starts += 1; throw self.mismatch
+            })) { XCTAssertEqual(($0 as NSError).domain, "test") }
+        XCTAssertEqual(starts, 1); XCTAssertEqual(installs, 1)
+        XCTAssertEqual(removed, 1); XCTAssertEqual(stopped, 1)
+    }
+
 }
