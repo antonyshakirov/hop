@@ -75,9 +75,10 @@ final class MicrophoneLevelMeter: SoundMeter {
         let input = engine.inputNode
         let deviceID = try CoreSoundHardware().objectID(uid, direction: .input)
         if input.auAudioUnit.deviceID != deviceID { try input.auAudioUnit.setDeviceID(deviceID) }
-        let format = input.outputFormat(forBus: 0)
-        guard format.sampleRate > 0, format.channelCount > 0 else { throw SoundFailure.missingDevice }
-        let samples = try SoundSampleBuffer(format: format)
+        let hardwareFormat = input.inputFormat(forBus: 0)
+        guard hardwareFormat.sampleRate >= 8000, hardwareFormat.channelCount > 0 else { throw SoundFailure.missingDevice }
+        let converter = SoundMicrophonePCMConverter()
+        let samples = try SoundSampleBuffer(format: converter.outputFormat)
         self.samples = samples
         let token = UUID()
         try SoundAccessoryMute.shared.bind(token, muted: false, apply: { value in samples.setMuted(value); return true }, changed: { [weak self] _ in
@@ -87,7 +88,9 @@ final class MicrophoneLevelMeter: SoundMeter {
             }
         })
         muteToken = token
-        input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in samples.append(buffer) }
+        input.installTap(onBus: 0, bufferSize: 1024, format: nil) { buffer, _ in
+            if let converted = converter.convert(buffer) { samples.append(converted) }
+        }
         do { try engine.start() }
         catch { input.removeTap(onBus: 0); engine.stop(); SoundAccessoryMute.shared.unbind(token); muteToken = nil; throw error }
         self.engine = engine

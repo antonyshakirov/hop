@@ -24,20 +24,16 @@ private final class SoundCapturedInput {
         channel.configure(configuration.settings)
         let input = engine.inputNode
         if input.auAudioUnit.deviceID != device { try input.auAudioUnit.setDeviceID(device) }
-        let source = input.outputFormat(forBus: 0)
-        let destination = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 2)!
-        guard source.sampleRate >= 8000, source.channelCount > 0,
-              let converter = AVAudioConverter(from: source, to: destination),
-              let buffer = AVAudioPCMBuffer(pcmFormat: destination, frameCapacity: 8192) else { throw SoundFailure.unsupported }
+        let hardwareFormat = input.inputFormat(forBus: 0)
+        guard hardwareFormat.sampleRate >= 8000, hardwareFormat.channelCount > 0 else { throw SoundFailure.unsupported }
+        let converter = SoundMicrophonePCMConverter()
+        let report = SoundMicrophoneFormatReport()
         let channel = channel
-        input.installTap(onBus: 0, bufferSize: 512, format: source) { pcm, _ in
-            var supplied = false
-            var error: NSError?
-            let result = converter.convert(to: buffer, error: &error) { _, status in
-                if supplied { status.pointee = .noDataNow; return nil }
-                supplied = true; status.pointee = .haveData; return pcm
-            }
-            if result != .error, buffer.frameLength > 0 {
+        // Bluetooth can renegotiate between querying the node and installing
+        // the tap. Let the hardware choose and convert each delivered PCM format.
+        input.installTap(onBus: 0, bufferSize: 512, format: nil) { pcm, _ in
+            if let buffer = converter.convert(pcm) {
+                report.converted(pcm.format)
                 _ = hop_audio_push(channel.pointer, buffer.audioBufferList, buffer.frameLength)
             }
         }
@@ -66,6 +62,17 @@ private final class SoundCapturedInput {
         observation = nil; engine.inputNode.removeTap(onBus: 0); engine.stop()
     }
     deinit { stop() }
+}
+
+/// Called serially by one tap. Log format metadata only after conversion works.
+private final class SoundMicrophoneFormatReport {
+    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "HopMix")
+    private var previous: AVAudioFormat?
+    func converted(_ format: AVAudioFormat) {
+        guard previous?.isEqual(format) != true else { return }
+        previous = format
+        Self.log.notice("microphone-pcm-converted rate=\(format.sampleRate, privacy: .public) channels=\(format.channelCount, privacy: .public)")
+    }
 }
 
 private final class SoundMixGate: @unchecked Sendable {

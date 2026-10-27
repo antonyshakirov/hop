@@ -7303,7 +7303,7 @@ An output-engine configuration notification preserves selected captures when
 the producer engine restarts successfully. A failed restart silences capture
 and retires that producer generation; queued notifications after stop or from
 an older generation cannot restart it. HopMix diagnostic logs contain only
-startup phases, command intent and error domain/code, without samples or device/application names.
+startup phases, command intent, converted PCM rate/channel count and error domain/code, without samples or device/application names.
 A failed producer is reaped before failure is reported. A later explicit Enable
 retires its old virtual input and creates a fresh producer; there is no automatic
 capture retry or requirement to restart Hop. Cancelling an unacknowledged Start
@@ -7311,6 +7311,11 @@ reaps the producer immediately, even while device initialization is blocked.
 Queued data, exit events and deadlines from a retired producer generation cannot
 fail or re-enable its replacement. A failure after initial acknowledgement still
 stops the controller, rather than leaving a false enabled state.
+Both the microphone check and Hop Mix taps avoid pinning a previously queried hardware format: Bluetooth may
+renegotiate its rate while the tap is installed. Conversion uses each delivered
+PCM buffer's actual format and produces 48 kHz stereo for Hop's mix; rate/channel
+changes rebuild the converter and larger callbacks grow its output buffer.
+No captured audio is written to disk by this path.
 Volume percentages render as plain readouts until explicitly clicked. Editing
 ends on Return, focus loss or pointer exit; Escape cancels it. Opening a window
 never creates a focused percentage field.
