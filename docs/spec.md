@@ -7303,7 +7303,14 @@ An output-engine configuration notification preserves selected captures when
 the producer engine restarts successfully. A failed restart silences capture
 and retires that producer generation; queued notifications after stop or from
 an older generation cannot restart it. HopMix diagnostic logs contain only
-startup phases and error domain/code, without samples or device/application names.
+startup phases, command intent and error domain/code, without samples or device/application names.
+A failed producer is reaped before failure is reported. A later explicit Enable
+retires its old virtual input and creates a fresh producer; there is no automatic
+capture retry or requirement to restart Hop. Cancelling an unacknowledged Start
+reaps the producer immediately, even while device initialization is blocked.
+Queued data, exit events and deadlines from a retired producer generation cannot
+fail or re-enable its replacement. A failure after initial acknowledgement still
+stops the controller, rather than leaving a false enabled state.
 Volume percentages render as plain readouts until explicitly clicked. Editing
 ends on Return, focus loss or pointer exit; Escape cancels it. Opening a window
 never creates a focused percentage field.

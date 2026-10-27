@@ -1,5 +1,6 @@
 import AVFoundation
 import Foundation
+import OSLog
 import HopAudioDSP
 import HopCore
 import HopAudioEngine
@@ -120,6 +121,7 @@ enum SoundInputWorker {
 @available(macOS 14.2, *)
 @MainActor
 private final class SoundWorkerEngine {
+    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "HopMix")
     private let engine = AVAudioEngine()
     private let lifecycle = SoundInputWorkerLifecycle()
     private let gate = SoundMixGate()
@@ -183,9 +185,11 @@ private final class SoundWorkerEngine {
                 for initial in selected {
                     var configuration = initial
                     if let retainedMute { configuration.settings.muted = retainedMute }
+                    Self.log.notice("microphone-starting")
                     inputs[configuration.uid] = try SoundCapturedInput(configuration) { [weak self] in
                         MainActor.assumeIsolated { self?.silence(); self?.send(["failed": true]) }
                     }
+                    Self.log.notice("microphone-started")
                 }
                 for configuration in applications {
                     apps[configuration.id] = try SoundCapturedApplication(configuration)
@@ -216,7 +220,11 @@ private final class SoundWorkerEngine {
                 }
                 send(reply)
             }
-        } catch { silence(); send(["failed": true, "reason": String(describing: error)]) }
+        } catch {
+            silence()
+            let error = error as NSError
+            send(["failed": true, "reason": "configuration-failed", "errorDomain": error.domain, "errorCode": error.code])
+        }
     }
     func setMuted(_ value: Bool, token: String, request: String) {
         let applied = microphoneToken?.uuidString == token && !inputs.isEmpty && SoundAccessoryMute.shared.setMuted(value)
