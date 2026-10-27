@@ -1,0 +1,30 @@
+{
+  "scope": "Visual proposal after live rejection; not installed in Dev",
+  "baseCommit": "aa6446f",
+  "request": "Larger, brighter symbols with heavier lines on one side of Hop",
+  "candidate": {
+    "side": "right",
+    "order": [
+      "microphone",
+      "speaker"
+    ],
+    "symbolWeight": "semibold",
+    "frameHeightPt": 10,
+    "canvasWidthPt": 44,
+    "packing": "a lone speaker occupies the first slot; two symbols have a 2pt frame gap",
+    "oneButton": true
+  },
+  "verification": {
+    "nativeExport": true,
+    "audioOverlapCases": 24,
+    "audioOverlapPixels": 0,
+    "legacyAudioInkPixels": 49,
+    "candidateAudioInkPixels": 132,
+    "copyFitsSingleLines": true
+  },
+  "files": {
+    "right-pair-light.png": "f8357e7be731636381d8fe81023d1accdbd1190e70f2155021eebf5b5a0d9444",
+    "right-pair-dark.png": "d1cc17a36fd39d5dfc4d1a26b29646da0b3381bb8e6ebe1a0c26be1e0aed32e0"
+  },
+  "actualMicrophoneUsedForPreview": false
+}
