@@ -7564,3 +7564,53 @@ requirements are in [agent-protocol-v2.md](agent-protocol-v2.md). Core regressio
 coverage includes strict envelopes, retry/restart, conflicting bytes, storage
 failures and unsafe paths; app integration uses synthetic data and the watched
 inbox. Publication and installation are separate from preparing this change.
+
+
+### Planned 2.4 mixer discovery: landing, onboarding and release card
+
+Owner request, 2026-10-27. Requirements and design preview only; the integration
+below is pending, not current shipped behavior. See
+[the discovery brief](plans/2026-10-27-mixer-discovery.md) for copy, use cases,
+limitations and the release acceptance checklist.
+
+- The landing page must explain per-app output routing and relative volume with
+  concrete Spotify-to-speakers / Telegram-to-headphones scenarios, and microphone
+  plus selected app audio into Hop Mix for a compatible call or streaming app.
+  System effects are configured separately in macOS; do not invent a notification
+  channel in Hop or claim per-chat routing inside one app.
+- Every onboarding module keeps its full picture. Preserve the monitor, keep-awake
+  and keyboard-lock previews; never replace them with icon-only or text-only rows
+  to make new content fit. Add a separate Sound step immediately after the Mac
+  group for listening and sending use cases, with art in Hop's UI kit. Migrate
+  a saved wizard position by its semantic step so insertion cannot silently
+  reopen a different screen. Sound uses one compact picture combining routing
+  and Hop Mix, not two large pictures for the same module. Its card has one
+  heading and one short description, matching the other module cards; avoid
+  additional explanatory paragraphs. Validate preview
+  coverage and picture preservation
+  in the actual exported screens before presenting a mockup.
+  Showing a module must not start either mixer, open the microphone, or request
+  capture permissions. Art remains illustrative and must be localizable in both
+  themes, rather than baked Russian text in a shared bitmap.
+- The existing top-of-panel Hop 2.4 release card must explain the mixer and offer
+  enabling/disabling the Sound module using its real module state. Disabling the
+  module must stop both mixers. Dismissing the card must not disable the module.
+  Showing the card or enabling the module must not start microphone capture.
+  Preserve existing news lifetime and onboarding-seen rules; keep the other 2.4
+  notes available, and update the short/full notes on all 22 supported languages.
+
+Landing examples, onboarding integration, release-card actions and localized
+notes are release preparation tasks. Mockups do not satisfy those runtime checks;
+physical AirPods and receiver voice/music acceptance remain separately pending.
+
+
+Menu-bar clarification, design v4: keep microphone and speaker readable and close to the Hop star. All form one visual mark with a shared click/hover area. The preview preserves 8x10 / 10x10 pt glyphs, reduces combined width from 47 to 37 pt and checks that existing indicator ink remains unobscured. Runtime integration is pending.
+
+
+Menu-bar preview v5 supersedes v4 after owner rejection: reuse the native mic / speaker.wave.2 symbol family from Mix Off controls, regular weight, 6pt height instead of 10pt. Two unselected mockups: flanking the star (mic left, speaker right) or a spaced miniature pair on the right. Both show each mixer separately and with all existing indicators; alpha-mask checks find zero overlaps at 2x. Production integration and real menu-bar readability remain pending. Onboarding unchanged.
+
+
+Menu-bar owner decision, 27 Oct: choose v5 option1 (microphone left, speaker right), increase both symbols. v6 visual refinement compares the selected arrangement at6pt and8pt, keeps native mic/speaker.wave.2 regular. No return to right-hand pair. Production integration still pending.
+
+
+Sound mixer disabled appearance (27 Oct): when either mixer is stopped, all source settings use a shared solid disabled palette: app icons desaturated and dimmed; names, destination, activity, percentages, tracks, thumbs, mute and order actions subdued. Output add/reset/device/order actions are unavailable until output mixer is running. Input selection, gain and mute remain unavailable until input mixer is fully running. Keep header/state and Enable action outside disabled group. Preserve geometry and saved preferences; no blanket opacity on overlapping slider parts.

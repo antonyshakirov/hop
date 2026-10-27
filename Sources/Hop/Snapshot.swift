@@ -738,7 +738,7 @@ enum Snapshot {
         } else if args.contains("--window-sound") || args.contains("--window-microphone") {
             let state = args.firstIndex(of: "--sound-state").flatMap { i in args.count > i + 1 ? args[i + 1] : nil }
             model.sound.stageDemo(state ?? "idle")
-            model.soundMixer.stageDemo()
+            model.soundMixer.stageDemo(enabled: !args.contains("--sound-output-off"))
             if args.contains("--sound-mix-on") { model.soundCallMix.stageDemo(model.soundMixer.apps) }
             let width = args.firstIndex(of: "--sound-width").flatMap { i in args.count > i + 1 ? Double(args[i + 1]) : nil } ?? 520
             content = AnyView(SoundWindowView(sound: model.sound, initialInput: args.contains("--window-microphone")).environmentObject(model)

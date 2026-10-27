@@ -28,6 +28,11 @@ enum Theme {
     /// List text (clipboard): gray rows are hard to read in the light theme.
     static var listText: Color { isDark ? Color.white.opacity(0.62) : Color.black.opacity(0.78) }
     static var textTertiary: Color { isDark ? Color.white.opacity(0.44) : Color.black.opacity(0.52) }
+    static var disabledForeground: Color { Color(white: isDark ? 0.28 : 0.66) }
+    static var disabledTrack: Color { Color(white: isDark ? 0.10 : 0.90) }
+    static var disabledFill: Color { Color(white: isDark ? 0.20 : 0.77) }
+    static var disabledSurface: Color { Color(white: isDark ? 0.07 : 0.94) }
+    static var disabledStroke: Color { Color(white: isDark ? 0.13 : 0.84) }
     static func sliderThumb(dimmed: Bool) -> Color {
         Color(white: isDark ? (dimmed ? 0.42 : 0.96) : (dimmed ? 0.58 : 0.20))
     }

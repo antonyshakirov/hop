@@ -269,8 +269,8 @@ final class SoundMixerController: ObservableObject {
             if active != app.hasAudio { app.hasAudio = active }
         }
     }
-    func stageDemo() {
-        if Snapshot.active { requested = true; running = true }
+    func stageDemo(enabled: Bool = true) {
+        if Snapshot.active { requested = enabled; running = enabled }
         apps = [SoundMixerChannel(id: "com.apple.Safari", name: "Safari", input: false, settings: .init()),
                 SoundMixerChannel(id: "com.apple.Music", name: "Music", input: false, settings: .init())]
         apps[0].settings.gain = 0.65; apps[0].hasAudio = true; apps[0].processes = [1]

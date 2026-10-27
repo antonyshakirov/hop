@@ -6,7 +6,7 @@ struct SoundMixerChannelRow: View {
     @ObservedObject var mixer: SoundMixerController
     let lang: AppLanguage
     @State private var choosingOutput = false
-    private var editable: Bool { mixer.running && !Snapshot.active }
+    private var editable: Bool { mixer.running }
     private var destination: String {
         guard let uid = channel.preference.outputUID else { return L10n.t(.soundSystemDefault, lang) }
         return mixer.outputDevices.first { $0.uid == uid }?.name ?? channel.preference.outputName ?? uid
@@ -40,23 +40,25 @@ struct SoundMixerChannelRow: View {
                     if let icon = channel.icon { Image(nsImage: icon).resizable().interpolation(.high) }
                     else { Image(systemName: "app").resizable().foregroundStyle(Theme.textTertiary) }
                 }.frame(width: 22, height: 22)
-                Circle().fill(channel.hasAudio && mixer.running ? Theme.textPrimary : Theme.textTertiary.opacity(0.45))
+                    .saturation(editable ? 1 : 0)
+                    .brightness(editable ? 0 : (Theme.isDark ? -0.35 : 0.35))
+                Circle().fill(!editable ? Theme.disabledForeground : channel.hasAudio ? Theme.textPrimary : Theme.textTertiary)
                     .frame(width: 5, height: 5)
             }.help(status).accessibilityLabel(status)
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 4) {
                     Text(channel.name).font(Theme.mono(11)).lineLimit(1).truncationMode(.middle)
                     if channel.preference.pinned { Image(systemName: "pin.fill").font(.system(size: 8)) }
-                }.foregroundStyle(channel.appRunning ? Theme.textPrimary : Theme.textSecondary)
+                }.foregroundStyle(!editable ? Theme.disabledForeground : channel.appRunning ? Theme.textPrimary : Theme.textSecondary)
                     .help(channel.name + " · " + status)
                 Button { choosingOutput.toggle() } label: {
                     HStack(spacing: 4) {
                         Text(destination).lineLimit(1).truncationMode(.middle)
                         Image(systemName: destinationIcon)
                             .font(.system(size: 8))
-                    }.font(Theme.mono(9)).foregroundStyle(Theme.textTertiary)
+                    }.font(Theme.mono(9)).foregroundStyle(editable ? Theme.textTertiary : Theme.disabledForeground)
                         .contentShape(Rectangle())
-                }.buttonStyle(.plain).hoverHighlight(4).disabled(Snapshot.active)
+                }.buttonStyle(.plain).hoverHighlight(4)
                     .help(destination + " · " + status)
                     .accessibilityLabel(channel.name + ": " + L10n.t(.soundOutput, lang))
                     .accessibilityValue(destination + " · " + status)
@@ -69,8 +71,8 @@ struct SoundMixerChannelRow: View {
             }.disabled(!editable).help(L10n.t(.soundAppVolumeHint, lang))
             Button { mixer.update(channel) { $0.muted.toggle() } } label: {
                 Image(systemName: channel.settings.muted ? "speaker.slash.fill" : "speaker.wave.2")
-                    .font(.system(size: 13)).foregroundStyle(channel.settings.muted ? Theme.textPrimary : Theme.textSecondary)
-                    .frame(width: 30, height: 28).background(Theme.chipBg, in: RoundedRectangle(cornerRadius: 6))
+                    .font(.system(size: 13)).foregroundStyle(!editable ? Theme.disabledForeground : channel.settings.muted ? Theme.textPrimary : Theme.textSecondary)
+                    .frame(width: 30, height: 28).background(editable ? Theme.chipBg : Theme.disabledSurface, in: RoundedRectangle(cornerRadius: 6))
             }.buttonStyle(.plain).hoverHighlight(6).disabled(!editable)
                 .help(channel.name + ": " + L10n.t(channel.settings.muted ? .soundUnmute : .soundMute, lang))
                 .accessibilityLabel(channel.name + ": " + L10n.t(channel.settings.muted ? .soundUnmute : .soundMute, lang))
@@ -85,10 +87,11 @@ struct SoundMixerChannelRow: View {
                 } label: { orderIcon }.menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
                     .accessibilityLabel(channel.name + ": " + L10n.t(.soundMixerApps, lang))
             }
-        }.frame(height: 40)
+        }.frame(height: 40).disabled(!editable).allowsHitTesting(!Snapshot.active)
+            .onChange(of: mixer.running) { _, running in if !running { choosingOutput = false } }
     }
     private var orderIcon: some View {
-        Image(systemName: "ellipsis").font(.system(size: 12)).foregroundStyle(Theme.textSecondary).frame(width: 20, height: 28)
+        Image(systemName: "ellipsis").font(.system(size: 12)).foregroundStyle(editable ? Theme.textSecondary : Theme.disabledForeground).frame(width: 20, height: 28)
     }
     var outputChoices: some View {
         SoundDeviceChoices { outputChoiceContent }

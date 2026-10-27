@@ -30,7 +30,7 @@ struct SoundVolumeControl: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            if showLabel { Text(L10n.t(label, lang)).font(Theme.mono(11)).foregroundStyle(Theme.textTertiary) }
+            if showLabel { Text(L10n.t(label, lang)).font(Theme.mono(11)).foregroundStyle(controlsEnabled ? Theme.textTertiary : Theme.disabledForeground) }
             MiniSlider(value: Binding(get: { Int((volumeEditing.value * 100).rounded()) }, set: {
                 let value = Double($0) / 100
                 volumeEditing.drag(to: value)
@@ -49,7 +49,6 @@ struct SoundVolumeControl: View {
                             .accessibilityLabel(controlName + " %")
                     } else {
                         Text("\(Int((volumeEditing.value * 100).rounded()))%")
-                            .opacity(controlsEnabled ? 1 : 0.45)
                     }
                 } else {
                     SteadyField(text: $volumeEditing.text, size: 11, weight: .medium,
@@ -63,7 +62,7 @@ struct SoundVolumeControl: View {
                     Text("%")
                 }
             }
-            .font(Theme.mono(11)).foregroundStyle(Theme.textSecondary)
+            .font(Theme.mono(11)).foregroundStyle(controlsEnabled ? Theme.textSecondary : Theme.disabledForeground)
             .frame(width: 44, alignment: .trailing)
             .onHover { hovering in if !hovering { percentageEditing = false } }
             .onChange(of: enteringPercentage) { _, focused in if !focused { percentageEditing = false } }

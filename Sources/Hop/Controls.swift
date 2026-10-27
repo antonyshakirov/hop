@@ -256,13 +256,13 @@ struct MiniSlider: View {
                 let fraction = CGFloat(value - range.lowerBound) / span
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Theme.switchOffBg)
+                        .fill(controlsEnabled ? Theme.switchOffBg : Theme.disabledTrack)
                         .frame(height: 3)
                     Capsule()
-                        .fill(Theme.textSecondary)
+                        .fill(controlsEnabled ? Theme.textSecondary : Theme.disabledFill)
                         .frame(width: max(0, fraction * geo.size.width), height: 3)
                     Circle()
-                        .fill(Theme.sliderThumb(dimmed: subdued || !controlsEnabled))
+                        .fill(controlsEnabled ? Theme.sliderThumb(dimmed: subdued) : Theme.disabledForeground)
                         .frame(width: 11, height: 11)
                         .shadow(color: .black.opacity(0.3), radius: 1, y: 0.5)
                         .offset(x: fraction * (geo.size.width - 11))
@@ -458,6 +458,8 @@ struct SettingChip<Content: View>: View {
     var enabled = true
     let action: () -> Void
     private let content: Content
+    @Environment(\.isEnabled) private var controlsEnabled
+    private var available: Bool { enabled && controlsEnabled }
 
     init(active: Bool, enabled: Bool = true, action: @escaping () -> Void,
          @ViewBuilder content: () -> Content) {
@@ -470,22 +472,21 @@ struct SettingChip<Content: View>: View {
     var body: some View {
         Button(action: action) {
             content
-                .foregroundStyle(active ? Theme.textPrimary : Theme.textTertiary)
+                .foregroundStyle(available ? (active ? Theme.textPrimary : Theme.textTertiary) : Theme.disabledForeground)
                 .lineLimit(1)
                 .padding(.horizontal, 9)
                 .frame(height: 28)
                 .background(
-                    active ? Theme.chipBg : .clear,
+                    available ? (active ? Theme.chipBg : .clear) : Theme.disabledSurface,
                     in: RoundedRectangle(cornerRadius: 5)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 5)
-                        .stroke(active ? Theme.controlStroke : Theme.divider, lineWidth: 1)
+                        .stroke(available ? (active ? Theme.controlStroke : Theme.divider) : Theme.disabledStroke, lineWidth: 1)
                 )
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .opacity(enabled ? 1 : 0.35)
         .hoverHighlight(5)
         .disabled(!enabled)
     }

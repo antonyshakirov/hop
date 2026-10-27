@@ -44,17 +44,18 @@ struct SoundMixerChannels: View {
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 SoundMixerHeader(running: mixer.running, starting: mixer.starting, active: mixer.running || mixer.starting,
-                                 enabled: !Snapshot.active, lang: lang,
+                                 lang: lang,
                                  action: { if mixer.running || mixer.starting { mixer.stop() } else { mixer.start() } })
+                    .allowsHitTesting(!Snapshot.active)
                 HStack(spacing: 8) {
-                    SettingChip(active: false, enabled: !Snapshot.active, action: chooseApplication) {
+                    SettingChip(active: false, action: chooseApplication) {
                         Label(L10n.t(.soundAddApplication, lang), systemImage: "plus").font(Theme.mono(10))
                     }
-                    SettingChip(active: false, enabled: mixer.hasCustomApplicationAudio && !Snapshot.active,
+                    SettingChip(active: false, enabled: mixer.hasCustomApplicationAudio,
                                 action: mixer.resetApplicationAudio) {
                         Label(L10n.t(.soundResetApplications, lang), systemImage: "arrow.counterclockwise").font(Theme.mono(10))
                     }
-                }
+                }.disabled(!mixer.running).allowsHitTesting(!Snapshot.active)
                 if !mixer.apps.isEmpty {
                     ForEach(mixer.apps) { channel in
                         SoundMixerChannelRow(channel: channel, mixer: mixer, lang: lang)
