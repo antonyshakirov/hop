@@ -7614,3 +7614,6 @@ Menu-bar owner decision, 27 Oct: choose v5 option1 (microphone left, speaker rig
 
 
 Sound mixer disabled appearance (27 Oct): when either mixer is stopped, all source settings use a shared solid disabled palette: app icons desaturated and dimmed; names, destination, activity, percentages, tracks, thumbs, mute and order actions subdued. Output add/reset/device/order actions are unavailable until output mixer is running. Input selection, gain and mute remain unavailable until input mixer is fully running. Keep header/state and Enable action outside disabled group. Preserve geometry and saved preferences; no blanket opacity on overlapping slider parts.
+
+
+Input mixer source availability (27 Oct): microphone and application rows share one readiness boundary. When that boundary changes, the entire source block must receive a transaction with animation cleared and child animations disabled; source controls become usable only after successful session start. Normal hover animations remain unchanged when readiness is stable. Regression coverage uses five source rows, parent-animated ON/OFF/ON transitions and a separate hover update, without microphone hardware.

@@ -16,12 +16,14 @@ struct SoundCallMixView: View {
             })
             Text(L10n.t(.soundCallHint, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
-            VStack(spacing: 12) {
-                source(L10n.t(.soundMicrophone, lang), settings: call.microphone, edit: call.editMicrophone)
-                ForEach(mixer.apps.filter { SoundCallMixPolicy.allows($0.id) }) { app in
-                    source(app.name, settings: call.settings(app.id), available: !app.processes.isEmpty) { edit in call.editApplication(app.id, edit) }
+            SoundMixerSourceControls(enabled: controlsActive) {
+                VStack(spacing: 12) {
+                    source(L10n.t(.soundMicrophone, lang), settings: call.microphone, edit: call.editMicrophone)
+                    ForEach(mixer.apps.filter { SoundCallMixPolicy.allows($0.id) }) { app in
+                        source(app.name, settings: call.settings(app.id), available: !app.processes.isEmpty) { edit in call.editApplication(app.id, edit) }
+                    }
                 }
-            }.disabled(!controlsActive)
+            }
             if let failure = call.failure {
                 Text(L10n.t(failure == .permission ? .soundPermission : failure == .inputChanged ? .soundInputChanged : .soundCallFailed, lang))
                     .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary).fixedSize(horizontal: false, vertical: true)

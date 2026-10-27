@@ -2,6 +2,18 @@ import AppKit
 import HopCore
 import SwiftUI
 
+struct SoundMixerSourceControls<Content: View>: View {
+    let enabled: Bool
+    @ViewBuilder let content: () -> Content
+    var body: some View {
+        content().disabled(!enabled)
+            .transaction(value: enabled) { transaction in
+                transaction.animation = nil
+                transaction.disablesAnimations = true
+            }
+    }
+}
+
 struct SoundMixerHeader: View {
     let running: Bool
     let starting: Bool
