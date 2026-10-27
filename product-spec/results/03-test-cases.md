@@ -33,3 +33,7 @@ implementation; this file does not declare that they currently pass.
 | IN-14 | Native microphone changes 48/24/48 kHz during a capture | Converted 48 kHz stereo continues without reopening capture |
 | IN-15 | Session starts but emits no valid converted PCM | No ready ACK; bounded failure stops the attempted capture |
 | IN-16 | Frames or errors arrive after Stop | No later consume/failure callback or capture restart; stop remains idempotent |
+
+| UI-01 | Toggle Mix repeatedly with the pointer over its icon or label | Enabled button retains a hand; chip text never becomes selectable |
+| UI-02 | Leave a chip for an editable text field or cover/hide its window | Previous chip cannot overwrite the next control/window cursor |
+| UI-03 | Disable/re-enable a chip without moving the pointer | Arrow when disabled; hand when enabled |

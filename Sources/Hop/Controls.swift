@@ -472,6 +472,7 @@ struct SettingChip<Content: View>: View {
     var body: some View {
         Button(action: action) {
             content
+                .textSelection(.disabled)
                 .foregroundStyle(available ? (active ? Theme.textPrimary : Theme.textTertiary) : Theme.disabledForeground)
                 .lineLimit(1)
                 .padding(.horizontal, 9)

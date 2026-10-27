@@ -5345,8 +5345,11 @@ taught anything.
   under a pointer that has not moved. An AppKit cursor rect was tried
   (2026-09-09) and never showed the hand: a rect counts only for the view the
   pointer hits, and the view behind the button answers no hit so the click
-  reaches the button (Anton, 2026-09-15). Leaving the control puts the arrow
-  back.
+  reaches the button (Anton, 2026-09-15). A rebuild checks again on the next main
+  loop turn after AppKit resolves its cursor. Hidden or covered windows cannot
+  replace another window's cursor. Leaving a control lets AppKit and the next
+  control choose the cursor; an old exit event must not overwrite their choice.
+  Disabled controls use the arrow, and chip labels never enable text selection.
 - **FilePicker (FilePicker.swift) is the ONLY Open and Save panel** (found
   2026-09-13): twelve places built their own `NSOpenPanel` or `NSSavePanel`, and
   ten of them had no `Snapshot.active` guard — a modal panel reached during a

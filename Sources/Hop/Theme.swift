@@ -191,9 +191,12 @@ extension View {
 /// rebuilt or moved under a pointer that has not moved, which gets no `onHover`
 /// (the onboarding lost the hand that way, 2026-09-09).
 struct HandCursorArea: NSViewRepresentable {
+    @Environment(\.isEnabled) private var isEnabled
+
     final class Area: NSView {
         private var area: NSTrackingArea?
-        private var inside = false
+        private var refreshPending = false
+        var isEnabled = true
 
         /// The clicks belong to the SwiftUI button this sits behind.
         override func hitTest(_ point: NSPoint) -> NSView? { nil }
@@ -209,39 +212,54 @@ struct HandCursorArea: NSViewRepresentable {
             )
             addTrackingArea(fresh)
             area = fresh
-            recheck()
+            refreshCursor()
         }
 
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
-            recheck()
+            refreshCursor()
         }
 
         func recheck() {
-            guard let window, !isHiddenOrHasHiddenAncestor else { inside = false; return }
+            guard let window, window.isVisible, !isHiddenOrHasHiddenAncestor,
+                  NSWindow.windowNumber(at: NSEvent.mouseLocation,
+                    belowWindowWithWindowNumber: 0) == window.windowNumber else { return }
             let point = convert(window.mouseLocationOutsideOfEventStream, from: nil)
-            inside = visibleRect.contains(point)
-            wear()
+            guard visibleRect.contains(point) else { return }
+            (isEnabled ? NSCursor.pointingHand : NSCursor.arrow).set()
         }
 
-        private func wear() {
-            if inside { NSCursor.pointingHand.set() }
+        func refreshCursor() {
+            recheck()
+            guard !refreshPending else { return }
+            refreshPending = true
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.refreshPending = false
+                self.recheck()
+            }
         }
 
-        override func mouseEntered(with event: NSEvent) { inside = true; wear() }
-        override func mouseMoved(with event: NSEvent) { inside = true; wear() }
-        override func cursorUpdate(with event: NSEvent) { inside = true; wear() }
+        override func mouseEntered(with event: NSEvent) { refreshCursor() }
+        override func mouseMoved(with event: NSEvent) { recheck() }
+        override func cursorUpdate(with event: NSEvent) { recheck() }
 
         override func mouseExited(with event: NSEvent) {
-            inside = false
-            NSCursor.arrow.set()
+            if let contentView = window?.contentView {
+                window?.invalidateCursorRects(for: contentView)
+            }
         }
     }
 
-    func makeNSView(context: Context) -> Area { Area() }
+    func makeNSView(context: Context) -> Area {
+        let view = Area()
+        view.isEnabled = isEnabled
+        return view
+    }
 
     func updateNSView(_ nsView: Area, context: Context) {
-        nsView.recheck()
+        nsView.isEnabled = isEnabled
+        nsView.refreshCursor()
     }
 }
 
