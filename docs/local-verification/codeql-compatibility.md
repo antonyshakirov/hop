@@ -59,3 +59,20 @@ The disposable ad-hoc signed control is 174,520,544 bytes. Its `LC_CODE_SIGNATUR
 The fixture runs used the extractor's packaged Swift 6.3.3 resources and the installed CLT macro plugin server. That server's exact Swift version identity was not established, and a version match to the extractor is not claimed. The independent native typecheck oracle was CLT Swift 6.4. The official extractor reproduces six macro errors and the class/protocol diagnostic. The rebuilt unchanged importer retains the class/protocol diagnostic; all thirteen differential controls match their expected outcomes. The macro-only and combined real databases each contain the exact fourteen expected semantic rows, both fixture Swift sources, and no nested extraction errors. The independent review checked the real BQRS results, archive contents, source and generator identities, compiler-archive member ordering, and unchanged payloads. These bounded controls do not establish compatibility outside the tested cases.
 
 A fresh complete gate on the final application HEAD remains mandatory: full production Swift build, zero extraction errors, coverage of every production Swift source, the unchanged default 29-query inventory and validated SARIF. No release or native-check requirement is removed by this repin.
+
+## Production type-inference repair on 2026-10-27
+
+The first complete application extraction with the reviewed raw SDK stopped on
+`SoundApplicationRow.swift`: two of 38 extractor invocations (module emission and
+batch compilation) reported that the SwiftUI output-selector expression could not
+be type-checked in reasonable time. The other 36 invocations succeeded; the gate
+correctly rejected the incomplete extraction despite a successful native build.
+
+The repair extracts `channelDetails` and `outputSelector` as small `some View`
+properties. Inlining them restores the previous file byte-for-byte: hierarchy,
+state, labels, actions and modifier order are unchanged. A fresh complete Hop
+module replay reproduces the original failure before the split and succeeds after
+it under the pinned Swift 6.3.3 extractor, with all 158 module input sources marked
+successfully extracted and no nested errors. Native module compilation also
+succeeds. The batch invocation and complete production gate on the final revision
+still require verification; this module replay is not release approval.

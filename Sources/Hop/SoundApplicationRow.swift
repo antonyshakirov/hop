@@ -45,25 +45,7 @@ struct SoundMixerChannelRow: View {
                 Circle().fill(!editable ? Theme.disabledForeground : channel.hasAudio ? Theme.textPrimary : Theme.textTertiary)
                     .frame(width: 5, height: 5)
             }.help(status).accessibilityLabel(status)
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 4) {
-                    Text(channel.name).font(Theme.mono(11)).lineLimit(1).truncationMode(.middle)
-                    if channel.preference.pinned { Image(systemName: "pin.fill").font(.system(size: 8)) }
-                }.foregroundStyle(!editable ? Theme.disabledForeground : channel.appRunning ? Theme.textPrimary : Theme.textSecondary)
-                    .help(channel.name + " · " + status)
-                Button { choosingOutput.toggle() } label: {
-                    HStack(spacing: 4) {
-                        Text(destination).lineLimit(1).truncationMode(.middle)
-                        Image(systemName: destinationIcon)
-                            .font(.system(size: 8))
-                    }.font(Theme.mono(9)).foregroundStyle(editable ? Theme.textTertiary : Theme.disabledForeground)
-                        .contentShape(Rectangle())
-                }.buttonStyle(.plain).hoverHighlight(4)
-                    .help(destination + " · " + status)
-                    .accessibilityLabel(channel.name + ": " + L10n.t(.soundOutput, lang))
-                    .accessibilityValue(destination + " · " + status)
-                    .popover(isPresented: $choosingOutput, arrowEdge: .bottom) { outputChoices }
-            }.frame(width: 132, alignment: .leading)
+            channelDetails
             SoundVolumeControl(device: SoundDevice(uid: channel.id, name: channel.name, volume: channel.settings.gain,
                 muted: channel.settings.muted, canChangeVolume: true, canMute: true),
                 direction: .output, lang: lang, maximum: 1, label: .soundMixerGain, showLabel: false) { value in
@@ -89,6 +71,30 @@ struct SoundMixerChannelRow: View {
             }
         }.frame(height: 40).disabled(!editable).allowsHitTesting(!Snapshot.active)
             .onChange(of: mixer.running) { _, running in if !running { choosingOutput = false } }
+    }
+    private var channelDetails: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 4) {
+                Text(channel.name).font(Theme.mono(11)).lineLimit(1).truncationMode(.middle)
+                if channel.preference.pinned { Image(systemName: "pin.fill").font(.system(size: 8)) }
+            }.foregroundStyle(!editable ? Theme.disabledForeground : channel.appRunning ? Theme.textPrimary : Theme.textSecondary)
+                .help(channel.name + " · " + status)
+            outputSelector
+        }.frame(width: 132, alignment: .leading)
+    }
+    private var outputSelector: some View {
+        Button { choosingOutput.toggle() } label: {
+            HStack(spacing: 4) {
+                Text(destination).lineLimit(1).truncationMode(.middle)
+                Image(systemName: destinationIcon)
+                    .font(.system(size: 8))
+            }.font(Theme.mono(9)).foregroundStyle(editable ? Theme.textTertiary : Theme.disabledForeground)
+                .contentShape(Rectangle())
+        }.buttonStyle(.plain).hoverHighlight(4)
+            .help(destination + " · " + status)
+            .accessibilityLabel(channel.name + ": " + L10n.t(.soundOutput, lang))
+            .accessibilityValue(destination + " · " + status)
+            .popover(isPresented: $choosingOutput, arrowEdge: .bottom) { outputChoices }
     }
     private var orderIcon: some View {
         Image(systemName: "ellipsis").font(.system(size: 12)).foregroundStyle(editable ? Theme.textSecondary : Theme.disabledForeground).frame(width: 20, height: 28)
