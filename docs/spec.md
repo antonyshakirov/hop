@@ -656,6 +656,10 @@ mute buttons reserve the wider of their two localized labels, so toggling mute
 never shifts the volume controls. Manual resizing
 suspends fitting until the window closes; the next open fits again.
 
+- Device popovers (both global and per-app) fit their actual content, including
+  wrapped names and an unavailable saved device. Height is capped at 320 pt;
+  longer lists scroll with every device reachable. Short lists have no reserved
+  empty rows.
 - Custom device menus begin with System Default. This mode follows the current
   macOS input/output and shows the actual device name. Choosing a named device
   explicitly changes the corresponding macOS default. Choosing System Default

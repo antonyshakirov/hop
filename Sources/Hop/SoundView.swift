@@ -110,7 +110,7 @@ private struct SoundDeviceMenu: View {
             .accessibilityValue(title)
             .help(L10n.t(.soundDefaultHint, lang))
             .popover(isPresented: $presented, arrowEdge: .bottom) {
-                ScrollView {
+                SoundDeviceChoices {
                     VStack(alignment: .leading, spacing: 4) {
                         choice(L10n.t(.soundSystemDefault, lang), uid: "", selected: follows)
                         Divider().padding(.vertical, 4)
@@ -118,9 +118,7 @@ private struct SoundDeviceMenu: View {
                             choice(device.name, uid: device.uid, selected: !follows && device.uid == current?.uid)
                         }
                     }.padding(8)
-                }.frame(width: 300, height: min(320, CGFloat(devices.count + 1) * 36 + 28))
-                    .background(Theme.panelBackground)
-                    .hopLayoutDirection()
+                }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
     }

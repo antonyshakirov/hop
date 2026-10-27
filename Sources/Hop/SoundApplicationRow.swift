@@ -90,19 +90,19 @@ struct SoundMixerChannelRow: View {
     private var orderIcon: some View {
         Image(systemName: "ellipsis").font(.system(size: 12)).foregroundStyle(Theme.textSecondary).frame(width: 20, height: 28)
     }
-    private var outputChoices: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 4) {
-                choice(L10n.t(.soundSystemDefault, lang), uid: nil)
-                Divider().padding(.vertical, 4)
-                ForEach(mixer.outputDevices) { device in choice(device.name, uid: device.uid) }
-                if let uid = channel.preference.outputUID, !mixer.outputDevices.contains(where: { $0.uid == uid }) {
-                    Text(destination + " · " + L10n.t(.soundAppWaiting, lang))
-                        .font(Theme.mono(10)).foregroundStyle(Theme.textTertiary).padding(8)
-                }
-            }.padding(8)
-        }.frame(width: 300, height: min(320, CGFloat(mixer.outputDevices.count + 2) * 36 + 28))
-            .background(Theme.panelBackground).hopLayoutDirection()
+    var outputChoices: some View {
+        SoundDeviceChoices { outputChoiceContent }
+    }
+    var outputChoiceContent: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            choice(L10n.t(.soundSystemDefault, lang), uid: nil)
+            Divider().padding(.vertical, 4)
+            ForEach(mixer.outputDevices) { device in choice(device.name, uid: device.uid) }
+            if let uid = channel.preference.outputUID, !mixer.outputDevices.contains(where: { $0.uid == uid }) {
+                Text(destination + " · " + L10n.t(.soundAppWaiting, lang))
+                    .font(Theme.mono(10)).foregroundStyle(Theme.textTertiary).padding(8)
+            }
+        }.padding(8)
     }
     private func choice(_ name: String, uid: String?) -> some View {
         Button { mixer.selectOutput(channel, uid: uid); choosingOutput = false } label: {
