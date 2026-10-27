@@ -31,14 +31,15 @@ private final class SoundCapturedInput {
         let channel = channel
         // Bluetooth can renegotiate between querying the node and installing
         // the tap. Let the hardware choose and convert each delivered PCM format.
-        input.installTap(onBus: 0, bufferSize: 512, format: nil) { pcm, _ in
-            if let buffer = converter.convert(pcm) {
-                report.converted(pcm.format)
-                _ = hop_audio_push(channel.pointer, buffer.audioBufferList, buffer.frameLength)
+        let engine = self.engine
+        try SoundMicrophoneTapStartup.start(readFormat: { input.inputFormat(forBus: 0) }, installTap: {
+            input.installTap(onBus: 0, bufferSize: 512, format: nil) { pcm, _ in
+                if let buffer = converter.convert(pcm) {
+                    report.converted(pcm.format)
+                    _ = hop_audio_push(channel.pointer, buffer.audioBufferList, buffer.frameLength)
+                }
             }
-        }
-        do { try engine.start() }
-        catch { input.removeTap(onBus: 0); engine.stop(); throw error }
+        }, removeTap: { input.removeTap(onBus: 0) }, stop: { engine.stop() }, start: { try engine.start() })
         observation = NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak engine] _ in
             if engine?.isRunning == false { failed() }
         }

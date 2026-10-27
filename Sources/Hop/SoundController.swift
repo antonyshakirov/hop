@@ -88,11 +88,13 @@ final class MicrophoneLevelMeter: SoundMeter {
             }
         })
         muteToken = token
-        input.installTap(onBus: 0, bufferSize: 1024, format: nil) { buffer, _ in
-            if let converted = converter.convert(buffer) { samples.append(converted) }
-        }
-        do { try engine.start() }
-        catch { input.removeTap(onBus: 0); engine.stop(); SoundAccessoryMute.shared.unbind(token); muteToken = nil; throw error }
+        do {
+            try SoundMicrophoneTapStartup.start(readFormat: { input.inputFormat(forBus: 0) }, installTap: {
+                input.installTap(onBus: 0, bufferSize: 1024, format: nil) { buffer, _ in
+                    if let converted = converter.convert(buffer) { samples.append(converted) }
+                }
+            }, removeTap: { input.removeTap(onBus: 0) }, stop: { engine.stop() }, start: { try engine.start() })
+        } catch { SoundAccessoryMute.shared.unbind(token); muteToken = nil; throw error }
         self.engine = engine
         observation = NotificationCenter.default.addObserver(
             forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
