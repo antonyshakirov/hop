@@ -157,7 +157,8 @@ final class CoreSoundHardware: SoundHardware {
                 volume: volume.isEmpty || volume.count != volumeAddresses.count ? nil : volume.reduce(0, +) / Double(volume.count),
                 muted: mute.isEmpty || mute.count != muteAddresses.count ? nil : mute.allSatisfy { $0 != 0 },
                 canChangeVolume: !controls(id, direction, selector: kAudioDevicePropertyVolumeScalar, writable: true).isEmpty,
-                canMute: !controls(id, direction, selector: kAudioDevicePropertyMute, writable: true).isEmpty)
+                canMute: !controls(id, direction, selector: kAudioDevicePropertyMute, writable: true).isEmpty,
+                isVirtual: read(id, address(kAudioDevicePropertyTransportType), initial: UInt32(0)) == kAudioDeviceTransportTypeVirtual)
         }.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 

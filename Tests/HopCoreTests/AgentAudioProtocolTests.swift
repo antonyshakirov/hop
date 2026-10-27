@@ -18,6 +18,8 @@ final class AgentAudioProtocolTests: XCTestCase {
             ["do": "audio.app.update", "appID": "org.example.synthetic", "gain": 0.2, "outputUID": "system"],
             ["do": "audio.app.add", "appID": "org.example.synthetic", "name": "Synthetic"],
             ["do": "audio.app.pin", "appID": "org.example.synthetic", "pinned": false],
+            ["do": "audio.inputSource.pin", "source": "device", "sourceID": "synthetic", "pinned": true],
+            ["do": "audio.inputSource.hide", "source": "app", "sourceID": "synthetic", "hidden": false],
             ["do": "audio.app.move", "appID": "org.example.synthetic", "offset": -1], ["do": "audio.app.reset"],
             ["do": "audio.inputSource.update", "source": "system", "active": false],
             ["do": "audio.inputSource.update", "source": "device", "sourceID": "synthetic", "gain": 0.5],
@@ -33,6 +35,12 @@ final class AgentAudioProtocolTests: XCTestCase {
             ["do": "audio.inputSource.update", "source": "device", "active": true],
             ["do": "audio.inputSource.update", "source": "system", "sourceID": "device", "active": true],
             ["do": "audio.inputSource.update", "source": "unknown", "active": true]]
+        let invalidPresentation: [[String: Any]] = [
+            ["do": "audio.inputSource.pin", "source": "system", "sourceID": "system", "pinned": true],
+            ["do": "audio.inputSource.hide", "source": "device", "sourceID": "synthetic", "hidden": 1],
+            ["do": "audio.inputSource.pin", "source": "app", "sourceID": "synthetic", "pinned": true, "active": true],
+            ["do": "audio.inputSource.hide", "source": "device", "hidden": true]]
+        for command in invalidPresentation { XCTAssertThrowsError(try AgentRequestV2.parse(request(command), now: now)) }
         for command in invalid { XCTAssertThrowsError(try AgentRequestV2.parse(request(command), now: now), "\(command)") }
     }
     @MainActor

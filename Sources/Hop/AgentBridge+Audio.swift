@@ -65,6 +65,21 @@ extension AgentBridge {
             mixer.move(app, by: offset); done(.applied())
         case .resetApplications:
             mixer.resetApplicationAudio(); done(.applied())
+        case .pinInputSource(let id, let value), .hideInputSource(let id, let value):
+            let list = inputSourceList(model)
+            guard let source = (list.primary + list.other + list.hidden).first(where: { $0.id == id }) else {
+                done(.rejected("audio_source_not_found")); return
+            }
+            switch command {
+            case .pinInputSource:
+                if call.sourceList.pinned.contains(id) == value { done(.noChange()); return }
+                call.setSourcePinned(value, source: id, name: source.name)
+            default:
+                guard !value || !call.sourceSelected(id) else { done(.rejected("audio_source_selected")); return }
+                if call.sourceList.hidden.contains(id) == value { done(.noChange()); return }
+                guard call.setSourceHidden(value, source: id, name: source.name) else { done(.rejected("audio_source_selected")); return }
+            }
+            done(.applied())
         case .inputMixer(let enabled):
             guard call.enabled else { done(.rejected("audio_input_mixer_unavailable")); return }
             if !enabled {
@@ -116,12 +131,24 @@ extension AgentBridge {
         wait.begin(start, timeout: audioAcknowledgementTimeout)
     }
 
+    private func inputSourceList(_ model: AppModel) -> SoundInputSourceList {
+        SoundInputSourceList(call: model.soundCallMix, devices: model.sound.agentInventorySnapshot().inputs,
+            applications: model.soundMixer.agentApplicationInventory().map { ($0.id, $0.name, $0.sourceRunning) })
+    }
+
     func audioState(_ model: AppModel) -> [String: Any] {
         let sound = model.sound, mixer = model.soundMixer, call = model.soundCallMix
         let inventory = sound.agentInventorySnapshot()
         let applications = mixer.agentApplicationInventory()
         var preset = SoundInputMixPreferences(); preset.system = call.microphone; preset.microphones = call.microphones
         let requested = preset.resolvedInputs(defaultUID: inventory.inputUID, availableUIDs: Set(inventory.inputs.map(\.uid)))
+        let sourceList = SoundInputSourceList(call: call, devices: inventory.inputs,
+            applications: applications.map { ($0.id, $0.name, $0.sourceRunning) })
+        func listState(_ sources: [SoundInputListSource], group: String) -> [[String: Any]] {
+            sources.map { ["source": $0.id.kind, "sourceID": $0.id.value, "name": $0.name, "available": $0.available,
+                "virtual": $0.isVirtual, "selected": call.sourceSelected($0.id), "pinned": call.sourceList.pinned.contains($0.id),
+                "hidden": group == "hidden", "group": group] }
+        }
         func settings(_ value: SoundChannelSettings) -> [String: Any] { ["gain": value.safeGain, "muted": value.muted, "active": value.active] }
         func route(_ state: SoundAppRouteState) -> [String: Any] {
             switch state {
@@ -134,7 +161,7 @@ extension AgentBridge {
         }
         func devices(_ list: [SoundDevice]) -> [[String: Any]] {
             list.map { device in
-                var out: [String: Any] = ["uid": device.uid, "name": device.name, "canChangeVolume": device.canChangeVolume, "canMute": device.canMute]
+                var out: [String: Any] = ["uid": device.uid, "name": device.name, "canChangeVolume": device.canChangeVolume, "canMute": device.canMute, "virtual": device.isVirtual]
                 if let volume = device.volume { out["volume"] = volume }
                 if let muted = device.muted { out["muted"] = muted }
                 return out
@@ -154,6 +181,7 @@ extension AgentBridge {
             "inputMixer": ["available": call.enabled, "microphoneOverlayMuted": call.accessoryMuted, "running": call.running, "starting": call.starting, "stopping": call.stopping, "requestingMicrophone": call.requestingMicrophone,
                 "updating": call.updating, "configurationRevision": call.configurationRevision, "appliedConfigurationRevision": call.appliedConfigurationRevision,
                 "failed": call.failure != nil, "savedSettingsDoNotImplyCapture": true, "system": settings(call.microphone),
+                "sourceList": listState(sourceList.primary, group: "primary") + listState(sourceList.other, group: "other") + listState(sourceList.hidden, group: "hidden"),
                 "effectiveInputUIDs": call.effectiveInputUIDs, "effectiveApplicationIDs": call.effectiveApplicationIDs,
                 "requestedPhysicalInputs": requested.map { ["deviceUID": $0.uid, "settings": settings($0.settings)] },
                 "devices": call.microphones.mapValues(settings), "applications": call.applications.mapValues(settings)]]

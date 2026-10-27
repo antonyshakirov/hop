@@ -54,6 +54,14 @@ The installed capability file lists the exact fields for these commands:
   matching the current System Default while that logical source is active is
   rejected with `audio_source_included_via_system`; its controls belong to the
   System Default source.
+- `audio.inputSource.pin(source,sourceID,pinned)` and
+  `audio.inputSource.hide(source,sourceID,hidden)` accept only `device` or `app`
+  with a discovered or saved source ID. These confirmed actions change list
+  presentation only, including while the mixer is stopped. Pinning reveals a
+  hidden source. Hiding a selected source rejects with `audio_source_selected`;
+  restoring it does not select it or start capture. Disconnected saved sources
+  can be restored. `inputMixer.sourceList` exposes names, availability, virtual
+  device metadata, selection, pin state and the primary/other/hidden group.
 
 Start succeeds after the input session's ready acknowledgement. Changes to a
 running input mixer wait for the corresponding configuration acknowledgement.

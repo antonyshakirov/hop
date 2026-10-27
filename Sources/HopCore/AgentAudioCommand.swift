@@ -19,6 +19,8 @@ public enum AgentAudioCommand {
     case resetApplications
     case inputMixer(Bool)
     case inputSource(Source, String?, Settings)
+    case pinInputSource(SoundInputSourceID, Bool)
+    case hideInputSource(SoundInputSourceID, Bool)
 
     static func parse(_ command: [String: Any]) throws -> Self {
         let verb = command["do"] as? String ?? ""
@@ -72,6 +74,15 @@ public enum AgentAudioCommand {
             guard let raw = command["source"] as? String, let source = Source(rawValue: raw),
                   (source == .system) == (command["sourceID"] == nil) else { throw AgentProtocolError("invalid_audio_source") }
             return try .inputSource(source, command["sourceID"].map { _ in try text("sourceID") }, settings(active: true))
+        case "audio.inputSource.pin", "audio.inputSource.hide":
+            let key = verb == "audio.inputSource.pin" ? "pinned" : "hidden"
+            try fields(["source", "sourceID", key])
+            guard let raw = command["source"] as? String, let source = Source(rawValue: raw), source != .system else {
+                throw AgentProtocolError("invalid_audio_source")
+            }
+            let id = try text("sourceID")
+            let value = source == .device ? SoundInputSourceID.device(id) : .application(id)
+            return try verb == "audio.inputSource.pin" ? .pinInputSource(value, boolean(key)) : .hideInputSource(value, boolean(key))
         default: throw AgentProtocolError("unsupported_command")
         }
     }

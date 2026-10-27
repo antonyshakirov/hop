@@ -7,8 +7,19 @@ include it on first use, follow the current macOS default, allow additional name
 physical microphones, and retain subsequent source choices/levels. The owner also
 requested confirmed agent control of all audio settings. These are agreed
 requirements implemented in the current source and under automated verification;
-the installed Dev build and physical acceptance have not yet been updated.
+MacBook and AirPods startup/first PCM/close have separate physical acceptance;
+receiver audio, live default changes and accessory mute remain pending.
 The system-wide default input must not be changed to Hop Mix automatically.
+
+On 28 October the owner approved and requested Dev implementation of the source
+list mockup: System Default first, then pinned/selected sources, with Other
+Sources collapsed initially. Pin/hide/restore use stable typed device/app IDs
+and separate presentation preferences. Selected sources cannot be hidden.
+Presentation menus remain usable while the mixer is off and never change audio
+settings or capture. Restoring a saved disconnected source preserves its name
+and does not enable it. There is no separate hidden-sources footer: restore is
+inside the expanded Other Sources menu. Virtual labels use CoreAudio transport
+metadata. The existing content-fit/scroll boundary still applies to long lists.
 
 ## User scenario
 

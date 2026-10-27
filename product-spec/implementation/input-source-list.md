@@ -1,0 +1,11 @@
+# Input source list implementation
+
+Owner accepted the revised mockup on 28 October and requested implementation in Dev. Other Sources starts collapsed. System Default remains first; pinned, then selected sources remain visible. Inactive sources support pin/hide/restore; restore is reached through the ellipsis inside expanded Other Sources, with no separate footer. Audio levels, mutes, defaults and capture are unaffected by presentation changes. Closed/disabled mixer permits list management without microphone access. Source IDs use device UID or app ID in separate namespaces. Presentation preferences persist independently of audio presets. Selecting a hidden source through confirmed agent control reveals it.
+
+Reuse Theme, SettingChip, SoundVolumeControl, SoundDeviceChoices and existing pin/ellipsis affordances. Group controls do not animate per-source on activation. Lists fit content until the existing screen-height limit, then scroll. Preserve all sources after disconnect/reconnect; hidden disconnected entries can be restored using their stored display name. Classify virtual devices from CoreAudio transport metadata, never process presence/name heuristics.
+
+Add confirmed audio.inputSource.pin and audio.inputSource.hide commands for device/app IDs; strict booleans/fields, no system source. State exposes named source selection, pin/hidden/visible group and saved disconnected entries. No new confirmation bypass, capture, permission prompt or hardware write. Active sources cannot be hidden.
+
+Plan: independent presentation model + RED persistence/group/controller/agent tests; UI and all-language short copy; synthetic native renders (themes, locales, widths, collapsed/expanded/restore, many-source fitting); targeted then full available native checks; one bounded review of presentation/agent edge cases; signed Dev install with production unchanged. Physical microphone/listening probes deferred by owner until 29 October. No public release before remaining acceptance.
+
+Release preparation after Dev: reconcile app news/onboarding, website and GitHub release copy against verified features; preserve illustrations, concise copy and pending physical limits. Do not publish, change public version or repeat SDK downloads during preparation.

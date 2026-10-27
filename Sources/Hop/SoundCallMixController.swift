@@ -46,6 +46,8 @@ final class SoundCallMixController: ObservableObject {
     @Published private(set) var stopping = false
     @Published private(set) var failure: SoundFailure?
     static let preferencesKey = "soundCallMixPreferencesV1"
+    static let sourceListKey = "soundInputSourceListV1"
+    @Published private(set) var sourceList = SoundInputSourceListPreferences()
     @Published private(set) var microphone = SoundChannelSettings()
     @Published private(set) var microphones: [String: SoundChannelSettings] = [:]
     @Published private(set) var accessoryMuted = false
@@ -77,6 +79,7 @@ final class SoundCallMixController: ObservableObject {
     init(enabled: Bool? = nil, session: SoundCallSession? = nil,
          access: ((@escaping (Bool) -> Void) -> Void)? = nil, defaults: UserDefaults? = nil) {
         self.defaults = defaults
+        sourceList = SoundInputSourceListPreferences.load(defaults?.data(forKey: Self.sourceListKey))
         let preset = SoundInputMixPreferences.load(defaults?.data(forKey: Self.preferencesKey))
         microphone = preset.system; microphones = preset.microphones; applications = preset.applications
         if let enabled { self.enabled = enabled }
@@ -103,6 +106,28 @@ final class SoundCallMixController: ObservableObject {
     func microphoneSettings(uid: String) -> SoundChannelSettings {
         microphones[uid] ?? Self.inactiveSettings()
     }
+    func sourceSelected(_ source: SoundInputSourceID) -> Bool {
+        switch source {
+        case .device(let uid): return microphoneSettings(uid: uid).active
+        case .application(let id): return settings(id).active
+        }
+    }
+    func setSourcePinned(_ value: Bool, source: SoundInputSourceID, name: String) {
+        var next = sourceList
+        next.remember(name, source: source); next.setPinned(value, source: source)
+        saveSourceList(next)
+    }
+    @discardableResult func setSourceHidden(_ value: Bool, source: SoundInputSourceID, name: String) -> Bool {
+        var next = sourceList
+        guard next.setHidden(value, source: source, selected: sourceSelected(source)) else { return false }
+        next.remember(name, source: source); saveSourceList(next)
+        return true
+    }
+    private func saveSourceList(_ value: SoundInputSourceListPreferences) {
+        guard value != sourceList else { return }
+        sourceList = value
+        if let data = try? JSONEncoder().encode(value) { defaults?.set(data, forKey: Self.sourceListKey) }
+    }
     func editMicrophone(_ edit: (inout SoundChannelSettings) -> Void) {
         editMicrophone(uid: nil, edit)
     }
@@ -113,6 +138,7 @@ final class SoundCallMixController: ObservableObject {
         var value = previous; edit(&value)
         value.gain = min(1, value.safeGain); value.bass = false
         if let uid { microphones[uid] = value } else { microphone = value }
+        if let uid, value.active { _ = setSourceHidden(false, source: .device(uid), name: sourceList.names[.device(uid)] ?? uid) }
         if value.active && !previous.active { microphonePermissionDenied = false }
         persist(); sendUpdate()
     }
@@ -122,6 +148,7 @@ final class SoundCallMixController: ObservableObject {
         guard !value.active || sources.filter({ $0.id != id && settings($0.id).active }).count < 4 else { return }
         value.gain = min(1, value.safeGain); value.bass = false
         applications[id] = value; persist(); sendUpdate()
+        if value.active { _ = setSourceHidden(false, source: .application(id), name: sourceList.names[.application(id)] ?? id) }
     }
     func sourcesChanged(_ apps: [SoundMixerChannel]) {
         sources = apps.filter { SoundCallMixPolicy.allows($0.id) }

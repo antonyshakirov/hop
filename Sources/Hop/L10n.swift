@@ -211,6 +211,7 @@ enum L10nKey: String, CaseIterable {
     case soundCallMix, soundCallStart, soundCallStop
     case soundCallHint, soundCallFailed
     case soundEnabled, soundDisabled, soundCallCloseHint
+    case soundOtherSources, soundHiddenSources, soundSourcePin, soundSourceUnpin, soundSourceHide, soundSourceRestore, soundVirtualDevice
     case soundMicrophone, soundInputIncluded, soundMixerBackground, soundMixerPermission
     case soundMacVolume, soundAppVolumeHint
     case soundAddApplication, soundResetApplications
@@ -518,6 +519,14 @@ enum L10n {
     }
 
     private static let enTable: [L10nKey: String] = [
+            .soundOtherSources: "other sources",
+            .soundHiddenSources: "hidden sources",
+            .soundSourcePin: "pin source",
+            .soundSourceUnpin: "unpin source",
+            .soundSourceHide: "hide source",
+            .soundSourceRestore: "show",
+            .soundVirtualDevice: "virtual",
+
             .soundQuickMixOn: "mix: on",
             .soundQuickMixOff: "mix: off",
             .soundQuickMixStarting: "mix: …",
@@ -585,7 +594,7 @@ enum L10n {
             .soundMicMuteKey: "mute microphone",
             .soundInputChanged: "microphone changed; the check stopped",
             .purposeSound: "choose sound devices and control their volume",
-            .docSoundFull: "choose sound devices and control their volume. microphone mute affects this device only; apps using another microphone are unaffected\n\nrecords up to 10 seconds; stop, then listen. the sample stays in memory until this window closes. system default follows the devices selected in macOS.\n\nenable app volume once. it works in the background and resumes when Hop restarts.",
+            .docSoundFull: "choose input and output devices and adjust their levels. system default follows the device selected in macOS.\n\nthe output mixer gives each app its own volume, mute and device. 100% matches the Mac’s current overall level. if an assigned device disconnects, playback waits for that device to return without switching to speakers.\n\nenable the Hop Mix input mixer explicitly. use the system microphone and select app sources, then choose Hop Mix as the microphone in the receiving app. closing Sound stops capture.\n\npin keeps a\u{00A0}source at the top. unused sources are in Other Sources, collapsed initially. only inactive sources can be hidden. restore them from the menu inside Other Sources; restoring does not activate them.\n\ncheck the microphone with a\u{00A0}recording of up to 10 seconds. it stays only in memory and is deleted when Sound closes.",
             .news24Mixer: "audio mixer: separate app outputs and\u{00A0}volume; voice and\u{00A0}app audio in\u{00A0}one Hop Mix input",
             .news24AI: "AI: tasks, timers and\u{00A0}time tracking with\u{00A0}action confirmation",
             .news24Icon: "menu bar: keep only the\u{00A0}Hop icon; hide indicators and\u{00A0}countdowns",
@@ -1364,6 +1373,14 @@ enum L10n {
             ]
 
     private static let ruTable: [L10nKey: String] = [
+            .soundOtherSources: "другие источники",
+            .soundHiddenSources: "скрытые источники",
+            .soundSourcePin: "закрепить",
+            .soundSourceUnpin: "открепить",
+            .soundSourceHide: "скрыть",
+            .soundSourceRestore: "вернуть",
+            .soundVirtualDevice: "виртуальный",
+
             .soundQuickMixOn: "микшер: вкл",
             .soundQuickMixOff: "микшер: выкл",
             .soundQuickMixStarting: "микшер: …",
@@ -1431,7 +1448,7 @@ enum L10n {
             .soundMicMuteKey: "отключить микрофон",
             .soundInputChanged: "микрофон изменился; проверка остановлена",
             .purposeSound: "выбирает звуковые устройства и\u{00A0}управляет громкостью",
-            .docSoundFull: "выбирает звуковые устройства и\u{00A0}управляет громкостью. отключается только этот микрофон; приложения с\u{00A0}другим микрофоном продолжат его использовать\n\nзапись до\u{00A0}10\u{00A0}секунд: остановите и\u{00A0}прослушайте. она хранится в\u{00A0}памяти до\u{00A0}закрытия окна. «по\u{00A0}умолчанию» использует устройства, выбранные в\u{00A0}macOS.\n\nвключите управление громкостью приложений один раз. оно работает в\u{00A0}фоне и\u{00A0}возобновляется при\u{00A0}запуске Hop.",
+            .docSoundFull: "выберите устройства входа и\u{00A0}выхода и\u{00A0}настройте их уровень. «по\u{00A0}умолчанию» следует выбору macOS.\n\nвыходной микшер задаёт каждому приложению громкость, отключение звука и\u{00A0}устройство. 100% соответствует текущему общему уровню Mac. при\u{00A0}отключении назначенного устройства воспроизведение ждёт его возвращения без\u{00A0}перехода на\u{00A0}динамики.\n\nвходной микшер Hop Mix включается явно. используйте системный микрофон и\u{00A0}выберите приложения-источники, затем выберите Hop Mix как\u{00A0}микрофон в\u{00A0}принимающем приложении. закрытие окна «Звук» останавливает захват.\n\nзакрепление держит источник сверху. неиспользуемые источники находятся в\u{00A0}«Других источниках», сначала раздел свёрнут. скрыть можно только неактивные источники. восстановите их через меню внутри раздела; восстановление не\u{00A0}включает источник.\n\nпроверка микрофона записывает до\u{00A0}10\u{00A0}секунд. запись хранится только в\u{00A0}памяти и\u{00A0}удаляется при\u{00A0}закрытии окна «Звук».",
             .news24Mixer: "аудиомикшер: отдельные громкость и\u{00A0}выход приложений; голос и\u{00A0}звук приложений — в\u{00A0}один вход Hop Mix",
             .news24AI: "AI: задачи, таймеры и\u{00A0}учёт времени с\u{00A0}подтверждением действий",
             .news24Icon: "строка меню: только иконка Hop без\u{00A0}индикаторов и\u{00A0}отсчёта времени",
@@ -2210,6 +2227,14 @@ enum L10n {
             ]
 
     private static let deTable: [L10nKey: String] = [
+            .soundOtherSources: "weitere Quellen",
+            .soundHiddenSources: "ausgeblendete Quellen",
+            .soundSourcePin: "anheften",
+            .soundSourceUnpin: "lösen",
+            .soundSourceHide: "ausblenden",
+            .soundSourceRestore: "anzeigen",
+            .soundVirtualDevice: "virtuell",
+
             .soundQuickMixOn: "mix: an",
             .soundQuickMixOff: "mix: aus",
             .soundQuickMixStarting: "mix: …",
@@ -2277,7 +2302,7 @@ enum L10n {
             .soundMicMuteKey: "mikrofon stummschalten",
             .soundInputChanged: "mikrofon geändert; prüfung beendet",
             .purposeSound: "audiogeräte wählen und ihre lautstärke regeln",
-            .docSoundFull: "audiogeräte wählen und ihre lautstärke regeln. nur dieses mikrofon wird stummgeschaltet; apps mit einem anderen mikrofon sind nicht betroffen\n\nnimmt bis zu 10 sekunden auf. stoppen, dann anhören. die aufnahme bleibt bis zum schließen im speicher. systemstandard folgt den in macOS gewählten geräten.\n\napp-lautstärke einmal aktivieren. sie läuft im hintergrund und wird beim neustart von Hop fortgesetzt.",
+            .docSoundFull: "eingabe- und ausgabegeräte wählen und ihre pegel einstellen. systemstandard folgt der geräteauswahl in macOS.\n\nder ausgabemixer gibt jeder app eine eigene lautstärke, stummschaltung und ein gerät. 100% entspricht dem aktuellen gesamtpegel des Mac. wird ein zugewiesenes gerät getrennt, wartet die wiedergabe auf seine rückkehr, ohne zu den lautsprechern zu wechseln.\n\nden eingabemixer Hop Mix ausdrücklich aktivieren. das systemmikrofon verwenden und app-quellen auswählen, dann Hop Mix in der empfangenden app als mikrofon wählen. beim schließen von Sound endet die aufnahme.\n\nanheften hält eine quelle oben. ungenutzte quellen stehen im anfangs eingeklappten bereich „weitere Quellen“. nur inaktive quellen lassen sich ausblenden. über das menü innerhalb dieses bereichs wiederherstellen; dadurch werden sie nicht aktiviert.\n\nder mikrofontest nimmt bis zu 10 sekunden auf. die aufnahme bleibt nur im arbeitsspeicher und wird beim schließen von Sound gelöscht.",
             .news24Mixer: "audiomixer: Ausgang und Lautstärke je App; Mikrofon und App-Audio als ein Hop Mix-Eingang",
             .news24AI: "AI: aufgaben, timer und zeiterfassung mit bestätigung der aktionen",
             .news24Icon: "menüleiste: nur das Hop-symbol, ohne anzeigen oder countdowns",
@@ -3056,6 +3081,14 @@ enum L10n {
             ]
 
     private static let esTable: [L10nKey: String] = [
+            .soundOtherSources: "otras fuentes",
+            .soundHiddenSources: "fuentes ocultas",
+            .soundSourcePin: "fijar",
+            .soundSourceUnpin: "desfijar",
+            .soundSourceHide: "ocultar",
+            .soundSourceRestore: "mostrar",
+            .soundVirtualDevice: "virtual",
+
             .soundQuickMixOn: "mix: activo",
             .soundQuickMixOff: "mix: inactivo",
             .soundQuickMixStarting: "mix: …",
@@ -3123,7 +3156,7 @@ enum L10n {
             .soundMicMuteKey: "silenciar micrófono",
             .soundInputChanged: "el micrófono cambió; prueba detenida",
             .purposeSound: "elige dispositivos de sonido y\u{00A0}controla su volumen",
-            .docSoundFull: "elige dispositivos de sonido y\u{00A0}controla su volumen. solo se silencia este micrófono; las apps con otro micrófono no se ven afectadas\n\ngraba hasta 10 segundos. detén y\u{00A0}escucha. la muestra queda en memoria hasta cerrar esta ventana. el predeterminado sigue los dispositivos elegidos en macOS.\n\nactiva una vez el volumen por app. funciona en segundo plano y\u{00A0}se reanuda al reiniciar Hop.",
+            .docSoundFull: "elige los dispositivos de entrada y\u{00A0}salida y\u{00A0}ajusta sus niveles. el predeterminado sigue el dispositivo elegido en macOS.\n\nel mezclador de salida da a\u{00A0}cada app su propio volumen, silencio y\u{00A0}dispositivo. el 100% corresponde al nivel general actual del Mac. si el dispositivo asignado se desconecta, la reproducción espera a\u{00A0}que vuelva sin cambiar a\u{00A0}los altavoces.\n\nactiva explícitamente el mezclador de entrada Hop Mix. usa el micrófono del sistema y\u{00A0}selecciona las apps de origen; después elige Hop Mix como micrófono en la app receptora. al cerrar Sonido se detiene la captura.\n\nfijar mantiene una fuente arriba. las fuentes sin usar están en «otras fuentes», contraído al principio. solo se pueden ocultar fuentes inactivas. restáuralas desde el menú dentro de esa sección; restaurarlas no las activa.\n\nla prueba del micrófono graba hasta 10 segundos. la grabación solo permanece en memoria y\u{00A0}se elimina al cerrar Sonido.",
             .news24Mixer: "mezclador de audio: salida y\u{00A0}volumen por aplicación; micrófono y\u{00A0}audio de apps en una entrada Hop Mix",
             .news24AI: "AI: tareas, temporizadores y\u{00A0}registro de tiempo con confirmación de acciones",
             .news24Icon: "barra de menús: solo el icono de Hop, sin indicadores ni cuentas atrás",
@@ -3902,6 +3935,14 @@ enum L10n {
             ]
 
     private static let ptTable: [L10nKey: String] = [
+            .soundOtherSources: "outras fontes",
+            .soundHiddenSources: "fontes ocultas",
+            .soundSourcePin: "fixar",
+            .soundSourceUnpin: "desafixar",
+            .soundSourceHide: "ocultar",
+            .soundSourceRestore: "mostrar",
+            .soundVirtualDevice: "virtual",
+
             .soundQuickMixOn: "mix: ligado",
             .soundQuickMixOff: "mix: desligado",
             .soundQuickMixStarting: "mix: …",
@@ -3969,7 +4010,7 @@ enum L10n {
             .soundMicMuteKey: "silenciar microfone",
             .soundInputChanged: "o\u{00A0}microfone mudou; teste interrompido",
             .purposeSound: "escolhe dispositivos de som e\u{00A0}controla seu volume",
-            .docSoundFull: "escolhe dispositivos de som e\u{00A0}controla seu volume. apenas este microfone é silenciado; apps com outro microfone não são afetados\n\ngrava até 10 segundos. pare e\u{00A0}ouça. a\u{00A0}amostra fica na memória até fechar esta janela. o\u{00A0}padrão segue os dispositivos escolhidos no macOS.\n\native uma vez o\u{00A0}volume por app. funciona em segundo plano e\u{00A0}retoma ao reiniciar o\u{00A0}Hop.",
+            .docSoundFull: "escolha os dispositivos de entrada e\u{00A0}saída e\u{00A0}ajuste seus níveis. o\u{00A0}padrão segue o\u{00A0}dispositivo escolhido no macOS.\n\no\u{00A0}mixer de saída dá a\u{00A0}cada app seu próprio volume, silenciamento e\u{00A0}dispositivo. 100% corresponde ao nível geral atual do Mac. se o\u{00A0}dispositivo atribuído for desconectado, a\u{00A0}reprodução espera sua volta sem mudar para os alto-falantes.\n\native explicitamente o\u{00A0}mixer de entrada Hop Mix. use o\u{00A0}microfone do sistema e\u{00A0}selecione os apps de origem; depois escolha Hop Mix como microfone no app receptor. fechar Som interrompe a\u{00A0}captura.\n\nfixar mantém uma fonte no topo. fontes sem uso ficam em «outras fontes», recolhido inicialmente. só fontes inativas podem ser ocultadas. restaure-as pelo menu dentro dessa seção; restaurar não ativa a\u{00A0}fonte.\n\no\u{00A0}teste do microfone grava até 10 segundos. a\u{00A0}gravação fica apenas na memória e\u{00A0}é apagada ao fechar Som.",
             .news24Mixer: "mixer de áudio: saída e\u{00A0}volume por aplicativo; microfone e\u{00A0}áudio dos apps em uma entrada Hop Mix",
             .news24AI: "AI: tarefas, temporizadores e\u{00A0}controle de tempo com confirmação das ações",
             .news24Icon: "barra de menus: só o\u{00A0}ícone do Hop, sem indicadores nem contagens",
@@ -4748,6 +4789,14 @@ enum L10n {
             ]
 
     private static let frTable: [L10nKey: String] = [
+            .soundOtherSources: "autres sources",
+            .soundHiddenSources: "sources masquées",
+            .soundSourcePin: "épingler",
+            .soundSourceUnpin: "désépingler",
+            .soundSourceHide: "masquer",
+            .soundSourceRestore: "afficher",
+            .soundVirtualDevice: "virtuel",
+
             .soundQuickMixOn: "mix: actif",
             .soundQuickMixOff: "mix: inactif",
             .soundQuickMixStarting: "mix: …",
@@ -4815,7 +4864,7 @@ enum L10n {
             .soundMicMuteKey: "couper le microphone",
             .soundInputChanged: "microphone changé; test arrêté",
             .purposeSound: "choisit les appareils audio et règle leur volume",
-            .docSoundFull: "choisit les appareils audio et règle leur volume. seul ce microphone est coupé; les apps utilisant un autre microphone ne sont pas affectées\n\nenregistre jusqu’à\u{00A0}10 secondes. arrêtez puis écoutez. l’extrait reste en mémoire jusqu’à\u{00A0}la fermeture de cette fenêtre. le choix par défaut suit les appareils sélectionnés dans macOS.\n\nactivez une fois le volume par app. il fonctionne en arrière-plan et reprend au redémarrage de Hop.",
+            .docSoundFull: "choisissez les appareils d’entrée et de sortie et réglez leurs niveaux. le choix par défaut suit l’appareil sélectionné dans macOS.\n\nle mixeur de sortie donne à\u{00A0}chaque app son volume, sa coupure du son et son appareil. 100% correspond au niveau général actuel du Mac. si l’appareil attribué est déconnecté, la lecture attend son retour sans passer aux haut-parleurs.\n\nactivez explicitement le mixeur d’entrée Hop Mix. utilisez le microphone système et sélectionnez les apps sources, puis choisissez Hop Mix comme microphone dans l’app réceptrice. fermer Son arrête la capture.\n\népingler garde une source en haut. les sources inutilisées se trouvent dans « autres sources », replié au départ. seules les sources inactives peuvent être masquées. restaurez-les depuis le menu de cette section ; la restauration ne les active pas.\n\nle test du microphone enregistre jusqu’à\u{00A0}10 secondes. l’enregistrement reste uniquement en mémoire et est supprimé à\u{00A0}la fermeture de Son.",
             .news24Mixer: "mixeur audio : sortie et volume par application ; micro et audio des apps dans une entrée Hop Mix",
             .news24AI: "AI : tâches, minuteurs et suivi du temps avec confirmation des actions",
             .news24Icon: "barre des menus : seulement l’icône Hop, sans indicateurs ni décomptes",
@@ -5594,6 +5643,14 @@ enum L10n {
             ]
 
     private static let itTable: [L10nKey: String] = [
+            .soundOtherSources: "altre sorgenti",
+            .soundHiddenSources: "sorgenti nascoste",
+            .soundSourcePin: "fissa",
+            .soundSourceUnpin: "rimuovi fissaggio",
+            .soundSourceHide: "nascondi",
+            .soundSourceRestore: "mostra",
+            .soundVirtualDevice: "virtuale",
+
             .soundQuickMixOn: "mix: attivo",
             .soundQuickMixOff: "mix: spento",
             .soundQuickMixStarting: "mix: …",
@@ -5661,7 +5718,7 @@ enum L10n {
             .soundMicMuteKey: "disattiva microfono",
             .soundInputChanged: "microfono cambiato; prova interrotta",
             .purposeSound: "sceglie dispositivi audio e\u{00A0}ne regola il volume",
-            .docSoundFull: "sceglie dispositivi audio e\u{00A0}ne regola il volume. viene disattivato solo questo microfono; le app con un altro microfono non sono interessate\n\nregistra fino a\u{00A0}10\u{00A0}secondi. interrompi e\u{00A0}ascolta. il campione resta in memoria fino alla chiusura della finestra. il predefinito segue i\u{00A0}dispositivi selezionati in macOS.\n\nattiva una volta il volume per app. funziona in background e\u{00A0}riprende al riavvio di Hop.",
+            .docSoundFull: "scegli i\u{00A0}dispositivi di ingresso e\u{00A0}uscita e\u{00A0}regola i\u{00A0}livelli. il predefinito segue il dispositivo scelto in macOS.\n\nil mixer di uscita dà a\u{00A0}ogni app volume, disattivazione dell’audio e\u{00A0}dispositivo separati. il 100% corrisponde al livello generale attuale del Mac. se il dispositivo assegnato si disconnette, la riproduzione ne attende il ritorno senza passare agli altoparlanti.\n\nattiva esplicitamente il mixer di ingresso Hop Mix. usa il microfono di sistema e\u{00A0}seleziona le app sorgenti, poi scegli Hop Mix come microfono nell’app ricevente. chiudere Suono interrompe l’acquisizione.\n\nfissare mantiene una sorgente in alto. le sorgenti inutilizzate sono in «altre sorgenti», inizialmente compresso. si possono nascondere solo le sorgenti inattive. ripristinale dal menu all’interno della sezione; il ripristino non le attiva.\n\nil test del microfono registra fino a\u{00A0}10\u{00A0}secondi. la registrazione resta solo in memoria e\u{00A0}viene eliminata alla chiusura di Suono.",
             .news24Mixer: "mixer audio: uscita e\u{00A0}volume per app; microfono e\u{00A0}audio delle app in un ingresso Hop Mix",
             .news24AI: "AI: attività, timer e\u{00A0}monitoraggio del tempo con conferma delle azioni",
             .news24Icon: "barra dei menu: solo l’icona Hop, senza indicatori né conti alla rovescia",
@@ -6440,6 +6497,14 @@ enum L10n {
             ]
 
     private static let zhTable: [L10nKey: String] = [
+            .soundOtherSources: "其他来源",
+            .soundHiddenSources: "已隐藏来源",
+            .soundSourcePin: "固定",
+            .soundSourceUnpin: "取消固定",
+            .soundSourceHide: "隐藏",
+            .soundSourceRestore: "显示",
+            .soundVirtualDevice: "虚拟",
+
             .soundQuickMixOn: "混音：开",
             .soundQuickMixOff: "混音：关",
             .soundQuickMixStarting: "混音：…",
@@ -6507,7 +6572,7 @@ enum L10n {
             .soundMicMuteKey: "麦克风静音",
             .soundInputChanged: "麦克风已更改，测试已停止",
             .purposeSound: "选择音频设备并控制音量",
-            .docSoundFull: "选择音频设备并控制音量. 仅将此麦克风静音；使用其他麦克风的应用不受影响\n\n最多录音10秒，停止后可试听。录音仅保存在内存中，关闭窗口后删除。 系统默认会使用macOS中选择的设备。\n\n启用一次应用音量控制，即可在后台运行，并在 Hop 重启时恢复。",
+            .docSoundFull: "选择输入和输出设备并调整音量。“系统默认”跟随 macOS 中选择的设备。\n\n输出混音器为每个应用单独设置音量、静音和设备。100% 对应 Mac 当前的总体音量。指定设备断开后，播放会等待该设备重新连接，不会自动切换到扬声器。\n\n请手动启用 Hop Mix 输入混音器。使用系统麦克风并选择应用音源，然后在接收应用中将 Hop Mix 选为麦克风。关闭“声音”窗口会停止采集。\n\n置顶可将音源保持在上方。未使用的音源位于“其他音源”中，该区域初始为折叠状态。只能隐藏未启用的音源。可通过该区域内的菜单恢复，恢复不会启用音源。\n\n麦克风测试最多录音 10 秒。录音仅保存在内存中，关闭“声音”窗口后删除。",
             .news24Mixer: "音频混音器：分别设置应用输出和音量；将麦克风和应用音频合并为一个 Hop Mix 输入",
             .news24AI: "AI：任务、计时器和时间记录，执行操作前需确认",
             .news24Icon: "菜单栏：仅显示 Hop 图标，隐藏指示标记和倒计时",
@@ -7277,6 +7342,14 @@ enum L10n {
             ]
 
     private static let jaTable: [L10nKey: String] = [
+            .soundOtherSources: "その他のソース",
+            .soundHiddenSources: "非表示のソース",
+            .soundSourcePin: "固定",
+            .soundSourceUnpin: "固定を解除",
+            .soundSourceHide: "非表示",
+            .soundSourceRestore: "表示",
+            .soundVirtualDevice: "仮想",
+
             .soundQuickMixOn: "ミックス：オン",
             .soundQuickMixOff: "ミックス：オフ",
             .soundQuickMixStarting: "ミックス：…",
@@ -7344,7 +7417,7 @@ enum L10n {
             .soundMicMuteKey: "マイクをミュート",
             .soundInputChanged: "マイクが変わったため確認を停止しました",
             .purposeSound: "オーディオデバイスの選択と音量調整",
-            .docSoundFull: "オーディオデバイスの選択と音量調整. このマイクのみをミュートします。別のマイクを使うアプリには影響しません\n\n最大10秒録音します。停止してから聴けます。録音はウインドウを閉じるまでメモリ内に保持されます。 デフォルトではmacOSで選択したデバイスを使用します。\n\nアプリ別の音量調整を一度有効にすると、バックグラウンドで動作し、Hopの再起動時に再開します。",
+            .docSoundFull: "入力と出力のデバイスを選び、レベルを調整します。「システムデフォルト」は macOS で選択したデバイスに従います。\n\n出力ミキサーではアプリごとに音量、ミュート、デバイスを設定できます。100% は Mac の現在の全体音量に対応します。指定したデバイスが切断されると、そのデバイスの再接続を待ち、スピーカーには切り替わりません。\n\nHop Mix 入力ミキサーは明示的に有効にします。システムマイクを使い、音源となるアプリを選んでから、受信側のアプリで Hop Mix をマイクに選びます。「サウンド」を閉じると音声の取り込みが停止します。\n\nピン留めした音源は上部に残ります。未使用の音源は、最初は閉じている「その他のソース」に表示されます。無効な音源のみ非表示にできます。このセクション内のメニューから復元できますが、復元しても有効にはなりません。\n\nマイクのテストでは最大 10 秒録音します。録音はメモリ内にのみ保存され、「サウンド」を閉じると削除されます。",
             .news24Mixer: "オーディオミキサー：アプリ別の出力と音量。マイクとアプリの音を1つの Hop Mix 入力に統合",
             .news24AI: "AI：タスク、タイマー、時間記録の操作を確認して実行",
             .news24Icon: "メニューバー：インジケータやカウントダウンを隠し、Hop アイコンだけを表示",
@@ -8120,6 +8193,14 @@ enum L10n {
             ]
 
     private static let nlTable: [L10nKey: String] = [
+            .soundOtherSources: "andere bronnen",
+            .soundHiddenSources: "verborgen bronnen",
+            .soundSourcePin: "vastmaken",
+            .soundSourceUnpin: "losmaken",
+            .soundSourceHide: "verbergen",
+            .soundSourceRestore: "tonen",
+            .soundVirtualDevice: "virtueel",
+
             .soundQuickMixOn: "mix: aan",
             .soundQuickMixOff: "mix: uit",
             .soundQuickMixStarting: "mix: …",
@@ -8187,7 +8268,7 @@ enum L10n {
             .soundMicMuteKey: "microfoon dempen",
             .soundInputChanged: "microfoon gewijzigd; test gestopt",
             .purposeSound: "geluidsapparaten kiezen en hun volume regelen",
-            .docSoundFull: "geluidsapparaten kiezen en hun volume regelen. alleen deze microfoon wordt gedempt; apps met een andere microfoon blijven werken\n\nneemt tot 10 seconden op. stop en luister. de opname blijft in het geheugen tot dit venster sluit. systeemstandaard volgt de apparaten die in macOS zijn gekozen.\n\nschakel appvolume eenmaal in. het werkt op de achtergrond en hervat wanneer Hop opnieuw start.",
+            .docSoundFull: "kies invoer- en uitvoerapparaten en stel hun niveaus in. systeemstandaard volgt het apparaat dat in macOS is gekozen.\n\nde uitvoermixer geeft elke app een eigen volume, demping en apparaat. 100% komt overeen met het huidige algemene niveau van de Mac. als het toegewezen apparaat wordt losgekoppeld, wacht het afspelen op dat apparaat zonder naar luidsprekers over te schakelen.\n\nschakel de Hop Mix-invoermixer expliciet in. gebruik de systeemmicrofoon en selecteer appbronnen, en kies daarna Hop Mix als microfoon in de ontvangende app. Geluid sluiten stopt de opname.\n\nvastzetten houdt een bron bovenaan. ongebruikte bronnen staan onder ‘andere bronnen’, dat eerst is ingeklapt. alleen inactieve bronnen kunnen worden verborgen. herstel ze via het menu binnen die sectie; herstellen activeert ze niet.\n\nde microfoontest neemt maximaal 10 seconden op. de opname blijft alleen in het geheugen en wordt verwijderd wanneer Geluid sluit.",
             .news24Mixer: "audiomixer: uitgang en volume per app; microfoon en app-audio in één Hop Mix-ingang",
             .news24AI: "AI: taken, timers en tijdregistratie met bevestiging van acties",
             .news24Icon: "menubalk: alleen het Hop-pictogram, zonder indicatoren of aftellingen",
@@ -8982,6 +9063,14 @@ enum L10n {
             ]
 
     private static let koTable: [L10nKey: String] = [
+            .soundOtherSources: "다른 소스",
+            .soundHiddenSources: "숨긴 소스",
+            .soundSourcePin: "고정",
+            .soundSourceUnpin: "고정 해제",
+            .soundSourceHide: "숨기기",
+            .soundSourceRestore: "표시",
+            .soundVirtualDevice: "가상",
+
             .soundQuickMixOn: "믹서: 켬",
             .soundQuickMixOff: "믹서: 끔",
             .soundQuickMixStarting: "믹서: …",
@@ -9049,7 +9138,7 @@ enum L10n {
             .soundMicMuteKey: "마이크 음소거",
             .soundInputChanged: "마이크가 변경되어 확인이 중지되었습니다",
             .purposeSound: "오디오 기기를 선택하고 음량을 조절합니다",
-            .docSoundFull: "오디오 기기를 선택하고 음량을 조절합니다. 이 마이크만 음소거합니다. 다른 마이크를 사용하는 앱은 영향을 받지 않습니다\n\n최대 10초간 녹음합니다. 중지한 후 들어보세요. 녹음은 창을 닫을 때까지 메모리에만 저장됩니다. 기본값은 macOS에서 선택한 장치를 따릅니다.\n\n앱별 음량을 한 번 켜면 백그라운드에서 작동하고 Hop을 다시 시작하면 재개됩니다.",
+            .docSoundFull: "입력 및 출력 기기를 선택하고 레벨을 조절합니다. 시스템 기본값은 macOS에서 선택한 기기를 따릅니다.\n\n출력 믹서는 앱별로 음량, 음소거, 기기를 설정합니다. 100%는 Mac의 현재 전체 음량에 해당합니다. 지정한 기기가 연결 해제되면 스피커로 전환하지 않고 해당 기기가 다시 연결될 때까지 재생을 기다립니다.\n\nHop Mix 입력 믹서는 직접 켜야 합니다. 시스템 마이크를 사용하고 앱 소스를 선택한 다음, 수신 앱에서 Hop Mix를 마이크로 선택하세요. 사운드 창을 닫으면 캡처가 중지됩니다.\n\n고정한 소스는 위쪽에 유지됩니다. 사용하지 않는 소스는 처음에 접혀 있는 ‘기타 소스’에 있습니다. 비활성 소스만 숨길 수 있습니다. 해당 섹션 안의 메뉴에서 복원할 수 있으며, 복원해도 활성화되지 않습니다.\n\n마이크 테스트는 최대 10초 동안 녹음합니다. 녹음은 메모리에만 저장되며 사운드 창을 닫으면 삭제됩니다.",
             .news24Mixer: "오디오 믹서: 앱별 출력과 음량, 마이크와 앱 오디오를 하나의 Hop Mix 입력으로 통합",
             .news24AI: "AI: 작업, 타이머, 시간 추적 작업을 확인 후 실행",
             .news24Icon: "메뉴 막대: 표시기와 카운트다운 없이 Hop 아이콘만 표시",
@@ -9825,6 +9914,14 @@ enum L10n {
             ]
 
     private static let thTable: [L10nKey: String] = [
+            .soundOtherSources: "แหล่งเสียงอื่น",
+            .soundHiddenSources: "แหล่งเสียงที่ซ่อน",
+            .soundSourcePin: "ปักหมุด",
+            .soundSourceUnpin: "เลิกปักหมุด",
+            .soundSourceHide: "ซ่อน",
+            .soundSourceRestore: "แสดง",
+            .soundVirtualDevice: "เสมือน",
+
             .soundQuickMixOn: "มิกซ์: เปิด",
             .soundQuickMixOff: "มิกซ์: ปิด",
             .soundQuickMixStarting: "มิกซ์: …",
@@ -9892,7 +9989,7 @@ enum L10n {
             .soundMicMuteKey: "ปิดเสียงไมโครโฟน",
             .soundInputChanged: "ไมโครโฟนเปลี่ยนไป จึงหยุดการทดสอบ",
             .purposeSound: "เลือกอุปกรณ์เสียงและปรับระดับเสียง",
-            .docSoundFull: "เลือกอุปกรณ์เสียงและปรับระดับเสียง. ปิดเสียงเฉพาะไมโครโฟนนี้ แอปที่ใช้ไมโครโฟนอื่นไม่ได้รับผลกระทบ\n\nบันทึกได้สูงสุด 10 วินาที หยุดแล้วฟังได้ เสียงจะอยู่ในหน่วยความจำจนกว่าจะปิดหน้าต่างนี้ ค่าเริ่มต้นใช้ตามอุปกรณ์ที่เลือกใน macOS\n\nเปิดการควบคุมเสียงแต่ละแอปครั้งเดียว จากนั้นจะทำงานเบื้องหลังและทำงานต่อเมื่อเปิด Hop ใหม่",
+            .docSoundFull: "เลือกอุปกรณ์รับเข้าและส่งออก แล้วปรับระดับเสียง ค่าเริ่มต้นของระบบจะใช้ตามอุปกรณ์ที่เลือกใน macOS\n\nมิกเซอร์ส่งออกแยกระดับเสียง การปิดเสียง และอุปกรณ์ให้แต่ละแอป 100% ตรงกับระดับเสียงรวมปัจจุบันของ Mac หากอุปกรณ์ที่กำหนดไว้หลุดการเชื่อมต่อ การเล่นจะรออุปกรณ์เดิมกลับมาโดยไม่สลับไปใช้ลำโพง\n\nต้องเปิดมิกเซอร์รับเข้า Hop Mix เอง ใช้ไมโครโฟนของระบบและเลือกแอปต้นทาง จากนั้นเลือก Hop Mix เป็นไมโครโฟนในแอปรับเสียง การปิดหน้าต่างเสียงจะหยุดการรับเสียง\n\nการปักหมุดจะคงแหล่งเสียงไว้ด้านบน แหล่งเสียงที่ไม่ได้ใช้อยู่ใน «แหล่งเสียงอื่น» ซึ่งยุบไว้ในตอนแรก ซ่อนได้เฉพาะแหล่งเสียงที่ไม่ได้เปิดใช้งาน กู้คืนได้จากเมนูภายในส่วนนี้ การกู้คืนจะไม่เปิดใช้แหล่งเสียง\n\nการทดสอบไมโครโฟนบันทึกได้สูงสุด 10 วินาที เสียงบันทึกเก็บไว้ในหน่วยความจำเท่านั้นและถูกลบเมื่อปิดหน้าต่างเสียง",
             .news24Mixer: "มิกเซอร์เสียง: แยกเอาต์พุตและระดับเสียงแต่ละแอป รวมไมโครโฟนและเสียงแอปเป็นอินพุต Hop Mix เดียว",
             .news24AI: "AI: งาน ตัวจับเวลา และการติดตามเวลา โดยยืนยันก่อนดำเนินการ",
             .news24Icon: "แถบเมนู: แสดงเฉพาะไอคอน Hop โดยไม่มีตัวบอกสถานะหรือการนับถอยหลัง",
@@ -10687,6 +10784,14 @@ enum L10n {
             ]
 
     private static let viTable: [L10nKey: String] = [
+            .soundOtherSources: "nguồn khác",
+            .soundHiddenSources: "nguồn đã ẩn",
+            .soundSourcePin: "ghim",
+            .soundSourceUnpin: "bỏ ghim",
+            .soundSourceHide: "ẩn",
+            .soundSourceRestore: "hiện",
+            .soundVirtualDevice: "ảo",
+
             .soundQuickMixOn: "mix: bật",
             .soundQuickMixOff: "mix: tắt",
             .soundQuickMixStarting: "mix: …",
@@ -10754,7 +10859,7 @@ enum L10n {
             .soundMicMuteKey: "tắt tiếng micrô",
             .soundInputChanged: "micrô đã thay đổi; đã dừng kiểm tra",
             .purposeSound: "chọn thiết bị âm thanh và điều chỉnh âm lượng",
-            .docSoundFull: "chọn thiết bị âm thanh và điều chỉnh âm lượng. chỉ tắt tiếng micrô này; ứng dụng dùng micrô khác không bị ảnh hưởng\n\nghi tối đa 10 giây. dừng rồi nghe. bản ghi ở\u{00A0}trong bộ nhớ cho đến khi đóng cửa sổ này. mặc định dùng các thiết bị đã chọn trong macOS.\n\nbật âm lượng từng ứng dụng một lần. tính năng chạy nền và tiếp tục khi Hop khởi động lại.",
+            .docSoundFull: "chọn thiết bị đầu vào và đầu ra rồi điều chỉnh mức âm lượng. mặc định hệ thống theo thiết bị được chọn trong macOS.\n\nbộ trộn đầu ra cho mỗi ứng dụng âm lượng, tắt tiếng và thiết bị riêng. 100% tương ứng với mức âm lượng chung hiện tại của Mac. nếu thiết bị đã gán bị ngắt kết nối, phát lại sẽ chờ thiết bị đó trở lại mà không chuyển sang loa.\n\nhãy bật bộ trộn đầu vào Hop Mix một cách chủ động. dùng micrô hệ thống và chọn ứng dụng nguồn, rồi chọn Hop Mix làm micrô trong ứng dụng nhận. đóng Âm thanh sẽ dừng thu âm.\n\nghim giữ nguồn ở\u{00A0}trên cùng. các nguồn không dùng nằm trong «Nguồn khác», ban đầu được thu gọn. chỉ có thể ẩn nguồn chưa bật. khôi phục qua menu trong mục này; khôi phục không bật nguồn.\n\nkiểm tra micrô ghi tối đa 10 giây. bản ghi chỉ nằm trong bộ nhớ và bị xóa khi đóng Âm thanh.",
             .news24Mixer: "bộ trộn âm thanh: đầu ra và âm lượng riêng cho từng ứng dụng; gộp mic và âm thanh ứng dụng thành một đầu vào Hop Mix",
             .news24AI: "AI: tác vụ, bộ hẹn giờ và theo dõi thời gian, có xác nhận thao tác",
             .news24Icon: "thanh menu: chỉ giữ biểu tượng Hop, không có chỉ báo hay đếm ngược",
@@ -11549,6 +11654,14 @@ enum L10n {
             ]
 
     private static let hiTable: [L10nKey: String] = [
+            .soundOtherSources: "अन्य स्रोत",
+            .soundHiddenSources: "छिपे स्रोत",
+            .soundSourcePin: "पिन करें",
+            .soundSourceUnpin: "पिन हटाएँ",
+            .soundSourceHide: "छिपाएँ",
+            .soundSourceRestore: "दिखाएँ",
+            .soundVirtualDevice: "वर्चुअल",
+
             .soundQuickMixOn: "मिक्स: चालू",
             .soundQuickMixOff: "मिक्स: बंद",
             .soundQuickMixStarting: "मिक्स: …",
@@ -11616,7 +11729,7 @@ enum L10n {
             .soundMicMuteKey: "माइक्रोफ़ोन म्यूट करें",
             .soundInputChanged: "माइक्रोफ़ोन बदल गया; जाँच रोक दी गई",
             .purposeSound: "ऑडियो डिवाइस चुनें और उनका वॉल्यूम नियंत्रित करें",
-            .docSoundFull: "ऑडियो डिवाइस चुनें और उनका वॉल्यूम नियंत्रित करें. केवल यह माइक्रोफ़ोन म्यूट होता है; दूसरे माइक्रोफ़ोन वाले ऐप प्रभावित नहीं होते\n\n10 सेकंड तक रिकॉर्ड करता है। रोकें, फिर सुनें। इस विंडो के बंद होने तक रिकॉर्डिंग केवल मेमोरी में रहती है। डिफ़ॉल्ट macOS में चुने गए डिवाइस का उपयोग करता है।\n\nऐप का वॉल्यूम एक बार चालू करें। यह पृष्ठभूमि में चलता है और Hop फिर शुरू होने पर बहाल होता है।",
+            .docSoundFull: "इनपुट और आउटपुट डिवाइस चुनें और उनके स्तर बदलें। सिस्टम डिफ़ॉल्ट macOS में चुने गए डिवाइस का अनुसरण करता है।\n\nआउटपुट मिक्सर हर ऐप के लिए अलग वॉल्यूम, म्यूट और डिवाइस देता है। 100% Mac के मौजूदा कुल स्तर के बराबर है। चुना गया डिवाइस डिस्कनेक्ट होने पर प्लेबैक उसी के लौटने की प्रतीक्षा करता है और स्पीकर पर नहीं जाता।\n\nHop Mix इनपुट मिक्सर को खुद चालू करें। सिस्टम माइक्रोफ़ोन का उपयोग करें और स्रोत ऐप चुनें, फिर प्राप्त करने वाले ऐप में Hop Mix को माइक्रोफ़ोन चुनें। ध्वनि विंडो बंद करने पर कैप्चर रुकता है।\n\nपिन करने से स्रोत ऊपर रहता है। उपयोग न किए गए स्रोत «अन्य स्रोत» में होते हैं, जो शुरू में बंद रहता है। केवल निष्क्रिय स्रोत छिपाए जा सकते हैं। इसी खंड के मेनू से उन्हें बहाल करें; बहाल करने से स्रोत चालू नहीं होता।\n\nमाइक्रोफ़ोन की जाँच में अधिकतम 10 सेकंड रिकॉर्ड होते हैं। रिकॉर्डिंग केवल मेमोरी में रहती है और ध्वनि विंडो बंद होने पर मिट जाती है।",
             .news24Mixer: "ऑडियो मिक्सर: हर ऐप का अलग आउटपुट और वॉल्यूम; माइक्रोफ़ोन और ऐप का ऑडियो एक Hop Mix इनपुट में",
             .news24AI: "AI: काम, टाइमर और समय का हिसाब, कार्रवाइयों की पुष्टि के साथ",
             .news24Icon: "मेनू बार: संकेतकों और उलटी गिनती के बिना केवल Hop आइकन",
@@ -12411,6 +12524,14 @@ enum L10n {
             ]
 
     private static let idTable: [L10nKey: String] = [
+            .soundOtherSources: "sumber lain",
+            .soundHiddenSources: "sumber tersembunyi",
+            .soundSourcePin: "sematkan",
+            .soundSourceUnpin: "lepas sematan",
+            .soundSourceHide: "sembunyikan",
+            .soundSourceRestore: "tampilkan",
+            .soundVirtualDevice: "virtual",
+
             .soundQuickMixOn: "mix: aktif",
             .soundQuickMixOff: "mix: nonaktif",
             .soundQuickMixStarting: "mix: …",
@@ -12478,7 +12599,7 @@ enum L10n {
             .soundMicMuteKey: "bisukan mikrofon",
             .soundInputChanged: "mikrofon berubah; pengujian dihentikan",
             .purposeSound: "pilih perangkat audio dan atur volumenya",
-            .docSoundFull: "pilih perangkat audio dan atur volumenya. hanya mikrofon ini yang dibisukan; aplikasi dengan mikrofon lain tidak terpengaruh\n\nmerekam hingga 10 detik. hentikan lalu dengarkan. rekaman tetap di memori sampai jendela ini ditutup. default mengikuti perangkat yang dipilih di macOS.\n\naktifkan volume per aplikasi sekali. fitur berjalan di latar belakang dan dilanjutkan saat Hop dimulai ulang.",
+            .docSoundFull: "pilih perangkat input dan output lalu atur levelnya. default sistem mengikuti perangkat yang dipilih di macOS.\n\nmixer output memberi setiap aplikasi volume, pembisuan dan perangkat sendiri. 100% sesuai dengan level keseluruhan Mac saat ini. jika perangkat yang ditetapkan terputus, pemutaran menunggu perangkat itu kembali tanpa beralih ke speaker.\n\naktifkan mixer input Hop Mix secara eksplisit. gunakan mikrofon sistem dan pilih aplikasi sumber, lalu pilih Hop Mix sebagai mikrofon di aplikasi penerima. menutup Suara menghentikan pengambilan audio.\n\nmenyematkan menjaga sumber di atas. sumber yang tidak digunakan ada di «Sumber lain», yang awalnya diciutkan. hanya sumber tidak aktif yang dapat disembunyikan. pulihkan lewat menu di dalam bagian itu; pemulihan tidak mengaktifkan sumber.\n\npemeriksaan mikrofon merekam hingga 10 detik. rekaman hanya disimpan di memori dan dihapus saat Suara ditutup.",
             .news24Mixer: "mixer audio: output dan volume per aplikasi; mikrofon dan audio aplikasi dalam satu input Hop Mix",
             .news24AI: "AI: tugas, timer, dan pencatatan waktu dengan konfirmasi tindakan",
             .news24Icon: "bilah menu: hanya ikon Hop, tanpa indikator atau hitung mundur",
@@ -13273,6 +13394,14 @@ enum L10n {
             ]
 
     private static let trTable: [L10nKey: String] = [
+            .soundOtherSources: "diğer kaynaklar",
+            .soundHiddenSources: "gizli kaynaklar",
+            .soundSourcePin: "sabitle",
+            .soundSourceUnpin: "sabitlemeyi kaldır",
+            .soundSourceHide: "gizle",
+            .soundSourceRestore: "göster",
+            .soundVirtualDevice: "sanal",
+
             .soundQuickMixOn: "miks: açık",
             .soundQuickMixOff: "miks: kapalı",
             .soundQuickMixStarting: "miks: …",
@@ -13340,7 +13469,7 @@ enum L10n {
             .soundMicMuteKey: "mikrofonu sessize al",
             .soundInputChanged: "mikrofon değişti; test durduruldu",
             .purposeSound: "ses aygıtlarını seçer ve ses düzeyini ayarlar",
-            .docSoundFull: "ses aygıtlarını seçer ve ses düzeyini ayarlar. yalnızca bu mikrofon sessize alınır; başka mikrofon kullanan uygulamalar etkilenmez\n\nen fazla 10 saniye kaydeder. durdurup dinleyin. kayıt, pencere kapanana kadar bellekte kalır. varsayılan, macOS’te seçilen aygıtları kullanır.\n\nuygulama sesini bir kez etkinleştirin. arka planda çalışır ve Hop yeniden başladığında devam eder.",
+            .docSoundFull: "giriş ve çıkış aygıtlarını seçip düzeylerini ayarlayın. sistem varsayılanı, macOS’te seçilen aygıtı izler.\n\nçıkış mikseri her uygulamaya ayrı ses düzeyi, sessize alma ve aygıt verir. %100, Mac’in geçerli genel düzeyine karşılık gelir. atanan aygıtın bağlantısı kesilirse çalma, hoparlörlere geçmeden aynı aygıtın dönmesini bekler.\n\nHop Mix giriş mikserini açıkça etkinleştirin. sistem mikrofonunu kullanıp kaynak uygulamaları seçin, ardından alıcı uygulamada mikrofon olarak Hop Mix’i seçin. Ses penceresini kapatmak yakalamayı durdurur.\n\nsabitlemek kaynağı üstte tutar. kullanılmayan kaynaklar, başlangıçta daraltılmış olan «diğer kaynaklar» bölümündedir. yalnızca etkin olmayan kaynaklar gizlenebilir. bu bölümün içindeki menüden geri yükleyin; geri yüklemek kaynağı etkinleştirmez.\n\nmikrofon denetimi en fazla 10 saniye kaydeder. kayıt yalnızca bellekte tutulur ve Ses penceresi kapanınca silinir.",
             .news24Mixer: "ses mikseri: uygulama başına çıkış ve ses düzeyi; mikrofon ve uygulama sesi tek bir Hop Mix girişinde",
             .news24AI: "AI: görevler, zamanlayıcılar ve zaman takibi için işlem onayı",
             .news24Icon: "menü çubuğu: göstergeler ve geri sayımlar olmadan yalnızca Hop simgesi",
@@ -14135,6 +14264,14 @@ enum L10n {
             ]
 
     private static let plTable: [L10nKey: String] = [
+            .soundOtherSources: "inne źródła",
+            .soundHiddenSources: "ukryte źródła",
+            .soundSourcePin: "przypnij",
+            .soundSourceUnpin: "odepnij",
+            .soundSourceHide: "ukryj",
+            .soundSourceRestore: "pokaż",
+            .soundVirtualDevice: "wirtualne",
+
             .soundQuickMixOn: "miks: wł.",
             .soundQuickMixOff: "miks: wył.",
             .soundQuickMixStarting: "miks: …",
@@ -14202,7 +14339,7 @@ enum L10n {
             .soundMicMuteKey: "wycisz mikrofon",
             .soundInputChanged: "mikrofon zmieniony; test zatrzymany",
             .purposeSound: "wybiera urządzenia audio i\u{00A0}reguluje ich głośność",
-            .docSoundFull: "wybiera urządzenia audio i\u{00A0}reguluje ich głośność. wyciszany jest tylko ten mikrofon; aplikacje z\u{00A0}innym mikrofonem działają bez zmian\n\nnagrywa do 10 sekund. zatrzymaj i\u{00A0}odsłuchaj. próbka pozostaje w\u{00A0}pamięci do zamknięcia tego okna. domyślne używa urządzeń wybranych w\u{00A0}macOS.\n\nwłącz głośność aplikacji raz. działa w\u{00A0}tle i\u{00A0}wznawia pracę po ponownym uruchomieniu Hop.",
+            .docSoundFull: "wybierz urządzenia wejścia i\u{00A0}wyjścia oraz ustaw ich poziomy. ustawienie domyślne śledzi urządzenie wybrane w\u{00A0}macOS.\n\nmikser wyjściowy daje każdej aplikacji osobną głośność, wyciszenie i\u{00A0}urządzenie. 100% odpowiada bieżącemu ogólnemu poziomowi Maca. po odłączeniu przypisanego urządzenia odtwarzanie czeka na jego powrót bez przełączania na głośniki.\n\nmikser wejściowy Hop Mix trzeba włączyć jawnie. użyj mikrofonu systemowego i\u{00A0}wybierz aplikacje źródłowe, a\u{00A0}potem wybierz Hop Mix jako mikrofon w\u{00A0}aplikacji odbierającej. zamknięcie okna Dźwięk zatrzymuje przechwytywanie.\n\nprzypięcie utrzymuje źródło na górze. nieużywane źródła są w\u{00A0}sekcji „inne źródła”, początkowo zwiniętej. ukrywać można tylko nieaktywne źródła. przywróć je przez menu wewnątrz tej sekcji; przywrócenie nie włącza źródła.\n\ntest mikrofonu nagrywa do 10 sekund. nagranie pozostaje tylko w\u{00A0}pamięci i\u{00A0}jest usuwane po zamknięciu okna Dźwięk.",
             .news24Mixer: "mikser dźwięku: osobne wyjście i\u{00A0}głośność aplikacji; mikrofon i\u{00A0}dźwięk aplikacji w\u{00A0}jednym wejściu Hop Mix",
             .news24AI: "AI: zadania, minutniki i\u{00A0}rejestracja czasu z\u{00A0}potwierdzaniem działań",
             .news24Icon: "pasek menu: tylko ikona Hop, bez wskaźników i\u{00A0}odliczania",
@@ -14997,6 +15134,14 @@ enum L10n {
             ]
 
     private static let arTable: [L10nKey: String] = [
+            .soundOtherSources: "مصادر أخرى",
+            .soundHiddenSources: "المصادر المخفية",
+            .soundSourcePin: "تثبيت",
+            .soundSourceUnpin: "إلغاء التثبيت",
+            .soundSourceHide: "إخفاء",
+            .soundSourceRestore: "إظهار",
+            .soundVirtualDevice: "افتراضي",
+
             .soundQuickMixOn: "مزج: يعمل",
             .soundQuickMixOff: "مزج: متوقف",
             .soundQuickMixStarting: "مزج: …",
@@ -15064,7 +15209,7 @@ enum L10n {
             .soundMicMuteKey: "كتم الميكروفون",
             .soundInputChanged: "تغير الميكروفون؛ توقف الاختبار",
             .purposeSound: "اختيار أجهزة الصوت والتحكم في مستواها",
-            .docSoundFull: "اختيار أجهزة الصوت والتحكم في مستواها. يتم كتم هذا الميكروفون فقط؛ التطبيقات التي تستخدم ميكروفونًا آخر لا تتأثر\n\nيسجل حتى 10 ثوانٍ. أوقفه ثم استمع. يبقى التسجيل في الذاكرة حتى إغلاق هذه النافذة. الافتراضي يستخدم الأجهزة المختارة في macOS.\n\nفعّل مستوى صوت التطبيقات مرة واحدة. يعمل في الخلفية ويُستأنف عند إعادة تشغيل Hop.",
+            .docSoundFull: "اختر أجهزة الإدخال والإخراج واضبط مستوياتها. يتبع افتراضي النظام الجهاز المحدد في macOS.\n\nيمنح مِزج الإخراج كل تطبيق مستوى صوت وكتمًا وجهازًا مستقلًا. تمثل نسبة 100% المستوى العام الحالي لجهاز Mac. إذا انقطع اتصال الجهاز المعيّن، ينتظر التشغيل عودته دون الانتقال إلى مكبرات الصوت.\n\nفعّل مِزج الإدخال Hop Mix صراحةً. استخدم ميكروفون النظام وحدد التطبيقات المصدر، ثم اختر Hop Mix ميكروفونًا في التطبيق المستقبِل. يؤدي إغلاق «الصوت» إلى إيقاف التقاط الصوت.\n\nيبقي التثبيت المصدر في الأعلى. توجد المصادر غير المستخدمة في «مصادر أخرى»، المطوي مبدئيًا. يمكن إخفاء المصادر غير النشطة فقط. استعدها من القائمة داخل هذا القسم؛ الاستعادة لا تفعّل المصدر.\n\nيسجل فحص الميكروفون حتى 10 ثوانٍ. يبقى التسجيل في الذاكرة فقط ويُحذف عند إغلاق «الصوت».",
             .news24Mixer: "مازج الصوت: مخرج ومستوى صوت لكل تطبيق؛ الميكروفون وصوت التطبيقات في مدخل Hop Mix واحد",
             .news24AI: "\u{200F}AI: المهام والمؤقتات وتتبع الوقت مع تأكيد الإجراءات",
             .news24Icon: "شريط القوائم: أيقونة Hop فقط دون مؤشرات أو عد تنازلي",
@@ -15918,6 +16063,14 @@ enum L10n {
             ]
 
     private static let heTable: [L10nKey: String] = [
+            .soundOtherSources: "מקורות נוספים",
+            .soundHiddenSources: "מקורות מוסתרים",
+            .soundSourcePin: "הצמדה",
+            .soundSourceUnpin: "ביטול הצמדה",
+            .soundSourceHide: "הסתרה",
+            .soundSourceRestore: "הצגה",
+            .soundVirtualDevice: "וירטואלי",
+
             .soundQuickMixOn: "מיקס: פועל",
             .soundQuickMixOff: "מיקס: כבוי",
             .soundQuickMixStarting: "מיקס: …",
@@ -15985,7 +16138,7 @@ enum L10n {
             .soundMicMuteKey: "השתקת מיקרופון",
             .soundInputChanged: "המיקרופון השתנה; הבדיקה נעצרה",
             .purposeSound: "בחירת התקני שמע ושליטה בעוצמה",
-            .docSoundFull: "בחירת התקני שמע ושליטה בעוצמה. רק המיקרופון הזה מושתק; יישומים עם מיקרופון אחר אינם מושפעים\n\nמקליט עד 10 שניות. עוצרים ואז מאזינים. ההקלטה נשארת בזיכרון עד לסגירת החלון. ברירת המחדל משתמשת במכשירים שנבחרו ב־macOS.\n\nהפעלת עוצמה לפי יישום נדרשת פעם אחת. היא פועלת ברקע ומתחדשת בהפעלת Hop מחדש.",
+            .docSoundFull: "בחרו התקני קלט ופלט וכוונו את הרמות שלהם. ברירת המחדל של המערכת עוקבת אחר ההתקן שנבחר ב־macOS.\n\nמערבל הפלט נותן לכל יישום עוצמה, השתקה והתקן משלו. 100% תואם לעוצמה הכללית הנוכחית של ה־Mac. אם התקן שהוקצה מתנתק, ההפעלה ממתינה לחזרתו בלי לעבור לרמקולים.\n\nיש להפעיל את מערבל הקלט Hop Mix במפורש. השתמשו במיקרופון המערכת ובחרו יישומים כמקורות, ואז בחרו ב־Hop Mix כמיקרופון ביישום המקבל. סגירת ״צליל״ מפסיקה את לכידת השמע.\n\nהצמדה משאירה מקור בראש הרשימה. מקורות שאינם בשימוש נמצאים ב״מקורות נוספים״, שמכווץ בתחילה. אפשר להסתיר רק מקורות לא פעילים. שחזרו אותם דרך התפריט בתוך הקטע הזה; שחזור אינו מפעיל את המקור.\n\nבדיקת המיקרופון מקליטה עד 10 שניות. ההקלטה נשמרת בזיכרון בלבד ונמחקת כשסוגרים את ״צליל״.",
             .news24Mixer: "מיקסר שמע: פלט ועוצמה לכל יישום; מיקרופון ושמע יישומים בכניסת Hop Mix אחת",
             .news24AI: "\u{200F}AI: משימות, טיימרים ומעקב זמן עם אישור פעולות",
             .news24Icon: "שורת התפריטים: רק סמל Hop, ללא מחוונים או ספירה לאחור",
@@ -16839,6 +16992,14 @@ enum L10n {
             ]
 
     private static let faTable: [L10nKey: String] = [
+            .soundOtherSources: "منابع دیگر",
+            .soundHiddenSources: "منابع پنهان",
+            .soundSourcePin: "سنجاق کردن",
+            .soundSourceUnpin: "برداشتن سنجاق",
+            .soundSourceHide: "پنهان کردن",
+            .soundSourceRestore: "نمایش",
+            .soundVirtualDevice: "مجازی",
+
             .soundQuickMixOn: "میکس: فعال",
             .soundQuickMixOff: "میکس: خاموش",
             .soundQuickMixStarting: "میکس: …",
@@ -16906,7 +17067,7 @@ enum L10n {
             .soundMicMuteKey: "بی‌صدا کردن میکروفون",
             .soundInputChanged: "میکروفون تغییر کرد؛ آزمایش متوقف شد",
             .purposeSound: "انتخاب دستگاه‌های صوتی و\u{00A0}تنظیم بلندی صدا",
-            .docSoundFull: "انتخاب دستگاه‌های صوتی و\u{00A0}تنظیم بلندی صدا. فقط این میکروفون بی‌صدا می‌شود؛ برنامه‌های دارای میکروفون دیگر تحت تأثیر نیستند\n\nتا 10 ثانیه ضبط می‌کند. متوقف کنید و\u{00A0}سپس گوش دهید. ضبط تا بستن این پنجره در حافظه می‌ماند. پیش‌فرض از دستگاه‌های انتخاب‌شده در macOS استفاده می‌کند.\n\nکنترل صدای برنامه‌ها را یک بار فعال کنید. در پس‌زمینه کار می‌کند و\u{00A0}با راه‌اندازی دوبارهٔ Hop ادامه می‌یابد.",
+            .docSoundFull: "دستگاه‌های ورودی و\u{00A0}خروجی را انتخاب و\u{00A0}سطح آن‌ها را تنظیم کنید. پیش‌فرض سیستم از دستگاه انتخاب‌شده در macOS پیروی می‌کند.\n\nمیکسر خروجی به هر برنامه بلندی صدا، قطع صدا و\u{00A0}دستگاه جداگانه می‌دهد. 100% برابر با سطح کلی فعلی Mac است. اگر دستگاه تعیین‌شده قطع شود، پخش بدون رفتن به بلندگوها منتظر بازگشت همان دستگاه می‌ماند.\n\nمیکسر ورودی Hop Mix را صریحاً فعال کنید. از میکروفون سیستم استفاده و\u{00A0}برنامه‌های منبع را انتخاب کنید، سپس در برنامهٔ گیرنده Hop Mix را به‌عنوان میکروفون برگزینید. بستن «صدا» دریافت صدا را متوقف می‌کند.\n\nسنجاق‌کردن، منبع را در بالا نگه می‌دارد. منابع استفاده‌نشده در «منابع دیگر» هستند که ابتدا بسته است. فقط منابع غیرفعال را می‌توان پنهان کرد. آن‌ها را از منوی داخل همین بخش بازیابی کنید؛ بازیابی منبع را فعال نمی‌کند.\n\nآزمایش میکروفون تا 10 ثانیه ضبط می‌کند. ضبط فقط در حافظه می‌ماند و\u{00A0}با بستن «صدا» حذف می‌شود.",
             .news24Mixer: "میکسر صدا: خروجی و\u{00A0}بلندی صدای هر برنامه؛ میکروفون و\u{00A0}صدای برنامه‌ها در یک ورودی Hop Mix",
             .news24AI: "\u{200F}AI: کارها، زمان‌سنج‌ها و\u{00A0}ثبت زمان با تأیید اقدام‌ها",
             .news24Icon: "نوار منو: فقط نماد Hop، بدون نشانگرها و\u{00A0}شمارش معکوس",
@@ -17760,6 +17921,14 @@ enum L10n {
             ]
 
     private static let urTable: [L10nKey: String] = [
+            .soundOtherSources: "دیگر ذرائع",
+            .soundHiddenSources: "پوشیدہ ذرائع",
+            .soundSourcePin: "پن کریں",
+            .soundSourceUnpin: "پن ہٹائیں",
+            .soundSourceHide: "چھپائیں",
+            .soundSourceRestore: "دکھائیں",
+            .soundVirtualDevice: "ورچوئل",
+
             .soundQuickMixOn: "مکس: چالو",
             .soundQuickMixOff: "مکس: بند",
             .soundQuickMixStarting: "مکس: …",
@@ -17827,7 +17996,7 @@ enum L10n {
             .soundMicMuteKey: "مائیکروفون خاموش کریں",
             .soundInputChanged: "مائیکروفون بدل گیا؛ آزمائش رک گئی",
             .purposeSound: "آواز کے آلات منتخب کریں اور\u{00A0}سطح بدلیں",
-            .docSoundFull: "آواز کے آلات منتخب کریں اور\u{00A0}سطح بدلیں. صرف یہ مائیکروفون خاموش ہوتا ہے؛ دوسرے مائیکروفون والی ایپس متاثر نہیں ہوتیں\n\n10 سیکنڈ تک ریکارڈ کرتا ہے۔ روکیں، پھر سنیں۔ ریکارڈنگ یہ ونڈو بند ہونے تک میموری میں رہتی ہے۔ ڈیفالٹ macOS میں منتخب کردہ آلات استعمال کرتا ہے۔\n\nایپس کی آواز ایک بار فعال کریں۔ یہ پس منظر میں چلتی ہے اور\u{00A0}Hop دوبارہ شروع ہونے پر بحال ہوتی ہے۔",
+            .docSoundFull: "ان پٹ اور\u{00A0}آؤٹ پٹ آلات منتخب کریں اور\u{00A0}ان کی سطح بدلیں۔ سسٹم ڈیفالٹ macOS میں منتخب کردہ آلے کی پیروی کرتا ہے۔\n\nآؤٹ پٹ مکسر ہر ایپ کو الگ آواز کی سطح، میوٹ اور\u{00A0}آلہ دیتا ہے۔ 100%، Mac کی موجودہ مجموعی سطح کے برابر ہے۔ مقررہ آلے کا رابطہ منقطع ہو تو پلے بیک اسپیکر پر جانے کے بجائے اسی آلے کی واپسی کا انتظار کرتا ہے۔\n\nان پٹ مکسر Hop Mix کو خود فعال کریں۔ سسٹم مائیکروفون استعمال کریں اور\u{00A0}ماخذ ایپس منتخب کریں، پھر وصول کرنے والی ایپ میں Hop Mix کو مائیکروفون منتخب کریں۔ «آواز» بند کرنے سے آڈیو کیپچر رک جاتا ہے۔\n\nپن کرنے سے ماخذ اوپر رہتا ہے۔ غیر استعمال شدہ ماخذ «دیگر ذرائع» میں ہوتے ہیں، جو ابتدا میں سمیٹا ہوا ہے۔ صرف غیر فعال ماخذ چھپائے جا سکتے ہیں۔ اسی حصے کے اندر مینو سے انہیں بحال کریں؛ بحال کرنے سے ماخذ فعال نہیں ہوتا۔\n\nمائیکروفون کی جانچ زیادہ سے زیادہ 10 سیکنڈ ریکارڈ کرتی ہے۔ ریکارڈنگ صرف میموری میں رہتی ہے اور\u{00A0}«آواز» بند ہونے پر حذف ہو جاتی ہے۔",
             .news24Mixer: "آڈیو مکسر: ہر ایپ کا الگ آؤٹ پٹ اور\u{00A0}والیوم؛ مائیکروفون اور\u{00A0}ایپ کی آڈیو ایک Hop Mix ان پٹ میں",
             .news24AI: "\u{200F}AI: کام، ٹائمر اور\u{00A0}وقت کا حساب، کارروائیوں کی تصدیق کے ساتھ",
             .news24Icon: "مینو بار: اشاروں اور\u{00A0}الٹی گنتی کے بغیر صرف Hop آئیکن",
@@ -18681,6 +18850,14 @@ enum L10n {
             ]
 
     private static let srTable: [L10nKey: String] = [
+            .soundOtherSources: "други извори",
+            .soundHiddenSources: "скривени извори",
+            .soundSourcePin: "закачи",
+            .soundSourceUnpin: "откачи",
+            .soundSourceHide: "сакриј",
+            .soundSourceRestore: "прикажи",
+            .soundVirtualDevice: "виртуелни",
+
             .soundQuickMixOn: "микс: укљ.",
             .soundQuickMixOff: "микс: искљ.",
             .soundQuickMixStarting: "микс: …",
@@ -18748,7 +18925,7 @@ enum L10n {
             .soundMicMuteKey: "искључи микрофон",
             .soundInputChanged: "микрофон је промењен; провера заустављена",
             .purposeSound: "бира звучне уређаје и\u{00A0}подешава јачину",
-            .docSoundFull: "бира звучне уређаје и\u{00A0}подешава јачину. искључује се само овај микрофон; апликације са\u{00A0}другим микрофоном нису погођене\n\nснима до\u{00A0}10\u{00A0}секунди. зауставите и\u{00A0}преслушајте. снимак остаје у\u{00A0}меморији до\u{00A0}затварања овог прозора. подразумевано користи уређаје изабране у\u{00A0}macOS-у.\n\nједном укључите јачину звука апликација. ради у\u{00A0}позадини и\u{00A0}наставља после поновног покретања Hop.",
+            .docSoundFull: "изаберите улазне и\u{00A0}излазне уређаје и\u{00A0}подесите нивое. системски подразумевани избор прати уређај изабран у\u{00A0}macOS-у.\n\nизлазни миксер даје свакој апликацији засебну јачину, искључивање звука и\u{00A0}уређај. 100% одговара тренутном општем нивоу Mac-а. ако се додељени уређај искључи, репродукција чека његов повратак без\u{00A0}преласка на\u{00A0}звучнике.\n\nулазни миксер Hop Mix укључује се изричито. користите системски микрофон и\u{00A0}изаберите апликације као изворе, па у\u{00A0}пријемној апликацији изаберите Hop Mix као микрофон. затварање прозора „Звук“ зауставља снимање звука.\n\nкачење држи извор на\u{00A0}врху. некоришћени извори су у\u{00A0}одељку „Други извори“, који је на\u{00A0}почетку скупљен. могу се сакрити само неактивни извори. вратите их кроз мени унутар тог одељка; враћање не\u{00A0}укључује извор.\n\nпровера микрофона снима до\u{00A0}10\u{00A0}секунди. снимак остаје само у\u{00A0}меморији и\u{00A0}брише се када се прозор „Звук“ затвори.",
             .news24Mixer: "аудио миксер: посебни излази и\u{00A0}јачина звука апликација; микрофон и\u{00A0}звук апликација у\u{00A0}једном Hop Mix улазу",
             .news24AI: "AI: задаци, тајмери и\u{00A0}праћење времена уз\u{00A0}потврду радњи",
             .news24Icon: "трака менија: само икона Hop, без\u{00A0}индикатора и\u{00A0}одбројавања",

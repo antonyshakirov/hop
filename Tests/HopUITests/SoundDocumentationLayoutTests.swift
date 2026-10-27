@@ -8,6 +8,13 @@ final class SoundDocumentationLayoutTests: XCTestCase {
     func testMixerHelpRenderedLinesKeepShortWordsAttached() {
         for lang in AppLanguage.allCases {
             let cases: [(L10nKey, CGFloat, [CGFloat])] = [
+                (.soundOtherSources, 10, [220, 260, 380]),
+                (.soundHiddenSources, 11, [276, 320]),
+                (.soundSourcePin, 10, [180, 240]),
+                (.soundSourceUnpin, 10, [180, 240]),
+                (.soundSourceHide, 10, [180, 240]),
+                (.soundSourceRestore, 10, [100, 160]),
+                (.soundVirtualDevice, 9, [150, 175]),
                 (.docSoundFull, 12, [432, 472, 620]),
                 (.soundMixerBackground, 10, [240, 280, 360]),
                 (.soundMixerPermission, 10, [432, 440, 480]),
@@ -30,7 +37,7 @@ final class SoundDocumentationLayoutTests: XCTestCase {
                 (.soundAppMoveDown, 11, [240, 280, 432]),
             ]
             for (key, size, widths) in cases {
-            let paragraph = L10n.t(key, lang).components(separatedBy: "\n\n").last!
+            for paragraph in L10n.t(key, lang).components(separatedBy: "\n\n") {
             let font = lang.isRTL ? NSFont.monospacedDigitSystemFont(ofSize: size, weight: .medium)
                                   : NSFont.monospacedSystemFont(ofSize: size, weight: .medium)
             for width in widths {
@@ -52,6 +59,7 @@ final class SoundDocumentationLayoutTests: XCTestCase {
                     XCTAssertFalse(L10n.trailingWords(lang).contains(first), "\(lang.rawValue) at \(width): \(line)")
                     XCTAssertFalse(line.hasPrefix("—") || line.hasPrefix("–"), "\(lang.rawValue) at \(width): \(line)")
                 }
+            }
             }
             }
         }

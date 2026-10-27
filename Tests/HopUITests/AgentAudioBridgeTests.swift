@@ -81,6 +81,22 @@ final class AgentAudioBridgeTests: XCTestCase {
         }
         func send(_ value: [String: Any], completed: @escaping (AgentResultV2) -> Void) throws { bridge.performAudio(try command(value), on: model, completed: completed) }
     }
+    func testConfirmedSourcePresentationDoesNotTouchAudioAndCanRestoreAfterDisconnect() throws {
+        let f = Fixture(); defer { f.cleanup() }
+        f.hardware.additionalInputs = ["extra-mic"]
+        try f.send(["do": "audio.inputSource.pin", "source": "device", "sourceID": "extra-mic", "pinned": true]) { XCTAssertEqual($0.status, "applied") }
+        try f.send(["do": "audio.inputSource.hide", "source": "device", "sourceID": "extra-mic", "hidden": true]) { XCTAssertEqual($0.status, "applied") }
+        f.hardware.additionalInputs = []
+        let input = try XCTUnwrap(f.bridge.audioState(f.model)["inputMixer"] as? [String: Any])
+        let sources = try XCTUnwrap(input["sourceList"] as? [[String: Any]])
+        XCTAssertEqual(sources.first { $0["sourceID"] as? String == "extra-mic" }?["group"] as? String, "hidden")
+        try f.send(["do": "audio.inputSource.hide", "source": "device", "sourceID": "extra-mic", "hidden": false]) { XCTAssertEqual($0.status, "applied") }
+        XCTAssertFalse(f.call.microphoneSettings(uid: "extra-mic").active)
+        try f.send(["do": "audio.inputSource.pin", "source": "device", "sourceID": "missing", "pinned": true]) { XCTAssertEqual($0.code, "audio_source_not_found") }
+        try f.send(["do": "audio.inputSource.update", "source": "app", "sourceID": "fixture.app", "active": true]) { XCTAssertEqual($0.status, "applied") }
+        try f.send(["do": "audio.inputSource.hide", "source": "app", "sourceID": "fixture.app", "hidden": true]) { XCTAssertEqual($0.code, "audio_source_selected") }
+        XCTAssertEqual(f.access.asked, 0); XCTAssertEqual(f.session.starts, 0); XCTAssertEqual(f.session.updates, 0); XCTAssertEqual(f.hardware.writes, 0)
+    }
     func testReadStateAndSavingSourcesDoNotAskPermissionOrStartCapture() throws {
         let f = Fixture(); defer { f.cleanup() }
         let state = f.bridge.audioState(f.model)

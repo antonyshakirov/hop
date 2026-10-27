@@ -13,6 +13,8 @@
   the number and percent sign share the same colour.
 - Sound: separate microphone and speaker indicators in the menu bar, with no
   empty space when either mixer is off. Indicators can be hidden in settings.
+- Sound: pin input sources, collapse other sources and hide unused entries.
+  Restore hidden sources from the expanded list without enabling them.
 - Onboarding: Sound has its own illustrated screen. The 2.4 news card can show
   or hide the module without starting either mixer.
 - AI: timers, stopwatch, to-dos and time tracking with confirmation of the exact

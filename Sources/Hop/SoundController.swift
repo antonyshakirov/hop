@@ -589,6 +589,15 @@ final class SoundController: ObservableObject {
         if state == "many-inputs" {
             inputs += (1...12).map { SoundDevice(uid: "usb-\($0)", name: "USB microphone \($0)") }
         }
+        if state == "source-list" || state == "source-list-many" {
+            inputs += [.init(uid: "pods", name: "AirPods 4"),
+                       .init(uid: "zoom", name: "ZoomAudioDevice", isVirtual: true),
+                       .init(uid: "phone", name: "iPhone Microphone")]
+            inputUID = "pods"
+            if state == "source-list-many" {
+                inputs += (1...16).map { .init(uid: "extra-\($0)", name: "USB Microphone \($0)") }
+            }
+        }
         if state == "empty-input" { inputs = []; inputUID = nil }
         if state == "checking" { checking = true; level = 0.7; peak = 0.86; duration = 3.2 }
         if state == "recorded" { hasRecording = true; duration = 4.5 }

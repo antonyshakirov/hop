@@ -37,3 +37,7 @@ implementation; this file does not declare that they currently pass.
 | UI-01 | Toggle Mix repeatedly with the pointer over its icon or label | Enabled button retains a hand; chip text never becomes selectable |
 | UI-02 | Leave a chip for an editable text field or cover/hide its window | Previous chip cannot overwrite the next control/window cursor |
 | UI-03 | Disable/re-enable a chip without moving the pointer | Arrow when disabled; hand when enabled |
+| IN-17 | Pin/hide/restore an inactive input with the mixer stopped; restart Hop | Typed source identity and presentation persist; audio preset bytes, hardware and capture unchanged |
+| IN-18 | Disconnect a hidden source and restore it | Saved name remains available inside Other Sources; restoring does not select it |
+| IN-19 | Try to hide a selected source, or select a hidden source through AI | Hide rejects; selection reveals the source; System Default cannot be hidden |
+| AI-11 | Confirmed pin/hide commands, strict booleans/fields and system-source rejection | UI/state/persistence agree; no permission request or hardware write |

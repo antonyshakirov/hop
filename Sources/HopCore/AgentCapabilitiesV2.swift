@@ -19,6 +19,8 @@ public enum AgentCapabilitiesV2 {
             "audio.app.add": ["appID": app, "name": app], "audio.app.pin": ["appID": app, "pinned": boolean],
             "audio.app.move": ["appID": app, "offset": ["type": "integer", "minimum": -1, "maximum": 1, "enum": [-1, 1]]],
             "audio.app.reset": [:],
+            "audio.inputSource.pin": ["source": ["type": "string", "enum": ["device", "app"]], "sourceID": identifier, "pinned": boolean],
+            "audio.inputSource.hide": ["source": ["type": "string", "enum": ["device", "app"]], "sourceID": identifier, "hidden": boolean],
             "audio.inputSource.update": ["source": ["type": "string", "enum": ["system", "device", "app"]], "sourceID": optional(identifier),
                 "gain": optional(gain), "muted": optional(boolean), "active": optional(boolean)]
         ]
@@ -37,6 +39,9 @@ public enum AgentCapabilitiesV2 {
             if let input = audioActions[name] { item["input"] = input; item["effect"] = name == "audio.inputMixer.set" ? "Explicit capture start waits for session ready; stop cancels pending start" : "Changes audio controls or saved source settings; enabled output session does not prove audible playback" }
             if name == "audio.app.reset" { item["scope"] = "all_application_audio_preferences"; item["effect"] = "Resets app gains, mutes and destinations; preserves pins and order" }
             if name == "audio.inputSource.update" { item["effect"] = "Saves source settings while stopped; live edits may request microphone permission and wait for configuration acknowledgement" }
+            if ["audio.inputSource.pin", "audio.inputSource.hide"].contains(name) {
+                item["effect"] = "Changes source list presentation only; never starts capture or changes audio settings. Hiding a selected source is rejected. Pinning reveals it; restoring does not select it."
+            }
             let effects = [
                 "timer.start": "Replaces the current timer or stopwatch and clears its progress",
                 "timer.pause": "Pauses countdown mode only; rejects stopwatch mode",

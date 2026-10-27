@@ -271,7 +271,8 @@ struct SoundWindowView: View {
                         }
                         if model.soundCallMix.enabled {
                             Divider()
-                            SoundCallMixView(call: model.soundCallMix, sound: sound, mixer: model.soundMixer, lang: lang)
+                            SoundCallMixView(call: model.soundCallMix, sound: sound, mixer: model.soundMixer, lang: lang,
+                                initiallyExpanded: Snapshot.active && CommandLine.arguments.contains("--sound-sources-expanded"))
                         }
                     }
                 }

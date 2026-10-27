@@ -12,15 +12,17 @@ public struct SoundDevice: Identifiable, Equatable, Sendable {
     public var muted: Bool?
     public var canChangeVolume: Bool
     public var canMute: Bool
+    public var isVirtual: Bool
 
     public init(uid: String, name: String, volume: Double? = nil, muted: Bool? = nil,
-                canChangeVolume: Bool = false, canMute: Bool = false) {
+                canChangeVolume: Bool = false, canMute: Bool = false, isVirtual: Bool = false) {
         self.uid = uid
         self.name = name
         self.volume = volume
         self.muted = muted
         self.canChangeVolume = canChangeVolume
         self.canMute = canMute
+        self.isVirtual = isVirtual
     }
 }
 

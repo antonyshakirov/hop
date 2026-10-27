@@ -747,6 +747,10 @@ enum Snapshot {
             model.sound.stageDemo(state ?? "idle")
             model.soundMixer.stageDemo(enabled: !args.contains("--sound-output-off"))
             if args.contains("--sound-mix-on") { model.soundCallMix.stageDemo(model.soundMixer.apps) }
+            if state == "source-list" || state == "source-list-many" {
+                model.soundCallMix.setSourcePinned(true, source: .device("mic"), name: "Mac microphone")
+                model.soundCallMix.setSourceHidden(true, source: .device("phone"), name: "iPhone Microphone")
+            }
             let width = args.firstIndex(of: "--sound-width").flatMap { i in args.count > i + 1 ? Double(args[i + 1]) : nil } ?? 520
             content = AnyView(SoundWindowView(sound: model.sound, initialInput: args.contains("--window-microphone")).environmentObject(model)
                 .frame(width: min(720, max(480, width))).fixedSize(horizontal: false, vertical: true))
