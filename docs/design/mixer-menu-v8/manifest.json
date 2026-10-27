@@ -1,0 +1,32 @@
+{
+  "scope": "Spacing preview only; not installed",
+  "base": "v7 same native glyphs,10pt semibold",
+  "changes": {
+    "microphoneX": 21,
+    "previousMicrophoneX": 23,
+    "speakerX": 29,
+    "previousSpeakerX": 32.5,
+    "pairFrameGapPt": 0.5,
+    "previousPairFrameGapPt": 2,
+    "fixedCanvasWidthPt": 41,
+    "previousCanvasWidthPt": 44
+  },
+  "verification": {
+    "nativeExportExitCode": 0,
+    "otherBadgeOverlapCases": 24,
+    "audioOtherOverlapPixels": 0,
+    "micSpeakerOverlapPixels": 0,
+    "menuLabelsSingleLineFit": true
+  },
+  "appOrAudioStateChanged": false,
+  "files": {
+    "icon-light-all-4x.png": "74474333898f83867914948458844dbbce83bf8a6d228261b057afb574fedeb3",
+    "menubar-light-both.png": "29ea4b2ada315d315171052dea6c71d9fbe5bec48b4d524533ef5aaa594d4159",
+    "icon-dark-both-4x.png": "aa4cc04b7df406aa8c2fd0b3f49a297303a58672e9c402cd87b07bdd20437b69",
+    "menubar-dark-both.png": "c2030114dea6fc0bf0745e50a773bd5608c9fac679fc26af6667e1497d9c8eb5",
+    "menubar-dark-all.png": "cf25d0019b300b80c0b25814158e6e307d57c68bd48b1bc1c14bb1536ad44c42",
+    "icon-light-both-4x.png": "872b4cf6bb3774f20cefc91c969dfccec838b308878d6e5c6f8b97154b35afb4",
+    "icon-dark-all-4x.png": "8c460b269bf31ac9d1fe69d25d87aac870adb22bc28988c8323f04f33b60a268",
+    "menubar-light-all.png": "c9134fb91232f7052c19531e9c9e6721b745cd4953322e42dd2833f16cf89afe"
+  }
+}
