@@ -7281,6 +7281,10 @@ includes both the fixed navigation and the complete current page.
 Sound reuses SettingChip for the device picker and labeled actions, and
 MiniSlider for gain controls. It uses the same 13pt window title, 11pt section
 labels and 28pt controls as the other utility windows.
+Both mixer sections use the same header, state labels, power icon and
+enable/disable button, with reserved widths across state changes. The selected
+Input/Output tab supplies the section context. Hop Mix remains the virtual
+device name in the input instructions, rather than a different control label.
 Explicitly enabling Hop Mix includes the currently selected physical microphone,
 after microphone permission is confirmed. It retains the microphone source's gain
 and mute; it does not unmute hardware, change system gain or choose an OS/receiver

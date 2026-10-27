@@ -8,28 +8,11 @@ struct SoundCallMixView: View {
     let lang: AppLanguage
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                ZStack(alignment: .leading) {
-                    ForEach([L10nKey.soundMixerStarting, .soundEnabled, .soundDisabled], id: \.self) { key in
-                        Text(L10n.t(.soundCallMix, lang) + " · " + L10n.t(key, lang)).hidden()
-                    }
-                    Text(L10n.t(.soundCallMix, lang) + " · " + L10n.t(call.starting ? .soundMixerStarting : call.running ? .soundEnabled : .soundDisabled, lang))
-                }
-                .font(Theme.mono(11, weight: .semibold)).foregroundStyle(Theme.textPrimary)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(L10n.t(.soundCallMix, lang) + " · " + L10n.t(call.starting ? .soundMixerStarting : call.running ? .soundEnabled : .soundDisabled, lang))
-                Spacer()
-                SettingChip(active: call.running || call.starting, action: {
-                    if call.running || call.starting { call.stop() }
-                    else { sound.stopCheck(); sound.discardRecording(); call.start(inputUID: sound.inputUID, apps: mixer.apps) }
-                }) {
-                    ZStack {
-                        Text(L10n.t(.soundCallStart, lang)).hidden()
-                        Text(L10n.t(.soundCallStop, lang)).hidden()
-                        Text(L10n.t(call.running || call.starting ? .soundCallStop : .soundCallStart, lang))
-                    }.font(Theme.mono(10))
-                }
-            }
+            SoundMixerHeader(running: call.running, starting: call.starting, active: call.running || call.starting,
+                             lang: lang, action: {
+                if call.running || call.starting { call.stop() }
+                else { sound.stopCheck(); sound.discardRecording(); call.start(inputUID: sound.inputUID, apps: mixer.apps) }
+            })
             Text(L10n.t(.soundCallHint, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
             VStack(spacing: 12) {

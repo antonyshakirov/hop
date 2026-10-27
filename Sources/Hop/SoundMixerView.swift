@@ -2,22 +2,35 @@ import AppKit
 import HopCore
 import SwiftUI
 
-struct SoundMixerSwitch: View {
-    @ObservedObject var mixer: SoundMixerController
+struct SoundMixerHeader: View {
+    let running: Bool
+    let starting: Bool
+    let active: Bool
+    var enabled = true
     let lang: AppLanguage
+    let action: () -> Void
+    private var state: L10nKey { starting ? .soundMixerStarting : running ? .soundEnabled : .soundDisabled }
+    private var actionKey: L10nKey { active ? .soundMixerStop : .soundMixerStart }
+    private func title(_ state: L10nKey) -> String { L10n.t(.soundCallMix, lang) + " · " + L10n.t(state, lang) }
     var body: some View {
-        SettingChip(active: mixer.requested, enabled: mixer.available && !Snapshot.active,
-                    action: { if mixer.requested { mixer.stop() } else { mixer.start() } }) {
-            ZStack {
-                Label(L10n.t(.soundMixerStart, lang), systemImage: "slider.horizontal.3").hidden()
-                Label(L10n.t(.soundMixerStop, lang), systemImage: "stop.circle").hidden()
-                Label(L10n.t(.soundMixerStarting, lang), systemImage: "stop.circle").hidden()
-                Label(L10n.t(mixer.starting ? .soundMixerStarting : mixer.requested ? .soundMixerStop : .soundMixerStart, lang),
-                      systemImage: mixer.requested ? "stop.circle" : "slider.horizontal.3")
+        HStack {
+            ZStack(alignment: .leading) {
+                ForEach([L10nKey.soundMixerStarting, .soundEnabled, .soundDisabled], id: \.self) { key in
+                    Text(title(key)).hidden()
+                }
+                Text(title(state))
             }
-                .font(Theme.mono(10))
+            .font(Theme.mono(11, weight: .semibold)).foregroundStyle(Theme.textPrimary).lineLimit(1)
+            .accessibilityElement(children: .ignore).accessibilityLabel(title(state))
+            Spacer(minLength: 8)
+            SettingChip(active: active, enabled: enabled, action: action) {
+                ZStack {
+                    Label(L10n.t(.soundMixerStart, lang), systemImage: "power").hidden()
+                    Label(L10n.t(.soundMixerStop, lang), systemImage: "power").hidden()
+                    Label(L10n.t(actionKey, lang), systemImage: "power")
+                }.font(Theme.mono(10))
+            }.fixedSize().help(L10n.t(actionKey, lang))
         }
-            .help(L10n.t(mixer.requested ? .soundMixerStop : .soundMixerStart, lang))
     }
 }
 
@@ -30,11 +43,9 @@ struct SoundMixerChannels: View {
                 Text(L10n.t(.soundMixerRequirement, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
-                HStack {
-                    Text(L10n.t(.soundMixerApps, lang)).font(Theme.mono(11, weight: .semibold)).foregroundStyle(Theme.textPrimary)
-                    Spacer(minLength: 8)
-                    SoundMixerSwitch(mixer: mixer, lang: lang)
-                }
+                SoundMixerHeader(running: mixer.running, starting: mixer.starting, active: mixer.running || mixer.starting,
+                                 enabled: !Snapshot.active, lang: lang,
+                                 action: { if mixer.running || mixer.starting { mixer.stop() } else { mixer.start() } })
                 HStack(spacing: 8) {
                     SettingChip(active: false, enabled: !Snapshot.active, action: chooseApplication) {
                         Label(L10n.t(.soundAddApplication, lang), systemImage: "plus").font(Theme.mono(10))
