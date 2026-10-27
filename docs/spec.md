@@ -7415,9 +7415,14 @@ awake/lid enabled still requires separate acceptance testing before release.
 The popover retains its opening top edge while content grows or shrinks,
 including changes to the active space's module list. A move or resize corrects
 vertical drift only when it exceeds half a point. The corrected top remains
-inside the current status icon screen's visible frame; a hidden icon uses the
-hidden anchor's screen. Horizontal anchor repair preserves this saved top edge.
-A real status button move records the new anchor position.
+inside the opening anchor screen's visible frame. Horizontal anchor repair
+preserves this saved top edge. Each opening captures the Hop artwork rectangle
+in screen coordinates using an independent transparent, mouse-transparent
+anchor. Mixer indicators update immediately with widths 22/30/33/41pt; moving or
+resizing the status item cannot move the already-open panel. Closing releases
+the anchor; the next opening uses the current icon position. An icon hidden by
+a menu-bar manager retains the top-right fallback anchor. The anchor joins
+full-screen spaces without taking keyboard focus.
 
 A repeated measured size is compared with the popover's actual content size.
 If AppKit has restored an older, taller size, the same compact measurement
@@ -7625,7 +7630,7 @@ Sound mixer disabled appearance (27 Oct): when either mixer is stopped, all sour
 Input mixer source availability (27 Oct): microphone and application rows share one readiness boundary. When that boundary changes, the entire source block must receive a transaction with animation cleared and child animations disabled; source controls become usable only after successful session start. Normal hover animations remain unchanged when readiness is stable. Regression coverage uses five source rows, parent-animated ON/OFF/ON transitions and a separate hover update, without microphone hardware.
 
 
-Mixer menu indicators — approved v8 integration (27 Oct): the owner accepted the compact right-hand pair after live review rejected the small flanking glyphs. Use neutral SF Symbols mic and speaker.wave.2, semibold weight, 10pt boxes: microphone first, speaker second, both on the right of Hop. Preserve the accepted v8 spacing from docs/design/mixer-menu-v8: microphone frame x21, speaker frame x29, 0.5pt frame gap, with the existing22×17 artwork at its original origin. Owner correction after the v8 live screenshot: image width follows visible content, 22pt without mixers, 30pt for microphone only, 33pt for speaker only, 41pt for both. Do not reserve empty audio slots. A lone speaker occupies the first slot. All states share one NSStatusBarButton/action/hover area. Anchor the popover to the fixed22pt Hop artwork within that image, so the arrow follows Hop while the visible group grows or shrinks. Show each symbol only while its corresponding mixer is running, including output at default per-app levels. Starting/failed/stopped states do not claim active audio. Existing soundMenuBarMark hides both symbols; global menuBarIconOnly hides all decorations without changing mixer state. Preserve other badges and the Dev identity mark; verify dial, keyboard, bell, dark/light and mono overlap. Integration checks require no microphone capture. The v5/v6 flanking arrangement above is historical and superseded by this decision.
+Mixer menu indicators — approved v8 integration (27 Oct): the owner accepted the compact right-hand pair after live review rejected the small flanking glyphs. Use neutral SF Symbols mic and speaker.wave.2, semibold weight, 10pt boxes: microphone first, speaker second, both on the right of Hop. Preserve the accepted v8 spacing from docs/design/mixer-menu-v8: microphone frame x21, speaker frame x29, 0.5pt frame gap, with the existing22×17 artwork at its original origin. Owner correction after the v8 live screenshot: image width follows visible content, 22pt without mixers, 30pt for microphone only, 33pt for speaker only, 41pt for both. Do not reserve empty audio slots. A lone speaker occupies the first slot. All states share one NSStatusBarButton/action/hover area. Anchor the popover to the fixed22pt Hop artwork within that image, captured when opening. The visible group can grow or shrink while the open panel stays fixed; the next opening captures the new Hop position. Show each symbol only while its corresponding mixer is running, including output at default per-app levels. Starting/failed/stopped states do not claim active audio. Existing soundMenuBarMark hides both symbols; global menuBarIconOnly hides all decorations without changing mixer state. Preserve other badges and the Dev identity mark; verify dial, keyboard, bell, dark/light and mono overlap. Integration checks require no microphone capture. The v5/v6 flanking arrangement above is historical and superseded by this decision.
 # AirPods microphone startup negotiation — 27 October 2026
 
 An observed AirPods startup changed input hardware from 48 kHz to 24 kHz

@@ -267,8 +267,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 self?.frozenTitleLength = nil
                 self?.frozenSlots = nil
                 self?.panelOriginX = nil
-                self?.hiddenAnchorWindow?.orderOut(nil)
-                self?.hiddenAnchorWindow = nil
+                self?.popoverAnchor?.close()
+                self?.popoverAnchor = nil
                 self?.previousApp = nil
                 self?.model.panelKeyboardCaptured = false
                 self?.model.panelTabHitRect = nil
@@ -276,17 +276,6 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 self?.tabPanel?.orderOut(nil)
                 self?.model.setPanelVisible(false, surface: "popover")
                 self?.refreshButton()
-            }
-        }
-        // the button shrinks/grows (countdown) → its WINDOW shifts along the menu bar,
-        // while the popover stays at the old coordinates; catch the move and re-anchor
-        NotificationCenter.default.addObserver(
-            forName: NSWindow.didMoveNotification, object: nil, queue: .main
-        ) { [weak self] note in
-            Task { @MainActor in
-                guard let self, let button = self.statusItem.button,
-                      (note.object as? NSWindow) === button.window else { return }
-                self.realignPopover(reason: "realign-btn")
             }
         }
         // growing content (expanded clipboard) → AppKit recalculates the popover and
@@ -489,27 +478,12 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         }
     }
 
-    /// Re-anchor to the current geometry: NSPopover ignores an identical
-    /// positioningRect, so nudge it half a pixel and set it back.
-    /// - Parameter reason: which caller triggered the realign — "realign-btn"
-    ///   (status button moved) or "realign-h" (panel drifted horizontally on
-    ///   resize) — used only to tag the debugPanelFrameLog line below.
     private func realignPopover(reason: String) {
         debugLogPanelAnchor("realign-before-\(reason)")
         if let panelWindow = popover.contentViewController?.view.window {
             debugLogPanelFrame(reason, frame: panelWindow.frame)
         }
-        // detached mode (icon hidden by a menu bar manager): the anchor is
-        // a stub window at the screen's top-right corner, nothing to re-pin
-        guard hiddenAnchorWindow == nil else { return }
-        guard popover.isShown, let button = statusItem.button else { return }
-        var nudge = Self.iconAnchor(button)
-        nudge.size.width += 0.5
-        popover.positioningRect = nudge
-        popover.positioningRect = Self.iconAnchor(button)
-        if reason != "realign-h" {
-            panelTopY = popover.contentViewController?.view.window?.frame.maxY
-        }
+        popoverAnchor?.realign(popover)
         debugLogPanelAnchor("realign-after-\(reason)")
     }
 
@@ -535,29 +509,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         return NSScreen.screens.contains { $0.frame.intersects(window.frame) }
     }
 
-    /// Invisible 2×2 stub at the top-right of the screen: when the icon is
-    /// hidden, the popover attaches here instead of macOS clamping it
-    /// into the top-LEFT corner (the anchor rect of an off-screen button
-    /// degenerates to zero).
-    private var hiddenAnchorWindow: NSWindow?
-
-    private func showPopoverDetached() {
-        guard let screen = NSScreen.screens.first else { return }
-        let frame = screen.visibleFrame
-        let rect = NSRect(x: frame.maxX - 44, y: frame.maxY - 2, width: 2, height: 2)
-        let anchor = NSWindow(contentRect: rect, styleMask: .borderless, backing: .buffered, defer: false)
-        anchor.isOpaque = false
-        anchor.backgroundColor = .clear
-        anchor.hasShadow = false
-        anchor.level = .statusBar
-        anchor.ignoresMouseEvents = true
-        anchor.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        anchor.orderFrontRegardless()
-        hiddenAnchorWindow = anchor
-        if let view = anchor.contentView {
-            popover.show(relativeTo: view.bounds, of: view, preferredEdge: .minY)
-        }
-    }
+    private var popoverAnchor: PanelPopoverAnchor?
 
     /// The popover theme follows the settings / system choice.
     func applyTheme() {
@@ -658,15 +610,15 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             view.layoutSubtreeIfNeeded()
             popover.contentSize = clampedToPanelScreen(Self.integral(view.fittingSize))
         }
-        // anchor to the ICON zone, not the whole button: when the countdown
-        // appears the button grows, and a full-bounds popover drifted away from the star.
-        // icon hidden by a menu bar manager → the panel opens at the
-        // top-right corner instead of being squeezed into the top-left
-        if Self.buttonIsVisible(button) {
-            popover.show(relativeTo: Self.iconAnchor(button), of: button, preferredEdge: .minY)
-        } else {
-            showPopoverDetached()
-        }
+        let anchorRect: NSRect
+        if Self.buttonIsVisible(button), let window = button.window {
+            anchorRect = window.convertToScreen(button.convert(Self.iconAnchor(button), to: nil))
+        } else if let screen = NSScreen.screens.first {
+            let frame = screen.visibleFrame
+            anchorRect = NSRect(x: frame.maxX - 44, y: frame.maxY - 2, width: 2, height: 2)
+        } else { return }
+        popoverAnchor = PanelPopoverAnchor(screenRect: anchorRect)
+        popoverAnchor?.show(popover)
         if let panelWindow = popover.contentViewController?.view.window {
             debugLogPanelFrame("shown", frame: panelWindow.frame)
             panelPreventsActivation = Self.preventActivation(of: panelWindow)
@@ -707,10 +659,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     private func restorePopoverTop() {
         guard popover.isShown, let top = panelTopY,
-              let window = popover.contentViewController?.view.window,
-              let button = statusItem.button else { return }
-        let screen = Self.buttonIsVisible(button)
-            ? button.window?.screen : hiddenAnchorWindow?.screen
+              let window = popover.contentViewController?.view.window else { return }
+        let screen = popoverAnchor?.screen
         guard let visibleFrame = (screen ?? NSScreen.screens.first)?.visibleFrame else { return }
         let corrected = PanelPopoverGeometry.anchoredFrame(window.frame, top: top,
                                                            visibleFrame: visibleFrame)
@@ -1089,12 +1039,6 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // the title width is invariant to it and can never shift the panel. The
         // title now carries digits only (countdown or the opt-in tracker time).
         if let frozen = frozenTitleLength {
-            // panel open: the time STAYS visible in the menu bar — only the
-            // width is frozen: pad the digit tail with spaces to the frozen
-            // length so the button and the attached panel don't move. If the
-            // total outgrows the frozen slot (the stopwatch passes an hour) the
-            // freeze extends and the didMove observer re-anchors; growth is
-            // always on the RIGHT, so the icon anchor never moves.
             let total = title.count
             if total > frozen {
                 frozenTitleLength = total
@@ -1133,8 +1077,6 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 appearance: button.effectiveAppearance, font: mono)
         }
 
-        // the anchor is fixed to the icon zone — no re-anchoring needed at all:
-        // the icon is always on the left, the countdown grows on the right and never touches the anchor
     }
 
     /// The clocks with something to say right now.
@@ -1299,7 +1241,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             "visibleScreen=\(String(describing: screen?.visibleFrame)) " +
             "iconScreen=\(String(describing: anchor)) " +
             "savedX=\(String(describing: panelOriginX)) savedTop=\(String(describing: panelTopY)) " +
-            "detached=\(hiddenAnchorWindow != nil)")
+            "fixedAnchor=\(popoverAnchor != nil)")
     }
 }
 
