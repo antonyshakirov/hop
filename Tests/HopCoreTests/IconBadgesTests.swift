@@ -278,7 +278,7 @@ final class IconBadgesTests: XCTestCase {
                 }
             }
         }
-        XCTAssertEqual(IconBadge.inputMix.corner, .centerLeft)
+        XCTAssertEqual(IconBadge.inputMix.corner, .centerRight)
         XCTAssertEqual(IconBadge.outputMix.corner, .centerRight)
         XCTAssertFalse(IconBadge.inputMix.monoFilled)
     }

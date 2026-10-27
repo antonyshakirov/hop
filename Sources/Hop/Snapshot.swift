@@ -179,7 +179,7 @@ enum Snapshot {
                     .foregroundColor: labelInk.withAlphaComponent(0.6),
                 ]
                 NSAttributedString(string: v.0, attributes: attrs)
-                    .draw(at: NSPoint(x: 48, y: y + 3))
+                    .draw(at: NSPoint(x: MenuBarIcon.canvasSize.width + 16, y: y + 3))
             }
             canvas.unlockFocus()
             if let tiff = canvas.tiffRepresentation,

@@ -51,10 +51,10 @@ enum MenuBarIcon {
     }
 
     /// One canvas size for all states — badges occupy pre-reserved space, so the
-    /// icon in the bar never "breathes". The star is always exactly centered.
-    static let canvasSize = NSSize(width: 32, height: 17)
+    /// icon in the bar never "breathes". Audio indicators use the reserved right side.
+    static let canvasSize = NSSize(width: 41, height: 17)
     private static let badgeCanvasSize = NSSize(width: 22, height: 17)
-    private static let contentInset: CGFloat = 5
+    private static let contentInset: CGFloat = 0
 
     /// Glyph centered: equal margins on the left and right.
     private static let dialRect = NSRect(x: 3.5, y: 1.5, width: 15, height: 14)
@@ -66,8 +66,8 @@ enum MenuBarIcon {
 
     private static let devMarkRect = NSRect(x: 0.9, y: 0.5, width: 3.4, height: 4.4)
     static var devMarkFrame: NSRect { devMarkRect.offsetBy(dx: contentInset, dy: 0) }
-    static let microphoneFrame = NSRect(x: 2, y: 4.5, width: 6, height: 8)
-    static let speakerFrame = NSRect(x: 23, y: 4.5, width: 8.67, height: 8)
+    static let microphoneFrame = NSRect(x: 21, y: 3.5, width: 7.5, height: 10)
+    static let speakerFrame = NSRect(x: 29, y: 3.5, width: 10.8, height: 10)
 
     private static func drawDevMark(color: NSColor) {
         let r = devMarkRect
@@ -418,18 +418,20 @@ enum MenuBarIcon {
 
     static func drawAudioIndicators(_ composition: IconComposition, glyph: NSColor) {
         if composition.inputMix {
-            draw(symbol: "mic", color: glyph, pointSize: 12, at: microphoneFrame, fraction: 1)
+            draw(symbol: "mic", color: glyph, pointSize: 12, at: microphoneFrame, fraction: 1, weight: .semibold)
         }
         if composition.outputMix {
-            draw(symbol: "speaker.wave.2", color: glyph, pointSize: 12, at: speakerFrame, fraction: 1)
+            let frame = composition.inputMix ? speakerFrame
+                : speakerFrame.offsetBy(dx: microphoneFrame.minX - speakerFrame.minX, dy: 0)
+            draw(symbol: "speaker.wave.2", color: glyph, pointSize: 12, at: frame, fraction: 1, weight: .semibold)
         }
     }
 
     private static func draw(
-        symbol: String, color: NSColor, pointSize: CGFloat, at rect: NSRect, fraction: CGFloat
+        symbol: String, color: NSColor, pointSize: CGFloat, at rect: NSRect, fraction: CGFloat, weight: NSFont.Weight = .regular
     ) {
         guard let base = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)?
-            .withSymbolConfiguration(.init(pointSize: pointSize, weight: .regular))
+            .withSymbolConfiguration(.init(pointSize: pointSize, weight: weight))
         else { return }
         let tinted = NSImage(size: base.size)
         tinted.lockFocus()

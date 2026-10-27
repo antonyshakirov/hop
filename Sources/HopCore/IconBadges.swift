@@ -44,7 +44,7 @@ public enum IconBadge: Equatable, Sendable, CaseIterable {
         switch self {
         case .alert, .reminder: return .topLeft
         case .vpn, .vpnStalled: return .bottomLeft
-        case .inputMix: return .centerLeft
+        case .inputMix: return .centerRight
         case .outputMix: return .centerRight
         case .noSleep, .lid: return .topRight
         case .engineTime, .taskTime: return .bottomRight
