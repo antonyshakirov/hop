@@ -29,6 +29,7 @@ final class AgentBridge {
     private var stateTicker: Timer?
     private var operationStore: AgentOperationStore?
     private var requestWatcher: FileWatcher?
+    var audioAcknowledgementTimeout: Duration = .seconds(15)
 
     var commandsURL: URL { directory.appendingPathComponent(Self.commandsFileName) }
     var stateURL: URL { directory.appendingPathComponent(Self.stateFileName) }
@@ -81,7 +82,11 @@ final class AgentBridge {
     private func runConfirmedCommands() {
         guard let model, let operationStore else { return }
         do {
-            try operationStore.drain(now: Date()) { [self] request in performConfirmed(request, on: model) }
+            try operationStore.drainDeferred(now: Date()) { [self] request, completed in
+                if case .audio(let command) = request.command {
+                    performAudio(command, on: model) { [weak self] result in completed(result); self?.publishState() }
+                } else { completed(performConfirmed(request, on: model)) }
+            }
             publishState()
         } catch {
             Self.log.error("confirmed agent request failed: \(error.localizedDescription, privacy: .public)")
@@ -249,6 +254,7 @@ final class AgentBridge {
         state["trackingSessions"] = engine.data.tasks.filter { engine.activeTaskIDs.contains($0.id) }.map {
             ["id": $0.id.uuidString.lowercased(), "task": $0.name]
         }
+        state["audio"] = audioState(model)
         state["supportedAgentProtocols"] = operationStore == nil ? [1] : [1, 2]
         state["todos"] = model.todos.list.items.map { item -> [String: Any] in
             var out: [String: Any] = ["id": item.id.uuidString, "text": item.text, "done": item.done]

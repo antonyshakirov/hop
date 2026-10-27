@@ -633,6 +633,12 @@ moment somebody quits mid-wizard.
 
 ## Sound
 
+Current input-source and confirmed audio-agent requirements from 27 October 2026
+are in [the focused input specification](../product-spec/results/screens/sound-input.md).
+Its agreed requirements supersede the earlier single-input/start-reset behavior;
+implementation and physical acceptance are still pending. Existing device and
+output contracts below remain applicable.
+
 A standalone `sound` module has one window for app/output and microphone
 controls, a panel row, settings page and
 assignable open/microphone-mute shortcuts. There are no shipped key combinations.

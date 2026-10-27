@@ -47,7 +47,9 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
         var started = false
         f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { started = true } }
         waitFor { started }
-        f.session.stop()
+        var stopped = false
+        f.session.stop { if case .success = $0 { stopped = true } }
+        waitFor { stopped }
         var restarted = false
         f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { restarted = true } }
         waitFor { restarted }
@@ -120,7 +122,7 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
             if ready { waitFor { f.published == 1 } }
             f.session.stop()
             XCTAssertFalse(f.producers[0].isRunning, "Closing during startup must reap the producer immediately")
-            XCTAssertEqual(f.retired, ready ? 1 : 0)
+            XCTAssertEqual(f.retired, 0, "Keep the published microphone until explicit retry so consumers do not fall back")
             var succeeded = false
             var lateFailure = false
             f.session.start(.init(input: nil, apps: [])) {
@@ -131,5 +133,46 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
             XCTAssertFalse(lateFailure, "Events queued by the retired producer cannot poison its replacement")
             XCTAssertEqual(cancelledResults, 0)
         }
+    }
+
+    func testStopDuringBlockedLiveUpdateReapsProducerBeforeCompleting() {
+        let blockedUpdate = """
+            printf '{"ready":true}\n'
+            IFS= read -r command
+            printf '{"applied":1,"captureCount":0}\n'
+            while IFS= read -r command; do :; done
+            """
+        let f = Fixture([blockedUpdate]); defer { f.cleanup() }
+        var started = false
+        f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { started = true } }
+        waitFor { started }
+        f.session.update(.init(input: nil, apps: []))
+        var stopped = false
+        f.session.stop { if case .success = $0 { stopped = true } }
+        XCTAssertTrue(stopped)
+        XCTAssertFalse(f.producers[0].isRunning)
+        XCTAssertEqual(f.retired, 0)
+    }
+
+    func testNormalStopCompletesOnlyAfterEmptyCaptureAcknowledgement() {
+        let delayedStop = """
+            printf '{"ready":true}\n'
+            IFS= read -r command
+            printf '{"applied":1,"captureCount":0}\n'
+            IFS= read -r command
+            sleep 0.15
+            printf '{"applied":2,"captureCount":0}\n'
+            while IFS= read -r command; do :; done
+            """
+        let f = Fixture([delayedStop]); defer { f.cleanup() }
+        var started = false
+        f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { started = true } }
+        waitFor { started }
+        var stopped = false
+        f.session.stop { if case .success = $0 { stopped = true } }
+        XCTAssertFalse(stopped)
+        waitFor { stopped }
+        XCTAssertTrue(f.producers[0].isRunning, "An idle producer keeps the published input available")
+        XCTAssertEqual(f.retired, 0)
     }
 }

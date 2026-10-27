@@ -4,6 +4,7 @@ import HopCore
 extension AgentBridge {
     func performConfirmed(_ request: AgentRequestV2, on model: AppModel) -> AgentResultV2 {
         switch request.command {
+        case .audio: return .rejected("audio_requires_deferred_execution")
         case .completeTodo(let id):
             guard let item = model.todos.list.items.first(where: { $0.id == id }) else { return .rejected("todo_not_found") }
             if item.done { return .noChange() }

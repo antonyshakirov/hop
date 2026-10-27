@@ -22,7 +22,9 @@ final class SoundInputCoordinator {
             guard let self else { return }
             self.observeInput(self.call.running || self.call.starting)
         }
-        subscriptions.append(sound.$inputUID.dropFirst().sink { [weak call] uid in call?.inputChanged(uid) })
+        subscriptions.append(sound.$inputInventory.removeDuplicates().sink { [weak call] inventory in
+            call?.inputsChanged(defaultUID: inventory.uid, devices: inventory.devices)
+        })
         subscriptions.append(mixer.$apps.sink { [weak call] apps in call?.sourcesChanged(apps) })
         subscriptions.append(mixer.$sourceRevision.dropFirst().sink { [weak call, weak mixer] _ in
             if let mixer { call?.sourcesChanged(mixer.apps) }
@@ -65,6 +67,7 @@ final class SoundInputCoordinator {
     }
 
     private func observeInput(_ active: Bool) {
+        guard !Snapshot.active else { return }
         if active {
             guard enabled(), !observing else { return }
             observing = true

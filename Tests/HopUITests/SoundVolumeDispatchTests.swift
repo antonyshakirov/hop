@@ -194,4 +194,47 @@ final class SoundVolumeDispatchTests: XCTestCase {
         XCTAssertLessThanOrEqual(hardware.deviceQueries - before, 2)
         sound.close(); hardware.finishAll(); await settle()
     }
+
+    func testAgentWaitsForInflightUIWriteAndNewUserValueWaitsForAgent() async throws {
+        let hardware = Hardware(), sound = controller(hardware)
+        sound.setVolume(0.2, direction: .output); await settle()
+        let agent = Task { try await sound.setAgentVolume(0.6, direction: .output, expectedUID: "a") }
+        await settle()
+        sound.setVolume(0.9, direction: .output); await settle()
+        XCTAssertEqual(hardware.starts.map(\.value), [0.2])
+        hardware.finishNext(); await settle()
+        XCTAssertEqual(hardware.starts.map(\.value), [0.2, 0.6])
+        hardware.finishNext(); try await agent.value; await settle()
+        XCTAssertEqual(hardware.starts.map(\.value), [0.2, 0.6, 0.9])
+        hardware.finishNext(); await settle()
+        XCTAssertEqual(hardware.applied.map(\.value), [0.2, 0.6, 0.9])
+        XCTAssertEqual(hardware.maximumActive, 1)
+        sound.close()
+    }
+
+    func testCancelledQueuedAgentCannotWriteAfterPrecedingAgentFinishes() async throws {
+        let hardware = Hardware()
+        let sound = SoundController(hardware: hardware, meter: Meter(), enabled: { true })
+        let first = Task { try await sound.setAgentVolume(0.2, direction: .output, expectedUID: "a") }
+        await settle()
+        let cancelled = Task { try await sound.setAgentVolume(0.8, direction: .output, expectedUID: "a") }
+        await settle(); cancelled.cancel()
+        hardware.finishNext(); try await first.value
+        do { try await cancelled.value; XCTFail("Cancelled queued command must fail") } catch {}
+        await settle()
+        XCTAssertEqual(hardware.starts.map(\.value), [0.2]); XCTAssertEqual(hardware.maximumActive, 1)
+        XCTAssertFalse(sound.windowOpen); XCTAssertFalse(sound.checking)
+    }
+
+    func testQueuedAgentRevalidatesDeviceAfterRouteChanges() async throws {
+        let hardware = Hardware()
+        let sound = SoundController(hardware: hardware, meter: Meter(), enabled: { true })
+        let first = Task { try await sound.setAgentVolume(0.2, direction: .output, expectedUID: "a") }
+        await settle()
+        let stale = Task { try await sound.setAgentVolume(0.8, direction: .output, expectedUID: "a") }
+        await settle(); hardware.output = "b"; hardware.finishNext()
+        do { try await first.value; XCTFail("Changed route must fail") } catch {}
+        do { try await stale.value; XCTFail("Stale destination must fail") } catch {}
+        XCTAssertEqual(hardware.starts.map(\.value), [0.2]); XCTAssertTrue(hardware.applied.isEmpty)
+    }
 }

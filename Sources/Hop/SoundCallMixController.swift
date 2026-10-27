@@ -5,9 +5,16 @@ import HopCore
 import HopAudioEngine
 import OSLog
 
-struct SoundCallConfiguration {
-    var input: SoundInputConfiguration?
+struct SoundCallConfiguration: Equatable {
+    var inputs: [SoundInputConfiguration]
     var apps: [SoundApplicationConfiguration]
+    var input: SoundInputConfiguration? { inputs.first }
+    init(input: SoundInputConfiguration?, apps: [SoundApplicationConfiguration]) {
+        inputs = input.map { [$0] } ?? []; self.apps = apps
+    }
+    init(inputs: [SoundInputConfiguration], apps: [SoundApplicationConfiguration]) {
+        self.inputs = inputs; self.apps = apps
+    }
 }
 
 @MainActor
@@ -16,8 +23,17 @@ protocol SoundCallSession: AnyObject {
     func setMicrophoneMuted(_ value: Bool) -> Bool
     func start(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void)
     func update(_ configuration: SoundCallConfiguration)
+    func update(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void)
     func stop()
+    func stop(completed: @escaping (Result<Void, SoundFailure>) -> Void)
     func shutdown()
+}
+
+extension SoundCallSession {
+    func stop(completed: @escaping (Result<Void, SoundFailure>) -> Void) { stop(); completed(.success(())) }
+    func update(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) {
+        update(configuration); completed(.success(()))
+    }
 }
 
 @MainActor
@@ -27,8 +43,17 @@ final class SoundCallMixController: ObservableObject {
     let enabled: Bool
     @Published private(set) var running = false
     @Published private(set) var starting = false
+    @Published private(set) var stopping = false
     @Published private(set) var failure: SoundFailure?
-    @Published private(set) var microphone: SoundChannelSettings = { var value = SoundChannelSettings(); value.active = false; return value }()
+    static let preferencesKey = "soundCallMixPreferencesV1"
+    @Published private(set) var microphone = SoundChannelSettings()
+    @Published private(set) var microphones: [String: SoundChannelSettings] = [:]
+    @Published private(set) var accessoryMuted = false
+    @Published private(set) var updating = false
+    @Published private(set) var configurationRevision = 0
+    @Published private(set) var appliedConfigurationRevision = 0
+    @Published private(set) var effectiveInputUIDs: [String] = []
+    @Published private(set) var effectiveApplicationIDs: [String] = []
     @Published private(set) var requestingMicrophone = false
     @Published private(set) var applications: [String: SoundChannelSettings] = [:]
     var prepareInputSources: ((String?) -> Result<[SoundMixerChannel], SoundFailure>)?
@@ -37,13 +62,23 @@ final class SoundCallMixController: ObservableObject {
     private var quickInput = false
     private var captureAllowed: Bool { windowOpen || quickInput }
     private var generation = 0
+    var sessionGeneration: Int { generation }
+    private var requestedConfiguration: SoundCallConfiguration?
     private var inputUID: String?
+    var systemInputUID: String? { inputUID }
+    private var availableInputUIDs: Set<String>?
+    private var microphonePermissionGranted = false
+    private var microphonePermissionDenied = false
     private var sources: [SoundMixerChannel] = []
     private let session: SoundCallSession
     private let access: (@escaping (Bool) -> Void) -> Void
+    private let defaults: UserDefaults?
 
     init(enabled: Bool? = nil, session: SoundCallSession? = nil,
-         access: ((@escaping (Bool) -> Void) -> Void)? = nil) {
+         access: ((@escaping (Bool) -> Void) -> Void)? = nil, defaults: UserDefaults? = nil) {
+        self.defaults = defaults
+        let preset = SoundInputMixPreferences.load(defaults?.data(forKey: Self.preferencesKey))
+        microphone = preset.system; microphones = preset.microphones; applications = preset.applications
         if let enabled { self.enabled = enabled }
         else if #available(macOS 14.2, *) { self.enabled = true }
         else { self.enabled = false }
@@ -55,8 +90,8 @@ final class SoundCallMixController: ObservableObject {
             else { AVCaptureDevice.requestAccess(for: .audio) { allowed in DispatchQueue.main.async { completion(allowed) } } }
         }
         self.session.microphoneMuteChanged = { [weak self] value in
-            guard let self, (self.running || self.starting), self.microphone.active else { return }
-            self.microphone.muted = value
+            guard let self, (self.running || self.starting) else { return }
+            self.accessoryMuted = value
         }
     }
     func open() { windowOpen = true }
@@ -65,46 +100,41 @@ final class SoundCallMixController: ObservableObject {
         if let settings = applications[id] { return settings }
         var settings = SoundChannelSettings(); settings.active = false; return settings
     }
+    func microphoneSettings(uid: String) -> SoundChannelSettings {
+        microphones[uid] ?? Self.inactiveSettings()
+    }
     func editMicrophone(_ edit: (inout SoundChannelSettings) -> Void) {
+        editMicrophone(uid: nil, edit)
+    }
+    func editMicrophone(uid: String?, _ edit: (inout SoundChannelSettings) -> Void) {
         guard !starting, !requestingMicrophone else { return }
-        var value = microphone; edit(&value)
+        if let uid, !SoundInputMixPreferences.allowsMicrophone(uid) { return }
+        let previous = uid.flatMap { microphones[$0] } ?? (uid == nil ? microphone : Self.inactiveSettings())
+        var value = previous; edit(&value)
         value.gain = min(1, value.safeGain); value.bass = false
-        if running, value.active, !microphone.active {
-            guard let inputUID else { failure = .missingDevice; return }
-            let token = generation
-            requestingMicrophone = true
-            access { [weak self] allowed in
-                guard let self, self.generation == token, self.captureAllowed, self.running, self.inputUID == inputUID else { return }
-                self.requestingMicrophone = false
-                guard allowed else { self.failure = .permission; return }
-                self.failure = nil; self.microphone = value; self.sendUpdate()
-            }
-        } else {
-            if running, microphone.active, value.active, value.muted != microphone.muted,
-               !session.setMicrophoneMuted(value.muted) { failure = .system(-1); return }
-            microphone = value; sendUpdate()
-        }
+        if let uid { microphones[uid] = value } else { microphone = value }
+        if value.active && !previous.active { microphonePermissionDenied = false }
+        persist(); sendUpdate()
     }
     func editApplication(_ id: String, _ edit: (inout SoundChannelSettings) -> Void) {
         guard SoundCallMixPolicy.allows(id), !starting else { return }
         var value = settings(id); edit(&value)
         guard !value.active || sources.filter({ $0.id != id && settings($0.id).active }).count < 4 else { return }
         value.gain = min(1, value.safeGain); value.bass = false
-        applications[id] = value; sendUpdate()
+        applications[id] = value; persist(); sendUpdate()
     }
     func sourcesChanged(_ apps: [SoundMixerChannel]) {
         sources = apps.filter { SoundCallMixPolicy.allows($0.id) }
         sendUpdate()
     }
     func startQuick(inputUID: String?, apps: [SoundMixerChannel]) {
-        guard enabled, !running, !starting else { return }
-        guard inputUID != nil else { failure = .missingDevice; return }
+        guard enabled, !running, !starting, !stopping else { return }
         quickInput = true
         start(inputUID: inputUID, apps: apps)
         if !running, !starting { quickInput = false }
     }
     func start(inputUID: String?, apps initialApps: [SoundMixerChannel]) {
-        guard enabled, captureAllowed, !running, !starting else { return }
+        guard enabled, captureAllowed, !running, !starting, !stopping else { return }
         defer { finishInputPreparation?() }
         let apps: [SoundMixerChannel]
         if let prepareInputSources {
@@ -114,47 +144,66 @@ final class SoundCallMixController: ObservableObject {
             }
         } else { apps = initialApps }
         let selected = apps.filter { SoundCallMixPolicy.allows($0.id) && settings($0.id).active }
-        guard selected.count <= 4, !microphone.active || inputUID != nil else { failure = .missingDevice; return }
+        guard selected.count <= 4 else { failure = .unsupported; return }
         self.inputUID = inputUID; sources = apps.filter { SoundCallMixPolicy.allows($0.id) }
         generation += 1; let token = generation
-        let includeMicrophone = inputUID != nil
+        let includeMicrophone = !configuration().inputs.isEmpty
+        microphonePermissionGranted = false; microphonePermissionDenied = false
         failure = nil; starting = true; requestingMicrophone = includeMicrophone
         let activate: (Bool) -> Void = { [weak self] allowed in
             guard let self, self.generation == token, self.captureAllowed, self.starting else { return }
             self.requestingMicrophone = false
             guard allowed else {
                 self.quickInput = false
-                self.starting = false; self.microphone.active = false; self.failure = .permission
+                self.starting = false; self.failure = .permission
                 return
             }
-            if includeMicrophone { self.microphone.active = true }
-            self.session.start(self.configuration()) { [weak self] result in
+            self.microphonePermissionGranted = includeMicrophone
+            self.configurationRevision += 1
+            let revision = self.configurationRevision, configuration = self.configuration()
+            self.requestedConfiguration = configuration
+            self.session.start(configuration) { [weak self] result in
                 guard let self, self.generation == token, self.captureAllowed else { return }
                 switch result {
-                case .success: self.running = true; self.starting = false
+                case .success:
+                    self.running = true; self.starting = false
+                    if self.configurationRevision == revision {
+                        self.appliedConfigurationRevision = revision
+                        self.effectiveInputUIDs = configuration.inputs.map(\.uid)
+                        self.effectiveApplicationIDs = configuration.apps.map(\.id)
+                    }
                 case .failure(let error):
                     self.starting = false; self.quickInput = false
-                    self.running = false; self.microphone.active = false; self.failure = error; self.session.stop()
+                    self.stop(); self.failure = error
                 }
             }
         }
         if includeMicrophone { access(activate) } else { activate(true) }
     }
     func inputChanged(_ uid: String?) {
-        if running || starting {
-            if (microphone.active || requestingMicrophone), uid != inputUID {
-                Self.log.notice("selected-input-changed; stopping-capture")
-                stop(); failure = .inputChanged
-            }
-            else { inputUID = uid }
-        }
+        guard inputUID != uid else { return }
+        inputUID = uid
+        sendUpdate()
     }
-    func stop() {
+    func inputsChanged(defaultUID: String?, devices: [SoundDevice]) {
+        availableInputUIDs = Set(devices.map(\.uid).filter(SoundInputMixPreferences.allowsMicrophone))
+        inputUID = defaultUID
+        sendUpdate()
+    }
+    func stop() { stopConfirmed(completed: { _ in }) }
+    func stopConfirmed(completed: @escaping (Result<Void, SoundFailure>) -> Void) {
         quickInput = false
-        generation += 1; running = false; starting = false; requestingMicrophone = false
-        session.stop(); inputUID = nil; sources = []
-        microphone.active = false
-        applications = applications.mapValues { old in var value = old; value.active = false; return value }
+        generation += 1; let token = generation
+        stopping = true; running = false; starting = false; requestingMicrophone = false; updating = false
+        requestedConfiguration = nil; inputUID = nil; sources = []
+        microphonePermissionGranted = false; microphonePermissionDenied = false
+        session.stop { [weak self] result in
+            if let self, self.generation == token {
+                self.stopping = false; self.accessoryMuted = false
+                self.effectiveInputUIDs = []; self.effectiveApplicationIDs = []
+            }
+            completed(result)
+        }
     }
     func shutdown() { close(); session.shutdown() }
     func stageDemo(_ apps: [SoundMixerChannel]) {
@@ -163,10 +212,57 @@ final class SoundCallMixController: ObservableObject {
         if let app = apps.first { var value = SoundChannelSettings(); value.active = true; value.gain = 0.35; applications[app.id] = value }
     }
     private func configuration() -> SoundCallConfiguration {
-        SoundCallConfiguration(input: microphone.active ? inputUID.map { SoundInputConfiguration(uid: $0, settings: microphone) } : nil,
+        var preset = SoundInputMixPreferences(); preset.system = microphone; preset.microphones = microphones
+        return SoundCallConfiguration(inputs: preset.resolvedInputs(defaultUID: inputUID,
+            availableUIDs: availableInputUIDs ?? Set(inputUID.map { [$0] } ?? [])),
             apps: sources.filter { settings($0.id).active && !$0.processes.isEmpty }.map { SoundApplicationConfiguration(id: $0.id, processes: $0.processes, settings: settings($0.id)) })
     }
-    private func sendUpdate() { if running { session.update(configuration()) } }
+    private func sendUpdate() {
+        guard (running || starting), !requestingMicrophone else { return }
+        var configuration = configuration()
+        if configuration.inputs.isEmpty, failure == .permission { failure = nil }
+        if !configuration.inputs.isEmpty && !microphonePermissionGranted {
+            if !microphonePermissionDenied {
+                let token = generation
+                requestingMicrophone = true
+                access { [weak self] allowed in
+                    guard let self, self.generation == token, self.captureAllowed, self.running || self.starting else { return }
+                    self.requestingMicrophone = false
+                    self.microphonePermissionGranted = allowed; self.microphonePermissionDenied = !allowed
+                    self.failure = allowed ? nil : .permission
+                    self.sendUpdate()
+                }
+                return
+            }
+            failure = .permission
+            configuration.inputs = []
+        }
+        guard configuration != requestedConfiguration else { return }
+        requestedConfiguration = configuration
+        configurationRevision += 1
+        let revision = configurationRevision, token = generation
+        updating = true
+        session.update(configuration) { [weak self] result in
+            guard let self, self.generation == token, self.configurationRevision == revision,
+                  self.captureAllowed, self.running || self.starting else { return }
+            self.updating = false
+            switch result {
+            case .success:
+                self.appliedConfigurationRevision = revision
+                self.effectiveInputUIDs = configuration.inputs.map(\.uid)
+                self.effectiveApplicationIDs = configuration.apps.map(\.id)
+            case .failure(let error): self.stop(); self.failure = error
+            }
+        }
+    }
+    private static func inactiveSettings() -> SoundChannelSettings {
+        var value = SoundChannelSettings(); value.active = false; return value
+    }
+    private func persist() {
+        var preset = SoundInputMixPreferences()
+        preset.system = microphone; preset.microphones = microphones; preset.applications = applications
+        if let data = try? JSONEncoder().encode(preset) { defaults?.set(data, forKey: Self.preferencesKey) }
+    }
 }
 
 @available(macOS 14.2, *)
@@ -177,7 +273,7 @@ final class NativeSoundCallSession: SoundCallSession {
     private var muteRelay: SoundAccessoryMuteRelay?
     private var captureToken: UUID?
     private var routeToken: UUID?
-    private var microphoneUID: String?
+    private var microphoneUIDs: Set<String> = []
     private var microphoneMuted = false
     func setMicrophoneMuted(_ value: Bool) -> Bool {
         guard captureToken != nil, routeToken == captureToken else { return false }
@@ -186,7 +282,7 @@ final class NativeSoundCallSession: SoundCallSession {
     private func retireMuteRoute() {
         muteRelay?.select(nil)
         if let token = routeToken { SoundAccessoryMute.shared.unbind(token) }
-        routeToken = nil; captureToken = nil; microphoneUID = nil
+        routeToken = nil; captureToken = nil; microphoneUIDs = []
     }
     private func bindMuteRoute() throws {
         guard let token = captureToken, routeToken != token, let relay = muteRelay else { return }
@@ -210,6 +306,9 @@ final class NativeSoundCallSession: SoundCallSession {
     private let installAccessory: () throws -> Void
     private var pending: SoundCallConfiguration?
     private var completed: ((Result<Void, SoundFailure>) -> Void)?
+    private var updateCompleted: ((Result<Void, SoundFailure>) -> Void)?
+    private var stopCallbacks: [(Result<Void, SoundFailure>) -> Void] = []
+    private var awaitingStop = false
     private var request: UInt64 = 0
     private var awaiting: UInt64?
     private var ready = false
@@ -237,6 +336,7 @@ final class NativeSoundCallSession: SoundCallSession {
     }
 
     func start(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) {
+        guard !awaitingStop else { completed(.failure(.unsupported)); return }
         Self.log.notice("start-requested")
         if unavailable {
             // An explicit retry starts from a fully reaped producer. Its old
@@ -283,25 +383,48 @@ final class NativeSoundCallSession: SoundCallSession {
             self.fail("producer-ready-timeout")
         }
     }
-    func update(_ configuration: SoundCallConfiguration) { if ready { send(configuration) } }
-    func stop() {
+    func update(_ configuration: SoundCallConfiguration) { update(configuration, completed: { _ in }) }
+    func update(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) {
+        guard !unavailable, !awaitingStop, ready || awaitingStart else { completed(.failure(.system(-1))); return }
+        let previous = updateCompleted
+        updateCompleted = completed
+        previous?(.failure(.system(-1)))
+        if ready { send(configuration) } else { pending = configuration }
+    }
+    func stop() { stop(completed: { _ in }) }
+    func stop(completed: @escaping (Result<Void, SoundFailure>) -> Void) {
+        stopCallbacks.append(completed)
+        if awaitingStop { return }
         let cancellingStart = awaitingStart
+        let cancellingConfiguration = awaitingStart || awaiting != nil
         Self.log.notice("stop-requested starting=\(cancellingStart, privacy: .public)")
-        retireMuteRoute()
-        pending = nil; completed = nil; awaiting = nil; awaitingStart = false
-        if cancellingStart {
-            // The worker can be blocked opening a Bluetooth device and unable
-            // to read a Stop command. Reap it before returning from cancellation.
+        retireMuteRoute(); microphoneMuted = false
+        pending = nil; self.completed = nil; awaiting = nil; awaitingStart = false
+        let cancelled = updateCompleted; updateCompleted = nil
+        cancelled?(.failure(.system(-1)))
+        if cancellingConfiguration {
             stopProducer()
-            stopExport?(); stopExport = nil
-        } else if ready { send(SoundCallConfiguration(input: nil, apps: []), stopping: true) }
+            unavailable = true
+            finishStops()
+        } else if ready {
+            awaitingStop = true
+            send(SoundCallConfiguration(input: nil, apps: []), stopping: true)
+        } else {
+            if process != nil { stopProducer(); unavailable = true }
+            finishStops()
+        }
+    }
+    private func finishStops() {
+        awaitingStop = false
+        let callbacks = stopCallbacks; stopCallbacks = []
+        callbacks.forEach { $0(.success(())) }
     }
     func shutdown() {
-        stop(); stopProducer()
+        stop(); stopProducer(); finishStops()
         stopExport?(); stopExport = nil
     }
     private func stopProducer() {
-        producerGeneration += 1; awaitingStart = false
+        producerGeneration += 1; awaitingStart = false; awaiting = nil
         retireMuteRoute()
         ready = false
         timeout?.cancel(); timeout = nil
@@ -316,7 +439,8 @@ final class NativeSoundCallSession: SoundCallSession {
             if process.isRunning { kill(process.processIdentifier, SIGKILL) }
             process.waitUntilExit()
         }
-        process = nil; output = nil; muteRelay = nil
+        process = nil; output = nil; muteRelay = nil; microphoneMuted = false
+        updateCompleted = nil
         buffer.removeAll()
     }
     private func read(_ data: Data) {
@@ -345,14 +469,20 @@ final class NativeSoundCallSession: SoundCallSession {
             }
             if let applied = message["applied"] as? UInt64, applied == awaiting {
                 do { try bindMuteRoute() } catch { logError("accessory-route", error); fail("accessory-route"); return }
+                if awaitingStop, message["captureCount"] as? Int != 0 {
+                    fail("stop-capture-count"); return
+                }
                 awaiting = nil
                 acknowledgement?.cancel(); acknowledgement = nil
+                if awaitingStop { finishStops(); continue }
                 print("HOP CALL MIX applied=\(applied) captures=\(message["captureCount"] ?? "?")"); fflush(stdout)
                 if awaitingStart {
                     awaitingStart = false
                     Self.log.notice("configuration-applied")
                     completed?(.success(()))
                 }
+                let updated = updateCompleted; updateCompleted = nil
+                updated?(.success(()))
             }
         }
     }
@@ -372,14 +502,16 @@ final class NativeSoundCallSession: SoundCallSession {
         if awaitingStart || stopping {
             Self.log.notice("configuration-requested stopping=\(stopping, privacy: .public)")
         }
-        if configuration.input?.uid != microphoneUID {
+        let selectedUIDs = Set(configuration.inputs.map(\.uid))
+        if selectedUIDs != microphoneUIDs {
+            let retainedMute = microphoneMuted
             retireMuteRoute()
-            microphoneUID = configuration.input?.uid
-            captureToken = configuration.input.map { _ in UUID() }
-            microphoneMuted = configuration.input?.settings.muted ?? false
+            microphoneUIDs = selectedUIDs
+            captureToken = selectedUIDs.isEmpty ? nil : UUID()
+            microphoneMuted = retainedMute
             muteRelay?.select(captureToken?.uuidString)
         }
-        let command = SoundWorkerCommand(start: true, inputs: configuration.input.map { [$0] } ?? [], apps: configuration.apps, requestID: request, captureToken: captureToken?.uuidString)
+        let command = SoundWorkerCommand(start: true, inputs: configuration.inputs, apps: configuration.apps, requestID: request, captureToken: captureToken?.uuidString, microphoneMuted: microphoneMuted)
         do {
             var data = try JSONEncoder().encode(command); data.append(10)
             guard let muteRelay else { fail("missing-command-relay"); return }
@@ -406,10 +538,12 @@ final class NativeSoundCallSession: SoundCallSession {
         Self.log.error("failed phase=\(reason, privacy: .public)")
         pending = nil; awaiting = nil; unavailable = true
         let callback = completed; completed = nil
+        let updated = updateCompleted; updateCompleted = nil
         // A failed command cannot leave a previous capture running. Keep the
         // published input until explicit retry or quit, but reap its producer first.
-        stopProducer()
+        stopProducer(); finishStops()
         callback?(.failure(.system(-1)))
+        updated?(.failure(.system(-1)))
     }
 }
 

@@ -218,7 +218,16 @@ final class SoundMixerController: ObservableObject {
             if let observation = SoundHALObservation(id, kAudioProcessPropertyIsRunningOutput, changed: changed) { observations.append(observation) }
         }
     }
-    private func refresh() {
+    func agentApplicationInventory() -> [SoundMixerAppSnapshot] {
+        guard enabled(), available else { return [] }
+        return discover().filter { SoundMixerDiscovery.allowsApplication($0.id) }
+    }
+    // SPEC: product-spec/results/screens/sound-input.md — only confirmed mutations prepare live sources.
+    func refreshForAgent() {
+        guard enabled(), available else { return }
+        refresh(applyStreams: false)
+    }
+    private func refresh(applyStreams: Bool = true) {
         outputDevices = outputs().filter { SoundAppOutput.allows($0.uid) }
         let old = Dictionary(uniqueKeysWithValues: apps.map { ($0.id, $0) })
         var groups = Dictionary(uniqueKeysWithValues: discover().filter {
@@ -251,7 +260,7 @@ final class SoundMixerController: ObservableObject {
         if order != apps.map(\.id) { apps = order.compactMap { map[$0] } }
         if sourcesChanged { sourceRevision += 1 }
         if metadataChanged { persistPreferences() }
-        session?.outputs(apps); sampleActivity()
+        if applyStreams { session?.outputs(apps); sampleActivity() }
     }
     private func updateActivityTimer() {
         activityTimer?.invalidate(); activityTimer = nil

@@ -11,6 +11,7 @@ public struct AgentRequestV2 {
         case legacy(AgentCommand)
         case completeTodo(UUID)
         case deleteTodo(UUID)
+        case audio(AgentAudioCommand)
     }
     public let id: UUID
     public let command: Command
@@ -62,7 +63,8 @@ public struct AgentRequestV2 {
         case "tracker.start":
             try fields(command, required: ["do", "task"])
             parsed = .legacy(.trackerStart(task: try string(command["task"], limit: 500)))
-        default: throw AgentProtocolError("unsupported_command")
+        default:
+            parsed = .audio(try AgentAudioCommand.parse(command))
         }
         return AgentRequestV2(id: id, command: parsed)
     }

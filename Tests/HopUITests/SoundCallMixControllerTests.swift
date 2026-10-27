@@ -25,7 +25,7 @@ final class SoundCallMixControllerTests: XCTestCase {
         else { XCTAssertFalse(mix.enabled) }
         mix.open()
         XCTAssertFalse(mix.running); XCTAssertFalse(mix.starting)
-        XCTAssertFalse(mix.microphone.active); XCTAssertFalse(mix.requestingMicrophone)
+        XCTAssertTrue(mix.microphone.active); XCTAssertFalse(mix.requestingMicrophone)
         XCTAssertTrue(session.starts.isEmpty); XCTAssertEqual(requests, 0)
         mix.close()
     }
@@ -88,13 +88,14 @@ final class SoundCallMixControllerTests: XCTestCase {
         XCTAssertTrue(session.updates.last?.input?.settings.muted == true)
         active.close(); XCTAssertFalse(active.running)
     }
-    func testDeviceChangeStopsRatherThanSelectingAnotherMicrophone() {
+    func testSystemDefaultFollowsDeviceChangeWithoutRestartingTheMixer() {
         let session = Session()
         let mix = SoundCallMixController(enabled: true, session: session, access: { $0(true) })
         mix.editMicrophone { $0.active = true }
         mix.open(); mix.start(inputUID: "micA", apps: []); session.callback?(.success(()))
         mix.inputChanged("micB")
-        XCTAssertFalse(mix.running); XCTAssertEqual(mix.failure, .inputChanged)
+        XCTAssertTrue(mix.running); XCTAssertNil(mix.failure)
+        XCTAssertEqual(session.updates.last?.input?.uid, "micB")
         XCTAssertEqual(session.starts.count, 1)
     }
     func testEnableIncludesSelectedMicrophoneAndSourcesCanBeChangedLive() {
@@ -111,15 +112,15 @@ final class SoundCallMixControllerTests: XCTestCase {
         XCTAssertEqual(session.updates.last?.apps[0].settings.gain, 0.25)
         mix.editMicrophone { $0.active = false }
         mix.editMicrophone { $0.active = true }
-        XCTAssertEqual(requested, 2); XCTAssertEqual(session.updates.last?.input?.uid, "mic")
+        XCTAssertEqual(requested, 1); XCTAssertEqual(session.updates.last?.input?.uid, "mic")
         mix.editApplication(app.id) { $0.active = false }
         XCTAssertTrue(session.updates.last?.apps.isEmpty == true)
         mix.editMicrophone { $0.active = false }
         XCTAssertNil(session.updates.last?.input)
         XCTAssertTrue(mix.running)
         mix.close(); mix.open(); mix.start(inputUID: "mic", apps: [app])
-        XCTAssertEqual(session.starts.last?.input?.uid, "mic")
-        XCTAssertEqual(requested, 3); XCTAssertTrue(session.starts.last?.apps.isEmpty == true)
+        XCTAssertNil(session.starts.last?.input)
+        XCTAssertEqual(requested, 1); XCTAssertTrue(session.starts.last?.apps.isEmpty == true)
     }
     func testNewAppCanBeSelectedAfterMixerHasStarted() {
         let session = Session()
@@ -132,57 +133,48 @@ final class SoundCallMixControllerTests: XCTestCase {
         mix.sourcesChanged([])
         XCTAssertTrue(session.updates.last?.apps.isEmpty == true)
     }
-    func testPendingLiveMicrophonePermissionCannotSurviveStopOrInputChange() {
-        for close in [false, true] {
-            let session = Session(); var permission: ((Bool) -> Void)?
-            var initial = true
-            let mix = SoundCallMixController(enabled: true, session: session, access: {
-                if initial { initial = false; $0(true) } else { permission = $0 }
-            })
-            mix.open(); mix.start(inputUID: "micA", apps: []); session.callback?(.success(()))
-            mix.editMicrophone { $0.active = false }
-            let count = session.updates.count
-            mix.editMicrophone { $0.active = true }
-            XCTAssertTrue(mix.requestingMicrophone); XCTAssertFalse(mix.microphone.active)
-            if close { mix.close() } else { mix.inputChanged("micB") }
-            permission?(true)
-            XCTAssertFalse(mix.running); XCTAssertFalse(mix.microphone.active)
-            XCTAssertFalse(mix.requestingMicrophone)
-            XCTAssertEqual(session.updates.count, count)
-        }
-    }
-    func testDeniedLiveMicrophonePermissionKeepsMicrophoneOff() {
-        let session = Session()
-        var initial = true
-        let mix = SoundCallMixController(enabled: true, session: session, access: {
-            $0(initial); initial = false
-        })
-        mix.open(); mix.start(inputUID: "mic", apps: []); session.callback?(.success(()))
+    func testPendingLiveMicrophonePermissionCannotSurviveStop() {
+        let session = Session(); var permission: ((Bool) -> Void)?
+        let mix = SoundCallMixController(enabled: true, session: session, access: { permission = $0 })
         mix.editMicrophone { $0.active = false }
-        let count = session.updates.count
+        mix.open(); mix.start(inputUID: "micA", apps: []); session.callback?(.success(()))
         mix.editMicrophone { $0.active = true }
-        XCTAssertFalse(mix.microphone.active); XCTAssertEqual(mix.failure, .permission)
-        XCTAssertTrue(mix.running); XCTAssertEqual(session.updates.count, count)
+        XCTAssertTrue(mix.requestingMicrophone)
+        let count = session.updates.count
+        mix.close(); permission?(true)
+        XCTAssertFalse(mix.running); XCTAssertTrue(mix.microphone.active)
+        XCTAssertTrue(mix.effectiveInputUIDs.isEmpty)
+        XCTAssertFalse(mix.requestingMicrophone)
+        XCTAssertEqual(session.updates.count, count)
+    }
+    func testDeniedLiveMicrophonePermissionPreservesSelectionWithoutCapture() {
+        let session = Session()
+        let mix = SoundCallMixController(enabled: true, session: session, access: { $0(false) })
+        mix.editMicrophone { $0.active = false }
+        mix.open(); mix.start(inputUID: "mic", apps: []); session.callback?(.success(()))
+        mix.editMicrophone { $0.active = true }
+        XCTAssertTrue(mix.microphone.active); XCTAssertEqual(mix.failure, .permission)
+        XCTAssertTrue(mix.running); XCTAssertTrue(mix.effectiveInputUIDs.isEmpty)
         XCTAssertNil(session.updates.last?.input)
     }
 
-    func testAccessoryMuteUpdatesOnlyActiveMicrophoneAndUIRequiresAcceptance() {
+    func testAccessoryMuteIsSeparateFromSavedRowMuteAndDoesNotMuteMusic() {
         let session = Session()
         let mix = SoundCallMixController(enabled: true, session: session, access: { $0(true) })
         let app = SoundMixerChannel(id: "com.google.Chrome", name: "Chrome", input: false, settings: .init())
         mix.open(); mix.start(inputUID: "mic", apps: [app]); session.callback?(.success(()))
-        mix.editMicrophone { $0.active = true }
         mix.editApplication(app.id) { $0.active = true; $0.gain = 0.25 }
         let updates = session.updates.count
         session.microphoneMuteChanged?(true)
-        XCTAssertTrue(mix.microphone.muted); XCTAssertEqual(session.updates.count, updates)
+        XCTAssertTrue(mix.accessoryMuted); XCTAssertFalse(mix.microphone.muted)
+        XCTAssertEqual(session.updates.count, updates)
         XCTAssertEqual(mix.settings(app.id).gain, 0.25); XCTAssertFalse(mix.settings(app.id).muted)
-        session.muteAccepted = false
-        mix.editMicrophone { $0.muted = false }; XCTAssertTrue(mix.microphone.muted)
-        session.muteAccepted = true
-        mix.editMicrophone { $0.muted = false }; XCTAssertFalse(mix.microphone.muted)
+        mix.editMicrophone { $0.muted = true }
+        session.microphoneMuteChanged?(false)
+        XCTAssertFalse(mix.accessoryMuted); XCTAssertTrue(mix.microphone.muted)
         mix.close(); session.microphoneMuteChanged?(true)
-        XCTAssertFalse(mix.microphone.active); XCTAssertFalse(mix.microphone.muted)
+        XCTAssertFalse(mix.accessoryMuted)
+        XCTAssertTrue(mix.microphone.active); XCTAssertTrue(mix.microphone.muted)
     }
 
     func testConfirmedAccessoryStateDuringStartupIsNotLost() {
@@ -193,7 +185,7 @@ final class SoundCallMixControllerTests: XCTestCase {
         XCTAssertTrue(mix.starting)
         session.microphoneMuteChanged?(true)
         session.callback?(.success(()))
-        XCTAssertTrue(mix.running); XCTAssertTrue(mix.microphone.muted)
+        XCTAssertTrue(mix.running); XCTAssertTrue(mix.accessoryMuted); XCTAssertFalse(mix.microphone.muted)
     }
 
     func testAutomaticMicrophoneWaitsForPermissionAndHonorsExistingMute() {
@@ -201,7 +193,7 @@ final class SoundCallMixControllerTests: XCTestCase {
         let mix = SoundCallMixController(enabled: true, session: session, access: { permission = $0 })
         mix.editMicrophone { $0.gain = 0.5; $0.muted = true }
         mix.open()
-        XCTAssertTrue(session.starts.isEmpty); XCTAssertFalse(mix.microphone.active)
+        XCTAssertTrue(session.starts.isEmpty); XCTAssertTrue(mix.microphone.active)
         mix.start(inputUID: "chosen-mic", apps: [])
         XCTAssertTrue(session.starts.isEmpty); XCTAssertTrue(mix.requestingMicrophone)
         permission?(true)
@@ -216,18 +208,18 @@ final class SoundCallMixControllerTests: XCTestCase {
         mix.open(); mix.start(inputUID: "mic", apps: [])
         XCTAssertTrue(session.starts.isEmpty)
         XCTAssertFalse(mix.running); XCTAssertFalse(mix.starting)
-        XCTAssertFalse(mix.requestingMicrophone); XCTAssertFalse(mix.microphone.active)
+        XCTAssertFalse(mix.requestingMicrophone); XCTAssertTrue(mix.microphone.active)
         XCTAssertEqual(mix.failure, .permission)
     }
 
-    func testChangingInputWhileDefaultMicrophonePermissionIsPendingCancelsStart() {
+    func testChangingDefaultWhilePermissionIsPendingUsesLatestDefault() {
         let session = Session(); var permission: ((Bool) -> Void)?
         let mix = SoundCallMixController(enabled: true, session: session, access: { permission = $0 })
         mix.open(); mix.start(inputUID: "micA", apps: [])
         mix.inputChanged("micB"); permission?(true)
-        XCTAssertTrue(session.starts.isEmpty)
-        XCTAssertFalse(mix.running); XCTAssertFalse(mix.microphone.active)
-        XCTAssertEqual(mix.failure, .inputChanged)
+        XCTAssertEqual(session.starts.first?.input?.uid, "micB")
+        XCTAssertFalse(mix.running); XCTAssertTrue(mix.starting)
+        XCTAssertNil(mix.failure)
     }
 
 }

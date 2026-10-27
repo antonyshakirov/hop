@@ -14,7 +14,7 @@ Everything lives in
 
 ## Confirmed requests with explicit results (protocol 2)
 
-Use this protocol for tasks, timers, stopwatch and time tracking when the installed
+Use this protocol for tasks, timers, stopwatch, time tracking and audio when the installed
 `agent-state.json` lists `2` in `supportedAgentProtocols` and
 `agent-capabilities.json` has `schemaVersion: 2`. Read those installed capabilities
 first. They contain the exact request JSON Schema, actions and limits. The website
@@ -191,3 +191,22 @@ folder, in the same shape — read it for what has been done, and leave the
 writing to Hop.
 
 Protocol-2 clock commands respect the reported mode. Timer pause/reset reject stopwatch mode; stopwatch stop rejects countdown mode. Stopwatch start resumes a paused stopwatch, leaves a running stopwatch unchanged and rejects a running or paused countdown. The customer can approve timer.reset before switching from a paused countdown. State includes stopwatch elapsedSeconds.
+
+
+## Audio through protocol 2
+
+Read the installed capabilities before offering an audio action. Confirm the
+exact device, app, source and change with the customer, then send one command.
+The [audio command reference](agent-protocol-v2.md#confirmed-audio-controls)
+describes master controls, output app settings and input sources.
+
+Input start and live input edits wait for session acknowledgement. A pending
+start can be cancelled by a separate confirmed `audio.inputMixer.set` request
+with `enabled: false`. Stop does not erase source presets. Reading state or
+saving source settings while stopped does not capture audio. After restart,
+settings can remain active in the preset while runtime `running` is false.
+
+Treat `indeterminate` as an uncertain outcome: inspect state and obtain a fresh
+customer decision. Never generate a new ID solely to retry an uncertain start.
+An enabled output mixer does not prove that an app is audibly playing. Device
+and app discovery remains available while the Sound controls are closed.

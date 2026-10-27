@@ -2,7 +2,27 @@ import Foundation
 
 public enum AgentCapabilitiesV2 {
     public static let actionNames = ["timer.start", "timer.pause", "timer.reset", "stopwatch.start", "stopwatch.stop",
-                                     "todo.add", "todo.complete", "todo.delete", "tracker.start", "tracker.stop"]
+                                     "todo.add", "todo.complete", "todo.delete", "tracker.start", "tracker.stop"] + audioActions.keys.sorted()
+    private static let audioActions: [String: [String: [String: Any]]] = {
+        let direction: [String: Any] = ["type": "string", "enum": ["input", "output"]]
+        let identifier: [String: Any] = ["type": "string", "minLength": 1, "maxLength": 512, "pattern": "^\\S(?:[^\\x00-\\x1f]*\\S)?$"]
+        let app: [String: Any] = ["type": "string", "minLength": 1, "maxLength": 255]
+        let gain: [String: Any] = ["type": "number", "minimum": 0, "maximum": 1]
+        let boolean: [String: Any] = ["type": "boolean"]
+        func optional(_ input: [String: Any]) -> [String: Any] { input.merging(["optional": true]) { _, new in new } }
+        return [
+            "audio.master.volume": ["direction": direction, "value": gain],
+            "audio.master.mute": ["direction": direction, "muted": boolean],
+            "audio.device.select": ["direction": direction, "deviceUID": identifier],
+            "audio.outputMixer.set": ["enabled": boolean], "audio.inputMixer.set": ["enabled": boolean],
+            "audio.app.update": ["appID": app, "gain": optional(gain), "muted": optional(boolean), "outputUID": optional(identifier)],
+            "audio.app.add": ["appID": app, "name": app], "audio.app.pin": ["appID": app, "pinned": boolean],
+            "audio.app.move": ["appID": app, "offset": ["type": "integer", "minimum": -1, "maximum": 1, "enum": [-1, 1]]],
+            "audio.app.reset": [:],
+            "audio.inputSource.update": ["source": ["type": "string", "enum": ["system", "device", "app"]], "sourceID": optional(identifier),
+                "gain": optional(gain), "muted": optional(boolean), "active": optional(boolean)]
+        ]
+    }()
     public static func data() throws -> Data {
         let actions: [[String: Any]] = actionNames.map { name in
             var item: [String: Any] = ["name": name, "requiresCustomerConfirmation": true]
@@ -14,6 +34,9 @@ public enum AgentCapabilitiesV2 {
             case "tracker.stop": item["scope"] = "all_active_tracking_sessions"
             default: item["input"] = [String: String]()
             }
+            if let input = audioActions[name] { item["input"] = input; item["effect"] = name == "audio.inputMixer.set" ? "Explicit capture start waits for session ready; stop cancels pending start" : "Changes audio controls or saved source settings; enabled output session does not prove audible playback" }
+            if name == "audio.app.reset" { item["scope"] = "all_application_audio_preferences"; item["effect"] = "Resets app gains, mutes and destinations; preserves pins and order" }
+            if name == "audio.inputSource.update" { item["effect"] = "Saves source settings while stopped; live edits may request microphone permission and wait for configuration acknowledgement" }
             let effects = [
                 "timer.start": "Replaces the current timer or stopwatch and clears its progress",
                 "timer.pause": "Pauses countdown mode only; rejects stopwatch mode",
@@ -36,7 +59,13 @@ public enum AgentCapabilitiesV2 {
                 property.removeValue(forKey: "source")
                 properties[key] = property
             }
-            return ["type": "object", "additionalProperties": false, "properties": properties, "required": required.sorted()]
+            var schema: [String: Any] = ["type": "object", "additionalProperties": false, "properties": properties, "required": required.sorted()]
+            if action["name"] as? String == "audio.app.update" { schema["anyOf"] = ["gain", "muted", "outputUID"].map { ["required": [$0]] } }
+            if action["name"] as? String == "audio.inputSource.update" {
+                schema["allOf"] = [["anyOf": ["gain", "muted", "active"].map { ["required": [$0]] }],
+                    ["if": ["properties": ["source": ["const": "system"]]], "then": ["not": ["required": ["sourceID"]]], "else": ["required": ["sourceID"]]]]
+            }
+            return schema
         }
         let timestamp: [String: Any] = ["type": "string", "format": "date-time", "pattern": "Z$"]
         let schema: [String: Any] = [

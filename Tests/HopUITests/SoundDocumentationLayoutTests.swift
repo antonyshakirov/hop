@@ -12,6 +12,7 @@ final class SoundDocumentationLayoutTests: XCTestCase {
                 (.soundMixerBackground, 10, [240, 280, 360]),
                 (.soundMixerPermission, 10, [432, 440, 480]),
                 (.soundMicrophone, 20, [300, 440]),
+                (.soundInputIncluded, 9, [110, 180, 240]),
                 (.soundCallMix, 12, [200, 240]),
                 (.soundCallStart, 11, [180, 220]),
                 (.soundCallStop, 11, [180, 220]),

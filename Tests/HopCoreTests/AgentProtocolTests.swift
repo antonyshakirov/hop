@@ -223,10 +223,14 @@ final class AgentProtocolTests: XCTestCase {
             names.insert(name)
             var value: [String: Any] = ["do": name]
             for key in command["required"] as! [String] where key != "do" {
-                if fields[key]!["type"] as? String == "integer" { value[key] = fields[key]!["minimum"] }
+                if let choices = fields[key]!["enum"] as? [Any] { value[key] = choices[0] }
+                else if fields[key]!["type"] as? String == "boolean" { value[key] = false }
+                else if fields[key]!["type"] as? String == "number" { value[key] = 0.5 }
+                else if fields[key]!["type"] as? String == "integer" { value[key] = fields[key]!["minimum"] }
                 else if fields[key]!["format"] as? String == "uuid" { value[key] = UUID().uuidString }
                 else { value[key] = "Synthetic schema task" }
             }
+            if ["audio.app.update", "audio.inputSource.update"].contains(name) { value["gain"] = 0.5 }
             XCTAssertNoThrow(try AgentRequestV2.parse(request(changes: ["command": value]), now: now), name)
             value["undeclared"] = true
             XCTAssertThrowsError(try AgentRequestV2.parse(request(changes: ["command": value]), now: now), name)

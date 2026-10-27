@@ -14,10 +14,8 @@ private final class SoundCapturedInput {
     private var observation: NSObjectProtocol?
     private var stopped = false
     private let settingsLock = NSLock()
-    private var settings: SoundChannelSettings
     init(_ configuration: SoundInputConfiguration, failed: @escaping () -> Void) throws {
         uid = configuration.uid
-        settings = configuration.settings
         guard !uid.hasPrefix("com.antonshakirov.hop.audio."), let device = SoundHAL.device(uid) else { throw SoundFailure.missingDevice }
         channel = try SoundAudioChannel(rate: 48000)
         hop_audio_compensate_clock(channel.pointer)
@@ -50,17 +48,6 @@ private final class SoundCapturedInput {
             if engine?.isRunning == false { failed() }
         }
     }
-    var muted: Bool { settingsLock.lock(); defer { settingsLock.unlock() }; return settings.muted }
-    func configure(_ value: SoundChannelSettings) {
-        settingsLock.lock(); defer { settingsLock.unlock() }
-        let muted = settings.muted; settings = value; settings.muted = muted
-        channel.configure(settings)
-    }
-    func setMuted(_ value: Bool) -> Bool {
-        settingsLock.lock(); defer { settingsLock.unlock() }
-        guard !stopped else { return false }
-        settings.muted = value; channel.configure(settings); return true
-    }
     func stop() {
         settingsLock.lock()
         guard !stopped else { settingsLock.unlock(); return }; stopped = true
@@ -79,22 +66,6 @@ private final class SoundMicrophoneFormatReport {
         guard previous?.isEqual(format) != true else { return }
         previous = format
         Self.log.notice("microphone-pcm-converted rate=\(format.sampleRate, privacy: .public) channels=\(format.channelCount, privacy: .public)")
-    }
-}
-
-private final class SoundMixGate: @unchecked Sendable {
-    private let lock = NSLock()
-    private var channels: [SoundAudioChannel] = []
-    func replace(_ value: [SoundAudioChannel]) { lock.lock(); channels = value; lock.unlock() }
-    func render(_ output: UnsafeMutablePointer<AudioBufferList>, frames: UInt32) {
-        for buffer in UnsafeMutableAudioBufferListPointer(output) {
-            if let data = buffer.mData { memset(data, 0, Int(buffer.mDataByteSize)) }
-        }
-        guard lock.try() else { return }
-        let current = channels
-        lock.unlock()
-        for channel in current { hop_audio_render(channel.pointer, output, frames, true) }
-        hop_audio_limit(output, frames)
     }
 }
 
@@ -138,7 +109,7 @@ private final class SoundWorkerEngine {
     private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "HopMix")
     private let engine = AVAudioEngine()
     private let lifecycle = SoundInputWorkerLifecycle()
-    private let gate = SoundMixGate()
+    private let gate = SoundInputMixGate()
     private var source: AVAudioSourceNode?
     private var inputs: [String: SoundCapturedInput] = [:]
     private var apps: [String: SoundCapturedApplication] = [:]
@@ -182,55 +153,59 @@ private final class SoundWorkerEngine {
         do {
             let selected = command.inputs.filter { $0.settings.active }
             let applications = (command.apps ?? []).filter { $0.settings.active }
-            guard selected.count <= 1, applications.count <= 4,
+            guard selected.count <= 32, applications.count <= 4,
                   Set(selected.map(\.uid)).count == selected.count,
                   Set(applications.map(\.id)).count == applications.count,
+                  selected.allSatisfy({ SoundInputMixPreferences.allowsMicrophone($0.uid) }),
                   applications.allSatisfy({ SoundCallMixPolicy.allows($0.id) }) else { throw SoundFailure.unsupported }
             let nextToken = selected.isEmpty ? nil : (command.captureToken.flatMap(UUID.init(uuidString:)) ?? microphoneToken ?? UUID())
-            let changed = nextToken != microphoneToken || Set(selected.map(\.uid)) != Set(inputs.keys) || Set(applications.map(\.id)) != Set(apps.keys)
-                || applications.contains { appProcesses[$0.id] != $0.processes }
-            if changed {
-                let retainMute = nextToken == microphoneToken
-                retireMicrophone()
-                let retainedMute = retainMute ? selected.first.flatMap { inputs[$0.uid]?.muted } : nil
-                gate.replace([])
-                inputs.values.forEach { $0.stop() }; inputs.removeAll()
-                apps.values.forEach { $0.stop() }; apps.removeAll(); appProcesses.removeAll()
-                for initial in selected {
-                    var configuration = initial
-                    if let retainedMute { configuration.settings.muted = retainedMute }
-                    Self.log.notice("microphone-starting")
-                    inputs[configuration.uid] = try SoundCapturedInput(configuration) { [weak self] in
-                        MainActor.assumeIsolated { self?.silence(); self?.send(["failed": true]) }
-                    }
-                    Self.log.notice("microphone-started")
-                }
-                for configuration in applications {
-                    apps[configuration.id] = try SoundCapturedApplication(configuration)
-                    appProcesses[configuration.id] = configuration.processes
-                }
-            }
+            let retainedMute = command.microphoneMuted == true || (nextToken != nil && gate.muted)
+            if nextToken != microphoneToken { retireMicrophone() }
+            let wantedInputs = Set(selected.map(\.uid))
+            let wantedApps = Dictionary(uniqueKeysWithValues: applications.map { ($0.id, $0.processes.sorted()) })
+            let removedInputs = Set(inputs.keys).subtracting(wantedInputs)
+            let removedApps = Set(apps.keys.filter { wantedApps[$0] == nil || wantedApps[$0] != appProcesses[$0] })
             func settings(_ value: SoundChannelSettings) -> SoundChannelSettings {
                 var value = value; value.gain = min(1, value.safeGain); value.bass = false; return value
             }
-            for configuration in selected { inputs[configuration.uid]?.configure(settings(configuration.settings)) }
+            gate.replace(microphones: selected.compactMap { configuration in
+                inputs[configuration.uid].map { ($0.channel, settings(configuration.settings)) }
+            }, applications: applications.filter { !removedApps.contains($0.id) }.compactMap { apps[$0.id]?.channel },
+                token: nextToken, muted: retainedMute)
+            for uid in removedInputs { inputs.removeValue(forKey: uid)?.stop() }
+            for id in removedApps { apps.removeValue(forKey: id)?.stop(); appProcesses[id] = nil }
+            for configuration in selected where inputs[configuration.uid] == nil {
+                Self.log.notice("microphone-starting")
+                inputs[configuration.uid] = try SoundCapturedInput(configuration) { [weak self] in
+                    MainActor.assumeIsolated { self?.silence(); self?.send(["failed": true]) }
+                }
+                Self.log.notice("microphone-started")
+            }
+            for configuration in applications where apps[configuration.id] == nil {
+                apps[configuration.id] = try SoundCapturedApplication(configuration)
+                appProcesses[configuration.id] = configuration.processes.sorted()
+            }
             for configuration in applications { apps[configuration.id]?.channel.configure(settings(configuration.settings)) }
-            gate.replace(selected.compactMap { inputs[$0.uid]?.channel } + applications.compactMap { apps[$0.id]?.channel })
-            if let token = nextToken, microphoneToken != token, let input = inputs.values.first {
-                let route = UUID()
-                try SoundAccessoryMute.shared.bind(token, muted: input.muted, apply: { [weak input] in input?.setMuted($0) == true }, changed: { [weak self, weak input] _ in
+            gate.replace(microphones: selected.compactMap { configuration in
+                inputs[configuration.uid].map { ($0.channel, settings(configuration.settings)) }
+            }, applications: applications.compactMap { apps[$0.id]?.channel }, token: nextToken)
+            if let token = nextToken, microphoneToken != token {
+                let route = UUID(), gate = gate
+                microphoneToken = token; microphoneRoute = route
+                try SoundAccessoryMute.shared.bind(token, muted: gate.muted, apply: { value in
+                    gate.setMuted(value, token: token)
+                }, changed: { [weak self] value in
                     Task { @MainActor in
-                        guard let self, let input, self.microphoneToken == token, self.microphoneRoute == route else { return }
-                        self.send(["microphoneMuted": input.muted, "captureToken": token.uuidString])
+                        guard let self, self.microphoneToken == token, self.microphoneRoute == route else { return }
+                        self.send(["microphoneMuted": value, "captureToken": token.uuidString])
                     }
                 })
-                microphoneToken = token; microphoneRoute = route
             }
             if !engine.isRunning { try engine.start() }
             if let id = command.requestID {
                 var reply: [String: Any] = ["applied": id, "captureCount": inputs.count + apps.count]
-                if let token = microphoneToken, let input = inputs.values.first {
-                    reply["microphoneMuted"] = input.muted; reply["captureToken"] = token.uuidString
+                if let token = microphoneToken {
+                    reply["microphoneMuted"] = gate.muted; reply["captureToken"] = token.uuidString
                 }
                 send(reply)
             }
@@ -251,7 +226,7 @@ private final class SoundWorkerEngine {
     }
     func silence() {
         retireMicrophone()
-        gate.replace([])
+        gate.replace(microphones: [], applications: [], token: nil)
         inputs.values.forEach { $0.stop() }; inputs.removeAll()
         apps.values.forEach { $0.stop() }; apps.removeAll(); appProcesses.removeAll()
     }

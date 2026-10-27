@@ -7,6 +7,9 @@ struct SoundCallMixView: View {
     @ObservedObject var mixer: SoundMixerController
     let lang: AppLanguage
     private var controlsActive: Bool { call.running && !call.starting && !call.requestingMicrophone }
+    private var physicalInputs: [SoundDevice] {
+        sound.inputs.filter { SoundInputMixPreferences.allowsMicrophone($0.uid) }
+    }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             SoundMixerHeader(running: call.running, starting: call.starting, active: call.running || call.starting,
@@ -16,9 +19,23 @@ struct SoundCallMixView: View {
             })
             Text(L10n.t(.soundCallHint, lang)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
+            if call.accessoryMuted {
+                Label(L10n.t(.soundMicrophone, lang) + " · " + L10n.t(.soundMuted, lang), systemImage: "mic.slash.fill")
+                    .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
+            }
             SoundMixerSourceControls(enabled: controlsActive) {
                 VStack(spacing: 12) {
-                    source(L10n.t(.soundMicrophone, lang), settings: call.microphone, edit: call.editMicrophone)
+                    source(L10n.t(.soundSystemDefault, lang),
+                           detail: physicalInputs.first(where: { $0.uid == sound.inputUID })?.name ?? L10n.t(.soundNoDevice, lang),
+                           settings: call.microphone, available: physicalInputs.contains { $0.uid == sound.inputUID },
+                           edit: call.editMicrophone)
+                    ForEach(physicalInputs) { device in
+                        let included = call.microphone.active && device.uid == sound.inputUID
+                        source(device.name, detail: included ? L10n.t(.soundInputIncluded, lang) : nil,
+                               settings: call.microphoneSettings(uid: device.uid), available: !included) { edit in
+                            call.editMicrophone(uid: device.uid, edit)
+                        }
+                    }
                     ForEach(mixer.apps.filter { SoundCallMixPolicy.allows($0.id) }) { app in
                         source(app.name, settings: call.settings(app.id), available: !app.processes.isEmpty) { edit in call.editApplication(app.id, edit) }
                     }
@@ -31,11 +48,16 @@ struct SoundCallMixView: View {
         }
         .help(L10n.t(.soundCallCloseHint, lang))
     }
-    private func source(_ name: String, settings: SoundChannelSettings, available: Bool = true,
+    private func source(_ name: String, detail: String? = nil, settings: SoundChannelSettings, available: Bool = true,
                         edit: @escaping ((inout SoundChannelSettings) -> Void) -> Void) -> some View {
         let enabled = controlsActive && available
         return HStack(spacing: 10) {
-            Toggle(name, isOn: Binding(get: { settings.active }, set: { value in edit { $0.active = value } }))
+            Toggle(isOn: Binding(get: { settings.active }, set: { value in edit { $0.active = value } })) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(name).lineLimit(1)
+                    if let detail { Text(detail).font(Theme.mono(9)).foregroundStyle(enabled ? Theme.textTertiary : Theme.disabledForeground).lineLimit(1) }
+                }.help([name, detail].compactMap { $0 }.joined(separator: " · "))
+            }
                 .toggleStyle(SoundSourceToggleStyle()).font(Theme.mono(11)).foregroundStyle(enabled ? Theme.textPrimary : Theme.disabledForeground)
                 .frame(width: 135, alignment: .leading)
             SoundVolumeControl(device: SoundDevice(uid: name, name: name + " · " + SoundCallMixController.deviceName, volume: settings.gain,

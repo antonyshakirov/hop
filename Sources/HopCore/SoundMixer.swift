@@ -24,14 +24,17 @@ public struct SoundWorkerCommand: Codable, Sendable {
     public var apps: [SoundApplicationConfiguration]?
     public var requestID: UInt64?
     public var captureToken: String?
+    public var microphoneMuted: Bool?
     public init(start: Bool = false, meters: Bool = false, inputs: [SoundInputConfiguration] = [],
-                apps: [SoundApplicationConfiguration] = [], requestID: UInt64? = nil, captureToken: String? = nil) {
+                apps: [SoundApplicationConfiguration] = [], requestID: UInt64? = nil, captureToken: String? = nil,
+                microphoneMuted: Bool? = nil) {
         self.start = start; self.meters = meters; self.inputs = inputs
         self.apps = apps; self.requestID = requestID; self.captureToken = captureToken
+        self.microphoneMuted = microphoneMuted
     }
 }
 
-public struct SoundApplicationConfiguration: Codable, Sendable {
+public struct SoundApplicationConfiguration: Codable, Equatable, Sendable {
     public var id: String
     public var processes: [UInt32]
     public var settings: SoundChannelSettings

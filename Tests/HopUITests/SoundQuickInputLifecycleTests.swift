@@ -107,6 +107,18 @@ final class SoundQuickInputLifecycleTests: XCTestCase {
         XCTAssertFalse(f.call.running); XCTAssertFalse(f.call.starting)
     }
 
+    func testNativeIllustrationCannotObserveLiveHardwareOrReplaceStagedSources() {
+        let previous = Snapshot.active; Snapshot.active = true
+        defer { Snapshot.active = previous }
+        let f = Fixture(); defer { f.cleanup() }
+        f.sound.stageDemo("multiple-inputs")
+        f.mixer.stageDemo(enabled: true)
+        f.call.stageDemo(f.mixer.apps)
+        XCTAssertEqual(f.sound.inputs.map(\.uid), ["mic", "usb", "pods"])
+        XCTAssertEqual(f.hardware.watchers, 0); XCTAssertNil(f.state.permission)
+        XCTAssertTrue(f.session.starts.isEmpty); XCTAssertTrue(f.session.updates.isEmpty)
+    }
+
     func testQuickInputStartsWithoutOpeningWindowOrRequestingPage() {
         let f = Fixture(); defer { f.cleanup() }
         f.ready()
@@ -129,15 +141,27 @@ final class SoundQuickInputLifecycleTests: XCTestCase {
         XCTAssertEqual(session.starts.first?.input?.uid, "fixture-mic")
     }
 
-    func testInputLossBeforeAnyWindowExistsStopsCaptureAndReleasesObservation() {
+    func testMissingDefaultSuspendsOnlyItsSourceAndKeepsObservationForReturn() {
         let f = Fixture(); defer { f.cleanup() }
         f.ready()
         XCTAssertTrue(f.call.running)
         f.hardware.uid = nil; f.hardware.changed?()
-        XCTAssertFalse(f.call.running)
-        XCTAssertEqual(f.call.failure, .inputChanged)
-        XCTAssertEqual(f.hardware.watchers, 0)
+        XCTAssertTrue(f.call.running)
+        XCTAssertNil(f.call.failure)
+        XCTAssertTrue(f.session.updates.last?.inputs.isEmpty == true)
+        XCTAssertEqual(f.hardware.watchers, 1)
         XCTAssertEqual(f.session.starts.count, 1)
+    }
+
+    func testDefaultHotplugPublishesOneConsistentConfigurationAndPreservesAccessoryMute() {
+        let f = Fixture(); defer { f.cleanup() }
+        f.ready(); f.session.microphoneMuteChanged?(true)
+        let before = f.session.updates.count
+        f.hardware.uid = "new-mic"; f.hardware.changed?()
+        XCTAssertEqual(f.session.updates.count, before + 1)
+        XCTAssertEqual(f.session.updates.last?.inputs.map(\.uid), ["new-mic"])
+        XCTAssertTrue(f.call.accessoryMuted)
+        XCTAssertFalse(f.session.updates.dropFirst(before).contains { $0.inputs.isEmpty })
     }
 
     func testLiveApplicationProcessesReachInputWithoutSoundView() {
@@ -163,15 +187,17 @@ final class SoundQuickInputLifecycleTests: XCTestCase {
         XCTAssertEqual(f.hardware.watchers, 0)
     }
 
-    func testInputLossDuringPermissionCancelsStartAndNeverChoosesReplacement() {
+    func testLogicalDefaultUsesCurrentMicrophoneWhenPermissionArrives() {
         let f = Fixture(); defer { f.cleanup() }
         f.model.startQuickInput()
         f.hardware.uid = "different-mic"; f.hardware.changed?()
         f.state.permission?(true)
-        XCTAssertTrue(f.session.starts.isEmpty)
-        XCTAssertFalse(f.call.running); XCTAssertFalse(f.call.starting)
-        XCTAssertEqual(f.call.failure, .inputChanged)
-        XCTAssertEqual(f.hardware.watchers, 0)
+        XCTAssertEqual(f.session.starts.first?.inputs.map(\.uid), ["different-mic"])
+        XCTAssertFalse(f.call.running); XCTAssertTrue(f.call.starting)
+        XCTAssertNil(f.call.failure)
+        XCTAssertEqual(f.hardware.watchers, 1)
+        f.session.completion?(.success(()))
+        XCTAssertTrue(f.call.running)
     }
 
     func testNormalWindowStartRejectsInputChangedBeforeObservationLeaseStarts() {

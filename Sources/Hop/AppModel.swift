@@ -170,7 +170,7 @@ final class AppModel: ObservableObject {
         soundStatus = SoundMuteStatus()
         sound = soundController ?? SoundController(enabled: { preview || ModuleActivation.isOn("sound") }, status: soundStatus)
         soundMixer = mixerController ?? SoundMixerController(enabled: { !preview && ModuleActivation.isOn("sound") })
-        soundCallMix = callController ?? SoundCallMixController()
+        soundCallMix = callController ?? SoundCallMixController(defaults: preview ? nil : .standard)
         soundInput = SoundInputCoordinator(sound: sound, mixer: soundMixer, call: soundCallMix,
             enabled: soundEnabled ?? { !preview && ModuleActivation.isOn("sound") })
         if preview {

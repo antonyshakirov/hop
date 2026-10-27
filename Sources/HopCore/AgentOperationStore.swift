@@ -9,6 +9,7 @@ public final class AgentOperationStore {
     private let journal: Int32
     private let results: Int32
     private let limit: Int
+    private var pendingDigests: [String: String] = [:]
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     private struct Record: Codable {
@@ -46,6 +47,10 @@ public final class AgentOperationStore {
     }
 
     public func process(_ data: Data, expectedID: UUID? = nil, now: Date, perform: (AgentRequestV2) throws -> AgentResultV2) throws -> AgentResultV2 {
+        try processInternal(data, expectedID: expectedID, now: now, deferred: false, perform: perform)
+    }
+
+    private func processInternal(_ data: Data, expectedID: UUID?, now: Date, deferred: Bool, perform: (AgentRequestV2) throws -> AgentResultV2) throws -> AgentResultV2 {
         guard data.count <= 65_536 else { throw AgentProtocolError("request_too_large") }
         let id = try (expectedID ?? AgentRequestV2.identifier(data)).uuidString.lowercased()
         let name = id + ".json", digest = requestDigest(data)
@@ -74,6 +79,7 @@ public final class AgentOperationStore {
         let outcome: AgentResultV2
         do { outcome = identified(try perform(parsed), id: id, digest: digest) }
         catch { try publish(pending, name: name); return pending }
+        if deferred { return outcome }
         do { try replace(try encoder.encode(Record(recordedAt: now, result: outcome)), directory: journal, name: name) }
         catch { try publish(pending, name: name); return pending }
         try publish(outcome, name: name)
@@ -106,6 +112,58 @@ public final class AgentOperationStore {
                 try publish(identified(outcome, id: stem, digest: requestDigest(data)), name: name)
             }
             if try read(directory: requests, name: name, maximum: 65_536) == data { _ = unlinkat(requests, name, 0) }
+        }
+    }
+
+    @MainActor
+    public func processDeferred(_ data: Data, expectedID: UUID? = nil, now: Date,
+                                perform: (AgentRequestV2, @escaping (AgentResultV2) -> Void) -> Void) throws {
+        guard data.count <= 65_536 else { throw AgentProtocolError("request_too_large") }
+        let id = try (expectedID ?? AgentRequestV2.identifier(data)).uuidString.lowercased()
+        let digest = requestDigest(data), name = id + ".json"
+        if let pending = pendingDigests[id] {
+            if pending != digest { try publish(identified(.conflict(), id: id, digest: digest), name: name) }
+            return
+        }
+        var request: AgentRequestV2?
+        _ = try processInternal(data, expectedID: expectedID, now: now, deferred: true) { parsed in
+            request = parsed
+            return .indeterminate()
+        }
+        guard let request else { return }
+        pendingDigests[id] = digest
+        perform(request) { [self] outcome in
+            guard pendingDigests[id] == digest else { return }
+            pendingDigests[id] = nil
+            let result = identified(outcome, id: id, digest: digest)
+            do {
+                try replace(try encoder.encode(Record(recordedAt: now, result: result)), directory: journal, name: name)
+                try publish(result, name: name)
+            } catch {
+                try? publish(identified(.indeterminate(), id: id, digest: digest), name: name)
+            }
+        }
+    }
+
+    @MainActor
+    public func drainDeferred(now: Date, perform: (AgentRequestV2, @escaping (AgentResultV2) -> Void) -> Void) throws {
+        let names = try entries(requests).filter { $0.hasSuffix(".json") }.sorted().prefix(64)
+        for name in names {
+            let stem = String(name.dropLast(5))
+            guard let id = UUID(uuidString: stem), stem == id.uuidString.lowercased() else { continue }
+            var data: Data?
+            do {
+                data = try read(directory: requests, name: name, maximum: 65_536)
+                if let data { try processDeferred(data, expectedID: id, now: now, perform: perform) }
+            } catch {
+                let code = (error as? AgentProtocolError)?.code ?? "storage_unavailable"
+                if let existing = try load(name) { try publish(existing.result, name: name) }
+                else {
+                    let outcome = AgentResultV2(status: code == "journal_capacity_reached" || code == "unsafe_file" ? "rejected" : "indeterminate", code: code)
+                    try publish(identified(outcome, id: stem, digest: data.map(requestDigest) ?? ""), name: name)
+                }
+            }
+            if try data == nil || read(directory: requests, name: name, maximum: 65_536) == data { _ = unlinkat(requests, name, 0) }
         }
     }
 
