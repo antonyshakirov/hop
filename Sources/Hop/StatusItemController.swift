@@ -514,14 +514,17 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     }
 
     /// Icon zone within the status item button: the popover arrow always points at the star.
-    private static func iconAnchor(_ button: NSStatusBarButton) -> NSRect {
+    static func iconAnchor(_ button: NSStatusBarButton) -> NSRect {
         // the exact image frame from the cell — dead-center at any padding
         // and title width; fixed 28pt drifted when the insets changed
         if let cell = button.cell as? NSButtonCell {
             let rect = cell.imageRect(forBounds: button.bounds)
-            if rect.width > 0 { return rect }
+            if rect.width > 0 {
+                return NSRect(x: rect.minX, y: rect.minY,
+                              width: min(rect.width, MenuBarIcon.canvasSize.width), height: rect.height)
+            }
         }
-        return NSRect(x: 0, y: 0, width: 28, height: button.bounds.height)
+        return NSRect(x: 0, y: 0, width: MenuBarIcon.canvasSize.width, height: button.bounds.height)
     }
 
     /// true when the status item is actually visible in the menu bar.

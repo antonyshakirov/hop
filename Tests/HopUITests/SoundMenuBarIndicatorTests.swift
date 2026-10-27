@@ -108,23 +108,37 @@ final class SoundMenuBarIndicatorTests: XCTestCase {
         XCTAssertFalse(SoundMenuBarIndicator.isVisible(running: true, moduleActive: false))
     }
 
-    func testMixerGlyphsStayInsideOneFixedImageAndDoNotMoveTheAnchor() {
-        let canvas = NSRect(origin: .zero, size: MenuBarIcon.canvasSize)
-        XCTAssertTrue(canvas.contains(MenuBarIcon.microphoneFrame))
-        XCTAssertTrue(canvas.contains(MenuBarIcon.speakerFrame))
-        XCTAssertEqual(MenuBarIcon.microphoneFrame.midY, canvas.midY)
-        XCTAssertEqual(MenuBarIcon.speakerFrame.midY, canvas.midY)
-        for input in [true, false] {
-            for output in [true, false] {
-                XCTAssertEqual(MenuBarIcon.compose(IconComposition(outputMix: output, inputMix: input)).size, canvas.size)
-            }
+    func testMixerImageWidthUsesOnlyTheVisibleSymbols() {
+        let cases: [(Bool, Bool, CGFloat)] = [(false, false, 22), (true, false, 30),
+                                             (false, true, 33), (true, true, 41)]
+        for (input, output, width) in cases {
+            let image = MenuBarIcon.compose(IconComposition(outputMix: output, inputMix: input))
+            XCTAssertEqual(image.size, NSSize(width: width, height: 17), "input=\(input), output=\(output)")
         }
-        XCTAssertEqual(MenuBarIcon.dialTemplate.size, canvas.size)
-        XCTAssertEqual(MenuBarIcon.plainDialTemplate.size, canvas.size)
+        XCTAssertEqual(MenuBarIcon.dialTemplate.size, NSSize(width: 22, height: 17))
+        XCTAssertEqual(MenuBarIcon.plainDialTemplate.size, NSSize(width: 22, height: 17))
+    }
+
+    func testPopoverArrowUsesTheHopArtworkRatherThanTheExpandedAudioGroup() throws {
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer { NSStatusBar.system.removeStatusItem(item) }
+        let button = try XCTUnwrap(item.button)
+        button.imagePosition = .imageLeft
+        for input in [false, true] { for output in [false, true] { for title in ["", " 09:42"] {
+            button.image = MenuBarIcon.compose(IconComposition(outputMix: output, inputMix: input))
+            button.title = title
+            button.frame.size = NSSize(width: try XCTUnwrap(button.image).size.width + 12 + (title.isEmpty ? 0 : 48), height: 24)
+            let cell = try XCTUnwrap(button.cell as? NSButtonCell)
+            let imageRect = cell.imageRect(forBounds: button.bounds)
+            let anchor = StatusItemController.iconAnchor(button)
+            XCTAssertEqual(anchor.minX, imageRect.minX)
+            XCTAssertEqual(anchor.width, 22)
+            XCTAssertEqual(anchor.midX, imageRect.minX + 11)
+        }}}
     }
 
     func testAudioInkDoesNotOverlapOtherMarksOrReplacementSymbols() throws {
-        let audio = NSImage(size: MenuBarIcon.canvasSize)
+        let audio = NSImage(size: MenuBarIcon.canvasSize(for: IconComposition(outputMix: true, inputMix: true)))
         audio.lockFocus()
         MenuBarIcon.drawAudioIndicators(IconComposition(outputMix: true, inputMix: true), glyph: .white)
         audio.unlockFocus()
@@ -137,7 +151,7 @@ final class SoundMenuBarIndicatorTests: XCTestCase {
                             vpn: .up, noSleep: true, lid: true, engineTime: true, taskTime: true,
                             torrent: .both, colored: colored), base: base, dark: dark, markDev: dev)
                         let bitmap = try XCTUnwrap(NSBitmapImageRep(data: XCTUnwrap(existing.tiffRepresentation)))
-                        XCTAssertEqual(bitmap.pixelsWide, mask.pixelsWide)
+                        XCTAssertLessThanOrEqual(bitmap.pixelsWide, mask.pixelsWide)
                         var overlap = 0
                         for y in 0..<bitmap.pixelsHigh { for x in 0..<bitmap.pixelsWide {
                             if (mask.colorAt(x: x, y: y)?.alphaComponent ?? 0) > 0.5,

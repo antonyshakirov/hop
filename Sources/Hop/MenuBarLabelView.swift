@@ -50,9 +50,7 @@ enum MenuBarIcon {
         path.stroke()
     }
 
-    /// One canvas size for all states — badges occupy pre-reserved space, so the
-    /// icon in the bar never "breathes". Audio indicators use the reserved right side.
-    static let canvasSize = NSSize(width: 41, height: 17)
+    static let canvasSize = NSSize(width: 22, height: 17)
     private static let badgeCanvasSize = NSSize(width: 22, height: 17)
     private static let contentInset: CGFloat = 0
 
@@ -68,6 +66,19 @@ enum MenuBarIcon {
     static var devMarkFrame: NSRect { devMarkRect.offsetBy(dx: contentInset, dy: 0) }
     static let microphoneFrame = NSRect(x: 21, y: 3.5, width: 7.5, height: 10)
     static let speakerFrame = NSRect(x: 29, y: 3.5, width: 10.8, height: 10)
+
+    static func canvasSize(for composition: IconComposition) -> NSSize {
+        let right: CGFloat
+        if composition.outputMix {
+            right = composition.inputMix ? speakerFrame.maxX
+                : microphoneFrame.minX + speakerFrame.width
+        } else if composition.inputMix {
+            right = microphoneFrame.maxX
+        } else {
+            return canvasSize
+        }
+        return NSSize(width: (right + 1).rounded(.up), height: canvasSize.height)
+    }
 
     private static func drawDevMark(color: NSColor) {
         let r = devMarkRect
@@ -111,7 +122,7 @@ enum MenuBarIcon {
     /// `dark` overrides the auto-detected bar lightness (used by snapshots);
     /// nil = read the live appearance.
     static func compose(_ composition: IconComposition, base: Base = .dial, dark: Bool? = nil, markDev: Bool? = nil) -> NSImage {
-        let image = NSImage(size: canvasSize)
+        let image = NSImage(size: canvasSize(for: composition))
         image.lockFocus()
         let dark = dark ?? currentlyDark()
         let glyph = glyphColor(dark: dark)
