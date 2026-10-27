@@ -116,7 +116,7 @@ func source(_ name: String, detail: String? = nil, y: CGFloat, selected: Bool = 
 
 enum Mode: String, CaseIterable { case compact, expanded, restore, menu }
 func screen(_ mode: Mode) {
-    let expanded = mode == .expanded || mode == .menu
+    let expanded = mode != .compact
     box(0,0,canvas.width,canvas.height,background(),radius:13,border:blended(0.16))
     box(1,1,canvas.width-2,27,blended(dark ? 0.035 : 0.025),radius:12)
     for (index,color) in [NSColor.systemRed,.systemYellow,.systemGreen].enumerated() {
@@ -156,17 +156,15 @@ func screen(_ mode: Mode) {
     let otherY: CGFloat = 515
     symbol(expanded ? "chevron.down" : "chevron.right",22,otherY+3,size:9,color:ink(0.44,0.48))
     text(copy("другие источники","other sources"),40,otherY,canvas.width-95,size:10,color:ink(0.66,0.32))
-    text("3",canvas.width-52,otherY,30,size:10,color:ink(0.44,0.48),alignment:.right)
+    text("3",canvas.width-(expanded ? 78 : 52),otherY,30,size:10,color:ink(0.44,0.48),alignment:.right)
     if expanded {
+        symbol("ellipsis",canvas.width-30,otherY+2,size:12)
         source("AirPods 4",detail:copy("уже добавлен","already included"),y:546,included:true)
         source("ZoomAudioDevice",detail:copy("виртуальный","virtual"),y:596)
         source("VLC",y:646)
     }
-    let hiddenY: CGFloat = expanded ? 711 : 554
-    symbol("eye.slash",22,hiddenY+2,size:11,color:ink(0.44,0.48))
-    text(copy("скрытые источники · 1","hidden sources · 1"),42,hiddenY,canvas.width-64,size:9,color:ink(0.44,0.48))
     if mode == .restore {
-        let x = canvas.width-330, y: CGFloat = 438, w: CGFloat = 310
+        let x = canvas.width-330, y: CGFloat = 532, w: CGFloat = 310
         box(x,y,w,106,background(),radius:8,border:blended(0.20))
         text(copy("скрытые источники","hidden sources"),x+14,y+13,w-28,size:11,bold:true)
         box(x+12,y+43,w-24,1,blended(0.10))
@@ -174,7 +172,7 @@ func screen(_ mode: Mode) {
         chip(copy("вернуть","show"),"eye",x:x+w-103,y:y+53,width:89)
     }
     if mode == .menu {
-        let x = canvas.width-207, y: CGFloat = 632, w: CGFloat = 185
+        let x = canvas.width-207, y: CGFloat = 546, w: CGFloat = 185
         box(x,y,w,91,background(),radius:7,border:blended(0.20))
         symbol("pin",x+12,y+14,size:12)
         text(copy("закрепить","pin source"),x+36,y+12,w-48,size:10)
@@ -190,8 +188,8 @@ for language in ["ru","en"] {
         dark = theme == "dark"
         for width: CGFloat in [480,520,720] {
             for mode in Mode.allCases {
-                let expanded = mode == .expanded || mode == .menu
-                canvas = NSSize(width:width,height:expanded ? 750 : 593)
+                let expanded = mode != .compact
+                canvas = NSSize(width:width,height:expanded ? 706 : 555)
                 currentFile = "\(language)-\(theme)-\(Int(width))-\(mode.rawValue).png"
                 let image = NSBitmapImageRep(bitmapDataPlanes:nil,pixelsWide:Int(width*2),pixelsHigh:Int(canvas.height*2),
                     bitsPerSample:8,samplesPerPixel:4,hasAlpha:true,isPlanar:false,colorSpaceName:.deviceRGB,bytesPerRow:0,bitsPerPixel:0)!

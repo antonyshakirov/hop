@@ -6,112 +6,112 @@
       "file": "ru-dark-520-compact.png",
       "points": [
         520,
-        593
+        555
       ]
     },
     {
       "file": "ru-dark-520-expanded.png",
       "points": [
         520,
-        750
+        706
       ]
     },
     {
       "file": "ru-dark-520-restore.png",
       "points": [
         520,
-        593
+        706
       ]
     },
     {
       "file": "ru-dark-520-menu.png",
       "points": [
         520,
-        750
+        706
       ]
     },
     {
       "file": "ru-light-520-compact.png",
       "points": [
         520,
-        593
+        555
       ]
     },
     {
       "file": "ru-light-520-expanded.png",
       "points": [
         520,
-        750
+        706
       ]
     },
     {
       "file": "ru-light-520-restore.png",
       "points": [
         520,
-        593
+        706
       ]
     },
     {
       "file": "ru-light-520-menu.png",
       "points": [
         520,
-        750
+        706
       ]
     },
     {
       "file": "en-dark-520-compact.png",
       "points": [
         520,
-        593
+        555
       ]
     },
     {
       "file": "en-dark-520-expanded.png",
       "points": [
         520,
-        750
+        706
       ]
     },
     {
       "file": "en-dark-520-restore.png",
       "points": [
         520,
-        593
+        706
       ]
     },
     {
       "file": "en-dark-520-menu.png",
       "points": [
         520,
-        750
+        706
       ]
     },
     {
       "file": "en-light-520-compact.png",
       "points": [
         520,
-        593
+        555
       ]
     },
     {
       "file": "en-light-520-expanded.png",
       "points": [
         520,
-        750
+        706
       ]
     },
     {
       "file": "en-light-520-restore.png",
       "points": [
         520,
-        593
+        706
       ]
     },
     {
       "file": "en-light-520-menu.png",
       "points": [
         520,
-        750
+        706
       ]
     }
   ],
@@ -394,19 +394,6 @@
       "text": "3"
     },
     {
-      "file": "ru-dark-480-compact.png",
-      "frame": [
-        42,
-        554,
-        416,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-dark-480-expanded.png",
       "frame": [
         20,
@@ -669,7 +656,7 @@
     {
       "file": "ru-dark-480-expanded.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -784,19 +771,6 @@
       "text": "100%"
     },
     {
-      "file": "ru-dark-480-expanded.png",
-      "frame": [
-        42,
-        711,
-        416,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-dark-480-restore.png",
       "frame": [
         20,
@@ -1059,7 +1033,7 @@
     {
       "file": "ru-dark-480-restore.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -1072,21 +1046,112 @@
     {
       "file": "ru-dark-480-restore.png",
       "frame": [
-        42,
-        554,
-        416,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "скрытые источники · 1"
+        "AirPods 4"
       ],
-      "text": "скрытые источники · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "ru-dark-480-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "уже добавлен"
+      ],
+      "text": "уже добавлен"
+    },
+    {
+      "file": "ru-dark-480-restore.png",
+      "frame": [
+        362,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-dark-480-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "ru-dark-480-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "виртуальный"
+      ],
+      "text": "виртуальный"
+    },
+    {
+      "file": "ru-dark-480-restore.png",
+      "frame": [
+        362,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-dark-480-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "ru-dark-480-restore.png",
+      "frame": [
+        362,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "ru-dark-480-restore.png",
       "frame": [
         164,
-        451,
+        545,
         282,
         18
       ],
@@ -1099,7 +1164,7 @@
       "file": "ru-dark-480-restore.png",
       "frame": [
         164,
-        498,
+        592,
         168,
         18
       ],
@@ -1112,7 +1177,7 @@
       "file": "ru-dark-480-restore.png",
       "frame": [
         385,
-        498,
+        592,
         53,
         18
       ],
@@ -1384,7 +1449,7 @@
     {
       "file": "ru-dark-480-menu.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -1501,21 +1566,8 @@
     {
       "file": "ru-dark-480-menu.png",
       "frame": [
-        42,
-        711,
-        416,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
-      "file": "ru-dark-480-menu.png",
-      "frame": [
         309,
-        644,
+        558,
         137,
         18
       ],
@@ -1528,7 +1580,7 @@
       "file": "ru-dark-480-menu.png",
       "frame": [
         309,
-        690,
+        604,
         137,
         18
       ],
@@ -1811,19 +1863,6 @@
       "text": "3"
     },
     {
-      "file": "ru-dark-520-compact.png",
-      "frame": [
-        42,
-        554,
-        456,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-dark-520-expanded.png",
       "frame": [
         20,
@@ -2086,7 +2125,7 @@
     {
       "file": "ru-dark-520-expanded.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -2201,19 +2240,6 @@
       "text": "100%"
     },
     {
-      "file": "ru-dark-520-expanded.png",
-      "frame": [
-        42,
-        711,
-        456,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-dark-520-restore.png",
       "frame": [
         20,
@@ -2476,7 +2502,7 @@
     {
       "file": "ru-dark-520-restore.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -2489,21 +2515,112 @@
     {
       "file": "ru-dark-520-restore.png",
       "frame": [
-        42,
-        554,
-        456,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "скрытые источники · 1"
+        "AirPods 4"
       ],
-      "text": "скрытые источники · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "ru-dark-520-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "уже добавлен"
+      ],
+      "text": "уже добавлен"
+    },
+    {
+      "file": "ru-dark-520-restore.png",
+      "frame": [
+        402,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-dark-520-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "ru-dark-520-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "виртуальный"
+      ],
+      "text": "виртуальный"
+    },
+    {
+      "file": "ru-dark-520-restore.png",
+      "frame": [
+        402,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-dark-520-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "ru-dark-520-restore.png",
+      "frame": [
+        402,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "ru-dark-520-restore.png",
       "frame": [
         204,
-        451,
+        545,
         282,
         18
       ],
@@ -2516,7 +2633,7 @@
       "file": "ru-dark-520-restore.png",
       "frame": [
         204,
-        498,
+        592,
         168,
         18
       ],
@@ -2529,7 +2646,7 @@
       "file": "ru-dark-520-restore.png",
       "frame": [
         425,
-        498,
+        592,
         53,
         18
       ],
@@ -2801,7 +2918,7 @@
     {
       "file": "ru-dark-520-menu.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -2918,21 +3035,8 @@
     {
       "file": "ru-dark-520-menu.png",
       "frame": [
-        42,
-        711,
-        456,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
-      "file": "ru-dark-520-menu.png",
-      "frame": [
         349,
-        644,
+        558,
         137,
         18
       ],
@@ -2945,7 +3049,7 @@
       "file": "ru-dark-520-menu.png",
       "frame": [
         349,
-        690,
+        604,
         137,
         18
       ],
@@ -3228,19 +3332,6 @@
       "text": "3"
     },
     {
-      "file": "ru-dark-720-compact.png",
-      "frame": [
-        42,
-        554,
-        656,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-dark-720-expanded.png",
       "frame": [
         20,
@@ -3503,7 +3594,7 @@
     {
       "file": "ru-dark-720-expanded.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -3618,19 +3709,6 @@
       "text": "100%"
     },
     {
-      "file": "ru-dark-720-expanded.png",
-      "frame": [
-        42,
-        711,
-        656,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-dark-720-restore.png",
       "frame": [
         20,
@@ -3893,7 +3971,7 @@
     {
       "file": "ru-dark-720-restore.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -3906,21 +3984,112 @@
     {
       "file": "ru-dark-720-restore.png",
       "frame": [
-        42,
-        554,
-        656,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "скрытые источники · 1"
+        "AirPods 4"
       ],
-      "text": "скрытые источники · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "ru-dark-720-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "уже добавлен"
+      ],
+      "text": "уже добавлен"
+    },
+    {
+      "file": "ru-dark-720-restore.png",
+      "frame": [
+        602,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-dark-720-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "ru-dark-720-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "виртуальный"
+      ],
+      "text": "виртуальный"
+    },
+    {
+      "file": "ru-dark-720-restore.png",
+      "frame": [
+        602,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-dark-720-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "ru-dark-720-restore.png",
+      "frame": [
+        602,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "ru-dark-720-restore.png",
       "frame": [
         404,
-        451,
+        545,
         282,
         18
       ],
@@ -3933,7 +4102,7 @@
       "file": "ru-dark-720-restore.png",
       "frame": [
         404,
-        498,
+        592,
         168,
         18
       ],
@@ -3946,7 +4115,7 @@
       "file": "ru-dark-720-restore.png",
       "frame": [
         625,
-        498,
+        592,
         53,
         18
       ],
@@ -4218,7 +4387,7 @@
     {
       "file": "ru-dark-720-menu.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -4335,21 +4504,8 @@
     {
       "file": "ru-dark-720-menu.png",
       "frame": [
-        42,
-        711,
-        656,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
-      "file": "ru-dark-720-menu.png",
-      "frame": [
         549,
-        644,
+        558,
         137,
         18
       ],
@@ -4362,7 +4518,7 @@
       "file": "ru-dark-720-menu.png",
       "frame": [
         549,
-        690,
+        604,
         137,
         18
       ],
@@ -4645,19 +4801,6 @@
       "text": "3"
     },
     {
-      "file": "ru-light-480-compact.png",
-      "frame": [
-        42,
-        554,
-        416,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-light-480-expanded.png",
       "frame": [
         20,
@@ -4920,7 +5063,7 @@
     {
       "file": "ru-light-480-expanded.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -5035,19 +5178,6 @@
       "text": "100%"
     },
     {
-      "file": "ru-light-480-expanded.png",
-      "frame": [
-        42,
-        711,
-        416,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-light-480-restore.png",
       "frame": [
         20,
@@ -5310,7 +5440,7 @@
     {
       "file": "ru-light-480-restore.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -5323,21 +5453,112 @@
     {
       "file": "ru-light-480-restore.png",
       "frame": [
-        42,
-        554,
-        416,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "скрытые источники · 1"
+        "AirPods 4"
       ],
-      "text": "скрытые источники · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "ru-light-480-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "уже добавлен"
+      ],
+      "text": "уже добавлен"
+    },
+    {
+      "file": "ru-light-480-restore.png",
+      "frame": [
+        362,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-light-480-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "ru-light-480-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "виртуальный"
+      ],
+      "text": "виртуальный"
+    },
+    {
+      "file": "ru-light-480-restore.png",
+      "frame": [
+        362,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-light-480-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "ru-light-480-restore.png",
+      "frame": [
+        362,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "ru-light-480-restore.png",
       "frame": [
         164,
-        451,
+        545,
         282,
         18
       ],
@@ -5350,7 +5571,7 @@
       "file": "ru-light-480-restore.png",
       "frame": [
         164,
-        498,
+        592,
         168,
         18
       ],
@@ -5363,7 +5584,7 @@
       "file": "ru-light-480-restore.png",
       "frame": [
         385,
-        498,
+        592,
         53,
         18
       ],
@@ -5635,7 +5856,7 @@
     {
       "file": "ru-light-480-menu.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -5752,21 +5973,8 @@
     {
       "file": "ru-light-480-menu.png",
       "frame": [
-        42,
-        711,
-        416,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
-      "file": "ru-light-480-menu.png",
-      "frame": [
         309,
-        644,
+        558,
         137,
         18
       ],
@@ -5779,7 +5987,7 @@
       "file": "ru-light-480-menu.png",
       "frame": [
         309,
-        690,
+        604,
         137,
         18
       ],
@@ -6062,19 +6270,6 @@
       "text": "3"
     },
     {
-      "file": "ru-light-520-compact.png",
-      "frame": [
-        42,
-        554,
-        456,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-light-520-expanded.png",
       "frame": [
         20,
@@ -6337,7 +6532,7 @@
     {
       "file": "ru-light-520-expanded.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -6452,19 +6647,6 @@
       "text": "100%"
     },
     {
-      "file": "ru-light-520-expanded.png",
-      "frame": [
-        42,
-        711,
-        456,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-light-520-restore.png",
       "frame": [
         20,
@@ -6727,7 +6909,7 @@
     {
       "file": "ru-light-520-restore.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -6740,21 +6922,112 @@
     {
       "file": "ru-light-520-restore.png",
       "frame": [
-        42,
-        554,
-        456,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "скрытые источники · 1"
+        "AirPods 4"
       ],
-      "text": "скрытые источники · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "ru-light-520-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "уже добавлен"
+      ],
+      "text": "уже добавлен"
+    },
+    {
+      "file": "ru-light-520-restore.png",
+      "frame": [
+        402,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-light-520-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "ru-light-520-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "виртуальный"
+      ],
+      "text": "виртуальный"
+    },
+    {
+      "file": "ru-light-520-restore.png",
+      "frame": [
+        402,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-light-520-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "ru-light-520-restore.png",
+      "frame": [
+        402,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "ru-light-520-restore.png",
       "frame": [
         204,
-        451,
+        545,
         282,
         18
       ],
@@ -6767,7 +7040,7 @@
       "file": "ru-light-520-restore.png",
       "frame": [
         204,
-        498,
+        592,
         168,
         18
       ],
@@ -6780,7 +7053,7 @@
       "file": "ru-light-520-restore.png",
       "frame": [
         425,
-        498,
+        592,
         53,
         18
       ],
@@ -7052,7 +7325,7 @@
     {
       "file": "ru-light-520-menu.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -7169,21 +7442,8 @@
     {
       "file": "ru-light-520-menu.png",
       "frame": [
-        42,
-        711,
-        456,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
-      "file": "ru-light-520-menu.png",
-      "frame": [
         349,
-        644,
+        558,
         137,
         18
       ],
@@ -7196,7 +7456,7 @@
       "file": "ru-light-520-menu.png",
       "frame": [
         349,
-        690,
+        604,
         137,
         18
       ],
@@ -7479,19 +7739,6 @@
       "text": "3"
     },
     {
-      "file": "ru-light-720-compact.png",
-      "frame": [
-        42,
-        554,
-        656,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-light-720-expanded.png",
       "frame": [
         20,
@@ -7754,7 +8001,7 @@
     {
       "file": "ru-light-720-expanded.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -7869,19 +8116,6 @@
       "text": "100%"
     },
     {
-      "file": "ru-light-720-expanded.png",
-      "frame": [
-        42,
-        711,
-        656,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
       "file": "ru-light-720-restore.png",
       "frame": [
         20,
@@ -8144,7 +8378,7 @@
     {
       "file": "ru-light-720-restore.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -8157,21 +8391,112 @@
     {
       "file": "ru-light-720-restore.png",
       "frame": [
-        42,
-        554,
-        656,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "скрытые источники · 1"
+        "AirPods 4"
       ],
-      "text": "скрытые источники · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "ru-light-720-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "уже добавлен"
+      ],
+      "text": "уже добавлен"
+    },
+    {
+      "file": "ru-light-720-restore.png",
+      "frame": [
+        602,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-light-720-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "ru-light-720-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "виртуальный"
+      ],
+      "text": "виртуальный"
+    },
+    {
+      "file": "ru-light-720-restore.png",
+      "frame": [
+        602,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "ru-light-720-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "ru-light-720-restore.png",
+      "frame": [
+        602,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "ru-light-720-restore.png",
       "frame": [
         404,
-        451,
+        545,
         282,
         18
       ],
@@ -8184,7 +8509,7 @@
       "file": "ru-light-720-restore.png",
       "frame": [
         404,
-        498,
+        592,
         168,
         18
       ],
@@ -8197,7 +8522,7 @@
       "file": "ru-light-720-restore.png",
       "frame": [
         625,
-        498,
+        592,
         53,
         18
       ],
@@ -8469,7 +8794,7 @@
     {
       "file": "ru-light-720-menu.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -8586,21 +8911,8 @@
     {
       "file": "ru-light-720-menu.png",
       "frame": [
-        42,
-        711,
-        656,
-        18
-      ],
-      "lines": [
-        "скрытые источники · 1"
-      ],
-      "text": "скрытые источники · 1"
-    },
-    {
-      "file": "ru-light-720-menu.png",
-      "frame": [
         549,
-        644,
+        558,
         137,
         18
       ],
@@ -8613,7 +8925,7 @@
       "file": "ru-light-720-menu.png",
       "frame": [
         549,
-        690,
+        604,
         137,
         18
       ],
@@ -8896,19 +9208,6 @@
       "text": "3"
     },
     {
-      "file": "en-dark-480-compact.png",
-      "frame": [
-        42,
-        554,
-        416,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-dark-480-expanded.png",
       "frame": [
         20,
@@ -9171,7 +9470,7 @@
     {
       "file": "en-dark-480-expanded.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -9286,19 +9585,6 @@
       "text": "100%"
     },
     {
-      "file": "en-dark-480-expanded.png",
-      "frame": [
-        42,
-        711,
-        416,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-dark-480-restore.png",
       "frame": [
         20,
@@ -9561,7 +9847,7 @@
     {
       "file": "en-dark-480-restore.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -9574,21 +9860,112 @@
     {
       "file": "en-dark-480-restore.png",
       "frame": [
-        42,
-        554,
-        416,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "hidden sources · 1"
+        "AirPods 4"
       ],
-      "text": "hidden sources · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "en-dark-480-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "already included"
+      ],
+      "text": "already included"
+    },
+    {
+      "file": "en-dark-480-restore.png",
+      "frame": [
+        362,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-dark-480-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "en-dark-480-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "virtual"
+      ],
+      "text": "virtual"
+    },
+    {
+      "file": "en-dark-480-restore.png",
+      "frame": [
+        362,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-dark-480-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "en-dark-480-restore.png",
+      "frame": [
+        362,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "en-dark-480-restore.png",
       "frame": [
         164,
-        451,
+        545,
         282,
         18
       ],
@@ -9601,7 +9978,7 @@
       "file": "en-dark-480-restore.png",
       "frame": [
         164,
-        498,
+        592,
         168,
         18
       ],
@@ -9614,7 +9991,7 @@
       "file": "en-dark-480-restore.png",
       "frame": [
         385,
-        498,
+        592,
         53,
         18
       ],
@@ -9886,7 +10263,7 @@
     {
       "file": "en-dark-480-menu.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -10003,21 +10380,8 @@
     {
       "file": "en-dark-480-menu.png",
       "frame": [
-        42,
-        711,
-        416,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
-      "file": "en-dark-480-menu.png",
-      "frame": [
         309,
-        644,
+        558,
         137,
         18
       ],
@@ -10030,7 +10394,7 @@
       "file": "en-dark-480-menu.png",
       "frame": [
         309,
-        690,
+        604,
         137,
         18
       ],
@@ -10313,19 +10677,6 @@
       "text": "3"
     },
     {
-      "file": "en-dark-520-compact.png",
-      "frame": [
-        42,
-        554,
-        456,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-dark-520-expanded.png",
       "frame": [
         20,
@@ -10588,7 +10939,7 @@
     {
       "file": "en-dark-520-expanded.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -10703,19 +11054,6 @@
       "text": "100%"
     },
     {
-      "file": "en-dark-520-expanded.png",
-      "frame": [
-        42,
-        711,
-        456,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-dark-520-restore.png",
       "frame": [
         20,
@@ -10978,7 +11316,7 @@
     {
       "file": "en-dark-520-restore.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -10991,21 +11329,112 @@
     {
       "file": "en-dark-520-restore.png",
       "frame": [
-        42,
-        554,
-        456,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "hidden sources · 1"
+        "AirPods 4"
       ],
-      "text": "hidden sources · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "en-dark-520-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "already included"
+      ],
+      "text": "already included"
+    },
+    {
+      "file": "en-dark-520-restore.png",
+      "frame": [
+        402,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-dark-520-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "en-dark-520-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "virtual"
+      ],
+      "text": "virtual"
+    },
+    {
+      "file": "en-dark-520-restore.png",
+      "frame": [
+        402,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-dark-520-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "en-dark-520-restore.png",
+      "frame": [
+        402,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "en-dark-520-restore.png",
       "frame": [
         204,
-        451,
+        545,
         282,
         18
       ],
@@ -11018,7 +11447,7 @@
       "file": "en-dark-520-restore.png",
       "frame": [
         204,
-        498,
+        592,
         168,
         18
       ],
@@ -11031,7 +11460,7 @@
       "file": "en-dark-520-restore.png",
       "frame": [
         425,
-        498,
+        592,
         53,
         18
       ],
@@ -11303,7 +11732,7 @@
     {
       "file": "en-dark-520-menu.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -11420,21 +11849,8 @@
     {
       "file": "en-dark-520-menu.png",
       "frame": [
-        42,
-        711,
-        456,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
-      "file": "en-dark-520-menu.png",
-      "frame": [
         349,
-        644,
+        558,
         137,
         18
       ],
@@ -11447,7 +11863,7 @@
       "file": "en-dark-520-menu.png",
       "frame": [
         349,
-        690,
+        604,
         137,
         18
       ],
@@ -11730,19 +12146,6 @@
       "text": "3"
     },
     {
-      "file": "en-dark-720-compact.png",
-      "frame": [
-        42,
-        554,
-        656,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-dark-720-expanded.png",
       "frame": [
         20,
@@ -12005,7 +12408,7 @@
     {
       "file": "en-dark-720-expanded.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -12120,19 +12523,6 @@
       "text": "100%"
     },
     {
-      "file": "en-dark-720-expanded.png",
-      "frame": [
-        42,
-        711,
-        656,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-dark-720-restore.png",
       "frame": [
         20,
@@ -12395,7 +12785,7 @@
     {
       "file": "en-dark-720-restore.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -12408,21 +12798,112 @@
     {
       "file": "en-dark-720-restore.png",
       "frame": [
-        42,
-        554,
-        656,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "hidden sources · 1"
+        "AirPods 4"
       ],
-      "text": "hidden sources · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "en-dark-720-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "already included"
+      ],
+      "text": "already included"
+    },
+    {
+      "file": "en-dark-720-restore.png",
+      "frame": [
+        602,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-dark-720-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "en-dark-720-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "virtual"
+      ],
+      "text": "virtual"
+    },
+    {
+      "file": "en-dark-720-restore.png",
+      "frame": [
+        602,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-dark-720-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "en-dark-720-restore.png",
+      "frame": [
+        602,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "en-dark-720-restore.png",
       "frame": [
         404,
-        451,
+        545,
         282,
         18
       ],
@@ -12435,7 +12916,7 @@
       "file": "en-dark-720-restore.png",
       "frame": [
         404,
-        498,
+        592,
         168,
         18
       ],
@@ -12448,7 +12929,7 @@
       "file": "en-dark-720-restore.png",
       "frame": [
         625,
-        498,
+        592,
         53,
         18
       ],
@@ -12720,7 +13201,7 @@
     {
       "file": "en-dark-720-menu.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -12837,21 +13318,8 @@
     {
       "file": "en-dark-720-menu.png",
       "frame": [
-        42,
-        711,
-        656,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
-      "file": "en-dark-720-menu.png",
-      "frame": [
         549,
-        644,
+        558,
         137,
         18
       ],
@@ -12864,7 +13332,7 @@
       "file": "en-dark-720-menu.png",
       "frame": [
         549,
-        690,
+        604,
         137,
         18
       ],
@@ -13147,19 +13615,6 @@
       "text": "3"
     },
     {
-      "file": "en-light-480-compact.png",
-      "frame": [
-        42,
-        554,
-        416,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-light-480-expanded.png",
       "frame": [
         20,
@@ -13422,7 +13877,7 @@
     {
       "file": "en-light-480-expanded.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -13537,19 +13992,6 @@
       "text": "100%"
     },
     {
-      "file": "en-light-480-expanded.png",
-      "frame": [
-        42,
-        711,
-        416,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-light-480-restore.png",
       "frame": [
         20,
@@ -13812,7 +14254,7 @@
     {
       "file": "en-light-480-restore.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -13825,21 +14267,112 @@
     {
       "file": "en-light-480-restore.png",
       "frame": [
-        42,
-        554,
-        416,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "hidden sources · 1"
+        "AirPods 4"
       ],
-      "text": "hidden sources · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "en-light-480-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "already included"
+      ],
+      "text": "already included"
+    },
+    {
+      "file": "en-light-480-restore.png",
+      "frame": [
+        362,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-light-480-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "en-light-480-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "virtual"
+      ],
+      "text": "virtual"
+    },
+    {
+      "file": "en-light-480-restore.png",
+      "frame": [
+        362,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-light-480-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "en-light-480-restore.png",
+      "frame": [
+        362,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "en-light-480-restore.png",
       "frame": [
         164,
-        451,
+        545,
         282,
         18
       ],
@@ -13852,7 +14385,7 @@
       "file": "en-light-480-restore.png",
       "frame": [
         164,
-        498,
+        592,
         168,
         18
       ],
@@ -13865,7 +14398,7 @@
       "file": "en-light-480-restore.png",
       "frame": [
         385,
-        498,
+        592,
         53,
         18
       ],
@@ -14137,7 +14670,7 @@
     {
       "file": "en-light-480-menu.png",
       "frame": [
-        428,
+        402,
         515,
         30,
         18
@@ -14254,21 +14787,8 @@
     {
       "file": "en-light-480-menu.png",
       "frame": [
-        42,
-        711,
-        416,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
-      "file": "en-light-480-menu.png",
-      "frame": [
         309,
-        644,
+        558,
         137,
         18
       ],
@@ -14281,7 +14801,7 @@
       "file": "en-light-480-menu.png",
       "frame": [
         309,
-        690,
+        604,
         137,
         18
       ],
@@ -14564,19 +15084,6 @@
       "text": "3"
     },
     {
-      "file": "en-light-520-compact.png",
-      "frame": [
-        42,
-        554,
-        456,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-light-520-expanded.png",
       "frame": [
         20,
@@ -14839,7 +15346,7 @@
     {
       "file": "en-light-520-expanded.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -14954,19 +15461,6 @@
       "text": "100%"
     },
     {
-      "file": "en-light-520-expanded.png",
-      "frame": [
-        42,
-        711,
-        456,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-light-520-restore.png",
       "frame": [
         20,
@@ -15229,7 +15723,7 @@
     {
       "file": "en-light-520-restore.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -15242,21 +15736,112 @@
     {
       "file": "en-light-520-restore.png",
       "frame": [
-        42,
-        554,
-        456,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "hidden sources · 1"
+        "AirPods 4"
       ],
-      "text": "hidden sources · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "en-light-520-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "already included"
+      ],
+      "text": "already included"
+    },
+    {
+      "file": "en-light-520-restore.png",
+      "frame": [
+        402,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-light-520-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "en-light-520-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "virtual"
+      ],
+      "text": "virtual"
+    },
+    {
+      "file": "en-light-520-restore.png",
+      "frame": [
+        402,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-light-520-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "en-light-520-restore.png",
+      "frame": [
+        402,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "en-light-520-restore.png",
       "frame": [
         204,
-        451,
+        545,
         282,
         18
       ],
@@ -15269,7 +15854,7 @@
       "file": "en-light-520-restore.png",
       "frame": [
         204,
-        498,
+        592,
         168,
         18
       ],
@@ -15282,7 +15867,7 @@
       "file": "en-light-520-restore.png",
       "frame": [
         425,
-        498,
+        592,
         53,
         18
       ],
@@ -15554,7 +16139,7 @@
     {
       "file": "en-light-520-menu.png",
       "frame": [
-        468,
+        442,
         515,
         30,
         18
@@ -15671,21 +16256,8 @@
     {
       "file": "en-light-520-menu.png",
       "frame": [
-        42,
-        711,
-        456,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
-      "file": "en-light-520-menu.png",
-      "frame": [
         349,
-        644,
+        558,
         137,
         18
       ],
@@ -15698,7 +16270,7 @@
       "file": "en-light-520-menu.png",
       "frame": [
         349,
-        690,
+        604,
         137,
         18
       ],
@@ -15981,19 +16553,6 @@
       "text": "3"
     },
     {
-      "file": "en-light-720-compact.png",
-      "frame": [
-        42,
-        554,
-        656,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-light-720-expanded.png",
       "frame": [
         20,
@@ -16256,7 +16815,7 @@
     {
       "file": "en-light-720-expanded.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -16371,19 +16930,6 @@
       "text": "100%"
     },
     {
-      "file": "en-light-720-expanded.png",
-      "frame": [
-        42,
-        711,
-        656,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
       "file": "en-light-720-restore.png",
       "frame": [
         20,
@@ -16646,7 +17192,7 @@
     {
       "file": "en-light-720-restore.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -16659,21 +17205,112 @@
     {
       "file": "en-light-720-restore.png",
       "frame": [
-        42,
-        554,
-        656,
+        45,
+        550,
+        162,
         18
       ],
       "lines": [
-        "hidden sources · 1"
+        "AirPods 4"
       ],
-      "text": "hidden sources · 1"
+      "text": "AirPods 4"
+    },
+    {
+      "file": "en-light-720-restore.png",
+      "frame": [
+        45,
+        570,
+        162,
+        18
+      ],
+      "lines": [
+        "already included"
+      ],
+      "text": "already included"
+    },
+    {
+      "file": "en-light-720-restore.png",
+      "frame": [
+        602,
+        558,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-light-720-restore.png",
+      "frame": [
+        45,
+        600,
+        162,
+        18
+      ],
+      "lines": [
+        "ZoomAudioDevice"
+      ],
+      "text": "ZoomAudioDevice"
+    },
+    {
+      "file": "en-light-720-restore.png",
+      "frame": [
+        45,
+        620,
+        162,
+        18
+      ],
+      "lines": [
+        "virtual"
+      ],
+      "text": "virtual"
+    },
+    {
+      "file": "en-light-720-restore.png",
+      "frame": [
+        602,
+        608,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
+    },
+    {
+      "file": "en-light-720-restore.png",
+      "frame": [
+        45,
+        658,
+        162,
+        18
+      ],
+      "lines": [
+        "VLC"
+      ],
+      "text": "VLC"
+    },
+    {
+      "file": "en-light-720-restore.png",
+      "frame": [
+        602,
+        658,
+        40,
+        18
+      ],
+      "lines": [
+        "100%"
+      ],
+      "text": "100%"
     },
     {
       "file": "en-light-720-restore.png",
       "frame": [
         404,
-        451,
+        545,
         282,
         18
       ],
@@ -16686,7 +17323,7 @@
       "file": "en-light-720-restore.png",
       "frame": [
         404,
-        498,
+        592,
         168,
         18
       ],
@@ -16699,7 +17336,7 @@
       "file": "en-light-720-restore.png",
       "frame": [
         625,
-        498,
+        592,
         53,
         18
       ],
@@ -16971,7 +17608,7 @@
     {
       "file": "en-light-720-menu.png",
       "frame": [
-        668,
+        642,
         515,
         30,
         18
@@ -17088,21 +17725,8 @@
     {
       "file": "en-light-720-menu.png",
       "frame": [
-        42,
-        711,
-        656,
-        18
-      ],
-      "lines": [
-        "hidden sources · 1"
-      ],
-      "text": "hidden sources · 1"
-    },
-    {
-      "file": "en-light-720-menu.png",
-      "frame": [
         549,
-        644,
+        558,
         137,
         18
       ],
@@ -17115,7 +17739,7 @@
       "file": "en-light-720-menu.png",
       "frame": [
         549,
-        690,
+        604,
         137,
         18
       ],
@@ -17125,23 +17749,23 @@
       "text": "hide source"
     }
   ],
-  "rendererSourceSHA256": "504801217437aa0107d3e53ca5d55fbda9be595a78c212aef7bfb8b8c14f0431",
+  "rendererSourceSHA256": "4e67204247d409b691d9f906566badbb85f96294dbe5e20c96d26e58a7986aff",
   "exportSHA256": {
-    "ru-dark-520-compact.png": "002428fb47237db99745d62d5782697e8559530ad63d9f1ac9396b87265c11f1",
-    "ru-dark-520-expanded.png": "31d6fd68c1e6c4b42fa5ef4206cfa63653da715b2bdb431fbda34f849f07080e",
-    "ru-dark-520-restore.png": "4bafc97482fc4745841768ac651805e167eebd68d86d1db90ed00b87ae62bea5",
-    "ru-dark-520-menu.png": "b47e557f023326f0336afdc26ed546d64f7acd55195434a829ac73d4036730a3",
-    "ru-light-520-compact.png": "69f4f46eefed8bc9d5a4276e10e924023194a8990e3c5ca6ec8bd99ca7e4c7e5",
-    "ru-light-520-expanded.png": "ca80a3480e2a48a81ad3a21f87ad60d8eeabb148e141c137af05dba0ef3e9e99",
-    "ru-light-520-restore.png": "5e5cc03a6a163d4aa4d992df1eb874e0200dc630a4d93f89049fbc3aaa152176",
-    "ru-light-520-menu.png": "dd3f22d045489aa922ba1dd36c97dae5d94c2d3e9dcec8860dc7c6418d1c86da",
-    "en-dark-520-compact.png": "b62492987a806fcb8e0266323a2c5d24d459d8700286b0f5e3504257aa79d3af",
-    "en-dark-520-expanded.png": "a5a66beda200741cb6f45d8c5dc376de87ad4da5b22e50532efed3aba8c185ad",
-    "en-dark-520-restore.png": "a2f4ee063d90a82c82949701d824e3fad4ed39ab534bba40945846dd58e971e3",
-    "en-dark-520-menu.png": "5163e7b43f38d1e040466c408cb0efd27ac32ce1e59da188ca7510f0ecb92315",
-    "en-light-520-compact.png": "de2e60f6db2a32590b7bb69b7132bf0067cddadb01b7adb0e94cccd104a9d16c",
-    "en-light-520-expanded.png": "dff2dfb485fef81341c7654ae5a116dca464bc63001d73b96e1cff98c273e36e",
-    "en-light-520-restore.png": "dfe90ca9a3530207eb44a8521cc7f312eeb38f05278b533183d6a8fc49ea4568",
-    "en-light-520-menu.png": "ebcf420d877696e61c1c228057248304650ce51b17e357b965219dcfacfdbaf5"
+    "ru-dark-520-compact.png": "996b897c654dcb0f7c72aabbb28df440708e9a8a1f68352e2c58db269df635ad",
+    "ru-dark-520-expanded.png": "3f8715e398115d3070c23c5541dc5efe71b7763e2720eb297ede0e2c40c4182d",
+    "ru-dark-520-restore.png": "fd01973615372c0fb9ee08d017abc86bf7b81eca7de9aee6fb573d998d3a7fb1",
+    "ru-dark-520-menu.png": "9da50f20c9f220baecce53fcad7caf81142319354f75fe82de82edb18771a97e",
+    "ru-light-520-compact.png": "1e841e09b666f7ae523b54d46ae39597d58dd7d13c2cd085383373f4f5ec4a1d",
+    "ru-light-520-expanded.png": "84b58ebe4c73d71d08ec1903049f2b55b423e9cc8e543aafc34c14bbb4941871",
+    "ru-light-520-restore.png": "e910169f1dc50389b536bfe5c97ee51ec7b575d984375cd1ec7d253ec3fa059b",
+    "ru-light-520-menu.png": "d5875b9a30b1a2f8063144f279a7771c3cf78dbb060c63d70da9fb2c2403a5c5",
+    "en-dark-520-compact.png": "7a07bc01d488cf9940ef1567d41e86438e6e7203b9e3f3c3e15e0bd4596fe92a",
+    "en-dark-520-expanded.png": "7131b6a67eea103d762253b8c0acbf5129492d6cd179f9860e0e0e127b602ea6",
+    "en-dark-520-restore.png": "42de5fe4216f33c0f5433e1feed3f10f109ba7d5228206219ba1ab0966a73d4c",
+    "en-dark-520-menu.png": "a44d5127b87bc87321282ac40fbd8a2ef47bdf2abda256074d240bdc92a0945e",
+    "en-light-520-compact.png": "9b0d5c7eba903450bfd93e472947e2d533b282b6e936132f563e8d2b8331b867",
+    "en-light-520-expanded.png": "f666412634e4a8f759a808c639a33c6d15b39a9758515e900adcc04ab1297b05",
+    "en-light-520-restore.png": "f1edf3d3a4dc0b3fd79ff9cd7320efdadafcb8faa69ad5bc2f9f8550f9f2bf17",
+    "en-light-520-menu.png": "bf466a00ddc72e64270b2b4f8df19daf4f565775471e903c281b3e95f53f334d"
   }
 }

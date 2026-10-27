@@ -5,13 +5,14 @@ Stage: native visual mockup only. No application controller or settings change.
 ## Owner agreement
 
 On 28 October 2026 the owner chose to collapse unpinned sources into Other Sources by default. System Default and pinned sources stay above the group. Earlier requests ask for reversible hiding and a familiar pin affordance.
+The owner then rejected a separate Hidden Sources footer because Other Sources already provides the secondary list.
 
 ## Proposed behavior shown
 
 - System Default remains first and follows the macOS microphone.
 - Selected and pinned sources remain visible above Other Sources. Existing pin.fill and ellipsis affordances match output app rows.
 - Other Sources starts collapsed. Selecting a source brings it into the visible group; deselecting it does not move the row while its menu is open.
-- An inactive source may be hidden through its menu. Hidden Sources opens a small restore list. Active sources cannot be hidden.
+- An inactive source may be hidden through its menu. The ellipsis inside expanded Other Sources opens the restore list. There is no separate Hidden Sources footer. Active sources cannot be hidden.
 - Presentation changes never select a microphone, start capture, switch the system device, or erase a saved gain/mute setting.
 - Known virtual devices carry a Virtual label. Classification must come from device transport metadata, not an app-running guess or a name blacklist.
 - Window height fits its content. A long source list scrolls within the available screen height, retaining existing window behavior.
@@ -29,3 +30,5 @@ After visual review, add stable-identity presentation preferences independently 
 ## Observed checks
 
 48 native in-memory render cases (RU/EN, dark/light, 480/520/720 points, four list/menu states); 16 PNG exports at 520 points. The text renderer checks the same line fragments it draws: no wrapping, clipping or text outside the image frame. A full device name initially wrapped in all cases; the fixed source-name column now fits it with the inline pin. Compact, menu and light restore previews inspected. This confirms the mockup, not live controls or scrolling. No application tests rerun because application sources are unchanged.
+
+Footer revision: the compact view now has one Other Sources row and fits 555 points; expanded views fit 706 points. Restore is reached from the ellipsis inside the expanded group. Re-rendered 48 cases with zero layout findings; asserted no hidden-source footer text in compact or expanded list drawings.
