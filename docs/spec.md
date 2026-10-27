@@ -7631,21 +7631,22 @@ Input mixer source availability (27 Oct): microphone and application rows share 
 
 
 Mixer menu indicators — approved v8 integration (27 Oct): the owner accepted the compact right-hand pair after live review rejected the small flanking glyphs. Use neutral SF Symbols mic and speaker.wave.2, semibold weight, 10pt boxes: microphone first, speaker second, both on the right of Hop. Preserve the accepted v8 spacing from docs/design/mixer-menu-v8: microphone frame x21, speaker frame x29, 0.5pt frame gap, with the existing22×17 artwork at its original origin. Owner correction after the v8 live screenshot: image width follows visible content, 22pt without mixers, 30pt for microphone only, 33pt for speaker only, 41pt for both. Do not reserve empty audio slots. A lone speaker occupies the first slot. All states share one NSStatusBarButton/action/hover area. Anchor the popover to the fixed22pt Hop artwork within that image, captured when opening. The visible group can grow or shrink while the open panel stays fixed; the next opening captures the new Hop position. Show each symbol only while its corresponding mixer is running, including output at default per-app levels. Starting/failed/stopped states do not claim active audio. Existing soundMenuBarMark hides both symbols; global menuBarIconOnly hides all decorations without changing mixer state. Preserve other badges and the Dev identity mark; verify dial, keyboard, bell, dark/light and mono overlap. Integration checks require no microphone capture. The v5/v6 flanking arrangement above is historical and superseded by this decision.
-# AirPods microphone startup negotiation — 27 October 2026
+# AirPods microphone capture — 28 October 2026
 
-An observed AirPods startup changed input hardware from 48 kHz to 24 kHz
-between tap installation and engine start. AVAudioEngine rejected the cached
-tap with format-not-supported (-10868). Both Hop Mix capture and the short
-microphone check may rebuild their capture engine and automatic-format tap once,
-within the same explicit start request, only after that error. A physical trial
-showed that the failed node can retain its old format even after hardware
-negotiation, so an unchanged reported format cannot rule out this mismatch.
-The failed tap and engine are stopped before replacing the engine; the fresh
-engine resolves the same device UID and must report a valid format. A second
-failure is cleaned up and returned. Other errors fail immediately. No delayed
-retry, device substitution, recording export or
-capture after Stop/close is introduced. Conversion still uses each delivered
-buffer's actual format. Physical AirPods acceptance remains required.
+Current requirements: `product-spec/results/screens/sound-input.md`, Bluetooth
+input format acceptance. Physical input capture in Hop Mix and the explicit
+microphone check uses AVCaptureSession with the exact selected device UID.
+Native PCM buffers are converted using their current format; no AVAudioEngine
+input tap retains a previous Bluetooth sample rate. Playback remains separate.
+
+A session object reporting running is insufficient for readiness. The first
+nonempty converted buffer must arrive before capture is acknowledged. Failure
+or timeout stops the attempted capture; there is no default-device fallback,
+background prewarming or automatic recording. Stop rejects late callbacks and
+drains delivery before acknowledging completion. The explicit microphone check
+retains its existing bounded ten-second RAM buffer, cleared on window close.
+
+Hardware startup latency and receiver audio still require physical acceptance.
 
 # Sound discovery in 2.4 — runtime integration, 27 October 2026
 

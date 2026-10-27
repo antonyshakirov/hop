@@ -10,63 +10,27 @@ private enum SoundFailure: Error { case missingDevice, unsupported, system(Int32
 private final class SoundCapturedInput {
     let uid: String
     let channel: SoundAudioChannel
-    private var engine = AVAudioEngine()
-    private var observation: NSObjectProtocol?
-    private var stopped = false
-    private let settingsLock = NSLock()
+    private var capture: SoundMicrophoneCapture?
     init(_ configuration: SoundInputConfiguration, failed: @escaping () -> Void) throws {
         uid = configuration.uid
-        guard !uid.hasPrefix("com.antonshakirov.hop.audio."), let device = SoundHAL.device(uid) else { throw SoundFailure.missingDevice }
+        guard !uid.hasPrefix("com.antonshakirov.hop.audio."), SoundHAL.device(uid) != nil else { throw SoundFailure.missingDevice }
         channel = try SoundAudioChannel(rate: 48000)
         hop_audio_compensate_clock(channel.pointer)
         channel.configure(configuration.settings)
-        var engine = self.engine
-        var input = engine.inputNode
-        if input.auAudioUnit.deviceID != device { try input.auAudioUnit.setDeviceID(device) }
-        let hardwareFormat = input.inputFormat(forBus: 0)
-        guard hardwareFormat.sampleRate >= 8000, hardwareFormat.channelCount > 0 else { throw SoundFailure.unsupported }
-        let converter = SoundMicrophonePCMConverter()
-        let report = SoundMicrophoneFormatReport()
         let channel = channel
-        // Bluetooth can renegotiate between querying the node and installing
-        // the tap. Let the hardware choose and convert each delivered PCM format.
-        try SoundMicrophoneTapStartup.start(readFormat: { input.inputFormat(forBus: 0) }, installTap: {
-            input.installTap(onBus: 0, bufferSize: 512, format: nil) { pcm, _ in
-                if let buffer = converter.convert(pcm) {
-                    report.converted(pcm.format)
-                    _ = hop_audio_push(channel.pointer, buffer.audioBufferList, buffer.frameLength)
-                }
+        capture = try SoundMicrophoneCapture(uid: uid, consume: { buffer in
+            _ = hop_audio_push(channel.pointer, buffer.audioBufferList, buffer.frameLength)
+        }, failed: { [weak self] _ in
+            DispatchQueue.main.async { [weak self] in
+                guard self?.capture != nil else { return }
+                failed()
             }
-        }, removeTap: { input.removeTap(onBus: 0) }, stop: { engine.stop() }, rebuild: {
-            guard let device = SoundHAL.device(configuration.uid) else { throw SoundFailure.missingDevice }
-            let fresh = AVAudioEngine(), freshInput = fresh.inputNode
-            if freshInput.auAudioUnit.deviceID != device { try freshInput.auAudioUnit.setDeviceID(device) }
-            engine = fresh; input = freshInput
-        }, start: { try engine.start() })
-        self.engine = engine
-        observation = NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak engine] _ in
-            if engine?.isRunning == false { failed() }
-        }
+        })
     }
     func stop() {
-        settingsLock.lock()
-        guard !stopped else { settingsLock.unlock(); return }; stopped = true
-        settingsLock.unlock()
-        if let observation { NotificationCenter.default.removeObserver(observation) }
-        observation = nil; engine.inputNode.removeTap(onBus: 0); engine.stop()
+        let previous = capture; capture = nil; previous?.stop()
     }
     deinit { stop() }
-}
-
-/// Called serially by one tap. Log format metadata only after conversion works.
-private final class SoundMicrophoneFormatReport {
-    private static let log = Logger(subsystem: "com.antonshakirov.hop", category: "HopMix")
-    private var previous: AVAudioFormat?
-    func converted(_ format: AVAudioFormat) {
-        guard previous?.isEqual(format) != true else { return }
-        previous = format
-        Self.log.notice("microphone-pcm-converted rate=\(format.sampleRate, privacy: .public) channels=\(format.channelCount, privacy: .public)")
-    }
 }
 
 @available(macOS 14.2, *)

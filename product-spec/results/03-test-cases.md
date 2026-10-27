@@ -29,3 +29,7 @@ implementation; this file does not declare that they currently pass.
 | AI-08 | Stop a running input mix | No applied receipt until zero-capture ACK or producer exit; new start/edit waits |
 | AI-09 | Start A, stop, start C before scheduled readiness tasks | A is cancelled; its ACK or timeout cannot finish against or stop C |
 | AI-10 | Mute a named mic currently included through System Default | Rejected before mutation; no saved-only success while microphone stays audible |
+
+| IN-14 | Native microphone changes 48/24/48 kHz during a capture | Converted 48 kHz stereo continues without reopening capture |
+| IN-15 | Session starts but emits no valid converted PCM | No ready ACK; bounded failure stops the attempted capture |
+| IN-16 | Frames or errors arrive after Stop | No later consume/failure callback or capture restart; stop remains idempotent |

@@ -41,11 +41,10 @@ final class MicrophoneLevelMeter: SoundMeter {
     var muteChanged: ((Bool) -> Void)?
     var muted: Bool { SoundAccessoryMute.shared.gate.muted }
     func setMuted(_ value: Bool) -> Bool {
-        guard engine != nil else { return false }
+        guard capture != nil else { return false }
         return SoundAccessoryMute.shared.setMuted(value)
     }
-    private var engine: AVAudioEngine?
-    private var observation: NSObjectProtocol?
+    private var capture: SoundMicrophoneCapture?
     private var samples: SoundSampleBuffer?
     private var playback: AVAudioEngine?
     private var player: AVAudioPlayerNode?
@@ -71,14 +70,8 @@ final class MicrophoneLevelMeter: SoundMeter {
         stop()
         clearRecording()
         guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else { throw SoundFailure.permission }
-        var engine = AVAudioEngine()
-        var input = engine.inputNode
-        let deviceID = try CoreSoundHardware().objectID(uid, direction: .input)
-        if input.auAudioUnit.deviceID != deviceID { try input.auAudioUnit.setDeviceID(deviceID) }
-        let hardwareFormat = input.inputFormat(forBus: 0)
-        guard hardwareFormat.sampleRate >= 8000, hardwareFormat.channelCount > 0 else { throw SoundFailure.missingDevice }
-        let converter = SoundMicrophonePCMConverter()
-        let samples = try SoundSampleBuffer(format: converter.outputFormat)
+        _ = try CoreSoundHardware().objectID(uid, direction: .input)
+        let samples = try SoundSampleBuffer(format: AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 2)!)
         self.samples = samples
         let token = UUID()
         try SoundAccessoryMute.shared.bind(token, muted: false, apply: { value in samples.setMuted(value); return true }, changed: { [weak self] _ in
@@ -89,39 +82,23 @@ final class MicrophoneLevelMeter: SoundMeter {
         })
         muteToken = token
         do {
-            try SoundMicrophoneTapStartup.start(readFormat: { input.inputFormat(forBus: 0) }, installTap: {
-                input.installTap(onBus: 0, bufferSize: 1024, format: nil) { buffer, _ in
-                    if let converted = converter.convert(buffer) { samples.append(converted) }
+            capture = try SoundMicrophoneCapture(uid: uid, consume: { samples.append($0) }, failed: { [weak self] _ in
+                Task { @MainActor in
+                    guard let self, self.muteToken == token, self.capture != nil else { return }
+                    interrupted()
                 }
-            }, removeTap: { input.removeTap(onBus: 0) }, stop: { engine.stop() }, rebuild: {
-                let deviceID = try CoreSoundHardware().objectID(uid, direction: .input)
-                let fresh = AVAudioEngine(), freshInput = fresh.inputNode
-                if freshInput.auAudioUnit.deviceID != deviceID { try freshInput.auAudioUnit.setDeviceID(deviceID) }
-                engine = fresh; input = freshInput
-            }, start: { try engine.start() })
+            })
         } catch { SoundAccessoryMute.shared.unbind(token); muteToken = nil; throw error }
-        self.engine = engine
-        observation = NotificationCenter.default.addObserver(
-            forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
-        ) { [weak engine] _ in
-            MainActor.assumeIsolated {
-                if engine?.isRunning == false { interrupted() }
-            }
-        }
     }
 
     func stop() {
         if let muteToken { SoundAccessoryMute.shared.unbind(muteToken) }
         muteToken = nil
-        if let observation { NotificationCenter.default.removeObserver(observation) }
-        observation = nil
-        engine?.inputNode.removeTap(onBus: 0)
-        engine?.stop()
-        engine = nil
+        let previous = capture; capture = nil; previous?.stop()
     }
 
     func play(_ completed: @escaping () -> Void) throws {
-        guard engine == nil, let recorded = samples?.recorded(), hasRecording else { throw SoundFailure.unsupported }
+        guard capture == nil, let recorded = samples?.recorded(), hasRecording else { throw SoundFailure.unsupported }
         stopPlayback()
         let engine = AVAudioEngine(), player = AVAudioPlayerNode()
         engine.attach(player)

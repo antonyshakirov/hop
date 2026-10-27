@@ -95,3 +95,24 @@ themes, available/missing system input, few and many sources, disabled/starting/
 ready/error states, and localized labels in Hop's shared controls. AirPods startup,
 voice plus music received by a consumer, microphone stop and accessory mute still
 require physical acceptance; unit tests alone do not establish these results.
+
+## Bluetooth input format acceptance (28 October)
+
+A physical input capture must use the exact selected device UID without a default-device
+fallback. Worker microphone capture uses AVCaptureSession and native-format
+AVCaptureAudioDataOutput buffers; each buffer is converted to the existing 48 kHz
+stereo mix format. This isolates capture from an AVAudioEngine input tap retaining
+a previous 48 kHz format while AirPods change to 24 kHz. No microphone monitoring
+output, system input/output change, audio file or background prewarming is allowed.
+
+A successful session start without usable audio is not ready. Configuration ACK
+requires the first nonempty successfully converted PCM buffer for every newly added
+physical source. A bounded first-frame failure stops the attempted capture and
+reports failure. Stop rejects late buffers and errors, drains the callback queue,
+and stops capture before its completion is acknowledged. Hardware format changes
+within a capture must not force a new session just to convert 24/48 kHz input.
+
+Synthetic tests cover native-format changes, missing/empty frames, exact UID,
+early failure and post-stop callbacks. Real AirPods cold start, live system-default
+change and actual receiver audio still require separate acceptance; synthetic
+results do not establish Bluetooth startup latency or audible delivery.
