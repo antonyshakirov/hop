@@ -115,9 +115,13 @@ enum Snapshot {
             active = true // suppress the dev "D" so the badges are seen clean
             let variants: [(String, IconState)] = [
                 ("idle", IconState()),
-                ("app-audio", IconState(appAudio: true)),
-                ("app-audio+vpn", IconState(appAudio: true, vpn: .up)),
-                ("app-audio+torrent", IconState(appAudio: true, torrentDown: true)),
+                ("output-mixer", IconState(outputMix: true)),
+                ("input-mixer", IconState(inputMix: true)),
+                ("both-mixers", IconState(outputMix: true, inputMix: true)),
+                ("both-mixers+all", IconState(engine: .running, tracking: true, noSleep: true, lid: true,
+                    alertSteady: true, reminderUnseen: true, outputMix: true, inputMix: true, vpn: .up, torrentDown: true, torrentUp: true)),
+                ("app-audio+vpn", IconState(outputMix: true, vpn: .up)),
+                ("app-audio+torrent", IconState(outputMix: true, torrentDown: true)),
                 ("engine", IconState(engine: .running)),
                 ("task", IconState(tracking: true)),
                 ("engine+task", IconState(engine: .running, tracking: true)),
@@ -141,6 +145,9 @@ enum Snapshot {
                                         alertSteady: true, vpn: .up,
                                         torrentDown: true, torrentUp: true)),
             ]
+            let iconDark = !args.contains("--menubar-icons-light")
+            let markDev = args.contains("--menubar-dev-mark")
+            let labelInk = iconDark ? NSColor.white : NSColor.black
             let rowH: CGFloat = 26
             // optional version stamp (short commit hash + timestamp) in a bottom
             // strip, so a saved sheet always says which build produced it. Passed in
@@ -151,28 +158,28 @@ enum Snapshot {
             // two columns: coloured (dark bar) on the left, monochrome on the right
             let canvas = NSImage(size: NSSize(width: 340, height: CGFloat(variants.count) * rowH + stampH))
             canvas.lockFocus()
-            NSColor(white: 0.1, alpha: 1).setFill()
+            NSColor(white: iconDark ? 0.1 : 0.94, alpha: 1).setFill()
             NSRect(origin: .zero, size: canvas.size).fill()
             if let stamp {
                 NSAttributedString(string: stamp, attributes: [
                     .font: NSFont.monospacedSystemFont(ofSize: 8, weight: .regular),
-                    .foregroundColor: NSColor.white.withAlphaComponent(0.4),
+                    .foregroundColor: labelInk.withAlphaComponent(0.4),
                 ]).draw(at: NSPoint(x: 8, y: 3))
             }
             for (index, v) in variants.enumerated() {
                 let y = canvas.size.height - CGFloat(index + 1) * rowH + 4
                 var colored = v.1; colored.colored = true
                 var mono = v.1; mono.colored = false
-                MenuBarIcon.compose(IconBadges.compose(colored), dark: true)
+                MenuBarIcon.compose(IconBadges.compose(colored), dark: iconDark, markDev: markDev)
                     .draw(at: NSPoint(x: 8, y: y), from: .zero, operation: .sourceOver, fraction: 1)
-                MenuBarIcon.compose(IconBadges.compose(mono), dark: true)
+                MenuBarIcon.compose(IconBadges.compose(mono), dark: iconDark, markDev: markDev)
                     .draw(at: NSPoint(x: 200, y: y), from: .zero, operation: .sourceOver, fraction: 1)
                 let attrs: [NSAttributedString.Key: Any] = [
                     .font: NSFont.monospacedSystemFont(ofSize: 9, weight: .regular),
-                    .foregroundColor: NSColor.white.withAlphaComponent(0.6),
+                    .foregroundColor: labelInk.withAlphaComponent(0.6),
                 ]
                 NSAttributedString(string: v.0, attributes: attrs)
-                    .draw(at: NSPoint(x: 38, y: y + 3))
+                    .draw(at: NSPoint(x: 48, y: y + 3))
             }
             canvas.unlockFocus()
             if let tiff = canvas.tiffRepresentation,

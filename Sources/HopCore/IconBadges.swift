@@ -4,7 +4,7 @@ import Foundation
 /// spatial: warm dots on top, green time-wedges below, the attention mark top-
 /// left, torrent bottom-left.
 public enum BadgeCorner: Equatable, Sendable {
-    case topLeft, topRight, bottomLeft, bottomRight
+    case topLeft, topRight, bottomLeft, bottomRight, centerLeft, centerRight
 }
 
 /// Torrent transfer direction, shown in the bottom-left corner.
@@ -31,7 +31,8 @@ public enum VPNMark: Equatable, Sendable {
 public enum IconBadge: Equatable, Sendable, CaseIterable {
     case alert       // top-left: red "!" (white in mono)
     case reminder    // top-left: informational dot (outline ring in mono)
-    case appAudio    // left: neutral ring while custom listening settings are active
+    case inputMix
+    case outputMix
     case vpn         // bottom-left: green dot while a tunnel is up
     case vpnStalled  // bottom-left: orange dot while a tunnel carries nothing
     case noSleep     // top-right: yellow dot (filled in both modes)
@@ -42,7 +43,9 @@ public enum IconBadge: Equatable, Sendable, CaseIterable {
     public var corner: BadgeCorner {
         switch self {
         case .alert, .reminder: return .topLeft
-        case .vpn, .vpnStalled, .appAudio: return .bottomLeft
+        case .vpn, .vpnStalled: return .bottomLeft
+        case .inputMix: return .centerLeft
+        case .outputMix: return .centerRight
         case .noSleep, .lid: return .topRight
         case .engineTime, .taskTime: return .bottomRight
         }
@@ -54,7 +57,7 @@ public enum IconBadge: Equatable, Sendable, CaseIterable {
     public var monoFilled: Bool {
         switch self {
         case .alert, .noSleep, .engineTime: return true
-        case .lid, .taskTime, .reminder, .appAudio: return false
+        case .lid, .taskTime, .reminder, .inputMix, .outputMix: return false
         // The two VPN marks are the third such pair: with colour off, a live
         // tunnel keeps the disc and a stalled one becomes a ring at the same
         // outer size. Orange has nothing to say in a monochrome bar.
@@ -72,7 +75,8 @@ public enum IconBadge: Equatable, Sendable, CaseIterable {
 public struct IconComposition: Equatable, Sendable {
     public var alert: Bool         // top-left "!" — visible this frame (blink resolved)
     public var reminder: Bool      // top-left informational dot: a reminder fired, unseen
-    public var appAudio: Bool
+    public var outputMix: Bool
+    public var inputMix: Bool
     public var vpn: VPNMark?       // bottom-left dot: green up, orange stalled, nil none
     public var noSleep: Bool       // top-right yellow dot
     public var lid: Bool           // top-right orange dot / ring
@@ -82,14 +86,15 @@ public struct IconComposition: Equatable, Sendable {
     public var colored: Bool       // false → monochrome shape mapping
 
     public init(
-        alert: Bool = false, reminder: Bool = false, appAudio: Bool = false, vpn: VPNMark? = nil,
+        alert: Bool = false, reminder: Bool = false, outputMix: Bool = false, inputMix: Bool = false, vpn: VPNMark? = nil,
         noSleep: Bool = false, lid: Bool = false,
         engineTime: Bool = false, taskTime: Bool = false,
         torrent: TorrentArrows? = nil, colored: Bool = true
     ) {
         self.alert = alert
         self.reminder = reminder
-        self.appAudio = appAudio
+        self.outputMix = outputMix
+        self.inputMix = inputMix
         self.vpn = vpn
         self.noSleep = noSleep
         self.lid = lid
@@ -104,7 +109,8 @@ public struct IconComposition: Equatable, Sendable {
         var out: [IconBadge] = []
         if alert { out.append(.alert) }
         if reminder { out.append(.reminder) }
-        if appAudio { out.append(.appAudio) }
+        if outputMix { out.append(.outputMix) }
+        if inputMix { out.append(.inputMix) }
         switch vpn {
         case .up: out.append(.vpn)
         case .stalled: out.append(.vpnStalled)
@@ -119,7 +125,7 @@ public struct IconComposition: Equatable, Sendable {
 
     /// Any decoration at all → the plain template fast path can't be used.
     public var isEmpty: Bool {
-        !alert && !reminder && !appAudio && vpn == nil && !noSleep && !lid && !engineTime && !taskTime
+        !alert && !reminder && !outputMix && !inputMix && vpn == nil && !noSleep && !lid && !engineTime && !taskTime
             && torrent == nil
     }
 }
@@ -168,7 +174,8 @@ public struct IconState: Equatable, Sendable {
     /// tunnel is only ever called stalled while something is actively pushing
     /// bytes into it and getting nothing back, which is broken whichever tunnel
     /// it is.
-    public var appAudio: Bool
+    public var outputMix: Bool
+    public var inputMix: Bool
     public var vpn: VPNMark?
     public var torrentDown: Bool
     public var torrentUp: Bool
@@ -179,7 +186,7 @@ public struct IconState: Equatable, Sendable {
         tracking: Bool = false, taskTimeInTitle: Bool = false,
         noSleep: Bool = false, lid: Bool = false,
         alertSteady: Bool = false, alertBlinking: Bool = false, blinkOn: Bool = true,
-        reminderUnseen: Bool = false, appAudio: Bool = false, vpn: VPNMark? = nil,
+        reminderUnseen: Bool = false, outputMix: Bool = false, inputMix: Bool = false, vpn: VPNMark? = nil,
         torrentDown: Bool = false, torrentUp: Bool = false, colored: Bool = true
     ) {
         self.engine = engine
@@ -192,7 +199,8 @@ public struct IconState: Equatable, Sendable {
         self.alertBlinking = alertBlinking
         self.blinkOn = blinkOn
         self.reminderUnseen = reminderUnseen
-        self.appAudio = appAudio
+        self.outputMix = outputMix
+        self.inputMix = inputMix
         self.vpn = vpn
         self.torrentDown = torrentDown
         self.torrentUp = torrentUp
@@ -225,7 +233,7 @@ public enum IconBadges {
         }
 
         return IconComposition(
-            alert: alert, reminder: s.reminderUnseen, appAudio: s.appAudio, vpn: s.vpn,
+            alert: alert, reminder: s.reminderUnseen, outputMix: s.outputMix, inputMix: s.inputMix, vpn: s.vpn,
             noSleep: s.noSleep, lid: s.lid,
             engineTime: engineTime, taskTime: taskTime,
             torrent: torrent, colored: s.colored

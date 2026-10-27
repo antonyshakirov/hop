@@ -253,16 +253,34 @@ final class IconBadgesTests: XCTestCase {
         XCTAssertFalse(c.alert)
         XCTAssertTrue(c.reminder)
     }
-    func testCustomAppAudioHasAnIndependentNeutralRing() {
-        let composition = IconBadges.compose(IconState(appAudio: true, vpn: .up, torrentDown: true))
-        XCTAssertTrue(composition.appAudio)
-        XCTAssertTrue(composition.badges.contains(.appAudio))
+    func testOutputMixerHasAnIndependentNeutralSpeaker() {
+        let composition = IconBadges.compose(IconState(outputMix: true, vpn: .up, torrentDown: true))
+        XCTAssertTrue(composition.outputMix)
+        XCTAssertTrue(composition.badges.contains(.outputMix))
         XCTAssertEqual(composition.vpn, .up)
         XCTAssertEqual(composition.torrent, .down)
         XCTAssertFalse(composition.isEmpty)
-        XCTAssertFalse(IconBadge.appAudio.monoFilled)
-        XCTAssertFalse(IconBadges.compose(IconState()).appAudio)
+        XCTAssertFalse(IconBadge.outputMix.monoFilled)
+        XCTAssertFalse(IconBadges.compose(IconState()).outputMix)
         XCTAssertTrue(IconBadges.compose(IconState()).isEmpty)
+    }
+
+    func testInputAndOutputMixerIndicatorsAreIndependentInBothPalettes() {
+        for colored in [true, false] {
+            for input in [true, false] {
+                for output in [true, false] {
+                    let composition = IconBadges.compose(IconState(outputMix: output, inputMix: input, colored: colored))
+                    XCTAssertEqual(composition.inputMix, input)
+                    XCTAssertEqual(composition.outputMix, output)
+                    XCTAssertEqual(composition.badges.contains(.inputMix), input)
+                    XCTAssertEqual(composition.badges.contains(.outputMix), output)
+                    XCTAssertEqual(composition.isEmpty, !input && !output)
+                }
+            }
+        }
+        XCTAssertEqual(IconBadge.inputMix.corner, .centerLeft)
+        XCTAssertEqual(IconBadge.outputMix.corner, .centerRight)
+        XCTAssertFalse(IconBadge.inputMix.monoFilled)
     }
 
 }

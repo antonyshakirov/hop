@@ -1,9 +1,9 @@
 import Foundation
 
 enum SoundMenuBarIndicator {
-    static func isVisible(running: Bool, customized: Bool, moduleActive: Bool,
+    static func isVisible(running: Bool, moduleActive: Bool,
                           defaults: UserDefaults = .standard) -> Bool {
-        running && customized && moduleActive
+        running && moduleActive
             && (defaults.object(forKey: SettingsKey.soundMenuBarMark) as? Bool ?? true)
     }
 }

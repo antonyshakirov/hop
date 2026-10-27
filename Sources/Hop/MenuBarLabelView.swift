@@ -52,7 +52,9 @@ enum MenuBarIcon {
 
     /// One canvas size for all states — badges occupy pre-reserved space, so the
     /// icon in the bar never "breathes". The star is always exactly centered.
-    static let canvasSize = NSSize(width: 22, height: 17)
+    static let canvasSize = NSSize(width: 32, height: 17)
+    private static let badgeCanvasSize = NSSize(width: 22, height: 17)
+    private static let contentInset: CGFloat = 5
 
     /// Glyph centered: equal margins on the left and right.
     private static let dialRect = NSRect(x: 3.5, y: 1.5, width: 15, height: 14)
@@ -62,11 +64,13 @@ enum MenuBarIcon {
     /// in the bottom-left corner, monochrome.
     static var isDevBuild: Bool { Bundle.isDevBuild }
 
-    static let devMarkFrame = NSRect(x: 0.9, y: 0.5, width: 3.4, height: 4.4)
-    static let appAudioFrame = NSRect(x: 0.75, y: 6.25, width: 4.5, height: 4.5)
+    private static let devMarkRect = NSRect(x: 0.9, y: 0.5, width: 3.4, height: 4.4)
+    static var devMarkFrame: NSRect { devMarkRect.offsetBy(dx: contentInset, dy: 0) }
+    static let microphoneFrame = NSRect(x: 2, y: 4.5, width: 6, height: 8)
+    static let speakerFrame = NSRect(x: 23, y: 4.5, width: 8.67, height: 8)
 
     private static func drawDevMark(color: NSColor) {
-        let r = devMarkFrame
+        let r = devMarkRect
         let path = NSBezierPath()
         path.lineWidth = 1.1
         path.lineCapStyle = .round
@@ -86,6 +90,7 @@ enum MenuBarIcon {
     private static func template(markDev: Bool) -> NSImage {
         let image = NSImage(size: canvasSize)
         image.lockFocus()
+        NSGraphicsContext.current?.cgContext.translateBy(x: contentInset, y: 0)
         drawDial(color: .black, in: dialRect)
         if markDev { drawDevMark(color: .black) }
         image.unlockFocus()
@@ -105,11 +110,13 @@ enum MenuBarIcon {
     /// Render the star (or the finish bell) plus every badge in `composition`.
     /// `dark` overrides the auto-detected bar lightness (used by snapshots);
     /// nil = read the live appearance.
-    static func compose(_ composition: IconComposition, base: Base = .dial, dark: Bool? = nil) -> NSImage {
+    static func compose(_ composition: IconComposition, base: Base = .dial, dark: Bool? = nil, markDev: Bool? = nil) -> NSImage {
         let image = NSImage(size: canvasSize)
         image.lockFocus()
         let dark = dark ?? currentlyDark()
         let glyph = glyphColor(dark: dark)
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current?.cgContext.translateBy(x: contentInset, y: 0)
 
         switch base {
         case .dial:
@@ -123,9 +130,11 @@ enum MenuBarIcon {
 
         // dev "D" — suppressed under a snapshot render (same rule as the Finder
         // dev-badge in AppIcon), so marketing/diagnostic shots show the real icon
-        if isDevBuild && !Snapshot.active {
+        if markDev ?? (isDevBuild && !Snapshot.active) {
             drawDevMark(color: glyph.withAlphaComponent(dark ? 0.7 : 0.6))
         }
+        NSGraphicsContext.restoreGraphicsState()
+        drawAudioIndicators(composition, glyph: glyph)
         image.unlockFocus()
         image.isTemplate = false
         return image
@@ -136,7 +145,7 @@ enum MenuBarIcon {
     /// All four corners, drawn onto the current focus. `colored` in the
     /// composition picks colour vs the mono fill/outline mapping.
     private static func drawBadges(_ c: IconComposition, glyph: NSColor) {
-        let w = canvasSize.width, h = canvasSize.height
+        let w = badgeCanvasSize.width, h = badgeCanvasSize.height
         // Every corner dot hangs off the icon's CENTRE by the same distance, so
         // a dot in one corner is the exact mirror of a dot in another. The
         // numbers are the awake dot's own position, so that badge does not
@@ -165,13 +174,6 @@ enum MenuBarIcon {
             var box = dotBox(-1, 1)
             if c.alert { box.origin.x += 3.5 }
             drawReminderDot(box: box, colored: c.colored, glyph: glyph)
-        }
-
-        if c.appAudio {
-            glyph.setStroke()
-            let ring = NSBezierPath(ovalIn: appAudioFrame)
-            ring.lineWidth = stroke
-            ring.stroke()
         }
 
         // bottom-left: the VPN light, beside the torrent arrows when both are on.
@@ -412,6 +414,15 @@ enum MenuBarIcon {
         chev.lineCapStyle = .round
         chev.lineJoinStyle = .round
         chev.stroke()
+    }
+
+    static func drawAudioIndicators(_ composition: IconComposition, glyph: NSColor) {
+        if composition.inputMix {
+            draw(symbol: "mic", color: glyph, pointSize: 12, at: microphoneFrame, fraction: 1)
+        }
+        if composition.outputMix {
+            draw(symbol: "speaker.wave.2", color: glyph, pointSize: 12, at: speakerFrame, fraction: 1)
+        }
     }
 
     private static func draw(
