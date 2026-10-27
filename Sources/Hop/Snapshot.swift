@@ -763,6 +763,7 @@ enum Snapshot {
             // instead of calling fetchFiles, so no engine/network is touched.
             content = AnyView(TorrentAddSheet(source: .link("magnet:?xt=urn:btih:demo"), torrent: model.torrent) {})
         } else if args.contains("--onboarding") {
+            UserDefaults.standard.set(1, forKey: "onboardingSequenceVersion")
             // First-launch form (module choices incl. torrents) for design review.
             // `--onboarding-step N` renders one screen of the wizard: the step is
             // stored, so setting it before the view is built is all it takes.

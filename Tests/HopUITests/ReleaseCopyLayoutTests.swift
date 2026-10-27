@@ -6,7 +6,7 @@ import XCTest
 @MainActor
 final class ReleaseCopyLayoutTests: XCTestCase {
     func testUpcomingReleaseCopyRenderedLines() {
-        let keys: [L10nKey] = [.news24Mixer, .news24AI, .news24Icon, .news24Torrents, .news24Windows]
+        let keys: [L10nKey] = [.news24Mixer, .news24AI, .news24Icon, .news24Torrents, .news24Windows, .onbSoundTitle, .onbSoundBody]
         for lang in AppLanguage.allCases {
             let short = L10n.shortWords(lang).union(lang == .en ? ["an", "the", "of", "to", "in", "on", "for", "with", "from", "without", "through", "and", "or"] : [])
             for (size, widths) in [(CGFloat(10), [CGFloat(304)]), (12, [432, 620])] {

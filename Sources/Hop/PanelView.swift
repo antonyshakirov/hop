@@ -584,6 +584,25 @@ struct PanelView: View {
                     }
                 }
                 .padding(.top, 8)
+                if card.id == "2.4" {
+                    HStack(spacing: 8) {
+                        Text("\(t(.soundLabel)) · \(t(moduleIsActive("sound") ? .soundEnabled : .soundDisabled))")
+                            .font(Theme.mono(10))
+                            .foregroundStyle(Theme.textSecondary)
+                        Theme.MiniSwitch(isOn: Binding(
+                            get: { moduleIsActive("sound") },
+                            set: { on in
+                                model.stopSoundMixers()
+                                setModuleHidden("sound", !on)
+                            }))
+                            .accessibilityLabel(t(.soundLabel))
+                        Spacer(minLength: 0)
+                        if moduleIsActive("sound") {
+                            quietCardButton(t(.soundOpen)) { model.openSoundWindow?() }
+                        }
+                    }
+                    .padding(.top, 10)
+                }
                 HStack(spacing: 14) {
                     Spacer(minLength: 0)
                     Button {

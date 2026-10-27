@@ -36,6 +36,21 @@ enum OnboardStep: Equatable {
     static func index(of step: OnboardStep) -> Int {
         ordered.firstIndex(of: step) ?? 0
     }
+
+    /// Before the sound screen was inserted, network followed Mac at index 8.
+    /// Keep a partially completed wizard on the screen the person left.
+    static func migratedIndex(_ index: Int, from version: Int) -> Int {
+        guard version == 0 else { return ordered.indices.contains(index) ? index : 0 }
+        guard (0..<13).contains(index) else { return 0 }
+        return index > 7 ? index + 1 : index
+    }
+
+    static func migrateStoredProgress(in defaults: UserDefaults) {
+        guard defaults.integer(forKey: "onboardingSequenceVersion") == 0 else { return }
+        let previous = defaults.integer(forKey: SettingsKey.onboardingStep)
+        defaults.set(migratedIndex(previous, from: 0), forKey: SettingsKey.onboardingStep)
+        defaults.set(1, forKey: "onboardingSequenceVersion")
+    }
 }
 
 /// SPEC: docs/spec.md — "Onboarding".

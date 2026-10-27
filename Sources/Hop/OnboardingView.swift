@@ -25,6 +25,7 @@ struct OnboardingView: View {
     @AppStorage(SettingsKey.appLanguage) private var languageRaw = "auto"
     @AppStorage(Theme.themeKey) private var themeRaw = "auto"
     @AppStorage(SettingsKey.onboardingStep) private var stepIndex = 0
+    @AppStorage("onboardingSequenceVersion") private var sequenceVersion = 0
     /// A grid of apps is not a module until one exists, so the answer is kept
     /// here and acted on at the end.
     @AppStorage(SettingsKey.onboardingWantsApps) private var wantsApps = true
@@ -72,7 +73,8 @@ struct OnboardingView: View {
         moduleRevision += 1
     }
 
-    private var step: OnboardStep { OnboardStep.stored(stepIndex) }
+    private var resolvedStepIndex: Int { OnboardStep.migratedIndex(stepIndex, from: sequenceVersion) }
+    private var step: OnboardStep { OnboardStep.stored(resolvedStepIndex) }
     @State private var shareAnchor = ShareAnchor()
     private var lang: AppLanguage { L10n.resolve(languageRaw) }
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
@@ -93,7 +95,10 @@ struct OnboardingView: View {
             footer
         }
         .frame(minWidth: 880, maxWidth: .infinity, minHeight: 700, maxHeight: .infinity)
-        .onAppear { seedEverythingOn() }
+        .onAppear {
+            OnboardStep.migrateStoredProgress(in: .standard)
+            seedEverythingOn()
+        }
         .background {
             Theme.panelBackground
             OnboardingBackdrop(focus: step == .welcome
@@ -356,7 +361,7 @@ struct OnboardingView: View {
     private func previewBody(_ key: String?) -> some View {
         switch key {
         case "sound":
-            SoundWindowView(sound: previewModel.sound).environmentObject(previewModel)
+            SoundOnboardingArt(lang: lang)
         case "convert":
             ConvertWindowView(preview: true).environmentObject(previewModel)
         case "archive":
@@ -494,8 +499,8 @@ struct OnboardingView: View {
             HStack(spacing: 5) {
                 ForEach(Array(OnboardStep.ordered.enumerated()), id: \.offset) { index, _ in
                     Capsule()
-                        .fill(index == stepIndex ? Theme.textPrimary : Theme.divider)
-                        .frame(width: index == stepIndex ? 14 : 5, height: 4)
+                        .fill(index == resolvedStepIndex ? Theme.textPrimary : Theme.divider)
+                        .frame(width: index == resolvedStepIndex ? 14 : 5, height: 4)
                 }
             }
             Spacer()
@@ -561,6 +566,7 @@ struct OnboardingView: View {
     }
 
     private func moduleTitle(_ key: String) -> String {
+        if key == "sound" { return t(.onbSoundTitle) }
         if key == Self.appsChoice { return t(.appsLabel) }
         return ModulePresentation.titleKey(key).map { t($0) } ?? key
     }
@@ -581,6 +587,7 @@ struct OnboardingView: View {
 
     /// SPEC: docs/spec.md — "Onboarding", the module description.
     private func moduleBlurb(_ key: String) -> String {
+        if key == "sound" { return t(.onbSoundBody) }
         let short = purposeKey(key).map { t($0) } ?? ""
         guard let doc = ModulePresentation.howKeys(key == Self.appsChoice ? "apps" : key).first
         else { return short }

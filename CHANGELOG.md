@@ -11,6 +11,10 @@
   the selected device; short microphone checks stay in memory until the window closes.
 - Sound: percentage editing starts on click and ends when focus leaves the field;
   the number and percent sign share the same colour.
+- Sound: separate microphone and speaker indicators in the menu bar, with no
+  empty space when either mixer is off. Indicators can be hidden in settings.
+- Onboarding: Sound has its own illustrated screen. The 2.4 news card can show
+  or hide the module without starting either mixer.
 - AI: timers, stopwatch, to-dos and time tracking with confirmation of the exact
   action; results are saved.
 - Settings: keep only the Hop icon in the menu bar, without corner indicators

@@ -7620,3 +7620,23 @@ Input mixer source availability (27 Oct): microphone and application rows share 
 
 
 Mixer menu indicators — approved v8 integration (27 Oct): the owner accepted the compact right-hand pair after live review rejected the small flanking glyphs. Use neutral SF Symbols mic and speaker.wave.2, semibold weight, 10pt boxes: microphone first, speaker second, both on the right of Hop. Preserve the accepted v8 spacing from docs/design/mixer-menu-v8: microphone frame x21, speaker frame x29, 0.5pt frame gap, with the existing22×17 artwork at its original origin. Owner correction after the v8 live screenshot: image width follows visible content, 22pt without mixers, 30pt for microphone only, 33pt for speaker only, 41pt for both. Do not reserve empty audio slots. A lone speaker occupies the first slot. All states share one NSStatusBarButton/action/hover area. Anchor the popover to the fixed22pt Hop artwork within that image, so the arrow follows Hop while the visible group grows or shrinks. Show each symbol only while its corresponding mixer is running, including output at default per-app levels. Starting/failed/stopped states do not claim active audio. Existing soundMenuBarMark hides both symbols; global menuBarIconOnly hides all decorations without changing mixer state. Preserve other badges and the Dev identity mark; verify dial, keyboard, bell, dark/light and mono overlap. Integration checks require no microphone capture. The v5/v6 flanking arrangement above is historical and superseded by this decision.
+# Sound discovery in 2.4 — runtime integration, 27 October 2026
+
+The onboarding catalog gives Sound its own screen immediately after the Mac
+screen. System monitor, keep-awake and keyboard lock retain their existing
+individual pictures. Sound uses one `SoundOnboardingArt` with separate app
+outputs and the microphone/music → Hop Mix path, one localized heading and one
+short description. The illustration has no audio controller, microphone access
+or permission request. Enabling a module in the wizard only adds its panel row.
+
+`onboardingSequenceVersion = 1` identifies the expanded sequence. On first use,
+legacy indices 0...7 remain unchanged; indices 8...12 shift by one, keeping
+network, desktop, layout, permissions and completion on the same screen. Invalid
+indices return to welcome. Snapshot exports write the current sequence version
+before selecting their requested screen.
+
+The 2.4 release card keeps all existing news and seen/dismissal semantics. Its
+Sound switch reflects the actual module visibility, using the same module
+activation path as settings. Switching off stops input/output via the existing
+activation observers; switching on does not start either mixer. Opening Sound
+settings is a separate button. Dismissing the card does not change Sound.

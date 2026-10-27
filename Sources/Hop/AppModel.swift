@@ -108,6 +108,13 @@ final class AppModel: ObservableObject {
     /// Open the standalone settings window.
     var openSettingsWindow: (() -> Void)?
     var openSoundWindow: (() -> Void)?
+
+    /// Removing and re-adding the module must not revive a previous capture.
+    func stopSoundMixers() {
+        soundCallMix.close()
+        sound.close()
+        soundMixer.stop()
+    }
     @Published var soundPageRequest: SoundDirection?
     /// Open the standalone converter window.
     var openConverterWindow: (() -> Void)?
