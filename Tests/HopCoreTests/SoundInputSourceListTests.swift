@@ -36,4 +36,12 @@ final class SoundInputSourceListTests: XCTestCase {
         XCTAssertEqual(SoundInputSourceListPreferences.load(Data("invalid".utf8)), .init())
         XCTAssertEqual(SoundInputSourceListPreferences.load(Data("{\"schema\":99}".utf8)), .init())
     }
+    func testIdentifierFallbackNeverOverwritesRememberedDisplayName() {
+        let source = SoundInputSourceID.device("fixture-uid")
+        var list = SoundInputSourceListPreferences()
+        list.remember("Phone Microphone", source: source)
+        list.remember(source.value, source: source)
+        XCTAssertEqual(list.names[source], "Phone Microphone")
+    }
+
 }

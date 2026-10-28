@@ -37,7 +37,7 @@ public struct SoundInputSourceListPreferences: Codable, Equatable, Sendable {
         return value
     }
     public mutating func remember(_ name: String, source: SoundInputSourceID) {
-        guard source.allowed, !name.isEmpty, name.count <= 512 else { return }
+        guard source.allowed, !name.isEmpty, name.count <= 512, name != source.value else { return }
         names[source] = name
     }
     public mutating func setPinned(_ value: Bool, source: SoundInputSourceID) {

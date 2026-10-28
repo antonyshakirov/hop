@@ -99,4 +99,63 @@ final class SoundInputSourceListControllerTests: XCTestCase {
         XCTAssertEqual(SoundInputSourceList(call: call, devices: [.init(uid: "mic", name: "Mic")], applications: []).primary.map(\.id), [id])
         XCTAssertEqual(session.starts, 0); XCTAssertEqual(session.updates, 0)
     }
+    func testConfiguredSourceNamesSurviveDisconnectAndRestartWithoutRetainingUnusedInventory() throws {
+        let suite = "Hop.InputNames.Tests." + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let session = Session()
+        let call = SoundCallMixController(enabled: true, session: session,
+            access: { _ in XCTFail("Remembering source names never captures") }, defaults: defaults)
+        let phone = "fixture-phone-uid"
+        let app = "fixture.music.client"
+        call.inputsChanged(defaultUID: "builtin", devices: [.init(uid: phone, name: "Phone Microphone"), .init(uid: "unused", name: "Unused")])
+        call.sourcesChanged([.init(id: app, name: "Music", input: true, settings: .init()),
+                             .init(id: "unused.app", name: "Unused App", input: true, settings: .init())])
+        call.editMicrophone(uid: phone) { $0.active = true }
+        call.editApplication(app) { $0.active = true }
+        call.editMicrophone(uid: phone) { $0.active = false }
+        call.editApplication(app) { $0.active = false }
+        call.inputsChanged(defaultUID: nil, devices: [])
+        call.sourcesChanged([])
+        let restored = SoundCallMixController(enabled: true, session: session, defaults: defaults)
+        let list = SoundInputSourceList(call: restored, devices: [], applications: [])
+        XCTAssertEqual(list.other.first { $0.id == .device(phone) }?.name, "Phone Microphone")
+        XCTAssertEqual(list.other.first { $0.id == .application(app) }?.name, "Music")
+        XCTAssertEqual(list.other.count, 2)
+        let rawInventory = SoundInputSourceList(call: restored, devices: [.init(uid: phone, name: phone)], applications: [(app, app, true)])
+        XCTAssertEqual(rawInventory.primary.first { $0.id == .device(phone) }?.name, "Phone Microphone")
+        XCTAssertEqual(rawInventory.other.first { $0.id == .application(app) }?.name, "Music")
+        XCTAssertEqual(session.starts, 0); XCTAssertEqual(session.updates, 0)
+        restored.inputsChanged(defaultUID: nil, devices: [.init(uid: phone, name: "Renamed Phone")])
+        restored.sourcesChanged([.init(id: app, name: "Renamed Music", input: true, settings: .init())])
+        restored.inputsChanged(defaultUID: nil, devices: [])
+        restored.sourcesChanged([])
+        let updated = SoundCallMixController(enabled: true, session: session, defaults: defaults)
+        let updatedList = SoundInputSourceList(call: updated, devices: [], applications: [])
+        XCTAssertEqual(updatedList.other.first { $0.id == .device(phone) }?.name, "Renamed Phone")
+        XCTAssertEqual(updatedList.other.first { $0.id == .application(app) }?.name, "Renamed Music")
+    }
+    func testUnknownDeviceTitleNeverShowsItsUID() {
+        let id = SoundInputSourceID.device("514CCD59-49A9-4DE4-B70C-ED4A00000003")
+        let source = SoundInputListSource(id: id, name: id.value, available: false)
+        XCTAssertEqual(source.displayName(.en), L10n.t(.soundMicrophone, .en))
+        XCTAssertEqual(source.displayName(.ru), L10n.t(.soundMicrophone, .ru))
+    }
+
+    func testLegacyUnnamedPinnedSourceRemainsManageableAndFallbackFitsAllLanguages() {
+        let call = SoundCallMixController(enabled: true, session: Session(), access: { _ in XCTFail("No capture") })
+        let id = SoundInputSourceID.device("legacy-uid")
+        call.setSourcePinned(true, source: id, name: id.value)
+        let source = SoundInputSourceList(call: call, devices: [], applications: []).primary.first
+        XCTAssertEqual(source?.id, id)
+        for lang in AppLanguage.allCases {
+            let title = source?.displayName(lang) ?? ""
+            XCTAssertFalse(title.isEmpty)
+            let font = lang.isRTL ? NSFont.systemFont(ofSize: 11, weight: .medium) : NSFont.monospacedSystemFont(ofSize: 11, weight: .medium)
+            let measured = NSAttributedString(string: title, attributes: [.font: font]).boundingRect(
+                with: .init(width: 145, height: 1000), options: [.usesLineFragmentOrigin, .usesFontLeading])
+            XCTAssertLessThan(measured.height, 22, lang.rawValue)
+        }
+    }
+
 }

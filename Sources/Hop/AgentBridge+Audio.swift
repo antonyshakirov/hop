@@ -145,7 +145,7 @@ extension AgentBridge {
         let sourceList = SoundInputSourceList(call: call, devices: inventory.inputs,
             applications: applications.map { ($0.id, $0.name, $0.sourceRunning) })
         func listState(_ sources: [SoundInputListSource], group: String) -> [[String: Any]] {
-            sources.map { ["source": $0.id.kind, "sourceID": $0.id.value, "name": $0.name, "available": $0.available,
+            sources.map { ["source": $0.id.kind, "sourceID": $0.id.value, "name": $0.displayName(.en), "available": $0.available,
                 "virtual": $0.isVirtual, "selected": call.sourceSelected($0.id), "pinned": call.sourceList.pinned.contains($0.id),
                 "hidden": group == "hidden", "group": group] }
         }

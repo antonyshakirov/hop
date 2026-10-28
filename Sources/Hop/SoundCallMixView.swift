@@ -91,7 +91,7 @@ struct SoundCallMixView: View {
         let detail: String? = included ? L10n.t(.soundInputIncluded, lang)
             : !source.available ? L10n.t(.soundNoDevice, lang)
             : source.isVirtual ? L10n.t(.soundVirtualDevice, lang) : nil
-        return SoundInputSourceRow(name: source.name, detail: detail, settings: settings, enabled: controlsActive,
+        return SoundInputSourceRow(name: source.displayName(lang), detail: detail, settings: settings, enabled: controlsActive,
             available: source.available, included: included, pinned: call.sourceList.pinned.contains(source.id), lang: lang,
             edit: { change in
                 switch source.id {
@@ -108,8 +108,8 @@ struct SoundCallMixView: View {
                 Divider()
                 ForEach(sources) { source in
                     HStack(spacing: 8) {
-                        Text(source.name).font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
-                            .lineLimit(2).help(source.name)
+                        Text(source.displayName(lang)).font(Theme.mono(11)).foregroundStyle(Theme.textPrimary)
+                            .lineLimit(2).help(source.displayName(lang))
                         Spacer(minLength: 0)
                         SettingChip(active: false, action: {
                             _ = call.setSourceHidden(false, source: source.id, name: source.name)
