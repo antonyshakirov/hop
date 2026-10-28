@@ -24,6 +24,7 @@
 - Torrents: choose to remove the list entry, also trash its original .torrent
   file, or delete everything including downloaded files.
 - Closing Hop's windows through the Dock leaves the menu-bar app running.
+- System monitor: restore battery health on macOS 27.
 
 ## 2.3.2 - 2026-10-02
 

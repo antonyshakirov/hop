@@ -1182,10 +1182,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   DECIMAL units (1 MB/s = 10^6 — same as the torrent rows and converter).
   CPU load = (user+system+nice)/total ticks, the same figure as top's
   user+sys; GPU = IOAccelerator "Device Utilization %".
-- Battery health = NominalChargeCapacity / DesignCapacity, capped at 100 —
-  the same calibrated figure System Settings shows. The raw
-  AppleRawMaxCapacity (fallback only) drifts with temperature/charge and
-  showed 95–97% on brand-new machines next to the system's 100%.
+- Battery health = NominalChargeCapacity / DesignCapacity, capped at 100.
+  Read both top-level AppleSmartBattery properties and nested BatteryData
+  properties (required on macOS 27). Prefer calibrated nominal capacity,
+  then AppleRawMaxCapacity, then FullChargeCapacity. Ignore missing,
+  non-integer or nonpositive capacities; do not use the current charge
+  percentage as health. The estimate can differ from System Settings,
+  which may smooth or cache its displayed health.
 - Value highlighting: white/green — normal, yellow — borderline, red —
   problem. Thresholds are configurable for load, disk and battery (battery
   semantics are inverted — below the threshold is worse). °C/°F:

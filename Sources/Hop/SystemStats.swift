@@ -417,10 +417,7 @@ final class SystemStatsController: ObservableObject {
         // shows; AppleRawMaxCapacity is the instantaneous electrical estimate
         // that drifts with temperature/charge (95→97 on a new machine) and
         // read as a hop bug next to the system's 100%
-        if let design = d["DesignCapacity"] as? Int, design > 0,
-           let capacity = (d["NominalChargeCapacity"] as? Int) ?? (d["AppleRawMaxCapacity"] as? Int) {
-            info.healthPercent = min(100, Int((Double(capacity) / Double(design) * 100).rounded()))
-        }
+        info.healthPercent = BatteryHealth.percent(properties: d)
         if let amperage = d["Amperage"] as? Int, let voltage = d["Voltage"] as? Int {
             // Sign/overflow correction lives in PowerMath (unit-tested): some
             // batteries report a discharge current as a 32-bit value widened into

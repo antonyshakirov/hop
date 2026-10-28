@@ -1,0 +1,23 @@
+{
+  "reportedIssue": "Battery health missing after macOS 27 upgrade",
+  "reproduction": "Top-level capacities missing; calibrated values available inside BatteryData",
+  "liveResult": {
+    "audioCapture": false,
+    "healthPercent": 96,
+    "legacyDesignPresent": false,
+    "legacyNominalPresent": false,
+    "macOS": "Version 27.0.1 (Build 26A434)",
+    "nestedDesignCapacity": 4629,
+    "nestedNominalChargeCapacity": 4463
+  },
+  "regression": {
+    "red": "Nested capacities returned nil instead of 96; seven failed assertions in seven tests",
+    "green": "19 battery health, power and low-battery tests passed; zero failures"
+  },
+  "logs": {
+    "battery-health-red.log": "0e5f45e8152b7898ec1f621d386dc8bfd7c584fd0c66809a1530838e56956d2b",
+    "battery-health-green.log": "23723a4703878b8695beae67ec6f8f79d3d76efb5e260559540743e9b88cfdc1"
+  },
+  "soundOrMicrophoneTests": false,
+  "releaseGate": "pending final-source canonical run"
+}
