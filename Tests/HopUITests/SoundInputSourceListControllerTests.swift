@@ -20,7 +20,7 @@ final class SoundInputSourceListControllerTests: XCTestCase {
         defer { Snapshot.active = previous }
         let call = SoundCallMixController(enabled: true, session: Session(), access: { _ in XCTFail("Layout never captures") })
         let model = AppModel(preview: true, callController: call)
-        model.sound.stageDemo("source-list-many")
+        model.sound.stageDemo("source-list")
         model.soundMixer.stageDemo()
         call.stageDemo(model.soundMixer.apps)
         func view(_ expanded: Bool) -> SoundCallMixView {
@@ -29,10 +29,15 @@ final class SoundInputSourceListControllerTests: XCTestCase {
         func size<V: View>(_ view: V) -> NSSize { NSHostingView(rootView: view).fittingSize }
         let compact = size(view(false).frame(width: 440)).height
         let expanded = size(view(true).frame(width: 440)).height
-        XCTAssertLessThan(compact, 300)
-        XCTAssertGreaterThan(expanded, compact + 600)
+        XCTAssertLessThan(compact, 360)
+        XCTAssertGreaterThan(expanded, compact + 60)
+        call.stop()
+        model.sound.stageDemo("source-list-many")
+        call.stageDemo(model.soundMixer.apps)
+        let manyDevices = size(view(false).frame(width: 440)).height
+        XCTAssertGreaterThan(manyDevices, compact + 600)
         let frame = SoundWindowLayout.frame(current: .init(x: 0, y: 0, width: 520, height: 500),
-            contentHeight: expanded + 250, chromeHeight: 28, visible: .init(x: 0, y: 0, width: 1000, height: 700), centered: false)
+            contentHeight: manyDevices + 250, chromeHeight: 28, visible: .init(x: 0, y: 0, width: 1000, height: 700), centered: false)
         XCTAssertLessThanOrEqual(frame.height, 668)
         let source = SoundInputListSource(id: .device("hidden"), name: "Hidden microphone", available: false)
         XCTAssertLessThan(size(view(false).hiddenSources([source])).height, 170)
@@ -62,6 +67,25 @@ final class SoundInputSourceListControllerTests: XCTestCase {
         XCTAssertEqual(next.microphoneSettings(uid: "fixture").gain, 0.37)
         XCTAssertTrue(next.microphoneSettings(uid: "fixture").muted)
         XCTAssertEqual(defaults.data(forKey: SoundCallMixController.preferencesKey), audio)
+        XCTAssertEqual(session.starts, 0); XCTAssertEqual(session.updates, 0)
+    }
+    func testConnectedPhysicalMicrophonesAreVisibleWithoutExpandingOtherSources() {
+        let session = Session()
+        let call = SoundCallMixController(enabled: true, session: session, access: { _ in XCTFail("Discovery never captures") })
+        let devices: [SoundDevice] = [.init(uid: "builtin", name: "Built-in"),
+            .init(uid: "headset", name: "Headset"), .init(uid: "virtual", name: "Virtual", isVirtual: true)]
+        let app: SoundInputSourceID = .application("fixture.app")
+        call.setSourcePinned(true, source: app, name: "App")
+        func list() -> SoundInputSourceList {
+            .init(call: call, devices: devices, applications: [("fixture.app", "App", true), ("unused.app", "Unused", true)])
+        }
+        XCTAssertEqual(list().primary.map(\.id), [app, .device("builtin"), .device("headset")])
+        XCTAssertEqual(list().other.map(\.id), [.device("virtual"), .application("unused.app")])
+        XCTAssertTrue(call.setSourceHidden(true, source: .device("headset"), name: "Headset"))
+        XCTAssertEqual(list().primary.map(\.id), [app, .device("builtin")])
+        XCTAssertEqual(list().hidden.map(\.id), [.device("headset")])
+        call.editMicrophone(uid: "virtual") { $0.active = true }
+        XCTAssertEqual(list().primary.map(\.id), [app, .device("virtual"), .device("builtin")])
         XCTAssertEqual(session.starts, 0); XCTAssertEqual(session.updates, 0)
     }
     func testSelectedSourceCannotBeHiddenAndSelectingAHiddenSourceRevealsItWhileStopped() {

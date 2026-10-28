@@ -7671,3 +7671,13 @@ Sound switch reflects the actual module visibility, using the same module
 activation path as settings. Switching off stops input/output via the existing
 activation observers; switching on does not start either mixer. Opening Sound
 settings is a separate button. Dismissing the card does not change Sound.
+
+# Input source visibility and compact choices — 28 October 2026
+
+System Default remains separate. Pinned and selected sources come first, followed
+by connected nonvirtual physical microphones. Other Sources starts collapsed and
+contains unused apps, unselected virtual devices and saved disconnected sources.
+Manual hiding takes precedence; disclosure and restoration never activate audio.
+The disclosure label and count brighten on hover without a background fill.
+Source rows use an 8pt gap. Main device selectors and per-app destinations share
+the same compact padded choice row, with content-fit height and capped scrolling.

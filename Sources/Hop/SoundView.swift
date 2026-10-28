@@ -110,31 +110,23 @@ private struct SoundDeviceMenu: View {
             .help(L10n.t(.soundDefaultHint, lang))
             .popover(isPresented: $presented, arrowEdge: .bottom) {
                 SoundDeviceChoices {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 0) {
                         choice(L10n.t(.soundSystemDefault, lang), uid: "", selected: follows)
-                        Divider().padding(.vertical, 4)
+                        Divider().padding(.vertical, 3)
                         ForEach(devices) { device in
                             choice(device.name, uid: device.uid, selected: !follows && device.uid == current?.uid)
                         }
-                    }.padding(8)
+                    }.padding(6)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
     }
 
     private func choice(_ title: String, uid: String, selected: Bool) -> some View {
-        Button {
+        SoundDeviceChoiceRow(title: title, selected: selected) {
             sound.select(uid, direction: direction)
             presented = false
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: selected ? "checkmark" : "circle")
-                    .foregroundStyle(selected ? Theme.textPrimary : Theme.textTertiary)
-                Text(title).foregroundStyle(Theme.textPrimary).lineLimit(2)
-                Spacer(minLength: 0)
-            }.font(Theme.mono(11)).padding(8).frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
-        }.buttonStyle(.plain).hoverHighlight(5)
+        }
     }
 }
 

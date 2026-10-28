@@ -17,3 +17,21 @@ struct SoundDeviceChoices<Content: View>: View {
         .hopLayoutDirection()
     }
 }
+
+struct SoundDeviceChoiceRow: View {
+    let title: String
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: selected ? "checkmark" : "circle")
+                    .foregroundStyle(selected ? Theme.textPrimary : Theme.textTertiary)
+                Text(title).foregroundStyle(Theme.textPrimary).lineLimit(2)
+                Spacer(minLength: 0)
+            }.font(Theme.mono(11)).padding(.horizontal, 8).padding(.vertical, 4)
+                .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+        }.buttonStyle(.plain).hoverHighlight(5)
+    }
+}

@@ -41,3 +41,6 @@ implementation; this file does not declare that they currently pass.
 | IN-18 | Disconnect a hidden source and restore it | Saved name remains available inside Other Sources; restoring does not select it |
 | IN-19 | Try to hide a selected source, or select a hidden source through AI | Hide rejects; selection reveals the source; System Default cannot be hidden |
 | AI-11 | Confirmed pin/hide commands, strict booleans/fields and system-source rejection | UI/state/persistence agree; no permission request or hardware write |
+
+| IN-20 | Open the stopped mixer with physical, virtual, app and hidden sources | Connected physical microphones are visible after pinned/selected sources; other inactive sources collapse; manual hiding is respected; no capture or preset change |
+| UI-04 | Hover Other Sources; open main and per-app device selectors | Disclosure text brightens without a full-width fill; both selectors use compact padded rows; long lists still scroll |

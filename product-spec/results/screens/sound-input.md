@@ -21,6 +21,12 @@ and does not enable it. There is no separate hidden-sources footer: restore is
 inside the expanded Other Sources menu. Virtual labels use CoreAudio transport
 metadata. The existing content-fit/scroll boundary still applies to long lists.
 
+Later owner feedback on 28 October makes connected nonvirtual physical microphones
+visible after pinned and selected sources. Other Sources contains unselected virtual
+devices, unused apps and saved disconnected entries. Manual hiding still takes
+precedence. Its hover brightens the label without a background reaching the row
+edges. Source spacing and both device selectors use compact rows.
+
 ## User scenario
 
 The user opens Sound → Input. The source list always contains System Default,

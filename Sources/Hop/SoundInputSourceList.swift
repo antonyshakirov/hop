@@ -26,8 +26,13 @@ struct SoundInputSourceList {
         }
         let groups = call.sourceList.groups(sources.map(\.id), selected: Set(sources.filter { call.sourceSelected($0.id) }.map(\.id)))
         let byID = Dictionary(sources.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
-        primary = groups.primary.compactMap { byID[$0] }
-        other = groups.other.compactMap { byID[$0] }
+        let physical = groups.other.filter { id in
+            guard case .device = id, let source = byID[id] else { return false }
+            return source.available && !source.isVirtual
+        }
+        let visible = Set(physical)
+        primary = (groups.primary + physical).compactMap { byID[$0] }
+        other = groups.other.filter { !visible.contains($0) }.compactMap { byID[$0] }
         hidden = groups.hidden.compactMap { byID[$0] }
     }
 }

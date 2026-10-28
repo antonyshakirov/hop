@@ -8,6 +8,7 @@ struct SoundCallMixView: View {
     let lang: AppLanguage
     @State private var otherExpanded = false
     @State private var restoring = false
+    @State private var otherHovering = false
     init(call: SoundCallMixController, sound: SoundController, mixer: SoundMixerController, lang: AppLanguage,
          initiallyExpanded: Bool = false) {
         self.call = call; self.sound = sound; self.mixer = mixer; self.lang = lang
@@ -33,7 +34,7 @@ struct SoundCallMixView: View {
                 Label(L10n.t(.soundMicrophone, lang) + " · " + L10n.t(.soundMuted, lang), systemImage: "mic.slash.fill")
                     .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary)
             }
-            VStack(spacing: 12) {
+            VStack(spacing: 8) {
                 SoundInputSourceRow(name: L10n.t(.soundSystemDefault, lang),
                     detail: physicalInputs.first(where: { $0.uid == sound.inputUID })?.name ?? L10n.t(.soundNoDevice, lang),
                     settings: call.microphone, enabled: controlsActive,
@@ -49,9 +50,11 @@ struct SoundCallMixView: View {
                                 Image(systemName: otherExpanded ? "chevron.down" : "chevron.right").font(.system(size: 9))
                                 Text(L10n.t(.soundOtherSources, lang)).font(Theme.mono(10)).lineLimit(1)
                                 Spacer(minLength: 0)
-                                Text(String(list.other.count)).font(Theme.mono(10)).foregroundStyle(Theme.textTertiary)
-                            }.foregroundStyle(Theme.textSecondary).padding(.vertical, 6).contentShape(Rectangle())
-                        }.buttonStyle(.plain).hoverHighlight(5)
+                                Text(String(list.other.count)).font(Theme.mono(10))
+                                    .foregroundStyle(otherHovering ? Theme.textPrimary : Theme.textTertiary)
+                            }.foregroundStyle(otherHovering ? Theme.textPrimary : Theme.textSecondary)
+                                .padding(.vertical, 6).contentShape(Rectangle())
+                        }.buttonStyle(.plain).onHover { otherHovering = $0 }.handCursor()
                             .accessibilityIdentifier("sound.input.otherSources")
                             .accessibilityValue(otherExpanded ? "1" : "0")
                         if otherExpanded, !list.hidden.isEmpty {

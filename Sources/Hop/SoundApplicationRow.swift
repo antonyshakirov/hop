@@ -103,24 +103,19 @@ struct SoundMixerChannelRow: View {
         SoundDeviceChoices { outputChoiceContent }
     }
     var outputChoiceContent: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 0) {
             choice(L10n.t(.soundSystemDefault, lang), uid: nil)
-            Divider().padding(.vertical, 4)
+            Divider().padding(.vertical, 3)
             ForEach(mixer.outputDevices) { device in choice(device.name, uid: device.uid) }
             if let uid = channel.preference.outputUID, !mixer.outputDevices.contains(where: { $0.uid == uid }) {
                 Text(destination + " · " + L10n.t(.soundAppWaiting, lang))
                     .font(Theme.mono(10)).foregroundStyle(Theme.textTertiary).padding(8)
             }
-        }.padding(8)
+        }.padding(6)
     }
     private func choice(_ name: String, uid: String?) -> some View {
-        Button { mixer.selectOutput(channel, uid: uid); choosingOutput = false } label: {
-            HStack(spacing: 8) {
-                Image(systemName: channel.preference.outputUID == uid ? "checkmark" : "circle")
-                    .foregroundStyle(channel.preference.outputUID == uid ? Theme.textPrimary : Theme.textTertiary)
-                Text(name).foregroundStyle(Theme.textPrimary).lineLimit(2)
-                Spacer(minLength: 0)
-            }.font(Theme.mono(11)).padding(8).frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
-        }.buttonStyle(.plain).hoverHighlight(5)
+        SoundDeviceChoiceRow(title: name, selected: channel.preference.outputUID == uid) {
+            mixer.selectOutput(channel, uid: uid); choosingOutput = false
+        }
     }
 }
