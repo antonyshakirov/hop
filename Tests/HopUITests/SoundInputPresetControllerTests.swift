@@ -10,6 +10,7 @@ final class SoundInputPresetControllerTests: XCTestCase {
         var updates: [SoundCallConfiguration] = []
         var startAck: ((Result<Void, SoundFailure>) -> Void)?
         var updateAcks: [(Result<Void, SoundFailure>) -> Void] = []
+        var stopResult: Result<Void, SoundFailure> = .success(())
         func setMicrophoneMuted(_ value: Bool) -> Bool { false }
         func start(_ value: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) {
             starts.append(value); startAck = completed
@@ -19,9 +20,27 @@ final class SoundInputPresetControllerTests: XCTestCase {
             updates.append(value); updateAcks.append(completed)
         }
         func stop() {}
+        func stop(completed: @escaping (Result<Void, SoundFailure>) -> Void) { completed(stopResult) }
         func shutdown() {}
     }
     private let devices = [SoundDevice(uid: "mac", name: "Mac"), SoundDevice(uid: "pods", name: "AirPods")]
+
+    func testDeviceRemovalFailureIsVisibleAndSuccessfulCleanupClearsItWithoutChangingPreset() {
+        let session = Session()
+        let call = SoundCallMixController(enabled: true, session: session, access: { _ in XCTFail("Cleanup never requests audio") })
+        call.editMicrophone { $0.gain = 0.37; $0.muted = true }
+        session.stopResult = .failure(.inputRemoval)
+        call.stop()
+        XCTAssertEqual(call.failure, .inputRemoval)
+        XCTAssertFalse(call.stopping)
+        XCTAssertFalse(call.running)
+        session.stopResult = .success(())
+        call.stop()
+        XCTAssertNil(call.failure)
+        XCTAssertEqual(call.microphone.gain, 0.37)
+        XCTAssertTrue(call.microphone.muted)
+        XCTAssertTrue(session.starts.isEmpty)
+    }
 
     func testDefaultAndNamedMicrophonesDeduplicateThenFollowDefaultWithIndependentLevels() {
         let session = Session()

@@ -109,13 +109,32 @@ final class SoundProcessTap {
         guard status == noErr else { description.muteBehavior = previous; throw SoundFailure.system(status) }
     }
     func stop() {
-        if let io { AudioDeviceStop(aggregate, io); AudioDeviceDestroyIOProcID(aggregate, io) }
+        try? stopChecked()
+    }
+    private func stopChecked() throws {
+        if let io {
+            let stopped = AudioDeviceStop(aggregate, io)
+            guard stopped == noErr else { throw SoundFailure.system(stopped) }
+            let destroyed = AudioDeviceDestroyIOProcID(aggregate, io)
+            guard destroyed == noErr else { throw SoundFailure.system(destroyed) }
+        }
         io = nil; channel = nil
     }
     func release() {
-        stop()
-        if aggregate != 0 { AudioHardwareDestroyAggregateDevice(aggregate); aggregate = 0 }
-        if tap != 0 { AudioHardwareDestroyProcessTap(tap); tap = 0 }
+        try? releaseChecked()
+    }
+    func releaseChecked() throws {
+        try stopChecked()
+        if aggregate != 0 {
+            let status = AudioHardwareDestroyAggregateDevice(aggregate)
+            guard status == noErr else { throw SoundFailure.system(status) }
+            aggregate = 0
+        }
+        if tap != 0 {
+            let status = AudioHardwareDestroyProcessTap(tap)
+            guard status == noErr else { throw SoundFailure.system(status) }
+            tap = 0
+        }
         if publicInput, let resource = UserDefaults.standard.dictionary(forKey: Self.resourceKey), resource["tap"] as? String == tapUID {
             UserDefaults.standard.removeObject(forKey: Self.resourceKey)
         }

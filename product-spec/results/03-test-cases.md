@@ -44,3 +44,7 @@ implementation; this file does not declare that they currently pass.
 
 | IN-20 | Open the stopped mixer with physical, virtual, app and hidden sources | Connected physical microphones are visible after pinned/selected sources; other inactive sources collapse; manual hiding is respected; no capture or preset change |
 | UI-04 | Hover Other Sources; open main and per-app device selectors | Disclosure text brightens without a full-width fill; both selectors use compact padded rows; long lists still scroll |
+
+| IN-21 | Stop, close, cancel or fail a published input mix | Capture stops and Hop Mix is withdrawn before completion; explicit Start republishes before capture; saved source preferences remain intact; receiving app defaults are not changed |
+
+| IN-22 | HAL refuses input withdrawal | Stop reports failure, resources remain owned for cleanup, producer is reaped and a later explicit retry cleans up before publishing again; presets remain unchanged |

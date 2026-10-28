@@ -3,7 +3,7 @@ import Foundation
 import HopCore
 
 enum SoundFailure: Error, Equatable {
-    case unsupported, missingDevice, system(Int32), permission, inputChanged
+    case unsupported, missingDevice, system(Int32), permission, inputChanged, inputRemoval
 }
 
 @MainActor

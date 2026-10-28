@@ -80,6 +80,21 @@ closing Sound after opening it still stops its input mixer. Closing the main
 popover alone is not the same as closing Sound. No voice file, beep, recording or
 network transfer is added by these changes.
 
+## Stopped virtual device (owner decision, 28 October)
+
+The quick control switches Mix and Off, with no microphone-only bypass. Stop,
+closing Sound, cancellation and failure withdraw the public Hop Mix input after
+capture has stopped or the producer has been reaped. A successful stop receipt
+cannot leave a selectable silent input behind. An idle producer may stay prepared
+without capturing or publishing a microphone; explicit Start republishes its input
+before applying the saved source configuration. Publication failure is not ready.
+If HAL refuses withdrawal, preserve the resource IDs/recovery marker and retirement
+callback, report a device-setting error instead of successful Off, reap the producer,
+and retry cleanup before any later publication.
+
+The receiving app chooses its own fallback when a device disappears. Hop does not
+change its input settings or the macOS default, and cannot promise automatic fallback.
+
 ## Confirmed audio agent contract
 
 Extend protocol 2 only. Capabilities/state expose stable source IDs, current

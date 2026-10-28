@@ -776,12 +776,12 @@ The helper begins with zeros only. The host creates and starts a public muted
 process-tap input before sending a command to activate any microphone or app.
 Hop Mix is selected explicitly in Zoom. Closing the sole Sound window, module
 disable or Stop releases physical mic/app captures, discards short test samples
-and leaves only a zero producer and input endpoint until app termination, avoiding
-an intentional device removal while Zoom is reading. Reopening stays stopped;
+and withdraws its public input endpoint. An idle zero producer may stay prepared
+without an input endpoint; the next explicit Start republishes it before capture. Reopening stays stopped;
 no microphone auto-start at launch. Existing app-volume routing stays running.
 A transport error, invalid event or missing stop ACK reaps the helper before
-reporting failure. Its input endpoint is retained; restarting that failed session
-requires relaunching Hop. Normal quit releases the helper and virtual device; Zoom fallback on quit/crash
+reporting failure and withdraws its input endpoint. An explicit retry creates a
+fresh producer and input. Normal quit releases the helper and virtual device; Zoom fallback on quit/crash
 is not guaranteed safe and must be reported, not advertised as global mic mute.
 
 The standalone signed development prototype may set Info.plist
@@ -7303,8 +7303,8 @@ after microphone permission is confirmed. It retains the microphone source's gai
 and mute; it does not unmute hardware, change system gain or choose an OS/receiver
 default. With no input device, app-only mixing remains available. App sources
 require selection; source checkboxes, gain and mute are available only while
-enabled, with live source selection. Stop clears selected sources. The next
-explicit Start includes the then-selected microphone again. Opening/reopening
+enabled, with live source selection. Stop retains saved source choices. The next
+explicit Start applies the current saved configuration. Opening/reopening
 the window alone never captures. Permission denial never starts the worker;
 closing/stopping or changing input during the request cancels a late response. Its status reserves space
 for starting/on/off text so these transitions do not change section height.
@@ -7313,8 +7313,8 @@ the producer engine restarts successfully. A failed restart silences capture
 and retires that producer generation; queued notifications after stop or from
 an older generation cannot restart it. HopMix diagnostic logs contain only
 startup phases, command intent, converted PCM rate/channel count and error domain/code, without samples or device/application names.
-A failed producer is reaped before failure is reported. A later explicit Enable
-retires its old virtual input and creates a fresh producer; there is no automatic
+A failed producer is reaped and its virtual input withdrawn before failure is
+reported. A later explicit Enable creates a fresh producer and input; there is no automatic
 capture retry or requirement to restart Hop. Cancelling an unacknowledged Start
 reaps the producer immediately, even while device initialization is blocked.
 Queued data, exit events and deadlines from a retired producer generation cannot

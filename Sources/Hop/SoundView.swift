@@ -290,7 +290,7 @@ struct SoundWindowView: View {
         case .unsupported: return t(.soundMuteUnavailable)
         case .missingDevice: return t(.soundNoDevice)
         case .inputChanged: return t(.soundInputChanged)
-        case .system: return t(.soundFailed)
+        case .system, .inputRemoval: return t(.soundFailed)
         }
     }
 

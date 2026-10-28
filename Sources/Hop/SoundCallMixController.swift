@@ -228,6 +228,8 @@ final class SoundCallMixController: ObservableObject {
             if let self, self.generation == token {
                 self.stopping = false; self.accessoryMuted = false
                 self.effectiveInputUIDs = []; self.effectiveApplicationIDs = []
+                if case .failure(let error) = result { self.failure = error }
+                else if self.failure == .inputRemoval { self.failure = nil }
             }
             completed(result)
         }
@@ -327,9 +329,9 @@ final class NativeSoundCallSession: SoundCallSession {
     private var process: Process?
     private var input: FileHandle?
     private var output: FileHandle?
-    private var stopExport: (() -> Void)?
+    private var stopExport: (() throws -> Void)?
     private let makeProducer: () -> Process
-    private let publishInput: (pid_t) throws -> (() -> Void)
+    private let publishInput: (pid_t) throws -> (() throws -> Void)
     private let installAccessory: () throws -> Void
     private var pending: SoundCallConfiguration?
     private var completed: ((Result<Void, SoundFailure>) -> Void)?
@@ -347,7 +349,7 @@ final class NativeSoundCallSession: SoundCallSession {
     private var acknowledgement: Task<Void, Never>?
 
     init(makeProducer: (() -> Process)? = nil,
-         publishInput: ((pid_t) throws -> (() -> Void))? = nil,
+         publishInput: ((pid_t) throws -> (() throws -> Void))? = nil,
          installAccessory: (() throws -> Void)? = nil) {
         self.makeProducer = makeProducer ?? {
             let process = Process()
@@ -357,7 +359,7 @@ final class NativeSoundCallSession: SoundCallSession {
         self.publishInput = publishInput ?? { pid in
             guard let source = SoundHAL.process(pid) else { throw SoundFailure.missingDevice }
             let export = try SoundProcessTap(processes: [source], name: SoundCallMixController.deviceName, publicInput: true)
-            return { export.stop() }
+            return { try export.releaseChecked() }
         }
         self.installAccessory = installAccessory ?? { try SoundAccessoryMute.shared.install() }
     }
@@ -369,7 +371,7 @@ final class NativeSoundCallSession: SoundCallSession {
             // An explicit retry starts from a fully reaped producer. Its old
             // public input must not keep pointing at the retired process.
             stopProducer()
-            stopExport?(); stopExport = nil
+            if case .failure(let error) = retireInput() { completed(.failure(error)); return }
             unavailable = false
             Self.log.notice("retry-after-failure")
         }
@@ -378,7 +380,10 @@ final class NativeSoundCallSession: SoundCallSession {
             completed(.failure(.system(-1))); return
         }
         pending = configuration; self.completed = completed; awaitingStart = true
-        if ready { send(configuration); return }
+        if ready {
+            guard publishInputIfNeeded() else { return }
+            send(configuration); return
+        }
         if process != nil { fail("producer-already-starting"); return }
         let process = makeProducer()
         guard let url = process.executableURL, FileManager.default.isExecutableFile(atPath: url.path) else { fail("missing-producer"); return }
@@ -412,7 +417,7 @@ final class NativeSoundCallSession: SoundCallSession {
     }
     func update(_ configuration: SoundCallConfiguration) { update(configuration, completed: { _ in }) }
     func update(_ configuration: SoundCallConfiguration, completed: @escaping (Result<Void, SoundFailure>) -> Void) {
-        guard !unavailable, !awaitingStop, ready || awaitingStart else { completed(.failure(.system(-1))); return }
+        guard !unavailable, !awaitingStop, (ready && stopExport != nil) || awaitingStart else { completed(.failure(.system(-1))); return }
         let previous = updateCompleted
         updateCompleted = completed
         previous?(.failure(.system(-1)))
@@ -442,13 +447,21 @@ final class NativeSoundCallSession: SoundCallSession {
         }
     }
     private func finishStops() {
+        let result = retireInput()
+        if case .failure = result { stopProducer(); unavailable = true }
         awaitingStop = false
         let callbacks = stopCallbacks; stopCallbacks = []
-        callbacks.forEach { $0(.success(())) }
+        callbacks.forEach { $0(result) }
     }
     func shutdown() {
         stop(); stopProducer(); finishStops()
-        stopExport?(); stopExport = nil
+    }
+    private func retireInput() -> Result<Void, SoundFailure> {
+        guard let retire = stopExport else { return .success(()) }
+        do {
+            try retire(); stopExport = nil
+            return .success(())
+        } catch { logError("virtual-input-removal", error); return .failure(.inputRemoval) }
     }
     private func stopProducer() {
         producerGeneration += 1; awaitingStart = false; awaiting = nil
@@ -515,13 +528,19 @@ final class NativeSoundCallSession: SoundCallSession {
     }
     private func publish() {
         guard !unavailable, !ready, let process, process.isRunning else { fail("producer-not-running"); return }
+        guard publishInputIfNeeded() else { return }
+        ready = true; timeout?.cancel(); timeout = nil
+        print("HOP CALL MIX ready helper=\(process.processIdentifier)"); fflush(stdout)
+        if let pending { self.pending = nil; send(pending) }
+    }
+    private func publishInputIfNeeded() -> Bool {
+        guard stopExport == nil else { return true }
+        guard let process, process.isRunning else { fail("producer-not-running"); return false }
         do {
             stopExport = try publishInput(process.processIdentifier)
-            ready = true; timeout?.cancel(); timeout = nil
-            print("HOP CALL MIX ready helper=\(process.processIdentifier)"); fflush(stdout)
             Self.log.notice("virtual-input-ready")
-            if let pending { self.pending = nil; send(pending) }
-        } catch { logError("virtual-input-creation", error); fail("virtual-input-creation") }
+            return true
+        } catch { logError("virtual-input-creation", error); fail("virtual-input-creation"); return false }
     }
     private func send(_ configuration: SoundCallConfiguration, stopping: Bool = false) {
         guard ready, process?.isRunning == true, input != nil else { fail("producer-not-ready"); return }
@@ -566,8 +585,6 @@ final class NativeSoundCallSession: SoundCallSession {
         pending = nil; awaiting = nil; unavailable = true
         let callback = completed; completed = nil
         let updated = updateCompleted; updateCompleted = nil
-        // A failed command cannot leave a previous capture running. Keep the
-        // published input until explicit retry or quit, but reap its producer first.
         stopProducer(); finishStops()
         callback?(.failure(.system(-1)))
         updated?(.failure(.system(-1)))

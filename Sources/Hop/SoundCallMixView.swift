@@ -69,7 +69,13 @@ struct SoundCallMixView: View {
                 }
             }.transaction { $0.animation = nil; $0.disablesAnimations = true }
             if let failure = call.failure {
-                Text(L10n.t(failure == .permission ? .soundPermission : failure == .inputChanged ? .soundInputChanged : .soundCallFailed, lang))
+                let key: L10nKey = switch failure {
+                case .permission: .soundPermission
+                case .inputChanged: .soundInputChanged
+                case .inputRemoval: .soundFailed
+                default: .soundCallFailed
+                }
+                Text(L10n.t(key, lang))
                     .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary).fixedSize(horizontal: false, vertical: true)
             }
         }.help(L10n.t(.soundCallCloseHint, lang))

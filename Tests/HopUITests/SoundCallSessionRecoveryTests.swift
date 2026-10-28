@@ -12,6 +12,9 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
         var producers: [Process] = []
         var published = 0
         var retired = 0
+        var retirementAttempts = 0
+        var retirementFailures = 0
+        var publishFailureAt: Int?
         var scripts: [String]
         init(_ scripts: [String]) { self.scripts = scripts }
         lazy var session = NativeSoundCallSession(makeProducer: { [unowned self] in
@@ -22,7 +25,12 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
             return process
         }, publishInput: { [unowned self] _ in
             published += 1
-            return { [unowned self] in retired += 1 }
+            if published == publishFailureAt { throw NSError(domain: "fixture-publication", code: 1) }
+            return { [unowned self] in
+                retirementAttempts += 1
+                if retirementFailures > 0 { retirementFailures -= 1; throw SoundFailure.system(-50) }
+                retired += 1
+            }
         }, installAccessory: {})
         func cleanup() { session.shutdown() }
     }
@@ -42,7 +50,7 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
         XCTAssertTrue(predicate(), file: file, line: line)
     }
 
-    func testNormalStartCanReusePreparedProducerAfterStop() {
+    func testNormalStopWithdrawsInputAndExplicitRestartPublishesAgain() {
         let f = Fixture([good]); defer { f.cleanup() }
         var started = false
         f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { started = true } }
@@ -50,12 +58,13 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
         var stopped = false
         f.session.stop { if case .success = $0 { stopped = true } }
         waitFor { stopped }
+        XCTAssertEqual(f.retired, 1, "Stop completion must not leave a selectable silent input")
         var restarted = false
         f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { restarted = true } }
         waitFor { restarted }
         XCTAssertEqual(f.producers.count, 1)
-        XCTAssertEqual(f.published, 1)
-        XCTAssertEqual(f.retired, 0)
+        XCTAssertEqual(f.published, 2)
+        XCTAssertEqual(f.retired, 1)
     }
 
     func testExplicitRetryRecreatesFailedProducerAndRetiresItsVirtualInput() {
@@ -70,6 +79,7 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
         f.session.start(.init(input: nil, apps: [])) { if case .failure = $0 { failure = true } }
         waitFor { failure }
         XCTAssertFalse(f.producers[0].isRunning, "A retry cannot overlap a failed capture")
+        XCTAssertEqual(f.retired, 1, "Failure must withdraw the unusable public input before reporting completion")
         var succeeded = false
         f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { succeeded = true } }
         waitFor { succeeded }
@@ -122,7 +132,7 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
             if ready { waitFor { f.published == 1 } }
             f.session.stop()
             XCTAssertFalse(f.producers[0].isRunning, "Closing during startup must reap the producer immediately")
-            XCTAssertEqual(f.retired, 0, "Keep the published microphone until explicit retry so consumers do not fall back")
+            XCTAssertEqual(f.retired, ready ? 1 : 0, "Cancelled startup cannot leave its virtual input available")
             var succeeded = false
             var lateFailure = false
             f.session.start(.init(input: nil, apps: [])) {
@@ -151,7 +161,7 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
         f.session.stop { if case .success = $0 { stopped = true } }
         XCTAssertTrue(stopped)
         XCTAssertFalse(f.producers[0].isRunning)
-        XCTAssertEqual(f.retired, 0)
+        XCTAssertEqual(f.retired, 1)
     }
 
     func testNormalStopCompletesOnlyAfterEmptyCaptureAcknowledgement() {
@@ -171,8 +181,66 @@ final class SoundCallSessionRecoveryTests: XCTestCase {
         var stopped = false
         f.session.stop { if case .success = $0 { stopped = true } }
         XCTAssertFalse(stopped)
+        XCTAssertEqual(f.retired, 0, "Pending stop waits for the actual empty-capture acknowledgement")
         waitFor { stopped }
-        XCTAssertTrue(f.producers[0].isRunning, "An idle producer keeps the published input available")
-        XCTAssertEqual(f.retired, 0)
+        XCTAssertTrue(f.producers[0].isRunning, "The idle producer may stay ready without publishing an input")
+        XCTAssertEqual(f.retired, 1)
     }
+    func testFailedRepublicationAfterStopCannotClaimReadyOrLeaveProducerRunning() {
+        let f = Fixture([good]); defer { f.cleanup() }
+        var started = false
+        f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { started = true } }
+        waitFor { started }
+        var stopped = false
+        f.session.stop { if case .success = $0 { stopped = true } }
+        waitFor { stopped }
+        f.publishFailureAt = 2
+        var failed = false
+        f.session.start(.init(input: nil, apps: [])) {
+            switch $0 { case .success: XCTFail("A missing virtual input is not ready"); case .failure: failed = true }
+        }
+        waitFor { failed }
+        XCTAssertEqual(f.retired, 1)
+        XCTAssertFalse(f.producers[0].isRunning)
+    }
+
+    func testStoppedSessionRejectsUpdatesWithoutRepublishingOrRecapturing() {
+        let f = Fixture([good]); defer { f.cleanup() }
+        var started = false
+        f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { started = true } }
+        waitFor { started }
+        var stopped = false
+        f.session.stop { if case .success = $0 { stopped = true } }
+        waitFor { stopped }
+        var rejected = false
+        f.session.update(.init(input: nil, apps: [])) {
+            switch $0 { case .success: XCTFail("Only an explicit Start may reactivate a stopped session"); case .failure: rejected = true }
+        }
+        waitFor { rejected }
+        XCTAssertEqual(f.published, 1)
+        XCTAssertEqual(f.retired, 1)
+    }
+
+    func testFailedWithdrawalRejectsStopAndPreservesCleanupForExplicitRetry() {
+        let f = Fixture([good, good]); defer { f.cleanup() }
+        var started = false
+        f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { started = true } }
+        waitFor { started }
+        f.retirementFailures = 1
+        var rejected = false
+        f.session.stop {
+            switch $0 { case .success: XCTFail("Failed device removal cannot confirm Off"); case .failure: rejected = true }
+        }
+        waitFor { rejected }
+        XCTAssertFalse(f.producers[0].isRunning)
+        XCTAssertEqual(f.retirementAttempts, 1)
+        XCTAssertEqual(f.retired, 0)
+        var restarted = false
+        f.session.start(.init(input: nil, apps: [])) { if case .success = $0 { restarted = true } }
+        waitFor { restarted }
+        XCTAssertEqual(f.retirementAttempts, 2)
+        XCTAssertEqual(f.retired, 1)
+        XCTAssertEqual(f.published, 2)
+    }
+
 }

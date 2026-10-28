@@ -221,7 +221,7 @@ private final class AgentInputReadiness {
             case .missingDevice: code = "audio_device_not_found"
             case .inputChanged: code = "audio_input_changed"
             case .unsupported: code = "audio_input_unsupported"
-            case .system: code = "audio_input_failed"
+            case .system, .inputRemoval: code = "audio_input_failed"
             }
             finish(.rejected(code))
         }
