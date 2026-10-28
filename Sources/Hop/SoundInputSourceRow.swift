@@ -28,7 +28,7 @@ struct SoundInputSourceRow: View {
                                 Text(detail).font(Theme.mono(9)).foregroundStyle(enabled && !included ? Theme.textTertiary : Theme.disabledForeground).lineLimit(1)
                             }
                         }.help([name, detail].compactMap { $0 }.joined(separator: " · "))
-                    }.toggleStyle(SoundSourceToggleStyle()).font(Theme.mono(11))
+                    }.toggleStyle(SoundSourceToggleStyle(previewHover: Snapshot.active && CommandLine.arguments.contains("--sound-hover-source") && name == "ZoomAudioDevice")).font(Theme.mono(11))
                         .foregroundStyle(enabled && !included ? Theme.textPrimary : Theme.disabledForeground)
                         .frame(width: 175, alignment: .leading)
                     SoundVolumeControl(device: SoundDevice(uid: name, name: name + " · " + SoundCallMixController.deviceName,
@@ -64,16 +64,16 @@ struct SoundInputSourceRow: View {
 }
 
 private struct SoundSourceToggleStyle: ToggleStyle {
-    @Environment(\.isEnabled) private var controlsEnabled
+    var previewHover = false
     func makeBody(configuration: Configuration) -> some View {
         Button { configuration.isOn.toggle() } label: {
             HStack(spacing: 7) {
                 Image(systemName: configuration.isOn ? "checkmark.square.fill" : "square")
                     .font(.system(size: 12))
-                    .foregroundStyle(!controlsEnabled ? Theme.disabledForeground : configuration.isOn ? Theme.textPrimary : Theme.textTertiary)
                     .frame(width: 18, height: 18)
                 configuration.label
             }.contentShape(Rectangle()).textSelection(.disabled)
-        }.buttonStyle(.plain).hoverHighlight(5).accessibilityValue(configuration.isOn ? "1" : "0")
+        }.buttonStyle(SoundTextActionStyle(normal: configuration.isOn ? Theme.textPrimary : Theme.textSecondary, previewHover: previewHover))
+            .accessibilityValue(configuration.isOn ? "1" : "0")
     }
 }

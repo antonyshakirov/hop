@@ -27,11 +27,10 @@ struct SoundDeviceChoiceRow: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: selected ? "checkmark" : "circle")
-                    .foregroundStyle(selected ? Theme.textPrimary : Theme.textTertiary)
-                Text(title).foregroundStyle(Theme.textPrimary).lineLimit(2)
+                Text(title).lineLimit(2)
                 Spacer(minLength: 0)
             }.font(Theme.mono(11)).padding(.horizontal, 8).padding(.vertical, 4)
                 .frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
-        }.buttonStyle(.plain).hoverHighlight(5)
+        }.buttonStyle(SoundTextActionStyle(normal: selected ? Theme.textPrimary : Theme.textSecondary))
     }
 }

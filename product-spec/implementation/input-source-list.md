@@ -11,3 +11,7 @@ Plan: independent presentation model + RED persistence/group/controller/agent te
 Release preparation after Dev: reconcile app news/onboarding, website and GitHub release copy against verified features; preserve illustrations, concise copy and pending physical limits. Do not publish, change public version or repeat SDK downloads during preparation.
 
 Configured sources remember their display names when edited and when discovery reports a newer name. Disconnected names survive restart; unused inventory is not retained solely for naming. Identifier fallbacks never overwrite a remembered name. Legacy unnamed devices use the existing localized microphone label until rediscovery; installed application names may be resolved from their bundle without launching it.
+
+Source checkbox labels use text/icon-only hover, matching Other Sources. Hover changes no surface, inset, hit area or layout; selected and disabled states retain their Theme colors.
+
+Transparent source labels, Other Sources, device choices, per-app output selectors and restore/retry text actions share SoundTextActionStyle. Hover and pressed states change foreground only; disabled actions retain disabledForeground. Visible mute and SettingChip surfaces retain their existing surface feedback. The source snapshot can preview ZoomAudioDevice hover with --sound-hover-source without audio capture.

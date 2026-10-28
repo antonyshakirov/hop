@@ -1,0 +1,21 @@
+{
+  "source": "working tree after 31e9579",
+  "tests": 6,
+  "logSHA256": "735881019d91be247784a6cd932abf3079c26ba6e0bb857eac3bb8490d7dd12f",
+  "snapshots": {
+    "input-base.png": "2c422a6b13c159f96ccb132b1d77465756c3c8eb8f9f4e36fb28795029872a81",
+    "input-disabled.png": "d84222f2cb66755845dab14326a3d5b5bc068cbd3799e519fe138d13e2f6c5d4",
+    "input-light-hover.png": "aa02119fc08ecea607c46d288f86c626218934b5499ddbe28dbb0730508f1238",
+    "input-hover.png": "487e14025b73fa483d1018f4a3954ca208f15020b240ba259f369e4f0abc542e"
+  },
+  "capture": false,
+  "scope": "Shared foreground-only hover for transparent mixer actions; visible chips preserve surface hover",
+  "installedDevUpdated": false,
+  "fullReleaseGate": "pending",
+  "baseAndHoverSize": [
+    1040,
+    1340
+  ],
+  "lightThemeDistinct": true,
+  "pixelDiffLimit": "Background grain changes between renders; pixel diff is not a geometry proof. Existing layout test passed and the style changes foreground only."
+}

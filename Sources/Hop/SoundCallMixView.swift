@@ -8,7 +8,6 @@ struct SoundCallMixView: View {
     let lang: AppLanguage
     @State private var otherExpanded = false
     @State private var restoring = false
-    @State private var otherHovering = false
     init(call: SoundCallMixController, sound: SoundController, mixer: SoundMixerController, lang: AppLanguage,
          initiallyExpanded: Bool = false) {
         self.call = call; self.sound = sound; self.mixer = mixer; self.lang = lang
@@ -51,16 +50,15 @@ struct SoundCallMixView: View {
                                 Text(L10n.t(.soundOtherSources, lang)).font(Theme.mono(10)).lineLimit(1)
                                 Spacer(minLength: 0)
                                 Text(String(list.other.count)).font(Theme.mono(10))
-                                    .foregroundStyle(otherHovering ? Theme.textPrimary : Theme.textTertiary)
-                            }.foregroundStyle(otherHovering ? Theme.textPrimary : Theme.textSecondary)
+                            }
                                 .padding(.vertical, 6).contentShape(Rectangle())
-                        }.buttonStyle(.plain).onHover { otherHovering = $0 }.handCursor()
+                        }.buttonStyle(SoundTextActionStyle())
                             .accessibilityIdentifier("sound.input.otherSources")
                             .accessibilityValue(otherExpanded ? "1" : "0")
                         if otherExpanded, !list.hidden.isEmpty {
                             Button { restoring.toggle() } label: {
-                                Image(systemName: "ellipsis").font(.system(size: 12)).foregroundStyle(Theme.textSecondary).frame(width: 20, height: 28)
-                            }.buttonStyle(.plain).hoverHighlight(5)
+                                Image(systemName: "ellipsis").font(.system(size: 12)).frame(width: 20, height: 28)
+                            }.buttonStyle(SoundTextActionStyle())
                                 .accessibilityLabel(L10n.t(.soundHiddenSources, lang))
                                 .popover(isPresented: $restoring, arrowEdge: .bottom) { hiddenSources(list.hidden) }
                         }

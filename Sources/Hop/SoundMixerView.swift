@@ -2,6 +2,20 @@ import AppKit
 import HopCore
 import SwiftUI
 
+struct SoundTextActionStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var enabled
+    @State private var hovering = false
+    var normal: Color = Theme.textSecondary
+    var previewHover = false
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(!enabled ? Theme.disabledForeground : hovering || previewHover || configuration.isPressed ? Theme.textPrimary : normal)
+            .onHover { hovering = $0 }
+            .handCursor()
+    }
+}
+
 struct SoundMixerSourceControls<Content: View>: View {
     let enabled: Bool
     @ViewBuilder let content: () -> Content
@@ -79,7 +93,7 @@ struct SoundMixerChannels: View {
                 if let failure = mixer.failure {
                     Text(L10n.t(failure == .permission ? .soundMixerPermission : .soundFailed, lang))
                         .font(Theme.mono(10)).foregroundStyle(Theme.textSecondary).fixedSize(horizontal: false, vertical: true)
-                    Button(L10n.t(.soundMixerStart, lang)) { mixer.start() }.buttonStyle(.plain).hoverHighlight(4)
+                    Button(L10n.t(.soundMixerStart, lang)) { mixer.start() }.buttonStyle(SoundTextActionStyle())
                 }
             }
         }
