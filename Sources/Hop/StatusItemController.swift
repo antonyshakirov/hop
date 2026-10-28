@@ -622,6 +622,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         if let panelWindow = popover.contentViewController?.view.window {
             debugLogPanelFrame("shown", frame: panelWindow.frame)
             panelPreventsActivation = Self.preventActivation(of: panelWindow)
+            debugLogPanelAnchor("shown-context")
             // SPEC: docs/spec.md — "Tooltips": the panel is hovered while another app is in front.
             panelWindow.allowsToolTipsWhenApplicationIsInactive = true
         }
@@ -1241,7 +1242,10 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             "visibleScreen=\(String(describing: screen?.visibleFrame)) " +
             "iconScreen=\(String(describing: anchor)) " +
             "savedX=\(String(describing: panelOriginX)) savedTop=\(String(describing: panelTopY)) " +
-            "fixedAnchor=\(popoverAnchor != nil)")
+            "fixedAnchor=\(popoverAnchor != nil) " +
+            "onActiveSpace=\(String(describing: popover.contentViewController?.view.window?.isOnActiveSpace)) " +
+            "windowVisible=\(String(describing: popover.contentViewController?.view.window?.isVisible)) " +
+            "frontmost=\(NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "none")")
     }
 }
 

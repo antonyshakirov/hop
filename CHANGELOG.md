@@ -1,6 +1,6 @@
 # Hop - version history
 
-## 2.4.0 - 2026-10-22
+## 2.4.0 - 2026-10-28
 
 - New Sound module: per-app volume, mute and output-device selection. Enable once; app levels remain active
   after the Sound window closes and resume on the next launch.
