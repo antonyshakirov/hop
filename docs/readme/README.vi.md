@@ -50,6 +50,12 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.4.1
+
+- Nhấp lại vào biểu tượng trên thanh menu để ẩn bảng.
+- Các ô số giữ nội dung đã nhập khi chuyển giữa các cài đặt.
+- Khi chỉ có một thẻ, hàng cài đặt và thoát được ẩn. Cả hai thao tác vẫn có trong menu nhấp chuột phải của biểu tượng.
+
 ### 2.3.2
 
 - Theo dõi hệ thống: bộ nhớ và tải đồ họa bật dấu cảnh báo trên thanh menu, tải đồ họa có ngưỡng riêng.

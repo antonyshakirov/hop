@@ -1,6 +1,6 @@
 # Hop - version history
 
-## Unreleased
+## 2.4.1 - 2026-10-29
 
 - Clicking the menu-bar icon again hides the panel.
 - Number fields keep their edits when moving between settings.

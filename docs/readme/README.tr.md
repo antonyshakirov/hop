@@ -51,6 +51,12 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
+### 2.4.1
+
+- Menü çubuğu simgesine tekrar tıklamak paneli gizler.
+- Sayı alanları, ayarlar arasında geçiş yaparken girilen değeri korur.
+- Tek sekme varsa ayarlar ve çıkış satırı gizlenir. Her iki işlem de simgenin sağ tık menüsünde bulunur.
+
 ### 2.3.2
 
 - Sistem izleme: bellek ve grafik yükü menü çubuğundaki sorun uyarısını yakar, grafik yükünün kendi eşikleri var.

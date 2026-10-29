@@ -52,6 +52,12 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.4.1
+
+- Ein erneuter Klick auf das Menüleistensymbol blendet das Panel aus.
+- Zahlenfelder behalten Eingaben beim Wechsel zwischen Einstellungen.
+- Bei einem Tab wird die Zeile für Einstellungen und Beenden ausgeblendet. Beide Aktionen bleiben im Rechtsklickmenü des Symbols.
+
 ### 2.3.2
 
 - Systemmonitor: speicher und grafiklast lösen den problem-hinweis in der menüleiste aus, die grafiklast hat eigene schwellen.

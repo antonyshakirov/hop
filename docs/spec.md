@@ -7030,6 +7030,9 @@ the Dock. The same items
 open the localized release notes. Historical 2.3 cards/notes and the published
 plist version remain unchanged. Noise suppression is not included or advertised.
 
+**Hotfix 2.4.1** (Anton, 2026-10-29): release notes describe the panel toggle,
+number-field focus fixes and the single-tab header removal. No new panel card.
+
 **Hotfix 2.1.6** (Anton, 2026-09-27): release notes name the fixes, and the
 panel gets no new "what's new" card. `HotfixReleaseTests` holds the absent card.
 **Hotfix 2.1.7** (Anton, 2026-09-28): macOS 27 panel click-through fixes have

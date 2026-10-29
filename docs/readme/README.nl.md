@@ -51,6 +51,12 @@ dus macOS opent het als elke andere app. De broncode is openbaar en
 ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
+### 2.4.1
+
+- Nogmaals klikken op het menubalkpictogram verbergt het paneel.
+- Nummervelden bewaren de invoer bij het wisselen tussen instellingen.
+- Bij één tabblad wordt de rij voor instellingen en afsluiten verborgen. Beide acties blijven in het rechtermuisknopmenu van het pictogram.
+
 ### 2.3.2
 
 - Systeemmonitor: geheugen en grafische belasting laten het probleemteken in de menubalk oplichten, en grafische belasting heeft eigen drempels.

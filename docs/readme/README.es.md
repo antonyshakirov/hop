@@ -53,6 +53,12 @@ macOS la abre como cualquier otra app. El código fuente es público y las
 actualizaciones integradas se verifican con Ed25519. Requiere macOS 14 o
 posterior.
 
+### 2.4.1
+
+- Otro clic en el icono de la barra de menús oculta el panel.
+- Los campos numéricos conservan los cambios al pasar a otro ajuste.
+- Con una sola pestaña se oculta la fila de ajustes y salida. Ambas acciones siguen en el menú del icono al hacer clic derecho.
+
 ### 2.3.2
 
 - Monitor del sistema: la memoria y la carga gráfica encienden el aviso de problemas en la barra, y la carga gráfica tiene sus propios umbrales.

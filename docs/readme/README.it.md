@@ -52,6 +52,12 @@ la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
 aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
 successivo.
 
+### 2.4.1
+
+- Un altro clic sull’icona nella barra dei menu nasconde il pannello.
+- I campi numerici mantengono le modifiche passando a un’altra impostazione.
+- Con una sola scheda, la riga delle impostazioni e di uscita è nascosta. Entrambe le azioni restano nel menu del clic destro sull’icona.
+
 ### 2.3.2
 
 - Monitor di sistema: la memoria e il carico grafico accendono l'avviso problemi nella barra, e il carico grafico ha soglie proprie.

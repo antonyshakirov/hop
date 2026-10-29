@@ -52,6 +52,12 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.4.1
+
+- Klik lagi ikon bilah menu untuk menyembunyikan panel.
+- Kolom angka mempertahankan masukan saat berpindah pengaturan.
+- Jika hanya ada satu tab, baris pengaturan dan keluar disembunyikan. Kedua tindakan tetap tersedia di menu klik kanan ikon.
+
 ### 2.3.2
 
 - Monitor sistem: memori dan beban grafis menyalakan penanda masalah di bilah menu, dan beban grafis punya ambang sendiri.

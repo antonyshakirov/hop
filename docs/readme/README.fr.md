@@ -54,6 +54,12 @@ l'ouvre comme n'importe quelle autre app. Le code source est public et les
 mises à jour intégrées sont vérifiées avec Ed25519. Nécessite macOS 14 ou
 plus récent.
 
+### 2.4.1
+
+- Un second clic sur l’icône de la barre des menus masque le panneau.
+- Les champs numériques conservent la saisie au passage à un autre réglage.
+- Avec un seul onglet, la ligne des réglages et de fermeture est masquée. Ces actions restent dans le menu contextuel de l’icône.
+
 ### 2.3.2
 
 - Moniteur système : la mémoire et la charge graphique déclenchent l'alerte problème dans la barre, et la charge graphique a ses propres seuils.

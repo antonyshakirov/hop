@@ -51,6 +51,12 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
+### 2.4.1
+
+- Ponowne kliknięcie ikony na pasku menu ukrywa panel.
+- Pola liczbowe zachowują wpisane wartości przy przechodzeniu między ustawieniami.
+- Przy jednej karcie wiersz ustawień i zamykania jest ukryty. Obie opcje pozostają w menu prawego przycisku myszy na ikonie.
+
 ### 2.3.2
 
 - Monitor systemu: pamięć i obciążenie grafiki zapalają wskaźnik problemów na pasku menu, a obciążenie grafiki ma własne progi.

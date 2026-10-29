@@ -54,6 +54,12 @@ macOS abre como qualquer outro app. O código-fonte é público e as
 atualizações integradas são verificadas com Ed25519. Requer macOS 14 ou mais
 recente.
 
+### 2.4.1
+
+- Outro clique no ícone da barra de menus oculta o painel.
+- Os campos numéricos mantêm as alterações ao mudar de ajuste.
+- Com uma só aba, a linha de ajustes e saída fica oculta. As duas ações continuam no menu do ícone ao clicar com o botão direito.
+
 ### 2.3.2
 
 - Monitor do sistema: a memória e a carga gráfica acendem o aviso de problemas na barra, e a carga gráfica tem limites próprios.
