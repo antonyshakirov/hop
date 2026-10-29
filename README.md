@@ -55,7 +55,7 @@ verified with Ed25519. Requires macOS 14 or newer.
 
 - Clicking the menu-bar icon again hides the panel.
 - Number fields keep edits when switching between settings.
-- With one tab, the settings and quit row is hidden. Both actions remain in the icon’s right-click menu.
+- One tab hides the top row. Right-click the icon for settings and quit.
 
 ### 2.3.2
 
