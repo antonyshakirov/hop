@@ -45,27 +45,22 @@ struct NumericField: View {
     }
 
     private var field: some View {
-        SteadyField(text: $text, weight: .semibold, alignment: .center,
+        SteadyField(text: Binding(get: { text }, set: { draft in
+            // only a live edit (focused) owns the value; programmatic
+            // reformats (onAppear, value/preview sync) must not parse back.
+            text = draft
+            edited = true
+            if let number = Int(draft), range.contains(number) { value = number }
+        }), weight: .semibold, alignment: .center,
                     colour: color, focus: $focused,
-                    filter: { NumericInput.filterDigits($0, maxDigits: digitCap) })
+                    filter: { NumericInput.filterDigits($0, maxDigits: digitCap) },
+                    onSubmit: commit, onEndEditing: commit)
             .frame(width: 44, height: 24)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
             .onAppear { text = display(value) }
-            .onChange(of: text) { _, new in
-                // only a live edit (focused) owns the value; programmatic
-                // reformats (onAppear, value/preview sync) must not parse back.
-                guard focused else { return }
-                edited = true
-                if let v = Int(new), range.contains(v) { value = v }
-            }
             .onChange(of: value) { _, v in
                 if !focused { text = display(v) }
             }
-            .onChange(of: focused) { _, isFocused in
-                if isFocused { edited = false; return }
-                commit()
-            }
-            .onSubmit(commit)
     }
 }
 
@@ -104,9 +99,20 @@ struct RateLimitField: View {
     var body: some View {
         // kb is kept in sync with the field live while typing, so 0 (empty or a
         // typed "0") dims the text the instant it becomes unlimited.
-        SteadyField(text: $text, weight: .semibold, alignment: .center,
+        SteadyField(text: Binding(get: { text }, set: { draft in
+            // only WHILE TYPING does the field own the value. The programmatic
+            // reformats below (unit / kb changes) also fire this handler, so the
+            // focus guard keeps them display-only and never parses back into kb.
+            text = draft
+            if let rate = RateLimit.parse(draft, unit: unit) { kb = rate }
+        }), weight: .semibold, alignment: .center,
                     colour: kb == 0 ? Theme.textTertiary : color, focus: $focused,
-                    filter: { Self.filter($0, unit: unit) })
+                    filter: { Self.filter($0, unit: unit) },
+                    onEndEditing: {
+                // kb was already updated live while typing; on blur just normalize
+                // the display ("1." → "1000", "1.20" → "1.2").
+                        text = RateLimit.display(kb: kb, unit: unit)
+                    })
             .frame(width: 56, height: 24)
             .background(Theme.fieldBg, in: RoundedRectangle(cornerRadius: 5))
             .onAppear { text = RateLimit.display(kb: kb, unit: unit) }
@@ -114,21 +120,10 @@ struct RateLimitField: View {
             // new unit. DISPLAY only — it must never rewrite kb, or merely viewing
             // 1234 KB/s as MB would round the stored value to 1200.
             .onChange(of: unit) { _, u in text = RateLimit.display(kb: kb, unit: u) }
-            .onChange(of: text) { _, new in
-                // only WHILE TYPING does the field own the value. The programmatic
-                // reformats below (unit / kb changes) also fire this handler, so the
-                // focus guard keeps them display-only and never parses back into kb.
-                guard focused else { return }
-                if let v = RateLimit.parse(new, unit: unit) { kb = v }
-            }
             .onChange(of: kb) { _, v in
                 if !focused { text = RateLimit.display(kb: v, unit: unit) }
             }
-            .onChange(of: focused) { _, isFocused in
-                // kb was already updated live while typing; on blur just normalize
-                // the display ("1." → "1000", "1.20" → "1.2").
-                if !isFocused { text = RateLimit.display(kb: kb, unit: unit) }
-            }
+
     }
 
     /// Keep only the characters valid for the unit and cap the digit count:
@@ -307,24 +302,19 @@ struct MiniSlider: View {
                 .foregroundStyle(Theme.textPrimary)
                 .frame(width: 26, alignment: .trailing)
         } else {
-            SteadyField(text: $text, size: 10, weight: .semibold, alignment: .right,
+            SteadyField(text: Binding(get: { text }, set: { draft in
+                // only a live edit owns the value; programmatic reformats
+                // must not parse back
+                text = draft
+                edited = true
+                if let typed = Int(draft), range.contains(typed) { value = typed }
+            }), size: 10, weight: .semibold, alignment: .right,
                         colour: Theme.textPrimary, focus: $focused,
                         filter: { NumericInput.filterDigits($0, range: range) },
-                        onSubmit: commit, onCancel: cancel)
+                        onSubmit: commit, onEndEditing: commit, onCancel: cancel)
                 .frame(width: 26, height: 14)
                 .onAppear { text = "\(value)" }
-                .onChange(of: text) { _, new in
-                    // only a live edit owns the value; programmatic reformats
-                    // must not parse back
-                    guard focused else { return }
-                    edited = true
-                    if let typed = Int(new), range.contains(typed) { value = typed }
-                }
                 .onChange(of: value) { _, v in if !focused { text = "\(v)" } }
-                .onChange(of: focused) { _, isFocused in
-                    if isFocused { edited = false; return }
-                    commit()
-                }
         }
     }
 

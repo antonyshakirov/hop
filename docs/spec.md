@@ -1301,6 +1301,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - Search: the search field appears when expanded (case-insensitive
   substring filter, clear button; collapsing resets the query). It reads the
   entry's head, which is all the history carries of a long body.
+- **Row preferences survive focus changes** (Anton, 2026-10-29). The storage
+  limit and visible-row count are independent. Editing either and moving to
+  the other commits the last typed number; the visible panel grows or shrinks
+  to the current row count without keeping background space from the old size.
+  With enough history, ten selected rows fit in the clipboard viewport when
+  the whole panel fits on screen. On a shorter screen, the panel's outer
+  scrolling keeps all content reachable.
 - Collapsed — a user-chosen number of rows (settings, 1...10, default 3),
   expanded — up to 20, but that is only the HEIGHT of
   the list window: the full history is reachable via internal scrolling in
@@ -5335,6 +5342,13 @@ taught anything.
   and leaving it cannot rewrite the value. Escape puts the number back and
   releases the caret. `NumericField` and `RateLimitField` take the same filter —
   the rejected character used to stay on screen in all three.
+- **Numeric input commits at the native editing boundary** (2026-10-29).
+  `NumericField`, the numeric part of `MiniSlider`, and `RateLimitField` take
+  keyboard edits directly from `SteadyField` and finish them on its native
+  end-editing event. SwiftUI redraw timing cannot discard a final keystroke or
+  let an old focus notification clear the next field's caret. Programmatic
+  display changes do not count as typed input, and focusing an untouched field
+  never rewrites its stored value.
 - **A snapshot draws the number as TEXT.** `ImageRenderer` cannot draw an
   `NSViewRepresentable` at all — it paints a yellow fill with a 🚫 where the
   view should be — so under `Snapshot.active` the dial swaps its field for a
@@ -5436,11 +5450,17 @@ converter (Anton, 2026-07-28).
 
 ## Panel and navigation
 
+- **The menu-bar icon toggles the panel** (Anton, 2026-10-29). A second left
+  click hides it. Mouse-down on the icon is excluded from outside-click
+  dismissal, leaving its mouse-up to perform the toggle once. A click outside
+  both the panel and the icon still closes the panel; Escape and explicit
+  close actions also work while the pointer is over the panel or the icon.
+
 - Header: a spaces switcher on the left — one icon tab per space, click to
-  switch, the active one chip-highlighted — and the service trio on the
-  right: ⓘ (about), gear (settings), ⏻ (quit, with a confirmation dialog).
-  **With one space the switcher is not drawn at all** (Anton, 2026-09-02): a row
-  of one tab switches to nothing and only takes the header's width.
+  switch, the active one chip-highlighted — and settings and quit on the right.
+  **With one space the entire header is hidden** (Anton, 2026-10-29), including
+  its settings and quit buttons and the gap below it. Both actions remain in
+  the menu-bar icon's right-click menu. Announcements keep their own spacing.
   The switcher is pure navigation: adding, reordering, renaming (icon) and
   deleting spaces all live in the settings "modules & tabs" table (the
   combined space/module table), so a stray header click can't create a

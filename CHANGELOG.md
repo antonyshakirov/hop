@@ -1,5 +1,12 @@
 # Hop - version history
 
+## Unreleased
+
+- Clicking the menu-bar icon again hides the panel.
+- Number fields keep their edits when moving between settings.
+- With one tab, the panel hides its settings and quit row. Both actions remain
+  in the menu-bar icon's right-click menu.
+
 ## 2.4.0 - 2026-10-28
 
 - New Sound module: per-app volume, mute and output-device selection. Enable once; app levels remain active

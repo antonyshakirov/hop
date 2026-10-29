@@ -21,11 +21,12 @@ struct SteadyField: NSViewRepresentable {
     /// it returns is what the field shows and what the binding gets.
     var filter: ((String) -> String)?
     var onSubmit: () -> Void = {}
+    var onEndEditing: () -> Void = {}
     var onCancel: () -> Void = {}
     var onOutsideInteraction: (() -> Void)? = nil
 
     func makeNSView(context: Context) -> NSTextField {
-        let field: NSTextField = onOutsideInteraction == nil ? NSTextField() : PointerExitField()
+        let field: SteadyTextField = onOutsideInteraction == nil ? SteadyTextField() : PointerExitField()
         field.cell = SteadyCell(textCell: "")
         // A hand-made cell comes back neither editable nor selectable, whatever
         // the field it is put into was. Set AFTER the swap, or the field is
@@ -41,6 +42,7 @@ struct SteadyField: NSViewRepresentable {
         field.cell?.wraps = false
         field.stringValue = text
         field.delegate = context.coordinator
+        field.onFocus = { context.coordinator.beginEditing() }
         apply(to: field)
         return field
     }
@@ -123,14 +125,17 @@ struct SteadyField: NSViewRepresentable {
             owner.text = typed
         }
 
+        func beginEditing() {
+            owner.focus?.wrappedValue = true
+        }
+
         func controlTextDidBeginEditing(_ notification: Notification) {
-            guard let focus = owner.focus, !focus.wrappedValue else { return }
-            DispatchQueue.main.async { focus.wrappedValue = true }
+            beginEditing()
         }
 
         func controlTextDidEndEditing(_ notification: Notification) {
-            guard let focus = owner.focus, focus.wrappedValue else { return }
-            DispatchQueue.main.async { focus.wrappedValue = false }
+            owner.focus?.wrappedValue = false
+            owner.onEndEditing()
         }
 
         func control(_ control: NSControl, textView: NSTextView,
@@ -146,6 +151,16 @@ struct SteadyField: NSViewRepresentable {
                 return false
             }
         }
+    }
+}
+
+class SteadyTextField: NSTextField {
+    var onFocus: (() -> Void)?
+
+    override func becomeFirstResponder() -> Bool {
+        let accepted = super.becomeFirstResponder()
+        if accepted { onFocus?() }
+        return accepted
     }
 }
 
@@ -174,7 +189,7 @@ final class SteadyCell: NSTextFieldCell {
     }
 }
 
-private final class PointerExitField: NSTextField {
+private final class PointerExitField: SteadyTextField {
     var onOutsideInteraction: (() -> Void)?
     private var pointerArea: NSTrackingArea?
     private var clickMonitor: Any?

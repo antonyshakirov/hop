@@ -534,8 +534,16 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     }
 
     static func shouldClosePopover(pointer: NSPoint, panelFrame: NSRect?, explicit: Bool,
-                                   keyboardEvent: Bool = false) -> Bool {
-        explicit || keyboardEvent || !(panelFrame?.contains(pointer) ?? false)
+                                   keyboardEvent: Bool = false,
+                                   statusButtonFrame: NSRect? = nil) -> Bool {
+        explicit || keyboardEvent || (!(panelFrame?.contains(pointer) ?? false)
+            && !(statusButtonFrame?.contains(pointer) ?? false))
+    }
+
+    private var statusButtonScreenFrame: NSRect? {
+        guard let button = statusItem.button, Self.buttonIsVisible(button),
+              let window = button.window else { return nil }
+        return window.convertToScreen(button.convert(button.bounds, to: nil))
     }
 
     func popoverShouldClose(_ popover: NSPopover) -> Bool {
@@ -544,7 +552,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         let keyboardEvent = NSApp.currentEvent?.type == .keyDown
         let result = Self.shouldClosePopover(pointer: pointer, panelFrame: frame,
                                              explicit: explicitPopoverClose,
-                                             keyboardEvent: keyboardEvent)
+                                             keyboardEvent: keyboardEvent,
+                                             statusButtonFrame: statusButtonScreenFrame)
         PanelFrameLog.write("shouldClose", "pointer=\(pointer) frame=\(String(describing: frame)) explicit=\(explicitPopoverClose) key=\(keyboardEvent) active=\(NSApp.isActive) result=\(result)")
         return result
     }
@@ -636,7 +645,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                     guard self.popover.isShown,
                           Self.shouldClosePopover(pointer: pointer,
                                                   panelFrame: self.popover.contentViewController?.view.window?.frame,
-                                                  explicit: false) else { return }
+                                                  explicit: false,
+                                                  statusButtonFrame: self.statusButtonScreenFrame) else { return }
                     self.closePopover()
                 }
             }
@@ -708,7 +718,10 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
               rect.width > 0, rect.height > 0,
               rect.minX >= 0, rect.minY >= 0,
               rect.maxX <= host.bounds.maxX,
-              rect.maxY <= host.bounds.maxY else { return }
+              rect.maxY <= host.bounds.maxY else {
+            tabPanel?.orderOut(nil)
+            return
+        }
         let frame = Self.tabPanelFrame(in: window.frame, for: rect)
         if tabPanel == nil {
             let panel = NonactivatingTabPanel(

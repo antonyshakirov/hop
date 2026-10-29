@@ -11,13 +11,17 @@ final class SteadyFieldTests: XCTestCase {
     private final class Draft: ObservableObject {
         @Published var text = ""
         @Published var focused = false
+        @Published var committed = ""
     }
 
     private struct Editor: View {
         @ObservedObject var draft: Draft
+        var exitsOnPointerLeave = false
 
         var body: some View {
-            SteadyField(text: $draft.text, focus: $draft.focused)
+            SteadyField(text: $draft.text, focus: $draft.focused,
+                        onEndEditing: { draft.committed = draft.text },
+                        onOutsideInteraction: exitsOnPointerLeave ? { draft.focused = false } : nil)
         }
     }
 
@@ -51,6 +55,33 @@ final class SteadyFieldTests: XCTestCase {
         host.layoutSubtreeIfNeeded()
         pump()
         XCTAssertNotNil(field.currentEditor(), "An obsolete focus request removed the caret")
+    }
+
+    func testPointerExitFieldSharesFocusAndFinishesItsLastEdit() throws {
+        _ = NSApplication.shared
+        let draft = Draft()
+        let host = NSHostingView(rootView: Editor(draft: draft, exitsOnPointerLeave: true))
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 300, height: 40),
+                              styleMask: [.titled], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        window.contentView = host
+        window.makeKeyAndOrderFront(nil)
+        defer { window.orderOut(nil) }
+        Self.retainedFixtures.append(contentsOf: [draft as AnyObject, host, window])
+        pump()
+        let field = try XCTUnwrap(descendants(of: host).compactMap { $0 as? NSTextField }.first)
+        window.makeFirstResponder(field)
+        XCTAssertTrue(draft.focused)
+        field.currentEditor()?.insertText("75")
+        let event = try XCTUnwrap(NSEvent.enterExitEvent(
+            with: .mouseExited, location: .zero, modifierFlags: [], timestamp: 0,
+            windowNumber: window.windowNumber, context: nil, eventNumber: 0,
+            trackingNumber: 0, userData: nil))
+        field.mouseExited(with: event)
+        pump()
+        XCTAssertFalse(draft.focused)
+        XCTAssertNil(field.currentEditor())
+        XCTAssertEqual(draft.committed, "75")
     }
 
     private func pump() {

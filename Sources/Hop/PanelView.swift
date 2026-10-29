@@ -1150,11 +1150,15 @@ struct PanelView: View {
     /// records the run's start so it stays gone until a new run overruns.
     /// `TrackerOverrun` holds the pure episode logic; the in-module long-run row
     /// is unchanged and independent.
+    private var showsTrackerOverrun: Bool {
+        TrackerOverrun.isBannerVisible(
+            activeStart: model.tracker.engine.activeIntervalStart, now: model.tracker.heartbeat,
+            acknowledged: trackerOverrunAckStart == 0
+                ? nil : Date(timeIntervalSinceReferenceDate: trackerOverrunAckStart))
+    }
+
     @ViewBuilder private var overrunBanner: some View {
-        let now = model.tracker.heartbeat
-        let ack = trackerOverrunAckStart == 0 ? nil : Date(timeIntervalSinceReferenceDate: trackerOverrunAckStart)
-        if TrackerOverrun.isBannerVisible(
-            activeStart: model.tracker.engine.activeIntervalStart, now: now, acknowledged: ack) {
+        if showsTrackerOverrun {
             HStack(spacing: 8) {
                 Image(systemName: "exclamationmark.triangle")
                     .font(.system(size: 11))
@@ -1198,6 +1202,11 @@ struct PanelView: View {
     /// so it cannot move when the scrolled content's height changes on a space
     /// switch. The bottom padding reproduces the 16pt gap the old single VStack
     /// kept between the header and the first module (it was the VStack spacing).
+    private var hasPanelChrome: Bool {
+        tabsModel.tabs.count > 1 || permissions.showsBanner || pendingAnnouncement != nil
+            || pendingRelease != nil || showsTrackerOverrun
+    }
+
     private var chrome: some View {
         VStack(spacing: 16) {
             permissionBanner
@@ -1214,7 +1223,7 @@ struct PanelView: View {
         }
         .padding(.horizontal, 14)
         .padding(.top, 18)
-        .padding(.bottom, 16)
+        .padding(.bottom, hasPanelChrome ? 16 : 0)
         .frame(width: 368)
     }
 
@@ -1597,18 +1606,20 @@ struct PanelView: View {
 
     // MARK: - Header
 
-    private var header: some View {
-        HStack(spacing: 8) {
-            if tabsModel.tabs.count > 1 { tabSwitcher }
-            Spacer()
-            headerIcon("gearshape", help: t(.settingsTitle)) {
-                model.openSettingsWindow?()
+    @ViewBuilder private var header: some View {
+        if tabsModel.tabs.count > 1 {
+            HStack(spacing: 8) {
+                tabSwitcher
+                Spacer()
+                headerIcon("gearshape", help: t(.settingsTitle)) {
+                    model.openSettingsWindow?()
+                }
+                headerIcon("power", help: t(.menuQuit)) {
+                    model.requestQuit?()
+                }
             }
-            headerIcon("power", help: t(.menuQuit)) {
-                model.requestQuit?()
-            }
+            .frame(height: 34)
         }
-        .frame(height: 34)
     }
 
     /// Every icon in the header carries its name on hover: an icon alone is a
@@ -1651,7 +1662,7 @@ struct PanelView: View {
 
     private func reportTabHitRect(_ rect: CGRect) {
         DispatchQueue.main.async {
-            guard model.panelTabHitRect != rect else { return }
+            guard tabsModel.tabs.count > 1, model.panelTabHitRect != rect else { return }
             model.panelTabHitRect = rect
             PanelFrameLog.write("tabRect", "rect=\(rect)")
             model.panelTabGeometryChanged?()
@@ -1673,7 +1684,8 @@ struct PanelView: View {
 
     private func reportTabButtonRect(_ rect: CGRect, id: UUID) {
         DispatchQueue.main.async {
-            guard model.panelTabButtonRects[id] != rect else { return }
+            guard tabsModel.tabs.count > 1, tabsModel.tabs.contains(where: { $0.id == id }),
+                  model.panelTabButtonRects[id] != rect else { return }
             model.panelTabButtonRects[id] = rect
         }
     }
@@ -1703,6 +1715,11 @@ struct PanelView: View {
 
     private func panelConfigurationChanged() {
         spaceHeightCache.clear()
+        if tabsModel.tabs.count == 1 {
+            model.panelTabHitRect = nil
+            model.panelTabButtonRects = [:]
+            model.panelTabGeometryChanged?()
+        }
         awaitingUncachedSpaceHeight = currentSpaceID
         if #available(macOS 27.0, *) {
             let height = min(chromeHeight + contentHeight, maxPanelHeight)
