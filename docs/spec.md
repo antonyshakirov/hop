@@ -75,6 +75,9 @@ signing would break).
    prevention and explicitly requests the keyboard. Once editing ends, the
    panel restores activation prevention before returning focus. Ordinary
    button clicks retain the nonactivating behavior.
+   An uncapped tracker name drag requests keyboard ownership only after its
+   movement threshold, so Escape can cancel it. Mouse-up or cancellation
+   releases that ownership through the same panel focus policy.
 5. **Hover highlights bleed outward, they do not inset the content.** A
    full-width row (the "new task" footers) starts on the panel's own inset, so a
    highlight drawn on the row's exact bounds lands on the first glyph and on the
@@ -2080,11 +2083,16 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Drag to reorder:** grabbing ANYWHERE on a row moves it (see "Dragging with
   two levels" above for where it lands) — the
   reorder gesture lives on the row container (`minimumDistance` 3), not a handle.
-  It recognizes simultaneously with row/name taps, so those taps cannot prevent
-  its movement events. While a row gesture is active, the panel retains its
-  current focus ownership even if the drag closes an inline field. Gesture-state
-  reset releases that ownership and clears the drag preview on completion or
-  cancellation.
+  In an uncapped list, task/project names also have an AppKit pointer surface:
+  a click opens the same card or rename field, while movement of at least 3pt
+  starts a move in any direction. It captures the initial list coordinate and
+  applies screen-coordinate deltas, so moving the source preview or resizing
+  the popover cannot shift the drop calculation. It uses the same drop resolver
+  and engine operations.
+  Mouse-up commits once; Escape cancels, clears the preview and releases focus.
+  The source's text, layout and accessibility label remain the SwiftUI content.
+  Other row areas keep the existing vertically gated gesture below; capped
+  lists retain their native name transfer path.
   It DISAMBIGUATES BY AXIS against the total label's horizontal scrub: on the
   first move past the threshold, a vertically dominant drag (`|dy| > |dx|`) lifts
   the row, while a horizontally dominant one stands down (latched for the rest of

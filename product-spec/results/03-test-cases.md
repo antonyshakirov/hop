@@ -60,9 +60,14 @@ implementation; this file does not declare that they currently pass.
 | TR-05 | Scroll with wheel/trackpad; scrub a task's time horizontally; cancel a native name drag | Scrolling and scrubbing remain available; cancelled drag leaves data and row appearance unchanged |
 | TR-06 | Drop plain text, malformed transfer data or a row from another tracker session | No tracker mutation |
 | TR-07 | Add a project or task; type a full name across tracker redraws; Return twice, then Escape | Caret survives every character, each Return creates one complete item and retains the cleared field, Escape discards the remaining draft |
+| TR-08 | In an uncapped list, drag a task name diagonally onto an open or folded project | AppKit pointer path moves the task once through the shared resolver; identity, intervals and corrections remain intact |
+| TR-09 | Click a project name, then separately begin a name drag and press Escape | Click opens one rename field; cancelled drag changes no task ownership and releases capture and preview |
 
 These cases define the required behavior. Native unit tests cover activation-tag
 release, editor key handling and transfer payloads; they do not certify physical
 keyboard routing, focus return or the complete mouse-drag path.
 The actual hosted TrackerView also covers TR-07. Synthetic mouse replay failed
 its plain DragGesture control, so it is not evidence for TR-03 through TR-05.
+TrackerNamePointerTests drive queued AppKit events through the actual native
+name surface and hosted TrackerView for TR-08/TR-09. Physical WindowServer
+delivery still requires the installed Dev check.

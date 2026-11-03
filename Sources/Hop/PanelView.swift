@@ -3401,7 +3401,7 @@ struct PanelView: View {
         case "tracker":
             TrackerView(tracker: model.tracker, lang: lang,
                         onEditingChanged: { trackerEditing = $0 },
-                        onDraggingChanged: { trackerDragging = $0 },
+                        onDraggingChanged: { trackerDragging = $0; syncKeyboardCapture() },
                         onCardExpandedChanged: { expanded in
                             spaceHeightCache.setExpanded(expanded, module: "tracker", in: spaceID)
                         })

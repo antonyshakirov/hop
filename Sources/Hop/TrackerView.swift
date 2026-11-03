@@ -112,7 +112,6 @@ struct TrackerView: View {
     // total scrub, so this row-reorder gesture stands down for the rest of it.
     @State private var dragRejected = false
     @State private var transferSession = UUID()
-    @GestureState private var rowDragging = false
 
     /// "visible rows" cap: 0 = all (default), 3…15 caps the task list to a fixed
     /// height with inner scroll (the 8h warning is pinned outside the scroll).
@@ -241,10 +240,6 @@ struct TrackerView: View {
         .onChange(of: activeField) { _, field in
             onEditingChanged?(field != nil && !Snapshot.active)
         }
-        .onChange(of: rowDragging) { _, dragging in
-            onDraggingChanged?(dragging)
-            if !dragging { resetDrag() }
-        }
         .onDisappear {
             // @State survives the popover hide/show, so a left-open field or
             // confirm row would reappear (unfocused) on the next open — clear
@@ -337,6 +332,7 @@ struct TrackerView: View {
                     .truncationMode(.tail)
                     .contentShape(Rectangle())
                     .onTapGesture { beginRenameProject(project) }
+                    .overlay { namePointer(project.id, isProject: true) { beginRenameProject(project) } }
                     .modifier(transferSource(project.id))
                 // a folded project still has to show that something under it runs
                 if !project.isExpanded, engine.isTracking(projectID: project.id) {
@@ -387,7 +383,7 @@ struct TrackerView: View {
             .padding(.vertical, 2)
             .background(rowFrameReader(project.id))
             .contentShape(Rectangle())
-            .simultaneousGesture(dragGesture(project.id, isProject: true),
+            .gesture(dragGesture(project.id, isProject: true),
                      including: trackerCapped ? .subviews : .all)
             .modifier(transferTarget(project.id))
             .opacity(dragTask == project.id ? 0.4 : 1)
@@ -536,7 +532,7 @@ struct TrackerView: View {
         .onTapGesture {
             if expandedTask == task.id { commitOpenCard() } else { expandCard(task) }
         }
-        .simultaneousGesture(dragGesture(task.id, isProject: false),
+        .gesture(dragGesture(task.id, isProject: false),
                  including: trackerCapped ? .subviews : .all)
         .modifier(transferTarget(task.id))
         .opacity(dragTask == task.id ? 0.4 : 1)
@@ -944,6 +940,11 @@ struct TrackerView: View {
             .foregroundStyle(Theme.listText)
             .lineLimit(1)
             .truncationMode(.tail)
+            .overlay {
+                namePointer(task.id, isProject: false) {
+                    if expandedTask == task.id { commitOpenCard() } else { expandCard(task) }
+                }
+            }
             .modifier(transferSource(task.id))
     }
 
@@ -1151,6 +1152,24 @@ struct TrackerView: View {
         }
     }
 
+    @ViewBuilder private func namePointer(_ id: UUID, isProject: Bool,
+                                          onClick: @escaping () -> Void) -> some View {
+        if !trackerCapped, !Snapshot.active {
+            GeometryReader { geometry in
+                TrackerNamePointer(row: id, origin: geometry.frame(in: .named(Self.listSpace)).origin,
+                                   onClick: onClick,
+                                   onChanged: { value in
+                                       updateRowDrag(id, isProject: isProject,
+                                                     translation: value.translation, at: value.location)
+                                   },
+                                   onEnded: { value in
+                                       finishRowDrag(id, isProject: isProject, at: value.location)
+                                   },
+                                   onCancelled: { resetDrag(); onDraggingChanged?(false) })
+            }
+        }
+    }
+
     private func transferTarget(_ targetID: UUID) -> TrackerTransferTarget {
         TrackerTransferTarget(enabled: trackerCapped, session: transferSession) { id, point in
             guard let frame = rowFrames[targetID] else { return }
@@ -1171,7 +1190,6 @@ struct TrackerView: View {
     /// `minimumDistance`, so those child gestures win.
     private func dragGesture(_ id: UUID, isProject: Bool) -> some Gesture {
         DragGesture(minimumDistance: 3, coordinateSpace: .named(Self.listSpace))
-            .updating($rowDragging) { _, dragging, _ in dragging = true }
             .onChanged { value in
                 if dragRejected { return }
                 if dragTask == nil {
@@ -1183,25 +1201,36 @@ struct TrackerView: View {
                         PanelFrameLog.write("trackerDragRejected", "horizontal=true")
                         return
                     }
-                    dragTask = id
-
-                    // a drag must not fight an open field, a pending confirm or
-                    // an open card, whose own fields want the pointer
-                    endEdit()
-                    clearConfirms()
-                    commitOpenCard()
                 }
-                dragTranslation = value.translation
-                dropTarget = resolveDrop(id, isProject: isProject, at: value.location.y)
+                updateRowDrag(id, isProject: isProject,
+                              translation: value.translation, at: value.location)
             }
             .onEnded { value in
                 PanelFrameLog.write("trackerDragEnd", "owned=\(dragTask == id) rejected=\(dragRejected) y=\(value.location.y) frames=\(rowFrames.count)")
-                if dragTask == id {
-                    commitDrop(id, isProject: isProject,
-                               to: resolveDrop(id, isProject: isProject, at: value.location.y))
-                }
-                resetDrag()
+                finishRowDrag(id, isProject: isProject, at: value.location)
             }
+    }
+
+    private func updateRowDrag(_ id: UUID, isProject: Bool, translation: CGSize, at point: CGPoint) {
+        if dragTask == nil {
+            dragTask = id
+            onDraggingChanged?(true)
+            // a drag must not fight an open field, a pending confirm or
+            // an open card, whose own fields want the pointer
+            endEdit()
+            clearConfirms()
+            commitOpenCard()
+        }
+        dragTranslation = translation
+        dropTarget = resolveDrop(id, isProject: isProject, at: point.y)
+    }
+
+    private func finishRowDrag(_ id: UUID, isProject: Bool, at point: CGPoint) {
+        if dragTask == id {
+            commitDrop(id, isProject: isProject, to: resolveDrop(id, isProject: isProject, at: point.y))
+        }
+        resetDrag()
+        onDraggingChanged?(false)
     }
 
     /// The measured rows, as `TrackerDrop` wants them.
