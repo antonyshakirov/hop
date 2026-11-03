@@ -2080,6 +2080,11 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
 - **Drag to reorder:** grabbing ANYWHERE on a row moves it (see "Dragging with
   two levels" above for where it lands) — the
   reorder gesture lives on the row container (`minimumDistance` 3), not a handle.
+  It recognizes simultaneously with row/name taps, so those taps cannot prevent
+  its movement events. While a row gesture is active, the panel retains its
+  current focus ownership even if the drag closes an inline field. Gesture-state
+  reset releases that ownership and clears the drag preview on completion or
+  cancellation.
   It DISAMBIGUATES BY AXIS against the total label's horizontal scrub: on the
   first move past the threshold, a vertically dominant drag (`|dy| > |dx|`) lifts
   the row, while a horizontally dominant one stands down (latched for the rest of

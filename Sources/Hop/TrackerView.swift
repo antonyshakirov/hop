@@ -19,6 +19,7 @@ struct TrackerView: View {
     /// panel can hold the keyboard while typing — otherwise Return in a task
     /// field reaches the panel's global key handler and starts the timer.
     var onEditingChanged: ((Bool) -> Void)? = nil
+    var onDraggingChanged: ((Bool) -> Void)? = nil
     var onCardExpandedChanged: ((Bool) -> Void)? = nil
 
     /// The single field currently accepting text: a new-task entry, a rename,
@@ -111,6 +112,7 @@ struct TrackerView: View {
     // total scrub, so this row-reorder gesture stands down for the rest of it.
     @State private var dragRejected = false
     @State private var transferSession = UUID()
+    @GestureState private var rowDragging = false
 
     /// "visible rows" cap: 0 = all (default), 3…15 caps the task list to a fixed
     /// height with inner scroll (the 8h warning is pinned outside the scroll).
@@ -239,6 +241,10 @@ struct TrackerView: View {
         .onChange(of: activeField) { _, field in
             onEditingChanged?(field != nil && !Snapshot.active)
         }
+        .onChange(of: rowDragging) { _, dragging in
+            onDraggingChanged?(dragging)
+            if !dragging { resetDrag() }
+        }
         .onDisappear {
             // @State survives the popover hide/show, so a left-open field or
             // confirm row would reappear (unfocused) on the next open — clear
@@ -248,6 +254,7 @@ struct TrackerView: View {
             commitOpenCard()
             resetScrub()
             resetDrag()
+            onDraggingChanged?(false)
         }
     }
 
@@ -380,7 +387,7 @@ struct TrackerView: View {
             .padding(.vertical, 2)
             .background(rowFrameReader(project.id))
             .contentShape(Rectangle())
-            .gesture(dragGesture(project.id, isProject: true),
+            .simultaneousGesture(dragGesture(project.id, isProject: true),
                      including: trackerCapped ? .subviews : .all)
             .modifier(transferTarget(project.id))
             .opacity(dragTask == project.id ? 0.4 : 1)
@@ -529,7 +536,7 @@ struct TrackerView: View {
         .onTapGesture {
             if expandedTask == task.id { commitOpenCard() } else { expandCard(task) }
         }
-        .gesture(dragGesture(task.id, isProject: false),
+        .simultaneousGesture(dragGesture(task.id, isProject: false),
                  including: trackerCapped ? .subviews : .all)
         .modifier(transferTarget(task.id))
         .opacity(dragTask == task.id ? 0.4 : 1)
@@ -1164,6 +1171,7 @@ struct TrackerView: View {
     /// `minimumDistance`, so those child gestures win.
     private func dragGesture(_ id: UUID, isProject: Bool) -> some Gesture {
         DragGesture(minimumDistance: 3, coordinateSpace: .named(Self.listSpace))
+            .updating($rowDragging) { _, dragging, _ in dragging = true }
             .onChanged { value in
                 if dragRejected { return }
                 if dragTask == nil {

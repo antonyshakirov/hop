@@ -109,6 +109,7 @@ struct PanelView: View {
     // Feeds `panelKeyboardCaptured` alongside `editUnit` so `handleKey` lets
     // Return/Space/digits reach the field instead of driving the timer.
     @State private var trackerEditing = false
+    @State private var trackerDragging = false
     // A to-do inline field is focused — same keyboard-capture concern as the
     // tracker's fields (digits must not leak to the timer sharing this space).
     @State private var todosEditing = false
@@ -363,6 +364,7 @@ struct PanelView: View {
         }
         .onChange(of: editUnit) { _, _ in syncKeyboardCapture() }
         .onChange(of: trackerEditing) { _, _ in syncKeyboardCapture() }
+        .onChange(of: trackerDragging) { _, _ in syncKeyboardCapture() }
         .onChange(of: todosEditing) { _, _ in syncKeyboardCapture() }
         .onChange(of: clipboardSearching) { _, _ in syncKeyboardCapture() }
         .onChange(of: panelTabsRaw) { _, _ in panelConfigurationChanged() }
@@ -1359,7 +1361,7 @@ struct PanelView: View {
     /// the controller keeps focus in the panel; once all drop, hand the
     /// keyboard back to the app underneath.
     private func syncKeyboardCapture() {
-        let captured = editUnit != nil || trackerEditing || todosEditing || clipboardSearching
+        let captured = editUnit != nil || trackerEditing || trackerDragging || todosEditing || clipboardSearching
         model.panelKeyboardCaptured = captured
         if !captured { model.panelFocusChanged?() }
     }
@@ -3399,6 +3401,7 @@ struct PanelView: View {
         case "tracker":
             TrackerView(tracker: model.tracker, lang: lang,
                         onEditingChanged: { trackerEditing = $0 },
+                        onDraggingChanged: { trackerDragging = $0 },
                         onCardExpandedChanged: { expanded in
                             spaceHeightCache.setExpanded(expanded, module: "tracker", in: spaceID)
                         })
