@@ -77,7 +77,7 @@ enum MenuBarIcon {
         } else {
             return canvasSize
         }
-        return NSSize(width: (right + 1).rounded(.up), height: canvasSize.height)
+        return NSSize(width: right.rounded(.down), height: canvasSize.height)
     }
 
     private static func drawDevMark(color: NSColor) {

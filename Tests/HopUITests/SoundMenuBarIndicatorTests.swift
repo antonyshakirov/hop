@@ -109,14 +109,52 @@ final class SoundMenuBarIndicatorTests: XCTestCase {
     }
 
     func testMixerImageWidthUsesOnlyTheVisibleSymbols() {
-        let cases: [(Bool, Bool, CGFloat)] = [(false, false, 22), (true, false, 30),
-                                             (false, true, 33), (true, true, 41)]
+        let cases: [(Bool, Bool, CGFloat)] = [(false, false, 22), (true, false, 28),
+                                             (false, true, 31), (true, true, 39)]
         for (input, output, width) in cases {
             let image = MenuBarIcon.compose(IconComposition(outputMix: output, inputMix: input))
             XCTAssertEqual(image.size, NSSize(width: width, height: 17), "input=\(input), output=\(output)")
         }
         XCTAssertEqual(MenuBarIcon.dialTemplate.size, NSSize(width: 22, height: 17))
         XCTAssertEqual(MenuBarIcon.plainDialTemplate.size, NSSize(width: 22, height: 17))
+    }
+
+    func testCompactAudioCanvasPreservesEveryRenderedPixel() throws {
+        for scale in [1, 2] { for dark in [false, true] {
+            for (input, output) in [(true, false), (false, true), (true, true)] {
+                let composition = IconComposition(outputMix: output, inputMix: input)
+                let size = MenuBarIcon.canvasSize(for: composition)
+                let full = try XCTUnwrap(NSBitmapImageRep(bitmapDataPlanes: nil,
+                    pixelsWide: Int(size.width + 1) * scale, pixelsHigh: 17 * scale,
+                    bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true,
+                    isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0))
+                full.size = NSSize(width: size.width + 1, height: 17)
+                NSGraphicsContext.saveGraphicsState()
+                NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: full)
+                MenuBarIcon.drawAudioIndicators(composition, glyph: dark ? .white : .black)
+                NSGraphicsContext.restoreGraphicsState()
+                var ink = 0
+                for y in 0..<full.pixelsHigh { for x in 0..<full.pixelsWide {
+                    let alpha = full.colorAt(x: x, y: y)?.alphaComponent ?? 0
+                    if alpha > 0 { ink += 1 }
+                    if x >= Int(size.width) * scale { XCTAssertEqual(alpha, 0) }
+                }}
+                XCTAssertGreaterThan(ink, 0)
+                if let directory = ProcessInfo.processInfo.environment["HOP_MENU_PREVIEW_DIR"] {
+                    let image = MenuBarIcon.compose(composition, dark: dark, markDev: true)
+                    let preview = NSImage(size: image.size)
+                    preview.lockFocus()
+                    (dark ? NSColor(white: 0.12, alpha: 1) : .white).setFill()
+                    NSRect(origin: .zero, size: image.size).fill()
+                    image.draw(at: .zero, from: .zero, operation: .sourceOver, fraction: 1)
+                    preview.unlockFocus()
+                    let bitmap = try XCTUnwrap(NSBitmapImageRep(data: XCTUnwrap(preview.tiffRepresentation)))
+                    let file = "menu-\(dark ? "dark" : "light")-\(input)-\(output).png"
+                    try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
+                        .write(to: URL(fileURLWithPath: directory).appendingPathComponent(file))
+                }
+            }
+        }}
     }
 
     func testPopoverArrowUsesTheHopArtworkRatherThanTheExpandedAudioGroup() throws {
