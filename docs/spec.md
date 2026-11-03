@@ -3477,6 +3477,10 @@ drawn list of programs with their verdicts rather than the window itself.
   its digits 1.5pt on focus to cancel the hop out; the nudge is gone with the
   hop. The tracker routes focus by an enum, so its fields read that state
   through a `caret(on:)` binding rather than `@FocusState`.
+  That enum is ordinary `@State`: the AppKit editor owns focus and SwiftUI must
+  not reset it when a draft or tracker observation updates. The hosted
+  `TrackerInteractionTests` type full task/project names across redraws, append
+  consecutive items with Return, and cancel a remaining draft with Escape.
   **A hand-made cell comes back neither editable nor selectable**, whatever the
   field it is put into was, so both are set again after the swap. Without that
   every field in the app was read-only and looked like it simply ignored the

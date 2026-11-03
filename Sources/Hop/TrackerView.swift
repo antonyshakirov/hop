@@ -59,7 +59,7 @@ struct TrackerView: View {
     @State private var activeField: Field?
     @State private var nameDraft = ""
     @State private var totalDraft = ""
-    @FocusState private var focused: Field?
+    @State private var focused: Field?
 
     @State private var confirmingDeleteTask: UUID?
     @State private var confirmingDeleteProject: UUID?
@@ -1137,6 +1137,7 @@ struct TrackerView: View {
 
     private func transferSource(_ id: UUID) -> TrackerTransferSource {
         TrackerTransferSource(enabled: trackerCapped, row: id, session: transferSession) {
+            PanelFrameLog.write("trackerNativeBegin", "capped=\(trackerCapped) frames=\(rowFrames.count)")
             endEdit()
             clearConfirms()
             commitOpenCard()
@@ -1166,10 +1167,12 @@ struct TrackerView: View {
             .onChanged { value in
                 if dragRejected { return }
                 if dragTask == nil {
+                    PanelFrameLog.write("trackerDragBegin", "capped=\(trackerCapped) dx=\(value.translation.width) dy=\(value.translation.height) frames=\(rowFrames.count)")
                     // decide the axis on the first move: a horizontal-dominant
                     // drag is a total scrub, not a reorder — stand down.
                     guard abs(value.translation.height) > abs(value.translation.width) else {
                         dragRejected = true
+                        PanelFrameLog.write("trackerDragRejected", "horizontal=true")
                         return
                     }
                     dragTask = id
@@ -1184,6 +1187,7 @@ struct TrackerView: View {
                 dropTarget = resolveDrop(id, isProject: isProject, at: value.location.y)
             }
             .onEnded { value in
+                PanelFrameLog.write("trackerDragEnd", "owned=\(dragTask == id) rejected=\(dragRejected) y=\(value.location.y) frames=\(rowFrames.count)")
                 if dragTask == id {
                     commitDrop(id, isProject: isProject,
                                to: resolveDrop(id, isProject: isProject, at: value.location.y))
@@ -1222,6 +1226,7 @@ struct TrackerView: View {
     }
 
     private func commitDrop(_ id: UUID, isProject: Bool, to target: TrackerDrop.Target) {
+        PanelFrameLog.write("trackerDrop", "project=\(isProject) parent=\(target.parent != nil) index=\(target.index)")
         if isProject {
             guard let from = engine.data.rootOrder.firstIndex(of: id) else { return }
             engine.moveRootItem(from: from, to: target.index)

@@ -123,6 +123,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let popover = NSPopover()
     private var explicitPopoverClose = false
     private var outsideClickProbe: Any?
+    private var diagnosticMouseProbe: Any?
+    private var diagnosticDragObserved = false
     private var pasteActivationObserver: NSObjectProtocol?
     private var pasteActivationGate: PasteActivationGate?
     private var popoverResizeScheduled = false
@@ -261,6 +263,11 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                     NSEvent.removeMonitor(outsideClickProbe)
                     self?.outsideClickProbe = nil
                 }
+                if let diagnosticMouseProbe = self?.diagnosticMouseProbe {
+                    NSEvent.removeMonitor(diagnosticMouseProbe)
+                    self?.diagnosticMouseProbe = nil
+                }
+                self?.diagnosticDragObserved = false
                 PanelFrameLog.write("willClose", "active=\(NSApp.isActive)")
                 // closing the panel starts the idle countdown for the updater
                 self?.model.activity.note()
@@ -637,6 +644,18 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             panelWindow.allowsToolTipsWhenApplicationIsInactive = true
         }
         syncTabPanelFrame()
+        if PanelFrameLog.enabled, diagnosticMouseProbe == nil {
+            diagnosticMouseProbe = NSEvent.addLocalMonitorForEvents(
+                matching: [.leftMouseDown, .leftMouseDragged, .leftMouseUp]
+            ) { [weak self] event in
+                guard let self, self.popover.isShown,
+                      event.window === self.popover.contentViewController?.view.window else { return event }
+                if event.type == .leftMouseDragged, self.diagnosticDragObserved { return event }
+                self.diagnosticDragObserved = event.type == .leftMouseDragged
+                PanelFrameLog.write("panelMouse", "type=\(event.type.rawValue) point=\(event.locationInWindow) active=\(NSApp.isActive) captured=\(self.model.panelKeyboardCaptured)")
+                return event
+            }
+        }
         if outsideClickProbe == nil {
             outsideClickProbe = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
                 let pointer = NSEvent.mouseLocation

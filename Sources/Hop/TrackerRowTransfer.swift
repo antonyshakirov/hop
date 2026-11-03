@@ -75,9 +75,11 @@ struct TrackerTransferTarget: ViewModifier {
 
         func performDrop(info: DropInfo) -> Bool {
             let point = info.location
+            PanelFrameLog.write("trackerNativeDrop", "point=\(point)")
             return TrackerRowTransfer.read(
                 info.itemProviders(for: [TrackerRowTransfer.typeIdentifier]), session: session
             ) { row in
+                PanelFrameLog.write("trackerNativeRead", "accepted=\(row != nil)")
                 if let row { onDrop(row, point) }
             }
         }
