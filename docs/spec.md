@@ -71,6 +71,10 @@ signing would break).
    NSWorkspace notifications: before, `+Hop −app +app −Hop` per click; after,
    none. Older systems keep the old path. The tabs' own nonactivating strip
    stays as it was.
+   Starting a SteadyField edit temporarily clears the window's activation
+   prevention and explicitly requests the keyboard. Once editing ends, the
+   panel restores activation prevention before returning focus. Ordinary
+   button clicks retain the nonactivating behavior.
 5. **Hover highlights bleed outward, they do not inset the content.** A
    full-width row (the "new task" footers) starts on the panel's own inset, so a
    highlight drawn on the row's exact bounds lands on the first glyph and on the
@@ -2066,7 +2070,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
   dropped) (`RowCap.listHeight`, INTEGRAL); the subheader, the pinned 8h warning and the
   `+ new task` add row stay OUTSIDE the scroll. While scrolling, the whole-row
   reorder drag stands down (`including: .subviews`) so the pan scrolls, while the
-  horizontal total-scrub and the play/stop taps keep working. Snapshots never
+  horizontal total-scrub and the play/stop taps keep working. In a scrolling
+  list, dragging a task or project NAME starts a native move. Dropping on a
+  visible row uses the same parent/index rules as the uncapped list, including
+  folded projects. Transfers are local to that tracker view; external text and
+  other tracker sessions cannot move its rows. Cancelling a native drag does
+  not change data or leave the source row dimmed. Snapshots never
   scroll. Shares `RowCap` + `VisibleRowsField` with the to-do module.
 - **Drag to reorder:** grabbing ANYWHERE on a row moves it (see "Dragging with
   two levels" above for where it lands) — the

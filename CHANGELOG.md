@@ -1,5 +1,11 @@
 # Hop - version history
 
+## 2.4.2 - 2026-11-03
+
+- Time tracker: text fields request keyboard activation when editing begins.
+- Time tracker: tasks and projects can be dragged by name in scrolling lists.
+  Tasks dropped on a project keep their recorded time and history.
+
 ## 2.4.1 - 2026-10-29
 
 - Clicking the menu-bar icon again hides the panel.

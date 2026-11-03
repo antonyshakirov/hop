@@ -159,7 +159,14 @@ class SteadyTextField: NSTextField {
 
     override func becomeFirstResponder() -> Bool {
         let accepted = super.becomeFirstResponder()
-        if accepted { onFocus?() }
+        if accepted {
+            onFocus?()
+            if let window, window.isVisible {
+                _ = StatusItemController.preventActivation(of: window, prevented: false)
+                NSApp.activate()
+                window.makeKey()
+            }
+        }
         return accepted
     }
 }

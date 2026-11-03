@@ -48,3 +48,18 @@ implementation; this file does not declare that they currently pass.
 | IN-21 | Stop, close, cancel or fail a published input mix | Capture stops and Hop Mix is withdrawn before completion; explicit Start republishes before capture; saved source preferences remain intact; receiving app defaults are not changed |
 
 | IN-22 | HAL refuses input withdrawal | Stop reports failure, resources remain owned for cleanup, producer is reaped and a later explicit retry cleans up before publishing again; presets remain unchanged |
+
+## Tracker keyboard and project moves
+
+| ID | Given / action | Expected observable result |
+| --- | --- | --- |
+| TR-01 | On macOS 27, open New Task in an inactive panel and type; submit and repeat | Keystrokes enter the field; Return creates one task and clears the draft for the next |
+| TR-02 | Rename a project, edit a task name or time, then finish or cancel | Field owns keyboard input during editing; ordinary panel clicks return focus without flicker |
+| TR-03 | More visible tracker rows than the configured cap; drag a task name onto a folded or open project | Task moves into that project once; task identity, history and recorded time remain intact |
+| TR-04 | In a scrolling list, drag a project name, reorder tasks, or move a task out | Projects remain at root; task ownership and insertion follow the uncapped list rules |
+| TR-05 | Scroll with wheel/trackpad; scrub a task's time horizontally; cancel a native name drag | Scrolling and scrubbing remain available; cancelled drag leaves data and row appearance unchanged |
+| TR-06 | Drop plain text, malformed transfer data or a row from another tracker session | No tracker mutation |
+
+These cases define the required behavior. Native unit tests cover activation-tag
+release, editor key handling and transfer payloads; they do not certify physical
+keyboard routing, focus return or the complete mouse-drag path.

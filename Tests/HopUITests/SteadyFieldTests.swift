@@ -25,6 +25,44 @@ final class SteadyFieldTests: XCTestCase {
         }
     }
 
+    func testOpeningFieldAllowsActivationAndHandlesKeyEvents() throws {
+        _ = NSApplication.shared
+        let draft = Draft()
+        let host = NSHostingView(rootView: Editor(draft: draft))
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 300, height: 40),
+                              styleMask: [.titled], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        window.contentView = host
+        _ = StatusItemController.preventActivation(of: window)
+        window.orderFrontRegardless()
+        Self.retainedFixtures.append(contentsOf: [draft as AnyObject, host, window])
+        defer { window.orderOut(nil) }
+        pump()
+
+        draft.focused = true
+        pump()
+        let field = try XCTUnwrap(descendants(of: host).compactMap { $0 as? NSTextField }.first)
+        XCTAssertNotNil(field.currentEditor())
+        let getter = Selector(("_preventsActivation"))
+        if #available(macOS 27.0, *) {
+            typealias Getter = @convention(c) (AnyObject, Selector) -> Bool
+            XCTAssertTrue(window.responds(to: getter))
+            XCTAssertFalse(unsafeBitCast(window.method(for: getter), to: Getter.self)(window, getter),
+                           "Opening a field must release the nonactivating window tag")
+        }
+        let editor = try XCTUnwrap(field.currentEditor() as? NSTextView)
+        for letter in "Draft" {
+            let event = try XCTUnwrap(NSEvent.keyEvent(
+                with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0,
+                windowNumber: window.windowNumber, context: nil,
+                characters: String(letter), charactersIgnoringModifiers: String(letter),
+                isARepeat: false, keyCode: 0))
+            editor.keyDown(with: event)
+            pump()
+        }
+        XCTAssertEqual(draft.text, "Draft")
+    }
+
     func testTypingKeepsProjectNameFieldFocused() {
         let draft = Draft()
         let host = NSHostingView(rootView: Editor(draft: draft))

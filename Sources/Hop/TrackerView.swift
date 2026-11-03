@@ -110,6 +110,7 @@ struct TrackerView: View {
     // Latched when a reorder drag's first move is horizontal-dominant — that's a
     // total scrub, so this row-reorder gesture stands down for the rest of it.
     @State private var dragRejected = false
+    @State private var transferSession = UUID()
 
     /// "visible rows" cap: 0 = all (default), 3…15 caps the task list to a fixed
     /// height with inner scroll (the 8h warning is pinned outside the scroll).
@@ -329,6 +330,7 @@ struct TrackerView: View {
                     .truncationMode(.tail)
                     .contentShape(Rectangle())
                     .onTapGesture { beginRenameProject(project) }
+                    .modifier(transferSource(project.id))
                 // a folded project still has to show that something under it runs
                 if !project.isExpanded, engine.isTracking(projectID: project.id) {
                     Circle()
@@ -380,6 +382,7 @@ struct TrackerView: View {
             .contentShape(Rectangle())
             .gesture(dragGesture(project.id, isProject: true),
                      including: trackerCapped ? .subviews : .all)
+            .modifier(transferTarget(project.id))
             .opacity(dragTask == project.id ? 0.4 : 1)
             .offset(dragTask == project.id ? dragTranslation : .zero)
             .zIndex(dragTask == project.id ? 2 : 0)
@@ -528,6 +531,7 @@ struct TrackerView: View {
         }
         .gesture(dragGesture(task.id, isProject: false),
                  including: trackerCapped ? .subviews : .all)
+        .modifier(transferTarget(task.id))
         .opacity(dragTask == task.id ? 0.4 : 1)
         .offset(dragTask == task.id ? dragTranslation : .zero)
         .zIndex(dragTask == task.id ? 2 : 0)
@@ -933,6 +937,7 @@ struct TrackerView: View {
             .foregroundStyle(Theme.listText)
             .lineLimit(1)
             .truncationMode(.tail)
+            .modifier(transferSource(task.id))
     }
 
     /// The name to show for a task: what is being typed if its card is open and
@@ -1128,6 +1133,24 @@ struct TrackerView: View {
         scrubPending = nil
         scrubSteps = 0
         scrubRejected = false
+    }
+
+    private func transferSource(_ id: UUID) -> TrackerTransferSource {
+        TrackerTransferSource(enabled: trackerCapped, row: id, session: transferSession) {
+            endEdit()
+            clearConfirms()
+            commitOpenCard()
+        }
+    }
+
+    private func transferTarget(_ targetID: UUID) -> TrackerTransferTarget {
+        TrackerTransferTarget(enabled: trackerCapped, session: transferSession) { id, point in
+            guard let frame = rowFrames[targetID] else { return }
+            let isProject = engine.data.projects.contains { $0.id == id }
+            guard isProject || engine.data.tasks.contains(where: { $0.id == id }) else { return }
+            commitDrop(id, isProject: isProject,
+                       to: resolveDrop(id, isProject: isProject, at: frame.minY + point.y))
+        }
     }
 
     // MARK: - Drag to reorder

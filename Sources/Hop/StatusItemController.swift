@@ -375,12 +375,13 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     func maybeReturnFocus() {
         guard popover.isShown else { return }
         PanelFrameLog.write("focusPing", "active=\(NSApp.isActive) captured=\(model.panelKeyboardCaptured)")
-        guard NSApp.isActive, !focusYieldPending else { return }
         guard !model.panelKeyboardCaptured else { return }
         let panelWindow = popover.contentViewController?.view.window
-        if let key = NSApp.keyWindow, key !== panelWindow { return }
         // a focused text field (field editor) means real typing — keep it
         if let responder = panelWindow?.firstResponder, responder is NSText { return }
+        if let panelWindow { panelPreventsActivation = Self.preventActivation(of: panelWindow) }
+        guard NSApp.isActive, !focusYieldPending else { return }
+        if let key = NSApp.keyWindow, key !== panelWindow { return }
         guard let previousApp, !previousApp.isTerminated,
               previousApp.processIdentifier != ProcessInfo.processInfo.processIdentifier
         else { return }
@@ -398,12 +399,12 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     // WORKAROUND: macOS 27 activates Hop on any popover click, and NSPopover drops
     // the nonactivating flag. SPEC: docs/spec.md — "Hard invariants of the panel".
-    static func preventActivation(of window: NSWindow) -> Bool {
+    static func preventActivation(of window: NSWindow, prevented: Bool = true) -> Bool {
         guard #available(macOS 27.0, *) else { return false }
         let selector = Selector(("_setPreventsActivation:"))
         guard window.responds(to: selector) else { return false }
         typealias Setter = @convention(c) (AnyObject, Selector, Bool) -> Void
-        unsafeBitCast(window.method(for: selector), to: Setter.self)(window, selector, true)
+        unsafeBitCast(window.method(for: selector), to: Setter.self)(window, selector, prevented)
         return true
     }
 
