@@ -222,11 +222,15 @@ final class PanelFirstMouseTests: XCTestCase {
 
         model.openTab = .spaceContaining("tracker")
         let resizeDeadline = Date().addingTimeInterval(4)
-        while popover.contentSize.height >= tallHeight - 100 && Date() < resizeDeadline {
+        while (popover.contentSize.height <= 1 || popover.contentSize.height >= tallHeight - 100
+               || immediateHeight.map { abs(popover.contentSize.height - $0) <= 2 } ?? true)
+            && Date() < resizeDeadline {
             RunLoop.main.run(until: Date().addingTimeInterval(0.05))
         }
         controller.view.layoutSubtreeIfNeeded()
         let shortHeight = popover.contentSize.height
+        XCTAssertGreaterThan(abs(shortHeight - (immediateHeight ?? shortHeight)), 2,
+                             "the first visit must replace its provisional resize with a content measurement")
         print("PANEL TEST tall=\(tallHeight) short=\(shortHeight) shown=\(popover.isShown) "
               + "window=\(controller.view.window?.frame.height ?? -1) view=\(controller.view.frame.height) "
               + "reported=\(measuredSizes.map(\.height)) immediate=\(immediateHeight ?? -1)")
