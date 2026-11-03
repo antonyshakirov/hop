@@ -17,6 +17,16 @@ const xcrun = '#!/bin/sh\nexec /usr/bin/xcrun --no-cache "$@"\n';
 try { await writeFile(join(bin, 'xcrun'), xcrun, { mode: 0o700, flag: 'wx' }); }
 catch (error) { if (error.code !== 'EEXIST' || (await readPrivateNativeFile(join(bin, 'xcrun'))).toString('utf8') !== xcrun) throw error; }
 const env = nativeEnvironment(run, { ...process.env, PATH: bin + ':' + process.env.PATH });
+const swiftExecutable = join(env.DEVELOPER_DIR, 'Toolchains/XcodeDefault.xctoolchain/usr/bin/swift');
+const swiftArguments = ['--disable-sandbox', '--build-system', 'native'];
+const platformPlugins = join(env.DEVELOPER_DIR, 'Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins');
+const pluginServer = join(env.DEVELOPER_DIR, 'Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-plugin-server');
+try {
+  await lstat(join(platformPlugins, 'libSwiftUIMacros.dylib'));
+  swiftArguments.push('-Xswiftc', '-external-plugin-path', '-Xswiftc', platformPlugins + '#' + pluginServer);
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
+}
 const profile = join(run, 'hop-' + mode + '.sb');
 const tools = [];
 if (mode === 'codeql') {
@@ -57,15 +67,15 @@ if (mode === 'messages') {
   validateMessages(commits.map(sha => git(['log', '-1', '--format=%B', sha])));
   console.log('Incoming commit messages checked: ' + commits.length);
 } else if (mode === 'toolchain') {
-  const result = await command('swift', ['--version']);
+  const result = await command(swiftExecutable, ['--version']);
   await writeFile('hop-toolchain.json', JSON.stringify({ swift: result.stdout.trim(), platform: process.platform, arch: process.arch }) + '\n', { flag: 'wx', mode: 0o600 });
 } else if (mode === 'build') {
-  const result = await command('swift', ['build', '--disable-sandbox', '--build-system', 'native']);
+  const result = await command(swiftExecutable, ['build', ...swiftArguments]);
   if (/^.*: (error|warning):/m.test(result.stdout + result.stderr)) throw new Error('Swift build produced warnings or errors');
 } else if (mode === 'tests') {
-  const list = await command('swift', ['test', '--disable-sandbox', '--build-system', 'native', 'list']);
+  const list = await command(swiftExecutable, ['test', ...swiftArguments, 'list']);
   await writeFile('hop-test-discovery.txt', list.stdout, { flag: 'wx', mode: 0o600 });
-  const result = await command('swift', ['test', '--disable-sandbox', '--build-system', 'native']);
+  const result = await command(swiftExecutable, ['test', ...swiftArguments]);
   await writeFile('hop-test-output.txt', result.stdout + result.stderr, { flag: 'wx', mode: 0o600 });
   const summary = summarizeTests(list.stdout, result.stdout + result.stderr);
   await writeFile('hop-test-summary.json', JSON.stringify(summary) + '\n', { flag: 'wx', mode: 0o600 });
