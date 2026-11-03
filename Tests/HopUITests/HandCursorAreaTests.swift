@@ -50,7 +50,6 @@ final class HandCursorAreaTests: XCTestCase {
             XCTAssertEqual(NSCursor.current, NSCursor.arrow)
             area.isEnabled = true
             area.refreshCursor()
-            RunLoop.main.run(until: Date().addingTimeInterval(0.05))
             XCTAssertEqual(NSCursor.current, NSCursor.pointingHand)
         }
     }
