@@ -4480,6 +4480,23 @@ A file picker — the save panel of a clipboard entry, any open panel — opens
 ABOVE Hop's panel and takes the keyboard (`FilePicker.raise`): the panel floats
 on a raised level, and the picker used to come up under it.
 
+### Initial torrent file selection
+
+- The confirmed file indices travel in `only_files` on the initial
+  `POST /torrents`, before storage initialization or downloading. An empty,
+  negative or unknown selection is rejected before adding a torrent. The
+  metadata preview remains `list_only` and does not create payload files.
+- An explicit selection also overrides a magnet's `so` parameter when every
+  file is checked. Re-adding a managed torrent updates its selection by info
+  hash when its returned selection differs. A rejected update is propagated;
+  the existing Hop row is not replaced with an unconfirmed selection.
+- rqbit 9.0.1 still opens every non-padding member during storage initialization,
+  creating parent directories and empty skipped files. `only_files` prevents
+  skipped files from being pre-sized, but cannot prevent these paths. Parts
+  shared with a selected file can also write bytes to skipped files. Hop does
+  not delete these paths as part of selection or attempt to infer ownership.
+  Existing downloads are not cleaned up by this fix.
+
 ### Removing one file of a torrent (Anton, 2026-10-01)
 
 - Every file of an expanded multi-file torrent has a small ✕ at the end of its

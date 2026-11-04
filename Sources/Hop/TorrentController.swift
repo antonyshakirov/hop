@@ -328,6 +328,10 @@ final class TorrentController: ObservableObject {
     }
 
     func confirmAdd(_ pending: PendingAdd, selectedIndices: Set<Int>, outputFolder: URL? = nil) async throws {
+        guard !selectedIndices.isEmpty,
+              selectedIndices.isSubset(of: Set(pending.files.map(\.index))) else {
+            throw TorrentEngineClient.EngineError.invalidSelection
+        }
         addsInFlight += 1
         defer { addsInFlight -= 1 }
         try await ensureEngine()
@@ -339,7 +343,8 @@ final class TorrentController: ObservableObject {
         let base = outputFolder ?? downloadFolder
         let folder = TorrentLayout.subfolder(torrentName: pending.name, fileCount: pending.files.count)
             .map { base.appendingPathComponent($0, isDirectory: true) } ?? base
-        let added = try await client.add(body: pending.source.body, outputFolder: folder.path)
+        let added = try await client.add(body: pending.source.body, outputFolder: folder.path,
+                                         selectedIndices: selectedIndices.sorted())
         if removals.contains(added.infoHash) {   // added back: the old removal must not forget it
             removals.cancel(infoHash: added.infoHash)
             persistRemovals()
@@ -365,13 +370,6 @@ final class TorrentController: ObservableObject {
         }
         persist()
         startPolling()
-        // Apply the file selection AFTER the row exists and is persisted, best-effort:
-        // if it failed BEFORE the append (as it used to), a throw left the torrent
-        // running in the engine with no row — invisible and unremovable from the UI.
-        let allIndices = Set(pending.files.map { $0.index })
-        if selectedIndices != allIndices {
-            try? await client.setSelectedFiles(id: id, indices: Array(selectedIndices).sorted())
-        }
     }
 
     // MARK: - Actions

@@ -29,13 +29,17 @@ public struct TorrentEngineClient {
     /// The body is either a magnet/HTTP-URL as UTF-8 bytes or the raw bytes of a
     /// `.torrent` file. rqbit sniffs the content, so it must arrive verbatim —
     /// never re-encode it as a string here.
-    static func addRequest(base: URL, body: Data, listOnly: Bool, outputFolder: String?) -> URLRequest {
+    static func addRequest(base: URL, body: Data, listOnly: Bool, outputFolder: String?,
+                           selectedIndices: [Int]? = nil) -> URLRequest {
         var comps = URLComponents(url: url(base, "torrents"), resolvingAgainstBaseURL: false)!
         var items = [
             URLQueryItem(name: "list_only", value: listOnly ? "true" : "false"),
             URLQueryItem(name: "overwrite", value: "true"),
         ]
         if let outputFolder { items.append(URLQueryItem(name: "output_folder", value: outputFolder)) }
+        if let selectedIndices {
+            items.append(URLQueryItem(name: "only_files", value: selectedIndices.map(String.init).joined(separator: ",")))
+        }
         comps.queryItems = items
         var req = URLRequest(url: comps.url!)
         req.httpMethod = "POST"
@@ -68,13 +72,30 @@ public struct TorrentEngineClient {
 }
 
 extension TorrentEngineClient {
-    public enum EngineError: Error, Equatable { case http(Int) }
+    public enum EngineError: Error, Equatable { case http(Int), invalidSelection }
 
     public func addListOnly(body: Data) async throws -> AddResult {
         try RqbitDecoding.addResult(from: await send(Self.addRequest(base: baseURL, body: body, listOnly: true, outputFolder: nil)))
     }
-    public func add(body: Data, outputFolder: String?) async throws -> AddResult {
-        try RqbitDecoding.addResult(from: await send(Self.addRequest(base: baseURL, body: body, listOnly: false, outputFolder: outputFolder)))
+    public func add(body: Data, outputFolder: String?, selectedIndices: [Int]) async throws -> AddResult {
+        guard !selectedIndices.isEmpty, selectedIndices.allSatisfy({ $0 >= 0 }) else {
+            throw EngineError.invalidSelection
+        }
+        let selected = Set(selectedIndices)
+        let indices = selected.sorted()
+        let result = try RqbitDecoding.addResult(from: await send(Self.addRequest(
+            base: baseURL, body: body, listOnly: false, outputFolder: outputFolder, selectedIndices: indices)))
+        if Set(result.files.filter(\.selected).map(\.index)) != selected {
+            try await setSelectedFiles(id: result.infoHash, indices: indices)
+            let files = result.files.map { file in
+                var file = file
+                file.selected = selected.contains(file.index)
+                return file
+            }
+            return AddResult(id: result.id, infoHash: result.infoHash, name: result.name,
+                             outputFolder: result.outputFolder, files: files)
+        }
+        return result
     }
     public func setSelectedFiles(id: String, indices: [Int]) async throws {
         _ = try await send(Self.updateOnlyFilesRequest(base: baseURL, id: id, indices: indices))

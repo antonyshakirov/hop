@@ -1,5 +1,20 @@
 # Audio input and confirmed-agent regression cases
 
+## Torrent initial selection
+
+Requirements: `docs/spec.md`, Initial torrent file selection.
+
+| ID | Given / action | Expected observable result |
+| --- | --- | --- |
+| TOR-01 | Add selected members of a multi-file torrent | First add includes their sorted indices; raw metadata is unchanged; no initially unrestricted download |
+| TOR-02 | Confirm none, a negative index or an unknown member | Rejected before starting an engine or adding a row |
+| TOR-03 | Select every file of a magnet containing `so` | Explicit confirmed indices override the magnet selection |
+| TOR-04 | Re-add an existing torrent with a different selection | Update uses info hash; a refused update propagates and does not replace the row with unconfirmed state |
+| TOR-05 | Add into a folder with an existing unselected file | Initial selection does not resize that file; no cleanup deletes existing data |
+| TOR-06 | Download selected members, including a shared piece, then restart | Selected bytes are correct and selection persists; document rqbit's skipped placeholders and shared-piece writes rather than treating path absence as verified |
+
+## Audio input and confirmed-agent cases
+
 Requirements: `screens/sound-input.md`. These scenarios are required for the new
 implementation; this file does not declare that they currently pass.
 
