@@ -1,2 +1,3 @@
 # Unified patch context retains its blank-line space marker.
 scripts/own-ci/codeql-compatibility/*.patch whitespace=-blank-at-eol
+engine/rqbit/selective-storage.patch whitespace=-blank-at-eol

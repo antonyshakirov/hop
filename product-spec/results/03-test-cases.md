@@ -11,7 +11,13 @@ Requirements: `docs/spec.md`, Initial torrent file selection.
 | TOR-03 | Select every file of a magnet containing `so` | Explicit confirmed indices override the magnet selection |
 | TOR-04 | Re-add an existing torrent with a different selection | Update uses info hash; a refused update propagates and does not replace the row with unconfirmed state |
 | TOR-05 | Add into a folder with an existing unselected file | Initial selection does not resize that file; no cleanup deletes existing data |
-| TOR-06 | Download selected members, including a shared piece, then restart | Selected bytes are correct and selection persists; document rqbit's skipped placeholders and shared-piece writes rather than treating path absence as verified |
+| TOR-06 | Use the patched engine to download selected members and restart with fast resume | Selected bytes match; selection and shared fragments persist; missing ranges are verified rather than trusted |
+| TOR-07 | Shared pieces with absent skipped files, then seed to another client | Selected bytes match in both clients; skipped files/directories remain absent; fragments are served from the journal |
+| TOR-08 | Shared pieces with existing skipped data | Existing bytes and length remain unchanged; selected bytes match |
+| TOR-09 | Deselect, then reselect with overwrite disabled | Owned file is reusable; later skipped writes use cache; previously foreign files remain protected |
+| TOR-10 | Fail after materializing one of several requested files, then retry | Previous effective selection survives; owned file can be reused without allowing foreign overwrite |
+| TOR-11 | Delete synthetic torrent files from Error with a corrupt cache | Payload and cache are removed without replay; an obstructed cleanup returns an error |
+| TOR-12 | Torn/corrupt journal, overlapping writes and repeated overwrite | Incomplete tail recovers, corrupt complete records fail, latest ranges replay correctly and obsolete data is compacted |
 
 ## Audio input and confirmed-agent cases
 

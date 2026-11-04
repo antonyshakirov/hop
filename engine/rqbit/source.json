@@ -1,0 +1,30 @@
+{
+  "upstream": "https://github.com/ikatson/rqbit",
+  "tag": "v9.0.1",
+  "commit": "a499d2f243d124e144aef137afe7cb304a6e3f36",
+  "patch": "selective-storage.patch",
+  "patch_sha256": "09fd1a717f4b74750b75b98b1d4ce21077b354de7f48ef33f5c9ee10a0d6e487",
+  "rust_toolchain": "1.99.1",
+  "verified_target": "aarch64-apple-darwin",
+  "build_features": [
+    "rust-tls"
+  ],
+  "patched_files_sha256": {
+    "crates/librqbit/src/file_ops.rs": "7a4ac6e6acd6bed19781cfa1202b76d91b57ebaab525f4a1f042318d4069296b",
+    "crates/librqbit/src/session.rs": "a6f21ec9c52606e43271111808f086f1fb86746dec1065e4dfea043adafd32d5",
+    "crates/librqbit/src/storage/filesystem/fs.rs": "53c9f43ea75e875f1c3acaa926c54bc942b54c40aae97fca78aafa4cfba73d18",
+    "crates/librqbit/src/storage/filesystem/mod.rs": "05fe0559e7678ececc97771e01c7d91f1b88eb9bbeb38597de200faa0e4ead7e",
+    "crates/librqbit/src/storage/filesystem/opened_file.rs": "2b780ce63905c6e898f21ed51882d760ed2df0d824ac31a81d95d85e239b47ae",
+    "crates/librqbit/src/storage/filesystem/part_file.rs": "437e93c3e1d3aace02dba820e1d802d515d512ac45b40f738447f7ac56707c0d",
+    "crates/librqbit/src/storage/middleware/slow.rs": "d4ee78436b2a2aea6eaf609f19e0a0d90c57c2b08048aaadc893079b2e8d0f0e",
+    "crates/librqbit/src/storage/middleware/timing.rs": "73c8ebb3bf7ebd36f1725238f1e6e5f81cf7d707d30517eed2b6af6defc8323c",
+    "crates/librqbit/src/storage/middleware/write_through_cache.rs": "0571e02b02ea139b192258e95d9e1cce63fb6cd031c9458d354df272917c2128",
+    "crates/librqbit/src/storage/mod.rs": "ba337f5b0c82ff49b6dce0d058332c4d0c52f8443919f3aab998689234bd22df",
+    "crates/librqbit/src/tests/mod.rs": "694cc6e9497f1958fce6393c7616285cfebb742d511435b6bba636aef5e84189",
+    "crates/librqbit/src/tests/selective_storage.rs": "5ed8ca421ee06dde2ff6b2bec788dcb883f415cb7d47575f47c5b9d50a94c9eb",
+    "crates/librqbit/src/torrent_state/initializing.rs": "aee2e27e45107e5a0fe0d9174855f329b5e068131911dfa6c710f87708417fc3",
+    "crates/librqbit/src/torrent_state/live/mod.rs": "39bc6ffd07f9000049d7ec5ef7e3205bc7e71e81ed8a540e26865d971f1f0030",
+    "crates/librqbit/src/torrent_state/mod.rs": "6b1ae16b6674da8e32dbe0ed5437823467ce0d6477b813ef391dcdb975139e1f",
+    "crates/librqbit/src/torrent_state/paused.rs": "adaf9c8f9e881c3f77c85aaa2eba51f0d6b1b73c4a276f3c13cd969d270295c4"
+  }
+}

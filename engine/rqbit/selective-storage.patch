@@ -1,0 +1,1854 @@
+diff --git a/crates/librqbit/src/file_ops.rs b/crates/librqbit/src/file_ops.rs
+index febba96..58556f4 100644
+--- a/crates/librqbit/src/file_ops.rs
++++ b/crates/librqbit/src/file_ops.rs
+@@ -110,6 +110,7 @@ impl<'a> FileOps<'a> {
+         let mut read_buffer = vec![0u8; 65536];
+ 
+         for piece_info in self.torrent.lengths().iter_piece_infos() {
++            current_file.is_broken = false;
+             if pause_requested.load(Ordering::Relaxed) {
+                 bail!("initial check paused");
+             }
+diff --git a/crates/librqbit/src/session.rs b/crates/librqbit/src/session.rs
+index 75071b9..f33f4b5 100644
+--- a/crates/librqbit/src/session.rs
++++ b/crates/librqbit/src/session.rs
+@@ -105,6 +105,7 @@ impl SessionDatabase {
+ }
+ 
+ pub struct Session {
++    pub(crate) partfile_folder: PathBuf,
+     // Core state and services
+     pub(crate) db: RwLock<SessionDatabase>,
+     next_id: AtomicUsize,
+@@ -777,7 +778,15 @@ impl Session {
+                 }
+             };
+ 
++            let partfile_folder = match &opts.persistence {
++                Some(SessionPersistenceConfig::Json {
++                    folder: Some(folder),
++                }) => folder.clone(),
++                _ => SessionPersistenceConfig::default_json_persistence_folder()?,
++            }
++            .join("parts-v1");
+             let session = Arc::new(Self {
++                partfile_folder,
+                 persistence,
+                 bitv_factory,
+                 peer_id,
+@@ -1368,8 +1377,13 @@ impl Session {
+                 minfo.clone(),
+                 metadata.clone(),
+                 only_files.clone(),
+-                self.spawner
+-                    .block_in_place(|| minfo.storage_factory.create_and_init(&minfo, &metadata))?,
++                self.spawner.block_in_place(|| {
++                    minfo.storage_factory.create_and_init_with_selection(
++                        &minfo,
++                        &metadata,
++                        only_files.as_deref(),
++                    )
++                })?,
+                 false,
+             ));
+             let handle = Arc::new(ManagedTorrent {
+@@ -1488,7 +1502,7 @@ impl Session {
+             (Err(e), true) => return Err(e).context("torrent deleted, but could not delete files"),
+             (Ok(storage), true) => {
+                 debug!("will delete files");
+-                remove_files_and_dirs(&metadata.file_infos, &storage);
++                let deletion_result = remove_files_and_dirs(&metadata.file_infos, &storage);
+                 if removed.shared().options.output_folder != self.output_folder
+                     && let Err(e) = storage.remove_directory_if_empty(Path::new(""))
+                 {
+@@ -1498,6 +1512,8 @@ impl Session {
+                         removed.shared().options.output_folder
+                     )
+                 }
++                deletion_result
++                    .context("torrent deleted, but some stored data could not be removed")?;
+             }
+             (_, false) => {
+                 debug!("not deleting files")
+@@ -1728,7 +1744,8 @@ pub(crate) struct ResolveMagnetResult {
+     pub seen_peers: Vec<SocketAddr>,
+ }
+ 
+-fn remove_files_and_dirs(infos: &FileInfos, files: &dyn TorrentStorage) {
++fn remove_files_and_dirs(infos: &FileInfos, files: &dyn TorrentStorage) -> anyhow::Result<()> {
++    let mut errors = Vec::new();
+     let mut all_dirs = HashSet::new();
+     for (id, fi) in infos.iter().enumerate() {
+         if fi.attrs.padding {
+@@ -1737,6 +1754,7 @@ fn remove_files_and_dirs(infos: &FileInfos, files: &dyn TorrentStorage) {
+         let mut fname = &*fi.relative_filename;
+         if let Err(e) = files.remove_file(id, fname) {
+             warn!(?fi.relative_filename, error=?e, "could not delete file");
++            errors.push(format!("{:?}: {e:#}", fi.relative_filename));
+         } else {
+             debug!(?fi.relative_filename, "deleted the file")
+         }
+@@ -1756,10 +1774,16 @@ fn remove_files_and_dirs(infos: &FileInfos, files: &dyn TorrentStorage) {
+     for dir in all_dirs {
+         if let Err(e) = files.remove_directory_if_empty(dir) {
+             warn!("error removing {dir:?}: {e:#}");
++            errors.push(format!("{dir:?}: {e:#}"));
+         } else {
+             debug!("removed {dir:?}")
+         }
+     }
++    if let Err(error) = files.remove_cached_data() {
++        errors.push(format!("part cache: {error:#}"));
++    }
++    anyhow::ensure!(errors.is_empty(), "{}", errors.join("; "));
++    Ok(())
+ }
+ 
+ // Ad adapter for converting stats into the format that tracker_comms accepts.
+diff --git a/crates/librqbit/src/storage/filesystem/fs.rs b/crates/librqbit/src/storage/filesystem/fs.rs
+index 749e6af..46962a8 100644
+--- a/crates/librqbit/src/storage/filesystem/fs.rs
++++ b/crates/librqbit/src/storage/filesystem/fs.rs
+@@ -1,10 +1,14 @@
+ use std::{
+-    fs::OpenOptions,
++    collections::HashSet,
++    fs::{File, OpenOptions},
+     io::IoSlice,
+     path::{Path, PathBuf},
++    sync::atomic::{AtomicBool, Ordering},
+ };
+ 
+-use anyhow::Context;
++use anyhow::{Context, ensure};
++use parking_lot::{Mutex, RwLock};
++use sha1w::{ISha1, Sha1};
+ use tracing::warn;
+ 
+ use crate::{
+@@ -14,7 +18,7 @@ use crate::{
+ 
+ use crate::storage::{StorageFactory, TorrentStorage};
+ 
+-use super::opened_file::OpenedFile;
++use super::{opened_file::OpenedFile, part_file::PartFile};
+ 
+ #[derive(Default, Clone, Copy)]
+ pub struct FilesystemStorageFactory {}
+@@ -25,11 +29,25 @@ impl StorageFactory for FilesystemStorageFactory {
+     fn create(
+         &self,
+         shared: &ManagedTorrentShared,
+-        _metadata: &TorrentMetadata,
++        metadata: &TorrentMetadata,
+     ) -> anyhow::Result<FilesystemStorage> {
++        let session = shared.session.upgrade().context("session is dead")?;
++        let mut hash = Sha1::new();
++        hash.update(&shared.info_hash.0);
++        hash.update(shared.options.output_folder.as_os_str().as_encoded_bytes());
++        let identity = hash.finish();
+         Ok(FilesystemStorage {
+             output_folder: shared.options.output_folder.clone(),
+             opened_files: Default::default(),
++            state: RwLock::new(None),
++            initial_selection: None,
++            file_infos: metadata.file_infos.clone(),
++            allow_overwrite: shared.options.allow_overwrite,
++            taken: AtomicBool::new(false),
++            part_file_path: session
++                .partfile_folder
++                .join(format!("{}.parts", hex::encode(identity))),
++            part_file_identity: identity,
+         })
+     }
+ 
+@@ -41,24 +59,151 @@ impl StorageFactory for FilesystemStorageFactory {
+ pub struct FilesystemStorage {
+     pub(crate) output_folder: PathBuf,
+     pub(crate) opened_files: Vec<OpenedFile>,
++    state: RwLock<Option<FilesystemState>>,
++    initial_selection: Option<HashSet<usize>>,
++    file_infos: crate::FileInfos,
++    allow_overwrite: bool,
++    taken: AtomicBool,
++    part_file_path: PathBuf,
++    part_file_identity: [u8; 20],
++}
++
++struct FilesystemState {
++    selected: Vec<bool>,
++    parts: Mutex<PartFile>,
++    full_check: bool,
+ }
+ 
+ impl FilesystemStorage {
+     #[allow(dead_code)]
+     pub(crate) fn take_fs(&self) -> anyhow::Result<Self> {
++        let mut state = self.state.write();
++        ensure!(state.is_some(), "filesystem storage has been taken");
++        let opened_files = self
++            .opened_files
++            .iter()
++            .map(|f| f.take_clone())
++            .collect::<anyhow::Result<Vec<_>>>()?;
++        self.taken.store(true, Ordering::Relaxed);
+         Ok(Self {
+-            opened_files: self
+-                .opened_files
+-                .iter()
+-                .map(|f| f.take_clone())
+-                .collect::<anyhow::Result<Vec<_>>>()?,
++            opened_files,
+             output_folder: self.output_folder.clone(),
++            state: RwLock::new(state.take()),
++            initial_selection: None,
++            file_infos: self.file_infos.clone(),
++            allow_overwrite: self.allow_overwrite,
++            taken: AtomicBool::new(false),
++            part_file_path: self.part_file_path.clone(),
++            part_file_identity: self.part_file_identity,
+         })
+     }
++
++    fn open_parts(&self) -> anyhow::Result<PartFile> {
++        PartFile::open(
++            self.part_file_path.clone(),
++            self.part_file_identity,
++            self.file_infos.iter().map(|file| file.len).collect(),
++        )
++    }
++
++    fn open_payload(&self, relative: &Path) -> anyhow::Result<File> {
++        let full_path = self.output_folder.join(relative);
++        std::fs::create_dir_all(full_path.parent().context("bug: no parent")?)?;
++        if self.allow_overwrite {
++            return OpenOptions::new()
++                .create(true)
++                .truncate(false)
++                .read(true)
++                .write(true)
++                .open(&full_path)
++                .with_context(|| format!("error opening {full_path:?} in read/write mode"));
++        }
++        // create_new does not seem to work with read(true), so calling this twice.
++        OpenOptions::new()
++            .create_new(true)
++            .write(true)
++            .open(&full_path)
++            .with_context(|| {
++                format!("error creating a new file (because allow_overwrite = false) {full_path:?}")
++            })?;
++        Ok(OpenOptions::new().read(true).write(true).open(&full_path)?)
++    }
+ }
+ 
+ impl TorrentStorage for FilesystemStorage {
++    fn init_with_selection(
++        &mut self,
++        shared: &ManagedTorrentShared,
++        metadata: &TorrentMetadata,
++        only_files: Option<&[usize]>,
++    ) -> anyhow::Result<()> {
++        if let Some(indices) = only_files {
++            ensure!(
++                indices.iter().all(|&id| id < metadata.file_infos.len()),
++                "invalid file selection"
++            );
++        }
++        self.initial_selection = only_files.map(|indices| indices.iter().copied().collect());
++        self.init(shared, metadata)
++    }
++
++    fn set_file_selection(&self, only_files: &HashSet<usize>) -> anyhow::Result<()> {
++        ensure!(
++            only_files.iter().all(|&id| id < self.file_infos.len()),
++            "invalid file selection"
++        );
++        let mut guard = self.state.write();
++        let state = guard
++            .as_mut()
++            .context("filesystem storage has been taken")?;
++        for &id in only_files {
++            if state.selected[id] || self.file_infos[id].attrs.padding {
++                continue;
++            }
++            if let Ok(file) = self.opened_files[id].lock_read() {
++                state.parts.lock().promote(id, &file)?;
++                file.set_len(self.file_infos[id].len)?;
++                continue;
++            }
++            let file = self.open_payload(&self.file_infos[id].relative_filename)?;
++            self.opened_files[id].replace(OpenedFile::new(
++                self.output_folder
++                    .join(&self.file_infos[id].relative_filename),
++                file,
++            ));
++            let file = self.opened_files[id].lock_read()?;
++            state.parts.lock().promote(id, &file)?;
++            file.set_len(self.file_infos[id].len)?;
++        }
++        for (id, selected) in state.selected.iter_mut().enumerate() {
++            let next = only_files.contains(&id);
++            *selected = next;
++        }
++        Ok(())
++    }
++
++    fn requires_full_check(&self) -> bool {
++        self.state
++            .read()
++            .as_ref()
++            .is_none_or(|state| state.full_check || state.parts.lock().exists())
++    }
++
+     fn pread_exact(&self, file_id: usize, offset: u64, buf: &mut [u8]) -> anyhow::Result<()> {
++        let guard = self.state.read();
++        let state = guard
++            .as_ref()
++            .context("filesystem storage has been taken")?;
++        if !*state.selected.get(file_id).context("no such file")? {
++            return state.parts.lock().read(
++                file_id,
++                offset,
++                buf,
++                &self
++                    .output_folder
++                    .join(&self.file_infos[file_id].relative_filename),
++            );
++        }
+         self.opened_files
+             .get(file_id)
+             .context("no such file")?
+@@ -67,6 +212,13 @@ impl TorrentStorage for FilesystemStorage {
+     }
+ 
+     fn pwrite_all(&self, file_id: usize, offset: u64, buf: &[u8]) -> anyhow::Result<()> {
++        let guard = self.state.read();
++        let state = guard
++            .as_ref()
++            .context("filesystem storage has been taken")?;
++        if !*state.selected.get(file_id).context("no such file")? {
++            return state.parts.lock().write(file_id, offset, buf);
++        }
+         let of = self.opened_files.get(file_id).context("no such file")?;
+         #[cfg(windows)]
+         return of.try_mark_sparse()?.pwrite_all(offset, buf);
+@@ -80,6 +232,17 @@ impl TorrentStorage for FilesystemStorage {
+         offset: u64,
+         bufs: [IoSlice<'_>; 2],
+     ) -> anyhow::Result<usize> {
++        let guard = self.state.read();
++        let state = guard
++            .as_ref()
++            .context("filesystem storage has been taken")?;
++        if !*state.selected.get(file_id).context("no such file")? {
++            let mut data = Vec::with_capacity(bufs[0].len() + bufs[1].len());
++            data.extend_from_slice(&bufs[0]);
++            data.extend_from_slice(&bufs[1]);
++            state.parts.lock().write(file_id, offset, &data)?;
++            return Ok(data.len());
++        }
+         let of = self.opened_files.get(file_id).context("no such file")?;
+         #[cfg(windows)]
+         return of.try_mark_sparse()?.pwrite_all_vectored(offset, bufs);
+@@ -88,10 +251,40 @@ impl TorrentStorage for FilesystemStorage {
+     }
+ 
+     fn remove_file(&self, _file_id: usize, filename: &Path) -> anyhow::Result<()> {
+-        Ok(std::fs::remove_file(self.output_folder.join(filename))?)
++        let _guard = self.state.read();
++        ensure!(
++            !self.taken.load(Ordering::Relaxed),
++            "filesystem storage has been taken"
++        );
++        match std::fs::remove_file(self.output_folder.join(filename)) {
++            Ok(()) => Ok(()),
++            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
++            Err(error) => Err(error.into()),
++        }
++    }
++
++    fn remove_cached_data(&self) -> anyhow::Result<()> {
++        let guard = self.state.write();
++        ensure!(
++            !self.taken.load(Ordering::Relaxed),
++            "filesystem storage has been taken"
++        );
++        if let Some(state) = guard.as_ref() {
++            state.parts.lock().remove()
++        } else {
++            PartFile::remove_path(&self.part_file_path)
++        }
+     }
+ 
+     fn ensure_file_length(&self, file_id: usize, len: u64) -> anyhow::Result<()> {
++        let guard = self.state.read();
++        let state = guard
++            .as_ref()
++            .context("filesystem storage has been taken")?;
++        ensure!(
++            *state.selected.get(file_id).context("no such file")?,
++            "file is not selected"
++        );
+         let f = &self.opened_files.get(file_id).context("no such file")?;
+         #[cfg(windows)]
+         f.try_mark_sparse()?;
+@@ -99,22 +292,22 @@ impl TorrentStorage for FilesystemStorage {
+     }
+ 
+     fn take(&self) -> anyhow::Result<Box<dyn TorrentStorage>> {
+-        Ok(Box::new(Self {
+-            opened_files: self
+-                .opened_files
+-                .iter()
+-                .map(|f| f.take_clone())
+-                .collect::<anyhow::Result<Vec<_>>>()?,
+-            output_folder: self.output_folder.clone(),
+-        }))
++        Ok(Box::new(self.take_fs()?))
+     }
+ 
+     fn remove_directory_if_empty(&self, path: &Path) -> anyhow::Result<()> {
++        let _guard = self.state.read();
++        ensure!(
++            !self.taken.load(Ordering::Relaxed),
++            "filesystem storage has been taken"
++        );
+         let path = self.output_folder.join(path);
+-        if !path.is_dir() {
+-            anyhow::bail!("cannot remove dir: {path:?} is not a directory")
+-        }
+-        if std::fs::read_dir(&path)?.count() == 0 {
++        let entries = match std::fs::read_dir(&path) {
++            Ok(entries) => entries,
++            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
++            Err(error) => return Err(error.into()),
++        };
++        if entries.count() == 0 {
+             std::fs::remove_dir(&path).with_context(|| format!("error removing {path:?}"))
+         } else {
+             warn!("did not remove {path:?} as it was not empty");
+@@ -127,43 +320,43 @@ impl TorrentStorage for FilesystemStorage {
+         shared: &ManagedTorrentShared,
+         metadata: &TorrentMetadata,
+     ) -> anyhow::Result<()> {
++        self.allow_overwrite = shared.options.allow_overwrite;
++        self.file_infos = metadata.file_infos.clone();
++        let selection = self.initial_selection.take();
+         let mut files = Vec::<OpenedFile>::new();
+-        for file_details in metadata.file_infos.iter() {
++        let selected: Vec<_> = (0..metadata.file_infos.len())
++            .map(|id| {
++                selection
++                    .as_ref()
++                    .is_none_or(|indices| indices.contains(&id))
++            })
++            .collect();
++        for (id, file_details) in metadata.file_infos.iter().enumerate() {
+             let mut full_path = self.output_folder.clone();
+             let relative_path = &file_details.relative_filename;
+             full_path.push(relative_path);
+ 
+-            if file_details.attrs.padding {
++            if file_details.attrs.padding || !selected[id] {
+                 files.push(OpenedFile::new_dummy());
+                 continue;
+             };
+-            std::fs::create_dir_all(full_path.parent().context("bug: no parent")?)?;
+-            let f = if shared.options.allow_overwrite {
+-                OpenOptions::new()
+-                    .create(true)
+-                    .truncate(false)
+-                    .read(true)
+-                    .write(true)
+-                    .open(&full_path)
+-                    .with_context(|| format!("error opening {full_path:?} in read/write mode"))?
+-            } else {
+-                // create_new does not seem to work with read(true), so calling this twice.
+-                OpenOptions::new()
+-                    .create_new(true)
+-                    .write(true)
+-                    .open(&full_path)
+-                    .with_context(|| {
+-                        format!(
+-                            "error creating a new file (because allow_overwrite = false) {:?}",
+-                            full_path
+-                        )
+-                    })?;
+-                OpenOptions::new().read(true).write(true).open(&full_path)?
+-            };
++            let f = self.open_payload(relative_path)?;
+             files.push(OpenedFile::new(full_path.clone(), f));
+         }
+ 
++        let mut parts = self.open_parts()?;
++        let full_check = selected.iter().any(|selected| !selected) || parts.exists();
++        for (id, file) in files.iter().enumerate() {
++            if selected[id] && !metadata.file_infos[id].attrs.padding {
++                parts.promote(id, &*file.lock_read()?)?;
++            }
++        }
+         self.opened_files = files;
++        *self.state.write() = Some(FilesystemState {
++            selected,
++            parts: Mutex::new(parts),
++            full_check,
++        });
+         Ok(())
+     }
+ }
+diff --git a/crates/librqbit/src/storage/filesystem/mod.rs b/crates/librqbit/src/storage/filesystem/mod.rs
+index 1e4b46f..d13b542 100644
+--- a/crates/librqbit/src/storage/filesystem/mod.rs
++++ b/crates/librqbit/src/storage/filesystem/mod.rs
+@@ -1,5 +1,6 @@
+ mod fs;
+ mod opened_file;
++mod part_file;
+ mod sparse;
+ 
+ pub use fs::{FilesystemStorage, FilesystemStorageFactory};
+diff --git a/crates/librqbit/src/storage/filesystem/opened_file.rs b/crates/librqbit/src/storage/filesystem/opened_file.rs
+index ccd29b6..13490a5 100644
+--- a/crates/librqbit/src/storage/filesystem/opened_file.rs
++++ b/crates/librqbit/src/storage/filesystem/opened_file.rs
+@@ -152,6 +152,10 @@ impl OpenedFile {
+         }
+     }
+ 
++    pub(crate) fn replace(&self, replacement: Self) {
++        *self.file.write() = replacement.file.into_inner();
++    }
++
+     pub fn take_clone(&self) -> anyhow::Result<Self> {
+         let f = std::mem::take(&mut *self.file.write());
+         Ok(Self {
+diff --git a/crates/librqbit/src/storage/filesystem/part_file.rs b/crates/librqbit/src/storage/filesystem/part_file.rs
+new file mode 100644
+index 0000000..2b6eb61
+--- /dev/null
++++ b/crates/librqbit/src/storage/filesystem/part_file.rs
+@@ -0,0 +1,561 @@
++use std::{
++    collections::BTreeMap,
++    fs::{File, OpenOptions},
++    io::{Seek, SeekFrom, Write},
++    path::{Path, PathBuf},
++};
++
++use anyhow::{Context, ensure};
++use sha1w::{ISha1, Sha1};
++
++use super::opened_file::OurFileExt;
++
++const MAGIC: &[u8; 8] = b"RQPART01";
++const HEADER_SIZE: usize = 28;
++const HEADER_LEN: u64 = HEADER_SIZE as u64;
++const RECORD_HEADER: usize = 24;
++const CHECKSUM_LEN: u64 = 20;
++const CLEAR: u64 = u64::MAX;
++
++#[derive(Clone, Copy)]
++struct Range {
++    end: u64,
++    data_at: u64,
++}
++
++pub(super) struct PartFile {
++    path: PathBuf,
++    identity: [u8; 20],
++    lengths: Vec<u64>,
++    file: Option<File>,
++    committed: u64,
++    ranges: Vec<BTreeMap<u64, Range>>,
++    live_bytes: u64,
++    range_count: u64,
++}
++
++fn open_options() -> OpenOptions {
++    let mut options = OpenOptions::new();
++    options.read(true).write(true);
++    #[cfg(unix)]
++    {
++        use std::os::unix::fs::OpenOptionsExt;
++        options.mode(0o600).custom_flags(nix::libc::O_NOFOLLOW);
++    }
++    options
++}
++
++fn checksum(header: &[u8], data: &[u8]) -> [u8; 20] {
++    let mut hash = Sha1::new();
++    hash.update(header);
++    hash.update(data);
++    hash.finish()
++}
++
++impl PartFile {
++    pub(super) fn open(
++        path: PathBuf,
++        identity: [u8; 20],
++        lengths: Vec<u64>,
++    ) -> anyhow::Result<Self> {
++        let file = match open_options().open(&path) {
++            Ok(file) => {
++                ensure!(
++                    file.metadata()?.is_file(),
++                    "part cache is not a regular file"
++                );
++                file.try_lock().context("part cache is in use")?;
++                Some(file)
++            }
++            Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
++            Err(error) => return Err(error).context("opening part cache"),
++        };
++        let mut result = Self {
++            ranges: vec![BTreeMap::new(); lengths.len()],
++            path,
++            identity,
++            lengths,
++            file,
++            committed: HEADER_LEN,
++            live_bytes: 0,
++            range_count: 0,
++        };
++        result.replay()?;
++        Ok(result)
++    }
++
++    pub(super) fn exists(&self) -> bool {
++        self.file.is_some()
++    }
++
++    fn validate(&self, id: usize, offset: u64, length: u64) -> anyhow::Result<()> {
++        let file_length = *self.lengths.get(id).context("invalid part cache file id")?;
++        ensure!(
++            offset
++                .checked_add(length)
++                .is_some_and(|end| end <= file_length),
++            "part cache range exceeds file"
++        );
++        Ok(())
++    }
++
++    fn insert(&mut self, id: usize, start: u64, length: u64, data_at: u64) {
++        let end = start + length;
++        let map = &mut self.ranges[id];
++        let overlapping: Vec<_> = map
++            .range(..end)
++            .rev()
++            .take_while(|(_, range)| range.end > start)
++            .map(|(&key, &range)| (key, range))
++            .collect();
++        let before = map.len();
++        let mut removed = 0;
++        let mut retained = 0;
++        for (key, range) in overlapping {
++            map.remove(&key);
++            removed += range.end - key;
++            if key < start {
++                map.insert(
++                    key,
++                    Range {
++                        end: start,
++                        data_at: range.data_at,
++                    },
++                );
++                retained += start - key;
++            }
++            if range.end > end {
++                map.insert(
++                    end,
++                    Range {
++                        end: range.end,
++                        data_at: range.data_at + end - key,
++                    },
++                );
++                retained += range.end - end;
++            }
++        }
++        map.insert(start, Range { end, data_at });
++        self.live_bytes = self.live_bytes - removed + retained + length;
++        self.range_count = self.range_count - before as u64 + map.len() as u64;
++    }
++
++    fn replay(&mut self) -> anyhow::Result<()> {
++        let Some(file) = self.file.as_ref() else {
++            return Ok(());
++        };
++        let mut header = [0; HEADER_SIZE];
++        file.pread_exact(0, &mut header)
++            .context("incomplete part cache header")?;
++        ensure!(
++            &header[..8] == MAGIC && header[8..] == self.identity,
++            "unrecognized part cache"
++        );
++        let size = file.metadata()?.len();
++        let mut buffer = [0; 65536];
++        loop {
++            let position = self.committed;
++            if size - position < RECORD_HEADER as u64 {
++                break;
++            }
++            let file = self.file.as_ref().unwrap();
++            let mut record = [0; RECORD_HEADER];
++            file.pread_exact(position, &mut record)?;
++            let id = usize::try_from(u64::from_le_bytes(record[..8].try_into()?))?;
++            let offset = u64::from_le_bytes(record[8..16].try_into()?);
++            let length = u64::from_le_bytes(record[16..].try_into()?);
++            ensure!(id < self.lengths.len(), "invalid part cache file id");
++            if offset == CLEAR {
++                ensure!(length == 0, "invalid part cache clear record");
++            } else {
++                self.validate(id, offset, length)?;
++                ensure!(length > 0, "empty part cache range");
++            }
++            let data_at = position + RECORD_HEADER as u64;
++            let end = data_at
++                .checked_add(length)
++                .and_then(|n| n.checked_add(CHECKSUM_LEN))
++                .context("part cache record overflow")?;
++            if end > size {
++                break;
++            }
++            let mut hash = Sha1::new();
++            hash.update(&record);
++            let mut consumed = 0;
++            while consumed < length {
++                let n = usize::try_from((length - consumed).min(buffer.len() as u64))?;
++                file.pread_exact(data_at + consumed, &mut buffer[..n])?;
++                hash.update(&buffer[..n]);
++                consumed += n as u64;
++            }
++            let mut expected = [0; 20];
++            file.pread_exact(data_at + length, &mut expected)?;
++            ensure!(hash.finish() == expected, "part cache checksum mismatch");
++            if offset == CLEAR {
++                self.clear_index(id);
++            } else {
++                self.insert(id, offset, length, data_at);
++            }
++            self.committed = end;
++        }
++        Ok(())
++    }
++
++    fn create(&mut self) -> anyhow::Result<()> {
++        if self.file.is_some() {
++            return Ok(());
++        }
++        let parent = self.path.parent().context("part cache has no parent")?;
++        let mut builder = std::fs::DirBuilder::new();
++        builder.recursive(true);
++        #[cfg(unix)]
++        {
++            use std::os::unix::fs::DirBuilderExt;
++            builder.mode(0o700);
++        }
++        builder.create(parent)?;
++        ensure!(
++            !std::fs::symlink_metadata(parent)?.file_type().is_symlink(),
++            "part cache directory is a symlink"
++        );
++        let temporary = self
++            .path
++            .with_extension(format!("{}.tmp", uuid::Uuid::new_v4()));
++        let result = (|| -> anyhow::Result<()> {
++            let mut file = open_options().create_new(true).open(&temporary)?;
++            file.try_lock().context("locking new part cache")?;
++            file.write_all(MAGIC)?;
++            file.write_all(&self.identity)?;
++            file.sync_all()?;
++            std::fs::hard_link(&temporary, &self.path)?;
++            self.file = Some(file);
++            Ok(())
++        })();
++        if let Err(error) = std::fs::remove_file(&temporary)
++            && error.kind() != std::io::ErrorKind::NotFound
++        {
++            tracing::warn!(?error, "removing temporary part cache");
++        }
++        result
++    }
++
++    fn append(&mut self, id: usize, offset: u64, data: &[u8]) -> anyhow::Result<u64> {
++        self.create()?;
++        let file = self.file.as_mut().unwrap();
++        file.set_len(self.committed)?;
++        file.seek(SeekFrom::Start(self.committed))?;
++        let mut header = [0; RECORD_HEADER];
++        header[..8].copy_from_slice(&(id as u64).to_le_bytes());
++        header[8..16].copy_from_slice(&offset.to_le_bytes());
++        header[16..].copy_from_slice(&(data.len() as u64).to_le_bytes());
++        file.write_all(&header)?;
++        file.write_all(data)?;
++        file.write_all(&checksum(&header, data))?;
++        let data_at = self.committed + RECORD_HEADER as u64;
++        self.committed = data_at + data.len() as u64 + CHECKSUM_LEN;
++        Ok(data_at)
++    }
++
++    pub(super) fn write(&mut self, id: usize, offset: u64, data: &[u8]) -> anyhow::Result<()> {
++        self.validate(id, offset, data.len() as u64)?;
++        if data.is_empty() {
++            return Ok(());
++        }
++        let position = self.append(id, offset, data)?;
++        self.insert(id, offset, data.len() as u64, position);
++        self.compact()?;
++        Ok(())
++    }
++
++    pub(super) fn read(
++        &self,
++        id: usize,
++        mut offset: u64,
++        mut buf: &mut [u8],
++        payload: &Path,
++    ) -> anyhow::Result<()> {
++        self.validate(id, offset, buf.len() as u64)?;
++        let map = &self.ranges[id];
++        let mut original = None;
++        while !buf.is_empty() {
++            let cached = map
++                .range(..=offset)
++                .next_back()
++                .filter(|(_, range)| range.end > offset);
++            let n = if let Some((&start, range)) = cached {
++                let n = usize::try_from((range.end - offset).min(buf.len() as u64))?;
++                self.file
++                    .as_ref()
++                    .context("missing part cache")?
++                    .pread_exact(range.data_at + offset - start, &mut buf[..n])?;
++                n
++            } else {
++                let end = map
++                    .range(offset..)
++                    .next()
++                    .map(|(&start, _)| start)
++                    .unwrap_or(u64::MAX);
++                let n = usize::try_from((end - offset).min(buf.len() as u64))?;
++                if original.is_none() {
++                    original = Some(File::open(payload)?);
++                }
++                original
++                    .as_ref()
++                    .unwrap()
++                    .pread_exact(offset, &mut buf[..n])?;
++                n
++            };
++            offset += n as u64;
++            buf = &mut buf[n..];
++        }
++        Ok(())
++    }
++
++    fn clear_index(&mut self, id: usize) {
++        self.live_bytes -= self.ranges[id]
++            .iter()
++            .map(|(&start, range)| range.end - start)
++            .sum::<u64>();
++        self.range_count -= self.ranges[id].len() as u64;
++        self.ranges[id].clear();
++    }
++
++    pub(super) fn remove_path(path: &Path) -> anyhow::Result<()> {
++        match std::fs::remove_file(path) {
++            Ok(()) => Ok(()),
++            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
++            Err(error) => Err(error).context("removing part cache"),
++        }
++    }
++
++    pub(super) fn remove(&mut self) -> anyhow::Result<()> {
++        Self::remove_path(&self.path)?;
++        self.file = None;
++        self.ranges.iter_mut().for_each(BTreeMap::clear);
++        self.live_bytes = 0;
++        self.range_count = 0;
++        self.committed = HEADER_LEN;
++        Ok(())
++    }
++
++    pub(super) fn promote(&mut self, id: usize, target: &File) -> anyhow::Result<()> {
++        if self.ranges[id].is_empty() {
++            return Ok(());
++        }
++        let source = self.file.as_ref().context("missing part cache")?;
++        let mut buffer = [0; 65536];
++        for (&start, range) in &self.ranges[id] {
++            let mut copied = 0;
++            while copied < range.end - start {
++                let n = usize::try_from((range.end - start - copied).min(buffer.len() as u64))?;
++                source.pread_exact(range.data_at + copied, &mut buffer[..n])?;
++                target.pwrite_all(start + copied, &buffer[..n])?;
++                copied += n as u64;
++            }
++        }
++        target.sync_data()?;
++        self.append(id, CLEAR, &[])?;
++        self.clear_index(id);
++        self.compact()?;
++        Ok(())
++    }
++
++    fn compact(&mut self) -> anyhow::Result<()> {
++        let live = self.live_bytes + self.range_count * (RECORD_HEADER as u64 + CHECKSUM_LEN);
++        if self.committed <= HEADER_LEN + 2 * live + 2 * (RECORD_HEADER as u64 + CHECKSUM_LEN) {
++            return Ok(());
++        }
++        let temporary = self
++            .path
++            .with_extension(format!("{}.tmp", uuid::Uuid::new_v4()));
++        let result = (|| -> anyhow::Result<()> {
++            let mut target = open_options().create_new(true).open(&temporary)?;
++            target.try_lock()?;
++            target.write_all(MAGIC)?;
++            target.write_all(&self.identity)?;
++            let mut ranges = vec![BTreeMap::new(); self.lengths.len()];
++            let mut position = HEADER_LEN;
++            let source = self.file.as_ref().unwrap();
++            let mut buffer = [0; 65536];
++            for (id, map) in self.ranges.iter().enumerate() {
++                for (&start, range) in map {
++                    let length = range.end - start;
++                    let mut header = [0; RECORD_HEADER];
++                    header[..8].copy_from_slice(&(id as u64).to_le_bytes());
++                    header[8..16].copy_from_slice(&start.to_le_bytes());
++                    header[16..].copy_from_slice(&length.to_le_bytes());
++                    target.write_all(&header)?;
++                    let mut hash = Sha1::new();
++                    hash.update(&header);
++                    let mut copied = 0;
++                    while copied < length {
++                        let n = usize::try_from((length - copied).min(buffer.len() as u64))?;
++                        source.pread_exact(range.data_at + copied, &mut buffer[..n])?;
++                        hash.update(&buffer[..n]);
++                        target.write_all(&buffer[..n])?;
++                        copied += n as u64;
++                    }
++                    target.write_all(&hash.finish())?;
++                    ranges[id].insert(
++                        start,
++                        Range {
++                            end: range.end,
++                            data_at: position + RECORD_HEADER as u64,
++                        },
++                    );
++                    position += RECORD_HEADER as u64 + length + CHECKSUM_LEN;
++                }
++            }
++            target.sync_all()?;
++            std::fs::rename(&temporary, &self.path)?;
++            self.file = Some(target);
++            self.ranges = ranges;
++            self.committed = position;
++            Ok(())
++        })();
++        if result.is_err()
++            && let Err(error) = std::fs::remove_file(&temporary)
++            && error.kind() != std::io::ErrorKind::NotFound
++        {
++            tracing::warn!(?error, "removing temporary part cache");
++        }
++        result
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    fn cache(root: &Path) -> anyhow::Result<PartFile> {
++        PartFile::open(root.join("parts/cache"), [7; 20], vec![1000])
++    }
++
++    #[test]
++    fn part_cache_is_lazy_and_overlays_without_touching_payload() -> anyhow::Result<()> {
++        let root = tempfile::tempdir()?;
++        let payload = root.path().join("payload");
++        std::fs::write(&payload, b"abcdefghijklmnop")?;
++        let mut parts = cache(root.path())?;
++        assert!(!root.path().join("parts").exists());
++        parts.write(0, 4, b"123456")?;
++        parts.write(0, 6, b"XY")?;
++        let mut buf = [0; 16];
++        parts.read(0, 0, &mut buf, &payload)?;
++        assert_eq!(&buf, b"abcd12XY56klmnop");
++        assert_eq!(std::fs::read(&payload)?, b"abcdefghijklmnop");
++        drop(parts);
++        cache(root.path())?.read(0, 0, &mut buf, &payload)?;
++        assert_eq!(&buf, b"abcd12XY56klmnop");
++        Ok(())
++    }
++
++    #[test]
++    fn part_cache_recovers_incomplete_tail_and_rejects_corruption() -> anyhow::Result<()> {
++        let root = tempfile::tempdir()?;
++        let payload = root.path().join("absent");
++        let mut parts = cache(root.path())?;
++        parts.write(0, 900, b"tail")?;
++        drop(parts);
++        OpenOptions::new()
++            .append(true)
++            .open(root.path().join("parts/cache"))?
++            .write_all(b"partial")?;
++        let mut parts = cache(root.path())?;
++        let mut buf = [0; 4];
++        parts.read(0, 900, &mut buf, &payload)?;
++        assert_eq!(&buf, b"tail");
++        assert!(parts.read(0, 0, &mut buf, &payload).is_err());
++        parts.write(0, 0, b"head")?;
++        drop(parts);
++        let file = open_options().open(root.path().join("parts/cache"))?;
++        file.pwrite_all(HEADER_LEN + RECORD_HEADER as u64, b"bad!")?;
++        assert!(cache(root.path()).is_err());
++        Ok(())
++    }
++
++    #[test]
++    fn part_cache_promotion_preserves_gaps_and_invalidates_old_overlay() -> anyhow::Result<()> {
++        let root = tempfile::tempdir()?;
++        let payload = root.path().join("payload");
++        std::fs::write(&payload, b"abcdefghijklmnop")?;
++        let mut parts = cache(root.path())?;
++        parts.write(0, 8, b"1234")?;
++        let target = open_options().open(&payload)?;
++        parts.promote(0, &target)?;
++        assert_eq!(std::fs::read(&payload)?, b"abcdefgh1234mnop");
++        target.pwrite_all(8, b"next")?;
++        drop(parts);
++        let mut buf = [0; 16];
++        cache(root.path())?.read(0, 0, &mut buf, &payload)?;
++        assert_eq!(&buf, b"abcdefghnextmnop");
++        Ok(())
++    }
++
++    #[test]
++    fn part_cache_repeated_writes_have_bounded_log_growth() -> anyhow::Result<()> {
++        let root = tempfile::tempdir()?;
++        let mut parts = cache(root.path())?;
++        for byte in 0..100 {
++            parts.write(0, 500, &[byte; 100])?;
++        }
++        assert!(parts.file.as_ref().unwrap().metadata()?.len() < 600);
++        drop(parts);
++        let mut buf = [0; 100];
++        cache(root.path())?.read(0, 500, &mut buf, &root.path().join("absent"))?;
++        assert_eq!(buf, [99; 100]);
++        Ok(())
++    }
++
++    #[test]
++    fn part_cache_overlapping_ranges_survive_compaction_and_restart() -> anyhow::Result<()> {
++        let root = tempfile::tempdir()?;
++        let payload = root.path().join("payload");
++        let original = vec![42; 1000];
++        std::fs::write(&payload, &original)?;
++        let mut expected = original.clone();
++        let mut parts = cache(root.path())?;
++        for step in 0..257 {
++            let offset = step * 73 % 900;
++            let length = 1 + step * 19 % 100;
++            let data = vec![u8::try_from(step % 251)?; length];
++            parts.write(0, offset as u64, &data)?;
++            expected[offset..offset + length].copy_from_slice(&data);
++            if step % 17 == 0 {
++                drop(parts);
++                parts = cache(root.path())?;
++            }
++            let mut actual = vec![0; 1000];
++            parts.read(0, 0, &mut actual, &payload)?;
++            assert_eq!(actual, expected);
++        }
++        assert_eq!(std::fs::read(&payload)?, original);
++        Ok(())
++    }
++
++    #[test]
++    fn part_cache_write_failure_does_not_publish_a_range() -> anyhow::Result<()> {
++        let root = tempfile::tempdir()?;
++        let mut parts = cache(root.path())?;
++        std::fs::create_dir_all(root.path().join("parts/cache"))?;
++        assert!(parts.write(0, 0, b"not written").is_err());
++        assert!(parts.ranges[0].is_empty());
++        assert!(parts.file.is_none());
++        assert!(root.path().join("parts/cache").is_dir());
++        assert_eq!(std::fs::read_dir(root.path().join("parts"))?.count(), 1);
++        Ok(())
++    }
++
++    #[cfg(unix)]
++    #[test]
++    fn part_cache_refuses_symlinks_without_changing_their_target() -> anyhow::Result<()> {
++        let root = tempfile::tempdir()?;
++        let payload = root.path().join("payload");
++        std::fs::write(&payload, b"user bytes")?;
++        std::fs::create_dir(root.path().join("parts"))?;
++        std::os::unix::fs::symlink(&payload, root.path().join("parts/cache"))?;
++        assert!(cache(root.path()).is_err());
++        assert_eq!(std::fs::read(&payload)?, b"user bytes");
++        Ok(())
++    }
++}
+diff --git a/crates/librqbit/src/storage/middleware/slow.rs b/crates/librqbit/src/storage/middleware/slow.rs
+index e8c8571..12dfc8e 100644
+--- a/crates/librqbit/src/storage/middleware/slow.rs
++++ b/crates/librqbit/src/storage/middleware/slow.rs
+@@ -105,6 +105,10 @@ impl<U: TorrentStorage> TorrentStorage for SlowStorage<U> {
+         self.underlying.pwrite_all(file_id, offset, buf)
+     }
+ 
++    fn remove_cached_data(&self) -> anyhow::Result<()> {
++        self.underlying.remove_cached_data()
++    }
++
+     fn remove_file(&self, file_id: usize, filename: &std::path::Path) -> anyhow::Result<()> {
+         self.underlying.remove_file(file_id, filename)
+     }
+@@ -128,4 +132,25 @@ impl<U: TorrentStorage> TorrentStorage for SlowStorage<U> {
+     ) -> anyhow::Result<()> {
+         self.underlying.init(shared, metadata)
+     }
++
++    fn init_with_selection(
++        &mut self,
++        shared: &ManagedTorrentShared,
++        metadata: &TorrentMetadata,
++        only_files: Option<&[usize]>,
++    ) -> anyhow::Result<()> {
++        self.underlying
++            .init_with_selection(shared, metadata, only_files)
++    }
++
++    fn set_file_selection(
++        &self,
++        only_files: &std::collections::HashSet<usize>,
++    ) -> anyhow::Result<()> {
++        self.underlying.set_file_selection(only_files)
++    }
++
++    fn requires_full_check(&self) -> bool {
++        self.underlying.requires_full_check()
++    }
+ }
+diff --git a/crates/librqbit/src/storage/middleware/timing.rs b/crates/librqbit/src/storage/middleware/timing.rs
+index e71e490..c1c3986 100644
+--- a/crates/librqbit/src/storage/middleware/timing.rs
++++ b/crates/librqbit/src/storage/middleware/timing.rs
+@@ -90,6 +90,10 @@ impl<U: TorrentStorage> TorrentStorage for TimingStorage<U> {
+         )
+     }
+ 
++    fn remove_cached_data(&self) -> anyhow::Result<()> {
++        self.underlying.remove_cached_data()
++    }
++
+     fn remove_file(&self, file_id: usize, filename: &std::path::Path) -> anyhow::Result<()> {
+         self.underlying.remove_file(file_id, filename)
+     }
+@@ -116,4 +120,25 @@ impl<U: TorrentStorage> TorrentStorage for TimingStorage<U> {
+     ) -> anyhow::Result<()> {
+         self.underlying.init(shared, metadata)
+     }
++
++    fn init_with_selection(
++        &mut self,
++        shared: &ManagedTorrentShared,
++        metadata: &TorrentMetadata,
++        only_files: Option<&[usize]>,
++    ) -> anyhow::Result<()> {
++        self.underlying
++            .init_with_selection(shared, metadata, only_files)
++    }
++
++    fn set_file_selection(
++        &self,
++        only_files: &std::collections::HashSet<usize>,
++    ) -> anyhow::Result<()> {
++        self.underlying.set_file_selection(only_files)
++    }
++
++    fn requires_full_check(&self) -> bool {
++        self.underlying.requires_full_check()
++    }
+ }
+diff --git a/crates/librqbit/src/storage/middleware/write_through_cache.rs b/crates/librqbit/src/storage/middleware/write_through_cache.rs
+index ee792e8..744a530 100644
+--- a/crates/librqbit/src/storage/middleware/write_through_cache.rs
++++ b/crates/librqbit/src/storage/middleware/write_through_cache.rs
+@@ -103,6 +103,10 @@ impl<U: TorrentStorage> TorrentStorage for WriteThroughCacheStorage<U> {
+         self.underlying.pwrite_all(file_id, offset, buf)
+     }
+ 
++    fn remove_cached_data(&self) -> anyhow::Result<()> {
++        self.underlying.remove_cached_data()
++    }
++
+     fn remove_file(&self, file_id: usize, filename: &std::path::Path) -> anyhow::Result<()> {
+         self.underlying.remove_file(file_id, filename)
+     }
+@@ -133,4 +137,25 @@ impl<U: TorrentStorage> TorrentStorage for WriteThroughCacheStorage<U> {
+     ) -> anyhow::Result<()> {
+         self.underlying.init(shared, metadata)
+     }
++
++    fn init_with_selection(
++        &mut self,
++        shared: &ManagedTorrentShared,
++        metadata: &TorrentMetadata,
++        only_files: Option<&[usize]>,
++    ) -> anyhow::Result<()> {
++        self.underlying
++            .init_with_selection(shared, metadata, only_files)
++    }
++
++    fn set_file_selection(
++        &self,
++        only_files: &std::collections::HashSet<usize>,
++    ) -> anyhow::Result<()> {
++        self.underlying.set_file_selection(only_files)
++    }
++
++    fn requires_full_check(&self) -> bool {
++        self.underlying.requires_full_check()
++    }
+ }
+diff --git a/crates/librqbit/src/storage/mod.rs b/crates/librqbit/src/storage/mod.rs
+index 8a51e92..50f2050 100644
+--- a/crates/librqbit/src/storage/mod.rs
++++ b/crates/librqbit/src/storage/mod.rs
+@@ -32,6 +32,7 @@ pub mod middleware;
+ 
+ use std::{
+     any::{Any, TypeId},
++    collections::HashSet,
+     io::IoSlice,
+     path::Path,
+ };
+@@ -52,9 +53,19 @@ pub trait StorageFactory: Send + Sync + Any {
+         &self,
+         shared: &ManagedTorrentShared,
+         metadata: &TorrentMetadata,
++    ) -> anyhow::Result<Self::Storage> {
++        self.create_and_init_with_selection(shared, metadata, None)
++    }
++
++    /// Initializes storage with the confirmed file selection; None selects all files.
++    fn create_and_init_with_selection(
++        &self,
++        shared: &ManagedTorrentShared,
++        metadata: &TorrentMetadata,
++        only_files: Option<&[usize]>,
+     ) -> anyhow::Result<Self::Storage> {
+         let mut storage = self.create(shared, metadata)?;
+-        storage.init(shared, metadata)?;
++        storage.init_with_selection(shared, metadata, only_files)?;
+         Ok(storage)
+     }
+ 
+@@ -118,6 +129,34 @@ impl<U: StorageFactory + ?Sized> StorageFactory for Box<U> {
+ }
+ 
+ pub trait TorrentStorage: Send + Sync {
++    /// Initializes selected files, or rejects partial selection before materializing payloads.
++    fn init_with_selection(
++        &mut self,
++        shared: &ManagedTorrentShared,
++        metadata: &TorrentMetadata,
++        only_files: Option<&[usize]>,
++    ) -> anyhow::Result<()> {
++        if let Some(indices) = only_files {
++            let selected: HashSet<_> = indices.iter().copied().collect();
++            anyhow::ensure!(
++                selected.len() == metadata.file_infos.len()
++                    && selected.iter().all(|&id| id < metadata.file_infos.len()),
++                "storage backend does not support this file selection"
++            );
++        }
++        self.init(shared, metadata)
++    }
++
++    /// Applies a selection before subsequent I/O; unsupported backends return an error.
++    fn set_file_selection(&self, _only_files: &HashSet<usize>) -> anyhow::Result<()> {
++        anyhow::bail!("storage backend does not support changing file selection")
++    }
++
++    /// Requires all piece hashes to be checked before trusting persisted have bits.
++    fn requires_full_check(&self) -> bool {
++        false
++    }
++
+     // Create/open files etc.
+     fn init(
+         &mut self,
+@@ -154,6 +193,11 @@ pub trait TorrentStorage: Send + Sync {
+     /// Remove a file from the storage. If not supported, or it doesn't matter, just return Ok(())
+     fn remove_file(&self, file_id: usize, filename: &Path) -> anyhow::Result<()>;
+ 
++    /// Removes auxiliary data after an explicit request to delete torrent files.
++    fn remove_cached_data(&self) -> anyhow::Result<()> {
++        Ok(())
++    }
++
+     fn remove_directory_if_empty(&self, path: &Path) -> anyhow::Result<()>;
+ 
+     /// E.g. for filesystem backend ensure that the file has a certain length, and grow/shrink as needed.
+@@ -171,6 +215,23 @@ pub trait TorrentStorage: Send + Sync {
+ }
+ 
+ impl<U: TorrentStorage + ?Sized> TorrentStorage for Box<U> {
++    fn init_with_selection(
++        &mut self,
++        shared: &ManagedTorrentShared,
++        metadata: &TorrentMetadata,
++        only_files: Option<&[usize]>,
++    ) -> anyhow::Result<()> {
++        (**self).init_with_selection(shared, metadata, only_files)
++    }
++
++    fn set_file_selection(&self, only_files: &HashSet<usize>) -> anyhow::Result<()> {
++        (**self).set_file_selection(only_files)
++    }
++
++    fn requires_full_check(&self) -> bool {
++        (**self).requires_full_check()
++    }
++
+     fn pread_exact(&self, file_id: usize, offset: u64, buf: &mut [u8]) -> anyhow::Result<()> {
+         (**self).pread_exact(file_id, offset, buf)
+     }
+@@ -183,6 +244,10 @@ impl<U: TorrentStorage + ?Sized> TorrentStorage for Box<U> {
+         (**self).remove_file(file_id, filename)
+     }
+ 
++    fn remove_cached_data(&self) -> anyhow::Result<()> {
++        (**self).remove_cached_data()
++    }
++
+     fn ensure_file_length(&self, file_id: usize, length: u64) -> anyhow::Result<()> {
+         (**self).ensure_file_length(file_id, length)
+     }
+diff --git a/crates/librqbit/src/tests/mod.rs b/crates/librqbit/src/tests/mod.rs
+index 1454af0..0cea57d 100644
+--- a/crates/librqbit/src/tests/mod.rs
++++ b/crates/librqbit/src/tests/mod.rs
+@@ -1,4 +1,5 @@
+ mod e2e;
+ mod e2e_another_local_client;
+ mod e2e_stream;
++mod selective_storage;
+ pub mod test_util;
+diff --git a/crates/librqbit/src/tests/selective_storage.rs b/crates/librqbit/src/tests/selective_storage.rs
+new file mode 100644
+index 0000000..8e99d5d
+--- /dev/null
++++ b/crates/librqbit/src/tests/selective_storage.rs
+@@ -0,0 +1,446 @@
++use std::{collections::HashSet, io::IoSlice, path::Path, time::Duration};
++
++use anyhow::Context;
++use tempfile::TempDir;
++
++use crate::{
++    AddTorrent, AddTorrentOptions, CreateTorrentOptions, ManagedTorrentState, Session,
++    SessionOptions, SessionPersistenceConfig, create_torrent, spawn_utils::BlockingSpawner,
++    torrent_state::ManagedTorrentHandle,
++};
++
++async fn fixture() -> anyhow::Result<(TempDir, std::sync::Arc<Session>, ManagedTorrentHandle)> {
++    fixture_with_overwrite(true).await
++}
++
++async fn fixture_with_overwrite(
++    overwrite: bool,
++) -> anyhow::Result<(TempDir, std::sync::Arc<Session>, ManagedTorrentHandle)> {
++    let root = TempDir::new()?;
++    let source = root.path().join("source");
++    for (name, byte, size) in [
++        ("chosen/first.bin", 1, 12000),
++        ("skipped/middle.bin", 2, 36000),
++        ("chosen/last.bin", 3, 15000),
++        ("empty/zero.bin", 0, 0),
++        ("never/file.bin", 4, 128),
++    ] {
++        let path = source.join(name);
++        std::fs::create_dir_all(path.parent().unwrap())?;
++        std::fs::write(path, vec![byte; size])?;
++    }
++    let torrent = create_torrent(
++        &source,
++        CreateTorrentOptions {
++            piece_length: Some(16384),
++            ..Default::default()
++        },
++        &BlockingSpawner::new(1),
++    )
++    .await?;
++    let info = torrent.as_info().info.data.clone().validate()?;
++    let selected = info
++        .iter_file_details()
++        .enumerate()
++        .filter_map(|(id, file)| {
++            file.filename
++                .to_pathbuf()
++                .starts_with("chosen")
++                .then_some(id)
++        })
++        .collect();
++    let output = root.path().join("output");
++    std::fs::create_dir_all(output.join("skipped"))?;
++    std::fs::write(output.join("skipped/middle.bin"), b"existing user bytes")?;
++    let session = Session::new_with_opts(
++        output.clone(),
++        SessionOptions {
++            dht: None,
++            disable_trackers: true,
++            disable_local_service_discovery: true,
++            persistence: Some(SessionPersistenceConfig::Json {
++                folder: Some(root.path().join("session")),
++            }),
++            ..Default::default()
++        },
++    )
++    .await?;
++    let handle = session
++        .add_torrent(
++            AddTorrent::from_bytes(torrent.as_bytes()?),
++            Some(AddTorrentOptions {
++                paused: true,
++                overwrite,
++                output_folder: Some(output.to_string_lossy().into()),
++                only_files: Some(selected),
++                ..Default::default()
++            }),
++        )
++        .await?
++        .into_handle()
++        .context("missing handle")?;
++    tokio::time::timeout(Duration::from_secs(10), handle.wait_until_initialized()).await??;
++    Ok((root, session, handle))
++}
++
++fn skipped_id(handle: &ManagedTorrentHandle) -> usize {
++    handle
++        .metadata
++        .load()
++        .as_ref()
++        .unwrap()
++        .file_infos
++        .iter()
++        .position(|file| file.relative_filename == Path::new("skipped/middle.bin"))
++        .unwrap()
++}
++
++#[tokio::test]
++async fn selective_storage_initialization_preserves_skipped_paths_and_bytes() -> anyhow::Result<()>
++{
++    let (root, session, handle) = fixture().await?;
++    let output = root.path().join("output");
++    assert!(!output.join("empty").exists());
++    assert!(!output.join("never").exists());
++    assert_eq!(
++        std::fs::read(output.join("skipped/middle.bin"))?,
++        b"existing user bytes"
++    );
++    drop(handle);
++    session.stop().await;
++    Ok(())
++}
++
++#[tokio::test]
++async fn selective_storage_shared_bytes_do_not_modify_skipped_payload() -> anyhow::Result<()> {
++    let (root, session, handle) = fixture().await?;
++    let id = skipped_id(&handle);
++    handle.with_state(|state| -> anyhow::Result<()> {
++        let ManagedTorrentState::Paused(paused) = state else {
++            anyhow::bail!("not paused")
++        };
++        paused.files.pwrite_all_vectored(
++            id,
++            0,
++            [IoSlice::new(b"shared "), IoSlice::new(b"bytes")],
++        )?;
++        let mut read = [0; 12];
++        paused.files.pread_exact(id, 0, &mut read)?;
++        assert_eq!(&read, b"shared bytes");
++        Ok(())
++    })?;
++    assert_eq!(
++        std::fs::read(root.path().join("output/skipped/middle.bin"))?,
++        b"existing user bytes"
++    );
++    drop(handle);
++    session.stop().await;
++    Ok(())
++}
++
++#[tokio::test]
++async fn selective_storage_selection_promotes_only_cached_ranges() -> anyhow::Result<()> {
++    let (root, session, handle) = fixture().await?;
++    let id = skipped_id(&handle);
++    handle.with_state(|state| -> anyhow::Result<()> {
++        let ManagedTorrentState::Paused(paused) = state else {
++            anyhow::bail!("not paused")
++        };
++        paused.files.pwrite_all(id, 9, b"cached")?;
++        Ok(())
++    })?;
++    handle.update_only_files(&HashSet::from([id]))?;
++    let bytes = std::fs::read(root.path().join("output/skipped/middle.bin"))?;
++    assert_eq!(&bytes[..9], b"existing ");
++    assert_eq!(&bytes[9..15], b"cached");
++    assert_eq!(&bytes[15..19], b"ytes");
++    drop(handle);
++    session.stop().await;
++    Ok(())
++}
++
++#[tokio::test]
++async fn selective_storage_deselection_routes_later_writes_to_cache() -> anyhow::Result<()> {
++    let (root, session, handle) = fixture().await?;
++    let id = skipped_id(&handle);
++    handle.update_only_files(&HashSet::from([id]))?;
++    handle.with_state(|state| -> anyhow::Result<()> {
++        let ManagedTorrentState::Paused(paused) = state else {
++            anyhow::bail!("not paused")
++        };
++        paused.files.pwrite_all(id, 0, b"selected bytes")?;
++        Ok(())
++    })?;
++    let path = root.path().join("output/skipped/middle.bin");
++    let selected_bytes = std::fs::read(&path)?;
++    handle.update_only_files(&HashSet::new())?;
++    handle.with_state(|state| -> anyhow::Result<()> {
++        let ManagedTorrentState::Paused(paused) = state else {
++            anyhow::bail!("not paused")
++        };
++        paused.files.pwrite_all(id, 0, b"cached bytes!!")?;
++        let moved = paused.files.take()?;
++        assert!(paused.files.pwrite_all(id, 0, b"wrong").is_err());
++        assert!(
++            paused
++                .files
++                .remove_file(id, Path::new("skipped/middle.bin"))
++                .is_err()
++        );
++        assert!(paused.files.remove_cached_data().is_err());
++        let mut bytes = [0; 14];
++        moved.pread_exact(id, 0, &mut bytes)?;
++        assert_eq!(&bytes, b"cached bytes!!");
++        Ok(())
++    })?;
++    assert_eq!(std::fs::read(&path)?, selected_bytes);
++    drop(handle);
++    session.stop().await;
++    Ok(())
++}
++
++#[tokio::test]
++async fn selective_storage_restart_keeps_overlay_and_skipped_data() -> anyhow::Result<()> {
++    let (root, session, handle) = fixture().await?;
++    let id = skipped_id(&handle);
++    let hash = handle.info_hash();
++    handle.with_state(|state| -> anyhow::Result<()> {
++        let ManagedTorrentState::Paused(paused) = state else {
++            anyhow::bail!("not paused")
++        };
++        paused.files.pwrite_all(id, 35000, b"cached tail")?;
++        Ok(())
++    })?;
++    drop(handle);
++    session.stop().await;
++    drop(session);
++    let next = Session::new_with_opts(
++        root.path().join("output"),
++        SessionOptions {
++            dht: None,
++            disable_trackers: true,
++            disable_local_service_discovery: true,
++            persistence: Some(SessionPersistenceConfig::Json {
++                folder: Some(root.path().join("session")),
++            }),
++            fastresume: true,
++            ..Default::default()
++        },
++    )
++    .await?;
++    let handle = next.get(hash.into()).context("torrent was not restored")?;
++    tokio::time::timeout(Duration::from_secs(10), handle.wait_until_initialized()).await??;
++    handle.with_state(|state| -> anyhow::Result<()> {
++        let ManagedTorrentState::Paused(paused) = state else {
++            anyhow::bail!("not paused")
++        };
++        let mut bytes = [0; 11];
++        paused.files.pread_exact(id, 35000, &mut bytes)?;
++        assert_eq!(&bytes, b"cached tail");
++        assert!(paused.files.pread_exact(id, 100, &mut bytes).is_err());
++        Ok(())
++    })?;
++    assert_eq!(
++        std::fs::read(root.path().join("output/skipped/middle.bin"))?,
++        b"existing user bytes"
++    );
++    assert!(!root.path().join("output/never").exists());
++    drop(handle);
++    next.stop().await;
++    Ok(())
++}
++
++#[tokio::test]
++async fn selective_storage_initial_check_finds_cached_suffix_after_missing_prefix()
++-> anyhow::Result<()> {
++    let (root, session, handle) = fixture().await?;
++    let id = skipped_id(&handle);
++    let metadata = handle.metadata.load_full().context("no metadata")?;
++    let piece_id = metadata.file_infos[id].piece_range.end - 1;
++    let piece = metadata
++        .lengths()
++        .iter_piece_infos()
++        .find(|piece| piece.piece_index.get() == piece_id)
++        .context("no suffix piece")?;
++    let start = piece_id as u64 * metadata.info.info().piece_length as u64;
++    let end = start + piece.len as u64;
++    assert!(start > metadata.file_infos[id].offset_in_torrent + 19);
++    handle.with_state(|state| -> anyhow::Result<()> {
++        let ManagedTorrentState::Paused(paused) = state else {
++            anyhow::bail!("not paused")
++        };
++        for (file_id, file) in metadata.file_infos.iter().enumerate() {
++            let from = start.max(file.offset_in_torrent);
++            let to = end.min(file.offset_in_torrent + file.len);
++            if from >= to {
++                continue;
++            }
++            let data = std::fs::read(root.path().join("source").join(&file.relative_filename))?;
++            let offset = usize::try_from(from - file.offset_in_torrent)?;
++            paused.files.pwrite_all(
++                file_id,
++                offset as u64,
++                &data[offset..offset + usize::try_from(to - from)?],
++            )?;
++        }
++        let have =
++            crate::file_ops::FileOps::new(&metadata.info, &*paused.files, &metadata.file_infos)
++                .initial_check(
++                    &std::sync::atomic::AtomicU64::new(0),
++                    &std::sync::atomic::AtomicBool::new(false),
++                )?;
++        assert!(
++            have[piece_id as usize],
++            "valid cached suffix was lost after an earlier missing range"
++        );
++        Ok(())
++    })?;
++    assert_eq!(
++        std::fs::read(root.path().join("output/skipped/middle.bin"))?,
++        b"existing user bytes"
++    );
++    drop(handle);
++    session.stop().await;
++    Ok(())
++}
++
++#[tokio::test]
++async fn selective_storage_reselects_owned_file_without_overwriting_a_foreign_file()
++-> anyhow::Result<()> {
++    let (root, session, handle) = fixture_with_overwrite(false).await?;
++    let id = handle.only_files().context("no selection")?[0];
++    handle.update_only_files(&HashSet::new())?;
++    handle.with_state(|state| -> anyhow::Result<()> {
++        let ManagedTorrentState::Paused(paused) = state else {
++            anyhow::bail!("not paused")
++        };
++        paused.files.pwrite_all(id, 0, b"cached")?;
++        Ok(())
++    })?;
++    handle.update_only_files(&HashSet::from([id]))?;
++    handle.with_state(|state| -> anyhow::Result<()> {
++        let ManagedTorrentState::Paused(paused) = state else {
++            anyhow::bail!("not paused")
++        };
++        let mut bytes = [0; 6];
++        paused.files.pread_exact(id, 0, &mut bytes)?;
++        assert_eq!(&bytes, b"cached");
++        Ok(())
++    })?;
++    assert!(
++        handle
++            .update_only_files(&HashSet::from([skipped_id(&handle)]))
++            .is_err()
++    );
++    assert_eq!(handle.only_files(), Some(vec![id]));
++    assert_eq!(
++        std::fs::read(root.path().join("output/skipped/middle.bin"))?,
++        b"existing user bytes"
++    );
++    drop(handle);
++    session.stop().await;
++    Ok(())
++}
++
++#[tokio::test]
++async fn selective_storage_retries_partial_materialization_without_overwrite() -> anyhow::Result<()>
++{
++    let (root, session, handle) = fixture_with_overwrite(false).await?;
++    let metadata = handle.metadata.load_full().context("no metadata")?;
++    let ids: HashSet<_> = metadata
++        .file_infos
++        .iter()
++        .enumerate()
++        .filter_map(|(id, file)| {
++            (file.relative_filename.starts_with("empty")
++                || file.relative_filename.starts_with("never"))
++            .then_some(id)
++        })
++        .collect();
++    let mut order = ids.iter();
++    let first = *order.next().context("no first file")?;
++    let second = *order.next().context("no second file")?;
++    let foreign = root
++        .path()
++        .join("output")
++        .join(&metadata.file_infos[second].relative_filename);
++    std::fs::create_dir_all(foreign.parent().unwrap())?;
++    std::fs::write(&foreign, b"foreign")?;
++    assert!(handle.update_only_files(&ids).is_err());
++    assert_eq!(std::fs::read(&foreign)?, b"foreign");
++    assert!(
++        root.path()
++            .join("output")
++            .join(&metadata.file_infos[first].relative_filename)
++            .exists()
++    );
++    handle.update_only_files(&HashSet::from([first]))?;
++    drop(handle);
++    session.stop().await;
++    Ok(())
++}
++
++#[tokio::test]
++async fn selective_storage_delete_in_error_state_removes_payload_and_cached_ranges()
++-> anyhow::Result<()> {
++    use crate::storage::{StorageFactory, TorrentStorage, filesystem::FilesystemStorageFactory};
++    let (root, session, handle) = fixture().await?;
++    let id = skipped_id(&handle);
++    let metadata = handle.metadata.load_full().context("no metadata")?;
++    handle.with_state_mut(|state| -> anyhow::Result<()> {
++        let ManagedTorrentState::Paused(paused) = state else {
++            anyhow::bail!("not paused")
++        };
++        paused.files.pwrite_all(id, 35000, b"cached tail")?;
++        *state = ManagedTorrentState::Error(anyhow::anyhow!("synthetic storage failure"));
++        Ok(())
++    })?;
++    session.delete(handle.id().into(), true).await?;
++    assert!(!root.path().join("output/chosen/first.bin").exists());
++    assert!(!root.path().join("output/skipped/middle.bin").exists());
++    assert!(!root.path().join("output/never").exists());
++    let mut storage = FilesystemStorageFactory {}.create(handle.shared(), &metadata)?;
++    storage.init_with_selection(handle.shared(), &metadata, Some(&[]))?;
++    assert!(storage.pread_exact(id, 35000, &mut [0; 11]).is_err());
++    drop(storage);
++    drop(handle);
++    session.stop().await;
++    Ok(())
++}
++
++#[tokio::test]
++async fn selective_storage_delete_tolerates_corrupt_cache_but_reports_cleanup_failure()
++-> anyhow::Result<()> {
++    for obstruct in [false, true] {
++        let (root, session, handle) = fixture().await?;
++        let id = skipped_id(&handle);
++        handle.with_state_mut(|state| -> anyhow::Result<()> {
++            let ManagedTorrentState::Paused(paused) = state else {
++                anyhow::bail!("not paused")
++            };
++            paused.files.pwrite_all(id, 35000, b"cached tail")?;
++            *state = ManagedTorrentState::Error(anyhow::anyhow!("synthetic storage failure"));
++            Ok(())
++        })?;
++        let cache = std::fs::read_dir(root.path().join("session/parts-v1"))?
++            .next()
++            .context("no cache")??
++            .path();
++        if obstruct {
++            std::fs::remove_file(&cache)?;
++            std::fs::create_dir(&cache)?;
++        } else {
++            std::fs::write(&cache, b"corrupt cache")?;
++        }
++        let result = session.delete(handle.id().into(), true).await;
++        assert_eq!(result.is_err(), obstruct);
++        assert!(!root.path().join("output/chosen/first.bin").exists());
++        assert!(!root.path().join("output/skipped/middle.bin").exists());
++        if !obstruct {
++            assert!(!cache.exists());
++        }
++        drop(handle);
++        session.stop().await;
++    }
++    Ok(())
++}
+diff --git a/crates/librqbit/src/torrent_state/initializing.rs b/crates/librqbit/src/torrent_state/initializing.rs
+index 37789dc..46bea3f 100644
+--- a/crates/librqbit/src/torrent_state/initializing.rs
++++ b/crates/librqbit/src/torrent_state/initializing.rs
+@@ -207,7 +207,11 @@ impl TorrentStateInitializing {
+                 .context("error loading have_pieces")?
+         };
+ 
+-        let have_pieces = self.validate_fastresume(&*bitv_factory, have_pieces).await;
++        let have_pieces = if self.files.requires_full_check() {
++            None
++        } else {
++            self.validate_fastresume(&*bitv_factory, have_pieces).await
++        };
+ 
+         let have_pieces = match have_pieces {
+             Some(h) => h,
+diff --git a/crates/librqbit/src/torrent_state/live/mod.rs b/crates/librqbit/src/torrent_state/live/mod.rs
+index b4146d8..cab406a 100644
+--- a/crates/librqbit/src/torrent_state/live/mod.rs
++++ b/crates/librqbit/src/torrent_state/live/mod.rs
+@@ -804,6 +804,7 @@ impl TorrentStateLive {
+     pub(crate) fn update_only_files(&self, only_files: &HashSet<usize>) -> anyhow::Result<()> {
+         let mut g = self.lock_write("update_only_files");
+         let pt = g.get_pieces_mut()?;
++        self.files.set_file_selection(only_files)?;
+         let hns = pt.update_only_files(&self.metadata.file_infos, only_files)?;
+         if !hns.finished() {
+             self.reconnect_all_not_needed_peers();
+diff --git a/crates/librqbit/src/torrent_state/mod.rs b/crates/librqbit/src/torrent_state/mod.rs
+index cfe483c..12c2d9e 100644
+--- a/crates/librqbit/src/torrent_state/mod.rs
++++ b/crates/librqbit/src/torrent_state/mod.rs
+@@ -433,9 +433,11 @@ impl ManagedTorrent {
+                         t.shared.clone(),
+                         metadata.clone(),
+                         g.only_files.clone(),
+-                        t.shared
+-                            .storage_factory
+-                            .create_and_init(t.shared(), &metadata)?,
++                        t.shared.storage_factory.create_and_init_with_selection(
++                            t.shared(),
++                            &metadata,
++                            g.only_files.as_deref(),
++                        )?,
+                         true,
+                     ));
+                     g.state = ManagedTorrentState::Initializing(initializing.clone());
+diff --git a/crates/librqbit/src/torrent_state/paused.rs b/crates/librqbit/src/torrent_state/paused.rs
+index 0bcda9f..e7a4d31 100644
+--- a/crates/librqbit/src/torrent_state/paused.rs
++++ b/crates/librqbit/src/torrent_state/paused.rs
+@@ -17,6 +17,7 @@ pub struct TorrentStatePaused {
+ 
+ impl TorrentStatePaused {
+     pub(crate) fn update_only_files(&mut self, only_files: &HashSet<usize>) -> anyhow::Result<()> {
++        self.files.set_file_selection(only_files)?;
+         self.chunk_tracker
+             .update_only_files(&self.metadata.file_infos, only_files)?;
+         Ok(())

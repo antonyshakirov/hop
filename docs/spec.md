@@ -4497,6 +4497,29 @@ on a raised level, and the picker used to come up under it.
   not delete these paths as part of selection or attempt to infer ownership.
   Existing downloads are not cleaned up by this fix.
 
+### Selective storage engine build
+
+The pinned source patch in `engine/rqbit` provides the selective-storage engine
+contract. It is prepared for separate engine distribution; the stock 9.0.1
+limitation above remains until that build is installed.
+
+- Only selected payload files are created or resized. Shared-piece bytes for
+  skipped files go into a lazy persistent journal outside the download tree.
+  Existing skipped payloads remain unchanged and are opened read-only for gaps
+  not covered by the journal.
+- Cached bytes remain available for verification, restart and upload. A selective
+  or cached restart checks piece hashes, including with fast resume enabled.
+- A selection change promotes the requested cached ranges before updating the
+  effective selection. Failure preserves the previous selection; files created
+  for the explicit failed request can remain. Deselecting leaves existing files
+  in place and redirects later writes to the cache.
+- Selecting a file created by this storage can succeed with overwrite disabled.
+  Selecting a previously existing foreign file requires overwrite permission.
+  No automatic removal of pre-existing files or stock placeholders is added.
+- Explicit torrent-file deletion removes payload and cached data independently
+  of cache replay and reports incomplete cleanup. Forgetting or deselecting a
+  torrent does not delete these files.
+
 ### Removing one file of a torrent (Anton, 2026-10-01)
 
 - Every file of an expanded multi-file torrent has a small ✕ at the end of its
