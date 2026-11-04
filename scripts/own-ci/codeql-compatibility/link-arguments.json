@@ -86,7 +86,7 @@
   "@loader_path",
   "-headerpad_max_install_names",
   "-isysroot",
-  "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk",
   "-Wl,-dead_strip",
   "-headerpad_max_install_names",
   "-lm",

@@ -31,7 +31,7 @@ struct TorrentView: View {
     private func t(_ key: L10nKey) -> String { L10n.t(key, lang) }
 
     private var engineInstalled: Bool {
-        if case .installed = torrent.installer.state { return true }
+        if case .installed = torrent.installer.state { return !torrent.installer.needsUpdate }
         return false
     }
 
@@ -41,19 +41,20 @@ struct TorrentView: View {
                 defaultHandlerBanner
             }
             Group {
-                if !torrent.torrents.isEmpty {
-                    activeList
-                } else {
+                if !engineInstalled {
                     switch torrent.installer.state {
-                    case .installed:
-                        emptyZone
                     case .downloading(let progress):
                         engineStatusRow("\(t(.torrentGetting)) · \(engineSizeText) · \(Int(progress * 100))%")
                     case .verifying:
                         engineStatusRow(t(.torrentVerifying))
-                    case .notInstalled, .failed:
+                    case .installed, .notInstalled, .failed:
                         enableRow
                     }
+                }
+                if !torrent.torrents.isEmpty {
+                    activeList
+                } else if engineInstalled {
+                    emptyZone
                 }
             }
         }
@@ -145,7 +146,7 @@ struct TorrentView: View {
     /// installer's manifest size with the app's decimal byte formatter; falls
     /// back to a rough estimate before the manifest is decoded.
     private var engineSizeText: String {
-        let bytes = torrent.installer.engineSizeBytes
+        let bytes = torrent.installer.sizeBytes
         return bytes > 0 ? SizeFormatting.sizeText(bytes) : "~25 MB"
     }
 

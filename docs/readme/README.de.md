@@ -52,6 +52,10 @@ macOS öffnet es also wie jede andere App. Der Quellcode ist öffentlich, und
 integrierte Updates werden mit Ed25519 verifiziert. Benötigt macOS 14 oder
 neuer.
 
+### 2.4.3
+
+- Torrents: nicht ausgewählte Dateien werden nicht mehr erstellt oder verändert.
+
 ### 2.4.1
 
 - Ein erneuter Klick auf das Menüleistensymbol blendet das Panel aus.

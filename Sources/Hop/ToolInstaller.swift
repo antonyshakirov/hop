@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import HopCore
 
@@ -34,6 +35,8 @@ class ToolInstaller: ObservableObject {
 
     let manifestURL: String
     let minimumVersion: String?
+    private let requiredSHA256: String?
+    private var installedDigestMatches = true
     private let publicKeyBase64: String
     private let folderName: String
     private let binaryName: String
@@ -44,7 +47,9 @@ class ToolInstaller: ObservableObject {
          folderName: String,
          binaryName: String,
          minimumVersion: String? = nil,
-         publicKeyBase64: String = ToolInstaller.toolPublicKeyBase64) {
+         publicKeyBase64: String = ToolInstaller.toolPublicKeyBase64,
+         requiredSHA256: String? = nil) {
+        self.requiredSHA256 = requiredSHA256
         self.manifestURL = manifestURL
         self.minimumVersion = minimumVersion
         self.folderName = folderName
@@ -52,6 +57,7 @@ class ToolInstaller: ObservableObject {
         self.publicKeyBase64 = publicKeyBase64
         // Dev snapshots stage the installed (ready) state so the design renders
         // without the tool actually being present on disk.
+        if requiredSHA256 != nil { installedDigestMatches = installedDigestIsValid() }
         if Snapshot.active { state = .installed(binaryURL) }
         else if installedBinaryURL() != nil { state = .installed(binaryURL) }
     }
@@ -79,7 +85,29 @@ class ToolInstaller: ObservableObject {
     }
 
     var needsUpdate: Bool {
-        installedBinaryURL() != nil && ToolVersion.isBelow(installedVersion, minimum: minimumVersion)
+        installedBinaryURL() != nil && (ToolVersion.isBelow(installedVersion, minimum: minimumVersion) || !installedDigestMatches)
+    }
+
+    func runnableBinaryURL() -> URL? {
+        guard !ToolVersion.isBelow(installedVersion, minimum: minimumVersion),
+              let binary = installedBinaryURL() else { return nil }
+        guard installedDigestIsValid() else {
+            installedDigestMatches = false
+            state = .failed
+            return nil
+        }
+        return binary
+    }
+
+    private func matchesRequiredDigest(_ data: Data) -> Bool {
+        guard let requiredSHA256 else { return true }
+        return SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined() == requiredSHA256
+    }
+
+    private func installedDigestIsValid() -> Bool {
+        guard requiredSHA256 != nil else { return true }
+        guard let data = try? Data(contentsOf: binaryURL, options: .mappedIfSafe) else { return false }
+        return matchesRequiredDigest(data)
     }
 
     /// Replaces a binary older than `minimumVersion`; on failure the old one stays usable.
@@ -132,11 +160,13 @@ class ToolInstaller: ObservableObject {
 
             state = .verifying
             guard let binData = try? Data(contentsOf: tmpBin),
+                  matchesRequiredDigest(binData),
                   EngineSignature.isValid(signature: signature, for: binData,
                                           publicKeyBase64: publicKeyBase64)
             else { state = .failed; return }
 
             try installVerified(from: tmpBin, version: manifest.version)
+            installedDigestMatches = true
             state = .installed(binaryURL)
         } catch {
             state = .failed

@@ -76,3 +76,23 @@ it under the pinned Swift 6.3.3 extractor, with all 158 module input sources mar
 successfully extracted and no nested errors. Native module compilation also
 succeeds. The batch invocation and complete production gate on the final revision
 still require verification; this module replay is not release approval.
+
+
+## Identical restoration on 2026-11-04
+
+The floating Xcode `MacOSX.sdk` path had advanced to SDK 27.2. Rebuilding with
+that input produced SHA256 `07017822d287d97027b4bb582a3bee45958b99b4115973ac84a1d6ad243f8bcd`,
+which was rejected. A real rebuild and link using the installed versioned
+`/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk` restored all 123 recorded
+object/archive hashes and the exact pinned raw extractor `fd9d65…`. No manifest
+pin changes are needed.
+
+Before compiling C++, resolve the host sysroot explicitly and require its
+`SDKSettings.json` SHA256 to equal
+`7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb`.
+Require CLT clang SHA256
+`1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9`.
+Use that same versioned sysroot in Bazel repository compile/link flags,
+generated builtin include paths and the final link template. The importer and
+fixture sysroot remains the separately recorded macOS 26.5 SDK. A floating
+SDK alias is insufficient to reproduce the pinned executable after Xcode updates.

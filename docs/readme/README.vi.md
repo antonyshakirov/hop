@@ -50,6 +50,10 @@ Hop được ký bằng Apple Developer ID và đã qua notarization của Apple
 macOS mở nó như mọi ứng dụng khác. Mã nguồn công khai, và các bản cập nhật
 tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 
+### 2.4.3
+
+- Torrent: các tệp không được chọn không còn bị tạo hoặc thay đổi.
+
 ### 2.4.1
 
 - Nhấp lại vào biểu tượng trên thanh menu để ẩn bảng.

@@ -74,9 +74,18 @@ restart without the original seed, seeding to another client and changing file
 selection. Its `finally` blocks stop owned processes and remove temporary data.
 JSON results and engine logs remain in the evidence directory.
 
-The verified target is Apple Silicon macOS. Six upstream tests remain explicitly
+The build targets Apple Silicon and Intel macOS 14 or later. Intel execution is
+checked under Rosetta; physical Intel validation is separate. Six upstream tests remain explicitly
 ignored, including external-peer/DHT/tracker scenarios and a Miri-specific test.
-Intel, Windows, production signing, delivery and a complete Hop release check
+Windows, production signing, delivery and a complete Hop release check
 require their own validation. The CLI still reports upstream version 9.0.1;
 identify this build through the pinned patch and binary checksum. Publishing
 requires a distinct engine artifact and the normal signed-engine release flow.
+
+The signed distribution uses packaging version `9.0.1.1` and the filename
+`rqbit-9.0.1-hop.1-universal`. The fourth numeric component is Hop's build revision;
+Hop requires that revision before starting torrents. The upstream CLI version
+remains `9.0.1`. Build both targets with `MACOSX_DEPLOYMENT_TARGET=14.0` and
+`--release --target aarch64-apple-darwin` or `--target x86_64-apple-darwin`, then
+combine their `rqbit` executables with `lipo -create`. Verify and sign the combined
+binary through the signed-helper distribution flow.

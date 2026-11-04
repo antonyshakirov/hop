@@ -5,7 +5,6 @@
   "patch": "selective-storage.patch",
   "patch_sha256": "09fd1a717f4b74750b75b98b1d4ce21077b354de7f48ef33f5c9ee10a0d6e487",
   "rust_toolchain": "1.99.1",
-  "verified_target": "aarch64-apple-darwin",
   "build_features": [
     "rust-tls"
   ],
@@ -26,5 +25,11 @@
     "crates/librqbit/src/torrent_state/live/mod.rs": "39bc6ffd07f9000049d7ec5ef7e3205bc7e71e81ed8a540e26865d971f1f0030",
     "crates/librqbit/src/torrent_state/mod.rs": "6b1ae16b6674da8e32dbe0ed5437823467ce0d6477b813ef391dcdb975139e1f",
     "crates/librqbit/src/torrent_state/paused.rs": "adaf9c8f9e881c3f77c85aaa2eba51f0d6b1b73c4a276f3c13cd969d270295c4"
-  }
+  },
+  "packaging_version": "9.0.1.1",
+  "minimum_macos": "14.0",
+  "verified_targets": [
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin"
+  ]
 }

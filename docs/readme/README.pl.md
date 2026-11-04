@@ -51,6 +51,10 @@ otwiera go jak każdą inną aplikację. Kod źródłowy jest publiczny, a
 wbudowane aktualizacje są weryfikowane podpisem Ed25519. Wymaga macOS 14 lub
 nowszego.
 
+### 2.4.3
+
+- Torrenty: niewybrane pliki nie są już tworzone ani zmieniane.
+
 ### 2.4.1
 
 - Ponowne kliknięcie ikony na pasku menu ukrywa panel.

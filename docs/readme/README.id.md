@@ -52,6 +52,10 @@ jadi macOS membukanya seperti aplikasi lain. Kode sumbernya terbuka, dan
 pembaruan bawaan diverifikasi dengan Ed25519. Membutuhkan macOS 14 atau
 lebih baru.
 
+### 2.4.3
+
+- Torrent: file yang tidak dipilih tidak lagi dibuat atau diubah.
+
 ### 2.4.1
 
 - Klik lagi ikon bilah menu untuk menyembunyikan panel.

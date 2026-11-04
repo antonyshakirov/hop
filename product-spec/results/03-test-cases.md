@@ -19,6 +19,8 @@ Requirements: `docs/spec.md`, Initial torrent file selection.
 | TOR-11 | Delete synthetic torrent files from Error with a corrupt cache | Payload and cache are removed without replay; an obstructed cleanup returns an error |
 | TOR-12 | Torn/corrupt journal, overlapping writes and repeated overwrite | Incomplete tail recovers, corrupt complete records fail, latest ranges replay correctly and obsolete data is compacted |
 
+| TOR-13 | Start with a stock 9.0.1 helper, then use the signed 9.0.1.1 manifest | Hop requires the newer helper; matching packaging revision is accepted; signature and manifest validation retain their existing guarantees |
+
 ## Audio input and confirmed-agent cases
 
 Requirements: `screens/sound-input.md`. These scenarios are required for the new
@@ -92,3 +94,4 @@ its plain DragGesture control, so it is not evidence for TR-03 through TR-05.
 TrackerNamePointerTests drive queued AppKit events through the actual native
 name surface and hosted TrackerView for TR-08/TR-09. Physical WindowServer
 delivery still requires the installed Dev check.
+| TOR-14 | Required helper update fails with an old or missing version; saved torrents remain | Old binary stays unchanged, no process or output directory is created, and the visible retry action accepts a click without losing saved rows |

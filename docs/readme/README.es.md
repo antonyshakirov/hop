@@ -53,6 +53,10 @@ macOS la abre como cualquier otra app. El código fuente es público y las
 actualizaciones integradas se verifican con Ed25519. Requiere macOS 14 o
 posterior.
 
+### 2.4.3
+
+- Torrents: los archivos no seleccionados ya no se crean ni se modifican.
+
 ### 2.4.1
 
 - Otro clic en el icono de la barra de menús oculta el panel.

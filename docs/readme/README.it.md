@@ -52,6 +52,10 @@ la apre come qualsiasi altra app. Il codice sorgente è pubblico e gli
 aggiornamenti integrati sono verificati con Ed25519. Richiede macOS 14 o
 successivo.
 
+### 2.4.3
+
+- Torrent: i file non selezionati non vengono più creati o modificati.
+
 ### 2.4.1
 
 - Un altro clic sull’icona nella barra dei menu nasconde il pannello.

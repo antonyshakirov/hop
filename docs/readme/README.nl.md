@@ -51,6 +51,10 @@ dus macOS opent het als elke andere app. De broncode is openbaar en
 ingebouwde updates worden geverifieerd met Ed25519. Vereist macOS 14 of
 nieuwer.
 
+### 2.4.3
+
+- Torrents: niet-geselecteerde bestanden worden niet meer aangemaakt of gewijzigd.
+
 ### 2.4.1
 
 - Nogmaals klikken op het menubalkpictogram verbergt het paneel.

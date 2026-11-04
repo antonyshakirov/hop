@@ -1,5 +1,11 @@
 # Hop - version history
 
+## 2.4.3 - 2026-11-04
+
+- Torrents: skipped files and folders are no longer created during selective downloads.
+  Existing unselected files keep their contents and size, including shared pieces.
+- Hop updates the signed torrent engine before starting torrents.
+
 ## 2.4.2 - 2026-11-03
 
 - Time tracker: text fields request keyboard activation when editing begins.

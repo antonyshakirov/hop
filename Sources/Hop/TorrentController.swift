@@ -7,7 +7,7 @@ import OSLog
 
 @MainActor
 final class TorrentController: ObservableObject {
-    let installer = TorrentEngineInstaller()
+    let installer: ToolInstaller
     private let process = TorrentEngineProcess()
     private var client: TorrentEngineClient?
     private var pollTask: Task<Void, Never>?
@@ -55,10 +55,11 @@ final class TorrentController: ObservableObject {
     /// observing this controller react to the download/verify/installed states —
     /// otherwise "enable torrents" runs but the UI never updates.
     private var forwarders: [AnyCancellable] = []
-    init() {
+    init(installer: ToolInstaller? = nil) {
+        self.installer = installer ?? TorrentEngineInstaller()
         removals = (try? Data(contentsOf: removalsFile))
             .flatMap { try? JSONDecoder().decode(TorrentRemovals.self, from: $0) } ?? TorrentRemovals()
-        forwarders.append(installer.objectWillChange.sink { [weak self] in
+        forwarders.append(self.installer.objectWillChange.sink { [weak self] in
             self?.objectWillChange.send()
         })
     }
@@ -184,7 +185,7 @@ final class TorrentController: ObservableObject {
     /// is already in place; the in-module enable card stays as the fallback
     /// (and the retry path if this background fetch fails).
     func prefetchEngineIfNeeded() {
-        guard installer.installedBinaryURL() == nil else { return }
+        guard installer.installedBinaryURL() == nil || installer.needsUpdate else { return }
         switch installer.state {
         case .downloading, .verifying: return   // already on its way
         default: break
@@ -197,7 +198,7 @@ final class TorrentController: ObservableObject {
         if let binaryOverride { binary = binaryOverride }
         else {
             await installer.updateIfNeeded()
-            guard let installed = installer.installedBinaryURL() else { throw EngineUnavailable() }
+            guard let installed = installer.runnableBinaryURL() else { throw EngineUnavailable() }
             binary = installed
         }
         try FileManager.default.createDirectory(at: downloadFolder, withIntermediateDirectories: true)

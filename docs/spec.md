@@ -4361,11 +4361,17 @@ eight hours, and came back the moment it was removed and added again.
 - **Version floor.** `ToolInstaller` records the manifest version beside the
   binary (`<binary>.version`) on every install. A tool may name a
   `minimumVersion` (`HopCore.ToolVersion.isBelow`, numeric per component); the
-  engine's is 9.0.1, the 7-Zip helper and the remuxer name none and behave as
+  engine's is 9.0.1.1 for Hop's selective-storage build, the 7-Zip helper and the remuxer name none and behave as
   before. An install with no recorded version counts as older than any floor.
   `TorrentController.startEngine` calls `updateIfNeeded()` before launching, so
   the engine is replaced while it is not running. If the update cannot be
-  fetched or verified, the old binary stays and the engine starts with it. A
+  fetched or verified, the old binary stays on disk but cannot start. Hop checks
+  the installed version and pinned SHA256 again before creating output or
+  session directories. The selective-storage helper digest is embedded in Hop;
+  signed old bytes cannot pass with a newer unsigned manifest version. The
+  same digest is checked before any downloaded binary replaces the old one.
+  A missing or below-floor version keeps the existing install/retry action
+  visible above any saved torrents; prefetch also retries an outdated helper. A
   manifest still naming a version below the floor (a stale cache) is ignored
   when a binary is already installed, instead of reinstalling the same old one
   on every start. An update is attempted at most once an hour, so a network that
@@ -4500,8 +4506,10 @@ on a raised level, and the picker used to come up under it.
 ### Selective storage engine build
 
 The pinned source patch in `engine/rqbit` provides the selective-storage engine
-contract. It is prepared for separate engine distribution; the stock 9.0.1
-limitation above remains until that build is installed.
+contract. Hop 2.4.3 requires signed helper packaging version `9.0.1.1`;
+the fourth component identifies Hop's selective-storage revision. The upstream
+CLI still reports 9.0.1. The stock limitation above remains until the helper is
+updated. The universal distribution includes arm64 and x86_64 slices for macOS 14+.
 
 - Only selected payload files are created or resized. Shared-piece bytes for
   skipped files go into a lazy persistent journal outside the download tree.

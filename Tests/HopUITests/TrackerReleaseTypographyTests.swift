@@ -8,9 +8,9 @@ import XCTest
 final class TrackerReleaseTypographyTests: XCTestCase {
     func testPreparedNotesWrapWithoutHangingWordsInEveryLanguage() {
         for lang in AppLanguage.allCases {
-            let current = L10n.t(.docNews, lang).components(separatedBy: "2.4.1 – ")[0]
+            let current = L10n.t(.docNews, lang).components(separatedBy: "2.4.2 – ")[0]
             var short = L10n.shortWords(lang)
-            if lang == .en { short.formUnion(["the", "and", "of", "to", "in", "for", "into"]) }
+            if lang == .en { short.formUnion(["the", "and", "of", "to", "in", "for", "into", "or"]) }
             let font = lang.isRTL ? NSFont.systemFont(ofSize: 12, weight: .medium)
                 : NSFont.monospacedSystemFont(ofSize: 12, weight: .medium)
             for width in [280.0, 324.0, 432.0, 640.0] {
@@ -42,7 +42,7 @@ final class TrackerReleaseTypographyTests: XCTestCase {
             else { UserDefaults.standard.removeObject(forKey: Theme.themeKey) }
         }
         for lang in [AppLanguage.en, .ru, .de, .fr] {
-            let text = L10n.t(.docNews, lang).components(separatedBy: "2.4.1 – ")[0]
+            let text = L10n.t(.docNews, lang).components(separatedBy: "2.4.2 – ")[0]
             for dark in [false, true] {
                 UserDefaults.standard.set(dark ? "dark" : "light", forKey: Theme.themeKey)
                 let view = NSHostingView(rootView: DocView(text: text)
@@ -57,7 +57,7 @@ final class TrackerReleaseTypographyTests: XCTestCase {
                 XCTAssertEqual(view.bounds.width, 368)
                 XCTAssertGreaterThan(view.bounds.height, 60)
                 let png = try XCTUnwrap(bitmap.representation(using: .png, properties: [:]))
-                let name = "2.4.2-\(lang.rawValue)-\(dark ? "dark" : "light").png"
+                let name = "2.4.3-\(lang.rawValue)-\(dark ? "dark" : "light").png"
                 if let directory {
                     try png.write(to: URL(fileURLWithPath: directory).appendingPathComponent(name))
                 }

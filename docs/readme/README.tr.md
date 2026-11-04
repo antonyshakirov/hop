@@ -51,6 +51,10 @@ noterlenmiştir, bu yüzden macOS onu diğer uygulamalar gibi açar. Kaynak kodu
 herkese açıktır ve yerleşik güncellemeler Ed25519 ile doğrulanır. macOS 14
 veya üzeri gerekir.
 
+### 2.4.3
+
+- Torrent: seçilmeyen dosyalar artık oluşturulmuyor veya değiştirilmiyor.
+
 ### 2.4.1
 
 - Menü çubuğu simgesine tekrar tıklamak paneli gizler.

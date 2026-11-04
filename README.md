@@ -51,6 +51,10 @@ Hop is signed with an Apple Developer ID and notarized by Apple, so macOS
 opens it like any other app. The source is public, and built-in updates are
 verified with Ed25519. Requires macOS 14 or newer.
 
+### 2.4.3
+
+- Torrents: skipped files are no longer created or changed.
+
 ### 2.4.1
 
 - Clicking the menu-bar icon again hides the panel.

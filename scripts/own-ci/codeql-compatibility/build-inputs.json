@@ -33,7 +33,8 @@
   "hostCompiler": {
     "version": "Apple clang 21.0.0 (clang-2100.3.34.2)",
     "sha256": "1590ac950a3d627817d09ade5cb60b2115f17a72182a3141e010b4bcc482a0c9",
-    "sdkSettingsSha256": "7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb"
+    "sdkSettingsSha256": "7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb",
+    "sdkPath": "/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk"
   },
   "extractor": {
     "size": 173167376,
