@@ -56,6 +56,7 @@ posterior.
 ### 2.4.3
 
 - Torrents: los archivos no seleccionados ya no se crean ni se modifican.
+- Registro de tiempo: cambiar la duración conserva la hora exacta de inicio.
 
 ### 2.4.1
 

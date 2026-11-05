@@ -1839,6 +1839,13 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     day it belongs to. Moving a line keeps its length; editing the length keeps
     its start. An adjustment moves to that day's midnight, the only precision a
     correction has.
+  - Tapping either the date or duration opens the closed history entry.
+    Opening the editor,
+    saving with Return or the checkmark, cancelling, and reloading the stored
+    session are covered by `TrackerHistoryInteractionTests`.
+  - Editing only the duration preserves the original start, including seconds
+    and subsecond precision. The date menus change it only when the selected
+    year, month, day, hour or minute differs from the original.
   - **A session keeps its START and moves its end** when edited. The moment work
     began is a fact; its length is what gets misremembered.
   - **The RUNNING session refuses to be edited** — its end is the clock's to

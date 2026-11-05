@@ -55,6 +55,7 @@ neuer.
 ### 2.4.3
 
 - Torrents: nicht ausgewählte Dateien werden nicht mehr erstellt oder verändert.
+- Zeiterfassung: beim Ändern der Dauer bleibt der genaue Sitzungsbeginn erhalten.
 
 ### 2.4.1
 

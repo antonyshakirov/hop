@@ -55,6 +55,7 @@ lebih baru.
 ### 2.4.3
 
 - Torrent: file yang tidak dipilih tidak lagi dibuat atau diubah.
+- Pelacak waktu: mengubah durasi sesi mempertahankan waktu mulai yang tepat.
 
 ### 2.4.1
 

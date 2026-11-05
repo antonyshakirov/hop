@@ -54,6 +54,7 @@ verified with Ed25519. Requires macOS 14 or newer.
 ### 2.4.3
 
 - Torrents: skipped files are no longer created or changed.
+- Time tracker: changing a session's duration keeps its exact start time.
 
 ### 2.4.1
 

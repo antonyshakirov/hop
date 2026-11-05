@@ -57,6 +57,7 @@ recente.
 ### 2.4.3
 
 - Torrents: arquivos não selecionados não são mais criados ou alterados.
+- Controle de tempo: alterar a duração preserva o horário exato de início.
 
 ### 2.4.1
 

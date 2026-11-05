@@ -54,6 +54,7 @@ veya üzeri gerekir.
 ### 2.4.3
 
 - Torrent: seçilmeyen dosyalar artık oluşturulmuyor veya değiştirilmiyor.
+- Zaman takibi: oturum süresi değiştiğinde kesin başlangıç zamanı korunur.
 
 ### 2.4.1
 

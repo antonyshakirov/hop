@@ -617,7 +617,9 @@ struct TrackerView: View {
             // its editor offers the length alone — and refuses it in the engine.
             entryEditor(allowsMoment: !entry.isRunning) { seconds, moment in
                 engine.setEntryDuration(entry.id, to: seconds)
-                engine.setEntryStart(entry.id, to: moment)
+                if TrackerMoment.parts(of: moment) != TrackerMoment.parts(of: entry.moment) {
+                    engine.setEntryStart(entry.id, to: moment)
+                }
             }
         } else {
             let confirming = confirmingDeleteEntry == entry.id

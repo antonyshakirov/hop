@@ -53,6 +53,7 @@ tích hợp được xác minh bằng Ed25519. Yêu cầu macOS 14 trở lên.
 ### 2.4.3
 
 - Torrent: các tệp không được chọn không còn bị tạo hoặc thay đổi.
+- Theo dõi thời gian: đổi thời lượng phiên vẫn giữ nguyên thời điểm bắt đầu chính xác.
 
 ### 2.4.1
 

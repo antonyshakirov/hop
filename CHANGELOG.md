@@ -5,6 +5,7 @@
 - Torrents: skipped files and folders are no longer created during selective downloads.
   Existing unselected files keep their contents and size, including shared pieces.
 - Hop updates the signed torrent engine before starting torrents.
+- Time tracker: changing a recorded session's duration preserves its exact start time.
 
 ## 2.4.2 - 2026-11-03
 

@@ -36,15 +36,15 @@ final class TrackerController: ObservableObject {
 
     private let demo: Bool
 
-    init(demo: Bool = false) {
+    init(demo: Bool = false, storeDir: URL? = nil) {
         self.demo = demo
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let id = Bundle.storageIdentifier
-        storeDir = base.appendingPathComponent(id, isDirectory: true)
+        self.storeDir = storeDir ?? base.appendingPathComponent(id, isDirectory: true)
 
         // A snapshot/demo render must never load real user data — start from
         // empty and let the --tasks seed stage its own deterministic content.
-        let data = (Snapshot.active || demo) ? .empty : TrackerStore.load(from: storeDir)
+        let data = (Snapshot.active || demo) ? .empty : TrackerStore.load(from: self.storeDir)
         engine = TrackerEngine(data: data, calendar: Self.weekCalendar())
         heartbeat = Date()
 

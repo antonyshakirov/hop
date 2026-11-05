@@ -55,6 +55,7 @@ successivo.
 ### 2.4.3
 
 - Torrent: i file non selezionati non vengono più creati o modificati.
+- Tracciamento del tempo: cambiare la durata conserva l’ora esatta di inizio.
 
 ### 2.4.1
 

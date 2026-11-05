@@ -54,6 +54,7 @@ nieuwer.
 ### 2.4.3
 
 - Torrents: niet-geselecteerde bestanden worden niet meer aangemaakt of gewijzigd.
+- Tijdregistratie: een gewijzigde sessieduur behoudt de exacte starttijd.
 
 ### 2.4.1
 

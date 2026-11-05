@@ -54,6 +54,7 @@ nowszego.
 ### 2.4.3
 
 - Torrenty: niewybrane pliki nie są już tworzone ani zmieniane.
+- Śledzenie czasu: zmiana długości sesji zachowuje dokładny czas rozpoczęcia.
 
 ### 2.4.1
 
