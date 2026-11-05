@@ -18,6 +18,7 @@ final class TrackerHistoryInteractionTests: XCTestCase {
             XCTAssertNotNil(field.currentEditor(), "Opening history must request keyboard focus")
             try f.type("0:15:00", into: field)
             try f.key("\r", code: 36)
+            XCTAssertFalse(f.editing.value)
             XCTAssertEqual(f.tracker.engine.total(taskID: f.task), 900)
             XCTAssertEqual(f.tracker.engine.history(taskID: f.task).first?.moment, f.start)
             let restored = TrackerController(storeDir: f.directory)
@@ -34,6 +35,71 @@ final class TrackerHistoryInteractionTests: XCTestCase {
         defer { f.close() }
         try f.openHistory(x: 340)
         XCTAssertEqual(try f.durationField().stringValue, "0:10:00")
+    }
+
+    func testCheckmarkSavesTypedDurationWithoutChangingAnotherSession() throws {
+        let f = try show()
+        defer { f.close() }
+        let otherStart = f.start.addingTimeInterval(3600)
+        f.tracker.engine.addSession(taskID: f.task, seconds: 1200, startingAt: otherStart)
+        let ids = f.tracker.engine.data.intervals.map(\.id)
+        try f.openHistory()
+        XCTAssertEqual(try f.durationField().stringValue, "0:10:00")
+        try f.type("0:15:00", into: f.durationField())
+        try f.commit()
+        XCTAssertFalse(f.editing.value)
+        let history = f.tracker.engine.history(taskID: f.task)
+        XCTAssertEqual(history.first { $0.moment == f.start }?.seconds, 900)
+        XCTAssertEqual(history.first { $0.moment == otherStart }?.seconds, 1200)
+        XCTAssertEqual(f.tracker.engine.total(taskID: f.task), 2100)
+        XCTAssertEqual(f.tracker.engine.data.intervals.map(\.id), ids)
+        XCTAssertEqual(TrackerController(storeDir: f.directory).engine.data.intervals,
+                       f.tracker.engine.data.intervals)
+    }
+
+    func testCancelButtonDiscardsDurationAndStartDrafts() throws {
+        let f = try show()
+        defer { f.close() }
+        let original = f.tracker.engine.data.intervals
+        try f.openHistory()
+        try f.type("0:45:00", into: f.durationField())
+        let field = try f.durationField()
+        let center = field.convert(NSPoint(x: field.bounds.midX, y: field.bounds.midY), to: f.host)
+        try f.click(NSPoint(x: 110, y: center.y))
+        f.fit()
+        try f.click(NSPoint(x: 45, y: center.y + 100))
+        f.fit()
+        let cancelField = try f.durationField()
+        let cancelCenter = cancelField.convert(NSPoint(x: cancelField.bounds.midX, y: cancelField.bounds.midY), to: f.host)
+        try f.click(NSPoint(x: f.host.bounds.maxX - 44, y: cancelCenter.y))
+        XCTAssertFalse(f.editing.value)
+        XCTAssertEqual(f.tracker.engine.data.intervals, original)
+        XCTAssertEqual(TrackerController(storeDir: f.directory).engine.data.intervals, original)
+    }
+
+    func testZeroDurationIsSavedWithoutRemovingTheSession() throws {
+        let f = try show()
+        defer { f.close() }
+        let ids = f.tracker.engine.data.intervals.map(\.id)
+        try f.openHistory()
+        try f.type("0:00:00", into: f.durationField())
+        try f.key("\r", code: 36)
+        XCTAssertEqual(f.tracker.engine.total(taskID: f.task), 0)
+        XCTAssertEqual(f.tracker.engine.history(taskID: f.task).first?.moment, f.start)
+        XCTAssertEqual(f.tracker.engine.data.intervals.map(\.id), ids)
+        XCTAssertEqual(TrackerController(storeDir: f.directory).engine.data.intervals,
+                       f.tracker.engine.data.intervals)
+    }
+
+    func testInvalidDurationDoesNotChangeTheStoredSession() throws {
+        let f = try show()
+        defer { f.close() }
+        let original = f.tracker.engine.data.intervals
+        try f.openHistory()
+        try f.type("invalid", into: f.durationField())
+        try f.commit()
+        XCTAssertEqual(f.tracker.engine.data.intervals, original)
+        XCTAssertEqual(TrackerController(storeDir: f.directory).engine.data.intervals, original)
     }
 
     func testChangingStartKeepsDurationAndSurvivesReload() throws {
@@ -67,6 +133,7 @@ final class TrackerHistoryInteractionTests: XCTestCase {
         try f.openHistory()
         try f.type("0:45:00", into: f.durationField())
         try f.key("\u{1b}", code: 53)
+        XCTAssertFalse(f.editing.value)
         XCTAssertEqual(f.tracker.engine.data.intervals, original)
         XCTAssertEqual(TrackerController(storeDir: f.directory).engine.data.intervals, original)
     }
@@ -90,17 +157,28 @@ final class TrackerHistoryInteractionTests: XCTestCase {
     }
 
     @MainActor
+    private final class EditingState {
+        var value = false
+    }
+
+    @MainActor
     private final class Fixture {
         let savedTheme: Any?
+        let savedActivationPolicy: NSApplication.ActivationPolicy
         let directory: URL
         let tracker: TrackerController
         let task: UUID
         let start: Date
-        let host: FirstMouseHostingView<AnyView>
+        let host: NSHostingView<AnyView>
         let window: NSWindow
+        let anchorWindow: NSWindow
+        let popover: NSPopover
+        let editing: EditingState
 
         init(dark: Bool, running: Bool) throws {
             savedTheme = UserDefaults.standard.object(forKey: Theme.themeKey)
+            savedActivationPolicy = NSApp.activationPolicy()
+            XCTAssertTrue(NSApp.setActivationPolicy(.accessory))
             directory = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
             tracker = TrackerController(storeDir: directory)
             task = tracker.engine.addTask(name: "Recorded session")
@@ -108,15 +186,34 @@ final class TrackerHistoryInteractionTests: XCTestCase {
             if running { tracker.engine.start(taskID: task) }
             else { tracker.engine.addSession(taskID: task, seconds: 600, startingAt: start) }
             UserDefaults.standard.set(dark ? "dark" : "light", forKey: Theme.themeKey)
-            host = FirstMouseHostingView(rootView: AnyView(TrackerView(tracker: tracker, lang: .en)
+            let capture = EditingState()
+            editing = capture
+            let controller = IntegralSizeHostingController(rootView: AnyView(TrackerView(tracker: tracker, lang: .en,
+                onEditingChanged: { capture.value = $0 })
                 .frame(width: 368).background(Theme.background)
                 .environment(\.colorScheme, dark ? .dark : .light)))
-            window = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 368, height: 300),
-                              styleMask: [.titled], backing: .buffered, defer: false)
-            window.isReleasedWhenClosed = false
+            controller.enableExplicitPopoverSizing()
+            controller.enableFirstMouse()
+            host = try XCTUnwrap(controller.view as? NSHostingView<AnyView>)
+            let screen = try XCTUnwrap(NSScreen.main).visibleFrame
+            anchorWindow = NSWindow(contentRect: NSRect(x: screen.midX - 184, y: screen.maxY - 80, width: 368, height: 40),
+                                    styleMask: [.titled], backing: .buffered, defer: false)
+            anchorWindow.isReleasedWhenClosed = false
+            let anchor = NSView(frame: NSRect(x: 0, y: 0, width: 368, height: 40))
+            anchorWindow.contentView = anchor
+            anchorWindow.orderFront(nil)
             host.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
-            window.contentView = host
-            window.makeKeyAndOrderFront(nil)
+            popover = NSPopover()
+            popover.animates = false
+            popover.behavior = .transient
+            popover.contentViewController = controller
+            popover.contentSize = host.fittingSize
+            popover.show(relativeTo: anchor.bounds, of: anchor, preferredEdge: .minY)
+            RunLoop.main.run(until: Date().addingTimeInterval(0.08))
+            window = try XCTUnwrap(host.window)
+            window.isReleasedWhenClosed = false
+            _ = StatusItemController.preventActivation(of: window)
+            NSApp.deactivate()
             pump()
             let pointer = try XCTUnwrap(descendants(host).compactMap { $0 as? TrackerNamePointer.Surface }.first {
                 $0.identifier?.rawValue == "tracker-name-" + task.uuidString
@@ -152,14 +249,25 @@ final class TrackerHistoryInteractionTests: XCTestCase {
         }
 
         func type(_ text: String, into field: NSTextField) throws {
-            XCTAssertTrue(window.makeFirstResponder(field))
-            field.selectText(nil)
+            XCTAssertNotNil(field.currentEditor())
+            XCTAssertTrue(editing.value, "The panel must reserve keyboard input while editing history")
+            try XCTUnwrap(field.currentEditor()).selectAll(nil)
+            var typed = ""
             for character in text {
-                try XCTUnwrap(field.currentEditor()).insertText(String(character))
+                try key(String(character), code: 0)
+                typed.append(character)
                 tracker.objectWillChange.send()
                 pump()
                 XCTAssertNotNil(field.currentEditor())
+                XCTAssertEqual(field.stringValue, typed)
             }
+        }
+
+        func commit() throws {
+            let field = try durationField()
+            let center = field.convert(NSPoint(x: field.bounds.midX, y: field.bounds.midY), to: host)
+            try click(NSPoint(x: host.bounds.maxX - 24, y: center.y))
+            fit()
         }
 
         func key(_ text: String, code: UInt16) throws {
@@ -173,13 +281,16 @@ final class TrackerHistoryInteractionTests: XCTestCase {
 
         func fit() {
             host.frame.size = host.fittingSize
-            window.setContentSize(host.frame.size)
+            popover.contentSize = host.frame.size
             host.layoutSubtreeIfNeeded()
             pump()
+            XCTAssertTrue(popover.isShown)
         }
 
         func close() {
-            window.orderOut(nil)
+            popover.close()
+            anchorWindow.close()
+            _ = NSApp.setActivationPolicy(savedActivationPolicy)
             if let savedTheme { UserDefaults.standard.set(savedTheme, forKey: Theme.themeKey) }
             else { UserDefaults.standard.removeObject(forKey: Theme.themeKey) }
             if tracker.isTracking { tracker.engine.stop(taskID: task) }
