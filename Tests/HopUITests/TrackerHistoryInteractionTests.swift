@@ -142,10 +142,13 @@ final class TrackerHistoryInteractionTests: XCTestCase {
 
         func click(_ local: NSPoint) throws {
             let point = host.convert(local, to: nil)
-            for type in [NSEvent.EventType.leftMouseDown, .leftMouseUp] {
-                NSApp.sendEvent(try event(type, point))
-                pump()
+            let down = try event(.leftMouseDown, point)
+            NSApp.postEvent(try event(.leftMouseUp, point), atStart: false)
+            NSApp.sendEvent(down)
+            if let up = window.nextEvent(matching: .leftMouseUp, until: .distantPast, inMode: .eventTracking, dequeue: true) {
+                NSApp.sendEvent(up)
             }
+            pump()
         }
 
         func type(_ text: String, into field: NSTextField) throws {
