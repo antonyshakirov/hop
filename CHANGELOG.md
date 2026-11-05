@@ -1,6 +1,6 @@
 # Hop - version history
 
-## 2.4.3 - 2026-11-04
+## 2.4.3 - 2026-11-05
 
 - Torrents: skipped files and folders are no longer created during selective downloads.
   Existing unselected files keep their contents and size, including shared pieces.

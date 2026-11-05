@@ -26,12 +26,22 @@ final class HotfixReleaseTests: XCTestCase {
         }
     }
 
-    func testEveryLanguageOpensWithTheTrackerHotfixWithoutANewCard() {
+    func testEveryLanguageKeepsTheTrackerHotfixWithoutANewCard() {
         XCTAssertFalse(PanelView.releaseCardIDs.contains("2.4.2"))
         for lang in AppLanguage.allCases {
             let notes = L10n.t(.docNews, lang)
-            XCTAssertTrue(notes.hasPrefix("2.4.2 – "), lang.rawValue)
-            let current = notes.components(separatedBy: "2.4.1 – ")[0]
+            XCTAssertTrue(notes.contains("2.4.2 – "), lang.rawValue)
+            let current = notes.components(separatedBy: "2.4.2 – ")[1].components(separatedBy: "2.4.1 – ")[0]
+            XCTAssertEqual(current.components(separatedBy: "• ").count - 1, 1, lang.rawValue)
+        }
+    }
+
+    func testEveryLanguageOpensWithTheTorrentHotfixWithoutANewCard() {
+        XCTAssertFalse(PanelView.releaseCardIDs.contains("2.4.3"))
+        for lang in AppLanguage.allCases {
+            let notes = L10n.t(.docNews, lang)
+            XCTAssertTrue(notes.hasPrefix("2.4.3 – "), lang.rawValue)
+            let current = notes.components(separatedBy: "2.4.2 – ")[0]
             XCTAssertEqual(current.components(separatedBy: "• ").count - 1, 1, lang.rawValue)
         }
     }
@@ -39,7 +49,7 @@ final class HotfixReleaseTests: XCTestCase {
     func testTheMinorReleaseHasItsCard() {
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.4.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.4"))
-        XCTAssertEqual(ReleaseNews.preparing(notes: L10n.t(.docNews, .en), cards: PanelView.releaseCardIDs), "2.4.2")
+        XCTAssertEqual(ReleaseNews.preparing(notes: L10n.t(.docNews, .en), cards: PanelView.releaseCardIDs), "2.4.3")
         XCTAssertTrue(L10n.t(.docNews, .en).contains("2.3.0 – "))
         XCTAssertTrue(PanelView.releaseCardIDs.contains("2.3"))
     }
