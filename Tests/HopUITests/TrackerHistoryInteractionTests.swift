@@ -96,7 +96,7 @@ final class TrackerHistoryInteractionTests: XCTestCase {
         defer { f.close() }
         let original = f.tracker.engine.data.intervals
         try f.openHistory()
-        try f.type("invalid", into: f.durationField())
+        try f.type("invalid", into: f.durationField(), expected: "")
         try f.commit()
         XCTAssertEqual(f.tracker.engine.data.intervals, original)
         XCTAssertEqual(TrackerController(storeDir: f.directory).engine.data.intervals, original)
@@ -136,6 +136,75 @@ final class TrackerHistoryInteractionTests: XCTestCase {
         XCTAssertFalse(f.editing.value)
         XCTAssertEqual(f.tracker.engine.data.intervals, original)
         XCTAssertEqual(TrackerController(storeDir: f.directory).engine.data.intervals, original)
+    }
+
+    func testClickingDurationAllowsCaretMovementAndBackspace() throws {
+        let f = try show()
+        defer { f.close() }
+        try f.openHistory()
+        let field = try f.durationField()
+        let center = field.convert(NSPoint(x: field.bounds.midX, y: field.bounds.midY), to: f.host)
+        try f.click(center)
+        XCTAssertNotNil(field.currentEditor(), "A click inside the duration must retain the caret")
+        try f.key("\u{f703}", code: 124, modifiers: .command)
+        try f.key("\u{7f}", code: 51)
+        try f.key("5", code: 23)
+        XCTAssertEqual(field.stringValue, "0:10:05")
+        try f.commit()
+        XCTAssertEqual(f.tracker.engine.total(taskID: f.task), 605)
+        XCTAssertEqual(TrackerController(storeDir: f.directory).engine.total(taskID: f.task), 605)
+    }
+
+    func testClickingAnOpenDurationReclaimsTheKeyboard() throws {
+        guard #available(macOS 27.0, *) else { return }
+        let f = try show()
+        defer { f.close() }
+        try f.openHistory()
+        let field = try f.durationField()
+        XCTAssertNotNil(field.currentEditor())
+        XCTAssertTrue(StatusItemController.preventActivation(of: f.window))
+        NSApp.deactivate()
+        let center = field.convert(NSPoint(x: field.bounds.midX, y: field.bounds.midY), to: f.host)
+        try f.click(center)
+        let getter = Selector(("_preventsActivation"))
+        typealias Getter = @convention(c) (AnyObject, Selector) -> Bool
+        XCTAssertFalse(unsafeBitCast(f.window.method(for: getter), to: Getter.self)(f.window, getter),
+                       "Clicking an existing editor must reclaim keyboard activation")
+        try f.type("0:15:00", into: field)
+        try f.commit()
+        XCTAssertEqual(TrackerController(storeDir: f.directory).engine.total(taskID: f.task), 900)
+    }
+
+    func testDurationRejectsNonTimeCharactersWhileTyping() throws {
+        let f = try show()
+        defer { f.close() }
+        try f.openHistory()
+        let field = try f.durationField()
+        try f.type("a1b:02?:03!", into: field, expected: "1:02:03")
+        try f.commit()
+        XCTAssertEqual(f.tracker.engine.total(taskID: f.task), 3723)
+        XCTAssertEqual(TrackerController(storeDir: f.directory).engine.total(taskID: f.task), 3723)
+    }
+
+    func testDurationFiltersInsertedTextAndKeepsTheCaret() throws {
+        let f = try show()
+        defer { f.close() }
+        try f.openHistory()
+        let field = try f.durationField()
+        let editor = try XCTUnwrap(field.currentEditor() as? NSTextView)
+        editor.selectAll(nil)
+        editor.insertText("x１١1:02:0y😀", replacementRange: editor.selectedRange())
+        f.fit()
+        XCTAssertEqual(field.stringValue, "1:02:0")
+        try f.key("3", code: 20)
+        XCTAssertEqual(field.stringValue, "1:02:03")
+        try f.key("\u{f702}", code: 123, modifiers: .command)
+        try f.key("\u{f703}", code: 124)
+        try f.key("x", code: 7)
+        try f.key("2", code: 19)
+        XCTAssertEqual(field.stringValue, "12:02:03", "Rejected input must not move the caret")
+        try f.key("\r", code: 36)
+        XCTAssertEqual(TrackerController(storeDir: f.directory).engine.total(taskID: f.task), 43323)
     }
 
     func testRunningSessionRemainsReadOnly() throws {
@@ -248,7 +317,7 @@ final class TrackerHistoryInteractionTests: XCTestCase {
             pump()
         }
 
-        func type(_ text: String, into field: NSTextField) throws {
+        func type(_ text: String, into field: NSTextField, expected: String? = nil) throws {
             XCTAssertNotNil(field.currentEditor())
             XCTAssertTrue(editing.value, "The panel must reserve keyboard input while editing history")
             try XCTUnwrap(field.currentEditor()).selectAll(nil)
@@ -259,8 +328,9 @@ final class TrackerHistoryInteractionTests: XCTestCase {
                 tracker.objectWillChange.send()
                 pump()
                 XCTAssertNotNil(field.currentEditor())
-                XCTAssertEqual(field.stringValue, typed)
+                if expected == nil { XCTAssertEqual(field.stringValue, typed) }
             }
+            XCTAssertEqual(field.stringValue, expected ?? text)
         }
 
         func commit() throws {
@@ -270,9 +340,9 @@ final class TrackerHistoryInteractionTests: XCTestCase {
             fit()
         }
 
-        func key(_ text: String, code: UInt16) throws {
+        func key(_ text: String, code: UInt16, modifiers: NSEvent.ModifierFlags = []) throws {
             NSApp.sendEvent(try XCTUnwrap(NSEvent.keyEvent(with: .keyDown, location: .zero,
-                modifierFlags: [], timestamp: ProcessInfo.processInfo.systemUptime,
+                modifierFlags: modifiers, timestamp: ProcessInfo.processInfo.systemUptime,
                 windowNumber: window.windowNumber, context: nil, characters: text,
                 charactersIgnoringModifiers: text, isARepeat: false, keyCode: code)))
             pump()

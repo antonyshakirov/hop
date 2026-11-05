@@ -748,6 +748,7 @@ struct TrackerView: View {
                 SteadyField(text: $totalDraft, placeholder: Self.durationPlaceholder,
                             size: 10, alignment: .right,
                             focus: caret(on: activeField),
+                            filter: DurationField.filterInput,
                             onSubmit: { commitEntry(commit) },
                             onCancel: { endEdit() })
                     .frame(width: 74, height: 16)
@@ -1080,6 +1081,7 @@ struct TrackerView: View {
             SteadyField(text: $totalDraft, placeholder: Self.durationPlaceholder,
                         alignment: .right,
                         focus: caret(on: .editTotal(task.id)),
+                        filter: DurationField.filterInput,
                         onSubmit: { commitTotal(task.id) },
                         onCancel: { endEdit() })
                 .frame(width: 74, height: 18)

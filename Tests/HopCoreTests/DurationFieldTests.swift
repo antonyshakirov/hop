@@ -4,6 +4,13 @@ import XCTest
 final class DurationFieldTests: XCTestCase {
     // MARK: - What the field shows
 
+    func testDraftKeepsOnlyDigitsAndColons() {
+        XCTAssertEqual(DurationField.filterInput(" １١1h:02m:03s😀\n"), "1:02:03")
+        XCTAssertEqual(DurationField.filterInput("1234:59:59"), "1234:59:59")
+        XCTAssertEqual(DurationField.filterInput("invalid"), "")
+        XCTAssertEqual(DurationField.filterInput(""), "")
+    }
+
     func testItAlwaysSpellsOutAllThreeParts() {
         XCTAssertEqual(DurationField.text(for: 0), "0:00:00")
         XCTAssertEqual(DurationField.text(for: 45 * 60), "0:45:00")

@@ -8,6 +8,11 @@ import Foundation
 /// hours:minutes:seconds now, and reads them back the same way, from the right:
 /// the last number is seconds, whatever else is there.
 public enum DurationField {
+    /// Keeps ASCII digits and colons while editing a duration.
+    public static func filterInput(_ raw: String) -> String {
+        raw.filter { $0 == ":" || $0.asciiValue.map { (48...57).contains($0) } == true }
+    }
+
     /// The full form, always three parts. Hours are not padded and are not
     /// capped — a task can hold hundreds of them.
     public static func text(for seconds: TimeInterval) -> String {

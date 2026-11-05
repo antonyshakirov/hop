@@ -1809,7 +1809,12 @@ modules sits exactly in the middle: top inset = bottom inset = 16pt.
     LONG it ran, in a field showing `0:00:00` as its placeholder rather than
     sitting empty. **A duration is always written and read in full**
     (`DurationField`, tested): `h:mm:ss`, hours uncapped — "11:00" for eleven
-    hours flat read as eleven MINUTES just as easily (Anton, 2026-08-28). Parts
+    hours flat read as eleven MINUTES just as easily (Anton, 2026-08-28).
+    Typing and paste accept only ASCII digits and `:`; letters, spaces,
+    signs and other punctuation are removed before reaching the draft. Partial
+    input remains editable with the caret, selection and Backspace. Clicking an
+    already open duration field reacquires keyboard activation even if the panel
+    has handed it back to another application. Parts
     are counted from the right, so a lone number is seconds, and over-large
     parts simply add up (90:00 is an hour and a half) rather than being
     refused. Both halves are filled in before it opens: from the line for

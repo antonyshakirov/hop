@@ -117,7 +117,19 @@ struct SteadyField: NSViewRepresentable {
             if let filter = owner.filter {
                 let kept = filter(typed)
                 if kept != typed {
+                    let editor = field.currentEditor() as? NSTextView
+                    let selection = editor?.selectedRange()
+                    let raw = typed as NSString
+                    var restoredSelection: NSRange?
+                    if let selection, selection.location != NSNotFound {
+                        let start = min(selection.location, raw.length)
+                        let end = start + min(selection.length, raw.length - start)
+                        let before = min(filter(raw.substring(to: start)).utf16.count, kept.utf16.count)
+                        let after = min(filter(raw.substring(to: end)).utf16.count, kept.utf16.count)
+                        restoredSelection = NSRange(location: before, length: max(0, after - before))
+                    }
                     field.stringValue = kept
+                    if let restoredSelection { editor?.setSelectedRange(restoredSelection) }
                     typed = kept
                 }
             }
@@ -157,17 +169,41 @@ struct SteadyField: NSViewRepresentable {
 class SteadyTextField: NSTextField {
     var onFocus: (() -> Void)?
 
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    private var typingClickMonitor: Any?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if let typingClickMonitor { NSEvent.removeMonitor(typingClickMonitor) }
+        typingClickMonitor = nil
+        guard window != nil else { return }
+        typingClickMonitor = NSEvent.addLocalMonitorForEvents(matching: .leftMouseDown) { [weak self] event in
+            guard let self, event.window === self.window, !self.isHiddenOrHasHiddenAncestor,
+                  self.visibleRect.contains(self.convert(event.locationInWindow, from: nil)) else { return event }
+            self.activateForTyping()
+            return event
+        }
+    }
+
+    deinit {
+        if let typingClickMonitor { NSEvent.removeMonitor(typingClickMonitor) }
+    }
+
     override func becomeFirstResponder() -> Bool {
         let accepted = super.becomeFirstResponder()
         if accepted {
             onFocus?()
-            if let window, window.isVisible {
-                _ = StatusItemController.preventActivation(of: window, prevented: false)
-                NSApp.activate()
-                window.makeKey()
-            }
+            activateForTyping()
         }
         return accepted
+    }
+
+    private func activateForTyping() {
+        guard let window, window.isVisible else { return }
+        _ = StatusItemController.preventActivation(of: window, prevented: false)
+        NSApp.activate()
+        window.makeKey()
     }
 }
 
